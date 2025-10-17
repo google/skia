@@ -64,7 +64,7 @@ public:
         // See comment on ZValue for rationale.
         skif::LayerSpace<skif::Vector> z2d = mapping.paramToLayer(
                 skif::ParameterSpace<skif::Vector>({ZValue(z), ZValue(z)}));
-        return LayerSpace<ZValue>(SkScalarAve(z2d.x(), z2d.y()));
+        return LayerSpace<ZValue>(sk_float_midpoint(z2d.x(), z2d.y()));
     }
 
 private:

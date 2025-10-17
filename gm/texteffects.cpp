@@ -20,6 +20,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
@@ -221,7 +222,7 @@ static void draw_blob_adorned(SkCanvas* canvas, sk_sp<SkTextBlob> blob) {
     count = trim_with_halo(intervals.get(), count, SkScalarHalf(yminmax[1] - yminmax[0]) * 1.5f);
     SkASSERT(count >= 2);
 
-    const SkScalar y = SkScalarAve(yminmax[0], yminmax[1]);
+    const SkScalar y = sk_float_midpoint(yminmax[0], yminmax[1]);
     SkScalar end = 900;
     SkPathBuilder builder;
     builder.moveTo({0, y});

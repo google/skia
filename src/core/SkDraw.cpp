@@ -816,7 +816,7 @@ bool DrawTreatAAStrokeAsHairline(SkScalar strokeWidth, const SkMatrix& matrix, S
     SkScalar len1 = fast_len(dst[1]);
     if (len0 <= SK_Scalar1 && len1 <= SK_Scalar1) {
         if (coverage) {
-            *coverage = SkScalarAve(len0, len1);
+            *coverage = sk_float_midpoint(len0, len1);
         }
         return true;
     }

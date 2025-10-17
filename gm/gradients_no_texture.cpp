@@ -19,6 +19,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/private/base/SkFloatingPoint.h"
 
 #include <string.h>
 
@@ -47,22 +48,22 @@ static sk_sp<SkShader> MakeLinear(const SkPoint pts[2], const GradData& data, Sk
 
 static sk_sp<SkShader> MakeRadial(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
     SkPoint center;
-    center.set(SkScalarAve(pts[0].fX, pts[1].fX),
-               SkScalarAve(pts[0].fY, pts[1].fY));
+    center.set(sk_float_midpoint(pts[0].fX, pts[1].fX),
+               sk_float_midpoint(pts[0].fY, pts[1].fY));
     return SkGradientShader::MakeRadial(center, center.fX, data.fColors, data.fPos, data.fCount, tm);
 }
 
 static sk_sp<SkShader> MakeSweep(const SkPoint pts[2], const GradData& data, SkTileMode) {
     SkPoint center;
-    center.set(SkScalarAve(pts[0].fX, pts[1].fX),
-               SkScalarAve(pts[0].fY, pts[1].fY));
+    center.set(sk_float_midpoint(pts[0].fX, pts[1].fX),
+               sk_float_midpoint(pts[0].fY, pts[1].fY));
     return SkGradientShader::MakeSweep(center.fX, center.fY, data.fColors, data.fPos, data.fCount);
 }
 
 static sk_sp<SkShader> Make2Radial(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
     SkPoint center0, center1;
-    center0.set(SkScalarAve(pts[0].fX, pts[1].fX),
-                SkScalarAve(pts[0].fY, pts[1].fY));
+    center0.set(sk_float_midpoint(pts[0].fX, pts[1].fX),
+                sk_float_midpoint(pts[0].fY, pts[1].fY));
     center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3)/5),
                 SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
     return SkGradientShader::MakeTwoPointConical(

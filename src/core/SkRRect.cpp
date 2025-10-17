@@ -634,11 +634,11 @@ void SkRRect::inset(SkScalar dx, SkScalar dy, SkRRect* dst) const {
     bool degenerate = false;
     if (r.fRight <= r.fLeft) {
         degenerate = true;
-        r.fLeft = r.fRight = SkScalarAve(r.fLeft, r.fRight);
+        r.fLeft = r.fRight = sk_float_midpoint(r.fLeft, r.fRight);
     }
     if (r.fBottom <= r.fTop) {
         degenerate = true;
-        r.fTop = r.fBottom = SkScalarAve(r.fTop, r.fBottom);
+        r.fTop = r.fBottom = sk_float_midpoint(r.fTop, r.fBottom);
     }
     if (degenerate) {
         dst->fRect = r;

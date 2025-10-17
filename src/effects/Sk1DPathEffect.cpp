@@ -197,8 +197,8 @@ static void morphpath(SkPathBuilder* dst, const SkPath& src, SkPathMeasure& meas
                 break;
             case SkPathVerb::kLine:
                 scratch[0] = srcP[0];
-                scratch[1].set(SkScalarAve(srcP[0].fX, srcP[1].fX),
-                               SkScalarAve(srcP[0].fY, srcP[1].fY));
+                scratch[1].set(sk_float_midpoint(srcP[0].fX, srcP[1].fX),
+                               sk_float_midpoint(srcP[0].fY, srcP[1].fY));
                 scratch[2] = srcP[1];
                 srcP = scratch; // now we look like a quad
                 [[fallthrough]];

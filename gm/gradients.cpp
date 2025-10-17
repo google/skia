@@ -26,6 +26,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
@@ -92,8 +93,8 @@ static sk_sp<SkShader> MakeLinear4f(const SkPoint pts[2], const GradData& data,
 static sk_sp<SkShader> MakeRadial(const SkPoint pts[2], const GradData& data,
                                   SkTileMode tm, const SkMatrix& localMatrix) {
     SkPoint center;
-    center.set(SkScalarAve(pts[0].fX, pts[1].fX),
-               SkScalarAve(pts[0].fY, pts[1].fY));
+    center.set(sk_float_midpoint(pts[0].fX, pts[1].fX),
+               sk_float_midpoint(pts[0].fY, pts[1].fY));
     return SkGradientShader::MakeRadial(center, center.fX, data.fColors, data.fPos, data.fCount,
                                         tm, 0, &localMatrix);
 }
@@ -101,8 +102,8 @@ static sk_sp<SkShader> MakeRadial(const SkPoint pts[2], const GradData& data,
 static sk_sp<SkShader> MakeRadial4f(const SkPoint pts[2], const GradData& data,
                                     SkTileMode tm, const SkMatrix& localMatrix) {
     SkPoint center;
-    center.set(SkScalarAve(pts[0].fX, pts[1].fX),
-               SkScalarAve(pts[0].fY, pts[1].fY));
+    center.set(sk_float_midpoint(pts[0].fX, pts[1].fX),
+               sk_float_midpoint(pts[0].fY, pts[1].fY));
     auto srgb = SkColorSpace::MakeSRGB();
     return SkGradientShader::MakeRadial(center, center.fX, data.fColors4f, srgb, data.fPos,
                                         data.fCount, tm, 0, &localMatrix);
@@ -111,8 +112,8 @@ static sk_sp<SkShader> MakeRadial4f(const SkPoint pts[2], const GradData& data,
 static sk_sp<SkShader> MakeSweep(const SkPoint pts[2], const GradData& data,
                                  SkTileMode, const SkMatrix& localMatrix) {
     SkPoint center;
-    center.set(SkScalarAve(pts[0].fX, pts[1].fX),
-               SkScalarAve(pts[0].fY, pts[1].fY));
+    center.set(sk_float_midpoint(pts[0].fX, pts[1].fX),
+               sk_float_midpoint(pts[0].fY, pts[1].fY));
     return SkGradientShader::MakeSweep(center.fX, center.fY, data.fColors, data.fPos, data.fCount,
                                        0, &localMatrix);
 }
@@ -120,8 +121,8 @@ static sk_sp<SkShader> MakeSweep(const SkPoint pts[2], const GradData& data,
 static sk_sp<SkShader> MakeSweep4f(const SkPoint pts[2], const GradData& data,
                                    SkTileMode, const SkMatrix& localMatrix) {
     SkPoint center;
-    center.set(SkScalarAve(pts[0].fX, pts[1].fX),
-               SkScalarAve(pts[0].fY, pts[1].fY));
+    center.set(sk_float_midpoint(pts[0].fX, pts[1].fX),
+               sk_float_midpoint(pts[0].fY, pts[1].fY));
     auto srgb = SkColorSpace::MakeSRGB();
     return SkGradientShader::MakeSweep(center.fX, center.fY, data.fColors4f, srgb, data.fPos,
                                        data.fCount, 0, &localMatrix);
@@ -130,8 +131,8 @@ static sk_sp<SkShader> MakeSweep4f(const SkPoint pts[2], const GradData& data,
 static sk_sp<SkShader> Make2Radial(const SkPoint pts[2], const GradData& data,
                                    SkTileMode tm, const SkMatrix& localMatrix) {
     SkPoint center0, center1;
-    center0.set(SkScalarAve(pts[0].fX, pts[1].fX),
-                SkScalarAve(pts[0].fY, pts[1].fY));
+    center0.set(sk_float_midpoint(pts[0].fX, pts[1].fX),
+                sk_float_midpoint(pts[0].fY, pts[1].fY));
     center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3)/5),
                 SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
     return SkGradientShader::MakeTwoPointConical(center1, (pts[1].fX - pts[0].fX) / 7,
@@ -143,8 +144,8 @@ static sk_sp<SkShader> Make2Radial(const SkPoint pts[2], const GradData& data,
 static sk_sp<SkShader> Make2Radial4f(const SkPoint pts[2], const GradData& data,
                                      SkTileMode tm, const SkMatrix& localMatrix) {
     SkPoint center0, center1;
-    center0.set(SkScalarAve(pts[0].fX, pts[1].fX),
-                SkScalarAve(pts[0].fY, pts[1].fY));
+    center0.set(sk_float_midpoint(pts[0].fX, pts[1].fX),
+                sk_float_midpoint(pts[0].fY, pts[1].fY));
     center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3) / 5),
                 SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1) / 4));
     auto srgb = SkColorSpace::MakeSRGB();

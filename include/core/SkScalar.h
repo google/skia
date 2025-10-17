@@ -72,7 +72,7 @@ static inline SkScalar SkScalarSquare(SkScalar x) { return x * x; }
 
 #define SkScalarInvert(x)           (SK_Scalar1 / (x))
 #define SkScalarHalf(a)             ((a) * SK_ScalarHalf)
-#define SkScalarAve(a, b)           (SkScalarHalf(a) + SkScalarHalf(b))
+#define SkScalarAve(a, b)           sk_float_midpoint(a, b)
 
 #define SkDegreesToRadians(degrees) ((degrees) * (SK_ScalarPI / 180))
 #define SkRadiansToDegrees(radians) ((radians) * (180 / SK_ScalarPI))
