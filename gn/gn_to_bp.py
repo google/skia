@@ -771,12 +771,7 @@ here = os.path.dirname(__file__)
 defs = gn_to_bp_utils.GetArchSources(os.path.join(here, 'opts.gni'))
 
 def get_defines(json):
-  defines = {str(d) for d in json['targets']['//:skia']['defines']}
-  # TODO(kjlubick, fmalita) Add this back in to enforce Android doesn't
-  # use these methods anymore.
-  defines.remove("SK_HIDE_PATH_EDIT_METHODS")
-  return defines
-
+  return {str(d) for d in json['targets']['//:skia']['defines']}
 android_defines      = get_defines(js)
 linux_defines        = get_defines(js_linux)
 mac_defines          = get_defines(js_mac)
