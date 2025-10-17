@@ -55,7 +55,7 @@
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tests/TestHarness.h"
-#include "tests/TestUtils.h"
+#include "tests/ganesh/GaneshTestUtils.h"
 #include "tools/EncodeUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 

@@ -134,10 +134,6 @@
     #include "client_utils/android/BitmapRegionDecoder.h"
 #endif
 
-#if !defined(SK_DISABLE_LEGACY_TESTS)
-    #include "tests/TestUtils.h"
-#endif
-
 #if defined(SK_CODEC_ENCODES_PNG_WITH_LIBPNG)
 #include "include/docs/SkXPSLibpngHelpers.h"
 #include "include/encode/SkPngEncoder.h"

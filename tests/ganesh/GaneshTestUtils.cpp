@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "tests/TestUtils.h"
+#include "tests/GaneshTestUtils.h"
 
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkColorSpace.h"
@@ -17,7 +17,6 @@
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/private/base/SkTemplates.h"
-#include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -29,7 +28,6 @@
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceContext.h"
-#include "src/utils/SkCharToGlyphCache.h"
 #include "tests/Test.h"
 
 #include <cmath>
@@ -139,10 +137,10 @@ static bool compare_colors(int x, int y,
     return true;
 }
 
-bool ComparePixels(const GrCPixmap& a,
-                   const GrCPixmap& b,
-                   const float tolRGBA[4],
-                   std::function<ComparePixmapsErrorReporter>& error) {
+bool CompareGaneshPixels(const GrCPixmap& a,
+                         const GrCPixmap& b,
+                         const float tolRGBA[4],
+                         std::function<ComparePixmapsErrorReporter>& error) {
     if (a.dimensions() != b.dimensions()) {
         static constexpr float kEmptyDiffs[4] = {};
         error(-1, -1, kEmptyDiffs);
@@ -188,45 +186,6 @@ bool ComparePixels(const GrCPixmap& a,
     return true;
 }
 
-bool CheckSolidPixels(const SkColor4f& col,
-                      const SkPixmap& pixmap,
-                      const float tolRGBA[4],
-                      std::function<ComparePixmapsErrorReporter>& error) {
-    size_t floatBpp = GrColorTypeBytesPerPixel(GrColorType::kRGBA_F32);
-
-    // First convert 'col' to be compatible with 'pixmap'
-    GrPixmap colorPixmap;
-    {
-        sk_sp<SkColorSpace> srcCS = SkColorSpace::MakeSRGBLinear();
-        GrImageInfo srcInfo(GrColorType::kRGBA_F32,
-                            kUnpremul_SkAlphaType,
-                            std::move(srcCS),
-                            {1, 1});
-        GrCPixmap srcPixmap(srcInfo, col.vec(), floatBpp);
-        GrImageInfo dstInfo =
-                srcInfo.makeAlphaType(pixmap.alphaType()).makeColorSpace(pixmap.refColorSpace());
-        colorPixmap = GrPixmap::Allocate(dstInfo);
-        SkAssertResult(GrConvertPixels(colorPixmap, srcPixmap));
-    }
-
-    size_t floatRowBytes = floatBpp * pixmap.width();
-    std::unique_ptr<char[]> floatB(new char[floatRowBytes * pixmap.height()]);
-    // Then convert 'pixmap' to RGBA_F32
-    GrPixmap f32Pixmap = GrPixmap::Allocate(pixmap.info().makeColorType(kRGBA_F32_SkColorType));
-    SkAssertResult(GrConvertPixels(f32Pixmap, pixmap));
-
-    for (int y = 0; y < f32Pixmap.height(); ++y) {
-        for (int x = 0; x < f32Pixmap.width(); ++x) {
-            auto rgbaA = SkTAddOffset<const float>(f32Pixmap.addr(),
-                                                   f32Pixmap.rowBytes()*y + floatBpp*x);
-            auto rgbaB = static_cast<const float*>(colorPixmap.addr());
-            if (!compare_colors(x, y, rgbaA, rgbaB, tolRGBA, error)) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
 
 void CheckSingleThreadedProxyRefs(skiatest::Reporter* reporter,
                                   GrSurfaceProxy* proxy,
@@ -260,51 +219,4 @@ std::unique_ptr<skgpu::ganesh::SurfaceContext> CreateSurfaceContext(GrRecordingC
                                    mipmapped,
                                    isProtected,
                                    budgeted);
-}
-
-static SkGlyphID hash_to_glyph(uint32_t value) {
-    return SkToU16(((value >> 16) ^ value) & 0xFFFF);
-}
-
-namespace {
-class UnicharGen {
-    SkUnichar fU;
-    const int fStep;
-public:
-    UnicharGen(int step) : fU(0), fStep(step) {}
-
-    SkUnichar next() {
-        fU += fStep;
-        return fU;
-    }
-};
-}  // namespace
-
-DEF_TEST(chartoglyph_cache, reporter) {
-    SkCharToGlyphCache cache;
-    const int step = 3;
-
-    UnicharGen gen(step);
-    for (int i = 0; i < 500; ++i) {
-        SkUnichar c = gen.next();
-        SkGlyphID glyph = hash_to_glyph(c);
-
-        int index = cache.findGlyphIndex(c);
-        if (index >= 0) {
-            index = cache.findGlyphIndex(c);
-        }
-        REPORTER_ASSERT(reporter, index < 0);
-        cache.insertCharAndGlyph(~index, c, glyph);
-
-        UnicharGen gen2(step);
-        for (int j = 0; j <= i; ++j) {
-            c = gen2.next();
-            glyph = hash_to_glyph(c);
-            index = cache.findGlyphIndex(c);
-            if ((unsigned)index != glyph) {
-                index = cache.findGlyphIndex(c);
-            }
-            REPORTER_ASSERT(reporter, (unsigned)index == glyph);
-        }
-    }
 }

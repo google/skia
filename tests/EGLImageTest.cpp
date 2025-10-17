@@ -45,7 +45,7 @@
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "tests/CtsEnforcement.h"
-#include "tests/TestUtils.h"
+#include "tests/ganesh/GaneshTestUtils.h"
 #include "tools/ganesh/gl/GLTestContext.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 
