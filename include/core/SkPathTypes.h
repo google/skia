@@ -33,6 +33,10 @@ static inline bool SkPathFillType_IsInverse(SkPathFillType ft) {
     return (static_cast<int>(ft) & 2) != 0;
 }
 
+static inline SkPathFillType SkPathFillType_ToggleInverse(SkPathFillType ft) {
+    return static_cast<SkPathFillType>(static_cast<int>(ft) ^ 2);
+}
+
 static inline SkPathFillType SkPathFillType_ConvertToNonInverse(SkPathFillType ft) {
     return static_cast<SkPathFillType>(static_cast<int>(ft) & 1);
 }

@@ -338,7 +338,7 @@ public:
      * contents but different genIDs.
      * skbug.com/40032862 for background on why fillType is necessary (for now).
      */
-    uint32_t genID(uint8_t fillType) const;
+    uint32_t genID(SkPathFillType fillType) const;
 
     void addGenIDChangeListener(sk_sp<SkIDChangeListener>);   // Threadsafe.
     int genIDChangeListenerCount();                           // Threadsafe

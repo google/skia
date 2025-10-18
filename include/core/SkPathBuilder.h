@@ -891,7 +891,7 @@ public:
         unmodified by the original SkPathFillType.
     */
     SkPathBuilder& toggleInverseFillType() {
-        fFillType = (SkPathFillType)((unsigned)fFillType ^ 2);
+        fFillType = SkPathFillType_ToggleInverse(fFillType);
         return *this;
     }
 

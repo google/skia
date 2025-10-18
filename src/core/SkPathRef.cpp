@@ -423,7 +423,7 @@ SkPoint* SkPathRef::growForVerb(SkPathVerb verb, SkScalar weight) {
     return pts;
 }
 
-uint32_t SkPathRef::genID(uint8_t fillType) const {
+uint32_t SkPathRef::genID(SkPathFillType fillType) const {
     SkASSERT(fEditorsAttached.load() == 0);
     static const uint32_t kMask = (static_cast<int64_t>(1) << kPathRefGenIDBitCnt) - 1;
 

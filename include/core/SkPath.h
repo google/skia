@@ -717,14 +717,14 @@ public:
         check that ft is legal, values outside of SkPathFillType are not supported.
     */
     void setFillType(SkPathFillType ft) {
-        fFillType = SkToU8(ft);
+        fFillType = ft;
     }
 
     /** Replaces SkPathFillType with its inverse. The inverse of SkPathFillType describes the area
         unmodified by the original SkPathFillType.
     */
     void toggleInverseFillType() {
-        fFillType ^= 2;
+        fFillType = SkPathFillType_ToggleInverse(fFillType);
     }
 
     /** Sets SkPath to its initial state.
@@ -1897,11 +1897,11 @@ public:
 private:
     SkPath(sk_sp<SkPathRef>, SkPathFillType, bool isVolatile, SkPathConvexity);
 
-    sk_sp<SkPathRef>               fPathRef;
-    int                            fLastMoveToIndex;
-    mutable std::atomic<uint8_t>   fConvexity;      // SkPathConvexity
-    uint8_t                        fFillType    : 2;
-    uint8_t                        fIsVolatile  : 1;
+    sk_sp<SkPathRef>             fPathRef;
+    int                          fLastMoveToIndex;
+    mutable std::atomic<uint8_t> fConvexity;      // SkPathConvexity
+    SkPathFillType               fFillType;
+    bool                         fIsVolatile;
 
     static_assert(::sk_is_trivially_relocatable<decltype(fPathRef)>::value);
 
@@ -1979,9 +1979,6 @@ private:
     SkPathConvexity getConvexity() const;
 
     SkPathConvexity getConvexityOrUnknown() const;
-
-    // Compares the cached value with a freshly computed one (computeConvexity())
-    bool isConvexityAccurate() const;
 
     /** Stores a convexity type for this path. This is what will be returned if
      *  getConvexityOrUnknown() is called. If you pass kUnknown, then if getContexityType()

@@ -765,7 +765,7 @@ SkPath& SkPath::addPath(const SkPath& srcPath, const SkMatrix& matrix, AddPathMo
                                  SkPathPriv::IsEffectivelyEmpty(*this))
                               || this->countVerbs() == 0;
     if (canReplaceThis && matrix.isIdentity()) {
-        const uint8_t fillType = fFillType;
+        const SkPathFillType fillType = fFillType;
         *this = srcPath;
         fFillType = fillType;
         return *this;
