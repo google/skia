@@ -6,6 +6,7 @@
  */
 
 #include "include/private/SkPathRef.h"
+#include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
 
 /*
@@ -902,3 +903,92 @@ SkPathConvexity SkPathPriv::TransformConvexity(const SkMatrix& matrix, SkSpan<co
     }
     return convexity;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+static int compute_quad_extremas(const SkPoint src[3], SkPoint extremas[3]) {
+    SkScalar ts[2];
+    int n  = SkFindQuadExtrema(src[0].fX, src[1].fX, src[2].fX, ts);
+        n += SkFindQuadExtrema(src[0].fY, src[1].fY, src[2].fY, &ts[n]);
+    SkASSERT(n >= 0 && n <= 2);
+    for (int i = 0; i < n; ++i) {
+        extremas[i] = SkEvalQuadAt(src, ts[i]);
+    }
+    extremas[n] = src[2];
+    return n + 1;
+}
+
+static int compute_conic_extremas(const SkPoint src[3], SkScalar w, SkPoint extremas[3]) {
+    SkConic conic(src[0], src[1], src[2], w);
+    SkScalar ts[2];
+    int n  = conic.findXExtrema(ts);
+        n += conic.findYExtrema(&ts[n]);
+    SkASSERT(n >= 0 && n <= 2);
+    for (int i = 0; i < n; ++i) {
+        extremas[i] = conic.evalAt(ts[i]);
+    }
+    extremas[n] = src[2];
+    return n + 1;
+}
+
+static int compute_cubic_extremas(const SkPoint src[4], SkPoint extremas[5]) {
+    SkScalar ts[4];
+    int n  = SkFindCubicExtrema(src[0].fX, src[1].fX, src[2].fX, src[3].fX, ts);
+        n += SkFindCubicExtrema(src[0].fY, src[1].fY, src[2].fY, src[3].fY, &ts[n]);
+    SkASSERT(n >= 0 && n <= 4);
+    for (int i = 0; i < n; ++i) {
+        SkEvalCubicAt(src, ts[i], &extremas[i], nullptr, nullptr);
+    }
+    extremas[n] = src[3];
+    return n + 1;
+}
+
+SkRect SkPathPriv::ComputeTightBounds(SkSpan<const SkPoint> points,
+                                      SkSpan<const SkPathVerb> verbs,
+                                      SkSpan<const float> conicWeights) {
+    if (verbs.empty()) {
+        return SkRect::MakeEmpty();
+    }
+
+    // initial with the first MoveTo, so we don't have to check inside the switch
+    float L = points[0].fX,
+          T = points[0].fY,
+          R = points[0].fX,
+          B = points[0].fY;
+
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(verbs.begin(), verbs.end(),
+                                                   points.data(), conicWeights.data())) {
+        SkPoint extremas[5]; // big enough to hold worst-case curve type (cubic) extremas + 1
+        int count = 0;
+        switch (verb) {
+            case SkPathVerb::kMove:
+                extremas[0] = pts[0];
+                count = 1;
+                break;
+            case SkPathVerb::kLine:
+                extremas[0] = pts[1];
+                count = 1;
+                break;
+            case SkPathVerb::kQuad:
+                count = compute_quad_extremas(pts, extremas);
+                break;
+            case SkPathVerb::kConic:
+                count = compute_conic_extremas(pts, *w, extremas);
+                break;
+            case SkPathVerb::kCubic:
+                count = compute_cubic_extremas(pts, extremas);
+                break;
+            case SkPathVerb::kClose:
+                break;
+        }
+        for (int i = 0; i < count; ++i) {
+            SkPoint p = extremas[i];
+            L = std::fminf(p.fX, L);
+            T = std::fminf(p.fY, T);
+            R = std::fmaxf(p.fX, R);
+            B = std::fmaxf(p.fY, B);
+        }
+    }
+    return {L, T, R, B};
+}
+

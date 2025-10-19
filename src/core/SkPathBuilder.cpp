@@ -1097,6 +1097,13 @@ SkPathBuilder& SkPathBuilder::transform(const SkMatrix& matrix) {
     return *this;
 }
 
+std::optional<SkRect> SkPathBuilder::computeTightBounds() const {
+    if (!this->isFinite()) {
+        return {};
+    }
+    return SkPathPriv::ComputeTightBounds(this->points(), this->verbs(), this->conicWeights());
+}
+
 bool SkPathBuilder::isFinite() const {
     for (auto p : fPts) {
         if (!p.isFinite()) {

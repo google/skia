@@ -223,6 +223,11 @@ public:
         return path.hasComputedBounds();
     }
 
+    // returns Empty() if there are no points
+    static SkRect ComputeTightBounds(SkSpan<const SkPoint> points,
+                                     SkSpan<const SkPathVerb> verbs,
+                                     SkSpan<const float> conicWeights);
+
     /** Returns the oval info if this path was created as an oval or circle, else returns {}.
      */
     static std::optional<SkPathOvalInfo> IsOval(const SkPath& path) {

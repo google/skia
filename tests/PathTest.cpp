@@ -5969,3 +5969,128 @@ DEF_TEST(path_filltype_utils, r) {
     REPORTER_ASSERT(r, PathTest_Private::GetPathRef(p3) == PathTest_Private::GetPathRef(p2));
 #endif
 }
+
+// To test tight bounds, we ...
+// 1. build some random paths that contains curves (that is the tricky part of tight bounds)
+// 2. compute an approximation of "tight" bounds by evaluating the curves many times
+// 3. ask path/builder/pathdata to compute the tight bounds, and then compare
+//
+static SkPathBuilder make_random_builder(SkRandom& rand) {
+    auto rpoint = [&]() -> SkPoint {
+        float x = rand.nextF() * 100,
+              y = rand.nextF() * 100;
+        return {x, y};
+    };
+
+    constexpr size_t N = 9;
+    SkPoint pts[N];
+    for (SkPoint& p : pts) {
+        p = rpoint();
+    }
+
+    SkPathBuilder bu;
+    bu.moveTo(pts[0]);
+    bu.lineTo(pts[1]);
+    bu.quadTo(pts[2], pts[3]);
+    bu.conicTo(pts[4], pts[5], rand.nextF() * 2);
+    bu.cubicTo(pts[6], pts[7], pts[8]);
+    return bu;
+}
+
+static void update_bounds(SkRect* r, SkPoint p) {
+    r->fLeft   = std::fminf(r->fLeft,   p.fX);
+    r->fTop    = std::fminf(r->fTop,    p.fY);
+    r->fRight  = std::fmaxf(r->fRight,  p.fX);
+    r->fBottom = std::fmaxf(r->fBottom, p.fY);
+}
+
+static void update_bounds_line(SkRect* r, SkSpan<const SkPoint> pts) {
+    update_bounds(r, pts[1]);
+}
+
+constexpr size_t kEvalLoopCount = 1000;
+
+static void update_bounds_quad(SkRect* r, SkSpan<const SkPoint> pts) {
+    for (size_t i = 1; i < kEvalLoopCount; ++i) {
+        const float t = (float)i / kEvalLoopCount;
+        update_bounds(r, SkEvalQuadAt(pts.data(), t));
+    }
+    update_bounds(r, pts[2]);
+}
+
+static void update_bounds_conic(SkRect* r, SkSpan<const SkPoint> pts, float w) {
+    SkConic conic(pts.data(), w);
+    for (size_t i = 1; i < kEvalLoopCount; ++i) {
+        const float t = (float)i / kEvalLoopCount;
+        update_bounds(r, conic.evalAt(t));
+    }
+    update_bounds(r, pts[2]);
+}
+
+static void update_bounds_cubic(SkRect* r, SkSpan<const SkPoint> pts) {
+    for (size_t i = 1; i < kEvalLoopCount; ++i) {
+        const float t = (float)i / kEvalLoopCount;
+        SkPoint point;
+        SkEvalCubicAt(pts.data(), t, &point, nullptr, nullptr);
+        update_bounds(r, point);
+    }
+    update_bounds(r, pts[3]);
+}
+
+static SkRect compute_tight_bounds(SkPathIter iter) {
+    SkRect r;
+    bool first = true;
+    while (auto rec = iter.next()) {
+        switch (rec->fVerb) {
+            case SkPathVerb::kMove:
+                if (first) {
+                    r = SkRect::Bounds(rec->fPoints).value();
+                    first = false;
+                }
+                break;
+            case SkPathVerb::kLine:
+                update_bounds_line(&r, rec->fPoints);
+                break;
+            case SkPathVerb::kQuad:
+                update_bounds_quad(&r, rec->fPoints);
+                break;
+            case SkPathVerb::kConic:
+                update_bounds_conic(&r, rec->fPoints, rec->conicWeight());
+                break;
+            case SkPathVerb::kCubic:
+                update_bounds_cubic(&r, rec->fPoints);
+                break;
+            case SkPathVerb::kClose:
+                break;
+        }
+    }
+    return r;
+}
+
+DEF_TEST(path_computeTightBounds, reporter) {
+    SkRandom rand;
+
+    for (int i = 0; i < 100; ++i) {
+        SkPathBuilder bu = make_random_builder(rand);
+        const SkRect tb = compute_tight_bounds(bu.iter());
+
+        auto nearly_eq = [reporter](const SkRect& a, const SkRect& b) {
+            REPORTER_ASSERT(reporter, SkScalarNearlyEqual(a.fLeft,   b.fLeft));
+            REPORTER_ASSERT(reporter, SkScalarNearlyEqual(a.fTop,    b.fTop));
+            REPORTER_ASSERT(reporter, SkScalarNearlyEqual(a.fRight,  b.fRight));
+            REPORTER_ASSERT(reporter, SkScalarNearlyEqual(a.fBottom, b.fBottom));
+        };
+
+        SkPath path = bu.snapshot();
+        auto pdata = SkPathData::Make(bu.points(), bu.verbs(), bu.conicWeights());
+
+        const SkRect r0 = bu.computeTightBounds().value_or(SkRect::MakeEmpty());
+        const SkRect r1 = path.computeTightBounds();
+        const SkRect r2 = pdata->computeTightBounds();
+
+        REPORTER_ASSERT(reporter, r0 == r1);
+        REPORTER_ASSERT(reporter, r0 == r2);
+
+        nearly_eq(r0, tb);  // check against our approximation
+    }
+}

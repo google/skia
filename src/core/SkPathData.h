@@ -123,6 +123,8 @@ public:
      */
     bool empty() const { return fVerbs.empty(); }
 
+    SkRect computeTightBounds() const;
+
     /**
      * Returns true if the pathdata is convex.
      * Note: if necessary, it will first compute the convexity (and cache it).

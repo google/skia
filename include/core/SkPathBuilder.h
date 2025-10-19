@@ -90,6 +90,12 @@ public:
         return SkRect::Bounds(fPts);
     }
 
+    /** Like computeFiniteBounds() but returns a 'tight' bounds, meaning when there are curve
+     *  segments, this computes the X/Y limits of the curve itself, not the curve's control
+     *  point(s). For a polygon, this returns the same as computeFiniteBounds().
+    */
+    std::optional<SkRect> computeTightBounds() const;
+
     // DEPRECATED -- returns "empty" if the bounds are non-finite
     SkRect computeBounds() const {
         if (auto bounds = this->computeFiniteBounds()) {

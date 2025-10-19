@@ -420,6 +420,10 @@ bool SkPathData::isConvex() const {
     return SkPathConvexity_IsConvex(this->getResolvedConvexity());
 }
 
+SkRect SkPathData::computeTightBounds() const {
+    return SkPathPriv::ComputeTightBounds(this->points(), this->verbs(), this->conics());
+}
+
 SkPathRaw SkPathData::raw(SkPathFillType ft, SkResolveConvexity rc) const {
     return {
         fPoints,
