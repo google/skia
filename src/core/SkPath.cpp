@@ -6,23 +6,16 @@
  */
 
 #include "include/core/SkPath.h"
-
-#include "include/core/SkArc.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkSpan.h"
-#include "include/core/SkStream.h"
-#include "include/private/SkPathRef.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkFloatBits.h"
-#include "src/base/SkVx.h"
-#include "src/core/SkCubicClipper.h"
 #include "src/core/SkEdgeClipper.h"
 #include "src/core/SkGeometry.h"
-#include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPathEnums.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkPathRawShapes.h"
@@ -35,96 +28,21 @@
 #include <limits.h>
 #include <utility>
 
-////////////////////////////////////////////////////////////////////////////
+/*  Contains path methods that are common between fPathRef and fPathData implementations:
+ *  - fFillType
+ *  - fIsVolatile
+ *
+ *  Any methods that refer to these fields should be in SkPath_pathref.cpp
+ *  - fPathRef
+ *  - fConvexity
+ *  - fLastMoveToIndex
+ *
+ *  ... with the plan being to create a parallel file that implements those methods on SkPathData
+ */
 
-// flag to require a moveTo if we begin with something else, like lineTo etc.
-// This will also be the value of lastMoveToIndex for a single contour
-// ending with close, so countVerbs needs to be checked against 0.
-#define INITIAL_LASTMOVETOINDEX_VALUE   ~0
-
-SkPath::SkPath(sk_sp<SkPathRef> pr, SkPathFillType ft, bool isVolatile, SkPathConvexity ct)
-    : fPathRef(std::move(pr))
-    , fLastMoveToIndex(INITIAL_LASTMOVETOINDEX_VALUE)
-    , fConvexity((uint8_t)ct)
-    , fFillType(ft)
-    , fIsVolatile(isVolatile)
-{}
-
-SkPath::SkPath(SkPathFillType ft)
-    : fPathRef(SkPathRef::CreateEmpty())
-    , fLastMoveToIndex(INITIAL_LASTMOVETOINDEX_VALUE)
-    , fConvexity((uint8_t)SkPathConvexity::kUnknown)
-    , fFillType(ft)
-    , fIsVolatile(false)
-{}
-
-void SkPath::resetFields() {
-    //fPathRef is assumed to have been emptied by the caller.
-    fLastMoveToIndex = INITIAL_LASTMOVETOINDEX_VALUE;
-    fFillType = SkPathFillType::kDefault;
-    this->setConvexity(SkPathConvexity::kUnknown);
-}
-
-SkPath::SkPath(const SkPath& that)
-    : fPathRef(SkRef(that.fPathRef.get())) {
-    this->copyFields(that);
-    SkDEBUGCODE(that.validate();)
-}
 
 SkPath::~SkPath() {
     SkDEBUGCODE(this->validate();)
-}
-
-SkPath& SkPath::operator=(const SkPath& that) {
-    SkDEBUGCODE(that.validate();)
-
-    if (this != &that) {
-        fPathRef.reset(SkRef(that.fPathRef.get()));
-        this->copyFields(that);
-    }
-    SkDEBUGCODE(this->validate();)
-    return *this;
-}
-
-void SkPath::copyFields(const SkPath& that) {
-    //fPathRef is assumed to have been set by the caller.
-    fLastMoveToIndex = that.fLastMoveToIndex;
-    fFillType        = that.fFillType;
-    fIsVolatile      = that.fIsVolatile;
-
-    // Non-atomic assignment of atomic values.
-    this->setConvexity(that.getConvexityOrUnknown());
-}
-
-bool operator==(const SkPath& a, const SkPath& b) {
-    // note: don't need to look at isConvex or bounds, since just comparing the
-    // raw data is sufficient.
-    return &a == &b ||
-        (a.fFillType == b.fFillType && *a.fPathRef == *b.fPathRef);
-}
-
-void SkPath::swap(SkPath& that) {
-    if (this != &that) {
-        fPathRef.swap(that.fPathRef);
-        std::swap(fLastMoveToIndex, that.fLastMoveToIndex);
-        std::swap(fFillType, that.fFillType);
-        std::swap(fIsVolatile, that.fIsVolatile);
-
-        // Non-atomic swaps of atomic values.
-        SkPathConvexity c = this->getConvexityOrUnknown();
-        this->setConvexity(that.getConvexityOrUnknown());
-        that.setConvexity(c);
-    }
-}
-
-// This is the public-facing non-const setConvexity().
-void SkPath::setConvexity(SkPathConvexity c) {
-    fConvexity.store((uint8_t)c, std::memory_order_relaxed);
-}
-
-// Const hooks for working with fConvexity and fFirstDirection from const methods.
-void SkPath::setConvexity(SkPathConvexity c) const {
-    fConvexity.store((uint8_t)c, std::memory_order_relaxed);
 }
 
 bool SkPath::isInterpolatable(const SkPath& compare) const {
@@ -132,20 +50,6 @@ bool SkPath::isInterpolatable(const SkPath& compare) const {
     return this->points().size() == compare.points().size() &&
            SkSpanPriv::EQ(this->verbs(), compare.verbs()) &&
            SkSpanPriv::EQ(this->conicWeights(), compare.conicWeights());
-}
-
-bool SkPath::interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const {
-    int pointCount = fPathRef->countPoints();
-    if (pointCount != ending.fPathRef->countPoints()) {
-        return false;
-    }
-    if (!pointCount) {
-        return true;
-    }
-    *out = *this;
-    SkPathRef::Editor editor(&(out->fPathRef));
-    fPathRef->interpolate(*ending.fPathRef, weight, out->fPathRef.get());
-    return true;
 }
 
 SkPath SkPath::makeInterpolate(const SkPath& ending, SkScalar weight) const {
@@ -255,22 +159,6 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
     return false;
 }
 
-uint32_t SkPath::getGenerationID() const {
-    return fPathRef->genID(fFillType);
-}
-
-SkPath& SkPath::reset() {
-    SkDEBUGCODE(this->validate();)
-
-    if (fPathRef->unique()) {
-        fPathRef->reset();
-    } else {
-        fPathRef.reset(SkPathRef::CreateEmpty());
-    }
-    this->resetFields();
-    return *this;
-}
-
 bool SkPath::isLastContourClosed() const {
     SkSpan<const SkPathVerb> verbs = this->verbs();
     return !verbs.empty() && verbs.back() == SkPathVerb::kClose;
@@ -296,67 +184,10 @@ bool SkPath::isEmpty() const {
     return this->verbs().empty();
 }
 
-bool SkPath::isFinite() const {
-    SkDEBUGCODE(this->validate();)
-    return fPathRef->isFinite();
-}
-
 bool SkPath::isConvex() const {
     return SkPathConvexity_IsConvex(this->getConvexity());
 }
 
-const SkRect& SkPath::getBounds() const {
-    return fPathRef->getBounds();
-}
-
-uint32_t SkPath::getSegmentMasks() const {
-    return fPathRef->getSegmentMasks();
-}
-
-bool SkPath::isValid() const {
-    return this->isValidImpl() && fPathRef->isValid();
-}
-
-bool SkPath::hasComputedBounds() const {
-    SkDEBUGCODE(this->validate();)
-    return fPathRef->hasComputedBounds();
-}
-
-SkPathConvexity SkPath::getConvexityOrUnknown() const {
-    return (SkPathConvexity)fConvexity.load(std::memory_order_relaxed);
-}
-
-SkPath SkPath::makeFillType(SkPathFillType ft) const {
-    return SkPath(fPathRef,
-                  ft,
-                  fIsVolatile,
-                  this->getConvexityOrUnknown());
-}
-
-SkPath SkPath::makeToggleInverseFillType() const {
-    return SkPath(fPathRef,
-                  SkPathFillType_ToggleInverse(fFillType),
-                  fIsVolatile,
-                  this->getConvexityOrUnknown());
-}
-
-SkPath SkPath::makeIsVolatile(bool v) const {
-    return SkPath(fPathRef,
-                  fFillType,
-                  v,
-                  this->getConvexityOrUnknown());
-}
-
-#ifdef SK_DEBUG
-void SkPath::validate() const {
-    SkASSERT(this->isValidImpl());
-}
-
-void SkPath::validateRef() const {
-    // This will SkASSERT if not valid.
-    fPathRef->validate();
-}
-#endif
 bool SkPath::isRect(SkRect* rect, bool* isClosed, SkPathDirection* direction) const {
     SkDEBUGCODE(this->validate();)
     SkSpan<const SkPoint> pts = this->points();
@@ -374,36 +205,6 @@ bool SkPath::isRect(SkRect* rect, bool* isClosed, SkPathDirection* direction) co
         return true;
     }
     return false;
-}
-
-bool SkPath::isOval(SkRect* bounds) const {
-    if (auto info = fPathRef->isOval()) {
-        if (bounds) {
-            *bounds = info->fBounds;
-        }
-        return true;
-    }
-    return false;
-}
-
-bool SkPath::isRRect(SkRRect* rrect) const {
-    if (auto info = fPathRef->isRRect()) {
-        if (rrect) {
-            *rrect = info->fRRect;
-        }
-        return true;
-    }
-    return false;
-}
-
-SkSpan<const SkPoint> SkPath::points() const {
-    return fPathRef->pointSpan();
-}
-SkSpan<const SkPathVerb> SkPath::verbs() const {
-    return fPathRef->verbs();
-}
-SkSpan<const float> SkPath::conicWeights() const {
-    return fPathRef->conicSpan();
 }
 
 #ifdef SK_LEGACY_PATH_ACCESSORS
@@ -435,11 +236,10 @@ size_t SkPath::getVerbs(SkSpan<uint8_t> dst) const {
 #endif
 
 size_t SkPath::approximateBytesUsed() const {
-    size_t size = sizeof (SkPath);
-    if (fPathRef != nullptr) {
-        size += fPathRef->approximateBytesUsed();
-    }
-    return size;
+    return sizeof(SkPath)
+         + this->points().size_bytes()
+         + this->verbs().size_bytes()
+         + this->conicWeights().size_bytes();
 }
 
 std::optional<SkPoint> SkPath::getLastPt() const {
@@ -483,9 +283,6 @@ bool SkPath::isZeroLengthSincePoint(int startPtIndex) const {
     return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 SkPath::Iter::Iter() {
@@ -706,48 +503,6 @@ std::optional<SkPath::IterRec> SkPath::RawIter::next() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkPath::isValidImpl() const {
-    if ((static_cast<int>(fFillType) & ~3) != 0) {
-        return false;
-    }
-
-#ifdef SK_DEBUG_PATH
-    if (!fBoundsIsDirty) {
-        SkRect bounds;
-
-        bool isFinite = compute_pt_bounds(&bounds, *fPathRef.get());
-        if (SkToBool(fIsFinite) != isFinite) {
-            return false;
-        }
-
-        if (this->countPoints() <= 1) {
-            // if we're empty, fBounds may be empty but translated, so we can't
-            // necessarily compare to bounds directly
-            // try path.addOval(2, 2, 2, 2) which is empty, but the bounds will
-            // be [2, 2, 2, 2]
-            if (!bounds.isEmpty() || !fBounds.isEmpty()) {
-                return false;
-            }
-        } else {
-            if (bounds.isEmpty()) {
-                if (!fBounds.isEmpty()) {
-                    return false;
-                }
-            } else {
-                if (!fBounds.isEmpty()) {
-                    if (!fBounds.contains(bounds)) {
-                        return false;
-                    }
-                }
-            }
-        }
-    }
-#endif // SK_DEBUG_PATH
-    return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 SkPathConvexity SkPath::computeConvexity() const {
     if (auto c = this->getConvexityOrUnknown(); c != SkPathConvexity::kUnknown) {
         return c;
@@ -785,9 +540,9 @@ SkRect SkPath::computeTightBounds() const {
         return this->getBounds();
     }
 
-    return SkPathPriv::ComputeTightBounds(fPathRef->pointSpan(),
-                                          fPathRef->verbs(),
-                                          fPathRef->conicSpan());
+    return SkPathPriv::ComputeTightBounds(this->points(),
+                                          this->verbs(),
+                                          this->conicWeights());
 }
 
 bool SkPath::IsLineDegenerate(const SkPoint& p1, const SkPoint& p2, bool exact) {
@@ -807,60 +562,6 @@ bool SkPath::IsCubicDegenerate(const SkPoint& p1, const SkPoint& p2,
             SkPointPriv::EqualsWithinTolerance(p2, p3) &&
             SkPointPriv::EqualsWithinTolerance(p3, p4);
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
-SkPath SkPath::Raw(SkSpan<const SkPoint> pts, SkSpan<const SkPathVerb> vbs,
-                   SkSpan<const float> ws, SkPathFillType ft, bool isVolatile) {
-    if (vbs.empty()) {
-        return SkPath();
-    }
-
-    const auto info = SkPathPriv::AnalyzeVerbs(vbs);
-    if (!info.valid || info.points > pts.size() || info.weights > ws.size()) {
-        SkDEBUGFAIL("invalid verbs and number of points/weights");
-        return SkPath();
-    }
-
-    return MakeInternal(info, pts.data(), vbs, ws.data(), ft, isVolatile);
-}
-
-SkPath SkPath::Rect(const SkRect& r, SkPathFillType ft, SkPathDirection dir, unsigned startIndex) {
-    return SkPathBuilder(ft).addRect(r, dir, startIndex).detach();
-}
-
-SkPath SkPath::Oval(const SkRect& r, SkPathDirection dir, unsigned startIndex) {
-    return SkPathBuilder().addOval(r, dir, startIndex).detach();
-}
-
-SkPath SkPath::RRect(const SkRRect& rr, SkPathDirection dir, unsigned startIndex) {
-    return SkPathBuilder().addRRect(rr, dir, startIndex).detach();
-}
-
-SkPath SkPath::Polygon(SkSpan<const SkPoint> pts, bool isClosed,
-                       SkPathFillType ft, bool isVolatile) {
-    return SkPathBuilder().addPolygon(pts, isClosed)
-                          .setFillType(ft)
-                          .setIsVolatile(isVolatile)
-                          .detach();
-}
-
-SkPath SkPath::MakeInternal(const SkPathVerbAnalysis& analysis,
-                            const SkPoint points[],
-                            SkSpan<const SkPathVerb> verbs,
-                            const SkScalar conics[],
-                            SkPathFillType fillType,
-                            bool isVolatile) {
-  return SkPath(sk_sp<SkPathRef>(new SkPathRef(
-                                     SkSpan(points, analysis.points),
-                                     verbs,
-                                     SkSpan(conics, analysis.weights),
-                                     analysis.segmentMask,
-                                     nullptr)),
-                fillType, isVolatile, SkPathConvexity::kUnknown);
-}
-
-// Begin shared section (between pathref/builder and pathdata impls)
 
 SkPath SkPath::RRect(const SkRRect& rr, SkPathDirection dir) {
     // legacy start indices: 6 (CW) and 7 (CCW)
@@ -882,14 +583,6 @@ SkPath SkPath::Circle(SkScalar x, SkScalar y, SkScalar r, SkPathDirection dir) {
 
 SkPath SkPath::RRect(const SkRect& r, SkScalar rx, SkScalar ry, SkPathDirection dir) {
     return RRect(SkRRect::MakeRectXY(r, rx, ry), dir);
-}
-
-// End shared section
-
-SkPath SkPath::makeTransform(const SkMatrix& matrix) const {
-    SkPath dst;
-    this->transform(matrix, &dst);
-    return dst;
 }
 
 SkPathFirstDirection SkPathPriv::ComputeFirstDirection(const SkPath& path) {
@@ -1082,10 +775,6 @@ bool SkPathPriv::PerspectiveClip(const SkPath& path, const SkMatrix& matrix, SkP
     // clipped out (or failed)
     *clippedPath = SkPath();
     return true;
-}
-
-int SkPathPriv::GenIDChangeListenersCount(const SkPath& path) {
-    return path.fPathRef->genIDChangeListenerCount();
 }
 
 bool SkPathPriv::IsAxisAligned(const SkPath& path) {
