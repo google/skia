@@ -11,6 +11,7 @@
 #include "include/gpu/graphite/precompile/PrecompileBlender.h"
 #include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
 #include "include/gpu/graphite/precompile/PrecompileShader.h"
+#include "src/core/SkBlendModePriv.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/KeyContext.h"
@@ -116,8 +117,7 @@ void PaintOption::handlePrimitiveColor(const KeyContext& keyContext) const {
                  * TODO: Allow clients to provide precompile SkBlender options for primitive
                  * blending. For now we have a back door to internally specify an SkBlendMode.
                  */
-                AddToKey(keyContext,
-                         SkBlender::Mode(fPrimitiveBlendMode).get());
+                AddToKey(keyContext, GetBlendModeSingleton(fPrimitiveBlendMode));
             },
             /* addSrcToKey= */ [&]() -> void {
                 this->addPaintColorToKey(keyContext);
