@@ -165,45 +165,6 @@ SkColor4f PaintParams::Color4fPrepForDst(SkColor4f srcColor, const SkColorInfo& 
     return result;
 }
 
-void AddFixedBlendMode(const KeyContext& keyContext, SkBlendMode bm) {
-    SkASSERT(bm <= SkBlendMode::kLastMode);
-    BuiltInCodeSnippetID id = static_cast<BuiltInCodeSnippetID>(kFixedBlendIDOffset +
-                                                                static_cast<int>(bm));
-    keyContext.paintParamsKeyBuilder()->addBlock(id);
-}
-
-void AddBlendMode(const KeyContext& keyContext, SkBlendMode bm) {
-    // For non-fixed blends, coefficient blend modes are combined into the same shader snippet.
-    // The same goes for the HSLC advanced blends. The remaining advanced blends are fairly unique
-    // in their implementations. To avoid having to compile all of their SkSL, they are treated as
-    // fixed blend modes.
-    SkSpan<const float> coeffs = skgpu::GetPorterDuffBlendConstants(bm);
-    if (!coeffs.empty()) {
-        PorterDuffBlenderBlock::AddBlock(keyContext, coeffs);
-    } else if (bm >= SkBlendMode::kHue) {
-        ReducedBlendModeInfo blendInfo = GetReducedBlendModeInfo(bm);
-        HSLCBlenderBlock::AddBlock(keyContext, blendInfo.fUniformData);
-    } else {
-        AddFixedBlendMode(keyContext, bm);
-    }
-}
-
-void AddDitherBlock(const KeyContext& keyContext, SkColorType ct) {
-    static const SkBitmap gLUT = skgpu::MakeDitherLUT();
-
-    sk_sp<TextureProxy> proxy = RecorderPriv::CreateCachedProxy(keyContext.recorder(), gLUT,
-                                                                "DitherLUT");
-    if (keyContext.recorder() && !proxy) {
-        SKGPU_LOG_W("Couldn't create dither shader's LUT");
-        keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kPriorOutput);
-        return;
-    }
-
-    DitherShaderBlock::DitherData data(skgpu::DitherRangeForConfig(ct), std::move(proxy));
-
-    DitherShaderBlock::AddBlock(keyContext, data);
-}
-
 bool PaintParams::addPaintColorToKey(const KeyContext& keyContext) const {
     if (fShader) {
         AddToKey(keyContext, fShader.get());

@@ -106,12 +106,6 @@ private:
     SkEnumBitMask<DstUsage> fDstUsage;
 };
 
-// Add a fixed blend mode node for a specific SkBlendMode.
-void AddFixedBlendMode(const KeyContext&, SkBlendMode);
-// Add a blend mode node for an SkBlendMode that can vary
-void AddBlendMode(const KeyContext&, SkBlendMode);
-void AddDitherBlock(const KeyContext&, SkColorType);
-
 } // namespace skgpu::graphite
 
 #endif // skgpu_PaintParams_DEFINED
