@@ -144,13 +144,13 @@ void CoverageMaskRenderStep::writeVertices(DrawWriter* dw,
         // we know this is an inverted mask, then we can exactly map the draw's clip bounds to mask
         // space so that the clip is still fully covered without branching in the vertex shader.
         SkASSERT(maskToDevice == SkM44::Translate(deviceOrigin.x(), deviceOrigin.y()));
-        drawBounds = params.clip().drawBounds().makeOffset(-deviceOrigin).ltrb();
+        drawBounds = params.drawBounds().makeOffset(-deviceOrigin).ltrb();
 
         // If the mask is fully clipped out, then the shape's mask info should be (0,0,0,0).
         // If it's not fully clipped out, then the mask info should be non-empty.
         const bool emptyMask = all(maskBounds == 0.f);
         SkDEBUGCODE(Rect clippedShapeBounds =
-                    params.clip().transformedShapeBounds().makeIntersect(params.clip().scissor()));
+                    params.transformedShapeBounds().makeIntersect(params.scissor()));
         SkASSERT(!clippedShapeBounds.isEmptyNegativeOrNaN() ^ emptyMask);
 
         if (emptyMask) {

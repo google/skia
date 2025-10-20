@@ -40,17 +40,17 @@ RenderStep::RenderStep(RenderStepID renderStepID,
 std::optional<SkIRect> RenderStep::getScissor(const DrawParams& params,
                                               SkIRect currentScissor,
                                               SkIRect deviceBounds) const {
-    if (currentScissor == params.clip().scissor()) {
+    if (currentScissor == params.scissor()) {
         return {}; // Trivially no change in scissor state is required
     }
 
-    Rect drawBounds = params.clip().drawBounds();
+    Rect drawBounds = params.drawBounds();
     if (params.geometry().isShape() && params.geometry().shape().inverted()) {
         // For inverse filled shapes, the scissor is able to be handled in unique ways.
         if (fFlags & Flags::kInverseFillsScissor) {
             // In this case, the RenderStep geometrically respects the scissor so as long as the
             // current scissor doesn't interfere, we don't need a state change.
-            if (currentScissor.contains(params.clip().scissor())) {
+            if (currentScissor.contains(params.scissor())) {
                 return {};
             } else {
                 // This draw doesn't need a scissor at all, so return the device bounds. It is
@@ -63,10 +63,10 @@ std::optional<SkIRect> RenderStep::getScissor(const DrawParams& params,
         }
 
         if (fFlags & Flags::kIgnoreInverseFill) {
-            // In this case params.clip().drawBounds() fills the scissor from the inverse fill rule,
+            // In this case params.drawBounds() fills the scissor from the inverse fill rule,
             // but we want to apply the scissor as if it were a regular fill.
-            drawBounds = params.clip().transformedShapeBounds(); // this ignores fill rule
-            drawBounds.intersect(params.clip().scissor());
+            drawBounds = params.transformedShapeBounds(); // this ignores fill rule
+            drawBounds.intersect(params.scissor());
         } // Else leave drawBounds filling the original scissor
 
         // Fall through to regular scissor state checking with the possibly-updated bounds
@@ -75,19 +75,19 @@ std::optional<SkIRect> RenderStep::getScissor(const DrawParams& params,
     // Draws that are unaffected by a clip stack will have a scissor matching the device's bounds.
     // If their transformed shape bounds clipped to the current scissor are no different than their
     // draw bounds (clipped to the original scissor), then no state change is required.
-    Rect currentClippedBounds = params.clip().transformedShapeBounds();
+    Rect currentClippedBounds = params.transformedShapeBounds();
     currentClippedBounds.intersect(currentScissor);
     if (currentClippedBounds == drawBounds) {
         return {};
     }
 
-    if (drawBounds == params.clip().transformedShapeBounds()) {
+    if (drawBounds == params.transformedShapeBounds()) {
         // We need to change the scissor, but the registered scissor is a no-op so
         // use the device bounds as a canonical scissor.
         return deviceBounds;
     }
 
-    return params.clip().scissor();
+    return params.scissor();
 }
 
 Coverage RenderStep::GetCoverage(SkEnumBitMask<Flags> flags) {

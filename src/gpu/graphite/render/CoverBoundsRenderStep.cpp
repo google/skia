@@ -68,7 +68,7 @@ void CoverBoundsRenderStep::writeVertices(DrawWriter* writer,
         // device space and then the VS will use the inverse of the transform to compute local
         // coordinates.
         bounds = skvx::shuffle</*R*/2, /*B*/3, /*L*/0, /*T*/1>(
-                skvx::cast<float>(skvx::int4::Load(&params.clip().scissor())));
+                skvx::cast<float>(skvx::int4::Load(&params.scissor())));
     } else {
         bounds = params.geometry().bounds().ltrb();
     }
