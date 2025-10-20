@@ -7,7 +7,7 @@
 # toolchain, which we, Skia, do not want to have a dependency on.
 # The result is a single static library that can be linked into Skia.
 
-import("args.gni")
+import("//third_party/dawn/args.gni")
 
 if (is_win) {
   # On Windows, the normal cc/cxx variables are just "clang" and "clang++"
