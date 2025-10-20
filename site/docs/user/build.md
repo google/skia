@@ -35,6 +35,19 @@ Skia against the headers and libraries found on the system paths.
 use `extra_cflags` and `extra_ldflags` to add include or library paths if
 needed.
 
+### Rust code in third_party
+
+Skia has some third party dependencies that are written in Rust. In order
+to build these from Skia's GN build, you will need to have
+[Bazel](https://bazel.build/) installed (or use `bazelisk`), which will
+download a Rust toolchain and build these.
+
+### Dawn
+
+Skia uses [Dawn](https://dawn.googlesource.com/dawn) for some of its GPU
+backends, which it builds using CMake. In order to build Dawn from GN, you
+must have `cmake` 3.30 or later installed.
+
 ## Supported and Preferred Compilers
 
 While Skia should compile with GCC, MSVC, and other compilers, a number of
