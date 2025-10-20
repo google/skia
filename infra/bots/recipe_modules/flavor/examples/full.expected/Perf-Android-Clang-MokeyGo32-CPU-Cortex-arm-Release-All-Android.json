@@ -139,6 +139,20 @@
   },
   {
     "cmd": [
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/wait_for_device.py",
+      "--adb",
+      "/usr/bin/adb"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "wait for device",
+    "timeout": 600
+  },
+  {
+    "cmd": [
       "/usr/bin/adb",
       "shell",
       "mkdir",
@@ -1205,10 +1219,10 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb",
-      "wait-for-device",
-      "shell",
-      "while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done"
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/wait_for_device.py",
+      "--adb",
+      "/usr/bin/adb"
     ],
     "env": {
       "CHROME_HEADLESS": "1",

@@ -139,18 +139,19 @@
   },
   {
     "cmd": [
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/wait_for_device.py",
+      "--adb",
       "/usr/bin/adb",
-      "connect",
+      "--connect-to",
       "variable_lab_dut_hostname"
     ],
-    "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "infra_step": true,
-    "name": "adb connect"
+    "name": "wait for device",
+    "timeout": 600
   },
   {
     "cmd": [
@@ -996,10 +997,12 @@
   },
   {
     "cmd": [
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/wait_for_device.py",
+      "--adb",
       "/usr/bin/adb",
-      "wait-for-device",
-      "shell",
-      "while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done"
+      "--connect-to",
+      "variable_lab_dut_hostname"
     ],
     "env": {
       "CHROME_HEADLESS": "1",

@@ -115,14 +115,16 @@ class AndroidFlavor(default.DefaultFlavor):
     }
 
   def wait_for_device(self):
+    cmd = [
+        'python3',
+        self.module.resource('wait_for_device.py'),
+        '--adb', self.ADB_BINARY,
+    ]
+    if self.m.vars.internal_hardware_label == '6':
+      cmd.extend(['--connect-to', 'variable_lab_dut_hostname'])
     self.m.run(self.m.step,
                'wait for device',
-               cmd=[
-                   self.ADB_BINARY, 'wait-for-device', 'shell',
-                   # Wait until the boot is actually complete.
-                   # https://android.stackexchange.com/a/164050
-                   'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done',
-               ],
+               cmd=cmd,
                timeout=600, abort_on_failure=False,
                fail_build_on_failure=False)
 
@@ -298,8 +300,7 @@ class AndroidFlavor(default.DefaultFlavor):
 
 
   def install(self):
-    if self.m.vars.internal_hardware_label == '6':
-      self._adb('adb connect', 'connect', 'variable_lab_dut_hostname')
+    self.wait_for_device()
     self._adb('mkdir ' + self.device_dirs.resource_dir,
               'shell', 'mkdir', '-p', self.device_dirs.resource_dir)
     if self.m.vars.builder_cfg.get('model') in ('GalaxyS20', 'GalaxyS9'):
