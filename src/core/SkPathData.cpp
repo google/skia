@@ -468,6 +468,10 @@ std::optional<SkPathRRectInfo> SkPathData::asRRect() const {
     return {};
 }
 
+bool SkPathData::contains(SkPoint p, SkPathFillType ft) const {
+    return SkPathPriv::Contains(this->raw(ft, SkResolveConvexity::kNo), p);
+}
+
 /////////////////
 
 sk_sp<SkPathData> SkPathData::Make(SkSpan<const SkPoint> pts,

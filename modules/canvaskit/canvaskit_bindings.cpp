@@ -2353,7 +2353,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             .function("_close", &ApplyClose)
             .function("_conicTo", &ApplyConicTo)
             .function("countPoints", &SkPath::countPoints)
-            .function("contains", &SkPath::contains)
+            .function("contains", select_overload<bool(float,float)const>(&SkPath::contains))
             .function("_cubicTo", &ApplyCubicTo)
             .function("_getPoint",
                       optional_override([](SkPath& self, int index, WASMPointerF32 oPtr) -> void {

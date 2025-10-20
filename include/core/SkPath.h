@@ -1788,16 +1788,18 @@ public:
 
     };
 
-    /** Returns true if the point (x, y) is contained by SkPath, taking into
+    /** Returns true if the point is contained by SkPath, taking into
         account FillType.
 
-        @param x  x-axis value of containment test
-        @param y  y-axis value of containment test
-        @return   true if SkPoint is in SkPath
-
-        example: https://fiddle.skia.org/c/@Path_contains
+        @param point the point to test
+        @return true if SkPoint is in SkPath
     */
-    bool contains(SkScalar x, SkScalar y) const;
+    bool contains(SkPoint point) const;
+
+    // deprecated
+    bool contains(SkScalar x, SkScalar y) const {
+        return this->contains({x, y});
+    }
 
     /** Writes text representation of SkPath to stream. If stream is nullptr, writes to
         standard output. Set dumpAsHex true to generate exact binary representations

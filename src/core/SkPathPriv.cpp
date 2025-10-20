@@ -6,8 +6,11 @@
  */
 
 #include "include/private/SkPathRef.h"
+#include "include/private/base/SkTDArray.h"
+#include "src/core/SkCubicClipper.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkPointPriv.h"
 
 /*
  Determines if path is a rect by keeping track of changes in direction
@@ -805,6 +808,504 @@ SkPathFirstDirection SkPathPriv::ComputeFirstDirection(const SkPathRaw& raw) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+static float poly_eval(float A, float B, float C, float t) {
+    return (A * t + B) * t + C;
+}
+
+static float poly_eval(float A, float B, float C, float D, float t) {
+    return ((A * t + B) * t + C) * t + D;
+}
+
+static bool between(SkScalar a, SkScalar b, SkScalar c) {
+    SkASSERT(((a <= b && b <= c) || (a >= b && b >= c)) == ((a - b) * (c - b) <= 0)
+            || (SkScalarNearlyZero(a) && SkScalarNearlyZero(b) && SkScalarNearlyZero(c)));
+    return (a - b) * (c - b) <= 0;
+}
+
+static SkScalar eval_cubic_pts(SkScalar c0, SkScalar c1, SkScalar c2, SkScalar c3,
+                               SkScalar t) {
+    SkScalar A = c3 + 3*(c1 - c2) - c0;
+    SkScalar B = 3*(c2 - c1 - c1 + c0);
+    SkScalar C = 3*(c1 - c0);
+    SkScalar D = c0;
+    return poly_eval(A, B, C, D, t);
+}
+
+template <size_t N> static void find_minmax(const SkPoint pts[],
+                                            SkScalar* minPtr, SkScalar* maxPtr) {
+    SkScalar min, max;
+    min = max = pts[0].fX;
+    for (size_t i = 1; i < N; ++i) {
+        min = std::min(min, pts[i].fX);
+        max = std::max(max, pts[i].fX);
+    }
+    *minPtr = min;
+    *maxPtr = max;
+}
+
+static bool checkOnCurve(SkScalar x, SkScalar y, const SkPoint& start, const SkPoint& end) {
+    if (start.fY == end.fY) {
+        return between(start.fX, x, end.fX) && x != end.fX;
+    } else {
+        return x == start.fX && y == start.fY;
+    }
+}
+
+static int winding_mono_cubic(const SkPoint pts[], SkScalar x, SkScalar y, int* onCurveCount) {
+    SkScalar y0 = pts[0].fY;
+    SkScalar y3 = pts[3].fY;
+
+    int dir = 1;
+    if (y0 > y3) {
+        using std::swap;
+        swap(y0, y3);
+        dir = -1;
+    }
+    if (y < y0 || y > y3) {
+        return 0;
+    }
+    if (checkOnCurve(x, y, pts[0], pts[3])) {
+        *onCurveCount += 1;
+        return 0;
+    }
+    if (y == y3) {
+        return 0;
+    }
+
+    // quickreject or quickaccept
+    SkScalar min, max;
+    find_minmax<4>(pts, &min, &max);
+    if (x < min) {
+        return 0;
+    }
+    if (x > max) {
+        return dir;
+    }
+
+    // compute the actual x(t) value
+    SkScalar t;
+    if (!SkCubicClipper::ChopMonoAtY(pts, y, &t)) {
+        return 0;
+    }
+    SkScalar xt = eval_cubic_pts(pts[0].fX, pts[1].fX, pts[2].fX, pts[3].fX, t);
+    if (SkScalarNearlyEqual(xt, x)) {
+        if (x != pts[3].fX || y != pts[3].fY) {  // don't test end points; they're start points
+            *onCurveCount += 1;
+            return 0;
+        }
+    }
+    return xt < x ? dir : 0;
+}
+
+static int winding_cubic(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y, int* onCurveCount) {
+    SkPoint dst[10];
+    int n = SkChopCubicAtYExtrema(pts.data(), dst);
+    int w = 0;
+    for (int i = 0; i <= n; ++i) {
+        w += winding_mono_cubic(&dst[i * 3], x, y, onCurveCount);
+    }
+    return w;
+}
+
+static double conic_eval_numerator(const SkScalar src[], SkScalar w, SkScalar t) {
+    SkASSERT(src);
+    SkASSERT(t >= 0 && t <= 1);
+    SkScalar src2w = src[2] * w;
+    SkScalar C = src[0];
+    SkScalar A = src[4] - 2 * src2w + C;
+    SkScalar B = 2 * (src2w - C);
+    return poly_eval(A, B, C, t);
+}
+
+
+static double conic_eval_denominator(SkScalar w, SkScalar t) {
+    SkScalar B = 2 * (w - 1);
+    SkScalar C = 1;
+    SkScalar A = -B;
+    return poly_eval(A, B, C, t);
+}
+
+static int winding_mono_conic(const SkConic& conic, SkScalar x, SkScalar y, int* onCurveCount) {
+    const SkPoint* pts = conic.fPts;
+    SkScalar y0 = pts[0].fY;
+    SkScalar y2 = pts[2].fY;
+
+    int dir = 1;
+    if (y0 > y2) {
+        using std::swap;
+        swap(y0, y2);
+        dir = -1;
+    }
+    if (y < y0 || y > y2) {
+        return 0;
+    }
+    if (checkOnCurve(x, y, pts[0], pts[2])) {
+        *onCurveCount += 1;
+        return 0;
+    }
+    if (y == y2) {
+        return 0;
+    }
+
+    SkScalar roots[2];
+    SkScalar A = pts[2].fY;
+    SkScalar B = pts[1].fY * conic.fW - y * conic.fW + y;
+    SkScalar C = pts[0].fY;
+    A += C - 2 * B;  // A = a + c - 2*(b*w - yCept*w + yCept)
+    B -= C;  // B = b*w - w * yCept + yCept - a
+    C -= y;
+    int n = SkFindUnitQuadRoots(A, 2 * B, C, roots);
+    SkASSERT(n <= 1);
+    SkScalar xt;
+    if (0 == n) {
+        // zero roots are returned only when y0 == y
+        // Need [0] if dir == 1
+        // and  [2] if dir == -1
+        xt = pts[1 - dir].fX;
+    } else {
+        SkScalar t = roots[0];
+        xt = conic_eval_numerator(&pts[0].fX, conic.fW, t) / conic_eval_denominator(conic.fW, t);
+    }
+    if (SkScalarNearlyEqual(xt, x)) {
+        if (x != pts[2].fX || y != pts[2].fY) {  // don't test end points; they're start points
+            *onCurveCount += 1;
+            return 0;
+        }
+    }
+    return xt < x ? dir : 0;
+}
+
+static bool is_mono_quad(SkScalar y0, SkScalar y1, SkScalar y2) {
+    //    return SkScalarSignAsInt(y0 - y1) + SkScalarSignAsInt(y1 - y2) != 0;
+    if (y0 == y1) {
+        return true;
+    }
+    if (y0 < y1) {
+        return y1 <= y2;
+    } else {
+        return y1 >= y2;
+    }
+}
+
+static int winding_conic(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y, SkScalar weight,
+                         int* onCurveCount) {
+    SkConic conic(pts.data(), weight);
+    SkConic chopped[2];
+    // If the data points are very large, the conic may not be monotonic but may also
+    // fail to chop. Then, the chopper does not split the original conic in two.
+    bool isMono = is_mono_quad(pts[0].fY, pts[1].fY, pts[2].fY) || !conic.chopAtYExtrema(chopped);
+    int w = winding_mono_conic(isMono ? conic : chopped[0], x, y, onCurveCount);
+    if (!isMono) {
+        w += winding_mono_conic(chopped[1], x, y, onCurveCount);
+    }
+    return w;
+}
+
+static int winding_mono_quad(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y, int* onCurveCount) {
+    SkScalar y0 = pts[0].fY;
+    SkScalar y2 = pts[2].fY;
+
+    int dir = 1;
+    if (y0 > y2) {
+        using std::swap;
+        swap(y0, y2);
+        dir = -1;
+    }
+    if (y < y0 || y > y2) {
+        return 0;
+    }
+    if (checkOnCurve(x, y, pts[0], pts[2])) {
+        *onCurveCount += 1;
+        return 0;
+    }
+    if (y == y2) {
+        return 0;
+    }
+    // bounds check on X (not required. is it faster?)
+#if 0
+    if (pts[0].fX > x && pts[1].fX > x && pts[2].fX > x) {
+        return 0;
+    }
+#endif
+
+    SkScalar roots[2];
+    int n = SkFindUnitQuadRoots(pts[0].fY - 2 * pts[1].fY + pts[2].fY,
+                                2 * (pts[1].fY - pts[0].fY),
+                                pts[0].fY - y,
+                                roots);
+    SkASSERT(n <= 1);
+    SkScalar xt;
+    if (0 == n) {
+        // zero roots are returned only when y0 == y
+        // Need [0] if dir == 1
+        // and  [2] if dir == -1
+        xt = pts[1 - dir].fX;
+    } else {
+        SkScalar t = roots[0];
+        SkScalar C = pts[0].fX;
+        SkScalar A = pts[2].fX - 2 * pts[1].fX + C;
+        SkScalar B = 2 * (pts[1].fX - C);
+        xt = poly_eval(A, B, C, t);
+    }
+    if (SkScalarNearlyEqual(xt, x)) {
+        if (x != pts[2].fX || y != pts[2].fY) {  // don't test end points; they're start points
+            *onCurveCount += 1;
+            return 0;
+        }
+    }
+    return xt < x ? dir : 0;
+}
+
+static int winding_quad(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y, int* onCurveCount) {
+    SkPoint               spanStorage[5];
+    SkSpan<const SkPoint> span = pts;
+    int                   n = 0;
+
+    if (!is_mono_quad(pts[0].fY, pts[1].fY, pts[2].fY)) {
+        n = SkChopQuadAtYExtrema(pts.data(), spanStorage);
+        span = spanStorage;
+    }
+    int w = winding_mono_quad(span, x, y, onCurveCount);
+    if (n > 0) {
+        w += winding_mono_quad(span.subspan(2), x, y, onCurveCount);
+    }
+    return w;
+}
+
+static int winding_line(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y, int* onCurveCount) {
+    SkScalar x0 = pts[0].fX;
+    SkScalar y0 = pts[0].fY;
+    SkScalar x1 = pts[1].fX;
+    SkScalar y1 = pts[1].fY;
+
+    SkScalar dy = y1 - y0;
+
+    int dir = 1;
+    if (y0 > y1) {
+        using std::swap;
+        swap(y0, y1);
+        dir = -1;
+    }
+    if (y < y0 || y > y1) {
+        return 0;
+    }
+    if (checkOnCurve(x, y, pts[0], pts[1])) {
+        *onCurveCount += 1;
+        return 0;
+    }
+    if (y == y1) {
+        return 0;
+    }
+    SkScalar cross = (x1 - x0) * (y - pts[0].fY) - dy * (x - x0);
+
+    if (!cross) {
+        // zero cross means the point is on the line, and since the case where
+        // y of the query point is at the end point is handled above, we can be
+        // sure that we're on the line (excluding the end point) here
+        if (x != x1 || y != pts[1].fY) {
+            *onCurveCount += 1;
+        }
+        dir = 0;
+    } else if (SkScalarSignAsInt(cross) == dir) {
+        dir = 0;
+    }
+    return dir;
+}
+
+static void tangent_cubic(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y,
+                          SkTDArray<SkVector>* tangents) {
+    if (!between(pts[0].fY, y, pts[1].fY) && !between(pts[1].fY, y, pts[2].fY)
+             && !between(pts[2].fY, y, pts[3].fY)) {
+        return;
+    }
+    if (!between(pts[0].fX, x, pts[1].fX) && !between(pts[1].fX, x, pts[2].fX)
+             && !between(pts[2].fX, x, pts[3].fX)) {
+        return;
+    }
+    SkPoint dst[10];
+    int n = SkChopCubicAtYExtrema(pts.data(), dst);
+    for (int i = 0; i <= n; ++i) {
+        SkPoint* c = &dst[i * 3];
+        SkScalar t;
+        if (!SkCubicClipper::ChopMonoAtY(c, y, &t)) {
+            continue;
+        }
+        SkScalar xt = eval_cubic_pts(c[0].fX, c[1].fX, c[2].fX, c[3].fX, t);
+        if (!SkScalarNearlyEqual(x, xt)) {
+            continue;
+        }
+        SkVector tangent;
+        SkEvalCubicAt(c, t, nullptr, &tangent, nullptr);
+        tangents->push_back(tangent);
+    }
+}
+
+static void tangent_conic(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y, SkScalar w,
+                          SkTDArray<SkVector>* tangents) {
+    if (!between(pts[0].fY, y, pts[1].fY) && !between(pts[1].fY, y, pts[2].fY)) {
+        return;
+    }
+    if (!between(pts[0].fX, x, pts[1].fX) && !between(pts[1].fX, x, pts[2].fX)) {
+        return;
+    }
+    SkScalar roots[2];
+    SkScalar A = pts[2].fY;
+    SkScalar B = pts[1].fY * w - y * w + y;
+    SkScalar C = pts[0].fY;
+    A += C - 2 * B;  // A = a + c - 2*(b*w - yCept*w + yCept)
+    B -= C;  // B = b*w - w * yCept + yCept - a
+    C -= y;
+    int n = SkFindUnitQuadRoots(A, 2 * B, C, roots);
+    for (int index = 0; index < n; ++index) {
+        SkScalar t = roots[index];
+        SkScalar xt = conic_eval_numerator(&pts[0].fX, w, t) / conic_eval_denominator(w, t);
+        if (!SkScalarNearlyEqual(x, xt)) {
+            continue;
+        }
+        SkConic conic(pts.data(), w);
+        tangents->push_back(conic.evalTangentAt(t));
+    }
+}
+
+static void tangent_quad(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y,
+                         SkTDArray<SkVector>* tangents) {
+    if (!between(pts[0].fY, y, pts[1].fY) && !between(pts[1].fY, y, pts[2].fY)) {
+        return;
+    }
+    if (!between(pts[0].fX, x, pts[1].fX) && !between(pts[1].fX, x, pts[2].fX)) {
+        return;
+    }
+    SkScalar roots[2];
+    int n = SkFindUnitQuadRoots(pts[0].fY - 2 * pts[1].fY + pts[2].fY,
+                                2 * (pts[1].fY - pts[0].fY),
+                                pts[0].fY - y,
+                                roots);
+    for (int index = 0; index < n; ++index) {
+        SkScalar t = roots[index];
+        SkScalar C = pts[0].fX;
+        SkScalar A = pts[2].fX - 2 * pts[1].fX + C;
+        SkScalar B = 2 * (pts[1].fX - C);
+        SkScalar xt = poly_eval(A, B, C, t);
+        if (!SkScalarNearlyEqual(x, xt)) {
+            continue;
+        }
+        tangents->push_back(SkEvalQuadTangentAt(pts.data(), t));
+    }
+}
+
+static void tangent_line(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y,
+                         SkTDArray<SkVector>* tangents) {
+    SkScalar y0 = pts[0].fY;
+    SkScalar y1 = pts[1].fY;
+    if (!between(y0, y, y1)) {
+        return;
+    }
+    SkScalar x0 = pts[0].fX;
+    SkScalar x1 = pts[1].fX;
+    if (!between(x0, x, x1)) {
+        return;
+    }
+    SkScalar dx = x1 - x0;
+    SkScalar dy = y1 - y0;
+    if (!SkScalarNearlyEqual((x - x0) * dy, dx * (y - y0))) {
+        return;
+    }
+    SkVector v;
+    v.set(dx, dy);
+    tangents->push_back(v);
+}
+
+static bool contains_inclusive(const SkRect& r, SkPoint p) {
+    return r.fLeft <= p.fX && p.fX <= r.fRight && r.fTop <= p.fY && p.fY <= r.fBottom;
+}
+
+bool SkPathPriv::Contains(const SkPathRaw& raw, SkPoint p) {
+    const SkPathFillType ft = raw.fillType();
+    const bool isInverse = SkPathFillType_IsInverse(ft);
+    if (raw.empty()) {
+        return isInverse;
+    }
+
+    if (!contains_inclusive(raw.bounds(), p)) {
+        return isInverse;
+    }
+
+    int w = 0;
+    int onCurveCount = 0;
+
+    for (auto iter = SkPathEdgeIter(raw); auto rec = iter.next(); ) {
+        switch (rec.fEdge) {
+            case SkPathEdgeIter::Edge::kLine:
+                w += winding_line({rec.fPts, 2}, p.fX, p.fY, &onCurveCount);
+                break;
+            case SkPathEdgeIter::Edge::kQuad:
+                w += winding_quad({rec.fPts, 3}, p.fX, p.fY, &onCurveCount);
+                break;
+            case SkPathEdgeIter::Edge::kConic:
+                w += winding_conic({rec.fPts, 3}, p.fX, p.fY, iter.conicWeight(), &onCurveCount);
+                break;
+            case SkPathEdgeIter::Edge::kCubic:
+                w += winding_cubic({rec.fPts, 4}, p.fX, p.fY, &onCurveCount);
+                break;
+       }
+    }
+    bool evenOddFill = SkPathFillType::kEvenOdd        == ft
+                    || SkPathFillType::kInverseEvenOdd == ft;
+    if (evenOddFill) {
+        w &= 1;
+    }
+    if (w) {
+        return !isInverse;
+    }
+    if (onCurveCount <= 1) {
+        return SkToBool(onCurveCount) ^ isInverse;
+    }
+    if ((onCurveCount & 1) || evenOddFill) {
+        return SkToBool(onCurveCount & 1) ^ isInverse;
+    }
+    // If the point touches an even number of curves, and the fill is winding, check for
+    // coincidence. Count coincidence as places where the on curve points have identical tangents.
+    SkTDArray<SkVector> tangents;
+    for (auto iter = SkPathEdgeIter(raw); auto rec = iter.next(); ) {
+        int oldCount = tangents.size();
+        switch (rec.fEdge) {
+            case SkPathEdgeIter::Edge::kLine:
+                tangent_line({rec.fPts, 2}, p.fX, p.fY, &tangents);
+                break;
+            case SkPathEdgeIter::Edge::kQuad:
+                tangent_quad({rec.fPts, 3}, p.fX, p.fY, &tangents);
+                break;
+            case SkPathEdgeIter::Edge::kConic:
+                tangent_conic({rec.fPts, 3}, p.fX, p.fY, iter.conicWeight(), &tangents);
+                break;
+            case SkPathEdgeIter::Edge::kCubic:
+                tangent_cubic({rec.fPts, 4}, p.fX, p.fY, &tangents);
+                break;
+       }
+       if (tangents.size() > oldCount) {
+            int last = tangents.size() - 1;
+            const SkVector& tangent = tangents[last];
+            if (SkScalarNearlyZero(SkPointPriv::LengthSqd(tangent))) {
+                tangents.remove(last);
+            } else {
+                for (int index = 0; index < last; ++index) {
+                    const SkVector& test = tangents[index];
+                    if (SkScalarNearlyZero(test.cross(tangent))
+                            && SkScalarSignAsInt(tangent.fX * test.fX) <= 0
+                            && SkScalarSignAsInt(tangent.fY * test.fY) <= 0) {
+                        tangents.remove(last);
+                        tangents.removeShuffle(index);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return SkToBool(tangents.size()) ^ isInverse;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
 
 SkPathVerbAnalysis SkPathPriv::AnalyzeVerbs(SkSpan<const SkPathVerb> vbs) {
     SkPathVerbAnalysis info = {false, 0, 0, 0};

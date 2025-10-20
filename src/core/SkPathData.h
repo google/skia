@@ -166,6 +166,8 @@ public:
     sk_sp<SkPathData> makeTransform(const SkMatrix&) const;
     sk_sp<SkPathData> makeOffset(SkVector) const;
 
+    bool contains(SkPoint, SkPathFillType) const;
+
 private:
     friend class SkNVRefCnt<SkPathData>;
     friend class SkPathPriv;

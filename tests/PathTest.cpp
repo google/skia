@@ -4118,172 +4118,178 @@ static void test_get_point(skiatest::Reporter* reporter) {
 #endif
 }
 
+static void test_contains(skiatest::Reporter* reporter,
+                          const SkPathBuilder& bu, SkPoint pt, bool expectedContains) {
+    SkPath path = bu.snapshot();
+
+    auto raw = SkPathPriv::Raw(bu, SkResolveConvexity::kNo);
+    REPORTER_ASSERT(reporter, raw.has_value());
+    auto pdata = SkPathData::Make(raw->points(), raw->verbs(), raw->conics());
+
+    REPORTER_ASSERT(reporter, bu.contains(pt) == expectedContains);
+    REPORTER_ASSERT(reporter, path.contains(pt) == expectedContains);
+    REPORTER_ASSERT(reporter, pdata->contains(pt, raw->fillType()) == expectedContains);
+}
+
 static void test_contains(skiatest::Reporter* reporter) {
-    SkPath p = SkPathBuilder()
+    SkPathBuilder bu = SkPathBuilder()
                .moveTo(SkBits2Float(0xe085e7b1), SkBits2Float(0x5f512c00))  // -7.7191e+19f, 1.50724e+19f
                .conicTo(SkBits2Float(0xdfdaa221), SkBits2Float(0x5eaac338), SkBits2Float(0x60342f13), SkBits2Float(0xdf0cbb58), SkBits2Float(0x3f3504f3))  // -3.15084e+19f, 6.15237e+18f, 5.19345e+19f, -1.01408e+19f, 0.707107f
                .conicTo(SkBits2Float(0x60ead799), SkBits2Float(0xdfb76c24), SkBits2Float(0x609b9872), SkBits2Float(0xdf730de8), SkBits2Float(0x3f3504f4))  // 1.35377e+20f, -2.6434e+19f, 8.96947e+19f, -1.75139e+19f, 0.707107f
                .lineTo(SkBits2Float(0x609b9872), SkBits2Float(0xdf730de8))  // 8.96947e+19f, -1.75139e+19f
                .conicTo(SkBits2Float(0x6018b296), SkBits2Float(0xdeee870d), SkBits2Float(0xe008cd8e), SkBits2Float(0x5ed5b2db), SkBits2Float(0x3f3504f3))  // 4.40121e+19f, -8.59386e+18f, -3.94308e+19f, 7.69931e+18f, 0.707107f
-               .conicTo(SkBits2Float(0xe0d526d9), SkBits2Float(0x5fa67b31), SkBits2Float(0xe085e7b2), SkBits2Float(0x5f512c01), SkBits2Float(0x3f3504f3))  // -1.22874e+20f, 2.39925e+19f, -7.7191e+19f, 1.50724e+19f, 0.707107
-               .detach();
+               .conicTo(SkBits2Float(0xe0d526d9), SkBits2Float(0x5fa67b31), SkBits2Float(0xe085e7b2), SkBits2Float(0x5f512c01), SkBits2Float(0x3f3504f3)); // -1.22874e+20f, 2.39925e+19f, -7.7191e+19f, 1.50724e+19f, 0.707107
     // this may return true or false, depending on the platform's numerics, but it should not crash
-    (void) p.contains(-77.2027664f, 15.3066053f);
+    (void) bu.contains({-77.2027664f, 15.3066053f});
 
-    p.reset();
-    p.setFillType(SkPathFillType::kInverseWinding);
-    REPORTER_ASSERT(reporter, p.contains(0, 0));
-    p.setFillType(SkPathFillType::kWinding);
-    REPORTER_ASSERT(reporter, !p.contains(0, 0));
-    p = SkPathBuilder(SkPathFillType::kWinding)
+    auto check = [&](SkPoint p, bool expected) {
+        test_contains(reporter, bu, p, expected);
+    };
+
+    bu.reset();
+    bu.setFillType(SkPathFillType::kInverseWinding);
+    check({0, 0}, true);
+    bu.setFillType(SkPathFillType::kWinding);
+    check({0, 0}, false);
+    bu.setFillType(SkPathFillType::kWinding)
         .moveTo(4, 4)
         .lineTo(6, 8)
-        .lineTo(8, 4)
-        .detach();
+        .lineTo(8, 4);
     // test on edge
-    REPORTER_ASSERT(reporter, p.contains(6, 4));
-    REPORTER_ASSERT(reporter, p.contains(5, 6));
-    REPORTER_ASSERT(reporter, p.contains(7, 6));
+    check({6, 4}, true);
+    check({5, 6}, true);
+    check({7, 6}, true);
     // test quick reject
-    REPORTER_ASSERT(reporter, !p.contains(4, 0));
-    REPORTER_ASSERT(reporter, !p.contains(0, 4));
-    REPORTER_ASSERT(reporter, !p.contains(4, 10));
-    REPORTER_ASSERT(reporter, !p.contains(10, 4));
+    check({4, 0}, false);
+    check({0, 4}, false);
+    check({4, 10}, false);
+    check({10, 4}, false);
     // test various crossings in x
-    REPORTER_ASSERT(reporter, !p.contains(5, 7));
-    REPORTER_ASSERT(reporter, p.contains(6, 7));
-    REPORTER_ASSERT(reporter, !p.contains(7, 7));
-    p = SkPathBuilder()
+    check({5, 7}, false);
+    check({6, 7}, true);
+    check({7, 7}, false);
+    bu = SkPathBuilder()
         .moveTo(4, 4)
         .lineTo(8, 6)
-        .lineTo(4, 8)
-        .detach();
+        .lineTo(4, 8);
     // test on edge
-    REPORTER_ASSERT(reporter, p.contains(4, 6));
-    REPORTER_ASSERT(reporter, p.contains(6, 5));
-    REPORTER_ASSERT(reporter, p.contains(6, 7));
+    check({4, 6}, true);
+    check({6, 5}, true);
+    check({6, 7}, true);
     // test various crossings in y
-    REPORTER_ASSERT(reporter, !p.contains(7, 5));
-    REPORTER_ASSERT(reporter, p.contains(7, 6));
-    REPORTER_ASSERT(reporter, !p.contains(7, 7));
-    p = SkPathBuilder()
+    check({7, 5}, false);
+    check({7, 6}, true);
+    check({7, 7}, false);
+    bu = SkPathBuilder()
         .moveTo(4, 4)
         .lineTo(8, 4)
         .lineTo(8, 8)
-        .lineTo(4, 8)
-        .detach();
+        .lineTo(4, 8);
     // test on vertices
-    REPORTER_ASSERT(reporter, p.contains(4, 4));
-    REPORTER_ASSERT(reporter, p.contains(8, 4));
-    REPORTER_ASSERT(reporter, p.contains(8, 8));
-    REPORTER_ASSERT(reporter, p.contains(4, 8));
-    p = SkPathBuilder()
+    check({4, 4}, true);
+    check({8, 4}, true);
+    check({8, 8}, true);
+    check({4, 8}, true);
+    bu = SkPathBuilder()
         .moveTo(4, 4)
         .lineTo(6, 8)
-        .lineTo(2, 8)
-        .detach();
+        .lineTo(2, 8);
     // test on edge
-    REPORTER_ASSERT(reporter, p.contains(5, 6));
-    REPORTER_ASSERT(reporter, p.contains(4, 8));
-    REPORTER_ASSERT(reporter, p.contains(3, 6));
-    p = SkPathBuilder()
+    check({5, 6}, true);
+    check({4, 8}, true);
+    check({3, 6}, true);
+    bu = SkPathBuilder()
         .moveTo(4, 4)
         .lineTo(0, 6)
-        .lineTo(4, 8)
-        .detach();
+        .lineTo(4, 8);
     // test on edge
-    REPORTER_ASSERT(reporter, p.contains(2, 5));
-    REPORTER_ASSERT(reporter, p.contains(2, 7));
-    REPORTER_ASSERT(reporter, p.contains(4, 6));
+    check({2, 5}, true);
+    check({2, 7}, true);
+    check({4, 6}, true);
     // test canceling coincident edge (a smaller triangle is coincident with a larger one)
-    p = SkPathBuilder()
+    bu = SkPathBuilder()
         .moveTo(4, 0)
         .lineTo(6, 4)
         .lineTo(2, 4)
         .moveTo(4, 0)
         .lineTo(0, 8)
-        .lineTo(8, 8)
-        .detach();
-    REPORTER_ASSERT(reporter, !p.contains(1, 2));
-    REPORTER_ASSERT(reporter, !p.contains(3, 2));
-    REPORTER_ASSERT(reporter, !p.contains(4, 0));
-    REPORTER_ASSERT(reporter, p.contains(4, 4));
+        .lineTo(8, 8);
+    check({1, 2}, false);
+    check({3, 2}, false);
+    check({4, 0}, false);
+    check({4, 4}, true);
 
     // test quads
-    p = SkPathBuilder()
+    bu = SkPathBuilder()
         .moveTo(4, 4)
         .quadTo(6, 6, 8, 8)
         .quadTo(6, 8, 4, 8)
-        .quadTo(4, 6, 4, 4)
-        .detach();
-    REPORTER_ASSERT(reporter, p.contains(5, 6));
-    REPORTER_ASSERT(reporter, !p.contains(6, 5));
+        .quadTo(4, 6, 4, 4);
+    check({5, 6}, true);
+    check({6, 5}, false);
     // test quad edge
-    REPORTER_ASSERT(reporter, p.contains(5, 5));
-    REPORTER_ASSERT(reporter, p.contains(5, 8));
-    REPORTER_ASSERT(reporter, p.contains(4, 5));
+    check({5, 5}, true);
+    check({5, 8}, true);
+    check({4, 5}, true);
     // test quad endpoints
-    REPORTER_ASSERT(reporter, p.contains(4, 4));
-    REPORTER_ASSERT(reporter, p.contains(8, 8));
-    REPORTER_ASSERT(reporter, p.contains(4, 8));
+    check({4, 4}, true);
+    check({8, 8}, true);
+    check({4, 8}, true);
 
-    SkPathBuilder builder;
+    bu.reset();
     const SkPoint qPts[] = {{6, 6}, {8, 8}, {6, 8}, {4, 8}, {4, 6}, {4, 4}, {6, 6}};
-    builder.moveTo(qPts[0]);
+    bu.moveTo(qPts[0]);
     for (int index = 1; index < (int) std::size(qPts); index += 2) {
-        builder.quadTo(qPts[index], qPts[index + 1]);
+        bu.quadTo(qPts[index], qPts[index + 1]);
     }
-    p = builder.detach();
-    REPORTER_ASSERT(reporter, p.contains(5, 6));
-    REPORTER_ASSERT(reporter, !p.contains(6, 5));
+    check({5, 6}, true);
+    check({6, 5}, false);
     // test quad edge
     SkPoint halfway;
     for (int index = 0; index < (int) std::size(qPts) - 2; index += 2) {
         SkEvalQuadAt(&qPts[index], 0.5f, &halfway, nullptr);
-        REPORTER_ASSERT(reporter, p.contains(halfway.fX, halfway.fY));
+        check(halfway, true);
     }
 
     // test conics
-    builder.reset();
+    bu.reset();
     const SkPoint kPts[] = {{4, 4}, {6, 6}, {8, 8}, {6, 8}, {4, 8}, {4, 6}, {4, 4}};
-    builder.moveTo(kPts[0]);
+    bu.moveTo(kPts[0]);
     for (int index = 1; index < (int) std::size(kPts); index += 2) {
-        builder.conicTo(kPts[index], kPts[index + 1], 0.5f);
+        bu.conicTo(kPts[index], kPts[index + 1], 0.5f);
     }
-    p = builder.detach();
-    REPORTER_ASSERT(reporter, p.contains(5, 6));
-    REPORTER_ASSERT(reporter, !p.contains(6, 5));
+    check({5, 6}, true);
+    check({6, 5}, false);
     // test conic edge
     for (int index = 0; index < (int) std::size(kPts) - 2; index += 2) {
         SkConic conic(&kPts[index], 0.5f);
         halfway = conic.evalAt(0.5f);
-        REPORTER_ASSERT(reporter, p.contains(halfway.fX, halfway.fY));
+        check(halfway, true);
     }
     // test conic end points
-    REPORTER_ASSERT(reporter, p.contains(4, 4));
-    REPORTER_ASSERT(reporter, p.contains(8, 8));
-    REPORTER_ASSERT(reporter, p.contains(4, 8));
+    check({4, 4}, true);
+    check({8, 8}, true);
+    check({4, 8}, true);
 
     // test cubics
     SkPoint pts[] = {{5, 4}, {6, 5}, {7, 6}, {6, 6}, {4, 6}, {5, 7}, {5, 5}, {5, 4}, {6, 5}, {7, 6}};
     for (int i = 0; i < 3; ++i) {
-        p = SkPathBuilder(SkPathFillType::kEvenOdd)
+        bu = SkPathBuilder(SkPathFillType::kEvenOdd)
             .moveTo(pts[i].fX, pts[i].fY)
             .cubicTo(pts[i + 1], pts[i + 2], pts[i + 3])
             .cubicTo(pts[i + 4], pts[i + 5], pts[i + 6])
-            .close()
-            .detach();
-        REPORTER_ASSERT(reporter, p.contains(5.5f, 5.5f));
-        REPORTER_ASSERT(reporter, !p.contains(4.5f, 5.5f));
+            .close();
+        check({5.5f, 5.5f}, true);
+        check({4.5f, 5.5f}, false);
         // test cubic edge
         SkEvalCubicAt(&pts[i], 0.5f, &halfway, nullptr, nullptr);
-        REPORTER_ASSERT(reporter, p.contains(halfway.fX, halfway.fY));
+        check(halfway, true);
         SkEvalCubicAt(&pts[i + 3], 0.5f, &halfway, nullptr, nullptr);
-        REPORTER_ASSERT(reporter, p.contains(halfway.fX, halfway.fY));
+        check(halfway, true);
         // test cubic end points
-        REPORTER_ASSERT(reporter, p.contains(pts[i].fX, pts[i].fY));
-        REPORTER_ASSERT(reporter, p.contains(pts[i + 3].fX, pts[i + 3].fY));
-        REPORTER_ASSERT(reporter, p.contains(pts[i + 6].fX, pts[i + 6].fY));
+        check(pts[i], true);
+        check(pts[i + 3], true);
+        check(pts[i + 6], true);
     }
 }
 
