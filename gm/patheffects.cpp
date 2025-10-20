@@ -196,8 +196,8 @@ public:
                       SkStrokeRec* rec,
                       const SkRect* cullR,
                       const SkMatrix& ctm) const final {
-        SkASSERT(src.countPoints() == 2);
-        const SkPoint pts[2] = {src.getPoint(0), src.getPoint(1)};
+        SkSpan<const SkPoint> pts = src.points();
+        SkASSERT(pts.size() == 2);
 
         SkMatrix invCtm;
         if (!ctm.invert(&invCtm)) {

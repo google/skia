@@ -76,10 +76,11 @@ static SkScalar get_area_coverage(SkSpan<const bool> edgeAA, SkSpan<const SkPoin
     }
 
     // Calculate area of the convex polygon
+    SkSpan<const SkPoint> pts = intersection->points();
     SkScalar area = 0.f;
-    for (int i = 0; i < intersection->countPoints(); ++i) {
-        SkPoint p0 = intersection->getPoint(i);
-        SkPoint p1 = intersection->getPoint((i + 1) % intersection->countPoints());
+    for (size_t i = 0; i < pts.size(); ++i) {
+        SkPoint p0 = pts[i];
+        SkPoint p1 = pts[(i + 1) % pts.size()];
         SkScalar det = p0.fX * p1.fY - p1.fX * p0.fY;
         area += det;
     }

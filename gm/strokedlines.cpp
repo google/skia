@@ -288,10 +288,7 @@ static void draw_path(SkCanvas* canvas, const SkPoint& p0, const SkPoint& p1, Sk
 
     paint.setStrokeWidth(3);
     paint.setStrokeCap(SkPaint::kSquare_Cap);
-    int n = fillPath.countPoints();
-    AutoTArray<SkPoint> points(n);
-    fillPath.getPoints(points);
-    canvas->drawPoints(SkCanvas::kPoints_PointMode, points, paint);
+    canvas->drawPoints(SkCanvas::kPoints_PointMode, fillPath.points(), paint);
 }
 
 DEF_SIMPLE_GM(strokedline_caps, canvas, 1400, 740) {

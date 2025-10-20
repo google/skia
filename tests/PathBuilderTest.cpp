@@ -773,10 +773,9 @@ DEF_TEST(SkPathBuilder_transform, reporter) {
         matrix.setScale(SK_Scalar1 * 2, SK_Scalar1 * 3);
 
         SkPath p1 = SkPathBuilder(b.snapshot()).transform(matrix).detach();
-        SkPoint pts1[kPtCount];
-        int count = p1.getPoints(pts1);
-        REPORTER_ASSERT(reporter, kPtCount == count);
-        for (int i = 0; i < count; ++i) {
+        SkSpan<const SkPoint> pts1 = p1.points();
+        REPORTER_ASSERT(reporter, kPtCount == pts1.size());
+        for (size_t i = 0; i < pts1.size(); ++i) {
             SkPoint newPt = SkPoint::Make(pts[i].fX * 2, pts[i].fY * 3);
             REPORTER_ASSERT(reporter, newPt == pts1[i]);
         }

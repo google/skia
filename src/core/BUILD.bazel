@@ -139,6 +139,7 @@ SEMI_PUBLIC_HEADERS = [
     "SkSamplingPriv.h",
     "SkScalerContext.h",
     "SkScan.h",
+    "SkSpanPriv.h",
     "SkSpecialImage.h",
     "SkStreamPriv.h",
     "SkStrike.h",

@@ -147,8 +147,7 @@ void SkPath::dumpArrays(SkWStream* wStream, bool dumpAsHex) const {
     };
 
     builder.append("const SkPoint path_points[] = {\n");
-    for (int i = 0; i < this->countPoints(); ++i) {
-        SkPoint p = this->getPoint(i);
+    for (auto p : this->points()) {
         builder.append("    { ");
         append_scalar(p.fX);
         builder.append(", ");

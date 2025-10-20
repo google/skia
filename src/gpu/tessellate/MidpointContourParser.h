@@ -30,10 +30,10 @@ class MidpointContourParser {
 public:
     MidpointContourParser(const SkPath& path)
             : fPath(path)
-            , fVerbs(SkPathPriv::VerbData(fPath))
+            , fVerbs(fPath.verbs().data())
             , fNumRemainingVerbs(fPath.countVerbs())
-            , fPoints(SkPathPriv::PointData(fPath))
-            , fWeights(SkPathPriv::ConicWeightData(fPath)) {}
+            , fPoints(fPath.points().data())
+            , fWeights(fPath.conicWeights().data()) {}
     // Advances the internal state to the next contour in the path. Returns false if there are no
     // more contours.
     bool parseNextContour() {

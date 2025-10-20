@@ -30,8 +30,9 @@
 #include <iterator>
 
 static void path_edit(const SkPoint& from, const SkPoint& to, SkPath* path) {
-    for (int index = 0; index < path->countPoints(); ++index) {
-        if (SkDPoint::ApproximatelyEqual(path->getPoint(index), from)) {
+    SkSpan<const SkPoint> pts = path->points();
+    for (size_t index = 0; index < pts.size(); ++index) {
+        if (SkDPoint::ApproximatelyEqual(pts[index], from)) {
             // we want setPt()
             SkPathBuilder builder(*path);
             builder.setPoint(index, to);

@@ -505,7 +505,10 @@ private:
             SkPoint* ptPtr = pts.get();
             for (int i = 0; i < contourCounts.size(); ++i) {
                 int count = contourCounts[i];
-                path.getPoints({ptPtr, count});
+
+                const SkPoint* src = path.points().data();
+                std::copy(src, src + count, ptPtr);
+
                 canvas->drawPoints(SkCanvas::kPolygon_PointMode, {ptPtr, count}, paint);
                 ptPtr += count;
             }
@@ -560,14 +563,14 @@ private:
         for (SkScalar dist = 0; dist <= total; dist += delta) {
             ++ribs;
         }
-        const SkPathVerb* verbs = SkPathPriv::VerbData(path);
-        if (path.countVerbs() < 2 || SkPathVerb::kMove != verbs[0]) {
+        SkSpan<const SkPathVerb> verbs = path.verbs();
+        if (verbs.size() < 2 || SkPathVerb::kMove != verbs[0]) {
             SkASSERT(0);
             return;
         }
         auto verb = static_cast<SkPath::Verb>(verbs[1]);
         SkASSERT(SkPath::kLine_Verb <= verb && verb <= SkPath::kCubic_Verb);
-        const SkPoint* pts = SkPathPriv::PointData(path);
+        SkSpan<const SkPoint> pts = path.points();
         SkPoint pos, tan;
         for (int index = 0; index < ribs; ++index) {
             SkScalar t = (SkScalar) index / ribs;
@@ -579,16 +582,16 @@ private:
                     pos.fY += tan.fY * t;
                     break;
                 case SkPath::kQuad_Verb:
-                    pos = SkEvalQuadAt(pts, t);
-                    tan = SkEvalQuadTangentAt(pts, t);
+                    pos = SkEvalQuadAt(pts.data(), t);
+                    tan = SkEvalQuadTangentAt(pts.data(), t);
                     break;
                 case SkPath::kConic_Verb: {
-                    SkConic conic(pts, SkPathPriv::ConicWeightData(path)[0]);
+                    SkConic conic(pts.data(), path.conicWeights()[0]);
                     pos = conic.evalAt(t);
                     tan = conic.evalTangentAt(t);
                     } break;
                 case SkPath::kCubic_Verb:
-                    SkEvalCubicAt(pts, t, &pos, &tan, nullptr);
+                    SkEvalCubicAt(pts.data(), t, &pos, &tan, nullptr);
                     break;
                 default:
                     SkASSERT(0);

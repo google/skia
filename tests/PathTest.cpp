@@ -2854,10 +2854,9 @@ static void test_transform(skiatest::Reporter* reporter) {
         matrix.setScale(SK_Scalar1 * 2, SK_Scalar1 * 3);
 
         SkPath p1 = p.makeTransform(matrix);
-        SkPoint pts1[kPtCount];
-        int count = p1.getPoints(pts1);
-        REPORTER_ASSERT(reporter, kPtCount == count);
-        for (int i = 0; i < count; ++i) {
+        SkSpan<const SkPoint> pts1 = p1.points();
+        REPORTER_ASSERT(reporter, kPtCount == pts1.size());
+        for (size_t i = 0; i < pts1.size(); ++i) {
             SkPoint newPt = SkPoint::Make(pts[i].fX * 2, pts[i].fY * 3);
             REPORTER_ASSERT(reporter, newPt == pts1[i]);
         }
@@ -2918,8 +2917,6 @@ static void test_transform(skiatest::Reporter* reporter) {
 }
 
 static void test_zero_length_paths(skiatest::Reporter* reporter) {
-    uint8_t verbs[32];
-
     struct SUPPRESS_VISIBILITY_WARNING zeroPathTestData {
         const char* testPath;
         const size_t numResultPts;
@@ -2973,13 +2970,14 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
 
     for (size_t i = 0; i < std::size(gZeroLengthTests); ++i) {
         auto p = SkParsePath::FromSVGString(gZeroLengthTests[i].testPath);
+        SkSpan<const SkPathVerb> verbs = p->verbs();
         REPORTER_ASSERT(reporter, p.has_value());
         REPORTER_ASSERT(reporter, !p->isEmpty());
         REPORTER_ASSERT(reporter, gZeroLengthTests[i].numResultPts == (size_t)p->countPoints());
         REPORTER_ASSERT(reporter, gZeroLengthTests[i].resultBound == p->getBounds());
-        REPORTER_ASSERT(reporter, gZeroLengthTests[i].numResultVerbs == (size_t)p->getVerbs(verbs));
+        REPORTER_ASSERT(reporter, gZeroLengthTests[i].numResultVerbs == verbs.size());
         for (size_t j = 0; j < gZeroLengthTests[i].numResultVerbs; ++j) {
-            REPORTER_ASSERT(reporter, gZeroLengthTests[i].resultVerbs[j] == verbs[j]);
+            REPORTER_ASSERT(reporter, gZeroLengthTests[i].resultVerbs[j] == (uint8_t)verbs[j]);
         }
     }
 }
@@ -3963,10 +3961,11 @@ static void test_arcTo(skiatest::Reporter* reporter) {
     p = SkPathBuilder().arcTo({1, 2}, {0, 0}, 1).detach();
     check_path_is_line(reporter, p, 1, 2);
     p = SkPathBuilder().arcTo({1, 0}, {1, 1}, 1).detach();
-    SkPoint pt;
-    REPORTER_ASSERT(reporter, p.getLastPt(&pt) && pt.fX == 1 && pt.fY == 1);
+    SkPoint pt = p.points().back();
+    REPORTER_ASSERT(reporter, pt.fX == 1 && pt.fY == 1);
     p = SkPathBuilder().arcTo({1, 0}, {1, -1}, 1).detach();
-    REPORTER_ASSERT(reporter, p.getLastPt(&pt) && pt.fX == 1 && pt.fY == -1);
+    pt = p.points().back();
+    REPORTER_ASSERT(reporter, pt.fX == 1 && pt.fY == -1);
     SkRect oval = {1, 2, 3, 4};
     p = SkPathBuilder().arcTo(oval, 0, 0, true).detach();
     check_path_is_move(reporter, p, oval.fRight, oval.centerY());
@@ -4008,8 +4007,7 @@ static void test_arcTo(skiatest::Reporter* reporter) {
           .detach();
 
       // The 'arcTo' call should end up exactly at the starting location.
-      int n = p.countPoints();
-      REPORTER_ASSERT(reporter, p.getPoint(0) == p.getPoint(n - 1));
+      REPORTER_ASSERT(reporter, p.points().front() == p.points().back());
     }
 
     // This test, if improperly handled, can create an infinite loop in angles_to_unit_vectors

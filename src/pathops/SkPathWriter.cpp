@@ -358,13 +358,13 @@ void SkPathWriter::assemble() {
                 if (!prior) {
                     return;
                 }
+                SkSpan<const SkPoint> contourPts = contour.points();
                 SkPoint next;
                 if (forward) {
-                    next = contour.getPoint(0);
+                    next = contourPts.empty() ? SkPoint{0, 0} : contourPts.front();
                 } else {
-                    auto lastPt = contour.getLastPt();
-                    SkASSERT(lastPt.has_value());
-                    next = *lastPt;
+                    SkASSERT(!contourPts.empty());
+                    next = contourPts.back();
                 }
                 if (*prior != next) {
                     /* TODO: if there is a gap between open path written so far and path to come,

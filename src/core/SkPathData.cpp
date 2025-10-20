@@ -15,6 +15,7 @@
 #include "src/core/SkPathEnums.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkPathRawShapes.h"
+#include "src/core/SkSpanPriv.h"
 
 #include <new>
 #include <optional>
@@ -47,20 +48,6 @@ private:
     SkSafeMath fSafe;
     size_t     fTotal;
 };
-
-namespace {
-template <typename T> bool spaneq(SkSpan<T> a, SkSpan<T> b) {
-    if (a.size() != b.size()) {
-        return false;
-    }
-    return std::equal(a.begin(), a.end(), b.begin());
-}
-
-template <typename T> void spancpy(SkSpan<T> dst, SkSpan<const T> src) {
-    SkASSERT(dst.size() == src.size());
-    sk_careful_memcpy(dst.data(), src.data(), src.size_bytes());
-}
-}
 
 const uint8_t gPtsPerVerb[] = {
     1, 1, 2, 2, 3, 0,  // move, line, quad, conic, cubic, close
@@ -246,8 +233,8 @@ sk_sp<SkPathData> SkPathData::MakeTransform(const SkPathRaw& src, const SkMatrix
     // Allocate our result, so we can map the new points directly into it
     auto result = Alloc(src.points().size(), src.verbs().size(), src.conics().size());
     mx.mapPoints(result->fPoints, src.points());
-    spancpy(result->fConics, src.conics());
-    spancpy(result->fVerbs,  src.verbs());
+    SkSpanPriv::Copy(result->fConics, src.conics());
+    SkSpanPriv::Copy(result->fVerbs,  src.verbs());
 
     std::optional<SkRect> transformedBounds;
     if (mx.rectStaysRect()) {
@@ -300,9 +287,9 @@ bool operator==(const SkPathData& a, const SkPathData& b) {
         return true;
     }
 
-    return  spaneq(a.fPoints, b.fPoints) &&
-            spaneq(a.fConics, b.fConics) &&
-            spaneq(a.fVerbs,  b.fVerbs);
+    return  SkSpanPriv::EQ(a.fPoints, b.fPoints) &&
+            SkSpanPriv::EQ(a.fConics, b.fConics) &&
+            SkSpanPriv::EQ(a.fVerbs,  b.fVerbs);
 }
 
 /////////////////////////////////////
@@ -317,9 +304,9 @@ sk_sp<SkPathData> SkPathData::MakeNoCheck(SkSpan<const SkPoint> pts,
 
     auto path = Alloc(pts.size(), vbs.size(), conics.size());
 
-    spancpy(path->fPoints, pts);
-    spancpy(path->fConics, conics);
-    spancpy(path->fVerbs,  vbs);
+    SkSpanPriv::Copy(path->fPoints, pts);
+    SkSpanPriv::Copy(path->fConics, conics);
+    SkSpanPriv::Copy(path->fVerbs,  vbs);
 
     return path->finishInit(bounds, segmentMask) ? path : nullptr;
 }
@@ -384,7 +371,7 @@ sk_sp<SkPathData> SkPathData::Polygon(SkSpan<const SkPoint> pts, bool isClosed) 
     const size_t nconics = 0;
     auto path = Alloc(pts.size(), nverbs, nconics);
 
-    spancpy(path->fPoints, pts);
+    SkSpanPriv::Copy(path->fPoints, pts);
 
     path->fVerbs[0] = SkPathVerb::kMove;
     for (size_t i = 1; i < pts.size(); ++i) {

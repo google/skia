@@ -28,6 +28,7 @@
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkPathRawShapes.h"
 #include "src/core/SkPointPriv.h"
+#include "src/core/SkSpanPriv.h"
 
 #include <algorithm>
 #include <cmath>
@@ -137,9 +138,9 @@ void SkPath::setConvexity(SkPathConvexity c) const {
 
 bool SkPath::isInterpolatable(const SkPath& compare) const {
     // need the same structure (verbs, conicweights) and same point-count
-    return fPathRef->fPoints.size() == compare.fPathRef->fPoints.size() &&
-           fPathRef->fVerbs == compare.fPathRef->fVerbs &&
-           fPathRef->fConicWeights == compare.fPathRef->fConicWeights;
+    return this->points().size() == compare.points().size() &&
+           SkSpanPriv::EQ(this->verbs(), compare.verbs()) &&
+           SkSpanPriv::EQ(this->conicWeights(), compare.conicWeights());
 }
 
 bool SkPath::interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const {
@@ -280,34 +281,28 @@ SkPath& SkPath::reset() {
 }
 
 bool SkPath::isLastContourClosed() const {
-    int verbCount = fPathRef->countVerbs();
-    if (0 == verbCount) {
-        return false;
-    }
-    return SkPathVerb::kClose == fPathRef->atVerb(verbCount - 1);
+    SkSpan<const SkPathVerb> verbs = this->verbs();
+    return !verbs.empty() && verbs.back() == SkPathVerb::kClose;
 }
 
 bool SkPath::isLine(SkPoint line[2]) const {
-    int verbCount = fPathRef->countVerbs();
-
-    if (2 == verbCount) {
-        SkASSERT(SkPathVerb::kMove == fPathRef->verbs()[0]);
-        if (SkPathVerb::kLine == fPathRef->verbs()[1]) {
-            SkASSERT(2 == fPathRef->countPoints());
-            if (line) {
-                const SkPoint* pts = fPathRef->points();
-                line[0] = pts[0];
-                line[1] = pts[1];
-            }
-            return true;
+    SkSpan<const SkPathVerb> verbs = this->verbs();
+    if (verbs.size() == 2 && verbs[1] == SkPathVerb::kLine) {
+        SkASSERT(verbs[0] == SkPathVerb::kMove);
+        SkSpan<const SkPoint> pts = this->points();
+        SkASSERT(pts.size() == 2);
+        if (line) {
+            line[0] = pts[0];
+            line[1] = pts[1];
         }
+        return true;
     }
     return false;
 }
 
 bool SkPath::isEmpty() const {
     SkDEBUGCODE(this->validate();)
-    return 0 == fPathRef->countVerbs();
+    return this->verbs().empty();
 }
 
 bool SkPath::isFinite() const {
@@ -373,8 +368,8 @@ void SkPath::validateRef() const {
 #endif
 bool SkPath::isRect(SkRect* rect, bool* isClosed, SkPathDirection* direction) const {
     SkDEBUGCODE(this->validate();)
-    SkSpan<const SkPoint> pts = {fPathRef->points(), fPathRef->countPoints()};
-    SkSpan<const SkPathVerb> vbs = fPathRef->verbs();
+    SkSpan<const SkPoint> pts = this->points();
+    SkSpan<const SkPathVerb> vbs = this->verbs();
     if (auto rc = SkPathPriv::IsRectContour(pts, vbs, false)) {
         if (rect) {
             *rect = rc->fRect;
@@ -410,38 +405,43 @@ bool SkPath::isRRect(SkRRect* rrect) const {
     return false;
 }
 
-int SkPath::countPoints() const {
-    return fPathRef->countPoints();
+SkSpan<const SkPoint> SkPath::points() const {
+    return fPathRef->pointSpan();
+}
+SkSpan<const SkPathVerb> SkPath::verbs() const {
+    return fPathRef->verbs();
+}
+SkSpan<const float> SkPath::conicWeights() const {
+    return fPathRef->conicSpan();
 }
 
+#ifdef SK_LEGACY_PATH_ACCESSORS
 size_t SkPath::getPoints(SkSpan<SkPoint> dst) const {
     SkDEBUGCODE(this->validate();)
+    SkSpan<const SkPoint> src = this->points();
 
-    const size_t ptCount = fPathRef->countPoints();
-    const size_t n = std::min(dst.size(), ptCount);
-    sk_careful_memcpy(dst.data(), fPathRef->points(), n * sizeof(SkPoint));
-    return ptCount;
+    const size_t n = std::min(dst.size(), src.size());
+    sk_careful_memcpy(dst.data(), src.data(), n * sizeof(SkPoint));
+    return src.size();
 }
 
 SkPoint SkPath::getPoint(int index) const {
-    if ((unsigned)index < (unsigned)fPathRef->countPoints()) {
-        return fPathRef->atPoint(index);
+    SkSpan<const SkPoint> pts = this->points();
+    if ((unsigned)index < (unsigned)pts.size()) {
+        return pts[index];
     }
     return SkPoint::Make(0, 0);
 }
 
-int SkPath::countVerbs() const {
-    return fPathRef->countVerbs();
-}
-
 size_t SkPath::getVerbs(SkSpan<uint8_t> dst) const {
     SkDEBUGCODE(this->validate();)
+    SkSpan<const SkPathVerb> src = this->verbs();
 
-    const size_t vbCount = fPathRef->countVerbs();
-    const size_t n = std::min(dst.size(), vbCount);
-    sk_careful_memcpy(dst.data(), fPathRef->verbsBegin(), n);
-    return vbCount;
+    const size_t n = std::min(dst.size(), src.size());
+    sk_careful_memcpy(dst.data(), src.data(), n);
+    return src.size();
 }
+#endif
 
 size_t SkPath::approximateBytesUsed() const {
     size_t size = sizeof (SkPath);
@@ -453,9 +453,9 @@ size_t SkPath::approximateBytesUsed() const {
 
 std::optional<SkPoint> SkPath::getLastPt() const {
     SkDEBUGCODE(this->validate();)
-
-    if (const int count = fPathRef->countPoints()) {
-        return fPathRef->atPoint(count - 1);
+    SkSpan<const SkPoint> pts = this->points();
+    if (!pts.empty()) {
+        return pts.back();
     }
     return {};
 }
@@ -472,15 +472,17 @@ SkPathConvexity SkPath::getConvexity() const {
 }
 
 SkPathIter SkPath::iter() const {
-    return { fPathRef->fPoints, fPathRef->verbs(), fPathRef->fConicWeights };
+    return { this->points(), this->verbs(), this->conicWeights() };
 }
 
 bool SkPath::isZeroLengthSincePoint(int startPtIndex) const {
-    int count = fPathRef->countPoints() - startPtIndex;
+    SkSpan<const SkPoint> span = this->points();
+
+    int count = (int)span.size() - startPtIndex;
     if (count < 2) {
         return true;
     }
-    const SkPoint* pts = fPathRef->points() + startPtIndex;
+    const SkPoint* pts = span.data() + startPtIndex;
     const SkPoint& first = *pts;
     for (int index = 1; index < count; ++index) {
         if (first != pts[index]) {
@@ -513,10 +515,10 @@ SkPath::Iter::Iter(const SkPath& path, bool forceClose) {
 }
 
 void SkPath::Iter::setPath(const SkPath& path, bool forceClose) {
-    fPts = path.fPathRef->points();
-    fVerbs = path.fPathRef->verbsBegin();
-    fVerbStop = path.fPathRef->verbsEnd();
-    fConicWeights = path.fPathRef->conicWeights();
+    fPts = path.points().data();
+    fVerbs = path.verbs().begin();
+    fVerbStop = path.verbs().end();
+    fConicWeights = path.conicWeights().data();
     if (fConicWeights) {
       fConicWeights -= 1;  // begin one behind
     }
@@ -727,7 +729,7 @@ bool SkPath::isValidImpl() const {
             return false;
         }
 
-        if (fPathRef->countPoints() <= 1) {
+        if (this->countPoints() <= 1) {
             // if we're empty, fBounds may be empty but translated, so we can't
             // necessarily compare to bounds directly
             // try path.addOval(2, 2, 2, 2) which is empty, but the bounds will
@@ -764,9 +766,9 @@ SkPathConvexity SkPath::computeConvexity() const {
     SkPathConvexity convexity = SkPathConvexity::kConcave;
 
     if (this->isFinite()) {
-        convexity = SkPathPriv::ComputeConvexity(fPathRef->pointSpan(),
-                                                 fPathRef->verbs(),
-                                                 fPathRef->conicSpan());
+        convexity = SkPathPriv::ComputeConvexity(this->points(),
+                                                 this->verbs(),
+                                                 this->conicWeights());
     }
 
     SkASSERT(convexity != SkPathConvexity::kUnknown);
@@ -1588,7 +1590,7 @@ int SkPathPriv::GenIDChangeListenersCount(const SkPath& path) {
 }
 
 bool SkPathPriv::IsAxisAligned(const SkPath& path) {
-    return IsAxisAligned(path.fPathRef->pointSpan());
+    return IsAxisAligned(path.points());
 }
 
 std::optional<SkPathRectInfo> SkPathPriv::IsSimpleRect(const SkPath& path, bool isSimpleFill) {

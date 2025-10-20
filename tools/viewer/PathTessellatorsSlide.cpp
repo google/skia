@@ -234,8 +234,7 @@ void PathTessellatorsSlide::draw(SkCanvas* canvas) {
         SkPaint captionPaint;
         captionPaint.setColor(SK_ColorWHITE);
         canvas->drawString(caption, 10, 30, font, captionPaint);
-        canvas->drawPoints(SkCanvas::kPoints_PointMode,
-                           {SkPathPriv::PointData(devPath), devPath.countPoints()}, pointsPaint);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, devPath.points(), pointsPaint);
     }
 }
 
@@ -244,7 +243,7 @@ public:
     Click(int ptIdx) : fPtIdx(ptIdx) {}
 
     void doClick(SkPath* path) {
-        SkPoint pt = path->getPoint(fPtIdx);
+        SkPoint pt = path->points()[fPtIdx];
         SkPathBuilder builder(*path);
         builder.setPoint(fPtIdx, pt + fCurr - fPrev);
         *path = builder.detach();
@@ -256,7 +255,7 @@ private:
 
 ClickHandlerSlide::Click* PathTessellatorsSlide::onFindClickHandler(SkScalar x, SkScalar y,
                                                                     skui::ModifierKey) {
-    const SkPoint* pts = SkPathPriv::PointData(fPath);
+    SkSpan<const SkPoint> pts = fPath.points();
     float fuzz = 30;
     for (int i = 0; i < fPath.countPoints(); ++i) {
         if (fabs(x - pts[i].x()) < fuzz && fabsf(y - pts[i].y()) < fuzz) {

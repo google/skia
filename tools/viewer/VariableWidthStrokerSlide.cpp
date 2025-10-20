@@ -850,32 +850,28 @@ void SkVarWidthStroker::join(const SkPoint& common,
 }
 
 void SkVarWidthStroker::appendPathReversed(const SkPath& path, SkPathBuilder* result) {
-    const int numVerbs = path.countVerbs();
-    const int numPoints = path.countPoints();
-    std::vector<uint8_t> verbs;
-    std::vector<SkPoint> points;
-    verbs.resize(numVerbs);
-    points.resize(numPoints);
-    path.getVerbs(verbs);
-    path.getPoints(points);
+    SkSpan<const SkPoint> points = path.points();
+    SkSpan<const SkPathVerb> verbs = path.verbs();
+    const int numPoints = SkToInt(points.size());
+    const int numVerbs = SkToInt(verbs.size());
 
     for (int i = numVerbs - 1, j = numPoints; i >= 0; i--) {
-        auto verb = static_cast<SkPath::Verb>(verbs[i]);
+        auto verb = verbs[i];
         switch (verb) {
-            case SkPath::kLine_Verb: {
+            case SkPathVerb::kLine: {
                 j -= 1;
                 SkASSERT(j >= 1);
                 result->lineTo(points[j - 1]);
                 break;
             }
-            case SkPath::kQuad_Verb: {
+            case SkPathVerb::kQuad: {
                 j -= 1;
                 SkASSERT(j >= 2);
                 result->quadTo(points[j - 1], points[j - 2]);
                 j -= 1;
                 break;
             }
-            case SkPath::kMove_Verb:
+            case SkPathVerb::kMove:
                 // Ignore
                 break;
             default:

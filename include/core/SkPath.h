@@ -38,6 +38,9 @@ struct SkPathVerbAnalysis;
 // WIP -- define this locally, and fix call-sites to use SkPathBuilder (skbug.com/40040287)
 //#define SK_HIDE_PATH_EDIT_METHODS
 
+// Migrate clients so this is unneeded
+#define SK_LEGACY_PATH_ACCESSORS
+
 /** \class SkPath
     SkPath contain geometry. SkPath may be empty, or contain one or more verbs that
     outline a figure. SkPath always starts with a move verb to a Cartesian coordinate,
@@ -392,54 +395,74 @@ public:
     */
     bool isLine(SkPoint line[2]) const;
 
-    /** Returns the number of points in SkPath.
-        SkPoint count is initially zero.
+    /*
+     *  Return a read-only view into the path's points.
+     */
+    SkSpan<const SkPoint> points() const;
 
-        @return  SkPath SkPoint array length
+    /*
+     *  Return a read-only view into the path's verbs.
+     */
+    SkSpan<const SkPathVerb> verbs() const;
 
-        example: https://fiddle.skia.org/c/@Path_countPoints
+    /*
+     *  Return a read-only view into the path's conic-weights.
+     */
+    SkSpan<const float> conicWeights() const;
+
+    int countPoints() const { return SkToInt(this->points().size()); }
+    int countVerbs() const { return SkToInt(this->verbs().size()); }
+
+    /** Return the last point, or {}
+
+        @return The last if the path contains one or more SkPoint, else returns {}
+
+        example: https://fiddle.skia.org/c/@Path_getLastPt
     */
-    int countPoints() const;
+    std::optional<SkPoint> getLastPt() const;
 
+#ifdef SK_LEGACY_PATH_ACCESSORS
     /** Returns SkPoint at index in SkPoint array. Valid range for index is
         0 to countPoints() - 1.
         Returns (0, 0) if index is out of range.
-
+        DEPRECATED
         @param index  SkPoint array element selector
         @return       SkPoint array value or (0, 0)
-
-        example: https://fiddle.skia.org/c/@Path_getPoint
     */
     SkPoint getPoint(int index) const;
 
     /** Returns number of points in SkPath.
         Copies N points from the path into the span, where N = min(#points, span capacity)
-
+        DEPRECATED
         @param points  span to receive the points. may be empty
         @return the number of points in the path
-
-        example: https://fiddle.skia.org/c/@Path_getPoints
     */
     size_t getPoints(SkSpan<SkPoint> points) const;
 
-    /** Returns the number of verbs: kMove_Verb, kLine_Verb, kQuad_Verb, kConic_Verb,
-        kCubic_Verb, and kClose_Verb; added to SkPath.
-
-        @return  length of verb array
-
-        example: https://fiddle.skia.org/c/@Path_countVerbs
-    */
-    int countVerbs() const;
-
     /** Returns number of points in SkPath.
         Copies N points from the path into the span, where N = min(#points, span capacity)
-
+        DEPRECATED
         @param verbs span to store the verbs. may be empty.
         @return the number of verbs in the path
 
         example: https://fiddle.skia.org/c/@Path_getVerbs
     */
     size_t getVerbs(SkSpan<uint8_t> verbs) const;
+
+    // DEPRECATED
+    bool getLastPt(SkPoint* lastPt) const {
+        if (auto lp = this->getLastPt()) {
+            if (lastPt) {
+                *lastPt = *lp;
+            }
+            return true;
+        }
+        if (lastPt) {
+            *lastPt = {0, 0};
+        }
+        return false;
+    }
+#endif
 
     /** Returns the approximate byte size of the SkPath in memory.
 
@@ -596,28 +619,6 @@ public:
 
     SkPath makeScale(SkScalar sx, SkScalar sy) const {
         return this->makeTransform(SkMatrix::Scale(sx, sy));
-    }
-
-    /** Return the last point, or {}
-
-        @return The last if the path contains one or more SkPoint, else returns {}
-
-        example: https://fiddle.skia.org/c/@Path_getLastPt
-    */
-    std::optional<SkPoint> getLastPt() const;
-
-    // DEPRECATED
-    bool getLastPt(SkPoint* lastPt) const {
-        if (auto lp = this->getLastPt()) {
-            if (lastPt) {
-                *lastPt = *lp;
-            }
-            return true;
-        }
-        if (lastPt) {
-            *lastPt = {0, 0};
-        }
-        return false;
     }
 
     /** \enum SkPath::SegmentMask

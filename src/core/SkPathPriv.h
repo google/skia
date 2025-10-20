@@ -111,7 +111,7 @@ public:
     }
 
     static bool IsClosedSingleContour(const SkPath& path) {
-        return IsClosedSingleContour(path.fPathRef->verbs());
+        return IsClosedSingleContour(path.verbs());
     }
 
     /*
@@ -172,11 +172,11 @@ public:
     public:
         Iterate(SkPath&&) = delete;
         Iterate(const SkPath& path)
-                : Iterate(path.fPathRef->verbsBegin(),
+                : Iterate(path.verbs().begin(),
                           // Don't allow iteration through non-finite points.
-                          (!path.isFinite()) ? path.fPathRef->verbsBegin()
-                                             : path.fPathRef->verbsEnd(),
-                          path.fPathRef->points(), path.fPathRef->conicWeights()) {
+                          (!path.isFinite()) ? path.verbs().begin()
+                                             : path.verbs().end(),
+                          path.points().data(), path.conicWeights().data()) {
         }
         Iterate(const SkPathVerb* verbsBegin, const SkPathVerb* verbsEnd, const SkPoint* points,
                 const SkScalar* weights)
@@ -190,28 +190,6 @@ public:
         const SkPoint* fPoints;
         const SkScalar* fWeights;
     };
-
-    /**
-     * Returns a pointer to the verb data.
-     */
-    static const SkPathVerb* VerbData(const SkPath& path) {
-        return path.fPathRef->verbsBegin();
-    }
-
-    /** Returns a raw pointer to the path points */
-    static const SkPoint* PointData(const SkPath& path) {
-        return path.fPathRef->points();
-    }
-
-    /** Returns the number of conic weights in the path */
-    static int ConicWeightCnt(const SkPath& path) {
-        return path.fPathRef->countWeights();
-    }
-
-    /** Returns a raw pointer to the path conic weights. */
-    static const SkScalar* ConicWeightData(const SkPath& path) {
-        return path.fPathRef->conicWeights();
-    }
 
     /** Returns true if the underlying SkPathRef has one single owner. */
     static bool TestingOnly_unique(const SkPath& path) {

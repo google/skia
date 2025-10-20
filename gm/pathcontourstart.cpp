@@ -105,11 +105,7 @@ private:
         for (unsigned i = 0; i < 8; ++i) {
             const SkPath path = makePath(fRect, dir, i);
             canvas->drawPath(path, fDashPaint);
-
-            const int n = path.countPoints();
-            AutoTArray<SkPoint> points(n);
-            path.getPoints(points);
-            canvas->drawPoints(SkCanvas::kPoints_PointMode, points, fPointsPaint);
+            canvas->drawPoints(SkCanvas::kPoints_PointMode, path.points(), fPointsPaint);
 
             canvas->translate(0, kImageHeight / 8);
         }

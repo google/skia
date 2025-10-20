@@ -43,10 +43,7 @@ static void draw_path(SkCanvas* canvas, const SkPath& path, const SkRect& rect,
 
     paint.setStrokeWidth(3);
     paint.setStrokeJoin(SkPaint::kMiter_Join);
-    int n = path.countPoints();
-    AutoTArray<SkPoint> points(n);
-    path.getPoints(points);
-    canvas->drawPoints(SkCanvas::kPoints_PointMode, points, paint);
+    canvas->drawPoints(SkCanvas::kPoints_PointMode, path.points(), paint);
 }
 
 /*
