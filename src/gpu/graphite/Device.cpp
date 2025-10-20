@@ -145,7 +145,7 @@ const SkStrokeRec& DefaultFillStyle() {
 /** If the paint can be reduced to a solid flood-fill, determine the correct color to fill with. */
 std::optional<SkColor4f> extract_paint_color(const PaintParams& paint,
                                              const SkColorInfo& dstColorInfo) {
-    std::optional<SkBlendMode> bm = paint.finalBlendMode();
+    SkBlendMode bm = paint.finalBlendMode();
     // Since we don't depend on the dst, a dst-out blend mode implies source is
     // opaque, which causes dst-out to behave like clear.
     if (bm == SkBlendMode::kClear || bm == SkBlendMode::kDstOut) {

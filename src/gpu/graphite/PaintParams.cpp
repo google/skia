@@ -61,8 +61,20 @@ bool blendmode_depends_on_dst(SkBlendMode blendMode, bool srcIsOpaque) {
     return true;
 }
 
-std::optional<SkBlendMode> get_final_blendmode(SkBlender* blender) {
-    return blender ? as_BB(blender)->asBlendMode() : SkBlendMode::kSrcOver;
+sk_sp<SkBlender> get_final_blendmode(sk_sp<SkBlender> blender, SkBlendMode* bm) {
+    if (!blender) {
+        *bm = SkBlendMode::kSrcOver;
+        return nullptr;
+    }
+
+    auto optionalBlendMode = as_BB(blender)->asBlendMode();
+    if (optionalBlendMode.has_value()) {
+        *bm = *optionalBlendMode;
+        return nullptr; // no SkBlender required
+    } else {
+        *bm = SkBlendMode::kSrc; // matches the HW blend used for shader-blending
+        return blender;
+    }
 }
 
 Coverage get_renderer_coverage(Coverage coverage,
@@ -74,13 +86,18 @@ Coverage get_renderer_coverage(Coverage coverage,
 
 SkEnumBitMask<DstUsage> get_dst_usage(const Caps* caps,
                                       TextureFormat targetFormat,
-                                      std::optional<SkBlendMode> finalBlendMode,
+                                      const PaintParams& paint,
                                       Coverage rendererCoverage) {
+    if (paint.finalBlender()) {
+        return DstUsage::kDstReadRequired;
+    }
+
+    SkBlendMode finalBlendMode = paint.finalBlendMode();
     SkEnumBitMask<DstUsage> dstUsage =
             CanUseHardwareBlending(caps, targetFormat, finalBlendMode, rendererCoverage)
                             ? DstUsage::kNone
                             : DstUsage::kDstReadRequired;
-    if (finalBlendMode.has_value() && finalBlendMode.value() > SkBlendMode::kLastCoeffMode) {
+    if (finalBlendMode > SkBlendMode::kLastCoeffMode) {
         dstUsage |= DstUsage::kAdvancedBlend;
     }
     return dstUsage;
@@ -97,8 +114,7 @@ PaintParams::PaintParams(const Caps* caps,
                          TextureFormat targetFormat,
                          bool skipColorXform)
         : fColor(paint.getColor4f())
-        , fFinalBlender(paint.refBlender())
-        , fFinalBlendMode(get_final_blendmode(fFinalBlender.get()))
+        , fFinalBlender(get_final_blendmode(paint.refBlender(), &fFinalBlendMode))
         , fShader(paint.refShader())
         , fColorFilter(paint.refColorFilter())
         , fPrimitiveBlender(std::move(primitiveBlender))
@@ -108,7 +124,7 @@ PaintParams::PaintParams(const Caps* caps,
         , fTargetFormat(targetFormat)
         , fSkipColorXform(skipColorXform)
         , fDither(paint.isDither())
-        , fDstUsage(get_dst_usage(caps, fTargetFormat, fFinalBlendMode, fRendererCoverage)) {
+        , fDstUsage(get_dst_usage(caps, fTargetFormat, *this, fRendererCoverage)) {
     if (!fPrimitiveBlender) {
         SkColor4f constantColor;   // if filled in, will be un-premul sRGB
         // fColor is un-premul sRGB
@@ -377,25 +393,25 @@ std::optional<PaintParams::Result> PaintParams::toKey(const KeyContext& keyConte
 
     // Root Node 1 is the final blender
     bool dependsOnDst = fRendererCoverage != Coverage::kNone;
-    if (fFinalBlendMode.has_value()) {
+    if (fFinalBlender) {
+        AddToKey(keyContext, fFinalBlender.get());
+        // Cannot inspect runtime blenders to pessimistically assume they will always use the dst.
+        dependsOnDst = true;
+    } else {
         if (!(fDstUsage & DstUsage::kDstReadRequired)) {
             // With no shader blending, be as explicit as possible about the final blend
-            AddFixedBlendMode(keyContext, fFinalBlendMode.value());
+            AddFixedBlendMode(keyContext, fFinalBlendMode);
         } else {
             // With shader blending, use AddBlendMode() to select the more universal blend functions
             // when possible. Technically we could always use a fixed blend mode but would then
             // over-generate when encountering certain classes of blends. This is most problematic
             // on devices that wouldn't support dual-source blending, so help them out by at least
             // not requiring lots of pipelines.
-            AddBlendMode(keyContext, fFinalBlendMode.value());
+            AddBlendMode(keyContext, fFinalBlendMode);
         }
 
         // Blend modes can be analyzed to determine if specific src colors still depend on the dst.
-        dependsOnDst |= blendmode_depends_on_dst(fFinalBlendMode.value(), isOpaque);
-    } else {
-        AddToKey(keyContext, fFinalBlender.get());
-        // Cannot inspect runtime blenders to pessimistically assume they will always use the dst.
-        dependsOnDst = true;
+        dependsOnDst |= blendmode_depends_on_dst(fFinalBlendMode, isOpaque);
     }
 
     // Optional Root Node 2 is the clip

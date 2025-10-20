@@ -43,17 +43,10 @@ namespace skgpu::graphite {
 
 bool CanUseHardwareBlending(const Caps* caps,
                             TextureFormat targetFormat,
-                            std::optional<SkBlendMode> blendMode,
+                            SkBlendMode bm,
                             Coverage coverage) {
-    // If the blend mode is absent, this is assumed to be for a runtime blender, for which we always
-    // do a dst read.
-    if (!blendMode.has_value()) {
-        return false;
-    }
-
     // Check for special cases that would prevent the usage of direct hardware blending and
     // require us to fall back to using shader-based blending.
-    const SkBlendMode bm = blendMode.value();
     const bool hasCoverage = coverage != Coverage::kNone;
     const bool dstIsFast = caps->getDstReadStrategy() != DstReadStrategy::kTextureCopy;
     if (// Using LCD coverage (which must be applied after the blend equation) with any blend mode

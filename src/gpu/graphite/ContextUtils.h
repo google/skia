@@ -65,8 +65,8 @@ void CollectIntrinsicUniforms(const Caps* caps,
                               UniformManager*);
 
 // Returns whether or not hardware blending can be used. If not, we must perform a dst read within
-// the shader.
-bool CanUseHardwareBlending(const Caps*, TextureFormat, std::optional<SkBlendMode>, Coverage);
+// the shader. If an SkBlender is used instead of an SkBlendMode, it can never use hardware blending
+bool CanUseHardwareBlending(const Caps*, TextureFormat, SkBlendMode, Coverage);
 
 std::string GetPipelineLabel(const ShaderCodeDictionary*,
                              const RenderPassDesc& renderPassDesc,

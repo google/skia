@@ -53,9 +53,10 @@ public:
 
     SkColor4f color() const { return fColor; }
 
-    std::optional<SkBlendMode> finalBlendMode() const { return fFinalBlendMode; }
     SkBlender* finalBlender() const { return fFinalBlender.get(); }
     sk_sp<SkBlender> refFinalBlender() const;
+    // NOTE: Caller must have checked finalBlender() for null first.
+    SkBlendMode finalBlendMode() const { SkASSERT(!fFinalBlender); return fFinalBlendMode; }
 
     SkShader* shader() const { return fShader.get(); }
     sk_sp<SkShader> refShader() const;
@@ -87,22 +88,22 @@ private:
     bool handleDstRead(const KeyContext&) const;
     void handleClipping(const KeyContext&) const;
 
-    SkColor4f                  fColor;
-    sk_sp<SkBlender>           fFinalBlender;   // A nullptr here means SrcOver blending
-    std::optional<SkBlendMode> fFinalBlendMode; // A nullptr here means we have a runtime blendmode
-    sk_sp<SkShader>            fShader;
-    sk_sp<SkColorFilter>       fColorFilter;
+    SkColor4f               fColor;
+    sk_sp<SkBlender>        fFinalBlender;   // A nullptr here means using fFinalBlendMode
+    SkBlendMode             fFinalBlendMode; // Ignored if fFinalBlender is non-null
+    sk_sp<SkShader>         fShader;
+    sk_sp<SkColorFilter>    fColorFilter;
     // A nullptr fPrimitiveBlender means there's no primitive color blending and it is skipped.
     // In the case where there is primitive blending, the primitive color is the source color and
     // the dest is the paint's color (or the paint's shader's computed color).
-    sk_sp<SkBlender>           fPrimitiveBlender;
-    NonMSAAClip                fNonMSAAClip;
-    sk_sp<SkShader>            fClipShader;
-    Coverage                   fRendererCoverage;
-    TextureFormat              fTargetFormat;
-    bool                       fSkipColorXform;
-    bool                       fDither;
-    SkEnumBitMask<DstUsage>    fDstUsage;
+    sk_sp<SkBlender>        fPrimitiveBlender;
+    NonMSAAClip             fNonMSAAClip;
+    sk_sp<SkShader>         fClipShader;
+    Coverage                fRendererCoverage;
+    TextureFormat           fTargetFormat;
+    bool                    fSkipColorXform;
+    bool                    fDither;
+    SkEnumBitMask<DstUsage> fDstUsage;
 };
 
 // Add a fixed blend mode node for a specific SkBlendMode.

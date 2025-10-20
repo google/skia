@@ -72,9 +72,10 @@ void PaintOption::toKey(const KeyContext& keyContext) const {
     if ((fClipShader.first || fAnalyticClip) && fRendererCoverage == Coverage::kNone) {
         finalCoverage = Coverage::kSingleChannel;
     }
-    bool dstReadReq = !CanUseHardwareBlending(keyContext.caps(),
+    bool dstReadReq = !finalBlendMode.has_value() ||
+                      !CanUseHardwareBlending(keyContext.caps(),
                                               fTargetFormat,
-                                              finalBlendMode,
+                                              *finalBlendMode,
                                               finalCoverage);
 
     if (finalBlendMode) {
