@@ -658,9 +658,6 @@
     "name": "Build-Ubuntu24.04-EMCC-wasm-Release-PathKit"
   },
   {
-    "name": "Build-Ubuntu24.04-EMCC-wasm-Release-WasmGMTests"
-  },
-  {
     "name": "Build-Win-Clang-arm64-Debug"
   },
   {
