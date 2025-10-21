@@ -1861,16 +1861,6 @@ if (is_wasm) {
   }
 }
 
-skia_static_library("pathkit") {
-  check_includes = false
-  public_configs = [ ":skia_public" ]
-  configs = skia_library_configs
-
-  sources = skia_pathops_sources
-
-  deps = [ ":skia" ]
-}
-
 group("modules") {
   deps = [
     "modules/bentleyottmann",

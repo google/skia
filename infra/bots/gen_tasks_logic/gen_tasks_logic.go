@@ -35,7 +35,6 @@ const (
 	CAS_EMPTY         = "empty" // TODO(borenet): It'd be nice if this wasn't necessary.
 	CAS_LOTTIE_CI     = "lottie-ci"
 	CAS_LOTTIE_WEB    = "lottie-web"
-	CAS_PATHKIT       = "pathkit"
 	CAS_PERF          = "perf"
 	CAS_PUPPETEER     = "puppeteer"
 	CAS_RUN_RECIPE    = "run-recipe"
@@ -515,8 +514,6 @@ func GenTasks(cfg *Config) {
 			"skia/infra/bots/run_recipe.py",
 			"skia/infra/canvaskit",
 			"skia/modules/canvaskit",
-			"skia/modules/pathkit/perf/perfReporter.js",
-			"skia/modules/pathkit/tests/testReporter.js",
 		},
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
@@ -528,16 +525,6 @@ func GenTasks(cfg *Config) {
 			"skia/.vpython3",
 			"skia/infra/bots/run_recipe.py",
 			"skia/tools/lottie-web-perf",
-		},
-		Excludes: []string{rbe.ExcludeGitDir},
-	})
-	b.MustAddCasSpec(CAS_PATHKIT, &specs.CasSpec{
-		Root: "..",
-		Paths: []string{
-			"skia/.vpython3",
-			"skia/infra/bots/run_recipe.py",
-			"skia/infra/pathkit",
-			"skia/modules/pathkit",
 		},
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
@@ -820,11 +807,6 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			"compiler":      b.Parts["compiler"],
 			"target_arch":   b.Parts["arch"],
 			"configuration": b.Parts["configuration"],
-		}
-		if b.ExtraConfig("PathKit") {
-			ec = []string{"PathKit"}
-			// We prefer to compile this in the cloud because we have more resources there
-			jobNameMap["os"] = strings.ReplaceAll(DEFAULT_OS_LINUX_GCE, "-", "")
 		}
 		if b.ExtraConfig("CanvasKit", "SkottieWASM", "Puppeteer") {
 			if b.CPU() {
@@ -1167,7 +1149,7 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 	} else {
 		d["gpu"] = "none"
 		if d["os"] == DEFAULT_OS_LINUX_GCE {
-			if b.ExtraConfig("CanvasKit", "CMake", "Docker", "PathKit") || b.Role("BuildStats", "CodeSize") {
+			if b.ExtraConfig("CanvasKit", "CMake", "Docker") || b.Role("BuildStats", "CodeSize") {
 				b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 			} else {
 				// Use many-core machines for Build tasks.
@@ -1671,7 +1653,7 @@ func (b *jobBuilder) doUpload() bool {
 // commonTestPerfAssets adds the assets needed by Test and Perf tasks.
 func (b *TaskBuilder) commonTestPerfAssets() {
 	// Docker-based tests don't need the standard CIPD assets
-	if b.ExtraConfig("CanvasKit", "PathKit") || (b.Role("Test") && b.ExtraConfig("LottieWeb")) {
+	if b.ExtraConfig("CanvasKit") || (b.Role("Test") && b.ExtraConfig("LottieWeb")) {
 		return
 	}
 	if b.Os("Android", "ChromeOS", "iOS") {
@@ -1733,14 +1715,7 @@ func (b *jobBuilder) dm() {
 	b.addTask(b.Name, func(b *TaskBuilder) {
 		cas := CAS_TEST
 		recipe := "test"
-		if b.ExtraConfig("PathKit") {
-			cas = CAS_PATHKIT
-			recipe = "test_pathkit"
-			if b.doUpload() {
-				b.directUpload(b.cfg.GsBucketGm, b.cfg.ServiceAccountUploadGM)
-				directUpload = true
-			}
-		} else if b.ExtraConfig("CanvasKit") {
+		if b.ExtraConfig("CanvasKit") {
 			cas = CAS_CANVASKIT
 			recipe = "test_canvaskit"
 			if b.doUpload() {
@@ -1789,7 +1764,7 @@ func (b *jobBuilder) dm() {
 		b.kitchenTask(recipe, OUTPUT_TEST)
 		b.cas(cas)
 		b.swarmDimensions()
-		if b.ExtraConfig("CanvasKit", "Docker", "LottieWeb", "PathKit") {
+		if b.ExtraConfig("CanvasKit", "Docker", "LottieWeb") {
 			b.usesDocker()
 		}
 		if compileTaskName != "" {
@@ -1981,10 +1956,7 @@ func (b *jobBuilder) perf() {
 	b.addTask(b.Name, func(b *TaskBuilder) {
 		recipe := "perf"
 		cas := CAS_PERF
-		if b.ExtraConfig("PathKit") {
-			cas = CAS_PATHKIT
-			recipe = "perf_pathkit"
-		} else if b.ExtraConfig("CanvasKit") {
+		if b.ExtraConfig("CanvasKit") {
 			cas = CAS_CANVASKIT
 			recipe = "perf_canvaskit"
 		} else if b.ExtraConfig("SkottieTracing") {

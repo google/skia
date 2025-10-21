@@ -2494,7 +2494,6 @@ static void testQuadratic7(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(3, 0, 1, 2);
     path.close();
-    markTestFlakyForPathKit();
     testSimplify(reporter, path.detach(), filename);
 }
 
@@ -2781,8 +2780,6 @@ static void testQuadratic34(skiatest::Reporter* reporter, const char* filename) 
     path.moveTo(1, 0);
     path.lineTo(1, 1);
     path.quadTo(2, 1, 1, 2);
-    path.close();
-    markTestFlakyForPathKit();
     testSimplify(reporter, path.detach(), filename);
 }
 
@@ -3045,7 +3042,6 @@ static void testQuadratic69(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 1);
     path.quadTo(3, 2, 2, 3);
     path.close();
-    markTestFlakyForPathKit();
     testSimplify(reporter, path.detach(), filename);
 }
 
@@ -3634,7 +3630,6 @@ static void testQuadralateral2(skiatest::Reporter* reporter, const char* filenam
     path.lineTo(0, 1);
     path.lineTo(1, 2);
     path.close();
-    markTestFlakyForPathKit();
     testSimplify(reporter, path.detach(), filename);
 }
 

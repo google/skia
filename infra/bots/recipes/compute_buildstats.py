@@ -44,41 +44,6 @@ def RunSteps(api):
 
   analyzed = 0
   with api.context(cwd=bin_dir):
-    files = api.file.glob_paths(
-        'find WASM binaries',
-        bin_dir,
-        '*.wasm',
-        test_data=['pathkit.wasm'])
-    analyzed += len(files)
-    if files:
-      analyze_wasm_file(api, checkout_root, out_dir, files)
-
-    files = api.file.glob_paths(
-        'find JS files',
-        bin_dir,
-        '*.js',
-        test_data=['pathkit.js'])
-    analyzed += len(files)
-    if files:
-      analyze_web_file(api, checkout_root, out_dir, files)
-
-    files = api.file.glob_paths(
-        'find JS mem files',
-        bin_dir,
-        '*.js.mem',
-        test_data=['pathkit.js.mem'])
-    analyzed += len(files)
-    if files:
-      analyze_web_file(api, checkout_root, out_dir, files)
-
-    files = api.file.glob_paths(
-        'find flutter library',
-        bin_dir,
-        'libflutter.so',
-        test_data=['libflutter.so'])
-    analyzed += len(files)
-    if files:
-      analyze_flutter_lib(api, checkout_root, out_dir, files)
 
     files = api.file.glob_paths(
         'find skia library',
@@ -134,33 +99,6 @@ def keys_and_props(api):
   return (keystr, propstr)
 
 
-# Get the raw and gzipped size of the given file
-def analyze_web_file(api, checkout_root, out_dir, files):
-  (keystr, propstr) = keys_and_props(api)
-
-  for f in files:
-    skia_dir = checkout_root.joinpath('skia')
-    with api.context(cwd=skia_dir):
-      script = skia_dir.joinpath('infra', 'bots', 'buildstats',
-                                 'buildstats_web.py')
-      step_data = api.run(api.step, 'Analyze %s' % f,
-          cmd=['python3', script, f, out_dir, keystr, propstr,
-               TOTAL_SIZE_BYTES_KEY, MAGIC_SEPERATOR],
-          stdout=api.raw_io.output())
-      if step_data and step_data.stdout:
-        sections = step_data.stdout.decode('utf-8').split(MAGIC_SEPERATOR)
-        result = api.step.active_result
-        logs = result.presentation.logs
-        logs['perf_json'] = sections[1].split('\n')
-
-        add_binary_size_output_property(result, api.path.basename(f), (
-            ast.literal_eval(sections[1])
-              .get('results', {})
-              .get(api.path.basename(f), {})
-              .get('default', {})
-              .get(TOTAL_SIZE_BYTES_KEY, {})))
-
-
 # Get the raw size and a few metrics from bloaty
 def analyze_cpp_lib(api, checkout_root, out_dir, files):
   (keystr, propstr) = keys_and_props(api)
@@ -189,77 +127,6 @@ def analyze_cpp_lib(api, checkout_root, out_dir, files):
               .get(TOTAL_SIZE_BYTES_KEY, {})))
 
 
-# Get the size of skia in flutter and a few metrics from bloaty
-def analyze_flutter_lib(api, checkout_root, out_dir, files):
-  (keystr, propstr) = keys_and_props(api)
-  bloaty_exe = api.path.start_dir.joinpath('bloaty', 'bloaty')
-
-  for f in files:
-
-    skia_dir = checkout_root.joinpath('skia')
-    with api.context(cwd=skia_dir):
-      stripped = api.vars.build_dir.joinpath('libflutter_stripped.so')
-      script = skia_dir.joinpath('infra', 'bots', 'buildstats',
-                                 'buildstats_flutter.py')
-      config = "skia_in_flutter"
-      lib_name = "libflutter.so"
-      step_data = api.run(api.step, 'Analyze flutter',
-          cmd=['python3', script, stripped, out_dir, keystr, propstr,
-               bloaty_exe, f, config, TOTAL_SIZE_BYTES_KEY, lib_name,
-               MAGIC_SEPERATOR],
-          stdout=api.raw_io.output())
-      if step_data and step_data.stdout:
-        sections = step_data.stdout.decode('utf-8').split(MAGIC_SEPERATOR)
-        result = api.step.active_result
-        logs = result.presentation.logs
-        # Skip section 0 because it's everything before first print,
-        # which is probably the empty string.
-        logs['bloaty_file_symbol_short'] = sections[1].split('\n')
-        logs['bloaty_file_symbol_full']  = sections[2].split('\n')
-        logs['bloaty_symbol_file_short'] = sections[3].split('\n')
-        logs['bloaty_symbol_file_full']  = sections[4].split('\n')
-        logs['perf_json'] = sections[5].split('\n')
-
-        add_binary_size_output_property(result, lib_name, (
-            ast.literal_eval(sections[5])
-              .get('results', {})
-              .get(lib_name, {})
-              .get(config, {})
-              .get(TOTAL_SIZE_BYTES_KEY, {})))
-
-
-# Get the size of skia in flutter and a few metrics from bloaty
-def analyze_wasm_file(api, checkout_root, out_dir, files):
-  (keystr, propstr) = keys_and_props(api)
-  bloaty_exe = api.path.start_dir.joinpath('bloaty', 'bloaty')
-
-  for f in files:
-
-    skia_dir = checkout_root.joinpath('skia')
-    with api.context(cwd=skia_dir):
-      script = skia_dir.joinpath('infra', 'bots', 'buildstats',
-                                 'buildstats_wasm.py')
-      step_data = api.run(api.step, 'Analyze wasm',
-          cmd=['python3', script, f, out_dir, keystr, propstr, bloaty_exe,
-               TOTAL_SIZE_BYTES_KEY, MAGIC_SEPERATOR],
-               stdout=api.raw_io.output())
-      if step_data and step_data.stdout:
-        sections = step_data.stdout.decode('utf-8').split(MAGIC_SEPERATOR)
-        result = api.step.active_result
-        logs = result.presentation.logs
-        # Skip section 0 because it's everything before first print,
-        # which is probably the empty string.
-        logs['bloaty_symbol_short'] = sections[1].split('\n')
-        logs['bloaty_symbol_full']  = sections[2].split('\n')
-        logs['perf_json']           = sections[3].split('\n')
-        add_binary_size_output_property(result, api.path.basename(f), (
-            ast.literal_eval(str(sections[3]))
-                .get('results', {})
-                .get(api.path.basename(f), {})
-                .get('default', {})
-                .get(TOTAL_SIZE_BYTES_KEY, {})))
-
-
 # make a zip file containing an HTML treemap of the files
 def make_treemap(api, checkout_root, out_dir, files):
   for f in files:
@@ -275,7 +142,7 @@ def make_treemap(api, checkout_root, out_dir, files):
 
 
 def GenTests(api):
-  builder = 'BuildStats-Debian10-EMCC-wasm-Release-PathKit'
+  builder = 'BuildStats-Ubuntu24.04-Clang-x86_64-Release'
   yield (
     api.test('normal_bot') +
     api.properties(buildername=builder,
@@ -287,14 +154,8 @@ def GenTests(api):
         stdout=api.raw_io.output('skia-bot-123')) +
     api.step_data('get swarming task id',
         stdout=api.raw_io.output('123456abc')) +
-    api.step_data('Analyze [START_DIR]/build/pathkit.js.mem',
-        stdout=api.raw_io.output(sample_web)) +
     api.step_data('Analyze [START_DIR]/build/libskia.so',
-        stdout=api.raw_io.output(sample_cpp)) +
-    api.step_data('Analyze wasm',
-        stdout=api.raw_io.output(sample_wasm)) +
-    api.step_data('Analyze flutter',
-          stdout=api.raw_io.output(sample_flutter))
+        stdout=api.raw_io.output(sample_cpp))
   )
 
   yield (
@@ -315,32 +176,9 @@ def GenTests(api):
         gerrit_project='skia',
         gerrit_url='https://skia-review.googlesource.com/',
       ) +
-    api.step_data('Analyze [START_DIR]/build/pathkit.js.mem',
-        stdout=api.raw_io.output(sample_web)) +
     api.step_data('Analyze [START_DIR]/build/libskia.so',
-        stdout=api.raw_io.output(sample_cpp)) +
-    api.step_data('Analyze wasm',
-        stdout=api.raw_io.output(sample_wasm)) +
-    api.step_data('Analyze flutter',
-          stdout=api.raw_io.output(sample_flutter))
+        stdout=api.raw_io.output(sample_cpp))
   )
-
-sample_web = """
-Report A
-    Total size: 50 bytes
-#$%^&*
-{
-  "some": "json",
-  "results": {
-    "pathkit.js.mem": {
-      "default": {
-        "total_size_bytes": 7391117,
-        "gzip_size_bytes": 2884841
-      }
-    }
-  }
-}
-"""
 
 sample_cpp = """
 #$%^&*
@@ -354,53 +192,6 @@ Report A
       "default": {
         "total_size_bytes": 7391117,
         "gzip_size_bytes": 2884841
-      }
-    }
-  }
-}
-"""
-
-sample_wasm = """
-#$%^&*
-Report A
-    Total size: 50 bytes
-#$%^&*
-Report B
-    Total size: 60 bytes
-#$%^&*
-{
-  "some": "json",
-  "results": {
-    "pathkit.wasm": {
-      "default": {
-        "total_size_bytes": 7391117,
-        "gzip_size_bytes": 2884841
-      }
-    }
-  }
-}
-"""
-
-sample_flutter = """
-#$%^&*
-Report A
-    Total size: 50 bytes
-#$%^&*
-Report B
-    Total size: 60 bytes
-#$%^&*
-Report C
-    Total size: 70 bytes
-#$%^&*
-Report D
-    Total size: 80 bytes
-#$%^&*
-{
-  "some": "json",
-  "results": {
-    "libflutter.so": {
-      "skia_in_flutter": {
-        "total_size_bytes": 1256676
       }
     }
   }

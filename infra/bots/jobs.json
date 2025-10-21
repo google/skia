@@ -633,12 +633,6 @@
     "name": "Build-Ubuntu24.04-Clang-x86_64-Release-Wuffs"
   },
   {
-    "name": "Build-Ubuntu24.04-EMCC-asmjs-Debug-PathKit"
-  },
-  {
-    "name": "Build-Ubuntu24.04-EMCC-asmjs-Release-PathKit"
-  },
-  {
     "name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit",
     "cq_config": {}
   },
@@ -646,16 +640,10 @@
     "name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit_CPU"
   },
   {
-    "name": "Build-Ubuntu24.04-EMCC-wasm-Debug-PathKit"
-  },
-  {
     "name": "Build-Ubuntu24.04-EMCC-wasm-Release-CanvasKit"
   },
   {
     "name": "Build-Ubuntu24.04-EMCC-wasm-Release-CanvasKit_CPU"
-  },
-  {
-    "name": "Build-Ubuntu24.04-EMCC-wasm-Release-PathKit"
   },
   {
     "name": "Build-Win-Clang-arm64-Debug"
@@ -827,12 +815,6 @@
   },
   {
     "name": "BuildStats-Ubuntu24.04-Clang-x86_64-Release-Vulkan"
-  },
-  {
-    "name": "BuildStats-Ubuntu24.04-EMCC-asmjs-Release-PathKit"
-  },
-  {
-    "name": "BuildStats-Ubuntu24.04-EMCC-wasm-Release-PathKit"
   },
   {
     "name": "Canary-Android"
@@ -1971,18 +1953,12 @@
     "name": "Test-Ubuntu24.04-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan"
   },
   {
-    "name": "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-asmjs-Release-All-PathKit"
-  },
-  {
     "name": "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit",
     "cq_config": {
       "location_regexes": [
         "modules/canvaskit/.*"
       ]
     }
-  },
-  {
-    "name": "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-PathKit"
   },
   {
     "name": "Test-Ubuntu24.04-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit",

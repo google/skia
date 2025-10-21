@@ -58,7 +58,6 @@ describe('Path Behavior', () => {
         rrectPath.delete();
         path.delete();
         paint.delete();
-        // See PathKit for more tests, since they share implementation
     });
 
     it('can create a path from an SVG string', () => {

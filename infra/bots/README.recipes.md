@@ -35,7 +35,6 @@
   * [infra](#recipes-infra)
   * [infra:examples/full](#recipes-infra_examples_full)
   * [perf](#recipes-perf)
-  * [perf_pathkit](#recipes-perf_pathkit)
   * [perf_skottietrace](#recipes-perf_skottietrace)
   * [perf_skottiewasm_lottieweb](#recipes-perf_skottiewasm_lottieweb)
   * [run:examples/full](#recipes-run_examples_full)
@@ -43,7 +42,6 @@
   * [test](#recipes-test)
   * [test_canvaskit](#recipes-test_canvaskit)
   * [test_lottie_web](#recipes-test_lottie_web)
-  * [test_pathkit](#recipes-test_pathkit)
   * [upload_buildstats_results](#recipes-upload_buildstats_results)
   * [upload_dm_results](#recipes-upload_dm_results)
   * [upload_nano_results](#recipes-upload_nano_results)
@@ -58,13 +56,13 @@
 
 Build Skia for various platforms.
 
-#### **class [BuildApi](/infra/bots/recipe_modules/build/api.py#20)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [BuildApi](/infra/bots/recipe_modules/build/api.py#19)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
-&mdash; **def [\_\_call\_\_](/infra/bots/recipe_modules/build/api.py#47)(self, checkout_root, out_dir):**
+&mdash; **def [\_\_call\_\_](/infra/bots/recipe_modules/build/api.py#42)(self, checkout_root, out_dir):**
 
 Compile the code.
 
-&mdash; **def [copy\_build\_products](/infra/bots/recipe_modules/build/api.py#51)(self, out_dir, dst):**
+&mdash; **def [copy\_build\_products](/infra/bots/recipe_modules/build/api.py#46)(self, out_dir, dst):**
 
 Copy selected build products to dst.
 ### *recipe_modules* / [builder\_name\_schema](/infra/bots/recipe_modules/builder_name_schema)
@@ -340,17 +338,11 @@ Prepare the variables.
 
 &mdash; **def [add\_binary\_size\_output\_property](/infra/bots/recipes/compute_buildstats.py#29)(result, source, binary_size):**
 
-&mdash; **def [analyze\_cpp\_lib](/infra/bots/recipes/compute_buildstats.py#165)(api, checkout_root, out_dir, files):**
+&mdash; **def [analyze\_cpp\_lib](/infra/bots/recipes/compute_buildstats.py#103)(api, checkout_root, out_dir, files):**
 
-&mdash; **def [analyze\_flutter\_lib](/infra/bots/recipes/compute_buildstats.py#193)(api, checkout_root, out_dir, files):**
+&mdash; **def [keys\_and\_props](/infra/bots/recipes/compute_buildstats.py#79)(api):**
 
-&mdash; **def [analyze\_wasm\_file](/infra/bots/recipes/compute_buildstats.py#232)(api, checkout_root, out_dir, files):**
-
-&mdash; **def [analyze\_web\_file](/infra/bots/recipes/compute_buildstats.py#138)(api, checkout_root, out_dir, files):**
-
-&mdash; **def [keys\_and\_props](/infra/bots/recipes/compute_buildstats.py#114)(api):**
-
-&mdash; **def [make\_treemap](/infra/bots/recipes/compute_buildstats.py#264)(api, checkout_root, out_dir, files):**
+&mdash; **def [make\_treemap](/infra/bots/recipes/compute_buildstats.py#131)(api, checkout_root, out_dir, files):**
 ### *recipes* / [docker:examples/full](/infra/bots/recipe_modules/docker/examples/full.py)
 
 [DEPS](/infra/bots/recipe_modules/docker/examples/full.py#6): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [docker](#recipe_modules-docker), [vars](#recipe_modules-vars)
@@ -425,12 +417,6 @@ Prepare the variables.
 &mdash; **def [perf\_steps](/infra/bots/recipes/perf.py#30)(api):**
 
 Run Skia benchmarks.
-### *recipes* / [perf\_pathkit](/infra/bots/recipes/perf_pathkit.py)
-
-[DEPS](/infra/bots/recipes/perf_pathkit.py#8): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [checkout](#recipe_modules-checkout), [docker](#recipe_modules-docker), [env](#recipe_modules-env), [infra](#recipe_modules-infra), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
-
-
-&mdash; **def [RunSteps](/infra/bots/recipes/perf_pathkit.py#26)(api):**
 ### *recipes* / [perf\_skottietrace](/infra/bots/recipes/perf_skottietrace.py)
 
 [DEPS](/infra/bots/recipes/perf_skottietrace.py#16): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [flavor](#recipe_modules-flavor), [infra](#recipe_modules-infra), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
@@ -514,12 +500,6 @@ Run the DM test.
 
 
 &mdash; **def [RunSteps](/infra/bots/recipes/test_lottie_web.py#28)(api):**
-### *recipes* / [test\_pathkit](/infra/bots/recipes/test_pathkit.py)
-
-[DEPS](/infra/bots/recipes/test_pathkit.py#8): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [checkout](#recipe_modules-checkout), [docker](#recipe_modules-docker), [env](#recipe_modules-env), [flavor](#recipe_modules-flavor), [gold\_upload](#recipe_modules-gold_upload), [infra](#recipe_modules-infra), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
-
-
-&mdash; **def [RunSteps](/infra/bots/recipes/test_pathkit.py#28)(api):**
 ### *recipes* / [upload\_buildstats\_results](/infra/bots/recipes/upload_buildstats_results.py)
 
 [DEPS](/infra/bots/recipes/upload_buildstats_results.py#9): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [vars](#recipe_modules-vars)

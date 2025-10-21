@@ -121,7 +121,7 @@ operations.
 
 # Infrastructure Playbook
 
-When dealing with CanvasKit (or PathKit) on our bots, we use Docker. Check out
+When dealing with CanvasKit in our CI, we use Docker. Check out
 $SKIA_ROOT/infra/wasm-common/docker/README.md for more on building/editing the
 images used for building and testing.
 
@@ -131,9 +131,7 @@ This presumes you have updated emscripten locally to a newer version of the
 sdk and verified/fixed any build issues that have arisen.
 
   1. Edit `//bin/activate-emsdk` to install and activate the desired version of Emscripten.
-  2. Upload a CL with all the changes. Run all Test.+CanvasKit, Perf.+Puppeteer,
-      Test.+PathKit, Perf.+PathKit jobs to make sure the new builds pass all
-      tests and don't crash the perf harnesses.
+  2. Upload a CL with all the changes. Run all .+CanvasKit jobs to make sure the new builds pass.
   3. Send out CL for review. Feel free to point the reviewer at these steps.
 
 ## Running Skia's GMs and Unit Tests against wasm+WebGL ##

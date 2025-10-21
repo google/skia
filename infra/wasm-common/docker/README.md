@@ -1,13 +1,13 @@
 Docker
 ======
 
-Docker files to ease working with PathKit and CanvasKit.
+Docker files to ease working with CanvasKit and other WASM artifacts.
 
 emsdk-base
 ----------
 
 This image has an Emscripten SDK environment that can be used for
-compiling projects (e.g. Skia's PathKit) to WASM/asm.js.
+compiling projects (e.g. Skia's CanvasKit) to WASM.
 
 This image tracks the official emscripten Docker image and installs
 python 2 (which some of our scripts still use).
@@ -19,8 +19,8 @@ For testing the image locally, the following flow can be helpful:
     docker build -t emsdk-base ./emsdk-base/
     # Run bash in it to poke around and make sure things are properly installed
     docker run -it emsdk-base /bin/bash
-    # Compile PathKit with the local image
-    docker run -v $SKIA_ROOT:/SRC -v $SKIA_ROOT/out/dockerpathkit:/OUT emsdk-base /SRC/infra/pathkit/build_pathkit.sh
+    # Compile CanvasKit with the local image
+    docker run -v $SKIA_ROOT:/SRC -v $SKIA_ROOT/out/dockerpathkit:/OUT emsdk-base /SRC/infra/canvaskit/build_canvaskit.sh
 
 karma-chrome-tests
 ------------------

@@ -359,13 +359,6 @@ static void appendTest(const char* pathStr, const char* pathPrefix, const char* 
 #endif
 }
 
-void markTestFlakyForPathKit() {
-    if (PathOpsDebug::gJson) {
-        SkASSERT(!PathOpsDebug::gMarkJsonFlaky);
-        PathOpsDebug::gMarkJsonFlaky = true;
-    }
-}
-
 bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& state,
                   const char* pathStr) {
     static SkMutex& simplifyDebugOut = *(new SkMutex);
