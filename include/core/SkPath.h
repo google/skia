@@ -1524,6 +1524,7 @@ public:
     int getVerbs(uint8_t verbs[], int max) const {
         return (int)this->getVerbs({verbs, max});
     }
+#ifndef SK_HIDE_PATH_EDIT_METHODS
     SkPath& addRoundRect(const SkRect& rect, const SkScalar radii[],
                          SkPathDirection dir = SkPathDirection::kCW) {
         return this->addRoundRect(rect, {radii, radii ? 8 : 0}, dir);
@@ -1531,7 +1532,8 @@ public:
     SkPath& addPoly(const SkPoint pts[], int count, bool close) {
         return this->addPoly({pts, count}, close);
     }
-#endif
+#endif  // SK_HIDE_PATH_EDIT_METHODS
+#endif  // SK_SUPPORT_UNSPANNED_APIS
 
     SkPathIter iter() const;
 
