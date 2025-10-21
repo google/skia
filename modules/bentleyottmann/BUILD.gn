@@ -20,7 +20,7 @@ if (skia_enable_bentleyottmann) {
     deps = [ "../..:skia" ]
   }
 
-  if (skia_enable_tools_that_might_need_ganesh) {
+  if (skia_enable_tools) {
     skia_source_set("tests") {
       testonly = true
       sources = bentleyottmann_tests

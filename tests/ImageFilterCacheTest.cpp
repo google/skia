@@ -23,15 +23,19 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
-#include "include/gpu/ganesh/GrBackendSurface.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/gpu/ganesh/GrTypes.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkSpecialImage.h"
+#include "tests/CtsEnforcement.h"
+#include "tests/Test.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrBackendSurface.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/GrTypes.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/gpu/ganesh/GrColorInfo.h" // IWYU pragma: keep
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
@@ -39,8 +43,7 @@
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
-#include "tests/CtsEnforcement.h"
-#include "tests/Test.h"
+#endif
 
 #include <cstddef>
 #include <tuple>
@@ -210,18 +213,24 @@ static void test_image_backed(skiatest::Reporter* reporter,
     const SkIRect& full = SkIRect::MakeWH(kFullSize, kFullSize);
 
     sk_sp<SkSpecialImage> fullImg;
+#if defined(SK_GANESH)
     if (rContext) {
         fullImg = SkSpecialImages::MakeFromTextureImage(rContext, full, srcImage, {});
-    } else {
+    } else
+#endif
+    {
         fullImg = SkSpecialImages::MakeFromRaster(full, srcImage, {});
     }
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
     sk_sp<SkSpecialImage> subsetImg;
+#if defined(SK_GANESH)
     if (rContext) {
         subsetImg = SkSpecialImages::MakeFromTextureImage(rContext, subset, srcImage, {});
-    } else {
+    } else
+#endif
+    {
         subsetImg = SkSpecialImages::MakeFromRaster(subset, srcImage, {});
     }
 
@@ -239,6 +248,7 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
     test_image_backed(reporter, nullptr, srcImage);
 }
 
+#if defined(SK_GANESH)
 static GrSurfaceProxyView create_proxy_view(GrRecordingContext* rContext) {
     SkBitmap srcBM = create_bm();
     return std::get<0>(GrMakeUncachedBitmapProxyView(rContext, srcBM));
@@ -329,6 +339,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked,
     test_internal_purge(reporter, fullImg);
     test_explicit_purging(reporter, fullImg, subsetImg);
 }
+#endif
 
 DEF_SERIAL_TEST(PurgeImageFilterCache, r) {
     auto cache = SkImageFilterCache::Get(SkImageFilterCache::CreateIfNecessary::kNo);

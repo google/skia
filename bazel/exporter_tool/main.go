@@ -636,7 +636,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//include/gpu/vk:shared_public_hdrs",
 				"//include/gpu/ganesh/vk:public_hdrs",
 			}},
-		{Var: "skia_gpu_vk_chromium_public",
+		{Var: "skia_ganesh_vk_chromium_public",
 			Rules: []string{
 				"//include/private/chromium:vk_ganesh_hdrs",
 			}},
@@ -649,7 +649,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{
 				"//src/gpu/ganesh/vk:android_srcs",
 			}},
-		{Var: "skia_gpu_vk_chromium_private",
+		{Var: "skia_ganesh_vk_chromium_private",
 			Rules: []string{
 				"//src/gpu/ganesh/vk:vk_chromium_srcs",
 			}},

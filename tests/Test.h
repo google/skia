@@ -18,7 +18,7 @@
 #include "tools/timer/TimeUtils.h"
 
 #if defined(SK_GANESH) || defined(SK_GRAPHITE)
-namespace skgpu { enum class ContextType; }
+#include "tools/gpu/ContextType.h"
 #endif
 
 #if defined(SK_GANESH)
@@ -205,10 +205,11 @@ private:
 
 using TestRegistry = sk_tools::Registry<Test>;
 
-#if defined(SK_GANESH)
-using GpuContextType = skgpu::ContextType;
+
+#if defined(SK_GANESH) || defined(SK_GRAPHITE)
+    using GpuContextType = skgpu::ContextType;
 #else
-using GpuContextType = nullptr_t;
+    using GpuContextType = nullptr_t;
 #endif
 
 typedef void GrContextTestFn(Reporter*, const sk_gpu_test::ContextInfo&);

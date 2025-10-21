@@ -7,7 +7,6 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkMessageBus.h"
 #include "tests/Test.h"
@@ -127,31 +126,28 @@ DEF_TEST(MessageBusSp, r) {
 
 namespace {
 
+using ID = uint32_t;
+
 struct AddressedMessage {
-    GrDirectContext::DirectContextID fInboxID;
+    ID fInboxID = 0;
 };
 
-static inline bool SkShouldPostMessageToBus(const AddressedMessage& msg,
-                                            GrDirectContext::DirectContextID msgBusUniqueID) {
-    SkASSERT(msgBusUniqueID.isValid());
-    if (!msg.fInboxID.isValid()) {
-        return true;
-    }
-    return msgBusUniqueID == msg.fInboxID;
+static inline bool SkShouldPostMessageToBus(const AddressedMessage& msg, ID msgBusUniqueID) {
+    SkASSERT(msgBusUniqueID != 0);
+    return (msg.fInboxID == 0) || msgBusUniqueID == msg.fInboxID;
 }
 
 }  // namespace
 
-DECLARE_SKMESSAGEBUS_MESSAGE(AddressedMessage, GrDirectContext::DirectContextID, true)
+DECLARE_SKMESSAGEBUS_MESSAGE(AddressedMessage, ID, true)
 
 DEF_TEST(MessageBus_SkShouldPostMessageToBus, r) {
-    using ID = GrDirectContext::DirectContextID;
     using AddressedMessageBus = SkMessageBus<AddressedMessage, ID>;
 
-    ID idInvalid;
-    ID id1 = ID::Next(),
-       id2 = ID::Next(),
-       id3 = ID::Next();
+    ID idInvalid = 0;
+    ID id1 = 1,
+       id2 = 2,
+       id3 = 3;
 
     AddressedMessageBus::Inbox inbox1(id1), inbox2(id2);
 
@@ -164,13 +160,13 @@ DEF_TEST(MessageBus_SkShouldPostMessageToBus, r) {
     inbox1.poll(&messages);
     REPORTER_ASSERT(r, messages.size() == 2);
     if (messages.size() == 2) {
-        REPORTER_ASSERT(r, !messages[0].fInboxID.isValid());
+        REPORTER_ASSERT(r, messages[0].fInboxID == 0);
         REPORTER_ASSERT(r, messages[1].fInboxID == id1);
     }
     inbox2.poll(&messages);
     REPORTER_ASSERT(r, messages.size() == 2);
     if (messages.size() == 2) {
-        REPORTER_ASSERT(r, !messages[0].fInboxID.isValid());
+        REPORTER_ASSERT(r, messages[0].fInboxID == 0);
         REPORTER_ASSERT(r, messages[1].fInboxID == id2);
     }
 }

@@ -1350,7 +1350,7 @@ sk_sp<SkColorFilter> affect_transparent(SkColor4f color) {
         test_suite_##name(runner);                           \
     }
 #else
-#define DEF_GANESH_TEST_SUITE(name) // do nothing
+#define DEF_GANESH_TEST_SUITE(name, ctsEnforcement) // do nothing
 #endif
 
 #if defined(SK_GRAPHITE)
@@ -1377,7 +1377,7 @@ sk_sp<SkColorFilter> affect_transparent(SkColor4f color) {
         testContext->syncedSubmit(context);                                      \
     }
 #else
-#define DEF_GRAPHITE_TEST_SUITE(name) // do nothing
+#define DEF_GRAPHITE_TEST_SUITE(name, ctsEnforcement) // do nothing
 #endif
 
 #define DEF_TEST_SUITE(name, runner, ganeshCtsEnforcement, graphiteCtsEnforcement) \

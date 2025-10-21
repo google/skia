@@ -202,6 +202,7 @@ static SkBitmap bitmap_from_shader(skiatest::Reporter* r,
     return bitmap;
 }
 
+#if defined(SK_GANESH)
 static bool gpu_generates_nan(skiatest::Reporter* r, GrDirectContext* ctx) {
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     // The Metal shader compiler (which is also used under-the-hood for some GL/GLES contexts on
@@ -235,6 +236,7 @@ static bool gpu_generates_nan(skiatest::Reporter* r, GrDirectContext* ctx) {
     return color == SK_ColorGREEN;
 #endif
 }
+#endif
 
 static SkString load_source(skiatest::Reporter* r,
                             const char* testFile,

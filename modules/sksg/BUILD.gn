@@ -22,18 +22,16 @@ skia_component("sksg") {
 }
 
 if (defined(is_skia_standalone) && skia_enable_tools) {
-  if (skia_enable_tools_that_might_need_ganesh) {
-    skia_source_set("tests") {
-      testonly = true
+  skia_source_set("tests") {
+    testonly = true
 
-      configs = [ "../..:skia_private" ]
-      sources = [ "tests/SGTest.cpp" ]
-      deps = [
-        ":sksg",
-        "../..:skia",
-        "../..:test",
-      ]
-    }
+    configs = [ "../..:skia_private" ]
+    sources = [ "tests/SGTest.cpp" ]
+    deps = [
+      ":sksg",
+      "../..:skia",
+      "../..:test",
+    ]
   }
 
   skia_source_set("slides") {

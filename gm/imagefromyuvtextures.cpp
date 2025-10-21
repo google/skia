@@ -140,7 +140,7 @@ protected:
     }
 
     sk_sp<SkImage> makeYUVAImage(GrDirectContext* context, skgpu::graphite::Recorder* recorder) {
-        SkASSERT(SkToBool(context) != SkToBool(recorder));
+        SkASSERT(!(SkToBool(context) && SkToBool(recorder)));
         sk_gpu_test::LazyYUVImage::Type type;
         switch (fSource) {
             case Source::kTextures: type = sk_gpu_test::LazyYUVImage::Type::kFromTextures; break;

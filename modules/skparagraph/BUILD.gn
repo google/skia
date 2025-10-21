@@ -66,7 +66,7 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_enable_skunicode &&
       }
     }
 
-    if (skia_enable_tools_that_might_need_ganesh) {
+    if (skia_enable_tools) {
       skia_source_set("tests") {
         if (paragraph_tests_enabled &&
             (skia_use_icu || skia_use_libgrapheme || skia_use_icu4x)) {

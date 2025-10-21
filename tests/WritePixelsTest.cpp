@@ -461,6 +461,7 @@ DEF_TEST(WritePixels, reporter) {
     }
 }
 
+#if defined(SK_GANESH)
 static void test_write_pixels(skiatest::Reporter* reporter,
                               GrRecordingContext* rContext,
                               int sampleCnt) {
@@ -487,6 +488,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(WritePixelsMSAA_Gpu,
                                        CtsEnforcement::kApiLevel_T) {
     test_write_pixels(reporter, ctxInfo.directContext(), 1);
 }
+#endif
 
 #if defined(SK_GRAPHITE)
 static void test_write_pixels(skiatest::Reporter* reporter,
@@ -508,6 +510,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(WritePixels_Graphite,
 }
 #endif
 
+#if defined(SK_GANESH)
 static void test_write_pixels_non_texture(skiatest::Reporter* reporter,
                                           GrDirectContext* dContext,
                                           int sampleCnt) {
@@ -639,6 +642,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO,
 
     REPORTER_ASSERT(reporter, isCorrect);
 }
+#endif
 
 DEF_TEST(WritePixels_InvalidRowBytes, reporter) {
     auto dstII = SkImageInfo::Make({10, 10}, kRGBA_8888_SkColorType, kPremul_SkAlphaType);

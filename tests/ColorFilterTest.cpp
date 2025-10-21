@@ -23,8 +23,6 @@
 #include "include/effects/SkColorMatrix.h" // IWYU pragma: keep
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkColorFilterPriv.h"
@@ -33,6 +31,11 @@
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#endif
 
 #include <cstddef>
 #include <utility>
@@ -159,6 +162,7 @@ struct FailureColorFilter final : public SkColorFilterBase {
     const char* getTypeName() const override { return "FailureColorFilter"; }
 };
 
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ComposeFailureWithInputElision,
                                  r,
                                  ctxInfo,
@@ -184,6 +188,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ComposeFailureWithInputElision,
     // At one time, this would trigger a use-after-free / crash, when converting the paint to FPs:
     surface->getCanvas()->drawPaint(paint);
 }
+#endif
 
 DEF_TEST(ColorFilter_OpaqueShaderPaintAlpha, r) {
     // skbug.com/40045529: Prior to the fix, CPU backend would produce gray, not white. (It told the

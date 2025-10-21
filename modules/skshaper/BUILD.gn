@@ -58,7 +58,7 @@ if (skia_enable_skshaper) {
     configs = [ "../../:skia_private" ]
   }
 
-  if (defined(is_skia_standalone) && skia_enable_tools_that_might_need_ganesh) {
+  if (defined(is_skia_standalone) && skia_enable_tools) {
     skia_source_set("tests") {
       if (skia_enable_skshaper_tests) {
         testonly = true

@@ -31,8 +31,6 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/base/SkTArray.h"
 #include "include/sksl/SkSLDebugTrace.h"
@@ -43,6 +41,14 @@
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/SkBackingFit.h"
+#include "src/sksl/SkSLString.h"
+#include "tests/CtsEnforcement.h"
+#include "tests/Test.h"
+#include "tools/GpuToolUtils.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -51,10 +57,7 @@
 #include "src/gpu/ganesh/GrPixmap.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
-#include "src/sksl/SkSLString.h"
-#include "tests/CtsEnforcement.h"
-#include "tests/Test.h"
-#include "tools/GpuToolUtils.h"
+#endif
 
 #include <array>
 #include <cstdint>
@@ -397,7 +400,7 @@ void paint_canvas(SkCanvas* canvas, SkPaint* paint, const PreTestFn& preTestCall
 }
 
 static bool read_pixels(SkSurface* surface,
-                        GrColor* pixels) {
+                        uint32_t* pixels) {
     SkImageInfo info = surface->imageInfo();
     SkPixmap dest{info, pixels, info.minRowBytes()};
     return surface->readPixels(dest, /*srcX=*/0, /*srcY=*/0);
@@ -406,8 +409,8 @@ static bool read_pixels(SkSurface* surface,
 static void verify_2x2_surface_results(skiatest::Reporter* r,
                                        const SkRuntimeEffect* effect,
                                        SkSurface* surface,
-                                       std::array<GrColor, 4> expected) {
-    std::array<GrColor, 4> actual;
+                                       std::array<uint32_t, 4> expected) {
+    std::array<uint32_t, 4> actual;
     SkImageInfo info = surface->imageInfo();
     if (!read_pixels(surface, actual.data())) {
         REPORT_FAILURE(r, "readPixels", SkString("readPixels failed"));
@@ -436,7 +439,9 @@ static sk_sp<SkSurface> make_surface(GrRecordingContext* grContext,
         surface = SkSurfaces::RenderTarget(graphite->recorder, info);
 #endif
     } else if (grContext) {
+#if defined(SK_GANESH)
         surface = SkSurfaces::RenderTarget(grContext, skgpu::Budgeted::kNo, info);
+#endif
     } else {
         surface = SkSurfaces::Raster(info);
     }
@@ -473,7 +478,7 @@ public:
         return fBuilder->child(name);
     }
 
-    void test(std::array<GrColor, 4> expected, PreTestFn preTestCallback = nullptr) {
+    void test(std::array<uint32_t, 4> expected, PreTestFn preTestCallback = nullptr) {
         auto shader = fBuilder->makeShader();
         if (!shader) {
             ERRORF(fReporter, "Effect didn't produce a shader");
@@ -520,7 +525,7 @@ public:
         return std::string(static_cast<const char*>(streamData->data()), streamData->size());
     }
 
-    void test(GrColor expected, PreTestFn preTestCallback = nullptr) {
+    void test(uint32_t expected, PreTestFn preTestCallback = nullptr) {
         this->test({expected, expected, expected, expected}, preTestCallback);
     }
 
@@ -565,7 +570,7 @@ public:
         return fBuilder->child(name);
     }
 
-    void test(std::array<GrColor, 4> expected, PreTestFn preTestCallback = nullptr) {
+    void test(std::array<uint32_t, 4> expected, PreTestFn preTestCallback = nullptr) {
         auto blender = fBuilder->makeBlender();
         if (!blender) {
             ERRORF(fReporter, "Effect didn't produce a blender");
@@ -582,7 +587,7 @@ public:
         verify_2x2_surface_results(fReporter, fBuilder->effect(), fSurface.get(), expected);
     }
 
-    void test(GrColor expected, PreTestFn preTestCallback = nullptr) {
+    void test(uint32_t expected, PreTestFn preTestCallback = nullptr) {
         this->test({expected, expected, expected, expected}, preTestCallback);
     }
 
@@ -737,12 +742,14 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffectSimple_Graphite, r, cont
 }
 #endif
 
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffectSimple_GPU,
                                        r,
                                        ctxInfo,
                                        CtsEnforcement::kApiLevel_T) {
     test_RuntimeEffect_Shaders(r, ctxInfo.directContext(), /*graphite=*/nullptr);
 }
+#endif
 
 static void verify_draw_obeys_capabilities(skiatest::Reporter* r,
                                            const SkRuntimeEffect* effect,
@@ -751,9 +758,9 @@ static void verify_draw_obeys_capabilities(skiatest::Reporter* r,
     // We expect the draw to do something if-and-only-if expectSuccess is true:
     const bool expectSuccess = surface->capabilities()->skslVersion() >= SkSL::Version::k300;
 
-    constexpr GrColor kGreen = 0xFF00FF00;
-    constexpr GrColor kRed   = 0xFF0000FF;
-    const GrColor kExpected = expectSuccess ? kGreen : kRed;
+    constexpr uint32_t kGreen = 0xFF00FF00;
+    constexpr uint32_t kRed   = 0xFF0000FF;
+    const uint32_t kExpected = expectSuccess ? kGreen : kRed;
 
     surface->getCanvas()->clear(SK_ColorRED);
     surface->getCanvas()->drawPaint(paint);
@@ -850,6 +857,7 @@ DEF_TEST(SkRuntimeEffectObeysCapabilities_CPU, r) {
     test_RuntimeEffectObeysCapabilities(r, surface.get());
 }
 
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffectObeysCapabilities_GPU,
                                        r,
                                        ctxInfo,
@@ -879,6 +887,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeColorFilterReturningInvalidAlpha
     REPORTER_ASSERT(r, paint.getColorFilter());
     surface->getCanvas()->drawPaint(paint);
 }
+#endif
 
 DEF_TEST(SkRuntimeColorFilterLimitedToES2, r) {
     // Verify that SkSL requesting #version 300 can't be used to create a color-filter effect.
@@ -1203,12 +1212,14 @@ DEF_TEST(SkRuntimeEffect_Blender_CPU, r) {
     test_RuntimeEffect_Blenders(r, /*grContext=*/nullptr, /*graphite=*/nullptr);
 }
 
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffect_Blender_GPU,
                                        r,
                                        ctxInfo,
                                        CtsEnforcement::kApiLevel_T) {
     test_RuntimeEffect_Blenders(r, ctxInfo.directContext(), /*graphite=*/nullptr);
 }
+#endif
 
 DEF_TEST(SkRuntimeShaderBuilderReuse, r) {
     const char* kSource = R"(
@@ -1364,7 +1375,7 @@ static void test_RuntimeEffectStructNameReuse(skiatest::Reporter* r, GrRecording
     ));
     REPORTER_ASSERT(r, childEffect, "%s\n", err.c_str());
     sk_sp<SkShader> sourceColor = SkShaders::Color({0.99608f, 0.50196f, 0.0f, 1.0f}, nullptr);
-    const GrColor kExpected = 0xFF00407F;
+    const uint32_t kExpected = 0xFF00407F;
     sk_sp<SkShader> child = childEffect->makeShader(/*uniforms=*/nullptr,
                                                     &sourceColor,
                                                     /*childCount=*/1);
@@ -1384,12 +1395,14 @@ DEF_TEST(SkRuntimeStructNameReuse, r) {
     test_RuntimeEffectStructNameReuse(r, nullptr);
 }
 
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeStructNameReuse_GPU,
                                        r,
                                        ctxInfo,
                                        CtsEnforcement::kApiLevel_T) {
     test_RuntimeEffectStructNameReuse(r, ctxInfo.directContext());
 }
+#endif
 
 DEF_TEST(SkRuntimeColorFilterFlags, r) {
     auto expectAlphaUnchanged = [&](const char* shader) {
@@ -1456,6 +1469,7 @@ DEF_TEST(SkRuntimeColorFilterFlags, r) {
                        "}");
 }
 
+#if defined(SK_GANESH)
 DEF_TEST(SkRuntimeShaderSampleCoords, r) {
     // This test verifies that we detect calls to sample where the coords are the same as those
     // passed to main. In those cases, it's safe to turn the "explicit" sampling into "passthrough"
@@ -1509,6 +1523,7 @@ DEF_TEST(SkRuntimeShaderSampleCoords, r) {
     test("half4 helper(float2 xy) { return child.eval(xy); }"
          "half4 main(float2 xy) { return helper(xy); }", true, true);
 }
+#endif
 
 DEF_TEST(SkRuntimeShaderIsOpaque, r) {
     // This test verifies that we detect certain simple patterns in runtime shaders, and can deduce
@@ -1606,7 +1621,9 @@ void test_using_transformed_coords(skiatest::Reporter* reporter,
                                                            SkAlphaType::kPremul_SkAlphaType);
     sk_sp<SkSurface> surface;
     if (ganeshContext) {
+#if defined(SK_GANESH)
         surface = SkSurfaces::RenderTarget(ganeshContext, skgpu::Budgeted::kNo, surfaceImageInfo);
+#endif
     } else if (graphiteInfo) {
 #if defined(SK_GRAPHITE)
         surface = SkSurfaces::RenderTarget(graphiteInfo->recorder, surfaceImageInfo);
@@ -1676,13 +1693,6 @@ void test_using_transformed_coords(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, pixmap.getColor4f(10, 0) == SkColors::kCyan);
 }
 
-DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeShader_TransformedCoords_Ganesh,
-                                       reporter,
-                                       contextInfo,
-                                       CtsEnforcement::kNextRelease) {
-    test_using_transformed_coords(reporter, contextInfo.directContext(), /*graphiteInfo=*/nullptr);
-}
-
 #if defined(SK_GRAPHITE)
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeShader_TransformedCoords_Graphite,
                                          reporter,
@@ -1693,6 +1703,14 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeShader_TransformedCoords_Graph
     test_using_transformed_coords(reporter, /*ganeshContext=*/nullptr, &graphiteInfo);
 }
 #endif
+
+#if defined(SK_GANESH)
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeShader_TransformedCoords_Ganesh,
+                                       reporter,
+                                       contextInfo,
+                                       CtsEnforcement::kNextRelease) {
+    test_using_transformed_coords(reporter, contextInfo.directContext(), /*graphiteInfo=*/nullptr);
+}
 
 DEF_GANESH_TEST_FOR_ALL_CONTEXTS(GrSkSLFP_Specialized, r, ctxInfo, CtsEnforcement::kApiLevel_T) {
     struct FpAndKey {
@@ -1776,3 +1794,4 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrSkSLFP_UniformArray,
         }
     }
 }
+#endif
