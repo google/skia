@@ -26,14 +26,13 @@ static constexpr int kForceExplicitReconBits  = 1;
 static constexpr int kComponentBits           = 3;
 
 static constexpr int kUsesExternalFormatShift = 0;
-static constexpr int kYcbcrModelShift         = kUsesExternalFormatShift +
-                                                kUsesExternalFormatBits;
+static constexpr int kYcbcrModelShift         = kUsesExternalFormatShift + kUsesExternalFormatBits;
 static constexpr int kYcbcrRangeShift         = kYcbcrModelShift         + kYcbcrModelBits;
 static constexpr int kXChromaOffsetShift      = kYcbcrRangeShift         + kYcbcrRangeBits;
 static constexpr int kYChromaOffsetShift      = kXChromaOffsetShift      + kXChromaOffsetBits;
 static constexpr int kChromaFilterShift       = kYChromaOffsetShift      + kYChromaOffsetBits;
 static constexpr int kForceExplicitReconShift = kChromaFilterShift       + kChromaFilterBits;
-static constexpr int kComponentRShift         = kForceExplicitReconShift + kComponentBits;
+static constexpr int kComponentRShift         = kForceExplicitReconShift + kForceExplicitReconBits;
 static constexpr int kComponentGShift         = kComponentRShift         + kComponentBits;
 static constexpr int kComponentBShift         = kComponentGShift         + kComponentBits;
 static constexpr int kComponentAShift         = kComponentBShift         + kComponentBits;
@@ -135,6 +134,9 @@ ImmutableSamplerInfo VulkanYcbcrConversion::ToImmutableSamplerInfo(
              ((uint32_t)(conversionInfo.fComponents.g               ) << kComponentGShift        ) |
              ((uint32_t)(conversionInfo.fComponents.b               ) << kComponentBShift        ) |
              ((uint32_t)(conversionInfo.fComponents.a               ) << kComponentAShift        ));
+
+    SkASSERT(info.fNonFormatYcbcrConversionInfo >> SamplerDesc::kMaxNumConversionInfoBits == 0);
+
     info.fFormat = usesExternalFormat ? conversionInfo.fExternalFormat
                                       : static_cast<uint64_t>(conversionInfo.fFormat);
     return info;
