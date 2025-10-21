@@ -602,8 +602,31 @@ public:
     /** Return a copy of SkPath with verb array, SkPoint array, and weight transformed
         by matrix. makeTransform may change verbs and increase their number.
 
+        If the resulting path has any non-finite values, returns {}.
+
         @param matrix  SkMatrix to apply to SkPath
-        @param pc      whether to apply perspective clipping
+        @return        SkPath if finite, or {}
+    */
+    std::optional<SkPath> tryMakeTransform(const SkMatrix& matrix) const;
+
+    std::optional<SkPath> tryMakeOffset(float dx, float dy) const {
+        return this->tryMakeTransform(SkMatrix::Translate(dx, dy));
+    }
+
+    std::optional<SkPath> tryMakeScale(float sx, float sy) const {
+        return this->tryMakeTransform(SkMatrix::Scale(sx, sy));
+    }
+
+    /** Return a copy of SkPath with verb array, SkPoint array, and weight transformed
+        by matrix. makeTransform may change verbs and increase their number.
+
+        If the resulting path has any non-finite values, this will still return a path
+        but that path will return true for isFinite().
+
+        The newer pattern is to call tryMakeTransform(matrix) which will only return a
+        path if the result is finite.
+
+        @param matrix  SkMatrix to apply to SkPath
         @return        SkPath
     */
     SkPath makeTransform(const SkMatrix& matrix) const;

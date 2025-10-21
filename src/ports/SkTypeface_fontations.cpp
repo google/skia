@@ -763,10 +763,12 @@ protected:
                           fontations_ffi::BridgeScalerMetrics& scalerMetrics) {
         if (auto path = generatePathForGlyphId(glyphId, fScale.y(),
                                                *fHintingInstance, scalerMetrics)) {
-            return {{
-                path->makeTransform(fRemainingMatrix),
-                !fRemainingMatrix.isIdentity()
-            }};
+            if (auto newpath = path->tryMakeTransform(fRemainingMatrix)) {
+                return {{
+                    *newpath,
+                    !fRemainingMatrix.isIdentity()
+                }};
+            }
         }
         return {};
     }
@@ -1664,7 +1666,9 @@ void BoundsPainter::push_clip_glyph(uint16_t glyph_id) {
     if (auto path = fScalerContext.generatePathForGlyphId(glyph_id, fUpem,
                                                           *fontations_ffi::no_hinting_instance(),
                                                           scalerMetrics)) {
-        fBounds.join(path->makeTransform(fMatrixStack.back()).getBounds());
+        if (auto newpath = path->tryMakeTransform(fMatrixStack.back())) {
+            fBounds.join(newpath->getBounds());
+        }
     }
 }
 

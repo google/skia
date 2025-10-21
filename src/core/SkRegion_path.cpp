@@ -386,10 +386,13 @@ bool SkRegion::setPath(const SkPath& path, const SkRegion& clip) {
                 tileClipBounds.offset(-left, -top);
                 SkASSERT(!SkScan::PathRequiresTiling(tileClipBounds));
                 SkRegion tile;
-                tile.setPath(path.makeTransform(SkMatrix::Translate(-left, -top)),
-                             SkRegion(tileClipBounds));
-                tile.translate(left, top);
-                this->op(tile, kUnion_Op);
+                if (auto newpath = path.tryMakeOffset(-left, -top)) {
+                    tile.setPath(*newpath, SkRegion(tileClipBounds));
+                    tile.translate(left, top);
+                    this->op(tile, kUnion_Op);
+                } else {
+                    return false;
+                }
             }
         }
         // During tiling we only applied the bounds of the tile, now that we have a full SkRegion,

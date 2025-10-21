@@ -6145,3 +6145,48 @@ DEF_TEST(path_trivial_isrect, reporter) {
         }
     }
 }
+
+DEF_TEST(path_infinite_transform, reporter) {
+    constexpr float coord = 1000;
+
+    SkPath path = SkPath::Circle(0, 0, coord);
+    REPORTER_ASSERT(reporter, path.isFinite());
+    REPORTER_ASSERT(reporter, (path.getBounds() == SkRect{-coord, -coord, coord, coord}));
+
+    const float scales[] = { 1, 1e12f, 1e24f, 1e36f };
+    SkASSERT(!SkIsFinite(scales[3] * coord));   // make sure the last one overflows
+
+    auto check_finite = [reporter](const SkPath& p) {
+        const SkRect r = p.getBounds();
+        REPORTER_ASSERT(reporter, p.isFinite());
+        REPORTER_ASSERT(reporter, r.isFinite());
+        REPORTER_ASSERT(reporter, !r.isEmpty());
+    };
+
+    auto check_infinite = [reporter](const SkPath& p) {
+        const SkRect r = p.getBounds();
+        REPORTER_ASSERT(reporter, !p.isFinite());
+        REPORTER_ASSERT(reporter, r.isEmpty());
+    };
+
+    for (auto scale : scales) {
+        const SkMatrix mx = SkMatrix::Scale(scale, scale);
+
+        if (SkIsFinite(scale * coord)) {
+            auto maybe = path.tryMakeTransform(mx);
+            REPORTER_ASSERT(reporter, maybe.has_value());
+            check_finite(maybe.value());
+
+            auto newpath = path.makeTransform(mx);
+            check_finite(newpath);
+
+            REPORTER_ASSERT(reporter, newpath == maybe.value());
+        } else {
+            auto maybe = path.tryMakeTransform(mx);
+            REPORTER_ASSERT(reporter, !maybe.has_value());
+
+            auto newpath = path.makeTransform(mx);
+            check_infinite(newpath);
+        }
+    }
+}

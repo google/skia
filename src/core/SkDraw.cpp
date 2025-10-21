@@ -1023,11 +1023,14 @@ void Draw::drawPath(const SkPath& origSrcPath,
             cullRectPtr = &cullRect;
         }
 
-        SkPath prePathStorage;
+        std::optional<SkPath> prePathStorage;
         const SkPath* pathPtr = &origSrcPath;
         if (prePathMatrix) {
-            prePathStorage = pathPtr->makeTransform(*prePathMatrix);
-            pathPtr = &prePathStorage;
+            prePathStorage = pathPtr->tryMakeTransform(*prePathMatrix);
+            if (!prePathStorage.has_value()) {
+                return;
+            }
+            pathPtr = &prePathStorage.value();
         }
         doFill = skpathutils::FillPathWithPaint(*pathPtr, *paint, &builder, cullRectPtr, *fCTM);
         builder.transform(*fCTM);
