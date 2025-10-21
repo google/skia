@@ -33,6 +33,7 @@
 #include "include/private/SkPathRef.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkPoint_impl.h"
 #include "include/private/base/SkTo.h"
 #include "include/utils/SkNullCanvas.h"
 #include "include/utils/SkParse.h"
@@ -49,6 +50,7 @@
 #include "tools/fonts/FontToolUtils.h"
 
 #include <algorithm>
+#include <array>
 #include <cfloat>
 #include <cmath>
 #include <cstdint>
@@ -6096,5 +6098,50 @@ DEF_TEST(path_computeTightBounds, reporter) {
         REPORTER_ASSERT(reporter, r0 == r2);
 
         nearly_eq(r0, tb);  // check against our approximation
+    }
+}
+
+DEF_TEST(path_trivial_isrect, reporter) {
+    static constexpr struct {
+        std::array<SkPoint, 4> pts;
+        bool                   isrect;
+
+        SkRect          expectedRect  = SkRect::MakeEmpty();
+        SkPathDirection expectedDir = SkPathDirection::kDefault;
+    } gTests[] = {
+        {{{{ 0,  0}, { 0,  0}, { 0,  0}, { 0,  0}}}, false},
+        {{{{10, 10}, {10, 10}, {10, 10}, {10, 10}}}, false},
+        {{{{10, 10}, {20, 10}, {20, 10}, {10, 10}}}, false},
+        {{{{10, 10}, {10, 30}, {10, 30}, {10, 10}}}, false},
+        {{{{10, 10}, {20, 30}, {20, 30}, {10, 10}}}, false},
+        {{{{10, 10}, {20, 10}, {20, 30}, {10, 20}}}, false},
+
+        {{{{10, 10}, {20, 10}, {20, 30}, {10, 30}}}, true, {10, 10, 20, 30}, SkPathDirection::kCW },
+        {{{{10, 10}, {10, 30}, {20, 30}, {20, 10}}}, true, {10, 10, 20, 30}, SkPathDirection::kCCW},
+    };
+
+    for (const auto& tst : gTests) {
+        for (size_t i = 0; i < 4; ++i) {
+            const auto path = SkPathBuilder()
+                .moveTo(tst.pts[i])
+                .lineTo(tst.pts[(i + 1) % 4])
+                .lineTo(tst.pts[(i + 2) % 4])
+                .lineTo(tst.pts[(i + 3) % 4])
+                .close()
+                .detach();
+
+            SkRect rect;
+            bool closed;
+            SkPathDirection dir;
+
+            REPORTER_ASSERT(reporter, path.isRect(&rect, &closed, &dir) == tst.isrect);
+            if (!tst.isrect) {
+                continue;
+            }
+
+            REPORTER_ASSERT(reporter, rect == tst.expectedRect);
+            REPORTER_ASSERT(reporter, closed);
+            REPORTER_ASSERT(reporter, dir == tst.expectedDir);
+        }
     }
 }

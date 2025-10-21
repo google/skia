@@ -302,6 +302,7 @@ public:
     };
     static std::optional<RectContour> IsRectContour(SkSpan<const SkPoint> ptSpan,
                                                     SkSpan<const SkPathVerb> vbSpan,
+                                                    uint32_t segmentMask,
                                                     bool allowPartial);
 
     /** Returns true if SkPath is equivalent to nested SkRect pair when filled.

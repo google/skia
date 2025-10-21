@@ -435,7 +435,7 @@ std::optional<std::array<SkPoint, 2>> SkPathData::asLine() const {
 }
 
 std::optional<SkPathRectInfo> SkPathData::asRect() const {
-    if (auto rc = SkPathPriv::IsRectContour(fPoints, fVerbs, false)) {
+    if (auto rc = SkPathPriv::IsRectContour(fPoints, fVerbs, fSegmentMask, false)) {
         SkASSERT(rc->fRect == fBounds);
         return {{
             fBounds,

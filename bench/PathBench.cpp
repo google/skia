@@ -15,6 +15,7 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
 #include "src/base/SkRandom.h"
@@ -1415,3 +1416,63 @@ DEF_BENCH( return new PathBuildBench("addOval", [](const SkRect& r) {
 DEF_BENCH( return new PathBuildBench("addRRect", [](const SkRect& r) {
     return SkPath::RRect(SkRRect::MakeRectXY(r, 0.1f, 0.1f));
 }))
+
+class PathIsRectBench final : public Benchmark {
+public:
+    PathIsRectBench(const char* name, SkPath p)
+        : fName(SkStringPrintf("path_isrect_%s", name))
+        , fPath(std::move(p))
+    {
+        SkASSERT_RELEASE(fName.endsWith("norect") == !fPath.isRect(nullptr));
+    }
+
+protected:
+    const char* onGetName() override {
+        return fName.c_str();
+    }
+
+    bool isSuitableFor(Backend backend) override {
+        return backend == Backend::kNonRendering;
+    }
+
+    void onDraw(int loops, SkCanvas*) override {
+        SkRect rect;
+        bool closed;
+        SkPathDirection dir;
+        for (int i = 0; i < loops; ++i) {
+            std::ignore = fPath.isRect(&rect, &closed, &dir);
+        }
+    }
+
+private:
+    const SkString fName;
+    const SkPath   fPath;
+};
+
+DEF_BENCH( return new PathIsRectBench("trivial", SkPath::Rect({10, 10, 100, 50})); )
+DEF_BENCH( return new PathIsRectBench("complex", SkPathBuilder()
+                                                    .moveTo( 10, 10)
+                                                    .lineTo( 50, 10)
+                                                    .lineTo(100, 10)
+                                                    .lineTo(100, 25)
+                                                    .lineTo(100, 50)
+                                                    .lineTo( 50, 50)
+                                                    .lineTo( 10, 50)
+                                                    .lineTo( 10, 25)
+                                                    .lineTo( 10, 10)
+                                                    .close()
+                                                    .detach()); )
+DEF_BENCH( return new PathIsRectBench("empty_norect", SkPath()); )
+DEF_BENCH( return new PathIsRectBench("complex_norect", SkPathBuilder()
+                                                    .moveTo( 10, 10)
+                                                    .lineTo( 50, 10)
+                                                    .lineTo(100, 10)
+                                                    .lineTo(100, 25)
+                                                    .lineTo(100, 50)
+                                                    .lineTo( 50, 50)
+                                                    .lineTo( 10, 50)
+                                                    .lineTo( 10, 25)
+                                                    .lineTo( 10, 10)
+                                                    .conicTo(10, 20, 20, 20, .7f)
+                                                    .close()
+                                                    .detach()); )
