@@ -9,6 +9,7 @@ licenses(["notice"])
 skia_filegroup(
     name = "capture_srcs",
     srcs = [
+        "SkCapture.cpp",
         "SkCaptureCanvas.cpp",
         "SkCaptureManager.cpp",
     ],
@@ -18,6 +19,7 @@ skia_filegroup(
 skia_filegroup(
     name = "capture_hdrs",
     srcs = [
+        "SkCapture.h",
         "SkCaptureCanvas.h",
         "SkCaptureManager.h",
     ],

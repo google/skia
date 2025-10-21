@@ -9,7 +9,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
-#include "include/private/base/SkDebug.h"
+#include "src/capture/SkCapture.h"
 #include "src/capture/SkCaptureCanvas.h"
 
 #include <memory>
@@ -34,6 +34,17 @@ void SkCaptureManager::snapPictures() {
     }
 }
 
+// TODO: make thread saffe by using exchange() and a mutex.
+void SkCaptureManager::toggleCapture(bool capturing) {
+    if (capturing != fIsCurrentlyCapturing && !capturing) {
+        // on capture stop, save the capture and reset
+        this->snapPictures();
+        fLastCapture = SkCapture::MakeFromPictures(fPictures);
+        fPictures.clear();
+    }
+    fIsCurrentlyCapturing = capturing;
+}
+
 void SkCaptureManager::snapPicture(SkSurface* surface) {
     for (auto& canvas : fTrackedCanvases) {
         if (canvas) {
@@ -50,8 +61,6 @@ void SkCaptureManager::snapPicture(SkSurface* surface) {
     }
 }
 
-void SkCaptureManager::serializeCapture() {
-    // TODO (412351769): return a serialized file via SkData, for now this will print the contents
-    // of the capture for inspection.
-    SkDebugf("Tracked canvases: %d. SkPictures: %d\n", fTrackedCanvases.size(), fPictures.size());
+sk_sp<SkCapture> SkCaptureManager::getLastCapture() const {
+   return fLastCapture;
 }

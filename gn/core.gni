@@ -253,6 +253,8 @@ skia_core_sources = [
   "$_src/base/SkUtils.h",
   "$_src/base/SkVx.h",
   "$_src/base/SkZip.h",
+  "$_src/capture/SkCapture.cpp",
+  "$_src/capture/SkCapture.h",
   "$_src/capture/SkCaptureCanvas.cpp",
   "$_src/capture/SkCaptureCanvas.h",
   "$_src/capture/SkCaptureManager.cpp",

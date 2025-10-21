@@ -31,6 +31,7 @@
 
 class SkColorInfo;
 class SkSurface;
+class SkCapture;
 enum SkYUVColorSpace : int;
 class SkColorSpace;
 class SkTraceMemoryDump;
@@ -299,7 +300,7 @@ public:
     /*
      * Ends the SkCapture and returns the collected draws and surface creation.
      */
-    void endCapture();
+    sk_sp<SkCapture> endCapture();
 
     // Provides access to functions that aren't part of the public API.
     ContextPriv priv();
