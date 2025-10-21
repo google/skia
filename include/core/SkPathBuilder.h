@@ -986,9 +986,7 @@ private:
     SkPathConvexity fConvexity;
 
     unsigned    fSegmentMask;
-    SkPoint     fLastMovePoint;
     int         fLastMoveIndex; // only needed until SkPath is immutable
-    bool        fNeedsMoveVerb;
 
     SkPathIsAType fType = SkPathIsAType::kGeneral;
     SkPathIsAData fIsA {};
@@ -996,8 +994,10 @@ private:
     // called right before we add a (non-move) verb
     void ensureMove() {
         fType = SkPathIsAType::kGeneral;
-        if (fNeedsMoveVerb) {
-            this->moveTo(fLastMovePoint);
+        if (fVerbs.empty()) {
+            this->moveTo({0, 0});
+        } else if (fVerbs.back() == SkPathVerb::kClose) {
+            this->moveTo(fPts[fLastMoveIndex]);
         }
     }
 

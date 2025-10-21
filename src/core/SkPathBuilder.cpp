@@ -74,9 +74,7 @@ SkPathBuilder& SkPathBuilder::reset() {
     // these are internal state
 
     fSegmentMask = 0;
-    fLastMovePoint = {0, 0};
     fLastMoveIndex = -1;        // illegal
-    fNeedsMoveVerb = true;
 
     fType      = SkPathIsAType::kGeneral;
     fConvexity = SkPathConvexity::kUnknown;
@@ -95,8 +93,6 @@ SkPathBuilder& SkPathBuilder::operator=(const SkPath& src) {
 
     fSegmentMask   = ref->fSegmentMask;
     fLastMoveIndex = src.fLastMoveToIndex < 0 ? ~src.fLastMoveToIndex : src.fLastMoveToIndex;
-    fLastMovePoint = fPts.empty() ? SkPoint{0, 0} : fPts[fLastMoveIndex];
-    fNeedsMoveVerb = src.fLastMoveToIndex < 0;
 
     fType = ref->fType;
     fIsA  = ref->fIsA;
@@ -161,7 +157,6 @@ SkPathBuilder& SkPathBuilder::moveTo(SkPoint pt) {
         fPts.back() = pt;
 
         SkASSERT(fType != SkPathIsAType::kOval && fType != SkPathIsAType::kRRect);
-        SkASSERT(fNeedsMoveVerb == false);
         SkASSERT(fConvexity == SkPathConvexity::kUnknown);
         SkASSERT(fLastMoveIndex == SkToInt(fPts.size()) - 1);
     } else {
@@ -170,13 +165,11 @@ SkPathBuilder& SkPathBuilder::moveTo(SkPoint pt) {
         fPts.push_back(pt);
         fVerbs.push_back(SkPathVerb::kMove);
 
-        fNeedsMoveVerb = false;
         if (fType == SkPathIsAType::kOval || fType == SkPathIsAType::kRRect) {
             fType = SkPathIsAType::kGeneral;
         }
         fConvexity = SkPathConvexity::kUnknown;
     }
-    fLastMovePoint = pt;
 
     return *this;
 }
@@ -238,11 +231,7 @@ SkPathBuilder& SkPathBuilder::close() {
     // If this is a 2nd 'close', we just ignore it
     if (!fVerbs.empty() && fVerbs.back() != SkPathVerb::kClose) {
         this->ensureMove();
-
         fVerbs.push_back(SkPathVerb::kClose);
-
-        // fLastMovePoint stays where it is -- the previous moveTo
-        fNeedsMoveVerb = true;
     }
     return *this;
 }
@@ -250,16 +239,15 @@ SkPathBuilder& SkPathBuilder::close() {
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 SkPathBuilder& SkPathBuilder::rMoveTo(SkPoint pt) {
-    SkPoint lastPt = {0,0};
-    int count = fPts.size();
-    if (count > 0) {
-        if (!fNeedsMoveVerb) {
-            lastPt = fPts[count - 1];
-        } else {
+    SkPoint lastPt = {0,0}; // in case we're empty
+    if (!fPts.empty()) {
+        if (fVerbs.back() == SkPathVerb::kClose) {
             lastPt = fPts[fLastMoveIndex];
+        } else {
+            lastPt = fPts.back();
         }
     }
-    return this->moveTo(lastPt.fX + pt.fX, lastPt.fY + pt.fY);
+    return this->moveTo(lastPt + pt);
 }
 
 SkPathBuilder& SkPathBuilder::rLineTo(SkPoint p1) {
@@ -864,10 +852,8 @@ SkPathBuilder& SkPathBuilder::addPath(const SkPath& src, const SkMatrix& matrix,
     if (SkPath::AddPathMode::kAppend_AddPathMode == mode && !matrix.hasPerspective()) {
         if (src.fLastMoveToIndex >= 0) {
             fLastMoveIndex = src.fLastMoveToIndex + this->countPoints();
-            fNeedsMoveVerb = false;
         } else {
             fLastMoveIndex = ~src.fLastMoveToIndex + this->countPoints();
-            fNeedsMoveVerb = true;
         }
 
         auto [newPts, newWeights] = this->growForVerbsInPath(*src.fPathRef);
@@ -876,7 +862,6 @@ SkPathBuilder& SkPathBuilder::addPath(const SkPath& src, const SkMatrix& matrix,
         if (int numWeights = src.fPathRef->countWeights()) {
             memcpy(newWeights, src.fPathRef->conicWeights(), numWeights * sizeof(newWeights[0]));
         }
-        fLastMovePoint = fPts.at(fLastMoveIndex);
         return *this;
     }
 
