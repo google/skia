@@ -1449,7 +1449,7 @@ void add_children_to_key(const KeyContext& keyContext,
 
     for (size_t index = 0; index < children.size(); ++index) {
         const SkRuntimeEffect::ChildPtr& child = children[index];
-        KeyContextForRuntimeEffect childContext(keyContext, effect, index);
+        KeyContext childContext = keyContext.forRuntimeEffect(effect, index);
 
         std::optional<ChildType> type = child.type();
         if (type == ChildType::kShader) {
@@ -1630,8 +1630,8 @@ static void add_to_key(const KeyContext& keyContext, const SkWorkingFormatColorF
 
     SkAlphaType workingAT;
     sk_sp<SkColorSpace> workingCS = filter->workingFormat(dstCS, &workingAT);
-    SkColorInfo workingInfo(dstInfo.colorType(), workingAT, workingCS);
-    KeyContextWithColorInfo workingContext(keyContext, workingInfo);
+    KeyContext workingContext =
+            keyContext.withColorInfo({dstInfo.colorType(), workingAT, workingCS});
 
     // Use two nested compose blocks to chain (dst->working), child, and (working->dst) together
     // while appearing as one block to the parent node.
@@ -1752,9 +1752,13 @@ static void add_to_key(const KeyContext& keyContext, const SkCoordClampShader* s
 
     CoordClampShaderBlock::CoordClampData data(shader->subset());
 
-    KeyContextWithCoordClamp childContext(keyContext);
     CoordClampShaderBlock::BeginBlock(keyContext, data);
-    AddToKey(childContext, shader->shader().get());
+
+    // Subtleties in clamping implementation can lead to texture samples at non pixel aligned
+    // coordinates, particularly if clamped to non-texel centers.
+    AddToKey(keyContext.withExtraFlags(KeyGenFlags::kDisableSamplingOptimization),
+             shader->shader().get());
+
     keyContext.paintParamsKeyBuilder()->endBlock();
 }
 
@@ -2253,9 +2257,7 @@ static void add_to_key(const KeyContext& keyContext,
     sk_sp<SkColorSpace> inputCS, outputCS;
     SkAlphaType workingAT;
     std::tie(inputCS, outputCS, workingAT) = shader->workingSpace(dstCS, dstAT);
-
-    SkColorInfo workingInfo(dstInfo.colorType(), workingAT, inputCS);
-    KeyContextWithColorInfo workingContext(keyContext, workingInfo);
+    KeyContext workingContext = keyContext.withColorInfo({dstInfo.colorType(), workingAT, inputCS});
 
     // Compose the inner shader (in the input space) with a (output->dst) transform, under the
     // assumption that the child shader handles conversion between input and output CS/alpha types.

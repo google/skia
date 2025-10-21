@@ -1624,7 +1624,7 @@ void Device::drawGeometry(const Transform& localToDevice,
     // a flush of the Recorder.
     KeyContext keyContext{fRecorder,
                           fDC.get(),
-                          fRecorder->priv().refFloatStorageManager().get(),
+                          fRecorder->priv().floatStorageManager(),
                           scopedDrawBuilder.builder(),
                           scopedDrawBuilder.gatherer(),
                           localToDevice.matrix(),

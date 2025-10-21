@@ -382,8 +382,8 @@ private:
                                                   : SkColorSpace::MakeSRGB();
         SkAlphaType workingAT;
         sk_sp<SkColorSpace> workingCS = fWorkingFormatCalculator.workingFormat(dstCS, &workingAT);
-        SkColorInfo workingInfo(dstInfo.colorType(), workingAT, workingCS);
-        KeyContextWithColorInfo workingContext(keyContext, workingInfo);
+        KeyContext workingContext =
+                keyContext.withColorInfo({dstInfo.colorType(), workingAT, workingCS});
 
         // Use two nested compose blocks to chain (dst->working), child, and (working->dst) together
         // while appearing as one block to the parent node.

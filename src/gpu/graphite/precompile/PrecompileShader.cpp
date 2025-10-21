@@ -932,8 +932,8 @@ private:
         // SkWorkingColorSpaceShader's workInUnpremul is not exposed yet in the public API so
         // precompile can assume that it'll always use dstAT.
         const SkAlphaType workingAT = dstAT;
-        SkColorInfo workingInfo(dstInfo.colorType(), workingAT, inputCS);
-        KeyContextWithColorInfo workingContext(keyContext, workingInfo);
+        KeyContext workingContext =
+                keyContext.withColorInfo({dstInfo.colorType(), workingAT, inputCS});
 
         Compose(keyContext,
                 /* addInnerToKey= */ [&]() -> void {
@@ -1059,10 +1059,9 @@ private:
         const SkRuntimeEffect* effect = GetKnownRuntimeEffect(kIDs[desiredBlurCombination]);
         SkASSERT(effect->children().size() == 1);
 
-        KeyContextForRuntimeEffect childContext(keyContext, effect, /*child=*/0);
-
         RuntimeEffectBlock::BeginBlock(keyContext, { sk_ref_sp(effect) });
-            fWrapped->priv().addToKey(childContext, desiredWrappedCombination);
+            fWrapped->priv().addToKey(keyContext.forRuntimeEffect(effect, /*child=*/0),
+                                      desiredWrappedCombination);
         keyContext.paintParamsKeyBuilder()->endBlock();
     }
 
@@ -1123,14 +1122,13 @@ private:
 
         const SkRuntimeEffect* effect = GetKnownRuntimeEffect(stableKey);
 
-        KeyContextForRuntimeEffect childContext(keyContext, effect, /*child=*/0);
-
         RuntimeEffectBlock::BeginBlock(keyContext, { sk_ref_sp(effect) });
-            fWrapped->priv().addToKey(childContext, desiredWrappedCombination);
+            fWrapped->priv().addToKey(keyContext.forRuntimeEffect(effect, /*child=*/0),
+                                      desiredWrappedCombination);
             if (stableKey != SkKnownRuntimeEffects::StableKey::kMatrixConvUniforms) {
                 SkASSERT(effect->children().size() == 2);
-                KeyContextForRuntimeEffect kernelContext(keyContext, effect, /*child=*/1);
-                fRawImageShader->priv().addToKey(kernelContext, desiredTextureCombination);
+                fRawImageShader->priv().addToKey(keyContext.forRuntimeEffect(effect, /*child=*/1),
+                                                 desiredTextureCombination);
             } else {
                 SkASSERT(effect->children().size() == 1);
             }
@@ -1169,10 +1167,9 @@ private:
         const SkRuntimeEffect* effect = GetKnownRuntimeEffect(fStableKey);
         SkASSERT(effect->children().size() == 1);
 
-        KeyContextForRuntimeEffect childContext(keyContext, effect, /*child=*/0);
-
         RuntimeEffectBlock::BeginBlock(keyContext, { sk_ref_sp(effect) });
-            fWrapped->priv().addToKey(childContext, desiredCombination);
+            fWrapped->priv().addToKey(keyContext.forRuntimeEffect(effect, /*child=*/0),
+                                      desiredCombination);
         keyContext.paintParamsKeyBuilder()->endBlock();
     }
 
@@ -1218,12 +1215,11 @@ private:
                 GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kDisplacement);
         SkASSERT(effect->children().size() == 2);
 
-        KeyContextForRuntimeEffect displContext(keyContext, effect, /*child=*/0);
-        KeyContextForRuntimeEffect colorContext(keyContext, effect, /*child=*/1);
-
         RuntimeEffectBlock::BeginBlock(keyContext, { sk_ref_sp(effect) });
-            fDisplacement->priv().addToKey(displContext, desiredDisplacementCombination);
-            fColor->priv().addToKey(colorContext, desiredColorCombination);
+            fDisplacement->priv().addToKey(keyContext.forRuntimeEffect(effect, /*child=*/0),
+                                           desiredDisplacementCombination);
+            fColor->priv().addToKey(keyContext.forRuntimeEffect(effect, /*child=*/1),
+                                    desiredColorCombination);
         keyContext.paintParamsKeyBuilder()->endBlock();
     }
 
@@ -1260,8 +1256,8 @@ private:
         SkASSERT(normalEffect->children().size() == 1 &&
                  lightingEffect->children().size() == 1);
 
-        KeyContextForRuntimeEffect lightingContext(keyContext, lightingEffect, /*child=*/0);
-        KeyContextForRuntimeEffect normalContext(lightingContext, normalEffect, /*child=*/0);
+        KeyContext lightingContext = keyContext.forRuntimeEffect(lightingEffect, /*child=*/0);
+        KeyContext normalContext = lightingContext.forRuntimeEffect(normalEffect, /*child=*/0);
 
         RuntimeEffectBlock::BeginBlock(keyContext, { sk_ref_sp(lightingEffect) });
             RuntimeEffectBlock::BeginBlock(lightingContext, { sk_ref_sp(normalEffect) });
