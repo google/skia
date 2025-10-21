@@ -199,9 +199,13 @@ config("default") {
       _arch_flags = [
         "-arch",
         "arm64",
-        "-arch",
-        "arm64e",
       ]
+      if (!ios_use_simulator) {
+        _arch_flags += [
+          "-arch",
+          "arm64e",
+        ]
+      }
     } else if (current_cpu == "x86") {
       _arch_flags = [
         "-arch",
