@@ -25,8 +25,9 @@ dawn_wasm = false
 # PartitionAlloc is an optional dependency:
 # - MSVC compiler is not fully supported at the moment.
 # - Mac 11 is currently failing an assertion.
+# - Android doesn't link properly
 # TODO(351867706): Enable Mac 11.
 _is_msvc = is_win && !is_clang
-if (!_is_msvc && !is_mac) {
+if (!_is_msvc && !is_mac && !is_android) {
   dawn_partition_alloc_dir = "//third_party/externals/partition_alloc"
 }
