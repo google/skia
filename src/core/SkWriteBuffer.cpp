@@ -27,8 +27,12 @@
 #if !defined(SK_DISABLE_LEGACY_PNG_WRITEBUFFER)
 #include "include/core/SkBitmap.h"
 #include "include/core/SkStream.h"
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
+#include "include/encode/SkPngRustEncoder.h"
+#else
 #include "include/encode/SkPngEncoder.h"
-#endif
+#endif  // defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
+#endif  // !defined(SK_DISABLE_LEGACY_PNG_WRITEBUFFER)
 
 #include <cstring>
 #include <utility>
@@ -179,10 +183,15 @@ static sk_sp<SkData> serialize_image(const SkImage* image, SkSerialProcs procs) 
     if (!ib->getROPixels(ib->directContext(), &bm)) {
         return nullptr;
     }
-    if (auto result = SkPngEncoder::Encode(bm.pixmap(), SkPngEncoder::Options())) {
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
+    auto result = SkPngRustEncoder::Encode(bm.pixmap(), {});
+#else
+    auto result = SkPngEncoder::Encode(bm.pixmap(), {});
+#endif  // defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
+    if (result) {
         return result;
     }
-#endif
+#endif  // !(defined(SK_DISABLE_LEGACY_PNG_WRITEBUFFER)
     return nullptr;
 }
 
