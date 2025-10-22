@@ -27,7 +27,7 @@ struct Options {
 
     /** Clients can provide a way to encode png.
      *
-     *  If `pngEncoder` is null and `SK_DISABLE_LEGACY_XPS_FACTORIES` is set
+     *  If `pngEncoder` is null and `SK_DISABLE_LEGACY_XPS_FACTORIES` isn't set
      *  then this will be (temporarily, until the legacy mode is removed)
      *  filled based on presence of `SK_CODEC_ENCODES_PNG_WITH_RUST` and/or
      *  `SK_CODEC_ENCODES_PNG_WITH_LIBPNG`.
