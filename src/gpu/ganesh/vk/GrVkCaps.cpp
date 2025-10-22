@@ -1534,7 +1534,7 @@ static bool backend_format_is_external(const GrBackendFormat& format) {
     SkASSERT(ycbcrInfo);
 
     // All external formats have a valid ycbcrInfo used for sampling and a non zero external format.
-    if (ycbcrInfo->isValid() && ycbcrInfo->fExternalFormat != 0) {
+    if (ycbcrInfo->isValid() && ycbcrInfo->hasExternalFormat()) {
 #ifdef SK_DEBUG
         VkFormat vkFormat;
         SkAssertResult(GrBackendFormats::AsVkFormat(format, &vkFormat));
@@ -1761,7 +1761,7 @@ bool GrVkCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
 
     if (ycbcrInfo->isValid() && !skgpu::VkFormatNeedsYcbcrSampler(vkFormat)) {
         // Format may be undefined for external images, which are required to have YCbCr conversion.
-        if (VK_FORMAT_UNDEFINED == vkFormat && ycbcrInfo->fExternalFormat != 0) {
+        if (VK_FORMAT_UNDEFINED == vkFormat && ycbcrInfo->hasExternalFormat()) {
             return true;
         }
         return false;
@@ -1839,7 +1839,7 @@ skgpu::Swizzle GrVkCaps::onGetReadSwizzle(const GrBackendFormat& format,
     const skgpu::VulkanYcbcrConversionInfo* ycbcrInfo =
             GrBackendFormats::GetVkYcbcrConversionInfo(format);
     SkASSERT(ycbcrInfo);
-    if (ycbcrInfo->isValid() && ycbcrInfo->fExternalFormat != 0) {
+    if (ycbcrInfo->isValid() && ycbcrInfo->hasExternalFormat()) {
         // We allow these to work with any color type and never swizzle. See
         // onAreColorTypeAndFormatCompatible.
         return skgpu::Swizzle{"rgba"};
@@ -1893,7 +1893,7 @@ uint64_t GrVkCaps::computeFormatKey(const GrBackendFormat& format) const {
     const skgpu::VulkanYcbcrConversionInfo* ycbcrInfo =
             GrBackendFormats::GetVkYcbcrConversionInfo(format);
     SkASSERT(ycbcrInfo);
-    SkASSERT(!ycbcrInfo->isValid() || ycbcrInfo->fExternalFormat == 0);
+    SkASSERT(!ycbcrInfo->isValid() || !ycbcrInfo->hasExternalFormat());
 #endif
 
     // A VkFormat has a size of 64 bits.

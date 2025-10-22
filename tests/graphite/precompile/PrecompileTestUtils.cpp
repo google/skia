@@ -80,20 +80,19 @@ void Base642YCbCr(const char* str) {
             VulkanYcbcrConversion::FromImmutableSamplerInfo(s.immutableSamplerInfo());
 
     SkDebugf("VulkanYcbcrConversionInfo: format: %d extFormat: %llu model: %d range: %d "
-             "xOff: %d yOff: %d filter: %d explicit: %u features: %u components: %d %d %d %d\n",
-             info.fFormat,
-             (unsigned long long) info.fExternalFormat,
-             info.fYcbcrModel,
-             info.fYcbcrRange,
-             info.fXChromaOffset,
-             info.fYChromaOffset,
-             info.fChromaFilter,
-             info.fForceExplicitReconstruction,
-             info.fFormatFeatures,
-             info.fComponents.r,
-             info.fComponents.g,
-             info.fComponents.b,
-             info.fComponents.a);
+             "xOff: %d yOff: %d filter: %d explicit: %u components: %d %d %d %d\n",
+             info.format(),
+             (unsigned long long) info.externalFormat(),
+             info.model(),
+             info.range(),
+             info.xChromaOffset(),
+             info.yChromaOffset(),
+             info.chromaFilter(),
+             info.forceExplicitReconstruction(),
+             info.components().r,
+             info.components().g,
+             info.components().b,
+             info.components().a);
 }
 
 #endif // SK_VULKAN

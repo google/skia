@@ -198,16 +198,16 @@ bool VkYcbcrSamplerHelper::createBackendTexture(uint32_t width, uint32_t height)
              (linFlags & VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT) &&
              (linFlags & VK_FORMAT_FEATURE_COSITED_CHROMA_SAMPLES_BIT));
 
-    skgpu::VulkanYcbcrConversionInfo ycbcrInfo = {vkImageInfo.format,
-                                                  /*externalFormat=*/0,
-                                                  VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_709,
-                                                  VK_SAMPLER_YCBCR_RANGE_ITU_NARROW,
-                                                  VK_CHROMA_LOCATION_COSITED_EVEN,
-                                                  VK_CHROMA_LOCATION_COSITED_EVEN,
-                                                  VK_FILTER_LINEAR,
-                                                  false,
-                                                  formatProperties.linearTilingFeatures};
-    skgpu::VulkanAlloc alloc;
+    skgpu::VulkanYcbcrConversionInfo ycbcrInfo(vkImageInfo.format,
+                                               VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_709,
+                                               VK_SAMPLER_YCBCR_RANGE_ITU_NARROW,
+                                               VK_CHROMA_LOCATION_COSITED_EVEN,
+                                               VK_CHROMA_LOCATION_COSITED_EVEN,
+                                               VK_FILTER_LINEAR,
+                                               /*forceExplicitReconstruction=*/false,
+                                               /*components=*/{},
+                                               formatProperties.linearTilingFeatures);
+skgpu::VulkanAlloc alloc;
     alloc.fMemory = fImageMemory;
     alloc.fOffset = 0;
     alloc.fSize = requirements.size;
@@ -340,16 +340,15 @@ bool VkYcbcrSamplerHelper::createGrBackendTexture(uint32_t width, uint32_t heigh
              (linFlags & VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT) &&
              (linFlags & VK_FORMAT_FEATURE_COSITED_CHROMA_SAMPLES_BIT));
 
-    skgpu::VulkanYcbcrConversionInfo ycbcrInfo = {vkImageInfo.format,
-                                                  /*externalFormat=*/0,
-                                                  VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_709,
-                                                  VK_SAMPLER_YCBCR_RANGE_ITU_NARROW,
-                                                  VK_CHROMA_LOCATION_COSITED_EVEN,
-                                                  VK_CHROMA_LOCATION_COSITED_EVEN,
-                                                  VK_FILTER_LINEAR,
-                                                  false,
-                                                  formatProperties.linearTilingFeatures,
-                                                  /*fComponents=*/{}};
+    skgpu::VulkanYcbcrConversionInfo ycbcrInfo(vkImageInfo.format,
+                                               VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_709,
+                                               VK_SAMPLER_YCBCR_RANGE_ITU_NARROW,
+                                               VK_CHROMA_LOCATION_COSITED_EVEN,
+                                               VK_CHROMA_LOCATION_COSITED_EVEN,
+                                               VK_FILTER_LINEAR,
+                                               /*forceExplicitReconstruction=*/false,
+                                               /*components=*/{},
+                                               formatProperties.linearTilingFeatures);
     skgpu::VulkanAlloc alloc;
     alloc.fMemory = fImageMemory;
     alloc.fOffset = 0;

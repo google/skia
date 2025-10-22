@@ -54,14 +54,14 @@ sk_sp<PrecompileShader> vulkan_ycbcr_image_shader(uint64_t format,
                                                   SkNamedGamut::kRec2020)
                           : nullptr };
 
-    skgpu::VulkanYcbcrConversionInfo info;
+    VkComponentMapping components = {VK_COMPONENT_SWIZZLE_IDENTITY,
+                                     VK_COMPONENT_SWIZZLE_IDENTITY,
+                                     VK_COMPONENT_SWIZZLE_IDENTITY,
+                                     VK_COMPONENT_SWIZZLE_IDENTITY};
 
-    info.fExternalFormat = format;
-    info.fYcbcrModel     = model;
-    info.fYcbcrRange     = range;
-    info.fXChromaOffset  = location;
-    info.fYChromaOffset  = location;
-    info.fChromaFilter   = VK_FILTER_LINEAR;
+    skgpu::VulkanYcbcrConversionInfo info(format, model, range, location, location,
+                                          VK_FILTER_LINEAR, /*forceExplicitReconstruction=*/false,
+                                          components, /*formatFeatures=*/0);
 
     return PrecompileShaders::VulkanYCbCrImage(info,
                                                PrecompileShaders::ImageShaderFlags::kExcludeCubic,

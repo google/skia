@@ -127,13 +127,13 @@ GrBackendFormat MakeVk(const skgpu::VulkanYcbcrConversionInfo& ycbcrInfo,
                        bool willUseDRMFormatModifiers) {
     SkASSERT(ycbcrInfo.isValid());
     GrTextureType textureType =
-            ((ycbcrInfo.isValid() && ycbcrInfo.fExternalFormat) || willUseDRMFormatModifiers)
+            ((ycbcrInfo.isValid() && ycbcrInfo.hasExternalFormat()) || willUseDRMFormatModifiers)
                     ? GrTextureType::kExternal
                     : GrTextureType::k2D;
     return GrBackendSurfacePriv::MakeGrBackendFormat(
             textureType,
             GrBackendApi::kVulkan,
-            GrVkBackendFormatData(ycbcrInfo.fFormat, ycbcrInfo));
+            GrVkBackendFormatData(ycbcrInfo.format(), ycbcrInfo));
 }
 
 bool AsVkFormat(const GrBackendFormat& format, VkFormat* vkFormat) {
@@ -219,7 +219,7 @@ private:
         auto info = GrVkImageInfoWithMutableState(fVkInfo, fMutableState.get());
         bool usesDRMModifier = info.fImageTiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT;
         if (info.fYcbcrConversionInfo.isValid()) {
-            SkASSERT(info.fFormat == info.fYcbcrConversionInfo.fFormat);
+            SkASSERT(info.fFormat == info.fYcbcrConversionInfo.format());
             return GrBackendFormats::MakeVk(info.fYcbcrConversionInfo, usesDRMModifier);
         }
         return GrBackendFormats::MakeVk(info.fFormat, usesDRMModifier);
@@ -246,7 +246,7 @@ static GrVkBackendTextureData* get_and_cast_data(GrBackendTexture* texture) {
 }
 
 static GrTextureType vk_image_info_to_texture_type(const GrVkImageInfo& info) {
-    if ((info.fYcbcrConversionInfo.isValid() && info.fYcbcrConversionInfo.fExternalFormat != 0) ||
+    if ((info.fYcbcrConversionInfo.isValid() && info.fYcbcrConversionInfo.hasExternalFormat()) ||
         info.fImageTiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT) {
         return GrTextureType::kExternal;
     }
@@ -356,7 +356,7 @@ private:
     GrBackendFormat getBackendFormat() const override {
         auto info = GrVkImageInfoWithMutableState(fVkInfo, fMutableState.get());
         if (info.fYcbcrConversionInfo.isValid()) {
-            SkASSERT(info.fFormat == info.fYcbcrConversionInfo.fFormat);
+            SkASSERT(info.fFormat == info.fYcbcrConversionInfo.format());
             return GrBackendFormats::MakeVk(info.fYcbcrConversionInfo);
         }
         return GrBackendFormats::MakeVk(info.fFormat);

@@ -108,13 +108,9 @@ GrVkSampler* GrVkSampler::Create(GrVkGpu* gpu,
 
         createInfo.pNext = &conversionInfo;
 
-        VkFormatFeatureFlags flags = ycbcrInfo.fFormatFeatures;
         if (ycbcrConversion->requiredFilter().has_value()) {
             createInfo.magFilter = ycbcrConversion->requiredFilter().value();
             createInfo.minFilter = ycbcrConversion->requiredFilter().value();
-        } else if (!SkToBool(flags & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
-            createInfo.magFilter = VK_FILTER_NEAREST;
-            createInfo.minFilter = VK_FILTER_NEAREST;
         }
 
         // Required values when using ycbcr conversion

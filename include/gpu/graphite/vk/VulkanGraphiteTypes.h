@@ -13,9 +13,6 @@
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/gpu/vk/VulkanTypes.h"
 
-class SkStream;
-class SkWStream;
-
 namespace skgpu::graphite {
 
 class SK_API VulkanTextureInfo final : public TextureInfo::Data {
@@ -69,9 +66,6 @@ private:
         return fFlags & VK_IMAGE_CREATE_PROTECTED_BIT ? Protected::kYes : Protected::kNo;
     }
     TextureFormat viewFormat() const;
-
-    bool serialize(SkWStream*) const;
-    bool deserialize(SkStream*);
 
     // Virtual API when the specific backend type is not available.
     SkString toBackendString() const override;

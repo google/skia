@@ -7,7 +7,6 @@
 
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 
-#include "include/core/SkStream.h"
 #include "include/gpu/vk/VulkanBackendContext.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
@@ -70,153 +69,6 @@ DriverVersion ParseVulkanDriverVersion(VkDriverId driverId, uint32_t driverVersi
     }
 }
 
-/**
- * Returns a populated VkSamplerYcbcrConversionCreateInfo object based on VulkanYcbcrConversionInfo
-*/
-void SetupSamplerYcbcrConversionInfo(VkSamplerYcbcrConversionCreateInfo* outInfo,
-                                     std::optional<VkFilter>* requiredSamplerFilter,
-                                     const VulkanYcbcrConversionInfo& conversionInfo) {
-#ifdef SK_DEBUG
-    const VkFormatFeatureFlags& featureFlags = conversionInfo.fFormatFeatures;
-
-    // Format feature flags are only representative of an external format's capabilities, so skip
-    // these checks in the case of using a known format or if the featureFlags were clearly not
-    // filled in.
-    if (conversionInfo.fFormat == VK_FORMAT_UNDEFINED && featureFlags) {
-        if (conversionInfo.fXChromaOffset == VK_CHROMA_LOCATION_MIDPOINT ||
-            conversionInfo.fYChromaOffset == VK_CHROMA_LOCATION_MIDPOINT) {
-            SkASSERT(featureFlags & VK_FORMAT_FEATURE_MIDPOINT_CHROMA_SAMPLES_BIT);
-        }
-        if (conversionInfo.fXChromaOffset == VK_CHROMA_LOCATION_COSITED_EVEN ||
-            conversionInfo.fYChromaOffset == VK_CHROMA_LOCATION_COSITED_EVEN) {
-            SkASSERT(featureFlags & VK_FORMAT_FEATURE_COSITED_CHROMA_SAMPLES_BIT);
-        }
-        if (conversionInfo.fChromaFilter == VK_FILTER_LINEAR) {
-            SkASSERT(featureFlags & VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT);
-        }
-        if (conversionInfo.fForceExplicitReconstruction) {
-            SkASSERT(featureFlags &
-                    VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_FORCEABLE_BIT);
-        }
-    }
-#endif
-
-    VkFilter chromaFilter = conversionInfo.fChromaFilter;
-    if (!(conversionInfo.fFormatFeatures &
-          VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_SEPARATE_RECONSTRUCTION_FILTER_BIT)) {
-        if (!(conversionInfo.fFormatFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
-            // Because we don't have have separate reconstruction filter, the min, mag and
-            // chroma filter must all match. However, we also don't support linear sampling so
-            // the min/mag filter have to be nearest. Therefore, we force the chroma filter to
-            // be nearest regardless of support for the feature
-            // VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT.
-            chromaFilter = VK_FILTER_NEAREST;
-        }
-
-        // Let the caller know that it must match min and mag filters with the chroma filter.
-        *requiredSamplerFilter = chromaFilter;
-    }
-
-    outInfo->sType = VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_CREATE_INFO;
-    outInfo->pNext = nullptr;
-    outInfo->format = conversionInfo.fFormat;
-    outInfo->ycbcrModel = conversionInfo.fYcbcrModel;
-    outInfo->ycbcrRange = conversionInfo.fYcbcrRange;
-    outInfo->components = conversionInfo.fComponents;
-    outInfo->xChromaOffset = conversionInfo.fXChromaOffset;
-    outInfo->yChromaOffset = conversionInfo.fYChromaOffset;
-    outInfo->chromaFilter = chromaFilter;
-    outInfo->forceExplicitReconstruction = conversionInfo.fForceExplicitReconstruction;
-}
-
-bool SerializeVkYCbCrInfo(SkWStream* stream, const VulkanYcbcrConversionInfo& info) {
-    SkASSERT(SkTFitsIn<uint64_t>(info.fFormat));
-    // fExternalFormat is already a uint64_t
-    SkASSERT(SkTFitsIn<uint8_t>(info.fYcbcrModel));
-    SkASSERT(SkTFitsIn<uint8_t>(info.fYcbcrRange));
-    SkASSERT(SkTFitsIn<uint8_t>(info.fXChromaOffset));
-    SkASSERT(SkTFitsIn<uint8_t>(info.fYChromaOffset));
-    SkASSERT(SkTFitsIn<uint64_t>(info.fChromaFilter));
-    SkASSERT(SkTFitsIn<uint64_t>(info.fFormatFeatures));
-    SkASSERT(SkTFitsIn<uint8_t>(info.fComponents.r));
-    SkASSERT(SkTFitsIn<uint8_t>(info.fComponents.g));
-    SkASSERT(SkTFitsIn<uint8_t>(info.fComponents.b));
-    SkASSERT(SkTFitsIn<uint8_t>(info.fComponents.a));
-    // fForceExplicitReconstruction is a VkBool32
-
-    // TODO(robertphillips): this isn't as densely packed as possible
-    if (!stream->write64(static_cast<uint64_t>(info.fFormat)))           { return false; }
-    if (!stream->write64(info.fExternalFormat))                          { return false; }
-    if (!stream->write8(static_cast<uint8_t>(info.fYcbcrModel)))         { return false; }
-    if (!info.isValid()) {
-        return true;
-    }
-
-    if (!stream->write8(static_cast<uint8_t>(info.fYcbcrRange)))         { return false; }
-    if (!stream->write8(static_cast<uint8_t>(info.fXChromaOffset)))      { return false; }
-    if (!stream->write8(static_cast<uint8_t>(info.fYChromaOffset)))      { return false; }
-    if (!stream->write64(static_cast<uint64_t>(info.fChromaFilter)))     { return false; }
-    if (!stream->write64(static_cast<uint64_t>(info.fFormatFeatures)))   { return false; }
-    if (!stream->write8(static_cast<uint8_t>(info.fComponents.r)))       { return false; }
-    if (!stream->write8(static_cast<uint8_t>(info.fComponents.g)))       { return false; }
-    if (!stream->write8(static_cast<uint8_t>(info.fComponents.b)))       { return false; }
-    if (!stream->write8(static_cast<uint8_t>(info.fComponents.a)))       { return false; }
-    if (!stream->writeBool(SkToBool(info.fForceExplicitReconstruction))) { return false;}
-
-    return true;
-}
-
-bool DeserializeVkYCbCrInfo(SkStream* stream, VulkanYcbcrConversionInfo* out) {
-    uint64_t tmp64;
-    uint8_t tmp8;
-
-    if (!stream->readU64(&tmp64)) { return false; }
-    out->fFormat = static_cast<VkFormat>(tmp64);
-
-    if (!stream->readU64(&tmp64)) { return false; }
-    out->fExternalFormat = tmp64;
-
-    if (!stream->readU8(&tmp8)) { return false; }
-    out->fYcbcrModel = static_cast<VkSamplerYcbcrModelConversion>(tmp8);
-
-    if (!out->isValid()) {
-        return true;
-    }
-
-    if (!stream->readU8(&tmp8)) { return false; }
-    out->fYcbcrRange = static_cast<VkSamplerYcbcrRange>(tmp8);
-
-    if (!stream->readU8(&tmp8)) { return false; }
-    out->fXChromaOffset = static_cast<VkChromaLocation>(tmp8);
-
-    if (!stream->readU8(&tmp8)) { return false; }
-    out->fYChromaOffset = static_cast<VkChromaLocation>(tmp8);
-
-    if (!stream->readU64(&tmp64)) { return false; }
-    out->fChromaFilter = static_cast<VkFilter>(tmp64);
-
-    if (!stream->readU64(&tmp64)) { return false; }
-    out->fFormatFeatures = static_cast<VkFormatFeatureFlags>(tmp64);
-
-    if (!stream->readU8(&tmp8)) { return false; }
-    out->fComponents.r = static_cast<VkComponentSwizzle>(tmp8);
-
-    if (!stream->readU8(&tmp8)) { return false; }
-    out->fComponents.g = static_cast<VkComponentSwizzle>(tmp8);
-
-    if (!stream->readU8(&tmp8)) { return false; }
-    out->fComponents.b = static_cast<VkComponentSwizzle>(tmp8);
-
-    if (!stream->readU8(&tmp8)) { return false; }
-    out->fComponents.a = static_cast<VkComponentSwizzle>(tmp8);
-
-    bool tmpBool;
-    if (!stream->readBool(&tmpBool)) { return false; }
-    out->fForceExplicitReconstruction = tmpBool;
-
-    return false;
-}
-
 #ifdef SK_BUILD_FOR_ANDROID
 
 /**
@@ -225,20 +77,23 @@ bool DeserializeVkYCbCrInfo(SkStream* stream, VulkanYcbcrConversionInfo* out) {
 void GetYcbcrConversionInfoFromFormatProps(
         VulkanYcbcrConversionInfo* outConversionInfo,
         const VkAndroidHardwareBufferFormatPropertiesANDROID& formatProps) {
-    outConversionInfo->fYcbcrModel = formatProps.suggestedYcbcrModel;
-    outConversionInfo->fYcbcrRange = formatProps.suggestedYcbcrRange;
-    outConversionInfo->fComponents = formatProps.samplerYcbcrConversionComponents;
-    outConversionInfo->fXChromaOffset = formatProps.suggestedXChromaOffset;
-    outConversionInfo->fYChromaOffset = formatProps.suggestedYChromaOffset;
-    outConversionInfo->fForceExplicitReconstruction = VK_FALSE;
-    outConversionInfo->fExternalFormat = formatProps.externalFormat;
-    outConversionInfo->fFormatFeatures = formatProps.formatFeatures;
+    VkFilter chromaFilter;
     if (VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT &
         formatProps.formatFeatures) {
-        outConversionInfo->fChromaFilter = VK_FILTER_LINEAR;
+        chromaFilter = VK_FILTER_LINEAR;
     } else {
-        outConversionInfo->fChromaFilter = VK_FILTER_NEAREST;
+        chromaFilter = VK_FILTER_NEAREST;
     }
+
+    *outConversionInfo = VulkanYcbcrConversionInfo(formatProps.externalFormat,
+                                                   formatProps.suggestedYcbcrModel,
+                                                   formatProps.suggestedYcbcrRange,
+                                                   formatProps.suggestedXChromaOffset,
+                                                   formatProps.suggestedYChromaOffset,
+                                                   chromaFilter,
+                                                   /*forceExplicitReconstruction=*/VK_FALSE,
+                                                   formatProps.samplerYcbcrConversionComponents,
+                                                   formatProps.formatFeatures);
 }
 
 bool GetAHardwareBufferProperties(
@@ -492,6 +347,106 @@ sk_sp<skgpu::VulkanInterface> MakeInterface(const skgpu::VulkanBackendContext& c
         *instanceVersionOut = instanceVersion;
     }
     return interface;
+}
+
+VulkanYcbcrConversionInfo::VulkanYcbcrConversionInfo(VkFormat format,
+                                                     uint64_t externalFormat,
+                                                     VkSamplerYcbcrModelConversion ycbcrModel,
+                                                     VkSamplerYcbcrRange ycbcrRange,
+                                                     VkChromaLocation xChromaOffset,
+                                                     VkChromaLocation yChromaOffset,
+                                                     VkFilter chromaFilter,
+                                                     VkBool32 forceExplicitReconstruction,
+                                                     VkComponentMapping components,
+                                                     VkFormatFeatureFlags formatFeatures)
+        : fFormat(format)
+        , fExternalFormat(externalFormat)
+        , fYcbcrModel(ycbcrModel)
+        , fYcbcrRange(ycbcrRange)
+        , fXChromaOffset(xChromaOffset)
+        , fYChromaOffset(yChromaOffset)
+        , fChromaFilter(chromaFilter)
+        , fForceExplicitReconstruction(forceExplicitReconstruction)
+        , fComponents(components)
+        , fFormatFeatures(VK_FORMAT_FEATURE_FLAG_BITS_MAX_ENUM) {
+#ifdef SK_DEBUG
+    // Format feature flags are only representative of an external format's capabilities, so
+    // skip these checks in the case of using a known format or if the featureFlags were clearly
+    // not filled in.
+    if (fFormat == VK_FORMAT_UNDEFINED && formatFeatures) {
+        if (fXChromaOffset == VK_CHROMA_LOCATION_MIDPOINT ||
+            fYChromaOffset == VK_CHROMA_LOCATION_MIDPOINT) {
+            SkASSERT(formatFeatures & VK_FORMAT_FEATURE_MIDPOINT_CHROMA_SAMPLES_BIT);
+        }
+        if (fXChromaOffset == VK_CHROMA_LOCATION_COSITED_EVEN ||
+            fYChromaOffset == VK_CHROMA_LOCATION_COSITED_EVEN) {
+            SkASSERT(formatFeatures & VK_FORMAT_FEATURE_COSITED_CHROMA_SAMPLES_BIT);
+        }
+        if (fChromaFilter == VK_FILTER_LINEAR) {
+            SkASSERT(formatFeatures &
+                     VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT);
+        }
+        if (fForceExplicitReconstruction) {
+            SkASSERT(formatFeatures &
+                     VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_FORCEABLE_BIT);
+        }
+    }
+#endif
+    fSamplerFilterMustMatchChromaFilter = !SkToBool(
+        formatFeatures &
+        VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_SEPARATE_RECONSTRUCTION_FILTER_BIT);
+    fSupportsLinearFilter = SkToBool(formatFeatures &
+                                     VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT);
+    if (fSamplerFilterMustMatchChromaFilter && !fSupportsLinearFilter) {
+        // Because we don't have have separate reconstruction filter, the min, mag and  filter must
+        // all match. However, we also don't support linear sampling so the min/mag filter have to
+        // be nearest. Therefore, we force the chroma filter to be nearest regardless of support for
+        // the feature VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT.
+        fChromaFilter = VK_FILTER_NEAREST;
+    }
+}
+
+
+void VulkanYcbcrConversionInfo::toVkSamplerYcbcrConversionCreateInfo(
+        VkSamplerYcbcrConversionCreateInfo* outInfo,
+        std::optional<VkFilter>* requiredSamplerFilter) const {
+    outInfo->sType = VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_CREATE_INFO;
+    outInfo->pNext = nullptr;
+    outInfo->format = fFormat;
+    outInfo->ycbcrModel = fYcbcrModel;
+    outInfo->ycbcrRange = fYcbcrRange;
+    outInfo->components = fComponents;
+    outInfo->xChromaOffset = fXChromaOffset;
+    outInfo->yChromaOffset = fYChromaOffset;
+    outInfo->chromaFilter = fChromaFilter;
+    outInfo->forceExplicitReconstruction = fForceExplicitReconstruction;
+
+    // TODO: Remove this first if block for format features once clients are updated to use the
+    // ctor and not setting fFormatFeature
+    if (fFormatFeatures != VK_FORMAT_FEATURE_FLAG_BITS_MAX_ENUM) {
+        VkFilter chromaFilter = fChromaFilter;
+        if (!(fFormatFeatures &
+              VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_SEPARATE_RECONSTRUCTION_FILTER_BIT)) {
+            if (!(fFormatFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
+                // Because we don't have have separate reconstruction filter, the min, mag and
+                // chroma filter must all match. However, we also don't support linear sampling
+                // so the min/mag filter have to be nearest. Therefore, we force the chroma
+                // filter to be nearest regardless of support for the feature
+                // VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT.
+                chromaFilter = VK_FILTER_NEAREST;
+            }
+            // Let the caller know that it must match min and mag filters with the chroma filter.
+            *requiredSamplerFilter = chromaFilter;
+        } else {
+            if (!(fFormatFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
+                *requiredSamplerFilter = VK_FILTER_NEAREST;
+            }
+        }
+    } else if (fSamplerFilterMustMatchChromaFilter) {
+        *requiredSamplerFilter = fChromaFilter;
+    } else if (!fSupportsLinearFilter) {
+        *requiredSamplerFilter = VK_FILTER_NEAREST;
+    }
 }
 
 } // namespace skgpu

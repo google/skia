@@ -47,7 +47,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
     SkASSERT((GrMipmapStatus::kNotAllocated == mipmapStatus) == (1 == fTexture->mipLevels()));
     // We don't support creating external GrVkTextures
     SkASSERT(!fTexture->ycbcrConversionInfo().isValid() ||
-             !fTexture->ycbcrConversionInfo().fExternalFormat);
+             !fTexture->ycbcrConversionInfo().hasExternalFormat());
     SkASSERT(SkToBool(fTexture->vkUsageFlags() & VK_IMAGE_USAGE_SAMPLED_BIT));
     this->registerWithCache(budgeted);
     if (skgpu::VkFormatIsCompressed(fTexture->imageFormat())) {
@@ -151,7 +151,7 @@ sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(
                                                        : GrMipmapStatus::kNotAllocated;
 
     bool isExternal = info.fYcbcrConversionInfo.isValid() &&
-                      (info.fYcbcrConversionInfo.fExternalFormat != 0);
+                      info.fYcbcrConversionInfo.hasExternalFormat();
     isExternal |= (info.fImageTiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT);
     return sk_sp<GrVkTexture>(new GrVkTexture(gpu,
                                               dimensions,

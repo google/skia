@@ -92,7 +92,7 @@ public:
         bool usesDRMModifier =
                 this->vkImageInfo().fImageTiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT;
         if (fResource && this->ycbcrConversionInfo().isValid()) {
-            SkASSERT(this->imageFormat() == this->ycbcrConversionInfo().fFormat);
+            SkASSERT(this->imageFormat() == this->ycbcrConversionInfo().format());
             return GrBackendFormats::MakeVk(this->ycbcrConversionInfo(), usesDRMModifier);
         }
         SkASSERT(this->imageFormat() != VK_FORMAT_UNDEFINED);
