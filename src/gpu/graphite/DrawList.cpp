@@ -317,7 +317,7 @@ std::unique_ptr<DrawPass> DrawList::snapDrawPass(Recorder* recorder,
         const bool pipelineChange = key.pipelineIndex() != lastPipeline;
 #if defined(SK_TRACE_GRAPHITE_PIPELINE_USE)
         drawPass->fPipelineDrawAreas[key.pipelineIndex()] +=
-                draw.drawParams().clip().drawBounds().area();
+                draw.drawParams().drawBounds().area();
 #endif
 
         const bool geomBindingChange = geometryUniformTracker.writeUniforms(
