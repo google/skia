@@ -9,7 +9,6 @@
 #define SkXPSLibpngHelpers_DEFINED
 
 #include "include/encode/SkPngEncoder.h"
-#include "include/private/base/SkAPI.h"
 
 class SkWStream;
 class SkPixmap;
@@ -19,7 +18,7 @@ namespace SkXPS {
 /**
  *  Implementation of `SkXPS::EncodePngCallback` based on `libpng`.
  */
-SK_API inline bool EncodePngUsingLibpng(SkWStream* dst, const SkPixmap& src) {
+inline bool EncodePngUsingLibpng(SkWStream* dst, const SkPixmap& src) {
     return SkPngEncoder::Encode(dst, src, {});
 }
 
