@@ -2026,8 +2026,7 @@
     "name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All"
   },
   {
-    "name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Direct3D",
-    "cq_config": {}
+    "name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Direct3D"
   },
   {
     "name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_D3D11"

@@ -83947,7 +83947,6 @@
         "modules/canvaskit/.*"
       ]
     },
-    "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Direct3D": {},
     "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_D3D12": {
       "location_regexes": [
         "(tests|src/gpu)/graphite/.*",
