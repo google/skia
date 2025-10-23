@@ -99,8 +99,10 @@ static bool canConvertFDot6ToFixed(SkFDot6 x) {
 }
 #endif
 
-void SkScan::HairLineRgn(const SkPoint array[], int arrayCount, const SkRegion* clip,
-                         SkBlitter* origBlitter) {
+void SkScan::HairLineRgn(SkSpan<const SkPoint> src, const SkRegion* clip, SkBlitter* origBlitter) {
+    if (src.empty()) {
+        return;
+    }
     SkBlitterClipper    clipper;
     SkIRect clipR, ptsR;
 
@@ -112,14 +114,14 @@ void SkScan::HairLineRgn(const SkPoint array[], int arrayCount, const SkRegion* 
         clipBounds.set(clip->getBounds());
     }
 
-    for (int i = 0; i < arrayCount - 1; ++i) {
+    for (size_t i = 0; i < src.size() - 1; ++i) {
         SkBlitter* blitter = origBlitter;
 
         SkPoint pts[2];
 
         // We have to pre-clip the line to fit in a SkFixed, so we just chop
         // the line. TODO find a way to actually draw beyond that range.
-        if (!SkLineClipper::IntersectLine(&array[i], fixedBounds, pts)) {
+        if (!SkLineClipper::IntersectLine(&src[i], fixedBounds, pts)) {
             continue;
         }
 
@@ -299,7 +301,7 @@ static void hair_quad(const SkPoint pts[3], const SkRegion* clip,
 
     SkQuadCoeff coeff(pts);
 
-    const int lines = 1 << level;
+    const unsigned lines = 1 << level;
     float2 t(0);
     float2 dt(SK_Scalar1 / lines);
 
@@ -310,12 +312,12 @@ static void hair_quad(const SkPoint pts[3], const SkRegion* clip,
     float2 A = coeff.fA;
     float2 B = coeff.fB;
     float2 C = coeff.fC;
-    for (int i = 1; i < lines; ++i) {
+    for (unsigned i = 1; i < lines; ++i) {
         t = t + dt;
         ((A * t + B) * t + C).store(&tmp[i]);
     }
     tmp[lines] = pts[2];
-    lineproc(tmp, lines + 1, clip, blitter);
+    lineproc({tmp, lines + 1}, clip, blitter);
 }
 
 static SkRect compute_nocheck_quad_bounds(const SkPoint pts[3]) {
@@ -417,11 +419,10 @@ static inline mask2 float2_is_finite(const float2& x) {
 
 static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* blitter,
                        SkScan::HairRgnProc lineproc) {
-    const int lines = compute_cubic_segs(pts);
+    const size_t lines = compute_cubic_segs(pts);
     SkASSERT(lines > 0);
     if (1 == lines) {
-        SkPoint tmp[2] = { pts[0], pts[3] };
-        lineproc(tmp, 2, clip, blitter);
+        lineproc({{pts[0], pts[3]}}, clip, blitter);
         return;
     }
 
@@ -439,7 +440,7 @@ static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* bl
     float2 C = coeff.fC;
     float2 D = coeff.fD;
     mask2 is_finite(~0);   // start out as true
-    for (int i = 1; i < lines; ++i) {
+    for (size_t i = 1; i < lines; ++i) {
         t = t + dt;
         float2 p = ((A * t + B) * t + C) * t + D;
         is_finite &= float2_is_finite(p);
@@ -447,7 +448,7 @@ static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* bl
     }
     if (all(is_finite)) {
         tmp[lines] = pts[3];
-        lineproc(tmp, lines + 1, clip, blitter);
+        lineproc({tmp, lines + 1}, clip, blitter);
     } // else some point(s) are non-finite, so don't draw
 }
 
@@ -641,7 +642,7 @@ void hair_path(const SkPathRaw& raw, const SkRasterClip& rclip, SkBlitter* blitt
                 if (SkPaint::kButt_Cap != capStyle) {
                     extend_pts<capStyle>(prevVerb, nextVerb, {pts, 2});
                 }
-                lineproc(pts, 2, clip, blitter);
+                lineproc({pts, 2}, clip, blitter);
                 lastPt = pts[1];
                 break;
             case SkPathVerb::kQuad:
@@ -683,7 +684,7 @@ void hair_path(const SkPathRaw& raw, const SkRasterClip& rclip, SkBlitter* blitt
                     // cap moveTo/close to match svg expectations for degenerate segments
                     extend_pts<capStyle>(prevVerb, nextVerb, {pts, 2});
                 }
-                lineproc(pts, 2, clip, blitter);
+                lineproc({pts, 2}, clip, blitter);
                 break;
         }
         if (SkPaint::kButt_Cap != capStyle) {
@@ -767,14 +768,13 @@ void SkScan::FrameRect(const SkRect& r, const SkPoint& strokeSize,
     SkScan::FillRect(tmp, clip, blitter);
 }
 
-void SkScan::HairLine(const SkPoint pts[], int count, const SkRasterClip& clip,
-                      SkBlitter* blitter) {
+void SkScan::HairLine(SkSpan<const SkPoint> pts, const SkRasterClip& clip, SkBlitter* blitter) {
     if (clip.isBW()) {
-        HairLineRgn(pts, count, &clip.bwRgn(), blitter);
+        HairLineRgn(pts, &clip.bwRgn(), blitter);
     } else {
         const SkRegion* clipRgn = nullptr;
 
-        const auto r = SkRect::BoundsOrEmpty({pts, count}).makeOutset(SK_ScalarHalf, SK_ScalarHalf);
+        const auto r = SkRect::BoundsOrEmpty(pts).makeOutset(SK_ScalarHalf, SK_ScalarHalf);
 
         SkAAClipBlitterWrapper wrap;
         if (!clip.quickContains(r.roundOut())) {
@@ -782,18 +782,17 @@ void SkScan::HairLine(const SkPoint pts[], int count, const SkRasterClip& clip,
             blitter = wrap.getBlitter();
             clipRgn = &wrap.getRgn();
         }
-        HairLineRgn(pts, count, clipRgn, blitter);
+        HairLineRgn(pts, clipRgn, blitter);
     }
 }
 
-void SkScan::AntiHairLine(const SkPoint pts[], int count, const SkRasterClip& clip,
-                          SkBlitter* blitter) {
+void SkScan::AntiHairLine(SkSpan<const SkPoint> pts, const SkRasterClip& clip, SkBlitter* blitter) {
     if (clip.isBW()) {
-        AntiHairLineRgn(pts, count, &clip.bwRgn(), blitter);
+        AntiHairLineRgn(pts, &clip.bwRgn(), blitter);
     } else {
         const SkRegion* clipRgn = nullptr;
 
-        const auto r = SkRect::BoundsOrEmpty({pts, count});
+        const auto r = SkRect::BoundsOrEmpty(pts);
 
         SkAAClipBlitterWrapper wrap;
         if (!clip.quickContains(r.roundOut().makeOutset(1, 1))) {
@@ -801,6 +800,6 @@ void SkScan::AntiHairLine(const SkPoint pts[], int count, const SkRasterClip& cl
             blitter = wrap.getBlitter();
             clipRgn = &wrap.getRgn();
         }
-        AntiHairLineRgn(pts, count, clipRgn, blitter);
+        AntiHairLineRgn(pts, clipRgn, blitter);
     }
 }

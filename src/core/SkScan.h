@@ -32,8 +32,8 @@ public:
      *      line(pts[1], pts[2])
      *      line(......, pts[count - 1])
      */
-    typedef void (*HairRgnProc)(const SkPoint[], int count, const SkRegion*, SkBlitter*);
-    typedef void (*HairRCProc)(const SkPoint[], int count, const SkRasterClip&, SkBlitter*);
+    typedef void (*HairRgnProc)(SkSpan<const SkPoint>, const SkRegion*, SkBlitter*);
+    typedef void (*HairRCProc)(SkSpan<const SkPoint>, const SkRasterClip&, SkBlitter*);
 
     // Paths of a certain size cannot be anti-aliased unless externally tiled (handled by SkDraw).
     // SkBitmapDevice automatically tiles, SkAAClip does not so SkRasterClipStack converts AA clips
@@ -59,8 +59,8 @@ public:
     static void AntiFrameRect(const SkRect&, const SkPoint& strokeSize,
                               const SkRasterClip&, SkBlitter*);
     static void FillTriangle(const SkPoint pts[], const SkRasterClip&, SkBlitter*);
-    static void HairLine(const SkPoint[], int count, const SkRasterClip&, SkBlitter*);
-    static void AntiHairLine(const SkPoint[], int count, const SkRasterClip&, SkBlitter*);
+    static void HairLine(SkSpan<const SkPoint>, const SkRasterClip&, SkBlitter*);
+    static void AntiHairLine(SkSpan<const SkPoint>, const SkRasterClip&, SkBlitter*);
     static void HairRect(const SkRect&, const SkRasterClip&, SkBlitter*);
     static void AntiHairRect(const SkRect&, const SkRasterClip&, SkBlitter*);
 
@@ -85,8 +85,8 @@ private:
 
     static void AntiFrameRect(const SkRect&, const SkPoint& strokeSize,
                               const SkRegion*, SkBlitter*);
-    static void HairLineRgn(const SkPoint[], int count, const SkRegion*, SkBlitter*);
-    static void AntiHairLineRgn(const SkPoint[], int count, const SkRegion*, SkBlitter*);
+    static void HairLineRgn(SkSpan<const SkPoint>, const SkRegion*, SkBlitter*);
+    static void AntiHairLineRgn(SkSpan<const SkPoint>, const SkRegion*, SkBlitter*);
     static void AAAFillPath(const SkPathRaw&, SkBlitter* blitter, const SkIRect& pathIR,
                             const SkIRect& clipBounds, bool forceRLE);
 };

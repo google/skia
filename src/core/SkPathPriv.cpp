@@ -1530,8 +1530,7 @@ SkRect SkPathPriv::ComputeTightBounds(SkSpan<const SkPoint> points,
           R = points[0].fX,
           B = points[0].fY;
 
-    for (auto [verb, pts, w] : SkPathPriv::Iterate(verbs.begin(), verbs.end(),
-                                                   points.data(), conicWeights.data())) {
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(verbs, points.data(), conicWeights.data())) {
         SkPoint extremas[5]; // big enough to hold worst-case curve type (cubic) extremas + 1
         int count = 0;
         switch (verb) {

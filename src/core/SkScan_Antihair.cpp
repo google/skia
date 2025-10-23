@@ -530,9 +530,8 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
     }
 }
 
-void SkScan::AntiHairLineRgn(const SkPoint array[], int arrayCount, const SkRegion* clip,
-                             SkBlitter* blitter) {
-    if (clip && clip->isEmpty()) {
+void SkScan::AntiHairLineRgn(SkSpan<const SkPoint> src, const SkRegion* clip, SkBlitter* blitter) {
+    if (src.empty() || (clip && clip->isEmpty())) {
         return;
     }
 
@@ -560,12 +559,12 @@ void SkScan::AntiHairLineRgn(const SkPoint array[], int arrayCount, const SkRegi
         clipBounds.outset(SK_Scalar1, SK_Scalar1);
     }
 
-    for (int i = 0; i < arrayCount - 1; ++i) {
+    for (size_t i = 0; i < src.size() - 1; ++i) {
         SkPoint pts[2];
 
         // We have to pre-clip the line to fit in a SkFixed, so we just chop
         // the line. TODO find a way to actually draw beyond that range.
-        if (!SkLineClipper::IntersectLine(&array[i], fixedBounds, pts)) {
+        if (!SkLineClipper::IntersectLine(&src[i], fixedBounds, pts)) {
             continue;
         }
 
@@ -618,7 +617,7 @@ void SkScan::AntiHairRect(const SkRect& rect, const SkRasterClip& clip,
     pts[2].set(rect.fRight, rect.fBottom);
     pts[3].set(rect.fLeft, rect.fBottom);
     pts[4] = pts[0];
-    SkScan::AntiHairLine(pts, 5, clip, blitter);
+    SkScan::AntiHairLine(pts, clip, blitter);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

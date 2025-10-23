@@ -177,16 +177,19 @@ public:
     public:
         Iterate(SkPath&&) = delete;
         Iterate(const SkPath& path)
-                : Iterate(path.verbs().begin(),
-                          // Don't allow iteration through non-finite points.
-                          (!path.isFinite()) ? path.verbs().begin()
-                                             : path.verbs().end(),
-                          path.points().data(), path.conicWeights().data()) {
+            : Iterate(path.verbs(), path.points().data(), path.conicWeights().data())
+        {
+            // Don't allow iteration through non-finite points.
+            if (!path.isFinite()) {
+                fVerbsBegin = fVerbsEnd;
+            }
         }
-        Iterate(const SkPathVerb* verbsBegin, const SkPathVerb* verbsEnd, const SkPoint* points,
-                const SkScalar* weights)
-                : fVerbsBegin(verbsBegin), fVerbsEnd(verbsEnd), fPoints(points), fWeights(weights) {
-        }
+        Iterate(SkSpan<const SkPathVerb> verbs, const SkPoint* points, const SkScalar* weights)
+            : fVerbsBegin(verbs.data())
+            , fVerbsEnd(verbs.data() + verbs.size())
+            , fPoints(points)
+            , fWeights(weights)
+        {}
         SkPath::RangeIter begin() { return {fVerbsBegin, fPoints, fWeights}; }
         SkPath::RangeIter end() { return {fVerbsEnd, nullptr, nullptr}; }
     private:
