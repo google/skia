@@ -70,6 +70,7 @@
 #include "tools/trace/EventTracingPriv.h"
 #include "tools/viewer/AnimatedImageSlide.h"
 #include "tools/viewer/BisectSlide.h"
+#include "tools/viewer/CaptureSlide.h"
 #include "tools/viewer/GMSlide.h"
 #include "tools/viewer/ImageSlide.h"
 #include "tools/viewer/MSKPSlide.h"
@@ -270,6 +271,7 @@ static DEFINE_string(jxls   , PATH_PREFIX "jxls"   , "Directory to read jxls fro
 static DEFINE_string(skps   , PATH_PREFIX "skps"   , "Directory to read skps from.");
 static DEFINE_string(mskps  , PATH_PREFIX "mskps"  , "Directory to read mskps from.");
 static DEFINE_string(lotties, PATH_PREFIX "lotties", "Directory to read (Bodymovin) jsons from.");
+static DEFINE_string(captures, PATH_PREFIX "captures", "Directory to read SkCaptures from.");
 #undef PATH_PREFIX
 
 static DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
@@ -1078,6 +1080,12 @@ void Viewer::initSlides() {
              return sk_make_sp<SvgSlide>(name, path);
          }},
 #endif
+         {".capt",
+         "capture-dir",
+         FLAGS_captures,
+         [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+             return sk_make_sp<CaptureSlide>(name, path);
+         }},
     };
 
     TArray<sk_sp<Slide>> dirSlides;

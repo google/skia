@@ -20,6 +20,8 @@ skia_cc_binary(
         "BisectSlide.cpp",
         "BisectSlide.h",
         "CameraSlide.cpp",
+        "CaptureSlide.cpp",
+        "CaptureSlide.h",
         "ChartSlide.cpp",
         "ChineseFlingSlide.cpp",
         "ClickHandlerSlide.cpp",

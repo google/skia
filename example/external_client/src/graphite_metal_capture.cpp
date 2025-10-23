@@ -31,6 +31,18 @@
 #define HEIGHT 400
 
 int main(int argc, char *argv[]) {
+
+    if (argc != 2) {
+        printf("Specify a single write location.\n");
+        return 1;
+    }
+
+    SkFILEWStream output(argv[1]);
+    if (!output.isValid()) {
+        printf("Cannot open output file %s\n", argv[1]);
+        return 1;
+    }
+
     /* SET UP CONTEXT AND RECORDERS FOR DRAWING AND CAPTURE */
 
     skgpu::graphite::MtlBackendContext backendContext = GetMetalContext();
@@ -80,15 +92,14 @@ int main(int argc, char *argv[]) {
     SkRRect rrect = SkRRect::MakeRectXY(SkRect::MakeLTRB(10, 20, 50, 70), 10, 10);
 
     SkPaint paint;
-    paint.setColor(SK_ColorYELLOW);
+    paint.setColor(SK_ColorRED);
     paint.setAntiAlias(true);
 
     canvas->drawRRect(rrect, paint);
 
     // Triggers a breakpoint in the capture
     auto contentImg = surface->makeImageSnapshot();
-
-    canvas->drawCircle(5, 5, 2.5, paint);
+    canvas->drawCircle(50, 50, 30, paint);
 
     // Canvas B
     canvasB->clear(SK_ColorMAGENTA);
@@ -140,6 +151,10 @@ int main(int argc, char *argv[]) {
 
     auto capture = context->endCapture();
     auto serializedCapture = capture->serializeCapture();
+
+    /* WRITE DATA TO FILE LOCATION */
+    output.write(serializedCapture->data(), serializedCapture->size());
+    output.fsync();
 
     /* DESERIALIZE CAPTURE AND INSPECT CONTENTS */
     if (serializedCapture) {

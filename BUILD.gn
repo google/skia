@@ -3124,6 +3124,8 @@ if (skia_enable_tools) {
         "tools/viewer/BisectSlide.cpp",
         "tools/viewer/BisectSlide.h",
         "tools/viewer/CameraSlide.cpp",
+        "tools/viewer/CaptureSlide.cpp",
+        "tools/viewer/CaptureSlide.h",
         "tools/viewer/ChartSlide.cpp",
         "tools/viewer/ChineseFlingSlide.cpp",
         "tools/viewer/ClickHandlerSlide.cpp",

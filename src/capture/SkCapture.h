@@ -36,6 +36,11 @@ public:
     static sk_sp<SkCapture> MakeFromPictures(skia_private::TArray<sk_sp<SkPicture>>);
     sk_sp<SkData> serializeCapture();
 
+    // TODO: Pictures being grabbed by index is not intuitive and leave the capture disorganized.
+    // This should be deleted once SkPictures are organized by Surface and grouped by Recording.
+    sk_sp<SkPicture> getPicture(int i) const;
+    Metadata getMetadata() const;
+
 private:
     // TODO: add more awareness of the image meta data to a SkCaptureContext object
     static sk_sp<SkData> serializeImageProc(SkImage* img, void* ctx);
