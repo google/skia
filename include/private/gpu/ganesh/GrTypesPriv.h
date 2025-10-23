@@ -367,21 +367,21 @@ enum class GrClipEdgeType {
 };
 static const int kGrClipEdgeTypeCnt = (int) GrClipEdgeType::kLast + 1;
 
-static constexpr bool GrClipEdgeTypeIsFill(const GrClipEdgeType edgeType) {
+static constexpr bool GrClipEdgeTypeIsFill(GrClipEdgeType edgeType) {
     return (GrClipEdgeType::kFillAA == edgeType || GrClipEdgeType::kFillBW == edgeType);
 }
 
-static constexpr bool GrClipEdgeTypeIsInverseFill(const GrClipEdgeType edgeType) {
+static constexpr bool GrClipEdgeTypeIsInverseFill(GrClipEdgeType edgeType) {
     return (GrClipEdgeType::kInverseFillAA == edgeType ||
             GrClipEdgeType::kInverseFillBW == edgeType);
 }
 
-static constexpr bool GrClipEdgeTypeIsAA(const GrClipEdgeType edgeType) {
+static constexpr bool GrClipEdgeTypeIsAA(GrClipEdgeType edgeType) {
     return (GrClipEdgeType::kFillBW != edgeType &&
             GrClipEdgeType::kInverseFillBW != edgeType);
 }
 
-static inline GrClipEdgeType GrInvertClipEdgeType(const GrClipEdgeType edgeType) {
+static inline GrClipEdgeType GrInvertClipEdgeType(GrClipEdgeType edgeType) {
     switch (edgeType) {
         case GrClipEdgeType::kFillBW:
             return GrClipEdgeType::kInverseFillBW;

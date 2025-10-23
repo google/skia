@@ -45,9 +45,8 @@ class ShaderMFBench final : public Benchmark {
 public:
     using ShaderMaker = sk_sp<SkShader>(*)();
 
-    ShaderMFBench(const char* nm, bool opaque, const ShaderMaker maker)
-            : fMaker{maker}
-            , fColor{opaque ? 0xff00ff00 : 0x8000ff00} {
+    ShaderMFBench(const char* nm, bool opaque, ShaderMaker maker)
+            : fMaker{maker}, fColor{opaque ? 0xff00ff00 : 0x8000ff00} {
         fName = SkStringPrintf("shadermaskfilter_%s_%x", nm, SkColorGetA(fColor));
     }
 

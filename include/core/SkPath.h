@@ -104,7 +104,7 @@ public:
                           SkPathFillType fillType = SkPathFillType::kDefault,
                           bool isVolatile = false);
 
-    static SkPath Line(const SkPoint a, const SkPoint b) {
+    static SkPath Line(SkPoint a, SkPoint b) {
         return Polygon({a, b}, false);
     }
 
@@ -1122,7 +1122,7 @@ public:
         @param radius  distance from arc to circle center
         @return        reference to SkPath
     */
-    SkPath& arcTo(const SkPoint p1, const SkPoint p2, SkScalar radius) {
+    SkPath& arcTo(SkPoint p1, SkPoint p2, SkScalar radius) {
         return this->arcTo(p1.fX, p1.fY, p2.fX, p2.fY, radius);
     }
 
@@ -1176,8 +1176,11 @@ public:
         @param xy           end of arc
         @return             reference to SkPath
     */
-    SkPath& arcTo(const SkPoint r, SkScalar xAxisRotate, ArcSize largeArc, SkPathDirection sweep,
-               const SkPoint xy) {
+    SkPath& arcTo(SkPoint r,
+                  SkScalar xAxisRotate,
+                  ArcSize largeArc,
+                  SkPathDirection sweep,
+                  const SkPoint xy) {
         return this->arcTo(r.fX, r.fY, xAxisRotate, largeArc, sweep, xy.fX, xy.fY);
     }
 

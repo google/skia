@@ -237,7 +237,7 @@ public:
 
     SkString& operator+=(const SkString& s) { this->append(s); return *this; }
     SkString& operator+=(const char text[]) { this->append(text); return *this; }
-    SkString& operator+=(const char c) { this->append(&c, 1); return *this; }
+    SkString& operator+=(char c) { this->append(&c, 1); return *this; }
 
     /**
      *  Swap contents between this and other. This function is guaranteed
