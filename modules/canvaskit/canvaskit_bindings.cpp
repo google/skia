@@ -1707,7 +1707,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                       }),
                       allow_raw_pointers())
             .function("saveLayerPaint",
-                      optional_override([](SkCanvas& self, const SkPaint p) -> int {
+                      optional_override([](SkCanvas& self, const SkPaint& p) -> int {
                           return self.saveLayer(SkCanvas::SaveLayerRec(nullptr, &p, 0));
                       }))
             .function("scale", &SkCanvas::scale)
