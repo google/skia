@@ -14,7 +14,7 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTileMode.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkTHash.h"
@@ -401,6 +401,11 @@ public:
     // Append a sampled texture.
     void add(sk_sp<TextureProxy> proxy, const SamplerDesc& samplerDesc) {
         fTextures.push_back({std::move(proxy), samplerDesc});
+    }
+
+    void tryShrinkCapacity() {
+        SkDEBUGCODE(this->checkReset());
+        fUniformManager.tryShrinkCapacity();
     }
 
     // Mimic the type-safe API available in UniformManager

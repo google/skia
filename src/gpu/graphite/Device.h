@@ -76,8 +76,6 @@ class Clip;
 class DrawContext;
 class Geometry;
 class Image;
-class PaintParamsKeyBuilder;
-class PipelineDataGatherer;
 class PathAtlas;
 class Renderer;
 class Shape;
@@ -351,9 +349,6 @@ private:
     // in the long-term, these scratch draw tasks will only be executed if they are referenced by
     // some other task chain that makes it to the root list.
     sk_sp<Task> fLastTask;
-
-    std::unique_ptr<PaintParamsKeyBuilder> fKeyBuilder;
-    std::unique_ptr<PipelineDataGatherer> fDataGatherer;
 
     ClipStack fClip;
 

@@ -36,6 +36,7 @@
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/ProxyCache.h"
 #include "src/gpu/graphite/QueueManager.h"
@@ -101,14 +102,19 @@ RecorderOptions::RecorderOptions(const RecorderOptions&) = default;
 RecorderOptions::~RecorderOptions() = default;
 
 /**************************************************************************************************/
-static uint32_t next_id() {
-    static std::atomic<uint32_t> nextID{1};
+
+namespace {
+
+uint32_t next_id() {
+    static std::atomic<uint32_t> nextID{SK_InvalidGenID + 1};
     uint32_t id;
     do {
         id = nextID.fetch_add(1, std::memory_order_relaxed);
     } while (id == SK_InvalidGenID);
     return id;
 }
+
+} // anonymous namespace
 
 Recorder::Recorder(sk_sp<SharedContext> sharedContext,
                    const RecorderOptions& options,
@@ -257,6 +263,13 @@ std::unique_ptr<Recording> Recorder::snap() {
         fAtlasProvider->invalidateAtlases();
     }
 
+    // For each KeyAndDataBuilder owned by the Recorder, check if the high watermark of data usage
+    // over the lifetime snap is less than half of allocated capacity. If so, shrink the capacity.
+    for (const std::unique_ptr<KeyAndDataBuilder>& keyDB : fKeyAndDataBuilders) {
+        SkASSERT(keyDB);
+        keyDB->first.tryShrinkCapacity();
+        keyDB->second.tryShrinkCapacity();
+    }
     return recording;
 }
 
@@ -685,6 +698,33 @@ void RecorderPriv::flushTrackedDevices(SK_DUMP_TASKS_CODE(const char* flushSourc
 
         fRecorder->fFlushingDevicesIndex = -1;
     }
+}
+
+std::unique_ptr<KeyAndDataBuilder> RecorderPriv::popOrCreateKeyAndDataBuilder() {
+    if (!fRecorder->fKeyAndDataBuilders.empty()) {
+        std::unique_ptr<KeyAndDataBuilder> keyDB = std::move(fRecorder->fKeyAndDataBuilders.back());
+        fRecorder->fKeyAndDataBuilders.pop_back();
+        return keyDB;
+    }
+
+    const bool useStorageBuffers = this->caps()->storageBufferSupport();
+    const auto& bindingReq = this->caps()->resourceBindingRequirements();
+    auto gathererLayout = useStorageBuffers ? bindingReq.fStorageBufferLayout
+                                            : bindingReq.fUniformBufferLayout;
+
+    return std::make_unique<KeyAndDataBuilder>(
+        PipelineDataGatherer(gathererLayout),
+        PaintParamsKeyBuilder(this->shaderCodeDictionary()));
+    }
+
+void RecorderPriv::pushKeyAndDataBuilder(std::unique_ptr<KeyAndDataBuilder> keyDB) {
+    SkASSERT(keyDB);
+
+    if (fRecorder->fKeyAndDataBuilders.size() < Recorder::kMaxKeyAndDataBuilders) {
+        fRecorder->fKeyAndDataBuilders.push_back(std::move(keyDB));
+        return;
+    }
+    // If no empty slot was found, the "keyDB" unique_ptr goes out of scope here.
 }
 
 sk_sp<TextureProxy> RecorderPriv::CreateCachedProxy(Recorder* recorder,

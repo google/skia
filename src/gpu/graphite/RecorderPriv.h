@@ -59,6 +59,9 @@ public:
     // Flush tracked devices that have pending reads from `dependency`.
     void flushTrackedDevices(const TextureProxy* dependency);
 
+    std::unique_ptr<KeyAndDataBuilder> popOrCreateKeyAndDataBuilder();
+    void pushKeyAndDataBuilder(std::unique_ptr<KeyAndDataBuilder> keyDB);
+
     const Caps* caps() const { return fRecorder->fSharedContext->caps(); }
 
     ResourceProvider* resourceProvider() { return fRecorder->fResourceProvider; }

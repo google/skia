@@ -17,7 +17,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkSpan.h"
 #include "include/private/base/SkAlign.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/base/SkHalf.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkColorData.h"
@@ -227,6 +227,7 @@ public:
             // paint data exists, storage will still be non-empty, so we guard against alignTo(0).
             this->alignTo(fReqAlignment);
         }
+        fStorageHighWaterMark = std::max(fStorageHighWaterMark, fStorage.size());
 
         // Reset tracking state for any 'new' block of data after finishing this one. The overall
         // layout and whether a paint color was written (in the preserved part) should remain
@@ -254,6 +255,15 @@ public:
     void rewindToOffset();
 
     int size() const { return fStorage.size(); }
+
+    void tryShrinkCapacity() {
+        int halfCapacity = fStorage.capacity() / 2;
+        if (fStorageHighWaterMark < halfCapacity) {
+            fStorageHighWaterMark = 0;
+            SkASSERT(fStorage.empty());
+            fStorage.reserve_exact(halfCapacity);
+        }
+    }
 
     // scalars
     void write(float f)     { this->write<SkSLType::kFloat>(&f); }
@@ -414,7 +424,8 @@ private:
     inline char* append(int alignment, int size);
     inline void alignTo(int alignment);
 
-    SkTDArray<char> fStorage;
+    skia_private::TArray<char> fStorage;
+    int fStorageHighWaterMark = 0;
 
     Layout fLayout;
     int fStartingOffset = 0;
@@ -574,7 +585,7 @@ char* UniformManager::append(int alignment, int size) {
     SkASSERT(std::numeric_limits<int>::max() - alignment >= relativeOffset);
     SkASSERT(std::numeric_limits<int>::max() - size >= padding);
 
-    char* dst = fStorage.append(size + padding);
+    char* dst = fStorage.push_back_n(size + padding);
     if (padding > 0) {
         memset(dst, 0, padding);
         dst += padding;
