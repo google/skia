@@ -213,9 +213,14 @@ public:
 
     // Explicit copy method, to avoid accidental copying.
     SkEncodedInfo copy() const {
-        return SkEncodedInfo(
-                fWidth, fHeight, fColor, fAlpha, fBitsPerComponent, fColorDepth,
-                fProfile ? std::make_unique<ICCProfile>(*fProfile) : nullptr, fHdrMetadata);
+        return SkEncodedInfo(fWidth,
+                             fHeight,
+                             fColor,
+                             fAlpha,
+                             fBitsPerComponent,
+                             fColorDepth,
+                             fProfile ? std::make_unique<const ICCProfile>(*fProfile) : nullptr,
+                             fHdrMetadata);
     }
 
     // Return number of bits of R/G/B channel
@@ -230,18 +235,22 @@ public:
     }
 
 private:
-    SkEncodedInfo(int width, int height, Color color, Alpha alpha,
-            uint8_t bitsPerComponent, uint8_t colorDepth, std::unique_ptr<ICCProfile> profile,
-            const skhdr::Metadata& hdrMetadata)
-        : fWidth(width)
-        , fHeight(height)
-        , fColor(color)
-        , fAlpha(alpha)
-        , fBitsPerComponent(bitsPerComponent)
-        , fColorDepth(colorDepth)
-        , fProfile(std::move(profile))
-        , fHdrMetadata(hdrMetadata)
-    {}
+    SkEncodedInfo(int width,
+                  int height,
+                  Color color,
+                  Alpha alpha,
+                  uint8_t bitsPerComponent,
+                  uint8_t colorDepth,
+                  std::unique_ptr<const ICCProfile> profile,
+                  const skhdr::Metadata& hdrMetadata)
+            : fWidth(width)
+            , fHeight(height)
+            , fColor(color)
+            , fAlpha(alpha)
+            , fBitsPerComponent(bitsPerComponent)
+            , fColorDepth(colorDepth)
+            , fProfile(std::move(profile))
+            , fHdrMetadata(hdrMetadata) {}
 
     static void VerifyColor(Color color, Alpha alpha, int bitsPerComponent) {
         // Avoid `-Wunused-parameter` warnings on non-debug builds.
@@ -289,14 +298,14 @@ private:
         SkASSERT(false);  // Unrecognized `color` enum value.
     }
 
-    int                         fWidth;
-    int                         fHeight;
-    Color                       fColor;
-    Alpha                       fAlpha;
-    uint8_t                     fBitsPerComponent;
-    uint8_t                     fColorDepth;
-    std::unique_ptr<ICCProfile> fProfile;
-    skhdr::Metadata             fHdrMetadata;
+    int                               fWidth;
+    int                               fHeight;
+    Color                                   fColor;
+    Alpha                             fAlpha;
+    uint8_t                           fBitsPerComponent;
+    uint8_t                           fColorDepth;
+    std::unique_ptr<const ICCProfile> fProfile;
+    skhdr::Metadata                   fHdrMetadata;
 };
 
 #endif
