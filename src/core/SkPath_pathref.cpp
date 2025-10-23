@@ -127,20 +127,6 @@ void SkPath::swap(SkPath& that) {
     }
 }
 
-bool SkPath::interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const {
-    int pointCount = fPathRef->countPoints();
-    if (pointCount != ending.fPathRef->countPoints()) {
-        return false;
-    }
-    if (!pointCount) {
-        return true;
-    }
-    *out = *this;
-    SkPathRef::Editor editor(&(out->fPathRef));
-    fPathRef->interpolate(*ending.fPathRef, weight, out->fPathRef.get());
-    return true;
-}
-
 uint32_t SkPath::getGenerationID() const {
     return fPathRef->genID(fFillType);
 }

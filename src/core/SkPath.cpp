@@ -45,19 +45,6 @@ SkPath::~SkPath() {
     SkDEBUGCODE(this->validate();)
 }
 
-bool SkPath::isInterpolatable(const SkPath& compare) const {
-    // need the same structure (verbs, conicweights) and same point-count
-    return this->points().size() == compare.points().size() &&
-           SkSpanPriv::EQ(this->verbs(), compare.verbs()) &&
-           SkSpanPriv::EQ(this->conicWeights(), compare.conicWeights());
-}
-
-SkPath SkPath::makeInterpolate(const SkPath& ending, SkScalar weight) const {
-    SkPath out;
-    this->interpolate(ending, weight, &out);
-    return out;
-}
-
 static inline bool check_edge_against_rect(const SkPoint& p0,
                                            const SkPoint& p1,
                                            const SkRect& rect,
