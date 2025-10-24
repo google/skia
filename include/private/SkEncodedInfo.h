@@ -32,12 +32,12 @@ public:
         static std::unique_ptr<ICCProfile> Make(const skcms_ICCProfile&);
 
         const skcms_ICCProfile* profile() const { return &fProfile; }
-        sk_sp<SkData> data() const { return fData; }
+        sk_sp<const SkData> data() const { return fData; }
     private:
-        ICCProfile(const skcms_ICCProfile&, sk_sp<SkData> = nullptr);
+        ICCProfile(const skcms_ICCProfile&, sk_sp<const SkData> = nullptr);
 
-        skcms_ICCProfile fProfile;
-        sk_sp<SkData>    fData;
+        skcms_ICCProfile     fProfile;
+        sk_sp<const SkData>  fData;
     };
 
     enum Alpha {
@@ -172,7 +172,7 @@ public:
         if (!fProfile) return nullptr;
         return fProfile->profile();
     }
-    sk_sp<SkData> profileData() const {
+    sk_sp<const SkData> profileData() const {
         if (!fProfile) return nullptr;
         return fProfile->data();
     }

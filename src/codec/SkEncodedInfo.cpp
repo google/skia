@@ -24,7 +24,7 @@ std::unique_ptr<SkEncodedInfo::ICCProfile> SkEncodedInfo::ICCProfile::Make(
     return std::unique_ptr<ICCProfile>(new ICCProfile(profile));
 }
 
-SkEncodedInfo::ICCProfile::ICCProfile(const skcms_ICCProfile& profile, sk_sp<SkData> data)
+SkEncodedInfo::ICCProfile::ICCProfile(const skcms_ICCProfile& profile, sk_sp<const SkData> data)
     : fProfile(profile)
     , fData(std::move(data))
 {}
