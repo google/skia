@@ -151,7 +151,7 @@ public:
 
     /** Sets SkPathBuilder to its initial state.
         Removes verb array, SkPoint array, and weights, and sets FillType to kWinding.
-        Internal storage associated with SkPathBuilder is released.
+        Internal storage associated with SkPathBuilder is preserved.
 
         @return  reference to SkPathBuilder
     */
