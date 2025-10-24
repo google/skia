@@ -20,7 +20,6 @@
 #include "src/codec/SkCodecPriv.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontPriv.h"
-#include "src/core/SkStreamPriv.h"
 #include "src/ports/SkTypeface_fontations_priv.h"
 #include "src/ports/fontations/src/skpath_bridge.h"
 
@@ -40,13 +39,13 @@ void CheckPng() {
 
 [[maybe_unused]] static inline const constexpr bool kSkShowTextBlitCoverage = false;
 
-sk_sp<SkData> streamToData(const std::unique_ptr<SkStreamAsset>& font_data) {
+sk_sp<const SkData> streamToData(const std::unique_ptr<SkStreamAsset>& font_data) {
     if (!font_data) {
         return SkData::MakeEmpty();
     }
     // TODO(drott): Remove this once SkData::MakeFromStream is able to do this itself.
     if (font_data->getData()) {
-        return SkStreamPriv::GetNonConstData(font_data.get());
+        return font_data->getData();
     }
     if (font_data->getMemoryBase() && font_data->getLength()) {
         return SkData::MakeWithCopy(font_data->getMemoryBase(), font_data->getLength());
@@ -55,7 +54,7 @@ sk_sp<SkData> streamToData(const std::unique_ptr<SkStreamAsset>& font_data) {
     return SkData::MakeFromStream(font_data.get(), font_data->getLength());
 }
 
-rust::Box<::fontations_ffi::BridgeFontRef> make_bridge_font_ref(sk_sp<SkData> fontData,
+rust::Box<::fontations_ffi::BridgeFontRef> make_bridge_font_ref(sk_sp<const SkData> fontData,
                                                                 uint32_t index) {
     rust::Slice<const uint8_t> slice{fontData->bytes(), fontData->size()};
     return fontations_ffi::make_font_ref(slice, index);
@@ -113,7 +112,7 @@ sk_sp<SkTypeface> SkTypeface_Make_Fontations(std::unique_ptr<SkStreamAsset> font
     return SkTypeface_Fontations::MakeFromStream(std::move(fontData), args);
 }
 
-sk_sp<SkTypeface> SkTypeface_Make_Fontations(sk_sp<SkData> fontData,
+sk_sp<SkTypeface> SkTypeface_Make_Fontations(sk_sp<const SkData> fontData,
                                              const SkFontArguments& args) {
     return SkTypeface_Fontations::MakeFromData(std::move(fontData), args);
 }
@@ -127,7 +126,7 @@ static_assert(
         "Struct fontations_ffi::PaletteOverride must match SkFontArguments::Palette::Override.");
 
 SkTypeface_Fontations::SkTypeface_Fontations(
-        sk_sp<SkData> fontData,
+        sk_sp<const SkData> fontData,
         const SkFontStyle& style,
         uint32_t ttcIndex,
         rust::Box<fontations_ffi::BridgeFontRef>&& fontRef,
@@ -151,7 +150,7 @@ sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromStream(std::unique_ptr<SkStream
     return MakeFromData(streamToData(stream), args);
 }
 
-sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromData(sk_sp<SkData> data,
+sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromData(sk_sp<const SkData> data,
                                                       const SkFontArguments& args) {
     uint32_t ttcIndex = args.getCollectionIndex() & 0xFFFF;
     rust::Box<fontations_ffi::BridgeFontRef> bridgeFontRef = make_bridge_font_ref(data, ttcIndex);
