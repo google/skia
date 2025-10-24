@@ -115,8 +115,6 @@ DEF_TEST(PremulAlphaRoundTrip, reporter) {
 
     test_premul_alpha_roundtrip(reporter, surf.get());
 }
-
-#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PremulAlphaRoundTrip_Gpu,
                                        reporter,
                                        ctxInfo,
@@ -185,7 +183,6 @@ DEF_TEST(PremulAlphaRoundTripGrConvertPixels, reporter) {
         }
     }
 }
-#endif
 
 DEF_TEST(PremulAlphaRoundTripSkConvertPixels, reporter) {
     // ... and now using SkConvertPixels, just for completeness

@@ -220,7 +220,8 @@ template("optional") {
       all_dependent_configs = [ ":" + target_name + "_public" ]
     }
 
-    if (defined(invoker.sources_for_tests) && skia_enable_tools) {
+    if (defined(invoker.sources_for_tests) &&
+        skia_enable_tools_that_might_need_ganesh) {
       skia_source_set(target_name + "_tests") {
         visibility = [ ":*" ]
         check_includes = false
@@ -279,7 +280,8 @@ template("optional") {
       }
     }
 
-    if (defined(invoker.sources_for_tests) && skia_enable_tools) {
+    if (defined(invoker.sources_for_tests) &&
+        skia_enable_tools_that_might_need_ganesh) {
       skia_source_set(target_name + "_tests") {
         visibility = [ ":*" ]
       }
@@ -2492,100 +2494,94 @@ if (skia_enable_tools) {
     }
   }
 
-  test_lib("test") {
-    sources = [
-      "tests/ComparePixels.cpp",
-      "tests/ComparePixels.h",
-      "tests/CtsEnforcement.cpp",
-      "tests/Test.cpp",
-      "tests/Test.h",
-      "tests/TestHarness.cpp",
-      "tests/TestHarness.h",
-    ]
-    deps = [
-      ":flags",
-      ":skia",
-      ":tool_utils",
-    ]
-    public_deps = [
-      ":gpu_tool_utils",  # Test.h #includes headers from this target.
-    ]
-    if (skia_enable_ganesh) {
-      sources += [
+  if (skia_enable_ganesh) {
+    test_lib("test") {
+      sources = [
+        "tests/ComparePixels.cpp",
+        "tests/ComparePixels.h",
+        "tests/CtsEnforcement.cpp",
+        "tests/Test.cpp",
+        "tests/Test.h",
+        "tests/TestHarness.cpp",
+        "tests/TestHarness.h",
         "tests/ganesh/GaneshTestUtils.cpp",
         "tests/ganesh/GaneshTestUtils.h",
       ]
+      deps = [
+        ":flags",
+        ":skia",
+        ":tool_utils",
+      ]
+      public_deps = [
+        ":gpu_tool_utils",  # Test.h #includes headers from this target.
+      ]
     }
-  }
 
-  import("gn/tests.gni")
-  test_lib("tests") {
-    sources = tests_sources + pathops_tests_sources
-    frameworks = []
-    if (skia_use_metal) {
-      cflags_objcc = [ "-fobjc-arc" ]
-      frameworks += [ "MetalKit.framework" ]
-    }
-    if (skia_use_jpeg_gainmaps) {
-      sources += jpeg_gainmap_tests_sources
-    }
-    if (skia_enable_graphite) {
-      sources += graphite_tests_sources
-      if (skia_use_dawn) {
-        sources += graphite_dawn_tests_sources
-      }
+    import("gn/tests.gni")
+    test_lib("tests") {
+      sources = tests_sources + pathops_tests_sources
+      frameworks = []
       if (skia_use_metal) {
-        sources += graphite_metal_tests_sources
+        sources += metal_tests_sources
+        cflags_objcc = [ "-fobjc-arc" ]
+        frameworks += [ "MetalKit.framework" ]
       }
-      if (skia_use_vulkan) {
-        sources += graphite_vulkan_tests_sources
-      }
-    }
-    if (skia_enable_ganesh) {
-      sources += ganesh_tests_sources
-      if (skia_use_metal) {
-        sources += ganesh_metal_tests_sources
+      if (skia_use_jpeg_gainmaps) {
+        sources += jpeg_gainmap_tests_sources
       }
       if (skia_use_gl) {
-        sources += ganesh_gl_tests_sources
+        sources += gl_tests_sources
       }
       if (skia_use_vulkan) {
-        sources += skia_ganesh_vk_chromium_public
-        sources += skia_ganesh_vk_chromium_private
+        sources += skia_gpu_vk_chromium_public
+        sources += skia_gpu_vk_chromium_private
       }
+      if (skia_enable_graphite) {
+        sources += graphite_tests_sources
+        if (skia_use_dawn) {
+          sources += graphite_dawn_tests_sources
+        }
+        if (skia_use_metal) {
+          sources += graphite_metal_tests_sources
+        }
+        if (skia_use_vulkan) {
+          sources += graphite_vulkan_tests_sources
+        }
+      }
+      if (!skia_enable_ganesh) {
+        sources -= ganesh_tests_sources
+      }
+      if (skia_enable_precompile) {
+        sources += precompile_tests_sources
+      }
+      deps = [
+        ":flags",
+        ":fontmgr_FontConfigInterface_tests",
+        ":fontmgr_android_tests",
+        ":fontmgr_fontconfig_tests",
+        ":fontmgr_mac_ct_tests",
+        ":fontscanner_tests",
+        ":png_decode_libpng_tests",
+        ":png_decode_rust_tests",
+        ":png_encode_rust_tests",
+        ":skia",
+        ":test",
+        ":tool_utils",
+        ":typeface_fontations_tests",
+        "modules/bentleyottmann:tests",
+        "modules/skottie:tests",
+        "modules/skparagraph:tests",
+        "modules/sksg:tests",
+        "modules/skshaper",
+        "modules/skshaper:tests",
+        "modules/skunicode:tests",
+        "modules/svg:tests",
+        "//third_party/libpng",
+        "//third_party/libwebp",
+        "//third_party/zlib",
+      ]
     }
-    if (skia_enable_precompile) {
-      sources += precompile_tests_sources
-    }
-    deps = [
-      ":flags",
-      ":fontmgr_FontConfigInterface_tests",
-      ":fontmgr_android_tests",
-      ":fontmgr_fontconfig_tests",
-      ":fontmgr_mac_ct_tests",
-      ":fontscanner_tests",
-      ":png_decode_libpng_tests",
-      ":png_decode_rust_tests",
-      ":png_encode_rust_tests",
-      ":skia",
-      ":test",
-      ":tool_utils",
-      ":typeface_fontations_tests",
-      "modules/bentleyottmann:tests",
-      "modules/skottie:tests",
-      "modules/skparagraph:tests",
-      "modules/sksg:tests",
-      "modules/skshaper",
-      "modules/skshaper:tests",
-      "modules/skunicode:tests",
-      "modules/svg:tests",
-      "//third_party/libpng",
-      "//third_party/libwebp",
-      "//third_party/zlib",
-    ]
-  }
 
-  if (skia_enable_ganesh) {
     import("gn/bench.gni")
     test_lib("bench") {
       sources = bench_sources
@@ -2641,20 +2637,18 @@ if (skia_enable_tools) {
       "//third_party/libpng",
     ]
   }
-  if (target_cpu != "wasm") {
-    if (skia_enable_tools_that_might_need_ganesh) {
-      test_app("convert-to-nia") {
-        sources = [ "tools/convert-to-nia.cpp" ]
-        deps = [ ":skia" ]
-      }
-      test_app("imgcvt") {
-        sources = [ "tools/imgcvt.cpp" ]
-        configs = [ ":use_skia_vulkan_headers" ]
-        deps = [
-          ":skia",
-          "modules/skcms",
-        ]
-      }
+  if (target_cpu != "wasm" && skia_enable_tools_that_might_need_ganesh) {
+    test_app("convert-to-nia") {
+      sources = [ "tools/convert-to-nia.cpp" ]
+      deps = [ ":skia" ]
+    }
+    test_app("imgcvt") {
+      sources = [ "tools/imgcvt.cpp" ]
+      configs = [ ":use_skia_vulkan_headers" ]
+      deps = [
+        ":skia",
+        "modules/skcms",
+      ]
     }
     test_app("dm") {
       sources = [
@@ -2667,6 +2661,7 @@ if (skia_enable_tools) {
       ]
       deps = [
         ":common_flags_config",
+        ":common_flags_ganesh",
         ":common_flags_images",
         ":compile_all_sksl_tests",
         ":flags",
@@ -2687,9 +2682,6 @@ if (skia_enable_tools) {
       }
       if (skia_enable_graphite) {
         deps += [ ":common_flags_graphite" ]
-      }
-      if (skia_enable_ganesh) {
-        deps += [ ":common_flags_ganesh" ]
       }
     }
     test_app("filterfuzz") {

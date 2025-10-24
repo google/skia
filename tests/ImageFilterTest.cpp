@@ -25,7 +25,6 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
-#include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
@@ -95,9 +94,7 @@ static const int kBitmapSize = 4;
 
 namespace {
 
-#if defined(SK_GANESH)
 static constexpr GrSurfaceOrigin kTestSurfaceOrigin = kTopLeft_GrSurfaceOrigin;
-#endif
 
 class MatrixTestImageFilter : public SkImageFilter_Base {
 public:
@@ -298,19 +295,14 @@ private:
 
 }  // namespace
 
-static sk_sp<skif::Backend> make_backend_compatible_with_image(const SkSpecialImage* src) {
-#if defined(SK_GANESH)
-    if (src->isGaneshBacked()) {
-        return skif::MakeGaneshBackend(sk_ref_sp(src->getContext()), kTestSurfaceOrigin,
-                                       src->props(), src->colorType());
-    }
-#endif
-    return skif::MakeRasterBackend(src->props(), src->colorType());
-}
-
 static skif::Context make_context(const SkIRect& out, const SkSpecialImage* src) {
-    sk_sp<skif::Backend> backend = make_backend_compatible_with_image(src);
-
+    sk_sp<skif::Backend> backend;
+    if (src->isGaneshBacked()) {
+        backend = skif::MakeGaneshBackend(sk_ref_sp(src->getContext()), kTestSurfaceOrigin,
+                                          src->props(), src->colorType());
+    } else {
+        backend = skif::MakeRasterBackend(src->props(), src->colorType());
+    }
 
     return skif::Context{std::move(backend),
                          skif::Mapping{SkM44()},
@@ -380,25 +372,23 @@ static sk_sp<SkImageFilter> make_blue(sk_sp<SkImageFilter> input, const SkIRect*
     return SkImageFilters::ColorFilter(std::move(filter), std::move(input), cropRect);
 }
 
-static sk_sp<SkDevice> make_device(GrRecordingContext* rContext, const SkImageInfo& ii) {
-#if defined(SK_GANESH)
+
+static sk_sp<SkDevice> create_empty_device(GrRecordingContext* rContext, int widthHeight) {
+
+    const SkImageInfo ii = SkImageInfo::Make({ widthHeight, widthHeight },
+                                             kRGBA_8888_SkColorType,
+                                             kPremul_SkAlphaType);
+
     if (rContext) {
         return rContext->priv().createDevice(skgpu::Budgeted::kNo, ii, SkBackingFit::kApprox, 1,
                                              skgpu::Mipmapped::kNo, skgpu::Protected::kNo,
                                              kTestSurfaceOrigin, {},
                                              skgpu::ganesh::Device::InitContents::kUninit);
+    } else {
+        SkBitmap bm;
+        SkAssertResult(bm.tryAllocPixels(ii));
+        return sk_make_sp<SkBitmapDevice>(bm, SkSurfaceProps());
     }
-#endif
-    SkBitmap bm;
-    SkAssertResult(bm.tryAllocPixels(ii));
-    return sk_make_sp<SkBitmapDevice>(bm, SkSurfaceProps());
-}
-
-static sk_sp<SkDevice> create_empty_device(GrRecordingContext* rContext, int widthHeight) {
-    const SkImageInfo ii = SkImageInfo::Make({ widthHeight, widthHeight },
-                                             kRGBA_8888_SkColorType,
-                                             kPremul_SkAlphaType);
-    return make_device(rContext, ii);
 }
 
 static sk_sp<SkSpecialImage> create_empty_special_image(GrRecordingContext* rContext,
@@ -415,14 +405,6 @@ static sk_sp<SkSpecialImage> create_empty_special_image(GrRecordingContext* rCon
     return device->snapSpecial(SkIRect::MakeWH(widthHeight, widthHeight));
 }
 
-#if !defined(SK_GANESH)
-static sk_sp<SkSpecialImage> create_empty_special_image(GrDirectContext* dContext,
-                                                        int widthHeight,
-                                                        SkColor4f color = SkColors::kTransparent) {
-    SkASSERT(!dContext);
-    return create_empty_special_image(static_cast<GrRecordingContext *>(nullptr), widthHeight, color);
-}
-#endif
 
 DEF_TEST(ImageFilter, reporter) {
     {
@@ -566,16 +548,6 @@ static bool special_image_to_bitmap(GrDirectContext* dContext, const SkSpecialIm
     return img->readPixels(dContext, dst->pixmap(), src->subset().fLeft, src->subset().fTop);
 }
 
-
-static sk_sp<SkSpecialImage> make_special_from_image(GrDirectContext* dContext, sk_sp<SkImage> image, SkIRect rect) {
-#if defined(SK_GANESH)
-    if (dContext) {
-        return SkSpecialImages::MakeFromTextureImage(dContext, rect, image, SkSurfaceProps());
-    }
-#endif
-    return SkSpecialImages::MakeFromRaster(rect, std::move(image), {});
-}
-
 static void test_negative_blur_sigma(skiatest::Reporter* reporter,
                                      GrDirectContext* dContext) {
     // Check that SkBlurImageFilter will reject a negative sigma on creation, but properly uses the
@@ -588,7 +560,13 @@ static void test_negative_blur_sigma(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, !negativeFilter);
 
     sk_sp<SkImage> gradient = make_gradient_circle(kWidth, kHeight).asImage();
-    sk_sp<SkSpecialImage> imgSrc = make_special_from_image(dContext, gradient, SkIRect::MakeWH(kWidth, kHeight));
+    sk_sp<SkSpecialImage> imgSrc;
+    if (dContext) {
+        imgSrc = SkSpecialImages::MakeFromTextureImage(
+                dContext, SkIRect::MakeWH(kWidth, kHeight), gradient, SkSurfaceProps());
+    } else {
+        imgSrc = SkSpecialImages::MakeFromRaster(SkIRect::MakeWH(kWidth, kHeight), gradient, {});
+    }
 
     SkIPoint offset;
     skif::Context ctx = make_context(32, 32, imgSrc.get());
@@ -628,14 +606,12 @@ DEF_TEST(ImageFilterNegativeBlurSigma, reporter) {
     test_negative_blur_sigma(reporter, nullptr);
 }
 
-#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterNegativeBlurSigma_Gpu,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kNever) {
     test_negative_blur_sigma(reporter, ctxInfo.directContext());
 }
-#endif
 
 static void test_morphology_radius_with_mirror_ctm(skiatest::Reporter* reporter,
                                                    GrDirectContext* dContext) {
@@ -655,8 +631,13 @@ static void test_morphology_radius_with_mirror_ctm(skiatest::Reporter* reporter,
     canvas.drawRect(SkRect::MakeXYWH(kWidth / 4, kHeight / 4, kWidth / 2, kHeight / 2),
                     paint);
     sk_sp<SkImage> image = bitmap.asImage();
-    sk_sp<SkSpecialImage> imgSrc = make_special_from_image(dContext, image, SkIRect::MakeWH(kWidth, kHeight));
-
+    sk_sp<SkSpecialImage> imgSrc;
+    if (dContext) {
+        imgSrc = SkSpecialImages::MakeFromTextureImage(
+                dContext, SkIRect::MakeWH(kWidth, kHeight), image, SkSurfaceProps());
+    } else {
+        imgSrc = SkSpecialImages::MakeFromRaster(SkIRect::MakeWH(kWidth, kHeight), image, {});
+    }
 
     SkIPoint offset;
     skif::Context ctx = make_context(32, 32, imgSrc.get());
@@ -712,14 +693,12 @@ DEF_TEST(MorphologyFilterRadiusWithMirrorCTM, reporter) {
     test_morphology_radius_with_mirror_ctm(reporter, nullptr);
 }
 
-#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(MorphologyFilterRadiusWithMirrorCTM_Gpu,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kNever) {
     test_morphology_radius_with_mirror_ctm(reporter, ctxInfo.directContext());
 }
-#endif
 
 static void test_zero_blur_sigma(skiatest::Reporter* reporter, GrDirectContext* dContext) {
     // Check that SkBlurImageFilter with a zero sigma and a non-zero srcOffset works correctly.
@@ -757,14 +736,12 @@ DEF_TEST(ImageFilterZeroBlurSigma, reporter) {
     test_zero_blur_sigma(reporter, nullptr);
 }
 
-#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterZeroBlurSigma_Gpu,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kNever) {
     test_zero_blur_sigma(reporter, ctxInfo.directContext());
 }
-#endif
 
 // Tests that, even when an upstream filter has returned null (due to failure or clipping), a
 // downstream filter that affects transparent black still does so even with a nullptr input.
@@ -793,14 +770,12 @@ DEF_TEST(ImageFilterFailAffectsTransparentBlack, reporter) {
     test_fail_affects_transparent_black(reporter, nullptr);
 }
 
-#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterFailAffectsTransparentBlack_Gpu,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kNever) {
     test_fail_affects_transparent_black(reporter, ctxInfo.directContext());
 }
-#endif
 
 DEF_TEST(ImageFilterDrawTiled, reporter) {
     // Check that all filters when drawn tiled (with subsequent clip rects) exactly
@@ -1119,14 +1094,12 @@ DEF_TEST(ImageFilterMergeResultSize, reporter) {
     test_imagefilter_merge_result_size(reporter, nullptr);
 }
 
-#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterMergeResultSize_Gpu,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kNever) {
     test_imagefilter_merge_result_size(reporter, ctxInfo.directContext());
 }
-#endif
 
 static void draw_blurred_rect(SkCanvas* canvas) {
     SkPaint filterPaint;
@@ -1281,27 +1254,23 @@ DEF_TEST(ImageFilterMatrixConvolutionBigKernel, reporter) {
     test_big_kernel(reporter, nullptr);
 }
 
-#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterMatrixConvolutionBigKernel_Gpu,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kNever) {
     test_big_kernel(reporter, ctxInfo.directContext());
 }
-#endif
 
 DEF_TEST(ImageFilterCropRect, reporter) {
     test_cropRects(reporter, nullptr);
 }
 
-#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterCropRect_Gpu,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kNever) {
     test_cropRects(reporter, ctxInfo.directContext());
 }
-#endif
 
 DEF_TEST(ImageFilterMatrix, reporter) {
     SkBitmap temp;
@@ -1361,14 +1330,12 @@ DEF_TEST(ImageFilterClippedPictureImageFilter, reporter) {
     test_clipped_picture_imagefilter(reporter, nullptr);
 }
 
-#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterClippedPictureImageFilter_Gpu,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kNever) {
     test_clipped_picture_imagefilter(reporter, ctxInfo.directContext());
 }
-#endif
 
 DEF_TEST(ImageFilterEmptySaveLayer, reporter) {
     // Even when there's an empty saveLayer()/restore(), ensure that an image
@@ -1602,14 +1569,12 @@ DEF_TEST(ComposedImageFilterOffset, reporter) {
     test_composed_imagefilter_offset(reporter, nullptr);
 }
 
-#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ComposedImageFilterOffset_Gpu,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kNever) {
     test_composed_imagefilter_offset(reporter, ctxInfo.directContext());
 }
-#endif
 
 static void test_composed_imagefilter_bounds(skiatest::Reporter* reporter,
                                              GrDirectContext* dContext) {
@@ -1649,14 +1614,12 @@ DEF_TEST(ComposedImageFilterBounds, reporter) {
     test_composed_imagefilter_bounds(reporter, nullptr);
 }
 
-#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ComposedImageFilterBounds_Gpu,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kNever) {
     test_composed_imagefilter_bounds(reporter, ctxInfo.directContext());
 }
-#endif
 
 DEF_TEST(ImageFilterCanComputeFastBounds, reporter) {
 
@@ -1761,12 +1724,10 @@ static void test_large_blur_input(skiatest::Reporter* reporter, SkCanvas* canvas
     SkBitmap largeBmp;
     int largeW = 5000;
     int largeH = 5000;
-#if defined(SK_GANESH)
     // If we're GPU-backed make the bitmap too large to be converted into a texture.
     if (auto ctx = canvas->recordingContext()) {
         largeW = ctx->priv().caps()->maxTextureSize() + 1;
     }
-#endif
 
     largeBmp.allocN32Pixels(largeW, largeH);
     largeBmp.eraseColor(0);
@@ -1870,14 +1831,12 @@ static void test_make_with_filter(
         result = makeWithFilter(sourceImage, filter.get(), subset, clipBounds, &outSubset, &offset);
         REPORTER_ASSERT(reporter, result);
 
-#if defined(SK_GANESH)
         // In Ganesh, we want the result image (and all intermediate steps) to have used the same
         // origin as the original surface.
         if (result && as_IB(result)->isGaneshBacked()) {
             SkImage_GaneshBase* base = static_cast<SkImage_GaneshBase*>(result.get());
             REPORTER_ASSERT(reporter, base->origin() == kTestSurfaceOrigin);
         }
-#endif
     }
 }
 
@@ -1904,7 +1863,6 @@ DEF_TEST(ImageFilterMakeWithFilter, reporter) {
     test_make_with_filter(reporter, createRasterSurface, raster);
 }
 
-#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterMakeWithFilter_Ganesh,
                                        reporter,
                                        ctxInfo,
@@ -1934,7 +1892,6 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterMakeWithFilter_Ganesh,
 
     test_make_with_filter(reporter, createGaneshSurface, ganesh);
 }
-#endif
 
 #if defined(SK_GRAPHITE)
 
@@ -1970,7 +1927,6 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageFilterMakeWithFilter_Graphite,
 
 #endif
 
-#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterHugeBlur_Gpu,
                                        reporter,
                                        ctxInfo,
@@ -2005,7 +1961,6 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageFilterBlurLargeImage_Gpu,
             SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType)));
     test_large_blur_input(reporter, surface->getCanvas());
 }
-#endif
 
 /*
  *  Test that colorfilterimagefilter does not require its CTM to be decomposed when it has more

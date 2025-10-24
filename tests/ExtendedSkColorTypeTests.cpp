@@ -16,6 +16,11 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
+#include "include/gpu/ganesh/GrBackendSurface.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/GrTypes.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkImageInfoPriv.h"
@@ -24,14 +29,6 @@
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
-
-#if defined(SK_GANESH)
-#include "include/gpu/ganesh/GrBackendSurface.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/gpu/ganesh/GrTypes.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
-#include "include/gpu/ganesh/SkSurfaceGanesh.h"
-#endif
 
 #include <array>
 #include <cstddef>
@@ -183,7 +180,6 @@ static void raster_tests(skiatest::Reporter* reporter, const TestCase& test) {
     }
 }
 
-#if defined(SK_GANESH)
 static void compare_pixmaps(skiatest::Reporter* reporter,
                             const SkPixmap& expected, const SkPixmap& actual,
                             SkColorType ct, const char* label) {
@@ -200,9 +196,9 @@ static void compare_pixmaps(skiatest::Reporter* reporter,
     ComparePixels(expected, actual, tols, error);
 }
 
-static void ganesh_tests(GrDirectContext* dContext,
-                         skiatest::Reporter* reporter,
-                         const TestCase& test) {
+static void gpu_tests(GrDirectContext* dContext,
+                      skiatest::Reporter* reporter,
+                      const TestCase& test) {
     using namespace skgpu;
 
     const SkImageInfo nativeII = SkImageInfo::Make(kSize, kSize, test.fColorType, test.fAlphaType);
@@ -337,6 +333,12 @@ static void ganesh_tests(GrDirectContext* dContext,
     }
 }
 
+DEF_TEST(ExtendedSkColorTypeTests_raster, reporter) {
+    for (size_t i = 0; i < std::size(gTests); ++i) {
+        raster_tests(reporter, gTests[i]);
+    }
+}
+
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ExtendedSkColorTypeTests_gpu,
                                        reporter,
                                        ctxInfo,
@@ -344,13 +346,6 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ExtendedSkColorTypeTests_gpu,
     auto context = ctxInfo.directContext();
 
     for (size_t i = 0; i < std::size(gTests); ++i) {
-        ganesh_tests(context, reporter, gTests[i]);
+        gpu_tests(context, reporter, gTests[i]);
     }
 }
-#endif
-
-DEF_TEST(ExtendedSkColorTypeTests_raster, reporter) {
-    for (size_t i = 0; i < std::size(gTests); ++i) {
-        raster_tests(reporter, gTests[i]);
-    }}
-

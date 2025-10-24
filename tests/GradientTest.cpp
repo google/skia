@@ -27,24 +27,21 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GpuTypes.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/gpu/ganesh/mock/GrMockTypes.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkTLazy.h"
 #include "src/core/SkColorPriv.h"
-#include "src/shaders/SkShaderBase.h"
-#include "tests/CtsEnforcement.h"
-#include "tests/Test.h"
-
-#if defined(SK_GANESH)
-#include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/gpu/ganesh/SkSurfaceGanesh.h"
-#include "include/gpu/ganesh/mock/GrMockTypes.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/gpu/ganesh/GrFragmentProcessors.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
-#endif
+#include "src/shaders/SkShaderBase.h"
+#include "tests/CtsEnforcement.h"
+#include "tests/Test.h"
 
 #include <cstdint>
 #include <cstring>
@@ -352,7 +349,7 @@ static void test_degenerate_linear(skiatest::Reporter*) {
     // Passes if we don't trigger asserts.
 }
 
-#if defined(SK_GANESH)
+// http://crbug.com/1149216
 static void test_unsorted_degenerate(skiatest::Reporter* r) {
     // Passes if a valid solid color is computed for the degenerate gradient
     // (unsorted positions are fixed during regular gradient construction, so this ensures the
@@ -397,7 +394,6 @@ static void test_unsorted_degenerate(skiatest::Reporter* r) {
     GrFPArgs args(sdc.get(), &dstColorInfo, props, GrFPArgs::Scope::kDefault);
     GrFragmentProcessors::Make(gradient.get(), args, SkMatrix::I());
 }
-#endif
 
 // "Interesting" fuzzer values.
 static void test_linear_fuzzer(skiatest::Reporter*) {
@@ -599,7 +595,6 @@ void test_sweep_gradient_zero_x(skiatest::Reporter* reporter, SkSurface* surface
     REPORTER_ASSERT(reporter, bottomColor == SkColors::kYellow);
 }
 
-#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TestSweepGradientZeroXGanesh,
                                        reporter,
                                        contextInfo,
@@ -611,7 +606,6 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TestSweepGradientZeroXGanesh,
     sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(context, skgpu::Budgeted::kYes, ii);
     test_sweep_gradient_zero_x(reporter, surface.get());
 }
-#endif
 
 // TODO: Fix this bug in Graphite as well.
 // #if defined(SK_GRAPHITE)
@@ -639,7 +633,5 @@ DEF_TEST(Gradient, reporter) {
     test_degenerate_linear(reporter);
     test_linear_fuzzer(reporter);
     test_sweep_fuzzer(reporter);
-#if defined(SK_GANESH)
     test_unsorted_degenerate(reporter);
-#endif
 }

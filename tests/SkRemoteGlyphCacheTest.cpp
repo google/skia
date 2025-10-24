@@ -29,6 +29,10 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
+#include "include/gpu/ganesh/GrContextOptions.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/GrRecordingContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
@@ -40,6 +44,10 @@
 #include "src/core/SkTHash.h"
 #include "src/core/SkTypeface_remote.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/text/gpu/SubRunControl.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
@@ -47,17 +55,6 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/fonts/TestEmptyTypeface.h"
-
-#if defined(SK_GANESH)
-#include "include/gpu/ganesh/GrContextOptions.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/gpu/ganesh/GrRecordingContext.h"
-#include "include/gpu/ganesh/SkSurfaceGanesh.h"
-#include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
-#include "src/gpu/ganesh/GrShaderCaps.h"
-#endif
 
 #include <cmath>
 #include <cstdint>
@@ -183,7 +180,6 @@ sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount, int textSi
     return builder.make();
 }
 
-#if defined(SK_GANESH)
 static void compare_blobs(const SkBitmap& expected, const SkBitmap& actual,
                           skiatest::Reporter* reporter, int tolerance = 0) {
     SkASSERT(expected.width() == actual.width());
@@ -474,7 +470,6 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_ReleaseTypeFace,
     // Must unlock everything on termination, otherwise memory leaks can be reported.
     discardableManager->unlockAndDeleteAll();
 }
-#endif
 
 DEF_TEST(SkRemoteGlyphCache_StrikeLockingServer, reporter) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
@@ -659,7 +654,6 @@ DEF_TEST(SkRemoteGlyphCache_PurgesServerEntries, reporter) {
     discardableManager->unlockAndDeleteAll();
 }
 
-#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsPath,
                                        reporter,
                                        ctxInfo,
@@ -1138,7 +1132,6 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_TypefaceWithPaths_Path
     // Must unlock everything on termination, otherwise memory leaks can be reported.
     discardableManager->unlockAndDeleteAll();
 }
-#endif
 
 DEF_TEST(SkTypefaceProxy_Basic_Serial, reporter) {
     auto typeface = ToolUtils::CreateTestTypeface("monospace", SkFontStyle());

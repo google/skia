@@ -45,7 +45,6 @@ DEF_TEST(ImageIsOpaqueTest, reporter) {
     check_isopaque(reporter, surfaceOpaque, true);
 }
 
-#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageIsOpaqueTest_Gpu,
                                        reporter,
                                        ctxInfo,
@@ -61,7 +60,6 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageIsOpaqueTest_Gpu,
 
     check_isopaque(reporter, surfaceOpaque, true);
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #include "include/core/SkPictureRecorder.h"
