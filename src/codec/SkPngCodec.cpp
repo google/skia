@@ -1065,7 +1065,7 @@ bool SkPngCodec::onGetGainmapCodec(SkGainmapInfo* info, std::unique_ptr<SkCodec>
         return false;
     }
 
-    sk_sp<SkData> data = fGainmapStream->getData();
+    sk_sp<const SkData> data = fGainmapStream->getData();
     if (!data) {
         return false;
     }

@@ -20,6 +20,7 @@
 #include "src/codec/SkCodecPriv.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontPriv.h"
+#include "src/core/SkStreamPriv.h"
 #include "src/ports/SkTypeface_fontations_priv.h"
 #include "src/ports/fontations/src/skpath_bridge.h"
 
@@ -45,7 +46,7 @@ sk_sp<SkData> streamToData(const std::unique_ptr<SkStreamAsset>& font_data) {
     }
     // TODO(drott): Remove this once SkData::MakeFromStream is able to do this itself.
     if (font_data->getData()) {
-        return font_data->getData();
+        return SkStreamPriv::GetNonConstData(font_data.get());
     }
     if (font_data->getMemoryBase() && font_data->getLength()) {
         return SkData::MakeWithCopy(font_data->getMemoryBase(), font_data->getLength());

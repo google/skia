@@ -24,7 +24,7 @@ bool SkPngCompositeChunkReader::readChunk(const char tag[], const void* data, si
 
     if (strcmp("gmAP", tag) == 0) {
         SkMemoryStream stream(data, length);
-        sk_sp<SkData> streamData = stream.getData();
+        sk_sp<const SkData> streamData = stream.getData();
         SkGainmapInfo info;
         if (SkGainmapInfo::Parse(streamData.get(), info)) {
             fGainmapInfo.emplace(std::move(info));

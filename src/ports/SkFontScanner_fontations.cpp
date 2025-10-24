@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/core/SkStreamPriv.h"
 #include "src/ports/SkFontScanner_fontations_priv.h"
 #include "src/ports/SkTypeface_fontations_priv.h"
 #include "src/ports/fontations/src/skpath_bridge.h"
@@ -22,7 +23,7 @@ sk_sp<SkData> make_data_avoiding_copy(SkStreamAsset* stream) {
         return SkData::MakeEmpty();
     }
     if (stream->getData()) {
-        return stream->getData();
+        return SkStreamPriv::GetNonConstData(stream);
     }
     if (stream->getMemoryBase() && stream->getLength()) {
         return SkData::MakeWithoutCopy(stream->getMemoryBase(), stream->getLength());
