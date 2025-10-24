@@ -207,4 +207,6 @@ UseTab:          Never
 ---
 Language:      Json
 DisableFormat: true
-
+---
+Language:      JavaScript
+DisableFormat: true

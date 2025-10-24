@@ -627,12 +627,14 @@ describe('Canvas Behavior', () => {
         // The control version using drawPath
         canvas.translate(0, 50);
         canvas.drawRect(CanvasKit.LTRBRect(35, 35, 165, 85), boxPaint);
-        const path = new CanvasKit.Path();
-        path.moveTo(40, 40);
-        path.lineTo(80, 40);
-        path.lineTo(120, 80);
-        path.lineTo(160, 80);
+        const pb = new CanvasKit.PathBuilder();
+        pb.moveTo(40, 40);
+        pb.lineTo(80, 40);
+        pb.lineTo(120, 80);
+        pb.lineTo(160, 80);
         paint.setColorInt(0xFFFF0000); // RED
+
+        const path = pb.detachAndDelete();
         canvas.drawPath(path, paint);
 
         paint.delete();

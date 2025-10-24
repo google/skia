@@ -229,7 +229,7 @@
       const bgPaint = new CanvasKit.Paint();
       bgPaint.setColor([0.965, 0.965, 0.965, 1]);
 
-      const editor = MakeEditor(text0, {typeface:null, size:24}, cursor, 400);
+      const editor = MakeEditor(text0, {typeface:CanvasKit.Typeface.GetDefault(), size:24}, cursor, 400);
 
       editor.applyStyleToRange({size:100}, 0, 1);
       editor.applyStyleToRange({italic:true}, 38, 38+6);
@@ -522,6 +522,23 @@
 
       return surface;
   }
+
+  const spiralSkSL = `
+  uniform float rad_scale;
+  uniform float2 in_center;
+  uniform float4 in_colors0;
+  uniform float4 in_colors1;
+
+  half4 main(float2 p) {
+      float2 pp = p - in_center;
+      float radius = sqrt(dot(pp, pp));
+      radius = sqrt(radius);
+      float angle = atan(pp.y / pp.x);
+      float t = (angle + 3.1415926/2) / (3.1415926);
+      t += radius * rad_scale;
+      t = fract(t);
+      return half4(mix(in_colors0, in_colors1, t));
+  }`;
 
   function RTShaderAPI1(CanvasKit) {
     if (!CanvasKit) {

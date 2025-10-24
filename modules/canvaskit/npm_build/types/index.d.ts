@@ -466,6 +466,7 @@ export interface CanvasKit {
     readonly Font: FontConstructor;
     readonly Paint: DefaultConstructor<Paint>;
     readonly Path: PathConstructorAndFactory;
+    readonly PathBuilder: PathBuilderConstructor;
     readonly PictureRecorder: DefaultConstructor<PictureRecorder>;
     readonly TextStyle: TextStyleConstructor;
     readonly SlottableTextProperty: SlottableTextPropertyConstructor;
@@ -2404,163 +2405,10 @@ export interface Paint extends EmbindObject<"Paint"> {
 
 /**
  * See SkPath.h for more information on this class.
+ * A Path is immutable. See PathBuilder for how to construct a path
+ * in a mutable fashion.
  */
 export interface Path extends EmbindObject<"Path"> {
-    /**
-     * Appends arc to Path, as the start of new contour. Arc added is part of ellipse
-     * bounded by oval, from startAngle through sweepAngle. Both startAngle and
-     * sweepAngle are measured in degrees, where zero degrees is aligned with the
-     * positive x-axis, and positive sweeps extends arc clockwise.
-     * Returns the modified path for easier chaining.
-     * @param oval
-     * @param startAngle
-     * @param sweepAngle
-     */
-    addArc(oval: InputRect, startAngle: AngleInDegrees, sweepAngle: AngleInDegrees): Path;
-
-    /**
-     * Adds circle centered at (x, y) of size radius to the path.
-     * Has no effect if radius is zero or negative.
-     *
-     * @param x       center of circle
-     * @param y       center of circle
-     * @param radius  distance from center to edge
-     * @param isCCW - if the path should be drawn counter-clockwise or not
-     * @return        reference to SkPath
-     */
-    addCircle(x: number, y: number, r: number, isCCW?: boolean): Path;
-
-    /**
-     * Adds oval to Path, appending kMove_Verb, four kConic_Verb, and kClose_Verb.
-     * Oval is upright ellipse bounded by Rect oval with radii equal to half oval width
-     * and half oval height. Oval begins at start and continues clockwise by default.
-     * Returns the modified path for easier chaining.
-     * @param oval
-     * @param isCCW - if the path should be drawn counter-clockwise or not
-     * @param startIndex - index of initial point of ellipse
-     */
-    addOval(oval: InputRect, isCCW?: boolean, startIndex?: number): Path;
-
-    /**
-     * Takes 1, 2, 7, or 10 required args, where the first arg is always the path.
-     * The last arg is an optional boolean and chooses between add or extend mode.
-     * The options for the remaining args are:
-     *   - an array of 6 or 9 parameters (perspective is optional)
-     *   - the 9 parameters of a full matrix or
-     *     the 6 non-perspective params of a matrix.
-     * Returns the modified path for easier chaining (or null if params were incorrect).
-     * @param args
-     */
-    addPath(...args: any[]): Path | null;
-
-    /**
-     * Adds contour created from array of n points, adding (count - 1) line segments.
-     * Contour added starts at pts[0], then adds a line for every additional point
-     * in pts array. If close is true, appends kClose_Verb to Path, connecting
-     * pts[count - 1] and pts[0].
-     * Returns the modified path for easier chaining.
-     * @param points
-     * @param close - if true, will add a line connecting last point to the first point.
-     */
-    addPoly(points: InputFlattenedPointArray, close: boolean): Path;
-
-    /**
-     * Adds Rect to Path, appending kMove_Verb, three kLine_Verb, and kClose_Verb,
-     * starting with top-left corner of Rect; followed by top-right, bottom-right,
-     * and bottom-left if isCCW is false; or followed by bottom-left,
-     * bottom-right, and top-right if isCCW is true.
-     * Returns the modified path for easier chaining.
-     * @param rect
-     * @param isCCW
-     */
-    addRect(rect: InputRect, isCCW?: boolean): Path;
-
-    /**
-     * Adds rrect to Path, creating a new closed contour.
-     * Returns the modified path for easier chaining.
-     * @param rrect
-     * @param isCCW
-     */
-    addRRect(rrect: InputRRect, isCCW?: boolean): Path;
-
-    /**
-     * Adds the given verbs and associated points/weights to the path. The process
-     * reads the first verb from verbs and then the appropriate number of points from the
-     * FlattenedPointArray (e.g. 2 points for moveTo, 4 points for quadTo, etc). If the verb is
-     * a conic, a weight will be read from the WeightList.
-     * Returns the modified path for easier chaining
-     * @param verbs - the verbs that create this path, in the order of being drawn.
-     * @param points - represents n points with 2n floats.
-     * @param weights - used if any of the verbs are conics, can be omitted otherwise.
-     */
-    addVerbsPointsWeights(verbs: VerbList, points: InputFlattenedPointArray,
-                          weights?: WeightList): Path;
-
-    /**
-     * Adds an arc to this path, emulating the Canvas2D behavior.
-     * Returns the modified path for easier chaining.
-     * @param x
-     * @param y
-     * @param radius
-     * @param startAngle
-     * @param endAngle
-     * @param isCCW
-     */
-    arc(x: number, y: number, radius: number, startAngle: AngleInRadians, endAngle: AngleInRadians,
-        isCCW?: boolean): Path;
-
-    /**
-     * Appends arc to Path. Arc added is part of ellipse
-     * bounded by oval, from startAngle through sweepAngle. Both startAngle and
-     * sweepAngle are measured in degrees, where zero degrees is aligned with the
-     * positive x-axis, and positive sweeps extends arc clockwise.
-     * Returns the modified path for easier chaining.
-     * @param oval
-     * @param startAngle
-     * @param endAngle
-     * @param forceMoveTo
-     */
-    arcToOval(oval: InputRect, startAngle: AngleInDegrees, endAngle: AngleInDegrees,
-              forceMoveTo: boolean): Path;
-
-    /**
-     * Appends arc to Path. Arc is implemented by one or more conics weighted to
-     * describe part of oval with radii (rx, ry) rotated by xAxisRotate degrees. Arc
-     * curves from last Path Point to (x, y), choosing one of four possible routes:
-     * clockwise or counterclockwise, and smaller or larger. See SkPath.h for more details.
-     * Returns the modified path for easier chaining.
-     * @param rx
-     * @param ry
-     * @param xAxisRotate
-     * @param useSmallArc
-     * @param isCCW
-     * @param x
-     * @param y
-     */
-    arcToRotated(rx: number, ry: number, xAxisRotate: AngleInDegrees, useSmallArc: boolean,
-                 isCCW: boolean, x: number, y: number): Path;
-
-    /**
-     * Appends arc to Path, after appending line if needed. Arc is implemented by conic
-     * weighted to describe part of circle. Arc is contained by tangent from
-     * last Path point to (x1, y1), and tangent from (x1, y1) to (x2, y2). Arc
-     * is part of circle sized to radius, positioned so it touches both tangent lines.
-     * Returns the modified path for easier chaining.
-     * @param x1
-     * @param y1
-     * @param x2
-     * @param y2
-     * @param radius
-     */
-    arcToTangent(x1: number, y1: number, x2: number, y2: number, radius: number): Path;
-
-    /**
-     * Appends CLOSE_VERB to Path. A closed contour connects the first and last point
-     * with a line, forming a continuous loop.
-     * Returns the modified path for easier chaining.
-     */
-    close(): Path;
-
     /**
      * Returns minimum and maximum axes values of the lines and curves in Path.
      * Returns (0, 0, 0, 0) if Path contains no points.
@@ -2575,19 +2423,6 @@ export interface Path extends EmbindObject<"Path"> {
      *                      allocating a new one.
      */
     computeTightBounds(outputArray?: Rect): Rect;
-
-    /**
-     * Adds conic from last point towards (x1, y1), to (x2, y2), weighted by w.
-     * If Path is empty, or path is closed, the last point is set to (0, 0)
-     * before adding conic.
-     * Returns the modified path for easier chaining.
-     * @param x1
-     * @param y1
-     * @param x2
-     * @param y2
-     * @param w
-     */
-    conicTo(x1: number, y1: number, x2: number, y2: number, w: number): Path;
 
     /**
      * Returns true if the point (x, y) is contained by Path, taking into
@@ -2606,28 +2441,6 @@ export interface Path extends EmbindObject<"Path"> {
      * Returns the number of points in this path. Initially zero.
      */
     countPoints(): number;
-
-    /**
-     *  Adds cubic from last point towards (x1, y1), then towards (x2, y2), ending at
-     * (x3, y3). If Path is empty, or path is closed, the last point is set to
-     * (0, 0) before adding cubic.
-     * @param cpx1
-     * @param cpy1
-     * @param cpx2
-     * @param cpy2
-     * @param x
-     * @param y
-     */
-    cubicTo(cpx1: number, cpy1: number, cpx2: number, cpy2: number, x: number, y: number): Path;
-
-    /**
-     * Changes this path to be the dashed version of itself. This is the same effect as creating
-     * a DashPathEffect and calling filterPath on this path.
-     * @param on
-     * @param off
-     * @param phase
-     */
-    dash(on: number, off: number, phase: number): boolean;
 
     /**
      * Returns true if other path is equal to this path.
@@ -2664,23 +2477,6 @@ export interface Path extends EmbindObject<"Path"> {
     isEmpty(): boolean;
 
     /**
-     * Returns true if the path is volatile; it will not be altered or discarded
-     * by the caller after it is drawn. Path by default have volatile set false, allowing
-     * Surface to attach a cache of data which speeds repeated drawing. If true, Surface
-     * may not speed repeated drawing.
-     */
-    isVolatile(): boolean;
-
-    /**
-     * Adds line from last point to (x, y). If Path is empty, or last path is closed,
-     * last point is set to (0, 0) before adding line.
-     * Returns the modified path for easier chaining.
-     * @param x
-     * @param y
-     */
-    lineTo(x: number, y: number): Path;
-
-    /**
      * Returns a new path that covers the same area as the original path, but with the
      * Winding FillType. This may re-draw some contours in the path as counter-clockwise
      * instead of clockwise to achieve that effect. If such a transformation cannot
@@ -2689,145 +2485,53 @@ export interface Path extends EmbindObject<"Path"> {
     makeAsWinding(): Path | null;
 
     /**
-     * Adds beginning of contour at the given point.
-     * Returns the modified path for easier chaining.
-     * @param x
-     * @param y
-     */
-    moveTo(x: number, y: number): Path;
-
-    /**
-     * Translates all the points in the path by dx, dy.
-     * Returns the modified path for easier chaining.
-     * @param dx
-     * @param dy
-     */
-    offset(dx: number, dy: number): Path;
-
-    /**
-     * Combines this path with the other path using the given PathOp. Returns false if the operation
-     * fails.
+     * Returns a new path made from combining this path with the other path using the given PathOp.
+     * Returns null if the operation fails.
      * @param other
      * @param op
      */
-    op(other: Path, op: PathOp): boolean;
+    makeCombined(other: Path, op: PathOp): Path | null;
 
     /**
-     * Adds quad from last point towards (x1, y1), to (x2, y2).
-     * If Path is empty, or path is closed, last point is set to (0, 0) before adding quad.
-     * Returns the modified path for easier chaining.
-     * @param x1
-     * @param y1
-     * @param x2
-     * @param y2
+     * Returns the dashed version of this path. This is the same effect as creating
+     * a DashPathEffect and calling filterPath on this path.
+     * @param on
+     * @param off
+     * @param phase
      */
-    quadTo(x1: number, y1: number, x2: number, y2: number): Path;
+    makeDashed(on: number, off: number, phase: number): Path | null;
 
     /**
-     * Relative version of arcToRotated.
-     * @param rx
-     * @param ry
-     * @param xAxisRotate
-     * @param useSmallArc
-     * @param isCCW
-     * @param dx
-     * @param dy
+     * Return the set of non-overlapping contours that describe the
+     * same area as this original path.
+     * The curve order is reduced where possible so that cubics may
+     * be turned into quadratics, and quadratics maybe turned into lines.
      */
-    rArcTo(rx: number, ry: number, xAxisRotate: AngleInDegrees, useSmallArc: boolean,
-           isCCW: boolean, dx: number, dy: number): Path;
+    makeSimplified(): Path | null;
+
+   /**
+    * Take start and stop "t" values (values between 0...1) and return a subset of this path.
+    * The trim values apply to the entire path, so if it contains several contours, all of them
+    * are including in the calculation.
+    * Null is returned if either input value is NaN.
+    * @param startT - a value in the range [0.0, 1.0]. 0.0 is the beginning of the path.
+    * @param stopT  - a value in the range [0.0, 1.0]. 1.0 is the end of the path.
+    * @param isComplement
+    */
+    makeTrimmed(startT: number, stopT: number, isComplement: boolean): Path | null;
 
     /**
-     * Relative version of conicTo.
-     * @param dx1
-     * @param dy1
-     * @param dx2
-     * @param dy2
-     * @param w
+     * Returns the the filled equivalent of the stroked path. Returns null if the operation
+     * fails (e.g. the path is a hairline).
+     * @param opts - describe how stroked path should look.
      */
-    rConicTo(dx1: number, dy1: number, dx2: number, dy2: number, w: number): Path;
-
-    /**
-     * Relative version of cubicTo.
-     * @param cpx1
-     * @param cpy1
-     * @param cpx2
-     * @param cpy2
-     * @param x
-     * @param y
-     */
-    rCubicTo(cpx1: number, cpy1: number, cpx2: number, cpy2: number, x: number, y: number): Path;
-
-    /**
-     * Sets Path to its initial state.
-     * Removes verb array, point array, and weights, and sets FillType to Winding.
-     * Internal storage associated with Path is released
-     */
-    reset(): void;
-
-    /**
-     * Sets Path to its initial state.
-     * Removes verb array, point array, and weights, and sets FillType to Winding.
-     * Internal storage associated with Path is *not* released.
-     * Use rewind() instead of reset() if Path storage will be reused and performance
-     * is critical.
-     */
-    rewind(): void;
-
-    /**
-     * Relative version of lineTo.
-     * @param x
-     * @param y
-     */
-    rLineTo(x: number, y: number): Path;
-
-    /**
-     * Relative version of moveTo.
-     * @param x
-     * @param y
-     */
-    rMoveTo(x: number, y: number): Path;
-
-    /**
-     * Relative version of quadTo.
-     * @param x1
-     * @param y1
-     * @param x2
-     * @param y2
-     */
-    rQuadTo(x1: number, y1: number, x2: number, y2: number): Path;
+    makeStroked(opts?: StrokeOpts): Path | null;
 
     /**
      * Sets FillType, the rule used to fill Path.
      * @param fill
      */
     setFillType(fill: FillType): void;
-
-    /**
-     * Specifies whether Path is volatile; whether it will be altered or discarded
-     * by the caller after it is drawn. Path by default have volatile set false.
-     *
-     * Mark animating or temporary paths as volatile to improve performance.
-     * Mark unchanging Path non-volatile to improve repeated rendering.
-     * @param volatile
-     */
-    setIsVolatile(volatile: boolean): void;
-
-    /**
-     * Set this path to a set of non-overlapping contours that describe the
-     * same area as the original path.
-     * The curve order is reduced where possible so that cubics may
-     * be turned into quadratics, and quadratics maybe turned into lines.
-     *
-     * Returns true if operation was able to produce a result.
-     */
-    simplify(): boolean;
-
-    /**
-     * Turns this path into the filled equivalent of the stroked path. Returns null if the operation
-     * fails (e.g. the path is a hairline).
-     * @param opts - describe how stroked path should look.
-     */
-    stroke(opts?: StrokeOpts): Path | null;
 
     /**
      * Serializes the contents of this path as a series of commands.
@@ -2840,24 +2544,343 @@ export interface Path extends EmbindObject<"Path"> {
      * Returns this path as an SVG string.
      */
     toSVGString(): string;
+}
+
+export interface PathBuilder extends EmbindObject<"SkPathBuilder"> {
+    /**
+     * Appends arc to Path, as the start of new contour. Arc added is part of ellipse
+     * bounded by oval, from startAngle through sweepAngle. Both startAngle and
+     * sweepAngle are measured in degrees, where zero degrees is aligned with the
+     * positive x-axis, and positive sweeps extends arc clockwise.
+     * Returns the modified path for easier chaining.
+     * @param oval
+     * @param startAngle
+     * @param sweepAngle
+     */
+    addArc(oval: InputRect, startAngle: AngleInDegrees, sweepAngle: AngleInDegrees): PathBuilder;
+
+    /**
+     * Adds circle centered at (x, y) of size radius to the path.
+     * Has no effect if radius is zero or negative.
+     *
+     * @param x       center of circle
+     * @param y       center of circle
+     * @param radius  distance from center to edge
+     * @param isCCW - if the path should be drawn counter-clockwise or not
+     * @return        reference to SkPath
+     */
+    addCircle(x: number, y: number, r: number, isCCW?: boolean): PathBuilder;
+
+    /**
+     * Adds oval to Path, appending kMove_Verb, four kConic_Verb, and kClose_Verb.
+     * Oval is upright ellipse bounded by Rect oval with radii equal to half oval width
+     * and half oval height. Oval begins at start and continues clockwise by default.
+     * Returns the modified path for easier chaining.
+     * @param oval
+     * @param isCCW - if the path should be drawn counter-clockwise or not
+     * @param startIndex - index of initial point of ellipse
+     */
+    addOval(oval: InputRect, isCCW?: boolean, startIndex?: number): PathBuilder;
+
+    /**
+     * Takes 1, 2, 7, or 10 required args, where the first arg is always the path.
+     * The last arg is an optional boolean and chooses between add or extend mode.
+     * The options for the remaining args are:
+     *   - an array of 6 or 9 parameters (perspective is optional)
+     *   - the 9 parameters of a full matrix or
+     *     the 6 non-perspective params of a matrix.
+     * Returns the modified path for easier chaining (or null if params were incorrect).
+     * @param args
+     */
+    addPath(...args: any[]): PathBuilder | null;
+
+    /**
+     * Adds contour created from array of n points, adding (count - 1) line segments.
+     * Contour added starts at pts[0], then adds a line for every additional point
+     * in pts array. If close is true, appends kClose_Verb to Path, connecting
+     * pts[count - 1] and pts[0].
+     * Returns the modified path for easier chaining.
+     * @param points
+     * @param close - if true, will add a line connecting last point to the first point.
+     */
+    addPolygon(points: InputFlattenedPointArray, close: boolean): PathBuilder;
+
+    /**
+     * Adds Rect to Path, appending kMove_Verb, three kLine_Verb, and kClose_Verb,
+     * starting with top-left corner of Rect; followed by top-right, bottom-right,
+     * and bottom-left if isCCW is false; or followed by bottom-left,
+     * bottom-right, and top-right if isCCW is true.
+     * Returns the modified path for easier chaining.
+     * @param rect
+     * @param isCCW
+     */
+    addRect(rect: InputRect, isCCW?: boolean): PathBuilder;
+
+    /**
+     * Adds rrect to Path, creating a new closed contour.
+     * Returns the modified path for easier chaining.
+     * @param rrect
+     * @param isCCW
+     */
+    addRRect(rrect: InputRRect, isCCW?: boolean): PathBuilder;
+
+    /**
+     * Adds the given verbs and associated points/weights to the path. The process
+     * reads the first verb from verbs and then the appropriate number of points from the
+     * FlattenedPointArray (e.g. 2 points for moveTo, 4 points for quadTo, etc). If the verb is
+     * a conic, a weight will be read from the WeightList.
+     * The verb list should start with a moveTo since the previous location will
+     * be lost.
+     * Returns the modified path for easier chaining
+     * @param verbs - the verbs that create this path, in the order of being drawn.
+     * @param points - represents n points with 2n floats.
+     * @param weights - used if any of the verbs are conics, can be omitted otherwise.
+     */
+    addVerbsPointsWeights(verbs: VerbList, points: InputFlattenedPointArray,
+                          weights?: WeightList): PathBuilder;
+
+    /**
+     * Adds an arc to this path, emulating the Canvas2D behavior.
+     * Returns the modified path for easier chaining.
+     * @param x
+     * @param y
+     * @param radius
+     * @param startAngle
+     * @param endAngle
+     * @param isCCW
+     */
+    arc(x: number, y: number, radius: number, startAngle: AngleInRadians, endAngle: AngleInRadians,
+        isCCW?: boolean): PathBuilder;
+
+    /**
+     * Appends arc to Path. Arc added is part of ellipse
+     * bounded by oval, from startAngle through sweepAngle. Both startAngle and
+     * sweepAngle are measured in degrees, where zero degrees is aligned with the
+     * positive x-axis, and positive sweeps extends arc clockwise.
+     * Returns the modified path for easier chaining.
+     * @param oval
+     * @param startAngle
+     * @param endAngle
+     * @param forceMoveTo
+     */
+    arcToOval(oval: InputRect, startAngle: AngleInDegrees, endAngle: AngleInDegrees,
+              forceMoveTo: boolean): PathBuilder;
+
+    /**
+     * Appends arc to Path. Arc is implemented by one or more conics weighted to
+     * describe part of oval with radii (rx, ry) rotated by xAxisRotate degrees. Arc
+     * curves from last Path Point to (x, y), choosing one of four possible routes:
+     * clockwise or counterclockwise, and smaller or larger. See SkPath.h for more details.
+     * Returns the modified path for easier chaining.
+     * @param rx
+     * @param ry
+     * @param xAxisRotate
+     * @param useSmallArc
+     * @param isCCW
+     * @param x
+     * @param y
+     */
+    arcToRotated(rx: number, ry: number, xAxisRotate: AngleInDegrees, useSmallArc: boolean,
+                 isCCW: boolean, x: number, y: number): PathBuilder;
+
+    /**
+     * Appends arc to Path, after appending line if needed. Arc is implemented by conic
+     * weighted to describe part of circle. Arc is contained by tangent from
+     * last Path point to (x1, y1), and tangent from (x1, y1) to (x2, y2). Arc
+     * is part of circle sized to radius, positioned so it touches both tangent lines.
+     * Returns the modified path for easier chaining.
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @param radius
+     */
+    arcToTangent(x1: number, y1: number, x2: number, y2: number, radius: number): PathBuilder;
+
+    /**
+     * Appends CLOSE_VERB to Path. A closed contour connects the first and last point
+     * with a line, forming a continuous loop.
+     * Returns the modified path for easier chaining.
+     */
+    close(): Path;
+
+    /**
+     * Adds conic from last point towards (x1, y1), to (x2, y2), weighted by w.
+     * If Path is empty, or path is closed, the last point is set to (0, 0)
+     * before adding conic.
+     * Returns the modified path for easier chaining.
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @param w
+     */
+    conicTo(x1: number, y1: number, x2: number, y2: number, w: number): PathBuilder;
+
+   /**
+     * Returns true if the point (x, y) is contained by current Path, taking into
+     * account FillType.
+     * @param x
+     * @param y
+     */
+    contains(x: number, y: number): boolean;
+
+    /**
+     * Returns the number of points in this path. Initially zero.
+     */
+    countPoints(): number;
+
+    /**
+     *  Adds cubic from last point towards (x1, y1), then towards (x2, y2), ending at
+     * (x3, y3). If Path is empty, or path is closed, the last point is set to
+     * (0, 0) before adding cubic.
+     * @param cpx1
+     * @param cpy1
+     * @param cpx2
+     * @param cpy2
+     * @param x
+     * @param y
+     */
+    cubicTo(cpx1: number, cpy1: number, cpx2: number, cpy2: number,
+            x: number, y: number): PathBuilder;
+
+    /**
+     * Returns an immutable Path with all the drawing so far and resets the
+     * internal buffers to be empty.
+     */
+    detach(): Path;
+
+    /**
+     * Returns an immutable Path with all the drawing so far and calls
+     * delete() on this JS object, freeing the memory associated with it.
+     */
+    detachAndDelete(): Path;
+
+    /**
+     * Returns true if there are no verbs in the path.
+     */
+    isEmpty(): boolean;
+
+    /**
+     * Returns minimum and maximum axes values of Point array.
+     * Returns (0, 0, 0, 0) if Path contains no points. Returned bounds width and height may
+     * be larger or smaller than area affected when Path is drawn.
+     * @param outputArray - if provided, the bounding box will be copied into this array instead of
+     *                      allocating a new one.
+     */
+    getBounds(outputArray?: Rect): Rect;
+
+    /**
+     * Adds line from last point to (x, y). If Path is empty, or last path is closed,
+     * last point is set to (0, 0) before adding line.
+     * Returns the modified path for easier chaining.
+     * @param x
+     * @param y
+     */
+    lineTo(x: number, y: number): PathBuilder;
+
+    /**
+     * Adds beginning of contour at the given point.
+     * Returns the modified path for easier chaining.
+     * @param x
+     * @param y
+     */
+    moveTo(x: number, y: number): PathBuilder;
+
+    /**
+     * Translates all the points in the path by dx, dy.
+     * Returns the modified path for easier chaining.
+     * @param dx
+     * @param dy
+     */
+    offset(dx: number, dy: number): PathBuilder;
+
+    /**
+     * Adds quad from last point towards (x1, y1), to (x2, y2).
+     * If Path is empty, or path is closed, last point is set to (0, 0) before adding quad.
+     * Returns the modified path for easier chaining.
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     */
+    quadTo(x1: number, y1: number, x2: number, y2: number): PathBuilder;
+
+    /**
+     * Relative version of arcToRotated.
+     * @param rx
+     * @param ry
+     * @param xAxisRotate
+     * @param useSmallArc
+     * @param isCCW
+     * @param dx
+     * @param dy
+     */
+    rArcTo(rx: number, ry: number, xAxisRotate: AngleInDegrees, useSmallArc: boolean,
+           isCCW: boolean, dx: number, dy: number): PathBuilder;
+
+    /**
+     * Relative version of conicTo.
+     * @param dx1
+     * @param dy1
+     * @param dx2
+     * @param dy2
+     * @param w
+     */
+    rConicTo(dx1: number, dy1: number, dx2: number, dy2: number, w: number): PathBuilder;
+
+    /**
+     * Relative version of cubicTo.
+     * @param cpx1
+     * @param cpy1
+     * @param cpx2
+     * @param cpy2
+     * @param x
+     * @param y
+     */
+    rCubicTo(cpx1: number, cpy1: number, cpx2: number, cpy2: number,
+             x: number, y: number): PathBuilder;
+
+    /**
+     * Relative version of lineTo.
+     * @param x
+     * @param y
+     */
+    rLineTo(x: number, y: number): PathBuilder;
+
+    /**
+     * Relative version of moveTo.
+     * @param x
+     * @param y
+     */
+    rMoveTo(x: number, y: number): PathBuilder;
+
+    /**
+     * Relative version of quadTo.
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     */
+    rQuadTo(x1: number, y1: number, x2: number, y2: number): PathBuilder;
+
+    /**
+     * Sets FillType, the rule used to fill Path.
+     * @param fill
+     */
+    setFillType(fill: FillType): void;
+
+    /**
+     * Returns an immutable Path with all the drawing so far. Keeps the
+     * current points, verbs, and weights for continued growth.
+     */
+    snapshot(): Path;
 
     /**
      * Takes a 3x3 matrix as either an array or as 9 individual params.
      * @param args
      */
-    transform(...args: any[]): Path;
-
-    /**
-     * Take start and stop "t" values (values between 0...1), and modify this path such that
-     * it is a subset of the original path.
-     * The trim values apply to the entire path, so if it contains several contours, all of them
-     * are including in the calculation.
-     * Null is returned if either input value is NaN.
-     * @param startT - a value in the range [0.0, 1.0]. 0.0 is the beginning of the path.
-     * @param stopT  - a value in the range [0.0, 1.0]. 1.0 is the end of the path.
-     * @param isComplement
-     */
-    trim(startT: number, stopT: number, isComplement: boolean): Path | null;
+    transform(...args: any[]): PathBuilder;
 }
 
 /**
@@ -3873,7 +3896,7 @@ export interface PathConstructorAndFactory extends DefaultConstructor<Path> {
      * @param path2 second path to compare
      * @return      true if Path can be interpolated equivalent
      */
-     CanInterpolate(path1: Path, path2: Path): boolean;
+    CanInterpolate(path1: Path, path2: Path): boolean;
 
     /**
      * Creates a new path from the given list of path commands. If this fails, null will be
@@ -3925,13 +3948,23 @@ export interface PathConstructorAndFactory extends DefaultConstructor<Path> {
      * reads the first verb from verbs and then the appropriate number of points from the
      * FlattenedPointArray (e.g. 2 points for moveTo, 4 points for quadTo, etc). If the verb is
      * a conic, a weight will be read from the WeightList.
-     * If the data is malformed (e.g. not enough points), the resulting path will be incomplete.
+     * If the data is malformed (e.g. not enough points), the resulting path will be empty.
+     * If memory is passed in with Malloced TypedArrays, modifying the data after
+     * creating the path will result in undefined behavior.
      * @param verbs - the verbs that create this path, in the order of being drawn.
      * @param points - represents n points with 2n floats.
      * @param weights - used if any of the verbs are conics, can be omitted otherwise.
      */
     MakeFromVerbsPointsWeights(verbs: VerbList, points: InputFlattenedPointArray,
                                weights?: WeightList): Path;
+}
+
+export interface PathBuilderConstructor extends DefaultConstructor<PathBuilder> {
+    /**
+     * Create a PathBuilder with a copy of the points, verbs, and weights
+     * (if applicable)
+     */
+    new(toCopy: Path): PathBuilder;
 }
 
 /**

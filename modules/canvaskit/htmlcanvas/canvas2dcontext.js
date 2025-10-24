@@ -27,7 +27,7 @@ function CanvasRenderingContext2D(skcanvas) {
   this._paint.setStrokeWidth(this._strokeWidth);
   this._paint.setBlendMode(this._globalCompositeOperation);
 
-  this._currentPath = new CanvasKit.Path();
+  this._currentPath = new CanvasKit.PathBuilder();
   this._currentTransform = CanvasKit.Matrix.identity();
 
   // Use this for save/restore
@@ -481,7 +481,7 @@ function CanvasRenderingContext2D(skcanvas) {
   // clears out any previous paths.
   this.beginPath = function() {
     this._currentPath.delete();
-    this._currentPath = new CanvasKit.Path();
+    this._currentPath = new CanvasKit.PathBuilder();
   };
 
   this.bezierCurveTo = function(cp1x, cp1y, cp2x, cp2y, x, y) {
@@ -496,18 +496,18 @@ function CanvasRenderingContext2D(skcanvas) {
   };
 
   this.clip = function(path, fillRule) {
+    var clip;
     if (typeof path === 'string') {
       // shift the args if a Path2D is supplied
       fillRule = path;
-      path = this._currentPath;
+      clip = this._currentPath.snapshot();
     } else if (path && path._getPath) {
-      path = path._getPath();
+      clip = path._getPath();
     }
-    if (!path) {
-      path = this._currentPath;
+    if (!clip) {
+      clip = this._currentPath.snapshot();
     }
 
-    var clip = path.copy();
     if (fillRule && fillRule.toLowerCase() === 'evenodd') {
       clip.setFillType(CanvasKit.FillType.EvenOdd);
     } else {
@@ -624,22 +624,24 @@ function CanvasRenderingContext2D(skcanvas) {
   };
 
   this.fill = function(path, fillRule) {
+    var toDraw;
     if (typeof path === 'string') {
       // shift the args if a Path2D is supplied
       fillRule = path;
-      path = this._currentPath;
+      toDraw = this._currentPath.snapshot();
     } else if (path && path._getPath) {
-      path = path._getPath();
-    }
-    if (fillRule === 'evenodd') {
-      this._currentPath.setFillType(CanvasKit.FillType.EvenOdd);
-    } else if (fillRule === 'nonzero' || !fillRule) {
-      this._currentPath.setFillType(CanvasKit.FillType.Winding);
-    } else {
-      throw 'invalid fill rule';
+      toDraw = path._getPath();
     }
     if (!path) {
-      path = this._currentPath;
+      toDraw = this._currentPath.snapshot();
+    }
+
+    if (fillRule === 'evenodd') {
+      toDraw.setFillType(CanvasKit.FillType.EvenOdd);
+    } else if (fillRule === 'nonzero' || !fillRule) {
+      toDraw.setFillType(CanvasKit.FillType.Winding);
+    } else {
+      throw 'invalid fill rule';
     }
 
     var fillPaint = this._fillPaint();
@@ -648,12 +650,13 @@ function CanvasRenderingContext2D(skcanvas) {
     if (shadowPaint) {
       this._canvas.save();
       this._applyShadowOffsetMatrix();
-      this._canvas.drawPath(path, shadowPaint);
+      this._canvas.drawPath(toDraw, shadowPaint);
       this._canvas.restore();
       shadowPaint.dispose();
     }
-    this._canvas.drawPath(path, fillPaint);
+    this._canvas.drawPath(toDraw, fillPaint);
     fillPaint.dispose();
+    toDraw.delete();
   };
 
   this.fillRect = function(x, y, width, height) {
@@ -721,9 +724,9 @@ function CanvasRenderingContext2D(skcanvas) {
   this.isPointInPath = function(x, y, fillmode) {
     var args = arguments;
     if (args.length === 3) {
-      var path = this._currentPath;
+      var path = this._currentPath.snapshot();
     } else if (args.length === 4) {
-      var path = args[0];
+      var path = args[0].copy();
       x = args[1];
       y = args[2];
       fillmode = args[3];
@@ -731,10 +734,12 @@ function CanvasRenderingContext2D(skcanvas) {
       throw 'invalid arg count, need 3 or 4, got ' + args.length;
     }
     if (!isFinite(x) || !isFinite(y)) {
+      path.delete();
       return false;
     }
     fillmode = fillmode || 'nonzero';
     if (!(fillmode === 'nonzero' || fillmode === 'evenodd')) {
+      path.delete();
       return false;
     }
     // x and y are in canvas coordinates (i.e. unaffected by CTM)
@@ -744,35 +749,38 @@ function CanvasRenderingContext2D(skcanvas) {
     path.setFillType(fillmode === 'nonzero' ?
                                   CanvasKit.FillType.Winding :
                                   CanvasKit.FillType.EvenOdd);
-    return path.contains(x, y);
+    var answer = path.contains(x, y);
+    path.delete();
+    return answer;
   };
 
   this.isPointInStroke = function(x, y) {
     var args = arguments;
     if (args.length === 2) {
-      var path = this._currentPath;
+      var path = this._currentPath.snapshot();
     } else if (args.length === 3) {
-      var path = args[0];
+      var path = args[0].copy();
       x = args[1];
       y = args[2];
     } else {
       throw 'invalid arg count, need 2 or 3, got ' + args.length;
     }
     if (!isFinite(x) || !isFinite(y)) {
+      path.delete();
       return false;
     }
     var pts = this._mapToLocalCoordinates([x, y]);
     x = pts[0];
     y = pts[1];
-    var temp = path.copy();
     // fillmode is always nonzero
-    temp.setFillType(CanvasKit.FillType.Winding);
-    temp.stroke({'width': this.lineWidth, 'miter_limit': this.miterLimit,
+    path.setFillType(CanvasKit.FillType.Winding);
+    var temp = path.makeStroked({'width': this.lineWidth, 'miter_limit': this.miterLimit,
                  'cap': this._paint.getStrokeCap(), 'join': this._paint.getStrokeJoin(),
                  'precision': 0.3, // this is what Chrome uses to compute this
                 });
     var retVal = temp.contains(x, y);
     temp.delete();
+    path.delete();
     return retVal;
   };
 
@@ -1055,7 +1063,7 @@ function CanvasRenderingContext2D(skcanvas) {
   };
 
   this.stroke = function(path) {
-    path = path ? path._getPath() : this._currentPath;
+    path = path ? path._getPath() : this._currentPath.snapshot();
     var strokePaint = this._strokePaint();
 
     var shadowPaint = this._shadowPaint(strokePaint);
@@ -1068,6 +1076,7 @@ function CanvasRenderingContext2D(skcanvas) {
     }
 
     this._canvas.drawPath(path, strokePaint);
+    path.delete();
     strokePaint.dispose();
   };
 
