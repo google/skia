@@ -20,10 +20,14 @@
 
 using namespace skia_private;
 
+#if defined(SK_GANESH)
 #if defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_IOS)
 #define DEFAULT_GPU_CONFIG "gles"
 #else
 #define DEFAULT_GPU_CONFIG "gl"
+#endif
+#else
+#define DEFAULT_GPU_CONFIG ""
 #endif
 
 static const char defaultConfigs[] = "8888 " DEFAULT_GPU_CONFIG

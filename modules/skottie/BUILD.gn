@@ -56,33 +56,28 @@ if (skia_enable_skottie) {
     }
 
     if (skia_enable_tools) {
-      if (skia_enable_tools_that_might_need_ganesh) {
-        skia_source_set("tests") {
-          testonly = true
+      skia_source_set("tests") {
+        testonly = true
 
-          configs = [
-            "../..:skia_private",
-            "../..:tests_config",
-          ]
-          sources = [
-            "src/SkottieTest.cpp",
-            "tests/AudioLayer.cpp",
-            "tests/Expression.cpp",
-            "tests/Image.cpp",
-            "tests/Keyframe.cpp",
-            "tests/PropertyObserver.cpp",
-            "tests/Shaper.cpp",
-            "tests/Text.cpp",
-          ]
+        configs = [ "../..:skia_private" ]
+        sources = [
+          "src/SkottieTest.cpp",
+          "tests/AudioLayer.cpp",
+          "tests/Expression.cpp",
+          "tests/Image.cpp",
+          "tests/Keyframe.cpp",
+          "tests/PropertyObserver.cpp",
+          "tests/Shaper.cpp",
+          "tests/Text.cpp",
+        ]
 
-          deps = [
-            ":skottie",
-            "../..:skia",
-            "../..:test",
-            "../skshaper",
-            "../skunicode",
-          ]
-        }
+        deps = [
+          ":skottie",
+          "../..:skia",
+          "../..:test",
+          "../skshaper",
+          "../skunicode",
+        ]
       }
 
       skia_source_set("fuzz") {

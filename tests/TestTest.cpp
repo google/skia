@@ -26,6 +26,8 @@ DEF_CONDITIONAL_TEST(TestFalseCondition, reporter, 1 == 0) {
     ERRORF(reporter, "DEF_CONDITIONAL_TEST executed a test with a false condition");
 }
 
+#if defined(SK_GANESH)
+
 // This is an example of a GPU test that runs if any Ganesh backend is compiled in. The test itself
 // is responsible for making the relevant GrDirectContext (e.g. using
 // sk_gpu_test::GrContextFactory).
@@ -90,6 +92,7 @@ DEF_CONDITIONAL_GANESH_TEST_FOR_RENDERING_CONTEXTS(TestGpuRenderingContextsWithF
            "DEF_CONDITIONAL_GANESH_TEST_FOR_RENDERING_CONTEXTS ran "
            "with a false condition");
 }
+#endif
 
 DEF_TEST(TestCtsEnforcement, reporter) {
     auto verifyRunMode = [&](CtsEnforcement e, int apiLevel, CtsEnforcement::RunMode runMode) {

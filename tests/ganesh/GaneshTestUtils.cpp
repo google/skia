@@ -186,7 +186,6 @@ bool CompareGaneshPixels(const GrCPixmap& a,
     return true;
 }
 
-
 void CheckSingleThreadedProxyRefs(skiatest::Reporter* reporter,
                                   GrSurfaceProxy* proxy,
                                   int32_t expectedProxyRefs,

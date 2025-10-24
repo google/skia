@@ -112,6 +112,7 @@ DEF_TEST(SkRuntimeBlender_CPU, r) {
     test_blend(r, surface.get());
 }
 
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeBlender_Ganesh,
                                        r,
                                        ctxInfo,
@@ -121,6 +122,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeBlender_Ganesh,
             SkSurfaces::RenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info));
     test_blend(r, surface.get());
 }
+#endif
 
 #if defined(SK_GRAPHITE)
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeBlender_Graphite,

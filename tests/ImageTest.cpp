@@ -157,26 +157,6 @@ static sk_sp<SkImage> create_data_image() {
     sk_sp<SkData> data(create_image_data(&info));
     return SkImages::RasterFromData(info, std::move(data), info.minRowBytes());
 }
-static sk_sp<SkImage> create_image_large(int maxTextureSize) {
-    const SkImageInfo info = SkImageInfo::MakeN32(maxTextureSize + 1, 32, kOpaque_SkAlphaType);
-    auto surface(SkSurfaces::Raster(info));
-    surface->getCanvas()->clear(SK_ColorWHITE);
-    SkPaint paint;
-    paint.setColor(SK_ColorBLACK);
-    surface->getCanvas()->drawRect(SkRect::MakeXYWH(4000, 2, 28000, 30), paint);
-    return surface->makeImageSnapshot();
-}
-static sk_sp<SkImage> create_picture_image() {
-    SkPictureRecorder recorder;
-    SkCanvas* canvas = recorder.beginRecording(10, 10);
-    canvas->clear(SK_ColorCYAN);
-    return SkImages::DeferredFromPicture(recorder.finishRecordingAsPicture(),
-                                         SkISize::Make(10, 10),
-                                         nullptr,
-                                         nullptr,
-                                         SkImages::BitDepth::kU8,
-                                         SkColorSpace::MakeSRGB());
-}
 // Want to ensure that our Release is called when the owning image is destroyed
 struct RasterDataHolder {
     RasterDataHolder() : fReleaseCount(0) {}
@@ -205,15 +185,6 @@ static sk_sp<SkImage> create_codec_image() {
     SkASSERT_RELEASE(encoded);
     return SkImages::DeferredFromEncodedData(encoded);
 }
-static sk_sp<SkImage> create_gpu_image(GrRecordingContext* rContext,
-                                       bool withMips = false,
-                                       skgpu::Budgeted budgeted = skgpu::Budgeted::kYes) {
-    const SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
-    auto surface = SkSurfaces::RenderTarget(
-            rContext, budgeted, info, 0, kBottomLeft_GrSurfaceOrigin, nullptr, withMips);
-    draw_image_test_pattern(surface->getCanvas());
-    return surface->makeImageSnapshot();
-}
 
 static void test_encode(skiatest::Reporter* reporter, GrDirectContext* dContext, SkImage* image) {
     const SkIRect ir = SkIRect::MakeXYWH(5, 5, 10, 10);
@@ -240,6 +211,17 @@ DEF_TEST(ImageEncode, reporter) {
     test_encode(reporter, nullptr, create_image().get());
 }
 
+#if defined(SK_GANESH)
+static sk_sp<SkImage> create_gpu_image(GrRecordingContext* rContext,
+                                       bool withMips = false,
+                                       skgpu::Budgeted budgeted = skgpu::Budgeted::kYes) {
+    const SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
+    auto surface = SkSurfaces::RenderTarget(
+            rContext, budgeted, info, 0, kBottomLeft_GrSurfaceOrigin, nullptr, withMips);
+    draw_image_test_pattern(surface->getCanvas());
+    return surface->makeImageSnapshot();
+}
+
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageEncode_Gpu,
                                        reporter,
                                        ctxInfo,
@@ -247,6 +229,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageEncode_Gpu,
     auto dContext = ctxInfo.directContext();
     test_encode(reporter, dContext, create_gpu_image(dContext).get());
 }
+#endif
 
 DEF_TEST(Image_MakeFromRasterBitmap, reporter) {
     const struct {
@@ -388,7 +371,7 @@ DEF_TEST(image_newfrombitmap, reporter) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
+#if defined(SK_GANESH)
 /*
  *  This tests the caching (and preemptive purge) of the raster equivalent of a gpu-image.
  *  We cache it for performance when drawing into a raster surface.
@@ -432,6 +415,18 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkImage_Ganesh2Cpu,
         SkBitmap cachedBitmap;
         REPORTER_ASSERT(reporter, !SkBitmapCache::Find(desc, &cachedBitmap));
     }
+}
+
+static sk_sp<SkImage> create_picture_image() {
+    SkPictureRecorder recorder;
+    SkCanvas* canvas = recorder.beginRecording(10, 10);
+    canvas->clear(SK_ColorCYAN);
+    return SkImages::DeferredFromPicture(recorder.finishRecordingAsPicture(),
+                                         SkISize::Make(10, 10),
+                                         nullptr,
+                                         nullptr,
+                                         SkImages::BitDepth::kU8,
+                                         SkColorSpace::MakeSRGB());
 }
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage,
@@ -700,6 +695,7 @@ DEF_GANESH_TEST(AbandonedContextImage, reporter, options, CtsEnforcement::kApiLe
         rsurf->getCanvas()->drawImage(img, 0, 0);
     }
 }
+#endif
 
 class EmptyGenerator : public SkImageGenerator {
 public:
@@ -804,6 +800,7 @@ DEF_TEST(ImageReadPixels, reporter) {
     image = create_codec_image();
     image_test_read_pixels(nullptr, reporter, image.get());
 }
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageReadPixels_Gpu,
                                        reporter,
                                        ctxInfo,
@@ -811,6 +808,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageReadPixels_Gpu,
     auto dContext = ctxInfo.directContext();
     image_test_read_pixels(dContext, reporter, create_gpu_image(dContext).get());
 }
+#endif
 
 static void check_legacy_bitmap(skiatest::Reporter* reporter, GrDirectContext* dContext,
                                 const SkImage* image, const SkBitmap& bitmap) {
@@ -866,6 +864,7 @@ DEF_TEST(ImageLegacyBitmap, reporter) {
     image = create_codec_image();
     test_legacy_bitmap(reporter, nullptr, image.get());
 }
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageLegacyBitmap_Gpu,
                                        reporter,
                                        ctxInfo,
@@ -874,6 +873,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageLegacyBitmap_Gpu,
     sk_sp<SkImage> image(create_gpu_image(dContext));
     test_legacy_bitmap(reporter, dContext, image.get());
 }
+#endif
 
 static void test_peek(skiatest::Reporter* reporter, SkImage* image, bool expectPeekSuccess) {
     if (!image) {
@@ -910,6 +910,7 @@ DEF_TEST(ImagePeek, reporter) {
     image = create_codec_image();
     test_peek(reporter, image.get(), false);
 }
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImagePeek_Gpu,
                                        reporter,
                                        ctxInfo,
@@ -1201,6 +1202,16 @@ DEF_GANESH_TEST(SkImage_CrossContextGrayAlphaConfigs,
     }
 }
 
+static sk_sp<SkImage> create_image_large(int maxTextureSize) {
+    const SkImageInfo info = SkImageInfo::MakeN32(maxTextureSize + 1, 32, kOpaque_SkAlphaType);
+    auto surface(SkSurfaces::Raster(info));
+    surface->getCanvas()->clear(SK_ColorWHITE);
+    SkPaint paint;
+    paint.setColor(SK_ColorBLACK);
+    surface->getCanvas()->drawRect(SkRect::MakeXYWH(4000, 2, 28000, 30), paint);
+    return surface->makeImageSnapshot();
+}
+
 DEF_GANESH_TEST_FOR_GL_CONTEXT(makeBackendTexture, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
     auto context = ctxInfo.directContext();
     sk_gpu_test::TestContext* testContext = ctxInfo.testContext();
@@ -1295,6 +1306,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageBackendAccessAbandoned_Gpu,
     ok = SkImages::GetBackendTextureFromImage(image, &beTex, true);
     REPORTER_ASSERT(reporter, !ok);
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1504,6 +1516,7 @@ DEF_TEST(ImageScalePixels, reporter) {
     test_scale_pixels(reporter, codecImage.get(), pmRed);
 }
 
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageScalePixels_Gpu,
                                        reporter,
                                        ctxInfo,
@@ -1518,6 +1531,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageScalePixels_Gpu,
     sk_sp<SkImage> gpuImage = surface->makeImageSnapshot();
     test_scale_pixels(reporter, gpuImage.get(), pmRed);
 }
+#endif
 
 static sk_sp<SkImage> any_image_will_do() {
     return ToolUtils::GetResourceAsImage("images/mandrill_32.png");
@@ -1546,6 +1560,7 @@ DEF_TEST(Image_nonfinite_dst, reporter) {
     }
 }
 
+#if defined(SK_GANESH)
 static sk_sp<SkImage> make_yuva_image(GrDirectContext* dContext) {
     SkAutoPixmapStorage pm;
     pm.alloc(SkImageInfo::Make(1, 1, kAlpha_8_SkColorType, kPremul_SkAlphaType));
@@ -1636,6 +1651,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo, CtsEnforcement::
     dContext->flushAndSubmit(i2);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
 }
+#endif
 
 constexpr SkM44 gCentripetalCatmulRom
     (0.0f/2, -1.0f/2,  2.0f/2, -1.0f/2,

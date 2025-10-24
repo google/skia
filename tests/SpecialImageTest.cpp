@@ -22,15 +22,18 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
+#include "src/core/SkSpecialImage.h"
+#include "tests/CtsEnforcement.h"
+#include "tests/Test.h"
+
+#if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
-#include "src/core/SkSpecialImage.h"
 #include "src/gpu/ganesh/GrColorInfo.h" // IWYU pragma: keep
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
-#include "tests/CtsEnforcement.h"
-#include "tests/Test.h"
+#endif
 
 #include <utility>
 
@@ -83,12 +86,14 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
     REPORTER_ASSERT(reporter, isGPUBacked == img->isGaneshBacked());
     REPORTER_ASSERT(reporter, !img->isGraphiteBacked());
 
+#if defined(SK_GANESH)
     //--------------
     // Test view - only succeeds if it's Ganesh backed
     if (rContext) {
         GrSurfaceProxyView view = SkSpecialImages::AsView(rContext, img);
         REPORTER_ASSERT(reporter, SkToBool(view.asTextureProxy()) == isGPUBacked);
     }
+#endif
 
     //--------------
     // Test AsBitmap - this only works for raster-backed special images
@@ -108,9 +113,15 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
                                               kN32_SkColorType,
                                               kPremul_SkAlphaType,
                                               sk_ref_sp(img->getColorSpace()));
-    sk_sp<SkSurface> surf = isGPUBacked
-            ? SkSurfaces::RenderTarget(rContext, skgpu::Budgeted::kNo, imageInfo)
-            : SkSurfaces::Raster(imageInfo, {});
+    sk_sp<SkSurface> surf;
+#if defined(SK_GANESH)
+    if (isGPUBacked) {
+        surf = SkSurfaces::RenderTarget(rContext, skgpu::Budgeted::kNo, imageInfo);
+    } else
+#endif
+    {
+        surf = SkSurfaces::Raster(imageInfo, {});
+    }
 
     SkCanvas* canvas = surf->getCanvas();
 
@@ -178,6 +189,7 @@ DEF_TEST(SpecialImage_Image_Legacy, reporter) {
     test_specialimage_image(reporter);
 }
 
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu,
                                        reporter,
                                        ctxInfo,
@@ -215,3 +227,4 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu,
         test_image(subSImg2, reporter, context, true);
     }
 }
+#endif

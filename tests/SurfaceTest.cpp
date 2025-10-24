@@ -105,6 +105,13 @@ static sk_sp<SkSurface> create_direct_surface(SkAlphaType at = kPremul_SkAlphaTy
     void* storage = sk_malloc_throw(info.computeByteSize(rowBytes));
     return SkSurfaces::WrapPixels(info, storage, rowBytes, release_direct_surface_storage, storage);
 }
+
+DEF_TEST(SurfaceEmpty, reporter) {
+    const SkImageInfo info = SkImageInfo::Make(0, 0, kN32_SkColorType, kPremul_SkAlphaType);
+    REPORTER_ASSERT(reporter, nullptr == SkSurfaces::Raster(info));
+    REPORTER_ASSERT(reporter, nullptr == SkSurfaces::WrapPixels(info, nullptr, 0));
+}
+#if defined(SK_GANESH)
 static sk_sp<SkSurface> create_gpu_surface(GrRecordingContext* rContext,
                                            SkAlphaType at = kPremul_SkAlphaType,
                                            SkImageInfo* requestedInfo = nullptr) {
@@ -124,11 +131,6 @@ static sk_sp<SkSurface> create_gpu_scratch_surface(GrRecordingContext* rContext,
     return SkSurfaces::RenderTarget(rContext, skgpu::Budgeted::kYes, info);
 }
 
-DEF_TEST(SurfaceEmpty, reporter) {
-    const SkImageInfo info = SkImageInfo::Make(0, 0, kN32_SkColorType, kPremul_SkAlphaType);
-    REPORTER_ASSERT(reporter, nullptr == SkSurfaces::Raster(info));
-    REPORTER_ASSERT(reporter, nullptr == SkSurfaces::WrapPixels(info, nullptr, 0));
-}
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceEmpty_Gpu,
                                        reporter,
                                        ctxInfo,
@@ -274,6 +276,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrContext_maxSurfaceSamplesForColorType,
                         maxSampleCnt, sampleCnt);
     }
 }
+#endif
 
 static void test_canvas_peek(skiatest::Reporter* reporter,
                              sk_sp<SkSurface>& surface,
@@ -309,6 +312,7 @@ DEF_TEST(SurfaceCanvasPeek, reporter) {
         test_canvas_peek(reporter, surface, requestInfo, true);
     }
 }
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceCanvasPeek_Gpu,
                                        reporter,
                                        ctxInfo,
@@ -319,6 +323,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceCanvasPeek_Gpu,
         test_canvas_peek(reporter, surface, requestInfo, false);
     }
 }
+#endif
 
 static void test_snapshot_alphatype(skiatest::Reporter* reporter, const sk_sp<SkSurface>& surface,
                                     SkAlphaType expectedAlphaType) {
@@ -339,6 +344,7 @@ DEF_TEST(SurfaceSnapshotAlphaType, reporter) {
         }
     }
 }
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceSnapshotAlphaType_Gpu,
                                        reporter,
                                        ctxInfo,
@@ -491,6 +497,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceBackendAccessAbandoned_Gpu,
                                           SkSurfaces::BackendHandleAccess::kFlushRead);
     REPORTER_ASSERT(reporter, !beTex.isValid());
 }
+#endif
 
 // Verify that the right canvas commands trigger a copy on write.
 static void test_copy_on_write(skiatest::Reporter* reporter, SkSurface* surface) {
@@ -547,6 +554,7 @@ static void test_copy_on_write(skiatest::Reporter* reporter, SkSurface* surface)
 DEF_TEST(SurfaceCopyOnWrite, reporter) {
     test_copy_on_write(reporter, create_surface().get());
 }
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceCopyOnWrite_Gpu,
                                        reporter,
                                        ctxInfo,
@@ -556,6 +564,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceCopyOnWrite_Gpu,
         test_copy_on_write(reporter, surface.get());
     }
 }
+#endif
 
 static void test_writable_after_snapshot_release(skiatest::Reporter* reporter,
                                                  SkSurface* surface) {
@@ -570,6 +579,7 @@ static void test_writable_after_snapshot_release(skiatest::Reporter* reporter,
 DEF_TEST(SurfaceWriteableAfterSnapshotRelease, reporter) {
     test_writable_after_snapshot_release(reporter, create_surface().get());
 }
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceWriteableAfterSnapshotRelease_Gpu,
                                        reporter,
                                        ctxInfo,
@@ -629,6 +639,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceCRBug263329_Gpu,
         test_crbug263329(reporter, surface1.get(), surface2.get());
     }
 }
+#endif
+
 
 DEF_TEST(SurfaceGetTexture, reporter) {
     auto surface(create_surface());
@@ -637,6 +649,7 @@ DEF_TEST(SurfaceGetTexture, reporter) {
     surface->notifyContentWillChange(SkSurface::kDiscard_ContentChangeMode);
     REPORTER_ASSERT(reporter, !as_IB(image)->isTextureBacked());
 }
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfacepeekTexture_Gpu,
                                        reporter,
                                        ctxInfo,
@@ -696,6 +709,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceBudget,
         REPORTER_ASSERT(reporter, budgeted == is_budgeted(image.get(), dContext));
     }
 }
+#endif
 
 static void test_no_canvas1(skiatest::Reporter* reporter,
                             SkSurface* surface,
@@ -724,6 +738,7 @@ DEF_TEST(SurfaceNoCanvas, reporter) {
         }
     }
 }
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceNoCanvas_Gpu,
                                        reporter,
                                        ctxInfo,
@@ -739,6 +754,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceNoCanvas_Gpu,
         }
     }
 }
+#endif
 
 static void check_rowbytes_remain_consistent(SkSurface* surface, skiatest::Reporter* reporter) {
     SkPixmap surfacePM;
@@ -789,6 +805,7 @@ DEF_TEST(surface_raster_zeroinitialized, reporter) {
     }
 }
 
+#if defined(SK_GANESH)
 static sk_sp<SkSurface> create_gpu_surface_backend_texture(GrDirectContext* dContext,
                                                            int sampleCnt,
                                                            const SkColor4f& color) {
@@ -1268,6 +1285,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReplaceSurfaceBackendTexture,
         }
     }
 }
+#endif
 
 static void test_overdraw_surface(skiatest::Reporter* r, SkSurface* surface) {
     SkOverdrawCanvas canvas(surface->getCanvas());
@@ -1288,6 +1306,7 @@ DEF_TEST(OverdrawSurface_Raster, r) {
     test_overdraw_surface(r, surface.get());
 }
 
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(OverdrawSurface_Gpu,
                                        r,
                                        ctxInfo,
@@ -1296,6 +1315,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(OverdrawSurface_Gpu,
     sk_sp<SkSurface> surface = create_gpu_surface(context);
     test_overdraw_surface(r, surface.get());
 }
+#endif
 
 DEF_TEST(Surface_null, r) {
     REPORTER_ASSERT(r, SkSurfaces::Null(0, 0) == nullptr);

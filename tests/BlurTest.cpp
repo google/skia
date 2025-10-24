@@ -27,8 +27,6 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTPin.h"
 #include "src/base/SkFloatBits.h"
 #include "src/base/SkMathPriv.h"
@@ -37,10 +35,20 @@
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/effects/SkEmbossMaskFilter.h"
-#include "src/gpu/ganesh/GrBlurUtils.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "src/gpu/ganesh/GrBlurUtils.h"
+#endif
+
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Surface.h"
+#endif
 
 #include <math.h>
 #include <string.h>
@@ -48,11 +56,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
-
-#if defined(SK_GRAPHITE)
-#include "include/gpu/graphite/Context.h"
-#include "include/gpu/graphite/Surface.h"
-#endif
 
 struct GrContextOptions;
 
@@ -422,6 +425,7 @@ DEF_TEST(BlurAsABlur, reporter) {
     }
 }
 
+#if defined(SK_GANESH)
 // This exercises the problem discovered in crbug.com/570232. The return value from
 // SkBlurMask::BoxBlur wasn't being checked in SkBlurMaskFilter.cpp::GrRRectBlurEffect::Create
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SmallBoxBlurBug, reporter, ctxInfo, CtsEnforcement::kNever) {
@@ -437,7 +441,9 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SmallBoxBlurBug, reporter, ctxInfo, CtsEn
 
     canvas->drawRRect(rr, p);
 }
+#endif
 
+#if defined(SK_GANESH)
 DEF_TEST(BlurredRRectNinePatchComputation, reporter) {
     const SkRect r = SkRect::MakeXYWH(10, 10, 100, 100);
     static const SkScalar kBlurRad = 3.0f;
@@ -498,6 +504,7 @@ DEF_TEST(BlurredRRectNinePatchComputation, reporter) {
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkIntToScalar(size.fHeight), kYAns));
     }
 }
+#endif
 
 // https://crbugs.com/787712
 DEF_TEST(EmbossPerlinCrash, reporter) {
@@ -546,7 +553,7 @@ DEF_TEST(BlurZeroSigma, reporter) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(BlurMaskBiggerThanDest,
                                        reporter,
                                        ctxInfo,
@@ -628,6 +635,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(BlurDegenerateAffineFuzzer,
     canvas->drawRect(SkRect::MakeWH(100.f, 100.f), paint);
     context->flushAndSubmit();  // The test passes if no assertions are hit
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 

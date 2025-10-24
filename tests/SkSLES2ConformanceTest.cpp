@@ -26,13 +26,16 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#endif
 
 #include <functional>
 
@@ -116,6 +119,7 @@ DEF_TEST(SkSL_ES2Conformance_Pass_CPU, r) {
     });
 }
 
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkSL_ES2Conformance_Pass_GPU,
                                        r,
                                        ctxInfo,
@@ -127,6 +131,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkSL_ES2Conformance_Pass_GPU,
         test_expect_pass(r, surface.get(), path);
     });
 }
+#endif
 
 DEF_TEST(SkSL_ES2Conformance_Fail, r) {
     iterate_dir("sksl/es2_conformance/fail/", [&](const char* path) {
