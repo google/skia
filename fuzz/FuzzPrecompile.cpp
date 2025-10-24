@@ -359,14 +359,13 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
     fuzz->next(&temp);
     Coverage coverage = coverageOptions[temp % 3];
 
-    PaintParams paintParams = PaintParams(recorder->priv().caps(),
-                                          paint,
-                                          /* primitiveBlender= */ nullptr,
-                                          /* nonMSAAClip= */ {},
-                                          /* clipShader= */ nullptr,
-                                          coverage,
-                                          TextureFormat::kRGBA8,
-                                          /* skipColorXform= */ false);
+    PaintParams paintParams(paint);
+    ShadingParams shadingParams(recorder->priv().caps(),
+                                paintParams,
+                                /* nonMSAAClip= */ {},
+                                /* clipShader= */ nullptr,
+                                coverage,
+                                TextureFormat::kRGBA8);
     SkDEBUGCODE(builder.checkReset());
     SkDEBUGCODE(gatherer.checkReset());
     KeyContext keyContext(recorder.get(),
@@ -378,7 +377,7 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
                           ci,
                           KeyGenFlags::kDisableSamplingOptimization,
                           paintParams.color());
-    paintParams.toKey(keyContext);
+    shadingParams.toKey(keyContext);
     UniquePaintParamsID paintID = recorder->priv().shaderCodeDictionary()->findOrCreate(&builder);
 
     RenderPassDesc unusedRenderPassDesc;

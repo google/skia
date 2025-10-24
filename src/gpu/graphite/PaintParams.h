@@ -29,56 +29,84 @@ class Recorder;
 class TextureProxy;
 class UniquePaintParamsID;
 
-// TBD: If occlusion culling is eliminated as a phase, we can easily move the paint conversion
-// back to Device when the command is recorded (similar to SkPaint -> GrPaint), and then
-// PaintParams is not required as an intermediate representation.
 // NOTE: Only represents the shading state of an SkPaint. Style and complex effects (mask filters,
 // image filters, path effects) must be handled higher up. AA is not tracked since everything is
 // assumed to be anti-aliased.
+//
+// The full shading of a draw is a combination of the PaintParams extracted from an SkPaint, any
+// analytic NonMSAA clipping, analytic coverage from a RenderStep, and the target TextureFormat
+// being rendered into. These additional parameters are aggregated together in ShadingParams.
+//
+// Both PaintParams and ShadingParams are meant to be short-lived objects used for processing a
+// draw's effects into a UniquePaintID and extracted uniforms and textures. As such, they do not
+// keep high-level Skia objects alive since these Params types should go out of scope by the end of
+// the draw call.
 class PaintParams {
 public:
-    explicit PaintParams(const Caps* caps,
-                         const SkPaint&,
-                         sk_sp<SkBlender> primitiveBlender,
-                         const NonMSAAClip& nonMSAAClip,
-                         sk_sp<SkShader> clipShader,
-                         Coverage coverage,
-                         TextureFormat targetFormat,
-                         bool skipColorXform);
+    // Converts an SkPaint to PaintParams, possibly adding a primitive blender (e.g. for
+    // drawVertices or text rendering).
+    explicit PaintParams(const SkPaint&,
+                         const SkBlender* primitiveBlender = nullptr,
+                         bool skipColorXform = false,
+                         bool ignoreShader = false);
 
-    PaintParams(const PaintParams&);
-    ~PaintParams();
 
-    PaintParams& operator=(const PaintParams&);
+    // Creates a constant color PaintParams with the specific blend mode.
+    PaintParams(const SkColor4f& color, SkBlendMode finalBlendMode);
 
-    SkColor4f color() const { return fColor; }
+    const SkColor4f& color() const { return fColor; }
+    const SkShader* shader() const { return fShader; }
+    const SkColorFilter* colorFilter() const { return fColorFilter; }
+    const SkBlender* primitiveBlender() const { return fPrimitiveBlender; }
+    bool skipPrimitiveColorXform() const { return fSkipColorXform; }
 
-    SkBlender* finalBlender() const { return fFinalBlender.get(); }
-    sk_sp<SkBlender> refFinalBlender() const;
-    // NOTE: Caller must have checked finalBlender() for null first.
-    SkBlendMode finalBlendMode() const { SkASSERT(!fFinalBlender); return fFinalBlendMode; }
+    const SkBlender* finalBlender() const { return fFinalBlend.first; }
+    // Must also check finalBlender() to see if that overrides finalBlendMode() behavior.
+    SkBlendMode finalBlendMode() const { SkASSERT(!fFinalBlend.first); return fFinalBlend.second; }
 
-    SkShader* shader() const { return fShader.get(); }
-    sk_sp<SkShader> refShader() const;
-
-    SkColorFilter* colorFilter() const { return fColorFilter.get(); }
-    sk_sp<SkColorFilter> refColorFilter() const;
-
-    SkBlender* primitiveBlender() const { return fPrimitiveBlender.get(); }
-    sk_sp<SkBlender> refPrimitiveBlender() const;
-
-    Coverage rendererCoverage()  const { return fRendererCoverage; }
-    bool skipColorXform()        const { return fSkipColorXform;   }
-    bool dither()                const { return fDither;           }
+    bool dither() const { return fDither; }
 
     /** Converts an SkColor4f to the destination color space. */
     static SkColor4f Color4fPrepForDst(SkColor4f srgb, const SkColorInfo& dstColorInfo);
 
+private:
+    SkColor4f fColor;
+
+    // Either a non-null SkBlender for runtime blending, or the SkBlendMode to use instead. If
+    // the blender is non-null, the blend mode is set to kSrc to match the HW blend config used for
+    // shader-based blending.
+    std::pair<const SkBlender*, SkBlendMode> fFinalBlend;
+
+    const SkShader*      fShader;
+    const SkColorFilter* fColorFilter;
+
+    // A nullptr fPrimitiveBlender means there's no primitive color blending and it is skipped.
+    // In the case where there is primitive blending, the primitive color is the source color and
+    // the dest is the paint's color (or the paint's shader's computed color).
+    const SkBlender* fPrimitiveBlender;
+    bool             fSkipColorXform;
+    bool             fDither;
+};
+
+// ShadingParams wraps a PaintParams with the additional per-pixel state to handle clipping and
+// anti-aliasing, as well as making the final determinations for how blending will be implemented
+// given the current hardware.
+class ShadingParams {
+public:
+    // NOTE: Does not copy `paint`, `nonMSAAClip` or `clipShader`; these must outlive ShadingParams.
+    ShadingParams(const Caps* caps,
+                  const PaintParams& paint,
+                  const NonMSAAClip& nonMSAAClip,
+                  const SkShader* clipShader,
+                  Coverage coverage,
+                  TextureFormat targetFormat);
+
+    Coverage rendererCoverage()  const { return fRendererCoverage; }
+    bool dstReadRequired() const { return SkToBool(fDstUsage & DstUsage::kDstReadRequired); }
+
     using Result = std::tuple<UniquePaintParamsID, SkEnumBitMask<DstUsage>>;
     std::optional<Result> toKey(const KeyContext&) const;
 
-    bool dstReadRequired() const { return (fDstUsage & DstUsage::kDstReadRequired) ==
-                                          DstUsage::kDstReadRequired; }
 private:
     bool addPaintColorToKey(const KeyContext&) const;
     bool handlePrimitiveColor(const KeyContext&) const;
@@ -88,21 +116,12 @@ private:
     bool handleDstRead(const KeyContext&) const;
     void handleClipping(const KeyContext&) const;
 
-    SkColor4f               fColor;
-    sk_sp<SkBlender>        fFinalBlender;   // A nullptr here means using fFinalBlendMode
-    SkBlendMode             fFinalBlendMode; // Ignored if fFinalBlender is non-null
-    sk_sp<SkShader>         fShader;
-    sk_sp<SkColorFilter>    fColorFilter;
-    // A nullptr fPrimitiveBlender means there's no primitive color blending and it is skipped.
-    // In the case where there is primitive blending, the primitive color is the source color and
-    // the dest is the paint's color (or the paint's shader's computed color).
-    sk_sp<SkBlender>        fPrimitiveBlender;
-    NonMSAAClip             fNonMSAAClip;
-    sk_sp<SkShader>         fClipShader;
+    const PaintParams&      fPaint;
+    const NonMSAAClip&      fNonMSAAClip;
+    const SkShader*         fClipShader;
+
     Coverage                fRendererCoverage;
     TextureFormat           fTargetFormat;
-    bool                    fSkipColorXform;
-    bool                    fDither;
     SkEnumBitMask<DstUsage> fDstUsage;
 };
 

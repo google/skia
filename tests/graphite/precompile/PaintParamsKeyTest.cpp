@@ -2011,14 +2011,13 @@ void extract_vs_build_subtest(skiatest::Reporter* reporter,
             clipData.fAnalyticClip.fRadius = 5;
         }
 
-        PaintParams paintParams = PaintParams(recorder->priv().caps(),
-                                              paint,
-                                              primitiveBlender,
-                                              clipData,
-                                              std::move(modifiedClipShader),
-                                              coverage,
-                                              TextureFormat::kRGBA8,
-                                              /* skipColorXform= */ false);
+        PaintParams paintParams{paint, primitiveBlender.get()};
+        ShadingParams shadingParams{recorder->priv().caps(),
+                                    paintParams,
+                                    clipData,
+                                    modifiedClipShader.get(),
+                                    coverage,
+                                    TextureFormat::kRGBA8};
         paramsGatherer.resetForDraw();
         KeyContext keyContext(recorder,
                               drawContext,
@@ -2029,7 +2028,7 @@ void extract_vs_build_subtest(skiatest::Reporter* reporter,
                               precompileKeyContext.dstColorInfo(),
                               KeyGenFlags::kDisableSamplingOptimization,
                               paintParams.color());
-        auto keyResult = paintParams.toKey(keyContext);
+        auto keyResult = shadingParams.toKey(keyContext);
         UniquePaintParamsID paintID = keyResult.has_value() ? std::get<0>(*keyResult)
                                                             : UniquePaintParamsID::Invalid();
 

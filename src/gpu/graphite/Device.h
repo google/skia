@@ -76,6 +76,7 @@ class Clip;
 class DrawContext;
 class Geometry;
 class Image;
+class PaintParams;
 class PathAtlas;
 class Renderer;
 class Shape;
@@ -272,31 +273,16 @@ private:
     sk_sp<skif::Backend> createImageFilteringBackend(const SkSurfaceProps& surfaceProps,
                                                      SkColorType colorType) const override;
 
-    // DrawFlags alters the effects used by drawGeometry.
+    // Handles applying path effects, stroke-and-fill styles, and hairlines based on provided
+    // SkStrokeRec and SkPathEffect. Shading is determined by the PaintParams and augmented by
+    // any clipping required based on the current clip stack state.
     //
-    // There is no kIgnoreMaskFilter flag because the Device always ignores the mask filter -- the
-    // mask filter should be handled by the SkCanvas, either with an auto mask filter layer or
-    // being converted to an analytic blur draw.
-    enum class DrawFlags : unsigned {
-        kNone             = 0b000,
-
-        // Any SkPathEffect on the SkPaint passed into drawGeometry() is ignored.
-        // - drawPaint, drawImageLattice, drawImageRect, drawEdgeAAImageSet, drawVertices, drawAtlas
-        // - drawGeometry after it's applied the path effect.
-        kIgnorePathEffect = 0b001,
-    };
-    SK_DECL_BITMASK_OPS_FRIENDS(DrawFlags)
-
-    // Handles applying path effects, mask filters, stroke-and-fill styles, and hairlines.
-    // Ignores geometric style on the paint in favor of explicitly provided SkStrokeRec and flags.
     // All overridden SkDevice::draw() functions should bottom-out with calls to drawGeometry().
     void drawGeometry(const Transform&,
                       Geometry&&,
-                      const SkPaint&,
-                      const SkStrokeRec&,
-                      SkEnumBitMask<DrawFlags> = DrawFlags::kNone,
-                      sk_sp<SkBlender> primitiveBlender = nullptr,
-                      bool skipColorXform = false);
+                      const PaintParams&,
+                      SkStrokeRec,
+                      const SkPathEffect* pathEffect);
 
     // Like drawGeometry() but is Shape-only, depth-only, fill-only, and lets the ClipStack define
     // the transform, clip, and DrawOrder (although Device still tracks stencil buffer usage).
@@ -390,10 +376,8 @@ private:
     uint32_t fScopedRecordingID = 0;
 #endif
 
-    friend class ClipStack; // for recordDraw
+    friend class ClipStack; // for drawClipShape
 };
-
-SK_MAKE_BITMASK_OPS(Device::DrawFlags)
 
 } // namespace skgpu::graphite
 
