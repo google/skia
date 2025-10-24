@@ -154,12 +154,11 @@ public:
     /**
      * Resets to a copy of a C array and resets any reserve count.
      */
-    void reset(const T* array, int count) {
-        SkASSERT(count >= 0);
+    void reset(SkSpan<const T> src) {
         this->clear();
-        this->checkRealloc(count, kExactFit);
-        this->changeSize(count);
-        this->copy(array);
+        this->checkRealloc(src.size(), kExactFit);
+        this->changeSize(src.size());
+        this->copy(src.data());
     }
 
     /**

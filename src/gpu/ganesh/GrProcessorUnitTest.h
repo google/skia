@@ -55,9 +55,9 @@ public:
     using ViewInfo = std::tuple<GrSurfaceProxyView, GrColorType, SkAlphaType>;
 
     GrProcessorTestData(SkRandom* random, skgpu::ganesh::SurfaceDrawContext* sdc,
-                        int maxTreeDepth, int numViews, const ViewInfo views[]);
+                        int maxTreeDepth, SkSpan<const ViewInfo> views);
     GrProcessorTestData(SkRandom* random, skgpu::ganesh::SurfaceDrawContext* sdc,
-                        int maxTreeDepth, int numViews, const ViewInfo views[],
+                        int maxTreeDepth, SkSpan<const ViewInfo> views,
                         std::unique_ptr<GrFragmentProcessor> inputFP);
     GrProcessorTestData(const GrProcessorTestData&) = delete;
     ~GrProcessorTestData();

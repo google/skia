@@ -69,7 +69,7 @@ static void TestTSet_basic(skiatest::Reporter* reporter) {
 
     // { 1 }, replace with new array
     T b[5] = {T{0}, T{1}, T{2}, T{3}, T{4}};
-    a.reset(b, std::size(b));
+    a.reset(b);
     REPORTER_ASSERT(reporter, a.size() == std::size(b));
     REPORTER_ASSERT(reporter, a[2] == T{2});
     REPORTER_ASSERT(reporter, a[4] == T{4});
@@ -145,7 +145,7 @@ static void test_construction(skiatest::Reporter* reporter, bool hasMoveSemantic
 
     // Pointer and count: Copies contents of a standard C array.
     typename T::value_type data[3] = { 7, 8, 9 };
-    T arrayPtrCount(data, 3);
+    T arrayPtrCount(data);
     REPORTER_ASSERT(reporter, arrayPtrCount.size() == 3);
     REPORTER_ASSERT(reporter, arrayPtrCount[0] == ValueType{7});
     REPORTER_ASSERT(reporter, arrayPtrCount[1] == ValueType{8});
