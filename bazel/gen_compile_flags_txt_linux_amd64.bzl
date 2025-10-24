@@ -35,7 +35,7 @@ def _gen_compile_flags_txt_linux_amd64_rule_impl(ctx):
         #
         # It would be nice to have these in a constant exported by
         # //toolchain:linux_amd64_toolchain_config.bzl.
-        "-std=c++17",
+        "-std=c++20",
         "-stdlib=libc++",
     ] + ctx.attr.flags
 

@@ -208,7 +208,7 @@ EMCC_DEBUG=1 ${EMCXX} \
     -DGPU_TEST_UTILS \
     $SKIA_DEFINES \
     $WASM_GPU \
-    -std=c++17 \
+    -std=c++20 \
     --profiling-funcs \
     --profiling \
     --bind \

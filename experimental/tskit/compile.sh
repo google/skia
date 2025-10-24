@@ -58,7 +58,7 @@ export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/build/externs.js "
 EMCC_DEBUG=1 ${EMCXX} \
     $RELEASE_CONF \
     -I. \
-    -std=c++17 \
+    -std=c++20 \
     --bind \
     --no-entry \
     --pre-js $BASE_DIR/build/load.js \

@@ -295,7 +295,7 @@ def _ndk_cc_toolchain_config_impl(ctx):
             ),
             flag_set(
                 actions = [ACTION_NAMES.cpp_compile],
-                flag_groups = [flag_group(flags = ["-std=c++17"])],
+                flag_groups = [flag_group(flags = ["-std=c++20"])],
             ),
         ],
     )

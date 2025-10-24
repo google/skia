@@ -58,9 +58,9 @@ will see dramatically worse performance. This choice was only a matter of
 prioritization; there is nothing fundamentally wrong with non-Clang compilers.
 So if this is a serious issue for you, please let us know on the mailing list.
 
-Skia makes use of C++17 language features (compiles with `-std=c++17` flag) and
-thus requires a C++17 compatible compiler. Clang 5 and later implement all of
-the features of the c++17 standard. Older compilers that lack C++17 support may
+Skia makes use of C++20 language features (compiles with `-std=c++20` flag) and
+thus requires a C++20 compatible compiler. Clang 21 implements most
+the features of the c++20 standard. Older compilers that lack C++20 support may
 produce non-obvious compilation errors. You can configure your build to use
 specific executables for `cc` and `cxx` invocations using e.g.
 `--args='cc="clang" cxx="clang++"'` GN build arguments, as illustrated in

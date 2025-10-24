@@ -270,7 +270,7 @@ def _make_default_flags():
         flag_groups = [
             flag_group(
                 flags = [
-                    "-std=c++17",
+                    "-std=c++20",
                 ],
             ),
         ],
@@ -289,7 +289,7 @@ def _make_default_flags():
                     # We chose to use the llvm runtime, not the gcc one because it is already
                     # included in the clang binary
                     "--rtlib=compiler-rt",
-                    "-std=c++17",
+                    "-std=c++20",
                     "-L" + FULL_MSVC_LIB + "/x64",
                     "-L" + FULL_WIN_SDK_LIB + "/ucrt/x64",
                     "-L" + FULL_WIN_SDK_LIB + "/um/x64",

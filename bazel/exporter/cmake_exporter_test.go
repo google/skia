@@ -195,8 +195,8 @@ cmake_minimum_required(VERSION 3.13)
 
 project(projName LANGUAGES C CXX)
 
-set(DEFAULT_COMPILE_FLAGS_MACOS "-std=c++17 -Wno-psabi --target=arm64-apple-macos11")
-set(DEFAULT_COMPILE_FLAGS_LINUX "-std=c++17 -Wno-psabi -Wno-attributes")
+set(DEFAULT_COMPILE_FLAGS_MACOS "-std=c++20 -Wno-psabi --target=arm64-apple-macos11")
+set(DEFAULT_COMPILE_FLAGS_LINUX "-std=c++20 -Wno-psabi -Wno-attributes")
 
 if (APPLE)
   set(DEFAULT_COMPILE_FLAGS "${DEFAULT_COMPILE_FLAGS_MACOS}")

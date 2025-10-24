@@ -17,9 +17,6 @@ is_posix = !is_win
 # Skia standalone isn't built as part of chromium.
 build_with_chromium = false
 
-# Skia still need to supports C++17 for quite some time.
-assert_cpp20_default = false
-
 # Contrary to Skia, Chrome/PartitionAlloc do not enforce strict aliasing rules.
 # Contrary to Clang, GCC is aggressively relying on the strict aliasing rule for
 # optimization and this breaks PartitionAlloc.

@@ -47,7 +47,6 @@ def compile_fn(api, checkout_root, out_dir):
   if 'Dawn' in extra_tokens:
     util.set_dawn_args_and_env(args, env, api, extra_tokens, skia_dir)
     args['ndk_api'] = 26 #skia_use_gl=false, so use vulkan
-    args['skia_use_cpp20'] = 'true'
   if 'Vulkan' in extra_tokens and not 'Dawn' in extra_tokens:
     args['ndk_api'] = 26
     args['skia_enable_vulkan_debug_layers'] = 'false'

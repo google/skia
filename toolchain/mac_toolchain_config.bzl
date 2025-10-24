@@ -313,7 +313,7 @@ def _make_default_flags(ctx):
         flag_groups = [
             flag_group(
                 flags = [
-                    "-std=c++17",
+                    "-std=c++20",
                 ],
             ),
         ],
@@ -360,7 +360,7 @@ def _make_default_flags(ctx):
                     # Frameworks symlink that was created in download_mac_toolchain.bzl.
                     "-F/System/Library/Frameworks",
                     "-fuse-ld=lld",
-                    "-std=c++17",
+                    "-std=c++20",
                     "-stdlib=libc++",
                     EXTERNAL_TOOLCHAIN + "/lib/libc++.a",
                     EXTERNAL_TOOLCHAIN + "/lib/libc++abi.a",

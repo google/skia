@@ -319,7 +319,7 @@ def _make_default_flags():
         flag_groups = [
             flag_group(
                 flags = [
-                    "-std=c++17",
+                    "-std=c++20",
                     "-fno-aligned-allocation",
                 ],
             ),
@@ -367,7 +367,7 @@ def _make_default_flags():
                     # Frameworks symlink that was created in download_ios_toolchain.bzl.
                     "-F/System/Library/Frameworks",
                     "-fuse-ld=lld",
-                    "-std=c++17",
+                    "-std=c++20",
                     EXTERNAL_TOOLCHAIN + "/lib/libc++.a",
                     EXTERNAL_TOOLCHAIN + "/lib/libc++abi.a",
                     EXTERNAL_TOOLCHAIN + "/lib/libunwind.a",

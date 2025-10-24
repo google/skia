@@ -23,7 +23,6 @@ load(
     "flag_set",
     "tool",
     "variable_with_value",
-    "with_feature_set",
 )
 load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load(":clang_layering_check.bzl", "make_layering_check_features")
@@ -277,48 +276,18 @@ def _make_default_flags():
         ],
     )
 
-    # Declare a feature that can be true or false
-    cpp20 = feature(
-        name = "skia_uses_cpp20",
-        enabled = False,
-    )
-
-    # A big fancy if/else branch depending on if the above feature is True or False
-    cpp20_flags = feature(
-        name = "cpp20_flags",
-        enabled = True,
-        flag_sets = [
-            flag_set(
-                actions = [
-                    ACTION_NAMES.cpp_compile,
-                    ACTION_NAMES.cpp_link_executable,
-                    ACTION_NAMES.cpp_link_dynamic_library,
-                    ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+    cpp20_flags = flag_set(
+        actions = [
+            ACTION_NAMES.cpp_compile,
+            ACTION_NAMES.cpp_link_executable,
+            ACTION_NAMES.cpp_link_dynamic_library,
+            ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+        ],
+        flag_groups = [
+            flag_group(
+                flags = [
+                    "-std=c++20",
                 ],
-                flag_groups = [
-                    flag_group(
-                        flags = [
-                            "-std=c++20",
-                        ],
-                    ),
-                ],
-                with_features = [with_feature_set(features = ["skia_uses_cpp20"])],
-            ),
-            flag_set(
-                actions = [
-                    ACTION_NAMES.cpp_compile,
-                    ACTION_NAMES.cpp_link_executable,
-                    ACTION_NAMES.cpp_link_dynamic_library,
-                    ACTION_NAMES.cpp_link_nodeps_dynamic_library,
-                ],
-                flag_groups = [
-                    flag_group(
-                        flags = [
-                            "-std=c++17",
-                        ],
-                    ),
-                ],
-                with_features = [with_feature_set(not_features = ["skia_uses_cpp20"])],
             ),
         ],
     )
@@ -331,10 +300,9 @@ def _make_default_flags():
                 cxx_compile_includes,
                 cpp_compile_flags,
                 link_exe_flags,
+                cpp20_flags,
             ],
         ),
-        cpp20,
-        cpp20_flags,
     ]
 
 def _make_diagnostic_flags():

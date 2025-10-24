@@ -155,7 +155,6 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
       'skia_enable_fontmgr_empty':     'true',
       'skia_enable_graphite':          'true',
       'skia_enable_pdf':               'true',
-      'skia_use_cpp20':                'true',
       'skia_use_dawn':                 'true',
       'skia_use_expat':                'true',
       'skia_use_freetype':             'true',
@@ -205,10 +204,8 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
     args['is_debug'] = 'false'
   if 'Dawn' in extra_tokens:
     util.set_dawn_args_and_env(args, env, api, extra_tokens, skia_dir)
-    args['skia_use_cpp20'] = 'true'
   if 'ANGLE' in extra_tokens:
     args['skia_use_angle'] = 'true'
-    args['skia_use_cpp20'] = 'true'
   if 'SwiftShader' in extra_tokens:
     swiftshader_root = skia_dir.joinpath('third_party', 'externals', 'swiftshader')
     # Swiftshader will need to have ninja be on the path
