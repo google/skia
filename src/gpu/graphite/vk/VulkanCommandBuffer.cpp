@@ -281,7 +281,7 @@ const Sampler* VulkanCommandBuffer::getSampler(
     if (desc.isImmutable()) {
         const VulkanSampler* immutableSampler = fActiveGraphicsPipeline->immutableSampler(index);
         if (immutableSampler) {
-            this->trackResource(sk_ref_sp<Sampler>(immutableSampler));
+            this->trackCommandBufferResource(sk_ref_sp<Sampler>(immutableSampler));
         }
         return immutableSampler;
     } else {
@@ -584,7 +584,7 @@ bool VulkanCommandBuffer::updateAndBindInputAttachment(const VulkanTexture& text
                                       /*dynamicOffsetCount=*/0,
                                       /*dynamicOffsets=*/nullptr));
 
-    this->trackResource(std::move(set));
+    this->trackCommandBufferResource(std::move(set));
     return true;
 }
 
@@ -883,7 +883,7 @@ bool VulkanCommandBuffer::beginRenderPass(const RenderPassDesc& rpDesc,
         return false;
     }
     this->submitPipelineBarriers();
-    this->trackResource(vulkanRenderPass);
+    this->trackCommandBufferResource(vulkanRenderPass);
 
     int frameBufferWidth = 0;
     int frameBufferHeight = 0;
@@ -951,7 +951,7 @@ bool VulkanCommandBuffer::beginRenderPass(const RenderPassDesc& rpDesc,
     }
 
     // Once we have an active render pass, the command buffer should hold on to a frame buffer ref.
-    this->trackResource(std::move(framebuffer));
+    this->trackCommandBufferResource(std::move(framebuffer));
     return true;
 }
 
@@ -1244,7 +1244,7 @@ void VulkanCommandBuffer::bindUniformBuffers() {
                                       descSet->descriptorSet(),
                                       descriptors.size(),
                                       dynamicOffsets.get()));
-    this->trackResource(std::move(descSet));
+    this->trackCommandBufferResource(std::move(descSet));
 }
 
 void VulkanCommandBuffer::bindInputBuffer(const Buffer* inputBuffer, VkDeviceSize offset,
@@ -1412,7 +1412,7 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
     fTextureSamplerDescSetToBind = *set->descriptorSet();
     fBindTextureSamplers = true;
     fNumTextureSamplers = numTexSamplers;
-    this->trackResource(std::move(set));
+    this->trackCommandBufferResource(std::move(set));
 }
 
 void VulkanCommandBuffer::bindTextureSamplers() {
