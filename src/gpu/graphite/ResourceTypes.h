@@ -168,7 +168,7 @@ struct BindBufferInfo {
     uint32_t fOffset = 0;
     uint32_t fSize = 0;
 
-    operator bool() const { return SkToBool(fBuffer); }
+    explicit operator bool() const { return SkToBool(fBuffer); }
 
     bool operator==(const BindBufferInfo& o) const {
         return fBuffer == o.fBuffer && (!fBuffer || (fOffset == o.fOffset && fSize == o.fSize));
