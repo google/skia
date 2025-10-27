@@ -66,7 +66,7 @@ private:
 
 // Used to pass in the necessary information to create a VkSamplerYcbcrConversion object for an
 // VkExternalFormatANDROID.
-struct VulkanYcbcrConversionInfo {
+struct SK_API VulkanYcbcrConversionInfo {
 public:
     // Makes an invalid VulkanYcbcrConversionInfo
     VulkanYcbcrConversionInfo() = default;
