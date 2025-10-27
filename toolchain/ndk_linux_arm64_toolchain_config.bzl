@@ -295,7 +295,8 @@ def _ndk_cc_toolchain_config_impl(ctx):
             ),
             flag_set(
                 actions = [ACTION_NAMES.cpp_compile],
-                flag_groups = [flag_group(flags = ["-std=c++20"])],
+                # TODO(kjlubick) update this when updating the NDK
+                flag_groups = [flag_group(flags = ["-std=c++2a"])],
             ),
         ],
     )
