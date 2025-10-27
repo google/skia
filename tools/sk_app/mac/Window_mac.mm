@@ -153,7 +153,7 @@ bool Window_mac::attach(BackendType attachType) {
             break;
 #endif
 #if defined(SK_GRAPHITE) && defined(SK_DAWN)
-        case kGraphiteDawn_BackendType:
+        case kGraphiteDawnMetal_BackendType:
             fWindowContext = MakeGraphiteDawnMetalForMac(info, fRequestedDisplayParams->clone());
             break;
 #endif

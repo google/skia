@@ -183,35 +183,33 @@ skia_component("window") {
   }
 
   if (skia_use_dawn) {
+    if (skia_enable_graphite) {
+      sources += [
+        "GraphiteDawnWindowContext.cpp",
+        "GraphiteDawnWindowContext.h",
+      ]
+    }
     if (is_linux) {
+      if (skia_enable_graphite) {
+        sources += [
+          "unix/GraphiteDawnXlibWindowContext_unix.cpp",
+          "unix/GraphiteDawnXlibWindowContext_unix.h",
+        ]
+      }
       if (dawn_enable_vulkan) {
         defines = [ "VK_USE_PLATFORM_XCB_KHR" ]
         libs += [ "X11-xcb" ]
-        if (skia_enable_graphite) {
-          sources += [
-            "GraphiteDawnWindowContext.cpp",
-            "GraphiteDawnWindowContext.h",
-            "unix/GraphiteDawnVulkanWindowContext_unix.cpp",
-            "unix/GraphiteDawnVulkanWindowContext_unix.h",
-          ]
-        }
       }
     } else if (is_win) {
       if (dawn_enable_d3d12 || dawn_enable_d3d11 || dawn_enable_vulkan) {
         if (skia_enable_graphite) {
-          sources += [
-            "GraphiteDawnWindowContext.cpp",
-            "GraphiteDawnWindowContext.h",
-            "win/GraphiteDawnD3D12WindowContext_win.cpp",
-          ]
+          sources += [ "win/GraphiteDawnD3D12WindowContext_win.cpp" ]
         }
       }
     } else if (is_mac) {
       if (dawn_enable_metal) {
         if (skia_enable_graphite) {
           sources += [
-            "GraphiteDawnWindowContext.cpp",
-            "GraphiteDawnWindowContext.h",
             "mac/GraphiteDawnMetalWindowContext_mac.h",
             "mac/GraphiteDawnMetalWindowContext_mac.mm",
           ]

@@ -27,6 +27,15 @@
 
 namespace skwindow::internal {
 
+namespace {
+    SkColorType ToSkColorType(wgpu::TextureFormat format) {
+        if (format == wgpu::TextureFormat::RGBA8Unorm) {
+            return kRGBA_8888_SkColorType;
+        } else {
+            return kBGRA_8888_SkColorType;
+        }
+    }
+}
 GraphiteDawnWindowContext::GraphiteDawnWindowContext(std::unique_ptr<const DisplayParams> params,
                                                      wgpu::TextureFormat surfaceFormat)
         : WindowContext(std::move(params)), fSurfaceFormat(surfaceFormat) {
@@ -106,7 +115,7 @@ sk_sp<SkSurface> GraphiteDawnWindowContext::getBackbufferSurface() {
     SkASSERT(this->graphiteRecorder());
     auto surface = SkSurfaces::WrapBackendTexture(this->graphiteRecorder(),
                                                   backendTex,
-                                                  kBGRA_8888_SkColorType,
+                                                  ToSkColorType(fSurfaceFormat),
                                                   fDisplayParams->colorSpace(),
                                                   &fDisplayParams->surfaceProps());
     SkASSERT(surface);

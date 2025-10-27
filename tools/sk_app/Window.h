@@ -61,7 +61,10 @@ public:
     enum BackendType {
         kNativeGL_BackendType,
         kANGLE_BackendType,
-        kGraphiteDawn_BackendType,
+        kGraphiteDawnD3D12_BackendType,
+        kGraphiteDawnMetal_BackendType,
+        kGraphiteDawnOpenGLES_BackendType,
+        kGraphiteDawnVulkan_BackendType,
         kVulkan_BackendType,
         kGraphiteVulkan_BackendType,
         kMetal_BackendType,

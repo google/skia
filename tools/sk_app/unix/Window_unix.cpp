@@ -33,7 +33,7 @@ extern "C" {
 #endif
 
 #if defined(SK_GRAPHITE) && defined(SK_DAWN)
-#include "tools/window/unix/GraphiteDawnVulkanWindowContext_unix.h"
+#include "tools/window/unix/GraphiteDawnXlibWindowContext_unix.h"
 #endif
 
 using skwindow::DisplayParams;
@@ -416,9 +416,10 @@ bool Window_unix::attach(BackendType attachType) {
 
     switch (attachType) {
 #if defined(SK_GRAPHITE) && defined(SK_DAWN)
-        case kGraphiteDawn_BackendType:
-            fWindowContext = skwindow::MakeGraphiteDawnVulkanForXlib(
-                    winInfo, fRequestedDisplayParams->clone());
+        case kGraphiteDawnOpenGLES_BackendType:
+        case kGraphiteDawnVulkan_BackendType:
+            fWindowContext = skwindow::MakeGraphiteDawnForXlib(
+                    winInfo, fRequestedDisplayParams->clone(), attachType);
             break;
 #endif
 #if defined(SK_GANESH) && defined(SK_VULKAN)
