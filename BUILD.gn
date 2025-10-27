@@ -1264,17 +1264,6 @@ optional("xps") {
     ":pathops",
   ]
   public = skia_xps_public
-
-  # TODO(lukasza, kjlubick, bungeman): Remove the `xps...png_helpers` deps once
-  # the legacy XPS factories (see `SK_DISABLE_LEGACY_XPS_FACTORIES`) are not
-  # supported anymore.
-  if (skia_use_libpng_encode) {
-    deps += [ ":xps_libpng_helpers" ]
-  }
-  if (skia_use_rust_png_encode) {
-    deps += [ ":xps_rust_png_helpers" ]
-  }
-
   sources = skia_xps_sources
 }
 

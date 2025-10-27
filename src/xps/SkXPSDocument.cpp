@@ -17,14 +17,6 @@
 
 #include <XpsObjectModel.h>
 
-#if !defined(SK_DISABLE_LEGACY_XPS_FACTORIES)
-#ifdef SK_CODEC_ENCODES_PNG_WITH_RUST
-#include "include/docs/SkXPSRustPngHelpers.h"
-#else
-#include "include/docs/SkXPSLibpngHelpers.h"
-#endif  // SK_CODEC_ENCODES_PNG_WITH_RUST
-#endif  // !defined(SK_DISABLE_LEGACY_XPS_FACTORIES)
-
 namespace {
 struct SkXPSDocument final : public SkDocument {
     SkTScopedComPtr<IXpsOMObjectFactory> fXpsFactory;
@@ -53,24 +45,11 @@ SkXPSDocument::SkXPSDocument(SkWStream* stream,
     SkScalar pixelsPerMeterScale = SkDoubleToScalar(opts.dpi * 5000.0 / 127.0);
     fPixelsPerMeter.set(pixelsPerMeterScale, pixelsPerMeterScale);
     SkASSERT(fXpsFactory);
-    // TODO(kjlubick) when we remove this shim, just use opts in the
-    // constructor/initializer of `fDevice` above (and also remove
-    // `XPSDevice::setOpts` method at that time).
-#if !defined(SK_DISABLE_LEGACY_XPS_FACTORIES)
-    if (!opts.pngEncoder) {
-#ifdef SK_CODEC_ENCODES_PNG_WITH_RUST
-        opts.pngEncoder = SkXPS::EncodePngUsingRust;
-#else
-        opts.pngEncoder = SkXPS::EncodePngUsingLibpng;
-#endif  // SK_CODEC_ENCODES_PNG_WITH_RUST
-    }
-#else
     if (!opts.pngEncoder) {
         if (!opts.allowNoPngs) {
             SK_ABORT("Must set a PNG encoder to make XPS documents");
         }
     }
-#endif  // !defined(SK_DISABLE_LEGACY_XPS_FACTORIES)
     fDevice.beginPortfolio(stream, fXpsFactory.get());
 }
 

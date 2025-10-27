@@ -50,8 +50,6 @@ public:
     SkXPSDevice(const SkXPSDevice&) = delete;
     SkXPSDevice& operator=(const SkXPSDevice&) = delete;
 
-    void setOpts(SkXPS::Options opts) { fOpts = opts; }
-
     bool beginPortfolio(SkWStream* outputStream, IXpsOMObjectFactory*);
     /**
       @param unitsPerMeter converts geometry units into physical units.
