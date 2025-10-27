@@ -194,6 +194,26 @@ bool SkPath::isRect(SkRect* rect, bool* isClosed, SkPathDirection* direction) co
     return false;
 }
 
+bool SkPath::isOval(SkRect* bounds) const {
+    if (auto info = this->getOvalInfo()) {
+        if (bounds) {
+            *bounds = info->fBounds;
+        }
+        return true;
+    }
+    return false;
+}
+
+bool SkPath::isRRect(SkRRect* rrect) const {
+    if (auto info = this->getRRectInfo()) {
+        if (rrect) {
+            *rrect = info->fRRect;
+        }
+        return true;
+    }
+    return false;
+}
+
 #ifdef SK_LEGACY_PATH_ACCESSORS
 size_t SkPath::getPoints(SkSpan<SkPoint> dst) const {
     SkDEBUGCODE(this->validate();)
@@ -489,6 +509,22 @@ std::optional<SkPath::IterRec> SkPath::RawIter::next() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+SkPath SkPath::makeFillType(SkPathFillType ft) const {
+    SkPath copy = *this;
+    copy.setFillType(ft);
+    return copy;
+}
+
+SkPath SkPath::makeToggleInverseFillType() const {
+    return this->makeFillType(SkPathFillType_ToggleInverse(fFillType));
+}
+
+SkPath SkPath::makeIsVolatile(bool v) const {
+    SkPath copy = *this;
+    copy.fIsVolatile = v;
+    return copy;
+}
 
 SkPathConvexity SkPath::computeConvexity() const {
     if (auto c = this->getConvexityOrUnknown(); c != SkPathConvexity::kUnknown) {

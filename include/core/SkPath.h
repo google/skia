@@ -34,6 +34,8 @@ class SkWStream;
 enum class SkPathConvexity;
 struct SkPathRaw;
 struct SkPathVerbAnalysis;
+struct SkPathOvalInfo;
+struct SkPathRRectInfo;
 
 // WIP -- define this locally, and fix call-sites to use SkPathBuilder (skbug.com/40040287)
 //#define SK_HIDE_PATH_EDIT_METHODS
@@ -1678,6 +1680,9 @@ public:
     };
 
 private:
+    std::optional<SkPathOvalInfo> getOvalInfo() const;
+    std::optional<SkPathRRectInfo> getRRectInfo() const;
+
     /** \class SkPath::RangeIter
         Iterates through a raw range of path verbs, points, and conics. All values are returned
         unaltered.

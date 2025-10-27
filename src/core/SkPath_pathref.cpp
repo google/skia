@@ -165,27 +165,6 @@ bool SkPath::hasComputedBounds() const {
     return fPathRef->hasComputedBounds();
 }
 
-SkPath SkPath::makeFillType(SkPathFillType ft) const {
-    return SkPath(fPathRef,
-                  ft,
-                  fIsVolatile,
-                  this->getConvexityOrUnknown());
-}
-
-SkPath SkPath::makeToggleInverseFillType() const {
-    return SkPath(fPathRef,
-                  SkPathFillType_ToggleInverse(fFillType),
-                  fIsVolatile,
-                  this->getConvexityOrUnknown());
-}
-
-SkPath SkPath::makeIsVolatile(bool v) const {
-    return SkPath(fPathRef,
-                  fFillType,
-                  v,
-                  this->getConvexityOrUnknown());
-}
-
 #ifdef SK_DEBUG
 void SkPath::validate() const {
     SkASSERT(this->isValidImpl());
@@ -197,25 +176,8 @@ void SkPath::validateRef() const {
 }
 #endif
 
-bool SkPath::isOval(SkRect* bounds) const {
-    if (auto info = fPathRef->isOval()) {
-        if (bounds) {
-            *bounds = info->fBounds;
-        }
-        return true;
-    }
-    return false;
-}
-
-bool SkPath::isRRect(SkRRect* rrect) const {
-    if (auto info = fPathRef->isRRect()) {
-        if (rrect) {
-            *rrect = info->fRRect;
-        }
-        return true;
-    }
-    return false;
-}
+std::optional<SkPathOvalInfo> SkPath::getOvalInfo() const { return fPathRef->isOval(); }
+std::optional<SkPathRRectInfo> SkPath::getRRectInfo() const { return fPathRef->isRRect(); }
 
 SkSpan<const SkPoint> SkPath::points() const {
     return fPathRef->pointSpan();
