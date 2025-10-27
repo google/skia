@@ -17,6 +17,7 @@ skia_cc_library(
         "GraphiteTestContext.cpp",
         "GraphiteTestContext.h",
         "GraphiteToolUtils.cpp",
+        "PipelineCallbackHandler.cpp",
         "ProtectedUtils_Graphite.cpp",
         "TestOptions.h",
         "UniqueKeyUtils.cpp",
@@ -25,6 +26,7 @@ skia_cc_library(
     hdrs = [
         "ContextFactory.h",
         "GraphiteToolUtils.h",
+        "PipelineCallbackHandler.h",
         "TestOptions.h",
     ],
     visibility = [

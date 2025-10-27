@@ -28,8 +28,8 @@
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 #include "tools/graphite/ContextFactory.h"
 #include "tools/graphite/GraphiteToolUtils.h"
+#include "tools/graphite/PipelineCallbackHandler.h"
 #include "tools/graphite/UniqueKeyUtils.h"
-#include "tools/graphite/precompile/PipelineCallbackHandler.h"
 #include "tools/graphite/precompile/PrecompileEffectFactories.h"
 
 using namespace::skgpu::graphite;

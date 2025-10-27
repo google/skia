@@ -10,6 +10,7 @@
 #include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/SerializationUtils.h"
 #include "src/gpu/graphite/SharedContext.h"
 
 #if defined(SK_ENABLE_PRECOMPILE)
@@ -21,7 +22,6 @@
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
-#include "src/gpu/graphite/precompile/SerializationUtils.h"
 #endif
 
 #include <cstddef>

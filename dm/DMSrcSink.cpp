@@ -113,6 +113,7 @@
 #include "tools/graphite/ContextFactory.h"
 #include "tools/graphite/GraphiteTestContext.h"
 #include "tools/graphite/GraphiteToolUtils.h"
+#include "tools/graphite/PipelineCallbackHandler.h"
 
 #if defined(SK_ENABLE_PRECOMPILE)
 #include "src/gpu/graphite/Caps.h"
@@ -124,7 +125,6 @@
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "tools/graphite/UniqueKeyUtils.h"
-#include "tools/graphite/precompile/PipelineCallbackHandler.h"
 #endif // SK_ENABLE_PRECOMPILE
 
 #endif // SK_GRAPHITE

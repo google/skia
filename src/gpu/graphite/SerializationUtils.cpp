@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/graphite/precompile/SerializationUtils.h"
+#include "src/gpu/graphite/SerializationUtils.h"
 
 #include "include/core/SkFourByteTag.h"
 #include "include/core/SkStream.h"
@@ -275,7 +275,8 @@ bool DeserializePipelineDesc(const Caps* caps,
 
 } // anonymous namespace
 
-sk_sp<SkData> PipelineDescToData(ShaderCodeDictionary* shaderCodeDictionary,
+sk_sp<SkData> PipelineDescToData(const Caps* caps,
+                                 ShaderCodeDictionary* shaderCodeDictionary,
                                  const GraphicsPipelineDesc& pipelineDesc,
                                  const RenderPassDesc& renderPassDesc) {
     SkDynamicMemoryWStream stream;
@@ -286,7 +287,32 @@ sk_sp<SkData> PipelineDescToData(ShaderCodeDictionary* shaderCodeDictionary,
         return nullptr;
     }
 
-    return stream.detachAsData();
+    sk_sp<SkData> data = stream.detachAsData();
+
+#if 0  // Enable this to thoroughly test Pipeline serialization
+    {
+        // Check that the PipelineDesc round trips through serialization
+        GraphicsPipelineDesc readBackPipelineDesc;
+        RenderPassDesc readBackRenderPassDesc;
+
+        SkAssertResult(DataToPipelineDesc(caps,
+                                          shaderCodeDictionary,
+                                          data.get(),
+                                          &readBackPipelineDesc,
+                                          &readBackRenderPassDesc));
+
+        DumpPipelineDesc("invokeCallback - original", shaderCodeDictionary,
+                         pipelineDesc, renderPassDesc);
+
+        DumpPipelineDesc("invokeCallback - readback", shaderCodeDictionary,
+              readBackPipelineDesc, readBackRenderPassDesc);
+
+        SkASSERT(ComparePipelineDescs(pipelineDesc, renderPassDesc,
+                                      readBackPipelineDesc, readBackRenderPassDesc));
+    }
+#endif
+
+    return data;
 }
 
 bool DataToPipelineDesc(const Caps* caps,

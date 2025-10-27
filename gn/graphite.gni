@@ -180,6 +180,8 @@ skia_graphite_sources = [
   "$_src/gpu/graphite/Sampler.h",
   "$_src/gpu/graphite/ScratchResourceManager.cpp",
   "$_src/gpu/graphite/ScratchResourceManager.h",
+  "$_src/gpu/graphite/SerializationUtils.cpp",
+  "$_src/gpu/graphite/SerializationUtils.h",
   "$_src/gpu/graphite/ShaderCodeDictionary.cpp",
   "$_src/gpu/graphite/ShaderCodeDictionary.h",
   "$_src/gpu/graphite/ShaderInfo.cpp",
@@ -481,6 +483,4 @@ skia_graphite_precompile_sources = [
   "$_src/gpu/graphite/precompile/PrecompileShader.cpp",
   "$_src/gpu/graphite/precompile/PrecompileShaderPriv.h",
   "$_src/gpu/graphite/precompile/PrecompileShadersPriv.h",
-  "$_src/gpu/graphite/precompile/SerializationUtils.cpp",
-  "$_src/gpu/graphite/precompile/SerializationUtils.h",
 ]

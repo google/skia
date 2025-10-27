@@ -18,11 +18,8 @@
 #include "src/gpu/graphite/Resource.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Sampler.h"
+#include "src/gpu/graphite/SerializationUtils.h"
 #include "src/gpu/graphite/SharedContext.h"
-
-#if defined(SK_ENABLE_PRECOMPILE)
-#include "src/gpu/graphite/precompile/SerializationUtils.h"
-#endif
 
 namespace {
 
@@ -87,34 +84,10 @@ void GlobalCache::invokePipelineCallback(SharedContext* sharedContext,
     }
 
     if (tmpCB) {
-        sk_sp<SkData> data = PipelineDescToData(sharedContext->shaderCodeDictionary(),
+        sk_sp<SkData> data = PipelineDescToData(sharedContext->caps(),
+                                                sharedContext->shaderCodeDictionary(),
                                                 pipelineDesc,
                                                 renderPassDesc);
-
-        // Enable this to thoroughly test Pipeline serialization
-#if 0
-        {
-            // Check that the PipelineDesc round trips through serialization
-            GraphicsPipelineDesc readBackPipelineDesc;
-            RenderPassDesc readBackRenderPassDesc;
-
-            SkAssertResult(DataToPipelineDesc(sharedContext->caps(),
-                                              sharedContext->shaderCodeDictionary(),
-                                              data.get(),
-                                              &readBackPipelineDesc,
-                                              &readBackRenderPassDesc));
-
-            DumpPipelineDesc("invokeCallback - original", sharedContext->shaderCodeDictionary(),
-                             pipelineDesc, renderPassDesc);
-
-            DumpPipelineDesc("invokeCallback - readback", sharedContext->shaderCodeDictionary(),
-                  readBackPipelineDesc, readBackRenderPassDesc);
-
-            SkASSERT(ComparePipelineDescs(pipelineDesc, renderPassDesc,
-                                          readBackPipelineDesc, readBackRenderPassDesc));
-        }
-#endif
-
         if (data) {
             tmpCB(tmpContext, std::move(data));
         }

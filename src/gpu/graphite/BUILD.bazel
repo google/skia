@@ -125,6 +125,8 @@ GRAPHITE_FILES = [
     "Sampler.h",
     "ScratchResourceManager.cpp",
     "ScratchResourceManager.h",
+    "SerializationUtils.cpp",
+    "SerializationUtils.h",
     "ShaderCodeDictionary.cpp",
     "ShaderCodeDictionary.h",
     "ShaderInfo.cpp",

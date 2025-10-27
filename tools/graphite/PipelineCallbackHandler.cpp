@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "tools/graphite/precompile/PipelineCallbackHandler.h"
+#include "tools/graphite/PipelineCallbackHandler.h"
 
 namespace skiatools::graphite {
 
