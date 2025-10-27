@@ -118,7 +118,7 @@ public:
     {
         fBoundsIsDirty = true;    // this also invalidates fIsFinite
         fGenerationID = 0;        // recompute
-        fSegmentMask = segmentMask;
+        fSegmentMask = SkToU8(segmentMask);
         fType = SkPathIsAType::kGeneral;
         SkDEBUGCODE(fEditorsAttached.store(0);)
         if (mx && !mx->isIdentity()) {
