@@ -97,7 +97,10 @@ public:
     virtual bool didAsyncCompilationFail() const { return false; }
 
 protected:
-    GraphicsPipeline(const SharedContext*, const PipelineInfo&);
+    // GraphicsPipeline labels are often provided to the description of what needs to be compiled,
+    // so it is required before the actual pipeline has been successfully created. Instead of adding
+    // it to PipelineInfo, just use Resource's label field.
+    GraphicsPipeline(const SharedContext*, const PipelineInfo&, std::string_view label);
 
 private:
     PipelineInfo fPipelineInfo;

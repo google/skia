@@ -87,6 +87,7 @@ private:
 
     DawnGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
                          const PipelineInfo& pipelineInfo,
+                         std::string_view pipelineLabel,
                          std::unique_ptr<AsyncPipelineCreation> pipelineCreationInfo,
                          BindGroupLayouts groupLayouts,
                          PrimitiveType primitiveType,

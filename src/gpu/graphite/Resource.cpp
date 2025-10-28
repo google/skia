@@ -119,7 +119,7 @@ void Resource::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump,
 
     traceMemoryDump->dumpNumericValue(resourceName.c_str(), "size", "bytes", size);
     traceMemoryDump->dumpStringValue(resourceName.c_str(), "type", this->getResourceType());
-    traceMemoryDump->dumpStringValue(resourceName.c_str(), "label", this->getLabel().c_str());
+    traceMemoryDump->dumpStringValue(resourceName.c_str(), "label", this->getLabel());
     if (inPurgeableQueue) {
         traceMemoryDump->dumpNumericValue(resourceName.c_str(), "purgeable_size", "bytes", size);
     }

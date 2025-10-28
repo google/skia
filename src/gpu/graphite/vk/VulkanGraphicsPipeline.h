@@ -159,6 +159,7 @@ private:
 
     VulkanGraphicsPipeline(const VulkanSharedContext* sharedContext,
                            const PipelineInfo& pipelineInfo,
+                           std::string_view pipelineLabel,
                            VkPipelineLayout,
                            VkPipeline,
                            VkPipeline,

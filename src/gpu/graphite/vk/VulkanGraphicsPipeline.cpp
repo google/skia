@@ -1005,6 +1005,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
         pipeline = sk_sp<VulkanGraphicsPipeline>(
                 new VulkanGraphicsPipeline(sharedContext,
                                            pipelineInfo,
+                                           shaderInfo->pipelineLabel(),
                                            program->releaseLayout(),
                                            vkPipeline,
                                            shadersPipeline,
@@ -1274,9 +1275,13 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::MakeLoadMSAAPipeline(
 
     SkASSERT(vertexBindingDescriptions.empty());
     SkASSERT(vertexAttributeDescriptions.empty());
+
+    std::string pipelineLabel = "LoadMSAAFromResolve + ";
+    pipelineLabel += renderPassDesc.toString().c_str();
     return sk_sp<VulkanGraphicsPipeline>(
             new VulkanGraphicsPipeline(sharedContext,
                                        /*pipelineInfo=*/{},  // leave empty for an internal pipeline
+                                       pipelineLabel,
                                        loadMSAAProgram.layout(),
                                        vkPipeline,
                                        /*shadersPipeline=*/VK_NULL_HANDLE,
@@ -1292,6 +1297,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::MakeLoadMSAAPipeline(
 VulkanGraphicsPipeline::VulkanGraphicsPipeline(
         const VulkanSharedContext* sharedContext,
         const PipelineInfo& pipelineInfo,
+        std::string_view pipelineLabel,
         VkPipelineLayout pipelineLayout,
         VkPipeline pipeline,
         VkPipeline shadersPipeline,
@@ -1302,7 +1308,7 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
         const DepthStencilSettings& depthStencilSettings,
         VertexInputBindingDescriptions&& vertexBindingDescriptions,
         VertexInputAttributeDescriptions&& vertexAttributeDescriptions)
-    : GraphicsPipeline(sharedContext, pipelineInfo)
+    : GraphicsPipeline(sharedContext, pipelineInfo, pipelineLabel)
     , fPipelineLayout(pipelineLayout)
     , fPipeline(pipeline)
     , fShadersPipeline(shadersPipeline)

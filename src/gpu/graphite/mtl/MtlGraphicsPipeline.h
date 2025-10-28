@@ -59,6 +59,7 @@ public:
 private:
     MtlGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
                         const PipelineInfo& pipelineInfo,
+                        std::string_view pipelineLabel,
                         sk_cfp<id<MTLRenderPipelineState>> pso,
                         sk_cfp<id<MTLDepthStencilState>> dss,
                         uint32_t refValue);

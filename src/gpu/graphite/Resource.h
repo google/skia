@@ -221,7 +221,7 @@ public:
     // when the content of the Resource object changes. This will never return 0.
     UniqueID uniqueID() const { return fUniqueID; }
 
-    std::string getLabel() const { return fLabel; }
+    const char* getLabel() const { return fLabel.c_str(); }
 
     // We allow the label on a Resource to change when used for a different function. For example
     // when reusing a scratch Texture we can change the label to match callers current use.
