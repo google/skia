@@ -164,13 +164,24 @@ BufferSubAllocator::BufferSubAllocator(DrawBufferManager* owner,
                                        sk_sp<Buffer> buffer,
                                        BindBufferInfo transferBuffer,
                                        void* mappedPtr,
-                                       uint32_t xtraAlignment)
+                                       size_t stride)
         : fOwner(owner)
         , fStateIndex(stateIndex)
         , fBuffer(std::move(buffer))
         , fTransferBuffer(transferBuffer)
-        , fMappedPtr(mappedPtr) {
-    this->resetForNewBinding(xtraAlignment);
+        , fMappedPtr(mappedPtr)
+        , fOffset(0)
+        , fStride(SkTo<uint32_t>(stride)) {
+    // A starting offset of 0 means we don't need to explicitly lookup the minimum binding alignment
+    // since the first sub-allocation is automatically aligned.
+    if (fBuffer && fStride > 0 && fStride <= fBuffer->size()) {
+        // This puts the BufferSubAllocator in the same state as prepForStride(stride, *)
+        fRemaining = SkTo<uint32_t>(fBuffer->size()) / fStride;
+    } else {
+        fRemaining = 0;
+    }
+
+    SkASSERT(fStride != 0);
 }
 
 BufferSubAllocator& BufferSubAllocator::operator=(BufferSubAllocator&& other) {
@@ -187,8 +198,9 @@ BufferSubAllocator& BufferSubAllocator::operator=(BufferSubAllocator&& other) {
     fStateIndex = other.fStateIndex;
     fTransferBuffer = other.fTransferBuffer;
     fMappedPtr = other.fMappedPtr;
-    fAlignment = other.fAlignment;
     fOffset = other.fOffset;
+    fStride = other.fStride;
+    fRemaining = other.fRemaining;
 
     // Move buffer (leaving other in an invalid state)
     fBuffer = std::move(other.fBuffer);
@@ -196,35 +208,45 @@ BufferSubAllocator& BufferSubAllocator::operator=(BufferSubAllocator&& other) {
     return *this;
 }
 
-BindBufferInfo BufferSubAllocator::reserve(size_t count, size_t stride, size_t reservedCount) {
-    // fAlignment starts as the LCM of the binding alignment and the requested extra alignment.
-    // It is reset to 1 after the first reservation so that subsequent suballocations are aligned
-    // to just `stride` until resetForNewBinding()
-    // NOTE: We do not use SkTo<uint32_t> on stride because we don't want to crash if stride would
-    // overflow. If it does overflow, align32 will be incorrect, but validate_count_and_stride will
-    // still correctly detect stride's overflow so we won't use it.
-    const uint32_t align32 = lcm_alignment(fAlignment, (uint32_t) stride);
+void BufferSubAllocator::prepForStride(size_t stride, size_t align, size_t minCount) {
+    SkASSERT(stride > 0 && align > 0); // Expect valid inputs
+    if (fBuffer) {
+        if (fStride == stride && (align == 1 || align == stride)) {
+            // Shortcut if we're already aligned with the last call to prepForStride().
+            // Leave fRemaining alone, it's either enough for minCount or not, but reserve() will
+            // do the right thing regardless.
+            SkASSERT(fOffset % align == 0);
+            SkASSERT(fOffset % stride == 0);
+            return;
+        }
 
-    reservedCount = std::max(count, reservedCount);
-    uint32_t requiredBytes32 = validate_count_and_stride(reservedCount, stride, align32);
-    if (!requiredBytes32 || !fBuffer) {
-        return {}; // Size overflowed
+        // On re-aligning to a new stride, the offset needs to be aligned to the LCM of `align` and
+        // `stride` so that repeated suballocations of `stride` can be performed by simply adding to
+        // fOffset without additional instructions. If `fStride == 0`, it's a signal that the first
+        // offset also needs to be aligned to the minimum binding requirement.
+        uint32_t align32 = lcm_alignment(SkTo<uint32_t>(align), SkTo<uint32_t>(stride));
+        if (fStride == 0) {
+            const uint32_t minAlignment = fOwner->fCurrentBuffers[fStateIndex].fMinAlignment;
+            align32 = lcm_alignment(minAlignment, align32);
+        }
+
+        // Ensures we won't overflow fOffset past buffer size once we align it
+        if (this->remainingBytes() >= align32 - 1) {
+            const uint32_t offset = SkAlignNonPow2(fOffset, align32);
+            SkASSERT(offset <= fBuffer->size());
+            fStride = SkTo<uint32_t>(stride);
+            fRemaining = (SkTo<uint32_t>(fBuffer->size()) - offset) / fStride;
+            if (fRemaining > 0 && fRemaining >= minCount) {
+                // Successful prep, so preserve the aligned offset
+                fOffset = offset;
+                return;
+            }
+        }
     }
 
-    const uint32_t bufferSize = SkTo<uint32_t>(fBuffer->size());
-    uint32_t offset = SkAlignNonPow2(fOffset, align32);
-
-    if (bufferSize < offset || requiredBytes32 > bufferSize - offset) {
-        // Not enough space left
-        return {};
-    }
-
-    // count*stride is safe since validate_count_and_stride succeeded with reservedCount. For the
-    // actual reservation, we only use count*stride bytes.
-    requiredBytes32 = SkTo<uint32_t>(count) * SkTo<uint32_t>(stride);
-    fOffset = offset + requiredBytes32;
-    fAlignment = 1; // Next reservation will only be affected by its stride
-    return {fBuffer.get(), offset, requiredBytes32};
+    // If we've reached here, there wasn't a buffer or enough room to align, or enough room to
+    // satisfy minCount, so set fRemaining=0 to fail subsequent reservations.
+    fRemaining = 0;
 }
 
 void BufferSubAllocator::reset() {
@@ -263,15 +285,9 @@ void BufferSubAllocator::reset() {
             state.fAvailableBuffer = std::move(*this);
         }
 
+        fRemaining = 0;
         SkASSERT(!fBuffer);
     } // else nothing to reset
-}
-
-void BufferSubAllocator::resetForNewBinding(size_t alignment) {
-    if (fOwner) {
-        const uint32_t minAlignment = fOwner->fCurrentBuffers[fStateIndex].fMinAlignment;
-        fAlignment = lcm_alignment(minAlignment, SkTo<uint32_t>(alignment));
-    } // else an empty BufferSubAllocator so ignore this, all allocations will fail
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -451,14 +467,9 @@ BufferSubAllocator DrawBufferManager::getBuffer(
     // has room leftover to be used by future allocations. Scratch buffer ownership is entirely
     // managed by the caller, so always create a new BufferSubAllocator.
     if (shareable == Shareable::kNo) {
-        state.fAvailableBuffer.resetForNewBinding(xtraAlignment);
-        BindBufferInfo nextBinding = state.fAvailableBuffer.reserve(count, stride, count);
-        if (nextBinding) {
-            // The available buffer has enough room so reuse it. Subtracting the size of the binding
-            // ensures the caller's next request for count*stride bytes succeeds, and fOffset will
-            // be aligned to xtraAlignment.
-            state.fAvailableBuffer.fOffset -= nextBinding.fSize;
-            SkASSERT(state.fAvailableBuffer.fOffset % xtraAlignment == 0);
+        state.fAvailableBuffer.resetForNewBinding(); // ensure we include min binding alignment
+        state.fAvailableBuffer.prepForStride(stride, xtraAlignment, count);
+        if (state.fAvailableBuffer.availableWithStride() >= count) {
             SkASSERT(state.fAvailableBuffer.fBuffer);
             SkASSERT(state.fAvailableBuffer.fBuffer->shareable() == shareable);
             SkASSERT(SkToBool(state.fAvailableBuffer.fMappedPtr) == supportCpuUpload);
@@ -513,9 +524,10 @@ BufferSubAllocator DrawBufferManager::getBuffer(
     }
 
     // The returned buffer is not set to fAvailableBuffer because it is going to be passed up to
-    // the caller for their use first.
+    // the caller for their use first. Since a new BufferSubAllocator starts at offset 0, there's no
+    // need to account for `xtraAlignment`.
     return BufferSubAllocator(this, stateIndex, std::move(buffer),
-                              transferBuffer, mappedPtr, xtraAlignment);
+                              transferBuffer, mappedPtr, stride);
 }
 
 // ------------------------------------------------------------------------------------------------

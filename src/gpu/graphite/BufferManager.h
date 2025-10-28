@@ -67,6 +67,21 @@ public:
     bool isValid() const { return SkToBool(fBuffer); }
     explicit operator bool() const { return this->isValid(); }
 
+    // Returns the underlying buffer object back to the pool and invalidates this allocator.
+    // Depending on the GPU buffer's Shareable value, either:
+    //  - kNo: The remaining space that hasn't been written to can be used by another allocator,
+    //    but it will assume that use will involve a new buffer binding command.
+    //  - kScratch: The entire buffer can be overwritten by another allocator.
+    void reset();
+
+    // Causes the next call to get[Mapped]Subrange() to also align with the minimum binding
+    // requirement for the buffer's type. It resets any remaining strided blocks following the
+    // last suballocation or appended range.
+    void resetForNewBinding() {
+        fRemaining = 0;
+        fStride = 0; // signals prepForStride() to factor in minimum binding alignment next time.
+    }
+
     // Returns the number of remaining bytes in the GPU buffer, assuming an alignment of 1.
     uint32_t remainingBytes() const {
         return fBuffer ? SkTo<uint32_t>(fBuffer->size()) - fOffset : 0;
@@ -78,8 +93,8 @@ public:
      * subrange will be aligned according to the following rules:
      *  - The first suballocation, or the first after resetForNewBinding(), will be aligned to the
      *    lowest common multiple of `stride`, the binding's required alignment, and any extra base
-     *    alignment set in resetForNewBinding() or when the BufferSubAllocator was created.
-     *  - Subsequent suballocations will be aligned to just `stride`.
+     *    alignment passed in as `align`.
+     *  - Subsequent suballocations will be aligned to just `stride` and any extra base alignment.
      *
      * It is assumed the caller will write all `count*stride` bytes to the returned address. If
      * `reservedCount` is greater than `count`, the suballocation will only succeed if the buffer
@@ -88,20 +103,20 @@ public:
      * suballocations guaranteed to then fit within the same buffer (assuming the same or lower
      * alignment).
      *
+     * It is acceptable to pass `count=0` to this function, which will still succeed if there is
+     * space to align at least one more aligned `stride` block. In this case, the BufferWriter will
+     * be null but the BindBufferInfo will have a valid Buffer and byte offset (just a zero size).
+     * This then represents the start of the binding range for future calls to appendMappedStride().
+     *
      * An invalid BufferWriter and empty BindBufferInfo are returned if the buffer does not have
      * enough room remaining to fulfill the suballocation in this buffer.
      */
-    std::pair<BufferWriter, BindBufferInfo> getMappedSubrange(
-            size_t count,
-            size_t stride,
-            size_t reservedCount = 0) {
+     std::pair<BufferWriter, BindBufferInfo> getMappedSubrange(size_t count,
+                                                               size_t stride,
+                                                               size_t align=1) {
         SkASSERT(fMappedPtr || !fBuffer); // Writing should have checked validity of allocator first
-        BindBufferInfo binding = this->reserve(count, stride, reservedCount);
-        if (binding) {
-            return {this->getWriter(binding), binding};
-        } else {
-            return {nullptr, BindBufferInfo{}};
-        }
+        this->prepForStride(stride, align, count);
+        return this->reserve(count, &BufferSubAllocator::getWriterAndBinding);
     }
 
     // Sub-allocate a slice within the scratch buffer object. This variation should be used when the
@@ -109,19 +124,31 @@ public:
     //
     // Other than returning just a buffer slice to be written to later by a GPU task, the
     // suballocation behaves identically to getMappedSubrange().
-    BindBufferInfo getSubrange(size_t count, size_t stride, size_t reservedCount = 0) {
+    BindBufferInfo getSubrange(size_t count, size_t stride, size_t align=1) {
         SkASSERT(!fMappedPtr); // Should not be used when data is intended to be written by CPU
-        return this->reserve(count, stride, reservedCount);
+        this->prepForStride(stride, align, count);
+        return this->reserve(count, &BufferSubAllocator::binding);
     }
 
-    // Returns the underlying buffer object back to the pool and invalidates this allocator.
-    // Depending on the GPU buffer's Shareable value, either:
-    //  - kNo: The remaining space that hasn't been written to can be used by another allocator,
-    //    but it will assume that use will involve a new buffer binding command.
-    //  - kScratch: The entire buffer can be overwritten by another allocator.
-    void reset();
+    // Returns the number of `stride` blocks left in the buffer, where `stride` was the last
+    // value passed into get[Mapped]Subrange().
+    uint32_t availableWithStride() const { return fRemaining; }
 
-    void resetForNewBinding(size_t alignment=1);
+    /**
+     * Returns a buffer writer for `count*stride` bytes, where `stride` was the last value passed
+     * to getMappedSubrange.
+     *
+     * If `count <= this->availableWithStride()`, then the appended range will be contiguous with
+     * the BindBufferInfo returned from the last call to getMappedSubrange (and/or other calls to
+     * appendMappedStride). The binding's size should be increased by count*stride, which is the
+     * caller's responsibility.
+     *
+     * Otherwise, a null BufferWriter will be returned and no change is made to the allocator.
+     */
+    BufferWriter appendMappedWithStride(size_t count) {
+        SkASSERT(count > 0 && (fMappedPtr || fRemaining == 0));
+        return this->reserve(count, &BufferSubAllocator::getWriter);
+    }
 
 private:
     friend class DrawBufferManager;
@@ -131,21 +158,46 @@ private:
                        sk_sp<Buffer> buffer,
                        BindBufferInfo transferBuffer, // optional (when direct mapping unavailable)
                        void* mappedPtr, // `buffer` or `transferBuffer`'s ptr, or null if GPU-only
-                       uint32_t xtraAlignment);
+                       size_t stride);  // initial stride to compute `fRemaining`
 
-    BindBufferInfo reserve(size_t count, size_t stride, size_t reservedCount);
+    // If minCount*stride bytes fit when aligned to the LCM of stride, align, and possibly the
+    // binding alignment (when fStride == 0), then fOffset is updated and fRemaining is set to the
+    // number of stride units that fit in the rest of the buffer after fOffset. If not, fRemaining
+    // is set to 0 and fOffset is unmodified.
+    void prepForStride(size_t stride, size_t align, size_t minCount);
 
-    BindBufferInfo binding(uint32_t offset, uint32_t size) const {
-        return {fBuffer.get(), offset, size};
+    template <typename T>
+    T reserve(size_t count, T (BufferSubAllocator::*create)(uint32_t offset, uint32_t size) const) {
+        if (!fBuffer || count > fRemaining) {
+            return T();
+        }
+
+        SkASSERT(fStride > 0); // fRemaining should be set to 0 if fStride is 0
+        // fRemaining and fStride were already validated in prepForStride() so we can cast `count`
+        const uint32_t requiredBytes32 = SkTo<uint32_t>(count) * fStride;
+
+        uint32_t offset = fOffset;
+        fOffset += requiredBytes32;
+        fRemaining -= count;
+        return (this->*create)(offset, requiredBytes32);
     }
 
-    BufferWriter getWriter(BindBufferInfo binding) const {
-        // Should only be called for a mapped BufferSubAllocator with a binding that has already
-        // been sub-allocated.
+    BindBufferInfo binding(uint32_t offset, uint32_t size) const {
+        SkASSERT(fBuffer);
+        SkASSERT(fOffset >= size && fOffset - size >= offset);
+        return BindBufferInfo{fBuffer.get(), offset, size};
+    }
+
+    BufferWriter getWriter(uint32_t offset, uint32_t size) const {
         SkASSERT(fMappedPtr);
-        SkASSERT(binding.fBuffer == fBuffer.get());
-        SkASSERT(binding.fOffset + binding.fSize <= fOffset);
-        return BufferWriter(SkTAddOffset<void>(fMappedPtr, binding.fOffset), binding.fSize);
+        SkASSERT(fBuffer);
+        SkASSERT(fOffset >= size && fOffset - size >= offset);
+        return BufferWriter(SkTAddOffset<void>(fMappedPtr, offset), size);
+    }
+
+    std::pair<BufferWriter, BindBufferInfo> getWriterAndBinding(
+                uint32_t offset, uint32_t size) const {
+        return {this->getWriter(offset, size), this->binding(offset, size)};
     }
 
     // Non-null when valid and not already returned to the pool
@@ -160,8 +212,9 @@ private:
      // If there is no mapped buffer pointer, it's assumed the GPU buffer is reusable for another
      // BufferSubAllocator instance (this default reuse policy can be revisited if needed).
     void* fMappedPtr = nullptr;
-    uint32_t fAlignment = 1; // Default alignment
     uint32_t fOffset = 0;    // Next suballocation can start at fOffset at the earliest
+    uint32_t fStride = 1;    // The byte count of blocks for the optimized append() function
+    uint32_t fRemaining = 0; // The number of `fStride` contiguous blocks fitting after fOffset
 };
 
 /**
@@ -303,6 +356,8 @@ private:
         sk_sp<Buffer> findOrCreateBuffer(ResourceProvider*, Shareable, uint32_t byteCount);
     };
 
+    // The returned sub allocator will have an offset that is aligned to `stride`, `xtraAlignment`
+    // and the minimum alignment for `stateIndex`. Its `availableWithStride()` will be >= `count`.
     BufferSubAllocator getBuffer(int stateIndex,
                                  size_t count,
                                  size_t stride,
@@ -318,22 +373,8 @@ private:
                                                     xtraAlignment,
                                                     ClearBuffer::kNo,
                                                     Shareable::kNo);
-        if (buffer) {
-            // This is a shortcut since we know that buffer has enough space for `count*stride`
-            // bytes at the right alignment if getBuffer() succeeded.
-            const uint32_t byteCount = SkTo<uint32_t>(count * stride);
-
-            SkASSERT(buffer.fOffset % xtraAlignment == 0);
-            SkASSERT(buffer.fOffset + byteCount <= buffer.fBuffer->size());
-
-            BindBufferInfo binding = buffer.binding(buffer.fOffset, byteCount);
-            buffer.fOffset += byteCount;
-            buffer.fAlignment = 1;
-            return {buffer.getWriter(binding), binding, std::move(buffer)};
-        } else {
-            // Failed to allocate a new buffer
-            return {BufferWriter(), BindBufferInfo(), std::move(buffer)};
-        }
+        auto [writer, binding] = buffer.getMappedSubrange(count, stride);
+        return {std::move(writer), binding, std::move(buffer)};
     }
 
     // Helper method for the public GPU-only BufferBindInfo methods

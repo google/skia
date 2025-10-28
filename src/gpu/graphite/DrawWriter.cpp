@@ -29,43 +29,26 @@ DrawWriter::DrawWriter(DrawPassCommands::List* commandList, DrawBufferManager* b
     SkASSERT(commandList && bufferManager);
 }
 
-void DrawWriter::setTemplate(BindBufferInfo staticData, BindBufferInfo indices,
-                             BindBufferInfo appendData, uint32_t templateCount) {
-    if (fPendingCount == 0) {
-        // A pendingCount of zero indicates that a either a newPipelineState() or dynamicState()
-        // triggered a flush, so we want to update the incoming member buffers.
-        fAppend = appendData;
-        fStatic = staticData;
-        fIndices = indices;
-        fTemplateCount = templateCount;
-    } else {
-        // IF non-zero pending count, then we must not have flushed, so we cannot have called a new
-        // pipeline yet. So we know the buffers MUST be the same.
-        // IF a new buffer is acquired in reserve(), it calls a flush on the previous binding. The
-        // flush sets the pendingCount to zero, skipping this code path.
-        SkASSERT(fAppend == appendData && fStatic == staticData && fIndices == indices);
-        SkASSERT((templateCount == 0 &&
-                 (fRenderState & RenderStateFlags::kAppendDynamicInstances)) ||
-                 fTemplateCount == templateCount);
-    }
-}
-
-void DrawWriter::flush() {
+void DrawWriter::flushInternal(BindBufferInfo appendData) {
     // Skip flush if no items appended, or dynamic instances resolved to zero count.
     if (fPendingCount == 0 ||
         ((fRenderState & RenderStateFlags::kAppendDynamicInstances) && fTemplateCount == 0)) {
         return;
     }
 
+    // How much to advance fAppend.fOffset when the flush is completed
+    uint32_t advanceOffset = fPendingCount;
+
     // ARM hardware (b/399631317): Unreferenced vertices in sequential indexes of 4 will be
     // speculatively executed. To work around this, we pad the buffer by requesting additional
     // space, and then ensure valid, minimally deleterious data by memsetting the padding to zero.
     if (fRenderState & RenderStateFlags::kAppendVertices) {
-        const uint32_t byteDiff = (SkAlign4(fPendingCount) - fPendingCount) * fAppendStride;
-        if (byteDiff) {
-            auto [zWriter, _] = fCurrentBuffer.getMappedSubrange(byteDiff, /*stride=*/1);
+        const uint32_t countDiff = (SkAlign4(fPendingCount) - fPendingCount);
+        if (countDiff) {
+            BufferWriter zWriter = fCurrentBuffer.appendMappedWithStride(countDiff);
             SkASSERT(zWriter); // The buffer should have been sized to hold an aligned total
-            zWriter.zeroBytes(byteDiff);
+            zWriter.zeroBytes(countDiff * fAppendStride);
+            advanceOffset += countDiff;
         }
     }
 
@@ -92,7 +75,7 @@ void DrawWriter::flush() {
     uint32_t pendingBaseAppend = 0;
     uint32_t pendingBaseStatic = 0;
     uint32_t pendingBaseIndices = 0;
-    if (bind(fAppend, fAppendStride, fBoundAppend, pendingBaseAppend)) {
+    if (bind(appendData, fAppendStride, fBoundAppend, pendingBaseAppend)) {
         fCommandList->bindAppendDataBuffer(fBoundAppend);
     }
     if (bind(fStatic, fStaticStride, fBoundStatic, pendingBaseStatic)) {
@@ -132,12 +115,8 @@ void DrawWriter::flush() {
         }
 
         // Clear instancing template state after the draw is recorded for non-Fixed RenderState
-        if (fRenderState &
-            (RenderStateFlags::kAppendInstances | RenderStateFlags::kAppendDynamicInstances)) {
-            fAppend = {};
-            if (fRenderState & RenderStateFlags::kAppendDynamicInstances) {
-                fTemplateCount = 0;
-            }
+        if (fRenderState & RenderStateFlags::kAppendDynamicInstances) {
+            fTemplateCount = 0;
         }
     } else {
         // Issue non-instanced draw call (indexed or non-indexed).
@@ -152,14 +131,12 @@ void DrawWriter::flush() {
             SkASSERT((pendingBaseAppend + fPendingCount)*fStaticStride <= fBoundAppend.fSize);
             fCommandList->draw(fPrimitiveType, pendingBaseAppend, fPendingCount);
         }
-
-        // Clear vertex template state after the draw is recorded for non-Fixed RenderState
-        if (fRenderState & RenderStateFlags::kAppendVertices) {
-            fAppend = {};
-        }
     }
 
-    // Mark all appended items as drawn.
+    // Mark all appended items as drawn, advance base offset which is normally set as part of a new
+    // pipeline state or flushing for a new buffer during appending data. But if we flushed because
+    // of other dynamic state changes, there might not be interaction with the BufferManager.
+    fAppend.fOffset += advanceOffset * fAppendStride;
     fPendingCount = 0;
 }
 
