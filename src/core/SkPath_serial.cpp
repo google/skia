@@ -72,12 +72,12 @@ size_t SkPath::writeToMemoryAsRRect(void* storage) const {
     SkPathDirection firstDir;
     unsigned start;
 
-    if (auto oinfo = fPathRef->isOval()) {
+    if (auto oinfo = this->getOvalInfo()) {
         rrect.setOval(oinfo->fBounds);
         firstDir = oinfo->fDirection;
         // Convert to rrect start indices.
         start = oinfo->fStartIndex * 2;
-    } else if (auto rinfo = fPathRef->isRRect()) {
+    } else if (auto rinfo = this->getRRectInfo()) {
         rrect = rinfo->fRRect;
         firstDir = rinfo->fDirection;
         start = rinfo->fStartIndex;
@@ -116,14 +116,18 @@ size_t SkPath::writeToMemory(void* storage) const {
                      (SerializationType::kGeneral << kType_SerializationShift) |
                      kCurrent_Version;
 
-    int32_t pts = fPathRef->countPoints();
-    int32_t cnx = fPathRef->countWeights();
-    int32_t vbs = fPathRef->countVerbs();
+    SkSpan<const SkPoint> points = this->points();
+    SkSpan<const SkPathVerb> verbs = this->verbs();
+    SkSpan<const float> conics = this->conicWeights();
+
+    int32_t pts = SkToS32(points.size());
+    int32_t cnx = SkToS32(conics.size());
+    int32_t vbs = SkToS32(verbs.size());
 
     SkSafeMath safe;
     size_t size = 4 * sizeof(int32_t);
     size = safe.add(size, safe.mul(pts, sizeof(SkPoint)));
-    size = safe.add(size, safe.mul(cnx, sizeof(SkScalar)));
+    size = safe.add(size, safe.mul(cnx, sizeof(float)));
     size = safe.add(size, safe.mul(vbs, sizeof(uint8_t)));
     size = safe.alignUp(size, 4);
     if (!safe) {
@@ -138,9 +142,9 @@ size_t SkPath::writeToMemory(void* storage) const {
     buffer.write32(pts);
     buffer.write32(cnx);
     buffer.write32(vbs);
-    buffer.write(fPathRef->points(), pts * sizeof(SkPoint));
-    buffer.write(fPathRef->conicWeights(), cnx * sizeof(SkScalar));
-    buffer.write(fPathRef->verbsBegin(), vbs * sizeof(uint8_t));
+    buffer.write(points.data(), points.size_bytes());
+    buffer.write(conics.data(), conics.size_bytes());
+    buffer.write(verbs.data(), verbs.size_bytes());
     buffer.padToAlign4();
 
     SkASSERT(buffer.pos() == size);
@@ -271,14 +275,8 @@ std::optional<SkPath> SkPath::ReadFromMemory(const void* storage, size_t length,
         verbs = tmpVerbs;
     }
 
-    SkSpan<const SkPathVerb> verbSpan{verbs, counts.vbs};
-    SkPathVerbAnalysis analysis = SkPathPriv::AnalyzeVerbs(verbSpan);
-
-    if (!analysis.valid || analysis.points != counts.pts || analysis.weights != counts.cnx) {
-        RETURN_PATH_AND_BYTES(std::nullopt, 0);
-    }
-    path = SkPathPriv::MakePath(analysis, points, verbSpan, conics,
-                                extract_filltype(packed), false);
+    path = SkPath::Raw({points, counts.pts}, {verbs, counts.vbs}, {conics, counts.cnx},
+                       extract_filltype(packed), false);
 
     RETURN_PATH_AND_BYTES(path,buffer.pos());
 }
