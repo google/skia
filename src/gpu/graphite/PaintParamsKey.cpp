@@ -29,10 +29,13 @@ void PaintParamsKeyBuilder::checkReset() {
     SkASSERT(!fLocked);
     SkASSERT(fData.empty());
     SkASSERT(fStack.empty());
+    SkASSERT(!fHasError);
 }
 
 void PaintParamsKeyBuilder::pushStack(int32_t codeSnippetID) {
     SkASSERT(fDict->isValidID(codeSnippetID));
+    // If the kError ID is pushed, fHasError must have been set already.
+    SkASSERT(codeSnippetID != (int) BuiltInCodeSnippetID::kError || fHasError);
 
     if (!fStack.empty()) {
         fStack.back().fNumActualChildren++;

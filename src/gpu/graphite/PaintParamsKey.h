@@ -197,6 +197,13 @@ public:
         fData.push_back_n(data.size(), data.begin());
     }
 
+    void addErrorBlock() {
+        fHasError = true;
+        // Preserve the structure of parent stack, but since fHasError is true, the builder won't
+        // produce a valid PaintParamsKey.
+        this->addBlock(BuiltInCodeSnippetID::kError);
+    }
+
     void tryShrinkCapacity() {
         int halfCapacity = fData.capacity() / 2;
         if (fDataHighWaterMark < halfCapacity) {
@@ -217,13 +224,14 @@ private:
 
         SkDEBUGCODE(fLocked = true;)
         fDataHighWaterMark = std::max(fDataHighWaterMark, fData.size());
-        return PaintParamsKey({fData.data(), fData.size()});
+        return fHasError ? PaintParamsKey::Invalid() : PaintParamsKey({fData.data(), fData.size()});
     }
 
     // Invalidates any PaintParamsKey returned by lockAsKey() unless it has been cloned.
     void unlock() {
         SkASSERT(fLocked);
         fData.clear();
+        fHasError = false;
 
         SkDEBUGCODE(fLocked = false;)
         SkDEBUGCODE(fStack.clear();)
@@ -233,6 +241,7 @@ private:
     // The data array uses clear() on unlock so that it's underlying storage and repeated use of the
     // builder will hit a high-water mark and avoid lots of allocations when recording draws.
     skia_private::TArray<uint32_t> fData;
+    bool fHasError = false; // if true, fData may not encode a valid/complete ShaderNode tree.
     int fDataHighWaterMark = 0;
 
 #ifdef SK_DEBUG

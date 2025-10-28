@@ -567,7 +567,7 @@ ImageShaderBlock::ImageData::ImageData(const SkSamplingOptions& sampling,
 
 void ImageShaderBlock::AddBlock(const KeyContext& keyContext, const ImageData& imgData) {
     if (keyContext.recorder() && !imgData.fTextureProxy) {
-        keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kError);
+        keyContext.paintParamsKeyBuilder()->addErrorBlock();
         return;
     }
 
@@ -773,7 +773,7 @@ void YUVImageShaderBlock::AddBlock(const KeyContext& keyContext, const ImageData
     if (keyContext.recorder() &&
         (!imgData.fTextureProxies[0] || !imgData.fTextureProxies[1] ||
          !imgData.fTextureProxies[2] || !imgData.fTextureProxies[3])) {
-        keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kError);
+        keyContext.paintParamsKeyBuilder()->addErrorBlock();
         return;
     }
 
@@ -1930,7 +1930,7 @@ static void add_image_to_key(const KeyContext& keyContext,
                                                           sampling);
     if (!imageToDraw) {
         SKGPU_LOG_W("Couldn't convert SkImage a Graphite-backed representation");
-        keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kError);
+        keyContext.paintParamsKeyBuilder()->addErrorBlock();
         return;
     }
 
@@ -2142,7 +2142,7 @@ static void add_to_key(const KeyContext& keyContext, const SkPerlinNoiseShader* 
 
     if (!perm || !noise) {
         SKGPU_LOG_W("Couldn't create tables for PerlinNoiseShader");
-        keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kError);
+        keyContext.paintParamsKeyBuilder()->addErrorBlock();
         return;
     }
 
@@ -2181,7 +2181,7 @@ static void add_to_key(const KeyContext& keyContext,
                                                        props);
     if (!info.success) {
         SKGPU_LOG_W("Couldn't access PictureShaders' Image info");
-        keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kError);
+        keyContext.paintParamsKeyBuilder()->addErrorBlock();
         return;
     }
 
@@ -2201,7 +2201,7 @@ static void add_to_key(const KeyContext& keyContext,
                                            &info.props);
     if (!surface) {
         SKGPU_LOG_W("Could not create surface to render PictureShader");
-        keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kError);
+        keyContext.paintParamsKeyBuilder()->addErrorBlock();
         return;
     }
 
@@ -2211,7 +2211,7 @@ static void add_to_key(const KeyContext& keyContext,
     // list this works out okay, but will need to be addressed before we move off that system.
     if (!img) {
         SKGPU_LOG_W("Couldn't create SkImage for PictureShader");
-        keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kError);
+        keyContext.paintParamsKeyBuilder()->addErrorBlock();
         return;
     }
 
@@ -2220,7 +2220,7 @@ static void add_to_key(const KeyContext& keyContext,
                                                 SkSamplingOptions(shader->filter()), &shaderLM);
     if (!imgShader) {
         SKGPU_LOG_W("Couldn't create SkImageShader for PictureShader");
-        keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kError);
+        keyContext.paintParamsKeyBuilder()->addErrorBlock();
         return;
     }
 
@@ -2250,13 +2250,13 @@ static void add_to_key(const KeyContext& keyContext,
 static void add_to_key(const KeyContext& keyContext,
                        const SkTransformShader* shader) {
     SKGPU_LOG_W("Raster-only SkShader (SkTransformShader) encountered");
-    keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kError);
+    keyContext.paintParamsKeyBuilder()->addErrorBlock();
 }
 
 static void add_to_key(const KeyContext& keyContext,
                        const SkTriColorShader* shader) {
     SKGPU_LOG_W("Raster-only SkShader (SkTriColorShader) encountered");
-    keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kError);
+    keyContext.paintParamsKeyBuilder()->addErrorBlock();
 }
 
 static void add_to_key(const KeyContext& keyContext,
@@ -2402,7 +2402,7 @@ static void add_gradient_to_key(const KeyContext& keyContext,
                     create_color_and_offset_bitmap(colorCount, colors, positions);
             if (colorsAndOffsetsBitmap.empty()) {
                 SKGPU_LOG_W("Couldn't create GradientShader's color and offset bitmap");
-                keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kError);
+                keyContext.paintParamsKeyBuilder()->addErrorBlock();
                 return;
             }
             shader->setCachedBitmap(colorsAndOffsetsBitmap);
@@ -2412,7 +2412,7 @@ static void add_gradient_to_key(const KeyContext& keyContext,
                                                 "GradientTexture");
         if (!proxy) {
             SKGPU_LOG_W("Couldn't create GradientShader's color and offset bitmap proxy");
-            keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kError);
+            keyContext.paintParamsKeyBuilder()->addErrorBlock();
             return;
         }
     }
