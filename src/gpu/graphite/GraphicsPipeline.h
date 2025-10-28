@@ -60,10 +60,6 @@ public:
         bool fHasStepUniforms   = false;
         bool fHasGradientBuffer = false;
 
-#if defined(SK_TRACE_GRAPHITE_PIPELINE_USE) || defined(GPU_TEST_UTILS)
-        std::string fLabel;
-#endif
-
         // In test-enabled builds, we preserve the generated shader code to display in the viewer
         // slide UI. This is not quite enough information to fully recreate the pipeline, as the
         // RenderPassDesc used to make the pipeline is not preserved.

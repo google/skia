@@ -56,10 +56,6 @@ GraphicsPipeline::PipelineInfo::PipelineInfo(
     fSkSLVertexShader = SkShaderUtils::PrettyPrint(shaderInfo.vertexSkSL());
     fSkSLFragmentShader = SkShaderUtils::PrettyPrint(shaderInfo.fragmentSkSL());
 #endif
-
-#if defined(SK_TRACE_GRAPHITE_PIPELINE_USE) || defined(GPU_TEST_UTILS)
-    fLabel = shaderInfo.pipelineLabel();
-#endif
 }
 
 #if defined(GPU_TEST_UTILS)

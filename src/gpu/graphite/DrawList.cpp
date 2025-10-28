@@ -304,10 +304,8 @@ std::unique_ptr<DrawPass> DrawList::snapDrawPass(Recorder* recorder,
     // the barrier addition and draw commands are ordered correctly.
     CompressedPaintersOrder priorDrawPaintOrder {};
 
-#if defined(SK_TRACE_GRAPHITE_PIPELINE_USE)
     // Accumulate rough pixel area touched by each pipeline as we iterate the SortKeys
     drawPass->fPipelineDrawAreas.push_back_n(fPipelineCache.count(), 0.f);
-#endif
 
     TextureTracker textureBindingTracker(&fTextureDataCache);
     for (const DrawList::SortKey& key : fSortKeys) {
@@ -315,10 +313,8 @@ std::unique_ptr<DrawPass> DrawList::snapDrawPass(Recorder* recorder,
         const RenderStep& renderStep = key.renderStep();
 
         const bool pipelineChange = key.pipelineIndex() != lastPipeline;
-#if defined(SK_TRACE_GRAPHITE_PIPELINE_USE)
         drawPass->fPipelineDrawAreas[key.pipelineIndex()] +=
                 draw.drawParams().drawBounds().area();
-#endif
 
         const bool geomBindingChange = geometryUniformTracker.writeUniforms(
                 fGeometryUniformDataCache, bufferMgr, key.geometryUniformIndex());

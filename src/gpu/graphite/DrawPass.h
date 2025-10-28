@@ -102,6 +102,7 @@ private:
     // The pipelines are referenced by index in BindGraphicsPipeline, but that will index into
     // an array of actual GraphicsPipelines (i.e., fFullPipelines).
     skia_private::TArray<GraphicsPipelineDesc> fPipelineDescs;
+    skia_private::TArray<float> fPipelineDrawAreas;
 
     // These resources all get instantiated during prepareResources.
     skia_private::TArray<GraphicsPipelineHandle> fPipelineHandles;
@@ -111,10 +112,6 @@ private:
     skia_private::TArray<sk_sp<GraphicsPipeline>> fFullPipelines;
 
     sk_sp<FloatStorageManager> fFloatStorageManager;
-
-#if defined(SK_TRACE_GRAPHITE_PIPELINE_USE)
-    skia_private::TArray<float> fPipelineDrawAreas;
-#endif
 };
 
 } // namespace skgpu::graphite

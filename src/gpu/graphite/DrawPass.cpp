@@ -12,6 +12,7 @@
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/PipelineCreationTask.h"
 #include "src/gpu/graphite/PipelineData.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Resource.h"  // IWYU pragma: keep
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/ResourceTypes.h"
@@ -19,9 +20,6 @@
 #include "src/gpu/graphite/Texture.h"  // IWYU pragma: keep
 #include "src/gpu/graphite/TextureProxy.h"
 
-#if defined(SK_TRACE_GRAPHITE_PIPELINE_USE)
-#include "src/gpu/graphite/RenderPassDesc.h"
-#endif
 
 using namespace skia_private;
 
@@ -86,19 +84,21 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
         }
     }
 
-#if defined(SK_TRACE_GRAPHITE_PIPELINE_USE)
+    // TODO(robertphillips): when fFullHandles resolution is moved to addResourceRefs, this will
+    // either need to move there as well, or the label will have to be available on the
+    // GraphicsPipelineHandle (plausible since we either have the pipeline with its label, or we
+    // likely calculated the label as part of triggering a cache miss).
     {
         TRACE_EVENT0_ALWAYS("skia.shaders", "GraphitePipelineUse");
         TRACE_EVENT0_ALWAYS("skia.shaders", TRACE_STR_COPY(renderPassDesc.toString().c_str()));
         for (int i = 0 ; i < fFullPipelines.size(); ++i) {
             TRACE_EVENT_INSTANT1_ALWAYS(
                     "skia.shaders",
-                    TRACE_STR_COPY(fFullPipelines[i]->getPipelineInfo().fLabel.c_str()),
+                    TRACE_STR_COPY(fFullPipelines[i]->getLabel()),
                     TRACE_EVENT_SCOPE_THREAD,
                     "area", sk_float_saturate2int(fPipelineDrawAreas[i]));
         }
     }
-#endif
 
     return true;
 }
