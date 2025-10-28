@@ -1008,7 +1008,7 @@ private:
     SkPathBuilder& privateReverseAddPath(const SkPath&);
     SkPathBuilder& privateReversePathTo(const SkPath&);
 
-    std::tuple<SkPoint*, SkScalar*> growForVerbsInPath(const SkPathRef& path);
+    std::tuple<SkPoint*, SkScalar*> growForVerbsInPath(const SkPath& path);
 
     friend class SkPathPriv;
     friend class SkStroke;

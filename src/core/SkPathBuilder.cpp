@@ -101,14 +101,15 @@ void SkPathBuilder::incReserve(int extraPtCount, int extraVbCount, int extraCnCo
     fConicWeights.reserve_exact(Sk32_sat_add(fConicWeights.size(), extraCnCount));
 }
 
-std::tuple<SkPoint*, SkScalar*> SkPathBuilder::growForVerbsInPath(const SkPathRef& path) {
-    fSegmentMask |= path.fSegmentMask;
+std::tuple<SkPoint*, SkScalar*> SkPathBuilder::growForVerbsInPath(const SkPath& path) {
+    fSegmentMask |= path.getSegmentMasks();
 
-    if (int numVerbs = path.countVerbs()) {
+    const SkSpan<const SkPathVerb> verbs = path.verbs();
+    if (!verbs.empty()) {
          // TODO(borenet): If the current builder is empty or JustMoves, we can use the type of the
          // path. If the path is empty, we can keep the current type.
         fType = SkPathIsAType::kGeneral;
-        memcpy(fVerbs.push_back_n(numVerbs), path.fVerbs.begin(), numVerbs * sizeof(fVerbs[0]));
+        fVerbs.push_back_n(verbs.size(), verbs.data());
     }
 
     SkPoint* pts = nullptr;
@@ -117,7 +118,7 @@ std::tuple<SkPoint*, SkScalar*> SkPathBuilder::growForVerbsInPath(const SkPathRe
     }
 
     SkScalar* weights = nullptr;
-    if (int numConics = path.countWeights()) {
+    if (int numConics = path.conicWeights().size()) {
         weights = fConicWeights.push_back_n(numConics);
     }
 
@@ -789,13 +790,11 @@ SkPathBuilder& SkPathBuilder::addPath(const SkPath& src, const SkMatrix& matrix,
     fConvexity = SkPathConvexity::kUnknown;
 
     if (SkPath::AddPathMode::kAppend_AddPathMode == mode && !matrix.hasPerspective()) {
-        if (src.fLastMoveToIndex >= 0) {
-            fLastMoveIndex = src.fLastMoveToIndex + this->countPoints();
-        } else {
-            fLastMoveIndex = ~src.fLastMoveToIndex + this->countPoints();
-        }
+        const int lastMoveToIndex = SkPathPriv::FindLastMoveToIndex(src.verbs(), src.points().size());
+        SkASSERT(lastMoveToIndex >= 0);
+        fLastMoveIndex = lastMoveToIndex + this->countPoints();
 
-        auto [newPts, newWeights] = this->growForVerbsInPath(*src.fPathRef);
+        auto [newPts, newWeights] = this->growForVerbsInPath(src);
         const auto count = src.countPoints();
         matrix.mapPoints({newPts, count}, {src.fPathRef->points(), count});
         if (int numWeights = src.fPathRef->countWeights()) {

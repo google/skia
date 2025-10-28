@@ -120,6 +120,12 @@ public:
     }
 
     /*
+     *  Returns the index of the last moveTo() point, based on the verbs.
+     *  If verbs is empty / ptCount == 0, then this returns -1.
+     */
+    static int FindLastMoveToIndex(SkSpan<const SkPathVerb> verbs, const size_t ptCount);
+
+    /*
      *  If we're transforming a known shape (oval or rrect), this computes what happens to its
      *  - winding direction
      *  - start index
