@@ -13,6 +13,7 @@
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 #include "src/gpu/graphite/ShaderInfo.h"
@@ -121,6 +122,13 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ShaderInfoDetectsFixedFunctionBlend, reporter
         const RenderStep* renderStep = &context->priv().rendererProvider()->nonAABounds()->step(0);
         bool dstReadRequired = !CanUseHardwareBlending(caps, format, mode, renderStep->coverage());
 
+        RenderPassDesc rpDesc;
+        rpDesc.fColorAttachment.fFormat = format;
+        rpDesc.fWriteSwizzle = skgpu::Swizzle::RGBA();
+        rpDesc.fSampleCount = 1;
+        rpDesc.fDstReadStrategy = dstReadRequired ? caps->getDstReadStrategy()
+                                                  : DstReadStrategy::kNoneRequired;
+
         // ShaderInfo expects to receive a concrete determination of dstReadStrategy based upon
         // whether a dst read is needed. Therefore, we need to decide whether to pass in the
         // dstReadStrategy reported by caps OR DstReadStrategy::kNoneRequired.
@@ -128,13 +136,9 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ShaderInfoDetectsFixedFunctionBlend, reporter
                 ShaderInfo::Make(caps,
                                  dict,
                                  /*rteDict=*/nullptr,
+                                 rpDesc,
                                  renderStep,
-                                 paintID,
-                                 /*useStorageBuffers=*/false,
-                                 format,
-                                 skgpu::Swizzle::RGBA(),
-                                 dstReadRequired ? caps->getDstReadStrategy()
-                                                 : DstReadStrategy::kNoneRequired);
+                                 paintID);
 
         SkBlendMode expectedBM = mode;
         if (expectedBM == SkBlendMode::kPlus &&

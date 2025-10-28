@@ -10,6 +10,7 @@
 #include "src/gpu/BlendFormula.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 #include "src/gpu/graphite/TextureFormat.h"
@@ -657,6 +658,22 @@ std::vector<LiftedExpression> collect_lifted_expressions(SkSpan<const ShaderNode
     return lifted;
 }
 
+std::string dst_read_strategy_to_str(DstReadStrategy strategy) {
+    switch (strategy) {
+        case DstReadStrategy::kNoneRequired:
+            return "NoneRequired";
+        case DstReadStrategy::kTextureCopy:
+            return "TextureCopy";
+        case DstReadStrategy::kTextureSample:
+            return "TextureSample";
+        case DstReadStrategy::kReadFromInput:
+            return "ReadFromInput";
+        case DstReadStrategy::kFramebufferFetch:
+            return "FramebufferFetch";
+    }
+    SkUNREACHABLE;
+}
+
 constexpr skgpu::BlendInfo make_simple_blendInfo(skgpu::BlendCoeff srcCoeff,
                                                  skgpu::BlendCoeff dstCoeff) {
     return { skgpu::BlendEquation::kAdd,
@@ -705,7 +722,6 @@ constexpr skgpu::BlendEquation get_advanced_blend_equation(SkBlendMode mode) {
     return static_cast<skgpu::BlendEquation>((int)mode + kEqOffset);
 }
 
-
 constexpr skgpu::BlendInfo make_hardware_advanced_blendInfo(SkBlendMode advancedBlendMode) {
     BlendInfo blendInfo;
     blendInfo.fEquation = get_advanced_blend_equation(advancedBlendMode);
@@ -752,15 +768,12 @@ static constexpr skgpu::BlendInfo gBlendTable[kSkBlendModeCount] = {
 std::unique_ptr<ShaderInfo> ShaderInfo::Make(const Caps* caps,
                                              const ShaderCodeDictionary* dict,
                                              const RuntimeEffectDictionary* rteDict,
+                                             const RenderPassDesc& rpDesc,
                                              const RenderStep* step,
                                              UniquePaintParamsID paintID,
-                                             bool useStorageBuffers,
-                                             TextureFormat targetFormat,
-                                             skgpu::Swizzle writeSwizzle,
-                                             DstReadStrategy dstReadStrategy,
                                              skia_private::TArray<SamplerDesc>* outDescs) {
     const char* shadingSsboIndex =
-            useStorageBuffers && step->performsShading() ? "shadingSsboIndex" : nullptr;
+            caps->storageBufferSupport() && step->performsShading() ? "shadingSsboIndex" : nullptr;
 
     // If paintID is not valid this is a depth-only draw and there's no fragment shader to compile.
     const bool hasFragShader = paintID.isValid();
@@ -771,7 +784,8 @@ std::unique_ptr<ShaderInfo> ShaderInfo::Make(const Caps* caps,
     auto result = std::unique_ptr<ShaderInfo>(
             new ShaderInfo(dict, rteDict,
                            shadingSsboIndex,
-                           hasFragShader ? dstReadStrategy : DstReadStrategy::kNoneRequired));
+                           hasFragShader ? rpDesc.fDstReadStrategy
+                                         : DstReadStrategy::kNoneRequired));
 
     // De-compressed shader tree from a PaintParamsKey. There can be 1 or 2 root nodes, the first
     // being the paint effects (rooted with a BlendCompose for the final paint blend) and the
@@ -782,14 +796,15 @@ std::unique_ptr<ShaderInfo> ShaderInfo::Make(const Caps* caps,
 
     // The fragment shader must be generated before the vertex shader, because we determine
     // properties of the entire program while generating the fragment shader.
+    SkString paintLabel = dict->idToString(paintID); // will be "(empty)" if paintID is invalid
     if (hasFragShader) {
         result->generateFragmentSkSL(caps,
                                      dict,
+                                     paintLabel.c_str(),
                                      step,
                                      paintID,
-                                     useStorageBuffers,
-                                     targetFormat,
-                                     writeSwizzle,
+                                     rpDesc.fColorAttachment.fFormat,
+                                     rpDesc.fWriteSwizzle,
                                      outDescs,
                                      shaderNodeAlloc,
                                      &rootNodes);
@@ -798,7 +813,35 @@ std::unique_ptr<ShaderInfo> ShaderInfo::Make(const Caps* caps,
         result->fBlendInfo.fWritesColor = false;
     }
 
-    result->generateVertexSkSL(caps, step, useStorageBuffers, rootNodes);
+    result->generateVertexSkSL(caps, step, rootNodes);
+
+    // Fill out labels
+    result->fVSLabel = step->name();
+    if (result->needsLocalCoords()) {
+        result->fVSLabel += " (w/ local coords)";
+    }
+
+    result->fFSLabel = step->name();
+    result->fFSLabel += " + ";
+    result->fFSLabel += paintLabel.c_str();
+    if (rpDesc.fWriteSwizzle != Swizzle::RGBA() ||
+        result->fDstReadStrategy != DstReadStrategy::kNoneRequired) {
+        result->fFSLabel += "(";
+        result->fFSLabel += rpDesc.fWriteSwizzle.asString().c_str();
+        if (result->fDstReadStrategy != DstReadStrategy::kNoneRequired) {
+            result->fFSLabel += ", ";
+            result->fFSLabel += dst_read_strategy_to_str(result->fDstReadStrategy);
+        }
+
+        result->fFSLabel += ")";
+    }
+
+    // KEEP IN SYNC with ContextUtils::GetPipelineLabel()
+    result->fPipelineLabel = rpDesc.toPipelineLabel().c_str();
+    result->fPipelineLabel += " + ";
+    result->fPipelineLabel += step->name();
+    result->fPipelineLabel += " + ";
+    result->fPipelineLabel += paintLabel.c_str();
 
     return result;
 }
@@ -811,24 +854,6 @@ ShaderInfo::ShaderInfo(const ShaderCodeDictionary* shaderCodeDictionary,
         , fRuntimeEffectDictionary(rteDict)
         , fShadingSsboIndex(shadingSsboIndex)
         , fDstReadStrategy(dstReadStrategy) {}
-
-namespace {
-std::string dst_read_strategy_to_str(DstReadStrategy strategy) {
-    switch (strategy) {
-        case DstReadStrategy::kNoneRequired:
-            return "NoneRequired";
-        case DstReadStrategy::kTextureCopy:
-            return "TextureCopy";
-        case DstReadStrategy::kTextureSample:
-            return "TextureSample";
-        case DstReadStrategy::kReadFromInput:
-            return "ReadFromInput";
-        case DstReadStrategy::kFramebufferFetch:
-            return "FramebufferFetch";
-    }
-    SkUNREACHABLE;
-}
-} // anonymous
 
 // The current, incomplete, model for shader construction is:
 //   - Static code snippets (which can have an arbitrary signature) live in the Graphite
@@ -843,9 +868,9 @@ std::string dst_read_strategy_to_str(DstReadStrategy strategy) {
 //   overridden to not use a static function.
 void ShaderInfo::generateFragmentSkSL(const Caps* caps,
                                       const ShaderCodeDictionary* dict,
+                                      const char* label,
                                       const RenderStep* step,
                                       UniquePaintParamsID paintID,
-                                      bool useStorageBuffers,
                                       TextureFormat targetFormat,
                                       Swizzle writeSwizzle,
                                       skia_private::TArray<SamplerDesc>* outDescs,
@@ -853,8 +878,6 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
                                       SkSpan<const ShaderNode*>* rootNodes) {
     PaintParamsKey key = dict->lookup(paintID);
     SkASSERT(key.isValid());  // invalid keys should have been caught by invalid paint ID earlier
-
-    std::string label = key.toString(dict).c_str();
 
     // Two varyings are reserved for 1) the SSBO indices and 2) local coordinates.
     constexpr int kFixedVaryings = 2;
@@ -896,9 +919,7 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
 
     // Check for unexpected corruption / illegal instructions occurring in the wild.
     SkASSERTF_RELEASE(rootNodes->size() == 2 || rootNodes->size() == 3,
-                      "root node size = %zu, label = %s",
-                      rootNodes->size(),
-                      label.c_str());
+                      "root node size = %zu, label = %s", rootNodes->size(), label);
 
     // Extract the root nodes for clarity
     const ShaderNode* const srcColorRoot = (*rootNodes)[0];
@@ -934,8 +955,8 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
     }
 
     const bool hasStepUniforms = step->numUniforms() > 0 && step->usesUniformsInFragmentSkSL();
-    const bool useStepStorageBuffer = useStorageBuffers && hasStepUniforms;
-    const bool useShadingStorageBuffer = useStorageBuffers && step->performsShading();
+    const bool useStepStorageBuffer = caps->storageBufferSupport() && hasStepUniforms;
+    const bool useShadingStorageBuffer = caps->storageBufferSupport() && step->performsShading();
 
     auto allReqFlags = srcColorRoot->requiredFlags() | finalBlendRoot->requiredFlags();
     if (clipRoot) {
@@ -1235,26 +1256,14 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
     mainBody += "}\n";
 
     fFragmentSkSL = preamble + "\n" + mainBody;
-
-    fFSLabel = writeSwizzle.asString().c_str();
-    fFSLabel += " + ";
-    fFSLabel = step->name();
-    fFSLabel += " + ";
-    fFSLabel += label;
-    if (fDstReadStrategy != DstReadStrategy::kNoneRequired) {
-        fFSLabel += " + Dst Read (";
-        fFSLabel += dst_read_strategy_to_str(fDstReadStrategy);
-        fFSLabel += ")";
-    }
 }
 
 void ShaderInfo::generateVertexSkSL(const Caps* caps,
                                     const RenderStep* step,
-                                    bool useStorageBuffers,
                                     SkSpan<const ShaderNode*> rootNodes) {
     const bool hasStepUniforms = step->numUniforms() > 0;
-    const bool useStepStorageBuffer = useStorageBuffers && hasStepUniforms;
-    const bool useShadingStorageBuffer = useStorageBuffers && step->performsShading();
+    const bool useStepStorageBuffer = caps->storageBufferSupport() && hasStepUniforms;
+    const bool useShadingStorageBuffer = caps->storageBufferSupport() && step->performsShading();
     const bool defineLocalCoordsVarying = this->needsLocalCoords();
 
     // Fixed program header (intrinsics are always declared as an uniform interface block)
@@ -1391,10 +1400,6 @@ void ShaderInfo::generateVertexSkSL(const Caps* caps,
     sksl += "}";
 
     fVertexSkSL = std::move(sksl);
-    fVSLabel = step->name();
-    if (defineLocalCoordsVarying) {
-        fVSLabel += " (w/ local coords)";
-    }
     fHasStepUniforms = hasStepUniforms;
 }
 

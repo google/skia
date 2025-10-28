@@ -285,7 +285,6 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
     ShaderErrorHandler* errorHandler = sharedContext->caps()->shaderErrorHandler();
 
     const RenderStep* step = sharedContext->rendererProvider()->lookup(pipelineDesc.renderStepID());
-    const bool useStorageBuffers = sharedContext->caps()->storageBufferSupport();
 
     UniquePaintParamsID paintID = pipelineDesc.paintParamsID();
 
@@ -293,12 +292,9 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
             ShaderInfo::Make(sharedContext->caps(),
                              sharedContext->shaderCodeDictionary(),
                              runtimeDict,
+                             renderPassDesc,
                              step,
-                             paintID,
-                             useStorageBuffers,
-                             renderPassDesc.fColorAttachment.fFormat,
-                             renderPassDesc.fWriteSwizzle,
-                             renderPassDesc.fDstReadStrategy);
+                             paintID);
 
     const std::string& fsSkSL = shaderInfo->fragmentSkSL();
     const BlendInfo& blendInfo = shaderInfo->blendInfo();
@@ -338,21 +334,19 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
     pipelineInfo.fNativeFragmentShader = std::move(fsMSL.fText);
 #endif
 
-    std::string pipelineLabel =
-            GetPipelineLabel(sharedContext->shaderCodeDictionary(), renderPassDesc, step, paintID);
-    return Make(sharedContext,
-                pipelineLabel,
-                pipelineInfo,
-                {vsLibrary.get(), "vertexMain"},
-                step->appendsVertices() ? MTLVertexStepFunctionPerVertex :
-                                          MTLVertexStepFunctionPerInstance,
-                step->staticAttributes(),
-                step->appendAttributes(),
-                {fsLibrary.get(), "fragmentMain"},
-                std::move(dss),
-                step->depthStencilSettings().fStencilReferenceValue,
-                blendInfo,
-                renderPassDesc);
+   return Make(sharedContext,
+               shaderInfo->pipelineLabel(),
+               pipelineInfo,
+               {vsLibrary.get(), "vertexMain"},
+               step->appendsVertices() ? MTLVertexStepFunctionPerVertex :
+                                         MTLVertexStepFunctionPerInstance,
+               step->staticAttributes(),
+               step->appendAttributes(),
+               {fsLibrary.get(), "fragmentMain"},
+               std::move(dss),
+               step->depthStencilSettings().fStencilReferenceValue,
+               blendInfo,
+               renderPassDesc);
 }
 
 sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::MakeLoadMSAAPipeline(

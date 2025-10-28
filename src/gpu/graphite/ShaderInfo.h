@@ -47,12 +47,9 @@ public:
     static std::unique_ptr<ShaderInfo> Make(const Caps*,
                                             const ShaderCodeDictionary*,
                                             const RuntimeEffectDictionary*,
+                                            const RenderPassDesc& rpDesc,
                                             const RenderStep*,
                                             UniquePaintParamsID,
-                                            bool useStorageBuffers,
-                                            TextureFormat targetFormat,
-                                            skgpu::Swizzle writeSwizzle,
-                                            DstReadStrategy dstReadStrategy,
                                             skia_private::TArray<SamplerDesc>* outDescs = nullptr);
 
     const ShaderCodeDictionary* shaderCodeDictionary() const {
@@ -71,8 +68,11 @@ public:
 
     const std::string& vertexSkSL() const { return fVertexSkSL; }
     const std::string& fragmentSkSL() const { return fFragmentSkSL; }
+
     const std::string& vsLabel() const { return fVSLabel; }
     const std::string& fsLabel() const { return fFSLabel; }
+    // Matches ContextUtils::GetPipelineLabel() for the same args that were passed to Make()
+    const std::string& pipelineLabel() const { return fPipelineLabel; }
 
     int numFragmentTexturesAndSamplers() const { return fNumFragmentTexturesAndSamplers; }
     bool hasStepUniforms() const { return fHasStepUniforms; }
@@ -90,7 +90,6 @@ private:
 
     void generateVertexSkSL(const Caps*,
                             const RenderStep*,
-                            bool useStorageBuffers,
                             SkSpan<const ShaderNode*> rootNodes);
 
     // Determines fNumFragmentTexturesAndSamplers, fHasPaintUniforms, fHasGradientBuffer,
@@ -98,9 +97,9 @@ private:
     // sampler SamplerDescs.
     void generateFragmentSkSL(const Caps*,
                               const ShaderCodeDictionary*,
+                              const char* label,
                               const RenderStep*,
                               UniquePaintParamsID,
-                              bool useStorageBuffers,
                               TextureFormat targetFormat,
                               skgpu::Swizzle writeSwizzle,
                               skia_private::TArray<SamplerDesc>* outDescs,
@@ -133,6 +132,7 @@ private:
     std::string fFragmentSkSL;
     std::string fVSLabel;
     std::string fFSLabel;
+    std::string fPipelineLabel;
 
     int fNumFragmentTexturesAndSamplers = 0;
     bool fHasStepUniforms = false;
