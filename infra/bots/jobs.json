@@ -633,8 +633,7 @@
     "name": "Build-Ubuntu24.04-Clang-x86_64-Release-Wuffs"
   },
   {
-    "name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit",
-    "cq_config": {}
+    "name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit"
   },
   {
     "name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit_CPU"
@@ -1953,20 +1952,10 @@
     "name": "Test-Ubuntu24.04-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan"
   },
   {
-    "name": "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit",
-    "cq_config": {
-      "location_regexes": [
-        "modules/canvaskit/.*"
-      ]
-    }
+    "name": "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit"
   },
   {
-    "name": "Test-Ubuntu24.04-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit",
-    "cq_config": {
-      "location_regexes": [
-        "modules/canvaskit/.*"
-      ]
-    }
+    "name": "Test-Ubuntu24.04-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit"
   },
   {
     "name": "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All"
