@@ -82,26 +82,6 @@ SkPathBuilder& SkPathBuilder::reset() {
     return *this;
 }
 
-SkPathBuilder& SkPathBuilder::operator=(const SkPath& src) {
-    this->reset().setFillType(src.getFillType());
-    this->setIsVolatile(src.isVolatile());
-
-    const sk_sp<SkPathRef>& ref = src.fPathRef;
-    fVerbs        = ref->fVerbs;
-    fPts          = ref->fPoints;
-    fConicWeights = ref->fConicWeights;
-
-    fSegmentMask   = ref->fSegmentMask;
-    fLastMoveIndex = src.fLastMoveToIndex < 0 ? ~src.fLastMoveToIndex : src.fLastMoveToIndex;
-
-    fType = ref->fType;
-    fIsA  = ref->fIsA;
-
-    fConvexity = src.getConvexityOrUnknown();
-
-    return *this;
-}
-
 bool SkPathBuilder::operator==(const SkPathBuilder& o) const {
     // quick-accept
     if (this == &o) {
@@ -274,47 +254,6 @@ SkPathBuilder& SkPathBuilder::rCubicTo(SkPoint p1, SkPoint p2, SkPoint p3) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-
-SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
-    switch (fType) {
-        case SkPathIsAType::kGeneral:
-            break;
-        case SkPathIsAType::kOval:
-            pr->setIsOval(fIsA.fDirection, fIsA.fStartIndex);
-            SkASSERT(SkPathConvexity_IsConvex(fConvexity));
-            break;
-        case SkPathIsAType::kRRect:
-            pr->setIsRRect(fIsA.fDirection, fIsA.fStartIndex);
-            SkASSERT(SkPathConvexity_IsConvex(fConvexity));
-            break;
-    }
-
-    // Wonder if we can combine convexity and dir internally...
-    //  unknown, convex_cw, convex_ccw, concave
-    // Do we ever have direction w/o convexity, or viceversa (inside path)?
-    //
-    auto path = SkPath(std::move(pr), fFillType, fIsVolatile, fConvexity);
-
-    // This hopefully can go away in the future when Paths are immutable,
-    // but if while they are still editable, we need to correctly set this.
-    SkSpan<const SkPathVerb> verbs = path.fPathRef->verbs();
-    if (!verbs.empty()) {
-        SkASSERT(fLastMoveIndex >= 0);
-        // peek at the last verb, to know if our last contour is closed
-        const bool isClosed = (verbs.back() == SkPathVerb::kClose);
-        path.fLastMoveToIndex = isClosed ? ~fLastMoveIndex : fLastMoveIndex;
-    }
-
-    return path;
-}
-
-SkPath SkPathBuilder::snapshot(const SkMatrix* mx) const {
-    return this->make(sk_sp<SkPathRef>(new SkPathRef(fPts,
-                                                     fVerbs,
-                                                     fConicWeights,
-                                                     fSegmentMask,
-                                                     mx)));
-}
 
 SkPath SkPathBuilder::detach(const SkMatrix* mx) {
     auto path = this->make(sk_sp<SkPathRef>(new SkPathRef(std::move(fPts),
