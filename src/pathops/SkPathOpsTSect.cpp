@@ -1826,8 +1826,8 @@ void SkTSect::BinarySearch(SkTSect* sect1,
         }
         SkTSpan* largest2 = sect2->boundsMax();
         // split it
-        if (!largest2 || (largest1 && (largest1->fBoundsMax > largest2->fBoundsMax
-                || (!largest1->fCollapsed && largest2->fCollapsed)))) {
+        if (!largest2 || largest1->fBoundsMax > largest2->fBoundsMax
+                || (!largest1->fCollapsed && largest2->fCollapsed)) {
             if (sect2->fHung) {
                 return;
             }
