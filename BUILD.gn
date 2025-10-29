@@ -1601,6 +1601,16 @@ optional("xml") {
               "src/svg/SkSVGCanvas.cpp",
               "src/svg/SkSVGDevice.cpp",
             ]
+
+  # TODO(lukasza, kjlubick, bungeman): Remove the `deps` below once the legacy
+  # SVG factories (see `SK_DISABLE_LEGACY_SVG_FACTORIES`) are not supported
+  # anymore.
+  if (skia_use_libpng_encode) {
+    deps += [ ":png_encode_libpng" ]
+  }
+  if (skia_use_rust_png_encode) {
+    deps += [ ":png_encode_rust" ]
+  }
 }
 
 if (skia_enable_ganesh && skia_generate_workarounds) {

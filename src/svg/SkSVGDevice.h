@@ -14,6 +14,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTypeTraits.h"
+#include "include/svg/SkSVGCanvas.h"
 #include "include/utils/SkParsePath.h"
 #include "src/core/SkClipStackDevice.h"
 
@@ -43,7 +44,9 @@ struct SkSamplingOptions;
 
 class SkSVGDevice final : public SkClipStackDevice {
 public:
-    static sk_sp<SkDevice> Make(const SkISize& size, std::unique_ptr<SkXMLWriter>, uint32_t flags);
+    static sk_sp<SkDevice> Make(const SkISize& size,
+                                std::unique_ptr<SkXMLWriter>,
+                                SkSVGCanvas::Options opts);
 
     void drawPaint(const SkPaint& paint) override;
     void drawAnnotation(const SkRect& rect, const char key[], SkData* value) override;
@@ -61,7 +64,7 @@ public:
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override;
 
 private:
-    SkSVGDevice(const SkISize& size, std::unique_ptr<SkXMLWriter>, uint32_t);
+    SkSVGDevice(const SkISize& size, std::unique_ptr<SkXMLWriter>, SkSVGCanvas::Options);
     ~SkSVGDevice() override;
 
     void onDrawGlyphRunList(SkCanvas*, const sktext::GlyphRunList&, const SkPaint& paint) override;
@@ -78,7 +81,7 @@ private:
 
     const std::unique_ptr<SkXMLWriter>    fWriter;
     const std::unique_ptr<ResourceBucket> fResourceBucket;
-    const uint32_t                        fFlags;
+    const SkSVGCanvas::Options            fOpts;
 
     struct ClipRec {
         std::unique_ptr<AutoElement> fClipPathElem;

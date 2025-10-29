@@ -32,11 +32,11 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkSpan.h"
+#include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
-#include "include/encode/SkPngEncoder.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTPin.h"
@@ -278,18 +278,24 @@ struct SkSVGDevice::MxCp {
 
 class SkSVGDevice::AutoElement : ::SkNoncopyable {
 public:
-    AutoElement(const char name[], SkXMLWriter* writer)
-        : fWriter(writer)
+    AutoElement(const char name[], const AutoElement& parent)
+        : fWriter(parent.fWriter)
+        , fPngEncoder(parent.fPngEncoder)
         , fResourceBucket(nullptr) {
         fWriter->startElement(name);
     }
 
-    AutoElement(const char name[], const std::unique_ptr<SkXMLWriter>& writer)
-        : AutoElement(name, writer.get()) {}
+    AutoElement(const char name[], SkSVGDevice* svgdev)
+        : fWriter(svgdev->fWriter.get())
+        , fPngEncoder(svgdev->fOpts.pngEncoder)
+        , fResourceBucket(nullptr) {
+        fWriter->startElement(name);
+    }
 
     AutoElement(const char name[], SkSVGDevice* svgdev,
                 ResourceBucket* bucket, const MxCp& mc, const SkPaint& paint)
         : fWriter(svgdev->fWriter.get())
+        , fPngEncoder(svgdev->fOpts.pngEncoder)
         , fResourceBucket(bucket) {
 
         svgdev->syncClipStack(*mc.fClipStack);
@@ -350,8 +356,9 @@ private:
                             const SkShader* shader,
                             const SkMatrix& localMatrix);
 
-    SkXMLWriter*               fWriter;
-    ResourceBucket*            fResourceBucket;
+    SkXMLWriter*                   fWriter = nullptr;
+    SkSVGCanvas::EncodePngCallback fPngEncoder = nullptr;
+    ResourceBucket*                fResourceBucket = nullptr;
 };
 
 void SkSVGDevice::AutoElement::addPaint(const SkPaint& paint, const Resources& resources) {
@@ -416,7 +423,7 @@ Resources SkSVGDevice::AutoElement::addResources(const MxCp& mc, const SkPaint& 
     Resources resources(paint);
 
     if (paint.getShader()) {
-        AutoElement defs("defs", fWriter);
+        AutoElement defs("defs", *this);
 
         this->addShaderResources(paint, &resources);
     }
@@ -466,7 +473,7 @@ void SkSVGDevice::AutoElement::addColorFilterResources(const SkColorFilter& cf,
                                                        Resources* resources) {
     SkString colorfilterID = fResourceBucket->addColorFilter();
     {
-        AutoElement filterElement("filter", fWriter);
+        AutoElement filterElement("filter", *this);
         filterElement.addAttribute("id", colorfilterID);
         filterElement.addAttribute("x", "0%");
         filterElement.addAttribute("y", "0%");
@@ -481,7 +488,7 @@ void SkSVGDevice::AutoElement::addColorFilterResources(const SkColorFilter& cf,
 
         {
             // first flood with filter color
-            AutoElement floodElement("feFlood", fWriter);
+            AutoElement floodElement("feFlood", *this);
             floodElement.addAttribute("flood-color", svg_color(filterColor));
             floodElement.addAttribute("flood-opacity", svg_opacity(filterColor));
             floodElement.addAttribute("result", "flood");
@@ -489,7 +496,7 @@ void SkSVGDevice::AutoElement::addColorFilterResources(const SkColorFilter& cf,
 
         {
             // apply the transform to filter color
-            AutoElement compositeElement("feComposite", fWriter);
+            AutoElement compositeElement("feComposite", *this);
             compositeElement.addAttribute("in", "flood");
             compositeElement.addAttribute("operator", "in");
         }
@@ -507,10 +514,34 @@ static bool is_jpeg(const void* bytes, size_t length) {
     return length >= sizeof(jpegSig) && !memcmp(bytes, jpegSig, sizeof(jpegSig));
 }
 
+static sk_sp<SkData> EncodePng(const SkPixmap& pixmap, SkSVGCanvas::EncodePngCallback pngEncoder) {
+    SkDynamicMemoryWStream stream;
+    if (!pngEncoder(&stream, pixmap)) {
+        return nullptr;
+    }
+
+    return stream.detachAsData();
+}
+
+static sk_sp<SkData> EncodePng(SkImage* image, SkSVGCanvas::EncodePngCallback pngEncoder) {
+    // GrDirectContext is nullptr because we shouldn't have any texture-based images passed in.
+    sk_sp<SkImage> rasterImage = image->makeRasterImage(nullptr);
+    if (!rasterImage) {
+      return nullptr;
+    }
+
+    SkPixmap pixmap;
+    if (!rasterImage->peekPixels(&pixmap)) {
+        return nullptr;
+    }
+
+    return EncodePng(pixmap, pngEncoder);
+}
+
 // Returns data uri from bytes.
 // it will use any cached data if available, otherwise will
 // encode as png.
-sk_sp<SkData> AsDataUri(SkImage* image) {
+sk_sp<SkData> AsDataUri(SkImage* image, SkSVGCanvas::EncodePngCallback pngEncoder) {
     static constexpr char jpgDataPrefix[] = "data:image/jpeg;base64,";
     static constexpr char pngDataPrefix[] = "data:image/png;base64,";
 
@@ -526,9 +557,7 @@ sk_sp<SkData> AsDataUri(SkImage* image) {
             selectedPrefixLength = sizeof(jpgDataPrefix);
         } else if (!is_png(imageData->data(), imageData->size())) {
             // re-encode the image as a PNG.
-            // GrDirectContext is nullptr because we shouldn't have any texture-based images
-            // passed in.
-            imageData = SkPngEncoder::Encode(nullptr, image, {});
+            imageData = EncodePng(image, pngEncoder);
             if (!imageData) {
                 return nullptr;
             }
@@ -536,7 +565,7 @@ sk_sp<SkData> AsDataUri(SkImage* image) {
         // else, it's already encoded as a PNG - we don't need to do anything.
     } else {
         // It was not encoded as something, so we need to encode it as a PNG.
-        imageData = SkPngEncoder::Encode(nullptr, image, {});
+        imageData = EncodePng(image, pngEncoder);
         if (!imageData) {
             return nullptr;
         }
@@ -561,7 +590,7 @@ void SkSVGDevice::AutoElement::addImageShaderResources(const SkShader* shader, c
 
     SkString patternDims[2];  // width, height
 
-    sk_sp<SkData> dataUri = AsDataUri(image);
+    sk_sp<SkData> dataUri = AsDataUri(image, fPngEncoder);
     if (!dataUri) {
         return;
     }
@@ -580,7 +609,7 @@ void SkSVGDevice::AutoElement::addImageShaderResources(const SkShader* shader, c
 
     SkString patternID = fResourceBucket->addPattern();
     {
-        AutoElement pattern("pattern", fWriter);
+        AutoElement pattern("pattern", *this);
         pattern.addAttribute("id", patternID);
         pattern.addAttribute("patternUnits", "userSpaceOnUse");
         pattern.addAttribute("patternContentUnits", "userSpaceOnUse");
@@ -591,7 +620,7 @@ void SkSVGDevice::AutoElement::addImageShaderResources(const SkShader* shader, c
 
         {
             SkString imageID = fResourceBucket->addImage();
-            AutoElement imageTag("image", fWriter);
+            AutoElement imageTag("image", *this);
             imageTag.addAttribute("id", imageID);
             imageTag.addAttribute("x", 0);
             imageTag.addAttribute("y", 0);
@@ -636,7 +665,7 @@ SkString SkSVGDevice::AutoElement::addGradientDef(SkShaderBase::GradientType typ
     const char* elem_name = type == SkShaderBase::GradientType::kLinear ? "linearGradient"
                                                                         : "radialGradient";
     {
-        AutoElement gradient(elem_name, fWriter);
+        AutoElement gradient(elem_name, *this);
 
         gradient.addAttribute("id", id);
         gradient.addAttribute("gradientUnits", "userSpaceOnUse");
@@ -672,7 +701,7 @@ SkString SkSVGDevice::AutoElement::addGradientDef(SkShaderBase::GradientType typ
             SkString colorStr(svg_color(color));
 
             {
-                AutoElement stop("stop", fWriter);
+                AutoElement stop("stop", *this);
                 stop.addAttribute("offset", info.fColorOffsets[i]);
                 stop.addAttribute("stop-color", colorStr.c_str());
 
@@ -743,7 +772,8 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkFont& font) {
                 continue;
             }
             familySet.add(familyString.fString);
-            familyName.appendf((familyName.isEmpty() ? "%s" : ", %s"), familyString.fString.c_str());
+            familyName.appendf((familyName.isEmpty() ? "%s" : ", %s"),
+                               familyString.fString.c_str());
         }
     }
     if (!familyName.isEmpty()) {
@@ -753,25 +783,27 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkFont& font) {
 
 sk_sp<SkDevice> SkSVGDevice::Make(const SkISize& size,
                                   std::unique_ptr<SkXMLWriter> writer,
-                                  uint32_t flags) {
-    return writer ? sk_sp<SkDevice>(new SkSVGDevice(size, std::move(writer), flags))
+                                  SkSVGCanvas::Options opts) {
+    return writer ? sk_sp<SkDevice>(new SkSVGDevice(size, std::move(writer), opts))
                   : nullptr;
 }
 
-SkSVGDevice::SkSVGDevice(const SkISize& size, std::unique_ptr<SkXMLWriter> writer, uint32_t flags)
+SkSVGDevice::SkSVGDevice(const SkISize& size,
+                         std::unique_ptr<SkXMLWriter> writer,
+                         SkSVGCanvas::Options opts)
         : SkClipStackDevice(
             SkImageInfo::MakeUnknown(size.fWidth, size.fHeight),
             SkSurfaceProps())
         , fWriter(std::move(writer))
         , fResourceBucket(new ResourceBucket)
-        , fFlags(flags)
+        , fOpts(opts)
 {
     SkASSERT(fWriter);
 
     fWriter->writeHeader();
 
     // The root <svg> tag gets closed by the destructor.
-    fRootElement = std::make_unique<AutoElement>("svg", fWriter);
+    fRootElement = std::make_unique<AutoElement>("svg", this);
 
     fRootElement->addAttribute("xmlns", "http://www.w3.org/2000/svg");
     fRootElement->addAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
@@ -787,7 +819,7 @@ SkSVGDevice::~SkSVGDevice() {
 }
 
 SkParsePath::PathEncoding SkSVGDevice::pathEncoding() const {
-    return (fFlags & SkSVGCanvas::kRelativePathEncoding_Flag)
+    return (fOpts.flags & SkSVGCanvas::kRelativePathEncoding_Flag)
         ? SkParsePath::PathEncoding::Relative
         : SkParsePath::PathEncoding::Absolute;
 }
@@ -814,7 +846,7 @@ void SkSVGDevice::syncClipStack(const SkClipStack& cs) {
     auto define_clip = [this](const SkClipStack::Element* e) {
         const auto cid = SkStringPrintf("cl_%x", e->getGenID());
 
-        AutoElement clip_path("clipPath", fWriter);
+        AutoElement clip_path("clipPath", this);
         clip_path.addAttribute("id", cid);
 
         // TODO: handle non-intersect clips.
@@ -822,10 +854,10 @@ void SkSVGDevice::syncClipStack(const SkClipStack& cs) {
         switch (e->getDeviceSpaceType()) {
         case SkClipStack::Element::DeviceSpaceType::kEmpty: {
             // TODO: can we skip this?
-            AutoElement rect("rect", fWriter);
+            AutoElement rect("rect", this);
         } break;
         case SkClipStack::Element::DeviceSpaceType::kRect: {
-            AutoElement rect("rect", fWriter);
+            AutoElement rect("rect", this);
             rect.addRectAttributes(e->getDeviceSpaceRect());
         } break;
         case SkClipStack::Element::DeviceSpaceType::kRRect: {
@@ -833,14 +865,14 @@ void SkSVGDevice::syncClipStack(const SkClipStack& cs) {
             const auto& rr   = e->getDeviceSpaceRRect();
             const auto radii = rr.getSimpleRadii();
 
-            AutoElement rrect("rect", fWriter);
+            AutoElement rrect("rect", this);
             rrect.addRectAttributes(rr.rect());
             rrect.addAttribute("rx", radii.x());
             rrect.addAttribute("ry", radii.y());
         } break;
         case SkClipStack::Element::DeviceSpaceType::kPath: {
             const auto& p = e->getDeviceSpacePath();
-            AutoElement path("path", fWriter);
+            AutoElement path("path", this);
             path.addPathAttributes(p, this->pathEncoding());
             if (p.getFillType() == SkPathFillType::kEvenOdd) {
                 path.addAttribute("clip-rule", "evenodd");
@@ -858,7 +890,7 @@ void SkSVGDevice::syncClipStack(const SkClipStack& cs) {
     while (elem) {
         const auto cid = define_clip(elem);
 
-        auto clip_grp = std::make_unique<AutoElement>("g", fWriter);
+        auto clip_grp = std::make_unique<AutoElement>("g", this);
         clip_grp->addAttribute("clip-path", SkStringPrintf("url(#%s)", cid.c_str()));
 
         fClipStack.push_back({ std::move(clip_grp), elem->getGenID() });
@@ -889,10 +921,10 @@ void SkSVGDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
         }
 
         SkString url(static_cast<const char*>(value->data()), value->size() - 1);
-        AutoElement a("a", fWriter);
+        AutoElement a("a", this);
         a.addAttribute("xlink:href", url.c_str());
         {
-            AutoElement r("rect", fWriter);
+            AutoElement r("rect", this);
             r.addAttribute("fill-opacity", "0.0");
             r.addRectAttributes(transformedRect);
         }
@@ -1013,12 +1045,8 @@ void SkSVGDevice::drawPath(const SkPath& path, const SkPaint& paint) {
     }
 }
 
-static sk_sp<SkData> encode(const SkBitmap& src) {
-    return SkPngEncoder::Encode(src.pixmap(), {});
-}
-
 void SkSVGDevice::drawBitmapCommon(const MxCp& mc, const SkBitmap& bm, const SkPaint& paint) {
-    sk_sp<SkData> pngData = encode(bm);
+    sk_sp<SkData> pngData = EncodePng(bm.pixmap(), fOpts.pngEncoder);
     if (!pngData) {
         return;
     }
@@ -1032,9 +1060,9 @@ void SkSVGDevice::drawBitmapCommon(const MxCp& mc, const SkBitmap& bm, const SkP
 
     SkString imageID = fResourceBucket->addImage();
     {
-        AutoElement defs("defs", fWriter);
+        AutoElement defs("defs", this);
         {
-            AutoElement image("image", fWriter);
+            AutoElement image("image", this);
             image.addAttribute("id", imageID);
             image.addAttribute("width", bm.width());
             image.addAttribute("height", bm.height());
@@ -1165,7 +1193,7 @@ void SkSVGDevice::onDrawGlyphRunList(SkCanvas* canvas,
                                      const SkPaint& paint) {
     SkASSERT(!glyphRunList.hasRSXForm());
     const auto draw_as_path =
-            (fFlags & SkSVGCanvas::kConvertTextToPaths_Flag) || paint.getPathEffect();
+            (fOpts.flags & SkSVGCanvas::kConvertTextToPaths_Flag) || paint.getPathEffect();
 
     if (draw_as_path) {
         // Emit a single <path> element.
