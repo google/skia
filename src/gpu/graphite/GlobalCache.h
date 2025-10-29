@@ -9,6 +9,7 @@
 #define skgpu_graphite_GlobalCache_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/gpu/graphite/ContextOptions.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkSpinlock.h"
 #include "src/core/SkLRUCache.h"
@@ -58,8 +59,8 @@ public:
     // Associate the given pipeline with the key. If the key has already had a separate pipeline
     // associated with the key, that pipeline is returned and the passed-in pipeline is discarded.
     // Otherwise, the passed-in pipeline is held by the GlobalCache and also returned back.
-    sk_sp<GraphicsPipeline> addGraphicsPipeline(const UniqueKey&,
-                                                sk_sp<GraphicsPipeline>) SK_EXCLUDES(fSpinLock);
+    std::pair<sk_sp<GraphicsPipeline>, bool> addGraphicsPipeline(
+            const UniqueKey&, sk_sp<GraphicsPipeline>) SK_EXCLUDES(fSpinLock);
 
     void purgePipelinesNotUsedSince(
             StdSteadyClock::time_point purgeTime) SK_EXCLUDES(fSpinLock);
@@ -108,13 +109,20 @@ public:
     // or reference tracking.
     void addStaticResource(sk_sp<Resource>) SK_EXCLUDES(fSpinLock);
 
-    using PipelineCallbackContext = void*;
-    using PipelineCallback = void (*)(PipelineCallbackContext context, sk_sp<SkData> pipelineData);
-    void setPipelineCallback(PipelineCallback, PipelineCallbackContext) SK_EXCLUDES(fSpinLock);
+    // Note: we change the names here to better reflect the internal view of the Callbacks
+    using PipelineCallbackContext = ContextOptions::PipelineCallbackContext;
+    using PipelineCallback = ContextOptions::PipelineCachingCallback;
+    using DeprecatedPipelineCallback = ContextOptions::PipelineCallback;
 
-    void invokePipelineCallback(SharedContext*,
-                                const GraphicsPipelineDesc&,
-                                const RenderPassDesc&);
+    void setPipelineCallback(PipelineCallbackContext,
+                             PipelineCallback,
+                             DeprecatedPipelineCallback);
+
+    bool hasPipelineCallback() const { return fPipelineCallback || fDeprecatedPipelineCallback; }
+
+    void invokePipelineCallback(ContextOptions::PipelineCacheOp,
+                                const GraphicsPipeline*,
+                                sk_sp<SkData> serializedKey = nullptr);
 
     // Returns a cached Sampler matching the sampler description, assuming that `desc` is a dynamic
     // sampler and does not have any immutable sampler information. The number of dynamic samplers
@@ -177,8 +185,10 @@ private:
 
     skia_private::TArray<sk_sp<Resource>> fStaticResource SK_GUARDED_BY(fSpinLock);
 
-    PipelineCallback fPipelineCallback SK_GUARDED_BY(fSpinLock) = nullptr;
-    PipelineCallbackContext fPipelineCallbackContext SK_GUARDED_BY(fSpinLock) = nullptr;
+    PipelineCallbackContext fPipelineCallbackContext = nullptr;
+
+    PipelineCallback fPipelineCallback = nullptr;
+    DeprecatedPipelineCallback fDeprecatedPipelineCallback = nullptr;
 
     PipelineStats fStats SK_GUARDED_BY(fSpinLock);
 

@@ -17,6 +17,7 @@
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/SerializationUtils.h"
 #include "src/gpu/graphite/ThreadSafeResourceProvider.h"
 
 namespace skgpu::graphite {
@@ -107,10 +108,22 @@ sk_sp<GraphicsPipeline> SharedContext::findOrCreateGraphicsPipeline(
                                                 pipelineCreationFlags,
                                                 compilationID);
         if (pipeline) {
-            globalCache->invokePipelineCallback(this, pipelineDesc, renderPassDesc);
             // TODO: Should we store a null pipeline if we failed to create one so that subsequent
             // usage immediately sees that the pipeline cannot be created, vs. retrying every time?
-            pipeline = globalCache->addGraphicsPipeline(pipelineKey, std::move(pipeline));
+            bool addedToCache;
+            std::tie(pipeline, addedToCache) = globalCache->addGraphicsPipeline(pipelineKey,
+                                                                                pipeline);
+
+            if (addedToCache && globalCache->hasPipelineCallback()) {
+                sk_sp<SkData> data = PipelineDescToData(this->caps(),
+                                                        this->shaderCodeDictionary(),
+                                                        pipelineDesc,
+                                                        renderPassDesc);
+                globalCache->invokePipelineCallback(
+                    ContextOptions::PipelineCacheOp::kAddingPipeline,
+                    pipeline.get(),
+                    std::move(data));
+            }
         }
     }
     return pipeline;
