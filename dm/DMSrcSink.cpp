@@ -135,10 +135,12 @@
 #endif
 
 #if defined(SK_CODEC_ENCODES_PNG_WITH_LIBPNG)
+#include "include/docs/SkXPSLibpngHelpers.h"
 #include "include/encode/SkPngEncoder.h"
 #endif
 
 #if defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
+#include "include/docs/SkXPSRustPngHelpers.h"
 #include "include/encode/SkPngRustEncoder.h"
 #endif
 
@@ -2066,15 +2068,13 @@ Result XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const
         return Result::Fatal("Failed to create XPS Factory.");
     }
     SkXPS::Options xpsOpts;
-    xpsOpts.pngEncoder = [](SkWStream* dst, const SkPixmap& src) {
 #if defined(SK_CODEC_ENCODES_PNG_WITH_LIBPNG)
-        return SkPngEncoder::Encode(dst, src, {});
+    xpsOpts.pngEncoder = SkXPS::EncodePngUsingLibpng;
 #elif defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
-        return SkPngRustEncoder::Encode(dst, src, {});
+    xpsOpts.pngEncoder = SkXPS::EncodePngUsingRust;
 #else
 #error "PNG encoder is required"
 #endif
-    };
     auto doc = SkXPS::MakeDocument(dst, factory.get(), xpsOpts);
     if (!doc) {
         return Result::Fatal("SkXPS::MakeDocument() returned nullptr");
