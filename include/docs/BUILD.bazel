@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_cc_library", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -13,10 +13,6 @@ MULTI_PICTURE_DOCUMENT_HDRS = ["SkMultiPictureDocument.h"]
 PDF_HDRS = ["SkPDFDocument.h"]
 
 PDF_JPEG_HDRS = ["SkPDFJpegHelpers.h"]
-
-XPS_LIBPNG_HDRS = ["SkXPSLibpngHelpers.h"]
-
-XPS_RUST_PNG_HDRS = ["SkXPSRustPngHelpers.h"]
 
 # Not yet referenced by Bazel build.
 # In separate group for exporting to xps.gni:skia_xps_public.
@@ -43,32 +39,10 @@ skia_filegroup(
     visibility = ["//src/pdf:__pkg__"],
 )
 
-skia_cc_library(
-    name = "xps_libpng_hdrs",
-    hdrs = XPS_LIBPNG_HDRS,
-    visibility = [
-        "//dm:__pkg__",
-        "//src/xps:__pkg__",
-    ],
-    deps = ["//:png_encode_libpng"],
-)
-
-skia_cc_library(
-    name = "xps_rust_png_hdrs",
-    hdrs = XPS_RUST_PNG_HDRS,
-    visibility = [
-        "//dm:__pkg__",
-        "//src/xps:__pkg__",
-    ],
-    deps = ["//:png_encode_rust"],
-)
-
 generate_cpp_files_for_headers(
     name = "headers_to_compile",
     headers = XPS_HDRS +
               MULTI_PICTURE_DOCUMENT_HDRS +
               PDF_HDRS +
-              PDF_JPEG_HDRS +
-              XPS_LIBPNG_HDRS +
-              XPS_RUST_PNG_HDRS,
+              PDF_JPEG_HDRS,
 )
