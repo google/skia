@@ -132,14 +132,17 @@ public:
                                 SkColorType colorType,
                                 SkAlphaType alphaType,
                                 bool testPersistentStorage,
-                                bool testPrecompileGraphite)
+                                bool testPrecompileGraphite,
+                                bool testPipelineTracking)
             : SkCommandLineConfig(tag, SkString("graphite"), viaParts)
             , fContextType(contextType)
             , fColorType(colorType)
             , fAlphaType(alphaType)
             , fTestPersistentStorage(testPersistentStorage)
-            , fTestPrecompileGraphite(testPrecompileGraphite) {
+            , fTestPrecompileGraphite(testPrecompileGraphite)
+            , fTestPipelineTracking(testPipelineTracking) {
     }
+
     const SkCommandLineConfigGraphite* asConfigGraphite() const override { return this; }
 
     ContextType getContextType() const { return fContextType; }
@@ -147,6 +150,7 @@ public:
     SkAlphaType getAlphaType() const { return fAlphaType; }
     bool        getTestPersistentStorage() const { return fTestPersistentStorage; }
     bool        getTestPrecompileGraphite() const { return fTestPrecompileGraphite; }
+    bool        getTestPipelineTracking() const { return fTestPipelineTracking; }
 
 private:
     ContextType                     fContextType;
@@ -154,6 +158,7 @@ private:
     SkAlphaType                     fAlphaType;
     bool                            fTestPersistentStorage;
     bool                            fTestPrecompileGraphite;
+    bool                            fTestPipelineTracking;
 };
 
 #endif // SK_GRAPHITE

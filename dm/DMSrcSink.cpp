@@ -2205,12 +2205,18 @@ Result GraphiteSink::draw(const Src& src,
     skgpu::graphite::ContextOptionsPriv optionsPriv;
     options.fContextOptions.fOptionsPriv = &optionsPriv;
 
-    // We don't expect the src to mess with the persistent storage or the executor.
+    // We don't expect the src to mess with the more esoteric options
     SkDEBUGCODE(auto cache = options.fContextOptions.fPersistentPipelineStorage);
     SkDEBUGCODE(auto exec = options.fContextOptions.fExecutor);
+    SkDEBUGCODE(auto cbContext = options.fContextOptions.fPipelineCallbackContext);
+    SkDEBUGCODE(auto cb1 = options.fContextOptions.fPipelineCallback);
+    SkDEBUGCODE(auto cb2 = options.fContextOptions.fPipelineCachingCallback);
     src.modifyGraphiteContextOptions(&options.fContextOptions);
     SkASSERT(cache == options.fContextOptions.fPersistentPipelineStorage);
     SkASSERT(exec == options.fContextOptions.fExecutor);
+    SkASSERT(cbContext == options.fContextOptions.fPipelineCallbackContext);
+    SkASSERT(cb1 == options.fContextOptions.fPipelineCallback);
+    SkASSERT(cb2 == options.fContextOptions.fPipelineCachingCallback);
 
     skiatest::graphite::ContextFactory factory(options);
     skiatest::graphite::ContextInfo ctxInfo = factory.getContextInfo(fContextType);
@@ -2325,10 +2331,37 @@ Result GraphitePersistentPipelineStorageTestingSink::draw(const Src& src,
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+GraphitePipelineTrackingSink::GraphitePipelineTrackingSink(
+        const SkCommandLineConfigGraphite* config,
+        const skiatest::graphite::TestOptions& options)
+              : GraphiteSink(config, options)
+              , fPipelineHandler(new skiatools::graphite::PipelineCallBackHandler) {
+    using namespace skiatools::graphite;
+
+    SkASSERT(!fOptions.fContextOptions.fPipelineCallbackContext);
+    SkASSERT(!fOptions.fContextOptions.fPipelineCachingCallback);
+    fOptions.fContextOptions.fPipelineCallbackContext = fPipelineHandler.get();
+    fOptions.fContextOptions.fPipelineCachingCallback = PipelineCallBackHandler::CallBack;
+}
+
+void GraphitePipelineTrackingSink::done() const {
+    fPipelineHandler->report();
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 #if defined(SK_ENABLE_PRECOMPILE)
 GraphitePrecompileTestingSink::GraphitePrecompileTestingSink(
         const SkCommandLineConfigGraphite* config,
-        const skiatest::graphite::TestOptions& options) : GraphiteSink(config, options) {}
+        const skiatest::graphite::TestOptions& options)
+              : GraphiteSink(config, options)
+              , fPipelineHandler(new skiatools::graphite::PipelineCallBackHandler){
+    using namespace skiatools::graphite;
+
+    SkASSERT(!fOptions.fContextOptions.fPipelineCallbackContext);
+    SkASSERT(!fOptions.fContextOptions.fPipelineCallback);
+    fOptions.fContextOptions.fPipelineCallbackContext = fPipelineHandler.get();
+    fOptions.fContextOptions.fPipelineCachingCallback = PipelineCallBackHandler::CallBack;
+}
 
 GraphitePrecompileTestingSink::~GraphitePrecompileTestingSink() {}
 
@@ -2365,7 +2398,6 @@ Result GraphitePrecompileTestingSink::drawSrc(
 }
 
 Result GraphitePrecompileTestingSink::resetAndRecreatePipelines(
-        skiatools::graphite::PipelineCallBackHandler* handler,
         skgpu::graphite::PrecompileContext* precompileContext) const {
     using namespace skgpu::graphite;
 
@@ -2377,8 +2409,8 @@ Result GraphitePrecompileTestingSink::resetAndRecreatePipelines(
 
     std::vector<sk_sp<SkData>> androidStyleKeys;
 
-    handler->retrieve(&androidStyleKeys);
-    handler->reset();
+    fPipelineHandler->retrieveKeys(&androidStyleKeys);
+    fPipelineHandler->reset();
 
     SkASSERTF_RELEASE(origKeys.size() == androidStyleKeys.size(),
                       "orig %zu != new %zu", origKeys.size(), androidStyleKeys.size());
@@ -2397,7 +2429,8 @@ Result GraphitePrecompileTestingSink::resetAndRecreatePipelines(
 
     int postRecreate = globalCache->numGraphicsPipelines();
 
-    SkASSERT_RELEASE(numBeforeReset == postRecreate);
+    SkASSERTF_RELEASE(numBeforeReset == postRecreate,
+                      "before %d after %d", numBeforeReset, postRecreate);
 
     {
         std::vector<skgpu::UniqueKey> recreatedKeys;
@@ -2485,7 +2518,7 @@ Result GraphitePrecompileTestingSink::draw(const Src& src,
     using namespace skiatest::graphite;
     using namespace skiatools::graphite;
 
-    std::unique_ptr<PipelineCallBackHandler> pipelineHandler(new PipelineCallBackHandler);
+    fPipelineHandler->reset();
 
     {
         TestOptions options = fOptions;
@@ -2495,12 +2528,18 @@ Result GraphitePrecompileTestingSink::draw(const Src& src,
         ContextOptionsPriv optionsPriv;
         options.fContextOptions.fOptionsPriv = &optionsPriv;
 
-        SkASSERT(!options.fContextOptions.fPipelineCallbackContext);
-        SkASSERT(!options.fContextOptions.fPipelineCallback);
-        options.fContextOptions.fPipelineCallbackContext = pipelineHandler.get();
-        options.fContextOptions.fPipelineCallback = PipelineCallBackHandler::CallBack;
-
+        // We don't expect the src to mess with the more esoteric options
+        SkDEBUGCODE(auto cache = options.fContextOptions.fPersistentPipelineStorage);
+        SkDEBUGCODE(auto exec = options.fContextOptions.fExecutor);
+        SkDEBUGCODE(auto cbContext = options.fContextOptions.fPipelineCallbackContext);
+        SkDEBUGCODE(auto cb1 = options.fContextOptions.fPipelineCallback);
+        SkDEBUGCODE(auto cb2 = options.fContextOptions.fPipelineCachingCallback);
         src.modifyGraphiteContextOptions(&options.fContextOptions);
+        SkASSERT(cache == options.fContextOptions.fPersistentPipelineStorage);
+        SkASSERT(exec == options.fContextOptions.fExecutor);
+        SkASSERT(cbContext == options.fContextOptions.fPipelineCallbackContext);
+        SkASSERT(cb1 == options.fContextOptions.fPipelineCallback);
+        SkASSERT(cb2 == options.fContextOptions.fPipelineCachingCallback);
 
         ContextFactory factory(options);
         skiatest::graphite::ContextInfo ctxInfo = factory.getContextInfo(fContextType);
@@ -2534,7 +2573,7 @@ Result GraphitePrecompileTestingSink::draw(const Src& src,
 
         // Call resetAndRecreatePipelines to clear out all the Pipelines in the global cache and
         // then regenerate them using the Precompilation system.
-        result = this->resetAndRecreatePipelines(pipelineHandler.get(), precompileContext.get());
+        result = this->resetAndRecreatePipelines(precompileContext.get());
         if (!result.isOk()) {
             return result;
         }
@@ -2551,6 +2590,8 @@ Result GraphitePrecompileTestingSink::draw(const Src& src,
 
         SkASSERT_RELEASE(numBeforeSecondDraw == globalCache->numGraphicsPipelines());
     }
+
+    fPipelineHandler->reset();
 
     return Result::Ok();
 }

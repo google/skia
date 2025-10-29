@@ -311,6 +311,7 @@ graphite_tests_sources = [
   "$_tests/graphite/MutableImagesTest.cpp",
   "$_tests/graphite/NotifyInUseTest.cpp",
   "$_tests/graphite/PersistentPipelineStorageTest.cpp",
+  "$_tests/graphite/PipelineCallbackTest.cpp",
   "$_tests/graphite/PipelineDataCacheTest.cpp",
   "$_tests/graphite/ProxyCacheTest.cpp",
   "$_tests/graphite/RTEffectTest.cpp",

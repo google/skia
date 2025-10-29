@@ -99,7 +99,7 @@ void fetch_keys_and_reset(skiatest::Reporter* reporter,
                           std::vector<sk_sp<SkData>>* serializedKeys,
                           bool reset) {
     UniqueKeyUtils::FetchUniqueKeys(precompileContext, uniqueKeys);
-    handler->retrieve(serializedKeys);
+    handler->retrieveKeys(serializedKeys);
 
     if (reset) {
         GlobalCache* globalCache = precompileContext->priv().globalCache();
@@ -107,7 +107,6 @@ void fetch_keys_and_reset(skiatest::Reporter* reporter,
         globalCache->resetGraphicsPipelines();
         REPORTER_ASSERT(reporter, globalCache->numGraphicsPipelines() == 0);
         handler->reset();
-        REPORTER_ASSERT(reporter, handler->numKeys() == 0);
     }
 }
 
@@ -361,7 +360,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(UserDefinedStableKeyTest,
 
     TestOptions newOptions(origOptions);
     newOptions.fContextOptions.fPipelineCallbackContext = pipelineHandler.get();
-    newOptions.fContextOptions.fPipelineCallback = PipelineCallBackHandler::CallBack;
+    newOptions.fContextOptions.fPipelineCachingCallback = PipelineCallBackHandler::CallBack;
 
     // We're going to also use all these runtime effects via the normal API
     // (c.f. create_paint_and_options)
@@ -455,7 +454,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(UserDefinedStableKeyTest_Duplicates,
 
     TestOptions newOptions(origOptions);
     newOptions.fContextOptions.fPipelineCallbackContext = pipelineHandler.get();
-    newOptions.fContextOptions.fPipelineCallback = PipelineCallBackHandler::CallBack;
+    newOptions.fContextOptions.fPipelineCachingCallback = PipelineCallBackHandler::CallBack;
 
     sk_sp<SkRuntimeEffect> userDefinedKnownRuntimeEffects[] = {
             sk_ref_sp(PrecompileFactories::GetAnnulusShaderEffect()),
@@ -494,7 +493,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(UserDefinedStableKeyTest_Nullptrs,
 
     TestOptions newOptions(origOptions);
     newOptions.fContextOptions.fPipelineCallbackContext = pipelineHandler.get();
-    newOptions.fContextOptions.fPipelineCallback = PipelineCallBackHandler::CallBack;
+    newOptions.fContextOptions.fPipelineCachingCallback = PipelineCallBackHandler::CallBack;
 
     sk_sp<SkRuntimeEffect> userDefinedKnownRuntimeEffects[] = {
             sk_ref_sp(PrecompileFactories::GetAnnulusShaderEffect()),
@@ -535,7 +534,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(UserDefinedStableKeyTest_Overflow,
 
     TestOptions newOptions(origOptions);
     newOptions.fContextOptions.fPipelineCallbackContext = pipelineHandler.get();
-    newOptions.fContextOptions.fPipelineCallback = PipelineCallBackHandler::CallBack;
+    newOptions.fContextOptions.fPipelineCachingCallback = PipelineCallBackHandler::CallBack;
 
     std::vector<sk_sp<SkRuntimeEffect>> userDefinedKnownRuntimeEffects;
 

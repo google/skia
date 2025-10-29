@@ -1013,6 +1013,8 @@ static Sink* create_sink(
             if (graphiteConfig->getTestPersistentStorage()) {
                 return new GraphitePersistentPipelineStorageTestingSink(graphiteConfig,
                                                                         graphiteOptions);
+            } else if (graphiteConfig->getTestPipelineTracking()) {
+                return new GraphitePipelineTrackingSink(graphiteConfig, graphiteOptions);
             } else
 #if defined(SK_ENABLE_PRECOMPILE)
             if (graphiteConfig->getTestPrecompileGraphite()) {
@@ -1725,6 +1727,10 @@ int main(int argc, char** argv) {
     // Wait for any remaining parallel work to complete (including any spun off of serial tasks).
     parallel.wait();
     gDefinitelyThreadSafeWork->wait();
+
+    for (const TaggedSink& sink : *gSinks) {
+        sink->done();
+    }
 
     // At this point we're back in single-threaded land.
 
