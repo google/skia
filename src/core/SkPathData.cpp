@@ -21,6 +21,26 @@
 #include <optional>
 #include <type_traits>
 
+SkPathData* SkPathData::PeekEmptySingleton() {
+    static SkPathData* gEmpty = SkPathData::MakeNoCheck({}, {}, {}, {}, {}).release();
+    return gEmpty;
+}
+
+static uint32_t next_pathdata_unique_id() {
+    constexpr int kHighBitsToMakeRoomForFillType = 2;
+
+    static std::atomic<int32_t> nextID{1};
+
+    uint32_t id;
+    do {
+        id = nextID.fetch_add(1, std::memory_order_relaxed);
+        // clear the high bits to make room for filltype
+        id <<= kHighBitsToMakeRoomForFillType;
+        id >>= kHighBitsToMakeRoomForFillType;
+    } while (id == 0);
+    return id;
+}
+
 class SkSafeAccumulator {
 public:
     SkSafeAccumulator(size_t n = 0) : fTotal(n) {}
@@ -130,7 +150,8 @@ static void report_pathdata_make_failure(const char reason[]) {
 // This just sets-up the spans to point inside our allocation
 //
 SkPathData::SkPathData(size_t npts, size_t nvbs, size_t ncns)
-    : fConvexity((uint8_t)SkPathConvexity::kUnknown)
+    : fUniqueID(next_pathdata_unique_id())
+    , fConvexity((uint8_t)SkPathConvexity::kUnknown)
     , fType(SkPathIsAType::kGeneral)
 {
     SkASSERT((npts == 0 && nvbs == 0 && ncns == 0) ||
@@ -165,9 +186,25 @@ SkPathData::SkPathData(size_t npts, size_t nvbs, size_t ncns)
     // fBounds is initialized in finishInit()
 }
 
+SkPathData::~SkPathData() {
+    // We will implicitly call our IDChangeList here, notifying them that we are
+    // being dstroyed.
+    SkDEBUGCODE(fUniqueID = 0xEEEEEEEE;)
+}
+
 void SkPathData::operator delete(void* p) {
     ::operator delete(p);
 }
+
+void SkPathData::addGenIDChangeListener(sk_sp<SkIDChangeListener> listener) const {
+    // our empty singleton is never deleted, so we don't want to add any listeners to it.
+    if (this != SkPathData::PeekEmptySingleton()) {
+        // this method on the list is thread-safe
+        fGenIDChangeListeners.add(std::move(listener));
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 // NOTE: This only allocates and initializes the span pointers (points, verbs),
 //       it does NOT set the other fields
@@ -316,8 +353,7 @@ sk_sp<SkPathData> SkPathData::MakeNoCheck(const SkPathRaw& raw) {
 }
 
 sk_sp<SkPathData> SkPathData::Empty() {
-    static SkPathData* gEmpty = MakeNoCheck({}, {}, {}, {}, {}).release();
-    return sk_ref_sp(gEmpty);
+    return sk_ref_sp(PeekEmptySingleton());
 }
 
 void SkPathData::setupIsA(SkPathIsAType type, SkPathDirection dir, unsigned index) {
@@ -325,6 +361,9 @@ void SkPathData::setupIsA(SkPathIsAType type, SkPathDirection dir, unsigned inde
 
     SkASSERT(type == SkPathIsAType::kOval || type == SkPathIsAType::kRRect);
     fType = type;
+
+    SkASSERT((type == SkPathIsAType::kOval && index < 4) ||
+             (type == SkPathIsAType::kRRect && index < 8));
 
     fIsA.fDirection  = dir;
     fIsA.fStartIndex = SkTo<uint8_t>(index);

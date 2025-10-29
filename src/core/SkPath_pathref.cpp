@@ -24,6 +24,8 @@
 #include <limits.h>
 #include <utility>
 
+#ifndef SK_PATH_USES_PATHDATA
+
 /*  Contains path methods that require the legacy fields:
  *  - fPathRef
  *  - fConvexity
@@ -72,12 +74,6 @@ SkPath::SkPath(const SkPath& that)
     SkDEBUGCODE(that.validate();)
 }
 
-// This is the public-facing non-const setConvexity().
-void SkPath::setConvexity(SkPathConvexity c) {
-    fConvexity.store((uint8_t)c, std::memory_order_relaxed);
-}
-
-// Const hooks for working with fConvexity and fFirstDirection from const methods.
 void SkPath::setConvexity(SkPathConvexity c) const {
     fConvexity.store((uint8_t)c, std::memory_order_relaxed);
 }
@@ -387,8 +383,34 @@ std::optional<SkPath> SkPath::tryMakeTransform(const SkMatrix& matrix) const {
     return {};
 }
 
+std::optional<SkPathRaw> SkPath::raw(SkResolveConvexity rc) const {
+    const SkPathRef* ref = fPathRef.get();
+    SkASSERT(ref);
+    if (!ref->isFinite()) {
+        return {};
+    }
+
+    return SkPathRaw{
+        ref->pointSpan(),
+        ref->verbs(),
+        ref->conicSpan(),
+        ref->getBounds(),
+        this->getFillType(),
+        rc == SkResolveConvexity::kYes ? this->getConvexity() : this->getConvexityOrUnknown(),
+        SkTo<uint8_t>(ref->getSegmentMasks()),
+    };
+}
+
 int SkPathPriv::GenIDChangeListenersCount(const SkPath& path) {
     return path.fPathRef->genIDChangeListenerCount();
+}
+
+bool SkPathPriv::TestingOnly_unique(const SkPath& path) {
+    return path.fPathRef->unique();
+}
+
+void SkPathPriv::AddGenIDChangeListener(const SkPath& path, sk_sp<SkIDChangeListener> listener) {
+    path.fPathRef->addGenIDChangeListener(std::move(listener));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -453,3 +475,5 @@ SkPath SkPathBuilder::snapshot(const SkMatrix* mx) const {
                                                      fSegmentMask,
                                                      mx)));
 }
+
+#endif

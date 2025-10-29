@@ -179,7 +179,7 @@ bool SkPath::isRect(SkRect* rect, bool* isClosed, SkPathDirection* direction) co
     SkDEBUGCODE(this->validate();)
     SkSpan<const SkPoint> pts = this->points();
     SkSpan<const SkPathVerb> vbs = this->verbs();
-    if (auto rc = SkPathPriv::IsRectContour(pts, vbs, fPathRef->getSegmentMasks(), false)) {
+    if (auto rc = SkPathPriv::IsRectContour(pts, vbs, this->getSegmentMasks(), false)) {
         if (rect) {
             *rect = rc->fRect;
         }

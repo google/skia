@@ -257,11 +257,7 @@ SkPathBuilder& SkPathBuilder::rCubicTo(SkPoint p1, SkPoint p2, SkPoint p3) {
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 SkPath SkPathBuilder::detach(const SkMatrix* mx) {
-    auto path = this->make(sk_sp<SkPathRef>(new SkPathRef(std::move(fPts),
-                                                          std::move(fVerbs),
-                                                          std::move(fConicWeights),
-                                                          fSegmentMask,
-                                                          mx)));
+    auto path = this->snapshot(mx);
     this->reset();
     return path;
 }
@@ -700,13 +696,15 @@ SkPathBuilder& SkPathBuilder::addOval(const SkRect& oval, SkPathDirection dir, u
 SkPathBuilder& SkPathBuilder::addRRect(const SkRRect& rrect, SkPathDirection dir, unsigned index) {
     const SkRect& bounds = rrect.getBounds();
 
-    if (rrect.isRect() || rrect.isEmpty()) {
-        // degenerate(rect) => radii points are collapsing
-        return this->addRect(bounds, dir, (index + 1) / 2);
-    }
-    if (rrect.isOval()) {
-        // degenerate(oval) => line points are collapsing
-        return this->addOval(bounds, dir, index / 2);
+    auto [asType, newIndex] = SkPathPriv::SimplifyRRect(rrect, index);
+    switch (asType) {
+        case SkPathPriv::RRectAsEnum::kRect:
+            return this->addRect(bounds, dir, newIndex);
+        case SkPathPriv::RRectAsEnum::kOval:
+            return this->addOval(bounds, dir, newIndex);
+        case SkPathPriv::RRectAsEnum::kRRect:
+            // fall through ...
+            break;
     }
 
     const bool wasEmpty = (fSegmentMask == 0);
@@ -797,8 +795,8 @@ SkPathBuilder& SkPathBuilder::addPath(const SkPath& src, const SkMatrix& matrix,
         auto [newPts, newWeights] = this->growForVerbsInPath(src);
         const auto count = src.countPoints();
         matrix.mapPoints({newPts, count}, {src.fPathRef->points(), count});
-        if (int numWeights = src.fPathRef->countWeights()) {
-            memcpy(newWeights, src.fPathRef->conicWeights(), numWeights * sizeof(newWeights[0]));
+        if (auto conics = src.conicWeights(); !conics.empty()) {
+            memcpy(newWeights, conics.data(), conics.size_bytes());
         }
         return *this;
     }

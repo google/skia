@@ -48,6 +48,19 @@ struct SkPathVerbAnalysis {
 
 class SkPathPriv {
 public:
+    enum class RRectAsEnum {
+        kRect, kOval, kRRect,
+    };
+    static std::pair<RRectAsEnum, unsigned> SimplifyRRect(const SkRRect& rr, unsigned startIndex) {
+        if (rr.isRect() || rr.isEmpty()) {
+            return { RRectAsEnum::kRect, (startIndex + 1) / 2 };
+        }
+        if (rr.isOval()) {
+            return { RRectAsEnum::kOval, startIndex / 2 };
+        }
+        return { RRectAsEnum::kRRect, startIndex };
+    }
+
     static SkPathConvexity ComputeConvexity(SkSpan<const SkPoint> pts,
                                             SkSpan<const SkPathVerb> verbs,
                                             SkSpan<const float> conicWeights);
@@ -133,9 +146,7 @@ public:
     static std::pair<SkPathDirection, unsigned>
     TransformDirAndStart(const SkMatrix&, bool isRRect, SkPathDirection dir, unsigned start);
 
-    static void AddGenIDChangeListener(const SkPath& path, sk_sp<SkIDChangeListener> listener) {
-        path.fPathRef->addGenIDChangeListener(std::move(listener));
-    }
+    static void AddGenIDChangeListener(const SkPath&, sk_sp<SkIDChangeListener>);
 
     /**
      * This returns the info for a rect that has a move followed by 3 or 4 lines and a close. If
@@ -206,9 +217,7 @@ public:
     };
 
     /** Returns true if the underlying SkPathRef has one single owner. */
-    static bool TestingOnly_unique(const SkPath& path) {
-        return path.fPathRef->unique();
-    }
+    static bool TestingOnly_unique(const SkPath&);
 
     // Won't be needed once we can make path's immutable (with their bounds always computed)
     static bool HasComputedBounds(const SkPath& path) {
@@ -223,13 +232,13 @@ public:
     /** Returns the oval info if this path was created as an oval or circle, else returns {}.
      */
     static std::optional<SkPathOvalInfo> IsOval(const SkPath& path) {
-        return path.fPathRef->isOval();
+        return path.getOvalInfo();
     }
 
     /** Returns the rrect info if this path was created as one, else returns {}.
      */
     static std::optional<SkPathRRectInfo> IsRRect(const SkPath& path) {
-        return path.fPathRef->isRRect();
+        return path.getRRectInfo();
     }
 
     /**
@@ -300,7 +309,9 @@ public:
         return true;
     }
 
+#ifndef SK_PATH_USES_PATHDATA
     static int LastMoveToIndex(const SkPath& path) { return path.fLastMoveToIndex; }
+#endif
 
     struct RectContour {
         SkRect          fRect;
@@ -427,31 +438,8 @@ public:
         return builder.fVerbs.size();
     }
 
-    static SkPath MakePath(const SkPathVerbAnalysis& analysis,
-                           const SkPoint points[],
-                           SkSpan<const SkPathVerb> verbs,
-                           const SkScalar conics[],
-                           SkPathFillType fillType,
-                           bool isVolatile) {
-        return SkPath::MakeInternal(analysis, points, verbs, conics, fillType, isVolatile);
-    }
-
     static std::optional<SkPathRaw> Raw(const SkPath& path, SkResolveConvexity rc) {
-        const SkPathRef* ref = path.fPathRef.get();
-        SkASSERT(ref);
-        if (!ref->isFinite()) {
-            return {};
-        }
-
-        return SkPathRaw{
-            ref->pointSpan(),
-            ref->verbs(),
-            ref->conicSpan(),
-            ref->getBounds(),
-            path.getFillType(),
-            rc == SkResolveConvexity::kYes ? path.getConvexity() : path.getConvexityOrUnknown(),
-            SkTo<uint8_t>(ref->getSegmentMasks()),
-        };
+        return path.raw(rc);
     }
 
     static std::optional<SkPathRaw> Raw(const SkPathBuilder& builder, SkResolveConvexity rc) {

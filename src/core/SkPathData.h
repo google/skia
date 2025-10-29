@@ -16,6 +16,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
 
+#include "include/private/SkIDChangeListener.h"
 #include "include/private/SkPathRef.h"
 #include "src/core/SkPathEnums.h"
 
@@ -61,6 +62,8 @@ struct SkPathRaw;
  */
 class SkPathData : public SkNVRefCnt<SkPathData> {
 public:
+    ~SkPathData();
+
     /*
      *  Returns an empty pathdata.
      *
@@ -113,8 +116,11 @@ public:
     SkSpan<const SkPoint> points() const { return fPoints; }
     SkSpan<const SkPathVerb> verbs() const { return fVerbs; }
     SkSpan<const float> conics() const { return fConics; }
-    SkRect bounds() const { return fBounds; }
+    const SkRect& bounds() const { return fBounds; }
     uint8_t segmentMask() const { return fSegmentMask; }
+
+    // Will never be zero, has the low-2 bits always zero (to store filltype)
+    uint32_t uniqueID() const { return fUniqueID; }
 
     SkPathRaw raw(SkPathFillType, SkResolveConvexity) const;
 
@@ -168,14 +174,24 @@ public:
 
     bool contains(SkPoint, SkPathFillType) const;
 
+    void addGenIDChangeListener(sk_sp<SkIDChangeListener>) const;
+    int genIDChangeListenerCount() const { return fGenIDChangeListeners.count(); }
+
 private:
     friend class SkNVRefCnt<SkPathData>;
     friend class SkPathPriv;
+    friend class SkPath;
+    friend class SkPathBuilder;
+
+    // notify these in our destructor
+    mutable SkIDChangeListener::List fGenIDChangeListeners;
 
     SkSpan<SkPoint>    fPoints;
     SkSpan<float>      fConics;
     SkSpan<SkPathVerb> fVerbs;
     SkRect             fBounds;
+
+    uint32_t           fUniqueID;   // never 0
 
     /*
      *  Convexity can be slow to compute, and (in theory) it can't always survive a matrix
@@ -214,6 +230,8 @@ private:
     SkPathConvexity getConvexityOrUnknown() const;          // may return kUnknown
     SkPathConvexity getResolvedConvexity() const;           // never returns kUnknown
     void setConvexity(SkPathConvexity) const;               // const -- but convexity is mutable
+
+    static SkPathData* PeekEmptySingleton();
 
     static sk_sp<SkPathData> Alloc(size_t npts, size_t nvbs, size_t ncns);
 

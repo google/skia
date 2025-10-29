@@ -24,7 +24,7 @@ enum class SkPathConvexity {
     kUnknown,   // todo: can we eliminate this, and use optional or other patterns?
 };
 
-enum class SkResolveConvexity : bool {
+enum class SkResolveConvexity {
     kNo = false,
     kYes = true,
 };
