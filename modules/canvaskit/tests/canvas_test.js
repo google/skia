@@ -270,8 +270,7 @@ describe('Canvas Behavior', () => {
     });
 
     gm('blendmodes_canvas', (canvas) => {
-
-        const blendModeNames = Object.keys(CanvasKit.BlendMode).filter((key) => key !== 'values');
+        const blendModeNames = ['Clear', 'Src', 'Dst', 'SrcOver', 'DstOver', 'SrcIn', 'DstIn', 'SrcOut', 'DstOut', 'SrcATop', 'DstATop', 'Xor', 'Plus', 'Modulate', 'Screen', 'Overlay', 'Darken', 'Lighten', 'ColorDodge', 'ColorBurn', 'HardLight', 'SoftLight', 'Difference', 'Exclusion', 'Multiply', 'Hue', 'Saturation', 'Color', 'Luminosity'];
 
         const PASTEL_MUSTARD_YELLOW = CanvasKit.Color(248, 213, 85, 1.0);
         const PASTEL_SKY_BLUE = CanvasKit.Color(74, 174, 245, 1.0);
@@ -296,6 +295,7 @@ describe('Canvas Behavior', () => {
             // A blue square is drawn on to each checkerboard with yellow circle.
             // In each checkerboard the blue square is drawn using a different blendmode.
             const blendMode = CanvasKit.BlendMode[blendModeName];
+            expect(blendMode).toBeTruthy();
             canvas.drawOval(CanvasKit.LTRBRect(x + 5, y + 5, x + 55, y + 55), shapePaint);
             drawRectangle(x + 30, y + 30, x + 70, y + 70, PASTEL_SKY_BLUE, blendMode);
 
