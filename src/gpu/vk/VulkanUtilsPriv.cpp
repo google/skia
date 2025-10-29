@@ -367,8 +367,7 @@ VulkanYcbcrConversionInfo::VulkanYcbcrConversionInfo(VkFormat format,
         , fYChromaOffset(yChromaOffset)
         , fChromaFilter(chromaFilter)
         , fForceExplicitReconstruction(forceExplicitReconstruction)
-        , fComponents(components)
-        , fFormatFeatures(VK_FORMAT_FEATURE_FLAG_BITS_MAX_ENUM) {
+        , fComponents(components) {
 #ifdef SK_DEBUG
     // Format feature flags are only representative of an external format's capabilities, so
     // skip these checks in the case of using a known format or if the featureFlags were clearly
@@ -421,28 +420,7 @@ void VulkanYcbcrConversionInfo::toVkSamplerYcbcrConversionCreateInfo(
     outInfo->chromaFilter = fChromaFilter;
     outInfo->forceExplicitReconstruction = fForceExplicitReconstruction;
 
-    // TODO: Remove this first if block for format features once clients are updated to use the
-    // ctor and not setting fFormatFeature
-    if (fFormatFeatures != VK_FORMAT_FEATURE_FLAG_BITS_MAX_ENUM) {
-        VkFilter chromaFilter = fChromaFilter;
-        if (!(fFormatFeatures &
-              VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_SEPARATE_RECONSTRUCTION_FILTER_BIT)) {
-            if (!(fFormatFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
-                // Because we don't have have separate reconstruction filter, the min, mag and
-                // chroma filter must all match. However, we also don't support linear sampling
-                // so the min/mag filter have to be nearest. Therefore, we force the chroma
-                // filter to be nearest regardless of support for the feature
-                // VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT.
-                chromaFilter = VK_FILTER_NEAREST;
-            }
-            // Let the caller know that it must match min and mag filters with the chroma filter.
-            *requiredSamplerFilter = chromaFilter;
-        } else {
-            if (!(fFormatFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
-                *requiredSamplerFilter = VK_FILTER_NEAREST;
-            }
-        }
-    } else if (fSamplerFilterMustMatchChromaFilter) {
+    if (fSamplerFilterMustMatchChromaFilter) {
         *requiredSamplerFilter = fChromaFilter;
     } else if (!fSupportsLinearFilter) {
         *requiredSamplerFilter = VK_FILTER_NEAREST;

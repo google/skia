@@ -227,7 +227,7 @@ static GrBackendTexture make_vk_backend_texture(
             return GrBackendTexture();
         }
         SkASSERT(SkToBool(VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT & hwbFormatProps.formatFeatures));
-        SkASSERT(hwbFormatProps.externalFormat == ycbcrConversion->fExternalFormat);
+        SkASSERT(hwbFormatProps.externalFormat == ycbcrConversion->externalFormat());
         externalFormat.externalFormat = hwbFormatProps.externalFormat;
     } else {
         SkASSERT(!ycbcrConversion->isValid());

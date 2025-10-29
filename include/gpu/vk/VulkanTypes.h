@@ -201,12 +201,9 @@ private:
             , fChromaFilter(chromaFilter)
             , fForceExplicitReconstruction(forceExplicitReconstruction)
             , fComponents(components)
-            , fFormatFeatures(VK_FORMAT_FEATURE_FLAG_BITS_MAX_ENUM)
             , fSamplerFilterMustMatchChromaFilter(mustMatchChromaFilter)
             , fSupportsLinearFilter(supportsLinearFilter) {}
 
-// TODO: Temporarily make these fields public until we can move clients to using ctor
-public:
     // Format of the source image. Must be set to VK_FORMAT_UNDEFINED for external images or
     // a valid image format otherwise.
     VkFormat fFormat = VK_FORMAT_UNDEFINED;
@@ -228,11 +225,6 @@ public:
                                                  VK_COMPONENT_SWIZZLE_IDENTITY,
                                                  VK_COMPONENT_SWIZZLE_IDENTITY};
 
-    // TODO: Remove once clients are updated. This field isn't actually used but clients who are
-    // not using the ctor are still manually setting it.
-    VkFormatFeatureFlags fFormatFeatures = 0;
-
-private:
     // Default these values to the most restrictive. These defaults only really matter while until
     // we force all clients to go through our constructors. At that point these will be set to the
     // correct values.
