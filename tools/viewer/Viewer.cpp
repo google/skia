@@ -290,6 +290,7 @@ static bool is_graphite_backend_type(sk_app::Window::BackendType type) {
 #if defined(SK_GRAPHITE)
     switch (type) {
 #ifdef SK_DAWN
+        case sk_app::Window::kGraphiteDawnD3D11_BackendType:
         case sk_app::Window::kGraphiteDawnD3D12_BackendType:
         case sk_app::Window::kGraphiteDawnMetal_BackendType:
         case sk_app::Window::kGraphiteDawnOpenGLES_BackendType:
@@ -357,6 +358,7 @@ const char* get_backend_string(sk_app::Window::BackendType type) {
     switch (type) {
         case sk_app::Window::kNativeGL_BackendType: return "OpenGL";
         case sk_app::Window::kANGLE_BackendType: return "ANGLE";
+        case sk_app::Window::kGraphiteDawnD3D11_BackendType: return "Dawn D3D11 (Graphite)";
         case sk_app::Window::kGraphiteDawnD3D12_BackendType: return "Dawn D3D12 (Graphite)";
         case sk_app::Window::kGraphiteDawnMetal_BackendType: return "Dawn Metal (Graphite)";
         case sk_app::Window::kGraphiteDawnOpenGLES_BackendType: return "Dawn OpenGLES (Graphite)";
@@ -375,8 +377,10 @@ const char* get_backend_string(sk_app::Window::BackendType type) {
 
 static sk_app::Window::BackendType get_backend_type(const char* str) {
 #if defined(SK_DAWN) && defined(SK_GRAPHITE)
-    if (0 == strcmp(str, "grdawn_vk")) {
-        return sk_app::Window::kGraphiteDawnVulkan_BackendType;
+    if (0 == strcmp(str, "grdawn_d3d11")) {
+        return sk_app::Window::kGraphiteDawnD3D11_BackendType;
+    } else if (0 == strcmp(str, "grdawn_d3d12")) {
+        return sk_app::Window::kGraphiteDawnD3D12_BackendType;
     } else if (0 == strcmp(str, "grdawn_metal")) {
         return sk_app::Window::kGraphiteDawnMetal_BackendType;
     } else if (0 == strcmp(str, "grdawn_gles")) {
@@ -511,6 +515,7 @@ static const Window::BackendType kSupportedBackends[] = {
 
 #if defined(SK_DAWN) && defined(SK_GRAPHITE)
 #if defined(SK_BUILD_FOR_WIN)
+        sk_app::Window::kGraphiteDawnD3D11_BackendType,
         sk_app::Window::kGraphiteDawnD3D12_BackendType,
 #endif
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)

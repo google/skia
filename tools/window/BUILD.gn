@@ -203,7 +203,7 @@ skia_component("window") {
     } else if (is_win) {
       if (dawn_enable_d3d12 || dawn_enable_d3d11 || dawn_enable_vulkan) {
         if (skia_enable_graphite) {
-          sources += [ "win/GraphiteDawnD3D12WindowContext_win.cpp" ]
+          sources += [ "win/GraphiteDawnWindowContext_win.cpp" ]
         }
       }
     } else if (is_mac) {
