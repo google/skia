@@ -1267,18 +1267,6 @@ optional("xps") {
   sources = skia_xps_sources
 }
 
-optional("xps_libpng_helpers") {
-  enabled = skia_use_libpng_encode
-  deps = [ ":png_encode_libpng" ]
-  public = skia_xps_libpng_public
-}
-
-optional("xps_rust_png_helpers") {
-  enabled = skia_use_rust_png_encode
-  deps = [ ":png_encode_rust" ]
-  public = skia_xps_rust_png_public
-}
-
 optional("png_decode_common") {
   enabled = skia_use_libpng_decode || skia_use_rust_png_decode
   sources = skia_codec_png_base
@@ -1667,8 +1655,6 @@ skia_component("skia") {
     ":pdf_jpeg_helpers",
     ":webp_encode",
     ":xps",
-    ":xps_libpng_helpers",
-    ":xps_rust_png_helpers",
   ]
 
   deps = [

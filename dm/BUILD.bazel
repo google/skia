@@ -30,7 +30,6 @@ skia_cc_binary(
         "//:svg_renderer",
         "//:svg_writer",
         "//gm",
-        "//include/docs:xps_libpng_hdrs",
         "//modules/skottie",
         "//modules/skottie/utils:skottie_utils",
         "//src/codec:android_codec",
