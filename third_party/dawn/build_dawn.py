@@ -91,7 +91,8 @@ def main():
       f"--install-prefix={os.path.abspath(gen_dir)}",
       f"-DCMAKE_SYSTEM_NAME={target_os}",
       f"-DCMAKE_SYSTEM_PROCESSOR={target_cpu}",
-      "-DDAWN_FETCH_DEPENDENCIES=ON",
+      # This is handled by GN
+      "-DDAWN_FETCH_DEPENDENCIES=OFF",
       "-DDAWN_BUILD_MONOLITHIC_LIBRARY=OFF",
       f"-DCMAKE_BUILD_TYPE={args.build_type}",
       # Explicitly set the C++ standard to avoid issues with CMake's feature
@@ -165,10 +166,6 @@ def main():
   # Don't write .pyc files, which can cause race conditions when building
   # tint and dawn in parallel.
   env["PYTHONDONTWRITEBYTECODE"] = "1"
-  # Some environments, e.g. vpython, set PYTHONUSERBASE, which can interfere
-  # with the hermetic third_party libraries.
-  if "PYTHONUSERBASE" in env:
-    del env["PYTHONUSERBASE"]
 
   if target_os == "Windows":
     # Set the WINDOWSSDKDIR environment variable to ensure that Dawn's

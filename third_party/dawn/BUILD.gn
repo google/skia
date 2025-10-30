@@ -9,6 +9,29 @@
 
 import("//third_party/dawn/args.gni")
 
+# This is done as a separate step to avoid race conditions when building tint and dawn in parallel,
+# as both would otherwise try to fetch the same dependencies simultaneously.
+action("dawn_fetch_deps") {
+  script = "fetch_and_stamp.py"
+
+  # The script will create/update files in the third_party/externals/dawn/third_party
+  # directory. We use a blank stamp file as "output" to ensure this action is run.
+  outputs = [ "$target_gen_dir/dawn_deps_fetched.stamp" ]
+
+  depfile = "$target_gen_dir/dawn_deps.d"
+
+  sources = [
+    "../externals/dawn/tools/fetch_dawn_dependencies.py",
+    "fetch_and_stamp.py",
+  ]
+
+  args = [
+    "--stamp_path=" + rebase_path(outputs[0], root_build_dir),
+    "--depfile_path=" + rebase_path(depfile, root_build_dir),
+    "--dawn_dir=" + rebase_path("../externals/dawn", root_build_dir),
+  ]
+}
+
 if (is_win) {
   # On Windows, the normal cc/cxx variables are just "clang" and "clang++"
   # which are not found in the path. CMake needs the full path.
@@ -55,6 +78,7 @@ config("tint_api_config") {
 # we build the dawn target below, that will build a new version of tint which
 # does use the passed in sanitizer flags.
 action("tint_cmake") {
+  deps = [ ":dawn_fetch_deps" ]
   script = "build_tint.py"
 
   sources = [
@@ -207,6 +231,7 @@ if (sanitize != "") {
 }
 
 action("dawn_cmake") {
+  deps = [ ":dawn_fetch_deps" ]
   script = "build_dawn.py"
 
   sources = [

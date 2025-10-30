@@ -61,8 +61,8 @@ def main():
       f"-DCMAKE_CXX_COMPILER={quote_if_needed(args.cxx)}",
       f"-DCMAKE_SYSTEM_NAME={target_os}",
       f"-DCMAKE_SYSTEM_PROCESSOR={target_cpu}",
-      # Fetch dependencies using DEPS, which is required for stand-alone builds.
-      "-DDAWN_FETCH_DEPENDENCIES=ON",
+      # This is handled by GN
+      "-DDAWN_FETCH_DEPENDENCIES=OFF",
       "-DDAWN_ENABLE_INSTALL=OFF",
       f"-DCMAKE_BUILD_TYPE={args.build_type}",
       "-DDAWN_USE_X11=OFF",
