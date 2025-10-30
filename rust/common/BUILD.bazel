@@ -1,0 +1,23 @@
+load(
+    "//bazel:skia_rules.bzl",
+    "skia_cc_library",
+)
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+# Shared FFI utilities for Rust integrations.
+# This header-only library provides ToSkSpan() for converting rust::Slice to SkSpan.
+skia_cc_library(
+    name = "span_utils",
+    hdrs = ["SpanUtils.h"],
+    features = ["layering_check"],
+    visibility = [
+        "//src/codec:__pkg__",
+        "//src/encode:__pkg__",
+    ],
+    deps = ["//:core"],
+)

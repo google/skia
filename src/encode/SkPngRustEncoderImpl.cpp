@@ -18,7 +18,7 @@
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/base/SkAssert.h"
 #include "rust/png/FFI.rs.h"
-#include "rust/png/UtilsForFFI.h"
+#include "rust/common/SpanUtils.h"
 #include "src/base/SkSafeMath.h"
 #include "src/encode/SkImageEncoderFns.h"
 #include "src/encode/SkImageEncoderPriv.h"

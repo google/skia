@@ -20,7 +20,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "modules/skcms/skcms.h"
 #include "rust/png/FFI.rs.h"
-#include "rust/png/UtilsForFFI.h"
+#include "rust/common/SpanUtils.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/base/SkSafeMath.h"
 #include "src/codec/SkFrameHolder.h"
