@@ -65,9 +65,7 @@ std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> interf
      */
     if (!options.fDisableDriverCorrectnessWorkarounds &&
         args.fDriverInfo.fRenderer == GrGLRenderer::kAndroidEmulator) {
-        if (getAndroidAPIVersion() < 32) {
-            args.fGLSLGeneration = SkSL::GLSLGeneration::k100es;
-        }
+        args.fGLSLGeneration = SkSL::GLSLGeneration::k100es;
     }
 #endif
 
