@@ -1058,7 +1058,7 @@ void Draw::drawPath(const SkPath& origSrcPath,
     }
 
 #if defined(SK_BUILD_FOR_FUZZER)
-    if (raw.points().size() > 1000) {
+    if (raw->points().size() > 1000) {
         return;
     }
 #endif

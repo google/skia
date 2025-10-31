@@ -493,6 +493,10 @@
     "name": "Build-Ubuntu24.04-Clang-x86_64-Debug-FreeType_ASAN"
   },
   {
+    "name": "Build-Ubuntu24.04-Clang-x86_64-Debug-Fuzz",
+    "cq_config": {}
+  },
+  {
     "name": "Build-Ubuntu24.04-Clang-x86_64-Debug-Graphite_Dawn_Vulkan"
   },
   {
@@ -574,6 +578,9 @@
   },
   {
     "name": "Build-Ubuntu24.04-Clang-x86_64-Release-Fast"
+  },
+  {
+    "name": "Build-Ubuntu24.04-Clang-x86_64-Release-Fuzz"
   },
   {
     "name": "Build-Ubuntu24.04-Clang-x86_64-Release-Graphite_Dawn_Vulkan"

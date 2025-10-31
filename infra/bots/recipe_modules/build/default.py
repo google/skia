@@ -161,6 +161,10 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
       'skia_use_vulkan':               'true',
     })
 
+  if 'Fuzz' in extra_tokens:
+    cc, cxx = 'clang', 'clang++'
+    args['skia_build_fuzzers'] = 'true'
+
   if 'Coverage' in extra_tokens:
     # See https://clang.llvm.org/docs/SourceBasedCodeCoverage.html for
     # more info on using llvm to gather coverage information.
