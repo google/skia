@@ -1700,29 +1700,35 @@ static void add_to_key(const KeyContext& keyContext, const SkBlendShader* shader
             });
 }
 
-static SkMatrix matrix_invert_or_identity(const SkMatrix& matrix) {
-    SkMatrix inverseMatrix;
-    if (!matrix.invert(&inverseMatrix)) {
-        inverseMatrix.setIdentity();
+template <typename AddInnerToKeyT>
+static void add_local_matrix_to_key(const KeyContext& keyContext,
+                                    const SkMatrix& localMatrix,
+                                    const SkMatrix& postInverseMatrix,
+                                    AddInnerToKeyT addInnerToKey) {
+    auto lmInverse = localMatrix.invert();
+    if (!lmInverse) {
+        keyContext.paintParamsKeyBuilder()->addErrorBlock();
+        return;
     }
 
-    return inverseMatrix;
+    lmInverse->postConcat(postInverseMatrix);
+
+    LocalMatrixShaderBlock::BeginBlock(keyContext,
+                                       LocalMatrixShaderBlock::LMShaderData(*lmInverse));
+    KeyContextWithLocalMatrix lmContext(keyContext, localMatrix);
+    addInnerToKey(lmContext);
+    keyContext.paintParamsKeyBuilder()->endBlock();
 }
 
 static void add_to_key(const KeyContext& keyContext, const SkCTMShader* shader) {
     // CTM shaders are always given device coordinates, so we don't have to modify the CTM itself
     // with keyContext's local transform.
-
-    SkMatrix lmInverse = matrix_invert_or_identity(shader->ctm());
-    LocalMatrixShaderBlock::LMShaderData lmShaderData(lmInverse);
-
-    KeyContextWithLocalMatrix newContext(keyContext, shader->ctm());
-
-    LocalMatrixShaderBlock::BeginBlock(newContext, lmShaderData);
-
-    AddToKey(newContext, shader->proxyShader().get());
-
-    keyContext.paintParamsKeyBuilder()->endBlock();
+    add_local_matrix_to_key(keyContext,
+                            /*localMatrix=*/shader->ctm(),
+                            /*postInverseMatrix=*/SkMatrix::I(),
+                            [&](const KeyContext& childCtx) {
+                                    AddToKey(childCtx, shader->proxyShader().get());
+                            });
 }
 
 static void add_to_key(const KeyContext& keyContext, const SkColorShader* shader) {
@@ -2042,7 +2048,7 @@ static void add_to_key(const KeyContext& keyContext, const SkImageShader* shader
                      shader->tileModeX(), shader->tileModeY(), shader->isRaw());
 }
 
-static SkMatrix get_xtra_image_local_matrix(const SkImage* image) {
+static SkMatrix get_image_origin_matrix(const SkImage* image) {
     // If the image is not graphite backed then we can assume the origin will be TopLeft as we
     // require that in the ImageProvider utility. Also Graphite YUV images are assumed to be TopLeft
     // origin.
@@ -2061,60 +2067,52 @@ static SkMatrix get_xtra_image_local_matrix(const SkImage* image) {
             }
         }
     }
-
+    // Otherwise no modification required
     return SkMatrix::I();
+}
+
+static SkMatrix get_gradient_matrix(const SkGradientBaseShader* gradShader) {
+    // Override the conical gradient matrix since graphite uses a different algorithm
+    // than the ganesh and raster backends.
+    if (gradShader->asGradient() == SkShaderBase::GradientType::kConical) {
+        auto conicalShader = static_cast<const SkConicalGradient*>(gradShader);
+
+        if (conicalShader->getType() == SkConicalGradient::Type::kRadial) {
+            SkMatrix conicalMatrix = SkMatrix::Translate(-conicalShader->getStartCenter());
+            float scale = sk_ieee_float_divide(1, conicalShader->getDiffRadius());
+            conicalMatrix.postScale(scale, scale);
+            return conicalMatrix;
+        } else {
+            auto mx = (SkConicalGradient::MapToUnitX(conicalShader->getStartCenter(),
+                                                     conicalShader->getEndCenter()));
+            return *mx;
+        }
+    } else {
+        // Use the standard gradient matrix for other types
+        return gradShader->getGradientMatrix();
+    }
 }
 
 static void add_to_key(const KeyContext& keyContext, const SkLocalMatrixShader* shader) {
     SkASSERT(shader);
-    auto wrappedShader = shader->wrappedShader().get();
-
     // Fold the texture's origin flip into the local matrix so that the image shader doesn't need
-    // additional state.
-    SkMatrix matrix;
-
-    SkShaderBase* wrappedShaderBase = as_SB(wrappedShader);
+    // additional state; the same goes for gradient shader's gradient matrix coord conversion.
+    SkShaderBase* wrappedShaderBase = as_SB(shader->wrappedShader().get());
+    SkMatrix xtraMatrix = SkMatrix::I();
     if (wrappedShaderBase->type() == SkShaderBase::ShaderType::kImage) {
-        auto imgShader = static_cast<const SkImageShader*>(wrappedShader);
-        matrix = get_xtra_image_local_matrix(imgShader->image().get());
+        auto imgShader = static_cast<const SkImageShader*>(wrappedShaderBase);
+        xtraMatrix = get_image_origin_matrix(imgShader->image().get());
     } else if (wrappedShaderBase->type() == SkShaderBase::ShaderType::kGradientBase) {
-        auto gradShader = static_cast<const SkGradientBaseShader*>(wrappedShader);
-        matrix = gradShader->getGradientMatrix();
-
-        // Override the conical gradient matrix since graphite uses a different algorithm
-        // than the ganesh and raster backends.
-        if (gradShader->asGradient() == SkShaderBase::GradientType::kConical) {
-            auto conicalShader = static_cast<const SkConicalGradient*>(gradShader);
-
-            SkMatrix conicalMatrix;
-            if (conicalShader->getType() == SkConicalGradient::Type::kRadial) {
-                SkPoint center = conicalShader->getStartCenter();
-                conicalMatrix.postTranslate(-center.fX, -center.fY);
-
-                float scale = sk_ieee_float_divide(1, conicalShader->getDiffRadius());
-                conicalMatrix.postScale(scale, scale);
-            } else {
-                auto mx = (SkConicalGradient::MapToUnitX(conicalShader->getStartCenter(),
-                                                         conicalShader->getEndCenter()));
-                SkASSERT(mx);
-                conicalMatrix = mx.value_or(SkMatrix::I());
-            }
-            matrix = conicalMatrix;
-        }
+        auto gradShader = static_cast<const SkGradientBaseShader*>(wrappedShaderBase);
+        xtraMatrix = get_gradient_matrix(gradShader);
     }
 
-    SkMatrix lmInverse = matrix_invert_or_identity(shader->localMatrix());
-    lmInverse.postConcat(matrix);
-
-    LocalMatrixShaderBlock::LMShaderData lmShaderData(lmInverse);
-
-    KeyContextWithLocalMatrix newContext(keyContext, shader->localMatrix());
-
-    LocalMatrixShaderBlock::BeginBlock(newContext, lmShaderData);
-
-    AddToKey(newContext, wrappedShader);
-
-    keyContext.paintParamsKeyBuilder()->endBlock();
+    add_local_matrix_to_key(keyContext,
+                            shader->localMatrix(),
+                            /*postInverseMatrix=*/xtraMatrix,
+                            [&](const KeyContext& childCtx) {
+                                    AddToKey(childCtx, wrappedShaderBase);
+                            });
 }
 
 // If either of these change then the corresponding change must also be made in the SkSL
