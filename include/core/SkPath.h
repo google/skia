@@ -1977,11 +1977,11 @@ private:
 
     // Creates a new Path after the supplied arguments have been validated by
     // SkPathPriv::AnalyzeVerbs().
-    static SkPath MakeInternal(const SkPathVerbAnalysis& analsis,
-                               const SkPoint points[],
-                               SkSpan<const SkPathVerb> verbs,
-                               const SkScalar conics[],
-                               SkPathFillType fillType,
+    static SkPath MakeInternal(const SkPathVerbAnalysis&,
+                               const SkPoint[],
+                               SkSpan<const SkPathVerb>,
+                               const float conics[],
+                               SkPathFillType,
                                bool isVolatile);
 #endif
 
