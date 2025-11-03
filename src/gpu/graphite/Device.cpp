@@ -153,8 +153,8 @@ std::optional<SkColor4f> extract_paint_color(const PaintParams& paint,
         return SkColors::kTransparent;
     }
 
-    // PaintParams has already consolidated constant shaders and applied color filters to constant
-    // input colors. If the paint still has any of those fields, then we can't extract it.
+    // PaintParams has already consolidated constant shaders or images and applied color filters to
+    // constant input colors. If the paint still has any of those fields, then we can't extract it.
     if (paint.shader() || paint.imageShader() || paint.colorFilter()) {
         return std::nullopt;
     }
@@ -1349,8 +1349,8 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
         // is consistent with Ganesh's behavior. It also matches the behavior if edge-AA images were
         // submitted one at a time by SkiaRenderer (a nice client simplification). However, we
         // should explore the performance trade off with doing one bulk evaluation for the whole set
-        const SkMatrix* xtraXform = set[i].fMatrixIndex < 0 ? nullptr :
-                                                            &preViewMatrices[set[i].fMatrixIndex];
+        const SkMatrix* xtraXform = set[i].fMatrixIndex < 0 ? nullptr
+                                                            : &preViewMatrices[set[i].fMatrixIndex];
         this->drawGeometry(xtraXform ?  localToDevice.concat(SkM44(*xtraXform)) : localToDevice,
                            Geometry(quad),
                            PaintParams(paint, imageShader, set[i].fAlpha),
