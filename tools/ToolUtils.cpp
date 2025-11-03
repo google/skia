@@ -760,7 +760,8 @@ void ExtractPathsFromSKP(const char filepath[], std::function<PathSniffCallback>
         std::function<PathSniffCallback> fPathSniffCallback;
     };
 
-    sk_sp<SkPicture> skp = SkPicture::MakeFromStream(&stream);
+    // We don't need to decode images etc, so we can pass nullptr for the deserial procs.
+    sk_sp<SkPicture> skp = SkPicture::MakeFromStream(&stream, nullptr);
     if (!skp) {
         SkDebugf("ExtractPaths: couldn't load skp at \"%s\"\n", filepath);
         return;
