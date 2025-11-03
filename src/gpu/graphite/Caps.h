@@ -189,7 +189,7 @@ public:
      */
     size_t requiredTransferBufferAlignment() const { return fRequiredTransferBufferAlignment; }
 
-    /* Returns the aligned rowBytes when transfering to or from a Texture */
+    /* Returns the aligned rowBytes when transferring to or from a Texture */
     size_t getAlignedTextureDataRowBytes(size_t rowBytes) const {
         return SkAlignTo(rowBytes, fTextureDataRowBytesAlignment);
     }
@@ -202,10 +202,13 @@ public:
         return {};
     }
 
+    /* Returns a compressed label describing the immutable sampler for the Pipeline label */
+    virtual std::string toString(const ImmutableSamplerInfo&) const { return ""; }
+
     /**
      * Backends may have restrictions on what types of textures support Device::writePixels().
      * If this returns false then the caller should implement a fallback where a temporary texture
-     * is created, pixels are written to it, and then that is copied or drawn into the the surface.
+     * is created, pixels are written to it, and then that is copied or drawn into the surface.
      */
     virtual bool supportsWritePixels(const TextureInfo&) const = 0;
 

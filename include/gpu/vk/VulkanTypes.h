@@ -157,6 +157,7 @@ public:
     VkBool32 forceExplicitReconstruction() const { return fForceExplicitReconstruction; }
     VkComponentMapping components() const { return fComponents; }
 
+    bool samplerFilterMustMatchChromaFilter() const { return fSamplerFilterMustMatchChromaFilter; }
     bool supportsLinearFilter() const { return fSupportsLinearFilter; }
 
     // Returns a populated VkSamplerYcbcrConversionCreateInfo object based on
@@ -225,7 +226,7 @@ private:
                                                  VK_COMPONENT_SWIZZLE_IDENTITY,
                                                  VK_COMPONENT_SWIZZLE_IDENTITY};
 
-    // Default these values to the most restrictive. These defaults only really matter while until
+    // Default these values to the most restrictive. These defaults only really matter until
     // we force all clients to go through our constructors. At that point these will be set to the
     // correct values.
     bool fSamplerFilterMustMatchChromaFilter = true;

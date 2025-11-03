@@ -2239,4 +2239,49 @@ ImmutableSamplerInfo VulkanCaps::getImmutableSamplerInfo(const TextureInfo& text
     return {};
 }
 
+static constexpr const char* vk_chromafilter_to_str(VkFilter f) {
+    switch (f) {
+        case VK_FILTER_NEAREST:   return "nearest";
+        case VK_FILTER_LINEAR:    return "linear";
+        case VK_FILTER_CUBIC_EXT: return "cubic";
+        default:                  return "unknown";
+    }
+    SkUNREACHABLE;
+}
+
+std::string VulkanCaps::toString(const ImmutableSamplerInfo& immutableSamplerInfo) const {
+    const skgpu::VulkanYcbcrConversionInfo info =
+            VulkanYcbcrConversion::FromImmutableSamplerInfo(immutableSamplerInfo);
+    if (!info.isValid()) {
+        return "";
+    }
+
+    std::string result;
+
+    if (info.hasExternalFormat()) {
+        result += 'x';
+        result += std::to_string(info.externalFormat());
+    } else {
+        result += info.format();
+    }
+
+    result += " ";
+    result += VkModelToStr(info.model());
+    result += "+";
+    result += VkRangeToStr(info.range());
+    result += info.xChromaOffset() ? " mid"  : " cos";  // midpoint or cosited-even
+    result += info.yChromaOffset() ? " mid " : " cos "; // midpoint or cosited-even
+    result += vk_chromafilter_to_str(info.chromaFilter());
+    result += info.forceExplicitReconstruction() ? " T " : " F ";
+    result += VkSwizzleToStr(info.components().r, 'r');
+    result += VkSwizzleToStr(info.components().g, 'g');
+    result += VkSwizzleToStr(info.components().b, 'b');
+    result += VkSwizzleToStr(info.components().a, 'a');
+    result += " cf";
+    result += info.samplerFilterMustMatchChromaFilter() ? '1' : '0';
+    result += "lf";
+    result += info.supportsLinearFilter() ? '1' : '0';
+    return result;
+}
+
 } // namespace skgpu::graphite

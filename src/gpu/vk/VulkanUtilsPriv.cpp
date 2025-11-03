@@ -397,7 +397,7 @@ VulkanYcbcrConversionInfo::VulkanYcbcrConversionInfo(VkFormat format,
     fSupportsLinearFilter = SkToBool(formatFeatures &
                                      VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT);
     if (fSamplerFilterMustMatchChromaFilter && !fSupportsLinearFilter) {
-        // Because we don't have have separate reconstruction filter, the min, mag and  filter must
+        // Because we don't have separate reconstruction filter, the min, mag and  filter must
         // all match. However, we also don't support linear sampling so the min/mag filter have to
         // be nearest. Therefore, we force the chroma filter to be nearest regardless of support for
         // the feature VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT.
