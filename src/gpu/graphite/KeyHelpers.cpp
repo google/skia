@@ -2537,6 +2537,23 @@ void AddToKey(const KeyContext& keyContext, const SkShader* shader) {
     SkUNREACHABLE;
 }
 
+// An SkImageShader object on a paint is actually always an SkLocalMatrixShader composed with an
+// SkImageShader. This creates the same call sequence with the decomposed objects.
+void AddToKey(const KeyContext& keyContext, const PaintParams::SimpleImage& simpleImage) {
+    add_local_matrix_to_key(keyContext,
+                            simpleImage.fLocalMatrix ? *simpleImage.fLocalMatrix : SkMatrix::I(),
+                            get_image_origin_matrix(simpleImage.fImage),
+                            [&](const KeyContext& childCtx) {
+                                    add_image_to_key(childCtx,
+                                                     simpleImage.fImage,
+                                                     simpleImage.fSubset,
+                                                     simpleImage.fSamplingOptions,
+                                                     SkTileMode::kClamp,
+                                                     SkTileMode::kClamp,
+                                                     /*isRaw=*/false);
+                            });
+}
+
 void AddFixedBlendMode(const KeyContext& keyContext, SkBlendMode bm) {
     SkASSERT(bm <= SkBlendMode::kLastMode);
     BuiltInCodeSnippetID id = static_cast<BuiltInCodeSnippetID>(kFixedBlendIDOffset +

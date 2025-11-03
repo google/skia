@@ -18,10 +18,10 @@
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/graphite/Context.h"
-#include "include/private/base/SkTArray.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/gpu/graphite/KeyContext.h"
+#include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/ReadSwizzle.h"
 #include "src/gpu/graphite/ResourceTypes.h"
@@ -40,16 +40,6 @@ class FloatStorageManager;
 class PipelineDataGatherer;
 class UniquePaintParamsID;
 enum class ReadSwizzle;
-
-// Types of logical "destinations" that a blender might blend with.
-enum class DstColorType {
-    // A color read from the framebuffer.
-    kSurface,
-    // A color provided by geometry.
-    kPrimitive,
-    // A color evaluated by a child shader.
-    kChildOutput,
-};
 
 /**
  * The KeyHelpers can be used to manually construct an SkPaintParamsKey.
@@ -417,6 +407,23 @@ void AddToKey(const KeyContext& keyContext, const SkColorFilter* filter);
  *  @param shader     This function is a no-op if shader is null.
  */
 void AddToKey(const KeyContext& keyContext, const SkShader* shader);
+
+/**
+ * Add blocks to the key and data builders that represent the simple image shader, e.g. it is
+ * equivalent to:
+ *
+ *     SkMatrix localMatrix = SkMatrix::Rect2Rect(imageShader.fSrcRect, imageShader.fDstRect);
+ *     sk_sp<SkShader> skImageShader = SkImageShader::MakeSubset(imageShader.fImage,
+ *                                                               imageShader.fSubset,
+ *                                                               SkTileMode::kClamp,
+ *                                                               SkTileMode::kClamp,
+ *                                                               imageShader.fSamplingOptions,
+ *                                                               imageShader.fLocalMatrix);
+ *     AddToKey(keyContext, skImageShader.get());
+ *
+ * with the benefit of not creating any SkShader objects or having to compute matrix inverses.
+ */
+void AddToKey(const KeyContext& keyContext, const PaintParams::SimpleImage& imageShader);
 
 // Add a fixed blend mode node for a specific SkBlendMode.
 void AddFixedBlendMode(const KeyContext&, SkBlendMode);

@@ -16,6 +16,7 @@
 #include "src/gpu/graphite/geom/NonMSAAClip.h"
 
 class SkColorInfo;
+class SkImage;
 class SkShader;
 
 namespace skgpu::graphite {
@@ -43,19 +44,38 @@ class UniquePaintParamsID;
 // the draw call.
 class PaintParams {
 public:
+    // Stores just the parameters of the implicit image shading model used by drawImageRect and
+    // other image-drawing APIs, e.g. to apply SkModifyPaintAndDstForDrawImageRect without the
+    // overhead of creating additional SkShader objects. Assumes clamp tiling; if no clamping is
+    // required, set to the image's bounds.
+    struct SimpleImage {
+        // fImage (required) and fLocalMatrix (optional) must outlive the PaintParams object
+        const SkImage* fImage;
+        const SkMatrix* fLocalMatrix = nullptr;
+        // Post local matrix strict clamping rectangle (e.g. relative to image's texels)
+        SkRect fSubset;
+        SkSamplingOptions fSamplingOptions;
+    };
+
     // Converts an SkPaint to PaintParams, possibly adding a primitive blender (e.g. for
     // drawVertices or text rendering).
-    explicit PaintParams(const SkPaint&,
+    explicit PaintParams(const SkPaint& paint,
                          const SkBlender* primitiveBlender = nullptr,
                          bool skipColorXform = false,
                          bool ignoreShader = false);
 
+    // Converts an SkPaint to PaintParams and accounts for the implicit SkImage shader override
+    // from drawImageRect and related functions. Multiplies `xtraAlpha` with the paint's alpha.
+    //
+    // NOTE: Does not copy `imageOverride`, this must live for the lifetime of PaintParams
+    PaintParams(const SkPaint&, const SimpleImage& imageOverride, float xtraAlpha=1.f);
 
     // Creates a constant color PaintParams with the specific blend mode.
     PaintParams(const SkColor4f& color, SkBlendMode finalBlendMode);
 
     const SkColor4f& color() const { return fColor; }
     const SkShader* shader() const { return fShader; }
+    const SimpleImage* imageShader() const { return fImageShader; }
     const SkColorFilter* colorFilter() const { return fColorFilter; }
     const SkBlender* primitiveBlender() const { return fPrimitiveBlender; }
     bool skipPrimitiveColorXform() const { return fSkipColorXform; }
@@ -70,6 +90,12 @@ public:
     static SkColor4f Color4fPrepForDst(SkColor4f srgb, const SkColorInfo& dstColorInfo);
 
 private:
+    PaintParams(const SkPaint&,
+                const SimpleImage* imageOverride,
+                const SkBlender* primitiveBlender,
+                bool skipColorXform,
+                bool ignoreShader);
+
     SkColor4f fColor;
 
     // Either a non-null SkBlender for runtime blending, or the SkBlendMode to use instead. If
@@ -78,6 +104,7 @@ private:
     std::pair<const SkBlender*, SkBlendMode> fFinalBlend;
 
     const SkShader*      fShader;
+    const SimpleImage*   fImageShader; // Overrides fShader for color images, mixes for alpha
     const SkColorFilter* fColorFilter;
 
     // A nullptr fPrimitiveBlender means there's no primitive color blending and it is skipped.

@@ -12,6 +12,7 @@
 #include "src/core/SkBlendModeBlender.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkImageInfoPriv.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/DitherUtils.h"
@@ -43,7 +44,7 @@ bool should_dither(const PaintParams& p, SkColorType dstCT) {
     }
 
     // Otherwise, dither is only needed for non-const paints.
-    return p.shader() && !as_SB(p.shader())->isConstant();
+    return p.imageShader() || (p.shader() && !as_SB(p.shader())->isConstant());
 }
 
 bool blendmode_depends_on_dst(SkBlendMode blendMode, bool srcIsOpaque) {
@@ -103,26 +104,34 @@ SkEnumBitMask<DstUsage> get_dst_usage(const Caps* caps,
 } // anonymous namespace
 
 PaintParams::PaintParams(const SkPaint& paint,
+                         const SimpleImage* imageOverride,
                          const SkBlender* primitiveBlender,
                          bool skipColorXform,
                          bool ignoreShader)
         : fColor(paint.getColor4f())
         , fFinalBlend(get_final_blend(paint.getBlender()))
         , fShader(ignoreShader ? nullptr : paint.getShader())
+        , fImageShader(imageOverride)
         , fColorFilter(paint.getColorFilter())
         , fPrimitiveBlender(primitiveBlender)
         , fSkipColorXform(skipColorXform)
         , fDither(paint.isDither()) {
     if (!fPrimitiveBlender) {
-        SkColor4f constantColor;   // if filled in, will be un-premul sRGB
-        // fColor is un-premul sRGB
+        // NOTE: We can still have an alpha-only fImageShader and still want to try simplifying the
+        // paint's shader to a solid color for the alpha image's colorization.
+        SkColor4f constantColor;
         if (fShader && as_SB(fShader)->isConstant(&constantColor)) {
+            // The original fColor and `constantColor` are un-premul sRGB, but we need to preserve
+            // the paint's alpha.
             float origA = fColor.fA;
             fColor = constantColor;
             fColor.fA *= origA;
             fShader = nullptr;
         }
-        if (!fShader && fColorFilter) {
+        // We can't apply the color filter to the color if a shader modifies it, including when the
+        // image shader is alpha-only. The image's per-pixel alpha modulates the paint color
+        // *before* the color filter is evaluated.
+        if (!fShader && !fImageShader && fColorFilter) {
             fColor = fColorFilter->filterColor4f(fColor,
                                                  sk_srgb_singleton(),
                                                  sk_srgb_singleton());
@@ -131,10 +140,33 @@ PaintParams::PaintParams(const SkPaint& paint,
     }
 }
 
+PaintParams::PaintParams(const SkPaint& paint,
+                         const SkBlender* primitiveBlender,
+                         bool skipColorXform,
+                         bool ignoreShader)
+        : PaintParams(paint,
+                      /*imageOverride=*/nullptr,
+                      primitiveBlender,
+                      skipColorXform,
+                      ignoreShader) {}
+
+PaintParams::PaintParams(const SkPaint& paint, const SimpleImage& imageOverride, float xtraAlpha)
+        : PaintParams(paint,
+                      &imageOverride,
+                      /*primitiveBlender=*/nullptr,
+                      /*skipColorXform=*/false,
+                      // For color images, the paint's original shader is ignored.
+                      /*ignoreShader=*/!SkColorTypeIsAlphaOnly(imageOverride.fImage->colorType())) {
+    // Multiply in the extra alpha that's allowed to be set on an ImageSetEntry. Accepting it here
+    // avoids needing to modify the SkPaint providing the base color.
+    fColor.fA *= xtraAlpha;
+}
+
 PaintParams::PaintParams(const SkColor4f& color, SkBlendMode finalBlendMode)
         : fColor(color)
         , fFinalBlend({nullptr, finalBlendMode})
         , fShader(nullptr)
+        , fImageShader(nullptr)
         , fColorFilter(nullptr)
         , fPrimitiveBlender(nullptr)
         , fSkipColorXform(false)
@@ -166,7 +198,35 @@ ShadingParams::ShadingParams(const Caps* caps,
         , fDstUsage(get_dst_usage(caps, fTargetFormat, paint, fRendererCoverage)) {}
 
 bool ShadingParams::addPaintColorToKey(const KeyContext& keyContext) const {
-    if (fPaint.shader()) {
+    const auto& simpleImage = fPaint.imageShader();
+    if (simpleImage) {
+        // There is an implicit image shader, match handling of SkModifyPaintForDrawImageRect
+        if (fPaint.shader()) {
+            // Alpha-only images for drawImageRect() get colorized with the paint's shader. This
+            // differs from alpha-only image shaders that might be encountered within an SkShader
+            // graph, which get colorized by the paint's opaque color.
+            SkASSERT(SkColorTypeIsAlphaOnly(simpleImage->fImage->colorType()));
+            Blend(keyContext,
+                  /* addBlendToKey */ [&] () -> void {
+                      AddFixedBlendMode(keyContext, SkBlendMode::kDstIn);
+                  },
+                  /* addSrcToKey = */ [&] () -> void {
+                      // Since colorization is handled here, disable paint color-colorization later.
+                      AddToKey(keyContext.withExtraFlags(
+                                       KeyGenFlags::kDisableAlphaOnlyImageColorization),
+                               *simpleImage);
+                  },
+                  /* addDstToKey = */ [&] () -> void {
+                      AddToKey(keyContext, fPaint.shader());
+                  });
+            return false; // Colorizing with an alpha-only texture probably isn't opaque
+        } else {
+            // Encode the image structure directly, which includes handling alpha-only images that
+            // combine with the paint's color (RGB1) stored on `keyContext`.
+            AddToKey(keyContext, *simpleImage);
+            return simpleImage->fImage->isOpaque();
+        }
+    } else if (fPaint.shader()) {
         AddToKey(keyContext, fPaint.shader());
         return fPaint.shader()->isOpaque();
     } else {
@@ -221,7 +281,7 @@ bool ShadingParams::handlePrimitiveColor(const KeyContext& keyContext) const {
 
 // Apply the paint's alpha value.
 bool ShadingParams::handlePaintAlpha(const KeyContext& keyContext) const {
-    if (!fPaint.shader() && !fPaint.primitiveBlender()) {
+    if (!fPaint.shader() && !fPaint.imageShader() && !fPaint.primitiveBlender()) {
         // If there is no shader and no primitive blending the input to the colorFilter stage
         // is just the premultiplied paint color.
         SkPMColor4f paintColor = PaintParams::Color4fPrepForDst(fPaint.color(),
