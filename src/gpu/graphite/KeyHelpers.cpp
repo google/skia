@@ -2053,7 +2053,7 @@ static SkMatrix get_xtra_image_local_matrix(const SkImage* image) {
         // so we need to concat that to the local matrix transform.
         if (imgBase->isYUVA()) {
             auto imgYUVA = static_cast<const Image_YUVA*>(imgBase);
-            return matrix_invert_or_identity(imgYUVA->yuvaInfo().originMatrix());
+            return imgYUVA->yuvaInfo().inverseOriginMatrix();
         } else {
             const auto& view = static_cast<const Image*>(imgBase)->textureProxyView();
             if (view.origin() == Origin::kBottomLeft) {

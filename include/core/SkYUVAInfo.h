@@ -181,6 +181,9 @@ public:
     SkMatrix originMatrix() const {
         return SkEncodedOriginToMatrix(fOrigin, this->width(), this->height());
     }
+    SkMatrix inverseOriginMatrix() const {
+        return SkEncodedOriginToMatrixInverse(fOrigin, this->width(), this->height());
+    }
 
     bool hasAlpha() const { return HasAlpha(fPlaneConfig); }
 

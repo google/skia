@@ -44,6 +44,23 @@ static inline SkMatrix SkEncodedOriginToMatrix(SkEncodedOrigin origin, int w, in
 }
 
 /**
+ * Return a matrix equal to SkEncodedOriginToMatrix(origin, w, h).invert().
+ */
+static inline SkMatrix SkEncodedOriginToMatrixInverse(SkEncodedOrigin origin, int w, int h) {
+    switch (origin) {
+        case     kTopLeft_SkEncodedOrigin: return SkMatrix::I();
+        case    kTopRight_SkEncodedOrigin: return SkMatrix::MakeAll(-1,  0, w,  0,  1, 0, 0, 0, 1);
+        case kBottomRight_SkEncodedOrigin: return SkMatrix::MakeAll(-1,  0, w,  0, -1, h, 0, 0, 1);
+        case  kBottomLeft_SkEncodedOrigin: return SkMatrix::MakeAll( 1,  0, 0,  0, -1, h, 0, 0, 1);
+        case     kLeftTop_SkEncodedOrigin: return SkMatrix::MakeAll( 0,  1, 0,  1,  0, 0, 0, 0, 1);
+        case    kRightTop_SkEncodedOrigin: return SkMatrix::MakeAll( 0,  1, 0, -1,  0, w, 0, 0, 1);
+        case kRightBottom_SkEncodedOrigin: return SkMatrix::MakeAll( 0, -1, h, -1,  0, w, 0, 0, 1);
+        case  kLeftBottom_SkEncodedOrigin: return SkMatrix::MakeAll( 0, -1, h,  1,  0, 0, 0, 0, 1);
+    }
+    SK_ABORT("Unexpected origin");
+}
+
+/**
  * Return true if the encoded origin includes a 90 degree rotation, in which case the width
  * and height of the source data are swapped relative to a correctly oriented destination.
  */

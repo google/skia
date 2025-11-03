@@ -406,8 +406,7 @@ static void extract_planes(const SkBitmap& origBM,
     SkBitmap orientedBM;
     orientedBM.allocPixels(ii);
     SkCanvas canvas(orientedBM);
-    SkMatrix matrix = SkEncodedOriginToMatrix(origin, origBM.width(), origBM.height());
-    SkAssertResult(matrix.invert(&matrix));
+    SkMatrix matrix = SkEncodedOriginToMatrixInverse(origin, origBM.width(), origBM.height());
     canvas.concat(matrix);
     canvas.drawImage(origBM.asImage(), 0, 0);
 

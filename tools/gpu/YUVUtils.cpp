@@ -86,8 +86,7 @@ protected:
             SkYUVAInfo::YUVALocations yuvaLocations = fPixmaps.toYUVALocations();
             SkASSERT(SkYUVAInfo::YUVALocation::AreValidLocations(yuvaLocations));
 
-            SkMatrix om = fPixmaps.yuvaInfo().originMatrix();
-            SkAssertResult(om.invert(&om));
+            SkMatrix om = fPixmaps.yuvaInfo().inverseOriginMatrix();
             float normX = 1.f/info.width();
             float normY = 1.f/info.height();
             if (SkEncodedOriginSwapsWidthHeight(fPixmaps.yuvaInfo().origin())) {

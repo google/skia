@@ -102,9 +102,7 @@ sk_sp<SkImage> SkAnimCodecPlayer::getFrameAt(int index) {
             // onto the required frame. To do that, SkCodec needs to expose the
             // rectangle of the delta and the blend mode, so we can handle
             // kRestoreBGColor frames and Blend::kSrc.
-            SkMatrix inverse;
-            SkAssertResult(originMatrix.invert(&inverse));
-            canvas->concat(inverse);
+            canvas->concat(*originMatrix.invert());
         }
         canvas->drawImage(requiredImage, 0, 0, SkSamplingOptions(), &paint);
         opts.fPriorFrame = requiredFrame;
@@ -151,5 +149,3 @@ bool SkAnimCodecPlayer::seek(uint32_t msec) {
     fCurrIndex = lower - fFrameInfos.begin();
     return fCurrIndex != prevIndex;
 }
-
-
