@@ -118,6 +118,7 @@ declare_args() {
 
   skia_use_vulkan = false
   skia_build_fuzzers = false
+  skia_provide_default_fuzz_engine = true
 }
 
 declare_args() {

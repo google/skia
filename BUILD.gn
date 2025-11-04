@@ -3321,8 +3321,13 @@ if (skia_build_fuzzers) {
         ":tool_utils",
       ]
       defines = [ "SK_BUILD_FOR_LIBFUZZER" ]
-      cflags = [ "-fsanitize=fuzzer" ]
-      ldflags = [ "-fsanitize=fuzzer" ]
+
+      # oss-fuzz will set this engine itself when building and we don't want a
+      # conflict (e.g. both libfuzzer and centipede)
+      if (skia_provide_default_fuzz_engine) {
+        cflags = [ "-fsanitize=fuzzer" ]
+        ldflags = [ "-fsanitize=fuzzer" ]
+      }
       testonly = true
     }
   }
