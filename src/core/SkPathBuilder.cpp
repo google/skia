@@ -793,8 +793,8 @@ SkPathBuilder& SkPathBuilder::addPath(const SkPath& src, const SkMatrix& matrix,
         fLastMoveIndex = lastMoveToIndex + this->countPoints();
 
         auto [newPts, newWeights] = this->growForVerbsInPath(src);
-        const auto count = src.countPoints();
-        matrix.mapPoints({newPts, count}, {src.fPathRef->points(), count});
+        const size_t count = src.points().size();
+        matrix.mapPoints({newPts, count}, src.points());
         if (auto conics = src.conicWeights(); !conics.empty()) {
             memcpy(newWeights, conics.data(), conics.size_bytes());
         }
