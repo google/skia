@@ -595,7 +595,7 @@ void MtlCaps::initFormatTable(const id<MTLDevice> device) {
         } else {
             info->fFlags = FormatInfo::kTexturable_Flag | FormatInfo::kRenderable_Flag;
         }
-        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfoCount = 2;
         info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: R16Unorm, Surface: kA16_unorm
@@ -606,6 +606,13 @@ void MtlCaps::initFormatTable(const id<MTLDevice> device) {
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             ctInfo.fReadSwizzle = skgpu::Swizzle("000r");
             ctInfo.fWriteSwizzle = skgpu::Swizzle("a000");
+        }
+        // Format: R16Unorm, Surface: kR16_unorm
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = kR16_unorm_SkColorType;
+            ctInfo.fTransferColorType = kR16_unorm_SkColorType;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
         }
     }
 
@@ -734,32 +741,33 @@ void MtlCaps::initFormatTable(const id<MTLDevice> device) {
                                                         MTLPixelFormatA8Unorm });
     if (@available(macOS 11.0, iOS 8.0, tvOS 9.0, *)) {
         if (this->isApple()) {
-            this->setColorType(kRGB_565_SkColorType,   {MTLPixelFormatB5G6R5Unorm});
-            this->setColorType(kARGB_4444_SkColorType, { MTLPixelFormatABGR4Unorm });
+            this->setColorType(kRGB_565_SkColorType,   { MTLPixelFormatB5G6R5Unorm });
+            this->setColorType(kARGB_4444_SkColorType, { MTLPixelFormatABGR4Unorm  });
         }
     }
 
-    this->setColorType(kRGBA_8888_SkColorType,        { MTLPixelFormatRGBA8Unorm });
-    this->setColorType(kRGB_888x_SkColorType,         { MTLPixelFormatRGBA8Unorm });
-    this->setColorType(kBGRA_8888_SkColorType,        { MTLPixelFormatBGRA8Unorm });
-    this->setColorType(kRGBA_1010102_SkColorType,     { MTLPixelFormatRGB10A2Unorm });
-    this->setColorType(kRGB_101010x_SkColorType,      { MTLPixelFormatRGB10A2Unorm });
+    this->setColorType(kRGBA_8888_SkColorType,         { MTLPixelFormatRGBA8Unorm      });
+    this->setColorType(kRGB_888x_SkColorType,          { MTLPixelFormatRGBA8Unorm      });
+    this->setColorType(kBGRA_8888_SkColorType,         { MTLPixelFormatBGRA8Unorm      });
+    this->setColorType(kRGBA_1010102_SkColorType,      { MTLPixelFormatRGB10A2Unorm    });
+    this->setColorType(kRGB_101010x_SkColorType,       { MTLPixelFormatRGB10A2Unorm    });
     // kBGRA_1010102_SkColorType
     // kBGR_101010x_SkColorType
     // kBGR_101010x_XR_SkColorType
-    this->setColorType(kGray_8_SkColorType,           { MTLPixelFormatR8Unorm });
-    this->setColorType(kRGBA_F16Norm_SkColorType,     { MTLPixelFormatRGBA16Float });
-    this->setColorType(kRGBA_F16_SkColorType,         { MTLPixelFormatRGBA16Float });
-    this->setColorType(kRGB_F16F16F16x_SkColorType,   { MTLPixelFormatRGBA16Float });
+    this->setColorType(kGray_8_SkColorType,            { MTLPixelFormatR8Unorm         });
+    this->setColorType(kRGBA_F16Norm_SkColorType,      { MTLPixelFormatRGBA16Float     });
+    this->setColorType(kRGBA_F16_SkColorType,          { MTLPixelFormatRGBA16Float     });
+    this->setColorType(kRGB_F16F16F16x_SkColorType,    { MTLPixelFormatRGBA16Float     });
     // kRGBA_F32_SkColorType
-    this->setColorType(kR8G8_unorm_SkColorType,       { MTLPixelFormatRG8Unorm });
-    this->setColorType(kA16_float_SkColorType,        { MTLPixelFormatR16Float });
-    this->setColorType(kR16G16_float_SkColorType,     { MTLPixelFormatRG16Float });
-    this->setColorType(kA16_unorm_SkColorType,        { MTLPixelFormatR16Unorm });
-    this->setColorType(kR16G16_unorm_SkColorType,     { MTLPixelFormatRG16Unorm });
-    this->setColorType(kR16G16B16A16_unorm_SkColorType,{ MTLPixelFormatRGBA16Unorm });
-    this->setColorType(kSRGBA_8888_SkColorType,       { MTLPixelFormatRGBA8Unorm_sRGB });
-    this->setColorType(kR8_unorm_SkColorType,         { MTLPixelFormatR8Unorm });
+    this->setColorType(kR8G8_unorm_SkColorType,        { MTLPixelFormatRG8Unorm        });
+    this->setColorType(kA16_float_SkColorType,         { MTLPixelFormatR16Float        });
+    this->setColorType(kR16G16_float_SkColorType,      { MTLPixelFormatRG16Float       });
+    this->setColorType(kA16_unorm_SkColorType,         { MTLPixelFormatR16Unorm        });
+    this->setColorType(kR16_unorm_SkColorType,         { MTLPixelFormatR16Unorm        });
+    this->setColorType(kR16G16_unorm_SkColorType,      { MTLPixelFormatRG16Unorm       });
+    this->setColorType(kR16G16B16A16_unorm_SkColorType,{ MTLPixelFormatRGBA16Unorm     });
+    this->setColorType(kSRGBA_8888_SkColorType,        { MTLPixelFormatRGBA8Unorm_sRGB });
+    this->setColorType(kR8_unorm_SkColorType,          { MTLPixelFormatR8Unorm         });
 
 }
 

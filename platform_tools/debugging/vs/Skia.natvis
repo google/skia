@@ -184,6 +184,9 @@
       <Synthetic Name="[type]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kA16_unorm_SkColorType">
         <DisplayString>UINT16</DisplayString>
       </Synthetic>
+      <Synthetic Name="[type]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kR16_unorm_SkColorType">
+        <DisplayString>UINT16</DisplayString>
+      </Synthetic>
       <Synthetic Name="[type]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kR16G16_unorm_SkColorType">
         <DisplayString>UINT16</DisplayString>
       </Synthetic>
@@ -221,6 +224,10 @@
       </Synthetic>
       <Synthetic Name="[channels]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kR16G16B16A16_unorm_SkColorType">
         <DisplayString>BGRA</DisplayString>
+      </Synthetic>
+      <Item Name="[channels]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kR16_unorm_SkColorType">1</Item>
+      <Synthetic Name="[channels]" Condition="fPixmap.fInfo.fColorInfo.fColorType == kR16_unorm_SkColorType">
+        <DisplayString>R</DisplayString>
       </Synthetic>
 
       <Item Name="[width]">fPixmap.fInfo.fDimensions.fWidth</Item>
@@ -271,6 +278,9 @@
       <Synthetic Name="[type]" Condition="fInfo.fColorInfo.fColorType == kA16_unorm_SkColorType">
         <DisplayString>UINT16</DisplayString>
       </Synthetic>
+      <Synthetic Name="[type]" Condition="fInfo.fColorInfo.fColorType == kR16_unorm_SkColorType">
+        <DisplayString>UINT16</DisplayString>
+      </Synthetic>
       <Synthetic Name="[type]" Condition="fInfo.fColorInfo.fColorType == kR16G16_unorm_SkColorType">
         <DisplayString>UINT16</DisplayString>
       </Synthetic>
@@ -305,6 +315,10 @@
       <Item Name="[channels]" Condition="fInfo.fColorInfo.fColorType == kA16_unorm_SkColorType">1</Item>
       <Synthetic Name="[channels]" Condition="fInfo.fColorInfo.fColorType == kR16G16_unorm_SkColorType">
         <DisplayString>RG</DisplayString>
+      </Synthetic>
+      <Item Name="[channels]" Condition="fInfo.fColorInfo.fColorType == kR16_unorm_SkColorType">1</Item>
+      <Synthetic Name="[channels]" Condition="fInfo.fColorInfo.fColorType == kR16_unorm_SkColorType">
+        <DisplayString>R</DisplayString>
       </Synthetic>
       <Synthetic Name="[channels]" Condition="fInfo.fColorInfo.fColorType == kR16G16B16A16_unorm_SkColorType">
         <DisplayString>BGRA</DisplayString>

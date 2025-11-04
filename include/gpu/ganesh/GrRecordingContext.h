@@ -63,12 +63,13 @@ public:
      * use maxSurfaceSampleCountForColorType().
      */
     SK_API bool colorTypeSupportedAsSurface(SkColorType colorType) const {
-        if (kR16G16_unorm_SkColorType == colorType ||
-            kA16_unorm_SkColorType == colorType ||
-            kA16_float_SkColorType == colorType ||
-            kR16G16_float_SkColorType == colorType ||
-            kR16G16B16A16_unorm_SkColorType == colorType ||
-            kGray_8_SkColorType == colorType) {
+        if (colorType == kR16G16_unorm_SkColorType       ||
+            colorType == kA16_unorm_SkColorType          ||
+            colorType == kA16_float_SkColorType          ||
+            colorType == kR16_unorm_SkColorType          ||
+            colorType == kR16G16_float_SkColorType       ||
+            colorType == kR16G16B16A16_unorm_SkColorType ||
+            colorType == kGray_8_SkColorType) {
             return false;
         }
 

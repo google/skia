@@ -88,6 +88,8 @@ static constexpr const char* sk_color_type_to_str(SkColorType colorType) {
             return "kR16G16_float_SkColorType";
         case kA16_unorm_SkColorType:
             return "kA16_unorm_SkColorType";
+        case kR16_unorm_SkColorType:
+            return "R16_unorm_SkColorType";
         case kR16G16_unorm_SkColorType:
             return "kR16G16_unorm_SkColorType";
         case kR16G16B16A16_unorm_SkColorType:

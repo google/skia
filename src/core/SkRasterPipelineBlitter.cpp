@@ -397,6 +397,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
             case kA16_float_SkColorType:
             case kA16_unorm_SkColorType:
             case kR16G16_float_SkColorType:
+            case kR16_unorm_SkColorType:
             case kR16G16_unorm_SkColorType:
             case kR16G16B16A16_unorm_SkColorType:
                 blitter->fDitherRate = 0.0f;

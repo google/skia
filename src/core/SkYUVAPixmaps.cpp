@@ -33,6 +33,7 @@ std::tuple<int, SkYUVAPixmapInfo::DataType> SkYUVAPixmapInfo::NumChannelsAndData
     switch (ct) {
         case kAlpha_8_SkColorType:
         case kGray_8_SkColorType:    return {1, DataType::kUnorm8 };
+        case kR16_unorm_SkColorType:
         case kA16_unorm_SkColorType: return {1, DataType::kUnorm16};
         case kA16_float_SkColorType: return {1, DataType::kFloat16};
 
