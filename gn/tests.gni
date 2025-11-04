@@ -98,6 +98,7 @@ tests_sources = [
   "$_tests/GradientTest.cpp",
   "$_tests/HSVRoundTripTest.cpp",
   "$_tests/HashTest.cpp",
+  "$_tests/HdrMetadataTest.cpp",
   "$_tests/HighContrastFilterTest.cpp",
   "$_tests/ICCTest.cpp",
   "$_tests/ImageBitmapTest.cpp",
