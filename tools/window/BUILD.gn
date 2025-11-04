@@ -215,6 +215,10 @@ skia_component("window") {
           ]
         }
       }
+    } else if (is_android) {
+      if (skia_enable_graphite) {
+        sources += [ "android/GraphiteDawnWindowContext_android.cpp" ]
+      }
     }
   }
 
