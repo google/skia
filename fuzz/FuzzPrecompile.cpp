@@ -402,11 +402,11 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
 #ifdef SK_DEBUG
     if (result == precompileIDs.end()) {
         SkDebugf("From paint: ");
-        dict->dump(paintID);
+        dict->dump(caps, paintID);
 
         SkDebugf("From combination builder:");
         for (auto iter : precompileIDs) {
-            dict->dump(iter);
+            dict->dump(caps, iter);
         }
     }
 #endif

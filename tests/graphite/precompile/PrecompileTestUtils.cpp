@@ -248,7 +248,8 @@ void RunTest(skgpu::graphite::PrecompileContext* precompileContext,
             UniqueKeyUtils::ExtractKeyDescs(precompileContext, key, &pipelineDesc, &renderPassDesc);
 
             const RenderStep* renderStep = rendererProvider->lookup(pipelineDesc.renderStepID());
-            std::string tmp = GetPipelineLabel(dict, renderPassDesc, renderStep,
+            std::string tmp = GetPipelineLabel(precompileContext->priv().caps(),
+                                               dict, renderPassDesc, renderStep,
                                                pipelineDesc.paintParamsID());
             generatedLabels.insert(rm_whitespace(tmp));
         }

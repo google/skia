@@ -261,12 +261,14 @@ public:
 
     PaintParamsKey lookup(UniquePaintParamsID) const SK_EXCLUDES(fSpinLock);
 
-    SkString idToString(UniquePaintParamsID id) const { return this->lookup(id).toString(this); }
+    SkString idToString(const Caps* caps, UniquePaintParamsID id) const {
+        return this->lookup(id).toString(caps, this);
+    }
 
 #if defined(SK_DEBUG)
     bool isValidID(int snippetID) const SK_EXCLUDES(fSpinLock);
 
-    void dump(UniquePaintParamsID) const;
+    void dump(const Caps*, UniquePaintParamsID) const;
 #endif
 
     // This method can return nullptr

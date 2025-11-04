@@ -796,7 +796,7 @@ std::unique_ptr<ShaderInfo> ShaderInfo::Make(const Caps* caps,
 
     // The fragment shader must be generated before the vertex shader, because we determine
     // properties of the entire program while generating the fragment shader.
-    SkString paintLabel = dict->idToString(paintID); // will be "(empty)" if paintID is invalid
+    SkString paintLabel = dict->idToString(caps, paintID);// will be "(empty)" if paintID is invalid
     if (hasFragShader) {
         result->generateFragmentSkSL(caps,
                                      dict,

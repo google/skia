@@ -64,7 +64,7 @@ void SharedContext::setCaptureManager(sk_sp<SkCaptureManager> captureManager) {
                                            const RenderPassDesc& rpDesc) {
     const ShaderCodeDictionary* dict = ctx->shaderCodeDictionary();
     const RenderStep* step = ctx->rendererProvider()->lookup(gpDesc.renderStepID());
-    return GetPipelineLabel(dict, rpDesc, step, gpDesc.paintParamsID());
+    return GetPipelineLabel(ctx->caps(), dict, rpDesc, step, gpDesc.paintParamsID());
 }
 
 sk_sp<GraphicsPipeline> SharedContext::findOrCreateGraphicsPipeline(

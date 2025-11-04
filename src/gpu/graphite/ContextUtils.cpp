@@ -141,7 +141,8 @@ std::string EmitSamplerLayout(const ResourceBindingRequirements& bindingReqs, in
     return result;
 }
 
-std::string GetPipelineLabel(const ShaderCodeDictionary* dict,
+std::string GetPipelineLabel(const Caps* caps,
+                             const ShaderCodeDictionary* dict,
                              const RenderPassDesc& renderPassDesc,
                              const RenderStep* renderStep,
                              UniquePaintParamsID paintID) {
@@ -151,7 +152,7 @@ std::string GetPipelineLabel(const ShaderCodeDictionary* dict,
     label += renderStep->name();
     label += " + ";
     // the shader portion will be "(empty)" for depth-only draws
-    label += dict->idToString(paintID).c_str();
+    label += dict->idToString(caps, paintID).c_str();
     return label;
 }
 

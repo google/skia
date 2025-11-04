@@ -337,11 +337,12 @@ bool DataToPipelineDesc(const Caps* caps,
 }
 
 #if defined(GPU_TEST_UTILS)
-void DumpPipelineDesc(const char* label,
+void DumpPipelineDesc(const Caps* caps,
+                      const char* label,
                       ShaderCodeDictionary* shaderCodeDictionary,
                       const GraphicsPipelineDesc& pipelineDesc,
                       const RenderPassDesc& renderPassDesc) {
-    SkString pipelineStr = pipelineDesc.toString(shaderCodeDictionary);
+    SkString pipelineStr = pipelineDesc.toString(caps, shaderCodeDictionary);
     SkString renderPassStr = renderPassDesc.toPipelineLabel();
     SkDebugf("%s: %s - %s\n", label, pipelineStr.c_str(), renderPassStr.c_str());
 }

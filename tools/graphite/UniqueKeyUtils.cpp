@@ -42,7 +42,7 @@ void DumpDescs(PrecompileContext* precompileContext,
     const RenderStep* rs = rendererProvider->lookup(pipelineDesc.renderStepID());
     SkDebugf("GraphicsPipelineDesc: %u %s\n", pipelineDesc.paintParamsID().asUInt(), rs->name());
 
-    dict->dump(pipelineDesc.paintParamsID());
+    dict->dump(precompileContext->priv().caps(), pipelineDesc.paintParamsID());
 
     SkDebugf("RenderPassDesc:\n");
     SkDebugf("   colorAttach: %s\n", rpd.fColorAttachment.toString().c_str());

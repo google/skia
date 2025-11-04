@@ -13,6 +13,7 @@
 
 namespace skgpu::graphite {
 
+class Caps;
 class ShaderCodeDictionary;
 
 /**
@@ -42,7 +43,7 @@ public:
     UniquePaintParamsID paintParamsID() const { return fPaintID; }
 
 #if defined(GPU_TEST_UTILS)
-    SkString toString(ShaderCodeDictionary* dict) const;
+    SkString toString(const Caps*, ShaderCodeDictionary*) const;
 #endif
 
 private:

@@ -697,8 +697,8 @@ bool ShaderCodeDictionary::isValidID(int snippetID) const {
     return false;
 }
 
-void ShaderCodeDictionary::dump(UniquePaintParamsID id) const {
-    this->lookup(id).dump(this, id);
+void ShaderCodeDictionary::dump(const Caps* caps, UniquePaintParamsID id) const {
+    this->lookup(id).dump(caps, this, id);
 }
 #endif
 

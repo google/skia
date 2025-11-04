@@ -2070,11 +2070,11 @@ void extract_vs_build_subtest(skiatest::Reporter* reporter,
 #ifdef SK_DEBUG
         if (result == precompileIDs.end()) {
             SkDebugf("From paint: ");
-            precompileKeyContext.dict()->dump(paintID);
+            precompileKeyContext.dict()->dump(precompileKeyContext.caps(), paintID);
 
             SkDebugf("From combination builder [%d]:", static_cast<int>(precompileIDs.size()));
             for (auto iter: precompileIDs) {
-                precompileKeyContext.dict()->dump(iter);
+                precompileKeyContext.dict()->dump(precompileKeyContext.caps(), iter);
             }
         }
 #endif

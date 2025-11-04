@@ -102,10 +102,10 @@ public:
 
     // Converts the key to a structured list of snippet information for debugging or labeling
     // purposes.
-    SkString toString(const ShaderCodeDictionary* dict) const;
+    SkString toString(const Caps*, const ShaderCodeDictionary*) const;
 
 #ifdef SK_DEBUG
-    void dump(const ShaderCodeDictionary*, UniquePaintParamsID) const;
+    void dump(const Caps*, const ShaderCodeDictionary*, UniquePaintParamsID) const;
 #endif
 
     bool operator==(const PaintParamsKey& that) const {
