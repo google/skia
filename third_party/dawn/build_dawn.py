@@ -21,7 +21,8 @@ import sys
 
 from cmake_utils import (add_common_cmake_args, combine_into_library,
                          discover_dependencies, get_cmake_os_cpu,
-                         get_windows_settings, quote_if_needed, write_depfile)
+                         get_windows_settings, quote_if_needed, write_depfile,
+                         get_third_party_locations)
 
 
 def gn_bool_to_cmake(s):
@@ -91,8 +92,6 @@ def main():
       f"--install-prefix={os.path.abspath(gen_dir)}",
       f"-DCMAKE_SYSTEM_NAME={target_os}",
       f"-DCMAKE_SYSTEM_PROCESSOR={target_cpu}",
-      # This is handled by GN
-      "-DDAWN_FETCH_DEPENDENCIES=OFF",
       "-DDAWN_BUILD_MONOLITHIC_LIBRARY=OFF",
       f"-DCMAKE_BUILD_TYPE={args.build_type}",
       # Explicitly set the C++ standard to avoid issues with CMake's feature
@@ -103,16 +102,14 @@ def main():
       "-DDAWN_FORCE_SYSTEM_COMPONENT_LOAD=ON", # https://g-issues.chromium.org/issues/399358291
       "-DDAWN_ENABLE_INSTALL=OFF",
       "-DTINT_ENABLE_INSTALL=OFF",
-      "-DDAWN_BUILD_SAMPLES=OFF",
-      "-DDAWN_BUILD_TESTS=OFF",
-      "-DTINT_BUILD_TESTS=OFF",
-      "-DDAWN_USE_X11=OFF",
       f"-DDAWN_ENABLE_D3D11={gn_bool_to_cmake(args.dawn_enable_d3d11)}",
       f"-DDAWN_ENABLE_D3D12={gn_bool_to_cmake(args.dawn_enable_d3d12)}",
       f"-DDAWN_ENABLE_OPENGLES={gn_bool_to_cmake(args.dawn_enable_opengles)}",
       f"-DDAWN_ENABLE_METAL={gn_bool_to_cmake(args.dawn_enable_metal)}",
       f"-DDAWN_ENABLE_VULKAN={gn_bool_to_cmake(args.dawn_enable_vulkan)}",
   ]
+  configure_cmd += get_third_party_locations()
+
   if args.enable_rtti:
     configure_cmd.append("-DDAWN_ENABLE_RTTI=ON")
 
@@ -156,13 +153,7 @@ def main():
   if target_os == "Darwin" or target_os == "iOS":
     configure_cmd.append(f"-DCMAKE_OSX_ARCHITECTURES={target_cpu}")
 
-  # Set PYTHONPATH to include Dawn's third_party directory. This is needed
-  # for the generator scripts to find jinja2 and markupsafe as packages.
-  third_party_dir = os.path.abspath(os.path.join(dawn_dir, "third_party"))
   env = os.environ.copy()
-  # To prevent contamination from the build environment, we explicitly set
-  # PYTHONPATH to only contain the path to Dawn's third_party libraries.
-  env["PYTHONPATH"] = third_party_dir
   # Don't write .pyc files, which can cause race conditions when building
   # tint and dawn in parallel.
   env["PYTHONDONTWRITEBYTECODE"] = "1"
