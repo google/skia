@@ -391,7 +391,20 @@ public:
 
         example: https://fiddle.skia.org/c/@Path_rMoveTo
     */
-    SkPathBuilder& rMoveTo(SkPoint pt);
+    SkPathBuilder& rMoveTo(SkVector pt);
+
+    /** Adds beginning of contour relative to last point.
+        If SkPathBuilder is empty, starts contour at (dx, dy).
+        Otherwise, start contour at last point offset by (dx, dy).
+        Function name stands for "relative move to".
+
+        @param dx  offset from last point to contour start on x-axis
+        @param dy  offset from last point to contour start on y-axis
+        @return    reference to SkPathBuilder
+
+        example: https://fiddle.skia.org/c/@Path_rMoveTo
+    */
+    SkPathBuilder& rMoveTo(SkScalar dx, SkScalar dy) { return this->rMoveTo({dx, dy}); }
 
     /** Adds line from last point to vector given by pt. If SkPathBuilder is empty, or last
         SkPath::Verb is kClose_Verb, last point is set to (0, 0) before adding line.
@@ -404,7 +417,7 @@ public:
         @param pt  vector offset from last point to line end
         @return    reference to SkPathBuilder
     */
-    SkPathBuilder& rLineTo(SkPoint pt);
+    SkPathBuilder& rLineTo(SkVector pt);
 
     /** Adds line from last point to vector (dx, dy). If SkPathBuilder is empty, or last
         SkPath::Verb is kClose_Verb, last point is set to (0, 0) before adding line.
@@ -418,7 +431,7 @@ public:
         @param dy  offset from last point to line end on y-axis
         @return    reference to SkPathBuilder
     */
-    SkPathBuilder& rLineTo(SkScalar x, SkScalar y) { return this->rLineTo({x, y}); }
+    SkPathBuilder& rLineTo(SkScalar dx, SkScalar dy) { return this->rLineTo({dx, dy}); }
 
     /** Adds quad from last point towards vector pt1, to vector pt2.
         If SkPathBuilder is empty, or last SkPath::Verb
@@ -435,7 +448,7 @@ public:
         @param pt2  offset vector from last point to quad end
         @return     reference to SkPathBuilder
     */
-    SkPathBuilder& rQuadTo(SkPoint pt1, SkPoint pt2);
+    SkPathBuilder& rQuadTo(SkVector pt1, SkVector pt2);
 
     /** Adds quad from last point towards vector (dx1, dy1), to vector (dx2, dy2).
         If SkPathBuilder is empty, or last SkPath::Verb
@@ -454,8 +467,8 @@ public:
         @param dy2  offset from last point to quad end on y-axis
         @return     reference to SkPathBuilder
     */
-    SkPathBuilder& rQuadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
-        return this->rQuadTo({x1, y1}, {x2, y2});
+    SkPathBuilder& rQuadTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2) {
+        return this->rQuadTo({dx1, dy1}, {dx2, dy2});
     }
 
     /** Adds conic from last point towards vector p1, to vector p2,
@@ -481,7 +494,7 @@ public:
         @param w   weight of added conic
         @return    reference to SkPathBuilder
     */
-    SkPathBuilder& rConicTo(SkPoint p1, SkPoint p2, SkScalar w);
+    SkPathBuilder& rConicTo(SkVector p1, SkVector p2, SkScalar w);
 
     /** Adds conic from last point towards vector (dx1, dy1), to vector (dx2, dy2),
         weighted by w. If SkPathBuilder is empty, or last SkPath::Verb
@@ -508,8 +521,8 @@ public:
         @param w    weight of added conic
         @return     reference to SkPathBuilder
     */
-    SkPathBuilder& rConicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar w) {
-        return this->rConicTo({x1, y1}, {x2, y2}, w);
+    SkPathBuilder& rConicTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2, SkScalar w) {
+        return this->rConicTo({dx1, dy1}, {dx2, dy2}, w);
     }
 
     /** Adds cubic from last point towards vector pt1, then towards
@@ -529,7 +542,7 @@ public:
         @param pt3  offset vector from last point to cubic end
         @return    reference to SkPathBuilder
     */
-    SkPathBuilder& rCubicTo(SkPoint pt1, SkPoint pt2, SkPoint pt3);
+    SkPathBuilder& rCubicTo(SkVector pt1, SkVector pt2, SkVector pt3);
 
     /** Adds cubic from last point towards vector (dx1, dy1), then towards
         vector (dx2, dy2), to vector (dx3, dy3).
@@ -551,8 +564,10 @@ public:
         @param dy3  offset from last point to cubic end on y-axis
         @return    reference to SkPathBuilder
     */
-    SkPathBuilder& rCubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar x3, SkScalar y3) {
-        return this->rCubicTo({x1, y1}, {x2, y2}, {x3, y3});
+    SkPathBuilder& rCubicTo(SkScalar dx1, SkScalar dy1,
+                            SkScalar dx2, SkScalar dy2,
+                            SkScalar dx3, SkScalar dy3) {
+        return this->rCubicTo({dx1, dy1}, {dx2, dy2}, {dx3, dy3});
     }
 
     // Arcs
@@ -587,7 +602,7 @@ public:
         @return             reference to SkPath
     */
     SkPathBuilder& rArcTo(SkPoint r, SkScalar xAxisRotate, ArcSize largeArc,
-                          SkPathDirection sweep, SkPoint dxdy);
+                          SkPathDirection sweep, SkVector dxdy);
 
     /** Appends arc to the builder. Arc added is part of ellipse
         bounded by oval, from startAngle through sweepAngle. Both startAngle and

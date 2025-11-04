@@ -219,7 +219,7 @@ SkPathBuilder& SkPathBuilder::close() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-SkPathBuilder& SkPathBuilder::rMoveTo(SkPoint pt) {
+SkPathBuilder& SkPathBuilder::rMoveTo(SkVector pt) {
     SkPoint lastPt = {0,0}; // in case we're empty
     if (!fPts.empty()) {
         if (fVerbs.back() == SkPathVerb::kClose) {
@@ -231,24 +231,24 @@ SkPathBuilder& SkPathBuilder::rMoveTo(SkPoint pt) {
     return this->moveTo(lastPt + pt);
 }
 
-SkPathBuilder& SkPathBuilder::rLineTo(SkPoint p1) {
+SkPathBuilder& SkPathBuilder::rLineTo(SkVector p1) {
     this->ensureMove();
     return this->lineTo(fPts.back() + p1);
 }
 
-SkPathBuilder& SkPathBuilder::rQuadTo(SkPoint p1, SkPoint p2) {
+SkPathBuilder& SkPathBuilder::rQuadTo(SkVector p1, SkVector p2) {
     this->ensureMove();
     SkPoint base = fPts.back();
     return this->quadTo(base + p1, base + p2);
 }
 
-SkPathBuilder& SkPathBuilder::rConicTo(SkPoint p1, SkPoint p2, SkScalar w) {
+SkPathBuilder& SkPathBuilder::rConicTo(SkVector p1, SkVector p2, SkScalar w) {
     this->ensureMove();
     SkPoint base = fPts.back();
     return this->conicTo(base + p1, base + p2, w);
 }
 
-SkPathBuilder& SkPathBuilder::rCubicTo(SkPoint p1, SkPoint p2, SkPoint p3) {
+SkPathBuilder& SkPathBuilder::rCubicTo(SkVector p1, SkVector p2, SkVector p3) {
     this->ensureMove();
     SkPoint base = fPts.back();
     return this->cubicTo(base + p1, base + p2, base + p3);
@@ -444,7 +444,7 @@ SkPathBuilder& SkPathBuilder::arcTo(const SkRect& oval, SkScalar startAngle, SkS
 }
 
 SkPathBuilder& SkPathBuilder::rArcTo(SkPoint r, SkScalar xAxisRotate, ArcSize largeArc,
-                                     SkPathDirection sweep, SkPoint dxdy) {
+                                     SkPathDirection sweep, SkVector dxdy) {
     const SkPoint currentPoint = this->getLastPt().value_or(SkPoint{0, 0});
     return this->arcTo(r, xAxisRotate, largeArc, sweep, currentPoint + dxdy);
 }

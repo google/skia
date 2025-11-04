@@ -995,7 +995,7 @@ DEF_TEST(SkPathBuilder_rMoveTo, reporter) {
 
     p.moveTo(10, 11);
     p.lineTo(20, 21);
-    p.rMoveTo({30, 31});
+    p.rMoveTo(30, 31);
     p.lineTo(30, 40);
     iter = p.iter();    //(p.points(), p.verbs(), {} /* no conics */);
     check_move(reporter, &iter, 10, 11);
