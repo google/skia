@@ -221,12 +221,10 @@ struct SamplerDesc {
     constexpr SamplerDesc(const SamplerDesc&) = default;
     constexpr SamplerDesc& operator=(const SamplerDesc&) = default;
 
-#if defined(GPU_TEST_UTILS)
     constexpr SamplerDesc(uint32_t desc, uint32_t format, uint32_t extFormatMSB)
             : fDesc(desc)
             , fFormat(format)
             , fExternalFormatMostSignificantBits(extFormatMSB) {}
-#endif
 
     bool operator==(const SamplerDesc& o) const {
         return o.fDesc == fDesc && o.fFormat == fFormat &&

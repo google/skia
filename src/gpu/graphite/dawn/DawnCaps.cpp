@@ -1225,7 +1225,7 @@ std::string DawnCaps::toString(const ImmutableSamplerInfo& immutableSamplerInfo)
         result += 'x';
         result += std::to_string(info.externalFormat);
     } else {
-        result += info.vkFormat;
+        result += std::to_string(info.vkFormat);
     }
 
     result += " ";

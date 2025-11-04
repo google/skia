@@ -2262,7 +2262,7 @@ std::string VulkanCaps::toString(const ImmutableSamplerInfo& immutableSamplerInf
         result += 'x';
         result += std::to_string(info.externalFormat());
     } else {
-        result += info.format();
+        result += std::to_string(info.format());
     }
 
     result += " ";
