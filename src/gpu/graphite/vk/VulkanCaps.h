@@ -164,6 +164,8 @@ private:
         // From VkPhysicalDevicePipelineCreationCacheControlFeatures or
         // VkPhysicalDeviceVulkan13Features
         bool fPipelineCreationCacheControl = false;
+        // From VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT
+        bool fFormatRGBA10x6WithoutYCbCrSampler = false;
     };
     EnabledFeatures getEnabledFeatures(const VkPhysicalDeviceFeatures2*,
                                        uint32_t physicalDeviceVersion);
@@ -188,7 +190,8 @@ private:
 
     void initFormatTable(const skgpu::VulkanInterface*,
                          VkPhysicalDevice,
-                         const VkPhysicalDeviceProperties&);
+                         const VkPhysicalDeviceProperties&,
+                         const EnabledFeatures&);
 
     void initDepthStencilFormatTable(const skgpu::VulkanInterface*,
                                      VkPhysicalDevice,
@@ -286,7 +289,7 @@ private:
     VkFormat getFormatFromColorType(SkColorType) const;
 
     // Map VkFormat to FormatInfo.
-    static const size_t kNumVkFormats = 23;
+    static const size_t kNumVkFormats = 24;
     FormatInfo fFormatTable[kNumVkFormats];
 
     FormatInfo& getFormatInfo(VkFormat);

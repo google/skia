@@ -149,6 +149,7 @@ VkDescriptorType DsTypeEnumToVkDs(DescriptorType type) {
     M(TextureFormat::kRGBA16F,        VK_FORMAT_R16G16B16A16_SFLOAT)                       \
     M(TextureFormat::kRGBA32F,        VK_FORMAT_R32G32B32A32_SFLOAT)                       \
     M(TextureFormat::kRGB10_A2,       VK_FORMAT_A2B10G10R10_UNORM_PACK32)                  \
+    M(TextureFormat::kRGBA10x6,       VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16)        \
     M(TextureFormat::kRGBA8_sRGB,     VK_FORMAT_R8G8B8A8_SRGB)                             \
     M(TextureFormat::kBGRA8,          VK_FORMAT_B8G8R8A8_UNORM)                            \
     M(TextureFormat::kBGR10_A2,       VK_FORMAT_A2R10G10B10_UNORM_PACK32)                  \
