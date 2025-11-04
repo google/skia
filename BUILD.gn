@@ -3507,12 +3507,24 @@ if (skia_build_fuzzers) {
     ]
   }
 
-  libfuzzer_app("png_encoder") {
-    sources = [
-      "fuzz/FuzzEncoders.cpp",
-      "fuzz/oss_fuzz/FuzzPNGEncoder.cpp",
-    ]
-    deps = []
+  if (skia_use_libpng_encode) {
+    libfuzzer_app("png_encoder") {
+      sources = [
+        "fuzz/FuzzEncoders.cpp",
+        "fuzz/oss_fuzz/FuzzPNGEncoder.cpp",
+      ]
+      deps = []
+    }
+  }
+
+  if (skia_use_rust_png_encode) {
+    libfuzzer_app("png_rust_encoder") {
+      sources = [
+        "fuzz/FuzzEncoders.cpp",
+        "fuzz/oss_fuzz/FuzzPNGRustEncoder.cpp",
+      ]
+      deps = []
+    }
   }
 
   libfuzzer_app("jpeg_encoder") {
