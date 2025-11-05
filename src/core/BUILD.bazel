@@ -506,10 +506,6 @@ skia_cc_library(
         "//include/utils:core_hdrs",
     ],
     features = ["layering_check"],
-    local_defines = [
-        "SK_DISABLE_LEGACY_PNG_WRITEBUFFER",
-        "SK_DISABLE_LEGACY_IMAGE_READBUFFER",
-    ],
     textual_hdrs = [
         "//src/opts:textual_hdrs",
         ":textual_hdrs",

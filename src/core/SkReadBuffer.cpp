@@ -355,18 +355,7 @@ static sk_sp<SkImage> deserialize_image(sk_sp<SkData> data, SkDeserialProcs dPro
         image = dProcs.fImageProc(data->data(), data->size(), alphaType, dProcs.fImageCtx);
 #endif
     }
-    if (image) {
-        return image;
-    }
-#if !defined(SK_DISABLE_LEGACY_IMAGE_READBUFFER)
-    // The default implementation will encode to PNG unless the input SkImages came from
-    // a codec that was built-in (e.g. JPEG/WEBP). Thus, we should be sure to try all
-    // available codecs when reading images out of an SKP.
-    return SkImages::DeferredFromEncodedData(std::move(data), alphaType);
-#else
-    SkDEBUGFAIL("Need to set image proc in SkDeserialProcs");
-    return nullptr;
-#endif
+    return image;
 }
 
 static sk_sp<SkImage> add_mipmaps(sk_sp<SkImage> img, sk_sp<SkData> data,
