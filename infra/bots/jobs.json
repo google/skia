@@ -373,6 +373,9 @@
     "name": "Build-Ubuntu24.04-Clang-arm64-Debug-Android_Graphite_Dawn_Vulkan"
   },
   {
+    "name": "Build-Ubuntu24.04-Clang-arm64-Debug-Android_Graphite_Native_HWASAN"
+  },
+  {
     "name": "Build-Ubuntu24.04-Clang-arm64-Debug-Android_Graphite_Native_Vulkan",
     "cq_config": {}
   },
@@ -1418,6 +1421,9 @@
     "name": "Test-Android-Clang-Pixel4a-CPU-Snapdragon730G-arm64-Debug-All-Android_HWASAN"
   },
   {
+    "name": "Test-Android-Clang-Pixel4a-GPU-Adreno618-arm64-Debug-All-Android_Graphite_Native_HWASAN"
+  },
+  {
     "name": "Test-Android-Clang-Pixel4a-GPU-Adreno618-arm64-Debug-All-Android_HWASAN"
   },
   {
@@ -1844,17 +1850,6 @@
   },
   {
     "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All"
-  },
-  {
-    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN_Graphite_Native_Vulkan",
-    "cq_config": {
-      "location_regexes": [
-        "(tests|src/gpu)/graphite/.*",
-        "src/sksl/generated/.*",
-        "dm/.+",
-        "DEPS"
-      ]
-    }
   },
   {
     "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1"
