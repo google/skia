@@ -1068,7 +1068,7 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 			} else if b.IsLinux() {
 				gpu, ok := map[string]string{
 					// Intel drivers come from CIPD, so no need to specify the version here.
-					"IntelHD405":  "8086:22b1",
+					"IntelHD405": "8086:22b1",
 					// The version is not set on these as of Nov 5 2025
 					"QuadroP400":  "10de:1cb3",
 					"IntelIrisXe": "8086:9a49",
