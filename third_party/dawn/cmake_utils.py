@@ -57,6 +57,25 @@ def add_common_cmake_args(parser):
   parser.add_argument(
       "--enable_rtti", action=argparse.BooleanOptionalAction, help="Enable RTTI.")
 
+def add_next_batch_to_command(base_cmd, workset):
+  if sys.platform != 'win32':
+    batch = list(workset)
+    return base_cmd + batch, batch
+  # Windows has a limit of about 8100 characters on command line commands.
+  # Thus we batch our commands to fit under this. 100 is usually short enough
+  # but with fluctuations on the order returned by ninja and set(), this can
+  # still sometimes be too long, so we ensure we don't go over the limit.
+  BATCH_SIZE = 100
+  batch = list(workset)[:BATCH_SIZE]
+  cmd = base_cmd + batch
+
+  while len(' '.join(cmd)) > 8100:
+    assert(len(batch) > 1)
+    batch.pop()
+    cmd = base_cmd + batch
+
+  return cmd, batch
+
 def discover_dependencies(build_dir, targets):
   """Runs ninja -tinputs recursively to discover all targets, then uses
   ninja -tdeps to get all source files and object files for those targets.
@@ -67,8 +86,6 @@ def discover_dependencies(build_dir, targets):
   # redundant processing.
   seen_targets = set(targets)
 
-  BATCH_SIZE = 100 if sys.platform == 'win32' else 1000
-
   source_files = set()
 
   ninja = shutil.which("ninja");
@@ -77,10 +94,10 @@ def discover_dependencies(build_dir, targets):
     sys.exit(1)
 
   while len(worklist) > 0:
-    current_batch = list(worklist)[:BATCH_SIZE]
+    cmd, current_batch = add_next_batch_to_command([ninja, "-C", build_dir, "-tinputs"],
+                                                   worklist)
     worklist = worklist.difference(current_batch)
 
-    cmd = [ninja, "-C", build_dir, "-tinputs"] + current_batch
     inputs = subprocess.check_output(cmd).decode("utf-8").splitlines()
     # inputs looks like:
     #   /home/user/skia/third_party/externals/dawn/src/tint/utils/text/styled_text_theme.cc
@@ -110,14 +127,15 @@ def discover_dependencies(build_dir, targets):
   object_files.sort()
 
   # Now that we have all the targets and some of the source files, get the dependencies for them.
-  all_targets = list(seen_targets)
   abs_build_dir = os.path.abspath(build_dir)
 
-  for i in range(0, len(all_targets), BATCH_SIZE):
-    chunk = all_targets[i:i + BATCH_SIZE]
-    cmd = [ninja, "-C", build_dir, "-tdeps"] + chunk
-    output = subprocess.check_output(cmd).decode("utf-8").splitlines()
+  worklist = set(seen_targets)
+  while len(worklist) > 0:
+    cmd, current_batch = add_next_batch_to_command([ninja, "-C", build_dir, "-tdeps"],
+                                                   worklist)
+    worklist = worklist.difference(current_batch)
 
+    output = subprocess.check_output(cmd).decode("utf-8").splitlines()
     # When a target has deps, which are read from the .d files generated from the "-dkeepdepfile
     # option earlier, the ninja command outputs something like this:
     #   third_party/spirv-tools/source/opt/CMakeFiles/SPIRV-Tools-opt.dir/eliminate_dead_functions_util.cpp.o: #deps 408, deps mtime 1755004530688332629 (VALID)
