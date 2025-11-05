@@ -165,6 +165,7 @@ static constexpr size_t VkFormatBytesPerBlock(VkFormat vkFormat) {
         case VK_FORMAT_R16G16_UNORM:              return 4;
         case VK_FORMAT_R16G16B16A16_UNORM:        return 8;
         case VK_FORMAT_R16G16_SFLOAT:             return 4;
+        case VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16: return 8;
         // Currently we are just over estimating this value to be used in gpu size calculations even
         // though the actually size is probably less. We should instead treat planar formats similar
         // to compressed textures that go through their own special query for calculating size.
