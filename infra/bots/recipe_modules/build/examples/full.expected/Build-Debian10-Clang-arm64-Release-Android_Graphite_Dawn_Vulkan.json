@@ -48,7 +48,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-arm64-Release-Android_Graphite_Dawn_Vulkan/Release",
-      "--args=dawn_enable_d3d11=false dawn_enable_d3d12=false dawn_enable_desktop_gl=false dawn_enable_metal=false dawn_enable_opengles=false dawn_enable_vulkan=true extra_cflags=[\"-DREBUILD_IF_CHANGED_ndk_version=42\"] is_debug=false is_trivial_abi=true ndk=\"[START_DIR]/android_ndk_linux\" ndk_api=26 skia_enable_graphite=true skia_use_dawn=true skia_use_gl=false target_cpu=\"arm64\" werror=true"
+      "--args=dawn_enable_d3d11=false dawn_enable_d3d12=false dawn_enable_metal=false dawn_enable_opengles=false dawn_enable_vulkan=true extra_cflags=[\"-DREBUILD_IF_CHANGED_ndk_version=42\"] is_debug=false is_trivial_abi=true ndk=\"[START_DIR]/android_ndk_linux\" ndk_api=26 skia_enable_graphite=true skia_use_dawn=true skia_use_gl=false target_cpu=\"arm64\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {

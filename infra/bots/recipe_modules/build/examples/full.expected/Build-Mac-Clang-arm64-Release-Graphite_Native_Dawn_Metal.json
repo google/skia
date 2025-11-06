@@ -189,7 +189,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-arm64-Release-Graphite_Native_Dawn_Metal/Release",
-      "--args=cc=\"clang\" cc_wrapper=\"[START_DIR]/ccache_mac/bin/ccache\" cxx=\"clang++\" dawn_enable_d3d11=false dawn_enable_d3d12=false dawn_enable_desktop_gl=false dawn_enable_metal=true dawn_enable_opengles=false dawn_enable_vulkan=false extra_cflags=[\"-DREBUILD_IF_CHANGED_xcode_build_version=16a242d\"] is_debug=false is_trivial_abi=true link_pool_depth=2 skia_enable_graphite=true skia_use_client_icu=true skia_use_dawn=true skia_use_gl=false skia_use_libgrapheme=true target_cpu=\"arm64\" werror=true"
+      "--args=cc=\"clang\" cc_wrapper=\"[START_DIR]/ccache_mac/bin/ccache\" cxx=\"clang++\" dawn_enable_d3d11=false dawn_enable_d3d12=false dawn_enable_metal=true dawn_enable_opengles=false dawn_enable_vulkan=false extra_cflags=[\"-DREBUILD_IF_CHANGED_xcode_build_version=16a242d\"] is_debug=false is_trivial_abi=true link_pool_depth=2 skia_enable_graphite=true skia_use_client_icu=true skia_use_dawn=true skia_use_gl=false skia_use_libgrapheme=true target_cpu=\"arm64\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
