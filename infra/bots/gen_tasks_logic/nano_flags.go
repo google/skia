@@ -67,6 +67,8 @@ func (b *TaskBuilder) nanobenchFlags(doUpload bool) {
 			}
 		} else if b.Os("ChromeOS") {
 			glPrefix = "gles"
+		} else if b.GPU("QuadroP400") && b.MatchOs("Ubuntu24.04") {
+			sampleCount = 4
 		}
 
 		configs = append(configs, glPrefix, "srgb-"+glPrefix)
@@ -106,7 +108,8 @@ func (b *TaskBuilder) nanobenchFlags(doUpload bool) {
 			configs = []string{"vk"}
 			if !b.MatchOs("Android") {
 				// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926, skbug.com/40040308
-				if !b.MatchGpu("Intel") {
+				// QuadroP400+Ubuntu24.04 doesn't support msaa8
+				if !b.MatchGpu("Intel") && !(b.GPU("QuadroP400") && b.MatchOs("Ubuntu24.04")) {
 					configs = append(configs, "vkmsaa8")
 				}
 			}

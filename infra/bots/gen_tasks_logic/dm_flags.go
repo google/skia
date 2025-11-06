@@ -593,6 +593,17 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 					}
 				}
 			}
+		} else {
+			if b.GPU("QuadroP400") && b.MatchOs("Ubuntu24.04") {
+				if b.ExtraConfig("Vulkan") {
+					// skbug.com/40045530
+					skip(ALL, "test", ALL, "VkYCbcrSampler_DrawImageWithYcbcrSampler")
+				} else {
+					// skbug.com/458193911
+					skip(ALL, "test", ALL, "SkRuntimeBlender_Ganesh")
+				}
+			}
+
 		}
 
 		// ANGLE bot *only* runs the angle configs
@@ -682,7 +693,7 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 			// MSAA4 is not supported on the MotoG73
 			//     "Configuration 'vkmsaa4' sample count 4 is not a supported sample count."
 			// In Ganesh we currently disable msaa on imagination GPUs. Newer GPUs
-			// probobably support MSAA fine, but we currently don't plan on enabling
+			// probably support MSAA fine, but we currently don't plan on enabling
 			// MSAA at all for Ganesh to reduce correctness and performance churn on
 			// clients as we're trying to move away from Ganesh.
 			if !b.MatchGpu("Intel") && !b.Model("MotoG73") && !b.MatchGpu("IMG") {
