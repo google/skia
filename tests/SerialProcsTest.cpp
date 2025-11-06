@@ -65,7 +65,6 @@ DEF_TEST(serial_procs_image, reporter) {
     const char magic_str[] = "magic signature";
 
     const SkSerialImageProc sprocs[] = {
-            [](SkImage* img, void* ctx) -> sk_sp<SkData> { return nullptr; },
             [](SkImage* img, void* ctx) {
 #if defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
                 return SkPngRustEncoder::Encode(nullptr, img, SkPngRustEncoder::Options{});
@@ -76,9 +75,6 @@ DEF_TEST(serial_procs_image, reporter) {
             [](SkImage* img, void* ctx) { return SkData::MakeWithCString(((State*)ctx)->fStr); },
     };
     const SkDeserialImageFromDataProc dprocs[] = {
-            [](sk_sp<SkData>, std::optional<SkAlphaType>, void*) -> sk_sp<SkImage> {
-                return nullptr;
-            },
             [](sk_sp<SkData> data, std::optional<SkAlphaType> alphaType, void*) -> sk_sp<SkImage> {
 #if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
                 std::unique_ptr<SkStream> stream = SkMemoryStream::Make(data);

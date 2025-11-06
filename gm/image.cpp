@@ -30,7 +30,6 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/encode/SkJpegEncoder.h"
-#include "include/encode/SkPngEncoder.h"
 #include "include/private/base/SkMalloc.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkColorPriv.h"
@@ -52,6 +51,18 @@
 #include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
+#endif
+
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+#include "include/codec/SkPngRustDecoder.h"
+#else
+#include "include/codec/SkPngDecoder.h"
+#endif
+
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
+#include "include/encode/SkPngRustEncoder.h"
+#else
+#include "include/encode/SkPngEncoder.h"
 #endif
 
 #include <functional>
@@ -276,7 +287,20 @@ static sk_sp<SkImage> make_codec(const SkImageInfo& info,
                                  skgpu::graphite::Recorder*,
                                  void (*draw)(SkCanvas*)) {
     sk_sp<SkImage> image(make_raster(info, nullptr, nullptr, draw));
-    return SkImages::DeferredFromEncodedData(SkPngEncoder::Encode(nullptr, image.get(), {}));
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST) && defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+    sk_sp<SkData> data = SkPngRustEncoder::Encode(nullptr, image.get(), {});
+    SkASSERT_RELEASE(data);
+    std::unique_ptr<SkStream> stream = SkMemoryStream::Make(data);
+    auto codec = SkPngRustDecoder::Decode(std::move(stream), nullptr, nullptr);
+    SkASSERT_RELEASE(codec);
+    return SkCodecs::DeferredImage(std::move(codec), {});
+#else
+    sk_sp<SkData> data = SkPngEncoder::Encode(nullptr, image.get(), {});
+    SkASSERT_RELEASE(data);
+    auto codec = SkPngDecoder::Decode(std::move(data), nullptr, nullptr);
+    SkASSERT_RELEASE(codec);
+    return SkCodecs::DeferredImage(std::move(codec), {});
+#endif
 }
 
 static sk_sp<SkImage> make_gpu(const SkImageInfo& info,
@@ -390,12 +414,25 @@ DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 115) {
     std::function<sk_sp<SkImage>()> imageFactories[] = {
             // Create sw raster image.
             [&] { return bmp.asImage(); },
-            // Create encoded image.
+    // Create encoded image.
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST) && defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+            [&] {
+                sk_sp<SkData> data = SkPngRustEncoder::Encode(bmp.pixmap(), {});
+                SkASSERT_RELEASE(data);
+                std::unique_ptr<SkStream> stream = SkMemoryStream::Make(data);
+                auto codec = SkPngRustDecoder::Decode(std::move(stream), nullptr, nullptr);
+                SkASSERT_RELEASE(codec);
+                return SkCodecs::DeferredImage(std::move(codec), {});
+            },
+#else
             [&] {
                 sk_sp<SkData> data = SkPngEncoder::Encode(bmp.pixmap(), {});
                 SkASSERT_RELEASE(data);
-                return SkImages::DeferredFromEncodedData(data);
+                auto codec = SkPngDecoder::Decode(std::move(data), nullptr, nullptr);
+                SkASSERT_RELEASE(codec);
+                return SkCodecs::DeferredImage(std::move(codec), {});
             },
+#endif
             // Create YUV encoded image.
             [&] {
                 sk_sp<SkData> data = SkJpegEncoder::Encode(bmp.pixmap(), {});
@@ -526,7 +563,11 @@ static sk_sp<SkImage> serial_deserial(SkImage* img) {
 
     SkSerialProcs sProcs;
     sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
-        return SkPngEncoder::Encode(as_IB(img)->directContext(), img, SkPngEncoder::Options{});
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
+        return SkPngRustEncoder::Encode(as_IB(img)->directContext(), img, {});
+#else
+        return SkPngEncoder::Encode(as_IB(img)->directContext(), img, {});
+#endif
     };
     SkBinaryWriteBuffer writer(sProcs);
 
@@ -536,7 +577,22 @@ static sk_sp<SkImage> serial_deserial(SkImage* img) {
     writer.writeToMemory(data->writable_data());
 
     SkReadBuffer reader(data->data(), length);
-    return reader.readImage();
+
+    SkDeserialProcs dProcs;
+    dProcs.fImageDataProc =
+            [](sk_sp<SkData> data, std::optional<SkAlphaType> alphaType, void*) -> sk_sp<SkImage> {
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+        std::unique_ptr<SkStream> stream = SkMemoryStream::Make(data);
+        auto codec = SkPngRustDecoder::Decode(std::move(stream), nullptr, nullptr);
+#else
+        auto codec = SkPngDecoder::Decode(data, nullptr, nullptr);
+#endif
+        return SkCodecs::DeferredImage(std::move(codec), alphaType);
+    };
+    reader.setDeserialProcs(dProcs);
+    auto image = reader.readImage();
+    SkASSERT(image);
+    return image;
 }
 
 DEF_SIMPLE_GM_CAN_FAIL(image_subset, canvas, errorMsg, 440, 220) {

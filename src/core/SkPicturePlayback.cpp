@@ -64,6 +64,8 @@ void SkPicturePlayback::draw(SkCanvas* canvas,
     AutoResetOpID aroi(this);
     SkASSERT(0 == fCurOffset);
 
+    // We do not need to set SkDeserialProcs because we are just reading ints.
+    // e.g. images and typefaces are stored in an array and referred to by index.
     SkReadBuffer reader(fPictureData->opData()->bytes(),
                         fPictureData->opData()->size());
     reader.setVersion(fPictureData->info().getVersion());

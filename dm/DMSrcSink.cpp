@@ -142,6 +142,12 @@
 #include "include/encode/SkPngRustEncoder.h"
 #endif
 
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+#include "include/codec/SkPngRustDecoder.h"
+#else
+#include "include/codec/SkPngDecoder.h"
+#endif
+
 #include <cmath>
 #include <functional>
 
@@ -2088,8 +2094,7 @@ Result XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const
 #endif
 
 static SkSerialProcs serial_procs_using_png() {
-    static SkSerialProcs procs;
-    procs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
+    static SkSerialProcs procs{.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
 #if defined(SK_CODEC_ENCODES_PNG_WITH_LIBPNG)
         return SkPngEncoder::Encode(as_IB(img)->directContext(), img, {});
 #elif defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
@@ -2098,7 +2103,22 @@ static SkSerialProcs serial_procs_using_png() {
         // TODO: This catches SkImageEncoder_NDK (or other).
         return SkPngEncoder::Encode(as_IB(img)->directContext(), img, {});
 #endif
-    };
+    }};
+    return procs;
+}
+
+static SkDeserialProcs deserial_procs_using_png() {
+    static SkDeserialProcs procs{.fImageDataProc = [](sk_sp<SkData> data,
+                                                      std::optional<SkAlphaType> alphaType,
+                                                      void*) -> sk_sp<SkImage> {
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+        std::unique_ptr<SkStream> stream = SkMemoryStream::Make(data);
+        auto codec = SkPngRustDecoder::Decode(std::move(stream), nullptr, nullptr);
+#else
+        auto codec = SkPngDecoder::Decode(data, nullptr, nullptr);
+#endif
+        return SkCodecs::DeferredImage(std::move(codec), alphaType);
+    }};
     return procs;
 }
 
@@ -2719,8 +2739,9 @@ Result ViaSerialization::draw(
     sk_sp<SkPicture> pic(recorder.finishRecordingAsPicture());
 
     SkSerialProcs procs = serial_procs_using_png();
+    SkDeserialProcs dProcs = deserial_procs_using_png();
     // Serialize it and then deserialize it.
-    sk_sp<SkPicture> deserialized = SkPicture::MakeFromData(pic->serialize(&procs).get());
+    sk_sp<SkPicture> deserialized = SkPicture::MakeFromData(pic->serialize(&procs).get(), &dProcs);
 
     result = draw_to_canvas(fSink.get(), bitmap, stream, log, size,
                             [&](SkCanvas* canvas, Src::GraphiteTestContext*) {

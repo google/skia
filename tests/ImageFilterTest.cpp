@@ -33,6 +33,7 @@
 #include "include/core/SkSerialProcs.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTileMode.h"
@@ -40,7 +41,6 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkPerlinNoiseShader.h"
-#include "include/encode/SkPngEncoder.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/base/SkTArray.h"
@@ -77,6 +77,18 @@
 #include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Surface.h"
 #include "tools/graphite/GraphiteToolUtils.h"
+#endif
+
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+#include "include/codec/SkPngRustDecoder.h"
+#else
+#include "include/codec/SkPngDecoder.h"
+#endif
+
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
+#include "include/encode/SkPngRustEncoder.h"
+#else
+#include "include/encode/SkPngEncoder.h"
 #endif
 
 #include <algorithm>
@@ -1728,10 +1740,28 @@ DEF_TEST(ImageFilterImageSourceSerialization, reporter) {
 
     SkSerialProcs sProcs;
     sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
-        return SkPngEncoder::Encode(as_IB(img)->directContext(), img, SkPngEncoder::Options{});
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
+        return SkPngRustEncoder::Encode(nullptr, img, SkPngRustEncoder::Options{});
+#else
+        return SkPngEncoder::Encode(nullptr, img, SkPngEncoder::Options{});
+#endif
     };
     sk_sp<SkData> data(filter->serialize(&sProcs));
-    sk_sp<SkImageFilter> unflattenedFilter = SkImageFilter::Deserialize(data->data(), data->size());
+
+    SkDeserialProcs dProcs;
+    dProcs.fImageDataProc =
+            [](sk_sp<SkData> data, std::optional<SkAlphaType> alphaType, void*) -> sk_sp<SkImage> {
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+        std::unique_ptr<SkStream> stream = SkMemoryStream::Make(data);
+        auto codec = SkPngRustDecoder::Decode(std::move(stream), nullptr, nullptr);
+#else
+        auto codec = SkPngDecoder::Decode(data, nullptr, nullptr);
+#endif
+        return SkCodecs::DeferredImage(std::move(codec), alphaType);
+    };
+
+    sk_sp<SkImageFilter> unflattenedFilter =
+            SkImageFilter::Deserialize(data->data(), data->size(), &dProcs);
     REPORTER_ASSERT(reporter, unflattenedFilter);
 
     SkBitmap bm;
