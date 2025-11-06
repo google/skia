@@ -37,6 +37,8 @@ Run::Run(ParagraphImpl* owner,
     , fBaselineShift(baselineShift)
 {
     fBidiLevel = info.fBidiLevel;
+    fScript = info.fScript;
+    fLanguage = info.fLanguage;
     fAdvance = info.fAdvance;
     fIndex = index;
     fUtf8Range = info.utf8Range;

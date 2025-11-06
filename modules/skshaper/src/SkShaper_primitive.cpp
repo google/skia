@@ -207,8 +207,7 @@ void SkShaperPrimitive::shape(const char* utf8,
 
         size_t numGlyphs = SkUTF::CountUTF8(utf8, bytesVisible);
         const RunHandler::RunInfo info = {
-            font,
-            0,
+            font, 0, 0, "",
             { font.measureText(utf8, bytesVisible, SkTextEncoding::kUTF8), 0 },
             numGlyphs,
             RunHandler::Range(utf8Offset, bytesVisible)
