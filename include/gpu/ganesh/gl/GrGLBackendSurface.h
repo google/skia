@@ -20,7 +20,13 @@ class GrBackendRenderTarget;
 namespace skgpu { enum class Mipmapped : bool; }
 
 namespace GrBackendFormats {
+
+// DEPRECATED: Prefer MakeGL(format) for GL_TEXTURE_2D targets and MakeGLExternal() for
+// GL_TEXTURE_EXTERNAL targets.
 SK_API GrBackendFormat MakeGL(GrGLenum format, GrGLenum target);
+
+SK_API GrBackendFormat MakeGL(GrGLenum format); // For GL_TEXTURE_2D textures
+SK_API GrBackendFormat MakeGLExternal();        // For GL_TEXTURE_EXTERNAL textures
 
 SK_API GrGLFormat AsGLFormat(const GrBackendFormat&);
 SK_API GrGLenum AsGLFormatEnum(const GrBackendFormat&);

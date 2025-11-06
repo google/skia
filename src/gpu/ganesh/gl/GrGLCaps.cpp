@@ -5171,6 +5171,11 @@ void GrGLCaps::didQueryImplementationReadSupport(GrGLFormat format,
 
 bool GrGLCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
                                                  const GrBackendFormat& format) const {
+    if (format.textureType() == GrTextureType::kExternal) {
+        // For lack of a better alternative, assume the external format matches the requested ct.
+        return true;
+    }
+
     GrGLFormat glFormat = GrBackendFormats::AsGLFormat(format);
     const auto& info = this->getFormatInfo(glFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {

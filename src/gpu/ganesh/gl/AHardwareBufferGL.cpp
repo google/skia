@@ -37,27 +37,37 @@ GrBackendFormat GetGLBackendFormat(GrDirectContext* dContext,
         return GrBackendFormat();
     }
     switch (bufferFormat) {
-        //TODO: find out if we can detect, which graphic buffers support GR_GL_TEXTURE_2D
         case AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM:
+            return GrBackendFormats::MakeGL(GR_GL_RGBA8);
         case AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM:
-            return GrBackendFormats::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_EXTERNAL);
+            // According to  https://developer.android.com/ndk/reference/group/a-hardware-buffer,
+            // the GL format equivalent is GL_RGB8 but that is considered to be 24bpp throughout
+            // Ganesh. For now keep it as an external format until we figure out the RGB vs RGBA
+            // compatibility.
+            return GrBackendFormats::MakeGLExternal();
         case AHARDWAREBUFFER_FORMAT_R16G16B16A16_FLOAT:
-            return GrBackendFormats::MakeGL(GR_GL_RGBA16F, GR_GL_TEXTURE_EXTERNAL);
+            return GrBackendFormats::MakeGL(GR_GL_RGBA16F);
         case AHARDWAREBUFFER_FORMAT_R5G6B5_UNORM:
-            return GrBackendFormats::MakeGL(GR_GL_RGB565, GR_GL_TEXTURE_EXTERNAL);
+            return GrBackendFormats::MakeGL(GR_GL_RGB565);
         case AHARDWAREBUFFER_FORMAT_R10G10B10A2_UNORM:
-            return GrBackendFormats::MakeGL(GR_GL_RGB10_A2, GR_GL_TEXTURE_EXTERNAL);
+            return GrBackendFormats::MakeGL(GR_GL_RGB10_A2);
         case AHARDWAREBUFFER_FORMAT_R8G8B8_UNORM:
-            return GrBackendFormats::MakeGL(GR_GL_RGB8, GR_GL_TEXTURE_EXTERNAL);
+            return GrBackendFormats::MakeGL(GR_GL_RGB8);
 #if __ANDROID_API__ >= 33
         case AHARDWAREBUFFER_FORMAT_R8_UNORM:
-            return GrBackendFormats::MakeGL(GR_GL_R8, GR_GL_TEXTURE_EXTERNAL);
+            return GrBackendFormats::MakeGL(GR_GL_R8);
+#endif
+#if __ANDROID_API__ >= 34
+        case AHARDWAREBUFFER_FORMAT_R10G10B10A10_UNORM:
+            // There is no GLFormat enum that corresponds to this texture format, but it is known
+            // (GrColorType and SkColorType can describe it).
+            return GrBackendFormats::MakeGLExternal();
 #endif
         default:
             if (requireKnownFormat) {
                 return GrBackendFormat();
             } else {
-                return GrBackendFormats::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_EXTERNAL);
+                return GrBackendFormats::MakeGLExternal();
             }
     }
     SkUNREACHABLE;
@@ -118,9 +128,14 @@ static GrBackendTexture make_gl_backend_texture(
         UpdateImageProc* updateProc,
         TexImageCtx* imageCtx,
         bool isProtectedContent,
-        const GrBackendFormat& backendFormat,
-        bool isRenderable) {
+        const GrBackendFormat& backendFormat) {
     while (GL_NO_ERROR != glGetError()) {} //clear GL errors
+
+    auto textureType = backendFormat.textureType();
+    if (textureType != GrTextureType::k2D && textureType != GrTextureType::kExternal) {
+        SkDebugf("Unsupported texture target type: %d\n", (int) textureType);
+        return GrBackendTexture();
+    }
 
     EGLClientBuffer clientBuffer = eglGetNativeClientBufferANDROID(hardwareBuffer);
     EGLint attribs[] = { EGL_IMAGE_PRESERVED_KHR, EGL_TRUE,
@@ -143,9 +158,11 @@ static GrBackendTexture make_gl_backend_texture(
         return GrBackendTexture();
     }
 
-    GrGLuint target = isRenderable ? GR_GL_TEXTURE_2D : GR_GL_TEXTURE_EXTERNAL;
+    GrGLuint target = textureType == GrTextureType::kExternal ? GR_GL_TEXTURE_EXTERNAL
+                                                              : GR_GL_TEXTURE_2D;
 
-    if (!dContext->priv().caps()->shaderCaps()->fExternalTextureSupport) {
+    if (!dContext->priv().caps()->shaderCaps()->fExternalTextureSupport &&
+        textureType == GrTextureType::kExternal) {
         // The extension OES_EGL_image_external is mandatory for an
         // Android-compatible device. See
         // https://source.android.com/docs/core/graphics/implement-opengl-es
@@ -230,9 +247,13 @@ GrBackendTexture MakeGLBackendTexture(GrDirectContext* dContext,
         return GrBackendTexture();
     }
 
+    if (isRenderable &&
+        !dContext->priv().caps()->isFormatRenderable(backendFormat, /*sampleCount=*/1)) {
+        return GrBackendTexture();
+    }
+
     return make_gl_backend_texture(dContext, hardwareBuffer, width, height, deleteProc,
-                                   updateProc, imageCtx, isProtectedContent, backendFormat,
-                                   isRenderable);
+                                   updateProc, imageCtx, isProtectedContent, backendFormat);
 }
 
 }  // namespace GrAHardwareBufferUtils
