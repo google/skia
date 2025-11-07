@@ -200,8 +200,6 @@ bool DawnCaps::isSampleCountSupported(TextureFormat format, uint8_t requestedSam
 }
 
 TextureFormat DawnCaps::getDepthStencilFormat(SkEnumBitMask<DepthStencilFlags> mask) const {
-    // TODO: Decide if we want to change this to always return a combined depth and stencil format
-    // to allow more sharing of depth stencil allocations.
     if (mask == DepthStencilFlags::kDepth) {
         // If needed for workarounds or performance, Depth32Float is also available but requires 2x
         // the amount of memory.

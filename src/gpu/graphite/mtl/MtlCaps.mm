@@ -792,8 +792,6 @@ bool MtlCaps::isSampleCountSupported(TextureFormat format, uint8_t requestedSamp
 }
 
 TextureFormat MtlCaps::getDepthStencilFormat(SkEnumBitMask<DepthStencilFlags> mask) const {
-    // TODO: Decide if we want to change this to always return a combined depth and stencil format
-    // to allow more sharing of depth stencil allocations.
     if (mask == DepthStencilFlags::kDepth) {
         // Graphite only needs 16-bits for depth values, so save some memory. If needed for
         // workarounds, MTLPixelFormatDepth32Float is also available.

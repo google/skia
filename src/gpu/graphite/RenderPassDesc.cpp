@@ -105,6 +105,11 @@ RenderPassDesc RenderPassDesc::Make(const Caps* caps,
     }
 
     if (depthStencilFlags != DepthStencilFlags::kNone) {
+        // To reduce pipeline compiles and attachment creations, if we need multisampling and need
+        // a depth or stencil attachment, we always choose a depth-AND-stencil format.
+        if (desc.fColorAttachment.fSampleCount > 1) {
+            depthStencilFlags = DepthStencilFlags::kDepthStencil;
+        }
         TextureFormat dsFormat = caps->getDepthStencilFormat(depthStencilFlags);
         SkASSERT(dsFormat != TextureFormat::kUnsupported);
         // Depth and stencil values are currently always cleared and don't need to persist.
