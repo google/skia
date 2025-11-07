@@ -273,16 +273,22 @@ private:
     sk_sp<skif::Backend> createImageFilteringBackend(const SkSurfaceProps& surfaceProps,
                                                      SkColorType colorType) const override;
 
-    // Handles applying path effects, stroke-and-fill styles, and hairlines based on provided
-    // SkStrokeRec and SkPathEffect. Shading is determined by the PaintParams and augmented by
-    // any clipping required based on the current clip stack state.
+    // Applies any path effect and modifies the geometry and style before calling drawGeometry(),
+    // or forwards to drawGeometry directly if `pathEffect` is null.
+    void drawGeometryWithPathEffect(const Transform&,
+                                    Geometry&&,
+                                    const PaintParams&,
+                                    SkStrokeRec,
+                                    const SkPathEffect* pathEffect);
+
+    // Record a draw with the given style and paint effects, applying any analytic clipping or
+    // depth-based clipping automatically based on the current clip stack state.
     //
     // All overridden SkDevice::draw() functions should bottom-out with calls to drawGeometry().
     void drawGeometry(const Transform&,
                       Geometry&&,
                       const PaintParams&,
-                      SkStrokeRec,
-                      const SkPathEffect* pathEffect);
+                      SkStrokeRec);
 
     // Like drawGeometry() but is Shape-only, depth-only, fill-only, and lets the ClipStack define
     // the transform, clip, and DrawOrder (although Device still tracks stencil buffer usage).
