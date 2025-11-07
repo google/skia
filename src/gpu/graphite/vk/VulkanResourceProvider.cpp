@@ -672,7 +672,15 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* h
         if (isRenderable) {
             // Renderable attachments can be used as input attachments if we are loading from MSAA.
             usageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+            // Opt into MSAA-render-to-SS to match getDefaultSampled/AttachmentInfo in VulkanCaps
+            if (vkCaps.msaaRenderToSingleSampledSupport()) {
+                imgCreateflags |= VK_IMAGE_CREATE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT;
+            }
         }
+        // For non-renderable Graphite-created textures, VulkanCaps also attempts to use
+        // VK_IMAGE_USAGE_HOST_TRANSFER_BIT, but if we are wrapping an AHardwareBuffer, its contents
+        // are presumably managed by the client and we aren't expecting to have to write directly
+        // to it from CPU memory.
     }
     VulkanTextureInfo vkTexInfo {
             VK_SAMPLE_COUNT_1_BIT,
