@@ -272,9 +272,11 @@ void SkShaper_CoreText::shape(const char* utf8,
             auto range = utf8IndicesMap.mapRange(cfRange.location, cfRange.length);
 
             fontStorage.push_back(run_to_font(run, font));
-            infos.push_back({
+            infos.push_back(SkShaper::RunHandler::RunInfo{
                 fontStorage.back(), // info just stores a ref to the font
-                0,                  // need fBidiLevel
+                0,                  // TODO: need fBidiLevel
+                0,                  // TODO: need fScript
+                "",                 // TODO: need fLanguage
                 {adv, 0},
                 (size_t)runGlyphs,
                 {range.first, range.second},
