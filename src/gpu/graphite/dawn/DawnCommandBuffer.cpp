@@ -999,11 +999,7 @@ bool DawnCommandBuffer::updateIntrinsicUniformsAsPushConstant(UniformDataBlock u
 #if !defined(__EMSCRIPTEN__)
     SkASSERT(fActiveRenderPassEncoder);
     SkASSERT(uniformData.size() <= DawnGraphicsPipeline::kIntrinsicUniformSize);
-#if defined(WGPU_BREAKING_CHANGE_SET_IMMEDIATES)
     fActiveRenderPassEncoder.SetImmediates(0, uniformData.data(), uniformData.size());
-#else
-    fActiveRenderPassEncoder.SetImmediateData(0, uniformData.data(), uniformData.size());
-#endif
     return true;
 #else
     SkASSERT(false); // No push constant support in WASM yet
