@@ -201,8 +201,6 @@ void OneLineShaper::finish(const Block& block, SkScalar height, SkScalar& advanc
         const SkShaper::RunHandler::RunInfo info = {
                 run->fFont,
                 run->fBidiLevel,
-                run->fScript,
-                run->fLanguage.c_str(),
                 runAdvance,
                 glyphs.width(),
                 SkShaper::RunHandler::Range(text.start - run->fClusterStart, text.width())
@@ -599,8 +597,6 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
         const SkShaper::RunHandler::RunInfo runInfo = {
             font,
             bidiLevel,
-            0,
-            "",
             SkPoint::Make(placeholder.fStyle.fWidth, placeholder.fStyle.fHeight),
             1,
             SkShaper::RunHandler::Range(0, placeholder.fRange.width())

@@ -209,8 +209,6 @@ public:
         struct RunInfo {
             const SkFont& fFont;
             uint8_t fBidiLevel;
-            SkFourByteTag fScript;
-            const char* fLanguage;
             SkVector fAdvance;
             size_t glyphCount;
             Range utf8Range;
