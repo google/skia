@@ -250,7 +250,7 @@ SkPath SkPathBuilder::snapshot(const SkMatrix* mx) const {
     }
 
     sk_sp<SkPathData> pdata;
-    if (auto raw = SkPathPriv::Raw(*this, SkResolveConvexity::kYes)) {
+    if (auto raw = SkPathPriv::Raw(*this, SkResolveConvexity::kNo)) {
         pdata = SkPathData::MakeTransform(*raw, *mx);
     }
     if (pdata && fType != SkPathIsAType::kGeneral) {
