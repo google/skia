@@ -1021,8 +1021,6 @@ bool ContextPriv::supportsPathRendererStrategy(PathRendererStrategy strategy) {
     AtlasProvider::PathAtlasFlagsBitMask pathAtlasFlags =
             AtlasProvider::QueryPathAtlasSupport(this->caps());
     switch (strategy) {
-        case PathRendererStrategy::kDefault:
-            return true;
         case PathRendererStrategy::kComputeAnalyticAA:
         case PathRendererStrategy::kComputeMSAA16:
         case PathRendererStrategy::kComputeMSAA8:

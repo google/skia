@@ -324,11 +324,11 @@ bool is_simple_shape(const Shape& shape, const Transform& localToDevice, SkStrok
     return false;
 }
 
-bool use_compute_atlas_when_available(PathRendererStrategy strategy) {
-    return strategy == PathRendererStrategy::kComputeAnalyticAA ||
+bool use_compute_atlas_when_available(std::optional<PathRendererStrategy> strategy) {
+    return !strategy.has_value() ||
+           strategy == PathRendererStrategy::kComputeAnalyticAA ||
            strategy == PathRendererStrategy::kComputeMSAA16 ||
-           strategy == PathRendererStrategy::kComputeMSAA8 ||
-           strategy == PathRendererStrategy::kDefault;
+           strategy == PathRendererStrategy::kComputeMSAA8;
 }
 
 class ScopedDrawBuilder {
@@ -1992,10 +1992,9 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
     //    2. Fall back to CPU raster AA if hardware MSAA is disabled or it was explicitly requested
     //       via ContextOptions (including if the path is small enough).
     //    3. Otherwise use tessellation.
+    std::optional<PathRendererStrategy> strategy;
 #if defined(GPU_TEST_UTILS)
-    PathRendererStrategy strategy = fRecorder->priv().caps()->requestedPathRendererStrategy();
-#else
-    PathRendererStrategy strategy = PathRendererStrategy::kDefault;
+    strategy = fRecorder->priv().caps()->requestedPathRendererStrategy();
 #endif
 
     PathAtlas* pathAtlas = nullptr;
@@ -2024,7 +2023,7 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
                                           all(drawBounds.size() <= minPathSizeForMSAA));
     if (!pathAtlas && atlasProvider->isAvailable(AtlasProvider::PathAtlasFlags::kRaster) &&
         (strategy == PathRendererStrategy::kRasterAA ||
-         (strategy == PathRendererStrategy::kDefault && useRasterAtlasByDefault))) {
+         (!strategy.has_value() && useRasterAtlasByDefault))) {
         // NOTE: RasterPathAtlas doesn't implement `PathAtlas::isSuitableForAtlasing` as it doesn't
         // reject paths (unlike ComputePathAtlas).
         pathAtlas = atlasProvider->getRasterPathAtlas();

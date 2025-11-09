@@ -116,6 +116,7 @@
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
+#include "src/gpu/graphite/RendererProvider.h"
 #include "tools/window/GraphiteDisplayParams.h"
 #endif
 
@@ -311,12 +312,14 @@ static bool is_graphite_backend_type(sk_app::Window::BackendType type) {
 }
 
 #if defined(SK_GRAPHITE)
-static const char*
-        get_path_renderer_strategy_string(skgpu::graphite::PathRendererStrategy strategy) {
+static const char* get_path_renderer_strategy_string(
+        std::optional<skgpu::graphite::PathRendererStrategy> strategy) {
     using Strategy = skgpu::graphite::PathRendererStrategy;
-    switch (strategy) {
-        case Strategy::kDefault:
-            return "Default";
+    if (!strategy.has_value()) {
+        return "Default";
+    }
+
+    switch (*strategy) {
         case Strategy::kComputeAnalyticAA:
             return "GPU Compute AA (Analytic)";
         case Strategy::kComputeMSAA16:
@@ -324,17 +327,19 @@ static const char*
         case Strategy::kComputeMSAA8:
             return "GPU Compute AA (8xMSAA)";
         case Strategy::kRasterAA:
-            return "CPU Raster AA";
+            return "CPU Raster Atlas";
         case Strategy::kTessellation:
             return "Tessellation";
     }
-    return "unknown";
+
+    SkUNREACHABLE;
 }
 
-static skgpu::graphite::PathRendererStrategy get_path_renderer_strategy_type(const char* str) {
+static std::optional<skgpu::graphite::PathRendererStrategy> get_path_renderer_strategy_type(
+        const char* str) {
     using Strategy = skgpu::graphite::PathRendererStrategy;
     if (0 == strcmp(str, "default")) {
-        return Strategy::kDefault;
+        return {};
     } else if (0 == strcmp(str, "raster")) {
         return Strategy::kRasterAA;
 #ifdef SK_ENABLE_VELLO_SHADERS
@@ -349,7 +354,7 @@ static skgpu::graphite::PathRendererStrategy get_path_renderer_strategy_type(con
         return Strategy::kTessellation;
     } else {
         SkDebugf("Unknown path renderer strategy type, %s, defaulting to default.", str);
-        return Strategy::kDefault;
+        return {};
     }
 }
 #endif
@@ -1432,9 +1437,8 @@ void Viewer::updateTitle() {
 #if defined(SK_GRAPHITE)
         auto graphiteOptions = fWindow->getRequestedDisplayParams()->graphiteTestOptions();
         SkASSERT(graphiteOptions);
-        skgpu::graphite::PathRendererStrategy strategy =
-                graphiteOptions->fPriv.fPathRendererStrategy;
-        if (skgpu::graphite::PathRendererStrategy::kDefault != strategy) {
+        auto strategy = graphiteOptions->fPriv.fPathRendererStrategy;
+        if (strategy.has_value()) {
             title.appendf(" [Path renderer strategy: %s]",
                           get_path_renderer_strategy_string(strategy));
         }
@@ -2481,18 +2485,19 @@ void Viewer::drawImGui() {
                         SkASSERT(params->graphiteTestOptions());
                         skwindow::GraphiteTestOptions opts = *params->graphiteTestOptions();
                         auto prevPrs = opts.fPriv.fPathRendererStrategy;
-                        auto prsButton = [&](skgpu::graphite::PathRendererStrategy s) {
-                            if (ImGui::RadioButton(get_path_renderer_strategy_string(s),
-                                                   prevPrs == s)) {
-                                if (s != opts.fPriv.fPathRendererStrategy) {
-                                    opts.fPriv.fPathRendererStrategy = s;
-                                    newParamsBuilder.graphiteTestOptions(opts);
-                                    displayParamsChanged = true;
-                                }
-                            }
-                        };
+                        auto prsButton =
+                                [&](std::optional<skgpu::graphite::PathRendererStrategy> s) {
+                                    if (ImGui::RadioButton(get_path_renderer_strategy_string(s),
+                                                           prevPrs == s)) {
+                                        if (s != opts.fPriv.fPathRendererStrategy) {
+                                            opts.fPriv.fPathRendererStrategy = s;
+                                            newParamsBuilder.graphiteTestOptions(opts);
+                                            displayParamsChanged = true;
+                                        }
+                                    }
+                                };
 
-                        prsButton(PathRendererStrategy::kDefault);
+                        prsButton({}); // "Default"
 
                         PathRendererStrategy strategies[] = {
                                 PathRendererStrategy::kComputeAnalyticAA,
@@ -2506,10 +2511,10 @@ void Viewer::drawImGui() {
                                 prsButton(strategies[i]);
                             }
                         }
-                    }
+                    } else
 #endif
 #if defined(SK_GANESH)
-                    if (ctx) {
+                    if (fBackendType != Window::kRaster_BackendType && ctx) {
                         GrContextOptions grOpts = params->grContextOptions();
                         auto prButton = [&](GpuPathRenderers x) {
                             if (ImGui::RadioButton(gGaneshPathRendererNames[x].c_str(),
@@ -2537,9 +2542,9 @@ void Viewer::drawImGui() {
                         }
                         prButton(GpuPathRenderers::kTriangulating);
                         prButton(GpuPathRenderers::kNone);
-                    }
+                    } else
 #endif
-                    else {
+                    {
                         ImGui::RadioButton("Software", true);
                     }
                     ImGui::TreePop();
