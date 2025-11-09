@@ -50,8 +50,7 @@ private:
 
 #if defined(SK_GRAPHITE)
     void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions* options) const override {
-        SkASSERT(options->fOptionsPriv);
-        options->fOptionsPriv->fMaxTextureAtlasSize = fMaxAtlasSize;
+        options->fMaxPathAtlasTextureSize = fMaxAtlasSize;
     }
 #endif
 

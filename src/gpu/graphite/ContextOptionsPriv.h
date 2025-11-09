@@ -54,11 +54,6 @@ struct ContextOptionsPriv {
     int  fMaxTextureSizeOverride = SK_MaxS32;
 
     /**
-     * Maximum width and height of internal texture atlases.
-     */
-    int  fMaxTextureAtlasSize = 2048;
-
-    /**
      * If true, will store a pointer in Recorder that points back to the Context
      * that created it. Used by readPixels() and other methods that normally require a Context.
      */

@@ -39,7 +39,6 @@ void Caps::finishInitialization(const ContextOptions& options) {
 #if defined(GPU_TEST_UTILS)
     if (options.fOptionsPriv) {
         fMaxTextureSize = std::min(fMaxTextureSize, options.fOptionsPriv->fMaxTextureSizeOverride);
-        fMaxTextureAtlasSize = options.fOptionsPriv->fMaxTextureAtlasSize;
         fRequestedPathRendererStrategy = options.fOptionsPriv->fPathRendererStrategy;
     }
 #endif
