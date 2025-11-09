@@ -24,6 +24,8 @@ static DEFINE_bool(useWGPUTextureView, false, "Run Graphite w/ a wrapped WGPU te
 #endif // SK_DAWN
 
 DEFINE_int(internalMSAATileSize, 0, "Run Graphite w/ limited MSAA texture's size");
+DEFINE_int(minMSAAPathSize, -1,
+           "Graphite uses raster atlas for paths smaller than this, or default value if negative");
 
 void SetTestOptions(skiatest::graphite::TestOptions* testOptions) {
     static std::unique_ptr<SkExecutor> gGpuExecutor =
@@ -39,6 +41,10 @@ void SetTestOptions(skiatest::graphite::TestOptions* testOptions) {
         testOptions->fContextOptions.fInternalMSAATileSize = {FLAGS_internalMSAATileSize,
                                                               FLAGS_internalMSAATileSize};
     }
+    if (FLAGS_minMSAAPathSize >= 0) {
+        testOptions->fContextOptions.fMinimumPathSizeForMSAA = FLAGS_minMSAAPathSize;
+    }
+
 #if defined(SK_DAWN)
     testOptions->fDisableTintSymbolRenaming = FLAGS_disable_tint_symbol_renaming;
     testOptions->fNeverYieldToWebGPU = FLAGS_neverYieldToWebGPU;
