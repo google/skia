@@ -18,13 +18,18 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
-#include "include/encode/SkPngEncoder.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/fonts/FontToolUtils.h"
+
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+#include "include/encode/SkPngRustEncoder.h"
+#else
+#include "include/encode/SkPngEncoder.h"
+#endif
 
 #include <iostream>
 #include <map>
@@ -322,6 +327,9 @@ static std::map<std::string, std::string> cf_api_map = {
     {"api_svg_canvas", "SVGCanvas"},
     {"cubic_quad_roots", "CubicQuadRoots"},
     {"jpeg_encoder", "JPEGEncoder"},
+    // TODO(https://crbug.com/459478411): Add OSS-ClusterFuzz coverage of Rust
+    // PNG encoder.  (And also decoder?  See earlier discussion about these map
+    // entries at https://review.skia.org/1091836/comment/db7930d5_d2e1f030/)
     {"png_encoder", "PNGEncoder"},
     {"skia_pathop_fuzzer", "LegacyChromiumPathop"},
     {"webp_encoder", "WEBPEncoder"}
@@ -458,7 +466,11 @@ static void fuzz_api(const sk_sp<SkData>& data, const SkString& name) {
 static void dump_png(const SkBitmap& bitmap) {
     if (!FLAGS_dump.isEmpty()) {
         SkFILEWStream file(FLAGS_dump[0]);
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+        SkPngRustEncoder::Encode(&file, bitmap.pixmap(), {});
+#else
         SkPngEncoder::Encode(&file, bitmap.pixmap(), {});
+#endif
         SkDebugf("Dumped to %s\n", FLAGS_dump[0]);
     }
 }
