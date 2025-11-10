@@ -8,6 +8,7 @@
 #include "tests/Test.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
 #include "include/core/SkPaint.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/graphite/Context.h"

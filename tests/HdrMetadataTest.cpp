@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkData.h"
 #include "include/core/SkScalar.h"
 #include "include/private/SkHdrMetadata.h"
 #include "src/codec/SkHdrAgtmPriv.h"
