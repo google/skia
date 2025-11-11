@@ -226,6 +226,9 @@ static void fuzz_drawPath(Fuzz* fuzz) {
                 break;
             case 3:
                 fuzz->next(&a, &b, &c, &d, &e);
+                if (!(e > 0)) {
+                    e = 1.0f;
+                }
                 builder.conicTo(a, b, c, d, e);
                 break;
             case 4:

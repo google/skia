@@ -151,6 +151,9 @@ SkPath BuildPath(Fuzz* fuzz) {
             return builder.detach();
         }
         fuzz->next(&a, &b, &c, &d, &e);
+        if (!(e > 0)) {
+            e = 1.0f;
+        }
         builder.conicTo(a, b, c, d, e);
         break;
 

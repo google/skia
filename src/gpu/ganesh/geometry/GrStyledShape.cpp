@@ -341,6 +341,7 @@ GrStyledShape::GrStyledShape(const GrStyledShape& that)
 }
 
 GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, SkScalar scale) {
+    SkASSERT(scale > 0 && std::isfinite(scale));
     // TODO: Add some quantization of scale for better cache performance here or leave that up
     // to caller?
     // TODO: For certain shapes and stroke params we could ignore the scale. (e.g. miter or bevel

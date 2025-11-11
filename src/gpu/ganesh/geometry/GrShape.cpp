@@ -198,7 +198,9 @@ void GrShape::simplifyRect(const SkRect& rect, SkPathDirection dir, unsigned sta
             this->setPathWindingParams(dir, start);
         } else {
             // If starting as a rect, the provided rect/winding params should already be set
-            SkASSERT(fRect == rect && this->dir() == dir && this->startIndex() == start);
+            SkASSERT(fRect == rect);
+            SkASSERT(this->dir() == dir);
+            SkASSERT(this->startIndex() == start);
         }
         if (flags & kMakeCanonical_Flag) {
             fRect.sort();

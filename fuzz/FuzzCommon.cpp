@@ -33,6 +33,13 @@ static void fuzz_nice_rect(Fuzz* fuzz, SkRect* r) {
     r->sort();
 }
 
+static float valid_weight(float f) {
+    if (!(f > 0)) {
+        return 1.0f;
+    }
+    return f;
+}
+
 // allows some float values for path points
 void FuzzNicePath(Fuzz* fuzz, SkPathBuilder* path, int maxOps) {
     if (maxOps <= 0 || fuzz->exhausted() || path->countPoints() > 100000) {
@@ -88,11 +95,11 @@ void FuzzNicePath(Fuzz* fuzz, SkPathBuilder* path, int maxOps) {
                 break;
             case 6:
                 fuzz_nice_float(fuzz, &a, &b, &c, &d, &e);
-                path->conicTo(a, b, c, d, e);
+                path->conicTo(a, b, c, d, valid_weight(e));
                 break;
             case 7:
                 fuzz_nice_float(fuzz, &a, &b, &c, &d, &e);
-                path->rConicTo(a, b, c, d, e);
+                path->rConicTo(a, b, c, d, valid_weight(e));
                 break;
             case 8:
                 fuzz_nice_float(fuzz, &a, &b, &c, &d, &e, &f);
@@ -259,7 +266,7 @@ SkPath FuzzEvilPath(Fuzz* fuzz, int last_verb) {
 
       case SkPath::Verb::kConic_Verb:
         fuzz->next(&a, &b, &c, &d, &e);
-        builder.conicTo(a, b, c, d, e);
+        builder.conicTo(a, b, c, d, valid_weight(e));
         break;
 
       case SkPath::Verb::kCubic_Verb:

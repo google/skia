@@ -2827,6 +2827,8 @@ if (skia_enable_tools) {
         "fuzz/Fuzz.cpp",
         "fuzz/Fuzz.h",
         "fuzz/FuzzCanvas.cpp",
+        "fuzz/FuzzCanvasHelpers.cpp",
+        "fuzz/FuzzCanvasHelpers.h",
         "fuzz/FuzzCommon.cpp",
         "fuzz/FuzzCommon.h",
         "fuzz/FuzzCreateDDL.cpp",
@@ -2834,6 +2836,7 @@ if (skia_enable_tools) {
         "fuzz/FuzzDDLThreading.cpp",
         "fuzz/FuzzDrawFunctions.cpp",
         "fuzz/FuzzEncoders.cpp",
+        "fuzz/FuzzGrStyledShape.cpp",
         "fuzz/FuzzGradients.cpp",
         "fuzz/FuzzMain.cpp",
         "fuzz/FuzzParsePath.cpp",
@@ -3405,6 +3408,8 @@ if (skia_build_fuzzers) {
   libfuzzer_app("api_image_filter") {
     sources = [
       "fuzz/FuzzCanvas.cpp",
+      "fuzz/FuzzCanvasHelpers.cpp",
+      "fuzz/FuzzCanvasHelpers.h",
       "fuzz/oss_fuzz/FuzzAPIImageFilter.cpp",
     ]
     deps = [ "//third_party/libpng" ]
@@ -3437,6 +3442,8 @@ if (skia_build_fuzzers) {
   libfuzzer_app("api_raster_n32_canvas") {
     sources = [
       "fuzz/FuzzCanvas.cpp",
+      "fuzz/FuzzCanvasHelpers.cpp",
+      "fuzz/FuzzCanvasHelpers.h",
       "fuzz/oss_fuzz/FuzzRasterN32Canvas.cpp",
     ]
     deps = [
@@ -3457,6 +3464,8 @@ if (skia_build_fuzzers) {
     libfuzzer_app("api_mock_gpu_canvas") {
       sources = [
         "fuzz/FuzzCanvas.cpp",
+        "fuzz/FuzzCanvasHelpers.cpp",
+        "fuzz/FuzzCanvasHelpers.h",
         "fuzz/oss_fuzz/FuzzMockGPUCanvas.cpp",
       ]
       deps = [
@@ -3480,6 +3489,8 @@ if (skia_build_fuzzers) {
   libfuzzer_app("api_null_canvas") {
     sources = [
       "fuzz/FuzzCanvas.cpp",
+      "fuzz/FuzzCanvasHelpers.cpp",
+      "fuzz/FuzzCanvasHelpers.h",
       "fuzz/oss_fuzz/FuzzNullCanvas.cpp",
     ]
     deps = [
@@ -3499,6 +3510,8 @@ if (skia_build_fuzzers) {
   libfuzzer_app("api_svg_canvas") {
     sources = [
       "fuzz/FuzzCanvas.cpp",
+      "fuzz/FuzzCanvasHelpers.cpp",
+      "fuzz/FuzzCanvasHelpers.h",
       "fuzz/oss_fuzz/FuzzAPISVGCanvas.cpp",
     ]
     deps = [
@@ -3572,6 +3585,16 @@ if (skia_build_fuzzers) {
 
   libfuzzer_app("image_decode_incremental") {
     sources = [ "fuzz/oss_fuzz/FuzzIncrementalImage.cpp" ]
+    deps = []
+  }
+
+  libfuzzer_app("grshape") {
+    sources = [
+      "fuzz/FuzzCanvasHelpers.cpp",
+      "fuzz/FuzzCanvasHelpers.h",
+      "fuzz/FuzzGrStyledShape.cpp",
+      "fuzz/oss_fuzz/FuzzGrStyledShape.cpp",
+    ]
     deps = []
   }
 
