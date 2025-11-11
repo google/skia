@@ -225,9 +225,9 @@
         "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal"
       ]
     },
-    "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoGpu": {
+    "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoGPU": {
       "tasks": [
-        "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoGpu"
+        "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoGPU"
       ]
     },
     "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoPrecompile": {
@@ -245,9 +245,9 @@
         "Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal"
       ]
     },
-    "Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_NoGpu": {
+    "Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_NoGPU": {
       "tasks": [
-        "Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_NoGpu"
+        "Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_NoGPU"
       ]
     },
     "Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_NoPrecompile": {
@@ -7238,7 +7238,7 @@
       ],
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoGpu": {
+    "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoGPU": {
       "caches": [
         {
           "name": "ccache",
@@ -7320,7 +7320,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoGpu\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoGPU\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -7719,7 +7719,7 @@
       ],
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_NoGpu": {
+    "Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_NoGPU": {
       "caches": [
         {
           "name": "ccache",
@@ -7773,7 +7773,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_NoGpu\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_NoGPU\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -84073,7 +84073,7 @@
     },
     "BazelTest-external_client-use_graphite_native_vulkan-default-linux_x64": {},
     "Build-Debian11-GCC-x86_64-Debug-Docker": {},
-    "Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_NoGpu": {
+    "Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_NoGPU": {
       "location_regexes": [
         "(tests|src/gpu)/graphite/.*",
         "src/sksl/generated/.*"

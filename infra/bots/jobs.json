@@ -145,7 +145,7 @@
     "name": "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal"
   },
   {
-    "name": "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoGpu"
+    "name": "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoGPU"
   },
   {
     "name": "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoPrecompile"
@@ -157,7 +157,7 @@
     "name": "Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal"
   },
   {
-    "name": "Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_NoGpu",
+    "name": "Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_NoGPU",
     "cq_config": {
       "location_regexes": [
         "(tests|src/gpu)/graphite/.*",
