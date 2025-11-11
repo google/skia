@@ -102,6 +102,7 @@ SkMipmap* SkMipmap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact,
     if (computeContents) {
         downsampler = MakeDownSampler(src);
         if (!downsampler) {
+            delete mipmap;
             return nullptr;
         }
     }
