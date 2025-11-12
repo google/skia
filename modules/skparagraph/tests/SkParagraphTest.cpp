@@ -84,6 +84,7 @@ static DEFINE_bool(run_paragraph_tests_needing_system_fonts, true,
 using namespace skia::textlayout;
 namespace {
 
+SkScalar EPSILON1000 = 0.001f;
 SkScalar EPSILON100 = 0.01f;
 SkScalar EPSILON50 = 0.02f;
 SkScalar EPSILON20 = 0.05f;
@@ -8468,6 +8469,45 @@ UNIX_ONLY_TEST(SkParagraph_ICU4X_EmojiFontResolution, reporter) {
     test("🏴󠁧󠁢󠁥󠁮󠁧󠁿", 127988); // Tag sequence
     test("👋🏼", 128075); // Modifier sequence
     test("👨‍👩‍👧‍👦", 128104); // ZWJ sequence
+}
+
+// Checked: disabled for TxtLib
+UNIX_ONLY_TEST(SkParagraph_ArabicMeansNoLetterSpacing, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    TestCanvas canvas("SkParagraph_ArabicParagraph.png");
+    const char* arabic = "سلام";
+    const char* english = "Hello";
+
+    ParagraphStyle paragraph_style;
+    TextStyle text_style;
+    text_style.setFontSize(10);
+    text_style.setColor(SK_ColorBLACK);
+
+    auto layout = [&](const char* familyName, const char* text, double letterSpacing) -> double {
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+        text_style.setLetterSpacing(letterSpacing);
+        text_style.setFontFamilies({SkString(familyName)});
+        builder.pushStyle(text_style);
+        builder.addText(text, strlen(text));
+        builder.pop();
+
+        auto paragraph = builder.Build();
+        paragraph->layout(SK_ScalarInfinity);
+        return paragraph->getLongestLine();
+    };
+
+    {   // Letter spacing does not affect the layout for Arabic
+        auto noLetterSpacing = layout("Katibeh", arabic, 0.0);
+        auto withLetterSpacing = layout("Katibeh", arabic, 100.0);
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(noLetterSpacing, withLetterSpacing, EPSILON1000));
+    }
+    {
+        // Letter spacing affects English text (number of letter * letter spacing)
+        auto noLetterSpacing = layout("Roboto", english, 0.0);
+        auto withLetterSpacing = layout("Roboto", english, 100.0);
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual((withLetterSpacing - noLetterSpacing), 100.0 * strlen(english), EPSILON1000));
+    }
 }
 
 #if defined(SK_UNICODE_ICU_IMPLEMENTATION)

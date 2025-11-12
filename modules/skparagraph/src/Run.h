@@ -120,9 +120,11 @@ public:
         return SkRect::MakeXYWH(fOffset.fX, fOffset.fY, fAdvance.fX, fAdvance.fY);
     }
 
+    bool isCursiveScript() const;
+
     void addSpacesAtTheEnd(SkScalar space, Cluster* cluster);
-    SkScalar addSpacesEvenly(SkScalar space, Cluster* cluster);
-    SkScalar addSpacesEvenly(SkScalar space);
+    SkScalar addLetterSpacesEvenly(SkScalar space, Cluster* cluster);
+    SkScalar addLetterSpacesEvenly(SkScalar space);
     void shift(const Cluster* cluster, SkScalar offset);
     void extend(const Cluster* cluster, SkScalar offset);
 
