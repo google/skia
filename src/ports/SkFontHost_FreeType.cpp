@@ -792,7 +792,8 @@ std::unique_ptr<SkFontData> SkTypeface_FreeType::cloneFontData(const SkFontArgum
     int axisCount = axisDefinitions.size();
 
     AutoSTMalloc<4, SkFontArguments::VariationPosition::Coordinate> currentPosition(axisCount);
-    int currentAxisCount = GetVariationDesignPosition(face, {currentPosition, axisCount});
+    int currentAxisCount = GetVariationDesignPosition(face,
+                                                      {currentPosition.data(), (size_t)axisCount});
 
     SkString name;
     AutoSTMalloc<4, SkFixed> axisValues(axisCount);

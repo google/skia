@@ -202,11 +202,11 @@ PerEdgeAAQuadRenderStep::PerEdgeAAQuadRenderStep(StaticBufferManager* bufferMana
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
                      kDirectDepthLessPass,
-                     /*staticAttrs=*/{
+                     /*staticAttrs=*/{{
                              {"cornerID", VertexAttribType::kUInt, SkSLType::kUInt },
                              {"normal", VertexAttribType::kFloat2, SkSLType::kFloat2},
-                     },
-                     /*appendAttrs=*/{
+                     }},
+                     /*appendAttrs=*/{{
                              {"edgeFlags", VertexAttribType::kUByte4_norm, SkSLType::kFloat4},
                              {"quadXs", VertexAttribType::kFloat4, SkSLType::kFloat4},
                              {"quadYs", VertexAttribType::kFloat4, SkSLType::kFloat4},
@@ -218,11 +218,11 @@ PerEdgeAAQuadRenderStep::PerEdgeAAQuadRenderStep(StaticBufferManager* bufferMana
 
                              {"mat0", VertexAttribType::kFloat3, SkSLType::kFloat3},
                              {"mat1", VertexAttribType::kFloat3, SkSLType::kFloat3},
-                             {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3}},
-                     /*varyings=*/{
+                             {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3}}},
+                     /*varyings=*/{{
                              // Device-space distance to LTRB edges of quad.
                              {"edgeDistances", SkSLType::kFloat4}, // distance to LTRB edges
-                     }) {
+                     }}) {
     // Initialize the static buffers we'll use when recording draw calls.
     // NOTE: Each instance of this RenderStep gets its own copy of the data. Since there should only
     // ever be one PerEdgeAAQuadRenderStep at a time, this shouldn't be an issue.

@@ -749,7 +749,7 @@ private:
 
 ContourIter::ContourIter(SkSpan<const SkPoint> pts, SkSpan<const SkPathVerb> vbs,
                          SkSpan<const float> conicWeights) {
-    fStopVerbs = vbs.end();
+    fStopVerbs = vbs.data() + vbs.size();
     fDone = false;
     fCurrPt = pts.data();
     fCurrVerb = vbs.data();

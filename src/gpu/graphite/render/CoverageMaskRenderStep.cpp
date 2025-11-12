@@ -76,7 +76,7 @@ CoverageMaskRenderStep::CoverageMaskRenderStep()
                      // [0,1] for inverse-filled masks. 'drawBounds' is relative to the logical mask
                      // entry's origin, while 'maskBoundsIn' is atlas-relative. Inverse fills swap
                      // the order in 'maskBoundsIn' to be RBLT.
-                     {{"drawBounds", VertexAttribType::kFloat4 , SkSLType::kFloat4},  // ltrb
+                     {{{"drawBounds", VertexAttribType::kFloat4 , SkSLType::kFloat4},  // ltrb
                       {"maskBoundsIn", VertexAttribType::kUShort4_norm, SkSLType::kFloat4},
                       // Remaining translation extracted from actual 'maskToDevice' transform.
                       {"deviceOrigin", VertexAttribType::kFloat2, SkSLType::kFloat2},
@@ -85,9 +85,9 @@ CoverageMaskRenderStep::CoverageMaskRenderStep()
                       // deviceToLocal matrix for producing local coords for shader evaluation
                       {"mat0", VertexAttribType::kFloat3, SkSLType::kFloat3},
                       {"mat1", VertexAttribType::kFloat3, SkSLType::kFloat3},
-                      {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3}},
+                      {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3}}},
                      /*varyings=*/
-                     {// `maskBounds` are the atlas-relative, sorted bounds of the coverage mask.
+                     {{// `maskBounds` are the atlas-relative, sorted bounds of the coverage mask.
                       // `textureCoords` are the atlas-relative UV coordinates of the draw, which
                       // can spill beyond `maskBounds` for inverse fills.
                       // TODO: maskBounds is constant for all fragments for a given instance,
@@ -95,7 +95,7 @@ CoverageMaskRenderStep::CoverageMaskRenderStep()
                       {"maskBounds"   , SkSLType::kFloat4},
                       {"textureCoords", SkSLType::kFloat2},
                       // 'invert' is set to 0 use unmodified coverage, and set to 1 for "1-c".
-                      {"invert", SkSLType::kHalf}}) {}
+                      {"invert", SkSLType::kHalf}}}) {}
 
 std::string CoverageMaskRenderStep::vertexSkSL() const {
     // Returns the body of a vertex function, which must define a float4 devPosition variable and

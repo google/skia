@@ -194,7 +194,7 @@ public:
         // First push the data size followed by the actual data.
         SkDEBUGCODE(this->validateData(data.size()));
         fData.push_back(data.size());
-        fData.push_back_n(data.size(), data.begin());
+        fData.push_back_n(data.size(), data.data());
     }
 
     void addErrorBlock() {
@@ -224,7 +224,7 @@ private:
 
         SkDEBUGCODE(fLocked = true;)
         fDataHighWaterMark = std::max(fDataHighWaterMark, fData.size());
-        return fHasError ? PaintParamsKey::Invalid() : PaintParamsKey({fData.data(), fData.size()});
+        return fHasError ? PaintParamsKey::Invalid() : PaintParamsKey(fData);
     }
 
     // Invalidates any PaintParamsKey returned by lockAsKey() unless it has been cloned.

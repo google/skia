@@ -376,7 +376,7 @@ std::optional<SkMaskFilterBase::NinePatch> SkBlurMaskFilterImpl::filterRRectToNi
     // Now make that scaled down nine patch rrect.
     SkRect smallR = SkRect::MakeWH(totalSmallWidth, totalSmallHeight);
     SkRRect smallRR;
-    smallRR.setRectRadii(smallR, rrect.radii().begin());
+    smallRR.setRectRadii(smallR, rrect.radii().data());
 
     const float sigma = this->computeXformedSigma(matrix);
     // If we've already blurred this small rrect, pull it out of the cache and we are done

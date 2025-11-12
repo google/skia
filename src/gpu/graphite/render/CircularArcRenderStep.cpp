@@ -133,10 +133,10 @@ CircularArcRenderStep::CircularArcRenderStep(StaticBufferManager* bufferManager)
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
                      kDirectDepthLessPass,
-                     /*staticAttrs=*/{
+                     /*staticAttrs=*/{{
                              {"position", VertexAttribType::kFloat3, SkSLType::kFloat3},
-                     },
-                     /*appendAttrs=*/{
+                     }},
+                     /*appendAttrs=*/{{
                              // Center plus radii, used to transform to local position
                              {"centerScales", VertexAttribType::kFloat4, SkSLType::kFloat4},
                              // Outer (device space) and inner (normalized) radii
@@ -156,8 +156,8 @@ CircularArcRenderStep::CircularArcRenderStep(StaticBufferManager* bufferManager)
                              {"mat0", VertexAttribType::kFloat3, SkSLType::kFloat3},
                              {"mat1", VertexAttribType::kFloat3, SkSLType::kFloat3},
                              {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3},
-                     },
-                     /*varyings=*/{
+                     }},
+                     /*varyings=*/{{
                              // Normalized offset vector plus radii
                              {"circleEdge", SkSLType::kFloat4},
                              // Half-planes used to clip to arc shape.
@@ -167,7 +167,7 @@ CircularArcRenderStep::CircularArcRenderStep(StaticBufferManager* bufferManager)
                              // Roundcap data
                              {"roundCapRadius", SkSLType::kFloat},
                              {"roundCapPos", SkSLType::kFloat4},
-                     }) {
+                     }}) {
     // Initialize the static buffer we'll use when recording draw calls.
     // NOTE: Each instance of this RenderStep gets its own copy of the data. Since there should only
     // ever be one CircularArcRenderStep at a time, this shouldn't be an issue.

@@ -370,7 +370,7 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep(StaticBufferManager* bufferMana
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
                      kDirectDepthLessPass,
-                     /*staticAttrs=*/{
+                     /*staticAttrs=*/{{
                              {"cornerID", VertexAttribType::kUInt, SkSLType::kUInt},
                              {"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
                              {"normal", VertexAttribType::kFloat2, SkSLType::kFloat2},
@@ -378,8 +378,8 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep(StaticBufferManager* bufferMana
                              // much more densely than as three floats.
                              {"normalScale", VertexAttribType::kFloat, SkSLType::kFloat},
                              {"centerWeight", VertexAttribType::kFloat, SkSLType::kFloat}
-                     },
-                     /*appendAttrs=*/{
+                     }},
+                     /*appendAttrs=*/{{
                              {"xRadiiOrFlags", VertexAttribType::kFloat4, SkSLType::kFloat4},
                              {"radiiOrQuadXs", VertexAttribType::kFloat4, SkSLType::kFloat4},
                              {"ltrbOrQuadYs", VertexAttribType::kFloat4, SkSLType::kFloat4},
@@ -400,8 +400,8 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep(StaticBufferManager* bufferMana
                              {"mat0", VertexAttribType::kFloat3, SkSLType::kFloat3},
                              {"mat1", VertexAttribType::kFloat3, SkSLType::kFloat3},
                              {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3}
-                    },
-                     /*varyings=*/{
+                    }},
+                     /*varyings=*/{{
                              // TODO: If the inverse transform is part of the draw's SSBO, we can
                              // reconstruct the Jacobian in the fragment shader using the existing
                              // local coordinates varying
@@ -444,7 +444,7 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep(StaticBufferManager* bufferMana
                              //    reduction in coverage due to a device-space outset. It is clamped
                              //    below 0 to avoid adding coverage from extrapolation.
                              {"perPixelControl", SkSLType::kFloat2},
-                     }) {
+                     }}) {
     // Initialize the static buffers we'll use when recording draw calls.
     // NOTE: Each instance of this RenderStep gets its own copy of the data. Since there should only
     // ever be one AnalyticRRectRenderStep at a time, this shouldn't be an issue.

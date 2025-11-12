@@ -1693,7 +1693,7 @@ void SkConic::computeTightBounds(SkRect* bounds) const {
     SkPoint pts[4];
     pts[0] = fPts[0];
     pts[1] = fPts[2];
-    int count = 2;
+    size_t count = 2;
 
     SkScalar t;
     if (this->findXExtrema(&t)) {

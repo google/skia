@@ -296,7 +296,7 @@ public:
 
     static GaussianPass* Make(float sigma, void* buffers, SkArenaAlloc* alloc) {
         int radius = SkBlurEngine::SigmaToRadius(sigma);
-        int kernelWidth = 2*radius + 1;
+        size_t kernelWidth = 2*radius + 1;
 
         skvx::Vec<N, float>* srcBuffer = static_cast<skvx::Vec<N, float>*>(buffers);
 
@@ -1421,7 +1421,7 @@ void SkShaderBlurAlgorithm::Compute1DBlurLinearKernel(
     static constexpr int kMaxKernelWidth = KernelWidth(kMaxSamples - 1);
     SkASSERT(KernelWidth(radius) <= kMaxKernelWidth);
     std::array<float, kMaxKernelWidth> fullKernel;
-    Compute1DBlurKernel(sigma, radius, SkSpan<float>{fullKernel.data(), KernelWidth(radius)});
+    Compute1DBlurKernel(sigma, radius, SkSpan<float>{fullKernel.data(), (size_t)KernelWidth(radius)});
 
     std::array<float, kMaxSamples> kernel;
     std::array<float, kMaxSamples> offsets;

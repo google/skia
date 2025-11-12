@@ -156,16 +156,16 @@ DRAW(DrawPaint, drawPaint(r.paint))
 DRAW(DrawPath, drawPath(r.path, r.paint))
 DRAW(DrawPatch, drawPatch(r.cubics, r.colors, r.texCoords, r.bmode, r.paint))
 DRAW(DrawPicture, drawPicture(r.picture.get(), &r.matrix, r.paint))
-DRAW(DrawPoints, drawPoints(r.mode, {r.pts, r.count}, r.paint))
+DRAW(DrawPoints, drawPoints(r.mode, {r.pts.data(), r.count}, r.paint))
 DRAW(DrawRRect, drawRRect(r.rrect, r.paint))
 DRAW(DrawRect, drawRect(r.rect, r.paint))
 DRAW(DrawRegion, drawRegion(r.region, r.paint))
 DRAW(DrawTextBlob, drawTextBlob(r.blob.get(), r.x, r.y, r.paint))
 DRAW(DrawSlug, drawSlug(r.slug.get(), r.paint))
 DRAW(DrawAtlas, drawAtlas(r.atlas.get(),
-                          {r.xforms, r.count},
-                          {r.texs, r.count},
-                          {r.colors, r.colors ? r.count : 0},
+                          {r.xforms.data(), r.count},
+                          {r.texs.data(), r.count},
+                          {r.colors.data(), r.colors ? r.count : 0},
                           r.mode, r.sampling, r.cull, r.paint))
 DRAW(DrawVertices, drawVertices(r.vertices, r.bmode, r.paint))
 DRAW(DrawMesh, drawMesh(r.mesh, r.blender, r.paint))
@@ -455,7 +455,7 @@ private:
                                            : this->adjustAndMap(op.path.getBounds(), &op.paint);
     }
     Bounds bounds(const DrawPoints& op) const {
-        SkRect dst = SkRect::BoundsOrEmpty({op.pts, op.count});
+        SkRect dst = SkRect::BoundsOrEmpty({op.pts.data(), op.count});
 
         // Pad the bounding box a little to make sure hairline points' bounds aren't empty.
         SkScalar stroke = std::max(op.paint.getStrokeWidth(), 0.01f);
@@ -464,7 +464,7 @@ private:
         return this->adjustAndMap(dst, &op.paint);
     }
     Bounds bounds(const DrawPatch& op) const {
-        const auto dst = SkRect::BoundsOrEmpty({op.cubics, (size_t)SkPatchUtils::kNumCtrlPts});
+        const auto dst = SkRect::BoundsOrEmpty({op.cubics.data(), (size_t)SkPatchUtils::kNumCtrlPts});
         return this->adjustAndMap(dst, &op.paint);
     }
     Bounds bounds(const DrawVertices& op) const {
@@ -514,7 +514,7 @@ private:
         return this->adjustAndMap(op.rect, nullptr);
     }
     Bounds bounds(const DrawEdgeAAQuad& op) const {
-        const auto bounds = op.clip ? SkRect::BoundsOrEmpty({op.clip, 4}) : op.rect;
+        const auto bounds = op.clip ? SkRect::BoundsOrEmpty({op.clip.data(), 4}) : op.rect;
         return this->adjustAndMap(bounds, nullptr);
     }
     Bounds bounds(const DrawEdgeAAImageSet& op) const {

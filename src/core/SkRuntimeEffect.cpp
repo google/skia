@@ -276,11 +276,11 @@ SkSpan<const float> SkRuntimeEffectPriv::UniformsAsSpan(
     if (alwaysCopyIntoAlloc || originalData != transformedData) {
         // The transformed uniform data's lifetime is not long enough to reuse; instead, we copy the
         // uniform data directly into the alloc.
-        int numBytes = transformedData->size();
-        int numFloats = numBytes / sizeof(float);
+        size_t numBytes = transformedData->size();
+        size_t numFloats = numBytes / sizeof(float);
         float* uniformsInAlloc = alloc->makeArrayDefault<float>(numFloats);
         memcpy(uniformsInAlloc, transformedData->data(), numBytes);
-        return SkSpan{uniformsInAlloc, numFloats};
+        return {uniformsInAlloc, numFloats};
     }
     // It's safe to return a pointer into existing data.
     return SkSpan{static_cast<const float*>(originalData->data()),

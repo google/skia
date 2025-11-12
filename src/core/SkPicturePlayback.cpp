@@ -270,7 +270,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             const SkPaint* paint = fPictureData->optionalPaint(reader);
             const SkImage* atlas = fPictureData->getImage(reader);
             const uint32_t flags = reader->readUInt();
-            const int count = reader->readUInt();
+            const size_t count = reader->readUInt();
             const SkRSXform* xform = (const SkRSXform*)reader->skip(count, sizeof(SkRSXform));
             const SkRect* tex = (const SkRect*)reader->skip(count, sizeof(SkRect));
             const SkColor* colors = nullptr;

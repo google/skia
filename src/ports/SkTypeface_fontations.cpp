@@ -929,7 +929,7 @@ sk_sp<SkTypeface> SkTypeface_Fontations::onMakeClone(const SkFontArguments& args
     int numAxes = onGetVariationDesignPosition({});
     auto fusedDesignPosition =
             std::make_unique<SkFontArguments::VariationPosition::Coordinate[]>(numAxes);
-    int retrievedAxes = onGetVariationDesignPosition({fusedDesignPosition.get(), numAxes});
+    int retrievedAxes = onGetVariationDesignPosition({fusedDesignPosition.get(), (size_t)numAxes});
     if (numAxes != retrievedAxes) {
         return nullptr;
     }

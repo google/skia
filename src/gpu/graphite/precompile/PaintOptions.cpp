@@ -80,7 +80,7 @@ void PaintOptions::setClipShaders(SkSpan<const sk_sp<PrecompileShader>> clipShad
     fClipShaderOptions.reserve(2 * clipShaders.size());
     for (const sk_sp<PrecompileShader>& cs : clipShaders) {
         // All clipShaders get wrapped in a CTMShader ...
-        sk_sp<PrecompileShader> withCTM = cs ? PrecompileShadersPriv::CTM({ cs }) : nullptr;
+        sk_sp<PrecompileShader> withCTM = cs ? PrecompileShadersPriv::CTM({{ cs }}) : nullptr;
         // and, if it is a SkClipOp::kDifference clip, an additional ColorFilterShader
         sk_sp<PrecompileShader> inverted =
                 withCTM ? withCTM->makeWithColorFilter(PrecompileColorFilters::Blend())
@@ -221,7 +221,7 @@ void create_image_drawing_pipelines(const KeyContext& keyContext,
     sk_sp<PrecompileShader> imageShader = PrecompileShaders::Image(
             PrecompileShaders::ImageShaderFlags::kNoAlphaNoCubic);
 
-    imagePaintOptions.setShaders({ imageShader });
+    imagePaintOptions.setShaders({{ imageShader }});
     imagePaintOptions.setBlendModes(orig.getBlendModes());
     imagePaintOptions.setBlenders(orig.getBlenders());
     imagePaintOptions.setColorFilters(orig.getColorFilters());

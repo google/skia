@@ -83,7 +83,7 @@ public:
 
     // Allows for iterating the current contour using a range-for loop.
     SkPathPriv::Iterate currentContour() {
-        return SkPathPriv::Iterate({fVerbs, fVerbsIdx}, fPoints, fWeights);
+        return SkPathPriv::Iterate({fVerbs, (size_t)fVerbsIdx}, fPoints, fWeights);
     }
 
     SkPoint currentMidpoint() { return fMidpoint * (1.f / fMidpointWeight); }

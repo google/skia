@@ -104,7 +104,7 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
             int pointCount = SkPathPriv::PtsInVerb((unsigned) verb);
             SkASSERT(pointCount > 0);
 
-            if (!SkPathPriv::AllPointsEq({pts, pointCount + 1})) {
+            if (!SkPathPriv::AllPointsEq({pts, (size_t)pointCount + 1})) {
                 SkASSERT(moveCnt);
                 int nextPt = pointCount;
                 segmentCount++;
@@ -311,8 +311,8 @@ SkPath::Iter::Iter(const SkPath& path, bool forceClose) {
 
 void SkPath::Iter::setPath(const SkPath& path, bool forceClose) {
     fPts = path.points().data();
-    fVerbs = path.verbs().begin();
-    fVerbStop = path.verbs().end();
+    fVerbs = path.verbs().data();
+    fVerbStop = fVerbs + path.verbs().size();
     fConicWeights = path.conicWeights().data();
     if (fConicWeights) {
       fConicWeights -= 1;  // begin one behind
@@ -909,10 +909,10 @@ std::optional<SkPathRectInfo> SkPathPriv::IsSimpleRect(const SkPath& path, bool 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkPathEdgeIter::SkPathEdgeIter(const SkPathRaw& raw) {
-    fMoveToPtr = fPts = raw.fPoints.begin();
-    fVerbs = raw.fVerbs.begin();
-    fVerbsStop = raw.fVerbs.end();
-    fConicWeights = raw.fConics.begin();
+    fMoveToPtr = fPts = raw.fPoints.data();
+    fVerbs = raw.fVerbs.data();
+    fVerbsStop = fVerbs + raw.fVerbs.size();
+    fConicWeights = raw.fConics.data();
     if (fConicWeights) {
         fConicWeights -= 1;  // begin one behind
     }

@@ -44,12 +44,12 @@ AnalyticBlurRenderStep::AnalyticBlurRenderStep()
                      kDirectDepthLessPass,
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/
-                     {{"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
-                      {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2}},
+                     {{{"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
+                      {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2}}},
                      /*varyings=*/
                      // scaledShapeCoords are the fragment coordinates in local shape space, where
                      // the shape has been scaled to device space but not translated or rotated.
-                     {{"scaledShapeCoords", SkSLType::kFloat2}}) {}
+                     {{{"scaledShapeCoords", SkSLType::kFloat2}}}) {}
 
 std::string AnalyticBlurRenderStep::vertexSkSL() const {
     return

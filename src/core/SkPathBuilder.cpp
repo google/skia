@@ -851,10 +851,10 @@ SkPathBuilder& SkPathBuilder::privateReversePathTo(const SkPath& path) {
         return *this;
     }
 
-    const SkPathVerb* verbs = verbSpan.end();
-    const SkPathVerb* verbsBegin = verbSpan.begin();
-    const SkPoint*  pts = path.points().end() - 1;
-    const SkScalar* conicWeights = path.conicWeights().end();
+    auto verbs = verbSpan.end();
+    auto verbsBegin = verbSpan.begin();
+    auto pts = path.points().end() - 1;
+    auto conicWeights = path.conicWeights().end();
 
     while (verbs > verbsBegin) {
         SkPathVerb v = *--verbs;
@@ -888,10 +888,10 @@ SkPathBuilder& SkPathBuilder::privateReverseAddPath(const SkPath& src) {
         return *this;
     }
 
-    const SkPathVerb* verbs = verbSpan.end();
-    const SkPathVerb* verbsBegin = verbSpan.begin();
-    const SkPoint*  pts = src.points().end();
-    const SkScalar* conicWeights = src.conicWeights().end();
+    auto verbs = verbSpan.end();
+    auto verbsBegin = verbSpan.begin();
+    auto pts = src.points().end();
+    auto conicWeights = src.conicWeights().end();
 
     bool needMove = true;
     bool needClose = false;

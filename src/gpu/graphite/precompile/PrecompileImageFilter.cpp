@@ -79,7 +79,7 @@ void CreateBlurImageFilterPipelines(
             ImageShaderFlags::kNoAlphaNoCubic);
 
     static const SkBlendMode kBlurBlendModes[] = { SkBlendMode::kSrc };
-    blurPaintOptions.setShaders({ PrecompileShadersPriv::Blur(imageShader) });
+    blurPaintOptions.setShaders({{ PrecompileShadersPriv::Blur(imageShader) }});
     blurPaintOptions.setBlendModes(kBlurBlendModes);
 
     blurPaintOptions.priv().buildCombinations(keyContext,
@@ -114,10 +114,10 @@ private:
 
         sk_sp<PrecompileShader> blendShader = PrecompileShaders::Blend(
                 SkSpan<const sk_sp<PrecompileBlender>>(&fBlender, 1),
-                { imageShader },
-                { imageShader });
+                {{ imageShader }},
+                {{ imageShader }});
 
-        paintOptions.setShaders({ std::move(blendShader) });
+        paintOptions.setShaders({{ std::move(blendShader) }});
 
         paintOptions.priv().buildCombinations(keyContext,
                                               DrawTypeFlags::kSimpleShape,
@@ -214,8 +214,8 @@ private:
                 ImageShaderFlags::kNoAlphaNoCubic);
 
         static const SkBlendMode kBlendModes[] = { SkBlendMode::kDstOut };
-        paintOptions.setShaders({ std::move(imageShader) });
-        paintOptions.setColorFilters({ fColorFilter });
+        paintOptions.setShaders({{ std::move(imageShader) }});
+        paintOptions.setColorFilters({{ fColorFilter }});
         paintOptions.setBlendModes(kBlendModes);
 
         paintOptions.priv().buildCombinations(keyContext,
@@ -268,7 +268,7 @@ private:
         sk_sp<PrecompileShader> imageShader = PrecompileShaders::Image(
                 ImageShaderFlags::kNoAlphaNoCubic);
 
-        displacement.setShaders({ PrecompileShadersPriv::Displacement(imageShader, imageShader) });
+        displacement.setShaders({{ PrecompileShadersPriv::Displacement(imageShader, imageShader)}});
 
         displacement.priv().buildCombinations(keyContext,
                                               DrawTypeFlags::kSimpleShape,
@@ -301,7 +301,7 @@ private:
                 ImageShaderFlags::kNoAlphaNoCubic);
 
         PaintOptions lighting;
-        lighting.setShaders({ PrecompileShadersPriv::Lighting(std::move(imageShader)) });
+        lighting.setShaders({{ PrecompileShadersPriv::Lighting(std::move(imageShader)) }});
 
         lighting.priv().buildCombinations(keyContext,
                                           DrawTypeFlags::kSimpleShape,
@@ -337,7 +337,7 @@ private:
         sk_sp<PrecompileShader> imageShader = PrecompileShaders::Image(
                 ImageShaderFlags::kNoAlphaNoCubic);
 
-        matrixConv.setShaders({ PrecompileShadersPriv::MatrixConvolution(imageShader) });
+        matrixConv.setShaders({{ PrecompileShadersPriv::MatrixConvolution(imageShader) }});
 
         matrixConv.priv().buildCombinations(keyContext,
                                             DrawTypeFlags::kSimpleShape,
@@ -375,7 +375,7 @@ private:
             PaintOptions sparse;
 
             static const SkBlendMode kBlendModes[] = { SkBlendMode::kSrc };
-            sparse.setShaders({ PrecompileShadersPriv::SparseMorphology(imageShader) });
+            sparse.setShaders({{ PrecompileShadersPriv::SparseMorphology(imageShader) }});
             sparse.setBlendModes(kBlendModes);
 
             sparse.priv().buildCombinations(keyContext,
@@ -390,7 +390,7 @@ private:
             PaintOptions linear;
 
             static const SkBlendMode kBlendModes[] = { SkBlendMode::kSrcOver };
-            linear.setShaders({ PrecompileShadersPriv::LinearMorphology(std::move(imageShader)) });
+            linear.setShaders({{ PrecompileShadersPriv::LinearMorphology(std::move(imageShader))}});
             linear.setBlendModes(kBlendModes);
 
             linear.priv().buildCombinations(keyContext,

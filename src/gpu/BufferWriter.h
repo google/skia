@@ -340,7 +340,7 @@ inline VertexWriter& operator<<(VertexWriter& w, const VertexWriter::Skip<T>& va
 template <typename T>
 inline VertexWriter& operator<<(VertexWriter& w, const VertexWriter::ArrayDesc<T>& array) {
     static_assert(std::is_trivially_copyable<T>::value, "");
-    w.write(SkSpan<const T>{array.fArray, array.fCount});
+    w.write(SkSpan<const T>{array.fArray, (size_t)array.fCount});
     return w;
 }
 

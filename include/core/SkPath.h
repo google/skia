@@ -120,7 +120,7 @@ public:
                           bool isVolatile = false);
 
     static SkPath Line(SkPoint a, SkPoint b) {
-        return Polygon({a, b}, false);
+        return Polygon({{a, b}}, false);
     }
 
     // Deprecated: use Raw()

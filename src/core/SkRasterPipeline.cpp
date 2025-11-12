@@ -648,9 +648,9 @@ void SkRasterPipeline::run(size_t x, size_t y, size_t w, size_t h) const {
     // Best to not use fAlloc here... we can't bound how often run() will be called.
     AutoSTMalloc<32, SkRasterPipelineStage> program(stagesNeeded);
 
-    int numMemoryCtxs = fMemoryCtxInfos.size();
+    size_t numMemoryCtxs = fMemoryCtxInfos.size();
     AutoSTMalloc<2, SkRasterPipelineContexts::MemoryCtxPatch> patches(numMemoryCtxs);
-    for (int i = 0; i < numMemoryCtxs; ++i) {
+    for (size_t i = 0; i < numMemoryCtxs; ++i) {
         patches[i].info = fMemoryCtxInfos[i];
         patches[i].backup = nullptr;
         memset(patches[i].scratch, 0, sizeof(patches[i].scratch));
@@ -671,10 +671,10 @@ std::function<void(size_t, size_t, size_t, size_t)> SkRasterPipeline::compile() 
 
     SkRasterPipelineStage* program = fAlloc->makeArray<SkRasterPipelineStage>(stagesNeeded);
 
-    int numMemoryCtxs = fMemoryCtxInfos.size();
+    size_t numMemoryCtxs = fMemoryCtxInfos.size();
     SkRasterPipelineContexts::MemoryCtxPatch* patches =
             fAlloc->makeArray<SkRasterPipelineContexts::MemoryCtxPatch>(numMemoryCtxs);
-    for (int i = 0; i < numMemoryCtxs; ++i) {
+    for (size_t i = 0; i < numMemoryCtxs; ++i) {
         patches[i].info = fMemoryCtxInfos[i];
         patches[i].backup = nullptr;
         memset(patches[i].scratch, 0, sizeof(patches[i].scratch));
@@ -684,7 +684,7 @@ std::function<void(size_t, size_t, size_t, size_t)> SkRasterPipeline::compile() 
     auto start_pipeline = this->buildPipeline(program + stagesNeeded);
     return [=](size_t x, size_t y, size_t w, size_t h) {
         start_pipeline(x, y, x + w, y + h, program,
-                       SkSpan{patches, numMemoryCtxs},
+                       {patches, numMemoryCtxs},
                        tailPointer);
     };
 }

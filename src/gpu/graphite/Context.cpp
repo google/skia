@@ -634,7 +634,7 @@ void Context::asyncReadPixelsYUV420(std::unique_ptr<Recorder> recorder,
     }
 
     this->finalizeAsyncReadPixels(std::move(recorder),
-                                  {transfers, readAlpha ? 4 : 3},
+                                  {transfers, readAlpha ? 4u : 3u},
                                   params.fCallback,
                                   params.fCallbackContext);
 }

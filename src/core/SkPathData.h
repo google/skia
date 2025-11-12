@@ -105,7 +105,7 @@ public:
     }
     static sk_sp<SkPathData> Polygon(SkSpan<const SkPoint> pts, bool isClosed);
     static sk_sp<SkPathData> Line(SkPoint a, SkPoint b) {
-        return Polygon({a, b}, false);
+        return Polygon({{a, b}}, false);
     }
 
     friend bool operator==(const SkPathData& a, const SkPathData& b);

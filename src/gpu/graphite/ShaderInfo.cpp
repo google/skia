@@ -335,7 +335,7 @@ void append_sampler_descs(const SkSpan<const uint32_t> samplerData,
             samplerDescLength = usesExternalFormat ? SamplerDesc::kInt32sNeededExternalFormat
                                                    : SamplerDesc::kInt32sNeededKnownFormat;
             // Populate a SamplerDesc with samplerDescLength quantity of immutable sampler data
-            memcpy(&desc, samplerData.begin() + i, samplerDescLength * sizeof(uint32_t));
+            memcpy(&desc, samplerData.data() + i, samplerDescLength * sizeof(uint32_t));
         }
         outDescs.push_back(desc);
         i += samplerDescLength;

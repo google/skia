@@ -36,9 +36,9 @@ MiddleOutFanRenderStep::MiddleOutFanRenderStep(bool evenOdd)
                      evenOdd ? kEvenOddStencilPass : kWindingStencilPass,
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/
-                     {{"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
+                     {{{"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
                      {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-                     {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2}}) {}
+                     {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2}}}) {}
 
 MiddleOutFanRenderStep::~MiddleOutFanRenderStep() {}
 

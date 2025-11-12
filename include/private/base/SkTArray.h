@@ -81,7 +81,7 @@ public:
     /**
      * Creates a TArray by copying contents from an SkSpan. The new array will be heap allocated.
      */
-    TArray(SkSpan<const T> data) : TArray(data.begin(), static_cast<int>(data.size())) {}
+    TArray(SkSpan<const T> data) : TArray(data.data(), static_cast<int>(data.size())) {}
 
     /**
      * Creates a TArray by copying contents of an initializer list.
@@ -529,7 +529,7 @@ protected:
         if (size > InitialCapacity) {
             this->initData(size);
         } else {
-            this->setDataFromBytes(*storage);
+            this->setDataFromBytes({storage->data(), storage->size()});
             this->changeSize(size);
 
             // setDataFromBytes always sets fOwnMemory to true, but we are actually using static
@@ -548,7 +548,7 @@ protected:
     template <int InitialCapacity>
     TArray(SkSpan<const T> data, SkAlignedSTStorage<InitialCapacity, T>* storage)
             : TArray{storage, static_cast<int>(data.size())} {
-        this->copy(data.begin());
+        this->copy(data.data());
     }
 
 private:

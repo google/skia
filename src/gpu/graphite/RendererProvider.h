@@ -123,7 +123,7 @@ public:
     // Iterate over all available Renderers to combine with specified paint combinations when
     // pre-compiling pipelines.
     SkSpan<const Renderer* const> renderers() const {
-        return {fRenderers.data(), fRenderers.size()};
+        return {fRenderers.data(), (size_t)fRenderers.size()};
     }
 
     const RenderStep* lookup(RenderStep::RenderStepID renderStepID) const {

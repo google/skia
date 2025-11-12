@@ -904,7 +904,7 @@ int get_glyph_run_intercepts(const sktext::GlyphRun& glyphRun,
     SkStrikeSpec strikeSpec = SkStrikeSpec::MakeWithNoDevice(interceptFont, &interceptPaint);
     SkBulkGlyphMetricsAndPaths metricsAndPaths{strikeSpec};
 
-    const SkPoint* posCursor = glyphRun.positions().begin();
+    const SkPoint* posCursor = glyphRun.positions().data();
     for (const SkGlyph* glyph : metricsAndPaths.glyphs(glyphRun.glyphsIDs())) {
         SkPoint pos = *posCursor++;
 
@@ -957,9 +957,7 @@ std::vector<SkScalar> SkFont::getIntercepts(SkSpan<const SkGlyphID> glyphs,
 
     const SkPaint paint(paintPtr ? *paintPtr : SkPaint());
     const SkScalar bounds[] = {top, bottom};
-    const sktext::GlyphRun run(*this,
-                         positions, glyphs,
-                         {nullptr, 0}, {nullptr, 0}, {nullptr, 0});
+    const sktext::GlyphRun run(*this, positions, glyphs, {}, {}, {});
 
     std::vector<SkScalar> result;
     result.resize(count * 2);   // worst case allocation

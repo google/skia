@@ -315,7 +315,7 @@ void Draw::drawPoints(SkCanvas::PointMode mode,
         auto count = points.size();
         auto pts = points.data();
         do {
-            int n = SkToInt(count);
+            size_t n = count;
             if (n > MAX_DEV_PTS) {
                 n = MAX_DEV_PTS;
             }
@@ -325,7 +325,7 @@ void Draw::drawPoints(SkCanvas::PointMode mode,
             }
             proc(rec, {devPts, n}, bltr);
             pts += n - backup;
-            SkASSERT(SkToInt(count) >= n);
+            SkASSERT(count >= n);
             count -= n;
             if (count > 0) {
                 count += backup;
