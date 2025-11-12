@@ -25,9 +25,6 @@ struct Options;
 
 // This class provides the Skia image encoding API (`SkEncoder`) on top of the
 // third-party `png` crate (PNG compression and encoding implemented in Rust).
-//
-// TODO(https://crbug.com/379312510): Derive from `SkPngEncoderBase` (see
-// http://review.skia.org/923336 and http://review.skia.org/922676).
 class SkPngRustEncoderImpl final : public SkPngEncoderBase {
 public:
     enum ExtraRowTransform {
