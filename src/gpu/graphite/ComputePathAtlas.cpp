@@ -193,7 +193,7 @@ static VelloAaConfig get_vello_aa_config(Recorder* recorder) {
     // Use the analytic area AA mode unless caps say otherwise.
     VelloAaConfig config = VelloAaConfig::kAnalyticArea;
 #if defined(GPU_TEST_UTILS)
-    PathRendererStrategy strategy = recorder->priv().caps()->requestedPathRendererStrategy();
+    auto strategy = recorder->priv().caps()->requestedPathRendererStrategy();
     if (strategy == PathRendererStrategy::kComputeMSAA16) {
         config = VelloAaConfig::kMSAA16;
     } else if (strategy == PathRendererStrategy::kComputeMSAA8) {
