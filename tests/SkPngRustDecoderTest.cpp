@@ -239,12 +239,11 @@ DEF_TEST(RustPngCodec_apng_basic_ignoring_default_image, r) {
 //   only happen upon `SkCodec::kIncompleteInput`).  Before http://review.skia.org/911038
 //   `SkPngRustCodec::onGetFrameCount` would not discover additional frames if
 //   previous frames haven't been decoded yet.
-// * TODO(https://crbug.com/356922876): Skia client (e.g. Blink; or here the
-//   testcase) is expected to handle `SkCodecAnimation::DisposalMethod` and
-//   populate the target buffer (and `SkCodec::Options::fPriorFrame`) with the
-//   expected pixels.  OTOH, `SkPngRustCodec` needs to handle
-//   `SkCodecAnimation::Blend` - without this the final frame in this test will
-//   contain red pixels.
+// * Skia client (e.g. Blink; or here the testcase) is expected to handle
+//   `SkCodecAnimation::DisposalMethod` and populate the target buffer (and
+//   `SkCodec::Options::fPriorFrame`) with the expected pixels.  OTOH,
+//   `SkPngRustCodec` needs to handle `SkCodecAnimation::Blend` - without this
+//   the final frame in this test will contain red pixels.
 DEF_TEST(RustPngCodec_apng_dispose_op_none_basic, r) {
     std::unique_ptr<SkCodec> codec =
             SkPngRustDecoderDecode(r, "images/apng-test-suite--dispose-ops--none-basic.png");
