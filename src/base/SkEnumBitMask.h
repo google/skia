@@ -10,6 +10,8 @@
 
 #include "include/private/base/SkAttributes.h"
 
+#include <type_traits>
+
 /**
  * Wraps an enum that is used for flags, and enables masking with type safety. Example:
  *
@@ -32,11 +34,13 @@
  */
 template<typename E>
 class SkEnumBitMask {
+    using I = std::underlying_type_t<E>;
 public:
-    SK_ALWAYS_INLINE constexpr SkEnumBitMask(E e) : SkEnumBitMask((int)e) {}
+    SK_ALWAYS_INLINE constexpr SkEnumBitMask() : SkEnumBitMask(I(0)) {}
+    SK_ALWAYS_INLINE constexpr SkEnumBitMask(E e) : SkEnumBitMask(static_cast<I>(e)) {}
 
     SK_ALWAYS_INLINE constexpr explicit operator bool() const { return fValue; }
-    SK_ALWAYS_INLINE constexpr int value() const              { return fValue; }
+    SK_ALWAYS_INLINE constexpr I value() const                { return fValue; }
 
     SK_ALWAYS_INLINE constexpr bool operator==(SkEnumBitMask m) const { return fValue == m.fValue; }
     SK_ALWAYS_INLINE constexpr bool operator!=(SkEnumBitMask m) const { return fValue != m.fValue; }
@@ -57,9 +61,9 @@ public:
     SK_ALWAYS_INLINE SkEnumBitMask& operator^=(SkEnumBitMask m) { return *this = *this ^ m; }
 
 private:
-    SK_ALWAYS_INLINE constexpr explicit SkEnumBitMask(int value) : fValue(value) {}
+    SK_ALWAYS_INLINE constexpr explicit SkEnumBitMask(I value) : fValue(value) {}
 
-    int fValue;
+    I fValue;
 };
 
 /**
