@@ -1016,24 +1016,6 @@ bool ContextPriv::readPixels(const SkPixmap& pm,
                  pm.height());
     return true;
 }
-
-bool ContextPriv::supportsPathRendererStrategy(PathRendererStrategy strategy) {
-    AtlasProvider::PathAtlasFlagsBitMask pathAtlasFlags =
-            AtlasProvider::QueryPathAtlasSupport(this->caps());
-    switch (strategy) {
-        case PathRendererStrategy::kComputeAnalyticAA:
-        case PathRendererStrategy::kComputeMSAA16:
-        case PathRendererStrategy::kComputeMSAA8:
-            return SkToBool(pathAtlasFlags & AtlasProvider::PathAtlasFlags::kCompute);
-        case PathRendererStrategy::kRasterAA:
-            return SkToBool(pathAtlasFlags & AtlasProvider::PathAtlasFlags::kRaster);
-        case PathRendererStrategy::kTessellation:
-            return true;
-    }
-
-    return false;
-}
-
 #endif // GPU_TEST_UTILS
 
 ///////////////////////////////////////////////////////////////////////////////////

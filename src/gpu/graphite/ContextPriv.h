@@ -80,8 +80,6 @@ public:
                     const TextureProxy*,
                     const SkImageInfo& srcImageInfo,
                     int srcX, int srcY);
-
-    bool supportsPathRendererStrategy(PathRendererStrategy);
 #endif
 
 private:

@@ -2503,7 +2503,8 @@ void Viewer::drawImGui() {
                                 PathRendererStrategy::kTessellation,
                         };
                         for (size_t i = 0; i < std::size(strategies); ++i) {
-                            if (gctx->priv().supportsPathRendererStrategy(strategies[i])) {
+                            if (skgpu::graphite::RendererProvider::IsSupported(
+                                        strategies[i], gctx->priv().caps())) {
                                 prsButton(strategies[i]);
                             }
                         }

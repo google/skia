@@ -61,9 +61,9 @@ enum class PathRendererStrategy {
  */
 class RendererProvider {
 public:
-    static bool IsVelloRendererSupported(const Caps*);
-
     ~RendererProvider();
+
+    static bool IsSupported(PathRendererStrategy, const Caps*);
 
     // TODO: Add configuration options to disable "optimization" renderers in favor of the more
     // general case, or renderers that won't be used by the application. When that's added, these

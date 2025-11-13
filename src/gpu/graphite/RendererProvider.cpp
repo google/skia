@@ -36,12 +36,30 @@
 
 namespace skgpu::graphite {
 
-bool RendererProvider::IsVelloRendererSupported(const Caps* caps) {
-#ifdef SK_ENABLE_VELLO_SHADERS
-    return caps->computeSupport();
+bool RendererProvider::IsSupported(PathRendererStrategy strategy, const Caps* caps) {
+    switch (strategy) {
+        case PathRendererStrategy::kTessellation:
+            // This strategy requires MSAA, which will use a supported MSAA count returned by
+            // Caps::getDefaultMSAASampleCount(target). When avoidMSAA() returns false, this should
+            // always be at least 4x on Graphite's supported devices.
+            return !caps->avoidMSAA();
+
+        case PathRendererStrategy::kRasterAA:
+            // The raster path atlas is currently always supported
+            return true;
+
+        case PathRendererStrategy::kComputeAnalyticAA: [[fallthrough]];
+        case PathRendererStrategy::kComputeMSAA16:
+        case PathRendererStrategy::kComputeMSAA8:
+            // The Vello compute strategies are supported if included in the build and has compute.
+#if defined(SK_ENABLE_VELLO_SHADERS)
+            return caps->computeSupport();
 #else
-    return false;
+            return false;
 #endif
+    }
+
+    SkUNREACHABLE;
 }
 
 // The destructor is intentionally defined here and not in the header file to allow forward
