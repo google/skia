@@ -348,7 +348,8 @@ public:
         if (fWrotePaintColor) {
             // Validate expected uniforms, but don't write a second copy since the paint color
             // uniform can only ever be declared once in the final SkSL program.
-            SkASSERT(this->checkExpected(/*dst=*/nullptr, SkSLType::kFloat4, Uniform::kNonArray));
+            SkDEBUGCODE(
+                    this->checkExpected(/*dst=*/nullptr, SkSLType::kFloat4, Uniform::kNonArray));
         } else {
             this->write<SkSLType::kFloat4>(&color);
             fWrotePaintColor = true;
@@ -368,7 +369,7 @@ public:
     // write functions for each of the substruct's fields in order. Lastly, call endStruct() to
     // go back to writing fields in the top-level interface block.
     void beginStruct(int baseAlignment) {
-        SkASSERT(this->checkBeginStruct(baseAlignment)); // verifies baseAlignment matches layout
+        SkDEBUGCODE(this->checkBeginStruct(baseAlignment)); // verifies baseAlignment matches layout
 
         this->alignTo(baseAlignment);
         fStructBaseAlignment = baseAlignment;
@@ -377,7 +378,7 @@ public:
     void endStruct() {
         SkASSERT(fStructBaseAlignment >= 1); // Must have started a struct
         this->alignTo(fStructBaseAlignment);
-        SkASSERT(this->checkEndStruct()); // validate after padding out to struct's alignment
+        SkDEBUGCODE(this->checkEndStruct()); // validate after padding out to struct's alignment
         fStructBaseAlignment = 0;
     }
 
@@ -444,9 +445,9 @@ private:
     SkSpan<const Uniform> fExpectedUniforms;
     int fExpectedUniformIndex = 0;
 
-    bool checkExpected(const void* dst, SkSLType, int count);
-    bool checkBeginStruct(int baseAlignment);
-    bool checkEndStruct();
+    void checkExpected(const void* dst, SkSLType, int count);
+    void checkBeginStruct(int baseAlignment);
+    void checkEndStruct();
 #endif // SK_DEBUG
 };
 
@@ -517,7 +518,7 @@ void UniformManager::write(const void* src, SkSLType type) {
     char* dst = (N == 3 && LayoutRules::PadVec3Size(fLayout))
             ? this->append(L::kAlign, L::kSize + L::kElemSize)
             : this->append(L::kAlign, L::kSize);
-    SkASSERT(this->checkExpected(dst, type, Uniform::kNonArray));
+    SkDEBUGCODE(this->checkExpected(dst, type, Uniform::kNonArray));
 
     L::Copy(src, dst);
     if (N == 3 && LayoutRules::PadVec3Size(fLayout)) {
@@ -541,7 +542,7 @@ void UniformManager::writeArray(const void* src, int count, SkSLType type) {
 
         const char* srcBytes = reinterpret_cast<const char*>(src);
         char* dst = this->append(kStride, kStride*count);
-        SkASSERT(this->checkExpected(dst, type, count));
+        SkDEBUGCODE(this->checkExpected(dst, type, count));
 
         for (int i = 0; i < count; ++i) {
             L::Copy(srcBytes, dst);
@@ -556,7 +557,7 @@ void UniformManager::writeArray(const void* src, int count, SkSLType type) {
         // A dense array with no type conversion, so copy in one go.
         SkASSERT(L::kAlign == L::kSize && kSrcStride == L::kSize);
         char* dst = this->append(L::kAlign, L::kSize*count);
-        SkASSERT(this->checkExpected(dst, type, count));
+        SkDEBUGCODE(this->checkExpected(dst, type, count));
 
         memcpy(dst, src, L::kSize*count);
     }
