@@ -97,7 +97,7 @@ class ConvexPathsGM : public skiagm::GM {
         fPaths.push_back(b.detach());
 
         // shallow diagonals
-        fPaths.push_back(SkPath::Polygon({{0,0}, {100,1}, {98,100}, {3,96}}, false));
+        fPaths.push_back(SkPath::Polygon({{{0,0}, {100,1}, {98,100}, {3,96}}}, false));
 
         fPaths.push_back(b.arcTo(SkRect::MakeXYWH(0, 0, 50, 100), 25, 130, false)
                           .detach());

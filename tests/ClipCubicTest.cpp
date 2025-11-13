@@ -34,7 +34,7 @@ static void test_giantClip() {
 
     SkPaint paint;
     paint.setAntiAlias(true);
-    canvas.drawPath(SkPath::Polygon({{0,0}, {1,0}, {33,1}}, false), paint);
+    canvas.drawPath(SkPath::Polygon({{{0,0}, {1,0}, {33,1}}}, false), paint);
 }
 
 static void PrintCurve(const char *name, const SkPoint crv[4]) {

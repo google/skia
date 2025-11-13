@@ -3368,9 +3368,9 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
             subexpressionStack.exit();
             subexpressionStack.pushClone(/*slots=*/3);
 
-            fBuilder.swizzle(/*consumedSlots=*/3, {1, 2, 0});
+            fBuilder.swizzle(/*consumedSlots=*/3, {{1, 2, 0}});
             subexpressionStack.enter();
-            fBuilder.swizzle(/*consumedSlots=*/3, {2, 0, 1});
+            fBuilder.swizzle(/*consumedSlots=*/3, {{2, 0, 1}});
             subexpressionStack.exit();
 
             // Push `arg1.zxy` onto this stack and `arg1.yzx` onto the next stack. Perform the
@@ -3383,11 +3383,11 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
             subexpressionStack.exit();
             subexpressionStack.pushClone(/*slots=*/3);
 
-            fBuilder.swizzle(/*consumedSlots=*/3, {2, 0, 1});
+            fBuilder.swizzle(/*consumedSlots=*/3, {{2, 0, 1}});
             fBuilder.binary_op(BuilderOp::mul_n_floats, 3);
 
             subexpressionStack.enter();
-            fBuilder.swizzle(/*consumedSlots=*/3, {1, 2, 0});
+            fBuilder.swizzle(/*consumedSlots=*/3, {{1, 2, 0}});
             fBuilder.binary_op(BuilderOp::mul_n_floats, 3);
             subexpressionStack.exit();
 

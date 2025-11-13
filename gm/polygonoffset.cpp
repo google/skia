@@ -440,17 +440,17 @@ protected:
     bool runAsBench() const override { return true; }
 
     static void GetConvexPolygon(int index, SkPathDirection dir,
-                                 std::unique_ptr<SkPoint[]>* data, int* numPts) {
+                                 std::unique_ptr<SkPoint[]>* data, size_t* numPts) {
         if (index < (int)std::size(PolygonOffsetData::gConvexPoints)) {
             // manually specified
-            *numPts = (int)PolygonOffsetData::gConvexSizes[index];
+            *numPts = PolygonOffsetData::gConvexSizes[index];
             *data = std::make_unique<SkPoint[]>(*numPts);
             if (SkPathDirection::kCW == dir) {
-                for (int i = 0; i < *numPts; ++i) {
+                for (size_t i = 0; i < *numPts; ++i) {
                     (*data)[i] = PolygonOffsetData::gConvexPoints[index][i];
                 }
             } else {
-                for (int i = 0; i < *numPts; ++i) {
+                for (size_t i = 0; i < *numPts; ++i) {
                     (*data)[i] = PolygonOffsetData::gConvexPoints[index][*numPts - i - 1];
                 }
             }
@@ -475,17 +475,17 @@ protected:
     }
 
     static void GetSimplePolygon(int index, SkPathDirection dir,
-                                 std::unique_ptr<SkPoint[]>* data, int* numPts) {
+                                 std::unique_ptr<SkPoint[]>* data, size_t* numPts) {
         if (index < (int)std::size(PolygonOffsetData::gSimplePoints)) {
             // manually specified
-            *numPts = (int)PolygonOffsetData::gSimpleSizes[index];
+            *numPts = PolygonOffsetData::gSimpleSizes[index];
             *data = std::make_unique<SkPoint[]>(*numPts);
             if (SkPathDirection::kCW == dir) {
-                for (int i = 0; i < *numPts; ++i) {
+                for (size_t i = 0; i < *numPts; ++i) {
                     (*data)[i] = PolygonOffsetData::gSimplePoints[index][i];
                 }
             } else {
-                for (int i = 0; i < *numPts; ++i) {
+                for (size_t i = 0; i < *numPts; ++i) {
                     (*data)[i] = PolygonOffsetData::gSimplePoints[index][*numPts - i - 1];
                 }
             }
@@ -513,7 +513,7 @@ protected:
         SkPoint center;
         {
             std::unique_ptr<SkPoint[]> data(nullptr);
-            int numPts;
+            size_t numPts;
             if (fConvexOnly) {
                 GetConvexPolygon(index, SkPathDirection::kCW, &data, &numPts);
             } else {
@@ -544,7 +544,7 @@ protected:
         paint.setStrokeWidth(1);
 
         std::unique_ptr<SkPoint[]> data(nullptr);
-        int numPts;
+        size_t numPts;
         if (fConvexOnly) {
             GetConvexPolygon(index, dirs[index % 2], &data, &numPts);
         } else {

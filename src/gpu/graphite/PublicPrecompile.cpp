@@ -243,10 +243,10 @@ void Precompile(PrecompileContext* precompileContext,
                 // Geometric
                 {
                     sk_sp<PrecompileColorFilter> cf = PrecompileColorFilters::Compose(
-                            { PrecompileColorFilters::Blend({ SkBlendMode::kModulate }) },
-                            { PrecompileColorFiltersPriv::Gaussian() });
+                            {{ PrecompileColorFilters::Blend({ SkBlendMode::kModulate }) }},
+                            {{ PrecompileColorFiltersPriv::Gaussian() }});
 
-                    newOptions.setColorFilters({ std::move(cf) });
+                    newOptions.setColorFilters({{ std::move(cf) }});
                     newOptions.priv().setPrimitiveBlendMode(SkBlendMode::kDst);
                     newOptions.priv().setSkipColorXform(true);
 

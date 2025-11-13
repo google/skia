@@ -175,7 +175,7 @@ class Dashing2GM : public skiagm::GM {
                 vals[i] = SkIntToScalar(*intervals++);
             }
             SkScalar phase = vals[0] / 2;
-            paint.setPathEffect(SkDashPathEffect::Make({vals, count}, phase));
+            paint.setPathEffect(SkDashPathEffect::Make({vals, (size_t)count}, phase));
 
             for (size_t x = 0; x < std::size(gProc); ++x) {
                 SkPath path;

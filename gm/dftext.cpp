@@ -148,7 +148,7 @@ protected:
             canvas->scale(2.0f, 2.0f);
 
             AutoTArray<SkGlyphID> glyphs(SkToInt(textLen));
-            int count = font.textToGlyphs(text, textLen, SkTextEncoding::kUTF8, glyphs);
+            size_t count = font.textToGlyphs(text, textLen, SkTextEncoding::kUTF8, glyphs);
             AutoTArray<SkPoint>  pos(count);
             font.setSize(textSizes[0]);
             font.getPos(glyphs, pos, {340, 75});

@@ -127,13 +127,13 @@ protected:
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
 
-        SkPath path = SkPath::Polygon({
+        SkPath path = SkPath::Polygon({{
             {20, 20},
             {70, 120},
             {120, 30},
             {170, 80},
             {240, 50},
-        }, false);
+        }}, false);
 
         canvas->save();
         for (size_t i = 0; i < std::size(gPE); i++) {

@@ -217,7 +217,7 @@ void add_to_text_blob_w_len(SkTextBlobBuilder* builder,
                             const SkFont&      font,
                             SkScalar           x,
                             SkScalar           y) {
-    int  count = font.countText(text, len, encoding);
+    size_t  count = font.countText(text, len, encoding);
     if (count < 1) {
         return;
     }
@@ -238,12 +238,12 @@ SkPath get_text_path(const SkFont&  font,
                    size_t         length,
                    SkTextEncoding encoding,
                    const SkPoint  pos[]) {
-    SkAutoToGlyphs        atg(font, text, length, encoding);
-    const int             count = atg.count();
+    SkAutoToGlyphs      atg(font, text, length, encoding);
+    const size_t        count = atg.count();
     AutoTArray<SkPoint> computedPos;
     if (pos == nullptr) {
         computedPos.reset(count);
-        font.getPos(atg, computedPos);
+        font.getPos(atg.glyphs(), computedPos);
         pos = computedPos.get();
     }
 
@@ -251,7 +251,7 @@ SkPath get_text_path(const SkFont&  font,
         SkPathBuilder  fBuilder;
         const SkPoint* fPos;
     } rec = {{}, pos};
-    font.getPaths(atg,
+    font.getPaths(atg.glyphs(),
                   [](const SkPath* src, const SkMatrix& mx, void* ctx) {
                       Rec* rec = (Rec*)ctx;
                       if (src) {
@@ -522,7 +522,7 @@ VariationSliders::VariationSliders(SkTypeface* typeface,
     std::unique_ptr<SkFontParameters::Variation::Axis[]> copiedAxes =
             std::make_unique<SkFontParameters::Variation::Axis[]>(numAxes);
 
-    numAxes = typeface->getVariationDesignParameters({copiedAxes.get(), numAxes});
+    numAxes = typeface->getVariationDesignParameters({copiedAxes.get(), (size_t)numAxes});
     if (numAxes < 0) {
         return;
     }

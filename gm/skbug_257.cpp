@@ -46,7 +46,7 @@ static void exercise_draw_pos_text(SkCanvas* canvas,
                                    const char* text,
                                    SkScalar x, SkScalar y,
                                    const SkFont& font, const SkPaint& paint) {
-    const int count = font.countText(text, strlen(text), SkTextEncoding::kUTF8);
+    const size_t count = font.countText(text, strlen(text), SkTextEncoding::kUTF8);
     SkTextBlobBuilder builder;
     auto rec = builder.allocRunPos(font, count);
     font.textToGlyphs(text, strlen(text), SkTextEncoding::kUTF8, {rec.glyphs, count});
@@ -58,7 +58,7 @@ static void exercise_draw_pos_text_h(SkCanvas* canvas,
                                      const char* text,
                                      SkScalar x, SkScalar y,
                                      const SkFont& font, const SkPaint& paint) {
-    const int count = font.countText(text, strlen(text), SkTextEncoding::kUTF8);
+    const size_t count = font.countText(text, strlen(text), SkTextEncoding::kUTF8);
     SkTextBlobBuilder builder;
     auto rec = builder.allocRunPosH(font, count, 0);
     font.textToGlyphs(text, strlen(text), SkTextEncoding::kUTF8, {rec.glyphs, count});

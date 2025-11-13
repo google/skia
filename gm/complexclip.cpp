@@ -82,9 +82,11 @@ protected:
         pathPaint.setAntiAlias(true);
         pathPaint.setColor(gPathColor);
 
-        SkPath clipA = SkPath::Polygon({{10,  20}, {165, 22}, {70,  105}, {165, 177}, {-5,  180}}, true);
+        SkPath clipA = SkPath::Polygon({{{10,  20}, {165, 22}, {70,  105}, {165, 177}, {-5,  180}}},
+                                       true);
 
-        SkPath clipB = SkPath::Polygon({{40,  10}, {190, 15}, {195, 190}, {40,  185}, {155, 100}}, true);
+        SkPath clipB = SkPath::Polygon({{{40,  10}, {190, 15}, {195, 190}, {40,  185}, {155, 100}}},
+                                       true);
 
         SkFont font(ToolUtils::DefaultPortableTypeface(), 20);
 

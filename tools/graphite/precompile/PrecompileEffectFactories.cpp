@@ -136,7 +136,7 @@ std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> CreateComboRuntimeBlender(
     sk_sp<SkBlender> b = effect->makeBlender(std::move(uniforms), children);
     sk_sp<PrecompileBlender> o = PrecompileRuntimeEffects::MakePrecompileBlender(
             sk_ref_sp(effect),
-            { { srcO }, { dstO } });
+            {{ {{ srcO }}, {{ dstO }} }});
     return { std::move(b) , std::move(o) };
 }
 
@@ -215,7 +215,7 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> CreateComboRuntime
     sk_sp<SkColorFilter> cf = effect->makeColorFilter(std::move(uniforms), children);
     sk_sp<PrecompileColorFilter> o =
             PrecompileRuntimeEffects::MakePrecompileColorFilter(sk_ref_sp(effect),
-                                                                { { srcO }, { dstO } });
+                                                                {{ {{ srcO }}, {{ dstO }} }});
     return { std::move(cf) , std::move(o) };
 }
 

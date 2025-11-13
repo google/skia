@@ -51,37 +51,37 @@ static void testCubicEvalAtT(skiatest::Reporter* reporter, const std::string& na
 
 DEF_TEST(BezierCubicEvalAt, reporter) {
     testCubicEvalAtT(reporter, "linear curve @0.1234",
-                     {{ 0, 0 }, { 0, 0 }, { 10, 10 }, { 10, 10 }},
+                     {{{ 0, 0 }, { 0, 0 }, { 10, 10 }, { 10, 10 }}},
                      0.1234,
                      { 0.4192451819200000, 0.4192451819200000 });
 
     testCubicEvalAtT(reporter, "linear curve @0.2345",
-                     {{ 0, 0 }, { 5, 5 }, { 5, 5 }, { 10, 10 }},
+                     {{{ 0, 0 }, { 5, 5 }, { 5, 5 }, { 10, 10 }}},
                      0.2345,
                      { 2.8215983862500000, 2.8215983862500000 });
 
     testCubicEvalAtT(reporter, "Arbitrary Cubic, t=0.0",
-                     {{ -10, -20 }, { -7, 5 }, { 14, -2 }, { 3, 13 }},
+                     {{{ -10, -20 }, { -7, 5 }, { 14, -2 }, { 3, 13 }}},
                      0.0,
                      { -10, -20 });
 
     testCubicEvalAtT(reporter, "Arbitrary Cubic, t=0.3456",
-                     {{ -10, -20 }, { -7, 5 }, { 14, -2 }, { 3, 13 }},
+                     {{{ -10, -20 }, { -7, 5 }, { 14, -2 }, { 3, 13 }}},
                      0.3456,
                      { -2.503786700800000, -3.31715344793600 });
 
     testCubicEvalAtT(reporter, "Arbitrary Cubic, t=0.5",
-                     {{ -10, -20 }, { -7, 5 }, { 14, -2 }, { 3, 13 }},
+                     {{{ -10, -20 }, { -7, 5 }, { 14, -2 }, { 3, 13 }}},
                      0.5,
                      { 1.75, 0.25 });
 
     testCubicEvalAtT(reporter, "Arbitrary Cubic, t=0.7891",
-                     {{ -10, -20 }, { -7, 5 }, { 14, -2 }, { 3, 13 }},
+                     {{{ -10, -20 }, { -7, 5 }, { 14, -2 }, { 3, 13 }}},
                      0.7891,
                      { 6.158763291450000, 5.938550084434000 });
 
     testCubicEvalAtT(reporter, "Arbitrary Cubic, t=1.0",
-                     {{ -10, -20 }, { -7, 5 }, { 14, -2 }, { 3, 13 }},
+                     {{{ -10, -20 }, { -7, 5 }, { 14, -2 }, { 3, 13 }}},
                      1.0,
                      { 3, 13 });
 }
@@ -107,11 +107,11 @@ static void testCubicConvertToPolynomial(skiatest::Reporter* reporter, const std
 DEF_TEST(BezierCubicToPolynomials, reporter) {
     // See also tests/PathOpsDCubicTest.cpp->SkDCubicPolynomialCoefficients
     testCubicConvertToPolynomial(reporter, "Arbitrary control points X direction",
-        {{1, 2}, {-3, 4}, {5, -6}, {7, 8}}, false, /*=yValues*/
+        {{{1, 2}, {-3, 4}, {5, -6}, {7, 8}}}, false, /*=yValues*/
         -18, 36, -12, 1
     );
     testCubicConvertToPolynomial(reporter, "Arbitrary control points Y direction",
-        {{1, 2}, {-3, 4}, {5, -6}, {7, 8}}, true, /*=yValues*/
+        {{{1, 2}, {-3, 4}, {5, -6}, {7, 8}}}, true, /*=yValues*/
         36, -36, 6, 2
     );
 }

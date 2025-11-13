@@ -248,9 +248,9 @@ protected:
                       const SkRect* cull,
                       const SkPaint* paint) override {
         fRecorder.getRecordingCanvas()->drawAtlas(image,
-                                                  {rsxForms, count},
-                                                  {src, count},
-                                                  {colors, colors ? count : 0},
+                                                  {rsxForms, (size_t)count},
+                                                  {src, (size_t)count},
+                                                  {colors, colors ? (size_t)count : 0},
                                                   mode,
                                                   sampling,
                                                   cull,

@@ -543,7 +543,7 @@ bool VulkanCommandBuffer::updateAndBindInputAttachment(const VulkanTexture& text
     // one per set at this time).
     STArray<1, DescriptorData> inputDesc = {VulkanGraphicsPipeline::kInputAttachmentDescriptor};
     sk_sp<VulkanDescriptorSet> set = fResourceProvider->findOrCreateDescriptorSet(
-            SkSpan<DescriptorData>{&inputDesc.front(), inputDesc.size()});
+            {&inputDesc.front(), (size_t)inputDesc.size()});
     if (!set) {
         return false;
     }
@@ -1330,7 +1330,7 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
         SkASSERT(descriptors.size() == numTexSamplers);
         // Query resource provider to obtain a descriptor set for the texture/samplers
         set = fResourceProvider->findOrCreateDescriptorSet(
-                SkSpan<DescriptorData>{&descriptors.front(), descriptors.size()});
+                {&descriptors.front(), (size_t)descriptors.size()});
         if (!set) {
             SKGPU_LOG_E("Unable to find or create descriptor set");
             resetTextureAndSamplerState();

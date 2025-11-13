@@ -36,10 +36,10 @@ protected:
     SkISize getISize() override { return SkISize::Make(835, 840); }
 
     static void doDraw(SkCanvas* canvas, const SkFont& font, SkPaint* paint, const int isrc[],
-                       const int idst[], int count) {
+                       const int idst[], size_t count) {
         SkPoint src[4], dst[4];
 
-        for (int i = 0; i < count; i++) {
+        for (size_t i = 0; i < count; i++) {
             src[i].set(SkIntToScalar(isrc[2*i+0]), SkIntToScalar(isrc[2*i+1]));
             dst[i].set(SkIntToScalar(idst[2*i+0]), SkIntToScalar(idst[2*i+1]));
         }

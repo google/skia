@@ -380,10 +380,11 @@ public:
     Event operator[](size_t i) const {
         SkASSERT(i < fEvents.size());
         auto& [y, start, endOfBegin, endOfHorizontal, endOfEnd] = fEvents[i];
-        SkSpan<const Segment> begin{&fSegmentStorage[start], endOfBegin - start};
+        SkSpan<const Segment> begin{&fSegmentStorage[start], SkToSizeT(endOfBegin - start)};
         SkSpan<const Segment>
-            horizontal{&fSegmentStorage[endOfBegin], endOfHorizontal - endOfBegin};
-        SkSpan<const Segment> end{&fSegmentStorage[endOfHorizontal], endOfEnd - endOfHorizontal};
+            horizontal{&fSegmentStorage[endOfBegin], SkToSizeT(endOfHorizontal - endOfBegin)};
+        SkSpan<const Segment> end{&fSegmentStorage[endOfHorizontal],
+                                  SkToSizeT(endOfEnd - endOfHorizontal)};
         return Event{y, begin, horizontal, end};
     }
 
@@ -647,7 +648,7 @@ std::vector<Crossing> brute_force_crossings(SkSpan<Segment> segments) {
     const auto duplicateSegments = std::unique(segments.begin(), zeroSegments);
 
     SkSpan<const Segment> cleanSegments =
-            SkSpan{segments.data(), std::distance(segments.begin(), duplicateSegments)};
+            SkSpan{segments.data(), SkToSizeT(std::distance(segments.begin(), duplicateSegments))};
 
     CrossingAccumulator crossings;
     if (cleanSegments.size() >= 2) {

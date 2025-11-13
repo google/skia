@@ -94,8 +94,8 @@ TessellateWedgesRenderStep::TessellateWedgesRenderStep(Layout layout,
                      /*uniforms=*/{{"localToDevice", SkSLType::kFloat4x4}},
                      PrimitiveType::kTriangles,
                      depthStencilSettings,
-                     /*staticAttrs=*/{{"resolveLevel_and_idx",
-                                       VertexAttribType::kFloat2, SkSLType::kFloat2}},
+                     /*staticAttrs=*/{{{"resolveLevel_and_idx",
+                                       VertexAttribType::kFloat2, SkSLType::kFloat2}}},
                      /*appendAttrs=*/kAttributes[infinitySupport])
         , fInfinitySupport(infinitySupport) {
     SkASSERT(this->appendDataStride() ==

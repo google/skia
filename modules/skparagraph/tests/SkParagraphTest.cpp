@@ -1275,19 +1275,19 @@ UNIX_ONLY_TEST(SkParagraph_RainbowParagraph, reporter) {
             switch (index) {
                 case 0:
                     REPORTER_ASSERT(reporter, style.equals(text_style1));
-                    REPORTER_ASSERT(reporter, equal(impl->text().begin(), textRange, text1));
+                    REPORTER_ASSERT(reporter, equal(impl->text().data(), textRange, text1));
                     break;
                 case 1:
                     REPORTER_ASSERT(reporter, style.equals(text_style2));
-                    REPORTER_ASSERT(reporter, equal(impl->text().begin(), textRange, text2));
+                    REPORTER_ASSERT(reporter, equal(impl->text().data(), textRange, text2));
                     break;
                 case 2:
                     REPORTER_ASSERT(reporter, style.equals(text_style3));
-                    REPORTER_ASSERT(reporter, equal(impl->text().begin(), textRange, text3));
+                    REPORTER_ASSERT(reporter, equal(impl->text().data(), textRange, text3));
                     break;
                 case 3:
                     REPORTER_ASSERT(reporter, style.equals(text_style4));
-                    REPORTER_ASSERT(reporter, equal(impl->text().begin(), textRange, text41));
+                    REPORTER_ASSERT(reporter, equal(impl->text().data(), textRange, text41));
                     break;
                 default:
                     REPORTER_ASSERT(reporter, false);
@@ -1302,7 +1302,7 @@ UNIX_ONLY_TEST(SkParagraph_RainbowParagraph, reporter) {
         switch (index) {
             case 4:
                 REPORTER_ASSERT(reporter, style.equals(text_style4));
-                REPORTER_ASSERT(reporter, equal(impl->text().begin(), textRange, text42));
+                REPORTER_ASSERT(reporter, equal(impl->text().data(), textRange, text42));
                 break;
             default:
                 REPORTER_ASSERT(reporter, false);
@@ -1347,7 +1347,7 @@ UNIX_ONLY_TEST(SkParagraph_DefaultStyleParagraph, reporter) {
             StyleType::kAllAttributes,
             [&](TextRange textRange, const TextStyle& style, const TextLine::ClipContext& context) {
                 REPORTER_ASSERT(reporter, style.equals(paragraph_style.getTextStyle()));
-                REPORTER_ASSERT(reporter, equal(impl->text().begin(), textRange, text));
+                REPORTER_ASSERT(reporter, equal(impl->text().data(), textRange, text));
                 ++index;
                 return true;
             });
@@ -1393,7 +1393,7 @@ UNIX_ONLY_TEST(SkParagraph_BoldParagraph, reporter) {
             StyleType::kAllAttributes,
             [&](TextRange textRange, const TextStyle& style, const TextLine::ClipContext& context) {
                 REPORTER_ASSERT(reporter, style.equals(text_style));
-                REPORTER_ASSERT(reporter, equal(impl->text().begin(), textRange, text));
+                REPORTER_ASSERT(reporter, equal(impl->text().data(), textRange, text));
                 ++index;
                 return true;
             });
@@ -4275,8 +4275,9 @@ UNIX_ONLY_TEST(SkParagraph_EmojiParagraph, reporter) {
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
 
     REPORTER_ASSERT(reporter, impl->lines().size() == 8);
+
     for (auto& line : impl->lines()) {
-        if (&line != impl->lines().end() - 1) {
+        if (&line != impl->lines().data() + impl->lines().size() - 1) {
             // The actual value is 50_size / 109_ppemX * 136_advance = ~62.385319
             // FreeType reports advances in 24.6 fixed point, so each is 62.390625
             REPORTER_ASSERT(reporter,
@@ -5433,7 +5434,7 @@ DEF_TEST_DISABLED(SkParagraph_JSON2, reporter) {
     auto cluster = 0;
     for (auto& run : impl->runs()) {
         SkShaperJSONWriter::VisualizeClusters(
-                impl->text().begin() + run.textRange().start, 0, run.textRange().width(),
+                impl->text().data() + run.textRange().start, 0, run.textRange().width(),
                 run.glyphs(), run.clusterIndexes(),
                 [&](int codePointCount, SkSpan<const char> utf1to1,
                     SkSpan<const SkGlyphID> glyph1to1) {

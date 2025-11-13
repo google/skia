@@ -156,7 +156,7 @@ void skhb_glyph_h_advances(hb_font_t* hb_font,
         glyphs = SkTAddOffset<const hb_codepoint_t>(glyphs, glyph_stride);
     }
     AutoSTMalloc<256, SkScalar> advance(count);
-    font.getWidths({glyph, count}, {advance, count});
+    font.getWidths({glyph.data(), count}, {advance.data(), count});
 
     if (!font.isSubpixel()) {
         for (unsigned i = 0; i < count; i++) {
@@ -320,7 +320,8 @@ HBFont create_typeface_hb_font(const SkTypeface& typeface) {
     int axis_count = typeface.getVariationDesignPosition({});
     if (axis_count > 0) {
         AutoSTMalloc<4, SkFontArguments::VariationPosition::Coordinate> axis_values(axis_count);
-        if (typeface.getVariationDesignPosition({axis_values.get(), axis_count}) == axis_count) {
+        if (typeface.getVariationDesignPosition({axis_values.get(),
+                                                 (size_t)axis_count}) == axis_count) {
             hb_font_set_variations(otFont.get(),
                                    reinterpret_cast<hb_variation_t*>(axis_values.get()),
                                    axis_count);

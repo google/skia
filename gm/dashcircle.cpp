@@ -87,7 +87,7 @@ protected:
                 p.setStroke(true);
                 p.setStrokeWidth(10);
                 SkScalar intervals[4];
-                int intervalCount = dashExample.length;
+                size_t intervalCount = dashExample.length;
                 SkScalar dashLength = circumference / wedge / dashUnits;
                 for (int index = 0; index < dashExample.length; ++index) {
                     intervals[index] = dashExample.pattern[index] * dashLength;

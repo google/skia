@@ -98,7 +98,7 @@ static PathDY make_sawtooth_32() { return make_sawtooth(32); }
 
 static PathDY make_house() {
     SkPathBuilder builder;
-    builder.addPolygon({
+    builder.addPolygon({{
             {21, 23},
             {21, 11.534f},
             {22.327f, 12.741f},
@@ -116,8 +116,8 @@ static PathDY make_house() {
             {11, 18},
             {13, 18},
             {13, 23},
-            {21, 23}}, true)
-        .polylineTo({
+            {21, 23}}}, true)
+        .polylineTo({{
             {9, 16},
             {9, 21},
             {5, 21},
@@ -127,7 +127,7 @@ static PathDY make_house() {
             {19, 21},
             {15, 21},
             {15, 16},
-            {9, 16}})
+            {9, 16}}})
         .close()
         .offset(20, 0);
     return {builder.detach(), 30};

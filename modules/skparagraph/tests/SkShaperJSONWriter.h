@@ -9,6 +9,7 @@
 #define SkShaperJSONWriter_DEFINED
 
 #include "include/core/SkPoint.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "modules/skshaper/include/SkShaper.h"
 
@@ -18,7 +19,6 @@
 #include <vector>
 
 class SkJSONWriter;
-template <typename T> class SkSpan;
 
 class SkShaperJSONWriter final : public SkShaper::RunHandler {
 public:

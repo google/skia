@@ -95,7 +95,7 @@ void SkGradientBaseShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt(flags);
 
     // If we injected implicit first/last stops at construction time, omit those when serializing:
-    int colorCount = fColorCount;
+    size_t colorCount = fColorCount;
     const SkColor4f* colors = fColors;
     const SkScalar* positions = fPositions;
     if (fFirstStopIsImplicit) {
@@ -145,7 +145,7 @@ bool SkGradientBaseShader::DescriptorScope::unflatten(SkReadBuffer& buffer,
     fColorCount = buffer.getArrayCount();
 
     if (!(validate_array(buffer, fColorCount, &fColorStorage) &&
-          buffer.readColor4fArray({fColorStorage.begin(), fColorCount}))) {
+          buffer.readColor4fArray({fColorStorage.data(), (size_t)fColorCount}))) {
         return false;
     }
     fColors = fColorStorage.begin();
@@ -158,7 +158,7 @@ bool SkGradientBaseShader::DescriptorScope::unflatten(SkReadBuffer& buffer,
     }
     if (SkToBool(flags & kHasPosition_GSF)) {
         if (!(validate_array(buffer, fColorCount, &fPositionStorage) &&
-              buffer.readScalarArray({fPositionStorage.begin(), fColorCount}))) {
+              buffer.readScalarArray({fPositionStorage.data(), (size_t)fColorCount}))) {
             return false;
         }
         fPositions = fPositionStorage.begin();

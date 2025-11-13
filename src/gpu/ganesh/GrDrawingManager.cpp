@@ -333,7 +333,7 @@ void GrDrawingManager::sortTasks() {
         SkASSERT(std::none_of(span.begin(), span.end(), [](const auto& t) {
             return t->blocksReordering();
         }));
-        SkASSERT(&(*span.end()) == fDAG.end() || fDAG[end]->blocksReordering());
+        SkASSERT(span.data() + span.size() == fDAG.end() || fDAG[end]->blocksReordering());
 
 #if defined(SK_DEBUG)
         // In order to partition the dag array like this it must be the case that each partition

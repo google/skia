@@ -339,12 +339,12 @@ protected:
                 p.setStrokeWidth(SkIntToScalar(kStrokeWidth));
             }
 
-            SkPath p1 = SkPath::Polygon({
+            SkPath p1 = SkPath::Polygon({{
                 {60.8522949f, 364.671021f},
                 {59.4380493f, 364.671021f},
                 {385.414276f, 690.647217f},
                 {386.121399f, 689.940125f},
-            }, false);
+            }}, false);
             canvas->save();
             canvas->translate(356.0f, 50.0f);
             canvas->drawPath(p1, p);
@@ -352,7 +352,7 @@ protected:
 
             // Repro for crbug.com/869172 (SVG path incorrectly simplified when using GPU
             // Rasterization). This will only draw anything in the stroke-and-fill version.
-            SkPath p2 = SkPath::Polygon({
+            SkPath p2 = SkPath::Polygon({{
                 {10.f, 0.f},
                 {38.f, 0.f},
                 {66.f, 0.f},
@@ -365,7 +365,7 @@ protected:
                 {66.f, 0.f},
                 {38.f, 0.f},
                 {10.f, 0.f},
-            }, true);
+            }}, true);
             canvas->save();
             canvas->translate(0.0f, 500.0f);
             canvas->drawPath(p2, p);
@@ -374,7 +374,7 @@ protected:
             // Repro for crbug.com/856137. This path previously caused GrAAConvexTessellator to turn
             // inset rings into outsets when adjacent bisector angles converged outside the previous
             // ring due to accumulated error.
-            SkPath p3 = SkPath::Polygon({
+            SkPath p3 = SkPath::Polygon({{
                 {1184.96f, 982.557f},
                 {1183.71f, 982.865f},
                 {1180.99f, 982.734f},
@@ -386,7 +386,7 @@ protected:
                 {1186.67f, 933.195f},
                 {1189.36f, 933.342f},
                 {1191.58f, 934.38f},
-            }, true, SkPathFillType::kEvenOdd);
+            }}, true, SkPathFillType::kEvenOdd);
             canvas->save();
             SkMatrix m;
             m.setAll(0.0893210843f, 0, 79.1197586f, 0, 0.0893210843f, 300, 0, 0, 1);

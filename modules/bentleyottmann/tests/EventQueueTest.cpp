@@ -200,7 +200,7 @@ DEF_TEST(BO_EventQueueHandlerInterface, reporter) {
         REPORTER_ASSERT(reporter, eq.hasMoreEvents());
 
 
-        TestEventHandler eh1{reporter, eventPoint, {}, {s}, {}, kHasNoDeletions};
+        TestEventHandler eh1{reporter, eventPoint, {}, {{s}}, {}, kHasNoDeletions};
         eq.handleNextEventPoint(&eh1);
 
         TestEventHandler eh2{reporter, endPoint, {}, {}, {}};
@@ -226,13 +226,13 @@ DEF_TEST(BO_EventQueueHandlerInterface, reporter) {
 
         REPORTER_ASSERT(reporter, eq.hasMoreEvents());
 
-        TestEventHandler eh1{reporter, b0, {}, {s0}, {}, kHasNoDeletions};
+        TestEventHandler eh1{reporter, b0, {}, {{s0}}, {}, kHasNoDeletions};
         eq.handleNextEventPoint(&eh1);
 
-        TestEventHandler eh2{reporter, b1, {}, {s1}, {{s0, s1, crossingPoint}}, kHasNoDeletions};
+        TestEventHandler eh2{reporter, b1, {}, {{s1}}, {{{s0, s1, crossingPoint}}}, kHasNoDeletions};
         eq.handleNextEventPoint(&eh2);
 
-        TestEventHandler eh3{reporter, crossingPoint, {s0, s1}, {s0, s1}, {}};
+        TestEventHandler eh3{reporter, crossingPoint, {{s0, s1}}, {{s0, s1}}, {}};
         eq.handleNextEventPoint(&eh3);
 
         TestEventHandler eh4{reporter, e1, {}, {}, {}};
