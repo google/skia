@@ -15,8 +15,8 @@ if (skia_enable_svg && skia_use_expat) {
     check_includes = false
     import("svg.gni")
     public_configs = [ ":public_config" ]
-    public = skia_svg_public
-    sources = skia_svg_sources
+    public = skia_svg_renderer_public
+    sources = skia_svg_renderer_sources
     configs = [ "../../:skia_private" ]
     deps = [
       "../..:pathops",

@@ -702,12 +702,20 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 	}},
 	{GNI: "modules/svg/svg.gni", Vars: []exporter.GNIFileListExportDesc{
-		{Var: "skia_svg_public",
+		{Var: "skia_svg_renderer_public",
 			Rules: []string{"//modules/svg/include:public_hdrs"}},
-		{Var: "skia_svg_sources",
+		{Var: "skia_svg_renderer_sources",
 			Rules: []string{
 				"//modules/svg/src:private_hdrs",
 				"//modules/svg/src:srcs",
+			}},
+	}},
+	{GNI: "gn/svg.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skia_svg_writer_public",
+			Rules: []string{"//include/svg:public_hdrs"}},
+		{Var: "skia_svg_writer_sources",
+			Rules: []string{
+				"//src/svg:svg",
 			}},
 	}},
 	{GNI: "modules/bentleyottmann/bentleyottmann.gni", Vars: []exporter.GNIFileListExportDesc{

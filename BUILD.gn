@@ -1588,10 +1588,10 @@ optional("xml") {
   public_defines = [ "SK_XML" ]
 
   deps = [ "//third_party/expat" ]
-  sources = skia_xml_sources + skia_codec_xmp + [
-              "src/svg/SkSVGCanvas.cpp",
-              "src/svg/SkSVGDevice.cpp",
-            ]
+  sources = skia_xml_sources
+  sources += skia_codec_xmp
+  sources += skia_svg_writer_sources
+  sources += skia_svg_writer_public
 
   # TODO(lukasza, kjlubick, bungeman): Remove the `deps` below once the legacy
   # SVG factories (see `SK_DISABLE_LEGACY_SVG_FACTORIES`) are not supported
