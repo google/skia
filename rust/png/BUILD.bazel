@@ -30,6 +30,9 @@ skia_cc_library(
         "//src/codec:__pkg__",
         "//src/encode:__pkg__",
     ],
+    deps = [
+        "//rust/common:ffi_utils",
+    ],
 )
 
 rust_cxx_bridge(
@@ -52,6 +55,7 @@ rust_static_library(
     ],
     deps = [
         ":ffi_cpp",
+        "//rust/common:skia_rust_common",
         "@crates//:cxx",
         "@crates//:png",
     ],

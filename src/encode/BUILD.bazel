@@ -181,7 +181,7 @@ skia_cc_library(
         ":encoder_common",
         ":png_encode_base",
         "//:core",
-        "//rust/common:span_utils",
+        "//rust/common:ffi_utils",
         "//rust/png:cxx_bridge",
         "//rust/png:ffi_cpp",
         "//src/base",

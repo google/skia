@@ -1,6 +1,9 @@
+load("@rules_rust//rust:defs.bzl", "rust_library")
+load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
 load(
     "//bazel:skia_rules.bzl",
     "skia_cc_library",
+    "skia_filegroup",
 )
 
 package(
@@ -9,15 +12,71 @@ package(
 
 licenses(["notice"])
 
-# Shared FFI utilities for Rust integrations.
-# This header-only library provides ToSkSpan() for converting rust::Slice to SkSpan.
+skia_filegroup(
+    name = "rs_srcs",
+    srcs = ["io_traits_ffi.rs"],
+    visibility = ["//:__subpackages__"],
+)
+
+skia_filegroup(
+    name = "cxx_bridge_srcs",
+    srcs = ["io_traits_ffi.rs"],
+    visibility = ["//:__subpackages__"],
+)
+
+skia_filegroup(
+    name = "ffi_hdrs",
+    srcs = ["SpanUtils.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+# At the moment we set a header file to force its generation because if we keep
+# list empty it won't generate. This should contain SkStreamAdapter and any
+# other source file
+skia_filegroup(
+    name = "ffi_cpp",
+    srcs = ["SpanUtils.h"],
+    visibility = ["//:__subpackages__"],
+)
+
+# Shared FFI utilities for Rust codec integrations.
 skia_cc_library(
-    name = "span_utils",
-    hdrs = ["SpanUtils.h"],
+    name = "ffi_utils",
+    hdrs = [
+        "SpanUtils.h",
+    ],
     features = ["layering_check"],
     visibility = [
+        "//rust/png:__pkg__",
         "//src/codec:__pkg__",
         "//src/encode:__pkg__",
     ],
-    deps = ["//:core"],
+    deps = [
+        "//:core",
+        "@crates//:cxx_cc",
+    ],
+)
+
+rust_cxx_bridge(
+    name = "cxx_bridge",
+    src = "io_traits_ffi.rs",
+    visibility = ["//rust/png:__pkg__"],
+    deps = [":ffi_utils"],
+)
+
+rust_library(
+    name = "skia_rust_common",
+    srcs = ["io_traits_ffi.rs"],
+    crate_name = "skia_rust_common",
+    crate_root = "io_traits_ffi.rs",
+    rustc_flags = [
+        "-Dwarnings",
+        "--cfg=cxxbridge1",
+    ],
+    visibility = ["//rust/png:__pkg__"],
+    deps = [
+        ":cxx_bridge",
+        ":ffi_utils",
+        "@crates//:cxx",
+    ],
 )

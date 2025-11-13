@@ -69,6 +69,11 @@ const codecGNIFooter = `
 skia_codec_rust_png_ffi_crate_root = "$_rust/png/FFI.rs"
 `
 
+// The footer written to gn/rust.gni.
+const rustGNIFooter = `
+skia_rust_common_ffi_crate_root = "$_rust/common/io_traits_ffi.rs"
+`
+
 // The footer written to gn/sksl_tests.gni.
 const skslTestsFooter = `sksl_glsl_tests_sources =
     sksl_error_tests + sksl_glsl_tests + sksl_inliner_tests +
@@ -116,6 +121,7 @@ skia_fontations_bridge_root = "$_src/ports/fontations/src/ffi.rs"
 var footerMap = map[string]string{
 	"gn/codec.gni":                  codecGNIFooter,
 	"gn/ports.gni":                  portsFooter,
+	"gn/rust.gni":                   rustGNIFooter,
 	"gn/sksl_tests.gni":             skslTestsFooter,
 	"modules/skshaper/skshaper.gni": skshaperFooter,
 }
