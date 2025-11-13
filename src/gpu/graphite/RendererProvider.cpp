@@ -38,13 +38,18 @@ namespace skgpu::graphite {
 
 bool RendererProvider::IsSupported(PathRendererStrategy strategy, const Caps* caps) {
     switch (strategy) {
+        case PathRendererStrategy::kTessellationAndSmallAtlas:
+            if (caps->minPathSizeForMSAA() <= 0) {
+                return false; // Disabled explicitly
+            }
+            [[fallthrough]]; // Must support kTessellation too
         case PathRendererStrategy::kTessellation:
             // This strategy requires MSAA, which will use a supported MSAA count returned by
             // Caps::getDefaultMSAASampleCount(target). When avoidMSAA() returns false, this should
             // always be at least 4x on Graphite's supported devices.
             return !caps->avoidMSAA();
 
-        case PathRendererStrategy::kRasterAA:
+        case PathRendererStrategy::kRasterAtlas:
             // The raster path atlas is currently always supported
             return true;
 
@@ -68,6 +73,29 @@ bool RendererProvider::IsSupported(PathRendererStrategy strategy, const Caps* ca
 RendererProvider::~RendererProvider() = default;
 
 RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* bufferManager) {
+    // Determine path rendering strategy
+#if defined(GPU_TEST_UTILS)
+    if (caps->requestedPathRendererStrategy().has_value() &&
+        IsSupported(*caps->requestedPathRendererStrategy(), caps)) {
+        // Use the explicitly overridden strategy
+        fStrategy = *caps->requestedPathRendererStrategy();
+    } else
+#endif
+    {
+        // By default, prefer vello > tessellation [w/ atlas] > raster atlas
+        if (IsSupported(PathRendererStrategy::kComputeMSAA8, caps)) {
+            fStrategy = PathRendererStrategy::kComputeMSAA8;
+        } else if (caps->avoidMSAA()) {
+            fStrategy = PathRendererStrategy::kRasterAtlas;
+        } else if (caps->minPathSizeForMSAA() > 0) {
+            fStrategy = PathRendererStrategy::kTessellationAndSmallAtlas;
+        } else {
+            fStrategy = PathRendererStrategy::kTessellation;
+        }
+
+        SkASSERT(IsSupported(fStrategy, caps));
+    }
+
     const bool infinitySupport = caps->shaderCaps()->fInfinitySupport;
     const bool useStorageBuffers = caps->storageBufferSupport();
     const auto& bindingReq = caps->resourceBindingRequirements();
@@ -84,6 +112,10 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
         this->initRenderer(renderer, name, drawTypes, this->assumeOwnership(std::move(singleStep)));
     };
 
+    // NOTE: We always initialize the tessellation RenderSteps because they are used for fallback
+    // with all of the other atlas'ing path renderer strategies. We always initialize the
+    // CoverageMaskRenderStep because it is used for mask filters even when the path renderer
+    // strategy wouldn't use it to sample an atlas.
     initFromStep(&fConvexTessellatedWedges,
                  std::make_unique<TessellateWedgesRenderStep>(layout,
                         RenderStep::RenderStepID::kTessellateWedges_Convex,
@@ -208,7 +240,13 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
     this->assumeOwnership(std::move(coverFill));
 
 #ifdef SK_ENABLE_VELLO_SHADERS
-    fVelloRenderer = std::make_unique<VelloRenderer>(caps);
+    // Don't initialize Vello if the strategy wouldn't use it.
+    const PathRendererStrategy strategy = caps->pathRendererStrategy();
+    if (strategy == PathRendererStrategy::kComputeAnalayticAA ||
+        strategy == PathRendererStrategy::kComputeMSAA16 ||
+        strategy == PathRendererStrategy::kComputeMSAA8) {
+        fVelloRenderer = std::make_unique<VelloRenderer>(caps);
+    }
 #endif
 }
 

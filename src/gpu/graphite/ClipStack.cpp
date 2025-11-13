@@ -31,6 +31,7 @@
 #include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/geom/BoundsManager.h"
 #include "src/gpu/graphite/geom/EdgeAAQuad.h"
@@ -1481,7 +1482,11 @@ static constexpr int kSaveStackIncrement = 8;
 ClipStack::ClipStack(Device* owningDevice)
         : fElements(kElementStackIncrement)
         , fSaves(kSaveStackIncrement)
-        , fDevice(owningDevice) {
+        , fDevice(owningDevice)
+        , fUseClipAtlas(owningDevice->recorder()->priv()
+                                                 .rendererProvider()
+                                                 ->pathRendererStrategy() ==
+                                PathRendererStrategy::kRasterAtlas) {
     // Start with a save record that is wide open
     fSaves.emplace_back(this->deviceBounds());
 }
@@ -1698,7 +1703,6 @@ AnalyticClip can_apply_analytic_clip(const Shape& shape, const Transform& localT
 Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
                                       Geometry* geometry,
                                       const SkStrokeRec& style,
-                                      bool msaaSupported,
                                       ClipStack::ElementList* outEffectiveElements) const {
     static const Clip kClippedOut = {
             Rect::InfiniteInverted(), Rect::InfiniteInverted(), SkIRect::MakeEmpty(),
@@ -1816,12 +1820,11 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
         }
     }
 
-#if !defined(SK_DISABLE_GRAPHITE_CLIP_ATLAS)
     // If there is no MSAA supported, rasterize any remaining elements by flattening them
     // into a single mask and storing in an atlas. Otherwise these will be handled by
     // Device::drawClip().
     AtlasProvider* atlasProvider = fDevice->recorder()->priv().atlasProvider();
-    if (!msaaSupported && !outEffectiveElements->empty()) {
+    if (fUseClipAtlas && !outEffectiveElements->empty()) {
         ClipAtlasManager* clipAtlas = atlasProvider->getClipAtlasManager();
         SkASSERT(clipAtlas);
         AtlasClip* atlasClip = &nonMSAAClip.fAtlasClip;
@@ -1840,7 +1843,6 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
             outEffectiveElements->clear();
         }
     }
-#endif
 
     return draw.toClip(geometry, nonMSAAClip, cs.shader());
 }

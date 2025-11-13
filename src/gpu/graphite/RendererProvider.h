@@ -24,31 +24,49 @@ class VelloRenderer;
 #endif
 
 /**
- * Used to include or exclude a specific path rendering technique for testing purposes.
+ * PathRendererStrategy defines how paths are rendered by Graphite. This is determined in Caps based
+ * on available hardware features and heuristics. A single strategy is chosen for a Context so that
+ * shared resources can be configured efficiently (e.g. atlases). This also helps mitigate pipeline
+ * variations that might otherwise come about because a render target had different supported
+ * features. A texture is only considered renderable if it can be rendered into with the Cap's
+ * chosen PathRendererStrategy.
+ *
+ * Strategy choice does not impact how simple shapes (e.g. filled [r]rects, hairlines, and circular
+ * stroked rrects) or speciality shapes (e.g. edge-AA quads, text, vertices, blurs) are rendered.
+ *
+ * It is also possible for internal tools (viewer, dm, nanobench) to override the Caps' default
+ * selection process by using command line flags.
  */
 enum class PathRendererStrategy {
-    /**
-     * All paths are rasterized into coverage masks using a GPU compute approach. This method
-     * always uses analytic anti-aliasing.
-     */
+    // Paths are rendered using tessellation and the classic stencil-and-cover algorithm w/ MSAA.
+    // Caps::defaultMSAASampleCount() determines the AA quality
+    // (ContextOptions::fInternalMSAACount <= 1 disables this strategy).
+    kTessellation,
+
+    // Like kTessellation with a texture atlas for higher quality AA. Small paths (WH <=
+    // Caps::minPathSizeForMSAA()) are rendered using CPU rasterization and packed into an atlas.
+    // For now, all clipping paths use MSAA like kTessellation; only small drawn paths are
+    // SW rasterized.
+    //
+    // ContextOptions::fMinPathSizeForMSAA == 0 disables this option.
+    // TODO(michaelludwig): Add SkSurfaceProperties flag to opt-out of SmallAtlas behavior to
+    // downgrade to just kTessellation behavior on a per-surface basis.
+    kTessellationAndSmallAtlas,
+
+    // All paths (and clips) are rendered using CPU rasterization and packed into coverage atlases.
+    // This strategy is chosen when MSAA is disabled in ContextOptions or unsupported.
+    kRasterAtlas,
+
+    // EXPERIMENTAL
+
+    // All paths are rasterized into coverage masks using a GPU compute approach. This method
+    // always uses analytic anti-aliasing. Clipping paths are rendered using kTessellation.
     kComputeAnalyticAA,
 
-    /**
-     * All paths are rasterized into coverage masks using a GPU compute approach. This method
-     * supports 16 and 8 sample multi-sampled anti-aliasing.
-     */
+    // All paths are rasterized into coverage masks using a GPU compute approach. This method
+    // supports 16 and 8 sample SW-emulated MSAA. Clipping paths are rendered using kTessellation.
     kComputeMSAA16,
     kComputeMSAA8,
-
-    /**
-     * All paths are rasterized into coverage masks using the CPU raster backend.
-     */
-    kRasterAA,
-
-    /**
-     * Render paths using tessellation and stencil-and-cover.
-     */
-    kTessellation,
 };
 
 /**
@@ -64,6 +82,9 @@ public:
     ~RendererProvider();
 
     static bool IsSupported(PathRendererStrategy, const Caps*);
+
+    // A given Caps may support more than one strategy, but only one will be used for all rendering.
+    PathRendererStrategy pathRendererStrategy() const { return fStrategy; }
 
     // TODO: Add configuration options to disable "optimization" renderers in favor of the more
     // general case, or renderers that won't be used by the application. When that's added, these
@@ -159,6 +180,8 @@ private:
         *member = Renderer(args...);
         fRenderers.push_back(member);
     }
+
+    PathRendererStrategy fStrategy;
 
     // Renderers are composed of 1+ steps, and some steps can be shared by multiple Renderers.
     // Renderers don't keep their RenderSteps alive so RendererProvider holds them here.

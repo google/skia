@@ -324,13 +324,6 @@ bool is_simple_shape(const Shape& shape, const Transform& localToDevice, SkStrok
     return false;
 }
 
-bool use_compute_atlas_when_available(std::optional<PathRendererStrategy> strategy) {
-    return !strategy.has_value() ||
-           strategy == PathRendererStrategy::kComputeAnalyticAA ||
-           strategy == PathRendererStrategy::kComputeMSAA16 ||
-           strategy == PathRendererStrategy::kComputeMSAA8;
-}
-
 class ScopedDrawBuilder {
 public:
     explicit ScopedDrawBuilder(Recorder* recorder)
@@ -450,8 +443,30 @@ sk_sp<Device> Device::Make(Recorder* recorder,
                            const SkSurfaceProps& props,
                            LoadOp initialLoadOp,
                            bool registerWithRecorder) {
-    if (!recorder) {
+    if (!recorder || !target) {
         return nullptr;
+    }
+
+    // DrawContext::Make ensures `target` can be rendered into, but if the path strategy might
+    // require MSAA, then we need to make sure a multisampled attachment can also be created later.
+    // - This would also apply for compute renderers that have to write directly to `target`, but
+    //   the current versions of compute render into separate compute-compatible textures instead.
+    const Caps* caps = recorder->priv().caps();
+    switch (recorder->priv().rendererProvider()->pathRendererStrategy()) {
+        case PathRendererStrategy::kTessellationAndSmallAtlas:
+            [[fallthrough]];
+        case PathRendererStrategy::kTessellation:
+            if (caps->getCompatibleMSAASampleCount(target->textureInfo()) <= SampleCount::k1) {
+                return nullptr;
+            }
+            break;
+
+        case PathRendererStrategy::kRasterAtlas:
+        case PathRendererStrategy::kComputeAnalyticAA:
+        case PathRendererStrategy::kComputeMSAA16:
+        case PathRendererStrategy::kComputeMSAA8:
+            // No additional support required
+            break;
     }
 
     sk_sp<DrawContext> dc = DrawContext::Make(recorder->priv().caps(),
@@ -505,9 +520,6 @@ Device::Device(Recorder* recorder, sk_sp<DrawContext> dc)
         , fSubRunControl(recorder->priv().caps()->getSubRunControl(
                 fDC->surfaceProps().isUseDeviceIndependentFonts())) {
     SkASSERT(SkToBool(fDC) && SkToBool(fRecorder));
-    const SampleCount supportedCount = fRecorder->priv().caps()->getCompatibleMSAASampleCount(
-            fDC->target()->textureInfo());
-    fMSAASupported = supportedCount > SampleCount::k1;
 }
 
 Device::~Device() {
@@ -1533,7 +1545,6 @@ void Device::drawGeometry(const Transform& localToDevice,
     Clip clip = fClip.visitClipStackForDraw(localToDevice,
                                             &geometry,
                                             style,
-                                            fMSAASupported,
                                             &clipElements);
     if (clip.isClippedOut()) {
         // Clipped out, so don't record anything.
@@ -1971,57 +1982,51 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
         }
     }
 
-    // Path rendering options. For now the strategy is very simple and not optimal:
-    // I. Use tessellation if MSAA is required for an effect.
-    // II: otherwise:
-    //    1. Always use compute AA if supported unless it was excluded by ContextOptions or the
-    //       compute renderer cannot render the shape efficiently yet (based on the result of
-    //       `isSuitableForAtlasing`).
-    //    2. Fall back to CPU raster AA if hardware MSAA is disabled or it was explicitly requested
-    //       via ContextOptions (including if the path is small enough).
-    //    3. Otherwise use tessellation.
-    std::optional<PathRendererStrategy> strategy;
-#if defined(GPU_TEST_UTILS)
-    strategy = fRecorder->priv().caps()->requestedPathRendererStrategy();
-#endif
+    // We only evaluate the `strategy` when `requireMSAA` is false; if it's true, it's a clipping
+    // depth-only draw and kTessellation is the only strategy that can be used there. While
+    // kRasterAtlas attempts to route clip elements to an atlas, this can fail, in which case the
+    // element may still be rendered into the depth buffer with tessellation (likely w/o AA).
+    if (!requireMSAA) {
+        PathAtlas* pathAtlas = nullptr;
+        AtlasProvider* atlasProvider = fRecorder->priv().atlasProvider();
+        switch (renderers->pathRendererStrategy()) {
+            case PathRendererStrategy::kComputeAnalyticAA:
+            case PathRendererStrategy::kComputeMSAA16:
+            case PathRendererStrategy::kComputeMSAA8: {
+                PathAtlas* atlas = fDC->getComputePathAtlas(fRecorder);
+                SkASSERT(atlas);
 
-    PathAtlas* pathAtlas = nullptr;
-    AtlasProvider* atlasProvider = fRecorder->priv().atlasProvider();
+                // Don't use the compute renderer if it can't handle the shape efficiently.
+                if (atlas->isSuitableForAtlasing(drawBounds, fClip.conservativeBounds())) {
+                    pathAtlas = atlas;
+                } // else falls back to tessellation
+            } break;
 
-    // Prefer compute atlas draws if supported. This currently implicitly filters out clip draws as
-    // they require MSAA. Eventually we may want to route clip shapes to the atlas as well but not
-    // if hardware MSAA is required.
-    if (RendererProvider::IsSupported(PathRendererStrategy::kComputeAnalyticAA,
-                                      fRecorder->priv().caps()) &&
-        use_compute_atlas_when_available(strategy)) {
-        PathAtlas* atlas = fDC->getComputePathAtlas(fRecorder);
-        SkASSERT(atlas);
+            case PathRendererStrategy::kTessellationAndSmallAtlas: {
+                static constexpr int kMaxSmallPathAtlasCount = 256;
+                const float minPathSizeForMSAA = fRecorder->priv().caps()->minPathSizeForMSAA();
+                if (fAtlasedPathCount < kMaxSmallPathAtlasCount &&
+                    all(drawBounds.size() <= minPathSizeForMSAA)) {
+                    // Small paths are rasterized on the CPU for higher quality
+                    pathAtlas = atlasProvider->getRasterPathAtlas();
+                } // else falls back to tessellation
+            } break;
 
-        // Don't use the compute renderer if it can't handle the shape efficiently.
-        if (atlas->isSuitableForAtlasing(drawBounds, fClip.conservativeBounds())) {
-            pathAtlas = atlas;
+            case PathRendererStrategy::kRasterAtlas:
+                // Everything is rasterized on the CPU and packed into the atlas
+                pathAtlas = atlasProvider->getRasterPathAtlas();
+                break;
+
+            case PathRendererStrategy::kTessellation:
+                // Never uses an atlas for rendering, leave it null
+                break;
         }
-    }
 
-    // Fall back to CPU rendered paths when multisampling is disabled and the compute atlas is not
-    // available.
-    static constexpr int kMaxSmallPathAtlasCount = 256;
-    const float minPathSizeForMSAA = fRecorder->priv().caps()->minPathSizeForMSAA();
-    const bool useRasterAtlasByDefault = !fMSAASupported ||
-                                         (fAtlasedPathCount < kMaxSmallPathAtlasCount &&
-                                          all(drawBounds.size() <= minPathSizeForMSAA));
-    if (!pathAtlas &&
-        (strategy == PathRendererStrategy::kRasterAA ||
-         (!strategy.has_value() && useRasterAtlasByDefault))) {
-        // NOTE: RasterPathAtlas doesn't implement `PathAtlas::isSuitableForAtlasing` as it doesn't
-        // reject paths (unlike ComputePathAtlas).
-        pathAtlas = atlasProvider->getRasterPathAtlas();
-    }
-
-    if (!requireMSAA && pathAtlas) {
-        // If we got here it means that we should draw with an atlas renderer if we can and avoid
-        // resorting to one of the tessellating techniques.
-        return {nullptr, pathAtlas};
+        if (pathAtlas) {
+            // If we got here it means that we should draw with an atlas renderer if we can and
+            // avoid resorting to one of the tessellating techniques.
+            return {nullptr, pathAtlas};
+        }
     }
 
     // If we got here, it requires tessellated path rendering or an MSAA technique applied to a

@@ -325,10 +325,12 @@ static const char* get_path_renderer_strategy_string(
             return "GPU Compute AA (16xMSAA)";
         case Strategy::kComputeMSAA8:
             return "GPU Compute AA (8xMSAA)";
-        case Strategy::kRasterAA:
+        case Strategy::kRasterAtlas:
             return "CPU Raster Atlas";
         case Strategy::kTessellation:
             return "Tessellation";
+        case Strategy::kTessellationAndSmallAtlas:
+            return "Tessellation w/ Small Path Atlas";
     }
 
     SkUNREACHABLE;
@@ -340,7 +342,7 @@ static std::optional<skgpu::graphite::PathRendererStrategy> get_path_renderer_st
     if (0 == strcmp(str, "default")) {
         return {};
     } else if (0 == strcmp(str, "raster")) {
-        return Strategy::kRasterAA;
+        return Strategy::kRasterAtlas;
 #ifdef SK_ENABLE_VELLO_SHADERS
     } else if (0 == strcmp(str, "compute-analytic")) {
         return Strategy::kComputeAnalyticAA;
@@ -351,6 +353,8 @@ static std::optional<skgpu::graphite::PathRendererStrategy> get_path_renderer_st
 #endif
     } else if (0 == strcmp(str, "tessellation")) {
         return Strategy::kTessellation;
+    } else if (0 == strcmp(str, "tessellation+atlas")) {
+        return Strategy::kTessellationAndSmallAtlas;
     } else {
         SkDebugf("Unknown path renderer strategy type, %s, defaulting to default.", str);
         return {};
@@ -2499,8 +2503,9 @@ void Viewer::drawImGui() {
                                 PathRendererStrategy::kComputeAnalyticAA,
                                 PathRendererStrategy::kComputeMSAA16,
                                 PathRendererStrategy::kComputeMSAA8,
-                                PathRendererStrategy::kRasterAA,
+                                PathRendererStrategy::kRasterAtlas,
                                 PathRendererStrategy::kTessellation,
+                                PathRendererStrategy::kTessellationAndSmallAtlas,
                         };
                         for (size_t i = 0; i < std::size(strategies); ++i) {
                             if (skgpu::graphite::RendererProvider::IsSupported(

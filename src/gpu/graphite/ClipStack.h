@@ -101,7 +101,6 @@ public:
     Clip visitClipStackForDraw(const Transform&,
                                Geometry*,
                                const SkStrokeRec&,
-                               bool msaaSupported,
                                ElementList* outEffectiveElements) const;
 
     // Update the per-clip element state for later rendering using pre-computed clip state data for
@@ -362,6 +361,7 @@ private:
     SaveRecord::Stack fSaves; // always has one wide open record at the top
 
     Device* fDevice; // the device this clip stack is coupled with
+    bool fUseClipAtlas;
 };
 
 // Clip element iteration

@@ -190,18 +190,15 @@ private:
 };
 
 static VelloAaConfig get_vello_aa_config(Recorder* recorder) {
-    // Use the analytic area AA mode unless caps say otherwise.
-    VelloAaConfig config = VelloAaConfig::kAnalyticArea;
-#if defined(GPU_TEST_UTILS)
-    auto strategy = recorder->priv().caps()->requestedPathRendererStrategy();
+    PathRendererStrategy strategy = recorder->priv().rendererProvider()->pathRendererStrategy();
     if (strategy == PathRendererStrategy::kComputeMSAA16) {
-        config = VelloAaConfig::kMSAA16;
+        return VelloAaConfig::kMSAA16;
     } else if (strategy == PathRendererStrategy::kComputeMSAA8) {
-        config = VelloAaConfig::kMSAA8;
+        return VelloAaConfig::kMSAA8;
+    } else {
+        SkASSERT(strategy == PathRendererStrategy::kComputeAnalyticAA);
+        return VelloAaConfig::kAnalyticArea;
     }
-#endif
-
-    return config;
 }
 
 static std::unique_ptr<DispatchGroup> render_vello_scene(Recorder* recorder,
