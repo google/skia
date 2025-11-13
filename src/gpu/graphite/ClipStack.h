@@ -361,7 +361,6 @@ private:
     SaveRecord::Stack fSaves; // always has one wide open record at the top
 
     Device* fDevice; // the device this clip stack is coupled with
-    bool fUseClipAtlas;
 };
 
 // Clip element iteration

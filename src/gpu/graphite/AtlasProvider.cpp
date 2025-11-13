@@ -24,10 +24,17 @@
 
 namespace skgpu::graphite {
 
+static bool use_clip_atlas(const Recorder* recorder) {
+    // Currently only the raster atlas strategy utilizes the clip atlas.
+    return recorder->priv().rendererProvider()->pathRendererStrategy() ==
+            PathRendererStrategy::kRasterAtlas;
+}
+
 AtlasProvider::AtlasProvider(Recorder* recorder)
         : fTextAtlasManager(std::make_unique<TextAtlasManager>(recorder))
         , fRasterPathAtlas(std::make_unique<RasterPathAtlas>(recorder))
-        , fClipAtlasManager(std::make_unique<ClipAtlasManager>(recorder)) {}
+        , fClipAtlasManager(use_clip_atlas(recorder) ? std::make_unique<ClipAtlasManager>(recorder)
+                                                     : nullptr) {}
 
 AtlasProvider::~AtlasProvider() = default;
 

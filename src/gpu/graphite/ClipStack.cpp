@@ -1482,11 +1482,7 @@ static constexpr int kSaveStackIncrement = 8;
 ClipStack::ClipStack(Device* owningDevice)
         : fElements(kElementStackIncrement)
         , fSaves(kSaveStackIncrement)
-        , fDevice(owningDevice)
-        , fUseClipAtlas(owningDevice->recorder()->priv()
-                                                 .rendererProvider()
-                                                 ->pathRendererStrategy() ==
-                                PathRendererStrategy::kRasterAtlas) {
+        , fDevice(owningDevice) {
     // Start with a save record that is wide open
     fSaves.emplace_back(this->deviceBounds());
 }
@@ -1823,10 +1819,9 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
     // If there is no MSAA supported, rasterize any remaining elements by flattening them
     // into a single mask and storing in an atlas. Otherwise these will be handled by
     // Device::drawClip().
-    AtlasProvider* atlasProvider = fDevice->recorder()->priv().atlasProvider();
-    if (fUseClipAtlas && !outEffectiveElements->empty()) {
-        ClipAtlasManager* clipAtlas = atlasProvider->getClipAtlasManager();
-        SkASSERT(clipAtlas);
+    ClipAtlasManager* clipAtlas =
+            fDevice->recorder()->priv().atlasProvider()->getClipAtlasManager();
+    if (clipAtlas && !outEffectiveElements->empty()) {
         AtlasClip* atlasClip = &nonMSAAClip.fAtlasClip;
 
         SkIRect iMaskBounds = cs.outerBounds().makeRoundOut().asSkIRect();

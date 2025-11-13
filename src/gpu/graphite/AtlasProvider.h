@@ -49,8 +49,9 @@ public:
     // for path rendering.
     RasterPathAtlas* getRasterPathAtlas() const;
 
-    // Gets the atlas handler that uses the CPU raster pipeline to create coverage masks
-    // for clips.
+    // Gets the atlas handler that uses the CPU raster pipeline to create coverage masks for clips.
+    // If this is non-null, ClipStack should use this to handle clip elements before falling back
+    // to depth-only rasterization.
     ClipAtlasManager* getClipAtlasManager() const;
 
     // Return a TextureProxy with the given dimensions and color type.
