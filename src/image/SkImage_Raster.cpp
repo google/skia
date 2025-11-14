@@ -173,7 +173,7 @@ sk_sp<SkImage> SkImage_Raster::onMakeSubset(SkRecorder*,
 
 sk_sp<SkImage> SkMakeImageFromRasterBitmapPriv(const SkBitmap& bm, SkCopyPixelsMode cpm,
                                                uint32_t idForCopy) {
-    if (kAlways_SkCopyPixelsMode == cpm || (!bm.isImmutable() && kNever_SkCopyPixelsMode != cpm)) {
+    if (kAlways_SkCopyPixelsMode == cpm || (!bm.isImmutable() && kIfMutable_SkCopyPixelsMode == cpm)) {
         SkPixmap pmap;
         if (bm.peekPixels(&pmap)) {
             return MakeRasterCopyPriv(pmap, idForCopy);
