@@ -27,7 +27,7 @@ class SkPixmap;
 // itself and one could do a static_assert using sizeof().
 using SkBlitterSizedArena = SkSTArenaAlloc<2736>;
 
-class SkAutoBlitterChoose : SkNoncopyable {
+class [[nodiscard]] SkAutoBlitterChoose : SkNoncopyable {
 public:
     SkAutoBlitterChoose() {}
     SkAutoBlitterChoose(const skcpu::Draw& draw,

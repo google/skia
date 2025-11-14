@@ -113,7 +113,7 @@ template<typename T, void (*D)(T*)> void FcTDestroy(T* t) {
     FCLocker::AssertHeld();
     D(t);
 }
-template <typename T, T* (*C)(), void (*D)(T*)> class SkAutoFc
+template <typename T, T* (*C)(), void (*D)(T*)> class [[nodiscard]] SkAutoFc
     : public SkAutoTCallVProc<T, FcTDestroy<T, D>> {
     using inherited = SkAutoTCallVProc<T, FcTDestroy<T, D>>;
 public:

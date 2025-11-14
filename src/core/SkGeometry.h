@@ -502,7 +502,7 @@ struct SkCubicCoeff {
 /**
  *  Help class to allocate storage for approximating a conic with N quads.
  */
-class SkAutoConicToQuads {
+class [[nodiscard]] SkAutoConicToQuads {
 public:
     SkAutoConicToQuads() : fQuadCount(0) {}
 

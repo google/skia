@@ -38,7 +38,7 @@
 #include <limits.h>
 #include <utility>
 
-class SkAutoAddSimpleShape {
+class [[nodiscard]] SkAutoAddSimpleShape {
 public:
     SkAutoAddSimpleShape(SkPath* path, SkPathDirection dir)
         : fPath(path)

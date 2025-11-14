@@ -2749,7 +2749,7 @@ private:
     goes out of scope. Use this to guarantee that the canvas is restored to a known
     state.
 */
-class SkAutoCanvasRestore {
+class [[nodiscard]] SkAutoCanvasRestore {
 public:
 
     /** Preserves SkCanvas::save() count. Optionally saves SkCanvas clip and SkCanvas matrix.

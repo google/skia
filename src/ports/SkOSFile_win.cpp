@@ -72,7 +72,7 @@ bool sk_fidentical(FILE* a, FILE* b) {
            && aID.fVolume == bID.fVolume;
 }
 
-class SkAutoNullKernelHandle : SkNoncopyable {
+class [[nodiscard]] SkAutoNullKernelHandle : SkNoncopyable {
 public:
     SkAutoNullKernelHandle(const HANDLE handle) : fHandle(handle) { }
     ~SkAutoNullKernelHandle() { CloseHandle(fHandle); }

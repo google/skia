@@ -82,7 +82,7 @@ template <auto F> using SkFunctionObject =
     reference is null when the destructor is called, we do not call the
     function.
 */
-template <typename T, void (*P)(T*)> class SkAutoTCallVProc
+template <typename T, void (*P)(T*)> class [[nodiscard]] SkAutoTCallVProc
     : public std::unique_ptr<T, SkFunctionObject<P>> {
     using inherited = std::unique_ptr<T, SkFunctionObject<P>>;
 public:

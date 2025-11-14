@@ -635,7 +635,7 @@ private:
     skia_private::STArray<4, ClipState> fClipStack;
 };
 
-class SkAutoDeviceTransformRestore : SkNoncopyable {
+class [[nodiscard]] SkAutoDeviceTransformRestore : SkNoncopyable {
 public:
     SkAutoDeviceTransformRestore(SkDevice* device, const SkM44& localToDevice)
         : fDevice(device)

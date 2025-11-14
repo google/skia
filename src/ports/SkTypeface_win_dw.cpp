@@ -1059,7 +1059,7 @@ SK_STDMETHODIMP_(ULONG) StreamFontCollectionLoader::Release() {
     return newCount;
 }
 
-template <typename T> class SkAutoIDWriteUnregister {
+template <typename T> class [[nodiscard]] SkAutoIDWriteUnregister {
 public:
     SkAutoIDWriteUnregister(IDWriteFactory* factory, T* unregister)
         : fFactory(factory), fUnregister(unregister)

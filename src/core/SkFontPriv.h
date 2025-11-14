@@ -90,7 +90,7 @@ public:
     static inline uint8_t Flags(const SkFont& font) { return font.fFlags; }
 };
 
-class SkAutoToGlyphs {
+class [[nodiscard]] SkAutoToGlyphs {
 public:
     SkAutoToGlyphs(const SkFont& font, const void* text, size_t length, SkTextEncoding encoding) {
         if (encoding == SkTextEncoding::kGlyphID || length == 0) {

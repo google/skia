@@ -218,7 +218,7 @@ static unsigned calculateUPEM(HDC hdc, const LOGFONT& lf) {
     return (0 == otmRet) ? 0 : otm.otmEMSquare;
 }
 
-class SkAutoHDC {
+class [[nodiscard]] SkAutoHDC {
 public:
     explicit SkAutoHDC(const LOGFONT& lf)
         : fHdc(::CreateCompatibleDC(nullptr))
