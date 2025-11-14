@@ -8,6 +8,7 @@
 #ifndef skgpu_AtlasTypes_DEFINED
 #define skgpu_AtlasTypes_DEFINED
 
+#include "include/core/SkColor.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
@@ -26,7 +27,7 @@
 #include <cstring>
 #include <utility>
 
-class SkAutoPixmapStorage;
+class SkPixmap;
 namespace skgpu::graphite { class RecorderPriv; }
 
 /**
@@ -345,7 +346,8 @@ private:
 /**
  * The backing texture for an atlas is broken into a spatial grid of Plots. The Plots
  * keep track of subimage placement via their Rectanizer. A Plot may be subclassed if
- * the atlas class needs to track additional information.
+ * the atlas class needs to track additional information. Plots are initialized to zero
+ * for all color types.
  */
 class Plot : public SkRefCnt {
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(Plot);
@@ -377,9 +379,15 @@ public:
     bool addRect(int width, int height, AtlasLocator* atlasLocator);
     void* dataAt(const AtlasLocator& atlasLocator);
     void copySubImage(const AtlasLocator& atlasLocator, const void* image);
-    // Reset Pixmap to point to backing data for this Plot,
-    // and return render location specified by AtlasLocator but relative to this Plot.
-    SkIPoint prepForRender(const AtlasLocator&, SkAutoPixmapStorage*);
+    // Returns a Pixmap pointing to the backing data for the locator. Optionally, the caller can
+    // provide an inset that is applied to all four sides. This is useful for use cases that need
+    // to leave space between items in the atlas. The pixmap will exclude the padding. The entire
+    // Plot is cleared to zero when allocated. By passing an initialColor here, the caller can
+    // re-clear the entire locator's rect (including any padding) to any color.
+    SkPixmap prepForRender(const AtlasLocator&,
+                           int padding = 0,
+                           std::optional<SkColor> initialColor = {});
+
     // TODO: Utility method for Ganesh, consider removing
     bool addSubImage(int width, int height, const void* image, AtlasLocator* atlasLocator);
 
@@ -430,6 +438,8 @@ public:
 
 private:
     ~Plot() override;
+    size_t rowBytes() const { return fWidth * fBytesPerPixel; }
+    void* dataAt(SkIPoint atlasPoint);
 
     skgpu::Token fLastUpload;
     skgpu::Token fLastUse;
@@ -442,7 +452,7 @@ private:
     AtlasGenerationCounter* const fGenerationCounter;
     uint64_t fGenID;
     PlotLocator fPlotLocator;
-    unsigned char* fData;
+    std::byte* fData;
     const int fWidth;
     const int fHeight;
     const int fX;

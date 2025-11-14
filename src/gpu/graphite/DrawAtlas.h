@@ -117,9 +117,14 @@ public:
 
     ErrorCode addToAtlas(Recorder*, int width, int height, const void* image, AtlasLocator*);
     ErrorCode addRect(Recorder*, int width, int height, AtlasLocator*);
-    // Reset Pixmap to point to backing data for the AtlasLocator's Plot.
-    // Return relative location within the Plot, as indicated by the AtlasLocator.
-    SkIPoint prepForRender(const AtlasLocator&, SkAutoPixmapStorage*);
+    // Returns a Pixmap pointing to the backing data for the locator. Optionally, the caller can
+    // provide an inset that is applied to all four sides. This is useful for use cases that need
+    // to leave space between items in the atlas. The pixmap will exclude the padding. The entire
+    // atlas is cleared to zero when allocated. By passing an initialColor here, the caller can
+    // re-clear the entire locator's rect (including any padding) to any color.
+    SkPixmap prepForRender(const AtlasLocator&,
+                           int padding = 0,
+                           std::optional<SkColor> initialColor = {});
     bool recordUploads(DrawContext*, Recorder*);
 
     const sk_sp<TextureProxy>* getProxies() const { return fProxies; }
