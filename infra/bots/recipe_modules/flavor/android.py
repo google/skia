@@ -296,7 +296,7 @@ class AndroidFlavor(default.DefaultFlavor):
   def _asan_setup_path(self):
     return self.m.vars.workdir.joinpath(
         'android_ndk_linux', 'toolchains', 'llvm', 'prebuilt', 'linux-x86_64',
-        'lib', 'clang', '17', 'bin', 'asan_device_setup')
+        'lib', 'clang', '18', 'bin', 'asan_device_setup')
 
 
   def install(self):

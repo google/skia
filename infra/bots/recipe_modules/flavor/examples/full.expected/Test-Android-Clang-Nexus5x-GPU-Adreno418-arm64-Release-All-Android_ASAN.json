@@ -173,7 +173,7 @@
       "python3",
       "RECIPE_MODULE[skia::flavor]/resources/setup_device_for_asan.py",
       "/usr/bin/adb",
-      "[START_DIR]/android_ndk_linux/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/bin/asan_device_setup"
+      "[START_DIR]/android_ndk_linux/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/18/bin/asan_device_setup"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
@@ -1138,7 +1138,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/android_ndk_linux/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/bin/asan_device_setup",
+      "[START_DIR]/android_ndk_linux/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/18/bin/asan_device_setup",
       "--revert"
     ],
     "env": {

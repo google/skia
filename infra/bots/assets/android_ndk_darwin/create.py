@@ -17,7 +17,7 @@ import subprocess
 import sys
 
 
-NDK_VER = "android-ndk-r26b"
+NDK_VER = "android-ndk-r27d"
 NDK_URL = \
     "https://dl.google.com/android/repository/%s-darwin.dmg" % NDK_VER
 DMG = "ndk.dmg"

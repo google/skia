@@ -16,7 +16,7 @@ import shutil
 import subprocess
 
 
-NDK_VER = "android-ndk-r26b"
+NDK_VER = "android-ndk-r27d"
 NDK_URL = \
     "https://dl.google.com/android/repository/%s-windows.zip" % NDK_VER
 

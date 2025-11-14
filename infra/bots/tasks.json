@@ -7062,7 +7062,7 @@
         {
           "name": "skia/bots/android_ndk_darwin",
           "path": "android_ndk_darwin",
-          "version": "version:12"
+          "version": "version:13"
         }
       ],
       "command": [
@@ -13013,7 +13013,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -13097,7 +13097,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -13181,7 +13181,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -13292,7 +13292,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -13375,7 +13375,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -13459,7 +13459,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -13543,7 +13543,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -13627,7 +13627,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -13711,7 +13711,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -13795,7 +13795,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -13902,7 +13902,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         },
         {
           "name": "skia/bots/cmake_linux",
@@ -14015,7 +14015,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         },
         {
           "name": "skia/bots/cmake_linux",
@@ -14105,7 +14105,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -14189,7 +14189,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -14273,7 +14273,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -14357,7 +14357,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -14441,7 +14441,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -14525,7 +14525,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -14632,7 +14632,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         },
         {
           "name": "skia/bots/cmake_linux",
@@ -14745,7 +14745,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         },
         {
           "name": "skia/bots/cmake_linux",
@@ -14835,7 +14835,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -14919,7 +14919,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -15003,7 +15003,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -15087,7 +15087,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -15171,7 +15171,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -15348,7 +15348,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -15455,7 +15455,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         },
         {
           "name": "skia/bots/cmake_linux",
@@ -15568,7 +15568,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         },
         {
           "name": "skia/bots/cmake_linux",
@@ -15658,7 +15658,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -15742,7 +15742,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -15826,7 +15826,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -15910,7 +15910,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         }
       ],
       "command": [
@@ -22140,7 +22140,7 @@
         {
           "name": "skia/bots/android_ndk_windows",
           "path": "n",
-          "version": "version:13"
+          "version": "version:14"
         }
       ],
       "command": [
@@ -27068,7 +27068,7 @@
         {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
-          "version": "version:18"
+          "version": "version:19"
         },
         {
           "name": "skia/bots/bloaty",
