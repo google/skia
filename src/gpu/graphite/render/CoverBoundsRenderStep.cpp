@@ -26,9 +26,11 @@
 
 namespace skgpu::graphite {
 
-CoverBoundsRenderStep::CoverBoundsRenderStep(RenderStep::RenderStepID renderStepID,
+CoverBoundsRenderStep::CoverBoundsRenderStep(Layout layout,
+                                             RenderStep::RenderStepID renderStepID,
                                              DepthStencilSettings dsSettings)
-        : RenderStep(renderStepID,
+        : RenderStep(layout,
+                     renderStepID,
                      Flags::kPerformsShading |
                      Flags::kAppendInstances |
                      Flags::kInverseFillsScissor,
@@ -38,7 +40,7 @@ CoverBoundsRenderStep::CoverBoundsRenderStep(RenderStep::RenderStepID renderStep
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/{{{"bounds", VertexAttribType::kFloat4, SkSLType::kFloat4},
                                       {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-                                      {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2},
+                                      {"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt},
                                       {"mat0", VertexAttribType::kFloat3, SkSLType::kFloat3},
                                       {"mat1", VertexAttribType::kFloat3, SkSLType::kFloat3},
                                       {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3}}}) {}
@@ -56,7 +58,7 @@ std::string CoverBoundsRenderStep::vertexSkSL() const {
 
 void CoverBoundsRenderStep::writeVertices(DrawWriter* writer,
                                           const DrawParams& params,
-                                          skvx::uint2 ssboIndices) const {
+                                          uint32_t ssboIndex) const {
     // Each instance is 4 vertices, forming 2 triangles from a single triangle strip, so no indices
     // are needed. sk_VertexID is used to place vertex positions, so no vertex buffer is needed.
     DrawWriter::Instances instances{*writer, {}, {}, 4};
@@ -75,7 +77,7 @@ void CoverBoundsRenderStep::writeVertices(DrawWriter* writer,
 
     // Since the local coords always have Z=0, we can discard the 3rd row and column of the matrix.
     const SkM44& m = params.transform().matrix();
-    instances.append(1) << bounds << params.order().depthAsFloat() << ssboIndices
+    instances.append(1) << bounds << params.order().depthAsFloat() << ssboIndex
                         << m.rc(0,0) << m.rc(1,0) << m.rc(3,0)
                         << m.rc(0,1) << m.rc(1,1) << m.rc(3,1)
                         << m.rc(0,3) << m.rc(1,3) << m.rc(3,3);

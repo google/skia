@@ -33,11 +33,10 @@ class RuntimeEffectDictionary;
 class MtlGraphicsPipeline final : public GraphicsPipeline {
 public:
     inline static constexpr unsigned int kIntrinsicUniformBufferIndex = 0;
-    inline static constexpr unsigned int kRenderStepUniformBufferIndex = 1;
-    inline static constexpr unsigned int kPaintUniformBufferIndex = 2;
-    inline static constexpr unsigned int kStaticDataBufferIndex = 3;
-    inline static constexpr unsigned int kAppendDataBufferIndex = 4;
-    inline static constexpr unsigned int kGradientBufferIndex = 5;
+    inline static constexpr unsigned int kCombinedUniformIndex = 1; // Paint AND rendersteps!
+    inline static constexpr unsigned int kStaticDataBufferIndex = 2;
+    inline static constexpr unsigned int kAppendDataBufferIndex = 3;
+    inline static constexpr unsigned int kGradientBufferIndex = 4;
 
     static sk_sp<MtlGraphicsPipeline> Make(const MtlSharedContext*,
                                            const RuntimeEffectDictionary*,

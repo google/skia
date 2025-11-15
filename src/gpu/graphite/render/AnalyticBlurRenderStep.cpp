@@ -29,8 +29,9 @@
 
 namespace skgpu::graphite {
 
-AnalyticBlurRenderStep::AnalyticBlurRenderStep()
-        : RenderStep(RenderStepID::kAnalyticBlur,
+AnalyticBlurRenderStep::AnalyticBlurRenderStep(Layout layout)
+        : RenderStep(layout,
+                     RenderStepID::kAnalyticBlur,
                      Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage |
                      Flags::kAppendVertices,
                      /*uniforms=*/
@@ -45,7 +46,7 @@ AnalyticBlurRenderStep::AnalyticBlurRenderStep()
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/
                      {{{"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
-                      {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2}}},
+                      {"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt}}},
                      /*varyings=*/
                      // scaledShapeCoords are the fragment coordinates in local shape space, where
                      // the shape has been scaled to device space but not translated or rotated.
@@ -73,15 +74,15 @@ const char* AnalyticBlurRenderStep::fragmentCoverageSkSL() const {
 
 void AnalyticBlurRenderStep::writeVertices(DrawWriter* writer,
                                            const DrawParams& params,
-                                           skvx::uint2 ssboIndices) const {
+                                           uint32_t ssboIndex) const {
     const Rect& r = params.geometry().analyticBlurMask().drawBounds();
     DrawWriter::Vertices verts{*writer};
-    verts.append(6) << skvx::float2(r.left(), r.top()) << ssboIndices
-                    << skvx::float2(r.right(), r.top()) << ssboIndices
-                    << skvx::float2(r.left(), r.bot()) << ssboIndices
-                    << skvx::float2(r.right(), r.top()) << ssboIndices
-                    << skvx::float2(r.right(), r.bot()) << ssboIndices
-                    << skvx::float2(r.left(), r.bot()) << ssboIndices;
+    verts.append(6) << skvx::float2(r.left(), r.top()) << ssboIndex
+                    << skvx::float2(r.right(), r.top()) << ssboIndex
+                    << skvx::float2(r.left(), r.bot()) << ssboIndex
+                    << skvx::float2(r.right(), r.top()) << ssboIndex
+                    << skvx::float2(r.right(), r.bot()) << ssboIndex
+                    << skvx::float2(r.left(), r.bot()) << ssboIndex;
 }
 
 void AnalyticBlurRenderStep::writeUniformsAndTextures(const DrawParams& params,

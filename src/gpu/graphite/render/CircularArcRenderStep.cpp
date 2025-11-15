@@ -126,8 +126,9 @@ static void write_vertex_buffer(VertexWriter writer) {
     } // otherwise static buffer creation failed, so do nothing; Context initialization will fail.
 }
 
-CircularArcRenderStep::CircularArcRenderStep(StaticBufferManager* bufferManager)
-        : RenderStep(RenderStepID::kCircularArc,
+CircularArcRenderStep::CircularArcRenderStep(Layout layout, StaticBufferManager* bufferManager)
+        : RenderStep(layout,
+                     RenderStepID::kCircularArc,
                      Flags::kPerformsShading | Flags::kEmitsCoverage | Flags::kOutsetBoundsForAA |
                      Flags::kAppendInstances,
                      /*uniforms=*/{},
@@ -151,7 +152,7 @@ CircularArcRenderStep::CircularArcRenderStep(StaticBufferManager* bufferManager)
                              {"inRoundCapPos", VertexAttribType::kFloat4, SkSLType::kFloat4},
                              {"inRoundCapRadius", VertexAttribType::kFloat, SkSLType::kFloat},
                              {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-                             {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2},
+                             {"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt},
 
                              {"mat0", VertexAttribType::kFloat3, SkSLType::kFloat3},
                              {"mat1", VertexAttribType::kFloat3, SkSLType::kFloat3},
@@ -206,7 +207,7 @@ const char* CircularArcRenderStep::fragmentCoverageSkSL() const {
 
 void CircularArcRenderStep::writeVertices(DrawWriter* writer,
                                           const DrawParams& params,
-                                          skvx::uint2 ssboIndices) const {
+                                          uint32_t ssboIndex) const {
     SkASSERT(params.geometry().isShape() && params.geometry().shape().isArc());
 
     DrawWriter::Instances instance{*writer, fVertexBuffer, {}, kVertexCount};
@@ -380,7 +381,7 @@ void CircularArcRenderStep::writeVertices(DrawWriter* writer,
        << geoClipPlane << clipPlane0 << clipPlane1
        << roundCapPos0 << roundCapPos1 << roundCapRadius
        << params.order().depthAsFloat()
-       << ssboIndices
+       << ssboIndex
        << m.rc(0,0) << m.rc(1,0) << m.rc(3,0)  // mat0
        << m.rc(0,1) << m.rc(1,1) << m.rc(3,1)  // mat1
        << m.rc(0,3) << m.rc(1,3) << m.rc(3,3); // mat2

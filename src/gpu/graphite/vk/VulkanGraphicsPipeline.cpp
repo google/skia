@@ -513,8 +513,7 @@ static bool input_attachment_desc_set_layout(VkDescriptorSetLayout& outLayout,
 
 static bool uniform_desc_set_layout(VkDescriptorSetLayout& outLayout,
                                     const VulkanSharedContext* sharedContext,
-                                    bool hasStepUniforms,
-                                    bool hasPaintUniforms,
+                                    bool hasCombinedUniforms,
                                     bool hasGradientBuffer) {
     // Define a container with size reserved for up to kNumUniformBuffers descriptors. Only add
     // DescriptorData for uniforms that actually are used and need to be included in the layout.
@@ -524,16 +523,10 @@ static bool uniform_desc_set_layout(VkDescriptorSetLayout& outLayout,
     DescriptorType uniformBufferType =
             sharedContext->caps()->storageBufferSupport() ? DescriptorType::kStorageBuffer
                                                           : DescriptorType::kUniformBuffer;
-    if (hasStepUniforms) {
+    if (hasCombinedUniforms) {
         uniformDescriptors.push_back({
                 uniformBufferType, /*count=*/1,
-                VulkanGraphicsPipeline::kRenderStepUniformBufferIndex,
-                PipelineStageFlags::kVertexShader | PipelineStageFlags::kFragmentShader});
-    }
-    if (hasPaintUniforms) {
-        uniformDescriptors.push_back({
-                uniformBufferType, /*count=*/1,
-                VulkanGraphicsPipeline::kPaintUniformBufferIndex,
+                VulkanGraphicsPipeline::kCombinedUniformIndex,
                 PipelineStageFlags::kVertexShader | PipelineStageFlags::kFragmentShader});
     }
     if (hasGradientBuffer) {
@@ -583,8 +576,7 @@ static bool texture_sampler_desc_set_layout(VkDescriptorSetLayout& outLayout,
 static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedContext,
                                               uint32_t pushConstantSize,
                                               VkShaderStageFlagBits pushConstantPipelineStageFlags,
-                                              bool hasStepUniforms,
-                                              bool hasPaintUniforms,
+                                              bool hasCombinedUniforms,
                                               bool hasGradientBuffer,
                                               int numTextureSamplers,
                                               bool loadMsaaFromResolve,
@@ -610,8 +602,7 @@ static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedC
         !uniform_desc_set_layout(
                 setLayouts[VulkanGraphicsPipeline::kUniformBufferDescSetIndex],
                 sharedContext,
-                hasStepUniforms,
-                hasPaintUniforms,
+                hasCombinedUniforms,
                 hasGradientBuffer) ||
         !texture_sampler_desc_set_layout(
                 setLayouts[VulkanGraphicsPipeline::kTextureBindDescSetIndex],
@@ -962,8 +953,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
                 sharedContext,
                 VulkanResourceProvider::kIntrinsicConstantSize,
                 VulkanResourceProvider::kIntrinsicConstantStageFlags,
-                !step->uniforms().empty(),
-                shaderInfo->hasPaintUniforms(),
+                shaderInfo->hasCombinedUniforms(),
                 shaderInfo->hasGradientBuffer(),
                 shaderInfo->numFragmentTexturesAndSamplers(),
                 /*loadMsaaFromResolve=*/false,
@@ -1233,8 +1223,7 @@ std::unique_ptr<VulkanProgramInfo> VulkanGraphicsPipeline::CreateLoadMSAAProgram
                 sharedContext,
                 /*pushConstantSize=*/32,
                 (VkShaderStageFlagBits)VK_SHADER_STAGE_VERTEX_BIT,
-                /*hasStepUniforms=*/false,
-                /*hasPaintUniforms=*/false,
+                /*hasCombinedUniforms=*/false,
                 /*hasGradientBuffer=*/false,
                 /*numTextureSamplers=*/0,
                 /*loadMsaaFromResolve=*/true,

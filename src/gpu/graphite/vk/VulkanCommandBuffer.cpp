@@ -1143,11 +1143,8 @@ void VulkanCommandBuffer::addBarrier(BarrierType type) {
 void VulkanCommandBuffer::recordBufferBindingInfo(const BindBufferInfo& info, UniformSlot slot) {
     unsigned int bufferIndex = 0;
     switch (slot) {
-        case UniformSlot::kRenderStep:
-            bufferIndex = VulkanGraphicsPipeline::kRenderStepUniformBufferIndex;
-            break;
-        case UniformSlot::kPaint:
-            bufferIndex = VulkanGraphicsPipeline::kPaintUniformBufferIndex;
+        case UniformSlot::kCombinedUniforms:
+            bufferIndex = VulkanGraphicsPipeline::kCombinedUniformIndex;
             break;
         case UniformSlot::kGradient:
             bufferIndex = VulkanGraphicsPipeline::kGradientBufferIndex;
@@ -1184,22 +1181,15 @@ void VulkanCommandBuffer::bindUniformBuffers() {
     DescriptorType uniformBufferType =
             fSharedContext->caps()->storageBufferSupport() ? DescriptorType::kStorageBuffer
                                                            : DescriptorType::kUniformBuffer;
-    if (fActiveGraphicsPipeline->hasStepUniforms() &&
-        fUniformBuffersToBind[VulkanGraphicsPipeline::kRenderStepUniformBufferIndex].fBuffer) {
+    if (fActiveGraphicsPipeline->hasCombinedUniforms() &&
+        fUniformBuffersToBind[VulkanGraphicsPipeline::kCombinedUniformIndex].fBuffer) {
         descriptors.push_back({
                 uniformBufferType,
                 /*count=*/1,
-                VulkanGraphicsPipeline::kRenderStepUniformBufferIndex,
+                VulkanGraphicsPipeline::kCombinedUniformIndex,
                 PipelineStageFlags::kVertexShader | PipelineStageFlags::kFragmentShader });
     }
-    if (fActiveGraphicsPipeline->hasPaintUniforms() &&
-        fUniformBuffersToBind[VulkanGraphicsPipeline::kPaintUniformBufferIndex].fBuffer) {
-        descriptors.push_back({
-                uniformBufferType,
-                /*count=*/1,
-                VulkanGraphicsPipeline::kPaintUniformBufferIndex,
-                PipelineStageFlags::kVertexShader | PipelineStageFlags::kFragmentShader });
-    }
+
     if (fActiveGraphicsPipeline->hasGradientBuffer() &&
         fUniformBuffersToBind[VulkanGraphicsPipeline::kGradientBufferIndex].fBuffer) {
         SkASSERT(fSharedContext->caps()->gradientBufferSupport() &&

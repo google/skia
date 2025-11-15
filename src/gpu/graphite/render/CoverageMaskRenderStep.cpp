@@ -56,8 +56,9 @@ static skvx::float2 get_device_translation(const SkM44& localToDevice) {
     return (invT.xy() + invT.zw()) / det;
 }
 
-CoverageMaskRenderStep::CoverageMaskRenderStep()
-        : RenderStep(RenderStepID::kCoverageMask,
+CoverageMaskRenderStep::CoverageMaskRenderStep(Layout layout)
+        : RenderStep(layout,
+                     RenderStepID::kCoverageMask,
                      // The mask will have AA outsets baked in, but the original bounds for clipping
                      // still require the outset for analytic coverage.
                      Flags::kPerformsShading |
@@ -81,7 +82,7 @@ CoverageMaskRenderStep::CoverageMaskRenderStep()
                       // Remaining translation extracted from actual 'maskToDevice' transform.
                       {"deviceOrigin", VertexAttribType::kFloat2, SkSLType::kFloat2},
                       {"depth"     , VertexAttribType::kFloat, SkSLType::kFloat},
-                      {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2},
+                      {"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt},
                       // deviceToLocal matrix for producing local coords for shader evaluation
                       {"mat0", VertexAttribType::kFloat3, SkSLType::kFloat3},
                       {"mat1", VertexAttribType::kFloat3, SkSLType::kFloat3},
@@ -122,7 +123,7 @@ bool CoverageMaskRenderStep::usesUniformsInFragmentSkSL() const { return false; 
 
 void CoverageMaskRenderStep::writeVertices(DrawWriter* dw,
                                            const DrawParams& params,
-                                           skvx::uint2 ssboIndices) const {
+                                           uint32_t ssboIndex) const {
     const CoverageMaskShape& coverageMask = params.geometry().coverageMaskShape();
     const TextureProxy* proxy = coverageMask.textureProxy();
     SkASSERT(proxy);
@@ -204,7 +205,7 @@ void CoverageMaskRenderStep::writeVertices(DrawWriter* dw,
 
     const SkM44& m = coverageMask.deviceToLocal();
     instances.append(1) << drawBounds << skvx::cast<uint16_t>(maskBounds) << deviceOrigin
-                        << params.order().depthAsFloat() << ssboIndices
+                        << params.order().depthAsFloat() << ssboIndex
                         << m.rc(0,0) << m.rc(1,0) << m.rc(3,0)   // mat0
                         << m.rc(0,1) << m.rc(1,1) << m.rc(3,1)   // mat1
                         << m.rc(0,3) << m.rc(1,3) << m.rc(3,3);  // mat2

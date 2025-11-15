@@ -221,38 +221,44 @@ class UniformManager {
 public:
     UniformManager(Layout layout) { this->resetWithNewLayout(layout); }
 
-    SkSpan<const char> finish(int subspanStart) {
-        if (fReqAlignment) {
-            // A render step may have no uniforms, leaving fReqAlignment as 0 after a rewind. If
-            // paint data exists, storage will still be non-empty, so we guard against alignTo(0).
-            this->alignTo(fReqAlignment);
-        }
-        fStorageHighWaterMark = std::max(fStorageHighWaterMark, fStorage.size());
+    void markOffset() {
+        fEndPaintOffset = fStorage.size();
+        fEndPaintAlignment = fReqAlignment;
+        SkDEBUGCODE(fMarkedOffsetCalculator = fOffsetCalculator;)
+    }
 
-        // Reset tracking state for any 'new' block of data after finishing this one. The overall
-        // layout and whether a paint color was written (in the preserved part) should remain
-        // unchanged.
-        fReqAlignment = 0;
-        fStructBaseAlignment = 0;
+    void alignForNonShading(int requiredAlignment) {
+        this->alignTo(requiredAlignment);
+        fNonShadingOffset = fStorage.size();
+        SkASSERT((requiredAlignment - 1 & requiredAlignment) == 0);
+        fReqAlignment = std::max(fReqAlignment, requiredAlignment);
+
 #ifdef SK_DEBUG
         fOffsetCalculator = UniformOffsetCalculator::ForTopLevel(fLayout);
-        fSubstructCalculator = {};
         fExpectedUniforms = {};
         fExpectedUniformIndex = 0;
 #endif
-
-        return fStorage.empty() ? SkSpan<const char>() :
-                                  SkSpan<const char>(fStorage).subspan(subspanStart);
+        // If we're rewinding, we shouldn't be using substructs.
+        SkASSERT(fSubstructStartingOffset == -1);
+        // Any struct should be closed.
+        SkASSERT(fStructBaseAlignment == 0);
     }
 
-    SkSpan<const char> finish() {
-        return this->finish(fStartingOffset);
+    SkSpan<const char> finish(int subspanStart = 0) {
+        this->alignTo(fReqAlignment);
+        fStorageHighWaterMark = std::max(fStorageHighWaterMark,fStorage.size());
+        return fStorage.empty() ?
+               SkSpan<const char>() :
+               SkSpan<const char>(fStorage).subspan(static_cast<size_t>(subspanStart));
     }
 
-    void markNewOffset() { fStartingOffset = fStorage.size(); }
+    SkSpan<const char> finishMarked() {
+        return this->finish(fNonShadingOffset);
+    }
+
     void resetWithNewLayout(Layout layout);
     void reset() { this->resetWithNewLayout(fLayout); }
-    void rewindToOffset();
+    void rewindToMark();
 
     int size() const { return fStorage.size(); }
 
@@ -429,18 +435,23 @@ private:
     int fStorageHighWaterMark = 0;
 
     Layout fLayout;
-    int fStartingOffset = 0;
-    int fReqAlignment = 0;
-    int fStructBaseAlignment = 0;
-    // The paint color is treated special and we only add its uniform once.
-    bool fWrotePaintColor = false;
+
+    int fReqAlignment = 1;          // The proggresive alignment as we process uniforms
+    int fEndPaintAlignment = 1;     // The alignment at the end of the paint uniforms
+    int fStructBaseAlignment = 0;   // The base alignment of a struct.
+
+    int fEndPaintOffset = 0;        // The unaligned size of the paint uniforms
+    int fNonShadingOffset = 0;      // The aligned start of non-shading renderstep uniforms
+
+    bool fWrotePaintColor = false;  // The paint only adds its uniform once.
 
     // Debug-only verification that UniformOffsetCalculator is consistent and that write() calls
     // match the expected uniform declaration order.
 #ifdef SK_DEBUG
-    UniformOffsetCalculator fOffsetCalculator; // should match implicit offsets from append()
-    UniformOffsetCalculator fSubstructCalculator; // 0-based, used when inside a substruct
-    int fSubstructStartingOffset = -1; // offset within fOffsetCalculator of first field
+    UniformOffsetCalculator fOffsetCalculator;       // should match implicit offsets from append()
+    UniformOffsetCalculator fMarkedOffsetCalculator; // store the offset calculator at rewind
+    UniformOffsetCalculator fSubstructCalculator;    // 0-based, used when inside a substruct
+    int fSubstructStartingOffset = -1;               // offset of first field in fOffsetCalculator
 
     SkSpan<const Uniform> fExpectedUniforms;
     int fExpectedUniformIndex = 0;
@@ -565,9 +576,7 @@ void UniformManager::writeArray(const void* src, int count, SkSLType type) {
 
 void UniformManager::alignTo(int alignment) {
     SkASSERT(alignment >= 1 && SkIsPow2(alignment));
-    SkASSERT(fStorage.size() >= fStartingOffset);
-    const int relativeOffset = fStorage.size() - fStartingOffset;
-    if ((relativeOffset & (alignment - 1)) != 0) {
+    if ((fStorage.size() & (alignment - 1)) != 0) {
         this->append(alignment, /*size=*/0);
     }
 }
@@ -578,12 +587,12 @@ char* UniformManager::append(int alignment, int size) {
     // less than or equal to that base alignment.
     SkASSERT(fStructBaseAlignment <= 0 || alignment <= fStructBaseAlignment);
 
-    const int relativeOffset = fStorage.size() - fStartingOffset;
-    const int padding = SkAlignTo(relativeOffset, alignment) - relativeOffset;
+    const int offset = fStorage.size();
+    const int padding = SkAlignTo(offset, alignment) - offset;
 
     // These are just asserts not aborts because SkSL compilation imposes limits on the size of
     // runtime effect arrays, and internal shaders should not be using excessive lengths.
-    SkASSERT(std::numeric_limits<int>::max() - alignment >= relativeOffset);
+    SkASSERT(std::numeric_limits<int>::max() - alignment >= offset);
     SkASSERT(std::numeric_limits<int>::max() - size >= padding);
 
     char* dst = fStorage.push_back_n(size + padding);
@@ -592,6 +601,7 @@ char* UniformManager::append(int alignment, int size) {
         dst += padding;
     }
 
+    // For pow of 2, max is LCM. If that assumption changes, this should change as well.
     fReqAlignment = std::max(fReqAlignment, alignment);
     return dst;
 }

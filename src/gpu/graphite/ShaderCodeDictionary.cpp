@@ -47,10 +47,9 @@ const char* get_known_rte_name(StableKey key) {
     SkUNREACHABLE;
 }
 
-std::string get_storage_buffer_access(const char* bufferNamePrefix,
-                                      const char* ssboIndex,
+std::string get_storage_buffer_access(const char* ssboIndex,
                                       const char* uniformName) {
-    return SkSL::String::printf("%sUniformData[%s].%s", bufferNamePrefix, ssboIndex, uniformName);
+    return SkSL::String::printf("combinedUniformData[%s].%s", ssboIndex, uniformName);
 }
 
 std::string get_mangled_name(const std::string& baseName, int manglingSuffix) {
@@ -68,8 +67,8 @@ std::string get_mangled_uniform_name(const ShaderInfo& shaderInfo,
     } else {
         result = uniform.name() + std::string("_") + std::to_string(manglingSuffix);
     }
-    if (shaderInfo.shadingSsboIndex()) {
-        result = get_storage_buffer_access("fs", shaderInfo.shadingSsboIndex(), result.c_str());
+    if (shaderInfo.uniformSsboIndex()) {
+        result = get_storage_buffer_access(shaderInfo.uniformSsboIndex(), result.c_str());
     }
     return result;
 }
@@ -82,8 +81,8 @@ std::string get_mangled_struct_reference(const ShaderInfo& shaderInfo,
                                          const ShaderNode* node) {
     SkASSERT(node->entry()->fUniformStructName);
     std::string result = "node_" + std::to_string(node->keyIndex()); // Field holding the struct
-    if (shaderInfo.shadingSsboIndex()) {
-        result = get_storage_buffer_access("fs", shaderInfo.shadingSsboIndex(), result.c_str());
+    if (shaderInfo.uniformSsboIndex()) {
+        result = get_storage_buffer_access(shaderInfo.uniformSsboIndex(), result.c_str());
     }
     return result;
 }
@@ -535,9 +534,9 @@ public:
 
     std::string declareUniform(const SkSL::VarDeclaration* decl) override {
         std::string result = get_mangled_name(std::string(decl->var()->name()), fNode->keyIndex());
-        if (fShaderInfo.shadingSsboIndex()) {
+        if (fShaderInfo.uniformSsboIndex()) {
             result =
-                    get_storage_buffer_access("fs", fShaderInfo.shadingSsboIndex(), result.c_str());
+                    get_storage_buffer_access(fShaderInfo.uniformSsboIndex(), result.c_str());
         }
         return result;
     }

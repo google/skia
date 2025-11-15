@@ -28,7 +28,7 @@ public:
     template <size_t NumEntries>
     using BindGroupKey = FixedSizeKey<2 * NumEntries>;
 
-    static constexpr size_t kNumUniformEntries = 4;
+    static constexpr size_t kNumUniformEntries = 3;
 
     class BlitWithDrawEncoder {
     public:

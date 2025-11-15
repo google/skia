@@ -655,8 +655,7 @@ const wgpu::BindGroup& DawnResourceProvider::findOrCreateUniformBuffersBindGroup
 
     constexpr uint32_t kBindingIndices[] = {
         DawnGraphicsPipeline::kIntrinsicUniformBufferIndex,
-        DawnGraphicsPipeline::kRenderStepUniformBufferIndex,
-        DawnGraphicsPipeline::kPaintUniformBufferIndex,
+        DawnGraphicsPipeline::kCombinedUniformIndex,
         DawnGraphicsPipeline::kGradientBufferIndex,
     };
 

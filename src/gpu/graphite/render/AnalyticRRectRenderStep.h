@@ -23,14 +23,14 @@ class StaticBufferManager;
 
 class AnalyticRRectRenderStep final : public RenderStep {
 public:
-    AnalyticRRectRenderStep(StaticBufferManager* bufferManager);
+    AnalyticRRectRenderStep(Layout, StaticBufferManager*);
 
     ~AnalyticRRectRenderStep() override;
 
     std::string vertexSkSL() const override;
     const char* fragmentCoverageSkSL() const override;
 
-    void writeVertices(DrawWriter*, const DrawParams&, skvx::uint2 ssboIndices) const override;
+    void writeVertices(DrawWriter*, const DrawParams&, uint32_t ssboIndex) const override;
     void writeUniformsAndTextures(const DrawParams&, PipelineDataGatherer*) const override;
 
 private:

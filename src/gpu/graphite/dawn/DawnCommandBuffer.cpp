@@ -791,11 +791,8 @@ void DawnCommandBuffer::bindUniformBuffer(const BindBufferInfo& info, UniformSlo
 
     unsigned int bufferIndex;
     switch (slot) {
-        case UniformSlot::kRenderStep:
-            bufferIndex = DawnGraphicsPipeline::kRenderStepUniformBufferIndex;
-            break;
-        case UniformSlot::kPaint:
-            bufferIndex = DawnGraphicsPipeline::kPaintUniformBufferIndex;
+        case UniformSlot::kCombinedUniforms:
+            bufferIndex = DawnGraphicsPipeline::kCombinedUniformIndex;
             break;
         case UniformSlot::kGradient:
             bufferIndex = DawnGraphicsPipeline::kGradientBufferIndex;
@@ -946,9 +943,8 @@ void DawnCommandBuffer::syncUniformBuffers() {
                 !fSharedContext->dawnCaps()
                          ->resourceBindingRequirements()
                          .fUsePushConstantsForIntrinsicConstants,  // intrinsic uniforms
-                fActiveGraphicsPipeline->hasStepUniforms(),            // render step uniforms
-                fActiveGraphicsPipeline->hasPaintUniforms(),           // paint uniforms
-                fActiveGraphicsPipeline->hasGradientBuffer(),          // gradient SSBO
+                fActiveGraphicsPipeline->hasCombinedUniforms(),    // paint AND renderstep uniforms!
+                fActiveGraphicsPipeline->hasGradientBuffer(),      // gradient SSBO
         };
 
         for (int i = 0; i < kNumBuffers; ++i) {

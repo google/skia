@@ -53,8 +53,8 @@ public:
         return UniformDataBlock(uniforms->finish());
     }
 
-    static UniformDataBlock Wrap(UniformManager* uniforms, size_t subspanOffset) {
-        return UniformDataBlock(uniforms->finish(subspanOffset));
+    static UniformDataBlock WrapNonShading(UniformManager* uniforms) {
+        return UniformDataBlock(uniforms->finishMarked());
     }
 
     constexpr UniformDataBlock& operator=(const UniformDataBlock&) = default;
@@ -372,30 +372,33 @@ public:
     }
 #endif // SK_DEBUG
 
-    // Mark the end of extracting paint uniforms and textures. This finalizes the paint uniform
-    // data, pads it correctly, and records its size.
-    UniformDataBlock endPaintData() {
+    // If a renderstep performs shading, then alignment should occur on the combined
+    // paint+renderstep, so no alignment is required and we simply mark the end of the paints. Else
+    // we need to align whatever is cuurrently stored to the renderstep's uniform alignment.
+    void markOffsetAndAlign(bool performsShading, int requiredAlignment) {
         fPaintTextureCount = fTextures.size();
-        auto paintData = UniformDataBlock::Wrap(&fUniformManager, /*subspanOffset=*/0);
-        fUniformManager.markNewOffset(); // No-op if already assigned
-        return paintData;
-    }
-
-    // Mark the end of extracting uniforms and textures from a RenderStep.
-    std::pair<UniformDataBlock, TextureDataBlock> endRenderStepData(bool performsShading) {
-        SkSpan<const TextureDataBlock::SampledTexture> textures{fTextures};
+        fUniformManager.markOffset();
         if (!performsShading) {
-            textures = textures.subspan(fPaintTextureCount);
+            fUniformManager.alignForNonShading(requiredAlignment);
         }
-        // By this point, the fStartingOffset of the uniform manager will have advanced to the end
-        // of the paint uniforms, so calling wrap now returns the renderstep uniforms.
-        return {UniformDataBlock::Wrap(&fUniformManager), TextureDataBlock(textures)};
     }
 
     // Rewind to collect data for another RenderStep using the same paint data.
     void rewindForRenderStep() {
         fTextures.resize_back(fPaintTextureCount);
-        fUniformManager.rewindToOffset();
+        fUniformManager.rewindToMark();
+    }
+
+    // Mark the end of extracting uniforms and textures from a RenderStep.
+    std::pair<UniformDataBlock, TextureDataBlock> endCombinedData(bool performsShading) {
+        SkSpan<const TextureDataBlock::SampledTexture> textures{fTextures};
+        if (performsShading) {
+            // Return paint AND renderstep uniforms written since the last resetForDraw.
+            return {UniformDataBlock::Wrap(&fUniformManager), TextureDataBlock(textures)};
+        } else {
+            textures = textures.subspan(fPaintTextureCount);
+            return {UniformDataBlock::WrapNonShading(&fUniformManager), TextureDataBlock(textures)};
+        }
     }
 
     // Append a sampled texture.

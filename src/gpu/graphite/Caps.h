@@ -79,15 +79,14 @@ struct ResourceBindingRequirements {
      * Define set indices. We assume that even if textures and samplers must be bound separately,
      * they will still be contained within the same set/group.
      */
-    static constexpr int kUnassigned = -1;
-    int fUniformsSetIdx              = kUnassigned;
-    int fTextureSamplerSetIdx        = kUnassigned;
-    int fInputAttachmentSetIdx       = kUnassigned;
+    static constexpr int kUnassigned  = -1;
+    int fUniformsSetIdx               = kUnassigned;
+    int fTextureSamplerSetIdx         = kUnassigned;
+    int fInputAttachmentSetIdx        = kUnassigned;
     /* Define uniform buffer bindings */
-    int fIntrinsicBufferBinding      = kUnassigned;
-    int fRenderStepBufferBinding     = kUnassigned;
-    int fPaintParamsBufferBinding    = kUnassigned;
-    int fGradientBufferBinding       = kUnassigned;
+    int fIntrinsicBufferBinding       = kUnassigned;
+    int fCombinedUniformBufferBinding = kUnassigned;
+    int fGradientBufferBinding        = kUnassigned;
 };
 
 class Caps {

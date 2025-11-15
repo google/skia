@@ -43,8 +43,7 @@ public:
     DstReadStrategy dstReadStrategy() const { return fPipelineInfo.fDstReadStrategy; }
 
     int  numFragTexturesAndSamplers() const { return fPipelineInfo.fNumFragTexturesAndSamplers; }
-    bool hasPaintUniforms()           const { return fPipelineInfo.fHasPaintUniforms;           }
-    bool hasStepUniforms()            const { return fPipelineInfo.fHasStepUniforms;            }
+    bool hasCombinedUniforms()        const { return fPipelineInfo.fHasCombinedUniforms;        }
     bool hasGradientBuffer()          const { return fPipelineInfo.fHasGradientBuffer;          }
 
     struct PipelineInfo {
@@ -56,8 +55,7 @@ public:
 
         DstReadStrategy fDstReadStrategy = DstReadStrategy::kNoneRequired;
         int  fNumFragTexturesAndSamplers = 0;
-        bool fHasPaintUniforms  = false;
-        bool fHasStepUniforms   = false;
+        bool fHasCombinedUniforms = false;
         bool fHasGradientBuffer = false;
 
         // In test-enabled builds, we preserve the generated shader code to display in the viewer

@@ -77,9 +77,7 @@ void populate_resource_binding_reqs(ResourceBindingRequirements& reqs) {
     reqs.fUsePushConstantsForIntrinsicConstants = true;
 
     // Assign uniform buffer binding values for shader generation
-    reqs.fRenderStepBufferBinding =
-            VulkanGraphicsPipeline::kRenderStepUniformBufferIndex;
-    reqs.fPaintParamsBufferBinding =  VulkanGraphicsPipeline::kPaintUniformBufferIndex;
+    reqs.fCombinedUniformBufferBinding = VulkanGraphicsPipeline::kCombinedUniformIndex;
     reqs.fGradientBufferBinding = VulkanGraphicsPipeline::kGradientBufferIndex;
 
     // Assign descriptor set indices for shader generation

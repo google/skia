@@ -111,14 +111,14 @@ void DawnSharedContext::deviceTick(Context* context) {
 void DawnSharedContext::createUniformBuffersBindGroupLayout() {
     const Caps* caps = this->caps();
 
-    std::array<wgpu::BindGroupLayoutEntry, 4> entries;
+    std::array<wgpu::BindGroupLayoutEntry, DawnGraphicsPipeline::kNumUniformBuffers> entries;
     entries[0].binding = DawnGraphicsPipeline::kIntrinsicUniformBufferIndex;
     entries[0].visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment;
     entries[0].buffer.type = wgpu::BufferBindingType::Uniform;
     entries[0].buffer.hasDynamicOffset = true;
     entries[0].buffer.minBindingSize = 0;
 
-    entries[1].binding = DawnGraphicsPipeline::kRenderStepUniformBufferIndex;
+    entries[1].binding = DawnGraphicsPipeline::kCombinedUniformIndex;
     entries[1].visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment;
     entries[1].buffer.type = caps->storageBufferSupport()
                                      ? wgpu::BufferBindingType::ReadOnlyStorage
@@ -126,24 +126,16 @@ void DawnSharedContext::createUniformBuffersBindGroupLayout() {
     entries[1].buffer.hasDynamicOffset = true;
     entries[1].buffer.minBindingSize = 0;
 
-    entries[2].binding = DawnGraphicsPipeline::kPaintUniformBufferIndex;
-    entries[2].visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment;
+    // Gradient buffer will only be used when storage buffers are preferred, else large
+    // gradients use a texture fallback, set binding type as a uniform when not in use to
+    // satisfy any binding type restrictions for non-supported ssbo devices.
+    entries[2].binding = DawnGraphicsPipeline::kGradientBufferIndex;
+    entries[2].visibility = wgpu::ShaderStage::Fragment;
     entries[2].buffer.type = caps->storageBufferSupport()
                                      ? wgpu::BufferBindingType::ReadOnlyStorage
                                      : wgpu::BufferBindingType::Uniform;
     entries[2].buffer.hasDynamicOffset = true;
     entries[2].buffer.minBindingSize = 0;
-
-    // Gradient buffer will only be used when storage buffers are preferred, else large
-    // gradients use a texture fallback, set binding type as a uniform when not in use to
-    // satisfy any binding type restrictions for non-supported ssbo devices.
-    entries[3].binding = DawnGraphicsPipeline::kGradientBufferIndex;
-    entries[3].visibility = wgpu::ShaderStage::Fragment;
-    entries[3].buffer.type = caps->storageBufferSupport()
-                                     ? wgpu::BufferBindingType::ReadOnlyStorage
-                                     : wgpu::BufferBindingType::Uniform;
-    entries[3].buffer.hasDynamicOffset = true;
-    entries[3].buffer.minBindingSize = 0;
 
     wgpu::BindGroupLayoutDescriptor groupLayoutDesc;
     if (caps->setBackendLabels()) {

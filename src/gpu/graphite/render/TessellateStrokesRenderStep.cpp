@@ -65,14 +65,14 @@ using Writer = PatchWriter<DynamicInstancesPatchAllocator<FixedCountStrokes>,
 
 // The order of the attribute declarations must match the order used by
 // PatchWriter::emitPatchAttribs, i.e.:
-//     join << fanPoint << stroke << color << depth << curveType << ssboIndices
+//     join << fanPoint << stroke << color << depth << curveType << ssboIndex
 static constexpr Attribute kBaseAttributes[] = {
         {"p01", VertexAttribType::kFloat4, SkSLType::kFloat4},
         {"p23", VertexAttribType::kFloat4, SkSLType::kFloat4},
         {"prevPoint", VertexAttribType::kFloat2, SkSLType::kFloat2},
         {"stroke", VertexAttribType::kFloat2, SkSLType::kFloat2},
         {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-        {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2}};
+        {"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt}};
 
 static constexpr Attribute kAttributesWithCurveType[] = {
         {"p01", VertexAttribType::kFloat4, SkSLType::kFloat4},
@@ -81,15 +81,16 @@ static constexpr Attribute kAttributesWithCurveType[] = {
         {"stroke", VertexAttribType::kFloat2, SkSLType::kFloat2},
         {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
         {"curveType", VertexAttribType::kFloat, SkSLType::kFloat},
-        {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2}};
+        {"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt}};
 
 static constexpr SkSpan<const Attribute> kAttributes[2] = {kAttributesWithCurveType,
                                                            kBaseAttributes};
 
 }  // namespace
 
-TessellateStrokesRenderStep::TessellateStrokesRenderStep(bool infinitySupport)
-        : RenderStep(RenderStepID::kTessellateStrokes,
+TessellateStrokesRenderStep::TessellateStrokesRenderStep(Layout layout, bool infinitySupport)
+        : RenderStep(layout,
+                     RenderStepID::kTessellateStrokes,
                      Flags::kRequiresMSAA | Flags::kPerformsShading |
                      Flags::kAppendDynamicInstances,
                      /*uniforms=*/{{"affineMatrix", SkSLType::kFloat4},
@@ -122,7 +123,7 @@ std::string TessellateStrokesRenderStep::vertexSkSL() const {
 
 void TessellateStrokesRenderStep::writeVertices(DrawWriter* dw,
                                                 const DrawParams& params,
-                                                skvx::uint2 ssboIndices) const {
+                                                uint32_t ssboIndex) const {
     SkPath path = params.geometry().shape().asPath(); // TODO: Iterate the Shape directly
 
     int patchReserveCount = FixedCountStrokes::PreallocCount(path.countVerbs());
@@ -137,7 +138,7 @@ void TessellateStrokesRenderStep::writeVertices(DrawWriter* dw,
                   kNullBinding,
                   patchReserveCount};
     writer.updatePaintDepthAttrib(params.order().depthAsFloat());
-    writer.updateSsboIndexAttrib(ssboIndices);
+    writer.updateSsboIndexAttrib(ssboIndex);
 
     // The vector xform approximates how the control points are transformed by the shader to
     // more accurately compute how many *parametric* segments are needed.

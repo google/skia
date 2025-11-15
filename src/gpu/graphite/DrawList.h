@@ -185,16 +185,14 @@ private:
         SortKey(const DrawList::Draw* draw,
                 int renderStep,
                 GraphicsPipelineCache::Index pipelineIndex,
-                UniformDataCache::Index geomUniformIndex,
-                UniformDataCache::Index shadingUniformIndex,
+                UniformDataCache::Index uniformIndex,
                 TextureDataCache::Index textureBindingIndex)
                 : fPipelineKey(
                           ColorDepthOrderField::set(draw->drawParams().order().paintOrder().bits())
                           | StencilIndexField::set(draw->drawParams().order().stencilIndex().bits())
                           | RenderStepField::set(static_cast<uint32_t>(renderStep))
                           | PipelineField::set(pipelineIndex))
-                , fUniformKey(GeometryUniformField::set(geomUniformIndex)   |
-                              ShadingUniformField::set(shadingUniformIndex) |
+                , fUniformKey(UniformField::set(uniformIndex) |
                               TextureBindingsField::set(textureBindingIndex))
                 , fDraw(draw) {
             SkASSERT(pipelineIndex < GraphicsPipelineCache::kInvalidIndex);
@@ -215,11 +213,8 @@ private:
         GraphicsPipelineCache::Index pipelineIndex() const {
             return PipelineField::get(fPipelineKey);
         }
-        UniformDataCache::Index geometryUniformIndex() const {
-            return GeometryUniformField::get(fUniformKey);
-        }
-        UniformDataCache::Index shadingUniformIndex() const {
-            return ShadingUniformField::get(fUniformKey);
+        UniformDataCache::Index uniformIndex() const {
+            return UniformField::get(fUniformKey);
         }
         TextureDataCache::Index textureBindingIndex() const {
             return TextureBindingsField::get(fUniformKey);
@@ -238,8 +233,7 @@ private:
         // The uniform/texture index fields need 1 extra bit to encode "no-data". Values that are
         // greater than or equal to 2^(bits-1) represent "no-data", while values between
         // [0, 2^(bits-1)-1] can access data arrays without extra logic.
-        using GeometryUniformField = Bitfield<17, 47>; // bits >= 1+log2(max total steps)
-        using ShadingUniformField  = Bitfield<17, 30>; // bits >= 1+log2(max total steps)
+        using UniformField         = Bitfield<34, 30>; // bits >= 1+log2(max total steps)
         using TextureBindingsField = Bitfield<30, 0>;  // bits >= 1+log2(max total steps)
         uint64_t fUniformKey;
 
@@ -250,8 +244,7 @@ private:
         static_assert(StencilIndexField::kBits    >= sizeof(DisjointStencilIndex));
         static_assert(RenderStepField::kBits      >= SkNextLog2_portable(Renderer::kMaxRenderSteps));
         static_assert(PipelineField::kBits        >= SkNextLog2_portable(DrawList::kMaxRenderSteps));
-        static_assert(GeometryUniformField::kBits >= 1+SkNextLog2_portable(DrawList::kMaxRenderSteps));
-        static_assert(ShadingUniformField::kBits  >= 1+SkNextLog2_portable(DrawList::kMaxRenderSteps));
+        static_assert(UniformField::kBits         >= 1+SkNextLog2_portable(DrawList::kMaxRenderSteps));
         static_assert(TextureBindingsField::kBits >= 1+SkNextLog2_portable(DrawList::kMaxRenderSteps));
     };
 
@@ -280,8 +273,7 @@ private:
 
     std::vector<SortKey> fSortKeys;
 
-    UniformDataCache fGeometryUniformDataCache;
-    UniformDataCache fShadingUniformDataCache;
+    UniformDataCache fUniformDataCache;
     TextureDataCache fTextureDataCache;
     GraphicsPipelineCache fPipelineCache;
 

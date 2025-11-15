@@ -549,11 +549,8 @@ void MtlCommandBuffer::bindUniformBuffer(const BindBufferInfo& info, UniformSlot
 
     unsigned int bufferIndex;
     switch(slot) {
-        case UniformSlot::kRenderStep:
-            bufferIndex = MtlGraphicsPipeline::kRenderStepUniformBufferIndex;
-            break;
-        case UniformSlot::kPaint:
-            bufferIndex = MtlGraphicsPipeline::kPaintUniformBufferIndex;
+        case UniformSlot::kCombinedUniforms:
+            bufferIndex = MtlGraphicsPipeline::kCombinedUniformIndex;
             break;
         case UniformSlot::kGradient:
             bufferIndex = MtlGraphicsPipeline::kGradientBufferIndex;

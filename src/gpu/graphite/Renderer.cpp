@@ -8,10 +8,12 @@
 #include "src/gpu/graphite/Renderer.h"
 
 #include "src/gpu/graphite/DrawParams.h"
+#include "src/gpu/graphite/UniformManager.h"
 
 namespace skgpu::graphite {
 
-RenderStep::RenderStep(RenderStepID renderStepID,
+RenderStep::RenderStep(Layout layout,
+                       RenderStepID renderStepID,
                        SkEnumBitMask<Flags> flags,
                        std::initializer_list<Uniform> uniforms,
                        PrimitiveType primitiveType,
@@ -27,6 +29,7 @@ RenderStep::RenderStep(RenderStepID renderStepID,
         , fStaticAttrs(staticAttrs.begin(), staticAttrs.end())
         , fAppendAttrs(appendAttrs.begin(), appendAttrs.end())
         , fVaryings(varyings.begin(), varyings.end())
+        , fUniformAlignment(0)
         , fStaticDataStride(0)
         , fAppendDataStride(0) {
     for (auto v : this->staticAttributes()) {
@@ -35,6 +38,12 @@ RenderStep::RenderStep(RenderStepID renderStepID,
     for (auto i : this->appendAttributes()) {
         fAppendDataStride += i.sizeAlign4();
     }
+
+    UniformOffsetCalculator calculator = UniformOffsetCalculator::ForTopLevel(layout);
+    for (const auto& u : fUniforms) {
+        calculator.advanceOffset(u.type(), u.count());
+    }
+    fUniformAlignment = calculator.requiredAlignment();
 }
 
 std::optional<SkIRect> RenderStep::getScissor(const DrawParams& params,

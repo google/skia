@@ -277,7 +277,7 @@ class PatchWriter {
     DEF_ATTRIB_TYPE(ColorAttrib,     PatchAttribs::kColor,             Color);
     DEF_ATTRIB_TYPE(DepthAttrib,     PatchAttribs::kPaintDepth,        float);
     DEF_ATTRIB_TYPE(CurveTypeAttrib, PatchAttribs::kExplicitCurveType, float);
-    DEF_ATTRIB_TYPE(SsboIndexAttrib, PatchAttribs::kSsboIndex,         skvx::uint2);
+    DEF_ATTRIB_TYPE(SsboIndexAttrib, PatchAttribs::kSsboIndex,         uint32_t);
 #undef DEF_ATTRIB_TYPE
 
     static constexpr size_t kMaxStride = 4 * sizeof(SkPoint) + // control points
@@ -492,7 +492,7 @@ public:
 
     // Updates the storage buffer index used to access uniforms.
     ENABLE_IF(SsboIndexAttrib::kEnabled)
-    updateSsboIndexAttrib(skvx::uint2 ssboIndex) {
+    updateSsboIndexAttrib(uint32_t ssboIndex) {
         SkASSERT(fAttribs & PatchAttribs::kSsboIndex);
         fSsboIndex = ssboIndex;
     }
