@@ -26,25 +26,25 @@ skia_filegroup(
 
 skia_filegroup(
     name = "ffi_hdrs",
-    srcs = ["SpanUtils.h"],
+    srcs = [
+        "SkStreamAdapter.h",
+        "SpanUtils.h",
+    ],
     visibility = ["//:__subpackages__"],
 )
 
-# At the moment we set a header file to force its generation because if we keep
-# list empty it won't generate. This should contain SkStreamAdapter and any
-# other source file
+# C++ implementation files for FFI utilities
 skia_filegroup(
     name = "ffi_cpp",
-    srcs = ["SpanUtils.h"],
+    srcs = ["SkStreamAdapter.cpp"],
     visibility = ["//:__subpackages__"],
 )
 
 # Shared FFI utilities for Rust codec integrations.
 skia_cc_library(
     name = "ffi_utils",
-    hdrs = [
-        "SpanUtils.h",
-    ],
+    srcs = ["ffi_cpp"],
+    hdrs = ["ffi_hdrs"],
     features = ["layering_check"],
     visibility = [
         "//rust/png:__pkg__",
@@ -53,13 +53,14 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
+        "//src/base",
         "@crates//:cxx_cc",
     ],
 )
 
 rust_cxx_bridge(
     name = "cxx_bridge",
-    src = "io_traits_ffi.rs",
+    src = "rs_srcs",
     visibility = ["//rust/png:__pkg__"],
     deps = [":ffi_utils"],
 )

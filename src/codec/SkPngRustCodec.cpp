@@ -303,113 +303,6 @@ SkCodec::Result ToSkCodecResult(rust_png::DecodingResult rustResult) {
     SK_ABORT("Unexpected `rust_png::DecodingResult`: %d", static_cast<int>(rustResult));
 }
 
-// This helper class adapts `SkStream` to expose the API required by Rust FFI
-// (i.e. the `ReadAndSeekTraits` API).
-class ReadAndSeekTraitsAdapterForSkStream final : public rust_png::ReadAndSeekTraits {
-public:
-    // SAFETY: The caller needs to guarantee that `stream` will be alive for
-    // as long as `ReadAndSeekTraitsAdapterForSkStream`.
-    explicit ReadAndSeekTraitsAdapterForSkStream(SkStream* stream) : fStream(stream) {
-        SkASSERT_RELEASE(fStream);
-    }
-
-    ~ReadAndSeekTraitsAdapterForSkStream() override = default;
-
-    // Non-copyable and non-movable (we want a stable `this` pointer, because we
-    // will be passing a `ReadAndSeekTraits*` pointer over the FFI boundary and
-    // retaining it inside `png::Reader`).
-    ReadAndSeekTraitsAdapterForSkStream(const ReadAndSeekTraitsAdapterForSkStream&) = delete;
-    ReadAndSeekTraitsAdapterForSkStream& operator=(const ReadAndSeekTraitsAdapterForSkStream&) =
-            delete;
-    ReadAndSeekTraitsAdapterForSkStream(ReadAndSeekTraitsAdapterForSkStream&&) = delete;
-    ReadAndSeekTraitsAdapterForSkStream& operator=(ReadAndSeekTraitsAdapterForSkStream&&) = delete;
-
-    // Implementation of the `std::io::Read::read` method.  See Rust trait's
-    // doc comments at
-    // https://doc.rust-lang.org/nightly/std/io/trait.Read.html#tymethod.read
-    // for guidance on the desired implementation and behavior of this method.
-    size_t read(rust::Slice<uint8_t> buffer) override {
-        SkSpan<uint8_t> span = ToSkSpan(buffer);
-        return fStream->read(span.data(), span.size());
-    }
-
-    // Implementation of the `std::io::Seek::seek` method.  See Rust trait`'s
-    // doc comments at
-    // https://doc.rust-lang.org/beta/std/io/trait.Seek.html#tymethod.seek
-    // for guidance on the desired implementation and behavior of these methods.
-    bool seek_from_start(uint64_t requestedPos, uint64_t& finalPos) override {
-        SkSafeMath safe;
-        size_t pos = safe.castTo<size_t>(requestedPos);
-        if (!safe.ok()) {
-            return false;
-        }
-
-        if (!fStream->seek(pos)) {
-            return false;
-        }
-        SkASSERT_RELEASE(!fStream->hasPosition() || fStream->getPosition() == requestedPos);
-
-        // Assigning `size_t` to `uint64_t` doesn't need to go through
-        // `SkSafeMath`, because `uint64_t` is never smaller than `size_t`.
-        static_assert(sizeof(uint64_t) >= sizeof(size_t));
-        finalPos = requestedPos;
-
-        return true;
-    }
-    bool seek_from_end(int64_t requestedOffset, uint64_t& finalPos) override {
-        if (!fStream->hasLength()) {
-            return false;
-        }
-        size_t length = fStream->getLength();
-
-        SkSafeMath safe;
-        uint64_t endPos = safe.castTo<uint64_t>(length);
-        if (requestedOffset > 0) {
-            // IIUC `SkStream` doesn't support reading beyond the current
-            // length.
-            return false;
-        }
-        if (requestedOffset == std::numeric_limits<int64_t>::min()) {
-            // `-requestedOffset` below wouldn't work.
-            return false;
-        }
-        uint64_t offset = safe.castTo<uint64_t>(-requestedOffset);
-        if (!safe.ok()) {
-            return false;
-        }
-        if (offset > endPos) {
-            // `endPos - offset` below wouldn't work.
-            return false;
-        }
-
-        return this->seek_from_start(endPos - offset, finalPos);
-    }
-    bool seek_relative(int64_t requestedOffset, uint64_t& finalPos) override {
-        if (!fStream->hasPosition()) {
-            return false;
-        }
-
-        SkSafeMath safe;
-        long offset = safe.castTo<long>(requestedOffset);
-        if (!safe.ok()) {
-            return false;
-        }
-
-        if (!fStream->move(offset)) {
-            return false;
-        }
-
-        finalPos = safe.castTo<uint64_t>(fStream->getPosition());
-        if (!safe.ok()) {
-            return false;
-        }
-        return true;
-    }
-
-private:
-    SkStream* fStream = nullptr;  // Non-owning pointer.
-};
-
 void blendRow(SkSpan<uint8_t> dstRow,
               SkSpan<const uint8_t> srcRow,
               SkColorType color,
@@ -530,7 +423,7 @@ std::unique_ptr<SkPngRustCodec> SkPngRustCodec::MakeFromStream(std::unique_ptr<S
     SkASSERT_RELEASE(stream);
     SkASSERT_RELEASE(result);
 
-    auto inputAdapter = std::make_unique<ReadAndSeekTraitsAdapterForSkStream>(stream.get());
+    auto inputAdapter = std::make_unique<rust::stream::SkStreamAdapter>(stream.get());
     rust::Box<rust_png::ResultOfReader> resultOfReader =
             rust_png::new_reader(std::move(inputAdapter));
     *result = ToSkCodecResult(resultOfReader->err());
@@ -620,7 +513,7 @@ SkCodec::Result SkPngRustCodec::seekToStartOfFrame(int index) {
         }
 
         auto inputAdapter =
-                std::make_unique<ReadAndSeekTraitsAdapterForSkStream>(fPrivStream.get());
+                std::make_unique<rust::stream::SkStreamAdapter>(fPrivStream.get());
         rust::Box<rust_png::ResultOfReader> resultOfReader =
                 rust_png::new_reader(std::move(inputAdapter));
 

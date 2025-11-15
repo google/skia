@@ -5,6 +5,7 @@
 
 import("gn/codec.gni")
 import("gn/pathops.gni")
+import("gn/rust.gni")
 import("gn/shared_sources.gni")
 import("gn/skia.gni")
 import("gn/toolchain/wasm.gni")
@@ -1496,13 +1497,6 @@ if (skia_use_rust_png_decode || skia_use_rust_png_encode) {
                      root_build_dir) + "=third_party/rust/cxx/v1/cxx.h",
            ] + bazel_args
   }
-  config("rust_png_cxx_bridge_public_config") {
-    include_dirs = [
-      # This is where `rust/png/FFI.rs.h` and
-      # `third_party/rust/cxx/v1/cxx.h` were put by Bazel
-      "$root_out_dir",
-    ]
-  }
   config("rust_png_cxx_bridge_private_config") {
     include_dirs = [
       # This entry is needed so that `FFI.rs.cc` can resolve
@@ -1515,9 +1509,24 @@ if (skia_use_rust_png_decode || skia_use_rust_png_encode) {
     public = [ "${root_out_dir}/rust/png/FFI.rs.h" ]
     sources = [ "${root_out_dir}/rust/png/FFI.rs.cc" ]
     libs = [ "$root_out_dir/librust_png_ffi_rs.a" ]
-    public_configs = [ ":rust_png_cxx_bridge_public_config" ]
+    public_configs = [ ":rust_common_cxx_bridge_public_config" ]
     configs = [ ":rust_png_cxx_bridge_private_config" ]
   }
+}
+
+config("rust_common_cxx_bridge_public_config") {
+  include_dirs = [
+    # This is where `rust/.../*.rs.h` and
+    # `third_party/rust/cxx/v1/cxx.h` were put by Bazel
+    "$root_out_dir",
+  ]
+}
+
+optional("rust_common") {
+  enabled = skia_use_rust_png_decode || skia_use_rust_png_encode
+  public = skia_rust_common_ffi_cpp_hdrs
+  sources = skia_rust_common_ffi_cpp_srcs
+  public_configs = [ ":rust_common_cxx_bridge_public_config" ]
 }
 
 optional("png_decode_rust") {
@@ -1529,6 +1538,7 @@ optional("png_decode_rust") {
 
   deps = [
     ":png_decode_common",
+    ":rust_common",
     ":rust_png_cxx_bridge",
     ":rust_png_cxx_core_bazel_build",
   ]
@@ -1546,6 +1556,7 @@ optional("png_encode_rust") {
   sources_for_tests = [ "tests/SkPngRustEncoderTest.cpp" ]
   deps = [
     ":png_encode_common",
+    ":rust_common",
     ":rust_png_cxx_bridge",
     ":rust_png_cxx_core_bazel_build",
   ]

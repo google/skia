@@ -8,7 +8,7 @@
 //! macro below and exposed through the auto-generated `FFI.rs.h` header.
 
 use std::borrow::Cow;
-use std::io::{BufReader, ErrorKind, Read, Seek, SeekFrom, Write};
+use std::io::{BufReader, ErrorKind, Write};
 use std::pin::Pin;
 
 // No `use png::...` nor `use ffi::...` because we want the code to explicitly
@@ -113,29 +113,16 @@ mod ffi {
     /// FFI/layering-friendly equivalent of `skhdr::ContentLightLevelInformation` from C/C++.
     struct ContentLightLevelInfo {
         fMaxCLL: f32,
-        fMaxFALL : f32,
+        fMaxFALL: f32,
     }
 
     unsafe extern "C++" {
         include!("rust/png/FFI.h");
+        include!("rust/common/SkStreamAdapter.h");
 
-        type ReadAndSeekTraits;
-        fn read(self: Pin<&mut ReadAndSeekTraits>, buffer: &mut [u8]) -> usize;
-        fn seek_from_start(
-            self: Pin<&mut ReadAndSeekTraits>,
-            requested_pos: u64,
-            final_pos: &mut u64,
-        ) -> bool;
-        fn seek_from_end(
-            self: Pin<&mut ReadAndSeekTraits>,
-            requested_offset: i64,
-            final_pos: &mut u64,
-        ) -> bool;
-        fn seek_relative(
-            self: Pin<&mut ReadAndSeekTraits>,
-            requested_offset: i64,
-            final_pos: &mut u64,
-        ) -> bool;
+        // Reference the SkStreamAdapter type from skia_rust_common.
+        #[namespace = "rust::stream"]
+        type SkStreamAdapter = skia_rust_common::SkStreamAdapter;
 
         type WriteTrait;
         fn write(self: Pin<&mut WriteTrait>, buffer: &[u8]) -> bool;
@@ -148,7 +135,7 @@ mod ffi {
     // section. The doc comments of these items can instead be found in the
     // actual Rust code, outside of the `#[cxx::bridge]` manifest.
     extern "Rust" {
-        fn new_reader(input: UniquePtr<ReadAndSeekTraits>) -> Box<ResultOfReader>;
+        fn new_reader(input: UniquePtr<SkStreamAdapter>) -> Box<ResultOfReader>;
 
         type ResultOfReader;
         fn err(self: &ResultOfReader) -> DecodingResult;
@@ -159,10 +146,7 @@ mod ffi {
         fn width(self: &Reader) -> u32;
         fn interlaced(self: &Reader) -> bool;
         fn is_srgb(self: &Reader) -> bool;
-        fn try_get_chrm(
-            self: &Reader,
-            chrm: &mut ColorSpacePrimaries,
-        ) -> bool;
+        fn try_get_chrm(self: &Reader, chrm: &mut ColorSpacePrimaries) -> bool;
         fn try_get_cicp_chunk(
             self: &Reader,
             primaries_id: &mut u8,
@@ -170,14 +154,8 @@ mod ffi {
             matrix_id: &mut u8,
             is_full_range: &mut bool,
         ) -> bool;
-        fn try_get_mdcv_chunk(
-            self: &Reader,
-            mdcv: &mut MasteringDisplayColorVolume,
-        ) -> bool;
-        fn try_get_clli_chunk(
-            self: &Reader,
-            clli: &mut ContentLightLevelInfo,
-        ) -> bool;
+        fn try_get_mdcv_chunk(self: &Reader, mdcv: &mut MasteringDisplayColorVolume) -> bool;
+        fn try_get_clli_chunk(self: &Reader, clli: &mut ContentLightLevelInfo) -> bool;
         fn try_get_gama(self: &Reader, gamma: &mut f32) -> bool;
         fn has_exif_chunk(self: &Reader) -> bool;
         fn get_exif_chunk(self: &Reader) -> &[u8];
@@ -217,9 +195,7 @@ mod ffi {
             row: &[u8],
             bits_per_pixel: u8,
         );
-        unsafe fn read_row(
-            self: &mut Reader,
-            output_buffer: &mut [u8]) -> DecodingResult;
+        unsafe fn read_row(self: &mut Reader, output_buffer: &mut [u8]) -> DecodingResult;
 
         fn new_writer(
             output: UniquePtr<WriteTrait>,
@@ -320,7 +296,7 @@ impl ffi::Compression {
             &Self::Level1WithUpFilter => {
                 encoder.set_deflate_compression(png::DeflateCompression::Level(1));
                 encoder.set_filter(png::Filter::Up);
-            },
+            }
             &Self::Fastest => encoder.set_compression(png::Compression::Fastest),
             &Self::Fast => encoder.set_compression(png::Compression::Fast),
             &Self::Balanced => encoder.set_compression(png::Compression::Balanced),
@@ -340,28 +316,6 @@ impl From<Option<&png::EncodingError>> for ffi::EncodingResult {
                 png::EncodingError::Parameter(_) => Self::ParameterError,
                 png::EncodingError::LimitsExceeded => Self::LimitsExceededError,
             },
-        }
-    }
-}
-
-impl<'a> Read for Pin<&'a mut ffi::ReadAndSeekTraits> {
-    fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
-        Ok(self.as_mut().read(buf))
-    }
-}
-
-impl<'a> Seek for Pin<&'a mut ffi::ReadAndSeekTraits> {
-    fn seek(&mut self, pos: SeekFrom) -> std::io::Result<u64> {
-        let mut new_pos = 0;
-        let success = match pos {
-            SeekFrom::Start(pos) => self.as_mut().seek_from_start(pos, &mut new_pos),
-            SeekFrom::End(offset) => self.as_mut().seek_from_end(offset, &mut new_pos),
-            SeekFrom::Current(offset) => self.as_mut().seek_relative(offset, &mut new_pos),
-        };
-        if success {
-            Ok(new_pos)
-        } else {
-            Err(ErrorKind::Other.into())
         }
     }
 }
@@ -433,7 +387,10 @@ fn compute_transformations(info: &png::Info) -> png::Transformations {
     // TODO(https://crbug.com/359245096): Avoid stripping least signinficant 8 bits in G16 and
     // GA16 images.
     if info.bit_depth == png::BitDepth::Sixteen {
-        if matches!(info.color_type, png::ColorType::Grayscale | png::ColorType::GrayscaleAlpha) {
+        if matches!(
+            info.color_type,
+            png::ColorType::Grayscale | png::ColorType::GrayscaleAlpha
+        ) {
             result = result | png::Transformations::STRIP_16;
         }
     }
@@ -445,12 +402,12 @@ fn compute_transformations(info: &png::Info) -> png::Transformations {
 /// generics, so we manually monomorphize here, but still expose a minimal,
 /// somewhat tweaked API of the original type).
 struct Reader {
-    reader: png::Reader<BufReader<cxx::UniquePtr<ffi::ReadAndSeekTraits>>>,
+    reader: png::Reader<BufReader<cxx::UniquePtr<ffi::SkStreamAdapter>>>,
     last_interlace_info: Option<png::InterlaceInfo>,
 }
 
 impl Reader {
-    fn new(input: cxx::UniquePtr<ffi::ReadAndSeekTraits>) -> Result<Self, png::DecodingError> {
+    fn new(input: cxx::UniquePtr<ffi::SkStreamAdapter>) -> Result<Self, png::DecodingError> {
         // The magic value of `BUF_CAPACITY` is based on `CHUNK_BUFFER_SIZE` which was
         // used in `BufReader::with_capacity` calls by `png` crate up to version
         // 0.17.16 - see: https://github.com/image-rs/image-png/pull/558/files#diff-c28833b65510e37441203b4256b74068f191d29ea34b6e753442e644d3a316b8L28
@@ -475,7 +432,10 @@ impl Reader {
         let transformations = compute_transformations(info);
         decoder.set_transformations(transformations);
 
-        Ok(Self { reader: decoder.read_info()?, last_interlace_info: None })
+        Ok(Self {
+            reader: decoder.read_info()?,
+            last_interlace_info: None,
+        })
     }
 
     fn height(&self) -> u32 {
@@ -499,10 +459,7 @@ impl Reader {
     /// If the decoded PNG image contained a `cHRM` chunk then `try_get_chrm`
     /// returns `true` and populates the out parameters (`wx`, `wy`, `rx`,
     /// etc.).  Otherwise, returns `false`.
-    fn try_get_chrm(
-        &self,
-        chrm: &mut ffi::ColorSpacePrimaries,
-    ) -> bool {
+    fn try_get_chrm(&self, chrm: &mut ffi::ColorSpacePrimaries) -> bool {
         fn copy_channel(channel: &(png::ScaledFloat, png::ScaledFloat), x: &mut f32, y: &mut f32) {
             *x = png_u32_into_f32(channel.0);
             *y = png_u32_into_f32(channel.1);
@@ -546,10 +503,7 @@ impl Reader {
     /// `try_get_mdcv_chunk` returns `true` and populates the out parameters
     /// as values that are CIE 1931 xy coordinates or values in cd/m^2.
     /// Otherwise, returns `false`.
-    fn try_get_mdcv_chunk(
-        self: &Reader,
-        mdcv: &mut ffi::MasteringDisplayColorVolume,
-    ) -> bool {
+    fn try_get_mdcv_chunk(self: &Reader, mdcv: &mut ffi::MasteringDisplayColorVolume) -> bool {
         match self.reader.info().mastering_display_color_volume.as_ref() {
             None => false,
             Some(png_mdcv) => {
@@ -564,10 +518,8 @@ impl Reader {
                         fWX: png_mdcv.chromaticities.white.0.into_value(),
                         fWY: png_mdcv.chromaticities.white.1.into_value(),
                     },
-                    fMaximumDisplayMasteringLuminance:
-                        png_mdcv.max_luminance as f32 / 10_000.0,
-                    fMinimumDisplayMasteringLuminance:
-                        png_mdcv.min_luminance as f32 / 10_000.0,
+                    fMaximumDisplayMasteringLuminance: png_mdcv.max_luminance as f32 / 10_000.0,
+                    fMinimumDisplayMasteringLuminance: png_mdcv.min_luminance as f32 / 10_000.0,
                 };
                 true
             }
@@ -577,19 +529,13 @@ impl Reader {
     /// If the decoded PNG image contained a `cLLI` chunk then
     /// `try_get_clli_chunk` returns `true` and populates the out
     /// parameters as values in cd/m^2.  Otherwise, returns `false`.
-    fn try_get_clli_chunk(
-        &self,
-        clli: &mut ffi::ContentLightLevelInfo,
-    ) -> bool {
+    fn try_get_clli_chunk(&self, clli: &mut ffi::ContentLightLevelInfo) -> bool {
         match self.reader.info().content_light_level.as_ref() {
             None => false,
             Some(png_clli) => {
                 *clli = ffi::ContentLightLevelInfo {
-                    fMaxCLL:
-                        png_clli.max_content_light_level as f32 / 10_000.0,
-                    fMaxFALL:
-                        png_clli.max_frame_average_light_level as f32 /
-                        10_000.0,
+                    fMaxCLL: png_clli.max_content_light_level as f32 / 10_000.0,
+                    fMaxFALL: png_clli.max_frame_average_light_level as f32 / 10_000.0,
                 };
                 true
             }
@@ -669,7 +615,12 @@ impl Reader {
     /// See also
     /// <https://wiki.mozilla.org/APNG_Specification#.60acTL.60:_The_Animation_Control_Chunk>.
     fn get_actl_num_frames(&self) -> u32 {
-        self.reader.info().animation_control.as_ref().unwrap().num_frames
+        self.reader
+            .info()
+            .animation_control
+            .as_ref()
+            .unwrap()
+            .num_frames
     }
 
     /// Returns `num_plays` from the `acTL` chunk.  Panics if there is no `acTL`
@@ -678,7 +629,12 @@ impl Reader {
     /// `0` indicates that the animation should play indefinitely. See
     /// <https://wiki.mozilla.org/APNG_Specification#.60acTL.60:_The_Animation_Control_Chunk>.
     fn get_actl_num_plays(&self) -> u32 {
-        self.reader.info().animation_control.as_ref().unwrap().num_plays
+        self.reader
+            .info()
+            .animation_control
+            .as_ref()
+            .unwrap()
+            .num_plays
     }
 
     /// Returns whether a `fcTL` chunk has been parsed (and can be read using
@@ -795,7 +751,7 @@ fn png_u32_into_f32(v: png::ScaledFloat) -> f32 {
 }
 
 /// This provides a public C++ API for decoding a PNG image.
-fn new_reader(input: cxx::UniquePtr<ffi::ReadAndSeekTraits>) -> Box<ResultOfReader> {
+fn new_reader(input: cxx::UniquePtr<ffi::SkStreamAdapter>) -> Box<ResultOfReader> {
     Box::new(ResultOfReader(Reader::new(input)))
 }
 
@@ -871,7 +827,10 @@ impl Writer {
         let is_latin1_byte = |b| (0x20..=0x7E).contains(b) || (0xA0..=0xFF).contains(b);
         let is_nbsp_byte = |&b: &u8| b == 0xA0;
         let is_linefeed_byte = |&b: &u8| b == 10;
-        if !text.iter().all(|b| is_latin1_byte(b) || is_linefeed_byte(b)) {
+        if !text
+            .iter()
+            .all(|b| is_latin1_byte(b) || is_linefeed_byte(b))
+        {
             return ffi::EncodingResult::ParameterError;
         }
         fn latin1_bytes_into_string(bytes: &[u8]) -> String {
@@ -882,7 +841,10 @@ impl Writer {
         // https://www.w3.org/TR/png-3/#11keywords says that "keywords shall contain only printable
         // Latin-1 [ISO_8859-1] characters and spaces; that is, only code points 0x20-7E
         // and 0xA1-FF are allowed."
-        if !keyword.iter().all(|b| is_latin1_byte(b) && !is_nbsp_byte(b)) {
+        if !keyword
+            .iter()
+            .all(|b| is_latin1_byte(b) && !is_nbsp_byte(b))
+        {
             return ffi::EncodingResult::ParameterError;
         }
         let keyword = latin1_bytes_into_string(keyword);
@@ -897,7 +859,9 @@ impl Writer {
 ///
 /// See also https://docs.rs/png/latest/png/struct.Writer.html#method.into_stream_writer
 fn convert_writer_into_stream_writer(writer: Box<Writer>) -> Box<ResultOfStreamWriter> {
-    Box::new(ResultOfStreamWriter(writer.0.into_stream_writer().map(StreamWriter)))
+    Box::new(ResultOfStreamWriter(
+        writer.0.into_stream_writer().map(StreamWriter),
+    ))
 }
 
 /// FFI-friendly wrapper around `Result<T, E>` (`cxx` can't handle arbitrary
