@@ -814,7 +814,21 @@ DEF_TEST(RustPngCodec_interlaced_animated_blending, r) {
         SkCodec::Result result;
         result = codec->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes(), &options);
         REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
-        codec->incrementalDecode();
-        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+        std::ignore = codec->incrementalDecode();
     }
+}
+
+DEF_TEST(RustPngCodec_sbit565_ihdr16bits, r) {
+    std::unique_ptr<SkCodec> codec = SkPngRustDecoderDecode(r, "images/basn2c16-sbit565.png");
+    REPORTER_ASSERT(r, codec);
+
+    SkBitmap bm;
+    SkImageInfo info = codec->getInfo();
+    bm.allocPixels(info);
+    REPORTER_ASSERT(r, codec->getFrameCount() == 1);
+    SkCodec::Result result;
+    result = codec->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes());
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+    result = codec->incrementalDecode();
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
 }

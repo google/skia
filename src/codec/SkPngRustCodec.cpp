@@ -44,7 +44,10 @@ SkEncodedInfo::Color ToColor(rust_png::ColorType colorType, const rust_png::Read
         case rust_png::ColorType::Rgb:
             if (reader.has_sbit_chunk()) {
                 SkSpan<const uint8_t> sBit = ToSkSpan(reader.get_sbit_chunk());
-                if (sBit.size() == 3) {
+
+                // Restricting to 8-bit images, because of `SkEncodedInfo`
+                // asserts.  See also https://crbug.com/458852444.
+                if (sBit.size() == 3 && reader.output_bits_per_component() == 8) {
                   if (sBit[0] == 5 && sBit[1] == 6 && sBit[2] == 5) {
                       return SkEncodedInfo::k565_Color;
                   }
@@ -54,7 +57,10 @@ SkEncodedInfo::Color ToColor(rust_png::ColorType colorType, const rust_png::Read
         case rust_png::ColorType::GrayscaleAlpha:
             if (reader.has_sbit_chunk()) {
                 SkSpan<const uint8_t> sBit = ToSkSpan(reader.get_sbit_chunk());
-                if (sBit.size() == 2) {
+
+                // Restricting to 8-bit images, because of `SkEncodedInfo`
+                // asserts.  See also https://crbug.com/458852444.
+                if (sBit.size() == 2 && reader.output_bits_per_component() == 8) {
                     if (sBit[0] == kGraySigBit_GrayAlphaIsJustAlpha && sBit[1] == 8) {
                         return SkEncodedInfo::kXAlpha_Color;
                     }
