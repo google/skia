@@ -1935,7 +1935,7 @@ static void add_image_to_key(const KeyContext& keyContext,
                                                           image,
                                                           sampling);
     if (!imageToDraw) {
-        SKGPU_LOG_W("Couldn't convert SkImage a Graphite-backed representation");
+        SKGPU_LOG_W("Couldn't convert SkImage to a Graphite-backed representation");
         keyContext.paintParamsKeyBuilder()->addErrorBlock();
         return;
     }
