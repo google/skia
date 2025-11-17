@@ -174,7 +174,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"skia.googlesource.com/buildbot": {
 		Id:      "skia.googlesource.com/buildbot",
-		Version: "6934ac81212ea97e7aa3ea8202045a100c98e53f",
+		Version: "00165670a412539aaa1ab1205e9da0473260d24d",
 		Path:    "infra/skia-infra",
 	},
 	"skia.googlesource.com/external/github.com/AOMediaCodec/libavif": {
@@ -254,7 +254,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"skia/tools/sk": {
 		Id:      "skia/tools/sk",
-		Version: "git_revision:6934ac81212ea97e7aa3ea8202045a100c98e53f",
+		Version: "git_revision:00165670a412539aaa1ab1205e9da0473260d24d",
 		Path:    "bin",
 	},
 	"swiftshader.googlesource.com/SwiftShader": {
