@@ -42,8 +42,6 @@ private:
     //   static constexpr BackendApi kBackend;
     //   Protected isProtected() const;
     //   TextureFormat viewFormat() const;
-    //   bool serialize(SkWStream*) const;
-    //   bool deserialize(SkStream*);
     class Data {
     public:
         virtual ~Data() = default;
