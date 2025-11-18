@@ -25,7 +25,9 @@ struct AttachmentDesc {
     TextureFormat fFormat = TextureFormat::kUnsupported;
     LoadOp fLoadOp = LoadOp::kDiscard;
     StoreOp fStoreOp = StoreOp::kDiscard;
-    SampleCount fSampleCount = SampleCount::k1;
+    // NOTE: GPU-supported sample counts should always fit in a byte, and this lets AttachmentDesc
+    // stay at 32-bits given the backing types of TextureFormat and Load/StoreOp.
+    uint8_t fSampleCount = 1;
 
     bool operator==(const AttachmentDesc& other) const {
         if (fFormat == TextureFormat::kUnsupported &&
@@ -80,7 +82,7 @@ struct RenderPassDesc {
     Swizzle fWriteSwizzle;
 
     // The overall sample count of the render pass
-    SampleCount fSampleCount;
+    uint8_t fSampleCount;
 
     // The remaining fields are set on renderpasses, but don't change the structure of the pass.
 

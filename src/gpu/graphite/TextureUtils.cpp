@@ -352,7 +352,7 @@ size_t ComputeSize(SkISize dimensions, const TextureInfo& info) {
         colorSize = (size_t)dimensions.width() * dimensions.height() * bytesPerPixel;
     }
 
-    size_t finalSize = colorSize * (uint8_t) info.sampleCount();
+    size_t finalSize = colorSize * info.numSamples();
 
     if (info.mipmapped() == Mipmapped::kYes) {
         finalSize += colorSize/3;

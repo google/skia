@@ -505,10 +505,10 @@ Device::Device(Recorder* recorder, sk_sp<DrawContext> dc)
         , fSubRunControl(recorder->priv().caps()->getSubRunControl(
                 fDC->surfaceProps().isUseDeviceIndependentFonts())) {
     SkASSERT(SkToBool(fDC) && SkToBool(fRecorder));
-    if (fDC->target()->textureInfo().sampleCount() > SampleCount::k1) {
+    if (fDC->target()->textureInfo().numSamples() > 1) {
         // Target is inherently multisampled
         fMSAASupported = true;
-    } else if (fRecorder->priv().caps()->defaultMSAASamplesCount() > SampleCount::k1) {
+    } else if (fRecorder->priv().caps()->defaultMSAASamplesCount() > 1) {
         if (fRecorder->priv().caps()->msaaRenderToSingleSampledSupport()) {
             // Backend-managed MSAA is supported
             fMSAASupported = true;

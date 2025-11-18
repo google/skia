@@ -58,7 +58,7 @@ public:
                                                               const TextureInfo& msaaInfo);
 
     BlitWithDrawEncoder findOrCreateBlitWithDrawEncoder(const RenderPassDesc& renderPassDesc,
-                                                        SampleCount srcSampleCount);
+                                                        int srcSampleCount);
 
     sk_sp<DawnBuffer> findOrCreateDawnBuffer(size_t size,
                                              BufferType type,

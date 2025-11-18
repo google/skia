@@ -37,7 +37,7 @@ public:
     VulkanYcbcrConversionInfo fYcbcrConversionInfo;
 
     VulkanTextureInfo() = default;
-    VulkanTextureInfo(VkSampleCountFlagBits sampleCount,
+    VulkanTextureInfo(uint32_t sampleCount,
                       Mipmapped mipmapped,
                       VkImageCreateFlags flags,
                       VkFormat format,
@@ -46,7 +46,7 @@ public:
                       VkSharingMode sharingMode,
                       VkImageAspectFlags aspectMask,
                       VulkanYcbcrConversionInfo ycbcrConversionInfo)
-            : Data(static_cast<uint8_t>(sampleCount), mipmapped)
+            : Data(sampleCount, mipmapped)
             , fFlags(flags)
             , fFormat(format)
             , fImageTiling(imageTiling)

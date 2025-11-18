@@ -22,7 +22,7 @@ public:
     MtlCaps(const id<MTLDevice>, const ContextOptions&);
     ~MtlCaps() override {}
 
-    bool isSampleCountSupported(TextureFormat, SampleCount requestedSampleCount) const override;
+    bool isSampleCountSupported(TextureFormat, uint8_t requestedSampleCount) const override;
     TextureFormat getDepthStencilFormat(SkEnumBitMask<DepthStencilFlags>) const override;
 
     TextureInfo getDefaultAttachmentTextureInfo(AttachmentDesc,
@@ -146,7 +146,8 @@ private:
     MTLPixelFormat fColorTypeToFormatTable[kSkColorTypeCnt];
     void setColorType(SkColorType, std::initializer_list<MTLPixelFormat> formats);
 
-    SkEnumBitMask<SampleCount> fSupportedSampleCounts;
+    // A vector of the viable sample counts (e.g., { 1, 2, 4, 8 }).
+    std::vector<uint32_t> fColorSampleCounts;
 
     GPUFamily fGPUFamily;
     int fFamilyGroup;

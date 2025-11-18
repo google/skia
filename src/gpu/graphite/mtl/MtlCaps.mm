@@ -189,13 +189,13 @@ void MtlCaps::initCaps(const id<MTLDevice> device) {
         fClampToBorderSupport = false;
     }
 
-    // Init sample counts. All devices support 1
-    fSupportedSampleCounts = SampleCount::k1;
+    // Init sample counts. All devices support 1 (i.e. 0 in skia).
+    fColorSampleCounts.push_back(1);
     if (!this->isIntel()) {
         if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
-            for (auto sampleCnt : {SampleCount::k2, SampleCount::k4, SampleCount::k8}) {
-                if ([device supportsTextureSampleCount: (uint8_t) sampleCnt]) {
-                    fSupportedSampleCounts |= sampleCnt;
+            for (auto sampleCnt : {2, 4, 8}) {
+                if ([device supportsTextureSampleCount:sampleCnt]) {
+                    fColorSampleCounts.push_back(sampleCnt);
                 }
             }
         }
@@ -769,18 +769,23 @@ void MtlCaps::initFormatTable(const id<MTLDevice> device) {
 
 }
 
-bool MtlCaps::isSampleCountSupported(TextureFormat format, SampleCount requestedSampleCount) const {
+bool MtlCaps::isSampleCountSupported(TextureFormat format, uint8_t requestedSampleCount) const {
     const FormatInfo& formatInfo = this->getFormatInfo(TextureFormatToMTLPixelFormat(format));
     if (!SkToBool(formatInfo.fFlags & FormatInfo::kRenderable_Flag)) {
         return false;
     }
     if (SkToBool(formatInfo.fFlags & FormatInfo::kMSAA_Flag)) {
-        return SkToBool(fSupportedSampleCounts & requestedSampleCount);
+        for (auto sampleCount : fColorSampleCounts) {
+            if (requestedSampleCount == sampleCount) {
+                return true;
+            }
+        }
+        return false;
     } else {
         // Only single sampling is supported for the format, so 1 sample should be generally
         // available, too.
-        SkASSERT(SkToBool(fSupportedSampleCounts & SampleCount::k1));
-        return SampleCount::k1 == requestedSampleCount;
+        SkASSERT(fColorSampleCounts.size() >= 1 && fColorSampleCounts[0] == 1);
+        return 1 == requestedSampleCount;
     }
 }
 
@@ -820,7 +825,7 @@ TextureInfo MtlCaps::getDefaultAttachmentTextureInfo(AttachmentDesc desc,
     }
 
     MtlTextureInfo info;
-    info.fSampleCount = (uint8_t) desc.fSampleCount;
+    info.fSampleCount = desc.fSampleCount;
     info.fMipmapped = Mipmapped::kNo;
     info.fFormat = TextureFormatToMTLPixelFormat(desc.fFormat);
     info.fUsage = MTLTextureUsageRenderTarget;
@@ -987,10 +992,10 @@ bool MtlCaps::extractGraphicsDescs(const UniqueKey& key,
 
         // From the RenderPassDesc
         TextureFormat fColorFormat = TextureFormat::kUnsupported;
-        SampleCount fColorSampleCount = SampleCount::k1;
+        uint8_t fColorSampleCount = 1;
 
         TextureFormat fDSFormat = TextureFormat::kUnsupported;
-        SampleCount fDSSampleCount = SampleCount::k1;
+        uint8_t fDSSampleCount = 1;
 
         Swizzle fWriteSwizzle;
     } keyData;
@@ -1006,10 +1011,10 @@ bool MtlCaps::extractGraphicsDescs(const UniqueKey& key,
                                            : UniquePaintParamsID::Invalid();
 
     keyData.fDSFormat = static_cast<TextureFormat>((rawKeyData[2] >> 8) & 0xFF);
-    keyData.fDSSampleCount = static_cast<SampleCount>(rawKeyData[2] & 0xFF);
+    keyData.fDSSampleCount = static_cast<uint8_t>(rawKeyData[2] & 0xFF);
 
     keyData.fColorFormat = static_cast<TextureFormat>((rawKeyData[2] >> 24) & 0xFF);
-    keyData.fColorSampleCount = static_cast<SampleCount>((rawKeyData[2] >> 16) & 0xFF);
+    keyData.fColorSampleCount = static_cast<uint8_t>((rawKeyData[2] >> 16) & 0xFF);
 
     keyData.fWriteSwizzle = SwizzleCtorAccessor::Make(rawKeyData[3]);
 
@@ -1027,11 +1032,11 @@ bool MtlCaps::extractGraphicsDescs(const UniqueKey& key,
                                                LoadOp::kClear,
                                                StoreOp::kDiscard,
                                                keyData.fDSSampleCount};
-    if (keyData.fColorSampleCount > SampleCount::k1) {
+    if (keyData.fColorSampleCount > 1) {
         renderPassDesc->fColorResolveAttachment = {keyData.fColorFormat,
                                                    LoadOp::kClear,
                                                    StoreOp::kStore,
-                                                   SampleCount::k1};
+                                                   /*fSampleCount=*/1};
         renderPassDesc->fColorAttachment.fStoreOp = StoreOp::kDiscard;
     }
 
@@ -1055,10 +1060,8 @@ uint32_t MtlCaps::getRenderPassDescKey(const RenderPassDesc& renderPassDesc) con
 
     // Each attachment format + sample count fits in 16-bits. Load/store ops are ignored.
     auto attachmentKey = [](AttachmentDesc desc) {
-        SkASSERT(desc.fFormat != TextureFormat::kUnsupported ||
-                 desc.fSampleCount == SampleCount::k1);
-        return (static_cast<uint32_t>(desc.fFormat) << 8) |
-                static_cast<uint32_t>(desc.fSampleCount);
+        SkASSERT(desc.fFormat != TextureFormat::kUnsupported || desc.fSampleCount == 1);
+        return (static_cast<uint32_t>(desc.fFormat) << 8) | desc.fSampleCount;
     };
 
     // The MtlRenderPassDescriptor requires no information about the resolve attachment
@@ -1109,7 +1112,7 @@ bool MtlCaps::isRenderable(const TextureInfo& info) const {
     TextureFormat format = TextureInfoPriv::ViewFormat(info);
     const auto& mtlInfo = TextureInfoPriv::Get<MtlTextureInfo>(info);
     return (mtlInfo.fUsage & MTLTextureUsageRenderTarget) &&
-           this->isSampleCountSupported(format, info.sampleCount());
+           this->isSampleCountSupported(format, info.numSamples());
 }
 
 bool MtlCaps::isStorage(const TextureInfo& info) const {
@@ -1124,8 +1127,7 @@ bool MtlCaps::isStorage(const TextureInfo& info) const {
         return false;
     }
     const FormatInfo& formatInfo = this->getFormatInfo(mtlInfo.fFormat);
-    return info.sampleCount() == SampleCount::k1 &&
-           SkToBool(FormatInfo::kStorage_Flag & formatInfo.fFlags);
+    return mtlInfo.fSampleCount == 1 && SkToBool(FormatInfo::kStorage_Flag & formatInfo.fFlags);
 }
 
 bool MtlCaps::supportsWritePixels(const TextureInfo& texInfo) const {
@@ -1137,7 +1139,7 @@ bool MtlCaps::supportsWritePixels(const TextureInfo& texInfo) const {
         return false;
     }
 
-    if (texInfo.sampleCount() > SampleCount::k1) {
+    if (mtlInfo.fSampleCount > 1) {
         return false;
     }
 
@@ -1158,7 +1160,7 @@ bool MtlCaps::supportsReadPixels(const TextureInfo& texInfo) const {
         return false;
     }
 
-    if (texInfo.sampleCount() > SampleCount::k1) {
+    if (mtlInfo.fSampleCount > 1) {
         return false;
     }
 
@@ -1224,7 +1226,7 @@ void MtlCaps::buildKeyForTexture(SkISize dimensions,
     SkASSERT(mtlInfo.fFormat != MTLPixelFormatInvalid);
     uint64_t formatKey = static_cast<uint64_t>(mtlInfo.fFormat);
 
-    uint32_t samplesKey = SamplesToKey(info.sampleCount());
+    uint32_t samplesKey = SamplesToKey(mtlInfo.fSampleCount);
     // We don't have to key the number of mip levels because it is inherit in the combination of
     // isMipped and dimensions.
     bool isMipped = mtlInfo.fMipmapped == Mipmapped::kYes;
@@ -1233,7 +1235,7 @@ void MtlCaps::buildKeyForTexture(SkISize dimensions,
 
     // Confirm all the below parts of the key can fit in a single uint32_t. The sum of the shift
     // amounts in the asserts must be less than or equal to 32.
-    SkASSERT(samplesKey                         < (1u << kNumSampleKeyBits));
+    SkASSERT(samplesKey                         < (1u << 3));
     SkASSERT(static_cast<uint32_t>(isMipped)    < (1u << 1));
     SkASSERT(static_cast<uint32_t>(isProtected) < (1u << 1));
     SkASSERT(mtlInfo.fUsage                     < (1u << 5));
@@ -1250,7 +1252,7 @@ void MtlCaps::buildKeyForTexture(SkISize dimensions,
     builder[2] = formatKey & 0xFFFFFFFF;
     builder[3] = (formatKey >> 32) & 0xFFFFFFFF;
     builder[4] = (samplesKey                                  << 0) |
-                 (static_cast<uint32_t>(isMipped)             << kNumSampleKeyBits) |
+                 (static_cast<uint32_t>(isMipped)             << 3) |
                  (static_cast<uint32_t>(isProtected)          << 4) |
                  (static_cast<uint32_t>(mtlInfo.fUsage)       << 5) |
                  (static_cast<uint32_t>(mtlInfo.fStorageMode) << 10)|

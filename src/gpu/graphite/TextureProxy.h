@@ -31,7 +31,7 @@ public:
 
     ~TextureProxy() override;
 
-    SampleCount sampleCount() const { return fInfo.sampleCount(); }
+    int numSamples() const { return fInfo.numSamples(); }
     Mipmapped mipmapped() const { return fInfo.mipmapped(); }
 
     SkISize dimensions() const;

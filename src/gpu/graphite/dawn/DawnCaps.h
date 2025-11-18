@@ -33,7 +33,7 @@ public:
     }
     bool supportsPartialLoadResolve() const { return fSupportsPartialLoadResolve; }
 
-    bool isSampleCountSupported(TextureFormat, SampleCount requestedSampleCount) const override;
+    bool isSampleCountSupported(TextureFormat, uint8_t requestedSampleCount) const override;
     TextureFormat getDepthStencilFormat(SkEnumBitMask<DepthStencilFlags>) const override;
 
     TextureInfo getDefaultAttachmentTextureInfo(AttachmentDesc,

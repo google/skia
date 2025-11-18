@@ -235,11 +235,10 @@ bool RenderPassDescWillLoadMSAAFromResolve(const RenderPassDesc& renderPassDesc)
 
 bool RenderPassDescWillImplicitlyLoadMSAA(const RenderPassDesc& renderPassDesc) {
     SkASSERT(renderPassDesc.fColorAttachment.fFormat != TextureFormat::kUnsupported);
-    SkASSERT(renderPassDesc.fColorAttachment.fSampleCount > SampleCount::k1 ||
+    SkASSERT(renderPassDesc.fColorAttachment.fSampleCount > 1 ||
              renderPassDesc.fColorResolveAttachment.fFormat == TextureFormat::kUnsupported);
 
-    return renderPassDesc.fColorAttachment.fSampleCount == SampleCount::k1 &&
-           renderPassDesc.fSampleCount > SampleCount::k1;
+    return renderPassDesc.fColorAttachment.fSampleCount == 1 && renderPassDesc.fSampleCount > 1;
 }
 
 RenderPassDesc MakePipelineCompatibleRenderPass(const RenderPassDesc& renderPassDesc) {

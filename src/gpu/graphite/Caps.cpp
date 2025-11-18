@@ -28,9 +28,7 @@ Caps::~Caps() {}
 void Caps::finishInitialization(const ContextOptions& options) {
     fCapabilities->initSkCaps(fShaderCaps.get());
 
-    // Round requested sample count to the lower power of 2 and clamp to [1, 16]
-    fDefaultMSAASamples = static_cast<SampleCount>(
-            SkPrevPow2(SkTPin((int) options.fInternalMultisampleCount, 1, 16)));
+    fDefaultMSAASamples = options.fInternalMultisampleCount;
 
     if (options.fShaderErrorHandler) {
         fShaderErrorHandler = options.fShaderErrorHandler;
@@ -63,7 +61,7 @@ SkISize Caps::getDepthAttachmentDimensions(const TextureInfo& textureInfo,
 }
 
 bool Caps::isTexturable(const TextureInfo& info) const {
-    if (info.sampleCount() > SampleCount::k1) {
+    if (info.numSamples() > 1) {
         return false;
     }
     return this->onIsTexturable(info);

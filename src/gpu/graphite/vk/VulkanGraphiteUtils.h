@@ -78,15 +78,6 @@ VkFormat TextureFormatToVkFormat(TextureFormat);
 
 VkImageAspectFlags GetVkImageAspectFlags(TextureFormat);
 
-constexpr VkSampleCountFlagBits SampleCountToVkSampleCount(SampleCount sampleCount) {
-    static_assert(VK_SAMPLE_COUNT_1_BIT == (uint8_t) SampleCount::k1);
-    static_assert(VK_SAMPLE_COUNT_2_BIT == (uint8_t) SampleCount::k2);
-    static_assert(VK_SAMPLE_COUNT_4_BIT == (uint8_t) SampleCount::k4);
-    static_assert(VK_SAMPLE_COUNT_8_BIT == (uint8_t) SampleCount::k8);
-    static_assert(VK_SAMPLE_COUNT_16_BIT == (uint8_t) SampleCount::k16);
-    return static_cast<VkSampleCountFlagBits>((uint8_t) sampleCount);
-}
-
 VkShaderStageFlags PipelineStageFlagsToVkShaderStageFlags(SkEnumBitMask<PipelineStageFlags>);
 
 // When multisampling is used, Graphite never retains the multisampled data at the end of the render
