@@ -128,7 +128,7 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
             : SkSetFourByteTag(static_cast<uint8_t>(attachmentDesc.fFormat),
                                static_cast<uint8_t>(attachmentDesc.fLoadOp),
                                static_cast<uint8_t>(attachmentDesc.fStoreOp),
-                               attachmentDesc.fSampleCount);
+                               static_cast<uint8_t>(attachmentDesc.fSampleCount));
     return stream->write32(tag);
 }
 
@@ -153,11 +153,14 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
     if (storeOp >= kStoreOpCount) {
         return false;
     }
+    if (!IsValidSampleCount(sampleCount)) {
+        return false;
+    }
 
     *attachmentDesc = {static_cast<TextureFormat>(format),
                        static_cast<LoadOp>(loadOp),
                        static_cast<StoreOp>(storeOp),
-                       sampleCount};
+                       static_cast<SampleCount>(sampleCount)};
 
     return true;
 }
@@ -177,7 +180,7 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
     if (!stream->write16(renderPassDesc.fWriteSwizzle.asKey())) {
         return false;
     }
-    if (!stream->write8(renderPassDesc.fSampleCount)) {
+    if (!stream->write8(static_cast<uint8_t>(renderPassDesc.fSampleCount))) {
         return false;
     }
 
@@ -208,9 +211,11 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
     }
     renderPassDesc->fWriteSwizzle = SwizzleCtorAccessor::Make(swizzle);
 
-    if (!stream->readU8(&renderPassDesc->fSampleCount)) {
+    uint8_t sampleCount;
+    if (!stream->readU8(&sampleCount) || !IsValidSampleCount(sampleCount)) {
         return false;
     }
+    renderPassDesc->fSampleCount = static_cast<SampleCount>(sampleCount);
 
     // RenderPassDesc dst read strategy is not serialized as it is not something we key on and does
     // not impact pipeline creation. When deserializing, simply query Caps again for a

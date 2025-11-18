@@ -213,7 +213,7 @@ skgpu::VulkanAlloc alloc;
     alloc.fSize = requirements.size;
 
     skgpu::graphite::VulkanTextureInfo imageInfo = {
-            static_cast<uint32_t>(vkImageInfo.samples),
+            vkImageInfo.samples,
             skgpu::Mipmapped::kNo,
             VK_IMAGE_CREATE_PROTECTED_BIT,
             vkImageInfo.format,

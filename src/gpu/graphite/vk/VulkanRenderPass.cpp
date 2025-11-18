@@ -17,22 +17,22 @@
 
 #include <limits>
 
+namespace skgpu::graphite {
+
 static constexpr uint32_t kColorFormatOffset = 0;
 static constexpr uint32_t kDepthStencilFormatOffset = kColorFormatOffset + 8;
 static constexpr uint32_t kSampleCountOffset = kDepthStencilFormatOffset + 8;
-static constexpr uint32_t kColorLoadOpOffset = kSampleCountOffset + 5;
+static constexpr uint32_t kColorLoadOpOffset = kSampleCountOffset + kNumSampleKeyBits;
 static constexpr uint32_t kColorStoreOpOffset = kColorLoadOpOffset + 2;
 static constexpr uint32_t kResolveLoadOpOffset = kColorStoreOpOffset + 1;
 static constexpr uint32_t kResolveStoreOpOffset = kResolveLoadOpOffset + 2;
 static constexpr uint32_t kMSRTTOffset = kResolveStoreOpOffset + 1;
 
 static constexpr uint32_t kFormatMask = 0xFF;
-static constexpr uint32_t kSampleCountMask = 0x1F;
+static constexpr uint32_t kSampleCountMask = 0x7;
 static constexpr uint32_t kLoadOpMask = 0x3;
 static constexpr uint32_t kStoreOpMask = 0x1;
 static constexpr uint32_t kMSRTTMask = 0x1;
-
-namespace skgpu::graphite {
 
 uint32_t VulkanRenderPass::GetRenderPassKey(const RenderPassDesc& originalRenderPassDesc,
                                             bool compatibleForPipelineKey) {
@@ -58,7 +58,7 @@ uint32_t VulkanRenderPass::GetRenderPassKey(const RenderPassDesc& originalRender
              depthStencil.fLoadOp == LoadOp::kClear);
     SkASSERT(depthStencil.fFormat == TextureFormat::kUnsupported ||
              depthStencil.fStoreOp == StoreOp::kDiscard);
-    SkASSERT(!hasResolveAttachment || resolve.fSampleCount == 1);
+    SkASSERT(!hasResolveAttachment || resolve.fSampleCount == SampleCount::k1);
     SkASSERT(color.fSampleCount == renderPassDesc.fSampleCount ||
              isMultisampledRenderToSingleSampled);
     SkASSERT(!hasResolveAttachment || color.fLoadOp == LoadOp::kDiscard ||
@@ -71,15 +71,14 @@ uint32_t VulkanRenderPass::GetRenderPassKey(const RenderPassDesc& originalRender
     //
     // Color format (CF): TextureFormat, fits in 6 bits
     // Depth/stencil format (DSF): TextureFormat, fits in 6 bits
-    // Sample count (M): Up to 16, fits in 5 bit
+    // Sample count (M): SampleToKey(count), fits in 3 bits
     // Color load op (L): LoadOp, fits in 2 bits
     // Color store op (S): StoreOp, fits in 1 bit
     // Whether multisampled data s loaded from resolve attachment: fits in 1 bit
     // Whether rendering multisampled->single-sampled (MSRTSS): fits in 1 bit
     //
     // Note that technically, renderable color formats can fit in 5 bits and depth/stencil formats
-    // in 3 bits if more packing is needed. Sample count can also be `log()`'ed to reduce the bit
-    // count.
+    // in 3 bits if more packing is needed.
     //
     // Depth/stencil load op is always kClear, and store op is always kDiscard.
     // Color load op is either found in fColorAttachment if no resolve attachment, or can be derived
@@ -98,9 +97,8 @@ uint32_t VulkanRenderPass::GetRenderPassKey(const RenderPassDesc& originalRender
     //       +----+-----+---+---+---+------------+------------+--------+---+
     //       | CF | DSF | M | L | S | L(resolve) | S(resolve) | MSRTSS | 0 |
     //       +----+-----+---+---+---+------------+------------+--------+---+
-    //  bits   8     8    5   2   1       2            1           1     4
+    //  bits   8     8    3   2   1       2            1           1     6
     //
-    SkASSERT(renderPassDesc.fSampleCount < (1 << 5));
     static_assert(static_cast<uint32_t>(TextureFormat::kLast) < (1 << 8));
     static_assert(static_cast<uint32_t>(LoadOp::kLast) < (1 << 2));
     static_assert(static_cast<uint32_t>(StoreOp::kLast) < (1 << 1));
@@ -108,7 +106,7 @@ uint32_t VulkanRenderPass::GetRenderPassKey(const RenderPassDesc& originalRender
     const uint32_t key =
             (static_cast<uint32_t>(color.fFormat) << kColorFormatOffset) |
             (static_cast<uint32_t>(depthStencil.fFormat) << kDepthStencilFormatOffset) |
-            (static_cast<uint32_t>(renderPassDesc.fSampleCount) << kSampleCountOffset) |
+            (SamplesToKey(renderPassDesc.fSampleCount) << kSampleCountOffset) |
             (static_cast<uint32_t>(color.fLoadOp) << kColorLoadOpOffset) |
             (static_cast<uint32_t>(color.fStoreOp) << kColorStoreOpOffset) |
             (static_cast<uint32_t>(resolve.fLoadOp) << kResolveLoadOpOffset) |
@@ -127,7 +125,7 @@ void VulkanRenderPass::ExtractRenderPassDesc(uint32_t key,
             SkTo<TextureFormat>((key >> kColorFormatOffset) & kFormatMask);
     const TextureFormat depthStencilFormat =
             SkTo<TextureFormat>((key >> kDepthStencilFormatOffset) & kFormatMask);
-    const uint8_t sampleCount = SkTo<uint8_t>((key >> kSampleCountOffset) & kSampleCountMask);
+    const SampleCount sampleCount = KeyToSamples((key >> kSampleCountOffset) & kSampleCountMask);
     const LoadOp colorLoadOp = SkTo<LoadOp>((key >> kColorLoadOpOffset) & kLoadOpMask);
     const StoreOp colorStoreOp = SkTo<StoreOp>((key >> kColorStoreOpOffset) & kStoreOpMask);
     const LoadOp resolveLoadOp = SkTo<LoadOp>((key >> kResolveLoadOpOffset) & kLoadOpMask);
@@ -150,17 +148,18 @@ void VulkanRenderPass::ExtractRenderPassDesc(uint32_t key,
     //
     // The color and resolve attachment's load/store op are already stored in the key. For
     // depth/stencil, load op is always Clear and store op is always Discard.
-    const uint8_t attachmentSamples = isMultisampledRenderToSingleSampled ? 1 : sampleCount;
+    const SampleCount attachmentSamples = isMultisampledRenderToSingleSampled ? SampleCount::k1
+                                                                              : sampleCount;
 
     *renderPassDesc = {};
     renderPassDesc->fColorAttachment = {colorFormat, colorLoadOp, colorStoreOp, attachmentSamples};
     renderPassDesc->fDepthStencilAttachment = {
             depthStencilFormat, LoadOp::kClear, StoreOp::kDiscard, attachmentSamples};
-    if (attachmentSamples > 1 && !isMultisampledRenderToSingleSampled) {
+    if (attachmentSamples > SampleCount::k1 && !isMultisampledRenderToSingleSampled) {
         renderPassDesc->fColorResolveAttachment = {colorFormat,
                                                    resolveLoadOp,
                                                    resolveStoreOp,
-                                                   /*fSampleCount=*/1};
+                                                   SampleCount::k1};
     }
     renderPassDesc->fSampleCount = sampleCount;
     renderPassDesc->fWriteSwizzle = writeSwizzle;
@@ -185,9 +184,7 @@ void setup_vk_attachment_description(AttachmentDescription* outAttachment,
 
     *outAttachment = defaultAttachmentDescription;
     outAttachment->format = TextureFormatToVkFormat(desc.fFormat);
-    VkSampleCountFlagBits sampleCount;
-    SkAssertResult(SampleCountToVkSampleCount(desc.fSampleCount, &sampleCount));
-    outAttachment->samples = sampleCount;
+    outAttachment->samples = SampleCountToVkSampleCount(desc.fSampleCount);
 
     outAttachment->loadOp = vkLoadOp;
     outAttachment->storeOp = vkStoreOp;
@@ -430,7 +427,7 @@ sk_sp<VulkanRenderPass> VulkanRenderPass::Make(const VulkanSharedContext* contex
         VkMultisampledRenderToSingleSampledInfoEXT msrtss = {};
         msrtss.sType = VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT;
         msrtss.multisampledRenderToSingleSampledEnable = VK_TRUE;
-        SampleCountToVkSampleCount(renderPassDesc.fSampleCount, &msrtss.rasterizationSamples);
+        msrtss.rasterizationSamples = SampleCountToVkSampleCount(renderPassDesc.fSampleCount);
         AddToPNextChain(&mainSubpassDesc, &msrtss);
 
         // Depth/stencil resolve needs additional configuration (even though Graphite always

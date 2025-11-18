@@ -81,12 +81,12 @@ sk_sp<RenderPassTask> RenderPassTask::Make(DrawPassList passes,
         // The resolve attachment must match `target`, since that is what's resolved to.
         SkASSERT(desc.fColorResolveAttachment.isCompatible(target->textureInfo()));
         // The resolve attachment should be single sampled and not depth/stencil
-        SkASSERT(desc.fColorResolveAttachment.fSampleCount == 1);
+        SkASSERT(desc.fColorResolveAttachment.fSampleCount == SampleCount::k1);
         SkASSERT(!TextureFormatIsDepthOrStencil(desc.fColorResolveAttachment.fFormat));
         // If there's a resolve attachment, the color attachment should have the same format and
         // more samples than the resolve.
         SkASSERT(desc.fColorAttachment.fFormat == desc.fColorResolveAttachment.fFormat);
-        SkASSERT(desc.fColorAttachment.fSampleCount > 1);
+        SkASSERT(desc.fColorAttachment.fSampleCount > SampleCount::k1);
         // The render pass's sample count must match the color attachment's sample count
         SkASSERT(desc.fSampleCount == desc.fColorAttachment.fSampleCount);
     } else {
@@ -95,7 +95,8 @@ sk_sp<RenderPassTask> RenderPassTask::Make(DrawPassList passes,
         // The render pass's sample count must match or the color attachment's must be 1 and
         // the render pass has a higher sample count for msaa-render-to-single-sampled extensions.
         SkASSERT(desc.fColorAttachment.fSampleCount == desc.fSampleCount ||
-                 (desc.fColorAttachment.fSampleCount == 1 && desc.fSampleCount > 1));
+                 (desc.fColorAttachment.fSampleCount == SampleCount::k1 &&
+                  desc.fSampleCount > SampleCount::k1));
     }
 
     if (desc.fDepthStencilAttachment.fFormat != TextureFormat::kUnsupported) {
