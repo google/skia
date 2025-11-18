@@ -43,8 +43,8 @@ skia_filegroup(
 # Shared FFI utilities for Rust codec integrations.
 skia_cc_library(
     name = "ffi_utils",
-    srcs = ["ffi_cpp"],
-    hdrs = ["ffi_hdrs"],
+    srcs = [":ffi_cpp"],
+    hdrs = [":ffi_hdrs"],
     features = ["layering_check"],
     visibility = [
         "//rust/png:__pkg__",
@@ -60,7 +60,7 @@ skia_cc_library(
 
 rust_cxx_bridge(
     name = "cxx_bridge",
-    src = "rs_srcs",
+    src = ":rs_srcs",
     visibility = ["//rust/png:__pkg__"],
     deps = [":ffi_utils"],
 )
