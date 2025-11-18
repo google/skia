@@ -49,6 +49,10 @@
 #include <dwrite_1.h>
 #include <dwrite_3.h>
 
+#if defined(__MINGW32__)
+#define GetGlyphImageFormats GetGlyphImageFormats_
+#endif
+
 namespace {
 static inline const constexpr bool kSkShowTextBlitCoverage = false;
 

@@ -9,18 +9,6 @@ if (is_wasm) {
 
 import("../skia.gni")
 
-declare_args() {
-  extra_asmflags = []
-  extra_cflags = []
-  extra_cflags_c = []
-  extra_cflags_cc = []
-  extra_ldflags = []
-
-  malloc = ""
-  werror = false
-  xcode_sysroot = ""
-}
-
 if (is_ios && xcode_sysroot == "") {
   if (is_tvos) {
     sdk = "appletvos"
@@ -59,12 +47,12 @@ config("default") {
   # Disable warnings about unknown attributes.
   # (These unknown attribute warnings are on by default, so we don't make
   # disabling them part of :warnings, as some targets remove :warnings.)
-  if (is_win && !is_clang) {
+  if (is_msvc && !is_clang) {
     cflags += [
       "/wd5030",
       "/wd5051",
     ]
-  } else {
+  } else if (!is_mingw) {
     cflags += [ "-Wno-attributes" ]
   }
 
@@ -74,7 +62,7 @@ config("default") {
     cflags += [ "-ffp-contract=off" ]
   }
 
-  if (is_win) {
+  if (is_msvc) {
     if (is_clang && current_cpu == "arm64") {
       cflags += [ "--target=arm64-windows" ]
     }
@@ -120,6 +108,16 @@ config("default") {
       "$win_vc/Tools/MSVC/$win_toolchain_version/lib/$current_cpu",
     ]
   } else {
+        if (is_mingw) {
+            if (target_cpu == "arm64") {
+                cflags += ["-march=armv8-a+simd+fp"]
+            } else {
+                cflags += ["-mavx2", "-mavx512f", "-mf16c", "-mfma"]
+            }
+            cflags += ["-fpermissive", "-fstrict-aliasing", "-fvisibility=default"]
+        } else {
+            cflags += ["-fstrict-aliasing", "-fPIC", "-fvisibility=hidden"]
+        }
     cflags += [
       "-fPIC",
       "-fvisibility=hidden",
@@ -158,7 +156,12 @@ config("default") {
     ]
     libs += [ malloc ]
   }
-
+  if (is_mingw) {
+    defines += ["_CRT_SECURE_NO_WARNINGS", "WIN32_LEAN_AND_MEAN", "NOMINMAX"]
+    if (!is_clang) {
+        cflags += ["-Wno-attributes", "-Wno-stringop-overflow"]
+    }
+  }
   if (is_android) {
     cflags += [ "--sysroot=$ndk/toolchains/llvm/prebuilt/$ndk_host/sysroot" ]
     ldflags += [ "-static-libstdc++" ]
@@ -166,7 +169,7 @@ config("default") {
 
   if (show_includes) {
     assert(is_clang, "show_includes requires clang to build.")
-    if (is_win) {
+    if (is_msvc) {
       cflags += [
         "/clang:-H",
         "/clang:-fshow-skipped-includes",
@@ -346,7 +349,7 @@ config("default") {
       cflags += [ "-fno-sanitize=function" ]
     }
 
-    if (is_win) {
+    if (is_msvc) {
       cflags += [
         # On Release builds, we get strange warnings about string literals.
         "/GF-",
@@ -385,7 +388,7 @@ config("recover_pointer_overflow") {
 
 config("no_exceptions") {
   # Exceptions are disabled by default on Windows.  (Use /EHsc to enable them.)
-  if (!is_win) {
+  if (!is_msvc) {
     cflags_cc = [ "-fno-exceptions" ]
     cflags_objcc = cflags_cc
   }
@@ -398,14 +401,14 @@ config("warnings") {
   cflags_objcc = []
 
   if (werror) {
-    if (is_win) {
+    if (is_msvc) {
       cflags += [ "/WX" ]
     } else {
       cflags += [ "-Werror" ]
     }
   }
 
-  if (is_win) {
+  if (is_msvc) {
     cflags += [
       "/W3",  # Turn on lots of warnings.
 
@@ -652,7 +655,7 @@ config("debug_symbols") {
       "-gline-tables-only",
       "-funwind-tables",  # Helps make in-process backtraces fuller.
     ]
-  } else if (is_win) {
+  } else if (is_msvc) {
     cflags = [ "/Z7" ]
     if (is_clang) {
       cflags += [ "-gcodeview-ghash" ]
@@ -672,7 +675,7 @@ config("no_rtti") {
   # -fsanitize=vptr requires RTTI which is enabled as a part of
   # -fsanitize=undefined
   if (sanitize != "ASAN") {
-    if (is_win) {
+    if (is_msvc) {
       cflags_cc = [ "/GR-" ]
     } else {
       cflags_cc = [ "-fno-rtti" ]
@@ -683,7 +686,7 @@ config("no_rtti") {
 
 config("optimize") {
   ldflags = []
-  if (is_win) {
+  if (is_msvc) {
     cflags = [
       "/O2",
       "/Zc:inline",
@@ -698,7 +701,7 @@ config("optimize") {
   } else {
     if (skia_enable_optimize_size) {
       cflags = [ "-Oz" ]
-      if (!is_android) {
+      if (!is_android && !is_mingw) {
         cflags += [
           # Clang 15 turns PIE (Position-indendendent Executable) on by default.
           "-fno-PIE",
@@ -761,7 +764,9 @@ config("executable") {
       "-rdynamic",
       "-Wl,-rpath,\$ORIGIN",
     ]
-  } else if (is_win) {
+  } else if (is_mingw) {
+    ldflags = [ "-mconsole" ]
+  } else if (is_msvc) {
     ldflags = [
       "/SUBSYSTEM:CONSOLE",  # Quiet "no subsystem specified; CONSOLE assumed".
       "/INCREMENTAL:NO",  # Quiet warnings about failing to incrementally link

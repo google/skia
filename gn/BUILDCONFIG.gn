@@ -71,6 +71,36 @@ is_mac = current_os == "mac"
 is_wasm = current_os == "wasm"
 is_win = current_os == "win"
 
+declare_args() {
+  extra_asmflags = []
+  extra_cflags = []
+  extra_cflags_c = []
+  extra_cflags_cc = []
+  extra_ldflags = []
+  malloc = ""
+  werror = false
+  xcode_sysroot = ""
+}
+
+target_triple = ""
+foreach(flag, extra_cflags) {
+  if (flag == "--target" || flag == "-target") {
+  } else {
+    parts = []
+    parts = string_split(flag, "=")
+    if (parts[0] == "--target" || parts[0] == "-target") {
+      target_triple = parts[1]
+    }
+  }
+}
+is_mingw = (string_replace(target_triple, "mingw", "") != target_triple) ||
+           (string_replace(target_triple, "windows-gnu", "") != target_triple)
+is_msvc = !is_mingw
+
+if (is_mingw) {
+  extra_cflags += ["-mno-avx512f","-mno-avx512vl","-mpclmul"]
+}
+
 # Dawn has references to fuchsia, but Skia's GN rules do not
 is_fuchsia = false
 
@@ -128,7 +158,7 @@ if (is_android) {
   }
 }
 
-if (target_os == "win") {
+if (is_msvc) {
   # By default we look for 2017 (Enterprise, Pro, and Community), then 2015. If MSVC is installed in a
   # non-default location, you can set win_vc to inform us where it is.
 
@@ -139,7 +169,7 @@ if (target_os == "win") {
                         # directory.
 }
 
-if (target_os == "win") {
+if (is_msvc) {
   if (win_toolchain_version == "") {
     win_toolchain_version = exec_script("//gn/highest_version_dir.py",
                                         [
@@ -233,7 +263,7 @@ if (!is_official_build) {
       [ "//gn/skia:warnings_for_public_headers" ]
 }
 
-if (is_win) {
+if (is_msvc) {
   # Windows tool chain
   set_default_toolchain("//gn/toolchain:msvc")
   default_toolchain_name = "msvc"

@@ -173,7 +173,7 @@ is_loong64 = current_cpu == "loong64"
 opts("hsw") {
   enabled = is_x86
   sources = skia_opts.hsw_sources
-  if (is_win) {
+  if (is_msvc) {
     cflags = [ "/arch:AVX2" ]
   } else {
     cflags = [ "-march=haswell" ]
@@ -183,7 +183,7 @@ opts("hsw") {
 opts("skx") {
   enabled = is_x86
   sources = skia_opts.skx_sources
-  if (is_win) {
+  if (is_msvc) {
     cflags = [ "/arch:AVX512" ]
   } else {
     cflags = [ "-march=skylake-avx512" ]
