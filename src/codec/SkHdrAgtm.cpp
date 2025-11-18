@@ -5,11 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkStream.h"
-#include "include/core/SkString.h"
 #include "include/private/SkHdrMetadata.h"
 #include "src/codec/SkHdrAgtmPriv.h"
-#include "src/core/SkStreamPriv.h"
 
 namespace skhdr {
 
@@ -142,6 +139,7 @@ void Agtm::PiecewiseCubicFunction::populateSlopeFromPCHIP() {
 }
 
 void Agtm::populateUsingRwtmo() {
+   fType = Type::kReferenceWhite;
    fGainApplicationSpacePrimaries = SkNamedPrimaries::kRec2020;
 
     if (fBaselineHdrHeadroom == 0.f) {
