@@ -17,6 +17,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkSpan.h"
 #include "include/private/base/SkAlign.h"
+#include "include/private/base/SkMath.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkHalf.h"
 #include "src/base/SkMathPriv.h"
@@ -230,7 +231,7 @@ public:
     void alignForNonShading(int requiredAlignment) {
         this->alignTo(requiredAlignment);
         fNonShadingOffset = fStorage.size();
-        SkASSERT((requiredAlignment - 1 & requiredAlignment) == 0);
+        SkASSERT(SkIsPow2(requiredAlignment));
         fReqAlignment = std::max(fReqAlignment, requiredAlignment);
 
 #ifdef SK_DEBUG
