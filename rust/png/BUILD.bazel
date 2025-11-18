@@ -44,7 +44,6 @@ rust_cxx_bridge(
     ],
     deps = [
         ":ffi_cpp",
-        "//rust/common:ffi_utils",
     ],
 )
 

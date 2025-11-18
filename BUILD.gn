@@ -1471,7 +1471,7 @@ if (skia_use_rust_png_decode || skia_use_rust_png_encode) {
                  "=rust/png/FFI.rs.cc",
            ] + bazel_args
   }
-  action("rust_png_cxx_core_bazel_build") {
+  action("rust_cxx_core_bazel_build") {
     script = "gn/bazel_build.py"
     sources = [
       "MODULE.bazel",
@@ -1527,6 +1527,7 @@ optional("rust_common") {
   public = skia_rust_common_ffi_cpp_hdrs
   sources = skia_rust_common_ffi_cpp_srcs
   public_configs = [ ":rust_common_cxx_bridge_public_config" ]
+  deps = [ ":rust_cxx_core_bazel_build" ]
 }
 
 optional("png_decode_rust") {
@@ -1539,8 +1540,8 @@ optional("png_decode_rust") {
   deps = [
     ":png_decode_common",
     ":rust_common",
+    ":rust_cxx_core_bazel_build",
     ":rust_png_cxx_bridge",
-    ":rust_png_cxx_core_bazel_build",
   ]
   libs = [
     "$root_out_dir/libcxx_cc.a",
@@ -1557,8 +1558,8 @@ optional("png_encode_rust") {
   deps = [
     ":png_encode_common",
     ":rust_common",
+    ":rust_cxx_core_bazel_build",
     ":rust_png_cxx_bridge",
-    ":rust_png_cxx_core_bazel_build",
   ]
   libs = [
     "$root_out_dir/libcxx_cc.a",
