@@ -368,12 +368,12 @@ private:
     // tracked devices for dependencies.
     bool fMustFlushDependencies = false;
 
-    // TODO(b/330864257): Clean up once flushPendingWorkToRecorder() doesn't have to be re-entrant
-    bool fIsFlushing = false;
-
     const sktext::gpu::SubRunControl fSubRunControl;
 
 #if defined(SK_DEBUG)
+    // Tracks the flushing state to ensure recursive flushing does not occur.
+    bool fIsFlushing = false;
+
     // When not 0, this Device is an unregistered scratch device that is intended to go out of
     // scope before the Recorder is snapped. Assuming controlling code is valid, that means the
     // Device's recorder's next recording ID should still be the the recording ID at the time the

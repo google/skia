@@ -179,6 +179,7 @@ Recorder::~Recorder() {
             device->abandonRecorder();
         }
     }
+
 #if defined(GPU_TEST_UTILS)
     if (fContext) {
         fContext->priv().deregisterRecorder(this);
@@ -643,27 +644,13 @@ void RecorderPriv::flushTrackedDevices(const TextureProxy* dependency) {
 
 void RecorderPriv::flushTrackedDevices(SK_DUMP_TASKS_CODE(const char* flushSource)) {
     ASSERT_SINGLE_OWNER_PRIV
+    SkASSERT(!fRecorder->fIsFlushingTrackedDevices);
+    SkDEBUGCODE(fRecorder->fIsFlushingTrackedDevices = true);
 
-    // If this is the initial flushTrackedDevices() call, fFlushingTrackedDevicesIndex will be -1
-    // so we start iterating at 0. We remember the starting device index to perform clean up only
-    // when it was 0 to prevent modifying the underlying data structure while iterating over it.
-    // However, when flushing one device it may register new devices as well as recursively call
-    // flushTrackedDevices(). In that case, it picks up the next device after the current one that
-    // triggered the recursive flush since all prior devices have been flushed are in progress
-    // (and they should not be flushed while in an unfinished flush). When the control flow returns
-    // to the outer flushTrackedDevices(), it will pick up with wherever the inner flush had ended.
-    // TODO(b/330864257): Once paint data is extracted at draw time (so picture shaders are rendered
-    // to images before a flush instead of inside a flush), we can simplify this and assert that
-    // flushTrackedDevices() is not recursively called and that devices are not added or removed
-    // while flushing.
-    const int startingIndex = fRecorder->fFlushingDevicesIndex;
-    while (fRecorder->fFlushingDevicesIndex < fRecorder->fTrackedDevices.size() - 1) {
-        // Advance before calling flushPendingWorkToRecorder() so that any re-entrant clal to
-        // flushTrackedDevices() will skip the current device.
-        fRecorder->fFlushingDevicesIndex++;
+    for (int i = 0; i < fRecorder->fTrackedDevices.size(); ++i) {
         // Entries may be set to null from a call to deregisterDevice(), which will be cleaned up
         // along with any immutable or uniquely held Devices once everything is flushed.
-        Device* device = fRecorder->fTrackedDevices[fRecorder->fFlushingDevicesIndex].get();
+        Device* device = fRecorder->fTrackedDevices[i].get();
         if (device) {
             device->flushPendingWork(/*drawContext=*/nullptr);
         }
@@ -679,25 +666,23 @@ void RecorderPriv::flushTrackedDevices(SK_DUMP_TASKS_CODE(const char* flushSourc
              static_cast<uint64_t>(fRecorder->fFlushSources.size()));
 #endif
 
-    if (startingIndex < 0) {
-        // Initial call to flushTrackedDevices() so cleanup null/immutable devices and reset the
-        // loop index.
-        int i = 0;
-        while (i < fRecorder->fTrackedDevices.size()) {
-            Device* device = fRecorder->fTrackedDevices[i].get();
-            if (!device || !device->recorder() || device->unique()) {
-                if (device) {
-                    device->abandonRecorder(); // Keep ~Device() happy
-                }
-                fRecorder->fTrackedDevices.removeShuffle(i);
-                // Keep i as-is to process what was just shuffled to the ith index.
-            } else {
-                i++;
+    // This version of flushTrackedDevices() is not re-entrant, so it *does* perform the final
+    // cleanup on the fTrackedDevices.
+    int i = 0;
+    while (i < fRecorder->fTrackedDevices.size()) {
+        Device* device = fRecorder->fTrackedDevices[i].get();
+        if (!device || !device->recorder() || device->unique()) {
+            if (device) {
+                device->abandonRecorder(); // Keep ~Device() happy
             }
+            fRecorder->fTrackedDevices.removeShuffle(i);
+            // Keep i as-is to process what was just shuffled to the ith index.
+        } else {
+            i++;
         }
-
-        fRecorder->fFlushingDevicesIndex = -1;
     }
+
+    SkDEBUGCODE(fRecorder->fIsFlushingTrackedDevices = false);
 }
 
 std::unique_ptr<KeyAndDataBuilder> RecorderPriv::popOrCreateKeyAndDataBuilder() {
