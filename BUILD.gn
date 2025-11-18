@@ -1927,6 +1927,14 @@ action("skia.h") {
   outputs = [ skia_h ]
 }
 
+config("cpp17") {
+  if (is_msvc) {
+    cflags_cc = [ "/std:c++17" ]
+  } else {
+    cflags_cc = [ "-std=c++17" ]
+  }
+}
+
 skia_source_set("public_headers_warnings_check") {
   sources = [ "tools/public_headers_warnings_check.cpp" ]
   configs = [ ":use_skia_vulkan_headers" ]
