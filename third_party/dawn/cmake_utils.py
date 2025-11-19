@@ -263,15 +263,15 @@ def get_windows_settings(args):
   # Explicitly tell CMake where to find the Resource Compiler, Manifest Tool, and Archiver.
   rc_exe_path = os.path.join(args.win_sdk, "bin", args.win_sdk_version,
                              args.target_cpu, "rc.exe")
-  win_cfgs.append(f"-DCMAKE_RC_COMPILER={quote_if_needed(rc_exe_path.replace(os.sep, '/'))}")
+  win_cfgs.append(f"-DCMAKE_RC_COMPILER={rc_exe_path.replace(os.sep, '/')}")
   mt_exe_path = os.path.join(args.win_sdk, "bin", args.win_sdk_version,
                              args.target_cpu, "mt.exe")
-  win_cfgs.append(f"-DCMAKE_MT={quote_if_needed(mt_exe_path.replace(os.sep, '/'))}")
+  win_cfgs.append(f"-DCMAKE_MT={mt_exe_path.replace(os.sep, '/')}")
 
   ar_exe_path = os.path.join(args.win_vc, "Tools", "MSVC",
                              args.win_toolchain_version, "bin", "Hostx64",
                              args.target_cpu, "lib.exe")
-  win_cfgs.append(f"-DCMAKE_AR={quote_if_needed(ar_exe_path.replace(os.sep, '/'))}")
+  win_cfgs.append(f"-DCMAKE_AR={ar_exe_path.replace(os.sep, '/')}")
 
   # On Windows, we need to explicitly tell clang where to find the toolchain
   # headers and libraries.
@@ -299,23 +299,23 @@ def get_windows_settings(args):
   if args.is_clang:
     win_cxx += [
         "-imsvc",
-        os.path.join(args.win_vc, "Tools", "MSVC", args.win_toolchain_version, "include"),
+        quote_if_needed(os.path.join(args.win_vc, "Tools", "MSVC", args.win_toolchain_version, "include")),
         "-imsvc",
-        os.path.join(args.win_sdk, "Include", args.win_sdk_version, "ucrt"),
+        quote_if_needed(os.path.join(args.win_sdk, "Include", args.win_sdk_version, "ucrt")),
         "-imsvc",
-        os.path.join(args.win_sdk, "Include", args.win_sdk_version, "shared"),
+        quote_if_needed(os.path.join(args.win_sdk, "Include", args.win_sdk_version, "shared")),
         "-imsvc",
-        os.path.join(args.win_sdk, "Include", args.win_sdk_version, "um"),
+        quote_if_needed(os.path.join(args.win_sdk, "Include", args.win_sdk_version, "um")),
         "-imsvc",
-        os.path.join(args.win_sdk, "Include", args.win_sdk_version, "winrt"),
+        quote_if_needed(os.path.join(args.win_sdk, "Include", args.win_sdk_version, "winrt")),
     ]
   else:
     win_cxx += [
-        "/I" + os.path.join(args.win_vc, "Tools", "MSVC", args.win_toolchain_version, "include"),
-        "/I" + os.path.join(args.win_sdk, "Include", args.win_sdk_version, "ucrt"),
-        "/I" + os.path.join(args.win_sdk, "Include", args.win_sdk_version, "shared"),
-        "/I" + os.path.join(args.win_sdk, "Include", args.win_sdk_version, "um"),
-        "/I" + os.path.join(args.win_sdk, "Include", args.win_sdk_version, "winrt"),
+        "/I" + quote_if_needed(os.path.join(args.win_vc, "Tools", "MSVC", args.win_toolchain_version, "include")),
+        "/I" + quote_if_needed(os.path.join(args.win_sdk, "Include", args.win_sdk_version, "ucrt")),
+        "/I" + quote_if_needed(os.path.join(args.win_sdk, "Include", args.win_sdk_version, "shared")),
+        "/I" + quote_if_needed(os.path.join(args.win_sdk, "Include", args.win_sdk_version, "um")),
+        "/I" + quote_if_needed(os.path.join(args.win_sdk, "Include", args.win_sdk_version, "winrt")),
     ]
 
   # We want to build Dawn (and its dependencies) with /MT so we can statically

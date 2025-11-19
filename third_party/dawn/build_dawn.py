@@ -147,8 +147,8 @@ def main():
     configure_cmd.append(f"-DANDROID_ABI={target_cpu}")
     configure_cmd.append(f"-DANDROID_PLATFORM={args.android_platform}")
   else:
-    configure_cmd.append(f"-DCMAKE_C_COMPILER={quote_if_needed(args.cc)}")
-    configure_cmd.append(f"-DCMAKE_CXX_COMPILER={quote_if_needed(args.cxx)}")
+    configure_cmd.append(f"-DCMAKE_C_COMPILER={args.cc.replace(os.sep, '/')}")
+    configure_cmd.append(f"-DCMAKE_CXX_COMPILER={args.cxx.replace(os.sep, '/')}")
 
   if target_os == "Darwin" or target_os == "iOS":
     configure_cmd.append(f"-DCMAKE_OSX_ARCHITECTURES={target_cpu}")
