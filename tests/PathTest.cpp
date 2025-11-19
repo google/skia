@@ -2624,7 +2624,7 @@ static void test_isNestedFillRects(skiatest::Reporter* reporter) {
             builder.addRect({-1, -1, 2, 2}, SkPathDirection::kCW);
         }
         builder.moveTo(r1[0].fX, r1[0].fY);
-        for (size_t index = 1; index < SkToInt(std::size(r1)); ++index) {
+        for (size_t index = 1; index < std::size(r1); ++index) {
             builder.lineTo(r1[index].fX, r1[index].fY);
         }
         builder.close();
@@ -2640,7 +2640,7 @@ static void test_isNestedFillRects(skiatest::Reporter* reporter) {
             builder.addRect({-1, -1, 2, 2}, SkPathDirection::kCW);
         }
         builder.moveTo(r1[0].fX, r1[0].fY);
-        for (size_t index = 1; index < SkToInt(std::size(r1)); ++index) {
+        for (size_t index = 1; index < std::size(r1); ++index) {
             if (index == 2) {
                 builder.moveTo(1, .5f);
             }
@@ -2657,7 +2657,7 @@ static void test_isNestedFillRects(skiatest::Reporter* reporter) {
         if (rectFirst) {
             builder.addRect({-1, -1, 2, 2}, SkPathDirection::kCW);
         }
-        for (size_t index = 1; index < SkToInt(std::size(r1)); ++index) {
+        for (size_t index = 1; index < std::size(r1); ++index) {
             builder.moveTo(r1[index - 1].fX, r1[index - 1].fY);
             builder.lineTo(r1[index].fX, r1[index].fY);
         }
@@ -2673,7 +2673,7 @@ static void test_isNestedFillRects(skiatest::Reporter* reporter) {
             builder.addRect({-1, -1, 2, 2}, SkPathDirection::kCW);
         }
         builder.moveTo(r1[0].fX, r1[0].fY);
-        for (size_t index = 1; index < SkToInt(std::size(r1)); ++index) {
+        for (size_t index = 1; index < std::size(r1); ++index) {
             if (index == 2) {
                 builder.quadTo(1, .5f, 1, .5f);
             }
@@ -2691,7 +2691,7 @@ static void test_isNestedFillRects(skiatest::Reporter* reporter) {
             builder.addRect({-1, -1, 2, 2}, SkPathDirection::kCW);
         }
         builder.moveTo(r1[0].fX, r1[0].fY);
-        for (size_t index = 1; index < SkToInt(std::size(r1)); ++index) {
+        for (size_t index = 1; index < std::size(r1); ++index) {
             if (index == 2) {
                 builder.cubicTo(1, .5f, 1, .5f, 1, .5f);
             }
