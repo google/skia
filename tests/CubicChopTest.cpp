@@ -278,11 +278,11 @@ DEF_TEST(CubicExtrema_FindsLocalMinAndMaxInRangeZeroToOneInclusive, reporter) {
 
     testCubicExtrema(reporter, "(10, N) (3, N) (7, N) (10, N) has 2 extrema, only 1 in range",
                 10, 3, 7, 10,
-                {  0.4097697891418150
+                SKSPAN_INIT_ONE(0.4097697891418150)
                 // 0.4097697891418150259166930 according to WolframAlpha
                 // 1.423563544191518307416640 is the other root, but omitted because it is not
                 //                            between 0 and 1 inclusive.
-                });
+                );
 
     testCubicExtrema(reporter, "(10, N) (9.99, N) (20.01, N) (10, N) with extrema near endpoints",
                 10, 9.99, 20.01, 20,
@@ -314,18 +314,18 @@ DEF_TEST(CubicExtrema_FindsLocalMinAndMaxInRangeZeroToOneInclusive, reporter) {
 
     testCubicExtrema(reporter, "(10, N) (16, N) (16, N) (10, N) has a single local maximum",
                 10, 16, 16, 10,
-                {0.5});
+                SKSPAN_INIT_ONE(0.5));
 
     testCubicExtrema(reporter, "(10, N) (8, N) (8, N) (10, N) has a single local minima",
                 10, 8, 8, 10,
-                {0.5});
+                SKSPAN_INIT_ONE(0.5));
 
     // The polynomial for these points is c(t) = 10. Taking the derivative of that results in
     // c'(t) = 0, which has infinite solutions. Our linear solver handles this case by saying
     // it just has a single solution at t = 0.
     testCubicExtrema(reporter, "(10, N) (10, N) (10, N) (10, N) is defined to have an extrema at 0",
                 10, 10, 10, 10,
-                {0.0});
+                SKSPAN_INIT_ONE(0.0));
 }
 
 static void testCubicInflectionPoints(skiatest::Reporter* reporter, const std::string& name,
@@ -391,12 +391,12 @@ DEF_TEST(CubicInflectionPoints_FindsConvexityChangesInRangeZeroToOneInclusive, r
     // when the answer is exact.
     testCubicInflectionPoints(reporter, "curve changes convexity exactly halfway",
                               {{{ 4, 0 }, { -3, 4 }, { 7, 4 }, { 0, 8 }}},
-                              { 0.5 });
+                              SKSPAN_INIT_ONE(0.5));
 
     // https://www.desmos.com/calculator/8qkmrq3n3e
     testCubicInflectionPoints(reporter, "A curve with one inflection point",
                               {{{ 10, 5 }, { 9, 12 }, { 24, -2 }, { 25, 3 }}},
-                              { 0.5194234849019033 });
+                              SKSPAN_INIT_ONE(0.5194234849019033));
 
     // https://www.desmos.com/calculator/sk2bbz56kv
     testCubicInflectionPoints(reporter, "A curve with two inflection points",
@@ -412,7 +412,7 @@ DEF_TEST(CubicInflectionPoints_FindsConvexityChangesInRangeZeroToOneInclusive, r
                               {{{ 10, 15 }, { 20, 25 }, { 30, 35 }, { 40, 45 }}},
                                // The curvature equation becomes C(t) = 0, which
                                // our linear solver says has 1 root at t = 0.
-                              { 0.0 });
+                              SKSPAN_INIT_ONE(0.0));
 }
 
 static void testBezierCurveHorizontalIntersectBinarySearch(skiatest::Reporter* reporter,
@@ -482,69 +482,69 @@ DEF_TEST(BezierCurveHorizontalIntersectBinarySearch, reporter) {
     // when plotting the curves to verify the solutions.
     testBezierCurveHorizontalIntersectBinarySearch(reporter,
            "straight curve crosses once @ 2.0",
-           {{ 0, 0 }, { 0, 0 }, { 10, 10 }, { 10, 10 }},
+           {{{ 0, 0 }, { 0, 0 }, { 10, 10 }, { 10, 10 }}},
            2.0,
-           {0.2871407270431519});
+           SKSPAN_INIT_ONE(0.2871407270431519));
 
     testBezierCurveHorizontalIntersectBinarySearch(reporter,
            "straight curve crosses once @ 6.0",
-           {{ 0, 0 }, { 3, 3 }, { 6, 6 }, { 10, 10 }},
+           {{{ 0, 0 }, { 3, 3 }, { 6, 6 }, { 10, 10 }}},
            6.0,
-           {0.6378342509269714});
+           SKSPAN_INIT_ONE(0.6378342509269714));
 
 
     testBezierCurveHorizontalIntersectBinarySearch(reporter,
            "out and back curve exactly touches @ 3.0",
-           {{ 0, 0 }, { 4, 4 }, { 4, 4 }, { 0, 8 }},
+           {{{ 0, 0 }, { 4, 4 }, { 4, 4 }, { 0, 8 }}},
            3.0,
            // The binary search algorithm (currently) gets close to, but not quite 0.5
-           {0.4999389648437500,
-            0.5000610351562500});
+           {{0.4999389648437500,
+            0.5000610351562500}});
 
     testBezierCurveHorizontalIntersectBinarySearch(reporter,
            "out and back curve crosses twice @ 2.0",
-           {{ 0, 0 }, { 4, 4 }, { 4, 4 }, { 0, 8 }},
+           {{{ 0, 0 }, { 4, 4 }, { 4, 4 }, { 0, 8 }}},
            2.0,
-           {0.2113248705863953,
-            0.7886751294136047});
+           {{0.2113248705863953,
+            0.7886751294136047}});
 
     testBezierCurveHorizontalIntersectBinarySearch(reporter,
            "out and back curve never crosses 4.0",
-           {{ 0, 0 }, { 4, 4 }, { 4, 4 }, { 0, 8 }},
+           {{{ 0, 0 }, { 4, 4 }, { 4, 4 }, { 0, 8 }}},
            4.0,
            {});
 
 
     testBezierCurveHorizontalIntersectBinarySearch(reporter,
             "left right left curve crosses three times @ 2.0",
-           {{ 4, 0 }, { -3, 4 }, { 7, 4 }, { 0, 8 }},
+           {{{ 4, 0 }, { -3, 4 }, { 7, 4 }, { 0, 8 }}},
            2.0,
-           {  0.1361965624455005,
+           {{  0.1361965624455005,
            // 0.1361965624455005397216403 according to Wolfram Alpha
               0.5,
               0.8638034375544995
            // 0.8638034375544994602783597 according to Wolfram Alpha
-            },
+            }},
             // PathOps version fails to find these roots (has not been investigated yet)
             true /* = skipPathops */);
 
     testBezierCurveHorizontalIntersectBinarySearch(reporter,
             "left right left curve crosses one time @ 1.0",
-           {{ 4, 0 }, { -3, 4 }, { 7, 4 }, { 0, 8 }},
+           {{{ 4, 0 }, { -3, 4 }, { 7, 4 }, { 0, 8 }}},
            1.0,
-           {  0.9454060400510326,
+           SKSPAN_INIT_ONE(0.9454060400510326)
            // 0.9454060415952252910201453 according to Wolfram Alpha
-            });
+           );
 
     testBezierCurveHorizontalIntersectBinarySearch(reporter,
             "left right left curve crosses three times @ 2.5",
-           {{ 4, 0 }, { -3, 4 }, { 7, 4 }, { 0, 8 }},
+           {{{ 4, 0 }, { -3, 4 }, { 7, 4 }, { 0, 8 }}},
            2.5,
-           {  0.0898667385750473,
+           {{  0.0898667385750473,
            // 0.08986673805184604633583244 according to Wolfram Alpha
               0.6263520961813417,
            // 0.6263521357441907129444252 according to Wolfram Alpha
               0.7837811281217468,
            // 0.7837811262039632407197424 according to Wolfram Alpha
-            });
+            }});
 }

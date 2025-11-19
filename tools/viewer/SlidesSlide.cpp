@@ -307,7 +307,7 @@ static void make_fan(Rec* rec, int texWidth, int texHeight) {
     SkMatrix m;
     m.setScale(SkIntToScalar(100), SkIntToScalar(100));
     m.postTranslate(SkIntToScalar(110), SkIntToScalar(110));
-    m.mapPoints({v, rec->fCount});
+    m.mapPoints({v, (size_t)rec->fCount});
 }
 
 static void make_strip(Rec* rec, int texWidth, int texHeight) {
@@ -342,7 +342,7 @@ static void make_strip(Rec* rec, int texWidth, int texHeight) {
     SkMatrix m;
     m.setScale(SkIntToScalar(100), SkIntToScalar(100));
     m.postTranslate(SkIntToScalar(110), SkIntToScalar(110));
-    m.mapPoints({v, rec->fCount});
+    m.mapPoints({v, (size_t)rec->fCount});
 }
 
 static void mesh_slide(SkCanvas* canvas) {

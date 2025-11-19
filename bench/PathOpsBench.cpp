@@ -191,8 +191,8 @@ protected:
             case MakeType::kArray: {
             //    ArrayPath<N*12> arrays;
             //    run_builder(arrays, false, N);
-                return SkPath::Raw({fArrays.fPts, fArrays.fPIndex},
-                                   {fArrays.fVbs, fArrays.fVIndex},
+                return SkPath::Raw({fArrays.fPts, (size_t)fArrays.fPIndex},
+                                   {fArrays.fVbs, (size_t)fArrays.fVIndex},
                                    {}, SkPathFillType::kWinding);
             }
         }

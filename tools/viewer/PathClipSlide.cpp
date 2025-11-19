@@ -133,7 +133,7 @@ static int clip_line(const SkRect& bounds, SkPoint p0, SkPoint p1, SkPoint edges
 static void draw_clipped_line(SkCanvas* canvas, const SkRect& bounds,
                               SkPoint p0, SkPoint p1, const SkPaint& paint) {
     SkPoint verts[6];
-    int count = clip_line(bounds, p0, p1, verts);
+    size_t count = clip_line(bounds, p0, p1, verts);
 
     SkPath path = SkPath::Polygon({verts, count}, false);
     canvas->drawPath(path, paint);

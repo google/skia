@@ -663,7 +663,7 @@ void Builder::push_duplicates(int count) {
     SkASSERT(count >= 0);
     if (count >= 3) {
         // Use a swizzle to splat the input into a 4-slot value.
-        this->swizzle(/*consumedSlots=*/1, {0, 0, 0, 0});
+        this->swizzle(/*consumedSlots=*/1, {{0, 0, 0, 0}});
         count -= 3;
     }
     for (; count >= 4; count -= 4) {
@@ -672,8 +672,8 @@ void Builder::push_duplicates(int count) {
     }
     // Use a swizzle or clone to handle the trailing items.
     switch (count) {
-        case 3:  this->swizzle(/*consumedSlots=*/1, {0, 0, 0, 0}); break;
-        case 2:  this->swizzle(/*consumedSlots=*/1, {0, 0, 0});    break;
+        case 3:  this->swizzle(/*consumedSlots=*/1, {{0, 0, 0, 0}}); break;
+        case 2:  this->swizzle(/*consumedSlots=*/1, {{0, 0, 0}});    break;
         case 1:  this->push_clone(/*numSlots=*/1);                 break;
         default: break;
     }
@@ -1664,7 +1664,7 @@ static void* context_bit_pun(intptr_t val) {
 
 std::optional<Program::SlotData> Program::allocateSlotData(SkArenaAlloc* alloc) const {
     // Allocate a contiguous slab of slot data for immutables, values, and stack entries.
-    const int N = SkOpts::raster_pipeline_highp_stride;
+    const size_t N = SkOpts::raster_pipeline_highp_stride;
     const int scalarWidth = 1 * sizeof(float);
     const int vectorWidth = N * sizeof(float);
     SkSafeMath safe;
@@ -1678,9 +1678,9 @@ std::optional<Program::SlotData> Program::allocateSlotData(SkArenaAlloc* alloc) 
 
     // Store the temp stack immediately after the values, and immutable data after the stack.
     SlotData s;
-    s.values    = SkSpan<float>{slotPtr,        N * fNumValueSlots};
-    s.stack     = SkSpan<float>{s.values.end(), N * fNumTempStackSlots};
-    s.immutable = SkSpan<float>{s.stack.end(),  1 * fNumImmutableSlots};
+    s.values    = {slotPtr,        N * fNumValueSlots};
+    s.stack     = {s.values.end(), N * fNumTempStackSlots};
+    s.immutable = {s.stack.end(),  1u * fNumImmutableSlots};
     return s;
 }
 
@@ -1823,7 +1823,7 @@ void Program::makeStages(TArray<Stage>* pipeline,
     TArray<float*> tempStackMap;
     tempStackMap.resize(fTempStackMaxDepths.size());
     for (int idx = 0; idx < fTempStackMaxDepths.size(); ++idx) {
-        tempStackMap[idx] = slots.stack.begin() + (pos * N);
+        tempStackMap[idx] = slots.stack.data() + (pos * N);
         pos += fTempStackMaxDepths[idx];
     }
 
@@ -2461,8 +2461,8 @@ void Program::makeStages(TArray<Stage>* pipeline,
         int stackUsage = stack_usage(inst);
         if (stackUsage != 0) {
             tempStackPtr += stackUsage * N;
-            SkASSERT(tempStackPtr >= slots.stack.begin());
-            SkASSERT(tempStackPtr <= slots.stack.end());
+            SkASSERT(tempStackPtr >= slots.stack.data());
+            SkASSERT(tempStackPtr <= slots.stack.data() + slots.stack.size());
         }
 
         // Periodically rewind the stack every 500 instructions. When SK_HAS_MUSTTAIL is set,
@@ -2622,8 +2622,8 @@ public:
     // Attempts to interpret the passed-in pointer as a uniform range.
     std::string uniformPtrCtx(const float* ptr, int numSlots) const {
         const float* end = ptr + numSlots;
-        if (ptr >= fUniforms.begin() && end <= fUniforms.end()) {
-            int uniformIdx = ptr - fUniforms.begin();
+        if (ptr >= fUniforms.data() && end <= fUniforms.data() + fUniforms.size()) {
+            int uniformIdx = ptr - fUniforms.data();
             if (fProgram.fDebugTrace) {
                 // Handle pointers to named uniform slots.
                 std::string name = this->uniformName({uniformIdx, numSlots});
@@ -2640,8 +2640,8 @@ public:
     // Attempts to interpret the passed-in pointer as a value slot range.
     std::string valuePtrCtx(const float* ptr, int numSlots) const {
         const float* end = ptr + (N * numSlots);
-        if (ptr >= fSlots.values.begin() && end <= fSlots.values.end()) {
-            int valueIdx = ptr - fSlots.values.begin();
+        if (ptr >= fSlots.values.data() && end <= fSlots.values.data() + fSlots.values.size()) {
+            int valueIdx = ptr - fSlots.values.data();
             SkASSERT((valueIdx % N) == 0);
             valueIdx /= N;
             if (fProgram.fDebugTrace) {
@@ -2660,8 +2660,10 @@ public:
     // Attempts to interpret the passed-in pointer as a immutable slot range.
     std::string immutablePtrCtx(const float* ptr, int numSlots) const {
         const float* end = ptr + numSlots;
-        if (ptr >= fSlots.immutable.begin() && end <= fSlots.immutable.end()) {
-            int index = ptr - fSlots.immutable.begin();
+        if (ptr >= fSlots.immutable.data() &&
+            end <= fSlots.immutable.data() + fSlots.immutable.size())
+        {
+            int index = ptr - fSlots.immutable.data();
             return 'i' + this->asRange(index, numSlots) + ' ' +
                    this->multiImmCtx(ptr, numSlots);
         }
@@ -2702,8 +2704,10 @@ public:
             return value;
         }
         // Handle pointers to temporary stack slots.
-        if (ctxAsSlot >= fSlots.stack.begin() && ctxAsSlot < fSlots.stack.end()) {
-            int stackIdx = ctxAsSlot - fSlots.stack.begin();
+        if (ctxAsSlot >= fSlots.stack.data() &&
+            ctxAsSlot <  fSlots.stack.data() + fSlots.stack.size())
+        {
+            int stackIdx = ctxAsSlot - fSlots.stack.data();
             SkASSERT((stackIdx % N) == 0);
             return '$' + this->asRange(stackIdx / N, numSlots);
         }

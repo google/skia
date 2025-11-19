@@ -45,18 +45,18 @@ std::pair<SkPaint, PaintOptions> create_paint_and_options(bool addBlenders) {
     auto [shader, shaderOption] = PrecompileFactories::CreateAnnulusRuntimeShader();
 
     paint.setShader(std::move(shader));
-    paintOptions.setShaders({ std::move(shaderOption) });
+    paintOptions.setShaders({{ std::move(shaderOption) }});
 
     auto [colorFilter, colorFilterOption] = PrecompileFactories::CreateComboRuntimeColorFilter();
 
     paint.setColorFilter(std::move(colorFilter));
-    paintOptions.setColorFilters({ std::move(colorFilterOption) });
+    paintOptions.setColorFilters({{ std::move(colorFilterOption) }});
 
     if (addBlenders) {
         auto [blender, blenderOption] = PrecompileFactories::CreateComboRuntimeBlender();
 
         paint.setBlender(std::move(blender));
-        paintOptions.setBlenders({ std::move(blenderOption) });
+        paintOptions.setBlenders({{ std::move(blenderOption) }});
     }
 
     return { paint, paintOptions };
@@ -202,7 +202,7 @@ void reset_and_recreate_pipelines_with_normal_precompile_api(
     Precompile(precompileContext,
                paintOptions,
                DrawTypeFlags::kSimpleShape,
-               { renderPassProps });
+               {{ renderPassProps }});
 
     std::vector<skgpu::UniqueKey> recreatedKeys;
     std::vector<sk_sp<SkData>> recreatedAndroidStyleKeys;

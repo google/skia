@@ -225,7 +225,7 @@ protected:
         }
         for (int i = 0; i < loops; i++) {
             canvas->drawAtlas(fAtlas.get(), fXforms, fRects,
-                              {colors, colors ? N : 0}, SkBlendMode::kModulate,
+                              {colors, colors ? (size_t)N : 0}, SkBlendMode::kModulate,
                               SkSamplingOptions(), cullRect, paintPtr);
         }
     }

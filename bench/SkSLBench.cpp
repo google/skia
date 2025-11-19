@@ -209,7 +209,7 @@ protected:
         rasterProg->appendStages(&pipeline,
                                  &alloc,
                                  /*callbacks=*/nullptr,
-                                 /*uniforms=*/SkSpan{uniformBuffer, rasterProg->numUniforms()});
+                                 /*uniforms=*/{uniformBuffer, (size_t)rasterProg->numUniforms()});
         return true;
     }
 

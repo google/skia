@@ -1154,7 +1154,7 @@ DEF_GRAPHITE_TEST(UniformManagerStructLayout, r, CtsEnforcement::kNever) {
                 }
                 SkDebugf("\nActual contents:\n");
                 SkASSERT(data.size() % 4 == 0);
-                const uint32_t* actualData = reinterpret_cast<const uint32_t*>(data.begin());
+                const uint32_t* actualData = reinterpret_cast<const uint32_t*>(data.data());
                 for (size_t i = 0; i < expectedData.size(); ++i) {
                     SkDebugf("%s%u", i % 4 == 0 ? " " : ",", actualData[i]);
                 }

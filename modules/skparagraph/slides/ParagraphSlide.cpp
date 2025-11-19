@@ -1908,7 +1908,7 @@ public:
             auto impl = static_cast<ParagraphImpl*>(paragraph.get());
             for (auto& line : impl->lines()) {
                 if (this->isVerbose()) {
-                    SkDebugf("line[%d]: %f\n", (int)(&line - impl->lines().begin()),
+                    SkDebugf("line[%d]: %f\n", (int)(&line - impl->lines().data()),
                                                     line.offset().fX);
                 }
                 line.iterateThroughVisualRuns(true,

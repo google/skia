@@ -136,7 +136,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SingleDispatchTest,
         TestComputeStep() : ComputeStep(
                 /*name=*/"TestArrayMultiply",
                 /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     // Input buffer:
                     {
                         // TODO(b/299979165): Declare this binding as read-only.
@@ -157,7 +157,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SingleDispatchTest,
                         /*slot=*/0,
                         /*sksl=*/"outputBlock { float4 out_data[]; }",
                     }
-                }) {}
+                }}) {}
         ~TestComputeStep() override = default;
 
         // A kernel that multiplies a large array of floats by a supplied factor.
@@ -275,7 +275,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest,
         TestComputeStep1() : ComputeStep(
                 /*name=*/"TestArrayMultiplyFirstPass",
                 /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     // Input buffer:
                     {
                         // TODO(b/299979165): Declare this binding as read-only.
@@ -302,7 +302,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest,
                         /*slot=*/1,
                         /*sksl=*/"outputBlock2 { float2 extra_data; }",
                     }
-                }) {}
+                }}) {}
         ~TestComputeStep1() override = default;
 
         // A kernel that multiplies a large array of floats by a supplied factor.
@@ -360,7 +360,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest,
         TestComputeStep2() : ComputeStep(
                 /*name=*/"TestArrayMultiplySecondPass",
                 /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     // Input buffer:
                     {
                         /*type=*/ResourceType::kStorageBuffer,
@@ -383,7 +383,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest,
                         /*slot=*/2,
                         /*sksl=*/"outputBlock { float4 out_data[]; }",
                     }
-                }) {}
+                }}) {}
         ~TestComputeStep2() override = default;
 
         // A kernel that multiplies a large array of floats by a supplied factor.
@@ -517,7 +517,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_UniformBufferTest,
         TestComputeStep() : ComputeStep(
                 /*name=*/"TestArrayMultiply",
                 /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     // Uniform buffer:
                     {
                         /*type=*/ResourceType::kUniformBuffer,
@@ -541,7 +541,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_UniformBufferTest,
                         /*slot=*/0,
                         /*sksl=*/"outputBlock { float4 out_data[]; }",
                     }
-                }) {}
+                }}) {}
         ~TestComputeStep() override = default;
 
         // A kernel that multiplies a large array of floats by a supplied factor.
@@ -661,7 +661,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ExternallyAssignedBuffer,
         TestComputeStep() : ComputeStep(
                 /*name=*/"ExternallyAssignedBuffer",
                 /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     // Input buffer:
                     {
                         /*type=*/ResourceType::kStorageBuffer,
@@ -681,7 +681,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ExternallyAssignedBuffer,
                         /*slot=*/0,
                         /*sksl=*/"outputBlock { float4 out_data[]; }",
                     }
-                }) {}
+                }}) {}
         ~TestComputeStep() override = default;
 
         // A kernel that multiplies a large array of floats by a supplied factor.
@@ -777,7 +777,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTexture,
         TestComputeStep() : ComputeStep(
                 /*name=*/"TestStorageTexture",
                 /*localDispatchSize=*/{kDim, kDim, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     {
                         /*type=*/ResourceType::kWriteOnlyStorageTexture,
                         /*flow=*/DataFlow::kShared,
@@ -785,7 +785,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTexture,
                         /*slot=*/0,
                         /*sksl=*/"dst",
                     }
-                }) {}
+                }}) {}
         ~TestComputeStep() override = default;
 
         std::string computeSkSL() const override {
@@ -879,7 +879,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureReadAndWrite
         TestComputeStep() : ComputeStep(
                 /*name=*/"TestStorageTextureReadAndWrite",
                 /*localDispatchSize=*/{kDim, kDim, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     {
                         /*type=*/ResourceType::kReadOnlyTexture,
                         /*flow=*/DataFlow::kShared,
@@ -894,7 +894,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureReadAndWrite
                         /*slot=*/1,
                         /*sksl=*/"dst",
                     }
-                }) {}
+                }}) {}
         ~TestComputeStep() override = default;
 
         std::string computeSkSL() const override {
@@ -949,7 +949,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureReadAndWrite
                                                    *srcProxy,
                                                    srcPixels.info().colorInfo(),
                                                    srcPixels.info().colorInfo(),
-                                                   {mipLevel},
+                                                   SKSPAN_INIT_ONE(mipLevel),
                                                    SkIRect::MakeWH(kDim, kDim));
     if (!uploadSource.isValid()) {
         ERRORF(reporter, "Could not create UploadSource");
@@ -1045,7 +1045,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ReadOnlyStorageBuffer,
         TestComputeStep() : ComputeStep(
                 /*name=*/"TestReadOnlyStorageBuffer",
                 /*localDispatchSize=*/{kDim, kDim, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     {
                         /*type=*/ResourceType::kReadOnlyStorageBuffer,
                         /*flow=*/DataFlow::kShared,
@@ -1060,7 +1060,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ReadOnlyStorageBuffer,
                         /*slot=*/1,
                         /*sksl=*/"dst",
                     }
-                }) {}
+                }}) {}
         ~TestComputeStep() override = default;
 
         std::string computeSkSL() const override {
@@ -1186,7 +1186,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureMultipleComp
         TestComputeStep1() : ComputeStep(
                 /*name=*/"TestStorageTexturesFirstPass",
                 /*localDispatchSize=*/{kDim, kDim, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     {
                         /*type=*/ResourceType::kWriteOnlyStorageTexture,
                         /*flow=*/DataFlow::kShared,
@@ -1194,7 +1194,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureMultipleComp
                         /*slot=*/0,
                         /*sksl=*/"dst",
                     }
-                }) {}
+                }}) {}
         ~TestComputeStep1() override = default;
 
         std::string computeSkSL() const override {
@@ -1222,7 +1222,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureMultipleComp
         TestComputeStep2() : ComputeStep(
                 /*name=*/"TestStorageTexturesSecondPass",
                 /*localDispatchSize=*/{kDim, kDim, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     {
                         /*type=*/ResourceType::kReadOnlyTexture,
                         /*flow=*/DataFlow::kShared,
@@ -1237,7 +1237,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureMultipleComp
                         /*slot=*/1,
                         /*sksl=*/"dst",
                     }
-                }) {}
+                }}) {}
         ~TestComputeStep2() override = default;
 
         std::string computeSkSL() const override {
@@ -1335,7 +1335,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SampledTexture,
         TestComputeStep1() : ComputeStep(
                 /*name=*/"Test_SampledTexture_Init",
                 /*localDispatchSize=*/{kSrcDim, kSrcDim, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     {
                         /*type=*/ResourceType::kWriteOnlyStorageTexture,
                         /*flow=*/DataFlow::kShared,
@@ -1343,7 +1343,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SampledTexture,
                         /*slot=*/0,
                         /*sksl=*/"dst",
                     }
-                }) {}
+                }}) {}
         ~TestComputeStep1() override = default;
 
         std::string computeSkSL() const override {
@@ -1372,7 +1372,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SampledTexture,
         TestComputeStep2() : ComputeStep(
                 /*name=*/"Test_SampledTexture_Sample",
                 /*localDispatchSize=*/{kDstDim, kDstDim, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     // Declare the storage texture before the sampled texture. This tests that
                     // binding index assignment works consistently across all backends when a
                     // sampler-less texture and a texture+sampler pair are intermixed and sampler
@@ -1391,7 +1391,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SampledTexture,
                         /*slot=*/0,
                         /*sksl=*/"src",
                     }
-                }) {}
+                }}) {}
         ~TestComputeStep2() override = default;
 
         std::string computeSkSL() const override {
@@ -1502,7 +1502,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsTest,
         TestComputeStep() : ComputeStep(
                 /*name=*/"TestAtomicOperations",
                 /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     {
                         /*type=*/ResourceType::kStorageBuffer,
                         /*flow=*/DataFlow::kShared,
@@ -1510,7 +1510,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsTest,
                         /*slot=*/0,
                         /*sksl=*/"ssbo { atomicUint globalCounter; }",
                     }
-                }) {}
+                }}) {}
         ~TestComputeStep() override = default;
 
         // A kernel that increments a global (device memory) counter across multiple workgroups.
@@ -1631,7 +1631,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsOverArrayA
         TestComputeStep() : ComputeStep(
                 /*name=*/"TestAtomicOperationsOverArrayAndStruct",
                 /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     {
                         /*type=*/ResourceType::kStorageBuffer,
                         /*flow=*/DataFlow::kShared,
@@ -1642,7 +1642,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsOverArrayA
                             "   atomicUint globalCountsSecondHalf;\n"
                             "}\n"
                     }
-                }) {}
+                }}) {}
         ~TestComputeStep() override = default;
 
         // Construct a kernel that increments a two global (device memory) counters across multiple
@@ -1772,7 +1772,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearedBuffer,
         TestComputeStep() : ComputeStep(
                 /*name=*/"TestClearedBuffer",
                 /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     // Zero initialized input buffer
                     {
                         // TODO(b/299979165): Declare this binding as read-only.
@@ -1790,7 +1790,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearedBuffer,
                         /*slot=*/0,
                         /*sksl=*/"outputBlock { uint4 out_data[]; }\n",
                     }
-                }) {}
+                }}) {}
         ~TestComputeStep() override = default;
 
         std::string computeSkSL() const override {
@@ -1875,7 +1875,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearOrdering,
         FillWithGarbage() : ComputeStep(
                 /*name=*/"FillWithGarbage",
                 /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     {
                         /*type=*/ResourceType::kStorageBuffer,
                         /*flow=*/DataFlow::kShared,
@@ -1883,7 +1883,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearOrdering,
                         /*slot=*/0,
                         /*sksl=*/"outputBlock { uint4 out_data[]; }\n",
                     }
-                }) {}
+                }}) {}
         ~FillWithGarbage() override = default;
 
         std::string computeSkSL() const override {
@@ -1902,7 +1902,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearOrdering,
         CopyBuffer() : ComputeStep(
                 /*name=*/"CopyBuffer",
                 /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     {
                         /*type=*/ResourceType::kStorageBuffer,
                         /*flow=*/DataFlow::kShared,
@@ -1917,7 +1917,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearOrdering,
                         /*slot=*/1,
                         /*sksl=*/"outputBlock { uint4 out_data[]; }\n",
                     }
-                }) {}
+                }}) {}
         ~CopyBuffer() override = default;
 
         std::string computeSkSL() const override {
@@ -1988,7 +1988,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearOrderingScratchBuffer
         FillWithGarbage() : ComputeStep(
                 /*name=*/"FillWithGarbage",
                 /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     {
                         /*type=*/ResourceType::kStorageBuffer,
                         /*flow=*/DataFlow::kShared,
@@ -1996,7 +1996,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearOrderingScratchBuffer
                         /*slot=*/0,
                         /*sksl=*/"outputBlock { uint4 out_data[]; }\n",
                     }
-                }) {}
+                }}) {}
         ~FillWithGarbage() override = default;
 
         std::string computeSkSL() const override {
@@ -2015,7 +2015,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearOrderingScratchBuffer
         CopyBuffer() : ComputeStep(
                 /*name=*/"CopyBuffer",
                 /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     {
                         /*type=*/ResourceType::kStorageBuffer,
                         /*flow=*/DataFlow::kShared,
@@ -2030,7 +2030,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearOrderingScratchBuffer
                         /*slot=*/1,
                         /*sksl=*/"outputBlock { uint4 out_data[]; }\n",
                     }
-                }) {}
+                }}) {}
         ~CopyBuffer() override = default;
 
         std::string computeSkSL() const override {
@@ -2120,7 +2120,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_IndirectDispatch,
                           /*name=*/"TestIndirectDispatch_IndirectStep",
                           /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
                           /*resources=*/
-                          {{
+                          {{{
                                   /*type=*/ResourceType::kIndirectBuffer,
                                   /*flow=*/DataFlow::kShared,
                                   /*policy=*/ResourcePolicy::kClear,
@@ -2129,7 +2129,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_IndirectDispatch,
                                   // type `IndirectDispatchArgs` struct type. SkSL modules don't
                                   // support struct declarations so this is currently not possible.
                                   /*sksl=*/"ssbo { uint indirect[]; }",
-                          }}) {}
+                          }}}) {}
         ~IndirectStep() override = default;
 
         // Kernel that specifies a workgroup size of `kWorkgroupCount` to be used by the indirect
@@ -2168,13 +2168,13 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_IndirectDispatch,
                           /*name=*/"TestIndirectDispatch_CountStep",
                           /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
                           /*resources=*/
-                          {{
+                          {{{
                                   /*type=*/ResourceType::kStorageBuffer,
                                   /*flow=*/DataFlow::kShared,
                                   /*policy=*/ResourcePolicy::kMapped,
                                   /*slot=*/1,
                                   /*sksl=*/"ssbo { atomicUint globalCounter; }",
-                          }}) {}
+                          }}}) {}
         ~CountStep() override = default;
 
         std::string computeSkSL() const override {
@@ -2282,14 +2282,14 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_NativeShaderSourceMetal,
         TestComputeStep() : ComputeStep(
                 /*name=*/"TestAtomicOperationsMetal",
                 /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     {
                         /*type=*/ResourceType::kStorageBuffer,
                         /*flow=*/DataFlow::kShared,
                         /*policy=*/ResourcePolicy::kMapped,
                         /*slot=*/0,
                     }
-                },
+                }},
                 /*workgroupBuffers=*/{},
                 /*baseFlags=*/Flags::kSupportsNativeShader) {}
         ~TestComputeStep() override = default;
@@ -2404,20 +2404,20 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_WorkgroupBufferDescMetal,
         TestComputeStep() : ComputeStep(
                 /*name=*/"TestAtomicOperationsMetal",
                 /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     {
                         /*type=*/ResourceType::kStorageBuffer,
                         /*flow=*/DataFlow::kShared,
                         /*policy=*/ResourcePolicy::kMapped,
                         /*slot=*/0,
                     }
-                },
-                /*workgroupBuffers=*/{
+                }},
+                /*workgroupBuffers=*/{{
                     {
                         /*size=*/sizeof(uint32_t),
                         /*index=*/0u,
                     }
-                },
+                }},
                 /*baseFlags=*/Flags::kSupportsNativeShader) {}
         ~TestComputeStep() override = default;
 
@@ -2536,14 +2536,14 @@ DEF_GRAPHITE_TEST_FOR_DAWN_CONTEXT(Compute_NativeShaderSourceWGSL, reporter, con
         TestComputeStep() : ComputeStep(
                 /*name=*/"TestAtomicOperationsWGSL",
                 /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
-                /*resources=*/{
+                /*resources=*/{{
                     {
                         /*type=*/ResourceType::kStorageBuffer,
                         /*flow=*/DataFlow::kShared,
                         /*policy=*/ResourcePolicy::kMapped,
                         /*slot=*/0,
                     }
-                },
+                }},
                 /*workgroupBuffers=*/{},
                 /*baseFlags=*/Flags::kSupportsNativeShader) {}
         ~TestComputeStep() override = default;

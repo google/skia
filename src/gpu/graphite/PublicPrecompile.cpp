@@ -227,7 +227,7 @@ void Precompile(PrecompileContext* precompileContext,
                                                                 DrawTypeFlags::kAnalyticClip));
 
                 PaintOptions newOptions;
-                newOptions.setBlendModes({ SkBlendMode::kSrcOver });
+                newOptions.setBlendModes(SKSPAN_INIT_ONE(SkBlendMode::kSrcOver));
 
                 // Analytic
                 {
@@ -243,7 +243,7 @@ void Precompile(PrecompileContext* precompileContext,
                 // Geometric
                 {
                     sk_sp<PrecompileColorFilter> cf = PrecompileColorFilters::Compose(
-                            {{ PrecompileColorFilters::Blend({ SkBlendMode::kModulate }) }},
+                            {{ PrecompileColorFilters::Blend(SKSPAN_INIT_ONE(SkBlendMode::kModulate)) }},
                             {{ PrecompileColorFiltersPriv::Gaussian() }});
 
                     newOptions.setColorFilters({{ std::move(cf) }});

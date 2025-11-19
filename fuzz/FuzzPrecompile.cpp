@@ -253,7 +253,7 @@ std::pair<SkPaint, PaintOptions> create_random_paint(Fuzz* fuzz, int depth) {
 
         if (cf) {
             paint.setColorFilter(std::move(cf));
-            paintOptions.setColorFilters({o});
+            paintOptions.setColorFilters({{o}});
         }
     }
 
@@ -420,7 +420,7 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
 
         int before = context->priv().globalCache()->numGraphicsPipelines();
         Precompile(precompileContext.get(), paintOptions, kDrawType,
-                   { kDefaultRenderPassProperties });
+                   {{ kDefaultRenderPassProperties }});
         int after = context->priv().globalCache()->numGraphicsPipelines();
 
         SkASSERT_RELEASE(before == 0);

@@ -70,7 +70,7 @@ static void test_isRectFinite(skiatest::Reporter* reporter) {
 
     static const struct {
         const SkPoint* fPts;
-        int            fCount;
+        size_t         fCount;
         bool           fIsFinite;
     } gSets[] = {
         { gF0, std::size(gF0), true },

@@ -497,14 +497,14 @@ private:
         paint.setColor(color);
         paint.setAlpha(0x80);
         paint.setAntiAlias(true);
-        int n = path.countPoints();
+        size_t n = path.countPoints();
         std::unique_ptr<SkPoint[]> pts{new SkPoint[n]};
         if (show_lines && fDrawTangents) {
             TArray<int> contourCounts;
             getContourCounts(path, &contourCounts);
             SkPoint* ptPtr = pts.get();
             for (int i = 0; i < contourCounts.size(); ++i) {
-                int count = contourCounts[i];
+                size_t count = contourCounts[i];
 
                 const SkPoint* src = path.points().data();
                 std::copy(src, src + count, ptPtr);

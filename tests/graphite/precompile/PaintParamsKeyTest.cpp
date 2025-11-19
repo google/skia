@@ -658,7 +658,7 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_coord_clamp_shader(Sk
 
     constexpr SkRect kSubset{0, 0, 256, 256}; // this is somewhat arbitrary but we need some subset
     sk_sp<SkShader> ccs = SkShaders::CoordClamp(std::move(s), kSubset);
-    sk_sp<PrecompileShader> cco = PrecompileShaders::CoordClamp({ std::move(o) });
+    sk_sp<PrecompileShader> cco = PrecompileShaders::CoordClamp({{ std::move(o) }});
 
     return { ccs, cco };
 }
@@ -882,7 +882,7 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_image_shader(SkRandom
             // Non-subset image.
             s = SkShaders::Image(std::move(image), tmX, tmY, SkSamplingOptions(), lmPtr);
             o = PrecompileShaders::Image(ImageShaderFlags::kAll,
-                                         { colorInfo },
+                                         {{ colorInfo }},
                                          precompileTileModes);
         } break;
         case 1: {
@@ -891,21 +891,21 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_image_shader(SkRandom
             s = SkImageShader::MakeSubset(
                     std::move(image), subset, tmX, tmY, SkSamplingOptions(), lmPtr);
             o = PrecompileShaders::Image(ImageShaderFlags::kAll,
-                                         { colorInfo },
+                                         {{ colorInfo }},
                                          precompileTileModes);
         } break;
         case 2: {
             // Cubic-sampled image.
             s = SkShaders::Image(std::move(image), tmX, tmY, SkCubicResampler::Mitchell(), lmPtr);
             o = PrecompileShaders::Image(ImageShaderFlags::kAll,
-                                         { colorInfo },
+                                         {{ colorInfo }},
                                          precompileTileModes);
         } break;
         default: {
             // Raw image draw.
             s = SkShaders::RawImage(std::move(image), tmX, tmY, SkSamplingOptions(), lmPtr);
             o = PrecompileShaders::RawImage(ImageShaderFlags::kExcludeCubic,
-                                            { colorInfo },
+                                            {{ colorInfo }},
                                             precompileTileModes);
         } break;
     }
@@ -942,7 +942,7 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_yuv_image_shader(SkRa
 
     o = PrecompileShaders::YUVImage(useCubic ? YUVImageShaderFlags::kCubicSampling
                                              : YUVImageShaderFlags::kExcludeCubic,
-                                    { colorInfo });
+                                    {{ colorInfo }});
 
     return { s, o };
 }
@@ -966,8 +966,7 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_blend_shader(SkRandom
     }
 
     auto s = SkShaders::Blend(std::move(blender), std::move(dstS), std::move(srcS));
-    auto o = PrecompileShaders::Blend(SkSpan<const sk_sp<PrecompileBlender>>({ blenderO }),
-                                      { dstO }, { srcO });
+    auto o = PrecompileShaders::Blend({{ blenderO }}, {{ dstO }}, {{ srcO }});
 
     return { s, o };
 }
@@ -1139,7 +1138,7 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_lerp_colorf
     // in the precompile API.
     sk_sp<SkColorFilter> cf = SkColorFilters::Lerp(0.5f, std::move(dst), std::move(src));
 
-    sk_sp<PrecompileColorFilter> o = PrecompileColorFilters::Lerp({ dstO }, { srcO });
+    sk_sp<PrecompileColorFilter> o = PrecompileColorFilters::Lerp({{ dstO }}, {{ srcO }});
 
     return { cf, o };
 }
@@ -1184,7 +1183,7 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_color_space
     sk_sp<SkColorSpace> src = random_colorspace(rand);
     sk_sp<SkColorSpace> dst = random_colorspace(rand);
     return { SkColorFilterPriv::MakeColorSpaceXform(src, dst),
-             PrecompileColorFiltersPriv::ColorSpaceXform({ src }, { dst }) };
+             PrecompileColorFiltersPriv::ColorSpaceXform({{ src }}, {{ dst }}) };
 }
 
 std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_linear_to_srgb_colorfilter() {
@@ -1228,7 +1227,7 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_compose_col
     // TODO: if outerCF is null, innerCF will be returned by Compose. We need a Precompile
     // list object that can encapsulate innerO if there are no combinations in outerO.
     return { SkColorFilters::Compose(std::move(outerCF), std::move(innerCF)),
-             PrecompileColorFilters::Compose({ std::move(outerO) }, { std::move(innerO) }) };
+             PrecompileColorFilters::Compose({{ std::move(outerO) }}, {{ std::move(innerO) }}) };
 }
 
 std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_gaussian_colorfilter() {
@@ -1259,7 +1258,7 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_workingform
             SkColorFilterPriv::WithWorkingFormat(std::move(childCF), tf, gamut, &unpremul);
 
     sk_sp<PrecompileColorFilter> o = PrecompileColorFiltersPriv::WithWorkingFormat(
-            { std::move(childO) }, tf, gamut, &unpremul);
+            {{ std::move(childO) }}, tf, gamut, &unpremul);
 
     return { std::move(cf), std::move(o) };
 }
@@ -1638,7 +1637,7 @@ std::pair<SkPaint, PaintOptions> create_paint(SkRandom* rand,
 
         if (s) {
             paint.setShader(std::move(s));
-            paintOptions.setShaders({o});
+            paintOptions.setShaders({{o}});
         }
     }
 
@@ -1648,7 +1647,7 @@ std::pair<SkPaint, PaintOptions> create_paint(SkRandom* rand,
 
         if (cf) {
             paint.setColorFilter(std::move(cf));
-            paintOptions.setColorFilters({o});
+            paintOptions.setColorFilters({{o}});
         }
     }
 
@@ -1658,7 +1657,7 @@ std::pair<SkPaint, PaintOptions> create_paint(SkRandom* rand,
 
         if (mf) {
             paint.setMaskFilter(std::move(mf));
-            paintOptions.setMaskFilters({o});
+            paintOptions.setMaskFilters({{o}});
         }
     }
 
@@ -1668,7 +1667,7 @@ std::pair<SkPaint, PaintOptions> create_paint(SkRandom* rand,
 
         if (b) {
             paint.setBlender(std::move(b));
-            paintOptions.setBlenders({o});
+            paintOptions.setBlenders({{o}});
         }
     }
 
@@ -1678,7 +1677,7 @@ std::pair<SkPaint, PaintOptions> create_paint(SkRandom* rand,
 
         if (filter) {
             paint.setImageFilter(std::move(filter));
-            paintOptions.setImageFilters({o});
+            paintOptions.setImageFilters({{o}});
         }
     }
 
@@ -2146,8 +2145,8 @@ void precompile_vs_real_draws_subtest(skiatest::Reporter* reporter,
         // The skp draws a rect w/ a default SkPaint and RGBA dst color type
         PaintOptions skpPaintOptions;
         Precompile(precompileContext, skpPaintOptions, DrawTypeFlags::kNonAAFillRect,
-                   { { kDepth_1.fDSFlags, kRGBA_8888_SkColorType, kDepth_1.fDstCS,
-                       kDepth_1.fRequiresMSAA } });
+                   {{ { kDepth_1.fDSFlags, kRGBA_8888_SkColorType, kDepth_1.fDstCS,
+                       kDepth_1.fRequiresMSAA } }});
     }
     int after = globalCache->numGraphicsPipelines();
 
@@ -2200,7 +2199,7 @@ void run_test(skiatest::Reporter* reporter,
     // The PaintOptions' clipShader can be handled here while the SkPaint's clipShader handling
     // must be performed later (in paintParams.toKey() or when an SkCanvas is accessible for
     // a SkCanvas::clipShader call).
-    paintOptions.priv().setClipShaders({clipShaderOption});
+    paintOptions.priv().setClipShaders({{clipShaderOption}});
 
     extract_vs_build_subtest(reporter, context, drawContext, testContext, precompileKeyContext,
                              recorder.get(), paint, paintOptions, s, bm, cf, mf, imageFilter,
