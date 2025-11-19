@@ -109,7 +109,7 @@ public:
      * TODO(b/390473370): Once backends initialize a Caps-level format table, these will not need
      * to be virtual anymore:
      */
-    virtual bool isSampleCountSupported(TextureFormat, uint8_t requestedSampleCount) const = 0;
+    virtual bool isSampleCountSupported(TextureFormat, SampleCount) const = 0;
     /* Return the TextureFormat that satisfies `dsFlags`. */
     virtual TextureFormat getDepthStencilFormat(SkEnumBitMask<DepthStencilFlags>) const = 0;
 
@@ -154,7 +154,7 @@ public:
     virtual bool loadOpAffectsMSAAPipelines() const { return false; }
 
     int maxTextureSize() const { return fMaxTextureSize; }
-    uint8_t defaultMSAASamplesCount() const { return fDefaultMSAASamples; }
+    SampleCount defaultMSAASamplesCount() const { return fDefaultMSAASamples; }
 
     /**
      * Returns the maximum number of varyings allowed in a render pipeline. Note that this is the
@@ -465,27 +465,6 @@ protected:
     }
 #endif
 
-    /**
-     * There are only a few possible valid sample counts (1, 2, 4, 8, 16). So we can key on those 5
-     * options instead of the actual sample value.
-     */
-    static inline uint32_t SamplesToKey(uint32_t numSamples) {
-        switch (numSamples) {
-            case 1:
-                return 0;
-            case 2:
-                return 1;
-            case 4:
-                return 2;
-            case 8:
-                return 3;
-            case 16:
-                return 4;
-            default:
-                SkUNREACHABLE;
-        }
-    }
-
     /* ColorTypeInfo for a specific format. Used in format tables. */
     struct ColorTypeInfo {
         ColorTypeInfo() = default;
@@ -514,7 +493,9 @@ protected:
     };
 
     int fMaxTextureSize = 0;
-    uint8_t fDefaultMSAASamples = 4;
+
+    SampleCount fDefaultMSAASamples = SampleCount::k4;
+
     size_t fRequiredUniformBufferAlignment = 0;
     size_t fRequiredStorageBufferAlignment = 0;
     size_t fRequiredTransferBufferAlignment = 0;

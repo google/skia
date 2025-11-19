@@ -57,7 +57,7 @@ void DumpDescs(PrecompileContext* precompileContext,
              rpd.fClearDepth,
              rpd.fClearStencil,
              rpd.fWriteSwizzle.asString().c_str(),
-             rpd.fSampleCount);
+             (unsigned) rpd.fSampleCount);
 
 }
 #endif // SK_DEBUG

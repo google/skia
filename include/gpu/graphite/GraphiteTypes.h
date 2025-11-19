@@ -209,6 +209,14 @@ enum class DepthStencilFlags : int {
     kDepthStencil = kDepth | kStencil,
 };
 
+enum class SampleCount : uint8_t {
+    k1  = 1,
+    k2  = 2,
+    k4  = 4,
+    k8  = 8,
+    k16 = 16
+};
+
 /*
  * This enum allows mapping from a set of observed RenderSteps (e.g., from a GraphicsPipeline
  * printout) to the correct 'drawTypes' parameter needed by the Precompilation API.

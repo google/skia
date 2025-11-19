@@ -446,8 +446,9 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
             // msaa attachment that's coupled to the framebuffer and the StoreAndMultisampleResolve
             // action instead of loading as a draw.
         } else {
-            [[maybe_unused]] bool isMSAAToSingleSampled = renderPassDesc.fSampleCount > 1 &&
-                                                          colorTexture->numSamples() == 1;
+            [[maybe_unused]] bool isMSAAToSingleSampled =
+                    renderPassDesc.fSampleCount > SampleCount::k1 &&
+                    colorTexture->sampleCount() == SampleCount::k1;
 #if defined(__EMSCRIPTEN__)
             SkASSERT(!isMSAAToSingleSampled);
 #else
@@ -459,7 +460,8 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
                         wgpu::FeatureName::MSAARenderToSingleSampled));
 
                 wgpuColorAttachment.nextInChain = &mssaRenderToSingleSampledDesc;
-                mssaRenderToSingleSampledDesc.implicitSampleCount = renderPassDesc.fSampleCount;
+                mssaRenderToSingleSampledDesc.implicitSampleCount =
+                        (uint8_t) renderPassDesc.fSampleCount;
             }
 #endif
         }
@@ -558,7 +560,7 @@ bool DawnCommandBuffer::emulateLoadMSAAFromResolveAndBeginRenderPassEncoder(
         if (!this->doBlitWithDraw(renderPassEncoder,
                                   renderPassWithoutResolveDesc,
                                   /*srcTextureView=*/resolveTexture->renderTextureView(),
-                                  /*srcSampleCount=*/1,
+                                  /*srcSampleCount=*/SampleCount::k1,
                                   /*srcOffset=*/resolveArea.topLeft(),
                                   /*dstBounds=*/msaaArea)) {
             renderPassEncoder.End();
@@ -576,7 +578,7 @@ bool DawnCommandBuffer::emulateLoadMSAAFromResolveAndBeginRenderPassEncoder(
 bool DawnCommandBuffer::doBlitWithDraw(const wgpu::RenderPassEncoder& renderEncoder,
                                        const RenderPassDesc& frontendRenderPassDescKey,
                                        const wgpu::TextureView& srcTextureView,
-                                       int srcSampleCount,
+                                       SampleCount srcSampleCount,
                                        const SkIPoint& srcOffset,
                                        const SkIRect& dstBounds) {
     DawnResourceProvider::BlitWithDrawEncoder blit =
@@ -610,7 +612,7 @@ bool DawnCommandBuffer::endRenderPass() {
             TextureInfoPriv::ViewFormat(fResolveStepEmulationInfo->fResolveTexture->textureInfo()),
             LoadOp::kLoad,
             StoreOp::kStore,
-            /*fSampleCount=*/1 };
+            SampleCount::k1 };
 
     wgpu::RenderPassColorAttachment dawnIntermediateColorAttachment;
     dawnIntermediateColorAttachment.loadOp = wgpu::LoadOp::Load;
@@ -628,7 +630,7 @@ bool DawnCommandBuffer::endRenderPass() {
             renderPassEncoder,
             intermediateRenderPassDesc,
             /*srcTextureView=*/fResolveStepEmulationInfo->fMSAATexture->renderTextureView(),
-            /*srcSampleCount=*/fResolveStepEmulationInfo->fMSAATexture->textureInfo().numSamples(),
+            /*srcSampleCount=*/fResolveStepEmulationInfo->fMSAATexture->textureInfo().sampleCount(),
             /*srcOffset=*/fResolveStepEmulationInfo->fMSAAAOffset,
             /*dstBounds=*/fResolveStepEmulationInfo->fResolveArea);
 

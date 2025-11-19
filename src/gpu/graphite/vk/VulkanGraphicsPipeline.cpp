@@ -300,12 +300,11 @@ static void setup_viewport_scissor_state(VkPipelineViewportStateCreateInfo* view
     SkASSERT(viewportInfo->viewportCount == viewportInfo->scissorCount);
 }
 
-static void setup_multisample_state(int numSamples,
+static void setup_multisample_state(SampleCount sampleCount,
                                     VkPipelineMultisampleStateCreateInfo* multisampleInfo) {
     *multisampleInfo = {};
     multisampleInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-    SkAssertResult(skgpu::SampleCountToVkSampleCount(numSamples,
-                                                     &multisampleInfo->rasterizationSamples));
+    multisampleInfo->rasterizationSamples = SampleCountToVkSampleCount(sampleCount);
     multisampleInfo->sampleShadingEnable = VK_FALSE;
     multisampleInfo->minSampleShading = 0.0f;
     multisampleInfo->pSampleMask = nullptr;
@@ -920,7 +919,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
         // independently from flags used in SkSL->SPIRV compilation.
         SPIRVTransformOptions options;
         options.fMultisampleInputLoad =
-                renderPassDesc.fSampleCount > 1 &&
+                renderPassDesc.fSampleCount > SampleCount::k1 &&
                 shaderInfo->dstReadStrategy() == DstReadStrategy::kReadFromInput;
         if (options.fMultisampleInputLoad) {
             fsSPIRV = TransformSPIRV(fsSPIRV, options);

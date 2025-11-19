@@ -125,7 +125,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ShaderInfoDetectsFixedFunctionBlend, reporter
         RenderPassDesc rpDesc;
         rpDesc.fColorAttachment.fFormat = format;
         rpDesc.fWriteSwizzle = skgpu::Swizzle::RGBA();
-        rpDesc.fSampleCount = 1;
+        rpDesc.fSampleCount = SampleCount::k1;
         rpDesc.fDstReadStrategy = dstReadRequired ? caps->getDstReadStrategy()
                                                   : DstReadStrategy::kNoneRequired;
 

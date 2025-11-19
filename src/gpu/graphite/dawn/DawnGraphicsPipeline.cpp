@@ -670,7 +670,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
     }
 
     // Multisampled state
-    descriptor.multisample.count = renderPassDesc.fSampleCount;
+    descriptor.multisample.count = (uint8_t) renderPassDesc.fSampleCount;
     descriptor.multisample.mask = 0xFFFFFFFF;
     descriptor.multisample.alphaToCoverageEnabled = false;
 
