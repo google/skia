@@ -18,6 +18,7 @@
 #include "include/private/base/SkDebug.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 
+#define SK_DIRECT3D
 enum class SkTextureCompressionType;
 class GrBackendFormatData;
 class GrBackendTextureData;

@@ -108,11 +108,11 @@ bool GrVkPipelineStateBuilder::installVkShaderModule(VkShaderStageFlagBits stage
                                                      VkShaderModule* shaderModule,
                                                      VkPipelineShaderStageCreateInfo* stageInfo,
                                                      const SkSL::NativeShader& spirv,
-                                                     SkSL::Program::Interface interface) {
+                                                     SkSL::Program::Interface iface) {
     if (!GrInstallVkShaderModule(fGpu, spirv, stage, shaderModule, stageInfo)) {
         return false;
     }
-    if (interface.fRTFlipUniform != SkSL::Program::Interface::kRTFlip_None) {
+    if (iface.fRTFlipUniform != SkSL::Program::Interface::kRTFlip_None) {
         this->addRTFlipUniform(SKSL_RTFLIP_NAME);
     }
     return true;

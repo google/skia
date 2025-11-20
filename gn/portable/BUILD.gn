@@ -12,7 +12,7 @@ config("add_exceptions") {
 }
 
 config("add_rtti") {
-  if (is_win) {
+  if (is_msvc) {
     cflags_cc = [ "/GR" ]
   } else {
     cflags_cc = [ "-frtti" ]
