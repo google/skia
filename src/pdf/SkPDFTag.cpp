@@ -211,7 +211,17 @@ void SkPDFStructTree::move(SkPDF::StructureElementNode& node,
         for (SkPDFStructElem* parent = structElem->fParent; parent; parent = parent->fParent) {
             ++indent;
         }
-        SkDebugf("%.*s %d %s\n", indent, "            ", node.fNodeId, node.fTypeString.c_str());
+        SkString attrIds;
+        if (!node.fAttributes.fElemIds.empty()) {
+            attrIds.append(" [");
+            for (int attrId : node.fAttributes.fElemIds) {
+                attrIds.appendS32(attrId);
+                attrIds.append(",");
+            }
+            *(attrIds.end() - 1) = ']';
+        }
+        SkDebugf("%.*s %d %s%s\n",
+                 indent, "            ", node.fNodeId, node.fTypeString.c_str(), attrIds.c_str());
     }
 
     structElem->fElemId = node.fNodeId;
