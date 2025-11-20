@@ -148,8 +148,7 @@ private:
     // This allows us to safely call onGetScaledDimensions() at any time.
     const int                          fReadyState;
 
-
-    skia_private::AutoTMalloc<uint8_t>             fStorage;
+    skia_private::AutoTMalloc<uint8_t> fStorage;
     uint8_t* fSwizzleSrcRow = nullptr;
     uint32_t* fColorXformSrcRow = nullptr;
 
@@ -161,8 +160,6 @@ private:
     std::unique_ptr<SkSwizzler>        fSwizzler;
 
     friend class SkRawCodec;
-
-    using INHERITED = SkCodec;
 };
 
 #endif
