@@ -124,7 +124,7 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
 [[nodiscard]] bool serialize_attachment_desc(SkWStream* stream,
                                              const AttachmentDesc& attachmentDesc) {
     uint32_t tag = attachmentDesc.fFormat == TextureFormat::kUnsupported
-            ? SkSetFourByteTag(static_cast<uint8_t>(TextureFormat::kUnsupported), 0, 0, 0)
+            ? SkSetFourByteTag(static_cast<uint8_t>(TextureFormat::kUnsupported), 0, 0, 1)
             : SkSetFourByteTag(static_cast<uint8_t>(attachmentDesc.fFormat),
                                static_cast<uint8_t>(attachmentDesc.fLoadOp),
                                static_cast<uint8_t>(attachmentDesc.fStoreOp),

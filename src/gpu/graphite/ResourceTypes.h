@@ -28,7 +28,7 @@ SK_MAKE_BITMASK_OPS(DepthStencilFlags)
 SK_MAKE_BITMASK_OPS(SampleCount)
 
 static constexpr bool IsValidSampleCount(uint32_t sampleCount) {
-    return SkIsPow2(sampleCount) && sampleCount <= 16;
+    return SkIsPow2(sampleCount) && sampleCount >= 1 && sampleCount <= 16;
 }
 
 /**
