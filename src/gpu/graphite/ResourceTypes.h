@@ -25,7 +25,7 @@ class Buffer;
 // it to appear as just an enum class.
 SK_MAKE_BITMASK_OPS(DepthStencilFlags)
 // The same goes for SampleCount
-SK_MAKE_BITMASK_OPS(SampleCount)
+SK_MAKE_BITMASK_OPS(SampleCount::V)
 
 static constexpr bool IsValidSampleCount(uint32_t sampleCount) {
     return SkIsPow2(sampleCount) && sampleCount >= 1 && sampleCount <= 16;
@@ -36,7 +36,7 @@ static constexpr bool IsValidSampleCount(uint32_t sampleCount) {
  * options instead of the actual sample value. The resulting key value only requires 3 bits of space
  */
 static constexpr uint32_t SamplesToKey(SampleCount numSamples) {
-    switch (numSamples) {
+    switch ((SampleCount::V) numSamples) {
         case SampleCount::k1:
             return 0;
         case SampleCount::k2:
@@ -52,7 +52,7 @@ static constexpr uint32_t SamplesToKey(SampleCount numSamples) {
 }
 static constexpr SampleCount KeyToSamples(uint32_t keyBits) {
     SkASSERT(keyBits <= 4);
-    return static_cast<SampleCount>(1 << keyBits);
+    return static_cast<SampleCount::V>(1 << keyBits);
 }
 static constexpr int kNumSampleKeyBits = 3;
 
