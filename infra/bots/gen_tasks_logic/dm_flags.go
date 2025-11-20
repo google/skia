@@ -591,6 +591,12 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 						// VK_PIPELINE_COMPILE_REQUIRED from CreateGraphicsPipelines)
 						skip(ALL, "test", ALL, "PersistentPipelineStorageTest")
 					}
+
+					if b.MatchOs("Win11") &&
+						(b.GPU("RTX3060") || b.GPU("GTX1660") || b.GPU("IntelIrisXe")) {
+						// These 3 GPUs are failing this test on Win11 (b/462240488)
+						skip(ALL, "test", ALL, "PersistentPipelineStorageTest")
+					}
 				}
 			}
 		} else {
