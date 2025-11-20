@@ -173,7 +173,7 @@ if (is_msvc) {
   if (win_toolchain_version == "") {
     win_toolchain_version = exec_script("//gn/highest_version_dir.py",
                                         [
-                                          "$win_vc/Tools/MSVC",
+                                          "$win_vc/tools/msvc",
                                           "[0-9]{2}\.[0-9]{2}\.[0-9]{5}",
                                         ],
                                         "trim string")
