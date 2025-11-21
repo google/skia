@@ -11,6 +11,7 @@
 
 #include "tests/Test.h"
 
+#include <functional>
 #include <limits>
 
 namespace {
