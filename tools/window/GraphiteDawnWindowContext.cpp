@@ -106,7 +106,7 @@ sk_sp<SkSurface> GraphiteDawnWindowContext::getBackbufferSurface() {
     SkASSERT(surfaceTexture.texture);
     auto texture = surfaceTexture.texture;
 
-    skgpu::graphite::DawnTextureInfo info(/*sampleCount=*/1,
+    skgpu::graphite::DawnTextureInfo info(skgpu::graphite::SampleCount::k1,
                                           skgpu::Mipmapped::kNo,
                                           fSurfaceFormat,
                                           texture.GetUsage(),

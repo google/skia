@@ -29,11 +29,6 @@ public:
 
     template <typename BackendTextureInfo>
     static TextureInfo Make(const BackendTextureInfo& data) {
-        // Validate that the uint8_t data.fSampleCount can be cast to a SampleCount value. If not
-        // then return an empty TextureInfo since the data is invalid.
-        if (!IsValidSampleCount(data.fSampleCount)) {
-            return TextureInfo();
-        }
         return TextureInfo(data);
     }
 

@@ -28,9 +28,7 @@ Caps::~Caps() {}
 void Caps::finishInitialization(const ContextOptions& options) {
     fCapabilities->initSkCaps(fShaderCaps.get());
 
-    // Round requested sample count to the lower power of 2 and clamp to [1, 16]
-    fDefaultMSAASamples = static_cast<SampleCount>(
-            SkPrevPow2(SkTPin((int) options.fInternalMultisampleCount, 1, 16)));
+    fDefaultMSAASamples = options.fInternalMultisampleCount;
 
     if (options.fShaderErrorHandler) {
         fShaderErrorHandler = options.fShaderErrorHandler;

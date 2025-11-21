@@ -28,7 +28,7 @@ DEF_GRAPHITE_TEST_FOR_VULKAN_CONTEXT(VulkanBackendTextureSimpleCreationTest, rep
     bool isProtected = context->priv().caps()->protectedSupport();
 
     VulkanTextureInfo textureInfo;
-    textureInfo.fSampleCount = 1;
+    textureInfo.fSampleCount = SampleCount::k1;
     textureInfo.fMipmapped = skgpu::Mipmapped::kNo;
     textureInfo.fFlags = isProtected ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
     textureInfo.fFormat = VK_FORMAT_R8G8B8A8_UNORM;
@@ -55,7 +55,7 @@ DEF_GRAPHITE_TEST_FOR_VULKAN_CONTEXT(VulkanBackendTextureCopyVariableTest, repor
     bool isProtected = context->priv().caps()->protectedSupport();
 
     VulkanTextureInfo textureInfo;
-    textureInfo.fSampleCount = 1;
+    textureInfo.fSampleCount = SampleCount::k1;
     textureInfo.fMipmapped = skgpu::Mipmapped::kNo;
     textureInfo.fFlags = isProtected ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
     textureInfo.fFormat = VK_FORMAT_R8G8B8A8_UNORM;

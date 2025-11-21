@@ -16,7 +16,7 @@ namespace skgpu::graphite {
 
 DawnTextureInfo::DawnTextureInfo(WGPUTexture texture)
         : DawnTextureInfo(
-                wgpuTextureGetSampleCount(texture),
+                ToSampleCount(wgpuTextureGetSampleCount(texture)),
                 wgpuTextureGetMipLevelCount(texture) > 1 ? Mipmapped::kYes : Mipmapped::kNo,
                 /*format=*/static_cast<wgpu::TextureFormat>(wgpuTextureGetFormat(texture)),
                 /*viewFormat=*/static_cast<wgpu::TextureFormat>(wgpuTextureGetFormat(texture)),

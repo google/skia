@@ -253,6 +253,18 @@ private:
     V fValue;
 };
 
+/**
+ * Convert an integer value to a strictly typed SampleCount value, rounding down to the lowest
+ * valid sample count if needed if `sampleCount` is not already equivalent.
+ */
+constexpr SampleCount ToSampleCount(uint32_t sampleCount) {
+    return sampleCount >= 16 ? SampleCount::k16 :
+           sampleCount >= 8  ? SampleCount::k8  :
+           sampleCount >= 4  ? SampleCount::k4  :
+           sampleCount >= 2  ? SampleCount::k2  :
+                               SampleCount::k1;
+}
+
 /*
  * This enum allows mapping from a set of observed RenderSteps (e.g., from a GraphicsPipeline
  * printout) to the correct 'drawTypes' parameter needed by the Precompilation API.

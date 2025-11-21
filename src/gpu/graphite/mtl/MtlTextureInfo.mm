@@ -23,7 +23,7 @@ MtlTextureInfo::MtlTextureInfo(CFTypeRef texture) {
     SkASSERT(texture);
     id<MTLTexture> mtlTex = (id<MTLTexture>)texture;
 
-    fSampleCount = mtlTex.sampleCount;
+    fSampleCount = ToSampleCount(mtlTex.sampleCount);
     fMipmapped = mtlTex.mipmapLevelCount > 1 ? Mipmapped::kYes : Mipmapped::kNo;
 
     fFormat = mtlTex.pixelFormat;

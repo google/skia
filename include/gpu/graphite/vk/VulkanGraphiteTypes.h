@@ -46,7 +46,8 @@ public:
                       VkSharingMode sharingMode,
                       VkImageAspectFlags aspectMask,
                       VulkanYcbcrConversionInfo ycbcrConversionInfo)
-            : Data(static_cast<uint8_t>(sampleCount), mipmapped)
+            // VkSampleCountFlagBits is value equivalent to SampleCount
+            : Data(static_cast<SampleCount>(sampleCount), mipmapped)
             , fFlags(flags)
             , fFormat(format)
             , fImageTiling(imageTiling)

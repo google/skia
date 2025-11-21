@@ -35,7 +35,7 @@ public:
 
     MtlTextureInfo() = default;
     explicit MtlTextureInfo(CFTypeRef mtlTexture);
-    MtlTextureInfo(uint32_t sampleCount,
+    MtlTextureInfo(SampleCount sampleCount,
                    skgpu::Mipmapped mipmapped,
                    MTLPixelFormat format,
                    MTLTextureUsage usage,

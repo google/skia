@@ -538,7 +538,7 @@ sk_sp<DawnTexture> DawnResourceProvider::findOrCreateDiscardableMSAALoadTexture(
 
     // Derive the load texture's info from MSAA texture's info.
     DawnTextureInfo dawnMsaaLoadTextureInfo = TextureInfoPriv::Get<DawnTextureInfo>(msaaInfo);
-    dawnMsaaLoadTextureInfo.fSampleCount = 1;
+    dawnMsaaLoadTextureInfo.fSampleCount = SampleCount::k1;
     dawnMsaaLoadTextureInfo.fUsage |= wgpu::TextureUsage::TextureBinding;
 
 #if !defined(__EMSCRIPTEN__)

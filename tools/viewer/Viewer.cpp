@@ -220,7 +220,6 @@ static DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BA
 
 static DEFINE_int(msaa, 1, "Number of subpixel samples. 0 for no HW antialiasing.");
 static DEFINE_bool(dmsaa, false, "Use internal MSAA to render to non-MSAA surfaces?");
-static DEFINE_int(msaa_tile_size, 0, "Tile size of MSAA rendering.");
 
 static DEFINE_string(bisect, "", "Path to a .skp or .svg file to bisect.");
 
@@ -668,11 +667,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     CommonFlags::SetTestOptions(&gto.fTestOptions);
     gto.fPriv.fPathRendererStrategy = get_path_renderer_strategy_type(FLAGS_pathstrategy[0]);
     if (FLAGS_msaa <= 0) {
-        gto.fTestOptions.fContextOptions.fInternalMultisampleCount = 1;
-    }
-    if (FLAGS_msaa_tile_size > 0) {
-        gto.fTestOptions.fContextOptions.fInternalMSAATileSize = {FLAGS_msaa_tile_size,
-                                                                  FLAGS_msaa_tile_size};
+        gto.fTestOptions.fContextOptions.fInternalMultisampleCount =
+                skgpu::graphite::SampleCount::k1;
     }
     paramsBuilder.graphiteTestOptions(gto);
 #endif

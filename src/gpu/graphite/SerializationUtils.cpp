@@ -28,6 +28,10 @@ namespace {
 
 static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
 
+constexpr bool is_valid_samplecount(uint32_t sampleCount) {
+    return SkIsPow2(sampleCount) && sampleCount >= 1 && sampleCount <= 16;
+}
+
 [[nodiscard]] bool stream_is_pipeline(SkStream* stream) {
     char magic[8];
     static_assert(sizeof(kMagic) == sizeof(magic), "");
@@ -153,7 +157,7 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
     if (storeOp >= kStoreOpCount) {
         return false;
     }
-    if (!IsValidSampleCount(sampleCount)) {
+    if (!is_valid_samplecount(sampleCount)) {
         return false;
     }
 
@@ -212,7 +216,7 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
     renderPassDesc->fWriteSwizzle = SwizzleCtorAccessor::Make(swizzle);
 
     uint8_t sampleCount;
-    if (!stream->readU8(&sampleCount) || !IsValidSampleCount(sampleCount)) {
+    if (!stream->readU8(&sampleCount) || !is_valid_samplecount(sampleCount)) {
         return false;
     }
     renderPassDesc->fSampleCount = static_cast<SampleCount>(sampleCount);

@@ -179,7 +179,7 @@ sk_sp<SkSurface> MakeBackendTextureViewSurface(skgpu::graphite::Recorder* record
     textureInfo.fAspect      = wgpu::TextureAspect::All;
     textureInfo.fFormat      = texture.GetFormat();
     textureInfo.fMipmapped   = mipmapped;
-    textureInfo.fSampleCount = texture.GetSampleCount();
+    textureInfo.fSampleCount = skgpu::graphite::ToSampleCount(texture.GetSampleCount());
     textureInfo.fUsage       = texture.GetUsage();
 
     skgpu::graphite::BackendTexture betFromView =

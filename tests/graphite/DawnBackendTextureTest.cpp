@@ -28,7 +28,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_CONTEXT(DawnBackendTextureSimpleCreationTest,
     auto recorder = context->makeRecorder();
 
     DawnTextureInfo textureInfo;
-    textureInfo.fSampleCount = 1;
+    textureInfo.fSampleCount = SampleCount::k1;
     textureInfo.fMipmapped = skgpu::Mipmapped::kNo;
     textureInfo.fFormat = wgpu::TextureFormat::RGBA8Unorm;
     textureInfo.fUsage = wgpu::TextureUsage::TextureBinding;
@@ -52,7 +52,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_CONTEXT(DawnBackendTextureCopyVariableTest,
     auto recorder = context->makeRecorder();
 
     DawnTextureInfo textureInfo;
-    textureInfo.fSampleCount = 1;
+    textureInfo.fSampleCount = SampleCount::k1;
     textureInfo.fMipmapped = skgpu::Mipmapped::kNo;
     textureInfo.fFormat = wgpu::TextureFormat::RGBA8Unorm;
     textureInfo.fUsage = wgpu::TextureUsage::TextureBinding;

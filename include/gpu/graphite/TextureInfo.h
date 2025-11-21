@@ -46,7 +46,7 @@ private:
     public:
         virtual ~Data() = default;
 
-        Data(uint8_t sampleCount, skgpu::Mipmapped mipmapped)
+        Data(SampleCount sampleCount, skgpu::Mipmapped mipmapped)
                 : fSampleCount(sampleCount)
                 , fMipmapped(mipmapped) {}
 
@@ -56,11 +56,7 @@ private:
         Data& operator=(const Data&) = default;
 
         // NOTE: These fields are accessible via the backend-specific subclasses.
-
-        // Must be a valid SampleCount value, or TextureInfo creation will fail to wrap the backend
-        // specific data. This is not strongly typed so that it can be assigned directly from the
-        // backend GPU API's representation, which is often just an integer.
-        uint8_t fSampleCount = 1;
+        SampleCount fSampleCount = SampleCount::k1;
         Mipmapped fMipmapped = Mipmapped::kNo;
 
     private:
@@ -95,7 +91,7 @@ public:
 
     Protected isProtected() const { return fProtected; }
     SampleCount sampleCount() const {
-        return fData.has_value() ? static_cast<SampleCount>(fData->fSampleCount) : SampleCount::k1;
+        return fData.has_value() ? fData->fSampleCount : SampleCount::k1;
     }
     Mipmapped mipmapped() const {
         return fData.has_value() ? fData->fMipmapped   : Mipmapped::kNo;
@@ -119,9 +115,6 @@ private:
             : fBackend(BackendTextureData::kBackend)
             , fViewFormat(data.viewFormat())
             , fProtected(data.isProtected()) {
-        // TextureInfoPriv should not construct a TextureInfo if `data` would fail this assert.
-        SkASSERT(data.fSampleCount == 1 || data.fSampleCount == 2 || data.fSampleCount == 4 ||
-                 data.fSampleCount == 8 || data.fSampleCount == 16);
         fData.emplace<BackendTextureData>(data);
     }
 

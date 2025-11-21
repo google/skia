@@ -27,10 +27,6 @@ SK_MAKE_BITMASK_OPS(DepthStencilFlags)
 // The same goes for SampleCount
 SK_MAKE_BITMASK_OPS(SampleCount::V)
 
-static constexpr bool IsValidSampleCount(uint32_t sampleCount) {
-    return SkIsPow2(sampleCount) && sampleCount >= 1 && sampleCount <= 16;
-}
-
 /**
  * There are only a few possible valid sample counts (1, 2, 4, 8, 16). So we can key on those 5
  * options instead of the actual sample value. The resulting key value only requires 3 bits of space

@@ -64,7 +64,7 @@ SkString TextureInfo::toString() const {
                           TextureFormatName(fViewFormat),
                           fData->toBackendString().c_str(),
                           TextureFormatBytesPerBlock(fViewFormat),
-                          fData->fSampleCount,
+                          (unsigned) fData->fSampleCount,
                           static_cast<int>(fData->fMipmapped),
                           static_cast<int>(fProtected));
 }

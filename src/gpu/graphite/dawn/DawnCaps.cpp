@@ -100,7 +100,7 @@ DawnCaps::~DawnCaps() = default;
 
 bool DawnCaps::isTexturableIgnoreSampleCount(const TextureInfo& info) const {
     auto overrideDawnInfo = TextureInfoPriv::Get<DawnTextureInfo>(info);
-    overrideDawnInfo.fSampleCount = 1;
+    overrideDawnInfo.fSampleCount = SampleCount::k1;
     TextureInfo overrideInfo = TextureInfos::MakeDawn(overrideDawnInfo);
     return this->isTexturable(overrideInfo);
 }
@@ -224,7 +224,7 @@ TextureInfo DawnCaps::getDefaultAttachmentTextureInfo(AttachmentDesc desc,
     }
 
     DawnTextureInfo info;
-    info.fSampleCount = (uint8_t) desc.fSampleCount;
+    info.fSampleCount = desc.fSampleCount;
     info.fMipmapped   = Mipmapped::kNo;
     info.fFormat      = TextureFormatToDawnFormat(desc.fFormat);
     info.fUsage       = wgpu::TextureUsage::RenderAttachment;
@@ -258,7 +258,7 @@ TextureInfo DawnCaps::getDefaultSampledTextureInfo(SkColorType colorType,
     }
 
     DawnTextureInfo info;
-    info.fSampleCount = 1;
+    info.fSampleCount = SampleCount::k1;
     info.fMipmapped = mipmapped;
     info.fFormat = format;
     info.fViewFormat = format;
@@ -270,7 +270,7 @@ TextureInfo DawnCaps::getDefaultSampledTextureInfo(SkColorType colorType,
 TextureInfo DawnCaps::getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
                                                    Mipmapped mipmapped) const {
     DawnTextureInfo info;
-    info.fSampleCount = 1;
+    info.fSampleCount = SampleCount::k1;
     info.fMipmapped = mipmapped;
     info.fFormat = TextureInfoPriv::Get<DawnTextureInfo>(textureInfo).getViewFormat();
     info.fUsage = wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::CopyDst |
@@ -305,7 +305,7 @@ TextureInfo DawnCaps::getDefaultCompressedTextureInfo(SkTextureCompressionType c
     }
 
     DawnTextureInfo info;
-    info.fSampleCount = 1;
+    info.fSampleCount = SampleCount::k1;
     info.fMipmapped = mipmapped;
     info.fFormat = format;
     info.fViewFormat = format;
@@ -330,7 +330,7 @@ TextureInfo DawnCaps::getDefaultStorageTextureInfo(SkColorType colorType) const 
                                wgpu::TextureUsage::TextureBinding |
                                wgpu::TextureUsage::CopySrc;
     DawnTextureInfo info;
-    info.fSampleCount = 1;
+    info.fSampleCount = SampleCount::k1;
     info.fMipmapped = Mipmapped::kNo;
     info.fFormat = format;
     info.fViewFormat = format;
