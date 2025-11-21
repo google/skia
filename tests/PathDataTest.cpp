@@ -494,3 +494,48 @@ DEF_TEST(pathdata_transform_convexity, reporter) {
         REPORTER_ASSERT(reporter, convexity == expected);
     }
 }
+
+DEF_TEST(pathdata_inverted_bounds, reporter) {
+    using makerT = std::function<sk_sp<SkPathData>(const SkRect&)>;
+    const auto check = [&reporter](const makerT& maker) {
+        constexpr SkRect bounds = {-10, -10, 10, 10};
+        constexpr SkRect inverted_bounds = {10, 10, -10, -10};
+        REPORTER_ASSERT(reporter, maker(bounds)->bounds() == bounds);
+        REPORTER_ASSERT(reporter, maker(inverted_bounds)->bounds() == bounds);
+    };
+
+    {
+        for (auto maker : {factory_rect, builder_rect_rect}) {
+            for (auto dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
+                check([&maker, dir](const SkRect& r) { return maker(r, dir); });
+            }
+        }
+    }
+
+    {
+        constexpr unsigned kStartIndexCount = 4;
+        for (auto maker : {factory_oval, builder_oval}) {
+            for (auto dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
+                for (unsigned start = 0; start < kStartIndexCount; ++start) {
+                    check([&maker, dir, start](const SkRect& r) { return maker(r, dir, start); });
+                }
+            }
+        }
+    }
+
+    {
+        constexpr unsigned kStartIndexCount = 8;
+        for (auto maker : {factory_rrect, builder_rrect}) {
+            for (auto dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
+                for (unsigned start = 0; start < kStartIndexCount; ++start) {
+                    for (int sign : {1, -1}) {
+                        check([&maker, dir, start, sign](const SkRect& r) {
+                            const SkRRect rrect = SkRRect::MakeRectXY(r, sign * 2, sign * 3);
+                            return maker(rrect, dir, start);
+                        });
+                    }
+                }
+            }
+        }
+    }
+}

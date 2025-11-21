@@ -6189,3 +6189,13 @@ DEF_TEST(path_infinite_transform, reporter) {
         }
     }
 }
+
+DEF_TEST(path_factory_inverted_bounds, reporter) {
+    constexpr SkRect bounds = {-10, -10, 10, 10};
+    constexpr SkRect inverted_bounds = {10, 10, -10, -10};
+
+    REPORTER_ASSERT(reporter, SkPath::Oval(inverted_bounds).getBounds() == bounds);
+    REPORTER_ASSERT(reporter, SkPath::Rect(inverted_bounds).getBounds() == bounds);
+    REPORTER_ASSERT(reporter,
+                    SkPath::RRect(SkRRect::MakeRect(inverted_bounds)).getBounds() == bounds);
+}

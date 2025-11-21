@@ -241,7 +241,7 @@ bool SkPathData::finishInit(std::optional<SkRect> bounds, std::optional<uint8_t>
     }
 
     if (bounds.has_value()) {
-        fBounds = bounds.value();
+        fBounds = bounds.value().makeSorted();
         SkASSERT(SkIsFinite(&fPoints.data()->fX, fPoints.size() * 2));
     } else {
         if (auto r = SkRect::Bounds(fPoints)) {
@@ -252,6 +252,7 @@ bool SkPathData::finishInit(std::optional<SkRect> bounds, std::optional<uint8_t>
         }
     }
 
+    SkASSERT(fBounds.isSorted());
     return true;
 }
 
