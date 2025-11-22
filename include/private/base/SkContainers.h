@@ -24,7 +24,7 @@ public:
     // Rounds a requested capacity up towards `kCapacityMultiple` in a constexpr-friendly fashion.
     template <typename T>
     static constexpr size_t RoundUp(size_t capacity) {
-        return SkAlignTo(capacity * sizeof(T), kCapacityMultiple) / sizeof(T);
+        return SkAlignTo(capacity * sizeof(T), (size_t) kCapacityMultiple) / sizeof(T);
     }
 
 private:

@@ -8,6 +8,7 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkString.h"
 #include "src/base/SkRandom.h"
@@ -33,7 +34,7 @@ public:
                      doAA ? "AA" : "BW");
 
         fClipRect.setLTRB(10.5f, 10.5f, 50.5f, 50.5f);
-        fClipPath.addRoundRect(fClipRect, SkIntToScalar(10), SkIntToScalar(10));
+        fClipPath = SkPath::RRect(fClipRect, 10, 10);
         fDrawRect.setWH(100, 100);
 
         SkASSERT(fClipPath.isConvex());
@@ -49,9 +50,7 @@ protected:
         for (int i = 0; i < loops; ++i) {
             // jostle the clip regions each time to prevent caching
             fClipRect.offset((i % 2) == 0 ? SkIntToScalar(10) : SkIntToScalar(-10), 0);
-            fClipPath.reset();
-            fClipPath.addRoundRect(fClipRect,
-                                   SkIntToScalar(5), SkIntToScalar(5));
+            fClipPath = SkPath::RRect(fClipRect, 5, 5);
             SkASSERT(fClipPath.isConvex());
 
             canvas->save();
@@ -119,12 +118,10 @@ protected:
 
             canvas->save();
 
-            SkRect temp = SkRect::MakeLTRB(0, 0,
-                                           fSizes[depth].fX, fSizes[depth].fY);
+            SkRect temp = SkRect::MakeLTRB(0, 0, fSizes[depth].fX, fSizes[depth].fY);
             temp.offset(offset);
 
-            SkPath path;
-            path.addRoundRect(temp, SkIntToScalar(3), SkIntToScalar(3));
+            SkPath path = SkPath::RRect(temp, 3, 3);
             SkASSERT(path.isConvex());
 
             canvas->clipPath(path, SkClipOp::kIntersect, fDoAA);
@@ -184,7 +181,7 @@ public:
         fBounds = {0, 0, 640, 480};
         fRect.set(fBounds);
         fRect.inset(SK_Scalar1/4, SK_Scalar1/4);
-        fPath.addRoundRect(fRect, SkIntToScalar(20), SkIntToScalar(20));
+        fPath = SkPath::RRect(fRect, 20, 20);
     }
 
 protected:
@@ -214,15 +211,14 @@ private:
 class AAClipRegionBench : public Benchmark {
 public:
     AAClipRegionBench()  {
-        SkPath path;
         // test conversion of a complex clip to a aaclip
-        path.addCircle(0, 0, SkIntToScalar(200));
-        path.addCircle(0, 0, SkIntToScalar(180));
         // evenodd means we've constructed basically a stroked circle
-        path.setFillType(SkPathFillType::kEvenOdd);
+        SkPath path = SkPathBuilder(SkPathFillType::kEvenOdd)
+                      .addCircle(0, 0, 200)
+                      .addCircle(0, 0, 180)
+                      .detach();
 
-        SkIRect bounds;
-        path.getBounds().roundOut(&bounds);
+        SkIRect bounds = path.getBounds().roundOut();
         fRegion.setPath(path, SkRegion(bounds));
     }
 

@@ -25,14 +25,12 @@ public:
     // TODO: If this takes DepthStencilSettings directly and a way to adjust the flags to specify
     // that it performs shading, this RenderStep definition can be shared between the stencil and
     // the convex rendering variants.
-    TessellateCurvesRenderStep(bool evenOdd,
-                               bool infinitySupport,
-                               StaticBufferManager* bufferManager);
+    TessellateCurvesRenderStep(Layout, bool evenOdd, bool infinitySupport, StaticBufferManager*);
 
     ~TessellateCurvesRenderStep() override;
 
     std::string vertexSkSL() const override;
-    void writeVertices(DrawWriter*, const DrawParams&, skvx::uint2 ssboIndices) const override;
+    void writeVertices(DrawWriter*, const DrawParams&, uint32_t ssboIndex) const override;
     void writeUniformsAndTextures(const DrawParams&, PipelineDataGatherer*) const override;
 
 private:

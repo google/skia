@@ -3,19 +3,22 @@
 #include "tools/fiddle/examples.h"
 REG_FIDDLE(Path_AddPathMode, 256, 180, false, 0) {
 void draw(SkCanvas* canvas) {
-    SkPath path, path2;
-    path.moveTo(20, 20);
-    path.lineTo(20, 40);
-    path.lineTo(40, 20);
-    path2.moveTo(60, 60);
-    path2.lineTo(80, 60);
-    path2.lineTo(80, 40);
+    SkPathBuilder path;
+    path.moveTo(20, 20)
+        .lineTo(20, 40)
+        .lineTo(40, 20);
+    SkPath path2 = SkPathBuilder()
+                   .moveTo(60, 60)
+                   .lineTo(80, 60)
+                   .lineTo(80, 40)
+                   .detach();
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     for (int i = 0; i < 2; i++) {
         for (auto addPathMode : { SkPath::kAppend_AddPathMode, SkPath::kExtend_AddPathMode } ) {
-            SkPath test(path);
-            test.addPath(path2, addPathMode);
+            SkPath test = SkPathBuilder(path)
+                          .addPath(path2, addPathMode)
+                          .detach();
             canvas->drawPath(test, paint);
             canvas->translate(100, 0);
         }

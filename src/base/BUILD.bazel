@@ -107,8 +107,8 @@ skia_cc_library(
     features = ["layering_check"],
     visibility = [
         "//bench:__subpackages__",
-        "//experimental/rust_png:__subpackages__",
         "//modules:__subpackages__",
+        "//rust:__subpackages__",
         "//src:__subpackages__",
         "//tests:__subpackages__",
         "//tools:__subpackages__",

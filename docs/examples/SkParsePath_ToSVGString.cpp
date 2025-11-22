@@ -4,13 +4,13 @@
 REG_FIDDLE(SkParsePath_ToSVGString, 256, 256, true, 0) {
 SkPath star() {
     const SkScalar R = 115.2f, C = 128.0f;
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(sk_float_round(C + R), sk_float_round(C));
     for (int i = 1; i < 8; ++i) {
         SkScalar a = 2.6927937f * i;
         path.lineTo(sk_float_round(C + R * cos(a)), sk_float_round(C + R * sin(a)));
     }
-    return path;
+    return path.detach();
 }
 
 void draw(SkCanvas* canvas) {

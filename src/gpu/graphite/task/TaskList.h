@@ -47,8 +47,10 @@ public:
 
     bool visitPipelines(const std::function<bool(const GraphicsPipeline*)>& visitor);
 
-    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor);
+    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor, bool readsOnly);
 
+    SK_DUMP_TASKS_CODE(
+            void visit(const std::function<void(const Task* task, bool isLast)>& visitor) const;)
 private:
     template <typename Fn> // (Task*)->Status
     Task::Status visitTasks(Fn);

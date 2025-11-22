@@ -47,22 +47,6 @@ void RasterPathAtlas::recordUploads(DrawContext* dc) {
     fUncachedAtlasMgr.recordUploads(dc, fRecorder);
 }
 
-static bool draw_path_to_pixmap(const Shape& shape,
-                                const Transform& localToDevice,
-                                const SkStrokeRec& strokeRec,
-                                SkIRect shapeBounds,
-                                SkIVector transformedMaskOffset,
-                                SkISize pixmapSize,
-                                SkAutoPixmapStorage* dst) {
-    RasterMaskHelper helper(dst);
-    if (!helper.init(pixmapSize, transformedMaskOffset)) {
-        return false;
-    }
-    helper.drawShape(shape, localToDevice, strokeRec, shapeBounds);
-
-    return true;
-}
-
 sk_sp<TextureProxy> RasterPathAtlas::onAddShape(const Shape& shape,
                                                 const Transform& localToDevice,
                                                 const SkStrokeRec& strokeRec,
@@ -130,21 +114,11 @@ sk_sp<TextureProxy> RasterPathAtlas::onAddShape(const Shape& shape,
             fRecorder, maskKey, &context,
             [](const void* ctx) {
                 const PathDrawContext* pdc = static_cast<const PathDrawContext*>(ctx);
-                SkAutoPixmapStorage dst;
-                SkISize pixmapSize = pdc->fShapeBounds.size();
-                pixmapSize.fWidth += 2*kEntryPadding;
-                pixmapSize.fHeight += 2*kEntryPadding;
-                draw_path_to_pixmap(pdc->fShape, pdc->fLocalToDevice, pdc->fStrokeRec,
-                                    pdc->fShapeBounds, pdc->fTransformedMaskOffset,
-                                    pixmapSize, &dst);
-                SkBitmap bm;
-                // The bitmap needs to take ownership of the pixels, so we detach them from the
-                // SkAutoPixmapStorage and pass them to SkBitmap::installPixels().
-                SkImageInfo ii = dst.info();
-                size_t rowBytes = dst.rowBytes();
-                SkAssertResult(bm.installPixels(ii, dst.detachPixels(), rowBytes,
-                                                [](void* addr, void* context) { sk_free(addr); },
-                                                nullptr));
+                auto [bm, helper] = RasterMaskHelper::Allocate(
+                        pdc->fShapeBounds.size(),
+                        -pdc->fTransformedMaskOffset,
+                        kEntryPadding);
+                helper.drawShape(pdc->fShape, pdc->fLocalToDevice, pdc->fStrokeRec);
                 bm.setImmutable();
                 return bm;
             });
@@ -161,17 +135,12 @@ bool RasterPathAtlas::RasterAtlasMgr::onAddToAtlas(const Shape& shape,
                                                    SkIRect shapeBounds,
                                                    SkIVector transformedMaskOffset,
                                                    const AtlasLocator& locator) {
-    // Rasterize path to backing pixmap.
-    // This pixmap will be the size of the Plot that contains the given rect, not the entire atlas,
-    // and hence the position we render at will be relative to that Plot.
-    // The value of outPos is relative to the entire texture, to be used for texture coords.
-    SkAutoPixmapStorage dst;
-    SkIPoint renderPos = fDrawAtlas->prepForRender(locator, &dst);
+    SkPixmap pixmap = fDrawAtlas->prepForRender(locator, kEntryPadding);
 
-    // Offset to plot location and draw
-    shapeBounds.offset(renderPos.x()+kEntryPadding, renderPos.y()+kEntryPadding);
-    return draw_path_to_pixmap(shape, localToDevice, strokeRec, shapeBounds,
-                               transformedMaskOffset, fDrawAtlas->plotSize(), &dst);
+    RasterMaskHelper helper(pixmap, -transformedMaskOffset);
+    helper.drawShape(shape, localToDevice, strokeRec);
+
+    return true;
 }
 
 }  // namespace skgpu::graphite

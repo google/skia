@@ -11,6 +11,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
@@ -84,9 +85,11 @@ protected:
             const char* fName;
         };
         PathAndName path;
-        path.fPath.moveTo(25*SK_Scalar1, 10*SK_Scalar1);
-        path.fPath.quadTo(50*SK_Scalar1, 20*SK_Scalar1,
-                          75*SK_Scalar1, 10*SK_Scalar1);
+        path.fPath = SkPathBuilder()
+                     .moveTo(25*SK_Scalar1, 10*SK_Scalar1)
+                     .quadTo(50*SK_Scalar1, 20*SK_Scalar1,
+                             75*SK_Scalar1, 10*SK_Scalar1)
+                     .detach();
         path.fName = "moveTo-quad";
 
         SkPaint titlePaint;
@@ -211,10 +214,12 @@ protected:
             const char* fName;
         };
         PathAndName path;
-        path.fPath.moveTo(25*SK_Scalar1, 10*SK_Scalar1);
-        path.fPath.quadTo(50*SK_Scalar1, 20*SK_Scalar1,
-                          75*SK_Scalar1, 10*SK_Scalar1);
-        path.fPath.close();
+        path.fPath = SkPathBuilder()
+                     .moveTo(25*SK_Scalar1, 10*SK_Scalar1)
+                     .quadTo(50*SK_Scalar1, 20*SK_Scalar1,
+                             75*SK_Scalar1, 10*SK_Scalar1)
+                     .close()
+                     .detach();
         path.fName = "moveTo-quad-close";
 
         SkPaint titlePaint;

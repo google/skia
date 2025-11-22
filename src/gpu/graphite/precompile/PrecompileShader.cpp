@@ -52,7 +52,7 @@ sk_sp<PrecompileShader> PrecompileShader::makeWithColorFilter(
         return sk_ref_sp(this);
     }
 
-    return PrecompileShaders::ColorFilter({ sk_ref_sp(this) }, { std::move(cf) });
+    return PrecompileShaders::ColorFilter({{ sk_ref_sp(this) }}, {{ std::move(cf) }});
 }
 
 sk_sp<PrecompileShader> PrecompileShader::makeWithWorkingColorSpace(
@@ -62,8 +62,8 @@ sk_sp<PrecompileShader> PrecompileShader::makeWithWorkingColorSpace(
     }
 
     return PrecompileShaders::WorkingColorSpaceExplicit(
-            { sk_ref_sp(this) },
-            { { std::move(inputCS), std::move(outputCS) } });
+            {{ sk_ref_sp(this) }},
+            {{ { std::move(inputCS), std::move(outputCS) } }});
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -356,9 +356,9 @@ sk_sp<PrecompileShader> PrecompileShaders::Image(ImageShaderFlags shaderFlags,
                                                  SkSpan<const SkColorInfo> colorInfos,
                                                  SkSpan<const SkTileMode> tileModes) {
     return PrecompileShaders::LocalMatrix(
-            { sk_make_sp<PrecompileImageShader>(shaderFlags,
+            {{ sk_make_sp<PrecompileImageShader>(shaderFlags,
                                                 colorInfos, tileModes,
-                                                /* raw= */false) });
+                                                /* raw= */false) }});
 }
 
 sk_sp<PrecompileShader> PrecompileShaders::Image(SkSpan<const SkColorInfo> colorInfos,
@@ -371,9 +371,9 @@ sk_sp<PrecompileShader> PrecompileShaders::RawImage(ImageShaderFlags shaderFlags
                                                     SkSpan<const SkTileMode> tileModes) {
     SkEnumBitMask<ImageShaderFlags> newFlags = ~ImageShaderFlags::kCubicSampling & shaderFlags;
     return PrecompileShaders::LocalMatrix(
-            { sk_make_sp<PrecompileImageShader>(newFlags,
+            {{ sk_make_sp<PrecompileImageShader>(newFlags,
                                                 colorInfos, tileModes,
-                                                /* raw= */true) });
+                                                /* raw= */true) }});
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -503,7 +503,7 @@ private:
 sk_sp<PrecompileShader> PrecompileShaders::YUVImage(YUVImageShaderFlags shaderFlags,
                                                     SkSpan<const SkColorInfo> colorInfos) {
     return PrecompileShaders::LocalMatrix(
-            { sk_make_sp<PrecompileYUVImageShader>(shaderFlags, colorInfos) });
+            {{ sk_make_sp<PrecompileYUVImageShader>(shaderFlags, colorInfos) }});
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -629,7 +629,7 @@ sk_sp<PrecompileShader> PrecompileShaders::LinearGradient(
         SkGradientShader::Interpolation interpolation) {
     sk_sp<PrecompileShader> s = sk_make_sp<PrecompileGradientShader>(
             SkShaderBase::GradientType::kLinear, flags, interpolation);
-    return PrecompileShaders::LocalMatrix({ std::move(s) });
+    return PrecompileShaders::LocalMatrix({{ std::move(s) }});
 }
 
 sk_sp<PrecompileShader> PrecompileShaders::RadialGradient(
@@ -637,7 +637,7 @@ sk_sp<PrecompileShader> PrecompileShaders::RadialGradient(
         SkGradientShader::Interpolation interpolation) {
     sk_sp<PrecompileShader> s = sk_make_sp<PrecompileGradientShader>(
             SkShaderBase::GradientType::kRadial, flags, interpolation);
-    return PrecompileShaders::LocalMatrix({ std::move(s) });
+    return PrecompileShaders::LocalMatrix({{ std::move(s) }});
 }
 
 sk_sp<PrecompileShader> PrecompileShaders::SweepGradient(
@@ -645,7 +645,7 @@ sk_sp<PrecompileShader> PrecompileShaders::SweepGradient(
         SkGradientShader::Interpolation interpolation) {
     sk_sp<PrecompileShader> s = sk_make_sp<PrecompileGradientShader>(
             SkShaderBase::GradientType::kSweep, flags, interpolation);
-    return PrecompileShaders::LocalMatrix({ std::move(s) });
+    return PrecompileShaders::LocalMatrix({{ std::move(s) }});
 }
 
 sk_sp<PrecompileShader> PrecompileShaders::TwoPointConicalGradient(
@@ -653,7 +653,7 @@ sk_sp<PrecompileShader> PrecompileShaders::TwoPointConicalGradient(
         SkGradientShader::Interpolation interpolation) {
     sk_sp<PrecompileShader> s = sk_make_sp<PrecompileGradientShader>(
             SkShaderBase::GradientType::kConical, flags, interpolation);
-    return PrecompileShaders::LocalMatrix({ std::move(s) });
+    return PrecompileShaders::LocalMatrix({{ std::move(s) }});
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -664,13 +664,13 @@ sk_sp<PrecompileShader> PrecompileShaders::TwoPointConicalGradient(
 sk_sp<PrecompileShader> PrecompileShaders::Picture() {
     // Note: We don't need to consider the PrecompileYUVImageShader since the image
     // being drawn was created internally by Skia (as non-YUV).
-    return PrecompileShadersPriv::LocalMatrixBothVariants({ PrecompileShaders::Image() });
+    return PrecompileShadersPriv::LocalMatrixBothVariants({{ PrecompileShaders::Image() }});
 }
 
 sk_sp<PrecompileShader> PrecompileShadersPriv::Picture(bool withLM) {
     sk_sp<PrecompileShader> s = PrecompileShaders::Image();
     if (withLM) {
-        return PrecompileShaders::LocalMatrix({ std::move(s) });
+        return PrecompileShaders::LocalMatrix({{ std::move(s) }});
     }
     return s;
 }
@@ -808,7 +808,7 @@ sk_sp<PrecompileShader> PrecompileShader::makeWithLocalMatrix(bool isPerspective
         return sk_ref_sp(this);
     }
 
-    return PrecompileShaders::LocalMatrix({ sk_ref_sp(this) }, isPerspective);
+    return PrecompileShaders::LocalMatrix({{ sk_ref_sp(this) }}, isPerspective);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -932,8 +932,8 @@ private:
         // SkWorkingColorSpaceShader's workInUnpremul is not exposed yet in the public API so
         // precompile can assume that it'll always use dstAT.
         const SkAlphaType workingAT = dstAT;
-        SkColorInfo workingInfo(dstInfo.colorType(), workingAT, inputCS);
-        KeyContextWithColorInfo workingContext(keyContext, workingInfo);
+        KeyContext workingContext =
+                keyContext.withColorInfo({dstInfo.colorType(), workingAT, inputCS});
 
         Compose(keyContext,
                 /* addInnerToKey= */ [&]() -> void {
@@ -1059,10 +1059,9 @@ private:
         const SkRuntimeEffect* effect = GetKnownRuntimeEffect(kIDs[desiredBlurCombination]);
         SkASSERT(effect->children().size() == 1);
 
-        KeyContextForRuntimeEffect childContext(keyContext, effect, /*child=*/0);
-
         RuntimeEffectBlock::BeginBlock(keyContext, { sk_ref_sp(effect) });
-            fWrapped->priv().addToKey(childContext, desiredWrappedCombination);
+            fWrapped->priv().addToKey(keyContext.forRuntimeEffect(effect, /*child=*/0),
+                                      desiredWrappedCombination);
         keyContext.paintParamsKeyBuilder()->endBlock();
     }
 
@@ -1123,14 +1122,13 @@ private:
 
         const SkRuntimeEffect* effect = GetKnownRuntimeEffect(stableKey);
 
-        KeyContextForRuntimeEffect childContext(keyContext, effect, /*child=*/0);
-
         RuntimeEffectBlock::BeginBlock(keyContext, { sk_ref_sp(effect) });
-            fWrapped->priv().addToKey(childContext, desiredWrappedCombination);
+            fWrapped->priv().addToKey(keyContext.forRuntimeEffect(effect, /*child=*/0),
+                                      desiredWrappedCombination);
             if (stableKey != SkKnownRuntimeEffects::StableKey::kMatrixConvUniforms) {
                 SkASSERT(effect->children().size() == 2);
-                KeyContextForRuntimeEffect kernelContext(keyContext, effect, /*child=*/1);
-                fRawImageShader->priv().addToKey(kernelContext, desiredTextureCombination);
+                fRawImageShader->priv().addToKey(keyContext.forRuntimeEffect(effect, /*child=*/1),
+                                                 desiredTextureCombination);
             } else {
                 SkASSERT(effect->children().size() == 1);
             }
@@ -1169,10 +1167,9 @@ private:
         const SkRuntimeEffect* effect = GetKnownRuntimeEffect(fStableKey);
         SkASSERT(effect->children().size() == 1);
 
-        KeyContextForRuntimeEffect childContext(keyContext, effect, /*child=*/0);
-
         RuntimeEffectBlock::BeginBlock(keyContext, { sk_ref_sp(effect) });
-            fWrapped->priv().addToKey(childContext, desiredCombination);
+            fWrapped->priv().addToKey(keyContext.forRuntimeEffect(effect, /*child=*/0),
+                                      desiredCombination);
         keyContext.paintParamsKeyBuilder()->endBlock();
     }
 
@@ -1218,12 +1215,11 @@ private:
                 GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kDisplacement);
         SkASSERT(effect->children().size() == 2);
 
-        KeyContextForRuntimeEffect displContext(keyContext, effect, /*child=*/0);
-        KeyContextForRuntimeEffect colorContext(keyContext, effect, /*child=*/1);
-
         RuntimeEffectBlock::BeginBlock(keyContext, { sk_ref_sp(effect) });
-            fDisplacement->priv().addToKey(displContext, desiredDisplacementCombination);
-            fColor->priv().addToKey(colorContext, desiredColorCombination);
+            fDisplacement->priv().addToKey(keyContext.forRuntimeEffect(effect, /*child=*/0),
+                                           desiredDisplacementCombination);
+            fColor->priv().addToKey(keyContext.forRuntimeEffect(effect, /*child=*/1),
+                                    desiredColorCombination);
         keyContext.paintParamsKeyBuilder()->endBlock();
     }
 
@@ -1260,8 +1256,8 @@ private:
         SkASSERT(normalEffect->children().size() == 1 &&
                  lightingEffect->children().size() == 1);
 
-        KeyContextForRuntimeEffect lightingContext(keyContext, lightingEffect, /*child=*/0);
-        KeyContextForRuntimeEffect normalContext(lightingContext, normalEffect, /*child=*/0);
+        KeyContext lightingContext = keyContext.forRuntimeEffect(lightingEffect, /*child=*/0);
+        KeyContext normalContext = lightingContext.forRuntimeEffect(normalEffect, /*child=*/0);
 
         RuntimeEffectBlock::BeginBlock(keyContext, { sk_ref_sp(lightingEffect) });
             RuntimeEffectBlock::BeginBlock(lightingContext, { sk_ref_sp(normalEffect) });

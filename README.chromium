@@ -1,8 +1,12 @@
 Name: Skia
-URL: https://skia.org/
+URL: This is the canonical public repository
 Version: N/A
 Revision: DEPS
+Update Mechanism: Autoroll
 Security Critical: yes
 Shipped: yes
 License: BSD-3-Clause
 License File: LICENSE
+
+Description:
+See https://skia.org/

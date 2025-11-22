@@ -2221,7 +2221,7 @@ void SkCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
 
     auto layer = this->aboutToDraw(paint, path.isInverseFillType() ? nullptr : &pathBounds);
     if (layer) {
-        this->topDevice()->drawPath(path, layer->paint(), false);
+        this->topDevice()->drawPath(path, layer->paint());
     }
 }
 
@@ -2673,7 +2673,8 @@ void SkCanvas::onDrawAtlas2(const SkImage* atlas, const SkRSXform xform[], const
     SkASSERT(!realPaint.getMaskFilter());
     auto layer = this->aboutToDraw(realPaint);
     if (layer) {
-        this->topDevice()->drawAtlas({xform, count}, {tex, count}, {colors, colors ? count : 0},
+        size_t N = SkToSizeT(count);
+        this->topDevice()->drawAtlas({xform, N}, {tex, N}, {colors, colors ? N : 0},
                                      SkBlender::Mode(bmode), layer->paint());
     }
 }

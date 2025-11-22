@@ -35,7 +35,7 @@ public:
      * Called once flushing is complete. startTokenForNextFlush can be used to track resources
      * used in the current flush.
      */
-    virtual void postFlush(skgpu::AtlasToken startTokenForNextFlush) {}
+    virtual void postFlush(skgpu::Token startTokenForNextFlush) {}
 
     /**
      * Tells the callback owner to hold onto this object when freeing GPU resources.

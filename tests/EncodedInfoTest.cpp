@@ -28,11 +28,11 @@ DEF_TEST(AlphaEncodedInfo, r) {
     auto result = codec->getPixels(codec->getInfo(), bm.getPixels(), bm.rowBytes());
     REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 
-    SkDynamicMemoryWStream stream;
-    REPORTER_ASSERT(r, SkPngEncoder::Encode(&stream, bm.pixmap(), {}));
-    REPORTER_ASSERT(r, stream.bytesWritten() > 0);
+    sk_sp<SkData> data = SkPngEncoder::Encode(bm.pixmap(), {});
+    REPORTER_ASSERT(r, data);
+    REPORTER_ASSERT(r, data->size() > 0);
 
-    codec = SkCodec::MakeFromData(stream.detachAsData());
+    codec = SkCodec::MakeFromData(data);
     REPORTER_ASSERT(r, codec);
     // TODO: Make SkEncodedInfo public and compare to its version of kAlpha_8.
     REPORTER_ASSERT(r, codec->getInfo().colorType() == kAlpha_8_SkColorType);

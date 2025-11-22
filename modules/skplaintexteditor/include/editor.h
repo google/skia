@@ -114,7 +114,7 @@ private:
         int fHeight = 0;
         bool fShaped = false;
 
-        TextLine(StringSlice t) : fText(std::move(t)) {}
+        explicit TextLine(StringSlice t) : fText(std::move(t)) {}
         TextLine() {}
     };
     std::vector<TextLine> fLines;

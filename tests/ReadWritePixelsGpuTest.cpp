@@ -43,7 +43,6 @@
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrPixmap.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
@@ -52,9 +51,10 @@
 #include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
+#include "tests/ComparePixels.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tests/TestUtils.h"
+#include "tests/ganesh/GaneshTestUtils.h"
 #include "tools/ToolUtils.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
 #include "tools/gpu/BackendTextureImageFactory.h"
@@ -82,6 +82,7 @@ static constexpr int min_rgb_channel_bits(SkColorType ct) {
         case kRGB_565_SkColorType:            return 5;
         case kARGB_4444_SkColorType:          return 4;
         case kR8G8_unorm_SkColorType:         return 8;
+        case kR16_unorm_SkColorType:          return 16;
         case kR16G16_unorm_SkColorType:       return 16;
         case kR16G16_float_SkColorType:       return 16;
         case kRGBA_8888_SkColorType:          return 8;
@@ -115,6 +116,7 @@ static constexpr int alpha_channel_bits(SkColorType ct) {
         case kRGB_565_SkColorType:            return 0;
         case kARGB_4444_SkColorType:          return 4;
         case kR8G8_unorm_SkColorType:         return 0;
+        case kR16_unorm_SkColorType:          return 0;
         case kR16G16_unorm_SkColorType:       return 0;
         case kR16G16_float_SkColorType:       return 0;
         case kRGBA_8888_SkColorType:          return 8;
@@ -423,7 +425,7 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
             // This is the part of dstPixels that should have been updated.
             SkPixmap actual;
             SkAssertResult(dstPixels.extractSubset(&actual, dstWriteRect));
-            ComparePixels(ref, actual, tols, error);
+            CompareGaneshPixels(ref, actual, tols, error);
 
             const auto* v = dstData.get();
             const auto* end = dstData.get() + dstSize;
@@ -479,7 +481,8 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
                 continue;
             }
             if (rules.fSkip16BitCT &&
-                (srcCT == kR16G16_unorm_SkColorType ||
+                (srcCT == kR16_unorm_SkColorType ||
+                 srcCT == kR16G16_unorm_SkColorType ||
                  srcCT == kR16G16B16A16_unorm_SkColorType)) {
                 continue;
             }
@@ -1433,7 +1436,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped,
                                            GrColorTypeToStr(info.colorType()), i, unowned, x, y,
                                            diffs[0], diffs[1], diffs[2], diffs[3]);
                                 });
-                        ComparePixels(a, b, tol, error);
+                        CompareGaneshPixels(a, b, tol, error);
                     }
                 }
             }

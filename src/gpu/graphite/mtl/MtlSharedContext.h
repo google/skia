@@ -13,6 +13,7 @@
 #include "include/ports/SkCFObject.h"
 
 #include "include/gpu/graphite/mtl/MtlBackendContext.h"
+#include "src/gpu/graphite/ThreadSafeResourceProvider.h"
 #include "src/gpu/graphite/mtl/MtlCaps.h"
 
 #import <Metal/Metal.h>
@@ -23,6 +24,12 @@ class MtlMemoryAllocator;
 
 namespace skgpu::graphite {
 struct ContextOptions;
+class MtlGraphicsPipeline;
+
+class MtlThreadSafeResourceProvider final : public ThreadSafeResourceProvider {
+public:
+    MtlThreadSafeResourceProvider(std::unique_ptr<ResourceProvider>);
+};
 
 class MtlSharedContext final : public SharedContext {
 public:
@@ -35,9 +42,15 @@ public:
 
     const MtlCaps& mtlCaps() const { return static_cast<const MtlCaps&>(*this->caps()); }
 
+    MtlThreadSafeResourceProvider* threadSafeResourceProvider() const;
+
     std::unique_ptr<ResourceProvider> makeResourceProvider(SingleOwner*,
                                                            uint32_t recorderID,
                                                            size_t resourceBudget) override;
+
+    sk_cfp<id<MTLDepthStencilState>> getCompatibleDepthStencilState(
+        const DepthStencilSettings&) const;
+
 
 private:
 
@@ -47,9 +60,27 @@ private:
                      SkExecutor*,
                      SkSpan<sk_sp<SkRuntimeEffect>> userDefinedKnownRuntimeEffects);
 
+    void createCompatibleDepthStencilState(const DepthStencilSettings&);
+
+    sk_sp<GraphicsPipeline> createGraphicsPipeline(
+            const RuntimeEffectDictionary*,
+            const UniqueKey&,
+            const GraphicsPipelineDesc&,
+            const RenderPassDesc&,
+            SkEnumBitMask<PipelineCreationFlags>,
+            uint32_t compilationID) override;
+
     sk_sp<skgpu::MtlMemoryAllocator> fMemoryAllocator;
 
     sk_cfp<id<MTLDevice>> fDevice;
+
+    // In the current Graphite class structure 'fDepthStencilStates' would more appropriately
+    // go in a new MtlGlobalCache class. However, GlobalCache may go away as a concept, in
+    // which case, this would be a reasonable place for this cache.
+    // TODO(robertphillips): Come up with a scheme to map from DepthStencilSettings to tightly
+    // packed ints and switch this to be a std::array.
+    skia_private::THashMap<DepthStencilSettings, sk_cfp<id<MTLDepthStencilState>>>
+            fDepthStencilStates;
 };
 
 } // namespace skgpu::graphite

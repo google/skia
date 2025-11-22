@@ -180,10 +180,10 @@ private:
                     return new EncodeColorTypesGM(format, quality, Variant::variant, name);\
                 }());});
 
-#define DEF_VARIANTS(format, quality, name)         \
-    DEF_ENCODE_GM(format, quality, kNormal, name);  \
-    DEF_ENCODE_GM(format, quality, kOpaque, name);  \
-    DEF_ENCODE_GM(format, quality, kGray, name);
+#define DEF_VARIANTS(format, quality, name)        \
+    DEF_ENCODE_GM(format, quality, kNormal, name)  \
+    DEF_ENCODE_GM(format, quality, kOpaque, name)  \
+    DEF_ENCODE_GM(format, quality, kGray, name)
 
 DEF_VARIANTS(SkEncodedImageFormat::kWEBP, 100, "webp-lossless")
 DEF_VARIANTS(SkEncodedImageFormat::kWEBP,  80, "webp-lossy")

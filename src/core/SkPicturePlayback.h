@@ -23,10 +23,7 @@ class SkReadBuffer;
 // The basic picture playback class replays the provided picture into a canvas.
 class SkPicturePlayback final : SkNoncopyable {
 public:
-    SkPicturePlayback(const SkPictureData* data)
-        : fPictureData(data)
-        , fCurOffset(0) {
-    }
+    explicit SkPicturePlayback(const SkPictureData* data) : fPictureData(data), fCurOffset(0) {}
 
     void draw(SkCanvas* canvas, SkPicture::AbortCallback*, SkReadBuffer* buffer);
 

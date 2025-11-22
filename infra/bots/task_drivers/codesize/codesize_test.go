@@ -170,7 +170,7 @@ func TestRunSteps_PostSubmit_Success(t *testing.T) {
 	}
 
 	res := td.RunTestSteps(t, false, func(ctx context.Context) error {
-		ctx = now.TimeTravelingContext(fakeNow).WithContext(ctx)
+		ctx = now.TimeTravelingContext(ctx, fakeNow)
 		ctx = td.WithExecRunFn(ctx, commandCollector.Run)
 		// Be in a temporary directory. We must restore the working directory after this test case
 		// finishes, or subsequent test cases that call os.Getwd() might fail with "getwd: no such file
@@ -341,7 +341,7 @@ func TestRunSteps_Tryjob_Success(t *testing.T) {
 	}
 
 	res := td.RunTestSteps(t, false, func(ctx context.Context) error {
-		ctx = now.TimeTravelingContext(fakeNow).WithContext(ctx)
+		ctx = now.TimeTravelingContext(ctx, fakeNow)
 		ctx = td.WithExecRunFn(ctx, commandCollector.Run)
 		// Be in a temporary directory. We must restore the working directory after this test case
 		// finishes, or subsequent test cases that call os.Getwd() might fail with "getwd: no such file

@@ -19,7 +19,7 @@ namespace skgpu {
 class MutableTextureState;
 class RefCntedCallback;
 enum class Budgeted : bool;
-};
+}
 
 namespace skgpu::graphite {
 
@@ -29,7 +29,7 @@ class Texture : public Resource {
 public:
     ~Texture() override;
 
-    int numSamples() const { return fInfo.numSamples(); }
+    SampleCount sampleCount() const { return fInfo.sampleCount(); }
     Mipmapped mipmapped() const { return fInfo.mipmapped(); }
 
     SkISize dimensions() const { return fDimensions; }

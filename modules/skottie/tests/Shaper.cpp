@@ -9,6 +9,7 @@
 #include <initializer_list>
 #include <memory>
 
+#include "include/core/SkData.h"
 #include "include/core/SkFontMgr.h"
 #include "modules/skottie/include/TextShaper.h"
 #include "modules/skshaper/utils/FactoryHelpers.h"

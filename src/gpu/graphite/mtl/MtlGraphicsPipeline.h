@@ -33,14 +33,12 @@ class RuntimeEffectDictionary;
 class MtlGraphicsPipeline final : public GraphicsPipeline {
 public:
     inline static constexpr unsigned int kIntrinsicUniformBufferIndex = 0;
-    inline static constexpr unsigned int kRenderStepUniformBufferIndex = 1;
-    inline static constexpr unsigned int kPaintUniformBufferIndex = 2;
-    inline static constexpr unsigned int kStaticDataBufferIndex = 3;
-    inline static constexpr unsigned int kAppendDataBufferIndex = 4;
-    inline static constexpr unsigned int kGradientBufferIndex = 5;
+    inline static constexpr unsigned int kCombinedUniformIndex = 1; // Paint AND rendersteps!
+    inline static constexpr unsigned int kStaticDataBufferIndex = 2;
+    inline static constexpr unsigned int kAppendDataBufferIndex = 3;
+    inline static constexpr unsigned int kGradientBufferIndex = 4;
 
     static sk_sp<MtlGraphicsPipeline> Make(const MtlSharedContext*,
-                                           MtlResourceProvider*,
                                            const RuntimeEffectDictionary*,
                                            const UniqueKey&,
                                            const GraphicsPipelineDesc&,
@@ -49,7 +47,6 @@ public:
                                            uint32_t compilationID);
 
     static sk_sp<MtlGraphicsPipeline> MakeLoadMSAAPipeline(const MtlSharedContext*,
-                                                           MtlResourceProvider*,
                                                            const RenderPassDesc&);
 
     ~MtlGraphicsPipeline() override {}
@@ -61,6 +58,7 @@ public:
 private:
     MtlGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
                         const PipelineInfo& pipelineInfo,
+                        std::string_view pipelineLabel,
                         sk_cfp<id<MTLRenderPipelineState>> pso,
                         sk_cfp<id<MTLDepthStencilState>> dss,
                         uint32_t refValue);

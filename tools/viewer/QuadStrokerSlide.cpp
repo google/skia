@@ -232,61 +232,61 @@ public:
     void draw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorLTGRAY);
 
-        SkPath path;
         SkScalar width = fWidth;
 
         if (fCubicButton.fEnabled) {
-            path.moveTo(fPts[0]);
-            path.cubicTo(fPts[1], fPts[2], fPts[3]);
+            SkPath path = SkPathBuilder()
+                          .moveTo(fPts[0])
+                          .cubicTo(fPts[1], fPts[2], fPts[3])
+                          .detach();
             setForSingles();
             draw_stroke(canvas, path, width, 950, false);
         }
 
         if (fConicButton.fEnabled) {
-            path.reset();
-            path.moveTo(fPts[4]);
-            path.conicTo(fPts[5], fPts[6], fWeight);
+            SkPath path = SkPathBuilder()
+                          .moveTo(fPts[4])
+                          .conicTo(fPts[5], fPts[6], fWeight)
+                          .detach();
             setForSingles();
             draw_stroke(canvas, path, width, 950, false);
         }
 
         if (fQuadButton.fEnabled) {
-            path.reset();
-            path.moveTo(fPts[7]);
-            path.quadTo(fPts[8], fPts[9]);
+            SkPath path = SkPathBuilder()
+                          .moveTo(fPts[7])
+                          .quadTo(fPts[8], fPts[9])
+                          .detach();
             setForSingles();
             draw_stroke(canvas, path, width, 950, false);
         }
 
         if (fArcButton.fEnabled) {
-            path.reset();
-            path.moveTo(fPts[10]);
-            path.arcTo(fPts[11], fPts[12], fRadius);
+            SkPath path = SkPathBuilder()
+                          .moveTo(fPts[10])
+                          .arcTo(fPts[11], fPts[12], fRadius)
+                          .detach();
             setForGeometry();
             draw_stroke(canvas, path, width, 950, false);
-            SkPath pathPts;
-            pathPts.moveTo(fPts[10]);
-            pathPts.lineTo(fPts[11]);
-            pathPts.lineTo(fPts[12]);
+            SkPath pathPts = SkPath::Polygon({&fPts[10], 3}, false);
             draw_points(canvas, pathPts, SK_ColorDKGRAY, true);
         }
 
         if (fRRectButton.fEnabled) {
             SkScalar rad = 32;
             SkRect r = SkRect::BoundsOrEmpty({&fPts[13], 2});
-            path.reset();
             SkRRect rr;
             rr.setRectXY(r, rad, rad);
-            path.addRRect(rr);
             setForGeometry();
-            draw_stroke(canvas, path, width, 950, false);
+            draw_stroke(canvas, SkPath::RRect(rr), width, 950, false);
 
-            path.reset();
+            SkPathBuilder builder;
             SkRRect rr2;
             rr.inset(width/2, width/2, &rr2);
-            path.addRRect(rr2, SkPathDirection::kCCW);
+            builder.addRRect(rr2, SkPathDirection::kCCW);
             rr.inset(-width/2, -width/2, &rr2);
-            path.addRRect(rr2, SkPathDirection::kCW);
+            builder.addRRect(rr2, SkPathDirection::kCW);
+            SkPath path = builder.detach();
             SkPaint paint;
             paint.setAntiAlias(true);
             paint.setColor(0x40FF8844);
@@ -294,9 +294,8 @@ public:
         }
 
         if (fCircleButton.fEnabled) {
-            path.reset();
             SkRect r = SkRect::BoundsOrEmpty({&fPts[15], 2});
-            path.addOval(r);
+            SkPath path = SkPath::Oval(r);
             setForGeometry();
             if (fCircleButton.fFill) {
                 if (fArcButton.fEnabled) {
@@ -313,7 +312,7 @@ public:
         }
 
         if (fTextButton.fEnabled) {
-            path.reset();
+            SkPath path;
             SkFont font = ToolUtils::DefaultFont();
             font.setSize(fTextSize);
             SkTextUtils::GetPath(fText.c_str(), fText.size(), SkTextEncoding::kUTF8,
@@ -498,15 +497,18 @@ private:
         paint.setColor(color);
         paint.setAlpha(0x80);
         paint.setAntiAlias(true);
-        int n = path.countPoints();
+        size_t n = path.countPoints();
         std::unique_ptr<SkPoint[]> pts{new SkPoint[n]};
         if (show_lines && fDrawTangents) {
             TArray<int> contourCounts;
             getContourCounts(path, &contourCounts);
             SkPoint* ptPtr = pts.get();
             for (int i = 0; i < contourCounts.size(); ++i) {
-                int count = contourCounts[i];
-                path.getPoints({ptPtr, count});
+                size_t count = contourCounts[i];
+
+                const SkPoint* src = path.points().data();
+                std::copy(src, src + count, ptPtr);
+
                 canvas->drawPoints(SkCanvas::kPolygon_PointMode, {ptPtr, count}, paint);
                 ptPtr += count;
             }
@@ -561,14 +563,14 @@ private:
         for (SkScalar dist = 0; dist <= total; dist += delta) {
             ++ribs;
         }
-        const SkPathVerb* verbs = SkPathPriv::VerbData(path);
-        if (path.countVerbs() < 2 || SkPathVerb::kMove != verbs[0]) {
+        SkSpan<const SkPathVerb> verbs = path.verbs();
+        if (verbs.size() < 2 || SkPathVerb::kMove != verbs[0]) {
             SkASSERT(0);
             return;
         }
         auto verb = static_cast<SkPath::Verb>(verbs[1]);
         SkASSERT(SkPath::kLine_Verb <= verb && verb <= SkPath::kCubic_Verb);
-        const SkPoint* pts = SkPathPriv::PointData(path);
+        SkSpan<const SkPoint> pts = path.points();
         SkPoint pos, tan;
         for (int index = 0; index < ribs; ++index) {
             SkScalar t = (SkScalar) index / ribs;
@@ -580,16 +582,16 @@ private:
                     pos.fY += tan.fY * t;
                     break;
                 case SkPath::kQuad_Verb:
-                    pos = SkEvalQuadAt(pts, t);
-                    tan = SkEvalQuadTangentAt(pts, t);
+                    pos = SkEvalQuadAt(pts.data(), t);
+                    tan = SkEvalQuadTangentAt(pts.data(), t);
                     break;
                 case SkPath::kConic_Verb: {
-                    SkConic conic(pts, SkPathPriv::ConicWeightData(path)[0]);
+                    SkConic conic(pts.data(), path.conicWeights()[0]);
                     pos = conic.evalAt(t);
                     tan = conic.evalTangentAt(t);
                     } break;
                 case SkPath::kCubic_Verb:
-                    SkEvalCubicAt(pts, t, &pos, &tan, nullptr);
+                    SkEvalCubicAt(pts.data(), t, &pos, &tan, nullptr);
                     break;
                 default:
                     SkASSERT(0);
@@ -641,7 +643,7 @@ private:
         matrix.reset();
         matrix.setScale(950 / scale, 950 / scale);
         if (drawText) {
-            path.transform(matrix, &scaled);
+            scaled = path.makeTransform(matrix);
         } else {
             scaled = path;
         }
@@ -666,7 +668,7 @@ private:
         SkPath fill = skpathutils::FillPathWithPaint(path, p);
         SkPath scaledFill;
         if (drawText) {
-            fill.transform(matrix, &scaledFill);
+            scaledFill = fill.makeTransform(matrix);
         } else {
             scaledFill = fill;
         }
@@ -683,23 +685,21 @@ private:
         paint.setColor(0x1f1f0f0f);
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(width);
-        SkPath path;
         SkScalar maxSide = std::max(rect.width(), rect.height()) / 2;
         SkPoint center = { rect.fLeft + maxSide, rect.fTop + maxSide };
-        path.addCircle(center.fX, center.fY, maxSide);
+        SkPath path = SkPath::Circle(center.fX, center.fY, maxSide);
         canvas->drawPath(path, paint);
         paint.setStyle(SkPaint::kFill_Style);
-        path.reset();
-        path.addCircle(center.fX, center.fY, maxSide - width / 2);
+        path = SkPath::Circle(center.fX, center.fY, maxSide - width / 2);
         paint.setColor(0x3f0f1f3f);
         canvas->drawPath(path, paint);
-        path.reset();
-        path.setFillType(SkPathFillType::kEvenOdd);
-        path.addCircle(center.fX, center.fY, maxSide + width / 2);
+
+        SkPathBuilder builder(SkPathFillType::kEvenOdd);
+        builder.addCircle(center.fX, center.fY, maxSide + width / 2);
         SkRect outside = SkRect::MakeXYWH(center.fX - maxSide - width, center.fY - maxSide - width,
                 (maxSide + width) * 2, (maxSide + width) * 2);
-        path.addRect(outside);
-        canvas->drawPath(path, paint);
+        builder.addRect(outside);
+        canvas->drawPath(builder.detach(), paint);
     }
 
     void draw_button(SkCanvas* canvas, const StrokeTypeButton& button) {
@@ -765,9 +765,10 @@ private:
     }
 
     bool arcCenter(SkPoint* center) {
-        SkPath path;
-        path.moveTo(fPts[10]);
-        path.arcTo(fPts[11], fPts[12], fRadius);
+        SkPath path = SkPathBuilder()
+                      .moveTo(fPts[10])
+                      .arcTo(fPts[11], fPts[12], fRadius)
+                      .detach();
         SkPath::Iter iter(path, false);
         SkPoint pts[4];
         iter.next(pts);

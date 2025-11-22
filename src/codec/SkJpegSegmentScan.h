@@ -38,7 +38,7 @@ struct SkJpegSegment {
  */
 class SkJpegSegmentScanner {
 public:
-    SkJpegSegmentScanner(uint8_t stopMarker = kJpegMarkerEndOfImage);
+    explicit SkJpegSegmentScanner(uint8_t stopMarker = kJpegMarkerEndOfImage);
 
     bool isDone() const { return fState == State::kDone; }
     bool hadError() const { return fState == State::kError; }

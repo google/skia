@@ -37,8 +37,6 @@ DEF_SIMPLE_GM(getpostextpath, canvas, 480, 780) {
     // explicitly add spaces, to test a prev. bug
     const char* text = "Ham bur ge fons";
     size_t len = strlen(text);
-    SkPath path;
-
     SkFont font = ToolUtils::DefaultPortableFont();
     font.setSize(48);
 
@@ -48,9 +46,8 @@ DEF_SIMPLE_GM(getpostextpath, canvas, 480, 780) {
     canvas->translate(SkIntToScalar(10), SkIntToScalar(64));
 
     canvas->drawSimpleText(text, len, SkTextEncoding::kUTF8, 0, 0, font, paint);
-    ToolUtils::get_text_path(font, text, len, SkTextEncoding::kUTF8, &path, nullptr);
+    SkPath path = ToolUtils::get_text_path(font, text, len, SkTextEncoding::kUTF8, nullptr);
     strokePath(canvas, path);
-    path.reset();
 
     SkAutoToGlyphs atg(font, text, len, SkTextEncoding::kUTF8);
     const size_t count = atg.count();
@@ -69,6 +66,6 @@ DEF_SIMPLE_GM(getpostextpath, canvas, 480, 780) {
     canvas->translate(0, SkIntToScalar(64));
 
     canvas->drawTextBlob(SkTextBlob::MakeFromPosText(text, len, pos, font), 0, 0, paint);
-    ToolUtils::get_text_path(font, text, len, SkTextEncoding::kUTF8, &path, &pos[0]);
+    path = ToolUtils::get_text_path(font, text, len, SkTextEncoding::kUTF8, &pos[0]);
     strokePath(canvas, path);
 }

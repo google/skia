@@ -37,6 +37,7 @@ const char* TextureFormatName(TextureFormat format) {
         case TextureFormat::kRGBA16F:        return "RGBA16F";
         case TextureFormat::kRGBA32F:        return "RGBA32F";
         case TextureFormat::kRGB10_A2:       return "RGB10_A2";
+        case TextureFormat::kRGBA10x6:       return "RGBA10x6";
         case TextureFormat::kRGBA8_sRGB:     return "RGBA8_sRGB";
         case TextureFormat::kBGRA8:          return "BGRA8";
         case TextureFormat::kBGR10_A2:       return "BGR10_A2";
@@ -99,6 +100,7 @@ size_t TextureFormatBytesPerBlock(TextureFormat format) {
         case TextureFormat::kRGBA16F:     return 8;
         case TextureFormat::kRGBA32F:     return 16;
         case TextureFormat::kRGB10_A2:    return 4;
+        case TextureFormat::kRGBA10x6:    return 8;
         case TextureFormat::kRGBA8_sRGB:  return 4;
         case TextureFormat::kBGRA8:       return 4;
         case TextureFormat::kBGR10_A2:    return 4;
@@ -172,6 +174,7 @@ uint32_t TextureFormatChannelMask(TextureFormat format) {
         case TextureFormat::kRGBA16F:
         case TextureFormat::kRGBA32F:
         case TextureFormat::kRGB10_A2:
+        case TextureFormat::kRGBA10x6:
         case TextureFormat::kRGBA8_sRGB:
         case TextureFormat::kBGRA8:
         case TextureFormat::kBGR10_A2:
@@ -233,6 +236,7 @@ bool TextureFormatIsFloatingPoint(TextureFormat format) {
         case TextureFormat::kRGBA8:
         case TextureFormat::kRGBA16:
         case TextureFormat::kRGB10_A2:
+        case TextureFormat::kRGBA10x6:
         case TextureFormat::kRGBA8_sRGB:
         case TextureFormat::kBGRA8:
         case TextureFormat::kBGR10_A2:

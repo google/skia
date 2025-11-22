@@ -299,19 +299,6 @@ test:JioNext --test_arg=SnapdragonQM215
 test:JioNext --test_arg=--gpuName
 test:JioNext --test_arg=Adreno308
 
-test:Kevin --strategy=TestRunner=local
-test:Kevin --test_arg=--device-specific-bazel-config
-test:Kevin --test_arg=Kevin
-test:Kevin --test_arg=--key
-test:Kevin --test_arg=arch
-test:Kevin --test_arg=arm
-test:Kevin --test_arg=model
-test:Kevin --test_arg=Kevin
-test:Kevin --test_arg=os
-test:Kevin --test_arg=ChromeOS
-test:Kevin --test_arg=--gpuName
-test:Kevin --test_arg=MaliT860
-
 test:MacBook10.1 --strategy=TestRunner=local
 test:MacBook10.1 --test_arg=--device-specific-bazel-config
 test:MacBook10.1 --test_arg=MacBook10.1
@@ -744,45 +731,6 @@ test:RUBYR5_Win10 --test_arg=os
 test:RUBYR5_Win10 --test_arg=Win10
 test:RUBYR5_Win10 --test_arg=--gpuName
 test:RUBYR5_Win10 --test_arg=RadeonVega6
-
-test:Sparky360 --strategy=TestRunner=local
-test:Sparky360 --test_arg=--device-specific-bazel-config
-test:Sparky360 --test_arg=Sparky360
-test:Sparky360 --test_arg=--key
-test:Sparky360 --test_arg=arch
-test:Sparky360 --test_arg=x86_64
-test:Sparky360 --test_arg=model
-test:Sparky360 --test_arg=Sparky360
-test:Sparky360 --test_arg=os
-test:Sparky360 --test_arg=ChromeOS
-test:Sparky360 --test_arg=--gpuName
-test:Sparky360 --test_arg=IntelUHDGraphics605
-
-test:Spin513 --strategy=TestRunner=local
-test:Spin513 --test_arg=--device-specific-bazel-config
-test:Spin513 --test_arg=Spin513
-test:Spin513 --test_arg=--key
-test:Spin513 --test_arg=arch
-test:Spin513 --test_arg=arm
-test:Spin513 --test_arg=model
-test:Spin513 --test_arg=Spin513
-test:Spin513 --test_arg=os
-test:Spin513 --test_arg=ChromeOS
-test:Spin513 --test_arg=--gpuName
-test:Spin513 --test_arg=Adreno618
-
-test:Spin514 --strategy=TestRunner=local
-test:Spin514 --test_arg=--device-specific-bazel-config
-test:Spin514 --test_arg=Spin514
-test:Spin514 --test_arg=--key
-test:Spin514 --test_arg=arch
-test:Spin514 --test_arg=x86_64
-test:Spin514 --test_arg=model
-test:Spin514 --test_arg=Spin514
-test:Spin514 --test_arg=os
-test:Spin514 --test_arg=ChromeOS
-test:Spin514 --test_arg=--gpuName
-test:Spin514 --test_arg=RadeonVega3
 
 test:VMware7.1_Mac10.13 --strategy=TestRunner=local
 test:VMware7.1_Mac10.13 --test_arg=--device-specific-bazel-config

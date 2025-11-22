@@ -22,10 +22,8 @@ static constexpr PlatformTimerQuery kInvalidTimerQuery = 0;
  */
 class GpuTimer {
 public:
-    GpuTimer(bool disjointSupport)
-        : fDisjointSupport(disjointSupport)
-        , fActiveTimer(kInvalidTimerQuery) {
-    }
+    explicit GpuTimer(bool disjointSupport)
+            : fDisjointSupport(disjointSupport), fActiveTimer(kInvalidTimerQuery) {}
     virtual ~GpuTimer() { SkASSERT(!fActiveTimer); }
 
     /**

@@ -184,7 +184,7 @@ private:
 /** SkTypeface implementation based on Google Fonts Fontations Rust libraries. */
 class SkTypeface_Fontations : public SkTypeface {
 private:
-    SkTypeface_Fontations(sk_sp<SkData> fontData,
+    SkTypeface_Fontations(sk_sp<const SkData> fontData,
                           const SkFontStyle& style,
                           uint32_t ttcIndex,
                           rust::Box<fontations_ffi::BridgeFontRef>&& fontRef,
@@ -208,7 +208,7 @@ public:
 
     static constexpr SkTypeface::FactoryId FactoryId = SkSetFourByteTag('f', 'n', 't', 'a');
 
-    static sk_sp<SkTypeface> MakeFromData(sk_sp<SkData> fontData, const SkFontArguments&);
+    static sk_sp<SkTypeface> MakeFromData(sk_sp<const SkData> fontData, const SkFontArguments&);
     static sk_sp<SkTypeface> MakeFromStream(std::unique_ptr<SkStreamAsset>, const SkFontArguments&);
 
 protected:
@@ -239,7 +239,7 @@ protected:
     size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const override;
 
 private:
-    sk_sp<SkData> fFontData;
+    sk_sp<const SkData> fFontData;
     // Incoming ttc index requested when this typeface was instantiated from data.
     uint32_t fTtcIndex = 0;
     // fBridgeFontRef accesses the data in fFontData. fFontData needs to be kept around for the

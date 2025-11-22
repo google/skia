@@ -24,12 +24,6 @@
 #include "src/core/SkPtrRecorder.h"
 #include "src/image/SkImage_Base.h"
 
-#if !defined(SK_DISABLE_LEGACY_PNG_WRITEBUFFER)
-#include "include/core/SkBitmap.h"
-#include "include/core/SkStream.h"
-#include "include/encode/SkPngEncoder.h"
-#endif
-
 #include <cstring>
 #include <utility>
 
@@ -173,17 +167,6 @@ static sk_sp<SkData> serialize_image(const SkImage* image, SkSerialProcs procs) 
     if (data) {
         return data;
     }
-#if !defined(SK_DISABLE_LEGACY_PNG_WRITEBUFFER)
-    SkBitmap bm;
-    auto ib = as_IB(image);
-    if (!ib->getROPixels(ib->directContext(), &bm)) {
-        return nullptr;
-    }
-    SkDynamicMemoryWStream stream;
-    if (SkPngEncoder::Encode(&stream, bm.pixmap(), SkPngEncoder::Options())) {
-        return stream.detachAsData();
-    }
-#endif
     return nullptr;
 }
 

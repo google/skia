@@ -25,6 +25,7 @@
 #include "include/utils/SkParsePath.h"
 #include "src/base/SkFloatBits.h"
 #include "src/core/SkPathPriv.h"
+#include "src/pathops/SkPathOpsCommon.h"
 #include "src/pathops/SkPathOpsDebug.h"
 #include "tests/PathOpsDebug.h"
 #include "tests/PathOpsExtendedTest.h"
@@ -55,14 +56,6 @@ std::string std_to_string(T value)
     os << value ;
     return os.str() ;
 }
-
-bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
-             SkDEBUGPARAMS(bool skipAssert)
-             SkDEBUGPARAMS(const char* testName));
-
-bool SimplifyDebug(const SkPath& one, SkPath* result
-                   SkDEBUGPARAMS(bool skipAssert)
-                   SkDEBUGPARAMS(const char* testName));
 
 static const char marker[] =
     "</div>\n"
@@ -197,8 +190,8 @@ static int pathsDrawTheSame(const SkPath& one, const SkPath& two, SkBitmap& bits
         SkPath& scaledTwo, int& error2x2) {
     SkMatrix scale;
     scaleMatrix(one, two, scale);
-    one.transform(scale, &scaledOne);
-    two.transform(scale, &scaledTwo);
+    scaledOne = one.makeTransform(scale);
+    scaledTwo = two.makeTransform(scale);
     return pathsDrawTheSame(bits, scaledOne, scaledTwo, error2x2);
 }
 
@@ -366,20 +359,15 @@ static void appendTest(const char* pathStr, const char* pathPrefix, const char* 
 #endif
 }
 
-void markTestFlakyForPathKit() {
-    if (PathOpsDebug::gJson) {
-        SkASSERT(!PathOpsDebug::gMarkJsonFlaky);
-        PathOpsDebug::gMarkJsonFlaky = true;
-    }
-}
-
 bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& state,
                   const char* pathStr) {
     static SkMutex& simplifyDebugOut = *(new SkMutex);
     SkPathFillType fillType = useXor ? SkPathFillType::kEvenOdd : SkPathFillType::kWinding;
     path.setFillType(fillType);
     state.fReporter->bumpTestCount();
-    if (!Simplify(path, &out)) {
+    if (auto result = Simplify(path)) {
+        out = *result;
+    } else {
         SkDebugf("%s did not expect failure\n", __FUNCTION__);
         REPORTER_ASSERT(state.fReporter, 0);
         return false;
@@ -486,9 +474,9 @@ static bool inner_simplify(skiatest::Reporter* reporter, const SkPath& path, con
         fprintf(PathOpsDebug::gOut, "\"%s\": {\n", filename);
         json_path_out(path, "path", "", false);
     }
-    SkPath out;
-    if (!SimplifyDebug(path, &out  SkDEBUGPARAMS(SkipAssert::kYes == skipAssert)
-            SkDEBUGPARAMS(sTestName))) {
+    auto out = SimplifyDebug(path  SkDEBUGPARAMS(SkipAssert::kYes == skipAssert)
+                             SkDEBUGPARAMS(sTestName));
+    if (!out.has_value()) {
         if (ExpectSuccess::kYes == expectSuccess) {
             SkDebugf("%s did not expect %s failure\n", __FUNCTION__, filename);
             REPORTER_ASSERT(reporter, 0);
@@ -505,11 +493,11 @@ static bool inner_simplify(skiatest::Reporter* reporter, const SkPath& path, con
         }
         if (PathOpsDebug::gJson) {
             json_status(expectSuccess, expectMatch, true);
-            json_path_out(out, "out", "Out", true);
+            json_path_out(*out, "out", "Out", true);
         }
     }
     SkBitmap bitmap;
-    int errors = comparePaths(reporter, filename, path, out, bitmap);
+    int errors = comparePaths(reporter, filename, path, *out, bitmap);
     if (ExpectMatch::kNo == expectMatch) {
         if (!errors) {
             SkDebugf("%s failing test %s now succeeds\n", __FUNCTION__, filename);
@@ -560,9 +548,10 @@ static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
         json_path_out(b, "p2", "2", false);
         fprintf(PathOpsDebug::gOut, "  \"op\": \"%s\",\n", opStrs[shapeOp]);
     }
-    SkPath out;
-    if (!OpDebug(a, b, shapeOp, &out  SkDEBUGPARAMS(SkipAssert::kYes == skipAssert)
-            SkDEBUGPARAMS(testName))) {
+
+    auto out = OpDebug(a, b, shapeOp  SkDEBUGPARAMS(SkipAssert::kYes == skipAssert)
+                       SkDEBUGPARAMS(testName));
+    if (!out.has_value()) {
         if (ExpectSuccess::kYes == expectSuccess) {
             SkDebugf("%s %s did not expect failure\n", __FUNCTION__, testName);
             REPORTER_ASSERT(reporter, 0);
@@ -579,7 +568,7 @@ static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
         }
         if (PathOpsDebug::gJson) {
             json_status(expectSuccess, expectMatch, true);
-            json_path_out(out, "out", "Out", true);
+            json_path_out(*out, "out", "Out", true);
         }
     }
     if (!reporter->verbose()) {
@@ -595,20 +584,15 @@ static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
     SkMatrix scale;
     scaleMatrix(a, b, scale);
     SkRegion scaledRgnA, scaledRgnB, scaledRgnOut;
-    SkPath scaledA, scaledB;
-    scaledA.addPath(a, scale);
-    scaledA.setFillType(a.getFillType());
-    scaledB.addPath(b, scale);
-    scaledB.setFillType(b.getFillType());
+    SkPath scaledA = SkPathBuilder(a.getFillType()).addPath(a, scale).detach(),
+           scaledB = SkPathBuilder(b.getFillType()).addPath(b, scale).detach();
     scaledRgnA.setPath(scaledA, openClip);
     scaledRgnB.setPath(scaledB, openClip);
     scaledRgnOut.op(scaledRgnA, scaledRgnB, (SkRegion::Op) shapeOp);
     SkPath scaledPathOut = scaledRgnOut.getBoundaryPath();
     SkBitmap bitmap;
-    SkPath scaledOut;
-    scaledOut.addPath(out, scale);
-    scaledOut.setFillType(out.getFillType());
-    int result = comparePaths(reporter, testName, pathOut, scaledPathOut, out, scaledOut, bitmap,
+    SkPath scaledOut = SkPathBuilder(out->getFillType()).addPath(*out, scale).detach();
+    int result = comparePaths(reporter, testName, pathOut, scaledPathOut, *out, scaledOut, bitmap,
             a, b, shapeOp, scale, expectMatch);
     reporter->bumpTestCount();
     return result == 0;
@@ -634,15 +618,11 @@ bool testPathOpFuzz(skiatest::Reporter* reporter, const SkPath& a, const SkPath&
 
 bool testPathOpFail(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
                  const SkPathOp shapeOp, const char* testName) {
-    SkPath orig;
-    orig.lineTo(54, 43);
-    SkPath out = orig;
-    if (Op(a, b, shapeOp, &out) ) {
+    if (Op(a, b, shapeOp).has_value()) {
         SkDebugf("%s test is expected to fail\n", __FUNCTION__);
         REPORTER_ASSERT(reporter, 0);
         return false;
     }
-    SkASSERT(out == orig);
     return true;
 }
 

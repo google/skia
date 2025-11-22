@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
@@ -33,17 +34,18 @@ static void testOpCubicsMain(PathOpsThreadState* data) {
                 for (int d = c + 1 ; d < 7; ++d) {
                     for (auto e : fts) {
     for (auto f : fts) {
-        SkPath pathA, pathB;
-        pathA.setFillType((SkPathFillType) e);
-        pathA.moveTo(SkIntToScalar(state.fA), SkIntToScalar(state.fB));
-        pathA.cubicTo(SkIntToScalar(state.fC), SkIntToScalar(state.fD), SkIntToScalar(b),
-                SkIntToScalar(a), SkIntToScalar(d), SkIntToScalar(c));
-        pathA.close();
-        pathB.setFillType((SkPathFillType) f);
-        pathB.moveTo(SkIntToScalar(a), SkIntToScalar(b));
-        pathB.cubicTo(SkIntToScalar(c), SkIntToScalar(d), SkIntToScalar(state.fB),
-                SkIntToScalar(state.fA), SkIntToScalar(state.fD), SkIntToScalar(state.fC));
-        pathB.close();
+        SkPath pathA = SkPathBuilder((SkPathFillType) e)
+                       .moveTo(SkIntToScalar(state.fA), SkIntToScalar(state.fB))
+                       .cubicTo(SkIntToScalar(state.fC), SkIntToScalar(state.fD), SkIntToScalar(b),
+                                SkIntToScalar(a), SkIntToScalar(d), SkIntToScalar(c))
+                       .close()
+                       .detach();
+        SkPath pathB = SkPathBuilder((SkPathFillType) f)
+                       .moveTo(SkIntToScalar(a), SkIntToScalar(b))
+                       .cubicTo(SkIntToScalar(c), SkIntToScalar(d), SkIntToScalar(state.fB),
+                        SkIntToScalar(state.fA), SkIntToScalar(state.fD), SkIntToScalar(state.fC))
+                       .close()
+                       .detach();
         for (int op = 0 ; op <= kXOR_SkPathOp; ++op)    {
             if (state.fReporter->verbose()) {
                 pathStr.printf("static void cubicOp%d(skiatest::Reporter* reporter,"

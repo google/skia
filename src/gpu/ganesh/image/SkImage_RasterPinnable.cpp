@@ -65,6 +65,9 @@ namespace skgpu::ganesh {
 
 bool PinAsTexture(GrRecordingContext* rContext, SkImage* img) {
     auto ib = as_IB(img);
+    if (ib->type() == SkImage_Base::Type::kLazyTexture) {
+        return true;
+    }
     if (ib->type() != SkImage_Base::Type::kRasterPinnable) {
         // Cannot pin images which are not of subclass SkImage_RasterPinnable
         return false;

@@ -50,7 +50,8 @@ MtlBuffer::MtlBuffer(const MtlSharedContext* sharedContext,
                      sk_cfp<id<MTLBuffer>> buffer)
         : Buffer(sharedContext,
                  size,
-                 Protected::kNo)  // Metal doesn't support protected memory
+                 Protected::kNo,  // Metal doesn't support protected memory
+                 /*reusableRequiresPurgeable=*/(*buffer).storageMode != MTLStorageModePrivate)
         , fBuffer(std::move(buffer)) {}
 
 void MtlBuffer::onMap() {

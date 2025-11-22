@@ -1485,8 +1485,12 @@ bool SkConic::asQuadTol(SkScalar tol) const {
 // Limit the number of suggested quads to approximate a conic
 #define kMaxConicToQuadPOW2     5
 
+static inline bool bad_conic_w(float w) {
+    return w < 0 || !SkIsFinite(w);
+}
+
 int SkConic::computeQuadPOW2(SkScalar tol) const {
-    if (tol < 0 || !SkIsFinite(tol) || !SkPointPriv::AreFinite(fPts, 3)) {
+    if (tol < 0 || !SkIsFinite(tol) || !SkPointPriv::AreFinite(fPts, 3) || bad_conic_w(fW)) {
         return 0;
     }
 
@@ -1568,7 +1572,12 @@ static SkPoint* subdivide(const SkConic& src, SkPoint pts[], int level) {
 }
 
 int SkConic::chopIntoQuadsPOW2(SkPoint pts[], int pow2) const {
-    SkASSERT(pow2 >= 0);
+    SkASSERT(pow2 >= 0 && pow2 <= kMaxConicToQuadPOW2);
+
+    if (bad_conic_w(fW)) {
+        pow2 = 0;
+    }
+
     *pts = fPts[0];
     SkDEBUGCODE(SkPoint* endPts);
     if (pow2 == kMaxConicToQuadPOW2) {  // If an extreme weight generates many quads ...
@@ -1684,7 +1693,7 @@ void SkConic::computeTightBounds(SkRect* bounds) const {
     SkPoint pts[4];
     pts[0] = fPts[0];
     pts[1] = fPts[2];
-    int count = 2;
+    size_t count = 2;
 
     SkScalar t;
     if (this->findXExtrema(&t)) {

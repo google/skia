@@ -56,8 +56,9 @@ RenderStep::RenderStepID variant_id(skgpu::MaskFormat variant) {
 
 }  // namespace
 
-BitmapTextRenderStep::BitmapTextRenderStep(skgpu::MaskFormat variant)
-        : RenderStep(variant_id(variant),
+BitmapTextRenderStep::BitmapTextRenderStep(Layout layout, skgpu::MaskFormat variant)
+        : RenderStep(layout,
+                     variant_id(variant),
                      Flags(variant) | Flags::kAppendInstances,
                      /*uniforms=*/{{"subRunDeviceMatrix", SkSLType::kFloat4x4},
                                    {"deviceToLocal"     , SkSLType::kFloat4x4},
@@ -66,17 +67,17 @@ BitmapTextRenderStep::BitmapTextRenderStep(skgpu::MaskFormat variant)
                      kDirectDepthLEqualPass,
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/
-                     {{"size", VertexAttribType::kUShort2, SkSLType::kUShort2},
+                     {{{"size", VertexAttribType::kUShort2, SkSLType::kUShort2},
                       {"uvPos", VertexAttribType::kUShort2, SkSLType::kUShort2},
                       {"xyPos", VertexAttribType::kFloat2, SkSLType::kFloat2},
                       {"indexAndFlags", VertexAttribType::kUShort2, SkSLType::kUShort2},
                       {"strikeToSourceScale", VertexAttribType::kFloat, SkSLType::kFloat},
                       {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-                      {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2}},
+                      {"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt}}},
                      /*varyings=*/
-                     {{"textureCoords", SkSLType::kFloat2},
+                     {{{"textureCoords", SkSLType::kFloat2},
                       {"texIndex", SkSLType::kHalf},
-                      {"maskFormat", SkSLType::kHalf}}) {}
+                      {"maskFormat", SkSLType::kHalf}}}) {}
 
 BitmapTextRenderStep::~BitmapTextRenderStep() {}
 
@@ -156,14 +157,14 @@ bool BitmapTextRenderStep::usesUniformsInFragmentSkSL() const { return false; }
 
 void BitmapTextRenderStep::writeVertices(DrawWriter* dw,
                                          const DrawParams& params,
-                                         skvx::uint2 ssboIndices) const {
+                                         uint32_t ssboIndex) const {
     const SubRunData& subRunData = params.geometry().subRunData();
 
     subRunData.subRun()->vertexFiller().fillInstanceData(dw,
                                                          subRunData.startGlyphIndex(),
                                                          subRunData.glyphCount(),
                                                          subRunData.subRun()->instanceFlags(),
-                                                         ssboIndices,
+                                                         ssboIndex,
                                                          subRunData.subRun()->glyphs(),
                                                          params.order().depthAsFloat());
 }

@@ -741,8 +741,7 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
     dfMatrix.postTranslate(SK_DistanceFieldPad, SK_DistanceFieldPad);
 
 #ifdef SK_DEBUG
-    SkPath xformPath;
-    path.transform(dfMatrix, &xformPath);
+    SkPath xformPath = path.makeTransform(dfMatrix);
     SkIRect pathBounds = xformPath.getBounds().roundOut();
     SkIRect expectPathBounds = SkIRect::MakeWH(width, height);
 #endif
@@ -752,23 +751,14 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
     SkASSERT(expectPathBounds.isEmpty() || pathBounds.isEmpty() ||
              expectPathBounds.contains(pathBounds));
 
-// TODO: restore when Simplify() is working correctly
-//       see https://bugs.chromium.org/p/skia/issues/detail?id=9732
-//    SkPath simplifiedPath;
-    SkPath workingPath;
-//    if (Simplify(path, &simplifiedPath)) {
-//        workingPath = simplifiedPath;
-//    } else {
-        workingPath = path;
-//    }
     // only even-odd and inverse even-odd supported
-    if (!IsDistanceFieldSupportedFillType(workingPath.getFillType())) {
+    if (!IsDistanceFieldSupportedFillType(path.getFillType())) {
         return false;
     }
 
     // transform to device space + SDF offset
     // TODO: remove degenerate segments while doing this?
-    workingPath.transform(dfMatrix);
+    SkPath workingPath = path.makeTransform(dfMatrix);
 
     SkDEBUGCODE(pathBounds = workingPath.getBounds().roundOut());
     SkASSERT(expectPathBounds.isEmpty() ||

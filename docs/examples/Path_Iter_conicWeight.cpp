@@ -3,8 +3,7 @@
 #include "tools/fiddle/examples.h"
 REG_FIDDLE(Path_Iter_conicWeight, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
-   SkPath path;
-   path.conicTo(1, 2, 3, 4, .5f);
+   SkPath path = SkPathBuilder().conicTo(1, 2, 3, 4, .5f).detach();
    SkPath::Iter iter(path, false);
    SkDebugf("first verb is " "%s" "move\n", SkPathVerb::kMove == iter.next()->fVerb ? "" : "not ");
    auto rec = iter.next();

@@ -6,14 +6,14 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setStrokeWidth(15);
     paint.setStrokeCap(SkPaint::kRound_Cap);
-    SkPath path;
+    SkPathBuilder path;
     const SkPoint points[] = {{20, 20}, {70, 20}, {40, 90}};
-    path.addPoly(points, false);
+    path.addPolygon(points, false);
     for (int loop = 0; loop < 2; ++loop) {
         for (auto style : {SkPaint::kStroke_Style, SkPaint::kFill_Style,
                 SkPaint::kStrokeAndFill_Style} ) {
             paint.setStyle(style);
-            canvas->drawPath(path, paint);
+            canvas->drawPath(path.snapshot(), paint);
             canvas->translate(85, 0);
         }
         path.close();

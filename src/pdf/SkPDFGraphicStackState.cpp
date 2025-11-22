@@ -85,7 +85,9 @@ static void apply_clip(const SkClipStack& stack, const SkRect& outerBounds, F fn
             operand.isInverseFillType() ||
             !kHuge.contains(operand.getBounds()))
         {
-            Op(SkPath::Rect(bounds), operand, op, &operand);
+            if (auto result = Op(SkPath::Rect(bounds), operand, op)) {
+                operand = *result;
+            }
         }
         SkASSERT(!operand.isInverseFillType());
         fn(operand);
@@ -96,7 +98,12 @@ static void apply_clip(const SkClipStack& stack, const SkRect& outerBounds, F fn
 }
 
 static void append_clip_path(const SkPath& clipPath, SkWStream* wStream) {
-    SkPDFUtils::EmitPath(clipPath, SkPaint::kFill_Style, wStream);
+    using SkPDFUtils::EmptyPath, SkPDFUtils::EmptyVerb;
+    if (!SkPDFUtils::EmitPath(clipPath, SkPaint::kFill_Style,
+                              EmptyPath::Preserve, EmptyVerb::Discard, wStream))
+    {
+        return;
+    }
     SkPathFillType clipFill = clipPath.getFillType();
     NOT_IMPLEMENTED(clipFill == SkPathFillType::kInverseEvenOdd, false);
     NOT_IMPLEMENTED(clipFill == SkPathFillType::kInverseWinding, false);
@@ -123,10 +130,9 @@ static void append_clip(const SkClipStack& clipStack,
     }
 
     if (is_complex_clip(clipStack)) {
-        SkPath clipPath;
-        SkClipStack_AsPath(clipStack, &clipPath);
-        if (Op(clipPath, SkPath::Rect(outsetBounds), kIntersect_SkPathOp, &clipPath)) {
-            append_clip_path(clipPath, wStream);
+        if (auto clipPath = Op(SkClipStack_AsPath(clipStack), SkPath::Rect(outsetBounds),
+                               kIntersect_SkPathOp)) {
+            append_clip_path(*clipPath, wStream);
         }
         // If Op() fails (pathological case; e.g. input values are
         // extremely large or NaN), emit no clip at all.

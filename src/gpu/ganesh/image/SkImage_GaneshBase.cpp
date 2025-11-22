@@ -144,7 +144,8 @@ bool SkImage_GaneshBase::getROPixels(GrDirectContext* dContext,
         }
     }
 
-    auto [view, ct] = skgpu::ganesh::AsView(dContext, this, skgpu::Mipmapped::kNo);
+    auto [view, ct] = skgpu::ganesh::AsView(dContext, this, skgpu::Mipmapped::kNo,
+                                            /*targetSurface=*/nullptr);
     if (!view) {
         return false;
     }
@@ -184,7 +185,8 @@ sk_sp<SkImage> SkImage_GaneshBase::onMakeSubset(SkRecorder* recorder,
     if (!fContext->priv().matches(direct)) {
         return nullptr;
     }
-    auto [view, ct] = skgpu::ganesh::AsView(direct, this, skgpu::Mipmapped::kNo);
+    auto [view, ct] = skgpu::ganesh::AsView(direct, this, skgpu::Mipmapped::kNo,
+                                            /*targetSurface=*/nullptr);
     SkASSERT(view);
     SkASSERT(ct == SkColorTypeToGrColorType(this->colorType()));
 
@@ -275,7 +277,8 @@ bool SkImage_GaneshBase::onReadPixels(GrDirectContext* dContext,
         return false;
     }
 
-    auto [view, ct] = skgpu::ganesh::AsView(dContext, this, skgpu::Mipmapped::kNo);
+    auto [view, ct] = skgpu::ganesh::AsView(dContext, this, skgpu::Mipmapped::kNo,
+                                            /*targetSurface=*/nullptr);
     SkASSERT(view);
 
     GrColorInfo colorInfo(ct, this->alphaType(), this->refColorSpace());

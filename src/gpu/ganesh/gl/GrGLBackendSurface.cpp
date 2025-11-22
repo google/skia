@@ -116,6 +116,19 @@ GrBackendFormat MakeGL(GrGLenum format, GrGLenum target) {
             gl_target_to_gr_target(target), GrBackendApi::kOpenGL, GrGLBackendFormatData(format));
 }
 
+GrBackendFormat MakeGL(GrGLenum format) {
+    return GrBackendSurfacePriv::MakeGrBackendFormat(
+            GrTextureType::k2D, GrBackendApi::kOpenGL, GrGLBackendFormatData(format));
+}
+
+GrBackendFormat MakeGLExternal() {
+    // For external backend formats, GL_RGBA8 likely does not match the actual bit depth of the
+    // underlying data. However, we just need a value that is defined in the GrGLFormat enum to
+    // avoid thinking that it's unsupported.
+    return GrBackendSurfacePriv::MakeGrBackendFormat(
+            GrTextureType::kExternal, GrBackendApi::kOpenGL, GrGLBackendFormatData(GR_GL_RGBA8));
+}
+
 GrGLFormat AsGLFormat(const GrBackendFormat& format) {
     if (format.isValid() && format.backend() == GrBackendApi::kOpenGL) {
         const GrGLBackendFormatData* data = get_and_cast_data(format);

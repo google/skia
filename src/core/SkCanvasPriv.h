@@ -25,7 +25,7 @@ class SkReadBuffer;
 struct SkRect;
 class SkWriteBuffer;
 
-class SkAutoCanvasMatrixPaint : SkNoncopyable {
+class [[nodiscard]] SkAutoCanvasMatrixPaint : SkNoncopyable {
 public:
     SkAutoCanvasMatrixPaint(SkCanvas*, const SkMatrix*, const SkPaint*, const SkRect& bounds);
     ~SkAutoCanvasMatrixPaint();

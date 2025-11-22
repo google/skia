@@ -76,7 +76,7 @@ void GrSWMaskHelper::drawShape(const GrStyledShape& shape, const SkMatrix& matri
         SkASSERT(0xFF == paint.getAlpha());
         fDraw.drawPathCoverage(path, paint);
     } else {
-        fDraw.drawPath(path, paint, nullptr, true);
+        fDraw.drawPath(path, paint, nullptr);
     }
 }
 
@@ -112,7 +112,7 @@ void GrSWMaskHelper::drawShape(const GrShape& shape, const SkMatrix& matrix,
         SkASSERT(0xFF == paint.getAlpha());
         fDraw.drawPathCoverage(path, paint);
     } else {
-        fDraw.drawPath(path, paint, nullptr, true);
+        fDraw.drawPath(path, paint, nullptr);
     }
 }
 

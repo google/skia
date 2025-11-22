@@ -271,7 +271,10 @@ void Device::drawEdgeAAImage(const SkImage* image,
     if (tm == SkTileMode::kClamp && !ib->isYUVA() && can_use_draw_texture(paint, sampling)) {
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
-        auto [view, ct] = skgpu::ganesh::AsView(rContext, image, skgpu::Mipmapped::kNo);
+        auto [view, ct] = skgpu::ganesh::AsView(rContext,
+                                                image,
+                                                skgpu::Mipmapped::kNo,
+                                                this->targetProxy());
         if (!view) {
             return;
         }
@@ -651,7 +654,10 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
         // drawImageQuad and the proper effect to dynamically sample their planes.
         if (!image->isYUVA()) {
             std::tie(view, std::ignore) =
-                    skgpu::ganesh::AsView(this->recordingContext(), image, skgpu::Mipmapped::kNo);
+                    skgpu::ganesh::AsView(this->recordingContext(),
+                                          image,
+                                          skgpu::Mipmapped::kNo,
+                                          this->targetProxy());
             if (image->isAlphaOnly()) {
                 skgpu::Swizzle swizzle = skgpu::Swizzle::Concat(view.swizzle(),
                                                                 skgpu::Swizzle("aaaa"));
@@ -730,16 +736,22 @@ bool Device::drawBlurredRRect(const SkRRect& rrect, const SkPaint& paint, float 
 
     auto devRRect = rrect.transform(localToDevice);
 
+    bool devRRectIsRect = devRRect.has_value() && (*devRRect).isRect();
     bool devRRectIsCircle = devRRect.has_value() && SkRRectPriv::IsCircle(*devRRect);
 
-    bool canBeRect = rrect.isRect() && localToDevice.preservesRightAngles();
+    bool canBeRect = (rrect.isRect() && localToDevice.preservesRightAngles()) || devRRectIsRect;
     bool canBeCircle = (SkRRectPriv::IsCircle(rrect) && localToDevice.isSimilarity()) ||
                        devRRectIsCircle;
 
     if (canBeRect || canBeCircle) {
         if (canBeRect) {
-            fp = GrBlurUtils::MakeRectBlur(context, *context->priv().caps()->shaderCaps(),
-                                rrect.rect(), localToDevice, deviceSigma);
+            fp = GrBlurUtils::MakeRectBlur(
+                    context,
+                    *context->priv().caps()->shaderCaps(),
+                    rrect.rect(),
+                    devRRectIsRect ? std::optional((*devRRect).rect()) : std::nullopt,
+                    localToDevice,
+                    deviceSigma);
         } else {
             SkRect devBounds;
             if (devRRectIsCircle) {

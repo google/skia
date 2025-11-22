@@ -9,8 +9,33 @@
 
 // skcms_public.h contains the entire public API for skcms.
 
-#ifndef SKCMS_API
-    #define SKCMS_API
+// Modeled after the FOX example in https://gcc.gnu.org/wiki/Visibility
+#if !defined(SKCMS_API)
+    // Client has opted in to building skcms as part of a DLL/shared object file.
+    #if defined(SKCMS_DLL)
+        // If on Windows (MSVC or Clang pretending to be MSVC)
+        #if defined(_MSC_VER)
+            // Client needs to set this when compiling the skcms files (but *not* when compiling
+            // other files which use the headers). In GN, this is handled with non-public configs.
+            // With Bazel, this can be implemented with local_defines.
+            #if defined(SKCMS_IMPLEMENTATION)
+                // If SKCMS is being built as a standalone DLL, it must be explicitly exported
+                // https://learn.microsoft.com/en-us/cpp/cpp/dllexport-dllimport?view=msvc-170
+                #define SKCMS_API __declspec(dllexport)
+            #else
+                // If a client is compiling and using the skcms header, this is an optimization
+                // to skip some indirection when resolving the function call.
+                // https://learn.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-6.0/aa271769(v=vs.60)
+                #define SKCMS_API __declspec(dllimport)
+            #endif
+        #else
+            // On non-Windows platforms, we make sure the symbols are visible outside the
+            // shared object file.
+            #define SKCMS_API __attribute__((visibility("default")))
+        #endif
+    #else
+        #define SKCMS_API
+    #endif
 #endif
 
 #include <stdbool.h>

@@ -112,20 +112,20 @@ private:
     SkPaint  fPaint;
 };
 
-DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(100, 100, Kind::k001););
-DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(200, 200, Kind::k001););
-DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(300, 300, Kind::k001););
-DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(400, 400, Kind::k001););
-DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(500, 500, Kind::k001););
+DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(100, 100, Kind::k001);)
+DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(200, 200, Kind::k001);)
+DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(300, 300, Kind::k001);)
+DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(400, 400, Kind::k001);)
+DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(500, 500, Kind::k001);)
 
-DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(100, 100, Kind::k011););
-DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(200, 200, Kind::k011););
-DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(300, 300, Kind::k011););
-DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(400, 400, Kind::k011););
-DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(500, 500, Kind::k011););
+DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(100, 100, Kind::k011);)
+DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(200, 200, Kind::k011);)
+DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(300, 300, Kind::k011);)
+DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(400, 400, Kind::k011);)
+DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(500, 500, Kind::k011);)
 
-DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(100, 100, Kind::kCentered););
-DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(200, 200, Kind::kCentered););
-DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(300, 300, Kind::kCentered););
-DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(400, 400, Kind::kCentered););
-DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(500, 500, Kind::kCentered););
+DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(100, 100, Kind::kCentered);)
+DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(200, 200, Kind::kCentered);)
+DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(300, 300, Kind::kCentered);)
+DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(400, 400, Kind::kCentered);)
+DEF_BENCH(return new HardStopGradientBench_SpecialHardStops(500, 500, Kind::kCentered);)

@@ -3,7 +3,7 @@
   "direct": [
     {
       "build_file": "//bazel/external/dawn:BUILD.bazel",
-      "commit": "a9061604eabb19af172ddffc11c3e6b3bc1a03aa",
+      "commit": "46f0e08024d28ffe79360cdb514207b04eebd439",
       "name": "dawn",
       "remote": "https://dawn.googlesource.com/dawn.git"
     },
@@ -144,12 +144,12 @@
       "remote": "https://chromium.googlesource.com/external/github.com/KhronosGroup/SPIRV-Cross"
     },
     {
-      "commit": "01e0577914a75a2569c846778c2f93aa8e6feddd",
+      "commit": "b824a462d4256d720bebb40e78b9eb8f78bbb305",
       "name": "spirv_headers",
       "remote": "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git"
     },
     {
-      "commit": "745e753fd68bc59d170bb812ba3b0b1123f66fe0",
+      "commit": "262bdab48146c937467f826699a40da0fdfc0f1a",
       "name": "spirv_tools",
       "remote": "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git"
     },
@@ -161,19 +161,19 @@
     },
     {
       "build_file": "//bazel/external/vulkan_headers:BUILD.bazel",
-      "commit": "d1cd37e925510a167d4abef39340dbdea47d8989",
+      "commit": "6aefb8eb95c8e170d0805fd0f2d02832ec1e099a",
       "name": "vulkan_headers",
       "remote": "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Headers"
     },
     {
       "build_file": "//bazel/external/vulkan_tools:BUILD.bazel",
-      "commit": "c9ed944bb39a564dbf15d0bdda63cc145018ed84",
+      "commit": "013058f74e2356347f8d9317233bc769816c9dfb",
       "name": "vulkan_tools",
       "remote": "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Tools"
     },
     {
       "build_file": "//bazel/external/vulkan_utility_libraries:BUILD.bazel",
-      "commit": "a0543a68cca0de632c010724fad08fce0bc27679",
+      "commit": "ba452bad58bb4d4c64d7fbd872bf69f70141510e",
       "name": "vulkan_utility_libraries",
       "remote": "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Utility-Libraries"
     },
@@ -197,7 +197,7 @@
       "remote": "https://skia.googlesource.com/external/github.com/google/brotli.git"
     },
     {
-      "commit": "cae4b6a3990e1431caa09c7b2ed1c76d0dfeab17",
+      "commit": "e1655ca1acab4bf3f4f293ac0e14a8ddec440332",
       "name": "abseil_cpp",
       "remote": "https://chromium.googlesource.com/chromium/src/third_party/abseil-cpp"
     },

@@ -9,8 +9,7 @@ void draw(SkCanvas* canvas) {
     SkDebugf("left:%d  top:%d  right:%d  bottom:%d\n",
             bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);
     SkPoint clipPoints[]  = {{30, 130}, {120, 130}, {120, 230} };
-    SkPath clipPath;
-    clipPath.addPoly(clipPoints, true);
+    SkPath clipPath = SkPath::Polygon(clipPoints, true);
     canvas->save();
     canvas->clipPath(clipPath);
     bounds = canvas->getDeviceClipBounds();

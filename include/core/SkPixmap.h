@@ -396,8 +396,8 @@ public:
         @return   readable unsigned 8-bit pointer to pixel at (x, y)
     */
     const uint8_t* addr8(int x, int y) const {
-        SkASSERT((unsigned)x < (unsigned)fInfo.width());
-        SkASSERT((unsigned)y < (unsigned)fInfo.height());
+        SkASSERTF(x >= 0 && x < this->width(), "x=%d; width=%d\n", x, fInfo.width());
+        SkASSERTF(y >= 0 && y < this->height(), "y=%d; height=%d\n", y, fInfo.height());
         return (const uint8_t*)((const char*)this->addr8() + (size_t)y * fRowBytes + (x << 0));
     }
 
@@ -414,8 +414,8 @@ public:
         @return   readable unsigned 16-bit pointer to pixel at (x, y)
     */
     const uint16_t* addr16(int x, int y) const {
-        SkASSERT((unsigned)x < (unsigned)fInfo.width());
-        SkASSERT((unsigned)y < (unsigned)fInfo.height());
+        SkASSERTF(x >= 0 && x < this->width(), "x=%d; width=%d\n", x, fInfo.width());
+        SkASSERTF(y >= 0 && y < this->height(), "y=%d; height=%d\n", y, fInfo.height());
         return (const uint16_t*)((const char*)this->addr16() + (size_t)y * fRowBytes + (x << 1));
     }
 
@@ -432,8 +432,8 @@ public:
         @return   readable unsigned 32-bit pointer to pixel at (x, y)
     */
     const uint32_t* addr32(int x, int y) const {
-        SkASSERT((unsigned)x < (unsigned)fInfo.width());
-        SkASSERT((unsigned)y < (unsigned)fInfo.height());
+        SkASSERTF(x >= 0 && x < this->width(), "x=%d; width=%d\n", x, fInfo.width());
+        SkASSERTF(y >= 0 && y < this->height(), "y=%d; height=%d\n", y, fInfo.height());
         return (const uint32_t*)((const char*)this->addr32() + (size_t)y * fRowBytes + (x << 2));
     }
 
@@ -450,8 +450,8 @@ public:
         @return   readable unsigned 64-bit pointer to pixel at (x, y)
     */
     const uint64_t* addr64(int x, int y) const {
-        SkASSERT((unsigned)x < (unsigned)fInfo.width());
-        SkASSERT((unsigned)y < (unsigned)fInfo.height());
+        SkASSERTF(x >= 0 && x < this->width(), "x=%d; width=%d\n", x, fInfo.width());
+        SkASSERTF(y >= 0 && y < this->height(), "y=%d; height=%d\n", y, fInfo.height());
         return (const uint64_t*)((const char*)this->addr64() + (size_t)y * fRowBytes + (x << 3));
     }
 

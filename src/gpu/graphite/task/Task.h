@@ -11,6 +11,8 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "src/gpu/Token.h"
+#include "src/gpu/graphite/DebugUtils.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 
@@ -71,9 +73,25 @@ public:
         return true;
     }
 
-    virtual bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor) {
+    virtual bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor,
+                                                       bool readsOnly) {
         return true;
     }
+
+#if defined(SK_DUMP_TASKS)
+    virtual void dump(int index, const char* prefix = "") const {
+        const char* taskName = this->getTaskName();
+        if (index >= 0) {
+            SkDebugf("%s%d: %s\n", prefix, index, taskName);
+        } else {
+            SkDebugf("%s%s\n", prefix, taskName);
+        }
+    }
+
+    skgpu::Token fFlushToken = skgpu::Token::InvalidToken();
+
+    virtual const char* getTaskName() const { return "Base Task (unknown type)"; }
+#endif
 };
 
 } // namespace skgpu::graphite

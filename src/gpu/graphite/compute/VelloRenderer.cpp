@@ -23,23 +23,24 @@
 #include "src/gpu/graphite/TextureUtils.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/compute/DispatchGroup.h"
+#include "src/gpu/graphite/geom/Transform.h"
 
 #include <algorithm>
 
 namespace skgpu::graphite {
 namespace {
 
-BindBufferInfo new_scratch_slice(ScratchBuffer& scratch) {
-    size_t size = scratch.size();  // Use the whole buffer.
-    return scratch.suballocate(size);
+BindBufferInfo new_scratch_slice(BufferSubAllocator& scratch) {
+    size_t size = scratch.remainingBytes();  // Use the whole buffer.
+    return scratch.getSubrange(size, /*stride=*/1);
 }
 
 BindBufferInfo new_indirect_slice(DrawBufferManager* mgr, size_t size) {
    return  mgr->getIndirectStorage(size, ClearBuffer::kYes);
 }
 
-::rust::Slice<uint8_t> to_slice(void* ptr, size_t size) {
-    return {static_cast<uint8_t*>(ptr), size};
+::rust::Slice<uint8_t> to_slice(SkSpan<uint8_t> slice) {
+    return {slice.data(), slice.size_bytes()};
 }
 
 vello_cpp::Affine to_vello_affine(const SkMatrix& m) {
@@ -295,18 +296,6 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
     // directly to the builder here instead of delegating the logic to the ComputeSteps.
     DrawBufferManager* bufMgr = recorder->priv().drawBufferManager();
 
-    size_t uboSize = config->config_uniform_buffer_size();
-    auto [uboPtr, configBuf] = bufMgr->getUniformPointer(uboSize);
-    if (!uboPtr || !config->write_config_uniform_buffer(to_slice(uboPtr, uboSize))) {
-        return nullptr;
-    }
-
-    size_t sceneSize = config->scene_buffer_size();
-    auto [scenePtr, sceneBuf] = bufMgr->getStoragePointer(sceneSize);
-    if (!scenePtr || !config->write_scene_buffer(to_slice(scenePtr, sceneSize))) {
-        return nullptr;
-    }
-
     // TODO(b/285189802): The default sizes for the bump buffers (~97MB) exceed Graphite's resource
     // budget if multiple passes are necessary per frame (250MB, see ResouceCache.h). We apply a
     // crude size reduction here which seems to be enough for a 4k x 4k atlas render for the GMs
@@ -328,19 +317,36 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
 
     // See the comments in VelloComputeSteps.h for an explanation of the logic here.
 
-    builder.assignSharedBuffer(configBuf, kVelloSlot_ConfigUniform);
-    builder.assignSharedBuffer(sceneBuf, kVelloSlot_Scene);
+    {
+        size_t uboSize = config->config_uniform_buffer_size();
+        auto [uboWriter, configBuf, _] = bufMgr->getMappedUniformBuffer(uboSize, /*stride=*/1);
+        if (!uboWriter ||
+            !config->write_config_uniform_buffer(to_slice(uboWriter.slice(uboSize)))) {
+            return nullptr;
+        }
+        builder.assignSharedBuffer(configBuf, kVelloSlot_ConfigUniform);
+    }
+
+    {
+        size_t sceneSize = config->scene_buffer_size();
+        auto [sceneWriter, sceneBuf, _] = bufMgr->getMappedStorageBuffer(sceneSize, /*stride=*/1);
+        if (!sceneWriter || !config->write_scene_buffer(to_slice(sceneWriter.slice(sceneSize)))) {
+            return nullptr;
+        }
+        builder.assignSharedBuffer(sceneBuf, kVelloSlot_Scene);
+    }
 
     // Buffers get cleared ahead of the entire DispatchGroup. Allocate the bump buffer early to
     // avoid a potentially recycled (and prematurely cleared) scratch buffer.
-    ScratchBuffer bump = bufMgr->getScratchStorage(bufferSizes.bump_alloc);
+    BufferSubAllocator bump = bufMgr->getScratchStorage(bufferSizes.bump_alloc);
     builder.assignSharedBuffer(new_scratch_slice(bump), kVelloSlot_BumpAlloc, ClearBuffer::kYes);
 
     // path_reduce
-    ScratchBuffer tagmonoids = bufMgr->getScratchStorage(bufferSizes.path_monoids);
+    BufferSubAllocator tagmonoids = bufMgr->getScratchStorage(bufferSizes.path_monoids);
     {
         // This can be immediately returned after input processing.
-        ScratchBuffer pathtagReduceOutput = bufMgr->getScratchStorage(bufferSizes.path_reduced);
+        BufferSubAllocator pathtagReduceOutput =
+                bufMgr->getScratchStorage(bufferSizes.path_reduced);
         builder.assignSharedBuffer(new_scratch_slice(pathtagReduceOutput),
                                    kVelloSlot_PathtagReduceOutput);
         builder.assignSharedBuffer(new_scratch_slice(tagmonoids), kVelloSlot_TagMonoid);
@@ -352,8 +358,9 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
         //
         // In either case, the result is `tagmonoids`.
         if (dispatchInfo.use_large_path_scan) {
-            ScratchBuffer reduced2 = bufMgr->getScratchStorage(bufferSizes.path_reduced2);
-            ScratchBuffer reducedScan = bufMgr->getScratchStorage(bufferSizes.path_reduced_scan);
+            BufferSubAllocator reduced2 = bufMgr->getScratchStorage(bufferSizes.path_reduced2);
+            BufferSubAllocator reducedScan =
+                    bufMgr->getScratchStorage(bufferSizes.path_reduced_scan);
 
             builder.assignSharedBuffer(new_scratch_slice(reduced2),
                                        kVelloSlot_LargePathtagReduceSecondPassOutput);
@@ -369,46 +376,46 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
     }
 
     // bbox_clear
-    ScratchBuffer pathBboxes = bufMgr->getScratchStorage(bufferSizes.path_bboxes);
+    BufferSubAllocator pathBboxes = bufMgr->getScratchStorage(bufferSizes.path_bboxes);
     builder.assignSharedBuffer(new_scratch_slice(pathBboxes), kVelloSlot_PathBBoxes);
     builder.appendStep(&fBboxClear, to_wg_size(dispatchInfo.bbox_clear));
 
     // flatten
-    ScratchBuffer lines = bufMgr->getScratchStorage(lines_size);
+    BufferSubAllocator lines = bufMgr->getScratchStorage(lines_size);
     builder.assignSharedBuffer(new_scratch_slice(lines), kVelloSlot_Lines);
     builder.appendStep(&fFlatten, to_wg_size(dispatchInfo.flatten));
 
-    tagmonoids.returnToPool();
+    tagmonoids.reset();
 
     // draw_reduce
-    ScratchBuffer drawReduced = bufMgr->getScratchStorage(bufferSizes.draw_reduced);
+    BufferSubAllocator drawReduced = bufMgr->getScratchStorage(bufferSizes.draw_reduced);
     builder.assignSharedBuffer(new_scratch_slice(drawReduced), kVelloSlot_DrawReduceOutput);
     builder.appendStep(&fDrawReduce, to_wg_size(dispatchInfo.draw_reduce));
 
     // draw_leaf
-    ScratchBuffer drawMonoids = bufMgr->getScratchStorage(bufferSizes.draw_monoids);
-    ScratchBuffer binData = bufMgr->getScratchStorage(bin_data_size);
+    BufferSubAllocator drawMonoids = bufMgr->getScratchStorage(bufferSizes.draw_monoids);
+    BufferSubAllocator binData = bufMgr->getScratchStorage(bin_data_size);
     // A clip input buffer must still get bound even if the encoding doesn't contain any clips
-    ScratchBuffer clipInput = bufMgr->getScratchStorage(bufferSizes.clip_inps);
+    BufferSubAllocator clipInput = bufMgr->getScratchStorage(bufferSizes.clip_inps);
     builder.assignSharedBuffer(new_scratch_slice(drawMonoids), kVelloSlot_DrawMonoid);
     builder.assignSharedBuffer(new_scratch_slice(binData), kVelloSlot_InfoBinData);
     builder.assignSharedBuffer(new_scratch_slice(clipInput), kVelloSlot_ClipInput);
     builder.appendStep(&fDrawLeaf, to_wg_size(dispatchInfo.draw_leaf));
 
-    drawReduced.returnToPool();
+    drawReduced.reset();
 
     // clip_reduce, clip_leaf
     // The clip bbox buffer is always an input to the binning stage, even when the encoding doesn't
     // contain any clips
-    ScratchBuffer clipBboxes = bufMgr->getScratchStorage(bufferSizes.clip_bboxes);
+    BufferSubAllocator clipBboxes = bufMgr->getScratchStorage(bufferSizes.clip_bboxes);
     builder.assignSharedBuffer(new_scratch_slice(clipBboxes), kVelloSlot_ClipBBoxes);
     WorkgroupSize clipReduceWgCount = to_wg_size(dispatchInfo.clip_reduce);
     WorkgroupSize clipLeafWgCount = to_wg_size(dispatchInfo.clip_leaf);
     bool doClipReduce = clipReduceWgCount.scalarSize() > 0u;
     bool doClipLeaf = clipLeafWgCount.scalarSize() > 0u;
     if (doClipReduce || doClipLeaf) {
-        ScratchBuffer clipBic = bufMgr->getScratchStorage(bufferSizes.clip_bics);
-        ScratchBuffer clipEls = bufMgr->getScratchStorage(bufferSizes.clip_els);
+        BufferSubAllocator clipBic = bufMgr->getScratchStorage(bufferSizes.clip_bics);
+        BufferSubAllocator clipEls = bufMgr->getScratchStorage(bufferSizes.clip_els);
         builder.assignSharedBuffer(new_scratch_slice(clipBic), kVelloSlot_ClipBicyclic);
         builder.assignSharedBuffer(new_scratch_slice(clipEls), kVelloSlot_ClipElement);
         if (doClipReduce) {
@@ -419,26 +426,26 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
         }
     }
 
-    clipInput.returnToPool();
+    clipInput.reset();
 
     // binning
-    ScratchBuffer drawBboxes = bufMgr->getScratchStorage(bufferSizes.draw_bboxes);
-    ScratchBuffer binHeaders = bufMgr->getScratchStorage(bufferSizes.bin_headers);
+    BufferSubAllocator drawBboxes = bufMgr->getScratchStorage(bufferSizes.draw_bboxes);
+    BufferSubAllocator binHeaders = bufMgr->getScratchStorage(bufferSizes.bin_headers);
     builder.assignSharedBuffer(new_scratch_slice(drawBboxes), kVelloSlot_DrawBBoxes);
     builder.assignSharedBuffer(new_scratch_slice(binHeaders), kVelloSlot_BinHeader);
     builder.appendStep(&fBinning, to_wg_size(dispatchInfo.binning));
 
-    pathBboxes.returnToPool();
-    clipBboxes.returnToPool();
+    pathBboxes.reset();
+    clipBboxes.reset();
 
     // tile_alloc
-    ScratchBuffer paths = bufMgr->getScratchStorage(bufferSizes.paths);
-    ScratchBuffer tiles = bufMgr->getScratchStorage(tiles_size);
+    BufferSubAllocator paths = bufMgr->getScratchStorage(bufferSizes.paths);
+    BufferSubAllocator tiles = bufMgr->getScratchStorage(tiles_size);
     builder.assignSharedBuffer(new_scratch_slice(paths), kVelloSlot_Path);
     builder.assignSharedBuffer(new_scratch_slice(tiles), kVelloSlot_Tile);
     builder.appendStep(&fTileAlloc, to_wg_size(dispatchInfo.tile_alloc));
 
-    drawBboxes.returnToPool();
+    drawBboxes.reset();
 
     // path_count_setup
     auto indirectCountBuffer = new_indirect_slice(bufMgr, bufferSizes.indirect_count);
@@ -446,9 +453,9 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
     builder.appendStep(&fPathCountSetup, to_wg_size(dispatchInfo.path_count_setup));
 
     // Rasterization stage scratch buffers.
-    ScratchBuffer seg_counts = bufMgr->getScratchStorage(seg_counts_size);
-    ScratchBuffer segments = bufMgr->getScratchStorage(segments_size);
-    ScratchBuffer ptcl = bufMgr->getScratchStorage(ptcl_size);
+    BufferSubAllocator seg_counts = bufMgr->getScratchStorage(seg_counts_size);
+    BufferSubAllocator segments = bufMgr->getScratchStorage(segments_size);
+    BufferSubAllocator ptcl = bufMgr->getScratchStorage(ptcl_size);
 
     // path_count
     builder.assignSharedBuffer(new_scratch_slice(seg_counts), kVelloSlot_SegmentCounts);

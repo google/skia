@@ -5,10 +5,10 @@ REG_FIDDLE(Canvas_clipPath_2, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setAntiAlias(true);
-    SkPath path;
-    path.addRect({20, 15, 100, 95});
-    path.addRect({50, 65, 130, 135});
-    path.setFillType(SkPathFillType::kWinding);
+    SkPath path = SkPathBuilder(SkPathFillType::kWinding)
+                  .addRect({20, 15, 100, 95})
+                  .addRect({50, 65, 130, 135})
+                  .detach();
     canvas->save();
     canvas->clipPath(path, SkClipOp::kIntersect);
     canvas->drawCircle(70, 85, 60, paint);

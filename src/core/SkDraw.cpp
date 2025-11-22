@@ -48,6 +48,7 @@
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixUtils.h"
+#include "src/core/SkPathData.h"
 #include "src/core/SkPathEffectBase.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
@@ -137,28 +138,28 @@ static void bw_pt_hair_proc(const PtProcRec& rec, SkSpan<const SkPoint> devPts,
 
 static void bw_line_hair_proc(const PtProcRec& rec, SkSpan<const SkPoint> devPts,
                               SkBlitter* blitter) {
-    for (size_t i = 0; i < devPts.size(); i += 2) {
-        SkScan::HairLine(&devPts[i], 2, *rec.fRC, blitter);
+    for (size_t i = 0; i+1 < devPts.size(); i += 2) {
+        SkScan::HairLine({&devPts[i], 2}, *rec.fRC, blitter);
     }
 }
 
 static void bw_poly_hair_proc(const PtProcRec& rec, SkSpan<const SkPoint> devPts,
                               SkBlitter* blitter) {
-    SkScan::HairLine(devPts.data(), SkToInt(devPts.size()), *rec.fRC, blitter);
+    SkScan::HairLine(devPts, *rec.fRC, blitter);
 }
 
 // aa versions
 
 static void aa_line_hair_proc(const PtProcRec& rec, SkSpan<const SkPoint> devPts,
                               SkBlitter* blitter) {
-    for (size_t i = 0; i < devPts.size(); i += 2) {
-        SkScan::AntiHairLine(&devPts[i], 2, *rec.fRC, blitter);
+    for (size_t i = 0; i+1 < devPts.size(); i += 2) {
+        SkScan::AntiHairLine({&devPts[i], 2}, *rec.fRC, blitter);
     }
 }
 
 static void aa_poly_hair_proc(const PtProcRec& rec, SkSpan<const SkPoint> devPts,
                               SkBlitter* blitter) {
-    SkScan::AntiHairLine(devPts.data(), SkToInt(devPts.size()), *rec.fRC, blitter);
+    SkScan::AntiHairLine(devPts, *rec.fRC, blitter);
 }
 
 // square procs (strokeWidth > 0 but matrix is square-scale (sx == sy)
@@ -314,7 +315,7 @@ void Draw::drawPoints(SkCanvas::PointMode mode,
         auto count = points.size();
         auto pts = points.data();
         do {
-            int n = SkToInt(count);
+            size_t n = count;
             if (n > MAX_DEV_PTS) {
                 n = MAX_DEV_PTS;
             }
@@ -324,7 +325,7 @@ void Draw::drawPoints(SkCanvas::PointMode mode,
             }
             proc(rec, {devPts, n}, bltr);
             pts += n - backup;
-            SkASSERT(SkToInt(count) >= n);
+            SkASSERT(count >= n);
             count -= n;
             if (count > 0) {
                 count += backup;
@@ -691,7 +692,7 @@ static void draw_rect_as_path(const Draw& orig,
                               const SkMatrix& ctm) {
     Draw draw(orig);
     draw.fCTM = &ctm;
-    draw.drawPath(SkPath::Rect(prePaintRect), paint, nullptr, true);
+    draw.drawPath(SkPath::Rect(prePaintRect), paint, nullptr);
 }
 
 void Draw::drawRect(const SkRect& prePaintRect,
@@ -815,7 +816,7 @@ bool DrawTreatAAStrokeAsHairline(SkScalar strokeWidth, const SkMatrix& matrix, S
     SkScalar len1 = fast_len(dst[1]);
     if (len0 <= SK_Scalar1 && len1 <= SK_Scalar1) {
         if (coverage) {
-            *coverage = SkScalarAve(len0, len1);
+            *coverage = sk_float_midpoint(len0, len1);
         }
         return true;
     }
@@ -829,7 +830,7 @@ void Draw::drawOval(const SkRect& oval, const SkPaint& paint) const {
         return;
     }
 
-    this->drawPath(SkPath::Oval(oval), paint, nullptr, true);
+    this->drawPath(SkPath::Oval(oval), paint, nullptr);
 }
 
 void Draw::drawRRect(const SkRRect& rrect, const SkPaint& paint) const {
@@ -861,7 +862,7 @@ void Draw::drawRRect(const SkRRect& rrect, const SkPaint& paint) const {
 
 DRAW_PATH:
     // Now fall back to the default case of using a path.
-    this->drawPath(SkPath::RRect(rrect), paint, nullptr, true);
+    this->drawPath(SkPath::RRect(rrect), paint, nullptr);
 }
 
 bool Draw::drawRRectNinePatch(const SkRRect& rrect, const SkPaint& paint) const {
@@ -886,20 +887,19 @@ bool Draw::drawRRectNinePatch(const SkRRect& rrect, const SkPaint& paint) const 
     return false;
 }
 
-void Draw::drawDevPath(const SkPath& devPath,
+void Draw::drawDevPath(const SkPathRaw& raw,
                        const SkPaint& paint,
                        SkDrawCoverage drawCoverage,
                        SkBlitter* customBlitter,
                        bool doFill) const {
-    SkASSERT(devPath.isFinite());
-
-    if (SkPathPriv::TooBigForMath(devPath)) {
+    if (SkPathPriv::TooBigForMath(raw.bounds())) {
         return;
     }
+
     SkBlitter* blitter = nullptr;
     SkAutoBlitterChoose blitterStorage;
     if (nullptr == customBlitter) {
-        blitter = blitterStorage.choose(*this, nullptr, paint, devPath.getBounds(), drawCoverage);
+        blitter = blitterStorage.choose(*this, nullptr, paint, raw.bounds(), drawCoverage);
     } else {
         blitter = customBlitter;
     }
@@ -908,8 +908,7 @@ void Draw::drawDevPath(const SkPath& devPath,
         SkStrokeRec::InitStyle style = doFill ? SkStrokeRec::kFill_InitStyle
                                               : SkStrokeRec::kHairline_InitStyle;
         SkResourceCache* cache = nullptr;  // TODO(kjlubick) get this from fCtx
-        if (as_MFB(paint.getMaskFilter())
-                    ->filterPath(devPath, *fCTM, *fRC, blitter, style, cache)) {
+        if (as_MFB(paint.getMaskFilter())->filterPath(raw, *fCTM, *fRC, blitter, style, cache)) {
             return;  // filterPath() called the blitter, so we're done
         }
     }
@@ -948,13 +947,54 @@ void Draw::drawDevPath(const SkPath& devPath,
             }
         }
     }
-    proc(SkPathPriv::Raw(devPath), *fRC, blitter);
+    proc(raw, *fRC, blitter);
+}
+
+/*
+ *  Tricky idea: can we treat thin strokes as hairlines? If so, depending on how
+ *  thin, we may decide to modulate the paint's alpha to 'simulate' very think
+ *  strokes, even though hairline is always 1-pixel wide.
+ *
+ *  The motivation at the time was performance: hairlines draw faster than constructing
+ *  the inner/outer contours and filling that (as we do for normal stroking).
+ *
+ *  Questionable decision, since our hairline algorithm draws each segment of the path
+ *  separately, meaning a path that crosses itself can have blending artifacts.
+ *  Note: this doesn't happen with normal stroking, as the built inner/outer path
+ *  never double-hits a pixel.
+ */
+static std::optional<SkPaint> modifyPaintForHairlines(const SkPaint& origPaint,
+                                                      const SkMatrix& matrix) {
+    float coverage;
+    if (DrawTreatAsHairline(origPaint, matrix, &coverage)) {
+        const auto bm = origPaint.asBlendMode();
+        if (coverage == 1) {
+            SkPaint paint(origPaint);
+            paint.setStrokeWidth(0);
+            return paint;
+        } else if (bm && SkBlendMode_SupportsCoverageAsAlpha(bm.value())) {
+            U8CPU newAlpha;
+#if 0
+            newAlpha = SkToU8(SkScalarRoundToInt(coverage * origPaint.getAlpha()));
+#else
+            // this is the old technique, which we preserve for now so
+            // we don't change previous results (testing)
+            // the new way seems fine, its just (a tiny bit) different
+            int scale = (int)(coverage * 256);
+            newAlpha = origPaint.getAlpha() * scale >> 8;
+#endif
+            SkPaint paint(origPaint);
+            paint.setStrokeWidth(0);
+            paint.setAlpha(newAlpha);
+            return paint;
+        }
+    }
+    return {};
 }
 
 void Draw::drawPath(const SkPath& origSrcPath,
                     const SkPaint& origPaint,
                     const SkMatrix* prePathMatrix,
-                    bool pathIsMutable,
                     SkDrawCoverage drawCoverage,
                     SkBlitter* customBlitter) const {
     SkDEBUGCODE(this->validate();)
@@ -964,82 +1004,66 @@ void Draw::drawPath(const SkPath& origSrcPath,
         return;
     }
 
-    SkPath* pathPtr = const_cast<SkPath*>(&origSrcPath);
-    bool doFill = true;
-    SkPath tmpPathStorage;
-    SkPath* tmpPath = &tmpPathStorage;
-    SkTCopyOnFirstWrite<SkMatrix> matrix(fCTM);
-    tmpPath->setIsVolatile(true);
+    std::optional<SkPaint> newPaint = modifyPaintForHairlines(origPaint, *fCTM);
+    const SkPaint* paint = newPaint.has_value() ? &newPaint.value()
+                                                : &origPaint;
 
-    if (prePathMatrix) {
-        if (origPaint.getPathEffect() || origPaint.getStyle() != SkPaint::kFill_Style) {
-            SkPath* result = pathPtr;
+    const bool needsFillPath = paint->getPathEffect() || paint->getStyle() != SkPaint::kFill_Style;
 
-            if (!pathIsMutable) {
-                result = tmpPath;
-                pathIsMutable = true;
-            }
-            pathPtr->transform(*prePathMatrix, result);
-            pathPtr = result;
-        } else {
-            matrix.writable()->preConcat(*prePathMatrix);
-        }
-    }
+    SkPathBuilder builder;
+    std::optional<SkPathRaw> raw;      // will point to either origSrcPath or builder
+    bool          doFill = true;
 
-    SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
+    sk_sp<SkPathData> pdata;
 
-    {
-        SkScalar coverage;
-        if (DrawTreatAsHairline(origPaint, *matrix, &coverage)) {
-            const auto bm = origPaint.asBlendMode();
-            if (SK_Scalar1 == coverage) {
-                paint.writable()->setStrokeWidth(0);
-            } else if (bm && SkBlendMode_SupportsCoverageAsAlpha(bm.value())) {
-                U8CPU newAlpha;
-#if 0
-                newAlpha = SkToU8(SkScalarRoundToInt(coverage * origPaint.getAlpha()));
-#else
-                // this is the old technique, which we preserve for now so
-                // we don't change previous results (testing)
-                // the new way seems fine, its just (a tiny bit) different
-                int scale = (int)(coverage * 256);
-                newAlpha = origPaint.getAlpha() * scale >> 8;
-#endif
-                SkPaint* writablePaint = paint.writable();
-                writablePaint->setStrokeWidth(0);
-                writablePaint->setAlpha(newAlpha);
-            }
-        }
-    }
-
-    if (paint->getPathEffect() || paint->getStyle() != SkPaint::kFill_Style) {
+    if (needsFillPath) {
         SkRect cullRect;
         const SkRect* cullRectPtr = nullptr;
         if (this->computeConservativeLocalClipBounds(&cullRect)) {
             cullRectPtr = &cullRect;
         }
-        SkPathBuilder builder;
+
+        std::optional<SkPath> prePathStorage;
+        const SkPath* pathPtr = &origSrcPath;
+        if (prePathMatrix) {
+            prePathStorage = pathPtr->tryMakeTransform(*prePathMatrix);
+            if (!prePathStorage.has_value()) {
+                return;
+            }
+            pathPtr = &prePathStorage.value();
+        }
         doFill = skpathutils::FillPathWithPaint(*pathPtr, *paint, &builder, cullRectPtr, *fCTM);
-        *tmpPath = builder.detach();
-        pathPtr = tmpPath;
+        builder.transform(*fCTM);
+        raw = SkPathPriv::Raw(builder, SkResolveConvexity::kYes);
+    } else {
+        SkMatrix matrix = *fCTM;
+        if (prePathMatrix) {
+            matrix.preConcat(*prePathMatrix);
+        }
+
+        if (matrix.isIdentity()) {
+            raw = SkPathPriv::Raw(origSrcPath, SkResolveConvexity::kYes);
+        } else {
+            raw = SkPathPriv::Raw(origSrcPath, SkResolveConvexity::kNo);
+            if (raw && (pdata = SkPathData::MakeTransform(*raw, matrix))) {
+                raw = pdata->raw(origSrcPath.getFillType(), SkResolveConvexity::kYes);
+            } else {
+                return; // failed to create pdata
+            }
+        }
     }
 
-    // avoid possibly allocating a new path in transform if we can
-    SkPath* devPathPtr = pathIsMutable ? pathPtr : tmpPath;
-
-    // transform the path into device space
-    pathPtr->transform(*matrix, devPathPtr);
-    if (!devPathPtr->isFinite()) {
+    if (!raw) {
         return;
     }
 
 #if defined(SK_BUILD_FOR_FUZZER)
-    if (devPathPtr->countPoints() > 1000) {
+    if (raw->points().size() > 1000) {
         return;
     }
 #endif
 
-    this->drawDevPath(*devPathPtr, *paint, drawCoverage, customBlitter, doFill);
+    this->drawDevPath(*raw, *paint, drawCoverage, customBlitter, doFill);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1095,37 +1119,46 @@ static bool compute_mask_bounds(const SkRect& devPathBounds,
 }
 
 static void draw_into_mask(const SkMask& mask,
-                           const SkPath& devPath,
+                           SkPathRaw raw,
                            SkStrokeRec::InitStyle style) {
-    Draw draw;
-    draw.fBlitterChooser = SkA8Blitter_Choose;
-    if (!draw.fDst.reset(mask)) {
+    SkPixmap dst;
+    if (!dst.reset(mask)) {
         return;
     }
 
-    SkRasterClip clip;
-    SkMatrix matrix;
+    const float dx = -mask.fBounds.fLeft,
+                dy = -mask.fBounds.fTop;
+    const SkMatrix translate = SkMatrix::Translate(dx, dy);
+
     SkPaint paint;
-
-    clip.setRect(SkIRect::MakeWH(mask.fBounds.width(), mask.fBounds.height()));
-    matrix.setTranslate(-SkIntToScalar(mask.fBounds.fLeft), -SkIntToScalar(mask.fBounds.fTop));
-
-    draw.fRC = &clip;
-    draw.fCTM = &matrix;
     paint.setAntiAlias(true);
+    SkBlitterSizedArena alloc;
+    SkBlitter* blitter = SkChooseA8Blitter(dst, translate, paint, &alloc,
+                                           SkDrawCoverage::kNo, nullptr);
+
+
+    // transform a copy of the points, so we can apply the ctm/translate
+    skia_private::AutoSTArray<32, SkPoint> devPoints(raw.fPoints.size());
+    translate.mapPoints(devPoints, raw.fPoints);
+    raw.fPoints = devPoints;
+    raw.fBounds = raw.fBounds.makeOffset(dx, dy);
+    if (!raw.fBounds.isFinite()) {
+        return;
+    }
+
+    const SkRasterClip clip(SkIRect::MakeWH(mask.fBounds.width(), mask.fBounds.height()));
+
     switch (style) {
         case SkStrokeRec::kHairline_InitStyle:
-            SkASSERT(!paint.getStrokeWidth());
-            paint.setStyle(SkPaint::kStroke_Style);
+            SkScan::AntiHairPath(raw, clip, blitter);
             break;
         case SkStrokeRec::kFill_InitStyle:
-            SkASSERT(paint.getStyle() == SkPaint::kFill_Style);
+            SkScan::AntiFillPath(raw, clip, blitter);
             break;
     }
-    draw.drawPath(devPath, paint, nullptr, false);
 }
 
-bool DrawToMask(const SkPath& devPath,
+bool DrawToMask(const SkPathRaw& devRaw,
                 const SkIRect& clipBounds,
                 const SkMaskFilter* filter,
                 const SkMatrix* filterMatrix,
@@ -1133,7 +1166,7 @@ bool DrawToMask(const SkPath& devPath,
                 SkMaskBuilder::CreateMode mode,
                 SkStrokeRec::InitStyle style) {
     SkASSERT(filter);
-    if (devPath.isEmpty()) {
+    if (devRaw.empty()) {
         return false;
     }
 
@@ -1144,7 +1177,7 @@ bool DrawToMask(const SkPath& devPath,
                                               SK_ScalarNegativeInfinity,
                                               SK_ScalarInfinity,
                                               SK_ScalarInfinity};
-        SkRect pathBounds = devPath.isInverseFillType() ? kInverseBounds : devPath.getBounds();
+        SkRect pathBounds = devRaw.isInverseFillType() ? kInverseBounds : devRaw.bounds();
         if (!compute_mask_bounds(pathBounds, clipBounds, filter, filterMatrix, &dst->bounds())) {
             return false;
         }
@@ -1162,7 +1195,7 @@ bool DrawToMask(const SkPath& devPath,
     }
 
     if (SkMaskBuilder::kJustComputeBounds_CreateMode != mode) {
-        draw_into_mask(*dst, devPath, style);
+        draw_into_mask(*dst, devRaw, style);
     }
     return true;
 }
@@ -1210,10 +1243,7 @@ void Draw::drawDevicePoints(SkCanvas::PointMode mode,
 
                     for (const auto& pt : points) {
                         preMatrix.setTranslate(pt.fX, pt.fY);
-                        // pass true for the last point, since we can modify
-                        // then path then
-                        const bool isLast = &pt == &points.back();
-                        this->drawPath(path, newPaint, &preMatrix, isLast);
+                        this->drawPath(path, newPaint, &preMatrix);
                     }
                 }
             } else {
@@ -1254,17 +1284,17 @@ void Draw::drawDevicePoints(SkCanvas::PointMode mode,
 
                     if (!pointData.fFirst.isEmpty()) {
                         if (device) {
-                            device->drawPath(pointData.fFirst, newP, true);
+                            device->drawPath(pointData.fFirst, newP);
                         } else {
-                            this->drawPath(pointData.fFirst, newP, nullptr, true);
+                            this->drawPath(pointData.fFirst, newP, nullptr);
                         }
                     }
 
                     if (!pointData.fLast.isEmpty()) {
                         if (device) {
-                            device->drawPath(pointData.fLast, newP, true);
+                            device->drawPath(pointData.fLast, newP);
                         } else {
-                            this->drawPath(pointData.fLast, newP, nullptr, true);
+                            this->drawPath(pointData.fLast, newP, nullptr);
                         }
                     }
 
@@ -1319,9 +1349,9 @@ void Draw::drawDevicePoints(SkCanvas::PointMode mode,
             for (size_t i = 0; i < count; i += inc) {
                 auto path = SkPath::Line(points[i], points[i + 1]);
                 if (device) {
-                    device->drawPath(path, p, true);
+                    device->drawPath(path, p);
                 } else {
-                    this->drawPath(path, p, nullptr, true);
+                    this->drawPath(path, p, nullptr);
                 }
             }
             break;

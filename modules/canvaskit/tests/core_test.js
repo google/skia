@@ -913,10 +913,11 @@ describe('Core canvas behavior', () => {
             paint.setAntiAlias(true);
             paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
             paint.setStyle(CanvasKit.PaintStyle.Stroke);
-            const path = new CanvasKit.Path();
-            path.moveTo(20, 5);
-            path.lineTo(30, 20);
-            path.lineTo(40, 10);
+            const path = new CanvasKit.PathBuilder()
+                .moveTo(20, 5)
+                .lineTo(30, 20)
+                .lineTo(40, 10)
+                .detachAndDelete();
             canvas.drawPath(path, paint);
             path.delete();
             paint.delete();
@@ -946,10 +947,11 @@ describe('Core canvas behavior', () => {
             paint.setAntiAlias(true);
             paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
             paint.setStyle(CanvasKit.PaintStyle.Stroke);
-            const path = new CanvasKit.Path();
-            path.moveTo(20, 5);
-            path.lineTo(30, 20);
-            path.lineTo(40, 10);
+            const path = new CanvasKit.PathBuilder()
+                .moveTo(20, 5)
+                .lineTo(30, 20)
+                .lineTo(40, 10)
+                .detachAndDelete();
             canvas.drawPath(path, paint);
             path.delete();
             paint.delete();
@@ -1656,8 +1658,9 @@ describe('Core canvas behavior', () => {
     gm('PathEffect_MakePath1D', (canvas) => {
         // Based off //docs/examples/skpaint_path_1d_path_effect.cpp
 
-        const path = new CanvasKit.Path();
-        path.addOval(CanvasKit.XYWHRect(0, 0, 16, 6));
+        const path = new CanvasKit.PathBuilder()
+            .addOval(CanvasKit.XYWHRect(0, 0, 16, 6))
+            .detachAndDelete();
 
         const paint = new CanvasKit.Paint();
         const effect = CanvasKit.PathEffect.MakePath1D(
@@ -1678,28 +1681,36 @@ describe('Core canvas behavior', () => {
         paint.setAntiAlias(true);
         paint.setStyle(CanvasKit.PaintStyle.Stroke);
         paint.setStrokeWidth(2);
-        const path = new CanvasKit.Path()
-        const path2 = new CanvasKit.Path();
-        const path3 = new CanvasKit.Path();
-        path3.addCircle(30, 30, 10);
-        path.moveTo(20, 20);
-        path.lineTo(40, 40);
-        path.lineTo(20, 40);
-        path.lineTo(40, 20);
-        path.close();
-        path2.addRect([20, 20, 40, 40]);
-        path2.transform(CanvasKit.Matrix.translated(40, 0));
+        const path = new CanvasKit.PathBuilder()
+            .moveTo(20, 20)
+            .lineTo(40, 40)
+            .lineTo(20, 40)
+            .lineTo(40, 20)
+            .close()
+            .detachAndDelete();
+        const path2 = new CanvasKit.PathBuilder()
+             .addRect([20, 20, 40, 40])
+             .transform(CanvasKit.Matrix.translated(40, 0))
+             .detachAndDelete();
+        const path3 = new CanvasKit.PathBuilder()
+            .addCircle(30, 30, 10)
+            .detachAndDelete();
+
+
         const canInterpolate1 = CanvasKit.Path.CanInterpolate(path, path2);
         expect(canInterpolate1).toBe(true);
         const canInterpolate2 = CanvasKit.Path.CanInterpolate(path, path3);
         expect(canInterpolate2).toBe(false);
         canvas.drawPath(path, paint);
         canvas.drawPath(path2, paint);
-        path3.transform(CanvasKit.Matrix.translated(80, 0));
-        canvas.drawPath(path3, paint);
+        const path4 = new CanvasKit.PathBuilder(path3)
+            .transform(CanvasKit.Matrix.translated(80, 0))
+            .detachAndDelete();
+        canvas.drawPath(path4, paint);
         path.delete();
         path2.delete();
         path3.delete();
+        path4.delete();
         paint.delete();
     });
 
@@ -1708,14 +1719,16 @@ describe('Core canvas behavior', () => {
         paint.setAntiAlias(true);
         paint.setStyle(CanvasKit.PaintStyle.Stroke);
         paint.setStrokeWidth(2);
-        const path = new CanvasKit.Path()
-        const path2 = new CanvasKit.Path();
-        path.moveTo(20, 20);
-        path.lineTo(40, 40);
-        path.lineTo(20, 40);
-        path.lineTo(40, 20);
-        path.close();
-        path2.addRect([20, 20, 40, 40]);
+        const path = new CanvasKit.PathBuilder()
+            .moveTo(20, 20)
+            .lineTo(40, 40)
+            .lineTo(20, 40)
+            .lineTo(40, 20)
+            .close()
+            .detachAndDelete();
+        const path2 = new CanvasKit.PathBuilder()
+             .addRect([20, 20, 40, 40])
+             .detachAndDelete();
         for (let i = 0; i <= 1; i += 1.0 / 6) {
           const interp = CanvasKit.Path.MakeFromPathInterpolation(path, path2, i);
           canvas.drawPath(interp, paint);
@@ -1730,9 +1743,10 @@ describe('Core canvas behavior', () => {
     gm('Draw_Circle', (canvas) => {
         const paint = new CanvasKit.Paint();
         paint.setColor(CanvasKit.Color(59, 53, 94, 1));
-        const path = new CanvasKit.Path();
-        path.moveTo(256, 256);
-        path.addCircle(256, 256, 256);
+        const path = new CanvasKit.PathBuilder()
+            .moveTo(256, 256)
+            .addCircle(256, 256, 256)
+            .detachAndDelete();
         canvas.drawPath(path, paint);
         path.delete();
         paint.delete();
@@ -1741,15 +1755,16 @@ describe('Core canvas behavior', () => {
     gm('PathEffect_MakePath2D', (canvas) => {
         // Based off //docs/examples/skpaint_path_2d_path_effect.cpp
 
-        const path = new CanvasKit.Path();
-        path.moveTo(20, 30);
+        const pb = new CanvasKit.PathBuilder();
+        pb.moveTo(20, 30);
         const points = [20, 20, 10, 30, 0, 30, 20, 10, 30, 10, 40, 0, 40, 10,
                         50, 10, 40, 20, 40, 30, 20, 50, 20, 40, 30, 30, 20, 30];
         for (let i = 0; i < points.length; i += 2) {
-            path.lineTo(points[i], points[i+1]);
+            pb.lineTo(points[i], points[i+1]);
         }
 
         const paint = new CanvasKit.Paint();
+        const path = pb.detachAndDelete();
         const effect = CanvasKit.PathEffect.MakePath2D(
           CanvasKit.Matrix.scaled(40, 40), path
         );

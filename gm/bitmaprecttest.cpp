@@ -21,7 +21,7 @@ static sk_sp<SkImage> make_bm() {
 
     SkCanvas canvas(bm);
     SkPaint paint;
-    canvas.drawPath(SkPath::Polygon({{6,6}, {6,54}, {30,54}}, false), paint);
+    canvas.drawPath(SkPath::Polygon({{{6,6}, {6,54}, {30,54}}}, false), paint);
 
     paint.setStyle(SkPaint::kStroke_Style);
     canvas.drawRect(SkRect::MakeLTRB(0.5f, 0.5f, 59.5f, 59.5f), paint);

@@ -13,9 +13,10 @@ void draw(SkCanvas* canvas) {
         paint.setStrokeWidth(1);
         canvas->drawLine(quadPts[0], quadPts[1], paint);
         canvas->drawLine(quadPts[1], quadPts[2], paint);
-        SkPath path;
-        path.moveTo(quadPts[0]);
-        path.quadTo(quadPts[1], quadPts[2]);
+        SkPath path = SkPathBuilder()
+                      .moveTo(quadPts[0])
+                      .quadTo(quadPts[1], quadPts[2])
+                      .detach();
         paint.setStrokeWidth(3);
         paint.setColor(colors[i]);
         canvas->drawPath(path, paint);

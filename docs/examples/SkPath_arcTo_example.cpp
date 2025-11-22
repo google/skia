@@ -15,8 +15,7 @@ void draw(SkCanvas* canvas) {
     float startAngle = 0;
     float sweepAngle = 60;
 
-    SkPath arc;
-    arc.arcTo(oval, startAngle, sweepAngle, false);
+    SkPath arc = SkPathBuilder().arcTo(oval, startAngle, sweepAngle, false).detach();
 
     paint.setStrokeWidth(5);
     paint.setColor(SkColorSetARGB(255, 0, 0, 255));

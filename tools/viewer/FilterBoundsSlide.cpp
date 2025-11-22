@@ -11,6 +11,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
@@ -96,7 +97,7 @@ static SkPaint line_paint(SkColor color, bool dashed = false) {
 }
 
 static SkPath create_axis_path(const SkRect& rect, float axisSpace) {
-    SkPath localSpace;
+    SkPathBuilder localSpace;
     for (float y = rect.fTop + axisSpace; y <= rect.fBottom; y += axisSpace) {
         localSpace.moveTo(rect.fLeft, y);
         localSpace.lineTo(rect.fRight, y);
@@ -105,7 +106,7 @@ static SkPath create_axis_path(const SkRect& rect, float axisSpace) {
         localSpace.moveTo(x, rect.fTop);
         localSpace.lineTo(x, rect.fBottom);
     }
-    return localSpace;
+    return localSpace.detach();
 }
 
 static const SkColor4f kScaleGradientColors[] =

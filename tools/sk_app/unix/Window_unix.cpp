@@ -33,7 +33,7 @@ extern "C" {
 #endif
 
 #if defined(SK_GRAPHITE) && defined(SK_DAWN)
-#include "tools/window/unix/GraphiteDawnVulkanWindowContext_unix.h"
+#include "tools/window/unix/GraphiteDawnXlibWindowContext_unix.h"
 #endif
 
 using skwindow::DisplayParams;
@@ -416,9 +416,10 @@ bool Window_unix::attach(BackendType attachType) {
 
     switch (attachType) {
 #if defined(SK_GRAPHITE) && defined(SK_DAWN)
-        case kGraphiteDawn_BackendType:
-            fWindowContext = skwindow::MakeGraphiteDawnVulkanForXlib(
-                    winInfo, fRequestedDisplayParams->clone());
+        case kGraphiteDawnOpenGLES_BackendType:
+        case kGraphiteDawnVulkan_BackendType:
+            fWindowContext = skwindow::MakeGraphiteDawnForXlib(
+                    winInfo, fRequestedDisplayParams->clone(), attachType);
             break;
 #endif
 #if defined(SK_GANESH) && defined(SK_VULKAN)
@@ -468,9 +469,10 @@ void Window_unix::onInval() {
 void Window_unix::setRequestedDisplayParams(std::unique_ptr<const DisplayParams> params,
                                             bool allowReattach) {
 #if defined(SK_VULKAN)
-    // Vulkan on unix crashes if we try to reinitialize the vulkan context without remaking the
-    // window.
-    if (fBackend == kVulkan_BackendType && allowReattach) {
+    // Vulkan on unix crashes if we reinitialize the vulkan context without remaking the window.
+    const bool isVulkan = fBackend == kVulkan_BackendType ||
+                          fBackend == kGraphiteVulkan_BackendType;
+    if (isVulkan && allowReattach) {
         // Need to change these early, so attach() creates the window context correctly
         fRequestedDisplayParams = std::move(params);
 

@@ -134,7 +134,7 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
                               float baseline_offset) {
     SkPathMeasure meas(path, false);
 
-    int count = font.countText(text, length, SkTextEncoding::kUTF8);
+    size_t count = font.countText(text, length, SkTextEncoding::kUTF8);
     size_t size = count * (sizeof(SkRSXform) + sizeof(SkScalar));
     SkAutoSMalloc<512> storage(size);
     SkRSXform* xform = (SkRSXform*)storage.get();
@@ -150,7 +150,7 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
     font.textToGlyphs(text, length, SkTextEncoding::kUTF8, glyphs);
     font.getWidths(glyphs, {widths, count});
 
-    for (int i = 0; i < count; ++i) {
+    for (size_t i = 0; i < count; ++i) {
         // we want to position each character on the center of its advance
         const SkScalar offset = SkScalarHalf(widths[i]);
         SkPoint pos;
@@ -213,8 +213,7 @@ static void drawTextPath(SkCanvas* canvas, bool doStroke) {
         SkPathDirection::kCW, SkPathDirection::kCCW,
     };
     for (auto d : dirs) {
-        path.reset();
-        path.addOval(SkRect::MakeXYWH(160, 160, 540, 540), d);
+        path = SkPath::Oval(SkRect::MakeXYWH(160, 160, 540, 540), d);
         draw_text_on_path(canvas, text0, N, pos, path, font, paint, baseline_offset);
     }
 

@@ -24,6 +24,34 @@ class VelloRenderer;
 #endif
 
 /**
+ * Used to include or exclude a specific path rendering technique for testing purposes.
+ */
+enum class PathRendererStrategy {
+    /**
+     * All paths are rasterized into coverage masks using a GPU compute approach. This method
+     * always uses analytic anti-aliasing.
+     */
+    kComputeAnalyticAA,
+
+    /**
+     * All paths are rasterized into coverage masks using a GPU compute approach. This method
+     * supports 16 and 8 sample multi-sampled anti-aliasing.
+     */
+    kComputeMSAA16,
+    kComputeMSAA8,
+
+    /**
+     * All paths are rasterized into coverage masks using the CPU raster backend.
+     */
+    kRasterAA,
+
+    /**
+     * Render paths using tessellation and stencil-and-cover.
+     */
+    kTessellation,
+};
+
+/**
  * Graphite defines a limited set of renderers in order to increase the likelihood of batching
  * across draw calls, and reducing the number of shader permutations required. These Renderers are
  * stateless singletons and remain alive for the life of the Context and its Recorders.
@@ -41,7 +69,7 @@ public:
     // general case, or renderers that won't be used by the application. When that's added, these
     // functions could return null.
 
-    // Path rendering for fills and strokes
+    // Path rendering for fills and strokes, used by the kTessellation[AndSmallAtlas] strategies.
     const Renderer* stencilTessellatedCurvesAndTris(SkPathFillType type) const {
         return &fStencilTessellatedCurves[(int) type];
     }
@@ -51,8 +79,11 @@ public:
     const Renderer* convexTessellatedWedges() const { return &fConvexTessellatedWedges; }
     const Renderer* tessellatedStrokes() const { return &fTessellatedStrokes; }
 
-    // Coverage mask rendering
+    // Coverage mask rendering. Used by the atlas path rendering strategies and rendering mask
+    // filter results.
     const Renderer* coverageMask() const { return &fCoverageMask; }
+
+    // ** Specialized renderers that are used regardless of general path rendering strategy.
 
     // Atlased text rendering
     const Renderer* bitmapText(bool useLCDText, skgpu::MaskFormat format) const {
@@ -92,7 +123,7 @@ public:
     // Iterate over all available Renderers to combine with specified paint combinations when
     // pre-compiling pipelines.
     SkSpan<const Renderer* const> renderers() const {
-        return {fRenderers.data(), fRenderers.size()};
+        return {fRenderers.data(), (size_t)fRenderers.size()};
     }
 
     const RenderStep* lookup(RenderStep::RenderStepID renderStepID) const {
@@ -100,7 +131,8 @@ public:
     }
 
 #ifdef SK_ENABLE_VELLO_SHADERS
-    // Compute shader-based path renderer and compositor.
+    // Compute shader-based path renderer and compositor. Used with the kCompute related strategies
+    // to coordinate the ComputeSteps that feed into the coverageMask() renderer.
     const VelloRenderer* velloRenderer() const { return fVelloRenderer.get(); }
 #endif
 
@@ -110,7 +142,6 @@ private:
 
     friend class Context; // for ctor
 
-    // TODO: Take in caps that determines which Renderers to use for each category
     RendererProvider(const Caps*, StaticBufferManager* bufferManager);
 
     // Cannot be moved or copied

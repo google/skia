@@ -1,0 +1,19 @@
+/*
+ * Copyright 2025 Google, LLC
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "fuzz/Fuzz.h"
+
+void fuzz_PNGRustEncoder(Fuzz* f);
+
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+    if (size > 262150) {
+        return 0;
+    }
+    auto fuzz = Fuzz(data, size);
+    fuzz_PNGRustEncoder(&fuzz);
+    return 0;
+}

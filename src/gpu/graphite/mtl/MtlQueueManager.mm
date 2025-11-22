@@ -49,7 +49,7 @@ private:
     }
 };
 
-QueueManager::OutstandingSubmission MtlQueueManager::onSubmitToGpu() {
+QueueManager::OutstandingSubmission MtlQueueManager::onSubmitToGpu(const SubmitInfo&) {
     SkASSERT(fCurrentCommandBuffer);
     MtlCommandBuffer* mtlCmdBuffer = static_cast<MtlCommandBuffer*>(fCurrentCommandBuffer.get());
     if (!mtlCmdBuffer->commit()) {

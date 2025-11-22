@@ -501,6 +501,24 @@ DEF_TEST(DynamicMemoryWStream_detachAsData, r) {
     }
 }
 
+DEF_TEST(DynamicMemoryWStream_detachAsVector, r) {
+    const char az[] = "abcdefghijklmnopqrstuvwxyz";
+    const unsigned N = 40000;
+    SkDynamicMemoryWStream dmws;
+    for (unsigned i = 0; i < N; ++i) {
+        dmws.writeText(az);
+    }
+    REPORTER_ASSERT(r, dmws.bytesWritten() == N * strlen(az));
+    auto data = dmws.detachAsVector();
+    REPORTER_ASSERT(r, data.size() == N * strlen(az));
+    for (unsigned i = 0; i < N; ++i) {
+        if (0 != memcmp(&data[i * strlen(az)], az, strlen(az))) {
+            ERRORF(r, "detachAsVector() memcmp failed");
+            return;
+        }
+    }
+}
+
 DEF_TEST(StreamCopy, reporter) {
     SkRandom random(123456);
     static const int N = 10000;

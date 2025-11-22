@@ -26,7 +26,5 @@ SkPath SkSVGClipPath::resolveClip(const SkSVGRenderContext& ctx) const {
     const auto obbt = ctx.transformForCurrentOBB(fClipPathUnits);
     const auto m = SkMatrix::Translate(obbt.offset.x, obbt.offset.y)
                  * SkMatrix::Scale(obbt.scale.x, obbt.scale.y);
-    clip.transform(m);
-
-    return clip;
+    return clip.makeTransform(m);
 }

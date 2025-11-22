@@ -10,7 +10,7 @@ namespace textlayout {
 
 class CanvasParagraphPainter : public ParagraphPainter {
 public:
-    CanvasParagraphPainter(SkCanvas* canvas);
+    explicit CanvasParagraphPainter(SkCanvas* canvas);
 
     void drawTextBlob(const sk_sp<SkTextBlob>& blob, SkScalar x, SkScalar y, const SkPaintOrID& paint) override;
     void drawTextShadow(const sk_sp<SkTextBlob>& blob, SkScalar x, SkScalar y, SkColor color, SkScalar blurSigma) override;
@@ -31,8 +31,7 @@ private:
 
 class ParagraphPainterAutoRestore {
 public:
-    ParagraphPainterAutoRestore(ParagraphPainter* painter)
-        : fPainter(painter) {
+    explicit ParagraphPainterAutoRestore(ParagraphPainter* painter) : fPainter(painter) {
         fPainter->save();
     }
 

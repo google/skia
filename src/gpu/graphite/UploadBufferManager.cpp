@@ -49,10 +49,11 @@ std::tuple<void* /*mappedPtr*/, BindBufferInfo> UploadBufferManager::makeBindInf
     uint32_t requiredBytes32 = SkAlignTo(SkTo<uint32_t>(requiredBytes), requiredAlignment32);
     if (requiredBytes32 > kReusedBufferSize) {
         // Create a dedicated buffer for this request.
-        sk_sp<Buffer> buffer = fResourceProvider->findOrCreateBuffer(requiredBytes32,
-                                                                     BufferType::kXferCpuToGpu,
-                                                                     AccessPattern::kHostVisible,
-                                                                     std::move(label));
+        sk_sp<Buffer> buffer = fResourceProvider->findOrCreateNonShareableBuffer(
+                requiredBytes32,
+                BufferType::kXferCpuToGpu,
+                AccessPattern::kHostVisible,
+                std::move(label));
         void* bufferMapPtr = buffer ? buffer->map() : nullptr;
         if (!bufferMapPtr) {
             // Unlike [Draw|Static]BufferManager, the UploadManager does not track if any buffer
@@ -79,10 +80,11 @@ std::tuple<void* /*mappedPtr*/, BindBufferInfo> UploadBufferManager::makeBindInf
     }
 
     if (!fReusedBuffer) {
-        fReusedBuffer = fResourceProvider->findOrCreateBuffer(kReusedBufferSize,
-                                                              BufferType::kXferCpuToGpu,
-                                                              AccessPattern::kHostVisible,
-                                                              std::move(label));
+        fReusedBuffer = fResourceProvider->findOrCreateNonShareableBuffer(
+                kReusedBufferSize,
+                BufferType::kXferCpuToGpu,
+                AccessPattern::kHostVisible,
+                std::move(label));
         fReusedBufferOffset = 0;
         if (!fReusedBuffer || !fReusedBuffer->map()) {
             fReusedBuffer = nullptr;
@@ -120,13 +122,13 @@ void UploadBufferManager::transferToRecording(Recording* recording) {
 void UploadBufferManager::transferToCommandBuffer(CommandBuffer* commandBuffer) {
     for (sk_sp<Buffer>& buffer : fUsedBuffers) {
         buffer->unmap();
-        commandBuffer->trackResource(std::move(buffer));
+        commandBuffer->trackCommandBufferResource(std::move(buffer));
     }
     fUsedBuffers.clear();
 
     if (fReusedBuffer) {
         fReusedBuffer->unmap();
-        commandBuffer->trackResource(std::move(fReusedBuffer));
+        commandBuffer->trackCommandBufferResource(std::move(fReusedBuffer));
     }
 }
 

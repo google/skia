@@ -86,9 +86,7 @@ static Display* get_display() {
     private:
         Display* fDisplay;
     };
-    static std::unique_ptr<AutoDisplay> ad;
-    static SkOnce once;
-    once([] { ad = std::make_unique<AutoDisplay>(); });
+    static std::unique_ptr<AutoDisplay> ad = std::make_unique<AutoDisplay>();
     return ad->display();
 }
 

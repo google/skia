@@ -20,11 +20,6 @@ ls -R ${REL}/../../bazel-bin
 ${INSTALL} --mode=644 -T ${REL}/../../bazel-bin/modules/canvaskit/canvaskit/canvaskit.js ${ROOT}/canvaskit.js
 ${INSTALL} --mode=644 -T ${REL}/../../bazel-bin/modules/canvaskit/canvaskit/canvaskit.wasm ${ROOT}/canvaskit.wasm
 
-bazelisk build //modules/pathkit:pathkit --config=ck_full_webgl2_release
-ls -R ${REL}/../../bazel-bin
-${INSTALL} --mode=644 -T ${REL}/../../bazel-bin/modules/pathkit/pathkit/pathkit.js ${ROOT}/pathkit.js
-${INSTALL} --mode=644 -T ${REL}/../../bazel-bin/modules/pathkit/pathkit/pathkit.wasm ${ROOT}/pathkit.wasm
-
 bazelisk build //modules/canvaskit:version.js --config=ck_full_webgl2_release
 ls -R ${REL}/../../bazel-bin
 cat ${REL}/../../bazel-bin/modules/canvaskit/version.js > ${ROOT}/version.js

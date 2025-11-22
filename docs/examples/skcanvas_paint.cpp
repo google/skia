@@ -26,8 +26,7 @@ void draw(SkCanvas* canvas) {
     paint.setColor(SK_ColorYELLOW);
     canvas->drawRoundRect(rect, 10, 10, paint);
 
-    SkPath path;
-    path.cubicTo(768, 0, -512, 256, 256, 256);
+    SkPath path = SkPathBuilder().cubicTo(768, 0, -512, 256, 256, 256).detach();
     paint.setColor(SK_ColorGREEN);
     canvas->drawPath(path, paint);
 

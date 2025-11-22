@@ -160,9 +160,10 @@ sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
             BindBufferMemory(sharedContext->device(), buffer, alloc.fMemory, alloc.fOffset));
     if (result != VK_SUCCESS) {
         skgpu::VulkanMemory::FreeBufferMemory(allocator, alloc);
-        VULKAN_CALL(sharedContext->interface(), DestroyBuffer(sharedContext->device(),
-                buffer,
-                /*const VkAllocationCallbacks*=*/nullptr));
+        VULKAN_CALL(sharedContext->interface(),
+                    DestroyBuffer(sharedContext->device(),
+                                  buffer,
+                                  /*const VkAllocationCallbacks*=*/nullptr));
         return nullptr;
     }
 
@@ -179,7 +180,10 @@ VulkanBuffer::VulkanBuffer(const VulkanSharedContext* sharedContext,
                            const skgpu::VulkanAlloc& alloc,
                            const VkBufferUsageFlags usageFlags,
                            Protected isProtected)
-        : Buffer(sharedContext, size, isProtected)
+        : Buffer(sharedContext,
+                 size,
+                 isProtected,
+                 /*reusableRequiresPurgeable=*/alloc.fFlags & skgpu::VulkanAlloc::kMappable_Flag)
         , fBuffer(std::move(buffer))
         , fAlloc(alloc)
         , fBufferUsageFlags(usageFlags)

@@ -84,8 +84,7 @@ class GrResourceProvider;
  */
 class GrResourceAllocator {
 public:
-    GrResourceAllocator(GrDirectContext* dContext)
-            : fDContext(dContext) {}
+    explicit GrResourceAllocator(GrDirectContext* dContext) : fDContext(dContext) {}
 
     ~GrResourceAllocator();
 

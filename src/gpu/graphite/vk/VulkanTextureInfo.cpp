@@ -4,7 +4,6 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "include/gpu/vk/VulkanMutableTextureState.h"
@@ -29,9 +28,9 @@ SkString VulkanTextureInfo::toBackendString() const {
 
 TextureFormat VulkanTextureInfo::viewFormat() const {
     if (fYcbcrConversionInfo.isValid()) {
-        return fYcbcrConversionInfo.fFormat == VK_FORMAT_UNDEFINED
+        return fYcbcrConversionInfo.format() == VK_FORMAT_UNDEFINED
                 ? TextureFormat::kExternal
-                : VkFormatToTextureFormat(fYcbcrConversionInfo.fFormat);
+                : VkFormatToTextureFormat(fYcbcrConversionInfo.format());
     }
 
     return VkFormatToTextureFormat(fFormat);
@@ -49,52 +48,6 @@ bool VulkanTextureInfo::isCompatible(const TextureInfo& that, bool requireExact)
            fAspectMask == vt.fAspectMask &&
            (usageMask & vt.fImageUsageFlags) == fImageUsageFlags &&
            fYcbcrConversionInfo == vt.fYcbcrConversionInfo;
-}
-
-bool VulkanTextureInfo::serialize(SkWStream* stream) const {
-    SkASSERT(SkTFitsIn<uint64_t>(fFlags));
-    SkASSERT(SkTFitsIn<uint64_t>(fFormat));
-    SkASSERT(SkTFitsIn<uint64_t>(fImageUsageFlags));
-    SkASSERT(SkTFitsIn<uint8_t>(fImageTiling));
-    SkASSERT(SkTFitsIn<uint8_t>(fSharingMode));
-    SkASSERT(SkTFitsIn<uint32_t>(fAspectMask));
-
-    if (!stream->write64(static_cast<uint64_t>(fFlags)))           { return false; }
-    if (!stream->write64(static_cast<uint64_t>(fFormat)))          { return false; }
-    if (!stream->write64(static_cast<uint64_t>(fImageUsageFlags))) { return false; }
-    if (!stream->write8(static_cast<uint8_t>(fImageTiling)))       { return false; }
-    if (!stream->write8(static_cast<uint8_t>(fSharingMode)))       { return false; }
-    if (!stream->write32(static_cast<uint32_t>(fAspectMask)))      { return false; }
-
-    return SerializeVkYCbCrInfo(stream, fYcbcrConversionInfo);
-}
-
-// TODO(robertphillips): add validity checks to deserialized values
-bool VulkanTextureInfo::deserialize(SkStream* stream) {
-    uint64_t tmp64;
-
-    if (!stream->readU64(&tmp64)) { return false; }
-    fFlags = static_cast<VkImageCreateFlags>(tmp64);
-
-    if (!stream->readU64(&tmp64)) { return false; }
-    fFormat = static_cast<VkFormat>(tmp64);
-
-    if (!stream->readU64(&tmp64)) { return false; }
-    fImageUsageFlags = static_cast<VkImageUsageFlags>(tmp64);
-
-    uint32_t tmp32;
-    uint8_t tmp8;
-
-    if (!stream->readU8(&tmp8)) { return false; }
-    fImageTiling = static_cast<VkImageTiling>(tmp8);
-
-    if (!stream->readU8(&tmp8)) { return false; }
-    fSharingMode = static_cast<VkSharingMode>(tmp8);
-
-    if (!stream->readU32(&tmp32)) { return false; }
-    fAspectMask = static_cast<VkImageAspectFlags>(tmp32);
-
-    return DeserializeVkYCbCrInfo(stream, &fYcbcrConversionInfo);
 }
 
 namespace TextureInfos {

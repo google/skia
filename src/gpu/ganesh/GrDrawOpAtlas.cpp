@@ -34,7 +34,6 @@
 using namespace skia_private;
 
 using AtlasLocator = skgpu::AtlasLocator;
-using AtlasToken = skgpu::AtlasToken;
 using EvictionCallback = skgpu::PlotEvictionCallback;
 using GenerationCounter = skgpu::AtlasGenerationCounter;
 using MaskFormat = skgpu::MaskFormat;
@@ -119,7 +118,7 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrProxyProvider* proxyProvider, const GrBackendForm
         , fLabel(label)
         , fGenerationCounter(generationCounter)
         , fAtlasGeneration(fGenerationCounter->next())
-        , fPrevFlushToken(AtlasToken::InvalidToken())
+        , fPrevFlushToken(skgpu::Token::InvalidToken())
         , fFlushesSinceLastUse(0)
         , fMaxPages(AllowMultitexturing::kYes == allowMultitexturing ?
                             PlotLocator::kMaxMultitexturePages : 1)
@@ -176,7 +175,7 @@ inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target,
         GrTextureProxy* proxy = fViews[pageIdx].asTextureProxy();
         SkASSERT(proxy && proxy->isInstantiated());  // This is occurring at flush time
 
-        AtlasToken lastUploadToken = target->addASAPUpload(
+        skgpu::Token lastUploadToken = target->addASAPUpload(
                 [this, plotsp, proxy](GrDeferredTextureUploadWritePixelsFn& writePixels) {
                     this->uploadPlotToTexture(writePixels, proxy, plotsp.get());
                 });
@@ -313,7 +312,7 @@ GrDrawOpAtlas::ErrorCode GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceP
     GrTextureProxy* proxy = fViews[pageIdx].asTextureProxy();
     SkASSERT(proxy && proxy->isInstantiated());
 
-    AtlasToken lastUploadToken = target->addInlineUpload(
+    skgpu::Token lastUploadToken = target->addInlineUpload(
             [this, plotsp, proxy](GrDeferredTextureUploadWritePixelsFn& writePixels) {
                 this->uploadPlotToTexture(writePixels, proxy, plotsp.get());
             });
@@ -325,7 +324,7 @@ GrDrawOpAtlas::ErrorCode GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceP
     return ErrorCode::kSucceeded;
 }
 
-void GrDrawOpAtlas::compact(AtlasToken startTokenForNextFlush) {
+void GrDrawOpAtlas::compact(skgpu::Token startTokenForNextFlush) {
     if (fNumActivePages < 1) {
         fPrevFlushToken = startTokenForNextFlush;
         return;
@@ -418,7 +417,7 @@ void GrDrawOpAtlas::compact(AtlasToken startTokenForNextFlush) {
             // If this plot was used recently
             if (plot->flushesSinceLastUsed() <= kPlotRecentlyUsedCount) {
                 usedPlots++;
-            } else if (plot->lastUseToken() != AtlasToken::InvalidToken()) {
+            } else if (plot->lastUseToken() != skgpu::Token::InvalidToken()) {
                 // otherwise if aged out just evict it.
                 this->processEvictionAndResetRects(plot);
             }

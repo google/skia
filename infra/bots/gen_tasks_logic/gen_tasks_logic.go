@@ -11,8 +11,8 @@ package gen_tasks_logic
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -35,7 +35,6 @@ const (
 	CAS_EMPTY         = "empty" // TODO(borenet): It'd be nice if this wasn't necessary.
 	CAS_LOTTIE_CI     = "lottie-ci"
 	CAS_LOTTIE_WEB    = "lottie-web"
-	CAS_PATHKIT       = "pathkit"
 	CAS_PERF          = "perf"
 	CAS_PUPPETEER     = "puppeteer"
 	CAS_RUN_RECIPE    = "run-recipe"
@@ -336,7 +335,7 @@ type JobInfo struct {
 func LoadConfig() *Config {
 	cfgDir := getCallingDirName()
 	var cfg Config
-	LoadJson(filepath.Join(cfgDir, "cfg.json"), &cfg)
+	LoadJSON(filepath.Join(cfgDir, "cfg.json"), &cfg)
 	return &cfg
 }
 
@@ -350,10 +349,9 @@ func CheckoutRoot() string {
 	return root
 }
 
-// LoadJson loads JSON from the given file and unmarshals it into the given
-// destination.
-func LoadJson(filename string, dest interface{}) {
-	b, err := ioutil.ReadFile(filename)
+// LoadJSON loads JSON from the given file and unmarshals it into the given destination.
+func LoadJSON(filename string, dest interface{}) {
+	b, err := os.ReadFile(filename)
 	if err != nil {
 		log.Fatalf("Unable to read %q: %s", filename, err)
 	}
@@ -378,6 +376,37 @@ func In(s string, a []string) bool {
 // file which is the sibling of the calling gen_tasks.go file. If cfg is nil, it
 // is similarly loaded from a cfg.json file which is the sibling of the calling
 // gen_tasks.go file.
+func FormatJobsJSON(jobsFilePath string) []*JobInfo {
+	var jobsWithInfo []*JobInfo
+	LoadJSON(jobsFilePath, &jobsWithInfo)
+
+	// Deduplicate jobs based on the "name" key.
+	seen := make(map[string]bool)
+	uniqueJobs := make([]*JobInfo, 0)
+	for _, job := range jobsWithInfo {
+		if _, ok := seen[job.Name]; !ok {
+			seen[job.Name] = true
+			uniqueJobs = append(uniqueJobs, job)
+		}
+	}
+	jobsWithInfo = uniqueJobs
+
+	// Sort the jobs by the "name" key.
+	sort.Slice(jobsWithInfo, func(i, j int) bool {
+		return jobsWithInfo[i].Name < jobsWithInfo[j].Name
+	})
+
+	// Pretty print and write back to jobs.json.
+	updatedJobsJson, err := json.MarshalIndent(jobsWithInfo, "", "  ")
+	if err != nil {
+		log.Fatalf("Unable to marshal jobs.json: %s", err)
+	}
+	if err := os.WriteFile(jobsFilePath, updatedJobsJson, 0644); err != nil {
+		log.Fatalf("Unable to write jobs.json: %s", err)
+	}
+	return jobsWithInfo
+}
+
 func GenTasks(cfg *Config) {
 	b := specs.MustNewTasksCfgBuilder()
 
@@ -386,9 +415,9 @@ func GenTasks(cfg *Config) {
 	relpathTargetDir := getThisDirName()
 	relpathBaseDir := getCallingDirName()
 
-	// Parse jobs.json.
-	var jobsWithInfo []*JobInfo
-	LoadJson(filepath.Join(relpathBaseDir, "jobs.json"), &jobsWithInfo)
+	// Format and load jobs.json.
+	jobsFilePath := filepath.Join(relpathBaseDir, "jobs.json")
+	jobsWithInfo := FormatJobsJSON(jobsFilePath)
 	// Create a slice with only job names.
 	jobs := []string{}
 	for _, j := range jobsWithInfo {
@@ -397,7 +426,7 @@ func GenTasks(cfg *Config) {
 
 	if cfg == nil {
 		cfg = new(Config)
-		LoadJson(filepath.Join(relpathBaseDir, "cfg.json"), cfg)
+		LoadJSON(filepath.Join(relpathBaseDir, "cfg.json"), cfg)
 	}
 
 	// Create the JobNameSchema.
@@ -441,9 +470,9 @@ func GenTasks(cfg *Config) {
 		Paths: []string{
 			// Source code.
 			"skia/example",
-			"skia/experimental/rust_png",
 			"skia/include",
 			"skia/modules",
+			"skia/rust",
 			"skia/src",
 			"skia/tests",
 			"skia/third_party",
@@ -485,8 +514,6 @@ func GenTasks(cfg *Config) {
 			"skia/infra/bots/run_recipe.py",
 			"skia/infra/canvaskit",
 			"skia/modules/canvaskit",
-			"skia/modules/pathkit/perf/perfReporter.js",
-			"skia/modules/pathkit/tests/testReporter.js",
 		},
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
@@ -501,16 +528,6 @@ func GenTasks(cfg *Config) {
 		},
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
-	b.MustAddCasSpec(CAS_PATHKIT, &specs.CasSpec{
-		Root: "..",
-		Paths: []string{
-			"skia/.vpython3",
-			"skia/infra/bots/run_recipe.py",
-			"skia/infra/pathkit",
-			"skia/modules/pathkit",
-		},
-		Excludes: []string{rbe.ExcludeGitDir},
-	})
 	b.MustAddCasSpec(CAS_PERF, &specs.CasSpec{
 		Root: "..",
 		Paths: []string{
@@ -519,7 +536,6 @@ func GenTasks(cfg *Config) {
 			"skia/infra/bots/run_recipe.py",
 			"skia/platform_tools/ios/bin",
 			"skia/resources",
-			"skia/tools/valgrind.supp",
 		},
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
@@ -595,7 +611,6 @@ func GenTasks(cfg *Config) {
 			"skia/infra/bots/run_recipe.py",
 			"skia/platform_tools/ios/bin",
 			"skia/resources",
-			"skia/tools/valgrind.supp",
 		},
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
@@ -688,7 +703,7 @@ func (b *TaskBuilder) kitchenTaskNoBundle(recipe string, outputDir string) {
 	}
 
 	// Attempts.
-	if !b.Role("Build", "Upload") && b.ExtraConfig("ASAN", "HWASAN", "MSAN", "TSAN", "Valgrind") {
+	if !b.Role("Build", "Upload") && b.ExtraConfig("ASAN", "HWASAN", "MSAN", "TSAN") {
 		// Sanitizers often find non-deterministic issues that retries would hide.
 		b.attempts(1)
 	} else {
@@ -748,7 +763,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 		if val := b.Parts["extra_config"]; val != "" {
 			ec = strings.Split(val, "_")
 			ignore := []string{
-				"AbandonGpuContext", "PreAbandonGpuContext", "Valgrind",
+				"AbandonGpuContext", "PreAbandonGpuContext",
 				"FailFlushTimeCallbacks", "ReleaseAndAbandonGpuContext",
 				"NativeFonts", "GDI", "NoGPUThreads", "DDL1", "DDL3",
 				"DDLRecord", "BonusConfigs", "ColorSpaces", "GL",
@@ -779,7 +794,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			task_os = "Win"
 		} else if b.ExtraConfig("WasmGMTests") {
 			task_os = DEFAULT_OS_LINUX_GCE
-		} else if b.Compiler("GCC") || b.Os("Ubuntu18") {
+		} else if b.Compiler("GCC") {
 			// GCC compiles are now on a Docker container. We use the same OS and
 			// version to compile as to test.
 			ec = append([]string{"Docker"}, ec...)
@@ -792,11 +807,6 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			"compiler":      b.Parts["compiler"],
 			"target_arch":   b.Parts["arch"],
 			"configuration": b.Parts["configuration"],
-		}
-		if b.ExtraConfig("PathKit") {
-			ec = []string{"PathKit"}
-			// We prefer to compile this in the cloud because we have more resources there
-			jobNameMap["os"] = strings.ReplaceAll(DEFAULT_OS_LINUX_GCE, "-", "")
 		}
 		if b.ExtraConfig("CanvasKit", "SkottieWASM", "Puppeteer") {
 			if b.CPU() {
@@ -860,6 +870,7 @@ var androidDeviceInfos = map[string][]string{
 	"Pixel7":          {"panther", "AP4A.241205.013"},
 	"Pixel7Pro":       {"cheetah", "TD1A.221105.002"},
 	"Pixel9":          {"tokay", "AP4A.241205.013"},
+	"Pixel10":         {"frankel", "BD1A.250702.001"},
 	"TecnoSpark3Pro":  {"TECNO-KB8", "PPR1.180610.011"},
 	"Wembley":         {"wembley", "SP2A.220505.008"},
 }
@@ -884,7 +895,6 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 			"Mac15":       "Mac-15.3",
 			"Mokey":       "Android",
 			"MokeyGo32":   "Android",
-			"Ubuntu18":    "Ubuntu-18.04",
 			"Ubuntu20.04": UBUNTU_20_04_OS,
 			"Ubuntu22.04": UBUNTU_22_04_OS,
 			"Ubuntu24.04": UBUNTU_24_04_OS,
@@ -897,7 +907,7 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 		if !ok {
 			log.Fatalf("Entry %q not found in OS mapping.", os)
 		}
-		if (os == "Debian11" || os == "Ubuntu18") && b.ExtraConfig("Docker") {
+		if os == "Debian11" && b.ExtraConfig("Docker") {
 			d["os"] = DEFAULT_OS_LINUX_GCE
 			d["gce"] = "1"
 		}
@@ -1058,14 +1068,11 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 			} else if b.IsLinux() {
 				gpu, ok := map[string]string{
 					// Intel drivers come from CIPD, so no need to specify the version here.
-					"IntelHD2000":  "8086:0102",
-					"IntelHD405":   "8086:22b1",
-					"IntelIris640": "8086:5926-24.2.8",
-					"QuadroP400":   "10de:1cb3-510.60.02",
-					"RTX3060":      "10de:2489-470.182.03",
-					"IntelIrisXe":  "8086:9a49",
-					"RadeonVega6":  "1002:1636",
-					"RadeonVega8":  "1002:1638-23.2.1",
+					"IntelHD405": "8086:22b1",
+					// The version is not set on these as of Nov 5 2025
+					"QuadroP400":  "10de:1cb3",
+					"IntelIrisXe": "8086:9a49",
+					"RadeonVega8": "1002:1638-23.2.1",
 				}[b.Parts["cpu_or_gpu_value"]]
 				if !ok {
 					log.Fatalf("Entry %q not found in Linux GPU mapping.", b.Parts["cpu_or_gpu_value"])
@@ -1143,7 +1150,7 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 	} else {
 		d["gpu"] = "none"
 		if d["os"] == DEFAULT_OS_LINUX_GCE {
-			if b.ExtraConfig("CanvasKit", "CMake", "Docker", "PathKit") || b.Role("BuildStats", "CodeSize") {
+			if b.ExtraConfig("CanvasKit", "CMake", "Docker") || b.Role("BuildStats", "CodeSize") {
 				b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 			} else {
 				// Use many-core machines for Build tasks.
@@ -1274,6 +1281,7 @@ func (b *jobBuilder) compile() string {
 			if b.ExtraConfig("Dawn") {
 				// https://dawn.googlesource.com/dawn/+/516701da8184655a47c92a573cc84da7db5e69d4/generator/dawn_version_generator.py#21
 				b.usesGit()
+				b.usesCMake()
 			}
 
 			// Android bots require a toolchain.
@@ -1646,7 +1654,7 @@ func (b *jobBuilder) doUpload() bool {
 // commonTestPerfAssets adds the assets needed by Test and Perf tasks.
 func (b *TaskBuilder) commonTestPerfAssets() {
 	// Docker-based tests don't need the standard CIPD assets
-	if b.ExtraConfig("CanvasKit", "PathKit") || (b.Role("Test") && b.ExtraConfig("LottieWeb")) {
+	if b.ExtraConfig("CanvasKit") || (b.Role("Test") && b.ExtraConfig("LottieWeb")) {
 		return
 	}
 	if b.Os("Android", "ChromeOS", "iOS") {
@@ -1708,14 +1716,7 @@ func (b *jobBuilder) dm() {
 	b.addTask(b.Name, func(b *TaskBuilder) {
 		cas := CAS_TEST
 		recipe := "test"
-		if b.ExtraConfig("PathKit") {
-			cas = CAS_PATHKIT
-			recipe = "test_pathkit"
-			if b.doUpload() {
-				b.directUpload(b.cfg.GsBucketGm, b.cfg.ServiceAccountUploadGM)
-				directUpload = true
-			}
-		} else if b.ExtraConfig("CanvasKit") {
+		if b.ExtraConfig("CanvasKit") {
 			cas = CAS_CANVASKIT
 			recipe = "test_canvaskit"
 			if b.doUpload() {
@@ -1764,7 +1765,7 @@ func (b *jobBuilder) dm() {
 		b.kitchenTask(recipe, OUTPUT_TEST)
 		b.cas(cas)
 		b.swarmDimensions()
-		if b.ExtraConfig("CanvasKit", "Docker", "LottieWeb", "PathKit") {
+		if b.ExtraConfig("CanvasKit", "Docker", "LottieWeb") {
 			b.usesDocker()
 		}
 		if compileTaskName != "" {
@@ -1790,14 +1791,7 @@ func (b *jobBuilder) dm() {
 		b.expiration(20 * time.Hour)
 
 		b.timeout(4 * time.Hour)
-		if b.ExtraConfig("Valgrind") {
-			b.timeout(9 * time.Hour)
-			b.expiration(48 * time.Hour)
-			b.asset("valgrind")
-			// Since Valgrind runs on the same bots as the CQ, we restrict Valgrind to a subset of the bots
-			// to ensure there are always bots free for CQ tasks.
-			b.dimension("valgrind:1")
-		} else if b.ExtraConfig("MSAN") {
+		if b.ExtraConfig("MSAN") {
 			b.timeout(9 * time.Hour)
 		} else if b.Arch("x86") && b.Debug() {
 			// skbug.com/40037952
@@ -1963,10 +1957,7 @@ func (b *jobBuilder) perf() {
 	b.addTask(b.Name, func(b *TaskBuilder) {
 		recipe := "perf"
 		cas := CAS_PERF
-		if b.ExtraConfig("PathKit") {
-			cas = CAS_PATHKIT
-			recipe = "perf_pathkit"
-		} else if b.ExtraConfig("CanvasKit") {
+		if b.ExtraConfig("CanvasKit") {
 			cas = CAS_CANVASKIT
 			recipe = "perf_canvaskit"
 		} else if b.ExtraConfig("SkottieTracing") {
@@ -2007,14 +1998,7 @@ func (b *jobBuilder) perf() {
 		b.expiration(20 * time.Hour)
 		b.timeout(4 * time.Hour)
 
-		if b.ExtraConfig("Valgrind") {
-			b.timeout(9 * time.Hour)
-			b.expiration(48 * time.Hour)
-			b.asset("valgrind")
-			// Since Valgrind runs on the same bots as the CQ, we restrict Valgrind to a subset of the bots
-			// to ensure there are always bots free for CQ tasks.
-			b.dimension("valgrind:1")
-		} else if b.ExtraConfig("MSAN") {
+		if b.ExtraConfig("MSAN") {
 			b.timeout(9 * time.Hour)
 		} else if b.Parts["arch"] == "x86" && b.Parts["configuration"] == "Debug" {
 			// skbug.com/40037952
@@ -2147,7 +2131,7 @@ func (b *jobBuilder) runWasmGMTests() {
 			"--changelist_id", specs.PLACEHOLDER_ISSUE,
 			"--patchset_order", specs.PLACEHOLDER_PATCHSET,
 			"--tryjob_id", specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID,
-			// TODO(kjlubick, nifong) Make these not hard coded if we change the configs we test on.
+			// TODO(kjlubick) Make these not hard coded if we change the configs we test on.
 			"--webgl_version", "2", // 0 means CPU ; this flag controls cpu_or_gpu and extra_config
 			"--gold_key", "alpha_type:Premul",
 			"--gold_key", "arch:wasm",
@@ -2157,7 +2141,7 @@ func (b *jobBuilder) runWasmGMTests() {
 			"--gold_key", "configuration:Release",
 			"--gold_key", "cpu_or_gpu_value:QuadroP400",
 			"--gold_key", "model:Golo",
-			"--gold_key", "os:Ubuntu18",
+			"--gold_key", "os:Ubuntu24.04",
 		)
 	})
 }

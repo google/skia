@@ -4,8 +4,7 @@
 REG_FIDDLE(Path_isRRect, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
-    SkPath path;
-    path.addRRect(SkRRect::MakeRectXY({20, 20, 220, 220}, 30, 50));
+    SkPath path = SkPath::RRect(SkRRect::MakeRectXY({20, 20, 220, 220}, 30, 50));
     SkRRect rrect;
     if (path.isRRect(&rrect)) {
         const SkRect& bounds = rrect.rect();

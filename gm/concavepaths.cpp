@@ -15,14 +15,14 @@ namespace {
 // Concave test
 void test_concave(SkCanvas* canvas, const SkPaint& paint) {
     canvas->translate(0, 0);
-    canvas->drawPath(SkPath::Polygon({{20,20}, {80,20}, {30,30}, {20,80}}, false), paint);
+    canvas->drawPath(SkPath::Polygon({{{20,20}, {80,20}, {30,30}, {20,80}}}, false), paint);
 }
 
 // Reverse concave test
 void test_reverse_concave(SkCanvas* canvas, const SkPaint& paint) {
     canvas->save();
     canvas->translate(100, 0);
-    canvas->drawPath(SkPath::Polygon({{20,20}, {20,80}, {30,30}, {80,20}}, false), paint);
+    canvas->drawPath(SkPath::Polygon({{{20,20}, {20,80}, {30,30}, {80,20}}}, false), paint);
     canvas->restore();
 }
 
@@ -30,7 +30,7 @@ void test_reverse_concave(SkCanvas* canvas, const SkPaint& paint) {
 void test_bowtie(SkCanvas* canvas, const SkPaint& paint) {
     canvas->save();
     canvas->translate(200, 0);
-    canvas->drawPath(SkPath::Polygon({{20,20}, {80,80}, {80,20}, {20,80}}, false), paint);
+    canvas->drawPath(SkPath::Polygon({{{20,20}, {80,80}, {80,20}, {20,80}}}, false), paint);
     canvas->restore();
 }
 
@@ -38,7 +38,7 @@ void test_bowtie(SkCanvas* canvas, const SkPaint& paint) {
 void test_fake_bowtie(SkCanvas* canvas, const SkPaint& paint) {
     canvas->save();
     canvas->translate(300, 0);
-    canvas->drawPath(SkPath::Polygon({{20,20}, {50,40}, {80,20}, {80,80}, {50,60}, {20,80}},
+    canvas->drawPath(SkPath::Polygon({{{20,20}, {50,40}, {80,20}, {80,80}, {50,60}, {20,80}}},
                                      false), paint);
     canvas->restore();
 }
@@ -48,7 +48,7 @@ void test_fake_bowtie(SkCanvas* canvas, const SkPaint& paint) {
 void test_intruding_vertex(SkCanvas* canvas, const SkPaint& paint) {
     canvas->save();
     canvas->translate(400, 0);
-    canvas->drawPath(SkPath::Polygon({{20,20}, {50,50}, {68,20}, {68,80}, {50,50}, {20,80}},
+    canvas->drawPath(SkPath::Polygon({{{20,20}, {50,50}, {68,20}, {68,80}, {50,50}, {20,80}}},
                                      false, SkPathFillType::kWinding, true), paint);
     canvas->restore();
 }
@@ -70,7 +70,7 @@ void test_inversion_repeat_vertex(SkCanvas* canvas, const SkPaint& paint) {
 void test_fish(SkCanvas* canvas, const SkPaint& paint) {
     canvas->save();
     canvas->translate(0, 100);
-    canvas->drawPath(SkPath::Polygon({{20,20}, {80,80}, {70,50}, {80,20}, {20,80}, {0,50}}, false,
+    canvas->drawPath(SkPath::Polygon({{{20,20}, {80,80}, {70,50}, {80,20}, {20,80}, {0,50}}}, false,
                                      SkPathFillType::kWinding, true), paint);
     canvas->restore();
 }
@@ -80,8 +80,8 @@ void test_fish(SkCanvas* canvas, const SkPaint& paint) {
 void test_fast_forward(SkCanvas* canvas, const SkPaint& paint) {
     canvas->save();
     canvas->translate(100, 100);
-    auto path = SkPathBuilder().addPolygon({{20,20}, {60,50}, {20,80}}, false)
-                               .addPolygon({{40,20}, {40,80}, {80,50}}, false)
+    auto path = SkPathBuilder().addPolygon({{{20,20}, {60,50}, {20,80}}}, false)
+                               .addPolygon({{{40,20}, {40,80}, {80,50}}}, false)
                                .detach();
     canvas->drawPath(path, paint);
     canvas->restore();
@@ -91,8 +91,8 @@ void test_fast_forward(SkCanvas* canvas, const SkPaint& paint) {
 void test_hole(SkCanvas* canvas, const SkPaint& paint) {
     canvas->save();
     canvas->translate(200, 100);
-    auto path = SkPathBuilder().addPolygon({{20,20}, {80,20}, {80,80}, {20,80}}, false)
-                               .addPolygon({{30,30}, {30,70}, {70,70}, {70,30}}, false)
+    auto path = SkPathBuilder().addPolygon({{{20,20}, {80,20}, {80,80}, {20,80}}}, false)
+                               .addPolygon({{{30,30}, {30,70}, {70,70}, {70,30}}}, false)
                                .detach();
     canvas->drawPath(path, paint);
     canvas->restore();
@@ -102,7 +102,7 @@ void test_hole(SkCanvas* canvas, const SkPaint& paint) {
 void test_star(SkCanvas* canvas, const SkPaint& paint) {
     canvas->save();
     canvas->translate(300, 100);
-    canvas->drawPath(SkPath::Polygon({{30,20}, {50,80}, {70,20}, {20,57}, {80,57}}, false),
+    canvas->drawPath(SkPath::Polygon({{{30,20}, {50,80}, {70,20}, {20,57}, {80,57}}}, false),
                      paint);
     canvas->restore();
 }
@@ -126,7 +126,8 @@ void test_twist(SkCanvas* canvas, const SkPaint& paint) {
 void test_stairstep(SkCanvas* canvas, const SkPaint& paint) {
     canvas->save();
     canvas->translate(0, 200);
-    canvas->drawPath(SkPath::Polygon({{50,50}, {50,20}, {80,20}, {50,50}, {20,50}, {20,80}}, false),
+    canvas->drawPath(SkPath::Polygon({{{50,50}, {50,20}, {80,20}, {50,50}, {20,50}, {20,80}}},
+                                     false),
                      paint);
     canvas->restore();
 }
@@ -134,7 +135,8 @@ void test_stairstep(SkCanvas* canvas, const SkPaint& paint) {
 void test_stairstep2(SkCanvas* canvas, const SkPaint& paint) {
     canvas->save();
     canvas->translate(100, 200);
-    canvas->drawPath(SkPath::Polygon({{20,60}, {35,80}, {50,60}, {65,80}, {80,60}}, false), paint);
+    canvas->drawPath(SkPath::Polygon({{{20,60}, {35,80}, {50,60}, {65,80}, {80,60}}}, false),
+                     paint);
     canvas->restore();
 }
 
@@ -142,7 +144,7 @@ void test_stairstep2(SkCanvas* canvas, const SkPaint& paint) {
 void test_overlapping(SkCanvas* canvas, const SkPaint& paint) {
     canvas->save();
     canvas->translate(200, 200);
-    canvas->drawPath(SkPath::Polygon({{20,80}, {80,80}, {80,20}, {80,30}}, false), paint);
+    canvas->drawPath(SkPath::Polygon({{{20,80}, {80,80}, {80,20}, {80,30}}}, false), paint);
     canvas->restore();
 }
 
@@ -151,9 +153,9 @@ void test_overlapping(SkCanvas* canvas, const SkPaint& paint) {
 void test_partners(SkCanvas* canvas, const SkPaint& paint) {
     canvas->save();
     canvas->translate(300, 200);
-    auto path = SkPathBuilder().addPolygon({{20,80}, {80,80}, {80,20}, {20,20}}, false)
-                               .addPolygon({{30,30}, {45,50}, {30,70}}, false)
-                               .addPolygon({{70,30}, {70,70}, {55,50}}, false)
+    auto path = SkPathBuilder().addPolygon({{{20,80}, {80,80}, {80,20}, {20,20}}}, false)
+                               .addPolygon({{{30,30}, {45,50}, {30,70}}}, false)
+                               .addPolygon({{{70,30}, {70,70}, {55,50}}}, false)
                                .detach();
     canvas->drawPath(path, paint);
     canvas->restore();

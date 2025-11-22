@@ -3,7 +3,11 @@
 # found in the LICENSE file.
 
 
+from . import api as _api
+
 DEPS = [
   'recipe_engine/context',
 ]
 
+
+API = _api.EnvApi

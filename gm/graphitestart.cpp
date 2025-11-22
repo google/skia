@@ -13,9 +13,9 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRRect.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/gpu/ganesh/GrRecordingContext.h"
 #include "src/core/SkColorFilterPriv.h"
 #include "tools/DecodeUtils.h"
 #include "tools/GpuToolUtils.h"
@@ -93,13 +93,14 @@ void draw_image_shader_tile(SkCanvas* canvas, SkRect clipRect) {
     SkPaint p;
     p.setShader(create_image_shader(canvas, SkTileMode::kClamp, SkTileMode::kRepeat));
 
-    SkPath path;
-    path.moveTo(1,   1);
-    path.lineTo(32,  127);
-    path.lineTo(96,  127);
-    path.lineTo(127, 1);
-    path.lineTo(63,  32);
-    path.close();
+    SkPath path = SkPathBuilder()
+                  .moveTo(1,   1)
+                  .lineTo(32,  127)
+                  .lineTo(96,  127)
+                  .lineTo(127, 1)
+                  .lineTo(63,  32)
+                  .close()
+                  .detach();
 
     canvas->save();
         canvas->clipRect(clipRect);

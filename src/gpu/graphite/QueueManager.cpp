@@ -274,7 +274,7 @@ bool QueueManager::addFinishInfo(const InsertFinishInfo& info,
     return true;
 }
 
-bool QueueManager::submitToGpu() {
+bool QueueManager::submitToGpu(const SubmitInfo& submitInfo) {
     TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_FUNC);
 
     if (!fCurrentCommandBuffer) {
@@ -291,7 +291,7 @@ bool QueueManager::submitToGpu() {
     }
 #endif
 
-    auto submission = this->onSubmitToGpu();
+    auto submission = this->onSubmitToGpu(submitInfo);
     if (!submission) {
         return false;
     }

@@ -200,15 +200,15 @@ class SKUNICODE_API SkUnicode : public SkRefCnt {
         static bool extractUtfConversionMapping(SkSpan<const char> utf8, Appender8&& appender8, Appender16&& appender16) {
             size_t size8 = 0;
             size_t size16 = 0;
-            auto ptr = utf8.begin();
-            auto end = utf8.end();
+            auto ptr = utf8.data();
+            auto end = ptr + utf8.size();
             while (ptr < end) {
 
-                size_t index = SkToSizeT(ptr - utf8.begin());
+                size_t index = SkToSizeT(ptr - utf8.data());
                 SkUnichar u = SkUTF::NextUTF8(&ptr, end);
 
                 // All UTF8 code units refer to the same codepoint
-                size_t next = SkToSizeT(ptr - utf8.begin());
+                size_t next = SkToSizeT(ptr - utf8.data());
                 for (auto i = index; i < next; ++i) {
                     //fUTF16IndexForUTF8Index.emplace_back(fUTF8IndexForUTF16Index.size());
                     appender16(size8);

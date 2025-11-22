@@ -149,13 +149,39 @@ alias(
 
 alias(
     name = "png_decode_codec",
+    actual = ":png_decode_libpng",
+    deprecation = "Please use the `png_decode_libpng` target instead.",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "png_decode_libpng",
     actual = "//src/codec:png_decode",
     visibility = ["//visibility:public"],
 )
 
 alias(
+    name = "png_decode_rust",
+    actual = "//src/codec:rust_png_decoder",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "png_encode_codec",
+    actual = ":png_encode_libpng",
+    deprecation = "Please use the `png_encode_libpng` target instead.",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "png_encode_libpng",
     actual = "//src/encode:png_encode",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "png_encode_rust",
+    actual = "//src/encode:rust_png_encoder",
     visibility = ["//visibility:public"],
 )
 

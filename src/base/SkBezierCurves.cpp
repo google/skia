@@ -10,6 +10,7 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkPoint_impl.h"
+#include "include/private/base/SkSpan_impl.h"
 #include "src/base/SkCubics.h"
 #include "src/base/SkQuads.h"
 
@@ -174,7 +175,7 @@ SkBezierCubic::Intersect(double AX, double BX, double CX, double DX,
     SkSpan<double> ts = SkSpan(roots,
                                SkCubics::RootsReal(AY, BY, CY, DY - toIntersect, roots));
 
-    int intersectionCount = 0;
+    size_t intersectionCount = 0;
     for (double t : ts) {
         const double pinnedT = pinTRange(t);
         if (0 <= pinnedT && pinnedT <= 1) {
@@ -209,7 +210,7 @@ SkSpan<const float> SkBezierQuad::Intersect(
         double yIntercept, float intersectionStorage[2]) {
     auto [discriminant, r0, r1] = SkQuads::Roots(AY, BY, CY - yIntercept);
 
-    int intersectionCount = 0;
+    size_t intersectionCount = 0;
     // Round the roots to the nearest float to generate the values t. Valid t's are on the
     // domain [0, 1].
     const double t0 = pinTRange(r0);
@@ -222,6 +223,6 @@ SkSpan<const float> SkBezierQuad::Intersect(
         intersectionStorage[intersectionCount++] = SkQuads::EvalAt(AX, -2 * BX, CX, t1);
     }
 
-    return SkSpan{intersectionStorage, intersectionCount};
+    return {intersectionStorage, intersectionCount};
 }
 

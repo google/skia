@@ -16,7 +16,7 @@
  */
 class GMBench : public Benchmark {
 public:
-    GMBench(std::unique_ptr<skiagm::GM> gm);
+    explicit GMBench(std::unique_ptr<skiagm::GM> gm);
 
     void modifyGrContextOptions(GrContextOptions* options) override {
         return fGM->modifyGrContextOptions(options);

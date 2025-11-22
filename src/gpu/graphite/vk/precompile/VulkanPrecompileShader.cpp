@@ -29,7 +29,7 @@ sk_sp<PrecompileShader> PrecompileShaders::VulkanYCbCrImage(
 
     shader->setImmutableSamplerInfo(
             VulkanYcbcrConversion::ToImmutableSamplerInfo(YCbCrConversionInfo));
-    return PrecompileShaders::LocalMatrix({ std::move(shader) });
+    return PrecompileShaders::LocalMatrix({{ std::move(shader) }});
 }
 
 

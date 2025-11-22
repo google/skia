@@ -79,15 +79,14 @@ struct ResourceBindingRequirements {
      * Define set indices. We assume that even if textures and samplers must be bound separately,
      * they will still be contained within the same set/group.
      */
-    static constexpr int kUnassigned = -1;
-    int fUniformsSetIdx              = kUnassigned;
-    int fTextureSamplerSetIdx        = kUnassigned;
-    int fInputAttachmentSetIdx       = kUnassigned;
+    static constexpr int kUnassigned  = -1;
+    int fUniformsSetIdx               = kUnassigned;
+    int fTextureSamplerSetIdx         = kUnassigned;
+    int fInputAttachmentSetIdx        = kUnassigned;
     /* Define uniform buffer bindings */
-    int fIntrinsicBufferBinding      = kUnassigned;
-    int fRenderStepBufferBinding     = kUnassigned;
-    int fPaintParamsBufferBinding    = kUnassigned;
-    int fGradientBufferBinding       = kUnassigned;
+    int fIntrinsicBufferBinding       = kUnassigned;
+    int fCombinedUniformBufferBinding = kUnassigned;
+    int fGradientBufferBinding        = kUnassigned;
 };
 
 class Caps {
@@ -101,7 +100,7 @@ public:
 #if defined(GPU_TEST_UTILS)
     std::string_view deviceName() const { return fDeviceName; }
 
-    PathRendererStrategy requestedPathRendererStrategy() const {
+    std::optional<PathRendererStrategy> requestedPathRendererStrategy() const {
         return fRequestedPathRendererStrategy;
     }
 #endif
@@ -110,7 +109,7 @@ public:
      * TODO(b/390473370): Once backends initialize a Caps-level format table, these will not need
      * to be virtual anymore:
      */
-    virtual bool isSampleCountSupported(TextureFormat, uint8_t requestedSampleCount) const = 0;
+    virtual bool isSampleCountSupported(TextureFormat, SampleCount) const = 0;
     /* Return the TextureFormat that satisfies `dsFlags`. */
     virtual TextureFormat getDepthStencilFormat(SkEnumBitMask<DepthStencilFlags>) const = 0;
 
@@ -119,15 +118,15 @@ public:
                                                         Discardable) const = 0;
 
     virtual TextureInfo getDefaultSampledTextureInfo(SkColorType,
-                                                     Mipmapped mipmapped,
+                                                     Mipmapped,
                                                      Protected,
                                                      Renderable) const = 0;
 
-    virtual TextureInfo getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
-                                                     Mipmapped mipmapped) const = 0;
+    virtual TextureInfo getTextureInfoForSampledCopy(const TextureInfo&,
+                                                     Mipmapped) const = 0;
 
     virtual TextureInfo getDefaultCompressedTextureInfo(SkTextureCompressionType,
-                                                        Mipmapped mipmapped,
+                                                        Mipmapped,
                                                         Protected) const = 0;
 
     virtual TextureInfo getDefaultStorageTextureInfo(SkColorType) const = 0;
@@ -155,7 +154,7 @@ public:
     virtual bool loadOpAffectsMSAAPipelines() const { return false; }
 
     int maxTextureSize() const { return fMaxTextureSize; }
-    uint8_t defaultMSAASamplesCount() const { return fDefaultMSAASamples; }
+    SampleCount defaultMSAASamplesCount() const { return fDefaultMSAASamples; }
 
     /**
      * Returns the maximum number of varyings allowed in a render pipeline. Note that this is the
@@ -189,7 +188,7 @@ public:
      */
     size_t requiredTransferBufferAlignment() const { return fRequiredTransferBufferAlignment; }
 
-    /* Returns the aligned rowBytes when transfering to or from a Texture */
+    /* Returns the aligned rowBytes when transferring to or from a Texture */
     size_t getAlignedTextureDataRowBytes(size_t rowBytes) const {
         return SkAlignTo(rowBytes, fTextureDataRowBytesAlignment);
     }
@@ -202,12 +201,15 @@ public:
         return {};
     }
 
+    /* Returns a compressed label describing the immutable sampler for the Pipeline label */
+    virtual std::string toString(const ImmutableSamplerInfo&) const { return ""; }
+
     /**
      * Backends may have restrictions on what types of textures support Device::writePixels().
      * If this returns false then the caller should implement a fallback where a temporary texture
-     * is created, pixels are written to it, and then that is copied or drawn into the the surface.
+     * is created, pixels are written to it, and then that is copied or drawn into the surface.
      */
-    virtual bool supportsWritePixels(const TextureInfo& textureInfo) const = 0;
+    virtual bool supportsWritePixels(const TextureInfo&) const = 0;
 
     /**
      * Backends may have restrictions on what types of textures support Device::readPixels().
@@ -215,7 +217,7 @@ public:
      * is created, the original texture is copied or drawn into it, and then pixels read from
      * the temporary texture.
      */
-    virtual bool supportsReadPixels(const TextureInfo& textureInfo) const = 0;
+    virtual bool supportsReadPixels(const TextureInfo&) const = 0;
 
     /**
      * Given a dst pixel config and a src color type what color type must the caller coax the
@@ -463,27 +465,6 @@ protected:
     }
 #endif
 
-    /**
-     * There are only a few possible valid sample counts (1, 2, 4, 8, 16). So we can key on those 5
-     * options instead of the actual sample value.
-     */
-    static inline uint32_t SamplesToKey(uint32_t numSamples) {
-        switch (numSamples) {
-            case 1:
-                return 0;
-            case 2:
-                return 1;
-            case 4:
-                return 2;
-            case 8:
-                return 3;
-            case 16:
-                return 4;
-            default:
-                SkUNREACHABLE;
-        }
-    }
-
     /* ColorTypeInfo for a specific format. Used in format tables. */
     struct ColorTypeInfo {
         ColorTypeInfo() = default;
@@ -512,7 +493,9 @@ protected:
     };
 
     int fMaxTextureSize = 0;
-    uint8_t fDefaultMSAASamples = 4;
+
+    SampleCount fDefaultMSAASamples = SampleCount::k4;
+
     size_t fRequiredUniformBufferAlignment = 0;
     size_t fRequiredStorageBufferAlignment = 0;
     size_t fRequiredTransferBufferAlignment = 0;
@@ -557,9 +540,9 @@ protected:
 
 #if defined(GPU_TEST_UTILS)
     std::string fDeviceName;
-    int fMaxTextureAtlasSize = 2048;
-    PathRendererStrategy fRequestedPathRendererStrategy;
+    std::optional<PathRendererStrategy> fRequestedPathRendererStrategy;
 #endif
+
     size_t fGlyphCacheTextureMaximumBytes = 2048 * 1024 * 4;
 
     float fMinMSAAPathSize = 0;

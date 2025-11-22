@@ -8,7 +8,8 @@
 #include "src/capture/SkCaptureManager.h"
 
 #include "include/core/SkCanvas.h"
-#include "include/private/base/SkDebug.h"
+#include "include/core/SkSurface.h"
+#include "src/capture/SkCapture.h"
 #include "src/capture/SkCaptureCanvas.h"
 
 #include <memory>
@@ -33,8 +34,33 @@ void SkCaptureManager::snapPictures() {
     }
 }
 
-void SkCaptureManager::serializeCapture() {
-    // TODO (412351769): return a serialized file via SkData, for now this will print the contents
-    // of the capture for inspection.
-    SkDebugf("Tracked canvases: %d. SkPictures: %d\n", fTrackedCanvases.size(), fPictures.size());
+// TODO: make thread saffe by using exchange() and a mutex.
+void SkCaptureManager::toggleCapture(bool capturing) {
+    if (capturing != fIsCurrentlyCapturing && !capturing) {
+        // on capture stop, save the capture and reset
+        this->snapPictures();
+        fLastCapture = SkCapture::MakeFromPictures(fPictures);
+        fPictures.clear();
+    }
+    fIsCurrentlyCapturing = capturing;
+}
+
+void SkCaptureManager::snapPicture(SkSurface* surface) {
+    for (auto& canvas : fTrackedCanvases) {
+        if (canvas) {
+            if (canvas->getSurface() == surface) {
+                auto picture = canvas->snapPicture();
+                if (picture) {
+                    // TODO(412351769): for every storing of a picture, we should track a content id
+                    // and the surface it was drawn to.
+                    fPictures.emplace_back(picture);
+                }
+                return;
+            }
+        }
+    }
+}
+
+sk_sp<SkCapture> SkCaptureManager::getLastCapture() const {
+   return fLastCapture;
 }

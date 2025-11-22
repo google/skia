@@ -2,8 +2,6 @@ FROM gcr.io/skia-public/jsfiddle-base@sha256:e739450ff48352cbac2ee246d379cd94530
 
 COPY canvaskit.js /usr/local/share/jsfiddle/dist/canvaskit.js
 COPY canvaskit.wasm /usr/local/share/jsfiddle/dist/canvaskit.wasm
-COPY pathkit.js /usr/local/share/jsfiddle/dist/pathkit.js
-COPY pathkit.wasm /usr/local/share/jsfiddle/dist/pathkit.wasm
 COPY version.js /usr/local/share/jsfiddle/dist/version.js
 COPY index.d.ts /usr/local/share/jsfiddle/dist/index.d.ts
 

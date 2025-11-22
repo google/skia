@@ -28,17 +28,6 @@ struct SkSize;
 // Remove when clients are updated to live without this
 #define SK_SUPPORT_LEGACY_MATRIX_RECTTORECT
 
-#ifndef SK_SUPPORT_LEGACY_APPLYPERSPECTIVECLIP
-    #define SK_SUPPORT_LEGACY_APPLYPERSPECTIVECLIP
-#endif
-
-#ifdef SK_SUPPORT_LEGACY_APPLYPERSPECTIVECLIP
-enum class SkApplyPerspectiveClip {
-    kNo,    //!< Don't pre-clip the geometry before applying the (perspective) matrix
-    kYes,   //!< Do pre-clip the geometry before applying the (perspective) matrix
-};
-#endif
-
 /** \class SkMatrix
     SkMatrix holds a 3x3 matrix for transforming coordinates. This allows mapping
     SkPoint and vectors with translation, scaling, skewing, rotation, and
@@ -1505,18 +1494,6 @@ public:
         example: https://fiddle.skia.org/c/@Matrix_mapRect
     */
     bool mapRect(SkRect* dst, const SkRect& src) const;
-
-#ifdef SK_SUPPORT_LEGACY_APPLYPERSPECTIVECLIP
-    bool mapRect(SkRect* dst, const SkRect& src, SkApplyPerspectiveClip) const {
-        return this->mapRect(dst, src);
-    }
-    bool mapRect(SkRect* rect, SkApplyPerspectiveClip) const {
-        return this->mapRect(rect, *rect);
-    }
-    SkRect mapRect(const SkRect& src, SkApplyPerspectiveClip) const {
-        return this->mapRect(src);
-    }
-#endif
 
     /** Sets rect to bounds of rect corners mapped by SkMatrix.
         Returns true if mapped corners are computed rect corners.

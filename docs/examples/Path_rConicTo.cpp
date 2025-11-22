@@ -6,12 +6,12 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(20, 80);
     path.rConicTo( 60,   0,  60,  60, 0.707107f);
     path.rConicTo(  0, -60,  60, -60, 0.707107f);
     path.rConicTo(-60,   0, -60, -60, 0.707107f);
     path.rConicTo(  0,  60, -60,  60, 0.707107f);
-    canvas->drawPath(path, paint);
+    canvas->drawPath(path.detach(), paint);
 }
 }  // END FIDDLE

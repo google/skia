@@ -69,23 +69,23 @@ DEF_TEST(Paint_copy, reporter) {
 // found and fixed for webkit: mishandling when we hit recursion limit on
 // mostly degenerate cubic flatness test
 DEF_TEST(Paint_regression_cubic, reporter) {
-    SkPath path;
+    SkPathBuilder builder;
     SkPaint paint;
 
-    path.moveTo(460.2881309415525f,
-                303.250847066498f);
-    path.cubicTo(463.36378422175284f,
-                 302.1169735073363f,
-                 456.32239330810046f,
-                 304.720354932878f,
-                 453.15255460013304f,
-                 305.788586869862f);
+    builder.moveTo(460.2881309415525f,
+                   303.250847066498f);
+    builder.cubicTo(463.36378422175284f,
+                    302.1169735073363f,
+                    456.32239330810046f,
+                    304.720354932878f,
+                    453.15255460013304f,
+                    305.788586869862f);
+    SkPath path = builder.detach();
 
     SkRect fillR = path.getBounds();
 
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(SkIntToScalar(2));
-    SkPathBuilder builder;
     skpathutils::FillPathWithPaint(path, paint, &builder);
     SkRect strokeR = builder.computeBounds();
 

@@ -38,7 +38,7 @@ public:
     }
 
 protected:
-    SkSVGValue(Type t) : fType(t) { }
+    explicit SkSVGValue(Type t) : fType(t) {}
 
 private:
     Type fType;

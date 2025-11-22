@@ -4,14 +4,14 @@
 REG_FIDDLE(skpaint_corner_path_effects, 256, 256, false, 0) {
 SkPath star() {
     const SkScalar R = 115.2f, C = 128.0f;
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(C + R, C);
     for (int i = 1; i < 7; ++i) {
         SkScalar a = 2.6927937f * i;
         path.lineTo(C + R * cos(a), C + R * sin(a));
     }
     path.close();
-    return path;
+    return path.detach();
 }
 void draw(SkCanvas* canvas) {
     SkPaint paint;

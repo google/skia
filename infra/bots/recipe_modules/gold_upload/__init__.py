@@ -3,6 +3,8 @@
 # found in the LICENSE file.
 
 
+from . import api as _api
+
 DEPS = [
   'recipe_engine/json',
   'recipe_engine/context',
@@ -16,3 +18,5 @@ DEPS = [
   'run',
   'vars',
 ]
+
+API = _api.GoldUploadApi

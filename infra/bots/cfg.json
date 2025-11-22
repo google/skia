@@ -13,7 +13,6 @@
     "NoPrecompile",
     "MSAN",
     "TSAN",
-    "Valgrind",
     "WasmGMTests"
   ],
   "service_account_canary": "skia-canary@skia-swarming-bots.iam.gserviceaccount.com",

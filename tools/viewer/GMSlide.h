@@ -17,15 +17,17 @@
 #include <memory>
 class SkCanvas;
 class SkMetaData;
+class SkSurfaceProps;
 
 class GMSlide : public Slide {
 public:
-    GMSlide(std::unique_ptr<skiagm::GM> gm);
+    explicit GMSlide(std::unique_ptr<skiagm::GM> gm);
     ~GMSlide() override;
 
     SkISize getDimensions() const override { return fGM->getISize(); }
 
     void gpuTeardown() override;
+    void setSurfaceProps(SkSurfaceProps*) override;
     void draw(SkCanvas* canvas) override;
     bool animate(double nanos) override;
 

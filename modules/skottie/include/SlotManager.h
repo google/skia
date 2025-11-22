@@ -42,7 +42,7 @@ class SK_API SlotManager final : public SkRefCnt {
 public:
     using SlotID = SkString;
 
-    SlotManager(sk_sp<skottie::internal::SceneGraphRevalidator>);
+    explicit SlotManager(sk_sp<skottie::internal::SceneGraphRevalidator>);
     ~SlotManager() override;
 
     bool setColorSlot(const SlotID&, SkColor);

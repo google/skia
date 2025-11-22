@@ -61,7 +61,7 @@ protected:
     SkPath onAsPath() const override;
 
 private:
-    Merge(std::vector<Rec>&& recs);
+    explicit Merge(std::vector<Rec>&& recs);
 
     const std::vector<Rec> fRecs;
     SkPath                 fMerged;

@@ -265,12 +265,12 @@ function reportSurface(surface, testname, done) {
 
 
 function starPath(CanvasKit, X=128, Y=128, R=116) {
-    const p = new CanvasKit.Path();
+    const p = new CanvasKit.PathBuilder();
     p.moveTo(X + R, Y);
     for (let i = 1; i < 8; i++) {
       let a = 2.6927937 * i;
       p.lineTo(X + R * Math.cos(a), Y + R * Math.sin(a));
     }
     p.close();
-    return p;
+    return p.detachAndDelete();
 }

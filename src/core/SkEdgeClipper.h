@@ -24,7 +24,7 @@ struct SkRect;
  */
 class SkEdgeClipper {
 public:
-    SkEdgeClipper(bool canCullToTheRight) : fCanCullToTheRight(canCullToTheRight) {}
+    explicit SkEdgeClipper(bool canCullToTheRight) : fCanCullToTheRight(canCullToTheRight) {}
 
     bool clipLine(SkPoint p0, SkPoint p1, const SkRect& clip);
     bool clipQuad(const SkPoint pts[3], const SkRect& clip);

@@ -53,48 +53,6 @@ bool MtlTextureInfo::isCompatible(const TextureInfo& that, bool requireExact) co
            (usageMask & mt.fUsage) == fUsage;
 }
 
-bool MtlTextureInfo::serialize(SkWStream* stream) const {
-    SkASSERT(fFormat                                    < (1u << 24));
-    SkASSERT(fUsage                                     < (1u << 5));
-    SkASSERT(fStorageMode                               < (1u << 2));
-    SkASSERT(static_cast<uint32_t>(fFramebufferOnly)    < (1u << 1));
-
-    // TODO(robertphillips): not densely packed (see above asserts)
-    if (!stream->write32(static_cast<uint32_t>(fFormat)))        { return false; }
-    if (!stream->write16(static_cast<uint16_t>(fUsage)))         { return false; }
-    if (!stream->write8(static_cast<uint8_t>(fStorageMode)))     { return false; }
-    if (!stream->write8(static_cast<uint8_t>(fFramebufferOnly))) { return false; }
-    return true;
-}
-
-bool MtlTextureInfo::deserialize(SkStream* stream) {
-    uint32_t tmp32;
-
-    if (!stream->readU32(&tmp32)) {
-        return false;
-    }
-    // TODO(robertphillips): add validity checks to deserialized values
-    fFormat = static_cast<MTLPixelFormat>(tmp32);
-
-    uint16_t tmp16;
-    if (!stream->readU16(&tmp16)) {
-        return false;
-    }
-    fUsage = static_cast<MTLTextureUsage>(tmp16);
-
-    uint8_t tmp8;
-    if (!stream->readU8(&tmp8)) {
-        return false;
-    }
-    fStorageMode = static_cast<MTLStorageMode>(tmp8);
-
-    if (!stream->readU8(&tmp8)) {
-        return false;
-    }
-    fFramebufferOnly = SkToBool(tmp8);
-    return true;
-}
-
 namespace TextureInfos {
 
 skgpu::graphite::TextureInfo MakeMetal(CFTypeRef mtlTexture) {

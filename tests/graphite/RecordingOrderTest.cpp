@@ -14,7 +14,7 @@
 #include "include/gpu/graphite/Surface.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
-#include "tests/TestUtils.h"
+#include "tests/ComparePixels.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 

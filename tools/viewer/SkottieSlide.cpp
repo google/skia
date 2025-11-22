@@ -564,6 +564,19 @@ void SkottieSlide::init() {
                 std::make_unique<SlotManagerInterface>(builder.getSlotManager(), resource_provider);
         }
 
+        auto li = builder.getLayerInfo();
+
+        for (const auto& layer : li) {
+            SkDebugf(
+                "Layer: Name: \"%s\" | Size: %.2fx%.2f | In/Out: [%.2f, %.2f]\n",
+                layer.fName.c_str(),
+                layer.fSize.width(),
+                layer.fSize.height(),
+                layer.fInPoint,
+                layer.fOutPoint
+            );
+    }
+
         fSlotManagerInterface->initializeSlotManagerUI();
 
         fAnimation->seek(0);

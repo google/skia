@@ -62,12 +62,12 @@ public:
     virtual const skgpu::TokenTracker* tokenTracker() = 0;
 
     /** Returns the token of the draw that this upload will occur before. */
-    virtual skgpu::AtlasToken addInlineUpload(GrDeferredTextureUploadFn&&) = 0;
+    virtual skgpu::Token addInlineUpload(GrDeferredTextureUploadFn&&) = 0;
 
     /** Returns the token of the draw that this upload will occur before. Since ASAP uploads
         are done first during a flush, this will be the first token since the most recent
         flush. */
-    virtual skgpu::AtlasToken addASAPUpload(GrDeferredTextureUploadFn&& upload) = 0;
+    virtual skgpu::Token addASAPUpload(GrDeferredTextureUploadFn&& upload) = 0;
 };
 
 #endif

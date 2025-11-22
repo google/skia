@@ -36,6 +36,7 @@ int SkColorTypeBytesPerPixel(SkColorType ct) {
         case kRGBA_F32_SkColorType:           return 16;
         case kR8G8_unorm_SkColorType:         return 2;
         case kA16_unorm_SkColorType:          return 2;
+        case kR16_unorm_SkColorType:          return 2;
         case kR16G16_unorm_SkColorType:       return 4;
         case kA16_float_SkColorType:          return 2;
         case kR16G16_float_SkColorType:       return 4;
@@ -139,8 +140,8 @@ int SkColorInfo::shiftPerPixel() const { return SkColorTypeShiftPerPixel(fColorT
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 size_t SkImageInfo::computeOffset(int x, int y, size_t rowBytes) const {
-    SkASSERT((unsigned)x < (unsigned)this->width());
-    SkASSERT((unsigned)y < (unsigned)this->height());
+    SkASSERTF(x >= 0 && x < this->width(), "x=%d; width=%d\n", x, this->width());
+    SkASSERTF(y >= 0 && y < this->height(), "y=%d; height=%d\n", y, this->height());
     return SkColorTypeComputeOffset(this->colorType(), x, y, rowBytes);
 }
 
@@ -265,6 +266,7 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
             break;
         case kGray_8_SkColorType:
         case kR8G8_unorm_SkColorType:
+        case kR16_unorm_SkColorType:
         case kR16G16_unorm_SkColorType:
         case kR16G16_float_SkColorType:
         case kRGB_565_SkColorType:

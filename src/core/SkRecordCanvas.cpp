@@ -327,7 +327,7 @@ void SkRecordCanvas::onDrawAtlas2(const SkImage* atlas,
                                        this->copy(xform, count),
                                        this->copy(tex, count),
                                        this->copy(colors, count),
-                                       count,
+                                       (unsigned)count,
                                        mode,
                                        sampling,
                                        this->copy(cull));

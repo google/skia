@@ -46,68 +46,53 @@ namespace {
 // Needed to ensure that we have surrounding context, e.g. for inverse clips this would be solid.
 constexpr int kEntryPadding = 1;
 
-// Copied and modified from Ganesh ClipStack
-void draw_to_sw_mask(RasterMaskHelper* helper,
-                     const ClipStack::Element& e,
-                     bool isFirstElement,
-                     SkIRect drawBounds) {
-    // If the first element to draw is an intersect, we clear to 0 and will draw it directly with
-    // coverage 1 (subsequent intersect elements will be inverse-filled and draw 0 outside).
-    // If the first element to draw is a difference, we clear to 1, and in all cases we draw the
-    // difference element directly with coverage 0.
-    if (isFirstElement) {
-        helper->clear(e.fOp == SkClipOp::kIntersect ? 0x00 : 0xFF, drawBounds);
-    }
+// If the first element to draw is an intersect, we clear to 0 and will draw it directly with
+// coverage 1 (subsequent intersect elements will be inverse-filled and draw 0 outside).
+// If the first element to draw is a difference, we clear to 1, and in all cases we draw the
+// difference element directly with coverage 0.
+SkAlpha initial_alpha_for_elements(const ClipStack::ElementList& elements) {
+    SkASSERT(!elements.empty());
+    return elements[0]->fOp == SkClipOp::kIntersect ? 0x00 : 0xFF;
+}
 
-    uint8_t alpha;
-    bool invert;
-    if (e.fOp == SkClipOp::kIntersect) {
-        // Intersect modifies pixels outside of its geometry. If this is the first element,
-        // we can draw directly with coverage 1 since we cleared to 0. Otherwise we draw the
-        // inverse-filled shape with 0 coverage to erase everything outside the element.
-        if (isFirstElement) {
-            alpha = 0xFF;
-            invert = false;
+void render_elements(RasterMaskHelper* helper, const ClipStack::ElementList& elements) {
+    SkASSERT(!elements.empty());
+    bool isFirst = true;
+    for (const auto& ePtr : elements) {
+        const auto& e = *ePtr;
+        uint8_t alpha;
+        bool invert;
+        if (e.fOp == SkClipOp::kIntersect) {
+            // Intersect modifies pixels outside of its geometry. If this is the first element,
+            // we can draw directly with coverage 1 since we cleared to 0. Otherwise we draw the
+            // inverse-filled shape with 0 coverage to erase everything outside the element.
+            if (isFirst) {
+                alpha = 0xFF;
+                invert = false;
+            } else {
+                alpha = 0x00;
+                invert = true;
+            }
         } else {
+            // For difference ops, can always just subtract the shape directly by drawing 0 coverage
+            SkASSERT(e.fOp == SkClipOp::kDifference);
             alpha = 0x00;
-            invert = true;
+            invert = false;
         }
-    } else {
-        // For difference ops, can always just subtract the shape directly by drawing 0 coverage
-        SkASSERT(e.fOp == SkClipOp::kDifference);
-        alpha = 0x00;
-        invert = false;
-    }
 
-    // Draw the shape; based on how we've initialized the buffer and chosen alpha+invert,
-    // every element is drawn with the kReplace_Op
-    if (invert != e.fShape.inverted()) {
-        Shape inverted(e.fShape);
-        inverted.setInverted(invert);
-        helper->drawClip(inverted, e.fLocalToDevice, alpha, drawBounds);
-    } else {
-        helper->drawClip(e.fShape, e.fLocalToDevice, alpha, drawBounds);
+        // Draw the shape; based on how we've initialized the buffer and chosen alpha+invert,
+        // every element is drawn with the kReplace_Op
+        if (invert != e.fShape.inverted()) {
+            Shape inverted(e.fShape);
+            inverted.setInverted(invert);
+            helper->drawClip(inverted, e.fLocalToDevice, alpha);
+        } else {
+            helper->drawClip(e.fShape, e.fLocalToDevice, alpha);
+        }
+        isFirst = false;
     }
 }
 
-void draw_clip_mask_to_pixmap(const ClipStack::ElementList* elementList,
-                              SkIRect maskDeviceBounds,
-                              SkISize renderSize,
-                              SkIRect drawBounds,
-                              SkAutoPixmapStorage* dst) {
-    // The shape bounds are expanded by kEntryPadding so we need to take that into account here.
-    SkIVector transformedMaskOffset = {maskDeviceBounds.left() - kEntryPadding,
-                                       maskDeviceBounds.top() - kEntryPadding};
-    RasterMaskHelper helper(dst);
-    if (!helper.init(renderSize, transformedMaskOffset)) {
-        return;
-    }
-
-    SkASSERT(!elementList->empty());
-    for (int i = 0; i < elementList->size(); ++i) {
-        draw_to_sw_mask(&helper, *(*elementList)[i], i == 0, drawBounds);
-    }
-}
 } // anonymous namespace
 
 sk_sp<TextureProxy> ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
@@ -140,32 +125,24 @@ sk_sp<TextureProxy> ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
     // We need to include the bounds in the key when using the ProxyCache
     maskKey = GenerateClipMaskKey(stackRecordID, elementList, maskDeviceBounds,
                                   /*includeBounds=*/true, &keyBounds, &usesPathKey);
-    // Bounds relative to the bitmap origin
-    // Expanded to include padding as well (so we clear correctly for inverse clip)
-    SkIRect drawBounds = SkIRect::MakeXYWH(0, 0,
-                                           maskDeviceBounds.width() + 2*kEntryPadding,
-                                           maskDeviceBounds.height() + 2*kEntryPadding);
+
     const struct ClipDrawContext {
         const ClipStack::ElementList* fElementList;
         SkIRect fMaskDeviceBounds;
-        SkIRect fDrawBounds;
-    } context = { elementList, maskDeviceBounds, drawBounds };
+    } context = {elementList, maskDeviceBounds};
     sk_sp<TextureProxy> proxy = fRecorder->priv().proxyCache()->findOrCreateCachedProxy(
             fRecorder, maskKey, &context,
             [](const void* ctx) {
                 const ClipDrawContext* cdc = static_cast<const ClipDrawContext*>(ctx);
-                SkAutoPixmapStorage dst;
-                draw_clip_mask_to_pixmap(cdc->fElementList, cdc->fMaskDeviceBounds,
-                                         cdc->fDrawBounds.size(), cdc->fDrawBounds, &dst);
-                SkBitmap bm;
-                // SkPixmap::detachPixels() clears these so we need to make a copy.
-                SkImageInfo ii = dst.info();
-                size_t rowBytes = dst.rowBytes();
-                // The bitmap needs to take ownership of the pixels, so we detach them from the
-                // SkAutoPixmapStorage and pass them to SkBitmap::installPixels().
-                SkAssertResult(bm.installPixels(ii, dst.detachPixels(), rowBytes,
-                                                [](void* addr, void* context) { sk_free(addr); },
-                                                nullptr));
+                auto translate =
+                        -cdc->fMaskDeviceBounds.topLeft() + SkIVector{kEntryPadding, kEntryPadding};
+                auto [bm, helper] =
+                        RasterMaskHelper::Allocate(cdc->fMaskDeviceBounds.size(),
+                                                   translate,
+                                                   0,
+                                                   initial_alpha_for_elements(*cdc->fElementList));
+
+                render_elements(&helper, *cdc->fElementList);
                 bm.setImmutable();
                 return bm;
             });
@@ -308,23 +285,18 @@ sk_sp<TextureProxy> ClipAtlasManager::DrawAtlasMgr::addToAtlas(
         return nullptr;
     }
 
-    // Rasterize path to backing pixmap.
-    // This pixmap will be the size of the Plot that contains the given rect, not the entire atlas,
-    // and hence the position we render at will be relative to that Plot.
-    // The value of outPos is relative to the entire texture, to be used for texture coords.
-    SkAutoPixmapStorage dst;
-    SkIPoint renderPos = fDrawAtlas->prepForRender(*locator, &dst);
+    // Rasterize path to the record's pixmap with an inset.
+    std::optional<SkColor> clearColor;
+    if (SkAlpha alpha =  initial_alpha_for_elements(*elementsForMask); alpha != 0) {
+        clearColor = alpha << 24;
+    }
+    SkPixmap pixmap = fDrawAtlas->prepForRender(*locator, 0, clearColor);
 
-    // Bounds relative to the AtlasLocator
-    SkIRect drawBounds = SkIRect::MakeXYWH(0, 0, maskSize.width(), maskSize.height());
-    // Offset bounds to plot location for draw
-    drawBounds.offset(renderPos.x(), renderPos.y());
+    auto translate = -maskDeviceBounds.topLeft() + SkIVector{kEntryPadding, kEntryPadding};
+    RasterMaskHelper helper(pixmap, translate);
+    render_elements(&helper, *elementsForMask);
 
-    draw_clip_mask_to_pixmap(elementsForMask, maskDeviceBounds, fDrawAtlas->plotSize(),
-                             drawBounds, &dst);
-
-    SkIPoint topLeft = locator->topLeft();
-    *outPos = SkIPoint::Make(topLeft.x() + kEntryPadding, topLeft.y() + kEntryPadding);
+    *outPos = locator->topLeft() + SkIVector{kEntryPadding, kEntryPadding};
 
     fDrawAtlas->setLastUseToken(*locator,
                                 recorder->priv().tokenTracker()->nextFlushToken());

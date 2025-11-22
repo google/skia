@@ -376,6 +376,11 @@ static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtension
     if (strstr(rendererString, "llvmpipe")) {
         return GrGLRenderer::kGalliumLLVM;
     }
+
+    if (strstr(rendererString, "Android Emulator")) {
+        return GrGLRenderer::kAndroidEmulator;
+    }
+
     static const char kMaliGStr[] = "Mali-G";
     if (0 == strncmp(rendererString, kMaliGStr, std::size(kMaliGStr) - 1)) {
         return GrGLRenderer::kMaliG;

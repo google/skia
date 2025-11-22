@@ -1,8 +1,0 @@
-**/bin
-node_modules/
-build/
-package-lock.json
-# We copy the CHANGELOG into the bundle shipped to CanvasKit, but we do not
-# want to check that in.
-npm-asmjs/CHANGELOG.md
-npm-wasm/CHANGELOG.md

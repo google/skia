@@ -13,6 +13,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSpan.h"
+#include "src/core/SkPathEnums.h"   // SkPathConvexity
 
 #include <array>
 #include <cstddef>
@@ -32,24 +33,30 @@ struct SkPathRaw {
     SkSpan<const float>      fConics;
     SkRect                   fBounds;
     SkPathFillType           fFillType;
-    bool                     fIsConvex;
-    // See SkPath::SegmentMask
-    uint8_t                  fSegmentMask;
+    SkPathConvexity          fConvexity;
+    uint8_t                  fSegmentMask;  // See SkPath::SegmentMask
 
     SkSpan<const SkPoint> points() const { return fPoints; }
     SkSpan<const SkPathVerb> verbs() const { return fVerbs; }
     SkSpan<const float> conics() const { return fConics; }
     SkRect bounds() const { return fBounds; }
     SkPathFillType fillType() const { return fFillType; }
-    bool isConvex() const { return fIsConvex; }
+    SkPathConvexity convexity() const { return fConvexity; }
     unsigned segmentMasks() const { return fSegmentMask; }
 
     bool empty() const { return fVerbs.empty(); }
     bool isInverseFillType() const { return SkPathFillType_IsInverse(fFillType); }
+    bool isKnownToBeConvex() const { return SkPathConvexity_IsConvex(fConvexity); }
 
     std::optional<SkRect> isRect() const;
 
     SkPathIter iter() const { return {fPoints, fVerbs, fConics}; }
+
+    static SkPathRaw Empty(SkPathFillType ft = SkPathFillType::kDefault) {
+        return {
+            {}, {}, {}, SkRect::MakeEmpty(), ft, SkPathConvexity::kConvex_Degenerate, 0,
+        };
+    }
 };
 
 #endif

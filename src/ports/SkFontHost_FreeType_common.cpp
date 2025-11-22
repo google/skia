@@ -1376,14 +1376,14 @@ SkPath GetClipBoxPath(FT_Face face, SkGlyphID glyphId, bool untransformed) {
 
     FT_ClipBox colrGlyphClipBox;
     if (FT_Get_Color_Glyph_ClipBox(face, glyphId, &colrGlyphClipBox)) {
-        resultPath = SkPath::Polygon({{ SkFDot6ToScalar(colrGlyphClipBox.bottom_left.x),
+        resultPath = SkPath::Polygon({{{ SkFDot6ToScalar(colrGlyphClipBox.bottom_left.x),
                                        -SkFDot6ToScalar(colrGlyphClipBox.bottom_left.y)},
                                       { SkFDot6ToScalar(colrGlyphClipBox.top_left.x),
                                        -SkFDot6ToScalar(colrGlyphClipBox.top_left.y)},
                                       { SkFDot6ToScalar(colrGlyphClipBox.top_right.x),
                                        -SkFDot6ToScalar(colrGlyphClipBox.top_right.y)},
                                       { SkFDot6ToScalar(colrGlyphClipBox.bottom_right.x),
-                                       -SkFDot6ToScalar(colrGlyphClipBox.bottom_right.y)}},
+                                       -SkFDot6ToScalar(colrGlyphClipBox.bottom_right.y)}}},
                                      true);
     }
 

@@ -35,6 +35,19 @@ Skia against the headers and libraries found on the system paths.
 use `extra_cflags` and `extra_ldflags` to add include or library paths if
 needed.
 
+### Rust code in third_party
+
+Skia has some third party dependencies that are written in Rust. In order
+to build these from Skia's GN build, you will need to have
+[Bazel](https://bazel.build/) installed (or use `bazelisk`), which will
+download a Rust toolchain and build these.
+
+### Dawn
+
+Skia uses [Dawn](https://dawn.googlesource.com/dawn) for some of its GPU
+backends, which it builds using CMake. In order to build Dawn from GN, you
+must have `cmake` 3.30 or later installed.
+
 ## Supported and Preferred Compilers
 
 While Skia should compile with GCC, MSVC, and other compilers, a number of
@@ -45,9 +58,9 @@ will see dramatically worse performance. This choice was only a matter of
 prioritization; there is nothing fundamentally wrong with non-Clang compilers.
 So if this is a serious issue for you, please let us know on the mailing list.
 
-Skia makes use of C++17 language features (compiles with `-std=c++17` flag) and
-thus requires a C++17 compatible compiler. Clang 5 and later implement all of
-the features of the c++17 standard. Older compilers that lack C++17 support may
+Skia makes use of C++20 language features (compiles with `-std=c++20` flag) and
+thus requires a C++20 compatible compiler. Clang 21 implements most
+the features of the c++20 standard. Older compilers that lack C++20 support may
 produce non-obvious compilation errors. You can configure your build to use
 specific executables for `cc` and `cxx` invocations using e.g.
 `--args='cc="clang" cxx="clang++"'` GN build arguments, as illustrated in

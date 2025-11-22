@@ -403,7 +403,7 @@ SkPathStroker::SkPathStroker(const SkPath& src,
         , fCanIgnoreCenter(canIgnoreCenter) {
 
     /*  This is only used when join is miter_join, but we initialize it here
-        so that it is always defined, to fis valgrind warnings.
+        so that it is always defined, to fix sanitizer warnings.
     */
     fInvMiterLimit = 0;
 
@@ -1436,6 +1436,11 @@ void SkStroke::strokePath(const SkPath& src, SkPathBuilder* dst) const {
         return;
     }
 
+    const auto raw = SkPathPriv::Raw(src, SkResolveConvexity::kNo);
+    if (!raw) {
+        return;
+    }
+
     // If src is really a rect, call our specialty strokeRect() method
     {
         SkRect rect;
@@ -1509,7 +1514,7 @@ void SkStroke::strokePath(const SkPath& src, SkPathBuilder* dst) const {
     stroker.done(dst, lastSegment == SkPathVerb::kLine);
 
     if (fDoFill && !ignoreCenter) {
-        auto d = SkPathPriv::ComputeFirstDirection(SkPathPriv::Raw(src));
+        auto d = SkPathPriv::ComputeFirstDirection(*raw);
         if (d == SkPathFirstDirection::kCCW) {
             dst->privateReverseAddPath(src);
         } else {

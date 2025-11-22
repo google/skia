@@ -88,11 +88,7 @@ void SkSVGRect::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
 }
 
 SkPath SkSVGRect::onAsPath(const SkSVGRenderContext& ctx) const {
-    SkPath path = SkPath::RRect(this->resolve(ctx.lengthContext()));
-
-    this->mapToParent(&path);
-
-    return path;
+    return this->mapToParent(SkPath::RRect(this->resolve(ctx.lengthContext())));
 }
 
 SkRect SkSVGRect::onTransformableObjectBoundingBox(const SkSVGRenderContext& ctx) const {

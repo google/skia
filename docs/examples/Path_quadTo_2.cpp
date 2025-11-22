@@ -6,12 +6,12 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setAntiAlias(true);
-    SkPath path;
+    SkPathBuilder path;
     SkPoint pts[] = {{128, 10}, {10, 214}, {236, 214}};
     path.moveTo(pts[1]);
     for (int i = 0; i < 3; ++i) {
         path.quadTo(pts[i % 3],  pts[(i + 2) % 3]);
     }
-    canvas->drawPath(path, paint);
+    canvas->drawPath(path.detach(), paint);
 }
 }  // END FIDDLE

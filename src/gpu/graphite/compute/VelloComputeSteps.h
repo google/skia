@@ -12,6 +12,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkSpan.h"
 #include "include/private/base/SkTArray.h"
+#include "src/gpu/BufferWriter.h"
 #include "src/gpu/graphite/ComputeTypes.h"
 #include "src/gpu/graphite/compute/ComputeStep.h"
 
@@ -230,25 +231,25 @@ private:
         Vello##stage##Step();                                                          \
     };
 
-VELLO_COMPUTE_STEP(BackdropDyn);
-VELLO_COMPUTE_STEP(BboxClear);
-VELLO_COMPUTE_STEP(Binning);
-VELLO_COMPUTE_STEP(ClipLeaf);
-VELLO_COMPUTE_STEP(ClipReduce);
-VELLO_COMPUTE_STEP(Coarse);
-VELLO_COMPUTE_STEP(Flatten);
-VELLO_COMPUTE_STEP(DrawLeaf);
-VELLO_COMPUTE_STEP(DrawReduce);
-VELLO_COMPUTE_STEP(PathCount);
-VELLO_COMPUTE_STEP(PathCountSetup);
-VELLO_COMPUTE_STEP(PathTiling);
-VELLO_COMPUTE_STEP(PathTilingSetup);
-VELLO_COMPUTE_STEP(PathtagReduce);
-VELLO_COMPUTE_STEP(PathtagReduce2);
-VELLO_COMPUTE_STEP(PathtagScan1);
-VELLO_COMPUTE_STEP(PathtagScanLarge);
-VELLO_COMPUTE_STEP(PathtagScanSmall);
-VELLO_COMPUTE_STEP(TileAlloc);
+VELLO_COMPUTE_STEP(BackdropDyn)
+VELLO_COMPUTE_STEP(BboxClear)
+VELLO_COMPUTE_STEP(Binning)
+VELLO_COMPUTE_STEP(ClipLeaf)
+VELLO_COMPUTE_STEP(ClipReduce)
+VELLO_COMPUTE_STEP(Coarse)
+VELLO_COMPUTE_STEP(Flatten)
+VELLO_COMPUTE_STEP(DrawLeaf)
+VELLO_COMPUTE_STEP(DrawReduce)
+VELLO_COMPUTE_STEP(PathCount)
+VELLO_COMPUTE_STEP(PathCountSetup)
+VELLO_COMPUTE_STEP(PathTiling)
+VELLO_COMPUTE_STEP(PathTilingSetup)
+VELLO_COMPUTE_STEP(PathtagReduce)
+VELLO_COMPUTE_STEP(PathtagReduce2)
+VELLO_COMPUTE_STEP(PathtagScan1)
+VELLO_COMPUTE_STEP(PathtagScanLarge)
+VELLO_COMPUTE_STEP(PathtagScanSmall)
+VELLO_COMPUTE_STEP(TileAlloc)
 
 #undef VELLO_COMPUTE_STEP
 
@@ -281,11 +282,9 @@ public:
 
     void prepareStorageBuffer(int resourceIndex,
                               const ComputeStep::ResourceDesc&,
-                              void* buffer,
-                              size_t bufferSize) const override {
+                              BufferWriter&& writer) const override {
         SkASSERT(resourceIndex == 5);
-        SkASSERT(fMaskLut.size() == bufferSize);
-        memcpy(buffer, fMaskLut.data(), fMaskLut.size());
+        writer.write(fMaskLut.data(), fMaskLut.size());
     }
 
 protected:

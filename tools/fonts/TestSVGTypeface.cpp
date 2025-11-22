@@ -1326,15 +1326,11 @@ public:
     }
 
     void onDrawRect(const SkRect& rect, const SkPaint& paint) override {
-        SkPath path;
-        path.addRect(rect);
-        this->drawPath(path, paint);
+        this->drawPath(SkPath::Rect(rect), paint);
     }
 
     void onDrawOval(const SkRect& oval, const SkPaint& paint) override {
-        SkPath path;
-        path.addOval(oval);
-        this->drawPath(path, paint);
+        this->drawPath(SkPath::Oval(oval), paint);
     }
 
     void onDrawArc(const SkRect&  oval,
@@ -1349,9 +1345,7 @@ public:
     }
 
     void onDrawRRect(const SkRRect& rrect, const SkPaint& paint) override {
-        SkPath path;
-        path.addRRect(rrect);
-        this->drawPath(path, paint);
+        this->drawPath(SkPath::RRect(rrect), paint);
     }
 
     void onDrawPath(const SkPath& platonicPath, const SkPaint& originalPaint) override {
@@ -1378,7 +1372,7 @@ public:
         // If done to the canvas then everything would get clipped out.
         m.postTranslate(0, fBaselineOffset);  // put the baseline at 0
         m.postScale(1, -1);                   // and flip it since OpenType is y-up.
-        path.transform(m);
+        path = path.makeTransform(m);
 
         // While creating the default glyf, union with dark colors and intersect with bright colors.
         SkColor  color = paint.getColor();
@@ -1412,8 +1406,7 @@ public:
     }
 
     void finishGlyph() {
-        SkPath baseGlyph;
-        fBasePath.resolve(&baseGlyph);
+        SkPath baseGlyph = fBasePath.resolve().value_or(SkPath());
         fGlyf->fBounds = this->writePath(baseGlyph, false);
     }
 

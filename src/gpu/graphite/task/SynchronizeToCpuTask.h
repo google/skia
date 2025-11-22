@@ -40,6 +40,8 @@ public:
 
     Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
+    SK_DUMP_TASKS_CODE(const char* getTaskName() const override { return "Sync to CPU Task"; })
+
 private:
     explicit SynchronizeToCpuTask(sk_sp<Buffer> buffer) : fBuffer(std::move(buffer)) {}
 

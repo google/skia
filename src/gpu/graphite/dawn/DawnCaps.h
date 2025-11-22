@@ -33,20 +33,19 @@ public:
     }
     bool supportsPartialLoadResolve() const { return fSupportsPartialLoadResolve; }
 
-    bool isSampleCountSupported(TextureFormat, uint8_t requestedSampleCount) const override;
+    bool isSampleCountSupported(TextureFormat, SampleCount requestedSampleCount) const override;
     TextureFormat getDepthStencilFormat(SkEnumBitMask<DepthStencilFlags>) const override;
 
     TextureInfo getDefaultAttachmentTextureInfo(AttachmentDesc,
                                                 Protected,
                                                 Discardable) const override;
     TextureInfo getDefaultSampledTextureInfo(SkColorType,
-                                             Mipmapped mipmapped,
+                                             Mipmapped,
                                              Protected,
                                              Renderable) const override;
-    TextureInfo getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
-                                             Mipmapped mipmapped) const override;
+    TextureInfo getTextureInfoForSampledCopy(const TextureInfo&, Mipmapped) const override;
     TextureInfo getDefaultCompressedTextureInfo(SkTextureCompressionType,
-                                                Mipmapped mipmapped,
+                                                Mipmapped,
                                                 Protected) const override;
     TextureInfo getDefaultStorageTextureInfo(SkColorType) const override;
     SkISize getDepthAttachmentDimensions(const TextureInfo&,
@@ -59,6 +58,8 @@ public:
                               const RendererProvider*) const override;
     UniqueKey makeComputePipelineKey(const ComputePipelineDesc&) const override;
     ImmutableSamplerInfo getImmutableSamplerInfo(const TextureInfo&) const override;
+    std::string toString(const ImmutableSamplerInfo&) const override;
+
     bool isRenderable(const TextureInfo&) const override;
     bool isStorage(const TextureInfo&) const override;
 
@@ -90,8 +91,8 @@ public:
 private:
     const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const override;
     bool onIsTexturable(const TextureInfo&) const override;
-    bool supportsWritePixels(const TextureInfo& textureInfo) const override;
-    bool supportsReadPixels(const TextureInfo& textureInfo) const override;
+    bool supportsWritePixels(const TextureInfo&) const override;
+    bool supportsReadPixels(const TextureInfo&) const override;
     std::pair<SkColorType, bool /*isRGBFormat*/> supportedWritePixelsColorType(
             SkColorType dstColorType,
             const TextureInfo& dstTextureInfo,
@@ -101,9 +102,9 @@ private:
             const TextureInfo& srcTextureInfo,
             SkColorType dstColorType) const override;
 
-    void initCaps(const DawnBackendContext& backendContext, const ContextOptions& options);
-    void initShaderCaps(const wgpu::Device& device);
-    void initFormatTable(const wgpu::Device& device);
+    void initCaps(const DawnBackendContext&, const ContextOptions&);
+    void initShaderCaps(const wgpu::Device&);
+    void initFormatTable(const wgpu::Device&);
 
     wgpu::TextureFormat getFormatFromColorType(SkColorType colorType) const {
         int idx = static_cast<int>(colorType);

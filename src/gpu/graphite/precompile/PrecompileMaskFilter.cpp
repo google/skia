@@ -87,8 +87,8 @@ private:
             // AnalyticRRect RenderStep.
             // TODO: gate the inclusion of this option on the drawType being kSimple
             PaintOptions coverageOptions;
-            coverageOptions.setShaders({ PrecompileShaders::Color() });
-            coverageOptions.setBlendModes({ SkBlendMode::kSrcOver });
+            coverageOptions.setShaders({{ PrecompileShaders::Color() }});
+            coverageOptions.setBlendModes(SKSPAN_INIT_ONE(SkBlendMode::kSrcOver));
 
             coverageOptions.priv().buildCombinations(
                     keyContext,

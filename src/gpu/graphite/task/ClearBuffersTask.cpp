@@ -15,7 +15,7 @@ sk_sp<ClearBuffersTask> ClearBuffersTask::Make(skia_private::TArray<BindBufferIn
     return sk_sp<ClearBuffersTask>(new ClearBuffersTask(std::move(clearList)));
 }
 
-ClearBuffersTask::~ClearBuffersTask(){};
+ClearBuffersTask::~ClearBuffersTask() {}
 
 Task::Status ClearBuffersTask::addCommands(Context*,
                                            CommandBuffer* commandBuffer,

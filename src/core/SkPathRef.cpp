@@ -299,17 +299,6 @@ void SkPathRef::copy(const SkPathRef& ref,
     SkDEBUGCODE(this->validate();)
 }
 
-void SkPathRef::interpolate(const SkPathRef& ending, SkScalar weight, SkPathRef* out) const {
-    const SkScalar* inValues = &ending.getPoints()->fX;
-    SkScalar* outValues = &out->getWritablePoints()->fX;
-    int count = out->countPoints() * 2;
-    for (int index = 0; index < count; ++index) {
-        outValues[index] = outValues[index] * weight + inValues[index] * (1 - weight);
-    }
-    out->fBoundsIsDirty = true;
-    out->fType = SkPathIsAType::kGeneral;
-}
-
 std::tuple<SkPoint*, SkScalar*> SkPathRef::growForVerbsInPath(const SkPathRef& path) {
     SkDEBUGCODE(this->validate();)
 
@@ -423,7 +412,7 @@ SkPoint* SkPathRef::growForVerb(SkPathVerb verb, SkScalar weight) {
     return pts;
 }
 
-uint32_t SkPathRef::genID(uint8_t fillType) const {
+uint32_t SkPathRef::genID(SkPathFillType fillType) const {
     SkASSERT(fEditorsAttached.load() == 0);
     static const uint32_t kMask = (static_cast<int64_t>(1) << kPathRefGenIDBitCnt) - 1;
 

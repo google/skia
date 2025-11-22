@@ -116,11 +116,11 @@ protected:
             return clips.back();
         };
 
-        emplace_back(fClips).setPath(SkPath::Polygon({
+        emplace_back(fClips).setPath(SkPath::Polygon({{
             {  5.f,   5.f},
             {100.f,  20.f},
             { 15.f, 100.f},
-        }, false));
+        }}, false));
 
         SkPathBuilder hexagon;
         constexpr SkScalar kRadius = 45.f;

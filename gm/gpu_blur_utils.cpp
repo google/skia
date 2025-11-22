@@ -47,7 +47,7 @@ static GrSurfaceProxyView blur(GrRecordingContext* ctx,
         return {};
     }
     return resultSDC->readSurfaceView();
-};
+}
 
 // Performs tiling first of the src into dst bounds with a surrounding skirt so the blur can use
 // clamp. Does repeated blurs rather than invoking downsampling.
@@ -124,7 +124,7 @@ static GrSurfaceProxyView slow_blur(GrRecordingContext* rContext,
     // the other dimension was not expanded.
     auto srcRect = SkIRect::MakeSize(src.dimensions());
     return tileInto(std::move(src), srcRect, dstB.size(), -outset, SkTileMode::kClamp);
-};
+}
 
 // Makes a src texture for as a source for blurs. If 'contentArea' then the content will
 // be in that rect, the 1-pixel surrounding border will be transparent black, and red outside of
@@ -179,7 +179,10 @@ GrSurfaceProxyView make_src_image(GrRecordingContext* rContext,
     surf->getCanvas()->drawLine({7.f*w/8.f, 0.f}, {7.f*h/8.f, h}, paint);
 
     auto img = surf->makeImageSnapshot();
-    auto [src, ct] = skgpu::ganesh::AsView(rContext, img, skgpu::Mipmapped::kNo);
+    // We throw away the surface immediately so we know the image won't be drawn into itself. Thus
+    // we pass nullptr for targetSurface.
+    auto [src, ct] = skgpu::ganesh::AsView(rContext, img, skgpu::Mipmapped::kNo,
+                                           /*targetSurface=*/nullptr);
     return src;
 }
 

@@ -825,7 +825,7 @@ void draw(SkCanvas* canvas) {
     SkRect oval1 = {209 - 86, 101 - 86, 209 + 86, 101 + 86};
     SkRect oval2 = {209 - 39, 101 - 39, 209 + 39, 101 + 39};
     for (const auto& wedge : wedges) {
-        SkPath path;
+        SkPathBuilder path;
         path.moveTo(SkDoubleToScalar(wedge.fMove[0]), SkDoubleToScalar(wedge.fMove[1]));
         path.lineTo(SkDoubleToScalar(wedge.fLine1[0]), SkDoubleToScalar(wedge.fLine1[1]));
         SkASSERT(wedge.fArc1Angles[0] == wedge.fArc2Angles[1]);
@@ -842,7 +842,7 @@ void draw(SkCanvas* canvas) {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setARGB(255, wedge.fRGB[0], wedge.fRGB[1], wedge.fRGB[2]);
-        canvas->drawPath(path, paint);
+        canvas->drawPath(path.detach(), paint);
     }
 }
 }  // END FIDDLE

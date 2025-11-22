@@ -50,7 +50,7 @@ public:
 private:
     friend class SkTableColorFilter; // for bitmap()
 
-    SkColorTable(const SkBitmap& table) : fTable(table) {}
+    explicit SkColorTable(const SkBitmap& table) : fTable(table) {}
 
     // The returned SkBitmap is immutable; attempting to modify its pixel data will trigger asserts
     // in debug builds and cause undefined behavior in release builds.

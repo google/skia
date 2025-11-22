@@ -3,7 +3,8 @@
 #include "tools/fiddle/examples.h"
 REG_FIDDLE(Path_isLine, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
-    auto debugster = [](const char* prefix, const SkPath& path) -> void {
+    auto debugster = [](const char* prefix, const SkPathBuilder& builder) -> void {
+        SkPath path = builder.snapshot();
         SkPoint line[2];
         if (path.isLine(line)) {
             SkDebugf("%s is line (%1.8g,%1.8g) (%1.8g,%1.8g)\n", prefix,
@@ -12,11 +13,11 @@ void draw(SkCanvas* canvas) {
             SkDebugf("%s is not line\n", prefix);
         }
     };
-    SkPath path;
+    SkPathBuilder path;
     debugster("empty", path);
     path.lineTo(0, 0);
     debugster("zero line", path);
-    path.rewind();
+    path.reset();
     path.moveTo(10, 10);
     path.lineTo(20, 20);
     debugster("line", path);

@@ -60,34 +60,27 @@ using namespace skia_private;
 
 /////////////////////////////////////////////////////////////////////////////
 
-void get_vk_load_store_ops(GrLoadOp loadOpIn, GrStoreOp storeOpIn,
-                           VkAttachmentLoadOp* loadOp, VkAttachmentStoreOp* storeOp) {
+static VkAttachmentLoadOp get_vk_load_op(GrLoadOp loadOpIn) {
     switch (loadOpIn) {
-        case GrLoadOp::kLoad:
-            *loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-            break;
-        case GrLoadOp::kClear:
-            *loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-            break;
-        case GrLoadOp::kDiscard:
-            *loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-            break;
-        default:
-            SK_ABORT("Invalid LoadOp");
-            *loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        case GrLoadOp::kLoad:    return VK_ATTACHMENT_LOAD_OP_LOAD;
+        case GrLoadOp::kClear:   return VK_ATTACHMENT_LOAD_OP_CLEAR;
+        case GrLoadOp::kDiscard: return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     }
+    SkUNREACHABLE;
+}
 
+static VkAttachmentStoreOp get_vk_store_op(GrStoreOp storeOpIn) {
     switch (storeOpIn) {
-        case GrStoreOp::kStore:
-            *storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-            break;
-        case GrStoreOp::kDiscard:
-            *storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-            break;
-        default:
-            SK_ABORT("Invalid StoreOp");
-            *storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        case GrStoreOp::kStore:   return VK_ATTACHMENT_STORE_OP_STORE;
+        case GrStoreOp::kDiscard: return VK_ATTACHMENT_STORE_OP_DONT_CARE;
     }
+    SkUNREACHABLE;
+}
+
+static void get_vk_load_store_ops(GrLoadOp loadOpIn, GrStoreOp storeOpIn,
+                                  VkAttachmentLoadOp* loadOp, VkAttachmentStoreOp* storeOp) {
+    *loadOp = get_vk_load_op(loadOpIn);
+    *storeOp = get_vk_store_op(storeOpIn);
 }
 
 GrVkOpsRenderPass::GrVkOpsRenderPass(GrVkGpu* gpu) : fGpu(gpu) {}

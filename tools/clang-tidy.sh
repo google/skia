@@ -23,7 +23,10 @@ while [ "$1" ]; do
     fi
 done
 
-if [ "$src" ] && [[ "$src" != *"third_party"* ]] && [[ "$src" != *"vulkanmemoryallocator"* ]]; then
+# Ignore third party code (which we don't control). Generally it's found in //third_party/
+# but is also found in //src/gpu/vk/vulkanmemoryallocator and in a generated folder when building
+# Dawn using CMake
+if [ "$src" ] && [[ "$src" != *"third_party"* ]] && [[ "$src" != *"vulkanmemoryallocator"* ]] && [[ "$src" != *"cmake_"* ]]; then
     clang-tidy -quiet -header-filter='.*' -warnings-as-errors='*' $src -- $args
 fi
 exec clang++ $args

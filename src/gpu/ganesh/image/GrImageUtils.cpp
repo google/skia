@@ -260,7 +260,9 @@ static GrSurfaceProxyView generate_picture_texture(GrRecordingContext* ctx,
         return {};
     }
 
-    auto [view, ct] = AsView(ctx, image, mipmapped);
+    // The surface the image was created from is only local to this function so there will not be a
+    // need for a copy when getting the view of the image for a future draw.
+    auto [view, ct] = AsView(ctx, image, mipmapped, /*targetSurface=*/nullptr);
     SkASSERT(view);
     SkASSERT(mipmapped == skgpu::Mipmapped::kNo ||
              view.asTextureProxy()->mipmapped() == skgpu::Mipmapped::kYes);
@@ -402,6 +404,7 @@ static std::tuple<GrSurfaceProxyView, GrColorType> lazy_as_view(GrRecordingConte
 std::tuple<GrSurfaceProxyView, GrColorType> AsView(GrRecordingContext* rContext,
                                                    const SkImage* img,
                                                    skgpu::Mipmapped mipmapped,
+                                                   GrRenderTargetProxy* targetSurface,
                                                    GrImageTexGenPolicy policy) {
     SkASSERT(img);
     if (!rContext) {
@@ -420,7 +423,7 @@ std::tuple<GrSurfaceProxyView, GrColorType> AsView(GrRecordingContext* rContext,
         return rp->asView(rContext, mipmapped, policy);
     } else if (ib->isGaneshBacked()) {
         auto gb = static_cast<const SkImage_GaneshBase*>(img);
-        return gb->asView(rContext, mipmapped, policy);
+        return gb->asView(rContext, mipmapped, policy, targetSurface);
     } else if (ib->isLazyGenerated()) {
         return lazy_as_view(rContext, static_cast<const SkImage_Lazy*>(ib), mipmapped, policy);
     }
@@ -511,7 +514,7 @@ std::unique_ptr<GrFragmentProcessor> raster_as_fp(GrRecordingContext* rContext,
     auto mm =
             sampling.mipmap == SkMipmapMode::kNone ? skgpu::Mipmapped::kNo : skgpu::Mipmapped::kYes;
     return make_fp_from_view(rContext,
-                             std::get<0>(AsView(rContext, img, mm)),
+                             std::get<0>(AsView(rContext, img, mm, /*targetSurface=*/nullptr)),
                              img->alphaType(),
                              sampling,
                              tileModes,
@@ -557,9 +560,11 @@ std::unique_ptr<GrFragmentProcessor> AsFragmentProcessor(SurfaceDrawContext* sdc
     } else if (ib->isLazyGenerated()) {
         // TODO: If the CPU data is extracted as planes return a FP that reconstructs the image from
         // the planes.
-        auto mm = sampling.mipmap == SkMipmapMode::kNone ? skgpu::Mipmapped::kNo : skgpu::Mipmapped::kYes;
+        auto mm = sampling.mipmap == SkMipmapMode::kNone ? skgpu::Mipmapped::kNo
+                                                         : skgpu::Mipmapped::kYes;
+        auto rtp = sdc->asRenderTargetProxy();
         return MakeFragmentProcessorFromView(rContext,
-                                             std::get<0>(AsView(rContext, img, mm)),
+                                             std::get<0>(AsView(rContext, img, mm, rtp)),
                                              img->alphaType(),
                                              sampling,
                                              tileModes,

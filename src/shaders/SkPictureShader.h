@@ -66,6 +66,7 @@ public:
                                     const int maxTextureSize,
                                     const SkSurfaceProps& propsIn);
 
+        // Returns a temporary image created from the surface
         sk_sp<SkImage> makeImage(sk_sp<SkSurface> surf, const SkPicture* pict) const;
     };
 

@@ -246,7 +246,7 @@ private:
             return;
         }
         sk_sp<SkShader> shader =
-                fEffect->makeShader(buildUniformData(), SkSpan(buildChildrenData(this->node())));
+                fEffect->makeShader(buildUniformData(), buildChildrenData(this->node()));
         this->node()->setShader(std::move(shader));
     }
 };

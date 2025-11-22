@@ -9,11 +9,11 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkClipOp.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkAssert.h"
 #include "modules/sksg/include/SkSGNode.h"
-#include "src/core/SkPathPriv.h"
 
 class SkMatrix;
 
@@ -71,21 +71,23 @@ SkRect Merge::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());
 
     SkOpBuilder builder;
+    SkPathBuilder merger;
 
-    fMerged.reset();
     bool in_builder = false;
 
     auto append = [&](const SkPath& path) {
         if (in_builder) {
-            builder.resolve(&fMerged);
+            if (auto result = builder.resolve()) {
+                merger = *result;
+            }
             in_builder = false;
         }
 
-        if (fMerged.isEmpty()) {
+        if (merger.isEmpty()) {
             // First merge path determines the fill type.
-            fMerged = path;
+            merger = path;
         } else {
-            fMerged.addPath(path);
+            merger.addPath(path);
         }
     };
 
@@ -99,18 +101,16 @@ SkRect Merge::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
         }
 
         if (!in_builder) {
-            builder.add(fMerged, kUnion_SkPathOp);
+            builder.add(merger.detach(), kUnion_SkPathOp);
             in_builder = true;
         }
 
         builder.add(rec.fGeo->asPath(), mode_to_op(rec.fMode));
     }
 
-    if (in_builder) {
-        builder.resolve(&fMerged);
-    }
-
-    SkPathPriv::ShrinkToFit(&fMerged);
+    fMerged = in_builder
+        ? builder.resolve().value_or(SkPath())
+        : merger.detach();
 
     return fMerged.computeTightBounds();
 }

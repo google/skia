@@ -37,7 +37,7 @@ public:
     }
 
     void load(SkScalar w, SkScalar h) override {
-        fRRectPath.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-130, -128.5, 130, 128.5), 4, 4));
+        fRRectPath = SkPath::RRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-130, -128.5, 130, 128.5), 4, 4));
         fReferenceImage = ToolUtils::GetResourceAsImage("images/shadowreference.png");
     }
 

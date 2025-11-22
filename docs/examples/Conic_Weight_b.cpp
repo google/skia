@@ -4,8 +4,7 @@
 REG_FIDDLE(Conic_Weight_b, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     const char* verbNames[] = { "move", "line", "quad", "conic", "cubic", "close", "done" };
-    SkPath path;
-    path.arcTo(20, 0, 20, 20, 20);
+    SkPath path = SkPathBuilder().arcTo({20, 0}, {20, 20}, 20).detach();
     SkPath::Iter iter(path, false);
     while (auto rec = iter.next()) {
        SkDebugf("%s ", verbNames[(int)rec->fVerb]);

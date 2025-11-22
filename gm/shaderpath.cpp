@@ -14,6 +14,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
@@ -99,8 +100,10 @@ protected:
         // position the baseline of the first path
         canvas->translate(0.f, 2.25);
 
-        SkPath path;
-        path.moveTo(0, 40).cubicTo(10, 70, 20, 10, 30, 40);
+        SkPath path = SkPathBuilder()
+                      .moveTo(0, 40)
+                      .cubicTo(10, 70, 20, 10, 30, 40)
+                      .detach();
 
         canvas->save();
         int i = 0;

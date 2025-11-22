@@ -82,7 +82,7 @@ template <auto F> using SkFunctionObject =
     reference is null when the destructor is called, we do not call the
     function.
 */
-template <typename T, void (*P)(T*)> class SkAutoTCallVProc
+template <typename T, void (*P)(T*)> class [[nodiscard]] SkAutoTCallVProc
     : public std::unique_ptr<T, SkFunctionObject<P>> {
     using inherited = std::unique_ptr<T, SkFunctionObject<P>>;
 public:
@@ -141,10 +141,10 @@ public:
     size_t size_bytes() const { return sizeof(T) * fSize; }
 
     T* begin() {
-        return fData;
+        return fData.get();
     }
     const T* begin() const {
-        return fData;
+        return fData.get();
     }
 
     // It's safe to use fItemArray + fSize because if fItemArray is nullptr then adding 0 is
@@ -153,13 +153,13 @@ public:
         if (fData == nullptr) {
             SkASSERT(fSize == 0);
         }
-        return fData + fSize;
+        return this->begin() + fSize;
     }
     const T* end() const {
         if (fData == nullptr) {
             SkASSERT(fSize == 0);
         }
-        return fData + fSize;
+        return this->begin() + fSize;
     }
 
 private:

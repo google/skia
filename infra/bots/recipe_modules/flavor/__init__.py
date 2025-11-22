@@ -3,6 +3,8 @@
 # found in the LICENSE file.
 
 
+from . import api as _api
+
 DEPS = [
   'env',
   'recipe_engine/context',
@@ -16,3 +18,5 @@ DEPS = [
   'vars',
   'xcode',
 ]
+
+API = _api.SkiaFlavorApi

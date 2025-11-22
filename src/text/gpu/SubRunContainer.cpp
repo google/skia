@@ -312,8 +312,7 @@ PathOpSubmitter::submitDraws(SkCanvas* canvas, SkPoint drawOrigin, const SkPaint
             SkMatrix pathMatrix = strikeToSource;
             pathMatrix.postTranslate(pos.x(), pos.y());
 
-            SkPath deviceOutline;
-            idOrPath.fPath.transform(pathMatrix, &deviceOutline);
+            SkPath deviceOutline = idOrPath.fPath.makeTransform(pathMatrix);
             deviceOutline.setIsVolatile(true);
             canvas->drawPath(deviceOutline, runPaint);
         }

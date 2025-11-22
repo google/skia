@@ -146,8 +146,8 @@ int path_key_from_data_size(const SkPath& path) {
     if (verbCnt > kMaxKeyFromDataVerbCnt) {
         return -1;
     }
-    const int pointCnt = path.countPoints();
-    const int conicWeightCnt = SkPathPriv::ConicWeightCnt(path);
+    const size_t pointCnt = path.points().size();
+    const size_t conicWeightCnt = path.conicWeights().size();
 
     static_assert(sizeof(SkPoint) == 2 * sizeof(uint32_t));
     static_assert(sizeof(SkScalar) == sizeof(uint32_t));
@@ -160,25 +160,25 @@ int path_key_from_data_size(const SkPath& path) {
 void write_path_key_from_data(const SkPath& path, uint32_t* origKey) {
     uint32_t* key = origKey;
     // The check below should take care of negative values casted positive.
-    const int verbCnt = path.countVerbs();
-    const int pointCnt = path.countPoints();
-    const int conicWeightCnt = SkPathPriv::ConicWeightCnt(path);
-    SkASSERT(verbCnt <= kMaxKeyFromDataVerbCnt);
-    SkASSERT(pointCnt && verbCnt);
-    *key++ = verbCnt;
-    memcpy(key, SkPathPriv::VerbData(path), verbCnt * sizeof(uint8_t));
-    int verbKeySize = SkAlign4(verbCnt);
+    SkSpan<const SkPathVerb> verbs = path.verbs();
+    SkSpan<const SkPoint> points = path.points();
+    SkSpan<const float> conics = path.conicWeights();
+    SkASSERT(verbs.size() <= kMaxKeyFromDataVerbCnt);
+    SkASSERT(points.size() && verbs.size());
+    *key++ = SkToInt(verbs.size());
+    memcpy(key, verbs.data(), verbs.size_bytes());
+    const size_t verbKeySize = SkAlign4(verbs.size());
     // pad out to uint32_t alignment using value that will stand out when debugging.
-    uint8_t* pad = reinterpret_cast<uint8_t*>(key)+ verbCnt;
-    memset(pad, 0xDE, verbKeySize - verbCnt);
+    uint8_t* pad = reinterpret_cast<uint8_t*>(key)+ verbs.size();
+    memset(pad, 0xDE, verbKeySize - verbs.size());
     key += verbKeySize >> 2;
 
-    memcpy(key, SkPathPriv::PointData(path), sizeof(SkPoint) * pointCnt);
+    memcpy(key, points.data(), points.size_bytes());
     static_assert(sizeof(SkPoint) == 2 * sizeof(uint32_t));
-    key += 2 * pointCnt;
-    sk_careful_memcpy(key, SkPathPriv::ConicWeightData(path), sizeof(SkScalar) * conicWeightCnt);
+    key += 2 * points.size();
+    sk_careful_memcpy(key, conics.data(), conics.size_bytes());
     static_assert(sizeof(SkScalar) == sizeof(uint32_t));
-    SkDEBUGCODE(key += conicWeightCnt);
+    SkDEBUGCODE(key += conics.size());
     SkASSERT(key - origKey == path_key_from_data_size(path));
 }
 } // anonymous namespace

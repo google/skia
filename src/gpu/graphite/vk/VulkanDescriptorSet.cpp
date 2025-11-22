@@ -36,7 +36,11 @@ VulkanDescriptorSet::VulkanDescriptorSet(const VulkanSharedContext* ctxt,
                                          sk_sp<VulkanDescriptorPool> pool)
         : Resource(ctxt,
                    Ownership::kOwned,
-                   /*gpuMemorySize=*/0)
+                   /*gpuMemorySize=*/0,
+                   // Explicitly set reusableRequiresPurgeable because this object may be modified
+                   // by VulkanCommandBuffer immediately during Skia API calls, outside of the flow
+                   // of command buffer command execution.
+                   /*reusableRequiresPurgeable=*/true)
         , fDescSet(set)
         , fPool(pool) {
     fPool->ref();

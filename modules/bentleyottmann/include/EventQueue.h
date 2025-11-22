@@ -64,7 +64,7 @@ public:
 
     static std::optional<EventQueue> Make(SkSpan<const Segment> segments);
 
-    EventQueue(Queue&& queue);
+    explicit EventQueue(Queue&& queue);
     EventQueue() = default;
 
     void addCrossing(Point crossingPoint, const Segment& s0, const Segment& s1) override;

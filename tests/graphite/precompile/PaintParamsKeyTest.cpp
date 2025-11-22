@@ -49,6 +49,7 @@
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
+#include "src/gpu/graphite/DrawContext.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
@@ -98,6 +99,34 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_random_colo
 
 [[maybe_unused]] std::pair<sk_sp<SkImageFilter>, sk_sp<PrecompileImageFilter>>
 create_random_image_filter(Recorder*, SkRandom*);
+
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+sk_sp<DrawContext> get_precompile_draw_context(
+            const skgpu::graphite::Caps* caps, Context* context) {
+    std::unique_ptr<Recorder> drawRecorder = context->makeRecorder();
+    ResourceProvider* resourceProvider = drawRecorder->priv().resourceProvider();
+    constexpr SkISize drawSize = {128, 128};
+    const SkColorInfo colorInfo = SkColorInfo(kRGBA_8888_SkColorType,
+                                              kPremul_SkAlphaType,
+                                              SkColorSpace::MakeSRGB());
+    TextureInfo texInfo = caps->getDefaultSampledTextureInfo(colorInfo.colorType(),
+                                                             skgpu::Mipmapped::kNo,
+                                                             skgpu::Protected::kNo,
+                                                             skgpu::Renderable::kYes);
+    sk_sp<TextureProxy> target = TextureProxy::Make(caps,
+                                                    resourceProvider,
+                                                    drawSize,
+                                                    texInfo,
+                                                    "PrecompileTarget",
+                                                    skgpu::Budgeted::kYes);
+    sk_sp<DrawContext> precompileDrawContext = DrawContext::Make(caps,
+                                                                 std::move(target),
+                                                                 drawSize,
+                                                                 colorInfo,
+                                                                 {});
+    return precompileDrawContext;
+}
 
 //--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------
@@ -629,7 +658,7 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_coord_clamp_shader(Sk
 
     constexpr SkRect kSubset{0, 0, 256, 256}; // this is somewhat arbitrary but we need some subset
     sk_sp<SkShader> ccs = SkShaders::CoordClamp(std::move(s), kSubset);
-    sk_sp<PrecompileShader> cco = PrecompileShaders::CoordClamp({ std::move(o) });
+    sk_sp<PrecompileShader> cco = PrecompileShaders::CoordClamp({{ std::move(o) }});
 
     return { ccs, cco };
 }
@@ -853,7 +882,7 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_image_shader(SkRandom
             // Non-subset image.
             s = SkShaders::Image(std::move(image), tmX, tmY, SkSamplingOptions(), lmPtr);
             o = PrecompileShaders::Image(ImageShaderFlags::kAll,
-                                         { colorInfo },
+                                         {{ colorInfo }},
                                          precompileTileModes);
         } break;
         case 1: {
@@ -862,21 +891,21 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_image_shader(SkRandom
             s = SkImageShader::MakeSubset(
                     std::move(image), subset, tmX, tmY, SkSamplingOptions(), lmPtr);
             o = PrecompileShaders::Image(ImageShaderFlags::kAll,
-                                         { colorInfo },
+                                         {{ colorInfo }},
                                          precompileTileModes);
         } break;
         case 2: {
             // Cubic-sampled image.
             s = SkShaders::Image(std::move(image), tmX, tmY, SkCubicResampler::Mitchell(), lmPtr);
             o = PrecompileShaders::Image(ImageShaderFlags::kAll,
-                                         { colorInfo },
+                                         {{ colorInfo }},
                                          precompileTileModes);
         } break;
         default: {
             // Raw image draw.
             s = SkShaders::RawImage(std::move(image), tmX, tmY, SkSamplingOptions(), lmPtr);
             o = PrecompileShaders::RawImage(ImageShaderFlags::kExcludeCubic,
-                                            { colorInfo },
+                                            {{ colorInfo }},
                                             precompileTileModes);
         } break;
     }
@@ -913,7 +942,7 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_yuv_image_shader(SkRa
 
     o = PrecompileShaders::YUVImage(useCubic ? YUVImageShaderFlags::kCubicSampling
                                              : YUVImageShaderFlags::kExcludeCubic,
-                                    { colorInfo });
+                                    {{ colorInfo }});
 
     return { s, o };
 }
@@ -937,8 +966,7 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_blend_shader(SkRandom
     }
 
     auto s = SkShaders::Blend(std::move(blender), std::move(dstS), std::move(srcS));
-    auto o = PrecompileShaders::Blend(SkSpan<const sk_sp<PrecompileBlender>>({ blenderO }),
-                                      { dstO }, { srcO });
+    auto o = PrecompileShaders::Blend({{ blenderO }}, {{ dstO }}, {{ srcO }});
 
     return { s, o };
 }
@@ -1110,7 +1138,7 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_lerp_colorf
     // in the precompile API.
     sk_sp<SkColorFilter> cf = SkColorFilters::Lerp(0.5f, std::move(dst), std::move(src));
 
-    sk_sp<PrecompileColorFilter> o = PrecompileColorFilters::Lerp({ dstO }, { srcO });
+    sk_sp<PrecompileColorFilter> o = PrecompileColorFilters::Lerp({{ dstO }}, {{ srcO }});
 
     return { cf, o };
 }
@@ -1155,7 +1183,7 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_color_space
     sk_sp<SkColorSpace> src = random_colorspace(rand);
     sk_sp<SkColorSpace> dst = random_colorspace(rand);
     return { SkColorFilterPriv::MakeColorSpaceXform(src, dst),
-             PrecompileColorFiltersPriv::ColorSpaceXform({ src }, { dst }) };
+             PrecompileColorFiltersPriv::ColorSpaceXform({{ src }}, {{ dst }}) };
 }
 
 std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_linear_to_srgb_colorfilter() {
@@ -1199,7 +1227,7 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_compose_col
     // TODO: if outerCF is null, innerCF will be returned by Compose. We need a Precompile
     // list object that can encapsulate innerO if there are no combinations in outerO.
     return { SkColorFilters::Compose(std::move(outerCF), std::move(innerCF)),
-             PrecompileColorFilters::Compose({ std::move(outerO) }, { std::move(innerO) }) };
+             PrecompileColorFilters::Compose({{ std::move(outerO) }}, {{ std::move(innerO) }}) };
 }
 
 std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_gaussian_colorfilter() {
@@ -1230,7 +1258,7 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_workingform
             SkColorFilterPriv::WithWorkingFormat(std::move(childCF), tf, gamut, &unpremul);
 
     sk_sp<PrecompileColorFilter> o = PrecompileColorFiltersPriv::WithWorkingFormat(
-            { std::move(childO) }, tf, gamut, &unpremul);
+            {{ std::move(childO) }}, tf, gamut, &unpremul);
 
     return { std::move(cf), std::move(o) };
 }
@@ -1609,7 +1637,7 @@ std::pair<SkPaint, PaintOptions> create_paint(SkRandom* rand,
 
         if (s) {
             paint.setShader(std::move(s));
-            paintOptions.setShaders({o});
+            paintOptions.setShaders({{o}});
         }
     }
 
@@ -1619,7 +1647,7 @@ std::pair<SkPaint, PaintOptions> create_paint(SkRandom* rand,
 
         if (cf) {
             paint.setColorFilter(std::move(cf));
-            paintOptions.setColorFilters({o});
+            paintOptions.setColorFilters({{o}});
         }
     }
 
@@ -1629,7 +1657,7 @@ std::pair<SkPaint, PaintOptions> create_paint(SkRandom* rand,
 
         if (mf) {
             paint.setMaskFilter(std::move(mf));
-            paintOptions.setMaskFilters({o});
+            paintOptions.setMaskFilters({{o}});
         }
     }
 
@@ -1639,7 +1667,7 @@ std::pair<SkPaint, PaintOptions> create_paint(SkRandom* rand,
 
         if (b) {
             paint.setBlender(std::move(b));
-            paintOptions.setBlenders({o});
+            paintOptions.setBlenders({{o}});
         }
     }
 
@@ -1649,7 +1677,7 @@ std::pair<SkPaint, PaintOptions> create_paint(SkRandom* rand,
 
         if (filter) {
             paint.setImageFilter(std::move(filter));
-            paintOptions.setImageFilters({o});
+            paintOptions.setImageFilters({{o}});
         }
     }
 
@@ -1927,6 +1955,7 @@ void check_draw(skiatest::Reporter* reporter,
 [[maybe_unused]]
 void extract_vs_build_subtest(skiatest::Reporter* reporter,
                               Context* context,
+                              DrawContext* drawContext,
                               skiatest::graphite::GraphiteTestContext* /* testContext */,
                               const KeyContext& precompileKeyContext,
                               Recorder* recorder,
@@ -1981,15 +2010,16 @@ void extract_vs_build_subtest(skiatest::Reporter* reporter,
             clipData.fAnalyticClip.fRadius = 5;
         }
 
-        PaintParams paintParams = PaintParams(paint,
-                                              primitiveBlender,
-                                              clipData,
-                                              std::move(modifiedClipShader),
-                                              coverage,
-                                              TextureFormat::kRGBA8,
-                                              /* skipColorXform= */ false);
+        PaintParams paintParams{paint, primitiveBlender.get()};
+        ShadingParams shadingParams{recorder->priv().caps(),
+                                    paintParams,
+                                    clipData,
+                                    modifiedClipShader.get(),
+                                    coverage,
+                                    TextureFormat::kRGBA8};
         paramsGatherer.resetForDraw();
         KeyContext keyContext(recorder,
+                              drawContext,
                               precompileKeyContext.floatStorageManager(),
                               precompileKeyContext.paintParamsKeyBuilder(),
                               &paramsGatherer,
@@ -1997,10 +2027,9 @@ void extract_vs_build_subtest(skiatest::Reporter* reporter,
                               precompileKeyContext.dstColorInfo(),
                               KeyGenFlags::kDisableSamplingOptimization,
                               paintParams.color());
-        paintParams.toKey(keyContext);
-        UniquePaintParamsID paintID =
-                recorder->priv().shaderCodeDictionary()->findOrCreate(
-                        precompileKeyContext.paintParamsKeyBuilder());
+        auto keyResult = shadingParams.toKey(keyContext);
+        UniquePaintParamsID paintID = keyResult.has_value() ? std::get<0>(*keyResult)
+                                                            : UniquePaintParamsID::Invalid();
 
         RenderPassDesc unusedRenderPassDesc;
         std::vector<UniquePaintParamsID> precompileIDs;
@@ -2040,11 +2069,11 @@ void extract_vs_build_subtest(skiatest::Reporter* reporter,
 #ifdef SK_DEBUG
         if (result == precompileIDs.end()) {
             SkDebugf("From paint: ");
-            precompileKeyContext.dict()->dump(paintID);
+            precompileKeyContext.dict()->dump(precompileKeyContext.caps(), paintID);
 
             SkDebugf("From combination builder [%d]:", static_cast<int>(precompileIDs.size()));
             for (auto iter: precompileIDs) {
-                precompileKeyContext.dict()->dump(iter);
+                precompileKeyContext.dict()->dump(precompileKeyContext.caps(), iter);
             }
         }
 #endif
@@ -2116,8 +2145,8 @@ void precompile_vs_real_draws_subtest(skiatest::Reporter* reporter,
         // The skp draws a rect w/ a default SkPaint and RGBA dst color type
         PaintOptions skpPaintOptions;
         Precompile(precompileContext, skpPaintOptions, DrawTypeFlags::kNonAAFillRect,
-                   { { kDepth_1.fDSFlags, kRGBA_8888_SkColorType, kDepth_1.fDstCS,
-                       kDepth_1.fRequiresMSAA } });
+                   {{ { kDepth_1.fDSFlags, kRGBA_8888_SkColorType, kDepth_1.fDstCS,
+                       kDepth_1.fRequiresMSAA } }});
     }
     int after = globalCache->numGraphicsPipelines();
 
@@ -2137,6 +2166,7 @@ void precompile_vs_real_draws_subtest(skiatest::Reporter* reporter,
 
 void run_test(skiatest::Reporter* reporter,
               Context* context,
+              DrawContext* drawContext,
               PrecompileContext* precompileContext,
               skiatest::graphite::GraphiteTestContext* testContext,
               const KeyContext& precompileKeyContext,
@@ -2169,9 +2199,9 @@ void run_test(skiatest::Reporter* reporter,
     // The PaintOptions' clipShader can be handled here while the SkPaint's clipShader handling
     // must be performed later (in paintParams.toKey() or when an SkCanvas is accessible for
     // a SkCanvas::clipShader call).
-    paintOptions.priv().setClipShaders({clipShaderOption});
+    paintOptions.priv().setClipShaders({{clipShaderOption}});
 
-    extract_vs_build_subtest(reporter, context, testContext, precompileKeyContext,
+    extract_vs_build_subtest(reporter, context, drawContext, testContext, precompileKeyContext,
                              recorder.get(), paint, paintOptions, s, bm, cf, mf, imageFilter,
                              clipType, clipShader, dt, seed, &rand, verbose);
     precompile_vs_real_draws_subtest(reporter, context, precompileContext,
@@ -2187,14 +2217,17 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTestReduced,
                                                testContext,
                                                true,
                                                CtsEnforcement::kNever) {
+    const skgpu::graphite::Caps* caps = context->priv().caps();
     std::unique_ptr<PrecompileContext> precompileContext = context->makePrecompileContext();
-    sk_sp<RuntimeEffectDictionary> rtDict = sk_make_sp<RuntimeEffectDictionary>();
+    // Currently, we just use this as a valid parameter for keyContext (will hit asserts otherwise)
+    sk_sp<DrawContext> precompileDrawContext = get_precompile_draw_context(caps, context);
 
     FloatStorageManager floatStorageManager;
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
     PaintParamsKeyBuilder builder(dict);
     PipelineDataGatherer gatherer(Layout::kMetal);
-    KeyContext keyContext(context->priv().caps(),
+    sk_sp<RuntimeEffectDictionary> rtDict = sk_make_sp<RuntimeEffectDictionary>();
+    KeyContext keyContext(caps,
                           &floatStorageManager,
                           &builder,
                           &gatherer,
@@ -2237,6 +2270,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTestReduced,
 
     run_test(reporter,
              context,
+             precompileDrawContext.get(),
              precompileContext.get(),
              testContext,
              keyContext,
@@ -2264,14 +2298,17 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
                                                testContext,
                                                true,
                                                CtsEnforcement::kNever) {
+    const skgpu::graphite::Caps* caps = context->priv().caps();
     std::unique_ptr<PrecompileContext> precompileContext = context->makePrecompileContext();
-    sk_sp<RuntimeEffectDictionary> rtDict = sk_make_sp<RuntimeEffectDictionary>();
+    // Currently, we just use this as a valid parameter for keyContext (will hit asserts otherwise)
+    sk_sp<DrawContext> precompileDrawContext = get_precompile_draw_context(caps, context);
 
     FloatStorageManager floatStorageManager;
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
     PaintParamsKeyBuilder builder(dict);
     PipelineDataGatherer gatherer(Layout::kMetal);
-    KeyContext precompileKeyContext(context->priv().caps(),
+    sk_sp<RuntimeEffectDictionary> rtDict = sk_make_sp<RuntimeEffectDictionary>();
+    KeyContext precompileKeyContext(caps,
                                     &floatStorageManager,
                                     &builder,
                                     &gatherer,
@@ -2399,7 +2436,8 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
                                 ++current;
 #endif
 
-                                run_test(reporter, context, precompileContext.get(),
+                                run_test(reporter, context, precompileDrawContext.get(),
+                                         precompileContext.get(),
                                          testContext, precompileKeyContext,
                                          shader, blender, cf, mf, imageFilter, clip, dt,
                                          kDefaultSeed, /* verbose= */ false);

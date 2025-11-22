@@ -1,4 +1,4 @@
-// CanvasPath methods, which all take an Path object as the first param
+// CanvasPath methods, which all take an PathBuilder object as the first param
 
 function arc(skpath, x, y, radius, startAngle, endAngle, ccw) {
   // As per  https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-arc
@@ -33,9 +33,7 @@ function closePath(skpath) {
   if (skpath.isEmpty()) {
     return;
   }
-  // Check to see if we are not just a single point
-  var bounds = skpath.getBounds();
-  if ((bounds[3] - bounds[1]) || (bounds[2] - bounds[0])) {
+  if (skpath.countPoints() != 1) {
     skpath.close();
   }
 }
@@ -143,17 +141,19 @@ function rect(skpath, x, y, width, height) {
 }
 
 function Path2D(path) {
-  this._path = null;
+  this._path = new CanvasKit.PathBuilder();
   if (typeof path === 'string') {
-      this._path = CanvasKit.Path.MakeFromSVGString(path);
+    var p = CanvasKit.Path.MakeFromSVGString(path);
+    this._path.addPath(p);
+    p.delete();
   } else if (path && path._getPath) {
-      this._path = path._getPath().copy();
-  } else {
-    this._path = new CanvasKit.Path();
+    var p = path._getPath();
+    this._path.addPath(p);
+    p.delete();
   }
 
   this._getPath = function() {
-      return this._path;
+      return this._path.snapshot();
   }
 
   this.addPath = function(path2d, transform) {
@@ -163,8 +163,10 @@ function Path2D(path) {
         'b': 0, 'd': 1, 'f': 0,
       };
     }
-    this._path.addPath(path2d._getPath(), [transform.a, transform.c, transform.e,
+    var p = path2d._getPath();
+    this._path.addPath(p, [transform.a, transform.c, transform.e,
                                            transform.b, transform.d, transform.f]);
+    p.delete();
   }
 
   this.arc = function(x, y, radius, startAngle, endAngle, ccw) {

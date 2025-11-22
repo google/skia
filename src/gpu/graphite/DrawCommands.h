@@ -106,54 +106,54 @@ static constexpr Type kType = Type::k##T;  \
 };
 
 COMMAND(BindGraphicsPipeline,
-            uint32_t fPipelineIndex);
+            uint32_t fPipelineIndex)
 COMMAND(SetBlendConstants,
-            std::array<float, 4> fBlendConstants);
+            std::array<float, 4> fBlendConstants)
 COMMAND(BindUniformBuffer,
             BindBufferInfo fInfo;
-            UniformSlot fSlot);
+            UniformSlot fSlot)
 COMMAND(BindStaticDataBuffer,
-            BindBufferInfo fStaticData);
+            BindBufferInfo fStaticData)
 COMMAND(BindAppendDataBuffer,
             BindBufferInfo fAppendData)
 COMMAND(BindIndexBuffer,
-            BindBufferInfo fIndices);
+            BindBufferInfo fIndices)
 COMMAND(BindIndirectBuffer,
-            BindBufferInfo fIndirect);
+            BindBufferInfo fIndirect)
 COMMAND(BindTexturesAndSamplers,
             int fNumTexSamplers;
             PODArray<const TextureProxy*> fTextures;
-            PODArray<SamplerDesc> fSamplers);
+            PODArray<SamplerDesc> fSamplers)
 COMMAND(SetScissor,
-            Scissor fScissor);
+            Scissor fScissor)
 COMMAND(Draw,
             PrimitiveType fType;
             uint32_t fBaseVertex;
-            uint32_t fVertexCount);
+            uint32_t fVertexCount)
 COMMAND(DrawIndexed,
             PrimitiveType fType;
             uint32_t fBaseIndex;
             uint32_t fIndexCount;
-            uint32_t fBaseVertex);
+            uint32_t fBaseVertex)
 COMMAND(DrawInstanced,
             PrimitiveType fType;
             uint32_t fBaseVertex;
             uint32_t fVertexCount;
             uint32_t fBaseInstance;
-            uint32_t fInstanceCount);
+            uint32_t fInstanceCount)
 COMMAND(DrawIndexedInstanced,
             PrimitiveType fType;
             uint32_t fBaseIndex;
             uint32_t fIndexCount;
             uint32_t fBaseVertex;
             uint32_t fBaseInstance;
-            uint32_t fInstanceCount);
+            uint32_t fInstanceCount)
 COMMAND(DrawIndirect,
-            PrimitiveType fType);
+            PrimitiveType fType)
 COMMAND(DrawIndexedIndirect,
-            PrimitiveType fType);
+            PrimitiveType fType)
 COMMAND(AddBarrier,
-            BarrierType fType);
+            BarrierType fType)
 
 #undef COMMAND
 

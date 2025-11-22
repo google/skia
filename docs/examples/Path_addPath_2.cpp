@@ -5,12 +5,12 @@ REG_FIDDLE(Path_addPath_2, 256, 80, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
-    SkPath dest, path;
-    path.addOval({-80, 20, 0, 60}, SkPathDirection::kCW, 1);
+    SkPathBuilder dest;
+    SkPath path = SkPath::Oval({-80, 20, 0, 60}, SkPathDirection::kCW, 1);
     for (int i = 0; i < 2; i++) {
         dest.addPath(path, SkPath::kExtend_AddPathMode);
         dest.offset(100, 0);
     }
-    canvas->drawPath(dest, paint);
+    canvas->drawPath(dest.detach(), paint);
 }
 }  // END FIDDLE

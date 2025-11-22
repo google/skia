@@ -85,9 +85,7 @@ public:
             this->initPath(0, path, m, op, doAA);
         }
 
-        Element(sk_sp<SkShader> shader) {
-            this->initShader(0, std::move(shader));
-        }
+        explicit Element(sk_sp<SkShader> shader) { this->initShader(0, std::move(shader)); }
 
         Element(const SkRect& rect, bool doAA) {
             this->initReplaceRect(0, rect, doAA);
@@ -216,7 +214,7 @@ public:
         bool fIsIntersectionOfRects;
 
         uint32_t fGenID;
-        Element(int saveCount) {
+        explicit Element(int saveCount) {
             this->initCommon(saveCount, SkClipOp::kIntersect, false);
             this->setEmpty();
         }

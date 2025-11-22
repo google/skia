@@ -7,9 +7,8 @@
 #ifndef skgpu_graphite_TextureInfoPriv_DEFINED
 #define skgpu_graphite_TextureInfoPriv_DEFINED
 
-#include "include/core/SkStream.h"
-#include "include/core/SkString.h"
 #include "include/gpu/graphite/TextureInfo.h"
+#include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/TextureFormat.h"
 
 #include <cstdint>
@@ -30,6 +29,11 @@ public:
 
     template <typename BackendTextureInfo>
     static TextureInfo Make(const BackendTextureInfo& data) {
+        // Validate that the uint8_t data.fSampleCount can be cast to a SampleCount value. If not
+        // then return an empty TextureInfo since the data is invalid.
+        if (!IsValidSampleCount(data.fSampleCount)) {
+            return TextureInfo();
+        }
         return TextureInfo(data);
     }
 

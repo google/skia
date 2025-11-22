@@ -26,7 +26,7 @@ public:
         kHairline_InitStyle,
         kFill_InitStyle
     };
-    SkStrokeRec(InitStyle style);
+    explicit SkStrokeRec(InitStyle style);
     SkStrokeRec(const SkPaint&, SkPaint::Style, SkScalar resScale = 1);
     explicit SkStrokeRec(const SkPaint&, SkScalar resScale = 1);
 

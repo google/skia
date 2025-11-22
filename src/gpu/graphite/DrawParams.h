@@ -144,14 +144,21 @@ public:
                const StrokeStyle* stroke)
             : fTransform(transform)
             , fGeometry(geometry)
-            , fClip(clip)
+            , fDrawBounds(clip.drawBounds())
+            , fTransformedShapeBounds(clip.transformedShapeBounds())
+            , fScissor(clip.scissor())
             , fOrder(drawOrder)
             , fStroke(stroke ? std::optional<StrokeStyle>(*stroke) : std::nullopt) {}
 
     const Transform& transform() const { return fTransform; }
     const Geometry&  geometry()  const { return fGeometry;  }
-    const Clip&      clip()      const { return fClip;      }
     DrawOrder        order()     const { return fOrder;     }
+
+    // The subset of a Clip's state that is preserved in a DrawList, whereas the other properties
+    // of a clip get consumed into the paint's key and uniform data.
+    Rect drawBounds() const { return fDrawBounds; }
+    Rect transformedShapeBounds() const { return fTransformedShapeBounds; }
+    const SkIRect& scissor() const { return fScissor; }
 
     // Optional stroke parameters if the geometry is stroked instead of filled
     bool isStroke() const { return fStroke.has_value(); }
@@ -164,7 +171,9 @@ private:
     const Transform& fTransform; // Lifetime of the transform must be held longer than the geometry
 
     Geometry  fGeometry;
-    Clip      fClip;
+    Rect      fDrawBounds;
+    Rect      fTransformedShapeBounds;
+    SkIRect   fScissor;
     DrawOrder fOrder;
 
     std::optional<StrokeStyle> fStroke; // Not present implies fill

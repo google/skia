@@ -154,14 +154,6 @@ func (b *jobBuilder) genTasksForJob() {
 		return
 	}
 
-	// Valgrind runs at a low priority so that it doesn't occupy all the bots.
-	if b.ExtraConfig("Valgrind") {
-		// Priority of 0.085 should result in Valgrind tasks with a blamelist of ~10 commits having the
-		// same score as other tasks with a blamelist of 1 commit, when we have insufficient bot
-		// capacity to run more frequently.
-		b.priority(0.085)
-	}
-
 	// Test bots.
 	if b.Role("Test") {
 		if b.ExtraConfig("WasmGMTests") {

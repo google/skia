@@ -53,18 +53,17 @@ public:
     SkISize getISize() override { return SkISize::Make(640, 480); }
 
     void onDraw(SkCanvas* canvas) override {
-        canvas->drawGlyphs({fGlyphs.begin(), fGlyphCount}, {fPositions.begin(), fGlyphCount},
-                           {50, 100}, fFont, SkPaint{});
+        SkSpan<const SkGlyphID> glyphs = {fGlyphs.data(), (size_t)fGlyphCount};
+        SkSpan<SkPoint> pos = {fPositions.data(), (size_t)fGlyphCount};
+        canvas->drawGlyphs(glyphs, pos, {50, 100}, fFont, SkPaint{});
 
-        canvas->drawGlyphs({fGlyphs.begin(), fGlyphCount}, {fPositions.begin(), fGlyphCount},
-                           {50, 120}, fFont, SkPaint{});
+        canvas->drawGlyphs(glyphs, pos, {50, 120}, fFont, SkPaint{});
 
         // Check bounding box calculation.
-        for (auto& pos : fPositions) {
-            pos += {0, -500};
+        for (auto& p : fPositions) {
+            p += {0, -500};
         }
-        canvas->drawGlyphs({fGlyphs.begin(), fGlyphCount}, {fPositions.begin(), fGlyphCount},
-                           {50, 640}, fFont, SkPaint{});
+        canvas->drawGlyphs(glyphs, pos, {50, 640}, fFont, SkPaint{});
 
         canvas->drawGlyphsRSXform(fGlyphs, fXforms,
                            {50 + fLength / 2, 160 + fRadius}, fFont, SkPaint{});

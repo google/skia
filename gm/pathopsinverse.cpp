@@ -62,7 +62,6 @@ protected:
     SkISize getISize() override { return SkISize::Make(1200, 900); }
 
     void onDraw(SkCanvas* canvas) override {
-        SkPath one, two;
         int yPos = 0;
         for (int oneFill = 0; oneFill <= 1; ++oneFill) {
             SkPathFillType oneF = oneFill ? SkPathFillType::kInverseEvenOdd
@@ -70,12 +69,8 @@ protected:
             for (int twoFill = 0; twoFill <= 1; ++twoFill) {
                 SkPathFillType twoF = twoFill ? SkPathFillType::kInverseEvenOdd
                         : SkPathFillType::kEvenOdd;
-                one.reset();
-                one.setFillType(oneF);
-                one.addRect(10, 10, 70, 70);
-                two.reset();
-                two.setFillType(twoF);
-                two.addRect(40, 40, 100, 100);
+                SkPath one = SkPath::Rect({10, 10, 70, 70}).makeFillType(oneF);
+                SkPath two = SkPath::Rect({40, 40, 100, 100}).makeFillType(twoF);
                 canvas->save();
                 canvas->translate(0, SkIntToScalar(yPos));
                 canvas->clipRect(SkRect::MakeWH(110, 110), true);
@@ -86,8 +81,7 @@ protected:
                 canvas->restore();
                 int xPos = 150;
                 for (int op = kDifference_SkPathOp; op <= kReverseDifference_SkPathOp; ++op) {
-                    SkPath result;
-                    Op(one, two, (SkPathOp) op, &result);
+                    SkPath result = Op(one, two, (SkPathOp) op).value_or(SkPath());
                     canvas->save();
                     canvas->translate(SkIntToScalar(xPos), SkIntToScalar(yPos));
                     canvas->clipRect(SkRect::MakeWH(110, 110), true);
@@ -123,7 +117,7 @@ DEF_SIMPLE_GM(pathops_skbug_10155, canvas, 256, 256) {
         "M474.94 26.9405C474.93 26.9482 474.917 26.9576 474.901 26.9683L477.689 31.1186C477.789 31.0512 477.888 30.9804 477.985 30.9059L474.94 26.9405L474.94 26.9405Z"
     };
 
-    SkPath path[2], resultPath;
+    SkPath path[2];
     SkOpBuilder builder;
 
     for (int i = 0; i < 2; i++)
@@ -132,7 +126,7 @@ DEF_SIMPLE_GM(pathops_skbug_10155, canvas, 256, 256) {
         builder.add(path[i], kUnion_SkPathOp);
     }
 
-    builder.resolve(&resultPath);
+    SkPath resultPath = builder.resolve().value_or(SkPath());
 
     auto r = path[0].getBounds();
     canvas->translate(30, 30);

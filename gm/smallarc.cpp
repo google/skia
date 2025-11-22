@@ -10,6 +10,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 
 // this draws a small arc scaled up
 // see https://code.google.com/p/chromium/issues/detail?id=102411
@@ -21,9 +22,10 @@ DEF_SIMPLE_GM(smallarc, canvas, 762, 762) {
         p.setStyle(SkPaint::kStroke_Style);
         p.setStrokeWidth(120);
 
-        SkPath path;
-        path.moveTo(75, 0);
-        path.cubicTo(33.5, 0, 0, 33.5, 0, 75);
+        SkPath path = SkPathBuilder()
+                      .moveTo(75, 0)
+                      .cubicTo(33.5, 0, 0, 33.5, 0, 75)
+                      .detach();
 
         canvas->translate(-400, -400);
         canvas->scale(8, 8);

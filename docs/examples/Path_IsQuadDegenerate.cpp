@@ -10,10 +10,11 @@ void draw(SkCanvas* canvas) {
             SkPath::IsQuadDegenerate(path.getPoint(0), path.getPoint(1), path.getPoint(2), exact) ?
             "" : "not ", exact ? "exactly" : "nearly");
     };
-    SkPath path, offset;
-    path.moveTo({100, 100});
-    path.quadTo({100.00001f, 100.00001f}, {100.00002f, 100.00002f});
-    offset.addPath(path, 1000, 1000);
+    SkPath path = SkPathBuilder()
+                  .moveTo({100, 100})
+                  .quadTo({100.00001f, 100.00001f}, {100.00002f, 100.00002f})
+                  .detach();
+    SkPath offset = path.makeOffset(1000, 1000);
     for (bool exact : { false, true } ) {
         debugster(path, exact);
         debugster(offset, exact);

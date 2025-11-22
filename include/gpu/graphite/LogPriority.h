@@ -31,6 +31,6 @@ enum class LogPriority : int {
     kWarning = 2,
     kDebug = 3,
 };
-};  // namespace skgpu::graphite
+}  // namespace skgpu::graphite
 
 #endif // skgpu_graphite_LogPriority_DEFINED

@@ -55,7 +55,7 @@
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tests/TestHarness.h"
-#include "tests/TestUtils.h"
+#include "tests/ganesh/GaneshTestUtils.h"
 #include "tools/EncodeUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 
@@ -391,8 +391,7 @@ class TestFPGenerator {
             // it's called. Call `reroll` to get a different FP.
             SkRandom random{fRandomSeed};
             GrProcessorTestData testData{&random, fSurfaceDrawContext, randomTreeDepth,
-                                         static_cast<int>(std::size(fTestViews)), fTestViews,
-                                         std::move(inputFP)};
+                                         fTestViews, std::move(inputFP)};
             return GrFragmentProcessorTestFactory::MakeIdx(type, &testData);
         }
 

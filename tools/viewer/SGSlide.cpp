@@ -68,6 +68,7 @@ public:
     }
 
     void draw(SkCanvas* canvas) override {
+        fScene->revalidate();
         fScene->render(canvas);
     }
 

@@ -12,7 +12,7 @@ require (
 	github.com/trietmn/go-wiki v1.0.1
 	github.com/vektra/mockery/v2 v2.52.2
 	go.chromium.org/luci v0.0.0-20240206071351-fb32c458db6e
-	go.skia.org/infra v0.0.0-20250911181626-a3f4e114d37b
+	go.skia.org/infra v0.0.0-20251120214417-8376a0b41a33
 	golang.org/x/exp v0.0.0-20250210185358-939b2ce775ac
 	google.golang.org/api v0.229.0
 	google.golang.org/protobuf v1.36.6
@@ -61,7 +61,7 @@ require (
 	github.com/go-python/gpython v0.0.3 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
-	github.com/golang/mock v1.6.0 // indirect
+	github.com/golang/mock v1.7.0-rc.1 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/flatbuffers v23.5.26+incompatible // indirect
 	github.com/google/go-cmp v0.7.0 // indirect

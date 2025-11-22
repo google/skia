@@ -39,7 +39,7 @@ void CheckPng() {
 
 [[maybe_unused]] static inline const constexpr bool kSkShowTextBlitCoverage = false;
 
-sk_sp<SkData> streamToData(const std::unique_ptr<SkStreamAsset>& font_data) {
+sk_sp<const SkData> streamToData(const std::unique_ptr<SkStreamAsset>& font_data) {
     if (!font_data) {
         return SkData::MakeEmpty();
     }
@@ -54,7 +54,7 @@ sk_sp<SkData> streamToData(const std::unique_ptr<SkStreamAsset>& font_data) {
     return SkData::MakeFromStream(font_data.get(), font_data->getLength());
 }
 
-rust::Box<::fontations_ffi::BridgeFontRef> make_bridge_font_ref(sk_sp<SkData> fontData,
+rust::Box<::fontations_ffi::BridgeFontRef> make_bridge_font_ref(sk_sp<const SkData> fontData,
                                                                 uint32_t index) {
     rust::Slice<const uint8_t> slice{fontData->bytes(), fontData->size()};
     return fontations_ffi::make_font_ref(slice, index);
@@ -112,7 +112,7 @@ sk_sp<SkTypeface> SkTypeface_Make_Fontations(std::unique_ptr<SkStreamAsset> font
     return SkTypeface_Fontations::MakeFromStream(std::move(fontData), args);
 }
 
-sk_sp<SkTypeface> SkTypeface_Make_Fontations(sk_sp<SkData> fontData,
+sk_sp<SkTypeface> SkTypeface_Make_Fontations(sk_sp<const SkData> fontData,
                                              const SkFontArguments& args) {
     return SkTypeface_Fontations::MakeFromData(std::move(fontData), args);
 }
@@ -126,7 +126,7 @@ static_assert(
         "Struct fontations_ffi::PaletteOverride must match SkFontArguments::Palette::Override.");
 
 SkTypeface_Fontations::SkTypeface_Fontations(
-        sk_sp<SkData> fontData,
+        sk_sp<const SkData> fontData,
         const SkFontStyle& style,
         uint32_t ttcIndex,
         rust::Box<fontations_ffi::BridgeFontRef>&& fontRef,
@@ -150,7 +150,7 @@ sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromStream(std::unique_ptr<SkStream
     return MakeFromData(streamToData(stream), args);
 }
 
-sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromData(sk_sp<SkData> data,
+sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromData(sk_sp<const SkData> data,
                                                       const SkFontArguments& args) {
     uint32_t ttcIndex = args.getCollectionIndex() & 0xFFFF;
     rust::Box<fontations_ffi::BridgeFontRef> bridgeFontRef = make_bridge_font_ref(data, ttcIndex);
@@ -583,9 +583,7 @@ protected:
                         clipBox.x_min, -clipBox.y_max, clipBox.x_max, -clipBox.y_min);
 
                 if (!fRemainingMatrix.isIdentity()) {
-                    SkPath boundsPath = SkPath::Rect(boundsRect);
-                    boundsPath.transform(fRemainingMatrix);
-                    boundsRect = boundsPath.getBounds();
+                    boundsRect = fRemainingMatrix.mapRect(boundsRect);
                 }
 
                 boundsRect.roundOut(&mx.bounds);
@@ -765,10 +763,12 @@ protected:
                           fontations_ffi::BridgeScalerMetrics& scalerMetrics) {
         if (auto path = generatePathForGlyphId(glyphId, fScale.y(),
                                                *fHintingInstance, scalerMetrics)) {
-            return {{
-                path->makeTransform(fRemainingMatrix),
-                !fRemainingMatrix.isIdentity()
-            }};
+            if (auto newpath = path->tryMakeTransform(fRemainingMatrix)) {
+                return {{
+                    *newpath,
+                    !fRemainingMatrix.isIdentity()
+                }};
+            }
         }
         return {};
     }
@@ -929,7 +929,7 @@ sk_sp<SkTypeface> SkTypeface_Fontations::onMakeClone(const SkFontArguments& args
     int numAxes = onGetVariationDesignPosition({});
     auto fusedDesignPosition =
             std::make_unique<SkFontArguments::VariationPosition::Coordinate[]>(numAxes);
-    int retrievedAxes = onGetVariationDesignPosition({fusedDesignPosition.get(), numAxes});
+    int retrievedAxes = onGetVariationDesignPosition({fusedDesignPosition.get(), (size_t)numAxes});
     if (numAxes != retrievedAxes) {
         return nullptr;
     }
@@ -1666,15 +1666,15 @@ void BoundsPainter::push_clip_glyph(uint16_t glyph_id) {
     if (auto path = fScalerContext.generatePathForGlyphId(glyph_id, fUpem,
                                                           *fontations_ffi::no_hinting_instance(),
                                                           scalerMetrics)) {
-        fBounds.join(path->makeTransform(fMatrixStack.back()).getBounds());
+        if (auto newpath = path->tryMakeTransform(fMatrixStack.back())) {
+            fBounds.join(newpath->getBounds());
+        }
     }
 }
 
 void BoundsPainter::push_clip_rectangle(float x_min, float y_min, float x_max, float y_max) {
-    SkRect clipRect = SkRect::MakeLTRB(x_min, -y_min, x_max, -y_max);
-    SkPath rectPath = SkPath::Rect(clipRect);
-    rectPath.transform(fMatrixStack.back());
-    fBounds.join(rectPath.getBounds());
+    const SkRect clipRect = SkRect::MakeLTRB(x_min, -y_min, x_max, -y_max);
+    fBounds.join(fMatrixStack.back().mapRect(clipRect));
 }
 
 void BoundsPainter::fill_glyph_solid(uint16_t glyph_id, uint16_t, float) {

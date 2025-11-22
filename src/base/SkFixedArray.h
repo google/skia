@@ -9,6 +9,7 @@
 #define SkTFixedArray_DEFINED
 
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkSpan_impl.h"
 
 #include <cstdint>
 #include <cstring>
@@ -46,17 +47,17 @@ public:
         SkASSERT(reserveCount <= N);
     }
 
-    FixedArray(const T* array, int count) {
-        this->reset(array, count);
+    FixedArray(SkSpan<const T> array) {
+        this->reset(array);
     }
 
     FixedArray(const FixedArray<N, T>& that) {
-        this->reset(that.data(), that.size());
+        this->reset({that.data(), (size_t)that.size()});
     }
 
     FixedArray<N, T>& operator=(const FixedArray<N, T>& that) {
         if (this != &that) {
-            this->reset(that.data(), that.size());
+            this->reset({that.data(), (size_t)that.size()});
         }
         return *this;
     }
@@ -91,11 +92,10 @@ public:
         fSize = 0;
     }
 
-    void reset(const T* array, int count) {
-        SkASSERT(count >= 0);
-        SkASSERT(count <= N);
-        fSize = count;
-        std::memcpy(fData, array, count * sizeof(T));
+    void reset(SkSpan<const T> array) {
+        SkASSERT(array.size() <= N);
+        fSize = array.size();
+        std::memcpy(fData, array.data(), array.size_bytes());
     }
 
     void resize(int newSize) {

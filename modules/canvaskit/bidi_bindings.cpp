@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkString.h"
-#include "include/private/base/SkOnce.h"
+
 #include "modules/skunicode/include/SkUnicode.h"
 
 #if defined(SK_UNICODE_BIDI_IMPLEMENTATION)
@@ -37,10 +37,8 @@ class BidiPlaceholder { };
 class CodeUnitsPlaceholder { };
 
 static sk_sp<SkUnicode> getBidiUnicode() {
-    static sk_sp<SkUnicode> unicode;
-    static SkOnce once;
-    once([] { unicode = SkUnicodes::Bidi::Make(); });
-    return unicode;
+    static SkUnicode* unicode = SkUnicodes::Bidi::Make().release();
+    return sk_ref_sp(unicode);
 }
 
 EMSCRIPTEN_BINDINGS(Bidi) {

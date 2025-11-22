@@ -17,14 +17,17 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/core/SkImagePriv.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 #include <initializer_list>
 #include <memory>
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
+#endif
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Image.h"
@@ -102,7 +105,9 @@ DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE)
     auto rec2020 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kRec2020);
 
     // Use the lazy images on the first iteration, and concrete (raster/GPU) images on the second
-    auto direct = GrAsDirectContext(canvas->recordingContext());
+#if defined(SK_GANESH)
+    GrDirectContext* direct = GrAsDirectContext(canvas->recordingContext());
+#endif
     auto recorder = canvas->baseRecorder();
     SkASSERT(recorder);
     for (bool lazy : {true, false}) {
@@ -145,12 +150,13 @@ DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE)
                 images[j] = SkImages::TextureFromImage(r, image, {});
             } else
 #endif
+#if defined(SK_GANESH)
+            if (direct) {
+                images[j] = SkImages::TextureFromImage(direct, image);
+            } else
+#endif
             {
-                if (direct) {
-                    images[j] = SkImages::TextureFromImage(direct, image);
-                } else {
-                    images[j] = image->makeRasterImage(nullptr);
-                }
+                images[j] = image->makeRasterImage(nullptr);
             }
 
             canvas->translate(0, 128);
@@ -198,17 +204,17 @@ DEF_SIMPLE_GM_CAN_FAIL(reinterpretcolorspace, canvas, errorMsg, 128 * 3, 128 * 3
     canvas->translate(0.0f, 128.0f);
 
     // GPU images
-    auto direct = GrAsDirectContext(canvas->recordingContext());
-
     sk_sp<SkImage> gpuImage;
 #if defined(SK_GRAPHITE)
     if (auto recorder = canvas->recorder()) {
         gpuImage = SkImages::TextureFromImage(recorder, image, {});
-    } else
+    }
 #endif
-    {
+#if defined(SK_GANESH)
+    if (auto direct = GrAsDirectContext(canvas->recordingContext())) {
         gpuImage = SkImages::TextureFromImage(direct, image);
     }
+#endif
     if (gpuImage) {
         image = gpuImage;
     }

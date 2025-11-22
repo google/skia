@@ -195,4 +195,3 @@ build:vk --config=vulkan_ganesh
 # but it is needed by SkRasterPipelineBuilder when being compiled for GN
 build:compile_sksl --cc_output_directory_tag=compile_sksl \
     --compilation_mode=opt --//src/core:load_sksl_from_disk --copt="-DSKSL_STANDALONE=1" \
-    --features=skia_uses_cpp20

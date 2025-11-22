@@ -9,6 +9,8 @@
 #ifndef WindowContextFactory_win_DEFINED
 #define WindowContextFactory_win_DEFINED
 
+#include "tools/sk_app/Window.h"
+
 #include <Windows.h>
 
 #include <memory>
@@ -39,8 +41,9 @@ std::unique_ptr<WindowContext> MakeD3D12ForWin(HWND, std::unique_ptr<const Displ
 
 #ifdef SK_DAWN
 #if defined(SK_GRAPHITE)
-std::unique_ptr<WindowContext> MakeGraphiteDawnD3D12ForWin(HWND,
-                                                           std::unique_ptr<const DisplayParams>);
+std::unique_ptr<WindowContext> MakeGraphiteDawnForWin(HWND,
+                                                      std::unique_ptr<const DisplayParams>,
+                                                      sk_app::Window::BackendType backendType);
 #endif
 #endif
 

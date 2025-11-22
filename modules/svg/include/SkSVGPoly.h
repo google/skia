@@ -46,7 +46,7 @@ protected:
     SkRect onTransformableObjectBoundingBox(const SkSVGRenderContext&) const override;
 
 private:
-    SkSVGPoly(SkSVGTag);
+    explicit SkSVGPoly(SkSVGTag);
 
     mutable SkPath fPath;  // mutated in onDraw(), to apply inherited fill types.
 

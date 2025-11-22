@@ -63,7 +63,7 @@ namespace GrInnerFanTriangulator {
     struct BreadcrumbTriangleList {
         BreadcrumbTriangleList() = delete;
     };
-};
+}
 
 #endif // SK_ENABLE_OPTIMIZE_SIZE
 

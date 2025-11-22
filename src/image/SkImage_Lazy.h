@@ -47,7 +47,7 @@ public:
         uint32_t               fUniqueID;
     };
 
-    SkImage_Lazy(Validator* validator);
+    explicit SkImage_Lazy(Validator* validator);
 
     // From SkImage.h
     bool isValid(SkRecorder*) const override;

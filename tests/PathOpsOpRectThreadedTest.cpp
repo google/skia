@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
@@ -42,19 +43,20 @@ static void testPathOpsRectsMain(PathOpsThreadState* data)
                 for (int d = c + 1 ; d < 7; ++d) {
                     for (auto e : fts) {
     for (auto f : fts)   {
-        SkPath pathA, pathB;
-        pathA.setFillType((SkPathFillType) e);
-        pathA.addRect(SkIntToScalar(state.fA), SkIntToScalar(state.fA), SkIntToScalar(state.fB),
-                SkIntToScalar(state.fB), SkPathDirection::kCW);
-        pathA.addRect(SkIntToScalar(state.fC), SkIntToScalar(state.fC), SkIntToScalar(state.fD),
-                SkIntToScalar(state.fD), SkPathDirection::kCW);
-        pathA.close();
-        pathB.setFillType((SkPathFillType) f);
-        pathB.addRect(SkIntToScalar(a), SkIntToScalar(a), SkIntToScalar(b),
-                SkIntToScalar(b), SkPathDirection::kCW);
-        pathB.addRect(SkIntToScalar(c), SkIntToScalar(c), SkIntToScalar(d),
-                SkIntToScalar(d), SkPathDirection::kCW);
-        pathB.close();
+        SkPath pathA = SkPathBuilder((SkPathFillType) e)
+               .addRect({SkIntToScalar(state.fA), SkIntToScalar(state.fA), SkIntToScalar(state.fB),
+                         SkIntToScalar(state.fB)}, SkPathDirection::kCW)
+               .addRect({SkIntToScalar(state.fC), SkIntToScalar(state.fC), SkIntToScalar(state.fD),
+                         SkIntToScalar(state.fD)}, SkPathDirection::kCW)
+               .close()
+               .detach();
+        SkPath pathB = SkPathBuilder((SkPathFillType) f)
+               .addRect({SkIntToScalar(a), SkIntToScalar(a), SkIntToScalar(b),
+                         SkIntToScalar(b)}, SkPathDirection::kCW)
+               .addRect({SkIntToScalar(c), SkIntToScalar(c), SkIntToScalar(d),
+                         SkIntToScalar(d)}, SkPathDirection::kCW)
+               .close()
+               .detach();
         for (int op = 0 ; op <= kXOR_SkPathOp; ++op)    {
             if (state.fReporter->verbose()) {
                 pathStr.printf(
@@ -135,19 +137,21 @@ static void testPathOpsFastMain(PathOpsThreadState* data)
                 for (int d = 0; d < 6; d += step) {
         for (auto e : fts) {
             for (auto f : fts) {
-        SkPath pathA, pathB;
-        pathA.setFillType(e);
+        SkPathBuilder builder(e);
         if (a) {
-        pathA.addRect(SkIntToScalar(state.fA), SkIntToScalar(state.fA), SkIntToScalar(state.fB) + c,
-                SkIntToScalar(state.fB), SkPathDirection::kCW);
+            builder.addRect({SkIntToScalar(state.fA), SkIntToScalar(state.fA),
+                             SkIntToScalar(state.fB) + c, SkIntToScalar(state.fB)},
+                            SkPathDirection::kCW);
         }
-        pathA.close();
-        pathB.setFillType(f);
+        SkPath pathA = builder.close().detach();
+
+        builder.setFillType(f);
         if (b) {
-        pathB.addRect(SkIntToScalar(state.fC), SkIntToScalar(state.fC), SkIntToScalar(state.fD) + d,
-                SkIntToScalar(state.fD), SkPathDirection::kCW);
+            builder.addRect({SkIntToScalar(state.fC), SkIntToScalar(state.fC),
+                             SkIntToScalar(state.fD) + d, SkIntToScalar(state.fD)},
+                             SkPathDirection::kCW);
         }
-        pathB.close();
+        SkPath pathB = builder.close().detach();
         const char* fillTypeStr[] = { "Winding", "EvenOdd", "InverseWinding", "InverseEvenOdd" };
         for (int op = 0; op <= kXOR_SkPathOp; ++op)    {
             if (state.fReporter->verbose()) {

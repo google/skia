@@ -43,8 +43,7 @@ public:
     DstReadStrategy dstReadStrategy() const { return fPipelineInfo.fDstReadStrategy; }
 
     int  numFragTexturesAndSamplers() const { return fPipelineInfo.fNumFragTexturesAndSamplers; }
-    bool hasPaintUniforms()           const { return fPipelineInfo.fHasPaintUniforms;           }
-    bool hasStepUniforms()            const { return fPipelineInfo.fHasStepUniforms;            }
+    bool hasCombinedUniforms()        const { return fPipelineInfo.fHasCombinedUniforms;        }
     bool hasGradientBuffer()          const { return fPipelineInfo.fHasGradientBuffer;          }
 
     struct PipelineInfo {
@@ -56,13 +55,8 @@ public:
 
         DstReadStrategy fDstReadStrategy = DstReadStrategy::kNoneRequired;
         int  fNumFragTexturesAndSamplers = 0;
-        bool fHasPaintUniforms  = false;
-        bool fHasStepUniforms   = false;
+        bool fHasCombinedUniforms = false;
         bool fHasGradientBuffer = false;
-
-#if defined(SK_TRACE_GRAPHITE_PIPELINE_USE) || defined(GPU_TEST_UTILS)
-        std::string fLabel;
-#endif
 
         // In test-enabled builds, we preserve the generated shader code to display in the viewer
         // slide UI. This is not quite enough information to fully recreate the pipeline, as the
@@ -97,7 +91,10 @@ public:
     virtual bool didAsyncCompilationFail() const { return false; }
 
 protected:
-    GraphicsPipeline(const SharedContext*, const PipelineInfo&);
+    // GraphicsPipeline labels are often provided to the description of what needs to be compiled,
+    // so it is required before the actual pipeline has been successfully created. Instead of adding
+    // it to PipelineInfo, just use Resource's label field.
+    GraphicsPipeline(const SharedContext*, const PipelineInfo&, std::string_view label);
 
 private:
     PipelineInfo fPipelineInfo;

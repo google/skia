@@ -19,8 +19,8 @@ struct SkRect;
 struct SK_API SkV2 {
     float x, y;
 
-    bool operator==(const SkV2 v) const { return x == v.x && y == v.y; }
-    bool operator!=(const SkV2 v) const { return !(*this == v); }
+    bool operator==(SkV2 v) const { return x == v.x && y == v.y; }
+    bool operator!=(SkV2 v) const { return !(*this == v); }
 
     static SkScalar   Dot(SkV2 a, SkV2 b) { return a.x * b.x + a.y * b.y; }
     static SkScalar Cross(SkV2 a, SkV2 b) { return a.x * b.y - a.y * b.x; }
@@ -166,7 +166,7 @@ public:
     enum Uninitialized_Constructor {
         kUninitialized_Constructor
     };
-    SkM44(Uninitialized_Constructor) {}
+    explicit SkM44(Uninitialized_Constructor) {}
 
     enum NaN_Constructor {
         kNaN_Constructor

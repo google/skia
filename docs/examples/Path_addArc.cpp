@@ -6,8 +6,9 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     for (auto start : { 0, 90, 135, 180, 270 } ) {
         for (auto sweep : { -450.f, -180.f, -90.f, 90.f, 180.f, 360.1f } ) {
-            SkPath path;
-            path.addArc({10, 10, 35, 45}, start, sweep);
+            SkPath path = SkPathBuilder()
+                          .addArc({10, 10, 35, 45}, start, sweep)
+                          .detach();
             canvas->drawPath(path, paint);
             canvas->translate(252 / 6, 0);
         }

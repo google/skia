@@ -4,16 +4,13 @@
 * Use of this source code is governed by a BSD-style license that can be
 * found in the LICENSE file.
 */
-/*
-* Copyright 2014 Google Inc.
-*
-* Use of this source code is governed by a BSD-style license that can be
-* found in the LICENSE file.
-*/
 
 #include "tools/viewer/GMSlide.h"
 
 #include "include/core/SkString.h"
+#include "include/core/SkSurfaceProps.h"
+
+#include <memory>
 #include <utility>
 
 class SkCanvas;
@@ -29,6 +26,10 @@ GMSlide::~GMSlide() = default;
 
 void GMSlide::gpuTeardown() {
     fGM->gpuTeardown();
+}
+
+void GMSlide::setSurfaceProps(SkSurfaceProps* props) {
+    fGM->modifySurfaceProps(props);
 }
 
 void GMSlide::draw(SkCanvas* canvas) {

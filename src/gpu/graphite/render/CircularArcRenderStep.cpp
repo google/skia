@@ -126,17 +126,18 @@ static void write_vertex_buffer(VertexWriter writer) {
     } // otherwise static buffer creation failed, so do nothing; Context initialization will fail.
 }
 
-CircularArcRenderStep::CircularArcRenderStep(StaticBufferManager* bufferManager)
-        : RenderStep(RenderStepID::kCircularArc,
+CircularArcRenderStep::CircularArcRenderStep(Layout layout, StaticBufferManager* bufferManager)
+        : RenderStep(layout,
+                     RenderStepID::kCircularArc,
                      Flags::kPerformsShading | Flags::kEmitsCoverage | Flags::kOutsetBoundsForAA |
                      Flags::kAppendInstances,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
                      kDirectDepthLessPass,
-                     /*staticAttrs=*/{
+                     /*staticAttrs=*/{{
                              {"position", VertexAttribType::kFloat3, SkSLType::kFloat3},
-                     },
-                     /*appendAttrs=*/{
+                     }},
+                     /*appendAttrs=*/{{
                              // Center plus radii, used to transform to local position
                              {"centerScales", VertexAttribType::kFloat4, SkSLType::kFloat4},
                              // Outer (device space) and inner (normalized) radii
@@ -151,13 +152,13 @@ CircularArcRenderStep::CircularArcRenderStep(StaticBufferManager* bufferManager)
                              {"inRoundCapPos", VertexAttribType::kFloat4, SkSLType::kFloat4},
                              {"inRoundCapRadius", VertexAttribType::kFloat, SkSLType::kFloat},
                              {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-                             {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2},
+                             {"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt},
 
                              {"mat0", VertexAttribType::kFloat3, SkSLType::kFloat3},
                              {"mat1", VertexAttribType::kFloat3, SkSLType::kFloat3},
                              {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3},
-                     },
-                     /*varyings=*/{
+                     }},
+                     /*varyings=*/{{
                              // Normalized offset vector plus radii
                              {"circleEdge", SkSLType::kFloat4},
                              // Half-planes used to clip to arc shape.
@@ -167,7 +168,7 @@ CircularArcRenderStep::CircularArcRenderStep(StaticBufferManager* bufferManager)
                              // Roundcap data
                              {"roundCapRadius", SkSLType::kFloat},
                              {"roundCapPos", SkSLType::kFloat4},
-                     }) {
+                     }}) {
     // Initialize the static buffer we'll use when recording draw calls.
     // NOTE: Each instance of this RenderStep gets its own copy of the data. Since there should only
     // ever be one CircularArcRenderStep at a time, this shouldn't be an issue.
@@ -206,7 +207,7 @@ const char* CircularArcRenderStep::fragmentCoverageSkSL() const {
 
 void CircularArcRenderStep::writeVertices(DrawWriter* writer,
                                           const DrawParams& params,
-                                          skvx::uint2 ssboIndices) const {
+                                          uint32_t ssboIndex) const {
     SkASSERT(params.geometry().isShape() && params.geometry().shape().isArc());
 
     DrawWriter::Instances instance{*writer, fVertexBuffer, {}, kVertexCount};
@@ -380,7 +381,7 @@ void CircularArcRenderStep::writeVertices(DrawWriter* writer,
        << geoClipPlane << clipPlane0 << clipPlane1
        << roundCapPos0 << roundCapPos1 << roundCapRadius
        << params.order().depthAsFloat()
-       << ssboIndices
+       << ssboIndex
        << m.rc(0,0) << m.rc(1,0) << m.rc(3,0)  // mat0
        << m.rc(0,1) << m.rc(1,1) << m.rc(3,1)  // mat1
        << m.rc(0,3) << m.rc(1,3) << m.rc(3,3); // mat2

@@ -63,13 +63,9 @@ TEST_BUILDERS = [
   'Build-Debian10-Clang-x86_64-Release-Static',
   'Build-Debian10-Clang-x86_64-Release-SwiftShader',
   'Build-Debian10-Clang-x86_64-Release-Vulkan',
-  'Build-Debian10-EMCC-asmjs-Debug-PathKit',
-  'Build-Debian10-EMCC-asmjs-Release-PathKit',
   'Build-Debian10-EMCC-wasm-Debug-CanvasKit',
-  'Build-Debian10-EMCC-wasm-Debug-PathKit',
   'Build-Debian10-EMCC-wasm-Release-CanvasKit_CPU',
   'Build-Debian10-EMCC-wasm-Release-CanvasKit_WebGPU',
-  'Build-Debian10-EMCC-wasm-Release-PathKit',
   'Build-Debian11-GCC-x86-Debug-Docker',
   'Build-Debian11-GCC-x86_64-Debug-Docker',
   'Build-Debian11-GCC-x86_64-Release-NoGPU_Docker',
@@ -98,7 +94,7 @@ TEST_BUILDERS = [
   'Build-Win-MSVC-x86_64-Release-Graphite_Dawn_D3D11',
   'Build-Win-MSVC-x86_64-Release-Graphite_Dawn_D3D12',
   'Build-Debian10-Clang-x86_64-Release-SK_USE_PADDED_BLUR_UPSCALE',
-  'Build-Ubuntu18-Clang-x86_64-Release-Docker',
+  'Build-Ubuntu24.04-Clang-x86_64-Release-Fuzz',
 ]
 
 # Default properties used for TEST_BUILDERS.

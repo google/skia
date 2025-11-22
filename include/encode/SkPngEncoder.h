@@ -10,6 +10,7 @@
 
 #include "include/core/SkDataTable.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/SkHdrMetadata.h"
 #include "include/private/base/SkAPI.h"
 
 // TODO(kjlubick) update clients to directly include this
@@ -73,14 +74,9 @@ struct Options {
     sk_sp<SkDataTable> fComments;
 
     /**
-     * An optional ICC profile to override the default behavior.
-     *
-     * The default behavior is to generate an ICC profile using a primary matrix and
-     * analytic transfer function. If the color space of |src| cannot be represented
-     * in this way (e.g, it is HLG or PQ), then no profile will be embedded.
+     * Container for any HDR metadata to include in the encoded image.
      */
-    const skcms_ICCProfile* fICCProfile = nullptr;
-    const char* fICCProfileDescription = nullptr;
+    skhdr::Metadata fHdrMetadata;
 
     /**
      * If non-null, then a gainmap and its metadata will be encoded as png chunks.
@@ -103,6 +99,11 @@ struct Options {
  *  Returns true on success.  Returns false on an invalid or unsupported |src|.
  */
 SK_API bool Encode(SkWStream* dst, const SkPixmap& src, const Options& options);
+
+/**
+ *  Returns the encoded data for the pixmap, or nullptr on failure.
+ */
+SK_API sk_sp<SkData> Encode(const SkPixmap& src, const Options& options);
 
 /**
 *  Encode the provided image and return the resulting bytes. If the image was created as

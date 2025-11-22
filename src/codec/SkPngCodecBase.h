@@ -16,6 +16,7 @@
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTemplates.h"
@@ -25,10 +26,9 @@ class SkSampler;
 class SkStream;
 class SkSwizzler;
 enum class SkEncodedImageFormat;
-template <typename T> class SkSpan;
 
 // This class implements functionality shared between `SkPngCodec` and
-// `SkPngRustCodec` (the latter is from `experimental/rust_png`).
+// `SkPngRustCodec`.
 class SkPngCodecBase : public SkCodec {
 public:
     ~SkPngCodecBase() override;

@@ -15,11 +15,15 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/GrRecordingContext.h"
+#endif
 
 // This tests that we correctly regenerate textblobs after freeing all gpu resources crbug/491350
 namespace skiagm {
@@ -33,8 +37,6 @@ protected:
     SkISize getISize() override { return SkISize::Make(kWidth, kHeight); }
 
     void onDraw(SkCanvas* canvas) override {
-        auto dContext = GrAsDirectContext(canvas->recordingContext());
-
         const char text[] = "Hamburgefons";
 
         SkFont font(ToolUtils::DefaultPortableTypeface(), 20);
@@ -47,10 +49,13 @@ protected:
         canvas->drawRect(rect, rectPaint);
         canvas->drawTextBlob(blob, 20, 60, SkPaint());
 
+#if defined(SK_GANESH)
         // This text should look fine
-        if (dContext) {
+        if (auto dContext = GrAsDirectContext(canvas->recordingContext())) {
             dContext->freeGpuResources();
         }
+#endif
+
         canvas->drawTextBlob(blob, 20, 160, SkPaint());
     }
 

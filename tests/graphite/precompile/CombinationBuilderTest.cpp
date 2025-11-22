@@ -53,7 +53,7 @@ void no_blend_mode_option_test(const KeyContext& keyContext,
                                const RenderPassDesc& renderPassDesc,
                                skiatest::Reporter* reporter) {
     PaintOptions paintOptions;
-    paintOptions.setShaders({ PrecompileShaders::Color() });
+    paintOptions.setShaders({{ PrecompileShaders::Color() }});
 
     REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 1);
 
@@ -132,24 +132,24 @@ void big_test(const KeyContext& keyContext,
     // Second top-level option (blendShader_0)
     auto blendShader_0 = PrecompileShaders::Blend(
                                 SkSpan<const SkBlendMode>(blendModes),          // std::array
-                                {                                               // initializer_list
+                                {{                                               // initializer_list
                                     PrecompileShaders::LinearGradient(),
                                     PrecompileShaders::Color()
-                                },
-                                {
+                                }},
+                                {{
                                     PrecompileShaders::LinearGradient(),
                                     PrecompileShaders::Blend(
                                             SkSpan<const SkBlendMode>(moreBlendModes),// std::vector
-                                            {
+                                            {{
                                                 PrecompileShaders::RadialGradient(),
                                                 PrecompileShaders::Color()
-                                            },
-                                            {
+                                            }},
+                                            {{
                                                 PrecompileShaders::Image()
-                                            })
-                                });
+                                            }})
+                                }});
 
-    paintOptions.setShaders({ sweepGrad_0, blendShader_0 });
+    paintOptions.setShaders({{ sweepGrad_0, blendShader_0 }});
 
     static const SkBlendMode kEvenMoreBlendModes[] = {
         SkBlendMode::kSrcOver,
@@ -211,8 +211,8 @@ std::vector<sk_sp<T>> create_runtime_combos(
     sk_sp<T> blue = precompileFactory(blueEffect, {});
     REPORTER_ASSERT(reporter, blue);
 
-    sk_sp<T> combine = precompileFactory(combineEffect, { { red, green },
-                                                          { blue, sk_sp<T>(nullptr) } });
+    sk_sp<T> combine = precompileFactory(combineEffect, {{ {{ red, green }},
+                                                           {{ blue, sk_sp<T>(nullptr) }} }});
     REPORTER_ASSERT(reporter, combine);
 
     return { combine };
@@ -355,7 +355,7 @@ void blend_subtest(const KeyContext& keyContext,
     // The BlendMode PrecompileBlender only ever has 1 combination
     {
         PaintOptions paintOptions;
-        paintOptions.setBlenders({ PrecompileBlenders::Mode(SkBlendMode::kColorDodge) });
+        paintOptions.setBlenders({{ PrecompileBlenders::Mode(SkBlendMode::kColorDodge) }});
 
         run_test(keyContext, renderPassDesc, reporter, paintOptions, /* expectedNumOptions= */ 1);
     }
@@ -364,7 +364,7 @@ void blend_subtest(const KeyContext& keyContext,
     // yield 1 combination.
     {
         PaintOptions paintOptions;
-        paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+        paintOptions.setBlendModes(SKSPAN_INIT_ONE( SkBlendMode::kSrcOver ));
 
         run_test(keyContext, renderPassDesc, reporter, paintOptions, /* expectedNumOptions= */ 1);
     }
@@ -372,7 +372,7 @@ void blend_subtest(const KeyContext& keyContext,
     // The Arithmetic PrecompileBlender only ever has 1 combination
     {
         PaintOptions paintOptions;
-        paintOptions.setBlenders({ PrecompileBlenders::Arithmetic() });
+        paintOptions.setBlenders(SKSPAN_INIT_ONE( PrecompileBlenders::Arithmetic() ));
 
         run_test(keyContext, renderPassDesc, reporter, paintOptions, /* expectedNumOptions= */ 1);
     }
@@ -384,7 +384,7 @@ void shader_subtest(const KeyContext& keyContext,
                     skiatest::Reporter* reporter) {
     {
         PaintOptions paintOptions;
-        paintOptions.setShaders({ PrecompileShaders::Empty() });
+        paintOptions.setShaders({{ PrecompileShaders::Empty() }});
 
         run_test(keyContext, renderPassDesc, reporter, paintOptions, /* expectedNumOptions= */ 1);
     }
@@ -394,7 +394,7 @@ void shader_subtest(const KeyContext& keyContext,
     // see the LocalMatrix test(s) below).
     {
         PaintOptions paintOptions;
-        paintOptions.setShaders({ PrecompileShaders::Color() });
+        paintOptions.setShaders({{ PrecompileShaders::Color() }});
 
         run_test(keyContext, renderPassDesc, reporter, paintOptions,
                  /* expectedNumOptions= */ kExpectedSolidColorCombos);
@@ -415,10 +415,11 @@ void shader_subtest(const KeyContext& keyContext,
                 SkBlendMode::kDarken,    // fixed Darken
         };
         PaintOptions paintOptions;
-        paintOptions.setShaders(
-                { PrecompileShaders::Blend(SkSpan<const SkBlendMode>(kBlendModes),
-                                           { PrecompileShaders::Color() },
-                                           { PrecompileShaders::MakeFractalNoise() }) });
+        paintOptions.setShaders({{
+                PrecompileShaders::Blend(SkSpan<const SkBlendMode>(kBlendModes),
+                                         {{ PrecompileShaders::Color() }},
+                                         {{ PrecompileShaders::MakeFractalNoise() }})
+        }});
 
         run_test(keyContext, renderPassDesc, reporter, paintOptions,
                  /* expectedNumOptions= */ 4 *  // Porter-Duff, HSLC, Screen, Darken
@@ -431,7 +432,9 @@ void shader_subtest(const KeyContext& keyContext,
     // The CoordClamp shader doesn't add any additional combinations to its wrapped shader.
     {
         PaintOptions paintOptions;
-        paintOptions.setShaders({ PrecompileShaders::CoordClamp({ PrecompileShaders::Image() }) });
+        paintOptions.setShaders({{
+            PrecompileShaders::CoordClamp({{ PrecompileShaders::Image() }})
+        }});
 
         run_test(keyContext, renderPassDesc, reporter, paintOptions,
                  /* expectedNumOptions= */ kExpectedImageCombos);
@@ -441,7 +444,7 @@ void shader_subtest(const KeyContext& keyContext,
     // two possible color space xform variants.
     {
         PaintOptions paintOptions;
-        paintOptions.setShaders({ PrecompileShaders::RawImage() });
+        paintOptions.setShaders({{ PrecompileShaders::RawImage() }});
 
         run_test(keyContext, renderPassDesc, reporter, paintOptions,
                  /* expectedNumOptions= */ kExpectedRawImageCombos);
@@ -450,8 +453,8 @@ void shader_subtest(const KeyContext& keyContext,
     // Each Perlin noise shader only has one combination
     {
         PaintOptions paintOptions;
-        paintOptions.setShaders({ PrecompileShaders::MakeFractalNoise(),
-                                  PrecompileShaders::MakeTurbulence() });
+        paintOptions.setShaders({{ PrecompileShaders::MakeFractalNoise(),
+                                   PrecompileShaders::MakeTurbulence() }});
 
         run_test(keyContext, renderPassDesc, reporter, paintOptions,
                  /* expectedNumOptions= */ kExpectedPerlinNoiseCombos + kExpectedPerlinNoiseCombos);
@@ -460,10 +463,10 @@ void shader_subtest(const KeyContext& keyContext,
     // Each gradient shader generates 3 combinations
     {
         PaintOptions paintOptions;
-        paintOptions.setShaders({ PrecompileShaders::LinearGradient(),
-                                  PrecompileShaders::RadialGradient(),
-                                  PrecompileShaders::TwoPointConicalGradient(),
-                                  PrecompileShaders::SweepGradient() });
+        paintOptions.setShaders({{ PrecompileShaders::LinearGradient(),
+                                   PrecompileShaders::RadialGradient(),
+                                   PrecompileShaders::TwoPointConicalGradient(),
+                                   PrecompileShaders::SweepGradient() }});
 
         run_test(keyContext, renderPassDesc, reporter, paintOptions,
                  /* expectedNumOptions= */ kExpectedGradientCombos + kExpectedGradientCombos +
@@ -474,7 +477,7 @@ void shader_subtest(const KeyContext& keyContext,
     //    2 (pictureShader LM) x 24 (imageShader variations)
     {
         PaintOptions paintOptions;
-        paintOptions.setShaders({ PrecompileShaders::Picture() });
+        paintOptions.setShaders({{ PrecompileShaders::Picture() }});
 
         run_test(keyContext, renderPassDesc, reporter, paintOptions,
                  /* expectedNumOptions= */ kExpectedPictureCombos);
@@ -484,8 +487,8 @@ void shader_subtest(const KeyContext& keyContext,
     // shader generates.
     {
         PaintOptions paintOptions;
-        paintOptions.setShaders(
-                { PrecompileShaders::LocalMatrix({ PrecompileShaders::LinearGradient() }) });
+        paintOptions.setShaders({{
+                PrecompileShaders::LocalMatrix({{ PrecompileShaders::LinearGradient() }}) }});
 
         run_test(keyContext, renderPassDesc, reporter, paintOptions,
                  /* expectedNumOptions= */ kExpectedGradientCombos);
@@ -495,8 +498,8 @@ void shader_subtest(const KeyContext& keyContext,
     {
         PaintOptions paintOptions;
         paintOptions.setShaders(
-                { PrecompileShaders::ColorFilter({ PrecompileShaders::LinearGradient() },
-                                                 { PrecompileColorFilters::Blend() }) });
+                {{ PrecompileShaders::ColorFilter({{ PrecompileShaders::LinearGradient() }},
+                                                  {{ PrecompileColorFilters::Blend() }}) }});
 
         run_test(keyContext, renderPassDesc, reporter, paintOptions,
                  /* expectedNumOptions= */ kExpectedGradientCombos * kExpectedBlendCFCombos);
@@ -504,9 +507,9 @@ void shader_subtest(const KeyContext& keyContext,
 
     {
         PaintOptions paintOptions;
-        paintOptions.setShaders(
-                { PrecompileShaders::WorkingColorSpace({ PrecompileShaders::LinearGradient() },
-                                                       { SkColorSpace::MakeSRGBLinear() }) });
+        paintOptions.setShaders({{
+                PrecompileShaders::WorkingColorSpace({{ PrecompileShaders::LinearGradient() }},
+                                                     {{ SkColorSpace::MakeSRGBLinear() }}) }});
 
         run_test(keyContext, renderPassDesc, reporter, paintOptions,
                  /* expectedNumOptions= */ kExpectedGradientCombos *
@@ -531,16 +534,16 @@ void colorfilter_subtest(const KeyContext& keyContext,
 
         PaintOptions paintOptions;
         paintOptions.setColorFilters(
-            { PrecompileColorFilters::Compose(
-                    { PrecompileColorFilters::Table(), PrecompileColorFilters::Lighting() },
-                    { PrecompileColorFilters::HighContrast(), PrecompileColorFilters::Luma() }) });
+            {{ PrecompileColorFilters::Compose(
+                {{ PrecompileColorFilters::Table(), PrecompileColorFilters::Lighting() }},
+                {{ PrecompileColorFilters::HighContrast(), PrecompileColorFilters::Luma() }}) }});
 
         run_test(keyContext, renderPassDesc, reporter, paintOptions, kExpectedNumOptions);
     }
 
     {
         PaintOptions paintOptions;
-        paintOptions.setColorFilters({ PrecompileColorFilters::Blend() });
+        paintOptions.setColorFilters({{ PrecompileColorFilters::Blend() }});
 
         run_test(keyContext, renderPassDesc, reporter, paintOptions,
                  kExpectedBlendCFCombos);
@@ -548,8 +551,8 @@ void colorfilter_subtest(const KeyContext& keyContext,
 
     {
         PaintOptions paintOptions;
-        paintOptions.setColorFilters({ PrecompileColorFilters::Matrix(),
-                                       PrecompileColorFilters::HSLAMatrix() });
+        paintOptions.setColorFilters({{ PrecompileColorFilters::Matrix(),
+                                        PrecompileColorFilters::HSLAMatrix() }});
 
         // HSLAMatrix and Matrix map to the same color filter
         run_test(keyContext, renderPassDesc, reporter, paintOptions,
@@ -558,8 +561,8 @@ void colorfilter_subtest(const KeyContext& keyContext,
 
     {
         PaintOptions paintOptions;
-        paintOptions.setColorFilters({ PrecompileColorFilters::LinearToSRGBGamma(),
-                                       PrecompileColorFilters::SRGBToLinearGamma() });
+        paintOptions.setColorFilters({{ PrecompileColorFilters::LinearToSRGBGamma(),
+                                         PrecompileColorFilters::SRGBToLinearGamma() }});
 
         // LinearToSRGB and SRGBToLinear both map to the colorspace colorfilter
         run_test(keyContext, renderPassDesc, reporter, paintOptions,
@@ -574,9 +577,9 @@ void colorfilter_subtest(const KeyContext& keyContext,
 
         PaintOptions paintOptions;
         paintOptions.setColorFilters(
-            { PrecompileColorFilters::Lerp(
-                    { PrecompileColorFilters::Matrix(), PrecompileColorFilters::Luma() },
-                    { PrecompileColorFilters::Blend(), PrecompileColorFilters::Overdraw() }) });
+            {{ PrecompileColorFilters::Lerp(
+                 {{ PrecompileColorFilters::Matrix(), PrecompileColorFilters::Luma() }},
+                 {{ PrecompileColorFilters::Blend(), PrecompileColorFilters::Overdraw() }}) }});
 
         run_test(keyContext, renderPassDesc, reporter, paintOptions, kExpectedNumOptions);
     }

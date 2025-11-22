@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Breaking
+ - `Path` objects are now immutable.
+ - `PathBuilder` has been exposed to allow clients to create `Path` objects incrementally.
+
 ### Fixed
  - Fix compilation setting to keep up with [emsdk#24079](https://github.com/emscripten-core/emscripten/pull/24079)
 

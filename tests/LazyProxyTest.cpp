@@ -87,7 +87,7 @@ public:
         return true;
     }
 
-    void postFlush(skgpu::AtlasToken) override {
+    void postFlush(skgpu::Token) override {
         REPORTER_ASSERT(fReporter, fHasOpTexture);
         REPORTER_ASSERT(fReporter, fHasClipTexture);
     }

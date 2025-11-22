@@ -4,12 +4,12 @@
 REG_FIDDLE(bugoftheday, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint p;
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(10, 10);
     path.moveTo(75, 75);
     path.lineTo(150, 75);
     path.lineTo(150, 150);
     path.lineTo(75, 150);
-    canvas->drawPath(path, p);
+    canvas->drawPath(path.detach(), p);
 }
 }  // END FIDDLE

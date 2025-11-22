@@ -327,8 +327,3 @@ SkPDFIndirectReference SkPDFMetadata::MakeXMPObject(
                           SkMemoryStream::MakeCopy(value.c_str(), value.size()),
                           docPtr, SkPDFSteamCompressionEnabled::No);
 }
-
-#undef SKPDF_CUSTOM_PRODUCER_KEY
-#undef SKPDF_PRODUCER
-#undef SKPDF_STRING
-#undef SKPDF_STRING_IMPL

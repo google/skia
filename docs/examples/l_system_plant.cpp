@@ -50,7 +50,7 @@ void draw(SkCanvas* canvas) {
   std::string plant = E(E(E(E(E("X")))));
   const double len = 2.5;
   struct Pt pt = {128, 256, 3.14};
-  SkPath path;
+  SkPathBuilder path;
   path.moveTo(pt.x, pt.y);
 
   for (std::string::iterator it=plant.begin(); it!=plant.end(); ++it) {
@@ -70,6 +70,6 @@ void draw(SkCanvas* canvas) {
       path.moveTo(pt.x, pt.y);
     }
   }
-  canvas->drawPath(path, p);
+  canvas->drawPath(path.detach(), p);
 }
 }  // END FIDDLE

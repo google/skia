@@ -12,6 +12,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
@@ -195,12 +196,13 @@ DEF_SIMPLE_GM(patch_alpha_test, canvas, 550, 250) {
 
     canvas->translate(300, 0);
 
-    SkPath path;
-    path.moveTo(gCubics[0]);
-    path.cubicTo(gCubics[ 1], gCubics[ 2], gCubics[ 3]);
-    path.cubicTo(gCubics[ 4], gCubics[ 5], gCubics[ 6]);
-    path.cubicTo(gCubics[ 7], gCubics[ 8], gCubics[ 9]);
-    path.cubicTo(gCubics[10], gCubics[11], gCubics[ 0]);
+    SkPath path = SkPathBuilder()
+                  .moveTo(gCubics[0])
+                  .cubicTo(gCubics[ 1], gCubics[ 2], gCubics[ 3])
+                  .cubicTo(gCubics[ 4], gCubics[ 5], gCubics[ 6])
+                  .cubicTo(gCubics[ 7], gCubics[ 8], gCubics[ 9])
+                  .cubicTo(gCubics[10], gCubics[11], gCubics[ 0])
+                  .detach();
     paint.setColor(colors[0]);
     canvas->drawPath(path, paint);
 }

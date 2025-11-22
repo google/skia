@@ -71,8 +71,8 @@ static inline SkScalar SkScalarFraction(SkScalar x) {
 static inline SkScalar SkScalarSquare(SkScalar x) { return x * x; }
 
 #define SkScalarInvert(x)           (SK_Scalar1 / (x))
-#define SkScalarAve(a, b)           (((a) + (b)) * SK_ScalarHalf)
 #define SkScalarHalf(a)             ((a) * SK_ScalarHalf)
+#define SkScalarAve(a, b)           sk_float_midpoint(a, b)
 
 #define SkDegreesToRadians(degrees) ((degrees) * (SK_ScalarPI / 180))
 #define SkRadiansToDegrees(radians) ((radians) * (180 / SK_ScalarPI))
@@ -132,18 +132,6 @@ static inline SkScalar SkScalarInterp(SkScalar A, SkScalar B, SkScalar t) {
     SkASSERT(t >= 0 && t <= SK_Scalar1);
     return A + (B - A) * t;
 }
-
-/** Interpolate along the function described by (keys[length], values[length])
-    for the passed searchKey. SearchKeys outside the range keys[0]-keys[Length]
-    clamp to the min or max value. This function assumes the number of pairs
-    (length) will be small and a linear search is used.
-
-    Repeated keys are allowed for discontinuous functions (so long as keys is
-    monotonically increasing). If key is the value of a repeated scalar in
-    keys the first one will be used.
-*/
-SkScalar SkScalarInterpFunc(SkScalar searchKey, const SkScalar keys[],
-                            const SkScalar values[], int length);
 
 /*
  *  Helper to compare an array of scalars.

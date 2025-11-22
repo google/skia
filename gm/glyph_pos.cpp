@@ -130,7 +130,7 @@ static void drawTestCase(SkCanvas* canvas,
     if (drawRef) {
         const size_t len = sizeof(kText) - 1;
         SkGlyphID glyphs[len];
-        const int count = font.textToGlyphs(kText, len, SkTextEncoding::kUTF8, glyphs);
+        const size_t count = font.textToGlyphs(kText, len, SkTextEncoding::kUTF8, glyphs);
         SkScalar widths[len]; // len is conservative. we really only need 'count'
         font.getWidthsBounds({glyphs, count}, {widths, count}, {}, &paint);
 

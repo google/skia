@@ -124,7 +124,7 @@ void SkDevice::drawRegion(const SkRegion& region, const SkPaint& paint) {
         SkPathBuilder builder;
         region.addBoundaryPath(&builder);
         builder.setIsVolatile(true);
-        return this->drawPath(builder.detach(), paint, true);
+        return this->drawPath(builder.detach(), paint);
     }
 
     SkRegion::Iterator it(region);
@@ -137,7 +137,7 @@ void SkDevice::drawRegion(const SkRegion& region, const SkPaint& paint) {
 void SkDevice::drawArc(const SkArc& arc, const SkPaint& paint) {
     bool isFillNoPathEffect = SkPaint::kFill_Style == paint.getStyle() && !paint.getPathEffect();
     SkPath path = SkPathPriv::CreateDrawArcPath(arc, isFillNoPathEffect);
-    this->drawPath(path, paint, true);
+    this->drawPath(path, paint);
 }
 
 void SkDevice::drawDRRect(const SkRRect& outer,
@@ -148,7 +148,7 @@ void SkDevice::drawDRRect(const SkRRect& outer,
     builder.setFillType(SkPathFillType::kEvenOdd);
     builder.setIsVolatile(true);
 
-    this->drawPath(builder.detach(), paint, true);
+    this->drawPath(builder.detach(), paint);
 }
 
 void SkDevice::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
@@ -245,7 +245,7 @@ void SkDevice::drawEdgeAAQuad(const SkRect& r, const SkPoint clip[4], SkCanvas::
 
     if (clip) {
         // Draw the clip directly as a quad since it's a filled color with no local coords
-        this->drawPath(SkPath::Polygon({clip, 4}, true), paint, true);
+        this->drawPath(SkPath::Polygon({clip, 4}, true), paint);
     } else {
         this->drawRect(r, paint);
     }

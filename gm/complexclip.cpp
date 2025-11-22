@@ -82,9 +82,11 @@ protected:
         pathPaint.setAntiAlias(true);
         pathPaint.setColor(gPathColor);
 
-        SkPath clipA = SkPath::Polygon({{10,  20}, {165, 22}, {70,  105}, {165, 177}, {-5,  180}}, true);
+        SkPath clipA = SkPath::Polygon({{{10,  20}, {165, 22}, {70,  105}, {165, 177}, {-5,  180}}},
+                                       true);
 
-        SkPath clipB = SkPath::Polygon({{40,  10}, {190, 15}, {195, 190}, {40,  185}, {155, 100}}, true);
+        SkPath clipB = SkPath::Polygon({{{40,  10}, {190, 15}, {195, 190}, {40,  185}, {155, 100}}},
+                                       true);
 
         SkFont font(ToolUtils::DefaultPortableTypeface(), 20);
 
@@ -303,7 +305,7 @@ DEF_SIMPLE_GM(clip_shader_nested, canvas, 256, 256) {
     canvas->translate(0.f, 2.f * h);
 
     // A small blue rect, with clip shader and path clipping
-    SkPath starPath;
+    SkPathBuilder starPath;
     starPath.moveTo(0.0f, -33.3333f);
     starPath.lineTo(9.62f, -16.6667f);
     starPath.lineTo(28.867f, -16.6667f);
@@ -321,7 +323,7 @@ DEF_SIMPLE_GM(clip_shader_nested, canvas, 256, 256) {
     canvas->save();
     canvas->clipShader(s);
     canvas->translate(w/2, h/2);
-    canvas->clipPath(starPath);
+    canvas->clipPath(starPath.detach());
     p.setColor(SK_ColorBLUE);
     canvas->translate(-w/2, -h/2);
     canvas->drawRect(SkRect::MakeWH(w, h), p);
@@ -381,7 +383,7 @@ static void draw_banner(SkCanvas* canvas, Config config) {
 
     static const SkFont kFont(ToolUtils::DefaultPortableTypeface(), 12);
     canvas->drawString(banner.c_str(), 20.f, -30.f, kFont, SkPaint());
-};
+}
 
 }  // namespace
 
@@ -516,7 +518,7 @@ DEF_SIMPLE_GM(clip_shader_difference, canvas, 512, 512) {
         canvas->translate(0, 256);
         canvas->clipShader(shader, SkClipOp::kDifference);
 
-        SkPath path;
+        SkPathBuilder path;
         path.moveTo(0.f, 128.f);
         path.lineTo(128.f, 256.f);
         path.lineTo(256.f, 128.f);
@@ -527,7 +529,7 @@ DEF_SIMPLE_GM(clip_shader_difference, canvas, 512, 512) {
         path.lineTo(128.f - d, 128.f + d);
         path.lineTo(128.f + d, 128.f + d);
         path.lineTo(128.f + d, 128.f - d);
-        canvas->drawPath(path, paint);
+        canvas->drawPath(path.detach(), paint);
         canvas->restore();
     }
     // BR: Text

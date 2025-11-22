@@ -36,6 +36,7 @@
 #include "src/gpu/ganesh/geometry/GrShape.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "tests/Test.h"
+#include "tools/ToolUtils.h"
 
 #include <cstdint>
 #include <cstring>
@@ -77,9 +78,10 @@ static bool make_key(Key* key, const GrStyledShape& shape) {
 }
 
 static bool paths_fill_same(const SkPath& a, const SkPath& b) {
-    SkPath pathXor;
-    Op(a, b, SkPathOp::kXOR_SkPathOp, &pathXor);
-    return pathXor.isEmpty();
+    return ToolUtils::A8ComparePaths(a, b, [](int x, int y, uint8_t pa, uint8_t pb) {
+        SkDebugf("[%d %d] %x %x\n", x, y, pa, pb);
+        return false;   // zero tolerance
+    });
 }
 
 static bool test_bounds_by_rasterizing(const SkPath& path, const SkRect& bounds) {
@@ -181,8 +183,8 @@ static void check_equivalence(skiatest::Reporter* r, const GrStyledShape& a, con
         REPORTER_ASSERT(r, paths_fill_same(pathA, pathB));
         REPORTER_ASSERT(r, ignoreInversenessDifference || invertedA == invertedB);
     } else {
-        SkPath pA = pathA;
-        SkPath pB = pathB;
+        SkPathBuilder pA = SkPathBuilder(pathA);
+        SkPathBuilder pB = SkPathBuilder(pathB);
         REPORTER_ASSERT(r, a.inverseFilled() == pA.isInverseFillType());
         REPORTER_ASSERT(r, b.inverseFilled() == pB.isInverseFillType());
         if (ignoreInversenessDifference) {
@@ -207,7 +209,7 @@ static void check_equivalence(skiatest::Reporter* r, const GrStyledShape& a, con
             pA.close();
             pB.close();
         }
-        REPORTER_ASSERT(r, pA == pB);
+        REPORTER_ASSERT(r, pA.detach() == pB.detach());
         REPORTER_ASSERT(r, aIsRRect == bIsRRect);
         if (aIsRRect) {
             REPORTER_ASSERT(r, rrectA == rrectB);
@@ -370,9 +372,7 @@ public:
     RectGeo(const SkRect& rect) : fRect(rect) {}
 
     SkPath path() const override {
-        SkPath path;
-        path.addRect(fRect);
-        return path;
+        return SkPath::Rect(fRect);
     }
 
     GrStyledShape makeShape(const SkPaint& paint) const override {
@@ -400,9 +400,7 @@ public:
     }
 
     SkPath path() const override {
-        SkPath path;
-        path.addRRect(fRRect);
-        return path;
+        return SkPath::RRect(fRRect);
     }
 
     bool strokeAndFillIsConvertedToFill(const SkPaint& paint) const override {
@@ -1649,8 +1647,12 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
     };
 
     // SkStrokeRec has no default cons., so init with kFill before calling the setters below.
-    SkStrokeRec strokeRecs[4] { SkStrokeRec::kFill_InitStyle, SkStrokeRec::kFill_InitStyle,
-                                SkStrokeRec::kFill_InitStyle, SkStrokeRec::kFill_InitStyle};
+    SkStrokeRec strokeRecs[4]{
+            SkStrokeRec{SkStrokeRec::kFill_InitStyle},
+            SkStrokeRec{SkStrokeRec::kFill_InitStyle},
+            SkStrokeRec{SkStrokeRec::kFill_InitStyle},
+            SkStrokeRec{SkStrokeRec::kFill_InitStyle},
+    };
     strokeRecs[kFill].setFillStyle();
     strokeRecs[kStroke].setStrokeStyle(2.f);
     strokeRecs[kHairline].setHairlineStyle();
@@ -1992,9 +1994,7 @@ DEF_TEST(GrStyledShape_stroked_lines, r) {
         roundCap.setPathEffect(pe);
 
         // vertical
-        SkPath linePath;
-        linePath.moveTo(4, 4);
-        linePath.lineTo(4, 5);
+        SkPath linePath = SkPath::Line({4, 4}, {4, 5});
 
         SkPaint fill;
 
@@ -2011,9 +2011,7 @@ DEF_TEST(GrStyledShape_stroked_lines, r) {
                 TestCase::kAllSame_ComparisonExpecation);
 
         // horizontal
-        linePath.reset();
-        linePath.moveTo(4, 4);
-        linePath.lineTo(5, 4);
+        linePath = SkPath::Line({4, 4}, {5, 4});
 
         make_TestCase(r, linePath, buttCap)->compare(
                 r, TestCase(r, SkRect::MakeLTRB(4, 2, 5, 6), fill),
@@ -2026,9 +2024,7 @@ DEF_TEST(GrStyledShape_stroked_lines, r) {
                 TestCase::kAllSame_ComparisonExpecation);
 
         // point
-        linePath.reset();
-        linePath.moveTo(4, 4);
-        linePath.lineTo(4, 4);
+        linePath = SkPath::Line({4, 4}, {4, 4});
 
         make_TestCase(r, linePath, buttCap)->compare(
                 r, TestCase(r, SkRect::MakeEmpty(), fill),
@@ -2068,42 +2064,39 @@ DEF_TEST(GrStyledShape_short_path_keys, r) {
         }
     };
 
-    SkPath pathA;
-    SkPath pathB;
+    // Two identical path/pathbuilder
+    SkPath pathA = SkPathBuilder()
+                   .lineTo(10.f, 10.f)
+                   .conicTo(20.f, 20.f, 20.f, 30.f, 0.7f)
+                   .detach();
 
-    // Two identical paths
-    pathA.lineTo(10.f, 10.f);
-    pathA.conicTo(20.f, 20.f, 20.f, 30.f, 0.7f);
-
-    pathB.lineTo(10.f, 10.f);
-    pathB.conicTo(20.f, 20.f, 20.f, 30.f, 0.7f);
-    compare(pathA, pathB, TestCase::kAllSame_ComparisonExpecation);
+    SkPathBuilder pathB = SkPathBuilder()
+                          .lineTo(10.f, 10.f)
+                          .conicTo(20.f, 20.f, 20.f, 30.f, 0.7f);
+    compare(pathA, pathB.detach(), TestCase::kAllSame_ComparisonExpecation);
 
     // Give path b a different point
-    pathB.reset();
     pathB.lineTo(10.f, 10.f);
     pathB.conicTo(21.f, 20.f, 20.f, 30.f, 0.7f);
-    compare(pathA, pathB, TestCase::kAllDifferent_ComparisonExpecation);
+    compare(pathA, pathB.detach(), TestCase::kAllDifferent_ComparisonExpecation);
 
     // Give path b a different conic weight
     pathB.reset();
     pathB.lineTo(10.f, 10.f);
     pathB.conicTo(20.f, 20.f, 20.f, 30.f, 0.6f);
-    compare(pathA, pathB, TestCase::kAllDifferent_ComparisonExpecation);
+    compare(pathA, pathB.detach(), TestCase::kAllDifferent_ComparisonExpecation);
 
     // Give path b an extra lineTo verb
-    pathB.reset();
     pathB.lineTo(10.f, 10.f);
     pathB.conicTo(20.f, 20.f, 20.f, 30.f, 0.6f);
     pathB.lineTo(50.f, 50.f);
-    compare(pathA, pathB, TestCase::kAllDifferent_ComparisonExpecation);
+    compare(pathA, pathB.detach(), TestCase::kAllDifferent_ComparisonExpecation);
 
     // Give path b a close
-    pathB.reset();
     pathB.lineTo(10.f, 10.f);
     pathB.conicTo(20.f, 20.f, 20.f, 30.f, 0.7f);
     pathB.close();
-    compare(pathA, pathB, TestCase::kAllDifferent_ComparisonExpecation);
+    compare(pathA, pathB.detach(), TestCase::kAllDifferent_ComparisonExpecation);
 }
 
 DEF_TEST(GrStyledShape, reporter) {
@@ -2115,8 +2108,7 @@ DEF_TEST(GrStyledShape, reporter) {
                     SkRect::MakeWH(-10, 20),
                     SkRect::MakeWH(10, -20)}) {
         geos.emplace_back(new RectGeo(r));
-        SkPath rectPath;
-        rectPath.addRect(r);
+        SkPath rectPath = SkPath::Rect(r);
         geos.emplace_back(new RRectPathGeo(rectPath, r, RRectPathGeo::RRectForStroke::kYes,
                                            PathGeo::Invert::kNo));
         geos.emplace_back(new RRectPathGeo(rectPath, r, RRectPathGeo::RRectForStroke::kYes,
@@ -2129,8 +2121,7 @@ DEF_TEST(GrStyledShape, reporter) {
                      SkRRect::MakeOval(SkRect::MakeWH(20, 20))}) {
         geos.emplace_back(new RRectGeo(rr));
         test_rrect(reporter, rr);
-        SkPath rectPath;
-        rectPath.addRRect(rr);
+        SkPath rectPath = SkPath::RRect(rr);
         geos.emplace_back(new RRectPathGeo(rectPath, rr, RRectPathGeo::RRectForStroke::kYes,
                                            PathGeo::Invert::kNo));
         geos.emplace_back(new RRectPathGeo(rectPath, rr, RRectPathGeo::RRectForStroke::kYes,
@@ -2147,11 +2138,12 @@ DEF_TEST(GrStyledShape, reporter) {
             new ArcGeo(SkArc::Make(SkRect::MakeWH(200, 100), 12.f, 110.f, SkArc::Type::kWedge)));
 
     {
-        SkPath openRectPath;
-        openRectPath.moveTo(0, 0);
-        openRectPath.lineTo(10, 0);
-        openRectPath.lineTo(10, 10);
-        openRectPath.lineTo(0, 10);
+        SkPath openRectPath = SkPathBuilder()
+                              .moveTo(0, 0)
+                              .lineTo(10, 0)
+                              .lineTo(10, 10)
+                              .lineTo(0, 10)
+                              .detach();
         geos.emplace_back(new RRectPathGeo(
                     openRectPath, SkRect::MakeWH(10, 10),
                     RRectPathGeo::RRectForStroke::kNo, PathGeo::Invert::kNo));
@@ -2164,30 +2156,26 @@ DEF_TEST(GrStyledShape, reporter) {
     }
 
     {
-        SkPath quadPath;
-        quadPath.quadTo(10, 10, 5, 8);
+        SkPath quadPath = SkPathBuilder().quadTo(10, 10, 5, 8).detach();
         geos.emplace_back(new PathGeo(quadPath, PathGeo::Invert::kNo));
         geos.emplace_back(new PathGeo(quadPath, PathGeo::Invert::kYes));
     }
 
     {
-        SkPath linePath;
-        linePath.lineTo(10, 10);
+        SkPath linePath = SkPathBuilder().lineTo(10, 10).detach();
         geos.emplace_back(new PathGeo(linePath, PathGeo::Invert::kNo));
         geos.emplace_back(new PathGeo(linePath, PathGeo::Invert::kYes));
     }
 
     // Horizontal and vertical paths become rrects when stroked.
     {
-        SkPath vLinePath;
-        vLinePath.lineTo(0, 10);
+        SkPath vLinePath = SkPathBuilder().lineTo(0, 10).detach();
         geos.emplace_back(new PathGeo(vLinePath, PathGeo::Invert::kNo));
         geos.emplace_back(new PathGeo(vLinePath, PathGeo::Invert::kYes));
     }
 
     {
-        SkPath hLinePath;
-        hLinePath.lineTo(10, 0);
+        SkPath hLinePath = SkPathBuilder().lineTo(10, 0).detach();
         geos.emplace_back(new PathGeo(hLinePath, PathGeo::Invert::kNo));
         geos.emplace_back(new PathGeo(hLinePath, PathGeo::Invert::kYes));
     }
@@ -2346,10 +2334,13 @@ DEF_TEST(GrStyledShape_arcs, reporter) {
 }
 
 DEF_TEST(GrShapeInversion, r) {
-    SkPath path;
-    SkScalar radii[] = {10.f, 10.f, 10.f, 10.f,
-                        10.f, 10.f, 10.f, 10.f};
-    path.addRoundRect(SkRect::MakeWH(50, 50), radii);
+    const SkVector radii[] = {
+        {10.f, 10.f}, {10.f, 10.f},
+        {10.f, 10.f}, {10.f, 10.f}
+    };
+    SkRRect rr;
+    rr.setRectRadii(SkRect::MakeWH(50, 50), radii);
+    SkPath path = SkPath::RRect(rr);
     path.toggleInverseFillType();
 
     GrShape inverseRRect(path);

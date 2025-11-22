@@ -9,12 +9,7 @@
 
 #if defined(SK_VULKAN)
 
-#include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/vk/VulkanTypes.h"
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/vk/GrVkGpu.h"
-#include "src/gpu/ganesh/vk/GrVkUtil.h"
 #include "src/gpu/vk/VulkanInterface.h"
 
 #if defined(SK_GRAPHITE)
@@ -24,6 +19,14 @@
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtils.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
+#endif
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/vk/GrVkGpu.h"
+#include "src/gpu/ganesh/vk/GrVkUtil.h"
 #endif
 
 int VkYcbcrSamplerHelper::GetExpectedY(int x, int y, int width, int height) {
@@ -195,22 +198,22 @@ bool VkYcbcrSamplerHelper::createBackendTexture(uint32_t width, uint32_t height)
              (linFlags & VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT) &&
              (linFlags & VK_FORMAT_FEATURE_COSITED_CHROMA_SAMPLES_BIT));
 
-    skgpu::VulkanYcbcrConversionInfo ycbcrInfo = {vkImageInfo.format,
-                                                  /*externalFormat=*/0,
-                                                  VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_709,
-                                                  VK_SAMPLER_YCBCR_RANGE_ITU_NARROW,
-                                                  VK_CHROMA_LOCATION_COSITED_EVEN,
-                                                  VK_CHROMA_LOCATION_COSITED_EVEN,
-                                                  VK_FILTER_LINEAR,
-                                                  false,
-                                                  formatProperties.linearTilingFeatures};
-    skgpu::VulkanAlloc alloc;
+    skgpu::VulkanYcbcrConversionInfo ycbcrInfo(vkImageInfo.format,
+                                               VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_709,
+                                               VK_SAMPLER_YCBCR_RANGE_ITU_NARROW,
+                                               VK_CHROMA_LOCATION_COSITED_EVEN,
+                                               VK_CHROMA_LOCATION_COSITED_EVEN,
+                                               VK_FILTER_LINEAR,
+                                               /*forceExplicitReconstruction=*/false,
+                                               /*components=*/{},
+                                               formatProperties.linearTilingFeatures);
+skgpu::VulkanAlloc alloc;
     alloc.fMemory = fImageMemory;
     alloc.fOffset = 0;
     alloc.fSize = requirements.size;
 
     skgpu::graphite::VulkanTextureInfo imageInfo = {
-            static_cast<uint32_t>(vkImageInfo.samples),
+            vkImageInfo.samples,
             skgpu::Mipmapped::kNo,
             VK_IMAGE_CREATE_PROTECTED_BIT,
             vkImageInfo.format,
@@ -230,6 +233,7 @@ bool VkYcbcrSamplerHelper::createBackendTexture(uint32_t width, uint32_t height)
 }
 #endif // SK_GRAPHITE
 
+#if defined(SK_GANESH)
 bool VkYcbcrSamplerHelper::createGrBackendTexture(uint32_t width, uint32_t height) {
     GrVkGpu* vkGpu = this->vkGpu();
     VkResult result;
@@ -336,16 +340,15 @@ bool VkYcbcrSamplerHelper::createGrBackendTexture(uint32_t width, uint32_t heigh
              (linFlags & VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT) &&
              (linFlags & VK_FORMAT_FEATURE_COSITED_CHROMA_SAMPLES_BIT));
 
-    skgpu::VulkanYcbcrConversionInfo ycbcrInfo = {vkImageInfo.format,
-                                                  /*externalFormat=*/0,
-                                                  VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_709,
-                                                  VK_SAMPLER_YCBCR_RANGE_ITU_NARROW,
-                                                  VK_CHROMA_LOCATION_COSITED_EVEN,
-                                                  VK_CHROMA_LOCATION_COSITED_EVEN,
-                                                  VK_FILTER_LINEAR,
-                                                  false,
-                                                  formatProperties.linearTilingFeatures,
-                                                  /*fComponents=*/{}};
+    skgpu::VulkanYcbcrConversionInfo ycbcrInfo(vkImageInfo.format,
+                                               VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_709,
+                                               VK_SAMPLER_YCBCR_RANGE_ITU_NARROW,
+                                               VK_CHROMA_LOCATION_COSITED_EVEN,
+                                               VK_CHROMA_LOCATION_COSITED_EVEN,
+                                               VK_FILTER_LINEAR,
+                                               /*forceExplicitReconstruction=*/false,
+                                               /*components=*/{},
+                                               formatProperties.linearTilingFeatures);
     skgpu::VulkanAlloc alloc;
     alloc.fMemory = fImageMemory;
     alloc.fOffset = 0;
@@ -368,15 +371,13 @@ bool VkYcbcrSamplerHelper::createGrBackendTexture(uint32_t width, uint32_t heigh
 }
 
 GrVkGpu* VkYcbcrSamplerHelper::vkGpu() {
-    return (GrVkGpu*) fDContext->priv().getGpu();
+    return fDContext ? (GrVkGpu*) fDContext->priv().getGpu() : nullptr;
 }
 
 VkYcbcrSamplerHelper::VkYcbcrSamplerHelper(GrDirectContext* dContext) : fDContext(dContext) {
     SkASSERT_RELEASE(dContext->backend() == GrBackendApi::kVulkan);
-#if defined(SK_GRAPHITE)
-    fSharedCtxt = nullptr;
-#endif
 }
+#endif  // SK_GANESH
 
 VkYcbcrSamplerHelper::~VkYcbcrSamplerHelper() {
 #ifdef SK_GRAPHITE
@@ -391,11 +392,10 @@ VkYcbcrSamplerHelper::~VkYcbcrSamplerHelper() {
                         FreeMemory(fSharedCtxt->device(), fImageMemory, nullptr));
             fImageMemory = VK_NULL_HANDLE;
         }
-    } else
+    }
 #endif // SK_GRAPHITE
-    {
-        GrVkGpu* vkGpu = this->vkGpu();
-
+#if defined (SK_GANESH)
+    if (GrVkGpu* vkGpu = this->vkGpu()) {
         if (fImage != VK_NULL_HANDLE) {
             GR_VK_CALL(vkGpu->vkInterface(), DestroyImage(vkGpu->device(), fImage, nullptr));
             fImage = VK_NULL_HANDLE;
@@ -405,6 +405,7 @@ VkYcbcrSamplerHelper::~VkYcbcrSamplerHelper() {
             fImageMemory = VK_NULL_HANDLE;
         }
     }
+#endif
 }
 
 bool VkYcbcrSamplerHelper::isYCbCrSupported() {
@@ -420,10 +421,10 @@ bool VkYcbcrSamplerHelper::isYCbCrSupported() {
                     GetPhysicalDeviceFormatProperties(fSharedCtxt->physDevice(),
                                                       VK_FORMAT_G8_B8R8_2PLANE_420_UNORM,
                                                       &formatProperties));
-    } else
+    }
 #endif
-    {
-        GrVkGpu* vkGpu = this->vkGpu();
+#if defined(SK_GANESH)
+    if (GrVkGpu* vkGpu = this->vkGpu()) {
         if (!vkGpu->vkCaps().supportsYcbcrConversion()) {
             return false;
         }
@@ -433,6 +434,7 @@ bool VkYcbcrSamplerHelper::isYCbCrSupported() {
                                                     VK_FORMAT_G8_B8R8_2PLANE_420_UNORM,
                                                     &formatProperties));
     }
+#endif  // SK_GANESH
 
     // The createBackendTexture call (which is the point of this helper class) requires linear
     // support for VK_FORMAT_G8_B8R8_2PLANE_420_UNORM including sampling and cosited chroma.

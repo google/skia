@@ -20,12 +20,17 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
+#include "src/gpu/AtlasTypes.h"
+#include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
+
+#if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrContextOptions.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/AtlasTypes.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "tools/ToolUtils.h"
-#include "tools/fonts/FontToolUtils.h"
+#endif
 
 using MaskFormat = skgpu::MaskFormat;
 
@@ -38,20 +43,23 @@ static SkScalar draw_string(SkCanvas* canvas, const SkString& text, SkScalar x,
 
 class FontCacheGM : public skiagm::GM {
 public:
-    FontCacheGM(GrContextOptions::Enable allowMultipleTextures)
-        : fAllowMultipleTextures(allowMultipleTextures) {
+    FontCacheGM(bool allowMultipleTextures) : fAllowMultipleTextures(allowMultipleTextures) {
         this->setBGColor(SK_ColorLTGRAY);
     }
 
+#if defined(SK_GANESH)
     void modifyGrContextOptions(GrContextOptions* options) override {
         options->fGlyphCacheTextureMaximumBytes = 0;
-        options->fAllowMultipleGlyphCacheTextures = fAllowMultipleTextures;
+        using Enable = GrContextOptions::Enable;
+        options->fAllowMultipleGlyphCacheTextures = fAllowMultipleTextures ? Enable::kYes
+                                                                           : Enable::kNo;
     }
+#endif
 
 protected:
     SkString getName() const override {
         SkString name("fontcache");
-        if (GrContextOptions::Enable::kYes == fAllowMultipleTextures) {
+        if (fAllowMultipleTextures) {
             name.append("-mt");
         }
         return name;
@@ -70,7 +78,8 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         this->drawText(canvas);
-        //  Debugging tool for GPU.
+#if defined(SK_GANESH)
+        //  Debugging tool for Ganesh.
         static const bool kShowAtlas = false;
         if (kShowAtlas) {
             if (auto dContext = GrAsDirectContext(canvas->recordingContext())) {
@@ -78,6 +87,7 @@ protected:
                 canvas->drawImage(img, 0, 0);
             }
         }
+#endif
     }
 
 private:
@@ -99,7 +109,7 @@ private:
         SkScalar subpixelY = 0;
         bool offsetX = true;
 
-        if (GrContextOptions::Enable::kYes == fAllowMultipleTextures) {
+        if (fAllowMultipleTextures) {
             canvas->scale(10, 10);
         }
 
@@ -129,12 +139,12 @@ private:
 
     inline static constexpr SkScalar kSize = 1280;
 
-    GrContextOptions::Enable fAllowMultipleTextures;
+    bool fAllowMultipleTextures;
     sk_sp<SkTypeface> fTypefaces[6];
     using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new FontCacheGM(GrContextOptions::Enable::kNo))
-DEF_GM(return new FontCacheGM(GrContextOptions::Enable::kYes))
+DEF_GM(return new FontCacheGM(/*allowMultipleTextures=*/true))
+DEF_GM(return new FontCacheGM(/*allowMultipleTextures=*/false))

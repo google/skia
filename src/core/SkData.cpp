@@ -11,7 +11,6 @@
 #include "include/core/SkStream.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkMalloc.h"
-#include "include/private/base/SkOnce.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkStreamPriv.h"
 
@@ -125,10 +124,7 @@ void SkData::NoopReleaseProc(const void*, void*) {}
 ///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkData> SkData::MakeEmpty() {
-    static SkOnce once;
-    static SkData* empty;
-
-    once([]{ empty = new SkData({}, nullptr, nullptr); });
+    static SkData* empty = new SkData({}, nullptr, nullptr);
     return sk_ref_sp(empty);
 }
 

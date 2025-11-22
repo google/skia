@@ -33,6 +33,10 @@ static inline bool SkPathFillType_IsInverse(SkPathFillType ft) {
     return (static_cast<int>(ft) & 2) != 0;
 }
 
+static inline SkPathFillType SkPathFillType_ToggleInverse(SkPathFillType ft) {
+    return static_cast<SkPathFillType>(static_cast<int>(ft) ^ 2);
+}
+
 static inline SkPathFillType SkPathFillType_ConvertToNonInverse(SkPathFillType ft) {
     return static_cast<SkPathFillType>(static_cast<int>(ft) & 1);
 }
@@ -59,7 +63,9 @@ enum class SkPathVerb : uint8_t {
     kQuad,   //!< SkPath::RawIter returns 3 points
     kConic,  //!< SkPath::RawIter returns 3 points + 1 weight
     kCubic,  //!< SkPath::RawIter returns 4 points
-    kClose   //!< SkPath::RawIter returns 0 points
+    kClose,  //!< SkPath::RawIter returns 0 points
+
+    kLast_Verb = kClose,
 };
 
 #endif

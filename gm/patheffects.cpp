@@ -22,7 +22,10 @@
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkDiscretePathEffect.h"
+
+#if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrDirectContext.h"
+#endif
 
 #include <initializer_list>
 
@@ -124,13 +127,13 @@ protected:
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
 
-        SkPath path = SkPath::Polygon({
+        SkPath path = SkPath::Polygon({{
             {20, 20},
             {70, 120},
             {120, 30},
             {170, 80},
             {240, 50},
-        }, false);
+        }}, false);
 
         canvas->save();
         for (size_t i = 0; i < std::size(gPE); i++) {
@@ -140,7 +143,6 @@ protected:
         }
         canvas->restore();
 
-        path.reset();
         SkRect r = { 0, 0, 250, 120 };
         path = SkPathBuilder().addOval(r, SkPathDirection::kCW)
                               .addRect(r.makeInset(50, 50), SkPathDirection::kCCW)
@@ -194,8 +196,8 @@ public:
                       SkStrokeRec* rec,
                       const SkRect* cullR,
                       const SkMatrix& ctm) const final {
-        SkASSERT(src.countPoints() == 2);
-        const SkPoint pts[2] = {src.getPoint(0), src.getPoint(1)};
+        SkSpan<const SkPoint> pts = src.points();
+        SkASSERT(pts.size() == 2);
 
         SkMatrix invCtm;
         if (!ctm.invert(&invCtm)) {
@@ -248,20 +250,20 @@ protected:
 
     SkISize getISize() override { return SkISize::Make(800, 600); }
 
+#if defined(SK_GANESH)
     // CTM-aware path effects are not supported by Ganesh
     DrawResult onGpuSetup(SkCanvas* canvas, SkString*, GraphiteTestContext*) override {
         auto dctx = GrAsDirectContext(canvas->recordingContext());
         return dctx == nullptr ? DrawResult::kOk : DrawResult::kSkip;
     }
+#endif
 
     void onDraw(SkCanvas* canvas) override {
         const float strokeWidth = 16;
         const float pxInflate = 0.5f;
         sk_sp<SkPathEffect> pathEffect(new StrokeLineInflated(strokeWidth, pxInflate));
 
-        SkPath path;
-        path.moveTo(100, 100);
-        path.lineTo(200, 200);
+        SkPath path = SkPath::Line({100, 100}, {200, 200});
 
         // Draw the inflated path, and a scaled version, in blue.
         SkPaint paint;

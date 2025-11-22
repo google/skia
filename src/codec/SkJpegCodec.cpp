@@ -56,7 +56,7 @@ bool SkJpegCodec::IsJpeg(const void* buffer, size_t bytesRead) {
     return bytesRead >= sizeof(kJpegSig) && !memcmp(buffer, kJpegSig, sizeof(kJpegSig));
 }
 
-SkJpegMarkerList get_sk_marker_list(jpeg_decompress_struct* dinfo) {
+static SkJpegMarkerList get_sk_marker_list(jpeg_decompress_struct* dinfo) {
     SkJpegMarkerList markerList;
     for (auto* marker = dinfo->marker_list; marker; marker = marker->next) {
         markerList.emplace_back(marker->marker,
@@ -197,7 +197,7 @@ SkJpegCodec::SkJpegCodec(SkEncodedInfo&& info,
                          std::unique_ptr<SkStream> stream,
                          JpegDecoderMgr* decoderMgr,
                          SkEncodedOrigin origin)
-        : INHERITED(std::move(info), skcms_PixelFormat_RGBA_8888, std::move(stream), origin)
+        : SkCodec(std::move(info), skcms_PixelFormat_RGBA_8888, std::move(stream), origin)
         , fDecoderMgr(decoderMgr)
         , fReadyState(decoderMgr->dinfo()->global_state) {}
 SkJpegCodec::~SkJpegCodec() = default;
@@ -218,7 +218,9 @@ static size_t get_row_bytes(const j_decompress_ptr dinfo) {
  *  Not to be used on the actual jpeg_decompress_struct used for decoding, since it will
  *  incorrectly modify num_components.
  */
-void calc_output_dimensions(jpeg_decompress_struct* dinfo, unsigned int num, unsigned int denom) {
+static void calc_output_dimensions(jpeg_decompress_struct* dinfo,
+                                   unsigned int num,
+                                   unsigned int denom) {
     dinfo->num_components = 0;
     dinfo->scale_num = num;
     dinfo->scale_denom = denom;
@@ -398,8 +400,12 @@ bool SkJpegCodec::onDimensionsSupported(const SkISize& size) {
     return true;
 }
 
-SkCodec::Result SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count,
-                          const Options& opts, int* rowsDecoded) {
+SkCodec::Result SkJpegCodec::readRows(const SkImageInfo& dstInfo,
+                                      void* dst,
+                                      size_t rowBytes,
+                                      int count,
+                                      const Options& opts,
+                                      int* rowsDecoded) {
     // Set the jump location for libjpeg-turbo errors
     skjpeg_error_mgr::AutoPushJmpBuf jmp(fDecoderMgr->errorMgr());
     if (setjmp(jmp)) {

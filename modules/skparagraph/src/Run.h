@@ -120,9 +120,11 @@ public:
         return SkRect::MakeXYWH(fOffset.fX, fOffset.fY, fAdvance.fX, fAdvance.fY);
     }
 
+    bool isCursiveScript() const;
+
     void addSpacesAtTheEnd(SkScalar space, Cluster* cluster);
-    SkScalar addSpacesEvenly(SkScalar space, Cluster* cluster);
-    SkScalar addSpacesEvenly(SkScalar space);
+    SkScalar addLetterSpacesEvenly(SkScalar space, Cluster* cluster);
+    SkScalar addLetterSpacesEvenly(SkScalar space);
     void shift(const Cluster* cluster, SkScalar offset);
     void extend(const Cluster* cluster, SkScalar offset);
 
@@ -212,6 +214,8 @@ private:
 
     bool fEllipsis;
     uint8_t fBidiLevel;
+    SkFourByteTag fScript;
+    SkString fLanguage;
 };
 
 template<typename Visitor>
@@ -288,7 +292,7 @@ public:
             SkScalar width,
             SkScalar height);
 
-    Cluster(TextRange textRange) : fTextRange(textRange), fGraphemeRange(EMPTY_RANGE) { }
+    explicit Cluster(TextRange textRange) : fTextRange(textRange), fGraphemeRange(EMPTY_RANGE) {}
 
     Cluster(const Cluster&) = default;
     ~Cluster() = default;
@@ -372,7 +376,7 @@ public:
         fForceStrut = false;
     }
 
-    InternalLineMetrics(bool forceStrut) {
+    explicit InternalLineMetrics(bool forceStrut) {
         clean();
         fForceStrut = forceStrut;
     }

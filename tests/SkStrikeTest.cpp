@@ -226,8 +226,7 @@ DEF_TEST(SkStrike_FlattenByType, reporter) {
     const SkPackedGlyphID pathPackedGlyphID((SkGlyphID)11);
     SkGlyph pathGlyph{pathPackedGlyphID};
     SkGlyphTestPeer::SetGlyph(&pathGlyph);
-    SkPath path;
-    path.addRect(pathGlyph.rect());
+    SkPath path = SkPath::Rect(pathGlyph.rect());
     pathGlyph.setPath(&alloc, &path, false, false);
     pathsToSend.emplace_back(pathGlyph);
 

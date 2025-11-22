@@ -88,7 +88,8 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkDRMModifierTest, reporter, ctxInfo, CtsEnfo
     REPORTER_ASSERT(reporter, ok);
     REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(actual, drmBETex));
 
-    auto [view, _] = skgpu::ganesh::AsView(dContext, drmImage, Mipmapped::kNo);
+    auto [view, _] = skgpu::ganesh::AsView(dContext, drmImage, Mipmapped::kNo,
+                                           /*targetSurface=*/nullptr);
     REPORTER_ASSERT(reporter, view);
     const GrSurfaceProxy* proxy = view.proxy();
     REPORTER_ASSERT(reporter, proxy);

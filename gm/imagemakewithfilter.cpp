@@ -269,6 +269,7 @@ protected:
             {  30,  30,  75,  75 }
         };
 
+#if defined(SK_GANESH)
         auto rContext = canvas->recordingContext();
         // In a DDL context, we can't use the GPU code paths and we will drop the work – skip.
         auto dContext = GrAsDirectContext(rContext);
@@ -282,6 +283,10 @@ protected:
                 return DrawResult::kSkip;
             }
         }
+#else
+        constexpr void* dContext = nullptr;
+        (void)dContext;
+#endif
 
         // These need to be GPU-backed when on the GPU to ensure that the image filters use the GPU
         // code paths (otherwise they may choose to do CPU filtering then upload)

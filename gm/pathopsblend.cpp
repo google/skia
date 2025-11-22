@@ -12,16 +12,17 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/pathops/SkPathOps.h"
 #include "src/core/SkStroke.h"
 #include "tools/ToolUtils.h"
 
 static SkPath cross() {
-    SkPath path;
-    path.addRect(15, 0, 35, 50);
-    path.addRect(0, 15, 50, 35);
-    return path;
+    SkPathBuilder builder;
+    builder.addRect({15, 0, 35, 50});
+    builder.addRect({0, 15, 50, 35});
+    return builder.detach();
 }
 
 static SkPath circle() { return SkPath::Circle(25, 25, 20); }
@@ -87,10 +88,8 @@ DEF_SIMPLE_GM(pathops_blend, canvas, 130, 60 * std::size(kOps) + 60 + 10) {
         canvas->save();
 
         // Use PathOps to compute new path, then draw it:
-        {
-            SkPath opPath;
-            Op(p1, p2, op, &opPath);
-            canvas->drawPath(opPath, paint);
+        if (auto opPath = Op(p1, p2, op)) {
+            canvas->drawPath(*opPath, paint);
         }
 
         canvas->translate(60, 0);

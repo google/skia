@@ -18,6 +18,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkPoint.h"
@@ -243,9 +244,7 @@ DEF_TEST(CanvasNewRasterTest, reporter) {
 }
 
 static SkPath make_path_from_rect(SkRect r) {
-    SkPath path;
-    path.addRect(r);
-    return path;
+    return SkPath::Rect(r);
 }
 
 static SkRegion make_region_from_irect(SkIRect r) {
@@ -343,13 +342,13 @@ static CanvasTest kCanvasTests[] = {
         SkPaint paint;
         paint.setStrokeWidth(SkIntToScalar(1));
         paint.setStyle(SkPaint::kStroke_Style);
-        SkPath path;
-        path.moveTo(SkPoint{ 0, 0 });
-        path.lineTo(SkPoint{ 0, SK_ScalarNearlyZero });
-        path.lineTo(SkPoint{ SkIntToScalar(1), 0 });
-        path.lineTo(SkPoint{ SkIntToScalar(1), SK_ScalarNearlyZero/2 });
+        SkPathBuilder builder;
+        builder.moveTo(SkPoint{ 0, 0 });
+        builder.lineTo(SkPoint{ 0, SK_ScalarNearlyZero });
+        builder.lineTo(SkPoint{ SkIntToScalar(1), 0 });
+        builder.lineTo(SkPoint{ SkIntToScalar(1), SK_ScalarNearlyZero/2 });
         // test nearly zero length path
-        c->drawPath(path, paint);
+        c->drawPath(builder.detach(), paint);
     },
     [](SkCanvas* c, skiatest::Reporter* r) {
         SkPictureRecorder recorder;
@@ -453,13 +452,16 @@ DEF_TEST(Canvas_ClipEmptyPath, reporter) {
     SkPath path;
     canvas.clipPath(path);
     canvas.restore();
+
     canvas.save();
-    path.moveTo(5, 5);
-    canvas.clipPath(path);
+    SkPathBuilder builder;
+    builder.moveTo(5, 5);
+    canvas.clipPath(builder.snapshot());
     canvas.restore();
+
     canvas.save();
-    path.moveTo(7, 7);
-    canvas.clipPath(path);  // should not assert here
+    builder.moveTo(7, 7);
+    canvas.clipPath(builder.detach());  // should not assert here
     canvas.restore();
 }
 

@@ -25,7 +25,7 @@ class SkString;
 
 class SkSVGAttributeParser : public SkNoncopyable {
 public:
-    SkSVGAttributeParser(const char[]);
+    explicit SkSVGAttributeParser(const char[]);
 
     bool parseInteger(SkSVGIntegerType*);
     bool parseViewBox(SkSVGViewBoxType*);

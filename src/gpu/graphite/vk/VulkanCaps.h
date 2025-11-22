@@ -28,7 +28,7 @@ public:
                Protected);
     ~VulkanCaps() override;
 
-    bool isSampleCountSupported(TextureFormat, uint8_t requestedSampleCount) const override;
+    bool isSampleCountSupported(TextureFormat, SampleCount requestedSampleCount) const override;
     TextureFormat getDepthStencilFormat(SkEnumBitMask<DepthStencilFlags>) const override;
 
     TextureInfo getDefaultAttachmentTextureInfo(AttachmentDesc,
@@ -36,15 +36,14 @@ public:
                                                 Discardable) const override;
 
     TextureInfo getDefaultSampledTextureInfo(SkColorType,
-                                             Mipmapped mipmapped,
+                                             Mipmapped,
                                              Protected,
                                              Renderable) const override;
 
-    TextureInfo getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
-                                             Mipmapped mipmapped) const override;
+    TextureInfo getTextureInfoForSampledCopy(const TextureInfo&, Mipmapped) const override;
 
     TextureInfo getDefaultCompressedTextureInfo(SkTextureCompressionType,
-                                                Mipmapped mipmapped,
+                                                Mipmapped,
                                                 Protected) const override;
 
     TextureInfo getDefaultStorageTextureInfo(SkColorType) const override;
@@ -53,6 +52,7 @@ public:
     DstReadStrategy getDstReadStrategy() const override;
 
     ImmutableSamplerInfo getImmutableSamplerInfo(const TextureInfo&) const override;
+    std::string toString(const ImmutableSamplerInfo&) const override;
 
     UniqueKey makeGraphicsPipelineKey(const GraphicsPipelineDesc&,
                                       const RenderPassDesc&) const override;
@@ -66,7 +66,7 @@ public:
     bool isRenderable(const TextureInfo&) const override;
     bool isStorage(const TextureInfo&) const override;
 
-    bool isFormatSupported(VkFormat format) const;
+    bool isFormatSupported(VkFormat) const;
     bool isTexturable(const VulkanTextureInfo&) const;
     bool isRenderable(const VulkanTextureInfo&) const;
     bool isTransferSrc(const VulkanTextureInfo&) const;
@@ -120,6 +120,12 @@ public:
     bool mustLoadFullImageForMSAA() const { return fMustLoadFullImageForMSAA; }
     bool avoidMSAA() const { return fAvoidMSAA; }
 
+    bool supportsFrameBoundary() const { return fSupportsFrameBoundary; }
+
+    bool supportsPipelineCreationCacheControl() const {
+        return fSupportsPipelineCreationCacheControl;
+    }
+
 private:
     void init(const ContextOptions&,
               const skgpu::VulkanInterface*,
@@ -153,8 +159,15 @@ private:
         bool fMultisampledRenderToSingleSampled = false;
         // From VkPhysicalDeviceHostImageCopyFeatures:
         bool fHostImageCopy = false;
+        // From VkPhysicalDeviceFrameBoundaryFeaturesEXT:
+        bool fFrameBoundary = false;
+        // From VkPhysicalDevicePipelineCreationCacheControlFeatures or
+        // VkPhysicalDeviceVulkan13Features
+        bool fPipelineCreationCacheControl = false;
+        // From VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT
+        bool fFormatRGBA10x6WithoutYCbCrSampler = false;
     };
-    EnabledFeatures getEnabledFeatures(const VkPhysicalDeviceFeatures2* features,
+    EnabledFeatures getEnabledFeatures(const VkPhysicalDeviceFeatures2*,
                                        uint32_t physicalDeviceVersion);
 
     struct PhysicalDeviceProperties {
@@ -164,18 +177,21 @@ private:
         VkPhysicalDeviceHostImageCopyPropertiesEXT fHic;
         bool fHicHasShaderReadOnlyDstLayout = false;
     };
-    void getProperties(const skgpu::VulkanInterface* vkInterface,
-                       VkPhysicalDevice physDev,
+    void getProperties(const skgpu::VulkanInterface*,
+                       VkPhysicalDevice,
                        uint32_t physicalDeviceVersion,
-                       const skgpu::VulkanExtensions* extensions,
-                       const EnabledFeatures& features,
-                       PhysicalDeviceProperties* props);
+                       const skgpu::VulkanExtensions*,
+                       const EnabledFeatures&,
+                       PhysicalDeviceProperties*);
 
     void applyDriverCorrectnessWorkarounds(const PhysicalDeviceProperties&);
 
+    void initShaderCaps(const EnabledFeatures, const uint32_t vendorID);
+
     void initFormatTable(const skgpu::VulkanInterface*,
                          VkPhysicalDevice,
-                         const VkPhysicalDeviceProperties&);
+                         const VkPhysicalDeviceProperties&,
+                         const EnabledFeatures&);
 
     void initDepthStencilFormatTable(const skgpu::VulkanInterface*,
                                      VkPhysicalDevice,
@@ -204,7 +220,7 @@ private:
      * depend on whether the application has created the image with the
      * VK_IMAGE_CREATE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT flag.
      */
-    bool msaaTextureRenderToSingleSampledSupport(const TextureInfo& info) const override;
+    bool msaaTextureRenderToSingleSampledSupport(const TextureInfo&) const override;
 
     // Struct that determines and stores which sample count quantities a VkFormat supports.
     struct SupportedSampleCounts {
@@ -214,7 +230,7 @@ private:
                               VkFormat,
                               VkImageUsageFlags);
 
-        bool isSampleCountSupported(int requestedCount) const;
+        bool isSampleCountSupported(SampleCount requestedCount) const;
 
         VkSampleCountFlags fSampleCounts = 0;
     };
@@ -233,7 +249,7 @@ private:
         void init(const skgpu::VulkanInterface*, const VulkanCaps&, VkPhysicalDevice, VkFormat);
 
         bool isTexturable(VkImageTiling) const;
-        bool isRenderable(VkImageTiling, uint32_t sampleCount) const;
+        bool isRenderable(VkImageTiling, SampleCount sampleCount) const;
         bool isStorage(VkImageTiling) const;
         bool isTransferSrc(VkImageTiling) const;
         bool isTransferDst(VkImageTiling) const;
@@ -273,7 +289,7 @@ private:
     VkFormat getFormatFromColorType(SkColorType) const;
 
     // Map VkFormat to FormatInfo.
-    static const size_t kNumVkFormats = 23;
+    static const size_t kNumVkFormats = 24;
     FormatInfo fFormatTable[kNumVkFormats];
 
     FormatInfo& getFormatInfo(VkFormat);
@@ -321,6 +337,8 @@ private:
     bool fSupportsDeviceFaultInfo = false;
     bool fSupportsRasterizationOrderColorAttachmentAccess = false;
     bool fIsInputAttachmentReadCoherent = false;
+    bool fSupportsFrameBoundary = false;
+    bool fSupportsPipelineCreationCacheControl = false;
 
     // Flags to enable workarounds for driver bugs
     bool fMustLoadFullImageForMSAA = false;

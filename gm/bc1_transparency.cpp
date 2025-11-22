@@ -9,15 +9,17 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkTextureCompressionType.h"
+#include "src/core/SkCompressedDataUtils.h"
+#include "src/image/SkImage_Base.h"
+
+#if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
-#include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
-#include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
-#include "src/image/SkImage_Base.h"
 #include "tools/ganesh/ProxyUtils.h"
+#endif
 
 constexpr int kImgWidth  = 16;
 constexpr int kImgHeight = 8;
@@ -105,24 +107,27 @@ static sk_sp<SkData> make_compressed_data() {
 
 static sk_sp<SkImage> data_to_img(GrDirectContext *direct, sk_sp<SkData> data,
                                   SkTextureCompressionType compression) {
+#if defined(SK_GANESH)
     if (direct) {
         return SkImages::TextureFromCompressedTextureData(
                 direct, std::move(data), kImgWidth, kImgHeight, compression, skgpu::Mipmapped::kNo);
-    } else {
-        return SkImages::RasterFromCompressedTextureData(
-                std::move(data), kImgWidth, kImgHeight, compression);
     }
+#endif
+    return SkImages::RasterFromCompressedTextureData(
+            std::move(data), kImgWidth, kImgHeight, compression);
 }
 
 static void draw_image(SkCanvas* canvas, sk_sp<SkImage> image, int x, int y) {
 
     bool isCompressed = false;
+#if defined(SK_GANESH)
     if (image && image->isTextureBacked()) {
         const GrCaps* caps = as_IB(image)->context()->priv().caps();
         GrTextureProxy* proxy = sk_gpu_test::GetTextureImageProxy(image.get(),
                                                                   canvas->recordingContext());
         isCompressed = caps->isFormatCompressed(proxy->backendFormat());
     }
+#endif
 
     canvas->drawImage(image, x, y);
 
@@ -171,12 +176,16 @@ protected:
     }
 
     DrawResult onGpuSetup(SkCanvas* canvas, SkString* errorMsg, GraphiteTestContext*) override {
+#if defined(SK_GANESH)
         auto dContext = GrAsDirectContext(canvas->recordingContext());
         if (dContext && dContext->abandoned()) {
             // This isn't a GpuGM so a null 'context' is okay but an abandoned context
             // if forbidden.
             return DrawResult::kSkip;
         }
+#else
+        constexpr GrDirectContext* dContext = nullptr;
+#endif
 
         sk_sp<SkData> bc1Data = make_compressed_data();
 

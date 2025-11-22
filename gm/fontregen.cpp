@@ -28,14 +28,19 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkTemplates.h"
+#include "src/gpu/AtlasTypes.h"
+#include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
+
+#if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrContextOptions.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
-#include "include/private/base/SkTemplates.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/AtlasTypes.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "tools/ToolUtils.h"
-#include "tools/fonts/FontToolUtils.h"
+#endif
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/ContextOptions.h"
@@ -55,11 +60,12 @@ static sk_sp<SkTextBlob> make_blob(const SkString& text, const SkFont& font) {
 }
 
 class FontRegenGM : public skiagm::GM {
-
+#if defined(SK_GANESH)
     void modifyGrContextOptions(GrContextOptions* options) override {
         options->fGlyphCacheTextureMaximumBytes = 0;
         options->fAllowMultipleGlyphCacheTextures = GrContextOptions::Enable::kNo;
     }
+#endif
 
 #if defined(SK_GRAPHITE)
     void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions* options) const override {
@@ -103,21 +109,25 @@ class FontRegenGM : public skiagm::GM {
         canvas->drawTextBlob(fBlobs[0], 10, 80, paint);
         canvas->drawTextBlob(fBlobs[1], 10, 225, paint);
 
+#if defined(SK_GANESH)
         auto dContext = GrAsDirectContext(canvas->recordingContext());
         if (dContext) {
             dContext->flushAndSubmit();
         }
+#endif
 
         paint.setColor(0xFF010101);
         canvas->drawTextBlob(fBlobs[0], 10, 305, paint);
         canvas->drawTextBlob(fBlobs[2], 10, 465, paint);
 
-        //  Debugging tool for GPU.
+#if defined(SK_GANESH)
+        //  Debugging tool for Ganesh.
         static const bool kShowAtlas = false;
         if (kShowAtlas && dContext) {
             auto img = dContext->priv().testingOnly_getFontAtlasImage(MaskFormat::kA8);
             canvas->drawImage(img, 200, 0);
         }
+#endif
 
         return DrawResult::kOk;
     }

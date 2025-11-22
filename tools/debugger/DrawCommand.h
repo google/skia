@@ -101,7 +101,7 @@ public:
 
     static void WritePNG(const SkBitmap& bitmap, SkWStream& out);
 
-    DrawCommand(OpType opType);
+    explicit DrawCommand(OpType opType);
 
     virtual ~DrawCommand() {}
 
@@ -158,7 +158,7 @@ private:
 
 class ClearCommand : public DrawCommand {
 public:
-    ClearCommand(SkColor color);
+    explicit ClearCommand(SkColor color);
     void execute(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
 
@@ -250,7 +250,7 @@ private:
 
 class ConcatCommand : public DrawCommand {
 public:
-    ConcatCommand(const SkMatrix& matrix);
+    explicit ConcatCommand(const SkMatrix& matrix);
     void execute(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
 
@@ -262,7 +262,7 @@ private:
 
 class Concat44Command : public DrawCommand {
 public:
-    Concat44Command(const SkM44& matrix);
+    explicit Concat44Command(const SkM44& matrix);
     void execute(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
 
@@ -418,7 +418,7 @@ private:
 
 class DrawPaintCommand : public DrawCommand {
 public:
-    DrawPaintCommand(const SkPaint& paint);
+    explicit DrawPaintCommand(const SkPaint& paint);
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
@@ -431,7 +431,7 @@ private:
 
 class DrawBehindCommand : public DrawCommand {
 public:
-    DrawBehindCommand(const SkPaint& paint);
+    explicit DrawBehindCommand(const SkPaint& paint);
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
@@ -665,7 +665,7 @@ private:
 
 class SetMatrixCommand : public DrawCommand {
 public:
-    SetMatrixCommand(const SkMatrix& matrix);
+    explicit SetMatrixCommand(const SkMatrix& matrix);
     void execute(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
 
@@ -677,7 +677,7 @@ private:
 
 class SetM44Command : public DrawCommand {
 public:
-    SetM44Command(const SkM44& matrix);
+    explicit SetM44Command(const SkM44& matrix);
     void execute(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
 

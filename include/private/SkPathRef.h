@@ -9,6 +9,7 @@
 #define SkPathRef_DEFINED
 
 #include "include/core/SkArc.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPathTypes.h" // IWYU pragma: keep
 #include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
@@ -110,17 +111,19 @@ public:
     using ConicWeightsArray = skia_private::STArray<2, float>;
 
     SkPathRef(SkSpan<const SkPoint> points, SkSpan<const SkPathVerb> verbs,
-              SkSpan<const SkScalar> weights, unsigned segmentMask)
+              SkSpan<const SkScalar> weights, unsigned segmentMask, const SkMatrix* mx)
         : fPoints(points)
         , fVerbs(verbs)
         , fConicWeights(weights)
     {
         fBoundsIsDirty = true;    // this also invalidates fIsFinite
         fGenerationID = 0;        // recompute
-        fSegmentMask = segmentMask;
+        fSegmentMask = SkToU8(segmentMask);
         fType = SkPathIsAType::kGeneral;
         SkDEBUGCODE(fEditorsAttached.store(0);)
-
+        if (mx && !mx->isIdentity()) {
+            mx->mapPoints(fPoints);
+        }
         this->computeBounds();  // do this now, before we worry about multiple owners/threads
         SkDEBUGCODE(this->validate();)
     }
@@ -327,15 +330,13 @@ public:
 
     bool operator== (const SkPathRef& ref) const;
 
-    void interpolate(const SkPathRef& ending, SkScalar weight, SkPathRef* out) const;
-
     /**
      * Gets an ID that uniquely identifies the contents of the path ref. If two path refs have the
      * same ID then they have the same verbs and points. However, two path refs may have the same
      * contents but different genIDs.
      * skbug.com/40032862 for background on why fillType is necessary (for now).
      */
-    uint32_t genID(uint8_t fillType) const;
+    uint32_t genID(SkPathFillType fillType) const;
 
     void addGenIDChangeListener(sk_sp<SkIDChangeListener>);   // Threadsafe.
     int genIDChangeListenerCount();                           // Threadsafe
@@ -386,7 +387,7 @@ private:
 
     // Return true if the computed bounds are finite.
     static bool ComputePtBounds(SkRect* bounds, const SkPathRef& ref) {
-        return bounds->setBoundsCheck({ref.points(), ref.countPoints()});
+        return bounds->setBoundsCheck(ref.pointSpan());
     }
 
     // called, if dirty, by getBounds()
@@ -538,7 +539,6 @@ private:
     mutable bool    fIsFinite;    // only meaningful if bounds are valid
 
     friend class PathRefTest_Private;
-    friend class ForceIsRRect_Private; // unit test isRRect
     friend class SkPath;
     friend class SkPathBuilder;
     friend class SkPathPriv;

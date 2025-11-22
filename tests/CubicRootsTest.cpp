@@ -97,66 +97,66 @@ DEF_TEST(CubicRootsReal_ActualCubics, reporter) {
     // when the answer is exact.
     testCubicRootsReal(reporter, "one root 1x^3 + 2x^2 + 3x + 4",
                        1, 2, 3, 4,
-                       {-1.650629191439388});
+                       SKSPAN_INIT_ONE(-1.650629191439388));
                       //-1.650629191439388218880801 from Wolfram Alpha
 
     // (3x-5)(6x-10)(x+4) = 18x^3 + 12x^2 - 190x + 200
     testCubicRootsReal(reporter, "touches y axis 18x^3 + 12x^2 - 190x + 200",
                        18, 12, -190, 200,
-                       {-4.,
+                       {{-4.,
                          1.666666666666667, // 5/3
-                       });
+                       }});
 
     testCubicRootsReal(reporter, "three roots 10x^3 - 20x^2 - 30x + 40",
                        10, -20, -30, 40,
-                       {-1.561552812808830,
+                       {{-1.561552812808830,
                       //-1.561552812808830274910705 from Wolfram Alpha
                          1.,
                          2.561552812808830,
                       // 2.561552812808830274910705 from Wolfram Alpha
-                       });
+                       }});
 
     testCubicRootsReal(reporter, "three roots -10x^3 + 200x^2 + 300x - 400",
                        -10, 200, 300, -400,
-                       {-2.179884793243323,
+                       {{-2.179884793243323,
                       //-2.179884793243323422232630 from Wolfram Alpha
                          0.8607083693981839,
                       // 0.8607083693981838897123320 from Wolfram Alpha
                         21.31917642384514,
                       //21.31917642384513953252030 from Wolfram Alpha
-                       });
+                       }});
 
     testCubicRootsReal(reporter, "one root -x^3 + 0x^2 + 5x - 7",
                        -1, 0, 5, -7,
-                       {-2.747346540307211,
+                       SKSPAN_INIT_ONE(-2.747346540307211)
                       //-2.747346540307210849971436 from Wolfram Alpha
-                       });
+                       );
 
     testCubicRootsReal(reporter, "one root 2x^3 - 3x^2 + 0x + 3",
                        2, -3, 0, 3,
-                       {-0.806443932358772,
+                       SKSPAN_INIT_ONE(-0.806443932358772)
                       //-0.8064439323587723772036250 from Wolfram Alpha
-                       });
+                       );
 
     testCubicRootsReal(reporter, "one root x^3 + 0x^2 + 0x - 9",
                        1, 0, 0, -9,
-                       {2.080083823051904,
+                       SKSPAN_INIT_ONE(2.080083823051904)
                       //2.0800838230519041145300568 from Wolfram Alpha
-                       });
+                       );
 
     testCubicRootsReal(reporter, "three roots 2x^3 - 3x^2 - 4x + 0",
                        2, -3, -4, 0,
-                       {-0.8507810593582122,
+                       {{-0.8507810593582122,
                       //-0.8507810593582121716220544 from Wolfram Alpha
                         0.,
                         2.350781059358212
                       //2.350781059358212171622054 from Wolfram Alpha
-                       });
+                       }});
 
     testCubicRootsReal(reporter, "R^2 and Q^3 are near zero",
                        -0.33790159225463867, -0.81997990608215332,
                        -0.66327774524688721, -0.17884063720703125,
-                       {-0.7995944894729731});
+                       SKSPAN_INIT_ONE(-0.7995944894729731));
 
     // The following three cases fallback to treating the cubic as a quadratic.
     // Otherwise, floating point error mangles the solutions near +- 1
@@ -167,10 +167,10 @@ DEF_TEST(CubicRootsReal_ActualCubics, reporter) {
                        sk_bit_cast<double>(0x4106c0c680000000), // 186392.8125
                        0.0,
                        sk_bit_cast<double>(0xc104c0ce80000000), // -170009.8125
-                       { -0.9550418733785169, // Wolfram Alpha puts the root at X = 0.955042
+                       {{ -0.9550418733785169, // Wolfram Alpha puts the root at X = 0.955042
                           0.9550418733785169, // (~2e7 error)
                          // 1.84007e9 is the other root, which we do not find.
-                       },
+                       }},
                        true /* == skipPathops */, true /* == skipRootValidation */);
 
     testCubicRootsReal(reporter, "oss-fuzz:55625 Two roots near zero, one big root, near linear",
@@ -178,10 +178,10 @@ DEF_TEST(CubicRootsReal_ActualCubics, reporter) {
                        sk_bit_cast<double>(0x4106c0c680000000), // 186392.8125
                        0.0,
                        sk_bit_cast<double>(0xc104c0ce80000000), // -170009.8125
-                       { -0.9550418733785169,
+                       {{ -0.9550418733785169,
                           0.9550418733785169,
                          // 1.84007e9 is the other root, which we do not find.
-                       },
+                       }},
                        true /* == skipPathops */);
 
     testCubicRootsReal(reporter, "oss-fuzz:55680 A nearly zero, C is zero",
@@ -189,31 +189,31 @@ DEF_TEST(CubicRootsReal_ActualCubics, reporter) {
                        sk_bit_cast<double>(0x409278a560000000), // 1182.1614990234375
                        0.0,
                        sk_bit_cast<double>(0xc092706160000000), // -1180.0950927734375
-                       { -0.9991256228290017,
+                       {{ -0.9991256228290017,
                       // -0.9991256232316570469050229 according to Wolfram Alpha (~1e-09 error)
                           0.9991256228290017,
                        // 0.9991256224263463476403026 according to Wolfram Alpha (~1e-09 error)
                          // 1.239586176×10^9 is the other root, which we do not find.
-                       },
+                       }},
                        true, true /* == skipRootValidation */);
 }
 
 DEF_TEST(CubicRootsReal_Quadratics, reporter) {
     testCubicRootsReal(reporter, "two roots -2x^2 + 3x + 4",
                        0, -2, 3, 4,
-                       {-0.8507810593582122,
+                       {{-0.8507810593582122,
                       //-0.8507810593582121716220544 from Wolfram Alpha
                          2.350781059358212,
                       // 2.350781059358212171622054 from Wolfram Alpha
-                       });
+                       }});
 
     testCubicRootsReal(reporter, "touches y axis -x^2 + 3x + 4",
                        0, -2, 3, 4,
-                       {-0.8507810593582122,
+                       {{-0.8507810593582122,
                       //-0.8507810593582121716220544 from Wolfram Alpha
                          2.350781059358212,
                       // 2.350781059358212171622054 from Wolfram Alpha
-                       });
+                       }});
 
     testCubicRootsReal(reporter, "no roots x^2 + 2x + 7",
                        0, 1, 2, 7,
@@ -222,18 +222,18 @@ DEF_TEST(CubicRootsReal_Quadratics, reporter) {
     // similar to oss-fuzz:55680
     testCubicRootsReal(reporter, "two roots one small one big (and ignored)",
                        0, -0.01, 200000000000000, -120000000000000,
-                       { 0.6 },
+                       SKSPAN_INIT_ONE(0.6),
                         true /* == skipPathops */);
 }
 
 DEF_TEST(CubicRootsReal_Linear, reporter) {
     testCubicRootsReal(reporter, "positive slope 3x + 4",
                        0, 0, 3, 4,
-                       {-1.333333333333333});
+                       SKSPAN_INIT_ONE(-1.333333333333333));
 
     testCubicRootsReal(reporter, "negative slope -2x - 8",
                        0, 0, -2, -8,
-                       {-4.});
+                       SKSPAN_INIT_ONE(-4.));
 }
 
 DEF_TEST(CubicRootsReal_Constant, reporter) {
@@ -243,7 +243,7 @@ DEF_TEST(CubicRootsReal_Constant, reporter) {
 
     testCubicRootsReal(reporter, "Infinite solutions y = 0",
                        0, 0, 0, 0,
-                       {0.});
+                       SKSPAN_INIT_ONE(0.));
 }
 
 DEF_TEST(CubicRootsReal_NonFiniteNumbers, reporter) {
@@ -382,40 +382,40 @@ DEF_TEST(CubicRootsValidT, reporter) {
     // when the answer is exact.
     testCubicValidT(reporter, "three roots 24x^3 - 46x^2 + 29x - 6",
                     24, -46, 29, -6,
-                    {0.5,
+                    {{0.5,
                      0.6666666666666667,
-                     0.75});
+                     0.75}});
 
     testCubicValidT(reporter, "three roots total, two in range 54x^3 - 117x^2 + 45x + 0",
                     54, -117, 45, 0,
-                    {0.0,
+                    {{0.0,
                      0.5,
                      // 5/3 is the other root, but not in [0, 1]
-                    });
+                    }});
 
     testCubicValidT(reporter, "one root = 1 10x^3 - 20x^2 - 30x + 40",
                     10, -20, -30, 40,
-                    {1.0});
+                    SKSPAN_INIT_ONE(1.0));
 
     testCubicValidT(reporter, "one root = 0 2x^3 - 3x^2 - 4x + 0",
                     2, -3, -4, 0,
-                    {0.0});
+                    SKSPAN_INIT_ONE(0.0));
 
     testCubicValidT(reporter, "three roots total, two in range -2x^3 - 3x^2 + 4x + 0",
                     -2, -3, 4, 0,
-                    { 0.0,
+                    {{ 0.0,
                       0.8507810593582122,
                    // 0.8507810593582121716220544 from Wolfram Alpha
-                    });
+                    }});
 
     // x(x-1) = x^2 - x
     testCubicValidT(reporter, "Two roots at exactly 0 and 1",
                     0, 1, -1, 0,
-                    {0.0, 1.0});
+                    {{0.0, 1.0}});
 
     testCubicValidT(reporter, "Single point has one root",
                     0, 0, 0, 0,
-                    {0.0});
+                    SKSPAN_INIT_ONE(0.0));
 }
 
 DEF_TEST(CubicRootsValidT_ClampToZeroAndOne, reporter) {

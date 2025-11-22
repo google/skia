@@ -170,6 +170,12 @@ public:
     // from SkSurface_Base).
     virtual sk_sp<const SkCapabilities> onCapabilities();
 
+    /**
+     * If capturing, signals to the capture manager and capture canvas to break off the recording
+     * SkPicture into a new SkPicture.
+     */
+    void createCaptureBreakpoint();
+
     inline SkCanvas* getCachedCanvas();
     inline sk_sp<SkImage> refCachedImage();
 
@@ -219,6 +225,7 @@ sk_sp<SkImage> SkSurface_Base::refCachedImage() {
     if (fCachedImage) {
         return fCachedImage;
     }
+    this->createCaptureBreakpoint();
 
     fCachedImage = this->onNewImageSnapshot();
 

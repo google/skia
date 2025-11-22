@@ -66,7 +66,7 @@ BackendTexture MakeDawn(WGPUTexture texture) {
                     static_cast<int32_t>(wgpuTextureGetWidth(texture)),
                     static_cast<int32_t>(wgpuTextureGetHeight(texture)),
             },
-            TextureInfos::MakeDawn(texture),
+            TextureInfos::MakeDawn(DawnTextureInfo(texture)),
             DawnBackendTextureData(texture, nullptr));
 }
 

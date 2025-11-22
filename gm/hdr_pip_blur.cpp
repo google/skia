@@ -16,8 +16,11 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkImageFilters.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "tools/DecodeUtils.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/SkImageGanesh.h"
+#endif
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Image.h"
@@ -126,13 +129,16 @@ protected:
                                             &outSubset, &outOffset);
         } else
 #endif
+#if defined(SK_GANESH)
         if (canvas->recordingContext()) {
             blur = SkImages::MakeWithFilter(canvas->recordingContext(),
                                             input,
                                             fShadeBlur.get(),
                                             screenBounds, screenBounds,
                                             &outSubset, &outOffset);
-        } else {
+        } else
+#endif
+        {
             blur = SkImages::MakeWithFilter(input,
                                             fShadeBlur.get(),
                                             screenBounds, screenBounds,

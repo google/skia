@@ -195,7 +195,7 @@ bool CommandBuffer::copyBufferToBuffer(const Buffer* srcBuffer,
         return false;
     }
 
-    this->trackResource(std::move(dstBuffer));
+    this->trackCommandBufferResource(std::move(dstBuffer));
 
     SkDEBUGCODE(fHasWork = true;)
 
@@ -216,7 +216,7 @@ bool CommandBuffer::copyTextureToBuffer(sk_sp<Texture> texture,
     }
 
     this->trackCommandBufferResource(std::move(texture));
-    this->trackResource(std::move(buffer));
+    this->trackCommandBufferResource(std::move(buffer));
 
     SkDEBUGCODE(fHasWork = true;)
 
@@ -276,7 +276,7 @@ bool CommandBuffer::synchronizeBufferToCpu(sk_sp<Buffer> buffer) {
     }
 
     if (didResultInWork) {
-        this->trackResource(std::move(buffer));
+        this->trackCommandBufferResource(std::move(buffer));
         SkDEBUGCODE(fHasWork = true;)
     }
 

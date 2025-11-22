@@ -94,28 +94,28 @@ DEF_TEST(QuadRootsReal_ActualQuadratics, reporter) {
     // when the answer is exact.
     testQuadRootsReal(reporter, "two roots 3x^2 - 20x - 40",
                        3, -20, -40,
-                       {-1.610798991397109,
+                       {{-1.610798991397109,
                       //-1.610798991397108632474265 from Wolfram Alpha
                          8.277465658063775,
                       // 8.277465658063775299140932 from Wolfram Alpha
-                       });
+                       }});
 
     // (2x - 4)(x + 17)
     testQuadRootsReal(reporter, "two roots 2x^2 + 30x - 68",
                        2, 30, -68,
-                       {-17, 2});
+                       {{-17, 2}});
 
     testQuadRootsReal(reporter, "two roots x^2 - 5",
                        1, 0, -5,
-                       {-2.236067977499790,
+                       {{-2.236067977499790,
                       //-2.236067977499789696409174 from Wolfram Alpha
                          2.236067977499790,
                       // 2.236067977499789696409174 from Wolfram Alpha
-                       });
+                       }});
 
     testQuadRootsReal(reporter, "one root x^2 - 2x + 1",
                        1, -2, 1,
-                       {1});
+                       SKSPAN_INIT_ONE(1));
 
     testQuadRootsReal(reporter, "no roots 5x^2 + 6x + 7",
                        5, 6, 7,
@@ -127,29 +127,29 @@ DEF_TEST(QuadRootsReal_ActualQuadratics, reporter) {
 
     testQuadRootsReal(reporter, "one root is zero, another is big",
                        14, -13, 0,
-                       {0,
+                       {{0,
                         0.9285714285714286
                       //0.9285714285714285714285714 from Wolfram Alpha
-                        });
+                        }});
 
     // Values from a failing test case observed during testing.
     testQuadRootsReal(reporter, "one root is zero, another is small",
                        0.2929016490705016, 0.0000030451558069, 0,
-                       {-0.00001039651301576329, 0});
+                       {{-0.00001039651301576329, 0}});
 
     testQuadRootsReal(reporter, "b and c are zero, a is positive 4x^2",
                        4, 0, 0,
-                       {0});
+                       SKSPAN_INIT_ONE(0));
 
     testQuadRootsReal(reporter, "b and c are zero, a is negative -4x^2",
                        -4, 0, 0,
-                       {0});
+                       SKSPAN_INIT_ONE(0));
 
     testQuadRootsReal(reporter, "a and b are huge, c is zero",
                        4.3719914983870202e+291, 1.0269509510194551e+152, 0,
                        // One solution is 0, the other is so close to zero it returns
                        // true for sk_double_nearly_zero, so it is collapsed into one.
-                       {0});
+                       SKSPAN_INIT_ONE(0));
 
     testQuadRootsReal(reporter, "Very small A B, very large C",
                       0x1p-1055, 0x1.3000006p-1044, -0x1.c000008p+1009,
@@ -160,11 +160,11 @@ DEF_TEST(QuadRootsReal_ActualQuadratics, reporter) {
 DEF_TEST(QuadRootsReal_Linear, reporter) {
     testQuadRootsReal(reporter, "positive slope 5x + 6",
                        0, 5, 6,
-                       {-1.2});
+                       SKSPAN_INIT_ONE(-1.2));
 
     testQuadRootsReal(reporter, "negative slope -3x - 9",
                        0, -3, -9,
-                       {-3.});
+                       SKSPAN_INIT_ONE(-3.));
 }
 
 DEF_TEST(QuadRootsReal_Constant, reporter) {
@@ -174,7 +174,7 @@ DEF_TEST(QuadRootsReal_Constant, reporter) {
 
     testQuadRootsReal(reporter, "Infinite solutions y = 0",
                        0, 0, 0,
-                       {0.});
+                       SKSPAN_INIT_ONE(0.));
 }
 
 DEF_TEST(QuadRootsReal_NonFiniteNumbers, reporter) {

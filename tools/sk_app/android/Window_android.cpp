@@ -75,6 +75,13 @@ void Window_android::initDisplay(ANativeWindow* window) {
             break;
 #endif
 #endif
+#if defined(SK_GRAPHITE) && defined(SK_DAWN)
+        case kGraphiteDawnOpenGLES_BackendType:
+        case kGraphiteDawnVulkan_BackendType:
+            fWindowContext = skwindow::MakeGraphiteDawnForAndroid(
+                    window, fRequestedDisplayParams->clone(), fBackendType);
+            break;
+#endif
     }
     this->onBackendCreated();
 }

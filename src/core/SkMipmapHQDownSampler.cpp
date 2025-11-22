@@ -524,6 +524,7 @@ std::unique_ptr<SkMipmapDownSampler> SkMipmap::MakeDownSampler(const SkPixmap& r
             proc_3_3 = downsample_3_3<ColorTypeFilter_1616>;
             break;
         case kA16_unorm_SkColorType:
+        case kR16_unorm_SkColorType:
             proc_1_2 = downsample_1_2<ColorTypeFilter_16>;
             proc_1_3 = downsample_1_3<ColorTypeFilter_16>;
             proc_2_1 = downsample_2_1<ColorTypeFilter_16>;

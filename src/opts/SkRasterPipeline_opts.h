@@ -3008,6 +3008,32 @@ HIGHP_STAGE(store_a16, const SkRasterPipelineContexts::MemoryCtx* ctx) {
     store(ptr, px);
 }
 
+HIGHP_STAGE(load_r16, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<const uint16_t>(ctx, dx, dy);
+    g = b = F0;
+    a = F1;
+    r = from_short(load<U16>(ptr));
+}
+HIGHP_STAGE(load_r16_dst, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<const uint16_t>(ctx, dx, dy);
+    dg = db = F0;
+    da = F1;
+    dr = from_short(load<U16>(ptr));
+}
+HIGHP_STAGE(gather_r16, const SkRasterPipelineContexts::GatherCtx* ctx) {
+    const uint16_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, r, g);
+    g = b = F0;
+    a = F1;
+    r = from_short(gather_unaligned(ptr, ix));
+}
+HIGHP_STAGE(store_r16, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<uint16_t>(ctx, dx, dy);
+
+    U16 px = pack(to_unorm(r, 65535));
+    store(ptr, px);
+}
+
 HIGHP_STAGE(load_rg1616, const SkRasterPipelineContexts::MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<const uint32_t>(ctx, dx, dy);
     b = F0;

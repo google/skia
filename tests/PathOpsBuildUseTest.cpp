@@ -2095,8 +2095,7 @@ static void build1_1(skiatest::Reporter* reporter, const char* filename) {
     pb.close();
     builder.add(pb.detach(), (SkPathOp) 2);
 
-    SkPath path;
-    builder.resolve(&path);
+    (void)builder.resolve();
 }
 
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = nullptr;

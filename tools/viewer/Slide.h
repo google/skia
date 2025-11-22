@@ -17,6 +17,7 @@
 
 class SkCanvas;
 class SkMetaData;
+class SkSurfaceProps;
 class Slide;
 
 using SlideFactory = Slide* (*)();
@@ -35,6 +36,7 @@ public:
     virtual SkISize getDimensions() const { return SkISize::MakeEmpty(); }
 
     virtual void gpuTeardown() { }
+    virtual void setSurfaceProps(SkSurfaceProps*) {}
     virtual void draw(SkCanvas* canvas) = 0;
     virtual bool animate(double nanos) { return false; }
     virtual void load(SkScalar winWidth, SkScalar winHeight) {}

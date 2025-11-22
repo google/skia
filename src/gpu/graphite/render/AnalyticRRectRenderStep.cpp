@@ -363,14 +363,15 @@ static void write_vertex_buffer(VertexWriter writer) {
     } // otherwise static buffer creation failed, so do nothing; Context initialization will fail.
 }
 
-AnalyticRRectRenderStep::AnalyticRRectRenderStep(StaticBufferManager* bufferManager)
-        : RenderStep(RenderStepID::kAnalyticRRect,
+AnalyticRRectRenderStep::AnalyticRRectRenderStep(Layout layout, StaticBufferManager* bufferManager)
+        : RenderStep(layout,
+                     RenderStepID::kAnalyticRRect,
                      Flags::kPerformsShading | Flags::kEmitsCoverage | Flags::kOutsetBoundsForAA |
                      Flags::kUseNonAAInnerFill | Flags::kAppendInstances,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
                      kDirectDepthLessPass,
-                     /*staticAttrs=*/{
+                     /*staticAttrs=*/{{
                              {"cornerID", VertexAttribType::kUInt, SkSLType::kUInt},
                              {"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
                              {"normal", VertexAttribType::kFloat2, SkSLType::kFloat2},
@@ -378,8 +379,8 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep(StaticBufferManager* bufferMana
                              // much more densely than as three floats.
                              {"normalScale", VertexAttribType::kFloat, SkSLType::kFloat},
                              {"centerWeight", VertexAttribType::kFloat, SkSLType::kFloat}
-                     },
-                     /*appendAttrs=*/{
+                     }},
+                     /*appendAttrs=*/{{
                              {"xRadiiOrFlags", VertexAttribType::kFloat4, SkSLType::kFloat4},
                              {"radiiOrQuadXs", VertexAttribType::kFloat4, SkSLType::kFloat4},
                              {"ltrbOrQuadYs", VertexAttribType::kFloat4, SkSLType::kFloat4},
@@ -395,13 +396,13 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep(StaticBufferManager* bufferMana
                              // TODO: pack depth and ssbo index into one 32-bit attribute, if we can
                              // go without needing both render step and paint ssbo index attributes.
                              {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-                             {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2},
+                             {"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt},
 
                              {"mat0", VertexAttribType::kFloat3, SkSLType::kFloat3},
                              {"mat1", VertexAttribType::kFloat3, SkSLType::kFloat3},
                              {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3}
-                    },
-                     /*varyings=*/{
+                     }},
+                     /*varyings=*/{{
                              // TODO: If the inverse transform is part of the draw's SSBO, we can
                              // reconstruct the Jacobian in the fragment shader using the existing
                              // local coordinates varying
@@ -444,7 +445,7 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep(StaticBufferManager* bufferMana
                              //    reduction in coverage due to a device-space outset. It is clamped
                              //    below 0 to avoid adding coverage from extrapolation.
                              {"perPixelControl", SkSLType::kFloat2},
-                     }) {
+                     }}) {
     // Initialize the static buffers we'll use when recording draw calls.
     // NOTE: Each instance of this RenderStep gets its own copy of the data. Since there should only
     // ever be one AnalyticRRectRenderStep at a time, this shouldn't be an issue.
@@ -485,7 +486,7 @@ const char* AnalyticRRectRenderStep::fragmentCoverageSkSL() const {
 
 void AnalyticRRectRenderStep::writeVertices(DrawWriter* writer,
                                             const DrawParams& params,
-                                            skvx::uint2 ssboIndices) const {
+                                            uint32_t ssboIndex) const {
     SkASSERT(params.geometry().isShape() || params.geometry().isEdgeAAQuad());
 
     DrawWriter::Instances instance{*writer, fVertexBuffer, fIndexBuffer, kIndexCount};
@@ -507,7 +508,8 @@ void AnalyticRRectRenderStep::writeVertices(DrawWriter* writer,
 
         SkASSERT(params.strokeStyle().halfWidth() >= 0.f);
         SkASSERT(shape.isRect() || shape.isLine() || params.strokeStyle().halfWidth() == 0.f ||
-                 (shape.isRRect() && SkRRectPriv::AllCornersCircular(shape.rrect())));
+                 (shape.isRRect() && SkRRectPriv::AllCornersRelativelyCircular(
+                        shape.rrect(), aaRadius * Shape::kDefaultPixelTolerance)));
 
         float strokeRadius = params.strokeStyle().halfWidth();
 
@@ -632,7 +634,7 @@ void AnalyticRRectRenderStep::writeVertices(DrawWriter* writer,
                                                    : bounds.center();
     vw << center << centerWeight << aaRadius
        << params.order().depthAsFloat()
-       << ssboIndices
+       << ssboIndex
        << m.rc(0,0) << m.rc(1,0) << m.rc(3,0)  // mat0
        << m.rc(0,1) << m.rc(1,1) << m.rc(3,1)  // mat1
        << m.rc(0,3) << m.rc(1,3) << m.rc(3,3); // mat2

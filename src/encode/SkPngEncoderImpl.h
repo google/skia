@@ -10,13 +10,13 @@
 
 #include <cstdint>
 
+#include "include/core/SkSpan.h"
 #include "src/encode/SkPngEncoderBase.h"
 
 #include <memory>
 
 class SkPixmap;
 class SkPngEncoderMgr;
-template <typename T> class SkSpan;
 
 class SkPngEncoderImpl final : public SkPngEncoderBase {
 public:

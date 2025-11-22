@@ -12,12 +12,13 @@
 using namespace skia_private;
 
 namespace {
-rust::Box<::fontations_ffi::BridgeFontRef> make_bridge_font_ref(SkData* fontData, uint32_t index) {
+rust::Box<::fontations_ffi::BridgeFontRef> make_bridge_font_ref(const SkData* fontData,
+                                                                uint32_t index) {
     rust::Slice<const uint8_t> slice{fontData->bytes(), fontData->size()};
     return fontations_ffi::make_font_ref(slice, index);
 }
   // TODO(drott): Remove this once SkData::MakeFromStream is able to do this itself.
-sk_sp<SkData> make_data_avoiding_copy(SkStreamAsset* stream) {
+sk_sp<const SkData> make_data_avoiding_copy(SkStreamAsset* stream) {
     if (!stream) {
         return SkData::MakeEmpty();
     }
@@ -37,7 +38,7 @@ SkFontScanner_Fontations::SkFontScanner_Fontations() {}
 SkFontScanner_Fontations::~SkFontScanner_Fontations() {}
 
 bool SkFontScanner_Fontations::scanFile(SkStreamAsset* stream, int* numFaces) const {
-    sk_sp<SkData> fontData = make_data_avoiding_copy(stream);
+    sk_sp<const SkData> fontData = make_data_avoiding_copy(stream);
     stream->rewind();
     rust::Slice<const uint8_t> slice{fontData->bytes(), fontData->size()};
     ::std::uint32_t num_fonts;
@@ -53,7 +54,7 @@ bool SkFontScanner_Fontations::scanFile(SkStreamAsset* stream, int* numFaces) co
 bool SkFontScanner_Fontations::scanFace(SkStreamAsset* stream,
                                         int faceIndex,
                                         int* numInstances) const {
-    sk_sp<SkData> fontData = make_data_avoiding_copy(stream);
+    sk_sp<const SkData> fontData = make_data_avoiding_copy(stream);
     rust::Box<fontations_ffi::BridgeFontRef> fontRef =
             make_bridge_font_ref(fontData.get(), faceIndex);
     stream->rewind();
@@ -86,7 +87,7 @@ bool SkFontScanner_Fontations::scanInstance(SkStreamAsset* stream,
                                             bool* isFixedPitch,
                                             AxisDefinitions* axes,
                                             VariationPosition* position) const {
-    sk_sp<SkData> fontData = make_data_avoiding_copy(stream);
+    sk_sp<const SkData> fontData = make_data_avoiding_copy(stream);
     rust::Box<fontations_ffi::BridgeFontRef> bridgeFontFaceRef =
             make_bridge_font_ref(fontData.get(), faceIndex);
     stream->rewind();

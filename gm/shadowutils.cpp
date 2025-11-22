@@ -59,24 +59,28 @@ void draw_paths(SkCanvas* canvas, ShadowMode mode) {
 
     // star
     TArray<SkPath> concavePaths;
-    concavePaths.push_back().moveTo(0.0f, -33.3333f);
-    concavePaths.back().lineTo(9.62f, -16.6667f);
-    concavePaths.back().lineTo(28.867f, -16.6667f);
-    concavePaths.back().lineTo(19.24f, 0.0f);
-    concavePaths.back().lineTo(28.867f, 16.6667f);
-    concavePaths.back().lineTo(9.62f, 16.6667f);
-    concavePaths.back().lineTo(0.0f, 33.3333f);
-    concavePaths.back().lineTo(-9.62f, 16.6667f);
-    concavePaths.back().lineTo(-28.867f, 16.6667f);
-    concavePaths.back().lineTo(-19.24f, 0.0f);
-    concavePaths.back().lineTo(-28.867f, -16.6667f);
-    concavePaths.back().lineTo(-9.62f, -16.6667f);
-    concavePaths.back().close();
+    concavePaths.push_back(SkPathBuilder()
+                           .moveTo(0.0f, -33.3333f)
+                           .lineTo(9.62f, -16.6667f)
+                           .lineTo(28.867f, -16.6667f)
+                           .lineTo(19.24f, 0.0f)
+                           .lineTo(28.867f, 16.6667f)
+                           .lineTo(9.62f, 16.6667f)
+                           .lineTo(0.0f, 33.3333f)
+                           .lineTo(-9.62f, 16.6667f)
+                           .lineTo(-28.867f, 16.6667f)
+                           .lineTo(-19.24f, 0.0f)
+                           .lineTo(-28.867f, -16.6667f)
+                           .lineTo(-9.62f, -16.6667f)
+                           .close()
+                           .detach());
 
     // dumbbell
-    concavePaths.push_back().moveTo(50, 0);
-    concavePaths.back().cubicTo(100, 25, 60, 50, 50, 0);
-    concavePaths.back().cubicTo(0, -25, 40, -50, 50, 0);
+    concavePaths.push_back(SkPathBuilder()
+                           .moveTo(50, 0)
+                           .cubicTo(100, 25, 60, 50, 50, 0)
+                           .cubicTo(0, -25, 40, -50, 50, 0)
+                           .detach());
 
     static constexpr SkScalar kPad = 15.f;
     static constexpr SkScalar kLightR = 100.f;

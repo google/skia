@@ -7,6 +7,7 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
@@ -107,9 +108,10 @@ static void test_empties(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !valid.contains(empty));
     REPORTER_ASSERT(reporter, !empty.contains(valid));
 
-    SkPath emptyPath;
-    emptyPath.moveTo(1, 5);
-    emptyPath.close();
+    SkPath emptyPath = SkPathBuilder()
+                       .moveTo(1, 5)
+                       .close()
+                       .detach();
     SkRegion openClip;
     openClip.setRect({-16000, -16000, 16000, 16000});
     empty.setPath(emptyPath, openClip);  // should not assert
@@ -433,9 +435,12 @@ DEF_TEST(region_toobig, reporter) {
 }
 
 DEF_TEST(region_inverse_union_skbug_7491, reporter) {
-    SkPath path;
-    path.setFillType(SkPathFillType::kInverseWinding);
-    path.moveTo(10, 20); path.lineTo(10, 30); path.lineTo(10.1f, 10); path.close();
+    SkPath path = SkPathBuilder(SkPathFillType::kInverseWinding)
+                  .moveTo(10, 20)
+                  .lineTo(10, 30)
+                  .lineTo(10.1f, 10)
+                  .close()
+                  .detach();
 
     SkRegion clip;
     clip.op(SkIRect::MakeLTRB(10, 10, 15, 20), SkRegion::kUnion_Op);
@@ -449,9 +454,10 @@ DEF_TEST(region_inverse_union_skbug_7491, reporter) {
 
 DEF_TEST(giant_path_region, reporter) {
     const SkScalar big = 32767;
-    SkPath path;
-    path.moveTo(-big, 0);
-    path.quadTo(big, 0, big, big);
+    SkPath path = SkPathBuilder()
+                  .moveTo(-big, 0)
+                  .quadTo(big, 0, big, big)
+                  .detach();
     SkIRect ir = path.getBounds().round();
     SkRegion rgn;
     rgn.setPath(path, SkRegion(ir));
@@ -472,9 +478,7 @@ DEF_TEST(rrect_region_crbug_850350, reporter) {
     SkRRect rrect;
     rrect.setRectRadii({-8.72387e-31f, 1.29996e-38f, 4896, 1.125f}, corners);
 
-    SkPath path;
-    path.addRRect(rrect);
-    path.transform(m);
+    SkPath path = SkPath::RRect(rrect).makeTransform(m);
 
     SkRegion rgn;
     rgn.setPath(path, SkRegion{SkIRect{0, 0, 24, 24}});

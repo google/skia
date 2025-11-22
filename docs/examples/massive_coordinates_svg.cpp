@@ -16,14 +16,10 @@ void draw(SkCanvas* canvas) {
 
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(1);
-    SkPath path;
-    path.moveTo(-1000, 12345678901234567890.f);
-    path.lineTo(200, 200);
+    SkPath path = SkPath::Line({-1000, 12345678901234567890.f}, {200, 200});
     canvas->drawPath(path, paint);
 
-    path.reset();
-    path.moveTo(600, 400);
-    path.lineTo(1000, -9.8765432109876543210e+19f);
+    path = SkPath::Line({600, 400}, {1000, -9.8765432109876543210e+19f});
     canvas->drawPath(path, paint);
 }
 }  // END FIDDLE

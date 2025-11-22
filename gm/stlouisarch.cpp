@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
@@ -27,47 +28,54 @@ protected:
 
     void onOnceBeforeDraw() override {
         {
-            SkPath* bigQuad = &fPaths.push_back();
-            bigQuad->moveTo(0, 0);
-            bigQuad->quadTo(kWidth/2, kHeight, kWidth, 0);
+            SkPath bigQuad = SkPathBuilder()
+                             .moveTo(0, 0)
+                             .quadTo(kWidth/2, kHeight, kWidth, 0)
+                             .detach();
+            fPaths.push_back(bigQuad);
         }
 
         {
-            SkPath* degenBigQuad = &fPaths.push_back();
             SkScalar yPos = kHeight / 2 + 10;
-            degenBigQuad->moveTo(0, yPos);
-            degenBigQuad->quadTo(0, yPos, kWidth, yPos);
-        }
-
-
-        {
-            SkPath* bigCubic = &fPaths.push_back();
-            bigCubic->moveTo(0, 0);
-            bigCubic->cubicTo(0, kHeight,
-                              kWidth, kHeight,
-                              kWidth, 0);
+            SkPath degenBigQuad = SkPathBuilder()
+                                  .moveTo(0, yPos)
+                                  .quadTo(0, yPos, kWidth, yPos)
+                                  .detach();
+            fPaths.push_back(degenBigQuad);
         }
 
         {
-            SkPath* degenBigCubic = &fPaths.push_back();
+            SkPath bigCubic = SkPathBuilder()
+                              .moveTo(0, 0)
+                              .cubicTo(0, kHeight, kWidth, kHeight, kWidth, 0)
+                              .detach();
+            fPaths.push_back(bigCubic);
+        }
+
+        {
             SkScalar yPos = kHeight / 2;
-            degenBigCubic->moveTo(0, yPos);
-            degenBigCubic->cubicTo(0, yPos,
-                                   0, yPos,
-                                   kWidth, yPos);
+            SkPath degenBigCubic = SkPathBuilder()
+                                   .moveTo(0, yPos)
+                                   .cubicTo(0, yPos, 0, yPos, kWidth, yPos)
+                                   .detach();
+            fPaths.push_back(degenBigCubic);
         }
 
         {
-            SkPath* bigConic = &fPaths.push_back();
-            bigConic->moveTo(0, 0);
-            bigConic->conicTo(kWidth/2, kHeight, kWidth, 0, .5);
+            SkPath bigConic = SkPathBuilder()
+                              .moveTo(0, 0)
+                              .conicTo(kWidth/2, kHeight, kWidth, 0, .5)
+                              .detach();
+            fPaths.push_back(bigConic);
         }
 
         {
-            SkPath* degenBigConic = &fPaths.push_back();
             SkScalar yPos = kHeight / 2 - 10;
-            degenBigConic->moveTo(0, yPos);
-            degenBigConic->conicTo(0, yPos, kWidth, yPos, .5);
+            SkPath degenBigConic = SkPathBuilder()
+                                   .moveTo(0, yPos)
+                                   .conicTo(0, yPos, kWidth, yPos, .5)
+                                   .detach();
+            fPaths.push_back(degenBigConic);
         }
     }
 

@@ -26,8 +26,8 @@ using SkJpegMarkerList = std::vector<SkJpegMarker>;
 
 class SkJpegMetadataDecoderImpl : public SkJpegMetadataDecoder {
 public:
-    SkJpegMetadataDecoderImpl(SkJpegMarkerList markerList);
-    SkJpegMetadataDecoderImpl(sk_sp<SkData> data);
+    explicit SkJpegMetadataDecoderImpl(SkJpegMarkerList markerList);
+    explicit SkJpegMetadataDecoderImpl(sk_sp<SkData> data);
 
     bool findGainmapImage(SkJpegSourceMgr* sourceMgr,
                           sk_sp<SkData>& outGainmapImageData,

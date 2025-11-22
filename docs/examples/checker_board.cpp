@@ -6,8 +6,7 @@ void checkerboard(SkCanvas* canvas) {
     SkColor color1 = SK_ColorLTGRAY;
     SkColor color2 = SK_ColorCYAN;
     SkScalar scale = 10.0f;
-    SkPath path;
-    path.addRect(0, 0, scale, scale);
+    SkPath path = SkPath::Rect({0, 0, scale, scale});
     SkMatrix matrix = SkMatrix::Scale(2 * scale, scale);
     matrix.preSkew(0.5f, 0);
     SkPaint paint;

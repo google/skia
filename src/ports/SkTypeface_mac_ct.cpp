@@ -89,10 +89,10 @@ SkString SkCFTypeIDDescription(CFTypeID id) {
 template<typename CF> CFTypeID SkCFGetTypeID();
 #define SK_GETCFTYPEID(cf) \
 template<> CFTypeID SkCFGetTypeID<cf##Ref>() { return cf##GetTypeID(); }
-SK_GETCFTYPEID(CFArray);
-SK_GETCFTYPEID(CFBoolean);
-SK_GETCFTYPEID(CFDictionary);
-SK_GETCFTYPEID(CFNumber);
+SK_GETCFTYPEID(CFArray)
+SK_GETCFTYPEID(CFBoolean)
+SK_GETCFTYPEID(CFDictionary)
+SK_GETCFTYPEID(CFNumber)
 
 /* Checked dynamic downcast of CFTypeRef.
  *
@@ -127,13 +127,13 @@ static bool SkCFDynamicCast(CFTypeRef cf, CF* cfAsCF, char const* name) {
 template<typename T> struct SkCFNumberTypeFor {};
 #define SK_CFNUMBERTYPE_FOR(c, cf) \
 template<> struct SkCFNumberTypeFor<c> : std::integral_constant<CFNumberType, cf> {};
-SK_CFNUMBERTYPE_FOR(char     , kCFNumberCharType    );
-SK_CFNUMBERTYPE_FOR(short    , kCFNumberShortType   );
-SK_CFNUMBERTYPE_FOR(int      , kCFNumberIntType     );
-SK_CFNUMBERTYPE_FOR(long     , kCFNumberLongType    );
-SK_CFNUMBERTYPE_FOR(long long, kCFNumberLongLongType);
-SK_CFNUMBERTYPE_FOR(float    , kCFNumberFloatType   );
-SK_CFNUMBERTYPE_FOR(double   , kCFNumberDoubleType  );
+SK_CFNUMBERTYPE_FOR(char     , kCFNumberCharType    )
+SK_CFNUMBERTYPE_FOR(short    , kCFNumberShortType   )
+SK_CFNUMBERTYPE_FOR(int      , kCFNumberIntType     )
+SK_CFNUMBERTYPE_FOR(long     , kCFNumberLongType    )
+SK_CFNUMBERTYPE_FOR(long long, kCFNumberLongLongType)
+SK_CFNUMBERTYPE_FOR(float    , kCFNumberFloatType   )
+SK_CFNUMBERTYPE_FOR(double   , kCFNumberDoubleType  )
 
 template <typename T>
 static bool SkCFNumberDynamicCast(CFTypeRef cf, T* number, CFNumberRef* cfNumber, char const* name){

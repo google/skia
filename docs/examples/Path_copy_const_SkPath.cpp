@@ -3,10 +3,8 @@
 #include "tools/fiddle/examples.h"
 REG_FIDDLE(Path_copy_const_SkPath, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
-    SkPath path;
-    path.lineTo(20, 20);
-    SkPath path2(path);
-    path2.close();
+    SkPath path = SkPathBuilder().lineTo(20, 20).detach();
+    SkPath path2 = SkPathBuilder(path).close().detach();
     SkDebugf("path verbs: %d\n", path.countVerbs());
     SkDebugf("path2 verbs: %d\n", path2.countVerbs());
     path.reset();

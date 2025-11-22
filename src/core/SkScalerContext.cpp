@@ -40,6 +40,7 @@
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkTextFormatParams.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/utils/SkFloatUtils.h"
 #include "src/utils/SkMatrix22.h"
 
 #include <algorithm>
@@ -582,7 +583,7 @@ void SkScalerContext::GenerateImageFromPath(
     draw.fRC             = &clip;
     draw.fCTM            = &matrix;
     // We can save a copy if we had to use the local strokePath
-    draw.drawPath(*pathToUse, paint, nullptr, pathToUse == &strokePath);
+    draw.drawPath(*pathToUse, paint, nullptr);
 
     switch (dstMask.fFormat) {
         case SkMask::kBW_Format:
@@ -1019,10 +1020,10 @@ void SkScalerContextRec::useStrokeForFakeBold() {
     }
     fFlags &= ~SkScalerContext::kEmbolden_Flag;
 
-    SkScalar fakeBoldScale = SkScalarInterpFunc(fTextSize,
-                                                kStdFakeBoldInterpKeys,
-                                                kStdFakeBoldInterpValues,
-                                                kStdFakeBoldInterpLength);
+    SkScalar fakeBoldScale = SkFloatInterpFunc(fTextSize,
+                                               kStdFakeBoldInterpKeys,
+                                               kStdFakeBoldInterpValues,
+                                               kStdFakeBoldInterpLength);
     SkScalar extra = fTextSize * fakeBoldScale;
 
     if (fFrameWidth >= 0) {

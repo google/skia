@@ -176,6 +176,7 @@ public:
 
     void draw(SkCanvas* canvas) override {
         sksg::InvalidationController ic;
+        fScene->revalidate(&ic);
         fScene->render(canvas);
 
         if (fShowInval) {

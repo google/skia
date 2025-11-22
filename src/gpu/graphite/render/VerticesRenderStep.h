@@ -23,14 +23,14 @@ enum class PrimitiveType : uint8_t;
 
 class VerticesRenderStep final : public RenderStep {
 public:
-    explicit VerticesRenderStep(PrimitiveType, bool hasColor, bool hasTexCoords);
+    explicit VerticesRenderStep(Layout, PrimitiveType, bool hasColor, bool hasTexCoords);
 
     ~VerticesRenderStep() override;
 
     std::string vertexSkSL() const override;
     void writeVertices(DrawWriter* writer,
                        const DrawParams& params,
-                       skvx::uint2 ssboIndices) const override;
+                       uint32_t ssboIndex) const override;
     void writeUniformsAndTextures(const DrawParams&, PipelineDataGatherer*) const override;
     const char* fragmentColorSkSL() const override;
 

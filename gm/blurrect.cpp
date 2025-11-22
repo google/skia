@@ -28,12 +28,16 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/gpu/ganesh/GrRecordingContext.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkMask.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "tools/timer/TimeUtils.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrRecordingContext.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#endif
 
 #include <vector>
 
@@ -94,8 +98,8 @@ static sk_sp<SkShader> make_radial() {
     scale.setScale(0.5f, 0.5f);
     scale.postTranslate(25.f, 25.f);
     SkPoint center0, center1;
-    center0.set(SkScalarAve(pts[0].fX, pts[1].fX),
-                SkScalarAve(pts[0].fY, pts[1].fY));
+    center0.set(sk_float_midpoint(pts[0].fX, pts[1].fX),
+                sk_float_midpoint(pts[0].fY, pts[1].fY));
     center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3)/5),
                 SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
     return SkGradientShader::MakeTwoPointConical(center1, (pts[1].fX - pts[0].fX) / 7,
@@ -255,13 +259,22 @@ protected:
     void onOnceBeforeDraw() override { this->prepareReferenceMasks(); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        if (canvas->imageInfo().colorType() == kUnknown_SkColorType ||
-            (canvas->recordingContext() && !canvas->recordingContext()->asDirectContext())) {
+        if (canvas->imageInfo().colorType() == kUnknown_SkColorType) {
             *errorMsg = "Not supported when recording, relies on canvas->makeSurface()";
             return DrawResult::kSkip;
         }
-        int32_t ctxID = canvas->recordingContext() ? canvas->recordingContext()->priv().contextID()
-                                                   : 0;
+
+        int32_t ctxID = 0;
+#if defined(SK_GANESH)
+        if (auto rc = canvas->recordingContext()) {
+            if (!rc->asDirectContext()) {
+                *errorMsg = "Not supported when recording, relies on canvas->makeSurface()";
+                return DrawResult::kSkip;
+            }
+            ctxID = rc->priv().contextID();
+        }
+#endif
+
         if (fRecalcMasksForAnimation || !fActualMasks[0][0][0] || ctxID != fLastContextUniqueID) {
             if (fRecalcMasksForAnimation) {
                 // Sigma is changing so references must also be recalculated.

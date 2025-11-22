@@ -27,17 +27,15 @@ class TessellateWedgesRenderStep final : public RenderStep {
 public:
     // 'vertexBuffer' and 'indexBuffer' must have been returned by CreateVertexTemplate(), but they
     // can be shared by all instances of TessellateWedgesRenderStep.
-    TessellateWedgesRenderStep(RenderStepID renderStepID,
-                               bool infinitySupport,
-                               DepthStencilSettings depthStencilSettings,
-                               StaticBufferManager* bufferManager);
+    TessellateWedgesRenderStep(Layout, RenderStepID, bool infinitySupport, DepthStencilSettings,
+                               StaticBufferManager*);
 
     ~TessellateWedgesRenderStep() override;
 
     static std::pair<BindBufferInfo, BindBufferInfo> CreateVertexTemplate(StaticBufferManager*);
 
     std::string vertexSkSL() const override;
-    void writeVertices(DrawWriter*, const DrawParams&, skvx::uint2 ssboIndices) const override;
+    void writeVertices(DrawWriter*, const DrawParams&, uint32_t ssboIndex) const override;
     void writeUniformsAndTextures(const DrawParams&, PipelineDataGatherer*) const override;
 
 private:

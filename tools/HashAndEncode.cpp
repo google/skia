@@ -56,6 +56,7 @@ HashAndEncode::HashAndEncode(const SkBitmap& bitmap) : fSize(bitmap.info().dimen
                                               srcAlpha = skcms_AlphaFormat_Opaque;     break;
 
         case kR8G8_unorm_SkColorType:         return;
+        case kR16_unorm_SkColorType:          return;
         case kR16G16_unorm_SkColorType:       return;
         case kR16G16_float_SkColorType:       return;
         case kA16_unorm_SkColorType:          return;

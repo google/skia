@@ -221,8 +221,7 @@ static SkPath clip(const SkPath& path, SkPoint p0, SkPoint p1) {
                  0,     0,     1);
     SkAssertResult(mx.invert(&inv));
 
-    SkPath rotated;
-    path.transform(inv, &rotated);
+    SkPath rotated = path.makeTransform(inv);
 
     SkScalar big = 1e28f;
     SkRect clip = {-big, 0, big, big };
@@ -232,7 +231,7 @@ static SkPath clip(const SkPath& path, SkPoint p0, SkPoint p1) {
         SkPoint         fPrev = {0, 0};
     } rec;
 
-    SkEdgeClipper::ClipPath(SkPathPriv::Raw(rotated), clip, false,
+    SkEdgeClipper::ClipPath(SkPathPriv::Raw(rotated, SkResolveConvexity::kNo).value(), clip, false,
                             [](SkEdgeClipper* clipper, bool newCtr, void* ctx) {
         Rec* rec = (Rec*)ctx;
 

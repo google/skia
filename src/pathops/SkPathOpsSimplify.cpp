@@ -198,22 +198,19 @@ static bool path_is_trivial(const SkPath& path) {
     return true;
 }
 
-// FIXME : add this as a member of SkPath
-bool SimplifyDebug(const SkPath& path, SkPath* result
-        SkDEBUGPARAMS(bool skipAssert) SkDEBUGPARAMS(const char* testName)) {
+std::optional<SkPath> SimplifyDebug(const SkPath& path SkDEBUGPARAMS(bool skipAssert)
+                                                       SkDEBUGPARAMS(const char* testName)) {
     // returns 1 for evenodd, -1 for winding, regardless of inverse-ness
     SkPathFillType fillType = path.isInverseFillType() ? SkPathFillType::kInverseEvenOdd
             : SkPathFillType::kEvenOdd;
 
     if (path.isConvex()) {
-        // If the path is trivially convex, simplify to empty.
-        if (path_is_trivial(path)) {
-            result->reset();
-        } else if (result != &path) {
-            *result = path;
+        SkPath result;
+        // If the path is trivially convex, simplify to empty, else copy
+        if (!path_is_trivial(path)) {
+            result = path;
         }
-        result->setFillType(fillType);
-        return true;
+        return result.makeFillType(fillType);
     }
     // turn path into list of segments
     SkSTArenaAlloc<4096> allocator;  // FIXME: constant-ize, tune
@@ -235,15 +232,13 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
 #endif
     SkOpEdgeBuilder builder(path, contourList, &globalState);
     if (!builder.finish()) {
-        return false;
+        return {};
     }
 #if DEBUG_DUMP_SEGMENTS
     contour.dumpSegments();
 #endif
     if (!SortContourList(&contourList, false, false)) {
-        result->reset();
-        result->setFillType(fillType);
-        return true;
+        return SkPath().makeFillType(fillType);
     }
     // find all intersections between segments
     SkOpContour* current = contourList;
@@ -260,33 +255,31 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
     globalState.debugAddToGlobalCoinDicts();
 #endif
     if (!success) {
-        return false;
+        return {};
     }
 #if DEBUG_DUMP_ALIGNMENT
     contour.dumpSegments("aligned");
 #endif
     // construct closed contours
-    result->reset();
-    result->setFillType(fillType);
-    SkPathWriter wrapper(*result);
+    SkPathWriter wrapper(fillType);
     if (builder.xorMask() == kWinding_PathOpsMask ? !bridgeWinding(contourList, &wrapper)
             : !bridgeXor(contourList, &wrapper)) {
-        return false;
+        return {};
     }
     wrapper.assemble();  // if some edges could not be resolved, assemble remaining
-    return true;
+    return wrapper.nativePath();
 }
 
-bool Simplify(const SkPath& path, SkPath* result) {
+std::optional<SkPath> Simplify(const SkPath& path) {
+    auto result = SimplifyDebug(path  SkDEBUGPARAMS(true) SkDEBUGPARAMS(nullptr));
 #if DEBUG_DUMP_VERIFY
     if (SkPathOpsDebug::gVerifyOp) {
-        if (!SimplifyDebug(path, result  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr))) {
+        if (result.has_value()) {
+            VerifySimplify(path, *result);
+        } else {
             ReportSimplifyFail(path);
-            return false;
         }
-        VerifySimplify(path, *result);
-        return true;
     }
 #endif
-    return SimplifyDebug(path, result  SkDEBUGPARAMS(true) SkDEBUGPARAMS(nullptr));
+    return result;
 }

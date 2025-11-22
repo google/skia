@@ -19,11 +19,14 @@
 namespace skgpu::graphite {
 
 GraphicsPipeline::GraphicsPipeline(const SharedContext* sharedContext,
-                                   const PipelineInfo& pipelineInfo)
+                                   const PipelineInfo& pipelineInfo,
+                                   std::string_view label)
         : Resource(sharedContext,
                    Ownership::kOwned,
                    /*gpuMemorySize=*/0)
-        , fPipelineInfo(pipelineInfo) {}
+        , fPipelineInfo(pipelineInfo) {
+    this->setLabel(label);
+}
 
 GraphicsPipeline::~GraphicsPipeline() {
 #if defined(SK_PIPELINE_LIFETIME_LOGGING)
@@ -43,8 +46,7 @@ GraphicsPipeline::PipelineInfo::PipelineInfo(
             uint32_t compilationID)
         : fDstReadStrategy(shaderInfo.dstReadStrategy())
         , fNumFragTexturesAndSamplers(shaderInfo.numFragmentTexturesAndSamplers())
-        , fHasPaintUniforms(shaderInfo.hasPaintUniforms())
-        , fHasStepUniforms(shaderInfo.hasStepUniforms())
+        , fHasCombinedUniforms(shaderInfo.hasCombinedUniforms())
         , fHasGradientBuffer(shaderInfo.hasGradientBuffer())
         , fUniqueKeyHash(uniqueKeyHash)
         , fCompilationID(compilationID)
@@ -53,16 +55,10 @@ GraphicsPipeline::PipelineInfo::PipelineInfo(
     fSkSLVertexShader = SkShaderUtils::PrettyPrint(shaderInfo.vertexSkSL());
     fSkSLFragmentShader = SkShaderUtils::PrettyPrint(shaderInfo.fragmentSkSL());
 #endif
-
-#if defined(SK_TRACE_GRAPHITE_PIPELINE_USE) || defined(GPU_TEST_UTILS)
-    // For pipelines that shade, the FS label includes the same info as the VS label. But for
-    // depth-only clip draws there is no FS label, so switch to the VS label.
-    fLabel = shaderInfo.fsLabel().empty() ? shaderInfo.vsLabel() : shaderInfo.fsLabel();
-#endif
 }
 
 #if defined(GPU_TEST_UTILS)
-SkString GraphicsPipelineDesc::toString(ShaderCodeDictionary* dict) const {
+SkString GraphicsPipelineDesc::toString(const Caps* caps, ShaderCodeDictionary* dict) const {
     SkString tmp;
 
     tmp.append(RenderStep::RenderStepName(fRenderStepID));
@@ -70,7 +66,7 @@ SkString GraphicsPipelineDesc::toString(ShaderCodeDictionary* dict) const {
 
     PaintParamsKey key = dict->lookup(fPaintID);
 
-    tmp.append(key.toString(dict));
+    tmp.append(key.toString(caps, dict));
 
     return tmp;
 }

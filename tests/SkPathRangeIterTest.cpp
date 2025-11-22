@@ -53,41 +53,42 @@ DEF_TEST(SkPath_RangeIter, r) {
     }
 
     // Build the path.
-    SkPath path;
+    SkPathBuilder builder;
     for (Verb verb : verbs) {
         switch (verb) {
             case Verb::kImplicitMove:
                 break;
             case Verb::kMove:
-                path.moveTo(genData.p());
+                builder.moveTo(genData.p());
                 break;
             case Verb::kLine:
-                path.lineTo(genData.p());
+                builder.lineTo(genData.p());
                 break;
             case Verb::kQuad: {
                 auto a = genData.p();
                 auto b = genData.p();
-                path.quadTo(a, b);
+                builder.quadTo(a, b);
                 break;
             }
             case Verb::kCubic: {
                 auto a = genData.p();
                 auto b = genData.p();
                 auto c = genData.p();
-                path.cubicTo(a, b, c);
+                builder.cubicTo(a, b, c);
                 break;
             }
             case Verb::kConic: {
                 auto a = genData.p();
                 auto b = genData.p();
-                path.conicTo(a, b, genData.w());
+                builder.conicTo(a, b, genData.w());
                 break;
             }
             case Verb::kClose:
-                path.close();
+                builder.close();
                 break;
         }
     }
+    SkPath path = builder.detach();
 
     // Verify sure the RangeIter works as expected.
     SkPathPriv::Iterate iterate(path);

@@ -34,13 +34,12 @@ bool BitmapToBase64DataURI(const SkBitmap& bitmap, SkString* dst) {
     options.fFilterFlags = SkPngEncoder::FilterFlag::kAll;
     options.fZLibLevel = 9;
 
-    SkDynamicMemoryWStream wStream;
-    if (!SkPngEncoder::Encode(&wStream, pm, options)) {
+    sk_sp<SkData> pngData = SkPngEncoder::Encode(pm, options);
+    if (!pngData) {
         dst->set("SkPngEncoder::Encode failed");
         return false;
     }
 
-    sk_sp<SkData> pngData = wStream.detachAsData();
     size_t len = SkBase64::EncodedSize(pngData->size());
 
     // The PNG can be almost arbitrarily large. We don't want to fill our logs with enormous URLs.

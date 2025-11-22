@@ -938,6 +938,7 @@ skia_shared_gpu_sources = [
   "$_src/gpu/SwizzlePriv.h",
   "$_src/gpu/TiledTextureUtils.cpp",
   "$_src/gpu/TiledTextureUtils.h",
+  "$_src/gpu/Token.h",
   "$_src/gpu/tessellate/AffineMatrix.h",
   "$_src/gpu/tessellate/CullTest.h",
   "$_src/gpu/tessellate/FixedCountBufferUtils.cpp",

@@ -51,7 +51,7 @@ void Decorations::paint(ParagraphPainter* painter, const TextStyle& textStyle, c
         switch (textStyle.getDecorationStyle()) {
           case TextDecorationStyle::kWavy: {
               calculateWaves(textStyle, context.clip);
-              fPath.offset(x, y);
+              fPath = fPath.makeOffset(x, y);
               painter->drawPath(fPath, fDecorStyle);
               break;
           }
@@ -213,17 +213,17 @@ void Decorations::calculatePaint(const TextStyle& textStyle) {
 }
 
 void Decorations::calculateWaves(const TextStyle& textStyle, SkRect clip) {
+    SkPathBuilder builder;
 
-    fPath.reset();
     int wave_count = 0;
     SkScalar x_start = 0;
     SkScalar quarterWave = fThickness;
-    fPath.moveTo(0, 0);
+    builder.moveTo(0, 0);
     while (x_start + quarterWave * 2 < clip.width()) {
-        fPath.rQuadTo(quarterWave,
-                     wave_count % 2 != 0 ? quarterWave : -quarterWave,
-                     quarterWave * 2,
-                     0);
+        builder.rQuadTo(quarterWave,
+                        wave_count % 2 != 0 ? quarterWave : -quarterWave,
+                        quarterWave * 2,
+                        0);
         x_start += quarterWave * 2;
         ++wave_count;
     }
@@ -236,8 +236,9 @@ void Decorations::calculateWaves(const TextStyle& textStyle, SkRect clip) {
         double x2 = remaining;
         double y2 = (remaining - remaining * remaining / (quarterWave * 2)) *
                     (wave_count % 2 == 0 ? -1 : 1);
-        fPath.rQuadTo(x1, y1, x2, y2);
+        builder.rQuadTo(x1, y1, x2, y2);
     }
+    fPath = builder.detach();
 }
 
 }  // namespace textlayout

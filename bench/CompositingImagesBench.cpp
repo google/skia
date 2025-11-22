@@ -322,48 +322,48 @@ private:
 
 // Subpixel = false; all of the draw commands align with integer pixels so AA will be automatically
 // turned off within the operation
-DEF_BENCH(return new CompositingImages({256, 256}, {256, 256}, {8, 8}, ClampingMode::kAlwaysFast, TransformMode::kNone, 1));
-DEF_BENCH(return new CompositingImages({512, 512}, {512, 512}, {4, 4}, ClampingMode::kAlwaysFast, TransformMode::kNone, 1));
-DEF_BENCH(return new CompositingImages({1024, 512}, {1024, 512}, {2, 4}, ClampingMode::kAlwaysFast, TransformMode::kNone, 1));
+DEF_BENCH(return new CompositingImages({256, 256}, {256, 256}, {8, 8}, ClampingMode::kAlwaysFast, TransformMode::kNone, 1))
+DEF_BENCH(return new CompositingImages({512, 512}, {512, 512}, {4, 4}, ClampingMode::kAlwaysFast, TransformMode::kNone, 1))
+DEF_BENCH(return new CompositingImages({1024, 512}, {1024, 512}, {2, 4}, ClampingMode::kAlwaysFast, TransformMode::kNone, 1))
 
-DEF_BENCH(return new CompositingImages({256, 256}, {256, 256}, {8, 8}, ClampingMode::kAlwaysFast, TransformMode::kNone, 4));
-DEF_BENCH(return new CompositingImages({512, 512}, {512, 512}, {4, 4}, ClampingMode::kAlwaysFast, TransformMode::kNone, 4));
-DEF_BENCH(return new CompositingImages({1024, 512}, {1024, 512}, {2, 4}, ClampingMode::kAlwaysFast, TransformMode::kNone, 4));
+DEF_BENCH(return new CompositingImages({256, 256}, {256, 256}, {8, 8}, ClampingMode::kAlwaysFast, TransformMode::kNone, 4))
+DEF_BENCH(return new CompositingImages({512, 512}, {512, 512}, {4, 4}, ClampingMode::kAlwaysFast, TransformMode::kNone, 4))
+DEF_BENCH(return new CompositingImages({1024, 512}, {1024, 512}, {2, 4}, ClampingMode::kAlwaysFast, TransformMode::kNone, 4))
 
-DEF_BENCH(return new CompositingImages({256, 256}, {256, 256}, {8, 8}, ClampingMode::kAlwaysFast, TransformMode::kNone, 16));
-DEF_BENCH(return new CompositingImages({512, 512}, {512, 512}, {4, 4}, ClampingMode::kAlwaysFast, TransformMode::kNone, 16));
-DEF_BENCH(return new CompositingImages({1024, 512}, {1024, 512}, {2, 4}, ClampingMode::kAlwaysFast, TransformMode::kNone, 16));
+DEF_BENCH(return new CompositingImages({256, 256}, {256, 256}, {8, 8}, ClampingMode::kAlwaysFast, TransformMode::kNone, 16))
+DEF_BENCH(return new CompositingImages({512, 512}, {512, 512}, {4, 4}, ClampingMode::kAlwaysFast, TransformMode::kNone, 16))
+DEF_BENCH(return new CompositingImages({1024, 512}, {1024, 512}, {2, 4}, ClampingMode::kAlwaysFast, TransformMode::kNone, 16))
 
 // Subpixel = true; force the draw commands to not align with pixels exactly so AA remains on
-DEF_BENCH(return new CompositingImages({256, 256}, {256, 256}, {8, 8}, ClampingMode::kAlwaysFast, TransformMode::kSubpixel, 1));
-DEF_BENCH(return new CompositingImages({512, 512}, {512, 512}, {4, 4}, ClampingMode::kAlwaysFast, TransformMode::kSubpixel, 1));
-DEF_BENCH(return new CompositingImages({1024, 512}, {1024, 512}, {2, 4}, ClampingMode::kAlwaysFast, TransformMode::kSubpixel, 1));
+DEF_BENCH(return new CompositingImages({256, 256}, {256, 256}, {8, 8}, ClampingMode::kAlwaysFast, TransformMode::kSubpixel, 1))
+DEF_BENCH(return new CompositingImages({512, 512}, {512, 512}, {4, 4}, ClampingMode::kAlwaysFast, TransformMode::kSubpixel, 1))
+DEF_BENCH(return new CompositingImages({1024, 512}, {1024, 512}, {2, 4}, ClampingMode::kAlwaysFast, TransformMode::kSubpixel, 1))
 
-DEF_BENCH(return new CompositingImages({256, 256}, {256, 256}, {8, 8}, ClampingMode::kAlwaysFast, TransformMode::kSubpixel, 4));
-DEF_BENCH(return new CompositingImages({512, 512}, {512, 512}, {4, 4}, ClampingMode::kAlwaysFast, TransformMode::kSubpixel, 4));
-DEF_BENCH(return new CompositingImages({1024, 512}, {1024, 512}, {2, 4}, ClampingMode::kAlwaysFast, TransformMode::kSubpixel, 4));
+DEF_BENCH(return new CompositingImages({256, 256}, {256, 256}, {8, 8}, ClampingMode::kAlwaysFast, TransformMode::kSubpixel, 4))
+DEF_BENCH(return new CompositingImages({512, 512}, {512, 512}, {4, 4}, ClampingMode::kAlwaysFast, TransformMode::kSubpixel, 4))
+DEF_BENCH(return new CompositingImages({1024, 512}, {1024, 512}, {2, 4}, ClampingMode::kAlwaysFast, TransformMode::kSubpixel, 4))
 
-DEF_BENCH(return new CompositingImages({256, 256}, {256, 256}, {8, 8}, ClampingMode::kAlwaysFast, TransformMode::kSubpixel, 16));
-DEF_BENCH(return new CompositingImages({512, 512}, {512, 512}, {4, 4}, ClampingMode::kAlwaysFast, TransformMode::kSubpixel, 16));
-DEF_BENCH(return new CompositingImages({1024, 512}, {1024, 512}, {2, 4}, ClampingMode::kAlwaysFast, TransformMode::kSubpixel, 16));
+DEF_BENCH(return new CompositingImages({256, 256}, {256, 256}, {8, 8}, ClampingMode::kAlwaysFast, TransformMode::kSubpixel, 16))
+DEF_BENCH(return new CompositingImages({512, 512}, {512, 512}, {4, 4}, ClampingMode::kAlwaysFast, TransformMode::kSubpixel, 16))
+DEF_BENCH(return new CompositingImages({1024, 512}, {1024, 512}, {2, 4}, ClampingMode::kAlwaysFast, TransformMode::kSubpixel, 16))
 
 // Test different tiling scenarios inspired by Chrome's compositor
-DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kAlwaysFast, TransformMode::kNone, 1));
-DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kAlwaysStrict, TransformMode::kNone, 1));
-DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kChromeTiling_RowMajor, TransformMode::kNone, 1));
-DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kChromeTiling_Optimal, TransformMode::kNone, 1));
+DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kAlwaysFast, TransformMode::kNone, 1))
+DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kAlwaysStrict, TransformMode::kNone, 1))
+DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kChromeTiling_RowMajor, TransformMode::kNone, 1))
+DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kChromeTiling_Optimal, TransformMode::kNone, 1))
 
-DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kAlwaysFast, TransformMode::kSubpixel, 1));
-DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kAlwaysStrict, TransformMode::kSubpixel, 1));
-DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kChromeTiling_RowMajor, TransformMode::kSubpixel, 1));
-DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kChromeTiling_Optimal, TransformMode::kSubpixel, 1));
+DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kAlwaysFast, TransformMode::kSubpixel, 1))
+DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kAlwaysStrict, TransformMode::kSubpixel, 1))
+DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kChromeTiling_RowMajor, TransformMode::kSubpixel, 1))
+DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kChromeTiling_Optimal, TransformMode::kSubpixel, 1))
 
-DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kAlwaysFast, TransformMode::kRotated, 1));
-DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kAlwaysStrict, TransformMode::kRotated, 1));
-DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kChromeTiling_RowMajor, TransformMode::kRotated, 1));
-DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kChromeTiling_Optimal, TransformMode::kRotated, 1));
+DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kAlwaysFast, TransformMode::kRotated, 1))
+DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kAlwaysStrict, TransformMode::kRotated, 1))
+DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kChromeTiling_RowMajor, TransformMode::kRotated, 1))
+DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kChromeTiling_Optimal, TransformMode::kRotated, 1))
 
-DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kAlwaysFast, TransformMode::kPerspective, 1));
-DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kAlwaysStrict, TransformMode::kPerspective, 1));
-DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kChromeTiling_RowMajor, TransformMode::kPerspective, 1));
-DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kChromeTiling_Optimal, TransformMode::kPerspective, 1));
+DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kAlwaysFast, TransformMode::kPerspective, 1))
+DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kAlwaysStrict, TransformMode::kPerspective, 1))
+DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kChromeTiling_RowMajor, TransformMode::kPerspective, 1))
+DEF_BENCH(return new CompositingImages({512, 512}, {380, 380}, {5, 5}, ClampingMode::kChromeTiling_Optimal, TransformMode::kPerspective, 1))

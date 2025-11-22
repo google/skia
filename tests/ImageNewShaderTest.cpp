@@ -122,6 +122,7 @@ DEF_TEST(ImageNewShader, reporter) {
     run_shader_test(reporter, sourceSurface.get(), destinationSurface.get(), info);
 }
 
+#if defined(SK_GANESH)
 static void gpu_to_gpu(skiatest::Reporter* reporter, GrRecordingContext* rContext) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(5, 5);
 
@@ -154,6 +155,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageNewShader_GPU,
     //  RASTER -> GPU
     raster_to_gpu(reporter, dContext);
 }
+#endif
 
 DEF_TEST(ImageRawShader, reporter) {
     auto image = ToolUtils::GetResourceAsImage("images/mandrill_32.png");

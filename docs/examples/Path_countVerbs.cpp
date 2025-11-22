@@ -5,7 +5,7 @@ REG_FIDDLE(Path_countVerbs, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPath path;
     SkDebugf("empty verb count: %d\n", path.countVerbs());
-    path.addRoundRect({10, 20, 30, 40}, 5, 5);
+    path = SkPath::RRect({10, 20, 30, 40}, 5, 5);
     SkDebugf("round rect verb count: %d\n", path.countVerbs());
 }
 }  // END FIDDLE

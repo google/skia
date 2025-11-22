@@ -87,6 +87,7 @@ void SkRasterPipeline::uncheckedAppend(SkRasterPipelineOp op, void* ctx) {
         COLOR_TYPE_CASE(rg88, kR8G8_unorm_SkColorType)
         COLOR_TYPE_CASE(16161616, kR16G16B16A16_unorm_SkColorType)
         COLOR_TYPE_CASE(a16, kA16_unorm_SkColorType)
+        COLOR_TYPE_CASE(r16, kR16_unorm_SkColorType)
         COLOR_TYPE_CASE(rg1616, kR16G16_unorm_SkColorType)
         COLOR_TYPE_CASE(f16, kRGBA_F16_SkColorType)
         COLOR_TYPE_CASE(af16, kA16_float_SkColorType)
@@ -343,6 +344,7 @@ void SkRasterPipeline::appendLoad(SkColorType ct, const SkRasterPipelineContexts
         case kRGB_565_SkColorType:           this->append(Op::load_565,     ctx); break;
         case kARGB_4444_SkColorType:         this->append(Op::load_4444,    ctx); break;
         case kR8G8_unorm_SkColorType:        this->append(Op::load_rg88,    ctx); break;
+        case kR16_unorm_SkColorType:         this->append(Op::load_r16,     ctx); break;
         case kR16G16_unorm_SkColorType:      this->append(Op::load_rg1616,  ctx); break;
         case kR16G16_float_SkColorType:      this->append(Op::load_rgf16,   ctx); break;
         case kRGBA_8888_SkColorType:         this->append(Op::load_8888,    ctx); break;
@@ -412,6 +414,7 @@ void SkRasterPipeline::appendLoadDst(SkColorType ct,
         case kRGB_565_SkColorType:            this->append(Op::load_565_dst,     ctx); break;
         case kARGB_4444_SkColorType:          this->append(Op::load_4444_dst,    ctx); break;
         case kR8G8_unorm_SkColorType:         this->append(Op::load_rg88_dst,    ctx); break;
+        case kR16_unorm_SkColorType:          this->append(Op::load_r16_dst,     ctx); break;
         case kR16G16_unorm_SkColorType:       this->append(Op::load_rg1616_dst,  ctx); break;
         case kR16G16_float_SkColorType:       this->append(Op::load_rgf16_dst,   ctx); break;
         case kRGBA_8888_SkColorType:          this->append(Op::load_8888_dst,    ctx); break;
@@ -484,6 +487,7 @@ void SkRasterPipeline::appendStore(SkColorType ct, const SkRasterPipelineContext
         case kRGB_565_SkColorType:            this->append(Op::store_565,     ctx); break;
         case kARGB_4444_SkColorType:          this->append(Op::store_4444,    ctx); break;
         case kR8G8_unorm_SkColorType:         this->append(Op::store_rg88,    ctx); break;
+        case kR16_unorm_SkColorType:          this->append(Op::store_r16,     ctx); break;
         case kR16G16_unorm_SkColorType:       this->append(Op::store_rg1616,  ctx); break;
         case kR16G16_float_SkColorType:       this->append(Op::store_rgf16,   ctx); break;
         case kRGBA_8888_SkColorType:          this->append(Op::store_8888,    ctx); break;
@@ -644,9 +648,9 @@ void SkRasterPipeline::run(size_t x, size_t y, size_t w, size_t h) const {
     // Best to not use fAlloc here... we can't bound how often run() will be called.
     AutoSTMalloc<32, SkRasterPipelineStage> program(stagesNeeded);
 
-    int numMemoryCtxs = fMemoryCtxInfos.size();
+    size_t numMemoryCtxs = fMemoryCtxInfos.size();
     AutoSTMalloc<2, SkRasterPipelineContexts::MemoryCtxPatch> patches(numMemoryCtxs);
-    for (int i = 0; i < numMemoryCtxs; ++i) {
+    for (size_t i = 0; i < numMemoryCtxs; ++i) {
         patches[i].info = fMemoryCtxInfos[i];
         patches[i].backup = nullptr;
         memset(patches[i].scratch, 0, sizeof(patches[i].scratch));
@@ -667,10 +671,10 @@ std::function<void(size_t, size_t, size_t, size_t)> SkRasterPipeline::compile() 
 
     SkRasterPipelineStage* program = fAlloc->makeArray<SkRasterPipelineStage>(stagesNeeded);
 
-    int numMemoryCtxs = fMemoryCtxInfos.size();
+    size_t numMemoryCtxs = fMemoryCtxInfos.size();
     SkRasterPipelineContexts::MemoryCtxPatch* patches =
             fAlloc->makeArray<SkRasterPipelineContexts::MemoryCtxPatch>(numMemoryCtxs);
-    for (int i = 0; i < numMemoryCtxs; ++i) {
+    for (size_t i = 0; i < numMemoryCtxs; ++i) {
         patches[i].info = fMemoryCtxInfos[i];
         patches[i].backup = nullptr;
         memset(patches[i].scratch, 0, sizeof(patches[i].scratch));
@@ -680,7 +684,7 @@ std::function<void(size_t, size_t, size_t, size_t)> SkRasterPipeline::compile() 
     auto start_pipeline = this->buildPipeline(program + stagesNeeded);
     return [=](size_t x, size_t y, size_t w, size_t h) {
         start_pipeline(x, y, x + w, y + h, program,
-                       SkSpan{patches, numMemoryCtxs},
+                       {patches, numMemoryCtxs},
                        tailPointer);
     };
 }

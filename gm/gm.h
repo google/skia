@@ -12,6 +12,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkMacros.h"
 #include "tools/Registry.h"
@@ -73,6 +74,7 @@ class GraphiteTestContext;
 #define DEF_GM_REGISTERER_FN(FN) \
     static skiagm::GMRegistererFnRegistry SK_MACRO_APPEND_COUNTER(REG_)(FN)
 
+// TODO: Rename these macros from GPU to GANESH
 #if defined(SK_GANESH)
 // A Simple GpuGM makes direct GPU calls. Its onDraw hook that includes GPU objects as params, and
 // is only invoked on GPU configs. Non-GPU configs automatically draw a GPU-only message and abort.
@@ -112,7 +114,7 @@ namespace skiagm {
         using DrawResult = skiagm::DrawResult;
         using GraphiteTestContext = skiatest::graphite::GraphiteTestContext;
 
-        GM(SkColor backgroundColor = SK_ColorWHITE);
+        explicit GM(SkColor backgroundColor = SK_ColorWHITE);
         virtual ~GM();
 
         enum Mode {
@@ -174,6 +176,10 @@ namespace skiagm {
 
         bool getControls(SkMetaData* controls) { return this->onGetControls(controls); }
         void setControls(const SkMetaData& controls) { this->onSetControls(controls); }
+
+        // Override to modify the default surface properties of the canvas to be used.
+        // The value may be further modified or ignored if the canvas used cannot support it.
+        virtual void modifySurfaceProps(SkSurfaceProps*) const {}
 
         virtual void modifyGrContextOptions(GrContextOptions*) {}
         virtual void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions*) const {}

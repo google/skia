@@ -164,7 +164,6 @@ skia_wasm_lib("canvaskit") {
   if (is_debug) {
     ldflags += [
       "-O0",
-      "-sDEMANGLE_SUPPORT=1",
       "-sASSERTIONS=1",
       "-sGL_ASSERTIONS=1",
       "-g3",
@@ -224,7 +223,7 @@ skia_wasm_lib("canvaskit") {
   }
 
   ldflags += [
-    "-std=c++17",
+    "-std=c++20",
     "--bind",
     "--no-entry",
     "--pre-js",
@@ -353,7 +352,7 @@ skia_wasm_lib("canvaskit") {
 
     # INCOMING_MODULE_JS_API is set to empty by default.
     # https://github.com/emscripten-core/emscripten/blob/8dc91db45bf96c174531006839472a3924d105aa/src/settings.js#L1204
-    "-sINCOMING_MODULE_JS_API=onRuntimeInitialized",
+    "-sINCOMING_MODULE_JS_API=onRuntimeInitialized,locateFile",
   ]
 
   defines = [

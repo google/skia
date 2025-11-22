@@ -238,7 +238,7 @@ DEF_TEST(RasterPipelineBuilderPushPopIndirect, r) {
     builder.push_uniform_indirect(one_slot_at(0), /*dynamicStack=*/1, five_slots_at(0));
     builder.push_uniform_indirect(three_slots_at(5), /*dynamicStack=*/1, five_slots_at(5));
     builder.swizzle_copy_stack_to_slots_indirect(three_slots_at(6), /*dynamicStackID=*/1,
-                                                 ten_slots_at(0), {2, 1, 0},
+                                                 ten_slots_at(0), {{2, 1, 0}},
                                                  /*offsetFromStackTop=*/3);
     builder.copy_stack_to_slots_indirect(three_slots_at(4), /*dynamicStackID=*/1, ten_slots_at(0));
     builder.pop_slots_indirect(five_slots_at(0), /*dynamicStackID=*/1, ten_slots_at(0));
@@ -327,11 +327,11 @@ DEF_TEST(RasterPipelineBuilderDuplicateSelectAndSwizzleSlots, r) {
     builder.select(4);                      // select from 4~7 and 8~11 into 4~7
     builder.select(3);                      // select from 2~4 and 5~7 into 2~4
     builder.select(1);                      // select from 3 and 4 into 3
-    builder.swizzle_copy_stack_to_slots(four_slots_at(1), {3, 2, 1, 0}, 4);
-    builder.swizzle_copy_stack_to_slots(four_slots_at(0), {0, 1, 3}, 3);
-    builder.swizzle(4, {3, 2, 1, 0});       // reverse the order of 0~3 (value.wzyx)
-    builder.swizzle(4, {1, 2});             // eliminate elements 0 and 3 (value.yz)
-    builder.swizzle(2, {0});                // eliminate element 1 (value.x)
+    builder.swizzle_copy_stack_to_slots(four_slots_at(1), {{3, 2, 1, 0}}, 4);
+    builder.swizzle_copy_stack_to_slots(four_slots_at(0), {{0, 1, 3}}, 3);
+    builder.swizzle(4, {{3, 2, 1, 0}});     // reverse the order of 0~3 (value.wzyx)
+    builder.swizzle(4, {{1, 2}});           // eliminate elements 0 and 3 (value.yz)
+    builder.swizzle(2, SKSPAN_INIT_ONE(0)); // eliminate element 1 (value.x)
     builder.discard_stack(1);               // balance stack
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/6,
                                                                 /*numUniformSlots=*/0,

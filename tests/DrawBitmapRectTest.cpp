@@ -12,6 +12,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
@@ -205,9 +206,9 @@ static void test_nan_antihair() {
 
     SkCanvas canvas(bm);
 
-    SkPath path;
-    path.moveTo(0, 0);
-    path.lineTo(10, SK_ScalarNaN);
+    SkPathBuilder builder;
+    builder.moveTo(0, 0);
+    builder.lineTo(10, SK_ScalarNaN);
 
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -217,7 +218,7 @@ static void test_nan_antihair() {
     // this would trigger an assert/crash.
     //
     // see rev. 3558
-    canvas.drawPath(path, paint);
+    canvas.drawPath(builder.detach(), paint);
 }
 
 static bool check_for_all_zeros(const SkBitmap& bm) {

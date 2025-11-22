@@ -99,23 +99,7 @@ def getVariantOutDir(project, variant) {
 }
 
 def constructBuildCommand(project, variant, appName) {
-    String depotToolsDir = null
-    for (String entry : System.getenv("PATH").split(File.pathSeparator)) {
-        if (Paths.get(entry).endsWith("depot_tools")) {
-            depotToolsDir = entry;
-            break;
-        }
-    }
-    if (depotToolsDir == null) {
-        depotToolsDir = getLocalProperties().getProperty('depot_tools.dir', null)
-    }
-
-    if (depotToolsDir == null) {
-        throw GradleScriptException("Depot Tools not found! Please update your path to include" +
-                " depot_tools or define depot_tools.dir in local.properties")
-    }
-
-    String ninja = Paths.get(depotToolsDir, "ninja")
+    String ninja = "third_party/ninja/ninja"
     String out_dir = getVariantOutDir(project, variant).skiaOut
     return "$ninja -C $out_dir $appName"
 }

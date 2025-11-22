@@ -48,7 +48,7 @@ class GrProxyProvider {
 public:
     using UseAllocator = GrSurfaceProxy::UseAllocator;
 
-    GrProxyProvider(GrImageContext*);
+    explicit GrProxyProvider(GrImageContext*);
 
     ~GrProxyProvider();
 

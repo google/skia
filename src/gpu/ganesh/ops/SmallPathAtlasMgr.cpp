@@ -128,7 +128,7 @@ GrDrawOpAtlas::ErrorCode SmallPathAtlasMgr::addToAtlas(GrResourceProvider* resou
 }
 
 void SmallPathAtlasMgr::setUseToken(SmallPathShapeData* shapeData,
-                                    skgpu::AtlasToken token) {
+                                    skgpu::Token token) {
     fAtlas->setLastUseToken(shapeData->fAtlasLocator, token);
 }
 

@@ -10,6 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/graphite/ScratchResourceManager.h"
+#include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/task/Task.h"
 #include "src/gpu/graphite/task/TaskList.h"
 
@@ -23,7 +24,6 @@ class Context;
 class GraphicsPipeline;
 class ResourceProvider;
 class RuntimeEffectDictionary;
-class TextureProxy;
 
 /**
  * DrawTask is a collection of subtasks that are executed in order to produce some intended
@@ -33,6 +33,7 @@ class TextureProxy;
 class DrawTask final : public Task, private ScratchResourceManager::PendingUseListener {
 public:
     explicit DrawTask(sk_sp<TextureProxy> target);
+
     ~DrawTask() override;
 
     Status prepareResources(ResourceProvider*,
@@ -45,8 +46,9 @@ public:
         return fChildTasks.visitPipelines(visitor);
     }
 
-    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor) override {
-        return fChildTasks.visitProxies(visitor);
+    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor,
+                      bool readsOnly) override {
+        return fChildTasks.visitProxies(visitor, readsOnly);
     }
 
 private:
@@ -68,6 +70,42 @@ private:
     // produce several DrawTasks (in which case they will see an instantiated proxy so should still
     // prepare their own resources instead of discarding themselves).
     bool fPrepared = false;
+
+#if defined(SK_DUMP_TASKS)
+    void dump(int index, const char* prefix) const override {
+        if (fTarget) {
+            if (index >= 0) {
+                SkDebugf("%s%d: Draw Task=%p (Target=%p) (Label=%s)\n", prefix, index, this,
+                         fTarget.get(), fTarget->label());
+            } else {
+                SkDebugf("%sDraw Task=%p (Target=%p) (Label=%s)\n", prefix, this, fTarget.get(),
+                         fTarget->label());
+            }
+        } else {
+            if (index >= 0) {
+                SkDebugf("%s%d: Draw Task=%p (Target=%p)\n", prefix, index, this,
+                         fTarget.get());
+            } else {
+                SkDebugf("%sDraw Task=%p (Target=%p)\n", prefix, this, fTarget.get());
+            }
+        }
+
+        std::string childPrefix = prefix;
+        static constexpr uint32_t kPrefixIncrement = 4;
+        if (strlen(prefix) >= kPrefixIncrement) {
+            const char* lastBranch = prefix + strlen(prefix) - kPrefixIncrement;
+            if (strcmp(lastBranch, "│   ") == 0) {
+                childPrefix.replace(strlen(prefix) - kPrefixIncrement, kPrefixIncrement, "│   ");
+            } else if (strcmp(lastBranch, "└── ") == 0) {
+                childPrefix.replace(strlen(prefix) - kPrefixIncrement, kPrefixIncrement, "    ");
+            }
+        }
+
+        fChildTasks.visit([&](const Task* task, bool isLast) {
+            task->dump(-1, (childPrefix + (isLast ? "└── " : "│   ")).c_str());
+        });
+    }
+#endif
 };
 
 } // namespace skgpu::graphite

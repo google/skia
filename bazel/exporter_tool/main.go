@@ -62,29 +62,27 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		},
 		{Var: "skia_codec_rust_png_public",
 			Rules: []string{
-				"//experimental/rust_png/decoder:hdrs",
-				"//include/encode:rust_png_public_hdrs",
+				"//include/codec:rust_png_public_hdrs",
 			},
 		},
 		{Var: "skia_codec_rust_png",
 			Rules: []string{
-				"//experimental/rust_png/decoder:srcs",
-				"//experimental/rust_png/ffi:utils",
+				"//src/codec:rust_png_srcs",
 			},
 		},
 		{Var: "skia_codec_rust_png_ffi_rs_srcs",
 			Rules: []string{
-				"//experimental/rust_png/ffi:rs_srcs",
+				"//rust/png:rs_srcs",
 			},
 		},
 		{Var: "skia_codec_rust_png_ffi_cxx_bridge_srcs",
 			Rules: []string{
-				"//experimental/rust_png/ffi:cxx_bridge_srcs",
+				"//rust/png:cxx_bridge_srcs",
 			},
 		},
 		{Var: "skia_codec_rust_png_ffi_cpp_hdrs",
 			Rules: []string{
-				"//experimental/rust_png/ffi:ffi_cpp",
+				"//rust/png:ffi_cpp",
 			},
 		},
 	}},
@@ -133,13 +131,11 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/encode:jpeg_encode_hdrs"}},
 		{Var: "skia_encode_rust_png_public",
 			Rules: []string{
-				"//experimental/rust_png/encoder:hdrs",
-				"//include/codec:rust_png_public_hdrs",
+				"//include/encode:rust_png_public_hdrs",
 			}},
 		{Var: "skia_encode_rust_png_srcs",
 			Rules: []string{
-				"//experimental/rust_png/encoder:srcs",
-				"//experimental/rust_png/ffi:utils",
+				"//src/encode:rust_png_srcs",
 			}},
 		{Var: "skia_encode_png_base",
 			Rules: []string{
@@ -428,6 +424,28 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_pdf_jpeg_public",
 			Rules: []string{"//include/docs:pdf_jpeg_hdrs"}},
 	}},
+	{GNI: "gn/rust.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skia_rust_common_ffi_rs_srcs",
+			Rules: []string{
+				"//rust/common:rs_srcs",
+			},
+		},
+		{Var: "skia_rust_common_ffi_cxx_bridge_srcs",
+			Rules: []string{
+				"//rust/common:cxx_bridge_srcs",
+			},
+		},
+		{Var: "skia_rust_common_ffi_cpp_hdrs",
+			Rules: []string{
+				"//rust/common:ffi_hdrs",
+			},
+		},
+		{Var: "skia_rust_common_ffi_cpp_srcs",
+			Rules: []string{
+				"//rust/common:ffi_cpp",
+			},
+		},
+	}},
 	{GNI: "gn/sksl.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_sksl_core_sources",
 			Rules: []string{
@@ -704,12 +722,20 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 	}},
 	{GNI: "modules/svg/svg.gni", Vars: []exporter.GNIFileListExportDesc{
-		{Var: "skia_svg_public",
+		{Var: "skia_svg_renderer_public",
 			Rules: []string{"//modules/svg/include:public_hdrs"}},
-		{Var: "skia_svg_sources",
+		{Var: "skia_svg_renderer_sources",
 			Rules: []string{
 				"//modules/svg/src:private_hdrs",
 				"//modules/svg/src:srcs",
+			}},
+	}},
+	{GNI: "gn/svg.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skia_svg_writer_public",
+			Rules: []string{"//include/svg:public_hdrs"}},
+		{Var: "skia_svg_writer_sources",
+			Rules: []string{
+				"//src/svg:svg",
 			}},
 	}},
 	{GNI: "modules/bentleyottmann/bentleyottmann.gni", Vars: []exporter.GNIFileListExportDesc{

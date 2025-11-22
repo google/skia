@@ -56,8 +56,7 @@ static void make_images() {
         auto surf = SkSurfaces::Raster(
                 SkImageInfo::Make(size, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
         auto* canvas = surf->getCanvas();
-        SkMatrix m = SkEncodedOriginToMatrix(origin, kImgW, kImgH);
-        SkAssertResult(m.invert(&m));
+        SkMatrix m = SkEncodedOriginToMatrixInverse(origin, kImgW, kImgH);
         canvas->concat(m);
         canvas->clear(SK_ColorBLACK);
         SkPaint paint;

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
@@ -37,15 +38,17 @@ static void testSimplifyDegeneratesMain(PathOpsThreadState* data) {
                     continue;
                 }
                 SkString pathStr;
-                SkPath path, out;
-                path.moveTo(SkIntToScalar(ax), SkIntToScalar(ay));
-                path.lineTo(SkIntToScalar(bx), SkIntToScalar(by));
-                path.lineTo(SkIntToScalar(cx), SkIntToScalar(cy));
-                path.close();
-                path.moveTo(SkIntToScalar(dx), SkIntToScalar(dy));
-                path.lineTo(SkIntToScalar(ex), SkIntToScalar(ey));
-                path.lineTo(SkIntToScalar(fx), SkIntToScalar(fy));
-                path.close();
+                SkPath out;
+                SkPath path = SkPathBuilder()
+                              .moveTo(SkIntToScalar(ax), SkIntToScalar(ay))
+                              .lineTo(SkIntToScalar(bx), SkIntToScalar(by))
+                              .lineTo(SkIntToScalar(cx), SkIntToScalar(cy))
+                              .close()
+                              .moveTo(SkIntToScalar(dx), SkIntToScalar(dy))
+                              .lineTo(SkIntToScalar(ex), SkIntToScalar(ey))
+                              .lineTo(SkIntToScalar(fx), SkIntToScalar(fy))
+                              .close()
+                              .detach();
                 if (state.fReporter->verbose()) {
                     pathStr.appendf("    path.moveTo(%d, %d);\n", ax, ay);
                     pathStr.appendf("    path.lineTo(%d, %d);\n", bx, by);

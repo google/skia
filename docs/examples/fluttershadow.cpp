@@ -5,7 +5,7 @@ REG_FIDDLE(fluttershadow, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint p;
     p.setAntiAlias(true);
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(50.0, 50.0);
 
     // Comment the next 4 lines, and the shadow will draw.
@@ -19,6 +19,6 @@ void draw(SkCanvas* canvas) {
     path.lineTo(50.0, 150.0);
     path.close();
     p.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 3));
-    canvas->drawPath(path, p);
+    canvas->drawPath(path.detach(), p);
 }
 }  // END FIDDLE

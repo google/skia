@@ -30,10 +30,6 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/encode/SkJpegEncoder.h"
-#include "include/encode/SkPngEncoder.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
-#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkMalloc.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkColorPriv.h"
@@ -45,10 +41,28 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#endif
+
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
+#endif
+
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+#include "include/codec/SkPngRustDecoder.h"
+#else
+#include "include/codec/SkPngDecoder.h"
+#endif
+
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
+#include "include/encode/SkPngRustEncoder.h"
+#else
+#include "include/encode/SkPngEncoder.h"
 #endif
 
 #include <functional>
@@ -178,8 +192,10 @@ protected:
         SkImageInfo info = SkImageInfo::MakeN32Premul(W, H);
         sk_sp<SkSurface> surf0(SkSurfaces::WrapPixels(info, fBuffer, RB));
         sk_sp<SkSurface> surf1(SkSurfaces::Raster(info));
-        sk_sp<SkSurface> surf2(
-                SkSurfaces::RenderTarget(canvas->recordingContext(), skgpu::Budgeted::kNo, info));
+        sk_sp<SkSurface> surf2;
+#if defined(SK_GANESH)
+        surf2 = SkSurfaces::RenderTarget(canvas->recordingContext(), skgpu::Budgeted::kNo, info);
+#endif
 
         test_surface(canvas, surf0.get(), true);
         canvas->translate(80, 0);
@@ -271,7 +287,20 @@ static sk_sp<SkImage> make_codec(const SkImageInfo& info,
                                  skgpu::graphite::Recorder*,
                                  void (*draw)(SkCanvas*)) {
     sk_sp<SkImage> image(make_raster(info, nullptr, nullptr, draw));
-    return SkImages::DeferredFromEncodedData(SkPngEncoder::Encode(nullptr, image.get(), {}));
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST) && defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+    sk_sp<SkData> data = SkPngRustEncoder::Encode(nullptr, image.get(), {});
+    SkASSERT_RELEASE(data);
+    std::unique_ptr<SkStream> stream = SkMemoryStream::Make(data);
+    auto codec = SkPngRustDecoder::Decode(std::move(stream), nullptr, nullptr);
+    SkASSERT_RELEASE(codec);
+    return SkCodecs::DeferredImage(std::move(codec), {});
+#else
+    sk_sp<SkData> data = SkPngEncoder::Encode(nullptr, image.get(), {});
+    SkASSERT_RELEASE(data);
+    auto codec = SkPngDecoder::Decode(std::move(data), nullptr, nullptr);
+    SkASSERT_RELEASE(codec);
+    return SkCodecs::DeferredImage(std::move(codec), {});
+#endif
 }
 
 static sk_sp<SkImage> make_gpu(const SkImageInfo& info,
@@ -279,9 +308,11 @@ static sk_sp<SkImage> make_gpu(const SkImageInfo& info,
                                skgpu::graphite::Recorder* recorder,
                                void (*draw)(SkCanvas*)) {
     sk_sp<SkSurface> surface;
+#if defined(SK_GANESH)
     if (ctx) {
         surface = SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info);
     }
+#endif
 #if defined(SK_GRAPHITE)
     if (recorder) {
         surface = SkSurfaces::RenderTarget(recorder, info);
@@ -341,9 +372,12 @@ DEF_GM( return new ScalePixelsGM(true); )
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 115) {
+    bool isGPU = false;
 
+#if defined(SK_GANESH)
     GrDirectContext* dContext = GrAsDirectContext(canvas->recordingContext());
-    bool isGPU = SkToBool(dContext);
+    isGPU = isGPU || SkToBool(dContext);
+#endif
 
 #if defined(SK_GRAPHITE)
     skgpu::graphite::Recorder* recorder = canvas->recorder();
@@ -380,17 +414,30 @@ DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 115) {
     std::function<sk_sp<SkImage>()> imageFactories[] = {
             // Create sw raster image.
             [&] { return bmp.asImage(); },
-            // Create encoded image.
+    // Create encoded image.
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST) && defined(SK_CODEC_DECODES_PNG_WITH_RUST)
             [&] {
-                SkDynamicMemoryWStream stream;
-                SkASSERT_RELEASE(SkPngEncoder::Encode(&stream, bmp.pixmap(), {}));
-                return SkImages::DeferredFromEncodedData(stream.detachAsData());
+                sk_sp<SkData> data = SkPngRustEncoder::Encode(bmp.pixmap(), {});
+                SkASSERT_RELEASE(data);
+                std::unique_ptr<SkStream> stream = SkMemoryStream::Make(data);
+                auto codec = SkPngRustDecoder::Decode(std::move(stream), nullptr, nullptr);
+                SkASSERT_RELEASE(codec);
+                return SkCodecs::DeferredImage(std::move(codec), {});
             },
+#else
+            [&] {
+                sk_sp<SkData> data = SkPngEncoder::Encode(bmp.pixmap(), {});
+                SkASSERT_RELEASE(data);
+                auto codec = SkPngDecoder::Decode(std::move(data), nullptr, nullptr);
+                SkASSERT_RELEASE(codec);
+                return SkCodecs::DeferredImage(std::move(codec), {});
+            },
+#endif
             // Create YUV encoded image.
             [&] {
-                SkDynamicMemoryWStream stream;
-                SkASSERT_RELEASE(SkJpegEncoder::Encode(&stream, bmp.pixmap(), {}));
-                return SkImages::DeferredFromEncodedData(stream.detachAsData());
+                sk_sp<SkData> data = SkJpegEncoder::Encode(bmp.pixmap(), {});
+                SkASSERT_RELEASE(data);
+                return SkImages::DeferredFromEncodedData(data);
             },
             // Create a picture image.
             [&] {
@@ -409,13 +456,16 @@ DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 115) {
             // Create a texture image
             [&]() -> sk_sp<SkImage> {
                 sk_sp<SkSurface> surface;
+#if defined(SK_GANESH)
                 if (dContext) {
                     surface = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes, ii);
-                } else {
-#if defined(SK_GRAPHITE)
-                    surface = SkSurfaces::RenderTarget(recorder, ii);
-#endif
                 }
+#endif
+#if defined(SK_GRAPHITE)
+                if (recorder) {
+                    surface = SkSurfaces::RenderTarget(recorder, ii);
+                }
+#endif
 
                 if (!surface) {
                     return nullptr;
@@ -431,16 +481,19 @@ DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 115) {
         if (image) {
             for (auto mm : { false, true }) {
                 sk_sp<SkImage> texImage;
+#if defined(SK_GANESH)
                 if (dContext) {
                     texImage = SkImages::TextureFromImage(dContext,
                                                           image,
                                                           mm ? skgpu::Mipmapped::kYes
                                                              : skgpu::Mipmapped::kNo);
-                } else {
-#if defined(SK_GRAPHITE)
-                    texImage = SkImages::TextureFromImage(recorder, image, {mm});
-#endif
                 }
+#endif
+#if defined(SK_GRAPHITE)
+                if (recorder) {
+                    texImage = SkImages::TextureFromImage(recorder, image, {mm});
+                }
+#endif
                 if (texImage) {
                     canvas->drawImage(texImage, 0, mm ? kSize + kPad : 0);
                 }
@@ -510,7 +563,11 @@ static sk_sp<SkImage> serial_deserial(SkImage* img) {
 
     SkSerialProcs sProcs;
     sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
-        return SkPngEncoder::Encode(as_IB(img)->directContext(), img, SkPngEncoder::Options{});
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
+        return SkPngRustEncoder::Encode(as_IB(img)->directContext(), img, {});
+#else
+        return SkPngEncoder::Encode(as_IB(img)->directContext(), img, {});
+#endif
     };
     SkBinaryWriteBuffer writer(sProcs);
 
@@ -520,7 +577,22 @@ static sk_sp<SkImage> serial_deserial(SkImage* img) {
     writer.writeToMemory(data->writable_data());
 
     SkReadBuffer reader(data->data(), length);
-    return reader.readImage();
+
+    SkDeserialProcs dProcs;
+    dProcs.fImageDataProc =
+            [](sk_sp<SkData> data, std::optional<SkAlphaType> alphaType, void*) -> sk_sp<SkImage> {
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+        std::unique_ptr<SkStream> stream = SkMemoryStream::Make(data);
+        auto codec = SkPngRustDecoder::Decode(std::move(stream), nullptr, nullptr);
+#else
+        auto codec = SkPngDecoder::Decode(data, nullptr, nullptr);
+#endif
+        return SkCodecs::DeferredImage(std::move(codec), alphaType);
+    };
+    reader.setDeserialProcs(dProcs);
+    auto image = reader.readImage();
+    SkASSERT(image);
+    return image;
 }
 
 DEF_SIMPLE_GM_CAN_FAIL(image_subset, canvas, errorMsg, 440, 220) {

@@ -166,11 +166,13 @@ public:
         fPath.transform(SkMatrix::Scale(200, 200));
         fPath.transform(SkMatrix::Translate(300, 300));
 #else
-        fPath.moveTo(100, 500);
-        fPath.cubicTo(300, 400, -100, 300, 100, 200);
-        fPath.quadTo(250, 0, 400, 200);
-        fPath.conicTo(600, 350, 400, 500, fConicWeight);
-        fPath.close();
+        fPath = SkPathBuilder()
+                .moveTo(100, 500)
+                .cubicTo(300, 400, -100, 300, 100, 200)
+                .quadTo(250, 0, 400, 200)
+                .conicTo(600, 350, 400, 500, fConicWeight)
+                .close()
+                .detach();
 #endif
         fName = "PathTessellators";
     }
@@ -222,8 +224,7 @@ void PathTessellatorsSlide::draw(SkCanvas* canvas) {
     SkPaint pointsPaint;
     pointsPaint.setColor(SK_ColorBLUE);
     pointsPaint.setStrokeWidth(8);
-    SkPath devPath = fPath;
-    devPath.transform(canvas->getTotalMatrix());
+    SkPath devPath = fPath.makeTransform(canvas->getTotalMatrix());
     {
         SkAutoCanvasRestore acr(canvas, true);
         canvas->setMatrix(SkMatrix::I());
@@ -233,8 +234,7 @@ void PathTessellatorsSlide::draw(SkCanvas* canvas) {
         SkPaint captionPaint;
         captionPaint.setColor(SK_ColorWHITE);
         canvas->drawString(caption, 10, 30, font, captionPaint);
-        canvas->drawPoints(SkCanvas::kPoints_PointMode,
-                           {SkPathPriv::PointData(devPath), devPath.countPoints()}, pointsPaint);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, devPath.points(), pointsPaint);
     }
 }
 
@@ -243,8 +243,10 @@ public:
     Click(int ptIdx) : fPtIdx(ptIdx) {}
 
     void doClick(SkPath* path) {
-        SkPoint pt = path->getPoint(fPtIdx);
-        SkPathPriv::UpdatePathPoint(path, fPtIdx, pt + fCurr - fPrev);
+        SkPoint pt = path->points()[fPtIdx];
+        SkPathBuilder builder(*path);
+        builder.setPoint(fPtIdx, pt + fCurr - fPrev);
+        *path = builder.detach();
     }
 
 private:
@@ -253,7 +255,7 @@ private:
 
 ClickHandlerSlide::Click* PathTessellatorsSlide::onFindClickHandler(SkScalar x, SkScalar y,
                                                                     skui::ModifierKey) {
-    const SkPoint* pts = SkPathPriv::PointData(fPath);
+    SkSpan<const SkPoint> pts = fPath.points();
     float fuzz = 30;
     for (int i = 0; i < fPath.countPoints(); ++i) {
         if (fabs(x - pts[i].x()) < fuzz && fabsf(y - pts[i].y()) < fuzz) {
@@ -270,7 +272,7 @@ bool PathTessellatorsSlide::onClick(ClickHandlerSlide::Click* click) {
 }
 
 static SkPath update_weight(const SkPath& path, float w) {
-    SkPath path_;
+    SkPathBuilder path_;
     for (auto [verb, pts, _] : SkPathPriv::Iterate(path)) {
         switch (verb) {
             case SkPathVerb::kMove:
@@ -292,7 +294,7 @@ static SkPath update_weight(const SkPath& path, float w) {
                 break;
         }
     }
-    return path_;
+    return path_.detach();
 }
 
 bool PathTessellatorsSlide::onChar(SkUnichar unichar) {

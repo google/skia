@@ -8,11 +8,17 @@
 #ifndef SK_COMMON_FLAGS_CONFIG_H
 #define SK_COMMON_FLAGS_CONFIG_H
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "tools/flags/CommandLineFlags.h"
-#include "tools/ganesh/GrContextFactory.h"
 
-DECLARE_string(config);
+#if defined(SK_GANESH)
+#include "tools/ganesh/GrContextFactory.h"
+#include "tools/gpu/ContextType.h"
+#endif
+
+DECLARE_string(config)
 
 class SkCommandLineConfigGpu;
 class SkCommandLineConfigGraphite;
@@ -44,6 +50,10 @@ private:
     sk_sp<SkColorSpace>            fColorSpace;
     skia_private::TArray<SkString> fViaParts;
 };
+
+#if defined(SK_GANESH)
+
+// TODO: This should be "Ganesh" not "Gpu".
 
 // SkCommandLineConfigGpu is a SkCommandLineConfig that extracts information out of the backend
 // part of the tag. It is constructed tags that have:
@@ -106,6 +116,7 @@ private:
     bool                fReducedShaders;
     SurfType            fSurfType;
 };
+#endif  // SK_GANESH
 
 #if defined(SK_GRAPHITE)
 
@@ -120,25 +131,34 @@ public:
                                 ContextType contextType,
                                 SkColorType colorType,
                                 SkAlphaType alphaType,
-                                bool testPrecompileGraphite)
+                                bool testPersistentStorage,
+                                bool testPrecompileGraphite,
+                                bool testPipelineTracking)
             : SkCommandLineConfig(tag, SkString("graphite"), viaParts)
             , fContextType(contextType)
             , fColorType(colorType)
             , fAlphaType(alphaType)
-            , fTestPrecompileGraphite(testPrecompileGraphite) {
+            , fTestPersistentStorage(testPersistentStorage)
+            , fTestPrecompileGraphite(testPrecompileGraphite)
+            , fTestPipelineTracking(testPipelineTracking) {
     }
+
     const SkCommandLineConfigGraphite* asConfigGraphite() const override { return this; }
 
     ContextType getContextType() const { return fContextType; }
     SkColorType getColorType() const { return fColorType; }
     SkAlphaType getAlphaType() const { return fAlphaType; }
+    bool        getTestPersistentStorage() const { return fTestPersistentStorage; }
     bool        getTestPrecompileGraphite() const { return fTestPrecompileGraphite; }
+    bool        getTestPipelineTracking() const { return fTestPipelineTracking; }
 
 private:
     ContextType                     fContextType;
     SkColorType                     fColorType;
     SkAlphaType                     fAlphaType;
+    bool                            fTestPersistentStorage;
     bool                            fTestPrecompileGraphite;
+    bool                            fTestPipelineTracking;
 };
 
 #endif // SK_GRAPHITE

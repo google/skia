@@ -592,8 +592,10 @@ DEF_TEST(EncodedOriginToMatrixTest, r) {
                          kRightBottom_SkEncodedOrigin ,
                          kLeftBottom_SkEncodedOrigin  }) {
         // Arbitrary output dimensions.
-        auto matrix = SkEncodedOriginToMatrix(origin, 100, 80);
-        REPORTER_ASSERT(r, matrix.invert(nullptr));
+        SkMatrix matrix = SkEncodedOriginToMatrix(origin, 100, 80);
+        std::optional<SkMatrix> inverse = matrix.invert();
+        REPORTER_ASSERT(r, inverse.has_value());
+        REPORTER_ASSERT(r, SkEncodedOriginToMatrixInverse(origin, 100, 80) == *inverse);
     }
 }
 

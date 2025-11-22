@@ -896,8 +896,9 @@ void AutoCleanPng::infoCallback(size_t idatLength) {
         }
 #endif // SK_BUILD_FOR_ANDROID_FRAMEWORK
 
-        SkEncodedInfo encodedInfo = SkEncodedInfo::Make(origWidth, origHeight, color, alpha,
-                                                        bitDepth, std::move(profile));
+        SkEncodedInfo encodedInfo = SkEncodedInfo::Make(
+            origWidth, origHeight, color, alpha, bitDepth, bitDepth, std::move(profile),
+            fChunkReader ? fChunkReader->getHdrMetadata() : skhdr::Metadata::MakeEmpty());
         if (1 == numberPasses) {
             *fOutCodec = new SkPngNormalDecoder(std::move(encodedInfo),
                                                 std::unique_ptr<SkStream>(fStream),
@@ -1064,7 +1065,7 @@ bool SkPngCodec::onGetGainmapCodec(SkGainmapInfo* info, std::unique_ptr<SkCodec>
         return false;
     }
 
-    sk_sp<SkData> data = fGainmapStream->getData();
+    sk_sp<const SkData> data = fGainmapStream->getData();
     if (!data) {
         return false;
     }

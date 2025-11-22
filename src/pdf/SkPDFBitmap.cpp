@@ -169,7 +169,7 @@ size_t do_deflated_alpha(const SkPixmap& pm, SkPDFDocument* doc, SkPDFIndirectRe
     return length;
 }
 
-SkPDFUnion write_icc_profile(SkPDFDocument* doc, sk_sp<SkData>&& icc, int channels) {
+SkPDFUnion write_icc_profile(SkPDFDocument* doc, sk_sp<const SkData>&& icc, int channels) {
     SkPDFIndirectReference iccStreamRef;
     {
         static SkMutex iccProfileMapMutex;
@@ -315,7 +315,7 @@ size_t do_jpeg(sk_sp<SkData> data, SkColorSpace* imageColorSpace, SkPDFDocument*
     int channels = yuv ? 3 : 1;
     SkPDFUnion colorSpace = yuv ? SkPDFUnion::Name("DeviceRGB") : SkPDFUnion::Name("DeviceGray");
 
-    if (sk_sp<SkData> encodedIccProfileData = encodedInfo.profileData();
+    if (sk_sp<const SkData> encodedIccProfileData = encodedInfo.profileData();
         encodedIccProfileData && !icc_channel_mismatch(encodedInfo.profile(), channels))
     {
         colorSpace = write_icc_profile(doc, std::move(encodedIccProfileData), channels);

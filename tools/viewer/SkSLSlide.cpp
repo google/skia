@@ -129,7 +129,9 @@ bool SkSLSlide::rebuild() {
     }
 
     if (!effect) {
+#if defined(SK_GANESH)
         Viewer::ShaderErrorHandler()->compileError(sksl.c_str(), errorText.c_str());
+#endif
         return false;
     }
 

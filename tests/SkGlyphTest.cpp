@@ -197,8 +197,7 @@ DEF_TEST(SkGlyph_SendWithPath, reporter) {
     SkGlyph srcGlyph{SkPackedGlyphID{(SkGlyphID)12}};
     SkGlyphTestPeer::SetGlyph1(&srcGlyph);
 
-    SkPath srcPath;
-    srcPath.addRect(srcGlyph.rect());
+    SkPath srcPath = SkPath::Rect(srcGlyph.rect());
 
     srcGlyph.setPath(&alloc, &srcPath, false, false);
 

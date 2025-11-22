@@ -314,9 +314,9 @@ void SkNWayCanvas::onDrawAtlas2(const SkImage* image, const SkRSXform xform[], c
     Iter iter(fList);
     while (iter.next()) {
         iter->drawAtlas(image,
-                        {xform, count},
-                        {tex, count},
-                        {colors, colors ? count : 0},
+                        {xform, (size_t)count},
+                        {tex, (size_t)count},
+                        {colors, colors ? (size_t)count : 0},
                         bmode, sampling, cull, paint);
     }
 }

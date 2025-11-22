@@ -9,11 +9,20 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceProps.h"
-#include "include/gpu/ganesh/GrTypes.h"
 #include "tools/window/DisplayParams.h"
 
-class GrDirectContext;
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrTypes.h"
+#endif
+
+#include <functional>
+
 class SkSurface;
+
+#if defined(SK_GANESH)
+class GrDirectContext;
+#endif
+
 #if defined(SK_GRAPHITE)
 namespace skgpu::graphite {
 class Context;
@@ -42,7 +51,9 @@ public:
     const DisplayParams* getDisplayParams() { return fDisplayParams.get(); }
     virtual void setDisplayParams(std::unique_ptr<const DisplayParams>) = 0;
 
+#if defined(SK_GANESH)
     GrDirectContext* directContext() const { return fContext.get(); }
+#endif
 #if defined(SK_GRAPHITE)
     skgpu::graphite::Context* graphiteContext() const { return fGraphiteContext.get(); }
     skgpu::graphite::Recorder* graphiteRecorder() const { return fGraphiteRecorder.get(); }
@@ -63,7 +74,9 @@ protected:
 
     virtual void onSwapBuffers() = 0;
 
+#if defined(SK_GANESH)
     sk_sp<GrDirectContext> fContext;
+#endif
 #if defined(SK_GRAPHITE)
     std::unique_ptr<skgpu::graphite::Context> fGraphiteContext;
     std::unique_ptr<skgpu::graphite::Recorder> fGraphiteRecorder;

@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
@@ -43,13 +44,13 @@ protected:
         SkScalar length = 5;
         SkScalar step = angle;
 
-        SkPath path;
-        path.moveTo(center);
+        SkPathBuilder builder;
+        builder.moveTo(center);
 
         for (int i = 0; i < fNumSteps && length < (SkScalarHalf(size) - 10.f); ++i) {
             SkPoint rp = SkPoint::Make(length*SkScalarCos(step) + center.fX,
                                        length*SkScalarSin(step) + center.fY);
-            path.lineTo(rp);
+            builder.lineTo(rp);
             length += angle / SkScalarHalf(SK_ScalarPI);
             step += angle;
         }
@@ -59,7 +60,7 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setColor(ToolUtils::color_to_565(0xFF007700));
 
-        canvas->drawPath(path, paint);
+        canvas->drawPath(builder.detach(), paint);
     }
 
     bool onAnimate(double nanos) override {

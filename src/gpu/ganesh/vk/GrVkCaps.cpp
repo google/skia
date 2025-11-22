@@ -395,13 +395,21 @@ void GrVkCaps::init(const GrContextOptions& contextOptions,
     //
     // On ARM devices we are seeing an average perf win of around 50%-60% across the board.
     if (skgpu::kARM_VkVendor == properties.vendorID) {
-        // We currently don't see any Vulkan devices that expose a memory type that supports
-        // both lazy allocated and protected memory. So for simplicity we just disable the
-        // use of memoryless attachments when using protected memory. In the future, if we ever
-        // do see devices that support both, we can look through the device's memory types here
-        // and see if any support both flags.
-        fPreferDiscardableMSAAAttachment = !fSupportsProtectedContent;
-        fSupportsMemorylessAttachments = !fSupportsProtectedContent;
+        VkMemoryPropertyFlags requiredLazyFlags = VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT;
+        if (fSupportsProtectedContent) {
+            // If we have a protected context we can only use memoryless images if they also support
+            // being protected. With current devices we don't actually expect this combination to be
+            // supported, but this at least covers us for future devices that may allow it.
+            requiredLazyFlags |= VK_MEMORY_PROPERTY_PROTECTED_BIT;
+        }
+        for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++) {
+            const uint32_t& supportedFlags = memoryProperties.memoryTypes[i].propertyFlags;
+            if ((supportedFlags & requiredLazyFlags) == requiredLazyFlags) {
+                fPreferDiscardableMSAAAttachment = true;
+                fSupportsMemorylessAttachments = true;
+                break;
+            }
+        }
     }
 
     this->initGrCaps(vkInterface, physDev, properties, memoryProperties, features, extensions);
@@ -706,9 +714,7 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
     // Ganesh + Vulkan always emits `sk_Clockwise` to avoid some Adreno rendering errors.
     shaderCaps->fMustDeclareFragmentFrontFacing = true;
 
-    // Vulkan is based off ES 3.0 so the following should all be supported
-    shaderCaps->fUsesPrecisionModifiers = true;
-    shaderCaps->fFlatInterpolationSupport = true;
+    shaderCaps->fFlatInterpolationSupport = true; // Supported because Vulkan is based on ES 3.0
     // Flat interpolation appears to be slow on Qualcomm GPUs. This was tested in GL and is assumed
     // to be true with Vulkan as well.
     shaderCaps->fPreferFlatInterpolation = skgpu::kQualcomm_VkVendor != properties.vendorID;
@@ -1239,7 +1245,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
         auto& info = this->getFormatInfo(format);
         info.init(contextOptions, interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
-            info.fColorTypeInfoCount = 1;
+            info.fColorTypeInfoCount = 2;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
             int ctIdx = 0;
             // Format: VK_FORMAT_R16_UNORM, Surface: kAlpha_16
@@ -1251,6 +1257,14 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 ctInfo.fReadSwizzle = skgpu::Swizzle("000r");
                 ctInfo.fWriteSwizzle = skgpu::Swizzle("a000");
+            }
+            // Format: VK_FORMAT_R16_UNORM, Surface: kR16_unorm
+            {
+                constexpr GrColorType ct = GrColorType::kR_16;
+                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
+                ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
+                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
         }
     }
@@ -1431,6 +1445,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     this->setColorType(GrColorType::kRG_1616,          { VK_FORMAT_R16G16_UNORM });
     this->setColorType(GrColorType::kRGBA_16161616,    { VK_FORMAT_R16G16B16A16_UNORM });
     this->setColorType(GrColorType::kRG_F16,           { VK_FORMAT_R16G16_SFLOAT });
+    this->setColorType(GrColorType::kRGBA_10x6,        { VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16});
 }
 
 void GrVkCaps::FormatInfo::InitFormatFlags(VkFormatFeatureFlags vkFlags, uint16_t* flags) {
@@ -1528,7 +1543,7 @@ static bool backend_format_is_external(const GrBackendFormat& format) {
     SkASSERT(ycbcrInfo);
 
     // All external formats have a valid ycbcrInfo used for sampling and a non zero external format.
-    if (ycbcrInfo->isValid() && ycbcrInfo->fExternalFormat != 0) {
+    if (ycbcrInfo->isValid() && ycbcrInfo->hasExternalFormat()) {
 #ifdef SK_DEBUG
         VkFormat vkFormat;
         SkAssertResult(GrBackendFormats::AsVkFormat(format, &vkFormat));
@@ -1755,7 +1770,7 @@ bool GrVkCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
 
     if (ycbcrInfo->isValid() && !skgpu::VkFormatNeedsYcbcrSampler(vkFormat)) {
         // Format may be undefined for external images, which are required to have YCbCr conversion.
-        if (VK_FORMAT_UNDEFINED == vkFormat && ycbcrInfo->fExternalFormat != 0) {
+        if (VK_FORMAT_UNDEFINED == vkFormat && ycbcrInfo->hasExternalFormat()) {
             return true;
         }
         return false;
@@ -1833,7 +1848,7 @@ skgpu::Swizzle GrVkCaps::onGetReadSwizzle(const GrBackendFormat& format,
     const skgpu::VulkanYcbcrConversionInfo* ycbcrInfo =
             GrBackendFormats::GetVkYcbcrConversionInfo(format);
     SkASSERT(ycbcrInfo);
-    if (ycbcrInfo->isValid() && ycbcrInfo->fExternalFormat != 0) {
+    if (ycbcrInfo->isValid() && ycbcrInfo->hasExternalFormat()) {
         // We allow these to work with any color type and never swizzle. See
         // onAreColorTypeAndFormatCompatible.
         return skgpu::Swizzle{"rgba"};
@@ -1887,7 +1902,7 @@ uint64_t GrVkCaps::computeFormatKey(const GrBackendFormat& format) const {
     const skgpu::VulkanYcbcrConversionInfo* ycbcrInfo =
             GrBackendFormats::GetVkYcbcrConversionInfo(format);
     SkASSERT(ycbcrInfo);
-    SkASSERT(!ycbcrInfo->isValid() || ycbcrInfo->fExternalFormat == 0);
+    SkASSERT(!ycbcrInfo->isValid() || !ycbcrInfo->hasExternalFormat());
 #endif
 
     // A VkFormat has a size of 64 bits.

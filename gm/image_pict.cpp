@@ -25,6 +25,10 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "src/image/SkImageGeneratorPriv.h"
+#include "src/image/SkImage_Base.h"
+
+#if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrExternalTextureGenerator.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
@@ -38,15 +42,14 @@
 #include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "src/gpu/ganesh/image/SkImage_Ganesh.h"
-#include "src/image/SkImageGeneratorPriv.h"
-#include "src/image/SkImage_Base.h"
-
-#include <memory>
-#include <utility>
+#endif
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Surface.h"
 #endif
+
+#include <memory>
+#include <utility>
 
 class GrRecordingContext;
 
@@ -169,6 +172,7 @@ static std::unique_ptr<SkImageGenerator> make_ras_generator(SkCanvas*,
     return std::make_unique<RasterGenerator>(bm);
 }
 
+#if defined(SK_GANESH)
 class TextureGenerator : public GrTextureGenerator {
 public:
     TextureGenerator(SkCanvas* canvas, const SkImageInfo& info, sk_sp<SkPicture> pic)
@@ -207,7 +211,9 @@ protected:
         SkASSERT(rContext);
         SkASSERT(rContext->priv().matches(fRContext.get()));
 
-        auto [view, _] = skgpu::ganesh::AsView(rContext, fImage, skgpu::Mipmapped::kNo);
+        // We are immediately copying the view so no need to pass in targetSurface
+        auto [view, _] = skgpu::ganesh::AsView(rContext, fImage, skgpu::Mipmapped::kNo,
+                                               /*targetSurface=*/nullptr);
         if (!view) {
             return {};
         }
@@ -246,6 +252,7 @@ static std::unique_ptr<SkImageGenerator> make_tex_generator(SkCanvas* canvas,
 
     return std::make_unique<TextureGenerator>(canvas, info, pic);
 }
+#endif  // SK_GANESH
 
 class ImageCacheratorGM : public skiagm::GM {
     typedef std::unique_ptr<SkImageGenerator> (*FactoryFunc)(SkCanvas*, sk_sp<SkPicture>);
@@ -281,11 +288,15 @@ protected:
             if (!gen) {
                 return false;
             }
+#if defined(SK_GANESH)
             if (fUseTexture) {
                 auto textureGen = std::unique_ptr<GrTextureGenerator>(
                         static_cast<GrTextureGenerator*>(gen.release()));
                 fImage = SkImages::DeferredFromTextureGenerator(std::move(textureGen));
-            } else {
+            } else
+#endif
+            {
+                SkASSERT(!fUseTexture);
                 fImage = SkImages::DeferredFromGenerator(std::move(gen));
             }
             if (!fImage) {
@@ -305,12 +316,16 @@ protected:
             }
 
             auto recorder = canvas->baseRecorder();
+#if defined(SK_GANESH)
             if (fUseTexture) {
                 auto textureGen = std::unique_ptr<GrTextureGenerator>(
                         static_cast<GrTextureGenerator*>(gen.release()));
                 fImageSubset = SkImages::DeferredFromTextureGenerator(std::move(textureGen))
                                        ->makeSubset(recorder, subset, {});
-            } else {
+            } else
+#endif
+            {
+                SkASSERT(!fUseTexture);
                 fImageSubset = SkImages::DeferredFromGenerator(std::move(gen))
                                        ->makeSubset(recorder, subset, {});
             }
@@ -343,11 +358,15 @@ protected:
     }
 
     static void draw_as_tex(SkCanvas* canvas, SkImage* image, SkScalar x, SkScalar y) {
+#if defined(SK_GANESH)
         if (as_IB(image)->isGaneshBacked()) {
             // The gpu-backed images are drawn in this manner bc the generator backed images
             // aren't considered texture-backed
+            // We know for this test the targetSurface proxy is different from the image so we can
+            // just pass in nullptr.
             auto [view, ct] =
-                    skgpu::ganesh::AsView(canvas->recordingContext(), image, skgpu::Mipmapped::kNo);
+                    skgpu::ganesh::AsView(canvas->recordingContext(), image, skgpu::Mipmapped::kNo,
+                                          /*targetSurface=*/nullptr);
             if (!view) {
                 // show placeholder if we have no texture
                 draw_placeholder(canvas, x, y, image->width(), image->height());
@@ -362,7 +381,9 @@ protected:
                                                        std::move(view),
                                                        std::move(colorInfo)));
             canvas->drawImage(texImage.get(), x, y);
-        } else {
+        } else
+#endif
+        {
             canvas->drawImage(image, x, y);
         }
     }
@@ -384,7 +405,11 @@ protected:
     }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+#if defined(SK_GANESH)
         auto dContext = GrAsDirectContext(canvas->recordingContext());
+#else
+        constexpr GrDirectContext* dContext = nullptr;
+#endif
         if (!this->makeCaches(canvas)) {
             errorMsg->printf("Could not create cached images");
             return DrawResult::kSkip;
@@ -414,4 +439,6 @@ private:
 
 DEF_GM( return new ImageCacheratorGM("picture", make_pic_generator, false); )
 DEF_GM( return new ImageCacheratorGM("raster", make_ras_generator, false); )
+#if defined(SK_GANESH)
 DEF_GM( return new ImageCacheratorGM("texture", make_tex_generator, true); )
+#endif

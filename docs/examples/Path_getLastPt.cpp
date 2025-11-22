@@ -3,14 +3,14 @@
 #include "tools/fiddle/examples.h"
 REG_FIDDLE(Path_getLastPt, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
-    SkPath path;
-    path.moveTo(100, 100);
-    path.quadTo(100, 20, 20, 100);
+    SkPath path = SkPathBuilder()
+                  .moveTo(100, 100)
+                  .quadTo(100, 20, 20, 100)
+                  .detach();
     SkMatrix matrix;
     matrix.setRotate(36, 100, 100);
-    path.transform(matrix);
-    SkPoint last;
-    path.getLastPt(&last);
+    path = path.makeTransform(matrix);
+    SkPoint last = path.getLastPt().value_or(SkPoint{0, 0});
     SkDebugf("last point: %g, %g\n", last.fX, last.fY);
 }
 }  // END FIDDLE

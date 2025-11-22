@@ -11,13 +11,16 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "src/base/SkRandom.h"
+#include "src/core/SkTHash.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
+#include "tools/timer/TimeUtils.h"
 #include "tools/viewer/Slide.h"
 
 #if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrDirectContext.h"
+#include "src/gpu/AtlasTypes.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 
 using MaskFormat = skgpu::MaskFormat;
@@ -221,7 +224,129 @@ public:
     }
 };
 
+/**
+ * Scrolls a large number of unique glyphs so the set of glyphs that need to be active in the cache
+ * evolves over time and glyphs age out of being needed in current frame.
+ */
+class ChineseScrollSlide : public Slide {
+    static constexpr int   kNumBlobs     = 50;
+    static constexpr int   kLinesPerBlob = 6;
+    static constexpr int   kLineLength   = 45;
+    static constexpr float kFontSize     = 25;
+
+    static constexpr int kDefaultScrollUnitsPerSecondLog2 = 7;
+
+    sk_sp<SkTypeface> fTypeface;
+    sk_sp<SkTextBlob> fBlobs[kNumBlobs];
+    float             fVerticalPeriod;
+    SkRandom          fRand;
+    float             fTranslate = 0;
+    double            fPrevNs = std::numeric_limits<double>::infinity();
+    // The scroll speed is sign(value)*2^abs(value) where sign is tri-state (-1, 0, or 1)
+    int               fScrollUnitsPerSecondLog2 = kDefaultScrollUnitsPerSecondLog2;
+
+public:
+    ChineseScrollSlide() { fName = "chinese-scroll"; }
+
+    bool onChar(SkUnichar uni) override {
+        if (',' == uni) {
+            --fScrollUnitsPerSecondLog2;
+            return true;
+        }
+        if ('.' == uni) {
+            ++fScrollUnitsPerSecondLog2;
+            return true;
+        }
+        return false;
+    }
+
+    bool animate(double ns) override {
+        if (!fScrollUnitsPerSecondLog2) {
+            fPrevNs = std::numeric_limits<double>::infinity();
+            return false;
+        }
+        if (!std::isfinite(fPrevNs)) {
+            fPrevNs = ns;
+            return true;
+        }
+        float scrollUnitsPerSecond = std::pow(2, std::abs(fScrollUnitsPerSecondLog2));
+        if (fScrollUnitsPerSecondLog2 < 0) {
+            scrollUnitsPerSecond = -scrollUnitsPerSecond;
+        }
+        float dt = TimeUtils::NanosToSeconds(ns - fPrevNs) * scrollUnitsPerSecond;
+        fTranslate -= dt;
+        fPrevNs = ns;
+        return true;
+    }
+
+    void draw(SkCanvas* canvas) override {
+        canvas->clear(0xFFDDDDDD);
+
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setColor(0xDE000000);
+
+        canvas->translate(0, fTranslate);
+
+        // We want the text to repeat in y. If we assume the total height of the text
+        // is larger than the window height then we need at most 2 repetitions to
+        // cover the window.
+        float n = std::floor(-fTranslate / fVerticalPeriod);
+        float y = n * fVerticalPeriod;
+        for (int i = 0; i < 2; ++i) {
+            for (int b = 0; b < kNumBlobs; ++b) {
+                canvas->drawTextBlob(fBlobs[b], 0, y, paint);
+            }
+            y += fVerticalPeriod;
+        }
+    }
+
+    void load(SkScalar w, SkScalar h) override {
+        fTypeface = chinese_typeface();
+
+        SkFont font(fTypeface, kFontSize);
+        SkFontMetrics metrics;
+        font.getMetrics(&metrics);
+
+        SkPaint paint;
+        paint.setColor(0xDE000000);
+
+        skia_private::THashSet<SkUnichar> usedGlyphs;
+        float y = 0;
+        for (int i = 0; i < kNumBlobs; ++i) {
+            SkTextBlobBuilder builder;
+            for (int j = 0; j < kLinesPerBlob; ++j) {
+                SkUnichar glyphs[kLineLength];
+                this->createRandomLine(glyphs, kLineLength, usedGlyphs);
+
+                ToolUtils::add_to_text_blob_w_len(&builder,
+                                                  (const char*)glyphs,
+                                                  kLineLength * 4,
+                                                  SkTextEncoding::kUTF32,
+                                                  font,
+                                                  0,
+                                                  y);
+                y += metrics.fDescent - metrics.fAscent + metrics.fLeading;
+            }
+            fBlobs[i] = builder.make();
+        }
+        fVerticalPeriod = std::ceil(y);
+    }
+
+    // Construct a random lineLength character 'word' drawing from the full Chinese set
+    // but not using glyphs in usedGlyphs.
+    void createRandomLine(SkUnichar glyphs[], int lineLength, auto& usedGlyphs) {
+        for (auto i = 0; i < lineLength; ++i) {
+            do {
+                glyphs[i] = fRand.nextRangeU(0x4F00, 0x9FA0);
+            } while (usedGlyphs.contains(glyphs[i]));
+            usedGlyphs.add(glyphs[i]);
+        }
+    }
+};
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_SLIDE( return new ChineseFlingSlide(); )
 DEF_SLIDE( return new ChineseZoomSlide(); )
+DEF_SLIDE( return new ChineseScrollSlide(); )

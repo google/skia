@@ -24,6 +24,10 @@
 enum SkColorType : int;
 struct SkISize;
 
+namespace skgpu {
+struct BufferWriter;
+}
+
 namespace skgpu::graphite {
 
 class UniformManager;
@@ -151,8 +155,8 @@ public:
     // can optionally provide a list of memory sizes and binding indices.
     struct WorkgroupBufferDesc {
         // The buffer size in bytes.
-        size_t size;
-        size_t index;
+        uint32_t size;
+        uint32_t index;
     };
 
     virtual ~ComputeStep() = default;
@@ -213,8 +217,7 @@ public:
     // `ComputeStep::resources()`.
     virtual void prepareStorageBuffer(int resourceIndex,
                                       const ResourceDesc& resource,
-                                      void* buffer,
-                                      size_t bufferSize) const;
+                                      BufferWriter&&) const;
 
     // Populates a uniform buffer resource. This method will be called once for a resource right
     // after its allocation and before pipeline execution. For shared resources, only the first

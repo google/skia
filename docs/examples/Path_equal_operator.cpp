@@ -9,11 +9,8 @@ void draw(SkCanvas* canvas) {
     SkPath one;
     SkPath two;
     debugster("empty", one, two);
-    one.moveTo(0, 0);
+    one = SkPathBuilder().moveTo(0, 0).detach();
     debugster("moveTo", one, two);
-    one.rewind();
-    debugster("rewind", one, two);
-    one.moveTo(0, 0);
     one.reset();
     debugster("reset", one, two);
 }

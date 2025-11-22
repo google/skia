@@ -129,7 +129,11 @@ cc_defaults {
 
     local_include_dirs: [
         $local_includes
-    ]
+    ],
+
+    sanitize: {
+        blocklist: "libskia_blocklist.txt",
+    },
 }
 
 cc_library_static {
@@ -767,7 +771,12 @@ here = os.path.dirname(__file__)
 defs = gn_to_bp_utils.GetArchSources(os.path.join(here, 'opts.gni'))
 
 def get_defines(json):
-  return {str(d) for d in json['targets']['//:skia']['defines']}
+  defines = {str(d) for d in json['targets']['//:skia']['defines']}
+  # TODO(kjlubick, fmalita) Add this back in to enforce Android doesn't
+  # use these methods anymore.
+  defines.remove("SK_HIDE_PATH_EDIT_METHODS")
+  return defines
+
 android_defines      = get_defines(js)
 linux_defines        = get_defines(js_linux)
 mac_defines          = get_defines(js_mac)

@@ -10,6 +10,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
@@ -28,22 +29,24 @@ public:
     inline static constexpr int kDefaultSubdivisions = 10;
 
     MandolineSlicer(SkPoint anchorPt) {
-        fPath.setFillType(SkPathFillType::kEvenOdd);
-        fPath.setIsVolatile(true);
         this->reset(anchorPt);
     }
 
     void reset(SkPoint anchorPt) {
-        fPath.reset();
+        fBuilder.reset();
+
+        // see https://skia-review.googlesource.com/c/skia/+/1055736
+        fBuilder.setIsVolatile(true);
+
         fLastPt = fAnchorPt = anchorPt;
     }
 
     void sliceLine(SkPoint pt, int numSubdivisions = kDefaultSubdivisions) {
         if (numSubdivisions <= 0) {
-            fPath.moveTo(fAnchorPt);
-            fPath.lineTo(fLastPt);
-            fPath.lineTo(pt);
-            fPath.close();
+            fBuilder.moveTo(fAnchorPt);
+            fBuilder.lineTo(fLastPt);
+            fBuilder.lineTo(pt);
+            fBuilder.close();
             fLastPt = pt;
             return;
         }
@@ -58,10 +61,10 @@ public:
 
     void sliceQuadratic(SkPoint p1, SkPoint p2, int numSubdivisions = kDefaultSubdivisions) {
         if (numSubdivisions <= 0) {
-            fPath.moveTo(fAnchorPt);
-            fPath.lineTo(fLastPt);
-            fPath.quadTo(p1, p2);
-            fPath.close();
+            fBuilder.moveTo(fAnchorPt);
+            fBuilder.lineTo(fLastPt);
+            fBuilder.quadTo(p1, p2);
+            fBuilder.close();
             fLastPt = p2;
             return;
         }
@@ -78,10 +81,10 @@ public:
     void sliceCubic(SkPoint p1, SkPoint p2, SkPoint p3,
                     int numSubdivisions = kDefaultSubdivisions) {
         if (numSubdivisions <= 0) {
-            fPath.moveTo(fAnchorPt);
-            fPath.lineTo(fLastPt);
-            fPath.cubicTo(p1, p2, p3);
-            fPath.close();
+            fBuilder.moveTo(fAnchorPt);
+            fBuilder.lineTo(fLastPt);
+            fBuilder.cubicTo(p1, p2, p3);
+            fBuilder.close();
             fLastPt = p3;
             return;
         }
@@ -97,10 +100,10 @@ public:
 
     void sliceConic(SkPoint p1, SkPoint p2, float w, int numSubdivisions = kDefaultSubdivisions) {
         if (numSubdivisions <= 0) {
-            fPath.moveTo(fAnchorPt);
-            fPath.lineTo(fLastPt);
-            fPath.conicTo(p1, p2, w);
-            fPath.close();
+            fBuilder.moveTo(fAnchorPt);
+            fBuilder.lineTo(fLastPt);
+            fBuilder.conicTo(p1, p2, w);
+            fBuilder.close();
             fLastPt = p2;
             return;
         }
@@ -116,7 +119,7 @@ public:
         this->sliceConic(halves[1].fPts[1], halves[1].fPts[2], halves[1].fW, numSubdivisions - 1);
     }
 
-    const SkPath& path() const { return fPath; }
+    SkPath path() { return fBuilder.snapshot(); }
 
 private:
     float chooseChopT(int numSubdivisions) {
@@ -130,7 +133,7 @@ private:
     }
 
     SkRandom fRand;
-    SkPath fPath;
+    SkPathBuilder fBuilder;
     SkPoint fAnchorPt;
     SkPoint fLastPt;
 };

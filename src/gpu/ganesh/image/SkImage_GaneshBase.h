@@ -26,6 +26,7 @@ class GrCaps;
 class GrContextThreadSafeProxy;
 class GrDirectContext;
 class GrFragmentProcessor;
+class GrRenderTargetProxy;
 class GrSurfaceProxyView;
 class GrTextureProxy;
 class SkBitmap;
@@ -97,7 +98,8 @@ public:
 
     virtual std::tuple<GrSurfaceProxyView, GrColorType> asView(GrRecordingContext*,
                                                                skgpu::Mipmapped,
-                                                               GrImageTexGenPolicy) const = 0;
+                                                               GrImageTexGenPolicy,
+                                                               GrRenderTargetProxy*) const = 0;
 
     virtual std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
             skgpu::ganesh::SurfaceDrawContext*,

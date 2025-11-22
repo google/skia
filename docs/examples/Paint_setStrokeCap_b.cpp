@@ -6,10 +6,11 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(20);
-    SkPath path;
-    path.moveTo(30, 20);
-    path.lineTo(40, 40);
-    path.conicTo(70, 20, 100, 20, .707f);
+    SkPath path = SkPathBuilder()
+                  .moveTo(30, 20)
+                  .lineTo(40, 40)
+                  .conicTo(70, 20, 100, 20, .707f)
+                  .detach();
     for (SkPaint::Join j : { SkPaint::kMiter_Join, SkPaint::kRound_Join, SkPaint::kBevel_Join } ) {
         paint.setStrokeJoin(j);
         canvas->drawPath(path, paint);

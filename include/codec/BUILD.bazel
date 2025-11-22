@@ -89,7 +89,7 @@ skia_filegroup(
 skia_filegroup(
     name = "rust_png_public_hdrs",
     srcs = ["SkPngRustDecoder.h"],
-    visibility = ["//experimental/rust_png/decoder:__pkg__"],
+    visibility = ["//src/codec:__pkg__"],
 )
 
 WBMP_PUBLIC_HDRS = ["SkWbmpDecoder.h"]

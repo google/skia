@@ -17,24 +17,28 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTextureCompressionType.h"
+#include "src/core/SkCompressedDataUtils.h"
+#include "src/core/SkMipmap.h"
+#include "src/image/SkImage_Base.h"
+#include "third_party/etc1/etc1.h"
+#include "tools/gpu/CompressedTexture.h"
+
+#if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
-#include "src/core/SkCompressedDataUtils.h"
-#include "src/core/SkMipmap.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
-#include "src/image/SkImage_Base.h"
-#include "third_party/etc1/etc1.h"
 #include "tools/ganesh/ProxyUtils.h"
-#include "tools/gpu/CompressedTexture.h"
+#endif
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Image.h"
@@ -60,8 +64,7 @@ static SkPath make_gear(SkISize dimensions, int numTeeth) {
 
     float angle = 0.0f;
 
-    SkPath tmp;
-    tmp.setFillType(SkPathFillType::kWinding);
+    SkPathBuilder tmp(SkPathFillType::kWinding);
 
     tmp.moveTo(gen_pt(angle, outerRad));
 
@@ -79,7 +82,7 @@ static SkPath make_gear(SkISize dimensions, int numTeeth) {
         tmp.addCircle(0.0f, 0.0f, fInnerRad, SkPathDirection::kCCW);
     }
 
-    return tmp;
+    return tmp.detach();
 }
 
 // Render one level of a mipmap
@@ -188,15 +191,17 @@ static CompressedImageObjects make_compressed_image(SkCanvas* canvas,
         }
     }
 #endif
-    auto dContext = GrAsDirectContext(canvas->recordingContext());
-    if (dContext) {
+#if defined(SK_GANESH)
+    if (auto dContext = GrAsDirectContext(canvas->recordingContext())) {
         image = SkImages::TextureFromCompressedTextureData(dContext,
                                                            std::move(tmp),
                                                            dimensions.width(),
                                                            dimensions.height(),
                                                            compression,
                                                            skgpu::Mipmapped::kYes);
-    } else {
+    } else
+#endif
+    {
         image = SkImages::RasterFromCompressedTextureData(
                 std::move(tmp), dimensions.width(), dimensions.height(), compression);
     }
@@ -259,18 +264,22 @@ protected:
 
     DrawResult onGpuSetup(SkCanvas* canvas, SkString* errorMsg,
                           GraphiteTestContext* graphiteTestContext) override {
+#if defined(SK_GANESH)
         auto dContext = GrAsDirectContext(canvas->recordingContext());
         if (dContext && dContext->abandoned()) {
             // This isn't a GpuGM so a null 'context' is okay but an abandoned context
             // if forbidden.
             return DrawResult::kSkip;
         }
+#endif
 
         if (fType == Type::kNonMultipleOfFour) {
+#if defined(SK_GANESH)
             if (dContext && dContext->backend() == GrBackendApi::kDirect3D) {
                 // skbug.com/40041877 - Are non-multiple-of-four BC1 textures supported in D3D?
                 return DrawResult::kSkip;
             }
+#endif
 #if defined(SK_GRAPHITE)
             skgpu::graphite::Recorder* recorder = canvas->recorder();
             if (recorder && recorder->backend() == skgpu::BackendApi::kDawn) {
@@ -330,13 +339,14 @@ private:
 
         bool isCompressed = false;
         if (image->isTextureBacked()) {
-            auto dContext = GrAsDirectContext(canvas->recordingContext());
-            if (dContext) {
+#if defined(SK_GANESH)
+            if (auto dContext = GrAsDirectContext(canvas->recordingContext())) {
                 const GrCaps* caps = as_IB(image)->context()->priv().caps();
-                GrTextureProxy* proxy = sk_gpu_test::GetTextureImageProxy(
-                        image, canvas->recordingContext());
+                GrTextureProxy* proxy = sk_gpu_test::GetTextureImageProxy(image, dContext);
                 isCompressed = caps->isFormatCompressed(proxy->backendFormat());
-            } else {
+            } else
+#endif
+            {
                 // Graphite has no fallback to upload the compressed data to a non-compressed
                 // format. So if the image is texture backed and graphite then it will be a
                 // compressed format.

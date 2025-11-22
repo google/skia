@@ -152,6 +152,7 @@ static void validate_mtl_pixelformats() {
     M(TextureFormat::kRGBA16F,        MTLPixelFormatRGBA16Float)            \
     M(TextureFormat::kRGBA32F,        MTLPixelFormatRGBA32Float)            \
     M(TextureFormat::kRGB10_A2,       MTLPixelFormatRGB10A2Unorm)           \
+    /*TextureFormat::kRGBA10x6,       unsupported */                        \
     M(TextureFormat::kRGBA8_sRGB,     MTLPixelFormatRGBA8Unorm_sRGB)        \
     M(TextureFormat::kBGRA8,          MTLPixelFormatBGRA8Unorm)             \
     M(TextureFormat::kBGR10_A2,       MTLPixelFormatBGR10A2Unorm)           \

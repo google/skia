@@ -10,7 +10,6 @@
 #if defined(SK_VULKAN)
 
 #include "include/core/SkSurface.h"
-#include "include/gpu/ganesh/GrTypes.h"
 #include "include/gpu/vk/VulkanBackendContext.h"
 #include "include/gpu/vk/VulkanMemoryAllocator.h"
 #include "tests/TestType.h"
@@ -19,6 +18,7 @@
 
 #if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/GrTypes.h"
 #include "include/gpu/ganesh/vk/GrVkDirectContext.h"
 #endif
 

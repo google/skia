@@ -60,7 +60,7 @@ public:
     }
 
 private:
-    BitmapRegionDecoder(std::unique_ptr<SkAndroidCodec> codec);
+    explicit BitmapRegionDecoder(std::unique_ptr<SkAndroidCodec> codec);
 
     std::unique_ptr<SkAndroidCodec> fCodec;
 };

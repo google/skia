@@ -182,7 +182,7 @@ public:
 
             const char* txt = "BOOO";
             const size_t txtLen = strlen(txt);
-            const int glyphCount = font.countText(txt, txtLen, SkTextEncoding::kUTF8);
+            const size_t glyphCount = font.countText(txt, txtLen, SkTextEncoding::kUTF8);
             const SkTextBlobBuilder::RunBuffer& buffer = builder.allocRunPos(font, glyphCount);
 
             font.textToGlyphs(txt, txtLen, SkTextEncoding::kUTF8, {buffer.glyphs, glyphCount});
@@ -337,14 +337,14 @@ DEF_TEST(TextBlob_extended, reporter) {
     const char text1[] = "Foo";
     const char text2[] = "Bar";
 
-    int glyphCount = font.countText(text1, strlen(text1), SkTextEncoding::kUTF8);
-    AutoTMalloc<SkGlyphID> glyphs(glyphCount);
-    (void)font.textToGlyphs(text1, strlen(text1), SkTextEncoding::kUTF8, {glyphs, glyphCount});
+    size_t glyphCount = font.countText(text1, strlen(text1), SkTextEncoding::kUTF8);
+    AutoTArray<SkGlyphID> glyphs(glyphCount);
+    (void)font.textToGlyphs(text1, strlen(text1), SkTextEncoding::kUTF8, glyphs);
 
     auto run = textBlobBuilder.allocRunText(font, glyphCount, 0, 0, SkToInt(strlen(text2)));
     memcpy(run.glyphs, glyphs.get(), sizeof(uint16_t) * glyphCount);
     memcpy(run.utf8text, text2, strlen(text2));
-    for (int i = 0; i < glyphCount; ++i) {
+    for (size_t i = 0; i < glyphCount; ++i) {
         run.clusters[i] = std::min(SkToU32(i), SkToU32(strlen(text2)));
     }
     sk_sp<SkTextBlob> blob(textBlobBuilder.make());
@@ -375,7 +375,7 @@ static void add_run(SkTextBlobBuilder* builder, const char text[], SkScalar x, S
     font.setSize(16);
     font.setTypeface(tf);
 
-    int glyphCount = font.countText(text, strlen(text), SkTextEncoding::kUTF8);
+    size_t glyphCount = font.countText(text, strlen(text), SkTextEncoding::kUTF8);
 
     SkTextBlobBuilder::RunBuffer buffer = builder->allocRun(font, glyphCount, x, y);
 

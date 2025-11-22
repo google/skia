@@ -42,7 +42,8 @@ GrTextureProxy* GetTextureImageProxy(SkImage* image, GrRecordingContext* rContex
             return nullptr;
         }
     }
-    auto [view, ct] = skgpu::ganesh::AsView(rContext, image, skgpu::Mipmapped::kNo);
+    auto [view, ct] = skgpu::ganesh::AsView(rContext, image, skgpu::Mipmapped::kNo,
+                                            /*targetSurface=*/nullptr);
     if (!view) {
         // With the above checks we expect this to succeed unless there is a context mismatch.
         SkASSERT(!image->isValid(rContext->asRecorder()));

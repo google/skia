@@ -367,21 +367,21 @@ enum class GrClipEdgeType {
 };
 static const int kGrClipEdgeTypeCnt = (int) GrClipEdgeType::kLast + 1;
 
-static constexpr bool GrClipEdgeTypeIsFill(const GrClipEdgeType edgeType) {
+static constexpr bool GrClipEdgeTypeIsFill(GrClipEdgeType edgeType) {
     return (GrClipEdgeType::kFillAA == edgeType || GrClipEdgeType::kFillBW == edgeType);
 }
 
-static constexpr bool GrClipEdgeTypeIsInverseFill(const GrClipEdgeType edgeType) {
+static constexpr bool GrClipEdgeTypeIsInverseFill(GrClipEdgeType edgeType) {
     return (GrClipEdgeType::kInverseFillAA == edgeType ||
             GrClipEdgeType::kInverseFillBW == edgeType);
 }
 
-static constexpr bool GrClipEdgeTypeIsAA(const GrClipEdgeType edgeType) {
+static constexpr bool GrClipEdgeTypeIsAA(GrClipEdgeType edgeType) {
     return (GrClipEdgeType::kFillBW != edgeType &&
             GrClipEdgeType::kInverseFillBW != edgeType);
 }
 
-static inline GrClipEdgeType GrInvertClipEdgeType(const GrClipEdgeType edgeType) {
+static inline GrClipEdgeType GrInvertClipEdgeType(GrClipEdgeType edgeType) {
     switch (edgeType) {
         case GrClipEdgeType::kFillBW:
             return GrClipEdgeType::kInverseFillBW;
@@ -620,7 +620,7 @@ static constexpr SkColorType GrColorTypeToSkColorType(GrColorType ct) {
         case GrColorType::kRG_F16:           return kR16G16_float_SkColorType;
         case GrColorType::kRGB_888:          return kUnknown_SkColorType;
         case GrColorType::kR_8:              return kR8_unorm_SkColorType;
-        case GrColorType::kR_16:             return kUnknown_SkColorType;
+        case GrColorType::kR_16:             return kR16_unorm_SkColorType;
         case GrColorType::kR_F16:            return kUnknown_SkColorType;
         case GrColorType::kGray_F16:         return kUnknown_SkColorType;
         case GrColorType::kARGB_4444:        return kUnknown_SkColorType;
@@ -653,6 +653,7 @@ static constexpr GrColorType SkColorTypeToGrColorType(SkColorType ct) {
         case kRGBA_F32_SkColorType:           return GrColorType::kRGBA_F32;
         case kR8G8_unorm_SkColorType:         return GrColorType::kRG_88;
         case kA16_unorm_SkColorType:          return GrColorType::kAlpha_16;
+        case kR16_unorm_SkColorType:          return GrColorType::kR_16;
         case kR16G16_unorm_SkColorType:       return GrColorType::kRG_1616;
         case kA16_float_SkColorType:          return GrColorType::kAlpha_F16;
         case kR16G16_float_SkColorType:       return GrColorType::kRG_F16;

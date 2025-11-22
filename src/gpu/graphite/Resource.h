@@ -145,6 +145,51 @@ class Texture;
  *        - Since there are no other usage refs (beyond what the cache might re-add), no other
  *          thread can re-add a command buffer ref.
  *
+ *
+ * Resource Thread Safe Labeling Model
+ * ===================================
+ *
+ * Every Resource object should have a label. Backend objects may additionally store a backend
+ * resource label which can be useful for memory dumps or other debugging. A Caps flag controls
+ * whether or not backend labels are enabled.
+ *
+ * A resource's label can change over time as it gets reused. This can happen on any thread at
+ * almost any time. These label updates must be synchronized to its backend resource label, and both
+ * update steps must be thread safe.
+ *
+ * To enforce this, a Resource's label can only be updated at certain points within its lifecycle
+ * (depending upon its shareability as outlined below). Outside of initial resource creation and
+ * cache insertion (at which point there is no contention for explicitly and immediately syncing a
+ * new backend resource's label), propagating label updates to existing backend objects will be
+ * deferred until recording insertion. This way, previously-set backend labels are guaranteed to
+ * remain stable during a GPU frame capture.
+ *
+ * Resource thread safe label update policy based on shareability:
+ * TODO(b/387505250): Currently, these policies are enforced for shareable resources. Implement and
+ * enforce backend resource label update policies for non-shareable and scratch resources.
+ *   - Any resource can have its label set when it is first created or inserted into the cache.
+ *   - A shareable resource can be returned from the cache at any time, and its label should not
+ *     change upon reuse. Therefore, shareable resource labels are effectively only set once.
+ *   - A non-shareable resource will never returned from the cache for simultaneous usage.
+ *     Therefore, its label can be set by the ResourceCache when it returns a resource from
+ *     findOrCreate(...), re-adding an initial usage ref.
+ *   - Scratch resource labels have complex label management since they can be changed across
+ *     recorder threads and within the same recorder thread as it is used for different purposes.
+ *         - Within a recording, a scratch resource's label is the union of all TextureProxy labels
+ *           instantiated with the same resource.
+ *         - Scratch resources are only ever used for Graphite-internal rendering purposes, so we
+ *           know all of their possible usages at compile time. These usages can be represented as a
+ *           bitmask. The flags within the mask can then be mapped to constant strings which
+ *           represent the various possible scratch resource usages in order to generate a label.
+ *         - Storing usages as a bitmask allows us to quickly determine whether a resource's usage
+ *           is actually different than before. If it does not differ, then we can avoid the
+ *           overhead of generating a union of strings and updating the label.
+ *         - Across recorder threads, we don’t want to intermingle proxy labels on the resource’s
+ *           final label. To manage this while making it such that backend scratch resource labels
+ *           can be synchronized during recording insertion, the ScratchResourceManager will
+ *           maintain a label map for all the scratch resources it creates. This map will only
+ *           be modifiable on the recorder thread, becoming immutable after snap() and being
+ *           transferred on to the Recording.
  */
 class Resource {
     enum class RefType {
@@ -192,6 +237,7 @@ public:
     }
 
     Ownership ownership() const { return fOwnership; }
+    bool requiresPrepareForReturnToCache() const { return fRequiresPrepareForReturnToCache; }
 
     Budgeted budgeted() const { return fBudgeted; }
     Shareable shareable() const { return fShareable; }
@@ -220,7 +266,7 @@ public:
     // when the content of the Resource object changes. This will never return 0.
     UniqueID uniqueID() const { return fUniqueID; }
 
-    std::string getLabel() const { return fLabel; }
+    const char* getLabel() const { return fLabel.c_str(); }
 
     // We allow the label on a Resource to change when used for a different function. For example
     // when reusing a scratch Texture we can change the label to match callers current use.
@@ -265,7 +311,8 @@ protected:
     Resource(const SharedContext*,
              Ownership,
              size_t gpuMemorySize,
-             bool reusableRequiresPurgeable = false);
+             bool reusableRequiresPurgeable = false,
+             bool requiresPrepareForReturnToCache = false);
     virtual ~Resource();
 
     const SharedContext* sharedContext() const { return fSharedContext; }
@@ -632,8 +679,9 @@ private:
     // That call will set this to nullptr.
     const SharedContext* fSharedContext;
 
-    const Ownership fOwnership;
     const UniqueID fUniqueID;
+    const Ownership fOwnership;
+    const bool fRequiresPrepareForReturnToCache;
 
     // The resource key and return cache are both set at most once, during registerWithCache().
     /*const*/ GraphiteResourceKey  fKey;

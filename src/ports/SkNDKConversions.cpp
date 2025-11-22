@@ -31,6 +31,20 @@ namespace SkNDKConversions {
         return ANDROID_BITMAP_FORMAT_NONE;
     }
 
+    uint32_t toAndroidBitmapAlphaFlags(SkAlphaType alphaType) {
+        switch (alphaType) {
+            case kPremul_SkAlphaType:
+                return ANDROID_BITMAP_FLAGS_ALPHA_PREMUL;
+            case kOpaque_SkAlphaType:
+                return ANDROID_BITMAP_FLAGS_ALPHA_OPAQUE;
+            case kUnpremul_SkAlphaType:
+                return ANDROID_BITMAP_FLAGS_ALPHA_UNPREMUL;
+            default:
+                SkDEBUGFAIL("unspecified alphaType");
+                return ANDROID_BITMAP_FLAGS_ALPHA_OPAQUE;
+        }
+    }
+
     SkColorType toColorType(AndroidBitmapFormat format) {
         for (const auto& entry : gColorTypeTable) {
             if (entry.format == format) {

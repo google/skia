@@ -25,7 +25,6 @@
 #include "include/private/base/SkTArray.h"
 #include "modules/sksg/include/SkSGGeometryNode.h"
 #include "modules/sksg/src/SkSGTransformPriv.h"
-#include "src/core/SkPathPriv.h"
 
 #include <algorithm>
 #include <cmath>
@@ -67,7 +66,6 @@ SkRect GeometryEffect::onRevalidate(InvalidationController* ic, const SkMatrix& 
     fChild->revalidate(ic, ctm);
 
     fPath = this->onRevalidateEffect(fChild, ctm);
-    SkPathPriv::ShrinkToFit(&fPath);
 
     return fPath.computeTightBounds();
 }
@@ -101,10 +99,7 @@ SkPath GeometryTransform::onRevalidateEffect(const sk_sp<GeometryNode>& child, c
     fTransform->revalidate(nullptr, SkMatrix::I());
     const auto m = TransformPriv::As<SkMatrix>(fTransform);
 
-    SkPath path = child->asPath();
-    path.transform(m);
-
-    return path;
+    return child->asPath().makeTransform(m);
 }
 
 SkPath FillTypeOverride::onRevalidateEffect(const sk_sp<GeometryNode>& child, const SkMatrix&) {
@@ -185,10 +180,10 @@ SkPath OffsetEffect::onRevalidateEffect(const sk_sp<GeometryNode>& child, const 
 
         SkPath fill_path = skpathutils::FillPathWithPaint(path, paint);
 
-        if (fOffset > 0) {
-            Op(path, fill_path, kUnion_SkPathOp, &path);
-        } else {
-            Op(path, fill_path, kDifference_SkPathOp, &path);
+        SkPathOp op = fOffset > 0 ? kUnion_SkPathOp
+                                  : kDifference_SkPathOp;
+        if (auto result = Op(path, fill_path, op)) {
+            path = *result;
         }
 
         // TODO: this seems to break path combining (winding mismatch?)

@@ -34,7 +34,7 @@ sk_sp<PrecompileColorFilter> PrecompileColorFilter::makeComposed(
         return sk_ref_sp(this);
     }
 
-    return PrecompileColorFilters::Compose({ sk_ref_sp(this) }, { std::move(inner) });
+    return PrecompileColorFilters::Compose({{ sk_ref_sp(this) }}, {{ std::move(inner) }});
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -248,13 +248,13 @@ private:
 };
 
 sk_sp<PrecompileColorFilter> PrecompileColorFilters::LinearToSRGBGamma() {
-    return PrecompileColorFiltersPriv::ColorSpaceXform({ SkColorSpace::MakeSRGBLinear() },
-                                                       { SkColorSpace::MakeSRGB() });
+    return PrecompileColorFiltersPriv::ColorSpaceXform({{ SkColorSpace::MakeSRGBLinear() }},
+                                                       {{ SkColorSpace::MakeSRGB() }});
 }
 
 sk_sp<PrecompileColorFilter> PrecompileColorFilters::SRGBToLinearGamma() {
-    return PrecompileColorFiltersPriv::ColorSpaceXform({ SkColorSpace::MakeSRGB() },
-                                                       { SkColorSpace::MakeSRGBLinear() });
+    return PrecompileColorFiltersPriv::ColorSpaceXform({{ SkColorSpace::MakeSRGB() }},
+                                                       {{ SkColorSpace::MakeSRGBLinear() }});
 }
 
 sk_sp<PrecompileColorFilter> PrecompileColorFiltersPriv::ColorSpaceXform(
@@ -286,7 +286,7 @@ sk_sp<PrecompileColorFilter> PrecompileColorFilters::Lerp(
     }
 
     return PrecompileRuntimeEffects::MakePrecompileColorFilter(sk_ref_sp(lerpEffect),
-                                                               { dsts, srcs });
+                                                               {{ dsts, srcs }});
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -323,7 +323,7 @@ sk_sp<PrecompileColorFilter> PrecompileColorFilters::HighContrast() {
     const skcms_TransferFunction kTF = SkNamedTransferFn::kLinear;
     const SkAlphaType kUnpremul = kUnpremul_SkAlphaType;
     return PrecompileColorFiltersPriv::WithWorkingFormat(
-            {std::move(cf)}, &kTF, /* gamut= */ nullptr, &kUnpremul);
+            {{std::move(cf)}}, &kTF, /* gamut= */ nullptr, &kUnpremul);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -382,8 +382,8 @@ private:
                                                   : SkColorSpace::MakeSRGB();
         SkAlphaType workingAT;
         sk_sp<SkColorSpace> workingCS = fWorkingFormatCalculator.workingFormat(dstCS, &workingAT);
-        SkColorInfo workingInfo(dstInfo.colorType(), workingAT, workingCS);
-        KeyContextWithColorInfo workingContext(keyContext, workingInfo);
+        KeyContext workingContext =
+                keyContext.withColorInfo({dstInfo.colorType(), workingAT, workingCS});
 
         // Use two nested compose blocks to chain (dst->working), child, and (working->dst) together
         // while appearing as one block to the parent node.

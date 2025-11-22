@@ -42,8 +42,8 @@ private:
     std::regex fLangFilter;
     size_t fFontsIndex = 0;
     std::unique_ptr<skjson::DOM> fJsonDom;
-    const skjson::ArrayValue* fFonts;
-    const skjson::ObjectValue* fSamples;
+    const skjson::ArrayValue* fFonts = nullptr;
+    const skjson::ObjectValue* fSamples = nullptr;
 };
 
 namespace skiatest {

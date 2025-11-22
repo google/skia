@@ -77,8 +77,8 @@ void log_map_error(wgpu::MapAsyncStatus status, wgpu::StringView message) {
             statusStr = "Aborted";
             break;
         case wgpu::MapAsyncStatus::Success:
-            SK_ABORT("This status is not an error");
-            break;
+            SkDEBUGFAIL("This status is not an error");
+            return;
     }
     SKGPU_LOG(LogPriority::kError,
               "Buffer async map failed with status %s, message '%.*s'.",
@@ -182,8 +182,17 @@ DawnBuffer::DawnBuffer(const DawnSharedContext* sharedContext,
         : Buffer(sharedContext,
                  size,
                  Protected::kNo, // Dawn doesn't support protected memory
-                 /*reusableRequiresPurgeable=*/buffer.GetUsage() & wgpu::BufferUsage::MapWrite)
+                 /*reusableRequiresPurgeable=*/buffer.GetUsage() & wgpu::BufferUsage::MapWrite,
+#if defined(__EMSCRIPTEN__)
+                 // prepareForReturnToCache only needs to be called for a buffer that is mappable
+                 // for writing
+                 /* requiresPrepareForReturnToCache= */
+                                                   fBuffer.GetUsage() & wgpu::BufferUsage::MapWrite
+#else
+                 /* requiresPrepareForReturnToCache= */ false)
+#endif
         , fBuffer(std::move(buffer)) {
+
     fMapPtr = mappedAtCreationPtr;
 }
 
@@ -196,9 +205,8 @@ bool DawnBuffer::prepareForReturnToCache(const std::function<void()>& takeRef) {
     // This implementation is almost Dawn-agnostic. However, Buffer base class doesn't have any
     // way of distinguishing a buffer that is mappable for writing from one mappable for reading.
     // We only need to re-map the former.
-    if (!(fBuffer.GetUsage() & wgpu::BufferUsage::MapWrite)) {
-        return false;
-    }
+    SkASSERT(fBuffer.GetUsage() & wgpu::BufferUsage::MapWrite);
+
     // We cannot start an async map while the GPU is still using the buffer. We asked that
     // our Resource not become reusable until it was purgeable (no outstanding CPU or GPU refs)
     SkASSERT(this->isPurgeable());

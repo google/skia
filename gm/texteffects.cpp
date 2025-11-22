@@ -12,6 +12,7 @@
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -19,6 +20,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
@@ -32,7 +34,7 @@ using namespace skia_private;
 static SkPath create_underline(const SkTDArray<SkScalar>& intersections,
         SkScalar last, SkScalar finalPos,
         SkScalar uPos, SkScalar uWidth, SkScalar textSize) {
-    SkPath underline;
+    SkPathBuilder underline;
     SkScalar end = last;
     for (int index = 0; index < intersections.size(); index += 2) {
         SkScalar start = intersections[index] - uWidth;
@@ -47,7 +49,7 @@ static SkPath create_underline(const SkTDArray<SkScalar>& intersections,
         underline.moveTo(end, uPos);
         underline.lineTo(finalPos, uPos);
     }
-    return underline;
+    return underline.detach();
 }
 
 namespace {
@@ -137,8 +139,8 @@ DEF_SIMPLE_GM(fancyblobunderline, canvas, 1480, 1380) {
 
             const SkScalar start = blob->bounds().left();
             const SkScalar end = blob->bounds().right();
-            SkPath underline = create_underline(intercepts, start, end, uPos, uWidth, textSize);
-            underline.offset(blobOffset.x(), blobOffset.y());
+            SkPath underline = create_underline(intercepts, start, end, uPos, uWidth, textSize)
+                               .makeOffset(blobOffset.x(), blobOffset.y());
             paint.setStyle(SkPaint::kStroke_Style);
             canvas->drawPath(underline, paint);
 
@@ -220,21 +222,21 @@ static void draw_blob_adorned(SkCanvas* canvas, sk_sp<SkTextBlob> blob) {
     count = trim_with_halo(intervals.get(), count, SkScalarHalf(yminmax[1] - yminmax[0]) * 1.5f);
     SkASSERT(count >= 2);
 
-    const SkScalar y = SkScalarAve(yminmax[0], yminmax[1]);
+    const SkScalar y = sk_float_midpoint(yminmax[0], yminmax[1]);
     SkScalar end = 900;
-    SkPath path;
-    path.moveTo({0, y});
+    SkPathBuilder builder;
+    builder.moveTo({0, y});
     for (int i = 0; i < count; i += 2) {
-        path.lineTo(intervals[i], y).moveTo(intervals[i+1], y);
+        builder.lineTo(intervals[i], y).moveTo(intervals[i+1], y);
     }
     if (intervals[count - 1] < end) {
-        path.lineTo(end, y);
+        builder.lineTo(end, y);
     }
 
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(yminmax[1] - yminmax[0]);
-    canvas->drawPath(path, paint);
+    canvas->drawPath(builder.detach(), paint);
 }
 
 DEF_SIMPLE_GM(textblob_intercepts, canvas, 940, 800) {

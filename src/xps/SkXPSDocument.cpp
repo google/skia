@@ -25,7 +25,7 @@ struct SkXPSDocument final : public SkDocument {
     SkVector fUnitsPerMeter;
     SkVector fPixelsPerMeter;
 
-    SkXPSDocument(SkWStream*, SkScalar dpi, SkTScopedComPtr<IXpsOMObjectFactory>);
+    SkXPSDocument(SkWStream*, SkXPS::Options opts, SkTScopedComPtr<IXpsOMObjectFactory>);
     ~SkXPSDocument() override;
     SkCanvas* onBeginPage(SkScalar w, SkScalar h) override;
     void onEndPage() override;
@@ -35,17 +35,21 @@ struct SkXPSDocument final : public SkDocument {
 }
 
 SkXPSDocument::SkXPSDocument(SkWStream* stream,
-                   SkScalar dpi,
-                   SkTScopedComPtr<IXpsOMObjectFactory> xpsFactory)
+                             SkXPS::Options opts,
+                             SkTScopedComPtr<IXpsOMObjectFactory> xpsFactory)
         : SkDocument(stream)
         , fXpsFactory(std::move(xpsFactory))
-        , fDevice(SkISize{10000, 10000})
-{
+        , fDevice(SkISize{10000, 10000}, {}) {
     const SkScalar kPointsPerMeter = SkDoubleToScalar(360000.0 / 127.0);
     fUnitsPerMeter.set(kPointsPerMeter, kPointsPerMeter);
-    SkScalar pixelsPerMeterScale = SkDoubleToScalar(dpi * 5000.0 / 127.0);
+    SkScalar pixelsPerMeterScale = SkDoubleToScalar(opts.dpi * 5000.0 / 127.0);
     fPixelsPerMeter.set(pixelsPerMeterScale, pixelsPerMeterScale);
     SkASSERT(fXpsFactory);
+    if (!opts.pngEncoder) {
+        if (!opts.allowNoPngs) {
+            SK_ABORT("Must set a PNG encoder to make XPS documents");
+        }
+    }
     fDevice.beginPortfolio(stream, fXpsFactory.get());
 }
 
@@ -77,10 +81,9 @@ void SkXPSDocument::onAbort() {}
 
 sk_sp<SkDocument> SkXPS::MakeDocument(SkWStream* stream,
                                       IXpsOMObjectFactory* factoryPtr,
-                                      SkScalar dpi) {
+                                      Options opts) {
     SkTScopedComPtr<IXpsOMObjectFactory> factory(SkSafeRefComPtr(factoryPtr));
-    return stream && factory
-           ? sk_make_sp<SkXPSDocument>(stream, dpi, std::move(factory))
-           : nullptr;
+    return stream && factory ? sk_make_sp<SkXPSDocument>(stream, opts, std::move(factory))
+                             : nullptr;
 }
 #endif  // defined(SK_BUILD_FOR_WIN)

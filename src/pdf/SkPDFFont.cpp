@@ -779,8 +779,12 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
             setGlyphWidthAndBoundingBox(pathGlyph->advanceX(), glyphBBox, &content);
             SkPaint::Style style = pathGlyph->pathIsHairline() ? SkPaint::kStroke_Style
                                                                : SkPaint::kFill_Style;
-            SkPDFUtils::EmitPath(*path, style, &content);
-            SkPDFUtils::PaintPath(style, path->getFillType(), &content);
+            using SkPDFUtils::EmptyPath, SkPDFUtils::EmptyVerb;
+            if (SkPDFUtils::EmitPath(*path, style, EmptyPath::Discard, EmptyVerb::Discard,
+                                     &content))
+            {
+                SkPDFUtils::PaintPath(style, path->getFillType(), &content);
+            }
         } else if (auto pimg = to_image(gID, &smallGlyphs); pimg.fImage) {
             using SkPDFUtils::AppendScalar;
             if (pimg.fImage->colorType() != kGray_8_SkColorType) {

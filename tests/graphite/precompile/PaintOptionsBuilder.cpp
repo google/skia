@@ -58,7 +58,7 @@ Builder& Builder::hwImg(ImgColorInfo ci, ImgTileModeOptions tmOptions) {
     sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
                                                            ciSpan,
                                                            tmSpan);
-    fPaintOptions.setShaders({ std::move(img) });
+    fPaintOptions.setShaders(SKSPAN_INIT_ONE(std::move(img)));
     return *this;
 }
 
@@ -75,7 +75,7 @@ Builder& Builder::yuv(YUVSamplingOptions options) {
     }
 
     sk_sp<PrecompileShader> img = PrecompileShaders::YUVImage(flags, { &kSRGBInfo, 1 });
-    fPaintOptions.setShaders({ std::move(img) });
+    fPaintOptions.setShaders(SKSPAN_INIT_ONE(std::move(img)));
     return *this;
 }
 
@@ -92,7 +92,7 @@ Builder& Builder::linearGrad(LinearGradientOptions options) {
                   SkGradientShader::Interpolation::HueMethod::kShorter });
     }
 
-    fPaintOptions.setShaders({ std::move(gradient) });
+    fPaintOptions.setShaders(SKSPAN_INIT_ONE(std::move(gradient)));
     return *this;
 }
 
@@ -102,19 +102,19 @@ Builder& Builder::blend() {
                                                            { &ci, 1 },
                                                            {});
     SkBlendMode kBlendModes = SkBlendMode::kPlus;
-    fPaintOptions.setShaders({ PrecompileShaders::Blend({ &kBlendModes, 1 },
-                                                        { std::move(img) },
-                                                        { PrecompileShaders::Color() }) });
+    fPaintOptions.setShaders({{ PrecompileShaders::Blend({ &kBlendModes, 1 },
+                                                        SKSPAN_INIT_ONE(std::move(img)),
+                                                        SKSPAN_INIT_ONE(PrecompileShaders::Color())) }});
     return *this;
 }
 
 Builder& Builder::matrixCF() {
-    fPaintOptions.setColorFilters({ PrecompileColorFilters::Matrix() });
+    fPaintOptions.setColorFilters(SKSPAN_INIT_ONE(PrecompileColorFilters::Matrix()));
     return *this;
 }
 
 Builder& Builder::porterDuffCF() {
-    fPaintOptions.setColorFilters({ PrecompileColorFilters::Blend({ SkBlendMode::kSrcOver }) });
+    fPaintOptions.setColorFilters(SKSPAN_INIT_ONE( PrecompileColorFilters::Blend(SKSPAN_INIT_ONE(SkBlendMode::kSrcOver)) ));
     return *this;
 }
 

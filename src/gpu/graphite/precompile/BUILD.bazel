@@ -26,8 +26,6 @@ PRECOMPILE_FILES = [
     "PrecompileShader.cpp",
     "PrecompileShaderPriv.h",
     "PrecompileShadersPriv.h",
-    "SerializationUtils.cpp",
-    "SerializationUtils.h",
 ]
 
 split_srcs_and_hdrs(

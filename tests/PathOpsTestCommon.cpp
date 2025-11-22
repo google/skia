@@ -175,20 +175,20 @@ void CubicToQuads(const SkDCubic& cubic, double precision, TArray<SkDQuad, true>
     }
 }
 
-void CubicPathToQuads(const SkPath& cubicPath, SkPath* quadPath) {
-    quadPath->reset();
+SkPath CubicPathToQuads(const SkPath& cubicPath) {
+    SkPathBuilder quadBuilder;
     SkDCubic cubic;
     TArray<SkDQuad, true> quads;
     for (auto [verb, pts, w] : SkPathPriv::Iterate(cubicPath)) {
         switch (verb) {
             case SkPathVerb::kMove:
-                quadPath->moveTo(pts[0].fX, pts[0].fY);
+                quadBuilder.moveTo(pts[0]);
                 continue;
             case SkPathVerb::kLine:
-                quadPath->lineTo(pts[1].fX, pts[1].fY);
+                quadBuilder.lineTo(pts[1]);
                 break;
             case SkPathVerb::kQuad:
-                quadPath->quadTo(pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
+                quadBuilder.quadTo(pts[1], pts[2]);
                 break;
             case SkPathVerb::kCubic:
                 quads.clear();
@@ -199,32 +199,34 @@ void CubicPathToQuads(const SkPath& cubicPath, SkPath* quadPath) {
                         quads[index][1].asSkPoint(),
                         quads[index][2].asSkPoint()
                     };
-                    quadPath->quadTo(qPts[0].fX, qPts[0].fY, qPts[1].fX, qPts[1].fY);
+                    quadBuilder.quadTo(qPts[0], qPts[1]);
                 }
                 break;
             case SkPathVerb::kClose:
-                 quadPath->close();
+                 quadBuilder.close();
                 break;
             default:
                 SkDEBUGFAIL("bad verb");
-                return;
+                goto DONE;
         }
     }
+DONE:
+    return quadBuilder.detach();
 }
 
-void CubicPathToSimple(const SkPath& cubicPath, SkPath* simplePath) {
-    simplePath->reset();
+SkPath CubicPathToSimple(const SkPath& cubicPath) {
+    SkPathBuilder simpleBuilder;
     SkDCubic cubic;
     for (auto [verb, pts, w] : SkPathPriv::Iterate(cubicPath)) {
         switch (verb) {
             case SkPathVerb::kMove:
-                simplePath->moveTo(pts[0].fX, pts[0].fY);
+                simpleBuilder.moveTo(pts[0]);
                 continue;
             case SkPathVerb::kLine:
-                simplePath->lineTo(pts[1].fX, pts[1].fY);
+                simpleBuilder.lineTo(pts[1]);
                 break;
             case SkPathVerb::kQuad:
-                simplePath->quadTo(pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
+                simpleBuilder.quadTo(pts[1], pts[2]);
                 break;
             case SkPathVerb::kCubic: {
                 cubic.set(pts);
@@ -242,20 +244,21 @@ void CubicPathToSimple(const SkPath& cubicPath, SkPath* simplePath) {
                     cPts[0] = part[1].asSkPoint();
                     cPts[1] = part[2].asSkPoint();
                     cPts[2] = part[3].asSkPoint();
-                    simplePath->cubicTo(cPts[0].fX, cPts[0].fY, cPts[1].fX, cPts[1].fY,
-                            cPts[2].fX, cPts[2].fY);
+                    simpleBuilder.cubicTo(cPts[0], cPts[1], cPts[2]);
                     lo = hi;
                 }
                 break;
             }
             case SkPathVerb::kClose:
-                 simplePath->close();
+                 simpleBuilder.close();
                 break;
             default:
                 SkDEBUGFAIL("bad verb");
-                return;
+                goto DONE;
         }
     }
+DONE:
+    return simpleBuilder.detach();
 }
 
 bool ValidBounds(const SkPathOpsBounds& bounds) {

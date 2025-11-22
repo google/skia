@@ -528,15 +528,15 @@ void GrTriangulator::generateCubicPoints(const SkPoint& p0, const SkPoint& p1, c
         return;
     }
     const SkPoint q[] = {
-        { SkScalarAve(p0.fX, p1.fX), SkScalarAve(p0.fY, p1.fY) },
-        { SkScalarAve(p1.fX, p2.fX), SkScalarAve(p1.fY, p2.fY) },
-        { SkScalarAve(p2.fX, p3.fX), SkScalarAve(p2.fY, p3.fY) }
+        { sk_float_midpoint(p0.fX, p1.fX), sk_float_midpoint(p0.fY, p1.fY) },
+        { sk_float_midpoint(p1.fX, p2.fX), sk_float_midpoint(p1.fY, p2.fY) },
+        { sk_float_midpoint(p2.fX, p3.fX), sk_float_midpoint(p2.fY, p3.fY) }
     };
     const SkPoint r[] = {
-        { SkScalarAve(q[0].fX, q[1].fX), SkScalarAve(q[0].fY, q[1].fY) },
-        { SkScalarAve(q[1].fX, q[2].fX), SkScalarAve(q[1].fY, q[2].fY) }
+        { sk_float_midpoint(q[0].fX, q[1].fX), sk_float_midpoint(q[0].fY, q[1].fY) },
+        { sk_float_midpoint(q[1].fX, q[2].fX), sk_float_midpoint(q[1].fY, q[2].fY) }
     };
-    const SkPoint s = { SkScalarAve(r[0].fX, r[1].fX), SkScalarAve(r[0].fY, r[1].fY) };
+    const SkPoint s = { sk_float_midpoint(r[0].fX, r[1].fX), sk_float_midpoint(r[0].fY, r[1].fY) };
     pointsLeft >>= 1;
     this->generateCubicPoints(p0, q[0], r[0], s, tolSqd, contour, pointsLeft);
     this->generateCubicPoints(s, r[1], q[2], p3, tolSqd, contour, pointsLeft);

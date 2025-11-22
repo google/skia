@@ -222,7 +222,8 @@ void SkTypeface::serialize(SkWStream* wstream, SerializeBehavior behavior) const
 
         int numAxes = this->getVariationDesignPosition({});
         if (0 < numAxes) {
-            numAxes = this->getVariationDesignPosition({desc.setVariationCoordinates(numAxes), numAxes});
+            numAxes = this->getVariationDesignPosition({desc.setVariationCoordinates(numAxes),
+                                                        (size_t)numAxes});
             if (numAxes <= 0) {
                 desc.setVariationCoordinates(0);
             }

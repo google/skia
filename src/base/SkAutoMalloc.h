@@ -22,7 +22,7 @@
  *  the lifetime of the block, so the caller must not call sk_free() or delete
  *  on the block, unless release() was called.
  */
-class SkAutoMalloc : SkNoncopyable {
+class [[nodiscard]] SkAutoMalloc : SkNoncopyable {
 public:
     explicit SkAutoMalloc(size_t size = 0)
         : fPtr(size ? sk_malloc_throw(size) : nullptr), fSize(size) {}
@@ -87,7 +87,7 @@ private:
  *  sole manager of the lifetime of the block, so the caller must not call sk_free() or delete on
  *  the block.
  */
-template <size_t kSizeRequested> class SkAutoSMalloc : SkNoncopyable {
+template <size_t kSizeRequested> class [[nodiscard]] SkAutoSMalloc : SkNoncopyable {
 public:
     /**
      *  Creates initially empty storage. get() returns a ptr, but it is to a zero-byte allocation.

@@ -63,7 +63,7 @@ public:
         SkPath             fFirst;      // If not empty, contains geometry for first point
         SkPath             fLast;       // If not empty, contains geometry for last point
 
-        SkSpan<SkPoint> points() { return {fPoints, fNumPoints}; }
+        SkSpan<SkPoint> points() { return {fPoints, (size_t)fNumPoints}; }
     };
 
     /**

@@ -70,6 +70,7 @@ public:
 
     GraphiteDisplayParamsBuilder& graphiteTestOptions(
             const GraphiteTestOptions& graphiteTestOptions) {
+        SkASSERT_RELEASE(fDisplayParams);
         reinterpret_cast<GraphiteDisplayParams*>(fDisplayParams.get())->fGraphiteTestOptions =
                 graphiteTestOptions;
         return *this;

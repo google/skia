@@ -24,6 +24,11 @@ enum class SkPathConvexity {
     kUnknown,   // todo: can we eliminate this, and use optional or other patterns?
 };
 
+enum class SkResolveConvexity {
+    kNo = false,
+    kYes = true,
+};
+
 static inline bool SkPathConvexity_IsConvex(SkPathConvexity cv) {
     return cv == SkPathConvexity::kConvex_CW
         || cv == SkPathConvexity::kConvex_CCW

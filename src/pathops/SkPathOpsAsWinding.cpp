@@ -49,8 +49,8 @@ struct Contour {
     bool fReverse{false};
 };
 
-static int VerbPtCount(SkPathVerb verb) {
-    static const int kPtCount[] = { 1, 1, 2, 2, 3, 0 };
+static unsigned VerbPtCount(SkPathVerb verb) {
+    static const uint8_t kPtCount[] = { 1, 1, 2, 2, 3, 0 };
     unsigned index = static_cast<unsigned>(verb);
     SkASSERT(index < std::size(kPtCount));
     return kPtCount[index];
@@ -268,7 +268,7 @@ public:
 
             SkSpan<const SkPoint> pts = rec->fPoints;
             bool horizontal = true;
-            for (int index = 1; index <= VerbPtCount(verb); ++index) {
+            for (size_t index = 1; index <= VerbPtCount(verb); ++index) {
                 if (pts[0].fY != pts[index].fY) {
                     horizontal = false;
                     break;
@@ -408,32 +408,26 @@ private:
     const SkPath& fPath;
 };
 
-static bool set_result_path(SkPath* result, const SkPath& path, SkPathFillType fillType) {
-    *result = path;
-    result->setFillType(fillType);
-    return true;
-}
-
-bool AsWinding(const SkPath& path, SkPath* result) {
+std::optional<SkPath> AsWinding(const SkPath& path) {
     if (!path.isFinite()) {
-        return false;
+        return {};
     }
     SkPathFillType fillType = path.getFillType();
     if (fillType == SkPathFillType::kWinding
             || fillType == SkPathFillType::kInverseWinding ) {
-        return set_result_path(result, path, fillType);
+        return path;
     }
     fillType = path.isInverseFillType() ? SkPathFillType::kInverseWinding :
             SkPathFillType::kWinding;
     if (path.isEmpty() || path.isConvex()) {
-        return set_result_path(result, path, fillType);
+        return path.makeFillType(fillType);
     }
     // count contours
     vector<Contour> contours;   // one per contour
     OpAsWinding winder(path);
     winder.contourBounds(&contours);
     if (contours.size() <= 1) {
-        return set_result_path(result, path, fillType);
+        return path.makeFillType(fillType);
     }
     // create contour bounding box tree
     Contour sorted(SkRect(), 0, 0);
@@ -443,14 +437,14 @@ bool AsWinding(const SkPath& path, SkPath* result) {
     // if sorted has no grandchildren, no child has to fix its children's winding
     if (std::all_of(sorted.fChildren.begin(), sorted.fChildren.end(),
             [](const Contour* contour) -> bool { return contour->fChildren.empty(); } )) {
-        return set_result_path(result, path, fillType);
+        return path.makeFillType(fillType);
     }
     // starting with outermost and moving inward, see if one path contains another
     for (auto contour : sorted.fChildren) {
         winder.nextEdge(*contour, OpAsWinding::Edge::kInitial);
         contour->fDirection = winder.getDirection(*contour);
         if (!winder.checkContainerChildren(nullptr, contour)) {
-            return false;
+            return {};
         }
     }
     // starting with outermost and moving inward, mark paths to reverse
@@ -459,8 +453,7 @@ bool AsWinding(const SkPath& path, SkPath* result) {
         reversed |= winder.markReverse(nullptr, contour);
     }
     if (!reversed) {
-        return set_result_path(result, path, fillType);
+        return path.makeFillType(fillType);
     }
-    *result = winder.reverseMarkedContours(contours, fillType);
-    return true;
+    return winder.reverseMarkedContours(contours, fillType);
 }

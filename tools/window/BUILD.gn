@@ -4,10 +4,7 @@
 # found in the LICENSE file.
 
 import("../../gn/skia.gni")
-
-if (skia_use_dawn) {
-  import("//third_party/externals/dawn/scripts/dawn_features.gni")
-}
+import("../../third_party/dawn/args.gni")
 
 config("public_config") {
   defines = []
@@ -108,10 +105,12 @@ skia_component("window") {
   }
 
   if (skia_use_vulkan) {
-    sources += [
-      "VulkanWindowContext.cpp",
-      "VulkanWindowContext.h",
-    ]
+    if (skia_enable_ganesh) {
+      sources += [
+        "VulkanWindowContext.cpp",
+        "VulkanWindowContext.h",
+      ]
+    }
     if (skia_enable_graphite) {
       sources += [
         "GraphiteNativeVulkanWindowContext.cpp",
@@ -144,10 +143,12 @@ skia_component("window") {
   }
 
   if (skia_use_metal) {
-    sources += [
-      "MetalWindowContext.h",
-      "MetalWindowContext.mm",
-    ]
+    if (skia_enable_ganesh) {
+      sources += [
+        "MetalWindowContext.h",
+        "MetalWindowContext.mm",
+      ]
+    }
     if (skia_enable_graphite) {
       sources += [
         "GraphiteNativeMetalWindowContext.h",
@@ -155,10 +156,12 @@ skia_component("window") {
       ]
     }
     if (is_mac) {
-      sources += [
-        "mac/GaneshMetalWindowContext_mac.h",
-        "mac/GaneshMetalWindowContext_mac.mm",
-      ]
+      if (skia_enable_ganesh) {
+        sources += [
+          "mac/GaneshMetalWindowContext_mac.h",
+          "mac/GaneshMetalWindowContext_mac.mm",
+        ]
+      }
       if (skia_enable_graphite) {
         sources += [
           "mac/GraphiteNativeMetalWindowContext_mac.h",
@@ -166,7 +169,9 @@ skia_component("window") {
         ]
       }
     } else if (is_ios) {
-      sources += [ "ios/MetalWindowContext_ios.mm" ]
+      if (skia_enable_ganesh) {
+        sources += [ "ios/MetalWindowContext_ios.mm" ]
+      }
       if (skia_enable_graphite) {
         sources += [ "ios/GraphiteMetalWindowContext_ios.mm" ]
       }
@@ -178,48 +183,51 @@ skia_component("window") {
   }
 
   if (skia_use_dawn) {
+    if (skia_enable_graphite) {
+      sources += [
+        "GraphiteDawnWindowContext.cpp",
+        "GraphiteDawnWindowContext.h",
+      ]
+    }
     if (is_linux) {
+      if (skia_enable_graphite) {
+        sources += [
+          "unix/GraphiteDawnXlibWindowContext_unix.cpp",
+          "unix/GraphiteDawnXlibWindowContext_unix.h",
+        ]
+      }
       if (dawn_enable_vulkan) {
         defines = [ "VK_USE_PLATFORM_XCB_KHR" ]
         libs += [ "X11-xcb" ]
-        if (skia_enable_graphite) {
-          sources += [
-            "GraphiteDawnWindowContext.cpp",
-            "GraphiteDawnWindowContext.h",
-            "unix/GraphiteDawnVulkanWindowContext_unix.cpp",
-            "unix/GraphiteDawnVulkanWindowContext_unix.h",
-          ]
-        }
       }
     } else if (is_win) {
       if (dawn_enable_d3d12 || dawn_enable_d3d11 || dawn_enable_vulkan) {
         if (skia_enable_graphite) {
-          sources += [
-            "GraphiteDawnWindowContext.cpp",
-            "GraphiteDawnWindowContext.h",
-            "win/GraphiteDawnD3D12WindowContext_win.cpp",
-          ]
+          sources += [ "win/GraphiteDawnWindowContext_win.cpp" ]
         }
       }
     } else if (is_mac) {
       if (dawn_enable_metal) {
         if (skia_enable_graphite) {
           sources += [
-            "GraphiteDawnWindowContext.cpp",
-            "GraphiteDawnWindowContext.h",
             "mac/GraphiteDawnMetalWindowContext_mac.h",
             "mac/GraphiteDawnMetalWindowContext_mac.mm",
           ]
         }
       }
+    } else if (is_android) {
+      if (skia_enable_graphite) {
+        sources += [ "android/GraphiteDawnWindowContext_android.cpp" ]
+      }
     }
   }
 
   configs = [ "../../:skia_private" ]
-  deps = [
-    "../..:gpu_tool_utils",
-    "../..:skia",
-  ]
+  deps = [ "../..:skia" ]
+
+  if (skia_enable_ganesh || skia_enable_graphite) {
+    deps += [ "../..:gpu_tool_utils" ]
+  }
 
   if (skia_use_gl && skia_use_angle) {
     deps += [ "//third_party/angle2" ]

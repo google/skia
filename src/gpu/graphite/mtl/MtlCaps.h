@@ -22,7 +22,7 @@ public:
     MtlCaps(const id<MTLDevice>, const ContextOptions&);
     ~MtlCaps() override {}
 
-    bool isSampleCountSupported(TextureFormat, uint8_t requestedSampleCount) const override;
+    bool isSampleCountSupported(TextureFormat, SampleCount requestedSampleCount) const override;
     TextureFormat getDepthStencilFormat(SkEnumBitMask<DepthStencilFlags>) const override;
 
     TextureInfo getDefaultAttachmentTextureInfo(AttachmentDesc,
@@ -30,15 +30,14 @@ public:
                                                 Discardable) const override;
 
     TextureInfo getDefaultSampledTextureInfo(SkColorType,
-                                             Mipmapped mipmapped,
+                                             Mipmapped,
                                              Protected,
                                              Renderable) const override;
 
-    TextureInfo getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
-                                             Mipmapped mipmapped) const override;
+    TextureInfo getTextureInfoForSampledCopy(const TextureInfo&, Mipmapped) const override;
 
     TextureInfo getDefaultCompressedTextureInfo(SkTextureCompressionType,
-                                                Mipmapped mipmapped,
+                                                Mipmapped,
                                                 Protected) const override;
 
     TextureInfo getDefaultStorageTextureInfo(SkColorType) const override;
@@ -81,7 +80,7 @@ private:
         kMac,
         kMacIntel,
     };
-    static bool GetGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* group);
+    static bool GetGPUFamily(id<MTLDevice>, GPUFamily*, int* group);
 
     MTLPixelFormat getFormatFromColorType(SkColorType colorType) const {
         int idx = static_cast<int>(colorType);
@@ -147,8 +146,7 @@ private:
     MTLPixelFormat fColorTypeToFormatTable[kSkColorTypeCnt];
     void setColorType(SkColorType, std::initializer_list<MTLPixelFormat> formats);
 
-    // A vector of the viable sample counts (e.g., { 1, 2, 4, 8 }).
-    std::vector<uint32_t> fColorSampleCounts;
+    SkEnumBitMask<SampleCount::V> fSupportedSampleCounts;
 
     GPUFamily fGPUFamily;
     int fFamilyGroup;

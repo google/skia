@@ -78,11 +78,8 @@ protected:
             return false;
         }
 
-        SkPath  tmp;
-        SkIRect ir;
-
-        src.transform(fInverse, &tmp);
-        tmp.getBounds().round(&ir);
+        SkPath tmp = src.makeTransform(fInverse);
+        SkIRect ir = tmp.getBounds().round();
         if (!ir.isEmpty()) {
             this->begin(ir, dst);
 

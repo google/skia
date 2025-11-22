@@ -137,7 +137,7 @@ private:
                     SkSpan<const sk_sp<PrecompileBase>>(slotOptions),
                     slotOption);
 
-            KeyContextForRuntimeEffect childContext(keyContext, fEffect.get(), rowIndex);
+            KeyContext childContext = keyContext.forRuntimeEffect(fEffect.get(), rowIndex);
 
             SkASSERT(precompilebase_is_valid_as_child(option.get()));
             if (option) {

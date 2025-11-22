@@ -8,6 +8,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
@@ -19,6 +20,54 @@
 
 #include <memory>
 
+static SkPath fuzzy_path_rebuild(const SkPath& src) {
+    SkPathBuilder dst;
+
+    // This is a legacy iterator. It does not *just* return what is in the path, but also
+    // performs some 'clean-ups' -- injecting kLine verbs for closing, NaN checks, etc.
+    // The notion is that the path that is returned should draw the same as src, but may
+    // have slight verb/coordinate differences.
+    //
+    // Note: If we use SkPathIter, then the rebuilt path is identical to the original,
+    // but that is not useful in this case, where we want the 'fuzzing' for testing purposes.
+    //
+    SkPath::Iter iter(src, false);
+    while (auto rec = iter.next()) {
+        switch (rec->fVerb) {
+            case SkPathVerb::kMove:
+                dst.moveTo(rec->fPoints[0]);
+                break;
+            case SkPathVerb::kLine:
+                dst.lineTo(rec->fPoints[1]);
+                break;
+            case SkPathVerb::kQuad:
+                dst.quadTo(rec->fPoints[1], rec->fPoints[2]);
+                break;
+            case SkPathVerb::kConic:
+                dst.conicTo(rec->fPoints[1], rec->fPoints[2], rec->conicWeight());
+                break;
+            case SkPathVerb::kCubic:
+                dst.cubicTo(rec->fPoints[1], rec->fPoints[2], rec->fPoints[3]);
+                break;
+            case SkPathVerb::kClose:
+                dst.close();
+                break;
+        }
+    }
+    return dst.detach();
+}
+
+static bool fuzzy_path_equal(const SkPath& a, const SkPath& b) {
+    if (a == b) {
+        return true;
+    }
+
+    SkPath newa = fuzzy_path_rebuild(a),
+           newb = fuzzy_path_rebuild(b);
+
+    return newa == newb;
+}
+
 namespace {
 
 bool textBlobsAllPathsEqual(sk_sp<const SkTextBlob> blobA,
@@ -28,24 +77,21 @@ bool textBlobsAllPathsEqual(sk_sp<const SkTextBlob> blobA,
     SkTextBlob::Iter iterB(*blobB);
     SkTextBlob::Iter::ExperimentalRun runAInfo;
     SkTextBlob::Iter::ExperimentalRun runBInfo;
-    SkPath pathA, pathB;
     while (iterA.experimentalNext(&runAInfo)) {
-        pathA.reset();
-        pathB.reset();
         SkASSERT(iterB.experimentalNext(&runBInfo));
         for (int i = 0; i < runAInfo.count; ++i) {
-            runAInfo.font.getPath(runAInfo.glyphs[i], &pathA);
-            runBInfo.font.getPath(runBInfo.glyphs[i], &pathB);
-            SkDynamicMemoryWStream streamA, streamB;
-            // Re-use the logic in Path::dump() to canonicalize the output and account for
+            SkPath pathA = runAInfo.font.getPath(runAInfo.glyphs[i]).value_or(SkPath()),
+                   pathB = runBInfo.font.getPath(runBInfo.glyphs[i]).value_or(SkPath());
+            // Use a fuzzy cmparison to canonicalize the output and account for
             // differences between FreeType (inserting a lineTo() to original moveTo() coordinate)
             // or Fontations (which saves the extra lineTo() before close()).
-            pathA.dump(&streamA, false);
-            pathB.dump(&streamB, false);
-            sk_sp<SkData> dataA = streamA.detachAsData();
-            sk_sp<SkData> dataB = streamB.detachAsData();
-            if (dataA->size() != dataB->size() ||
-                memcmp(dataA->data(), dataB->data(), dataA->size() - 1)) {
+            if (!fuzzy_path_equal(pathA, pathB)) {
+                SkDynamicMemoryWStream streamA, streamB;
+                pathA.dump(&streamA, false);
+                pathB.dump(&streamB, false);
+                sk_sp<SkData> dataA = streamA.detachAsData();
+                sk_sp<SkData> dataB = streamB.detachAsData();
+
                 // See https://issues.skia.org/345178242 for details.
                 // If there are path differences between FreeType and Fontations,
                 // it might be needed to test for path equality after PathOps::Simplify()
@@ -98,6 +144,7 @@ public:
             configureFont(fontationsFont);
             configureFont(freetypeFont);
 
+            REPORTER_ASSERT(reporter, testSet.langSamples.size(), "Error: no samples.");
             for (const auto& sampleLang : testSet.langSamples) {
                 sk_sp<const SkTextBlob> fontationsTextBlob =
                         makeTextBlobWithFontAndText(fontationsFont, sampleLang.sampleLong);

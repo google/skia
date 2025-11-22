@@ -42,7 +42,7 @@ var (
 	botId            = flag.String("bot_id", "", "swarming bot id")
 	browser          = flag.String("browser", "Chrome", "Browser Key")
 	buildBucketID    = flag.Int64("buildbucket_build_id", 0, "Buildbucket build id key")
-	builder          = flag.String("builder", "", "Builder, like 'Test-Debian9-EMCC-GCE-CPU-AVX2-wasm-Debug-All-PathKit'")
+	builder          = flag.String("builder", "", "Swarming task name")
 	compiledLanguage = flag.String("compiled_language", "wasm", "wasm or asm.js")
 	config           = flag.String("config", "Release", "Configuration (e.g. Debug/Release) key")
 	gitHash          = flag.String("git_hash", "-", "The git commit hash of the version being tested")

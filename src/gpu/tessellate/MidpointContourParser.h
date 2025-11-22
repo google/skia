@@ -30,10 +30,10 @@ class MidpointContourParser {
 public:
     MidpointContourParser(const SkPath& path)
             : fPath(path)
-            , fVerbs(SkPathPriv::VerbData(fPath))
+            , fVerbs(fPath.verbs().data())
             , fNumRemainingVerbs(fPath.countVerbs())
-            , fPoints(SkPathPriv::PointData(fPath))
-            , fWeights(SkPathPriv::ConicWeightData(fPath)) {}
+            , fPoints(fPath.points().data())
+            , fWeights(fPath.conicWeights().data()) {}
     // Advances the internal state to the next contour in the path. Returns false if there are no
     // more contours.
     bool parseNextContour() {
@@ -83,7 +83,7 @@ public:
 
     // Allows for iterating the current contour using a range-for loop.
     SkPathPriv::Iterate currentContour() {
-        return SkPathPriv::Iterate(fVerbs, fVerbs + fVerbsIdx, fPoints, fWeights);
+        return SkPathPriv::Iterate({fVerbs, (size_t)fVerbsIdx}, fPoints, fWeights);
     }
 
     SkPoint currentMidpoint() { return fMidpoint * (1.f / fMidpointWeight); }

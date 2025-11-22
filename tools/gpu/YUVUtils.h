@@ -11,8 +11,11 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkYUVAPixmaps.h"
+#include "include/gpu/GpuTypes.h"
+
+#if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrBackendSurface.h"
-#include "src/base/SkAutoMalloc.h"
+#endif
 
 #include <tuple>
 
@@ -54,6 +57,9 @@ public:
     SkISize dimensions() const { return fPixmaps.yuvaInfo().dimensions(); }
 
     sk_sp<SkImage> refImage(GrRecordingContext* rContext, Type);
+
+    sk_sp<SkImage> refImage(GrDirectContext* dContext, Type);
+
 #if defined(SK_GRAPHITE)
     sk_sp<SkImage> refImage(skgpu::graphite::Recorder* recorder, Type);
 #endif
@@ -75,6 +81,7 @@ private:
     bool reset(SkYUVAPixmaps pixmaps, skgpu::Mipmapped, sk_sp<SkColorSpace>);
 
     bool ensureYUVImage(GrRecordingContext* rContext, Type type);
+
 #if defined(SK_GRAPHITE)
     bool ensureYUVImage(skgpu::graphite::Recorder* recorder, Type type);
 #endif

@@ -11,6 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 
 DEF_SIMPLE_GM(PlusMergesAA, canvas, 256, 256) {
@@ -25,16 +26,18 @@ DEF_SIMPLE_GM(PlusMergesAA, canvas, 256, 256) {
     p.setColor(0xf000ff00);
 
     // We'll draw a green square on top of each using two triangles.
-    SkPath upperLeft;
-    upperLeft.lineTo(100, 0);
-    upperLeft.lineTo(0, 100);
-    upperLeft.lineTo(0, 0);
+    SkPath upperLeft = SkPathBuilder()
+                       .lineTo(100, 0)
+                       .lineTo(0, 100)
+                       .lineTo(0, 0)
+                       .detach();
 
-    SkPath bottomRight;
-    bottomRight.moveTo(100, 0);
-    bottomRight.lineTo(100, 100);
-    bottomRight.lineTo(0, 100);
-    bottomRight.lineTo(100, 0);
+    SkPath bottomRight = SkPathBuilder()
+                         .moveTo(100, 0)
+                         .lineTo(100, 100)
+                         .lineTo(0, 100)
+                         .lineTo(100, 0)
+                         .detach();
 
     // The left square is drawn simply with SrcOver.  It will show a red seam.
     canvas->drawPath(upperLeft, p);

@@ -20,7 +20,7 @@ struct SkStageRec;
 
 class SkBlendModeBlender : public SkBlenderBase {
 public:
-    SkBlendModeBlender(SkBlendMode mode) : fMode(mode) {}
+    explicit SkBlendModeBlender(SkBlendMode mode) : fMode(mode) {}
 
     BlenderType type() const override { return BlenderType::kBlendMode; }
     SkBlendMode mode() const { return fMode; }

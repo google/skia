@@ -45,6 +45,17 @@ public:
 
     Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
+#if defined(SK_DUMP_TASKS)
+    void dump(int index, const char* prefix) const override {
+        if (index >= 0) {
+            SkDebugf("%s%d: Copy BtoB Task: Src=%p Dst=%p\n", prefix, index, fSrcBuffer,
+                fDstBuffer.get());
+        } else {
+            SkDebugf("%sCopy BtoB Task: Src=%p Dst=%p\n", prefix, fSrcBuffer, fDstBuffer.get());
+        }
+    }
+#endif
+
 private:
     CopyBufferToBufferTask(const Buffer* srcBuffer,
                            size_t srcOffset,
@@ -75,9 +86,23 @@ public:
 
     Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
-    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor) override {
+    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor,
+                      bool readsOnly) override {
+        // The texture is the source of the copy, so it's always read
         return visitor(fTextureProxy.get());
     }
+
+#if defined(SK_DUMP_TASKS)
+    void dump(int index, const char* prefix) const override {
+        if (index >= 0) {
+            SkDebugf("%s%d: Copy TtoB Task: Texture=%p Buffer=%p\n", prefix, index,
+                fTextureProxy.get(), fBuffer.get());
+        } else {
+            SkDebugf("%sCopy TtoB Task: Texture=%p Buffer=%p\n", prefix, fTextureProxy.get(),
+                fBuffer.get());
+        }
+    }
+#endif
 
 private:
     CopyTextureToBufferTask(sk_sp<TextureProxy>,
@@ -109,9 +134,22 @@ public:
 
     Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
-    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor) override {
-        return visitor(fSrcProxy.get()) && visitor(fDstProxy.get());
+    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor,
+                      bool readsOnly) override {
+        // Only visit fDstProxy if readsOnly is false; fSrcProxy is the only texture being read.
+        return visitor(fSrcProxy.get()) && (readsOnly || visitor(fDstProxy.get()));
     }
+
+#if defined(SK_DUMP_TASKS)
+    void dump(int index, const char* prefix) const override {
+        if (index >= 0) {
+            SkDebugf("%s%d: Copy TtoT Task: Src=%p Dst=%p\n", prefix, index, fSrcProxy.get(),
+                                                              fDstProxy.get());
+        } else {
+            SkDebugf("%sCopy TtoT Task: Src=%p Dst=%p\n", prefix, fSrcProxy.get(), fDstProxy.get());
+        }
+    }
+#endif
 
 private:
     CopyTextureToTextureTask(sk_sp<TextureProxy> srcProxy,

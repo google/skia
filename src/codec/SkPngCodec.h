@@ -14,6 +14,7 @@
 
 #include "include/codec/SkCodec.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
 #include "include/private/SkGainmapInfo.h"
 #include "src/codec/SkPngCodecBase.h"
 
@@ -22,7 +23,6 @@ class SkPngCompositeChunkReader;
 class SkStream;
 struct SkEncodedInfo;
 struct SkImageInfo;
-template <typename T> class SkSpan;
 
 class SkPngCodec : public SkPngCodecBase {
 public:

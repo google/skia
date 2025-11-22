@@ -4,12 +4,13 @@
 REG_FIDDLE(Path_rArcTo, 256, 108, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
-    SkPath path;
+    SkPathBuilder path;
     const SkPoint starts[] = {{20, 20}, {120, 20}, {70, 60}};
     for (auto start : starts) {
         path.moveTo(start.fX, start.fY);
-        path.rArcTo(20, 20, 0, SkPath::kSmall_ArcSize, SkPathDirection::kCCW, 60, 0);
+        path.rArcTo({20, 20}, 0, SkPathBuilder::kSmall_ArcSize,
+                    SkPathDirection::kCCW, {60, 0});
     }
-    canvas->drawPath(path, paint);
+    canvas->drawPath(path.detach(), paint);
 }
 }  // END FIDDLE

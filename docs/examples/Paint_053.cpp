@@ -6,11 +6,12 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(20);
-    SkPath path;
-    path.moveTo(30, 30);
-    path.lineTo(30, 30);
-    path.moveTo(70, 30);
-    path.lineTo(90, 40);
+    SkPath path = SkPathBuilder()
+                  .moveTo(30, 30)
+                  .lineTo(30, 30)
+                  .moveTo(70, 30)
+                  .lineTo(90, 40)
+                  .detach();
     for (SkPaint::Cap c : { SkPaint::kButt_Cap, SkPaint::kRound_Cap, SkPaint::kSquare_Cap } ) {
         paint.setStrokeCap(c);
         canvas->drawPath(path, paint);

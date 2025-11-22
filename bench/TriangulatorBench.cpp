@@ -110,7 +110,7 @@ public:
     }
 };
 
-DEF_BENCH( return new PathToTrianglesBench(); );
+DEF_BENCH( return new PathToTrianglesBench(); )
 
 class TriangulateInnerFanBench : public TriangulatorBenchmark {
 public:
@@ -126,7 +126,7 @@ public:
     }
 };
 
-DEF_BENCH( return new TriangulateInnerFanBench(); );
+DEF_BENCH( return new TriangulateInnerFanBench(); )
 
 #if 0
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"

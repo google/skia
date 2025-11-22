@@ -95,7 +95,6 @@ gm_sources = [
   "$_gm/complexclip_blur_tiled.cpp",
   "$_gm/composecolorfilter.cpp",
   "$_gm/composeshader.cpp",
-  "$_gm/compositor_quads.cpp",
   "$_gm/compressed_textures.cpp",
   "$_gm/concavepaths.cpp",
   "$_gm/conicpaths.cpp",
@@ -135,13 +134,13 @@ gm_sources = [
   "$_gm/crbug_996140.cpp",
   "$_gm/crop_imagefilter.cpp",
   "$_gm/croppedrects.cpp",
-  "$_gm/crosscontextimage.cpp",
   "$_gm/cubicpaths.cpp",
   "$_gm/daa.cpp",
   "$_gm/dashcircle.cpp",
   "$_gm/dashcubics.cpp",
   "$_gm/dashing.cpp",
   "$_gm/degeneratesegments.cpp",
+  "$_gm/destcolor.cpp",
   "$_gm/dftext.cpp",
   "$_gm/dftext_blob_persp.cpp",
   "$_gm/discard.cpp",
@@ -171,7 +170,6 @@ gm_sources = [
   "$_gm/encode_color_types.cpp",
   "$_gm/encode_platform.cpp",
   "$_gm/encode_srgb.cpp",
-  "$_gm/exoticformats.cpp",
   "$_gm/fadefilter.cpp",
   "$_gm/fatpathfill.cpp",
   "$_gm/fillrect_gradient.cpp",
@@ -199,8 +197,6 @@ gm_sources = [
   "$_gm/gradients_degenerate.cpp",
   "$_gm/gradients_no_texture.cpp",
   "$_gm/gradtext.cpp",
-  "$_gm/graphite_replay.cpp",
-  "$_gm/graphitestart.cpp",
   "$_gm/grayscalejpg.cpp",
   "$_gm/hairlines.cpp",
   "$_gm/hairmodes.cpp",
@@ -230,7 +226,6 @@ gm_sources = [
   "$_gm/imagefiltersstroked.cpp",
   "$_gm/imagefilterstransformed.cpp",
   "$_gm/imagefiltersunpremul.cpp",
-  "$_gm/imagefromyuvtextures.cpp",
   "$_gm/imagemagnifier.cpp",
   "$_gm/imagemakewithfilter.cpp",
   "$_gm/imagemasksubset.cpp",
@@ -264,7 +259,6 @@ gm_sources = [
   "$_gm/manypaths.cpp",
   "$_gm/matrixconvolution.cpp",
   "$_gm/matriximagefilter.cpp",
-  "$_gm/mesh.cpp",
   "$_gm/mipmap.cpp",
   "$_gm/mirrortile.cpp",
   "$_gm/mixedtextblobs.cpp",
@@ -376,7 +370,6 @@ gm_sources = [
   "$_gm/stroketext.cpp",
   "$_gm/subsetshader.cpp",
   "$_gm/surface.cpp",
-  "$_gm/swizzle.cpp",
   "$_gm/tablecolorfilter.cpp",
   "$_gm/tablemaskfilter.cpp",
   "$_gm/tallstretchedbitmaps.cpp",
@@ -409,7 +402,6 @@ gm_sources = [
   "$_gm/variedtext.cpp",
   "$_gm/vertices.cpp",
   "$_gm/verylargebitmap.cpp",
-  "$_gm/wacky_yuv_formats.cpp",
   "$_gm/widebuttcaps.cpp",
   "$_gm/windowrectangles.cpp",
   "$_gm/workingspace.cpp",
@@ -418,7 +410,6 @@ gm_sources = [
   "$_gm/xfermodes2.cpp",
   "$_gm/xfermodes3.cpp",
   "$_gm/ycbcrimage.cpp",
-  "$_gm/yuv420_odd_dim.cpp",
 ]
 
 gl_gm_sources = [ "$_gm/rectangletexture.cpp" ]
@@ -428,6 +419,7 @@ fontations_gm_sources = [
   "$_gm/fontations_ft_compare.cpp",
 ]
 
+# GMs that should only be built for Ganesh
 ganesh_gm_sources = [
   "$_gm/aarecteffect.cpp",
   "$_gm/attributes.cpp",
@@ -437,16 +429,33 @@ ganesh_gm_sources = [
   "$_gm/clockwise.cpp",
   "$_gm/constcolorprocessor.cpp",
   "$_gm/convexpolyeffect.cpp",
-  "$_gm/destcolor.cpp",
+  "$_gm/crosscontextimage.cpp",
   "$_gm/drawquadset.cpp",
+  "$_gm/exoticformats.cpp",
   "$_gm/fp_sample_chaining.cpp",
   "$_gm/fpcoordinateoverride.cpp",
   "$_gm/fwidth_squircle.cpp",
   "$_gm/gpu_blur_utils.cpp",
   "$_gm/lazytiling.cpp",
+  "$_gm/mesh.cpp",
   "$_gm/rrects.cpp",
+  "$_gm/swizzle.cpp",
   "$_gm/texelsubset.cpp",
+]
+
+# GMs that should only be built for Graphite
+graphite_gm_sources = [
+  "$_gm/graphite_replay.cpp",
+  "$_gm/graphitestart.cpp",
+]
+
+# GMs that should only be built for Ganesh OR Graphite
+gpu_gm_sources = [
+  "$_gm/compositor_quads.cpp",
+  "$_gm/imagefromyuvtextures.cpp",
+  "$_gm/wacky_yuv_formats.cpp",
+  "$_gm/yuv420_odd_dim.cpp",
   "$_gm/yuvtorgbsubset.cpp",
 ]
 
-gm_sources += ganesh_gm_sources
+gm_sources += ganesh_gm_sources + graphite_gm_sources + gpu_gm_sources

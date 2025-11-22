@@ -76,6 +76,7 @@ class Clip;
 class DrawContext;
 class Geometry;
 class Image;
+class PaintParams;
 class PathAtlas;
 class Renderer;
 class Shape;
@@ -161,6 +162,15 @@ public:
     // Only used for scratch devices.
     sk_sp<Task> lastDrawTask() const;
 
+    // Called by an Image wrapping this Device to mark that the pending contents of this Device
+    // will be read by `recorder`, and specifically by `drawContext` (if non-null). Flushes any
+    // necessary work (depending on scratch state) and records task dependencies. Returns true if
+    // the caller does not need to track the Device on the Image anymore.
+    bool notifyInUse(Recorder* recorder, DrawContext* drawContext);
+
+    // Returns true if the Device has pending reads to the given texture
+    bool hasPendingReads(const TextureProxy* texture) const;
+
     bool useDrawCoverageMaskForMaskFilters() const override { return true; }
 
     // Clipping
@@ -196,7 +206,7 @@ public:
     void drawRRect(const SkRRect& rr, const SkPaint&) override;
     void drawArc(const SkArc& arc, const SkPaint&) override;
     void drawPoints(SkCanvas::PointMode, SkSpan<const SkPoint>, const SkPaint&) override;
-    void drawPath(const SkPath& path, const SkPaint&, bool pathIsMutable = false) override;
+    void drawPath(const SkPath& path, const SkPaint&) override;
     void drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint&) override;
 
     // No need to specialize drawRegion or drawPatch as the default impls all route to drawPath,
@@ -263,31 +273,22 @@ private:
     sk_sp<skif::Backend> createImageFilteringBackend(const SkSurfaceProps& surfaceProps,
                                                      SkColorType colorType) const override;
 
-    // DrawFlags alters the effects used by drawGeometry.
+    // Applies any path effect and modifies the geometry and style before calling drawGeometry(),
+    // or forwards to drawGeometry directly if `pathEffect` is null.
+    void drawGeometryWithPathEffect(const Transform&,
+                                    Geometry&&,
+                                    const PaintParams&,
+                                    SkStrokeRec,
+                                    const SkPathEffect* pathEffect);
+
+    // Record a draw with the given style and paint effects, applying any analytic clipping or
+    // depth-based clipping automatically based on the current clip stack state.
     //
-    // There is no kIgnoreMaskFilter flag because the Device always ignores the mask filter -- the
-    // mask filter should be handled by the SkCanvas, either with an auto mask filter layer or
-    // being converted to an analytic blur draw.
-    enum class DrawFlags : unsigned {
-        kNone             = 0b000,
-
-        // Any SkPathEffect on the SkPaint passed into drawGeometry() is ignored.
-        // - drawPaint, drawImageLattice, drawImageRect, drawEdgeAAImageSet, drawVertices, drawAtlas
-        // - drawGeometry after it's applied the path effect.
-        kIgnorePathEffect = 0b001,
-    };
-    SK_DECL_BITMASK_OPS_FRIENDS(DrawFlags)
-
-    // Handles applying path effects, mask filters, stroke-and-fill styles, and hairlines.
-    // Ignores geometric style on the paint in favor of explicitly provided SkStrokeRec and flags.
     // All overridden SkDevice::draw() functions should bottom-out with calls to drawGeometry().
     void drawGeometry(const Transform&,
                       Geometry&&,
-                      const SkPaint&,
-                      const SkStrokeRec&,
-                      SkEnumBitMask<DrawFlags> = DrawFlags::kNone,
-                      sk_sp<SkBlender> primitiveBlender = nullptr,
-                      bool skipColorXform = false);
+                      const PaintParams&,
+                      SkStrokeRec);
 
     // Like drawGeometry() but is Shape-only, depth-only, fill-only, and lets the ClipStack define
     // the transform, clip, and DrawOrder (although Device still tracks stencil buffer usage).
@@ -357,13 +358,22 @@ private:
 
     // The DrawContext's target supports MSAA
     bool fMSAASupported = false;
-
-    // TODO(b/330864257): Clean up once flushPendingWorkToRecorder() doesn't have to be re-entrant
-    bool fIsFlushing = false;
+    // Even when MSAA is supported, small paths may be sent to the atlas for higher quality and to
+    // avoid triggering MSAA overhead on a render pass. However, the number of paths is capped
+    // per Device flush.
+    int fAtlasedPathCount = 0;
+    // True if this Device has been drawn into another Device, in which case that other Device
+    // depends on this Device's prior contents, so flushing this device with pending work must
+    // also flush anything else that samples from it. If this is false, it's safe to skip checking
+    // tracked devices for dependencies.
+    bool fMustFlushDependencies = false;
 
     const sktext::gpu::SubRunControl fSubRunControl;
 
 #if defined(SK_DEBUG)
+    // Tracks the flushing state to ensure recursive flushing does not occur.
+    bool fIsFlushing = false;
+
     // When not 0, this Device is an unregistered scratch device that is intended to go out of
     // scope before the Recorder is snapped. Assuming controlling code is valid, that means the
     // Device's recorder's next recording ID should still be the the recording ID at the time the
@@ -372,10 +382,8 @@ private:
     uint32_t fScopedRecordingID = 0;
 #endif
 
-    friend class ClipStack; // for recordDraw
+    friend class ClipStack; // for drawClipShape
 };
-
-SK_MAKE_BITMASK_OPS(Device::DrawFlags)
 
 } // namespace skgpu::graphite
 

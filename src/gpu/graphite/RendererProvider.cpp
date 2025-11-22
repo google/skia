@@ -12,6 +12,7 @@
 #include "src/gpu/AtlasTypes.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/InternalDrawTypeFlags.h"
+#include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/render/AnalyticBlurRenderStep.h"
 #include "src/gpu/graphite/render/AnalyticRRectRenderStep.h"
 #include "src/gpu/graphite/render/BitmapTextRenderStep.h"
@@ -50,6 +51,10 @@ RendererProvider::~RendererProvider() = default;
 
 RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* bufferManager) {
     const bool infinitySupport = caps->shaderCaps()->fInfinitySupport;
+    const bool useStorageBuffers = caps->storageBufferSupport();
+    const auto& bindingReq = caps->resourceBindingRequirements();
+    auto layout = useStorageBuffers ? bindingReq.fStorageBufferLayout
+                                    : bindingReq.fUniformBufferLayout;
 
     // Single-step renderers don't share RenderSteps
     auto initFromStep = [&](Renderer* renderer,
@@ -62,15 +67,15 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
     };
 
     initFromStep(&fConvexTessellatedWedges,
-                 std::make_unique<TessellateWedgesRenderStep>(
+                 std::make_unique<TessellateWedgesRenderStep>(layout,
                         RenderStep::RenderStepID::kTessellateWedges_Convex,
                         infinitySupport, kDirectDepthLessPass, bufferManager),
                  DrawTypeFlags::kNonSimpleShape);
     initFromStep(&fTessellatedStrokes,
-                 std::make_unique<TessellateStrokesRenderStep>(infinitySupport),
+                 std::make_unique<TessellateStrokesRenderStep>(layout, infinitySupport),
                  DrawTypeFlags::kNonSimpleShape);
     initFromStep(&fCoverageMask,
-                 std::make_unique<CoverageMaskRenderStep>(),
+                 std::make_unique<CoverageMaskRenderStep>(layout),
                  static_cast<DrawTypeFlags>((int) DrawTypeFlags::kNonSimpleShape |
                                             (int) InternalDrawTypeFlags::kCoverageMask));
 
@@ -86,34 +91,34 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
 
     for (auto textVariant : kBitmapTextVariants) {
         initFromStep(&fBitmapText[int(textVariant.fFormat)],
-                     std::make_unique<BitmapTextRenderStep>(textVariant.fFormat),
+                     std::make_unique<BitmapTextRenderStep>(layout, textVariant.fFormat),
                      textVariant.fDrawType);
     }
 
     // SDF text (lcd and single channel)
     initFromStep(&fSDFText[/*lcd=*/true],
-                 std::make_unique<SDFTextLCDRenderStep>(),
+                 std::make_unique<SDFTextLCDRenderStep>(layout),
                  DrawTypeFlags::kSDFText_LCD);
     initFromStep(&fSDFText[/*lcd=*/false],
-                 std::make_unique<SDFTextRenderStep>(),
+                 std::make_unique<SDFTextRenderStep>(layout),
                  DrawTypeFlags::kSDFText);
 
     initFromStep(&fAnalyticRRect,
-                 std::make_unique<AnalyticRRectRenderStep>(bufferManager),
+                 std::make_unique<AnalyticRRectRenderStep>(layout, bufferManager),
                  DrawTypeFlags::kAnalyticRRect);
     initFromStep(&fPerEdgeAAQuad,
-                 std::make_unique<PerEdgeAAQuadRenderStep>(bufferManager),
+                 std::make_unique<PerEdgeAAQuadRenderStep>(layout, bufferManager),
                  DrawTypeFlags::kPerEdgeAAQuad);
     initFromStep(&fNonAABoundsFill,
-                 std::make_unique<CoverBoundsRenderStep>(
+                 std::make_unique<CoverBoundsRenderStep>(layout,
                         RenderStep::RenderStepID::kCoverBounds_NonAAFill,
                         kDirectDepthLessPass),
                  DrawTypeFlags::kNonAAFillRect);
     initFromStep(&fCircularArc,
-                 std::make_unique<CircularArcRenderStep>(bufferManager),
+                 std::make_unique<CircularArcRenderStep>(layout, bufferManager),
                  DrawTypeFlags::kCircularArc);
     initFromStep(&fAnalyticBlur,
-                 std::make_unique<AnalyticBlurRenderStep>(),
+                 std::make_unique<AnalyticBlurRenderStep>(layout),
                  DrawTypeFlags::kDropShadows);
 
     // vertices
@@ -128,7 +133,8 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
 
                 int index = 4*(primType == PrimitiveType::kTriangleStrip) + 2*color + texCoords;
                 initFromStep(&fVertices[index],
-                             std::make_unique<VerticesRenderStep>(primType, color, texCoords),
+                             std::make_unique<VerticesRenderStep>(layout, primType, color,
+                                                                  texCoords),
                              dtFlags);
             }
         }
@@ -136,20 +142,20 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
 
     // The tessellating path renderers that use stencil can share the cover steps.
     auto coverFill = std::make_unique<CoverBoundsRenderStep>(
-            RenderStep::RenderStepID::kCoverBounds_RegularCover, kRegularCoverPass);
+            layout, RenderStep::RenderStepID::kCoverBounds_RegularCover, kRegularCoverPass);
     auto coverInverse = std::make_unique<CoverBoundsRenderStep>(
-            RenderStep::RenderStepID::kCoverBounds_InverseCover, kInverseCoverPass);
+            layout, RenderStep::RenderStepID::kCoverBounds_InverseCover, kInverseCoverPass);
 
     for (bool evenOdd : {false, true}) {
         // These steps can be shared by regular and inverse fills
-        auto stencilFan = std::make_unique<MiddleOutFanRenderStep>(evenOdd);
+        auto stencilFan = std::make_unique<MiddleOutFanRenderStep>(layout, evenOdd);
         auto stencilCurve = std::make_unique<TessellateCurvesRenderStep>(
-                evenOdd, infinitySupport, bufferManager);
+                layout, evenOdd, infinitySupport, bufferManager);
         auto stencilWedge =
-                evenOdd ? std::make_unique<TessellateWedgesRenderStep>(
+                evenOdd ? std::make_unique<TessellateWedgesRenderStep>(layout,
                                 RenderStep::RenderStepID::kTessellateWedges_EvenOdd,
                                 infinitySupport, kEvenOddStencilPass, bufferManager)
-                        : std::make_unique<TessellateWedgesRenderStep>(
+                        : std::make_unique<TessellateWedgesRenderStep>(layout,
                                 RenderStep::RenderStepID::kTessellateWedges_Winding,
                                 infinitySupport, kWindingStencilPass, bufferManager);
 

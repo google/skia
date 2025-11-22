@@ -70,7 +70,7 @@ sk_sp<const GrGLInterface> GLWindowContext_android::onInitializeContext() {
         SkDebugf("Protected Context requested but no protected support\n");
         fDisplayParams = skwindow::DisplayParamsBuilder(fDisplayParams.get())
                                  .createProtectedNativeBackend(false)
-                                 .build();
+                                 .detach();
     }
 
     SkAssertResult(eglBindAPI(EGL_OPENGL_ES_API));

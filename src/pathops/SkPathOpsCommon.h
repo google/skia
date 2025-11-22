@@ -30,7 +30,11 @@ SkOpSpan* FindUndone(SkOpContourHead* );
 bool FixWinding(SkPath* path);
 bool SortContourList(SkOpContourHead** , bool evenOdd, bool oppEvenOdd);
 bool HandleCoincidence(SkOpContourHead* , SkOpCoincidence* );
-bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
+
+std::optional<SkPath> OpDebug(const SkPath& one, const SkPath& two, SkPathOp op
+             SkDEBUGPARAMS(bool skipAssert)
+             SkDEBUGPARAMS(const char* testName));
+std::optional<SkPath> SimplifyDebug(const SkPath& path
              SkDEBUGPARAMS(bool skipAssert)
              SkDEBUGPARAMS(const char* testName));
 

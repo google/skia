@@ -281,7 +281,7 @@ const Sampler* VulkanCommandBuffer::getSampler(
     if (desc.isImmutable()) {
         const VulkanSampler* immutableSampler = fActiveGraphicsPipeline->immutableSampler(index);
         if (immutableSampler) {
-            this->trackResource(sk_ref_sp<Sampler>(immutableSampler));
+            this->trackCommandBufferResource(sk_ref_sp<Sampler>(immutableSampler));
         }
         return immutableSampler;
     } else {
@@ -299,16 +299,32 @@ static VkResult submit_to_queue(const VulkanSharedContext* sharedContext,
                                 const VkCommandBuffer* commandBuffers,
                                 uint32_t signalCount,
                                 const VkSemaphore* signalSemaphores,
-                                Protected protectedContext) {
+                                Protected protectedContext,
+                                MarkFrameBoundary markFrameBoundary,
+                                uint64_t frameID) {
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
     VkProtectedSubmitInfo protectedSubmitInfo = {};
     if (protectedContext == Protected::kYes) {
         protectedSubmitInfo.sType = VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO;
         protectedSubmitInfo.protectedSubmit = VK_TRUE;
+
+        AddToPNextChain(&submitInfo, &protectedSubmitInfo);
     }
 
-    VkSubmitInfo submitInfo = {};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.pNext = protectedContext == Protected::kYes ? &protectedSubmitInfo : nullptr;
+
+    VkFrameBoundaryEXT frameBoundary;
+    if (markFrameBoundary == MarkFrameBoundary::kYes &&
+        sharedContext->vulkanCaps().supportsFrameBoundary()) {
+        memset(&frameBoundary, 0, sizeof(VkFrameBoundaryEXT));
+        frameBoundary.sType = VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT;
+        frameBoundary.flags = VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT;
+        frameBoundary.frameID = frameID;
+
+        AddToPNextChain(&submitInfo, &frameBoundary);
+    }
+
     submitInfo.waitSemaphoreCount = waitCount;
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
@@ -316,12 +332,13 @@ static VkResult submit_to_queue(const VulkanSharedContext* sharedContext,
     submitInfo.pCommandBuffers = commandBuffers;
     submitInfo.signalSemaphoreCount = signalCount;
     submitInfo.pSignalSemaphores = signalSemaphores;
+
     VkResult result;
     VULKAN_CALL_RESULT(sharedContext, result, QueueSubmit(queue, 1, &submitInfo, fence));
     return result;
 }
 
-bool VulkanCommandBuffer::submit(VkQueue queue) {
+bool VulkanCommandBuffer::submit(VkQueue queue, const SubmitInfo& submitInfo) {
     this->end();
 
     auto device = fSharedContext->device();
@@ -360,7 +377,9 @@ bool VulkanCommandBuffer::submit(VkQueue queue) {
                                             &fPrimaryCommandBuffer,
                                             fSignalSemaphores.size(),
                                             fSignalSemaphores.data(),
-                                            this->isProtected());
+                                            this->isProtected(),
+                                            submitInfo.fMarkBoundary,
+                                            submitInfo.fFrameID);
     fWaitSemaphores.clear();
     fSignalSemaphores.clear();
     if (submitResult != VK_SUCCESS) {
@@ -524,7 +543,7 @@ bool VulkanCommandBuffer::updateAndBindInputAttachment(const VulkanTexture& text
     // one per set at this time).
     STArray<1, DescriptorData> inputDesc = {VulkanGraphicsPipeline::kInputAttachmentDescriptor};
     sk_sp<VulkanDescriptorSet> set = fResourceProvider->findOrCreateDescriptorSet(
-            SkSpan<DescriptorData>{&inputDesc.front(), inputDesc.size()});
+            {&inputDesc.front(), (size_t)inputDesc.size()});
     if (!set) {
         return false;
     }
@@ -565,7 +584,7 @@ bool VulkanCommandBuffer::updateAndBindInputAttachment(const VulkanTexture& text
                                       /*dynamicOffsetCount=*/0,
                                       /*dynamicOffsets=*/nullptr));
 
-    this->trackResource(std::move(set));
+    this->trackCommandBufferResource(std::move(set));
     return true;
 }
 
@@ -864,7 +883,7 @@ bool VulkanCommandBuffer::beginRenderPass(const RenderPassDesc& rpDesc,
         return false;
     }
     this->submitPipelineBarriers();
-    this->trackResource(vulkanRenderPass);
+    this->trackCommandBufferResource(vulkanRenderPass);
 
     int frameBufferWidth = 0;
     int frameBufferHeight = 0;
@@ -932,7 +951,7 @@ bool VulkanCommandBuffer::beginRenderPass(const RenderPassDesc& rpDesc,
     }
 
     // Once we have an active render pass, the command buffer should hold on to a frame buffer ref.
-    this->trackResource(std::move(framebuffer));
+    this->trackCommandBufferResource(std::move(framebuffer));
     return true;
 }
 
@@ -1124,11 +1143,8 @@ void VulkanCommandBuffer::addBarrier(BarrierType type) {
 void VulkanCommandBuffer::recordBufferBindingInfo(const BindBufferInfo& info, UniformSlot slot) {
     unsigned int bufferIndex = 0;
     switch (slot) {
-        case UniformSlot::kRenderStep:
-            bufferIndex = VulkanGraphicsPipeline::kRenderStepUniformBufferIndex;
-            break;
-        case UniformSlot::kPaint:
-            bufferIndex = VulkanGraphicsPipeline::kPaintUniformBufferIndex;
+        case UniformSlot::kCombinedUniforms:
+            bufferIndex = VulkanGraphicsPipeline::kCombinedUniformIndex;
             break;
         case UniformSlot::kGradient:
             bufferIndex = VulkanGraphicsPipeline::kGradientBufferIndex;
@@ -1165,22 +1181,15 @@ void VulkanCommandBuffer::bindUniformBuffers() {
     DescriptorType uniformBufferType =
             fSharedContext->caps()->storageBufferSupport() ? DescriptorType::kStorageBuffer
                                                            : DescriptorType::kUniformBuffer;
-    if (fActiveGraphicsPipeline->hasStepUniforms() &&
-        fUniformBuffersToBind[VulkanGraphicsPipeline::kRenderStepUniformBufferIndex].fBuffer) {
+    if (fActiveGraphicsPipeline->hasCombinedUniforms() &&
+        fUniformBuffersToBind[VulkanGraphicsPipeline::kCombinedUniformIndex].fBuffer) {
         descriptors.push_back({
                 uniformBufferType,
                 /*count=*/1,
-                VulkanGraphicsPipeline::kRenderStepUniformBufferIndex,
+                VulkanGraphicsPipeline::kCombinedUniformIndex,
                 PipelineStageFlags::kVertexShader | PipelineStageFlags::kFragmentShader });
     }
-    if (fActiveGraphicsPipeline->hasPaintUniforms() &&
-        fUniformBuffersToBind[VulkanGraphicsPipeline::kPaintUniformBufferIndex].fBuffer) {
-        descriptors.push_back({
-                uniformBufferType,
-                /*count=*/1,
-                VulkanGraphicsPipeline::kPaintUniformBufferIndex,
-                PipelineStageFlags::kVertexShader | PipelineStageFlags::kFragmentShader });
-    }
+
     if (fActiveGraphicsPipeline->hasGradientBuffer() &&
         fUniformBuffersToBind[VulkanGraphicsPipeline::kGradientBufferIndex].fBuffer) {
         SkASSERT(fSharedContext->caps()->gradientBufferSupport() &&
@@ -1225,7 +1234,7 @@ void VulkanCommandBuffer::bindUniformBuffers() {
                                       descSet->descriptorSet(),
                                       descriptors.size(),
                                       dynamicOffsets.get()));
-    this->trackResource(std::move(descSet));
+    this->trackCommandBufferResource(std::move(descSet));
 }
 
 void VulkanCommandBuffer::bindInputBuffer(const Buffer* inputBuffer, VkDeviceSize offset,
@@ -1321,7 +1330,7 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
         SkASSERT(descriptors.size() == numTexSamplers);
         // Query resource provider to obtain a descriptor set for the texture/samplers
         set = fResourceProvider->findOrCreateDescriptorSet(
-                SkSpan<DescriptorData>{&descriptors.front(), descriptors.size()});
+                {&descriptors.front(), (size_t)descriptors.size()});
         if (!set) {
             SKGPU_LOG_E("Unable to find or create descriptor set");
             resetTextureAndSamplerState();
@@ -1393,7 +1402,7 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
     fTextureSamplerDescSetToBind = *set->descriptorSet();
     fBindTextureSamplers = true;
     fNumTextureSamplers = numTexSamplers;
-    this->trackResource(std::move(set));
+    this->trackCommandBufferResource(std::move(set));
 }
 
 void VulkanCommandBuffer::bindTextureSamplers() {

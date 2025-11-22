@@ -1,0 +1,83 @@
+load("@rules_rust//rust:defs.bzl", "rust_library")
+load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
+load(
+    "//bazel:skia_rules.bzl",
+    "skia_cc_library",
+    "skia_filegroup",
+)
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_filegroup(
+    name = "rs_srcs",
+    srcs = ["io_traits_ffi.rs"],
+    visibility = ["//:__subpackages__"],
+)
+
+skia_filegroup(
+    name = "cxx_bridge_srcs",
+    srcs = ["io_traits_ffi.rs"],
+    visibility = ["//:__subpackages__"],
+)
+
+skia_filegroup(
+    name = "ffi_hdrs",
+    srcs = [
+        "SkStreamAdapter.h",
+        "SpanUtils.h",
+    ],
+    visibility = ["//:__subpackages__"],
+)
+
+# C++ implementation files for FFI utilities
+skia_filegroup(
+    name = "ffi_cpp",
+    srcs = ["SkStreamAdapter.cpp"],
+    visibility = ["//:__subpackages__"],
+)
+
+# Shared FFI utilities for Rust codec integrations.
+skia_cc_library(
+    name = "ffi_utils",
+    srcs = [":ffi_cpp"],
+    hdrs = [":ffi_hdrs"],
+    features = ["layering_check"],
+    visibility = [
+        "//rust/png:__pkg__",
+        "//src/codec:__pkg__",
+        "//src/encode:__pkg__",
+    ],
+    deps = [
+        "//:core",
+        "//src/base",
+        "@crates//:cxx_cc",
+    ],
+)
+
+rust_cxx_bridge(
+    name = "cxx_bridge",
+    src = ":rs_srcs",
+    visibility = ["//rust/png:__pkg__"],
+    deps = [":ffi_utils"],
+)
+
+rust_library(
+    name = "skia_rust_common",
+    srcs = ["io_traits_ffi.rs"],
+    crate_name = "skia_rust_common",
+    crate_root = "io_traits_ffi.rs",
+    rustc_flags = [
+        "-Dwarnings",
+        "--cfg=cxxbridge1",
+    ],
+    visibility = ["//rust/png:__pkg__"],
+    deps = [
+        ":cxx_bridge",
+        ":ffi_utils",
+        "@crates//:cxx",
+    ],
+)

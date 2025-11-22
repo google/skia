@@ -12,6 +12,7 @@
 #include "include/core/SkExecutor.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkStream.h"
 #include "include/docs/SkPDFJpegHelpers.h"
@@ -268,7 +269,7 @@ struct PDFClipPathBenchmark : public Benchmark {
                 tmp.drawCircle(128, 128, (float)r, paint);
             }
         }
-        fPath.reset();
+        SkPathBuilder builder;
         for (int y = 0; y < 256; ++y) {
             SkColor current = bitmap.getColor(0, y);
             int start = 0;
@@ -280,14 +281,15 @@ struct PDFClipPathBenchmark : public Benchmark {
                 if (color == SK_ColorBLACK) {
                     start = x;
                 } else {
-                    fPath.addRect(SkRect::Make(SkIRect{start, y, x, y + 1}));
+                    builder.addRect(SkRect::Make(SkIRect{start, y, x, y + 1}));
                 }
                 current = color;
             }
             if (current == SK_ColorBLACK) {
-                fPath.addRect(SkRect::Make(SkIRect{start, y, 256, y + 1}));
+                builder.addRect(SkRect::Make(SkIRect{start, y, 256, y + 1}));
             }
         }
+        fPath = builder.detach();
     }
     const char* onGetName() override { return "PDFClipPath"; }
     bool isSuitableFor(Backend backend) override {

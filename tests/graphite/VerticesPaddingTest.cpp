@@ -65,10 +65,11 @@ void* map_buffer(Context* context,
 }
 
 sk_sp<Buffer> get_readback_buffer(Recorder* recorder, size_t copyBufferSize) {
-    return recorder->priv().resourceProvider()->findOrCreateBuffer(copyBufferSize,
-                                                                   BufferType::kXferGpuToCpu,
-                                                                   AccessPattern::kHostVisible,
-                                                                   "VerticesPaddingTest_Copy");
+    return recorder->priv().resourceProvider()->findOrCreateNonShareableBuffer(
+            copyBufferSize,
+            BufferType::kXferGpuToCpu,
+            AccessPattern::kHostVisible,
+            "VerticesPaddingTest_Copy");
 }
 
 template<typename T>
@@ -179,7 +180,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_VULKAN_CONTEXTS(StaticVerticesPaddingTest,
         if (cr.fOffset % cr.fRequiredAlignment) {
             ERRORF(reporter,
                    "Offset was not safely aligned to a count 4 stride: "
-                   "Count four stride: %zu Offset: %u Expected: %zu\n",
+                   "Count four stride: %u Offset: %u Expected: %u\n",
                    cr.fRequiredAlignment,
                    cr.fOffset,
                    SkAlignNonPow2(cr.fOffset, cr.fRequiredAlignment));
@@ -189,7 +190,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_VULKAN_CONTEXTS(StaticVerticesPaddingTest,
         if (regionEndOffset % cr.fRequiredAlignment) {
             ERRORF(reporter,
                    "End was not safely aligned to a count 4 stride: "
-                   "Count four stride: %zu End: %u Expected: %zu\n",
+                   "Count four stride: %u End: %u Expected: %u\n",
                    cr.fRequiredAlignment,
                    regionEndOffset,
                    SkAlignNonPow2(regionEndOffset, cr.fRequiredAlignment));
@@ -219,7 +220,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_VULKAN_CONTEXTS(DynamicVerticesPaddingTest,
     constexpr uint32_t kVertBuffSize = 32; // I.e. blocks of 8 verts (vertBuffSize / stride = 8)
     constexpr uint32_t kReadbackSize = kVertBuffSize / kStride;
 
-    auto buffOpts = DrawBufferManager::DrawBufferManagerOptions();
+    auto buffOpts = DrawBufferManager::Options();
     buffOpts.fVertexBufferMinSize = kVertBuffSize;
     buffOpts.fVertexBufferMaxSize = kVertBuffSize;
     buffOpts.fUseExactBuffSizes = true;
@@ -248,7 +249,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_VULKAN_CONTEXTS(DynamicVerticesPaddingTest,
 
     auto vertsNewPipeline = [&]() {
         dw->newPipelineState(/*type=*/{}, kStride, kStride, RenderStateFlags::kAppendVertices,
-                             std::nullopt);
+                             BarrierType::kNone);
         return;
     };
 

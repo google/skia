@@ -589,6 +589,15 @@ float4 analytic_rrect_vertex_fn(// Vertex Attributes
     // the final coverage calculations in the fragment shader.
     float joinScale = kMiterScale;
 
+    // Calculate a rotated cornerID value to use for indexing within vectors that would normally
+    // require ".yzwx" swizzling before indexing (e.g., if `var` is a container of 4,
+    // `var.yzwx[cornerID]` is instead handled as `var[nextID]`). Though theoretically equivalent,
+    // using the modified cornerID gets around a driver bug within Qualcomm Adreno 620 GPUs (used by
+    // the Pixel 5) which leads to incorrect output when swizzling and indexing into a vector within
+    // one line or operation. This issue may also exist on other devices as well. Since the
+    // workaround is simple, just use this approach for all vertex shaders.
+    uint nextID = (cornerID + 1) % 4;
+
     // Unpack instance-level state that determines the vertex placement and style of shape.
     bool bidirectionalCoverage = center.z <= 0.0;
     bool deviceSpaceDistances = false;
@@ -700,7 +709,8 @@ float4 analytic_rrect_vertex_fn(// Vertex Attributes
                 // Don't outset by stroke radius for butt caps on the zero-length edge, but
                 // adjust edgeBias and strokeParams to calculate an AA miter'ed shape with the
                 // non-uniform stroke outset.
-                strokeRadius *= float2(edgeMask[cornerID], edgeMask.yzwx[cornerID]);
+
+                strokeRadius *= float2(edgeMask[cornerID], edgeMask[nextID]);
                 edgeBias = (edgeMask - 1.0) * strokeParams.x;
                 strokeParams.y = 1.0;
                 joinScale = kMiterScale;
@@ -713,8 +723,8 @@ float4 analytic_rrect_vertex_fn(// Vertex Attributes
     dy *= inverseEdgeLen;
 
     // Calculate local coordinate for the vertex (relative to xAxis and yAxis at first).
-    float2 xAxis = -float2(dx.yzwx[cornerID], dy.yzwx[cornerID]);
-    float2 yAxis =  float2(dx.xyzw[cornerID], dy.xyzw[cornerID]);
+    float2 xAxis = -float2(dx[nextID], dy[nextID]);
+    float2 yAxis =  float2(dx[cornerID], dy[cornerID]);
     float2 localPos;
     bool snapToCenter = false;
     if (normalScale < 0.0) {
@@ -800,7 +810,7 @@ float4 analytic_rrect_vertex_fn(// Vertex Attributes
         // because it accounts for the position's influence on a line's projected direction.
         float2x2 J = float2x2(jacobian);
 
-        float2 edgeAANormal = float2(edgeAA[cornerID], edgeAA.yzwx[cornerID]) * normal;
+        float2 edgeAANormal = float2(edgeAA[cornerID], edgeAA[nextID]) * normal;
         float2 nx = cornerAspectRatio.x * edgeAANormal.x * perp(-yAxis) * J;
         float2 ny = cornerAspectRatio.y * edgeAANormal.y * perp( xAxis) * J;
 
@@ -881,6 +891,10 @@ float4 per_edge_aa_quad_vertex_fn(// Vertex Attributes
                                   out float2 stepLocalCoords) {
     const float kEpsilon = 0.00024; // SK_ScalarNearlyZero
 
+    // Calculate a rotated cornerID value to use for indexing within vectors that would normally
+    // require ".yzwx" swizzling (see similar note in analytic_rrect_vertex_fn for explanation).
+    uint nextID = (cornerID + 1) % 4;
+
     // Calculate the local edge vectors, ordered L, T, R, B starting from the bottom left point.
     // For quadrilaterals these are not necessarily axis-aligned, but in all cases they orient
     // the +X/+Y normalized vertex template for each corner.
@@ -921,8 +935,8 @@ float4 per_edge_aa_quad_vertex_fn(// Vertex Attributes
     dy *= inverseEdgeLen;
 
     // Calculate local coordinate for the vertex (relative to xAxis and yAxis at first).
-    float2 xAxis = -float2(dx.yzwx[cornerID], dy.yzwx[cornerID]);
-    float2 yAxis =  float2(dx.xyzw[cornerID], dy.xyzw[cornerID]);
+    float2 xAxis = -float2(dx[nextID], dy[nextID]);
+    float2 yAxis =  float2(dx[cornerID], dy[cornerID]);
 
     // Vertex is outset from the base shape (and possibly with an additional AA outset later
     // in device space).
@@ -962,7 +976,7 @@ float4 per_edge_aa_quad_vertex_fn(// Vertex Attributes
         float2x2 J = float2x2(deviceToLocal[0].xy - deviceToLocal[0].z*localPos,
                               deviceToLocal[1].xy - deviceToLocal[1].z*localPos);
 
-        float2 edgeAANormal = float2(edgeAA[cornerID], edgeAA.yzwx[cornerID]) * normal;
+        float2 edgeAANormal = float2(edgeAA[cornerID], edgeAA[nextID]) * normal;
         float2 nx = edgeAANormal.x * perp(-yAxis) * J;
         float2 ny = edgeAANormal.y * perp( xAxis) * J;
 

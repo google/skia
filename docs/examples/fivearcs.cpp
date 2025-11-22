@@ -13,8 +13,7 @@ void draw(SkCanvas* canvas) {
     SkRect oval = {8, 8, 56, 56};
 
     canvas->drawOval(oval, ovalPaint);
-    SkPath arcPath;
-    arcPath.arcTo(oval, 0, 90, false);
+    SkPath arcPath = SkPathBuilder().arcTo(oval, 0, 90, false).detach();
     canvas->drawPath(arcPath, arcPaint);
 
     canvas->translate(64, 0);
@@ -23,22 +22,23 @@ void draw(SkCanvas* canvas) {
 
     canvas->translate(64, 0);
     canvas->drawOval(oval, ovalPaint);
-    arcPath.reset();
-    arcPath.addArc(oval, 0, 90);
+    arcPath = SkPathBuilder().addArc(oval, 0, 90).detach();
     canvas->drawPath(arcPath, arcPaint);
 
     canvas->translate(-96, 64);
     canvas->drawOval(oval, ovalPaint);
-    arcPath.reset();
-    arcPath.moveTo({56, 32});
-    arcPath.arcTo({56, 56}, {32, 56}, 24);
+    arcPath = SkPathBuilder()
+              .moveTo({56, 32})
+              .arcTo({56, 56}, {32, 56}, 24)
+              .detach();
     canvas->drawPath(arcPath, arcPaint);
 
     canvas->translate(64, 0);
     canvas->drawOval(oval, ovalPaint);
-    arcPath.reset();
-    arcPath.moveTo({56, 32});
-    arcPath.arcTo({24, 24}, 0, SkPath::kSmall_ArcSize, SkPathDirection::kCW, {32, 56});
+    arcPath = SkPathBuilder()
+              .moveTo({56, 32})
+              .arcTo({24, 24}, 0, SkPathBuilder::kSmall_ArcSize, SkPathDirection::kCW, {32, 56})
+              .detach();
     canvas->drawPath(arcPath, arcPaint);
 }
 }  // END FIDDLE

@@ -37,13 +37,21 @@ private:
     const SkPixmap fDevice;
 };
 
+SkBlitter* SkChooseA8Blitter(const SkPixmap& dst,
+                             const SkMatrix& ctm,
+                             const SkPaint&,
+                             SkArenaAlloc*,
+                             SkDrawCoverage,
+                             sk_sp<SkShader> clipShader);
+
+// signature compatible with color version
 SkBlitter* SkA8Blitter_Choose(const SkPixmap& dst,
                               const SkMatrix& ctm,
                               const SkPaint& paint,
-                              SkArenaAlloc*,
-                              SkDrawCoverage,
+                              SkArenaAlloc* alloc,
+                              SkDrawCoverage coverage,
                               sk_sp<SkShader> clipShader,
-                              const SkSurfaceProps&,
-                              const SkRect&);
+                              const SkSurfaceProps& /*ignored*/,
+                              const SkRect& /*ignored*/);
 
 #endif // SkBlitter_A8_DEFINED

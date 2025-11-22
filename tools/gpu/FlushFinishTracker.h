@@ -13,7 +13,9 @@
 
 #include <functional>
 
+#if defined(SK_GANESH)
 class GrDirectContext;
+#endif
 
 #if defined(SK_GRAPHITE)
 namespace skgpu::graphite { class Context; }
@@ -33,9 +35,11 @@ public:
         FlushFinished(finishedContext);
     }
 
-    FlushFinishTracker(GrDirectContext* context) : fContext(context) {}
+#if defined(SK_GANESH)
+    explicit FlushFinishTracker(GrDirectContext* context) : fContext(context) {}
+#endif
 #if defined(SK_GRAPHITE)
-    FlushFinishTracker(skgpu::graphite::Context* context) : fGraphiteContext(context) {}
+    explicit FlushFinishTracker(skgpu::graphite::Context* context) : fGraphiteContext(context) {}
 #endif
 
     void setFinished() { fIsFinished = true; }
@@ -43,7 +47,9 @@ public:
     void waitTillFinished(std::function<void()> tick = {});
 
 private:
+#if defined(SK_GANESH)
     GrDirectContext* fContext = nullptr;
+#endif
 #if defined(SK_GRAPHITE)
     skgpu::graphite::Context*  fGraphiteContext = nullptr;
 #endif

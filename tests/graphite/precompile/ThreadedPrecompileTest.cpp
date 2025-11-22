@@ -63,8 +63,8 @@ std::pair<SkPaint, PaintOptions> linear(int numStops) {
     SkASSERT(numStops <= kMaxNumStops);
 
     PaintOptions paintOptions;
-    paintOptions.setShaders({ PrecompileShaders::LinearGradient() });
-    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    paintOptions.setShaders({{ PrecompileShaders::LinearGradient() }});
+    paintOptions.setBlendModes(SKSPAN_INIT_ONE( SkBlendMode::kSrcOver ));
 
     SkPaint paint;
     paint.setShader(SkGradientShader::MakeLinear(gPts,
@@ -79,8 +79,8 @@ std::pair<SkPaint, PaintOptions> radial(int numStops) {
     SkASSERT(numStops <= kMaxNumStops);
 
     PaintOptions paintOptions;
-    paintOptions.setShaders({ PrecompileShaders::RadialGradient() });
-    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    paintOptions.setShaders({{ PrecompileShaders::RadialGradient() }});
+    paintOptions.setBlendModes(SKSPAN_INIT_ONE( SkBlendMode::kSrcOver ));
 
     SkPaint paint;
     paint.setShader(SkGradientShader::MakeRadial(/* center= */ {0, 0}, /* radius= */ 100,
@@ -95,8 +95,8 @@ std::pair<SkPaint, PaintOptions> sweep(int numStops) {
     SkASSERT(numStops <= kMaxNumStops);
 
     PaintOptions paintOptions;
-    paintOptions.setShaders({ PrecompileShaders::SweepGradient() });
-    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    paintOptions.setShaders({{ PrecompileShaders::SweepGradient() }});
+    paintOptions.setBlendModes(SKSPAN_INIT_ONE( SkBlendMode::kSrcOver ));
 
     SkPaint paint;
     paint.setShader(SkGradientShader::MakeSweep(/* cx= */ 0, /* cy= */ 0,
@@ -113,8 +113,8 @@ std::pair<SkPaint, PaintOptions> conical(int numStops) {
     SkASSERT(numStops <= kMaxNumStops);
 
     PaintOptions paintOptions;
-    paintOptions.setShaders({ PrecompileShaders::TwoPointConicalGradient() });
-    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    paintOptions.setShaders({{ PrecompileShaders::TwoPointConicalGradient() }});
+    paintOptions.setBlendModes(SKSPAN_INIT_ONE( SkBlendMode::kSrcOver ));
 
     SkPaint paint;
     paint.setShader(SkGradientShader::MakeTwoPointConical(/* start= */ {100, 100},

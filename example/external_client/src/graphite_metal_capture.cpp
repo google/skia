@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <cstdio>
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
@@ -24,11 +25,24 @@
 #include "include/gpu/graphite/mtl/MtlGraphiteUtils.h"
 
 #include "graphite_metal_context_helper.h"
+#include "src/capture/SkCapture.h"
 
 #define WIDTH 200
 #define HEIGHT 400
 
 int main(int argc, char *argv[]) {
+
+    if (argc != 2) {
+        printf("Specify a single write location.\n");
+        return 1;
+    }
+
+    SkFILEWStream output(argv[1]);
+    if (!output.isValid()) {
+        printf("Cannot open output file %s\n", argv[1]);
+        return 1;
+    }
+
     /* SET UP CONTEXT AND RECORDERS FOR DRAWING AND CAPTURE */
 
     skgpu::graphite::MtlBackendContext backendContext = GetMetalContext();
@@ -78,15 +92,19 @@ int main(int argc, char *argv[]) {
     SkRRect rrect = SkRRect::MakeRectXY(SkRect::MakeLTRB(10, 20, 50, 70), 10, 10);
 
     SkPaint paint;
-    paint.setColor(SK_ColorYELLOW);
+    paint.setColor(SK_ColorRED);
     paint.setAntiAlias(true);
 
     canvas->drawRRect(rrect, paint);
 
+    // Triggers a breakpoint in the capture
+    auto contentImg = surface->makeImageSnapshot();
+    canvas->drawCircle(50, 50, 30, paint);
+
     // Canvas B
-    // TODO (b/412351769): take image snapshot from canvas A and draw into B
     canvasB->clear(SK_ColorMAGENTA);
     paint.setColor(SK_ColorBLACK);
+    canvasB->drawImage(contentImg, 0, 0);
     canvasB->drawCircle(10, 10, 5, paint);
 
     printf("ready to snap the GPU calls\n");
@@ -131,8 +149,20 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // TODO (b/412351769): inspect CaptureManager / output capture
-    context->endCapture();
+    auto capture = context->endCapture();
+    auto serializedCapture = capture->serializeCapture();
+
+    /* WRITE DATA TO FILE LOCATION */
+    output.write(serializedCapture->data(), serializedCapture->size());
+    output.fsync();
+
+    /* DESERIALIZE CAPTURE AND INSPECT CONTENTS */
+    if (serializedCapture) {
+        auto deserializedCapture = SkCapture::MakeFromData(serializedCapture);
+    } else {
+        printf("No capture to inspect.");
+        return 1;
+    }
 
     printf("done\n");
     return 0;

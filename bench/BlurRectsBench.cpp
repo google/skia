@@ -11,6 +11,7 @@
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
 
@@ -34,9 +35,10 @@ public:
         SkPaint paint;
         paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, fRadius));
 
-        SkPath path;
-        path.addRect(fOuter, SkPathDirection::kCW);
-        path.addRect(fInner, SkPathDirection::kCW);
+        SkPath path = SkPathBuilder()
+                      .addRect(fOuter, SkPathDirection::kCW)
+                      .addRect(fInner, SkPathDirection::kCW)
+                      .detach();
 
         for (int i = 0; i < loops; i++) {
             canvas->drawPath(path, paint);

@@ -26,6 +26,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSerialProcs.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
@@ -378,13 +379,9 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
     SkRect rect3 = SkRect::MakeXYWH(SkIntToScalar(6), SkIntToScalar(6),
                                     SkIntToScalar(1), SkIntToScalar(1));
 
-    SkPath invPath;
-    invPath.addOval(rect1);
-    invPath.setFillType(SkPathFillType::kInverseEvenOdd);
-    SkPath path;
-    path.addOval(rect2);
-    SkPath path2;
-    path2.addOval(rect3);
+    SkPath invPath = SkPath::Oval(rect1).makeFillType(SkPathFillType::kInverseEvenOdd);
+    SkPath path = SkPath::Oval(rect2);
+    SkPath path2 = SkPath::Oval(rect3);
     SkIRect clipBounds;
     SkPictureRecorder recorder;
 
@@ -709,10 +706,12 @@ DEF_TEST(Picture_preserveCullRect, r) {
 
     sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
     SkDynamicMemoryWStream wstream;
-    picture->serialize(&wstream, nullptr);  // default SkSerialProcs
+    // default SkSerialProcs here and SkDeserialProcs below are fine because we don't
+    // have any image or typeface data to serialize.
+    picture->serialize(&wstream, nullptr);
 
     std::unique_ptr<SkStream> rstream(wstream.detachAsStream());
-    sk_sp<SkPicture> deserializedPicture(SkPicture::MakeFromStream(rstream.get()));
+    auto deserializedPicture = SkPicture::MakeFromStream(rstream.get(), nullptr);
 
     REPORTER_ASSERT(r, deserializedPicture != nullptr);
     REPORTER_ASSERT(r, deserializedPicture->cullRect().left() == 1);
@@ -786,10 +785,11 @@ DEF_TEST(Picture_empty_serial, reporter) {
     auto pic = rec.finishRecordingAsPicture();
     REPORTER_ASSERT(reporter, pic);
 
-    auto data = pic->serialize(); // explicitly testing the default SkSerialProcs
+    // explicitly testing the default SkSerialProcs here and SkDeserialProcs below.
+    auto data = pic->serialize((SkSerialProcs*)nullptr);
     REPORTER_ASSERT(reporter, data);
 
-    auto pic2 = SkPicture::MakeFromData(data->data(), data->size());
+    auto pic2 = SkPicture::MakeFromData(data->data(), data->size(), nullptr);
     REPORTER_ASSERT(reporter, pic2);
 }
 

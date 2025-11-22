@@ -151,9 +151,10 @@ DEF_SIMPLE_GM(nested_hairline_square, canvas, 64, 64) {
         canvas->save();
         // Originally the SVG string "M5,14H0V9h5V14Z M1,13h3v-3H1V13Z" but that just specifies a
         // 5px wide square outside a 3px wide square.
-        SkPath square;
-        square.addRect(SkRect::MakeLTRB(0.f, 9.f, 5.f, 14.f));
-        square.addRect(SkRect::MakeLTRB(1.f, 10.f, 4.f, 13.f), SkPathDirection::kCCW);
+        SkPath square = SkPathBuilder()
+                        .addRect(SkRect::MakeLTRB(0.f, 9.f, 5.f, 14.f))
+                        .addRect(SkRect::MakeLTRB(1.f, 10.f, 4.f, 13.f), SkPathDirection::kCCW)
+                        .detach();
 
         // From the bug, SVG viewbox was (0, 0, 24, 24), so the above coordinates are relative to
         // that, but the svg was then the child of a div that was 16x16, so it's scaled down. This

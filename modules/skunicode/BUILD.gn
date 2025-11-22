@@ -33,14 +33,6 @@ if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme ||
     }
   }
 
-  config("cpp20") {
-    if (is_win) {
-      cflags_cc = [ "/std:c++20" ]
-    } else {
-      cflags_cc = [ "-std=c++20" ]
-    }
-  }
-
   config("module") {
     defines = [ "SKUNICODE_IMPLEMENTATION=1" ]
     if (is_component_build) {

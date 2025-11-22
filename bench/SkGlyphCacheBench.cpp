@@ -260,4 +260,4 @@ Benchmark* CreateDiffCanvasBench(
 
 DEF_BENCH( return CreateDiffCanvasBench(
         SkString("SkDiffBench-lorem_ipsum"),
-        [](){ return GetResourceAsStream("diff_canvas_traces/lorem_ipsum.trace"); }));
+        [](){ return GetResourceAsStream("diff_canvas_traces/lorem_ipsum.trace"); }))

@@ -19,6 +19,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/private/base/SkFloatingPoint.h"
 
 using namespace skiagm;
 
@@ -52,12 +53,18 @@ static sk_sp<SkShader> MakeLinear(const SkPoint pts[2], const GradData& data, Sk
 }
 
 static sk_sp<SkShader> MakeRadial(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
-    const SkPoint pt{ SkScalarAve(pts[0].fX, pts[1].fX), SkScalarAve(pts[0].fY, pts[1].fY) };
+    const SkPoint pt{
+        sk_float_midpoint(pts[0].fX, pts[1].fX),
+        sk_float_midpoint(pts[0].fY, pts[1].fY),
+    };
     return SkGradientShader::MakeRadial(pt, pt.fX, data.fColors, data.fPos, data.fCount, tm);
 }
 
 static sk_sp<SkShader> MakeSweep(const SkPoint pts[2], const GradData& data, SkTileMode) {
-    const SkPoint pt{ SkScalarAve(pts[0].fX, pts[1].fX), SkScalarAve(pts[0].fY, pts[1].fY) };
+    const SkPoint pt{
+        sk_float_midpoint(pts[0].fX, pts[1].fX),
+        sk_float_midpoint(pts[0].fY, pts[1].fY),
+    };
     return SkGradientShader::MakeSweep(pt.fX, pt.fY, data.fColors, data.fPos, data.fCount);
 }
 

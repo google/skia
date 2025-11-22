@@ -43,46 +43,46 @@ static sk_sp<GrDirectContext> make_mock_context() {
 
 static SkPath make_cubic_path(int maxPow2) {
     SkRandom rand;
-    SkPath path;
+    SkPathBuilder builder;
     for (int i = 0; i < kNumCubicsInChalkboard/2; ++i) {
         float x = std::ldexp(rand.nextF(), (i % maxPow2)) / 1e3f;
-        path.cubicTo(111.625f*x, 308.188f*x, 764.62f*x, -435.688f*x, 742.63f*x, 85.187f*x);
-        path.cubicTo(764.62f*x, -435.688f*x, 111.625f*x, 308.188f*x, 0, 0);
+        builder.cubicTo(111.625f*x, 308.188f*x, 764.62f*x, -435.688f*x, 742.63f*x, 85.187f*x);
+        builder.cubicTo(764.62f*x, -435.688f*x, 111.625f*x, 308.188f*x, 0, 0);
     }
-    return path;
+    return builder.detach();
 }
 
 static SkPath make_conic_path() {
     SkRandom rand;
-    SkPath path;
+    SkPathBuilder builder;
     for (int i = 0; i < kNumCubicsInChalkboard / 40; ++i) {
         for (int j = -10; j <= 10; j++) {
             const float x = std::ldexp(rand.nextF(), (i % 18)) / 1e3f;
             const float w = std::ldexp(1 + rand.nextF(), j);
-            path.conicTo(111.625f * x, 308.188f * x, 764.62f * x, -435.688f * x, w);
+            builder.conicTo(111.625f * x, 308.188f * x, 764.62f * x, -435.688f * x, w);
         }
     }
-    return path;
+    return builder.detach();
 }
 
 [[maybe_unused]] static SkPath make_quad_path(int maxPow2) {
     SkRandom rand;
-    SkPath path;
+    SkPathBuilder builder;
     for (int i = 0; i < kNumCubicsInChalkboard; ++i) {
         float x = std::ldexp(rand.nextF(), (i % maxPow2)) / 1e3f;
-        path.quadTo(111.625f * x, 308.188f * x, 764.62f * x, -435.688f * x);
+        builder.quadTo(111.625f * x, 308.188f * x, 764.62f * x, -435.688f * x);
     }
-    return path;
+    return builder.detach();
 }
 
 [[maybe_unused]] static SkPath make_line_path(int maxPow2) {
     SkRandom rand;
-    SkPath path;
+    SkPathBuilder builder;
     for (int i = 0; i < kNumCubicsInChalkboard; ++i) {
         float x = std::ldexp(rand.nextF(), (i % maxPow2)) / 1e3f;
-        path.lineTo(764.62f * x, -435.688f * x);
+        builder.lineTo(764.62f * x, -435.688f * x);
     }
-    return path;
+    return builder.detach();
 }
 
 // This serves as a base class for benchmarking individual methods on PathTessellateOp.
@@ -126,7 +126,7 @@ protected:
         PathTessellateBenchmark_##NAME() : PathTessellateBenchmark(#NAME, (PATH), (MATRIX)) {} \
         void runBench() override; \
     }; \
-    DEF_BENCH( return new PathTessellateBenchmark_##NAME(); ); \
+    DEF_BENCH( return new PathTessellateBenchmark_##NAME(); ) \
     void PathTessellateBenchmark_##NAME::runBench()
 
 static const SkMatrix gAlmostIdentity = SkMatrix::MakeAll(
@@ -264,36 +264,37 @@ static std::vector<PathStrokeList> make_motionmark_paths() {
         // The number of paths with a given number of verbs in the MotionMark bench gets cut in half
         // every time the number of verbs increases by 1.
         int numVerbs = 28 - SkNextLog2(rand.nextRangeU(0, (1 << 27) - 1));
-        SkPath path;
+        SkPathBuilder builder;
         for (int j = 0; j < numVerbs; ++j) {
             switch (rand.nextU() & 3) {
                 case 0:
                 case 1:
-                    path.lineTo(rand.nextRangeF(0, 150), rand.nextRangeF(0, 150));
+                    builder.lineTo(rand.nextRangeF(0, 150), rand.nextRangeF(0, 150));
                     break;
                 case 2:
                     if (rand.nextULessThan(10) == 0) {
                         // Cusp.
-                        auto [x, y] = (path.isEmpty())
+                        auto [x, y] = (builder.isEmpty())
                                 ? SkPoint{0,0}
-                                : SkPathPriv::PointData(path)[path.countPoints() - 1];
-                        path.quadTo(x + rand.nextRangeF(0, 150), y, x - rand.nextRangeF(0, 150), y);
+                                : builder.points().back();
+                        builder.quadTo(x + rand.nextRangeF(0, 150), y,
+                                       x - rand.nextRangeF(0, 150), y);
                     } else {
-                        path.quadTo(rand.nextRangeF(0, 150), rand.nextRangeF(0, 150),
-                                    rand.nextRangeF(0, 150), rand.nextRangeF(0, 150));
+                        builder.quadTo(rand.nextRangeF(0, 150), rand.nextRangeF(0, 150),
+                                       rand.nextRangeF(0, 150), rand.nextRangeF(0, 150));
                     }
                     break;
                 case 3:
                     if (rand.nextULessThan(10) == 0) {
                         // Cusp.
-                        float y = (path.isEmpty())
-                                ? 0 : SkPathPriv::PointData(path)[path.countPoints() - 1].fY;
-                        path.cubicTo(rand.nextRangeF(0, 150), y, rand.nextRangeF(0, 150), y,
-                                     rand.nextRangeF(0, 150), y);
+                        float y = (builder.isEmpty())
+                                ? 0 : builder.points().back().fY;
+                        builder.cubicTo(rand.nextRangeF(0, 150), y, rand.nextRangeF(0, 150), y,
+                                        rand.nextRangeF(0, 150), y);
                     } else {
-                        path.cubicTo(rand.nextRangeF(0, 150), rand.nextRangeF(0, 150),
-                                     rand.nextRangeF(0, 150), rand.nextRangeF(0, 150),
-                                     rand.nextRangeF(0, 150), rand.nextRangeF(0, 150));
+                        builder.cubicTo(rand.nextRangeF(0, 150), rand.nextRangeF(0, 150),
+                                        rand.nextRangeF(0, 150), rand.nextRangeF(0, 150),
+                                        rand.nextRangeF(0, 150), rand.nextRangeF(0, 150));
                     }
                     break;
             }
@@ -304,7 +305,7 @@ static std::vector<PathStrokeList> make_motionmark_paths() {
         float strokeWidth = 21 - log2f(rand.nextRangeF(0, 1 << 20));
         stroke.setStrokeStyle(strokeWidth);
         stroke.setStrokeParams(SkPaint::kButt_Cap, SkPaint::kBevel_Join, 0);
-        pathStrokes.emplace_back(path, stroke, SK_PMColor4fWHITE);
+        pathStrokes.emplace_back(builder.detach(), stroke, SK_PMColor4fWHITE);
     }
     return pathStrokes;
 }

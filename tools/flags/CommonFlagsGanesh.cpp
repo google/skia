@@ -11,8 +11,8 @@
 #include "include/gpu/ganesh/GrContextOptions.h"
 
 // Defined in CommonFlagsConfig
-DECLARE_int(gpuThreads);
-DECLARE_int(internalSamples);
+DECLARE_int(gpuThreads)
+DECLARE_int(internalSamples)
 
 namespace CommonFlags {
 

@@ -7,12 +7,14 @@ void draw(SkCanvas* canvas) {
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
     SkPath path, path2;
-    path.moveTo(20, 20);
-    path.lineTo(40, 40);
-    path.lineTo(20, 40);
-    path.lineTo(40, 20);
-    path.close();
-    path2.addRect({20, 20, 40, 40});
+    path = SkPathBuilder()
+           .moveTo(20, 20)
+           .lineTo(40, 40)
+           .lineTo(20, 40)
+           .lineTo(40, 20)
+           .close()
+           .detach();
+    path2 = SkPath::Rect({20, 20, 40, 40});
     for (SkScalar i = 0; i <= 1; i += 1.f / 6) {
       SkPath interp;
       path.interpolate(path2, i, &interp);

@@ -153,7 +153,6 @@ struct GeometryEffectRec {
 // point, where we relocate the property to the geometry node as a local wrapper.
 sk_sp<sksg::GeometryNode> AdjustGeometryFillRule(sk_sp<sksg::GeometryNode> geo,
                                                  const skjson::ObjectValue& jpaint) {
-#if defined(SK_ENABLE_SKOTTIE_FILLRULE)
     static constexpr SkPathFillType gFillTypes[] = {
         SkPathFillType::kWinding,  // "r": 1
         SkPathFillType::kEvenOdd,  // "r": 2
@@ -163,9 +162,6 @@ sk_sp<sksg::GeometryNode> AdjustGeometryFillRule(sk_sp<sksg::GeometryNode> geo,
     return ft == SkPathFillType::kDefault
         ? geo
         : sksg::FillTypeOverride::Make(std::move(geo), ft);
-#else
-    return geo;
-#endif
 }
 
 } // namespace

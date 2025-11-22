@@ -38,7 +38,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PrecompileStatsTest, is_dawn_metal_context_type,
                                            /* fRequiresMSAA= */ false };
 
     PaintOptions paintOptions;
-    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    paintOptions.setBlendModes(SKSPAN_INIT_ONE( SkBlendMode::kSrcOver ));
 
     // Epoch 1 -------------------------------------------------------------------------------------
     REPORTER_ASSERT(reporter, cache->getEpoch() == 1);

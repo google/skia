@@ -41,6 +41,9 @@ public:
                             sk_sp<const RuntimeEffectDictionary>) override;
     Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
+    // TODO: Traverse child tasks too!
+    SK_DUMP_TASKS_CODE(const char* getTaskName() const override { return "Compute Task"; })
+
 private:
     explicit ComputeTask(DispatchGroupList dispatchGroups);
 

@@ -370,6 +370,7 @@ SkISize SlideDir::getDimensions() const {
 }
 
 void SlideDir::draw(SkCanvas* canvas) {
+    fScene->revalidate();
     fScene->render(canvas);
 }
 

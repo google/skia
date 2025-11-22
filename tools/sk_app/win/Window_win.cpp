@@ -363,9 +363,10 @@ bool Window_win::attach(BackendType attachType) {
 #endif
 #ifdef SK_DAWN
 #if defined(SK_GRAPHITE)
-        case kGraphiteDawn_BackendType:
-            fWindowContext =
-                    skwindow::MakeGraphiteDawnD3D12ForWin(fHWnd, fRequestedDisplayParams->clone());
+        case kGraphiteDawnD3D11_BackendType:
+        case kGraphiteDawnD3D12_BackendType:
+            fWindowContext = skwindow::MakeGraphiteDawnForWin(
+                    fHWnd, fRequestedDisplayParams->clone(), attachType);
             break;
 #endif
 #endif

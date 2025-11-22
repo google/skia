@@ -117,9 +117,14 @@ public:
 
     ErrorCode addToAtlas(Recorder*, int width, int height, const void* image, AtlasLocator*);
     ErrorCode addRect(Recorder*, int width, int height, AtlasLocator*);
-    // Reset Pixmap to point to backing data for the AtlasLocator's Plot.
-    // Return relative location within the Plot, as indicated by the AtlasLocator.
-    SkIPoint prepForRender(const AtlasLocator&, SkAutoPixmapStorage*);
+    // Returns a Pixmap pointing to the backing data for the locator. Optionally, the caller can
+    // provide an inset that is applied to all four sides. This is useful for use cases that need
+    // to leave space between items in the atlas. The pixmap will exclude the padding. The entire
+    // atlas is cleared to zero when allocated. By passing an initialColor here, the caller can
+    // re-clear the entire locator's rect (including any padding) to any color.
+    SkPixmap prepForRender(const AtlasLocator&,
+                           int padding = 0,
+                           std::optional<SkColor> initialColor = {});
     bool recordUploads(DrawContext*, Recorder*);
 
     const sk_sp<TextureProxy>* getProxies() const { return fProxies; }
@@ -146,13 +151,12 @@ public:
     }
 
     /** To ensure the atlas does not evict a given entry, the client must set the last use token. */
-    void setLastUseToken(const AtlasLocator& atlasLocator, AtlasToken token) {
+    void setLastUseToken(const AtlasLocator& atlasLocator, Token token) {
         Plot* plot = this->findPlot(atlasLocator);
         this->internalSetLastUseToken(plot, atlasLocator.pageIndex(), token);
     }
 
-    void setLastUseTokenBulk(const BulkUsePlotUpdater& updater,
-                             AtlasToken token) {
+    void setLastUseTokenBulk(const BulkUsePlotUpdater& updater, Token token) {
         int count = updater.count();
         for (int i = 0; i < count; i++) {
             const BulkUsePlotUpdater::PlotData& pd = updater.plotData(i);
@@ -165,7 +169,7 @@ public:
         }
     }
 
-    void compact(AtlasToken startTokenForNextFlush);
+    void compact(Token startTokenForNextFlush);
 
     // Mark all plots with any content as full. Used only with Vello because it can't do
     // new renders to a texture without a clear.
@@ -173,7 +177,7 @@ public:
 
     // Will try to clear out any GPU resources that aren't needed for any pending uploads or draws.
     // TODO: Delete backing data for Plots that don't have pending uploads.
-    void freeGpuResources(AtlasToken token);
+    void freeGpuResources(Token token);
 
     void evictAllPlots();
 
@@ -233,7 +237,7 @@ private:
         return fPages[pageIdx].fPlotArray[plotIdx].get();
     }
 
-    void internalSetLastUseToken(Plot* plot, uint32_t pageIdx, AtlasToken token) {
+    void internalSetLastUseToken(Plot* plot, uint32_t pageIdx, Token token) {
         this->makeMRU(plot, pageIdx);
         plot->setLastUseToken(token);
     }
@@ -267,7 +271,7 @@ private:
 
     // nextFlushToken() value at the end of the previous DrawPass
     // TODO: rename
-    AtlasToken fPrevFlushToken;
+    Token fPrevFlushToken;
 
     // the number of flushes since this atlas has been last used
     // TODO: rename

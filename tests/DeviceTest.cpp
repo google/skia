@@ -55,6 +55,7 @@ DEF_TEST(SpecialImage_BitmapDevice, reporter) {
 }
 #endif
 
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SpecialImage_GPUDevice,
                                        reporter,
                                        ctxInfo,
@@ -86,3 +87,4 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SpecialImage_GPUDevice,
     SkASSERT(2*kHeight == special->height());
     SkASSERT(SkIRect::MakeWH(2*kWidth, 2*kHeight) == special->subset());
 }
+#endif

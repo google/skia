@@ -2601,7 +2601,8 @@ private:
 
 protected:
     // For use by SkNoDrawCanvas (via SkCanvasVirtualEnforcer, which can't be a friend)
-    SkCanvas(const SkIRect& bounds);
+    explicit SkCanvas(const SkIRect& bounds);
+
 private:
     SkCanvas(const SkBitmap&, std::unique_ptr<SkRasterHandleAllocator>,
              SkRasterHandleAllocator::Handle, const SkSurfaceProps* props);
@@ -2748,7 +2749,7 @@ private:
     goes out of scope. Use this to guarantee that the canvas is restored to a known
     state.
 */
-class SkAutoCanvasRestore {
+class [[nodiscard]] SkAutoCanvasRestore {
 public:
 
     /** Preserves SkCanvas::save() count. Optionally saves SkCanvas clip and SkCanvas matrix.

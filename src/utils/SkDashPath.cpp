@@ -311,6 +311,10 @@ bool SkDashPath::InternalFilter(SkPathBuilder* dst, const SkPath& src, SkStrokeR
                                 SkScalar initialDashLength, int32_t initialDashIndex,
                                 SkScalar intervalLength, SkScalar startPhase,
                                 StrokeRecApplication strokeRecApplication) {
+    SkSpan<const SkPoint> srcPts = src.points();
+    if (srcPts.empty()) {
+        return true;
+    }
     const size_t count = aIntervals.size();
     // we must always have an even number of intervals
     SkASSERT(is_even(count));
@@ -348,26 +352,26 @@ bool SkDashPath::InternalFilter(SkPathBuilder* dst, const SkPath& src, SkStrokeR
             }
             // if dash ends inside "on", or ends at beginning of "off"
             if (is_even(index) == (endPhase > 0)) {
-                SkPoint midPoint = src.getPoint(0);
+                SkPoint midPoint = srcPts.front();
                 // get vector at end of rect
                 int last = src.countPoints() - 1;
-                while (midPoint == src.getPoint(last)) {
+                while (midPoint == srcPts[last]) {
                     --last;
                     SkASSERT(last >= 0);
                 }
                 // get vector at start of rect
                 int next = 1;
-                while (midPoint == src.getPoint(next)) {
+                while (midPoint == srcPts[next]) {
                     ++next;
                     SkASSERT(next < last);
                 }
-                SkVector v = midPoint - src.getPoint(last);
+                SkVector v = midPoint - srcPts[last];
                 const SkScalar kTinyOffset = SK_ScalarNearlyZero;
                 // scale vector to make start of tiny right angle
                 v *= kTinyOffset;
                 builder.moveTo(midPoint - v);
                 builder.lineTo(midPoint);
-                v = midPoint - src.getPoint(next);
+                v = midPoint - srcPts[next];
                 // scale vector to make end of tiny right angle
                 v *= kTinyOffset;
                 builder.lineTo(midPoint - v);

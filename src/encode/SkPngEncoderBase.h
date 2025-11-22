@@ -12,14 +12,14 @@
 
 #include <optional>
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkSpan.h"
 #include "include/encode/SkEncoder.h"
 #include "include/private/SkEncodedInfo.h"
 
 class SkPixmap;
-template <typename T> class SkSpan;
 
 // This class implements functionality shared between `SkPngEncoderImpl` and
-// `SkPngRustEncoderImpl` (the latter is from `experimental/rust_png`).
+// `SkPngRustEncoderImpl`.
 class SkPngEncoderBase : public SkEncoder {
 public:
     struct TargetInfo {

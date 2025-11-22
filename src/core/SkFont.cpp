@@ -305,7 +305,7 @@ std::optional<SkPath> SkFont::getPath(SkGlyphID glyphID) const {
     this->getPaths({&glyphID, 1}, [](const SkPath* path, const SkMatrix& mx, void* ctx) {
         if (path) {
             auto* result = static_cast<std::optional<SkPath>*>(ctx);
-            *result = path->makeTransform(mx);
+            *result = path->tryMakeTransform(mx);
         }
     }, &result);
 

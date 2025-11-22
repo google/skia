@@ -485,7 +485,7 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::findOrMakeStaticBuffer(
     AutoTMalloc<char> stagingBuffer;
     if (!vertexWriter) {
         SkASSERT(!buffer->isMapped());
-        vertexWriter = {stagingBuffer.reset(size), size};
+        vertexWriter = skgpu::VertexWriter{stagingBuffer.reset(size), size};
     }
 
     initializeBufferFn(std::move(vertexWriter), size);

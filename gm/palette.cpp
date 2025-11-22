@@ -35,7 +35,7 @@ namespace skiagm {
 // markdown file.
 namespace ColrV1TestDefinitions {
 const uint32_t color_circles_palette[] = {0xf0e00, 0xf0e01};
-};
+}
 
 namespace {
 const char kColrCpalTestFontPath[] = "fonts/test_glyphs-glyf_colr_1.ttf";
@@ -163,10 +163,10 @@ private:
     SkFontArguments::Palette fPalette;
 };
 
-DEF_GM(return new FontPaletteGM("default", SkFontArguments::Palette()));
-DEF_GM(return new FontPaletteGM("light", kLightPaletteOverride));
-DEF_GM(return new FontPaletteGM("dark", kDarkPaletteOverride));
-DEF_GM(return new FontPaletteGM("one", kOnePaletteOverride));
-DEF_GM(return new FontPaletteGM("all", kAllPaletteOverride));
+DEF_GM(return new FontPaletteGM("default", SkFontArguments::Palette()))
+DEF_GM(return new FontPaletteGM("light", kLightPaletteOverride))
+DEF_GM(return new FontPaletteGM("dark", kDarkPaletteOverride))
+DEF_GM(return new FontPaletteGM("one", kOnePaletteOverride))
+DEF_GM(return new FontPaletteGM("all", kAllPaletteOverride))
 
 }  // namespace skiagm

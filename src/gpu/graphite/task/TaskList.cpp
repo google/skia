@@ -67,13 +67,33 @@ bool TaskList::visitPipelines(const std::function<bool(const GraphicsPipeline*)>
     return status != Status::kFail;
 }
 
-bool TaskList::visitProxies(const std::function<bool(const TextureProxy*)>& visitor) {
+bool TaskList::visitProxies(const std::function<bool(const TextureProxy*)>& visitor,
+                            bool readsOnly) {
     Status status = this->visitTasks([&](Task* task) {
-        return task->visitProxies(visitor) ? Status::kSuccess : Status::kFail;
+        return task->visitProxies(visitor, readsOnly) ? Status::kSuccess : Status::kFail;
     });
     // Map back to simple bool (treat kDiscard as true too, no pipelines to visit means all
     // pipelines were visited).
     return status != Status::kFail;
 }
+
+#if defined(SK_DUMP_TASKS)
+void TaskList::visit(const std::function<void(const Task* task, bool isLast)>& visitor) const {
+    // Find the last non-null task so we know when to draw the corner branch.
+    const Task* lastNonNullTask = nullptr;
+    for (int i = fTasks.size() - 1; i >= 0; --i) {
+        if (fTasks[i]) {
+            lastNonNullTask = fTasks[i].get();
+            break;
+        }
+    }
+
+    for (const sk_sp<Task>& task : fTasks) {
+        if (task) {
+            visitor(task.get(), task.get() == lastNonNullTask);
+        }
+    }
+}
+#endif
 
 } // namespace skgpu::graphite

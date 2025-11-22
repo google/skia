@@ -65,7 +65,7 @@ static void drawKernText(SkCanvas* canvas, const void* text, size_t len,
 
     AutoSTMalloc<128, SkGlyphID> glyphStorage(len);
     SkGlyphID* glyphs = glyphStorage.get();
-    int glyphCount = font.textToGlyphs(text, len, SkTextEncoding::kUTF8, {glyphs, len});
+    size_t glyphCount = font.textToGlyphs(text, len, SkTextEncoding::kUTF8, {glyphs, len});
     if (glyphCount < 1) {
         return;
     }

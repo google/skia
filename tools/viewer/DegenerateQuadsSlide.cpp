@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkTypes.h"
+
+#if defined(SK_GANESH)
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathEffect.h"
@@ -64,21 +67,20 @@ static SkScalar get_area_coverage(SkSpan<const bool> edgeAA, SkSpan<const SkPoin
     SkASSERT(corners.size() == 4);
     SkASSERT(edgeAA.size() == 4);
 
-    SkPath shape;
-    shape.addPoly(corners, true);
-    SkPath pixel;
-    pixel.addRect(SkRect::MakeXYWH(point.fX - 0.5f, point.fY - 0.5f, 1.f, 1.f));
+    SkPath shape = SkPath::Polygon(corners, true);
+    SkPath pixel = SkPath::Rect(SkRect::MakeXYWH(point.fX - 0.5f, point.fY - 0.5f, 1.f, 1.f));
 
-    SkPath intersection;
-    if (!Op(shape, pixel, kIntersect_SkPathOp, &intersection) || intersection.isEmpty()) {
+    auto intersection = Op(shape, pixel, kIntersect_SkPathOp);
+    if (!intersection.has_value() || intersection->isEmpty()) {
         return 0.f;
     }
 
     // Calculate area of the convex polygon
+    SkSpan<const SkPoint> pts = intersection->points();
     SkScalar area = 0.f;
-    for (int i = 0; i < intersection.countPoints(); ++i) {
-        SkPoint p0 = intersection.getPoint(i);
-        SkPoint p1 = intersection.getPoint((i + 1) % intersection.countPoints());
+    for (size_t i = 0; i < pts.size(); ++i) {
+        SkPoint p0 = pts[i];
+        SkPoint p1 = pts[(i + 1) % pts.size()];
         SkScalar det = p0.fX * p1.fY - p1.fX * p0.fY;
         area += det;
     }
@@ -356,13 +358,11 @@ public:
             linePaint.setPathEffect(nullptr);
             // What is tessellated using GrQuadPerEdgeAA
             if (fCoverageMode == CoverageMode::kGPUMesh) {
-                SkPath outsetPath;
-                outsetPath.addPoly({gpuOutset, 4}, true);
+                SkPath outsetPath = SkPath::Polygon({gpuOutset, 4}, true);
                 linePaint.setColor(SK_ColorBLUE);
                 canvas->drawPath(outsetPath, linePaint);
 
-                SkPath insetPath;
-                insetPath.addPoly({gpuInset, 4}, true);
+                SkPath insetPath = SkPath::Polygon({gpuInset, 4}, true);
                 linePaint.setColor(SK_ColorGREEN);
                 canvas->drawPath(insetPath, linePaint);
 
@@ -536,3 +536,5 @@ bool DegenerateQuadSlide::onChar(SkUnichar code) {
 }
 
 DEF_SLIDE(return new DegenerateQuadSlide(SkRect::MakeWH(4.f, 4.f));)
+
+#endif  // SK_GANESH

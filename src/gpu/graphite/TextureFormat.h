@@ -100,6 +100,7 @@ enum class TextureFormat : uint8_t {
     kRGBA16F,        // _R16G16B16A16_SFLOAT       | ::RGBA16Float           | RGBA16Float
     kRGBA32F,        // _R32G32B32A32_SFLOAT       | ::RGBA32Float           | RGBA32Float
     kRGB10_A2,       // _A2B10G10R10_UNORM_PACK32  | ::RGB10A2Unorm          | RGB10A2Unorm
+    kRGBA10x6,       // _R10X6G10X6B10X6A10X6_UNORM_4PACK16     -            |          -
     kRGBA8_sRGB,     // _R8G8B8A8_SRGB             | ::RGBA8UnormSrgb        | RGBA8Unorm_sRGB
     kBGRA8,          // _B8G8R8A8_UNORM            | ::BGRA8Unorm            | BGRA8Unorm
     kBGR10_A2,       // _A2R10G10B10_UNORM_PACK32  |            -            | BGR10A2Unorm

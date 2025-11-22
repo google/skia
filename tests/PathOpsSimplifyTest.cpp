@@ -6,6 +6,7 @@
  */
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
@@ -23,76 +24,85 @@
 
 static void testDegenerates(skiatest::Reporter* reporter, const char* filename) {
     SkPath doubleback;
-    SkPath simple;
 
-    doubleback.lineTo(1, 0);
-    REPORTER_ASSERT(reporter, Simplify(doubleback, &simple));
-    REPORTER_ASSERT(reporter, simple.isEmpty());
+    doubleback = SkPathBuilder()
+                 .lineTo(1, 0)
+                 .detach();
+    auto simple = Simplify(doubleback);
+    REPORTER_ASSERT(reporter, simple.has_value());
+    REPORTER_ASSERT(reporter, simple->isEmpty());
 
-    doubleback.reset();
-    doubleback.lineTo(1, 0);
-    doubleback.lineTo(2, 0);
-    REPORTER_ASSERT(reporter, Simplify(doubleback, &simple));
-    REPORTER_ASSERT(reporter, simple.isEmpty());
+    doubleback = SkPathBuilder()
+                 .lineTo(1, 0)
+                 .lineTo(2, 0)
+                 .detach();
+    simple = Simplify(doubleback);
+    REPORTER_ASSERT(reporter, simple.has_value());
+    REPORTER_ASSERT(reporter, simple->isEmpty());
 
-    doubleback.reset();
-    doubleback.lineTo(-1, 0);
-    doubleback.lineTo(-1, 1);
-    doubleback.lineTo(-1, 0);
-    REPORTER_ASSERT(reporter, Simplify(doubleback, &simple));
-    REPORTER_ASSERT(reporter, simple.isEmpty());
+    doubleback = SkPathBuilder()
+                 .lineTo(-1, 0)
+                 .lineTo(-1, 1)
+                 .lineTo(-1, 0)
+                 .detach();
+    simple = Simplify(doubleback);
+    REPORTER_ASSERT(reporter, simple.has_value());
+    REPORTER_ASSERT(reporter, simple->isEmpty());
 
-    doubleback.reset();
-    doubleback.lineTo(1, 0);
-    doubleback.lineTo(1, 0);
-    doubleback.lineTo(1, 1);
-    doubleback.lineTo(1, 1);
-    doubleback.lineTo(1, 0);
-    REPORTER_ASSERT(reporter, Simplify(doubleback, &simple));
-    REPORTER_ASSERT(reporter, simple.isEmpty());
+    doubleback = SkPathBuilder()
+                 .lineTo(1, 0)
+                 .lineTo(1, 0)
+                 .lineTo(1, 1)
+                 .lineTo(1, 1)
+                 .lineTo(1, 0)
+                 .detach();
+    simple = Simplify(doubleback);
+    REPORTER_ASSERT(reporter, simple.has_value());
+    REPORTER_ASSERT(reporter, simple->isEmpty());
 }
 
 static void testLine1(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.moveTo(2,0);
-    path.lineTo(1,1);
-    path.lineTo(0,0);
-    path.close();
+    SkPath path = SkPathBuilder()
+                  .moveTo(2,0)
+                  .lineTo(1,1)
+                  .lineTo(0,0)
+                  .close()
+                  .detach();
     testSimplify(reporter, path, filename);
 }
 
 static void testLine1x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.setFillType(SkPathFillType::kEvenOdd);
-    path.moveTo(2,0);
-    path.lineTo(1,1);
-    path.lineTo(0,0);
-    path.close();
+    SkPath path = SkPathBuilder(SkPathFillType::kEvenOdd)
+                  .moveTo(2,0)
+                  .lineTo(1,1)
+                  .lineTo(0,0)
+                  .close()
+                  .detach();
     testSimplify(reporter, path, filename);
 }
 
-static void addInnerCWTriangle(SkPath& path) {
+static void addInnerCWTriangle(SkPathBuilder& path) {
     path.moveTo(3,0);
     path.lineTo(4,1);
     path.lineTo(2,1);
     path.close();
 }
 
-static void addInnerCCWTriangle(SkPath& path) {
+static void addInnerCCWTriangle(SkPathBuilder& path) {
     path.moveTo(3,0);
     path.lineTo(2,1);
     path.lineTo(4,1);
     path.close();
 }
 
-static void addOuterCWTriangle(SkPath& path) {
+static void addOuterCWTriangle(SkPathBuilder& path) {
     path.moveTo(3,0);
     path.lineTo(6,2);
     path.lineTo(0,2);
     path.close();
 }
 
-static void addOuterCCWTriangle(SkPath& path) {
+static void addOuterCCWTriangle(SkPathBuilder& path) {
     path.moveTo(3,0);
     path.lineTo(0,2);
     path.lineTo(6,2);
@@ -100,97 +110,97 @@ static void addOuterCCWTriangle(SkPath& path) {
 }
 
 static void testLine2(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     addInnerCWTriangle(path);
     addOuterCWTriangle(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine2x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     addInnerCWTriangle(path);
     addOuterCWTriangle(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine3(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     addInnerCCWTriangle(path);
     addOuterCWTriangle(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine3x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     addInnerCCWTriangle(path);
     addOuterCWTriangle(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine3a(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     addInnerCWTriangle(path);
     addOuterCCWTriangle(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine3ax(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     addInnerCWTriangle(path);
     addOuterCCWTriangle(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine3b(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     addInnerCCWTriangle(path);
     addOuterCCWTriangle(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine3bx(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     addInnerCCWTriangle(path);
     addOuterCCWTriangle(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine4(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     addOuterCCWTriangle(path);
     addOuterCWTriangle(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine4x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     addOuterCCWTriangle(path);
     addOuterCWTriangle(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine5(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     addOuterCWTriangle(path);
     addOuterCWTriangle(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine5x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     addOuterCWTriangle(path);
     addOuterCWTriangle(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine6(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0,0);
     path.lineTo(4,0);
     path.lineTo(2,2);
@@ -199,11 +209,11 @@ static void testLine6(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(6,0);
     path.lineTo(4,2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine6x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0,0);
     path.lineTo(4,0);
@@ -213,11 +223,11 @@ static void testLine6x(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(6,0);
     path.lineTo(4,2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine7(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0,0);
     path.lineTo(4,0);
     path.lineTo(2,2);
@@ -226,11 +236,11 @@ static void testLine7(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2,0);
     path.lineTo(4,2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine7x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0,0);
     path.lineTo(4,0);
@@ -240,30 +250,30 @@ static void testLine7x(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2,0);
     path.lineTo(4,2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine7a(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0,0);
     path.lineTo(4,0);
     path.lineTo(2,2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine7ax(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0,0);
     path.lineTo(4,0);
     path.lineTo(2,2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine7b(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0,0);
     path.lineTo(4,0);
     path.close();
@@ -271,11 +281,11 @@ static void testLine7b(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2,0);
     path.lineTo(4,2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine7bx(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0,0);
     path.lineTo(4,0);
@@ -284,11 +294,11 @@ static void testLine7bx(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2,0);
     path.lineTo(4,2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine8(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0,4);
     path.lineTo(4,4);
     path.lineTo(2,2);
@@ -297,11 +307,11 @@ static void testLine8(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(6,4);
     path.lineTo(4,2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine8x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0,4);
     path.lineTo(4,4);
@@ -311,11 +321,11 @@ static void testLine8x(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(6,4);
     path.lineTo(4,2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine9(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0,4);
     path.lineTo(4,4);
     path.lineTo(2,2);
@@ -324,11 +334,11 @@ static void testLine9(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2,4);
     path.lineTo(4,2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine9x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0,4);
     path.lineTo(4,4);
@@ -338,11 +348,11 @@ static void testLine9x(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2,4);
     path.lineTo(4,2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine10(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0,4);
     path.lineTo(4,4);
     path.lineTo(2,2);
@@ -351,11 +361,11 @@ static void testLine10(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(3,4);
     path.lineTo(6,1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine10x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0,4);
     path.lineTo(4,4);
@@ -365,11 +375,11 @@ static void testLine10x(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(3,4);
     path.lineTo(6,1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine10a(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0,4);
     path.lineTo(8,4);
     path.lineTo(4,0);
@@ -378,11 +388,11 @@ static void testLine10a(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(3,3);
     path.lineTo(4,2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine10ax(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0,4);
     path.lineTo(8,4);
@@ -392,31 +402,31 @@ static void testLine10ax(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(3,3);
     path.lineTo(4,2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
-static void addCWContainer(SkPath& path) {
+static void addCWContainer(SkPathBuilder& path) {
     path.moveTo(6,4);
     path.lineTo(0,4);
     path.lineTo(3,1);
     path.close();
 }
 
-static void addCCWContainer(SkPath& path) {
+static void addCCWContainer(SkPathBuilder& path) {
     path.moveTo(0,4);
     path.lineTo(6,4);
     path.lineTo(3,1);
     path.close();
 }
 
-static void addCWContents(SkPath& path) {
+static void addCWContents(SkPathBuilder& path) {
     path.moveTo(2,3);
     path.lineTo(3,2);
     path.lineTo(4,3);
     path.close();
 }
 
-static void addCCWContents(SkPath& path) {
+static void addCCWContents(SkPathBuilder& path) {
     path.moveTo(3,2);
     path.lineTo(2,3);
     path.lineTo(4,3);
@@ -424,200 +434,197 @@ static void addCCWContents(SkPath& path) {
 }
 
 static void testLine11(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     addCWContainer(path);
     addCWContents(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine11x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     addCWContainer(path);
     addCWContents(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine12(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     addCCWContainer(path);
     addCWContents(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine12x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     addCCWContainer(path);
     addCWContents(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine13(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     addCWContainer(path);
     addCCWContents(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine13x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     addCWContainer(path);
     addCCWContents(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine14(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     addCCWContainer(path);
     addCCWContents(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine14x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     addCCWContainer(path);
     addCCWContents(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine15(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 9, 9, SkPathDirection::kCW);
+    SkPath path = SkPath::Rect({0, 0, 9, 9}, SkPathFillType::kWinding, SkPathDirection::kCW);
     testSimplify(reporter, path, filename);
 }
 
 static void testLine15x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 9, 9, SkPathDirection::kCW);
+    SkPath path = SkPath::Rect({0, 0, 9, 9}, SkPathFillType::kEvenOdd, SkPathDirection::kCW);
     testSimplify(reporter, path, filename);
 }
 
 static void testLine16(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(0, 4, 9, 9, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({0, 4, 9, 9}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine16x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(0, 4, 9, 9, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({0, 4, 9, 9}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine17(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(4, 12, 13, 13, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({4, 12, 13, 13}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine17x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(4, 12, 13, 13, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({4, 12, 13, 13}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine18(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(12, 4, 21, 21, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({12, 4, 21, 21}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine18x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(12, 4, 21, 21, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({12, 4, 21, 21}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine19(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(12, 16, 21, 21, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({12, 16, 21, 21}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine19x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(12, 16, 21, 21, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({12, 16, 21, 21}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine20(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 12, 12, 12, SkPathDirection::kCW);
-    path.addRect(0, 12, 9, 9, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 12, 12, 12}, SkPathDirection::kCW);
+    path.addRect({0, 12, 9, 9}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine20x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 12, 12, 12, SkPathDirection::kCW);
-    path.addRect(0, 12, 9, 9, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 12, 12, 12}, SkPathDirection::kCW);
+    path.addRect({0, 12, 9, 9}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine21(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 12, 12, 12, SkPathDirection::kCW);
-    path.addRect(0, 16, 9, 9, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 12, 12, 12}, SkPathDirection::kCW);
+    path.addRect({0, 16, 9, 9}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine21x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 12, 12, 12, SkPathDirection::kCW);
-    path.addRect(0, 16, 9, 9, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 12, 12, 12}, SkPathDirection::kCW);
+    path.addRect({0, 16, 9, 9}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine22(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 12, 12, 12, SkPathDirection::kCW);
-    path.addRect(4, 12, 13, 13, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 12, 12, 12}, SkPathDirection::kCW);
+    path.addRect({4, 12, 13, 13}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine22x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 12, 12, 12, SkPathDirection::kCW);
-    path.addRect(4, 12, 13, 13, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 12, 12, 12}, SkPathDirection::kCW);
+    path.addRect({4, 12, 13, 13}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine23(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 12, 12, 12, SkPathDirection::kCW);
-    path.addRect(12, 0, 21, 21, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 12, 12, 12}, SkPathDirection::kCW);
+    path.addRect({12, 0, 21, 21}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine23x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 12, 12, 12, SkPathDirection::kCW);
-    path.addRect(12, 0, 21, 21, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 12, 12, 12}, SkPathDirection::kCW);
+    path.addRect({12, 0, 21, 21}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine24a(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(2,0);
     path.lineTo(4,4);
     path.lineTo(0,4);
@@ -626,11 +633,11 @@ static void testLine24a(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(1,2);
     path.lineTo(2,2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine24ax(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(2,0);
     path.lineTo(4,4);
@@ -640,1091 +647,1091 @@ static void testLine24ax(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(1,2);
     path.lineTo(2,2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine24(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 18, 12, 12, SkPathDirection::kCW);
-    path.addRect(4, 12, 13, 13, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 18, 12, 12}, SkPathDirection::kCW);
+    path.addRect({4, 12, 13, 13}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine24x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 18, 12, 12, SkPathDirection::kCW);
-    path.addRect(4, 12, 13, 13, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 18, 12, 12}, SkPathDirection::kCW);
+    path.addRect({4, 12, 13, 13}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine25(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 6, 12, 12, SkPathDirection::kCW);
-    path.addRect(12, 0, 21, 21, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 6, 12, 12}, SkPathDirection::kCW);
+    path.addRect({12, 0, 21, 21}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine25x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 6, 12, 12, SkPathDirection::kCW);
-    path.addRect(12, 0, 21, 21, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 6, 12, 12}, SkPathDirection::kCW);
+    path.addRect({12, 0, 21, 21}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine26(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 18, 12, 12, SkPathDirection::kCW);
-    path.addRect(0, 12, 9, 9, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 18, 12, 12}, SkPathDirection::kCW);
+    path.addRect({0, 12, 9, 9}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine26x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 18, 12, 12, SkPathDirection::kCW);
-    path.addRect(0, 12, 9, 9, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 18, 12, 12}, SkPathDirection::kCW);
+    path.addRect({0, 12, 9, 9}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine27(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 18, 12, 12, SkPathDirection::kCW);
-    path.addRect(12, 8, 21, 21, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 18, 12, 12}, SkPathDirection::kCW);
+    path.addRect({12, 8, 21, 21}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine27x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 18, 12, 12, SkPathDirection::kCW);
-    path.addRect(12, 8, 21, 21, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 18, 12, 12}, SkPathDirection::kCW);
+    path.addRect({12, 8, 21, 21}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine28(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 6, 12, 12, SkPathDirection::kCW);
-    path.addRect(0, 0, 9, 9, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 6, 12, 12}, SkPathDirection::kCW);
+    path.addRect({0, 0, 9, 9}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine28x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 6, 12, 12, SkPathDirection::kCW);
-    path.addRect(0, 0, 9, 9, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 6, 12, 12}, SkPathDirection::kCW);
+    path.addRect({0, 0, 9, 9}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine29(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 18, 12, 12, SkPathDirection::kCW);
-    path.addRect(12, 12, 21, 21, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 18, 12, 12}, SkPathDirection::kCW);
+    path.addRect({12, 12, 21, 21}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine29x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 18, 12, 12, SkPathDirection::kCW);
-    path.addRect(12, 12, 21, 21, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 18, 12, 12}, SkPathDirection::kCW);
+    path.addRect({12, 12, 21, 21}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine30(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(4, 4, 13, 13, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({4, 4, 13, 13}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine30x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(4, 4, 13, 13, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({4, 4, 13, 13}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine31(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(0, 4, 9, 9, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({0, 4, 9, 9}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine31x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(0, 4, 9, 9, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({0, 4, 9, 9}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine32(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(4, 12, 13, 13, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({4, 12, 13, 13}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine32x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(4, 12, 13, 13, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({4, 12, 13, 13}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine33(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(4, 16, 13, 13, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({4, 16, 13, 13}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine33x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(4, 16, 13, 13, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({4, 16, 13, 13}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine34(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 6, 12, 12, SkPathDirection::kCW);
-    path.addRect(4, 12, 13, 13, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 6, 12, 12}, SkPathDirection::kCW);
+    path.addRect({4, 12, 13, 13}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine34x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 6, 12, 12, SkPathDirection::kCW);
-    path.addRect(4, 12, 13, 13, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 6, 12, 12}, SkPathDirection::kCW);
+    path.addRect({4, 12, 13, 13}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine35(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(6, 0, 18, 18, SkPathDirection::kCW);
-    path.addRect(4, 16, 13, 13, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({6, 0, 18, 18}, SkPathDirection::kCW);
+    path.addRect({4, 16, 13, 13}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine35x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(6, 0, 18, 18, SkPathDirection::kCW);
-    path.addRect(4, 16, 13, 13, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({6, 0, 18, 18}, SkPathDirection::kCW);
+    path.addRect({4, 16, 13, 13}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine36(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 10, 20, 20, SkPathDirection::kCW);
-    path.addRect(6, 12, 18, 18, SkPathDirection::kCW);
-    path.addRect(4, 16, 13, 13, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 10, 20, 20}, SkPathDirection::kCW);
+    path.addRect({6, 12, 18, 18}, SkPathDirection::kCW);
+    path.addRect({4, 16, 13, 13}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine36x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 10, 20, 20, SkPathDirection::kCW);
-    path.addRect(6, 12, 18, 18, SkPathDirection::kCW);
-    path.addRect(4, 16, 13, 13, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 10, 20, 20}, SkPathDirection::kCW);
+    path.addRect({6, 12, 18, 18}, SkPathDirection::kCW);
+    path.addRect({4, 16, 13, 13}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine37(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 20, 20, 20, SkPathDirection::kCW);
-    path.addRect(18, 24, 30, 30, SkPathDirection::kCW);
-    path.addRect(0, 0, 9, 9, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 20, 20, 20}, SkPathDirection::kCW);
+    path.addRect({18, 24, 30, 30}, SkPathDirection::kCW);
+    path.addRect({0, 0, 9, 9}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine37x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 20, 20, 20, SkPathDirection::kCW);
-    path.addRect(18, 24, 30, 30, SkPathDirection::kCW);
-    path.addRect(0, 0, 9, 9, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 20, 20, 20}, SkPathDirection::kCW);
+    path.addRect({18, 24, 30, 30}, SkPathDirection::kCW);
+    path.addRect({0, 0, 9, 9}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine38(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(10, 0, 30, 30, SkPathDirection::kCW);
-    path.addRect(6, 12, 18, 18, SkPathDirection::kCW);
-    path.addRect(12, 12, 21, 21, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({10, 0, 30, 30}, SkPathDirection::kCW);
+    path.addRect({6, 12, 18, 18}, SkPathDirection::kCW);
+    path.addRect({12, 12, 21, 21}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine38x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(10, 0, 30, 30, SkPathDirection::kCW);
-    path.addRect(6, 12, 18, 18, SkPathDirection::kCW);
-    path.addRect(12, 12, 21, 21, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({10, 0, 30, 30}, SkPathDirection::kCW);
+    path.addRect({6, 12, 18, 18}, SkPathDirection::kCW);
+    path.addRect({12, 12, 21, 21}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine40(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(10, 0, 30, 30, SkPathDirection::kCW);
-    path.addRect(12, 18, 24, 24, SkPathDirection::kCW);
-    path.addRect(4, 16, 13, 13, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({10, 0, 30, 30}, SkPathDirection::kCW);
+    path.addRect({12, 18, 24, 24}, SkPathDirection::kCW);
+    path.addRect({4, 16, 13, 13}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine40x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(10, 0, 30, 30, SkPathDirection::kCW);
-    path.addRect(12, 18, 24, 24, SkPathDirection::kCW);
-    path.addRect(4, 16, 13, 13, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({10, 0, 30, 30}, SkPathDirection::kCW);
+    path.addRect({12, 18, 24, 24}, SkPathDirection::kCW);
+    path.addRect({4, 16, 13, 13}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine41(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(18, 24, 30, 30, SkPathDirection::kCW);
-    path.addRect(12, 0, 21, 21, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({18, 24, 30, 30}, SkPathDirection::kCW);
+    path.addRect({12, 0, 21, 21}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine41x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(18, 24, 30, 30, SkPathDirection::kCW);
-    path.addRect(12, 0, 21, 21, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({18, 24, 30, 30}, SkPathDirection::kCW);
+    path.addRect({12, 0, 21, 21}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine42(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(8, 16, 17, 17, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({8, 16, 17, 17}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine42x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(8, 16, 17, 17, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({8, 16, 17, 17}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine43(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(6, 24, 18, 18, SkPathDirection::kCW);
-    path.addRect(0, 32, 9, 36, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({6, 24, 18, 18}, SkPathDirection::kCW);
+    path.addRect({0, 32, 9, 36}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine43x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(6, 24, 18, 18, SkPathDirection::kCW);
-    path.addRect(0, 32, 9, 36, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({6, 24, 18, 18}, SkPathDirection::kCW);
+    path.addRect({0, 32, 9, 36}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine44(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(10, 40, 30, 30, SkPathDirection::kCW);
-    path.addRect(18, 0, 30, 30, SkPathDirection::kCW);
-    path.addRect(18, 32, 27, 36, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({10, 40, 30, 30}, SkPathDirection::kCW);
+    path.addRect({18, 0, 30, 30}, SkPathDirection::kCW);
+    path.addRect({18, 32, 27, 36}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine44x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(10, 40, 30, 30, SkPathDirection::kCW);
-    path.addRect(18, 0, 30, 30, SkPathDirection::kCW);
-    path.addRect(18, 32, 27, 36, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({10, 40, 30, 30}, SkPathDirection::kCW);
+    path.addRect({18, 0, 30, 30}, SkPathDirection::kCW);
+    path.addRect({18, 32, 27, 36}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine45(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(10, 0, 30, 30, SkPathDirection::kCW);
-    path.addRect(18, 0, 30, 30, SkPathDirection::kCW);
-    path.addRect(24, 32, 33, 36, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({10, 0, 30, 30}, SkPathDirection::kCW);
+    path.addRect({18, 0, 30, 30}, SkPathDirection::kCW);
+    path.addRect({24, 32, 33, 36}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine45x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(10, 0, 30, 30, SkPathDirection::kCW);
-    path.addRect(18, 0, 30, 30, SkPathDirection::kCW);
-    path.addRect(24, 32, 33, 36, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({10, 0, 30, 30}, SkPathDirection::kCW);
+    path.addRect({18, 0, 30, 30}, SkPathDirection::kCW);
+    path.addRect({24, 32, 33, 36}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine46(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(10, 40, 30, 30, SkPathDirection::kCW);
-    path.addRect(24, 0, 36, 36, SkPathDirection::kCW);
-    path.addRect(24, 32, 33, 36, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({10, 40, 30, 30}, SkPathDirection::kCW);
+    path.addRect({24, 0, 36, 36}, SkPathDirection::kCW);
+    path.addRect({24, 32, 33, 36}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine46x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(10, 40, 30, 30, SkPathDirection::kCW);
-    path.addRect(24, 0, 36, 36, SkPathDirection::kCW);
-    path.addRect(24, 32, 33, 36, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({10, 40, 30, 30}, SkPathDirection::kCW);
+    path.addRect({24, 0, 36, 36}, SkPathDirection::kCW);
+    path.addRect({24, 32, 33, 36}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine47(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(0, 0, 9, 9, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({0, 0, 9, 9}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine47x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(0, 0, 9, 9, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({0, 0, 9, 9}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine48(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 6, 12, 12, SkPathDirection::kCW);
-    path.addRect(0, 0, 9, 9, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 6, 12, 12}, SkPathDirection::kCW);
+    path.addRect({0, 0, 9, 9}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine48x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 6, 12, 12, SkPathDirection::kCW);
-    path.addRect(0, 0, 9, 9, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 6, 12, 12}, SkPathDirection::kCW);
+    path.addRect({0, 0, 9, 9}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine49(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(0, 0, 9, 9, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({0, 0, 9, 9}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine49x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(0, 0, 9, 9, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({0, 0, 9, 9}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine50(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(10, 30, 30, 30, SkPathDirection::kCW);
-    path.addRect(24, 20, 36, 30, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({10, 30, 30, 30}, SkPathDirection::kCW);
+    path.addRect({24, 20, 36, 30}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine50x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(10, 30, 30, 30, SkPathDirection::kCW);
-    path.addRect(24, 20, 36, 30, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({10, 30, 30, 30}, SkPathDirection::kCW);
+    path.addRect({24, 20, 36, 30}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine51(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 12, 12, 12, SkPathDirection::kCW);
-    path.addRect(4, 12, 13, 13, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 12, 12, 12}, SkPathDirection::kCW);
+    path.addRect({4, 12, 13, 13}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine51x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 12, 12, 12, SkPathDirection::kCW);
-    path.addRect(4, 12, 13, 13, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 12, 12, 12}, SkPathDirection::kCW);
+    path.addRect({4, 12, 13, 13}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine52(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 30, 20, 20, SkPathDirection::kCW);
-    path.addRect(6, 20, 18, 30, SkPathDirection::kCW);
-    path.addRect(32, 0, 36, 41, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 30, 20, 20}, SkPathDirection::kCW);
+    path.addRect({6, 20, 18, 30}, SkPathDirection::kCW);
+    path.addRect({32, 0, 36, 41}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine52x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 30, 20, 20, SkPathDirection::kCW);
-    path.addRect(6, 20, 18, 30, SkPathDirection::kCW);
-    path.addRect(32, 0, 36, 41, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 30, 20, 20}, SkPathDirection::kCW);
+    path.addRect({6, 20, 18, 30}, SkPathDirection::kCW);
+    path.addRect({32, 0, 36, 41}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine53(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(10, 30, 30, 30, SkPathDirection::kCW);
-    path.addRect(12, 20, 24, 30, SkPathDirection::kCW);
-    path.addRect(12, 32, 21, 36, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({10, 30, 30, 30}, SkPathDirection::kCW);
+    path.addRect({12, 20, 24, 30}, SkPathDirection::kCW);
+    path.addRect({12, 32, 21, 36}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine53x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(10, 30, 30, 30, SkPathDirection::kCW);
-    path.addRect(12, 20, 24, 30, SkPathDirection::kCW);
-    path.addRect(12, 32, 21, 36, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({10, 30, 30, 30}, SkPathDirection::kCW);
+    path.addRect({12, 20, 24, 30}, SkPathDirection::kCW);
+    path.addRect({12, 32, 21, 36}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine54(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(6, 0, 18, 18, SkPathDirection::kCW);
-    path.addRect(8, 4, 17, 17, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({6, 0, 18, 18}, SkPathDirection::kCW);
+    path.addRect({8, 4, 17, 17}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine54x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(6, 0, 18, 18, SkPathDirection::kCW);
-    path.addRect(8, 4, 17, 17, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({6, 0, 18, 18}, SkPathDirection::kCW);
+    path.addRect({8, 4, 17, 17}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine55(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(6, 6, 18, 18, SkPathDirection::kCW);
-    path.addRect(4, 4, 13, 13, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({6, 6, 18, 18}, SkPathDirection::kCW);
+    path.addRect({4, 4, 13, 13}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine55x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(6, 6, 18, 18, SkPathDirection::kCW);
-    path.addRect(4, 4, 13, 13, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({6, 6, 18, 18}, SkPathDirection::kCW);
+    path.addRect({4, 4, 13, 13}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine56(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 20, 20, 20, SkPathDirection::kCW);
-    path.addRect(18, 20, 30, 30, SkPathDirection::kCW);
-    path.addRect(12, 0, 21, 21, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 20, 20, 20}, SkPathDirection::kCW);
+    path.addRect({18, 20, 30, 30}, SkPathDirection::kCW);
+    path.addRect({12, 0, 21, 21}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine56x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 20, 20, 20, SkPathDirection::kCW);
-    path.addRect(18, 20, 30, 30, SkPathDirection::kCW);
-    path.addRect(12, 0, 21, 21, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 20, 20, 20}, SkPathDirection::kCW);
+    path.addRect({18, 20, 30, 30}, SkPathDirection::kCW);
+    path.addRect({12, 0, 21, 21}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine57(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(20, 0, 40, 40, SkPathDirection::kCW);
-    path.addRect(20, 0, 30, 40, SkPathDirection::kCW);
-    path.addRect(12, 0, 21, 21, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({20, 0, 40, 40}, SkPathDirection::kCW);
+    path.addRect({20, 0, 30, 40}, SkPathDirection::kCW);
+    path.addRect({12, 0, 21, 21}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine57x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(20, 0, 40, 40, SkPathDirection::kCW);
-    path.addRect(20, 0, 30, 40, SkPathDirection::kCW);
-    path.addRect(12, 0, 21, 21, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({20, 0, 40, 40}, SkPathDirection::kCW);
+    path.addRect({20, 0, 30, 40}, SkPathDirection::kCW);
+    path.addRect({12, 0, 21, 21}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine58(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCCW);
-    path.addRect(0, 12, 9, 9, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCCW);
+    path.addRect({0, 12, 9, 9}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine58x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCCW);
-    path.addRect(0, 12, 9, 9, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCCW);
+    path.addRect({0, 12, 9, 9}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine59(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(6, 6, 18, 18, SkPathDirection::kCCW);
-    path.addRect(4, 4, 13, 13, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({6, 6, 18, 18}, SkPathDirection::kCCW);
+    path.addRect({4, 4, 13, 13}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine59x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(6, 6, 18, 18, SkPathDirection::kCCW);
-    path.addRect(4, 4, 13, 13, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({6, 6, 18, 18}, SkPathDirection::kCCW);
+    path.addRect({4, 4, 13, 13}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine60(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(6, 12, 18, 18, SkPathDirection::kCCW);
-    path.addRect(4, 12, 13, 13, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({6, 12, 18, 18}, SkPathDirection::kCCW);
+    path.addRect({4, 12, 13, 13}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine60x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(6, 12, 18, 18, SkPathDirection::kCCW);
-    path.addRect(4, 12, 13, 13, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({6, 12, 18, 18}, SkPathDirection::kCCW);
+    path.addRect({4, 12, 13, 13}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine61(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(12, 0, 24, 24, SkPathDirection::kCCW);
-    path.addRect(12, 0, 21, 21, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({12, 0, 24, 24}, SkPathDirection::kCCW);
+    path.addRect({12, 0, 21, 21}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine61x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(12, 0, 24, 24, SkPathDirection::kCCW);
-    path.addRect(12, 0, 21, 21, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({12, 0, 24, 24}, SkPathDirection::kCCW);
+    path.addRect({12, 0, 21, 21}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine62(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 60, 60, SkPathDirection::kCW);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 12, 12, 12, SkPathDirection::kCW);
-    path.addRect(4, 12, 13, 13, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 60, 60}, SkPathDirection::kCW);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 12, 12, 12}, SkPathDirection::kCW);
+    path.addRect({4, 12, 13, 13}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine62x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 60, 60, SkPathDirection::kCW);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 12, 12, 12, SkPathDirection::kCW);
-    path.addRect(4, 12, 13, 13, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 60, 60}, SkPathDirection::kCW);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 12, 12, 12}, SkPathDirection::kCW);
+    path.addRect({4, 12, 13, 13}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine63(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 60, 60, SkPathDirection::kCW);
-    path.addRect(0, 10, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 6, 12, 12, SkPathDirection::kCCW);
-    path.addRect(0, 32, 9, 36, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 60, 60}, SkPathDirection::kCW);
+    path.addRect({0, 10, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 6, 12, 12}, SkPathDirection::kCCW);
+    path.addRect({0, 32, 9, 36}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine63x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 60, 60, SkPathDirection::kCW);
-    path.addRect(0, 10, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 6, 12, 12, SkPathDirection::kCCW);
-    path.addRect(0, 32, 9, 36, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 60, 60}, SkPathDirection::kCW);
+    path.addRect({0, 10, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 6, 12, 12}, SkPathDirection::kCCW);
+    path.addRect({0, 32, 9, 36}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine64(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 60, 60, SkPathDirection::kCW);
-    path.addRect(10, 40, 30, 30, SkPathDirection::kCW);
-    path.addRect(18, 6, 30, 30, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 60, 60}, SkPathDirection::kCW);
+    path.addRect({10, 40, 30, 30}, SkPathDirection::kCW);
+    path.addRect({18, 6, 30, 30}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine64x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 60, 60, SkPathDirection::kCW);
-    path.addRect(10, 40, 30, 30, SkPathDirection::kCW);
-    path.addRect(18, 6, 30, 30, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 60, 60}, SkPathDirection::kCW);
+    path.addRect({10, 40, 30, 30}, SkPathDirection::kCW);
+    path.addRect({18, 6, 30, 30}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine65(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 60, 60, SkPathDirection::kCW);
-    path.addRect(10, 0, 30, 30, SkPathDirection::kCW);
-    path.addRect(24, 0, 36, 36, SkPathDirection::kCW);
-    path.addRect(32, 6, 36, 41, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 60, 60}, SkPathDirection::kCW);
+    path.addRect({10, 0, 30, 30}, SkPathDirection::kCW);
+    path.addRect({24, 0, 36, 36}, SkPathDirection::kCW);
+    path.addRect({32, 6, 36, 41}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine65x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 60, 60, SkPathDirection::kCW);
-    path.addRect(10, 0, 30, 30, SkPathDirection::kCW);
-    path.addRect(24, 0, 36, 36, SkPathDirection::kCW);
-    path.addRect(32, 6, 36, 41, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 60, 60}, SkPathDirection::kCW);
+    path.addRect({10, 0, 30, 30}, SkPathDirection::kCW);
+    path.addRect({24, 0, 36, 36}, SkPathDirection::kCW);
+    path.addRect({32, 6, 36, 41}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine66(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 60, 60, SkPathDirection::kCW);
-    path.addRect(0, 30, 20, 20, SkPathDirection::kCW);
-    path.addRect(12, 20, 24, 30, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 60, 60}, SkPathDirection::kCW);
+    path.addRect({0, 30, 20, 20}, SkPathDirection::kCW);
+    path.addRect({12, 20, 24, 30}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine66x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 60, 60, SkPathDirection::kCW);
-    path.addRect(0, 30, 20, 20, SkPathDirection::kCW);
-    path.addRect(12, 20, 24, 30, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 60, 60}, SkPathDirection::kCW);
+    path.addRect({0, 30, 20, 20}, SkPathDirection::kCW);
+    path.addRect({12, 20, 24, 30}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine67(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 60, 60, SkPathDirection::kCW);
-    path.addRect(10, 40, 30, 30, SkPathDirection::kCW);
-    path.addRect(24, 20, 36, 30, SkPathDirection::kCW);
-    path.addRect(32, 0, 36, 41, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 60, 60}, SkPathDirection::kCW);
+    path.addRect({10, 40, 30, 30}, SkPathDirection::kCW);
+    path.addRect({24, 20, 36, 30}, SkPathDirection::kCW);
+    path.addRect({32, 0, 36, 41}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine67x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 60, 60, SkPathDirection::kCW);
-    path.addRect(10, 40, 30, 30, SkPathDirection::kCW);
-    path.addRect(24, 20, 36, 30, SkPathDirection::kCW);
-    path.addRect(32, 0, 36, 41, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 60, 60}, SkPathDirection::kCW);
+    path.addRect({10, 40, 30, 30}, SkPathDirection::kCW);
+    path.addRect({24, 20, 36, 30}, SkPathDirection::kCW);
+    path.addRect({32, 0, 36, 41}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine68a(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 8, 8, SkPathDirection::kCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCW);
-    path.addRect(1, 2, 4, 2, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 8, 8}, SkPathDirection::kCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCW);
+    path.addRect({1, 2, 4, 2}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine68ax(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 8, 8, SkPathDirection::kCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCW);
-    path.addRect(1, 2, 4, 2, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 8, 8}, SkPathDirection::kCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCW);
+    path.addRect({1, 2, 4, 2}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine68b(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 8, 8, SkPathDirection::kCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCCW);
-    path.addRect(1, 2, 2, 2, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 8, 8}, SkPathDirection::kCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCCW);
+    path.addRect({1, 2, 2, 2}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine68bx(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 8, 8, SkPathDirection::kCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCCW);
-    path.addRect(1, 2, 2, 2, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 8, 8}, SkPathDirection::kCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCCW);
+    path.addRect({1, 2, 2, 2}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine68c(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 8, 8, SkPathDirection::kCCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCW);
-    path.addRect(1, 2, 4, 2, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 8, 8}, SkPathDirection::kCCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCW);
+    path.addRect({1, 2, 4, 2}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine68cx(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 8, 8, SkPathDirection::kCCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCW);
-    path.addRect(1, 2, 4, 2, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 8, 8}, SkPathDirection::kCCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCW);
+    path.addRect({1, 2, 4, 2}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine68d(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 8, 8, SkPathDirection::kCCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCCW);
-    path.addRect(1, 2, 4, 2, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 8, 8}, SkPathDirection::kCCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCCW);
+    path.addRect({1, 2, 4, 2}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine68dx(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 8, 8, SkPathDirection::kCCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCCW);
-    path.addRect(1, 2, 4, 2, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 8, 8}, SkPathDirection::kCCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCCW);
+    path.addRect({1, 2, 4, 2}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine68e(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 8, 8, SkPathDirection::kCW);
-    path.addRect(0, 0, 8, 8, SkPathDirection::kCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCCW);
-    path.addRect(1, 2, 2, 2, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 8, 8}, SkPathDirection::kCW);
+    path.addRect({0, 0, 8, 8}, SkPathDirection::kCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCCW);
+    path.addRect({1, 2, 2, 2}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine68ex(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 8, 8, SkPathDirection::kCW);
-    path.addRect(0, 0, 8, 8, SkPathDirection::kCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCCW);
-    path.addRect(1, 2, 2, 2, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 8, 8}, SkPathDirection::kCW);
+    path.addRect({0, 0, 8, 8}, SkPathDirection::kCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCCW);
+    path.addRect({1, 2, 2, 2}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine68f(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 8, 8, SkPathDirection::kCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCCW);
-    path.addRect(1, 2, 2, 2, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 8, 8}, SkPathDirection::kCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCCW);
+    path.addRect({1, 2, 2, 2}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine68fx(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 8, 8, SkPathDirection::kCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCCW);
-    path.addRect(1, 2, 2, 2, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 8, 8}, SkPathDirection::kCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCCW);
+    path.addRect({1, 2, 2, 2}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine68g(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 8, 8, SkPathDirection::kCW);
-    path.addRect(0, 0, 8, 8, SkPathDirection::kCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCCW);
-    path.addRect(1, 2, 2, 2, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 8, 8}, SkPathDirection::kCW);
+    path.addRect({0, 0, 8, 8}, SkPathDirection::kCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCCW);
+    path.addRect({1, 2, 2, 2}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine68gx(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 8, 8, SkPathDirection::kCW);
-    path.addRect(0, 0, 8, 8, SkPathDirection::kCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCCW);
-    path.addRect(1, 2, 2, 2, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 8, 8}, SkPathDirection::kCW);
+    path.addRect({0, 0, 8, 8}, SkPathDirection::kCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCCW);
+    path.addRect({1, 2, 2, 2}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine68h(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 8, 8, SkPathDirection::kCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCCW);
-    path.addRect(1, 2, 2, 2, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 8, 8}, SkPathDirection::kCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCCW);
+    path.addRect({1, 2, 2, 2}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine68hx(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 8, 8, SkPathDirection::kCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCCW);
-    path.addRect(2, 2, 6, 6, SkPathDirection::kCCW);
-    path.addRect(1, 2, 2, 2, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 8, 8}, SkPathDirection::kCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCCW);
+    path.addRect({2, 2, 6, 6}, SkPathDirection::kCCW);
+    path.addRect({1, 2, 2, 2}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine69(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 20, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 20, 12, 30, SkPathDirection::kCW);
-    path.addRect(12, 32, 21, 36, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 20, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 20, 12, 30}, SkPathDirection::kCW);
+    path.addRect({12, 32, 21, 36}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine69x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 20, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 20, 12, 30, SkPathDirection::kCW);
-    path.addRect(12, 32, 21, 36, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 20, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 20, 12, 30}, SkPathDirection::kCW);
+    path.addRect({12, 32, 21, 36}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine70(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 24, 12, 12, SkPathDirection::kCW);
-    path.addRect(12, 32, 21, 36, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 24, 12, 12}, SkPathDirection::kCW);
+    path.addRect({12, 32, 21, 36}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine70x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 24, 12, 12, SkPathDirection::kCW);
-    path.addRect(12, 32, 21, 36, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 24, 12, 12}, SkPathDirection::kCW);
+    path.addRect({12, 32, 21, 36}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine71(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(12, 0, 24, 24, SkPathDirection::kCW);
-    path.addRect(12, 32, 21, 36, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({12, 0, 24, 24}, SkPathDirection::kCW);
+    path.addRect({12, 32, 21, 36}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine71x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 20, 20, SkPathDirection::kCW);
-    path.addRect(12, 0, 24, 24, SkPathDirection::kCW);
-    path.addRect(12, 32, 21, 36, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 20, 20}, SkPathDirection::kCW);
+    path.addRect({12, 0, 24, 24}, SkPathDirection::kCW);
+    path.addRect({12, 32, 21, 36}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine72(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 60, 60, SkPathDirection::kCW);
-    path.addRect(10, 40, 30, 30, SkPathDirection::kCW);
-    path.addRect(6, 20, 18, 30, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 60, 60}, SkPathDirection::kCW);
+    path.addRect({10, 40, 30, 30}, SkPathDirection::kCW);
+    path.addRect({6, 20, 18, 30}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine72x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 60, 60, SkPathDirection::kCW);
-    path.addRect(10, 40, 30, 30, SkPathDirection::kCW);
-    path.addRect(6, 20, 18, 30, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 60, 60}, SkPathDirection::kCW);
+    path.addRect({10, 40, 30, 30}, SkPathDirection::kCW);
+    path.addRect({6, 20, 18, 30}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine73(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 60, 60, SkPathDirection::kCW);
-    path.addRect(0, 40, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 20, 12, 30, SkPathDirection::kCW);
-    path.addRect(0, 0, 9, 9, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 60, 60}, SkPathDirection::kCW);
+    path.addRect({0, 40, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 20, 12, 30}, SkPathDirection::kCW);
+    path.addRect({0, 0, 9, 9}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine73x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 60, 60, SkPathDirection::kCW);
-    path.addRect(0, 40, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 20, 12, 30, SkPathDirection::kCW);
-    path.addRect(0, 0, 9, 9, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 60, 60}, SkPathDirection::kCW);
+    path.addRect({0, 40, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 20, 12, 30}, SkPathDirection::kCW);
+    path.addRect({0, 0, 9, 9}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine74(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(20, 30, 40, 40, SkPathDirection::kCW);
-    path.addRect(24, 20, 36, 30, SkPathDirection::kCCW);
-    path.addRect(32, 24, 36, 41, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({20, 30, 40, 40}, SkPathDirection::kCW);
+    path.addRect({24, 20, 36, 30}, SkPathDirection::kCCW);
+    path.addRect({32, 24, 36, 41}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine74x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(20, 30, 40, 40, SkPathDirection::kCW);
-    path.addRect(24, 20, 36, 30, SkPathDirection::kCCW);
-    path.addRect(32, 24, 36, 41, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({20, 30, 40, 40}, SkPathDirection::kCW);
+    path.addRect({24, 20, 36, 30}, SkPathDirection::kCCW);
+    path.addRect({32, 24, 36, 41}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine75(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 60, 60, SkPathDirection::kCW);
-    path.addRect(10, 0, 30, 30, SkPathDirection::kCCW);
-    path.addRect(18, 0, 30, 30, SkPathDirection::kCCW);
-    path.addRect(12, 0, 21, 21, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 60, 60}, SkPathDirection::kCW);
+    path.addRect({10, 0, 30, 30}, SkPathDirection::kCCW);
+    path.addRect({18, 0, 30, 30}, SkPathDirection::kCCW);
+    path.addRect({12, 0, 21, 21}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine75x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 60, 60, SkPathDirection::kCW);
-    path.addRect(10, 0, 30, 30, SkPathDirection::kCCW);
-    path.addRect(18, 0, 30, 30, SkPathDirection::kCCW);
-    path.addRect(12, 0, 21, 21, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 60, 60}, SkPathDirection::kCW);
+    path.addRect({10, 0, 30, 30}, SkPathDirection::kCCW);
+    path.addRect({18, 0, 30, 30}, SkPathDirection::kCCW);
+    path.addRect({12, 0, 21, 21}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine76(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(36, 0, 66, 60, SkPathDirection::kCW);
-    path.addRect(10, 20, 40, 30, SkPathDirection::kCW);
-    path.addRect(24, 20, 36, 30, SkPathDirection::kCCW);
-    path.addRect(32, 6, 36, 41, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({36, 0, 66, 60}, SkPathDirection::kCW);
+    path.addRect({10, 20, 40, 30}, SkPathDirection::kCW);
+    path.addRect({24, 20, 36, 30}, SkPathDirection::kCCW);
+    path.addRect({32, 6, 36, 41}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine76x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(36, 0, 66, 60, SkPathDirection::kCW);
-    path.addRect(10, 20, 40, 30, SkPathDirection::kCW);
-    path.addRect(24, 20, 36, 30, SkPathDirection::kCCW);
-    path.addRect(32, 6, 36, 41, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({36, 0, 66, 60}, SkPathDirection::kCW);
+    path.addRect({10, 20, 40, 30}, SkPathDirection::kCW);
+    path.addRect({24, 20, 36, 30}, SkPathDirection::kCCW);
+    path.addRect({32, 6, 36, 41}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine77(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(20, 0, 40, 40, SkPathDirection::kCW);
-    path.addRect(24, 6, 36, 36, SkPathDirection::kCCW);
-    path.addRect(24, 32, 33, 36, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({20, 0, 40, 40}, SkPathDirection::kCW);
+    path.addRect({24, 6, 36, 36}, SkPathDirection::kCCW);
+    path.addRect({24, 32, 33, 36}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine77x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(20, 0, 40, 40, SkPathDirection::kCW);
-    path.addRect(24, 6, 36, 36, SkPathDirection::kCCW);
-    path.addRect(24, 32, 33, 36, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({20, 0, 40, 40}, SkPathDirection::kCW);
+    path.addRect({24, 6, 36, 36}, SkPathDirection::kCCW);
+    path.addRect({24, 32, 33, 36}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine78(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 30, 60, SkPathDirection::kCW);
-    path.addRect(10, 20, 30, 30, SkPathDirection::kCCW);
-    path.addRect(18, 20, 30, 30, SkPathDirection::kCCW);
-    path.addRect(32, 0, 36, 41, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 30, 60}, SkPathDirection::kCW);
+    path.addRect({10, 20, 30, 30}, SkPathDirection::kCCW);
+    path.addRect({18, 20, 30, 30}, SkPathDirection::kCCW);
+    path.addRect({32, 0, 36, 41}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine78x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 30, 60, SkPathDirection::kCW);
-    path.addRect(10, 20, 30, 30, SkPathDirection::kCCW);
-    path.addRect(18, 20, 30, 30, SkPathDirection::kCCW);
-    path.addRect(32, 0, 36, 41, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 30, 60}, SkPathDirection::kCW);
+    path.addRect({10, 20, 30, 30}, SkPathDirection::kCCW);
+    path.addRect({18, 20, 30, 30}, SkPathDirection::kCCW);
+    path.addRect({32, 0, 36, 41}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine79(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 36, 60, 30, SkPathDirection::kCW);
-    path.addRect(10, 30, 40, 30, SkPathDirection::kCW);
-    path.addRect(0, 20, 12, 30, SkPathDirection::kCCW);
-    path.addRect(0, 32, 9, 36, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 36, 60, 30}, SkPathDirection::kCW);
+    path.addRect({10, 30, 40, 30}, SkPathDirection::kCW);
+    path.addRect({0, 20, 12, 30}, SkPathDirection::kCCW);
+    path.addRect({0, 32, 9, 36}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine79x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 36, 60, 30, SkPathDirection::kCW);
-    path.addRect(10, 30, 40, 30, SkPathDirection::kCW);
-    path.addRect(0, 20, 12, 30, SkPathDirection::kCCW);
-    path.addRect(0, 32, 9, 36, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 36, 60, 30}, SkPathDirection::kCW);
+    path.addRect({10, 30, 40, 30}, SkPathDirection::kCW);
+    path.addRect({0, 20, 12, 30}, SkPathDirection::kCCW);
+    path.addRect({0, 32, 9, 36}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine81(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(-1, -1, 3, 3, SkPathDirection::kCW);
-    path.addRect(0, 0, 1, 1, SkPathDirection::kCW);
-    path.addRect(0, 0, 1, 1, SkPathDirection::kCW);
-    path.addRect(0, 0, 1, 1, SkPathDirection::kCW);
-    path.addRect(1, 1, 2, 2, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({-1, -1, 3, 3}, SkPathDirection::kCW);
+    path.addRect({0, 0, 1, 1}, SkPathDirection::kCW);
+    path.addRect({0, 0, 1, 1}, SkPathDirection::kCW);
+    path.addRect({0, 0, 1, 1}, SkPathDirection::kCW);
+    path.addRect({1, 1, 2, 2}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testDegenerate1(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(0, 0);
     path.lineTo(2, 0);
@@ -1733,11 +1740,11 @@ static void testDegenerate1(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 0);
     path.lineTo(2, 0);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testDegenerate1x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.lineTo(0, 0);
@@ -1747,11 +1754,11 @@ static void testDegenerate1x(skiatest::Reporter* reporter, const char* filename)
     path.lineTo(1, 0);
     path.lineTo(2, 0);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testDegenerate2(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(0, 0);
     path.lineTo(0, 0);
@@ -1760,11 +1767,11 @@ static void testDegenerate2(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 0);
     path.lineTo(0, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testDegenerate2x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.lineTo(0, 0);
@@ -1774,11 +1781,11 @@ static void testDegenerate2x(skiatest::Reporter* reporter, const char* filename)
     path.lineTo(1, 0);
     path.lineTo(0, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testDegenerate3(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(2, 0);
     path.lineTo(1, 0);
@@ -1787,11 +1794,11 @@ static void testDegenerate3(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.lineTo(3, 0);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testDegenerate3x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.lineTo(2, 0);
@@ -1801,11 +1808,11 @@ static void testDegenerate3x(skiatest::Reporter* reporter, const char* filename)
     path.lineTo(0, 0);
     path.lineTo(3, 0);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testDegenerate4(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(1, 0);
     path.lineTo(1, 3);
@@ -1814,11 +1821,11 @@ static void testDegenerate4(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 1);
     path.lineTo(1, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testDegenerate4x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.lineTo(1, 0);
@@ -1828,11 +1835,11 @@ static void testDegenerate4x(skiatest::Reporter* reporter, const char* filename)
     path.lineTo(1, 1);
     path.lineTo(1, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testNondegenerate1(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(3, 0);
     path.lineTo(1, 3);
@@ -1841,11 +1848,11 @@ static void testNondegenerate1(skiatest::Reporter* reporter, const char* filenam
     path.lineTo(2, 1);
     path.lineTo(1, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testNondegenerate1x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.lineTo(3, 0);
@@ -1855,11 +1862,11 @@ static void testNondegenerate1x(skiatest::Reporter* reporter, const char* filena
     path.lineTo(2, 1);
     path.lineTo(1, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testNondegenerate2(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 0);
     path.lineTo(0, 1);
     path.lineTo(1, 1);
@@ -1868,11 +1875,11 @@ static void testNondegenerate2(skiatest::Reporter* reporter, const char* filenam
     path.lineTo(0, 3);
     path.lineTo(1, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testNondegenerate2x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(1, 0);
     path.lineTo(0, 1);
@@ -1882,11 +1889,11 @@ static void testNondegenerate2x(skiatest::Reporter* reporter, const char* filena
     path.lineTo(0, 3);
     path.lineTo(1, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testNondegenerate3(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(1, 0);
     path.lineTo(2, 1);
@@ -1895,11 +1902,11 @@ static void testNondegenerate3(skiatest::Reporter* reporter, const char* filenam
     path.lineTo(1, 1);
     path.lineTo(0, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testNondegenerate3x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.lineTo(1, 0);
@@ -1909,11 +1916,11 @@ static void testNondegenerate3x(skiatest::Reporter* reporter, const char* filena
     path.lineTo(1, 1);
     path.lineTo(0, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testNondegenerate4(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 0);
     path.lineTo(0, 1);
     path.lineTo(1, 2);
@@ -1922,11 +1929,11 @@ static void testNondegenerate4(skiatest::Reporter* reporter, const char* filenam
     path.lineTo(0, 3);
     path.lineTo(1, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testNondegenerate4x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(1, 0);
     path.lineTo(0, 1);
@@ -1936,11 +1943,11 @@ static void testNondegenerate4x(skiatest::Reporter* reporter, const char* filena
     path.lineTo(0, 3);
     path.lineTo(1, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadralateral5(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(0, 0);
     path.lineTo(1, 0);
@@ -1951,11 +1958,11 @@ static void testQuadralateral5(skiatest::Reporter* reporter, const char* filenam
     path.lineTo(3, 2);
     path.lineTo(3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadralateral5x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.lineTo(0, 0);
@@ -1967,11 +1974,11 @@ static void testQuadralateral5x(skiatest::Reporter* reporter, const char* filena
     path.lineTo(3, 2);
     path.lineTo(3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadralateral6(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(0, 0);
     path.lineTo(1, 0);
@@ -1982,11 +1989,11 @@ static void testQuadralateral6(skiatest::Reporter* reporter, const char* filenam
     path.lineTo(0, 2);
     path.lineTo(2, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadralateral6x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.lineTo(0, 0);
@@ -1998,11 +2005,11 @@ static void testQuadralateral6x(skiatest::Reporter* reporter, const char* filena
     path.lineTo(0, 2);
     path.lineTo(2, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testFauxQuadralateral6(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(1, 0);
     path.lineTo(1, 1);
@@ -2015,11 +2022,11 @@ static void testFauxQuadralateral6(skiatest::Reporter* reporter, const char* fil
     path.lineTo(0, 2);
     path.lineTo(2, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testFauxQuadralateral6x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.lineTo(1, 0);
@@ -2033,11 +2040,11 @@ static void testFauxQuadralateral6x(skiatest::Reporter* reporter, const char* fi
     path.lineTo(0, 2);
     path.lineTo(2, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testFauxQuadralateral6a(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(3, 0);
     path.lineTo(3, 3);
@@ -2050,11 +2057,11 @@ static void testFauxQuadralateral6a(skiatest::Reporter* reporter, const char* fi
     path.lineTo(0, 6);
     path.lineTo(6, 6);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testFauxQuadralateral6ax(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.lineTo(3, 0);
@@ -2068,11 +2075,11 @@ static void testFauxQuadralateral6ax(skiatest::Reporter* reporter, const char* f
     path.lineTo(0, 6);
     path.lineTo(6, 6);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testFauxQuadralateral6b(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(3, 0);
     path.lineTo(3, 3);
@@ -2085,11 +2092,11 @@ static void testFauxQuadralateral6b(skiatest::Reporter* reporter, const char* fi
     path.lineTo(6, 6);
     path.lineTo(0, 6);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testFauxQuadralateral6bx(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.lineTo(3, 0);
@@ -2103,11 +2110,11 @@ static void testFauxQuadralateral6bx(skiatest::Reporter* reporter, const char* f
     path.lineTo(6, 6);
     path.lineTo(0, 6);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testFauxQuadralateral6c(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(3, 3);
     path.lineTo(3, 0);
@@ -2120,11 +2127,11 @@ static void testFauxQuadralateral6c(skiatest::Reporter* reporter, const char* fi
     path.lineTo(0, 6);
     path.lineTo(6, 6);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testFauxQuadralateral6cx(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.lineTo(3, 3);
@@ -2138,11 +2145,11 @@ static void testFauxQuadralateral6cx(skiatest::Reporter* reporter, const char* f
     path.lineTo(0, 6);
     path.lineTo(6, 6);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testFauxQuadralateral6d(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(3, 3);
     path.lineTo(3, 0);
@@ -2155,11 +2162,11 @@ static void testFauxQuadralateral6d(skiatest::Reporter* reporter, const char* fi
     path.lineTo(6, 6);
     path.lineTo(0, 6);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testFauxQuadralateral6dx(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.lineTo(3, 3);
@@ -2173,11 +2180,11 @@ static void testFauxQuadralateral6dx(skiatest::Reporter* reporter, const char* f
     path.lineTo(6, 6);
     path.lineTo(0, 6);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadralateral6a(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(0, 0);
     path.lineTo(3, 0);
@@ -2188,11 +2195,11 @@ static void testQuadralateral6a(skiatest::Reporter* reporter, const char* filena
     path.lineTo(0, 6);
     path.lineTo(6, 6);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadralateral6ax(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.lineTo(0, 0);
@@ -2204,11 +2211,11 @@ static void testQuadralateral6ax(skiatest::Reporter* reporter, const char* filen
     path.lineTo(0, 6);
     path.lineTo(6, 6);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadralateral7(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(0, 0);
     path.lineTo(1, 0);
@@ -2219,11 +2226,11 @@ static void testQuadralateral7(skiatest::Reporter* reporter, const char* filenam
     path.lineTo(2, 2);
     path.lineTo(1, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadralateral7x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.lineTo(0, 0);
@@ -2235,11 +2242,11 @@ static void testQuadralateral7x(skiatest::Reporter* reporter, const char* filena
     path.lineTo(2, 2);
     path.lineTo(1, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadralateral8(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(3, 1);
     path.lineTo(1, 3);
@@ -2250,11 +2257,11 @@ static void testQuadralateral8(skiatest::Reporter* reporter, const char* filenam
     path.lineTo(3, 2);
     path.lineTo(2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadralateral8x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.lineTo(3, 1);
@@ -2266,11 +2273,11 @@ static void testQuadralateral8x(skiatest::Reporter* reporter, const char* filena
     path.lineTo(3, 2);
     path.lineTo(2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadralateral9(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(1, 0);
     path.lineTo(1, 2);
@@ -2281,11 +2288,11 @@ static void testQuadralateral9(skiatest::Reporter* reporter, const char* filenam
     path.lineTo(1, 3);
     path.lineTo(2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadralateral9x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.lineTo(1, 0);
@@ -2297,54 +2304,54 @@ static void testQuadralateral9x(skiatest::Reporter* reporter, const char* filena
     path.lineTo(1, 3);
     path.lineTo(2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine1a(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kWinding);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(4, 0, 13, 13, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({4, 0, 13, 13}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine1ax(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 12, 12, SkPathDirection::kCW);
-    path.addRect(4, 0, 13, 13, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 12, 12}, SkPathDirection::kCW);
+    path.addRect({4, 0, 13, 13}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine2ax(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 20, 20, 20, SkPathDirection::kCW);
-    path.addRect(0, 20, 12, 30, SkPathDirection::kCW);
-    path.addRect(12, 0, 21, 21, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 20, 20, 20}, SkPathDirection::kCW);
+    path.addRect({0, 20, 12, 30}, SkPathDirection::kCW);
+    path.addRect({12, 0, 21, 21}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine3aax(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(10, 30, 30, 30, SkPathDirection::kCW);
-    path.addRect(18, 20, 30, 30, SkPathDirection::kCCW);
-    path.addRect(0, 32, 9, 36, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({10, 30, 30, 30}, SkPathDirection::kCW);
+    path.addRect({18, 20, 30, 30}, SkPathDirection::kCCW);
+    path.addRect({0, 32, 9, 36}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine4ax(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(10, 30, 30, 30, SkPathDirection::kCW);
-    path.addRect(24, 20, 36, 30, SkPathDirection::kCCW);
-    path.addRect(0, 32, 9, 36, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({10, 30, 30, 30}, SkPathDirection::kCW);
+    path.addRect({24, 20, 36, 30}, SkPathDirection::kCCW);
+    path.addRect({0, 32, 9, 36}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic1(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 0, 0);
     path.lineTo(1, 0);
@@ -2353,11 +2360,11 @@ static void testQuadratic1(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(0, 0, 0, 0);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic1x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.quadTo(0, 0, 0, 0);
@@ -2367,11 +2374,11 @@ static void testQuadratic1x(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.quadTo(0, 0, 0, 0);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic2(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 0, 0);
     path.lineTo(3, 0);
@@ -2380,11 +2387,11 @@ static void testQuadratic2(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(1, 0, 0, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic2x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.quadTo(0, 0, 0, 0);
@@ -2394,11 +2401,11 @@ static void testQuadratic2x(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.quadTo(1, 0, 0, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic3(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 0);
     path.lineTo(0, 2);
@@ -2407,11 +2414,11 @@ static void testQuadratic3(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(1, 0, 0, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic3x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 0);
@@ -2421,11 +2428,11 @@ static void testQuadratic3x(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.quadTo(1, 0, 0, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic4(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 0);
     path.lineTo(0, 2);
@@ -2434,11 +2441,11 @@ static void testQuadratic4(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(1, 0, 0, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic4x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 0);
@@ -2448,11 +2455,11 @@ static void testQuadratic4x(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.quadTo(1, 0, 0, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic5(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 0, 0);
     path.lineTo(0, 1);
@@ -2461,11 +2468,11 @@ static void testQuadratic5(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(1, 0);
     path.quadTo(0, 1, 0, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic6(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 0);
     path.lineTo(2, 1);
@@ -2474,11 +2481,11 @@ static void testQuadratic6(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(2, 0, 0, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic7(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 0);
     path.lineTo(3, 1);
@@ -2487,12 +2494,11 @@ static void testQuadratic7(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(3, 0, 1, 2);
     path.close();
-    markTestFlakyForPathKit();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic8(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 0);
     path.lineTo(0, 2);
@@ -2501,11 +2507,11 @@ static void testQuadratic8(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(1, 0);
     path.quadTo(0, 1, 1, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic9(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 0);
     path.lineTo(3, 1);
@@ -2514,11 +2520,11 @@ static void testQuadratic9(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(1, 0);
     path.quadTo(1, 2, 3, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic14(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 0);
     path.lineTo(3, 2);
@@ -2527,11 +2533,11 @@ static void testQuadratic14(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 0);
     path.quadTo(3, 2, 3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic15(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 0);
     path.lineTo(1, 3);
@@ -2540,11 +2546,11 @@ static void testQuadratic15(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 1);
     path.quadTo(1, 1, 0, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic17x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.quadTo(0, 0, 3, 1);
@@ -2554,11 +2560,11 @@ static void testQuadratic17x(skiatest::Reporter* reporter, const char* filename)
     path.lineTo(1, 0);
     path.quadTo(3, 1, 0, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic18(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 0, 1);
     path.lineTo(0, 1);
@@ -2567,11 +2573,11 @@ static void testQuadratic18(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.quadTo(1, 0, 1, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic19(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 0, 1);
     path.lineTo(0, 1);
@@ -2580,11 +2586,11 @@ static void testQuadratic19(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.quadTo(2, 0, 0, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic20(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 0, 1);
     path.lineTo(0, 1);
@@ -2593,11 +2599,11 @@ static void testQuadratic20(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.quadTo(1, 0, 0, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic21(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 0, 1);
     path.lineTo(0, 1);
@@ -2606,11 +2612,11 @@ static void testQuadratic21(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.quadTo(1, 0, 0, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic22(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 0, 1);
     path.lineTo(0, 1);
@@ -2619,11 +2625,11 @@ static void testQuadratic22(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.quadTo(0, 1, 2, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic23(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 0, 1);
     path.lineTo(0, 1);
@@ -2632,11 +2638,11 @@ static void testQuadratic23(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.quadTo(0, 2, 1, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic24(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 0, 1);
     path.lineTo(0, 1);
@@ -2645,11 +2651,11 @@ static void testQuadratic24(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 0);
     path.quadTo(2, 0, 0, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic25(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 1, 1);
     path.lineTo(1, 1);
@@ -2658,11 +2664,11 @@ static void testQuadratic25(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.quadTo(2, 1, 0, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic26(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 1, 1);
     path.lineTo(0, 2);
@@ -2671,11 +2677,11 @@ static void testQuadratic26(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.quadTo(1, 0, 0, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic27(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 1, 1);
     path.lineTo(2, 1);
@@ -2684,11 +2690,11 @@ static void testQuadratic27(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.quadTo(2, 1, 0, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic28(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 0, 1);
     path.lineTo(0, 1);
@@ -2697,11 +2703,11 @@ static void testQuadratic28(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 2);
     path.quadTo(1, 2, 0, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic29(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 2, 1);
     path.lineTo(0, 2);
@@ -2710,11 +2716,11 @@ static void testQuadratic29(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.quadTo(1, 0, 0, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic30(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 1, 2);
     path.lineTo(1, 2);
@@ -2723,11 +2729,11 @@ static void testQuadratic30(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 0);
     path.quadTo(0, 1, 1, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic31(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 1, 2);
     path.lineTo(1, 2);
@@ -2736,11 +2742,11 @@ static void testQuadratic31(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 0);
     path.quadTo(0, 1, 1, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic32(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 2, 3);
     path.lineTo(2, 3);
@@ -2749,11 +2755,11 @@ static void testQuadratic32(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.quadTo(3, 1, 0, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic33(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(2, 0, 0, 1);
     path.lineTo(0, 1);
@@ -2762,11 +2768,11 @@ static void testQuadratic33(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 1);
     path.quadTo(2, 1, 2, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic34(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(2, 0, 0, 1);
     path.lineTo(0, 1);
@@ -2774,13 +2780,11 @@ static void testQuadratic34(skiatest::Reporter* reporter, const char* filename) 
     path.moveTo(1, 0);
     path.lineTo(1, 1);
     path.quadTo(2, 1, 1, 2);
-    path.close();
-    markTestFlakyForPathKit();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic35(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 1, 1, 1);
     path.lineTo(1, 3);
@@ -2789,11 +2793,11 @@ static void testQuadratic35(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(3, 0);
     path.quadTo(0, 1, 1, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic36(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(2, 1, 2, 3);
     path.lineTo(2, 3);
@@ -2802,11 +2806,11 @@ static void testQuadratic36(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 2);
     path.quadTo(3, 2, 1, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic37(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 2, 1, 2);
     path.lineTo(1, 2);
@@ -2815,11 +2819,11 @@ static void testQuadratic37(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(3, 1);
     path.quadTo(0, 2, 1, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic38(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 0);
     path.quadTo(0, 1, 1, 1);
     path.lineTo(1, 1);
@@ -2828,11 +2832,11 @@ static void testQuadratic38(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 2);
     path.quadTo(2, 2, 1, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic51(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(369.863983f, 145.645813f);
     path.quadTo(382.380371f, 121.254936f, 406.236359f, 121.254936f);
     path.lineTo(369.863983f, 145.645813f);
@@ -2841,11 +2845,11 @@ static void testQuadratic51(skiatest::Reporter* reporter, const char* filename) 
     path.quadTo(383.98465f, 121.254936f, 406.235992f, 121.254936f);
     path.lineTo(369.970581f, 137.94342f);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic53(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(303.12088f, 141.299606f);
     path.lineTo(330.463562f, 217.659027f);
     path.lineTo(303.12088f, 141.299606f);
@@ -2855,11 +2859,11 @@ static void testQuadratic53(skiatest::Reporter* reporter, const char* filename) 
     path.quadTo(329.104431f, 231.663818f, 351.512085f, 231.663818f);
     path.lineTo(371.919067f, 205.854996f);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic55(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
 path.moveTo(303.12088f, 141.299606f);
 path.lineTo(330.463562f, 217.659027f);
 path.lineTo(358.606506f, 141.299606f);
@@ -2869,11 +2873,11 @@ path.moveTo(326.236786f, 205.854996f);
 path.quadTo(329.104431f, 231.663818f, 351.512085f, 231.663818f);
 path.lineTo(326.236786f, 205.854996f);
 path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic56(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
 path.moveTo(366.608826f, 151.196014f);
 path.quadTo(378.803101f, 136.674606f, 398.164948f, 136.674606f);
 path.lineTo(354.009216f, 208.816208f);
@@ -2885,11 +2889,11 @@ path.quadTo(375.281769f, 136.674606f, 396.039917f, 136.674606f);
 path.lineTo(350, 120);
 path.lineTo(366.608826f, 151.196014f);
 path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine80(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
 path.moveTo(4, 0);
 path.lineTo(3, 7);
 path.lineTo(7, 5);
@@ -2899,11 +2903,11 @@ path.moveTo(0, 6);
 path.lineTo(6, 12);
 path.lineTo(8, 3);
 path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic58(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(283.714233f, 240);
     path.lineTo(283.714233f, 141.299606f);
     path.lineTo(303.12088f, 141.299606f);
@@ -2931,11 +2935,11 @@ static void testQuadratic58(skiatest::Reporter* reporter, const char* filename) 
     path.quadTo(358.78125f, 175.778046f, 343.709442f, 175.778046f);
     path.quadTo(328.570923f, 175.778046f, 326.837006f, 195.984955f);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic59x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.quadTo(0, 0, 0, 0);
@@ -2945,11 +2949,11 @@ static void testQuadratic59x(skiatest::Reporter* reporter, const char* filename)
     path.lineTo(2, 0);
     path.quadTo(3, 1, 1, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic59(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kWinding);
     path.moveTo(0, 0);
     path.quadTo(0, 0, 0, 0);
@@ -2959,11 +2963,11 @@ static void testQuadratic59(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(2, 0);
     path.quadTo(3, 1, 1, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic63(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 0, 0);
     path.lineTo(3, 2);
@@ -2972,11 +2976,11 @@ static void testQuadratic63(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(2, 1);
     path.quadTo(2, 1, 2, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic64(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 0, 0);
     path.lineTo(2, 3);
@@ -2985,11 +2989,11 @@ static void testQuadratic64(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(2, 2);
     path.quadTo(0, 3, 3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic65(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 0, 0);
     path.lineTo(3, 2);
@@ -2998,11 +3002,11 @@ static void testQuadratic65(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(2, 2);
     path.quadTo(0, 3, 1, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic67x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.quadTo(0, 0, 2, 1);
@@ -3012,11 +3016,11 @@ static void testQuadratic67x(skiatest::Reporter* reporter, const char* filename)
     path.lineTo(2, 0);
     path.quadTo(1, 1, 3, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic68(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 0, 1);
     path.lineTo(1, 2);
@@ -3025,11 +3029,11 @@ static void testQuadratic68(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.quadTo(0, 1, 2, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic69(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 0, 1);
     path.lineTo(3, 2);
@@ -3038,12 +3042,11 @@ static void testQuadratic69(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 1);
     path.quadTo(3, 2, 2, 3);
     path.close();
-    markTestFlakyForPathKit();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic70x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.quadTo(1, 0, 0, 1);
@@ -3053,11 +3056,11 @@ static void testQuadratic70x(skiatest::Reporter* reporter, const char* filename)
     path.lineTo(0, 0);
     path.quadTo(0, 1, 2, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic71(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 1, 1);
     path.lineTo(3, 2);
@@ -3066,11 +3069,11 @@ static void testQuadratic71(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.quadTo(1, 1, 3, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic72(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 1, 2);
     path.lineTo(1, 2);
@@ -3079,11 +3082,11 @@ static void testQuadratic72(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 0);
     path.quadTo(0, 1, 3, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic73(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 0, 3);
     path.lineTo(0, 3);
@@ -3092,11 +3095,11 @@ static void testQuadratic73(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 0);
     path.quadTo(0, 1, 1, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic74(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 1, 3);
     path.lineTo(1, 3);
@@ -3105,11 +3108,11 @@ static void testQuadratic74(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 1);
     path.quadTo(3, 2, 2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic75(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 1, 3);
     path.lineTo(2, 3);
@@ -3118,11 +3121,11 @@ static void testQuadratic75(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 1);
     path.quadTo(3, 2, 2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic76(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 0, 0);
     path.lineTo(2, 3);
@@ -3131,11 +3134,11 @@ static void testQuadratic76(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 2);
     path.quadTo(1, 2, 2, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic77(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 1, 1);
     path.lineTo(3, 1);
@@ -3144,11 +3147,11 @@ static void testQuadratic77(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 0);
     path.quadTo(0, 1, 3, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic78(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 1, 2);
     path.lineTo(3, 2);
@@ -3157,11 +3160,11 @@ static void testQuadratic78(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.quadTo(2, 1, 0, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic79(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 1, 2);
     path.lineTo(3, 2);
@@ -3170,111 +3173,111 @@ static void testQuadratic79(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 0);
     path.quadTo(0, 1, 3, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testEight1(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(2, 2);
     path.lineTo(0, 2);
     path.lineTo(2, 0);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testEight2(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(2, 0);
     path.lineTo(0, 2);
     path.lineTo(2, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testEight3(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(0, 2);
     path.lineTo(2, 0);
     path.lineTo(2, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testEight4(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(2, 2);
     path.lineTo(2, 0);
     path.lineTo(0, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testEight5(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 0);
     path.lineTo(1, 2);
     path.lineTo(0, 2);
     path.lineTo(2, 0);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testEight6(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 0);
     path.lineTo(2, 0);
     path.lineTo(0, 2);
     path.lineTo(1, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testEight7(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(0, 1);
     path.lineTo(2, 1);
     path.lineTo(2, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testEight8(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(2, 2);
     path.lineTo(2, 1);
     path.lineTo(0, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testEight9(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 0);
     path.lineTo(1, 2);
     path.lineTo(2, 1);
     path.lineTo(0, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testEight10(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 0);
     path.lineTo(0, 1);
     path.lineTo(2, 1);
     path.lineTo(1, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic80(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(1, 0, 2, 3);
     path.lineTo(2, 3);
@@ -3283,11 +3286,11 @@ static void testQuadratic80(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(3, 0);
     path.quadTo(0, 1, 1, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic81(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(2, 0, 1, 1);
     path.lineTo(1, 1);
@@ -3296,11 +3299,11 @@ static void testQuadratic81(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.quadTo(2, 1, 0, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic82(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(2, 0, 1, 1);
     path.lineTo(0, 3);
@@ -3309,11 +3312,11 @@ static void testQuadratic82(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.quadTo(2, 1, 0, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic83(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 2, 0);
     path.lineTo(2, 2);
@@ -3322,11 +3325,11 @@ static void testQuadratic83(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 2);
     path.quadTo(2, 2, 1, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic84(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(2, 0, 1, 1);
     path.lineTo(2, 1);
@@ -3335,11 +3338,11 @@ static void testQuadratic84(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(2, 0);
     path.quadTo(0, 1, 2, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic85(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(3, 0, 1, 1);
     path.lineTo(1, 1);
@@ -3348,11 +3351,11 @@ static void testQuadratic85(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(3, 0);
     path.quadTo(0, 1, 1, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic86(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 1, 1, 1);
     path.lineTo(2, 3);
@@ -3361,11 +3364,11 @@ static void testQuadratic86(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 0);
     path.quadTo(1, 1, 1, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic87(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(2, 1, 0, 2);
     path.lineTo(2, 3);
@@ -3374,11 +3377,11 @@ static void testQuadratic87(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 1);
     path.quadTo(0, 2, 3, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic88(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(2, 1, 0, 2);
     path.lineTo(2, 2);
@@ -3387,11 +3390,11 @@ static void testQuadratic88(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 1);
     path.quadTo(0, 2, 2, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic89x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.quadTo(3, 1, 2, 2);
@@ -3401,11 +3404,11 @@ static void testQuadratic89x(skiatest::Reporter* reporter, const char* filename)
     path.lineTo(2, 1);
     path.quadTo(3, 1, 3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic90x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.quadTo(3, 0, 2, 2);
@@ -3415,11 +3418,11 @@ static void testQuadratic90x(skiatest::Reporter* reporter, const char* filename)
     path.lineTo(0, 1);
     path.quadTo(3, 2, 2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic91(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(3, 2, 2, 3);
     path.lineTo(2, 3);
@@ -3428,11 +3431,11 @@ static void testQuadratic91(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 1);
     path.quadTo(2, 1, 2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic92x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(1, 0);
     path.quadTo(3, 0, 2, 2);
@@ -3442,119 +3445,119 @@ static void testQuadratic92x(skiatest::Reporter* reporter, const char* filename)
     path.lineTo(0, 1);
     path.quadTo(3, 2, 2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine82(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(20, 0, 40, 40, SkPathDirection::kCCW);
-    path.addRect(24, 20, 36, 30, SkPathDirection::kCCW);
-    path.addRect(24, 32, 33, 36, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({20, 0, 40, 40}, SkPathDirection::kCCW);
+    path.addRect({24, 20, 36, 30}, SkPathDirection::kCCW);
+    path.addRect({24, 32, 33, 36}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine82a(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 6, 10, SkPathDirection::kCW);
-    path.addRect(2, 2, 4, 4, SkPathDirection::kCW);
-    path.addRect(2, 6, 4, 8, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 6, 10}, SkPathDirection::kCW);
+    path.addRect({2, 2, 4, 4}, SkPathDirection::kCW);
+    path.addRect({2, 6, 4, 8}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine82b(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 6, 10, SkPathDirection::kCW);
-    path.addRect(2, 2, 4, 4, SkPathDirection::kCW);
-    path.addRect(2, 6, 4, 8, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 6, 10}, SkPathDirection::kCW);
+    path.addRect({2, 2, 4, 4}, SkPathDirection::kCW);
+    path.addRect({2, 6, 4, 8}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine82c(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 6, 10, SkPathDirection::kCW);
-    path.addRect(2, 2, 4, 4, SkPathDirection::kCCW);
-    path.addRect(2, 6, 4, 8, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 6, 10}, SkPathDirection::kCW);
+    path.addRect({2, 2, 4, 4}, SkPathDirection::kCCW);
+    path.addRect({2, 6, 4, 8}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine82d(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 6, 10, SkPathDirection::kCW);
-    path.addRect(2, 2, 4, 4, SkPathDirection::kCCW);
-    path.addRect(2, 6, 4, 8, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 6, 10}, SkPathDirection::kCW);
+    path.addRect({2, 2, 4, 4}, SkPathDirection::kCCW);
+    path.addRect({2, 6, 4, 8}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine82e(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 6, 10, SkPathDirection::kCCW);
-    path.addRect(2, 2, 4, 4, SkPathDirection::kCW);
-    path.addRect(2, 6, 4, 8, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 6, 10}, SkPathDirection::kCCW);
+    path.addRect({2, 2, 4, 4}, SkPathDirection::kCW);
+    path.addRect({2, 6, 4, 8}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine82f(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 6, 10, SkPathDirection::kCCW);
-    path.addRect(2, 2, 4, 4, SkPathDirection::kCW);
-    path.addRect(2, 6, 4, 8, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 6, 10}, SkPathDirection::kCCW);
+    path.addRect({2, 2, 4, 4}, SkPathDirection::kCW);
+    path.addRect({2, 6, 4, 8}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine82g(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 6, 10, SkPathDirection::kCCW);
-    path.addRect(2, 2, 4, 4, SkPathDirection::kCCW);
-    path.addRect(2, 6, 4, 8, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 6, 10}, SkPathDirection::kCCW);
+    path.addRect({2, 2, 4, 4}, SkPathDirection::kCCW);
+    path.addRect({2, 6, 4, 8}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine82h(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 6, 10, SkPathDirection::kCCW);
-    path.addRect(2, 2, 4, 4, SkPathDirection::kCCW);
-    path.addRect(2, 6, 4, 8, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 6, 10}, SkPathDirection::kCCW);
+    path.addRect({2, 2, 4, 4}, SkPathDirection::kCCW);
+    path.addRect({2, 6, 4, 8}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine83(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-path.addRect(10, 30, 30, 40, SkPathDirection::kCCW);
-path.addRect(0, 12, 12, 18, SkPathDirection::kCCW);
-path.addRect(4, 13, 13, 16, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({10, 30, 30, 40}, SkPathDirection::kCCW);
+    path.addRect({0, 12, 12, 18}, SkPathDirection::kCCW);
+    path.addRect({4, 13, 13, 16}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine84(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 12, 60, 30, SkPathDirection::kCCW);
-    path.addRect(10, 20, 40, 30, SkPathDirection::kCW);
-    path.addRect(0, 12, 12, 12, SkPathDirection::kCW);
-    path.addRect(4, 12, 13, 13, SkPathDirection::kCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 12, 60, 30}, SkPathDirection::kCCW);
+    path.addRect({10, 20, 40, 30}, SkPathDirection::kCW);
+    path.addRect({0, 12, 12, 12}, SkPathDirection::kCW);
+    path.addRect({4, 12, 13, 13}, SkPathDirection::kCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine84x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 12, 60, 30, SkPathDirection::kCCW);
-    path.addRect(10, 20, 40, 30, SkPathDirection::kCCW);
-    path.addRect(0, 12, 12, 12, SkPathDirection::kCCW);
-    path.addRect(4, 12, 13, 13, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 12, 60, 30}, SkPathDirection::kCCW);
+    path.addRect({10, 20, 40, 30}, SkPathDirection::kCCW);
+    path.addRect({0, 12, 12, 12}, SkPathDirection::kCCW);
+    path.addRect({4, 12, 13, 13}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testLine85(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(36, 0, 66, 60, SkPathDirection::kCCW);
-    path.addRect(20, 0, 40, 40, SkPathDirection::kCCW);
-    path.addRect(12, 0, 24, 24, SkPathDirection::kCCW);
-    path.addRect(32, 0, 36, 41, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({36, 0, 66, 60}, SkPathDirection::kCCW);
+    path.addRect({20, 0, 40, 40}, SkPathDirection::kCCW);
+    path.addRect({12, 0, 24, 24}, SkPathDirection::kCCW);
+    path.addRect({32, 0, 36, 41}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadralateral1(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(0, 0);
     path.lineTo(0, 0);
@@ -3565,22 +3568,22 @@ static void testQuadralateral1(skiatest::Reporter* reporter, const char* filenam
     path.lineTo(2, 2);
     path.lineTo(2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testCubic1(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.cubicTo(0, 1, 1, 1, 1, 0);
     path.close();
     path.moveTo(1, 0);
     path.cubicTo(0, 0, 0, 1, 1, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic93(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(3, 0);
     path.quadTo(0, 1, 3, 2);
     path.lineTo(0, 3);
@@ -3589,22 +3592,22 @@ static void testQuadratic93(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(2, 0);
     path.quadTo(1, 1, 2, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testCubic2(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0,2);
     path.cubicTo(0,3, 2,1, 4,0);
     path.close();
     path.moveTo(1,2);
     path.cubicTo(0,4, 2,0, 3,0);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuad1(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0,0);
     path.quadTo(0,0, 0,1);
     path.lineTo(1,1);
@@ -3612,11 +3615,11 @@ static void testQuad1(skiatest::Reporter* reporter, const char* filename) {
     path.moveTo(0,0);
     path.quadTo(1,1, 0,2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadralateral2(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(2, 2);
     path.lineTo(0, 3);
@@ -3627,52 +3630,51 @@ static void testQuadralateral2(skiatest::Reporter* reporter, const char* filenam
     path.lineTo(0, 1);
     path.lineTo(1, 2);
     path.close();
-    markTestFlakyForPathKit();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic94(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(8, 8);
     path.quadTo(8, 4, 4, 4);
     path.quadTo(4, 0, 0, 0);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic95(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(8, 8);
     path.lineTo(0, 0);
     path.quadTo(4, 0, 4, 4);
     path.quadTo(8, 4, 8, 8);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic96(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(8, 0);
     path.lineTo(0, 8);
     path.quadTo(0, 4, 4, 4);
     path.quadTo(4, 0, 8, 0);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadratic97(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 8);
     path.lineTo(8, 0);
     path.quadTo(4, 0, 4, 4);
     path.quadTo(0, 4, 0, 8);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testTriangles1(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(1, 0);
     path.lineTo(3, 3);
@@ -3681,11 +3683,11 @@ static void testTriangles1(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(1, 2);
     path.lineTo(1, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testTriangles2(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(1, 0);
     path.lineTo(3, 3);
@@ -3694,7 +3696,7 @@ static void testTriangles2(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2, 3);
     path.lineTo(1, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 // A test for this case:
@@ -3704,7 +3706,7 @@ static void testTriangles2(skiatest::Reporter* reporter, const char* filename) {
 // since logic in OpSegment::addTCoincident doesn't transfer count (only increments/decrements)
 // can this be resolved to +4/0 ?
 static void testAddTCoincident1(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(2, 0);
     path.lineTo(2, 2);
     path.lineTo(1, 1);
@@ -3719,12 +3721,12 @@ static void testAddTCoincident1(skiatest::Reporter* reporter, const char* filena
     path.lineTo(2, 2);
     path.lineTo(3, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 // test with implicit close
 static void testAddTCoincident2(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(2, 0);
     path.lineTo(2, 2);
     path.lineTo(1, 1);
@@ -3737,11 +3739,11 @@ static void testAddTCoincident2(skiatest::Reporter* reporter, const char* filena
     path.lineTo(2, 0);
     path.lineTo(2, 2);
     path.lineTo(3, 1);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuad2(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 0);
     path.quadTo(0, 1, 3, 2);
     path.lineTo(2, 3);
@@ -3753,7 +3755,7 @@ static void testQuad2(skiatest::Reporter* reporter, const char* filename) {
 }
 
 static void testQuad3(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 0);
     path.quadTo(0, 1, 3, 2);
     path.lineTo(3, 3);
@@ -3762,11 +3764,11 @@ static void testQuad3(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(1, 0);
     path.quadTo(0, 1, 1, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuad4(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(2, 0);
     path.quadTo(0, 1, 1, 1);
     path.lineTo(3, 3);
@@ -3775,11 +3777,11 @@ static void testQuad4(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2, 0);
     path.quadTo(0, 1, 2, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuad5(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(2, 0);
     path.quadTo(0, 1, 2, 2);
     path.lineTo(1, 3);
@@ -3788,11 +3790,11 @@ static void testQuad5(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2, 0);
     path.quadTo(0, 1, 1, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuad6(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(2, 0);
     path.quadTo(0, 1, 2, 2);
     path.lineTo(1, 3);
@@ -3801,11 +3803,11 @@ static void testQuad6(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2, 0);
     path.quadTo(0, 1, 1, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuad7(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(3, 0);
     path.quadTo(0, 1, 1, 1);
     path.lineTo(1, 3);
@@ -3814,11 +3816,11 @@ static void testQuad7(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(3, 0);
     path.quadTo(0, 1, 1, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadLineIntersect1(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(3, 1, 0, 3);
     path.lineTo(2, 3);
@@ -3827,11 +3829,11 @@ static void testQuadLineIntersect1(skiatest::Reporter* reporter, const char* fil
     path.lineTo(0, 1);
     path.quadTo(3, 1, 0, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadLineIntersect2(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(3, 1, 0, 3);
     path.lineTo(0, 3);
@@ -3840,11 +3842,11 @@ static void testQuadLineIntersect2(skiatest::Reporter* reporter, const char* fil
     path.lineTo(0, 1);
     path.quadTo(3, 1, 0, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadLineIntersect3(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(3, 1, 0, 3);
     path.lineTo(1, 3);
@@ -3853,11 +3855,11 @@ static void testQuadLineIntersect3(skiatest::Reporter* reporter, const char* fil
     path.lineTo(0, 1);
     path.quadTo(3, 1, 0, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void skphealth_com76s(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kWinding);
     path.moveTo(708.099182f, 7.09919119f);
     path.lineTo(708.099182f, 7.09920025f);
@@ -3872,11 +3874,11 @@ static void skphealth_com76s(skiatest::Reporter* reporter, const char* filename)
     path.lineTo(704.000000f, 33.0000000f);
     path.lineTo(705.000000f, 33.0000000f);
     path.lineTo(719.500000f, 3.00000000f);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void tooCloseTest(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(1, 1);
     path.lineTo(1,-1);
@@ -3886,20 +3888,20 @@ static void tooCloseTest(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(1, 2);
     path.lineTo(2, 0);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testRect1s(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
-    path.addRect(0, 0, 60, 60, SkPathDirection::kCCW);
-    path.addRect(30, 20, 50, 50, SkPathDirection::kCCW);
-    path.addRect(24, 20, 36, 30, SkPathDirection::kCCW);
-    path.addRect(32, 24, 36, 41, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    SkPathBuilder path;
+    path.addRect({0, 0, 60, 60}, SkPathDirection::kCCW);
+    path.addRect({30, 20, 50, 50}, SkPathDirection::kCCW);
+    path.addRect({24, 20, 36, 30}, SkPathDirection::kCCW);
+    path.addRect({32, 24, 36, 41}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testRect2s(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kWinding);
     path.moveTo(0, 0);
     path.lineTo(60, 0);
@@ -3921,11 +3923,11 @@ static void testRect2s(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(36, 41);
     path.lineTo(36, 24);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testTriangles3x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(1, 0);
     path.quadTo(0, 1, 3, 2);
@@ -3935,11 +3937,11 @@ static void testTriangles3x(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 1);
     path.quadTo(2, 1, 0, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuad8(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(3, 0);
     path.quadTo(0, 1, 3, 2);
     path.lineTo(0, 3);
@@ -3948,11 +3950,11 @@ static void testQuad8(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(3, 0);
     path.quadTo(1, 1, 2, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testTriangles4x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.quadTo(2, 0, 0, 3);
@@ -3962,11 +3964,11 @@ static void testTriangles4x(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(0, 1);
     path.quadTo(3, 2, 2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuad9(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(1, 0);
     path.quadTo(0, 1, 3, 2);
@@ -3976,11 +3978,11 @@ static void testQuad9(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(1, 1);
     path.quadTo(2, 1, 1, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuad10(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 0);
     path.quadTo(0, 1, 3, 2);
     path.lineTo(3, 3);
@@ -3989,11 +3991,11 @@ static void testQuad10(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2, 0);
     path.quadTo(2, 3, 3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuad11(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(2, 0);
     path.quadTo(0, 1, 1, 2);
     path.lineTo(1, 2);
@@ -4002,11 +4004,11 @@ static void testQuad11(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(1, 1);
     path.quadTo(1, 3, 3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuad12(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 0, 0);
     path.lineTo(0, 1);
@@ -4015,11 +4017,11 @@ static void testQuad12(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(1, 0, 0, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadralateral3(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.lineTo(0, 0);
@@ -4031,12 +4033,12 @@ static void testQuadralateral3(skiatest::Reporter* reporter, const char* filenam
     path.lineTo(1, 0);
     path.lineTo(0, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 
 static void testDegenerate5(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(0, 0);
     path.lineTo(1, 0);
@@ -4045,11 +4047,11 @@ static void testDegenerate5(skiatest::Reporter* reporter, const char* filename) 
     path.lineTo(1, 0);
     path.lineTo(0, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadralateral4(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(0, 0);
     path.lineTo(0, 0);
@@ -4060,11 +4062,11 @@ static void testQuadralateral4(skiatest::Reporter* reporter, const char* filenam
     path.lineTo(0, 1);
     path.lineTo(3, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testDegenerates1(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 1);
     path.lineTo(2, 3);
@@ -4073,11 +4075,11 @@ static void testDegenerates1(skiatest::Reporter* reporter, const char* filename)
     path.lineTo(0, 0);
     path.quadTo(3, 2, 2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuad13(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 1);
     path.lineTo(2, 3);
@@ -4086,11 +4088,11 @@ static void testQuad13(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(3, 2, 2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuad14(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kWinding);
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 1);
@@ -4100,11 +4102,11 @@ static void testQuad14(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(3, 1, 1, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuad15(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 1);
     path.lineTo(1, 3);
@@ -4113,11 +4115,11 @@ static void testQuad15(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(2, 0, 1, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads16(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 1);
     path.lineTo(3, 2);
@@ -4126,11 +4128,11 @@ static void testQuads16(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(0, 1, 3, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads17(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 1);
     path.lineTo(3, 2);
@@ -4139,11 +4141,11 @@ static void testQuads17(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(0, 2, 3, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads18(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 1);
     path.lineTo(3, 2);
@@ -4152,11 +4154,11 @@ static void testQuads18(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(1, 2, 3, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads19(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 2, 1);
     path.lineTo(1, 2);
@@ -4165,11 +4167,11 @@ static void testQuads19(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(2, 1, 1, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads20(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 2, 1);
     path.lineTo(1, 3);
@@ -4178,11 +4180,11 @@ static void testQuads20(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(2, 1, 1, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads21(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 1);
     path.lineTo(2, 1);
@@ -4191,11 +4193,11 @@ static void testQuads21(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(3, 0, 2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads22(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 2, 0);
     path.lineTo(1, 1);
@@ -4204,11 +4206,11 @@ static void testQuads22(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(0, 1, 3, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads23(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 0);
     path.lineTo(1, 1);
@@ -4217,11 +4219,11 @@ static void testQuads23(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(0, 1, 3, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads24(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 0, 1);
     path.lineTo(1, 2);
@@ -4230,11 +4232,11 @@ static void testQuads24(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 1);
     path.quadTo(0, 2, 3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads25(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 0, 1);
     path.lineTo(2, 1);
@@ -4243,11 +4245,11 @@ static void testQuads25(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(3, 0, 2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads26(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 3, 0);
     path.lineTo(1, 1);
@@ -4256,11 +4258,11 @@ static void testQuads26(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(0, 1, 3, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads27(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 2, 0);
     path.lineTo(2, 1);
@@ -4269,11 +4271,11 @@ static void testQuads27(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2, 0);
     path.quadTo(3, 0, 1, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads28(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 0, 1);
     path.lineTo(2, 2);
@@ -4282,11 +4284,11 @@ static void testQuads28(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(3, 0, 2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads29(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 3, 0);
     path.lineTo(2, 1);
@@ -4295,11 +4297,11 @@ static void testQuads29(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(3, 0);
     path.quadTo(3, 1, 0, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads30(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
 
     path.quadTo(0, 0, 2, 0);
@@ -4309,11 +4311,11 @@ static void testQuads30(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2, 0);
     path.quadTo(3, 2, 1, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads31(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 2, 1);
     path.lineTo(1, 3);
@@ -4323,11 +4325,11 @@ static void testQuads31(skiatest::Reporter* reporter, const char* filename) {
 
     path.quadTo(2, 1, 1, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads32(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 1);
     path.lineTo(1, 2);
@@ -4336,11 +4338,11 @@ static void testQuads32(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(1, 1);
     path.quadTo(3, 1, 0, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads33(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 1);
     path.lineTo(2, 1);
@@ -4349,11 +4351,11 @@ static void testQuads33(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(3, 0, 2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads34(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 0);
     path.lineTo(2, 1);
@@ -4362,11 +4364,11 @@ static void testQuads34(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(1, 0);
     path.quadTo(2, 0, 3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads35(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 0);
     path.lineTo(1, 2);
@@ -4375,11 +4377,11 @@ static void testQuads35(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(1, 0);
     path.quadTo(3, 1, 0, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads36(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 0);
     path.quadTo(2, 0, 1, 2);
     path.lineTo(2, 2);
@@ -4388,11 +4390,11 @@ static void testQuads36(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(1, 0);
     path.quadTo(3, 0, 2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads37(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(1, 0);
     path.quadTo(2, 0, 1, 2);
@@ -4402,11 +4404,11 @@ static void testQuads37(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(1, 0);
     path.quadTo(3, 0, 2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads38(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 0);
     path.quadTo(3, 0, 0, 2);
     path.lineTo(3, 2);
@@ -4415,11 +4417,11 @@ static void testQuads38(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(1, 0);
     path.quadTo(2, 1, 3, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads39(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 0);
     path.quadTo(3, 0, 0, 3);
     path.lineTo(0, 3);
@@ -4428,10 +4430,10 @@ static void testQuads39(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 2);
     path.quadTo(1, 2, 0, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 static void testQuads40(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 0);
     path.quadTo(3, 0, 3, 3);
     path.lineTo(3, 3);
@@ -4440,11 +4442,11 @@ static void testQuads40(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2, 2);
     path.quadTo(3, 2, 3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads41(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 0, 1, 0);
     path.lineTo(2, 1);
@@ -4453,12 +4455,12 @@ static void testQuads41(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(0, 1, 1, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 
 static void testQuads54(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 0);
     path.quadTo(2, 0, 1, 1);
     path.lineTo(3, 1);
@@ -4467,10 +4469,10 @@ static void testQuads54(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(1, 1);
     path.quadTo(1, 1, 2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 static void testQuads53(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 0);
     path.quadTo(2, 0, 1, 1);
     path.lineTo(3, 1);
@@ -4479,10 +4481,10 @@ static void testQuads53(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(1, 1);
     path.quadTo(2, 3, 2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 static void testQuads52(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 0);
     path.quadTo(2, 0, 1, 1);
     path.lineTo(3, 1);
@@ -4491,10 +4493,10 @@ static void testQuads52(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(1, 1);
     path.quadTo(2, 3, 3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 static void testQuads51(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(2, 0);
     path.quadTo(3, 0, 2, 1);
     path.lineTo(3, 2);
@@ -4503,10 +4505,10 @@ static void testQuads51(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(3, 1);
     path.quadTo(3, 1, 1, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 static void testQuads50(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(2, 0);
     path.quadTo(3, 0, 2, 1);
     path.lineTo(3, 2);
@@ -4515,10 +4517,10 @@ static void testQuads50(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(3, 1);
     path.quadTo(1, 2, 1, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 static void testQuads49(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(2, 0);
     path.quadTo(3, 0, 2, 1);
     path.lineTo(3, 2);
@@ -4527,10 +4529,10 @@ static void testQuads49(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2, 2);
     path.quadTo(2, 2, 0, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 static void testQuads48(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(2, 0);
     path.quadTo(3, 0, 2, 1);
     path.lineTo(3, 2);
@@ -4539,10 +4541,10 @@ static void testQuads48(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2, 2);
     path.quadTo(3, 2, 0, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 static void testQuads47(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(2, 0);
     path.quadTo(3, 0, 2, 1);
     path.lineTo(3, 2);
@@ -4551,11 +4553,11 @@ static void testQuads47(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2, 2);
     path.quadTo(0, 3, 0, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads46x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(2, 0);
     path.quadTo(0, 1, 3, 2);
@@ -4565,11 +4567,11 @@ static void testQuads46x(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(1, 1);
     path.quadTo(3, 2, 1, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads45(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(2, 0);
     path.quadTo(3, 2, 3, 3);
     path.lineTo(3, 3);
@@ -4578,11 +4580,11 @@ static void testQuads45(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 2);
     path.quadTo(3, 2, 3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads44(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(2, 0);
     path.quadTo(3, 2, 3, 3);
     path.lineTo(3, 3);
@@ -4591,11 +4593,11 @@ static void testQuads44(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 2);
     path.quadTo(3, 2, 3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads43(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(2, 0);
     path.quadTo(2, 3, 3, 3);
     path.lineTo(3, 3);
@@ -4604,11 +4606,11 @@ static void testQuads43(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 2);
     path.quadTo(2, 3, 3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads42(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(2, 0);
     path.quadTo(3, 2, 3, 3);
     path.lineTo(3, 3);
@@ -4617,11 +4619,11 @@ static void testQuads42(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 2);
     path.quadTo(3, 2, 3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads56(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(2, 0);
     path.quadTo(3, 1, 0, 2);
     path.lineTo(3, 2);
@@ -4630,11 +4632,11 @@ static void testQuads56(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2, 1);
     path.quadTo(2, 1, 3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads57(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 0);
     path.quadTo(3, 0, 3, 1);
     path.lineTo(2, 2);
@@ -4643,11 +4645,11 @@ static void testQuads57(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(3, 1);
     path.quadTo(2, 2, 3, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads58(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 0);
     path.quadTo(3, 0, 3, 1);
     path.lineTo(1, 3);
@@ -4656,11 +4658,11 @@ static void testQuads58(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(3, 1);
     path.quadTo(2, 2, 3, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads59(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(3, 0);
     path.quadTo(3, 1, 3, 1);
     path.lineTo(2, 2);
@@ -4669,11 +4671,11 @@ static void testQuads59(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(3, 1);
     path.quadTo(2, 2, 3, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads60(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(2, 1);
     path.quadTo(0, 2, 3, 2);
     path.lineTo(2, 3);
@@ -4682,11 +4684,11 @@ static void testQuads60(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2, 0);
     path.quadTo(1, 1, 2, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads61(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.quadTo(0, 0, 2, 0);
@@ -4696,11 +4698,11 @@ static void testQuads61(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(1, 0, 2, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuadralateral10(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kWinding);
     path.moveTo(0, 0);
     path.lineTo(0, 0);
@@ -4712,31 +4714,31 @@ static void testQuadralateral10(skiatest::Reporter* reporter, const char* filena
     path.lineTo(2, 2);
     path.lineTo(1, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testRect3(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 60, 60, SkPathDirection::kCCW);
-    path.addRect(10, 30, 40, 30, SkPathDirection::kCCW);
-    path.addRect(24, 6, 36, 36, SkPathDirection::kCCW);
-    path.addRect(32, 6, 36, 41, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 60, 60}, SkPathDirection::kCCW);
+    path.addRect({10, 30, 40, 30}, SkPathDirection::kCCW);
+    path.addRect({24, 6, 36, 36}, SkPathDirection::kCCW);
+    path.addRect({32, 6, 36, 41}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testRect4(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
-    path.addRect(0, 0, 30, 60, SkPathDirection::kCCW);
-    path.addRect(10, 0, 40, 30, SkPathDirection::kCCW);
-    path.addRect(20, 0, 30, 40, SkPathDirection::kCCW);
-    path.addRect(32, 0, 36, 41, SkPathDirection::kCCW);
-    testSimplify(reporter, path, filename);
+    path.addRect({0, 0, 30, 60}, SkPathDirection::kCCW);
+    path.addRect({10, 0, 40, 30}, SkPathDirection::kCCW);
+    path.addRect({20, 0, 30, 40}, SkPathDirection::kCCW);
+    path.addRect({32, 0, 36, 41}, SkPathDirection::kCCW);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads62(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(3, 2);
     path.quadTo(1, 3, 3, 3);
     path.lineTo(3, 3);
@@ -4745,11 +4747,11 @@ static void testQuads62(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2, 0);
     path.quadTo(1, 3, 3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads63(skiatest::Reporter* reporter,const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(3, 0);
     path.quadTo(0, 1, 1, 2);
     path.lineTo(3, 3);
@@ -4758,11 +4760,11 @@ static void testQuads63(skiatest::Reporter* reporter,const char* filename) {
     path.lineTo(1, 1);
     path.quadTo(0, 2, 3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads64(skiatest::Reporter* reporter,const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(3, 0);
     path.quadTo(0, 1, 1, 2);
     path.lineTo(2, 2);
@@ -4771,11 +4773,11 @@ static void testQuads64(skiatest::Reporter* reporter,const char* filename) {
     path.lineTo(1, 1);
     path.quadTo(0, 2, 3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testTriangle1(skiatest::Reporter* reporter,const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(1, 0);
     path.lineTo(2, 3);
@@ -4784,11 +4786,11 @@ static void testTriangle1(skiatest::Reporter* reporter,const char* filename) {
     path.lineTo(1, 2);
     path.lineTo(1, 0);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testTriangle2(skiatest::Reporter* reporter,const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(1, 0);
     path.lineTo(0, 1);
@@ -4797,18 +4799,18 @@ static void testTriangle2(skiatest::Reporter* reporter,const char* filename) {
     path.lineTo(0, 2);
     path.lineTo(2, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testArc(skiatest::Reporter* reporter,const char* filename) {
     SkRect r = SkRect::MakeWH(150, 100);
-    SkPath path;
+    SkPathBuilder path;
     path.arcTo(r, 0, 0.0025f, false);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testIssue3838(skiatest::Reporter* reporter,const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(220, 170);
     path.lineTo(200, 170);
     path.lineTo(200, 190);
@@ -4827,11 +4829,11 @@ static void testIssue3838(skiatest::Reporter* reporter,const char* filename) {
     path.lineTo(240, 210);
     path.lineTo(220, 210);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testIssue3838_3(skiatest::Reporter* reporter,const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(40, 10);
     path.lineTo(60, 10);
     path.lineTo(60, 30);
@@ -4842,11 +4844,11 @@ static void testIssue3838_3(skiatest::Reporter* reporter,const char* filename) {
     path.lineTo(59, 29);
     path.lineTo(59, 11);
     path.lineTo(41, 11);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads65(skiatest::Reporter* reporter,const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 2);
     path.quadTo(3, 2, 0, 3);
     path.lineTo(1, 3);
@@ -4855,11 +4857,11 @@ static void testQuads65(skiatest::Reporter* reporter,const char* filename) {
     path.lineTo(1, 2);
     path.quadTo(3, 2, 1, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void fuzz864a(skiatest::Reporter* reporter,const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(10, 90);
     path.lineTo(10, 90);
     path.lineTo(10, 30);
@@ -4919,11 +4921,11 @@ static void fuzz864a(skiatest::Reporter* reporter,const char* filename) {
     path.lineTo(10, 30);
     path.lineTo(10, 90);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void cr514118(skiatest::Reporter* reporter,const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
 path.moveTo(SkBits2Float(0x42c80000), SkBits2Float(0x42480000));  // 100, 50
 path.conicTo(SkBits2Float(0x42c80000), SkBits2Float(0x00000000), SkBits2Float(0x42480000), SkBits2Float(0x00000000), SkBits2Float(0x3f3504f3));  // 100, 0, 50, 0, 0.707107f
 path.conicTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000), SkBits2Float(0x00000000), SkBits2Float(0x42480000), SkBits2Float(0x3f3504f3));  // 0, 0, 0, 50, 0.707107f
@@ -4936,11 +4938,11 @@ path.conicTo(SkBits2Float(0x3b19b530), SkBits2Float(0x00000000), SkBits2Float(0x
 path.conicTo(SkBits2Float(0x3b19b530), SkBits2Float(0x42c80000), SkBits2Float(0x42480267), SkBits2Float(0x42c80000), SkBits2Float(0x3f3504f3));  // 0.00234539f, 100, 50.0023f, 100, 0.707107f
 path.conicTo(SkBits2Float(0x42c80133), SkBits2Float(0x42c80000), SkBits2Float(0x42c80133), SkBits2Float(0x42480000), SkBits2Float(0x3f3504f3));  // 100.002f, 100, 100.002f, 50, 0.707107f
 path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void fuzz994s_11(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType((SkPathFillType) 0);
 path.moveTo(SkBits2Float(0x41200000), SkBits2Float(0x42b40000));  // 10, 90
 path.lineTo(SkBits2Float(0x41200000), SkBits2Float(0x42b40000));  // 10, 90
@@ -5002,11 +5004,11 @@ path.lineTo(SkBits2Float(0x41200000), SkBits2Float(0x41f00000));  // 10, 30
 path.lineTo(SkBits2Float(0x41200000), SkBits2Float(0x42b40000));  // 10, 90
 path.close();
 
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void fuzz994s_3414(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType((SkPathFillType) 0);
 path.moveTo(SkBits2Float(0x42c80000), SkBits2Float(0x42480000));  // 100, 50
 path.conicTo(SkBits2Float(0x42c80000), SkBits2Float(0x00000000), SkBits2Float(0x42480000), SkBits2Float(0x00000000), SkBits2Float(0x3f3504f3));  // 100, 0, 50, 0, 0.707107f
@@ -5039,11 +5041,11 @@ path.conicTo(SkBits2Float(0x43bd6720), SkBits2Float(0x42c80000), SkBits2Float(0x
 path.conicTo(SkBits2Float(0x43ef6720), SkBits2Float(0x42c80000), SkBits2Float(0x43ef6720), SkBits2Float(0x42480000), SkBits2Float(0x3f3504f3));  // 478.806f, 100, 478.806f, 50, 0.707107f
 path.close();
 
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void fuzz_twister(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType((SkPathFillType) 0);
 path.moveTo(0, 600);
 path.lineTo(3.35544e+07f, 600);
@@ -5069,11 +5071,11 @@ path.lineTo(3.35546e+07f, 0);
 path.lineTo(123, 0);
 path.lineTo(123, 600);
 path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void fuzz_twister2(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
 
 path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0x44160000));  // 0, 600
 path.lineTo(SkBits2Float(0x4bfffffe), SkBits2Float(0x44160000));  // 3.35544e+07f, 600
@@ -5100,11 +5102,11 @@ path.lineTo(SkBits2Float(0x4c00001e), SkBits2Float(0x00000000));  // 3.35546e+07
 path.lineTo(SkBits2Float(0x42f60000), SkBits2Float(0x00000000));  // 123, 0
 path.close();
 
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void fuzz763_4713_b(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType((SkPathFillType) 0);
 path.moveTo(SkBits2Float(0x42240000), SkBits2Float(0x42040000));
 path.quadTo(SkBits2Float(0x42240000), SkBits2Float(0x4211413d), SkBits2Float(0x421aa09e), SkBits2Float(0x421aa09e));
@@ -5135,11 +5137,11 @@ path.quadTo(SkBits2Float(0x41dc55b6), SkBits2Float(0x41d924df), SkBits2Float(0x4
 path.quadTo(SkBits2Float(0x41dcaf1e), SkBits2Float(0x41d8ca01), SkBits2Float(0x41dcdc4c), SkBits2Float(0x41d89bf0));
 path.quadTo(SkBits2Float(0x41ef6c33), SkBits2Float(0x41c5aec5), SkBits2Float(0x4204f72e), SkBits2Float(0x41c56cd2));
 path.close();
-testSimplify(reporter, path, filename);
+testSimplify(reporter, path.detach(), filename);
 }
 
 static void dean4(skiatest::Reporter* reporter, const char* filename) {
-  SkPath path;
+  SkPathBuilder path;
 
   // start region
   // start loop, contour: 1
@@ -5479,11 +5481,11 @@ static void dean4(skiatest::Reporter* reporter, const char* filename) {
   path.lineTo(1147.8063964843750, 2019.1651611328125);
   path.close();
 
-testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads66(skiatest::Reporter* reporter,const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(2, 0);
     path.quadTo(3, 1, 2, 2);
     path.lineTo(2, 3);
@@ -5492,11 +5494,11 @@ static void testQuads66(skiatest::Reporter* reporter,const char* filename) {
     path.lineTo(2, 1);
     path.quadTo(1, 2, 2, 2);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads67(skiatest::Reporter* reporter,const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(3, 2);
     path.quadTo(1, 3, 3, 3);
     path.lineTo(3, 3);
@@ -5505,11 +5507,11 @@ static void testQuads67(skiatest::Reporter* reporter,const char* filename) {
     path.lineTo(1, 0);
     path.quadTo(2, 3, 3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads68(skiatest::Reporter* reporter,const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 2);
     path.quadTo(0, 3, 2, 3);
     path.lineTo(2, 3);
@@ -5518,11 +5520,11 @@ static void testQuads68(skiatest::Reporter* reporter,const char* filename) {
     path.lineTo(0, 1);
     path.quadTo(1, 3, 2, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads69(skiatest::Reporter* reporter,const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 0);
     path.quadTo(2, 2, 2, 3);
     path.lineTo(2, 3);
@@ -5531,11 +5533,11 @@ static void testQuads69(skiatest::Reporter* reporter,const char* filename) {
     path.lineTo(1, 0);
     path.quadTo(3, 0, 1, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads70(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 1);
     path.quadTo(2, 3, 3, 3);
     path.lineTo(3, 3);
@@ -5544,11 +5546,11 @@ static void testQuads70(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2, 2);
     path.quadTo(1, 3, 3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads71(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 1);
     path.quadTo(2, 3, 3, 3);
     path.lineTo(3, 3);
@@ -5557,11 +5559,11 @@ static void testQuads71(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2, 2);
     path.quadTo(1, 3, 3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads72(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(1, 1);
     path.quadTo(2, 3, 3, 3);
     path.lineTo(3, 3);
@@ -5570,11 +5572,11 @@ static void testQuads72(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(2, 2);
     path.quadTo(1, 3, 3, 3);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void testQuads73(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.quadTo(0, 1, 1, 2);
     path.lineTo(0, 3);
@@ -5583,32 +5585,32 @@ static void testQuads73(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 0);
     path.quadTo(0, 1, 1, 1);
     path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void bug5169(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
 path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0x4281c71c));  // 0, 64.8889f
 path.cubicTo(SkBits2Float(0x434e0000), SkBits2Float(0x4281c71c), SkBits2Float(0x00000000), SkBits2Float(0xc2a238e4), SkBits2Float(0x00000000), SkBits2Float(0x4281c71c));  // 206, 64.8889f, 0, -81.1111f, 0, 64.8889f
 path.moveTo(SkBits2Float(0x43300000), SkBits2Float(0x41971c72));  // 176, 18.8889f
 path.cubicTo(SkBits2Float(0xc29e0000), SkBits2Float(0xc25c71c7), SkBits2Float(0x42b20000), SkBits2Float(0x42fbc71c), SkBits2Float(0x43300000), SkBits2Float(0x41971c72));  // -79, -55.1111f, 89, 125.889f, 176, 18.8889f
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void tiger8_393(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType((SkPathFillType) 0);
 path.moveTo(SkBits2Float(0x42b93333), SkBits2Float(0x43d5a666));  // 92.6f, 427.3f
 path.cubicTo(SkBits2Float(0x42b93333), SkBits2Float(0x43d5a666), SkBits2Float(0x42b5cccd), SkBits2Float(0x43da1999), SkBits2Float(0x42b80000), SkBits2Float(0x43ddf333));  // 92.6f, 427.3f, 90.9f, 436.2f, 92, 443.9f
 path.cubicTo(SkBits2Float(0x42b80000), SkBits2Float(0x43ddf333), SkBits2Float(0x42b30000), SkBits2Float(0x43e17333), SkBits2Float(0x42cf999a), SkBits2Float(0x43e1b333));  // 92, 443.9f, 89.5f, 450.9f, 103.8f, 451.4f
 path.cubicTo(SkBits2Float(0x42ec3334), SkBits2Float(0x43e14ccd), SkBits2Float(0x42e73334), SkBits2Float(0x43ddf333), SkBits2Float(0x42e73334), SkBits2Float(0x43ddf333));  // 118.1f, 450.6f, 115.6f, 443.9f, 115.6f, 443.9f
 path.cubicTo(SkBits2Float(0x42e7999a), SkBits2Float(0x43de8000), SkBits2Float(0x42ea6667), SkBits2Float(0x43db4000), SkBits2Float(0x42e60001), SkBits2Float(0x43d5a666));  // 115.8f, 445, 117.2f, 438.5f, 115, 427.3f
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 // triggers angle assert from distance field code
 static void carsvg_1(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType((SkPathFillType) 0);
 path.moveTo(SkBits2Float(0x4393d61e), SkBits2Float(0x43e768f9));  // 295.673f, 462.82f
 path.cubicTo(SkBits2Float(0x4396b50e), SkBits2Float(0x43e63c20), SkBits2Float(0x43998931), SkBits2Float(0x43e6c43e), SkBits2Float(0x439cb6a8), SkBits2Float(0x43e70ef9));  // 301.414f, 460.47f, 307.072f, 461.533f, 313.427f, 462.117f
@@ -5623,11 +5625,11 @@ path.cubicTo(SkBits2Float(0x438bf0ff), SkBits2Float(0x43ea0fef), SkBits2Float(0x
 path.lineTo(SkBits2Float(0x4393d61e), SkBits2Float(0x43e768f9));  // 295.673f, 462.82f
 path.close();
 
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void simplifyTest_1(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType((SkPathFillType) 0);
 path.moveTo(SkBits2Float(0x42bfefd4), SkBits2Float(0x42ef80ef));  // 95.9684f, 119.752f
 path.quadTo(SkBits2Float(0x42c26810), SkBits2Float(0x42e214b8), SkBits2Float(0x42cdcad5), SkBits2Float(0x42d82aa2));  // 97.2032f, 113.04f, 102.896f, 108.083f
@@ -5668,11 +5670,11 @@ path.quadTo(SkBits2Float(0x42c53268), SkBits2Float(0x42e3ac00), SkBits2Float(0x4
 path.lineTo(SkBits2Float(0x42c2eb4e), SkBits2Float(0x42f00d68));  // 97.4596f, 120.026f
 path.close();
 
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void joel_1(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType((SkPathFillType) 0);
 path.moveTo(144.859f, 285.172f);
 path.lineTo(144.859f, 285.172f);
@@ -5725,11 +5727,11 @@ path.lineTo(139.742f, 275.118f);
 path.cubicTo(143.937f, 276.493f, 146.219f, 280.977f, 144.859f, 285.173f);
 path.lineTo(141.406f, 284.055f);
 path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void joel_2(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType((SkPathFillType) 0);
 
 path.moveTo(403.283f, 497.197f);
@@ -5760,11 +5762,11 @@ path.lineTo(398.375f, 501.976f);
 path.lineTo(403.283f, 497.197f);
 path.lineTo(403.283f, 497.197f);
 path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void joel_3(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType((SkPathFillType) 0);
 path.moveTo(391.097f, 334.453f);
 path.lineTo(390.761f, 334.617f);
@@ -5823,11 +5825,11 @@ path.lineTo(451.385f, 296.531f);
 path.lineTo(391.127f, 334.437f);
 path.lineTo(390.729f, 333.781f);
 path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void joel_4(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType((SkPathFillType) 0);
 path.moveTo(SkBits2Float(0x4199d4fe), SkBits2Float(0x4265ac08));  // 19.229f, 57.418f
 path.cubicTo(SkBits2Float(0x419be979), SkBits2Float(0x426574bc), SkBits2Float(0x419c2b02), SkBits2Float(0x42653c6a), SkBits2Float(0x419af5c3), SkBits2Float(0x42645f3b));  // 19.489f, 57.364f, 19.521f, 57.309f, 19.37f, 57.093f
@@ -6577,11 +6579,11 @@ path.cubicTo(SkBits2Float(0x41b64391), SkBits2Float(0x426f645b), SkBits2Float(0x
 path.cubicTo(SkBits2Float(0x41b5a7ea), SkBits2Float(0x426f5917), SkBits2Float(0x41b57adc), SkBits2Float(0x426f374d), SkBits2Float(0x41b53953), SkBits2Float(0x426f1688));  // 22.707f, 59.837f, 22.685f, 59.804f, 22.653f, 59.772f
 path.lineTo(SkBits2Float(0x41b53953), SkBits2Float(0x426f0107));  // 22.653f, 59.751f
 path.cubicTo(SkBits2Float(0x41b472ab), SkBits2Float(0x426ea7f0), SkBits2Float(0x41b3ac03), SkBits2Float(0x426e5a1e), SkBits2Float(0x41b3105d), SkBits2Float(0x426e020d));  // 22.556f, 59.664f, 22.459f, 59.588f, 22.383f, 59.502f
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void joel_5(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType((SkPathFillType) 0);
 path.moveTo(SkBits2Float(0x43c5145a), SkBits2Float(0x43dc82f2));  // 394.159f, 441.023f
 path.lineTo(SkBits2Float(0x43c5145a), SkBits2Float(0x43dc82f2));  // 394.159f, 441.023f
@@ -6828,11 +6830,11 @@ path.moveTo(SkBits2Float(0x43c5145c), SkBits2Float(0x43dc82f2));  // 394.159f, 4
 path.lineTo(SkBits2Float(0x43c44562), SkBits2Float(0x43ddb0e6));  // 392.542f, 443.382f
 path.lineTo(SkBits2Float(0x43c5145c), SkBits2Float(0x43dc82f2));  // 394.159f, 441.023f
 path.close();
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void joel_6(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
 path.moveTo(SkBits2Float(0x43c38c6a), SkBits2Float(0x43a739fc));  // 391.097f, 334.453f
 path.lineTo(SkBits2Float(0x43c36168), SkBits2Float(0x43a74efa));  // 390.761f, 334.617f
 path.lineTo(SkBits2Float(0x43c33666), SkBits2Float(0x43a6f7f0));  // 390.425f, 333.937f
@@ -6890,11 +6892,11 @@ path.lineTo(SkBits2Float(0x43e1b148), SkBits2Float(0x439443f8));  // 451.385f, 2
 path.lineTo(SkBits2Float(0x43c39042), SkBits2Float(0x43a737f0));  // 391.127f, 334.437f
 path.lineTo(SkBits2Float(0x43c35d50), SkBits2Float(0x43a6e3f8));  // 390.729f, 333.781f
 path.close();
-testSimplify(reporter, path, filename);
+testSimplify(reporter, path.detach(), filename);
 }
 
 static void joel_7(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
 path.moveTo(SkBits2Float(0x4321220c), SkBits2Float(0x43eac70a));  // 161.133f, 469.555f
 path.lineTo(SkBits2Float(0x4321220c), SkBits2Float(0x43eac70a));  // 161.133f, 469.555f
 path.lineTo(SkBits2Float(0x431f8e14), SkBits2Float(0x43eb3b02));  // 159.555f, 470.461f
@@ -6945,11 +6947,11 @@ path.lineTo(SkBits2Float(0x43163a1d), SkBits2Float(0x43e95126));  // 150.227f, 4
 path.cubicTo(SkBits2Float(0x431a0c09), SkBits2Float(0x43e8372a), SkBits2Float(0x431eec08), SkBits2Float(0x43e8de34), SkBits2Float(0x4321220d), SkBits2Float(0x43eac72a));  // 154.047f, 464.431f, 158.922f, 465.736f, 161.133f, 469.556f
 path.lineTo(SkBits2Float(0x431dfa1d), SkBits2Float(0x43ebb000));  // 157.977f, 471.375f
 path.close();
-testSimplify(reporter, path, filename);
+testSimplify(reporter, path.detach(), filename);
 }
 
 static void joel_8(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
 path.moveTo(SkBits2Float(0x42d97520), SkBits2Float(0x410ac429)); // 108.729f, 8.67289f
 path.cubicTo(SkBits2Float(0x42d97520), SkBits2Float(0x410ac429), SkBits2Float(0x42e9a9ce), SkBits2Float(0x41834e87), SkBits2Float(0x42e99c8c), SkBits2Float(0x41c5c960)); // 108.729f, 8.67289f, 116.832f, 16.4133f, 116.806f, 24.7233f
 path.cubicTo(SkBits2Float(0x42e98f49), SkBits2Float(0x4204221c), SkBits2Float(0x42d97520), SkBits2Float(0x4223825f), SkBits2Float(0x42d97520), SkBits2Float(0x4223825f)); // 116.78f, 33.0333f, 108.729f, 40.8773f, 108.729f, 40.8773f
@@ -6963,13 +6965,13 @@ path.cubicTo(SkBits2Float(0x42b1b1a1), SkBits2Float(0x41b95c48), SkBits2Float(0x
 path.cubicTo(SkBits2Float(0x42db9490), SkBits2Float(0x416c84c2), SkBits2Float(0x42d97520), SkBits2Float(0x410ac42a), SkBits2Float(0x42d97520), SkBits2Float(0x410ac42a)); // 109.79f, 14.7824f, 108.729f, 8.67289f, 108.729f, 8.67289f
 path.lineTo(SkBits2Float(0x42d97520), SkBits2Float(0x410ac429)); // 108.729f, 8.67289f
 path.close();
-testSimplify(reporter, path, filename);
+testSimplify(reporter, path.detach(), filename);
 }
 
 static void joel_9(skiatest::Reporter* reporter, const char* filename) {
 #if DEBUG_UNDER_DEVELOPMENT
 // fails with image mismatch
-    SkPath path;
+    SkPathBuilder path;
 path.moveTo(SkBits2Float(0x4310dbe7), SkBits2Float(0x438e9604));  // 144.859f, 285.172f
 path.lineTo(SkBits2Float(0x4310dbe7), SkBits2Float(0x438e9604));  // 144.859f, 285.172f
 path.lineTo(SkBits2Float(0x4310dbe7), SkBits2Float(0x438e9604));  // 144.859f, 285.172f
@@ -7021,14 +7023,14 @@ path.lineTo(SkBits2Float(0x430bbdf4), SkBits2Float(0x43898f1a));  // 139.742f, 2
 path.cubicTo(SkBits2Float(0x430fefe0), SkBits2Float(0x438a3f1a), SkBits2Float(0x43123811), SkBits2Float(0x438c7d0e), SkBits2Float(0x4310dbe8), SkBits2Float(0x438e9624));  // 143.937f, 276.493f, 146.219f, 280.977f, 144.859f, 285.173f
 path.lineTo(SkBits2Float(0x430d67f0), SkBits2Float(0x438e070a));  // 141.406f, 284.055f
 path.close();
-testSimplify(reporter, path, filename);
+testSimplify(reporter, path.detach(), filename);
 #endif
 }
 
 static void joel_10(skiatest::Reporter* reporter, const char* filename) {
 #if DEBUG_UNDER_DEVELOPMENT
 // fails with image mismatch
-    SkPath path;
+    SkPathBuilder path;
 path.moveTo(SkBits2Float(0x440fc979), SkBits2Float(0x43d88000));  // 575.148f, 433
 path.lineTo(SkBits2Float(0x440fc979), SkBits2Float(0x43d88000));  // 575.148f, 433
 path.lineTo(SkBits2Float(0x440fc979), SkBits2Float(0x43d88000));  // 575.148f, 433
@@ -7080,14 +7082,14 @@ path.lineTo(SkBits2Float(0x44111106), SkBits2Float(0x43dd86ea));  // 580.266f, 4
 path.cubicTo(SkBits2Float(0x4410048b), SkBits2Float(0x43dcd7f0), SkBits2Float(0x440f720c), SkBits2Float(0x43da99dc), SkBits2Float(0x440fc989), SkBits2Float(0x43d87fe0));  // 576.071f, 441.687f, 573.782f, 437.202f, 575.149f, 432.999f
 path.lineTo(SkBits2Float(0x4410a687), SkBits2Float(0x43d91000));  // 578.602f, 434.125f
 path.close();
-testSimplify(reporter, path, filename);
+testSimplify(reporter, path.detach(), filename);
 #endif
 }
 
 static void joel_11(skiatest::Reporter* reporter, const char* filename) {
 #if DEBUG_UNDER_DEVELOPMENT
 // fails with image mismatch
-    SkPath path;
+    SkPathBuilder path;
 path.moveTo(SkBits2Float(0x43c9d000), SkBits2Float(0x4411977d));  // 403.625f, 582.367f
 path.lineTo(SkBits2Float(0x43c9d000), SkBits2Float(0x4411977d));  // 403.625f, 582.367f
 path.lineTo(SkBits2Float(0x43c9d000), SkBits2Float(0x4411977d));  // 403.625f, 582.367f
@@ -7140,11 +7142,11 @@ path.lineTo(SkBits2Float(0x43c6bd0e), SkBits2Float(0x4413f591));  // 397.477f, 5
 path.cubicTo(SkBits2Float(0x43c64810), SkBits2Float(0x4412e116), SkBits2Float(0x43c7a70a), SkBits2Float(0x4411d28f), SkBits2Float(0x43c9d000), SkBits2Float(0x4411978d));  // 396.563f, 587.517f, 399.305f, 583.29f, 403.625f, 582.368f
 path.lineTo(SkBits2Float(0x43ca3106), SkBits2Float(0x44127b02));  // 404.383f, 585.922f
 path.close();
-testSimplify(reporter, path, filename);
+testSimplify(reporter, path.detach(), filename);
 #endif
 }
 
-static void make_joel_12(SkPath& path) {
+static void make_joel_12(SkPathBuilder& path) {
 path.moveTo(SkBits2Float(0x4324e9fc), SkBits2Float(0x437211ec));  // 164.914f, 242.07f
 path.lineTo(SkBits2Float(0x4324e9fc), SkBits2Float(0x437211ec));  // 164.914f, 242.07f
 path.lineTo(SkBits2Float(0x4324e9fc), SkBits2Float(0x437211ec));  // 164.914f, 242.07f
@@ -7200,19 +7202,19 @@ path.close();
 }
 
 static void joel_12(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     make_joel_12(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void joel_12x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     make_joel_12(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
-static void make_joel_13(SkPath& path) {
+static void make_joel_13(SkPathBuilder& path) {
 path.moveTo(SkBits2Float(0x43b4126f), SkBits2Float(0x43c058f6));  // 360.144f, 384.695f
 path.cubicTo(SkBits2Float(0x43bd7c6b), SkBits2Float(0x43c05b02), SkBits2Float(0x43c51d71), SkBits2Float(0x43b8e8f6), SkBits2Float(0x43c5276d), SkBits2Float(0x43afc1ec));  // 378.972f, 384.711f, 394.23f, 369.82f, 394.308f, 351.515f
 path.cubicTo(SkBits2Float(0x43c51d71), SkBits2Float(0x43a688f6), SkBits2Float(0x43bd7c6b), SkBits2Float(0x439f16ea), SkBits2Float(0x43b4126f), SkBits2Float(0x439f16ea));  // 394.23f, 333.07f, 378.972f, 318.179f, 360.144f, 318.179f
@@ -7222,20 +7224,20 @@ path.close();
 }
 
 static void joel_13(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     make_joel_13(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 
 static void joel_13x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     make_joel_13(path);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
-static void make_joel_14(SkPath& path) {
+static void make_joel_14(SkPathBuilder& path) {
 path.moveTo(SkBits2Float(0x43f3b354), SkBits2Float(0x43d6770a));  // 487.401f, 428.93f
 path.lineTo(SkBits2Float(0x43f3b354), SkBits2Float(0x43d6770a));  // 487.401f, 428.93f
 path.close();
@@ -7421,19 +7423,19 @@ path.close();
 }
 
 static void joel_14(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     make_joel_14(path);
-testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void joel_14x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     make_joel_14(path);
-testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
-static void make_joel_15(SkPath& path) {
+static void make_joel_15(SkPathBuilder& path) {
 path.moveTo(SkBits2Float(0x439e276d), SkBits2Float(0x43dad106));  // 316.308f, 437.633f
 path.lineTo(SkBits2Float(0x439e276d), SkBits2Float(0x43dad106));  // 316.308f, 437.633f
 path.close();
@@ -7577,19 +7579,19 @@ path.close();
 }
 
 static void joel_15(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     make_joel_15(path);
-testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void joel_15x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     make_joel_15(path);
-testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
-static void make_joel_16(SkPath& path) {
+static void make_joel_16(SkPathBuilder& path) {
 path.moveTo(SkBits2Float(0x420e6c8b), SkBits2Float(0x426bdf3b));  // 35.606f, 58.968f
 path.lineTo(SkBits2Float(0x420fcccd), SkBits2Float(0x426c7ef9));  // 35.95f, 59.124f
 path.cubicTo(SkBits2Float(0x420fcccd), SkBits2Float(0x426c7ef9), SkBits2Float(0x42093d71), SkBits2Float(0x426c6e97), SkBits2Float(0x42036c8b), SkBits2Float(0x426cbf7c));  // 35.95f, 59.124f, 34.31f, 59.108f, 32.856f, 59.187f
@@ -7715,20 +7717,20 @@ path.close();
 }
 
 static void joel_16(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     make_joel_16(path);
-testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void joel_16x(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     make_joel_16(path);
-testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void coincubics(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(SkDoubleToScalar(0.00000000000000000), SkDoubleToScalar(0.00000000000000000));
     path.cubicTo(SkDoubleToScalar(0.00022939755581319332), SkDoubleToScalar(0.00022927834652364254),
         SkDoubleToScalar(0.00022930106206331402), SkDoubleToScalar(0.00022929999977350235),
@@ -7737,11 +7739,11 @@ static void coincubics(skiatest::Reporter* reporter, const char* filename) {
     path.cubicTo(SkDoubleToScalar(0.00011465034913271666), SkDoubleToScalar(0.00011465034913271666),
             SkDoubleToScalar(0.00011465061106719077), SkDoubleToScalar(0.00011460937093943357),
             SkDoubleToScalar(0.00014331332931760699), SkDoubleToScalar(0.00014325146912597120));
-testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void grshapearc(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
 path.setFillType(SkPathFillType::kWinding);
 path.moveTo(25.0098f, 23.1973f);
 path.lineTo(25.5689f, 22.3682f);
@@ -9312,11 +9314,11 @@ path.lineTo(26.0234f, 26.3324f);
 path.conicTo(26.0409f, 27.3323f, 25.041f, 27.3497f, 0.707107f);
 path.conicTo(24.0412f, 27.3672f, 24.0237f, 26.3673f, 0.707107f);
 path.close();
-testSimplifyFail(reporter, path, filename);
+testSimplifyFail(reporter, path.detach(), filename);
 }
 
 static void bug8249(skiatest::Reporter* reporter, const char* filename) {
-SkPath path;
+SkPathBuilder path;
 path.setFillType(SkPathFillType::kWinding);
 path.moveTo(SkBits2Float(0x43310000), SkBits2Float(0x43810000));  // 177, 258
 path.lineTo(SkBits2Float(0x43480000), SkBits2Float(0x43868000));  // 200, 269
@@ -9339,11 +9341,11 @@ path.cubicTo(SkBits2Float(0x442f0000), SkBits2Float(0x43d18000), SkBits2Float(0x
 path.cubicTo(SkBits2Float(0x43490000), SkBits2Float(0x43fa0000), SkBits2Float(0x43160000), SkBits2Float(0x43d00000), SkBits2Float(0x43160000), SkBits2Float(0x43868000));  // 201, 500, 150, 416, 150, 269
 path.lineTo(SkBits2Float(0x43310000), SkBits2Float(0x43810000));  // 177, 258
 path.close();
-testSimplify(reporter, path, filename);
+testSimplify(reporter, path.detach(), filename);
 }
 
 static void bug8290(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(-1e+09, -1e+09);
     path.lineTo(1e+09, -1e+09);
@@ -9398,11 +9400,11 @@ static void bug8290(skiatest::Reporter* reporter, const char* filename) {
             0,	2.625,	620,
             0,	0,	1);
     path.transform(matrix);
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void bug11958_a(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kWinding);
     path.moveTo(SkBits2Float(0x44099d81), SkBits2Float(0x00000000));  // 550.461f, 0
     path.lineTo(SkBits2Float(0x44099d81), SkBits2Float(0x43b7276d));  // 550.461f, 366.308f
@@ -9421,11 +9423,11 @@ static void bug11958_a(skiatest::Reporter* reporter, const char* filename) {
     path.close();
 
     // TODO(skbug.com/40043047) - This should not fail to simplify
-    testSimplifyFail(reporter, path, filename);
+    testSimplifyFail(reporter, path.detach(), filename);
 }
 
 static void bug11958_b(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
 
     path.setFillType(SkPathFillType::kWinding);
     path.moveTo(SkBits2Float(0x42240000), SkBits2Float(0x43420000));  // 41, 194
@@ -9459,11 +9461,11 @@ static void bug11958_b(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(SkBits2Float(0x43ddd958), SkBits2Float(0x440e8000));  // 443.698f, 570
     path.close();
 
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void bug11958_c(skiatest::Reporter* reporter, const char* filename) {
-    SkPath path;
+    SkPathBuilder path;
 
     path.setFillType(SkPathFillType::kWinding);
     path.moveTo(200.f, 200.f);
@@ -9479,7 +9481,7 @@ static void bug11958_c(skiatest::Reporter* reporter, const char* filename) {
     path.quadTo(337.698f, 493.f, 359.698f, 498.f);
     path.close();
 
-    testSimplify(reporter, path, filename);
+    testSimplify(reporter, path.detach(), filename);
 }
 
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = nullptr;

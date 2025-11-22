@@ -26,7 +26,7 @@ public:
     void appendChild(sk_sp<SkSVGNode>) override;
 
 protected:
-    SkSVGShape(SkSVGTag);
+    explicit SkSVGShape(SkSVGTag);
 
     void onRender(const SkSVGRenderContext&) const final;
 

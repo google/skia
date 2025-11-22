@@ -328,9 +328,10 @@ DispatchResourceOptional Builder::allocateResource(const ComputeStep* step,
             size_t bufferSize = step->calculateBufferSize(resourceIdx, resource);
             SkASSERT(bufferSize);
             if (resource.fPolicy == ResourcePolicy::kMapped) {
-                auto [ptr, bufInfo] = bufferMgr->getStoragePointer(bufferSize);
-                if (ptr) {
-                    step->prepareStorageBuffer(resourceIdx, resource, ptr, bufferSize);
+                auto [writer, bufInfo, _] =
+                    bufferMgr->getMappedStorageBuffer(bufferSize, /*stride=*/1);
+                if (writer) {
+                    step->prepareStorageBuffer(resourceIdx, resource, std::move(writer));
                     result = bufInfo;
                 }
             } else {
@@ -368,7 +369,8 @@ DispatchResourceOptional Builder::allocateResource(const ComputeStep* step,
             auto dataBlock = uboMgr.finish();
             SkASSERT(!dataBlock.empty());
 
-            auto [writer, bufInfo] = bufferMgr->getUniformWriter(/*count=*/1, dataBlock.size());
+            auto [writer, bufInfo, _] =
+                    bufferMgr->getMappedUniformBuffer(dataBlock.size(), /*stride=*/1);
             if (bufInfo) {
                 writer.write(dataBlock.data(), dataBlock.size());
                 result = bufInfo;

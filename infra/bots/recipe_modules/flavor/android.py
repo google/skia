@@ -17,12 +17,16 @@ class AndroidFlavor(default.DefaultFlavor):
   def __init__(self, m, app_name):
     super(AndroidFlavor, self).__init__(m, app_name)
     self._ever_ran_adb = False
-    self.ADB_BINARY = '/usr/bin/adb.1.0.35'
-    self.ADB_PUB_KEY = '/home/chrome-bot/.android/adbkey'
-    if 'skia' not in self.m.vars.swarming_bot_id:
+    if 'skia' in self.m.vars.swarming_bot_id:
+      self.ADB_BINARY = '/usr/bin/adb.1.0.35'
+      self.ADB_PUB_KEY = '/home/chrome-bot/.android/adbkey'
+    elif self.m.vars.swarming_bot_id.startswith('lin-'):
       self.ADB_BINARY = '/opt/infra-android/tools/adb'
       self.ADB_PUB_KEY = ('/home/chrome-bot/.android/'
                           'chrome_infrastructure_adbkey')
+    else:
+      self.ADB_BINARY = '/usr/bin/adb'
+      self.ADB_PUB_KEY = ''
 
     # Data should go in android_data_dir, which may be preserved across runs.
     android_data_dir = '/sdcard/revenge_of_the_skiabot/'
@@ -65,6 +69,7 @@ class AndroidFlavor(default.DefaultFlavor):
       'Pixel7',
       'Pixel7Pro',
       'Pixel9',
+      'Pixel10',
     ]
 
     self.use_powersave_governor_for_nanobench = [
@@ -72,6 +77,7 @@ class AndroidFlavor(default.DefaultFlavor):
       'Pixel7',
       'Pixel7Pro',
       'Pixel9',
+      'Pixel10',
     ]
 
     # Maps device type -> CPU ids that should be scaled for nanobench.
@@ -100,6 +106,7 @@ class AndroidFlavor(default.DefaultFlavor):
       'Pixel6': range(4,8), # Only use the 4 small cores.
       'Pixel7': range(4,8),
       'Pixel9': range(4,8),
+      # 'Pixel10': range(1, 8), # TODO(borenet): Which cores should we disable?
     }
 
     self.gpu_scaling = {
@@ -107,42 +114,50 @@ class AndroidFlavor(default.DefaultFlavor):
       "Nexus5x": 600000000,
     }
 
-  def _wait_for_device(self, title, attempt):
+  def wait_for_device(self):
+    cmd = [
+        'python3',
+        self.module.resource('wait_for_device.py'),
+        '--adb', self.ADB_BINARY,
+    ]
+    if self.m.vars.internal_hardware_label == '6':
+      cmd.extend(['--connect-to', 'variable_lab_dut_hostname'])
     self.m.run(self.m.step,
-                'adb kill-server after failure of \'%s\' (attempt %d)' % (
-                    title, attempt),
-                cmd=[self.ADB_BINARY, 'kill-server'],
-                infra_step=True, timeout=30, abort_on_failure=False,
-                fail_build_on_failure=False)
-    self.m.run(self.m.step,
-                'wait for device after failure of \'%s\' (attempt %d)' % (
-                    title, attempt),
-                cmd=[self.ADB_BINARY, 'wait-for-device'], infra_step=True,
-                timeout=180, abort_on_failure=False,
-                fail_build_on_failure=False)
-    self.m.run(self.m.step,
-                'adb devices -l after failure of \'%s\' (attempt %d)' % (
-                    title, attempt),
-                cmd=[self.ADB_BINARY, 'devices', '-l'],
-                infra_step=True, timeout=30, abort_on_failure=False,
-                fail_build_on_failure=False)
-    self.m.run(self.m.step,
-                'adb reboot device after failure of \'%s\' (attempt %d)' % (
-                    title, attempt),
-                cmd=[self.ADB_BINARY, 'reboot'],
-                infra_step=True, timeout=30, abort_on_failure=False,
-                fail_build_on_failure=False)
-    self.m.run(self.m.step,
-                'wait for device after failure of \'%s\' (attempt %d)' % (
-                    title, attempt),
-                cmd=[
-                    self.ADB_BINARY, 'wait-for-device', 'shell',
-                    # Wait until the boot is actually complete.
-                    # https://android.stackexchange.com/a/164050
-                    'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done',
-                ],
-                timeout=180, abort_on_failure=False,
-                fail_build_on_failure=False)
+               'wait for device',
+               cmd=cmd,
+               timeout=600, abort_on_failure=False,
+               fail_build_on_failure=False)
+
+  def reboot_device_and_wait(self):
+    with self.m.step.nest('reboot device and wait'):
+      self.m.run(self.m.step,
+                 'reboot device',
+                 cmd=[self.ADB_BINARY, 'reboot'],
+                 infra_step=True, timeout=30, abort_on_failure=False,
+                 fail_build_on_failure=False)
+      self.wait_for_device()
+
+  def recover_device(self, failed_step, attempt):
+    title = 'recover device after failure of \'%s\' (attempt %d)' % (
+        failed_step, attempt)
+    with self.m.step.nest(title):
+      self.m.run(self.m.step,
+                 'adb kill-server',
+                 cmd=[self.ADB_BINARY, 'kill-server'],
+                 infra_step=True, timeout=30, abort_on_failure=False,
+                 fail_build_on_failure=False)
+      self.m.run(self.m.step,
+                 'wait for device',
+                 cmd=[self.ADB_BINARY, 'wait-for-device'], infra_step=True,
+                 timeout=180, abort_on_failure=False,
+                 fail_build_on_failure=False)
+      self.m.run(self.m.step,
+                 'adb devices -l',
+                 cmd=[self.ADB_BINARY, 'devices', '-l'],
+                 infra_step=True, timeout=30, abort_on_failure=False,
+                 fail_build_on_failure=False)
+      self.reboot_device_and_wait()
+
     device = self.m.vars.builder_cfg.get('model')
     if (device in self.cant_root): # pragma: nocover
       return
@@ -154,6 +169,11 @@ class AndroidFlavor(default.DefaultFlavor):
                 timeout=180, abort_on_failure=False,
                 fail_build_on_failure=False)
 
+  def recover_device_after(self, title):
+    def rec(attempt):
+      self.recover_device(title, attempt)
+    return rec
+
   def _adb(self, title, *cmd, **kwargs):
     # The only non-infra adb steps (dm / nanobench) happen to not use _adb().
     if 'infra_step' not in kwargs:
@@ -163,9 +183,6 @@ class AndroidFlavor(default.DefaultFlavor):
     # ADB seems to be occasionally flaky on every device, so always retry.
     attempts = kwargs.pop('attempts', 3)
 
-    def wait_for_device(attempt):
-      return self._wait_for_device(title, attempt)
-
     with self.m.context(cwd=self.m.path.start_dir.joinpath('skia')):
       with self.m.env({'ADB_VENDOR_KEYS': self.ADB_PUB_KEY}):
         if attempts == 1:
@@ -174,7 +191,7 @@ class AndroidFlavor(default.DefaultFlavor):
         else:
           return self.m.run.with_retry(self.m.step, title, attempts,
                                        cmd=[self.ADB_BINARY]+list(cmd),
-                                       between_attempts_fn=wait_for_device,
+                                       between_attempts_fn=self.recover_device_after(title),
                                        **kwargs)
 
   def _scale_for_dm(self):
@@ -253,24 +270,18 @@ class AndroidFlavor(default.DefaultFlavor):
     if value:
       msg = 'Enabling'
 
-    def wait_for_device(attempt):
-      return self._wait_for_device("set cpu online", attempt) # pragma: nocover
-
     script = self.module.resource('set_cpu_online.py')
     self.m.run.with_retry(self.m.step,
         '%s CPU %d' % (msg, cpu),
         3, # attempts
         cmd=['python3', script, self.ADB_BINARY, cpu, value],
         infra_step=True,
-        between_attempts_fn=wait_for_device,
+        between_attempts_fn=self.recover_device_after("set cpu online"),
         timeout=30)
 
 
   def _scale_cpu(self, cpu, target_percent):
     self._ever_ran_adb = True
-
-    def wait_for_device(attempt):
-      return self._wait_for_device("scale cpu", attempt)
 
     script = self.module.resource('scale_cpu.py')
     self.m.run.with_retry(self.m.step,
@@ -278,19 +289,18 @@ class AndroidFlavor(default.DefaultFlavor):
         3, # attempts
         cmd=['python3', script, self.ADB_BINARY, str(target_percent), cpu],
         infra_step=True,
-        between_attempts_fn=wait_for_device,
+        between_attempts_fn=self.recover_device_after("scale cpu"),
         timeout=30)
 
 
   def _asan_setup_path(self):
     return self.m.vars.workdir.joinpath(
         'android_ndk_linux', 'toolchains', 'llvm', 'prebuilt', 'linux-x86_64',
-        'lib', 'clang', '17', 'bin', 'asan_device_setup')
+        'lib', 'clang', '18', 'bin', 'asan_device_setup')
 
 
   def install(self):
-    if self.m.vars.internal_hardware_label == '6':
-      self._adb('adb connect', 'connect', 'variable_lab_dut_hostname')
+    self.wait_for_device()
     self._adb('mkdir ' + self.device_dirs.resource_dir,
               'shell', 'mkdir', '-p', self.device_dirs.resource_dir)
     if self.m.vars.builder_cfg.get('model') in ('GalaxyS20', 'GalaxyS9'):
@@ -327,21 +337,7 @@ class AndroidFlavor(default.DefaultFlavor):
         timeout=300,
         abort_on_failure=False)
 
-    self.m.run(self.m.step,
-                'adb reboot device',
-                cmd=[self.ADB_BINARY, 'reboot'],
-                infra_step=True, timeout=30, abort_on_failure=False,
-                fail_build_on_failure=False)
-    self.m.run(self.m.step,
-                'wait for device after rebooting',
-                cmd=[
-                    self.ADB_BINARY, 'wait-for-device', 'shell',
-                    # Wait until the boot is actually complete.
-                    # https://android.stackexchange.com/a/164050
-                    'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done',
-                ],
-                timeout=180, abort_on_failure=False,
-                fail_build_on_failure=False)
+    self.reboot_device_and_wait()
 
     if 'ASAN' in self.m.vars.extra_tokens:
       self._ever_ran_adb = True
@@ -362,24 +358,11 @@ class AndroidFlavor(default.DefaultFlavor):
 
     if self._ever_ran_adb:
       script = self.module.resource('dump_adb_log.py')
-      self.m.run(self.m.step, 'dump reboot log',
+      self.m.run(self.m.step, 'dump adb log',
           cmd=['python3', script, self.host_dirs.bin_dir, self.ADB_BINARY],
           infra_step=True,
           timeout=300,
           abort_on_failure=False)
-
-    # Only quarantine the bot if the first failed step
-    # is an infra step. If, instead, we did this for any infra failures, we
-    # would do this too much. For example, if a Nexus 10 died during dm
-    # and the following pull step would also fail "device not found" - causing
-    # us to run the shutdown command when the device was probably not in a
-    # broken state; it was just rebooting.
-    if (self.m.run.failed_steps and
-        isinstance(self.m.run.failed_steps[0], recipe_api.InfraFailure)):
-      bot_id = self.m.vars.swarming_bot_id
-      self.m.file.write_text('Quarantining Bot',
-                             '/home/chrome-bot/%s.force_quarantine' % bot_id,
-                             ' ')
 
     # if self._ever_ran_adb:
     #   self._adb('kill adb server', 'kill-server')

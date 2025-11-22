@@ -92,4 +92,16 @@ inline bool SkStreamReadS32BE(SkStream* s, int32_t* value) {
 // certain it will fail.
 bool StreamRemainingLengthIsBelow(SkStream* stream, size_t len);
 
+namespace SkStreamPriv {
+
+// TODO(kjlubick) Delete this after migrating clients to return or consume a const SkData
+inline sk_sp<SkData> GetNonConstData(SkStream* stream) {
+    if (!stream) {
+        return nullptr;
+    }
+    return sk_sp<SkData>(const_cast<SkData*>(stream->getData().release()));
+}
+
+}  // namespace SkStreamPriv
+
 #endif  // SkStreamPriv_DEFINED

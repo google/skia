@@ -21,44 +21,46 @@ describe('Path Behavior', () => {
         paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
         paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
-        const path = new CanvasKit.Path();
-        path.moveTo(20, 5);
-        path.lineTo(30, 20);
-        path.lineTo(40, 10);
-        path.lineTo(50, 20);
-        path.lineTo(60, 0);
-        path.lineTo(20, 5);
+        const pb = new CanvasKit.PathBuilder();
+        pb.moveTo(20, 5);
+        pb.lineTo(30, 20);
+        pb.lineTo(40, 10);
+        pb.lineTo(50, 20);
+        pb.lineTo(60, 0);
+        pb.lineTo(20, 5);
 
-        path.moveTo(20, 80);
-        path.cubicTo(90, 10, 160, 150, 190, 10);
+        pb.moveTo(20, 80);
+        pb.cubicTo(90, 10, 160, 150, 190, 10);
 
-        path.moveTo(36, 148);
-        path.quadTo(66, 188, 120, 136);
-        path.lineTo(36, 148);
+        pb.moveTo(36, 148);
+        pb.quadTo(66, 188, 120, 136);
+        pb.lineTo(36, 148);
 
-        path.moveTo(150, 180);
-        path.arcToTangent(150, 100, 50, 200, 20);
-        path.lineTo(160, 160);
+        pb.moveTo(150, 180);
+        pb.arcToTangent(150, 100, 50, 200, 20);
+        pb.lineTo(160, 160);
 
-        path.moveTo(20, 120);
-        path.lineTo(20, 120);
+        pb.moveTo(20, 120);
+        pb.lineTo(20, 120);
 
-        path.transform([2, 0, 0,
+        pb.transform([2, 0, 0,
                         0, 2, 0,
                         0, 0, 1 ]);
 
+        expect(pb.contains(22, 10));
+
+        const path = pb.detachAndDelete();
         canvas.drawPath(path, paint);
 
         const rrect = CanvasKit.RRectXY([100, 10, 140, 62], 10, 4);
 
-        const rrectPath = new CanvasKit.Path().addRRect(rrect, true);
+        const rrectPath = new CanvasKit.PathBuilder().addRRect(rrect, true).detachAndDelete();
 
         canvas.drawPath(rrectPath, paint);
 
         rrectPath.delete();
         path.delete();
         paint.delete();
-        // See PathKit for more tests, since they share implementation
     });
 
     it('can create a path from an SVG string', () => {
@@ -83,11 +85,14 @@ describe('Path Behavior', () => {
 
     it('can create a path by combining two other paths', () => {
         // Get the intersection of two overlapping squares and verify that it is the smaller square.
-        const pathOne = new CanvasKit.Path();
-        pathOne.addRect([10, 10, 20, 20]);
+        const pbOne = new CanvasKit.PathBuilder();
+        pbOne.addRect([10, 10, 20, 20]);
 
-        const pathTwo = new CanvasKit.Path();
-        pathTwo.addRect([15, 15, 30, 30]);
+        const pbTwo = new CanvasKit.PathBuilder();
+        pbTwo.addRect([15, 15, 30, 30]);
+
+        const pathOne = pbOne.detachAndDelete();
+        const pathTwo = pbTwo.detachAndDelete();
 
         const path = CanvasKit.Path.MakeFromOp(pathOne, pathTwo, CanvasKit.PathOp.Intersect);
         const cmds = path.toCmds();
@@ -149,16 +154,9 @@ describe('Path Behavior', () => {
         ));
         path.delete();
 
-        // If given insufficient points, it stops early (but doesn't read out of bounds).
         path = CanvasKit.Path.MakeFromVerbsPointsWeights(mVerbs, mPoints.subarray(0, 10), mWeights);
+        expect(path.isEmpty()).toBeTruthy();
 
-        cmds = path.toCmds();
-        expect(cmds).toEqual(Float32Array.of(
-            CanvasKit.MOVE_VERB, 1, 2,
-            CanvasKit.LINE_VERB, 3, 4,
-            CanvasKit.QUAD_VERB, 5, 6, 7, 8,
-        ));
-        path.delete();
         CanvasKit.Free(mVerbs);
         CanvasKit.Free(mPoints);
         CanvasKit.Free(mWeights);
@@ -173,20 +171,24 @@ describe('Path Behavior', () => {
             CanvasKit.MOVE_VERB, 1, 2,
             CanvasKit.LINE_VERB, 3, 4
         ));
-
-        path.addVerbsPointsWeights(
-          [CanvasKit.QUAD_VERB, CanvasKit.CLOSE_VERB],
-          [5,6,7,8],
+        const pb = new CanvasKit.PathBuilder(path)
+        // Without the MOVE_VERB, the created sub path is invalid and cannot
+        // be added.
+        pb.addVerbsPointsWeights(
+          [CanvasKit.MOVE_VERB, CanvasKit.QUAD_VERB, CanvasKit.CLOSE_VERB],
+          [3,4,5,6,7,8],
         );
 
-        cmds = path.toCmds();
+        const path2 = pb.detachAndDelete();
+        cmds = path2.toCmds();
         expect(cmds).toEqual(Float32Array.of(
             CanvasKit.MOVE_VERB, 1, 2,
             CanvasKit.LINE_VERB, 3, 4,
+            CanvasKit.MOVE_VERB, 3, 4,
             CanvasKit.QUAD_VERB, 5, 6, 7, 8,
             CanvasKit.CLOSE_VERB
         ));
-        path.delete();
+        path2.delete();
     });
 
 
@@ -208,10 +210,11 @@ describe('Path Behavior', () => {
 
         mWeights.toTypedArray().set([117]);
 
-        const path = new CanvasKit.Path();
-        path.lineTo(77, 88);
-        path.addVerbsPointsWeights(mVerbs, mPoints, mWeights);
+        const pb = new CanvasKit.PathBuilder();
+        pb.lineTo(77, 88);
+        pb.addVerbsPointsWeights(mVerbs, mPoints, mWeights);
 
+        const path = pb.detach();
         let cmds = path.toCmds();
         expect(cmds).toEqual(Float32Array.of(
             CanvasKit.MOVE_VERB, 0, 0,
@@ -224,19 +227,21 @@ describe('Path Behavior', () => {
             CanvasKit.CLOSE_VERB,
         ));
 
-        path.rewind();
-        cmds = path.toCmds();
+        const path2 = pb.detachAndDelete();
+        cmds = path2.toCmds();
         expect(cmds).toEqual(new Float32Array(0));
 
         path.delete();
+        path2.delete();
         CanvasKit.Free(mVerbs);
         CanvasKit.Free(mPoints);
         CanvasKit.Free(mWeights);
     });
 
     it('can retrieve points from a path', () => {
-        const path = new CanvasKit.Path();
-        path.addRect([10, 15, 20, 25]);
+        const pb = new CanvasKit.PathBuilder();
+        pb.addRect([10, 15, 20, 25]);
+        const path = pb.detachAndDelete();
 
         let pt = path.getPoint(0);
         expect(pt[0]).toEqual(10);
@@ -263,10 +268,11 @@ describe('Path Behavior', () => {
         paint.setColor(CanvasKit.BLACK);
 
         canvas.drawPath(path, paint);
-        path.offset(80, 40);
-        canvas.drawPath(path, paint);
+        const path2 = new CanvasKit.PathBuilder(path).offset(80, 40).detachAndDelete();
+        canvas.drawPath(path2, paint);
 
         path.delete();
+        path2.delete();
         paint.delete();
     });
 
@@ -278,11 +284,13 @@ describe('Path Behavior', () => {
         paint.setAntiAlias(true);
         paint.setColor(CanvasKit.BLACK);
 
-        const path = new CanvasKit.Path();
-        path.moveTo(5, 5);
-        path.lineTo(10, 120);
-        path.addOval(CanvasKit.LTRBRect(10, 20, 100, 200), false, 3);
-        path.lineTo(300, 300);
+        const pb = new CanvasKit.PathBuilder();
+        pb.moveTo(5, 5);
+        pb.lineTo(10, 120);
+        pb.addOval(CanvasKit.LTRBRect(10, 20, 100, 200), false, 3);
+        pb.lineTo(300, 300);
+
+        const path = pb.detachAndDelete();
 
         canvas.drawPath(path, paint);
 
@@ -298,15 +306,19 @@ describe('Path Behavior', () => {
         paint.setAntiAlias(true);
         paint.setColor(CanvasKit.BLACK);
 
-        const path = new CanvasKit.Path();
+        const pb = new CanvasKit.PathBuilder();
         // Arbitrary points to make an interesting curve.
-        path.moveTo(97, 225);
-        path.cubicTo(20, 400, 404, 75, 243, 271);
+        pb.moveTo(97, 225);
+        pb.cubicTo(20, 400, 404, 75, 243, 271);
+        const pbBounds = pb.getBounds();
 
+        const path = pb.detachAndDelete();
         canvas.drawPath(path, paint);
 
         const bounds = new Float32Array(4);
         path.getBounds(bounds);
+
+        expect(pbBounds).toEqual(bounds);
 
         paint.setColor(CanvasKit.BLUE);
         paint.setStrokeWidth(3.0);
@@ -329,16 +341,17 @@ describe('Path Behavior', () => {
         paint.setAntiAlias(true);
         paint.setColor(CanvasKit.BLACK);
 
-        const path = new CanvasKit.Path();
+        const pb = new CanvasKit.PathBuilder();
 
         // - x1, y1, x2, y2, radius
-        path.arcToTangent(40, 0, 40, 40, 40);
+        pb.arcToTangent(40, 0, 40, 40, 40);
         // - oval (as Rect), startAngle, sweepAngle, forceMoveTo
-        path.arcToOval(CanvasKit.LTRBRect(90, 10, 120, 200), 30, 300, true);
+        pb.arcToOval(CanvasKit.LTRBRect(90, 10, 120, 200), 30, 300, true);
         // - rx, ry, xAxisRotate, useSmallArc, isCCW, x, y
-        path.moveTo(5, 105);
-        path.arcToRotated(24, 24, 45, true, false, 82, 156);
+        pb.moveTo(5, 105);
+        pb.arcToRotated(24, 24, 45, true, false, 82, 156);
 
+        const path = pb.detachAndDelete()
         canvas.drawPath(path, paint);
 
         path.delete();
@@ -352,25 +365,26 @@ describe('Path Behavior', () => {
         paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
         paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
-        const path = new CanvasKit.Path();
-        path.rMoveTo(20, 5)
-            .rLineTo(10, 15)  // 30, 20
-            .rLineTo(10, -5);  // 40, 10
-        path.rLineTo(10, 10);  // 50, 20
-        path.rLineTo(10, -20); // 60, 0
-        path.rLineTo(-40, 5);  // 20, 5
+        const pb = new CanvasKit.PathBuilder();
+        pb.rMoveTo(20, 5)
+          .rLineTo(10, 15)  // 30, 20
+          .rLineTo(10, -5);  // 40, 10
+        pb.rLineTo(10, 10);  // 50, 20
+        pb.rLineTo(10, -20); // 60, 0
+        pb.rLineTo(-40, 5);  // 20, 5
 
-        path.moveTo(20, 80)
-            .rCubicTo(70, -70, 140, 70, 170, -70); // 90, 10, 160, 150, 190, 10
+        pb.moveTo(20, 80)
+          .rCubicTo(70, -70, 140, 70, 170, -70); // 90, 10, 160, 150, 190, 10
 
-        path.moveTo(36, 148)
-            .rQuadTo(30, 40, 84, -12) // 66, 188, 120, 136
-            .lineTo(36, 148);
+        pb.moveTo(36, 148)
+          .rQuadTo(30, 40, 84, -12) // 66, 188, 120, 136
+          .lineTo(36, 148);
 
-        path.moveTo(150, 180)
-            .rArcTo(24, 24, 45, true, false, -68, -24); // 82, 156
-        path.lineTo(160, 160);
+        pb.moveTo(150, 180)
+          .rArcTo(24, 24, 45, true, false, -68, -24); // 82, 156
+        pb.lineTo(160, 160);
 
+        const path = pb.detachAndDelete();
         canvas.drawPath(path, paint);
 
         path.delete();
@@ -378,15 +392,16 @@ describe('Path Behavior', () => {
     });
 
     it('can measure the contours of a path',  () => {
-        const path = new CanvasKit.Path();
-        path.moveTo(10, 10)
-            .lineTo(40, 50); // should be length 50 because of the 3/4/5 triangle rule
+        const pb = new CanvasKit.PathBuilder();
+        pb.moveTo(10, 10)
+          .lineTo(40, 50); // should be length 50 because of the 3/4/5 triangle rule
 
-        path.moveTo(80, 0)
-            .lineTo(80, 10)
-            .lineTo(100, 5)
-            .lineTo(80, 0);
+        pb.moveTo(80, 0)
+          .lineTo(80, 10)
+          .lineTo(100, 5)
+          .lineTo(80, 0);
 
+        const path = pb.detachAndDelete();
         const meas = new CanvasKit.ContourMeasureIter(path, false, 1);
         let cont = meas.next();
         expect(cont).toBeTruthy();
@@ -419,7 +434,7 @@ describe('Path Behavior', () => {
         path.delete();
     });
 
-    gm('drawpoly_path', (canvas) => {
+    gm('drawpolygon_path', (canvas) => {
         const paint = new CanvasKit.Paint();
         paint.setStrokeWidth(1.0);
         paint.setAntiAlias(true);
@@ -432,11 +447,12 @@ describe('Path Behavior', () => {
         const mPoints = pointsObj.toTypedArray();
         mPoints.set([105, 105, 130, 120, 155, 105, 155, 150, 130, 130, 105, 150]);
 
-        const path = new CanvasKit.Path();
-        path.addPoly(points, true)
-            .moveTo(100, 0)
-            .addPoly(mPoints, true);
+        const pb = new CanvasKit.PathBuilder();
+        pb.addPolygon(points, true)
+          .moveTo(100, 0)
+          .addPolygon(mPoints, true);
 
+        const path = pb.detachAndDelete()
         canvas.drawPath(path, paint);
         CanvasKit.Free(pointsObj);
 
@@ -453,15 +469,20 @@ describe('Path Behavior', () => {
         paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
         paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
-        const arcpath = new CanvasKit.Path();
-        arcpath.arc(400, 400, 100, 0, -90, false) // x, y, radius, startAngle, endAngle, ccw
-               .dash(3, 1, 0)
+        const arcpath = new CanvasKit.PathBuilder()
+               .arc(400, 400, 100, 0, -90, false) // x, y, radius, startAngle, endAngle, ccw
+               .detachAndDelete();
+        const dashedArc = arcpath
+               .makeDashed(3, 1, 0);
+        const withConics = new CanvasKit.PathBuilder(dashedArc)
                .conicTo(10, 20, 30, 40, 5)
                .rConicTo(60, 70, 80, 90, 5)
-               .trim(0.2, 1, false);
+               .detachAndDelete();
+        const trimmedArcPathWithConics = withConics
+               .makeTrimmed(0.2, 1, false);
 
-        const path = new CanvasKit.Path();
-        path.addArc(CanvasKit.LTRBRect(10, 20, 100, 200), 30, 300)
+        const path = new CanvasKit.PathBuilder()
+            .addArc(CanvasKit.LTRBRect(10, 20, 100, 200), 30, 300)
             .addRect(CanvasKit.LTRBRect(200, 200, 300, 300)) // test single arg, default cw
             .addRect(CanvasKit.LTRBRect(240, 240, 260, 260), true) // test two arg, true means ccw
             .addRect([260, 260, 290, 290], true) // test five arg, true means ccw
@@ -469,27 +490,33 @@ describe('Path Behavior', () => {
                        60, 60, 60, 60, 60, 60, 60, 60], // all radii are the same
                        false) // ccw
             .addRRect(CanvasKit.RRectXY([350, 60, 450, 240], 20, 80), true) // Rect, rx, ry, ccw
-            .addPath(arcpath)
+            .addPath(trimmedArcPathWithConics)
             .transform(0.54, -0.84,  390.35,
                        0.84,  0.54, -114.53,
-                          0,     0,       1);
+                          0,     0,       1)
+            .detachAndDelete();
 
         canvas.drawPath(path, paint);
 
-        path.delete();
+        arcpath.delete();
+        dashedArc.delete();
         paint.delete();
+        path.delete();
+        trimmedArcPathWithConics.delete();
+        withConics.delete();
     });
 
     gm('winding_example', (canvas) => {
         // Inspired by https://fiddle.skia.org/c/@Path_FillType_a
-        const path = new CanvasKit.Path();
+        const pb = new CanvasKit.PathBuilder();
         // Draw overlapping rects on top
-        path.addRect(CanvasKit.LTRBRect(10, 10, 30, 30), false);
-        path.addRect(CanvasKit.LTRBRect(20, 20, 40, 40), false);
+        pb.addRect(CanvasKit.LTRBRect(10, 10, 30, 30), false);
+        pb.addRect(CanvasKit.LTRBRect(20, 20, 40, 40), false);
         // Draw overlapping rects on bottom, with different direction lines.
-        path.addRect(CanvasKit.LTRBRect(10, 60, 30, 80), false);
-        path.addRect(CanvasKit.LTRBRect(20, 70, 40, 90), true);
+        pb.addRect(CanvasKit.LTRBRect(10, 60, 30, 80), false);
+        pb.addRect(CanvasKit.LTRBRect(20, 70, 40, 90), true);
 
+        const path = pb.detachAndDelete();
         expect(path.getFillType()).toEqual(CanvasKit.FillType.Winding);
 
         // Draw the two rectangles on the left side.
@@ -514,11 +541,12 @@ describe('Path Behavior', () => {
     });
 
     gm('as_winding', (canvas) => {
-        const evenOddPath = new CanvasKit.Path();
+        const pb = new CanvasKit.PathBuilder();
         // Draw overlapping rects
-        evenOddPath.addRect(CanvasKit.LTRBRect(10, 10, 70, 70), false);
-        evenOddPath.addRect(CanvasKit.LTRBRect(30, 30, 50, 50), false);
-        evenOddPath.setFillType(CanvasKit.FillType.EvenOdd);
+        pb.addRect(CanvasKit.LTRBRect(10, 10, 70, 70), false);
+        pb.addRect(CanvasKit.LTRBRect(30, 30, 50, 50), false);
+        pb.setFillType(CanvasKit.FillType.EvenOdd);
+        const evenOddPath = pb.detachAndDelete();
 
         const evenOddCmds = evenOddPath.toCmds();
         expect(evenOddCmds).toEqual(Float32Array.of(

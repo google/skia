@@ -45,8 +45,7 @@ SkPath SkSVGPath::onAsPath(const SkSVGRenderContext& ctx) const {
     SkPath path = fPath;
     // clip-rule can be inherited and needs to be applied at clip time.
     path.setFillType(ctx.presentationContext().fInherited.fClipRule->asFillType());
-    this->mapToParent(&path);
-    return path;
+    return this->mapToParent(path);
 }
 
 SkRect SkSVGPath::onTransformableObjectBoundingBox(const SkSVGRenderContext& ctx) const {

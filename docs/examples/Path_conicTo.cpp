@@ -13,9 +13,10 @@ void draw(SkCanvas* canvas) {
     paint.setStrokeWidth(3);
     SkScalar weight = 0.5f;
     for (unsigned i = 0; i < std::size(colors); ++i) {
-        SkPath path;
-        path.moveTo(conicPts[0]);
-        path.conicTo(conicPts[1], conicPts[2], weight);
+        SkPath path = SkPathBuilder()
+                      .moveTo(conicPts[0])
+                      .conicTo(conicPts[1], conicPts[2], weight)
+                      .detach();
         paint.setColor(colors[i]);
         canvas->drawPath(path, paint);
         weight += 0.25f;

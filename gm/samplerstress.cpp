@@ -14,6 +14,7 @@
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
@@ -110,8 +111,7 @@ protected:
         SkRect temp;
         temp.setLTRB(115, 75, 144, 110);
 
-        SkPath path;
-        path.addRoundRect(temp, SkIntToScalar(5), SkIntToScalar(5));
+        SkPath path = SkPath::RRect(SkRRect::MakeRectXY(temp, 5, 5));
 
         canvas->clipPath(path, true); // AA is on
 

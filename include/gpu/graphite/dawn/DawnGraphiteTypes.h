@@ -46,7 +46,7 @@ public:
 
     DawnTextureInfo() = default;
 
-    DawnTextureInfo(WGPUTexture texture);
+    explicit DawnTextureInfo(WGPUTexture texture);
 
     DawnTextureInfo(uint32_t sampleCount,
                     Mipmapped mipmapped,
@@ -102,9 +102,6 @@ private:
 
     Protected isProtected() const { return Protected::kNo; }
     TextureFormat viewFormat() const;
-
-    bool serialize(SkWStream*) const;
-    bool deserialize(SkStream*);
 
     // Virtual API when the specific backend type is not available.
     SkString toBackendString() const override;

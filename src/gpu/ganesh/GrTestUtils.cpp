@@ -232,25 +232,25 @@ const SkPath& TestPathConvex(SkRandom* random) {
     if (!gOnce) {
         gOnce = true;
         // narrow rect
-        gPath[0] = SkPath::Polygon({{-1.5f, -50.0f},
+        gPath[0] = SkPath::Polygon({{{-1.5f, -50.0f},
                                     {-1.5f, -50.0f},
                                     { 1.5f, -50.0f},
                                     { 1.5f,  50.0f},
-                                    {-1.5f,  50.0f}}, false);
+                                    {-1.5f,  50.0f}}}, false);
         // degenerate
-        gPath[1] = SkPath::Polygon({{-0.025f, -0.025f},
+        gPath[1] = SkPath::Polygon({{{-0.025f, -0.025f},
                                     {-0.025f, -0.025f},
                                     { 0.025f, -0.025f},
                                     { 0.025f,  0.025f},
-                                    {-0.025f,  0.025f}}, false);
+                                    {-0.025f,  0.025f}}}, false);
         // clipped triangle
-        gPath[2] = SkPath::Polygon({{-10.0f, -50.0f},
+        gPath[2] = SkPath::Polygon({{{-10.0f, -50.0f},
                                     {-10.0f, -50.0f},
                                     { 10.0f, -50.0f},
                                     { 50.0f,  31.0f},
                                     { 40.0f,  50.0f},
                                     {-40.0f,  50.0f},
-                                    {-50.0f,  31.0f}}, false);
+                                    {-50.0f,  31.0f}}}, false);
 
         for (size_t i = 0; i < std::size(gPath); i++) {
             SkASSERT(gPath[i].isConvex());
@@ -286,10 +286,10 @@ void TestStyle(SkRandom* random, GrStyle* style) {
     randomize_stroke_rec(&stroke, random);
     sk_sp<SkPathEffect> pe;
     if (random->nextBool()) {
-        int cnt = random->nextRangeU(1, 50) * 2;
+        size_t cnt = random->nextRangeU(1, 50) * 2;
         std::unique_ptr<SkScalar[]> intervals(new SkScalar[cnt]);
         SkScalar sum = 0;
-        for (int i = 0; i < cnt; i++) {
+        for (size_t i = 0; i < cnt; i++) {
             intervals[i] = random->nextRangeScalar(SkDoubleToScalar(0.01),
                                                    SkDoubleToScalar(10.0));
             sum += intervals[i];

@@ -16,19 +16,22 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
+#include "include/private/base/SkTo.h"
+#include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkImageInfoPriv.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "tests/ComparePixels.h"
+#include "tests/CtsEnforcement.h"
+#include "tests/Test.h"
+#include "tools/ToolUtils.h"
+
+#if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
-#include "include/private/base/SkTo.h"
-#include "src/core/SkAutoPixmapStorage.h"
-#include "src/core/SkImageInfoPriv.h"
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "tests/CtsEnforcement.h"
-#include "tests/Test.h"
-#include "tests/TestUtils.h"
-#include "tools/ToolUtils.h"
+#endif
 
 #include <array>
 #include <cstddef>
@@ -93,6 +96,7 @@ static const TestCase gTests[] = {
     { kRGB_F16F16F16x_SkColorType,     kOpaque_SkAlphaType, kRGB_SkColorChannelFlags,  true },
     { kRGBA_F32_SkColorType,           kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true },
     { kR8G8_unorm_SkColorType,         kOpaque_SkAlphaType, kRG_SkColorChannelFlags,   true },
+    { kR16_unorm_SkColorType,          kOpaque_SkAlphaType, kRed_SkColorChannelFlag,   false},
     { kR16G16_unorm_SkColorType,       kOpaque_SkAlphaType, kRG_SkColorChannelFlags,   false},
     { kR16G16_float_SkColorType,       kOpaque_SkAlphaType, kRG_SkColorChannelFlags,   false},
     { kR16G16B16A16_unorm_SkColorType, kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, false},
@@ -180,6 +184,7 @@ static void raster_tests(skiatest::Reporter* reporter, const TestCase& test) {
     }
 }
 
+#if defined(SK_GANESH)
 static void compare_pixmaps(skiatest::Reporter* reporter,
                             const SkPixmap& expected, const SkPixmap& actual,
                             SkColorType ct, const char* label) {
@@ -196,9 +201,9 @@ static void compare_pixmaps(skiatest::Reporter* reporter,
     ComparePixels(expected, actual, tols, error);
 }
 
-static void gpu_tests(GrDirectContext* dContext,
-                      skiatest::Reporter* reporter,
-                      const TestCase& test) {
+static void ganesh_tests(GrDirectContext* dContext,
+                         skiatest::Reporter* reporter,
+                         const TestCase& test) {
     using namespace skgpu;
 
     const SkImageInfo nativeII = SkImageInfo::Make(kSize, kSize, test.fColorType, test.fAlphaType);
@@ -333,12 +338,6 @@ static void gpu_tests(GrDirectContext* dContext,
     }
 }
 
-DEF_TEST(ExtendedSkColorTypeTests_raster, reporter) {
-    for (size_t i = 0; i < std::size(gTests); ++i) {
-        raster_tests(reporter, gTests[i]);
-    }
-}
-
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ExtendedSkColorTypeTests_gpu,
                                        reporter,
                                        ctxInfo,
@@ -346,6 +345,13 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ExtendedSkColorTypeTests_gpu,
     auto context = ctxInfo.directContext();
 
     for (size_t i = 0; i < std::size(gTests); ++i) {
-        gpu_tests(context, reporter, gTests[i]);
+        ganesh_tests(context, reporter, gTests[i]);
     }
 }
+#endif
+
+DEF_TEST(ExtendedSkColorTypeTests_raster, reporter) {
+    for (size_t i = 0; i < std::size(gTests); ++i) {
+        raster_tests(reporter, gTests[i]);
+    }}
+

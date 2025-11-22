@@ -249,7 +249,7 @@ extern void (*gVerboseFinalize)();
 
 #endif
 
-bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
+std::optional<SkPath> OpDebug(const SkPath& one, const SkPath& two, SkPathOp op
         SkDEBUGPARAMS(bool skipAssert) SkDEBUGPARAMS(const char* testName)) {
 #if DEBUG_DUMP_VERIFY
 #ifndef SK_DEBUG
@@ -265,12 +265,9 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
             SkPathFillType::kEvenOdd;
     SkRect rect1, rect2;
     if (kIntersect_SkPathOp == op && one.isRect(&rect1) && two.isRect(&rect2)) {
-        result->reset();
-        result->setFillType(fillType);
-        if (rect1.intersect(rect2)) {
-            result->addRect(rect1);
-        }
-        return true;
+        SkPath result = rect1.intersect(rect2) ? SkPath::Rect(rect1)
+                                               : SkPath();
+        return result.makeFillType(fillType);
     }
     if (one.isEmpty() || two.isEmpty()) {
         SkPath work;
@@ -297,7 +294,7 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
         if (inverseFill != work.isInverseFillType()) {
             work.toggleInverseFillType();
         }
-        return Simplify(work, result);
+        return Simplify(work);
     }
     SkSTArenaAlloc<4096> allocator;  // FIXME: add a constant expression here, tune
     SkOpContour contour;
@@ -318,12 +315,12 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
     // turn path into list of segments
     SkOpEdgeBuilder builder(*minuend, contourList, &globalState);
     if (builder.unparseable()) {
-        return false;
+        return {};
     }
     const int xorMask = builder.xorMask();
     builder.addOperand(*subtrahend);
     if (!builder.finish()) {
-        return false;
+        return {};
     }
 #if DEBUG_DUMP_SEGMENTS
     contourList->dumpSegments("seg", op);
@@ -332,9 +329,7 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
     const int xorOpMask = builder.xorMask();
     if (!SortContourList(&contourList, xorMask == kEvenOdd_PathOpsMask,
             xorOpMask == kEvenOdd_PathOpsMask)) {
-        result->reset();
-        result->setFillType(fillType);
-        return true;
+        return SkPath().makeFillType(fillType);
     }
     // find all intersections between segments
     SkOpContour* current = contourList;
@@ -352,21 +347,18 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
     globalState.debugAddToGlobalCoinDicts();
 #endif
     if (!success) {
-        return false;
+        return {};
     }
 #if DEBUG_ALIGNMENT
     contourList->dumpSegments("aligned");
 #endif
     // construct closed contours
-    SkPath original = *result;
-    result->reset();
-    result->setFillType(fillType);
-    SkPathWriter wrapper(*result);
+    SkPathWriter wrapper(fillType);
     if (!bridgeOp(contourList, op, xorMask, xorOpMask, &wrapper)) {
-        *result = original;
-        return false;
+        return {};
     }
     wrapper.assemble();  // if some edges could not be resolved, assemble remaining
+    SkPath result = wrapper.nativePath();
 #if DEBUG_T_SECT_LOOP_COUNT
     static SkMutex& debugWorstLoop = *(new SkMutex);
     {
@@ -377,19 +369,23 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
         debugWorstState.debugDoYourWorst(&globalState);
     }
 #endif
-    return true;
+    return result;
 }
 
-bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
+std::optional<SkPath> Op(const SkPath& one, const SkPath& two, SkPathOp op) {
 #if DEBUG_DUMP_VERIFY
     if (SkPathOpsDebug::gVerifyOp) {
-        if (!OpDebug(one, two, op, result  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr))) {
+        if (auto result = OpDebug(one, two, op  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr))) {
+            VerifyOp(one, two, op, &result.value());
+            return *result;
+        } else {
             ReportOpFail(one, two, op);
-            return false;
+            return {};
         }
-        VerifyOp(one, two, op, *result);
-        return true;
     }
 #endif
-    return OpDebug(one, two, op, result  SkDEBUGPARAMS(true) SkDEBUGPARAMS(nullptr));
+    if (auto result = OpDebug(one, two, op  SkDEBUGPARAMS(true) SkDEBUGPARAMS(nullptr))) {
+        return *result;
+    }
+    return {};
 }

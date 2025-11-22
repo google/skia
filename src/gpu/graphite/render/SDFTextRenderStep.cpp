@@ -50,8 +50,9 @@ constexpr int kNumSDFAtlasTextures = 4;
 
 }  // namespace
 
-SDFTextRenderStep::SDFTextRenderStep()
-        : RenderStep(RenderStepID::kSDFText,
+SDFTextRenderStep::SDFTextRenderStep(Layout layout)
+        : RenderStep(layout,
+                     RenderStepID::kSDFText,
                      Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage |
                      Flags::kAppendInstances,
                      /*uniforms=*/{{"subRunDeviceMatrix", SkSLType::kFloat4x4},
@@ -62,17 +63,17 @@ SDFTextRenderStep::SDFTextRenderStep()
                      kDirectDepthLEqualPass,
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/
-                     {{"size", VertexAttribType::kUShort2, SkSLType::kUShort2},
+                     {{{"size", VertexAttribType::kUShort2, SkSLType::kUShort2},
                       {"uvPos", VertexAttribType::kUShort2, SkSLType::kUShort2},
                       {"xyPos", VertexAttribType::kFloat2, SkSLType::kFloat2},
                       {"indexAndFlags", VertexAttribType::kUShort2, SkSLType::kUShort2},
                       {"strikeToSourceScale", VertexAttribType::kFloat, SkSLType::kFloat},
                       {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-                      {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2}},
+                      {"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt}}},
                      /*varyings=*/
-                     {{"unormTexCoords", SkSLType::kFloat2},
+                     {{{"unormTexCoords", SkSLType::kFloat2},
                       {"textureCoords", SkSLType::kFloat2},
-                      {"texIndex", SkSLType::kFloat}}) {}
+                      {"texIndex", SkSLType::kFloat}}}) {}
 
 SDFTextRenderStep::~SDFTextRenderStep() {}
 
@@ -128,13 +129,13 @@ const char* SDFTextRenderStep::fragmentCoverageSkSL() const {
 
 void SDFTextRenderStep::writeVertices(DrawWriter* dw,
                                       const DrawParams& params,
-                                      skvx::uint2 ssboIndices) const {
+                                      uint32_t ssboIndex) const {
     const SubRunData& subRunData = params.geometry().subRunData();
     subRunData.subRun()->vertexFiller().fillInstanceData(dw,
                                                          subRunData.startGlyphIndex(),
                                                          subRunData.glyphCount(),
                                                          subRunData.subRun()->instanceFlags(),
-                                                         ssboIndices,
+                                                         ssboIndex,
                                                          subRunData.subRun()->glyphs(),
                                                          params.order().depthAsFloat());
 }

@@ -5,11 +5,11 @@ REG_FIDDLE(Path_getGenerationID, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPath path;
     SkDebugf("empty genID = %u\n", path.getGenerationID());
-    path.lineTo(1, 2);
+    path = SkPathBuilder().lineTo(1, 2).detach();
     SkDebugf("1st lineTo genID = %u\n", path.getGenerationID());
-    path.rewind();
+    path.reset();
     SkDebugf("empty genID = %u\n", path.getGenerationID());
-    path.lineTo(1, 2);
+    path = SkPathBuilder().lineTo(1, 2).detach();
     SkDebugf("2nd lineTo genID = %u\n", path.getGenerationID());
 }
 }  // END FIDDLE

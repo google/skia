@@ -23,14 +23,14 @@ class StaticBufferManager;
 
 class PerEdgeAAQuadRenderStep final : public RenderStep {
 public:
-    PerEdgeAAQuadRenderStep(StaticBufferManager* bufferManager);
+    PerEdgeAAQuadRenderStep(Layout, StaticBufferManager*);
 
     ~PerEdgeAAQuadRenderStep() override;
 
     std::string vertexSkSL() const override;
     const char* fragmentCoverageSkSL() const override;
 
-    void writeVertices(DrawWriter*, const DrawParams&, skvx::uint2 ssboIndices) const override;
+    void writeVertices(DrawWriter*, const DrawParams&, uint32_t ssboIndex) const override;
     void writeUniformsAndTextures(const DrawParams&, PipelineDataGatherer*) const override;
 
 private:

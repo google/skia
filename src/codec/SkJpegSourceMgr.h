@@ -65,7 +65,7 @@ public:
 #endif  // SK_CODEC_DECODES_JPEG_GAINMAPS
 
 protected:
-    SkJpegSourceMgr(SkStream* stream);
+    explicit SkJpegSourceMgr(SkStream* stream);
     SkStream* const fStream;  // unowned
 
 #ifdef SK_CODEC_DECODES_JPEG_GAINMAPS

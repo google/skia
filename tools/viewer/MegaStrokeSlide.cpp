@@ -7,6 +7,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "src/base/SkRandom.h"
 #include "tools/viewer/Slide.h"
 
@@ -17,12 +18,13 @@ public:
         fAngle = 0;
         fPlusMinus = 0;
         SkRandom rand;
-        fMegaPath.reset();
+        SkPathBuilder builder;
         for (int index = 0; index < 921; ++index) {
             for (int segs = 0; segs < 40; ++segs) {
-                fMegaPath.lineTo(SkIntToScalar(index), SkIntToScalar(rand.nextRangeU(500, 600)));
+                builder.lineTo(SkIntToScalar(index), SkIntToScalar(rand.nextRangeU(500, 600)));
             }
         }
+        fMegaPath = builder.detach();
         fName = "MegaStroke";
     }
 

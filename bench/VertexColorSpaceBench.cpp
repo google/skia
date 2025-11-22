@@ -356,7 +356,7 @@ private:
     using INHERITED = Benchmark;
 };
 
-DEF_BENCH(return new VertexColorSpaceBench(kBaseline_Mode, "baseline"));
-DEF_BENCH(return new VertexColorSpaceBench(kFloat_Mode,    "float"));
-DEF_BENCH(return new VertexColorSpaceBench(kHalf_Mode,     "half"));
-DEF_BENCH(return new VertexColorSpaceBench(kShader_Mode,   "shader"));
+DEF_BENCH(return new VertexColorSpaceBench(kBaseline_Mode, "baseline"))
+DEF_BENCH(return new VertexColorSpaceBench(kFloat_Mode,    "float"))
+DEF_BENCH(return new VertexColorSpaceBench(kHalf_Mode,     "half"))
+DEF_BENCH(return new VertexColorSpaceBench(kShader_Mode,   "shader"))

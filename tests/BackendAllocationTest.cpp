@@ -47,9 +47,9 @@
 #include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
+#include "tests/ComparePixels.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tests/TestUtils.h"
 #include "tools/ToolUtils.h"
 #include "tools/ganesh/ProxyUtils.h"
 #include "tools/gpu/ContextType.h"
@@ -635,6 +635,7 @@ void color_type_backend_allocation_test(const sk_gpu_test::ContextInfo& ctxInfo,
         { kRGB_F16F16F16x_SkColorType,    { 0, 0.5f, 0, 0.5f }     },
         { kRGBA_F32_SkColorType,          SkColors::kGray          },
         { kR8G8_unorm_SkColorType,        { .25f, .75f, 0, 1 }     },
+        { kR16_unorm_SkColorType,         SkColors::kRed           },
         { kR16G16_unorm_SkColorType,      SkColors::kGreen         },
         { kA16_unorm_SkColorType,         kTransCol                },
         { kA16_float_SkColorType,         kTransCol                },

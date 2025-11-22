@@ -5,8 +5,8 @@
 #define Contour_DEFINED
 
 #include "include/core/SkRect.h"
+#include "include/core/SkSpan.h"
 #include "include/private/base/SkAssert.h"
-#include "include/private/base/SkSpan_impl.h"
 
 #include <limits.h>
 #include <cstddef>
@@ -63,7 +63,7 @@ public:
         SkASSERT(i < fContours.size());
         auto& [bounds, end] = fContours[i];
         int32_t start = i == 0 ? 0 : fContours[i-1].end;
-        SkSpan<const Point> points{&fPoints[start], end - start};
+        SkSpan<const Point> points{&fPoints[start], SkToSizeT(end - start)};
         return {points, bounds};
     }
 

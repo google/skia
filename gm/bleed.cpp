@@ -26,10 +26,13 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTiledImageUtils.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/ganesh/GrContextOptions.h"
 #include "include/private/base/SkTDArray.h"
 #include "src/core/SkBlurMask.h"
 #include "tools/ToolUtils.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrContextOptions.h"
+#endif
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/ContextOptions.h"
@@ -293,9 +296,11 @@ protected:
         }
     }
 
+#if defined(SK_GANESH)
     void modifyGrContextOptions(GrContextOptions* options) override {
         options->fMaxTextureSizeOverride = kMaxTextureSize;
     }
+#endif
 
 #if defined(SK_GRAPHITE)
     void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions* options) const override {
@@ -336,24 +341,24 @@ private:
 
 DEF_GM(return new SrcRectConstraintGM("strict_constraint_no_red_allowed",
                                       SkCanvas::kStrict_SrcRectConstraint,
-                                      /* manual= */ false););
+                                      /* manual= */ false);)
 DEF_GM(return new SrcRectConstraintGM("strict_constraint_no_red_allowed_manual",
                                       SkCanvas::kStrict_SrcRectConstraint,
-                                      /* manual= */ true););
+                                      /* manual= */ true);)
 
 DEF_GM(return new SrcRectConstraintGM("strict_constraint_batch_no_red_allowed",
                                       SkCanvas::kStrict_SrcRectConstraint,
-                                      /* manual= */ false););
+                                      /* manual= */ false);)
 DEF_GM(return new SrcRectConstraintGM("strict_constraint_batch_no_red_allowed_manual",
                                       SkCanvas::kStrict_SrcRectConstraint,
-                                      /* manual= */ true););
+                                      /* manual= */ true);)
 
 DEF_GM(return new SrcRectConstraintGM("fast_constraint_red_is_allowed",
                                       SkCanvas::kFast_SrcRectConstraint,
-                                      /* manual= */ false););
+                                      /* manual= */ false);)
 DEF_GM(return new SrcRectConstraintGM("fast_constraint_red_is_allowed_manual",
                                       SkCanvas::kFast_SrcRectConstraint,
-                                      /* manual= */ true););
+                                      /* manual= */ true);)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

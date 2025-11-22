@@ -207,7 +207,7 @@ bool MtlCommandBuffer::onAddComputePass(DispatchGroupSpan groups) {
             SkASSERT(fActiveComputeCommandEncoder);
             for (const ComputeStep::WorkgroupBufferDesc& wgBuf : dispatch.fWorkgroupBuffers) {
                 fActiveComputeCommandEncoder->setThreadgroupMemoryLength(
-                        SkAlignTo(wgBuf.size, 16),
+                        SkAlignTo(wgBuf.size, 16u),
                         wgBuf.index);
             }
             if (const WorkgroupSize* globalSize =
@@ -324,7 +324,7 @@ bool MtlCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
     fActiveRenderCommandEncoder = MtlRenderCommandEncoder::Make(fSharedContext,
                                                                 fCommandBuffer.get(),
                                                                 descriptor.get());
-    this->trackResource(fActiveRenderCommandEncoder);
+    this->trackCommandBufferResource(fActiveRenderCommandEncoder);
 
     if (loadMSAAFromResolve) {
         // Manually load the contents of the resolve texture into the MSAA attachment as a draw,
@@ -509,7 +509,7 @@ MtlBlitCommandEncoder* MtlCommandBuffer::getBlitCommandEncoder() {
 
     // We add the ref on the command buffer for the BlitCommandEncoder now so that we don't need
     // to add a ref for every copy we do.
-    this->trackResource(fActiveBlitCommandEncoder);
+    this->trackCommandBufferResource(fActiveBlitCommandEncoder);
     return fActiveBlitCommandEncoder.get();
 }
 
@@ -549,11 +549,8 @@ void MtlCommandBuffer::bindUniformBuffer(const BindBufferInfo& info, UniformSlot
 
     unsigned int bufferIndex;
     switch(slot) {
-        case UniformSlot::kRenderStep:
-            bufferIndex = MtlGraphicsPipeline::kRenderStepUniformBufferIndex;
-            break;
-        case UniformSlot::kPaint:
-            bufferIndex = MtlGraphicsPipeline::kPaintUniformBufferIndex;
+        case UniformSlot::kCombinedUniforms:
+            bufferIndex = MtlGraphicsPipeline::kCombinedUniformIndex;
             break;
         case UniformSlot::kGradient:
             bufferIndex = MtlGraphicsPipeline::kGradientBufferIndex;

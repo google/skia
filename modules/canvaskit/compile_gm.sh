@@ -27,7 +27,7 @@ if [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
   DEBUG=true
   EXTRA_CFLAGS="\"-DSK_DEBUG\", \"-DGPU_TEST_UTILS\", "
-  RELEASE_CONF="-O1 --js-opts 0 -sDEMANGLE_SUPPORT=1 -frtti -sASSERTIONS=1 -sGL_ASSERTIONS=1 -g \
+  RELEASE_CONF="-O1 --js-opts 0 -frtti -sASSERTIONS=1 -sGL_ASSERTIONS=1 -g \
                 -DSK_DEBUG --pre-js $BASE_DIR/debug.js"
   BUILD_DIR=${BUILD_DIR:="out/wasm_gm_tests_debug"}
 else
@@ -208,7 +208,7 @@ EMCC_DEBUG=1 ${EMCXX} \
     -DGPU_TEST_UTILS \
     $SKIA_DEFINES \
     $WASM_GPU \
-    -std=c++17 \
+    -std=c++20 \
     --profiling-funcs \
     --profiling \
     --bind \

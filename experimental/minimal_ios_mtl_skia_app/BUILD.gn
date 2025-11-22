@@ -15,7 +15,7 @@ if (is_ios && skia_use_metal && skia_enable_ganesh) {
     ]
     deps = [ "../..:skia" ]
     cflags_objcc = [
-      "-std=c++17",
+      "-std=c++20",
       "-w",
     ]
     frameworks = [

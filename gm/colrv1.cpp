@@ -226,7 +226,7 @@ const uint32_t paint_glyph_nested[] = { 0xf1400, 0xf1401, 0xf1402, 0xf1403,
                                         0xf140c, 0xf140d, 0xf140e, 0xf140f };
 // clang-format on
 
-};  // namespace ColrV1TestDefinitions
+}  // namespace ColrV1TestDefinitions
 
 namespace {
 std::unique_ptr<ColrV1GM> F(

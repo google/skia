@@ -7,7 +7,7 @@ void draw(SkCanvas* canvas) {
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
     SkRect oval = {0, 20, 120, 140};
-    SkPath path;
+    SkPathBuilder path;
     for (int i = 0; i < 4; ++i) {
         path.moveTo(oval.centerX(), oval.fTop);
         path.arcTo(oval, -90, 90 - 20 * i, false);
@@ -23,6 +23,6 @@ void draw(SkCanvas* canvas) {
          path.moveTo(conicPts[i][0]);
          path.conicTo(conicPts[i][1], conicPts[i][2], conicWeights[i]);
     }
-    canvas->drawPath(path, paint);
+    canvas->drawPath(path.detach(), paint);
 }
 }  // END FIDDLE

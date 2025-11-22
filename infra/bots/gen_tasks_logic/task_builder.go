@@ -273,15 +273,7 @@ func (b *TaskBuilder) usesCMake() {
 // usesGit adds attributes to tasks which use git.
 func (b *TaskBuilder) usesGit() {
 	b.cache(CACHES_GIT...)
-	if b.IsWindows() {
-		b.cipd(specs.CIPD_PKGS_GIT_WINDOWS_AMD64...)
-	} else if b.IsMac() {
-		b.cipd(specs.CIPD_PKGS_GIT_MAC_AMD64...)
-	} else if b.IsLinux() {
-		b.cipd(specs.CIPD_PKGS_GIT_LINUX_AMD64...)
-	} else {
-		panic("Unknown host OS for " + b.Name)
-	}
+	b.cipd(specs.CIPD_PKGS_GIT...)
 	b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin")
 }
 
@@ -396,34 +388,9 @@ func (b *TaskBuilder) getRecipeProps() string {
 	return marshalJson(props)
 }
 
-// cipdPlatform returns the CIPD platform for this task.
-func (b *TaskBuilder) cipdPlatform() string {
-	os, arch := b.goPlatform()
-	if os == "darwin" {
-		os = "mac"
-	}
-	return os + "-" + arch
-}
-
 // usesPython adds attributes to tasks which use python.
 func (b *TaskBuilder) usesPython() {
-	// This is sort of a hack to work around the fact that the upstream CIPD
-	// package definitions separate out the platforms for some packages, which
-	// causes some complications when we don't know which platform we're going
-	// to run on, for example Android tasks which may run on RPI in our lab or
-	// on a Linux server elsewhere. Just grab an arbitrary set of Python
-	// packages and then replace the fixed platform with the `${platform}`
-	// placeholder. This does introduce the possibility of failure in cases
-	// where the package does not exist at a given tag for a given platform.
-	fakePlatform := cipd.PlatformLinuxAmd64
-	pythonPkgs, ok := cipd.PkgsPython[fakePlatform]
-	if !ok {
-		panic("No Python packages for platform " + fakePlatform)
-	}
-	for _, pkg := range pythonPkgs {
-		pkg.Name = strings.Replace(pkg.Name, fakePlatform, "${platform}", 1)
-	}
-	b.cipd(pythonPkgs...)
+	b.cipd(cipd.PkgsPython...)
 	b.addToPATH(
 		"cipd_bin_packages/cpython3",
 		"cipd_bin_packages/cpython3/bin",

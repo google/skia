@@ -4,14 +4,14 @@
 REG_FIDDLE(not_path_gradient, 256, 256, false, 0) {
 SkPath star() {
     const SkScalar R = 60.0f, C = 128.0f;
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(C + R, C);
     for (int i = 1; i < 15; ++i) {
         SkScalar a = 0.44879895f * i;
         SkScalar r = R + R * (i % 2);
         path.lineTo(C + r * cos(a), C + r * sin(a));
     }
-    return path;
+    return path.detach();
 }
 void draw(SkCanvas* canvas) {
     SkPaint paint;

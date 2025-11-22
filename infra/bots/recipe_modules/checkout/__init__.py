@@ -3,6 +3,8 @@
 # found in the LICENSE file.
 
 
+from . import api as _api
+
 DEPS = [
   'depot_tools/bot_update',
   'depot_tools/gclient',
@@ -16,3 +18,5 @@ DEPS = [
   'run',
   'vars',
 ]
+
+API = _api.CheckoutApi

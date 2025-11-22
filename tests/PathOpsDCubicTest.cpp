@@ -60,11 +60,11 @@ static void testConvertToPolynomial(skiatest::Reporter* reporter, const std::str
 
 DEF_TEST(SkDCubicPolynomialCoefficients, reporter) {
     testConvertToPolynomial(reporter, "Arbitrary control points X direction",
-        {{1, 2}, {-3, 4}, {5, -6}, {7, 8}}, false, /*=yValues*/
+        {{{1, 2}, {-3, 4}, {5, -6}, {7, 8}}}, false, /*=yValues*/
         -18, 36, -12, 1
     );
     testConvertToPolynomial(reporter, "Arbitrary control points Y direction",
-        {{1, 2}, {-3, 4}, {5, -6}, {7, 8}}, true, /*=yValues*/
+        {{{1, 2}, {-3, 4}, {5, -6}, {7, 8}}}, true, /*=yValues*/
         36, -36, 6, 2
     );
 }

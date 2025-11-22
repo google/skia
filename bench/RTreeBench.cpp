@@ -129,12 +129,12 @@ static inline SkRect make_concentric_rects(SkRandom&, int index, int numRects) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH(return new RTreeBuildBench("XY", &make_XYordered_rects));
-DEF_BENCH(return new RTreeBuildBench("YX", &make_YXordered_rects));
-DEF_BENCH(return new RTreeBuildBench("random", &make_random_rects));
-DEF_BENCH(return new RTreeBuildBench("concentric", &make_concentric_rects));
+DEF_BENCH(return new RTreeBuildBench("XY", &make_XYordered_rects))
+DEF_BENCH(return new RTreeBuildBench("YX", &make_YXordered_rects))
+DEF_BENCH(return new RTreeBuildBench("random", &make_random_rects))
+DEF_BENCH(return new RTreeBuildBench("concentric", &make_concentric_rects))
 
-DEF_BENCH(return new RTreeQueryBench("XY", &make_XYordered_rects));
-DEF_BENCH(return new RTreeQueryBench("YX", &make_YXordered_rects));
-DEF_BENCH(return new RTreeQueryBench("random", &make_random_rects));
-DEF_BENCH(return new RTreeQueryBench("concentric", &make_concentric_rects));
+DEF_BENCH(return new RTreeQueryBench("XY", &make_XYordered_rects))
+DEF_BENCH(return new RTreeQueryBench("YX", &make_YXordered_rects))
+DEF_BENCH(return new RTreeQueryBench("random", &make_random_rects))
+DEF_BENCH(return new RTreeQueryBench("concentric", &make_concentric_rects))

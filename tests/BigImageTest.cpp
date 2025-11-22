@@ -31,8 +31,8 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/private/base/SkAssert.h"
 #include "src/core/SkSamplingPriv.h"
+#include "tests/ComparePixels.h"
 #include "tests/Test.h"
-#include "tests/TestUtils.h"
 #include "tools/ToolUtils.h"
 
 #if defined(SK_GANESH)

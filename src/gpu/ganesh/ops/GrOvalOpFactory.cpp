@@ -1921,7 +1921,7 @@ public:
             }
 
             // we don't handle it if curvature of the stroke is less than curvature of the ellipse
-            if (scaledStroke.fX * (params.fXRadius * params.fYRadius) <
+            if (scaledStroke.fX * (params.fYRadius * params.fYRadius) <
                         (scaledStroke.fY * scaledStroke.fY) * params.fXRadius ||
                 scaledStroke.fY * (params.fXRadius * params.fXRadius) <
                         (scaledStroke.fX * scaledStroke.fX) * params.fYRadius) {

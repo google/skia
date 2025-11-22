@@ -216,6 +216,7 @@ DEF_TEST(SkRuntimeShaderImageFilter_CPU, r) {
     test_runtime_shader(r, surface.get());
 }
 
+#if defined(SK_GANESH)
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeShaderImageFilter_GPU,
                                        r,
                                        ctxInfo,
@@ -225,3 +226,4 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeShaderImageFilter_GPU,
             SkSurfaces::RenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info));
     test_runtime_shader(r, surface.get());
 }
+#endif

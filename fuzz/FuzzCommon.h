@@ -11,6 +11,7 @@
 #include "fuzz/Fuzz.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
@@ -20,9 +21,16 @@
 class SkData;
 
 // allows some float values for path points
-void FuzzNicePath(Fuzz* fuzz, SkPath* path, int maxOps);
+void FuzzNicePath(Fuzz* fuzz, SkPathBuilder*, int maxOps);
+
+static inline SkPath FuzzNicePath(Fuzz* fuzz, int maxOps) {
+    SkPathBuilder builder;
+    FuzzNicePath(fuzz, &builder, maxOps);
+    return builder.detach();
+}
+
 // allows all float values for path points
-void FuzzEvilPath(Fuzz* fuzz, SkPath* path, int last_verb);
+SkPath FuzzEvilPath(Fuzz* fuzz, int last_verb);
 
 void FuzzNiceRRect(Fuzz* fuzz, SkRRect* rr);
 

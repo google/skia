@@ -18,7 +18,7 @@ class SkData;
 struct SkImageInfo;
 struct SkMask;
 
-class SkAutoPixmapStorage : public SkPixmap {
+class [[nodiscard]] SkAutoPixmapStorage : public SkPixmap {
 public:
     SkAutoPixmapStorage();
     ~SkAutoPixmapStorage();

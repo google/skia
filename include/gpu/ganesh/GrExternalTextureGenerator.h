@@ -31,7 +31,7 @@ public:
 
 class SK_API GrExternalTextureGenerator : public GrTextureGenerator {
 public:
-    GrExternalTextureGenerator(const SkImageInfo& info);
+    explicit GrExternalTextureGenerator(const SkImageInfo& info);
 
     GrSurfaceProxyView onGenerateTexture(GrRecordingContext*,
                                          const SkImageInfo&,

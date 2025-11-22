@@ -22,6 +22,11 @@ bool Encode(SkWStream*, const SkPixmap&, const Options&) {
     return false;
 }
 
+sk_sp<SkData> Encode(const SkPixmap&, const Options&) {
+    SkDEBUGFAIL("Using encoder stub");
+    return nullptr;
+}
+
 sk_sp<SkData> Encode(GrDirectContext*, const SkImage*, const Options&) {
     SkDEBUGFAIL("Using encoder stub");
     return nullptr;

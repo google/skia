@@ -296,9 +296,9 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     bool firstLine = true; // We only interested in fist line if we have to disable the first ascent
 
     SkScalar softLineMaxIntrinsicWidth = 0;
-    fEndLine = TextStretch(span.begin(), span.begin(), parent->strutForceHeight());
-    auto end = span.end() - 1;
-    auto start = span.begin();
+    fEndLine = TextStretch(span.data(), span.data(), parent->strutForceHeight());
+    auto start = span.data();
+    auto end = start + span.size() - 1;
     InternalLineMetrics maxRunMetrics;
     bool needEllipsis = false;
     while (fEndLine.endCluster() != end) {

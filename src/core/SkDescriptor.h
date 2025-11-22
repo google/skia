@@ -84,7 +84,7 @@ private:
     uint32_t fCount{0};
 };
 
-class SkAutoDescriptor {
+class [[nodiscard]] SkAutoDescriptor {
 public:
     SkAutoDescriptor();
     explicit SkAutoDescriptor(size_t size);

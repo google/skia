@@ -254,7 +254,7 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addToAtlas(GrResourceProvider* resource
 
 void GrAtlasManager::addGlyphToBulkAndSetUseToken(skgpu::BulkUsePlotUpdater* updater,
                                                   MaskFormat format, Glyph* glyph,
-                                                  skgpu::AtlasToken token) {
+                                                  skgpu::Token token) {
     SkASSERT(glyph);
     if (updater->add(glyph->fAtlasLocator)) {
         this->getAtlas(format)->setLastUseToken(glyph->fAtlasLocator, token);

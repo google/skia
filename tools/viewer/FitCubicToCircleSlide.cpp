@@ -9,6 +9,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/private/base/SkTArray.h"
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/ClickHandlerSlide.h"
@@ -170,9 +171,10 @@ void SampleFitCubicToCircle::draw(SkCanvas* canvas) {
     cubicPaint.setStyle(SkPaint::kStroke_Style);
     cubicPaint.setStrokeWidth(10);
     cubicPaint.setAntiAlias(true);
-    SkPath cubicPath;
-    cubicPath.moveTo(fCubicX[0], fCubicY[0]);
-    cubicPath.cubicTo(fCubicX[1], fCubicY[1], fCubicX[2], fCubicY[2], fCubicX[3], fCubicY[3]);
+    SkPath cubicPath = SkPathBuilder()
+                       .moveTo(fCubicX[0], fCubicY[0])
+                       .cubicTo(fCubicX[1], fCubicY[1], fCubicX[2], fCubicY[2], fCubicX[3], fCubicY[3])
+                       .detach();
     canvas->drawPath(cubicPath, cubicPaint);
 
     SkPaint endpointsPaint;

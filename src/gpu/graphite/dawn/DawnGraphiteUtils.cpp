@@ -71,6 +71,7 @@ SkTextureCompressionType DawnFormatToCompressionType(wgpu::TextureFormat format)
         M(TextureFormat::kRGBA16F,        wgpu::TextureFormat::RGBA16Float)                 \
         M(TextureFormat::kRGBA32F,        wgpu::TextureFormat::RGBA32Float)                 \
         M(TextureFormat::kRGB10_A2,       wgpu::TextureFormat::RGB10A2Unorm)                \
+        /*TextureFormat::kRGBA10x6        unsupported */                                    \
         M(TextureFormat::kRGBA8_sRGB,     wgpu::TextureFormat::RGBA8UnormSrgb)              \
         M(TextureFormat::kBGRA8,          wgpu::TextureFormat::BGRA8Unorm)                  \
         /*TextureFormat::kBGR10_A2        unsupported */                                    \

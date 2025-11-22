@@ -9,7 +9,6 @@
 #define skgpu_graphite_TextureInfo_DEFINED
 
 #include "include/core/SkString.h"
-#include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/private/base/SkAPI.h"
 #include "include/private/base/SkAnySubclass.h"
@@ -43,8 +42,6 @@ private:
     //   static constexpr BackendApi kBackend;
     //   Protected isProtected() const;
     //   TextureFormat viewFormat() const;
-    //   bool serialize(SkWStream*) const;
-    //   bool deserialize(SkStream*);
     class Data {
     public:
         virtual ~Data() = default;
@@ -59,6 +56,10 @@ private:
         Data& operator=(const Data&) = default;
 
         // NOTE: These fields are accessible via the backend-specific subclasses.
+
+        // Must be a valid SampleCount value, or TextureInfo creation will fail to wrap the backend
+        // specific data. This is not strongly typed so that it can be assigned directly from the
+        // backend GPU API's representation, which is often just an integer.
         uint8_t fSampleCount = 1;
         Mipmapped fMipmapped = Mipmapped::kNo;
 
@@ -92,9 +93,13 @@ public:
         return fBackend;
     }
 
-    uint8_t numSamples() const { return fData.has_value() ? fData->fSampleCount : 1; }
-    Mipmapped mipmapped() const { return fData.has_value() ? fData->fMipmapped   : Mipmapped::kNo; }
     Protected isProtected() const { return fProtected; }
+    SampleCount sampleCount() const {
+        return fData.has_value() ? static_cast<SampleCount>(fData->fSampleCount) : SampleCount::k1;
+    }
+    Mipmapped mipmapped() const {
+        return fData.has_value() ? fData->fMipmapped   : Mipmapped::kNo;
+    }
 
     // Return true if `that` describes a texture that is compatible with this info and can validly
     // be used to fulfill a promise image that was created with this TextureInfo.
@@ -114,6 +119,9 @@ private:
             : fBackend(BackendTextureData::kBackend)
             , fViewFormat(data.viewFormat())
             , fProtected(data.isProtected()) {
+        // TextureInfoPriv should not construct a TextureInfo if `data` would fail this assert.
+        SkASSERT(data.fSampleCount == 1 || data.fSampleCount == 2 || data.fSampleCount == 4 ||
+                 data.fSampleCount == 8 || data.fSampleCount == 16);
         fData.emplace<BackendTextureData>(data);
     }
 

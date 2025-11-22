@@ -239,12 +239,11 @@ DEF_TEST(RustPngCodec_apng_basic_ignoring_default_image, r) {
 //   only happen upon `SkCodec::kIncompleteInput`).  Before http://review.skia.org/911038
 //   `SkPngRustCodec::onGetFrameCount` would not discover additional frames if
 //   previous frames haven't been decoded yet.
-// * TODO(https://crbug.com/356922876): Skia client (e.g. Blink; or here the
-//   testcase) is expected to handle `SkCodecAnimation::DisposalMethod` and
-//   populate the target buffer (and `SkCodec::Options::fPriorFrame`) with the
-//   expected pixels.  OTOH, `SkPngRustCodec` needs to handle
-//   `SkCodecAnimation::Blend` - without this the final frame in this test will
-//   contain red pixels.
+// * Skia client (e.g. Blink; or here the testcase) is expected to handle
+//   `SkCodecAnimation::DisposalMethod` and populate the target buffer (and
+//   `SkCodec::Options::fPriorFrame`) with the expected pixels.  OTOH,
+//   `SkPngRustCodec` needs to handle `SkCodecAnimation::Blend` - without this
+//   the final frame in this test will contain red pixels.
 DEF_TEST(RustPngCodec_apng_dispose_op_none_basic, r) {
     std::unique_ptr<SkCodec> codec =
             SkPngRustDecoderDecode(r, "images/apng-test-suite--dispose-ops--none-basic.png");
@@ -691,6 +690,18 @@ DEF_TEST(RustPngCodec_f16_trc_tables, r) {
     REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
 }
 
+DEF_TEST(RustPngCodec_crbug445556737, r) {
+    sk_sp<SkImage> image = DecodeLastFrame(r, "images/crbug445556737.png");
+    if (!image) {
+        return;
+    }
+
+    // The main test verification is that there are no assertion failures nor
+    // other crashes.  Cursory verification below is supplementary/secondary.
+    REPORTER_ASSERT(r, image->height() == 5);
+    REPORTER_ASSERT(r, image->width() == 5);
+}
+
 DEF_TEST(RustPngCodec_invalid_profile, r) {
     // This image has an gamma value of 0. For parity with Blink, we want to disregard
     // the ICC profile in this case and create the codec without it. This is different
@@ -704,5 +715,120 @@ DEF_TEST(RustPngCodec_invalid_profile, r) {
 
     // This should not crash.
     auto [image, result] = codec->getImage(codec->getInfo());
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+}
+
+static bool bitmaps_equal(const SkBitmap& actual, const SkBitmap& expected) {
+    for (int y = 0; y < actual.height(); ++y) {
+        for (int x = 0; x < actual.width(); ++x) {
+            SkColor c1 = actual.getColor(x, y);
+            SkColor c2 = expected.getColor(x, y);
+            SkPMColor actualPMColor = SkPreMultiplyColor(c1);
+            SkPMColor expectedPMColor = SkPreMultiplyColor(c2);
+
+            if (actualPMColor != expectedPMColor) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+static void test_subset_decode(skiatest::Reporter* r, const char* resource) {
+    skiatest::ReporterContext context(r, resource);
+    std::unique_ptr<SkStream> stream(GetResourceAsStream(resource));
+    REPORTER_ASSERT(r, stream);
+
+    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromStream(std::move(stream));
+    REPORTER_ASSERT(r, codec);
+
+    const SkImageInfo info = codec->getInfo();
+
+    SkBitmap bm;
+    bm.allocPixels(info);
+    codec->getPixels(info, bm.getPixels(), bm.rowBytes());
+
+    SkBitmap tiledBM;
+    tiledBM.allocPixels(info);
+
+    const int height = info.height();
+    const int width = info.width();
+    // Note that if numStripes does not evenly divide height there will be an extra
+    // stripe.
+    const int numStripes = 4;
+    const int numVerticalStripes = 2;
+
+    if (numStripes > height || numVerticalStripes > width) {
+        // Image is too small.
+        return;
+    }
+
+    const int stripeHeight = height / numStripes;
+    const int stripeWidth = width / numVerticalStripes;
+
+    // Iterate through the image twice. Once to decode odd stripes, and once for even.
+    for (int oddEven = 1; oddEven >= 0; oddEven--) {
+        for (int y = oddEven * stripeHeight; y < height; y += 2 * stripeHeight) {
+            for (int xStripe = 0; xStripe < numVerticalStripes; xStripe++) {
+                // Calculate all four bounds for the grid section
+                const int top = y;
+                const int bottom = std::min(y + stripeHeight, height);
+                const int left = xStripe * stripeWidth;
+                const int right = std::min((xStripe + 1) * stripeWidth, width);
+
+                SkIRect subset = SkIRect::MakeLTRB(left, top, right, bottom);
+                SkCodec::Options options;
+                options.fSubset = &subset;
+
+                REPORTER_ASSERT(r, SkCodec::kSuccess == codec->startIncrementalDecode(
+                    info, tiledBM.getAddr(left, top), tiledBM.rowBytes(), &options));
+                REPORTER_ASSERT(r, SkCodec::kSuccess == codec->incrementalDecode());
+            }
+        }
+    }
+
+    REPORTER_ASSERT(r, bitmaps_equal(bm, tiledBM));
+}
+
+DEF_TEST(RustPngCodec_subset, r) {
+    // Tests subsets by splitting the image into 8 or 10 different tiles and decoding
+    // those each separately, then comparing to the full image decoded.
+    test_subset_decode(r, "images/baby_tux.png");
+    test_subset_decode(r, "images/plane_interlaced.png");
+}
+
+DEF_TEST(RustPngCodec_interlaced_animated_blending, r) {
+    std::unique_ptr<SkCodec> codec =
+        SkPngRustDecoderDecode(r, "images/interlaced-multiframe-with-blending.png");
+    REPORTER_ASSERT(r, codec);
+
+    // Use incrementalDecode for each frame of this image. This should not crash.
+    SkBitmap bm;
+    SkImageInfo info = codec->getInfo();
+    bm.allocPixels(info);
+    REPORTER_ASSERT(r, codec->getFrameCount() == 4);
+    for (int i = 0; i < codec->getFrameCount(); ++i) {
+        SkCodec::Options options;
+        options.fFrameIndex = i;
+        options.fPriorFrame = i - 1;
+        SkCodec::Result result;
+        result = codec->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes(), &options);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+        std::ignore = codec->incrementalDecode();
+    }
+}
+
+DEF_TEST(RustPngCodec_sbit565_ihdr16bits, r) {
+    std::unique_ptr<SkCodec> codec = SkPngRustDecoderDecode(r, "images/basn2c16-sbit565.png");
+    REPORTER_ASSERT(r, codec);
+
+    SkBitmap bm;
+    SkImageInfo info = codec->getInfo();
+    bm.allocPixels(info);
+    REPORTER_ASSERT(r, codec->getFrameCount() == 1);
+    SkCodec::Result result;
+    result = codec->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes());
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+    result = codec->incrementalDecode();
     REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
 }

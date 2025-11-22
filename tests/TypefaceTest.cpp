@@ -354,7 +354,7 @@ DEF_TEST(TypefaceAxes, reporter) {
         REPORTER_ASSERT(reporter, typeface->getBounds().isEmpty());
 
         std::unique_ptr<Variation::Coordinate[]> actual(new Variation::Coordinate[actualCount]);
-        actualCount = typeface->getVariationDesignPosition({actual.get(), actualCount});
+        actualCount = typeface->getVariationDesignPosition({actual.get(), (size_t)actualCount});
         if (actualCount == -1) {
             return;  // The position cannot be determined.
         }
@@ -536,8 +536,8 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
         REPORTER_ASSERT(reporter, actualCount == expectedCount ||
                                   actualCount == alsoAcceptedAxisTagCount);
 
-        std::unique_ptr<Axis[]> actual(new Axis[actualCount]);
-        actualCount = typeface->getVariationDesignParameters({actual.get(), actualCount});
+        skia_private::AutoTArray<Axis> actual(actualCount);
+        actualCount = typeface->getVariationDesignParameters(actual);
         if (actualCount == -1) {
             return;  // The position cannot be determined.
         }
@@ -782,8 +782,7 @@ DEF_TEST(LegacyMakeTypeface, reporter) {
 }
 
 DEF_TEST(CustomTypeface_invalid_glyphid, reporter) {
-    SkPath glyph_path;
-    glyph_path.addRect({10, 20, 30, 40});
+    SkPath glyph_path = SkPath::Rect({10, 20, 30, 40});
 
     SkCustomTypefaceBuilder builder;
     builder.setGlyph(0, 42, glyph_path);

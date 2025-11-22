@@ -42,8 +42,7 @@ void draw(SkCanvas* canvas) {
     float startAngle = 15;
     float sweepAngle = 75;
 
-    SkPath arc;
-    arc.arcTo(oval, startAngle, sweepAngle, false);
+    SkPath arc = SkPathBuilder().arcTo(oval, startAngle, sweepAngle, false).detach();
 
     SkPaint arcPaint(paint);
     arcPaint.setStrokeWidth(5);
@@ -83,11 +82,11 @@ void draw(SkCanvas* canvas) {
     canvas->drawPoint(p1.x(), p1.y(), pointPaint);
     canvas->drawPoint(p2.x(), p2.y(), pointPaint);
 
-    SkPath weightedQuadratic;
+    SkPathBuilder weightedQuadratic;
     weightedQuadratic.moveTo(p0);
     weightedQuadratic.conicTo(p1, p2, weight);
     paint.setColor(SK_ColorYELLOW);
     paint.setStrokeWidth(2.5);
-    canvas->drawPath(weightedQuadratic, paint);
+    canvas->drawPath(weightedQuadratic.detach(), paint);
 }
 }  // END FIDDLE

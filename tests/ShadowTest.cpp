@@ -8,6 +8,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
 #include "include/core/SkRRect.h"
@@ -71,64 +72,69 @@ void tessellate_shadow(skiatest::Reporter* reporter, const SkPath& path, const S
 DEF_TEST(ShadowUtils, reporter) {
     SkCanvas canvas(100, 100);
 
-    SkPath path;
-    path.cubicTo(100, 50, 20, 100, 0, 0);
+    SkPath path = SkPathBuilder().cubicTo(100, 50, 20, 100, 0, 0).detach();
     tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 4}, kDo_ExpectVerts);
     // super high path
     tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 4.0e+37f}, kDo_ExpectVerts);
 
     // This line segment has no area and no shadow.
-    path.reset();
-    path.lineTo(10.f, 10.f);
+    path = SkPathBuilder().lineTo(10.f, 10.f).detach();
     tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 4}, kDont_ExpectVerts);
 
     // A series of collinear line segments
-    path.reset();
+    SkPathBuilder builder;
     for (int i = 0; i < 10; ++i) {
-        path.lineTo((SkScalar)i, (SkScalar)i);
+        builder.lineTo((SkScalar)i, (SkScalar)i);
     }
-    tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 4}, kDont_ExpectVerts);
+    tessellate_shadow(reporter, builder.detach(), canvas.getTotalMatrix(),
+                      {0, 0, 4}, kDont_ExpectVerts);
 
     // ugly degenerate path
-    path.reset();
-    path.moveTo(-134217728, 2.22265153e+21f);
-    path.cubicTo(-2.33326106e+21f, 7.36298265e-41f, 3.72237738e-22f, 5.99502692e-36f,
-                 1.13631943e+22f, 2.0890786e+33f);
-    path.cubicTo(1.03397626e-25f, 5.99502692e-36f, 9.18354962e-41f, 0, 4.6142745e-37f, -213558848);
-    path.lineTo(-134217728, 2.2226515e+21f);
+    path = SkPathBuilder()
+           .moveTo(-134217728, 2.22265153e+21f)
+           .cubicTo(-2.33326106e+21f, 7.36298265e-41f, 3.72237738e-22f, 5.99502692e-36f,
+                     1.13631943e+22f, 2.0890786e+33f)
+           .cubicTo(1.03397626e-25f, 5.99502692e-36f, 9.18354962e-41f, 0,
+                    4.6142745e-37f, -213558848)
+           .lineTo(-134217728, 2.2226515e+21f)
+           .detach();
     tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 9}, kDont_ExpectVerts);
 
     // simple concave path (star of David)
-    path.reset();
-    path.moveTo(0.0f, -50.0f);
-    path.lineTo(14.43f, -25.0f);
-    path.lineTo(43.30f, -25.0f);
-    path.lineTo(28.86f, 0.0f);
-    path.lineTo(43.30f, 25.0f);
-    path.lineTo(14.43f, 25.0f);
-    path.lineTo(0.0f, 50.0f);
-    path.lineTo(-14.43f, 25.0f);
-    path.lineTo(-43.30f, 25.0f);
-    path.lineTo(-28.86f, 0.0f);
-    path.lineTo(-43.30f, -25.0f);
-    path.lineTo(-14.43f, -25.0f);
+    path = SkPathBuilder()
+           .moveTo(0.0f, -50.0f)
+           .lineTo(14.43f, -25.0f)
+           .lineTo(43.30f, -25.0f)
+           .lineTo(28.86f, 0.0f)
+           .lineTo(43.30f, 25.0f)
+           .lineTo(14.43f, 25.0f)
+           .lineTo(0.0f, 50.0f)
+           .lineTo(-14.43f, 25.0f)
+           .lineTo(-43.30f, 25.0f)
+           .lineTo(-28.86f, 0.0f)
+           .lineTo(-43.30f, -25.0f)
+           .lineTo(-14.43f, -25.0f)
+           .detach();
 // uncomment when transparent concave shadows are working
 //    tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 9}, kDo_ExpectVerts, true);
 
     // complex concave path (bowtie)
-    path.reset();
-    path.moveTo(-50, -50);
-    path.lineTo(-50, 50);
-    path.lineTo(50, -50);
-    path.lineTo(50, 50);
-    path.lineTo(-50, -50);
-    tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 9}, kDont_ExpectVerts);
+    builder.reset()
+           .moveTo(-50, -50)
+           .lineTo(-50, 50)
+           .lineTo(50, -50)
+           .lineTo(50, 50)
+           .lineTo(-50, -50);
+    tessellate_shadow(reporter, builder.snapshot(), canvas.getTotalMatrix(),
+                      {0, 0, 9}, kDont_ExpectVerts);
 
     // multiple contour path
-    path.close();
-    path.moveTo(0, 0);
-    path.lineTo(1, 0);
-    path.lineTo(0, 1);
+    path = builder
+           .close()
+           .moveTo(0, 0)
+           .lineTo(1, 0)
+           .lineTo(0, 1)
+           .detach();
     tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 9}, kDont_ExpectVerts);
 }
 
@@ -205,16 +211,13 @@ void check_bounds(skiatest::Reporter* reporter, const SkPath& path) {
 }
 
 DEF_TEST(ShadowBounds, reporter) {
-    SkPath path;
-    path.addRRect(SkRRect::MakeRectXY(SkRect::MakeLTRB(-50, -20, 40, 30), 4, 4));
+    SkPath path = SkPath::RRect(SkRRect::MakeRectXY(SkRect::MakeLTRB(-50, -20, 40, 30), 4, 4));
     check_bounds(reporter, path);
 
-    path.reset();
-    path.addOval(SkRect::MakeLTRB(300, 300, 900, 900));
+    path = SkPath::Oval(SkRect::MakeLTRB(300, 300, 900, 900));
     check_bounds(reporter, path);
 
-    path.reset();
-    path.cubicTo(100, 50, 20, 100, 0, 0);
+    path = SkPathBuilder().cubicTo(100, 50, 20, 100, 0, 0).detach();
     check_bounds(reporter, path);
 }
 

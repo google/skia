@@ -26,6 +26,7 @@ class GrDirectContext;
 class GrFragmentProcessor;
 class GrImageContext;
 class GrRecordingContext;
+class GrRenderTargetProxy;
 class GrSurfaceProxyView;
 class SkMatrix;
 enum class GrColorType;
@@ -72,8 +73,9 @@ public:
     GrSemaphoresSubmitted flush(GrDirectContext*, const GrFlushInfo&) const override;
 
    std::tuple<GrSurfaceProxyView, GrColorType> asView(GrRecordingContext*,
-                                                       skgpu::Mipmapped,
-                                                       GrImageTexGenPolicy) const override;
+                                                      skgpu::Mipmapped,
+                                                      GrImageTexGenPolicy,
+                                                      GrRenderTargetProxy*) const override;
 
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(skgpu::ganesh::SurfaceDrawContext*,
                                                              SkSamplingOptions,

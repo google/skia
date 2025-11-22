@@ -125,6 +125,7 @@ def compile_fn(api, checkout_root, out_dir):
     args['is_debug'] = False
 
   gn = skia_dir.joinpath('bin', 'gn')
+  ninja = skia_dir.joinpath('third_party', 'ninja', 'ninja')
 
   with api.context(cwd=skia_dir, env=env):
     api.run(api.step, 'fetch-gn',
@@ -136,7 +137,7 @@ def compile_fn(api, checkout_root, out_dir):
     api.run(api.step, 'gn gen',
             cmd=[gn, 'gen', out_dir, '--args=' + util.py_to_gn(args)])
     api.run(api.step, 'ninja',
-            cmd=['ninja', '-C', out_dir, 'nanobench', 'dm'])
+            cmd=[ninja, '-C', out_dir, 'nanobench', 'dm'])
 
 
 def copy_build_products(api, src, dst):

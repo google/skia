@@ -3,9 +3,13 @@
 # found in the LICENSE file.
 
 
+from . import api as _api
+
 DEPS = [
   'recipe_engine/context',
   'recipe_engine/step',
   'run',
   'vars',
 ]
+
+API = _api.GSUtilApi

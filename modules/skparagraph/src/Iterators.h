@@ -16,30 +16,33 @@ public:
     LangIterator(SkSpan<const char> utf8, SkSpan<Block> styles, const TextStyle& defaultStyle)
             : fText(utf8)
             , fTextStyles(styles)
-            , fCurrentChar(utf8.begin())
-            , fCurrentStyle(fTextStyles.begin())
+            , fCurrentChar(utf8.data())
+            , fCurrentStyle(fTextStyles.data())
             , fCurrentLocale(defaultStyle.getLocale()) {}
 
     void consume() override {
-        SkASSERT(fCurrentChar < fText.end());
+        const char* textEnd = fText.data() + fText.size();
+        const Block* stylesEnd = fTextStyles.data() + fTextStyles.size();
 
-        if (fCurrentStyle == fTextStyles.end()) {
-            fCurrentChar = fText.end();
+        SkASSERT(fCurrentChar < textEnd);
+
+        if (fCurrentStyle == stylesEnd) {
+            fCurrentChar = textEnd;
             return;
         }
 
-        fCurrentChar = fText.begin() + fCurrentStyle->fRange.end;
+        fCurrentChar = fText.data() + fCurrentStyle->fRange.end;
         fCurrentLocale = fCurrentStyle->fStyle.getLocale();
-        while (++fCurrentStyle != fTextStyles.end() && !fCurrentStyle->fStyle.isPlaceholder()) {
+        while (++fCurrentStyle != stylesEnd && !fCurrentStyle->fStyle.isPlaceholder()) {
             if (fCurrentStyle->fStyle.getLocale() != fCurrentLocale) {
                 break;
             }
-            fCurrentChar = fText.begin() + fCurrentStyle->fRange.end;
+            fCurrentChar = fText.data() + fCurrentStyle->fRange.end;
         }
     }
 
-    size_t endOfCurrentRun() const override { return fCurrentChar - fText.begin(); }
-    bool atEnd() const override { return fCurrentChar >= fText.end(); }
+    size_t endOfCurrentRun() const override { return fCurrentChar - fText.data(); }
+    bool atEnd() const override { return fCurrentChar >= fText.data() + fText.size(); }
     const char* currentLanguage() const override { return fCurrentLocale.c_str(); }
 
 private:

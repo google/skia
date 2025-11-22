@@ -7,14 +7,14 @@ REG_FIDDLE(SmoothBezierSplineInterpolation, 1024, 1024, false, 0) {
 SkPath MakeCubicSplineInterpolation(const SkPoint* pts, size_t N) {
     // Code borrowed from https://www.particleincell.com/2012/bezier-splines/
 
-    SkPath path;
+    SkPathBuilder path;
     if (N < 2) {
-        return path;
+        return path.detach();
     }
     if (N == 2) {
         path.moveTo(pts[0]);
         path.lineTo(pts[1]);
-        return path;
+        return path.detach();
     }
     size_t n = N - 1;  // number of segments
     struct Scratch {
@@ -56,7 +56,7 @@ SkPath MakeCubicSplineInterpolation(const SkPoint* pts, size_t N) {
     SkPoint q = {0.5f * (pts[N - 1].x() + s[n - 1].p.x()),
                  0.5f * (pts[N - 1].y() + s[n - 1].p.y())};
     path.cubicTo(s[n - 1].p, q, pts[n]);
-    return path;
+    return path.detach();
 }
 
 void draw(SkCanvas* canvas) {

@@ -79,10 +79,8 @@ DEF_TEST(DashPathEffectTest_asPoints, r) {
         for (int j = 0; j < (int)std::size(testCases); ++j) {
             for (int k = 0; k < 2; ++k) {  // exercise alternating endpoints
                 SkPathEffectBase::PointData results;
-                SkPath src;
-
-                src.moveTo(testCases[j].fPts[k]);
-                src.lineTo(testCases[j].fPts[(k+1)%2]);
+                SkPath src = SkPath::Line(testCases[j].fPts[k],
+                                          testCases[j].fPts[(k+1)%2]);
 
                 bool actualResult = as_PEB(dash)->asPoints(&results, src, rec, mats[i], &cull);
                 if (i < 2) {
@@ -97,10 +95,11 @@ DEF_TEST(DashPathEffectTest_asPoints, r) {
 }
 
 DEF_TEST(DashPath_bug4871, r) {
-    SkPath path;
-    path.moveTo(30, 24);
-    path.cubicTo(30.002f, 24, 30, 24, 30, 24);
-    path.close();
+    SkPath path = SkPathBuilder()
+                  .moveTo(30, 24)
+                  .cubicTo(30.002f, 24, 30, 24, 30, 24)
+                  .close()
+                  .detach();
 
     SkScalar intervals[2] = { 1, 1 };
     sk_sp<SkPathEffect> dash(SkDashPathEffect::Make(intervals, 0));
@@ -132,8 +131,7 @@ DEF_TEST(DashCrazy_crbug_875494, r) {
     SkScalar vals[] = { 98, 94, 2888458849.f, 227, 0, 197 };
 
     SkRect cull = SkRect::MakeXYWH(43,236,57,149);
-    SkPath path;
-    path.addRect(cull);
+    SkPath path = SkPath::Rect(cull);
 
     SkPathBuilder builder;
     SkPaint paint;

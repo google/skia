@@ -159,7 +159,7 @@ public:
     SVG_PRES_ATTR(LightingColor            , SkSVGColor     , false)
 
 protected:
-    SkSVGNode(SkSVGTag);
+    explicit SkSVGNode(SkSVGTag);
 
     static SkMatrix ComputeViewboxMatrix(const SkRect&, const SkRect&, SkSVGPreserveAspectRatio);
 

@@ -35,7 +35,7 @@
 
 class SubsetPath {
 public:
-    SubsetPath(const SkPath& path);
+    explicit SubsetPath(const SkPath& path);
     virtual ~SubsetPath() {}
     bool subset(bool testFailed, SkPath* sub);
 protected:
@@ -51,14 +51,16 @@ protected:
 
 class SubsetContours : public SubsetPath {
 public:
-    SubsetContours(const SkPath& path);
+    explicit SubsetContours(const SkPath& path);
+
 protected:
     SkPath getSubsetPath() const override;
 };
 
 class SubsetVerbs : public SubsetPath {
 public:
-    SubsetVerbs(const SkPath& path);
+    explicit SubsetVerbs(const SkPath& path);
+
 protected:
     SkPath getSubsetPath() const override;
 };

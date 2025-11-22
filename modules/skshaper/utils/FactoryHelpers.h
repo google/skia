@@ -57,9 +57,8 @@ static inline sk_sp<SkUnicode> BestAvailableUnicode() {
 #if defined(SK_SHAPER_HARFBUZZ_AVAILABLE)
 class HarfbuzzFactory final : public Factory {
 public:
-    HarfbuzzFactory(sk_sp<SkUnicode> uc = nullptr)
-        : fUnicode(uc ? std::move(uc) : BestAvailableUnicode())
-    {}
+    explicit HarfbuzzFactory(sk_sp<SkUnicode> uc = nullptr)
+            : fUnicode(uc ? std::move(uc) : BestAvailableUnicode()) {}
 
     std::unique_ptr<SkShaper> makeShaper(sk_sp<SkFontMgr> fallback) override {
         return SkShapers::HB::ShaperDrivenWrapper(fUnicode, fallback);
@@ -122,6 +121,6 @@ inline sk_sp<Factory> BestAvailable() {
 #endif
 }
 
-};  // namespace SkShapers
+}  // namespace SkShapers
 
 #endif  // SkShaperFactoryHelpers_DEFINED

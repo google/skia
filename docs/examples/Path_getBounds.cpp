@@ -10,11 +10,11 @@ void draw(SkCanvas* canvas) {
     };
     SkPath path;
     debugster("empty", path);
-    path.addCircle(50, 45, 25);
+    path = SkPath::Circle(50, 45, 25);
     debugster("circle", path);
     SkMatrix matrix;
     matrix.setRotate(45, 50, 45);
-    path.transform(matrix);
+    path = path.makeTransform(matrix);
     debugster("rotated circle", path);
 }
 }  // END FIDDLE

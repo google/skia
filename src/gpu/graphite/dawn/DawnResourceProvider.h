@@ -28,7 +28,7 @@ public:
     template <size_t NumEntries>
     using BindGroupKey = FixedSizeKey<2 * NumEntries>;
 
-    static constexpr size_t kNumUniformEntries = 4;
+    static constexpr size_t kNumUniformEntries = 3;
 
     class BlitWithDrawEncoder {
     public:
@@ -58,15 +58,12 @@ public:
                                                               const TextureInfo& msaaInfo);
 
     BlitWithDrawEncoder findOrCreateBlitWithDrawEncoder(const RenderPassDesc& renderPassDesc,
-                                                        int srcSampleCount);
+                                                        SampleCount srcSampleCount);
 
     sk_sp<DawnBuffer> findOrCreateDawnBuffer(size_t size,
                                              BufferType type,
                                              AccessPattern,
                                              std::string_view label);
-
-    const wgpu::BindGroupLayout& getOrCreateUniformBuffersBindGroupLayout();
-    const wgpu::BindGroupLayout& getOrCreateSingleTextureSamplerBindGroupLayout();
 
     // Find the cached bind group or create a new one based on the bound buffers and their
     // binding sizes (boundBuffersAndSizes) for these uniforms (in order):
@@ -86,12 +83,6 @@ public:
                                                        UniformDataBlock intrinsicValues);
 
 private:
-    sk_sp<GraphicsPipeline> createGraphicsPipeline(const RuntimeEffectDictionary*,
-                                                   const UniqueKey&,
-                                                   const GraphicsPipelineDesc&,
-                                                   const RenderPassDesc&,
-                                                   SkEnumBitMask<PipelineCreationFlags>,
-                                                   uint32_t compilationID) override;
     sk_sp<ComputePipeline> createComputePipeline(const ComputePipelineDesc&) override;
 
     sk_sp<Texture> createTexture(SkISize, const TextureInfo&) override;
@@ -112,9 +103,6 @@ private:
     void onPurgeResourcesNotUsedSince(StdSteadyClock::time_point purgeTime) override;
 
     skia_private::THashMap<uint32_t, wgpu::RenderPipeline> fBlitWithDrawPipelines;
-
-    wgpu::BindGroupLayout fUniformBuffersBindGroupLayout;
-    wgpu::BindGroupLayout fSingleTextureSamplerBindGroupLayout;
 
     wgpu::Buffer fNullBuffer;
 

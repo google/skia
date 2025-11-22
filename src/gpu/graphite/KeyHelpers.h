@@ -18,10 +18,10 @@
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/graphite/Context.h"
-#include "include/private/base/SkTArray.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/gpu/graphite/KeyContext.h"
+#include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/ReadSwizzle.h"
 #include "src/gpu/graphite/ResourceTypes.h"
@@ -40,16 +40,6 @@ class FloatStorageManager;
 class PipelineDataGatherer;
 class UniquePaintParamsID;
 enum class ReadSwizzle;
-
-// Types of logical "destinations" that a blender might blend with.
-enum class DstColorType {
-    // A color read from the framebuffer.
-    kSurface,
-    // A color provided by geometry.
-    kPrimitive,
-    // A color evaluated by a child shader.
-    kChildOutput,
-};
 
 /**
  * The KeyHelpers can be used to manually construct an SkPaintParamsKey.
@@ -418,13 +408,28 @@ void AddToKey(const KeyContext& keyContext, const SkColorFilter* filter);
  */
 void AddToKey(const KeyContext& keyContext, const SkShader* shader);
 
-// TODO(b/330864257) These visitation functions are redundant with AddToKey, except that they are
-// executed in the Device::drawGeometry() stack frame, whereas the keys are currently deferred until
-// DrawPass::Make. Image use needs to be detected in the draw frame to split tasks to match client
-// actions. Once paint keys are extracted in the draw frame, this can go away entirely.
-void NotifyImagesInUse(Recorder*, DrawContext*, const SkBlender*);
-void NotifyImagesInUse(Recorder*, DrawContext*, const SkColorFilter*);
-void NotifyImagesInUse(Recorder*, DrawContext*, const SkShader*);
+/**
+ * Add blocks to the key and data builders that represent the simple image shader, e.g. it is
+ * equivalent to:
+ *
+ *     SkMatrix localMatrix = SkMatrix::Rect2Rect(imageShader.fSrcRect, imageShader.fDstRect);
+ *     sk_sp<SkShader> skImageShader = SkImageShader::MakeSubset(imageShader.fImage,
+ *                                                               imageShader.fSubset,
+ *                                                               SkTileMode::kClamp,
+ *                                                               SkTileMode::kClamp,
+ *                                                               imageShader.fSamplingOptions,
+ *                                                               imageShader.fLocalMatrix);
+ *     AddToKey(keyContext, skImageShader.get());
+ *
+ * with the benefit of not creating any SkShader objects or having to compute matrix inverses.
+ */
+void AddToKey(const KeyContext& keyContext, const PaintParams::SimpleImage& imageShader);
+
+// Add a fixed blend mode node for a specific SkBlendMode.
+void AddFixedBlendMode(const KeyContext&, SkBlendMode);
+// Add a blend mode node for an SkBlendMode that can vary
+void AddBlendMode(const KeyContext&, SkBlendMode);
+void AddDitherBlock(const KeyContext&, SkColorType);
 
 template <typename AddBlendToKeyT, typename AddSrcToKeyT, typename AddDstToKeyT>
 void Blend(const KeyContext& keyContext,

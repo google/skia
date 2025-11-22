@@ -21,7 +21,7 @@ void GrD3DBackendSurfaceInfo::cleanup() {
     fResourceState = nullptr;
     delete fTextureResourceInfo;
     fTextureResourceInfo = nullptr;
-};
+}
 
 void GrD3DBackendSurfaceInfo::assign(const GrD3DBackendSurfaceInfo& that, bool isThisValid) {
     GrD3DTextureResourceInfo* oldInfo = fTextureResourceInfo;

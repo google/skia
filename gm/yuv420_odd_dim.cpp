@@ -16,14 +16,17 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/encode/SkJpegEncoder.h"
-#include "include/gpu/ganesh/GrRecordingContext.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkCachedData.h"
 #include "src/image/SkImage_Base.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/gpu/YUVUtils.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrRecordingContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
+#endif
 
 static constexpr int kScale = 10;
 static constexpr SkISize kImageDim = {5, 5};
@@ -42,25 +45,28 @@ static sk_sp<SkImage> make_image(GrRecordingContext* rContext,
         }
     }
     bmp.notifyPixelsChanged();
-    SkDynamicMemoryWStream stream;
     SkJpegEncoder::Options options;
     options.fDownsample = SkJpegEncoder::Downsample::k420;
     options.fQuality = 100;
-    if (!SkJpegEncoder::Encode(&stream, bmp.pixmap(), options)) {
+    sk_sp<SkData> data = SkJpegEncoder::Encode(bmp.pixmap(), options);
+    if (!data) {
         return nullptr;
     }
-    auto imageHelper = sk_gpu_test::LazyYUVImage::Make(stream.detachAsData());
+    auto imageHelper = sk_gpu_test::LazyYUVImage::Make(data);
     if (!imageHelper) {
         return nullptr;
     }
 #if defined(SK_GRAPHITE)
     if (recorder) {
         return imageHelper->refImage(recorder, sk_gpu_test::LazyYUVImage::Type::kFromPixmaps);
-    } else
+    }
 #endif
-    {
+#if defined(SK_GANESH)
+    if (rContext) {
         return imageHelper->refImage(rContext, sk_gpu_test::LazyYUVImage::Type::kFromPixmaps);
     }
+#endif
+    return nullptr;
 }
 
 // This GM tests that the YUVA image code path in the GPU backend handles odd sized images with
@@ -78,11 +84,12 @@ DEF_SIMPLE_GM_CAN_FAIL(yuv420_odd_dim, canvas, errMsg,
     }
     auto image = make_image(rContext, recorder);
     if (!image) {
+#if defined(SK_GANESH)
         if (rContext) {
             return rContext->abandoned() ? skiagm::DrawResult::kOk : skiagm::DrawResult::kFail;
-        } else {
-            return skiagm::DrawResult::kFail;
         }
+#endif
+        return skiagm::DrawResult::kFail;
     }
     // We draw the image offscreen and then blow it up using nearest filtering by kScale.
     // This avoids skbug.com/40040903
@@ -119,11 +126,12 @@ DEF_SIMPLE_GM_CAN_FAIL(yuv420_odd_dim_repeat, canvas, errMsg,
     }
     auto image = ToolUtils::GetResourceAsImage("images/mandrill_256.png");
     if (!image) {
+#if defined(SK_GANESH)
         if (rContext) {
             return rContext->abandoned() ? skiagm::DrawResult::kOk : skiagm::DrawResult::kFail;
-        } else {
-            return skiagm::DrawResult::kFail;
         }
+#endif
+        return skiagm::DrawResult::kFail;
     }
     // Make sure the image is odd dimensioned.
     int w = image->width()  & 0b1 ? image->width()  : image->width()  - 1;
@@ -146,16 +154,19 @@ DEF_SIMPLE_GM_CAN_FAIL(yuv420_odd_dim_repeat, canvas, errMsg,
         image = lazyYUV->refImage(recorder, sk_gpu_test::LazyYUVImage::Type::kFromPixmaps);
     } else
 #endif
-    {
+#if defined(SK_GANESH)
+    if (rContext) {
         image = lazyYUV->refImage(rContext, sk_gpu_test::LazyYUVImage::Type::kFromPixmaps);
     }
+#endif
     if (!image) {
         *errMsg = "Could not make YUVA image";
+#if defined(SK_GANESH)
         if (rContext) {
             return rContext->abandoned() ? skiagm::DrawResult::kOk : skiagm::DrawResult::kFail;
-        } else {
-            return skiagm::DrawResult::kFail;
         }
+#endif
+        return skiagm::DrawResult::kFail;
     }
     int i = 0;
     for (SkMipmapMode mm : {SkMipmapMode::kNone, SkMipmapMode::kLinear}) {

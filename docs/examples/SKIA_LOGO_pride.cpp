@@ -13,7 +13,7 @@ void draw(SkCanvas* canvas) {
     constexpr SkColor progress[] = {0xFFFFD800, 0xFFFFFFFF, 0xFFFFAFC8, 0xFF74D7EE, 0xFF613915, 0xFF000000};
     constexpr SkColor iViolet = 0xFF7902AA;
 
-    SkPath s, k, a, triangle;
+    SkPathBuilder s, k, a, triangle;
     SkPaint p;
     p.setAntiAlias(true);
 
@@ -36,12 +36,12 @@ void draw(SkCanvas* canvas) {
     canvas->clipRect({310.f, 82.25, 360.f, 249.2f}, SkClipOp::kIntersect, false);
     for (int i = std::size(progress)-1; i >= 0; --i) {
         p.setColor(progress[i]);
-        SkPath t;
+        SkPathBuilder t;
         t.moveTo(335.f, 82.25f + triHeight);
         t.rLineTo(200.f, -200.f);
         t.rLineTo(-400.f, 0.f);
         t.rLineTo(200.f, 200.f);
-        canvas->drawPath(t, p);
+        canvas->drawPath(t.detach(), p);
         triHeight -= deltaWidth;
     }
     {
@@ -80,7 +80,7 @@ void draw(SkCanvas* canvas) {
     s.cubicTo(71.96, 182.67, 54.94, 177.66, 41.5, 166.57);
     s.cubicTo(33.19, 159.73, 27.51, 149.8, 26.1, 139.11);
     s.cubicTo(24.09, 125.88, 25.91, 111.25, 34.63, 100.63);
-    canvas->drawPath(s, p);
+    canvas->drawPath(s.detach(), p);
 
     k.moveTo(160.82, 82.85);
     k.lineTo(206.05, 82.85);
@@ -95,7 +95,7 @@ void draw(SkCanvas* canvas) {
     k.lineTo(206.05, 249.42);
     k.lineTo(160.82, 249.42);
     k.lineTo(160.82, 82.85);
-    canvas->drawPath(k, p);
+    canvas->drawPath(k.detach(), p);
 
     a.moveTo(426.45, 218.16);
     a.lineTo(480.705, 218.16);
@@ -108,15 +108,14 @@ void draw(SkCanvas* canvas) {
     a.lineTo(453.75, 109.83);
     a.lineTo(471.77, 181.28);
     a.lineTo(430.5, 181.28);
-    canvas->drawPath(a, p);
+    canvas->drawPath(a.detach(), p);
 
-    triangle.reset();
     triangle.moveTo(362.64, 257.32);
     triangle.lineTo(335.292, 293.392);
     triangle.lineTo(307.8, 257.48);
     triangle.lineTo(362.64, 257.32);
     p.setColor(lettering);
-    canvas->drawPath(triangle, p);
+    canvas->drawPath(triangle.detach(), p);
 
     constexpr SkPoint pts[2] = {{160, 290}, {341, 290}};
     p.setShader(SkGradientShader::MakeLinear(pts, lineColors, nullptr, 2, SkTileMode::kClamp));

@@ -11,6 +11,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkStrokeRec.h"
@@ -52,12 +53,10 @@ static SkBitmap read_back(GrDirectContext* dContext,
 }
 
 static SkPath make_path(const SkRect& outer, int inset, SkPathFillType fill) {
-    SkPath p;
-
-    p.addRect(outer, SkPathDirection::kCW);
-    p.addRect(outer.makeInset(inset, inset), SkPathDirection::kCCW);
-    p.setFillType(fill);
-    return p;
+    return SkPathBuilder(fill)
+           .addRect(outer, SkPathDirection::kCW)
+           .addRect(outer.makeInset(inset, inset), SkPathDirection::kCCW)
+           .detach();
 }
 
 

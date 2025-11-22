@@ -25,7 +25,7 @@ private:
     const VulkanSharedContext* vkSharedContext() const;
 
     std::unique_ptr<CommandBuffer> getNewCommandBuffer(ResourceProvider*, Protected) override;
-    OutstandingSubmission onSubmitToGpu() override;
+    OutstandingSubmission onSubmitToGpu(const SubmitInfo& submitInfo) override;
 
 #if defined(GPU_TEST_UTILS)
     // TODO: Implement these

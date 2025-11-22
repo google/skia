@@ -16,7 +16,13 @@
 #include "include/gpu/vk/VulkanMemoryAllocator.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 
+// gCreateProtectedContext lives in GrContextFactory.cpp and so isn't defined if !SK_GANESH
+#if defined(SK_GANESH)
 extern bool gCreateProtectedContext;
+static const bool& createProtectedContext = gCreateProtectedContext;
+#else
+static constexpr bool createProtectedContext = false;
+#endif
 
 namespace {
 
@@ -53,7 +59,7 @@ public:
                                                      &debugMessenger,
                                                      nullptr,
                                                      sk_gpu_test::CanPresentFn(),
-                                                     gCreateProtectedContext)) {
+                                                     createProtectedContext)) {
                 delete ownedExtensions;
                 delete ownedFeatures;
                 return nullptr;

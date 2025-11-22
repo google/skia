@@ -131,11 +131,12 @@ private:
 
         FontKey() {}
 
-        FontKey(SkUnichar unicode, SkFontStyle fontStyle, SkString locale)
-            : fUnicode(unicode), fFontStyle(fontStyle), fLocale(std::move(locale)) { }
+        FontKey(SkUnichar unicode, SkFontStyle fontStyle, SkString locale, const std::optional<FontArguments>& fontArgs)
+                : fUnicode(unicode), fFontStyle(fontStyle), fLocale(std::move(locale)), fFontArgs(fontArgs) { }
         SkUnichar fUnicode;
         SkFontStyle fFontStyle;
         SkString fLocale;
+        std::optional<FontArguments> fFontArgs;
 
         bool operator==(const FontKey& other) const;
 

@@ -70,8 +70,6 @@ public:
     // full (needed when beginning a render pass from the command buffer) RenderPass.
     sk_sp<VulkanRenderPass> findOrCreateRenderPass(const RenderPassDesc&, bool compatibleOnly);
 
-    VkPipelineCache pipelineCache();
-
     VkPipelineLayout mockPipelineLayout() const { return fMockPipelineLayout; }
 
     sk_sp<VulkanFramebuffer> findOrCreateFramebuffer(const VulkanSharedContext*,
@@ -85,13 +83,11 @@ public:
 
 private:
     const VulkanSharedContext* vulkanSharedContext() const;
+    // VulkanSharedContext::pipelineCompileWasRequired() - which drives PipelineCache persistence
+    // - modifies the SharedContext so, when creating Pipelines, the ResourceProvider must
+    // provide a non-const SharedContext.
+    VulkanSharedContext* nonConstVulkanSharedContext();
 
-    sk_sp<GraphicsPipeline> createGraphicsPipeline(const RuntimeEffectDictionary*,
-                                                   const UniqueKey&,
-                                                   const GraphicsPipelineDesc&,
-                                                   const RenderPassDesc&,
-                                                   SkEnumBitMask<PipelineCreationFlags>,
-                                                   uint32_t compilationID) override;
     sk_sp<ComputePipeline> createComputePipeline(const ComputePipelineDesc&) override;
 
     sk_sp<Texture> createTexture(SkISize, const TextureInfo&) override;
@@ -108,8 +104,6 @@ private:
                                           bool fromAndroidWindow) const override;
 #endif
     void onDeleteBackendTexture(const BackendTexture&) override;
-
-    VkPipelineCache fPipelineCache = VK_NULL_HANDLE;
 
     // Certain operations only need to occur once per renderpass (updating push constants and, if
     // necessary, binding the dst texture as an input attachment). It is useful to have a

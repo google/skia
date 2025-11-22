@@ -26,7 +26,7 @@ class DiscardStatement final : public Statement {
 public:
     inline static constexpr Kind kIRNodeKind = Kind::kDiscard;
 
-    DiscardStatement(Position pos) : INHERITED(pos, kIRNodeKind) {}
+    explicit DiscardStatement(Position pos) : INHERITED(pos, kIRNodeKind) {}
 
     // Creates a discard-statement; reports errors via ErrorReporter.
     static std::unique_ptr<Statement> Convert(const Context& context, Position pos);

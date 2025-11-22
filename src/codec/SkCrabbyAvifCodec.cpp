@@ -479,6 +479,7 @@ SkCodec::Result SkCrabbyAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
     switch (dstInfo.colorType()) {
         case kRGBA_8888_SkColorType:
             rgbImage.depth = 8;
+            rgbImage.format = crabbyavif::AVIF_RGB_FORMAT_RGBA;
             break;
         case kBGRA_8888_SkColorType:
             rgbImage.depth = 8;
@@ -486,6 +487,7 @@ SkCodec::Result SkCrabbyAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
             break;
         case kRGBA_F16_SkColorType:
             rgbImage.depth = 16;
+            rgbImage.format = crabbyavif::AVIF_RGB_FORMAT_RGBA;
             rgbImage.isFloat = crabbyavif::CRABBY_AVIF_TRUE;
             break;
         case kRGBA_1010102_SkColorType:

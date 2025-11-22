@@ -3,8 +3,12 @@
 # found in the LICENSE file.
 
 
+from . import api as _api
+
 DEPS = [
   'env',
   'recipe_engine/path',
 ]
 
+
+API = _api.GitApi

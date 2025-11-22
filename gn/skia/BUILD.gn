@@ -19,8 +19,6 @@ declare_args() {
   malloc = ""
   werror = false
   xcode_sysroot = ""
-
-  skia_use_cpp20 = false
 }
 
 if (is_ios && xcode_sysroot == "") {
@@ -84,11 +82,7 @@ config("default") {
       "/bigobj",  # Some of our files are bigger than the regular limits.
       "/utf-8",  # Set Source and Executable character sets to UTF-8.
     ]
-    if (skia_use_cpp20) {
-      cflags_cc += [ "/std:c++20" ]
-    } else {
-      cflags_cc += [ "/std:c++17" ]
-    }
+    cflags_cc += [ "/std:c++20" ]
 
     if (!is_clang) {
       # https://developercommunity.visualstudio.com/t/Incorrect-C4573-when-taking-address-of-m/10662923
@@ -131,11 +125,7 @@ config("default") {
       "-fvisibility=hidden",
     ]
     cflags_cc += [ "-fvisibility-inlines-hidden" ]
-    if (skia_use_cpp20) {
-      cflags_cc += [ "-std=c++20" ]
-    } else {
-      cflags_cc += [ "-std=c++17" ]
-    }
+    cflags_cc += [ "-std=c++20" ]
   }
 
   if (current_cpu == "arm") {
@@ -575,6 +565,7 @@ config("warnings") {
       "-Wno-c++98-compat",
       "-Wno-c++98-compat-pedantic",
       "-Wno-undefined-func-template",
+      "-Wc++98-compat-extra-semi",
     ]
     cflags_objc += [
       "-Wno-direct-ivar-access",
@@ -678,7 +669,9 @@ config("debug_symbols") {
 }
 
 config("no_rtti") {
-  if (sanitize != "ASAN") {  # -fsanitize=vptr requires RTTI
+  # -fsanitize=vptr requires RTTI which is enabled as a part of
+  # -fsanitize=undefined
+  if (sanitize != "ASAN") {
     if (is_win) {
       cflags_cc = [ "/GR-" ]
     } else {

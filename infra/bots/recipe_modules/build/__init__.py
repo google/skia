@@ -3,6 +3,8 @@
 # found in the LICENSE file.
 
 
+from . import api as _api
+
 DEPS = [
   'depot_tools/gclient',
   'docker',
@@ -22,3 +24,5 @@ from recipe_engine.recipe_api import Property
 PROPERTIES = {
   'buildername': Property(default=None),
 }
+
+API = _api.BuildApi

@@ -7,8 +7,6 @@
 
 #include "include/utils/SkEventTracer.h"
 
-#include "include/private/base/SkOnce.h"
-
 #include <stdlib.h>
 #include <atomic>
 
@@ -64,8 +62,6 @@ SkEventTracer* SkEventTracer::GetInstance() {
     if (auto tracer = gUserTracer.load(std::memory_order_acquire)) {
         return tracer;
     }
-    static SkOnce once;
-    static SkDefaultEventTracer* defaultTracer;
-    once([] { defaultTracer = new SkDefaultEventTracer; });
+    static SkDefaultEventTracer* defaultTracer = new SkDefaultEventTracer;
     return defaultTracer;
 }

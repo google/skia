@@ -9,6 +9,8 @@
 #include "src/gpu/graphite/geom/IntersectionTree.h"
 #include "tests/Test.h"
 
+#include <vector>
+
 namespace skgpu::graphite {
 
 class SimpleIntersectionTree {

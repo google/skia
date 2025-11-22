@@ -1,0 +1,66 @@
+load("@rules_rust//rust:defs.bzl", "rust_static_library")
+load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
+load(
+    "//bazel:skia_rules.bzl",
+    "skia_cc_library",
+    "skia_filegroup",
+)
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_filegroup(
+    name = "rs_srcs",
+    srcs = ["FFI.rs"],
+)
+
+skia_filegroup(
+    name = "cxx_bridge_srcs",
+    srcs = ["FFI.rs"],
+)
+
+skia_cc_library(
+    name = "ffi_cpp",
+    hdrs = ["FFI.h"],
+    features = ["layering_check"],
+    visibility = [
+        "//src/codec:__pkg__",
+        "//src/encode:__pkg__",
+    ],
+    deps = [
+        "//rust/common:ffi_utils",
+    ],
+)
+
+rust_cxx_bridge(
+    name = "cxx_bridge",
+    src = "FFI.rs",
+    visibility = [
+        "//src/codec:__pkg__",
+        "//src/encode:__pkg__",
+    ],
+    deps = [
+        ":ffi_cpp",
+    ],
+)
+
+rust_static_library(
+    name = "ffi_rs",
+    srcs = [":rs_srcs"],
+    crate_root = "FFI.rs",
+    rustc_flags = ["-Dwarnings"],
+    visibility = [
+        "//src/codec:__pkg__",
+        "//src/encode:__pkg__",
+    ],
+    deps = [
+        ":cxx_bridge",
+        "//rust/common:cxx_bridge",
+        "//rust/common:skia_rust_common",
+        "@crates//:cxx",
+        "@crates//:png",
+    ],
+)

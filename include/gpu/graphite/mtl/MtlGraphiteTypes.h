@@ -34,7 +34,7 @@ public:
     bool fFramebufferOnly = false;
 
     MtlTextureInfo() = default;
-    MtlTextureInfo(CFTypeRef mtlTexture);
+    explicit MtlTextureInfo(CFTypeRef mtlTexture);
     MtlTextureInfo(uint32_t sampleCount,
                    skgpu::Mipmapped mipmapped,
                    MTLPixelFormat format,
@@ -56,9 +56,6 @@ private:
 
     Protected isProtected() const { return Protected::kNo; }
     TextureFormat viewFormat() const;
-
-    bool serialize(SkWStream*) const;
-    bool deserialize(SkStream*);
 
     // Virtual API when the specific backend type is not available.
     SkString toBackendString() const override;

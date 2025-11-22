@@ -35,7 +35,6 @@
   * [infra](#recipes-infra)
   * [infra:examples/full](#recipes-infra_examples_full)
   * [perf](#recipes-perf)
-  * [perf_pathkit](#recipes-perf_pathkit)
   * [perf_skottietrace](#recipes-perf_skottietrace)
   * [perf_skottiewasm_lottieweb](#recipes-perf_skottiewasm_lottieweb)
   * [run:examples/full](#recipes-run_examples_full)
@@ -43,7 +42,6 @@
   * [test](#recipes-test)
   * [test_canvaskit](#recipes-test_canvaskit)
   * [test_lottie_web](#recipes-test_lottie_web)
-  * [test_pathkit](#recipes-test_pathkit)
   * [upload_buildstats_results](#recipes-upload_buildstats_results)
   * [upload_dm_results](#recipes-upload_dm_results)
   * [upload_nano_results](#recipes-upload_nano_results)
@@ -53,18 +51,18 @@
 
 ### *recipe_modules* / [build](/infra/bots/recipe_modules/build)
 
-[DEPS](/infra/bots/recipe_modules/build/__init__.py#6): [depot\_tools/gclient][depot_tools/recipe_modules/gclient], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step], [docker](#recipe_modules-docker), [env](#recipe_modules-env), [infra](#recipe_modules-infra), [run](#recipe_modules-run), [vars](#recipe_modules-vars), [xcode](#recipe_modules-xcode)
+[DEPS](/infra/bots/recipe_modules/build/__init__.py#8): [depot\_tools/gclient][depot_tools/recipe_modules/gclient], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step], [docker](#recipe_modules-docker), [env](#recipe_modules-env), [infra](#recipe_modules-infra), [run](#recipe_modules-run), [vars](#recipe_modules-vars), [xcode](#recipe_modules-xcode)
 
 
 Build Skia for various platforms.
 
-#### **class [BuildApi](/infra/bots/recipe_modules/build/api.py#20)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [BuildApi](/infra/bots/recipe_modules/build/api.py#19)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
-&mdash; **def [\_\_call\_\_](/infra/bots/recipe_modules/build/api.py#47)(self, checkout_root, out_dir):**
+&mdash; **def [\_\_call\_\_](/infra/bots/recipe_modules/build/api.py#42)(self, checkout_root, out_dir):**
 
 Compile the code.
 
-&mdash; **def [copy\_build\_products](/infra/bots/recipe_modules/build/api.py#51)(self, out_dir, dst):**
+&mdash; **def [copy\_build\_products](/infra/bots/recipe_modules/build/api.py#46)(self, out_dir, dst):**
 
 Copy selected build products to dst.
 ### *recipe_modules* / [builder\_name\_schema](/infra/bots/recipe_modules/builder_name_schema)
@@ -77,7 +75,7 @@ Copy selected build products to dst.
 &mdash; **def [MakeBuilderName](/infra/bots/recipe_modules/builder_name_schema/api.py#29)(self, \*\*kwargs):**
 ### *recipe_modules* / [checkout](/infra/bots/recipe_modules/checkout)
 
-[DEPS](/infra/bots/recipe_modules/checkout/__init__.py#6): [depot\_tools/bot\_update][depot_tools/recipe_modules/bot_update], [depot\_tools/gclient][depot_tools/recipe_modules/gclient], [depot\_tools/git][depot_tools/recipe_modules/git], [depot\_tools/tryserver][depot_tools/recipe_modules/tryserver], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [run](#recipe_modules-run), [vars](#recipe_modules-vars)
+[DEPS](/infra/bots/recipe_modules/checkout/__init__.py#8): [depot\_tools/bot\_update][depot_tools/recipe_modules/bot_update], [depot\_tools/gclient][depot_tools/recipe_modules/gclient], [depot\_tools/git][depot_tools/recipe_modules/git], [depot\_tools/tryserver][depot_tools/recipe_modules/tryserver], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
 
 #### **class [CheckoutApi](/infra/bots/recipe_modules/checkout/api.py#13)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
@@ -104,7 +102,7 @@ The default location for cached persistent checkouts.
 Run the steps to perform a pure-git checkout without DEPS.
 ### *recipe_modules* / [docker](/infra/bots/recipe_modules/docker)
 
-[DEPS](/infra/bots/recipe_modules/docker/__init__.py#7): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [env](#recipe_modules-env), [run](#recipe_modules-run)
+[DEPS](/infra/bots/recipe_modules/docker/__init__.py#9): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [env](#recipe_modules-env), [run](#recipe_modules-run)
 
 
 #### **class [DockerApi](/infra/bots/recipe_modules/docker/api.py#15)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
@@ -116,7 +114,7 @@ Run the steps to perform a pure-git checkout without DEPS.
 &mdash; **def [run](/infra/bots/recipe_modules/docker/api.py#32)(self, name, docker_image, src_dir, out_dir, script, args=None, docker_args=None, copies=None, recursive_read=None, attempts=1, match_directory_structure=False, env=None):**
 ### *recipe_modules* / [doxygen](/infra/bots/recipe_modules/doxygen)
 
-[DEPS](/infra/bots/recipe_modules/doxygen/__init__.py#6): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/step][recipe_engine/recipe_modules/step], [run](#recipe_modules-run)
+[DEPS](/infra/bots/recipe_modules/doxygen/__init__.py#8): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/step][recipe_engine/recipe_modules/step], [run](#recipe_modules-run)
 
 
 #### **class [DoxygenApi](/infra/bots/recipe_modules/doxygen/api.py#9)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
@@ -124,47 +122,47 @@ Run the steps to perform a pure-git checkout without DEPS.
 &mdash; **def [generate\_and\_upload](/infra/bots/recipe_modules/doxygen/api.py#10)(self, skia_dir):**
 ### *recipe_modules* / [env](/infra/bots/recipe_modules/env)
 
-[DEPS](/infra/bots/recipe_modules/env/__init__.py#6): [recipe\_engine/context][recipe_engine/recipe_modules/context]
+[DEPS](/infra/bots/recipe_modules/env/__init__.py#8): [recipe\_engine/context][recipe_engine/recipe_modules/context]
 
 
 #### **class [EnvApi](/infra/bots/recipe_modules/env/api.py#9)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 ### *recipe_modules* / [flavor](/infra/bots/recipe_modules/flavor)
 
-[DEPS](/infra/bots/recipe_modules/flavor/__init__.py#6): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [env](#recipe_modules-env), [run](#recipe_modules-run), [vars](#recipe_modules-vars), [xcode](#recipe_modules-xcode)
+[DEPS](/infra/bots/recipe_modules/flavor/__init__.py#8): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [env](#recipe_modules-env), [run](#recipe_modules-run), [vars](#recipe_modules-vars), [xcode](#recipe_modules-xcode)
 
 
-#### **class [SkiaFlavorApi](/infra/bots/recipe_modules/flavor/api.py#54)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [SkiaFlavorApi](/infra/bots/recipe_modules/flavor/api.py#49)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
-&mdash; **def [cleanup\_steps](/infra/bots/recipe_modules/flavor/api.py#122)(self):**
+&mdash; **def [cleanup\_steps](/infra/bots/recipe_modules/flavor/api.py#115)(self):**
 
-&mdash; **def [copy\_directory\_contents\_to\_device](/infra/bots/recipe_modules/flavor/api.py#80)(self, host_dir, device_dir):**
+&mdash; **def [copy\_directory\_contents\_to\_device](/infra/bots/recipe_modules/flavor/api.py#73)(self, host_dir, device_dir):**
 
-&mdash; **def [copy\_directory\_contents\_to\_host](/infra/bots/recipe_modules/flavor/api.py#83)(self, device_dir, host_dir):**
+&mdash; **def [copy\_directory\_contents\_to\_host](/infra/bots/recipe_modules/flavor/api.py#76)(self, device_dir, host_dir):**
 
-&mdash; **def [copy\_file\_to\_device](/infra/bots/recipe_modules/flavor/api.py#86)(self, host_path, device_path):**
+&mdash; **def [copy\_file\_to\_device](/infra/bots/recipe_modules/flavor/api.py#79)(self, host_path, device_path):**
 
-&mdash; **def [create\_clean\_device\_dir](/infra/bots/recipe_modules/flavor/api.py#92)(self, path):**
+&mdash; **def [create\_clean\_device\_dir](/infra/bots/recipe_modules/flavor/api.py#85)(self, path):**
 
-&mdash; **def [create\_clean\_host\_dir](/infra/bots/recipe_modules/flavor/api.py#89)(self, path):**
+&mdash; **def [create\_clean\_host\_dir](/infra/bots/recipe_modules/flavor/api.py#82)(self, path):**
 
-&mdash; **def [device\_path\_join](/infra/bots/recipe_modules/flavor/api.py#77)(self, \*args):**
+&mdash; **def [device\_path\_join](/infra/bots/recipe_modules/flavor/api.py#70)(self, \*args):**
 
-&mdash; **def [get\_flavor](/infra/bots/recipe_modules/flavor/api.py#55)(self, vars_api, app_name):**
+&mdash; **def [get\_flavor](/infra/bots/recipe_modules/flavor/api.py#50)(self, vars_api, app_name):**
 
 Return a flavor utils object specific to the given builder.
 
-&mdash; **def [install](/infra/bots/recipe_modules/flavor/api.py#101)(self, skps=False, images=False, lotties=False, svgs=False, resources=False, texttraces=False):**
+&mdash; **def [install](/infra/bots/recipe_modules/flavor/api.py#94)(self, skps=False, images=False, lotties=False, svgs=False, resources=False, texttraces=False):**
 
-&mdash; **def [read\_file\_on\_device](/infra/bots/recipe_modules/flavor/api.py#95)(self, path, \*\*kwargs):**
+&mdash; **def [read\_file\_on\_device](/infra/bots/recipe_modules/flavor/api.py#88)(self, path, \*\*kwargs):**
 
-&mdash; **def [remove\_file\_on\_device](/infra/bots/recipe_modules/flavor/api.py#98)(self, path):**
+&mdash; **def [remove\_file\_on\_device](/infra/bots/recipe_modules/flavor/api.py#91)(self, path):**
 
-&mdash; **def [setup](/infra/bots/recipe_modules/flavor/api.py#68)(self, app_name):**
+&mdash; **def [setup](/infra/bots/recipe_modules/flavor/api.py#61)(self, app_name):**
 
-&mdash; **def [step](/infra/bots/recipe_modules/flavor/api.py#74)(self, name, cmd, \*\*kwargs):**
+&mdash; **def [step](/infra/bots/recipe_modules/flavor/api.py#67)(self, name, cmd, \*\*kwargs):**
 ### *recipe_modules* / [git](/infra/bots/recipe_modules/git)
 
-[DEPS](/infra/bots/recipe_modules/git/__init__.py#6): [recipe\_engine/path][recipe_engine/recipe_modules/path], [env](#recipe_modules-env)
+[DEPS](/infra/bots/recipe_modules/git/__init__.py#8): [recipe\_engine/path][recipe_engine/recipe_modules/path], [env](#recipe_modules-env)
 
 
 #### **class [GitApi](/infra/bots/recipe_modules/git/api.py#9)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
@@ -177,7 +175,7 @@ Requires the infra/git and infra/tools/git CIPD packages to be installed
 in the 'git' relative path.
 ### *recipe_modules* / [gold\_upload](/infra/bots/recipe_modules/gold_upload)
 
-[DEPS](/infra/bots/recipe_modules/gold_upload/__init__.py#6): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [flavor](#recipe_modules-flavor), [gsutil](#recipe_modules-gsutil), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
+[DEPS](/infra/bots/recipe_modules/gold_upload/__init__.py#8): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [flavor](#recipe_modules-flavor), [gsutil](#recipe_modules-gsutil), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
 
 #### **class [GoldUploadApi](/infra/bots/recipe_modules/gold_upload/api.py#11)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
@@ -188,7 +186,7 @@ Attempt to upload files to Gold.
 This module assumes setup has occurred for the vars and flavor modules.
 ### *recipe_modules* / [gsutil](/infra/bots/recipe_modules/gsutil)
 
-[DEPS](/infra/bots/recipe_modules/gsutil/__init__.py#6): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/step][recipe_engine/recipe_modules/step], [run](#recipe_modules-run), [vars](#recipe_modules-vars)
+[DEPS](/infra/bots/recipe_modules/gsutil/__init__.py#8): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/step][recipe_engine/recipe_modules/step], [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
 
 #### **class [GSUtilApi](/infra/bots/recipe_modules/gsutil/api.py#10)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
@@ -219,7 +217,7 @@ Args:
 If the operation fails, it will be retried multiple times.
 ### *recipe_modules* / [infra](/infra/bots/recipe_modules/infra)
 
-[DEPS](/infra/bots/recipe_modules/infra/__init__.py#6): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [run](#recipe_modules-run), [vars](#recipe_modules-vars)
+[DEPS](/infra/bots/recipe_modules/infra/__init__.py#8): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
 
 #### **class [InfraApi](/infra/bots/recipe_modules/infra/api.py#14)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
@@ -233,7 +231,7 @@ If the operation fails, it will be retried multiple times.
 &emsp; **@property**<br>&mdash; **def [goroot](/infra/bots/recipe_modules/infra/api.py#15)(self):**
 ### *recipe_modules* / [run](/infra/bots/recipe_modules/run)
 
-[DEPS](/infra/bots/recipe_modules/run/__init__.py#6): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [env](#recipe_modules-env), [vars](#recipe_modules-vars)
+[DEPS](/infra/bots/recipe_modules/run/__init__.py#8): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [env](#recipe_modules-env), [vars](#recipe_modules-vars)
 
 
 #### **class [SkiaStepApi](/infra/bots/recipe_modules/run/api.py#14)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
@@ -277,7 +275,7 @@ Wrapper around api.file.rmtree.
 Convenience function for writing files.
 ### *recipe_modules* / [vars](/infra/bots/recipe_modules/vars)
 
-[DEPS](/infra/bots/recipe_modules/vars/__init__.py#6): [depot\_tools/bot\_update][depot_tools/recipe_modules/bot_update], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [builder\_name\_schema](#recipe_modules-builder_name_schema)
+[DEPS](/infra/bots/recipe_modules/vars/__init__.py#8): [depot\_tools/bot\_update][depot_tools/recipe_modules/bot_update], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [builder\_name\_schema](#recipe_modules-builder_name_schema)
 
 
 #### **class [SkiaVarsApi](/infra/bots/recipe_modules/vars/api.py#16)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
@@ -295,7 +293,7 @@ Prepare the variables.
 &emsp; **@property**<br>&mdash; **def [swarming\_task\_id](/infra/bots/recipe_modules/vars/api.py#101)(self):**
 ### *recipe_modules* / [xcode](/infra/bots/recipe_modules/xcode)
 
-[DEPS](/infra/bots/recipe_modules/xcode/__init__.py#7): [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step], [vars](#recipe_modules-vars)
+[DEPS](/infra/bots/recipe_modules/xcode/__init__.py#9): [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step], [vars](#recipe_modules-vars)
 
 
 #### **class [SkiaXCodeApi](/infra/bots/recipe_modules/xcode/api.py#10)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
@@ -330,7 +328,7 @@ Prepare the variables.
 [DEPS](/infra/bots/recipes/compile.py#10): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [build](#recipe_modules-build), [checkout](#recipe_modules-checkout), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
 
-&mdash; **def [RunSteps](/infra/bots/recipes/compile.py#25)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipes/compile.py#26)(api):**
 ### *recipes* / [compute\_buildstats](/infra/bots/recipes/compute_buildstats.py)
 
 [DEPS](/infra/bots/recipes/compute_buildstats.py#11): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [checkout](#recipe_modules-checkout), [env](#recipe_modules-env), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
@@ -340,17 +338,11 @@ Prepare the variables.
 
 &mdash; **def [add\_binary\_size\_output\_property](/infra/bots/recipes/compute_buildstats.py#29)(result, source, binary_size):**
 
-&mdash; **def [analyze\_cpp\_lib](/infra/bots/recipes/compute_buildstats.py#165)(api, checkout_root, out_dir, files):**
+&mdash; **def [analyze\_cpp\_lib](/infra/bots/recipes/compute_buildstats.py#103)(api, checkout_root, out_dir, files):**
 
-&mdash; **def [analyze\_flutter\_lib](/infra/bots/recipes/compute_buildstats.py#193)(api, checkout_root, out_dir, files):**
+&mdash; **def [keys\_and\_props](/infra/bots/recipes/compute_buildstats.py#79)(api):**
 
-&mdash; **def [analyze\_wasm\_file](/infra/bots/recipes/compute_buildstats.py#232)(api, checkout_root, out_dir, files):**
-
-&mdash; **def [analyze\_web\_file](/infra/bots/recipes/compute_buildstats.py#138)(api, checkout_root, out_dir, files):**
-
-&mdash; **def [keys\_and\_props](/infra/bots/recipes/compute_buildstats.py#114)(api):**
-
-&mdash; **def [make\_treemap](/infra/bots/recipes/compute_buildstats.py#264)(api, checkout_root, out_dir, files):**
+&mdash; **def [make\_treemap](/infra/bots/recipes/compute_buildstats.py#131)(api, checkout_root, out_dir, files):**
 ### *recipes* / [docker:examples/full](/infra/bots/recipe_modules/docker/examples/full.py)
 
 [DEPS](/infra/bots/recipe_modules/docker/examples/full.py#6): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [docker](#recipe_modules-docker), [vars](#recipe_modules-vars)
@@ -425,12 +417,6 @@ Prepare the variables.
 &mdash; **def [perf\_steps](/infra/bots/recipes/perf.py#30)(api):**
 
 Run Skia benchmarks.
-### *recipes* / [perf\_pathkit](/infra/bots/recipes/perf_pathkit.py)
-
-[DEPS](/infra/bots/recipes/perf_pathkit.py#8): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [checkout](#recipe_modules-checkout), [docker](#recipe_modules-docker), [env](#recipe_modules-env), [infra](#recipe_modules-infra), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
-
-
-&mdash; **def [RunSteps](/infra/bots/recipes/perf_pathkit.py#26)(api):**
 ### *recipes* / [perf\_skottietrace](/infra/bots/recipes/perf_skottietrace.py)
 
 [DEPS](/infra/bots/recipes/perf_skottietrace.py#16): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [flavor](#recipe_modules-flavor), [infra](#recipe_modules-infra), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
@@ -514,12 +500,6 @@ Run the DM test.
 
 
 &mdash; **def [RunSteps](/infra/bots/recipes/test_lottie_web.py#28)(api):**
-### *recipes* / [test\_pathkit](/infra/bots/recipes/test_pathkit.py)
-
-[DEPS](/infra/bots/recipes/test_pathkit.py#8): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [checkout](#recipe_modules-checkout), [docker](#recipe_modules-docker), [env](#recipe_modules-env), [flavor](#recipe_modules-flavor), [gold\_upload](#recipe_modules-gold_upload), [infra](#recipe_modules-infra), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
-
-
-&mdash; **def [RunSteps](/infra/bots/recipes/test_pathkit.py#28)(api):**
 ### *recipes* / [upload\_buildstats\_results](/infra/bots/recipes/upload_buildstats_results.py)
 
 [DEPS](/infra/bots/recipes/upload_buildstats_results.py#9): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [vars](#recipe_modules-vars)
@@ -551,19 +531,19 @@ Run the DM test.
 
 &mdash; **def [RunSteps](/infra/bots/recipe_modules/xcode/examples/full.py#14)(api):**
 
-[depot_tools/recipe_modules/bot_update]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/150db331780e685bf1c6a0000a0e98cfe4eb6344/recipes/README.recipes.md#recipe_modules-bot_update
-[depot_tools/recipe_modules/gclient]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/150db331780e685bf1c6a0000a0e98cfe4eb6344/recipes/README.recipes.md#recipe_modules-gclient
-[depot_tools/recipe_modules/git]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/150db331780e685bf1c6a0000a0e98cfe4eb6344/recipes/README.recipes.md#recipe_modules-git
-[depot_tools/recipe_modules/gitiles]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/150db331780e685bf1c6a0000a0e98cfe4eb6344/recipes/README.recipes.md#recipe_modules-gitiles
-[depot_tools/recipe_modules/tryserver]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/150db331780e685bf1c6a0000a0e98cfe4eb6344/recipes/README.recipes.md#recipe_modules-tryserver
-[recipe_engine/recipe_modules/cipd]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/af73739e9bf032b145ac29ef72f98b1498543429/README.recipes.md#recipe_modules-cipd
-[recipe_engine/recipe_modules/context]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/af73739e9bf032b145ac29ef72f98b1498543429/README.recipes.md#recipe_modules-context
-[recipe_engine/recipe_modules/file]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/af73739e9bf032b145ac29ef72f98b1498543429/README.recipes.md#recipe_modules-file
-[recipe_engine/recipe_modules/json]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/af73739e9bf032b145ac29ef72f98b1498543429/README.recipes.md#recipe_modules-json
-[recipe_engine/recipe_modules/path]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/af73739e9bf032b145ac29ef72f98b1498543429/README.recipes.md#recipe_modules-path
-[recipe_engine/recipe_modules/platform]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/af73739e9bf032b145ac29ef72f98b1498543429/README.recipes.md#recipe_modules-platform
-[recipe_engine/recipe_modules/properties]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/af73739e9bf032b145ac29ef72f98b1498543429/README.recipes.md#recipe_modules-properties
-[recipe_engine/recipe_modules/raw_io]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/af73739e9bf032b145ac29ef72f98b1498543429/README.recipes.md#recipe_modules-raw_io
-[recipe_engine/recipe_modules/step]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/af73739e9bf032b145ac29ef72f98b1498543429/README.recipes.md#recipe_modules-step
-[recipe_engine/recipe_modules/time]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/af73739e9bf032b145ac29ef72f98b1498543429/README.recipes.md#recipe_modules-time
-[recipe_engine/wkt/RecipeApi]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/af73739e9bf032b145ac29ef72f98b1498543429/recipe_engine/recipe_api.py#433
+[depot_tools/recipe_modules/bot_update]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/3d401c263f5b4ee534eacf967ac7234f7c4ee029/recipes/README.recipes.md#recipe_modules-bot_update
+[depot_tools/recipe_modules/gclient]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/3d401c263f5b4ee534eacf967ac7234f7c4ee029/recipes/README.recipes.md#recipe_modules-gclient
+[depot_tools/recipe_modules/git]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/3d401c263f5b4ee534eacf967ac7234f7c4ee029/recipes/README.recipes.md#recipe_modules-git
+[depot_tools/recipe_modules/gitiles]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/3d401c263f5b4ee534eacf967ac7234f7c4ee029/recipes/README.recipes.md#recipe_modules-gitiles
+[depot_tools/recipe_modules/tryserver]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/3d401c263f5b4ee534eacf967ac7234f7c4ee029/recipes/README.recipes.md#recipe_modules-tryserver
+[recipe_engine/recipe_modules/cipd]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/e0473ea34027c403e310525a2ad0473cc95a14c6/README.recipes.md#recipe_modules-cipd
+[recipe_engine/recipe_modules/context]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/e0473ea34027c403e310525a2ad0473cc95a14c6/README.recipes.md#recipe_modules-context
+[recipe_engine/recipe_modules/file]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/e0473ea34027c403e310525a2ad0473cc95a14c6/README.recipes.md#recipe_modules-file
+[recipe_engine/recipe_modules/json]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/e0473ea34027c403e310525a2ad0473cc95a14c6/README.recipes.md#recipe_modules-json
+[recipe_engine/recipe_modules/path]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/e0473ea34027c403e310525a2ad0473cc95a14c6/README.recipes.md#recipe_modules-path
+[recipe_engine/recipe_modules/platform]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/e0473ea34027c403e310525a2ad0473cc95a14c6/README.recipes.md#recipe_modules-platform
+[recipe_engine/recipe_modules/properties]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/e0473ea34027c403e310525a2ad0473cc95a14c6/README.recipes.md#recipe_modules-properties
+[recipe_engine/recipe_modules/raw_io]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/e0473ea34027c403e310525a2ad0473cc95a14c6/README.recipes.md#recipe_modules-raw_io
+[recipe_engine/recipe_modules/step]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/e0473ea34027c403e310525a2ad0473cc95a14c6/README.recipes.md#recipe_modules-step
+[recipe_engine/recipe_modules/time]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/e0473ea34027c403e310525a2ad0473cc95a14c6/README.recipes.md#recipe_modules-time
+[recipe_engine/wkt/RecipeApi]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/e0473ea34027c403e310525a2ad0473cc95a14c6/recipe_engine/recipe_api.py#439

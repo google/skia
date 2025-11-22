@@ -32,7 +32,6 @@ inline int comparePaths(skiatest::Reporter* reporter, const char* filename,
 }
 
 extern bool drawAsciiPaths(const SkPath& one, const SkPath& two, bool drawPaths);
-extern void markTestFlakyForPathKit();
 extern void showOp(const SkPathOp op);
 extern bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
                        const SkPathOp , const char* testName);

@@ -56,8 +56,9 @@ static skvx::float2 get_device_translation(const SkM44& localToDevice) {
     return (invT.xy() + invT.zw()) / det;
 }
 
-CoverageMaskRenderStep::CoverageMaskRenderStep()
-        : RenderStep(RenderStepID::kCoverageMask,
+CoverageMaskRenderStep::CoverageMaskRenderStep(Layout layout)
+        : RenderStep(layout,
+                     RenderStepID::kCoverageMask,
                      // The mask will have AA outsets baked in, but the original bounds for clipping
                      // still require the outset for analytic coverage.
                      Flags::kPerformsShading |
@@ -76,18 +77,18 @@ CoverageMaskRenderStep::CoverageMaskRenderStep()
                      // [0,1] for inverse-filled masks. 'drawBounds' is relative to the logical mask
                      // entry's origin, while 'maskBoundsIn' is atlas-relative. Inverse fills swap
                      // the order in 'maskBoundsIn' to be RBLT.
-                     {{"drawBounds", VertexAttribType::kFloat4 , SkSLType::kFloat4},  // ltrb
+                     {{{"drawBounds", VertexAttribType::kFloat4 , SkSLType::kFloat4},  // ltrb
                       {"maskBoundsIn", VertexAttribType::kUShort4_norm, SkSLType::kFloat4},
                       // Remaining translation extracted from actual 'maskToDevice' transform.
                       {"deviceOrigin", VertexAttribType::kFloat2, SkSLType::kFloat2},
                       {"depth"     , VertexAttribType::kFloat, SkSLType::kFloat},
-                      {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2},
+                      {"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt},
                       // deviceToLocal matrix for producing local coords for shader evaluation
                       {"mat0", VertexAttribType::kFloat3, SkSLType::kFloat3},
                       {"mat1", VertexAttribType::kFloat3, SkSLType::kFloat3},
-                      {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3}},
+                      {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3}}},
                      /*varyings=*/
-                     {// `maskBounds` are the atlas-relative, sorted bounds of the coverage mask.
+                     {{// `maskBounds` are the atlas-relative, sorted bounds of the coverage mask.
                       // `textureCoords` are the atlas-relative UV coordinates of the draw, which
                       // can spill beyond `maskBounds` for inverse fills.
                       // TODO: maskBounds is constant for all fragments for a given instance,
@@ -95,7 +96,7 @@ CoverageMaskRenderStep::CoverageMaskRenderStep()
                       {"maskBounds"   , SkSLType::kFloat4},
                       {"textureCoords", SkSLType::kFloat2},
                       // 'invert' is set to 0 use unmodified coverage, and set to 1 for "1-c".
-                      {"invert", SkSLType::kHalf}}) {}
+                      {"invert", SkSLType::kHalf}}}) {}
 
 std::string CoverageMaskRenderStep::vertexSkSL() const {
     // Returns the body of a vertex function, which must define a float4 devPosition variable and
@@ -122,7 +123,7 @@ bool CoverageMaskRenderStep::usesUniformsInFragmentSkSL() const { return false; 
 
 void CoverageMaskRenderStep::writeVertices(DrawWriter* dw,
                                            const DrawParams& params,
-                                           skvx::uint2 ssboIndices) const {
+                                           uint32_t ssboIndex) const {
     const CoverageMaskShape& coverageMask = params.geometry().coverageMaskShape();
     const TextureProxy* proxy = coverageMask.textureProxy();
     SkASSERT(proxy);
@@ -144,13 +145,13 @@ void CoverageMaskRenderStep::writeVertices(DrawWriter* dw,
         // we know this is an inverted mask, then we can exactly map the draw's clip bounds to mask
         // space so that the clip is still fully covered without branching in the vertex shader.
         SkASSERT(maskToDevice == SkM44::Translate(deviceOrigin.x(), deviceOrigin.y()));
-        drawBounds = params.clip().drawBounds().makeOffset(-deviceOrigin).ltrb();
+        drawBounds = params.drawBounds().makeOffset(-deviceOrigin).ltrb();
 
         // If the mask is fully clipped out, then the shape's mask info should be (0,0,0,0).
         // If it's not fully clipped out, then the mask info should be non-empty.
         const bool emptyMask = all(maskBounds == 0.f);
         SkDEBUGCODE(Rect clippedShapeBounds =
-                    params.clip().transformedShapeBounds().makeIntersect(params.clip().scissor()));
+                    params.transformedShapeBounds().makeIntersect(params.scissor()));
         SkASSERT(!clippedShapeBounds.isEmptyNegativeOrNaN() ^ emptyMask);
 
         if (emptyMask) {
@@ -204,7 +205,7 @@ void CoverageMaskRenderStep::writeVertices(DrawWriter* dw,
 
     const SkM44& m = coverageMask.deviceToLocal();
     instances.append(1) << drawBounds << skvx::cast<uint16_t>(maskBounds) << deviceOrigin
-                        << params.order().depthAsFloat() << ssboIndices
+                        << params.order().depthAsFloat() << ssboIndex
                         << m.rc(0,0) << m.rc(1,0) << m.rc(3,0)   // mat0
                         << m.rc(0,1) << m.rc(1,1) << m.rc(3,1)   // mat1
                         << m.rc(0,3) << m.rc(1,3) << m.rc(3,3);  // mat2

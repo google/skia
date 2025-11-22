@@ -66,10 +66,10 @@ void draw(SkCanvas* canvas) {
 
     paint.setStrokeWidth(5);
     paint.setColor(SkColorSetARGB(255, 0, 0, 255));
-    SkPath cubicCurve;
+    SkPathBuilder cubicCurve;
     cubicCurve.moveTo(a);
     cubicCurve.cubicTo(b, c, d);
-    canvas->drawPath(cubicCurve, paint);
+    canvas->drawPath(cubicCurve.detach(), paint);
 
     SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 32);
     SkPaint textPaint;

@@ -455,6 +455,9 @@ function paintTests(CK: CanvasKit, colorFilter?: ColorFilter, imageFilter?: Imag
 
 function pathTests(CK: CanvasKit) {
     const path = new CK.Path();  // $ExpectType Path
+    const builder = new CK.PathBuilder();  // $ExpectType PathBuilder
+    const builder2 = new CK.PathBuilder(path);  // $ExpectType PathBuilder
+    const builder3 = new CK.PathBuilder(CK.FillType.EvenOdd);  // $ExpectType PathBuilder
     const p2 = CK.Path.MakeFromCmds([ // $ExpectType Path | null
         CK.MOVE_VERB, 0, 10,
         CK.LINE_VERB, 30, 40,
@@ -467,36 +470,39 @@ function pathTests(CK: CanvasKit) {
     const p5 = CK.Path.MakeFromOp(p4, p2!, CK.PathOp.ReverseDifference); // $ExpectType Path | null
     const p6 = CK.Path.MakeFromSVGString('M 205,5 L 795,5 z'); // $ExpectType Path | null
     const p7 = p3.makeAsWinding(); // $ExpectType Path | null
+    const p8 = builder.snapshot(); // $ExpectType Path
     const someRect = CK.LTRBRect(10, 20, 30, 40);
     // Making sure arrays are accepted as rrects.
     const someRRect = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
-    path.addArc(someRect, 0, 270);
-    path.addOval(someRect);
-    path.addOval(someRect, true, 3);
-    path.addPath(p2);
-    path.addPoly([20, 20,  40, 40,  20, 40], true);
-    path.addRect(someRect);
-    path.addRect(someRect, true);
-    path.addCircle(10, 10, 10);
-    path.addRRect(someRRect);
-    path.addRRect(someRRect, true);
-    path.addVerbsPointsWeights(verbs, [1, 2, 3, 4]);
-    path.addVerbsPointsWeights([CK.CONIC_VERB], points, [2.3]);
-    path.arc(0, 0, 10, 0, Math.PI / 2);
-    path.arc(0, 0, 10, 0, Math.PI / 2, true);
-    path.arcToOval(someRect, 15, 60, true);
-    path.arcToRotated(2, 4, 90, false, true, 0, 20);
-    path.arcToTangent(20, 20, 40, 50, 2);
-    path.close();
+    builder.addArc(someRect, 0, 270);
+    builder.addOval(someRect);
+    builder.addOval(someRect, true, 3);
+    builder.addPath(p2);
+    builder.addPolygon([20, 20,  40, 40,  20, 40], true);
+    builder.addRect(someRect);
+    builder.addRect(someRect, true);
+    builder.addCircle(10, 10, 10);
+    builder.addRRect(someRRect);
+    builder.addRRect(someRRect, true);
+    builder.addVerbsPointsWeights(verbs, [1, 2, 3, 4]);
+    builder.addVerbsPointsWeights([CK.CONIC_VERB], points, [2.3]);
+    builder.arc(0, 0, 10, 0, Math.PI / 2);
+    builder.arc(0, 0, 10, 0, Math.PI / 2, true);
+    builder.arcToOval(someRect, 15, 60, true);
+    builder.arcToRotated(2, 4, 90, false, true, 0, 20);
+    builder.arcToTangent(20, 20, 40, 50, 2);
+    builder.close();
+    builder.detach();
+    builder.detachAndDelete();
     let bounds = path.computeTightBounds(); // $ExpectType Float32Array
     path.computeTightBounds(bounds);
-    path.conicTo(1, 2, 3, 4, 5);
+    builder.conicTo(1, 2, 3, 4, 5);
     let ok = path.contains(10, 20); // $ExpectType boolean
     const pCopy = path.copy(); // $ExpectType Path
     const count = path.countPoints(); // $ExpectType number
-    path.cubicTo(10, 10, 10, 10, 10, 10);
-    ok = path.dash(8, 4, 1);
+    builder.cubicTo(10, 10, 10, 10, 10, 10);
+    let r = path.makeDashed(8, 4, 1); // $ExpectType Path | null
     ok = path.equals(pCopy);
     bounds = path.getBounds(); // $ExpectType Float32Array
     path.getBounds(bounds);
@@ -504,26 +510,23 @@ function pathTests(CK: CanvasKit) {
     const pt = path.getPoint(7); // $ExpectType Float32Array
     path.getPoint(8, pt);
     ok = path.isEmpty();
-    ok = path.isVolatile();
-    path.lineTo(10, -20);
-    path.moveTo(-20, -30);
-    path.offset(100, 100);
-    ok = path.op(p2!, CK.PathOp.Difference);
-    path.quadTo(10, 20, 30, 40);
-    path.rArcTo(10, 10, 90, false, true, 2, 4);
-    path.rConicTo(-1, 2, 4, 9, 3);
-    path.rCubicTo(20, 30, 40, 50, 2, 1);
-    path.reset();
-    path.rewind();
-    path.rLineTo(20, 30);
-    path.rMoveTo(40, 80);
-    path.rQuadTo(1, 2, 3, 4);
+    builder.lineTo(10, -20);
+    builder.moveTo(-20, -30);
+    builder.offset(100, 100);
+    r = path.makeCombined(p2!, CK.PathOp.Difference);
+    builder.quadTo(10, 20, 30, 40);
+    builder.rArcTo(10, 10, 90, false, true, 2, 4);
+    builder.rConicTo(-1, 2, 4, 9, 3);
+    builder.rCubicTo(20, 30, 40, 50, 2, 1);
+    builder.rLineTo(20, 30);
+    builder.rMoveTo(40, 80);
+    builder.rQuadTo(1, 2, 3, 4);
     path.setFillType(CK.FillType.EvenOdd);
-    path.setIsVolatile(true);
-    ok = path.simplify();
-    path.stroke();
-    path.stroke({});
-    path.stroke({
+    builder.setFillType(CK.FillType.EvenOdd);
+    r = path.makeSimplified();
+    r = path.makeStroked();
+    r = path.makeStroked({});
+    r = path.makeStroked({
         width: 20,
         miter_limit: 9,
         precision: 0.5,
@@ -532,9 +535,9 @@ function pathTests(CK: CanvasKit) {
     });
     const cmds = path.toCmds(); // $ExpectType Float32Array
     const str = path.toSVGString(); // $ExpectType string
-    path.transform(CK.Matrix.identity());
-    path.transform(1, 0, 0, 0, 1, 0, 0, 0, 1);
-    path.trim(0.1, 0.7, false);
+    builder.transform(CK.Matrix.identity());
+    builder.transform(1, 0, 0, 0, 1, 0, 0, 0, 1);
+    path.makeTrimmed(0.1, 0.7, false);
 
     if (CK.Path.CanInterpolate(p3, p4)) {
         const interpolated = CK.Path.MakeFromPathInterpolation(p3, p4, 0.5); // $ExpectType Path | null

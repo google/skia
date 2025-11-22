@@ -187,7 +187,7 @@ static bool draw_rects_into_mask(SkSpan<const SkRect> rects, SkMaskBuilder* mask
                                          .addRect(rects[1])
                                          .setFillType(SkPathFillType::kEvenOdd)
                                          .detach();
-            draw.drawPath(path, paint, nullptr, true);
+            draw.drawPath(path, paint, nullptr);
         }
     });
 }
@@ -376,7 +376,7 @@ std::optional<SkMaskFilterBase::NinePatch> SkBlurMaskFilterImpl::filterRRectToNi
     // Now make that scaled down nine patch rrect.
     SkRect smallR = SkRect::MakeWH(totalSmallWidth, totalSmallHeight);
     SkRRect smallRR;
-    smallRR.setRectRadii(smallR, rrect.radii().begin());
+    smallRR.setRectRadii(smallR, rrect.radii().data());
 
     const float sigma = this->computeXformedSigma(matrix);
     // If we've already blurred this small rrect, pull it out of the cache and we are done

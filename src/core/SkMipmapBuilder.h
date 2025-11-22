@@ -17,7 +17,7 @@ struct SkImageInfo;
 
 class SkMipmapBuilder {
 public:
-    SkMipmapBuilder(const SkImageInfo&);
+    explicit SkMipmapBuilder(const SkImageInfo&);
     ~SkMipmapBuilder();
 
     int countLevels() const;

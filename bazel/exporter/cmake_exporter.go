@@ -47,7 +47,7 @@ func getMacPlatformRuleCopts() []string {
 	// These values must match those values defined in mac_toolchain_config.bzl
 	return []string{
 		// These items are from _make_default_flags().
-		"-std=c++17",
+		"-std=c++20",
 		"-Wno-psabi",
 
 		// From _make_target_specific_flags.
@@ -60,7 +60,7 @@ func getLinuxPlatformRuleCopts() []string {
 	// TODO(skbug.com/40044673): Retrieve these values from Bazel.
 	return []string{
 		// These items are from _make_default_flags().
-		"-std=c++17",
+		"-std=c++20",
 		"-Wno-psabi",
 
 		// Added to avoid compile warning.
