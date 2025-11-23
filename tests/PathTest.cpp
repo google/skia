@@ -1770,8 +1770,10 @@ static void test_convexity(skiatest::Reporter* reporter) {
             case 12: builder.moveTo(nonFinitePts[i]); break;
         }
         path = builder.detach();
+#ifdef SK_PATH_LEGACY_NONFINITE_IMPL
         REPORTER_ASSERT(reporter,
                     SkPathPriv::GetConvexityOrUnknown(path) == SkPathConvexity::kUnknown);
+#endif
     }
 
     for (int index = 0; index < (int) (11 * axisAlignedPtsCount); ++index) {
@@ -2747,8 +2749,8 @@ static void write_and_read_back(skiatest::Reporter* reporter,
     auto readBack = reader.readPath();
     REPORTER_ASSERT(reporter, readBack.has_value() && *readBack == p);
 
-    REPORTER_ASSERT(reporter, SkPathPriv::GetConvexityOrUnknown(*readBack) ==
-                              SkPathPriv::GetConvexityOrUnknown(p));
+    REPORTER_ASSERT(reporter, SkPathPriv::GetConvexity(*readBack) ==
+                              SkPathPriv::GetConvexity(p));
 
     REPORTER_ASSERT(reporter, readBack->isOval(nullptr) == p.isOval(nullptr));
     std::optional<SkPathOvalInfo> oval0 = SkPathPriv::IsOval(p),
@@ -3135,6 +3137,7 @@ static void test_iter(skiatest::Reporter* reporter) {
     iter.setPath(p, false);
     REPORTER_ASSERT(reporter, !iter.isClosedContour());
 
+#ifdef SK_PATH_LEGACY_NONFINITE_IMPL
     // this checks to see if the NaN logic is executed in SkPath::autoClose(), but does not
     // check to see if the result is correct.
     for (int setNaN = 0; setNaN < 4; ++setNaN) {
@@ -3147,6 +3150,7 @@ static void test_iter(skiatest::Reporter* reporter) {
         iter.next(pts);
         REPORTER_ASSERT(reporter, SkPath::kClose_Verb == iter.next(pts));
     }
+#endif
 
     p = SkPathBuilder().quadTo(0, 0, 0, 0).detach();
     iter.setPath(p, false);

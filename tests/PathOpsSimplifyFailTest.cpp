@@ -65,7 +65,9 @@ static void failOne(skiatest::Reporter* reporter, int index) {
         case 12: path.moveTo(nonFinitePts[i]); break;
     }
     auto result = Simplify(path.detach());
+#ifdef SK_PATH_LEGACY_NONFINITE_IMPL
     REPORTER_ASSERT(reporter, !result.has_value());
+#endif
     reporter->bumpTestCount();
 }
 

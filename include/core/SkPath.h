@@ -47,7 +47,7 @@ struct SkPathRRectInfo;
 
 #ifdef SK_HIDE_PATH_EDIT_METHODS
     // enable this to try using SkPathData
-    //#define SK_PATH_USES_PATHDATA
+    #define SK_PATH_USES_PATHDATA
 #endif
 
 #ifdef SK_PATH_USES_PATHDATA
