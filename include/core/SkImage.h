@@ -103,7 +103,7 @@ SK_API sk_sp<SkImage> RasterFromCompressedTextureData(sk_sp<SkData> data,
 
     example: https://fiddle.skia.org/c/@Image_DeferredFromEncodedData
 */
-SK_API sk_sp<SkImage> DeferredFromEncodedData(sk_sp<SkData> encoded,
+SK_API sk_sp<SkImage> DeferredFromEncodedData(sk_sp<const SkData> encoded,
                                               std::optional<SkAlphaType> alphaType = std::nullopt);
 
 /** Creates SkImage from data returned by imageGenerator. The image data will not be created
@@ -739,7 +739,11 @@ public:
 
         example: https://fiddle.skia.org/c/@Image_refEncodedData
     */
+#if defined(SK_DISABLE_LEGACY_NONCONST_ENCODED_IMAGE_DATA)
+    sk_sp<const SkData> refEncodedData() const;
+#else
     sk_sp<SkData> refEncodedData() const;
+#endif
 
     struct RequiredProperties {
         bool fMipmapped = false;

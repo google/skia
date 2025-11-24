@@ -17,18 +17,22 @@
 namespace {
 class ImageGeneratorNDK : public SkImageGenerator {
 public:
-    ImageGeneratorNDK(const SkImageInfo&, sk_sp<SkData>, AImageDecoder*);
+    ImageGeneratorNDK(const SkImageInfo&, sk_sp<const SkData>, AImageDecoder*);
     ~ImageGeneratorNDK() override;
 
 protected:
+#if defined(SK_DISABLE_LEGACY_NONCONST_ENCODED_IMAGE_DATA)
+    sk_sp<const SkData> onRefEncodedData() override;
+#else
     sk_sp<SkData> onRefEncodedData() override;
+#endif
 
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                      const Options& opts) override;
 
 private:
-    sk_sp<SkData>  fData;
-    AImageDecoder* fDecoder;
+    sk_sp<const SkData> fData;
+    AImageDecoder*      fDecoder;
     // Setting the ADataSpace is sticky - it is set for all future decodes
     // until it is set again. But as of R there is no way to reset it to
     // ADATASPACE_UNKNOWN to skip color correction. If the client requests
@@ -70,8 +74,11 @@ static sk_sp<SkColorSpace> get_default_colorSpace(const AImageDecoderHeaderInfo*
     return SkColorSpace::MakeSRGB();
 }
 
-std::unique_ptr<SkImageGenerator> SkImageGeneratorNDK::MakeFromEncodedNDK(sk_sp<SkData> data) {
-    if (!data) return nullptr;
+std::unique_ptr<SkImageGenerator> SkImageGeneratorNDK::MakeFromEncodedNDK(
+        sk_sp<const SkData> data) {
+    if (!data) {
+        return nullptr;
+    }
 
     AImageDecoder* rawDecoder;
     if (!ok(AImageDecoder_createFromBuffer(data->data(), data->size(), &rawDecoder))) {
@@ -92,13 +99,13 @@ std::unique_ptr<SkImageGenerator> SkImageGeneratorNDK::MakeFromEncodedNDK(sk_sp<
             new ImageGeneratorNDK(imageInfo, std::move(data), rawDecoder));
 }
 
-ImageGeneratorNDK::ImageGeneratorNDK(const SkImageInfo& info, sk_sp<SkData> data,
+ImageGeneratorNDK::ImageGeneratorNDK(const SkImageInfo& info,
+                                     sk_sp<const SkData> data,
                                      AImageDecoder* decoder)
-    : INHERITED(info)
-    , fData(std::move(data))
-    , fDecoder(decoder)
-    , fPreviouslySetADataSpace(false)
-{
+        : INHERITED(info)
+        , fData(std::move(data))
+        , fDecoder(decoder)
+        , fPreviouslySetADataSpace(false) {
     SkASSERT(fDecoder);
 }
 
@@ -217,6 +224,10 @@ bool ImageGeneratorNDK::onGetPixels(const SkImageInfo& info, void* pixels, size_
     }
 }
 
+#if defined(SK_DISABLE_LEGACY_NONCONST_ENCODED_IMAGE_DATA)
+sk_sp<const SkData> ImageGeneratorNDK::onRefEncodedData() { return fData; }
+#else
 sk_sp<SkData> ImageGeneratorNDK::onRefEncodedData() {
-    return fData;
+    return sk_ref_sp(const_cast<SkData*>(fData.get()));
 }
+#endif

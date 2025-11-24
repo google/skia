@@ -169,7 +169,7 @@ std::unique_ptr<SkCodec> SkCrabbyAvifCodec::MakeFromStream(std::unique_ptr<SkStr
 }
 
 std::unique_ptr<SkCodec> SkCrabbyAvifCodec::MakeFromData(std::unique_ptr<SkStream> stream,
-                                                         sk_sp<SkData> data,
+                                                         sk_sp<const SkData> data,
                                                          Result* result,
                                                          bool gainmapOnly /*=false*/) {
     SkASSERT(result);
@@ -284,7 +284,7 @@ std::unique_ptr<SkCodec> SkCrabbyAvifCodec::MakeFromData(std::unique_ptr<SkStrea
 
 SkCrabbyAvifCodec::SkCrabbyAvifCodec(SkEncodedInfo&& info,
                                      std::unique_ptr<SkStream> stream,
-                                     sk_sp<SkData> data,
+                                     sk_sp<const SkData> data,
                                      AvifDecoder avifDecoder,
                                      SkEncodedOrigin origin,
                                      bool useAnimation,

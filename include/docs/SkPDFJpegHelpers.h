@@ -19,7 +19,7 @@ class SkWStream;
 #include <memory>
 
 namespace SkPDF::JPEG {
-inline std::unique_ptr<SkCodec> Decode(sk_sp<SkData> data) {
+inline std::unique_ptr<SkCodec> Decode(sk_sp<const SkData> data) {
     return SkJpegDecoder::Decode(data, nullptr, nullptr);
 }
 

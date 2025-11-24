@@ -284,8 +284,11 @@ size_t do_deflated_image(const SkPixmap& pm,
     return length;
 }
 
-size_t do_jpeg(sk_sp<SkData> data, SkColorSpace* imageColorSpace, SkPDFDocument* doc, SkISize size,
-             SkPDFIndirectReference ref) {
+size_t do_jpeg(sk_sp<const SkData> data,
+               SkColorSpace* imageColorSpace,
+               SkPDFDocument* doc,
+               SkISize size,
+               SkPDFIndirectReference ref) {
     if (!ref) {
         return data->size();
     }
@@ -374,7 +377,7 @@ size_t serialize_image(const SkImage* img,
     SkASSERT(encodingQuality >= 0);
     SkISize dimensions = img->dimensions();
 
-    if (sk_sp<SkData> data = img->refEncodedData()) {
+    if (sk_sp<const SkData> data = img->refEncodedData()) {
         if (size_t size = do_jpeg(std::move(data), img->colorSpace(), doc, dimensions, ref)) {
             return size;
         }

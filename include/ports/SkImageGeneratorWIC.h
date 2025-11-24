@@ -34,7 +34,7 @@
  * https://msdn.microsoft.com/en-us/library/windows/desktop/ff485844.aspx
  */
 namespace SkImageGeneratorWIC {
-SK_API std::unique_ptr<SkImageGenerator> MakeFromEncodedWIC(sk_sp<SkData>);
+SK_API std::unique_ptr<SkImageGenerator> MakeFromEncodedWIC(sk_sp<const SkData>);
 }
 
 #endif  // SK_BUILD_FOR_WIN

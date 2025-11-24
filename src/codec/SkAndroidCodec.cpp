@@ -239,7 +239,7 @@ std::unique_ptr<SkAndroidCodec> SkAndroidCodec::MakeFromCodec(std::unique_ptr<Sk
     SkUNREACHABLE;
 }
 
-std::unique_ptr<SkAndroidCodec> SkAndroidCodec::MakeFromData(sk_sp<SkData> data,
+std::unique_ptr<SkAndroidCodec> SkAndroidCodec::MakeFromData(sk_sp<const SkData> data,
                                                              SkPngChunkReader* chunkReader) {
     if (!data) {
         return nullptr;

@@ -118,7 +118,7 @@ std::unique_ptr<SkCodec> SkAvifCodec::MakeFromStream(std::unique_ptr<SkStream> s
 
 SkAvifCodec::SkAvifCodec(SkEncodedInfo&& info,
                          std::unique_ptr<SkStream> stream,
-                         sk_sp<SkData> data,
+                         sk_sp<const SkData> data,
                          AvifDecoder avifDecoder,
                          SkEncodedOrigin origin,
                          bool useAnimation)

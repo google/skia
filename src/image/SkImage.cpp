@@ -243,9 +243,16 @@ sk_sp<SkShader> SkImage::makeRawShader(SkTileMode tmx, SkTileMode tmy,
                                   sampling, localMatrix);
 }
 
+#if defined(SK_DISABLE_LEGACY_NONCONST_ENCODED_IMAGE_DATA)
+sk_sp<const SkData> SkImage::refEncodedData() const { return as_IB(this)->onRefEncoded(); }
+#else
 sk_sp<SkData> SkImage::refEncodedData() const {
-    return sk_sp<SkData>(as_IB(this)->onRefEncoded());
+    if (const SkData* data = as_IB(this)->onRefEncoded().release()) {
+        return sk_sp<SkData>(const_cast<SkData*>(data));
+    }
+    return nullptr;
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -94,13 +94,7 @@ bool StreamRemainingLengthIsBelow(SkStream* stream, size_t len);
 
 namespace SkStreamPriv {
 
-// TODO(kjlubick) Delete this after migrating clients to return or consume a const SkData
-inline sk_sp<SkData> GetNonConstData(SkStream* stream) {
-    if (!stream) {
-        return nullptr;
-    }
-    return sk_sp<SkData>(const_cast<SkData*>(stream->getData().release()));
-}
+// TODO(kjlubick): move the above functions in here
 
 }  // namespace SkStreamPriv
 

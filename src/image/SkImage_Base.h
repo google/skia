@@ -110,7 +110,7 @@ public:
 
     virtual sk_sp<SkImage> onMakeSubset(SkRecorder*, const SkIRect&, RequiredProperties) const = 0;
 
-    virtual sk_sp<SkData> onRefEncoded() const { return nullptr; }
+    virtual sk_sp<const SkData> onRefEncoded() const { return nullptr; }
 
     virtual bool onAsLegacyBitmap(GrDirectContext*, SkBitmap*) const;
 

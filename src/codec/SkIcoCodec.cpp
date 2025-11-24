@@ -54,7 +54,7 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
     // safer than the old method, which required allocating a block of memory whose
     // byte size is stored in the stream as a uint32_t, and may result in a large or
     // failed allocation.
-    sk_sp<SkData> data = nullptr;
+    sk_sp<const SkData> data = nullptr;
     if (stream->getMemoryBase()) {
         // It is safe to make without copy because we'll hold onto the stream.
         data = SkData::MakeWithoutCopy(stream->getMemoryBase(), stream->getLength());
@@ -170,7 +170,7 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
             break;
         }
 
-        sk_sp<SkData> embeddedData(SkData::MakeSubset(data.get(), offset, size));
+        sk_sp<const SkData> embeddedData(SkData::MakeSubset(data.get(), offset, size));
         auto embeddedStream = SkMemoryStream::Make(embeddedData);
         bytesRead += size;
 
@@ -424,7 +424,7 @@ std::unique_ptr<SkCodec> Decode(std::unique_ptr<SkStream> stream,
     return SkIcoCodec::MakeFromStream(std::move(stream), outResult);
 }
 
-std::unique_ptr<SkCodec> Decode(sk_sp<SkData> data,
+std::unique_ptr<SkCodec> Decode(sk_sp<const SkData> data,
                                 SkCodec::Result* outResult,
                                 SkCodecs::DecodeContext) {
     if (!data) {

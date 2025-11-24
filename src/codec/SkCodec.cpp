@@ -236,10 +236,10 @@ std::unique_ptr<SkCodec> SkCodec::MakeFromStream(
     return nullptr;
 }
 
-std::unique_ptr<SkCodec> SkCodec::MakeFromData(sk_sp<SkData> data, SkPngChunkReader* reader) {
+std::unique_ptr<SkCodec> SkCodec::MakeFromData(sk_sp<const SkData> data, SkPngChunkReader* reader) {
     return MakeFromData(std::move(data), SkCodecs::get_decoders(), reader);
 }
-std::unique_ptr<SkCodec> SkCodec::MakeFromData(sk_sp<SkData> data,
+std::unique_ptr<SkCodec> SkCodec::MakeFromData(sk_sp<const SkData> data,
                                                SkSpan<const SkCodecs::Decoder> decoders,
                                                SkPngChunkReader* reader) {
     if (!data) {

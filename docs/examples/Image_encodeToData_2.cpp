@@ -7,7 +7,7 @@ void draw(SkCanvas* canvas) {
     SkIRect subset = {136, 32, 200, 96};
     // This prevents re-encoding the image's pixels if the image itself was created from
     // something like an encoded PNG.
-    sk_sp<SkData> data = image->refEncodedData();
+    auto data = image->refEncodedData();
     if (!data) {
         data = SkPngEncoder::Encode(nullptr, image.get(), {});
     }

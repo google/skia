@@ -53,7 +53,7 @@ std::unique_ptr<SkImageGenerator> MakeFromPicture(const SkISize&,
  *  overridden by specifying kPremul_SkAlphaType or kUnpremul_SkAlphaType. Specifying
  *  kOpaque_SkAlphaType is not supported, and will return NULL.
  */
-std::unique_ptr<SkImageGenerator> MakeFromEncoded(sk_sp<SkData>,
+std::unique_ptr<SkImageGenerator> MakeFromEncoded(sk_sp<const SkData>,
                                                   std::optional<SkAlphaType> = std::nullopt);
 }
 

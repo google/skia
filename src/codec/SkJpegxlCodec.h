@@ -91,7 +91,7 @@ private:
 
     // Opaque codec implementation for lightweight header file.
     std::unique_ptr<SkJpegxlCodecPriv> fCodec;
-    sk_sp<SkData> fData;
+    sk_sp<const SkData> fData;
 
     bool scanFrames();
     static void imageOutCallback(
@@ -100,7 +100,7 @@ private:
     SkJpegxlCodec(std::unique_ptr<SkJpegxlCodecPriv> codec,
                   SkEncodedInfo&& info,
                   std::unique_ptr<SkStream> stream,
-                  sk_sp<SkData> data);
+                  sk_sp<const SkData> data);
 
     using INHERITED = SkScalingCodec;
 };

@@ -83,7 +83,7 @@ struct DateTime {
     void toISO8601(SkString* dst) const;
 };
 
-using DecodeJpegCallback = std::unique_ptr<SkCodec> (*)(sk_sp<SkData>);
+using DecodeJpegCallback = std::unique_ptr<SkCodec> (*)(sk_sp<const SkData>);
 using EncodeJpegCallback = bool (*)(SkWStream* dst, const SkPixmap& src, int quality);
 
 /** Optional metadata to be passed into the PDF factory function.

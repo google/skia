@@ -69,7 +69,7 @@ protected:
 private:
     SkCrabbyAvifCodec(SkEncodedInfo&&,
                       std::unique_ptr<SkStream>,
-                      sk_sp<SkData>,
+                      sk_sp<const SkData>,
                       AvifDecoder,
                       SkEncodedOrigin,
                       bool,
@@ -77,14 +77,14 @@ private:
                       SkEncodedImageFormat);
 
     static std::unique_ptr<SkCodec> MakeFromData(std::unique_ptr<SkStream>,
-                                                 sk_sp<SkData>,
+                                                 sk_sp<const SkData>,
                                                  Result*,
                                                  bool gainmapOnly);
 
     // fAvifDecoder has a pointer to this data. This should not be freed until
     // the decode is completed. To ensure that, we declare this before
     // fAvifDecoder.
-    sk_sp<SkData> fData;
+    sk_sp<const SkData> fData;
 
     AvifDecoder fAvifDecoder;
     bool fUseAnimation;

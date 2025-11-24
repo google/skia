@@ -76,7 +76,8 @@ public:
      *  The SkPngChunkReader handles unknown chunks in PNGs.
      *  See SkCodec.h for more details.
      */
-    static std::unique_ptr<SkAndroidCodec> MakeFromData(sk_sp<SkData>, SkPngChunkReader* = nullptr);
+    static std::unique_ptr<SkAndroidCodec> MakeFromData(sk_sp<const SkData>,
+                                                        SkPngChunkReader* = nullptr);
 
     virtual ~SkAndroidCodec();
 

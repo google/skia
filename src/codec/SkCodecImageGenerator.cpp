@@ -20,7 +20,7 @@
 #include <utility>
 
 std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromEncodedCodec(
-        sk_sp<SkData> data, std::optional<SkAlphaType> at) {
+        sk_sp<const SkData> data, std::optional<SkAlphaType> at) {
     auto codec = SkCodec::MakeFromData(data);
     if (codec == nullptr) {
         return nullptr;
@@ -56,17 +56,26 @@ SkCodecImageGenerator::SkCodecImageGenerator(std::unique_ptr<SkCodec> codec,
                                              std::optional<SkAlphaType> at)
         : SkImageGenerator(adjust_info(codec.get(), at)), fCodec(std::move(codec)) {}
 
-sk_sp<SkData> SkCodecImageGenerator::onRefEncodedData() {
+#if defined(SK_DISABLE_LEGACY_NONCONST_ENCODED_IMAGE_DATA)
+sk_sp<const SkData> SkCodecImageGenerator::onRefEncodedData()
+#else
+sk_sp<SkData> SkCodecImageGenerator::onRefEncodedData()
+#endif
+{
     SkASSERT(fCodec);
     if (!fCachedData) {
         std::unique_ptr<SkStream> stream = fCodec->getEncodedData();
-        fCachedData = SkStreamPriv::GetNonConstData(stream.get());
+        fCachedData = stream->getData();
         if (!fCachedData) {
             // stream should already be a copy of the underlying stream.
             fCachedData = SkData::MakeFromStream(stream.get(), stream->getLength());
         }
     }
+#if defined(SK_DISABLE_LEGACY_NONCONST_ENCODED_IMAGE_DATA)
     return fCachedData;
+#else
+    return sk_ref_sp<SkData>(const_cast<SkData*>(fCachedData.get()));
+#endif
 }
 
 bool SkCodecImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const SkCodec::Options* options) {

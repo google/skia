@@ -137,7 +137,7 @@ protected:
     void onDelayedSetup() override {
         sk_sp<SkImage> img(ToolUtils::GetResourceAsImage("images/mandrill_512_q075.jpg"));
         if (!img) { return; }
-        sk_sp<SkData> encoded = img->refEncodedData();
+        auto encoded = img->refEncodedData();
         SkASSERT(encoded);
         if (!encoded) { return; }
         fImage = img;

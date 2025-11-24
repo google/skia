@@ -2177,7 +2177,7 @@ DEF_TEST(Codec_gif_can_preserve_original_data, r) {
 
     // The whole point of DeferredFromCodec is that it allows the client
     // to hold onto the original image data for later.
-    sk_sp<SkData> encodedData = image->refEncodedData();
+    auto encodedData = image->refEncodedData();
     REPORTER_ASSERT(r, encodedData != nullptr);
     // The returned data should the same as what went in.
     REPORTER_ASSERT(r, encodedData->size() == data->size());
@@ -2210,7 +2210,7 @@ DEF_TEST(Codec_jpeg_can_return_data_from_original_stream, r) {
 
     // The whole point of DeferredFromCodec is that it allows the client
     // to hold onto the original image data for later.
-    sk_sp<SkData> encodedData = image->refEncodedData();
+    auto encodedData = image->refEncodedData();
     REPORTER_ASSERT(r, encodedData != nullptr);
     // The returned data should the same as what went in.
     REPORTER_ASSERT(r, encodedData->size() == expectedBytes);

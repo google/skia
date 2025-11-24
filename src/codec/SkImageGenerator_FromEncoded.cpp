@@ -32,15 +32,22 @@ SkGraphics::SetImageGeneratorFromEncodedDataFactory(ImageGeneratorFromEncodedDat
 
 namespace SkImageGenerators {
 
-std::unique_ptr<SkImageGenerator> MakeFromEncoded(sk_sp<SkData> data,
+std::unique_ptr<SkImageGenerator> MakeFromEncoded(sk_sp<const SkData> data,
                                                   std::optional<SkAlphaType> at) {
     if (!data || at == kOpaque_SkAlphaType) {
         return nullptr;
     }
     if (gFactory) {
+#if defined(SK_DISABLE_LEGACY_NONCONST_ENCODED_IMAGE_DATA)
         if (std::unique_ptr<SkImageGenerator> generator = gFactory(data)) {
             return generator;
         }
+#else
+        sk_sp<SkData> mData = sk_sp<SkData>(const_cast<SkData*>(data.release()));
+        if (std::unique_ptr<SkImageGenerator> generator = gFactory(mData)) {
+            return generator;
+        }
+#endif
     }
     return SkCodecImageGenerator::MakeFromEncodedCodec(std::move(data), at);
 }
@@ -49,7 +56,7 @@ std::unique_ptr<SkImageGenerator> MakeFromEncoded(sk_sp<SkData> data,
 
 namespace SkImages {
 
-sk_sp<SkImage> DeferredFromEncodedData(sk_sp<SkData> encoded,
+sk_sp<SkImage> DeferredFromEncodedData(sk_sp<const SkData> encoded,
                                        std::optional<SkAlphaType> alphaType) {
     if (nullptr == encoded || encoded->empty()) {
         return nullptr;

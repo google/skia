@@ -66,7 +66,7 @@ public:
 
     bool onReadPixels(GrDirectContext*, const SkImageInfo&, void*, size_t, int srcX, int srcY,
                       CachingHint) const override;
-    sk_sp<SkData> onRefEncoded() const override;
+    sk_sp<const SkData> onRefEncoded() const override;
 
     sk_sp<SkImage> onMakeSubset(SkRecorder*, const SkIRect&, RequiredProperties) const override;
 
