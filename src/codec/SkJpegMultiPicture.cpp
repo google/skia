@@ -226,49 +226,49 @@ sk_sp<SkData> SkJpegMultiPictureParameters::serialize(uint32_t individualImageNu
     // other images.
     constexpr uint32_t firstIfdOffset = sizeof(SkTiff::kEndianBig) +  // Endian-ness
                                         sizeof(uint32_t);             // Index IFD offset
-    SkWStreamWriteU32BE(&s, firstIfdOffset);
+    SkStreamPriv::WriteU32BE(&s, firstIfdOffset);
     SkASSERT(s.bytesWritten() - sizeof(kMpfSig) == firstIfdOffset);
 
     if (individualImageNumber == 0) {
         // The MP Index IFD will write 3 tags (version, number of images, and MP entries). See
         // in Table 6 (MP Index IFD Tag Support Level) that these are the only mandatory entries.
         const uint32_t mpIndexIfdNumberOfTags = 3;
-        SkWStreamWriteU16BE(&s, mpIndexIfdNumberOfTags);
+        SkStreamPriv::WriteU16BE(&s, mpIndexIfdNumberOfTags);
     } else {
         // The MP Attribute IFD will write 1 tags (version). See in Table 7 (MP Attribute IFD Tag
         // Support Level for Baseline MP Files) that no tags are required. If gainmap images support
         // is added to CIPA DC-007, then some tags may be added and become mandatory.
         const uint16_t mpAttributeIfdNumberOfTags = 1;
-        SkWStreamWriteU16BE(&s, mpAttributeIfdNumberOfTags);
+        SkStreamPriv::WriteU16BE(&s, mpAttributeIfdNumberOfTags);
     }
 
     // Write the version.
-    SkWStreamWriteU16BE(&s, kVersionTag);
-    SkWStreamWriteU16BE(&s, SkTiff::kTypeUndefined);
-    SkWStreamWriteU32BE(&s, kVersionCount);
+    SkStreamPriv::WriteU16BE(&s, kVersionTag);
+    SkStreamPriv::WriteU16BE(&s, SkTiff::kTypeUndefined);
+    SkStreamPriv::WriteU32BE(&s, kVersionCount);
     s.write(kVersionExpected, kVersionSize);
 
     if (individualImageNumber == 0) {
         // Write the number of images.
-        SkWStreamWriteU16BE(&s, kNumberOfImagesTag);
-        SkWStreamWriteU16BE(&s, SkTiff::kTypeUnsignedLong);
-        SkWStreamWriteU32BE(&s, kNumberOfImagesCount);
-        SkWStreamWriteU32BE(&s, numberOfImages);
+        SkStreamPriv::WriteU16BE(&s, kNumberOfImagesTag);
+        SkStreamPriv::WriteU16BE(&s, SkTiff::kTypeUnsignedLong);
+        SkStreamPriv::WriteU32BE(&s, kNumberOfImagesCount);
+        SkStreamPriv::WriteU32BE(&s, numberOfImages);
 
         // Write the MP entries tag.
-        SkWStreamWriteU16BE(&s, kMPEntryTag);
-        SkWStreamWriteU16BE(&s, SkTiff::kTypeUndefined);
+        SkStreamPriv::WriteU16BE(&s, kMPEntryTag);
+        SkStreamPriv::WriteU16BE(&s, SkTiff::kTypeUndefined);
         const uint32_t mpEntriesSize = kMPEntrySize * numberOfImages;
-        SkWStreamWriteU32BE(&s, mpEntriesSize);
+        SkStreamPriv::WriteU32BE(&s, mpEntriesSize);
         const uint32_t mpEntryOffset = static_cast<uint32_t>(
                 s.bytesWritten() -  // The bytes written so far
                 sizeof(kMpfSig) +   // Excluding the MPF signature
                 sizeof(uint32_t) +  // The 4 bytes for this offset
                 sizeof(uint32_t));  // The 4 bytes for the attribute IFD offset.
-        SkWStreamWriteU32BE(&s, mpEntryOffset);
+        SkStreamPriv::WriteU32BE(&s, mpEntryOffset);
 
         // Write the attribute IFD offset (zero because there is none).
-        SkWStreamWriteU32BE(&s, 0);
+        SkStreamPriv::WriteU32BE(&s, 0);
 
         // Write the MP entries data.
         SkASSERT(s.bytesWritten() - sizeof(kMpfSig) == mpEntryOffset);
@@ -280,16 +280,16 @@ sk_sp<SkData> SkJpegMultiPictureParameters::serialize(uint32_t individualImageNu
                 attribute |= kMPEntryAttributeTypePrimary;
             }
 
-            SkWStreamWriteU32BE(&s, attribute);
-            SkWStreamWriteU32BE(&s, image.size);
-            SkWStreamWriteU32BE(&s, image.dataOffset);
+            SkStreamPriv::WriteU32BE(&s, attribute);
+            SkStreamPriv::WriteU32BE(&s, image.size);
+            SkStreamPriv::WriteU32BE(&s, image.dataOffset);
             // Dependent image 1 and 2 entries are zero.
-            SkWStreamWriteU16BE(&s, 0);
-            SkWStreamWriteU16BE(&s, 0);
+            SkStreamPriv::WriteU16BE(&s, 0);
+            SkStreamPriv::WriteU16BE(&s, 0);
         }
     } else {
         // The non-first-individual-images do not have any further IFDs.
-        SkWStreamWriteU32BE(&s, 0);
+        SkStreamPriv::WriteU32BE(&s, 0);
     }
 
     return s.detachAsData();

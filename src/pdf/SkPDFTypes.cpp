@@ -571,7 +571,7 @@ static void serialize_stream(SkPDFDict* origDict,
     {
         SkDynamicMemoryWStream compressedData;
         SkDeflateWStream deflateWStream(&compressedData,SkToInt(doc->metadata().fCompressionLevel));
-        SkStreamCopy(&deflateWStream, stream);
+        SkStreamPriv::Copy(&deflateWStream, stream);
         deflateWStream.finalize();
         if (stream->getLength() > compressedData.bytesWritten() + kMinimumSavings) {
             tmp = compressedData.detachAsStream();

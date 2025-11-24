@@ -195,7 +195,7 @@ bool SkWebpCodec::ensureAllData() {
     if (fOnlyHeaderParsed) {
         SkDynamicMemoryWStream newData;
         newData.write(fData->data(), fData->size());
-        SkStreamCopy(&newData, this->stream());
+        SkStreamPriv::Copy(&newData, this->stream());
         fData = newData.detachAsData();
         fOnlyHeaderParsed = false;
 

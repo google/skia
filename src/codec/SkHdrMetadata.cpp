@@ -24,10 +24,10 @@ bool ContentLightLevelInformation::parse(const SkData* data) {
 
     uint16_t max_cll = 0;
     uint16_t max_fall = 0;
-    if (!SkStreamReadU16BE(&s, &max_cll)) {
+    if (!SkStreamPriv::ReadU16BE(&s, &max_cll)) {
         return false;
     }
-    if (!SkStreamReadU16BE(&s, &max_fall)) {
+    if (!SkStreamPriv::ReadU16BE(&s, &max_fall)) {
         return false;
     }
 
@@ -38,8 +38,8 @@ bool ContentLightLevelInformation::parse(const SkData* data) {
 
 sk_sp<SkData> ContentLightLevelInformation::serialize() const {
     SkDynamicMemoryWStream s;
-    SkWStreamWriteU16BE(&s, std::llroundf(fMaxCLL));
-    SkWStreamWriteU16BE(&s, std::llroundf(fMaxFALL));
+    SkStreamPriv::WriteU16BE(&s, std::llroundf(fMaxCLL));
+    SkStreamPriv::WriteU16BE(&s, std::llroundf(fMaxFALL));
     return s.detachAsData();
 }
 
@@ -55,10 +55,10 @@ bool ContentLightLevelInformation::parsePngChunk(const SkData* data) {
 
     uint32_t max_cll_times_10000 = 0;
     uint32_t max_fall_times_10000 = 0;
-    if (!SkStreamReadU32BE(&s, &max_cll_times_10000)) {
+    if (!SkStreamPriv::ReadU32BE(&s, &max_cll_times_10000)) {
         return false;
     }
-    if (!SkStreamReadU32BE(&s, &max_fall_times_10000)) {
+    if (!SkStreamPriv::ReadU32BE(&s, &max_fall_times_10000)) {
         return false;
     }
 
@@ -69,8 +69,8 @@ bool ContentLightLevelInformation::parsePngChunk(const SkData* data) {
 
 sk_sp<SkData> ContentLightLevelInformation::serializePngChunk() const {
     SkDynamicMemoryWStream s;
-    SkWStreamWriteU32BE(&s, std::llroundf(fMaxCLL * clli_png_luminance_divisor));
-    SkWStreamWriteU32BE(&s, std::llroundf(fMaxFALL * clli_png_luminance_divisor));
+    SkStreamPriv::WriteU32BE(&s, std::llroundf(fMaxCLL * clli_png_luminance_divisor));
+    SkStreamPriv::WriteU32BE(&s, std::llroundf(fMaxFALL * clli_png_luminance_divisor));
     return s.detachAsData();
 }
 
@@ -103,16 +103,16 @@ bool MasteringDisplayColorVolume::parse(const SkData* data) {
 
     uint16_t chromaticities_times_50000[8];
     for (auto& chromaticity_times_50000 : chromaticities_times_50000) {
-        if (!SkStreamReadU16BE(&s, &chromaticity_times_50000)) {
+        if (!SkStreamPriv::ReadU16BE(&s, &chromaticity_times_50000)) {
             return false;
         }
     }
     uint32_t max_luminance_times_10000 = 0;
     uint32_t min_luminance_times_10000 = 0;
-    if (!SkStreamReadU32BE(&s, &max_luminance_times_10000)) {
+    if (!SkStreamPriv::ReadU32BE(&s, &max_luminance_times_10000)) {
         return false;
     }
-    if (!SkStreamReadU32BE(&s, &min_luminance_times_10000)) {
+    if (!SkStreamPriv::ReadU32BE(&s, &min_luminance_times_10000)) {
         return false;
     }
 
@@ -133,18 +133,18 @@ bool MasteringDisplayColorVolume::parse(const SkData* data) {
 
 sk_sp<SkData> MasteringDisplayColorVolume::serialize() const {
     SkDynamicMemoryWStream s;
-    SkWStreamWriteU16BE(&s, std::llroundf(fDisplayPrimaries.fRX * mdcv_chrominance_divisor));
-    SkWStreamWriteU16BE(&s, std::llroundf(fDisplayPrimaries.fRY * mdcv_chrominance_divisor));
-    SkWStreamWriteU16BE(&s, std::llroundf(fDisplayPrimaries.fGX * mdcv_chrominance_divisor));
-    SkWStreamWriteU16BE(&s, std::llroundf(fDisplayPrimaries.fGY * mdcv_chrominance_divisor));
-    SkWStreamWriteU16BE(&s, std::llroundf(fDisplayPrimaries.fBX * mdcv_chrominance_divisor));
-    SkWStreamWriteU16BE(&s, std::llroundf(fDisplayPrimaries.fBY * mdcv_chrominance_divisor));
-    SkWStreamWriteU16BE(&s, std::llroundf(fDisplayPrimaries.fWX * mdcv_chrominance_divisor));
-    SkWStreamWriteU16BE(&s, std::llroundf(fDisplayPrimaries.fWY * mdcv_chrominance_divisor));
-    SkWStreamWriteU32BE(
-        &s, std::llroundf(fMaximumDisplayMasteringLuminance * mdcv_luminance_divisor));
-    SkWStreamWriteU32BE(
-        &s, std::llroundf(fMinimumDisplayMasteringLuminance * mdcv_luminance_divisor));
+    SkStreamPriv::WriteU16BE(&s, std::llroundf(fDisplayPrimaries.fRX * mdcv_chrominance_divisor));
+    SkStreamPriv::WriteU16BE(&s, std::llroundf(fDisplayPrimaries.fRY * mdcv_chrominance_divisor));
+    SkStreamPriv::WriteU16BE(&s, std::llroundf(fDisplayPrimaries.fGX * mdcv_chrominance_divisor));
+    SkStreamPriv::WriteU16BE(&s, std::llroundf(fDisplayPrimaries.fGY * mdcv_chrominance_divisor));
+    SkStreamPriv::WriteU16BE(&s, std::llroundf(fDisplayPrimaries.fBX * mdcv_chrominance_divisor));
+    SkStreamPriv::WriteU16BE(&s, std::llroundf(fDisplayPrimaries.fBY * mdcv_chrominance_divisor));
+    SkStreamPriv::WriteU16BE(&s, std::llroundf(fDisplayPrimaries.fWX * mdcv_chrominance_divisor));
+    SkStreamPriv::WriteU16BE(&s, std::llroundf(fDisplayPrimaries.fWY * mdcv_chrominance_divisor));
+    SkStreamPriv::WriteU32BE(
+            &s, std::llroundf(fMaximumDisplayMasteringLuminance * mdcv_luminance_divisor));
+    SkStreamPriv::WriteU32BE(
+            &s, std::llroundf(fMinimumDisplayMasteringLuminance * mdcv_luminance_divisor));
     return s.detachAsData();
 }
 

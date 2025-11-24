@@ -251,7 +251,7 @@ const SkSL::RP::Program* SkRuntimeEffect::getRPProgram(SkSL::DebugTracePriv* deb
         if (kRPEnableLiveTrace) {
             if (fRPProgram) {
                 SkDebugf("-----\n\n");
-                SkDebugfStream stream;
+                SkStreamPriv::DebugfStream stream;
                 fRPProgram->dump(&stream, /*writeInstructionCount=*/true);
                 SkDebugf("\n-----\n\n");
             } else {

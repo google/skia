@@ -16,6 +16,8 @@
 
 class SkData;
 
+namespace SkStreamPriv {
+
 /**
  *  Copy the provided stream to an SkData variable.
  *
@@ -25,16 +27,16 @@ class SkData;
  *  @param stream SkStream to be copied into data.
  *  @return The resulting SkData after the copy, nullptr on failure.
  */
-sk_sp<SkData> SkCopyStreamToData(SkStream* stream);
+sk_sp<SkData> CopyStreamToData(SkStream* stream);
 
 /**
  *  Copies the input stream from the current position to the end.
  *  Does not rewind the input stream.
  */
-bool SkStreamCopy(SkWStream* out, SkStream* input);
+bool Copy(SkWStream* out, SkStream* input);
 
 /** A SkWStream that writes all output to SkDebugf, for debugging purposes. */
-class SkDebugfStream final : public SkWStream {
+class DebugfStream final : public SkWStream {
 public:
     bool write(const void* buffer, size_t size) override;
     size_t bytesWritten() const override;
@@ -46,22 +48,22 @@ private:
 /**
  * Helper functions to read and write big-endian values to a stream.
  */
-inline bool SkWStreamWriteU16BE(SkWStream* s, uint16_t value) {
+inline bool WriteU16BE(SkWStream* s, uint16_t value) {
     value = SkEndian_SwapBE16(value);
     return s->write(&value, sizeof(value));
 }
 
-inline bool SkWStreamWriteU32BE(SkWStream* s, uint32_t value) {
+inline bool WriteU32BE(SkWStream* s, uint32_t value) {
     value = SkEndian_SwapBE32(value);
     return s->write(&value, sizeof(value));
 }
 
-inline bool SkWStreamWriteS32BE(SkWStream* s, int32_t value) {
+inline bool WriteS32BE(SkWStream* s, int32_t value) {
     value = SkEndian_SwapBE32(value);
     return s->write(&value, sizeof(value));
 }
 
-inline bool SkStreamReadU16BE(SkStream* s, uint16_t* value) {
+inline bool ReadU16BE(SkStream* s, uint16_t* value) {
     if (!s->readU16(value)) {
         return false;
     }
@@ -69,7 +71,7 @@ inline bool SkStreamReadU16BE(SkStream* s, uint16_t* value) {
     return true;
 }
 
-inline bool SkStreamReadU32BE(SkStream* s, uint32_t* value) {
+inline bool ReadU32BE(SkStream* s, uint32_t* value) {
     if (!s->readU32(value)) {
         return false;
     }
@@ -77,7 +79,7 @@ inline bool SkStreamReadU32BE(SkStream* s, uint32_t* value) {
     return true;
 }
 
-inline bool SkStreamReadS32BE(SkStream* s, int32_t* value) {
+inline bool ReadS32BE(SkStream* s, int32_t* value) {
     if (!s->readS32(value)) {
         return false;
     }
@@ -90,11 +92,7 @@ inline bool SkStreamReadS32BE(SkStream* s, int32_t* value) {
 // Otherwise, it returns false.
 // False does *not* mean a read will succeed of the given length, but true means we are
 // certain it will fail.
-bool StreamRemainingLengthIsBelow(SkStream* stream, size_t len);
-
-namespace SkStreamPriv {
-
-// TODO(kjlubick): move the above functions in here
+bool RemainingLengthIsBelow(SkStream* stream, size_t len);
 
 }  // namespace SkStreamPriv
 

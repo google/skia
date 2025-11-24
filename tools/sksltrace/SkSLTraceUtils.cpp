@@ -94,7 +94,7 @@ void WriteTrace(const SkSL::DebugTracePriv& src, SkWStream* w) {
 }
 
 sk_sp<SkSL::DebugTracePriv> ReadTrace(SkStream* r) {
-    sk_sp<SkData> data = SkCopyStreamToData(r);
+    sk_sp<SkData> data = SkStreamPriv::CopyStreamToData(r);
     skjson::DOM json(reinterpret_cast<const char*>(data->bytes()), data->size());
     const skjson::ObjectValue* root = json.root();
     if (!root) {

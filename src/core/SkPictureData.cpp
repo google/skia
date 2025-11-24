@@ -319,7 +319,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             break;
         case SK_PICT_FACTORY_TAG: {
             if (!stream->readU32(&size)) { return false; }
-            if (StreamRemainingLengthIsBelow(stream, size)) {
+            if (SkStreamPriv::RemainingLengthIsBelow(stream, size)) {
                 return false;
             }
             fFactoryPlayback = std::make_unique<SkFactoryPlayback>(size);
@@ -327,7 +327,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
                 SkString str;
                 size_t len;
                 if (!stream->readPackedUInt(&len)) { return false; }
-                if (StreamRemainingLengthIsBelow(stream, len)) {
+                if (SkStreamPriv::RemainingLengthIsBelow(stream, len)) {
                     return false;
                 }
                 str.resize(len);
@@ -338,7 +338,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             }
         } break;
         case SK_PICT_TYPEFACE_TAG: {
-            if (StreamRemainingLengthIsBelow(stream, size)) {
+            if (SkStreamPriv::RemainingLengthIsBelow(stream, size)) {
                 return false;
             }
             fTFPlayback.setCount(size);
@@ -363,7 +363,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
         } break;
         case SK_PICT_PICTURE_TAG: {
             SkASSERT(fPictures.empty());
-            if (StreamRemainingLengthIsBelow(stream, size)) {
+            if (SkStreamPriv::RemainingLengthIsBelow(stream, size)) {
                 return false;
             }
             fPictures.reserve_exact(SkToInt(size));
@@ -378,7 +378,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             }
         } break;
         case SK_PICT_BUFFER_SIZE_TAG: {
-            if (StreamRemainingLengthIsBelow(stream, size)) {
+            if (SkStreamPriv::RemainingLengthIsBelow(stream, size)) {
                 return false;
             }
             SkAutoMalloc storage(size);

@@ -197,33 +197,33 @@ void Parse(Metadata& metadata, const SkData* data) {
 bool write_entry(uint16_t tag, uint16_t type, uint32_t count, uint32_t value,
                 uint32_t* endOfData, SkWStream* stream, SkWStream* buffer) {
     bool success = true;
-    success &= SkWStreamWriteU16BE(stream, tag);
-    success &= SkWStreamWriteU16BE(stream, type);
-    success &= SkWStreamWriteU32BE(stream, count);
+    success &= SkStreamPriv::WriteU16BE(stream, tag);
+    success &= SkStreamPriv::WriteU16BE(stream, type);
+    success &= SkStreamPriv::WriteU32BE(stream, count);
     switch (tag) {
       case kOriginTag:
       case kResolutionUnitTag:
-        success &= SkWStreamWriteU16BE(stream, value);
-        success &= SkWStreamWriteU16BE(stream, 0); // Complete the IFD entry.
-        return success;
+          success &= SkStreamPriv::WriteU16BE(stream, value);
+          success &= SkStreamPriv::WriteU16BE(stream, 0);  // Complete the IFD entry.
+          return success;
       case kPixelXDimensionTag:
       case kPixelYDimensionTag:
-        success &= SkWStreamWriteU32BE(stream, value);
-        return success;
+          success &= SkStreamPriv::WriteU32BE(stream, value);
+          return success;
       case kXResolutionTag:
       case kYResolutionTag:
         // If the number of bytes for the type of the entry is greater than 4, we have
         // to append the value to the end and replace the value section with an offset
         // to where the data can be found.
-        success &= SkWStreamWriteU32BE(stream, *endOfData);
+        success &= SkStreamPriv::WriteU32BE(stream, *endOfData);
         *endOfData += 8;
-        success &= SkWStreamWriteU32BE(buffer, value); // Numerator
-        success &= SkWStreamWriteU32BE(buffer, 1); // Denominator
+        success &= SkStreamPriv::WriteU32BE(buffer, value);  // Numerator
+        success &= SkStreamPriv::WriteU32BE(buffer, 1);      // Denominator
         return success;
       case kSubIFDOffsetTag:
         // This does not write the subIFD itself, just the IFD0 entry that points
         // to where it is located.
-        success &= SkWStreamWriteU32BE(stream, value);
+        success &= SkStreamPriv::WriteU32BE(stream, value);
         return success;
       default:
         return false;
@@ -254,7 +254,7 @@ sk_sp<SkData> WriteExif(Metadata& metadata) {
       return nullptr;
     }
     // Offset of index IFD.
-    if (!SkWStreamWriteU32BE(&stream, kOffset)) {
+    if (!SkStreamPriv::WriteU32BE(&stream, kOffset)) {
         return nullptr;
     }
     // Count the number of valid metadata entries.
@@ -285,7 +285,7 @@ sk_sp<SkData> WriteExif(Metadata& metadata) {
     }
 
     // Write the number of tags in the IFD.
-    SkWStreamWriteU16BE(&stream, numTags);
+    SkStreamPriv::WriteU16BE(&stream, numTags);
 
     // Write the IFD entries.
     if (metadata.fOrigin.has_value()
@@ -322,15 +322,15 @@ sk_sp<SkData> WriteExif(Metadata& metadata) {
         }
 
     // Next IFD offset (0 for no next IFD).
-    if (!SkWStreamWriteU32BE(&stream, 0)) {
-        return nullptr;
-    }
+        if (!SkStreamPriv::WriteU32BE(&stream, 0)) {
+            return nullptr;
+        }
 
     // After all IFD0 data has been written, then write the SubIFD (ExifIFD).
     if (subIFDExists) {
       // Write the number of tags in the subIFD.
-      if (!SkWStreamWriteU16BE(&stream, numSubIFDTags)) {
-        return nullptr;
+      if (!SkStreamPriv::WriteU16BE(&stream, numSubIFDTags)) {
+          return nullptr;
       }
 
       if (metadata.fPixelXDimension.has_value()
@@ -347,10 +347,10 @@ sk_sp<SkData> WriteExif(Metadata& metadata) {
             return nullptr;
           }
 
-      // Write the SubIFD next offset (0).
-      if (!SkWStreamWriteU32BE(&stream, 0)) {
-        return nullptr;
-      }
+          // Write the SubIFD next offset (0).
+          if (!SkStreamPriv::WriteU32BE(&stream, 0)) {
+              return nullptr;
+          }
     }
 
     // Append the data buffer to the end of the stream.

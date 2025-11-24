@@ -195,7 +195,7 @@ sk_sp<SkPicture> SkPicture::MakeFromStreamPriv(SkStream* stream, const SkDeseria
                 return nullptr;
             }
             size_t size = sk_negate_to_size_t(ssize);
-            if (StreamRemainingLengthIsBelow(stream, size)) {
+            if (SkStreamPriv::RemainingLengthIsBelow(stream, size)) {
                 return nullptr;
             }
             auto data = SkData::MakeUninitialized(size);

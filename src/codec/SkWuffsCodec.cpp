@@ -1012,7 +1012,7 @@ std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream> stream,
         // Some clients (e.g. Android) need to be able to seek the stream, but may
         // not provide a seekable stream. Copy the stream to one that can seek.
         if (!canSeek) {
-            auto data = SkCopyStreamToData(stream.get());
+            auto data = SkStreamPriv::CopyStreamToData(stream.get());
             stream = std::make_unique<SkMemoryStream>(std::move(data));
             canSeek = true;
         }

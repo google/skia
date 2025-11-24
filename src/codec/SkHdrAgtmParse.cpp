@@ -165,7 +165,7 @@ bool AgtmSyntax::parse_color_volume_transform(SkMemoryStream& s) {
     const auto reserved_zero = flags.readBits(6);
     RETURN_ON_FALSE(reserved_zero == 0);
     if (has_custom_hdr_reference_white_flag == 1) {
-        RETURN_ON_FALSE(SkStreamReadU16BE(&s, &hdr_reference_white));
+        RETURN_ON_FALSE(SkStreamPriv::ReadU16BE(&s, &hdr_reference_white));
     }
     if (has_adaptive_tone_map_flag == 1) {
         RETURN_ON_FALSE(parse_adaptive_tone_map(s));
@@ -179,7 +179,7 @@ void AgtmSyntax::write_color_volume_transform(SkDynamicMemoryWStream& s) {
     flags.writeBits(has_adaptive_tone_map_flag, 1);
     flags.padAndWriteToStream(s);
     if (has_custom_hdr_reference_white_flag) {
-        SkWStreamWriteU16BE(&s, hdr_reference_white);
+        SkStreamPriv::WriteU16BE(&s, hdr_reference_white);
     }
     if (has_adaptive_tone_map_flag == 1) {
         write_adaptive_tone_map(s);
@@ -187,7 +187,7 @@ void AgtmSyntax::write_color_volume_transform(SkDynamicMemoryWStream& s) {
 }
 
 bool AgtmSyntax::parse_adaptive_tone_map(SkMemoryStream& s) {
-    RETURN_ON_FALSE(SkStreamReadU16BE(&s, &baseline_hdr_headroom));
+    RETURN_ON_FALSE(SkStreamPriv::ReadU16BE(&s, &baseline_hdr_headroom));
     BitfieldReader flags;
     RETURN_ON_FALSE(flags.readFromStream(s) );
     use_reference_white_tone_mapping_flag = flags.readBits(1);
@@ -198,12 +198,13 @@ bool AgtmSyntax::parse_adaptive_tone_map(SkMemoryStream& s) {
         has_common_curve_params_flag = flags.readBits(1);
         if (gain_application_space_chromaticities_flag == 3) {
             for (uint8_t r = 0; r < 8; ++r) {
-                RETURN_ON_FALSE(SkStreamReadU16BE(&s, &gain_application_space_chromaticities[r]));
+                RETURN_ON_FALSE(
+                        SkStreamPriv::ReadU16BE(&s, &gain_application_space_chromaticities[r]));
             }
         }
         for (uint8_t a = 0; a < std::min(num_alternate_images,
                                          skhdr::Agtm::kMaxNumAlternateImages); ++a) {
-            RETURN_ON_FALSE(SkStreamReadU16BE(&s, &alternate_hdr_headrooms[a]));
+            RETURN_ON_FALSE(SkStreamPriv::ReadU16BE(&s, &alternate_hdr_headrooms[a]));
             RETURN_ON_FALSE(parse_component_mixing(a, s));
             RETURN_ON_FALSE(parse_gain_curve(a, s));
         }
@@ -215,7 +216,7 @@ bool AgtmSyntax::parse_adaptive_tone_map(SkMemoryStream& s) {
 }
 
 void AgtmSyntax::write_adaptive_tone_map(SkDynamicMemoryWStream& s) {
-    SkWStreamWriteU16BE(&s, baseline_hdr_headroom);
+    SkStreamPriv::WriteU16BE(&s, baseline_hdr_headroom);
     BitfieldWriter flags;
     flags.writeBits(use_reference_white_tone_mapping_flag, 1);
     if (use_reference_white_tone_mapping_flag == 0) {
@@ -226,11 +227,11 @@ void AgtmSyntax::write_adaptive_tone_map(SkDynamicMemoryWStream& s) {
         flags.padAndWriteToStream(s);
         if (gain_application_space_chromaticities_flag == 3) {
             for (uint8_t r = 0; r < 8; ++r) {
-                SkWStreamWriteU16BE(&s, gain_application_space_chromaticities[r]);
+                SkStreamPriv::WriteU16BE(&s, gain_application_space_chromaticities[r]);
             }
         }
         for (uint8_t a = 0; a < num_alternate_images; ++a) {
-            SkWStreamWriteU16BE(&s, alternate_hdr_headrooms[a]);
+            SkStreamPriv::WriteU16BE(&s, alternate_hdr_headrooms[a]);
             write_component_mixing(a, s);
             write_gain_curve(a, s);
         }
@@ -253,7 +254,8 @@ bool AgtmSyntax::parse_component_mixing(uint8_t a, SkMemoryStream& s) {
             }
             for (uint8_t k = 0; k < 6; ++k) {
                 if (has_component_mixing_coefficient_flag[a][k] == 1) {
-                    RETURN_ON_FALSE(SkStreamReadU16BE(&s, &component_mixing_coefficient[a][k]));
+                    RETURN_ON_FALSE(
+                            SkStreamPriv::ReadU16BE(&s, &component_mixing_coefficient[a][k]));
                 } else {
                     component_mixing_coefficient[a][k] = 0;
                 }
@@ -281,7 +283,7 @@ void AgtmSyntax::write_component_mixing(uint8_t a, SkDynamicMemoryWStream& s) {
             flags.padAndWriteToStream(s);
             for (uint8_t k = 0; k < 6; ++k) {
                 if (has_component_mixing_coefficient_flag[a][k] == 1) {
-                    SkWStreamWriteU16BE(&s, component_mixing_coefficient[a][k]);
+                    SkStreamPriv::WriteU16BE(&s, component_mixing_coefficient[a][k]);
                 }
             }
         } else {
@@ -299,7 +301,7 @@ bool AgtmSyntax::parse_gain_curve(uint8_t a, SkMemoryStream& s) {
         const auto reserved_zero = flags.readBits(2);
         RETURN_ON_FALSE(reserved_zero == 0);
         for (uint8_t c = 0; c < gain_curve_num_control_points_minus_1[a] + 1u; ++c) {
-            RETURN_ON_FALSE(SkStreamReadU16BE(&s, &gain_curve_control_points_x[a][c]));
+            RETURN_ON_FALSE(SkStreamPriv::ReadU16BE(&s, &gain_curve_control_points_x[a][c]));
         }
     } else {
         gain_curve_num_control_points_minus_1[a] = gain_curve_num_control_points_minus_1[0];
@@ -309,11 +311,11 @@ bool AgtmSyntax::parse_gain_curve(uint8_t a, SkMemoryStream& s) {
         }
     }
     for (uint8_t c = 0; c < gain_curve_num_control_points_minus_1[a] + 1u; ++c) {
-        RETURN_ON_FALSE(SkStreamReadU16BE(&s, &gain_curve_control_points_y[a][c]));
+        RETURN_ON_FALSE(SkStreamPriv::ReadU16BE(&s, &gain_curve_control_points_y[a][c]));
     }
     if (gain_curve_use_pchip_slope_flag[a] == 0) {
         for (uint8_t c = 0; c < gain_curve_num_control_points_minus_1[a] + 1u; ++c) {
-            RETURN_ON_FALSE(SkStreamReadU16BE(&s, &gain_curve_control_points_theta[a][c]));
+            RETURN_ON_FALSE(SkStreamPriv::ReadU16BE(&s, &gain_curve_control_points_theta[a][c]));
         }
     }
     return true;
@@ -326,15 +328,15 @@ void AgtmSyntax::write_gain_curve(uint8_t a, SkDynamicMemoryWStream& s) {
         flags.writeBits(gain_curve_use_pchip_slope_flag[a], 1);
         flags.padAndWriteToStream(s);
         for (uint8_t c = 0; c < gain_curve_num_control_points_minus_1[a] + 1u; ++c) {
-            SkWStreamWriteU16BE(&s, gain_curve_control_points_x[a][c]);
+            SkStreamPriv::WriteU16BE(&s, gain_curve_control_points_x[a][c]);
         }
     }
     for (uint8_t c = 0; c < gain_curve_num_control_points_minus_1[a] + 1u; ++c) {
-        SkWStreamWriteU16BE(&s, gain_curve_control_points_y[a][c]);
+        SkStreamPriv::WriteU16BE(&s, gain_curve_control_points_y[a][c]);
     }
     if (gain_curve_use_pchip_slope_flag[a] == 0) {
         for (uint8_t c = 0; c < gain_curve_num_control_points_minus_1[a] + 1u; ++c) {
-            SkWStreamWriteU16BE(&s, gain_curve_control_points_theta[a][c]);
+            SkStreamPriv::WriteU16BE(&s, gain_curve_control_points_theta[a][c]);
         }
     }
 }

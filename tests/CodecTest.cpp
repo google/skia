@@ -1120,7 +1120,7 @@ DEF_TEST(Codec_wbmp_restrictive, r) {
     }
 
     // Modify the stream to contain a second byte with some bits set.
-    auto data = SkCopyStreamToData(stream.get());
+    auto data = SkStreamPriv::CopyStreamToData(stream.get());
     uint8_t* writeableData = static_cast<uint8_t*>(data->writable_data());
     writeableData[1] = static_cast<uint8_t>(~0x9F);
 

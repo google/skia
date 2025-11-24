@@ -488,7 +488,7 @@ sk_sp<SkTypeface> SkCustomTypefaceBuilder::Deserialize(SkStream* stream) {
 
         // The amount of bytes in the stream must be at least as big as sz, otherwise
         // sz is invalid.
-        if (StreamRemainingLengthIsBelow(stream, sz)) {
+        if (SkStreamPriv::RemainingLengthIsBelow(stream, sz)) {
             return nullptr;
         }
 

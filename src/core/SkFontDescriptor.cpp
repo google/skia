@@ -47,7 +47,7 @@ SkFontDescriptor::SkFontDescriptor() { }
     size_t length;
     if (!stream->readPackedUInt(&length)) { return false; }
     if (length > 0) {
-        if (StreamRemainingLengthIsBelow(stream, length)) {
+        if (SkStreamPriv::RemainingLengthIsBelow(stream, length)) {
             return false;
         }
         string->resize(length);
@@ -145,7 +145,7 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
             case kFontVariation:
                 if (!stream->readPackedUInt(&coordinateCount)) { return false; }
                 if (!SkTFitsIn<CoordinateCountType>(coordinateCount)) { return false; }
-                if (StreamRemainingLengthIsBelow(stream, coordinateCount)) {
+                if (SkStreamPriv::RemainingLengthIsBelow(stream, coordinateCount)) {
                     return false;
                 }
                 result->fCoordinateCount = SkTo<CoordinateCountType>(coordinateCount);
@@ -171,7 +171,7 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
                 if (!SkTFitsIn<PaletteEntryOverrideCountType>(paletteEntryOverrideCount)) {
                     return false;
                 }
-                if (StreamRemainingLengthIsBelow(stream, paletteEntryOverrideCount)) {
+                if (SkStreamPriv::RemainingLengthIsBelow(stream, paletteEntryOverrideCount)) {
                     return false;
                 }
                 result->fPaletteEntryOverrideCount =
@@ -210,7 +210,7 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
     size_t length;
     if (!stream->readPackedUInt(&length)) { return false; }
     if (length > 0) {
-        if (StreamRemainingLengthIsBelow(stream, length)) {
+        if (SkStreamPriv::RemainingLengthIsBelow(stream, length)) {
             return false;
         }
         sk_sp<SkData> data(SkData::MakeUninitialized(length));

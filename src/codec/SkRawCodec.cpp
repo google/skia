@@ -335,7 +335,7 @@ private:
             }
 
             // TODO: optimize for the special case when the input is SkMemoryStream.
-            return SkStreamCopy(&fStreamBuffer, fStream.get());
+            return SkStreamPriv::Copy(&fStreamBuffer, fStream.get());
         }
 
         if (newSize <= fStreamBuffer.bytesWritten()) {  // already buffered to newSize

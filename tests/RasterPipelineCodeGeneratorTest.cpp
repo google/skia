@@ -71,7 +71,7 @@ static void test(skiatest::Reporter* r,
 #if defined(DUMP_PROGRAMS)
     // Dump the program instructions via SkDebugf.
     SkDebugf("-----\n\n");
-    SkDebugfStream stream;
+    SkStreamPriv::DebugfStream stream;
     rasterProg->dump(&stream);
     SkDebugf("\n-----\n\n");
 #endif
