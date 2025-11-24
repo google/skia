@@ -361,7 +361,8 @@
     "cq_config": {}
   },
   {
-    "name": "Build-Ubuntu24.04-Clang-arm64-Debug-Android_API30"
+    "name": "Build-Ubuntu24.04-Clang-arm64-Debug-Android_API30",
+    "cq_config": {}
   },
   {
     "name": "Build-Ubuntu24.04-Clang-arm64-Debug-Android_FrameworkWorkarounds"
