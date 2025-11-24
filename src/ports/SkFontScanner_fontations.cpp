@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "include/ports/SkFontScanner_Fontations.h"
 #include "src/ports/SkFontScanner_fontations_priv.h"
 #include "src/ports/SkTypeface_fontations_priv.h"
 #include "src/ports/fontations/src/skpath_bridge.h"
