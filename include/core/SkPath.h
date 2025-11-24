@@ -1498,6 +1498,8 @@ public:
 #ifdef SK_HIDE_PATH_EDIT_METHODS
 private:
 #endif
+
+#ifndef SK_PATH_USES_PATHDATA
     /** Offsets SkPoint array by (dx, dy). Offset SkPath replaces dst.
         If dst is nullptr, SkPath is replaced by offset data.
 
@@ -1543,6 +1545,8 @@ private:
         this->transform(matrix, this);
         return *this;
     }
+#endif
+
 #ifdef SK_HIDE_PATH_EDIT_METHODS
 public:
 #endif
