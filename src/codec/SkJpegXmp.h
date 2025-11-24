@@ -17,6 +17,6 @@ class SkData;
 #include <vector>
 
 // Find and parse all XMP metadata, given a list of all APP1 segment parameters.
-std::unique_ptr<SkXmp> SkJpegMakeXmp(const std::vector<sk_sp<SkData>>& decoderApp1Params);
+std::unique_ptr<SkXmp> SkJpegMakeXmp(const std::vector<sk_sp<const SkData>>& decoderApp1Params);
 
 #endif

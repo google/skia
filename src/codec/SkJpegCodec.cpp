@@ -65,7 +65,7 @@ static SkJpegMarkerList get_sk_marker_list(jpeg_decompress_struct* dinfo) {
     return markerList;
 }
 
-static SkEncodedOrigin get_exif_orientation(sk_sp<SkData> exifData) {
+static SkEncodedOrigin get_exif_orientation(sk_sp<const SkData> exifData) {
     SkEncodedOrigin origin = kDefault_SkEncodedOrigin;
     if (exifData && SkParseEncodedOrigin(exifData->bytes(), exifData->size(), &origin)) {
         return origin;
@@ -984,22 +984,15 @@ bool SkJpegCodec::onGetGainmapCodec(SkGainmapInfo* info, std::unique_ptr<SkCodec
 bool SkJpegCodec::onGetGainmapInfo(SkGainmapInfo* info,
                                    std::unique_ptr<SkStream>* gainmapImageStream) {
 #ifdef SK_CODEC_DECODES_JPEG_GAINMAPS
-    sk_sp<SkData> gainmap_data;
-    SkGainmapInfo gainmap_info;
-
     auto metadataDecoder =
             std::make_unique<SkJpegMetadataDecoderImpl>(get_sk_marker_list(fDecoderMgr->dinfo()));
-    if (!metadataDecoder->findGainmapImage(
-                fDecoderMgr->getSourceMgr(), gainmap_data, gainmap_info)) {
-        return false;
+    if (auto [data, gInfo] = metadataDecoder->findGainmapImage(fDecoderMgr->getSourceMgr()); data) {
+        *info = gInfo;
+        *gainmapImageStream = SkMemoryStream::Make(data);
+        return true;
     }
-
-    *info = gainmap_info;
-    *gainmapImageStream = SkMemoryStream::Make(gainmap_data);
-    return true;
-#else
+#endif // SK_CODEC_DECODES_JPEG_GAINMAPS
     return false;
-#endif  // SK_CODEC_DECODES_JPEG_GAINMAPS
 }
 
 namespace SkJpegDecoder {

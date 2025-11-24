@@ -9,7 +9,8 @@
 
 #include "modules/skcms/skcms.h"
 
-std::unique_ptr<SkEncodedInfo::ICCProfile> SkEncodedInfo::ICCProfile::Make(sk_sp<SkData> data) {
+std::unique_ptr<SkEncodedInfo::ICCProfile> SkEncodedInfo::ICCProfile::Make(
+        sk_sp<const SkData> data) {
     if (data) {
         skcms_ICCProfile profile;
         if (skcms_Parse(data->data(), data->size(), &profile)) {

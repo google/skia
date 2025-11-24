@@ -24,7 +24,7 @@ constexpr size_t kGuidAsciiSize = 32;
  *
  * See XMP Specification Part 3: Storage in files, Section 1.1.3: JPEG.
  */
-static sk_sp<SkData> read_xmp_standard(const std::vector<sk_sp<SkData>>& decoderApp1Params) {
+static sk_sp<SkData> read_xmp_standard(const std::vector<sk_sp<const SkData>>& decoderApp1Params) {
     constexpr size_t kSigSize = sizeof(kXMPStandardSig);
     // Iterate through the image's segments.
     for (const auto& params : decoderApp1Params) {
@@ -53,7 +53,7 @@ static sk_sp<SkData> read_xmp_standard(const std::vector<sk_sp<SkData>>& decoder
  *   - The offset of this portion as a 32-bit unsigned integer.
  *   - The portion of the ExtendedXMP
  */
-static sk_sp<SkData> read_xmp_extended(const std::vector<sk_sp<SkData>>& decoderApp1Params,
+static sk_sp<SkData> read_xmp_extended(const std::vector<sk_sp<const SkData>>& decoderApp1Params,
                                        const char* guidAscii) {
     constexpr size_t kSigSize = sizeof(kXMPExtendedSig);
     constexpr size_t kFullLengthSize = 4;
@@ -85,7 +85,7 @@ static sk_sp<SkData> read_xmp_extended(const std::vector<sk_sp<SkData>>& decoder
 
     // Iterate through the image's segments.
     uint32_t fullLength = 0;
-    using Part = std::tuple<uint32_t, sk_sp<SkData>>;
+    using Part = std::pair<uint32_t, sk_sp<const SkData>>;
     std::vector<Part> parts;
     for (const auto& params : decoderApp1Params) {
         // Skip segments that don't have the right marker, signature, or are too small.
@@ -149,7 +149,7 @@ static sk_sp<SkData> read_xmp_extended(const std::vector<sk_sp<SkData>>& decoder
     for (const auto& part : parts) {
         uint32_t currentOffset = static_cast<uint32_t>(xmpExtendedCurrent - xmpExtendedBase);
         uint32_t partOffset = std::get<0>(part);
-        const sk_sp<SkData>& partData = std::get<1>(part);
+        const sk_sp<const SkData>& partData = std::get<1>(part);
         // Make sure the data is contiguous and doesn't overflow the buffer.
         if (partOffset != currentOffset) {
             SkCodecPrintf("XMP extension parts not contiguous\n");
@@ -178,7 +178,7 @@ static sk_sp<SkData> read_xmp_extended(const std::vector<sk_sp<SkData>>& decoder
     return xmpExtendedData;
 }
 
-std::unique_ptr<SkXmp> SkJpegMakeXmp(const std::vector<sk_sp<SkData>>& decoderApp1Params) {
+std::unique_ptr<SkXmp> SkJpegMakeXmp(const std::vector<sk_sp<const SkData>>& decoderApp1Params) {
     auto xmpStandard = read_xmp_standard(decoderApp1Params);
     if (!xmpStandard) {
         return nullptr;
