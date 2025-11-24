@@ -5,8 +5,126 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBitmap.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkHdrMetadata.h"
 #include "src/codec/SkHdrAgtmPriv.h"
+
+namespace {
+
+// AGTM tone mapping shader.
+static constexpr char gAgtmSKSL[] =
+    "uniform shader curve_xym;"        // The texture containing control points.
+    "uniform half weight_i;"           // The weight of gain curve "i"
+    "uniform half4 mix_rgbx_i;"        // The red,green,blue mixing coefficients.
+    "uniform half4 mix_Mmcx_i;"        // The max,min,component mixing coefficients.
+    "uniform half curve_texcoord_y_i;" // The y texture coordinate at which to sample curve_xym.
+    "uniform half curve_N_cp_i;"       // The number of control points.
+    "uniform half weight_j;"           // All the same parameters, for gain curve "j"
+    "uniform half4 mix_rgbx_j;"
+    "uniform half4 mix_Mmcx_j;"
+    "uniform half curve_texcoord_y_j;"
+    "uniform half curve_N_cp_j;"
+
+     // Shader equivalent of Agtm::ComponentMixingFunction::evaluate.
+    "half3 EvalComponentMixing(half3 color, half4 rgbx, half4 Mmcx) {"
+      "half common = dot(rgbx.rgb, color) +"
+                    "Mmcx[0] * max(max(color.r, color.g), color.b) +"
+                    "Mmcx[1] * min(min(color.r, color.g), color.b);"
+      "return Mmcx[2] * color + half3(common);"
+    "}"
+
+     // Shader equivalent of Agtm::PiecewiseCubicFunction::evaluate.
+    "half EvalGainCurve(half x, half curve_texcoord_y, half curve_N_cp) {"
+       // Handle points to the left of the first control point.
+      "half c_min = 0.0;"
+      "half4 xym_min = curve_xym.eval(half2(c_min + 0.5, curve_texcoord_y));"
+      "if (x <= xym_min.x) {"
+        "return xym_min.y;"
+      "}"
+       // Handle points after the last control point.
+      "half c_max = curve_N_cp - 1.0;"
+      "half4 xym_max = curve_xym.eval(half2(c_max + 0.5, curve_texcoord_y));"
+      "if (x >= xym_max.x) {"
+        "return xym_max.y + log2(xym_max.x / x);"
+      "}"
+        // Binary search for the interval containing x. This will require sampling at most
+        // log2(32)=5 more control points.
+      "for (int step = 0; step < 5; ++step) {"
+         // Early-out if we've already found the interval.
+        "if (c_max - c_min <= 1.0) {"
+          "break;"
+        "}"
+         // Test the midpoint and replace one of the endpoints with it.
+        "half c_mid = ceil(0.5 * (c_min + c_max));"
+        "half4 xym_mid = curve_xym.eval(half2(c_mid + 0.5, curve_texcoord_y));"
+        "if (x == xym_mid.x) {"
+           // If we hit a control point exactly, then just return.
+          "return xym_mid.y;"
+        "} else if (x < xym_mid.x) {"
+        "c_max = c_mid;"
+          "xym_max = xym_mid;"
+        "} else {"
+        "c_min = c_mid;"
+          "xym_min = xym_mid;"
+        "}"
+      "}"
+       // Evaluate the cubic.
+      "half h = xym_max.x - xym_min.x;"
+      "half mHat_min = xym_min.z * h;"
+      "half mHat_max = xym_max.z * h;"
+      "half c3 =  2.0 * xym_min.y + mHat_min - 2.0 * xym_max.y + mHat_max;"
+      "half c2 = -3.0 * xym_min.y + 3.0 * xym_max.y - 2.0 * mHat_min - mHat_max;"
+      "half c1 = mHat_min;"
+      "half c0 = xym_min.y;"
+      "half t = (x - xym_min.x) / h;"
+      "return ((c3*t + c2)*t + c1)*t + c0;"
+    "}"
+
+     // Shader equivalent of Agtm::GainFunction::evaluate.
+    "half3 EvalColorGainFunction(half3 color,"
+                                "half4 mix_rgbx, half4 mix_Mmcx,"
+                                "float curve_texcoord_y, float curve_N_cp) {"
+      "half3 M = EvalComponentMixing(color, mix_rgbx, mix_Mmcx);"
+      "if (mix_Mmcx.b == 0.0) {"
+         // If the kComponent coefficient is zero, only evalute the curve once.
+        "return half3(EvalGainCurve(M.r, curve_texcoord_y, curve_N_cp));"
+      "}"
+      "return half3(EvalGainCurve(M.r, curve_texcoord_y, curve_N_cp),"
+                   "EvalGainCurve(M.g, curve_texcoord_y, curve_N_cp),"
+                   "EvalGainCurve(M.b, curve_texcoord_y, curve_N_cp));"
+    "}"
+
+     // Shader equivalent of Agtm::applyGain.
+    "half4 main(half4 color) {"
+      "if (weight_i > 0.0) {"
+         // Unpremultiply alpha is needed.
+        "float a_inv = (color.a == 0.0) ? 1.0 : 1.0 / color.a;"
+        "half3 G = half3(0.0);"
+        "G += weight_i * EvalColorGainFunction(color.rgb * a_inv,"
+                                              "mix_rgbx_i, mix_Mmcx_i,"
+                                              "curve_texcoord_y_i, curve_N_cp_i);"
+        "if (weight_j > 0.0) {"
+          "G += weight_j * EvalColorGainFunction(color.rgb * a_inv,"
+                                                "mix_rgbx_j, mix_Mmcx_j,"
+                                                "curve_texcoord_y_j, curve_N_cp_j);"
+        "}"
+        "color.rgb *= exp2(G);"
+      "}"
+      "return color;"
+    "}";
+
+static sk_sp<SkRuntimeEffect> agtm_runtime_effect() {
+    auto init_lambda = []() {
+        auto result = SkRuntimeEffect::MakeForColorFilter(SkString(gAgtmSKSL), {});
+        SkASSERTF(result.effect, "Agtm shader log:\n%s\n", result.errorText.c_str());
+        return result.effect.release();
+    };
+    static SkRuntimeEffect* effect = init_lambda();
+    return sk_ref_sp(effect);
+}
+
+}  // namespace
 
 namespace skhdr {
 
@@ -201,7 +319,7 @@ void Agtm::populateUsingRwtmo() {
     }
 }
 
-Agtm::Weighting Agtm::ComputeWeighting(float targetedHdrHeadroom) const {
+Agtm::Weighting Agtm::computeWeighting(float targetedHdrHeadroom) const {
     Weighting result;
 
     // Create the list of HDR headrooms including the baseline image and all alternate images, as
@@ -272,4 +390,118 @@ Agtm::Weighting Agtm::ComputeWeighting(float targetedHdrHeadroom) const {
     return result;
 }
 
+void Agtm::applyGain(SkSpan<SkColor4f> colors, float targetedHdrHeadroom) const {
+    const auto weighting = computeWeighting(targetedHdrHeadroom);
+    if (weighting.fWeight[0] == 0.f) {
+        // If no weight is non-zero, then no gain will be applied. Leave the points unchanged.
+        return;
+    } else if (weighting.fWeight[1] == 0.f) {
+        // Special case the case of there being only one weighted gain function.
+        const auto& gain = fGainFunction[weighting.fAlternateImageIndex[0]];
+        const float w = weighting.fWeight[0];
+        for (auto& C : colors) {
+            SkColor4f G = gain.evaluate(C);
+            C = {
+                C.fR * std::exp2(w * G.fR),
+                C.fG * std::exp2(w * G.fG),
+                C.fB * std::exp2(w * G.fB),
+                C.fA,
+            };
+        }
+    } else {
+        // The general case of two weighted gain functions.
+        const auto& gain0 = fGainFunction[weighting.fAlternateImageIndex[0]];
+        const float w0 = weighting.fWeight[0];
+        const auto& gain1 = fGainFunction[weighting.fAlternateImageIndex[1]];
+        const float w1 = weighting.fWeight[1];
+        for (auto& C : colors) {
+            SkColor4f G0 = gain0.evaluate(C);
+            SkColor4f G1 = gain1.evaluate(C);
+            C = {
+                C.fR * std::exp2(w0 * G0.fR + w1 * G1.fR),
+                C.fG * std::exp2(w0 * G0.fG + w1 * G1.fG),
+                C.fB * std::exp2(w0 * G0.fB + w1 * G1.fB),
+                C.fA,
+            };
+        }
+    }
+}
+
+sk_sp<SkColorFilter> Agtm::makeColorFilter(float targetedHdrHeadroom) const {
+    auto effect = agtm_runtime_effect();
+    if (!effect) {
+        return nullptr;
+    }
+    const auto weighting = computeWeighting(targetedHdrHeadroom);
+
+    // Populate all control points into a cached SkImage.
+    if (!fGainCurvesXYM) {
+        SkBitmap curve_xym_bm;
+        curve_xym_bm.allocPixels(SkImageInfo::Make(
+                PiecewiseCubicFunction::kMaxNumControlPoints, kMaxNumAlternateImages,
+                kRGBA_F32_SkColorType, kUnpremul_SkAlphaType));
+        for (uint8_t a = 0; a < fNumAlternateImages; ++a) {
+            auto& cubic = fGainFunction[a].fPiecewiseCubic;
+            for (uint8_t c = 0; c < cubic.fNumControlPoints; ++c) {
+                float* xymX = reinterpret_cast<float*>(curve_xym_bm.getAddr(c, a));
+                xymX[0] = cubic.fX[c];
+                xymX[1] = cubic.fY[c];
+                xymX[2] = cubic.fM[c];
+                xymX[3] = 1.f;
+            }
+        }
+        curve_xym_bm.setImmutable();
+        fGainCurvesXYM = SkImages::RasterFromBitmap(curve_xym_bm);
+    }
+
+    SkRuntimeShaderBuilder builder(effect);
+    for (uint8_t a = 0; a < 2; ++a) {
+        const char* weight_str[2] = {"weight_i", "weight_j"};
+        builder.uniform(weight_str[a]) = weighting.fWeight[a];
+
+        if (weighting.fWeight[a] == 0.f) {
+            continue;
+        }
+        const auto& gain = fGainFunction[weighting.fAlternateImageIndex[a]];
+
+        const char* mix_rgbx_str[2] = {"mix_rgbx_i", "mix_rgbx_j"};
+        builder.uniform(mix_rgbx_str[a]) = SkColor4f({
+            gain.fComponentMixing.fRed,
+            gain.fComponentMixing.fGreen,
+            gain.fComponentMixing.fBlue,
+            0.f,
+        });
+
+        const char* mix_Mmcx_str[2] = {"mix_Mmcx_i", "mix_Mmcx_j"};
+        builder.uniform(mix_Mmcx_str[a]) = SkColor4f({
+            gain.fComponentMixing.fMax,
+            gain.fComponentMixing.fMin,
+            gain.fComponentMixing.fComponent,
+            0.f,
+        });
+
+        const char* curve_texcoord_y_str[2] = {"curve_texcoord_y_i", "curve_texcoord_y_j"};
+        builder.uniform(curve_texcoord_y_str[a]) = (weighting.fAlternateImageIndex[a] + 0.5f);
+
+        const char* curve_N_cp_str[2] = {"curve_N_cp_i", "curve_N_cp_j"};
+        builder.uniform(curve_N_cp_str[a]) = static_cast<float>(
+            gain.fPiecewiseCubic.fNumControlPoints);
+    }
+    builder.child("curve_xym") = fGainCurvesXYM->makeRawShader(
+        SkSamplingOptions(SkFilterMode::kNearest));
+
+    auto filter = builder.makeColorFilter();
+    SkASSERT(filter);
+    return filter->makeWithWorkingColorSpace(getGainApplicationSpace());
+}
+
+sk_sp<SkColorSpace> Agtm::getGainApplicationSpace() const {
+    skcms_Matrix3x3 toXYZD50;
+    if (!fGainApplicationSpacePrimaries.toXYZD50(&toXYZD50)) {
+        return nullptr;
+    }
+    return SkColorSpace::MakeRGB(SkNamedTransferFn::kLinear, toXYZD50);
+}
+
 }  // namespace skhdr
+

@@ -9,8 +9,11 @@
 #define SkHdrAgtmPriv_DEFINED
 
 #include "include/core/SkColor.h"
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
 #include "include/private/base/SkAPI.h"
 
 #include <optional>
@@ -110,6 +113,10 @@ struct SK_API Agtm {
     // The GainFunction metadata item list.
     GainFunction fGainFunction[kMaxNumAlternateImages];
 
+    // SkImage containing the control point values for use by the color filter. This is
+    // lazily allocated by makeColorFilter().
+    mutable sk_sp<SkImage> fGainCurvesXYM;
+
     /**
      * This will populate the metadata with the Reference White Tone Mapping Operator (RWTMO)
      * parameters, based on the value of fBaselineHdrHeadroom.
@@ -140,7 +147,23 @@ struct SK_API Agtm {
         // The value of fWeight[i] is weight for the fAlternateImageIndex[i]-th alternate image.
         float fWeight[2] = {0.f, 0.f};
     };
-    Weighting ComputeWeighting(float targetedHdrHeadroom) const;
+    Weighting computeWeighting(float targetedHdrHeadroom) const;
+
+    /**
+     * Apply the tone mapping to `colors` in the gain application color space, targeting the
+     * specified `targetedHdrHeadroom`.
+     */
+    void applyGain(SkSpan<SkColor4f> colors, float targetedHdrHeadroom) const;
+
+    /**
+     * Return a color filter to apply tone mapping targeting the specified `targetedHdrHeadroom`.
+     */
+    sk_sp<SkColorFilter> makeColorFilter(float targetedHdrHeadroom) const;
+
+    /**
+     * Return the gain application color space.
+     */
+    sk_sp<SkColorSpace> getGainApplicationSpace() const;
 };
 
 }  // namespace skhdr
