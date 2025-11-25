@@ -65,14 +65,16 @@ DEF_TEST(serial_procs_image, reporter) {
     const char magic_str[] = "magic signature";
 
     const SkSerialImageProc sprocs[] = {
-            [](SkImage* img, void* ctx) {
+            [](SkImage* img, void* ctx) -> sk_sp<const SkData> {
 #if defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
                 return SkPngRustEncoder::Encode(nullptr, img, SkPngRustEncoder::Options{});
 #else
                 return SkPngEncoder::Encode(nullptr, img, SkPngEncoder::Options{});
 #endif
             },
-            [](SkImage* img, void* ctx) { return SkData::MakeWithCString(((State*)ctx)->fStr); },
+            [](SkImage* img, void* ctx) -> sk_sp<const SkData> {
+                return SkData::MakeWithCString(((State*)ctx)->fStr);
+            },
     };
     const SkDeserialImageFromDataProc dprocs[] = {
             [](sk_sp<SkData> data, std::optional<SkAlphaType> alphaType, void*) -> sk_sp<SkImage> {
@@ -151,7 +153,7 @@ struct Context {
     SkPicture*              fSkipMe = nullptr;
 };
 
-static sk_sp<SkData> array_serial_proc(SkPicture* pic, void* ctx) {
+static sk_sp<const SkData> array_serial_proc(SkPicture* pic, void* ctx) {
     Context* c = (Context*)ctx;
     if (c->fSkipMe == pic) {
         return nullptr;
@@ -245,7 +247,7 @@ DEF_TEST(serial_typeface, reporter) {
 
     int counter = 0;
     SkSerialProcs procs;
-    procs.fTypefaceProc = [](SkTypeface* tf, void* ctx) -> sk_sp<SkData> {
+    procs.fTypefaceProc = [](SkTypeface* tf, void* ctx) -> sk_sp<const SkData> {
         *(int*)ctx += 1;
         return nullptr;
     };

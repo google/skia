@@ -775,6 +775,7 @@ def get_defines(json):
   # TODO(kjlubick, fmalita) Add this back in to enforce Android doesn't
   # use these methods anymore.
   defines.remove("SK_HIDE_PATH_EDIT_METHODS")
+  defines.remove('SK_DISABLE_LEGACY_NONCONST_SERIAL_PROCS')
   return defines
 
 android_defines      = get_defines(js)

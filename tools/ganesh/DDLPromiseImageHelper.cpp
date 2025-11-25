@@ -102,7 +102,7 @@ sk_sp<SkPicture> DDLPromiseImageHelper::recreateSKP(GrDirectContext* dContext,
     SkSerialProcs procs;
 
     procs.fImageCtx = this;
-    procs.fImageProc = [](SkImage* image, void* ctx) -> sk_sp<SkData> {
+    procs.fImageProc = [](SkImage* image, void* ctx) -> SkSerialReturnType {
         auto helper = static_cast<DDLPromiseImageHelper*>(ctx);
 
         int id = helper->findOrDefineImage(image);
@@ -111,7 +111,7 @@ sk_sp<SkPicture> DDLPromiseImageHelper::recreateSKP(GrDirectContext* dContext,
         return SkData::MakeWithCopy(&id, sizeof(id));
     };
 
-    sk_sp<SkData> compressedPictureData = inputPicture->serialize(&procs);
+    auto compressedPictureData = inputPicture->serialize(&procs);
     if (!compressedPictureData) {
         return nullptr;
     }
@@ -291,8 +291,7 @@ void DDLPromiseImageHelper::deleteAllFromGPU(SkTaskGroup* taskGroup, GrDirectCon
 }
 
 sk_sp<SkPicture> DDLPromiseImageHelper::reinflateSKP(
-                                                   sk_sp<GrContextThreadSafeProxy> threadSafeProxy,
-                                                   SkData* compressedPictureData) {
+        sk_sp<GrContextThreadSafeProxy> threadSafeProxy, const SkData* compressedPictureData) {
     DeserialImageProcContext procContext { std::move(threadSafeProxy), this };
 
     SkDeserialProcs procs;

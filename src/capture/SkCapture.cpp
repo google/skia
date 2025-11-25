@@ -22,7 +22,7 @@
 constexpr SkFourByteTag kMagic1  = SkSetFourByteTag('s','k','i','a');
 constexpr SkFourByteTag kMagic2  = SkSetFourByteTag('c','a','p','t');
 
-sk_sp<SkCapture> SkCapture::MakeFromData(sk_sp<SkData> data) {
+sk_sp<SkCapture> SkCapture::MakeFromData(sk_sp<const SkData> data) {
     if (!data) {
         return nullptr;
     }
@@ -146,14 +146,12 @@ sk_sp<SkData> SkCapture::serializeCapture() {
 // PNGs, we want the images that refer to content created from an SkSurface to point to its
 // corresponding SkPicture. This means that we need to create a context for the proc to track these
 // contentIDs.
-sk_sp<SkData> SkCapture::serializeImageProc(SkImage* img, void* ctx) {
+SkSerialReturnType SkCapture::serializeImageProc(SkImage* img, void* ctx) {
     const int contentID = -1; // TODO: replace with real content ID.
-    sk_sp<SkData> data = SkData::MakeWithCopy(&contentID, sizeof(int));
-    return data;
+    return SkData::MakeWithCopy(&contentID, sizeof(int));
 }
 
-sk_sp<SkImage> SkCapture::deserializeImageProc(sk_sp<SkData> data, std::optional<SkAlphaType> a,
-                                               void* ctx) {
+sk_sp<SkImage> SkCapture::deserializeImageProc(sk_sp<SkData>, std::optional<SkAlphaType>, void*) {
     // TODO: set up the SkCapture context and inspect it to grab SkPictures and pass them as images.
     SkBitmap b;
     b.allocN32Pixels(5, 5);

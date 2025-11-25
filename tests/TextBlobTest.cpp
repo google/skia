@@ -395,7 +395,7 @@ static sk_sp<SkImage> render(const SkTextBlob* blob) {
     return surf->makeImageSnapshot();
 }
 
-static sk_sp<SkData> SerializeTypeface(SkTypeface* tf, void* ctx) {
+static sk_sp<const SkData> SerializeTypeface(SkTypeface* tf, void* ctx) {
     // Do not serialize the empty font.
     if (!tf || (tf->countGlyphs() == 0 && tf->getBounds().isEmpty())) {
         return nullptr;

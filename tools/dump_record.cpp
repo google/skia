@@ -197,7 +197,7 @@ int main(int argc, char** argv) {
             sk_sp<SkPicture> dst(r.finishRecordingAsPicture());
             SkFILEWStream ostream(FLAGS_write[0]);
             SkSerialProcs sProcs;
-            sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
+            sProcs.fImageProc = [](SkImage* img, void*) -> SkSerialReturnType {
                 return SkPngEncoder::Encode(nullptr, img, SkPngEncoder::Options{});
             };
             dst->serialize(&ostream, &sProcs);

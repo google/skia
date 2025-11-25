@@ -1868,7 +1868,7 @@ public:
 
 static SkSerialProcs serial_procs_using_png() {
     SkSerialProcs sProcs;
-    sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
+    sProcs.fImageProc = [](SkImage* img, void*) -> SkSerialReturnType {
         return SkPngEncoder::Encode(as_IB(img)->directContext(), img, SkPngEncoder::Options{});
     };
     return sProcs;

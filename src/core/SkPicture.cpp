@@ -252,7 +252,7 @@ sk_sp<SkData> SkPicture::serialize(const SkSerialProcs* procs) const {
     return stream.detachAsData();
 }
 
-static sk_sp<SkData> custom_serialize(const SkPicture* picture, const SkSerialProcs& procs) {
+static sk_sp<const SkData> custom_serialize(const SkPicture* picture, const SkSerialProcs& procs) {
     if (procs.fPictureProc) {
         auto data = procs.fPictureProc(const_cast<SkPicture*>(picture), procs.fPictureCtx);
         if (data) {

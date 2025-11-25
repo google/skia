@@ -111,6 +111,7 @@ skia_cc_library(
         "//tools/ganesh:DDLPromiseImageHelper.h",
         "//tools/ganesh:DDLTileHelper.h",
     ],
+    defines = ["SK_DISABLE_LEGACY_NONCONST_SERIAL_PROCS"],
     visibility = ["//dm:__pkg__"],
     deps = [
         "//:core",

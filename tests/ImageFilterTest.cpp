@@ -1739,7 +1739,7 @@ DEF_TEST(ImageFilterImageSourceSerialization, reporter) {
     sk_sp<SkImageFilter> filter(SkImageFilters::Image(std::move(image), SkFilterMode::kNearest));
 
     SkSerialProcs sProcs;
-    sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
+    sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<const SkData> {
 #if defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
         return SkPngRustEncoder::Encode(nullptr, img, SkPngRustEncoder::Options{});
 #else

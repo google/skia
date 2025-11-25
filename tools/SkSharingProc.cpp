@@ -18,18 +18,18 @@
 #include "include/encode/SkPngEncoder.h"
 
 namespace {
-    sk_sp<SkData> collectNonTextureImagesProc(SkImage* img, void* ctx) {
-        SkSharingSerialContext* context = reinterpret_cast<SkSharingSerialContext*>(ctx);
-        uint32_t originalId = img->uniqueID();
-        sk_sp<SkImage>* imageInMap = context->fNonTexMap.find(originalId);
-        if (!imageInMap) {
-            context->fNonTexMap[originalId] = img->makeRasterImage(context->fDirectContext);
-        }
-
-        // This function implements a proc that is more generally for serialization, but
-        // we really only want to build our map. The output of this function is ignored.
-        return SkData::MakeEmpty();
+SkSerialReturnType collectNonTextureImagesProc(SkImage* img, void* ctx) {
+    SkSharingSerialContext* context = reinterpret_cast<SkSharingSerialContext*>(ctx);
+    uint32_t originalId = img->uniqueID();
+    sk_sp<SkImage>* imageInMap = context->fNonTexMap.find(originalId);
+    if (!imageInMap) {
+        context->fNonTexMap[originalId] = img->makeRasterImage(context->fDirectContext);
     }
+
+    // This function implements a proc that is more generally for serialization, but
+    // we really only want to build our map. The output of this function is ignored.
+    return SkData::MakeEmpty();
+}
 }
 
 void SkSharingSerialContext::collectNonTextureImagesFromPicture(
@@ -45,7 +45,7 @@ void SkSharingSerialContext::setDirectContext(GrDirectContext* ctx) {
     fDirectContext = ctx;
 }
 
-sk_sp<SkData> SkSharingSerialContext::serializeImage(SkImage* img, void* ctx) {
+SkSerialReturnType SkSharingSerialContext::serializeImage(SkImage* img, void* ctx) {
     SkSharingSerialContext* context = reinterpret_cast<SkSharingSerialContext*>(ctx);
     uint32_t id = img->uniqueID(); // get this process's id for the image. these are not hashes.
     // find out if we have already serialized this, and if so, what its in-file id is.

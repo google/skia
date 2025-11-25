@@ -560,7 +560,7 @@ static sk_sp<SkImage> serial_deserial(SkImage* img) {
     }
 
     SkSerialProcs sProcs;
-    sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
+    sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<const SkData> {
 #if defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
         return SkPngRustEncoder::Encode(as_IB(img)->directContext(), img, {});
 #else

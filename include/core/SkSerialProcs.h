@@ -24,6 +24,11 @@ namespace sktext::gpu {
     class Slug;
 }
 
+#if defined(SK_DISABLE_LEGACY_NONCONST_SERIAL_PROCS)
+using SkSerialReturnType = sk_sp<const SkData>;
+#else
+using SkSerialReturnType = sk_sp<SkData>;
+#endif
 /**
  *  A serial-proc is asked to serialize the specified object (e.g. picture or image).
  *  If a data object is returned, it will be used (even if it is zero-length).
@@ -33,10 +38,9 @@ namespace sktext::gpu {
  *  The default action for images is to encode either in its native format or PNG.
  *  The default action for typefaces is to use Skia's internal format.
  */
-
-using SkSerialPictureProc = sk_sp<SkData> (*)(SkPicture*, void* ctx);
-using SkSerialImageProc = sk_sp<SkData> (*)(SkImage*, void* ctx);
-using SkSerialTypefaceProc = sk_sp<SkData> (*)(SkTypeface*, void* ctx);
+using SkSerialPictureProc = SkSerialReturnType (*)(SkPicture*, void* ctx);
+using SkSerialImageProc = SkSerialReturnType (*)(SkImage*, void* ctx);
+using SkSerialTypefaceProc = SkSerialReturnType (*)(SkTypeface*, void* ctx);
 
 /**
  *  Called with the encoded form of a picture (previously written with a custom

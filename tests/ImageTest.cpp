@@ -279,7 +279,7 @@ DEF_TEST(Image_Serialize_Encoding_Failure, reporter) {
 
     bool was_called = false;
     SkSerialProcs procs;
-    procs.fImageProc = [](SkImage*, void* called) {
+    procs.fImageProc = [](SkImage*, void* called) -> sk_sp<const SkData> {
         *(bool*)called = true;
         return SkData::MakeEmpty();
     };

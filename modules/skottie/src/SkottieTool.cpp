@@ -319,7 +319,7 @@ public:
 
         if (frame && stream) {
             SkSerialProcs sProcs;
-            sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
+            sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<const SkData> {
                 return SkPngEncoder::Encode(as_IB(img)->directContext(), img,
                                             SkPngEncoder::Options{});
             };

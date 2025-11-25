@@ -2094,7 +2094,7 @@ Result XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const
 #endif
 
 static SkSerialProcs serial_procs_using_png() {
-    static SkSerialProcs procs{.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
+    static SkSerialProcs procs{.fImageProc = [](SkImage* img, void*) -> sk_sp<const SkData> {
 #if defined(SK_CODEC_ENCODES_PNG_WITH_LIBPNG)
         return SkPngEncoder::Encode(as_IB(img)->directContext(), img, {});
 #elif defined(SK_CODEC_ENCODES_PNG_WITH_RUST)

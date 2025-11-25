@@ -68,7 +68,7 @@ DEF_FUZZ(RasterN32CanvasViaSerialization, fuzz) {
     sk_sp<SkPicture> pic(recorder.finishRecordingAsPicture());
     if (!pic) { fuzz->signalBug(); }
     SkSerialProcs sProcs;
-    sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
+    sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<const SkData> {
         return SkPngEncoder::Encode(nullptr, img, SkPngEncoder::Options{});
     };
     sk_sp<SkData> data = pic->serialize(&sProcs);

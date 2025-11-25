@@ -380,7 +380,7 @@ static void compare_bitmaps(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, 0 == pixelErrors);
 }
 
-static sk_sp<SkData> serialize_typeface_proc(SkTypeface* typeface, void* ctx) {
+static sk_sp<const SkData> serialize_typeface_proc(SkTypeface* typeface, void* ctx) {
     // Write out typeface ID followed by entire typeface.
     SkDynamicMemoryWStream stream;
     sk_sp<SkData> data(typeface->serialize(SkTypeface::SerializeBehavior::kDoIncludeData));
@@ -833,7 +833,7 @@ DEF_TEST(Serialization, reporter) {
         // Serialize picture. The default typeface proc should result in a non-empty
         // typeface when deserializing.
         SkSerialProcs sProcs;
-        sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
+        sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<const SkData> {
 #if defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
             return SkPngRustEncoder::Encode(nullptr, img, SkPngRustEncoder::Options{});
 #else

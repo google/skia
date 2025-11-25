@@ -933,7 +933,7 @@ sk_sp<SkTextBlob> MakeEmojiBlob(sk_sp<SkTypeface> serverTf, SkScalar textSize,
     if (clientTf == nullptr) return blob;
 
     SkSerialProcs s_procs;
-    s_procs.fTypefaceProc = [](SkTypeface*, void* ctx) -> sk_sp<SkData> {
+    s_procs.fTypefaceProc = [](SkTypeface*, void* ctx) -> sk_sp<const SkData> {
         return SkData::MakeUninitialized(1u);
     };
     auto serialized = blob->serialize(s_procs);
@@ -1008,7 +1008,7 @@ class SkRemoteGlyphCacheTest {
         if (clientTf == nullptr) return blob;
 
         SkSerialProcs s_procs;
-        s_procs.fTypefaceProc = [](SkTypeface*, void* ctx) -> sk_sp<SkData> {
+        s_procs.fTypefaceProc = [](SkTypeface*, void* ctx) -> sk_sp<const SkData> {
             return SkData::MakeUninitialized(1u);
         };
         auto serialized = blob->serialize(s_procs);
