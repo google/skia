@@ -682,18 +682,11 @@ static bool naive_homogeneous_mapping(const SkMatrix& m, const SkPoint3& src,
 static void test_matrix_homogeneous(skiatest::Reporter* reporter) {
     SkMatrix mat;
 
-    const float kRotation0 = 15.5f;
-    const float kRotation1 = -50.f;
-    const float kScale0 = 5000.f;
-
-#if defined(SK_BUILD_FOR_GOOGLE3)
-    // Stack frame size is limited in SK_BUILD_FOR_GOOGLE3.
-    const int kTripleCount = 100;
-    const int kMatrixCount = 100;
-#else
-    const int kTripleCount = 1000;
-    const int kMatrixCount = 1000;
-#endif
+    constexpr float kRotation0 = 15.5f;
+    constexpr float kRotation1 = -50.f;
+    constexpr float kScale0 = 5000.f;
+    constexpr int kTripleCount = 1000;
+    constexpr int kMatrixCount = 1000;
     SkRandom rand;
 
     SkPoint3 randTriples[kTripleCount];

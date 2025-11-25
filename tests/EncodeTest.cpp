@@ -505,7 +505,6 @@ DEF_TEST(Encode_PngOptions, r) {
     REPORTER_ASSERT(r, almost_equals(bm0, bm2, 0));
 }
 
-#ifndef SK_BUILD_FOR_GOOGLE3
 DEF_TEST(Encode_WebpQuality, r) {
     SkBitmap bm;
     bm.allocN32Pixels(100, 100);
@@ -558,7 +557,6 @@ DEF_TEST(Encode_WebpQuality, r) {
     test(dataLossy,    kLossy);
     test(dataLossLess, kLossless);
 }
-#endif
 
 DEF_TEST(Encode_WebpOptions, r) {
     SkBitmap bitmap;

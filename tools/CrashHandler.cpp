@@ -13,245 +13,234 @@
 #include <array>  // for std::size
 #include <stdlib.h>
 
-#if defined(SK_BUILD_FOR_GOOGLE3)
-    #include "base/config.h"   // May define GOOGLE_ENABLE_SIGNAL_HANDLERS.
+#if defined(SK_BUILD_FOR_MAC)
+    // We only use local unwinding, so we can define this to select a faster implementation.
+    #define UNW_LOCAL_ONLY
+    #include <libunwind.h>
+    #include <cxxabi.h>
+
+    static void handler(int sig) {
+        unw_context_t context;
+        unw_getcontext(&context);
+
+        unw_cursor_t cursor;
+        unw_init_local(&cursor, &context);
+
+        SkDebugf("\nSignal %d:\n", sig);
+        while (unw_step(&cursor) > 0) {
+            static const size_t kMax = 256;
+            char mangled[kMax], demangled[kMax];
+            unw_word_t offset;
+            unw_get_proc_name(&cursor, mangled, kMax, &offset);
+
+            int ok;
+            size_t len = kMax;
+            abi::__cxa_demangle(mangled, demangled, &len, &ok);
+
+            SkDebugf("%s (+0x%zx)\n", ok == 0 ? demangled : mangled, (size_t)offset);
+        }
+        SkDebugf("\n");
+
+        // Exit NOW.  Don't notify other threads, don't call anything registered with atexit().
+        _Exit(sig);
+    }
+
+#elif defined(SK_BUILD_FOR_UNIX)
+    // We'd use libunwind here too, but it's a pain to get installed for
+    // both 32 and 64 bit on bots.  Doesn't matter much: catchsegv is best anyway.
+    #include <cxxabi.h>
+    #include <dlfcn.h>
+    #include <string.h>
+#if defined(__Fuchsia__)
+    #include <stdint.h>
+
+    // syslog crash reporting from Fuchsia's backtrace_request.h
+    //
+    // Special value we put in the first register to let the exception handler know
+    // that we are just requesting a backtrace and we should resume the thread.
+    #define BACKTRACE_REQUEST_MAGIC ((uint64_t)0xee726573756d65ee)
+
+    // Prints a backtrace, resuming the thread without killing the process.
+    __attribute__((always_inline)) static inline void backtrace_request(void) {
+      // Two instructions: one that sets a software breakpoint ("int3" on x64,
+      // "brk" on arm64) and one that writes the "magic" value in the first
+      // register ("a" on x64, "x0" on arm64).
+      //
+      // We set a software breakpoint to trigger the exception handling in
+      // crashsvc, which will print the debug info, including the backtrace.
+      //
+      // We write the "magic" value in the first register so that the exception
+      // handler can check for it and resume the thread if present.
+      #ifdef __x86_64__
+        __asm__("int3" : : "a"(BACKTRACE_REQUEST_MAGIC));
+      #endif
+      #ifdef __aarch64__
+        // This is what gdb uses.
+        __asm__(
+            "mov x0, %0\n"
+            "\tbrk 0"
+            :
+            : "r"(BACKTRACE_REQUEST_MAGIC)
+            : "x0");
+      #endif
+    }
+#else
+    #include <execinfo.h>
 #endif
 
-#if defined(GOOGLE_ENABLE_SIGNAL_HANDLERS)
-    #include "base/process_state.h"
-    void SetupCrashHandler() { InstallSignalHandlers(); }
-
+    static void handler(int sig) {
+#if defined(__Fuchsia__)
+        backtrace_request();
 #else
+        void* stack[64];
+        const int count = backtrace(stack, std::size(stack));
+        char** symbols = backtrace_symbols(stack, count);
 
-    #if defined(SK_BUILD_FOR_MAC)
-        // We only use local unwinding, so we can define this to select a faster implementation.
-        #define UNW_LOCAL_ONLY
-        #include <libunwind.h>
-        #include <cxxabi.h>
-
-        static void handler(int sig) {
-            unw_context_t context;
-            unw_getcontext(&context);
-
-            unw_cursor_t cursor;
-            unw_init_local(&cursor, &context);
-
-            SkDebugf("\nSignal %d:\n", sig);
-            while (unw_step(&cursor) > 0) {
-                static const size_t kMax = 256;
-                char mangled[kMax], demangled[kMax];
-                unw_word_t offset;
-                unw_get_proc_name(&cursor, mangled, kMax, &offset);
-
+        SkDebugf("\nSignal %d [%s]:\n", sig, strsignal(sig));
+        for (int i = 0; i < count; i++) {
+            Dl_info info;
+            if (dladdr(stack[i], &info) && info.dli_sname) {
+                char demangled[256];
+                size_t len = std::size(demangled);
                 int ok;
-                size_t len = kMax;
-                abi::__cxa_demangle(mangled, demangled, &len, &ok);
 
-                SkDebugf("%s (+0x%zx)\n", ok == 0 ? demangled : mangled, (size_t)offset);
-            }
-            SkDebugf("\n");
-
-            // Exit NOW.  Don't notify other threads, don't call anything registered with atexit().
-            _Exit(sig);
-        }
-
-    #elif defined(SK_BUILD_FOR_UNIX)
-        // We'd use libunwind here too, but it's a pain to get installed for
-        // both 32 and 64 bit on bots.  Doesn't matter much: catchsegv is best anyway.
-        #include <cxxabi.h>
-        #include <dlfcn.h>
-        #include <string.h>
-#if defined(__Fuchsia__)
-        #include <stdint.h>
-
-        // syslog crash reporting from Fuchsia's backtrace_request.h
-        //
-        // Special value we put in the first register to let the exception handler know
-        // that we are just requesting a backtrace and we should resume the thread.
-        #define BACKTRACE_REQUEST_MAGIC ((uint64_t)0xee726573756d65ee)
-
-        // Prints a backtrace, resuming the thread without killing the process.
-        __attribute__((always_inline)) static inline void backtrace_request(void) {
-          // Two instructions: one that sets a software breakpoint ("int3" on x64,
-          // "brk" on arm64) and one that writes the "magic" value in the first
-          // register ("a" on x64, "x0" on arm64).
-          //
-          // We set a software breakpoint to trigger the exception handling in
-          // crashsvc, which will print the debug info, including the backtrace.
-          //
-          // We write the "magic" value in the first register so that the exception
-          // handler can check for it and resume the thread if present.
-          #ifdef __x86_64__
-            __asm__("int3" : : "a"(BACKTRACE_REQUEST_MAGIC));
-          #endif
-          #ifdef __aarch64__
-            // This is what gdb uses.
-            __asm__(
-                "mov x0, %0\n"
-                "\tbrk 0"
-                :
-                : "r"(BACKTRACE_REQUEST_MAGIC)
-                : "x0");
-          #endif
-        }
-#else
-        #include <execinfo.h>
-#endif
-
-        static void handler(int sig) {
-#if defined(__Fuchsia__)
-            backtrace_request();
-#else
-            void* stack[64];
-            const int count = backtrace(stack, std::size(stack));
-            char** symbols = backtrace_symbols(stack, count);
-
-            SkDebugf("\nSignal %d [%s]:\n", sig, strsignal(sig));
-            for (int i = 0; i < count; i++) {
-                Dl_info info;
-                if (dladdr(stack[i], &info) && info.dli_sname) {
-                    char demangled[256];
-                    size_t len = std::size(demangled);
-                    int ok;
-
-                    abi::__cxa_demangle(info.dli_sname, demangled, &len, &ok);
-                    if (ok == 0) {
-                        SkDebugf("    %s\n", demangled);
-                        continue;
-                    }
-                }
-                SkDebugf("    %s\n", symbols[i]);
-            }
-#endif
-            // Exit NOW.  Don't notify other threads, don't call anything registered with
-            // atexit().
-            _Exit(sig);
-        }
-    #endif
-
-    #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_UNIX)
-        #include <signal.h>
-
-        void SetupCrashHandler() {
-            static const int kSignals[] = {
-                SIGABRT,
-                SIGBUS,
-                SIGFPE,
-                SIGILL,
-                SIGSEGV,
-                SIGTRAP,
-            };
-
-            for (size_t i = 0; i < sizeof(kSignals) / sizeof(kSignals[0]); i++) {
-                // Register our signal handler unless something's already done so (e.g. catchsegv).
-                void (*prev)(int) = signal(kSignals[i], handler);
-                if (prev != SIG_DFL) {
-                    signal(kSignals[i], prev);
+                abi::__cxa_demangle(info.dli_sname, demangled, &len, &ok);
+                if (ok == 0) {
+                    SkDebugf("    %s\n", demangled);
+                    continue;
                 }
             }
+            SkDebugf("    %s\n", symbols[i]);
         }
+#endif
+        // Exit NOW.  Don't notify other threads, don't call anything registered with
+        // atexit().
+        _Exit(sig);
+    }
+#endif
 
-    #elif defined(SK_BUILD_FOR_WIN)
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_UNIX)
+    #include <signal.h>
 
-        #include <DbgHelp.h>
-        #include <stdint.h>
-        #include "include/private/base/SkMalloc.h"
-
-        static const struct {
-            const char* name;
-            const DWORD code;
-        } kExceptions[] = {
-        #define _(E) {#E, E}
-            _(EXCEPTION_ACCESS_VIOLATION),
-            _(EXCEPTION_BREAKPOINT),
-            _(EXCEPTION_INT_DIVIDE_BY_ZERO),
-            _(EXCEPTION_STACK_OVERFLOW),
-            // TODO: more?
-        #undef _
+    void SetupCrashHandler() {
+        static const int kSignals[] = {
+            SIGABRT,
+            SIGBUS,
+            SIGFPE,
+            SIGILL,
+            SIGSEGV,
+            SIGTRAP,
         };
 
-        static LONG WINAPI handler(EXCEPTION_POINTERS* e) {
-            const DWORD code = e->ExceptionRecord->ExceptionCode;
-            SkDebugf("\nCaught exception %lu", code);
-            for (size_t i = 0; i < std::size(kExceptions); i++) {
-                if (kExceptions[i].code == code) {
-                    SkDebugf(" %s", kExceptions[i].name);
-                }
+        for (size_t i = 0; i < sizeof(kSignals) / sizeof(kSignals[0]); i++) {
+            // Register our signal handler unless something's already done so (e.g. catchsegv).
+            void (*prev)(int) = signal(kSignals[i], handler);
+            if (prev != SIG_DFL) {
+                signal(kSignals[i], prev);
             }
-            SkDebugf("\n");
+        }
+    }
 
-            // We need to run SymInitialize before doing any of the stack walking below.
-            HANDLE hProcess = GetCurrentProcess();
-            SymInitialize(hProcess, 0, true);
+#elif defined(SK_BUILD_FOR_WIN)
 
-            STACKFRAME64 frame;
-            sk_bzero(&frame, sizeof(frame));
-            // Start frame off from the frame that triggered the exception.
-            CONTEXT* c = e->ContextRecord;
-            frame.AddrPC.Mode      = AddrModeFlat;
-            frame.AddrStack.Mode   = AddrModeFlat;
-            frame.AddrFrame.Mode   = AddrModeFlat;
-        #if defined(_X86_)
-            frame.AddrPC.Offset    = c->Eip;
-            frame.AddrStack.Offset = c->Esp;
-            frame.AddrFrame.Offset = c->Ebp;
-            const DWORD machineType = IMAGE_FILE_MACHINE_I386;
-        #elif defined(_AMD64_)
-            frame.AddrPC.Offset    = c->Rip;
-            frame.AddrStack.Offset = c->Rsp;
-            frame.AddrFrame.Offset = c->Rbp;
-            const DWORD machineType = IMAGE_FILE_MACHINE_AMD64;
-        #elif defined(_M_ARM64)
-            frame.AddrPC.Offset    = c->Pc;
-            frame.AddrStack.Offset = c->Sp;
-            frame.AddrFrame.Offset = c->Fp;
-            const DWORD machineType = IMAGE_FILE_MACHINE_ARM64;
-        #endif
+    #include <DbgHelp.h>
+    #include <stdint.h>
+    #include "include/private/base/SkMalloc.h"
 
-        #if !defined(SK_WINUWP)
-            while (StackWalk64(machineType,
-                               GetCurrentProcess(),
-                               GetCurrentThread(),
-                               &frame,
-                               c,
-                               nullptr,
-                               SymFunctionTableAccess64,
-                               SymGetModuleBase64,
-                               nullptr)) {
-                // Buffer to store symbol name in.
-                static const int kMaxNameLength = 1024;
-                uint8_t buffer[sizeof(IMAGEHLP_SYMBOL64) + kMaxNameLength];
-                sk_bzero(buffer, sizeof(buffer));
+    static const struct {
+        const char* name;
+        const DWORD code;
+    } kExceptions[] = {
+    #define _(E) {#E, E}
+        _(EXCEPTION_ACCESS_VIOLATION),
+        _(EXCEPTION_BREAKPOINT),
+        _(EXCEPTION_INT_DIVIDE_BY_ZERO),
+        _(EXCEPTION_STACK_OVERFLOW),
+        // TODO: more?
+    #undef _
+    };
 
-                // We have to place IMAGEHLP_SYMBOL64 at the front, and fill in
-                // how much space it can use.
-                IMAGEHLP_SYMBOL64* symbol = reinterpret_cast<IMAGEHLP_SYMBOL64*>(&buffer);
-                symbol->SizeOfStruct = sizeof(IMAGEHLP_SYMBOL64);
-                symbol->MaxNameLength = kMaxNameLength - 1;
-
-                // Translate the current PC into a symbol and byte offset from the symbol.
-                DWORD64 offset;
-                SymGetSymFromAddr64(hProcess, frame.AddrPC.Offset, &offset, symbol);
-
-                SkDebugf("%s +%llx\n", symbol->Name, offset);
+    static LONG WINAPI handler(EXCEPTION_POINTERS* e) {
+        const DWORD code = e->ExceptionRecord->ExceptionCode;
+        SkDebugf("\nCaught exception %lu", code);
+        for (size_t i = 0; i < std::size(kExceptions); i++) {
+            if (kExceptions[i].code == code) {
+                SkDebugf(" %s", kExceptions[i].name);
             }
-        #endif //SK_WINUWP
-
-            // Exit NOW.  Don't notify other threads, don't call anything registered with atexit().
-            _exit(1);
-
-            // The compiler wants us to return something.  This is what we'd do
-            // if we didn't _exit().
-            return EXCEPTION_EXECUTE_HANDLER;
         }
+        SkDebugf("\n");
 
-        void SetupCrashHandler() {
-            SetUnhandledExceptionFilter(handler);
-        }
+        // We need to run SymInitialize before doing any of the stack walking below.
+        HANDLE hProcess = GetCurrentProcess();
+        SymInitialize(hProcess, 0, true);
 
-    #else
-
-        void SetupCrashHandler() { }
-
+        STACKFRAME64 frame;
+        sk_bzero(&frame, sizeof(frame));
+        // Start frame off from the frame that triggered the exception.
+        CONTEXT* c = e->ContextRecord;
+        frame.AddrPC.Mode      = AddrModeFlat;
+        frame.AddrStack.Mode   = AddrModeFlat;
+        frame.AddrFrame.Mode   = AddrModeFlat;
+    #if defined(_X86_)
+        frame.AddrPC.Offset    = c->Eip;
+        frame.AddrStack.Offset = c->Esp;
+        frame.AddrFrame.Offset = c->Ebp;
+        const DWORD machineType = IMAGE_FILE_MACHINE_I386;
+    #elif defined(_AMD64_)
+        frame.AddrPC.Offset    = c->Rip;
+        frame.AddrStack.Offset = c->Rsp;
+        frame.AddrFrame.Offset = c->Rbp;
+        const DWORD machineType = IMAGE_FILE_MACHINE_AMD64;
+    #elif defined(_M_ARM64)
+        frame.AddrPC.Offset    = c->Pc;
+        frame.AddrStack.Offset = c->Sp;
+        frame.AddrFrame.Offset = c->Fp;
+        const DWORD machineType = IMAGE_FILE_MACHINE_ARM64;
     #endif
-#endif // SK_BUILD_FOR_GOOGLE3?
+
+    #if !defined(SK_WINUWP)
+        while (StackWalk64(machineType,
+                           GetCurrentProcess(),
+                           GetCurrentThread(),
+                           &frame,
+                           c,
+                           nullptr,
+                           SymFunctionTableAccess64,
+                           SymGetModuleBase64,
+                           nullptr)) {
+            // Buffer to store symbol name in.
+            static const int kMaxNameLength = 1024;
+            uint8_t buffer[sizeof(IMAGEHLP_SYMBOL64) + kMaxNameLength];
+            sk_bzero(buffer, sizeof(buffer));
+
+            // We have to place IMAGEHLP_SYMBOL64 at the front, and fill in
+            // how much space it can use.
+            IMAGEHLP_SYMBOL64* symbol = reinterpret_cast<IMAGEHLP_SYMBOL64*>(&buffer);
+            symbol->SizeOfStruct = sizeof(IMAGEHLP_SYMBOL64);
+            symbol->MaxNameLength = kMaxNameLength - 1;
+
+            // Translate the current PC into a symbol and byte offset from the symbol.
+            DWORD64 offset;
+            SymGetSymFromAddr64(hProcess, frame.AddrPC.Offset, &offset, symbol);
+
+            SkDebugf("%s +%llx\n", symbol->Name, offset);
+        }
+    #endif //SK_WINUWP
+
+        // Exit NOW.  Don't notify other threads, don't call anything registered with atexit().
+        _exit(1);
+
+        // The compiler wants us to return something.  This is what we'd do
+        // if we didn't _exit().
+        return EXCEPTION_EXECUTE_HANDLER;
+    }
+
+    void SetupCrashHandler() {
+        SetUnhandledExceptionFilter(handler);
+    }
+
+#else
+
+    void SetupCrashHandler() { }
+
+#endif

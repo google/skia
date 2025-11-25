@@ -7,8 +7,6 @@
 
 #include "include/core/SkTypes.h"
 
-#if !defined(SK_BUILD_FOR_GOOGLE3)  // Google3 doesn't have etc1.h
-
 #include "gm/gm.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
@@ -400,5 +398,3 @@ private:
 DEF_GM(return new CompressedTexturesGM(CompressedTexturesGM::Type::kNormal);)
 DEF_GM(return new CompressedTexturesGM(CompressedTexturesGM::Type::kNonPowerOfTwo);)
 DEF_GM(return new CompressedTexturesGM(CompressedTexturesGM::Type::kNonMultipleOfFour);)
-
-#endif
