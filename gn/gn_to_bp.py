@@ -577,6 +577,9 @@ def generate_args(target_os, enable_gpu, renderengine = False):
     # The two Perfetto integrations are currently mutually exclusive due to
     # complexity.
     'skia_use_perfetto':                    'false',
+
+    # Unsupported as `target_cpu == "none"` isn't supported.
+    'skia_use_partition_alloc':             'false',
   }
   d['target_os'] = target_os
   if target_os == '"android"':

@@ -7,7 +7,8 @@
 # shared by Chromium / Dawn / Pdfium / etc... Only Skia is really independent.
 #
 # While waiting for partition_alloc to do the same, they need to be set:
-is_asan = sanitize == "address"
+is_asan = sanitize == "ASAN"
+is_hwasan = sanitize == "HWASAN"
 is_cast_android = false
 is_castos = false
 is_cronet_build = false
@@ -57,6 +58,7 @@ enable_backup_ref_ptr_support_default = _supported
 put_ref_count_in_previous_slot_default = true
 enable_backup_ref_ptr_slow_checks_default = false
 enable_dangling_raw_ptr_checks_default = _supported
+shim_supports_sized_dealloc_default = false
 
 # This is the default build configuration for pointers/raw_ptr*.
 raw_ptr_zero_on_construct_default = true
@@ -69,3 +71,7 @@ can_unwind_with_frame_pointers = false
 dcheck_always_on = false
 dcheck_is_configurable = false
 enable_expensive_dchecks = false
+
+# Prefer speed by default, even in debug mode.
+partition_alloc_is_debug = false
+partition_alloc_dcheck_always_on = false

@@ -118,6 +118,10 @@ config("skia_private") {
     defines += [ "SK_DUMP_TASKS" ]
   }
 
+  if (skia_use_partition_alloc) {
+    defines += [ "SK_USE_PARTITION_ALLOC" ]
+  }
+
   # Temporary staging flag:
   defines += [ "SK_ENABLE_AVX512_OPTS" ]
 }
@@ -2841,6 +2845,9 @@ if (skia_enable_tools) {
         }
         if (skia_enable_ganesh) {
           deps += [ ":common_flags_ganesh" ]
+        }
+        if (skia_use_partition_alloc) {
+          deps += [ "tools/partition_alloc:test_support" ]
         }
       }
     }

@@ -20,6 +20,7 @@ def GetGNArgs(api_level, debug, arch=None, ndk=None, is_android_bp=False):
         'skia_use_freetype':                'false',
         'skia_use_icu':                     'false',
         'skia_use_lua':                     'false',
+        'skia_use_partition_alloc':         'false',
         'skia_use_piex':                    'false',
         'skia_use_vulkan':                  'true',
         'skia_use_wuffs':                   'true',

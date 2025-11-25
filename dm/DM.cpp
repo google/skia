@@ -75,6 +75,10 @@
     #include "modules/svg/include/SkSVGOpenTypeSVGDecoder.h"
 #endif
 
+#if defined(SK_USE_PARTITION_ALLOC)
+    #include "tools/partition_alloc/TestSupport.h"
+#endif
+
 using namespace skia_private;
 
 extern bool gSkForceRasterPipelineBlitter;
@@ -1623,6 +1627,12 @@ static void print_sinks() {
 }
 
 int main(int argc, char** argv) {
+#if defined(SK_USE_PARTITION_ALLOC)
+    // If available, use PartitionAlloc as the memory allocator for DM. This allows catching
+    // additional memory errors in tests that would otherwise go unnoticed.
+    skiatest::InitializePartitionAllocForTesting();
+#endif
+
     CommandLineFlags::Parse(argc, argv);
 
     initializeEventTracingForTools();
