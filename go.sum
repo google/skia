@@ -407,8 +407,8 @@ go.opentelemetry.io/otel/sdk/metric v1.35.0 h1:1RriWBmCKgkeHEhM7a2uMjMUfP7MsOF5J
 go.opentelemetry.io/otel/sdk/metric v1.35.0/go.mod h1:is6XYCUMpcKi+ZsOvfluY5YstFnhW0BidkR+gL+qN+w=
 go.opentelemetry.io/otel/trace v1.35.0 h1:dPpEfJu1sDIqruz7BHFG3c7528f6ddfSWfFDVt/xgMs=
 go.opentelemetry.io/otel/trace v1.35.0/go.mod h1:WUk7DtFp1Aw2MkvqGdwiXYDZZNvA/1J8o6xRXLrIkyc=
-go.skia.org/infra v0.0.0-20251124233232-b556369fb974 h1:Aj6IeWjJRafpkzAmbhrKuWYD6pViOvzgvAy4SaoKgvs=
-go.skia.org/infra v0.0.0-20251124233232-b556369fb974/go.mod h1:x1L4nYXtvKNwRe0eTLXWGhGU1zxN5CUvIq3lpnnFDz0=
+go.skia.org/infra v0.0.0-20251126001720-14811d22e5c9 h1:jnET3fPF8Blf/Nz8JRfHsBxCQvxRc3YRrff4y6Rim1s=
+go.skia.org/infra v0.0.0-20251126001720-14811d22e5c9/go.mod h1:x1L4nYXtvKNwRe0eTLXWGhGU1zxN5CUvIq3lpnnFDz0=
 go.uber.org/multierr v1.11.0 h1:blXXJkSxSSfBVBlC76pxqeO+LN3aDfLQo+309xJstO0=
 go.uber.org/multierr v1.11.0/go.mod h1:20+QtiLqy0Nd6FdQB9TLXag12DsQkrbs3htMFfDN80Y=
 golang.org/x/crypto v0.0.0-20180904163835-0709b304e793/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
