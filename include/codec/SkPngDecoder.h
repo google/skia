@@ -35,6 +35,13 @@ SK_API std::unique_ptr<SkCodec> Decode(sk_sp<const SkData>,
                                        SkCodec::Result*,
                                        SkCodecs::DecodeContext = nullptr);
 
+// TODO: remove after client migration
+inline std::unique_ptr<SkCodec> Decode(sk_sp<SkData> data,
+                                       SkCodec::Result* result,
+                                       SkCodecs::DecodeContext ctx = nullptr) {
+    return Decode(sk_sp<const SkData>(static_cast<const SkData*>(data.release())), result, ctx);
+}
+
 inline constexpr SkCodecs::Decoder Decoder() {
     return { "png", IsPng, Decode };
 }
