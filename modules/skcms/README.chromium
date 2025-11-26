@@ -1,12 +1,5 @@
 Name: skcms
-URL: https://skia.googlesource.com/skcms
-Version: N/A
-Revision: 96d9171c94b937a1b5f0293de7309ac16311b722
-Update Mechanism: Autoroll
+URL: https://skia.org/
+Version: unknown
 Security Critical: yes
-Shipped: yes
-License: BSD-3-Clause
-License File: ../../LICENSE
-
-Description:
-See https://skia.org/
+License: BSD

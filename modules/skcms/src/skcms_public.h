@@ -323,7 +323,7 @@ SKCMS_API bool skcms_GetWTPT(const skcms_ICCProfile*, float xyz[3]);
 SKCMS_API int skcms_GetInputChannelCount(const skcms_ICCProfile*);
 
 // These are common ICC signature values
-enum {
+typedef enum skcms_Signature {
     // common data_color_space values
     skcms_Signature_CMYK = 0x434D594B,
     skcms_Signature_Gray = 0x47524159,
@@ -354,7 +354,7 @@ enum {
     skcms_Signature_13CLR  = 0x44434C52,
     skcms_Signature_14CLR  = 0x45434C52,
     skcms_Signature_15CLR  = 0x46434C52,
-};
+} skcms_Signature;
 
 typedef enum skcms_PixelFormat {
     skcms_PixelFormat_A_8,
