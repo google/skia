@@ -59,7 +59,7 @@ protected:
 private:
     SkAvifCodec(SkEncodedInfo&&,
                 std::unique_ptr<SkStream>,
-                sk_sp<SkData>,
+                sk_sp<const SkData>,
                 AvifDecoder,
                 SkEncodedOrigin,
                 bool);
