@@ -159,7 +159,6 @@ public:
 
         // These flags track extensions that will need to be enabled.
         bool fPixelLocalExtension = false;
-        bool fPushConstantExtension = false;
     };
 
     WGSLCodeGenerator(const Context* context,
@@ -1072,14 +1071,6 @@ WGSLCodeGenerator::ProgramRequirements resolve_program_requirements(const Progra
                 const GlobalVarDeclaration& decl = e->as<GlobalVarDeclaration>();
                 if (decl.varDeclaration().var()->modifierFlags().isPixelLocal()) {
                     requirements.fPixelLocalExtension = true;
-                }
-                break;
-            }
-            case ProgramElement::Kind::kInterfaceBlock: {
-                const InterfaceBlock& ib = e->as<InterfaceBlock>();
-                const Layout& layout = ib.var()->layout();
-                if (layout.fFlags & LayoutFlag::kPushConstant) {
-                    requirements.fPushConstantExtension = true;
                 }
                 break;
             }
@@ -4299,9 +4290,6 @@ void WGSLCodeGenerator::writeEnables() {
 
     if (fRequirements.fPixelLocalExtension) {
         this->writeLine("enable chromium_experimental_pixel_local;");
-    }
-    if (fRequirements.fPushConstantExtension) {
-        this->writeLine("enable chromium_experimental_immediate;");
     }
     if (fProgram.fInterface.fUseLastFragColor) {
         this->writeLine("enable chromium_experimental_framebuffer_fetch;");
