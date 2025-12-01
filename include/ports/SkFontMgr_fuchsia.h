@@ -16,7 +16,6 @@
 class SkFontMgr;
 class SkFontScanner;
 
-SK_API sk_sp<SkFontMgr> SkFontMgr_New_Fuchsia(fuchsia::fonts::ProviderSyncPtr provider);
 SK_API sk_sp<SkFontMgr> SkFontMgr_New_Fuchsia(fuchsia::fonts::ProviderSyncPtr provider, std::unique_ptr<SkFontScanner> scanner);
 
 #endif  // SkFontMgr_fuchsia_DEFINED

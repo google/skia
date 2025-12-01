@@ -526,11 +526,6 @@ sk_sp<SkTypeface> SkFontMgr_Fuchsia::GetOrCreateTypeface(TypefaceId id,
     return result;
 }
 
-sk_sp<SkFontMgr> SkFontMgr_New_Fuchsia(fuchsia::fonts::ProviderSyncPtr provider) {
-    return sk_make_sp<SkFontMgr_Fuchsia>(std::move(provider), SkFontScanner_Make_FreeType());
-}
-
-// TODO: Remove the default FreeType scanner and remove the dependency on it (after we fix all the calls)
 sk_sp<SkFontMgr> SkFontMgr_New_Fuchsia(fuchsia::fonts::ProviderSyncPtr provider, std::unique_ptr<SkFontScanner> scanner) {
     return sk_make_sp<SkFontMgr_Fuchsia>(std::move(provider), std::move(scanner));
 }
