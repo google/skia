@@ -1032,11 +1032,6 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Fontations::onGetAdvancedM
         info->fStyle |= SkAdvancedTypefaceMetrics::kFixedPitch_Style;
     }
 
-    rust::String readPsName;
-    if (fontations_ffi::postscript_name(*fBridgeFontRef, readPsName)) {
-        info->fPostScriptName = SkString(readPsName.data(), readPsName.size());
-    }
-
     fontations_ffi::BridgeFontStyle fontStyle;
     if (fontations_ffi::get_font_style(*fBridgeFontRef, *fBridgeNormalizedCoords, fontStyle)) {
         if (fontStyle.slant == SkFontStyle::Slant::kItalic_Slant) {
