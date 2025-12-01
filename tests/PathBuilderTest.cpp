@@ -1094,3 +1094,17 @@ DEF_TEST(SkPathBuilder_dump, reporter) {
 
     REPORTER_ASSERT(reporter, str.equals(expected));
 }
+
+DEF_TEST(SkPathBuilder_b_463584612, reporter) {
+    SkPathBuilder b;
+    b.setLastPt(0, 0);
+    b.close()
+     .rMoveTo(1, 1);
+
+    SkPathBuilder builder;
+    builder.addPath(b.snapshot(), SkMatrix::I(), SkPath::kExtend_AddPathMode);
+    builder.rMoveTo(3, 4);  // This crashed
+
+    SkPath p = builder.detach();
+    REPORTER_ASSERT(reporter, !p.isEmpty());
+}
