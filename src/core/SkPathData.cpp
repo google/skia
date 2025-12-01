@@ -88,7 +88,7 @@ static std::pair<size_t, size_t> count_pts_cns(SkSpan<const SkPathVerb> vbs) {
 // Otherwise return leave the spans unchanged.
 //
 static void trim_trailing_move(SkSpan<const SkPoint>* pts, SkSpan<const SkPathVerb>* vbs) {
-    if (!vbs->empty() && vbs->back() == SkPathVerb::kMove) {
+    if (!vbs->empty() && !pts->empty() && vbs->back() == SkPathVerb::kMove) {
         *vbs = vbs->first(vbs->size() - 1);
         *pts = pts->first(pts->size() - 1);
     }

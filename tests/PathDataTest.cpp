@@ -334,17 +334,18 @@ DEF_TEST(pathdata_make_edgecases, reporter) {
 
     // Now check on # of points and conic weights
 
-    const SkPathVerb verbs[] = { M, L, Q, K, C, X };    // 1+1+2+2+3 = 9 + 1 conic weight
+    const SkPathVerb verbs[] = { M, L, Q, K, C, X, M };    // 1+1+2+2+3+0+1 = 10 + 1 conic weight
 
     const struct {
         size_t nPts, nConics;
         bool success;
     } combos[] = {
-        {  9, 1, true },    // just right
-        {  8, 1, false },   // not enough points
-        { 10, 1, false },   // too many points
-        {  9, 0, false },   // not enough conics
-        {  9, 2, false },   // too many conics
+        { 10, 1, true  },   // just right
+        {  9, 1, false },   // not enough points
+        { 11, 1, false },   // too many points
+        { 10, 0, false },   // not enough conics
+        { 10, 2, false },   // too many conics
+        {  0, 1, false },   // degenerate, should not crash on moveto trim
     };
     for (auto c : combos) {
         pdata = SkPathData::Make({pts, c.nPts}, verbs, {conicWeights, c.nConics});
