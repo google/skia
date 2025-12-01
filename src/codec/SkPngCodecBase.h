@@ -33,7 +33,7 @@ class SkPngCodecBase : public SkCodec {
 public:
     ~SkPngCodecBase() override;
 
-    static bool isCompatibleColorProfileAndType(const SkEncodedInfo::ICCProfile* profile,
+    static bool isCompatibleColorProfileAndType(const SkCodecs::ColorProfile* profile,
                                                 SkEncodedInfo::Color color);
 protected:
     SkPngCodecBase(SkEncodedInfo&&, std::unique_ptr<SkStream>, SkEncodedOrigin origin);

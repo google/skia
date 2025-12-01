@@ -29,6 +29,7 @@ ANY_DECODER_HDRS = ["SkCodecImageGenerator.h"]
 
 ANY_DECODER_SRCS = [
     "SkCodec.cpp",
+    "SkCodecColorProfile.cpp",
     "SkCodecImageGenerator.cpp",
     "SkColorPalette.cpp",
     "SkEncodedInfo.cpp",

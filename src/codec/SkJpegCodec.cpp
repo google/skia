@@ -77,7 +77,7 @@ SkCodec::Result SkJpegCodec::ReadHeader(
         SkStream* stream,
         SkCodec** codecOut,
         JpegDecoderMgr** decoderMgrOut,
-        std::unique_ptr<SkEncodedInfo::ICCProfile> defaultColorProfile) {
+        std::unique_ptr<SkCodecs::ColorProfile> defaultColorProfile) {
     // Create a JpegDecoderMgr to own all of the decompress information
     std::unique_ptr<JpegDecoderMgr> decoderMgr(new JpegDecoderMgr(stream));
 
@@ -123,9 +123,9 @@ SkCodec::Result SkJpegCodec::ReadHeader(
         SkEncodedOrigin orientation =
                 get_exif_orientation(metadataDecoder->getExifMetadata(/*copyData=*/false));
 
-        std::unique_ptr<SkEncodedInfo::ICCProfile> profile;
+        std::unique_ptr<SkCodecs::ColorProfile> profile;
         if (auto iccProfileData = metadataDecoder->getICCProfileData(/*copyData=*/true)) {
-            profile = SkEncodedInfo::ICCProfile::Make(std::move(iccProfileData));
+            profile = SkCodecs::ColorProfile::MakeICCProfile(std::move(iccProfileData));
         }
         if (profile) {
             auto type = profile->profile()->data_color_space;
@@ -175,8 +175,9 @@ std::unique_ptr<SkCodec> SkJpegCodec::MakeFromStream(std::unique_ptr<SkStream> s
     return SkJpegCodec::MakeFromStream(std::move(stream), result, nullptr);
 }
 
-std::unique_ptr<SkCodec> SkJpegCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
-        Result* result, std::unique_ptr<SkEncodedInfo::ICCProfile> defaultColorProfile) {
+std::unique_ptr<SkCodec> SkJpegCodec::MakeFromStream(
+        std::unique_ptr<SkStream> stream,
+        Result* result, std::unique_ptr<SkCodecs::ColorProfile> defaultColorProfile) {
     SkASSERT(result);
     if (!stream) {
         *result = SkCodec::kInvalidInput;

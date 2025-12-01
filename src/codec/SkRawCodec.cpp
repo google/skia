@@ -694,13 +694,10 @@ std::unique_ptr<SkCodec> SkRawCodec::MakeFromStream(std::unique_ptr<SkStream> st
             return nullptr;
         }
 
-        std::unique_ptr<SkEncodedInfo::ICCProfile> profile;
+        std::unique_ptr<SkCodecs::ColorProfile> profile;
         if (imageData.color_space == ::piex::PreviewImageData::kAdobeRgb) {
-            skcms_ICCProfile skcmsProfile;
-            skcms_Init(&skcmsProfile);
-            skcms_SetTransferFunction(&skcmsProfile, &SkNamedTransferFn::k2Dot2);
-            skcms_SetXYZD50(&skcmsProfile, &SkNamedGamut::kAdobeRGB);
-            profile = SkEncodedInfo::ICCProfile::Make(skcmsProfile);
+            profile = SkCodecs::ColorProfile::Make(
+                SkNamedTransferFn::k2Dot2, SkNamedGamut::kAdobeRGB);
         }
 
         //  Theoretically PIEX can return JPEG compressed image or uncompressed RGB image. We only

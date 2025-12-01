@@ -58,7 +58,7 @@ skcms_PixelFormat ToPixelFormat(const SkEncodedInfo& info) {
 SkPngCodecBase::~SkPngCodecBase() = default;
 
 // static
-bool SkPngCodecBase::isCompatibleColorProfileAndType(const SkEncodedInfo::ICCProfile* profile,
+bool SkPngCodecBase::isCompatibleColorProfileAndType(const SkCodecs::ColorProfile* profile,
                                                      SkEncodedInfo::Color color) {
     if (profile) {
         switch (profile->profile()->data_color_space) {

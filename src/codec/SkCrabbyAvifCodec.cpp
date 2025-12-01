@@ -240,24 +240,18 @@ std::unique_ptr<SkCodec> SkCrabbyAvifCodec::MakeFromData(std::unique_ptr<SkStrea
         }
     }
 
-    std::unique_ptr<SkEncodedInfo::ICCProfile> profile = nullptr;
+    std::unique_ptr<SkCodecs::ColorProfile> profile;
     if (image->icc.size > 0) {
         auto icc = SkData::MakeWithCopy(image->icc.data, image->icc.size);
-        profile = SkEncodedInfo::ICCProfile::Make(std::move(icc));
+        profile = SkCodecs::ColorProfile::MakeICCProfile(std::move(icc));
     } else if (image->transferCharacteristics == crabbyavif::AVIF_TRANSFER_CHARACTERISTICS_PQ ||
                image->transferCharacteristics == crabbyavif::AVIF_TRANSFER_CHARACTERISTICS_HLG) {
-        // TODO(https://issues.skia.org/issues/432721733): Create a version of
-        // SkEncodedInfo::ICCProfile::Make that directly takes CICP values.
-        skcms_ICCProfile skcmsProfile;
-        skcms_Init(&skcmsProfile);
-        skcmsProfile.CICP.color_primaries = image->colorPrimaries;
-        skcmsProfile.CICP.transfer_characteristics = image->transferCharacteristics;
         // Do not set matrix_coefficients here because cicp_get_sk_color_space in SkAndroidCodec.cpp
         // fails if matrix_coeffieicnts is not zero:
         // https://skia.googlesource.com/skia/+/33b2d3333755ac5ce21495959c2d4bb11f299f8b/src/codec/SkAndroidCodec.cpp#186
-        skcmsProfile.CICP.video_full_range_flag = image->yuvRange == crabbyavif::AVIF_RANGE_FULL;
-        skcmsProfile.has_CICP = true;
-        profile = SkEncodedInfo::ICCProfile::Make(skcmsProfile);
+        profile = SkCodecs::ColorProfile::MakeCICP(
+            image->colorPrimaries, image->transferCharacteristics, 0,
+            image->yuvRange == crabbyavif::AVIF_RANGE_FULL);
     }
     if (profile && profile->profile()->data_color_space != skcms_Signature_RGB) {
         profile = nullptr;

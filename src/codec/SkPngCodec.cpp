@@ -309,8 +309,8 @@ static float png_inverted_fixed_point_to_float(png_fixed_point x) {
 #endif // LIBPNG >= 1.6
 
 // If there is no color profile information, it will use sRGB.
-std::unique_ptr<SkEncodedInfo::ICCProfile> read_color_profile(png_structp png_ptr,
-                                                              png_infop info_ptr) {
+std::unique_ptr<SkCodecs::ColorProfile> read_color_profile(
+        png_structp png_ptr, png_infop info_ptr) {
 
 #if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 6)
     // First check for an ICC profile
@@ -327,7 +327,7 @@ std::unique_ptr<SkEncodedInfo::ICCProfile> read_color_profile(png_structp png_pt
     if (PNG_INFO_iCCP == png_get_iCCP(png_ptr, info_ptr, &name, &compression, &profile,
             &length)) {
         auto data = SkData::MakeWithCopy(profile, length);
-        return SkEncodedInfo::ICCProfile::Make(std::move(data));
+        return SkCodecs::ColorProfile::MakeICCProfile(std::move(data));
     }
 
     // Second, check for sRGB.
@@ -378,12 +378,7 @@ std::unique_ptr<SkEncodedInfo::ICCProfile> read_color_profile(png_structp png_pt
         fn = *skcms_sRGB_TransferFunction();
     }
 
-    skcms_ICCProfile skcmsProfile;
-    skcms_Init(&skcmsProfile);
-    skcms_SetTransferFunction(&skcmsProfile, &fn);
-    skcms_SetXYZD50(&skcmsProfile, &toXYZD50);
-
-    return SkEncodedInfo::ICCProfile::Make(skcmsProfile);
+    return SkCodecs::ColorProfile::Make(fn, toXYZD50);
 #else // LIBPNG >= 1.6
     return nullptr;
 #endif // LIBPNG >= 1.6

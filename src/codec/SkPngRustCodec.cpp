@@ -130,7 +130,7 @@ skhdr::ContentLightLevelInformation ToSkCLLI(const rust_png::ContentLightLevelIn
     return skhdr::ContentLightLevelInformation({clli.fMaxCLL, clli.fMaxFALL});
 }
 
-std::unique_ptr<SkEncodedInfo::ICCProfile> CreateColorProfile(const rust_png::Reader& reader) {
+std::unique_ptr<SkCodecs::ColorProfile> CreateColorProfile(const rust_png::Reader& reader) {
     // NOTE: This method is based on `read_color_profile` in
     // `src/codec/SkPngCodec.cpp` but has been refactored to use Rust inputs
     // instead of `libpng`.
@@ -154,10 +154,7 @@ std::unique_ptr<SkEncodedInfo::ICCProfile> CreateColorProfile(const rust_png::Re
                     SkColorSpace::MakeCICP(static_cast<SkNamedPrimaries::CicpId>(cicpPrimariesId),
                                            static_cast<SkNamedTransferFn::CicpId>(cicpTransferId));
             if (colorSpace) {
-                skcms_ICCProfile colorProfile;
-                skcms_Init(&colorProfile);
-                colorSpace->toProfile(&colorProfile);
-                return SkEncodedInfo::ICCProfile::Make(colorProfile);
+                return SkCodecs::ColorProfile::Make(colorSpace);
             }
         }
     }
@@ -167,8 +164,8 @@ std::unique_ptr<SkEncodedInfo::ICCProfile> CreateColorProfile(const rust_png::Re
         // no need to check `rust_slice.empty()` here.
         rust::Slice<const uint8_t> rust_slice = reader.get_iccp_chunk();
         sk_sp<SkData> owned_data = SkData::MakeWithCopy(rust_slice.data(), rust_slice.size());
-        std::unique_ptr<SkEncodedInfo::ICCProfile> parsed_data =
-                SkEncodedInfo::ICCProfile::Make(std::move(owned_data));
+        std::unique_ptr<SkCodecs::ColorProfile> parsed_data =
+                SkCodecs::ColorProfile::MakeICCProfile(std::move(owned_data));
         if (parsed_data) {
             return parsed_data;
         }
@@ -236,11 +233,7 @@ std::unique_ptr<SkEncodedInfo::ICCProfile> CreateColorProfile(const rust_png::Re
     fn.b = fn.c = fn.d = fn.e = fn.f = 0.0f;
     fn.g = 1.0f / gamma;
 
-    skcms_ICCProfile profile;
-    skcms_Init(&profile);
-    skcms_SetTransferFunction(&profile, &fn);
-    skcms_SetXYZD50(&profile, &toXYZD50);
-    return SkEncodedInfo::ICCProfile::Make(profile);
+    return SkCodecs::ColorProfile::Make(fn, toXYZD50);
 }
 
 // Returns `nullopt` when input errors are encountered.
@@ -248,7 +241,7 @@ std::optional<SkEncodedInfo> CreateEncodedInfo(const rust_png::Reader& reader) {
     rust_png::ColorType rustColor = reader.output_color_type();
     SkEncodedInfo::Color skColor = ToColor(rustColor, reader);
 
-    std::unique_ptr<SkEncodedInfo::ICCProfile> profile = CreateColorProfile(reader);
+    std::unique_ptr<SkCodecs::ColorProfile> profile = CreateColorProfile(reader);
     if (!SkPngCodecBase::isCompatibleColorProfileAndType(profile.get(), skColor)) {
         profile = nullptr;
     }

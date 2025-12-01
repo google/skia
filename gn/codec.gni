@@ -32,6 +32,7 @@ skia_codec_shared = [
   "$_include/codec/SkEncodedImageFormat.h",
   "$_include/codec/SkPixmapUtils.h",
   "$_src/codec/SkCodec.cpp",
+  "$_src/codec/SkCodecColorProfile.cpp",
   "$_src/codec/SkCodecImageGenerator.cpp",
   "$_src/codec/SkCodecImageGenerator.h",
   "$_src/codec/SkCodecPriv.h",

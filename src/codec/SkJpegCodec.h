@@ -83,7 +83,7 @@ private:
      * Allows SkRawCodec to communicate the color profile from the exif data.
      */
     static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*,
-            std::unique_ptr<SkEncodedInfo::ICCProfile> defaultColorProfile);
+            std::unique_ptr<SkCodecs::ColorProfile> defaultColorProfile);
 
     /*
      * Read enough of the stream to initialize the SkJpegCodec.
@@ -109,7 +109,7 @@ private:
      */
     static Result ReadHeader(SkStream* stream, SkCodec** codecOut,
             JpegDecoderMgr** decoderMgrOut,
-            std::unique_ptr<SkEncodedInfo::ICCProfile> defaultColorProfile);
+            std::unique_ptr<SkCodecs::ColorProfile> defaultColorProfile);
 
     /*
      * Creates an instance of the decoder

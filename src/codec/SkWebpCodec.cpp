@@ -272,14 +272,14 @@ std::unique_ptr<SkCodec> SkWebpCodec::MakeFromStream(std::unique_ptr<SkStream> s
         }
     }
 
-    std::unique_ptr<SkEncodedInfo::ICCProfile> profile = nullptr;
+    std::unique_ptr<SkCodecs::ColorProfile> profile = nullptr;
     {
         WebPChunkIterator chunkIterator;
         SkAutoTCallVProc<WebPChunkIterator, WebPDemuxReleaseChunkIterator> autoCI(&chunkIterator);
         if (WebPDemuxGetChunk(demux, "ICCP", 1, &chunkIterator)) {
             // FIXME: I think this could be MakeWithoutCopy
             auto chunk = SkData::MakeWithCopy(chunkIterator.chunk.bytes, chunkIterator.chunk.size);
-            profile = SkEncodedInfo::ICCProfile::Make(std::move(chunk));
+            profile = SkCodecs::ColorProfile::MakeICCProfile(std::move(chunk));
         }
         if (profile && profile->profile()->data_color_space != skcms_Signature_RGB) {
             profile = nullptr;

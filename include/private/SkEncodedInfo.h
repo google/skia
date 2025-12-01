@@ -24,22 +24,12 @@
 #include <tuple>
 #include <utility>
 
+namespace SkCodecs {
+class ColorProfile;
+}
+
 struct SkEncodedInfo {
 public:
-    class ICCProfile {
-    public:
-        static std::unique_ptr<ICCProfile> Make(sk_sp<const SkData>);
-        static std::unique_ptr<ICCProfile> Make(const skcms_ICCProfile&);
-
-        const skcms_ICCProfile* profile() const { return &fProfile; }
-        sk_sp<const SkData> data() const { return fData; }
-    private:
-        ICCProfile(const skcms_ICCProfile&, sk_sp<const SkData> = nullptr);
-
-        skcms_ICCProfile     fProfile;
-        sk_sp<const SkData>  fData;
-    };
-
     enum Alpha {
         kOpaque_Alpha,
         kUnpremul_Alpha,
@@ -106,76 +96,39 @@ public:
         kYCCK_Color,
     };
 
-    static SkEncodedInfo Make(int width, int height, Color color, Alpha alpha,
-            int bitsPerComponent) {
-        return Make(width, height, color, alpha, bitsPerComponent, nullptr);
-    }
+    static SkEncodedInfo Make(
+        int width, int height, Color color, Alpha alpha, int bitsPerComponent);
 
-    static SkEncodedInfo Make(int width, int height, Color color,
-            Alpha alpha, int bitsPerComponent, std::unique_ptr<ICCProfile> profile) {
-        return Make(width, height, color, alpha, /*bitsPerComponent*/ bitsPerComponent,
-                std::move(profile), /*colorDepth*/ bitsPerComponent);
-    }
+    static SkEncodedInfo Make(
+        int width, int height, Color color, Alpha alpha, int bitsPerComponent,
+        std::unique_ptr<SkCodecs::ColorProfile> profile);
 
-    static SkEncodedInfo Make(int width, int height, Color color,
-            Alpha alpha, int bitsPerComponent, std::unique_ptr<ICCProfile> profile,
-            int colorDepth) {
-        return Make(width, height, color, alpha, bitsPerComponent, colorDepth, std::move(profile),
-                    skhdr::Metadata::MakeEmpty());
-    }
+    static SkEncodedInfo Make(
+        int width, int height, Color color, Alpha alpha, int bitsPerComponent,
+        std::unique_ptr<SkCodecs::ColorProfile> profile, int colorDepth);
 
-    static SkEncodedInfo Make(int width, int height, Color color,
-            Alpha alpha, int bitsPerComponent, int colorDepth, std::unique_ptr<ICCProfile> profile,
-            const skhdr::Metadata& hdrMetadata) {
-        SkASSERT(1 == bitsPerComponent ||
-                 2 == bitsPerComponent ||
-                 4 == bitsPerComponent ||
-                 8 == bitsPerComponent ||
-                 16 == bitsPerComponent);
-        VerifyColor(color, alpha, bitsPerComponent);
-        return SkEncodedInfo(width,
-                             height,
-                             color,
-                             alpha,
-                             SkToU8(bitsPerComponent),
-                             SkToU8(colorDepth),
-                             std::move(profile),
-                             hdrMetadata);
-    }
+    static SkEncodedInfo Make(
+        int width, int height, Color color, Alpha alpha, int bitsPerComponent,
+        int colorDepth,
+        std::unique_ptr<SkCodecs::ColorProfile> profile, const skhdr::Metadata& hdrMetadata);
 
     /*
      * Returns a recommended SkImageInfo.
      *
      * TODO: Leave this up to the client.
      */
-    SkImageInfo makeImageInfo() const {
-        auto ct =  kGray_Color == fColor ? kGray_8_SkColorType   :
-                 kXAlpha_Color == fColor ? kAlpha_8_SkColorType  :
-                    k565_Color == fColor ? kRGB_565_SkColorType  :
-                                           kN32_SkColorType      ;
-        auto alpha = kOpaque_Alpha == fAlpha ? kOpaque_SkAlphaType
-                                             : kUnpremul_SkAlphaType;
-        sk_sp<SkColorSpace> cs = fProfile ? SkColorSpace::Make(*fProfile->profile())
-                                          : nullptr;
-        if (!cs) {
-            cs = SkColorSpace::MakeSRGB();
-        }
-        return SkImageInfo::Make(fWidth, fHeight, ct, alpha, std::move(cs));
-    }
+    SkImageInfo makeImageInfo() const;
 
     int   width() const { return fWidth;  }
     int  height() const { return fHeight; }
     Color color() const { return fColor;  }
     Alpha alpha() const { return fAlpha;  }
     bool opaque() const { return fAlpha == kOpaque_Alpha; }
-    const skcms_ICCProfile* profile() const {
-        if (!fProfile) return nullptr;
-        return fProfile->profile();
-    }
-    sk_sp<const SkData> profileData() const {
-        if (!fProfile) return nullptr;
-        return fProfile->data();
-    }
+
+    // TODO(https://issues.skia.org/issues/464217864): Remove direct access to the
+    // skcms_ICCProfile and change profileData() to serialize a new profile.
+    const skcms_ICCProfile* profile() const;
+    sk_sp<const SkData> profileData() const;
 
     uint8_t bitsPerComponent() const { return fBitsPerComponent; }
 
@@ -208,20 +161,11 @@ public:
     SkEncodedInfo(const SkEncodedInfo& orig) = delete;
     SkEncodedInfo& operator=(const SkEncodedInfo&) = delete;
 
-    SkEncodedInfo(SkEncodedInfo&& orig) = default;
-    SkEncodedInfo& operator=(SkEncodedInfo&&) = default;
+    SkEncodedInfo(SkEncodedInfo&& orig);
+    SkEncodedInfo& operator=(SkEncodedInfo&&);
 
     // Explicit copy method, to avoid accidental copying.
-    SkEncodedInfo copy() const {
-        return SkEncodedInfo(fWidth,
-                             fHeight,
-                             fColor,
-                             fAlpha,
-                             fBitsPerComponent,
-                             fColorDepth,
-                             fProfile ? std::make_unique<const ICCProfile>(*fProfile) : nullptr,
-                             fHdrMetadata);
-    }
+    SkEncodedInfo copy() const;
 
     // Return number of bits of R/G/B channel
     uint8_t getColorDepth() const {
@@ -234,23 +178,13 @@ public:
         return fHdrMetadata;
     }
 
+    ~SkEncodedInfo();
+
 private:
-    SkEncodedInfo(int width,
-                  int height,
-                  Color color,
-                  Alpha alpha,
-                  uint8_t bitsPerComponent,
-                  uint8_t colorDepth,
-                  std::unique_ptr<const ICCProfile> profile,
-                  const skhdr::Metadata& hdrMetadata)
-            : fWidth(width)
-            , fHeight(height)
-            , fColor(color)
-            , fAlpha(alpha)
-            , fBitsPerComponent(bitsPerComponent)
-            , fColorDepth(colorDepth)
-            , fProfile(std::move(profile))
-            , fHdrMetadata(hdrMetadata) {}
+    SkEncodedInfo(
+        int width, int height, Color color, Alpha alpha, uint8_t bitsPerComponent,
+        uint8_t colorDepth,
+        std::unique_ptr<SkCodecs::ColorProfile> profile, const skhdr::Metadata& hdrMetadata);
 
     static void VerifyColor(Color color, Alpha alpha, int bitsPerComponent) {
         // Avoid `-Wunused-parameter` warnings on non-debug builds.
@@ -298,14 +232,14 @@ private:
         SkASSERT(false);  // Unrecognized `color` enum value.
     }
 
-    int                               fWidth;
-    int                               fHeight;
-    Color                                   fColor;
-    Alpha                             fAlpha;
-    uint8_t                           fBitsPerComponent;
-    uint8_t                           fColorDepth;
-    std::unique_ptr<const ICCProfile> fProfile;
-    skhdr::Metadata                   fHdrMetadata;
+    int     fWidth;
+    int     fHeight;
+    Color   fColor;
+    Alpha   fAlpha;
+    uint8_t fBitsPerComponent;
+    uint8_t fColorDepth;
+    std::unique_ptr<const SkCodecs::ColorProfile> fColorProfile;
+    skhdr::Metadata                               fHdrMetadata;
 };
 
 #endif

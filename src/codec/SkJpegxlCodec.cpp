@@ -20,6 +20,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "modules/skcms/skcms.h"
+#include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkFrameHolder.h"
 #include "src/core/SkStreamPriv.h"
 #include "src/core/SkSwizzlePriv.h"
@@ -169,7 +170,7 @@ std::unique_ptr<SkCodec> SkJpegxlCodec::MakeFromStream(std::unique_ptr<SkStream>
         // Likely incompatible colorspace.
         iccSize = 0;
     }
-    std::unique_ptr<SkEncodedInfo::ICCProfile> profile = nullptr;
+    std::unique_ptr<SkCodecs::ColorProfile> profile;
     if (iccSize) {
         auto icc = SkData::MakeUninitialized(iccSize);
         // TODO(eustas): format field is currently ignored by decoder.
@@ -183,7 +184,7 @@ std::unique_ptr<SkCodec> SkJpegxlCodec::MakeFromStream(std::unique_ptr<SkStream>
             SkDEBUGFAIL("libjxl returned unexpected status");
             return nullptr;
         }
-        profile = SkEncodedInfo::ICCProfile::Make(std::move(icc));
+        profile = SkCodecs::ColorProfile::MakeICCProfile(std::move(icc));
     }
 
     int bitsPerChannel = 16;

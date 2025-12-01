@@ -13,6 +13,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkEncodedInfo.h"
+#include "modules/skcms/skcms.h"
 #include "src/codec/SkColorPalette.h"
 #include "src/core/SkColorData.h"
 
@@ -25,8 +26,49 @@
 #endif
 
 namespace SkCodecs {
+
 bool HasDecoder(std::string_view id);
-}
+
+// All color profile information from an SkCodec.
+// TODO(https://issues.skia.org/issues/464217864): This should include skhdr::Metadata.
+class ColorProfile {
+public:
+    // Create a ColorProfile from an SkData for an ICC profile. Returns nullptr if the
+    // data fails to parse.
+    static std::unique_ptr<ColorProfile> MakeICCProfile(sk_sp<const SkData>);
+
+    // Create a ColorProfile from an SkColorSpace. Returns nullptr if the color space is
+    // nullptr.
+    static std::unique_ptr<ColorProfile> Make(sk_sp<SkColorSpace>);
+
+    // Create a ColorProfile from the specified matrix and transfer curves. This will always
+    // succeed.
+    static std::unique_ptr<ColorProfile> Make(const skcms_TransferFunction& trfn,
+                                              const skcms_Matrix3x3& toXYZD50);
+
+    // Create a ColorProfile with the specified CICP values. This will always succeed, even if
+    // the values are unrecognized.
+    static std::unique_ptr<ColorProfile> MakeCICP(uint8_t color_primaries,
+                                                  uint8_t transfer_characteristics,
+                                                  uint8_t matrix_coefficients,
+                                                  uint8_t full_range_flag);
+
+    // Create a copy of this.
+    std::unique_ptr<ColorProfile> clone() const;
+
+    // TODO(https://issues.skia.org/issues/464217864): Remove direct access to the
+    // skcms_ICCProfile and change data() to be a serialize() function.
+    const skcms_ICCProfile* profile() const { return &fProfile; }
+    sk_sp<const SkData> data() const { return fData; }
+
+private:
+    ColorProfile(const skcms_ICCProfile&, sk_sp<const SkData> = nullptr);
+
+    skcms_ICCProfile     fProfile;
+    sk_sp<const SkData>  fData;
+};
+
+}  // namespace SkCodecs
 
 class SkCodecPriv final {
 public:

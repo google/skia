@@ -86,7 +86,7 @@ std::unique_ptr<SkCodec> SkAvifCodec::MakeFromStream(std::unique_ptr<SkStream> s
         return nullptr;
     }
 
-    std::unique_ptr<SkEncodedInfo::ICCProfile> profile = nullptr;
+    std::unique_ptr<SkCodecs::ColorProfile> profile;
     // TODO(vigneshv): Get ICC Profile from the avif decoder.
 
     const int bitsPerComponent = avifDecoder->image->depth > 8 ? 16 : 8;
