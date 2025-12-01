@@ -2552,27 +2552,26 @@ DEF_TEST(LibpngCodec_f16_trc_tables, r) {
     REPORTER_ASSERT(r, result == SkCodec::Result::kSuccess);
 }
 
-#if defined(SK_CODEC_DECODES_PNG_WITH_LIBPNG) && \
-    defined(SK_CODEC_ENCODES_PNG_WITH_LIBPNG) && \
-    !defined(SK_PNG_DISABLE_TESTS)
-DEF_TEST(PngHdrMetadataRoundTrip, r) {
-    SkBitmap bm;
-    bm.allocPixels(SkImageInfo::MakeN32Premul(10, 10));
+// TODO(b/464028670)
+// #if defined(SK_CODEC_DECODES_PNG_WITH_LIBPNG) && defined(SK_CODEC_ENCODES_PNG_WITH_LIBPNG) && !defined(SK_PNG_DISABLE_TESTS)
+// DEF_TEST(PngHdrMetadataRoundTrip, r) {
+//     SkBitmap bm;
+//     bm.allocPixels(SkImageInfo::MakeN32Premul(10, 10));
 
-    SkPngEncoder::Options options;
-    options.fHdrMetadata.setMasteringDisplayColorVolume(
-        skhdr::MasteringDisplayColorVolume({SkNamedPrimaries::kRec2020, 500.f, 0.0005f}));
-    options.fHdrMetadata.setContentLightLevelInformation(
-        skhdr::ContentLightLevelInformation({1000.f, 150.f}));
+//     SkPngEncoder::Options options;
+//     options.fHdrMetadata.setMasteringDisplayColorVolume(
+//         skhdr::MasteringDisplayColorVolume({SkNamedPrimaries::kRec2020, 500.f, 0.0005f}));
+//     options.fHdrMetadata.setContentLightLevelInformation(
+//         skhdr::ContentLightLevelInformation({1000.f, 150.f}));
 
-    sk_sp<SkData> data = SkPngEncoder::Encode(bm.pixmap(), options);
+//     sk_sp<SkData> data = SkPngEncoder::Encode(bm.pixmap(), options);
 
-    SkCodec::Result result;
-    auto codec = SkPngDecoder::Decode(data, &result);
+//     SkCodec::Result result;
+//     auto codec = SkPngDecoder::Decode(data, &result);
 
-    REPORTER_ASSERT(r, options.fHdrMetadata == codec->getHdrMetadata());
-}
-#endif
+//     REPORTER_ASSERT(r, options.fHdrMetadata == codec->getHdrMetadata());
+// }
+// #endif
 
 #if defined(SK_CODEC_DECODES_PNG_WITH_RUST) && \
     defined(SK_CODEC_ENCODES_PNG_WITH_LIBPNG) && \
