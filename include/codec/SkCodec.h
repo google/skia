@@ -849,12 +849,6 @@ protected:
             std::unique_ptr<SkStream>,
             SkEncodedOrigin = kTopLeft_SkEncodedOrigin);
 
-    void setSrcXformFormat(XformFormat pixelFormat);
-
-    XformFormat getSrcXformFormat() const {
-        return fSrcXformFormat;
-    }
-
     virtual bool onGetGainmapCodec(SkGainmapInfo*, std::unique_ptr<SkCodec>*) { return false; }
     virtual bool onGetGainmapInfo(SkGainmapInfo*) { return false; }
 
