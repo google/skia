@@ -2,6 +2,33 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 144
+-------------
+  * `SkSerialProcs` now are expected to return a pointer-to-const data. This was implied before, but
+    is now made explicit.
+  * `SkImage::refEncodedData()` and `SkImageGenerator::refEncodedData()` now returns a pointer to
+    const SkData to more explicitly signal that this is a read-only view into the data.
+  * Define a new public enum, `SampleCount`, that enforces the valid sample count values that Graphite
+    supports (1, 2, 4, 8, 16). `TextureInfo::numSamples() -> uint8_t` is replaced with
+    `TextureInfo::sampleCount() -> SampleCount`.
+
+    Backend specific texture infos, e.g. `DawnTextureInfo`,
+    `VulkanTextureInfo`, and `MtlTextureInfo` still represent sample count as a `uint8_t` for
+    convience with the backend APIs. This `uint8_t` value is validated when wrapping the backend info
+    into a `TextureInfo`; if it's not a `SampleCount` value, then an empty `TextureInfo` is returned.
+  * The existing ContextOptions `PipelineCallback` has been deprecated in favor of the new `PipelineCachingCallback`.
+
+    The new callback provides extra information to the user allowing determination of how often a Pipeline is used and if any Precompiled Pipelines were unused. This information can be used to create a more effective set of Precompile PaintOptions.
+  * New `SkSVGCanvas::Make` overload allows explicitly specifying which PNG encoder
+    should be used.  This enables avoiding a hardcoded, transitive dependency on
+    either `libpng` or Rust PNG.
+  * `kR16_unorm_SkColorType` added to `SkColorType`.
+  * `include/docs/SkXPSLibpngHelpers.h` and `include/docs/SkXPSRustPngHelpers.h`
+    have been removed - please use a small lambda instead (e.g. see
+    https://crrev.com/c/7090470).
+
+* * *
+
 Milestone 143
 -------------
   * Added `detachAsVector` method to `SkDynamicMemoryStream`.
