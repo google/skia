@@ -33,28 +33,35 @@ namespace SkNamedPrimaries {
 struct TableEntry {
     CicpId cicp_id;
     SkColorSpacePrimaries sk_primaries;
+    const skcms_Matrix3x3* to_xyzd50 = nullptr;
 };
 const static TableEntry cicp_table[] = {
-    { CicpId::kRec709, kRec709 },
+    { CicpId::kRec709, kRec709, &SkNamedGamut::kSRGB },
     { CicpId::kRec470SystemM, kRec470SystemM },
     { CicpId::kRec470SystemBG, kRec470SystemBG },
     { CicpId::kRec601, kRec601 },
     { CicpId::kSMPTE_ST_240, kSMPTE_ST_240 },
     { CicpId::kGenericFilm, kGenericFilm },
-    { CicpId::kRec2020, kRec2020 },
+    { CicpId::kRec2020, kRec2020, &SkNamedGamut::kRec2020 },
     { CicpId::kSMPTE_ST_428_1, kSMPTE_ST_428_1 },
     { CicpId::kSMPTE_RP_431_2, kSMPTE_RP_431_2 },
-    { CicpId::kSMPTE_EG_432_1, kSMPTE_EG_432_1 },
+    { CicpId::kSMPTE_EG_432_1, kSMPTE_EG_432_1, &SkNamedGamut::kDisplayP3 },
     { CicpId::kITU_T_H273_Value22, kITU_T_H273_Value22 },
 };
 // Value 2 indicates "characteristics are unknown or are determined by the application". In
 // practice, this means we will delegate the primaries to the toXYZD50 tags.
-uint8_t kCicpIdApplicationDefined = 2;
+constexpr uint8_t kCicpIdApplicationDefined = 2;
 
-bool GetCicp(CicpId primaries, SkColorSpacePrimaries& sk_primaries) {
+bool GetCicp(CicpId primaries, skcms_Matrix3x3& toXYZD50) {
     for (const auto& table_entry : cicp_table) {
-        if (primaries == table_entry.cicp_id) {
-            sk_primaries = table_entry.sk_primaries;
+        if (primaries != table_entry.cicp_id) {
+            continue;
+        }
+        if (table_entry.to_xyzd50) {
+            toXYZD50 = *table_entry.to_xyzd50;
+            return true;
+        }
+        if (table_entry.sk_primaries.toXYZD50(&toXYZD50)) {
             return true;
         }
     }
@@ -100,7 +107,7 @@ const static TableEntry cicp_table[] = {
 };
 // Value 2 indicates "characteristics are unknown or are determined by the application". In
 // practice, this means we will delegate the primaries to the trc tags.
-uint8_t kCicpIdApplicationDefined = 2;
+constexpr uint8_t kCicpIdApplicationDefined = 2;
 
 bool GetCicp(SkNamedTransferFn::CicpId transfer_characteristics, skcms_TransferFunction& trfn) {
     for (const auto& table_entry : cicp_table) {
@@ -158,17 +165,12 @@ sk_sp<SkColorSpace> SkColorSpace::MakeCICP(SkNamedPrimaries::CicpId color_primar
         return nullptr;
     }
 
-    SkColorSpacePrimaries primaries;
-    if (!SkNamedPrimaries::GetCicp(color_primaries, primaries)) {
+    skcms_Matrix3x3 toXYZD50;
+    if (!SkNamedPrimaries::GetCicp(color_primaries, toXYZD50)) {
         return nullptr;
     }
 
-    skcms_Matrix3x3 primaries_matrix;
-    if (!primaries.toXYZD50(&primaries_matrix)) {
-        return nullptr;
-    }
-
-    return SkColorSpace::MakeRGB(trfn, primaries_matrix);
+    return SkColorSpace::MakeRGB(trfn, toXYZD50);
 }
 
 class SkColorSpaceSingletonFactory {
@@ -348,11 +350,8 @@ sk_sp<SkColorSpace> SkColorSpace::Make(const skcms_ICCProfile& profile) {
     skcms_Matrix3x3 toXYZD50;
     bool hasSetToXYZD50 = false;
     if (use_cicp) {
-        SkColorSpacePrimaries primaries;
-        if (SkNamedPrimaries::GetCicp(cicp_color_primaries, primaries)) {
-            if (primaries.toXYZD50(&toXYZD50)) {
-                hasSetToXYZD50 = true;
-            }
+        if (SkNamedPrimaries::GetCicp(cicp_color_primaries, toXYZD50)) {
+            hasSetToXYZD50 = true;
         } else if (profile.CICP.color_primaries != SkNamedPrimaries::kCicpIdApplicationDefined) {
             return nullptr;
         }
