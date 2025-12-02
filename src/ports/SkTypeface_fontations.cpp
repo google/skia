@@ -29,12 +29,9 @@ template <typename T> rust::Slice<T> toSlice(SkSpan<T> span) {
     return rust::Slice<T>(span.data(), span.size());
 }
 
-void CheckPng() {
-#if defined(SK_DEBUG)
-    if (!SkCodecs::HasDecoder("png")) {
-        SkDebugf("No PNG decoder registered. A call to SkCodecs::Register is necessary.\n");
-    }
-#endif
+static void check_png() {
+    SkASSERTF(SkCodecs::HasDecoder("png"),
+        "No PNG decoder registered. A call to SkCodecs::Register is necessary.");
 }
 
 [[maybe_unused]] static inline const constexpr bool kSkShowTextBlitCoverage = false;
@@ -628,7 +625,7 @@ protected:
             sk_sp<SkImage> img = SkImages::DeferredFromEncodedData(
                     SkData::MakeWithoutCopy(png_data.data(), png_data.size()));
             if (!img) {
-                CheckPng();
+                check_png();
                 return mx;
             }
 
@@ -696,7 +693,7 @@ protected:
         sk_sp<SkImage> glyph_image = SkImages::DeferredFromEncodedData(
                 SkData::MakeWithoutCopy(png_data.data(), png_data.size()));
         if (!glyph_image) {
-            CheckPng();
+            check_png();
             return;
         }
 
