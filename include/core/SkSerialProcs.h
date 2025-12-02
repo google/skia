@@ -24,11 +24,7 @@ namespace sktext::gpu {
     class Slug;
 }
 
-#if defined(SK_DISABLE_LEGACY_NONCONST_SERIAL_PROCS)
 using SkSerialReturnType = sk_sp<const SkData>;
-#else
-using SkSerialReturnType = sk_sp<SkData>;
-#endif
 /**
  *  A serial-proc is asked to serialize the specified object (e.g. picture or image).
  *  If a data object is returned, it will be used (even if it is zero-length).

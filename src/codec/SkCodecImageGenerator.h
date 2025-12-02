@@ -103,11 +103,7 @@ public:
     int getRepetitionCount() { return fCodec->getRepetitionCount(); }
 
 protected:
-#if defined(SK_DISABLE_LEGACY_NONCONST_ENCODED_IMAGE_DATA)
     sk_sp<const SkData> onRefEncodedData() override;
-#else
-    sk_sp<SkData> onRefEncodedData() override;
-#endif
 
     bool onGetPixels(const SkImageInfo& info,
                      void* pixels,

@@ -38,11 +38,7 @@ public:
                       SkEncodedOrigin);
 
 protected:
-#if defined(SK_DISABLE_LEGACY_NONCONST_ENCODED_IMAGE_DATA)
     sk_sp<const SkData> onRefEncodedData() override;
-#else
-    sk_sp<SkData> onRefEncodedData() override;
-#endif
 
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options&)
     override;
@@ -200,13 +196,7 @@ ImageGeneratorWIC::ImageGeneratorWIC(const SkImageInfo& info,
         , fData(std::move(data))
         , fOrigin(origin) {}
 
-#if defined(SK_DISABLE_LEGACY_NONCONST_ENCODED_IMAGE_DATA)
 sk_sp<const SkData> ImageGeneratorWIC::onRefEncodedData() { return fData; }
-#else
-sk_sp<SkData> ImageGeneratorWIC::onRefEncodedData() {
-    return sk_ref_sp(const_cast<SkData*>(fData.get()));
-}
-#endif
 
 bool ImageGeneratorWIC::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
         const Options&) {

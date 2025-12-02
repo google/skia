@@ -140,13 +140,8 @@ public:
      */
     static void PurgeAllCaches();
 
-#if defined(SK_DISABLE_LEGACY_NONCONST_ENCODED_IMAGE_DATA)
     using ImageGeneratorFromEncodedDataFactory =
             std::unique_ptr<SkImageGenerator> (*)(sk_sp<const SkData>);
-#else
-    using ImageGeneratorFromEncodedDataFactory =
-            std::unique_ptr<SkImageGenerator> (*)(sk_sp<SkData>);
-#endif
 
     /**
      *  To instantiate images from encoded data, first looks at this runtime function-ptr. If it

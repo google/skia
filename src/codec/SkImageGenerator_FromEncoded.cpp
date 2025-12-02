@@ -38,16 +38,9 @@ std::unique_ptr<SkImageGenerator> MakeFromEncoded(sk_sp<const SkData> data,
         return nullptr;
     }
     if (gFactory) {
-#if defined(SK_DISABLE_LEGACY_NONCONST_ENCODED_IMAGE_DATA)
         if (std::unique_ptr<SkImageGenerator> generator = gFactory(data)) {
             return generator;
         }
-#else
-        sk_sp<SkData> mData = sk_sp<SkData>(const_cast<SkData*>(data.release()));
-        if (std::unique_ptr<SkImageGenerator> generator = gFactory(mData)) {
-            return generator;
-        }
-#endif
     }
     return SkCodecImageGenerator::MakeFromEncodedCodec(std::move(data), at);
 }

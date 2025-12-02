@@ -21,11 +21,7 @@ public:
     ~ImageGeneratorNDK() override;
 
 protected:
-#if defined(SK_DISABLE_LEGACY_NONCONST_ENCODED_IMAGE_DATA)
     sk_sp<const SkData> onRefEncodedData() override;
-#else
-    sk_sp<SkData> onRefEncodedData() override;
-#endif
 
     bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                      const Options& opts) override;
@@ -224,10 +220,4 @@ bool ImageGeneratorNDK::onGetPixels(const SkImageInfo& info, void* pixels, size_
     }
 }
 
-#if defined(SK_DISABLE_LEGACY_NONCONST_ENCODED_IMAGE_DATA)
 sk_sp<const SkData> ImageGeneratorNDK::onRefEncodedData() { return fData; }
-#else
-sk_sp<SkData> ImageGeneratorNDK::onRefEncodedData() {
-    return sk_ref_sp(const_cast<SkData*>(fData.get()));
-}
-#endif

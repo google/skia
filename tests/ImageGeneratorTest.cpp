@@ -34,19 +34,11 @@
 
 static bool gMyFactoryWasCalled;
 
-#if defined(SK_DISABLE_LEGACY_NONCONST_ENCODED_IMAGE_DATA)
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
 static std::unique_ptr<SkImageGenerator> my_factory(sk_sp<const SkData>) {
     gMyFactoryWasCalled = true;
     return nullptr;
 }
-#else
-// NOLINTNEXTLINE(performance-unnecessary-value-param)
-static std::unique_ptr<SkImageGenerator> my_factory(sk_sp<SkData>) {
-    gMyFactoryWasCalled = true;
-    return nullptr;
-}
-#endif
 
 static void test_imagegenerator_factory(skiatest::Reporter* reporter) {
     // just need a non-empty data to test things
@@ -66,13 +58,11 @@ static void test_imagegenerator_factory(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, nullptr == gen);
     REPORTER_ASSERT(reporter, gMyFactoryWasCalled);
 
-#if defined(SK_DISABLE_LEGACY_NONCONST_ENCODED_IMAGE_DATA)
     // This just verifies that the signatures match.
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     SkGraphics::SetImageGeneratorFromEncodedDataFactory(SkImageGeneratorCG::MakeFromEncodedCG);
 #elif defined(SK_BUILD_FOR_WIN)
     SkGraphics::SetImageGeneratorFromEncodedDataFactory(SkImageGeneratorWIC::MakeFromEncodedWIC);
-#endif
 #endif
 
     SkGraphics::SetImageGeneratorFromEncodedDataFactory(prev);
