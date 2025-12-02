@@ -40,6 +40,14 @@ public:
     }
 
     /**
+     * Return true if both arguments are the same size and contain the same bytes, or if both
+     * arguments are null.
+     */
+    static bool Equals(const SkData* a, const SkData* b) {
+        return (a == nullptr) ? (b == nullptr) : a->equals(b);
+    }
+
+    /**
      *  Returns the number of bytes stored.
      */
     size_t size() const { return fSpan.size(); }

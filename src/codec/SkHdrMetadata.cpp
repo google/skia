@@ -185,6 +185,10 @@ bool Metadata::getMasteringDisplayColorVolume(MasteringDisplayColorVolume* mdcv)
     return true;
 }
 
+sk_sp<const SkData> Metadata::getSerializedAgtm() const {
+    return fAgtm;
+}
+
 void Metadata::setMasteringDisplayColorVolume(const MasteringDisplayColorVolume& mdcv) {
     fMasteringDisplayColorVolume = mdcv;
 }
@@ -193,17 +197,24 @@ void Metadata::setContentLightLevelInformation(const ContentLightLevelInformatio
     fContentLightLevelInformation = clli;
 }
 
+void Metadata::setSerializedAgtm(sk_sp<const SkData> agtm) {
+    fAgtm = agtm;
+}
+
 SkString Metadata::toString() const {
-    return SkStringPrintf("{clli:%s, mdcv:%s}",
+    auto agtm = Agtm::Make(fAgtm.get());
+    return SkStringPrintf("{clli:%s, mdcv:%s, agtm:%s}",
         fContentLightLevelInformation.has_value() ?
             fContentLightLevelInformation->toString().c_str() : "None",
         fMasteringDisplayColorVolume.has_value() ?
-            fMasteringDisplayColorVolume->toString().c_str() : "None");
+            fMasteringDisplayColorVolume->toString().c_str() : "None",
+        agtm ? agtm->toString().c_str() : "None");
 }
 
 bool Metadata::operator==(const Metadata& other) const {
     return fContentLightLevelInformation == other.fContentLightLevelInformation &&
-           fMasteringDisplayColorVolume == other.fMasteringDisplayColorVolume;
+           fMasteringDisplayColorVolume == other.fMasteringDisplayColorVolume &&
+           SkData::Equals(fAgtm.get(), other.fAgtm.get());
 }
 
 }  // namespace skhdr

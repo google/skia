@@ -9,12 +9,11 @@
 #define SkHdrAgtmPriv_DEFINED
 
 #include "include/core/SkColor.h"
-#include "include/core/SkColorFilter.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkHdrMetadata.h"
 
 #include <optional>
 #include <vector>
@@ -30,7 +29,8 @@ namespace skhdr {
  * SMPTE ST 2094-50: Dynamic metadata for color volume transform — Application #5
  * https://github.com/SMPTE/st2094-50
  */
-struct SK_API Agtm {
+class AgtmImpl final : public Agtm {
+  public:
     // A PiecewiseCubic metadata group, described in Clause 5.1, Piecewise cubic function.
     struct PiecewiseCubicFunction {
         // The GainCurveNumControlPoints metadata item.
@@ -94,7 +94,6 @@ struct SK_API Agtm {
     Type fType = Type::kNone;
 
     // The HdrReferenceWhite metadata item.
-    static constexpr float kDefaultHdrReferenceWhite = 203.f;
     float fHdrReferenceWhite = kDefaultHdrReferenceWhite;
 
     // The BaselineHdrHeadroom metadata item.
@@ -113,9 +112,14 @@ struct SK_API Agtm {
     // The GainFunction metadata item list.
     GainFunction fGainFunction[kMaxNumAlternateImages];
 
-    // SkImage containing the control point values for use by the color filter. This is
-    // lazily allocated by makeColorFilter().
-    mutable sk_sp<SkImage> fGainCurvesXYM;
+    // SkImage containing the control point values for use by the color filter, populated by
+    // populateGainCurvesXYM.
+    sk_sp<SkImage> fGainCurvesXYM;
+
+    /**
+     * Populate the fGainCurvesXYM which will cache the gain curves' values in an SkImage.
+     */
+    void populateGainCurvesXYM();
 
     /**
      * This will populate the metadata with the Reference White Tone Mapping Operator (RWTMO)
@@ -128,11 +132,6 @@ struct SK_API Agtm {
      * smpte_st_2094_50_application_info_v0() bitstream. Return false if parsing fails.
      */
     bool parse(const SkData* data);
-
-    /**
-     * Serialize to a smpte_st_2094_50_application_info_v0() bitstream.
-     */
-    sk_sp<SkData> serialize() const;
 
     /**
      * Compute the weighting for the specified targeted HDR headroom according to the computations
@@ -156,14 +155,21 @@ struct SK_API Agtm {
     void applyGain(SkSpan<SkColor4f> colors, float targetedHdrHeadroom) const;
 
     /**
-     * Return a color filter to apply tone mapping targeting the specified `targetedHdrHeadroom`.
-     */
-    sk_sp<SkColorFilter> makeColorFilter(float targetedHdrHeadroom) const;
-
-    /**
      * Return the gain application color space.
      */
     sk_sp<SkColorSpace> getGainApplicationSpace() const;
+
+    /**
+     * Implementation of the Agtm interface.
+     */
+    ~AgtmImpl() override = default;
+    sk_sp<SkData> serialize() const override;
+    float getHdrReferenceWhite() const override;
+    bool hasBaselineHdrHeadroom() const override;
+    float getBaselineHdrHeadroom() const override;
+    bool isClamp() const override;
+    sk_sp<SkColorFilter> makeColorFilter(float targetedHdrHeadroom) const override;
+    SkString toString() const override;
 };
 
 }  // namespace skhdr
