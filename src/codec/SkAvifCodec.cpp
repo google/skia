@@ -16,6 +16,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
 #include "modules/skcms/skcms.h"
+#include "src/codec/SkCodecPriv.h"
 #include "src/core/SkStreamPriv.h"
 
 #include <cstdint>

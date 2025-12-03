@@ -16,6 +16,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkHdrMetadata.h"
+#include "include/private/base/SkAPI.h"
 #include "include/private/base/SkTo.h"
 #include "modules/skcms/skcms.h"
 
@@ -28,7 +29,7 @@ namespace SkCodecs {
 class ColorProfile;
 }
 
-struct SkEncodedInfo {
+struct SK_API SkEncodedInfo {
 public:
     enum Alpha {
         kOpaque_Alpha,
