@@ -1021,6 +1021,44 @@ public:
             }
         }
 
+        // xmlFamilies may have an entry with "sans-serif" but there may be no matches (even for
+        // just file name, like on Xiaomi HyperOS devices). In such cases assume Roboto (if it
+        // exists) should be used for "sans-serif" and aliases.
+        [&]() {
+            if (this->onMatchAFamily("sans-serif")) {
+                return;
+            }
+            if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: Found no sans-serif matches\n"); }
+
+            auto&& matchXmlFamily = [&xmlFamilies](std::string_view familyName) -> FontFamily* {
+                for (const std::unique_ptr<FontFamily>& xmlFamily : xmlFamilies) {
+                    for (auto&& xmlName : xmlFamily->fNames) {
+                        if (xmlName.equals(familyName.data(), familyName.size())) {
+                            return &*xmlFamily;
+                        }
+                    }
+                }
+                return nullptr;
+            };
+            FontFamily* xmlSansSerif = matchXmlFamily("sans-serif");
+            if (!xmlSansSerif) {
+                return;
+            }
+            if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: Found xml sans-serif\n"); }
+
+            sk_sp<SkFontStyleSet_AndroidNDK> roboto = this->onMatchAFamily("Roboto");
+            if (!roboto) {
+                return;
+            }
+            if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: Found Roboto\n"); }
+
+            for (auto&& xmlName : xmlSansSerif->fNames) {
+                if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: Alias %s\n", xmlName.c_str()); }
+                SkString normalizedName(fICU.casefold({xmlName.data(), xmlName.size()}));
+                fNameToFamilyMap.emplace_back(NameToFamily{xmlName, normalizedName, roboto.get()});
+            }
+        }();
+
         // fFallbackStyleSets was populated by addSystemTypeface, remove all nullptr but keep order.
         SkFontStyleSet_AndroidNDK** newEnd =
                 std::remove(fFallbackStyleSets.begin(), fFallbackStyleSets.end(), nullptr);
