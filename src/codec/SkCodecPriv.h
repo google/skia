@@ -56,6 +56,23 @@ public:
     // Create a copy of this.
     std::unique_ptr<ColorProfile> clone() const;
 
+    // Return the color data space for the profile.
+    enum class DataSpace {
+        kRGB,   // skcms_Signature_RGB
+        kCMYK,  // skcms_Signature_CMYK
+        kGray,  // skcms_Signature_Gray
+        kOther, // all other values
+    };
+    DataSpace dataSpace() const;
+
+    // Return the color space that this profile represents exactly. Return nullptr if this profile
+    // cannot be represented as an SkColorSpace.
+    sk_sp<SkColorSpace> getExactColorSpace() const;
+
+    // Return the color space that Android uses for this profile (see implementation for details).
+    // Will not return nullptr.
+    sk_sp<SkColorSpace> getAndroidOutputColorSpace() const;
+
     // TODO(https://issues.skia.org/issues/464217864): Remove direct access to the
     // skcms_ICCProfile and change data() to be a serialize() function.
     const skcms_ICCProfile* profile() const { return &fProfile; }

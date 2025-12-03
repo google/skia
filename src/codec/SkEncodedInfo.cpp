@@ -16,8 +16,7 @@ SkImageInfo SkEncodedInfo::makeImageInfo() const {
                                        kN32_SkColorType      ;
     auto alpha = kOpaque_Alpha == fAlpha ? kOpaque_SkAlphaType
                                          : kUnpremul_SkAlphaType;
-    sk_sp<SkColorSpace> cs = fColorProfile ? SkColorSpace::Make(*fColorProfile->profile())
-                                      : nullptr;
+    auto cs = fColorProfile ? fColorProfile->getExactColorSpace() : SkColorSpace::MakeSRGB();
     if (!cs) {
         cs = SkColorSpace::MakeSRGB();
     }

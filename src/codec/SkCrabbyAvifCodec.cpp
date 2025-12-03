@@ -254,7 +254,7 @@ std::unique_ptr<SkCodec> SkCrabbyAvifCodec::MakeFromData(std::unique_ptr<SkStrea
             image->colorPrimaries, image->transferCharacteristics, 0,
             image->yuvRange == crabbyavif::AVIF_RANGE_FULL);
     }
-    if (profile && profile->profile()->data_color_space != skcms_Signature_RGB) {
+    if (profile && profile->dataSpace() != SkCodecs::ColorProfile::DataSpace::kRGB) {
         profile = nullptr;
     }
 

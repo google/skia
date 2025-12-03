@@ -7,8 +7,50 @@
 
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecPriv.h"
+#include "src/core/SkColorSpacePriv.h"
 
 namespace SkCodecs {
+
+namespace {
+
+sk_sp<SkColorSpace> cicp_get_android_sk_color_space(uint8_t color_primaries,
+                                                    uint8_t transfer_characteristics,
+                                                    uint8_t matrix_coefficients,
+                                                    uint8_t full_range_flag) {
+    if (matrix_coefficients != 0) {
+        return nullptr;
+    }
+    if (full_range_flag != 1) {
+        return nullptr;
+    }
+    skcms_Matrix3x3 primaries;
+    if (!SkNamedPrimaries::GetCicp(
+            static_cast<SkNamedPrimaries::CicpId>(color_primaries), primaries)) {
+        return nullptr;
+    }
+    skcms_TransferFunction trfn;
+    if (!SkNamedTransferFn::GetCicp(
+            static_cast<SkNamedTransferFn::CicpId>(transfer_characteristics), trfn)) {
+        return nullptr;
+    }
+    switch (transfer_characteristics) {
+        case 16:
+            // Android expects PQ to match 203 nits to SDR white
+            trfn = {-2.f, -1.55522297832f, 1.86045365631f, 32 / 2523.0f,
+                    2413 / 128.0f, -2392 / 128.0f, 8192 / 1305.0f};
+            break;
+        case 18:
+            // Android expects HLG to match 203 nits to SDR white
+            skcms_TransferFunction_makeScaledHLGish(
+                &trfn, 0.314509843f, 2.f, 2.f, 1.f / 0.17883277f, 0.28466892f, 0.55991073f);
+            break;
+        default:
+            break;
+    }
+    return SkColorSpace::MakeRGB(trfn, primaries);
+}
+
+}  // namespace
 
 std::unique_ptr<ColorProfile> ColorProfile::MakeICCProfile(
         sk_sp<const SkData> data) {
@@ -57,6 +99,47 @@ std::unique_ptr<ColorProfile> ColorProfile::MakeCICP(
 
 std::unique_ptr<ColorProfile> ColorProfile::clone() const {
     return std::unique_ptr<ColorProfile>(new ColorProfile(fProfile, fData));
+}
+
+ColorProfile::DataSpace ColorProfile::dataSpace() const {
+    switch (fProfile.data_color_space) {
+        case skcms_Signature_RGB:
+            return DataSpace::kRGB;
+        case skcms_Signature_CMYK:
+            return DataSpace::kCMYK;
+        case skcms_Signature_Gray:
+            return DataSpace::kGray;
+        default:
+            return DataSpace::kOther;
+    }
+}
+
+sk_sp<SkColorSpace> ColorProfile::getExactColorSpace() const {
+    return SkColorSpace::Make(fProfile);
+}
+
+sk_sp<SkColorSpace> ColorProfile::getAndroidOutputColorSpace() const {
+    // Prefer CICP information if it exists.
+    if (fProfile.has_CICP) {
+        const auto cicpColorSpace = cicp_get_android_sk_color_space(
+                fProfile.CICP.color_primaries,
+                fProfile.CICP.transfer_characteristics,
+                fProfile.CICP.matrix_coefficients,
+                fProfile.CICP.video_full_range_flag);
+        if (cicpColorSpace) {
+            return cicpColorSpace;
+        }
+    }
+    if (auto encodedSpace = SkColorSpace::Make(fProfile)) {
+        // Leave the pixels in the encoded color space.  Color space conversion
+        // will be handled after decode time.
+        return encodedSpace;
+    }
+    if (fProfile.has_toXYZD50) {
+        return SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB,
+                                     fProfile.toXYZD50);
+    }
+    return SkColorSpace::MakeSRGB();
 }
 
 ColorProfile::ColorProfile(const skcms_ICCProfile& profile, sk_sp<const SkData> data)

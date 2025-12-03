@@ -225,7 +225,7 @@ std::unique_ptr<SkCodecs::ColorProfile> CreateColorProfile(const rust_png::Reade
         // because we do gamma correction via `skcms_Transform` (rather than
         // relying on `libpng` gamma correction as the legacy Blink decoder does
         // in this scenario).
-        toXYZD50 = skcms_sRGB_profile()->toXYZD50;
+        toXYZD50 = SkNamedGamut::kSRGB;
     }
 
     skcms_TransferFunction fn;

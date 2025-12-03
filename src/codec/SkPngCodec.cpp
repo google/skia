@@ -341,7 +341,7 @@ std::unique_ptr<SkCodecs::ColorProfile> read_color_profile(
     }
 
     // Default to SRGB gamut.
-    skcms_Matrix3x3 toXYZD50 = skcms_sRGB_profile()->toXYZD50;
+    skcms_Matrix3x3 toXYZD50 = SkNamedGamut::kSRGB;
     // Next, check for chromaticities.
     png_fixed_point chrm[8];
     png_fixed_point gamma;
@@ -1085,9 +1085,9 @@ bool SkPngCodec::onGetGainmapCodec(SkGainmapInfo* info, std::unique_ptr<SkCodec>
         // The ISO gainmap payload does not contain the actual alterative image
         // primaries, so we need to query the ICC profile stored on the gainmap.
         if (info->fGainmapMathColorSpace) {
-            const auto iccProfile = codec->getEncodedInfo().profile();
-            if (iccProfile) {
-                auto colorSpace = SkColorSpace::Make(*iccProfile);
+            const auto* colorProfile = codec->getEncodedInfo().colorProfile();
+            if (colorProfile) {
+                auto colorSpace = colorProfile->getExactColorSpace();
                 if (colorSpace) {
                     info->fGainmapMathColorSpace = std::move(colorSpace);
                 }

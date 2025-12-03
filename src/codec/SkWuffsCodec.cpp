@@ -501,7 +501,7 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecode(const SkImageInfo&      d
     // supports...
     fIncrDecOnePass = (pixelFormat != WUFFS_BASE__PIXEL_FORMAT__INVALID) &&
                       // ...and no color profile (as Wuffs does not support them)...
-                      (!getEncodedInfo().profile()) &&
+                      (!getEncodedInfo().colorProfile()) &&
                       // ...and we use the identity transform (as Wuffs does
                       // not support scaling).
                       (this->dimensions() == dstInfo.dimensions());
@@ -723,7 +723,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecodeTwoPass() {
         // Currently, this is only used for GIF, which will never have an ICC profile. When it is
         // used for other formats that might have one, we will need to transform from profiles that
         // do not have corresponding SkColorSpaces.
-        SkASSERT(!getEncodedInfo().profile());
+        SkASSERT(!getEncodedInfo().colorProfile());
 
         auto srcInfo =
             getInfo().makeWH(dirty_rect.width(), dirty_rect.height()).makeAlphaType(alphaType);

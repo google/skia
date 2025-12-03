@@ -130,6 +130,9 @@ public:
     // skcms_ICCProfile and change profileData() to serialize a new profile.
     const skcms_ICCProfile* profile() const;
     sk_sp<const SkData> profileData() const;
+    const SkCodecs::ColorProfile* colorProfile() const {
+        return fColorProfile.get();
+    }
 
     uint8_t bitsPerComponent() const { return fBitsPerComponent; }
 
