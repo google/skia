@@ -38,17 +38,18 @@
                OpDecorate %29 RelaxedPrecision
                OpDecorate %32 RelaxedPrecision
                OpDecorate %33 RelaxedPrecision
-               OpDecorate %37 RelaxedPrecision
-               OpDecorate %40 RelaxedPrecision
-               OpDecorate %43 RelaxedPrecision
-               OpDecorate %46 RelaxedPrecision
-               OpDecorate %50 RelaxedPrecision
-               OpDecorate %53 RelaxedPrecision
-               OpDecorate %55 RelaxedPrecision
-               OpDecorate %59 RelaxedPrecision
+               OpDecorate %34 RelaxedPrecision
+               OpDecorate %38 RelaxedPrecision
+               OpDecorate %41 RelaxedPrecision
+               OpDecorate %44 RelaxedPrecision
+               OpDecorate %47 RelaxedPrecision
+               OpDecorate %51 RelaxedPrecision
+               OpDecorate %54 RelaxedPrecision
+               OpDecorate %56 RelaxedPrecision
                OpDecorate %60 RelaxedPrecision
-               OpDecorate %63 RelaxedPrecision
+               OpDecorate %61 RelaxedPrecision
                OpDecorate %64 RelaxedPrecision
+               OpDecorate %65 RelaxedPrecision
 
                ; Types, variables and constants
         %int = OpTypeInt 32 1
@@ -68,7 +69,7 @@
 %_ptr_Function_v2float = OpTypePointer Function %v2float
          %24 = OpTypeFunction %v4float %_ptr_Function_v2float
 %_ptr_Function_v4float = OpTypePointer Function %v4float
-%float_6_00000015e_26 = OpConstant %float 6.00000015e+26
+%float_65504 = OpConstant %float 65504
     %float_2 = OpConstant %float 2
 %_ptr_Uniform_float = OpTypePointer Uniform %float
       %int_0 = OpConstant %int 0
@@ -80,10 +81,10 @@
       %int_4 = OpConstant %int 4
   %float_0_5 = OpConstant %float 0.5
 %float_n0_866025388 = OpConstant %float -0.866025388
-         %58 = OpConstantComposite %v2float %float_0_5 %float_n0_866025388
+         %59 = OpConstantComposite %v2float %float_0_5 %float_n0_866025388
     %v3float = OpTypeVector %float 3
-         %62 = OpConstantComposite %v3float %float_0_5 %float_0 %float_n0_866025388
-         %65 = OpConstantComposite %v4float %float_0_5 %float_0 %float_0 %float_n0_866025388
+         %63 = OpConstantComposite %v3float %float_0_5 %float_0 %float_n0_866025388
+         %66 = OpConstantComposite %v4float %float_0_5 %float_0 %float_0 %float_n0_866025388
 
 
                ; Function _entrypoint_v
@@ -104,32 +105,33 @@
 
          %26 = OpLabel
      %result =   OpVariable %_ptr_Function_v4float Function     ; RelaxedPrecision
-         %29 =   OpExtInst %float %5 Refract %float_6_00000015e_26 %float_2 %float_2    ; RelaxedPrecision
-         %32 =   OpCompositeConstruct %v4float %29 %29 %29 %29                          ; RelaxedPrecision
-                 OpStore %result %32
-         %34 =   OpAccessChain %_ptr_Uniform_float %11 %int_0
-         %37 =   OpLoad %float %34                  ; RelaxedPrecision
-         %38 =   OpAccessChain %_ptr_Uniform_float %11 %int_1
-         %40 =   OpLoad %float %38                  ; RelaxedPrecision
-         %41 =   OpAccessChain %_ptr_Uniform_float %11 %int_2
-         %43 =   OpLoad %float %41                  ; RelaxedPrecision
-         %33 =   OpExtInst %float %5 Refract %37 %40 %43    ; RelaxedPrecision
-         %44 =   OpAccessChain %_ptr_Function_float %result %int_0
-                 OpStore %44 %33
-         %47 =   OpAccessChain %_ptr_Uniform_v4float %11 %int_3
-         %50 =   OpLoad %v4float %47                ; RelaxedPrecision
-         %51 =   OpAccessChain %_ptr_Uniform_v4float %11 %int_4
-         %53 =   OpLoad %v4float %51                ; RelaxedPrecision
-         %54 =   OpAccessChain %_ptr_Uniform_float %11 %int_2
-         %55 =   OpLoad %float %54                  ; RelaxedPrecision
-         %46 =   OpExtInst %v4float %5 Refract %50 %53 %55  ; RelaxedPrecision
-                 OpStore %result %46
-         %59 =   OpLoad %v4float %result            ; RelaxedPrecision
-         %60 =   OpVectorShuffle %v4float %59 %58 4 5 2 3   ; RelaxedPrecision
-                 OpStore %result %60
-         %63 =   OpLoad %v4float %result            ; RelaxedPrecision
-         %64 =   OpVectorShuffle %v4float %63 %62 4 5 6 3   ; RelaxedPrecision
-                 OpStore %result %64
+         %32 =   OpFMul %float %float_65504 %float_2            ; RelaxedPrecision
+         %29 =   OpExtInst %float %5 Refract %32 %float_2 %float_2  ; RelaxedPrecision
+         %33 =   OpCompositeConstruct %v4float %29 %29 %29 %29      ; RelaxedPrecision
+                 OpStore %result %33
+         %35 =   OpAccessChain %_ptr_Uniform_float %11 %int_0
+         %38 =   OpLoad %float %35                  ; RelaxedPrecision
+         %39 =   OpAccessChain %_ptr_Uniform_float %11 %int_1
+         %41 =   OpLoad %float %39                  ; RelaxedPrecision
+         %42 =   OpAccessChain %_ptr_Uniform_float %11 %int_2
+         %44 =   OpLoad %float %42                  ; RelaxedPrecision
+         %34 =   OpExtInst %float %5 Refract %38 %41 %44    ; RelaxedPrecision
+         %45 =   OpAccessChain %_ptr_Function_float %result %int_0
+                 OpStore %45 %34
+         %48 =   OpAccessChain %_ptr_Uniform_v4float %11 %int_3
+         %51 =   OpLoad %v4float %48                ; RelaxedPrecision
+         %52 =   OpAccessChain %_ptr_Uniform_v4float %11 %int_4
+         %54 =   OpLoad %v4float %52                ; RelaxedPrecision
+         %55 =   OpAccessChain %_ptr_Uniform_float %11 %int_2
+         %56 =   OpLoad %float %55                  ; RelaxedPrecision
+         %47 =   OpExtInst %v4float %5 Refract %51 %54 %56  ; RelaxedPrecision
+                 OpStore %result %47
+         %60 =   OpLoad %v4float %result            ; RelaxedPrecision
+         %61 =   OpVectorShuffle %v4float %60 %59 4 5 2 3   ; RelaxedPrecision
+                 OpStore %result %61
+         %64 =   OpLoad %v4float %result            ; RelaxedPrecision
+         %65 =   OpVectorShuffle %v4float %64 %63 4 5 6 3   ; RelaxedPrecision
                  OpStore %result %65
-                 OpReturnValue %65
+                 OpStore %result %66
+                 OpReturnValue %66
                OpFunctionEnd

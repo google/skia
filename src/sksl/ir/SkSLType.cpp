@@ -9,6 +9,7 @@
 
 #include "include/private/base/SkTo.h"
 #include "src/base/SkEnumBitMask.h"
+#include "src/base/SkHalf.h"
 #include "src/base/SkMathPriv.h"
 #include "src/base/SkSafeMath.h"
 #include "src/core/SkTHash.h"
@@ -415,7 +416,8 @@ public:
 
             case NumberKind::kFloat:
             default:
-                return float_limits::lowest();
+                return this->highPrecision() ? float_limits::lowest()
+                                             : -SkHalfToFloat(SK_HalfMax);
         }
     }
 
@@ -432,7 +434,8 @@ public:
 
             case NumberKind::kFloat:
             default:
-                return float_limits::max();
+                return this->highPrecision() ? float_limits::max()
+                                             : SkHalfToFloat(SK_HalfMax);
         }
     }
 
@@ -952,8 +955,16 @@ CoercionCost Type::coercionCost(const Type& other) const {
         }
         return this->componentType().coercionCost(other.componentType());
     }
+
     if (this->isNumber() && other.isNumber()) {
-        if (this->isLiteral() && this->isInteger()) {
+        if (this->isLiteral() && (this->isInteger() ||
+                                  this->numberKind() == other.numberKind())) {
+            // NOTE: We allow ${intLiteral} and ${floatLiteral} to coerce freely to `float` and
+            // `half`. Without this check, ${floatLiteral}'s priority would treat conversion to
+            // `half` as a cheaper "normal" conversion compared to conversion to `float`. Treating
+            // the cost as free means function overload selection is based off the types of the
+            // non-literal arguments; in the case where only literals are passed in, SkSL will
+            // require a cast to disambiguate between half or float function calls.
             return CoercionCost::Free();
         } else if (this->numberKind() != other.numberKind()) {
             return CoercionCost::Impossible();

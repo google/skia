@@ -15,7 +15,7 @@ fn _skslMain(xy: vec2<f32>) -> vec4<f32> {
   {
     let _skTemp0 = 1e+30;
     let _skTemp1 = select(-1.0, 1.0, _skTemp0 * 1e+30 < 0);
-    let huge: f32 = f32(_skTemp1);
+    let huge: f32 = _skTemp1;
     let _skTemp2 = vec2<f32>(1.0);
     let _skTemp3 = faceForward(_skTemp2, vec2<f32>(1e+30), vec2<f32>(1e+30));
     let huge2: vec2<f32> = _skTemp3;

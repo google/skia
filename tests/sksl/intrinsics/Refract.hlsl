@@ -32,7 +32,7 @@ float spvRefract(float i, float n, float eta)
 
 float4 main(float2 _25)
 {
-    float4 result = spvRefract(600000015226585740692422656.0f, 2.0f, 2.0f).xxxx;
+    float4 result = spvRefract(65504.0f * 2.0f, 2.0f, 2.0f).xxxx;
     result.x = spvRefract(_11_a, _11_b, _11_c);
     result = refract(_11_d, _11_e, _11_c);
     result = float4(float2(0.5f, -0.866025388240814208984375f).x, float2(0.5f, -0.866025388240814208984375f).y, result.z, result.w);

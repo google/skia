@@ -5,7 +5,8 @@ uniform vec4 colorRed;
 uniform mat2 testMatrix2x2;
 uniform mat3 testMatrix3x3;
 vec4 main() {
-    mat2 h22 = mat2(1000000.0, 1000000.0, 1000000.0, 1000000.0);
+    const mat2 smallM22 = mat2(1000.0, 1000.0, 1000.0, 1000.0);
+    mat2 h22 = matrixCompMult(smallM22, smallM22);
     const mat2 hugeM22 = mat2(1e+30, 1e+30, 1e+30, 1e+30);
     h22 = matrixCompMult(hugeM22, hugeM22);
     h22 = mat2(0.0, 5.0, 10.0, 15.0);

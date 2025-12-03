@@ -15,8 +15,8 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    const half h = 1e+09h;
-    half hugeH = ((((((((((1e+36h * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h;
+    const half h = 65503.9h;
+    half hugeH = (((((((((((((h * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h;
     const float f = 1e+09;
     float hugeF = ((((((((((1e+36 * f) * f) * f) * f) * f) * f) * f) * f) * f) * f) * f;
     int hugeI = int((((((((((((((((((((1073741824 * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2);

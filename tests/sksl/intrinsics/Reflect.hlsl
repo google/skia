@@ -21,87 +21,87 @@ float spvReflect(float i, float n)
 
 float4 main(float2 _25)
 {
-    float expectedX = spvReflect(996878592.0f, -1.9999999580429535907214788975919e+34f);
+    float expectedX = spvReflect((65504.0f * 222.0f) * 2.0f, -65504.0f);
     expectedX = -49.0f;
     float2 expectedXY = float2(-169.0f, 202.0f);
     float3 expectedXYZ = float3(-379.0f, 454.0f, -529.0f);
     float4 expectedXYZW = float4(-699.0f, 838.0f, -977.0f, 1116.0f);
-    bool _76 = false;
+    bool _80 = false;
     if (spvReflect(_11_I.x, _11_N.x) == (-49.0f))
     {
-        float2 _66 = reflect(_11_I.xy, _11_N.xy);
-        _76 = all(bool2(_66.x == float2(-169.0f, 202.0f).x, _66.y == float2(-169.0f, 202.0f).y));
+        float2 _70 = reflect(_11_I.xy, _11_N.xy);
+        _80 = all(bool2(_70.x == float2(-169.0f, 202.0f).x, _70.y == float2(-169.0f, 202.0f).y));
     }
     else
     {
-        _76 = false;
+        _80 = false;
     }
-    bool _89 = false;
-    if (_76)
+    bool _93 = false;
+    if (_80)
     {
-        float3 _79 = reflect(_11_I.xyz, _11_N.xyz);
-        _89 = all(bool3(_79.x == float3(-379.0f, 454.0f, -529.0f).x, _79.y == float3(-379.0f, 454.0f, -529.0f).y, _79.z == float3(-379.0f, 454.0f, -529.0f).z));
-    }
-    else
-    {
-        _89 = false;
-    }
-    bool _100 = false;
-    if (_89)
-    {
-        float4 _92 = reflect(_11_I, _11_N);
-        _100 = all(bool4(_92.x == float4(-699.0f, 838.0f, -977.0f, 1116.0f).x, _92.y == float4(-699.0f, 838.0f, -977.0f, 1116.0f).y, _92.z == float4(-699.0f, 838.0f, -977.0f, 1116.0f).z, _92.w == float4(-699.0f, 838.0f, -977.0f, 1116.0f).w));
+        float3 _83 = reflect(_11_I.xyz, _11_N.xyz);
+        _93 = all(bool3(_83.x == float3(-379.0f, 454.0f, -529.0f).x, _83.y == float3(-379.0f, 454.0f, -529.0f).y, _83.z == float3(-379.0f, 454.0f, -529.0f).z));
     }
     else
     {
-        _100 = false;
+        _93 = false;
     }
     bool _104 = false;
-    if (_100)
+    if (_93)
     {
-        _104 = true;
+        float4 _96 = reflect(_11_I, _11_N);
+        _104 = all(bool4(_96.x == float4(-699.0f, 838.0f, -977.0f, 1116.0f).x, _96.y == float4(-699.0f, 838.0f, -977.0f, 1116.0f).y, _96.z == float4(-699.0f, 838.0f, -977.0f, 1116.0f).z, _96.w == float4(-699.0f, 838.0f, -977.0f, 1116.0f).w));
     }
     else
     {
         _104 = false;
     }
-    bool _107 = false;
+    bool _108 = false;
     if (_104)
     {
-        _107 = true;
+        _108 = true;
     }
     else
     {
-        _107 = false;
+        _108 = false;
     }
-    bool _110 = false;
-    if (_107)
+    bool _111 = false;
+    if (_108)
     {
-        _110 = true;
+        _111 = true;
     }
     else
     {
-        _110 = false;
+        _111 = false;
     }
-    bool _113 = false;
-    if (_110)
+    bool _114 = false;
+    if (_111)
     {
-        _113 = true;
+        _114 = true;
     }
     else
     {
-        _113 = false;
+        _114 = false;
     }
-    float4 _114 = 0.0f.xxxx;
-    if (_113)
+    bool _117 = false;
+    if (_114)
     {
-        _114 = _11_colorGreen;
+        _117 = true;
     }
     else
     {
-        _114 = _11_colorRed;
+        _117 = false;
     }
-    return _114;
+    float4 _118 = 0.0f.xxxx;
+    if (_117)
+    {
+        _118 = _11_colorGreen;
+    }
+    else
+    {
+        _118 = _11_colorRed;
+    }
+    return _118;
 }
 
 void frag_main()

@@ -1,6 +1,5 @@
 int[int3(half3(int3(half3(662666666.*6))))[1]] x;
 
 /*%%*
-value is out of range for type 'int': 3976000000
-array size must be positive
+value is out of range for type 'half': 3976000000
 *%%*/

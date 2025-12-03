@@ -2,8 +2,8 @@
 out vec4 sk_FragColor;
 uniform vec4 colorGreen;
 vec4 main() {
-    const float h = 1e+09;
-    float hugeH = ((((((((((1e+36 * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h;
+    const float h = 65503.9;
+    float hugeH = (((((((((((((h * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h;
     const float f = 1e+09;
     float hugeF = ((((((((((1e+36 * f) * f) * f) * f) * f) * f) * f) * f) * f) * f) * f;
     int hugeI = (((((((((((((((((((1073741824 * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2;

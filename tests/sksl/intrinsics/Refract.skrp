@@ -1,4 +1,4 @@
-27 instructions
+28 instructions
 
 [immutable slots]
 i0 = 0x3F000000 (0.5)
@@ -13,7 +13,8 @@ i8 = 0xBF5DB3D7 (-0.8660254)
 
 store_src_rg                   v0..1 = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-copy_constant                  $0 = 0x6BF82779 (6e+26)
+copy_constant                  $0 = 0x477FE000 (65504.0)
+mul_imm_float                  $0 *= 0x40000000 (2.0)
 splat_3_constants              $1..3 = 0
 copy_constant                  $4 = 0x40000000 (2.0)
 splat_3_constants              $5..7 = 0

@@ -9,9 +9,9 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    const h: f32 = 1e+09;
-    let _skTemp0 = 1e+36;
-    let hugeH: f32 = ((((((((((_skTemp0 * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h;
+    const h: f32 = 65503.9;
+    let _skTemp0 = h;
+    let hugeH: f32 = (((((((((((((_skTemp0 * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h;
     const f: f32 = 1e+09;
     let _skTemp1 = 1e+36;
     let hugeF: f32 = ((((((((((_skTemp1 * f) * f) * f) * f) * f) * f) * f) * f) * f) * f) * f;

@@ -19,7 +19,7 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    float huge = float(((((1e+30h) * (1e+30h) < 0) ? 1 : -1) * (1.0h)));
+    float huge = ((((1e+30) * (1e+30) < 0) ? 1 : -1) * (1.0));
     float2 huge2 = faceforward(float2(1.0), float2(1e+30), float2(1e+30));
     float3 huge3 = faceforward(float3(1.0), float3(1e+30), float3(1e+30));
     float4 huge4 = faceforward(float4(1.0), float4(1e+30), float4(1e+30));

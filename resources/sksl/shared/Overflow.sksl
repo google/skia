@@ -1,7 +1,7 @@
 uniform half4 colorGreen;
 
 half4 main(float2 coords) {
-    const half h = 999999999.9;
+    const half h = 65503.9;
     half hugeH = h * h * h * h * h * h * h * h * h * h * h * h * h * h * h;
 
     const float f = 999999999.9;

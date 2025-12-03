@@ -22,7 +22,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     half _skTemp1;
     half _skTemp2;
     half _skTemp3;
-    half expectedX = (_skTemp0 = 9.968786e+08h, _skTemp1 = -2e+34h, _skTemp0 - 2 * _skTemp1 * _skTemp0 * _skTemp1);
+    half expectedX = (_skTemp0 = (65504.0h * 222.0h) * 2.0h, _skTemp1 = -65504.0h, _skTemp0 - 2 * _skTemp1 * _skTemp0 * _skTemp1);
     expectedX = -49.0h;
     half2 expectedXY = half2(-169.0h, 202.0h);
     half3 expectedXYZ = half3(-379.0h, 454.0h, -529.0h);

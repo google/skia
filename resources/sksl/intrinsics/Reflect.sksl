@@ -3,7 +3,8 @@ uniform half4 colorGreen, colorRed;
 
 half4 main(float2 xy) {
     // Ensure that constant-evaluation is safe even when the expression cannot be optimized.
-    half expectedX = reflect(2245222*222*2, -2e34);
+    // The half() construcotr is required to disambiguate from reflect(float, float).
+    half expectedX = reflect(half(65504)*222*2, -65504);
 
     const half4 constI    = half4(1, -2, 3, -4);
     const half4 constN    = half4(-5, 6, -7, 8);

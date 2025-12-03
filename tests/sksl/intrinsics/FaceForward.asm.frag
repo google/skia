@@ -39,7 +39,6 @@
                OpDecorate %_UniformBuffer Block
                OpDecorate %11 Binding 0
                OpDecorate %11 DescriptorSet 0
-               OpDecorate %29 RelaxedPrecision
                OpDecorate %expectedPos RelaxedPrecision
                OpDecorate %expectedNeg RelaxedPrecision
                OpDecorate %66 RelaxedPrecision
@@ -153,7 +152,7 @@
 %expectedPos =   OpVariable %_ptr_Function_v4float Function     ; RelaxedPrecision
 %expectedNeg =   OpVariable %_ptr_Function_v4float Function     ; RelaxedPrecision
         %149 =   OpVariable %_ptr_Function_v4float Function
-         %29 =   OpExtInst %float %5 FaceForward %float_1 %float_1_00000002e_30 %float_1_00000002e_30   ; RelaxedPrecision
+         %29 =   OpExtInst %float %5 FaceForward %float_1 %float_1_00000002e_30 %float_1_00000002e_30
                  OpStore %huge %29
          %33 =   OpExtInst %v2float %5 FaceForward %34 %35 %35
                  OpStore %huge2 %33

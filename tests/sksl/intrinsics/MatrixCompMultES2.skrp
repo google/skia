@@ -1,10 +1,10 @@
-50 instructions
+53 instructions
 
 [immutable slots]
-i0 = 0x49742400 (1000000.0)
-i1 = 0x49742400 (1000000.0)
-i2 = 0x49742400 (1000000.0)
-i3 = 0x49742400 (1000000.0)
+i0 = 0x447A0000 (1000.0)
+i1 = 0x447A0000 (1000.0)
+i2 = 0x447A0000 (1000.0)
+i3 = 0x447A0000 (1000.0)
 i4 = 0x7149F2CA (1e+30)
 i5 = 0x7149F2CA (1e+30)
 i6 = 0x7149F2CA (1e+30)
@@ -42,7 +42,10 @@ i37 = 0x41900000 (18.0)
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
-splat_4_constants              h22 = 0x49742400 (1000000.0)
+splat_4_constants              $0..3 = 0x447A0000 (1000.0)
+splat_4_constants              $4..7 = 0x447A0000 (1000.0)
+mul_4_floats                   $0..3 *= $4..7
+copy_4_slots_unmasked          h22 = $0..3
 splat_4_constants              $0..3 = 0x7149F2CA (1e+30)
 splat_4_constants              $4..7 = 0x7149F2CA (1e+30)
 mul_4_floats                   $0..3 *= $4..7

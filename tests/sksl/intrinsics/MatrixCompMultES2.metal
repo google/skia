@@ -18,9 +18,10 @@ struct Outputs {
 thread bool operator==(const half2x2 left, const half2x2 right);thread bool operator!=(const half2x2 left, const half2x2 right);thread bool operator==(const float2x2 left, const float2x2 right);thread bool operator!=(const float2x2 left, const float2x2 right);thread bool operator==(const half3x3 left, const half3x3 right);thread bool operator!=(const half3x3 left, const half3x3 right);template <typename T, int C, int R>matrix<T, C, R> matrixCompMult(matrix<T, C, R> a, const matrix<T, C, R> b) {for (int c = 0; c < C; ++c) { a[c] *= b[c]; }return a;}thread bool operator==(const half2x2 left, const half2x2 right) {return all(left[0] == right[0]) && all(left[1] == right[1]);}thread bool operator!=(const half2x2 left, const half2x2 right) {return !(left == right);}thread bool operator==(const float2x2 left, const float2x2 right) {return all(left[0] == right[0]) && all(left[1] == right[1]);}thread bool operator!=(const float2x2 left, const float2x2 right) {return !(left == right);}thread bool operator==(const half3x3 left, const half3x3 right) {return all(left[0] == right[0]) && all(left[1] == right[1]) && all(left[2] == right[2]);}thread bool operator!=(const half3x3 left, const half3x3 right) {return !(left == right);}fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    half2x2 h22 = half2x2(half2(1000000.0h, 1000000.0h), half2(1000000.0h, 1000000.0h));
-    const half2x2 hugeM22 = half2x2(half2(1e+30h, 1e+30h), half2(1e+30h, 1e+30h));
-    h22 = matrixCompMult(hugeM22, hugeM22);
+    const half2x2 smallM22 = half2x2(half2(1000.0h, 1000.0h), half2(1000.0h, 1000.0h));
+    half2x2 h22 = matrixCompMult(smallM22, smallM22);
+    const float2x2 hugeM22 = float2x2(float2(1e+30, 1e+30), float2(1e+30, 1e+30));
+    h22 = half2x2(matrixCompMult(hugeM22, hugeM22));
     h22 = half2x2(half2(0.0h, 5.0h), half2(10.0h, 15.0h));
     float2x2 f22 = matrixCompMult(_uniforms.testMatrix2x2, float2x2(1.0));
     half3x3 h33 = matrixCompMult(_uniforms.testMatrix3x3, half3x3(half3(2.0h, 2.0h, 2.0h), half3(2.0h, 2.0h, 2.0h), half3(2.0h, 2.0h, 2.0h)));
