@@ -3,7 +3,7 @@ uniform half4 d, e;
 
 half4 main(float2) {
     // Ensure that constant-evaluation is safe in the presence of very large values.
-    // The half() construcotr is required to disambiguate from reflect(float, float).
+    // The half() constructor is required to disambiguate from reflect(float, float).
     half4 result = refract(half(65504)*2, 2, 2).xxxx;
 
     result.x = refract(a, b, c);
