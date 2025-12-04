@@ -31,7 +31,7 @@ source_set("vulkanmemoryallocator") {
   ]
 
   # Warnings are just noise if we're not maintaining the code.
-  if (is_win) {
+  if (is_msvc) {
     cflags = [ "/w" ]
   } else {
     cflags = [ "-w" ]
