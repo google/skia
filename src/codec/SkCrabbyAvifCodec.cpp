@@ -17,6 +17,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkGainmapInfo.h"
+#include "include/private/base/SkMutex.h"
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/core/SkStreamPriv.h"
@@ -379,6 +380,12 @@ SkCodec::Result SkCrabbyAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
                                                size_t dstRowBytes,
                                                const Options& options,
                                                int* rowsDecoded) {
+    // Creating multiple MediaCodec instances can lead to binder starvation
+    // issues (e.g. b/447869238) on Android. Guard access to this function with
+    // a static lock so that a single app process can only create one MediaCodec
+    // instance at a time.
+    static SkMutex mutex;
+    SkAutoMutexExclusive lock(mutex);
     switch (dstInfo.colorType()) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
