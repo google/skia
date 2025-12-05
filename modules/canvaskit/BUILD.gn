@@ -44,7 +44,6 @@ if (skia_enable_tools) {
       "../../modules/svg/src/SkSVGUse.cpp",
       "../../modules/svg/src/SkSVGValue.cpp",
       "../../tools/viewer/SKPSlide.cpp",
-      "../../tools/viewer/SampleSlide.cpp",
       "../../tools/viewer/SvgSlide.cpp",
     ]
   }

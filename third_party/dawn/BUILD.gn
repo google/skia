@@ -31,10 +31,15 @@ if (is_win) {
 }
 
 config("tint_api_config") {
-  include_dirs = [
-    "../externals/dawn",
-    "../externals/dawn/include",
-  ]
+  if (!is_wasm) {
+    include_dirs = [
+      "../externals/dawn",
+      "../externals/dawn/include",
+    ]
+  } else {
+    # Emscripten includes its own WebGPU headers.
+    include_dirs = []
+  }
 
   defines = [
     "TINT_BUILD_WGSL_READER=1",
@@ -131,11 +136,16 @@ group("tint") {
 }
 
 config("dawn_api_config") {
-  include_dirs = [
-    "../externals/dawn",
-    "../externals/dawn/include",
-    "$target_gen_dir/include",
-  ]
+  if (!is_wasm) {
+    include_dirs = [
+      "../externals/dawn",
+      "../externals/dawn/include",
+      "$target_gen_dir/include",
+    ]
+  } else {
+    # Emscripten includes its own WebGPU headers.
+    include_dirs = []
+  }
   lib_dirs = [ root_out_dir ]
   if (is_win) {
     ldflags = [ "/WHOLEARCHIVE:dawn_combined.lib" ]

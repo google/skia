@@ -241,6 +241,9 @@ def get_cmake_os_cpu(os, cpu):
     }
     return "Windows", target_cpu_map[cpu]
 
+  if os == "wasm":
+    return "wasm", "wasm"
+
   print("Unsupported OS")
   sys.exit(1)
 
