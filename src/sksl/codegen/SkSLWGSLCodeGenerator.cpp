@@ -280,9 +280,11 @@ private:
                                              std::string_view returnFieldName,
                                              std::string_view outFieldName,
                                              const FunctionCall& call);
-    std::string assemblePartialSampleCall(std::string_view intrinsicName,
-                                          const Expression& sampler,
-                                          const Expression& coords);
+    // Returns the beginning of the expression and the closing parentheses string to append once
+    // any additional arguments are added.
+    std::pair<std::string, const char*> assemblePartialSampleCall(std::string_view intrinsicName,
+                                                                  const Expression& sampler,
+                                                                  const Expression& coords);
     std::string assembleInversePolyfill(const FunctionCall& call);
     std::string assembleComponentwiseMatrixBinary(const Type& leftType,
                                                   const Type& rightType,
@@ -3006,20 +3008,28 @@ std::string WGSLCodeGenerator::assembleOutAssignedIntrinsic(std::string_view int
     return expr;
 }
 
-std::string WGSLCodeGenerator::assemblePartialSampleCall(std::string_view functionName,
-                                                         const Expression& sampler,
-                                                         const Expression& coords) {
+std::pair<std::string, const char*> WGSLCodeGenerator::assemblePartialSampleCall(
+        std::string_view functionName,
+        const Expression& sampler,
+        const Expression& coords) {
     // This function returns `functionName(inSampler_texture, inSampler_sampler, coords` without a
     // terminating comma or close-parenthesis. This allows the caller to add more arguments as
     // needed.
-    SkASSERT(sampler.type().typeKind() == Type::TypeKind::kSampler);
     std::string expr = std::string(functionName) + '(';
-    expr += this->assembleExpression(sampler, Precedence::kSequence);
-    expr += kTextureSuffix;
-    expr += ", ";
-    expr += this->assembleExpression(sampler, Precedence::kSequence);
-    expr += kSamplerSuffix;
-    expr += ", ";
+    if (sampler.type().typeKind() == Type::TypeKind::kSampler) {
+        // Split combined texture+sampler into two args with suffixes.
+        expr += this->assembleExpression(sampler, Precedence::kSequence);
+        expr += kTextureSuffix;
+        expr += ", ";
+        expr += this->assembleExpression(sampler, Precedence::kSequence);
+        expr += kSamplerSuffix;
+        expr += ", ";
+    } else {
+        SkASSERT(sampler.type().typeKind() == Type::TypeKind::kTexture);
+        // Pass through the texture expression without any extra suffix
+        expr += this->assembleExpression(sampler, Precedence::kSequence);
+        expr += ", ";
+    }
 
     // Compute the sample coordinates, dividing out the Z if a vec3 was provided.
     SkASSERT(coords.type().isVector());
@@ -3033,7 +3043,7 @@ std::string WGSLCodeGenerator::assemblePartialSampleCall(std::string_view functi
         expr += this->assembleExpression(coords, Precedence::kSequence);
     }
 
-    return expr;
+    return {expr, ")"};
 }
 
 std::string WGSLCodeGenerator::assembleComponentwiseMatrixBinary(const Type& leftType,
@@ -3238,12 +3248,13 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
             // Determine if a bias argument was passed in.
             SkASSERT(arguments.size() == 2 || arguments.size() == 3);
             bool callIncludesBias = (arguments.size() == 3);
-
+            std::string expr;
+            const char* close;
             if (fProgram.fConfig->fSettings.fSharpenTextures || callIncludesBias) {
                 // We need to supply a bias argument; this is a separate intrinsic in WGSL.
-                std::string expr = this->assemblePartialSampleCall("textureSampleBias",
-                                                                   *arguments[0],
-                                                                   *arguments[1]);
+                std::tie(expr, close) = this->assemblePartialSampleCall("textureSampleBias",
+                                                                        *arguments[0],
+                                                                        *arguments[1]);
                 expr += ", ";
                 if (callIncludesBias) {
                     expr += this->assembleExpression(*arguments[2], Precedence::kAdditive) +
@@ -3252,28 +3263,32 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
                 expr += skstd::to_string(fProgram.fConfig->fSettings.fSharpenTextures
                                                  ? kSharpenTexturesBias
                                                  : 0.0f);
-                return expr + ')';
+            } else {
+                // No bias is necessary, so we can call `textureSample` directly.
+                std::tie(expr, close) = this->assemblePartialSampleCall("textureSample",
+                                                                        *arguments[0],
+                                                                        *arguments[1]);
+
             }
 
-            // No bias is necessary, so we can call `textureSample` directly.
-            return this->assemblePartialSampleCall("textureSample",
-                                                   *arguments[0],
-                                                   *arguments[1]) + ')';
+            return expr + close;
         }
         case k_sampleLod_IntrinsicKind: {
-            std::string expr = this->assemblePartialSampleCall("textureSampleLevel",
-                                                               *arguments[0],
-                                                               *arguments[1]);
+            auto [expr, close] = this->assemblePartialSampleCall("textureSampleLevel",
+                                                                 *arguments[0],
+                                                                 *arguments[1]);
             expr += ", " + this->assembleExpression(*arguments[2], Precedence::kSequence);
-            return expr + ')';
+
+            return expr + close;
         }
         case k_sampleGrad_IntrinsicKind: {
-            std::string expr = this->assemblePartialSampleCall("textureSampleGrad",
-                                                               *arguments[0],
-                                                               *arguments[1]);
+            auto [expr, close] = this->assemblePartialSampleCall("textureSampleGrad",
+                                                                 *arguments[0],
+                                                                 *arguments[1]);
+
             expr += ", " + this->assembleExpression(*arguments[2], Precedence::kSequence);
             expr += ", " + this->assembleExpression(*arguments[3], Precedence::kSequence);
-            return expr + ')';
+            return expr + close;
         }
         case k_textureHeight_IntrinsicKind:
             return this->assembleSimpleIntrinsic("textureDimensions", call) + ".y";
@@ -3281,9 +3296,11 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         case k_textureRead_IntrinsicKind: {
             // We need to inject an extra argument for the mip-level. We don't plan on using mipmaps
             // in our storage textures, so we can just pass zero.
-            std::string tex = this->assembleExpression(*arguments[0], Precedence::kSequence);
-            std::string pos = this->writeScratchLet(*arguments[1], Precedence::kSequence);
-            return std::string("textureLoad(") + tex + ", " + pos + ", 0)";
+            auto [expr, close] = this->assemblePartialSampleCall("textureLoad",
+                                                                 *arguments[0],
+                                                                 *arguments[1]);
+            expr += ", 0";
+            return expr + close;
         }
         case k_textureWidth_IntrinsicKind:
             return this->assembleSimpleIntrinsic("textureDimensions", call) + ".x";
