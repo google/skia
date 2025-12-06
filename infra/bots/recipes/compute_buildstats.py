@@ -22,7 +22,7 @@ DEPS = [
 ]
 
 
-MAGIC_SEPERATOR = '#$%^&*'
+MAGIC_SEPARATOR = '#$%^&*'
 TOTAL_SIZE_BYTES_KEY = "total_size_bytes"
 
 
@@ -111,10 +111,10 @@ def analyze_cpp_lib(api, checkout_root, out_dir, files):
                                  'buildstats_cpp.py')
       step_data = api.run(api.step, 'Analyze %s' % f,
           cmd=['python3', script, f, out_dir, keystr, propstr, bloaty_exe,
-               TOTAL_SIZE_BYTES_KEY, MAGIC_SEPERATOR],
+               TOTAL_SIZE_BYTES_KEY, MAGIC_SEPARATOR],
           stdout=api.raw_io.output())
       if step_data and step_data.stdout:
-        sections = step_data.stdout.decode('utf-8').split(MAGIC_SEPERATOR)
+        sections = step_data.stdout.decode('utf-8').split(MAGIC_SEPARATOR)
         result = api.step.active_result
         logs = result.presentation.logs
         logs['perf_json'] = sections[2].split('\n')

@@ -20,14 +20,14 @@ def main():
   propstr = sys.argv[4]
   bloaty_path = sys.argv[5]
   total_size_bytes_key = sys.argv[6]
-  magic_seperator = sys.argv[7]
+  magic_separator = sys.argv[7]
 
   results = {
     'key': { },
     'results': { }
   }
 
-  print(magic_seperator)
+  print(magic_separator)
   print('If you see lots of func[19] and such, go check out the debug build')
   print('Note that template instantiations are grouped together, '
         'thus the elided types.')
@@ -36,7 +36,7 @@ def main():
   print(subprocess.check_output([bloaty_path, input_file,
                                  '-d', 'shortsymbols', '-n', '0']))
 
-  print(magic_seperator)
+  print(magic_separator)
   print('If you see lots of func[19] and such, go check out the debug build')
   print(subprocess.check_output([bloaty_path, input_file,
                                  '-d', 'fullsymbols', '-n', '0']))
@@ -70,7 +70,7 @@ def main():
     'default' : r,
   }
 
-  print(magic_seperator)
+  print(magic_separator)
   print(json.dumps(results, indent=2))
 
   with open(os.path.join(out_dir, name+'.json'), 'w') as output:
