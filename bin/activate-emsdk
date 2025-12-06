@@ -18,7 +18,7 @@ EMSDK_PATH = os.path.join(EMSDK_ROOT, 'emsdk.py')
 EMSDK_VERSION = '4.0.7'
 
 def main():
-    if sysconfig.get_platform() in ['linux-aarch64', 'linux-arm64']:
+    if sysconfig.get_platform() in ['linux-aarch64', 'linux-arm64', 'linux-loongarch64']:
         # This platform cannot install emsdk at the provided version. See
         # https://github.com/emscripten-core/emsdk/blob/main/emscripten-releases-tags.json#L5
         # for the latest version
