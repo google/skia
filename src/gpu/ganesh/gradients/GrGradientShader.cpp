@@ -880,7 +880,7 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientBaseShader& 
         // If we made a uniform colorizer, wrap it in a conversion from interpolated space to
         // destination. This also applies any final premultiplication.
         colorizer = make_interpolated_to_dst(std::move(colorizer),
-                                             shader.fInterpolation,
+                                             shader.interpolation(),
                                              xformedColors.fIntermediateColorSpace.get(),
                                              *args.fDstColorInfo,
                                              allOpaque);
@@ -895,7 +895,7 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientBaseShader& 
                                             positions,
                                             colorCount,
                                             allOpaque,
-                                            shader.fInterpolation,
+                                            shader.interpolation(),
                                             xformedColors.fIntermediateColorSpace.get(),
                                             args.fDstColorInfo->colorSpace(),
                                             args);
@@ -937,7 +937,7 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientBaseShader& 
                     &p,
                     &alloc,
                     allOpaque,
-                    shader.fInterpolation,
+                    shader.interpolation(),
                     xformedColors.fIntermediateColorSpace.get(),
                     args.fDstColorInfo->colorSpace());
             p.append(SkRasterPipelineOp::store_f32, &ctx);

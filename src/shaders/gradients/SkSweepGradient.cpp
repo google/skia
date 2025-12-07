@@ -100,19 +100,21 @@ void SkSweepGradient::appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline
 }
 
 sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
-                                            const SkColor4f colors[],
+                                            const SkColor4f colorsPtr[],
                                             sk_sp<SkColorSpace> colorSpace,
-                                            const SkScalar pos[],
-                                            int colorCount,
+                                            const SkScalar posPtr[],
+                                            int colorsCount,
                                             SkTileMode mode,
                                             SkScalar startAngle,
                                             SkScalar endAngle,
                                             const Interpolation& interpolation,
                                             const SkMatrix* localMatrix) {
-    if (!SkGradientBaseShader::ValidGradient(colors, colorCount, mode, interpolation)) {
+    MAKE_COLORS_POS_SPANS(colorsPtr, posPtr, colorsCount);
+
+    if (!SkGradientBaseShader::ValidGradient(colors, mode, interpolation)) {
         return nullptr;
     }
-    if (1 == colorCount) {
+    if (1 == colors.size()) {
         return SkShaders::Color(colors[0], std::move(colorSpace));
     }
     if (!SkIsFinite(startAngle, endAngle) || startAngle > endAngle) {
@@ -130,12 +132,12 @@ sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
             // switches to the last color (all other colors are compressed to the infinitely thin
             // interpolation region).
             static constexpr SkScalar clampPos[3] = {0, 1, 1};
-            SkColor4f reColors[3] = {colors[0], colors[0], colors[colorCount - 1]};
+            SkColor4f reColors[3] = {colors[0], colors[0], colors.back()};
             return MakeSweep(cx, cy, reColors, std::move(colorSpace), clampPos, 3, mode, 0,
                              endAngle, interpolation, localMatrix);
         } else {
             return SkGradientBaseShader::MakeDegenerateGradient(
-                    colors, pos, colorCount, std::move(colorSpace), mode);
+                    colors, pos, std::move(colorSpace), mode);
         }
     }
 
@@ -145,7 +147,7 @@ sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
     }
 
     SkGradientBaseShader::Descriptor desc(
-            colors, std::move(colorSpace), pos, colorCount, mode, interpolation);
+            colors, std::move(colorSpace), pos, mode, interpolation);
 
     const SkScalar t0 = startAngle / 360,
                    t1 =   endAngle / 360;

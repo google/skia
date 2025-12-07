@@ -87,20 +87,22 @@ void SkRadialGradient::appendGradientStages(SkArenaAlloc*, SkRasterPipeline* p,
 }
 
 sk_sp<SkShader> SkGradientShader::MakeRadial(const SkPoint& center, SkScalar radius,
-                                             const SkColor4f colors[],
+                                             const SkColor4f colorsPtr[],
                                              sk_sp<SkColorSpace> colorSpace,
-                                             const SkScalar pos[],
-                                             int colorCount,
+                                             const SkScalar posPtr[],
+                                             int colorsCount,
                                              SkTileMode mode,
                                              const Interpolation& interpolation,
                                              const SkMatrix* localMatrix) {
+    MAKE_COLORS_POS_SPANS(colorsPtr, posPtr, colorsCount);
+
     if (radius < 0) {
         return nullptr;
     }
-    if (!SkGradientBaseShader::ValidGradient(colors, colorCount, mode, interpolation)) {
+    if (!SkGradientBaseShader::ValidGradient(colors, mode, interpolation)) {
         return nullptr;
     }
-    if (1 == colorCount) {
+    if (1 == colors.size()) {
         return SkShaders::Color(colors[0], std::move(colorSpace));
     }
     if (localMatrix && !localMatrix->invert(nullptr)) {
@@ -110,11 +112,11 @@ sk_sp<SkShader> SkGradientShader::MakeRadial(const SkPoint& center, SkScalar rad
     if (SkScalarNearlyZero(radius, SkGradientBaseShader::kDegenerateThreshold)) {
         // Degenerate gradient optimization, and no special logic needed for clamped radial gradient
         return SkGradientBaseShader::MakeDegenerateGradient(
-                colors, pos, colorCount, std::move(colorSpace), mode);
+                colors, pos, std::move(colorSpace), mode);
     }
 
     SkGradientBaseShader::Descriptor desc(
-            colors, std::move(colorSpace), pos, colorCount, mode, interpolation);
+            colors, std::move(colorSpace), pos, mode, interpolation);
 
     sk_sp<SkShader> s = sk_make_sp<SkRadialGradient>(center, radius, desc);
     return s->makeWithLocalMatrix(localMatrix ? *localMatrix : SkMatrix::I());

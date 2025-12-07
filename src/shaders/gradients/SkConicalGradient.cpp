@@ -253,33 +253,23 @@ void SkConicalGradient::appendGradientStages(SkArenaAlloc* alloc,
     }
 }
 
-// assumes colors is SkColor4f* and pos is SkScalar*
-#define EXPAND_1_COLOR(count)            \
-    SkColor4f tmp[2];                    \
-    do {                                 \
-        if (1 == count) {                \
-            tmp[0] = tmp[1] = colors[0]; \
-            colors = tmp;                \
-            pos = nullptr;               \
-            count = 2;                   \
-        }                                \
-    } while (0)
-
 sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
                                                       SkScalar startRadius,
                                                       const SkPoint& end,
                                                       SkScalar endRadius,
-                                                      const SkColor4f colors[],
+                                                      const SkColor4f colorPtr[],
                                                       sk_sp<SkColorSpace> colorSpace,
-                                                      const SkScalar pos[],
-                                                      int colorCount,
+                                                      const SkScalar posPtr[],
+                                                      int colorsCount,
                                                       SkTileMode mode,
                                                       const Interpolation& interpolation,
                                                       const SkMatrix* localMatrix) {
+    MAKE_COLORS_POS_SPANS(colorPtr, posPtr, colorsCount);
+
     if (startRadius < 0 || endRadius < 0) {
         return nullptr;
     }
-    if (!SkGradientBaseShader::ValidGradient(colors, colorCount, mode, interpolation)) {
+    if (!SkGradientBaseShader::ValidGradient(colors, mode, interpolation)) {
         return nullptr;
     }
     if (SkScalarNearlyZero((start - end).length(), SkGradientBaseShader::kDegenerateThreshold)) {
@@ -297,7 +287,7 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
                 // final gradient will be the first color repeated from p=0 to 1, and then a hard
                 // stop switching to the last color at p=1.
                 static constexpr SkScalar circlePos[3] = {0, 1, 1};
-                SkColor4f reColors[3] = {colors[0], colors[0], colors[colorCount - 1]};
+                SkColor4f reColors[3] = {colors[0], colors[0], colors.back()};
                 return MakeRadial(start,
                                   endRadius,
                                   reColors,
@@ -310,17 +300,17 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
             } else {
                 // Otherwise use the default degenerate case
                 return SkGradientBaseShader::MakeDegenerateGradient(
-                        colors, pos, colorCount, std::move(colorSpace), mode);
+                        colors, pos, std::move(colorSpace), mode);
             }
         } else if (SkScalarNearlyZero(startRadius, SkGradientBaseShader::kDegenerateThreshold)) {
             // We can treat this gradient as radial, which is faster. If we got here, we know
             // that endRadius is not equal to 0, so this produces a meaningful gradient
             return MakeRadial(start,
                               endRadius,
-                              colors,
+                              colors.data(),
                               std::move(colorSpace),
-                              pos,
-                              colorCount,
+                              pos.data(),
+                              SkToInt(colors.size()),
                               mode,
                               interpolation,
                               localMatrix);
@@ -332,14 +322,18 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
     if (localMatrix && !localMatrix->invert(nullptr)) {
         return nullptr;
     }
-    EXPAND_1_COLOR(colorCount);
+
+    SkColor4f tmp2Colors[2];
+    if (colors.size() == 1) {
+        tmp2Colors[0] = tmp2Colors[1] = colors[0];
+        colors = {tmp2Colors};
+        pos = {};
+    }
 
     SkGradientBaseShader::Descriptor desc(
-            colors, std::move(colorSpace), pos, colorCount, mode, interpolation);
+            colors, std::move(colorSpace), pos, mode, interpolation);
     return SkConicalGradient::Create(start, startRadius, end, endRadius, desc, localMatrix);
 }
-
-#undef EXPAND_1_COLOR
 
 sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
                                                       SkScalar startRadius,

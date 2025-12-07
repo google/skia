@@ -40,17 +40,16 @@ public:
         Descriptor();
         ~Descriptor();
 
-        Descriptor(const SkColor4f colors[],
+        Descriptor(SkSpan<const SkColor4f>,
                    sk_sp<SkColorSpace> colorSpace,
-                   const SkScalar positions[],
-                   int colorCount,
+                   SkSpan<const float> posOrEmpty,
                    SkTileMode mode,
                    const Interpolation& interpolation);
 
         const SkColor4f* fColors;
         sk_sp<SkColorSpace> fColorSpace;
         const SkScalar* fPositions;
-        int fColorCount;  // length of fColors (and fPositions, if not nullptr)
+        size_t fColorCount;  // length of fColors (and fPositions, if not nullptr)
         SkTileMode fTileMode;
         Interpolation fInterpolation;
     };
@@ -78,18 +77,16 @@ public:
     }
 
     const SkMatrix& getGradientMatrix() const { return fPtsToUnit; }
-    int getColorCount() const { return fColorCount; }
+    size_t getColorCount() const { return fColorCount; }
     const float* getPositions() const { return fPositions; }
     const Interpolation& getInterpolation() const { return fInterpolation; }
 
-    static bool ValidGradient(const SkColor4f colors[],
-                              int count,
+    static bool ValidGradient(SkSpan<const SkColor4f>,
                               SkTileMode tileMode,
                               const Interpolation& interpolation);
 
-    static sk_sp<SkShader> MakeDegenerateGradient(const SkColor4f colors[],
-                                                  const SkScalar pos[],
-                                                  int colorCount,
+    static sk_sp<SkShader> MakeDegenerateGradient(SkSpan<const SkColor4f>,
+                                                  SkSpan<const float> posOrEmpty,
                                                   sk_sp<SkColorSpace> colorSpace,
                                                   SkTileMode mode);
 
@@ -127,24 +124,26 @@ public:
                                               const SkColorSpace* intermediateColorSpace,
                                               const SkColorSpace* dstColorSpace);
 
-    SkScalar getPos(int i) const {
+    float getPos(size_t i) const {
         SkASSERT(i < fColorCount);
         return fPositions ? fPositions[i] : SkIntToScalar(i) / (fColorCount - 1);
     }
 
-    SkColor getLegacyColor(int i) const {
+    SkColor getLegacyColor(size_t i) const {
         SkASSERT(i < fColorCount);
         return fColors[i].toSkColor();
     }
 
-    SkColor4f* fColors;               // points into fStorage
-    SkScalar* fPositions;             // points into fStorage, or nullptr
-    sk_sp<SkColorSpace> fColorSpace;  // color space of gradient stops
-    Interpolation fInterpolation;
+    SkSpan<const SkColor4f> colors() const { return {fColors, fColorCount}; }
+    SkSpan<const float> positions() const {
+        return {fPositions, fPositions ? fColorCount : 0};
+    }
 
-    int fColorCount;                  // length of fColors (and fPositions, if not nullptr)
-    bool fFirstStopIsImplicit;
-    bool fLastStopIsImplicit;
+    bool firstStopIsImplicit() const { return fFirstStopIsImplicit; }
+    bool lastStopIsImplicit() const { return fLastStopIsImplicit; }
+
+    const sk_sp<SkColorSpace>& colorSpace() const { return fColorSpace; }
+    const Interpolation& interpolation() const { return fInterpolation; }
 
     bool colorsAreOpaque() const { return fColorsAreOpaque; }
 
@@ -154,6 +153,14 @@ public:
     void setCachedBitmap(SkBitmap b) const { fColorsAndOffsetsBitmap = b; }
 
 private:
+    SkColor4f* fColors;               // points into fStorage
+    SkScalar* fPositions;             // points into fStorage, or nullptr
+    sk_sp<SkColorSpace> fColorSpace;  // color space of gradient stops
+    Interpolation fInterpolation;
+    size_t fColorCount;               // length of fColors (and fPositions, if not nullptr)
+    bool fFirstStopIsImplicit;
+    bool fLastStopIsImplicit;
+
     // When the number of stops exceeds Graphite's uniform-based limit the colors and offsets
     // are stored in this bitmap. It is stored in the shader so it can be cached with a stable
     // id and easily regenerated if purged.
@@ -181,7 +188,7 @@ struct SkColor4fXformer {
 
     ColorStorage fColors;
     PositionStorage fPositionStorage;
-    float* fPositions;
+    const float* fPositions;
     sk_sp<SkColorSpace> fIntermediateColorSpace;
 };
 
@@ -195,5 +202,14 @@ void SkRegisterConicalGradientShaderFlattenable();
 void SkRegisterLinearGradientShaderFlattenable();
 void SkRegisterRadialGradientShaderFlattenable();
 void SkRegisterSweepGradientShaderFlattenable();
+
+#define MAKE_COLORS_POS_SPANS(colorPtr, posPtr, count)      \
+    SkSpan<const SkColor4f> colors{colorPtr, (size_t)count};\
+    SkSpan<const float> pos{};                              \
+    do {                                                    \
+        if (posPtr) {                                       \
+            pos = {posPtr, (size_t)count};                  \
+        }                                                   \
+    } while (0)
 
 #endif

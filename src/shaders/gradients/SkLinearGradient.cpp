@@ -92,20 +92,22 @@ SkShaderBase::GradientType SkLinearGradient::asGradient(GradientInfo* info,
 }
 
 sk_sp<SkShader> SkGradientShader::MakeLinear(const SkPoint pts[2],
-                                             const SkColor4f colors[],
+                                             const SkColor4f colorsPtr[],
                                              sk_sp<SkColorSpace> colorSpace,
-                                             const SkScalar pos[],
-                                             int colorCount,
+                                             const SkScalar posPtr[],
+                                             int colorsCount,
                                              SkTileMode mode,
                                              const Interpolation& interpolation,
                                              const SkMatrix* localMatrix) {
+    MAKE_COLORS_POS_SPANS(colorsPtr, posPtr, colorsCount);
+
     if (!pts || !SkIsFinite((pts[1] - pts[0]).length())) {
         return nullptr;
     }
-    if (!SkGradientBaseShader::ValidGradient(colors, colorCount, mode, interpolation)) {
+    if (!SkGradientBaseShader::ValidGradient(colors, mode, interpolation)) {
         return nullptr;
     }
-    if (1 == colorCount) {
+    if (1 == colors.size()) {
         return SkShaders::Color(colors[0], std::move(colorSpace));
     }
     if (localMatrix && !localMatrix->invert(nullptr)) {
@@ -119,11 +121,11 @@ sk_sp<SkShader> SkGradientShader::MakeLinear(const SkPoint pts[2],
         // are divided by the line perpendicular to the start and end point, which becomes undefined
         // once start and end are exactly the same, so just use the end color for a stable solution.
         return SkGradientBaseShader::MakeDegenerateGradient(
-                colors, pos, colorCount, std::move(colorSpace), mode);
+                colors, pos, std::move(colorSpace), mode);
     }
 
     SkGradientBaseShader::Descriptor desc(
-            colors, std::move(colorSpace), pos, colorCount, mode, interpolation);
+            colors, std::move(colorSpace), pos, mode, interpolation);
 
     sk_sp<SkShader> s = sk_make_sp<SkLinearGradient>(pts, desc);
     return s->makeWithLocalMatrix(localMatrix ? *localMatrix : SkMatrix::I());
