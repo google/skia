@@ -2117,10 +2117,7 @@ void precompile_vs_real_draws_subtest(skiatest::Reporter* reporter,
                                                                  skgpu::Protected::kNo,
                                                                  skgpu::Renderable::kYes);
 
-    const bool msaaSupported =
-            caps->msaaRenderToSingleSampledSupport() ||
-            caps->isSampleCountSupported(TextureInfoPriv::ViewFormat(textureInfo),
-                                         caps->defaultMSAASamplesCount());
+    const bool msaaSupported = caps->getCompatibleMSAASampleCount(textureInfo) > SampleCount::k1;
 
     bool vello = false;
 #ifdef SK_ENABLE_VELLO_SHADERS

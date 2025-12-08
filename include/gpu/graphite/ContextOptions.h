@@ -46,7 +46,8 @@ struct SK_API ContextOptions {
 
     /**
      * Specifies the number of samples Graphite should use when performing internal draws with MSAA
-     * (hardware capabilities permitting).
+     * (hardware capabilities permitting). This represents the maximum that will be used; if a
+     * a specific format supports only lower values, those may be used instead.
      *
      * If <= 1, Graphite will disable internal code paths that use multisampling.
      */

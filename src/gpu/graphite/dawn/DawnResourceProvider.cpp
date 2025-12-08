@@ -422,10 +422,9 @@ DawnResourceProvider::~DawnResourceProvider() = default;
 
 DawnResourceProvider::BlitWithDrawEncoder DawnResourceProvider::findOrCreateBlitWithDrawEncoder(
         const RenderPassDesc& renderPassDesc, SampleCount srcSampleCount) {
-    // Currently Dawn only supports one sample count > 1. So we can optimize the pipeline key by
-    // specifying whether the source has MSAA or not.
-    SkASSERT(srcSampleCount == SampleCount::k1 ||
-             srcSampleCount == this->dawnSharedContext()->dawnCaps()->defaultMSAASamplesCount());
+    // Currently Dawn only supports k1 and k4. So we can optimize the pipeline key by specifying
+    // whether the source has MSAA or not.
+    SkASSERT(srcSampleCount == SampleCount::k1 || srcSampleCount == SampleCount::k4);
     const bool srcIsMSAA = srcSampleCount > SampleCount::k1;
     const uint32_t pipelineKey = this->dawnSharedContext()->dawnCaps()->getRenderPassDescKeyForPipeline(
             renderPassDesc, srcIsMSAA);

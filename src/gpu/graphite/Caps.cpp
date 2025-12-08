@@ -13,6 +13,7 @@
 #include "include/private/base/SkTo.h"
 #include "src/gpu/graphite/ContextOptionsPriv.h"
 #include "src/gpu/graphite/ResourceTypes.h"
+#include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/sksl/SkSLUtil.h"
 
 #include <algorithm>
@@ -28,7 +29,7 @@ Caps::~Caps() {}
 void Caps::finishInitialization(const ContextOptions& options) {
     fCapabilities->initSkCaps(fShaderCaps.get());
 
-    fDefaultMSAASamples = options.fInternalMultisampleCount;
+    fMaxInternalSampleCount = options.fInternalMultisampleCount;
 
     if (options.fShaderErrorHandler) {
         fShaderErrorHandler = options.fShaderErrorHandler;
@@ -111,6 +112,29 @@ SkColorType Caps::getRenderableColorType(SkColorType ct) const {
         ct = color_type_fallback(ct);
     } while (ct != kUnknown_SkColorType);
     return kUnknown_SkColorType;
+}
+
+SampleCount Caps::getCompatibleMSAASampleCount(const TextureInfo& info) const {
+    if (info.sampleCount() > SampleCount::k1) {
+        // Use the inherent sample count since it's already MSAA
+        return info.sampleCount();
+    } else if (!this->avoidMSAA()) {
+        // The max internal sample count may be higher than what is universally supported for
+        // every renderable TextureFormat, but unless avoidMSAA() was true, this should bottom out
+        // at SampleCount::k4.
+        TextureFormat format = TextureInfoPriv::ViewFormat(info);
+        for (SampleCount s = fMaxInternalSampleCount;
+             s > SampleCount::k1;
+             s = static_cast<SampleCount>((uint8_t)s >> 1)) {
+            if (this->isSampleCountSupported(format, s)) {
+                return s;
+            }
+        }
+    }
+
+    // If we got here, MSAA has been disabled somehow (by ContextOption, driver workaround, or
+    // no support for a particular TextureFormat).
+    return SampleCount::k1;
 }
 
 skgpu::Swizzle Caps::getReadSwizzle(SkColorType ct, const TextureInfo& info) const {

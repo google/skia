@@ -199,6 +199,10 @@ void MtlCaps::initCaps(const id<MTLDevice> device) {
                 }
             }
         }
+    } else {
+        // All supported Intel Macs are of an old enough Intel generation that we can just assume
+        // MSAA should be avoided instead of checking its generation. (>gen 11 FIXME?)
+        fAvoidMSAA = true;
     }
 }
 
