@@ -25,11 +25,14 @@ import shutil
 import subprocess
 import sys
 
-target = sys.argv[1]
+# Separate targets (starting with // or @) from outputs and flags
+targets = []
 outputs = {}
 bazel_args = []
-for arg in sys.argv[2:]:
-    if arg.startswith("--"):
+for arg in sys.argv[1:]:
+    if arg.startswith("//") or arg.startswith("@"):
+        targets.append(arg)
+    elif arg.startswith("--"):
         bazel_args.append(arg)
     else:
         if "=" in arg:
@@ -45,8 +48,8 @@ for arg in sys.argv[2:]:
             outputs[arg] = os.path.basename(arg)
 
 print("Invoking bazelisk from ", os.getcwd())
-# Forward the remaining args to the bazel invocation
-subprocess.run(["bazelisk", "build", target ] + bazel_args, check=True)
+# Build all targets in a single invocation
+subprocess.run(["bazelisk", "build"] + targets + bazel_args, check=True)
 
 for bazel_file, output_path in outputs.items():
     # GN expects files to be created underneath the output directory from which

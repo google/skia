@@ -1355,44 +1355,87 @@ if (is_debug) {
   bazel_args += [ "--compilation_mode=opt" ]
 }
 
-if (skia_use_fontations) {
-  action("fontations_rust_side_bazel_build") {
-    script = "gn/bazel_build.py"
-    sources = [ "src/ports/fontations/BUILD.bazel" ]
-    sources += skia_ports_fontations_bridge_rust_side_sources
-    outputs = [ "$root_out_dir/libbridge_rust_side.a" ]
-    args =
-        [
-          "//src/ports/fontations:bridge_rust_side",
-          rebase_path("//bazel-bin/src/ports/fontations/libbridge_rust_side.a",
-                      root_build_dir),
-        ] + bazel_args
-  }
+# Unified Rust Bazel Build Action
+# This single action builds all Rust targets to avoid duplicate symbol issues
+# from having multiple copies of the Rust standard library.
 
-  # We only use Bazel to get the generated `.cc` and `.h` file and then compile
-  # them on GN/ninja side using `skia_source_set` below.  This ensures that the
-  # same C++ stdlib and compiler is used throughout the build (in some scenarios
-  # Bazel may end up using different ones).
-  action("fontations_ffi_bazel_build") {
-    script = "gn/bazel_build.py"
-    sources = [ "src/ports/fontations/BUILD.bazel" ]
-    sources += skia_ports_fontations_bridge_rust_side_sources
-    outputs = [
+if (skia_use_fontations || skia_use_rust_png_decode ||
+    skia_use_rust_png_encode) {
+  # Collect all Rust targets, sources, outputs based on what's enabled
+  _rust_targets = []
+  _rust_sources = []
+  _rust_outputs = []
+  _rust_output_mappings = []
+
+  if (skia_use_fontations) {
+    _rust_targets += [
+      "//src/ports/fontations:bridge_rust_side",
+      "//src/ports/fontations:fontations_ffi",
+    ]
+    _rust_sources += [ "src/ports/fontations/BUILD.bazel" ]
+    _rust_sources += skia_ports_fontations_bridge_rust_side_sources
+    _rust_outputs += [
+      "$root_out_dir/libbridge_rust_side.a",
       "$root_out_dir/src/ports/fontations/src/ffi.rs.h",
       "$root_out_dir/src/ports/fontations/src/ffi.rs.cc",
     ]
-    args = [
-             "//src/ports/fontations:fontations_ffi",
-
-             # we want the header to not simply be copied into the output directory,
-             # but in the same path as the Bazel build uses.
-             rebase_path("//bazel-bin/src/ports/fontations/src/ffi.rs.h",
-                         root_build_dir) + "=src/ports/fontations/src/ffi.rs.h",
-             rebase_path("//bazel-bin/src/ports/fontations/src/ffi.rs.cc",
-                         root_build_dir) +
-                 "=src/ports/fontations/src/ffi.rs.cc",
-           ] + bazel_args
+    _rust_output_mappings += [
+      rebase_path("//bazel-bin/src/ports/fontations/libbridge_rust_side.a",
+                  root_build_dir),
+      rebase_path("//bazel-bin/src/ports/fontations/src/ffi.rs.h",
+                  root_build_dir) + "=src/ports/fontations/src/ffi.rs.h",
+      rebase_path("//bazel-bin/src/ports/fontations/src/ffi.rs.cc",
+                  root_build_dir) + "=src/ports/fontations/src/ffi.rs.cc",
+    ]
   }
+
+  if (skia_use_rust_png_decode || skia_use_rust_png_encode) {
+    _rust_targets += [
+      "//rust/png:ffi_rs",
+      "@crates//:cxx_cc",
+    ]
+    _rust_sources += [
+      "MODULE.bazel",
+      "MODULE.bazel.lock",
+      "bazel/external/cxx/BUILD.bazel",
+      "bazel/external/cxx/BUILD.bazel.skia",
+      "rust/png/BUILD.bazel",
+      "rust/png/FFI.h",
+      "rust/png/FFI.rs",
+    ]
+    _rust_outputs += [
+      "$root_out_dir/librust_png_ffi_rs.a",
+      "$root_out_dir/rust/png/FFI.rs.h",
+      "$root_out_dir/rust/png/FFI.rs.cc",
+      "$root_out_dir/libcxx_cc.a",
+      "$root_out_dir/third_party/rust/cxx/v1/cxx.h",
+    ]
+    _rust_output_mappings += [
+      rebase_path("//bazel-bin/rust/png/libffi_rs.a", root_build_dir) +
+          "=librust_png_ffi_rs.a",
+      rebase_path("//bazel-bin/rust/png/FFI.rs.h", root_build_dir) +
+          "=rust/png/FFI.rs.h",
+      rebase_path("//bazel-bin/rust/png/FFI.rs.cc", root_build_dir) +
+          "=rust/png/FFI.rs.cc",
+      rebase_path(
+              "//bazel-bin/external/rules_rust++crate+crates__cxx-1.0.168/libcxx_cc.a",
+              root_build_dir) + "=libcxx_cc.a",
+      rebase_path(
+              "//bazel-bin/external/rules_rust++crate+crates__cxx-1.0.168/_virtual_includes/cxx_cc/third_party/rust/cxx/v1/cxx.h",
+              root_build_dir) + "=third_party/rust/cxx/v1/cxx.h",
+    ]
+  }
+
+  # Single unified action that builds all Rust FFI library targets
+  action("rust_all_ffi_bazel_build") {
+    script = "gn/bazel_build.py"
+    sources = _rust_sources
+    outputs = _rust_outputs
+    args = _rust_targets + _rust_output_mappings + bazel_args
+  }
+}
+
+if (skia_use_fontations) {
   config("fontations_ffi_public_config") {
     include_dirs = [
       # This is where `src/ports/fontations/src/ffi.rs.h` was put by Bazel
@@ -1407,10 +1450,7 @@ if (skia_use_fontations) {
     ]
   }
   skia_source_set("fontations_ffi") {
-    deps = [
-      ":fontations_ffi_bazel_build",
-      ":fontations_rust_side_bazel_build",
-    ]
+    deps = [ ":rust_all_ffi_bazel_build" ]
     public = [ "${root_out_dir}/src/ports/fontations/src/ffi.rs.h" ]
     sources = [ "${root_out_dir}/src/ports/fontations/src/ffi.rs.cc" ]
     libs = [
@@ -1443,63 +1483,6 @@ optional("typeface_fontations") {
 }
 
 if (skia_use_rust_png_decode || skia_use_rust_png_encode) {
-  # We only use Bazel to get the generated `.cc` and `.h` file and then compile
-  # them on GN/ninja side using `skia_source_set` below.  This ensures that the
-  # same C++ stdlib and compiler is used throughout the build (in some scenarios
-  # Bazel may end up using different ones).
-  action("rust_png_ffi_bazel_build") {
-    script = "gn/bazel_build.py"
-    sources = [
-      "rust/png/BUILD.bazel",
-      "rust/png/FFI.h",
-      "rust/png/FFI.rs",
-    ]
-    outputs = [
-      "$root_out_dir/librust_png_ffi_rs.a",
-      "$root_out_dir/rust/png/FFI.rs.h",
-      "$root_out_dir/rust/png/FFI.rs.cc",
-    ]
-    args = [
-             "//rust/png:*",
-
-             rebase_path("//bazel-bin/rust/png/libffi_rs.a", root_build_dir) +
-                 "=librust_png_ffi_rs.a",
-
-             # we want the `cxx`-generated headers to not simply be copied into
-             # the output directory, but in the same path as the Bazel build
-             # uses.
-             rebase_path("//bazel-bin/rust/png/FFI.rs.h", root_build_dir) +
-                 "=rust/png/FFI.rs.h",
-             rebase_path("//bazel-bin/rust/png/FFI.rs.cc", root_build_dir) +
-                 "=rust/png/FFI.rs.cc",
-           ] + bazel_args
-  }
-  action("rust_cxx_core_bazel_build") {
-    script = "gn/bazel_build.py"
-    sources = [
-      "MODULE.bazel",
-      "MODULE.bazel.lock",
-      "bazel/external/cxx/BUILD.bazel",
-      "bazel/external/cxx/BUILD.bazel.skia",
-    ]
-    outputs = [
-      "$root_out_dir/libcxx_cc.a",
-      "$root_out_dir/third_party/rust/cxx/v1/cxx.h",
-    ]
-    args = [
-             "@crates//:cxx_cc",
-
-             rebase_path(
-                     "//bazel-bin/external/rules_rust++crate+crates__cxx-1.0.168/libcxx_cc.a",
-                     root_build_dir) + "=libcxx_cc.a",
-
-             # we want the `cxx.h` header to not simply be copied into the
-             # output directory, but in the same path as the Bazel build uses.
-             rebase_path(
-                     "//bazel-bin/external/rules_rust++crate+crates__cxx-1.0.168/_virtual_includes/cxx_cc/third_party/rust/cxx/v1/cxx.h",
-                     root_build_dir) + "=third_party/rust/cxx/v1/cxx.h",
-           ] + bazel_args
-  }
   config("rust_png_cxx_bridge_private_config") {
     include_dirs = [
       # This entry is needed so that `FFI.rs.cc` can resolve
@@ -1508,7 +1491,7 @@ if (skia_use_rust_png_decode || skia_use_rust_png_encode) {
     ]
   }
   skia_source_set("rust_png_cxx_bridge") {
-    deps = [ ":rust_png_ffi_bazel_build" ]
+    deps = [ ":rust_all_ffi_bazel_build" ]
     public = [ "${root_out_dir}/rust/png/FFI.rs.h" ]
     sources = [ "${root_out_dir}/rust/png/FFI.rs.cc" ]
     libs = [ "$root_out_dir/librust_png_ffi_rs.a" ]
@@ -1530,7 +1513,7 @@ optional("rust_common") {
   public = skia_rust_common_ffi_cpp_hdrs
   sources = skia_rust_common_ffi_cpp_srcs
   public_configs = [ ":rust_common_cxx_bridge_public_config" ]
-  deps = [ ":rust_cxx_core_bazel_build" ]
+  deps = [ ":rust_all_ffi_bazel_build" ]
 }
 
 optional("png_decode_rust") {
@@ -1542,8 +1525,8 @@ optional("png_decode_rust") {
 
   deps = [
     ":png_decode_common",
+    ":rust_all_ffi_bazel_build",
     ":rust_common",
-    ":rust_cxx_core_bazel_build",
     ":rust_png_cxx_bridge",
   ]
   libs = [
@@ -1560,8 +1543,8 @@ optional("png_encode_rust") {
   sources_for_tests = [ "tests/SkPngRustEncoderTest.cpp" ]
   deps = [
     ":png_encode_common",
+    ":rust_all_ffi_bazel_build",
     ":rust_common",
-    ":rust_cxx_core_bazel_build",
     ":rust_png_cxx_bridge",
   ]
   libs = [
