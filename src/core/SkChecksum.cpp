@@ -6,18 +6,11 @@
  */
 #include "src/core/SkChecksum.h"
 
+#include "include/private/base/SkAssert.h"
+
 #include <cstring>
 
 // wyhash, a fast and good hash function, from https://github.com/wangyi-fudan/wyhash
-
-// likely and unlikely macros
-#if defined(__GNUC__) || defined(__INTEL_COMPILER) || defined(__clang__)
-#define _likely_(x) __builtin_expect(x, 1)
-#define _unlikely_(x) __builtin_expect(x, 0)
-#else
-#define _likely_(x) (x)
-#define _unlikely_(x) (x)
-#endif
 
 // 128bit multiply function
 static inline void _wymum(uint64_t* A, uint64_t* B) {
@@ -68,18 +61,18 @@ static inline uint64_t wyhash(const void* key, size_t len, uint64_t seed, const 
     const uint8_t* p = (const uint8_t*)key;
     seed ^= _wymix(seed ^ secret[0], secret[1]);
     uint64_t a, b;
-    if (_likely_(len <= 16)) {
-        if (_likely_(len >= 4)) {
+    if (len <= 16) SK_LIKELY {
+        if (len >= 4) SK_LIKELY {
             a = (_wyr4(p) << 32) | _wyr4(p + ((len >> 3) << 2));
             b = (_wyr4(p + len - 4) << 32) | _wyr4(p + len - 4 - ((len >> 3) << 2));
-        } else if (_likely_(len > 0)) {
+        } else if (len > 0) SK_LIKELY {
             a = _wyr3(p, len);
             b = 0;
         } else
             a = b = 0;
     } else {
         size_t i = len;
-        if (_unlikely_(i > 48)) {
+        if (i > 48) SK_UNLIKELY {
             uint64_t see1 = seed, see2 = seed;
             do {
                 seed = _wymix(_wyr8(p) ^ secret[1], _wyr8(p + 8) ^ seed);
@@ -87,10 +80,10 @@ static inline uint64_t wyhash(const void* key, size_t len, uint64_t seed, const 
                 see2 = _wymix(_wyr8(p + 32) ^ secret[3], _wyr8(p + 40) ^ see2);
                 p += 48;
                 i -= 48;
-            } while (_likely_(i > 48));
+            } while (i > 48) SK_LIKELY;
             seed ^= see1 ^ see2;
         }
-        while (_unlikely_(i > 16)) {
+        while (i > 16) SK_UNLIKELY {
             seed = _wymix(_wyr8(p) ^ secret[1], _wyr8(p + 8) ^ seed);
             i -= 16;
             p += 16;
