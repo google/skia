@@ -104,6 +104,7 @@ WARNINGS = [
     "-Wno-global-constructors",  # TODO: OK outside libskia
     "-Wno-missing-prototypes",
     "-Wno-missing-variable-declarations",
+    "-Wno-nrvo",
     "-Wno-pedantic",
     "-Wno-reserved-id-macro",
     "-Wno-reserved-identifier",

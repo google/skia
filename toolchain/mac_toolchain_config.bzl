@@ -33,6 +33,9 @@ EXTERNAL_TOOLCHAIN = "external/+_repo_rules2+clang_mac"
 # Root of our symlinks. These symlinks are created in download_mac_toolchain.bzl
 XCODE_MACSDK_SYMLINK = EXTERNAL_TOOLCHAIN + "/symlinks/xcode/MacSDK"
 
+# Must stay in sync with download_mac_toolchain.bzl.
+CLANG_VER = "22"
+
 _platform_constraints_to_import = {
     "@platforms//cpu:arm64": "_arm64_cpu",
     "@platforms//cpu:x86_64": "_x86_64_cpu",
@@ -263,13 +266,6 @@ def _make_default_flags(ctx):
     this toolchain, even third_party deps.
 
     """
-
-    # Must stay in sync with download_mac_toolchain.bzl.
-    if _has_platform_constraint(ctx, "@platforms//cpu:arm64"):
-        clang_ver = "17"
-    else:
-        clang_ver = "15.0.1"
-
     cxx_compile_includes = flag_set(
         actions = [
             ACTION_NAMES.c_compile,
@@ -280,16 +276,16 @@ def _make_default_flags(ctx):
         flag_groups = [
             flag_group(
                 flags = [
-                    # THIS ORDER MATTERS GREATLY. If these are in the wrong order, the
-                    # #include_next directives will fail to find the files, causing a compilation
-                    # error (or, without -no-canonical-prefixes, a mysterious case where files
-                    # are included with an absolute path and fail the build).
+                    # THIS ORDER MATTERS GREATLY. If these are in the wrong order, we see errors
+                    # like "error: unknown type name 'size_t'". We want the C++ standard library
+                    # headers and then the internal clang version to "fulfill" any missing types
+                    # before we get to the other includes from the SDK and frameworks
                     "-isystem",
-                    EXTERNAL_TOOLCHAIN + "/include/c++/v1",
+                    XCODE_MACSDK_SYMLINK + "/usr/include/c++/v1",
+                    "-isystem",
+                    EXTERNAL_TOOLCHAIN + "/lib/clang/" + CLANG_VER + "/include",
                     "-isystem",
                     XCODE_MACSDK_SYMLINK + "/usr/include",
-                    "-isystem",
-                    EXTERNAL_TOOLCHAIN + "/lib/clang/" + clang_ver + "/include",
                     # Set the framework path to the Mac SDK framework directory. This has
                     # subfolders like OpenGL.framework
                     # We want -iframework so Clang hides diagnostic warnings from those header
@@ -361,10 +357,8 @@ def _make_default_flags(ctx):
                     "-F/System/Library/Frameworks",
                     "-fuse-ld=lld",
                     "-std=c++20",
-                    "-stdlib=libc++",
-                    EXTERNAL_TOOLCHAIN + "/lib/libc++.a",
-                    EXTERNAL_TOOLCHAIN + "/lib/libc++abi.a",
-                    EXTERNAL_TOOLCHAIN + "/lib/libunwind.a",
+                    # Link against gnu libc that's in the Mac SDK.
+                    "-lc++",
                 ],
             ),
         ],

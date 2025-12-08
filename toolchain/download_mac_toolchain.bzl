@@ -13,22 +13,11 @@ The destination folder for these files and symlinks are:
 """
 
 load(":clang_layering_check.bzl", "generate_system_module_map")
-load(":utils.bzl", "gcs_mirror_url")
 
-# From https://github.com/llvm/llvm-project/releases/tag/llvmorg-17.0.6
-# When updating this, don't forget to use //bazel/gcs_mirror to upload a new version.
-# go run bazel/gcs_mirror/gcs_mirror.go --url [clang_url] --sha256 [clang_sha256]
-clang_prefix_arm64 = "clang+llvm-17.0.6-arm64-apple-darwin22.0"
-clang_sha256_arm64 = "1264eb3c2a4a6d5e9354c3e5dc5cb6c6481e678f6456f36d2e0e566e9400fcad"
-clang_url_arm64 = "https://github.com/llvm/llvm-project/releases/download/llvmorg-17.0.6/clang+llvm-17.0.6-arm64-apple-darwin22.0.tar.xz"
-clang_ver_arm64 = "17"
-
-# No x86_64-apple binaries published by llvm-project beyond 15.
-# TODO: find a different toolchain source.
-clang_prefix_amd64 = "clang+llvm-15.0.1-x86_64-apple-darwin"
-clang_sha256_amd64 = "0b2f1a811e68d011344103274733b7670c15bbe08b2a3a5140ccad8e19d9311e"
-clang_url_amd64 = "https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.1/clang+llvm-15.0.1-x86_64-apple-darwin.tar.xz"
-clang_ver_amd64 = "15.0.1"
+# https://chrome-infra-packages.appspot.com/p/skia/bots/clang_mac_universal/+/x3dttF6l3fGIF2iFgIAVnLyS5jIUS090wKvk9LHiFkEC
+clang_url = "https://chrome-infra-packages.appspot.com/dl/skia/bots/clang_mac_universal/+/version:0"
+clang_sha256 = "c7776db45ea5ddf1881768858080159cbc92e632144b4f74c0abe4f4b1e21641"
+clang_ver = "22"
 
 def _get_system_sdk_path(ctx):
     res = ctx.execute(["xcrun", "--sdk", "macosx", "--show-sdk-path"])
@@ -64,25 +53,14 @@ def _create_macos_sdk_symlinks(ctx):
     )
 
 def _download_mac_toolchain_impl(ctx):
-    # https://bazel.build/rules/lib/repository_ctx#os
-    # https://bazel.build/rules/lib/repository_os
-    if ctx.os.arch == "aarch64":
-        clang_ver = clang_ver_arm64
-        clang_url = clang_url_arm64
-        clang_sha256 = clang_sha256_arm64
-        clang_prefix = clang_prefix_arm64
-    else:
-        clang_ver = clang_ver_amd64
-        clang_url = clang_url_amd64
-        clang_sha256 = clang_sha256_amd64
-        clang_prefix = clang_prefix_amd64
+    # https://bazel.build/rules/lib/repository_ctx
 
     # Download the clang toolchain (the extraction can take a while)
     # https://bazel.build/rules/lib/repository_ctx#download_and_extract
     ctx.download_and_extract(
-        url = gcs_mirror_url(clang_url, clang_sha256),
+        url = clang_url,
+        type = "zip",
         output = "",
-        stripPrefix = clang_prefix,
         sha256 = clang_sha256,
     )
 
@@ -99,12 +77,13 @@ def _download_mac_toolchain_impl(ctx):
     # This list of files lines up with _make_default_flags() in mac_toolchain_config.bzl
     # It is all locations that our toolchain could find a system header.
     builtin_include_directories = [
-        "include/c++/v1",
         "lib/clang/" + clang_ver + "/include",
         # Frameworks is a symlink, and the trailing slash is intentional
         # (to ensure traversal in generate_system_module_map.sh's find).
         "symlinks/xcode/MacSDK/System/Library/Frameworks/",
         "symlinks/xcode/MacSDK/usr/include",
+        # The C++ standard library headers are here but that's accounted for above.
+        # "symlinks/xcode/MacSDK/usr/include/c++/v1",
     ]
 
     generate_system_module_map(
@@ -182,7 +161,6 @@ filegroup(
         "bin/clang",
     ] + glob(
         include = [
-            "include/c++/v1/**",
             "lib/clang/*/include/**",
             "symlinks/xcode/MacSDK/usr/include/**",
         ],
@@ -202,9 +180,6 @@ filegroup(
         "bin/clang",
         "bin/ld.lld",
         "bin/lld",
-        "lib/libc++.a",
-        "lib/libc++abi.a",
-        "lib/libunwind.a",
     ] + glob(
         include = [
             # libc++.tbd and libSystem.tbd live here.
