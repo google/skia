@@ -702,7 +702,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> QuadEdgeEffect::makeProgramImp
             fragBuilder->codeAppendf("edgeAlpha = half(%s.x*%s.x - %s.y);", v.fsIn(), v.fsIn(),
                                      v.fsIn());
             fragBuilder->codeAppendf("edgeAlpha = "
-                                     "saturate(0.5 - edgeAlpha / length(gF));}");
+                                     "saturate(0.5 - edgeAlpha / max(length(gF), 1e-6));}");
 
             fragBuilder->codeAppendf("half4 %s = half4(edgeAlpha);", args.fOutputCoverage);
         }
