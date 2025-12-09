@@ -487,6 +487,7 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
                     if (typeface == nullptr) {
                         typeface = fParagraph->fFontCollection->defaultFallback(
                                                     codepoint,
+                                                    textStyle.getFontFamilies(),
                                                     textStyle.getFontStyle(),
                                                     textStyle.getLocale(),
                                                     textStyle.getFontArguments());
