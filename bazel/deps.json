@@ -103,7 +103,7 @@
     },
     {
       "build_file": "//bazel/external/libpng:BUILD.bazel",
-      "commit": "49363adcfaf098748d7a4c8c624ad8c45a8c3a86",
+      "commit": "4e3f57d50f552841550a36eabbb3fbcecacb7750",
       "name": "libpng",
       "remote": "https://skia.googlesource.com/third_party/libpng.git"
     },
