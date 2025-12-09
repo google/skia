@@ -28,14 +28,11 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/ports/SkFontMgr_mac_ct.h"
-#include "include/private/base/SkFixed.h"
 #include "include/private/base/SkOnce.h"
-#include "include/private/base/SkTPin.h"
-#include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkUTF.h"
-#include "src/core/SkFontDescriptor.h"
 #include "src/ports/SkTypeface_mac_ct.h"
+#include "src/utils/mac/SkUniqueCFRef.h"
 
 #include <string.h>
 #include <memory>
@@ -56,7 +53,7 @@ static sk_sp<SkTypeface> create_from_desc(CTFontDescriptorRef desc) {
     return SkTypeface_Mac::Make(std::move(ctFont), OpszVariation(), nullptr);
 }
 
-static SkUniqueCFRef<CTFontDescriptorRef> create_descriptor(const char familyName[],
+static SkUniqueCFRef<CTFontDescriptorRef> create_descriptor(CFStringRef familyName,
                                                             const SkFontStyle& style) {
     SkUniqueCFRef<CFMutableDictionaryRef> cfAttributes(
             CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
@@ -102,14 +99,20 @@ static SkUniqueCFRef<CTFontDescriptorRef> create_descriptor(const char familyNam
 
     // CTFontFamilyName
     if (familyName) {
-        SkUniqueCFRef<CFStringRef> cfFontName = make_CFString(familyName);
-        if (cfFontName) {
-            CFDictionaryAddValue(cfAttributes.get(), kCTFontFamilyNameAttribute, cfFontName.get());
-        }
+        CFDictionaryAddValue(cfAttributes.get(), kCTFontFamilyNameAttribute, familyName);
     }
 
     return SkUniqueCFRef<CTFontDescriptorRef>(
             CTFontDescriptorCreateWithAttributes(cfAttributes.get()));
+}
+
+static SkUniqueCFRef<CTFontDescriptorRef> create_descriptor(const char familyName[],
+                                                            const SkFontStyle& style) {
+    SkUniqueCFRef<CFStringRef> cfFamilyName;
+    if (familyName) {
+        cfFamilyName = make_CFString(familyName);
+    }
+    return create_descriptor(cfFamilyName.get(), style);
 }
 
 // Same as the above function except style is included so we can
@@ -385,6 +388,9 @@ protected:
     sk_sp<SkTypeface> onMatchFamilyStyle(const char familyName[],
                                    const SkFontStyle& style) const override {
         SkUniqueCFRef<CTFontDescriptorRef> reqDesc = create_descriptor(familyName, style);
+        if (!reqDesc) {
+            return nullptr;
+        }
         if (!familyName) {
             return create_from_desc(reqDesc.get());
         }
@@ -396,11 +402,20 @@ protected:
         return create_from_desc(resolvedDesc.get());
     }
 
+    static bool has_character(CTFontRef ctFont, SkUnichar character) {
+        UniChar utf16[2] = {}; // UniChar is a UTF-16 16-bit code unit.
+        CGGlyph glyph[2] = {};
+        int srcCount = SkUTF::ToUTF16(character, utf16);
+        return CTFontGetGlyphsForCharacters(ctFont, utf16, glyph, srcCount);
+    }
     sk_sp<SkTypeface> onMatchFamilyStyleCharacter(const char familyName[],
                                                   const SkFontStyle& style,
                                                   const char* bcp47[], int bcp47Count,
                                                   SkUnichar character) const override {
         SkUniqueCFRef<CTFontDescriptorRef> desc = create_descriptor(familyName, style);
+        if (!desc) {
+            return nullptr;
+        }
         SkUniqueCFRef<CTFontRef> familyFont(CTFontCreateWithFontDescriptor(desc.get(), 0, nullptr));
 
         // kCFStringEncodingUTF32 is BE unless there is a BOM.
@@ -419,8 +434,51 @@ protected:
             return nullptr;
         }
         CFRange range = CFRangeMake(0, CFStringGetLength(string.get()));  // in UniChar units.
-        SkUniqueCFRef<CTFontRef> fallbackFont(
-                CTFontCreateForString(familyFont.get(), string.get(), range));
+
+        const char* locale = bcp47Count ? bcp47[0] : "";
+        SkUniqueCFRef<CFStringRef> cfLocale(CFStringCreateWithBytes(
+                kCFAllocatorDefault, reinterpret_cast<const UInt8 *>(locale), strlen(locale),
+                kCFStringEncodingUTF8, false));
+
+        SkUniqueCFRef<CTFontRef> fallbackFont(CTFontCreateForStringWithLanguage(
+                familyFont.get(), string.get(), range, cfLocale.get()));
+        if (!fallbackFont || !has_character(fallbackFont.get(), character)) {
+            return nullptr;
+        }
+
+        // The fallbackFont has the character but there may be a better style match since familyName
+        // may have had different weights available than the fallbackFont's family.
+        // Check to see if there is a better match with the fallbackFont's family name.
+
+        // This is a good example of why fallback must be collection and not font based.
+        // Being font based requires that fallback start from a font which, because it is resolved,
+        // has lost request information. When fallback is on the collection then the request can be
+        // made directly.
+
+        // Because collection fallback does not appear to exist in CoreText and there is no direct
+        // notion of families, it appears one must pretend like the family name is the family key
+        // and try to make that work. This is generally very bad idea (one should never take the
+        // family name from a font and then do a lookup based on it) but in this case there appears
+        // to be no good work-around. Use of CTFontCreateCopyWithAttributes will do the match with
+        // the font name (PostScript name) and so never find a different font. In any event, there
+        // is a known backup (just return fallbackFont) if the lookup by family name does not work
+        // or the result doesn't actually cover the character.
+        SkUniqueCFRef<CFStringRef> fallbackFamilyName(CTFontCopyFamilyName(fallbackFont.get()));
+        if (fallbackFamilyName &&
+            CFStringGetLength(fallbackFamilyName.get()) > 0 &&
+            CFStringGetCharacterAtIndex(fallbackFamilyName.get(), 0) != '.')
+        {
+            SkUniqueCFRef<CTFontDescriptorRef> styledFallbackDesc =
+                    create_descriptor(fallbackFamilyName.get(), style);
+            if (styledFallbackDesc) {
+                SkUniqueCFRef<CTFontRef> styledFallbackFont(
+                        CTFontCreateWithFontDescriptor(styledFallbackDesc.get(), 0, nullptr));
+                if (styledFallbackFont && has_character(styledFallbackFont.get(), character)) {
+                    fallbackFont = std::move(styledFallbackFont);
+                }
+            }
+        }
+
         return SkTypeface_Mac::Make(std::move(fallbackFont), OpszVariation(), nullptr);
     }
 

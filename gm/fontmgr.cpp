@@ -151,7 +151,12 @@ class FontMgrMatchGM : public skiagm::GM {
             sname.appendf(" [%d %d]", fs.weight(), fs.width());
 
             f.setTypeface(sk_sp<SkTypeface>(fset->createTypeface(j)));
-            (void)drawString(canvas, sname, 0, y, f);
+            SkScalar x = 0;
+            x = drawString(canvas, sname, x, y, f) + 20;
+            // check to see that we get different glyphs in japanese and chinese
+            // and the style matches with no name
+            x = drawCharacter(canvas, 0x5203, x, y, font, fFM.get(), nullptr, &zh, 1, fs);
+            x = drawCharacter(canvas, 0x5203, x, y, font, fFM.get(), nullptr, &ja, 1, fs);
             y += 24;
         }
     }
@@ -168,7 +173,12 @@ class FontMgrMatchGM : public skiagm::GM {
                     SkString str;
                     str.printf("request [%d %d]", fs.weight(), fs.width());
                     f.setTypeface(std::move(face));
-                    (void)drawString(canvas, str, 0, y, f);
+                    SkScalar x = 0;
+                    x = drawString(canvas, str, x, y, f) + 20;
+                    // check to see that we get different glyphs in japanese and chinese
+                    // and the style matches with no name
+                    x = drawCharacter(canvas, 0x5203, x, y, font, fFM.get(), nullptr, &zh, 1, fs);
+                    x = drawCharacter(canvas, 0x5203, x, y, font, fFM.get(), nullptr, &ja, 1, fs);
                     y += 24;
                 }
             }
@@ -199,7 +209,7 @@ class FontMgrMatchGM : public skiagm::GM {
 
         canvas->translate(20, 40);
         this->exploreFamily(canvas, font, fset.get());
-        canvas->translate(150, 0);
+        canvas->translate(350, 0);
         this->iterateFamily(canvas, font, fset.get());
         return DrawResult::kOk;
     }
