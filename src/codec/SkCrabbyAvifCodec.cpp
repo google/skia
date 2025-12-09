@@ -193,6 +193,10 @@ std::unique_ptr<SkCodec> SkCrabbyAvifCodec::MakeFromData(std::unique_ptr<SkStrea
     // issues.
     avifDecoder->strictFlags = crabbyavif::AVIF_STRICT_DISABLED;
 
+    // Disable support for sample transforms. Android pipeline does not support
+    // these images.
+    avifDecoder->allowSampleTransform = crabbyavif::CRABBY_AVIF_FALSE;
+
     // Android uses MediaCodec for decoding the underlying image. So there is no
     // need to set maxThreads since MediaCodec doesn't allow explicit setting
     // of threads.
