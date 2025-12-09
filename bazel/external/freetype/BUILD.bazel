@@ -322,6 +322,7 @@ cc_library(
         "src/autofit/afcjk.c",
         "src/autofit/afdummy.c",
         "src/autofit/afglobal.c",
+        "src/autofit/afgsub.c",
         "src/autofit/afhints.c",
         "src/autofit/afindic.c",
         "src/autofit/aflatin.c",
