@@ -143,46 +143,38 @@ fn _skslMain(xy: vec2<f32>) -> vec4<f32> {
     var _skTemp5: bool;
     var _skTemp6: bool;
     var _skTemp7: bool;
-    let _skTemp8 = test_return_b();
-    if _skTemp8 {
-      let _skTemp9 = test_break_b();
-      _skTemp7 = _skTemp9;
+    if test_return_b() {
+      _skTemp7 = test_break_b();
     } else {
       _skTemp7 = false;
     }
     if _skTemp7 {
-      let _skTemp10 = test_continue_b();
-      _skTemp6 = _skTemp10;
+      _skTemp6 = test_continue_b();
     } else {
       _skTemp6 = false;
     }
     if _skTemp6 {
-      let _skTemp11 = test_if_return_b();
-      _skTemp5 = _skTemp11;
+      _skTemp5 = test_if_return_b();
     } else {
       _skTemp5 = false;
     }
     if _skTemp5 {
-      let _skTemp12 = test_if_break_b();
-      _skTemp4 = _skTemp12;
+      _skTemp4 = test_if_break_b();
     } else {
       _skTemp4 = false;
     }
     if _skTemp4 {
-      let _skTemp13 = test_else_b();
-      _skTemp3 = _skTemp13;
+      _skTemp3 = test_else_b();
     } else {
       _skTemp3 = false;
     }
     if _skTemp3 {
-      let _skTemp14 = test_loop_return_b();
-      _skTemp2 = _skTemp14;
+      _skTemp2 = test_loop_return_b();
     } else {
       _skTemp2 = false;
     }
     if _skTemp2 {
-      let _skTemp15 = test_loop_break_b();
-      _skTemp1 = _skTemp15;
+      _skTemp1 = test_loop_break_b();
     } else {
       _skTemp1 = false;
     }

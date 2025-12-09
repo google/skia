@@ -96,56 +96,47 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     var _skTemp8: bool;
     var _skTemp9: bool;
     if _0_x == -1.0 {
-      let _skTemp10 = test_iscalar_b();
-      _skTemp9 = _skTemp10;
+      _skTemp9 = test_iscalar_b();
     } else {
       _skTemp9 = false;
     }
     if _skTemp9 {
-      let _skTemp11 = test_fvec_b();
-      _skTemp8 = _skTemp11;
+      _skTemp8 = test_fvec_b();
     } else {
       _skTemp8 = false;
     }
     if _skTemp8 {
-      let _skTemp12 = test_ivec_b();
-      _skTemp7 = _skTemp12;
+      _skTemp7 = test_ivec_b();
     } else {
       _skTemp7 = false;
     }
     if _skTemp7 {
-      let _skTemp13 = test_mat2_b();
-      _skTemp6 = _skTemp13;
+      _skTemp6 = test_mat2_b();
     } else {
       _skTemp6 = false;
     }
     if _skTemp6 {
-      let _skTemp14 = test_mat3_b();
-      _skTemp5 = _skTemp14;
+      _skTemp5 = test_mat3_b();
     } else {
       _skTemp5 = false;
     }
     if _skTemp5 {
-      let _skTemp15 = test_mat4_b();
-      _skTemp4 = _skTemp15;
+      _skTemp4 = test_mat4_b();
     } else {
       _skTemp4 = false;
     }
     if _skTemp4 {
-      let _skTemp16 = test_hmat2_b();
-      _skTemp3 = _skTemp16;
+      _skTemp3 = test_hmat2_b();
     } else {
       _skTemp3 = false;
     }
     if _skTemp3 {
-      let _skTemp17 = test_hmat3_b();
-      _skTemp2 = _skTemp17;
+      _skTemp2 = test_hmat3_b();
     } else {
       _skTemp2 = false;
     }
     if _skTemp2 {
-      let _skTemp18 = test_hmat4_b();
-      _skTemp1 = _skTemp18;
+      _skTemp1 = test_hmat4_b();
     } else {
       _skTemp1 = false;
     }

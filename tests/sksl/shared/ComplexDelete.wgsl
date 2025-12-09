@@ -16,8 +16,7 @@ fn _skslMain(_stageOut: ptr<function, FSOut>) {
     var _skTemp2: vec4<f32>;
     const _skTemp3 = mat4x4<f32>(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
     if (any(_globalUniforms.colorXform[0] != _skTemp3[0]) || any(_globalUniforms.colorXform[1] != _skTemp3[1]) || any(_globalUniforms.colorXform[2] != _skTemp3[2]) || any(_globalUniforms.colorXform[3] != _skTemp3[3])) {
-      let _skTemp4 = clamp((_globalUniforms.colorXform * vec4<f32>(tmpColor.xyz, 1.0)).xyz, vec3<f32>(0.0), vec3<f32>(tmpColor.w));
-      _skTemp2 = vec4<f32>(_skTemp4, tmpColor.w);
+      _skTemp2 = vec4<f32>(clamp((_globalUniforms.colorXform * vec4<f32>(tmpColor.xyz, 1.0)).xyz, vec3<f32>(0.0), vec3<f32>(tmpColor.w)), tmpColor.w);
     } else {
       _skTemp2 = tmpColor;
     }

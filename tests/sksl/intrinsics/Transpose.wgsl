@@ -14,15 +14,12 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     const testMatrix2x3: mat2x3<f32> = mat2x3<f32>(1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
     let _skTemp0 = transpose(_globalUniforms.testMatrix2x2);
-    let _skTemp1 = _skTemp0;
-    const _skTemp2 = mat2x2<f32>(1.0, 3.0, 2.0, 4.0);
-    let _skTemp3 = transpose(testMatrix2x3);
-    let _skTemp4 = _skTemp3;
-    const _skTemp5 = mat3x2<f32>(1.0, 4.0, 2.0, 5.0, 3.0, 6.0);
-    let _skTemp6 = transpose(_globalUniforms.testMatrix3x3);
-    let _skTemp7 = _skTemp6;
-    const _skTemp8 = mat3x3<f32>(1.0, 4.0, 7.0, 2.0, 5.0, 8.0, 3.0, 6.0, 9.0);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((all(_skTemp1[0] == _skTemp2[0]) && all(_skTemp1[1] == _skTemp2[1])) && (all(_skTemp4[0] == _skTemp5[0]) && all(_skTemp4[1] == _skTemp5[1]) && all(_skTemp4[2] == _skTemp5[2]))) && (all(_skTemp7[0] == _skTemp8[0]) && all(_skTemp7[1] == _skTemp8[1]) && all(_skTemp7[2] == _skTemp8[2]))));
+    const _skTemp1 = mat2x2<f32>(1.0, 3.0, 2.0, 4.0);
+    let _skTemp2 = transpose(testMatrix2x3);
+    const _skTemp3 = mat3x2<f32>(1.0, 4.0, 2.0, 5.0, 3.0, 6.0);
+    let _skTemp4 = transpose(_globalUniforms.testMatrix3x3);
+    const _skTemp5 = mat3x3<f32>(1.0, 4.0, 7.0, 2.0, 5.0, 8.0, 3.0, 6.0, 9.0);
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((all(_skTemp0[0] == _skTemp1[0]) && all(_skTemp0[1] == _skTemp1[1])) && (all(_skTemp2[0] == _skTemp3[0]) && all(_skTemp2[1] == _skTemp3[1]) && all(_skTemp2[2] == _skTemp3[2]))) && (all(_skTemp4[0] == _skTemp5[0]) && all(_skTemp4[1] == _skTemp5[1]) && all(_skTemp4[2] == _skTemp5[2]))));
   }
 }
 @fragment fn main() -> FSOut {

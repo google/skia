@@ -70,16 +70,12 @@ fn _skslMain(xy: vec2<f32>) -> vec4<f32> {
     const _skTemp2 = mat4x4<f32>(-2.0, -0.5, 1.0, 0.5, 1.0, 0.5, 0.0, -0.5, -8.0, -1.0, 2.0, 2.0, 3.0, 0.5, -1.0, -0.5);
     let _skTemp3 = mat3x3<f32>(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
     let _skTemp4 = mat3_inverse(_skTemp3);
-    let _skTemp5 = _skTemp4;
-    let _skTemp6 = mat2_inverse(mat2x2<f32>(matrix2x2[0] + Zero, matrix2x2[1] + Zero));
-    let _skTemp7 = _skTemp6;
-    let _skTemp8 = mat3x3<f32>(1.0, 2.0, 3.0, 0.0, 1.0, 4.0, 5.0, 6.0, 0.0);
-    let _skTemp9 = mat3_inverse(mat3x3<f32>(_skTemp8[0] + Zero, _skTemp8[1] + Zero, _skTemp8[2] + Zero));
-    let _skTemp10 = _skTemp9;
-    let _skTemp11 = mat4x4<f32>(1.0, 0.0, 0.0, 1.0, 0.0, 2.0, 1.0, 2.0, 2.0, 1.0, 0.0, 1.0, 2.0, 0.0, 1.0, 4.0);
-    let _skTemp12 = mat4_inverse(mat4x4<f32>(_skTemp11[0] + Zero, _skTemp11[1] + Zero, _skTemp11[2] + Zero, _skTemp11[3] + Zero));
-    let _skTemp13 = _skTemp12;
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((((((all(_skTemp0[0] == inv2x2[0]) && all(_skTemp0[1] == inv2x2[1])) && (all(_skTemp1[0] == inv3x3[0]) && all(_skTemp1[1] == inv3x3[1]) && all(_skTemp1[2] == inv3x3[2]))) && (all(_skTemp2[0] == inv4x4[0]) && all(_skTemp2[1] == inv4x4[1]) && all(_skTemp2[2] == inv4x4[2]) && all(_skTemp2[3] == inv4x4[3]))) && (any(_skTemp5[0] != inv3x3[0]) || any(_skTemp5[1] != inv3x3[1]) || any(_skTemp5[2] != inv3x3[2]))) && (all(_skTemp7[0] == inv2x2[0]) && all(_skTemp7[1] == inv2x2[1]))) && (all(_skTemp10[0] == inv3x3[0]) && all(_skTemp10[1] == inv3x3[1]) && all(_skTemp10[2] == inv3x3[2]))) && (all(_skTemp13[0] == inv4x4[0]) && all(_skTemp13[1] == inv4x4[1]) && all(_skTemp13[2] == inv4x4[2]) && all(_skTemp13[3] == inv4x4[3]))));
+    let _skTemp5 = mat2_inverse(mat2x2<f32>(matrix2x2[0] + Zero, matrix2x2[1] + Zero));
+    let _skTemp6 = mat3x3<f32>(1.0, 2.0, 3.0, 0.0, 1.0, 4.0, 5.0, 6.0, 0.0);
+    let _skTemp7 = mat3_inverse(mat3x3<f32>(_skTemp6[0] + Zero, _skTemp6[1] + Zero, _skTemp6[2] + Zero));
+    let _skTemp8 = mat4x4<f32>(1.0, 0.0, 0.0, 1.0, 0.0, 2.0, 1.0, 2.0, 2.0, 1.0, 0.0, 1.0, 2.0, 0.0, 1.0, 4.0);
+    let _skTemp9 = mat4_inverse(mat4x4<f32>(_skTemp8[0] + Zero, _skTemp8[1] + Zero, _skTemp8[2] + Zero, _skTemp8[3] + Zero));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((((((all(_skTemp0[0] == inv2x2[0]) && all(_skTemp0[1] == inv2x2[1])) && (all(_skTemp1[0] == inv3x3[0]) && all(_skTemp1[1] == inv3x3[1]) && all(_skTemp1[2] == inv3x3[2]))) && (all(_skTemp2[0] == inv4x4[0]) && all(_skTemp2[1] == inv4x4[1]) && all(_skTemp2[2] == inv4x4[2]) && all(_skTemp2[3] == inv4x4[3]))) && (any(_skTemp4[0] != inv3x3[0]) || any(_skTemp4[1] != inv3x3[1]) || any(_skTemp4[2] != inv3x3[2]))) && (all(_skTemp5[0] == inv2x2[0]) && all(_skTemp5[1] == inv2x2[1]))) && (all(_skTemp7[0] == inv3x3[0]) && all(_skTemp7[1] == inv3x3[1]) && all(_skTemp7[2] == inv3x3[2]))) && (all(_skTemp9[0] == inv4x4[0]) && all(_skTemp9[1] == inv4x4[1]) && all(_skTemp9[2] == inv4x4[2]) && all(_skTemp9[3] == inv4x4[3]))));
   }
 }
 @fragment fn main() -> FSOut {

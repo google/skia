@@ -11,8 +11,7 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    let _skTemp0 = determinant(_globalUniforms.testMatrix2x2);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(_skTemp0 == -2.0));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(determinant(_globalUniforms.testMatrix2x2) == -2.0));
   }
 }
 @fragment fn main() -> FSOut {

@@ -138,8 +138,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     var _skTemp24: vec4<f32>;
     var _skTemp25: bool;
     if _0_ok {
-      let _skTemp26 = test_matrix_op_matrix_half_b();
-      _skTemp25 = _skTemp26;
+      _skTemp25 = test_matrix_op_matrix_half_b();
     } else {
       _skTemp25 = false;
     }

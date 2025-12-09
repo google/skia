@@ -37,10 +37,8 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     ok.w = (result.w == 0.75) && (_0_exp.w == 3);
     let _skTemp4 = frexp(value.wzy);
     _0_exp = vec4<i32>((_skTemp4.exp), _0_exp.y).ywxz;
-    let _skTemp5 = checkIntrinsicAsFunctionArg_bf3i3(_skTemp4.fract.yxz, _0_exp.yxz);
-    let funcOk: bool = _skTemp5;
-    let _skTemp6 = all(ok);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(_skTemp6 && funcOk));
+    let funcOk: bool = checkIntrinsicAsFunctionArg_bf3i3(_skTemp4.fract.yxz, _0_exp.yxz);
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(all(ok) && funcOk));
   }
 }
 @fragment fn main() -> FSOut {

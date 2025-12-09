@@ -10,8 +10,7 @@ struct _GlobalUniforms {
 var<private> b: i32;
 fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
-    let _skTemp0 = ldexp(_globalUniforms.a, b);
-    (*_stageOut).sk_FragColor.x = f32(_skTemp0);
+    (*_stageOut).sk_FragColor.x = f32(ldexp(_globalUniforms.a, b));
   }
 }
 @fragment fn main() -> FSOut {

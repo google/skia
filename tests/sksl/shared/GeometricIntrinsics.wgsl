@@ -10,22 +10,15 @@ struct _GlobalUniforms {
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var _0_x: f32 = 1.0;
-    let _skTemp0 = length(_0_x);
-    _0_x = _skTemp0;
-    let _skTemp1 = distance(_0_x, 2.0);
-    _0_x = _skTemp1;
+    _0_x = length(_0_x);
+    _0_x = distance(_0_x, 2.0);
     _0_x = _0_x * 2.0;
-    let _skTemp2 = sign(_0_x);
-    _0_x = _skTemp2;
+    _0_x = sign(_0_x);
     var _1_x: vec2<f32> = vec2<f32>(1.0, 2.0);
-    let _skTemp3 = length(_1_x);
-    _1_x = vec2<f32>(_skTemp3);
-    let _skTemp4 = distance(_1_x, vec2<f32>(3.0, 4.0));
-    _1_x = vec2<f32>(_skTemp4);
-    let _skTemp5 = dot(_1_x, vec2<f32>(3.0, 4.0));
-    _1_x = vec2<f32>(_skTemp5);
-    let _skTemp6 = normalize(_1_x);
-    _1_x = _skTemp6;
+    _1_x = vec2<f32>(length(_1_x));
+    _1_x = vec2<f32>(distance(_1_x, vec2<f32>(3.0, 4.0)));
+    _1_x = vec2<f32>(dot(_1_x, vec2<f32>(3.0, 4.0)));
+    _1_x = normalize(_1_x);
     return _globalUniforms.colorGreen;
   }
 }

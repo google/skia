@@ -85,44 +85,37 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
       _skTemp10 = ((_1_a.f1 != _2_b.f1) || (_1_a.f2 != _2_b.f2) || (_1_a.f3 != _2_b.f3));
     }
     if _skTemp10 {
-      let _skTemp11 = test_same_structs_bbfff(NE, F42, ZM, ZP);
-      _skTemp9 = !_skTemp11;
+      _skTemp9 = !test_same_structs_bbfff(NE, F42, ZM, ZP);
     } else {
       _skTemp9 = false;
     }
     if _skTemp9 {
-      let _skTemp12 = test_same_structs_bbfff(NE, F42, NAN1, NAN2);
-      _skTemp8 = _skTemp12;
+      _skTemp8 = test_same_structs_bbfff(NE, F42, NAN1, NAN2);
     } else {
       _skTemp8 = false;
     }
     if _skTemp8 {
-      let _skTemp13 = test_same_structs_bbfff(EQ, F42, NAN1, NAN2);
-      _skTemp7 = !_skTemp13;
+      _skTemp7 = !test_same_structs_bbfff(EQ, F42, NAN1, NAN2);
     } else {
       _skTemp7 = false;
     }
     if _skTemp7 {
-      let _skTemp14 = test_diff_structs_bbfff(NE, F42, F43, F44);
-      _skTemp6 = _skTemp14;
+      _skTemp6 = test_diff_structs_bbfff(NE, F42, F43, F44);
     } else {
       _skTemp6 = false;
     }
     if _skTemp6 {
-      let _skTemp15 = test_diff_structs_bbfff(EQ, F42, F43, F44);
-      _skTemp5 = !_skTemp15;
+      _skTemp5 = !test_diff_structs_bbfff(EQ, F42, F43, F44);
     } else {
       _skTemp5 = false;
     }
     if _skTemp5 {
-      let _skTemp16 = test_diff_structs_bbfff(NE, NAN1, ZM, ZP);
-      _skTemp4 = _skTemp16;
+      _skTemp4 = test_diff_structs_bbfff(NE, NAN1, ZM, ZP);
     } else {
       _skTemp4 = false;
     }
     if _skTemp4 {
-      let _skTemp17 = test_diff_structs_bbfff(EQ, NAN1, ZM, ZP);
-      _skTemp3 = !_skTemp17;
+      _skTemp3 = !test_diff_structs_bbfff(EQ, NAN1, ZM, ZP);
     } else {
       _skTemp3 = false;
     }

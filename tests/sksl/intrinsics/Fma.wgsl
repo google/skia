@@ -20,9 +20,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     let three: f32 = _globalUniforms.testArray[2];
     let four: f32 = f32(_globalUniforms.testArray[3]);
     let five: f32 = f32(_globalUniforms.testArray[4]);
-    let _skTemp0 = fma(one, two, three);
-    let _skTemp1 = fma(f32(three), four, five);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((_skTemp0 == 5.0) && (_skTemp1 == 17.0)));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((fma(one, two, three) == 5.0) && (fma(f32(three), four, five) == 17.0)));
   }
 }
 @fragment fn main() -> FSOut {

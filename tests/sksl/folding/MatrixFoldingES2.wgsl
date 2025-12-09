@@ -86,50 +86,42 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     var _skTemp18: bool;
     var _skTemp19: bool;
     if _0_ok {
-      let _skTemp20 = test_matrix_op_scalar_float_b();
-      _skTemp19 = _skTemp20;
+      _skTemp19 = test_matrix_op_scalar_float_b();
     } else {
       _skTemp19 = false;
     }
     if _skTemp19 {
-      let _skTemp21 = test_matrix_op_scalar_half_b();
-      _skTemp18 = _skTemp21;
+      _skTemp18 = test_matrix_op_scalar_half_b();
     } else {
       _skTemp18 = false;
     }
     if _skTemp18 {
-      let _skTemp22 = test_matrix_op_matrix_float_b();
-      _skTemp17 = _skTemp22;
+      _skTemp17 = test_matrix_op_matrix_float_b();
     } else {
       _skTemp17 = false;
     }
     if _skTemp17 {
-      let _skTemp23 = test_matrix_op_matrix_half_b();
-      _skTemp16 = _skTemp23;
+      _skTemp16 = test_matrix_op_matrix_half_b();
     } else {
       _skTemp16 = false;
     }
     if _skTemp16 {
-      let _skTemp24 = test_vector_op_matrix_float_b();
-      _skTemp15 = _skTemp24;
+      _skTemp15 = test_vector_op_matrix_float_b();
     } else {
       _skTemp15 = false;
     }
     if _skTemp15 {
-      let _skTemp25 = test_vector_op_matrix_half_b();
-      _skTemp14 = _skTemp25;
+      _skTemp14 = test_vector_op_matrix_half_b();
     } else {
       _skTemp14 = false;
     }
     if _skTemp14 {
-      let _skTemp26 = test_matrix_op_vector_float_b();
-      _skTemp13 = _skTemp26;
+      _skTemp13 = test_matrix_op_vector_float_b();
     } else {
       _skTemp13 = false;
     }
     if _skTemp13 {
-      let _skTemp27 = test_matrix_op_vector_half_b();
-      _skTemp12 = _skTemp27;
+      _skTemp12 = test_matrix_op_vector_half_b();
     } else {
       _skTemp12 = false;
     }

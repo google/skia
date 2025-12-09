@@ -14,19 +14,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     let inputVal: vec4<f32> = _globalUniforms.testMatrix2x2 + vec4<f32>(2.0, -2.0, 1.0, 8.0);
     const expected: vec4<f32> = vec4<f32>(3.0, 3.0, 5.0, 13.0);
     const allowedDelta: f32 = 0.05;
-    let _skTemp0 = length(inputVal.x);
-    let _skTemp1 = abs(_skTemp0 - expected.x);
-    let _skTemp2 = length(inputVal.xy);
-    let _skTemp3 = abs(_skTemp2 - expected.y);
-    let _skTemp4 = length(inputVal.xyz);
-    let _skTemp5 = abs(_skTemp4 - expected.z);
-    let _skTemp6 = length(inputVal);
-    let _skTemp7 = abs(_skTemp6 - expected.w);
-    let _skTemp8 = abs(3.0 - expected.x);
-    let _skTemp9 = abs(3.0 - expected.y);
-    let _skTemp10 = abs(5.0 - expected.z);
-    let _skTemp11 = abs(13.0 - expected.w);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((((_skTemp1 < allowedDelta) && (_skTemp3 < allowedDelta)) && (_skTemp5 < allowedDelta)) && (_skTemp7 < allowedDelta)) && (_skTemp8 < allowedDelta)) && (_skTemp9 < allowedDelta)) && (_skTemp10 < allowedDelta)) && (_skTemp11 < allowedDelta)));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((((abs(length(inputVal.x) - expected.x) < allowedDelta) && (abs(length(inputVal.xy) - expected.y) < allowedDelta)) && (abs(length(inputVal.xyz) - expected.z) < allowedDelta)) && (abs(length(inputVal) - expected.w) < allowedDelta)) && (abs(3.0 - expected.x) < allowedDelta)) && (abs(3.0 - expected.y) < allowedDelta)) && (abs(5.0 - expected.z) < allowedDelta)) && (abs(13.0 - expected.w) < allowedDelta)));
   }
 }
 @fragment fn main() -> FSOut {

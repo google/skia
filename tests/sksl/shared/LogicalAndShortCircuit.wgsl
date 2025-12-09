@@ -96,20 +96,17 @@ fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
     var _skTemp5: bool;
     var _skTemp6: bool;
     if _0_TrueTrue {
-      let _skTemp7 = TrueFalse_b();
-      _skTemp6 = _skTemp7;
+      _skTemp6 = TrueFalse_b();
     } else {
       _skTemp6 = false;
     }
     if _skTemp6 {
-      let _skTemp8 = FalseTrue_b();
-      _skTemp5 = _skTemp8;
+      _skTemp5 = FalseTrue_b();
     } else {
       _skTemp5 = false;
     }
     if _skTemp5 {
-      let _skTemp9 = FalseFalse_b();
-      _skTemp4 = _skTemp9;
+      _skTemp4 = FalseFalse_b();
     } else {
       _skTemp4 = false;
     }

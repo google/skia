@@ -14,13 +14,10 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     const c: f32 = 3.0;
     b = 2.0;
     b = c + 77.0;
-    let _skTemp0 = sin(c + 77.0);
-    b = _skTemp0;
-    let _skTemp1 = userfunc_ff(c + 77.0);
-    let _skTemp2 = userfunc_ff(c + 77.0);
-    b = _skTemp2;
-    let _skTemp3 = cos(c);
-    b = _skTemp3;
+    b = sin(c + 77.0);
+    userfunc_ff(c + 77.0);
+    b = userfunc_ff(c + 77.0);
+    b = cos(c);
     b = b;
     {
       var x: i32 = 0;

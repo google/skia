@@ -16,12 +16,11 @@ fn _skslMain(_stageIn: CSIn) {
       }
     }
     workgroupBarrier();
-    let _skTemp1 = atomicAdd(&localCounter, 1u);
+    atomicAdd(&localCounter, 1u);
     workgroupBarrier();
     if _stageIn.sk_LocalInvocationID.x == 0u {
       {
-        let _skTemp2 = atomicLoad(&localCounter);
-        let _skTemp3 = atomicAdd(&_storage0.globalCounter, _skTemp2);
+        atomicAdd(&_storage0.globalCounter, atomicLoad(&localCounter));
       }
     }
   }

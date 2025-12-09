@@ -14,10 +14,8 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
-    let _skTemp0 = findLSB(_globalUniforms.a);
-    (*_stageOut).sk_FragColor.x = f32(_skTemp0);
-    let _skTemp1 = findLSB(_globalUniforms.b);
-    (*_stageOut).sk_FragColor.y = f32(_skTemp1);
+    (*_stageOut).sk_FragColor.x = f32(findLSB(_globalUniforms.a));
+    (*_stageOut).sk_FragColor.y = f32(findLSB(_globalUniforms.b));
   }
 }
 @fragment fn main() -> FSOut {

@@ -55,8 +55,7 @@ fn ifElseTest_h4h4h4h4(colorBlue: vec4<f32>, colorGreen: vec4<f32>, colorRed: ve
 }
 fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
   {
-    let _skTemp0 = ifElseTest_h4h4h4h4(vec4<f32>(0.0, 0.0, _globalUniforms.colorWhite.z, 1.0), vec4<f32>(0.0, _globalUniforms.colorWhite.y, 0.0, 1.0), vec4<f32>(_globalUniforms.colorWhite.x, 0.0, 0.0, 1.0));
-    return _skTemp0;
+    return ifElseTest_h4h4h4h4(vec4<f32>(0.0, 0.0, _globalUniforms.colorWhite.z, 1.0), vec4<f32>(0.0, _globalUniforms.colorWhite.y, 0.0, 1.0), vec4<f32>(_globalUniforms.colorWhite.x, 0.0, 0.0, 1.0));
   }
 }
 @fragment fn main() -> FSOut {

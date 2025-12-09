@@ -84,14 +84,12 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     var _skTemp19: bool;
     var _skTemp20: bool;
     if _0_ok {
-      let _skTemp21 = test_half_b();
-      _skTemp20 = _skTemp21;
+      _skTemp20 = test_half_b();
     } else {
       _skTemp20 = false;
     }
     if _skTemp20 {
-      let _skTemp22 = test_comma_b();
-      _skTemp19 = _skTemp22;
+      _skTemp19 = test_comma_b();
     } else {
       _skTemp19 = false;
     }

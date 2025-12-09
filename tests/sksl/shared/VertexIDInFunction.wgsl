@@ -14,8 +14,7 @@ fn fn_i(_stageIn: VSIn) -> i32 {
 }
 fn _skslMain(_stageIn: VSIn, _stageOut: ptr<function, VSOut>) {
   {
-    let _skTemp0 = fn_i(_stageIn);
-    (*_stageOut).id = _skTemp0;
+    (*_stageOut).id = fn_i(_stageIn);
   }
 }
 @vertex fn main(_stageIn: VSIn) -> VSOut {

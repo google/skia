@@ -203,34 +203,28 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     var _skTemp18: bool;
     var _skTemp19: bool;
     var _skTemp20: bool;
-    let _skTemp21 = test_no_op_scalar_X_mat2_b();
-    if _skTemp21 {
-      let _skTemp22 = test_no_op_scalar_X_mat3_b();
-      _skTemp20 = _skTemp22;
+    if test_no_op_scalar_X_mat2_b() {
+      _skTemp20 = test_no_op_scalar_X_mat3_b();
     } else {
       _skTemp20 = false;
     }
     if _skTemp20 {
-      let _skTemp23 = test_no_op_scalar_X_mat4_b();
-      _skTemp19 = _skTemp23;
+      _skTemp19 = test_no_op_scalar_X_mat4_b();
     } else {
       _skTemp19 = false;
     }
     if _skTemp19 {
-      let _skTemp24 = test_no_op_mat2_X_scalar_b();
-      _skTemp18 = _skTemp24;
+      _skTemp18 = test_no_op_mat2_X_scalar_b();
     } else {
       _skTemp18 = false;
     }
     if _skTemp18 {
-      let _skTemp25 = test_no_op_mat3_X_scalar_b();
-      _skTemp17 = _skTemp25;
+      _skTemp17 = test_no_op_mat3_X_scalar_b();
     } else {
       _skTemp17 = false;
     }
     if _skTemp17 {
-      let _skTemp26 = test_no_op_mat4_X_scalar_b();
-      _skTemp16 = _skTemp26;
+      _skTemp16 = test_no_op_mat4_X_scalar_b();
     } else {
       _skTemp16 = false;
     }

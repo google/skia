@@ -26,8 +26,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
             loop {
               {
                 expected = expected + 1.0;
-                let _skTemp0 = GetTestMatrix_f33();
-                if _skTemp0[i][j] != expected {
+                if GetTestMatrix_f33()[i][j] != expected {
                   {
                     return _globalUniforms.colorRed;
                   }

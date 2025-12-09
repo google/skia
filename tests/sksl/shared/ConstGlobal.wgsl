@@ -20,8 +20,7 @@ fn verify_const_globals_biih44(seven: i32, ten: i32, matrixFive: mat4x4<f32>) ->
 fn _skslMain(xy: vec2<f32>) -> vec4<f32> {
   {
     var _skTemp1: vec4<f32>;
-    let _skTemp2 = verify_const_globals_biih44(SEVEN, TEN, MATRIXFIVE);
-    if _skTemp2 {
+    if verify_const_globals_biih44(SEVEN, TEN, MATRIXFIVE) {
       _skTemp1 = _globalUniforms.colorGreen;
     } else {
       _skTemp1 = _globalUniforms.colorRed;

@@ -18,8 +18,7 @@ fn helper_I(_stageIn: CSIn) -> u32 {
 }
 fn _skslMain(_stageIn: CSIn) {
   {
-    let _skTemp1 = helper_I(_stageIn);
-    _storage0.outputBuffer[_stageIn.sk_LocalInvocationIndex] = _skTemp1;
+    _storage0.outputBuffer[_stageIn.sk_LocalInvocationIndex] = helper_I(_stageIn);
   }
 }
 @compute @workgroup_size(64, 1, 1) fn main(_stageIn: CSIn) {

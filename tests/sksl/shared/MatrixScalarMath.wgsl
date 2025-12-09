@@ -46,11 +46,7 @@ fn divisionTest_b() -> bool {
     var mat: mat2x2<f32> = mat2x2<f32>(_skTemp0[0], _skTemp0[1], _skTemp1[0], _skTemp1[1]);
     let div: mat2x2<f32> = mat * (1.0 / _globalUniforms.testInputs.x);
     mat = mat * (1.0 / _globalUniforms.testInputs.x);
-    let _skTemp2 = abs(vec4<f32>(div[0], div[1]) + vec4<f32>(8.0));
-    let _skTemp3 = all((_skTemp2 < vec4<f32>(0.01)));
-    let _skTemp4 = abs(vec4<f32>(mat[0], mat[1]) + vec4<f32>(8.0));
-    let _skTemp5 = all((_skTemp4 < vec4<f32>(0.01)));
-    return _skTemp3 && _skTemp5;
+    return all((abs(vec4<f32>(div[0], div[1]) + vec4<f32>(8.0)) < vec4<f32>(0.01))) && all((abs(vec4<f32>(mat[0], mat[1]) + vec4<f32>(8.0)) < vec4<f32>(0.01)));
   }
 }
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
@@ -65,41 +61,37 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     {
       _2_m2 = mat2x2<f32>(1.0 + _2_m2[0], 1.0 + _2_m2[1]);
     }
-    var _skTemp6: vec4<f32>;
-    var _skTemp7: bool;
-    var _skTemp8: bool;
-    var _skTemp9: bool;
-    var _skTemp10: bool;
+    var _skTemp2: vec4<f32>;
+    var _skTemp3: bool;
+    var _skTemp4: bool;
+    var _skTemp5: bool;
+    var _skTemp6: bool;
     if (((_2_m2[0].x == _0_expected[0].x) && (_2_m2[0].y == _0_expected[0].y)) && (_2_m2[1].x == _0_expected[1].x)) && (_2_m2[1].y == _0_expected[1].y) {
-      let _skTemp11 = test_bifffff22(minus, f1, f2, f3, f4, mat2x2<f32>(f1 - 1.0, f2 - 1.0, f3 - 1.0, f4 - 1.0));
-      _skTemp10 = _skTemp11;
+      _skTemp6 = test_bifffff22(minus, f1, f2, f3, f4, mat2x2<f32>(f1 - 1.0, f2 - 1.0, f3 - 1.0, f4 - 1.0));
     } else {
-      _skTemp10 = false;
+      _skTemp6 = false;
     }
-    if _skTemp10 {
-      let _skTemp12 = test_bifffff22(star, f1, f2, f3, f4, mat2x2<f32>(f1 * 2.0, f2 * 2.0, f3 * 2.0, f4 * 2.0));
-      _skTemp9 = _skTemp12;
+    if _skTemp6 {
+      _skTemp5 = test_bifffff22(star, f1, f2, f3, f4, mat2x2<f32>(f1 * 2.0, f2 * 2.0, f3 * 2.0, f4 * 2.0));
     } else {
-      _skTemp9 = false;
+      _skTemp5 = false;
     }
-    if _skTemp9 {
-      let _skTemp13 = test_bifffff22(slash, f1, f2, f3, f4, mat2x2<f32>(f1 * 0.5, f2 * 0.5, f3 * 0.5, f4 * 0.5));
-      _skTemp8 = _skTemp13;
+    if _skTemp5 {
+      _skTemp4 = test_bifffff22(slash, f1, f2, f3, f4, mat2x2<f32>(f1 * 0.5, f2 * 0.5, f3 * 0.5, f4 * 0.5));
     } else {
-      _skTemp8 = false;
+      _skTemp4 = false;
     }
-    if _skTemp8 {
-      let _skTemp14 = divisionTest_b();
-      _skTemp7 = _skTemp14;
+    if _skTemp4 {
+      _skTemp3 = divisionTest_b();
     } else {
-      _skTemp7 = false;
+      _skTemp3 = false;
     }
-    if _skTemp7 {
-      _skTemp6 = _globalUniforms.colorGreen;
+    if _skTemp3 {
+      _skTemp2 = _globalUniforms.colorGreen;
     } else {
-      _skTemp6 = _globalUniforms.colorRed;
+      _skTemp2 = _globalUniforms.colorRed;
     }
-    return _skTemp6;
+    return _skTemp2;
   }
 }
 @fragment fn main() -> FSOut {

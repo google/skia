@@ -10,8 +10,7 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn unpremul_h4h4(color: vec4<f32>) -> vec4<f32> {
   {
-    let _skTemp0 = max(color.w, 0.0001);
-    return vec4<f32>(color.xyz / _skTemp0, color.w);
+    return vec4<f32>(color.xyz / max(color.w, 0.0001), color.w);
   }
 }
 fn live_fn_h4h4h4(a: vec4<f32>, b: vec4<f32>) -> vec4<f32> {
@@ -24,12 +23,10 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     var a: vec4<f32>;
     var b: vec4<f32>;
     {
-      let _skTemp1 = live_fn_h4h4h4(vec4<f32>(3.0), vec4<f32>(-5.0));
-      a = _skTemp1;
+      a = live_fn_h4h4h4(vec4<f32>(3.0), vec4<f32>(-5.0));
     }
     {
-      let _skTemp2 = unpremul_h4h4(vec4<f32>(1.0));
-      b = _skTemp2;
+      b = unpremul_h4h4(vec4<f32>(1.0));
     }
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(any(a != vec4<f32>(0.0)) && any(b != vec4<f32>(0.0))));
   }

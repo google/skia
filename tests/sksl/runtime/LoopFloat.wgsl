@@ -203,9 +203,9 @@ fn loop_operator_eq_b() -> bool {
 }
 fn _skslMain(pos: vec2<f32>) -> vec4<f32> {
   {
-    let _skTemp0 = clamp(pos.x, f32(_globalUniforms.colorGreen.y), f32(_globalUniforms.colorGreen.w));
-    let five: f32 = _skTemp0 * 5.0;
-    var _skTemp1: vec4<f32>;
+    let five: f32 = clamp(pos.x, f32(_globalUniforms.colorGreen.y), f32(_globalUniforms.colorGreen.w)) * 5.0;
+    var _skTemp0: vec4<f32>;
+    var _skTemp1: bool;
     var _skTemp2: bool;
     var _skTemp3: bool;
     var _skTemp4: bool;
@@ -214,69 +214,57 @@ fn _skslMain(pos: vec2<f32>) -> vec4<f32> {
     var _skTemp7: bool;
     var _skTemp8: bool;
     var _skTemp9: bool;
-    var _skTemp10: bool;
-    let _skTemp11 = return_loop_ff(five);
-    if _skTemp11 == 5.0 {
-      let _skTemp12 = continue_loop_ff(five);
-      _skTemp10 = (_skTemp12 == 35.0);
-    } else {
-      _skTemp10 = false;
-    }
-    if _skTemp10 {
-      let _skTemp13 = break_loop_ff(five);
-      _skTemp9 = (_skTemp13 == 15.0);
+    if return_loop_ff(five) == 5.0 {
+      _skTemp9 = (continue_loop_ff(five) == 35.0);
     } else {
       _skTemp9 = false;
     }
     if _skTemp9 {
-      let _skTemp14 = float_loop_f();
-      let _skTemp15 = abs(_skTemp14);
-      _skTemp8 = _skTemp15 < 0.025;
+      _skTemp8 = (break_loop_ff(five) == 15.0);
     } else {
       _skTemp8 = false;
     }
     if _skTemp8 {
-      let _skTemp16 = loop_operator_le_b();
-      _skTemp7 = _skTemp16;
+      _skTemp7 = abs(float_loop_f()) < 0.025;
     } else {
       _skTemp7 = false;
     }
     if _skTemp7 {
-      let _skTemp17 = loop_operator_lt_b();
-      _skTemp6 = _skTemp17;
+      _skTemp6 = loop_operator_le_b();
     } else {
       _skTemp6 = false;
     }
     if _skTemp6 {
-      let _skTemp18 = loop_operator_ge_b();
-      _skTemp5 = _skTemp18;
+      _skTemp5 = loop_operator_lt_b();
     } else {
       _skTemp5 = false;
     }
     if _skTemp5 {
-      let _skTemp19 = loop_operator_gt_b();
-      _skTemp4 = _skTemp19;
+      _skTemp4 = loop_operator_ge_b();
     } else {
       _skTemp4 = false;
     }
     if _skTemp4 {
-      let _skTemp20 = loop_operator_eq_b();
-      _skTemp3 = _skTemp20;
+      _skTemp3 = loop_operator_gt_b();
     } else {
       _skTemp3 = false;
     }
     if _skTemp3 {
-      let _skTemp21 = loop_operator_ne_b();
-      _skTemp2 = _skTemp21;
+      _skTemp2 = loop_operator_eq_b();
     } else {
       _skTemp2 = false;
     }
     if _skTemp2 {
-      _skTemp1 = _globalUniforms.colorGreen;
+      _skTemp1 = loop_operator_ne_b();
     } else {
-      _skTemp1 = _globalUniforms.colorRed;
+      _skTemp1 = false;
     }
-    return _skTemp1;
+    if _skTemp1 {
+      _skTemp0 = _globalUniforms.colorGreen;
+    } else {
+      _skTemp0 = _globalUniforms.colorRed;
+    }
+    return _skTemp0;
   }
 }
 @fragment fn main(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {

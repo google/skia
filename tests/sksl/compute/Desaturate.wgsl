@@ -7,13 +7,10 @@ struct CSIn {
 @group(0) @binding(1) var dest: texture_storage_2d<rgba8unorm, write>;
 fn _skslMain(_stageIn: CSIn) {
   {
-    let _skTemp0 = textureDimensions(src);
-    let _skTemp1 = textureDimensions(src);
-    if (_stageIn.sk_GlobalInvocationID.x < _skTemp0.x) && (_stageIn.sk_GlobalInvocationID.y < _skTemp1.y) {
+    if (_stageIn.sk_GlobalInvocationID.x < textureDimensions(src).x) && (_stageIn.sk_GlobalInvocationID.y < textureDimensions(src).y) {
       {
         var _0_color: vec4<f32> = textureLoad(src, _stageIn.sk_GlobalInvocationID.xy, 0);
-        let _skTemp2 = dot(_0_color.xyz, vec3<f32>(0.22, 0.67, 0.11));
-        _0_color = vec4<f32>((vec3<f32>(_skTemp2)), _0_color.w);
+        _0_color = vec4<f32>((vec3<f32>(dot(_0_color.xyz, vec3<f32>(0.22, 0.67, 0.11)))), _0_color.w);
         textureStore(dest, _stageIn.sk_GlobalInvocationID.xy, _0_color);
       }
     }

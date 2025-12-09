@@ -8,16 +8,13 @@ struct CSIn {
 fn desaturate_vTT(_stageIn: CSIn, src: texture_2d<f32>, dest: texture_storage_2d<rgba32float, write>) {
   {
     var color: vec4<f32> = textureLoad(src, _stageIn.sk_GlobalInvocationID.xy, 0);
-    let _skTemp0 = dot(color.xyz, vec3<f32>(0.22, 0.67, 0.11));
-    color = vec4<f32>((vec3<f32>(_skTemp0)), color.w);
+    color = vec4<f32>((vec3<f32>(dot(color.xyz, vec3<f32>(0.22, 0.67, 0.11)))), color.w);
     textureStore(dest, _stageIn.sk_GlobalInvocationID.xy, color);
   }
 }
 fn _skslMain(_stageIn: CSIn) {
   {
-    let _skTemp1 = textureDimensions(src);
-    let _skTemp2 = textureDimensions(src);
-    if (_stageIn.sk_GlobalInvocationID.x < _skTemp1.x) && (_stageIn.sk_GlobalInvocationID.y < _skTemp2.y) {
+    if (_stageIn.sk_GlobalInvocationID.x < textureDimensions(src).x) && (_stageIn.sk_GlobalInvocationID.y < textureDimensions(src).y) {
       {
         desaturate_vTT(_stageIn, src, dest);
       }

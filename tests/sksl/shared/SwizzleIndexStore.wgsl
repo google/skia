@@ -88,10 +88,8 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var _skTemp2: vec4<f32>;
     var _skTemp3: bool;
-    let _skTemp4 = test3x3_b();
-    if _skTemp4 {
-      let _skTemp5 = test4x4_b();
-      _skTemp3 = _skTemp5;
+    if test3x3_b() {
+      _skTemp3 = test4x4_b();
     } else {
       _skTemp3 = false;
     }

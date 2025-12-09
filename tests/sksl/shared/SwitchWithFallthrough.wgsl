@@ -45,8 +45,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     var _skTemp0: vec4<f32>;
     var _skTemp1: bool;
     if _0_ok {
-      let _skTemp2 = switch_fallthrough_twice_bi(x);
-      _skTemp1 = _skTemp2;
+      _skTemp1 = switch_fallthrough_twice_bi(x);
     } else {
       _skTemp1 = false;
     }

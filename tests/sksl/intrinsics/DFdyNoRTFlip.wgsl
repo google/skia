@@ -12,17 +12,7 @@ struct _GlobalUniforms {
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     const expected: vec4<f32> = vec4<f32>(0.0);
-    let _skTemp0 = dpdy(_globalUniforms.testInputs.x);
-    let _skTemp1 = dpdy(_globalUniforms.testInputs.xy);
-    let _skTemp2 = dpdy(_globalUniforms.testInputs.xyz);
-    let _skTemp3 = dpdy(_globalUniforms.testInputs);
-    let _skTemp4 = dpdy(coords.xx);
-    let _skTemp5 = sign(_skTemp4);
-    let _skTemp6 = dpdy(coords.yy);
-    let _skTemp7 = sign(_skTemp6);
-    let _skTemp8 = dpdy(coords);
-    let _skTemp9 = sign(_skTemp8);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((((((_skTemp0 == expected.x) && all(_skTemp1 == expected.xy)) && all(_skTemp2 == expected.xyz)) && all(_skTemp3 == expected)) && all(_skTemp5 == vec2<f32>(0.0))) && all(_skTemp7 == vec2<f32>(1.0))) && all(_skTemp9 == vec2<f32>(0.0, 1.0))));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(((((((dpdy(_globalUniforms.testInputs.x) == expected.x) && all(dpdy(_globalUniforms.testInputs.xy) == expected.xy)) && all(dpdy(_globalUniforms.testInputs.xyz) == expected.xyz)) && all(dpdy(_globalUniforms.testInputs) == expected)) && all(sign(dpdy(coords.xx)) == vec2<f32>(0.0))) && all(sign(dpdy(coords.yy)) == vec2<f32>(1.0))) && all(sign(dpdy(coords)) == vec2<f32>(0.0, 1.0))));
   }
 }
 @fragment fn main() -> FSOut {

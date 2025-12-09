@@ -12,11 +12,7 @@ struct _GlobalUniforms {
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     const expected: vec4<f32> = vec4<f32>(0.0, 0.0, 0.75, 1.0);
-    let _skTemp0 = saturate(_globalUniforms.testInputs.x);
-    let _skTemp1 = saturate(_globalUniforms.testInputs.xy);
-    let _skTemp2 = saturate(_globalUniforms.testInputs.xyz);
-    let _skTemp3 = saturate(_globalUniforms.testInputs);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((((_skTemp0 == expected.x) && all(_skTemp1 == expected.xy)) && all(_skTemp2 == expected.xyz)) && all(_skTemp3 == expected)) && (0.0 == expected.x)) && all(vec2<f32>(0.0) == expected.xy)) && all(vec3<f32>(0.0, 0.0, 0.75) == expected.xyz)) && all(vec4<f32>(0.0, 0.0, 0.75, 1.0) == expected)));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((((saturate(_globalUniforms.testInputs.x) == expected.x) && all(saturate(_globalUniforms.testInputs.xy) == expected.xy)) && all(saturate(_globalUniforms.testInputs.xyz) == expected.xyz)) && all(saturate(_globalUniforms.testInputs) == expected)) && (0.0 == expected.x)) && all(vec2<f32>(0.0) == expected.xy)) && all(vec3<f32>(0.0, 0.0, 0.75) == expected.xyz)) && all(vec4<f32>(0.0, 0.0, 0.75, 1.0) == expected)));
   }
 }
 @fragment fn main() -> FSOut {

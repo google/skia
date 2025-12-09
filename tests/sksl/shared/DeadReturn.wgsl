@@ -75,22 +75,18 @@ fn _skslMain(xy: vec2<f32>) -> vec4<f32> {
     var _skTemp1: bool;
     var _skTemp2: bool;
     var _skTemp3: bool;
-    let _skTemp4 = test_flat_b();
-    if _skTemp4 {
-      let _skTemp5 = test_if_b();
-      _skTemp3 = _skTemp5;
+    if test_flat_b() {
+      _skTemp3 = test_if_b();
     } else {
       _skTemp3 = false;
     }
     if _skTemp3 {
-      let _skTemp6 = test_else_b();
-      _skTemp2 = _skTemp6;
+      _skTemp2 = test_else_b();
     } else {
       _skTemp2 = false;
     }
     if _skTemp2 {
-      let _skTemp7 = test_loop_if_b();
-      _skTemp1 = _skTemp7;
+      _skTemp1 = test_loop_if_b();
     } else {
       _skTemp1 = false;
     }

@@ -27,14 +27,12 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     var _skTemp1: bool;
     var _skTemp2: bool;
     if _4_ok {
-      let _skTemp3 = test_ivec_b();
-      _skTemp2 = _skTemp3;
+      _skTemp2 = test_ivec_b();
     } else {
       _skTemp2 = false;
     }
     if _skTemp2 {
-      let _skTemp4 = test_mat_b();
-      _skTemp1 = _skTemp4;
+      _skTemp1 = test_mat_b();
     } else {
       _skTemp1 = false;
     }

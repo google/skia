@@ -17,11 +17,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     let inputVal: vec4<f32> = vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1]) * vec4<f32>(1.0, 1.0, -1.0, -1.0);
     const expectedB: vec4<i32> = vec4<i32>(1065353216, 1073741824, -1069547520, -1065353216);
-    let _skTemp0 = intBitsToFloat(expectedB.x);
-    let _skTemp1 = intBitsToFloat(expectedB.xy);
-    let _skTemp2 = intBitsToFloat(expectedB.xyz);
-    let _skTemp3 = intBitsToFloat(expectedB);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((inputVal.x == _skTemp0) && all(inputVal.xy == _skTemp1)) && all(inputVal.xyz == _skTemp2)) && all(inputVal == _skTemp3)));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((inputVal.x == intBitsToFloat(expectedB.x)) && all(inputVal.xy == intBitsToFloat(expectedB.xy))) && all(inputVal.xyz == intBitsToFloat(expectedB.xyz))) && all(inputVal == intBitsToFloat(expectedB))));
   }
 }
 @fragment fn main() -> FSOut {

@@ -166,32 +166,27 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     var _skTemp8: bool;
     var _skTemp9: bool;
     if _0_val == 2 {
-      let _skTemp10 = switch_with_continue_in_while_loop_bi(x);
-      _skTemp9 = _skTemp10;
+      _skTemp9 = switch_with_continue_in_while_loop_bi(x);
     } else {
       _skTemp9 = false;
     }
     if _skTemp9 {
-      let _skTemp11 = while_loop_with_break_in_switch_bi(x);
-      _skTemp8 = _skTemp11;
+      _skTemp8 = while_loop_with_break_in_switch_bi(x);
     } else {
       _skTemp8 = false;
     }
     if _skTemp8 {
-      let _skTemp12 = switch_with_break_in_do_while_loop_bi(x);
-      _skTemp7 = _skTemp12;
+      _skTemp7 = switch_with_break_in_do_while_loop_bi(x);
     } else {
       _skTemp7 = false;
     }
     if _skTemp7 {
-      let _skTemp13 = switch_with_continue_in_do_while_loop_bi(x);
-      _skTemp6 = _skTemp13;
+      _skTemp6 = switch_with_continue_in_do_while_loop_bi(x);
     } else {
       _skTemp6 = false;
     }
     if _skTemp6 {
-      let _skTemp14 = do_while_loop_with_break_in_switch_bi(x);
-      _skTemp5 = _skTemp14;
+      _skTemp5 = do_while_loop_with_break_in_switch_bi(x);
     } else {
       _skTemp5 = false;
     }

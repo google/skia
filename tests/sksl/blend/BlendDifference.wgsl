@@ -10,8 +10,7 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
-    let _skTemp0 = min(_globalUniforms.src.xyz * _globalUniforms.dst.w, _globalUniforms.dst.xyz * _globalUniforms.src.w);
-    (*_stageOut).sk_FragColor = vec4<f32>((_globalUniforms.src.xyz + _globalUniforms.dst.xyz) - 2.0 * _skTemp0, _globalUniforms.src.w + (1.0 - _globalUniforms.src.w) * _globalUniforms.dst.w);
+    (*_stageOut).sk_FragColor = vec4<f32>((_globalUniforms.src.xyz + _globalUniforms.dst.xyz) - 2.0 * min(_globalUniforms.src.xyz * _globalUniforms.dst.w, _globalUniforms.dst.xyz * _globalUniforms.src.w), _globalUniforms.src.w + (1.0 - _globalUniforms.src.w) * _globalUniforms.dst.w);
   }
 }
 @fragment fn main() -> FSOut {

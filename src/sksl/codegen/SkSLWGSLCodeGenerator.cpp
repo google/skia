@@ -2877,13 +2877,7 @@ std::string WGSLCodeGenerator::assembleSimpleIntrinsic(std::string_view intrinsi
     }
     expr.push_back(')');
 
-    if (call.type().isVoid()) {
-        this->write(expr);
-        this->writeLine(";");
-        return std::string();
-    } else {
-        return this->writeScratchLet(expr);
-    }
+    return expr;
 }
 
 std::string WGSLCodeGenerator::assembleVectorizedIntrinsic(std::string_view intrinsicName,
@@ -2917,7 +2911,7 @@ std::string WGSLCodeGenerator::assembleVectorizedIntrinsic(std::string_view intr
     }
     expr.push_back(')');
 
-    return this->writeScratchLet(expr);
+    return expr;
 }
 
 std::string WGSLCodeGenerator::assembleUnaryOpIntrinsic(Operator op,
@@ -3113,14 +3107,13 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
                 // select(-N, N, (I * Nref) < 0)
                 std::string N = this->writeNontrivialScratchLet(*arguments[0],
                                                                 Precedence::kAssignment);
-                return this->writeScratchLet(
-                        "select(-" + N + ", " + N + ", " +
-                        this->assembleBinaryExpression(*arguments[1],
-                                                       OperatorKind::STAR,
-                                                       *arguments[2],
-                                                       arguments[1]->type(),
-                                                       Precedence::kRelational) +
-                        " < 0)");
+                return "select(-" + N + ", " + N + ", " +
+                       this->assembleBinaryExpression(*arguments[1],
+                                                      OperatorKind::STAR,
+                                                      *arguments[2],
+                                                      arguments[1]->type(),
+                                                      Precedence::kRelational) +
+                       " < 0)";
             }
             return this->assembleSimpleIntrinsic("faceForward", call);
         }
@@ -3153,12 +3146,11 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
                             ? this->writeScratchLet(*arguments[0], Precedence::kPostfix)
                             : this->writeNontrivialScratchLet(*arguments[0], Precedence::kPostfix);
             std::string arg1 = this->writeNontrivialScratchLet(*arguments[1], Precedence::kPostfix);
-            return this->writeScratchLet(
-                    this->assembleComponentwiseMatrixBinary(arguments[0]->type(),
-                                                            arguments[1]->type(),
-                                                            arg0,
-                                                            arg1,
-                                                            OperatorKind::STAR));
+            return this->assembleComponentwiseMatrixBinary(arguments[0]->type(),
+                                                           arguments[1]->type(),
+                                                           arg0,
+                                                           arg1,
+                                                           OperatorKind::STAR);
         }
         case k_mix_IntrinsicKind: {
             const char* name = arguments[2]->type().componentType().isBoolean() ? "select" : "mix";
@@ -3173,8 +3165,7 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
                             : this->writeNontrivialScratchLet(*arguments[0], Precedence::kAdditive);
             std::string arg1 = this->writeNontrivialScratchLet(*arguments[1],
                                                                Precedence::kAdditive);
-            return this->writeScratchLet(arg0 + " - " + arg1 + " * floor(" +
-                                         arg0 + " / " + arg1 + ")");
+            return "(" + arg0 + " - " + arg1 + " * floor(" + arg0 + " / " + arg1 + "))";
         }
 
         case k_modf_IntrinsicKind:
@@ -3216,9 +3207,9 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
                 std::string N = all_arguments_constant(arguments)
                       ? this->writeScratchLet(*arguments[1], Precedence::kMultiplicative)
                       : this->writeNontrivialScratchLet(*arguments[1], Precedence::kMultiplicative);
-                return this->writeScratchLet(String::printf("%s - 2 * %s * %s * %s",
-                                                            I.c_str(), N.c_str(),
-                                                            I.c_str(), N.c_str()));
+                return String::printf("(%s - 2 * %s * %s * %s)",
+                                      I.c_str(), N.c_str(),
+                                      I.c_str(), N.c_str());
             }
             return this->assembleSimpleIntrinsic("reflect", call);
 
@@ -3234,13 +3225,12 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
                 std::string Eta = all_arguments_constant(arguments)
                       ? this->writeScratchLet(*arguments[2], Precedence::kSequence)
                       : this->writeNontrivialScratchLet(*arguments[2], Precedence::kSequence);
-                return this->writeScratchLet(
-                        String::printf("refract(vec2<%s>(%s, 0), vec2<%s>(%s, 0), %s).x",
-                                       to_wgsl_type(fContext, arguments[0]->type()).c_str(),
-                                       I.c_str(),
-                                       to_wgsl_type(fContext, arguments[1]->type()).c_str(),
-                                       N.c_str(),
-                                       Eta.c_str()));
+                return String::printf("refract(vec2<%s>(%s, 0), vec2<%s>(%s, 0), %s).x",
+                                      to_wgsl_type(fContext, arguments[0]->type()).c_str(),
+                                      I.c_str(),
+                                      to_wgsl_type(fContext, arguments[1]->type()).c_str(),
+                                      N.c_str(),
+                                      Eta.c_str());
             }
             return this->assembleSimpleIntrinsic("refract", call);
 
@@ -3467,9 +3457,28 @@ std::string WGSLCodeGenerator::assembleFunctionCall(const FunctionCall& call,
     const FunctionDeclaration& func = call.function();
     std::string result;
 
+    // Helper for wrapping user and intrinsic function calls that might have side effects.
+    auto emitCall = [&](const std::string& expr, bool forceLet=false) {
+        if (call.type().isVoid() || parentPrecedence >= Precedence::kStatement) {
+            // If this is true, the assembled expression won't be used directly by the caller, so we
+            // need to write it out as its own statement to preserve any side effects.
+            SkASSERT(parentPrecedence >= Precedence::kSequence);
+            this->write(expr);
+            this->writeLine(";");
+            return std::string(); // Will be unused
+        } else if (forceLet) {
+            // The function call is used by the caller, but we need to write the actual call *now*
+            // before additional statements.
+            return this->writeScratchLet(expr);
+        } else {
+            // Can inline the call's expression into the caller's expression
+            return expr;
+        }
+    };
+
     // Many intrinsics need to be rewritten in WGSL.
     if (func.isIntrinsic()) {
-        return this->assembleIntrinsicCall(call, func.intrinsicKind(), parentPrecedence);
+        return emitCall(this->assembleIntrinsicCall(call, func.intrinsicKind(), parentPrecedence));
     }
 
     // We implement function out-parameters by declaring them as pointers. SkSL follows GLSL's
@@ -3494,6 +3503,7 @@ std::string WGSLCodeGenerator::assembleFunctionCall(const FunctionCall& call,
     writeback.reserve_exact(args.size());
     substituteArgument.reserve_exact(args.size());
 
+    bool needsWriteback = false;
     for (int index = 0; index < args.size(); ++index) {
         if (params[index]->modifierFlags() & ModifierFlag::kOut) {
             std::unique_ptr<LValue> lvalue = this->makeLValue(*args[index]);
@@ -3506,6 +3516,7 @@ std::string WGSLCodeGenerator::assembleFunctionCall(const FunctionCall& call,
                 substituteArgument.push_back(this->writeScratchVar(args[index]->type()));
             }
             writeback.push_back(std::move(lvalue));
+            needsWriteback = true;
         } else {
             substituteArgument.push_back(std::string());
             writeback.push_back(nullptr);
@@ -3555,21 +3566,15 @@ std::string WGSLCodeGenerator::assembleFunctionCall(const FunctionCall& call,
     }
     expr += ')';
 
-    if (call.type().isVoid()) {
-        // Making function calls that result in `void` is only valid in on the left side of a
-        // comma-sequence, or in a top-level statement. Emit the function call as a top-level
-        // statement and return an empty string, as the result will not be used.
-        SkASSERT(parentPrecedence >= Precedence::kSequence);
-        this->write(expr);
-        this->writeLine(";");
-    } else {
-        result = this->writeScratchLet(expr);
-    }
+    // If we have to write substitutions after the function call, we have to force the function call
+    // into a scratch let so that variable can be returned as the expression.
+    result = emitCall(expr, /*forceLet=*/needsWriteback);
 
-    // Write the substitute arguments back into their lvalues.
-    for (int index = 0; index < args.size(); ++index) {
-        if (!substituteArgument[index].empty()) {
-            this->writeLine(writeback[index]->store(substituteArgument[index]));
+    if (needsWriteback) {
+        for (int index = 0; index < args.size(); ++index) {
+            if (!substituteArgument[index].empty()) {
+                this->writeLine(writeback[index]->store(substituteArgument[index]));
+            }
         }
     }
 

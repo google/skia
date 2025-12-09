@@ -12,11 +12,7 @@ struct _GlobalUniforms {
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     const expected: vec4<f32> = vec4<f32>(0.75, 0.0, 0.75, 0.25);
-    let _skTemp0 = fract(_globalUniforms.testInputs.x);
-    let _skTemp1 = fract(_globalUniforms.testInputs.xy);
-    let _skTemp2 = fract(_globalUniforms.testInputs.xyz);
-    let _skTemp3 = fract(_globalUniforms.testInputs);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((_skTemp0 == 0.75) && all(_skTemp1 == vec2<f32>(0.75, 0.0))) && all(_skTemp2 == vec3<f32>(0.75, 0.0, 0.75))) && all(_skTemp3 == expected)));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((fract(_globalUniforms.testInputs.x) == 0.75) && all(fract(_globalUniforms.testInputs.xy) == vec2<f32>(0.75, 0.0))) && all(fract(_globalUniforms.testInputs.xyz) == vec3<f32>(0.75, 0.0, 0.75))) && all(fract(_globalUniforms.testInputs) == expected)));
   }
 }
 @fragment fn main() -> FSOut {

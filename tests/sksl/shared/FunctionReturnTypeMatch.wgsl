@@ -160,134 +160,113 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     var _skTemp20: bool;
     var _skTemp21: bool;
     if x1 == 1.0 {
-      let _skTemp22 = returns_float2_f2();
-      _skTemp21 = all(x2 == _skTemp22);
+      _skTemp21 = all(x2 == returns_float2_f2());
     } else {
       _skTemp21 = false;
     }
     if _skTemp21 {
-      let _skTemp23 = returns_float3_f3();
-      _skTemp20 = all(x3 == _skTemp23);
+      _skTemp20 = all(x3 == returns_float3_f3());
     } else {
       _skTemp20 = false;
     }
     if _skTemp20 {
-      let _skTemp24 = returns_float4_f4();
-      _skTemp19 = all(x4 == _skTemp24);
+      _skTemp19 = all(x4 == returns_float4_f4());
     } else {
       _skTemp19 = false;
     }
     if _skTemp19 {
-      let _skTemp25 = returns_float2x2_f22();
-      let _skTemp26 = _skTemp25;
-      _skTemp18 = (all(x5[0] == _skTemp26[0]) && all(x5[1] == _skTemp26[1]));
+      let _skTemp22 = returns_float2x2_f22();
+      _skTemp18 = (all(x5[0] == _skTemp22[0]) && all(x5[1] == _skTemp22[1]));
     } else {
       _skTemp18 = false;
     }
     if _skTemp18 {
-      let _skTemp27 = returns_float3x3_f33();
-      let _skTemp28 = _skTemp27;
-      _skTemp17 = (all(x6[0] == _skTemp28[0]) && all(x6[1] == _skTemp28[1]) && all(x6[2] == _skTemp28[2]));
+      let _skTemp23 = returns_float3x3_f33();
+      _skTemp17 = (all(x6[0] == _skTemp23[0]) && all(x6[1] == _skTemp23[1]) && all(x6[2] == _skTemp23[2]));
     } else {
       _skTemp17 = false;
     }
     if _skTemp17 {
-      let _skTemp29 = returns_float4x4_f44();
-      let _skTemp30 = _skTemp29;
-      _skTemp16 = (all(x7[0] == _skTemp30[0]) && all(x7[1] == _skTemp30[1]) && all(x7[2] == _skTemp30[2]) && all(x7[3] == _skTemp30[3]));
+      let _skTemp24 = returns_float4x4_f44();
+      _skTemp16 = (all(x7[0] == _skTemp24[0]) && all(x7[1] == _skTemp24[1]) && all(x7[2] == _skTemp24[2]) && all(x7[3] == _skTemp24[3]));
     } else {
       _skTemp16 = false;
     }
     if _skTemp16 {
-      let _skTemp31 = returns_half_h();
-      _skTemp15 = (x8 == _skTemp31);
+      _skTemp15 = (x8 == returns_half_h());
     } else {
       _skTemp15 = false;
     }
     if _skTemp15 {
-      let _skTemp32 = returns_half2_h2();
-      _skTemp14 = all(x9 == _skTemp32);
+      _skTemp14 = all(x9 == returns_half2_h2());
     } else {
       _skTemp14 = false;
     }
     if _skTemp14 {
-      let _skTemp33 = returns_half3_h3();
-      _skTemp13 = all(x10 == _skTemp33);
+      _skTemp13 = all(x10 == returns_half3_h3());
     } else {
       _skTemp13 = false;
     }
     if _skTemp13 {
-      let _skTemp34 = returns_half4_h4();
-      _skTemp12 = all(x11 == _skTemp34);
+      _skTemp12 = all(x11 == returns_half4_h4());
     } else {
       _skTemp12 = false;
     }
     if _skTemp12 {
-      let _skTemp35 = returns_half2x2_h22();
-      let _skTemp36 = _skTemp35;
-      _skTemp11 = (all(x12[0] == _skTemp36[0]) && all(x12[1] == _skTemp36[1]));
+      let _skTemp25 = returns_half2x2_h22();
+      _skTemp11 = (all(x12[0] == _skTemp25[0]) && all(x12[1] == _skTemp25[1]));
     } else {
       _skTemp11 = false;
     }
     if _skTemp11 {
-      let _skTemp37 = returns_half3x3_h33();
-      let _skTemp38 = _skTemp37;
-      _skTemp10 = (all(x13[0] == _skTemp38[0]) && all(x13[1] == _skTemp38[1]) && all(x13[2] == _skTemp38[2]));
+      let _skTemp26 = returns_half3x3_h33();
+      _skTemp10 = (all(x13[0] == _skTemp26[0]) && all(x13[1] == _skTemp26[1]) && all(x13[2] == _skTemp26[2]));
     } else {
       _skTemp10 = false;
     }
     if _skTemp10 {
-      let _skTemp39 = returns_half4x4_h44();
-      let _skTemp40 = _skTemp39;
-      _skTemp9 = (all(x14[0] == _skTemp40[0]) && all(x14[1] == _skTemp40[1]) && all(x14[2] == _skTemp40[2]) && all(x14[3] == _skTemp40[3]));
+      let _skTemp27 = returns_half4x4_h44();
+      _skTemp9 = (all(x14[0] == _skTemp27[0]) && all(x14[1] == _skTemp27[1]) && all(x14[2] == _skTemp27[2]) && all(x14[3] == _skTemp27[3]));
     } else {
       _skTemp9 = false;
     }
     if _skTemp9 {
-      let _skTemp41 = returns_bool_b();
-      _skTemp8 = (x15 == _skTemp41);
+      _skTemp8 = (x15 == returns_bool_b());
     } else {
       _skTemp8 = false;
     }
     if _skTemp8 {
-      let _skTemp42 = returns_bool2_b2();
-      _skTemp7 = all(x16 == _skTemp42);
+      _skTemp7 = all(x16 == returns_bool2_b2());
     } else {
       _skTemp7 = false;
     }
     if _skTemp7 {
-      let _skTemp43 = returns_bool3_b3();
-      _skTemp6 = all(x17 == _skTemp43);
+      _skTemp6 = all(x17 == returns_bool3_b3());
     } else {
       _skTemp6 = false;
     }
     if _skTemp6 {
-      let _skTemp44 = returns_bool4_b4();
-      _skTemp5 = all(x18 == _skTemp44);
+      _skTemp5 = all(x18 == returns_bool4_b4());
     } else {
       _skTemp5 = false;
     }
     if _skTemp5 {
-      let _skTemp45 = returns_int_i();
-      _skTemp4 = (x19 == _skTemp45);
+      _skTemp4 = (x19 == returns_int_i());
     } else {
       _skTemp4 = false;
     }
     if _skTemp4 {
-      let _skTemp46 = returns_int2_i2();
-      _skTemp3 = all(x20 == _skTemp46);
+      _skTemp3 = all(x20 == returns_int2_i2());
     } else {
       _skTemp3 = false;
     }
     if _skTemp3 {
-      let _skTemp47 = returns_int3_i3();
-      _skTemp2 = all(x21 == _skTemp47);
+      _skTemp2 = all(x21 == returns_int3_i3());
     } else {
       _skTemp2 = false;
     }
     if _skTemp2 {
-      let _skTemp48 = returns_int4_i4();
-      _skTemp1 = all(x22 == _skTemp48);
+      _skTemp1 = all(x22 == returns_int4_i4());
     } else {
       _skTemp1 = false;
     }

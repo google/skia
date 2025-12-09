@@ -11,18 +11,10 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    let _skTemp0 = pack2x16unorm(_globalUniforms.testInputs.xy);
-    let xy: u32 = _skTemp0;
-    let _skTemp1 = pack2x16unorm(_globalUniforms.testInputs.zw);
-    let zw: u32 = _skTemp1;
+    let xy: u32 = pack2x16unorm(_globalUniforms.testInputs.xy);
+    let zw: u32 = pack2x16unorm(_globalUniforms.testInputs.zw);
     const tolerance: vec2<f32> = vec2<f32>(0.015625);
-    let _skTemp2 = unpack2x16unorm(xy);
-    let _skTemp3 = abs(_skTemp2);
-    let _skTemp4 = all((_skTemp3 < tolerance));
-    let _skTemp5 = unpack2x16unorm(zw);
-    let _skTemp6 = abs(_skTemp5 - vec2<f32>(0.75, 1.0));
-    let _skTemp7 = all((_skTemp6 < tolerance));
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(_skTemp4 && _skTemp7));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(all((abs(unpack2x16unorm(xy)) < tolerance)) && all((abs(unpack2x16unorm(zw) - vec2<f32>(0.75, 1.0)) < tolerance))));
   }
 }
 @fragment fn main() -> FSOut {

@@ -91,14 +91,12 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     var _skTemp3: bool;
     var _skTemp4: bool;
     if _0_val == 2 {
-      let _skTemp5 = switch_with_continue_in_loop_bi(x);
-      _skTemp4 = _skTemp5;
+      _skTemp4 = switch_with_continue_in_loop_bi(x);
     } else {
       _skTemp4 = false;
     }
     if _skTemp4 {
-      let _skTemp6 = loop_with_break_in_switch_bi(x);
-      _skTemp3 = _skTemp6;
+      _skTemp3 = loop_with_break_in_switch_bi(x);
     } else {
       _skTemp3 = false;
     }

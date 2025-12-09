@@ -53,14 +53,12 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     var _skTemp4: bool;
     let _skTemp5 = (-1.0 * _globalUniforms.testMatrix2x2);
     if (all(_0_m[0] == _skTemp5[0]) && all(_0_m[1] == _skTemp5[1])) && (all(_1_mm[0] == _3_z[0]) && all(_1_mm[1] == _3_z[1])) {
-      let _skTemp6 = test_mat3_mat3_b();
-      _skTemp4 = _skTemp6;
+      _skTemp4 = test_mat3_mat3_b();
     } else {
       _skTemp4 = false;
     }
     if _skTemp4 {
-      let _skTemp7 = test_mat4_mat4_b();
-      _skTemp3 = _skTemp7;
+      _skTemp3 = test_mat4_mat4_b();
     } else {
       _skTemp3 = false;
     }

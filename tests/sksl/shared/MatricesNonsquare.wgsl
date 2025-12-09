@@ -74,8 +74,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     var _skTemp18: vec4<f32>;
     var _skTemp19: bool;
     if _0_ok {
-      let _skTemp20 = test_half_b();
-      _skTemp19 = _skTemp20;
+      _skTemp19 = test_half_b();
     } else {
       _skTemp19 = false;
     }

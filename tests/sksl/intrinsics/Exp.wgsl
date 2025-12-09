@@ -12,11 +12,7 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    let _skTemp0 = exp(_globalUniforms.inputVal.x);
-    let _skTemp1 = exp(_globalUniforms.inputVal.xy);
-    let _skTemp2 = exp(_globalUniforms.inputVal.xyz);
-    let _skTemp3 = exp(_globalUniforms.inputVal);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((((_skTemp0 == _globalUniforms.expected.x) && all(_skTemp1 == _globalUniforms.expected.xy)) && all(_skTemp2 == _globalUniforms.expected.xyz)) && all(_skTemp3 == _globalUniforms.expected)) && (1.0 == _globalUniforms.expected.x)) && all(vec2<f32>(1.0) == _globalUniforms.expected.xy)) && all(vec3<f32>(1.0) == _globalUniforms.expected.xyz)) && all(vec4<f32>(1.0) == _globalUniforms.expected)));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((((exp(_globalUniforms.inputVal.x) == _globalUniforms.expected.x) && all(exp(_globalUniforms.inputVal.xy) == _globalUniforms.expected.xy)) && all(exp(_globalUniforms.inputVal.xyz) == _globalUniforms.expected.xyz)) && all(exp(_globalUniforms.inputVal) == _globalUniforms.expected)) && (1.0 == _globalUniforms.expected.x)) && all(vec2<f32>(1.0) == _globalUniforms.expected.xy)) && all(vec3<f32>(1.0) == _globalUniforms.expected.xyz)) && all(vec4<f32>(1.0) == _globalUniforms.expected)));
   }
 }
 @fragment fn main() -> FSOut {

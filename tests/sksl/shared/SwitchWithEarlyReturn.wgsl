@@ -252,82 +252,68 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     var _skTemp13: bool;
     var _skTemp14: bool;
     var _skTemp15: bool;
-    let _skTemp16 = return_in_one_case_bi(x);
-    if _skTemp16 {
-      let _skTemp17 = return_in_default_bi(x);
-      _skTemp15 = _skTemp17;
+    if return_in_one_case_bi(x) {
+      _skTemp15 = return_in_default_bi(x);
     } else {
       _skTemp15 = false;
     }
     if _skTemp15 {
-      let _skTemp18 = return_in_every_case_bi(x);
-      _skTemp14 = _skTemp18;
+      _skTemp14 = return_in_every_case_bi(x);
     } else {
       _skTemp14 = false;
     }
     if _skTemp14 {
-      let _skTemp19 = return_in_every_case_no_default_bi(x);
-      _skTemp13 = _skTemp19;
+      _skTemp13 = return_in_every_case_no_default_bi(x);
     } else {
       _skTemp13 = false;
     }
     if _skTemp13 {
-      let _skTemp20 = case_has_break_before_return_bi(x);
-      _skTemp12 = _skTemp20;
+      _skTemp12 = case_has_break_before_return_bi(x);
     } else {
       _skTemp12 = false;
     }
     if _skTemp12 {
-      let _skTemp21 = case_has_break_after_return_bi(x);
-      _skTemp11 = _skTemp21;
+      _skTemp11 = case_has_break_after_return_bi(x);
     } else {
       _skTemp11 = false;
     }
     if _skTemp11 {
-      let _skTemp22 = no_return_in_default_bi(x);
-      _skTemp10 = _skTemp22;
+      _skTemp10 = no_return_in_default_bi(x);
     } else {
       _skTemp10 = false;
     }
     if _skTemp10 {
-      let _skTemp23 = empty_default_bi(x);
-      _skTemp9 = _skTemp23;
+      _skTemp9 = empty_default_bi(x);
     } else {
       _skTemp9 = false;
     }
     if _skTemp9 {
-      let _skTemp24 = return_with_fallthrough_bi(x);
-      _skTemp8 = _skTemp24;
+      _skTemp8 = return_with_fallthrough_bi(x);
     } else {
       _skTemp8 = false;
     }
     if _skTemp8 {
-      let _skTemp25 = fallthrough_ends_in_break_bi(x);
-      _skTemp7 = _skTemp25;
+      _skTemp7 = fallthrough_ends_in_break_bi(x);
     } else {
       _skTemp7 = false;
     }
     if _skTemp7 {
-      let _skTemp26 = fallthrough_to_default_with_break_bi(x);
-      _skTemp6 = _skTemp26;
+      _skTemp6 = fallthrough_to_default_with_break_bi(x);
     } else {
       _skTemp6 = false;
     }
     if _skTemp6 {
-      let _skTemp27 = fallthrough_to_default_with_return_bi(x);
-      _skTemp5 = _skTemp27;
+      _skTemp5 = fallthrough_to_default_with_return_bi(x);
     } else {
       _skTemp5 = false;
     }
     if _skTemp5 {
-      let _skTemp28 = fallthrough_with_loop_break_bi(x);
-      _skTemp4 = _skTemp28;
+      _skTemp4 = fallthrough_with_loop_break_bi(x);
     } else {
       _skTemp4 = false;
     }
     if _skTemp4 {
-      let _skTemp29 = fallthrough_with_loop_continue_bi(x);
-      _skTemp3 = _skTemp29;
+      _skTemp3 = fallthrough_with_loop_continue_bi(x);
     } else {
       _skTemp3 = false;
     }

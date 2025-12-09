@@ -27,8 +27,7 @@ fn _skslMain(_stageIn: FSIn, _stageOut: ptr<function, FSOut>) {
     clear_samplemask_v(_stageOut);
     reset_samplemask_v(_stageIn, _stageOut);
     (*_stageOut).sk_SampleMask = 4294967295u;
-    let _skTemp0 = samplemaskin_as_color_h4(_stageIn);
-    (*_stageOut).sk_FragColor = _skTemp0 * 0.00390625;
+    (*_stageOut).sk_FragColor = samplemaskin_as_color_h4(_stageIn) * 0.00390625;
   }
 }
 @fragment fn main(_stageIn: FSIn) -> FSOut {

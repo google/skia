@@ -11,20 +11,11 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    let _skTemp0 = abs(_globalUniforms.testInputs);
-    let uintValues: vec4<u32> = vec4<u32>(_skTemp0 * 100.0);
+    let uintValues: vec4<u32> = vec4<u32>(abs(_globalUniforms.testInputs) * 100.0);
     let uintGreen: vec4<u32> = vec4<u32>(_globalUniforms.colorGreen * 100.0);
     const expectedA: vec4<u32> = vec4<u32>(50u, 0u, 50u, 50u);
     const expectedB: vec4<u32> = vec4<u32>(0u, 0u, 0u, 100u);
-    let _skTemp1 = min(uintValues.x, 50u);
-    let _skTemp2 = min(uintValues.xy, vec2<u32>(50u));
-    let _skTemp3 = min(uintValues.xyz, vec3<u32>(50u));
-    let _skTemp4 = min(uintValues, vec4<u32>(50u));
-    let _skTemp5 = min(uintValues.x, uintGreen.x);
-    let _skTemp6 = min(uintValues.xy, uintGreen.xy);
-    let _skTemp7 = min(uintValues.xyz, uintGreen.xyz);
-    let _skTemp8 = min(uintValues, uintGreen);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((((((((((((_skTemp1 == expectedA.x) && all(_skTemp2 == expectedA.xy)) && all(_skTemp3 == expectedA.xyz)) && all(_skTemp4 == expectedA)) && (50u == expectedA.x)) && all(vec2<u32>(50u, 0u) == expectedA.xy)) && all(vec3<u32>(50u, 0u, 50u) == expectedA.xyz)) && all(vec4<u32>(50u, 0u, 50u, 50u) == expectedA)) && (_skTemp5 == expectedB.x)) && all(_skTemp6 == expectedB.xy)) && all(_skTemp7 == expectedB.xyz)) && all(_skTemp8 == expectedB)) && (0u == expectedB.x)) && all(vec2<u32>(0u) == expectedB.xy)) && all(vec3<u32>(0u) == expectedB.xyz)) && all(vec4<u32>(0u, 0u, 0u, 100u) == expectedB)));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((((((((((((min(uintValues.x, 50u) == expectedA.x) && all(min(uintValues.xy, vec2<u32>(50u)) == expectedA.xy)) && all(min(uintValues.xyz, vec3<u32>(50u)) == expectedA.xyz)) && all(min(uintValues, vec4<u32>(50u)) == expectedA)) && (50u == expectedA.x)) && all(vec2<u32>(50u, 0u) == expectedA.xy)) && all(vec3<u32>(50u, 0u, 50u) == expectedA.xyz)) && all(vec4<u32>(50u, 0u, 50u, 50u) == expectedA)) && (min(uintValues.x, uintGreen.x) == expectedB.x)) && all(min(uintValues.xy, uintGreen.xy) == expectedB.xy)) && all(min(uintValues.xyz, uintGreen.xyz) == expectedB.xyz)) && all(min(uintValues, uintGreen) == expectedB)) && (0u == expectedB.x)) && all(vec2<u32>(0u) == expectedB.xy)) && all(vec3<u32>(0u) == expectedB.xyz)) && all(vec4<u32>(0u, 0u, 0u, 100u) == expectedB)));
   }
 }
 @fragment fn main() -> FSOut {

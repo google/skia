@@ -35,8 +35,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     const v17: vec3<bool> = vec3<bool>(true);
     const v18: vec4<i32> = vec4<i32>(1);
     var _skTemp0: vec4<f32>;
-    let _skTemp1 = check_bf2f2f2f3i2i2f2f2f4i2b4f2f2f2b2b2b3i4(v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18);
-    if _skTemp1 {
+    if check_bf2f2f2f3i2i2f2f2f4i2b4f2f2f2b2b2b3i4(v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18) {
       _skTemp0 = _globalUniforms.colorGreen;
     } else {
       _skTemp0 = _globalUniforms.colorRed;

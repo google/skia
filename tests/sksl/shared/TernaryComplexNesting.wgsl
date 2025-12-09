@@ -18,49 +18,43 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     let colorGreen: vec4<f32> = vec4<f32>(0.0, _globalUniforms.colorWhite.y, 0.0, _globalUniforms.colorWhite.w);
     let colorRed: vec4<f32> = vec4<f32>(_globalUniforms.colorWhite.x, 0.0, 0.0, _globalUniforms.colorWhite.w);
     var _skTemp0: vec4<f32>;
-    let _skTemp1 = IsEqual_bh4h4(_globalUniforms.colorWhite, colorBlue);
-    if !_skTemp1 {
-      var _skTemp2: vec4<f32>;
-      let _skTemp3 = IsEqual_bh4h4(colorGreen, colorRed);
-      if _skTemp3 {
-        _skTemp2 = colorRed;
+    if !IsEqual_bh4h4(_globalUniforms.colorWhite, colorBlue) {
+      var _skTemp1: vec4<f32>;
+      if IsEqual_bh4h4(colorGreen, colorRed) {
+        _skTemp1 = colorRed;
       } else {
-        _skTemp2 = colorGreen;
+        _skTemp1 = colorGreen;
+      }
+      _skTemp0 = _skTemp1;
+    } else {
+      var _skTemp2: vec4<f32>;
+      if !IsEqual_bh4h4(colorRed, colorGreen) {
+        _skTemp2 = colorBlue;
+      } else {
+        _skTemp2 = _globalUniforms.colorWhite;
       }
       _skTemp0 = _skTemp2;
-    } else {
-      var _skTemp4: vec4<f32>;
-      let _skTemp5 = IsEqual_bh4h4(colorRed, colorGreen);
-      if !_skTemp5 {
-        _skTemp4 = colorBlue;
-      } else {
-        _skTemp4 = _globalUniforms.colorWhite;
-      }
-      _skTemp0 = _skTemp4;
     }
     let result: vec4<f32> = _skTemp0;
-    var _skTemp6: vec4<f32>;
-    let _skTemp7 = IsEqual_bh4h4(colorRed, colorBlue);
-    if _skTemp7 {
-      _skTemp6 = _globalUniforms.colorWhite;
+    var _skTemp3: vec4<f32>;
+    if IsEqual_bh4h4(colorRed, colorBlue) {
+      _skTemp3 = _globalUniforms.colorWhite;
     } else {
-      var _skTemp8: vec4<f32>;
-      let _skTemp9 = IsEqual_bh4h4(colorRed, colorGreen);
-      if !_skTemp9 {
-        _skTemp8 = result;
+      var _skTemp4: vec4<f32>;
+      if !IsEqual_bh4h4(colorRed, colorGreen) {
+        _skTemp4 = result;
       } else {
-        var _skTemp10: vec4<f32>;
-        let _skTemp11 = IsEqual_bh4h4(colorRed, _globalUniforms.colorWhite);
-        if _skTemp11 {
-          _skTemp10 = colorBlue;
+        var _skTemp5: vec4<f32>;
+        if IsEqual_bh4h4(colorRed, _globalUniforms.colorWhite) {
+          _skTemp5 = colorBlue;
         } else {
-          _skTemp10 = colorRed;
+          _skTemp5 = colorRed;
         }
-        _skTemp8 = _skTemp10;
+        _skTemp4 = _skTemp5;
       }
-      _skTemp6 = _skTemp8;
+      _skTemp3 = _skTemp4;
     }
-    return _skTemp6;
+    return _skTemp3;
   }
 }
 @fragment fn main() -> FSOut {

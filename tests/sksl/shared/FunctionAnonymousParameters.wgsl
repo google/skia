@@ -25,11 +25,9 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var _skTemp0: vec4<f32>;
     if bool(_globalUniforms.colorGreen.y) {
-      let _skTemp1 = fnGreen_h4bf2(true, coords);
-      _skTemp0 = _skTemp1;
+      _skTemp0 = fnGreen_h4bf2(true, coords);
     } else {
-      let _skTemp2 = fnRed_h4ifS(123, 3.14, S(0));
-      _skTemp0 = _skTemp2;
+      _skTemp0 = fnRed_h4ifS(123, 3.14, S(0));
     }
     return _skTemp0;
   }

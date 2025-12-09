@@ -13,14 +13,12 @@ fn getColor_h4h(c: f32) -> vec4<f32> {
 }
 fn getFragCoordAugmentedColor_h4h(_stageIn: FSIn, c: f32) -> vec4<f32> {
   {
-    let _skTemp0 = getColor_h4h(c);
-    return vec4<f32>(_stageIn.sk_FragCoord.xyxy * vec4<f32>(_skTemp0));
+    return vec4<f32>(_stageIn.sk_FragCoord.xyxy * vec4<f32>(getColor_h4h(c)));
   }
 }
 fn writeColorToOutput_vh(_stageOut: ptr<function, FSOut>, c: f32) {
   {
-    let _skTemp1 = getColor_h4h(c);
-    (*_stageOut).sk_FragColor = _skTemp1;
+    (*_stageOut).sk_FragColor = getColor_h4h(c);
   }
 }
 fn writeToOutput_v(_stageOut: ptr<function, FSOut>) {
@@ -30,8 +28,7 @@ fn writeToOutput_v(_stageOut: ptr<function, FSOut>) {
 }
 fn modifyOutputColor_v(_stageIn: FSIn, _stageOut: ptr<function, FSOut>) {
   {
-    let _skTemp2 = getFragCoordAugmentedColor_h4h(_stageIn, 2.0);
-    (*_stageOut).sk_FragColor = (*_stageOut).sk_FragColor + _skTemp2;
+    (*_stageOut).sk_FragColor = (*_stageOut).sk_FragColor + getFragCoordAugmentedColor_h4h(_stageIn, 2.0);
   }
 }
 fn _skslMain(_stageIn: FSIn, _stageOut: ptr<function, FSOut>) {

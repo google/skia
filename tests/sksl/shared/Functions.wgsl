@@ -18,16 +18,15 @@ fn bar_vf(x: ptr<function, f32>) {
     var y: array<f32, 2>;
     y[0] = (*x);
     y[1] = (*x) * 2.0;
-    let _skTemp0 = foo_ff2(vec2<f32>(y[0], y[1]));
-    (*x) = _skTemp0;
+    (*x) = foo_ff2(vec2<f32>(y[0], y[1]));
   }
 }
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var x: f32 = 10.0;
-    var _skTemp1: f32 = x;
-    bar_vf(&_skTemp1);
-    x = _skTemp1;
+    var _skTemp0: f32 = x;
+    bar_vf(&_skTemp0);
+    x = _skTemp0;
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(x == 200.0));
   }
 }

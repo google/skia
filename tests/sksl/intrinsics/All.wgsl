@@ -12,10 +12,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     let inputVal: vec4<bool> = vec4<bool>(_globalUniforms.colorRed.xxzw);
     let expected: vec4<bool> = vec4<bool>(_globalUniforms.colorRed.xyzz);
-    let _skTemp0 = all(inputVal.xy);
-    let _skTemp1 = all(inputVal.xyz);
-    let _skTemp2 = all(inputVal);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((_skTemp0 == expected.x) && (_skTemp1 == expected.y)) && (_skTemp2 == expected.z)) && expected.x) && (false == expected.y)) && (false == expected.z)));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((all(inputVal.xy) == expected.x) && (all(inputVal.xyz) == expected.y)) && (all(inputVal) == expected.z)) && expected.x) && (false == expected.y)) && (false == expected.z)));
   }
 }
 @fragment fn main() -> FSOut {

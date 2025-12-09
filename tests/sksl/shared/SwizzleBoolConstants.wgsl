@@ -37,8 +37,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     result = vec4<bool>(false, false, v.zw);
     result = vec4<bool>(false, false, v.z, true);
     result = vec4<bool>(false, true, true, v.w);
-    let _skTemp0 = any(result);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(_skTemp0));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(any(result)));
   }
 }
 @fragment fn main() -> FSOut {

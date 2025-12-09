@@ -18,7 +18,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     let red: vec4<f32> = _globalUniforms.colorRed;
     var param: bool = false;
     var _skTemp0: bool;
-    let _skTemp1 = do_side_effect_bb(&_skTemp0);
+    do_side_effect_bb(&_skTemp0);
     param = _skTemp0;
     let call: bool = true;
     return select(red, green, vec4<bool>((ok && param) && call));
