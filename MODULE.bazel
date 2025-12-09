@@ -133,6 +133,12 @@ crate.spec(
     version = "=0.18.0-rc",
 )
 crate.spec(
+    default_features = False,
+    features = ["bmp"],
+    package = "image",
+    version = "=0.25.9",
+)
+crate.spec(
     features = [
         "wgsl-in",
         "msl-out",

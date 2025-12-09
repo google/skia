@@ -1,0 +1,41 @@
+load(
+    "//bazel:skia_rules.bzl",
+    "skia_cc_library",
+    "skia_filegroup",
+)
+
+skia_filegroup(
+    name = "hdrs",
+    srcs = [
+        "SkBmpRustDecoder.h",
+    ],
+)
+
+skia_filegroup(
+    name = "srcs",
+    srcs = [
+        "SkBmpRustDecoder.cpp",
+    ],
+)
+
+# C++ wrapper library for Rust BMP decoder
+# Integrates image-rs based decoder with Skia's codec system
+skia_cc_library(
+    name = "decoder",
+    srcs = [":srcs"],
+    hdrs = [":hdrs"],
+    defines = ["SK_CODEC_DECODES_BMP_WITH_RUST"],  # Feature flag for Rust decoder
+    features = ["layering_check"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "//experimental/rust_bmp/decoder/impl:skbmprustcodec",
+        "//experimental/rust_bmp/ffi:cxx_bridge",
+        "//experimental/rust_bmp/ffi:ffi_rs",
+        "//modules/skcms",
+        "//src/base",
+        "//src/codec:codec_support_priv",
+        "//src/core:core_priv",
+        "@crates//:cxx_cc",  # CXX runtime for C++
+    ],
+)

@@ -1,0 +1,50 @@
+load("@rules_rust//rust:defs.bzl", "rust_static_library", "rust_test")
+load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
+load(
+    "//bazel:skia_rules.bzl",
+    "skia_filegroup",
+)
+
+skia_filegroup(
+    name = "rs_srcs",
+    srcs = [
+        "FFI.rs",
+    ],
+)
+
+skia_filegroup(
+    name = "cxx_bridge_srcs",
+    srcs = ["FFI.rs"],
+)
+
+rust_cxx_bridge(
+    name = "cxx_bridge",
+    src = "FFI.rs",
+    visibility = [
+        "//experimental/rust_bmp:__subpackages__",
+    ],
+    deps = ["//rust/common:ffi_utils"],
+)
+
+rust_static_library(
+    name = "ffi_rs",
+    srcs = [":rs_srcs"],
+    crate_root = "FFI.rs",
+    edition = "2021",
+    visibility = [
+        "//experimental/rust_bmp:__subpackages__",
+    ],
+    deps = [
+        ":cxx_bridge",
+        "//rust/common:cxx_bridge",
+        "//rust/common:skia_rust_common",
+        "@crates//:cxx",
+        "@crates//:image",
+    ],
+)
+
+rust_test(
+    name = "test_bmp_ffi",
+    timeout = "short",
+    crate = ":ffi_rs",
+)

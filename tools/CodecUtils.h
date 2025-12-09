@@ -12,7 +12,9 @@
 #include "include/codec/SkAvifDecoder.h"
 #endif
 
-#if defined(SK_CODEC_DECODES_BMP)
+#if defined(SK_CODEC_DECODES_BMP_WITH_RUST)
+#include "experimental/rust_bmp/decoder/SkBmpRustDecoder.h"
+#elif defined(SK_CODEC_DECODES_BMP)
 #include "include/codec/SkBmpDecoder.h"
 #endif
 
@@ -61,7 +63,9 @@ inline void RegisterAllAvailable() {
 #if defined(SK_CODEC_DECODES_AVIF)
     SkCodecs::Register(SkAvifDecoder::Decoder());
 #endif
-#if defined(SK_CODEC_DECODES_BMP)
+#if defined(SK_CODEC_DECODES_BMP_WITH_RUST)
+    SkCodecs::Register(SkBmpRustDecoder::Decoder());
+#elif defined(SK_CODEC_DECODES_BMP)
     SkCodecs::Register(SkBmpDecoder::Decoder());
 #endif
 #if defined(SK_CODEC_DECODES_GIF)
