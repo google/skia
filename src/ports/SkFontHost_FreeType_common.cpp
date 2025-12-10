@@ -17,7 +17,7 @@
 #include "include/core/SkOpenTypeSVGDecoder.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkFDot6.h"
@@ -764,16 +764,14 @@ bool colrv1_configure_skpaint(FT_Face face,
                 }
             }
 
-            sk_sp<SkShader> shader(SkGradientShader::MakeLinear(
+            sk_sp<SkShader> shader(SkShaders::LinearGradient(
                 linePositions,
-                colors.data(), SkColorSpace::MakeSRGB(), stops.data(), stops.size(),
-                tileMode,
-                SkGradientShader::Interpolation{
-                    SkGradientShader::Interpolation::InPremul::kNo,
-                    SkGradientShader::Interpolation::ColorSpace::kSRGB,
-                    SkGradientShader::Interpolation::HueMethod::kShorter
-                },
-                nullptr));
+                {{colors, stops, tileMode, SkColorSpace::MakeSRGB()},
+                SkGradient::Interpolation{
+                    SkGradient::Interpolation::InPremul::kNo,
+                    SkGradient::Interpolation::ColorSpace::kSRGB,
+                    SkGradient::Interpolation::HueMethod::kShorter
+                }}));
 
             SkASSERT(shader);
             // An opaque color is needed to ensure the gradient is not modulated by alpha.
@@ -948,15 +946,14 @@ bool colrv1_configure_skpaint(FT_Face face,
             // An opaque color is needed to ensure the gradient is not modulated by alpha.
             paint->setColor(SK_ColorBLACK);
 
-            paint->setShader(SkGradientShader::MakeTwoPointConical(
+            paint->setShader(SkShaders::TwoPointConicalGradient(
                 start, startRadius, end, endRadius,
-                colors.data(), SkColorSpace::MakeSRGB(), stops.data(), stops.size(),
-                tileMode,
-                SkGradientShader::Interpolation{
-                    SkGradientShader::Interpolation::InPremul::kNo,
-                    SkGradientShader::Interpolation::ColorSpace::kSRGB,
-                    SkGradientShader::Interpolation::HueMethod::kShorter
-                },
+                {{colors, stops, tileMode, SkColorSpace::MakeSRGB()},
+                SkGradient::Interpolation{
+                    SkGradient::Interpolation::InPremul::kNo,
+                    SkGradient::Interpolation::ColorSpace::kSRGB,
+                    SkGradient::Interpolation::HueMethod::kShorter
+                }},
                 nullptr));
 
             return true;
@@ -1057,16 +1054,14 @@ bool colrv1_configure_skpaint(FT_Face face,
                 }
             }
 
-            paint->setShader(SkGradientShader::MakeSweep(
-                center.x(), center.y(),
-                colors.data(), SkColorSpace::MakeSRGB(), stops.data(), stops.size(),
-                tileMode,
-                startAngleScaled, endAngleScaled,
-                SkGradientShader::Interpolation{
-                    SkGradientShader::Interpolation::InPremul::kNo,
-                    SkGradientShader::Interpolation::ColorSpace::kSRGB,
-                    SkGradientShader::Interpolation::HueMethod::kShorter
-                },
+            paint->setShader(SkShaders::SweepGradient(
+                center, startAngleScaled, endAngleScaled,
+                {{colors, stops, tileMode, SkColorSpace::MakeSRGB()},
+                {
+                    SkGradient::Interpolation::InPremul::kNo,
+                    SkGradient::Interpolation::ColorSpace::kSRGB,
+                    SkGradient::Interpolation::HueMethod::kShorter
+                }},
                 nullptr));
 
             return true;

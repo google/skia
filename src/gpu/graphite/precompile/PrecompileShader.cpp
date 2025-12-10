@@ -541,7 +541,7 @@ sk_sp<SkColorSpace> get_gradient_intermediate_cs(SkColorSpace* dstColorSpace,
     constexpr SkPoint pts[2] = {{0.f, 0.f}, {1.f, 0.f}};
     constexpr SkColor4f colors[2] = {SkColors::kBlack, SkColors::kWhite};
     constexpr float pos[2] = {0.f, 1.f};
-    SkLinearGradient shader(pts, {colors, nullptr, pos, SkTileMode::kClamp, interpolation});
+    SkLinearGradient shader(pts, {{colors, pos, SkTileMode::kClamp, nullptr}, interpolation});
 
     SkColor4fXformer xformedColors(&shader, dstColorSpace);
     return xformedColors.fIntermediateColorSpace;

@@ -32,40 +32,19 @@ class SkWriteBuffer;
 enum class SkTileMode;
 struct SkStageRec;
 
+class SkGradientScope {
+public:
+    std::optional<SkGradient> unflatten(SkReadBuffer&, SkMatrix* legacyLocalMatrix);
+private:
+    skia_private::STArray<16, SkColor4f> fColorStorage;
+    skia_private::STArray<16, SkScalar> fPositionStorage;
+};
+
 class SkGradientBaseShader : public SkShaderBase {
 public:
-    using Interpolation = SkGradientShader::Interpolation;
+    using Interpolation = SkGradient::Interpolation;
 
-    struct Descriptor {
-        Descriptor();
-        ~Descriptor();
-
-        Descriptor(SkSpan<const SkColor4f>,
-                   sk_sp<SkColorSpace> colorSpace,
-                   SkSpan<const float> posOrEmpty,
-                   SkTileMode mode,
-                   const Interpolation& interpolation);
-
-        const SkColor4f* fColors;
-        sk_sp<SkColorSpace> fColorSpace;
-        const SkScalar* fPositions;
-        size_t fColorCount;  // length of fColors (and fPositions, if not nullptr)
-        SkTileMode fTileMode;
-        Interpolation fInterpolation;
-    };
-
-    class DescriptorScope : public Descriptor {
-    public:
-        DescriptorScope() {}
-
-        bool unflatten(SkReadBuffer&, SkMatrix* legacyLocalMatrix);
-
-    private:
-        skia_private::STArray<16, SkColor4f> fColorStorage;
-        skia_private::STArray<16, SkScalar> fPositionStorage;
-    };
-
-    SkGradientBaseShader(const Descriptor& desc, const SkMatrix& ptsToUnit);
+    SkGradientBaseShader(const SkGradient&, const SkMatrix& ptsToUnit);
     ~SkGradientBaseShader() override;
 
     ShaderType type() const final { return ShaderType::kGradientBase; }
@@ -73,22 +52,20 @@ public:
     bool isOpaque() const override;
 
     bool interpolateInPremul() const {
-        return fInterpolation.fInPremul == SkGradientShader::Interpolation::InPremul::kYes;
+        return fInterpolation.fInPremul == Interpolation::InPremul::kYes;
     }
 
     const SkMatrix& getGradientMatrix() const { return fPtsToUnit; }
     size_t getColorCount() const { return fColorCount; }
     const float* getPositions() const { return fPositions; }
+
     const Interpolation& getInterpolation() const { return fInterpolation; }
 
     static bool ValidGradient(SkSpan<const SkColor4f>,
                               SkTileMode tileMode,
                               const Interpolation& interpolation);
 
-    static sk_sp<SkShader> MakeDegenerateGradient(SkSpan<const SkColor4f>,
-                                                  SkSpan<const float> posOrEmpty,
-                                                  sk_sp<SkColorSpace> colorSpace,
-                                                  SkTileMode mode);
+    static sk_sp<SkShader> MakeDegenerateGradient(const SkGradient::Colors&);
 
     // The default SkScalarNearlyZero threshold of .0024 is too big and causes regressions for svg
     // gradients defined in the wild.
@@ -193,6 +170,7 @@ struct SkColor4fXformer {
 };
 
 struct SkColorConverter {
+    SkColorConverter() {}
     SkColorConverter(const SkColor* colors, int count);
 
     skia_private::STArray<2, SkColor4f> fColors4f;
@@ -210,6 +188,22 @@ void SkRegisterSweepGradientShaderFlattenable();
         if (posPtr) {                                       \
             pos = {posPtr, (size_t)count};                  \
         }                                                   \
+    } while (0)
+
+
+#define GRADIENT_FACTORY_EARLY_EXIT(grad, lm) \
+    do {                                                                                        \
+        const auto& colors = grad.colors();                                                     \
+        const auto& interp = grad.interpolation();                                              \
+        if (!SkGradientBaseShader::ValidGradient(colors.colors(), colors.tileMode(), interp)) { \
+            return nullptr;                                                                     \
+        }                                                                                       \
+        if (colors.colors().size() == 1) {                                                      \
+            return SkShaders::Color(colors.colors().front(), colors.colorSpace());              \
+        }                                                                                       \
+        if (lm && !lm->invert(nullptr)) {                                                       \
+            return nullptr;                                                                     \
+        }                                                                                       \
     } while (0)
 
 #endif

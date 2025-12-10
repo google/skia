@@ -52,8 +52,12 @@ sk_sp<SkShader> SkSVGRadialGradient::onMakeShader(const SkSVGRenderContext& ctx,
         return SkShaders::Color(last_color, nullptr);
     }
 
+    SkSpan<const float> positions;
+    if (pos) {
+        positions = {pos, (size_t)count};
+    }
+    SkGradient grad = {{{colors, (size_t)count}, positions, tm, nullptr}, {}};
     return center == focal
-        ? SkGradientShader::MakeRadial(center, r, colors, nullptr, pos, count, tm, 0, &m)
-        : SkGradientShader::MakeTwoPointConical(focal, 0, center, r, colors, nullptr, pos,
-                                                count, tm, 0, &m);
+        ? SkShaders::RadialGradient(center, r, grad, &m)
+        : SkShaders::TwoPointConicalGradient(focal, 0, center, r, grad, &m);
 }

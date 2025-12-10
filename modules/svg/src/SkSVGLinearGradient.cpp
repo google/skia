@@ -43,5 +43,10 @@ sk_sp<SkShader> SkSVGLinearGradient::onMakeShader(const SkSVGRenderContext& ctx,
 
     const SkPoint pts[2] = { {x1, y1}, {x2, y2}};
 
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, pos, count, tm, 0, &localMatrix);
+    SkSpan<const float> positions;
+    if (pos) {
+        positions = {pos, (size_t)count};
+    }
+    SkGradient grad = {{{colors, (size_t)count}, positions, tm, nullptr}, {}};
+    return SkShaders::LinearGradient(pts, grad, &localMatrix);
 }

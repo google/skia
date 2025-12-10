@@ -67,12 +67,6 @@ enum GradientSerializationFlags {
     kInterpolationInPremul_GSF = 0x1,
 };
 
-SkGradientBaseShader::Descriptor::Descriptor() {
-    sk_bzero(this, sizeof(*this));
-    fTileMode = SkTileMode::kClamp;
-}
-SkGradientBaseShader::Descriptor::~Descriptor() = default;
-
 void SkGradientBaseShader::flatten(SkWriteBuffer& buffer) const {
     uint32_t flags = 0;
     if (fPositions) {
@@ -128,67 +122,80 @@ static bool validate_array(SkReadBuffer& buffer, size_t count, STArray<N, T, MEM
     return true;
 }
 
-bool SkGradientBaseShader::DescriptorScope::unflatten(SkReadBuffer& buffer,
-                                                      SkMatrix* legacyLocalMatrix) {
+std::optional<SkGradient> SkGradientScope::unflatten(SkReadBuffer& buffer,
+                                                     SkMatrix* legacyLocalMatrix) {
     // New gradient format. Includes floating point color, color space, densely packed flags
     uint32_t flags = buffer.readUInt();
 
-    fTileMode = (SkTileMode)((flags >> kTileModeShift_GSF) & kTileModeMask_GSF);
+    auto tm = (SkTileMode)((flags >> kTileModeShift_GSF) & kTileModeMask_GSF);
 
-    fInterpolation.fColorSpace = (Interpolation::ColorSpace)(
+    auto cs = (SkGradient::Interpolation::ColorSpace)(
             (flags >> kInterpolationColorSpaceShift_GSF) & kInterpolationColorSpaceMask_GSF);
-    fInterpolation.fHueMethod = (Interpolation::HueMethod)(
+    auto hm = (SkGradient::Interpolation::HueMethod)(
             (flags >> kInterpolationHueMethodShift_GSF) & kInterpolationHueMethodMask_GSF);
-    fInterpolation.fInPremul = (flags & kInterpolationInPremul_GSF) ? Interpolation::InPremul::kYes
-                                                                    : Interpolation::InPremul::kNo;
+    auto pm = (flags & kInterpolationInPremul_GSF) ? SkGradient::Interpolation::InPremul::kYes
+                                                   : SkGradient::Interpolation::InPremul::kNo;
 
-    fColorCount = buffer.getArrayCount();
+    const size_t count = buffer.getArrayCount();
 
-    if (!(validate_array(buffer, fColorCount, &fColorStorage) &&
-          buffer.readColor4fArray({fColorStorage.data(), (size_t)fColorCount}))) {
-        return false;
+    if (!(validate_array(buffer, count, &fColorStorage) &&
+          buffer.readColor4fArray({fColorStorage.data(), count}))) {
+        return {};
     }
-    fColors = fColorStorage.begin();
+    SkSpan<const SkColor4f> colors = {fColorStorage.begin(), count};
 
-    if (SkToBool(flags & kHasColorSpace_GSF)) {
-        sk_sp<SkData> data = buffer.readByteArrayAsData();
-        fColorSpace = data ? SkColorSpace::Deserialize(data->data(), data->size()) : nullptr;
-    } else {
-        fColorSpace = nullptr;
-    }
-    if (SkToBool(flags & kHasPosition_GSF)) {
-        if (!(validate_array(buffer, fColorCount, &fPositionStorage) &&
-              buffer.readScalarArray({fPositionStorage.data(), (size_t)fColorCount}))) {
-            return false;
+    sk_sp<SkColorSpace> colorSpace;
+    if (flags & kHasColorSpace_GSF) {
+        if (auto data = buffer.readByteArrayAsData()) {
+            colorSpace = SkColorSpace::Deserialize(data->data(), data->size());
         }
-        fPositions = fPositionStorage.begin();
-    } else {
-        fPositions = nullptr;
     }
-    if (SkToBool(flags & kHasLegacyLocalMatrix_GSF)) {
+
+    SkSpan<const float> pos;
+    if (flags & kHasPosition_GSF) {
+        if (!(validate_array(buffer, count, &fPositionStorage) &&
+              buffer.readScalarArray({fPositionStorage.data(), count}))) {
+            return {};
+        }
+        pos = {fPositionStorage.begin(), count};
+    }
+
+    if (flags & kHasLegacyLocalMatrix_GSF) {
         SkASSERT(buffer.isVersionLT(SkPicturePriv::Version::kNoShaderLocalMatrix));
         buffer.readMatrix(legacyLocalMatrix);
     } else {
         *legacyLocalMatrix = SkMatrix::I();
     }
-    return buffer.isValid();
+
+    if (buffer.isValid()) {
+        return SkGradient({colors, pos, tm, std::move(colorSpace)},
+                          {pm, cs, hm});
+    }
+    return {};
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-SkGradientBaseShader::SkGradientBaseShader(const Descriptor& desc, const SkMatrix& ptsToUnit)
+sk_sp<SkColorSpace> srgb_if_null(sk_sp<SkColorSpace> cs) {
+    return cs ? cs : SkColorSpace::MakeSRGB();
+}
+
+SkGradientBaseShader::SkGradientBaseShader(const SkGradient& desc, const SkMatrix& ptsToUnit)
         : fPtsToUnit(ptsToUnit)
-        , fColorSpace(desc.fColorSpace ? desc.fColorSpace : SkColorSpace::MakeSRGB())
+        , fColorSpace(srgb_if_null(desc.colors().colorSpace()))
         , fFirstStopIsImplicit(false)
         , fLastStopIsImplicit(false)
         , fColorsAreOpaque(true) {
+    auto colors = desc.colors().colors();
+    auto pos = desc.colors().positions();
+
     fPtsToUnit.getType();  // Precache so reads are threadsafe.
-    SkASSERT(desc.fColorCount > 1);
+    SkASSERT(colors.size() > 1);
 
-    fInterpolation = desc.fInterpolation;
+    fInterpolation = desc.interpolation();
 
-    SkASSERT((unsigned)desc.fTileMode < kSkTileModeCount);
-    fTileMode = desc.fTileMode;
+    SkASSERT((unsigned)desc.colors().tileMode() < kSkTileModeCount);
+    fTileMode = desc.colors().tileMode();
 
     /*  Note: we let the caller skip the first and/or last position.
         i.e. pos[0] = 0.3, pos[1] = 0.7
@@ -201,49 +208,49 @@ SkGradientBaseShader::SkGradientBaseShader(const Descriptor& desc, const SkMatri
             colorCount = 2
             fColorCount = 4
      */
-    fColorCount = desc.fColorCount;
+    fColorCount = colors.size();
 
     // Check if we need to add in start and/or end position/colors
-    if (desc.fPositions) {
-        fFirstStopIsImplicit = desc.fPositions[0] > 0;
-        fLastStopIsImplicit = desc.fPositions[desc.fColorCount - 1] != SK_Scalar1;
+    if (pos.size() > 0) {
+        fFirstStopIsImplicit = pos.front() > 0;
+        fLastStopIsImplicit = pos.back() != SK_Scalar1;
         fColorCount += fFirstStopIsImplicit + fLastStopIsImplicit;
     }
 
     size_t storageSize =
-            fColorCount * (sizeof(SkColor4f) + (desc.fPositions ? sizeof(SkScalar) : 0));
+            fColorCount * (sizeof(SkColor4f) + (pos.size() > 0 ? sizeof(SkScalar) : 0));
     fColors = reinterpret_cast<SkColor4f*>(fStorage.reset(storageSize));
-    fPositions = desc.fPositions ? reinterpret_cast<float*>(fColors + fColorCount) : nullptr;
+    fPositions = pos.size() > 0 ? reinterpret_cast<float*>(fColors + fColorCount) : nullptr;
 
     // Now copy over the colors, adding the duplicates at t=0 and t=1 as needed
-    SkColor4f* colors = fColors;
+    SkColor4f* colorPtr = fColors;
     if (fFirstStopIsImplicit) {
-        *colors++ = desc.fColors[0];
+        *colorPtr++ = colors[0];
     }
-    for (size_t i = 0; i < desc.fColorCount; ++i) {
-        colors[i] = desc.fColors[i];
-        fColorsAreOpaque = fColorsAreOpaque && (desc.fColors[i].fA == 1);
+    for (size_t i = 0; i < colors.size(); ++i) {
+        colorPtr[i] = colors[i];
+        fColorsAreOpaque = fColorsAreOpaque && (colors[i].fA == 1);
     }
     if (fLastStopIsImplicit) {
-        colors += desc.fColorCount;
-        *colors = desc.fColors[desc.fColorCount - 1];
+        colorPtr += colors.size();
+        *colorPtr = colors.back();
     }
 
-    if (desc.fPositions) {
+    if (pos.size() > 0) {
         SkScalar prev = 0;
         SkScalar* positions = fPositions;
         *positions++ = prev;  // force the first pos to 0
 
         size_t startIndex = fFirstStopIsImplicit ? 0 : 1;
-        size_t count = desc.fColorCount + fLastStopIsImplicit;
+        size_t count = pos.size() + fLastStopIsImplicit;
 
         bool uniformStops = true;
-        const SkScalar uniformStep = desc.fPositions[startIndex] - prev;
+        const SkScalar uniformStep = pos[startIndex] - prev;
         for (size_t i = startIndex; i < count; i++) {
             // Pin the last value to 1.0, and make sure pos is monotonic.
             float curr = 1.0f;
-            if (i != desc.fColorCount) {
-                curr = SkTPin(desc.fPositions[i], prev, 1.0f);
+            if (i != pos.size()) {
+                curr = SkTPin(pos[i], prev, 1.0f);
 
                 // If a value is clamped to 1.0 before the last stop, the last stop
                 // actually isn't implicit if we thought it was.
@@ -1010,13 +1017,10 @@ SkColor4fXformer::SkColor4fXformer(const SkGradientBaseShader* shader,
 }
 
 SkColorConverter::SkColorConverter(const SkColor* colors, int count) {
-    constexpr float ONE_OVER_255 = 1.f / 255;
-    for (int i = 0; i < count; ++i) {
-        fColors4f.push_back({SkColorGetR(colors[i]) * ONE_OVER_255,
-                             SkColorGetG(colors[i]) * ONE_OVER_255,
-                             SkColorGetB(colors[i]) * ONE_OVER_255,
-                             SkColorGetA(colors[i]) * ONE_OVER_255});
-    }
+    fColors4f.resize(count);
+    std::transform(colors, colors + count, fColors4f.data(), [](SkColor c) {
+        return SkColor4f::FromColor(c);
+    });
 }
 
 void SkGradientBaseShader::commonAsAGradient(GradientInfo* info) const {
@@ -1050,21 +1054,6 @@ bool SkGradientBaseShader::ValidGradient(SkSpan<const SkColor4f> colors,
     return colors.data() && !colors.empty() && (unsigned)tileMode < kSkTileModeCount &&
            (unsigned)interpolation.fColorSpace < Interpolation::kColorSpaceCount &&
            (unsigned)interpolation.fHueMethod < Interpolation::kHueMethodCount;
-}
-
-SkGradientBaseShader::Descriptor::Descriptor(SkSpan<const SkColor4f> colors,
-                                             sk_sp<SkColorSpace> colorSpace,
-                                             SkSpan<const SkScalar> positions,
-                                             SkTileMode mode,
-                                             const Interpolation& interpolation)
-        : fColors(colors.data())
-        , fColorSpace(std::move(colorSpace))
-        , fPositions(positions.data())
-        , fColorCount((int)colors.size())
-        , fTileMode(mode)
-        , fInterpolation(interpolation) {
-    SkASSERT(colors.size() > 1);
-    SkASSERT(positions.empty() || positions.size() == colors.size());
 }
 
 static SkColor4f average_gradient_color(SkSpan<const SkColor4f> colors,
@@ -1121,11 +1110,8 @@ static SkColor4f average_gradient_color(SkSpan<const SkColor4f> colors,
 // Except for special circumstances of clamped gradients, every gradient shape--when degenerate--
 // can be mapped to the same fallbacks. The specific shape factories must account for special
 // clamped conditions separately, this will always return the last color for clamped gradients.
-sk_sp<SkShader> SkGradientBaseShader::MakeDegenerateGradient(SkSpan<const SkColor4f> colors,
-                                                             SkSpan<const float> pos,
-                                                             sk_sp<SkColorSpace> colorSpace,
-                                                             SkTileMode mode) {
-    switch (mode) {
+sk_sp<SkShader> SkGradientBaseShader::MakeDegenerateGradient(const SkGradient::Colors& c) {
+    switch (c.tileMode()) {
         case SkTileMode::kDecal:
             // normally this would reject the area outside of the interpolation region, so since
             // inside region is empty when the radii are equal, the entire draw region is empty
@@ -1135,11 +1121,12 @@ sk_sp<SkShader> SkGradientBaseShader::MakeDegenerateGradient(SkSpan<const SkColo
             // repeat and mirror are treated the same: the border colors are never visible,
             // but approximate the final color as infinite repetitions of the colors, so
             // it can be represented as the average color of the gradient.
-            return SkShaders::Color(average_gradient_color(colors, pos), std::move(colorSpace));
+            return SkShaders::Color(average_gradient_color(c.colors(), c.positions()),
+                                    c.colorSpace());
         case SkTileMode::kClamp:
             // Depending on how the gradient shape degenerates, there may be a more specialized
             // fallback representation for the factories to use, but this is a reasonable default.
-            return SkShaders::Color(colors.back(), std::move(colorSpace));
+            return SkShaders::Color(c.colors().back(), c.colorSpace());
     }
     SkDEBUGFAIL("Should not be reached");
     return nullptr;

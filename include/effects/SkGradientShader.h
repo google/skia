@@ -14,11 +14,17 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h" // IWYU pragma: keep
+#include "include/core/SkSpan.h"
 #include "include/core/SkTileMode.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkAPI.h"
 
 #include <cstdint>
 #include <utility>
+
+#ifndef SK_SUPPORT_LEGACY_UNSPANNED_GRADIENTS
+#define SK_SUPPORT_LEGACY_UNSPANNED_GRADIENTS
+#endif
 
 class SkMatrix;
 
@@ -58,6 +64,7 @@ class SkMatrix;
 */
 class SK_API SkGradientShader {
 public:
+#ifdef SK_SUPPORT_LEGACY_UNSPANNED_GRADIENTS
     enum Flags {
         /** By default gradients will interpolate their colors in unpremul space
          *  and then premultiply each of the results. By setting this flag, the
@@ -68,62 +75,7 @@ public:
         kInterpolateColorsInPremul_Flag = 1 << 0,
     };
 
-    struct Interpolation {
-        enum class InPremul : bool { kNo = false, kYes = true };
-
-        enum class ColorSpace : uint8_t {
-            // Default Skia behavior: interpolate in the color space of the destination surface
-            kDestination,
-
-            // https://www.w3.org/TR/css-color-4/#interpolation-space
-            kSRGBLinear,
-            kLab,
-            kOKLab,
-            // This is the same as kOKLab, except it has a simplified version of the CSS gamut
-            // mapping algorithm (https://www.w3.org/TR/css-color-4/#css-gamut-mapping)
-            // into Rec2020 space applied to it.
-            // Warning: This space is experimental and should not be used in production.
-            kOKLabGamutMap,
-            kLCH,
-            kOKLCH,
-            // This is the same as kOKLCH, except it has the same gamut mapping applied to it
-            // as kOKLabGamutMap does.
-            // Warning: This space is experimental and should not be used in production.
-            kOKLCHGamutMap,
-            kSRGB,
-            kHSL,
-            kHWB,
-
-            kDisplayP3,
-            kRec2020,
-            kProphotoRGB,
-            kA98RGB,
-
-            kLastColorSpace = kA98RGB,
-        };
-        static constexpr int kColorSpaceCount = static_cast<int>(ColorSpace::kLastColorSpace) + 1;
-
-        enum class HueMethod : uint8_t {
-            // https://www.w3.org/TR/css-color-4/#hue-interpolation
-            kShorter,
-            kLonger,
-            kIncreasing,
-            kDecreasing,
-
-            kLastHueMethod = kDecreasing,
-        };
-        static constexpr int kHueMethodCount = static_cast<int>(HueMethod::kLastHueMethod) + 1;
-
-        InPremul   fInPremul = InPremul::kNo;
-        ColorSpace fColorSpace = ColorSpace::kDestination;
-        HueMethod  fHueMethod  = HueMethod::kShorter;  // Only relevant for LCH, OKLCH, HSL, or HWB
-
-        static Interpolation FromFlags(uint32_t flags) {
-            return {flags & kInterpolateColorsInPremul_Flag ? InPremul::kYes : InPremul::kNo,
-                    ColorSpace::kDestination,
-                    HueMethod::kShorter};
-        }
-    };
+    using Interpolation = SkGradient::Interpolation;
 
     /** Returns a shader that generates a linear gradient between the two specified points.
         <p />
@@ -354,6 +306,7 @@ public:
         return MakeSweep(cx, cy, colors, std::move(colorSpace), pos, count, SkTileMode::kClamp,
                          0, 360, flags, localMatrix);
     }
+#endif  // SK_SUPPORT_LEGACY_UNSPANNED_GRADIENTS
 };
 
 #endif
