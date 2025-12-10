@@ -119,7 +119,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"chromium.googlesource.com/external/github.com/harfbuzz/harfbuzz": {
 		Id:      "chromium.googlesource.com/external/github.com/harfbuzz/harfbuzz",
-		Version: "08b52ae2e44931eef163dbad71697f911fadc323",
+		Version: "31695252eb6ed25096893aec7f848889dad874bc",
 		Path:    "third_party/externals/harfbuzz",
 	},
 	"chromium.googlesource.com/external/github.com/libexpat/libexpat": {
