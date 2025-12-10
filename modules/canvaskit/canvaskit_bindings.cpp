@@ -175,7 +175,7 @@ extern "C" const SkEmbeddedResourceHeader SK_EMBEDDED_FONTS;
 #endif
 
 // We'd like clients to be able to compile in as many or few codecs as they want (e.g. codesize)
-std::unique_ptr<SkCodec> DecodeImageData(sk_sp<SkData> data) {
+std::unique_ptr<SkCodec> DecodeImageData(sk_sp<const SkData> data) {
     if (data == nullptr) {
         return nullptr;
     }
@@ -907,7 +907,7 @@ void castUniforms(void* data, size_t dataLen, const SkRuntimeEffect& effect) {
 }
 #endif
 
-sk_sp<SkData> alwaysSaveTypefaceBytes(SkTypeface* face, void*) {
+static SkSerialReturnType always_save_typeface_bytes(SkTypeface* face, void*) {
     return face->serialize(SkTypeface::SerializeBehavior::kDoIncludeData);
 }
 
@@ -930,7 +930,7 @@ template <> void raw_destructor<SkTypeface>(SkTypeface* ptr) {}
 }  // namespace emscripten
 
 // toBytes returns a Uint8Array that has a copy of the data in the given SkData.
-Uint8Array toBytes(sk_sp<SkData> data) {
+Uint8Array toBytes(sk_sp<const SkData> data) {
     // By making the copy using the JS transliteration, we don't risk the SkData object being
     // cleaned up before we make the copy.
     return emscripten::val(
@@ -2470,12 +2470,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
                           // deserializing, so we choose to always serialize the underlying data.
                           // This makes the SKPs a bit bigger, but easier to use.
                           SkSerialProcs sp;
-                          sp.fTypefaceProc = &alwaysSaveTypefaceBytes;
-                          sp.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
+                          sp.fTypefaceProc = &always_save_typeface_bytes;
+                          sp.fImageProc = [](SkImage* img, void*) -> SkSerialReturnType {
                               return SkPngEncoder::Encode(nullptr, img, SkPngEncoder::Options{});
                           };
 
-                          sk_sp<SkData> data = self.serialize(&sp);
+                          auto data = self.serialize(&sp);
                           if (!data) {
                               return emscripten::val::null();
                           }

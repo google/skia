@@ -79,7 +79,7 @@ template <typename T> TypedArray MakeTypedArray(int count, const T src[]) {
 
 SkColor4f ptrToSkColor4f(WASMPointerF32);
 
-std::unique_ptr<SkCodec> DecodeImageData(sk_sp<SkData>);
+std::unique_ptr<SkCodec> DecodeImageData(sk_sp<const SkData>);
 
 /**
  *  Gives read access to a JSArray
