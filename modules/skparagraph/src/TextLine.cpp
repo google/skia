@@ -753,7 +753,6 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Clu
         // they will not be resolved with the pretiest color emoji font
         auto typeface = fOwner->fontCollection()->defaultFallback(
                                             unicode,
-                                            textStyle.getFontFamilies(),
                                             textStyle.getFontStyle(),
                                             textStyle.getLocale(),
                                             textStyle.getFontArguments());
