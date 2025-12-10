@@ -47,8 +47,6 @@ skia_cc_library(
     hdrs = [":ffi_hdrs"],
     features = ["layering_check"],
     visibility = [
-        "//experimental/rust_bmp/decoder/impl:__pkg__",
-        "//experimental/rust_bmp/ffi:__pkg__",
         "//rust/png:__pkg__",
         "//src/codec:__pkg__",
         "//src/encode:__pkg__",
@@ -63,10 +61,7 @@ skia_cc_library(
 rust_cxx_bridge(
     name = "cxx_bridge",
     src = ":rs_srcs",
-    visibility = [
-        "//experimental/rust_bmp/ffi:__pkg__",
-        "//rust/png:__pkg__",
-    ],
+    visibility = ["//rust/png:__pkg__"],
     deps = [":ffi_utils"],
 )
 
@@ -79,10 +74,7 @@ rust_library(
         "-Dwarnings",
         "--cfg=cxxbridge1",
     ],
-    visibility = [
-        "//experimental/rust_bmp/ffi:__pkg__",
-        "//rust/png:__pkg__",
-    ],
+    visibility = ["//rust/png:__pkg__"],
     deps = [
         ":cxx_bridge",
         ":ffi_utils",

@@ -93,8 +93,6 @@ skia_cc_library(
         "//include/private:decode_srcs",
     ] + ANY_DECODER_HDRS + PRIVATE_CODEC_HEADERS,
     visibility = [
-        "//experimental/rust_bmp/decoder:__pkg__",
-        "//experimental/rust_bmp/decoder/impl:__pkg__",
         "//modules/skottie:__pkg__",
         "//modules/skottie/src:__pkg__",
         "//modules/skresources:__pkg__",

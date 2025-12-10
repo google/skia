@@ -85,28 +85,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//rust/png:ffi_cpp",
 			},
 		},
-		{Var: "skia_codec_rust_bmp_public",
-			Rules: []string{
-				"//experimental/rust_bmp/decoder:hdrs",
-			},
-		},
-		{Var: "skia_codec_rust_bmp",
-			Rules: []string{
-				"//experimental/rust_bmp/decoder:srcs",
-				"//experimental/rust_bmp/decoder/impl:skbmprustcodec_hdrs",
-				"//experimental/rust_bmp/decoder/impl:skbmprustcodec_srcs",
-			},
-		},
-		{Var: "skia_codec_rust_bmp_ffi_rs_srcs",
-			Rules: []string{
-				"//experimental/rust_bmp/ffi:rs_srcs",
-			},
-		},
-		{Var: "skia_codec_rust_bmp_ffi_cxx_bridge_srcs",
-			Rules: []string{
-				"//experimental/rust_bmp/ffi:cxx_bridge_srcs",
-			},
-		},
 	}},
 	{GNI: "gn/core.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_core_public",

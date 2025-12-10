@@ -38,9 +38,7 @@
 #include "include/codec/SkAvifDecoder.h"
 #endif
 
-#if defined(SK_CODEC_DECODES_BMP_WITH_RUST)
-#include "experimental/rust_bmp/decoder/SkBmpRustDecoder.h"
-#elif defined(SK_CODEC_DECODES_BMP)
+#if defined(SK_CODEC_DECODES_BMP)
 #include "include/codec/SkBmpDecoder.h"
 #endif
 
@@ -105,10 +103,7 @@ static std::vector<Decoder>* get_decoders_for_editing() {
 #if defined(SK_CODEC_DECODES_ICO)
             decoders->push_back(SkIcoDecoder::Decoder());
 #endif
-
-#if defined(SK_CODEC_DECODES_BMP_WITH_RUST)
-            decoders->push_back(SkBmpRustDecoder::Decoder());
-#elif defined(SK_CODEC_DECODES_BMP)
+#if defined(SK_CODEC_DECODES_BMP)
             decoders->push_back(SkBmpDecoder::Decoder());
 #endif
 #if defined(SK_CODEC_DECODES_WBMP)
