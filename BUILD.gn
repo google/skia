@@ -1360,12 +1360,37 @@ if (is_debug) {
 # from having multiple copies of the Rust standard library.
 
 if (skia_use_fontations || skia_use_rust_png_decode ||
-    skia_use_rust_png_encode) {
+    skia_use_rust_png_encode || skia_use_rust_bmp_decode) {
   # Collect all Rust targets, sources, outputs based on what's enabled
   _rust_targets = []
   _rust_sources = []
   _rust_outputs = []
   _rust_output_mappings = []
+
+  # Add cxx dependency if any feature that needs it is enabled
+  _needs_cxx = skia_use_fontations || skia_use_rust_png_decode ||
+               skia_use_rust_png_encode || skia_use_rust_bmp_decode
+  if (_needs_cxx) {
+    _rust_targets += [ "@crates//:cxx_cc" ]
+    _rust_sources += [
+      "MODULE.bazel",
+      "MODULE.bazel.lock",
+      "bazel/external/cxx/BUILD.bazel",
+      "bazel/external/cxx/BUILD.bazel.skia",
+    ]
+    _rust_outputs += [
+      "$root_out_dir/libcxx_cc.a",
+      "$root_out_dir/third_party/rust/cxx/v1/cxx.h",
+    ]
+    _rust_output_mappings += [
+      rebase_path(
+              "//bazel-bin/external/rules_rust++crate+crates__cxx-1.0.168/libcxx_cc.a",
+              root_build_dir) + "=libcxx_cc.a",
+      rebase_path(
+              "//bazel-bin/external/rules_rust++crate+crates__cxx-1.0.168/_virtual_includes/cxx_cc/third_party/rust/cxx/v1/cxx.h",
+              root_build_dir) + "=third_party/rust/cxx/v1/cxx.h",
+    ]
+  }
 
   if (skia_use_fontations) {
     _rust_targets += [
@@ -1390,15 +1415,8 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
   }
 
   if (skia_use_rust_png_decode || skia_use_rust_png_encode) {
-    _rust_targets += [
-      "//rust/png:ffi_rs",
-      "@crates//:cxx_cc",
-    ]
+    _rust_targets += [ "//rust/png:ffi_rs" ]
     _rust_sources += [
-      "MODULE.bazel",
-      "MODULE.bazel.lock",
-      "bazel/external/cxx/BUILD.bazel",
-      "bazel/external/cxx/BUILD.bazel.skia",
       "rust/png/BUILD.bazel",
       "rust/png/FFI.h",
       "rust/png/FFI.rs",
@@ -1407,8 +1425,6 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
       "$root_out_dir/librust_png_ffi_rs.a",
       "$root_out_dir/rust/png/FFI.rs.h",
       "$root_out_dir/rust/png/FFI.rs.cc",
-      "$root_out_dir/libcxx_cc.a",
-      "$root_out_dir/third_party/rust/cxx/v1/cxx.h",
     ]
     _rust_output_mappings += [
       rebase_path("//bazel-bin/rust/png/libffi_rs.a", root_build_dir) +
@@ -1417,12 +1433,27 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
           "=rust/png/FFI.rs.h",
       rebase_path("//bazel-bin/rust/png/FFI.rs.cc", root_build_dir) +
           "=rust/png/FFI.rs.cc",
-      rebase_path(
-              "//bazel-bin/external/rules_rust++crate+crates__cxx-1.0.168/libcxx_cc.a",
-              root_build_dir) + "=libcxx_cc.a",
-      rebase_path(
-              "//bazel-bin/external/rules_rust++crate+crates__cxx-1.0.168/_virtual_includes/cxx_cc/third_party/rust/cxx/v1/cxx.h",
-              root_build_dir) + "=third_party/rust/cxx/v1/cxx.h",
+    ]
+  }
+
+  if (skia_use_rust_bmp_decode) {
+    _rust_targets += [ "//experimental/rust_bmp/ffi:ffi_rs" ]
+    _rust_sources += [
+      "experimental/rust_bmp/ffi/BUILD.bazel",
+      "experimental/rust_bmp/ffi/FFI.rs",
+    ]
+    _rust_outputs += [
+      "$root_out_dir/librust_bmp_ffi_rs.a",
+      "$root_out_dir/experimental/rust_bmp/ffi/FFI.rs.h",
+      "$root_out_dir/experimental/rust_bmp/ffi/FFI.rs.cc",
+    ]
+    _rust_output_mappings += [
+      rebase_path("//bazel-bin/experimental/rust_bmp/ffi/libffi_rs.a",
+                  root_build_dir) + "=librust_bmp_ffi_rs.a",
+      rebase_path("//bazel-bin/experimental/rust_bmp/ffi/FFI.rs.h",
+                  root_build_dir) + "=experimental/rust_bmp/ffi/FFI.rs.h",
+      rebase_path("//bazel-bin/experimental/rust_bmp/ffi/FFI.rs.cc",
+                  root_build_dir) + "=experimental/rust_bmp/ffi/FFI.rs.cc",
     ]
   }
 
@@ -1432,6 +1463,51 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
     sources = _rust_sources
     outputs = _rust_outputs
     args = _rust_targets + _rust_output_mappings + bazel_args
+  }
+
+  # This group collects all Rust static libraries that should be linked together.
+  group("rust_ffi_libs") {
+    deps = [ ":rust_all_ffi_bazel_build" ]
+
+    # Collect all the Rust .a files based on what's enabled
+    _all_rust_libs = []
+    if (_needs_cxx) {
+      _all_rust_libs += [ "$root_out_dir/libcxx_cc.a" ]
+    }
+    if (skia_use_fontations) {
+      _all_rust_libs += [ "$root_out_dir/libbridge_rust_side.a" ]
+    }
+    if (skia_use_rust_png_decode || skia_use_rust_png_encode) {
+      _all_rust_libs += [ "$root_out_dir/librust_png_ffi_rs.a" ]
+    }
+    if (skia_use_rust_bmp_decode) {
+      _all_rust_libs += [ "$root_out_dir/librust_bmp_ffi_rs.a" ]
+    }
+
+    public_configs = [ ":rust_ffi_libs_config" ]
+    all_dependent_configs = [ ":rust_ffi_libs_config" ]
+  }
+
+  config("rust_ffi_libs_config") {
+    _all_rust_libs = []
+    if (_needs_cxx) {
+      _all_rust_libs += [ "$root_out_dir/libcxx_cc.a" ]
+    }
+    if (skia_use_fontations) {
+      _all_rust_libs += [ "$root_out_dir/libbridge_rust_side.a" ]
+    }
+    if (skia_use_rust_png_decode || skia_use_rust_png_encode) {
+      _all_rust_libs += [ "$root_out_dir/librust_png_ffi_rs.a" ]
+    }
+    if (skia_use_rust_bmp_decode) {
+      _all_rust_libs += [ "$root_out_dir/librust_bmp_ffi_rs.a" ]
+    }
+    libs = _all_rust_libs
+
+    # Allow multiple definitions because Bazel's rust_static_library includes
+    # transitive C++ dependencies, which can lead to duplicate symbols when
+    # linking multiple Rust libraries together.
+    ldflags = [ "-Wl,--allow-multiple-definition" ]
   }
 }
 
@@ -1450,13 +1526,13 @@ if (skia_use_fontations) {
     ]
   }
   skia_source_set("fontations_ffi") {
-    deps = [ ":rust_all_ffi_bazel_build" ]
+    deps = [
+      ":rust_all_ffi_bazel_build",
+      ":rust_ffi_libs",
+    ]
     public = [ "${root_out_dir}/src/ports/fontations/src/ffi.rs.h" ]
     sources = [ "${root_out_dir}/src/ports/fontations/src/ffi.rs.cc" ]
-    libs = [
-      "$root_out_dir/libbridge_rust_side.a",
-      "c++",
-    ]
+    libs = [ "c++" ]
     public_configs = [ ":fontations_ffi_public_config" ]
     configs = [ ":fontations_ffi_private_config" ]
   }
@@ -1494,7 +1570,6 @@ if (skia_use_rust_png_decode || skia_use_rust_png_encode) {
     deps = [ ":rust_all_ffi_bazel_build" ]
     public = [ "${root_out_dir}/rust/png/FFI.rs.h" ]
     sources = [ "${root_out_dir}/rust/png/FFI.rs.cc" ]
-    libs = [ "$root_out_dir/librust_png_ffi_rs.a" ]
     public_configs = [ ":rust_common_cxx_bridge_public_config" ]
     configs = [ ":rust_png_cxx_bridge_private_config" ]
   }
@@ -1525,14 +1600,11 @@ optional("png_decode_rust") {
 
   deps = [
     ":png_decode_common",
-    ":rust_all_ffi_bazel_build",
     ":rust_common",
+    ":rust_ffi_libs",
     ":rust_png_cxx_bridge",
   ]
-  libs = [
-    "$root_out_dir/libcxx_cc.a",
-    "c++",
-  ]
+  libs = [ "c++" ]
 }
 
 optional("png_encode_rust") {
@@ -1543,14 +1615,45 @@ optional("png_encode_rust") {
   sources_for_tests = [ "tests/SkPngRustEncoderTest.cpp" ]
   deps = [
     ":png_encode_common",
-    ":rust_all_ffi_bazel_build",
     ":rust_common",
+    ":rust_ffi_libs",
     ":rust_png_cxx_bridge",
   ]
-  libs = [
-    "$root_out_dir/libcxx_cc.a",
-    "c++",
+  libs = [ "c++" ]
+}
+
+if (skia_use_rust_bmp_decode) {
+  config("rust_bmp_cxx_bridge_public_config") {
+    include_dirs = [ "$root_out_dir" ]
+  }
+  config("rust_bmp_cxx_bridge_private_config") {
+    include_dirs = [ "." ]
+  }
+  skia_source_set("rust_bmp_cxx_bridge") {
+    deps = [ ":rust_all_ffi_bazel_build" ]
+    public = [ "${root_out_dir}/experimental/rust_bmp/ffi/FFI.rs.h" ]
+    sources = [ "${root_out_dir}/experimental/rust_bmp/ffi/FFI.rs.cc" ]
+    public_configs = [ ":rust_bmp_cxx_bridge_public_config" ]
+    configs = [ ":rust_bmp_cxx_bridge_private_config" ]
+  }
+}
+
+optional("bmp_decode_rust") {
+  public_defines = [ "SK_CODEC_DECODES_BMP_WITH_RUST" ]
+  enabled = skia_use_rust_bmp_decode
+  public = [ "experimental/rust_bmp/decoder/SkBmpRustDecoder.h" ]
+  sources = [
+    "experimental/rust_bmp/decoder/SkBmpRustDecoder.cpp",
+    "experimental/rust_bmp/decoder/SkBmpRustDecoder.h",
+    "experimental/rust_bmp/decoder/impl/SkBmpRustCodec.cpp",
+    "experimental/rust_bmp/decoder/impl/SkBmpRustCodec.h",
   ]
+  sources_for_tests = [ "tests/SkBmpRustDecoderTest.cpp" ]
+  deps = [
+    ":rust_bmp_cxx_bridge",
+    ":rust_ffi_libs",
+  ]
+  libs = [ "c++" ]
 }
 
 optional("webp_decode") {
@@ -2539,6 +2642,7 @@ if (skia_enable_tools) {
         sources += precompile_tests_sources
       }
       deps = [
+        ":bmp_decode_rust_tests",
         ":flags",
         ":fontmgr_FontConfigInterface_tests",
         ":fontmgr_android_tests",
@@ -2687,7 +2791,7 @@ if (skia_enable_tools) {
 
     if (!skia_enable_optimize_size && !skia_use_fontations &&
         !skia_use_rust_png_decode && !skia_use_rust_png_encode &&
-        !skia_enable_vello_shaders) {
+        !skia_use_rust_bmp_decode && !skia_enable_vello_shaders) {
       # optional separate library to dlopen when running CanvasStateTests.
       # currently does not link in the presence of rust
       skia_shared_library("canvas_state_lib") {
@@ -2882,6 +2986,9 @@ if (skia_enable_tools) {
       if (skia_enable_graphite && skia_enable_precompile) {
         sources += [ "fuzz/FuzzPrecompile.cpp" ]
       }
+      if (skia_use_rust_bmp_decode) {
+        sources += [ "fuzz/oss_fuzz/FuzzBMPRustDecoder.cpp" ]
+      }
       deps = [
         ":flags",
         ":gpu_tool_utils",
@@ -2891,6 +2998,9 @@ if (skia_enable_tools) {
         "modules/skparagraph",
         "modules/svg",
       ]
+      if (skia_use_rust_bmp_decode) {
+        deps += [ ":bmp_decode_rust" ]
+      }
     }
 
     test_app("dump_record") {
