@@ -23,11 +23,6 @@ public:
                          sk_sp<FontCollection> fontCollection,
                          sk_sp<SkUnicode> unicode);
 
-#if !defined(SK_DISABLE_LEGACY_PARAGRAPH_UNICODE)
-    // Just until we fix all the code; calls icu::make inside
-    ParagraphBuilderImpl(const ParagraphStyle& style, sk_sp<FontCollection> fontCollection);
-#endif
-
     ~ParagraphBuilderImpl() override;
 
     // Push a style to the stack. The corresponding text added with AddText will

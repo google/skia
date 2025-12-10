@@ -12,72 +12,11 @@
 #include "modules/skunicode/include/SkUnicode.h"
 #include "src/core/SkStringUtils.h"
 
-#if !defined(SK_DISABLE_LEGACY_PARAGRAPH_UNICODE)
-#if defined(SK_UNICODE_ICU_IMPLEMENTATION)
-#include "modules/skunicode/include/SkUnicode_icu.h"
-#endif
-
-#if defined(SK_UNICODE_LIBGRAPHEME_IMPLEMENTATION)
-#include "modules/skunicode/include/SkUnicode_libgrapheme.h"
-#endif
-
-#if defined(SK_UNICODE_ICU4X_IMPLEMENTATION)
-#include "modules/skunicode/include/SkUnicode_icu4x.h"
-#endif
-
-#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
-#include "modules/skunicode/include/SkUnicode_client.h"
-#endif
-
-#endif  // !defined(SK_DISABLE_LEGACY_PARAGRAPH_UNICODE)
-
 #include <memory>
 #include <utility>
 
 namespace skia {
 namespace textlayout {
-
-#if !defined(SK_DISABLE_LEGACY_PARAGRAPH_UNICODE)
-
-namespace {
-// TODO(kjlubick,jlavrova) Remove these defines by having clients register something or somehow
-// plumbing this all into the animation builder factories.
-sk_sp<SkUnicode> get_unicode() {
-#ifdef SK_UNICODE_ICU_IMPLEMENTATION
-    if (auto unicode = SkUnicodes::ICU::Make()) {
-        return unicode;
-    }
-#endif
-#ifdef SK_UNICODE_ICU4X_IMPLEMENTATION
-    if (auto unicode = SkUnicodes::ICU4X::Make()) {
-        return unicode;
-    }
-#endif
-#ifdef SK_UNICODE_LIBGRAPHEME_IMPLEMENTATION
-    if (auto unicode = SkUnicodes::Libgrapheme::Make()) {
-        return unicode;
-    }
-#endif
-    return nullptr;
-}
-}
-
-std::unique_ptr<ParagraphBuilder> ParagraphBuilder::make(const ParagraphStyle& style,
-                                                         sk_sp<FontCollection> fontCollection) {
-    return ParagraphBuilderImpl::make(style, std::move(fontCollection), get_unicode());
-}
-
-std::unique_ptr<ParagraphBuilder> ParagraphBuilderImpl::make(const ParagraphStyle& style,
-                                                             sk_sp<FontCollection> fontCollection) {
-    return std::make_unique<ParagraphBuilderImpl>(style, std::move(fontCollection), get_unicode());
-}
-
-ParagraphBuilderImpl::ParagraphBuilderImpl(
-        const ParagraphStyle& style, sk_sp<FontCollection> fontCollection)
-        : ParagraphBuilderImpl(style, std::move(fontCollection), get_unicode())
-{ }
-
-#endif  // !defined(SK_DISABLE_LEGACY_PARAGRAPH_UNICODE)
 
 std::unique_ptr<ParagraphBuilder> ParagraphBuilder::make(const ParagraphStyle& style,
                                                          sk_sp<FontCollection> fontCollection,
@@ -239,15 +178,6 @@ std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {
 
     fUTF8IndexForUTF16Index.clear();
     fUTF16IndexForUTF8Index.clear();
-#if !defined(SK_DISABLE_LEGACY_PARAGRAPH_UNICODE) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
-    if (fUsingClientInfo && !fUnicode) {
-        // This is the place where SkUnicode is paired with SkParagraph
-        fUnicode = SkUnicodes::Client::Make(this->getText(),
-                                            std::move(fWordsUtf16),
-                                            std::move(fGraphemeBreaksUtf8),
-                                            std::move(fLineBreaksUtf8));
-    }
-#endif
 
     SkASSERT_RELEASE(fUnicode);
     return std::make_unique<ParagraphImpl>(

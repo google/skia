@@ -10,7 +10,6 @@ skia_cc_library(
     name = "skparagraph_harfbuzz_skunicode",
     srcs = ["//modules/skparagraph/src:srcs"],
     hdrs = ["//modules/skparagraph/include:hdrs"],
-    defines = ["SK_DISABLE_LEGACY_PARAGRAPH_UNICODE"],
     features = ["layering_check"],
     visibility = [
         "//:__subpackages__",

@@ -84,15 +84,9 @@ public:
     // been added, but keeping the initial ParagraphStyle.
     virtual void Reset() = 0;
 
-    // Just until we fix all the google3 code
     static std::unique_ptr<ParagraphBuilder> make(const ParagraphStyle& style,
                                                   sk_sp<FontCollection> fontCollection,
                                                   sk_sp<SkUnicode> unicode);
-
-#if !defined(SK_DISABLE_LEGACY_PARAGRAPH_UNICODE)
-    static std::unique_ptr<ParagraphBuilder> make(const ParagraphStyle& style,
-                                                  sk_sp<FontCollection> fontCollection);
-#endif
 };
 }  // namespace textlayout
 }  // namespace skia
