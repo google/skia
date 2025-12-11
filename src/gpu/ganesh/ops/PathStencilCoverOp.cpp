@@ -307,6 +307,10 @@ void PathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
                                                                  fPathCount,
                                                                  &fBBoxBuffer,
                                                                  &fBBoxBaseInstance);
+        if (!vertexWriter) SK_UNLIKELY {
+            SkDebugf("Could not allocate vertices\n");
+            return;
+        }
         SkDEBUGCODE(int pathCount = 0;)
         for (auto [pathMatrix, path, color] : *fPathDrawList) {
             SkDEBUGCODE(auto end = vertexWriter.mark(instanceStride));
