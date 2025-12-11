@@ -149,7 +149,7 @@
       "remote": "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git"
     },
     {
-      "commit": "445d0c760c47d10b745112ea6d17f137e15ad48c",
+      "commit": "1c26ea1cf595ae0aa86b1740c84ffadf30d08f2f",
       "name": "spirv_tools",
       "remote": "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git"
     },
