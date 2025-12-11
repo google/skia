@@ -21,8 +21,8 @@
 #include "src/core/SkDebugUtils.h"
 #include "src/core/SkEdge.h"
 #include "src/core/SkEdgeBuilder.h"
-#include "tools/viewer/ClickHandlerSlide.h"
 #include "tools/viewer/Slide.h"
+#include "tools/viewer/ZoomInSlide.h"
 
 #include <vector>
 
@@ -31,58 +31,33 @@
 
    Hold control to move the control point (which can be used in the path creation).
 */
-class EdgeBuilderSlide : public ClickHandlerSlide {
+class EdgeBuilderSlide : public ZoomInSlide {
 public:
-    EdgeBuilderSlide() { fName = "EdgeBuilderViz"; }
+    EdgeBuilderSlide() : ZoomInSlide(kScale, kMaskWidth, kMaskHeight, SkString("EdgeBuilderViz")) {}
 
-    void draw(SkCanvas* canvas) override {
-        canvas->scale(kScale, kScale);
-        canvas->clear(SK_ColorWHITE);
+    SkPath makePath() {
+        return SkPathBuilder()
+                .moveTo(0, 0)
+                //.quadTo({fControl, {10, 20})
+                .cubicTo(fControl, {8, 6}, {10, 20})
+                .lineTo({10, 10})
+                .lineTo({12, 0})
+                .close()
+                .detach();
+    }
 
-        SkPathBuilder pb;
-        SkPath path = pb.moveTo(0, 0)
-                              //.quadTo({fControlX, fControlY}, {10, 20})
-                              .cubicTo({fControlX, fControlY}, {8, 6}, {10, 20})
-                              .lineTo({10, 10})
-                              .lineTo({12, 0})
-                              .close()
-                              .detach();
+    void drawUnderGrid(SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setStyle(SkPaint::Style::kFill_Style);
+        paint.setColor(SK_ColorBLACK);
+        this->drawScaledPath(canvas, makePath(), paint);
+    }
 
-        drawScaledPath(canvas, path);
-        drawGrid(canvas);
+    void drawOverGrid(SkCanvas* canvas) override {
+        SkPath path = makePath();
         drawHighRezOverlay(canvas, path);
         drawEdges(canvas, path);
         drawControlPoint(canvas);
-    }
-
-    // Draw path at normal size (typically very small) and then draw it into the scaled canvas.
-    void drawScaledPath(SkCanvas* canvas, const SkPath& path) {
-        uint8_t buffer[kMaskWidth * kMaskHeight * 4];
-        auto ii = SkImageInfo::MakeN32Premul(kMaskWidth, kMaskHeight);
-        SkPixmap pm1(ii, buffer, ii.minRowBytes());
-        auto surface = SkSurfaces::WrapPixels(pm1);
-        SkPaint pathPaint;
-        pathPaint.setStyle(SkPaint::Style::kFill_Style);
-        pathPaint.setColor(SK_ColorBLACK);
-        surface->getCanvas()->clear(SK_ColorTRANSPARENT);
-        surface->getCanvas()->drawPath(path, pathPaint);
-        auto pathImg = surface->makeImageSnapshot();
-
-        // Remember kScale applies to this canvas.
-        canvas->drawImage(pathImg, 0, 0);
-    }
-
-    void drawGrid(SkCanvas* canvas) {
-        SkPaint gridPaint;
-        gridPaint.setColor(SK_ColorDKGRAY);
-        gridPaint.setStyle(SkPaint::Style::kStroke_Style);
-        gridPaint.setStrokeWidth(0);
-        for (int y = 0; y <= kMaskHeight; y++) {
-            canvas->drawLine(0, y, kMaskWidth, y, gridPaint);
-        }
-        for (int x = 0; x <= kMaskWidth; x++) {
-            canvas->drawLine(x, 0, x, kMaskHeight, gridPaint);
-        }
     }
 
     void drawHighRezOverlay(SkCanvas* canvas, const SkPath& path) {
@@ -135,8 +110,10 @@ public:
         controlPaint.setAntiAlias(true);
         controlPaint.setStrokeWidth(1.f / kScale);
 
-        canvas->drawCircle(fControlX, fControlY, 4.f / kScale, controlPaint);
+        canvas->drawCircle(fControl, 4.f / kScale, controlPaint);
     }
+
+    void handleClick(const ScaledClick* click) override { fControl = click->currScaled(); }
 
 private:
     static constexpr size_t kScale = 32;
@@ -145,32 +122,6 @@ private:
     static constexpr int kMaskWidth = 15;
     static constexpr int kMaskHeight = 25;
 
-    class Click : public ClickHandlerSlide::Click {
-    public:
-        Click(float* x, float* y) : fX(x), fY(y) {}
-
-        void doClick(EdgeBuilderSlide* that) {
-            *fX = fCurr.fX / kScale;
-            *fY = fCurr.fY / kScale;
-        }
-
-    private:
-        float* fX;
-        float* fY;
-    };
-
-    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modifiers) override {
-        if (modifiers != skui::ModifierKey::kControl) {
-            return nullptr;
-        }
-        return new Click(&fControlX, &fControlY);
-    }
-
-    bool onClick(ClickHandlerSlide::Click* click) override {
-        Click* myClick = (Click*)click;
-        myClick->doClick(this);
-        return true;
-    }
-    float fControlX = 2.f, fControlY = 13.f;
+    SkPoint fControl = {2.f, 13.f};
 };
 DEF_SLIDE(return new EdgeBuilderSlide();)
