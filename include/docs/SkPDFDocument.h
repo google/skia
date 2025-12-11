@@ -41,6 +41,7 @@ public:
     void appendInt(const char* owner, const char* name, int value);
     void appendFloat(const char* owner, const char* name, float value);
     void appendName(const char* owner, const char* attrName, const char* value);
+    void appendTextString(const char* owner, const char* attrName, const char* value);
     void appendFloatArray(const char* owner,
                           const char* name,
                           const std::vector<float>& value);

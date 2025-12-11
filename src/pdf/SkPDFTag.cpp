@@ -157,6 +157,16 @@ void SkPDF::AttributeList::appendName(const char* owner, const char* name, const
     fAttrs->appendObject(std::move(attrDict));
 }
 
+void SkPDF::AttributeList::appendTextString(const char* owner, const char* name, const char* value){
+    if (!fAttrs) {
+        fAttrs = SkPDFMakeArray();
+    }
+    std::unique_ptr<SkPDFDict> attrDict = SkPDFMakeDict();
+    attrDict->insertName("O", owner);
+    attrDict->insertTextString(name, value);
+    fAttrs->appendObject(std::move(attrDict));
+}
+
 void SkPDF::AttributeList::appendFloatArray(const char* owner, const char* name,
                                             const std::vector<float>& value) {
     if (!fAttrs) {
