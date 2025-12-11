@@ -27,24 +27,10 @@ skgpu::VertexWriter GrMeshDrawTarget::makeVertexWriter(
     return make_writer<skgpu::VertexWriter>(p, vertexCount, vertexSize);
 }
 
-skgpu::IndexWriter GrMeshDrawTarget::makeIndexWriter(
-        int indexCount, sk_sp<const GrBuffer>* buffer, int* startIndex) {
-    void* p = this->makeIndexSpace(indexCount, buffer, startIndex);
-    return make_writer<skgpu::IndexWriter>(p, indexCount, sizeof(uint16_t));
-}
-
 skgpu::VertexWriter GrMeshDrawTarget::makeVertexWriterAtLeast(
         size_t vertexSize, int minVertexCount, int fallbackVertexCount,
         sk_sp<const GrBuffer>* buffer, int* startVertex, int* actualVertexCount) {
     void* p = this->makeVertexSpaceAtLeast(vertexSize, minVertexCount, fallbackVertexCount,
                                            buffer, startVertex, actualVertexCount);
     return make_writer<skgpu::VertexWriter>(p, *actualVertexCount, vertexSize);
-}
-
-skgpu::IndexWriter GrMeshDrawTarget::makeIndexWriterAtLeast(
-        int minIndexCount, int fallbackIndexCount, sk_sp<const GrBuffer>* buffer,
-        int* startIndex, int* actualIndexCount) {
-    void* p = this->makeIndexSpaceAtLeast(minIndexCount, fallbackIndexCount, buffer,
-                                          startIndex, actualIndexCount);
-    return make_writer<skgpu::IndexWriter>(p, *actualIndexCount, sizeof(uint16_t));
 }
