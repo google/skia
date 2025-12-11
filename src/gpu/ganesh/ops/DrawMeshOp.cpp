@@ -1127,7 +1127,7 @@ void MeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
                                                              fVertexCount,
                                                              &vertexBuffer,
                                                              &firstVertex);
-        if (!verts) {
+        if (!verts) SK_UNLIKELY {
             SkDebugf("Could not allocate vertices.\n");
             return;
         }
@@ -1149,7 +1149,7 @@ void MeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
     if (fIndexCount && !indexBuffer) {
         uint16_t* indices = nullptr;
         indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
-        if (!indices) {
+        if (!indices) SK_UNLIKELY {
             SkDebugf("Could not allocate indices.\n");
             return;
         }

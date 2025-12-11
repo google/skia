@@ -264,7 +264,7 @@ private:
             &flushInfo.fVertexBuffer, &flushInfo.fVertexOffset);
 
         flushInfo.fIndexBuffer = target->resourceProvider()->refNonAAQuadIndexBuffer();
-        if (!vertices || !flushInfo.fIndexBuffer) {
+        if (!vertices || !flushInfo.fIndexBuffer) SK_UNLIKELY {
             SkDebugf("Could not allocate vertices\n");
             return;
         }

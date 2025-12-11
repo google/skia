@@ -859,7 +859,7 @@ private:
                                                           &vertexBuffer,
                                                           &firstVertex);
 
-            if (!verts) {
+            if (!verts) SK_UNLIKELY {
                 SkDebugf("Could not allocate vertices\n");
                 return;
             }
@@ -868,7 +868,7 @@ private:
             int firstIndex;
 
             uint16_t *idxs = target->makeIndexSpace(indexCount, &indexBuffer, &firstIndex);
-            if (!idxs) {
+            if (!idxs) SK_UNLIKELY {
                 SkDebugf("Could not allocate indices\n");
                 return;
             }

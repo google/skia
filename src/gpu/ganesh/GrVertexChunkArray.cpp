@@ -30,7 +30,7 @@ bool GrVertexChunkBuilder::allocChunk(int minCount) {
                                                               minAllocCount, &chunk->fBuffer,
                                                               &chunk->fBase,
                                                               &fCurrChunkVertexCapacity);
-    if (!fCurrChunkVertexWriter || !chunk->fBuffer || fCurrChunkVertexCapacity < minCount) {
+    if (!fCurrChunkVertexWriter || !chunk->fBuffer || fCurrChunkVertexCapacity < minCount) SK_UNLIKELY {
         SkDebugf("WARNING: Failed to allocate vertex buffer for GrVertexChunk.\n");
         fChunks->pop_back();
         SkASSERT(fCurrChunkVertexCount == 0);
