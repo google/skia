@@ -86,32 +86,6 @@ private:
             std::unique_ptr<SkCodecs::ColorProfile> defaultColorProfile);
 
     /*
-     * Read enough of the stream to initialize the SkJpegCodec.
-     * Returns a bool representing success or failure.
-     *
-     * @param codecOut
-     * If this returns true, and codecOut was not nullptr,
-     * codecOut will be set to a new SkJpegCodec.
-     *
-     * @param decoderMgrOut
-     * If this returns true, and codecOut was nullptr,
-     * decoderMgrOut must be non-nullptr and decoderMgrOut will be set to a new
-     * JpegDecoderMgr pointer.
-     *
-     * @param stream
-     * Deleted on failure.
-     * codecOut will take ownership of it in the case where we created a codec.
-     * Ownership is unchanged when we set decoderMgrOut.
-     *
-     * @param defaultColorProfile
-     * If the jpeg does not have an embedded color profile, the image data should
-     * be tagged with this color profile.
-     */
-    static Result ReadHeader(SkStream* stream, SkCodec** codecOut,
-            JpegDecoderMgr** decoderMgrOut,
-            std::unique_ptr<SkCodecs::ColorProfile> defaultColorProfile);
-
-    /*
      * Creates an instance of the decoder
      * Called only by NewFromStream
      *
@@ -142,11 +116,11 @@ private:
     int onGetScanlines(void* dst, int count, size_t rowBytes) override;
     bool onSkipScanlines(int count) override;
 
-    std::unique_ptr<JpegDecoderMgr>    fDecoderMgr;
+    std::unique_ptr<JpegDecoderMgr> fDecoderMgr;
 
     // We will save the state of the decompress struct after reading the header.
     // This allows us to safely call onGetScaledDimensions() at any time.
-    const int                          fReadyState;
+    const int fReadyState;
 
     skia_private::AutoTMalloc<uint8_t> fStorage;
     uint8_t* fSwizzleSrcRow = nullptr;
@@ -157,7 +131,7 @@ private:
     // to further subset the output from libjpeg-turbo.
     SkIRect fSwizzlerSubset = SkIRect::MakeEmpty();
 
-    std::unique_ptr<SkSwizzler>        fSwizzler;
+    std::unique_ptr<SkSwizzler> fSwizzler;
 
     friend class SkRawCodec;
 };

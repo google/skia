@@ -11,6 +11,21 @@ config_setting(
     ],
 )
 
+config_setting(
+    name = "debug_build",
+    values = {"compilation_mode": "dbg"},
+)
+
+config_setting(
+    name = "fast_build",
+    values = {"compilation_mode": "fastbuild"},
+)
+
+config_setting(
+    name = "release_build",
+    values = {"compilation_mode": "opt"},
+)
+
 selects.config_setting_group(
     name = "arm_or_arm64",
     match_any = [
@@ -166,10 +181,28 @@ JPEGTURBO_DEFINES = [
     "@platforms//os:windows": [],
 })
 
+JPEGTURBO_COPTS = select({
+    ":debug_build": [
+        "--optimize=0",
+        "--debug",
+    ],
+    ":release_build": [
+        "--optimize=3",
+        # Strip dead code (in conjunction with linkopts)
+        "-fdata-sections",
+        "-ffunction-sections",
+    ],
+    ":fast_build": [
+        "--optimize=0",
+        "-gline-tables-only",
+    ],
+})
+
 cc_library(
     name = "libjpeg16",
     srcs = JPEG16_SRCS,
     hdrs = LIBJPEG_HEADERS,
+    copts = JPEGTURBO_COPTS,
     includes = ["src"],
     local_defines = [
         "NO_GETENV",
@@ -185,6 +218,7 @@ cc_library(
     name = "libjpeg12",
     srcs = JPEG12_SRCS,
     hdrs = LIBJPEG_HEADERS,
+    copts = JPEGTURBO_COPTS,
     includes = ["src"],
     local_defines = [
         "NO_GETENV",
@@ -231,6 +265,7 @@ cc_library(
         "//conditions:default": [],
     }),
     hdrs = LIBJPEG_HEADERS,
+    copts = JPEGTURBO_COPTS,
     includes = [
         # There are some #include "neon-compat.h" etc that need this on the search path
         "simd/arm",
