@@ -154,8 +154,9 @@ VkPipelineCache VulkanSharedContext::createPipelineCache(
     createInfo.initialDataSize = 0;
     createInfo.pInitialData = nullptr;
 
+    sk_sp<SkData> cachedData;  // here to keep the cached data valid past CreatePipelineCache
     if (persistentPipelineStorage) {
-        sk_sp<SkData> cachedData = persistentPipelineStorage->load();
+        cachedData = persistentPipelineStorage->load();
 
         // For version one of the header, the total header size is 16 bytes plus
         // VK_UUID_SIZE bytes. See Section 9.6 (Pipeline Cache) in the vulkan spec to see
