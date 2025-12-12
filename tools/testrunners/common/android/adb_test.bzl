@@ -1,6 +1,6 @@
 """This module defines the adb_test rule."""
 
-load("@local_config_platform//:constraints.bzl", "HOST_CONSTRAINTS")
+load("@platforms//host:constraints.bzl", "HOST_CONSTRAINTS")
 load("//bazel:remove_indentation.bzl", "remove_indentation")
 
 def _adb_test_runner_transition_impl(settings, attr):  # buildifier: disable=unused-variable
