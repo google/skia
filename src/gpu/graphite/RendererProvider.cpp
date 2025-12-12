@@ -241,10 +241,9 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
 
 #ifdef SK_ENABLE_VELLO_SHADERS
     // Don't initialize Vello if the strategy wouldn't use it.
-    const PathRendererStrategy strategy = caps->pathRendererStrategy();
-    if (strategy == PathRendererStrategy::kComputeAnalyticAA ||
-        strategy == PathRendererStrategy::kComputeMSAA16 ||
-        strategy == PathRendererStrategy::kComputeMSAA8) {
+    if (fStrategy == PathRendererStrategy::kComputeAnalyticAA ||
+        fStrategy == PathRendererStrategy::kComputeMSAA16 ||
+        fStrategy == PathRendererStrategy::kComputeMSAA8) {
         fVelloRenderer = std::make_unique<VelloRenderer>(caps);
     }
 #endif
