@@ -12,7 +12,11 @@ fn _skslMain(_stageOut: ptr<function, FSOut>) {
     let b: vec4<f32> = textureSample(tex_Texture, tex_Sampler, _skTemp0.xy / _skTemp0.z);
     let _skTemp1 = vec3<f32>(1.0);
     let c: vec4<f32> = textureSampleBias(tex_Texture, tex_Sampler, _skTemp1.xy / _skTemp1.z, -0.75 + 0.0);
-    (*_stageOut).sk_FragColor = (a * b) * c;
+    let _skTemp2 = vec3<f32>(0.0);
+    let d: vec4<f32> = textureSample(tex_Texture, tex_Sampler, _skTemp2.xy / _skTemp2.z);
+    let _skTemp3 = vec3<f32>(vec3<f32>(0.0, d.x, 0.0));
+    let e: vec4<f32> = textureSample(tex_Texture, tex_Sampler, _skTemp3.xy / _skTemp3.z);
+    (*_stageOut).sk_FragColor = (((a * b) * c) * d) * e;
   }
 }
 @fragment fn main() -> FSOut {

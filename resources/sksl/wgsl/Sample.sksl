@@ -5,5 +5,7 @@ void main()
     half4 a = sample(tex, half2(1));
     half4 b = sample(tex, half3(1));
     half4 c = sample(tex, half3(1), -0.75);
-    sk_FragColor = a * b * c;
+    half4 d = sample(tex, half3(0)); // Avoid 0/0 const eval error
+    half4 e = sample(tex, half3(0, d.r, 0)); // Also avoided even though the half3 isn't const
+    sk_FragColor = a * b * c * d * e;
 }

@@ -1191,6 +1191,7 @@ skia_filegroup(
         "wgsl/MatrixConstructorDiagonal.sksl",
         "wgsl/OutParams.sksl",
         "wgsl/PixelLocalStorage.sksl",
+        "wgsl/PolyfillIntrinsics.sksl",
         "wgsl/Sample.sksl",
         "wgsl/SubpassInput.sksl",
         "wgsl/TextureIntrinsics.compute",

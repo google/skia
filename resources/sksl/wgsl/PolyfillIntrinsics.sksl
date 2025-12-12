@@ -1,0 +1,13 @@
+uniform float4 N;
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 xy) {
+    // Scalar facefoward has to be polyfilled, which produces an I*NRef expression. Test that this
+    // avoids compile-time eval that would overflow for just those parameters.
+    float huge = faceforward(N.x, 1e30, 1e30);
+    // Scalar reflect also is implemented from scratch, producing a 2*N*I*N expression.
+    huge = reflect(1e30, 1e30);
+    // mod introduces division in its polyfill
+    huge = mod(0, 0);
+    return huge > 0 ? colorGreen : colorRed;
+}

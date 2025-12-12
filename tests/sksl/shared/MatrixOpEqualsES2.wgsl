@@ -53,7 +53,7 @@ fn test_matrix_op_matrix_half_b() -> bool {
     }
     {
       var m: mat2x2<f32> = mat2x2<f32>(2.0, 4.0, 6.0, 8.0);
-      let _skTemp8 = mat2x2<f32>(2.0, 2.0, 2.0, 4.0);
+      const _skTemp8 = mat2x2<f32>(2.0, 2.0, 2.0, 4.0);
       m = mat2x2<f32>(m[0] / _skTemp8[0], m[1] / _skTemp8[1]);
       const _skTemp9 = mat2x2<f32>(1.0, 2.0, 3.0, 2.0);
       ok = ok && (all(m[0] == _skTemp9[0]) && all(m[1] == _skTemp9[1]));
@@ -118,7 +118,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     }
     {
       var _6_m: mat2x2<f32> = mat2x2<f32>(2.0, 4.0, 6.0, 8.0);
-      let _skTemp20 = mat2x2<f32>(2.0, 2.0, 2.0, 4.0);
+      const _skTemp20 = mat2x2<f32>(2.0, 2.0, 2.0, 4.0);
       _6_m = mat2x2<f32>(_6_m[0] / _skTemp20[0], _6_m[1] / _skTemp20[1]);
       const _skTemp21 = mat2x2<f32>(1.0, 2.0, 3.0, 2.0);
       _0_ok = _0_ok && (all(_6_m[0] == _skTemp21[0]) && all(_6_m[1] == _skTemp21[1]));
