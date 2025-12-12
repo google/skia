@@ -325,8 +325,13 @@ private:
     std::pair<const Renderer*, PathAtlas*> chooseRenderer(const Transform& localToDevice,
                                                           const Geometry&,
                                                           const SkStrokeRec&,
-                                                          const Rect& drawBounds,
-                                                          bool requireMSAA) const;
+                                                          const Rect& drawBounds) const;
+
+    // Ignoring specialized Shape renderers and the selected PathRendererStrategy, choose a
+    // MSAA-requiring tessellation-based renderer for the shape and style.
+    const Renderer* chooseMSAARenderer(const Shape&,
+                                       const SkStrokeRec&,
+                                       const Rect& drawBounds) const;
 
     bool needsFlushBeforeDraw(int numNewRenderSteps, DstReadStrategy);
 
