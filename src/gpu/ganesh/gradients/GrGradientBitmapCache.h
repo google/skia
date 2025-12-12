@@ -8,7 +8,7 @@
 #define GrGradientBitmapCache_DEFINED
 
 #include "include/core/SkScalar.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkNoncopyable.h"
@@ -32,7 +32,7 @@ public:
                      const SkScalar* positions,
                      int count,
                      bool colorsAreOpaque,
-                     const SkGradientShader::Interpolation& interpolation,
+                     const SkGradient::Interpolation& interpolation,
                      const SkColorSpace* intermediateColorSpace,
                      const SkColorSpace* dstColorSpace,
                      SkColorType colorType,
@@ -60,7 +60,7 @@ private:
                       const SkScalar* positions,
                       int count,
                       bool colorsAreOpaque,
-                      const SkGradientShader::Interpolation& interpolation,
+                      const SkGradient::Interpolation& interpolation,
                       const SkColorSpace* intermediateColorSpace,
                       const SkColorSpace* dstColorSpace,
                       SkBitmap* bitmap);

@@ -87,9 +87,9 @@ Builder& Builder::linearGrad(LinearGradientOptions options) {
     } else if (options == kComplex) {
         gradient = PrecompileShaders::LinearGradient(
                 GradientShaderFlags::kNoLarge,
-                { SkGradientShader::Interpolation::InPremul::kNo,
-                  SkGradientShader::Interpolation::ColorSpace::kSRGB,
-                  SkGradientShader::Interpolation::HueMethod::kShorter });
+                { SkGradient::Interpolation::InPremul::kNo,
+                  SkGradient::Interpolation::ColorSpace::kSRGB,
+                  SkGradient::Interpolation::HueMethod::kShorter });
     }
 
     fPaintOptions.setShaders(SKSPAN_INIT_ONE(std::move(gradient)));

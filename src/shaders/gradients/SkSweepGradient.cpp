@@ -171,8 +171,8 @@ sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
                                             SkScalar endAngle,
                                             uint32_t flags,
                                             const SkMatrix* localMatrix) {
-    SkColorConverter converter(colors, colorCount);
-    return MakeSweep(cx, cy, converter.fColors4f.begin(), nullptr, pos, colorCount,
+    SkColorConverter converter({colors, SkToSizeT(colorCount)});
+    return MakeSweep(cx, cy, converter.colors4f().data(), nullptr, pos, colorCount,
                      mode, startAngle, endAngle, flags, localMatrix);
 }
 #endif

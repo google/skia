@@ -192,7 +192,7 @@ void add_gradient_preamble(const GradientShaderBlocks::GradientData& gradData,
 void add_gradient_postamble(const GradientShaderBlocks::GradientData& gradData,
                             int bufferOffset,
                             PipelineDataGatherer* gatherer) {
-    using ColorSpace = SkGradientShader::Interpolation::ColorSpace;
+    using ColorSpace = SkGradient::Interpolation::ColorSpace;
 
     constexpr int kInternalStopLimit = GradientShaderBlocks::GradientData::kNumInternalStorageStops;
 
@@ -343,7 +343,7 @@ GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type
                                                  const SkGradientBaseShader* shader,
                                                  sk_sp<TextureProxy> colorsAndOffsetsProxy,
                                                  bool useStorageBuffer,
-                                                 const SkGradientShader::Interpolation& interp)
+                                                 const SkGradient::Interpolation& interp)
         : fType(type)
         , fBias(bias)
         , fScale(scale)
@@ -2334,9 +2334,9 @@ static SkBitmap create_color_and_offset_bitmap(int numStops,
 // as to why this code is structured this way.
 static void make_interpolated_to_dst(const KeyContext& keyContext,
                                      const GradientShaderBlocks::GradientData& gradData,
-                                     const SkGradientShader::Interpolation& interp,
+                                     const SkGradient::Interpolation& interp,
                                      SkColorSpace* intermediateCS) {
-    using ColorSpace = SkGradientShader::Interpolation::ColorSpace;
+    using ColorSpace = SkGradient::Interpolation::ColorSpace;
 
     bool inputPremul = static_cast<bool>(interp.fInPremul);
 

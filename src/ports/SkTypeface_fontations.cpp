@@ -1362,9 +1362,9 @@ void ColorPainter::configure_linear_paint(const fontations_ffi::FillLinearParams
             stops.data(),
             stops.size(),
             tileMode,
-            SkGradientShader::Interpolation{SkGradientShader::Interpolation::InPremul::kNo,
-                                            SkGradientShader::Interpolation::ColorSpace::kSRGB,
-                                            SkGradientShader::Interpolation::HueMethod::kShorter},
+            SkGradient::Interpolation{SkGradient::Interpolation::InPremul::kNo,
+                                      SkGradient::Interpolation::ColorSpace::kSRGB,
+                                      SkGradient::Interpolation::HueMethod::kShorter},
             paintTransform));
 
     SkASSERT(shader);
@@ -1526,9 +1526,9 @@ void ColorPainter::configure_radial_paint(
             stops.data(),
             stops.size(),
             tileMode,
-            SkGradientShader::Interpolation{SkGradientShader::Interpolation::InPremul::kNo,
-                                            SkGradientShader::Interpolation::ColorSpace::kSRGB,
-                                            SkGradientShader::Interpolation::HueMethod::kShorter},
+            SkGradient::Interpolation{SkGradient::Interpolation::InPremul::kNo,
+                                      SkGradient::Interpolation::ColorSpace::kSRGB,
+                                      SkGradient::Interpolation::HueMethod::kShorter},
             paintTransform));
 }
 
@@ -1593,9 +1593,9 @@ void ColorPainter::configure_sweep_paint(const fontations_ffi::FillSweepParams& 
             tileMode,
             sweep_params.start_angle,
             sweep_params.end_angle,
-            SkGradientShader::Interpolation{SkGradientShader::Interpolation::InPremul::kNo,
-                                            SkGradientShader::Interpolation::ColorSpace::kSRGB,
-                                            SkGradientShader::Interpolation::HueMethod::kShorter},
+            SkGradient::Interpolation{SkGradient::Interpolation::InPremul::kNo,
+                                      SkGradient::Interpolation::ColorSpace::kSRGB,
+                                      SkGradient::Interpolation::HueMethod::kShorter},
             paintTransform));
 }
 

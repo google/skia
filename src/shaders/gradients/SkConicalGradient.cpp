@@ -342,12 +342,12 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
                                                       SkTileMode mode,
                                                       uint32_t flags,
                                                       const SkMatrix* localMatrix) {
-    SkColorConverter converter(colors, colorCount);
+    SkColorConverter converter({colors, SkToSizeT(colorCount)});
     return MakeTwoPointConical(start,
                                startRadius,
                                end,
                                endRadius,
-                               converter.fColors4f.begin(),
+                               converter.colors4f().data(),
                                nullptr,
                                pos,
                                colorCount,

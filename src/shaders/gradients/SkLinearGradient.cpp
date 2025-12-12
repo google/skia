@@ -132,8 +132,8 @@ sk_sp<SkShader> SkGradientShader::MakeLinear(const SkPoint pts[2],
                                              SkTileMode mode,
                                              uint32_t flags,
                                              const SkMatrix* localMatrix) {
-    SkColorConverter converter(colors, colorCount);
-    return MakeLinear(pts, converter.fColors4f.begin(), nullptr, pos, colorCount, mode, flags,
+    SkColorConverter converter({colors, SkToSizeT(colorCount)});
+    return MakeLinear(pts, converter.colors4f().data(), nullptr, pos, colorCount, mode, flags,
                       localMatrix);
 }
 #endif

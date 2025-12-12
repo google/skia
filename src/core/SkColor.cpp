@@ -173,3 +173,10 @@ SkPMColor4f SkPMColor4f::FromBytes_RGBA(uint32_t c) {
     Sk4f_fromL32(c).store(&color);
     return color;
 }
+
+SkColorConverter::SkColorConverter(SkSpan<const SkColor> src) {
+    fColors4f.resize(src.size());
+    std::transform(src.begin(), src.end(), fColors4f.data(), [](SkColor c) {
+        return SkColor4f::FromColor(c);
+    });
+}

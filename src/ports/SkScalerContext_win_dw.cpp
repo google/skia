@@ -793,10 +793,10 @@ bool SkScalerContext_DW::drawColorV1Paint(SkCanvas& canvas,
             linePositions,
             skColors.get(), SkColorSpace::MakeSRGB(), skStops.get(), stops.size(),
             tileMode,
-            SkGradientShader::Interpolation{
-                SkGradientShader::Interpolation::InPremul::kNo,
-                SkGradientShader::Interpolation::ColorSpace::kSRGB,
-                SkGradientShader::Interpolation::HueMethod::kShorter
+            SkGradient::Interpolation{
+                SkGradient::Interpolation::InPremul::kNo,
+                SkGradient::Interpolation::ColorSpace::kSRGB,
+                SkGradient::Interpolation::HueMethod::kShorter
             },
             nullptr));
 
@@ -986,10 +986,10 @@ bool SkScalerContext_DW::drawColorV1Paint(SkCanvas& canvas,
             start, startRadius, end, endRadius,
             skColors.get(), SkColorSpace::MakeSRGB(), skStops.get(), stops.size(),
             tileMode,
-            SkGradientShader::Interpolation{
-                SkGradientShader::Interpolation::InPremul::kNo,
-                SkGradientShader::Interpolation::ColorSpace::kSRGB,
-                SkGradientShader::Interpolation::HueMethod::kShorter
+            SkGradient::Interpolation{
+                SkGradient::Interpolation::InPremul::kNo,
+                SkGradient::Interpolation::ColorSpace::kSRGB,
+                SkGradient::Interpolation::HueMethod::kShorter
             },
             nullptr));
         canvas.drawPaint(skPaint);
@@ -1107,10 +1107,10 @@ bool SkScalerContext_DW::drawColorV1Paint(SkCanvas& canvas,
             skColors.get(), SkColorSpace::MakeSRGB(), skStops.get(), stops.size(),
             tileMode,
             startAngleScaled, endAngleScaled,
-            SkGradientShader::Interpolation{
-                SkGradientShader::Interpolation::InPremul::kNo,
-                SkGradientShader::Interpolation::ColorSpace::kSRGB,
-                SkGradientShader::Interpolation::HueMethod::kShorter
+            SkGradient::Interpolation{
+                SkGradient::Interpolation::InPremul::kNo,
+                SkGradient::Interpolation::ColorSpace::kSRGB,
+                SkGradient::Interpolation::HueMethod::kShorter
             },
             nullptr));
         canvas.drawPaint(skPaint);

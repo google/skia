@@ -1117,7 +1117,7 @@ DEF_SIMPLE_GM(gradients_interesting, canvas, 640, 1300) {
 
 // TODO(skbug.com/40044214): Still need to test degenerate gradients in strange color spaces
 DEF_SIMPLE_GM_BG(gradients_color_space, canvas, 265, 355, SK_ColorGRAY) {
-    using CS = SkGradientShader::Interpolation::ColorSpace;
+    using CS = SkGradient::Interpolation::ColorSpace;
 
     struct Config {
         CS fColorSpace;
@@ -1145,7 +1145,7 @@ DEF_SIMPLE_GM_BG(gradients_color_space, canvas, 265, 355, SK_ColorGRAY) {
 
     SkPaint labelPaint;
     SkPaint p;
-    SkGradientShader::Interpolation interpolation;
+    SkGradient::Interpolation interpolation;
     canvas->translate(5, 5);
     SkFont font = ToolUtils::DefaultPortableFont();
 
@@ -1161,7 +1161,7 @@ DEF_SIMPLE_GM_BG(gradients_color_space, canvas, 265, 355, SK_ColorGRAY) {
 }
 
 DEF_SIMPLE_GM_BG(gradients_hue_method, canvas, 285, 155, SK_ColorGRAY) {
-    using HM = SkGradientShader::Interpolation::HueMethod;
+    using HM = SkGradient::Interpolation::HueMethod;
 
     struct Config {
         HM fHueMethod;
@@ -1179,8 +1179,8 @@ DEF_SIMPLE_GM_BG(gradients_hue_method, canvas, 285, 155, SK_ColorGRAY) {
 
     SkPaint labelPaint;
     SkPaint p;
-    SkGradientShader::Interpolation interpolation;
-    interpolation.fColorSpace = SkGradientShader::Interpolation::ColorSpace::kHSL;
+    SkGradient::Interpolation interpolation;
+    interpolation.fColorSpace = SkGradient::Interpolation::ColorSpace::kHSL;
     canvas->translate(5, 5);
     SkFont font = ToolUtils::DefaultPortableFont();
 
@@ -1228,8 +1228,8 @@ DEF_SIMPLE_GM_BG(gradients_color_space_tilemode, canvas, 360, 105, SK_ColorGRAY)
     SkColor4f colors[] = {SkColors::kBlue, SkColors::kYellow};
 
     SkPaint p;
-    SkGradientShader::Interpolation interpolation;
-    interpolation.fColorSpace = SkGradientShader::Interpolation::ColorSpace::kOKLCH;
+    SkGradient::Interpolation interpolation;
+    interpolation.fColorSpace = SkGradient::Interpolation::ColorSpace::kOKLCH;
 
     canvas->translate(5, 5);
 
@@ -1263,8 +1263,8 @@ DEF_SIMPLE_GM_BG(gradients_color_space_many_stops, canvas, 500, 500, SK_ColorGRA
 
     SkPaint p;
 
-    SkGradientShader::Interpolation interpolation;
-    interpolation.fColorSpace = SkGradientShader::Interpolation::ColorSpace::kOKLCH;
+    SkGradient::Interpolation interpolation;
+    interpolation.fColorSpace = SkGradient::Interpolation::ColorSpace::kOKLCH;
     p.setShader(SkGradientShader::MakeLinear(pts, colors, SkColorSpace::MakeSRGB(), nullptr,
                                              std::size(colors), SkTileMode::kClamp, interpolation,
                                              nullptr));
@@ -1305,7 +1305,7 @@ DEF_SIMPLE_GM(gradients_alpha_many_stops, canvas, 100, 100) {
 }
 
 static void draw_powerless_hue_gradients(SkCanvas* canvas,
-                                         SkGradientShader::Interpolation::ColorSpace colorSpace) {
+                                         SkGradient::Interpolation::ColorSpace colorSpace) {
     ToolUtils::draw_checkerboard(canvas);
 
     auto nextRow = [=]() {
@@ -1317,7 +1317,7 @@ static void draw_powerless_hue_gradients(SkCanvas* canvas,
     auto gradient = [&](std::initializer_list<SkColor4f> colors,
                         std::initializer_list<float> pos,
                         bool inPremul = false) {
-        using Interpolation = SkGradientShader::Interpolation;
+        using Interpolation = SkGradient::Interpolation;
         SkASSERT(pos.size() == 0 || pos.size() == colors.size());
         SkPaint paint;
         SkPoint pts[] = {{0, 0}, {200, 0}};
@@ -1399,9 +1399,9 @@ static void draw_powerless_hue_gradients(SkCanvas* canvas,
 
     // Now do a few black-white tests, to ensure that the hue propagation works correctly, even
     // when there isn't any hue in the adjacent stops.
-    using HueMethod = SkGradientShader::Interpolation::HueMethod;
+    using HueMethod = SkGradient::Interpolation::HueMethod;
     auto blackWhiteGradient = [&](HueMethod hm) {
-        using Interpolation = SkGradientShader::Interpolation;
+        using Interpolation = SkGradient::Interpolation;
         SkPaint paint;
         SkPoint pts[] = {{0, 0}, {405, 0}};
         Interpolation interpolation;
@@ -1428,10 +1428,10 @@ static void draw_powerless_hue_gradients(SkCanvas* canvas,
     blackWhiteGradient(HueMethod::kLonger);
 }
 
-#define DEF_POWERLESS_HUE_GM(colorSpace)                                                          \
-    DEF_SIMPLE_GM(gradients_powerless_hue_##colorSpace, canvas, 415, 330) {                       \
-        draw_powerless_hue_gradients(canvas,                                                      \
-                                     SkGradientShader::Interpolation::ColorSpace::k##colorSpace); \
+#define DEF_POWERLESS_HUE_GM(colorSpace)                                                    \
+    DEF_SIMPLE_GM(gradients_powerless_hue_##colorSpace, canvas, 415, 330) {                 \
+        draw_powerless_hue_gradients(canvas,                                                \
+                                     SkGradient::Interpolation::ColorSpace::k##colorSpace); \
     }
 
 DEF_POWERLESS_HUE_GM(LCH)

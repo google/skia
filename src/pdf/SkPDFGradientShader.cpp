@@ -13,7 +13,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTileMode.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkChecksum.h"
@@ -40,7 +40,7 @@ static uint32_t hash(const SkShaderBase::GradientInfo& v) {
         SkChecksum::Hash32(v.fPoint, 2 * sizeof(SkPoint)),
         SkChecksum::Hash32(v.fRadius, 2 * sizeof(SkScalar)),
         (uint32_t)v.fTileMode,
-        v.fGradientFlags,
+        v.fPremulInterp,
     };
     return SkChecksum::Hash32(buffer, sizeof(buffer));
 }
@@ -65,10 +65,6 @@ static void unit_to_points_matrix(const SkPoint pts[2], SkMatrix* matrix) {
     matrix->setSinCos(vec.fY, vec.fX);
     matrix->preScale(mag, mag);
     matrix->postTranslate(pts[0].fX, pts[0].fY);
-}
-
-static bool is_premul(const SkShaderBase::GradientInfo& info) {
-    return SkToBool(info.fGradientFlags & SkGradientShader::kInterpolateColorsInPremul_Flag);
 }
 
 enum NumComponents {
@@ -271,7 +267,7 @@ static void gradient_function_code(const SkShaderBase::GradientInfo& info,
     // After finding a hit the stack is [r g b 0].
     // The 0 is consumed just before returning.
 
-    const bool premul = is_premul(info);
+    const bool premul = info.fPremulInterp;
     NumComponents numComponents = premul ? NumComponents::Four : NumComponents::Three;
 
     // The initial range has no previous and contains a solid color.
@@ -748,7 +744,7 @@ static SkPDFIndirectReference make_function_shader(SkPDFDocument* doc,
                              (info.fTileMode == SkTileMode::kClamp ||
                               info.fTileMode == SkTileMode::kDecal) &&
                              !finalMatrix.hasPerspective() &&
-                             !is_premul(info);
+                             !info.fPremulInterp;
 
     enum class ShadingType : int32_t {
         Function = 1,
@@ -982,7 +978,7 @@ static SkPDFIndirectReference create_smask_graphic_state(SkPDFDocument* doc,
         float alpha = luminosityState.fInfo.fColors[i].fA;
         luminosityState.fInfo.fColors[i] = SkColor4f{alpha, alpha, alpha, 1.0f};
     }
-    luminosityState.fInfo.fGradientFlags &= ~SkGradientShader::kInterpolateColorsInPremul_Flag;
+    luminosityState.fInfo.fPremulInterp = false;
     luminosityState.fHash = hash(luminosityState);
 
     SkASSERT(!gradient_has_alpha(luminosityState));
@@ -1005,7 +1001,7 @@ static SkPDFIndirectReference make_alpha_function_shader(SkPDFDocument* doc,
                                                          const SkPDFGradientShader::Key& state) {
     SkASSERT(state.fType != SkShaderBase::GradientType::kNone);
     SkPDFGradientShader::Key opaqueState = clone_key(state);
-    const bool keepAlpha = is_premul(opaqueState.fInfo);
+    const bool keepAlpha = opaqueState.fInfo.fPremulInterp;
     if (!keepAlpha) {
         for (int i = 0; i < opaqueState.fInfo.fColorCount; i++) {
             opaqueState.fInfo.fColors[i].fA = 1.0f;
@@ -1052,7 +1048,7 @@ static SkPDFGradientShader::Key make_key(const SkShader* shader,
     key.fInfo.fColors = key.fColors.get();
     key.fInfo.fColorOffsets = key.fStops.get();
     as_SB(shader)->asGradient(&key.fInfo);
-    if (is_premul(key.fInfo)) {
+    if (key.fInfo.fPremulInterp) {
         bool changedByPremul = false;
         for (auto&& c : SkSpan(key.fInfo.fColors, key.fInfo.fColorCount)) {
             if (c.fA != 1.0) {
@@ -1062,7 +1058,7 @@ static SkPDFGradientShader::Key make_key(const SkShader* shader,
             c = SkColor4f{pm.fR, pm.fG, pm.fB, pm.fA};
         }
         if (!changedByPremul) {
-            key.fInfo.fGradientFlags &= ~SkGradientShader::kInterpolateColorsInPremul_Flag;
+            key.fInfo.fPremulInterp = false;
         }
     }
     key.fHash = hash(key);

@@ -648,9 +648,9 @@ bool SkGradientBaseShader::onAsLuminanceColor(SkColor4f* lum) const {
     return true;
 }
 
-static sk_sp<SkColorSpace> intermediate_color_space(SkGradientShader::Interpolation::ColorSpace cs,
+static sk_sp<SkColorSpace> intermediate_color_space(SkGradient::Interpolation::ColorSpace cs,
                                                     SkColorSpace* dst) {
-    using ColorSpace = SkGradientShader::Interpolation::ColorSpace;
+    using ColorSpace = SkGradient::Interpolation::ColorSpace;
     switch (cs) {
         case ColorSpace::kDestination:
             return sk_ref_sp(dst);
@@ -801,8 +801,8 @@ static SkPMColor4f premul_rgb(SkPMColor4f rgb) {
     return {rgb.fR * rgb.fA, rgb.fG * rgb.fA, rgb.fB * rgb.fA, rgb.fA};
 }
 
-static bool color_space_is_polar(SkGradientShader::Interpolation::ColorSpace cs) {
-    using ColorSpace = SkGradientShader::Interpolation::ColorSpace;
+static bool color_space_is_polar(SkGradient::Interpolation::ColorSpace cs) {
+    using ColorSpace = SkGradient::Interpolation::ColorSpace;
     switch (cs) {
         case ColorSpace::kLCH:
         case ColorSpace::kOKLCH:
@@ -840,8 +840,8 @@ static bool color_space_is_polar(SkGradientShader::Interpolation::ColorSpace cs)
 SkColor4fXformer::SkColor4fXformer(const SkGradientBaseShader* shader,
                                    SkColorSpace* dst,
                                    bool forceExplicitPositions) {
-    using ColorSpace = SkGradientShader::Interpolation::ColorSpace;
-    using HueMethod = SkGradientShader::Interpolation::HueMethod;
+    using ColorSpace = SkGradient::Interpolation::ColorSpace;
+    using HueMethod = SkGradient::Interpolation::HueMethod;
 
     size_t colorCount = shader->colors().size();
     const auto& interpolation = shader->interpolation();
@@ -1016,13 +1016,6 @@ SkColor4fXformer::SkColor4fXformer(const SkGradientBaseShader* shader,
     }
 }
 
-SkColorConverter::SkColorConverter(const SkColor* colors, int count) {
-    fColors4f.resize(count);
-    std::transform(colors, colors + count, fColors4f.data(), [](SkColor c) {
-        return SkColor4f::FromColor(c);
-    });
-}
-
 void SkGradientBaseShader::commonAsAGradient(GradientInfo* info) const {
     if (info) {
         const int colorCount = SkToInt(fColorCount);
@@ -1040,9 +1033,7 @@ void SkGradientBaseShader::commonAsAGradient(GradientInfo* info) const {
         }
         info->fColorCount = colorCount;
         info->fTileMode = fTileMode;
-
-        info->fGradientFlags =
-                this->interpolateInPremul() ? SkGradientShader::kInterpolateColorsInPremul_Flag : 0;
+        info->fPremulInterp = this->interpolateInPremul();
     }
 }
 

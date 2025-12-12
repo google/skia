@@ -1095,8 +1095,8 @@ protected:
         }
         colors[std::size(colors) - 1] = colors[0];
         SkPaint paint;
-        SkGradientShader::Interpolation interpolation;
-        interpolation.fColorSpace = SkGradientShader::Interpolation::ColorSpace::kHSL;
+        SkGradient::Interpolation interpolation;
+        interpolation.fColorSpace = SkGradient::Interpolation::ColorSpace::kHSL;
         fShader = SkGradientShader::MakeSweep(kRect.centerX(), kRect.centerY(),
                                               colors,
                                               SkColorSpace::MakeSRGB(),

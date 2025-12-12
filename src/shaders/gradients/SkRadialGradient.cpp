@@ -122,8 +122,8 @@ sk_sp<SkShader> SkGradientShader::MakeRadial(const SkPoint& center, SkScalar rad
                                              SkTileMode mode,
                                              uint32_t flags,
                                              const SkMatrix* localMatrix) {
-    SkColorConverter converter(colors, colorCount);
-    return MakeRadial(center, radius, converter.fColors4f.begin(), nullptr, pos, colorCount, mode,
+    SkColorConverter converter({colors, SkToSizeT(colorCount)});
+    return MakeRadial(center, radius, converter.colors4f().data(), nullptr, pos, colorCount, mode,
                       flags, localMatrix);
 }
 #endif

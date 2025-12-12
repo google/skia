@@ -31,11 +31,11 @@ public:
 
         bool premul = static_cast<bool>(fInterpolation.fInPremul);
         ImGui::Checkbox("Premul", &premul);
-        fInterpolation.fInPremul = static_cast<SkGradientShader::Interpolation::InPremul>(premul);
+        fInterpolation.fInPremul = static_cast<SkGradient::Interpolation::InPremul>(premul);
 
         int hm = static_cast<int>(fInterpolation.fHueMethod);
         ImGui::Combo("Hue Method", &hm, "Shorter\0Longer\0Increasing\0Decreasing\0\0");
-        fInterpolation.fHueMethod = static_cast<SkGradientShader::Interpolation::HueMethod>(hm);
+        fInterpolation.fHueMethod = static_cast<SkGradient::Interpolation::HueMethod>(hm);
 
         int removeIdx = -1;
         for (int i = 0; i < (int)fColors.size(); ++i) {
@@ -72,7 +72,7 @@ public:
         canvas->save();
         canvas->translate(10, 10);
 
-        using CS = SkGradientShader::Interpolation::ColorSpace;
+        using CS = SkGradient::Interpolation::ColorSpace;
         struct Config {
             CS fColorSpace;
             const char* fLabel;
@@ -109,7 +109,7 @@ public:
 
 private:
     std::vector<SkColor4f> fColors;
-    SkGradientShader::Interpolation fInterpolation;
+    SkGradient::Interpolation fInterpolation;
     bool fDither = false;
 };
 

@@ -12,7 +12,7 @@
 
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkImageInfo.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 
 class SkColorSpace;
 
@@ -205,16 +205,16 @@ namespace PrecompileShaders {
     // --- This block of four matches all the factories in SkGradientShader (SkGradientShader.h)
     SK_API sk_sp<PrecompileShader> LinearGradient(
             GradientShaderFlags = GradientShaderFlags::kAll,
-            SkGradientShader::Interpolation = SkGradientShader::Interpolation());
+            SkGradient::Interpolation = SkGradient::Interpolation());
     SK_API sk_sp<PrecompileShader> RadialGradient(
             GradientShaderFlags = GradientShaderFlags::kAll,
-            SkGradientShader::Interpolation = SkGradientShader::Interpolation());
+            SkGradient::Interpolation = SkGradient::Interpolation());
     SK_API sk_sp<PrecompileShader> TwoPointConicalGradient(
             GradientShaderFlags = GradientShaderFlags::kAll,
-            SkGradientShader::Interpolation = SkGradientShader::Interpolation());
+            SkGradient::Interpolation = SkGradient::Interpolation());
     SK_API sk_sp<PrecompileShader> SweepGradient(
             GradientShaderFlags = GradientShaderFlags::kAll,
-            SkGradientShader::Interpolation = SkGradientShader::Interpolation());
+            SkGradient::Interpolation = SkGradient::Interpolation());
 
     // Normally, SkPicture shaders are only created via SkPicture::makeShader. Since the
     // SkPicture to be drawn, most likely, won't be available at precompilation time, this

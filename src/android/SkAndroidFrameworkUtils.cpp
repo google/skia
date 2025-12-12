@@ -7,6 +7,7 @@
 
 #include "include/android/SkAndroidFrameworkUtils.h"
 #include "include/core/SkCanvas.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/utils/SkPaintFilterCanvas.h"
 #include "src/base/SkTLazy.h"
@@ -53,6 +54,10 @@ SkCanvas* SkAndroidFrameworkUtils::getBaseWrappedCanvas(SkCanvas* canvas) {
     return result;
 }
 
+// Skia's GradientInfo now stores bool for premulInterp. This is the legacy
+// flag it used to use to mean the same thing.
+constexpr uint8_t gSkGradientShader_Legacy_PremulFlag = 1;
+
 bool SkAndroidFrameworkUtils::ShaderAsALinearGradient(SkShader* shader,
                                                       LinearGradientInfo* info) {
     SkASSERT(shader);
@@ -72,7 +77,7 @@ bool SkAndroidFrameworkUtils::ShaderAsALinearGradient(SkShader* shader,
         info->fPoints[0]     = baseInfo->fPoint[0];
         info->fPoints[1]     = baseInfo->fPoint[1];
         info->fTileMode      = baseInfo->fTileMode;
-        info->fGradientFlags = baseInfo->fGradientFlags;
+        info->fGradientFlags = baseInfo->fPremulInterp ? gSkGradientShader_Legacy_PremulFlag : 0;
     }
     return true;
 }

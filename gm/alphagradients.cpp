@@ -16,7 +16,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 
 class AlphaGradientsGM : public skiagm::GM {
 public:
@@ -28,13 +28,13 @@ protected:
     SkISize getISize() override { return SkISize::Make(640, 480); }
 
     static void draw_grad(SkCanvas* canvas, const SkRect& r,
-                          SkColor c0, SkColor c1, bool doPreMul) {
-        SkColor colors[] = { c0, c1 };
+                          SkColor4f c0, SkColor4f c1, bool doPreMul) {
+        SkColor4f colors[] = { c0, c1 };
         SkPoint pts[] = { { r.fLeft, r.fTop }, { r.fRight, r.fBottom } };
         SkPaint paint;
-        uint32_t flags = doPreMul ? SkGradientShader::kInterpolateColorsInPremul_Flag : 0;
-        paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
-                                                     SkTileMode::kClamp, flags, nullptr));
+        auto pm = doPreMul ? SkGradient::Interpolation::InPremul::kYes
+                           : SkGradient::Interpolation::InPremul::kNo;
+        paint.setShader(SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {pm}}));
         canvas->drawRect(r, paint);
 
         paint.setShader(nullptr);
@@ -44,21 +44,23 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         constexpr struct {
-            SkColor fColor0;
-            SkColor fColor1;
+            SkColor4f fColor0;
+            SkColor4f fColor1;
         } gRec[] = {
-            { 0xFFFFFFFF, 0x00000000 },
-            { 0xFFFFFFFF, 0x00FF0000 },
-            { 0xFFFFFFFF, 0x00FFFF00 },
-            { 0xFFFFFFFF, 0x00FFFFFF },
-            { 0xFFFF0000, 0x00000000 },
-            { 0xFFFF0000, 0x00FF0000 },
-            { 0xFFFF0000, 0x00FFFF00 },
-            { 0xFFFF0000, 0x00FFFFFF },
-            { 0xFF0000FF, 0x00000000 },
-            { 0xFF0000FF, 0x00FF0000 },
-            { 0xFF0000FF, 0x00FFFF00 },
-            { 0xFF0000FF, 0x00FFFFFF },
+            { SkColors::kWhite, {0, 0, 0, 0} },
+            { SkColors::kWhite, {1, 0, 0, 0} },
+            { SkColors::kWhite, {1, 1, 0, 0} },
+            { SkColors::kWhite, {1, 1, 1, 0} },
+
+            { SkColors::kRed, {0, 0, 0, 0} },
+            { SkColors::kRed, {1, 0, 0, 0} },
+            { SkColors::kRed, {1, 1, 0, 0} },
+            { SkColors::kRed, {1, 1, 1, 0} },
+
+            { SkColors::kBlue, {0, 0, 0, 0} },
+            { SkColors::kBlue, {1, 0, 0, 0} },
+            { SkColors::kBlue, {1, 1, 0, 0} },
+            { SkColors::kBlue, {1, 1, 1, 0} },
         };
 
         SkRect r = SkRect::MakeWH(300, 30);

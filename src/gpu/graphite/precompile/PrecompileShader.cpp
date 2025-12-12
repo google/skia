@@ -536,7 +536,7 @@ sk_sp<PrecompileShader> PrecompileShaders::MakeTurbulence() {
 namespace {
 
 sk_sp<SkColorSpace> get_gradient_intermediate_cs(SkColorSpace* dstColorSpace,
-                                                 SkGradientShader::Interpolation interpolation) {
+                                                 SkGradient::Interpolation interpolation) {
     // Any gradient shader will do, as long as it has the correct interpolation settings.
     constexpr SkPoint pts[2] = {{0.f, 0.f}, {1.f, 0.f}};
     constexpr SkColor4f colors[2] = {SkColors::kBlack, SkColors::kWhite};
@@ -554,7 +554,7 @@ class PrecompileGradientShader final : public PrecompileShader {
 public:
     PrecompileGradientShader(SkShaderBase::GradientType type,
                              SkEnumBitMask<GradientShaderFlags> flags,
-                             const SkGradientShader::Interpolation& interpolation)
+                             const SkGradient::Interpolation& interpolation)
             : fType(type)
             , fInterpolation(interpolation) {
         this->setupStopVariants(flags);
@@ -618,7 +618,7 @@ private:
     }
 
     const SkShaderBase::GradientType fType;
-    const SkGradientShader::Interpolation fInterpolation;
+    const SkGradient::Interpolation fInterpolation;
 
     int fNumStopVariants = 0;
     int fStopVariants[kMaxStopVariants];
@@ -626,7 +626,7 @@ private:
 
 sk_sp<PrecompileShader> PrecompileShaders::LinearGradient(
         GradientShaderFlags flags,
-        SkGradientShader::Interpolation interpolation) {
+        SkGradient::Interpolation interpolation) {
     sk_sp<PrecompileShader> s = sk_make_sp<PrecompileGradientShader>(
             SkShaderBase::GradientType::kLinear, flags, interpolation);
     return PrecompileShaders::LocalMatrix({{ std::move(s) }});
@@ -634,7 +634,7 @@ sk_sp<PrecompileShader> PrecompileShaders::LinearGradient(
 
 sk_sp<PrecompileShader> PrecompileShaders::RadialGradient(
         GradientShaderFlags flags,
-        SkGradientShader::Interpolation interpolation) {
+        SkGradient::Interpolation interpolation) {
     sk_sp<PrecompileShader> s = sk_make_sp<PrecompileGradientShader>(
             SkShaderBase::GradientType::kRadial, flags, interpolation);
     return PrecompileShaders::LocalMatrix({{ std::move(s) }});
@@ -642,7 +642,7 @@ sk_sp<PrecompileShader> PrecompileShaders::RadialGradient(
 
 sk_sp<PrecompileShader> PrecompileShaders::SweepGradient(
         GradientShaderFlags flags,
-        SkGradientShader::Interpolation interpolation) {
+        SkGradient::Interpolation interpolation) {
     sk_sp<PrecompileShader> s = sk_make_sp<PrecompileGradientShader>(
             SkShaderBase::GradientType::kSweep, flags, interpolation);
     return PrecompileShaders::LocalMatrix({{ std::move(s) }});
@@ -650,7 +650,7 @@ sk_sp<PrecompileShader> PrecompileShaders::SweepGradient(
 
 sk_sp<PrecompileShader> PrecompileShaders::TwoPointConicalGradient(
         GradientShaderFlags flags,
-        SkGradientShader::Interpolation interpolation) {
+        SkGradient::Interpolation interpolation) {
     sk_sp<PrecompileShader> s = sk_make_sp<PrecompileGradientShader>(
             SkShaderBase::GradientType::kConical, flags, interpolation);
     return PrecompileShaders::LocalMatrix({{ std::move(s) }});

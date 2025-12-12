@@ -85,7 +85,7 @@ struct GradientShaderBlocks {
                      const SkGradientBaseShader* shader,
                      sk_sp<TextureProxy> colorsAndOffsetsProxy,
                      bool useStorageBuffer,
-                     const SkGradientShader::Interpolation&);
+                     const SkGradient::Interpolation&);
 
         bool operator==(const GradientData& rhs) const = delete;
         bool operator!=(const GradientData& rhs) const = delete;
@@ -116,7 +116,7 @@ struct GradientShaderBlocks {
         const float*                  fSrcOffsets;
         const SkGradientBaseShader*   fSrcShader;
 
-        SkGradientShader::Interpolation fInterpolation;
+        SkGradient::Interpolation     fInterpolation;
     };
 
     static void AddBlock(const KeyContext&, const GradientData&);

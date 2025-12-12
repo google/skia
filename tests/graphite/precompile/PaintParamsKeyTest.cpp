@@ -774,13 +774,13 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_gradient_shader(
     SkMatrix lmStorage;
     SkMatrix* lmPtr = random_local_matrix(rand, &lmStorage);
 
-    const SkGradientShader::Interpolation::InPremul inPremul =
-            rand->nextBool() ? SkGradientShader::Interpolation::InPremul::kYes
-                             : SkGradientShader::Interpolation::InPremul::kNo;
-    const SkGradientShader::Interpolation::ColorSpace colorSpace =
-            static_cast<SkGradientShader::Interpolation::ColorSpace>(
-                    rand->nextULessThan(SkGradientShader::Interpolation::kColorSpaceCount));
-    SkGradientShader::Interpolation interpolation = {inPremul, colorSpace};
+    const SkGradient::Interpolation::InPremul inPremul =
+            rand->nextBool() ? SkGradient::Interpolation::InPremul::kYes
+                             : SkGradient::Interpolation::InPremul::kNo;
+    const SkGradient::Interpolation::ColorSpace colorSpace =
+            static_cast<SkGradient::Interpolation::ColorSpace>(
+                    rand->nextULessThan(SkGradient::Interpolation::kColorSpaceCount));
+    SkGradient::Interpolation interpolation = {inPremul, colorSpace};
 
     sk_sp<SkShader> s;
     sk_sp<PrecompileShader> o;

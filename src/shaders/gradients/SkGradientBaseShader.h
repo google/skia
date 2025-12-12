@@ -169,13 +169,6 @@ struct SkColor4fXformer {
     sk_sp<SkColorSpace> fIntermediateColorSpace;
 };
 
-struct SkColorConverter {
-    SkColorConverter() {}
-    SkColorConverter(const SkColor* colors, int count);
-
-    skia_private::STArray<2, SkColor4f> fColors4f;
-};
-
 void SkRegisterConicalGradientShaderFlattenable();
 void SkRegisterLinearGradientShaderFlattenable();
 void SkRegisterRadialGradientShaderFlattenable();
