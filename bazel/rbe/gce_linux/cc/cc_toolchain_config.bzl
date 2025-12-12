@@ -27,6 +27,7 @@ load(
     "variable_with_value",
     "with_feature_set",
 )
+load("@rules_cc//cc/toolchains:cc_toolchain_config_info.bzl", "CcToolchainConfigInfo")
 
 def layering_check_features(compiler):
     if compiler != "clang":

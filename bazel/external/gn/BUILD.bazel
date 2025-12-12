@@ -8,6 +8,8 @@
 #   gn format gn/sksl.gni
 # except it uses a hermetic version of gn instead of whatever is on the user's machine. Note the --
 # to pass arguments to gn and not have Bazel try to understand them.
+load("@rules_python//python:defs.bzl", "py_binary")
+
 py_binary(
     name = "gn",
     srcs = [":gn.py"],

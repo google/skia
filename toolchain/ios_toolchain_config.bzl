@@ -25,6 +25,7 @@ load(
     "variable_with_value",
 )
 load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
+load("@rules_cc//cc/toolchains:cc_toolchain_config_info.bzl", "CcToolchainConfigInfo")
 load(":clang_layering_check.bzl", "make_layering_check_features")
 
 # The location of the created clang toolchain.

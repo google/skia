@@ -3,7 +3,7 @@ module(
 )
 
 # Bazel and Toolchain deps
-EMSDK_VERSION = "4.0.7"
+EMSDK_VERSION = "4.0.17"
 
 bazel_dep(name = "bazel_skylib", version = "1.7.1")
 bazel_dep(name = "buildifier_prebuilt", version = "8.0.3")
@@ -16,7 +16,7 @@ bazel_dep(name = "rules_rust", version = "0.60.0")
 bazel_dep(name = "rules_shell", version = "0.4.1")
 
 bazel_dep(name = "rules_go", version = "0.58.3", dev_dependency = True)
-bazel_dep(name = "rules_webtesting", version = "0.4.0", dev_dependency = True)
+bazel_dep(name = "rules_webtesting", version = "0.4.1", dev_dependency = True)
 bazel_dep(name = "emsdk", version = EMSDK_VERSION, dev_dependency = True)
 
 # C++ deps
@@ -223,20 +223,7 @@ use_repo(
     "cargo_bindeps",
 )
 
-# TODO(kjlubick): Switch to a release version once it's available in BCR.
-# We should be able to clean up rules_scala also
-git_override(
-    module_name = "rules_webtesting",
-    commit = "c884a863c09001776b001a76886e14f87ca8fd12",
-    remote = "https://github.com/bazelbuild/rules_webtesting.git",
-)
-
-bazel_dep(name = "rules_scala", dev_dependency = True, repo_name = "io_bazel_rules_scala")
-git_override(
-    module_name = "rules_scala",
-    commit = "219e63983e8e483e66ebf70372969ba227382001",
-    remote = "https://github.com/mbland/rules_scala",
-)
+bazel_dep(name = "rules_scala", dev_dependency = True, version = "7.1.5", repo_name = "io_bazel_rules_scala")
 
 scala_deps = use_extension(
     "@io_bazel_rules_scala//scala/extensions:deps.bzl",
