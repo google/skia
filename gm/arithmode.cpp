@@ -24,7 +24,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "tools/ToolUtils.h"
@@ -38,12 +38,11 @@ static sk_sp<SkImage> make_src(int w, int h) {
 
     SkPaint paint;
     SkPoint pts[] = { {0, 0}, {SkIntToScalar(w), SkIntToScalar(h)} };
-    SkColor colors[] = {
-        SK_ColorTRANSPARENT, SK_ColorGREEN, SK_ColorCYAN,
-        SK_ColorRED, SK_ColorMAGENTA, SK_ColorWHITE,
+    SkColor4f colors[] = {
+        SkColors::kTransparent, SkColors::kGreen, SkColors::kCyan,
+        SkColors::kRed, SkColors::kMagenta, SkColors::kWhite
     };
-    paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
-                                                 SkTileMode::kClamp));
+    paint.setShader(SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}}));
     canvas->drawPaint(paint);
     return surface->makeImageSnapshot();
 }
@@ -53,13 +52,13 @@ static sk_sp<SkImage> make_dst(int w, int h) {
     SkCanvas* canvas = surface->getCanvas();
 
     SkPaint paint;
-    SkPoint pts[] = { {0, SkIntToScalar(h)}, {SkIntToScalar(w), 0} };
-    SkColor colors[] = {
-        SK_ColorBLUE, SK_ColorYELLOW, SK_ColorBLACK, SK_ColorGREEN,
-        SK_ColorGRAY,
+    constexpr float compat_gray = 0x88/255.f;   // matches SK_ColorGRAY
+    const SkPoint pts[] = { {0, SkIntToScalar(h)}, {SkIntToScalar(w), 0} };
+    const SkColor4f colors[] = {
+        SkColors::kBlue, SkColors::kYellow, SkColors::kBlack, SkColors::kGreen,
+        {compat_gray, compat_gray, compat_gray, 1},
     };
-    paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
-                                                 SkTileMode::kClamp));
+    paint.setShader(SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}}));
     canvas->drawPaint(paint);
     return surface->makeImageSnapshot();
 }

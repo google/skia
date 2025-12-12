@@ -23,7 +23,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkTDArray.h"
 #include "src/base/SkTLazy.h"
 #include "src/core/SkColorPriv.h"
@@ -34,19 +34,19 @@
 
 static sk_sp<SkShader> make_shader(SkBlendMode mode) {
     SkPoint pts[2];
-    SkColor colors[2];
+    SkColor4f colors[2];
 
     pts[0].set(0, 0);
     pts[1].set(SkIntToScalar(100), 0);
-    colors[0] = SK_ColorRED;
-    colors[1] = SK_ColorBLUE;
-    auto shaderA = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
+    colors[0] = SkColors::kRed;
+    colors[1] = SkColors::kBlue;
+    auto shaderA = SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}});
 
     pts[0].set(0, 0);
     pts[1].set(0, SkIntToScalar(100));
-    colors[0] = SK_ColorBLACK;
-    colors[1] = SkColorSetARGB(0x80, 0, 0, 0);
-    auto shaderB = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
+    colors[0] = SkColors::kBlack;
+    colors[1] = {0,0,0, 0x80/255.f};
+    auto shaderB = SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}});
 
     return SkShaders::Blend(mode, std::move(shaderA), std::move(shaderB));
 }
@@ -149,12 +149,12 @@ static void draw_alpha8_bm(SkBitmap* bm, int length) {
 // creates a linear gradient shader
 static sk_sp<SkShader> make_linear_gradient_shader(int length) {
     SkPoint pts[2];
-    SkColor colors[2];
+    SkColor4f colors[2];
     pts[0].set(0, 0);
     pts[1].set(SkIntToScalar(length), 0);
-    colors[0] = SK_ColorBLUE;
-    colors[1] = SkColorSetARGB(0, 0, 0, 0xFF);
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
+    colors[0] = SkColors::kBlue;
+    colors[1] = {0, 0, 1, 0};
+    return SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}});
 }
 
 
@@ -289,14 +289,14 @@ DEF_SIMPLE_GM(composeshader_bitmap2, canvas, 200, 200) {
 
 static sk_sp<SkShader> make_src_shader(SkScalar size) {
     const SkPoint pts[] = { { 0, 0 }, { 0, size } };
-    const SkColor colors[] = { 0xFF0000FF, 0x000000FF };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
+    const SkColor4f colors[] = { {0,0,1,1}, {0,0,1,0} };
+    return SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}});
 }
 
 static sk_sp<SkShader> make_dst_shader(SkScalar size) {
     const SkPoint pts[] = { { 0, 0 }, { size, 0 } };
-    const SkColor colors[] = { SK_ColorRED, 0x00FF0000 };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
+    const SkColor4f colors[] = { {1,0,0,1}, {1,0,0,0} };
+    return SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}});
 }
 
 const SkScalar gCellSize = 100;

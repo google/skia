@@ -16,7 +16,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/effects/SkImageFilters.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkMatrixPriv.h"
@@ -26,16 +26,16 @@
 // Make a noisy (with hard-edges) background, so we can see the effect of the blur
 //
 static sk_sp<SkShader> make_shader(SkScalar cx, SkScalar cy, SkScalar rad) {
-    const SkColor colors[] = {
-        SK_ColorRED, SK_ColorRED, SK_ColorBLUE, SK_ColorBLUE, SK_ColorGREEN, SK_ColorGREEN,
-        SK_ColorRED, SK_ColorRED, SK_ColorBLUE, SK_ColorBLUE, SK_ColorGREEN, SK_ColorGREEN,
+    const SkColor4f colors[] = {
+        SkColors::kRed, SkColors::kRed, SkColors::kBlue, SkColors::kBlue, SkColors::kGreen, SkColors::kGreen,
+        SkColors::kRed, SkColors::kRed, SkColors::kBlue, SkColors::kBlue, SkColors::kGreen, SkColors::kGreen,
     };
     constexpr int count = std::size(colors);
     SkScalar pos[count] = { 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6 };
     for (int i = 0; i < count; ++i) {
         pos[i] *= 1.0f/6;
     }
-    return SkGradientShader::MakeSweep(cx, cy, colors, pos, count);
+    return SkShaders::SweepGradient({cx, cy}, {{colors, pos, SkTileMode::kClamp}, {}});
 }
 
 static void do_draw(SkCanvas* canvas, bool useClip, bool useHintRect, SkScalar scaleFactor) {

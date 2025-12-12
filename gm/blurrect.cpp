@@ -27,7 +27,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkBlurMask.h"
@@ -92,7 +92,7 @@ static sk_sp<SkShader> make_radial() {
         { SkIntToScalar(100), SkIntToScalar(100) }
     };
     SkTileMode tm = SkTileMode::kClamp;
-    const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, };
+    const SkColor4f colors[] = { SkColors::kRed, SkColors::kGreen, };
     const SkScalar pos[] = { SK_Scalar1/4, SK_Scalar1*3/4 };
     SkMatrix scale;
     scale.setScale(0.5f, 0.5f);
@@ -102,10 +102,9 @@ static sk_sp<SkShader> make_radial() {
                 sk_float_midpoint(pts[0].fY, pts[1].fY));
     center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3)/5),
                 SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
-    return SkGradientShader::MakeTwoPointConical(center1, (pts[1].fX - pts[0].fX) / 7,
-                                                 center0, (pts[1].fX - pts[0].fX) / 2,
-                                                 colors, pos, std::size(colors), tm,
-                                                 0, &scale);
+    return SkShaders::TwoPointConicalGradient(center1, (pts[1].fX - pts[0].fX) / 7,
+                                              center0, (pts[1].fX - pts[0].fX) / 2,
+                                              {{colors, pos, tm}, {}}, &scale);
 }
 
 typedef void (*PaintProc)(SkPaint*, SkScalar width);

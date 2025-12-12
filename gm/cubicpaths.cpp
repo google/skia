@@ -20,8 +20,9 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "src/base/SkRandom.h"
+#include "src/core/SkColorPriv.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
@@ -379,16 +380,16 @@ class CubicPathShaderGM : public skiagm::GM {
         const SkScalar s = 50.f;
         const SkPoint     kPts[] = { { 0, 0 }, { s, s } };
         const SkScalar    kPos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
-        const SkColor  kColors[] = {0x80F00080, 0xF0F08000, 0x800080F0 };
 
+        SkColorConverter conv({0x80F00080, 0xF0F08000, 0x800080F0 });
         path.setFillType(fill);
 
         SkPaint paint;
         paint.setStrokeCap(cap);
         paint.setStrokeWidth(strokeWidth);
         paint.setStrokeJoin(join);
-        paint.setShader(SkGradientShader::MakeLinear(kPts, kColors, kPos,
-                        std::size(kColors), SkTileMode::kClamp));
+        paint.setShader(SkShaders::LinearGradient(kPts,
+                                                {{conv.colors4f(), kPos, SkTileMode::kClamp}, {}}));
         paint.setStyle(style);
         canvas->save();
         canvas->clipRect(clip);

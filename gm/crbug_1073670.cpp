@@ -10,13 +10,13 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "tools/fonts/FontToolUtils.h"
 
 DEF_SIMPLE_GM(crbug_1073670, canvas, 250, 250) {
-    SkPoint pts[] = {{0, 0}, {0, 250}};
-    SkColor colors[] = {0xFFFF0000, 0xFF0000FF};
-    auto sh = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
+    const SkPoint pts[] = {{0, 0}, {0, 250}};
+    const SkColor4f colors[] = {{1,0,0,1}, {0,0,1,1}};
+    auto sh = SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}});
     SkPaint p;
     p.setShader(sh);
 

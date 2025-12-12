@@ -13,7 +13,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 
 // This draws a hard stop gradient applied to a rectangle. The hard stops fall at half pixel
 // boundaries in y. On some GPUs we've found that the winding of the two triangles that make up the
@@ -23,11 +23,11 @@
 DEF_SIMPLE_GM(crbug_938592, canvas, 500, 300) {
     static constexpr SkPoint pts[] = {{0, 0}, {0, 30}};
     static constexpr SkScalar pos[] = {0.f, 9.f / 20, 9.f / 20, 11.f / 20, 11.f / 20, 20.f / 20};
-    static constexpr SkColor c0 = SK_ColorBLUE;
-    static constexpr SkColor c1 = SK_ColorRED;
-    static constexpr SkColor c2 = SK_ColorGREEN;
-    static constexpr SkColor colors[] = {c0, c0, c1, c1, c2, c2};
-    auto grad = SkGradientShader::MakeLinear(pts, colors, pos, 6, SkTileMode::kClamp);
+    static constexpr SkColor4f c0 = SkColors::kBlue;
+    static constexpr SkColor4f c1 = SkColors::kRed;
+    static constexpr SkColor4f c2 = SkColors::kGreen;
+    static constexpr SkColor4f colors[] = {c0, c0, c1, c1, c2, c2};
+    auto grad = SkShaders::LinearGradient(pts, {{colors, pos, SkTileMode::kClamp}, {}});
     SkPaint paint;
     paint.setShader(grad);
     static constexpr int kMirrorX = 400;

@@ -20,7 +20,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkColorMatrix.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
@@ -70,14 +70,14 @@ static void sk_gm_get_colorfilters(TArray<sk_sp<SkColorFilter>>* array) {
 
 static sk_sp<SkShader> sh_make_lineargradient0() {
     const SkPoint pts[] = { { 0, 0 }, { 100, 100 } };
-    const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 3, SkTileMode::kRepeat);
+    const SkColor4f colors[] = { SkColors::kRed, SkColors::kGreen, SkColors::kBlue };
+    return SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kRepeat}, {}});
 }
 
 static sk_sp<SkShader> sh_make_lineargradient1() {
     const SkPoint pts[] = { { 0, 0 }, { 100, 100 } };
-    const SkColor colors[] = { SK_ColorRED, 0x0000FF00, SK_ColorBLUE };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 3, SkTileMode::kRepeat);
+    const SkColor4f colors[] = { SkColors::kRed, {0, 1, 0, 0}, SkColors::kBlue };
+    return SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kRepeat}, {}});
 }
 
 static sk_sp<SkShader> sh_make_image() {
@@ -221,9 +221,10 @@ DEF_SIMPLE_GM(colorfiltershader, canvas, 610, 610) {
     TArray<sk_sp<SkShader>> shaders;
     sk_gm_get_shaders(&shaders);
 
-    const SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
-    shaders.push_back(SkGradientShader::MakeTwoPointConical(
-                              {0, 0}, 50, {0, 0}, 150, colors, nullptr, 2, SkTileMode::kClamp));
+    const SkColor4f colors[] = { SkColors::kRed, SkColors::kBlue };
+    shaders.push_back(SkShaders::TwoPointConicalGradient(
+                              {0, 0}, 50, {0, 0}, 150,
+                              {{colors, {}, SkTileMode::kClamp}, {}}));
 
     SkPaint paint;
     SkRect r = SkRect::MakeWH(120, 120);

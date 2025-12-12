@@ -27,7 +27,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkBlurMask.h"
 #include "tools/GpuToolUtils.h"
@@ -64,10 +64,10 @@ static sk_sp<SkImage> makebm(SkCanvas* origCanvas, SkBitmap* resultBM, int w, in
 
     SkScalar    radius = 4 * std::max(wScalar, hScalar);
 
-    SkColor     colors[] = { SK_ColorRED, SK_ColorYELLOW,
-                             SK_ColorGREEN, SK_ColorMAGENTA,
-                             SK_ColorBLUE, SK_ColorCYAN,
-                             SK_ColorRED};
+    const SkColor4f colors[] = { SkColors::kRed, SkColors::kYellow,
+                             SkColors::kGreen, SkColors::kMagenta,
+                             SkColors::kBlue, SkColors::kCyan,
+                             SkColors::kRed};
 
     SkScalar    pos[] = {0,
                          SK_Scalar1 / 6,
@@ -81,12 +81,10 @@ static sk_sp<SkImage> makebm(SkCanvas* origCanvas, SkBitmap* resultBM, int w, in
     SkRect rect = SkRect::MakeWH(wScalar, hScalar);
     SkMatrix mat = SkMatrix::I();
     for (int i = 0; i < 4; ++i) {
-        paint.setShader(SkGradientShader::MakeRadial(
+        paint.setShader(SkShaders::RadialGradient(
                         pt, radius,
-                        colors, pos,
-                        std::size(colors),
-                        SkTileMode::kRepeat,
-                        0, &mat));
+                        {{colors, pos, SkTileMode::kRepeat}, {}},
+                        &mat));
         canvas->drawRect(rect, paint);
         rect.inset(wScalar / 8, hScalar / 8);
         mat.postScale(SK_Scalar1 / 4, SK_Scalar1 / 4);

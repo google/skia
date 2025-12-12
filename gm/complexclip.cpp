@@ -21,7 +21,8 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
+#include "src/core/SkColorPriv.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -270,9 +271,9 @@ DEF_SIMPLE_GM(clip_shader_nested, canvas, 256, 256) {
     float w = 64.f;
     float h = 64.f;
 
-    const SkColor gradColors[] = {SK_ColorBLACK, SkColorSetARGB(128, 128, 128, 128)};
-    auto s = SkGradientShader::MakeRadial({0.5f * w, 0.5f * h}, 0.1f * w, gradColors, nullptr,
-                                            2, SkTileMode::kRepeat, 0, nullptr);
+    SkColorConverter conv({SK_ColorBLACK, SkColorSetARGB(128, 128, 128, 128)});
+    auto s = SkShaders::RadialGradient({0.5f * w, 0.5f * h}, 0.1f * w,
+                                       {{conv.colors4f(), {}, SkTileMode::kRepeat}, {}});
 
     SkPaint p;
 
@@ -427,11 +428,11 @@ DEF_SIMPLE_GM(clip_shader_persp, canvas, 1370, 1030) {
 
         // Make clipShaders (possibly with local matrices)
         bool gradLM = config.fLM == kGradientWithLocalMat || config.fLM == kBothWithLocalMat;
-        const SkColor gradColors[] = {SK_ColorBLACK, SkColorSetARGB(128, 128, 128, 128)};
-        auto gradShader = SkGradientShader::MakeRadial({0.5f * img->width(), 0.5f * img->height()},
-                                                        0.1f * img->width(), gradColors, nullptr, 2,
-                                                        SkTileMode::kRepeat, 0,
-                                                        gradLM ? &persp : nullptr);
+        SkColorConverter conv({SK_ColorBLACK, SkColorSetARGB(128, 128, 128, 128)});
+        auto gradShader = SkShaders::RadialGradient({0.5f * img->width(), 0.5f * img->height()},
+                                                     0.1f * img->width(),
+                                                   {{conv.colors4f(), {}, SkTileMode::kRepeat}, {}},
+                                                     gradLM ? &persp : nullptr);
         bool imageLM = config.fLM == kImageWithLocalMat || config.fLM == kBothWithLocalMat;
         auto imgShader = img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
                                          SkSamplingOptions(), imageLM ? perspScale : scale);

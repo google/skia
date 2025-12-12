@@ -9,7 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/effects/SkImageFilters.h"
 
 static void draw_bg_blur(SkCanvas* canvas, SkIRect rect, float sigma) {
@@ -18,19 +18,11 @@ static void draw_bg_blur(SkCanvas* canvas, SkIRect rect, float sigma) {
     // content.
     auto outsetRect = SkRect::Make(rect).makeOutset(10, 10);
     canvas->saveLayer(outsetRect, nullptr);
-    SkColor colors[] = {SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN};
+    const SkColor4f colors[] = {SkColors::kRed, SkColors::kBlue, SkColors::kGreen};
     float cx = (rect.left() + rect.right() )/2.f;
     float cy = (rect.top()  + rect.bottom())/2.f;
-    auto g = SkGradientShader::MakeSweep(cx,
-                                         cy,
-                                         colors,
-                                         nullptr,
-                                         3,
-                                         SkTileMode::kMirror,
-                                         0,
-                                         45,
-                                         0,
-                                         nullptr);
+    auto g = SkShaders::SweepGradient({cx, cy}, 0, 45,
+                                      {{colors, {}, SkTileMode::kMirror}, {}});
     SkPaint paint;
     paint.setShader(std::move(g));
     canvas->drawRect(SkRect::Make(rect), paint);

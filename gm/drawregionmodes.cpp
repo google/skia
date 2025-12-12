@@ -20,7 +20,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkDashPathEffect.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/effects/SkImageFilters.h"
 
 class DrawRegionModesGM : public skiagm::GM {
@@ -71,10 +71,9 @@ protected:
         canvas->translate(100, 325);
         paint.setPathEffect(nullptr);
         paint.setStyle(SkPaint::kFill_Style);
-        SkPoint points[] = { SkPoint::Make(50.0f, 50.0f), SkPoint::Make(150.0f, 150.0f) };
-        SkColor colors[] = { SK_ColorBLUE, SK_ColorYELLOW };
-        paint.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 2,
-                                                     SkTileMode::kClamp));
+        const SkPoint points[] = { SkPoint::Make(50.0f, 50.0f), SkPoint::Make(150.0f, 150.0f) };
+        const SkColor4f colors[] = { SkColors::kBlue, SkColors::kYellow };
+        paint.setShader(SkShaders::LinearGradient(points, {{colors, {}, SkTileMode::kClamp}, {}}));
         canvas->drawRegion(fRegion, paint);
     }
 

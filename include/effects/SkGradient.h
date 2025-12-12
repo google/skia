@@ -195,6 +195,12 @@ SK_API sk_sp<SkShader> SweepGradient(SkPoint center,
                                      float endAngle,
                                      const SkGradient&,
                                      const SkMatrix* lm = nullptr);
+static inline sk_sp<SkShader> SweepGradient(SkPoint center,
+                                     const SkGradient& grad,
+                                     const SkMatrix* lm = nullptr) {
+    return SweepGradient(center, 0, 360, grad, lm);
+}
+
 }  // namespace SkShaders
 
 #endif

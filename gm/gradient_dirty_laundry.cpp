@@ -18,26 +18,37 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkFloatingPoint.h"
+#include "src/core/SkColorPriv.h"
 
 using namespace skiagm;
 
 struct GradData {
-    int             fCount;
-    const SkColor*  fColors;
-    const SkScalar* fPos;
+    size_t           fCount;
+    const SkColor4f* fColors;
+    const float*     fPos;
+
+    SkSpan<const SkColor4f> colors() const { return {fColors, fCount}; }
+    SkSpan<const float> pos() const {
+        if (fPos) {
+            return {fPos, fCount};
+        }
+        return {};
+    }
+
+    SkGradient grad(SkTileMode tm) const { return {{this->colors(), this->pos(), tm}, {}}; }
 };
 
-constexpr SkColor gColors[] = {
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
+constexpr SkColor4f gColors[] = {
+    SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kWhite, SkColors::kBlack,
+    SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kWhite, SkColors::kBlack,
+    SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kWhite, SkColors::kBlack,
+    SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kWhite, SkColors::kBlack,
+    SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kWhite, SkColors::kBlack,
+    SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kWhite, SkColors::kBlack,
+    SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kWhite, SkColors::kBlack,
+    SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kWhite, SkColors::kBlack,
 };
 
 //constexpr SkScalar gPos[] = { SK_Scalar1*999/2000, SK_Scalar1*1001/2000 };
@@ -49,7 +60,7 @@ constexpr GradData gGradData[] = {
 };
 
 static sk_sp<SkShader> MakeLinear(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
-    return SkGradientShader::MakeLinear(pts, data.fColors, data.fPos, data.fCount, tm);
+    return SkShaders::LinearGradient(pts, data.grad(tm));
 }
 
 static sk_sp<SkShader> MakeRadial(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
@@ -57,15 +68,15 @@ static sk_sp<SkShader> MakeRadial(const SkPoint pts[2], const GradData& data, Sk
         sk_float_midpoint(pts[0].fX, pts[1].fX),
         sk_float_midpoint(pts[0].fY, pts[1].fY),
     };
-    return SkGradientShader::MakeRadial(pt, pt.fX, data.fColors, data.fPos, data.fCount, tm);
+    return SkShaders::RadialGradient(pt, pt.fX, data.grad(tm));
 }
 
-static sk_sp<SkShader> MakeSweep(const SkPoint pts[2], const GradData& data, SkTileMode) {
+static sk_sp<SkShader> MakeSweep(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
     const SkPoint pt{
         sk_float_midpoint(pts[0].fX, pts[1].fX),
         sk_float_midpoint(pts[0].fY, pts[1].fY),
     };
-    return SkGradientShader::MakeSweep(pt.fX, pt.fY, data.fColors, data.fPos, data.fCount);
+    return SkShaders::SweepGradient(pt, data.grad(tm));
 }
 
 

@@ -8,7 +8,7 @@
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 
 DEF_SIMPLE_GM(drawlines_with_local_matrix, canvas, 500, 500) {
     canvas->clipRect({0,0,500,500});
@@ -16,10 +16,12 @@ DEF_SIMPLE_GM(drawlines_with_local_matrix, canvas, 500, 500) {
     grad.setAntiAlias(true);
     grad.setStrokeCap(SkPaint::kSquare_Cap);
     float pos[6] = {0, 2/6.f, 3/6.f, 4/6.f, 5/6.f, 1};
-    constexpr SkColor indigo = SkColorSetARGB(0xFF, 0x4b, 0x00, 0x82);
-    constexpr SkColor violet = SkColorSetARGB(0xFF, 0xee, 0x82, 0xee);
-    SkColor colors[6] = {SK_ColorRED, SK_ColorYELLOW, SK_ColorGREEN, SK_ColorBLUE, indigo, violet};
-    grad.setShader(SkGradientShader::MakeRadial({250,250}, 280, colors, pos, 6,SkTileMode::kClamp));
+    const SkColor4f indigo = SkColor4f::FromColor(SkColorSetARGB(0xFF, 0x4b, 0x00, 0x82));
+    const SkColor4f violet = SkColor4f::FromColor(SkColorSetARGB(0xFF, 0xee, 0x82, 0xee));
+    const SkColor4f colors[6] = {
+        SkColors::kRed, SkColors::kYellow, SkColors::kGreen, SkColors::kBlue, indigo, violet};
+    grad.setShader(SkShaders::RadialGradient({250,250}, 280,
+                                             {{colors, pos, SkTileMode::kClamp}, {}}));
     canvas->drawPaint(grad);
 
     SkPaint white;

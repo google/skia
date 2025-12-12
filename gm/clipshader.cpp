@@ -13,7 +13,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "tools/Resources.h"
 
 
@@ -46,17 +46,10 @@ DEF_SIMPLE_GM(clipshadermatrix, canvas, 145, 128) {
             SkPoint center = {64, 64};
             SkAssertResult(m.invert(&m));
             center = m.mapPoint(center);
-            SkColor colors[] {SK_ColorYELLOW,  SK_ColorGREEN, SK_ColorBLUE,
-                              SK_ColorMAGENTA, SK_ColorCYAN , SK_ColorYELLOW};
-            auto gradient = SkGradientShader::MakeRadial(
-                    center,
-                    /*radius=*/32.f,
-                    colors,
-                    /*pos=*/nullptr,
-                    std::size(colors),
-                    SkTileMode::kMirror,
-                    /*flags=*/0,
-                    /*localMatrix=*/nullptr);
+            const SkColor4f colors[] {SkColors::kYellow,  SkColors::kGreen, SkColors::kBlue,
+                                      SkColors::kMagenta, SkColors::kCyan , SkColors::kYellow};
+            auto gradient = SkShaders::RadialGradient(center, 32,
+                                                      {{colors, {}, SkTileMode::kMirror}, {}});
 
             SkPaint paint;
             paint.setShader(std::move(gradient));

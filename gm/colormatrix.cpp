@@ -23,7 +23,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkColorMatrix.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 
 #define WIDTH 500
 #define HEIGHT 160
@@ -76,10 +76,9 @@ protected:
         canvas.clear(0x0);
 
         SkPoint pts[] = {{0, 0}, {SkIntToScalar(width), SkIntToScalar(height)}};
-        SkColor colors[] = {0x00000000, 0xFFFFFFFF};
+        const SkColor4f colors[] = {{0,0,0,0}, {1,1,1,1}};
         SkPaint paint;
-        paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
-                                                     SkTileMode::kClamp));
+        paint.setShader(SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}}));
         canvas.drawRect(SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height)), paint);
         return bm.asImage();
     }

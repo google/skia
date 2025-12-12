@@ -24,7 +24,8 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
+#include "src/core/SkColorPriv.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
@@ -46,6 +47,7 @@ static sk_sp<SkImage> make_img(int w, int h) {
                         ToolUtils::color_to_565(0xFF000022),
                         SK_ColorWHITE,
                         ToolUtils::color_to_565(0xFFAABBCC)};
+    SkColorConverter conv(colors);
 
     SkScalar    pos[] = {0,
                          SK_Scalar1 / 6,
@@ -59,12 +61,10 @@ static sk_sp<SkImage> make_img(int w, int h) {
     SkRect rect = SkRect::MakeWH(wScalar, hScalar);
     SkMatrix mat = SkMatrix::I();
     for (int i = 0; i < 4; ++i) {
-        paint.setShader(SkGradientShader::MakeRadial(
+        paint.setShader(SkShaders::RadialGradient(
                         pt, radius,
-                        colors, pos,
-                        std::size(colors),
-                        SkTileMode::kRepeat,
-                        0, &mat));
+                        {{conv.colors4f(), pos, SkTileMode::kRepeat}, {}},
+                        &mat));
         canvas->drawRect(rect, paint);
         rect.inset(wScalar / 8, hScalar / 8);
         mat.preTranslate(6 * wScalar, 6 * hScalar);

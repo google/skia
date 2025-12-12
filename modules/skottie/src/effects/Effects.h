@@ -157,7 +157,7 @@ protected:
 
     const SkSize& layerSize() const { return  fLayerSize; }
 
-    struct MaskInfo {
+struct MaskInfo {
         sk_sp<SkShader> fMaskShader;
         bool            fVisible;
     };

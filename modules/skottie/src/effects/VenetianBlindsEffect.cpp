@@ -12,7 +12,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkTileMode.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "modules/skottie/src/SkottiePriv.h"
@@ -132,9 +132,9 @@ private:
                    g23 = std::min(1.0f, 0.5f * (1 + sk_ieee_float_divide(1 - t, df)));
         SkASSERT(0 <= g01 && g01 <= g23 && g23 <= 1);
 
-        const SkColor c01 = SkColorSetA(SK_ColorWHITE, SkScalarRoundToInt(g01 * 0xff)),
-                      c23 = SkColorSetA(SK_ColorWHITE, SkScalarRoundToInt(g23 * 0xff)),
-                 colors[] = { c01, c23, c23, c01 };
+        const SkColor4f c01 = {1, 1, 1, g01},
+                        c23 = {1, 1, 1, g23},
+                 colors[]   = { c01, c23, c23, c01 };
 
         const SkScalar pos[] = {
          // 0,              // fp0
@@ -156,8 +156,7 @@ private:
         };
 
         return {
-            SkGradientShader::MakeLinear(pts, colors, pos, std::size(colors),
-                                         SkTileMode::kRepeat),
+            SkShaders::LinearGradient(pts, {{colors, pos, SkTileMode::kRepeat}, {}}),
             true
         };
     }

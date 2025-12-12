@@ -82,9 +82,10 @@ DEF_SIMPLE_GM(composeCF, canvas, 200, 200) {
     // This GM draws a simple color-filter network, using the existing "makeComposed" API, and also
     // using a runtime color filter that does the same thing.
     SkPaint paint;
-    const SkColor gradient_colors[] = {SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED};
-    paint.setShader(SkGradientShader::MakeSweep(
-            50, 50, gradient_colors, nullptr, std::size(gradient_colors)));
+    const SkColor4f gradient_colors[] = {
+            SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kRed};
+    paint.setShader(SkShaders::SweepGradient({50, 50},
+                                             {{gradient_colors, {}, SkTileMode::kClamp}, {}}));
 
     canvas->save();
     for (bool useSkSL : {false, true}) {

@@ -25,7 +25,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "tools/GpuToolUtils.h"
 #include "tools/ToolUtils.h"
 
@@ -34,8 +34,9 @@
 #include <utility>
 
 // Makes a set of m x n tiled images to be drawn with SkCanvas::experimental_drawImageSetV1().
-static void make_image_tiles(int tileW, int tileH, int m, int n, const SkColor colors[4],
+static void make_image_tiles(int tileW, int tileH, int m, int n, SkSpan<const SkColor4f> colors,
                              SkCanvas::ImageSetEntry set[], const SkColor bgColor=SK_ColorLTGRAY) {
+    SkASSERT(colors.size() == 4);
     const int w = tileW * m;
     const int h = tileH * n;
     auto surf = SkSurfaces::Raster(
@@ -47,7 +48,8 @@ static void make_image_tiles(int tileW, int tileH, int m, int n, const SkColor c
     SkPaint paint;
 
     SkPoint pts1[] = {{0.f, 0.f}, {(SkScalar)w, (SkScalar)h}};
-    auto grad = SkGradientShader::MakeLinear(pts1, colors, nullptr, 2, SkTileMode::kClamp);
+    auto grad = SkShaders::LinearGradient(pts1,
+                                          {{colors.subspan(0, 2), {}, SkTileMode::kClamp}, {}});
     paint.setShader(std::move(grad));
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
@@ -60,7 +62,7 @@ static void make_image_tiles(int tileW, int tileH, int m, int n, const SkColor c
     }
 
     SkPoint pts2[] = {{0.f, (SkScalar)h}, {(SkScalar)w, 0.f}};
-    grad = SkGradientShader::MakeLinear(pts2, colors + 2, nullptr, 2, SkTileMode::kClamp);
+    grad = SkShaders::LinearGradient(pts2, {{colors.subspan(2, 2), {}, SkTileMode::kClamp}, {}});
     paint.setShader(std::move(grad));
     paint.setBlendMode(SkBlendMode::kMultiply);
     stripePts[0] = {-w - kStripeW, h + kStripeW};
@@ -109,8 +111,8 @@ private:
     SkString getName() const override { return SkString("draw_image_set"); }
     SkISize getISize() override { return {1000, 725}; }
     void onOnceBeforeDraw() override {
-        static constexpr SkColor kColors[] = {SK_ColorCYAN,    SK_ColorBLACK,
-                                              SK_ColorMAGENTA, SK_ColorBLACK};
+        static constexpr SkColor4f kColors[] = {SkColors::kCyan, SkColors::kBlack,
+                                                SkColors::kMagenta, SkColors::kBlack};
         make_image_tiles(kTileW, kTileH, kM, kN, kColors, fSet);
     }
 
@@ -212,8 +214,8 @@ private:
     SkString getName() const override { return SkString("draw_image_set_rect_to_rect"); }
     SkISize getISize() override { return {1250, 850}; }
     void onOnceBeforeDraw() override {
-        static constexpr SkColor kColors[] = {SK_ColorBLUE, SK_ColorWHITE,
-                                              SK_ColorRED,  SK_ColorWHITE};
+        static constexpr SkColor4f kColors[] = {SkColors::kBlue, SkColors::kWhite,
+                                              SkColors::kRed,  SkColors::kWhite};
         make_image_tiles(kTileW, kTileH, kM, kN, kColors, fSet);
     }
 
@@ -299,8 +301,8 @@ private:
 
     DrawResult onGpuSetup(SkCanvas* canvas, SkString*, GraphiteTestContext*) override {
         auto recorder = canvas->baseRecorder();
-        static constexpr SkColor kColors[] = {SK_ColorBLUE, SK_ColorTRANSPARENT,
-                                              SK_ColorRED,  SK_ColorTRANSPARENT};
+        static constexpr SkColor4f kColors[] = {SkColors::kBlue, SkColors::kTransparent,
+                                              SkColors::kRed,  SkColors::kTransparent};
         static constexpr SkColor kBGColor = SkColorSetARGB(128, 128, 128, 128);
         make_image_tiles(kTileW, kTileH, kM, kN, kColors, fSet, kBGColor);
 

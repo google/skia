@@ -21,7 +21,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "tools/GpuToolUtils.h"
 #include "tools/ToolUtils.h"
 
@@ -36,8 +36,8 @@ static sk_sp<SkImage> make_image(SkCanvas* destCanvas) {
     SkPaint paint;
     paint.setAntiAlias(true);
     const SkPoint pts[] = { { 0, 0 }, { 64, 64 } };
-    const SkColor colors[] = { SK_ColorWHITE, SK_ColorBLUE };
-    paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp));
+    const SkColor4f colors[] = { SkColors::kWhite, SkColors::kBlue };
+    paint.setShader(SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}}));
     tmpCanvas->drawCircle(32, 32, 32, paint);
 
     return ToolUtils::MakeTextureImage(destCanvas, surf->makeImageSnapshot());

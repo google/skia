@@ -61,14 +61,10 @@ protected:
     void showFour(SkCanvas* canvas, SkScalar scale, bool aa) {
         SkPaint paint;
         SkPoint center = SkPoint::Make(SkIntToScalar(100), SkIntToScalar(100));
-        SkColor colors[] = {SK_ColorBLUE, SK_ColorRED, SK_ColorGREEN};
+        SkColor4f colors[] = {SkColors::kBlue, SkColors::kRed, SkColors::kGreen};
         SkScalar pos[] = {0, SK_ScalarHalf, SK_Scalar1};
-        paint.setShader(SkGradientShader::MakeRadial(center,
-                                                     SkIntToScalar(100),
-                                                     colors,
-                                                     pos,
-                                                     std::size(colors),
-                                                     SkTileMode::kClamp));
+        paint.setShader(SkShaders::RadialGradient(center, 100,
+                                                  {{colors, pos, SkTileMode::kClamp}, {}}));
         paint.setAntiAlias(aa);
 
         showPath(canvas,   0,   0, SkPathFillType::kWinding,
@@ -88,16 +84,12 @@ protected:
         SkPaint bkgnrd;
         SkPoint center = SkPoint::Make(SkIntToScalar(100),
                                        SkIntToScalar(100));
-        SkColor colors[] = {SK_ColorBLACK, SK_ColorCYAN,
-                            SK_ColorYELLOW, SK_ColorWHITE};
+        SkColor4f colors[] = {SkColors::kBlack, SkColors::kCyan,
+                            SkColors::kYellow, SkColors::kWhite};
         SkScalar pos[] = {0, SK_ScalarHalf / 2,
                           3 * SK_ScalarHalf / 2, SK_Scalar1};
-        bkgnrd.setShader(SkGradientShader::MakeRadial(center,
-                                                      SkIntToScalar(1000),
-                                                      colors,
-                                                      pos,
-                                                      std::size(colors),
-                                                      SkTileMode::kClamp));
+        bkgnrd.setShader(SkShaders::RadialGradient(center, 1000,
+                                                   {{colors, pos, SkTileMode::kClamp}, {}}));
         canvas->save();
             canvas->translate(SkIntToScalar(100), SkIntToScalar(100));
             SkMatrix mat;

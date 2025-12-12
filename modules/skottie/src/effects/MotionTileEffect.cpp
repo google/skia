@@ -20,7 +20,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkTileMode.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
@@ -124,16 +124,15 @@ protected:
 
             // The mask is generated using a step gradient shader, spanning 2 x tile width/height,
             // and perpendicular to the phase vector.
-            static constexpr SkColor colors[] = { 0xffffffff, 0x00000000 };
-            static constexpr SkScalar   pos[] = {       0.5f,       0.5f };
+            static constexpr SkColor4f colors[] = { {1, 1, 1, 1}, {0, 0, 0, 0} };
+            static constexpr float        pos[] = {       0.5f,       0.5f };
 
             const SkPoint pts[] = {{ tile.x(), tile.y() },
                                    { tile.x() + 2 * (tile.width()  - phase_vec.fX),
                                      tile.y() + 2 * (tile.height() - phase_vec.fY) }};
 
-            auto mask_shader = SkGradientShader::MakeLinear(pts, colors, pos,
-                                                            std::size(colors),
-                                                            SkTileMode::kRepeat);
+            auto mask_shader = SkShaders::LinearGradient(pts,
+                                                         {{colors, pos, SkTileMode::kRepeat}, {}});
 
             // First drawing pass: in-place masked layer content.
             fMainPassShader  = SkShaders::Blend(SkBlendMode::kSrcIn , mask_shader, layer_shader);

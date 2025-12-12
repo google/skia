@@ -25,7 +25,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/utils/SkTextUtils.h"
 #include "src/base/SkUTF.h"
 #include "tools/ToolUtils.h"
@@ -45,16 +45,16 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        const SkColor colors[] = {
-            SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE,
-            SK_ColorMAGENTA, SK_ColorCYAN, SK_ColorYELLOW
+        const SkColor4f colors[] = {
+            SkColors::kRed, SkColors::kGreen, SkColors::kBlue,
+            SkColors::kMagenta, SkColors::kCyan, SkColors::kYellow
         };
         SkMatrix local;
         local.setRotate(180);
         SkPaint paint;
         paint.setAntiAlias(true);
-        paint.setShader(SkGradientShader::MakeSweep(0, 0, colors, nullptr, std::size(colors),
-                                                    0, &local));
+        paint.setShader(SkShaders::SweepGradient({0, 0},
+                                                 {{colors, {}, SkTileMode::kClamp}, {}}, &local));
 
         sk_sp<SkTypeface> orig(ToolUtils::CreatePortableTypeface("serif", SkFontStyle::Bold()));
         SkASSERT(orig);

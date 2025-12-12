@@ -33,7 +33,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkCPUTypes.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/core/SkColorData.h"
@@ -676,8 +676,7 @@ void HilbertGenerator::line(SkCanvas* canvas) {
     }
 
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeLinear(pts, colors, /* colorSpace= */ nullptr,
-                                                 /* pos= */ nullptr, 2, SkTileMode::kClamp));
+    paint.setShader(SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}}));
     canvas->drawRect(r, paint);
 }
 

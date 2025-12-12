@@ -25,9 +25,9 @@
 #include "tools/fonts/FontToolUtils.h"
 
 static sk_sp<SkShader> make_heatGradient(const SkPoint pts[2]) {
-    const SkColor bw[] = { SK_ColorBLACK, SK_ColorWHITE };
+    const SkColor4f bw[] = { SkColors::kBlack, SkColors::kWhite };
 
-    return SkGradientShader::MakeLinear(pts, bw, nullptr, std::size(bw), SkTileMode::kClamp);
+    return SkShaders::LinearGradient(pts, {{bw, {}, SkTileMode::kClamp}, {}});
 }
 
 /**
@@ -96,10 +96,10 @@ DEF_GM( return new GammaTextGM; )
 
 static sk_sp<SkShader> make_gradient(SkColor c) {
     const SkPoint pts[] = { { 0, 0 }, { 240, 0 } };
-    SkColor colors[2];
-    colors[0] = c;
-    colors[1] = SkColorSetA(c, 0);
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
+    SkColor4f colors[2];
+    colors[0] = SkColor4f::FromColor(c);
+    colors[1] = SkColor4f::FromColor(SkColorSetA(c, 0));
+    return SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}});
 }
 
 static void draw_pair(SkCanvas* canvas, const SkFont& font, SkColor color,

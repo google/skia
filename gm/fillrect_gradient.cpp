@@ -22,7 +22,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 
 #include <vector>
 
@@ -49,13 +49,13 @@ protected:
     }
 
     void drawGradient(SkCanvas* canvas, std::initializer_list<GradientStop> stops) {
-        std::vector<SkColor> colors;
+        std::vector<SkColor4f> colors;
         std::vector<SkScalar> positions;
         colors.reserve(stops.size());
         positions.reserve(stops.size());
 
         for (const GradientStop& stop : stops) {
-            colors.push_back(stop.color);
+            colors.push_back(SkColor4f::FromColor(stop.color));
             positions.push_back(stop.pos);
         }
 
@@ -65,11 +65,8 @@ protected:
         };
 
         // Draw the gradient linearly.
-        sk_sp<SkShader> shader = SkGradientShader::MakeLinear(points,
-                                                              colors.data(),
-                                                              positions.data(),
-                                                              colors.size(),
-                                                              SkTileMode::kClamp);
+        sk_sp<SkShader> shader = SkShaders::LinearGradient(points,
+                                                   {{colors, positions, SkTileMode::kClamp}, {}});
         SkPaint paint;
         paint.setShader(shader);
         canvas->drawRect(SkRect::MakeXYWH(0, 0, kCellSize, kCellSize), paint);
@@ -78,12 +75,9 @@ protected:
         canvas->translate(kCellSize + kPadSize, 0);
 
         // Draw the gradient radially.
-        shader = SkGradientShader::MakeRadial(SkPoint::Make(kCellSize / 2, kCellSize / 2),
-                                              kCellSize / 2,
-                                              colors.data(),
-                                              positions.data(),
-                                              colors.size(),
-                                              SkTileMode::kClamp);
+        shader = SkShaders::RadialGradient(SkPoint::Make(kCellSize / 2, kCellSize / 2),
+                                           kCellSize / 2,
+                                           {{colors, positions, SkTileMode::kClamp}, {}});
         paint.setShader(shader);
         canvas->drawRect(SkRect::MakeXYWH(0, 0, kCellSize, kCellSize), paint);
 

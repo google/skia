@@ -9,7 +9,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "src/shaders/SkEmptyShader.h"
 
 namespace skiagm {
@@ -22,52 +22,34 @@ sk_sp<SkShader> degen_sweep(SkRect r) {
     // A too small angle between start and end falls back to an empty shader
     const float startAngle = 0.0f;
     const float endAngle = nextafter(startAngle, 360.0f);
-    const SkColor colors[2] = { SK_ColorRED, SK_ColorGREEN };
+    const SkColor4f colors[2] = { SkColors::kRed, SkColors::kGreen };
 
-    return SkGradientShader::MakeSweep(r.centerX(), r.centerY(),
-                                       colors,
-                                       /* pos= */ nullptr,
-                                       std::size(colors),
-                                       SkTileMode::kDecal,
-                                       startAngle, endAngle,
-                                       /* flags= */ 0,
-                                       /* localMatrix= */ nullptr);
+    return SkShaders::SweepGradient(r.center(), startAngle, endAngle,
+                                    {{colors, {}, SkTileMode::kDecal}, {}});
 }
 
 sk_sp<SkShader> degen_linear(SkRect r) {
     // Having the two positions be the same causes a fallback to an empty shader
     const SkPoint pts[2] = { r.center(), r.center() };
-    const SkColor colors[2] = { SK_ColorRED, SK_ColorGREEN };
+    const SkColor4f colors[2] = { SkColors::kRed, SkColors::kGreen };
 
-    return SkGradientShader::MakeLinear(pts,
-                                        colors,
-                                        /* pos= */ nullptr,
-                                        std::size(colors),
-                                        SkTileMode::kDecal);
+    return SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kDecal}, {}});
 }
 
 sk_sp<SkShader> degen_radial(SkRect r) {
-    const SkColor colors[2] = { SK_ColorRED, SK_ColorGREEN };
+    const SkColor4f colors[2] = { SkColors::kRed, SkColors::kGreen };
 
     // Having a radius of 0.0 causes a fallback to an empty shader
-    return SkGradientShader::MakeRadial(r.center(),
-                                        /* radius= */ 0.0f,
-                                        colors,
-                                        /* pos= */ nullptr,
-                                        std::size(colors),
-                                        SkTileMode::kDecal);
+    return SkShaders::RadialGradient(r.center(), 0, {{colors, {}, SkTileMode::kDecal}, {}});
 }
 
 sk_sp<SkShader> degen_conical(SkRect r) {
-    const SkColor colors[2] = {SK_ColorRED, SK_ColorGREEN};
+    const SkColor4f colors[2] = { SkColors::kRed, SkColors::kGreen };
 
     // Having the start and end radii be the same causes a fallback to an empty shader
-    return SkGradientShader::MakeTwoPointConical(r.center(), /* startRadius= */ 0.0f,
-                                                 r.center(), /* endRadius= */ 0.0f,
-                                                 colors,
-                                                 /* pos= */ nullptr,
-                                                 std::size(colors),
-                                                 SkTileMode::kDecal);
+    return SkShaders::TwoPointConicalGradient(r.center(), /* startRadius= */ 0.0f,
+                                              r.center(), /* endRadius= */ 0.0f,
+                                              {{colors, {}, SkTileMode::kDecal}, {}});
 }
 
 } // anonymous namespace

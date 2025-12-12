@@ -11,7 +11,8 @@
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
+#include "src/core/SkColorPriv.h"
 #include "tools/timer/TimeUtils.h"
 
 // Adapted from https://codepen.io/adamdupuis/pen/qLYzqB
@@ -32,10 +33,11 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        static const SkColor kColors[2] = {SK_ColorTRANSPARENT, SkColorSetARGB(128, 255, 255, 255)};
-        sk_sp<SkShader> gradient = SkGradientShader::MakeRadial(
-                {200.f, 200.f}, 25.f, kColors, nullptr, 2, SkTileMode::kMirror,
-                SkGradientShader::kInterpolateColorsInPremul_Flag, nullptr);
+        SkColorConverter conv({SK_ColorTRANSPARENT, SkColorSetARGB(128, 255, 255, 255)});
+        sk_sp<SkShader> gradient = SkShaders::RadialGradient(
+                {200.f, 200.f}, 25.f,
+                {{conv.colors4f(), {}, SkTileMode::kMirror},
+                 {SkGradient::Interpolation::InPremul::kYes}});
 
         sk_sp<SkSurface> surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(400, 400));
 

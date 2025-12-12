@@ -12,7 +12,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkTileMode.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkTPin.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
@@ -102,8 +102,7 @@ private:
             center_v + adjusted_grad_v * 0.5f,
         };
 
-        static constexpr SkColor colors[] = { 0x00000000,
-                                              0xffffffff };
+        static constexpr SkColor4f colors[] = { SkColors::kTransparent, SkColors::kWhite };
 
         // To emulate the feather effect, we distance the color stops to generate
         // a linear transition/ramp.  For t == 0 the ramp should be completely outside/before
@@ -115,8 +114,7 @@ private:
         const auto adjusted_t = t * (len + feather) / grad_len;
         const SkScalar  pos[] = { adjusted_t,
                                   adjusted_t + feather / grad_len };
-
-        return { SkGradientShader::MakeLinear(pts, colors, pos, 2, SkTileMode::kClamp), true };
+        return { SkShaders::LinearGradient(pts, {{colors, pos, SkTileMode::kClamp}, {}}), true };
     }
 
     ScalarValue fCompletion = 0,
