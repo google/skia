@@ -1,0 +1,84 @@
+load("@rules_rust//rust:defs.bzl", "rust_static_library", "rust_test")
+load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
+load(
+    "//bazel:skia_rules.bzl",
+    "skia_cc_library",
+    "skia_filegroup",
+)
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_filegroup(
+    name = "rs_srcs",
+    srcs = ["FFI.rs"],
+)
+
+skia_filegroup(
+    name = "cxx_bridge_srcs",
+    srcs = ["FFI.rs"],
+)
+
+skia_filegroup(
+    name = "ffi_hdrs",
+    srcs = ["FFI.h"],
+)
+
+skia_filegroup(
+    name = "ffi_cpp",
+    srcs = ["FFI.cpp"],
+)
+
+# Separate header-only library so cxx_bridge can depend on it without circular dependency
+skia_cc_library(
+    name = "ffi_hdrs_lib",
+    hdrs = [":ffi_hdrs"],
+    deps = ["//modules/skcms"],
+)
+
+skia_cc_library(
+    name = "ffi_cpp_lib",
+    srcs = [":ffi_cpp"],
+    hdrs = [":ffi_hdrs"],
+    features = ["layering_check"],
+    visibility = ["//src/codec:__pkg__"],
+    deps = [
+        ":cxx_bridge",
+        "//modules/skcms",
+    ],
+)
+
+rust_cxx_bridge(
+    name = "cxx_bridge",
+    src = "FFI.rs",
+    visibility = ["//src/codec:__pkg__"],
+    deps = [
+        ":ffi_hdrs_lib",
+        "//modules/skcms",
+    ],
+)
+
+rust_static_library(
+    name = "ffi_rs",
+    srcs = [":rs_srcs"],
+    crate_root = "FFI.rs",
+    rustc_flags = [
+        "-Dwarnings",
+        "--cfg=cxxbridge1",
+    ],
+    visibility = ["//src/codec:__pkg__"],
+    deps = [
+        ":cxx_bridge",
+        ":ffi_cpp_lib",
+        "@crates//:cxx",
+        "@crates//:moxcms",
+    ],
+)
+
+rust_test(
+    name = "ffi_rs_test",
+    crate = ":ffi_rs",
+)
