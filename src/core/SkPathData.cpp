@@ -84,16 +84,6 @@ static std::pair<size_t, size_t> count_pts_cns(SkSpan<const SkPathVerb> vbs) {
     return {pts, cns};
 }
 
-// If it detects a single trailing Move verb, remove it and it's corresponding point.
-// Otherwise return leave the spans unchanged.
-//
-static void trim_trailing_move(SkSpan<const SkPoint>* pts, SkSpan<const SkPathVerb>* vbs) {
-    if (!vbs->empty() && !pts->empty() && vbs->back() == SkPathVerb::kMove) {
-        *vbs = vbs->first(vbs->size() - 1);
-        *pts = pts->first(pts->size() - 1);
-    }
-}
-
 static bool valid_verbs(SkSpan<const SkPathVerb> vbs) {
     if (vbs.size() == 0) {
         return true;
@@ -127,13 +117,7 @@ static bool valid_verbs(SkSpan<const SkPathVerb> vbs) {
         }
         prev = curr;
     }
-
-    // A trailing Move is also illegal, since it creates an empty contour,
-    // which will confuse some of our callers
-    //
-    // See trim_trailing_move() helper, which may be called before calling us.
-    //
-    return vbs.back() != SkPathVerb::kMove;
+    return true;
 }
 
 static inline bool valid_conic_weight(float w) {
@@ -244,7 +228,7 @@ bool SkPathData::finishInit(std::optional<SkRect> bounds, std::optional<uint8_t>
         fBounds = bounds.value().makeSorted();
         SkASSERT(SkIsFinite(&fPoints.data()->fX, fPoints.size() * 2));
     } else {
-        if (auto r = SkRect::Bounds(fPoints)) {
+        if (auto r = SkPathPriv::TrimmedBounds(fPoints, fVerbs)) {
             fBounds = r.value();
         } else {
             report_pathdata_make_failure("non-finite bounds");
@@ -337,7 +321,6 @@ sk_sp<SkPathData> SkPathData::MakeNoCheck(SkSpan<const SkPoint> pts,
                                           SkSpan<const float> conics,
                                           std::optional<SkRect> bounds,
                                           std::optional<unsigned> segmentMask) {
-    trim_trailing_move(&pts, &vbs);
     SkASSERT(valid_verbs(vbs));
 
     auto path = Alloc(pts.size(), vbs.size(), conics.size());
@@ -517,7 +500,6 @@ bool SkPathData::contains(SkPoint p, SkPathFillType ft) const {
 sk_sp<SkPathData> SkPathData::Make(SkSpan<const SkPoint> pts,
                                    SkSpan<const SkPathVerb> vbs,
                                    SkSpan<const float> conics) {
-    trim_trailing_move(&pts, &vbs);
     if (!valid_verbs(vbs)) {
         report_pathdata_make_failure("invalid verb sequence");
         return nullptr;
@@ -527,16 +509,6 @@ sk_sp<SkPathData> SkPathData::Make(SkSpan<const SkPoint> pts,
     if (pts.size() != npts || conics.size() != ncns) {
         report_pathdata_make_failure("unexpected # points or conics");
         return nullptr;
-    }
-
-    // Now we can check for a dangling kMove verb, and just ignore it
-    if (!vbs.empty() && vbs.back() == SkPathVerb::kMove) {
-        SkASSERT(!pts.empty());
-        vbs = vbs.first(vbs.size() - 1);
-        pts = pts.first(pts.size() - 1);
-    }
-    if (vbs.empty()) {
-        return Empty();
     }
 
     for (auto w : conics) {

@@ -307,10 +307,10 @@ DEF_TEST(pathdata_make_edgecases, reporter) {
 
     // only these two sequence will result in an "empty" PathData
 
-    const SkPathVerb empty[] = { M };  // the M will be trimmed
+    const SkPathVerb move[] = { M };  // the M will not be trimmed
 
-    REPORTER_ASSERT(reporter, SkPathData::Make({}, {empty, 0}, {})->empty());
-    REPORTER_ASSERT(reporter, SkPathData::Make({pts, 1}, empty, {})->empty());
+    REPORTER_ASSERT(reporter, SkPathData::Make({}, {}, {})->empty());
+    REPORTER_ASSERT(reporter, !SkPathData::Make({pts, 1}, move, {})->empty());
 
     // these sequenes are all illegal (bad verb sequencing)
 
@@ -324,13 +324,14 @@ DEF_TEST(pathdata_make_edgecases, reporter) {
     REPORTER_ASSERT(reporter, SkPathData::Make({pts, 2}, bad2, {}) == nullptr);
     REPORTER_ASSERT(reporter, SkPathData::Make({pts, 4}, bad3, {}) == nullptr);
 
-    // Odd but legal, the trailing M will be removed
+    // Odd but legal, the trailing M is preserved, but not part of the bounds
 
-    const SkPathVerb trimmed[] = { M, L, M }; //legal, but will trim the last M
+    const SkPathVerb trimmed[] = { M, L, M }; //legal
     auto pdata = SkPathData::Make({pts, 3}, trimmed, {});
 
-    REPORTER_ASSERT(reporter, pdata->points().size() == 2);
-    REPORTER_ASSERT(reporter, pdata->verbs().size() == 2);
+    REPORTER_ASSERT(reporter, pdata->points().size() == 3);
+    REPORTER_ASSERT(reporter, pdata->verbs().size() == 3);
+    REPORTER_ASSERT(reporter, pdata->bounds() == SkRect::Bounds({pts, 2}).value());
 
     // Now check on # of points and conic weights
 

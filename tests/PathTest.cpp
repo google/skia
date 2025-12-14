@@ -6203,3 +6203,75 @@ DEF_TEST(path_factory_inverted_bounds, reporter) {
     REPORTER_ASSERT(reporter,
                     SkPath::RRect(SkRRect::MakeRect(inverted_bounds)).getBounds() == bounds);
 }
+
+DEF_TEST(path_trailing_moves_bounds, reporter) {
+    const SkPoint pt = {3, 4};
+    const SkPathVerb vb = SkPathVerb::kMove;
+
+    // A single move is reflected in the bounds
+
+    SkPathBuilder bu;
+    bu.moveTo(pt);
+    auto r = bu.computeBounds();
+    SkRect r2 = {pt.fX, pt.fY, pt.fX, pt.fY};
+    REPORTER_ASSERT(reporter, r == r2);
+
+    auto path = bu.detach();
+    REPORTER_ASSERT(reporter, path.points().size() == 1);
+    REPORTER_ASSERT(reporter, path.points().back() == pt);
+    r = path.getBounds();
+    REPORTER_ASSERT(reporter, r == r2);
+
+    path = SkPath::Raw({&pt, 1}, {&vb, 1}, {}, SkPathFillType::kDefault);
+    REPORTER_ASSERT(reporter, path.points().size() == 1);
+    REPORTER_ASSERT(reporter, path.points().back() == pt);
+    r = path.getBounds();
+    REPORTER_ASSERT(reporter, r == r2);
+
+    // A trailing move, but not the only contour, does not affect the bounds
+
+    bu.moveTo(1, 2);
+    bu.lineTo(3, 4);    // same as pt
+    SkPoint lastPt = {5, 6};
+    bu.moveTo(lastPt);
+    r2 = {1, 2, 3, 4};  // does not include last point
+    r = bu.computeBounds();
+    REPORTER_ASSERT(reporter, r == r2);
+
+    path = bu.detach();
+    REPORTER_ASSERT(reporter, path.points().size() == 3);
+    REPORTER_ASSERT(reporter, path.points().back() == lastPt);
+    r = path.getBounds();
+    REPORTER_ASSERT(reporter, r == r2);
+
+    SkPoint pts2[] = {{1, 2}, {3, 4}, {5, 6}};
+    SkPathVerb vbs2[] = {SkPathVerb::kMove, SkPathVerb::kLine, SkPathVerb::kMove};
+    path = SkPath::Raw(pts2, vbs2, {}, SkPathFillType::kDefault);
+    REPORTER_ASSERT(reporter, path.points().size() == 3);
+    REPORTER_ASSERT(reporter, path.points().back() == lastPt);
+    r = path.getBounds();
+    REPORTER_ASSERT(reporter, r == r2);
+
+    // make sure the trailer survives a round-trip
+
+    auto check_trip = [reporter](const SkPath& path) {
+        const SkRect pathBounds = path.getBounds();
+
+        SkPathBuilder bu;
+        bu.addPath(path);
+        REPORTER_ASSERT(reporter, bu.verbs().size() == path.verbs().size());
+        REPORTER_ASSERT(reporter, bu.verbs().back() == SkPathVerb::kMove);
+        SkRect r = bu.computeBounds();
+        REPORTER_ASSERT(reporter, r == pathBounds);
+
+        const SkMatrix mx = SkMatrix::Translate(1, 2);
+        bu.reset().addPath(path, mx);
+        REPORTER_ASSERT(reporter, bu.verbs().size() == path.verbs().size());
+        REPORTER_ASSERT(reporter, bu.verbs().back() == SkPathVerb::kMove);
+        r = bu.computeBounds();
+        REPORTER_ASSERT(reporter, r == pathBounds.makeOffset(1, 2));
+    };
+
+    check_trip(bu.reset().moveTo(1, 2).detach());
+    check_trip(bu.reset().moveTo(1, 2).lineTo(3, 4).moveTo(5, 6).detach());
+}

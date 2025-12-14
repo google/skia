@@ -86,9 +86,7 @@ public:
 
         @return  bounds of all SkPoint in SkPoint array, or {}.
     */
-    std::optional<SkRect> computeFiniteBounds() const {
-        return SkRect::Bounds(fPts);
-    }
+    std::optional<SkRect> computeFiniteBounds() const;
 
     /** Like computeFiniteBounds() but returns a 'tight' bounds, meaning when there are curve
      *  segments, this computes the X/Y limits of the curve itself, not the curve's control

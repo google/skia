@@ -465,6 +465,20 @@ public:
             SkTo<uint8_t>(builder.fSegmentMask),
         };
     }
+
+    // Returns Empty if there are no points
+    // Returns {} if the bounds are not finite
+    static std::optional<SkRect> TrimmedBounds(SkSpan<const SkPoint> pts,
+                                               SkSpan<const SkPathVerb> vbs) {
+        // Does a trailing kMove verb contribute to the bounds?
+        // - only if it is the only verb in the path
+        // - otherwise we ignore it when computing bounds
+        if (vbs.size() > 1 && vbs.back() == SkPathVerb::kMove) {
+            SkASSERT(pts.size() > 0);
+            pts = pts.subspan(0, pts.size() - 1);
+        }
+        return SkRect::Bounds(pts);
+    }
 };
 
 // Lightweight variant of SkPath::Iter that only returns segments (e.g. lines/conics).

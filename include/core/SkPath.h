@@ -511,14 +511,15 @@ public:
     */
     size_t approximateBytesUsed() const;
 
-    /** Returns minimum and maximum axes values of SkPoint array.
-        Returns (0, 0, 0, 0) if SkPath contains no points. Returned bounds width and height may
-        be larger or smaller than area affected when SkPath is drawn.
+    /** Returns the min/max of the path's 'trimmed' points. The trimmed points are all of the
+        points in the path, with the exception of the path having more than one contour, and the
+        final contour containing only a kMove verb. In that case the trailing kMove point
+        is ignored when computing the bounds.
 
-        SkRect returned includes all SkPoint added to SkPath, including SkPoint associated with
-        kMove_Verb that define empty contours.
+        If the path has no verbs, or the path contains non-finite values,
+        then {0, 0, 0, 0} is returned. (see isFinite())
 
-        @return  bounds of all SkPoint in SkPoint array
+        @return  bounds of the path's points
     */
     const SkRect& getBounds() const;
 
