@@ -33,7 +33,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkShaderMaskFilter.h"
 #include "src/base/SkRandom.h"
@@ -89,8 +89,8 @@ static void draw_cell(SkCanvas* canvas, sk_sp<SkTextBlob> blob, SkColor c, SkSca
 
     // draw the treatment
     const SkPoint pts[] = { {r.fLeft,0}, {r.fRight, 0} };
-    const SkColor colors[] = { 0x88000000, 0x0 };
-    auto sh = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
+    const SkColor4f colors[] = { {0,0,0,0x88/255.f}, {0,0,0,0} };
+    auto sh = SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}});
     p.setShader(sh);
     p.setBlendMode(SkBlendMode::kDstIn);
 
@@ -153,9 +153,8 @@ DEF_SIMPLE_GM(savelayer_f16, canvas, 900, 300) {
     SkRect r{0, 0, 300, 300};
     SkPaint paint;
 
-    const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED };
-    paint.setShader(SkGradientShader::MakeSweep(r.centerX(), r.centerY(),
-                                                colors, nullptr, std::size(colors)));
+    const SkColor4f colors[] = {SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kRed};
+    paint.setShader(SkShaders::SweepGradient(r.center(), {{colors, {}, SkTileMode::kClamp}, {}}));
 
     canvas->drawOval(r, paint);
 

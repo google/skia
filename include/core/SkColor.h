@@ -425,6 +425,18 @@ struct SkRGBA4f {
     SkRGBA4f pinAlpha() const {
         return { fR, fG, fB, SkTPin(fA, 0.f, 1.f) };
     }
+
+    /** Returns this color, having replaced its alpha value.
+     */
+    SkRGBA4f withAlpha(float a) const {
+        return { fR, fG, fB, a };
+    }
+
+    /** Returns this color, having replaced its alpha value specified as a byte.
+     */
+    SkRGBA4f withAlphaByte(uint8_t a) const {
+        return { fR, fG, fB, a/255.f };
+    }
 };
 
 /** \struct SkColor4f

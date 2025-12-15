@@ -30,7 +30,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkShaderMaskFilter.h"
 #include "include/utils/SkTextUtils.h"
@@ -44,8 +44,8 @@ static sk_sp<SkShader> make_shader(const SkRect& r) {
     const SkPoint pts[] = {
         { r.fLeft, r.fTop }, { r.fRight, r.fBottom },
     };
-    const SkColor colors[] = { 0, SK_ColorWHITE };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kRepeat);
+    const SkColor4f colors[] = { {0,0,0,0}, SkColors::kWhite };
+    return SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kRepeat}, {}});
 }
 
 DEF_SIMPLE_GM(shadermaskfilter_gradient, canvas, 512, 512) {

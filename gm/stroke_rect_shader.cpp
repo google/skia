@@ -15,7 +15,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 
 #include <initializer_list>
 #include <utility>
@@ -28,9 +28,9 @@ namespace skiagm {
 DEF_SIMPLE_GM(stroke_rect_shader, canvas, 690, 300) {
     constexpr SkRect kRect {0, 0, 100, 100};
     constexpr SkPoint kPts[] {{kRect.fLeft, kRect.fTop}, {kRect.fRight, kRect.fBottom}};
-    constexpr SkColor kColors[] {SK_ColorRED, SK_ColorBLUE};
-    sk_sp<SkShader> shader = SkGradientShader::MakeLinear(kPts, kColors, nullptr, 2,
-                                                          SkTileMode::kClamp);
+    constexpr SkColor4f kColors[] {SkColors::kRed, SkColors::kBlue};
+    sk_sp<SkShader> shader = SkShaders::LinearGradient(kPts,
+                                                       {{kColors, {}, SkTileMode::kClamp}, {}});
 
     // Do a large initial translate so that local coords disagree with device coords significantly
     // for the first rect drawn.

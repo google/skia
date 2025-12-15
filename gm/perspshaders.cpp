@@ -25,7 +25,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "tools/DecodeUtils.h"
 #include "tools/ToolUtils.h"
 
@@ -68,15 +68,13 @@ protected:
             { 0, 0 },
             { 0, SkIntToScalar(kCellSize) }
         };
-        constexpr SkColor colors[] = {
-            SK_ColorRED, SK_ColorGREEN, SK_ColorRED, SK_ColorGREEN, SK_ColorRED
+        constexpr SkColor4f colors[] = {
+            SkColors::kRed, SkColors::kGreen, SkColors::kRed, SkColors::kGreen, SkColors::kRed
         };
         constexpr SkScalar pos[] = { 0, 0.25f, 0.5f, 0.75f, SK_Scalar1 };
 
-        fLinearGrad1 = SkGradientShader::MakeLinear(pts1, colors, pos, std::size(colors),
-                                                    SkTileMode::kClamp);
-        fLinearGrad2 = SkGradientShader::MakeLinear(pts2, colors, pos, std::size(colors),
-                                                    SkTileMode::kClamp);
+        fLinearGrad1 = SkShaders::LinearGradient(pts1, {{colors, pos, SkTileMode::kClamp}, {}});
+        fLinearGrad2 = SkShaders::LinearGradient(pts2, {{colors, pos, SkTileMode::kClamp}, {}});
 
         fPerspMatrix.reset();
         fPerspMatrix.setPerspY(SK_Scalar1 / 50);

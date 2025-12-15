@@ -99,15 +99,11 @@ static void draw_scene(SkCanvas* canvas, const SkHighContrastConfig& config) {
     canvas->restore();
 }
 
-static inline SkColor4f withAlpha(SkColor4f c, float a) {
-    return {c.fR, c.fG, c.fB, a};
-}
-
 class HighContrastFilterGM : public skiagm::GM {
 protected:
     void onOnceBeforeDraw() override {
-        SkColor4f g1Colors[] = { kColor1, withAlpha(kColor1, 0x20/255.f) };
-        SkColor4f g2Colors[] = { kColor2, withAlpha(kColor2, 0x20/255.f) };
+        SkColor4f g1Colors[] = { kColor1, kColor1.withAlphaByte(0x20) };
+        SkColor4f g2Colors[] = { kColor2, kColor2.withAlphaByte(0x20) };
         SkPoint   g1Points[] = { { 0, 0 }, { 0,     100 } };
         SkPoint   g2Points[] = { { 0, 0 }, { kSize, 0   } };
         SkScalar pos[] = { 0.2f, 1.0f };

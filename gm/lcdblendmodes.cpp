@@ -23,7 +23,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
@@ -39,11 +39,10 @@ static sk_sp<SkShader> make_shader(const SkRect& bounds) {
         { bounds.left(), bounds.top() },
         { bounds.right(), bounds.bottom() },
     };
-    const SkColor colors[] = {
-        SK_ColorRED, SK_ColorGREEN,
+    const SkColor4f colors[] = {
+        SkColors::kRed, SkColors::kGreen,
     };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
-                                        SkTileMode::kRepeat);
+    return SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kRepeat}, {}});
 }
 
 class LcdBlendGM : public skiagm::GM {

@@ -24,7 +24,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/effects/SkLumaColorFilter.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkColorFilterPriv.h"
@@ -35,10 +35,10 @@
 
 #include <string.h>
 
-static SkScalar kSize   = 80;
-static SkScalar kInset  = 10;
-static SkColor  kColor1 = SkColorSetARGB(0xff, 0xff, 0xff, 0);
-static SkColor  kColor2 = SkColorSetARGB(0xff, 0x82, 0xff, 0);
+static const float kSize   = 80;
+static const float kInset  = 10;
+static const SkColor4f kColor1 = {         1, 1, 0, 1};
+static const SkColor4f kColor2 = {0x82/255.f, 1, 0, 1};
 
 static void draw_label(SkCanvas* canvas, const char* label,
                        const SkPoint& offset) {
@@ -68,7 +68,7 @@ static void draw_scene(SkCanvas* canvas, const sk_sp<SkColorFilter>& filter, SkB
     r = bounds;
     r.inset(kInset, 0);
     paint.setShader(s1);
-    paint.setColor(s1 ? SK_ColorBLACK : SkColorSetA(kColor1, 0x80));
+    paint.setColor(s1 ? SkColors::kBlack : kColor1.withAlphaByte(0x80));
     canvas->drawOval(r, paint);
     if (!s1) {
         canvas->save();
@@ -85,7 +85,7 @@ static void draw_scene(SkCanvas* canvas, const sk_sp<SkColorFilter>& filter, SkB
     r = bounds;
     r.inset(0, kInset);
     paint.setShader(s2);
-    paint.setColor(s2 ? SK_ColorBLACK : SkColorSetA(kColor2, 0x80));
+    paint.setColor(s2 ? SkColors::kBlack : kColor2.withAlphaByte(0x80));
     paint.setColorFilter(filter);
     canvas->drawOval(r, paint);
     if (!s2) {
@@ -103,17 +103,15 @@ static void draw_scene(SkCanvas* canvas, const sk_sp<SkColorFilter>& filter, SkB
 class LumaFilterGM : public skiagm::GM {
 protected:
     void onOnceBeforeDraw() override {
-        SkColor  g1Colors[] = { kColor1, SkColorSetA(kColor1, 0x20) };
-        SkColor  g2Colors[] = { kColor2, SkColorSetA(kColor2, 0x20) };
+        SkColor4f g1Colors[] = { kColor1, kColor1.withAlphaByte(0x20) };
+        SkColor4f g2Colors[] = { kColor2, kColor2.withAlphaByte(0x20) };
         SkPoint  g1Points[] = { { 0, 0 }, { 0,     100 } };
         SkPoint  g2Points[] = { { 0, 0 }, { kSize, 0   } };
         SkScalar pos[] = { 0.2f, 1.0f };
 
         fFilter = SkLumaColorFilter::Make();
-        fGr1 = SkGradientShader::MakeLinear(g1Points, g1Colors, pos, std::size(g1Colors),
-                                            SkTileMode::kClamp);
-        fGr2 = SkGradientShader::MakeLinear(g2Points, g2Colors, pos, std::size(g2Colors),
-                                            SkTileMode::kClamp);
+        fGr1 = SkShaders::LinearGradient(g1Points, {{g1Colors, pos, SkTileMode::kClamp}, {}});
+        fGr2 = SkShaders::LinearGradient(g2Points, {{g2Colors, pos, SkTileMode::kClamp}, {}});
     }
 
     SkString getName() const override { return SkString("lumafilter"); }

@@ -19,20 +19,19 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "src/utils/SkPatchUtils.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
 static sk_sp<SkShader> make_shader() {
-    const SkColor colors[] = {
-        SK_ColorRED, SK_ColorCYAN, SK_ColorGREEN, SK_ColorWHITE, SK_ColorMAGENTA, SK_ColorBLUE,
-        SK_ColorYELLOW,
+    const SkColor4f colors[] = {
+        SkColors::kRed, SkColors::kCyan, SkColors::kGreen, SkColors::kWhite, SkColors::kMagenta,
+        SkColors::kBlue, SkColors::kYellow,
     };
     const SkPoint pts[] = { { 100.f / 4.f, 0.f }, { 3.f * 100.f / 4.f, 100.f } };
 
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
-                                        SkTileMode::kMirror);
+    return SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kMirror}, {}});
 }
 
 static void draw_control_points(SkCanvas* canvas, const SkPoint cubics[12]) {

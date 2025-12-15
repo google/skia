@@ -81,11 +81,10 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
 
-        const SkColor gradient_colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED };
-        paint.setShader(SkGradientShader::MakeSweep(fTileSize.width()  / 2,
-                                                    fTileSize.height() / 2,
-                                                    gradient_colors, nullptr,
-                                                    std::size(gradient_colors)));
+        const SkColor4f gradient_colors[] = {
+            SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kRed };
+        paint.setShader(SkShaders::SweepGradient({fTileSize.width() / 2, fTileSize.height() / 2},
+                                                 {{gradient_colors, {}, SkTileMode::kClamp}, {}}));
 
         auto cf0 = MakeTintColorFilter(0xff300000, 0xffa00000);  // red tint
         auto cf1 = MakeTintColorFilter(0xff003000, 0xff00a000);  // green tint

@@ -15,7 +15,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 
 // Exercises code in skgpu::V1::SurfaceDrawContext that attempts to replace a rrect clip/draw
 // paint with draw rrect.
@@ -42,17 +42,19 @@ DEF_SIMPLE_GM(rrect_clip_draw_paint, canvas, 256, 256) {
     canvas->restore();
 
     constexpr SkPoint kPts[] = {{0.f, 0.f}, {256.f, 256.f}};
-    constexpr SkColor kColors1[] = {SK_ColorCYAN, SK_ColorGREEN};
-    p.setShader(SkGradientShader::MakeLinear(kPts, kColors1, nullptr, 2, SkTileMode::kClamp));
+    constexpr SkColor4f kColors1[] = {SkColors::kCyan, SkColors::kGreen};
+    p.setShader(SkShaders::LinearGradient(kPts, {{kColors1, {}, SkTileMode::kClamp}, {}}));
     canvas->concat(zoomOut);
     canvas->saveLayer(layerRect, nullptr);
     canvas->clipRRect(rrect, true);
     canvas->drawPaint(p);
     canvas->restore();
 
-    constexpr SkColor kColors2[] = {SK_ColorMAGENTA, SK_ColorGRAY};
-    p.setShader(SkGradientShader::MakeRadial({128.f, 128.f}, 128.f, kColors2, nullptr, 2,
-                                             SkTileMode::kClamp));
+    constexpr float compat_gray = 0x88/255.f;
+    constexpr SkColor4f kColors2[] = {
+            SkColors::kMagenta, {compat_gray, compat_gray, compat_gray, 1}};
+    p.setShader(SkShaders::RadialGradient({128.f, 128.f}, 128.f,
+                                          {{kColors2, {}, SkTileMode::kClamp}, {}}));
     canvas->concat(zoomOut);
     canvas->saveLayer(layerRect, nullptr);
     canvas->clipRRect(rrect, false);

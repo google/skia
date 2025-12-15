@@ -21,7 +21,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "tools/ToolUtils.h"
 
 #define WIDTH 512
@@ -32,9 +32,9 @@ namespace skiagm {
 // Using gradients because GPU doesn't currently have an implementation of SkColorShader (duh!)
 static sk_sp<SkShader> make_color_shader(SkColor color) {
     constexpr SkPoint kPts[] = {{0, 0}, {1, 1}};
-    SkColor colors[] = {color, color};
+    const SkColor4f c4 = SkColor4f::FromColor(color);
 
-    return SkGradientShader::MakeLinear(kPts, colors, nullptr, 2, SkTileMode::kClamp);
+    return SkShaders::LinearGradient(kPts, {{{c4, c4}, {}, SkTileMode::kClamp}, {}});
 }
 
 static sk_sp<SkShader> make_solid_shader() {

@@ -31,8 +31,9 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/utils/SkTextUtils.h"
+#include "src/core/SkColorPriv.h"
 #include "src/image/SkImageGeneratorPriv.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
@@ -92,10 +93,9 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
     const SkPoint pts1[] = { SkPoint::Make(underlineRect.x(), 0),
                              SkPoint::Make(iBox.centerX(), 0) };
     const SkScalar pos1[] = { 0, 0.75f };
-    const SkColor colors1[] = { SK_ColorTRANSPARENT, SK_ColorBLACK };
+    const SkColor4f colors1[] = { SkColors::kTransparent, SkColors::kBlack };
     SkASSERT(std::size(pos1) == std::size(colors1));
-    paint.setShader(SkGradientShader::MakeLinear(pts1, colors1, pos1, std::size(pos1),
-                                                 SkTileMode::kClamp));
+    paint.setShader(SkShaders::LinearGradient(pts1, {{colors1, pos1, SkTileMode::kClamp}, {}}));
     canvas->drawRect(underlineRect, paint);
 
     const SkPoint pts2[] = { SkPoint::Make(iBox.x() - iBox.width() * kGradientPad, 0),
@@ -112,8 +112,9 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
         SK_ColorBLACK
     };
     SkASSERT(std::size(pos2) == std::size(colors2));
-    paint.setShader(SkGradientShader::MakeLinear(pts2, colors2, pos2, std::size(pos2),
-                                                 SkTileMode::kClamp));
+    SkColorConverter conv(colors2);
+    paint.setShader(SkShaders::LinearGradient(pts2,
+                                              {{conv.colors4f(), pos2, SkTileMode::kClamp}, {}}));
     canvas->drawSimpleText(kSkiaStr, textLen, SkTextEncoding::kUTF8, 0, 0, font, paint);
 }
 

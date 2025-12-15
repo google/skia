@@ -20,7 +20,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/effects/SkImageFilters.h"
 #include "src/gpu/BlurUtils.h"
 #include "tools/ToolUtils.h"
@@ -43,8 +43,8 @@ public:
             : fNameSuffix(nameSuffix),
               fKernelFixture(kernelFixture) {
         this->setBGColor(0x00000000);
-        fColors[0] = colorOne;
-        fColors[1] = colorTwo;
+        fColors[0] = SkColor4f::FromColor(colorOne);
+        fColors[1] = SkColor4f::FromColor(colorTwo);
     }
 
 protected:
@@ -60,8 +60,7 @@ protected:
         SkPoint pts[2] = { {0, 0},
                            {0, 80.0f} };
         SkScalar pos[2] = { 0, 80.0f };
-        paint.setShader(SkGradientShader::MakeLinear(
-            pts, fColors, pos, 2, SkTileMode::kClamp));
+        paint.setShader(SkShaders::LinearGradient(pts, {{fColors, pos, SkTileMode::kClamp}, {}}));
         SkFont font(ToolUtils::DefaultPortableTypeface(), 180.0f);
         surf->getCanvas()->drawString("e", -10.0f, 80.0f, font, paint);
         fImage = surf->makeImageSnapshot();
@@ -168,7 +167,7 @@ protected:
 
 private:
     sk_sp<SkImage> fImage;
-    SkColor fColors[2];
+    SkColor4f fColors[2];
     const char* fNameSuffix;
     KernelFixture fKernelFixture;
 

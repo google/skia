@@ -14,7 +14,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/base/SkRandom.h"
@@ -101,10 +101,10 @@ static sk_sp<SkShader> make_threshold(SkISize size) {
     auto canvas = surf->getCanvas();
 
     const SkScalar rad = 50;
-    SkColor colors[] = {SK_ColorBLACK, 0};
+    const SkColor4f colors[] = {SkColors::kBlack, {0,0,0,0}};
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setShader(SkGradientShader::MakeRadial({0,0}, rad, colors, nullptr, 2, SkTileMode::kClamp));
+    paint.setShader(SkShaders::RadialGradient({0,0}, rad, {{colors, {}, SkTileMode::kClamp}, {}}));
 
     SkPaint layerPaint;
     const SkScalar sigma = 16.0f;

@@ -17,29 +17,28 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 
-typedef sk_sp<SkShader> (*MakeShaderProc)(const SkColor[], int count, const SkSize&);
+typedef sk_sp<SkShader> (*MakeShaderProc)(const SkGradient& grad, const SkSize&);
 
-static sk_sp<SkShader> shader_linear(const SkColor colors[], int count, const SkSize& size) {
+static sk_sp<SkShader> shader_linear(const SkGradient& grad, const SkSize& size) {
     SkPoint pts[] = { { 0, 0 }, { size.width(), size.height() } };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, count, SkTileMode::kClamp);
+    return SkShaders::LinearGradient(pts, grad);
 }
 
-static sk_sp<SkShader> shader_radial(const SkColor colors[], int count, const SkSize& size) {
+static sk_sp<SkShader> shader_radial(const SkGradient& grad, const SkSize& size) {
     SkPoint center = { size.width()/2, size.height()/2 };
-    return SkGradientShader::MakeRadial(center, size.width()/2, colors, nullptr, count,
-                                        SkTileMode::kClamp);
+    return SkShaders::RadialGradient(center, size.width()/2, grad);
 }
 
-static sk_sp<SkShader> shader_conical(const SkColor colors[], int count, const SkSize& size) {
+static sk_sp<SkShader> shader_conical(const SkGradient& grad, const SkSize& size) {
     SkPoint center = { size.width()/2, size.height()/2 };
-    return SkGradientShader::MakeTwoPointConical(center, size.width()/64, center, size.width()/2,
-                                                colors, nullptr, count, SkTileMode::kClamp);
+    return SkShaders::TwoPointConicalGradient(center, size.width()/64, center, size.width()/2,
+                                              grad);
 }
 
-static sk_sp<SkShader> shader_sweep(const SkColor colors[], int count, const SkSize& size) {
-    return SkGradientShader::MakeSweep(size.width()/2, size.height()/2, colors, nullptr, count);
+static sk_sp<SkShader> shader_sweep(const SkGradient& grad, const SkSize& size) {
+    return SkShaders::SweepGradient({size.width()/2, size.height()/2}, grad);
 }
 
 class ShallowGradientGM : public skiagm::GM {
@@ -59,14 +58,16 @@ private:
     SkISize getISize() override { return {800, 800}; }
 
     void onDraw(SkCanvas* canvas) override {
-        const SkColor colors[] = { 0xFF555555, 0xFF444444 };
-        const int colorCount = std::size(colors);
+        const SkColor4f colors[] = {
+            SkColor4f::FromColor(0xFF555555), SkColor4f::FromColor(0xFF444444)
+        };
+        const SkGradient grad = {{colors, {}, SkTileMode::kClamp}, {}};
 
         SkRect r = { 0, 0, this->width(), this->height() };
         SkSize size = SkSize::Make(r.width(), r.height());
 
         SkPaint paint;
-        paint.setShader(fProc(colors, colorCount, size));
+        paint.setShader(fProc(grad, size));
         paint.setDither(fDither);
         canvas->drawRect(r, paint);
     }

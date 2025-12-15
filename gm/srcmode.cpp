@@ -24,7 +24,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
@@ -38,10 +38,9 @@ static void identity_paintproc(SkPaint* paint) {
 }
 
 static void gradient_paintproc(SkPaint* paint) {
-    const SkColor colors[] = { SK_ColorGREEN, SK_ColorBLUE };
+    const SkColor4f colors[] = { SkColors::kGreen, SkColors::kBlue };
     const SkPoint pts[] = { { 0, 0 }, { W, H } };
-    paint->setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
-                                                  SkTileMode::kClamp));
+    paint->setShader(SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}}));
 }
 
 typedef void (*Proc)(SkCanvas*, const SkPaint&, const SkFont&);
