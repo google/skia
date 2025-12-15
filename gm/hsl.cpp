@@ -195,18 +195,16 @@ DEF_SIMPLE_GM(hsl, canvas, 600, 100) {
     }
 }
 
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
+#include "src/core/SkColorPriv.h"
 
 // Trying to match sample images on https://www.w3.org/TR/compositing-1/#blendingnonseparable
 //
 static sk_sp<SkShader> make_grad(SkScalar width) {
-    SkColor colors[] = {
-        0xFF00CCCC, 0xFF0000CC, 0xFFCC00CC, 0xFFCC0000, 0xFFCCCC00, 0xFF00CC00,
-    };
     SkPoint pts[] = {{0, 0}, {width, 0}};
+    SkColorConverter conv({0xFF00CCCC, 0xFF0000CC, 0xFFCC00CC, 0xFFCC0000, 0xFFCCCC00, 0xFF00CC00});
 
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
-                                        SkTileMode::kClamp);
+    return SkShaders::LinearGradient(pts, {{conv.colors4f(), {}, SkTileMode::kClamp}, {}});
 }
 
 DEF_SIMPLE_GM(HSL_duck, canvas, 1110, 620) {

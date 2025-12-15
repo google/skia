@@ -35,10 +35,11 @@ DEF_SIMPLE_GM_CAN_FAIL(image_dither, canvas, errorMsg, 425, 110) {
     }
 
     // First, we make a non-dithered image with a shallow radial gradient. This will be our source:
-    const SkColor colors[] = { 0xFF555555, 0xFF444444 };
+    const SkColor4f colors[] = {
+            SkColor4f::FromColor(0xFF555555), SkColor4f::FromColor(0xFF444444) };
     const SkPoint points[] = {{0, 0}, {100, 100}};
-    sk_sp<SkShader> gradient = SkGradientShader::MakeLinear(
-            points, colors, nullptr, std::size(colors), SkTileMode::kClamp);
+    sk_sp<SkShader> gradient = SkShaders::LinearGradient(
+            points, {{colors, {}, SkTileMode::kClamp}, {}});
     SkPaint gradientPaint;
     gradientPaint.setShader(gradient);
 

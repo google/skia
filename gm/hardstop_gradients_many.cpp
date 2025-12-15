@@ -48,13 +48,13 @@ protected:
             SkPoint::Make(kWidth, kRectHeight / 2),
         };
 
-        std::vector<SkColor> colors;
-        std::vector<SkScalar> positions;
+        std::vector<SkColor4f> colors;
+        std::vector<float> positions;
 
         for (int row = 1; row <= kNumRows; ++row) {
             // Assemble a gradient containing a blue-to-white blend, repeated N times per row.
-            colors.push_back(SK_ColorBLUE);
-            colors.push_back(SK_ColorWHITE);
+            colors.push_back(SkColors::kBlue);
+            colors.push_back(SkColors::kWhite);
 
             positions = {0.0f};
             for (int pos = 1; pos < row; ++pos) {
@@ -66,13 +66,8 @@ protected:
             SkASSERT(positions.size() == colors.size());
 
             // Draw it.
-            auto shader = SkGradientShader::MakeLinear(points,
-                                                       colors.data(),
-                                                       positions.data(),
-                                                       colors.size(),
-                                                       SkTileMode::kClamp,
-                                                       /*flags=*/0,
-                                                       /*localMatrix=*/nullptr);
+            auto shader = SkShaders::LinearGradient(points,
+                                                    {{colors, positions, SkTileMode::kClamp}, {}});
             SkPaint paint;
             paint.setShader(shader);
             canvas->drawRect(SkRect::MakeXYWH(0, kPadHeight, kWidth, kRectHeight), paint);

@@ -19,17 +19,16 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
 // NOTE: The positions define hardstops for the red and green borders. For the repeating degenerate
 // gradients, that means the red and green are never visible, so the average color used should only
 // be based off of the white, blue, black blend.
-static const SkColor COLORS[] = { SK_ColorRED, SK_ColorWHITE, SK_ColorBLUE,
-                                  SK_ColorBLACK, SK_ColorGREEN };
+static const SkColor4f COLORS[] = { SkColors::kRed, SkColors::kWhite, SkColors::kBlue,
+                                    SkColors::kBlack, SkColors::kGreen };
 static const SkScalar POS[] = { 0.0, 0.0, 0.5, 1.0, 1.0 };
-static const int COLOR_CT = std::size(COLORS);
 
 static const SkTileMode TILE_MODES[] = { SkTileMode::kDecal,
                                          SkTileMode::kRepeat,
@@ -44,6 +43,10 @@ static constexpr int TILE_GAP = 10;
 static const SkPoint CENTER = SkPoint::Make(TILE_SIZE / 2, TILE_SIZE / 2);
 
 typedef sk_sp<SkShader> (*GradientFactory)(SkTileMode tm);
+
+static SkGradient grad(SkTileMode tm) {
+    return {{COLORS, POS, tm}, {}};
+}
 
 static void draw_tile_header(SkCanvas* canvas) {
     canvas->save();
@@ -92,37 +95,34 @@ static void draw_row(SkCanvas* canvas, const char* desc, GradientFactory factory
 static sk_sp<SkShader> make_linear(SkTileMode mode) {
     // Same position
     SkPoint pts[2] = {CENTER, CENTER};
-    return SkGradientShader::MakeLinear(pts, COLORS, POS, COLOR_CT, mode);
+    return SkShaders::LinearGradient(pts, grad(mode));
 }
 
 static sk_sp<SkShader> make_radial(SkTileMode mode) {
     // Radius = 0
-    return SkGradientShader::MakeRadial(CENTER, 0.0, COLORS, POS, COLOR_CT, mode);
+    return SkShaders::RadialGradient(CENTER, 0.0, grad(mode));
 }
 
 static sk_sp<SkShader> make_sweep(SkTileMode mode) {
     // Start and end angles at 45
     static constexpr SkScalar SWEEP_ANG = 45.0;
-    return SkGradientShader::MakeSweep(CENTER.fX, CENTER.fY, COLORS, POS, COLOR_CT, mode,
-                                       SWEEP_ANG, SWEEP_ANG, 0, nullptr);
+    return SkShaders::SweepGradient(CENTER, SWEEP_ANG, SWEEP_ANG, grad(mode));
 }
 
 static sk_sp<SkShader> make_sweep_zero_ang(SkTileMode mode) {
     // Start and end angles at 0
-    return SkGradientShader::MakeSweep(CENTER.fX, CENTER.fY, COLORS, POS, COLOR_CT, mode,
-                                       0.0, 0.0, 0, nullptr);
+    return SkShaders::SweepGradient(CENTER, 0, 0, grad(mode));
 }
 
 static sk_sp<SkShader> make_2pt_conic(SkTileMode mode) {
     // Start and end radius = TILE_SIZE, same position
-    return SkGradientShader::MakeTwoPointConical(CENTER, TILE_SIZE / 2, CENTER, TILE_SIZE / 2,
-                                                 COLORS, POS, COLOR_CT, mode);
+    return SkShaders::TwoPointConicalGradient(CENTER, TILE_SIZE / 2, CENTER, TILE_SIZE / 2,
+                                              grad(mode));
 }
 
 static sk_sp<SkShader> make_2pt_conic_zero_rad(SkTileMode mode) {
     // Start and end radius = 0, same position
-    return SkGradientShader::MakeTwoPointConical(CENTER, 0.0, CENTER, 0.0, COLORS, POS,
-                                                 COLOR_CT, mode);
+    return SkShaders::TwoPointConicalGradient(CENTER, 0.0, CENTER, 0.0, grad(mode));
 }
 
 class DegenerateGradientGM : public skiagm::GM {

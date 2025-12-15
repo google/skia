@@ -2280,11 +2280,11 @@ static SkBitmap make_gradient_bitmap(sk_sp<SkColorSpace> cs) {
     const int width = 50;
     const int height = 50;
       // Define the gradient shader.
-    const SkColor colors[] = { SK_ColorRED, SK_ColorYELLOW, SK_ColorGREEN, SK_ColorCYAN,
-                               SK_ColorBLUE, SK_ColorMAGENTA, SK_ColorRED };
+    const SkColor4f colors[] = { SkColors::kRed, SkColors::kYellow, SkColors::kGreen,
+                            SkColors::kCyan, SkColors::kBlue, SkColors::kMagenta, SkColors::kRed };
     const SkPoint points[] = { { 0.0f, 0.0f }, { (float)width, 0.0f } };
-    sk_sp<SkShader> rainbowShader = SkGradientShader::MakeLinear(points, colors, nullptr, 7,
-                        SkTileMode::kClamp);
+    sk_sp<SkShader> rainbowShader = SkShaders::LinearGradient(points,
+                                                            {{colors, {}, SkTileMode::kClamp}, {}});
     SkPaint gradientPaint;
     gradientPaint.setShader(rainbowShader);
 

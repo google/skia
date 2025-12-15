@@ -17,12 +17,16 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkFloatingPoint.h"
 
-constexpr SkColor gColors[] = {
-    SK_ColorRED, SK_ColorYELLOW
+constexpr SkColor4f gColors[] = {
+    SkColors::kRed, SkColors::kYellow
 };
+
+static SkGradient make_grad(SkTileMode tm) {
+    return {{gColors, {}, tm}, {}};
+}
 
 // These annoying defines are necessary, because the only other alternative
 // is to use SkIntToScalar(...) everywhere.
@@ -63,8 +67,7 @@ constexpr SkScalar TESTGRID_Y = SkIntToScalar(200);
 constexpr int IMAGES_X = 4;             // number of images per row
 
 static sk_sp<SkShader> make_linear_gradient(const SkPoint pts[2], const SkMatrix& localMatrix) {
-    return SkGradientShader::MakeLinear(pts, gColors, nullptr, std::size(gColors),
-                                        SkTileMode::kClamp, 0, &localMatrix);
+    return SkShaders::LinearGradient(pts, make_grad(SkTileMode::kClamp), &localMatrix);
 }
 
 static sk_sp<SkShader> make_radial_gradient(const SkPoint pts[2], const SkMatrix& localMatrix) {
@@ -72,8 +75,7 @@ static sk_sp<SkShader> make_radial_gradient(const SkPoint pts[2], const SkMatrix
     center.set(sk_float_midpoint(pts[0].fX, pts[1].fX),
                sk_float_midpoint(pts[0].fY, pts[1].fY));
     float radius = (center - pts[0]).length();
-    return SkGradientShader::MakeRadial(center, radius, gColors, nullptr, std::size(gColors),
-                                        SkTileMode::kClamp, 0, &localMatrix);
+    return SkShaders::RadialGradient(center, radius, make_grad(SkTileMode::kClamp), &localMatrix);
 }
 
 static void draw_gradients(SkCanvas* canvas,

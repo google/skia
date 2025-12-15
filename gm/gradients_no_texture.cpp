@@ -18,7 +18,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkFloatingPoint.h"
 
 #include <string.h>
@@ -26,13 +26,21 @@
 using namespace skiagm;
 
 struct GradData {
-    int             fCount;
-    const SkColor*  fColors;
-    const SkScalar* fPos;
+    size_t           fCount;
+    const SkColor4f* fColors;
+    const float*     fPos;
+
+    SkGradient operator()(SkTileMode tm) const {
+        SkSpan<const float> pos;
+        if (fPos) {
+            pos = {fPos, fCount};
+        }
+        return {{{fColors, fCount}, pos, tm}, {}};
+    }
 };
 
-constexpr SkColor gColors[] = {
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE,
+constexpr SkColor4f gColors[] = {
+    SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kWhite,
 };
 
 constexpr GradData gGradData[] = {
@@ -42,46 +50,43 @@ constexpr GradData gGradData[] = {
     { 4, gColors, nullptr },
 };
 
-static sk_sp<SkShader> MakeLinear(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
-    return SkGradientShader::MakeLinear(pts, data.fColors, data.fPos, data.fCount, tm);
+static sk_sp<SkShader> MakeLinear(const SkPoint pts[2], const GradData& grad, SkTileMode tm) {
+    return SkShaders::LinearGradient(pts, grad(tm));
 }
 
-static sk_sp<SkShader> MakeRadial(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
+static sk_sp<SkShader> MakeRadial(const SkPoint pts[2], const GradData& grad, SkTileMode tm) {
     SkPoint center;
     center.set(sk_float_midpoint(pts[0].fX, pts[1].fX),
                sk_float_midpoint(pts[0].fY, pts[1].fY));
-    return SkGradientShader::MakeRadial(center, center.fX, data.fColors, data.fPos, data.fCount, tm);
+    return SkShaders::RadialGradient(center, center.fX, grad(tm));
 }
 
-static sk_sp<SkShader> MakeSweep(const SkPoint pts[2], const GradData& data, SkTileMode) {
+static sk_sp<SkShader> MakeSweep(const SkPoint pts[2], const GradData& grad, SkTileMode tm) {
     SkPoint center;
     center.set(sk_float_midpoint(pts[0].fX, pts[1].fX),
                sk_float_midpoint(pts[0].fY, pts[1].fY));
-    return SkGradientShader::MakeSweep(center.fX, center.fY, data.fColors, data.fPos, data.fCount);
+    return SkShaders::SweepGradient(center, grad(tm));
 }
 
-static sk_sp<SkShader> Make2Radial(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
+static sk_sp<SkShader> Make2Radial(const SkPoint pts[2], const GradData& grad, SkTileMode tm) {
     SkPoint center0, center1;
     center0.set(sk_float_midpoint(pts[0].fX, pts[1].fX),
                 sk_float_midpoint(pts[0].fY, pts[1].fY));
     center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3)/5),
                 SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
-    return SkGradientShader::MakeTwoPointConical(
+    return SkShaders::TwoPointConicalGradient(
         center1, (pts[1].fX - pts[0].fX) / 7,
         center0, (pts[1].fX - pts[0].fX) / 2,
-        data.fColors, data.fPos, data.fCount, tm);
+        grad(tm));
 }
 
-static sk_sp<SkShader> Make2Conical(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
+static sk_sp<SkShader> Make2Conical(const SkPoint pts[2], const GradData& grad, SkTileMode tm) {
     SkPoint center0, center1;
     SkScalar radius0 = (pts[1].fX - pts[0].fX) / 10;
     SkScalar radius1 = (pts[1].fX - pts[0].fX) / 3;
     center0.set(pts[0].fX + radius0, pts[0].fY + radius0);
     center1.set(pts[1].fX - radius1, pts[1].fY - radius1);
-    return SkGradientShader::MakeTwoPointConical(center1, radius1,
-                                                   center0, radius0,
-                                                   data.fColors, data.fPos,
-                                                   data.fCount, tm);
+    return SkShaders::TwoPointConicalGradient(center1, radius1, center0, radius0, grad(tm));
 }
 
 
@@ -141,9 +146,9 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 struct ColorPos {
-    SkColor*    fColors;
-    SkScalar*   fPos;
-    int         fCount;
+    SkColor4f* fColors;
+    float*     fPos;
+    size_t     fCount;
 
     ColorPos() : fColors(nullptr), fPos(nullptr), fCount(0) {}
     ~ColorPos() {
@@ -151,16 +156,24 @@ struct ColorPos {
         delete[] fPos;
     }
 
-    void construct(const SkColor colors[], const SkScalar pos[], int count) {
-        fColors = new SkColor[count];
-        memcpy(fColors, colors, count * sizeof(SkColor));
+    void construct(const SkColor colors[], const float pos[], int count) {
+        fColors = new SkColor4f[count];
+        std::transform(colors, colors + count, fColors, SkColor4f::FromColor);
         if (pos) {
-            fPos = new SkScalar[count];
-            memcpy(fPos, pos, count * sizeof(SkScalar));
+            fPos = new float[count];
+            std::copy(pos, pos + count, fPos);
             fPos[0] = 0;
             fPos[count - 1] = 1;
         }
         fCount = count;
+    }
+
+    SkGradient operator()(SkTileMode tm) const {
+        SkSpan<const float> pos;
+        if (fPos) {
+            pos = {fPos, fCount};
+        }
+        return {{{fColors, fCount}, pos, tm}, {}};
     }
 };
 
@@ -268,8 +281,7 @@ protected:
         for (size_t i = 0; i < std::size(procs); ++i) {
             ColorPos rec;
             procs[i](&rec);
-            paint.setShader(SkGradientShader::MakeLinear(pts, rec.fColors, rec.fPos, rec.fCount,
-                                                         SkTileMode::kClamp));
+            paint.setShader(SkShaders::LinearGradient(pts, rec(SkTileMode::kClamp)));
             canvas->drawRect(drawR, paint);
 
             canvas->save();

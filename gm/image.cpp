@@ -28,7 +28,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/encode/SkJpegEncoder.h"
 #include "include/private/base/SkMalloc.h"
 #include "src/core/SkAutoPixmapStorage.h"
@@ -622,16 +622,9 @@ DEF_SIMPLE_GM(crbug_404394639, canvas, 500, 500) {
     SkCanvas* canv = surf->getCanvas();
 
     SkPoint pts[] = {SkPoint::Make(0, 0), SkPoint::Make(0, SOURCE_HEIGHT)};
-    SkColor4f colors[] = {SkColor4f::FromColor(SK_ColorCYAN), SkColor4f::FromColor(SK_ColorMAGENTA)};
-    sk_sp<SkShader> gradient_shader = SkGradientShader::MakeLinear(
-        pts,
-        colors,
-        nullptr,
-        nullptr,
-        2,
-        SkTileMode::kClamp,
-        0
-    );
+    SkColor4f colors[] = {SkColors::kCyan, SkColors::kMagenta};
+    sk_sp<SkShader> gradient_shader = SkShaders::LinearGradient(
+        pts, {{colors, {}, SkTileMode::kClamp}, {}});
 
     SkPaint paint;
     paint.setShader(gradient_shader);

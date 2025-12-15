@@ -28,24 +28,22 @@ namespace {
 
 // test shader w/ transparency
 static sk_sp<SkShader> make_grad(SkScalar width) {
-    SkColor colors[] = { SK_ColorRED, 0x0000FF00, SK_ColorBLUE };
+    SkColor4f colors[] = { SkColors::kRed, {0,1,0,0}, SkColors::kBlue };
     SkPoint pts[] = { { 0, 0 }, { width, 0 } };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
-                                        SkTileMode::kMirror);
+    return SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kMirror}, {}});
 }
 
 // test opaque shader
 static sk_sp<SkShader> make_grad2(SkScalar width) {
-    SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
+    SkColor4f colors[] = { SkColors::kRed, SkColors::kGreen, SkColors::kBlue };
     SkPoint pts[] = { { 0, 0 }, { width, 0 } };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
-                                        SkTileMode::kMirror);
+    return SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kMirror}, {}});
 }
 
 static sk_sp<SkShader> make_chrome_solid() {
-    SkColor colors[] = { SK_ColorGREEN, SK_ColorGREEN };
+    SkColor4f colors[] = { SkColors::kGreen, SkColors::kGreen };
     SkPoint pts[] = { { 0, 0 }, { 1, 0 } };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
+    return SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}});
 }
 
 // Replicate chrome layout test - clipped pathed gradient-shaded text
@@ -60,7 +58,7 @@ class ChromeGradTextGM1 : public skiagm::GM {
 
         canvas->clipRect(r);
 
-        paint.setColor(SK_ColorRED);
+        paint.setColor(SkColors::kRed);
         canvas->drawRect(r, paint);
 
         // Minimal repro doesn't require AA, LCD, or a nondefault typeface

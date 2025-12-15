@@ -32,9 +32,9 @@
 
 using InvertStyle = SkHighContrastConfig::InvertStyle;
 
-static SkScalar kSize   = 200;
-static SkColor  kColor1 = SkColorSetARGB(0xff, 0xff, 0xff, 0);
-static SkColor  kColor2 = SkColorSetARGB(0xff, 0x82, 0xff, 0);
+static SkScalar kSize    = 200;
+static SkColor4f kColor1 = SkColor4f::FromColor(SkColorSetARGB(0xff, 0xff, 0xff, 0));
+static SkColor4f kColor2 = SkColor4f::FromColor(SkColorSetARGB(0xff, 0x82, 0xff, 0));
 
 static void draw_label(SkCanvas* canvas, const SkHighContrastConfig& config) {
     char labelBuffer[256];
@@ -86,40 +86,38 @@ static void draw_scene(SkCanvas* canvas, const SkHighContrastConfig& config) {
 
     bounds = SkRect::MakeLTRB(0.1f, 0.4f, 0.9f, 0.6f);
     SkPoint     pts[] = { { 0, 0 }, { 1, 0 } };
-    SkColor     colors[] = { SK_ColorWHITE, SK_ColorBLACK };
+    SkColor4f   colors[] = { SkColors::kWhite, SkColors::kBlack };
     SkScalar    pos[] = { 0.2f, 0.8f };
-    paint.setShader(SkGradientShader::MakeLinear(
-        pts, colors, pos,
-        std::size(colors), SkTileMode::kClamp));
+    paint.setShader(SkShaders::LinearGradient(pts, {{colors, pos, SkTileMode::kClamp}, {}}));
     canvas->drawRect(bounds, paint);
 
     bounds = SkRect::MakeLTRB(0.1f, 0.6f, 0.9f, 0.8f);
-    SkColor colors2[] = { SK_ColorGREEN, SK_ColorWHITE };
-    paint.setShader(SkGradientShader::MakeLinear(
-        pts, colors2, pos,
-        std::size(colors2), SkTileMode::kClamp));
+    SkColor4f colors2[] = { SkColors::kGreen, SkColors::kWhite };
+    paint.setShader(SkShaders::LinearGradient(pts, {{colors2, pos, SkTileMode::kClamp}, {}}));
     canvas->drawRect(bounds, paint);
 
     canvas->restore();
 }
 
+static inline SkColor4f withAlpha(SkColor4f c, float a) {
+    return {c.fR, c.fG, c.fB, a};
+}
+
 class HighContrastFilterGM : public skiagm::GM {
 protected:
     void onOnceBeforeDraw() override {
-        SkColor  g1Colors[] = { kColor1, SkColorSetA(kColor1, 0x20) };
-        SkColor  g2Colors[] = { kColor2, SkColorSetA(kColor2, 0x20) };
-        SkPoint  g1Points[] = { { 0, 0 }, { 0,     100 } };
-        SkPoint  g2Points[] = { { 0, 0 }, { kSize, 0   } };
+        SkColor4f g1Colors[] = { kColor1, withAlpha(kColor1, 0x20/255.f) };
+        SkColor4f g2Colors[] = { kColor2, withAlpha(kColor2, 0x20/255.f) };
+        SkPoint   g1Points[] = { { 0, 0 }, { 0,     100 } };
+        SkPoint   g2Points[] = { { 0, 0 }, { kSize, 0   } };
         SkScalar pos[] = { 0.2f, 1.0f };
 
         SkHighContrastConfig fConfig;
         fFilter = SkHighContrastFilter::Make(fConfig);
-        fGr1 = SkGradientShader::MakeLinear(
-            g1Points, g1Colors, pos, std::size(g1Colors),
-            SkTileMode::kClamp);
-        fGr2 = SkGradientShader::MakeLinear(
-            g2Points, g2Colors, pos, std::size(g2Colors),
-            SkTileMode::kClamp);
+        fGr1 = SkShaders::LinearGradient(
+            g1Points, {{g1Colors, pos, SkTileMode::kClamp}, {}});
+        fGr2 = SkShaders::LinearGradient(
+            g2Points, {{g2Colors, pos, SkTileMode::kClamp}, {}});
     }
 
     SkString getName() const override { return SkString("highcontrastfilter"); }

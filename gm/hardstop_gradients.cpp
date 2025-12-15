@@ -102,12 +102,12 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkPoint points[2];
 
-        SkColor colors[] = {
-            SK_ColorRED,
-            SK_ColorGREEN,
-            SK_ColorBLUE,
-            SK_ColorYELLOW,
-            SK_ColorMAGENTA,
+        SkColor4f colors[] = {
+            SkColors::kRed,
+            SkColors::kGreen,
+            SkColors::kBlue,
+            SkColors::kYellow,
+            SkColors::kMagenta,
         };
 
         SkScalar row3[] = {0.00f, 0.25f, 1.00f};
@@ -149,14 +149,13 @@ protected:
             for (int cellCol = 0; cellCol < NUM_COLS; cellCol++) {
                 create_gradient_points(cellRow, cellCol, points);
 
-                auto shader = SkGradientShader::MakeLinear(
-                                points,
-                                colors,
-                                positions[cellRow],
-                                numGradientColors[cellRow],
-                                tilemodes[cellCol],
-                                0,
-                                nullptr);
+                size_t n = numGradientColors[cellRow];
+                SkSpan<const float> pos;
+                if (positions[cellRow]) {
+                    pos = {positions[cellRow], n};
+                }
+                auto shader = SkShaders::LinearGradient(
+                                points, {{{colors, n}, pos, tilemodes[cellCol]}, {}});
 
                 shade_rect(canvas, shader, cellRow, cellCol);
             }

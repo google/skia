@@ -24,7 +24,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "tools/DecodeUtils.h"
@@ -42,12 +42,10 @@ static sk_sp<SkImage> make_gradient_circle(int width, int height) {
     auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(width, height)));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(0x00000000);
-    SkColor colors[2];
-    colors[0] = SK_ColorWHITE;
-    colors[1] = SK_ColorBLACK;
+    const SkColor4f colors[2] = {SkColors::kWhite, SkColors::kBlack};
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(x, y), radius, colors, nullptr,
-        2, SkTileMode::kClamp));
+    paint.setShader(SkShaders::RadialGradient({x, y}, radius,
+                                              {{colors, {}, SkTileMode::kClamp}, {}}));
     canvas->drawCircle(x, y, radius, paint);
     return surface->makeImageSnapshot();
 }
