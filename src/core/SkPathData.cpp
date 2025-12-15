@@ -10,6 +10,7 @@
 #include "include/core/SkSpan.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkTo.h"
 #include "src/base/SkSafeMath.h"
 #include "src/core/SkPathData.h"
 #include "src/core/SkPathEnums.h"
@@ -73,20 +74,15 @@ const uint8_t gPtsPerVerb[] = {
     1, 1, 2, 2, 3, 0,  // move, line, quad, conic, cubic, close
 };
 
-static std::pair<size_t, size_t> count_pts_cns(SkSpan<const SkPathVerb> vbs) {
-    size_t pts = 0,
-           cns = 0;
-    for (auto v : vbs) {
-        SkASSERT((unsigned)v < sizeof(gPtsPerVerb));
-        pts += gPtsPerVerb[(unsigned)v];
-        cns += (v == SkPathVerb::kConic);
-    }
-    return {pts, cns};
+static inline bool valid_conic_weight(float w) {
+    return w >= 0 && SkIsFinite(w);
 }
 
-static bool valid_verbs(SkSpan<const SkPathVerb> vbs) {
-    if (vbs.size() == 0) {
-        return true;
+static bool valid_path_data(SkSpan<const SkPoint> pts,
+                            SkSpan<const SkPathVerb> vbs,
+                            SkSpan<const float> conics) {
+    if (vbs.empty()) {
+        return pts.empty() && conics.empty();
     }
 
     // We must begin with a Move (unless we're empty)
@@ -94,6 +90,8 @@ static bool valid_verbs(SkSpan<const SkPathVerb> vbs) {
         return false;
     }
     SkPathVerb prev = SkPathVerb::kMove;
+    size_t point_count = 1,
+           conic_count = 0;
 
     // Check that we have a valid sequence.
     for (size_t i = 1; i < vbs.size(); ++i) {
@@ -115,13 +113,24 @@ static bool valid_verbs(SkSpan<const SkPathVerb> vbs) {
         if (prev == SkPathVerb::kClose && curr != SkPathVerb::kMove) {
             return false;
         }
+
+        point_count += gPtsPerVerb[SkToSizeT(curr)];
+        conic_count += (curr == SkPathVerb::kConic);
+
         prev = curr;
     }
-    return true;
-}
 
-static inline bool valid_conic_weight(float w) {
-    return w >= 0 && SkIsFinite(w);
+    if (pts.size() != point_count || conics.size() != conic_count){
+        return false;
+    }
+
+    for (auto w : conics) {
+        if (!valid_conic_weight(w)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 // Handing in debugging, to set a break-point here if you want to know why we
@@ -321,7 +330,7 @@ sk_sp<SkPathData> SkPathData::MakeNoCheck(SkSpan<const SkPoint> pts,
                                           SkSpan<const float> conics,
                                           std::optional<SkRect> bounds,
                                           std::optional<unsigned> segmentMask) {
-    SkASSERT(valid_verbs(vbs));
+    SkASSERT(valid_path_data(pts, vbs, conics));
 
     auto path = Alloc(pts.size(), vbs.size(), conics.size());
 
@@ -500,22 +509,9 @@ bool SkPathData::contains(SkPoint p, SkPathFillType ft) const {
 sk_sp<SkPathData> SkPathData::Make(SkSpan<const SkPoint> pts,
                                    SkSpan<const SkPathVerb> vbs,
                                    SkSpan<const float> conics) {
-    if (!valid_verbs(vbs)) {
-        report_pathdata_make_failure("invalid verb sequence");
+    if (!valid_path_data(pts, vbs, conics)) {
+        report_pathdata_make_failure("invalid path data");
         return nullptr;
-    }
-
-    auto [npts, ncns] = count_pts_cns(vbs);
-    if (pts.size() != npts || conics.size() != ncns) {
-        report_pathdata_make_failure("unexpected # points or conics");
-        return nullptr;
-    }
-
-    for (auto w : conics) {
-        if (!valid_conic_weight(w)) {
-            report_pathdata_make_failure("non-finite conics");
-            return nullptr;
-        }
     }
 
     // MakeNoCheck *does* compute/check bounds if we don't pass them in
