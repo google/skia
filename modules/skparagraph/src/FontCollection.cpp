@@ -154,6 +154,7 @@ sk_sp<SkTypeface> FontCollection::matchTypeface(const SkString& familyName, SkFo
 
 // Find ANY font in available font managers that resolves the unicode codepoint
 sk_sp<SkTypeface> FontCollection::defaultFallback(SkUnichar unicode,
+                                                  const std::vector<SkString>& families,
                                                   SkFontStyle fontStyle,
                                                   const SkString& locale,
                                                   const std::optional<FontArguments>& fontArgs) {
@@ -163,8 +164,9 @@ sk_sp<SkTypeface> FontCollection::defaultFallback(SkUnichar unicode,
         if (!locale.isEmpty()) {
             bcp47.push_back(locale.c_str());
         }
+        const char* familyName = families.empty() ? nullptr : families[0].c_str();
         sk_sp<SkTypeface> typeface(manager->matchFamilyStyleCharacter(
-            nullptr, fontStyle, bcp47.data(), bcp47.size(), unicode));
+            familyName, fontStyle, bcp47.data(), bcp47.size(), unicode));
 
         if (typeface != nullptr) {
             if (fontArgs) {
