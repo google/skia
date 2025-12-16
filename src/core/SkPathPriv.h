@@ -475,6 +475,10 @@ public:
         // - otherwise we ignore it when computing bounds
         if (vbs.size() > 1 && vbs.back() == SkPathVerb::kMove) {
             SkASSERT(pts.size() > 0);
+            // While trailing moves do not contribute to the bounds, we still reject them.
+            if (!pts.back().isFinite()) {
+                return {};
+            }
             pts = pts.subspan(0, pts.size() - 1);
         }
         return SkRect::Bounds(pts);

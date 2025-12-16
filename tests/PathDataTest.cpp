@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkPathBuilder.h"
+#include "include/core/SkPathTypes.h"
 #include "src/core/SkPathData.h"
 #include "src/core/SkPathPriv.h"
 
@@ -404,6 +405,13 @@ DEF_TEST(pathdata_make_nonfinite, reporter) {
 
     pts[1].fX = inf;  // restore non-finite value
     REPORTER_ASSERT(reporter, SkPathData::Polygon(pts, false) == nullptr);
+
+    {
+        // Non-finite trailing moves should also be rejected.
+        SkPathVerb v[] = { SkPathVerb::kMove, SkPathVerb::kLine, SkPathVerb::kMove };
+        SkPoint    p[] = { {0, 0}, {10, 10}, {inf, 20} };
+        REPORTER_ASSERT(reporter, SkPathData::Make(p, v) == nullptr);
+    }
 }
 
 DEF_TEST(pathdata_transform, reporter) {
