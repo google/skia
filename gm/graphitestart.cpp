@@ -17,6 +17,7 @@
 #include "include/core/SkRRect.h"
 #include "include/effects/SkGradient.h"
 #include "src/core/SkColorFilterPriv.h"
+#include "src/core/SkColorPriv.h"
 #include "tools/DecodeUtils.h"
 #include "tools/GpuToolUtils.h"
 #include "tools/Resources.h"
