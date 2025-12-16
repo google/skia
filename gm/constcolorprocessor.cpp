@@ -24,7 +24,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkColorData.h"
@@ -70,10 +70,9 @@ protected:
     SkISize getISize() override { return SkISize::Make(kWidth, kHeight); }
 
     void onOnceBeforeDraw() override {
-        SkColor colors[] = { 0xFFFF0000, 0x2000FF00, 0xFF0000FF};
+        const SkColor4f colors[] = { {1,0,0,1}, {0,1,0,0x20/255.f}, {0,0,1,1}};
         SkPoint pts[] = { SkPoint::Make(0, 0), SkPoint::Make(kRectSize, kRectSize) };
-        fShader = SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
-                                               SkTileMode::kClamp);
+        fShader = SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}});
     }
 
     DrawResult onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) override {

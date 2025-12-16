@@ -22,7 +22,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/effects/SkImageFilters.h"
 
 #include <math.h>
@@ -30,12 +30,11 @@
 
 static sk_sp<SkShader> make_shader0(int w, int h) {
     SkPoint pts[] = { {0, 0}, {SkIntToScalar(w), SkIntToScalar(h)} };
-    SkColor colors[] = {
-        SK_ColorBLACK, SK_ColorGREEN, SK_ColorCYAN,
-        SK_ColorRED, 0, SK_ColorBLUE, SK_ColorWHITE
+    const SkColor4f colors[] = {
+        SkColors::kBlack, SkColors::kGreen, SkColors::kCyan,
+        SkColors::kRed, {0,0,0,0}, SkColors::kBlue, SkColors::kWhite
     };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors),
-                                        SkTileMode::kClamp);
+    return SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}});
 }
 static void make_bm0(SkBitmap* bm) {
     int W = 120;
@@ -51,11 +50,10 @@ static void make_bm0(SkBitmap* bm) {
 static sk_sp<SkShader> make_shader1(int w, int h) {
     SkScalar cx = SkIntToScalar(w)/2;
     SkScalar cy = SkIntToScalar(h)/2;
-    SkColor colors[] = {
-        SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE,
+    const SkColor4f colors[] = {
+        SkColors::kRed, SkColors::kGreen, SkColors::kBlue,
     };
-    return SkGradientShader::MakeRadial(SkPoint::Make(cx, cy), cx, colors, nullptr,
-                                        std::size(colors), SkTileMode::kClamp);
+    return SkShaders::RadialGradient({cx, cy}, cx, {{colors, {}, SkTileMode::kClamp}, {}});
 }
 static void make_bm1(SkBitmap* bm) {
     int W = 120;

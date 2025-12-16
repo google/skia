@@ -9,7 +9,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -70,9 +70,10 @@ private:
     void drawContent(SkCanvas* canvas, int y) {
         SkPaint gradientPaint;
         constexpr SkPoint points[2] = {{0.0f, 0.0f}, {kImageSize, kImageSize}};
-        constexpr SkColor colors[4] = {SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED};
-        gradientPaint.setShader(SkGradientShader::MakeLinear(
-                points, colors, nullptr, std::size(colors), SkTileMode::kClamp));
+        constexpr SkColor4f colors[4] = {
+                SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kRed};
+        gradientPaint.setShader(SkShaders::LinearGradient(
+                points, {{colors, {}, SkTileMode::kClamp}, {}}));
 
         // Draw image.
         canvas->drawImage(fImage, kPadding, kPadding + y);

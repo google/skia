@@ -21,7 +21,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/base/SkTDArray.h"
 #include "src/base/SkRandom.h"
@@ -37,17 +37,15 @@
 
 static constexpr SkScalar kShaderSize = 40;
 static sk_sp<SkShader> make_shader1(SkScalar shaderScale) {
-    const SkColor colors[] = {
-        SK_ColorRED, SK_ColorCYAN, SK_ColorGREEN, SK_ColorWHITE,
-        SK_ColorMAGENTA, SK_ColorBLUE, SK_ColorYELLOW,
+    const SkColor4f colors[] = {
+        SkColors::kRed, SkColors::kCyan, SkColors::kGreen, SkColors::kWhite,
+        SkColors::kMagenta, SkColors::kBlue, SkColors::kYellow,
     };
     const SkPoint pts[] = {{kShaderSize / 4, 0}, {3 * kShaderSize / 4, kShaderSize}};
     const SkMatrix localMatrix = SkMatrix::Scale(shaderScale, shaderScale);
 
-    sk_sp<SkShader> grad = SkGradientShader::MakeLinear(pts, colors, nullptr,
-                                                        std::size(colors),
-                                                        SkTileMode::kMirror, 0,
-                                                        &localMatrix);
+    sk_sp<SkShader> grad = SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kMirror}, {}},
+                                                     &localMatrix);
     // Throw in a couple of local matrix wrappers for good measure.
     return shaderScale == 1 ? grad
                             : grad->makeWithLocalMatrix(SkMatrix::Translate(-10, 0))

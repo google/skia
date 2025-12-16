@@ -15,7 +15,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkRRect.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "src/core/SkColorFilterPriv.h"
 #include "tools/DecodeUtils.h"
 #include "tools/GpuToolUtils.h"
@@ -28,9 +28,9 @@ sk_sp<SkShader> create_gradient_shader(SkRect r,
                                        const std::array<SkColor, 3>& colors,
                                        const std::array<float, 3>& offsets) {
     SkPoint pts[2] = { {r.fLeft, r.fTop}, {r.fRight, r.fTop} };
+    SkColorConverter conv(colors);
 
-    return SkGradientShader::MakeLinear(pts, colors.data(), offsets.data(), std::size(colors),
-                                        SkTileMode::kClamp);
+    return SkShaders::LinearGradient(pts, {{conv.colors4f(), offsets, SkTileMode::kClamp}, {}});
 }
 
 sk_sp<SkShader> create_image_shader(SkCanvas* destCanvas, SkTileMode tmX, SkTileMode tmY) {

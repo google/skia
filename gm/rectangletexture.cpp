@@ -25,7 +25,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrTypes.h"
@@ -67,14 +67,16 @@ private:
                 SkPaint paint;
                 SkCanvas canvas(bmp);
                 SkPoint pts[] = {{0, 0}, {0, SkIntToScalar(size)}};
-                SkColor colors0[] = {0xFF1060B0, 0xFF102030};
+                const SkColor4f colors0[] = {
+                        SkColor4f::FromColor(0xFF1060B0), SkColor4f::FromColor(0xFF102030)};
                 paint.setShader(
-                        SkGradientShader::MakeLinear(pts, colors0, nullptr, 2, SkTileMode::kClamp));
+                        SkShaders::LinearGradient(pts, {{colors0, {}, SkTileMode::kClamp}, {}}));
                 canvas.drawPaint(paint);
-                SkColor colors1[] = {0xFFA07010, 0xFFA02080};
+                const SkColor4f colors1[] = {
+                        SkColor4f::FromColor(0xFFA07010), SkColor4f::FromColor(0xFFA02080)};
                 paint.setAntiAlias(true);
                 paint.setShader(
-                        SkGradientShader::MakeLinear(pts, colors1, nullptr, 2, SkTileMode::kClamp));
+                        SkShaders::LinearGradient(pts, {{colors1, {}, SkTileMode::kClamp}, {}}));
                 canvas.drawCircle(size/2.f, size/2.f, 2.f*size/5, paint);
                 return bmp;
             }

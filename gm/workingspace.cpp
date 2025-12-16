@@ -13,7 +13,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkString.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkColorFilterPriv.h"
 #include "src/shaders/SkWorkingColorSpaceShader.h"
@@ -55,7 +55,7 @@ static sk_sp<SkShader> managed_shader(SkColor4f color) {
 static sk_sp<SkShader> gradient_shader() {
     const SkPoint pts[] = {{0, 0}, {40, 40}};
     const SkColor4f colors[] = {SkColors::kRed, SkColors::kGreen};
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, nullptr, 2, SkTileMode::kClamp);
+    return SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}});
 }
 
 static sk_sp<SkColorFilter> raw_cf(SkColor4f color) {

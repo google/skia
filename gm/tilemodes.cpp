@@ -23,7 +23,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/utils/SkTextUtils.h"
 #include "tools/DecodeUtils.h"
 #include "tools/GpuToolUtils.h"
@@ -39,13 +39,12 @@ static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
 
     SkCanvas    canvas(*bm);
     SkPoint     pts[] = { { 0, 0 }, { SkIntToScalar(w), SkIntToScalar(h)} };
-    SkColor     colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
+    SkColor4f   colors[] = { SkColors::kRed, SkColors::kGreen, SkColors::kBlue };
     SkScalar    pos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
     SkPaint     paint;
 
     paint.setDither(true);
-    paint.setShader(SkGradientShader::MakeLinear(pts, colors, pos, std::size(colors),
-                                                 SkTileMode::kClamp));
+    paint.setShader(SkShaders::LinearGradient(pts, {{colors, pos, SkTileMode::kClamp}, {}}));
     canvas.drawPaint(paint);
 }
 
@@ -183,17 +182,17 @@ static sk_sp<SkShader> make_grad(SkTileMode tx, SkTileMode ty) {
     SkPoint pts[] = { { 0, 0 }, { SkIntToScalar(gWidth), SkIntToScalar(gHeight)} };
     SkPoint center = { SkIntToScalar(gWidth)/2, SkIntToScalar(gHeight)/2 };
     SkScalar rad = SkIntToScalar(gWidth)/2;
-    SkColor  colors[] = {0xFFFF0000, ToolUtils::color_to_565(0xFF0044FF)};
+    SkColor4f colors[] = {{1,0,0,1}, SkColor4f::FromColor(ToolUtils::color_to_565(0xFF0044FF))};
+    const SkGradient grad = {{colors, {}, tx}, {}};
 
     int index = (int)ty;
     switch (index % 3) {
         case 0:
-            return SkGradientShader::MakeLinear(pts, colors, nullptr, std::size(colors), tx);
+            return SkShaders::LinearGradient(pts, grad);
         case 1:
-            return SkGradientShader::MakeRadial(center, rad, colors, nullptr, std::size(colors), tx);
+            return SkShaders::RadialGradient(center, rad, grad);
         case 2:
-            return SkGradientShader::MakeSweep(center.fX, center.fY, colors, nullptr,
-                                               std::size(colors), tx, 135, 225, 0, nullptr);
+            return SkShaders::SweepGradient(center, 135, 225, grad);
     }
     return nullptr;
 }
@@ -291,18 +290,14 @@ DEF_SIMPLE_GM(tilemode_decal, canvas, 720, 1100) {
             paint->setShader(img->makeShader(tx, ty, SkSamplingOptions(SkCubicResampler::Mitchell())));
         },
         [img](SkPaint* paint, SkTileMode tx, SkTileMode ty) {
-            SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
+            SkColor4f colors[] = { SkColors::kRed, SkColors::kBlue };
             const SkPoint pts[] = {{ 0, 0 }, {img->width()*1.0f, img->height()*1.0f }};
-            const SkScalar* pos = nullptr;
-            const int count = std::size(colors);
-            paint->setShader(SkGradientShader::MakeLinear(pts, colors, pos, count, tx));
+            paint->setShader(SkShaders::LinearGradient(pts, {{colors, {}, tx}, {}}));
         },
         [img](SkPaint* paint, SkTileMode tx, SkTileMode ty) {
-            SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
-            const SkScalar* pos = nullptr;
-            const int count = std::size(colors);
-            paint->setShader(SkGradientShader::MakeRadial({ img->width()*0.5f, img->width()*0.5f },
-                                                      img->width()*0.5f, colors, pos, count, tx));
+            SkColor4f colors[] = { SkColors::kRed, SkColors::kBlue };
+            paint->setShader(SkShaders::RadialGradient({ img->width()*0.5f, img->width()*0.5f },
+                                                      img->width()*0.5f, {{colors, {}, tx}, {}}));
         },
     };
 

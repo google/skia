@@ -21,7 +21,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkCanvasPriv.h"
@@ -48,11 +48,11 @@ static void draw_text(SkCanvas* canvas, const char* text) {
 static void draw_gradient_tiles(SkCanvas* canvas, bool alignGradients) {
     // Always draw the same gradient
     static constexpr SkPoint pts[] = { {0.f, 0.f}, {0.25f * kTileWidth, 0.25f * kTileHeight} };
-    static constexpr SkColor colors[] = { SK_ColorBLUE, SK_ColorWHITE };
+    static constexpr SkColor4f colors[] = { SkColors::kBlue, SkColors::kWhite };
 
     auto sdc = skgpu::ganesh::TopDeviceSurfaceDrawContext(canvas);
 
-    auto gradient = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kMirror);
+    auto gradient = SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kMirror}, {}});
     SkPaint paint;
     paint.setShader(gradient);
 

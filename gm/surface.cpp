@@ -26,7 +26,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/utils/SkTextUtils.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
@@ -47,11 +47,11 @@
 #define H 100
 
 static sk_sp<SkShader> make_shader() {
-    int a = 0x99;
-    int b = 0xBB;
+    constexpr float a = 0x99/255.f;
+    constexpr float b = 0xBB/255.f;
     SkPoint pts[] = { { 0, 0 }, { W, H } };
-    SkColor colors[] = { SkColorSetRGB(a, a, a), SkColorSetRGB(b, b, b) };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
+    const SkColor4f colors[] = { {a, a, a, 1}, {b, b, b, 1} };
+    return SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}});
 }
 
 static sk_sp<SkSurface> make_surface(GrRecordingContext* ctx,
@@ -447,8 +447,8 @@ DEF_SURFACE_TESTS(surface_underdraw, canvas, 256, 256) {
     // noisy background
     {
         SkPoint pts[] = {{0, 0}, {40, 50}};
-        SkColor colors[] = {SK_ColorRED, SK_ColorBLUE};
-        auto sh = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kRepeat);
+        SkColor4f colors[] = {SkColors::kRed, SkColors::kBlue};
+        auto sh = SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kRepeat}, {}});
         SkPaint paint;
         paint.setShader(sh);
         surf->getCanvas()->drawPaint(paint);
@@ -476,8 +476,8 @@ DEF_SURFACE_TESTS(surface_underdraw, canvas, 256, 256) {
     // apply the "fade"
     {
         SkPoint pts[] = {{SkIntToScalar(subset.left()), 0}, {SkIntToScalar(subset.right()), 0}};
-        SkColor colors[] = {0xFF000000, 0};
-        auto sh = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
+        const SkColor4f colors[] = {{0,0,0,1}, {0,0,0,0}};
+        auto sh = SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}});
         SkPaint paint;
         paint.setShader(sh);
         paint.setBlendMode(SkBlendMode::kDstIn);

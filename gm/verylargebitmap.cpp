@@ -24,15 +24,18 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTiledImageUtils.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "tools/ToolUtils.h"
 
-static void draw(SkCanvas* canvas, int width, int height, SkColor colors[2]) {
+#include <algorithm>
+
+static void draw(SkCanvas* canvas, int width, int height, const SkColor colors[2]) {
     const SkPoint center = { SkIntToScalar(width)/2, SkIntToScalar(height)/2 };
     const SkScalar radius = 40;
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeRadial(center, radius, colors, nullptr, 2,
-                                                 SkTileMode::kMirror));
+    SkColor4f c4[2];
+    std::transform(colors, colors + 2, c4, SkColor4f::FromColor);
+    paint.setShader(SkShaders::RadialGradient(center, radius, {{c4, {}, SkTileMode::kMirror}, {}}));
     paint.setBlendMode(SkBlendMode::kSrc);
     canvas->drawPaint(paint);
 }

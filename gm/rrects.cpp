@@ -17,7 +17,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/ganesh/GrCanvas.h"
@@ -96,10 +96,9 @@ protected:
 
         if (fType == kBW_Clip_Type || fType == kAA_Clip_Type) {
             // Add a gradient to the paint to ensure local coords are respected.
-            SkPoint pts[3] = {{0, 0}, {1.5f, 1}};
-            SkColor colors[3] = {SK_ColorBLACK, SK_ColorYELLOW};
-            paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
-                                                         SkTileMode::kClamp));
+            SkPoint pts[] = {{0, 0}, {1.5f, 1}};
+            SkColor4f colors[] = {SkColors::kBlack, SkColors::kYellow};
+            paint.setShader(SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}}));
         }
 
 #ifdef SK_DEBUG

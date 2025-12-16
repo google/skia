@@ -18,7 +18,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 
 static void make_transparency(SkCanvas* canvas, SkScalar width, SkScalar height) {
     SkPoint pts[2];
@@ -37,11 +37,12 @@ static void make_transparency(SkCanvas* canvas, SkScalar width, SkScalar height)
     };
     const SkScalar kRowHeight = height / std::size(kColors);
     for (size_t i = 0; i < std::size(kColors); ++i) {
-        SkColor shaderColors[2];
-        shaderColors[0] = SK_AlphaTRANSPARENT;
-        shaderColors[1] = kColors[i];
+        SkColor4f shaderColors[] = {
+            {0, 0, 0, 0},
+            SkColor4f::FromColor(kColors[i])
+        };
         SkPaint p;
-        p.setShader(SkGradientShader::MakeLinear(pts, shaderColors, nullptr, 2, SkTileMode::kClamp));
+        p.setShader(SkShaders::LinearGradient(pts, {{shaderColors, {}, SkTileMode::kClamp}, {}}));
         canvas->drawRect(SkRect::MakeXYWH(0, i * kRowHeight, width, kRowHeight), p);
     }
 }

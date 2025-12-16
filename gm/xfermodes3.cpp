@@ -188,12 +188,12 @@ private:
 
         SkPaint bmpPaint;
         const SkPoint kCenter = { SkIntToScalar(kSize) / 2, SkIntToScalar(kSize) / 2 };
-        const SkColor kColors[] = {
-            SK_ColorTRANSPARENT, 0x80800000, 0xF020F060, SK_ColorWHITE
+        const SkColor4f kColors[] = {
+            SkColors::kTransparent, SkColor4f::FromColor(0x80800000),
+            SkColor4f::FromColor(0xF020F060), SkColors::kWhite
         };
-        bmpPaint.setShader(SkGradientShader::MakeRadial(kCenter, 3 * SkIntToScalar(kSize) / 4,
-                                                        kColors, nullptr, std::size(kColors),
-                                                        SkTileMode::kRepeat));
+        bmpPaint.setShader(SkShaders::RadialGradient(kCenter, 3 * SkIntToScalar(kSize) / 4,
+                                                     {{kColors, {}, SkTileMode::kRepeat}, {}}));
 
         SkBitmap bmp;
         bmp.allocN32Pixels(kSize, kSize);
