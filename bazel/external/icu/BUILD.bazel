@@ -2,6 +2,7 @@
 # rule in WORKSPACE.bazel, so all files should be relative to that path.
 
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("@rules_python//python:defs.bzl", "py_binary")
 
 # We define this here because the emscripten toolchain calls the cpu wasm, whereas the
 # bazelbuild/platforms call it wasm32. https://github.com/emscripten-core/emsdk/issues/919

@@ -69,7 +69,7 @@ platform(
         ":cgo_off",  # Necessary to build locally (i.e. non-RBE builds).
         ":use_hermetic_toolchain",
     ],
-    parents = ["@local_config_platform//:host"],
+    parents = ["@platforms//host"],
 )
 
 platform(

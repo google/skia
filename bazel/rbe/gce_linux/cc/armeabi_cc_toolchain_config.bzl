@@ -19,6 +19,7 @@ load(
     "feature",
     "tool_path",
 )
+load("@rules_cc//cc/toolchains:cc_toolchain_config_info.bzl", "CcToolchainConfigInfo")
 
 def _impl(ctx):
     toolchain_identifier = "stub_armeabi-v7a"

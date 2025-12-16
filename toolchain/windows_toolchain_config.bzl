@@ -23,6 +23,7 @@ load(
     "variable_with_value",
 )
 load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
+load("@rules_cc//cc/toolchains:cc_toolchain_config_info.bzl", "CcToolchainConfigInfo")
 
 # TODO(borenet): These variables were copied from the automatically-generated
 # @clang_windows_amd64//:vars.bzl file. They are available to be directly
