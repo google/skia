@@ -194,7 +194,7 @@ JPEGTURBO_COPTS = select({
     ],
     ":fast_build": [
         "--optimize=0",
-        "-gline-tables-only",
+        "-g1",
     ],
 })
 
