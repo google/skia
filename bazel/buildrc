@@ -152,7 +152,7 @@ build:canvaskit_full --noincompatible_enable_cc_toolchain_resolution \
                      \
                      --ck_enable_canvas_polyfill --ck_enable_skp_serialization --ck_enable_skottie \
                      --ck_enable_runtime_effect --ck_enable_matrix_js \
-                     --cxxopt=-w
+                     --cxxopt=-w --cxxopt=-std=c++20
 
 build:ck_webgl2 --ck_enable_webgl
 
