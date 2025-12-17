@@ -332,6 +332,8 @@ graphite_tests_sources = [
 ]
 
 precompile_tests_sources = [
+  "$_tests/graphite/PaintParamsTestUtils.cpp",
+  "$_tests/graphite/PaintParamsTestUtils.h",
   "$_tests/graphite/precompile/AndroidPaintOptions.cpp",
   "$_tests/graphite/precompile/AndroidPrecompileTest.cpp",
   "$_tests/graphite/precompile/AndroidRuntimeEffectManager.cpp",
