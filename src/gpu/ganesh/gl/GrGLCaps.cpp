@@ -3973,8 +3973,15 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fAllowSRGBCopyTexSubImage = true;
     }
 
-    // http://anglebug.com/6030
-    if (fMSFBOType == kES_EXT_MsToTexture_MSFBOType &&
+    // Originally, this condition disabled DMSAA on non-Intel (and some Intel) devices running over
+    // ANGLE D3D11 (http://anglebug.com/6030). ANGLE's D3D11 support for
+    // EXT_multisample_render_to_texture was incomplete and has been removed
+    // (http://crbug.com/443111620), which led to some significant performance regressions
+    // (http://crbug.com/466515405). Since ANGLE had always been advertising that extension, Ganesh
+    // was disabling DMSAA almost universally. The regression was triggered due to allocating very
+    // large MSAA attachments. To preserve prior behavior on ANGLE+D3D11, we will keep DMSAA
+    // disabled (although these techniques are used with Graphite on Dawn+D3D11).
+    if (/* fMSFBOType == kES_EXT_MsToTexture_MSFBOType && */
         ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D11) {
         // As GL_EXT_multisampled_render_to_texture supporting issue,
         // fall back to default dmsaa path
