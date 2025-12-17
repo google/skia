@@ -21,7 +21,8 @@ enum class Dataspace : int32_t {
     UNKNOWN,
     SRGB,
     BT2020,
-    BT2020_ITU_PQ,
+    BT2020_ITU_PQ,  // HDR TV - range limited
+    BT2020_HLG,     // HDR TV - range full
     DISPLAY_P3,
     V0_SRGB,
 };
@@ -42,34 +43,49 @@ struct LinearEffect {
 
 } // namespace shaders
 
+// Keep in sync with RuntimeEffects.inl
+#define SK_ALL_ANDROID_KNOWN_EFFECTS(M) \
+    M(BlurFilter_MixEffect) \
+    M(EdgeExtensionEffect) \
+    M(GainmapEffect) \
+    M(KawaseBlurDualFilterV2_QuarterResDownSampleBlurEffect) \
+    M(KawaseBlurDualFilterV2_HalfResDownSampleBlurEffect) \
+    M(KawaseBlurDualFilterV2_UpSampleBlurEffect) \
+    M(KawaseBlurEffect) \
+    M(LutEffect) \
+    M(MouriMap_CrossTalkAndChunk16x16Effect) \
+    M(MouriMap_Chunk8x8Effect) \
+    M(MouriMap_BlurEffect) \
+    M(MouriMap_TonemapEffect) \
+    M(StretchEffect) \
+    M(BoxShadowEffect)
+
 class RuntimeEffectManager {
 public:
     RuntimeEffectManager();
 
     enum class KnownId {
-        kBlurFilter_MixEffect,
-        kEdgeExtensionEffect,
-        kKawaseBlurDualFilter_HighSampleBlurEffect,
-        kKawaseBlurDualFilter_LowSampleBlurEffect,
-        kMouriMap_BlurEffect,
-        kMouriMap_CrossTalkAndChunk16x16Effect,
-        kMouriMap_Chunk8x8Effect,
-        kMouriMap_TonemapEffect,
+#define M(id) k ## id,
+        SK_ALL_ANDROID_KNOWN_EFFECTS(M)
+#undef M
     };
 
-    sk_sp<SkRuntimeEffect> getKnownRuntimeEffect(KnownId id);
+    sk_sp<SkRuntimeEffect> getKnownRuntimeEffect(KnownId id) {
+        switch (id) {
+#define M(id) case KnownId::k##id : return f##id;
+            SK_ALL_ANDROID_KNOWN_EFFECTS(M)
+#undef M
+        }
+
+        SkUNREACHABLE;
+    }
 
     sk_sp<SkRuntimeEffect> getOrCreateLinearRuntimeEffect(const shaders::LinearEffect&);
 
 private:
-    sk_sp<SkRuntimeEffect> fMixEffect;
-    sk_sp<SkRuntimeEffect> fEdgeExtensionEffect;
-    sk_sp<SkRuntimeEffect> fKawaseHighSampleEffect;
-    sk_sp<SkRuntimeEffect> fKawaseLowSampleEffect;
-    sk_sp<SkRuntimeEffect> fBlurEffect;
-    sk_sp<SkRuntimeEffect> fCrosstalkAndChunk16x16Effect;
-    sk_sp<SkRuntimeEffect> fChunk8x8Effect;
-    sk_sp<SkRuntimeEffect> fToneMapEffect;
+#define M(id) sk_sp<SkRuntimeEffect> f##id;
+    SK_ALL_ANDROID_KNOWN_EFFECTS(M)
+#undef M
 
     std::map<std::string, sk_sp<SkRuntimeEffect>> fLinearEffects;
 };

@@ -243,45 +243,6 @@ skgpu::graphite::PaintOptions MouriMapToneMap(RuntimeEffectManager& effectManage
     return paintOptions;
 }
 
-
-skgpu::graphite::PaintOptions KawaseBlurLowSrcSrcOver(RuntimeEffectManager& effectManager) {
-    sk_sp<SkRuntimeEffect> lowSampleBlurEffect = effectManager.getKnownRuntimeEffect(
-            RuntimeEffectManager::KnownId::kKawaseBlurDualFilter_LowSampleBlurEffect);
-
-    SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
-    sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
-                                                           { &ci, 1 },
-                                                           {});
-
-    sk_sp<PrecompileShader> kawase = PrecompileRuntimeEffects::MakePrecompileShader(
-            std::move(lowSampleBlurEffect),
-            {{ {{ img }} }});
-
-    PaintOptions paintOptions;
-    paintOptions.setShaders({{ std::move(kawase) }});
-    paintOptions.setBlendModes({{ SkBlendMode::kSrc, SkBlendMode::kSrcOver }});
-    return paintOptions;
-}
-
-skgpu::graphite::PaintOptions KawaseBlurHighSrc(RuntimeEffectManager& effectManager) {
-    sk_sp<SkRuntimeEffect> highSampleBlurEffect = effectManager.getKnownRuntimeEffect(
-            RuntimeEffectManager::KnownId::kKawaseBlurDualFilter_HighSampleBlurEffect);
-
-    SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
-    sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
-                                                           { &ci, 1 },
-                                                           {});
-
-    sk_sp<PrecompileShader> kawase = PrecompileRuntimeEffects::MakePrecompileShader(
-            std::move(highSampleBlurEffect),
-            {{ {{ img }} }});
-
-    PaintOptions paintOptions;
-    paintOptions.setShaders({{ std::move(kawase) }});
-    paintOptions.setBlendModes(SKSPAN_INIT_ONE( SkBlendMode::kSrc ));
-    return paintOptions;
-}
-
 skgpu::graphite::PaintOptions BlurFilterMix(RuntimeEffectManager& effectManager) {
     sk_sp<SkRuntimeEffect> mixEffect = effectManager.getKnownRuntimeEffect(
             RuntimeEffectManager::KnownId::kBlurFilter_MixEffect);
@@ -795,16 +756,6 @@ void VisitAndroidPrecompileSettings_Old(
         { MouriMapChunk8x8Effect(effectManager),
           DrawTypeFlags::kNonAAFillRect,
           kRGBA16F_1_D_Linear },
-
-        // 100% (2/2) handles 52 53
-        { KawaseBlurLowSrcSrcOver(effectManager),
-          DrawTypeFlags::kNonAAFillRect,
-          kRGBA_1_D },
-
-        // 100% (1/1) handles 51
-        { KawaseBlurHighSrc(effectManager),
-          DrawTypeFlags::kNonAAFillRect,
-          kRGBA_1_D },
 
         // 100% (2/2) handles 49 99
         { BlurFilterMix(effectManager),
