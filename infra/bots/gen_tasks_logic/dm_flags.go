@@ -597,6 +597,10 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 						// These 3 GPUs are failing this test on Win11 (b/462240488)
 						skip(ALL, "test", ALL, "PersistentPipelineStorageTest")
 					}
+					if b.MatchOs("Win11") && b.GPU("IntelIrisXe") {
+						// skbug.com/470073298
+						skip(ALL, "gm", ALL, "ycbcrimage")
+					}
 				}
 			}
 		} else {
@@ -1447,6 +1451,17 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "test", ALL, "VkYCbcrSampler_DrawImageWithYcbcrSampler") // skbug.com/40044345
 	}
 
+	if b.GPU("RadeonVega8") && b.ExtraConfig("ANGLE") {
+		// skbug.com/470037199
+		skip(ALL, "test", ALL, "TransferPixelsFromTextureTest")
+		skip(ALL, "test", ALL, "ES2BlendWithNoTexture")
+		skip(ALL, "test", ALL, "SkRuntimeBlender_Ganesh")
+		skip(ALL, "test", ALL, "SkImage_MakeCrossContextFromPixmapRelease")
+		skip(ALL, "test", ALL, "Programs")
+		skip(ALL, "test", ALL, "BlendRequiringDstReadWithLargeCoordinates")
+		skip(ALL, "test", ALL, "ColorTypeBackendAllocationTest")
+	}
+
 	match := []string{}
 
 	if b.ExtraConfig("Graphite") {
@@ -1562,6 +1577,26 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.GPU("IntelIris6100", "IntelHD4400") && b.ExtraConfig("ANGLE") {
 		// skbug.com/40038077
 		skip("angle_d3d9_es2", "gm", ALL, "lighting")
+	}
+
+	if b.GPU("IntelHD4400") && b.ExtraConfig("ANGLE") {
+		// skbug.com/470037196
+		skip(ALL, "test", ALL, "BigImageTest_Ganesh")
+		skip(ALL, "test", ALL, "DDLMakeRenderTargetTest")
+		skip(ALL, "test", ALL, "DDLNonTextureabilityTest")
+		skip(ALL, "test", ALL, "DDLSurfaceCharacterizationTest")
+		skip(ALL, "test", ALL, "DefaultPathRendererTest")
+		skip(ALL, "test", ALL, "DMSAA_dst_read_with_existing_barrier")
+		skip(ALL, "test", ALL, "DMSAA_aa_dst_read_after_dmsaa")
+		skip(ALL, "test", ALL, "DMSAA_dst_read")
+		skip(ALL, "test", ALL, "DMSAA_preserve_contents")
+		skip(ALL, "test", ALL, "ES2BlendWithNoTexture")
+		skip(ALL, "test", ALL, "GrContext_colorTypeSupportedAsSurface")
+		skip(ALL, "test", ALL, "Programs")
+		skip(ALL, "test", ALL, "ReplaceSurfaceBackendTexture")
+		skip(ALL, "test", ALL, "ResourceCacheStencilBuffers")
+		skip(ALL, "test", ALL, "SurfaceAttachStencil_Gpu")
+		skip(ALL, "test", ALL, "SurfaceClear_Gpu")
 	}
 
 	if b.GPU("PowerVRGX6250") {
