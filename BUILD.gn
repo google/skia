@@ -272,6 +272,7 @@ template("optional") {
                              [
                                "configs",
                                "public",
+                               "public_configs",
                                "public_defines",
                                "public_deps",
                                "deps",
