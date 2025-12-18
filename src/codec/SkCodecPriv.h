@@ -33,9 +33,15 @@ bool HasDecoder(std::string_view id);
 // TODO(https://issues.skia.org/issues/464217864): This should include skhdr::Metadata.
 class ColorProfile {
 public:
-    // Create a ColorProfile from an SkData for an ICC profile. Returns nullptr if the
-    // data fails to parse.
+    // Create a ColorProfile from an SkData for an ICC profile.
+    // Returns nullptr if the data fails to parse. This will use
+    // either MakeICCProfileWithSkCMS or MakeICCProfileWithRust
+    // depending on the build configuration.
     static std::unique_ptr<ColorProfile> MakeICCProfile(sk_sp<const SkData>);
+
+    // Implementation of MakeICCProfile that uses skcms to parse.
+    // This should only be called by tests.
+    static std::unique_ptr<ColorProfile> MakeICCProfileWithSkCMS(sk_sp<const SkData>);
 
     // Create a ColorProfile from an SkColorSpace. Returns nullptr if the color space is
     // nullptr.
@@ -80,6 +86,10 @@ public:
 
 private:
     ColorProfile(const skcms_ICCProfile&, sk_sp<const SkData> = nullptr);
+
+#if defined(SK_CODEC_COLOR_PROFILE_PARSE_WITH_RUST)
+    friend std::unique_ptr<ColorProfile> MakeICCProfileWithRust(sk_sp<const SkData>);
+#endif
 
     skcms_ICCProfile     fProfile;
     sk_sp<const SkData>  fData;
