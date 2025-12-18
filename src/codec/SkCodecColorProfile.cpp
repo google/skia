@@ -9,10 +9,6 @@
 #include "src/codec/SkCodecPriv.h"
 #include "src/core/SkColorSpacePriv.h"
 
-#if defined(SK_CODEC_COLOR_PROFILE_PARSE_WITH_RUST)
-#include "src/codec/SkCodecColorProfileRust.h"
-#endif
-
 namespace SkCodecs {
 
 namespace {
@@ -56,7 +52,7 @@ sk_sp<SkColorSpace> cicp_get_android_sk_color_space(uint8_t color_primaries,
 
 }  // namespace
 
-std::unique_ptr<ColorProfile> ColorProfile::MakeICCProfileWithSkCMS(
+std::unique_ptr<ColorProfile> ColorProfile::MakeICCProfile(
         sk_sp<const SkData> data) {
     if (data) {
         skcms_ICCProfile profile;
@@ -65,15 +61,6 @@ std::unique_ptr<ColorProfile> ColorProfile::MakeICCProfileWithSkCMS(
         }
     }
     return nullptr;
-}
-
-std::unique_ptr<ColorProfile> ColorProfile::MakeICCProfile(
-        sk_sp<const SkData> data) {
-#if defined(SK_CODEC_COLOR_PROFILE_PARSE_WITH_RUST)
-    return MakeICCProfileWithRust(data);
-#else
-    return MakeICCProfileWithSkCMS(data);
-#endif
 }
 
 std::unique_ptr<ColorProfile> ColorProfile::Make(sk_sp<SkColorSpace> cs) {

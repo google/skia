@@ -107,16 +107,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//experimental/rust_bmp/ffi:cxx_bridge_srcs",
 			},
 		},
-		{Var: "skia_codec_rust_icc_codec_srcs",
-			Rules: []string{
-				"//src/codec:rust_icc_codec_srcs",
-			},
-		},
-		{Var: "skia_codec_rust_icc_codec_hdrs",
-			Rules: []string{
-				"//src/codec:rust_icc_codec_hdrs",
-			},
-		},
 	}},
 	{GNI: "gn/core.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_core_public",
@@ -475,26 +465,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_rust_common_ffi_cpp_srcs",
 			Rules: []string{
 				"//rust/common:ffi_cpp",
-			},
-		},
-		{Var: "skia_rust_icc_ffi_rs_srcs",
-			Rules: []string{
-				"//rust/icc:rs_srcs",
-			},
-		},
-		{Var: "skia_rust_icc_ffi_cxx_bridge_srcs",
-			Rules: []string{
-				"//rust/icc:cxx_bridge_srcs",
-			},
-		},
-		{Var: "skia_rust_icc_ffi_cpp_hdrs",
-			Rules: []string{
-				"//rust/icc:ffi_hdrs",
-			},
-		},
-		{Var: "skia_rust_icc_ffi_cpp_srcs",
-			Rules: []string{
-				"//rust/icc:ffi_cpp",
 			},
 		},
 	}},

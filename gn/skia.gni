@@ -77,7 +77,6 @@ declare_args() {
   # Currently only supported in Android framework
   skia_android_framework_use_perfetto = false
   skia_use_piex = !is_win && !is_wasm
-  skia_use_rust_icc = false
   skia_use_rust_png_decode = false
   skia_use_rust_png_encode = false
   skia_use_rust_bmp_decode = false

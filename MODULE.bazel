@@ -139,10 +139,6 @@ crate.spec(
     version = "=0.25.9",
 )
 crate.spec(
-    package = "moxcms",
-    version = "=0.7.9",
-)
-crate.spec(
     features = [
         "wgsl-in",
         "msl-out",

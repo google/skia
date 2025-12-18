@@ -1360,7 +1360,7 @@ if (is_debug) {
 # from having multiple copies of the Rust standard library.
 
 if (skia_use_fontations || skia_use_rust_png_decode ||
-    skia_use_rust_png_encode || skia_use_rust_bmp_decode || skia_use_rust_icc) {
+    skia_use_rust_png_encode || skia_use_rust_bmp_decode) {
   # Collect all Rust targets, sources, outputs based on what's enabled
   _rust_targets = []
   _rust_sources = []
@@ -1368,9 +1368,8 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
   _rust_output_mappings = []
 
   # Add cxx dependency if any feature that needs it is enabled
-  _needs_cxx =
-      skia_use_fontations || skia_use_rust_png_decode ||
-      skia_use_rust_png_encode || skia_use_rust_bmp_decode || skia_use_rust_icc
+  _needs_cxx = skia_use_fontations || skia_use_rust_png_decode ||
+               skia_use_rust_png_encode || skia_use_rust_bmp_decode
   if (_needs_cxx) {
     _rust_targets += [ "@crates//:cxx_cc" ]
     _rust_sources += [
@@ -1458,28 +1457,6 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
     ]
   }
 
-  if (skia_use_rust_icc) {
-    _rust_targets += [ "//rust/icc:ffi_rs" ]
-    _rust_sources += [
-      "rust/icc/BUILD.bazel",
-      "rust/icc/FFI.h",
-      "rust/icc/FFI.rs",
-    ]
-    _rust_outputs += [
-      "$root_out_dir/librust_icc_ffi_rs.a",
-      "$root_out_dir/rust/icc/FFI.rs.h",
-      "$root_out_dir/rust/icc/FFI.rs.cc",
-    ]
-    _rust_output_mappings += [
-      rebase_path("//bazel-bin/rust/icc/libffi_rs.a", root_build_dir) +
-          "=librust_icc_ffi_rs.a",
-      rebase_path("//bazel-bin/rust/icc/FFI.rs.h", root_build_dir) +
-          "=rust/icc/FFI.rs.h",
-      rebase_path("//bazel-bin/rust/icc/FFI.rs.cc", root_build_dir) +
-          "=rust/icc/FFI.rs.cc",
-    ]
-  }
-
   # Single unified action that builds all Rust FFI library targets
   action("rust_all_ffi_bazel_build") {
     script = "gn/bazel_build.py"
@@ -1506,9 +1483,6 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
     if (skia_use_rust_bmp_decode) {
       _all_rust_libs += [ "$root_out_dir/librust_bmp_ffi_rs.a" ]
     }
-    if (skia_use_rust_icc) {
-      _all_rust_libs += [ "$root_out_dir/librust_icc_ffi_rs.a" ]
-    }
 
     public_configs = [ ":rust_ffi_libs_config" ]
     all_dependent_configs = [ ":rust_ffi_libs_config" ]
@@ -1527,9 +1501,6 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
     }
     if (skia_use_rust_bmp_decode) {
       _all_rust_libs += [ "$root_out_dir/librust_bmp_ffi_rs.a" ]
-    }
-    if (skia_use_rust_icc) {
-      _all_rust_libs += [ "$root_out_dir/librust_icc_ffi_rs.a" ]
     }
     libs = _all_rust_libs
 
@@ -1606,23 +1577,6 @@ if (skia_use_rust_png_decode || skia_use_rust_png_encode) {
   }
 }
 
-if (skia_use_rust_icc) {
-  config("rust_icc_cxx_bridge_private_config") {
-    include_dirs = [
-      # This entry is needed so that `FFI.rs.cc` can resolve
-      # `#include "rust/icc/FFI.h"`
-      ".",
-    ]
-  }
-  skia_source_set("rust_icc_cxx_bridge") {
-    deps = [ ":rust_all_ffi_bazel_build" ]
-    public = [ "${root_out_dir}/rust/icc/FFI.rs.h" ]
-    sources = [ "${root_out_dir}/rust/icc/FFI.rs.cc" ]
-    public_configs = [ ":rust_common_cxx_bridge_public_config" ]
-    configs = [ ":rust_icc_cxx_bridge_private_config" ]
-  }
-}
-
 config("rust_common_cxx_bridge_public_config") {
   include_dirs = [
     # This is where `rust/.../*.rs.h` and
@@ -1637,21 +1591,6 @@ optional("rust_common") {
   sources = skia_rust_common_ffi_cpp_srcs
   public_configs = [ ":rust_common_cxx_bridge_public_config" ]
   deps = [ ":rust_all_ffi_bazel_build" ]
-}
-
-optional("rust_icc") {
-  enabled = skia_use_rust_icc
-  public_defines = [ "SK_CODEC_COLOR_PROFILE_PARSE_WITH_RUST" ]
-  public = skia_rust_icc_ffi_cpp_hdrs + skia_codec_rust_icc_codec_hdrs
-  sources = skia_rust_icc_ffi_cpp_srcs + skia_codec_rust_icc_codec_srcs
-  sources_for_tests = [ "tests/RustIccTest.cpp" ]
-  public_configs = [ ":rust_common_cxx_bridge_public_config" ]
-  deps = [
-    ":rust_common",
-    ":rust_ffi_libs",
-    ":rust_icc_cxx_bridge",
-    "//modules/skcms",
-  ]
 }
 
 optional("png_decode_rust") {
@@ -1846,7 +1785,6 @@ skia_component("skia") {
     ":ndk_images",
     ":png_decode_rust",
     ":raw",
-    ":rust_icc",
     ":skx",
     ":typeface_fontations",
     ":vello",
@@ -2716,7 +2654,6 @@ if (skia_enable_tools) {
         ":png_decode_libpng_tests",
         ":png_decode_rust_tests",
         ":png_encode_rust_tests",
-        ":rust_icc_tests",
         ":skia",
         ":test",
         ":tool_utils",
