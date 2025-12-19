@@ -43,11 +43,6 @@ DEF_TEST(pathbuilder, reporter) {
     SkPath p1 = b.snapshot();
     SkPath p2 = b.detach();
 
-    // Builders should always precompute the path's bounds, so there is no race condition later
-    REPORTER_ASSERT(reporter, SkPathPriv::HasComputedBounds(p0));
-    REPORTER_ASSERT(reporter, SkPathPriv::HasComputedBounds(p1));
-    REPORTER_ASSERT(reporter, SkPathPriv::HasComputedBounds(p2));
-
     REPORTER_ASSERT(reporter, p0.getBounds() == SkRect::MakeLTRB(10, 10, 30, 20));
     REPORTER_ASSERT(reporter, p0.countPoints() == 4);
 
@@ -472,17 +467,6 @@ static void test_addPath_convexity(skiatest::Reporter* reporter) {
     auto circle = SkPath::Circle(10, 10, 10);
     REPORTER_ASSERT(reporter, circle.isConvex());
 
-#ifndef SK_HIDE_PATH_EDIT_METHODS
-    auto path_add = [&](bool startWithMove, SkPath::AddPathMode mode) {
-        SkPath path;
-        if (startWithMove) {
-            path.moveTo(0, 0);
-        }
-        path.addPath(circle, mode);
-        return path;
-    };
-#endif
-
     auto builder_add = [&](bool startWithMove, SkPath::AddPathMode mode) {
         SkPathBuilder builder;
         if (startWithMove) {
@@ -505,10 +489,6 @@ static void test_addPath_convexity(skiatest::Reporter* reporter) {
 
     for (auto e : expectations) {
         SkPath path;
-#ifndef SK_HIDE_PATH_EDIT_METHODS
-        path = path_add(e.fStartWithMove, e.fMode);
-        REPORTER_ASSERT(reporter, path.isConvex() == e.fShouldBeConvex);
-#endif
         path = builder_add(e.fStartWithMove, e.fMode);
         REPORTER_ASSERT(reporter, path.isConvex() == e.fShouldBeConvex);
     }
@@ -575,43 +555,6 @@ DEF_TEST(pathbuilder_addpath_crbug_1153516, r) {
     actualLineTo = SkPathPriv::GetPoint(p1, p1.countPoints() - 1);
     REPORTER_ASSERT(r, actualLineTo.has_value());
     REPORTER_ASSERT(r, actualLineTo.value() == lineEnd);
-}
-
-/*
- *  If paths were immutable, we would not have to track this, but until that day, we need
- *  to ensure that paths are built correctly/consistently with this field, regardless of
- *  either the classic mutable apis, or via SkPathBuilder (SkPath::Polygon uses builder).
- */
-DEF_TEST(pathbuilder_lastmoveindex, reporter) {
-#ifndef SK_HIDE_PATH_EDIT_METHODS
-    const SkPoint pts[] = {
-        {0, 1}, {2, 3}, {4, 5},
-    };
-    const size_t N = std::size(pts);
-
-    for (int ctrCount = 1; ctrCount < 4; ++ctrCount) {
-        const int lastMoveToIndex = (ctrCount - 1) * N;
-
-        for (bool isClosed : {false, true}) {
-            SkPath a, b;
-
-            SkPathBuilder builder;
-            for (int i = 0; i < ctrCount; ++i) {
-                builder.addPolygon(pts, isClosed);  // new-school way
-                b.addPoly(pts, isClosed);           // old-school way
-            }
-            a = builder.detach();
-
-            // We track the last moveTo verb index, and we invert it if the last verb was a close
-            const int expected = isClosed ? ~lastMoveToIndex : lastMoveToIndex;
-            const int a_last = SkPathPriv::LastMoveToIndex(a);
-            const int b_last = SkPathPriv::LastMoveToIndex(b);
-
-            REPORTER_ASSERT(reporter, a_last == expected);
-            REPORTER_ASSERT(reporter, b_last == expected);
-        }
-    }
-#endif
 }
 
 static void assertIsMoveTo(skiatest::Reporter* reporter, SkPathPriv::RangeIter* iter,
@@ -832,35 +775,6 @@ DEF_TEST(SkPathBuilder_transform, reporter) {
         b1.transform(matrix);
         REPORTER_ASSERT(reporter, SkPathPriv::ComputeFirstDirection(b1.snapshot()) == SkPathFirstDirection::kUnknown);
     }
-}
-
-DEF_TEST(SkPathBuilder_Path_arcTo, reporter) {
-#ifndef SK_HIDE_PATH_EDIT_METHODS
-    auto check_both_methods = [reporter](const SkRect& r, float start, float sweep) {
-        SkPath path;
-        path.arcTo(r, start, sweep, true);
-
-        SkPathBuilder builder;
-        builder.arcTo(r, start, sweep, true);
-
-        auto bupath = builder.snapshot();
-        REPORTER_ASSERT(reporter, bupath == path);
-    };
-
-    // this specific case was known to fail before
-    const SkRect r = {-18, -18, 18, 18};
-    float start = 375, sweep = 320;
-
-    check_both_methods(r, start, sweep);
-
-    // so now try a lot of other variants
-    SkRandom rand;
-    for (int i = 0; i < 1000; ++i) {
-        start = rand.nextSScalar1() * 1000;
-        sweep = rand.nextSScalar1() * 1000;
-        check_both_methods(r, start, sweep);
-    }
-#endif
 }
 
 DEF_TEST(SkPathBuilder_cleaning, reporter) {

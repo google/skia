@@ -312,16 +312,6 @@ std::optional<SkPath> SkFont::getPath(SkGlyphID glyphID) const {
     return result;
 }
 
-#ifndef SK_HIDE_PATH_EDIT_METHODS
-bool SkFont::getPath(SkGlyphID glyphID, SkPath* path) const {
-    if (auto maybepath = this->getPath(glyphID)) {
-        *path = *maybepath;
-        return true;
-    }
-    return false;
-}
-#endif
-
 SkScalar SkFont::getMetrics(SkFontMetrics* metrics) const {
 
     auto [strikeSpec, strikeToSourceScale] = SkStrikeSpec::MakeCanonicalized(*this, nullptr);

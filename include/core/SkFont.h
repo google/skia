@@ -8,7 +8,7 @@
 #ifndef SkFont_DEFINED
 #define SkFont_DEFINED
 
-#include "include/core/SkPath.h"  // IWYU pragma: keep (for SK_HIDE_PATH_EDIT_METHODS)
+#include "include/core/SkPath.h"
 #include "include/core/SkPoint.h" // IWYU pragma: keep (for unspanned apis)
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -441,10 +441,6 @@ public:
      * a path, but that path may have zero contours.
      */
     std::optional<SkPath> getPath(SkGlyphID glyphID) const;
-
-#ifndef SK_HIDE_PATH_EDIT_METHODS
-    bool getPath(SkGlyphID glyphID, SkPath* path) const;
-#endif
 
     /** Returns path corresponding to glyph array.
 

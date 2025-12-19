@@ -31,6 +31,9 @@ struct SkPathRaw;
 class SkString;
 
 class SK_API SkPathBuilder {
+    using PointsArray = skia_private::STArray<4, SkPoint>;
+    using VerbsArray = skia_private::STArray<4, SkPathVerb>;
+    using ConicWeightsArray = skia_private::STArray<2, float>;
 public:
     /** Constructs an empty SkPathBuilder. By default, SkPathBuilder has no verbs, no SkPoint, and
         no weights. FillType is set to kWinding.
@@ -990,9 +993,9 @@ public:
     bool contains(SkPoint) const;
 
 private:
-    SkPathRef::PointsArray fPts;
-    SkPathRef::VerbsArray fVerbs;
-    SkPathRef::ConicWeightsArray fConicWeights;
+    PointsArray fPts;
+    VerbsArray fVerbs;
+    ConicWeightsArray fConicWeights;
 
     SkPathFillType  fFillType;
     bool            fIsVolatile;
@@ -1013,8 +1016,6 @@ private:
             this->moveTo(fPts[fLastMoveIndex]);
         }
     }
-
-    SkPath make(sk_sp<SkPathRef>) const;
 
     bool isZeroLengthSincePoint(int startPtIndex) const;
 

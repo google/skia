@@ -613,13 +613,3 @@ SkPath SkRegion::getBoundaryPath() const {
     (void)this->addBoundaryPath(&builder);
     return builder.detach();
 }
-
-#ifndef SK_HIDE_PATH_EDIT_METHODS
-bool SkRegion::getBoundaryPath(SkPath* path) const {
-    if (this->isEmpty()) {
-        return false;
-    }
-    path->addPath(this->getBoundaryPath());
-    return true;
-}
-#endif
