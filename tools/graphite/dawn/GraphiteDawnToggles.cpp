@@ -1,0 +1,43 @@
+/*
+ * Copyright 2025 Google LLC
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "tools/graphite/dawn/GraphiteDawnToggles.h"
+
+namespace skiatest::graphite {
+
+wgpu::DawnTogglesDescriptor GetInstanceToggles() {
+    static constexpr const char* kToggles[] = {
+            // Needed for newer Dawn APIs that aren't launched in WebGPU.
+            "allow_unsafe_apis",
+    };
+    wgpu::DawnTogglesDescriptor togglesDesc;
+    togglesDesc.enabledToggleCount = std::size(kToggles);
+    togglesDesc.enabledToggles = kToggles;
+    return togglesDesc;
+}
+
+wgpu::DawnTogglesDescriptor GetAdapterToggles() {
+    static constexpr const char* kToggles[] = {
+#if defined(SK_DEBUG)
+            // Setting labels on backend objects has performance overhead.
+            "use_user_defined_labels_in_backend",
+#else
+            "skip_validation",
+#endif
+            // Lazy clear has performance overhead.
+            "disable_lazy_clear_for_mapped_at_creation_buffer",
+            // Robustness impacts performance and is always disabled when running Graphite in
+            // Chrome, so this keeps Skia's tests operating closer to real-use behavior.
+            "disable_robustness",
+    };
+    wgpu::DawnTogglesDescriptor togglesDesc;
+    togglesDesc.enabledToggleCount = std::size(kToggles);
+    togglesDesc.enabledToggles = kToggles;
+    return togglesDesc;
+}
+
+}  // namespace skiatest::graphite

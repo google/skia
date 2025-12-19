@@ -21,6 +21,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/graphite/GraphiteToolUtils.h"
 #include "tools/graphite/TestOptions.h"
+#include "tools/graphite/dawn/GraphiteDawnToggles.h"
 #include "tools/window/GraphiteDisplayParams.h"
 
 #include "dawn/dawn_proc.h"
@@ -28,14 +29,15 @@
 namespace skwindow::internal {
 
 namespace {
-    SkColorType ToSkColorType(wgpu::TextureFormat format) {
-        if (format == wgpu::TextureFormat::RGBA8Unorm) {
-            return kRGBA_8888_SkColorType;
-        } else {
-            return kBGRA_8888_SkColorType;
-        }
+SkColorType ToSkColorType(wgpu::TextureFormat format) {
+    if (format == wgpu::TextureFormat::RGBA8Unorm) {
+        return kRGBA_8888_SkColorType;
+    } else {
+        return kBGRA_8888_SkColorType;
     }
 }
+}  // namespace
+
 GraphiteDawnWindowContext::GraphiteDawnWindowContext(std::unique_ptr<const DisplayParams> params,
                                                      wgpu::TextureFormat surfaceFormat)
         : WindowContext(std::move(params)), fSurfaceFormat(surfaceFormat) {
@@ -44,6 +46,8 @@ GraphiteDawnWindowContext::GraphiteDawnWindowContext(std::unique_ptr<const Displ
     static const auto kTimedWaitAny = wgpu::InstanceFeatureName::TimedWaitAny;
     desc.requiredFeatureCount = 1;
     desc.requiredFeatures = &kTimedWaitAny;
+    wgpu::DawnTogglesDescriptor togglesDesc = skiatest::graphite::GetInstanceToggles();
+    desc.nextInChain = &togglesDesc;
     fInstance = std::make_unique<dawn::native::Instance>(&desc);
 }
 
@@ -137,29 +141,14 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
     DawnProcTable backendProcs = dawn::native::GetProcs();
     dawnProcSetProcs(&backendProcs);
 
-    static constexpr const char* kToggles[] = {
-#if defined(SK_DEBUG)
-            // Setting labels on backend objects has performance overhead.
-            "use_user_defined_labels_in_backend",
-#else
-            "skip_validation",
-#endif
-            "disable_lazy_clear_for_mapped_at_creation_buffer",  // matches Chromes toggles
-            "allow_unsafe_apis",  // Needed for dual-source blending, BufferMapExtendedUsages.
-            // Robustness impacts performance and is always disabled when running Graphite in
-            // Chrome, so this keeps Skia's tests operating closer to real-use behavior.
-            "disable_robustness",
-    };
-    wgpu::DawnTogglesDescriptor togglesDesc;
-    togglesDesc.enabledToggleCount  = std::size(kToggles);
-    togglesDesc.enabledToggles      = kToggles;
-
     wgpu::RequestAdapterOptions adapterOptions;
     adapterOptions.backendType = type;
     adapterOptions.featureLevel =
             type == wgpu::BackendType::OpenGL || type == wgpu::BackendType::OpenGLES
                     ? wgpu::FeatureLevel::Compatibility
                     : wgpu::FeatureLevel::Core;
+
+    wgpu::DawnTogglesDescriptor togglesDesc = skiatest::graphite::GetAdapterToggles();
     adapterOptions.nextInChain = &togglesDesc;
 
     std::vector<dawn::native::Adapter> adapters = fInstance->EnumerateAdapters(&adapterOptions);

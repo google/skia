@@ -2410,6 +2410,8 @@ if (skia_enable_tools) {
           sources += [
             "tools/graphite/dawn/GraphiteDawnTestContext.cpp",
             "tools/graphite/dawn/GraphiteDawnTestContext.h",
+            "tools/graphite/dawn/GraphiteDawnToggles.cpp",
+            "tools/graphite/dawn/GraphiteDawnToggles.h",
           ]
         }
         if (skia_use_metal) {

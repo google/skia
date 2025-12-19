@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/ContextOptionsPriv.h"
 #include "tools/gpu/ContextType.h"
 #include "tools/graphite/TestOptions.h"
+#include "tools/graphite/dawn/GraphiteDawnToggles.h"
 
 #include "dawn/dawn_proc.h"
 
@@ -34,27 +35,10 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType bac
     static std::unique_ptr<dawn::native::Instance> sInstance;
     static SkOnce sOnce;
 
-    static constexpr const char* kToggles[] = {
-#if defined(SK_DEBUG)
-            // Setting labels on backend objects has performance overhead.
-            "use_user_defined_labels_in_backend",
-#else
-            "skip_validation",
-#endif
-            "disable_lazy_clear_for_mapped_at_creation_buffer",  // matches Chromes toggles
-            "allow_unsafe_apis",                                 // Needed for dual-source blending.
-            // Robustness impacts performance and is always disabled when running Graphite in
-            // Chrome, so this keeps Skia's tests operating closer to real-use behavior.
-            "disable_robustness",
-    };
-    wgpu::DawnTogglesDescriptor togglesDesc;
-    togglesDesc.enabledToggleCount  = std::size(kToggles);
-    togglesDesc.enabledToggles      = kToggles;
-
     // Creation of Instance is cheap but calling EnumerateAdapters can be expensive the first time,
     // but then the results are cached on the Instance object. So save the Instance here so we can
     // avoid the overhead of EnumerateAdapters on every test.
-    sOnce([&]{
+    sOnce([&] {
         DawnProcTable backendProcs = dawn::native::GetProcs();
         dawnProcSetProcs(&backendProcs);
         wgpu::InstanceDescriptor desc{};
@@ -62,6 +46,8 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType bac
         static const auto kTimedWaitAny = wgpu::InstanceFeatureName::TimedWaitAny;
         desc.requiredFeatureCount = 1;
         desc.requiredFeatures = &kTimedWaitAny;
+        wgpu::DawnTogglesDescriptor togglesDesc = GetInstanceToggles();
+        desc.nextInChain = &togglesDesc;
         sInstance = std::make_unique<dawn::native::Instance>(&desc);
     });
 
@@ -72,6 +58,7 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType bac
             backend == wgpu::BackendType::OpenGL || backend == wgpu::BackendType::OpenGLES
                     ? wgpu::FeatureLevel::Compatibility
                     : wgpu::FeatureLevel::Core;
+    wgpu::DawnTogglesDescriptor togglesDesc = GetAdapterToggles();
     options.nextInChain = &togglesDesc;
     std::vector<dawn::native::Adapter> adapters = sInstance->EnumerateAdapters(&options);
     SkASSERT(!adapters.empty());
