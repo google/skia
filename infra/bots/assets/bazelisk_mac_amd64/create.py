@@ -14,8 +14,8 @@ import os
 import subprocess
 
 
-URL = 'https://github.com/bazelbuild/bazelisk/releases/download/v1.17.0/bazelisk-darwin-amd64'
-SHA256 = '3cf03dab8f5ef7c29e354b8e9293c82098ace3634253f9c660c26168b9e34720'
+URL = 'https://github.com/bazelbuild/bazelisk/releases/download/v1.27.0/bazelisk-darwin-amd64'
+SHA256 = '8fcd7ba828f673ba4b1529425e01e15ac42599ef566c17f320d8cbfe7b96a167'
 
 BINARY = URL.split('/')[-1]
 
