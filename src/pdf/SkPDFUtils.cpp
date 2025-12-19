@@ -329,6 +329,7 @@ bool SkPDFUtils::InverseTransformBBox(const SkMatrix& matrix, SkRect* bbox) {
 
 void SkPDFUtils::PopulateTilingPatternDict(SkPDFDict* pattern,
                                            SkRect& bbox,
+                                           bool tileX, bool tileY,
                                            std::unique_ptr<SkPDFDict> resources,
                                            const SkMatrix& matrix) {
     const int kTiling_PatternType = 1;
@@ -340,8 +341,10 @@ void SkPDFUtils::PopulateTilingPatternDict(SkPDFDict* pattern,
     pattern->insertInt("PaintType", kColoredTilingPattern_PaintType);
     pattern->insertInt("TilingType", kConstantSpacing_TilingType);
     pattern->insertObject("BBox", SkPDFUtils::RectToArray(bbox));
-    pattern->insertScalar("XStep", bbox.width());
-    pattern->insertScalar("YStep", bbox.height());
+    // PDF tiling is a raster operation which may involve pixel snapping XStep and YStep values.
+    // Add space between "tiles" if not tiling in the given direction. https://crbug.com/41496385
+    pattern->insertScalar("XStep", bbox.width() + (tileX ? 0 : 2));
+    pattern->insertScalar("YStep", bbox.height() + (tileY ? 0 : 2));
     pattern->insertObject("Resources", std::move(resources));
     if (!matrix.isIdentity()) {
         pattern->insertObject("Matrix", SkPDFUtils::MatrixToArray(matrix));

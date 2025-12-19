@@ -1024,8 +1024,8 @@ static SkPDFIndirectReference make_alpha_function_shader(SkPDFDocument* doc,
     std::unique_ptr<SkStreamAsset> colorStream =
             create_pattern_fill_content(alphaGsRef.fValue, colorShader.fValue, bbox);
     std::unique_ptr<SkPDFDict> alphaFunctionShader = SkPDFMakeDict();
-    SkPDFUtils::PopulateTilingPatternDict(alphaFunctionShader.get(), bbox,
-                                 std::move(resourceDict), SkMatrix::I());
+    SkPDFUtils::PopulateTilingPatternDict(alphaFunctionShader.get(), bbox, false, false,
+                                          std::move(resourceDict), SkMatrix::I());
     return SkPDFStreamOut(std::move(alphaFunctionShader), std::move(colorStream), doc);
 }
 

@@ -147,8 +147,7 @@ protected:
             canvas->save();
             canvas->translate(kInset, gridStep * i + 30);
             for (size_t m = 0; m < std::size(modes); ++m) {
-                draw_scene(canvas, fFilter, modes[m], shaders[i].fShader1,
-                           shaders[i].fShader2);
+                draw_scene(canvas, fFilter, modes[m], shaders[i].fShader1, shaders[i].fShader2);
                 canvas->translate(gridStep, 0);
             }
             canvas->restore();

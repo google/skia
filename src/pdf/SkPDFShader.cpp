@@ -261,7 +261,8 @@ static SkPDFIndirectReference make_image_shader(SkPDFDocument* doc,
     auto imageShader = patternDevice->content();
     std::unique_ptr<SkPDFDict> resourceDict = patternDevice->makeResourceDict();
     std::unique_ptr<SkPDFDict> dict = SkPDFMakeDict();
-    SkPDFUtils::PopulateTilingPatternDict(dict.get(), patternBBox,
+    SkPDFUtils::PopulateTilingPatternDict(dict.get(),
+                                          patternBBox, is_tiled(tileModesX), is_tiled(tileModesY),
                                           std::move(resourceDict), finalMatrix);
     return SkPDFStreamOut(std::move(dict), std::move(imageShader), doc);
 }

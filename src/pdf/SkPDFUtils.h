@@ -134,6 +134,7 @@ inline SkMatrix GetShaderLocalMatrix(const SkShader* shader) {
 bool InverseTransformBBox(const SkMatrix& matrix, SkRect* bbox);
 void PopulateTilingPatternDict(SkPDFDict* pattern,
                                SkRect& bbox,
+                               bool tileX, bool tileY,
                                std::unique_ptr<SkPDFDict> resources,
                                const SkMatrix& matrix);
 
