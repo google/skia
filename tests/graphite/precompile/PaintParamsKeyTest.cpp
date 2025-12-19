@@ -37,7 +37,7 @@
 #include "tools/graphite/GraphiteTestContext.h"
 #include "tools/graphite/UniqueKeyUtils.h"
 
-#include "tests/graphite/precompile/PaintParamsTestUtils.h"
+#include "tests/graphite/PaintParamsTestUtils.h"
 
 // Set this to 1 for more expansive (aka far slower) local testing
 #define EXPANDED_SET 0

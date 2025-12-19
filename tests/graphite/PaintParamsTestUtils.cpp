@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "tests/graphite/precompile/PaintParamsTestUtils.h"
+#include "tests/graphite/PaintParamsTestUtils.h"
 
 #if defined(SK_GRAPHITE)
 
