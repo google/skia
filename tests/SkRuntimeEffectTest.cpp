@@ -28,7 +28,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkBlenders.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/private/SkSLSampleUsage.h"
@@ -603,13 +603,13 @@ private:
 // [  Red, Green ]
 // [ Blue, White ]
 static sk_sp<SkShader> make_RGBW_shader() {
-    static constexpr SkColor colors[] = {SK_ColorWHITE, SK_ColorWHITE,
-                                         SK_ColorBLUE, SK_ColorBLUE,
-                                         SK_ColorRED, SK_ColorRED,
-                                         SK_ColorGREEN, SK_ColorGREEN};
-    static constexpr SkScalar   pos[] = { 0, .25f, .25f, .50f, .50f, .75, .75, 1 };
+    static constexpr SkColor4f colors[] = {SkColors::kWhite, SkColors::kWhite,
+                                           SkColors::kBlue, SkColors::kBlue,
+                                           SkColors::kRed, SkColors::kRed,
+                                           SkColors::kGreen, SkColors::kGreen};
+    static constexpr float pos[] = { 0, .25f, .25f, .50f, .50f, .75, .75, 1 };
     static_assert(std::size(colors) == std::size(pos), "size mismatch");
-    return SkGradientShader::MakeSweep(1, 1, colors, pos, std::size(colors));
+    return SkShaders::SweepGradient({1, 1}, {{colors, pos, SkTileMode::kClamp}, {}});
 }
 
 static void test_RuntimeEffect_Shaders(skiatest::Reporter* r,

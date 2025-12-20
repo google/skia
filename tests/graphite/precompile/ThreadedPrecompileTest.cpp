@@ -12,7 +12,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkTextBlob.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/gpu/graphite/PrecompileContext.h"
 #include "include/gpu/graphite/Surface.h"
 #include "include/gpu/graphite/precompile/PaintOptions.h"
@@ -34,16 +34,10 @@ using namespace::skgpu::graphite;
 namespace {
 
 static constexpr int kMaxNumStops = 9;
-static constexpr SkColor gColors[kMaxNumStops] = {
-        SK_ColorRED,
-        SK_ColorGREEN,
-        SK_ColorBLUE,
-        SK_ColorCYAN,
-        SK_ColorMAGENTA,
-        SK_ColorYELLOW,
-        SK_ColorBLACK,
-        SK_ColorDKGRAY,
-        SK_ColorLTGRAY,
+static const SkColor4f gColors[kMaxNumStops] = {
+    SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kCyan,
+    SkColors::kMagenta, SkColors::kYellow, SkColors::kBlack,
+    SkColor4f::FromColor(SK_ColorDKGRAY), SkColor4f::FromColor(SK_ColorLTGRAY)
 };
 static constexpr SkPoint gPts[kMaxNumStops] = {
         { -100.0f, -100.0f },
@@ -59,7 +53,11 @@ static constexpr SkPoint gPts[kMaxNumStops] = {
 static constexpr float gOffsets[kMaxNumStops] =
             { 0.0f, 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.75f, 0.875f, 1.0f };
 
-std::pair<SkPaint, PaintOptions> linear(int numStops) {
+static SkGradient grad(size_t count) {
+    return {{{gColors, count}, {gOffsets, count}, SkTileMode::kClamp}, {}};
+}
+
+std::pair<SkPaint, PaintOptions> linear(size_t numStops) {
     SkASSERT(numStops <= kMaxNumStops);
 
     PaintOptions paintOptions;
@@ -67,15 +65,13 @@ std::pair<SkPaint, PaintOptions> linear(int numStops) {
     paintOptions.setBlendModes(SKSPAN_INIT_ONE( SkBlendMode::kSrcOver ));
 
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeLinear(gPts,
-                                                 gColors, gOffsets, numStops,
-                                                 SkTileMode::kClamp));
+    paint.setShader(SkShaders::LinearGradient(gPts, grad(numStops)));
     paint.setBlendMode(SkBlendMode::kSrcOver);
 
     return { paint, paintOptions };
 }
 
-std::pair<SkPaint, PaintOptions> radial(int numStops) {
+std::pair<SkPaint, PaintOptions> radial(size_t numStops) {
     SkASSERT(numStops <= kMaxNumStops);
 
     PaintOptions paintOptions;
@@ -83,15 +79,14 @@ std::pair<SkPaint, PaintOptions> radial(int numStops) {
     paintOptions.setBlendModes(SKSPAN_INIT_ONE( SkBlendMode::kSrcOver ));
 
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeRadial(/* center= */ {0, 0}, /* radius= */ 100,
-                                                 gColors, gOffsets, numStops,
-                                                 SkTileMode::kClamp));
+    paint.setShader(SkShaders::RadialGradient(/* center= */ {0, 0}, /* radius= */ 100,
+                                                 grad(numStops)));
     paint.setBlendMode(SkBlendMode::kSrcOver);
 
     return { paint, paintOptions };
 }
 
-std::pair<SkPaint, PaintOptions> sweep(int numStops) {
+std::pair<SkPaint, PaintOptions> sweep(size_t numStops) {
     SkASSERT(numStops <= kMaxNumStops);
 
     PaintOptions paintOptions;
@@ -99,17 +94,13 @@ std::pair<SkPaint, PaintOptions> sweep(int numStops) {
     paintOptions.setBlendModes(SKSPAN_INIT_ONE( SkBlendMode::kSrcOver ));
 
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeSweep(/* cx= */ 0, /* cy= */ 0,
-                                                gColors, gOffsets, numStops,
-                                                SkTileMode::kClamp,
-                                                /* startAngle= */ 0, /* endAngle= */ 359,
-                                                /* flags= */ 0, /* localMatrix= */ nullptr));
+    paint.setShader(SkShaders::SweepGradient({0, 0}, 0, 359, grad(numStops)));
     paint.setBlendMode(SkBlendMode::kSrcOver);
 
     return { paint, paintOptions };
 }
 
-std::pair<SkPaint, PaintOptions> conical(int numStops) {
+std::pair<SkPaint, PaintOptions> conical(size_t numStops) {
     SkASSERT(numStops <= kMaxNumStops);
 
     PaintOptions paintOptions;
@@ -117,12 +108,11 @@ std::pair<SkPaint, PaintOptions> conical(int numStops) {
     paintOptions.setBlendModes(SKSPAN_INIT_ONE( SkBlendMode::kSrcOver ));
 
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeTwoPointConical(/* start= */ {100, 100},
+    paint.setShader(SkShaders::TwoPointConicalGradient(/* start= */ {100, 100},
                                                           /* startRadius= */ 100,
                                                           /* end= */ {-100, -100},
                                                           /* endRadius= */ 100,
-                                                          gColors, gOffsets, numStops,
-                                                          SkTileMode::kClamp));
+                                                          grad(numStops)));
     paint.setBlendMode(SkBlendMode::kSrcOver);
 
     return { paint, paintOptions };
@@ -134,11 +124,11 @@ static constexpr int kNumDiffPipelines = 12;
 // per Pipeline
 static constexpr int kNumExpectedCacheSearchesPerPipeline = 2;
 
-typedef std::pair<SkPaint, PaintOptions> (*GradientCreationFunc)(int numStops);
+typedef std::pair<SkPaint, PaintOptions> (*GradientCreationFunc)(size_t numStops);
 
 struct Combo {
     GradientCreationFunc fCreateOptionsMtd;
-    int fNumStops;
+    size_t fNumStops;
 };
 
 void precompile_gradients(std::unique_ptr<PrecompileContext> precompileContext,
@@ -264,7 +254,7 @@ void compile_gradients(std::unique_ptr<Recorder> recorder,
 
     int i = 0;
     for (auto createOptionsMtd : { linear, radial, sweep, conical }) {
-        for (int numStops: { 2, 7, kMaxNumStops }) {
+        for (size_t numStops: { 2, 7, kMaxNumStops }) {
             combos[i++] = { createOptionsMtd, numStops };
         }
     }

@@ -146,7 +146,7 @@ DEF_SIMPLE_GM(save_behind, canvas, 830, 670) {
     }
 }
 
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 
 DEF_SIMPLE_GM(savelayer_f16, canvas, 900, 300) {
     int n = 15;

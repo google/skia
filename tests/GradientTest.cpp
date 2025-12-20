@@ -25,7 +25,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
@@ -63,10 +63,10 @@ using namespace skia_private;
 // Giant (inverse) matrix causes overflow when converting/computing using 32.32
 // Before the fix, we would assert (and then crash).
 static void test_big_grad(skiatest::Reporter* reporter) {
-    const SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
+    const SkColor4f colors[] = { SkColors::kRed, SkColors::kBlue };
     const SkPoint pts[] = {{ 15, 14.7112684f }, { 0.709064007f, 12.6108112f }};
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp));
+    paint.setShader(SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}}));
 
     SkBitmap bm;
     bm.allocN32Pixels(2000, 1);
@@ -85,10 +85,18 @@ static void test_big_grad(skiatest::Reporter* reporter) {
 struct GradRec {
     int fColorCount;
     const SkColor4f* fColors;
-    const SkScalar* fPos;
+    const float* fPos;
     const SkPoint* fPoint;   // 2
-    const SkScalar* fRadius; // 2
+    const float* fRadius; // 2
     SkTileMode fTileMode;
+
+    SkGradient grad() const {
+        SkSpan<const float> pos;
+        if (fPos) {
+            pos = {fPos, (size_t)fColorCount};
+        }
+        return {{{fColors, (size_t)fColorCount}, pos, fTileMode}, {}};
+    }
 
     void gradCheck(skiatest::Reporter* reporter,
                    const sk_sp<SkShader>& shader,
@@ -127,10 +135,7 @@ static void color_gradproc(skiatest::Reporter* reporter, const GradRec& rec, con
 
 static void linear_gradproc(skiatest::Reporter* reporter, const GradRec& buildRec,
                             const GradRec& checkRec) {
-    sk_sp<SkShader> s(SkGradientShader::MakeLinear(
-            buildRec.fPoint,
-            buildRec.fColors, SkColorSpace::MakeSRGB(), buildRec.fPos, buildRec.fColorCount,
-            buildRec.fTileMode));
+    sk_sp<SkShader> s = SkShaders::LinearGradient(buildRec.fPoint, buildRec.grad());
 
     SkShaderBase::GradientInfo info;
     checkRec.gradCheck(reporter, s, &info, SkShaderBase::GradientType::kLinear);
@@ -139,10 +144,8 @@ static void linear_gradproc(skiatest::Reporter* reporter, const GradRec& buildRe
 
 static void radial_gradproc(skiatest::Reporter* reporter, const GradRec& buildRec,
                             const GradRec& checkRec) {
-    sk_sp<SkShader> s(SkGradientShader::MakeRadial(
-            buildRec.fPoint[0], buildRec.fRadius[0],
-            buildRec.fColors, SkColorSpace::MakeSRGB(), buildRec.fPos, buildRec.fColorCount,
-            buildRec.fTileMode));
+    sk_sp<SkShader> s = SkShaders::RadialGradient(
+            buildRec.fPoint[0], buildRec.fRadius[0], buildRec.grad());
 
     SkShaderBase::GradientInfo info;
     checkRec.gradCheck(reporter, s, &info, SkShaderBase::GradientType::kRadial);
@@ -152,9 +155,7 @@ static void radial_gradproc(skiatest::Reporter* reporter, const GradRec& buildRe
 
 static void sweep_gradproc(skiatest::Reporter* reporter, const GradRec& buildRec,
                            const GradRec& checkRec) {
-    sk_sp<SkShader> s(SkGradientShader::MakeSweep(
-            buildRec.fPoint[0].fX, buildRec.fPoint[0].fY,
-            buildRec.fColors, SkColorSpace::MakeSRGB(), buildRec.fPos, buildRec.fColorCount));
+    sk_sp<SkShader> s = SkShaders::SweepGradient(buildRec.fPoint[0], buildRec.grad());
 
     SkShaderBase::GradientInfo info;
     checkRec.gradCheck(reporter, s, &info, SkShaderBase::GradientType::kSweep);
@@ -163,10 +164,9 @@ static void sweep_gradproc(skiatest::Reporter* reporter, const GradRec& buildRec
 
 static void conical_gradproc(skiatest::Reporter* reporter, const GradRec& buildRec,
                              const GradRec& checkRec) {
-    sk_sp<SkShader> s(SkGradientShader::MakeTwoPointConical(
+    sk_sp<SkShader> s = SkShaders::TwoPointConicalGradient(
             buildRec.fPoint[0], buildRec.fRadius[0], buildRec.fPoint[1], buildRec.fRadius[1],
-            buildRec.fColors, SkColorSpace::MakeSRGB(), buildRec.fPos, buildRec.fColorCount,
-            buildRec.fTileMode));
+            buildRec.grad());
 
     SkShaderBase::GradientInfo info;
     checkRec.gradCheck(reporter, s, &info, SkShaderBase::GradientType::kConical);
@@ -177,20 +177,14 @@ static void conical_gradproc(skiatest::Reporter* reporter, const GradRec& buildR
 static void linear_gradproc_matrix(skiatest::Reporter* reporter, const GradRec& buildRec,
                                    const GradRec& checkRec) {
     SkMatrix localMatrix = SkMatrix::RotateDeg(45, {100, 100});
-    sk_sp<SkShader> s(SkGradientShader::MakeLinear(
-            buildRec.fPoint,
-            buildRec.fColors, SkColorSpace::MakeSRGB(), buildRec.fPos, buildRec.fColorCount,
-            buildRec.fTileMode, /*flags=*/0, &localMatrix));
+    sk_sp<SkShader> s = SkShaders::LinearGradient(buildRec.fPoint, buildRec.grad(), &localMatrix);
 
     SkShaderBase::GradientInfo info;
     checkRec.gradCheck(reporter, s, &info, SkShaderBase::GradientType::kLinear, localMatrix);
     REPORTER_ASSERT(reporter, !memcmp(info.fPoint, checkRec.fPoint, 2 * sizeof(SkPoint)));
 
     // Same but using a local matrix wrapper.
-    s = SkGradientShader::MakeLinear(
-            buildRec.fPoint,
-            buildRec.fColors, SkColorSpace::MakeSRGB(), buildRec.fPos, buildRec.fColorCount,
-            buildRec.fTileMode);
+    s = SkShaders::LinearGradient(buildRec.fPoint, buildRec.grad());
     s = s->makeWithLocalMatrix(localMatrix);
     checkRec.gradCheck(reporter, s, &info, SkShaderBase::GradientType::kLinear, localMatrix);
     REPORTER_ASSERT(reporter, !memcmp(info.fPoint, checkRec.fPoint, 2 * sizeof(SkPoint)));
@@ -202,10 +196,10 @@ static void TestConstantGradient(skiatest::Reporter*) {
         { 0, 0 },
         { SkIntToScalar(10), 0 }
     };
-    SkColor colors[] = { SK_ColorBLUE, SK_ColorBLUE };
+    const SkColor4f colors[] = { SkColors::kBlue, SkColors::kBlue };
     const SkScalar pos[] = { 0, SK_Scalar1 };
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeLinear(pts, colors, pos, 2, SkTileMode::kClamp));
+    paint.setShader(SkShaders::LinearGradient(pts, {{colors, pos, SkTileMode::kClamp}, {}}));
     SkBitmap outBitmap;
     outBitmap.allocN32Pixels(10, 1);
     SkCanvas canvas(outBitmap);
@@ -214,16 +208,16 @@ static void TestConstantGradient(skiatest::Reporter*) {
         // The following is commented out because it currently fails
         // Related bug: https://code.google.com/p/skia/issues/detail?id=1098
 
-        // REPORTER_ASSERT(reporter, SK_ColorBLUE == outBitmap.getColor(i, 0));
+        // REPORTER_ASSERT(reporter, SkColors::kBlue == outBitmap.getColor(i, 0));
     }
 }
 
 typedef void (*GradProc)(skiatest::Reporter* reporter, const GradRec&, const GradRec&);
 
 static void TestGradientShaders(skiatest::Reporter* reporter) {
-    static const SkColor4f gColors[] = { SkColor4f::FromColor(SK_ColorRED),
-                                         SkColor4f::FromColor(SK_ColorGREEN),
-                                         SkColor4f::FromColor(SK_ColorBLUE) };
+    static const SkColor4f gColors[] = { SkColors::kRed,
+                                         SkColors::kGreen,
+                                         SkColors::kBlue };
     static const SkScalar gPos[] = { 0, SK_ScalarHalf, SK_Scalar1 };
     static const SkPoint gPts[] = {
         { 0, 0 },
@@ -258,10 +252,10 @@ static void test_nearly_vertical(skiatest::Reporter* reporter) {
     auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(200, 200)));
 
     const SkPoint pts[] = {{ 100, 50 }, { 100.0001f, 50000 }};
-    const SkColor colors[] = { SK_ColorBLACK, SK_ColorWHITE };
+    const SkColor4f colors[] = { SkColors::kBlack, SkColors::kWhite };
     const SkScalar pos[] = { 0, 1 };
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeLinear(pts, colors, pos, 2, SkTileMode::kClamp));
+    paint.setShader(SkShaders::LinearGradient(pts, {{colors, pos, SkTileMode::kClamp}, {}}));
 
     surface->getCanvas()->drawPaint(paint);
 }
@@ -270,10 +264,10 @@ static void test_vertical(skiatest::Reporter* reporter) {
     auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(200, 200)));
 
     const SkPoint pts[] = {{ 100, 50 }, { 100, 50 }};
-    const SkColor colors[] = { SK_ColorBLACK, SK_ColorWHITE };
+    const SkColor4f colors[] = { SkColors::kBlack, SkColors::kWhite };
     const SkScalar pos[] = { 0, 1 };
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeLinear(pts, colors, pos, 2, SkTileMode::kClamp));
+    paint.setShader(SkShaders::LinearGradient(pts, {{colors, pos, SkTileMode::kClamp}, {}}));
 
     surface->getCanvas()->drawPaint(paint);
 }
@@ -286,11 +280,11 @@ static void test_linear_fuzz(skiatest::Reporter* reporter) {
     auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(1300, 630)));
 
     const SkPoint pts[] = {{ 179.5f, -179.5f }, { 1074.5f, 715.5f }};
-    const SkColor colors[] = { SK_ColorBLACK, SK_ColorWHITE, SK_ColorBLACK, SK_ColorWHITE };
+    const SkColor4f colors[] = { SkColors::kBlack, SkColors::kWhite, SkColors::kBlack, SkColors::kWhite };
     const SkScalar pos[] = {0, 0.200000003f, 0.800000012f, 1 };
 
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeLinear(pts, colors, pos, 4, SkTileMode::kClamp));
+    paint.setShader(SkShaders::LinearGradient(pts, {{colors, pos, SkTileMode::kClamp}, {}}));
 
     SkRect r = {0, 83, 1254, 620};
     surface->getCanvas()->drawRect(r, paint);
@@ -300,14 +294,14 @@ static void test_linear_fuzz(skiatest::Reporter* reporter) {
 // We should still shade pixels for which the radius is exactly 0.
 static void test_two_point_conical_zero_radius(skiatest::Reporter* reporter) {
     auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(5, 5)));
-    surface->getCanvas()->clear(SK_ColorRED);
+    surface->getCanvas()->clear(SkColors::kRed);
 
-    const SkColor colors[] = { SK_ColorGREEN, SK_ColorBLUE };
+    const SkColor4f colors[] = { SkColors::kGreen, SkColors::kBlue };
     SkPaint p;
-    p.setShader(SkGradientShader::MakeTwoPointConical(
+    p.setShader(SkShaders::TwoPointConicalGradient(
         SkPoint::Make(2.5f, 2.5f), 0,
         SkPoint::Make(3.0f, 3.0f), 10,
-        colors, nullptr, std::size(colors), SkTileMode::kClamp));
+        {{colors, {}, SkTileMode::kClamp}, {}}));
     surface->getCanvas()->drawPaint(p);
 
     // r == 0 for the center pixel.
@@ -320,17 +314,17 @@ static void test_two_point_conical_zero_radius(skiatest::Reporter* reporter) {
 // http://crbug.com/599458
 static void test_clamping_overflow(skiatest::Reporter*) {
     SkPaint p;
-    const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN };
+    const SkColor4f colors[] = { SkColors::kRed, SkColors::kGreen };
     const SkPoint pts1[] = { SkPoint::Make(1001, 1000001), SkPoint::Make(1000.99f, 1000000) };
 
-    p.setShader(SkGradientShader::MakeLinear(pts1, colors, nullptr, 2, SkTileMode::kClamp));
+    p.setShader(SkShaders::LinearGradient(pts1, {{colors, {}, SkTileMode::kClamp}, {}}));
 
     sk_sp<SkSurface> surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(50, 50)));
     surface->getCanvas()->scale(100, 100);
     surface->getCanvas()->drawPaint(p);
 
     const SkPoint pts2[] = { SkPoint::Make(10000.99f, 1000000), SkPoint::Make(10001, 1000001) };
-    p.setShader(SkGradientShader::MakeLinear(pts2, colors, nullptr, 2, SkTileMode::kClamp));
+    p.setShader(SkShaders::LinearGradient(pts2, {{colors, {}, SkTileMode::kClamp}, {}}));
     surface->getCanvas()->drawPaint(p);
 
     // Passes if we don't trigger asserts.
@@ -339,13 +333,13 @@ static void test_clamping_overflow(skiatest::Reporter*) {
 // http://crbug.com/636194
 static void test_degenerate_linear(skiatest::Reporter*) {
     SkPaint p;
-    const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN };
+    const SkColor4f colors[] = { SkColors::kRed, SkColors::kGreen };
     const SkPoint pts[] = {
         SkPoint::Make(-46058024627067344430605278824628224.0f, 0),
         SkPoint::Make(SK_ScalarMax, 0)
     };
 
-    p.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp));
+    p.setShader(SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}}));
     sk_sp<SkSurface> surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(50, 50)));
     surface->getCanvas()->drawPaint(p);
 
@@ -365,8 +359,8 @@ static void test_unsorted_degenerate(skiatest::Reporter* r) {
 
     const SkPoint points[] { { 0.f, 0.f }, { 1e-20f, -1e-8f }}; // must be degenerate
     // Use kMirror to go through average color stop calculation, vs. kClamp which would pick a color
-    sk_sp<SkShader> gradient = SkGradientShader::MakeLinear(points, colors, nullptr, positions, 3,
-                                                            SkTileMode::kMirror);
+    sk_sp<SkShader> gradient = SkShaders::LinearGradient(points,
+                                                    {{colors, positions, SkTileMode::kMirror}, {}});
 
     // The degenerate gradient shouldn't be null
     REPORTER_ASSERT(r, SkToBool(gradient));
@@ -401,8 +395,11 @@ static void test_unsorted_degenerate(skiatest::Reporter* r) {
 
 // "Interesting" fuzzer values.
 static void test_linear_fuzzer(skiatest::Reporter*) {
-    static const SkColor gColors0[] = { 0x30303030, 0x30303030 };
-    static const SkColor gColors1[] = { 0x30303030, 0x30303030, 0x30303030 };
+    static const SkColor4f gColors0[] = { SkColor4f::FromColor(0x30303030),
+                                          SkColor4f::FromColor(0x30303030) };
+    static const SkColor4f gColors1[] = { SkColor4f::FromColor(0x30303030),
+                                          SkColor4f::FromColor(0x30303030),
+                                          SkColor4f::FromColor(0x30303030) };
 
     static const SkScalar gPos1[]   = { 0, 0, 1 };
 
@@ -429,13 +426,21 @@ static void test_linear_fuzzer(skiatest::Reporter*) {
 
     static const struct {
         SkPoint            fPts[2];
-        const SkColor*     fColors;
-        const SkScalar*    fPos;
-        int                fCount;
+        const SkColor4f*   fColors;
+        const float*       fPos;
+        size_t             fCount;
         SkTileMode         fTileMode;
-        uint32_t           fFlags;
-        const SkScalar*    fLocalMatrix;
-        const SkScalar*    fGlobalMatrix;
+        const float*       fLocalMatrix;
+        const float*       fGlobalMatrix;
+
+        SkGradient grad() const {
+            SkSpan<const float> pos;
+            if (fPos) {
+                pos = {fPos, fCount};
+            }
+            return {{{fColors, fCount}, pos, fTileMode}, {}};
+        }
+
     } gConfigs[] = {
         {
             {{0, -2.752941f}, {0, 0}},
@@ -443,7 +448,6 @@ static void test_linear_fuzzer(skiatest::Reporter*) {
             nullptr,
             std::size(gColors0),
             SkTileMode::kClamp,
-            0,
             gMatrix0,
             nullptr
         },
@@ -453,7 +457,6 @@ static void test_linear_fuzzer(skiatest::Reporter*) {
             gPos1,
             std::size(gColors1),
             SkTileMode::kClamp,
-            0,
             nullptr,
             gMatrix1
         },
@@ -463,7 +466,6 @@ static void test_linear_fuzzer(skiatest::Reporter*) {
             gPos1,
             std::size(gColors1),
             SkTileMode::kClamp,
-            0,
             nullptr,
             gMatrix2
         },
@@ -473,7 +475,6 @@ static void test_linear_fuzzer(skiatest::Reporter*) {
             nullptr,
             std::size(gColors0),
             SkTileMode::kClamp,
-            0,
             gMatrix3,
             nullptr
         },
@@ -499,13 +500,9 @@ static void test_linear_fuzzer(skiatest::Reporter*) {
                 localMatrix.emplace().set9(config.fLocalMatrix);
             }
 
-            paint.setShader(SkGradientShader::MakeLinear(config.fPts,
-                                                         config.fColors,
-                                                         config.fPos,
-                                                         config.fCount,
-                                                         config.fTileMode,
-                                                         config.fFlags,
-                                                         SkOptAddressOrNull(localMatrix)));
+            paint.setShader(SkShaders::LinearGradient(config.fPts,
+                                                      config.grad(),
+                                                      SkOptAddressOrNull(localMatrix)));
             if (config.fGlobalMatrix) {
                 SkMatrix m;
                 m.set9(config.fGlobalMatrix);
@@ -519,19 +516,30 @@ static void test_linear_fuzzer(skiatest::Reporter*) {
 }
 
 static void test_sweep_fuzzer(skiatest::Reporter*) {
-    static const SkColor gColors0[] = { 0x30303030, 0x30303030, 0x30303030 };
-    static const SkScalar   gPos0[] = { -47919293023455565225163489280.0f, 0, 1 };
-    static const SkScalar gMatrix0[9] = {
+    static const SkColor4f gColors0[] = { SkColor4f::FromColor(0x30303030),
+                                          SkColor4f::FromColor(0x30303030),
+                                          SkColor4f::FromColor(0x30303030) };
+    static const float   gPos0[] = { -47919293023455565225163489280.0f, 0, 1 };
+    static const float gMatrix0[9] = {
         1.12116716e-13f,  0              ,  8.50489682e+16f,
         4.1917041e-41f ,  3.51369881e-23f, -2.54344271e-26f,
         9.61111907e+17f, -3.35263808e-29f, -1.35659403e+14f
     };
     static const struct {
         SkPoint            fCenter;
-        const SkColor*     fColors;
-        const SkScalar*    fPos;
-        int                fCount;
-        const SkScalar*    fGlobalMatrix;
+        const SkColor4f*   fColors;
+        const float*       fPos;
+        size_t             fCount;
+        const float*       fGlobalMatrix;
+
+        SkGradient grad() const {
+            SkSpan<const float> pos;
+            if (fPos) {
+                pos = {fPos, fCount};
+            }
+            return {{{fColors, fCount}, pos, SkTileMode::kClamp}, {}};
+        }
+
     } gConfigs[] = {
         {
             { 0, 0 },
@@ -547,11 +555,7 @@ static void test_sweep_fuzzer(skiatest::Reporter*) {
     SkPaint paint;
 
     for (const auto& config : gConfigs) {
-        paint.setShader(SkGradientShader::MakeSweep(config.fCenter.x(),
-                                                    config.fCenter.y(),
-                                                    config.fColors,
-                                                    config.fPos,
-                                                    config.fCount));
+        paint.setShader(SkShaders::SweepGradient(config.fCenter, config.grad()));
 
         SkAutoCanvasRestore acr(canvas, false);
         if (config.fGlobalMatrix) {
@@ -573,12 +577,12 @@ void test_sweep_gradient_zero_x(skiatest::Reporter* reporter, SkSurface* surface
     // stops and running clockwise from (1, 0), so we should draw a rectangle with a blue top-half
     // and yellow bottom-half.
     constexpr float pts[4] = {0.0f, 0.5f, 0.5f, 1.0f};
-    constexpr SkColor colors[4] = {SK_ColorYELLOW, SK_ColorYELLOW, SK_ColorBLUE, SK_ColorBLUE};
+    constexpr SkColor4f colors[4] = {SkColors::kYellow, SkColors::kYellow, SkColors::kBlue, SkColors::kBlue};
     SkCanvas* canvas = surface->getCanvas();
     canvas->save();
     canvas->translate(2.5f, 2.5f);
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeSweep(0.0f, 0.0f, colors, pts, 4));
+    paint.setShader(SkShaders::SweepGradient({0,0}, {{colors, pts, SkTileMode::kClamp}, {}}));
     canvas->drawRect(SkRect::MakeXYWH(-2.5f, -2.5f, 5.0f, 5.0f), paint);
     canvas->restore();
 

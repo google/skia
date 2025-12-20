@@ -47,17 +47,19 @@ static void makebm(SkBitmap* bm, int w, int h) {
     static const SkPoint     kPts0[] = { { 0, 0 }, { s, s } };
     static const SkPoint     kPts1[] = { { s/2, 0 }, { s/2, s } };
     static const SkScalar    kPos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
-    static const SkColor kColors0[] = {0x80F00080, 0xF0F08000, 0x800080F0 };
-    static const SkColor kColors1[] = {0xF08000F0, 0x8080F000, 0xF000F080 };
+    static const SkColor4f kColors0[] = { SkColor4f::FromColor(0x80F00080),
+                                          SkColor4f::FromColor(0xF0F08000),
+                                          SkColor4f::FromColor(0x800080F0) };
+    static const SkColor4f kColors1[] = { SkColor4f::FromColor(0xF08000F0),
+                                          SkColor4f::FromColor(0x8080F000),
+                                          SkColor4f::FromColor(0xF000F080) };
 
 
     SkPaint     paint;
 
-    paint.setShader(SkGradientShader::MakeLinear(kPts0, kColors0, kPos, std::size(kColors0),
-                                                 SkTileMode::kClamp));
+    paint.setShader(SkShaders::LinearGradient(kPts0, {{kColors0, kPos, SkTileMode::kClamp}, {}}));
     canvas.drawPaint(paint);
-    paint.setShader(SkGradientShader::MakeLinear(kPts1, kColors1, kPos, std::size(kColors1),
-                                                 SkTileMode::kClamp));
+    paint.setShader(SkShaders::LinearGradient(kPts1, {{kColors1, kPos, SkTileMode::kClamp}, {}}));
     canvas.drawPaint(paint);
 }
 

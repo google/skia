@@ -25,7 +25,7 @@
 #include "include/core/SkYUVAPixmaps.h"
 #include "include/effects/SkBlenders.h"
 #include "include/effects/SkColorMatrix.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/effects/SkHighContrastFilter.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkLumaColorFilter.h"
@@ -762,7 +762,7 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_gradient_shader(
     static const float kOffsets[kMaxNumStops] =
             { 0.0f, 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.75f, 0.875f, 1.0f };
 
-    int numStops;
+    size_t numStops;
 
     switch (rand->nextULessThan(3)) {
         case 0:  numStops = 2; break;
@@ -787,34 +787,28 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_gradient_shader(
 
     SkTileMode tm = random_tilemode(rand);
 
+    const SkGradient grad = {{{colors, numStops}, {kOffsets, numStops}, tm}, interpolation};
+
     switch (type) {
         case SkShaderBase::GradientType::kLinear:
-            s = SkGradientShader::MakeLinear(kPts,
-                                             colors, /* colorSpace= */ nullptr, kOffsets, numStops,
-                                             tm, interpolation, lmPtr);
+            s = SkShaders::LinearGradient(kPts, grad, lmPtr);
             o = PrecompileShaders::LinearGradient(GradientShaderFlags::kAll, interpolation);
             break;
         case SkShaderBase::GradientType::kRadial:
-            s = SkGradientShader::MakeRadial(/* center= */ {0, 0}, /* radius= */ 100,
-                                             colors, /* colorSpace= */ nullptr, kOffsets, numStops,
-                                             tm, interpolation, lmPtr);
+            s = SkShaders::RadialGradient(/* center= */ {0, 0}, /* radius= */ 100,
+                                           grad, lmPtr);
             o = PrecompileShaders::RadialGradient(GradientShaderFlags::kAll, interpolation);
             break;
         case SkShaderBase::GradientType::kSweep:
-            s = SkGradientShader::MakeSweep(/* cx= */ 0, /* cy= */ 0,
-                                            colors, /* colorSpace= */ nullptr, kOffsets, numStops,
-                                            tm, /* startAngle= */ 0, /* endAngle= */ 359,
-                                            interpolation, lmPtr);
+            s = SkShaders::SweepGradient({0, 0}, grad, lmPtr);
             o = PrecompileShaders::SweepGradient(GradientShaderFlags::kAll, interpolation);
             break;
         case SkShaderBase::GradientType::kConical:
-            s = SkGradientShader::MakeTwoPointConical(/* start= */ {100, 100},
+            s = SkShaders::TwoPointConicalGradient(/* start= */ {100, 100},
                                                       /* startRadius= */ 100,
                                                       /* end= */ {-100, -100},
                                                       /* endRadius= */ 100,
-                                                      colors,
-                                                      /* colorSpace= */ nullptr,
-                                                      kOffsets, numStops, tm, interpolation, lmPtr);
+                                                      grad, lmPtr);
             o = PrecompileShaders::TwoPointConicalGradient(GradientShaderFlags::kAll,
                                                            interpolation);
             break;

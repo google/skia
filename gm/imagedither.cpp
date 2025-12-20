@@ -16,7 +16,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/effects/SkRuntimeEffect.h"
 
 sk_sp<SkBlender> stretch_colors_blender() {

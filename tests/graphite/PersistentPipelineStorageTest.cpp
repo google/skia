@@ -11,7 +11,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkSurfaceProps.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Surface.h"
 #include "tools/graphite/ContextFactory.h"
@@ -55,12 +55,8 @@ bool draw(GraphiteTestContext* origTestContext,
         SkPaint paint;
         if (withGradient) {
             const SkPoint pts[] = {{0, 0}, {64, 64}};
-            const SkColor colors[] = {SK_ColorWHITE, SK_ColorBLACK};
-            paint.setShader(SkGradientShader::MakeLinear(pts,
-                                                         colors,
-                                                         nullptr,
-                                                         /* count= */ 2,
-                                                         SkTileMode::kClamp));
+            const SkColor4f colors[] = {SkColors::kWhite, SkColors::kBlack};
+            paint.setShader(SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}}));
         }
         surface->getCanvas()->drawRRect(SkRRect::MakeOval({16, 16, 48, 48 }), paint);
     }

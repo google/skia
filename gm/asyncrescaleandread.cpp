@@ -13,7 +13,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "src/base/SkScopeExit.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "tools/DecodeUtils.h"

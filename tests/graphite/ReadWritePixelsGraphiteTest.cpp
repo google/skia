@@ -11,7 +11,7 @@
 #include "include/core/SkColorType.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Context.h"
@@ -200,28 +200,28 @@ static SkAutoPixmapStorage make_ref_data(const SkImageInfo& info, bool forceOpaq
     }
 
     SkPoint pts1[] = {{0, 0}, {float(info.width()), float(info.height())}};
-    static constexpr SkColor kColors1[] = {SK_ColorGREEN, SK_ColorRED};
+    static constexpr SkColor4f kColors1[] = {SkColors::kGreen, SkColors::kRed};
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeLinear(pts1, kColors1, nullptr, 2, SkTileMode::kClamp));
+    paint.setShader(SkShaders::LinearGradient(pts1, {{kColors1, {}, SkTileMode::kClamp}, {}}));
     surface->getCanvas()->drawPaint(paint);
 
     SkPoint pts2[] = {{float(info.width()), 0}, {0, float(info.height())}};
-    static constexpr SkColor kColors2[] = {SK_ColorBLUE, SK_ColorBLACK};
-    paint.setShader(SkGradientShader::MakeLinear(pts2, kColors2, nullptr, 2, SkTileMode::kClamp));
+    static constexpr SkColor4f kColors2[] = {SkColors::kBlue, SkColors::kBlack};
+    paint.setShader(SkShaders::LinearGradient(pts2, {{kColors2, {}, SkTileMode::kClamp}, {}}));
     paint.setBlendMode(SkBlendMode::kPlus);
     surface->getCanvas()->drawPaint(paint);
 
     // If not opaque add some fractional alpha.
     if (info.alphaType() != kOpaque_SkAlphaType && !forceOpaque) {
-        static constexpr SkColor kColors3[] = {SK_ColorWHITE,
-                                               SK_ColorWHITE,
-                                               0x60FFFFFF,
-                                               SK_ColorWHITE,
-                                               SK_ColorWHITE};
+        static const SkColor4f kColors3[] = {SkColors::kWhite,
+                                             SkColors::kWhite,
+                                             SkColor4f::FromColor(0x60FFFFFF),
+                                             SkColors::kWhite,
+                                             SkColors::kWhite};
         static constexpr SkScalar kPos3[] = {0.f, 0.15f, 0.5f, 0.85f, 1.f};
-        paint.setShader(SkGradientShader::MakeRadial({info.width()/2.f, info.height()/2.f},
-                                                     (info.width() + info.height())/10.f,
-                                                     kColors3, kPos3, 5, SkTileMode::kMirror));
+        paint.setShader(SkShaders::RadialGradient({info.width()/2.f, info.height()/2.f},
+                                                  (info.width() + info.height())/10.f,
+                                                  {{kColors3, kPos3, SkTileMode::kMirror}, {}}));
         paint.setBlendMode(SkBlendMode::kDstIn);
         surface->getCanvas()->drawPaint(paint);
     }

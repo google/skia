@@ -22,7 +22,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrTypes.h"
@@ -764,9 +764,9 @@ static SkPath create_path_47() {
 static std::unique_ptr<GrFragmentProcessor>
 create_linear_gradient_processor(skgpu::ganesh::SurfaceDrawContext* sdc, const SkMatrix& ctm) {
     SkPoint pts[2] = { {0, 0}, {1, 1} };
-    SkColor colors[2] = { SK_ColorGREEN, SK_ColorBLUE };
-    sk_sp<SkShader> shader = SkGradientShader::MakeLinear(
-        pts, colors, nullptr, std::size(colors), SkTileMode::kClamp);
+    SkColor4f colors[2] = { SkColors::kGreen, SkColors::kBlue };
+    sk_sp<SkShader> shader = SkShaders::LinearGradient(
+        pts, {{colors, {}, SkTileMode::kClamp}, {}});
     GrColorInfo colorInfo(GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr);
     SkSurfaceProps props; // default props for testing
     return GrFragmentProcessors::Make(

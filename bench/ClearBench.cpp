@@ -16,15 +16,15 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/ganesh/GrCanvas.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 
 static sk_sp<SkShader> make_shader() {
     static const SkPoint kPts[] = {{0, 0}, {10, 10}};
-    static const SkColor kColors[] = {SK_ColorBLUE, SK_ColorWHITE};
-    return SkGradientShader::MakeLinear(kPts, kColors, nullptr, 2, SkTileMode::kClamp);
+    static const SkColor4f kColors[] = {SkColors::kBlue, SkColors::kWhite};
+    return SkShaders::LinearGradient(kPts, {{kColors, {}, SkTileMode::kClamp}, {}});
 }
 
 class ClearBench : public Benchmark {
@@ -88,7 +88,7 @@ protected:
             }
 
             // The clear we care about measuring
-            canvas->clear(SK_ColorBLUE);
+            canvas->clear(SkColors::kBlue);
             canvas->restore();
 
             // Perform as minimal a draw as possible that intersects with the clear region in

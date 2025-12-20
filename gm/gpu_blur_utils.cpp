@@ -8,7 +8,7 @@
 #include "gm/gm.h"
 
 #include "include/core/SkColorSpace.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/core/SkCanvasPriv.h"

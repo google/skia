@@ -10,7 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/core/SkPaint.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/PrecompileContext.h"
@@ -35,12 +35,8 @@ namespace {
 bool draw(Context* context) {
     SkPaint paint;
     const SkPoint pts[] = {{0, 0}, {64, 64}};
-    const SkColor colors[] = {SK_ColorWHITE, SK_ColorBLACK};
-    paint.setShader(SkGradientShader::MakeLinear(pts,
-                                                 colors,
-                                                 nullptr,
-                                                 /* count= */ 2,
-                                                 SkTileMode::kClamp));
+    const SkColor4f colors[] = {SkColors::kWhite, SkColors::kBlack};
+    paint.setShader(SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}}));
 
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
