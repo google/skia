@@ -1380,60 +1380,6 @@ bool SkPathPriv::Contains(const SkPathRaw& raw, SkPoint p) {
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-SkPathVerbAnalysis SkPathPriv::AnalyzeVerbs(SkSpan<const SkPathVerb> vbs) {
-    SkPathVerbAnalysis info = {false, 0, 0, 0};
-    bool needMove = true;
-    bool invalid = false;
-
-    if (vbs.size() >= (INT_MAX / 3)) SK_UNLIKELY {
-        // A path with an extremely high number of quad, conic or cubic verbs could cause
-        // `info.points` to overflow. To prevent against this, we reject extremely large paths. This
-        // check is conservative and assumes the worst case (in particular, it assumes that every
-        // verb consumes 3 points, which would only happen for a path composed entirely of cubics).
-        // This limits us to 700 million verbs, which is large enough for any reasonable use case.
-        invalid = true;
-    } else {
-        for (auto v : vbs) {
-            switch (v) {
-                case SkPathVerb::kMove:
-                    needMove = false;
-                    info.points += 1;
-                    break;
-                case SkPathVerb::kLine:
-                    invalid |= needMove;
-                    info.segmentMask |= kLine_SkPathSegmentMask;
-                    info.points += 1;
-                    break;
-                case SkPathVerb::kQuad:
-                    invalid |= needMove;
-                    info.segmentMask |= kQuad_SkPathSegmentMask;
-                    info.points += 2;
-                    break;
-                case SkPathVerb::kConic:
-                    invalid |= needMove;
-                    info.segmentMask |= kConic_SkPathSegmentMask;
-                    info.points += 2;
-                    info.weights += 1;
-                    break;
-                case SkPathVerb::kCubic:
-                    invalid |= needMove;
-                    info.segmentMask |= kCubic_SkPathSegmentMask;
-                    info.points += 3;
-                    break;
-                case SkPathVerb::kClose:
-                    invalid |= needMove;
-                    needMove = true;
-                    break;
-                default:
-                    invalid = true;
-                    break;
-            }
-        }
-    }
-    info.valid = !invalid;
-    return info;
-}
-
 bool SkPathPriv::IsAxisAligned(SkSpan<const SkPoint> pts) {
     // Conservative (quick) test to see if all segments are axis-aligned.
     // Multiple contours might give a false-negative, but for speed, we ignore that

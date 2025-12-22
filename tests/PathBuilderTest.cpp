@@ -346,6 +346,13 @@ static void test_addPathMode(skiatest::Reporter* reporter, bool explicitMoveTo, 
     REPORTER_ASSERT(reporter, verbs[3] == SkPathVerb::kLine);
 }
 
+static std::optional<SkPoint> get_point(const SkPathBuilder& builder, int index) {
+    if ((unsigned)index < (unsigned)builder.points().size()) {
+        return builder.points()[index];
+    }
+    return std::nullopt;
+}
+
 static void test_extendClosedPath(skiatest::Reporter* reporter) {
     SkPathBuilder p, q;
     p.moveTo(1, 1);
@@ -368,7 +375,7 @@ static void test_extendClosedPath(skiatest::Reporter* reporter) {
     std::optional<SkPoint> pt = p.getLastPt();
     REPORTER_ASSERT(reporter, pt.has_value());
     REPORTER_ASSERT(reporter, pt.value() == SkPoint::Make(2, 3));
-    pt = SkPathPriv::GetPoint(p, 3);
+    pt = get_point(p, 3);
     REPORTER_ASSERT(reporter, pt.has_value());
     REPORTER_ASSERT(reporter, pt == SkPoint::Make(1, 1));
 }
@@ -412,18 +419,18 @@ static void test_addPath_and_injected_moveTo(skiatest::Reporter* reporter) {
     auto test_before_after_lineto = [reporter](SkPathBuilder& path,
                                                SkPoint expectedLastPt,
                                                SkPoint expectedMoveTo) {
-        std::optional<SkPoint> p = SkPathPriv::GetPoint(path, path.countPoints() - 1);
+        std::optional<SkPoint> p = get_point(path, path.countPoints() - 1);
         REPORTER_ASSERT(reporter, p.has_value());
         REPORTER_ASSERT(reporter, p.value() == expectedLastPt);
 
         const SkPoint newLineTo = {1234, 5678};
         path.lineTo(newLineTo);
 
-        p = SkPathPriv::GetPoint(path, path.countPoints() - 2);
+        p = get_point(path, path.countPoints() - 2);
         REPORTER_ASSERT(reporter, p.has_value());
         REPORTER_ASSERT(reporter, p.value() == expectedMoveTo); // this was injected by lineTo()
 
-        p = SkPathPriv::GetPoint(path, path.countPoints() - 1);
+        p = get_point(path, path.countPoints() - 1);
         REPORTER_ASSERT(reporter, p.has_value());
         REPORTER_ASSERT(reporter, p.value() == newLineTo);
     };
@@ -539,20 +546,20 @@ DEF_TEST(pathbuilder_addpath_crbug_1153516, r) {
     p2.lineTo(262,513); // this should not assert
     SkPoint rectangleStart = {143, 226};
     SkPoint lineEnd = {262, 513};
-    std::optional<SkPoint> actualMoveTo = SkPathPriv::GetPoint(p2, p2.countPoints() - 2);
+    std::optional<SkPoint> actualMoveTo = get_point(p2, p2.countPoints() - 2);
     REPORTER_ASSERT(r, actualMoveTo.has_value());
     REPORTER_ASSERT(r, actualMoveTo.value() == rectangleStart );
-    std::optional<SkPoint> actualLineTo = SkPathPriv::GetPoint(p2, p2.countPoints() - 1);
+    std::optional<SkPoint> actualLineTo = get_point(p2, p2.countPoints() - 1);
     REPORTER_ASSERT(r, actualLineTo.has_value());
     REPORTER_ASSERT(r, actualLineTo.value() == lineEnd);
 
     // Verify adding a closed path to itself
     p1.addPath(p1.snapshot());
     p1.lineTo(262,513);
-    actualMoveTo = SkPathPriv::GetPoint(p1, p1.countPoints() - 2);
+    actualMoveTo = get_point(p1, p1.countPoints() - 2);
     REPORTER_ASSERT(r, actualMoveTo.has_value());
     REPORTER_ASSERT(r, actualMoveTo.value() == rectangleStart );
-    actualLineTo = SkPathPriv::GetPoint(p1, p1.countPoints() - 1);
+    actualLineTo = get_point(p1, p1.countPoints() - 1);
     REPORTER_ASSERT(r, actualLineTo.has_value());
     REPORTER_ASSERT(r, actualLineTo.value() == lineEnd);
 }

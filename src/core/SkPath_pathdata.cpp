@@ -190,10 +190,6 @@ std::optional<SkPathRaw> SkPath::raw(SkResolveConvexity rc) const {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkPathPriv::TestingOnly_unique(const SkPath& path) {
-    return path.fPathData->unique();
-}
-
 int SkPathPriv::GenIDChangeListenersCount(const SkPath& path) {
     return path.fPathData->genIDChangeListenerCount();
 }

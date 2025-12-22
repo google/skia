@@ -787,10 +787,6 @@ bool SkPathPriv::PerspectiveClip(const SkPath& path, const SkMatrix& matrix, SkP
     return true;
 }
 
-bool SkPathPriv::IsAxisAligned(const SkPath& path) {
-    return IsAxisAligned(path.points());
-}
-
 std::optional<SkPathRectInfo> SkPathPriv::IsSimpleRect(const SkPath& path, bool isSimpleFill) {
     if (path.getSegmentMasks() != SkPath::kLine_SegmentMask) {
         return {};

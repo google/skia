@@ -495,7 +495,6 @@
 #include "docs/examples/Path_AddPathMode.cpp"
 #include "docs/examples/Path_ArcSize.cpp"
 #include "docs/examples/Path_ConvertConicToQuads.cpp"
-#include "docs/examples/Path_ConvertToNonInverseFillType.cpp"
 #include "docs/examples/Path_Effect_Methods.cpp"
 #include "docs/examples/Path_FillType_a.cpp"
 #include "docs/examples/Path_IsCubicDegenerate.cpp"
