@@ -25,11 +25,24 @@ struct ProgramSettings;
 }  // namespace SkSL
 
 // Uncomment to log all Ganesh Vulkan calls
-#define GR_VK_LOG(X) // SkDebugf("vk%s\n", #X);
+// #define GR_VK_DEBUG_LOG(X) SkDebugf("vk%s (%s:%d)\n", #X, __FILE__, __LINE__)
+
+// Or uncomment to trace all Ganesh Vulkan calls
+// TODO(b/471244369): expose this functionality as a build argument.
+// #include "src/core/SkTraceEvent.h"
+// #define GR_VK_DEBUG_LOG(X) \
+//     TRACE_EVENT1_ALWAYS("skia.gpu", "vk" #X, "line", __FILE__ ":" SK_MACRO_STRINGIFY(__LINE__))
 
 // Makes a Vk call on the interface
-#define GR_VK_CALL_NO_LOG(IFACE, X) (IFACE)->fFunctions.f##X
-#define GR_VK_CALL(IFACE, X) GR_VK_LOG(X) GR_VK_CALL_NO_LOG(IFACE, X)
+#ifdef GR_VK_DEBUG_LOG
+    #define GR_VK_CALL(IFACE, X)             \
+        ([&]() {                             \
+            GR_VK_DEBUG_LOG(X);              \
+            return (IFACE)->fFunctions.f##X; \
+        })()
+#else
+    #define GR_VK_CALL(IFACE, X) (IFACE)->fFunctions.f##X
+#endif
 
 // Note: must be called before checkVkResult, since this does not log if the GPU is already
 // considering the device to be lost.
@@ -42,24 +55,22 @@ struct ProgramSettings;
 
 #define GR_VK_CALL_RESULT(GPU, RESULT, X)                                 \
     do {                                                                  \
-        GR_VK_LOG(X)                                                      \
-        (RESULT) = GR_VK_CALL_NO_LOG(GPU->vkInterface(), X);              \
+        (RESULT) = GR_VK_CALL(GPU->vkInterface(), X);                     \
         SkASSERT(VK_SUCCESS == RESULT || VK_ERROR_DEVICE_LOST == RESULT); \
         GR_VK_LOG_IF_NOT_SUCCESS(GPU, RESULT, #X);                        \
         GPU->checkVkResult(RESULT);                                       \
     } while (false)
 
-#define GR_VK_CALL_RESULT_NOCHECK(GPU, RESULT, X)            \
-    do {                                                     \
-        GR_VK_LOG(X)                                         \
-        (RESULT) = GR_VK_CALL_NO_LOG(GPU->vkInterface(), X); \
-        GPU->checkVkResult(RESULT);                          \
+#define GR_VK_CALL_RESULT_NOCHECK(GPU, RESULT, X)     \
+    do {                                              \
+        (RESULT) = GR_VK_CALL(GPU->vkInterface(), X); \
+        GPU->checkVkResult(RESULT);                   \
     } while (false)
 
 // same as GR_VK_CALL but checks for success
 #define GR_VK_CALL_ERRCHECK(GPU, X)                                  \
     VkResult SK_MACRO_APPEND_LINE(ret);                              \
-    GR_VK_CALL_RESULT(GPU, SK_MACRO_APPEND_LINE(ret), X)             \
+    GR_VK_CALL_RESULT(GPU, SK_MACRO_APPEND_LINE(ret), X)
 
 
 bool GrVkFormatIsSupported(VkFormat);
