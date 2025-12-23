@@ -472,8 +472,29 @@ SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels,
         ? kSuccess : kInvalidConversion;
 }
 
+bool SkCodec::allocateFromBudget(size_t numBytes) {
+    if (numBytes > fDecodeBudget) SK_UNLIKELY {
+        return false;
+    }
+    fDecodeBudget -= numBytes;
+    return true;
+}
+
 SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                    const Options* options) {
+    Options optsStorage;
+    if (!options) {
+        options = &optsStorage;
+    }
+
+    fDecodeBudget = options->fMaxDecodeMemory ? options->fMaxDecodeMemory : SIZE_MAX;
+    return this->getPixelsBudgeted(info, pixels, rowBytes, options);
+}
+
+SkCodec::Result SkCodec::getPixelsBudgeted(const SkImageInfo& info,
+                                           void* pixels,
+                                           size_t rowBytes,
+                                           const Options* options) {
     if (kUnknown_SkColorType == info.colorType()) {
         return kInvalidConversion;
     }
@@ -483,19 +504,15 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t
     if (rowBytes < info.minRowBytes()) {
         return kInvalidParameters;
     }
+    SkASSERT(options);
+    SkASSERT(fDecodeBudget > 0);
 
-    // Default options.
-    Options optsStorage;
-    if (nullptr == options) {
-        options = &optsStorage;
-    } else {
-        if (options->fSubset) {
-            SkIRect subset(*options->fSubset);
-            if (!this->onGetValidSubset(&subset) || subset != *options->fSubset) {
-                // FIXME: How to differentiate between not supporting subset at all
-                // and not supporting this particular subset?
-                return kUnimplemented;
-            }
+    if (options->fSubset) {
+        SkIRect subset(*options->fSubset);
+        if (!this->onGetValidSubset(&subset) || subset != *options->fSubset) {
+            // FIXME: How to differentiate between not supporting subset at all
+            // and not supporting this particular subset?
+            return kUnimplemented;
         }
     }
 
@@ -540,6 +557,16 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t
 
 std::tuple<sk_sp<SkImage>, SkCodec::Result> SkCodec::getImage(const SkImageInfo& info,
                                                               const Options* options) {
+    Options optsStorage;
+    if (!options) {
+        options = &optsStorage;
+    }
+    fDecodeBudget = options->fMaxDecodeMemory ? options->fMaxDecodeMemory : SIZE_MAX;
+
+    if (size_t size = info.computeByteSize(info.minRowBytes()); !this->allocateFromBudget(size)) {
+        return {nullptr, kOutOfMemory};
+    }
+
     SkBitmap bm;
     if (!bm.tryAllocPixels(info)) {
         return {nullptr, kInternalError};
@@ -547,7 +574,7 @@ std::tuple<sk_sp<SkImage>, SkCodec::Result> SkCodec::getImage(const SkImageInfo&
 
     Result result;
     auto decode = [this, options, &result](const SkPixmap& pm) {
-        result = this->getPixels(pm, options);
+        result = this->getPixelsBudgeted(pm.info(), pm.writable_addr(), pm.rowBytes(), options);
         switch (result) {
             case SkCodec::kSuccess:
             case SkCodec::kIncompleteInput:
@@ -647,9 +674,12 @@ SkCodec::Result SkCodec::startScanlineDecode(const SkImageInfo& info,
 
     // Set options.
     Options optsStorage;
-    if (nullptr == options) {
+    if (!options) {
         options = &optsStorage;
-    } else if (options->fSubset) {
+    }
+    fDecodeBudget = options->fMaxDecodeMemory ? options->fMaxDecodeMemory : SIZE_MAX;
+
+    if (options->fSubset) {
         SkIRect size = SkIRect::MakeSize(info.dimensions());
         if (!size.contains(*options->fSubset)) {
             return kInvalidInput;
