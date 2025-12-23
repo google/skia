@@ -5692,3 +5692,14 @@ DEF_TEST(path_trailing_moves_bounds, reporter) {
     check_trip(bu.reset().moveTo(1, 2).detach());
     check_trip(bu.reset().moveTo(1, 2).lineTo(3, 4).moveTo(5, 6).detach());
 }
+
+// https://issues.oss-fuzz.com/issues/470703863
+DEF_TEST(path_read_from_memory_corrupt_rrect, reporter) {
+    constexpr size_t kNumBytes = 4;
+    constexpr uint8_t data[kNumBytes] = {4, 43, 61, 16};
+
+    size_t bytesRead = 117;  // Sentinel value
+    auto result = SkPath::ReadFromMemory(&data, kNumBytes, &bytesRead);
+    REPORTER_ASSERT(reporter, !result.has_value());
+    REPORTER_ASSERT(reporter, bytesRead == 0);
+}

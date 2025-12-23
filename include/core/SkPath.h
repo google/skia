@@ -1160,7 +1160,6 @@ private:
     bool              fIsVolatile;
 
     size_t writeToMemoryAsRRect(void* buffer) const;
-    size_t readAsRRect(const void*, size_t);
 
     friend class Iter;
     friend class SkPathPriv;

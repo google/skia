@@ -474,6 +474,8 @@ void SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
                     if (auto path = buffer.readPath()) {
                         fPaths.push_back(std::move(*path));
                     } else {
+                        // readPath should invalidate the buffer if we didn't get a path back.
+                        SkASSERT(!buffer.isValid());
                         return;
                     }
                 }
