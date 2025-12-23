@@ -43,6 +43,44 @@ static void assert_transfer_function_eq(skiatest::Reporter* r,
     REPORTER_ASSERT(r, fabsf(skcms_tf.f - expected.f) < tolerance);
 }
 
+// Helper to compare two skcms_TransferFunction objects
+static void compare_transfer_functions(skiatest::Reporter* r,
+                                       const char* path,
+                                       int channel,
+                                       const skcms_TransferFunction& rust_tf,
+                                       const skcms_TransferFunction& skcms_tf,
+                                       float tolerance = 0.0001f) {
+    if (fabsf(rust_tf.g - skcms_tf.g) > tolerance) {
+        ERRORF(r, "[%s] trc[%d].parametric.g mismatch: rust=%f, skcms=%f",
+               path, channel, rust_tf.g, skcms_tf.g);
+    }
+    if (fabsf(rust_tf.a - skcms_tf.a) > tolerance) {
+        ERRORF(r, "[%s] trc[%d].parametric.a mismatch: rust=%f, skcms=%f",
+               path, channel, rust_tf.a, skcms_tf.a);
+    }
+    if (fabsf(rust_tf.b - skcms_tf.b) > tolerance) {
+        ERRORF(r, "[%s] trc[%d].parametric.b mismatch: rust=%f, skcms=%f",
+               path, channel, rust_tf.b, skcms_tf.b);
+    }
+    if (fabsf(rust_tf.c - skcms_tf.c) > tolerance) {
+        ERRORF(r, "[%s] trc[%d].parametric.c mismatch: rust=%f, skcms=%f",
+               path, channel, rust_tf.c, skcms_tf.c);
+    }
+    if (fabsf(rust_tf.d - skcms_tf.d) > tolerance) {
+        ERRORF(r, "[%s] trc[%d].parametric.d mismatch: rust=%f, skcms=%f",
+               path, channel, rust_tf.d, skcms_tf.d);
+    }
+    if (fabsf(rust_tf.e - skcms_tf.e) > tolerance) {
+        ERRORF(r, "[%s] trc[%d].parametric.e mismatch: rust=%f, skcms=%f",
+               path, channel, rust_tf.e, skcms_tf.e);
+    }
+    if (fabsf(rust_tf.f - skcms_tf.f) > tolerance) {
+        ERRORF(r, "[%s] trc[%d].parametric.f mismatch: rust=%f, skcms=%f",
+               path, channel, rust_tf.f, skcms_tf.f);
+    }
+}
+
+
 DEF_TEST(RustIcc_matrix_conversion, r) {
     // Create a rust_icc::Matrix3x3
     rust_icc::Matrix3x3 rust_matrix;
@@ -624,11 +662,11 @@ DEF_TEST(RustIcc_equivalence_with_skcms_resource_files, r) {
             }
         }
 
-        // Compare has_trc - only if both parsers agree it should be present
-        // TODO(crbug.com/452666425): HP_Z32x.icc and HP_ZR30w.icc have TRC data
-        // but moxcms sets has_trc=false. This is a moxcms parser bug - it's not
-        // parsing TRC curves from these profiles.
-        // Validate has_trc equality once fixed.
+        // Compare has_trc and transfer functions
+        if (rust.has_trc != skcms.has_trc) {
+            ERRORF(r, "[%s] has_trc mismatch: rust=%d, skcms=%d",
+                   path, rust.has_trc, skcms.has_trc);
+        }
         if (rust.has_trc && skcms.has_trc) {
             for (int c = 0; c < 3; ++c) {
                 if (rust.trc[c].table_entries != skcms.trc[c].table_entries) {
@@ -638,10 +676,7 @@ DEF_TEST(RustIcc_equivalence_with_skcms_resource_files, r) {
                 }
                 if (rust.trc[c].table_entries == 0 && skcms.trc[c].table_entries == 0) {
                     // Parametric - compare transfer function parameters
-                    if (fabsf(rust.trc[c].parametric.g - skcms.trc[c].parametric.g) >= 0.0001f) {
-                        ERRORF(r, "[%s] trc[%d].parametric.g mismatch: rust=%f, skcms=%f",
-                               path, c, rust.trc[c].parametric.g, skcms.trc[c].parametric.g);
-                    }
+                    compare_transfer_functions(r, path, c, rust.trc[c].parametric, skcms.trc[c].parametric);
                 }
             }
         }
@@ -667,16 +702,175 @@ DEF_TEST(RustIcc_equivalence_with_skcms_resource_files, r) {
         }
 
         // Compare A2B transform if present
-        // TODO(crbug.com/452666425): upperLeft.icc has A2B in moxcms but not in skcms. This may
-        // be due to moxcms reporting A2B exists but not fully populating the data
-        // (similar to B2A issue). Implement comparison once fixed.
+        if (rust.has_A2B != skcms.has_A2B) {
+            ERRORF(r, "[%s] has_A2B mismatch: rust=%d, skcms=%d",
+                   path, rust.has_A2B, skcms.has_A2B);
+        }
+        if (rust.has_A2B && skcms.has_A2B) {
+            if (rust.A2B.input_channels != skcms.A2B.input_channels) {
+                ERRORF(r, "[%s] A2B.input_channels mismatch: rust=%u, skcms=%u",
+                       path, rust.A2B.input_channels, skcms.A2B.input_channels);
+            }
+            if (rust.A2B.output_channels != skcms.A2B.output_channels) {
+                ERRORF(r, "[%s] A2B.output_channels mismatch: rust=%u, skcms=%u",
+                       path, rust.A2B.output_channels, skcms.A2B.output_channels);
+            }
+            // Compare grid points
+            for (int i = 0; i < 4; ++i) {
+                if (rust.A2B.grid_points[i] != skcms.A2B.grid_points[i]) {
+                    ERRORF(r, "[%s] A2B.grid_points[%d] mismatch: rust=%u, skcms=%u",
+                           path, i, rust.A2B.grid_points[i], skcms.A2B.grid_points[i]);
+                }
+            }
+
+            // Compare input curves (A curves)
+            for (uint32_t i = 0; i < rust.A2B.input_channels && i < skcms.A2B.input_channels; ++i) {
+                if (rust.A2B.input_curves[i].table_entries != skcms.A2B.input_curves[i].table_entries) {
+                    ERRORF(r, "[%s] A2B.input_curves[%u].table_entries mismatch: rust=%u, skcms=%u",
+                           path, i, rust.A2B.input_curves[i].table_entries,
+                           skcms.A2B.input_curves[i].table_entries);
+                } else if (rust.A2B.input_curves[i].table_entries == 0) {
+                    // Parametric curves - compare transfer functions
+                    compare_transfer_functions(r, path, i,
+                                             rust.A2B.input_curves[i].parametric,
+                                             skcms.A2B.input_curves[i].parametric);
+                }
+            }
+
+            // Compare matrix stage
+            if (rust.A2B.matrix_channels != skcms.A2B.matrix_channels) {
+                ERRORF(r, "[%s] A2B.matrix_channels mismatch: rust=%u, skcms=%u",
+                       path, rust.A2B.matrix_channels, skcms.A2B.matrix_channels);
+            }
+            if (rust.A2B.matrix_channels > 0 && skcms.A2B.matrix_channels > 0) {
+                // Compare matrix values
+                for (int i = 0; i < 3; ++i) {
+                    for (int j = 0; j < 3; ++j) {
+                        if (fabsf(rust.A2B.matrix.vals[i][j] - skcms.A2B.matrix.vals[i][j]) >= 0.0001f) {
+                            ERRORF(r, "[%s] A2B.matrix[%d][%d] mismatch: rust=%f, skcms=%f",
+                                   path, i, j, rust.A2B.matrix.vals[i][j], skcms.A2B.matrix.vals[i][j]);
+                        }
+                    }
+                }
+                // Compare matrix bias (4th column of 3x4 matrix)
+                for (int i = 0; i < 3; ++i) {
+                    if (fabsf(rust.A2B.matrix.vals[i][3] - skcms.A2B.matrix.vals[i][3]) >= 0.0001f) {
+                        ERRORF(r, "[%s] A2B.matrix_bias[%d] mismatch: rust=%f, skcms=%f",
+                               path, i, rust.A2B.matrix.vals[i][3], skcms.A2B.matrix.vals[i][3]);
+                    }
+                }
+                // Compare matrix curves (M curves)
+                for (int i = 0; i < 3; ++i) {
+                    if (rust.A2B.matrix_curves[i].table_entries != skcms.A2B.matrix_curves[i].table_entries) {
+                        ERRORF(r, "[%s] A2B.matrix_curves[%d].table_entries mismatch: rust=%u, skcms=%u",
+                               path, i, rust.A2B.matrix_curves[i].table_entries,
+                               skcms.A2B.matrix_curves[i].table_entries);
+                    } else if (rust.A2B.matrix_curves[i].table_entries == 0) {
+                        compare_transfer_functions(r, path, i,
+                                                 rust.A2B.matrix_curves[i].parametric,
+                                                 skcms.A2B.matrix_curves[i].parametric);
+                    }
+                }
+            }
+
+            // Compare output curves (B curves)
+            for (uint32_t i = 0; i < rust.A2B.output_channels && i < skcms.A2B.output_channels; ++i) {
+                if (rust.A2B.output_curves[i].table_entries != skcms.A2B.output_curves[i].table_entries) {
+                    ERRORF(r, "[%s] A2B.output_curves[%u].table_entries mismatch: rust=%u, skcms=%u",
+                           path, i, rust.A2B.output_curves[i].table_entries,
+                           skcms.A2B.output_curves[i].table_entries);
+                } else if (rust.A2B.output_curves[i].table_entries == 0) {
+                    compare_transfer_functions(r, path, i,
+                                             rust.A2B.output_curves[i].parametric,
+                                             skcms.A2B.output_curves[i].parametric);
+                }
+            }
+        }
 
         // Compare B2A transform if present
-        // TODO(crbug.com/452666425): srgb_lab_pcs.icc and upperLeft.icc report
-        // has_b2a=true and b2a.input_channels=3, but b2a.input_curves is empty
-        // (size=0). This is a moxcms parser bug - it's partially parsing B2A
-        // metadata but not populating the curve data, causing FFI conversion to
-        // fail. Implement comparison once fixed.
+        if (rust.has_B2A != skcms.has_B2A) {
+            ERRORF(r, "[%s] has_B2A mismatch: rust=%d, skcms=%d",
+                   path, rust.has_B2A, skcms.has_B2A);
+        }
+        if (rust.has_B2A && skcms.has_B2A) {
+            if (rust.B2A.input_channels != skcms.B2A.input_channels) {
+                ERRORF(r, "[%s] B2A.input_channels mismatch: rust=%u, skcms=%u",
+                       path, rust.B2A.input_channels, skcms.B2A.input_channels);
+            }
+            if (rust.B2A.output_channels != skcms.B2A.output_channels) {
+                ERRORF(r, "[%s] B2A.output_channels mismatch: rust=%u, skcms=%u",
+                       path, rust.B2A.output_channels, skcms.B2A.output_channels);
+            }
+            // Compare grid points
+            for (int i = 0; i < 4; ++i) {
+                if (rust.B2A.grid_points[i] != skcms.B2A.grid_points[i]) {
+                    ERRORF(r, "[%s] B2A.grid_points[%d] mismatch: rust=%u, skcms=%u",
+                           path, i, rust.B2A.grid_points[i], skcms.B2A.grid_points[i]);
+                }
+            }
+
+            // Compare input curves (B curves in B2A)
+            for (uint32_t i = 0; i < rust.B2A.input_channels && i < skcms.B2A.input_channels; ++i) {
+                if (rust.B2A.input_curves[i].table_entries != skcms.B2A.input_curves[i].table_entries) {
+                    ERRORF(r, "[%s] B2A.input_curves[%u].table_entries mismatch: rust=%u, skcms=%u",
+                           path, i, rust.B2A.input_curves[i].table_entries,
+                           skcms.B2A.input_curves[i].table_entries);
+                } else if (rust.B2A.input_curves[i].table_entries == 0) {
+                    compare_transfer_functions(r, path, i,
+                                             rust.B2A.input_curves[i].parametric,
+                                             skcms.B2A.input_curves[i].parametric);
+                }
+            }
+
+            // Compare matrix stage
+            if (rust.B2A.matrix_channels != skcms.B2A.matrix_channels) {
+                ERRORF(r, "[%s] B2A.matrix_channels mismatch: rust=%u, skcms=%u",
+                       path, rust.B2A.matrix_channels, skcms.B2A.matrix_channels);
+            }
+            if (rust.B2A.matrix_channels > 0 && skcms.B2A.matrix_channels > 0) {
+                // Compare matrix values
+                for (int i = 0; i < 3; ++i) {
+                    for (int j = 0; j < 3; ++j) {
+                        if (fabsf(rust.B2A.matrix.vals[i][j] - skcms.B2A.matrix.vals[i][j]) >= 0.0001f) {
+                            ERRORF(r, "[%s] B2A.matrix[%d][%d] mismatch: rust=%f, skcms=%f",
+                                   path, i, j, rust.B2A.matrix.vals[i][j], skcms.B2A.matrix.vals[i][j]);
+                        }
+                    }
+                }
+                // Compare matrix bias (4th column of 3x4 matrix)
+                for (int i = 0; i < 3; ++i) {
+                    if (fabsf(rust.B2A.matrix.vals[i][3] - skcms.B2A.matrix.vals[i][3]) >= 0.0001f) {
+                        ERRORF(r, "[%s] B2A.matrix_bias[%d] mismatch: rust=%f, skcms=%f",
+                               path, i, rust.B2A.matrix.vals[i][3], skcms.B2A.matrix.vals[i][3]);
+                    }
+                }
+                // Compare matrix curves (M curves)
+                for (int i = 0; i < 3; ++i) {
+                    if (rust.B2A.matrix_curves[i].table_entries != skcms.B2A.matrix_curves[i].table_entries) {
+                        ERRORF(r, "[%s] B2A.matrix_curves[%d].table_entries mismatch: rust=%u, skcms=%u",
+                               path, i, rust.B2A.matrix_curves[i].table_entries,
+                               skcms.B2A.matrix_curves[i].table_entries);
+                    } else if (rust.B2A.matrix_curves[i].table_entries == 0) {
+                        compare_transfer_functions(r, path, i,
+                                                 rust.B2A.matrix_curves[i].parametric,
+                                                 skcms.B2A.matrix_curves[i].parametric);
+                    }
+                }
+            }
+
+            // Compare output curves (A curves in B2A)
+            for (uint32_t i = 0; i < rust.B2A.output_channels && i < skcms.B2A.output_channels; ++i) {
+                if (rust.B2A.output_curves[i].table_entries != skcms.B2A.output_curves[i].table_entries) {
+                    ERRORF(r, "[%s] B2A.output_curves[%u].table_entries mismatch: rust=%u, skcms=%u",
+                           path, i, rust.B2A.output_curves[i].table_entries,
+                           skcms.B2A.output_curves[i].table_entries);
+                } else if (rust.B2A.output_curves[i].table_entries == 0) {
+                    compare_transfer_functions(r, path, i,
+                                             rust.B2A.output_curves[i].parametric,
+                                             skcms.B2A.output_curves[i].parametric);
+                }
+            }
+        }
     }
 }
 
