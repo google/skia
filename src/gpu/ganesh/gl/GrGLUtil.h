@@ -14,6 +14,7 @@
 #include "include/gpu/ganesh/gl/GrGLTypes.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMacros.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 
@@ -350,16 +351,9 @@ void GrGLCheckErr(const GrGLInterface* gl,
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- *  GR_STRING makes a string of X where X is expanded before conversion to a string
- *  if X itself contains macros.
- */
-#define GR_STRING(X) GR_STRING_IMPL(X)
-#define GR_STRING_IMPL(X) #X
-
-/**
  *  Creates a string of the form "<filename>(<linenumber>) : "
  */
-#define GR_FILE_AND_LINE_STR __FILE__ "(" GR_STRING(__LINE__) ") : "
+#define GR_FILE_AND_LINE_STR __FILE__ "(" SK_MACRO_STRINGIFY(__LINE__) ") : "
 
 /**
  * Macros for using GrGLInterface to make GL calls

@@ -28,6 +28,15 @@
 
 #define SK_MACRO_APPEND_COUNTER(name) SK_MACRO_CONCAT(name, __COUNTER__)
 
+/*
+ *  Makes a string of X, where X is expanded before conversion to a string if X itself contains
+ *  macros.
+ *
+ *  Usage: SK_MACRO_STRINGIFY(__LINE__)    to make "123", where 123 is the current line number.
+ */
+#define SK_MACRO_STRINGIFY(X) SK_MACRO_STRINGIFY_IMPL_PRIV(X)
+#define SK_MACRO_STRINGIFY_IMPL_PRIV(X) #X
+
 ////////////////////////////////////////////////////////////////////////////////
 
 // Can be used to bracket data types that must be dense/packed, e.g. hash keys.

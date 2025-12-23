@@ -16,6 +16,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/private/base/SkAlignedStorage.h"
+#include "include/private/base/SkMacros.h"
 #include "include/private/base/SkOnce.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
@@ -660,10 +661,8 @@ static void run_test(GrDirectContext* dContext,
     sdc->readPixels(dContext, resultPM, {0, 0});
 
 #ifdef WRITE_PNG_CONTEXT_TYPE
-#define STRINGIFY(X) #X
-#define TOSTRING(X) STRINGIFY(X)
     SkString filename;
-    filename.printf("GrMeshTest_%s_%s.png", TOSTRING(WRITE_PNG_CONTEXT_TYPE), testName);
+    filename.printf("GrMeshTest_%s_%s.png", SK_MACRO_STRINGIFY(WRITE_PNG_CONTEXT_TYPE), testName);
     SkDebugf("writing %s...\n", filename.c_str());
     ToolUtils::EncodeImageToPngFile(filename.c_str(), resultPM);
 #endif

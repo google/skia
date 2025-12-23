@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/base/SkMacros.h"
 #include "src/gpu/vk/VulkanInterface.h"
 #include "tools/gpu/vk/VkTestMemoryAllocator.h"
 #include "tools/gpu/vk/VkTestUtils.h"
@@ -21,9 +22,6 @@
         #define SK_GPU_TOOLS_VK_LIBRARY_NAME_BACKUP libvulkan.so.1
     #endif
 #endif
-
-#define STRINGIFY2(S) #S
-#define STRINGIFY(S) STRINGIFY2(S)
 
 #include <algorithm>
 
@@ -47,12 +45,12 @@ bool LoadVkLibraryAndGetProcAddrFuncs(PFN_vkGetInstanceProcAddr* instProc) {
     static void* vkLib = nullptr;
     static PFN_vkGetInstanceProcAddr localInstProc = nullptr;
     if (!vkLib) {
-        vkLib = SkLoadDynamicLibrary(STRINGIFY(SK_GPU_TOOLS_VK_LIBRARY_NAME));
+        vkLib = SkLoadDynamicLibrary(SK_MACRO_STRINGIFY(SK_GPU_TOOLS_VK_LIBRARY_NAME));
         if (!vkLib) {
             // vulkaninfo tries to load the library from two places, so we do as well
             // https://github.com/KhronosGroup/Vulkan-Tools/blob/078d44e4664b7efa0b6c96ebced1995c4425d57a/vulkaninfo/vulkaninfo.h#L249
 #ifdef SK_GPU_TOOLS_VK_LIBRARY_NAME_BACKUP
-            vkLib = SkLoadDynamicLibrary(STRINGIFY(SK_GPU_TOOLS_VK_LIBRARY_NAME_BACKUP));
+            vkLib = SkLoadDynamicLibrary(SK_MACRO_STRINGIFY(SK_GPU_TOOLS_VK_LIBRARY_NAME_BACKUP));
             if (!vkLib) {
                 return false;
             }
