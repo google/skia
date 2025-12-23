@@ -13,7 +13,7 @@
 #include "tools/viewer/Slide.h"
 
 static void draw_gradient2(SkCanvas* canvas, const SkRect& rect, SkScalar delta) {
-    SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorMAGENTA };
+    SkColor4f colors[] = { SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kMagenta };
     SkScalar pos[] = { 0, 0.25f, 0.75f, SK_Scalar1 };
 
     SkScalar l = rect.fLeft;
@@ -28,9 +28,8 @@ static void draw_gradient2(SkCanvas* canvas, const SkRect& rect, SkScalar delta)
     SkScalar r0 = w / 5;
     SkScalar r1 = 2 * w / 5;
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeTwoPointConical(c0, r0, c1, r1, colors,
-                                                          pos, std::size(pos),
-                                                          SkTileMode::kClamp));
+    paint.setShader(SkShaders::TwoPointConicalGradient(c0, r0, c1, r1,
+                                                       {{colors, pos, SkTileMode::kClamp}, {}}));
     canvas->drawRect(rect, paint);
 }
 

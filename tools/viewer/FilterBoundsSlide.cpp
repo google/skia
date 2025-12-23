@@ -122,9 +122,9 @@ static const int kStopCount = (int) std::size(kScaleGradientColors);
 static void draw_scale_key(SkCanvas* canvas, float y) {
     SkRect key = SkRect::MakeXYWH(15.f, y + 30.f, 15.f, 100.f);
     SkPoint pts[] = {{key.centerX(), key.fTop}, {key.centerX(), key.fBottom}};
-    sk_sp<SkShader> gradient = SkGradientShader::MakeLinear(
-            pts, kScaleGradientColors, nullptr, kGradientStops, kStopCount, SkTileMode::kClamp,
-            SkGradientShader::kInterpolateColorsInPremul_Flag, nullptr);
+    sk_sp<SkShader> gradient = SkShaders::LinearGradient(
+            pts, {{kScaleGradientColors, kGradientStops, SkTileMode::kClamp},
+                  {SkGradient::Interpolation::InPremul::kYes}});
     SkPaint keyPaint;
     keyPaint.setShader(gradient);
     canvas->drawRect(key, keyPaint);

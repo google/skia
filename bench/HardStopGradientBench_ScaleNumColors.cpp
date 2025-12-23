@@ -12,7 +12,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 
 #include "tools/ToolUtils.h"
 
@@ -49,21 +49,21 @@ public:
         };
 
         constexpr int kNumColorChoices = 4;
-        SkColor color_choices[kNumColorChoices] = {
-            SK_ColorRED,
-            SK_ColorGREEN,
-            SK_ColorBLUE,
-            SK_ColorYELLOW,
+        SkColor4f color_choices[kNumColorChoices] = {
+            SkColors::kRed,
+            SkColors::kGreen,
+            SkColors::kBlue,
+            SkColors::kYellow,
         };
 
         // Alternate between different choices
-        SkColor  colors[100];
+        SkColor4f  colors[100];
         for (int i = 0; i < fColorCount; i++) {
             colors[i] = color_choices[i % kNumColorChoices];
         }
 
         // Create a hard stop
-        SkScalar positions[100];
+        float positions[100];
         positions[0] = 0.0f;
         positions[1] = 0.0f;
         for (int i = 2; i < fColorCount; i++) {
@@ -71,13 +71,8 @@ public:
             positions[i] = i / (fColorCount - 1.0f);
         }
 
-        fPaint.setShader(SkGradientShader::MakeLinear(points,
-                                                      colors,
-                                                      positions,
-                                                      fColorCount,
-                                                      fTileMode,
-                                                      0,
-                                                      nullptr));
+        fPaint.setShader(SkShaders::LinearGradient(points,
+            {{{colors, fColorCount}, {positions, fColorCount}, fTileMode}, {}}));
     }
 
     /*

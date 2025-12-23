@@ -12,7 +12,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkString.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 
 enum ColorPattern {
     kWhite_ColorPattern,

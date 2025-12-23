@@ -12,7 +12,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkTemplates.h"
 
 using namespace skia_private;
@@ -45,39 +45,36 @@ public:
         };
 
         constexpr int kNumColorChoices = 4;
-        SkColor color_choices[kNumColorChoices] = {
-            SK_ColorRED,
-            SK_ColorGREEN,
-            SK_ColorBLUE,
-            SK_ColorYELLOW,
+        SkColor4f color_choices[kNumColorChoices] = {
+            SkColors::kRed,
+            SkColors::kGreen,
+            SkColors::kBlue,
+            SkColors::kYellow,
         };
 
+        const size_t N = fColorCount;
+
         // Alternate between different choices
-        AutoTArray<SkColor> colors(fColorCount);
-        for (int i = 0; i < fColorCount; i++) {
+        AutoTArray<SkColor4f> colors(N);
+        for (size_t i = 0; i < N; i++) {
             colors[i] = color_choices[i % kNumColorChoices];
         }
 
         // Create requisite number of hard stops, and evenly
         // space positions after that
-        AutoTArray<SkScalar> positions(fColorCount);
+        AutoTArray<float> positions(N);
         int k = 0;
         for (int i = 0; i < fHardStopCount; i++) {
             float val = k/2.0f;
-            positions[k++] = val / fColorCount;
-            positions[k++] = val / fColorCount;
+            positions[k++] = val / N;
+            positions[k++] = val / N;
         }
-        for (int i = k; i < fColorCount; i++) {
-            positions[i] = i / (fColorCount - 1.0f);
+        for (size_t i = k; i < N; i++) {
+            positions[i] = i / (N - 1.0f);
         }
 
-        fPaint.setShader(SkGradientShader::MakeLinear(points,
-                                                      colors.get(),
-                                                      positions.get(),
-                                                      fColorCount,
-                                                      SkTileMode::kClamp,
-                                                      0,
-                                                      nullptr));
+        fPaint.setShader(SkShaders::LinearGradient(points,
+                            {{{colors.get(), N}, {positions.get(), N}, SkTileMode::kClamp}, {}}));
     }
 
     /*

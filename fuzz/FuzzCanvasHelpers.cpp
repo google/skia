@@ -32,7 +32,7 @@
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkDiscretePathEffect.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/effects/SkHighContrastFilter.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkLumaColorFilter.h"
@@ -171,6 +171,23 @@ static void fuzz_gradient_stops(Fuzz* fuzz, SkScalar* pos, int colorCount) {
     pos[colorCount - 1] = 1.0f;
 }
 
+struct GradStorage {
+    static constexpr size_t kMaxColors = 12;
+    SkColor4f m_colors[kMaxColors];
+    float m_pos[kMaxColors];
+
+    SkGradient grad(size_t count, const SkColor colors[], const float positions[], SkTileMode tm) {
+        std::transform(colors, colors + count, m_colors, [](SkColor c) {
+            return SkColor4f::FromColor(c);
+        });
+        SkSpan<const float> pos;
+        if (positions) {
+            pos = {positions, count};
+        }
+        return {{{m_colors, count}, pos, tm}, {}};
+    }
+};
+
 static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
     sk_sp<SkShader> shader1(nullptr), shader2(nullptr);
     sk_sp<SkColorFilter> colorFilter(nullptr);
@@ -256,8 +273,9 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
             if (usePos) {
                 fuzz_gradient_stops(fuzz, pos, colorCount);
             }
-            return SkGradientShader::MakeLinear(pts, colors, usePos ? pos : nullptr, colorCount,
-                                                tmX, 0, useMatrix ? &matrix : nullptr);
+            GradStorage storage;
+            auto g = storage.grad(colorCount, colors, usePos ? pos : nullptr, tmX);
+            return SkShaders::LinearGradient(pts, g, useMatrix ? &matrix : nullptr);
         }
         case 11: {
             constexpr int kMaxColors = 12;
@@ -277,8 +295,9 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
             if (usePos) {
                 fuzz_gradient_stops(fuzz, pos, colorCount);
             }
-            return SkGradientShader::MakeRadial(center, radius, colors, usePos ? pos : nullptr,
-                                                colorCount, tmX, 0, useMatrix ? &matrix : nullptr);
+            GradStorage storage;
+            auto g = storage.grad(colorCount, colors, usePos ? pos : nullptr, tmX);
+            return SkShaders::RadialGradient(center, radius, g, useMatrix ? &matrix : nullptr);
         }
         case 12: {
             constexpr int kMaxColors = 12;
@@ -298,9 +317,10 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
             if (usePos) {
                 fuzz_gradient_stops(fuzz, pos, colorCount);
             }
-            return SkGradientShader::MakeTwoPointConical(start, startRadius, end, endRadius, colors,
-                                                         usePos ? pos : nullptr, colorCount, tmX, 0,
-                                                         useMatrix ? &matrix : nullptr);
+            GradStorage storage;
+            auto g = storage.grad(colorCount, colors, usePos ? pos : nullptr, tmX);
+            return SkShaders::TwoPointConicalGradient(start, startRadius, end, endRadius,
+                                                      g, useMatrix ? &matrix : nullptr);
         }
         case 13: {
             constexpr int kMaxColors = 12;
@@ -318,8 +338,9 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
             if (usePos) {
                 fuzz_gradient_stops(fuzz, pos, colorCount);
             }
-            return SkGradientShader::MakeSweep(cx, cy, colors, usePos ? pos : nullptr, colorCount,
-                                               0, useMatrix ? &matrix : nullptr);
+            GradStorage storage;
+            auto g = storage.grad(colorCount, colors, usePos ? pos : nullptr, SkTileMode::kClamp);
+            return SkShaders::SweepGradient({cx, cy}, g, useMatrix ? &matrix : nullptr);
         }
         case 14: {
             SkScalar baseFrequencyX, baseFrequencyY, seed;

@@ -10,32 +10,41 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "tools/ToolUtils.h"
 
 struct GradData {
-    int             fCount;
-    const SkColor*  fColors;
-    const SkScalar* fPos;
-    const char*     fName;
+    size_t           fCount;
+    const SkColor4f* fColors;
+    const float*     fPos;
+    const char*      fName;
+
+    SkGradient grad(SkTileMode tm) const {
+        SkSpan<const float> pos;
+        if (fPos) {
+            pos = {fPos, fCount};
+        }
+        return {{{fColors, fCount}, pos, tm}, {}};
+    }
 };
 
-static const SkColor gColors[] = {
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK, // 10 lines, 50 colors
+static const SkColor4f gColors[] = {
+    SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kWhite, SkColors::kBlack,
+    SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kWhite, SkColors::kBlack,
+    SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kWhite, SkColors::kBlack,
+    SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kWhite, SkColors::kBlack,
+    SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kWhite, SkColors::kBlack,
+    SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kWhite, SkColors::kBlack,
+    SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kWhite, SkColors::kBlack,
+    SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kWhite, SkColors::kBlack,
+    SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kWhite, SkColors::kBlack,
+    SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kWhite, SkColors::kBlack,
 };
 
-static const SkColor gShallowColors[] = { 0xFF555555, 0xFF444444 };
-static const SkScalar gPos[] = {0.25f, 0.75f};
+const SkColor4f gShallowColors[] = {
+        SkColor4f::FromColor(0xFF555555), SkColor4f::FromColor(0xFF444444) };
+static const float gPos[] = {0.25f, 0.75f};
 
 // We have several special-cases depending on the number (and spacing) of colors, so
 // try to exercise those here.
@@ -50,7 +59,7 @@ static const GradData gGradData[] = {
 /// Ignores scale
 static sk_sp<SkShader> MakeLinear(const SkPoint pts[2], const GradData& data,
                                   SkTileMode tm, float scale) {
-    return SkGradientShader::MakeLinear(pts, data.fColors, data.fPos, data.fCount, tm);
+    return SkShaders::LinearGradient(pts, data.grad(tm));
 }
 
 static sk_sp<SkShader> MakeRadial(const SkPoint pts[2], const GradData& data,
@@ -58,8 +67,7 @@ static sk_sp<SkShader> MakeRadial(const SkPoint pts[2], const GradData& data,
     SkPoint center;
     center.set(sk_float_midpoint(pts[0].fX, pts[1].fX),
                sk_float_midpoint(pts[0].fY, pts[1].fY));
-    return SkGradientShader::MakeRadial(center, center.fX * scale, data.fColors,
-                                        data.fPos, data.fCount, tm);
+    return SkShaders::RadialGradient(center, center.fX * scale, data.grad(tm));
 }
 
 /// Ignores scale
@@ -68,7 +76,7 @@ static sk_sp<SkShader> MakeSweep(const SkPoint pts[2], const GradData& data,
     SkPoint center;
     center.set(sk_float_midpoint(pts[0].fX, pts[1].fX),
                sk_float_midpoint(pts[0].fY, pts[1].fY));
-    return SkGradientShader::MakeSweep(center.fX, center.fY, data.fColors, data.fPos, data.fCount);
+    return SkShaders::SweepGradient(center, data.grad(tm));
 }
 
 /// Ignores scale
@@ -79,9 +87,9 @@ static sk_sp<SkShader> MakeConical(const SkPoint pts[2], const GradData& data,
                 sk_float_midpoint(pts[0].fY, pts[1].fY));
     center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3)/5),
                 SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
-    return SkGradientShader::MakeTwoPointConical(center1, (pts[1].fX - pts[0].fX) / 7,
-                                                 center0, (pts[1].fX - pts[0].fX) / 2,
-                                                 data.fColors, data.fPos, data.fCount, tm);
+    return SkShaders::TwoPointConicalGradient(center1, (pts[1].fX - pts[0].fX) / 7,
+                                              center0, (pts[1].fX - pts[0].fX) / 2,
+                                              data.grad(tm));
 }
 
 /// Ignores scale
@@ -92,9 +100,9 @@ static sk_sp<SkShader> MakeConicalZeroRad(const SkPoint pts[2], const GradData& 
                 sk_float_midpoint(pts[0].fY, pts[1].fY));
     center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3)/5),
                 SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
-    return SkGradientShader::MakeTwoPointConical(center1, 0.0,
+    return SkShaders::TwoPointConicalGradient(center1, 0.0,
                                                  center0, (pts[1].fX - pts[0].fX) / 2,
-                                                 data.fColors, data.fPos, data.fCount, tm);
+                                                 data.grad(tm));
 }
 
 /// Ignores scale
@@ -105,10 +113,7 @@ static sk_sp<SkShader> MakeConicalOutside(const SkPoint pts[2], const GradData& 
     SkScalar radius1 = (pts[1].fX - pts[0].fX) / 3;
     center0.set(pts[0].fX + radius0, pts[0].fY + radius0);
     center1.set(pts[1].fX - radius1, pts[1].fY - radius1);
-    return SkGradientShader::MakeTwoPointConical(center0, radius0,
-                                                 center1, radius1,
-                                                 data.fColors, data.fPos,
-                                                 data.fCount, tm);
+    return SkShaders::TwoPointConicalGradient(center0, radius0, center1, radius1, data.grad(tm));
 }
 
 /// Ignores scale
@@ -119,10 +124,7 @@ static sk_sp<SkShader> MakeConicalOutsideZeroRad(const SkPoint pts[2], const Gra
     SkScalar radius1 = (pts[1].fX - pts[0].fX) / 3;
     center0.set(pts[0].fX + radius0, pts[0].fY + radius0);
     center1.set(pts[1].fX - radius1, pts[1].fY - radius1);
-    return SkGradientShader::MakeTwoPointConical(center0, 0.0,
-                                                 center1, radius1,
-                                                 data.fColors, data.fPos,
-                                                 data.fCount, tm);
+    return SkShaders::TwoPointConicalGradient(center0, 0, center1, radius1, data.grad(tm));
 }
 
 typedef sk_sp<SkShader> (*GradMaker)(const SkPoint pts[2], const GradData& data,
@@ -335,13 +337,11 @@ protected:
         for (int i = 0; i < loops; i++) {
             const int gray = i % 256;
             const int alpha = fHasAlpha ? gray : 0xFF;
-            SkColor colors[] = {
-                SK_ColorBLACK,
-                SkColorSetARGB(alpha, gray, gray, gray),
-                SK_ColorWHITE };
-            paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr,
-                                                         std::size(colors),
-                                                         SkTileMode::kClamp));
+            const SkColor4f colors[] = {
+                SkColors::kBlack,
+                SkColor4f::FromColor(SkColorSetARGB(alpha, gray, gray, gray)),
+                SkColors::kWhite };
+            paint.setShader(SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}}));
             canvas->drawRect(r, paint);
         }
     }
