@@ -346,16 +346,6 @@ bool SkBitmap::installPixels(const SkPixmap& pixmap) {
                                nullptr, nullptr);
 }
 
-bool SkBitmap::installMaskPixels(SkMaskBuilder& mask) {
-    if (SkMask::kA8_Format != mask.fFormat) {
-        this->reset();
-        return false;
-    }
-    return this->installPixels(SkImageInfo::MakeA8(mask.fBounds.width(),
-                                                   mask.fBounds.height()),
-                               mask.image(), mask.fRowBytes);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 uint32_t SkBitmap::getGenerationID() const {

@@ -77,7 +77,9 @@ bool SkShaderMaskFilterImpl::filterMask(SkMaskBuilder* dst, const SkMask& src, c
 
     // Now we have a dst-mask, just need to setup a canvas and draw into it
     SkBitmap bitmap;
-    if (!bitmap.installMaskPixels(*dst)) {
+    if (!bitmap.installPixels(SkImageInfo::MakeA8(dst->fBounds.width(), dst->fBounds.height()),
+                              dst->image(),
+                              dst->fRowBytes)) {
         return false;
     }
 

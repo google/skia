@@ -33,7 +33,6 @@ class SkPixelRef;
 class SkShader;
 enum SkColorType : int;
 enum class SkTileMode;
-struct SkMaskBuilder;
 
 /** \class SkBitmap
     SkBitmap describes a two-dimensional raster pixel array. SkBitmap is built on
@@ -644,10 +643,6 @@ public:
         example: https://fiddle.skia.org/c/@Bitmap_installPixels_3
     */
     bool installPixels(const SkPixmap& pixmap);
-
-    /** Deprecated.
-    */
-    bool installMaskPixels(SkMaskBuilder& mask);
 
     /** Replaces SkPixelRef with pixels, preserving SkImageInfo and rowBytes().
         Sets SkPixelRef origin to (0, 0).

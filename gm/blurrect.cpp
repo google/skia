@@ -224,7 +224,10 @@ DEF_SIMPLE_GM(blurrect_gallery, canvas, 1200, 1024) {
                     SkAutoMaskFreeImage amfi(mask.image());
 
                     SkBitmap bm;
-                    bm.installMaskPixels(mask);
+                    SkAssertResult(bm.installPixels(
+                            SkImageInfo::MakeA8(mask.fBounds.width(), mask.fBounds.height()),
+                            mask.image(),
+                            mask.fRowBytes));
 
                     if (cur_x + bm.width() >= fGMWidth - fMargin) {
                         cur_x = 0;
