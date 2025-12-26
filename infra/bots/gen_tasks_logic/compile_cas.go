@@ -44,6 +44,7 @@ var (
 	// dir.
 	explicitPaths = []string{
 		".bazelrc",
+		".bazeliskrc",
 		".bazelversion",
 		".clang-format",
 		".clang-tidy",

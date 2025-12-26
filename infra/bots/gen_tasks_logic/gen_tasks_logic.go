@@ -493,6 +493,7 @@ func GenTasks(cfg *Config) {
 			// Needed to run Bazel.
 			"skia/.bazelignore",
 			"skia/.bazelrc",
+			"skia/.bazeliskrc",
 			"skia/.bazelversion",
 			"skia/BUILD.bazel",
 			"skia/LICENSE", // Referred to by default_applicable_licenses
@@ -583,6 +584,7 @@ func GenTasks(cfg *Config) {
 		Paths: []string{
 			// Deps needed to use Bazel
 			"skia/.bazelrc",
+			"skia/.bazeliskrc",
 			"skia/.bazelversion",
 			"skia/BUILD.bazel",
 			"skia/LICENSE",
