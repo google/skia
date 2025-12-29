@@ -88,14 +88,14 @@ std::tuple<SkStrikeSpec, SkScalar> SkStrikeSpec::MakeCanonicalized(
             strikeToSourceScale};
 }
 
-SkStrikeSpec SkStrikeSpec::MakeWithNoDevice(const SkFont& font, const SkPaint* paint) {
+SkStrikeSpec SkStrikeSpec::MakeWithNoDevice(const SkFont& font, const SkPaint* paint,
+                                            SkScalerContextFlags flags) {
     SkPaint setupPaint;
     if (paint != nullptr) {
         setupPaint = *paint;
     }
 
-    return SkStrikeSpec(font, setupPaint, SkSurfaceProps(),
-                        SkScalerContextFlags::kFakeGammaAndBoostContrast, SkMatrix::I());
+    return SkStrikeSpec(font, setupPaint, SkSurfaceProps(), flags, SkMatrix::I());
 }
 
 bool SkStrikeSpec::ShouldDrawAsPath(

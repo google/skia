@@ -179,7 +179,8 @@ sk_sp<SkPDFStrike> SkPDFStrike::Make(SkPDFDocument* doc, const SkFont& font, con
         canonFont.setSize(font.getSize());
     }
     SkScalar pathStrikeEM = canonFont.getSize();
-    SkStrikeSpec pathStrikeSpec = SkStrikeSpec::MakeWithNoDevice(canonFont, &pathPaint);
+    SkStrikeSpec pathStrikeSpec = SkStrikeSpec::MakeWithNoDevice(canonFont, &pathPaint,
+                                                                 SkScalerContextFlags::kNone);
 
     if (sk_sp<SkPDFStrike>* strike = doc->fStrikes.find(pathStrikeSpec.descriptor())) {
         return *strike;
@@ -201,7 +202,8 @@ sk_sp<SkPDFStrike> SkPDFStrike::Make(SkPDFDocument* doc, const SkFont& font, con
         canonFont.setSize(font.getSize());
     }
     SkScalar imageStrikeEM = canonFont.getSize();
-    SkStrikeSpec imageStrikeSpec = SkStrikeSpec::MakeWithNoDevice(canonFont, &imagePaint);
+    SkStrikeSpec imageStrikeSpec = SkStrikeSpec::MakeWithNoDevice(canonFont, &imagePaint,
+                                                                  SkScalerContextFlags::kNone);
 
     sk_sp<SkPDFStrike> strike(new SkPDFStrike(SkPDFStrikeSpec(pathStrikeSpec, pathStrikeEM),
                                               SkPDFStrikeSpec(imageStrikeSpec, imageStrikeEM),
