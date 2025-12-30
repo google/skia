@@ -522,10 +522,16 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     }
 
     if (!this->allocateStorage(dstInfo)) {
-        return kInternalError;
+        return kOutOfMemory;
     }
 
     if (isProgressive) {
+        // https://github.com/libjpeg-turbo/libjpeg-turbo/blob/af9c1c268520a29adf98cad5138dafe612b3d318/doc/libjpeg.txt
+        // "Worst case (1x1 sampling) [for a progressive JPEG] requires 6 bytes/pixel."
+        const size_t estimatedLibJpegMemory = 6 * this->dimensions().area();
+        if (!this->allocateFromBudget(estimatedLibJpegMemory)) {
+            return kOutOfMemory;
+        }
         // Keep consuming input until we can't anymore, and only output/read scanlines
         // if there is at least one valid output.
         int last_scan_completed = 0;
@@ -561,6 +567,13 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
         return kSuccess;
     }
     // Baseline image
+    // https://github.com/libjpeg-turbo/libjpeg-turbo/blob/af9c1c268520a29adf98cad5138dafe612b3d318/doc/libjpeg.txt
+    // "The worst case for commonly used sampling factors is about 34 bytes * width in pixels for a
+    // color image."
+    const size_t estimatedLibJpegMemory = 34 * this->dimensions().width();
+    if (!this->allocateFromBudget(estimatedLibJpegMemory)) {
+        return kOutOfMemory;
+    }
     int rows = 0;
     this->readRows(dstInfo, dst, dstRowBytes, dstInfo.height(), options, &rows);
     if (rows < dstInfo.height()) {
@@ -588,6 +601,9 @@ bool SkJpegCodec::allocateStorage(const SkImageInfo& dstInfo) {
 
     size_t totalBytes = swizzleBytes + xformBytes;
     if (totalBytes > 0) {
+        if (!this->allocateFromBudget(totalBytes)) {
+            return false;
+        }
         if (!fStorage.reset(totalBytes)) {
             return false;
         }
@@ -721,7 +737,7 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
     }
 
     if (!this->allocateStorage(dstInfo)) {
-        return kInternalError;
+        return kOutOfMemory;
     }
 
     return kSuccess;
