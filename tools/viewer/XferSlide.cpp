@@ -13,7 +13,7 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/utils/SkTextUtils.h"
 #include "src/base/SkRandom.h"
 #include "tools/DecodeUtils.h"

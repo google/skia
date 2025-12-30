@@ -14,7 +14,7 @@
 #include "include/core/SkShader.h"
 #include "include/effects/Sk1DPathEffect.h"
 #include "include/effects/SkCornerPathEffect.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "src/base/SkRandom.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkColorPriv.h"

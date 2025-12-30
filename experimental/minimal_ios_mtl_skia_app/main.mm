@@ -13,7 +13,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
@@ -30,8 +30,7 @@ static void config_paint(SkPaint* paint) {
     if (!paint->getShader()) {
         const SkColor4f colors[2] = {SkColors::kBlack, SkColors::kWhite};
         const SkPoint points[2] = {{0, -1024}, {0, 1024}};
-        paint->setShader(SkGradientShader::MakeLinear(points, colors, nullptr, nullptr, 2,
-                                                      SkTileMode::kClamp, 0, nullptr));
+        paint->setShader(SkShaders::LinearGradient(points, {{colors, {}, SkTileMode::kClamp}, {}}));
     }
 }
 

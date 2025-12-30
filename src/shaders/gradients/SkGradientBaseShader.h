@@ -14,7 +14,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTemplates.h"

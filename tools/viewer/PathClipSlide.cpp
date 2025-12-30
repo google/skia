@@ -12,7 +12,7 @@
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkTypeface.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkTime.h"
 #include "src/base/SkUTF.h"

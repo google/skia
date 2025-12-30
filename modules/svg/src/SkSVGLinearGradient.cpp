@@ -9,7 +9,7 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkPoint.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 

@@ -9,7 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "src/base/SkRandom.h"
 #include "tools/Resources.h"
 #include "tools/gpu/YUVUtils.h"

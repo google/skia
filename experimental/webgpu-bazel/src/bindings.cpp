@@ -13,7 +13,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
@@ -163,17 +163,14 @@ public:
 
     void drawGradient(SkPaint* paint) {
         bool flipColor = fFrameCount % 2 == 0;
-        SkColor colors1[2] = {SK_ColorMAGENTA, SK_ColorCYAN};
-        SkColor colors2[2] = {SK_ColorCYAN, SK_ColorMAGENTA};
+        SkColor4f colors1[2] = {SkColors::kMagenta, SkColors::kCyan};
+        SkColor4f colors2[2] = {SkColors::kCyan, SkColors::kMagenta};
 
         float x = (float)fWidth / 2.f;
         float y = (float)fHeight / 2.f;
-        paint->setShader(SkGradientShader::MakeRadial(SkPoint::Make(x, y),
-                                                      std::min(x, y),
-                                                      flipColor ? colors1 : colors2,
-                                                      nullptr,
-                                                      2,
-                                                      SkTileMode::kClamp));
+        paint->setShader(SkShaders::RadialGradient({x, y}, std::min(x, y),
+                                                   {{{flipColor ? colors1 : colors2, 2},
+                                                    {}, SkTileMode::kClamp}, {}}));
     }
 
     void drawRuntimeEffect(SkPaint* paint, int timestamp) {

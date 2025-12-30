@@ -9,7 +9,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkVertices.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkReadBuffer.h"
@@ -146,7 +146,7 @@ static void patheffect_slide(SkCanvas* canvas) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 
 struct GradData {
     size_t           fCount;

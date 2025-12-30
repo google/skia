@@ -18,7 +18,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkVertices.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkTDArray.h"
 #include "src/base/SkRandom.h"
 #include "src/base/SkTime.h"

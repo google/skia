@@ -20,7 +20,7 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTileMode.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkSpan_impl.h"
 #include "include/sksl/SkSLDebugTrace.h"

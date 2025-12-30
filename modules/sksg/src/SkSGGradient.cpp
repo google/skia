@@ -9,7 +9,7 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkShader.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"

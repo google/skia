@@ -16,7 +16,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkVertices.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"

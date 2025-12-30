@@ -11,7 +11,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "src/base/SkUtils.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"

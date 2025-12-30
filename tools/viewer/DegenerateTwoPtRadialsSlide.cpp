@@ -8,7 +8,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkString.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/Slide.h"
 
