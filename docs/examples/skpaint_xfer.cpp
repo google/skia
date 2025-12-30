@@ -47,23 +47,21 @@ void draw(SkCanvas* canvas) {
         SkPoint::Make(0.0f, 0.0f),
         SkPoint::Make(64.0f, 0.0f)
     };
-    SkColor srcColors[2] = {
-        SK_ColorMAGENTA & 0x00FFFFFF,
-        SK_ColorMAGENTA};
-    src.setShader(SkGradientShader::MakeLinear(
-                srcPoints, srcColors, nullptr, 2,
-                SkTileMode::kClamp, 0, nullptr));
+    SkColor4f srcColors[2] = {
+        SkColors::kMagenta.withAlpha(0),
+        SkColors::kMagenta};
+    src.setShader(SkShaders::LinearGradient(
+                srcPoints, {{srcColors, {}, SkTileMode::kClamp}, {}}));
 
     SkPoint dstPoints[2] = {
         SkPoint::Make(0.0f, 0.0f),
         SkPoint::Make(0.0f, 64.0f)
     };
-    SkColor dstColors[2] = {
-        SK_ColorCYAN & 0x00FFFFFF,
-        SK_ColorCYAN};
-    dst.setShader(SkGradientShader::MakeLinear(
-                dstPoints, dstColors, nullptr, 2,
-                SkTileMode::kClamp, 0, nullptr));
+    SkColor4f dstColors[2] = {
+        SkColors::kCyan.withAlpha(0),
+        SkColors::kCyan};
+    dst.setShader(SkShaders::LinearGradient(
+                dstPoints, {{dstColors, {}, SkTileMode::kClamp}, {}}));
     canvas->clear(SK_ColorWHITE);
     size_t N = sizeof(modes) / sizeof(modes[0]);
     size_t K = (N - 1) / 3 + 1;

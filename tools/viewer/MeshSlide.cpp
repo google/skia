@@ -68,11 +68,11 @@ static constexpr struct ShaderFactory {
     {
         "Radial Gradient",
         []() ->sk_sp<SkShader> {
-            static constexpr SkColor gColors[] = {
-                SK_ColorGREEN, SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN
+            static constexpr SkColor4f gColors[] = {
+                SkColors::kGreen, SkColors::kRed, SkColors::kBlue, SkColors::kGreen
             };
-            return SkGradientShader::MakeRadial({0.5f, 0.5f}, 0.5f, gColors, nullptr,
-                                                std::size(gColors), SkTileMode::kRepeat);
+            return SkShaders::RadialGradient({0.5f, 0.5f}, 0.5f,
+                                             {{gColors, {}, SkTileMode::kRepeat}, {}});
         }
     },
     {

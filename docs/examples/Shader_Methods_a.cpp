@@ -6,9 +6,9 @@ void draw(SkCanvas* canvas) {
    SkPaint paint;
    SkPoint center = { 50, 50 };
    SkScalar radius = 50;
-   const SkColor colors[] = { 0xFFFFFFFF, 0xFF000000 };
-   paint.setShader(SkGradientShader::MakeRadial(center, radius, colors,
-        nullptr, std::size(colors), SkTileMode::kClamp));
+   const SkColor4f colors[] = { {1,1,1,1}, {0,0,0,0} };
+   paint.setShader(SkShaders::RadialGradient(center, radius,
+                                             {{colors, {}, SkTileMode::kClamp}, {}}));
    for (SkScalar a : { 0.3f, 0.6f, 1.0f } ) {
        paint.setAlpha((int) (a * 255));
        canvas->drawCircle(center.fX, center.fY, radius, paint);

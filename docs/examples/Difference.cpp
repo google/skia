@@ -9,10 +9,9 @@ void draw(SkCanvas* canvas) {
     canvas->drawImage(image, 128, 128);
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kDstATop);
-    SkColor alphas[] = { SK_ColorBLACK, SK_ColorTRANSPARENT };
+    SkColor4f alphas[] = { SkColors::kBlack, SkColors::kTransparent };
     SkPoint vert[] = { { 0, 0 }, { 0, 256 } };
-    paint.setShader(SkGradientShader::MakeLinear(vert, alphas, nullptr, std::size(alphas),
-            SkTileMode::kClamp));
+    paint.setShader(SkShaders::LinearGradient(vert, {{alphas, {}, SkTileMode::kClamp}, {}}));
     canvas->drawPaint(paint);
     canvas->clipRect( { 30, 30, 226, 226 } );
     canvas->drawColor(0x80bb9977, SkBlendMode::kDifference);

@@ -9,9 +9,11 @@ sk_sp<SkImage> alpha_image() {
 }
 sk_sp<SkShader> linear_gradient() {
     SkPoint gpts[2] = {{0, 0}, {256, 256}};
-    SkColor gc[6] = {SK_ColorCYAN, SK_ColorBLUE,   SK_ColorMAGENTA,
-                     SK_ColorRED,  SK_ColorYELLOW, SK_ColorGREEN};
-    return SkGradientShader::MakeLinear(gpts, gc, nullptr, 6, SkTileMode::kClamp);
+    SkColor4f gc[6] = {
+        SkColors::kCyan, SkColors::kBlue,   SkColors::kMagenta,
+        SkColors::kRed,  SkColors::kYellow, SkColors::kGreen
+    };
+    return SkShaders::LinearGradient(gpts, {{gc, {}, SkTileMode::kClamp}, {}});
 }
 
 void draw(SkCanvas* canvas) {

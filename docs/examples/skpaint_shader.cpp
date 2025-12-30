@@ -4,10 +4,9 @@
 REG_FIDDLE(skpaint_shader, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPoint points[2] = {SkPoint::Make(0.0f, 0.0f), SkPoint::Make(256.0f, 256.0f)};
-    SkColor colors[2] = {SK_ColorBLUE, SK_ColorYELLOW};
+    SkColor4f colors[2] = {SkColors::kBlue, SkColors::kYellow};
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 2, SkTileMode::kClamp,
-                                                 0, nullptr));
+    paint.setShader(SkShaders::LinearGradient(points, {{colors, {}, SkTileMode::kClamp}, {}}));
     canvas->drawPaint(paint);
 }
 }  // END FIDDLE

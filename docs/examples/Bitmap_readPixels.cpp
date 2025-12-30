@@ -6,11 +6,10 @@ void draw(SkCanvas* canvas) {
     const int width = 256;
     const int height = 64;
     SkImageInfo srcInfo = SkImageInfo::MakeN32Premul(width, height);
-    SkColor  gradColors[] = { 0xFFAA3300, 0x7F881122 };
-    SkPoint  gradPoints[] = { { 0, 0 }, { 256, 0 } };
+    const SkColor4f colors[] = { SkColors::kRed, SkColors::kBlue.withAlpha(0.5f) };
+    const SkPoint   points[] = { { 0, 0 }, { 256, 0 } };
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeLinear(gradPoints, gradColors, nullptr,
-                    std::size(gradColors), SkTileMode::kClamp));
+    paint.setShader(SkShaders::LinearGradient(points, {{colors, {}, SkTileMode::kClamp}, {}}));
     SkBitmap bitmap;
     bitmap.allocPixels(srcInfo);
     SkCanvas srcCanvas(bitmap);

@@ -72,21 +72,21 @@ SkSLSlide::SkSLSlide() {
 }
 
 void SkSLSlide::load(SkScalar winWidth, SkScalar winHeight) {
-    SkPoint points[] = { { 0, 0 }, { 256, 0 } };
-    SkColor colors[] = { SK_ColorRED, SK_ColorGREEN };
+    const SkPoint points[] = { { 0, 0 }, { 256, 0 } };
+    const SkColor4f colors[] = { SkColors::kRed, SkColors::kGreen };
+    const SkGradient grad = {{colors, {}, SkTileMode::kClamp}, {}};
 
     sk_sp<SkShader> shader;
 
     fShaders.push_back(std::make_pair("Null", nullptr));
 
-    shader = SkGradientShader::MakeLinear(points, colors, nullptr, 2, SkTileMode::kClamp);
+    shader = SkShaders::LinearGradient(points, grad);
     fShaders.push_back(std::make_pair("Linear Gradient", shader));
 
-    shader = SkGradientShader::MakeRadial({ 256, 256 }, 256, colors, nullptr, 2,
-                                          SkTileMode::kClamp);
+    shader = SkShaders::RadialGradient({ 256, 256 }, 256, grad);
     fShaders.push_back(std::make_pair("Radial Gradient", shader));
 
-    shader = SkGradientShader::MakeSweep(256, 256, colors, nullptr, 2);
+    shader = SkShaders::SweepGradient({256, 256}, grad);
     fShaders.push_back(std::make_pair("Sweep Gradient", shader));
 
     shader = ToolUtils::GetResourceAsImage("images/mandrill_256.png")

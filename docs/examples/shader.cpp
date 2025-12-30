@@ -17,9 +17,12 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setPathEffect(SkDiscretePathEffect::Make(10.0f, 4.0f));
     SkPoint points[2] = {SkPoint::Make(0.0f, 0.0f), SkPoint::Make(256.0f, 256.0f)};
-    SkColor colors[2] = {SkColorSetRGB(66, 133, 244), SkColorSetRGB(15, 157, 88)};
-    paint.setShader(SkGradientShader::MakeLinear(
-            points, colors, nullptr, 2, SkTileMode::kClamp, 0, nullptr));
+    SkColor4f colors[2] = {
+        SkColor4f::FromColor(SkColorSetRGB(66, 133, 244)),
+        SkColor4f::FromColor(SkColorSetRGB(15, 157, 88))
+    };
+    paint.setShader(SkShaders::LinearGradient(
+            points, {{colors, {}, SkTileMode::kClamp}, {}}));
     paint.setAntiAlias(true);
     canvas->clear(SK_ColorWHITE);
     SkPath path(star());

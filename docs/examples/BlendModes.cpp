@@ -3,15 +3,17 @@
 #include "tools/fiddle/examples.h"
 REG_FIDDLE(BlendModes, 256, 4352, false, 0) {
 void drawBG(SkCanvas* canvas) {
-    SkColor radColors[] = {0xFFFFFFFF, 0xFFFFFFFF, 0x00FFFFFF};
-    auto rad = SkGradientShader::MakeRadial(SkPoint::Make(128, 128), 128, radColors, nullptr, 3,
-                                            SkTileMode::kClamp);
+    SkColor4f radColors[] = {{1,1,1,1}, {1,1,1,1}, {1,1,1,0}};
+    auto rad = SkShaders::RadialGradient({128, 128}, 128,
+                                         {{radColors, {}, SkTileMode::kClamp}, {}});
 
     SkMatrix rotMtx;
     rotMtx.setRotate(-90, 128, 128);
-    SkColor sweepColors[] = {0xFFFF00FF, 0xFFFF0000, 0xFFFFFF00, 0xFF00FF00,
-                             0xFF00FFFF, 0xFF0000FF, 0xFFFF00FF};
-    auto sweep = SkGradientShader::MakeSweep(128, 128, sweepColors, nullptr, 7, 0, &rotMtx);
+    SkColor4f sweepColors[] = {
+        {1,0,1,1}, {1,0,0,1}, {1,1,0,1}, {0,1,0,1}, {0,1,1,1}, {0,0,1,1}, {1,0,1,1}
+    };
+    auto sweep = SkShaders::SweepGradient({128, 128},
+                                          {{sweepColors, {}, SkTileMode::kClamp}, {}}, &rotMtx);
 
     auto comp = SkShaders::Blend(SkBlendMode::kModulate, std::move(rad), std::move(sweep));
     SkPaint p;

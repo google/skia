@@ -84,11 +84,10 @@ class CircDrawable : public ModeDrawable {
     SkRect  fBounds;
 
 public:
-    CircDrawable(SkScalar size, SkColor c) {
-        const SkColor colors[] = { 0, c };
-        fPaint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(size/2, size/2), size/2,
-                                                                     colors, nullptr, 2,
-                                                                     SkTileMode::kClamp));
+    CircDrawable(SkScalar size, SkColor4f c) {
+        const SkColor4f colors[] = { {0,0,0,0}, c };
+        fPaint.setShader(SkShaders::RadialGradient(SkPoint::Make(size/2, size/2), size/2,
+                                                   {{colors, {}, SkTileMode::kClamp}, {}}));
         fBounds = SkRect::MakeWH(size, size);
     }
 
@@ -109,7 +108,8 @@ protected:
 class XferSlide : public ClickHandlerSlide {
 public:
     XferSlide() {
-        const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorBLACK };
+        const SkColor4f colors[] = {
+                SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kBlack };
         for (int i = 0; i < N; ++i) {
             fDrs[i].reset(new CircDrawable(200, colors[i]));
             fDrs[i]->fLoc.set(100.f + i * 100, 100.f + i * 100);

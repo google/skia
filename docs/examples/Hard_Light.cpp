@@ -4,11 +4,11 @@
 REG_FIDDLE(Hard_Light, 256, 256, false, 3) {
 void draw(SkCanvas* canvas) {
     canvas->drawImage(image, 0, 0);
-    const SkColor colors[] = { 0xFFFFFFFF, 0x00000000 };
+    const SkColor4f colors[] = { {1,1,1,1}, {0,0,0,0} };
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kHardLight);
-    paint.setShader(SkGradientShader::MakeRadial({ 128, 128}, 100, colors,
-         nullptr, std::size(colors), SkTileMode::kClamp));
+    paint.setShader(SkShaders::RadialGradient({ 128, 128}, 100,
+                                              {{colors, {}, SkTileMode::kClamp}, {}}));
     canvas->clipRect({0, 128, 256, 256});
     canvas->drawPaint(paint);
 }

@@ -14,8 +14,8 @@ void draw(SkCanvas* canvas) {
     SkPaint p;
     p.setStyle(SkPaint::kFill_Style);
 
-    SkColor transparentGreen = SkColorSetARGB(0, 0, 255, 255);
-    SkColor colors[] = { transparentGreen, SK_ColorBLUE, SK_ColorRED };
+    SkColor4f transparentGreen = SkColors::kGreen.withAlpha(0);
+    SkColor4f colors[] = { transparentGreen, SkColors::kBlue, SkColors::kRed };
     SkScalar positions[] = { 0.0, 0.65, 1.0 };
 
     for (int i = 0; i < 4; i++) {
@@ -23,10 +23,10 @@ void draw(SkCanvas* canvas) {
         SkScalar blockY = (i / 2) * 100;
         SkPoint pts[] = { {blockX, blockY}, {blockX + 50, blockY + 100} };
 
-        int flags = 0; // interpolate colors in unpremul
+        auto premul = SkGradient::Interpolation::InPremul::kNo;
         if (i % 2 == 1) {
             // right column will have premul
-            flags = SkGradientShader::Flags::kInterpolateColorsInPremul_Flag;
+            premul = SkGradient::Interpolation::InPremul::kYes;
         }
 
         SkMatrix matr = SkMatrix::I();
@@ -35,9 +35,8 @@ void draw(SkCanvas* canvas) {
             matr.setRotate(45, blockX, blockY);
         }
 
-        auto lgs = SkGradientShader::MakeLinear(
-            pts, colors, positions, 3, SkTileMode::kMirror,
-            flags, &matr);
+        auto lgs = SkShaders::LinearGradient(
+            pts, {{colors, positions, SkTileMode::kMirror}, {premul}}, &matr);
 
         p.setShader(lgs);
         auto r = SkRect::MakeLTRB(blockX, blockY, blockX + 100, blockY + 100);

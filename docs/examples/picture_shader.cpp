@@ -25,12 +25,14 @@ void draw_wheel(SkCanvas* c) {
     p.setColor(SK_ColorWHITE);
     c->drawCircle(0.0f, 0.0f, scale * 0.475f, p);
 
-    const SkColor sweep_colors[] = {SK_ColorRED,  SK_ColorYELLOW,  SK_ColorGREEN, SK_ColorCYAN,
-                                    SK_ColorBLUE, SK_ColorMAGENTA, SK_ColorRED};
+    const SkColor4f sweep_colors[] = {
+        SkColors::kRed,  SkColors::kYellow,  SkColors::kGreen, SkColors::kCyan,
+        SkColors::kBlue, SkColors::kMagenta, SkColors::kRed
+    };
     SkMatrix rot;
     rot.setRotate(90.0f);
-    p.setShader(SkGradientShader::MakeSweep(0, 0, sweep_colors, nullptr,
-                                            std::size(sweep_colors), 0, &rot));
+    p.setShader(SkShaders::SweepGradient({0, 0},
+                                         {{sweep_colors, {}, SkTileMode::kClamp}, {}}, &rot));
     p.setStrokeWidth(0.05f * scale);
     p.setStyle(SkPaint::kStroke_Style);
     c->drawCircle(0.0f, 0.0f, 0.475f * scale, p);

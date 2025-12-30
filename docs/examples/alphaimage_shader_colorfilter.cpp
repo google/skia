@@ -9,8 +9,8 @@ sk_sp<SkImage> alpha_image() {
 }
 sk_sp<SkShader> linear_gradient() {
     SkPoint gpts[2] = {{0, 0}, {64, 64}};
-    SkColor gc[3] = {SK_ColorRED, SK_ColorGREEN, SK_ColorMAGENTA};
-    return SkGradientShader::MakeLinear(gpts, gc, nullptr, 3, (SkTileMode)0);
+    SkColor4f gc[3] = {SkColors::kRed, SkColors::kGreen, SkColors::kMagenta};
+    return SkShaders::LinearGradient(gpts, {{gc, {}, (SkTileMode)0}, {}});
 }
 sk_sp<SkColorFilter> color_filter() {
     SkScalar colorMatrix[20] = {

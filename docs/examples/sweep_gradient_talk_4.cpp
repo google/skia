@@ -3,10 +3,10 @@
 #include "tools/fiddle/examples.h"
 REG_FIDDLE_SRGB(sweep_gradient_talk_4, 256, 256, false, 0, 0, false) {
 void draw(SkCanvas* canvas) {
-    SkColor colors[] = { 0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFF0000FF };
+    SkColor4f colors[] = { {0,0,1,1}, {0,1,0,1}, {1,0,0,1}, {0,0,1,1} };
     float cx = 128, cy = 128;
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeSweep(cx, cy, colors, nullptr, 4));
+    paint.setShader(SkShaders::SweepGradient({cx, cy}, {{colors, {}, SkTileMode::kClamp}, {}}));
     paint.setAntiAlias(true);
 
     canvas->drawPaint(paint);

@@ -6,7 +6,8 @@ void draw(SkCanvas* canvas) {
     canvas->scale(4.0f, 4.0f);
     constexpr SkColor background = SK_ColorWHITE;
     constexpr SkColor lettering = 0xFF292929;
-    constexpr SkColor lineColors[2] = {0x30565656, 0xFF565656};
+    const SkColor4f lineColors[2] = {
+            SkColor4f::FromColor(0x30565656), SkColor4f::FromColor(0xFF565656)};
 
     // Colors from https://www.flagcolorcodes.com/progress-pride and https://www.flagcolorcodes.com/intersex
     constexpr SkColor rainbow[] =  {0xFFE40303, 0xFFFF8C00, 0xFFFFED00, 0xFF008026, 0xFF004CFF, 0xFF732982};
@@ -118,7 +119,7 @@ void draw(SkCanvas* canvas) {
     canvas->drawPath(triangle.detach(), p);
 
     constexpr SkPoint pts[2] = {{160, 290}, {341, 290}};
-    p.setShader(SkGradientShader::MakeLinear(pts, lineColors, nullptr, 2, SkTileMode::kClamp));
+    p.setShader(SkShaders::LinearGradient(pts, {{lineColors, {}, SkTileMode::kClamp}, {}}));
     SkRRect rrect;
     rrect.setRectXY({138, 291, 341, 300}, 25.0, 5.0);
     canvas->drawRRect(rrect, p);

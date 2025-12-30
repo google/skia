@@ -36,6 +36,11 @@ static SkBitmap make_panel() {
     return panel;
 }
 
+static SkColor4f rgb(uint8_t r, uint8_t g, uint8_t b) {
+    constexpr float scale = 1.0f/255;
+    return {r*scale, g*scale, b*scale, 1};
+}
+
 class RPVizSlide : public ClickHandlerSlide {
 public:
     RPVizSlide() { fName = "RasterPipelineViz"; }
@@ -46,20 +51,20 @@ public:
         SkPaint paint;
         paint.setColor(SK_ColorRED);
         // paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 1.0));
-        SkColor colors[] = {
-                SkColorSetRGB(0xE4, 0x03, 0x03),  // Red
-                SkColorSetRGB(0xFF, 0x8C, 0x00),  // Orange
-                SkColorSetRGB(0xFF, 0xED, 0x00),  // Yellow
-                SkColorSetRGB(0x00, 0x80, 0x26),  // Green
-                SkColorSetRGB(0x00, 0x4D, 0xFF),  // Blue
-                SkColorSetRGB(0x75, 0x07, 0x87)   // Violet
+        const SkColor4f colors[] = {
+                rgb(0xE4, 0x03, 0x03),  // Red
+                rgb(0xFF, 0x8C, 0x00),  // Orange
+                rgb(0xFF, 0xED, 0x00),  // Yellow
+                rgb(0x00, 0x80, 0x26),  // Green
+                rgb(0x00, 0x4D, 0xFF),  // Blue
+                rgb(0x75, 0x07, 0x87)   // Violet
         };
         SkPoint points[] = {
                 {fStartDX, fStartDY},
                 {fEndX, fEndY},
         };
-        auto shader = SkGradientShader::MakeLinear(
-                points, colors, nullptr, std::size(colors), SkTileMode::kClamp);
+        auto shader = SkShaders::LinearGradient(
+                points, {{colors, {}, SkTileMode::kClamp}, {}});
         paint.setShader(shader);
         paint.setBlendMode(SkBlendMode::kSrc);
 

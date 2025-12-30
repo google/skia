@@ -95,10 +95,8 @@ public:
         for (const Config& config : kConfigs) {
             fInterpolation.fColorSpace = config.fColorSpace;
 
-            paint.setShader(SkGradientShader::MakeLinear(pts, fColors.data(),
-                                                         SkColorSpace::MakeSRGB(), nullptr,
-                                                         (int)fColors.size(), SkTileMode::kClamp,
-                                                         fInterpolation, nullptr));
+            paint.setShader(SkShaders::LinearGradient(pts,
+                                              {{fColors, {}, SkTileMode::kClamp}, fInterpolation}));
             canvas->drawRect(r, paint);
             canvas->drawSimpleText(config.fLabel, strlen(config.fLabel), SkTextEncoding::kUTF8,
                                    266, 20, font, labelPaint);

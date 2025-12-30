@@ -14,7 +14,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkStream.h"
-#include "include/effects/SkGradientShader.h"
+#include "include/effects/SkGradient.h"
 #include "include/private/base/SkMutex.h"
 #include "src/base/SkScopeExit.h"
 #include "src/codec/SkCodecPriv.h"
@@ -1355,16 +1355,12 @@ void ColorPainter::configure_linear_paint(const fontations_ffi::FillLinearParams
             SkPoint::Make(SkFloatToScalar(linear_params.x1), -SkFloatToScalar(linear_params.y1))};
     SkTileMode tileMode = ToSkTileMode(extend_mode);
 
-    sk_sp<SkShader> shader(SkGradientShader::MakeLinear(
+    sk_sp<SkShader> shader(SkShaders::LinearGradient(
             linePositions,
-            colors.data(),
-            SkColorSpace::MakeSRGB(),
-            stops.data(),
-            stops.size(),
-            tileMode,
+            {{colors, stops, tileMode},
             SkGradient::Interpolation{SkGradient::Interpolation::InPremul::kNo,
                                       SkGradient::Interpolation::ColorSpace::kSRGB,
-                                      SkGradient::Interpolation::HueMethod::kShorter},
+                                      SkGradient::Interpolation::HueMethod::kShorter}},
             paintTransform));
 
     SkASSERT(shader);
@@ -1516,19 +1512,12 @@ void ColorPainter::configure_radial_paint(
     // An opaque color is needed to ensure the gradient is not modulated by alpha.
     paint.setColor(SK_ColorBLACK);
 
-    paint.setShader(SkGradientShader::MakeTwoPointConical(
-            start,
-            startRadius,
-            end,
-            endRadius,
-            colors.data(),
-            SkColorSpace::MakeSRGB(),
-            stops.data(),
-            stops.size(),
-            tileMode,
+    paint.setShader(SkShaders::TwoPointConicalGradient(
+            start, startRadius, end, endRadius,
+            {{colors, stops, tileMode},
             SkGradient::Interpolation{SkGradient::Interpolation::InPremul::kNo,
                                       SkGradient::Interpolation::ColorSpace::kSRGB,
-                                      SkGradient::Interpolation::HueMethod::kShorter},
+                                      SkGradient::Interpolation::HueMethod::kShorter}},
             paintTransform));
 }
 
@@ -1583,19 +1572,12 @@ void ColorPainter::configure_sweep_paint(const fontations_ffi::FillSweepParams& 
     SkTileMode tileMode = ToSkTileMode(extend_mode);
 
     paint.setColor(SK_ColorBLACK);
-    paint.setShader(SkGradientShader::MakeSweep(
-            center.x(),
-            center.y(),
-            colors.data(),
-            SkColorSpace::MakeSRGB(),
-            stops.data(),
-            stops.size(),
-            tileMode,
-            sweep_params.start_angle,
-            sweep_params.end_angle,
+    paint.setShader(SkShaders::SweepGradient(
+            center, sweep_params.start_angle, sweep_params.end_angle,
+            {{colors, stops, tileMode},
             SkGradient::Interpolation{SkGradient::Interpolation::InPremul::kNo,
                                       SkGradient::Interpolation::ColorSpace::kSRGB,
-                                      SkGradient::Interpolation::HueMethod::kShorter},
+                                      SkGradient::Interpolation::HueMethod::kShorter}},
             paintTransform));
 }
 

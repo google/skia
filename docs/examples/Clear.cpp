@@ -6,10 +6,10 @@ void draw(SkCanvas* canvas) {
     canvas->saveLayer(nullptr, nullptr);
     canvas->drawColor(SK_ColorYELLOW, SkBlendMode::kClear);
     SkPaint paint;
-    for (auto color : { SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN } ) {
-        SkColor colors[] = { color, SkColorSetA(color, 0) };
-        paint.setShader(SkGradientShader::MakeRadial({ 64, 64}, 100,
-                colors, nullptr, std::size(colors), SkTileMode::kClamp));
+    for (auto color : { SkColors::kRed, SkColors::kBlue, SkColors::kGreen } ) {
+        SkColor4f colors[] = { color, color.withAlpha(0) };
+        paint.setShader(SkShaders::RadialGradient({ 64, 64}, 100,
+                {{colors, {}, SkTileMode::kClamp}, {}}));
         canvas->drawCircle(64, 64, 100, paint);
         canvas->translate(64, 64);
     }

@@ -149,45 +149,52 @@ static void patheffect_slide(SkCanvas* canvas) {
 #include "include/effects/SkGradientShader.h"
 
 struct GradData {
-    int             fCount;
-    const SkColor*  fColors;
-    const SkScalar* fPos;
+    size_t           fCount;
+    const SkColor4f* fColors;
+    const float*     fPos;
+
+    SkGradient grad(SkTileMode tm) const {
+        SkSpan<const float> pos;
+        if (fPos) {
+            pos = {fPos, fCount};
+        }
+        return {{{fColors, fCount}, pos, tm}, {}};
+    }
 };
 
-static const SkColor gColors[] = {
-SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK
+static const SkColor4f gColors[] = {
+    SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kWhite, SkColors::kBlack
 };
 static const SkScalar gPos0[] = { 0, SK_Scalar1 };
 static const SkScalar gPos1[] = { SK_Scalar1/4, SK_Scalar1*3/4 };
 static const SkScalar gPos2[] = {
-0, SK_Scalar1/8, SK_Scalar1/2, SK_Scalar1*7/8, SK_Scalar1
+    0, SK_Scalar1/8, SK_Scalar1/2, SK_Scalar1*7/8, SK_Scalar1
 };
 
 static const GradData gGradData[] = {
-{ 2, gColors, nullptr },
-{ 2, gColors, gPos0 },
-{ 2, gColors, gPos1 },
-{ 5, gColors, nullptr },
-{ 5, gColors, gPos2 }
+    { 2, gColors, nullptr },
+    { 2, gColors, gPos0 },
+    { 2, gColors, gPos1 },
+    { 5, gColors, nullptr },
+    { 5, gColors, gPos2 }
 };
 
 static sk_sp<SkShader> MakeLinear(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
-    return SkGradientShader::MakeLinear(pts, data.fColors, data.fPos, data.fCount, tm);
+    return SkShaders::LinearGradient(pts, data.grad(tm));
 }
 
 static sk_sp<SkShader> MakeRadial(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
     SkPoint center;
     center.set(sk_float_midpoint(pts[0].fX, pts[1].fX),
                sk_float_midpoint(pts[0].fY, pts[1].fY));
-    return SkGradientShader::MakeRadial(center, center.fX, data.fColors,
-                                          data.fPos, data.fCount, tm);
+    return SkShaders::RadialGradient(center, center.fX, data.grad(tm));
 }
 
 static sk_sp<SkShader> MakeSweep(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
     SkPoint center;
     center.set(sk_float_midpoint(pts[0].fX, pts[1].fX),
                sk_float_midpoint(pts[0].fY, pts[1].fY));
-    return SkGradientShader::MakeSweep(center.fX, center.fY, data.fColors, data.fPos, data.fCount);
+    return SkShaders::SweepGradient(center, data.grad(tm));
 }
 
 static sk_sp<SkShader> Make2Conical(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
@@ -196,9 +203,9 @@ static sk_sp<SkShader> Make2Conical(const SkPoint pts[2], const GradData& data, 
                 sk_float_midpoint(pts[0].fY, pts[1].fY));
     center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3)/5),
                 SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
-    return SkGradientShader::MakeTwoPointConical(center1, (pts[1].fX - pts[0].fX) / 7,
-                                                  center0, (pts[1].fX - pts[0].fX) / 2,
-                                                  data.fColors, data.fPos, data.fCount, tm);
+    return SkShaders::TwoPointConicalGradient(center1, (pts[1].fX - pts[0].fX) / 7,
+                                              center0, (pts[1].fX - pts[0].fX) / 2,
+                                              data.grad(tm));
 }
 
 typedef sk_sp<SkShader> (*GradMaker)(const SkPoint pts[2], const GradData&, SkTileMode);
@@ -247,9 +254,8 @@ static sk_sp<SkShader> make_shader0(SkIPoint* size) {
 static sk_sp<SkShader> make_shader1(const SkIPoint& size) {
     SkPoint pts[] = { { 0, 0 },
                       { SkIntToScalar(size.fX), SkIntToScalar(size.fY) } };
-    SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr,
-                                          std::size(colors), SkTileMode::kMirror);
+    SkColor4f colors[] = { SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kRed };
+    return SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kMirror}, {}});
 }
 
 class Rec {

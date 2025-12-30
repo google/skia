@@ -241,7 +241,7 @@ public:
     ~CanvasLineSegmentStage() override = default;
 
     void draw(SkCanvas* canvas) override {
-        canvas->clear(SK_ColorWHITE);
+        canvas->clear(SkColors::kWhite);
 
         float dx = fTwoFifthsSizeX * std::cos(fCurrentAngle);
         float dy = fTwoFifthsSizeX * std::sin(fCurrentAngle);
@@ -249,32 +249,32 @@ public:
         float colorStopStep = SkScalarInterp(-.1f, .1f, fCurrentGradientStep);
         int brightnessStep = SkScalarRoundToInt(SkScalarInterp(32, 64, fCurrentGradientStep));
 
-        SkColor color1Step = SkColorSetARGB(brightnessStep,
-                                            brightnessStep,
-                                            (brightnessStep << 1),
-                                            102);
-        SkColor color2Step = SkColorSetARGB((brightnessStep << 1),
-                                            (brightnessStep << 1),
-                                            brightnessStep,
-                                            102);
+        SkColor4f color1Step = SkColor4f::FromColor(SkColorSetARGB(brightnessStep,
+                                                                   brightnessStep,
+                                                                   (brightnessStep << 1),
+                                                                   102)),
+                  color2Step = SkColor4f::FromColor(SkColorSetARGB((brightnessStep << 1),
+                                                                   (brightnessStep << 1),
+                                                                   brightnessStep,
+                                                                   102));
         SkPoint pts[2] = {
             {fHalfSize.fWidth + dx, fHalfSize.fHeight + dy},
             {fHalfSize.fWidth - dx, fHalfSize.fHeight - dy}
         };
-        SkColor colors[] = {
+        const SkColor4f colors[] = {
             color1Step,
             color1Step,
             color2Step,
             color2Step
         };
-        float pos[] = {
+        const float pos[] = {
             0,
             0.2f + colorStopStep,
             0.8f - colorStopStep,
             1
         };
-        sk_sp<SkShader> gradientShader = SkGradientShader::MakeLinear(pts, colors, pos, 4,
-                                                                      SkTileMode::kClamp, 0);
+        sk_sp<SkShader> gradientShader = SkShaders::LinearGradient(pts,
+                                                        {{colors, pos, SkTileMode::kClamp}, {}});
 
         SkPaint paint;
         paint.setAntiAlias(true);

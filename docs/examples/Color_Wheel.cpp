@@ -16,8 +16,8 @@ void draw_color_wheel(SkCanvas* canvas, float scale) {
         static const SkColor4f kColors[kColorCount] = {
             SkColors::kRed,  SkColors::kYellow,  SkColors::kGreen, SkColors::kCyan,
             SkColors::kBlue, SkColors::kMagenta, SkColors::kRed};
-        sweep.setShader(SkGradientShader::MakeSweep(0, 0, kColors, nullptr, nullptr,
-                                                    kColorCount, 0, &rotate));
+        sweep.setShader(SkShaders::SweepGradient({0, 0}, {{kColors, {}, SkTileMode::kClamp}, {}},
+                                                 &rotate));
         sweep.setStyle(SkPaint::kStroke_Style);
         sweep.setStrokeWidth(stroke);
         sweep.setAntiAlias(true);

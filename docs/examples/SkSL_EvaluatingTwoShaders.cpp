@@ -5,8 +5,8 @@ REG_FIDDLE(SkSL_EvaluatingTwoShaders, 128, 128, false, 5) {
 // Create a linear gradient from white (left) to black (right)
 sk_sp<SkShader> makeGradientShader() {
   const SkPoint pts[] = { { 0, 0 }, { 128, 0 } };
-  const SkColor colors[] = { SK_ColorWHITE, SK_ColorBLACK };
-  return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
+  const SkColor4f colors[] = { SkColors::kWhite, SkColors::kBlack };
+  return SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}});
 }
 
 void draw(SkCanvas* canvas) {

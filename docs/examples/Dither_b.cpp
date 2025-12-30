@@ -8,11 +8,10 @@ void draw(SkCanvas* canvas) {
     bm32.allocPixels(SkImageInfo::Make(20, 10, kN32_SkColorType, kPremul_SkAlphaType));
     SkCanvas c32(bm32);
     SkPoint points[] = {{0, 0}, {20, 0}};
-    SkColor colors[] = {0xFF334455, 0xFF662211 };
+    SkColor4f colors[] = {SkColor4f::FromColor(0xFF334455), SkColor4f::FromColor(0xFF662211) };
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeLinear(
-                     points, colors, nullptr, std::size(colors),
-                     SkTileMode::kClamp));
+    paint.setShader(SkShaders::LinearGradient(
+                     points, {{colors, {}, SkTileMode::kClamp}, {}}));
     paint.setDither(true);
     auto img = bm32.asImage();
     c32.drawPaint(paint);

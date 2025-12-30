@@ -7,7 +7,8 @@ void draw(SkCanvas* canvas) {
     const SkColor background = SK_ColorWHITE;  // SK_ColorTRANSPARENT;
     const SkColor rgb[] = {0xFFE94037, 0xFF70BF4F, 0xFF465BA6};
     const SkColor lettering = 0xFF292929;
-    const SkColor lineColors[2] = {0x30565656, 0xFF565656};
+    const SkColor4f lineColors[2] = {
+        SkColor4f::FromColor(0x30565656), SkColor4f::FromColor(0xFF565656)};
     SkPathBuilder s, k, a, triangle;
     SkPaint p;
     p.setAntiAlias(true);
@@ -85,7 +86,7 @@ void draw(SkCanvas* canvas) {
 
     // line
     const SkPoint pts[2] = {{160, 290}, {341, 290}};
-    p.setShader(SkGradientShader::MakeLinear(pts, lineColors, nullptr, 2, SkTileMode::kClamp));
+    p.setShader(SkShaders::LinearGradient(pts, {{lineColors, {}, SkTileMode::kClamp}, {}}));
     if (true) {
         SkRRect rrect;
         rrect.setRectXY({138, 291, 341, 300}, 25.0, 5.0);

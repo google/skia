@@ -10,13 +10,13 @@ void draw(SkCanvas* canvas) {
     const auto randOpaqueColor = [&rng]() -> SkColor {
         return std::uniform_int_distribution<uint32_t>(0, 0xFFFFFF)(rng) | 0xFF000000;
     };
-    SkColor colors[100];
+    SkColor4f colors[100];
     for (auto& color : colors) {
-        color = randOpaqueColor();
+        color = SkColor4f::FromColor(randOpaqueColor());
     }
     float cx = 128, cy = 128;
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeSweep(cx, cy, colors, nullptr, 100));
+    paint.setShader(SkShaders::SweepGradient({cx, cy}, {{colors, {}, SkTileMode::kClamp}, {}}));
     canvas->drawPaint(paint);
 }
 }  // END FIDDLE

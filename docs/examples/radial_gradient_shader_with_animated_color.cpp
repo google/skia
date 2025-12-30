@@ -4,12 +4,11 @@
 REG_FIDDLE_ANIMATED(radial_gradient_shader_with_animated_color, 256, 256, false, 0, 2) {
 void draw(SkCanvas* canvas) {
     float p = 0.5 * (1 - cos(6.28318548f * frame));
-    SkColor blue = SkColor(0xff * p) | 0xFF000000;
-    SkColor colors[2] = {blue, SK_ColorYELLOW};
+    SkColor4f blue = {0, 0, p, 1};
+    SkColor4f colors[2] = {blue, SkColors::kYellow};
     SkPaint paint;
-    paint.setShader(SkGradientShader::MakeRadial(
-                SkPoint::Make(128.0f, 128.0f), 180.0f,
-                colors, nullptr, 2, SkTileMode::kClamp, 0, nullptr));
+    paint.setShader(SkShaders::RadialGradient(
+                {128.0f, 128.0f}, 180.0f, {{colors, {}, SkTileMode::kClamp}, {}}));
     canvas->drawPaint(paint);
 }
 }  // END FIDDLE
