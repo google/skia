@@ -3149,41 +3149,6 @@ if (skia_enable_tools) {
           "modules/skunicode",
         ]
       }
-
-      test_app("jetski") {
-        is_shared_library = true
-
-        sources = [
-          "modules/jetski/src/Canvas.cpp",
-          "modules/jetski/src/ColorFilters.cpp",
-          "modules/jetski/src/Gradients.cpp",
-          "modules/jetski/src/Image.cpp",
-          "modules/jetski/src/ImageFilter.cpp",
-          "modules/jetski/src/JetSki.cpp",
-          "modules/jetski/src/Matrix.cpp",
-          "modules/jetski/src/Paint.cpp",
-          "modules/jetski/src/Path.cpp",
-          "modules/jetski/src/PathBuilder.cpp",
-          "modules/jetski/src/RuntimeShaderBuilder.cpp",
-          "modules/jetski/src/Shader.cpp",
-          "modules/jetski/src/SkottieAnimation.cpp",
-          "modules/jetski/src/Surface.cpp",
-          "modules/jetski/src/Surface.h",
-          "modules/jetski/src/SurfaceThread.cpp",
-          "modules/jetski/src/SurfaceThread.h",
-          "modules/jetski/src/Utils.cpp",
-        ]
-        libs = [
-          "android",
-          "jnigraphics",
-        ]
-
-        deps = [
-          ":skia",
-          "modules/skottie",
-          "tools/window",
-        ]
-      }
     }
 
     if (is_ios && skia_enable_skottie) {

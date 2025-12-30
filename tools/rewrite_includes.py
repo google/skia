@@ -83,8 +83,6 @@ for file_path in to_rewrite():
       'tests/sksl/' in file_path or
       'third_party/skcms' in file_path or
       'modules/skcms' in file_path or
-      # transitional
-      'jetski' in file_path or
       'tools/window' in file_path or
       file_path.startswith('bazel/rbe') or
       'example/external_client/' in file_path or
