@@ -791,12 +791,18 @@ bool SkScalerContext_DW::drawColorV1Paint(SkCanvas& canvas,
 
         sk_sp<SkShader> shader(SkShaders::LinearGradient(
             linePositions,
-            {{skColors, skStops, tileMode},
-            SkGradient::Interpolation{
-                SkGradient::Interpolation::InPremul::kNo,
-                SkGradient::Interpolation::ColorSpace::kSRGB,
-                SkGradient::Interpolation::HueMethod::kShorter
-            }}));
+            SkGradient(
+                SkGradient::Colors(
+                    SkSpan(skColors.get(), stops.size()),
+                    SkSpan(skStops.get(), stops.size()),
+                    tileMode),
+                SkGradient::Interpolation{
+                    SkGradient::Interpolation::InPremul::kNo,
+                    SkGradient::Interpolation::ColorSpace::kSRGB,
+                    SkGradient::Interpolation::HueMethod::kShorter
+                }
+            )
+        ));
 
         SkASSERT(shader);
         // An opaque color is needed to ensure the gradient is not modulated by alpha.
@@ -982,12 +988,18 @@ bool SkScalerContext_DW::drawColorV1Paint(SkCanvas& canvas,
         skPaint.setColor(SK_ColorBLACK);
         skPaint.setShader(SkShaders::TwoPointConicalGradient(
             start, startRadius, end, endRadius,
-            {{skColors, skStops, tileMode},
-            SkGradient::Interpolation{
-                SkGradient::Interpolation::InPremul::kNo,
-                SkGradient::Interpolation::ColorSpace::kSRGB,
-                SkGradient::Interpolation::HueMethod::kShorter
-            }}));
+            SkGradient(
+                SkGradient::Colors(
+                    SkSpan(skColors.get(), stops.size()),
+                    SkSpan(skStops.get(), stops.size()),
+                    tileMode),
+                SkGradient::Interpolation{
+                    SkGradient::Interpolation::InPremul::kNo,
+                    SkGradient::Interpolation::ColorSpace::kSRGB,
+                    SkGradient::Interpolation::HueMethod::kShorter
+                }
+            )
+        ));
         canvas.drawPaint(skPaint);
         return true;
     }
@@ -1100,12 +1112,18 @@ bool SkScalerContext_DW::drawColorV1Paint(SkCanvas& canvas,
 
         skPaint.setShader(SkShaders::SweepGradient(
             center, startAngleScaled, endAngleScaled,
-            {{skColors, skStops, tileMode},
-            SkGradient::Interpolation{
-                SkGradient::Interpolation::InPremul::kNo,
-                SkGradient::Interpolation::ColorSpace::kSRGB,
-                SkGradient::Interpolation::HueMethod::kShorter
-            }}));
+            SkGradient(
+                SkGradient::Colors(
+                    SkSpan(skColors.get(), stops.size()),
+                    SkSpan(skStops.get(), stops.size()),
+                    tileMode),
+                SkGradient::Interpolation{
+                    SkGradient::Interpolation::InPremul::kNo,
+                    SkGradient::Interpolation::ColorSpace::kSRGB,
+                    SkGradient::Interpolation::HueMethod::kShorter
+                }
+            )
+        ));
         canvas.drawPaint(skPaint);
         return true;
     }
