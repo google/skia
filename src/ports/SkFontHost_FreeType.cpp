@@ -1399,11 +1399,11 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph, void* imageBu
         SkASSERT(glyph.maskFormat() == SkMask::kARGB32_Format);
         SkBitmap dstBitmap;
         // TODO: mark this as sRGB when the blits will be sRGB.
-        dstBitmap.setInfo(SkImageInfo::Make(glyph.width(), glyph.height(),
-                                            kN32_SkColorType,
-                                            kPremul_SkAlphaType),
-                                            glyph.rowBytes());
-        dstBitmap.setPixels(imageBuffer);
+        dstBitmap.installPixels(
+                SkImageInfo::Make(
+                        glyph.width(), glyph.height(), kN32_SkColorType, kPremul_SkAlphaType),
+                imageBuffer,
+                glyph.rowBytes());
 
         SkCanvas canvas(dstBitmap);
         if constexpr (kSkShowTextBlitCoverage) {

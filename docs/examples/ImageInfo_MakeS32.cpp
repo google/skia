@@ -22,8 +22,9 @@ void draw(SkCanvas* canvas) {
     sRGBOffscreen.drawRect(SkRect::MakeWH(width, height), gradPaint);
     canvas->drawImage(bitmap.asImage(), 0, 48);
     SkBitmap noColorSpaceBitmap;
-    noColorSpaceBitmap.setInfo(SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType));
-    noColorSpaceBitmap.setPixels(bitmap.getAddr(0, 0));
+    noColorSpaceBitmap.installPixels(SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType),
+                                     bitmap.getAddr(0, 0),
+                                     bitmap.rowBytes());
     canvas->drawImage(noColorSpaceBitmap.asImage(), 0, 96);
 }
 }  // END FIDDLE

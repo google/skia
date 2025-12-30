@@ -94,8 +94,7 @@ SkBitmap MakeDitherLUT() {
     } gTable;
 
     SkBitmap bmp;
-    bmp.setInfo(SkImageInfo::MakeA8(8, 8));
-    bmp.setPixels(const_cast<uint8_t*>(gTable.data));
+    bmp.installPixels(SkImageInfo::MakeA8(8, 8), const_cast<uint8_t*>(gTable.data), 8);
     bmp.setImmutable();
     return bmp;
 }

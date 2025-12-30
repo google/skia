@@ -130,12 +130,11 @@ DEF_SIMPLE_GM(hugebitmapshader, canvas, 100, 100) {
         bitmapH = ctx->priv().caps()->maxTextureSize() + 1;
     }
 #endif
-    bitmap.setInfo(SkImageInfo::MakeA8(bitmapW, bitmapH), bitmapW);
     uint8_t* pixels = new uint8_t[bitmapH];
     for(int i = 0; i < bitmapH; ++i) {
         pixels[i] = i & 0xff;
     }
-    bitmap.setPixels(pixels);
+    bitmap.installPixels(SkImageInfo::MakeA8(bitmapW, bitmapH), pixels, bitmapW);
 
     paint.setShader(bitmap.makeShader(SkTileMode::kMirror, SkTileMode::kMirror,
                                       SkSamplingOptions()));

@@ -675,11 +675,11 @@ protected:
     void generatePngImage(const SkGlyph& glyph, void* imageBuffer) {
         SkASSERT(glyph.maskFormat() == SkMask::kARGB32_Format);
         SkBitmap dstBitmap;
-        dstBitmap.setInfo(
+        dstBitmap.installPixels(
                 SkImageInfo::Make(
                         glyph.width(), glyph.height(), kN32_SkColorType, kPremul_SkAlphaType),
+                imageBuffer,
                 glyph.rowBytes());
-        dstBitmap.setPixels(imageBuffer);
 
         SkCanvas canvas(dstBitmap);
 
@@ -734,11 +734,11 @@ protected:
         } else if (format == ScalerContextBits::COLRv1 || format == ScalerContextBits::COLRv0) {
             SkASSERT(glyph.maskFormat() == SkMask::kARGB32_Format);
             SkBitmap dstBitmap;
-            dstBitmap.setInfo(
+            dstBitmap.installPixels(
                     SkImageInfo::Make(
                             glyph.width(), glyph.height(), kN32_SkColorType, kPremul_SkAlphaType),
+                    imageBuffer,
                     glyph.rowBytes());
-            dstBitmap.setPixels(imageBuffer);
 
             SkCanvas canvas(dstBitmap);
             if constexpr (kSkShowTextBlitCoverage) {
