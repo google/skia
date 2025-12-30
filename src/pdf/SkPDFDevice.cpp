@@ -399,7 +399,8 @@ private:
 
 SkPDFDevice::SkPDFDevice(SkISize pageSize, SkPDFDocument* doc, const SkMatrix& transform)
         : SkClipStackDevice(SkImageInfo::MakeUnknown(pageSize.width(), pageSize.height()),
-                            SkSurfaceProps())
+                            SkSurfaceProps(SkSurfaceProps::kPreservesTransparentDraws_Flag,
+                                           kUnknown_SkPixelGeometry))
         , fInitialTransform(transform)
         , fMarkManager(doc, &fContent)
         , fDocument(doc) {

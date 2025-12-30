@@ -500,7 +500,7 @@ int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint) {
 
 int SkCanvas::saveLayer(const SaveLayerRec& rec) {
     TRACE_EVENT0("skia", TRACE_FUNC);
-    if (rec.fPaint && rec.fPaint->nothingToDraw()) {
+    if (rec.fPaint && this->nothingToDraw(*rec.fPaint)) {
         // no need for the layer (or any of the draws until the matching restore()
         this->save();
         this->clipRect({0,0,0,0});
@@ -1587,9 +1587,13 @@ bool SkCanvas::quickReject(const SkPath& path) const {
     return path.isEmpty() || this->quickReject(path.getBounds());
 }
 
+bool SkCanvas::nothingToDraw(const SkPaint& paint) const {
+    return !this->topDevice()->surfaceProps().preservesTransparentDraws() && paint.nothingToDraw();
+}
+
 bool SkCanvas::internalQuickReject(const SkRect& bounds, const SkPaint& paint,
                                    const SkMatrix* matrix) {
-    if (!bounds.isFinite() || paint.nothingToDraw()) {
+    if (!bounds.isFinite() || this->nothingToDraw(paint)) {
         return true;
     }
 
@@ -1923,7 +1927,7 @@ void SkCanvas::onDrawPaint(const SkPaint& paint) {
 void SkCanvas::internalDrawPaint(const SkPaint& paint) {
     // drawPaint does not call internalQuickReject() because computing its geometry is not free
     // (see getLocalClipBounds(), and the two conditions below are sufficient.
-    if (paint.nothingToDraw() || this->isClipEmpty()) {
+    if (this->nothingToDraw(paint) || this->isClipEmpty()) {
         return;
     }
 
@@ -1935,7 +1939,7 @@ void SkCanvas::internalDrawPaint(const SkPaint& paint) {
 
 void SkCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
                             const SkPaint& paint) {
-    if ((long)count <= 0 || paint.nothingToDraw()) {
+    if ((long)count <= 0 || this->nothingToDraw(paint)) {
         return;
     }
     SkASSERT(pts != nullptr);
@@ -2441,7 +2445,7 @@ sk_sp<Slug> SkCanvas::convertBlobToSlug(
 sk_sp<Slug> SkCanvas::onConvertGlyphRunListToSlug(const sktext::GlyphRunList& glyphRunList,
                                                   const SkPaint& paint) {
     SkRect bounds = glyphRunList.sourceBoundsWithOrigin();
-    if (bounds.isEmpty() || !bounds.isFinite() || paint.nothingToDraw()) {
+    if (bounds.isEmpty() || !bounds.isFinite() || this->nothingToDraw(paint)) {
         return nullptr;
     }
     // See comment in onDrawGlyphRunList()

@@ -2648,6 +2648,8 @@ private:
 
     void init(sk_sp<SkDevice>);
 
+    bool nothingToDraw(const SkPaint& paint) const;
+
     // All base onDrawX() functions should call this and skip drawing if it returns true.
     // If 'matrix' is non-null, it maps the paint's fast bounds before checking for quick rejection
     bool internalQuickReject(const SkRect& bounds, const SkPaint& paint,
