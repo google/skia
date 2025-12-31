@@ -16,22 +16,6 @@
 
 #include <cstddef>
 
-static const SkPoint nonFinitePts[] = {
-    { SK_ScalarInfinity, 0 },
-    { 0, SK_ScalarInfinity },
-    { SK_ScalarInfinity, SK_ScalarInfinity },
-    { SK_ScalarNegativeInfinity, 0},
-    { 0, SK_ScalarNegativeInfinity },
-    { SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity },
-    { SK_ScalarNegativeInfinity, SK_ScalarInfinity },
-    { SK_ScalarInfinity, SK_ScalarNegativeInfinity },
-    { SK_ScalarNaN, 0 },
-    { 0, SK_ScalarNaN },
-    { SK_ScalarNaN, SK_ScalarNaN },
-};
-
-const size_t nonFinitePtsCount = sizeof(nonFinitePts) / sizeof(nonFinitePts[0]);
-
 static const SkPoint finitePts[] = {
     { 0, 0 },
     { SK_ScalarMax, 0 },
@@ -43,33 +27,6 @@ static const SkPoint finitePts[] = {
 };
 
 const size_t finitePtsCount = sizeof(finitePts) / sizeof(finitePts[0]);
-
-static void failOne(skiatest::Reporter* reporter, int index) {
-    SkPathBuilder path;
-    int i = (int) (index % nonFinitePtsCount);
-    int f = (int) (index % finitePtsCount);
-    int g = (int) ((f + 1) % finitePtsCount);
-    switch (index % 13) {
-        case 0: path.lineTo(nonFinitePts[i]); break;
-        case 1: path.quadTo(nonFinitePts[i], nonFinitePts[i]); break;
-        case 2: path.quadTo(nonFinitePts[i], finitePts[f]); break;
-        case 3: path.quadTo(finitePts[f], nonFinitePts[i]); break;
-        case 4: path.cubicTo(nonFinitePts[i], finitePts[f], finitePts[f]); break;
-        case 5: path.cubicTo(finitePts[f], nonFinitePts[i], finitePts[f]); break;
-        case 6: path.cubicTo(finitePts[f], finitePts[f], nonFinitePts[i]); break;
-        case 7: path.cubicTo(nonFinitePts[i], nonFinitePts[i], finitePts[f]); break;
-        case 8: path.cubicTo(nonFinitePts[i], finitePts[f], nonFinitePts[i]); break;
-        case 9: path.cubicTo(finitePts[f], nonFinitePts[i], nonFinitePts[i]); break;
-        case 10: path.cubicTo(nonFinitePts[i], nonFinitePts[i], nonFinitePts[i]); break;
-        case 11: path.cubicTo(nonFinitePts[i], finitePts[f], finitePts[g]); break;
-        case 12: path.moveTo(nonFinitePts[i]); break;
-    }
-    auto result = Simplify(path.detach());
-#ifdef SK_PATH_LEGACY_NONFINITE_IMPL
-    REPORTER_ASSERT(reporter, !result.has_value());
-#endif
-    reporter->bumpTestCount();
-}
 
 static void dontFailOne(skiatest::Reporter* reporter, int index) {
     SkPathBuilder path;
@@ -272,20 +229,12 @@ DEF_TEST(PathOpsSimplifyFail, reporter) {
     TEST(fuzz_x2);
     TEST(fuzz_x1);
     TEST(fuzz_59);
-    for (int index = 0; index < (int) (13 * nonFinitePtsCount * finitePtsCount); ++index) {
-        failOne(reporter, index);
-    }
     for (int index = 0; index < (int) (11 * finitePtsCount); ++index) {
         dontFailOne(reporter, index);
     }
 }
 
 #undef TEST
-
-DEF_TEST(PathOpsSimplifyFailOne, reporter) {
-    int index = 0;
-    failOne(reporter, index);
-}
 
 DEF_TEST(PathOpsSimplifyDontFailOne, reporter) {
     int index = 17;

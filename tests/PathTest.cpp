@@ -1637,22 +1637,6 @@ static void test_convexity(skiatest::Reporter* reporter) {
         check_direction(reporter, path, gRec[i].fExpectedDirection);
     }
 
-    static const SkPoint nonFinitePts[] = {
-        { SK_ScalarInfinity, 0 },
-        { 0, SK_ScalarInfinity },
-        { SK_ScalarInfinity, SK_ScalarInfinity },
-        { SK_ScalarNegativeInfinity, 0},
-        { 0, SK_ScalarNegativeInfinity },
-        { SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity },
-        { SK_ScalarNegativeInfinity, SK_ScalarInfinity },
-        { SK_ScalarInfinity, SK_ScalarNegativeInfinity },
-        { SK_ScalarNaN, 0 },
-        { 0, SK_ScalarNaN },
-        { SK_ScalarNaN, SK_ScalarNaN },
-    };
-
-    const size_t nonFinitePtsCount = sizeof(nonFinitePts) / sizeof(nonFinitePts[0]);
-
     static const SkPoint axisAlignedPts[] = {
         { SK_ScalarMax, 0 },
         { 0, SK_ScalarMax },
@@ -1661,34 +1645,6 @@ static void test_convexity(skiatest::Reporter* reporter) {
     };
 
     const size_t axisAlignedPtsCount = sizeof(axisAlignedPts) / sizeof(axisAlignedPts[0]);
-
-    for (int index = 0; index < (int) (13 * nonFinitePtsCount * axisAlignedPtsCount); ++index) {
-        int i = (int) (index % nonFinitePtsCount);
-        int f = (int) (index % axisAlignedPtsCount);
-        int g = (int) ((f + 1) % axisAlignedPtsCount);
-
-        SkPathBuilder builder;
-        switch (index % 13) {
-            case 0: builder.lineTo(nonFinitePts[i]); break;
-            case 1: builder.quadTo(nonFinitePts[i], nonFinitePts[i]); break;
-            case 2: builder.quadTo(nonFinitePts[i], axisAlignedPts[f]); break;
-            case 3: builder.quadTo(axisAlignedPts[f], nonFinitePts[i]); break;
-            case 4: builder.cubicTo(nonFinitePts[i], axisAlignedPts[f], axisAlignedPts[f]); break;
-            case 5: builder.cubicTo(axisAlignedPts[f], nonFinitePts[i], axisAlignedPts[f]); break;
-            case 6: builder.cubicTo(axisAlignedPts[f], axisAlignedPts[f], nonFinitePts[i]); break;
-            case 7: builder.cubicTo(nonFinitePts[i], nonFinitePts[i], axisAlignedPts[f]); break;
-            case 8: builder.cubicTo(nonFinitePts[i], axisAlignedPts[f], nonFinitePts[i]); break;
-            case 9: builder.cubicTo(axisAlignedPts[f], nonFinitePts[i], nonFinitePts[i]); break;
-            case 10: builder.cubicTo(nonFinitePts[i], nonFinitePts[i], nonFinitePts[i]); break;
-            case 11: builder.cubicTo(nonFinitePts[i], axisAlignedPts[f], axisAlignedPts[g]); break;
-            case 12: builder.moveTo(nonFinitePts[i]); break;
-        }
-        path = builder.detach();
-#ifdef SK_PATH_LEGACY_NONFINITE_IMPL
-        REPORTER_ASSERT(reporter,
-                    SkPathPriv::GetConvexityOrUnknown(path) == SkPathConvexity::kUnknown);
-#endif
-    }
 
     for (int index = 0; index < (int) (11 * axisAlignedPtsCount); ++index) {
         int f = (int) (index % axisAlignedPtsCount);
@@ -3050,21 +3006,6 @@ static void test_iter(skiatest::Reporter* reporter) {
     p = SkPathBuilder().lineTo(1, 1).moveTo(0, 0).lineTo(2, 2).detach();
     iter.setPath(p, false);
     REPORTER_ASSERT(reporter, !iter.isClosedContour());
-
-#ifdef SK_PATH_LEGACY_NONFINITE_IMPL
-    // this checks to see if the NaN logic is executed in SkPath::autoClose(), but does not
-    // check to see if the result is correct.
-    for (int setNaN = 0; setNaN < 4; ++setNaN) {
-        p = SkPathBuilder()
-            .moveTo(setNaN == 0 ? SK_ScalarNaN : 0, setNaN == 1 ? SK_ScalarNaN : 0)
-            .lineTo(setNaN == 2 ? SK_ScalarNaN : 1, setNaN == 3 ? SK_ScalarNaN : 1)
-            .detach();
-        iter.setPath(p, true);
-        iter.next(pts);
-        iter.next(pts);
-        REPORTER_ASSERT(reporter, SkPath::kClose_Verb == iter.next(pts));
-    }
-#endif
 
     p = SkPathBuilder().quadTo(0, 0, 0, 0).detach();
     iter.setPath(p, false);
