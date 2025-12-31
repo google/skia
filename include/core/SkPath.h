@@ -33,7 +33,6 @@ class SkWStream;
 enum class SkPathConvexity;
 enum class SkResolveConvexity;
 struct SkPathRaw;
-struct SkPathVerbAnalysis;
 struct SkPathOvalInfo;
 struct SkPathRRectInfo;
 
@@ -555,15 +554,6 @@ public:
         example: https://fiddle.skia.org/c/@Path_conservativelyContainsRect
     */
     bool conservativelyContainsRect(const SkRect& rect) const;
-
-    /** \enum SkPath::ArcSize
-        Four oval parts with radii (rx, ry) start at last SkPath SkPoint and ends at (x, y).
-        ArcSize and Direction select one of the four oval parts.
-    */
-    enum ArcSize {
-        kSmall_ArcSize, //!< smaller of arc pair
-        kLarge_ArcSize, //!< larger of arc pair
-    };
 
     /** Approximates conic with quad array. Conic is constructed from start SkPoint p0,
         control SkPoint p1, end SkPoint p2, and weight w.
