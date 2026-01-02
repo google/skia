@@ -183,8 +183,8 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
     if (adapter.HasFeature(wgpu::FeatureName::TextureCompressionBC)) {
         features.push_back(wgpu::FeatureName::TextureCompressionBC);
     }
-    if (adapter.HasFeature(wgpu::FeatureName::R8UnormStorage)) {
-        features.push_back(wgpu::FeatureName::R8UnormStorage);
+    if (adapter.HasFeature(wgpu::FeatureName::TextureFormatsTier1)) {
+        features.push_back(wgpu::FeatureName::TextureFormatsTier1);
     }
     if (adapter.HasFeature(wgpu::FeatureName::DawnLoadResolveTexture)) {
         features.push_back(wgpu::FeatureName::DawnLoadResolveTexture);
