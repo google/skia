@@ -22,10 +22,6 @@
 #include <cstdint>
 #include <utility>
 
-#ifndef SK_SUPPORT_LEGACY_UNSPANNED_GRADIENTS
-#define SK_SUPPORT_LEGACY_UNSPANNED_GRADIENTS
-#endif
-
 class SkMatrix;
 
 /** \class SkGradientShader

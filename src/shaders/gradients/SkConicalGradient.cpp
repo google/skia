@@ -29,6 +29,10 @@
 #include <cstdint>
 #include <utility>
 
+#ifdef SK_SUPPORT_LEGACY_UNSPANNED_GRADIENTS
+#include "include/effects/SkGradientShader.h"
+#endif
+
 bool SkConicalGradient::FocalData::set(SkScalar r0, SkScalar r1, SkMatrix* matrix) {
     fIsSwapped = false;
     fFocalX = sk_ieee_float_divide(r0, (r0 - r1));

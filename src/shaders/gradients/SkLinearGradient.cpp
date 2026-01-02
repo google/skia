@@ -23,6 +23,10 @@
 #include <cstdint>
 #include <utility>
 
+#ifdef SK_SUPPORT_LEGACY_UNSPANNED_GRADIENTS
+#include "include/effects/SkGradientShader.h"
+#endif
+
 class SkArenaAlloc;
 class SkRasterPipeline;
 enum class SkTileMode;

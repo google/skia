@@ -14,6 +14,10 @@
 #include "include/core/SkImageInfo.h"
 #include "include/effects/SkGradient.h"
 
+#ifdef SK_SUPPORT_LEGACY_UNSPANNED_GRADIENTS
+#include "include/effects/SkGradientShader.h"
+#endif
+
 class SkColorSpace;
 
 namespace skgpu::graphite {
