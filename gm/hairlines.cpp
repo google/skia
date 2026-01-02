@@ -15,6 +15,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
 
@@ -192,14 +193,15 @@ private:
     using INHERITED = GM;
 };
 
-static void draw_squarehair_tests(SkCanvas* canvas, SkScalar width, SkPaint::Cap cap, bool aa) {
-    SkPaint paint;
-    paint.setStrokeCap(cap);
-    paint.setStrokeWidth(width);
-    paint.setAntiAlias(aa);
+static void draw_squarehair_tests(SkCanvas* canvas, SkPaint paint) {
     paint.setStyle(SkPaint::kStroke_Style);
     canvas->drawLine(10, 10, 20, 10, paint);
+    // degenerate move, line, close to make sure we still draw the cap on both ends.
+    SkPath p = SkPathBuilder().moveTo(10, 15).lineTo(20, 15).close().detach();
+    canvas->drawPath(p, paint);
+    canvas->drawLine(10, 20.5, 20, 20.5, paint);
     canvas->drawLine(30, 10, 30, 20, paint);
+    canvas->drawLine(35.5, 10, 35.5, 20, paint);
     canvas->drawLine(40, 10, 50, 20, paint);
     SkPathBuilder path;
     path.moveTo(60, 10);
@@ -211,23 +213,71 @@ static void draw_squarehair_tests(SkCanvas* canvas, SkScalar width, SkPaint::Cap
     path.cubicTo(90, 20, 100, 20, 100, 10);
     path.lineTo(110, 10);
     canvas->drawPath(path.detach(), paint);
-    canvas->translate(0, 30);
 }
 
 DEF_SIMPLE_GM(squarehair, canvas, 240, 360) {
     const bool aliases[] = { false, true };
     const SkScalar widths[] = { 0, 0.999f, 1, 1.001f };
     const SkPaint::Cap caps[] = { SkPaint::kButt_Cap, SkPaint::kSquare_Cap, SkPaint::kRound_Cap };
+    // draw aliased on left side, and anti-aliased on right side
     for (auto alias : aliases) {
         canvas->save();
         for (auto width : widths) {
             for (auto cap : caps) {
-                draw_squarehair_tests(canvas, width, cap, alias);
+                SkPaint paint;
+                paint.setStrokeCap(cap);
+                paint.setStrokeWidth(width);
+                paint.setAntiAlias(alias);
+                paint.setColor(SK_ColorBLACK);
+                draw_squarehair_tests(canvas, paint);
+                canvas->translate(0, 30);
             }
         }
         canvas->restore();
         canvas->translate(120, 0);
     }
+}
+
+DEF_SIMPLE_GM_CAN_FAIL(squarehair_diffs, canvas, errorMsg, 600, 720) {
+    const bool aliases[] = { false, true };
+    const SkScalar widths[] = { 0, 1, 1.001f };
+    // Draws each of the three caps in a different color so we can overlay the three channels
+    // and zoom in to see the differences in the cap algorithms.
+    const SkPaint::Cap caps[] = { SkPaint::kButt_Cap, SkPaint::kSquare_Cap, SkPaint::kRound_Cap };
+    const SkColor colors[] = {SkColorSetRGB(255, 0, 0), SkColorSetRGB(0, 255, 0), SkColorSetRGB(0, 0, 255)};
+    for (auto alias : aliases) {
+        for (auto width : widths) {
+            SkPaint backdrop;
+            backdrop.setColor(SK_ColorBLACK);
+            backdrop.setStyle(SkPaint::Style::kFill_Style);
+            canvas->drawRect({120, 0, 600, 100}, backdrop);
+            for (int i = 0; i < 3; i++) {
+                auto surface = canvas->makeSurface(canvas->imageInfo().makeWH(120, 25));
+                if (!surface) {
+                    *errorMsg = "Could not make subsurface";
+                    return DrawResult::kSkip;
+                }
+                SkPaint paint;
+                paint.setAntiAlias(alias);
+                paint.setStrokeWidth(width);
+                paint.setStrokeCap(caps[i]);
+                paint.setColor(colors[i]);
+                draw_squarehair_tests(surface->getCanvas(), paint);
+                auto img = surface->makeImageSnapshot();
+                canvas->drawImage(img, 0, 30*i);
+                {
+                    SkAutoCanvasRestore acr(canvas, true);
+                    canvas->scale(4, 4);
+                    SkPaint plus;
+                    plus.setBlendMode(SkBlendMode::kPlus);
+                    canvas->drawImage(img, 30, 0, {}, &plus);
+                }
+            }
+            canvas->translate(0, 120);
+        }
+        canvas->translate(0, 20);
+    }
+    return skiagm::DrawResult::kOk;
 }
 
 // GM to test subdivision of hairlines
