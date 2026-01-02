@@ -677,7 +677,7 @@ DEF_TEST(SkPathBuilder_assign, reporter) {
 DEF_TEST(SkPathBuilder_getLastPt, reporter) {
     SkPathBuilder b;
     REPORTER_ASSERT(reporter, b.getLastPt() == std::nullopt);
-    b.setLastPt(10, 10);
+    b.moveTo(10, 10);
     std::optional<SkPoint> pt = b.getLastPt();
     REPORTER_ASSERT(reporter, pt);
     REPORTER_ASSERT(reporter, pt == SkPoint::Make(10, 10));
@@ -984,7 +984,7 @@ DEF_TEST(SkPathBuilder_equality, reporter) {
     check_filltype_eq(a);
 
     // mutate point value, but not verb sequence
-    a.setLastPt(-1, -2);
+    a.setLastPoint({-1, -2});
     REPORTER_ASSERT(reporter, a != b);
     check_filltype_eq(a);
 }
@@ -1018,7 +1018,11 @@ DEF_TEST(SkPathBuilder_dump, reporter) {
 
 DEF_TEST(SkPathBuilder_b_463584612, reporter) {
     SkPathBuilder b;
+#ifdef SK_SUPPORT_LEGACY_PATHBUILDER_SETLASTPT
     b.setLastPt(0, 0);
+#else
+    b.moveTo(0, 0);
+#endif
     b.close()
      .rMoveTo(1, 1);
 

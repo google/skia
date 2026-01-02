@@ -228,7 +228,7 @@ void FuzzNicePath(Fuzz* fuzz, SkPathBuilder* path, int maxOps) {
                 break;
             case 31:
                 fuzz_nice_float(fuzz, &a, &b);
-                path->setLastPt(a, b);
+                path->setLastPoint({a, b});
                 break;
             default:
                 SkASSERT(false);

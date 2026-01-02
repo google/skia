@@ -3485,7 +3485,7 @@ static void test_circle(skiatest::Reporter* reporter) {
     // not back to the original point
     SkPathBuilder builder;
     builder.addCircle(0, 0, SkIntToScalar(10), SkPathDirection::kCW);
-    builder.setLastPt(SkIntToScalar(5), SkIntToScalar(5));
+    builder.setLastPoint({5, 5});
     check_for_circle(reporter, builder.detach(), false, SkPathFirstDirection::kCW);
 
     test_circle_with_add_paths(reporter);

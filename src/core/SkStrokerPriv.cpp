@@ -36,12 +36,12 @@ static void SquareCapper(SkPathBuilder* sink, const SkPoint& pivot, const SkVect
     SkPointPriv::RotateCW(normal, &parallel);
 
     if (extendLastPt) {
-        sink->setLastPt(pivot.fX + normal.fX + parallel.fX, pivot.fY + normal.fY + parallel.fY);
-        sink->lineTo(pivot.fX - normal.fX + parallel.fX, pivot.fY - normal.fY + parallel.fY);
+        sink->setLastPoint(pivot + normal + parallel);
+        sink->lineTo(pivot - normal + parallel);
     } else {
-        sink->lineTo(pivot.fX + normal.fX + parallel.fX, pivot.fY + normal.fY + parallel.fY);
-        sink->lineTo(pivot.fX - normal.fX + parallel.fX, pivot.fY - normal.fY + parallel.fY);
-        sink->lineTo(stop.fX, stop.fY);
+        sink->lineTo(pivot + normal + parallel);
+        sink->lineTo(pivot - normal + parallel);
+        sink->lineTo(stop);
     }
 }
 
@@ -200,15 +200,15 @@ static void MiterJoiner(SkPathBuilder* outer, SkPathBuilder* inner,
             mid.negate();
         }
     } else {
-        mid.set(before.fX + after.fX, before.fY + after.fY);
+        mid = before + after;
     }
 
     mid.setLength(radius / sinHalfAngle);
 DO_MITER:
     if (prevIsLine) {
-        outer->setLastPt(pivot.fX + mid.fX, pivot.fY + mid.fY);
+        outer->setLastPoint(pivot + mid);
     } else {
-        outer->lineTo(pivot.fX + mid.fX, pivot.fY + mid.fY);
+        outer->lineTo(pivot + mid);
     }
 
 DO_BLUNT:

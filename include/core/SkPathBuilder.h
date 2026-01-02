@@ -30,6 +30,11 @@ class SkRRect;
 struct SkPathRaw;
 class SkString;
 
+// todo: add this flag to clients
+#ifndef SK_SUPPORT_LEGACY_PATHBUILDER_SETLASTPT
+#define SK_SUPPORT_LEGACY_PATHBUILDER_SETLASTPT
+#endif
+
 class SK_API SkPathBuilder {
     using PointsArray = skia_private::STArray<4, SkPoint>;
     using VerbsArray = skia_private::STArray<4, SkPathVerb>;
@@ -790,20 +795,22 @@ public:
         return this->addOval(oval, dir, 1);
     }
 
-    /** Adds circle centered at (x, y) of size radius to SkPathBuilder, appending kMove_Verb,
-        four kConic_Verb, and kClose_Verb. Circle begins at: (x + radius, y), continuing
-        clockwise if dir is kCW_Direction, and counterclockwise if dir is kCCW_Direction.
+    /** Adds circle with center and radius to SkPathBuilder, appending kMove_Verb,
+        four kConic_Verb, and kClose_Verb. Circle begins at: (center.fX + radius, center.fY).
 
         Has no effect if radius is zero or negative.
 
-        @param x       center of circle
-        @param y       center of circle
+        @param center  center of circle
         @param radius  distance from center to edge
         @param dir     SkPath::Direction to wind circle
         @return        reference to SkPathBuilder
     */
-    SkPathBuilder& addCircle(SkScalar x, SkScalar y, SkScalar radius,
+    SkPathBuilder& addCircle(SkPoint center, float radius,
                              SkPathDirection dir = SkPathDirection::kDefault);
+    SkPathBuilder& addCircle(float x, float y, float radius,
+                             SkPathDirection dir = SkPathDirection::kDefault) {
+        return this->addCircle({x, y}, radius, dir);
+    }
 
     /** Adds contour created from line array, adding (pts.size() - 1) line segments.
         Contour added starts at pts[0], then adds a line for every additional SkPoint
@@ -935,13 +942,24 @@ public:
      */
     void setPoint(size_t index, SkPoint p);
 
-    /** Sets the last point on the path. If SkPoint array is empty, append kMove_Verb to
-        verb array and append p to SkPoint array.
+    /** Change the last point in the builder.
+     *  If the builder is empty, the call does nothing.
+     *
+     *  @param p the new point value
+     */
+    void setLastPoint(SkPoint p) {
+        this->setPoint(this->points().size() - 1, p);
+    }
 
-        @param x  x-value of last point
-        @param y  y-value of last point
+#ifdef SK_SUPPORT_LEGACY_PATHBUILDER_SETLASTPT
+    /** DEPRECATED: use setLastPoint() or setPoint()
+        Sets the last point on the path. If SkPoint array is empty, this behaves like moveTo().
+
+        @param pt the new value for the last point in the path
     */
-    void setLastPt(SkScalar x, SkScalar y);
+    void setLastPt(SkPoint pt);
+    void setLastPt(float x, float y) { this->setLastPt({x, y}); }
+#endif
 
     /** Returns the number of points in SkPathBuilder.
         SkPoint count is initially zero.
