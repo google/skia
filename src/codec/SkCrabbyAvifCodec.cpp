@@ -512,6 +512,9 @@ SkCodec::Result SkCrabbyAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
     rgbImage.pixels = static_cast<uint8_t*>(dst);
     rgbImage.rowBytes = dstRowBytes;
     rgbImage.chromaUpsampling = crabbyavif::AVIF_CHROMA_UPSAMPLING_FASTEST;
+    rgbImage.alphaPremultiplied = (dstInfo.alphaType() == kPremul_SkAlphaType)
+                                          ? crabbyavif::CRABBY_AVIF_TRUE
+                                          : crabbyavif::CRABBY_AVIF_FALSE;
 
     result = crabbyavif::avifImageYUVToRGB(image, &rgbImage);
     if (result != crabbyavif::AVIF_RESULT_OK) {
