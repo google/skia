@@ -52,10 +52,15 @@ SK_API sk_sp<SkImage> TextureFromAHardwareBufferWithData(
         GrSurfaceOrigin surfaceOrigin = kTopLeft_GrSurfaceOrigin);
 
 /**
- *  Like SkImagePriv::SkMakeImageFromRasterBitmap, except this can be pinned using
- *  skgpu::ganesh::PinAsTexture and CopyPixelMode is never.
+ *  Like SkImage::MakeFromBitmap, except this can be pinned using
+ *  skgpu::ganesh::PinAsTexture and Skia will *not* copy the bitmap.
  */
 SK_API sk_sp<SkImage> PinnableRasterFromBitmap(const SkBitmap&);
+
+/**
+ * Like SkImage::MakeFromBitmap, except and Skia will *not* copy the bitmap.
+ */
+SK_API sk_sp<SkImage> RasterFromBitmapNoCopy(const SkBitmap&);
 
 }  // namespace SkImages
 
