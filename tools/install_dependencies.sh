@@ -41,7 +41,6 @@ if command -v lsb_release > /dev/null ; then
 		libwebp-dev
         libx11-xcb-dev
         libxcb-xkb-dev
-        xcb
 		EOF
             )
            if [ $(lsb_release -r -s) = '14.04' ] ; then
