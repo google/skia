@@ -386,14 +386,26 @@ fn compute_transformations(info: &png::Info) -> png::Transformations {
     //
     // TODO(https://crbug.com/359245096): Avoid stripping least signinficant 8 bits in G16 and
     // GA16 images.
-    if info.bit_depth == png::BitDepth::Sixteen {
-        if matches!(
-            info.color_type,
-            png::ColorType::Grayscale | png::ColorType::GrayscaleAlpha
-        ) {
-            result = result | png::Transformations::STRIP_16;
+    result = {
+        #[cfg(not(feature = "skia_png_new_gray16_behavior_for_crbug359245096"))]
+        {
+            if info.bit_depth == png::BitDepth::Sixteen {
+                if matches!(
+                    info.color_type,
+                    png::ColorType::Grayscale | png::ColorType::GrayscaleAlpha
+                ) {
+                    result |= png::Transformations::STRIP_16;
+                }
+            }
+
+            result
         }
-    }
+
+        #[cfg(feature = "skia_png_new_gray16_behavior_for_crbug359245096")]
+        {
+            result
+        }
+    };
 
     result
 }
