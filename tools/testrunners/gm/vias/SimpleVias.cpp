@@ -102,7 +102,7 @@ static GMOutput draw_via_picture(skiagm::GM* gm, SkSurface* surface, bool serial
     // the PNG encoder/decoder.
     sk_sp<SkPicture> pic = recorder.finishRecordingAsPicture();
     if (serialize) {
-        SkSerialProcs serialProcs = {.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
+        SkSerialProcs serialProcs = {.fImageProc = [](SkImage* img, void*) -> SkSerialReturnType {
             SkASSERT_RELEASE(!img->isTextureBacked());
             return SkPngEncoder::Encode(nullptr, img, SkPngEncoder::Options{});
         }};
