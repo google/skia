@@ -14,7 +14,7 @@
 namespace skgpu::graphite {
 
 sk_sp<PrecompileShader> PrecompileShaders::VulkanYCbCrImage(
-        skgpu::VulkanYcbcrConversionInfo& YCbCrConversionInfo,
+        const skgpu::VulkanYcbcrConversionInfo& YCbCrConversionInfo,
         ImageShaderFlags shaderFlags,
         SkSpan<const SkColorInfo> colorInfos,
         SkSpan<const SkTileMode> tileModes) {
