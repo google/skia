@@ -7,6 +7,7 @@
 #include "include/core/SkMilestone.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/private/base/SkAPI.h"
 #include "include/private/base/SkMacros.h"
@@ -27,25 +28,29 @@ class SkWStream;
 
 namespace SkPDF {
 
-/** Attributes for nodes in the PDF tree. */
+/** Attributes for nodes in the PDF tree.
+ *
+ * Each attribute must have an owner (e.g. "Layout", "List", "Table", etc)
+ * and an attribute name (e.g. "BBox", "RowSpan", etc.) from PDF32000_2008 14.8.5,
+ * and then a value of the proper type according to the spec.
+ *
+ * Parameters of type `const char*` will not be copied and the pointers must remain valid until
+ * `SkDocument::close` or `SkDocument::abort` is called.
+ * Names are expected to be constants and are taken as `const char*`.
+ * Parameters not taken as `const char*` will be copied.
+ */
 class SK_API AttributeList : SkNoncopyable {
 public:
     AttributeList();
     ~AttributeList();
 
-    // Each attribute must have an owner (e.g. "Layout", "List", "Table", etc)
-    // and an attribute name (e.g. "BBox", "RowSpan", etc.) from PDF32000_2008 14.8.5,
-    // and then a value of the proper type according to the spec.
     void appendInt(const char* owner, const char* name, int value);
     void appendFloat(const char* owner, const char* name, float value);
-    void appendName(const char* owner, const char* attrName, const char* value);
-    void appendTextString(const char* owner, const char* attrName, const char* value);
-    void appendFloatArray(const char* owner,
-                          const char* name,
-                          const std::vector<float>& value);
-    void appendNodeIdArray(const char* owner,
-                           const char* attrName,
-                           const std::vector<int>& nodeIds);
+    void appendName(const char* owner, const char* name, const char* value);
+    void appendTextString(const char* owner, const char* name, const char* value);
+    void appendTextString(const char* owner, const char* name, SkString value);
+    void appendFloatArray(const char* owner, const char* name, SkSpan<const float> value);
+    void appendNodeIdArray(const char* owner, const char* name, SkSpan<const int> nodeIds);
 
 private:
     friend class ::SkPDFStructTree;
