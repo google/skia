@@ -202,8 +202,9 @@ bool AgtmSyntax::parse_adaptive_tone_map(SkMemoryStream& s) {
                         SkStreamPriv::ReadU16BE(&s, &gain_application_space_chromaticities[r]));
             }
         }
-        for (uint8_t a = 0; a < std::min(num_alternate_images,
-                                         skhdr::AgtmImpl::kMaxNumAlternateImages); ++a) {
+        for (uint8_t a = 0; a < std::min(
+                num_alternate_images,
+                skhdr::AgtmImpl::HeadroomAdaptiveToneMap::kMaxNumAlternateImages); ++a) {
             RETURN_ON_FALSE(SkStreamPriv::ReadU16BE(&s, &alternate_hdr_headrooms[a]));
             RETURN_ON_FALSE(parse_component_mixing(a, s));
             RETURN_ON_FALSE(parse_gain_curve(a, s));
@@ -365,38 +366,38 @@ bool AgtmImpl::parse(const SkData* data) {
         fHdrReferenceWhite = kDefaultHdrReferenceWhite;
     }
     if (syntax.has_adaptive_tone_map_flag == 0) {
-        fType = Type::kNone;
         return true;
     }
+    auto& hatm = fHeadroomAdaptiveToneMap.emplace();
 
     // Semantics from clause C.3.4.
-    fBaselineHdrHeadroom = uint16_to_float(syntax.baseline_hdr_headroom, 0u, 60000u, 0u, 10000.f);
+    hatm.fBaselineHdrHeadroom =
+        uint16_to_float(syntax.baseline_hdr_headroom, 0u, 60000u, 0u, 10000.f);
     if (syntax.use_reference_white_tone_mapping_flag == 1) {
-        fType = Type::kReferenceWhite;
         populateUsingRwtmo();
         return true;
     }
 
-    fType = Type::kCustom;
-    fNumAlternateImages = clamp(syntax.num_alternate_images, 0u, kMaxNumAlternateImages);
-    for (uint8_t a = 0; a < fNumAlternateImages; ++a) {
-        fAlternateHdrHeadroom[a] = uint16_to_float(
+    hatm.fNumAlternateImages = clamp(
+        syntax.num_alternate_images, 0u, HeadroomAdaptiveToneMap::kMaxNumAlternateImages);
+    for (uint8_t a = 0; a < hatm.fNumAlternateImages; ++a) {
+        hatm.fAlternateImages[a].fHdrHeadroom = uint16_to_float(
             syntax.alternate_hdr_headrooms[a], 0u, 60000u, 0u, 10000.f);
     }
 
     // Semantics from clause C.3.5.
     switch (syntax.gain_application_space_chromaticities_flag) {
         case 0:
-            fGainApplicationSpacePrimaries = SkNamedPrimaries::kRec709;
+            hatm.fGainApplicationSpacePrimaries = SkNamedPrimaries::kRec709;
             break;
         case 1:
-            fGainApplicationSpacePrimaries = SkNamedPrimaries::kSMPTE_EG_432_1;
+            hatm.fGainApplicationSpacePrimaries = SkNamedPrimaries::kSMPTE_EG_432_1;
             break;
         case 2:
-            fGainApplicationSpacePrimaries = SkNamedPrimaries::kRec2020;
+            hatm.fGainApplicationSpacePrimaries = SkNamedPrimaries::kRec2020;
             break;
         case 3: {
-            fGainApplicationSpacePrimaries = {
+            hatm.fGainApplicationSpacePrimaries = {
                 .fRX = uint16_to_float(
                     syntax.gain_application_space_chromaticities[0], 0u, 50000u, 0u, 50000.f),
                 .fRY = uint16_to_float(
@@ -424,8 +425,8 @@ bool AgtmImpl::parse(const SkData* data) {
     }
 
     // Semantics from clause C.3.6.
-    for (uint8_t a = 0; a < fNumAlternateImages; ++a) {
-        auto& mix = fGainFunction[a].fComponentMixing;
+    for (uint8_t a = 0; a < hatm.fNumAlternateImages; ++a) {
+        auto& mix = hatm.fAlternateImages[a].fColorGainFunction.fComponentMixing;
         switch (syntax.component_mixing_type[a]) {
             case 0:
                 mix = {.fMax = 1.f};
@@ -459,13 +460,13 @@ bool AgtmImpl::parse(const SkData* data) {
     }
 
     // Semantics from clause C.3.7.
-    for (uint8_t a = 0; a < fNumAlternateImages; ++a) {
-        auto& cubic = fGainFunction[a].fPiecewiseCubic;
+    for (uint8_t a = 0; a < hatm.fNumAlternateImages; ++a) {
+        auto& cubic = hatm.fAlternateImages[a].fColorGainFunction.fGainCurve;
         cubic.fNumControlPoints = syntax.gain_curve_num_control_points_minus_1[a] + 1u;
         for (uint8_t c = 0; c < cubic.fNumControlPoints; ++c) {
-            cubic.fX[c] = uint16_to_float(
+            cubic.fControlPoints[c].fX = uint16_to_float(
                 syntax.gain_curve_control_points_x[a][c], 0u, 64000u, 0u, 1000.f);
-            cubic.fY[c] = uint16_to_float(
+            cubic.fControlPoints[c].fY = uint16_to_float(
                 syntax.gain_curve_control_points_y[a][c], 0u, 48000u, 24000u, 4000.f);
         }
         if (syntax.gain_curve_use_pchip_slope_flag[a] == 0) {
@@ -473,7 +474,7 @@ bool AgtmImpl::parse(const SkData* data) {
                 const float theta = uint16_to_float(
                     syntax.gain_curve_control_points_theta[a][c],
                     1u, 35999u, 18000u, 36000.f / SK_FloatPI);
-                cubic.fM[c] = std::tan(theta);
+                cubic.fControlPoints[c].fM = std::tan(theta);
             }
         } else {
             cubic.populateSlopeFromPCHIP();
@@ -494,103 +495,110 @@ sk_sp<SkData> AgtmImpl::serialize() const {
         syntax.hdr_reference_white = float_to_uint16(fHdrReferenceWhite, 1u, 50000u, 0u, 5.f);
     }
 
-    syntax.has_adaptive_tone_map_flag = fType != Type::kNone;
+    if (fHeadroomAdaptiveToneMap.has_value()) {
+        const auto& hatm = fHeadroomAdaptiveToneMap.value();
+        syntax.has_adaptive_tone_map_flag = true;
 
-    // Semantics from clause C.3.4.
-    syntax.baseline_hdr_headroom = float_to_uint16(fBaselineHdrHeadroom, 0u, 60000u, 0u, 10000.f);
-    syntax.use_reference_white_tone_mapping_flag = fType == Type::kReferenceWhite;
-    SkASSERT(fNumAlternateImages <= kMaxNumAlternateImages);
-    syntax.num_alternate_images = fNumAlternateImages;
-    for (uint8_t a = 0; a < fNumAlternateImages; ++a) {
-        syntax.alternate_hdr_headrooms[a] = float_to_uint16(
-            fAlternateHdrHeadroom[a], 0u, 60000u, 0u, 10000.f);
-    }
+        // Semantics from clause C.3.4.
+        syntax.baseline_hdr_headroom =
+            float_to_uint16(hatm.fBaselineHdrHeadroom, 0u, 60000u, 0u, 10000.f);
+        // TODO(https://crbug.com/395659818): Identify when the tone mapping is equal to RWTMO to
+        // further compress the serialization.
+        syntax.use_reference_white_tone_mapping_flag = false;
+        SkASSERT(hatm.fNumAlternateImages <= HeadroomAdaptiveToneMap::kMaxNumAlternateImages);
+        syntax.num_alternate_images = hatm.fNumAlternateImages;
+        for (uint8_t a = 0; a < hatm.fNumAlternateImages; ++a) {
+            syntax.alternate_hdr_headrooms[a] = float_to_uint16(
+                hatm.fAlternateImages[a].fHdrHeadroom, 0u, 60000u, 0u, 10000.f);
+        }
 
-    // Semantics from clause C.3.5.
-    if (fGainApplicationSpacePrimaries == SkNamedPrimaries::kRec709) {
-        syntax.gain_application_space_chromaticities_flag = 0;
-    } else if (fGainApplicationSpacePrimaries == SkNamedPrimaries::kSMPTE_EG_432_1) {
-        syntax.gain_application_space_chromaticities_flag = 1;
-    } else if (fGainApplicationSpacePrimaries == SkNamedPrimaries::kRec2020) {
-        syntax.gain_application_space_chromaticities_flag = 2;
-    } else {
-        syntax.gain_application_space_chromaticities_flag = 3;
-    }
-    if (syntax.gain_application_space_chromaticities_flag == 3) {
-        syntax.gain_application_space_chromaticities[0] = float_to_uint16(
-            fGainApplicationSpacePrimaries.fRX, 0u, 50000u, 0u, 50000.f);
-        syntax.gain_application_space_chromaticities[1] = float_to_uint16(
-            fGainApplicationSpacePrimaries.fRY, 0u, 50000u, 0u, 50000.f);
-        syntax.gain_application_space_chromaticities[2] = float_to_uint16(
-            fGainApplicationSpacePrimaries.fGX, 0u, 50000u, 0u, 50000.f);
-        syntax.gain_application_space_chromaticities[3] = float_to_uint16(
-            fGainApplicationSpacePrimaries.fGY, 0u, 50000u, 0u, 50000.f);
-        syntax.gain_application_space_chromaticities[4] = float_to_uint16(
-            fGainApplicationSpacePrimaries.fBX, 0u, 50000u, 0u, 50000.f);
-        syntax.gain_application_space_chromaticities[5] = float_to_uint16(
-            fGainApplicationSpacePrimaries.fBY, 0u, 50000u, 0u, 50000.f);
-        syntax.gain_application_space_chromaticities[6] = float_to_uint16(
-            fGainApplicationSpacePrimaries.fWX, 0u, 50000u, 0u, 50000.f);
-        syntax.gain_application_space_chromaticities[7] = float_to_uint16(
-            fGainApplicationSpacePrimaries.fWY, 0u, 50000u, 0u, 50000.f);
-    }
-
-    // Semantics from clause C.3.6.
-    syntax.has_common_component_mix_params_flag = 0;
-    for (uint8_t a = 0; a < fNumAlternateImages; ++a) {
-        auto& mix = fGainFunction[a].fComponentMixing;
-        if (mix.fRed == 0.f && mix.fGreen == 0.f && mix.fBlue == 0.f &&
-            mix.fMax == 1.f && mix.fMin == 0.f && mix.fComponent == 0.f) {
-            syntax.component_mixing_type[a] = 0;
-        } else if (mix.fRed == 0.f && mix.fGreen == 0.f && mix.fBlue == 0.f &&
-                   mix.fMax == 0.f && mix.fMin == 0.f && mix.fComponent == 1.f) {
-            syntax.component_mixing_type[a] = 1;
-        } else if (mix.fRed == 1.f/6.f && mix.fGreen == 1.f/6.f && mix.fBlue == 1.f/6.f &&
-                   mix.fMax == 1.f/2.f && mix.fMin == 0.f && mix.fComponent == 0.f) {
-            syntax.component_mixing_type[a] = 2;
+        // Semantics from clause C.3.5.
+        if (hatm.fGainApplicationSpacePrimaries == SkNamedPrimaries::kRec709) {
+            syntax.gain_application_space_chromaticities_flag = 0;
+        } else if (hatm.fGainApplicationSpacePrimaries == SkNamedPrimaries::kSMPTE_EG_432_1) {
+            syntax.gain_application_space_chromaticities_flag = 1;
+        } else if (hatm.fGainApplicationSpacePrimaries == SkNamedPrimaries::kRec2020) {
+            syntax.gain_application_space_chromaticities_flag = 2;
         } else {
-            syntax.component_mixing_type[a] = 3;
-            syntax.component_mixing_coefficient[a][0] =
-                float_to_uint16(mix.fRed, 0u, 50000u, 0u, 50000.f);
-            syntax.component_mixing_coefficient[a][1] =
-                float_to_uint16(mix.fGreen, 0u, 50000u, 0u, 50000.f);
-            syntax.component_mixing_coefficient[a][2] =
-                float_to_uint16(mix.fBlue, 0u, 50000u, 0u, 50000.f);
-            syntax.component_mixing_coefficient[a][3] =
-                float_to_uint16(mix.fMax, 0u, 50000u, 0u, 50000.f);
-            syntax.component_mixing_coefficient[a][4] =
-                float_to_uint16(mix.fMin, 0u, 50000u, 0u, 50000.f);
-            syntax.component_mixing_coefficient[a][5] =
-                float_to_uint16(mix.fComponent, 0u, 50000u, 0u, 50000.f);
-            for (uint8_t k = 0; k < 6; ++k) {
-                syntax.has_component_mixing_coefficient_flag[a][k] =
-                    syntax.component_mixing_coefficient[a][k] != 0;
+            syntax.gain_application_space_chromaticities_flag = 3;
+        }
+        if (syntax.gain_application_space_chromaticities_flag == 3) {
+            syntax.gain_application_space_chromaticities[0] = float_to_uint16(
+                hatm.fGainApplicationSpacePrimaries.fRX, 0u, 50000u, 0u, 50000.f);
+            syntax.gain_application_space_chromaticities[1] = float_to_uint16(
+                hatm.fGainApplicationSpacePrimaries.fRY, 0u, 50000u, 0u, 50000.f);
+            syntax.gain_application_space_chromaticities[2] = float_to_uint16(
+                hatm.fGainApplicationSpacePrimaries.fGX, 0u, 50000u, 0u, 50000.f);
+            syntax.gain_application_space_chromaticities[3] = float_to_uint16(
+                hatm.fGainApplicationSpacePrimaries.fGY, 0u, 50000u, 0u, 50000.f);
+            syntax.gain_application_space_chromaticities[4] = float_to_uint16(
+                hatm.fGainApplicationSpacePrimaries.fBX, 0u, 50000u, 0u, 50000.f);
+            syntax.gain_application_space_chromaticities[5] = float_to_uint16(
+                hatm.fGainApplicationSpacePrimaries.fBY, 0u, 50000u, 0u, 50000.f);
+            syntax.gain_application_space_chromaticities[6] = float_to_uint16(
+                hatm.fGainApplicationSpacePrimaries.fWX, 0u, 50000u, 0u, 50000.f);
+            syntax.gain_application_space_chromaticities[7] = float_to_uint16(
+                hatm.fGainApplicationSpacePrimaries.fWY, 0u, 50000u, 0u, 50000.f);
+        }
+
+        // Semantics from clause C.3.6.
+        syntax.has_common_component_mix_params_flag = 0;
+        for (uint8_t a = 0; a < hatm.fNumAlternateImages; ++a) {
+            auto& mix = hatm.fAlternateImages[a].fColorGainFunction.fComponentMixing;
+            if (mix.fRed == 0.f && mix.fGreen == 0.f && mix.fBlue == 0.f &&
+                mix.fMax == 1.f && mix.fMin == 0.f && mix.fComponent == 0.f) {
+                syntax.component_mixing_type[a] = 0;
+            } else if (mix.fRed == 0.f && mix.fGreen == 0.f && mix.fBlue == 0.f &&
+                       mix.fMax == 0.f && mix.fMin == 0.f && mix.fComponent == 1.f) {
+                syntax.component_mixing_type[a] = 1;
+            } else if (mix.fRed == 1.f/6.f && mix.fGreen == 1.f/6.f && mix.fBlue == 1.f/6.f &&
+                       mix.fMax == 1.f/2.f && mix.fMin == 0.f && mix.fComponent == 0.f) {
+                syntax.component_mixing_type[a] = 2;
+            } else {
+                syntax.component_mixing_type[a] = 3;
+                syntax.component_mixing_coefficient[a][0] =
+                    float_to_uint16(mix.fRed, 0u, 50000u, 0u, 50000.f);
+                syntax.component_mixing_coefficient[a][1] =
+                    float_to_uint16(mix.fGreen, 0u, 50000u, 0u, 50000.f);
+                syntax.component_mixing_coefficient[a][2] =
+                    float_to_uint16(mix.fBlue, 0u, 50000u, 0u, 50000.f);
+                syntax.component_mixing_coefficient[a][3] =
+                    float_to_uint16(mix.fMax, 0u, 50000u, 0u, 50000.f);
+                syntax.component_mixing_coefficient[a][4] =
+                    float_to_uint16(mix.fMin, 0u, 50000u, 0u, 50000.f);
+                syntax.component_mixing_coefficient[a][5] =
+                    float_to_uint16(mix.fComponent, 0u, 50000u, 0u, 50000.f);
+                for (uint8_t k = 0; k < 6; ++k) {
+                    syntax.has_component_mixing_coefficient_flag[a][k] =
+                        syntax.component_mixing_coefficient[a][k] != 0;
+                }
             }
         }
-    }
 
-    // Semantics from clause C.3.7.
-    syntax.has_common_curve_params_flag = 0;
-    for (uint8_t a = 0; a < fNumAlternateImages; ++a) {
-        auto& cubic = fGainFunction[a].fPiecewiseCubic;
-        SkASSERT(PiecewiseCubicFunction::kMinNumControlPoints <= cubic.fNumControlPoints);
-        SkASSERT(cubic.fNumControlPoints <= PiecewiseCubicFunction::kMaxNumControlPoints);
-        syntax.gain_curve_num_control_points_minus_1[a] = cubic.fNumControlPoints - 1u;
-        syntax.gain_curve_use_pchip_slope_flag[a] = 0;
-        for (uint8_t c = 0; c < cubic.fNumControlPoints; ++c) {
-            syntax.gain_curve_control_points_x[a][c] =
-                float_to_uint16(cubic.fX[c], 0u, 64000u, 0u, 1000.f);
+        // Semantics from clause C.3.7.
+        syntax.has_common_curve_params_flag = 0;
+        for (uint8_t a = 0; a < hatm.fNumAlternateImages; ++a) {
+            auto& cubic = hatm.fAlternateImages[a].fColorGainFunction.fGainCurve;
+            SkASSERT(GainCurve::kMinNumControlPoints <= cubic.fNumControlPoints);
+            SkASSERT(cubic.fNumControlPoints <= GainCurve::kMaxNumControlPoints);
+            syntax.gain_curve_num_control_points_minus_1[a] = cubic.fNumControlPoints - 1u;
+            // TODO(https://crbug.com/395659818): Identify when slope is equal to PCHIP to further
+            // compress the serialization.
+            syntax.gain_curve_use_pchip_slope_flag[a] = 0;
+            for (uint8_t c = 0; c < cubic.fNumControlPoints; ++c) {
+                syntax.gain_curve_control_points_x[a][c] =
+                    float_to_uint16(cubic.fControlPoints[c].fX, 0u, 64000u, 0u, 1000.f);
+            }
+            for (uint8_t c = 0; c < cubic.fNumControlPoints; ++c) {
+                syntax.gain_curve_control_points_y[a][c] =
+                    float_to_uint16(cubic.fControlPoints[c].fY, 0u, 48000u, 24000u, 4000.f);
+            }
+            for (uint8_t c = 0; c < cubic.fNumControlPoints; ++c) {
+                float theta = std::atan(cubic.fControlPoints[c].fM);
+                syntax.gain_curve_control_points_theta[a][c] =
+                    float_to_uint16(theta, 1u, 35999u, 18000u, 36000.f / SK_FloatPI);
+            }
         }
-        for (uint8_t c = 0; c < cubic.fNumControlPoints; ++c) {
-            syntax.gain_curve_control_points_y[a][c] =
-                float_to_uint16(cubic.fY[c], 0u, 48000u, 24000u, 4000.f);
-        }
-        for (uint8_t c = 0; c < cubic.fNumControlPoints; ++c) {
-            float theta = std::atan(cubic.fM[c]);
-            syntax.gain_curve_control_points_theta[a][c] =
-                float_to_uint16(theta, 1u, 35999u, 18000u, 36000.f / SK_FloatPI);
-        }
-
     }
 
     // Write the syntax according to clause C.2.

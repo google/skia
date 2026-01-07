@@ -27,36 +27,43 @@ namespace skhdr {
  * Adaptive global tone mapping
  * The structures and functions for this metadata are defined in
  * SMPTE ST 2094-50: Dynamic metadata for color volume transform — Application #5
+ * The metadata item and group names correspond to the members of the ColorVolumeTransform metadata
+ * group described in Clause 7.1: Metadata set.
  * https://github.com/SMPTE/st2094-50
  */
 class AgtmImpl final : public Agtm {
   public:
-    // A PiecewiseCubic metadata group, described in Clause 5.1, Piecewise cubic function.
-    struct PiecewiseCubicFunction {
-        // The GainCurveNumControlPoints metadata item.
+    // A GainCurve metadata group.
+    struct GainCurve {
         static constexpr uint8_t kMinNumControlPoints = 1u;
         static constexpr uint8_t kMaxNumControlPoints = 32u;
+
+        // The GainCurveNumControlPoints metadata item.
         uint8_t fNumControlPoints = 0;
 
-        // The GainCurveControlPointX, GainCurveControlPointY, and GainCurveControlPointM metadata
-        // items.
-        float fX[kMaxNumControlPoints];
-        float fY[kMaxNumControlPoints];
-        float fM[kMaxNumControlPoints];
+        // Structure holding one entry of the GainCurveControlPointX, GainCurveControlPointY, and
+        // GainCurveControlPointM metadata items.
+        struct ControlPoint {
+            float fX = 0.f;
+            float fY = 0.f;
+            float fM = 0.f;
+        };
+        ControlPoint fControlPoints[kMaxNumControlPoints];
 
         /**
          * Populate the fM values using the Piecewise Cubic Hermite Interpolation Package (PCHIP)
-         * algorithm, described in Clause 6.1.3 of candidate draft 2.
+         * algorithm, described in Clause C.3.9: Piecewise cubic hermite interpolation package slope
+         * computation.
          */
         void populateSlopeFromPCHIP();
 
         /**
-         * The function evaluation described in Clause 5.1.3.
+         * The function evaluation described in Clause 6.1.3.
          */
         float evaluate(float x) const;
     };
 
-    // A ComponentMix metadata group, described in Clause 5.2, Component mixing function.
+    // A ComponentMix metadata group.
     struct ComponentMixingFunction {
         // The ComponentMixRed/Green/Blue/Max/Min/Component metadata items.
         float fRed = 0.f;
@@ -70,47 +77,51 @@ class AgtmImpl final : public Agtm {
         SkColor4f evaluate(const SkColor4f& c) const;
     };
 
-    // A GainFunction metadata group, described in Clause 5.3, Gain function.
-    struct GainFunction {
+    // A ColorGainFunction metadata group.
+    struct ColorGainFunction {
         // The ComponentMix metadata group.
         ComponentMixingFunction fComponentMixing;
 
-        // The PiecewiseCubic metadata group.
-        PiecewiseCubicFunction fPiecewiseCubic;
+        // The GainCurve metadata group.
+        GainCurve fGainCurve;
 
-        // The function evaluation described in Clause 5.3.2.
+        // The function evaluation described in Clause 6.3.2.
         SkColor4f evaluate(const SkColor4f& c) const;
     };
 
-    // Characterization of the type of tone mapping specified.
-    enum class Type {
-        // Did not specify an AdaptiveToneMap.
-        kNone,
-        // Specified to use RWTMO as the tone mapping.
-        kReferenceWhite,
-        // Specified its own custom parameters.
-        kCustom,
+    // Structure holding the metadata items and groups for an alternate image.
+    struct AlternateImage {
+        // The AlternateHdrHeadroom metadata item.
+        float fHdrHeadroom = 0.f;
+
+        // The ColorGainFunction metadata group.
+        ColorGainFunction fColorGainFunction;
     };
-    Type fType = Type::kNone;
+
+    // HeadroomAdaptiveToneMap metadata group.
+    struct HeadroomAdaptiveToneMap {
+        HeadroomAdaptiveToneMap();
+
+        // The BaselineHdrHeadroom metadata item.
+        float fBaselineHdrHeadroom = 0.f;
+
+        // The GainApplicationSpaceColorPrimaries metadata item.
+        SkColorSpacePrimaries fGainApplicationSpacePrimaries =
+            {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
+
+        // The NumAlternateImages metadata item.
+        static constexpr uint8_t kMaxNumAlternateImages = 4u;
+        uint8_t fNumAlternateImages = 0u;
+
+        // The AlternateHdrHeadroom and ColorGainFunction metadata item lists.
+        AlternateImage fAlternateImages[kMaxNumAlternateImages];
+    };
 
     // The HdrReferenceWhite metadata item.
     float fHdrReferenceWhite = kDefaultHdrReferenceWhite;
 
-    // The BaselineHdrHeadroom metadata item.
-    float fBaselineHdrHeadroom = 0.f;
-
-    // The GainApplicationSpaceColorPrimaries metadata item.
-    SkColorSpacePrimaries fGainApplicationSpacePrimaries = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
-
-    // The NumAlternateImages metadata item.
-    static constexpr uint8_t kMaxNumAlternateImages = 4u;
-    uint8_t fNumAlternateImages = 0u;
-
-    // The AlternateHdrHeadroom metadata item list.
-    float fAlternateHdrHeadroom[kMaxNumAlternateImages];
-
-    // The GainFunction metadata item list.
-    GainFunction fGainFunction[kMaxNumAlternateImages];
+    // The HeadroomAdaptiveToneMap metadata group.
+    std::optional<HeadroomAdaptiveToneMap> fHeadroomAdaptiveToneMap;
 
     // SkImage containing the control point values for use by the color filter, populated by
     // populateGainCurvesXYM.
@@ -135,7 +146,7 @@ class AgtmImpl final : public Agtm {
 
     /**
      * Compute the weighting for the specified targeted HDR headroom according to the computations
-     * in Clause 5.4.5, Computation of the adaptive tone map.
+     * in Clause 6.4.5, Computation of the adaptive tone map.
      */
     struct Weighting {
         // The index into fAlternateImages for fWeight. If fWeight[i] is 0 then
