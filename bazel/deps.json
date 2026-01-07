@@ -161,7 +161,7 @@
     },
     {
       "build_file": "//bazel/external/vulkan_headers:BUILD.bazel",
-      "commit": "450bd2232225d6c7728a4108055ac2e37cef6475",
+      "commit": "0aae9c6b5f99d63a5eb7d69a3a1a95e2fa239bc2",
       "name": "vulkan_headers",
       "remote": "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Headers"
     },
