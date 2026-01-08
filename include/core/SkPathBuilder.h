@@ -47,6 +47,12 @@ public:
     */
     SkPathBuilder();
 
+    SkPathBuilder(const SkPathBuilder&);
+    SkPathBuilder& operator=(const SkPathBuilder&);
+    SkPathBuilder(SkPathBuilder&&);
+    SkPathBuilder& operator=(SkPathBuilder&&);
+    ~SkPathBuilder();
+
     /** Constructs an empty SkPathBuilder with the given FillType. By default, SkPathBuilder has no
         verbs, no SkPoint, and no weights.
 
@@ -63,9 +69,6 @@ public:
     */
     explicit SkPathBuilder(const SkPath& path);
 
-    SkPathBuilder(const SkPathBuilder&) = default;
-    ~SkPathBuilder();
-
     /** Sets an SkPathBuilder to be a copy of an existing SkPath.
         Copies the FillType and replays all of the verbs from the SkPath into the SkPathBuilder.
 
@@ -73,7 +76,6 @@ public:
         @return      SkPathBuilder
     */
     SkPathBuilder& operator=(const SkPath&);
-    SkPathBuilder& operator=(const SkPathBuilder&) = default;
 
     bool operator==(const SkPathBuilder&) const;
     bool operator!=(const SkPathBuilder& o) const { return !(*this == o); }

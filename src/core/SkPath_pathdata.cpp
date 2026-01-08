@@ -57,20 +57,10 @@ SkPath::SkPath(SkPathFillType ft)
     , fIsVolatile(false)
 {}
 
-SkPath::SkPath(const SkPath& that)
-    : fPathData(that.fPathData)
-    , fFillType(that.fFillType)
-    , fIsVolatile(that.fIsVolatile)
-{}
-
-SkPath& SkPath::operator=(const SkPath& o) {
-    if (this != &o) {
-        fPathData   = o.fPathData;
-        fFillType   = o.fFillType;
-        fIsVolatile = o.fIsVolatile;
-    }
-    return *this;
-}
+SkPath::SkPath(const SkPath&) = default;
+SkPath& SkPath::operator=(const SkPath&) = default;
+SkPath::SkPath(SkPath&&) = default;
+SkPath& SkPath::operator=(SkPath&&) = default;
 
 void SkPath::setConvexity(SkPathConvexity c) const {
     fPathData->setConvexity(c);

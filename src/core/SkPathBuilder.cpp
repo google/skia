@@ -52,6 +52,12 @@ SkPathBuilder::SkPathBuilder() {
     this->reset();
 }
 
+SkPathBuilder::SkPathBuilder(const SkPathBuilder&) = default;
+SkPathBuilder& SkPathBuilder::operator=(const SkPathBuilder&) = default;
+SkPathBuilder::SkPathBuilder(SkPathBuilder&&) = default;
+SkPathBuilder& SkPathBuilder::operator=(SkPathBuilder&&) = default;
+SkPathBuilder::~SkPathBuilder() = default;
+
 SkPathBuilder::SkPathBuilder(SkPathFillType ft) {
     this->reset();
     fFillType = ft;
@@ -59,9 +65,6 @@ SkPathBuilder::SkPathBuilder(SkPathFillType ft) {
 
 SkPathBuilder::SkPathBuilder(const SkPath& src) {
     *this = src;
-}
-
-SkPathBuilder::~SkPathBuilder() {
 }
 
 SkPathBuilder& SkPathBuilder::reset() {

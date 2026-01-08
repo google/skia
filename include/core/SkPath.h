@@ -142,7 +142,8 @@ public:
 
         example: https://fiddle.skia.org/c/@Path_copy_const_SkPath
     */
-    SkPath(const SkPath& path);
+    SkPath(const SkPath&);
+    SkPath(SkPath&&);
 
     /** Releases ownership of any shared data and deletes data if SkPath is sole owner.
 
@@ -169,7 +170,8 @@ public:
 
         example: https://fiddle.skia.org/c/@Path_copy_operator
     */
-    SkPath& operator=(const SkPath& path);
+    SkPath& operator=(const SkPath&);
+    SkPath& operator=(SkPath&&);
 
     /** Compares a and b; returns true if SkPath::FillType, verb array, SkPoint array, and weights
         are equivalent.
