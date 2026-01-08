@@ -47,12 +47,7 @@ config("tint_api_config") {
   ]
 
   # The build script produces a static library for tint in the root output directory.
-  lib_dirs = [ root_out_dir ]
-  if (is_win) {
-    libs = [ "tint_combined.lib" ]
-  } else {
-    libs = [ "tint_combined" ]
-  }
+  libs = [ "$root_out_dir/$_tint_lib_name" ]
 }
 
 # This version of tint is used by skslc, which is used to compile our sksl tests.
@@ -146,11 +141,9 @@ config("dawn_api_config") {
     # Emscripten includes its own WebGPU headers.
     include_dirs = []
   }
-  lib_dirs = [ root_out_dir ]
   if (is_win) {
     ldflags = [ "/WHOLEARCHIVE:dawn_combined.lib" ]
     libs = [
-      "dawn_combined.lib",
       "onecore.lib",
       "user32.lib",
       "delayimp.lib",
@@ -158,8 +151,9 @@ config("dawn_api_config") {
       "libcpmt.lib",
     ]
   } else {
-    libs = [ "dawn_combined" ]
+    libs = []
   }
+  libs += [ "$root_out_dir/$_dawn_lib_name" ]
 
   # https://dawn.googlesource.com/dawn/+/647c352f57aa8a4c2666258455158a36c0c385af/src/dawn/native/BUILD.gn#645
   if (is_mac || is_ios) {
