@@ -369,10 +369,15 @@ VulkanYcbcrConversionInfo::VulkanYcbcrConversionInfo(VkFormat format,
         , fForceExplicitReconstruction(forceExplicitReconstruction)
         , fComponents(components) {
 #ifdef SK_DEBUG
+    // Graphite can recreate these two flags so they don't reflect actual settings
+    constexpr VkFormatFeatureFlags kIgnoredFlags =
+        VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_SEPARATE_RECONSTRUCTION_FILTER_BIT |
+        VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
+
     // Format feature flags are only representative of an external format's capabilities, so
     // skip these checks in the case of using a known format or if the featureFlags were clearly
     // not filled in.
-    if (fFormat == VK_FORMAT_UNDEFINED && formatFeatures) {
+    if (fFormat == VK_FORMAT_UNDEFINED && (formatFeatures & ~kIgnoredFlags)) {
         if (fXChromaOffset == VK_CHROMA_LOCATION_MIDPOINT ||
             fYChromaOffset == VK_CHROMA_LOCATION_MIDPOINT) {
             SkASSERT(formatFeatures & VK_FORMAT_FEATURE_MIDPOINT_CHROMA_SAMPLES_BIT);

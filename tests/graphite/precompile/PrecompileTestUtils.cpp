@@ -149,8 +149,8 @@ int PipelineLabelInfoCollector::processLabel(const std::string& precompiledLabel
     // We expect each PrecompileSettings case to handle disjoint sets of labels. If this
     // assert fires some pair of PrecompileSettings are handling the same case.
     SkASSERTF(result->second.fPrecompileCase == PipelineLabelInfo::kUninit,
-              "cases %d and %d cover the same label",
-              result->second.fPrecompileCase, precompileCase);
+              "cases %d and %d cover the same label (%d)",
+              result->second.fPrecompileCase, precompileCase, result->second.fCasesIndex);
     result->second.fPrecompileCase = precompileCase;
     return result->second.fCasesIndex;
 }
