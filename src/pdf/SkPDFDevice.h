@@ -232,15 +232,14 @@ private:
     void internalDrawPath(const SkClipStack&,
                           const SkMatrix&,
                           const SkPath&,
-                          const SkPaint&,
-                          bool pathIsMutable);
+                          const SkPaint&);
 
     void internalDrawPathWithFilter(const SkClipStack& clipStack,
                                     const SkMatrix& ctm,
                                     const SkPath& origPath,
                                     const SkPaint& paint);
 
-    bool handleInversePath(const SkPath& origPath, const SkPaint& paint, bool pathIsMutable);
+    bool handleInversePath(const SkPath& origPath, const SkPaint& paint);
 
     void clearMaskOnGraphicState(SkDynamicMemoryWStream*);
     void setGraphicState(SkPDFIndirectReference gs, SkDynamicMemoryWStream*);
