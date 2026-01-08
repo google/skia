@@ -33,12 +33,6 @@ namespace skhdr {
 struct AdaptiveGlobalToneMap {
     // A GainCurve metadata group.
     struct GainCurve {
-        static constexpr uint8_t kMinNumControlPoints = 1u;
-        static constexpr uint8_t kMaxNumControlPoints = 32u;
-
-        // The GainCurveNumControlPoints metadata item.
-        uint8_t fNumControlPoints = 0;
-
         // Structure holding one entry of the GainCurveControlPointX, GainCurveControlPointY, and
         // GainCurveControlPointM metadata items.
         struct ControlPoint {
@@ -46,7 +40,11 @@ struct AdaptiveGlobalToneMap {
             float fY = 0.f;
             float fM = 0.f;
         };
-        ControlPoint fControlPoints[kMaxNumControlPoints];
+
+        // The size of this vector is the value of the GainCurveNumControlPoints metadata item.
+        static constexpr size_t kMinNumControlPoints = 1u;
+        static constexpr size_t kMaxNumControlPoints = 32u;
+        std::vector<ControlPoint> fControlPoints;
     };
 
     // A ComponentMix metadata group.
@@ -89,12 +87,9 @@ struct AdaptiveGlobalToneMap {
         SkColorSpacePrimaries fGainApplicationSpacePrimaries =
             {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
 
-        // The NumAlternateImages metadata item.
-        static constexpr uint8_t kMaxNumAlternateImages = 4u;
-        uint8_t fNumAlternateImages = 0u;
-
-        // The AlternateHdrHeadroom and ColorGainFunction metadata item lists.
-        AlternateImage fAlternateImages[kMaxNumAlternateImages];
+        // The size of this vector is the NumAlternateImages metadata item.
+        static constexpr size_t kMaxNumAlternateImages = 4u;
+        std::vector<AlternateImage> fAlternateImages;
     };
 
     // The HdrReferenceWhite metadata item.

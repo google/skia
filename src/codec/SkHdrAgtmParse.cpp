@@ -202,9 +202,10 @@ bool AgtmSyntax::parse_adaptive_tone_map(SkMemoryStream& s) {
                         SkStreamPriv::ReadU16BE(&s, &gain_application_space_chromaticities[r]));
             }
         }
-        for (uint8_t a = 0; a < std::min(
+        for (uint8_t a = 0; a < clamp(
                 num_alternate_images,
-                skhdr::AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap::kMaxNumAlternateImages); ++a) {
+                0u, skhdr::AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap::kMaxNumAlternateImages);
+             ++a) {
             RETURN_ON_FALSE(SkStreamPriv::ReadU16BE(&s, &alternate_hdr_headrooms[a]));
             RETURN_ON_FALSE(parse_component_mixing(a, s));
             RETURN_ON_FALSE(parse_gain_curve(a, s));
@@ -378,9 +379,10 @@ bool AdaptiveGlobalToneMap::parse(const SkData* data) {
         return true;
     }
 
-    hatm.fNumAlternateImages = clamp(
+    const uint8_t numAlternateImages = clamp(
         syntax.num_alternate_images, 0u, HeadroomAdaptiveToneMap::kMaxNumAlternateImages);
-    for (uint8_t a = 0; a < hatm.fNumAlternateImages; ++a) {
+    hatm.fAlternateImages.resize(numAlternateImages);
+    for (size_t a = 0; a < numAlternateImages; ++a) {
         hatm.fAlternateImages[a].fHdrHeadroom = uint16_to_float(
             syntax.alternate_hdr_headrooms[a], 0u, 60000u, 0u, 10000.f);
     }
@@ -425,7 +427,7 @@ bool AdaptiveGlobalToneMap::parse(const SkData* data) {
     }
 
     // Semantics from clause C.3.6.
-    for (uint8_t a = 0; a < hatm.fNumAlternateImages; ++a) {
+    for (uint8_t a = 0; a < numAlternateImages; ++a) {
         auto& mix = hatm.fAlternateImages[a].fColorGainFunction.fComponentMixing;
         switch (syntax.component_mixing_type[a]) {
             case 0:
@@ -460,17 +462,18 @@ bool AdaptiveGlobalToneMap::parse(const SkData* data) {
     }
 
     // Semantics from clause C.3.7.
-    for (uint8_t a = 0; a < hatm.fNumAlternateImages; ++a) {
+    for (uint8_t a = 0; a < numAlternateImages; ++a) {
         auto& cubic = hatm.fAlternateImages[a].fColorGainFunction.fGainCurve;
-        cubic.fNumControlPoints = syntax.gain_curve_num_control_points_minus_1[a] + 1u;
-        for (uint8_t c = 0; c < cubic.fNumControlPoints; ++c) {
+        const uint8_t numControlPoints = syntax.gain_curve_num_control_points_minus_1[a] + 1u;
+        cubic.fControlPoints.resize(numControlPoints);
+        for (uint8_t c = 0; c < numControlPoints; ++c) {
             cubic.fControlPoints[c].fX = uint16_to_float(
                 syntax.gain_curve_control_points_x[a][c], 0u, 64000u, 0u, 1000.f);
             cubic.fControlPoints[c].fY = uint16_to_float(
                 syntax.gain_curve_control_points_y[a][c], 0u, 48000u, 24000u, 4000.f);
         }
         if (syntax.gain_curve_use_pchip_slope_flag[a] == 0) {
-            for (uint8_t c = 0; c < cubic.fNumControlPoints; ++c) {
+            for (uint8_t c = 0; c < numControlPoints; ++c) {
                 const float theta = uint16_to_float(
                     syntax.gain_curve_control_points_theta[a][c],
                     1u, 35999u, 18000u, 36000.f / SK_FloatPI);
@@ -505,9 +508,9 @@ sk_sp<SkData> AdaptiveGlobalToneMap::serialize() const {
         // TODO(https://crbug.com/395659818): Identify when the tone mapping is equal to RWTMO to
         // further compress the serialization.
         syntax.use_reference_white_tone_mapping_flag = false;
-        SkASSERT(hatm.fNumAlternateImages <= HeadroomAdaptiveToneMap::kMaxNumAlternateImages);
-        syntax.num_alternate_images = hatm.fNumAlternateImages;
-        for (uint8_t a = 0; a < hatm.fNumAlternateImages; ++a) {
+        SkASSERT(hatm.fAlternateImages.size() <= HeadroomAdaptiveToneMap::kMaxNumAlternateImages);
+        syntax.num_alternate_images = hatm.fAlternateImages.size();
+        for (size_t a = 0; a < hatm.fAlternateImages.size(); ++a) {
             syntax.alternate_hdr_headrooms[a] = float_to_uint16(
                 hatm.fAlternateImages[a].fHdrHeadroom, 0u, 60000u, 0u, 10000.f);
         }
@@ -543,7 +546,7 @@ sk_sp<SkData> AdaptiveGlobalToneMap::serialize() const {
 
         // Semantics from clause C.3.6.
         syntax.has_common_component_mix_params_flag = 0;
-        for (uint8_t a = 0; a < hatm.fNumAlternateImages; ++a) {
+        for (size_t a = 0; a < hatm.fAlternateImages.size(); ++a) {
             auto& mix = hatm.fAlternateImages[a].fColorGainFunction.fComponentMixing;
             if (mix.fRed == 0.f && mix.fGreen == 0.f && mix.fBlue == 0.f &&
                 mix.fMax == 1.f && mix.fMin == 0.f && mix.fComponent == 0.f) {
@@ -577,23 +580,23 @@ sk_sp<SkData> AdaptiveGlobalToneMap::serialize() const {
 
         // Semantics from clause C.3.7.
         syntax.has_common_curve_params_flag = 0;
-        for (uint8_t a = 0; a < hatm.fNumAlternateImages; ++a) {
+        for (size_t a = 0; a < hatm.fAlternateImages.size(); ++a) {
             auto& cubic = hatm.fAlternateImages[a].fColorGainFunction.fGainCurve;
-            SkASSERT(GainCurve::kMinNumControlPoints <= cubic.fNumControlPoints);
-            SkASSERT(cubic.fNumControlPoints <= GainCurve::kMaxNumControlPoints);
-            syntax.gain_curve_num_control_points_minus_1[a] = cubic.fNumControlPoints - 1u;
+            SkASSERT(GainCurve::kMinNumControlPoints <= cubic.fControlPoints.size());
+            SkASSERT(cubic.fControlPoints.size() <= GainCurve::kMaxNumControlPoints);
+            syntax.gain_curve_num_control_points_minus_1[a] = cubic.fControlPoints.size() - 1u;
             // TODO(https://crbug.com/395659818): Identify when slope is equal to PCHIP to further
             // compress the serialization.
             syntax.gain_curve_use_pchip_slope_flag[a] = 0;
-            for (uint8_t c = 0; c < cubic.fNumControlPoints; ++c) {
+            for (size_t c = 0; c < cubic.fControlPoints.size(); ++c) {
                 syntax.gain_curve_control_points_x[a][c] =
                     float_to_uint16(cubic.fControlPoints[c].fX, 0u, 64000u, 0u, 1000.f);
             }
-            for (uint8_t c = 0; c < cubic.fNumControlPoints; ++c) {
+            for (size_t c = 0; c < cubic.fControlPoints.size(); ++c) {
                 syntax.gain_curve_control_points_y[a][c] =
                     float_to_uint16(cubic.fControlPoints[c].fY, 0u, 48000u, 24000u, 4000.f);
             }
-            for (uint8_t c = 0; c < cubic.fNumControlPoints; ++c) {
+            for (size_t c = 0; c < cubic.fControlPoints.size(); ++c) {
                 float theta = std::atan(cubic.fControlPoints[c].fM);
                 syntax.gain_curve_control_points_theta[a][c] =
                     float_to_uint16(theta, 1u, 35999u, 18000u, 36000.f / SK_FloatPI);

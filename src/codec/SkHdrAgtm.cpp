@@ -163,8 +163,8 @@ SkColor4f AgtmHelpers::EvaluateComponentMixingFunction(
 namespace AgtmHelpers {
 
 float EvaluateGainCurve(const AdaptiveGlobalToneMap::GainCurve& gainCurve, float x) {
-    size_t N = gainCurve.fNumControlPoints;
     auto& cp = gainCurve.fControlPoints;
+    size_t N = cp.size();
 
     // This implements that math in Formula 1 of SMPTE ST 2094-50.
     SkASSERT(N > 0 && N <= 32);
@@ -231,8 +231,8 @@ SkColor4f EvaluateColorGainFunction(
 }
 
 void PopulateSlopeFromPCHIP(AdaptiveGlobalToneMap::GainCurve& gainCurve) {
-    size_t N = gainCurve.fNumControlPoints;
     auto& cp = gainCurve.fControlPoints;
+    size_t N = cp.size();
 
     // Compute the interval width (h) and piecewise linear slope (s).
     float s[AdaptiveGlobalToneMap::GainCurve::kMaxNumControlPoints];
@@ -283,9 +283,9 @@ void AgtmImpl::populateGainCurvesXYM() {
             AdaptiveGlobalToneMap::GainCurve::kMaxNumControlPoints,
             AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap::kMaxNumAlternateImages,
             kRGBA_F32_SkColorType, kUnpremul_SkAlphaType));
-    for (uint8_t a = 0; a < hatm.fNumAlternateImages; ++a) {
+    for (size_t a = 0; a < hatm.fAlternateImages.size(); ++a) {
         auto& cubic = hatm.fAlternateImages[a].fColorGainFunction.fGainCurve;
-        for (uint8_t c = 0; c < cubic.fNumControlPoints; ++c) {
+        for (size_t c = 0; c < cubic.fControlPoints.size(); ++c) {
             float* xymX = reinterpret_cast<float*>(curve_xym_bm.getAddr(c, a));
             xymX[0] = cubic.fControlPoints[c].fX;
             xymX[1] = cubic.fControlPoints[c].fY;
@@ -303,17 +303,17 @@ void PopulateUsingRwtmo(AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm) {
     hatm.fGainApplicationSpacePrimaries = SkNamedPrimaries::kRec2020;
 
     if (hatm.fBaselineHdrHeadroom == 0.f) {
-        hatm.fNumAlternateImages = 0;
+        hatm.fAlternateImages.clear();
         return;
     }
 
     // Set the two alternate image headrooms using Formula D.1 from ST 2094-50 candidate draft 2.
-    hatm.fNumAlternateImages = 2;
+    hatm.fAlternateImages.resize(2);
     hatm.fAlternateImages[0].fHdrHeadroom = 0.f;
     hatm.fAlternateImages[1].fHdrHeadroom =
         std::log2(8.f / 3.f) * std::min(hatm.fBaselineHdrHeadroom / std::log2(1000/203.f), 1.f);
 
-    for (size_t a = 0; a < hatm.fNumAlternateImages; ++a) {
+    for (size_t a = 0; a < hatm.fAlternateImages.size(); ++a) {
         auto& gain = hatm.fAlternateImages[a].fColorGainFunction;
         gain = AdaptiveGlobalToneMap::ColorGainFunction();
 
@@ -344,11 +344,11 @@ void PopulateUsingRwtmo(AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm) {
         const float yC = yKnee;
 
         auto& cubic = gain.fGainCurve;
-        cubic.fNumControlPoints = 8;
-        for (size_t c = 0; c < cubic.fNumControlPoints; ++c) {
+        cubic.fControlPoints.resize(8);
+        for (size_t c = 0; c < cubic.fControlPoints.size(); ++c) {
             // Compute the linear domain curve values using Formula D.4 from ST 2094-50 candidate
             // draft 2.
-            const float t = c / (cubic.fNumControlPoints - 1.f);
+            const float t = c / (cubic.fControlPoints.size() - 1.f);
             const float x = xC + t * (xB + t * xA);
             const float y = yC + t * (yB + t * yA);
             const float m = (2.f * yA * t + yB) / (2.f * xA * t + xB);
@@ -378,7 +378,7 @@ Weighting ComputeWeighting(const AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap&
     // Let indices list the index of each entry of H in fAlternateHdrHeadroom. The index for
     // fBaselineHdrHeadroom is Weighting::kInvalidIndex.
     size_t indices[AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap::kMaxNumAlternateImages + 1];
-    for (size_t i = 0; i < hatm.fNumAlternateImages; ++i) {
+    for (size_t i = 0; i < hatm.fAlternateImages.size(); ++i) {
         if (N == i && hatm.fBaselineHdrHeadroom < hatm.fAlternateImages[i].fHdrHeadroom) {
             // Insert the baseline HDR headroom before the indices as they are visited.
             indices[N] = Weighting::kInvalidIndex;
@@ -387,7 +387,7 @@ Weighting ComputeWeighting(const AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap&
         indices[N] = i;
         H[N++] = hatm.fAlternateImages[i].fHdrHeadroom;
     }
-    if (N == hatm.fNumAlternateImages) {
+    if (N == hatm.fAlternateImages.size()) {
         // Insert the baseline HDR headroom at the end if it has not yet been inserted.
         indices[N] = Weighting::kInvalidIndex;
         H[N++] = hatm.fBaselineHdrHeadroom;
@@ -515,7 +515,7 @@ bool AgtmImpl::isClamp() const {
         return false;
     }
     auto& hatm = fMetadata.fHeadroomAdaptiveToneMap.value();
-    return hatm.fNumAlternateImages == 0;
+    return hatm.fAlternateImages.size() == 0;
 }
 
 sk_sp<SkColorFilter> AgtmImpl::makeColorFilter(float targetedHdrHeadroom) const {
@@ -531,7 +531,7 @@ sk_sp<SkColorFilter> AgtmImpl::makeColorFilter(float targetedHdrHeadroom) const 
     }
 
     SkRuntimeShaderBuilder builder(effect);
-    for (uint8_t a = 0; a < 2; ++a) {
+    for (size_t a = 0; a < 2; ++a) {
         const char* weight_str[2] = {"weight_i", "weight_j"};
         builder.uniform(weight_str[a]) = weighting.fWeight[a];
 
@@ -563,7 +563,7 @@ sk_sp<SkColorFilter> AgtmImpl::makeColorFilter(float targetedHdrHeadroom) const 
 
         const char* curve_N_cp_str[2] = {"curve_N_cp_i", "curve_N_cp_j"};
         builder.uniform(curve_N_cp_str[a]) = static_cast<float>(
-            gain.fGainCurve.fNumControlPoints);
+            gain.fGainCurve.fControlPoints.size());
     }
     builder.child("curve_xym") = fGainCurvesXYM->makeRawShader(
         SkSamplingOptions(SkFilterMode::kNearest));
@@ -583,9 +583,9 @@ SkString AdaptiveGlobalToneMap::toString() const {
 
     result += SkStringPrintf(", baselineHdrHeadroom:%f", hatm.fBaselineHdrHeadroom);
     result += ", alternateHdrHeadrooms:[";
-    for (uint8_t a = 0; a < hatm.fNumAlternateImages; ++a) {
+    for (size_t a = 0; a < hatm.fAlternateImages.size(); ++a) {
         result += SkStringPrintf("%f", hatm.fAlternateImages[a].fHdrHeadroom);
-        if (a != hatm.fNumAlternateImages - 1) {
+        if (a != hatm.fAlternateImages.size() - 1) {
             result += ", ";
         }
     }
