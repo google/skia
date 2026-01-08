@@ -6,6 +6,9 @@
  */
 
 #include "bench/BigPath.h"
+#include "include/codec/SkCodec.h"
+#include "include/codec/SkJpegDecoder.h"
+#include "include/codec/SkPngDecoder.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkPicture.h"
@@ -522,6 +525,8 @@ int main(int argc, char** argv) {
     }
 
     SkGraphics::Init();
+    SkCodecs::Register(SkPngDecoder::Decoder());
+    SkCodecs::Register(SkJpegDecoder::Decoder());
 
     sk_sp<SkPicture> skp;
     std::unique_ptr<MultiFrameSkp> mskp; // populated if the file is multi frame.

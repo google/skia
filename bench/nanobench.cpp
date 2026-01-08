@@ -30,6 +30,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkPictureRecorder.h"
+#include "include/core/SkSerialProcs.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/encode/SkPngEncoder.h"
@@ -854,8 +855,20 @@ public:
             SkDebugf("Could not read %s.\n", path);
             return nullptr;
         }
-
-        return SkPicture::MakeFromStream(stream.get());
+        SkDeserialProcs procs;
+        procs.fImageDataProc = [](sk_sp<SkData> data, std::optional<SkAlphaType>, void* ctx) -> sk_sp<SkImage> {
+            if (!SkPngDecoder::IsPng(data->data(), data->size())) {
+                SkDebugf("non-png image serialized in skp\n");
+                return nullptr;
+            }
+            auto codec = SkPngDecoder::Decode(data, nullptr);
+            if (!codec) {
+                SkDebugf("Invalid png data detected\n");
+                return nullptr;
+            }
+            return std::get<0>(codec->getImage());
+        };
+        return SkPicture::MakeFromStream(stream.get(), &procs);
     }
 
     static std::unique_ptr<MSKPPlayer> ReadMSKP(const char* path) {
