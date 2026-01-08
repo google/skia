@@ -212,8 +212,8 @@ sk_sp<SkRuntimeEffect> RuntimeEffectManager::getOrCreateLinearRuntimeEffect(
     SkString linearEffectCode = SkStringPrintf(
             "uniform shader child;"
             "vec4 main(vec2 xy) {"
-                "float3 linear = toLinearSrgb(child.eval(xy).rgb);"
-                "return float4(fromLinearSrgb(linear), %f);"
+                "float3 linear = child.eval(xy).rgb;"
+                "return float4(linear, %f);"
             "}",
             arbitraryAlpha);
     arbitraryAlpha += 0.05f;

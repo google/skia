@@ -100,11 +100,15 @@ skgpu::graphite::PaintOptions LinearEffect(sk_sp<SkRuntimeEffect> linearEffect,
                                            SkBlendMode blendMode,
                                            bool paintColorIsOpaque = true,
                                            bool matrixColorFilter = false,
-                                           bool dither = false) {
+                                           bool dither = false,
+                                           sk_sp<SkColorSpace> cs = nullptr) {
     PaintOptions paintOptions;
     sk_sp<PrecompileShader> linearEffectShader = PrecompileRuntimeEffects::MakePrecompileShader(
         std::move(linearEffect),
         {{ {{ std::move(childShader) }} }});
+    if (cs) {
+        linearEffectShader = linearEffectShader->makeWithWorkingColorSpace(nullptr, cs);
+    }
     paintOptions.setShaders({{ std::move(linearEffectShader) }});
     if (matrixColorFilter) {
         paintOptions.setColorFilters(SKSPAN_INIT_ONE( PrecompileColorFilters::Matrix() ));
