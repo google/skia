@@ -196,6 +196,15 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{"//include/private/chromium:discardable_memory_hdrs"}},
 		{Var: "skia_no_slug_srcs",
 			Rules: []string{}},
+		{Var: "skia_android_core_srcs",
+			Rules: []string{
+				"//src/image:android_srcs",
+				"//src/android:animated_image",
+			}},
+		{Var: "skia_android_core_hdrs",
+			Rules: []string{
+				"//include/android:animated_image_hdrs",
+			}},
 	},
 	},
 	{GNI: "gn/effects.gni", Vars: []exporter.GNIFileListExportDesc{
@@ -670,11 +679,15 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/gpu/ganesh:core_skslc_srcs",
 				"//src/gpu/ganesh:core_srcs",
 			}},
+		{Var: "skia_gpu_android_private_hdrs",
+			Rules: []string{
+				"//include/android:private_hdrs",
+			}},
 		{Var: "skia_gpu_android_private",
 			Rules: []string{
 				"//src/gpu/ganesh/surface:android_srcs",
 				"//src/gpu/ganesh:android_srcs",
-				"//src/image:android_srcs",
+				"//src/gpu/ganesh/image:android_srcs",
 			}},
 		{Var: "skia_gpu_chromium_public",
 			Rules: []string{

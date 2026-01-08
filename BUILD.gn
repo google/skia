@@ -952,6 +952,7 @@ optional("gpu") {
   frameworks = []
 
   if (is_android) {
+    public += skia_gpu_android_private_hdrs
     sources += skia_gpu_android_private
 
     # this lib is required to link against AHardwareBuffer
@@ -1859,6 +1860,7 @@ skia_component("skia") {
   public += skia_utils_public
   public += skia_effects_public
   public += skia_effects_imagefilter_public
+  public += skia_android_core_hdrs
 
   sources = []
   sources += skia_utils_private
@@ -1873,9 +1875,9 @@ skia_component("skia") {
   sources += skia_sksl_core_module_sources
   sources += skia_sksl_tracing_sources
   sources += skia_ports_sources
+  sources += skia_android_core_srcs
   sources += [
     "src/android/SkAndroidFrameworkUtils.cpp",
-    "src/android/SkAnimatedImage.cpp",
     "src/codec/SkAndroidCodec.cpp",
     "src/codec/SkAndroidCodecAdapter.cpp",
     "src/codec/SkSampledCodec.cpp",
