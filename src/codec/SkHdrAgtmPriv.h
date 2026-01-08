@@ -25,14 +25,12 @@ namespace skhdr {
 
 /**
  * Adaptive global tone mapping
- * The structures and functions for this metadata are defined in
- * SMPTE ST 2094-50: Dynamic metadata for color volume transform — Application #5
- * The metadata item and group names correspond to the members of the ColorVolumeTransform metadata
- * group described in Clause 7.1: Metadata set.
+ * This structure contains the metadata items from the ColorVolumeTransform metadata group
+ * in Clause 7.1: Metadata set of SMPTE ST 2094-50: Dynamic metadata for color volume transform
+ * Application #5
  * https://github.com/SMPTE/st2094-50
  */
-class AgtmImpl final : public Agtm {
-  public:
+struct AdaptiveGlobalToneMap {
     // A GainCurve metadata group.
     struct GainCurve {
         static constexpr uint8_t kMinNumControlPoints = 1u;
@@ -49,18 +47,6 @@ class AgtmImpl final : public Agtm {
             float fM = 0.f;
         };
         ControlPoint fControlPoints[kMaxNumControlPoints];
-
-        /**
-         * Populate the fM values using the Piecewise Cubic Hermite Interpolation Package (PCHIP)
-         * algorithm, described in Clause C.3.9: Piecewise cubic hermite interpolation package slope
-         * computation.
-         */
-        void populateSlopeFromPCHIP();
-
-        /**
-         * The function evaluation described in Clause 6.1.3.
-         */
-        float evaluate(float x) const;
     };
 
     // A ComponentMix metadata group.
@@ -72,9 +58,6 @@ class AgtmImpl final : public Agtm {
         float fMax = 0.f;
         float fMin = 0.f;
         float fComponent = 0.f;
-
-        // The function evaluation described in Clause 5.2.3.
-        SkColor4f evaluate(const SkColor4f& c) const;
     };
 
     // A ColorGainFunction metadata group.
@@ -84,9 +67,6 @@ class AgtmImpl final : public Agtm {
 
         // The GainCurve metadata group.
         GainCurve fGainCurve;
-
-        // The function evaluation described in Clause 6.3.2.
-        SkColor4f evaluate(const SkColor4f& c) const;
     };
 
     // Structure holding the metadata items and groups for an alternate image.
@@ -123,6 +103,92 @@ class AgtmImpl final : public Agtm {
     // The HeadroomAdaptiveToneMap metadata group.
     std::optional<HeadroomAdaptiveToneMap> fHeadroomAdaptiveToneMap;
 
+    // The default value for the HdrReferenceWhite metadata item.
+    static constexpr float kDefaultHdrReferenceWhite = 203.f;
+
+    /**
+     * Decode from the binary encoding in Annex C.
+     */
+    bool parse(const SkData* data);
+
+    /**
+     * Serialize to the encoding used by parse().
+     */
+    sk_sp<SkData> serialize() const;
+
+    /**
+     * Return a human-readable description.
+     */
+    SkString toString() const;
+
+    bool operator==(const AdaptiveGlobalToneMap& other) const;
+    bool operator!=(const AdaptiveGlobalToneMap& other) const {
+        return !(*this == other);
+    }
+};
+
+// Collection of functions and structures that could potentially be moved into
+// the AdaptiveGlobalToneMap structure or its sub-structures, but are not exposed yet.
+namespace AgtmHelpers {
+
+/**
+ * The function evaluation described in Clause 6.3.2.
+ */
+SkColor4f EvaluateColorGainFunction(const AdaptiveGlobalToneMap::ColorGainFunction& gain,
+                                    const SkColor4f& c);
+
+/**
+ * The function evaluation described in Clause 5.2.3.
+ */
+SkColor4f EvaluateComponentMixingFunction(const AdaptiveGlobalToneMap::ComponentMixingFunction& mix,
+                                          const SkColor4f& c);
+
+/**
+ * The function evaluation described in Clause 6.1.3.
+ */
+float EvaluateGainCurve(const AdaptiveGlobalToneMap::GainCurve& gainCurve, float x);
+
+/**
+ * Populate the fM values using the Piecewise Cubic Hermite Interpolation Package (PCHIP)
+ * algorithm, described in Clause C.3.9: Piecewise cubic hermite interpolation package slope
+ * computation.
+ */
+void PopulateSlopeFromPCHIP(AdaptiveGlobalToneMap::GainCurve& gainCurve);
+
+/**
+ * Compute the weighting for the specified targeted HDR headroom according to the computations
+ * in Clause 6.4.5, Computation of the adaptive tone map.
+ */
+struct Weighting {
+    // The index into fAlternateImages for fWeight. If fWeight[i] is 0 then
+    // fAlternateImageIndex[i] is not used and should be set to kInvalidIndex.
+    static constexpr uint8_t kInvalidIndex = 255;
+    uint8_t fAlternateImageIndex[2] = {kInvalidIndex, kInvalidIndex};
+
+    // The value of fWeight[i] is weight for the fAlternateImageIndex[i]-th alternate image.
+    float fWeight[2] = {0.f, 0.f};
+};
+Weighting ComputeWeighting(const AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm,
+                           float targetedHdrHeadroom);
+
+/**
+ * This will populate the metadata with the Reference White Tone Mapping Operator (RWTMO)
+ * parameters, based on the value of fBaselineHdrHeadroom.
+ */
+void PopulateUsingRwtmo(AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm);
+
+}  // namespace AgtmHelpers
+
+/**
+ * Interface for adaptive global tone mapping.
+ * TODO(https://crbug.com/468928417): This structure was originally designed to be the interface
+ * for parsing SMPTE ST 2094-50 metadata. It is no longer being used in this way, and should be
+ * removed or recycled.
+ */
+class AgtmImpl final : public Agtm {
+  public:
+    AdaptiveGlobalToneMap fMetadata;
+
     // SkImage containing the control point values for use by the color filter, populated by
     // populateGainCurvesXYM.
     sk_sp<SkImage> fGainCurvesXYM;
@@ -133,31 +199,10 @@ class AgtmImpl final : public Agtm {
     void populateGainCurvesXYM();
 
     /**
-     * This will populate the metadata with the Reference White Tone Mapping Operator (RWTMO)
-     * parameters, based on the value of fBaselineHdrHeadroom.
-     */
-    void populateUsingRwtmo();
-
-    /**
      * The encoding is defined in SMPTE ST 2094-50 candidate draft 2. This will deserialize the
      * smpte_st_2094_50_application_info_v0() bitstream. Return false if parsing fails.
      */
     bool parse(const SkData* data);
-
-    /**
-     * Compute the weighting for the specified targeted HDR headroom according to the computations
-     * in Clause 6.4.5, Computation of the adaptive tone map.
-     */
-    struct Weighting {
-        // The index into fAlternateImages for fWeight. If fWeight[i] is 0 then
-        // fAlternateImageIndex[i] is not used and should be set to kInvalidIndex.
-        static constexpr uint8_t kInvalidIndex = 255;
-        uint8_t fAlternateImageIndex[2] = {kInvalidIndex, kInvalidIndex};
-
-        // The value of fWeight[i] is weight for the fAlternateImageIndex[i]-th alternate image.
-        float fWeight[2] = {0.f, 0.f};
-    };
-    Weighting computeWeighting(float targetedHdrHeadroom) const;
 
     /**
      * Apply the tone mapping to `colors` in the gain application color space, targeting the

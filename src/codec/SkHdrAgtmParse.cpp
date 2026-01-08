@@ -204,7 +204,7 @@ bool AgtmSyntax::parse_adaptive_tone_map(SkMemoryStream& s) {
         }
         for (uint8_t a = 0; a < std::min(
                 num_alternate_images,
-                skhdr::AgtmImpl::HeadroomAdaptiveToneMap::kMaxNumAlternateImages); ++a) {
+                skhdr::AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap::kMaxNumAlternateImages); ++a) {
             RETURN_ON_FALSE(SkStreamPriv::ReadU16BE(&s, &alternate_hdr_headrooms[a]));
             RETURN_ON_FALSE(parse_component_mixing(a, s));
             RETURN_ON_FALSE(parse_gain_curve(a, s));
@@ -346,7 +346,7 @@ void AgtmSyntax::write_gain_curve(uint8_t a, SkDynamicMemoryWStream& s) {
 
 namespace skhdr {
 
-bool AgtmImpl::parse(const SkData* data) {
+bool AdaptiveGlobalToneMap::parse(const SkData* data) {
     if (data == nullptr) {
         return false;
     }
@@ -374,7 +374,7 @@ bool AgtmImpl::parse(const SkData* data) {
     hatm.fBaselineHdrHeadroom =
         uint16_to_float(syntax.baseline_hdr_headroom, 0u, 60000u, 0u, 10000.f);
     if (syntax.use_reference_white_tone_mapping_flag == 1) {
-        populateUsingRwtmo();
+        AgtmHelpers::PopulateUsingRwtmo(hatm);
         return true;
     }
 
@@ -477,14 +477,14 @@ bool AgtmImpl::parse(const SkData* data) {
                 cubic.fControlPoints[c].fM = std::tan(theta);
             }
         } else {
-            cubic.populateSlopeFromPCHIP();
+            AgtmHelpers::PopulateSlopeFromPCHIP(cubic);
         }
     }
 
     return true;
 }
 
-sk_sp<SkData> AgtmImpl::serialize() const {
+sk_sp<SkData> AdaptiveGlobalToneMap::serialize() const {
     AgtmSyntax syntax;
     memset(&syntax, 0, sizeof(syntax));
 
