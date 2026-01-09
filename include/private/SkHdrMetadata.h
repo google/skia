@@ -14,6 +14,7 @@
 
 #include <memory>
 #include <optional>
+#include <vector>
 
 class SkColorFilter;
 class SkData;
@@ -123,11 +124,109 @@ struct SK_API MasteringDisplayColorVolume {
 };
 
 /**
- * Adaptive Global Tone Mapping HDR metadata
- * The semantics of this metadata is defined in:
- * SMPTE ST 2094-50: Dynamic metadata for color volume transform — Application #5
- * Under development at:
+ * Adaptive Global Tone Map
+ * This structure contains the metadata items from the ColorVolumeTransform metadata group
+ * in Clause 7.1: Metadata set of SMPTE ST 2094-50: Dynamic metadata for color volume transform
+ * Application #5
  * https://github.com/SMPTE/st2094-50
+ * WARNING: This specification is still a DRAFT and is subject to change before publication.
+ */
+struct AdaptiveGlobalToneMap {
+    // A GainCurve metadata group.
+    struct GainCurve {
+        // Structure holding one entry of the GainCurveControlPointX, GainCurveControlPointY, and
+        // GainCurveControlPointM metadata items.
+        struct ControlPoint {
+            float fX = 0.f;
+            float fY = 0.f;
+            float fM = 0.f;
+        };
+
+        // The size of this vector is the value of the GainCurveNumControlPoints metadata item.
+        static constexpr size_t kMinNumControlPoints = 1u;
+        static constexpr size_t kMaxNumControlPoints = 32u;
+        std::vector<ControlPoint> fControlPoints;
+    };
+
+    // A ComponentMix metadata group.
+    struct ComponentMixingFunction {
+        // The ComponentMixRed/Green/Blue/Max/Min/Component metadata items.
+        float fRed = 0.f;
+        float fGreen = 0.f;
+        float fBlue = 0.f;
+        float fMax = 0.f;
+        float fMin = 0.f;
+        float fComponent = 0.f;
+    };
+
+    // A ColorGainFunction metadata group.
+    struct ColorGainFunction {
+        // The ComponentMix metadata group.
+        ComponentMixingFunction fComponentMixing;
+
+        // The GainCurve metadata group.
+        GainCurve fGainCurve;
+    };
+
+    // Structure holding the metadata items and groups for an alternate image.
+    struct AlternateImage {
+        // The AlternateHdrHeadroom metadata item.
+        float fHdrHeadroom = 0.f;
+
+        // The ColorGainFunction metadata group.
+        ColorGainFunction fColorGainFunction;
+    };
+
+    // HeadroomAdaptiveToneMap metadata group.
+    struct HeadroomAdaptiveToneMap {
+        HeadroomAdaptiveToneMap();
+
+        // The BaselineHdrHeadroom metadata item.
+        float fBaselineHdrHeadroom = 0.f;
+
+        // The GainApplicationSpaceColorPrimaries metadata item.
+        SkColorSpacePrimaries fGainApplicationSpacePrimaries =
+            {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
+
+        // The size of this vector is the NumAlternateImages metadata item.
+        static constexpr size_t kMaxNumAlternateImages = 4u;
+        std::vector<AlternateImage> fAlternateImages;
+    };
+
+    // The default value for the HdrReferenceWhite metadata item.
+    static constexpr float kDefaultHdrReferenceWhite = 203.f;
+
+    // The HdrReferenceWhite metadata item.
+    float fHdrReferenceWhite = kDefaultHdrReferenceWhite;
+
+    // The HeadroomAdaptiveToneMap metadata group.
+    std::optional<HeadroomAdaptiveToneMap> fHeadroomAdaptiveToneMap;
+
+    /**
+     * Decode from the binary encoding in Annex C.
+     */
+    bool parse(const SkData* data);
+
+    /**
+     * Serialize to the encoding used by parse().
+     */
+    sk_sp<SkData> serialize() const;
+
+    /**
+     * Return a human-readable description.
+     */
+    SkString toString() const;
+
+    bool operator==(const AdaptiveGlobalToneMap& other) const;
+    bool operator!=(const AdaptiveGlobalToneMap& other) const {
+        return !(*this == other);
+    }
+};
+
+/**
+ * TODO(https://crbug.com/468928417): This structure was originally designed to be the interface
+ * for parsing SMPTE ST 2094-50 metadata. It is no longer being used in this way, and should be
+ * removed or recycled.
  */
 class SK_API Agtm {
   public:
