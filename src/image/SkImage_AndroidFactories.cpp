@@ -5,11 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkTypes.h"
-
-#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
-
 #include "include/android/SkImageAndroid.h"
+
 #include "include/core/SkBitmap.h"
 #include "src/core/SkImagePriv.h"
 
@@ -21,4 +18,3 @@ sk_sp<SkImage> RasterFromBitmapNoCopy(const SkBitmap& bm) {
 
 }  // namespace SkImages
 
-#endif
