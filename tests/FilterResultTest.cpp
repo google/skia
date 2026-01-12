@@ -1391,6 +1391,15 @@ sk_sp<SkColorFilter> affect_transparent(SkColor4f color) {
     } \
     void test_suite_##name(TestRunner& runner)
 
+static std::string to_string(SkTileMode tm) {
+    switch (tm) {
+        case SkTileMode::kClamp: return "clamp";
+        case SkTileMode::kRepeat: return "repeat";
+        case SkTileMode::kMirror: return "mirror";
+        case SkTileMode::kDecal: return "decal";
+        default: return "invalid";
+    }
+}
 // ----------------------------------------------------------------------------
 // Empty input/output tests
 
@@ -1399,6 +1408,7 @@ DEF_TEST_SUITE(EmptySource, r, CtsEnforcement::kApiLevel_T, CtsEnforcement::kNex
     // to generate new images, or that it can produce a new image from nothing when it affects
     // transparent black.
     for (SkTileMode tm : kTileModes) {
+        skiatest::ReporterContext tileMode(r, to_string(tm));
         TestCase(r, "applyCrop() to empty source")
                 .source(SkIRect::MakeEmpty())
                 .applyCrop({0, 0, 10, 10}, tm, Expect::kEmptyImage)
@@ -1426,6 +1436,7 @@ DEF_TEST_SUITE(EmptyDesiredOutput, r, CtsEnforcement::kApiLevel_T, CtsEnforcemen
     // This is testing that an empty requested output is propagated through the applied actions so
     // that no actual images are generated.
     for (SkTileMode tm : kTileModes) {
+        skiatest::ReporterContext tileMode(r, to_string(tm));
         TestCase(r, "applyCrop() + empty output becomes empty")
                 .source({0, 0, 10, 10})
                 .applyCrop({2, 2, 8, 8}, tm, Expect::kEmptyImage)
@@ -1457,6 +1468,7 @@ DEF_TEST_SUITE(Crop, r, CtsEnforcement::kApiLevel_T, CtsEnforcement::kNextReleas
     // modes where the crop rect includes transparent pixels not filled by the source, which
     // requires a new image to ensure tiling matches the crop geometry.
     for (SkTileMode tm : kTileModes) {
+        skiatest::ReporterContext tileMode(r, to_string(tm));
         const Expect nonDecalExpectsNewImage = tm == SkTileMode::kDecal ? Expect::kDeferredImage
                                                                         : Expect::kNewImage;
         TestCase(r, "applyCrop() contained in source and output")
@@ -1505,6 +1517,7 @@ DEF_TEST_SUITE(CropDisjointFromSourceAndOutput, r, CtsEnforcement::kApiLevel_T,
     // non-decal tile modes when the source and crop still intersect. In that case the non-empty
     // content is tiled into the disjoint output rect, producing a non-empty image.
     for (SkTileMode tm : kTileModes) {
+        skiatest::ReporterContext tileMode(r, to_string(tm));
         TestCase(r, "applyCrop() disjoint from source, intersects output")
                 .source({0, 0, 10, 10})
                 .applyCrop({11, 11, 20, 20}, tm, Expect::kEmptyImage)
@@ -1546,6 +1559,7 @@ DEF_TEST_SUITE(CropDisjointFromSourceAndOutput, r, CtsEnforcement::kApiLevel_T,
 
 DEF_TEST_SUITE(EmptyCrop, r, CtsEnforcement::kApiLevel_T, CtsEnforcement::kNextRelease) {
     for (SkTileMode tm : kTileModes) {
+        skiatest::ReporterContext tileMode(r, to_string(tm));
         TestCase(r, "applyCrop() is empty")
                 .source({0, 0, 10, 10})
                 .applyCrop(SkIRect::MakeEmpty(), tm, Expect::kEmptyImage)
@@ -1561,6 +1575,7 @@ DEF_TEST_SUITE(EmptyCrop, r, CtsEnforcement::kApiLevel_T, CtsEnforcement::kNextR
 
 DEF_TEST_SUITE(DisjointCrops, r, CtsEnforcement::kApiLevel_T, CtsEnforcement::kNextRelease) {
     for (SkTileMode tm : kTileModes) {
+        skiatest::ReporterContext tileMode(r, to_string(tm));
         TestCase(r, "Disjoint applyCrop() after kDecal become empty")
                 .source({0, 0, 10, 10})
                 .applyCrop({0, 0, 4, 4}, SkTileMode::kDecal, Expect::kDeferredImage)
@@ -1586,6 +1601,7 @@ DEF_TEST_SUITE(DisjointCrops, r, CtsEnforcement::kApiLevel_T, CtsEnforcement::kN
 
 DEF_TEST_SUITE(IntersectingCrops, r, CtsEnforcement::kApiLevel_T, CtsEnforcement::kNextRelease) {
     for (SkTileMode tm : kTileModes) {
+        skiatest::ReporterContext tileMode(r, to_string(tm));
         TestCase(r, "Decal applyCrop() always combines with any other crop")
                 .source({0, 0, 20, 20})
                 .applyCrop({5, 5, 15, 15}, tm, Expect::kDeferredImage)
@@ -1612,6 +1628,7 @@ DEF_TEST_SUITE(IntersectingCrops, r, CtsEnforcement::kApiLevel_T, CtsEnforcement
 
 DEF_TEST_SUITE(PeriodicTileCrops, r, CtsEnforcement::kApiLevel_T, CtsEnforcement::kNextRelease) {
     for (SkTileMode tm : {SkTileMode::kRepeat, SkTileMode::kMirror}) {
+        skiatest::ReporterContext tileMode(r, to_string(tm));
         // In these tests, the crop periodically tiles such that it covers the desired output so
         // the prior image can be simply transformed.
         TestCase(r, "Periodic applyCrop() becomes a transform")
@@ -1926,7 +1943,7 @@ DEF_TEST_SUITE(TransformAndTile, r, CtsEnforcement::kApiLevel_T, CtsEnforcement:
         if (tm == SkTileMode::kDecal) {
             continue;
         }
-
+        skiatest::ReporterContext tileMode(r, to_string(tm));
         TestCase(r, "Transform after tile mode does not trigger new image")
                 .source({0, 0, 64, 64})
                 .applyCrop({2, 2, 32, 32}, tm, Expect::kDeferredImage)
@@ -2085,6 +2102,7 @@ DEF_TEST_SUITE(ColorFilterBetweenTransforms, r, CtsEnforcement::kApiLevel_T,
 
 DEF_TEST_SUITE(CroppedColorFilter, r, CtsEnforcement::kApiLevel_T, CtsEnforcement::kNextRelease) {
     for (SkTileMode tm : kTileModes) {
+        skiatest::ReporterContext tileMode(r, to_string(tm));
         TestCase(r, "Regular color filter after empty crop stays empty")
                 .source({0, 0, 16, 16})
                 .applyCrop(SkIRect::MakeEmpty(), tm, Expect::kEmptyImage)
@@ -2128,6 +2146,7 @@ DEF_TEST_SUITE(CroppedColorFilter, r, CtsEnforcement::kApiLevel_T, CtsEnforcemen
 DEF_TEST_SUITE(CropBetweenColorFilters, r, CtsEnforcement::kApiLevel_T,
                CtsEnforcement::kNextRelease) {
     for (SkTileMode tm : kTileModes) {
+        skiatest::ReporterContext tileMode(r, to_string(tm));
         TestCase(r, "Crop between regular color filters")
                 .source({0, 0, 32, 32})
                 .applyColorFilter(alpha_modulate(0.8f), Expect::kDeferredImage)
@@ -2345,6 +2364,7 @@ static constexpr SkSize kNearlyIdentity = {0.999f, 0.999f};
 DEF_TEST_SUITE(RescaleWithTileMode, r,
                CtsEnforcement::kApiLevel_202404, CtsEnforcement::kNextRelease) {
     for (SkTileMode tm : kTileModes) {
+        skiatest::ReporterContext tileMode(r, to_string(tm));
         TestCase(r, "Identity rescale is a no-op")
                 .source({0, 0, 50, 50})
                 .applyCrop({0, 0, 50, 50}, tm, Expect::kDeferredImage)
@@ -2511,6 +2531,7 @@ DEF_TEST_SUITE(RescaleWithTileMode, r,
 DEF_TEST_SUITE(RescaleWithTransform, r,
                CtsEnforcement::kApiLevel_202404, CtsEnforcement::kNextRelease) {
     for (SkTileMode tm : kTileModes) {
+        skiatest::ReporterContext tileMode(r, to_string(tm));
         TestCase(r, "Identity rescale defers integer translation")
                 .source({0, 0, 50, 50})
                 .applyCrop({0, 0, 50, 50}, tm, Expect::kDeferredImage)
@@ -2609,6 +2630,7 @@ DEF_TEST_SUITE(RescaleWithTransform, r,
 DEF_TEST_SUITE(RescaleWithColorFilter, r,
                CtsEnforcement::kApiLevel_202404, CtsEnforcement::kNextRelease) {
     for (SkTileMode tm : kTileModes) {
+        skiatest::ReporterContext tileMode(r, to_string(tm));
         TestCase(r, "Identity rescale applies color filter but defers tile mode")
                 .source({0, 0, 50, 50})
                 .applyCrop({0, 0, 50, 50}, tm, Expect::kDeferredImage)
