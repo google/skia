@@ -131,7 +131,7 @@ struct SK_API MasteringDisplayColorVolume {
  * https://github.com/SMPTE/st2094-50
  * WARNING: This specification is still a DRAFT and is subject to change before publication.
  */
-struct AdaptiveGlobalToneMap {
+struct SK_API AdaptiveGlobalToneMap {
     // A GainCurve metadata group.
     struct GainCurve {
         // Structure holding one entry of the GainCurveControlPointX, GainCurveControlPointY, and
