@@ -179,8 +179,10 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/encode:png_encode_srcs",
 				"//src/encode:png_encode_hdrs",
 			}},
-		// TODO(https://crbug.com/381900683): Rename this list.
+		// TODO(https://crbug.com/381900683): Delete this list after updating Flutter.
 		{Var: "skia_encode_png_public",
+			Rules: []string{"//include/encode:png_hdrs"}},
+		{Var: "skia_encode_libpng_public",
 			Rules: []string{"//include/encode:png_hdrs"}},
 		{Var: "skia_encode_webp_public",
 			Rules: []string{"//include/encode:webp_hdrs"}},

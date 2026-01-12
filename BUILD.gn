@@ -1306,7 +1306,7 @@ optional("png_encode_libpng") {
     "SK_CODEC_ENCODES_PNG_WITH_LIBPNG",
   ]
 
-  public = skia_encode_png_public
+  public = skia_encode_libpng_public
   deps = [
     ":png_encode_common",
     "//third_party/libpng",
