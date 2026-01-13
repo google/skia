@@ -8,7 +8,6 @@
 #include "bench/BigPath.h"
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkJpegDecoder.h"
-#include "include/codec/SkPngDecoder.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkPicture.h"
@@ -45,6 +44,12 @@
 #include "modules/skshaper/utils/FactoryHelpers.h"
 #include "modules/svg/include/SkSVGDOM.h"
 #include "src/xml/SkDOM.h"
+#endif
+
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+#include "include/codec/SkPngRustDecoder.h"
+#else
+#include "include/codec/SkPngDecoder.h"
 #endif
 
 #include <stdlib.h>
@@ -525,7 +530,11 @@ int main(int argc, char** argv) {
     }
 
     SkGraphics::Init();
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+    SkCodecs::Register(SkPngRustDecoder::Decoder());
+#else
     SkCodecs::Register(SkPngDecoder::Decoder());
+#endif
     SkCodecs::Register(SkJpegDecoder::Decoder());
 
     sk_sp<SkPicture> skp;

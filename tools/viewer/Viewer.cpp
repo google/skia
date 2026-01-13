@@ -9,6 +9,7 @@
 
 #include "bench/GpuTools.h"
 #include "gm/gm.h"
+#include "include/codec/SkCodec.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
@@ -29,7 +30,6 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTextBlob.h"
-#include "include/encode/SkPngEncoder.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
@@ -136,16 +136,16 @@
 #include "tools/viewer/SvgSlide.h"
 #endif
 
-#ifdef SK_CODEC_DECODES_AVIF
-#include "include/codec/SkAvifDecoder.h"
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+#include "include/codec/SkPngRustDecoder.h"
+#else
+#include "include/codec/SkPngDecoder.h"
 #endif
 
-#ifdef SK_CODEC_DECODES_JPEGXL
-#include "include/codec/SkJpegxlDecoder.h"
-#endif
-
-#ifdef SK_CODEC_DECODES_RAW
-#include "include/codec/SkRawDecoder.h"
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
+#include "include/encode/SkPngRustEncoder.h"
+#else
+#include "include/encode/SkPngEncoder.h"
 #endif
 
 using namespace skia_private;
@@ -1869,9 +1869,33 @@ public:
 static SkSerialProcs serial_procs_using_png() {
     SkSerialProcs sProcs;
     sProcs.fImageProc = [](SkImage* img, void*) -> SkSerialReturnType {
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
+        return SkPngRustEncoder::Encode(
+                as_IB(img)->directContext(), img, SkPngRustEncoder::Options{});
+#else
         return SkPngEncoder::Encode(as_IB(img)->directContext(), img, SkPngEncoder::Options{});
+#endif
     };
     return sProcs;
+}
+
+static SkDeserialProcs deserial_procs_using_png() {
+    SkDeserialProcs dProcs;
+    dProcs.fImageDataProc =
+            [](sk_sp<SkData> data, std::optional<SkAlphaType>, void*) -> sk_sp<SkImage> {
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+        std::unique_ptr<SkStream> stream = SkMemoryStream::Make(data);
+        auto codec = SkPngRustDecoder::Decode(std::move(stream), nullptr, nullptr);
+#else
+        auto codec = SkPngDecoder::Decode(data, nullptr, nullptr);
+#endif
+        if (!codec) {
+            SkDebugf("Invalid png data detected\n");
+            return nullptr;
+        }
+        return std::get<0>(codec->getImage());
+    };
+    return dProcs;
 }
 
 void Viewer::drawSlide(SkSurface* surface) {
@@ -2022,7 +2046,8 @@ void Viewer::drawSlide(SkSurface* surface) {
         SkSerialProcs sProcs = serial_procs_using_png();
         auto data = picture->serialize(&sProcs);
         slideCanvas = recorderRestoreCanvas;
-        slideCanvas->drawPicture(SkPicture::MakeFromData(data.get()));
+        SkDeserialProcs dProcs = deserial_procs_using_png();
+        slideCanvas->drawPicture(SkPicture::MakeFromData(data.get(), &dProcs));
     }
 
     // Force a flush so we can time that and add a gpu timer.

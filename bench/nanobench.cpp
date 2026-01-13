@@ -24,7 +24,6 @@
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkJpegDecoder.h"
-#include "include/codec/SkPngDecoder.h"
 #include "include/core/SkBBHFactory.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
@@ -79,6 +78,12 @@
 #include "tools/graphite/ContextFactory.h"
 #include "tools/graphite/GraphiteTestContext.h"
 #include "tools/graphite/GraphiteToolUtils.h"
+#endif
+
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+#include "include/codec/SkPngRustDecoder.h"
+#else
+#include "include/codec/SkPngDecoder.h"
 #endif
 
 #include <cinttypes>
@@ -856,12 +861,14 @@ public:
             return nullptr;
         }
         SkDeserialProcs procs;
-        procs.fImageDataProc = [](sk_sp<SkData> data, std::optional<SkAlphaType>, void* ctx) -> sk_sp<SkImage> {
-            if (!SkPngDecoder::IsPng(data->data(), data->size())) {
-                SkDebugf("non-png image serialized in skp\n");
-                return nullptr;
-            }
-            auto codec = SkPngDecoder::Decode(data, nullptr);
+        procs.fImageDataProc =
+                [](sk_sp<SkData> data, std::optional<SkAlphaType>, void* ctx) -> sk_sp<SkImage> {
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+            std::unique_ptr<SkStream> stream = SkMemoryStream::Make(data);
+            auto codec = SkPngRustDecoder::Decode(std::move(stream), nullptr, nullptr);
+#else
+            auto codec = SkPngDecoder::Decode(data, nullptr, nullptr);
+#endif
             if (!codec) {
                 SkDebugf("Invalid png data detected\n");
                 return nullptr;
@@ -1385,7 +1392,11 @@ int main(int argc, char** argv) {
     }
 
     // Our benchmarks only currently decode .png or .jpg files
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+    SkCodecs::Register(SkPngRustDecoder::Decoder());
+#else
     SkCodecs::Register(SkPngDecoder::Decoder());
+#endif
     SkCodecs::Register(SkJpegDecoder::Decoder());
 
     SkTaskGroup::Enabler enabled(FLAGS_threads);

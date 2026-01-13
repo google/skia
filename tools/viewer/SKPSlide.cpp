@@ -7,13 +7,23 @@
 
 #include "tools/viewer/SKPSlide.h"
 
+#include "include/codec/SkCodec.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkPicture.h"
+#include "include/core/SkSerialProcs.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTo.h"
 
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+#include "include/codec/SkPngRustDecoder.h"
+#else
+#include "include/codec/SkPngDecoder.h"
+#endif
+
+#include <memory>
 #include <utility>
 
 SKPSlide::SKPSlide(const SkString& name, const SkString& path)
@@ -49,7 +59,23 @@ void SKPSlide::load(SkScalar, SkScalar) {
         return;
     }
     fStream->rewind();
-    fPic = SkPicture::MakeFromStream(fStream.get());
+
+    SkDeserialProcs procs;
+    procs.fImageDataProc =
+            [](sk_sp<SkData> data, std::optional<SkAlphaType>, void*) -> sk_sp<SkImage> {
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+        std::unique_ptr<SkStream> stream = SkMemoryStream::Make(data);
+        auto codec = SkPngRustDecoder::Decode(std::move(stream), nullptr, nullptr);
+#else
+        auto codec = SkPngDecoder::Decode(data, nullptr, nullptr);
+#endif
+        if (!codec) {
+            SkDebugf("Invalid png data detected\n");
+            return nullptr;
+        }
+        return std::get<0>(codec->getImage());
+    };
+    fPic = SkPicture::MakeFromStream(fStream.get(), &procs);
     if (!fPic) {
         SkDebugf("Could not parse SkPicture from skp stream for slide %s.\n", fName.c_str());
         return;
