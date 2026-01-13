@@ -2,6 +2,29 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 145
+-------------
+  * Add `skhdr::Agtm` interface.
+
+    Provide an interface to to create SMPTE ST 2094-50 (also known as Adaptive
+    Global Tone Mapping) metadata. This interface includes parsing, serialization,
+    and tone mapping (via an SkColorFilter).
+
+    Add interface to set and get serialized AGTM metadata to `skhdr::Metadata`.
+  * Backend specific texture infos, e.g. `DawnTextureInfo`,
+    `VulkanTextureInfo`, and `MtlTextureInfo`'s `fSampleCount` field, and the
+    `ContextOptions::fInternalMultisampleCount` field are now `SampleCount`. A helper
+    function, `ToSampleCount(uint32_t) -> SampleCount` is provided if needing to convert a variable value vs. just updating a constant.
+  * `SkCodec::Options` now contains `fMaxDecodeMemory`. If Skia detects or estimates it would use more
+    than that amount of memory (in aggregate) for decoding the image, it will return nullptr instead
+    of attempting to decode it. Failures in this way will result in returning the new
+    `SkCodec::Result::kOutOfMemory`.
+  * Add the function `SkData::Equals`.
+
+    This function can compare two `SkData`s, even when both are nullptr.
+
+* * *
+
 Milestone 144
 -------------
   * `SkSerialProcs` now are expected to return a pointer-to-const data. This was implied before, but
