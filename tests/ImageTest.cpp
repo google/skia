@@ -52,7 +52,6 @@
 #include "src/core/SkColorData.h"
 #include "src/core/SkColorPriv.h"
 #include "src/core/SkColorSpacePriv.h"
-#include "src/core/SkImagePriv.h"
 #include "src/core/SkMemset.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -66,6 +65,7 @@
 #include "src/gpu/ganesh/image/SkImage_GaneshYUVA.h"
 #include "src/image/SkImageGeneratorPriv.h"
 #include "src/image/SkImage_Base.h"
+#include "src/image/SkImage_Raster.h"
 #include "src/shaders/SkImageShader.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
@@ -237,16 +237,16 @@ DEF_TEST(Image_MakeFromRasterBitmap, reporter) {
         bool            fExpectSameAsMutable;
         bool            fExpectSameAsImmutable;
     } recs[] = {
-        { kIfMutable_SkCopyPixelsMode,  false,  true },
-        { kAlways_SkCopyPixelsMode,     false,  false },
-        { kNever_SkCopyPixelsMode,      true,   true },
+            {SkCopyPixelsMode::kIfMutable, false, true},
+            {SkCopyPixelsMode::kAlways, false, false},
+            {SkCopyPixelsMode::kNever, true, true},
     };
     for (auto rec : recs) {
         SkPixmap pm;
         SkBitmap bm;
         bm.allocN32Pixels(100, 100);
 
-        auto img = SkMakeImageFromRasterBitmap(bm, rec.fCPM);
+        auto img = SkImage_Raster::MakeFromBitmap(bm, rec.fCPM);
         REPORTER_ASSERT(reporter, img->peekPixels(&pm));
         const bool sameMutable = pm.addr32(0, 0) == bm.getAddr32(0, 0);
         REPORTER_ASSERT(reporter, rec.fExpectSameAsMutable == sameMutable);
@@ -255,7 +255,7 @@ DEF_TEST(Image_MakeFromRasterBitmap, reporter) {
         bm.notifyPixelsChanged();   // force a new generation ID
 
         bm.setImmutable();
-        img = SkMakeImageFromRasterBitmap(bm, rec.fCPM);
+        img = SkImage_Raster::MakeFromBitmap(bm, rec.fCPM);
         REPORTER_ASSERT(reporter, img->peekPixels(&pm));
         const bool sameImmutable = pm.addr32(0, 0) == bm.getAddr32(0, 0);
         REPORTER_ASSERT(reporter, rec.fExpectSameAsImmutable == sameImmutable);

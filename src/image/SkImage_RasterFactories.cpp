@@ -17,7 +17,6 @@
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
-#include "src/core/SkImagePriv.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Raster.h"
 
@@ -76,11 +75,19 @@ sk_sp<SkImage> RasterFromBitmap(const SkBitmap& bm) {
         return nullptr;
     }
 
-    return SkMakeImageFromRasterBitmap(bm, kIfMutable_SkCopyPixelsMode);
+    return SkImage_Raster::MakeFromBitmap(bm, SkCopyPixelsMode::kIfMutable);
 }
 
 sk_sp<SkImage> RasterFromPixmapCopy(const SkPixmap& pmap) {
-    return MakeRasterCopyPriv(pmap, kNeedNewImageUniqueID);
+    size_t size;
+    if (!valid_args(pmap.info(), pmap.rowBytes(), &size) || !pmap.addr()) {
+        return nullptr;
+    }
+
+    // Here we actually make a copy of the caller's pixel data
+    sk_sp<SkData> data(SkData::MakeWithCopy(pmap.addr(), size));
+    return sk_make_sp<SkImage_Raster>(
+            pmap.info(), std::move(data), pmap.rowBytes(), kNeedNewImageUniqueID);
 }
 
 sk_sp<SkImage> RasterFromData(const SkImageInfo& info, sk_sp<SkData> data, size_t rowBytes) {
@@ -161,14 +168,3 @@ sk_sp<SkImage> RasterFromPixmap(const SkPixmap& pmap, RasterReleaseProc proc, Re
 }
 
 }  // namespace SkImages
-
-sk_sp<SkImage> MakeRasterCopyPriv(const SkPixmap& pmap, uint32_t id) {
-    size_t size;
-    if (!valid_args(pmap.info(), pmap.rowBytes(), &size) || !pmap.addr()) {
-        return nullptr;
-    }
-
-    // Here we actually make a copy of the caller's pixel data
-    sk_sp<SkData> data(SkData::MakeWithCopy(pmap.addr(), size));
-    return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes(), id);
-}

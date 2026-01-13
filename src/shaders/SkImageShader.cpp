@@ -24,7 +24,6 @@
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkImageInfoPriv.h"
-#include "src/core/SkImagePriv.h"
 #include "src/core/SkMipmapAccessor.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkRasterPipeline.h"
@@ -355,43 +354,24 @@ sk_sp<SkShader> SkImageShader::MakeSubset(sk_sp<SkImage> image,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkShader> SkMakeBitmapShaderForPaint(const SkPaint& paint, const SkBitmap& src,
-                                           SkTileMode tmx, SkTileMode tmy,
-                                           const SkSamplingOptions& sampling,
-                                           const SkMatrix* localMatrix, SkCopyPixelsMode mode) {
-    auto s = SkImageShader::Make(SkMakeImageFromRasterBitmap(src, mode),
-                                 tmx, tmy, sampling, localMatrix);
-    if (!s) {
-        return nullptr;
-    }
-    if (SkColorTypeIsAlphaOnly(src.colorType()) && paint.getShader()) {
-        // Compose the image shader with the paint's shader. Alpha images+shaders should output the
-        // texture's alpha multiplied by the shader's color. DstIn (d*sa) will achieve this with
-        // the source image and dst shader (MakeBlend takes dst first, src second).
-        s = SkShaders::Blend(SkBlendMode::kDstIn, paint.refShader(), std::move(s));
-    }
-    return s;
-}
-
-SkRect SkModifyPaintAndDstForDrawImageRect(const SkImage* image,
-                                           const SkSamplingOptions& sampling,
-                                           SkRect src,
-                                           SkRect dst,
-                                           bool strictSrcSubset,
-                                           SkPaint* paint) {
+std::pair<SkRect, sk_sp<SkShader>> SkImageShader::MakeForDrawRect(const SkImage* image,
+                                                                  const SkPaint& paint,
+                                                                  const SkSamplingOptions& sampling,
+                                                                  SkRect src,
+                                                                  SkRect dst,
+                                                                  bool strictSrcSubset) {
+    SkASSERT(image);
     // The paint should have already been cleaned for a regular drawImageRect, e.g. no path
     // effect and is a fill.
-    SkASSERT(paint);
-    SkASSERT(paint->getStyle() == SkPaint::kFill_Style && !paint->getPathEffect());
+    SkASSERT(paint.getStyle() == SkPaint::kFill_Style && !paint.getPathEffect());
 
-    SkASSERT(image);
     SkRect imgBounds = SkRect::Make(image->bounds());
 
     SkASSERT(src.isFinite() && dst.isFinite() && dst.isSorted());
     SkMatrix localMatrix = SkMatrix::RectToRectOrIdentity(src, dst);
     if (!imgBounds.contains(src)) {
         if (!src.intersect(imgBounds)) {
-            return SkRect::MakeEmpty(); // Nothing to draw for this entry
+            return {SkRect::MakeEmpty(), nullptr};  // Nothing to draw for this entry
         }
         // Update dst to match smaller src
         dst = localMatrix.mapRect(src);
@@ -409,17 +389,15 @@ SkRect SkModifyPaintAndDstForDrawImageRect(const SkImage* image,
                                       sampling, &localMatrix);
     }
     if (!imgShader) {
-        return SkRect::MakeEmpty();
+        return {SkRect::MakeEmpty(), nullptr};
     }
-    if (imageIsAlphaOnly && paint->getShader()) {
+    if (imageIsAlphaOnly && paint.getShader()) {
         // Compose the image shader with the paint's shader. Alpha images+shaders should output the
         // texture's alpha multiplied by the shader's color. DstIn (d*sa) will achieve this with
         // the source image and dst shader (MakeBlend takes dst first, src second).
-        imgShader = SkShaders::Blend(SkBlendMode::kDstIn, paint->refShader(), std::move(imgShader));
+        imgShader = SkShaders::Blend(SkBlendMode::kDstIn, paint.refShader(), std::move(imgShader));
     }
-
-    paint->setShader(std::move(imgShader));
-    return dst;
+    return {dst, std::move(imgShader)};
 }
 
 void SkShaderBase::RegisterFlattenables() { SK_REGISTER_FLATTENABLE(SkImageShader); }

@@ -44,7 +44,6 @@
 #include "src/core/SkDrawProcs.h"
 #include "src/core/SkDrawTypes.h"
 #include "src/core/SkImageInfoPriv.h"
-#include "src/core/SkImagePriv.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixUtils.h"
@@ -54,6 +53,8 @@
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkScan.h"
+#include "src/image/SkImage_Raster.h"
+#include "src/shaders/SkImageShader.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -71,9 +72,9 @@ static SkPaint make_paint_with_image(const SkPaint& origPaint, const SkBitmap& b
                                      const SkSamplingOptions& sampling,
                                      SkMatrix* matrix = nullptr) {
     SkPaint paint(origPaint);
-    paint.setShader(SkMakeBitmapShaderForPaint(origPaint, bitmap, SkTileMode::kClamp,
-                                               SkTileMode::kClamp, sampling, matrix,
-                                               kNever_SkCopyPixelsMode));
+    auto img = SkImage_Raster::MakeFromBitmap(bitmap, SkCopyPixelsMode::kNever);
+    paint.setShader(img->makeShaderForPaint(
+            origPaint, SkTileMode::kClamp, SkTileMode::kClamp, sampling, matrix));
     return paint;
 }
 

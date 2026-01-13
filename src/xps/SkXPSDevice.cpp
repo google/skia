@@ -42,15 +42,16 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkGeometry.h"
-#include "src/core/SkImagePriv.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/image/SkImage_Base.h"
+#include "src/image/SkImage_Raster.h"
 #include "src/sfnt/SkSFNTHeader.h"
 #include "src/sfnt/SkTTCFHeader.h"
 #include "src/shaders/SkColorShader.h"
+#include "src/shaders/SkImageShader.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/text/GlyphRun.h"
 #include "src/utils/SkClipStackUtils.h"
@@ -2008,14 +2009,16 @@ void SkXPSDevice::drawImageRect(const SkImage* image,
         matrix.mapRect(&actualDst, srcBounds);
     }
 
-    auto bitmapShader = SkMakeBitmapShaderForPaint(paint, bitmap,
-                                                   SkTileMode::kClamp, SkTileMode::kClamp,
-                                                   sampling, &matrix, kNever_SkCopyPixelsMode);
-    SkASSERT(bitmapShader);
-    if (!bitmapShader) { return; }
+    auto img = SkImage_Raster::MakeFromBitmap(bitmap, SkCopyPixelsMode::kNever);
+    auto imgShader = img->makeShaderForPaint(
+            paint, SkTileMode::kClamp, SkTileMode::kClamp, sampling, &matrix);
+    SkASSERT(imgShader);
+    if (!imgShader) {
+        return;
+    }
     SkPaint paintWithShader(paint);
     paintWithShader.setStyle(SkPaint::kFill_Style);
-    paintWithShader.setShader(std::move(bitmapShader));
+    paintWithShader.setShader(std::move(imgShader));
     this->drawRect(actualDst, paintWithShader);
 }
 #endif//defined(SK_BUILD_FOR_WIN)

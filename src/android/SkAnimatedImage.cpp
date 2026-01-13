@@ -15,7 +15,7 @@
 #include "include/core/SkPixelRef.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkPixmapUtilsPriv.h"
-#include "src/core/SkImagePriv.h"
+#include "src/image/SkImage_Raster.h"
 
 #include <limits.h>
 #include <utility>
@@ -365,8 +365,7 @@ sk_sp<SkImage> SkAnimatedImage::getCurrentFrameSimple() {
     // This SkBitmap may be reused later to decode the following frame. But Frame::init
     // lazily copies the pixel ref if it has any other references. So it is safe to not
     // do a deep copy here.
-    return SkMakeImageFromRasterBitmap(fDisplayFrame.fBitmap,
-                                       kNever_SkCopyPixelsMode);
+    return SkImage_Raster::MakeFromBitmap(fDisplayFrame.fBitmap, SkCopyPixelsMode::kNever);
 }
 
 sk_sp<SkImage> SkAnimatedImage::getCurrentFrame() {
@@ -385,7 +384,7 @@ sk_sp<SkImage> SkAnimatedImage::getCurrentFrame() {
 
     SkCanvas canvas(dst);
     this->draw(&canvas);
-    return SkMakeImageFromRasterBitmap(dst, kNever_SkCopyPixelsMode);
+    return SkImage_Raster::MakeFromBitmap(dst, SkCopyPixelsMode::kNever);
 }
 
 void SkAnimatedImage::setFilterMode(SkFilterMode filterMode) {

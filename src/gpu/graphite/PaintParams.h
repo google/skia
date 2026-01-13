@@ -45,7 +45,7 @@ class UniquePaintParamsID;
 class PaintParams {
 public:
     // Stores just the parameters of the implicit image shading model used by drawImageRect and
-    // other image-drawing APIs, e.g. to apply SkModifyPaintAndDstForDrawImageRect without the
+    // other image-drawing APIs, e.g. to apply SkImageShader::MakeForDrawRect without the
     // overhead of creating additional SkShader objects. Assumes clamp tiling; if no clamping is
     // required, set to the image's bounds.
     struct SimpleImage {

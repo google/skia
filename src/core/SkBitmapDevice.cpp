@@ -31,12 +31,13 @@
 #include "include/private/base/SkTo.h"
 #include "src/core/SkCPURecorderImpl.h"
 #include "src/core/SkDraw.h"
-#include "src/core/SkImagePriv.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/image/SkImage_Base.h"
+#include "src/image/SkImage_Raster.h"
+#include "src/shaders/SkImageShader.h"
 #include "src/text/GlyphRun.h"
 
 #include <utility>
@@ -515,15 +516,16 @@ void SkBitmapDevice::drawImageRect(const SkImage* image, const SkRect* src, cons
     USE_SHADER:
 
     // construct a shader, so we can call drawRect with the dst
-    auto s = SkMakeBitmapShaderForPaint(paint, *bitmapPtr, SkTileMode::kClamp, SkTileMode::kClamp,
-                                        sampling, &matrix, kNever_SkCopyPixelsMode);
-    if (!s) {
+    auto img = SkImage_Raster::MakeFromBitmap(*bitmapPtr, SkCopyPixelsMode::kNever);
+    auto shader = img->makeShaderForPaint(
+            paint, SkTileMode::kClamp, SkTileMode::kClamp, sampling, &matrix);
+    if (!shader) {
         return;
     }
 
     SkPaint paintWithShader(paint);
     paintWithShader.setStyle(SkPaint::kFill_Style);
-    paintWithShader.setShader(std::move(s));
+    paintWithShader.setShader(std::move(shader));
 
     // Call ourself, in case the subclass wanted to share this setup code
     // but handle the drawRect code themselves.

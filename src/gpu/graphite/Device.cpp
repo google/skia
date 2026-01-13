@@ -47,7 +47,6 @@
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkImageFilterTypes.h"  // IWYU pragma: keep
-#include "src/core/SkImagePriv.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRRectPriv.h"
@@ -1311,7 +1310,7 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
         // Similarly, if it has an extra transform, those must be provided
         SkASSERT(set[i].fMatrixIndex < 0 || preViewMatrices);
 
-        // See SkModifyPaintAndDstForDrawImageRect, as this behavior is consistent but avoids
+        // See SkImageShader::MakeForDrawRect, as this behavior is consistent but avoids
         // allocating SkShader objects or having to modify the SkPaint.
         // Adjust `dst` such that it only samples from the portion of fSrcRect that overlaps with
         // the image bounds. This "decal" effect is applied geometrically to what is drawn so that
