@@ -70,6 +70,14 @@ skia_cc_library(
         "//include/docs:pdf_hdrs",
     ],
     features = ["layering_check"],
+    implementation_deps = [
+        "@zlib",
+    ] +
+    # We have this harfbuzz dependency all by itself because we need to turn this into a
+    # select statement when rolling into G3.
+    [
+        "@harfbuzz",
+    ],
     local_defines = ["SK_PDF_USE_HARFBUZZ_SUBSET"],
     visibility = ["//:__pkg__"],
     deps = [
@@ -82,14 +90,8 @@ skia_cc_library(
         "//src/utils:clip_stack_utils",
         "//src/utils:float_to_decimal",
         "//modules/skcms",
-        "@zlib",
         # TODO(kjlubick) Remove this dependency after migrating clients
         ":jpeg_helpers",
-    ] +
-    # We have this harfbuzz dependency all by itself because we need to turn this into a
-    # select statement when rolling into G3.
-    [
-        "@harfbuzz",
     ],
 )
 
