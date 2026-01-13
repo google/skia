@@ -23,7 +23,7 @@
 #include <cstdint>
 #include <memory>
 
-#include "zlib.h"
+#include <zlib.h>
 
 using namespace skia_private;
 

@@ -188,6 +188,8 @@ cc_library(
         "zlib.h",
     ],
     copts = ZLIB_COPTS,
+    # Export the directory with hdrs so that `#include <zlib.h>` is allowed.
+    includes = ["."],
     local_defines = ZLIB_DEFINES,
     visibility = ["//visibility:public"],
 )
