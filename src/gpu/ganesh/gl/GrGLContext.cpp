@@ -19,14 +19,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> interface,
+std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> iface,
                                                const GrContextOptions& options) {
-    if (!interface->validate()) {
+    if (!iface->validate()) {
         return nullptr;
     }
 
     ConstructorArgs args;
-    args.fDriverInfo = GrGLGetDriverInfo(interface.get());
+    args.fDriverInfo = GrGLGetDriverInfo(iface.get());
     if (args.fDriverInfo.fVersion == GR_GL_INVALID_VER) {
         return nullptr;
     }
@@ -74,18 +74,18 @@ std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> interf
     // extension to be enabled, even when using ESSL3. Some devices appear to only support the ES2
     // extension. As an extreme (optional) solution, we can fallback to using ES2 shading language
     // if we want to prioritize external texture support. skbug.com/40038974
-    if (GR_IS_GR_GL_ES(interface->fStandard) &&
+    if (GR_IS_GR_GL_ES(iface->fStandard) &&
         options.fPreferExternalImagesOverES3 &&
         !options.fDisableDriverCorrectnessWorkarounds &&
-        interface->hasExtension("GL_OES_EGL_image_external") &&
+        iface->hasExtension("GL_OES_EGL_image_external") &&
         args.fGLSLGeneration >= SkSL::GLSLGeneration::k330 &&
-        !interface->hasExtension("GL_OES_EGL_image_external_essl3") &&
-        !interface->hasExtension("OES_EGL_image_external_essl3")) {
+        !iface->hasExtension("GL_OES_EGL_image_external_essl3") &&
+        !iface->hasExtension("OES_EGL_image_external_essl3")) {
         args.fGLSLGeneration = SkSL::GLSLGeneration::k100es;
     }
 
     args.fContextOptions = &options;
-    args.fInterface = std::move(interface);
+    args.fInterface = std::move(iface);
 
     return std::unique_ptr<GrGLContext>(new GrGLContext(std::move(args)));
 }

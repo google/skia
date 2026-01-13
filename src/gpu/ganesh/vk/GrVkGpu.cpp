@@ -111,16 +111,16 @@ std::unique_ptr<GrGpu> GrVkGpu::Make(const skgpu::VulkanBackendContext& backendC
 
     uint32_t instanceVersion = 0;
     uint32_t physDevVersion = 0;
-    sk_sp<const skgpu::VulkanInterface> interface =
+    sk_sp<const skgpu::VulkanInterface> iface =
             skgpu::MakeInterface(backendContext, extensions, &instanceVersion, &physDevVersion);
-    if (!interface) {
+    if (!iface) {
         return nullptr;
     }
 
     sk_sp<GrVkCaps> caps;
     if (backendContext.fDeviceFeatures2) {
         caps.reset(new GrVkCaps(options,
-                                interface.get(),
+                                iface.get(),
                                 backendContext.fPhysicalDevice,
                                 *backendContext.fDeviceFeatures2,
                                 instanceVersion,
@@ -132,7 +132,7 @@ std::unique_ptr<GrGpu> GrVkGpu::Make(const skgpu::VulkanBackendContext& backendC
         features2.pNext = nullptr;
         features2.features = *backendContext.fDeviceFeatures;
         caps.reset(new GrVkCaps(options,
-                                interface.get(),
+                                iface.get(),
                                 backendContext.fPhysicalDevice,
                                 features2,
                                 instanceVersion,
@@ -143,7 +143,7 @@ std::unique_ptr<GrGpu> GrVkGpu::Make(const skgpu::VulkanBackendContext& backendC
         VkPhysicalDeviceFeatures2 features;
         memset(&features, 0, sizeof(VkPhysicalDeviceFeatures2));
         caps.reset(new GrVkCaps(options,
-                                interface.get(),
+                                iface.get(),
                                 backendContext.fPhysicalDevice,
                                 features,
                                 instanceVersion,
@@ -174,7 +174,7 @@ std::unique_ptr<GrGpu> GrVkGpu::Make(const skgpu::VulkanBackendContext& backendC
     std::unique_ptr<GrVkGpu> vkGpu(new GrVkGpu(direct,
                                                backendContext,
                                                std::move(caps),
-                                               interface,
+                                               iface,
                                                instanceVersion,
                                                physDevVersion,
                                                std::move(memoryAllocator)));
@@ -190,12 +190,12 @@ std::unique_ptr<GrGpu> GrVkGpu::Make(const skgpu::VulkanBackendContext& backendC
 GrVkGpu::GrVkGpu(GrDirectContext* direct,
                  const skgpu::VulkanBackendContext& backendContext,
                  sk_sp<GrVkCaps> caps,
-                 sk_sp<const skgpu::VulkanInterface> interface,
+                 sk_sp<const skgpu::VulkanInterface> iface,
                  uint32_t instanceVersion,
                  uint32_t physicalDeviceVersion,
                  sk_sp<skgpu::VulkanMemoryAllocator> memoryAllocator)
         : INHERITED(direct)
-        , fInterface(std::move(interface))
+        , fInterface(std::move(iface))
         , fMemoryAllocator(std::move(memoryAllocator))
         , fVkCaps(std::move(caps))
         , fPhysicalDevice(backendContext.fPhysicalDevice)
@@ -826,9 +826,9 @@ bool GrVkGpu::uploadTexDataLinear(GrVkImage* texImage,
     };
     VkSubresourceLayout layout;
 
-    const skgpu::VulkanInterface* interface = this->vkInterface();
+    const skgpu::VulkanInterface* iface = this->vkInterface();
 
-    GR_VK_CALL(interface, GetImageSubresourceLayout(fDevice,
+    GR_VK_CALL(iface, GetImageSubresourceLayout(fDevice,
                                                     texImage->image(),
                                                     &subres,
                                                     &layout));
