@@ -133,7 +133,7 @@ struct SK_API MasteringDisplayColorVolume {
  */
 struct SK_API AdaptiveGlobalToneMap {
     // A GainCurve metadata group.
-    struct GainCurve {
+    struct SK_API GainCurve {
         // Structure holding one entry of the GainCurveControlPointX, GainCurveControlPointY, and
         // GainCurveControlPointM metadata items.
         struct ControlPoint {
@@ -149,7 +149,7 @@ struct SK_API AdaptiveGlobalToneMap {
     };
 
     // A ComponentMix metadata group.
-    struct ComponentMixingFunction {
+    struct SK_API ComponentMixingFunction {
         // The ComponentMixRed/Green/Blue/Max/Min/Component metadata items.
         float fRed = 0.f;
         float fGreen = 0.f;
@@ -160,7 +160,7 @@ struct SK_API AdaptiveGlobalToneMap {
     };
 
     // A ColorGainFunction metadata group.
-    struct ColorGainFunction {
+    struct SK_API ColorGainFunction {
         // The ComponentMix metadata group.
         ComponentMixingFunction fComponentMixing;
 
@@ -169,7 +169,7 @@ struct SK_API AdaptiveGlobalToneMap {
     };
 
     // Structure holding the metadata items and groups for an alternate image.
-    struct AlternateImage {
+    struct SK_API AlternateImage {
         // The AlternateHdrHeadroom metadata item.
         float fHdrHeadroom = 0.f;
 
@@ -178,7 +178,7 @@ struct SK_API AdaptiveGlobalToneMap {
     };
 
     // HeadroomAdaptiveToneMap metadata group.
-    struct HeadroomAdaptiveToneMap {
+    struct SK_API HeadroomAdaptiveToneMap {
         HeadroomAdaptiveToneMap();
 
         // The BaselineHdrHeadroom metadata item.
@@ -216,11 +216,6 @@ struct SK_API AdaptiveGlobalToneMap {
      * Return a human-readable description.
      */
     SkString toString() const;
-
-    bool operator==(const AdaptiveGlobalToneMap& other) const;
-    bool operator!=(const AdaptiveGlobalToneMap& other) const {
-        return !(*this == other);
-    }
 };
 
 /**
