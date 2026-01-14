@@ -228,8 +228,6 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
     args['skia_enable_precompile'] = 'false'
   if 'Graphite' in extra_tokens:
     args['skia_enable_graphite'] = 'true'
-  if 'Vello' in extra_tokens:
-    args['skia_enable_vello_shaders'] = 'true'
   if 'Fontations' in extra_tokens:
     args['skia_use_fontations'] = 'true'
     args['skia_use_freetype'] = 'true' # we compare with freetype in tests

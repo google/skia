@@ -151,9 +151,6 @@
     "name": "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoPrecompile"
   },
   {
-    "name": "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_Vello"
-  },
-  {
     "name": "Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal"
   },
   {
@@ -167,9 +164,6 @@
   },
   {
     "name": "Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_NoPrecompile"
-  },
-  {
-    "name": "Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_Vello"
   },
   {
     "name": "Build-Mac-Clang-arm64-Debug-Metal"
@@ -269,13 +263,7 @@
     }
   },
   {
-    "name": "Build-Mac-Clang-x86_64-Debug-Graphite_Dawn_Metal_Vello"
-  },
-  {
     "name": "Build-Mac-Clang-x86_64-Debug-Graphite_Native_Metal"
-  },
-  {
-    "name": "Build-Mac-Clang-x86_64-Debug-Graphite_Native_Metal_Vello"
   },
   {
     "name": "Build-Mac-Clang-x86_64-Debug-Metal",
@@ -292,13 +280,7 @@
     "name": "Build-Mac-Clang-x86_64-Release-Graphite_Dawn_Metal"
   },
   {
-    "name": "Build-Mac-Clang-x86_64-Release-Graphite_Dawn_Metal_Vello"
-  },
-  {
     "name": "Build-Mac-Clang-x86_64-Release-Graphite_Native_Metal"
-  },
-  {
-    "name": "Build-Mac-Clang-x86_64-Release-Graphite_Native_Metal_Vello"
   },
   {
     "name": "Build-Mac-Clang-x86_64-Release-Metal"
@@ -479,9 +461,6 @@
     "name": "Build-Ubuntu24.04-Clang-x86_64-Debug-Graphite_Dawn_Vulkan"
   },
   {
-    "name": "Build-Ubuntu24.04-Clang-x86_64-Debug-Graphite_Dawn_Vulkan_Vello"
-  },
-  {
     "name": "Build-Ubuntu24.04-Clang-x86_64-Debug-Graphite_Native_Vulkan",
     "cq_config": {}
   },
@@ -563,9 +542,6 @@
   },
   {
     "name": "Build-Ubuntu24.04-Clang-x86_64-Release-Graphite_Dawn_Vulkan"
-  },
-  {
-    "name": "Build-Ubuntu24.04-Clang-x86_64-Release-Graphite_Dawn_Vulkan_Vello"
   },
   {
     "name": "Build-Ubuntu24.04-Clang-x86_64-Release-Graphite_Native_Vulkan"
@@ -1701,14 +1677,8 @@
     "name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Graphite_Dawn_Metal_FakeWGPU"
   },
   {
-    "name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Graphite_Dawn_Metal_Vello"
-  },
-  {
     "name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Graphite_Native_Metal",
     "cq_config": {}
-  },
-  {
-    "name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Graphite_Native_Metal_Vello"
   },
   {
     "name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Metal"

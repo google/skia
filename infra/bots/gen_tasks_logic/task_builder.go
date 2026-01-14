@@ -253,7 +253,7 @@ func (b *TaskBuilder) usesCCache() {
 // shellsOutToBazel returns true if this task normally uses GN but some step
 // shells out to Bazel to build stuff, e.g. rust code.
 func (b *TaskBuilder) shellsOutToBazel() bool {
-	return b.ExtraConfig("Vello", "Fontations", "RustPNG")
+	return b.ExtraConfig("Fontations", "RustPNG")
 }
 
 func (b *TaskBuilder) usesCMake() {
