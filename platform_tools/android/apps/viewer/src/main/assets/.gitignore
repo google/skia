@@ -1,2 +1,2 @@
-/resources
-/skps
+*
+!.gitignore
