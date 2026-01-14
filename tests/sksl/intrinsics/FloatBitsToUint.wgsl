@@ -1,7 +1,3 @@
-### Compilation failed:
-
-error: Tint compilation failed.
-
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
 struct FSOut {
@@ -17,7 +13,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     let inputVal: vec4<f32> = vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1]) * vec4<f32>(1.0, 1.0, -1.0, -1.0);
     const expectedB: vec4<u32> = vec4<u32>(1065353216u, 1073741824u, 3225419776u, 3229614080u);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((floatBitsToUint(inputVal.x) == 1065353216u) && all(floatBitsToUint(inputVal.xy) == vec2<u32>(1065353216u, 1073741824u))) && all(floatBitsToUint(inputVal.xyz) == vec3<u32>(1065353216u, 1073741824u, 3225419776u))) && all(floatBitsToUint(inputVal) == expectedB)));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((bitcast<u32>(inputVal.x) == 1065353216u) && all(bitcast<vec2<u32>>(inputVal.xy) == vec2<u32>(1065353216u, 1073741824u))) && all(bitcast<vec3<u32>>(inputVal.xyz) == vec3<u32>(1065353216u, 1073741824u, 3225419776u))) && all(bitcast<vec4<u32>>(inputVal) == expectedB)));
   }
 }
 @fragment fn main() -> FSOut {
@@ -25,5 +21,3 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   _stageOut.sk_FragColor = _skslMain(/*fragcoord*/ vec2<f32>());
   return _stageOut;
 }
-
-1 error

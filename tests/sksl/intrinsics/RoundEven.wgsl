@@ -1,7 +1,3 @@
-### Compilation failed:
-
-error: Tint compilation failed.
-
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
 struct FSOut {
@@ -16,7 +12,7 @@ struct _GlobalUniforms {
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     const expectedA: vec4<f32> = vec4<f32>(-1.0, 0.0, 1.0, 2.0);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((f32(roundEven(_globalUniforms.testInputs.x)) == -1.0) && all(vec2<f32>(roundEven(_globalUniforms.testInputs.xy)) == vec2<f32>(-1.0, 0.0))) && all(vec3<f32>(roundEven(_globalUniforms.testInputs.xyz)) == vec3<f32>(-1.0, 0.0, 1.0))) && all(vec4<f32>(roundEven(_globalUniforms.testInputs)) == expectedA)));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((f32(round(_globalUniforms.testInputs.x)) == -1.0) && all(vec2<f32>(round(_globalUniforms.testInputs.xy)) == vec2<f32>(-1.0, 0.0))) && all(vec3<f32>(round(_globalUniforms.testInputs.xyz)) == vec3<f32>(-1.0, 0.0, 1.0))) && all(vec4<f32>(round(_globalUniforms.testInputs)) == expectedA)));
   }
 }
 @fragment fn main() -> FSOut {
@@ -24,5 +20,3 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   _stageOut.sk_FragColor = _skslMain(/*fragcoord*/ vec2<f32>());
   return _stageOut;
 }
-
-1 error

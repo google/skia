@@ -6,16 +6,43 @@ uniform uint b;
 error: 3: 'main' must return: 'vec4', 'float4', or 'half4'
 void main() {
 ^^^^^^^^^^^
-error: 4: unknown identifier 'sk_FragColor'
-    sk_FragColor.x = half(bitCount(a));
-    ^^^^^^^^^^^^
 error: 4: unknown identifier 'bitCount'
-    sk_FragColor.x = half(bitCount(a));
-                          ^^^^^^^^
-error: 5: unknown identifier 'sk_FragColor'
-    sk_FragColor.y = half(bitCount(b));
-    ^^^^^^^^^^^^
+    int b1 = bitCount(a) + bitCount(b);
+             ^^^^^^^^
+error: 4: unknown identifier 'bitCount'
+    int b1 = bitCount(a) + bitCount(b);
+                           ^^^^^^^^
 error: 5: unknown identifier 'bitCount'
-    sk_FragColor.y = half(bitCount(b));
-                          ^^^^^^^^
-6 errors
+    int2 b2 = bitCount(int2(a)) + bitCount(uint2(b));
+              ^^^^^^^^
+error: 5: unknown identifier 'bitCount'
+    int2 b2 = bitCount(int2(a)) + bitCount(uint2(b));
+                                  ^^^^^^^^
+error: 6: unknown identifier 'bitCount'
+    int3 b3 = bitCount(int3(a)) + bitCount(uint3(b));
+              ^^^^^^^^
+error: 6: unknown identifier 'bitCount'
+    int3 b3 = bitCount(int3(a)) + bitCount(uint3(b));
+                                  ^^^^^^^^
+error: 7: unknown identifier 'bitCount'
+    int4 b4 = bitCount(int4(a)) + bitCount(uint4(b));
+              ^^^^^^^^
+error: 7: unknown identifier 'bitCount'
+    int4 b4 = bitCount(int4(a)) + bitCount(uint4(b));
+                                  ^^^^^^^^
+error: 9: unknown identifier 'sk_FragColor'
+    sk_FragColor = half4(b1.xxxx + b2.xyxy + b3.xyz1 + b4);
+    ^^^^^^^^^^^^
+error: 9: unknown identifier 'b1'
+    sk_FragColor = half4(b1.xxxx + b2.xyxy + b3.xyz1 + b4);
+                         ^^
+error: 9: unknown identifier 'b2'
+    sk_FragColor = half4(b1.xxxx + b2.xyxy + b3.xyz1 + b4);
+                                   ^^
+error: 9: unknown identifier 'b3'
+    sk_FragColor = half4(b1.xxxx + b2.xyxy + b3.xyz1 + b4);
+                                             ^^
+error: 9: unknown identifier 'b4'
+    sk_FragColor = half4(b1.xxxx + b2.xyxy + b3.xyz1 + b4);
+                                                       ^^
+15 errors

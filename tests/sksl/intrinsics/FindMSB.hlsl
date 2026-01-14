@@ -14,8 +14,16 @@ struct SPIRV_Cross_Output
 
 void frag_main()
 {
-    sk_FragColor.x = float(firstbithigh(_11_a));
-    sk_FragColor.y = float(int(firstbithigh(_11_b)));
+    int _30 = firstbithigh(_11_a) + int(firstbithigh(_11_b));
+    int b1 = _30;
+    int2 _43 = firstbithigh(_11_a.xx) + int2(firstbithigh(_11_b.xx));
+    int2 b2 = _43;
+    int3 _56 = firstbithigh(_11_a.xxx) + int3(firstbithigh(_11_b.xxx));
+    int3 b3 = _56;
+    int4 _69 = firstbithigh(_11_a.xxxx) + int4(firstbithigh(_11_b.xxxx));
+    int4 b4 = _69;
+    int4 _78 = ((_30.xxxx + _43.xyxy) + int4(_56, 1)) + _69;
+    sk_FragColor = float4(float(_78.x), float(_78.y), float(_78.z), float(_78.w));
 }
 
 SPIRV_Cross_Output main()

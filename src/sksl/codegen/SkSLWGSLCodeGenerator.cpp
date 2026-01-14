@@ -168,6 +168,10 @@ public:
                       PrettyPrint pp,
                       IncludeSyntheticCode isc)
             : CodeGenerator(context, caps, program, out)
+            , fWrittenInverse({false, false, false})
+            , fWrittenOuterProduct({std::array{false, false, false},
+                                    std::array{false, false, false},
+                                    std::array{false, false, false}})
             , fPrettyPrint(pp)
             , fGenSyntheticCode(isc) {}
 
@@ -294,6 +298,7 @@ private:
                                                                   const Expression& sampler,
                                                                   const Expression& coords);
     std::string assembleInversePolyfill(const FunctionCall& call);
+    std::string assembleOuterProductPolyfill(const FunctionCall& call);
     std::string assembleComponentwiseMatrixBinary(const Type& leftType,
                                                   const Type& rightType,
                                                   const std::string& left,
@@ -392,10 +397,10 @@ private:
     skia_private::TArray<const Variable*> fPipelineOutputs;
 
     // These fields track whether we have written the polyfill for `inverse()` for a given matrix
-    // type.
-    bool fWrittenInverse2 = false;
-    bool fWrittenInverse3 = false;
-    bool fWrittenInverse4 = false;
+    // type. Indexed by row or column count - 2, i.e. [2,3,4] -> idx [0,1,2]
+    std::array<bool, 3> fWrittenInverse;
+    std::array<std::array<bool, 3>, 3> fWrittenOuterProduct;
+
     PrettyPrint fPrettyPrint;
     IncludeSyntheticCode fGenSyntheticCode;
 
@@ -3188,6 +3193,9 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         case k_inverse_IntrinsicKind:
             return this->assembleInversePolyfill(call);
 
+        case k_outerProduct_IntrinsicKind:
+            return this->assembleOuterProductPolyfill(call);
+
         case k_inversesqrt_IntrinsicKind:
             return this->assembleSimpleIntrinsic("inverseSqrt", call);
 
@@ -3253,6 +3261,45 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
 
         case k_packUnorm4x8_IntrinsicKind:
             return this->assembleSimpleIntrinsic("pack4x8unorm", call);
+
+        case k_findLSB_IntrinsicKind: {
+            // firstTrailingBit (and firstLeadingBit) return a type matching their input, but
+            // findLSB and findMSB in SkSL return signed types. Add a cast if needed.
+            std::string lsb = this->assembleSimpleIntrinsic("firstTrailingBit", call);
+            return arguments[0]->type().componentType().isSigned() ? lsb :
+                    (to_wgsl_type(fContext, call.type()) + "(" + lsb + ")");
+        }
+
+        case k_findMSB_IntrinsicKind: {
+            std::string msb = this->assembleSimpleIntrinsic("firstLeadingBit", call);
+            return arguments[0]->type().componentType().isSigned() ? msb :
+                    (to_wgsl_type(fContext, call.type()) + "(" + msb + ")");
+        }
+
+        case k_bitCount_IntrinsicKind: {
+            // countOneBits returns a type matching its input, but bitCount in SkSL returns a
+            // signed type. Add a cast if needed.
+            std::string bitCount = this->assembleSimpleIntrinsic("countOneBits", call);
+            return arguments[0]->type().componentType().isSigned() ? bitCount :
+                    (to_wgsl_type(fContext, call.type()) + "(" + bitCount + ")");
+        }
+
+        case k_floatBitsToInt_IntrinsicKind:
+        case k_floatBitsToUint_IntrinsicKind:
+        case k_intBitsToFloat_IntrinsicKind:
+        case k_uintBitsToFloat_IntrinsicKind: {
+            std::string outputType = to_wgsl_type(fContext, call.type());
+            return this->assembleSimpleIntrinsic("bitcast<" + outputType + ">", call);
+        }
+
+        case k_roundEven_IntrinsicKind:
+        case k_round_IntrinsicKind:
+            // WGSL has no built-in roundEven(), but its round() is defined as:
+            //     "When e lies halfway between integers k and k + 1, the result is k when k is
+            //      even, and k + 1 when k is odd."
+            // This is equivalent to GLSL's roundEven(). GLSL's round() is allowed to just match
+            // roundEven().
+            return this->assembleSimpleIntrinsic("round", call);
 
         case k_reflect_IntrinsicKind:
             if (arguments[0]->type().isScalar()) {
@@ -3471,6 +3518,22 @@ static constexpr char kInverse4x4[] =
 "\n" "}"
 "\n";
 
+// Generates outer_product_$Cx$R(vec$R<f32}>, vec$C<f32>) -> mat$Cx$R<f32>
+static std::string gen_outer_product_fn(int c, int r) {
+    return String::printf(
+            "fn outer_product%dx%d(a: vec%d<f32>, b: vec%d<f32>) -> mat%dx%d<f32> {\n"
+                "var m : mat%dx%d<f32>;\n"
+                "for (var c = 0; c < %d; c++) { m[c] = a * b[c]; }\n"
+                "return m;\n"
+            "}\n",
+            /* outer_product$Cx$R */ c, r,
+            /* vec$R */ r,
+            /* vec$C */ c,
+            /* mat$Cx$R */ c, r,
+            /* mat$Cx$R */ c, r,
+            /* c < $C */ c);
+}
+
 std::string WGSLCodeGenerator::assembleInversePolyfill(const FunctionCall& call) {
     const ExpressionArray& arguments = call.arguments();
     const Type& type = arguments.front()->type();
@@ -3482,32 +3545,37 @@ std::string WGSLCodeGenerator::assembleInversePolyfill(const FunctionCall& call)
     SkASSERT(type.isMatrix());
     SkASSERT(type.rows() == type.columns());
 
-    switch (type.slotCount()) {
-        case 4:
-            if (!fWrittenInverse2) {
-                fWrittenInverse2 = true;
-                fHeader.writeText(kInverse2x2);
-            }
-            return this->assembleSimpleIntrinsic("mat2_inverse", call);
-
-        case 9:
-            if (!fWrittenInverse3) {
-                fWrittenInverse3 = true;
-                fHeader.writeText(kInverse3x3);
-            }
-            return this->assembleSimpleIntrinsic("mat3_inverse", call);
-
-        case 16:
-            if (!fWrittenInverse4) {
-                fWrittenInverse4 = true;
-                fHeader.writeText(kInverse4x4);
-            }
-            return this->assembleSimpleIntrinsic("mat4_inverse", call);
-
-        default:
-            // We only support square matrices.
-            SkUNREACHABLE;
+    const int idx = type.rows() - 2;
+    if (!fWrittenInverse[idx]) {
+        static constexpr std::array<const char*, 3> kTemplates{kInverse2x2,
+                                                               kInverse3x3,
+                                                               kInverse4x4};
+        fWrittenInverse[idx] = true;
+        fHeader.writeText(kTemplates[idx]);
     }
+    return this->assembleSimpleIntrinsic(String::printf("mat%d_inverse", type.rows()), call);
+}
+
+std::string WGSLCodeGenerator::assembleOuterProductPolyfill(const FunctionCall& call) {
+    // The outer product should take two vector arguments, with the first type's component count
+    // defining R and the second type's component count defining C.
+    const ExpressionArray& arguments = call.arguments();
+    SkASSERT(arguments.size() == 2);
+    SkASSERT(arguments[0]->type().isVector() && arguments[1]->type().isVector());
+    SkASSERT(call.type().isMatrix());
+
+    const int r = arguments[0]->type().columns();
+    const int c = arguments[1]->type().columns();
+    SkASSERT(r == call.type().rows() && c == call.type().columns());
+
+    const int cIdx = c - 2;
+    const int rIdx = r - 2;
+    if (!fWrittenOuterProduct[cIdx][rIdx]) {
+        fWrittenOuterProduct[cIdx][rIdx] = true;
+        fHeader.writeText(gen_outer_product_fn(c, r).c_str());
+    }
+
+    return this->assembleSimpleIntrinsic(String::printf("outer_product%dx%d", c, r), call);
 }
 
 std::string WGSLCodeGenerator::assembleFunctionCall(const FunctionCall& call,
