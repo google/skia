@@ -6,9 +6,11 @@
  */
 
 #include "include/core/SkPicture.h"
+#include "include/core/SkSerialProcs.h"
 #include "include/core/SkStream.h"
 #include "include/utils/SkNullCanvas.h"
 #include "src/utils/SkJSONWriter.h"
+#include "tools/DeserialProcsUtils.h"
 #include "tools/UrlDataManager.h"
 #include "tools/debugger/DebugCanvas.h"
 
@@ -47,7 +49,8 @@ int main(int argc, char** argv) {
         SkDebugf("Bad file: '%s'\n", argv[1]);
         return 2;
     }
-    sk_sp<SkPicture> pic = SkPicture::MakeFromStream(&input);
+    SkDeserialProcs procs = ToolUtils::get_default_skp_deserial_procs();
+    sk_sp<SkPicture> pic = SkPicture::MakeFromStream(&input, &procs);
     if (!pic) {
         SkDebugf("Bad skp: '%s'\n", argv[1]);
         return 3;

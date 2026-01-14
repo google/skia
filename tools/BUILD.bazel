@@ -201,6 +201,28 @@ skia_cc_library(
 )
 
 skia_cc_library(
+    name = "deserial_procs_utils",
+    testonly = True,
+    srcs = [
+        "DeserialProcsUtils.cpp",
+    ],
+    hdrs = [
+        "DeserialProcsUtils.h",
+    ],
+    visibility = [
+        "//bench:__subpackages__",
+        "//dm:__pkg__",
+        "//gm:__subpackages__",
+        "//tools/viewer:__pkg__",
+    ],
+    deps = [
+        "//:core",
+        "//:png_decode_libpng",
+        "//tools/fonts:font_tool_utils",
+    ],
+)
+
+skia_cc_library(
     name = "resources",
     testonly = True,
     srcs = [

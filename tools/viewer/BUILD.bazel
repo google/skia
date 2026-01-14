@@ -122,6 +122,7 @@ skia_cc_binary(
         "//modules/sksg",
         "//src/sksl/tracing:player",
         "//tools:codec_utils",
+        "//tools:deserial_procs_utils",
         "//tools:gpu_tool_utils",
         "//tools:mskp_player",
         "//tools:registry",

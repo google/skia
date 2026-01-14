@@ -37,6 +37,7 @@ COMMON_DEPS = [
     "//src/base",
     "//src/core:core_priv",
     "//tools:autorelease_pool",
+    "//tools:deserial_procs_utils",
     "//tools:registry",
     "//tools:resources",
     "//tools:stats",

@@ -2494,6 +2494,8 @@ if (skia_enable_tools) {
       "tools/AutoreleasePool.h",
       "tools/DecodeUtils.cpp",
       "tools/DecodeUtils.h",
+      "tools/DeserialProcsUtils.cpp",
+      "tools/DeserialProcsUtils.h",
       "tools/EncodeUtils.cpp",
       "tools/EncodeUtils.h",
       "tools/GpuToolUtils.h",

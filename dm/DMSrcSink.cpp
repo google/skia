@@ -57,6 +57,7 @@
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkMultiPictureDocumentPriv.h"
 #include "src/utils/SkOSPath.h"
+#include "tools/DeserialProcsUtils.h"
 #include "tools/EncodeUtils.h"
 #include "tools/GpuToolUtils.h"
 #include "tools/Resources.h"
@@ -1176,31 +1177,26 @@ Result SKPSrc::draw(SkCanvas* canvas, GraphiteTestContext*) const {
 #endif
     };
 
-    SkDeserialProcs procs;
-    procs.fImageProc = [](const void* data, size_t size, void* ctx) -> sk_sp<SkImage> {
-        sk_sp<SkData> tmpData = SkData::MakeWithoutCopy(data, size);
-        sk_sp<SkImage> image = SkImages::DeferredFromEncodedData(std::move(tmpData));
-        image = image->makeRasterImage(nullptr); // force decoding
+    SkDeserialProcs procs = ToolUtils::get_default_skp_deserial_procs();
+
+    // We override the default fImageDataProc set above
+    procs.fImageDataProc =
+        [](sk_sp<SkData> data, std::optional<SkAlphaType> at, void* ctx) -> sk_sp<SkImage> {
+            sk_sp<SkImage> image = SkImages::DeferredFromEncodedData(std::move(data));
+            image = image->makeRasterImage(nullptr); // force decoding
 
 #if defined(SK_GANESH)
-        if (image) {
-            DeserializationContext* context = reinterpret_cast<DeserializationContext*>(ctx);
-            if (context->fDirectContext) {
-                return SkImages::TextureFromImage(context->fDirectContext, image);
+            if (image) {
+                DeserializationContext* context = reinterpret_cast<DeserializationContext*>(ctx);
+                if (context->fDirectContext) {
+                    return SkImages::TextureFromImage(context->fDirectContext, image);
+                }
             }
-        }
 #endif
-        return image;
-    };
+            return image;
+        };
+
     procs.fImageCtx = &ctx;
-
-    // SKPs may have typefaces encoded in them (e.g. with FreeType). We can try falling back
-    // to the Test FontMgr (possibly a native one) if we have do not have FreeType built-in.
-    procs.fTypefaceProc = [](const void* data, size_t size, void*) -> sk_sp<SkTypeface> {
-        SkStream** stream = reinterpret_cast<SkStream**>(const_cast<void*>(data));
-        return SkTypeface::MakeDeserialize(*stream, ToolUtils::TestFontMgr());
-    };
-
 
     std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(fPath.c_str());
     if (!stream) {

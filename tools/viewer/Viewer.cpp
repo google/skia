@@ -57,6 +57,7 @@
 #include "src/utils/SkShaderUtils.h"
 #include "tools/CodecUtils.h"
 #include "tools/DecodeUtils.h"
+#include "tools/DeserialProcsUtils.h"
 #include "tools/Resources.h"
 #include "tools/RuntimeBlendUtils.h"
 #include "tools/SkMetaData.h"
@@ -1879,25 +1880,6 @@ static SkSerialProcs serial_procs_using_png() {
     return sProcs;
 }
 
-static SkDeserialProcs deserial_procs_using_png() {
-    SkDeserialProcs dProcs;
-    dProcs.fImageDataProc =
-            [](sk_sp<SkData> data, std::optional<SkAlphaType>, void*) -> sk_sp<SkImage> {
-#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
-        std::unique_ptr<SkStream> stream = SkMemoryStream::Make(data);
-        auto codec = SkPngRustDecoder::Decode(std::move(stream), nullptr, nullptr);
-#else
-        auto codec = SkPngDecoder::Decode(data, nullptr, nullptr);
-#endif
-        if (!codec) {
-            SkDebugf("Invalid png data detected\n");
-            return nullptr;
-        }
-        return std::get<0>(codec->getImage());
-    };
-    return dProcs;
-}
-
 void Viewer::drawSlide(SkSurface* surface) {
     if (fCurrentSlide < 0) {
         return;
@@ -2046,7 +2028,7 @@ void Viewer::drawSlide(SkSurface* surface) {
         SkSerialProcs sProcs = serial_procs_using_png();
         auto data = picture->serialize(&sProcs);
         slideCanvas = recorderRestoreCanvas;
-        SkDeserialProcs dProcs = deserial_procs_using_png();
+        SkDeserialProcs dProcs = ToolUtils::get_default_skp_deserial_procs();
         slideCanvas->drawPicture(SkPicture::MakeFromData(data.get(), &dProcs));
     }
 

@@ -38,6 +38,7 @@ skia_cc_binary(
         "//src/utils:multi_picture_document",
         "//tools:autorelease_pool",
         "//tools:codec_utils",
+        "//tools:deserial_procs_utils",
         "//tools:gpu_tool_utils",
         "//tools:hash_and_encode",
         "//tools:runtime_blend_utils",
