@@ -6,7 +6,7 @@ struct FSOut {
 struct _GlobalUniforms {
   unknownInput: f32,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
     if _globalUniforms.unknownInput > 5.0 {

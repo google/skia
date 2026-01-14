@@ -7,7 +7,7 @@ struct _GlobalUniforms {
   colorGreen: vec4<f32>,
   colorRed: vec4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn flatten_compound_constructor_b() -> bool {
   {
     const x: vec4<i32> = vec4<i32>(vec3<i32>(vec2<i32>(1, 2), 3), 4);

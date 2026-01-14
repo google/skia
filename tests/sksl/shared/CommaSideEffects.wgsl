@@ -9,7 +9,7 @@ struct _GlobalUniforms {
   colorWhite: vec4<f32>,
   colorBlack: vec4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn setToColorBlack_vh4(x: ptr<function, vec4<f32>>) {
   {
     (*x) = _globalUniforms.colorBlack;

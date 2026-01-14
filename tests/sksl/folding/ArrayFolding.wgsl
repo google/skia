@@ -7,7 +7,7 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
   colorGreen: vec4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 var<private> globalValue: i32 = 0;
 fn side_effecting_ii(value: i32) -> i32 {
   {

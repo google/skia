@@ -7,7 +7,7 @@ struct _GlobalUniforms {
   colorGreen: vec4<f32>,
   colorRed: vec4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn unbraced_v(_stageOut: ptr<function, FSOut>) {
   {
     if _globalUniforms.colorGreen.y == 1.0 {

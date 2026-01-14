@@ -7,7 +7,7 @@ struct _GlobalUniforms {
   colorGreen: vec4<f32>,
   colorRed: vec4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn unpremul_h4h4(color: vec4<f32>) -> vec4<f32> {
   {
     return vec4<f32>(color.xyz / max(color.w, 0.0001), color.w);

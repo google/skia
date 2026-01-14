@@ -61,7 +61,7 @@ struct _skArrayElement_f22 {
   e : _skMatrix22
 };
 struct _skRow2 {
-  @size(16) r : vec2<f32>
+  @align(16) r : vec2<f32>
 };
 struct _skMatrix22 {
   c : array<_skRow2, 2>

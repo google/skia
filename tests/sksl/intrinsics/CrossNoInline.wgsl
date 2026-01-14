@@ -9,7 +9,7 @@ struct _GlobalUniforms {
   af: vec2<f32>,
   bf: vec2<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn cross_length_2d_ff2f2(a: vec2<f32>, b: vec2<f32>) -> f32 {
   {
     return determinant(mat2x2<f32>(a[0], a[1], b[0], b[1]));

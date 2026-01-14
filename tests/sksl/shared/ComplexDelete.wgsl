@@ -6,7 +6,7 @@ struct FSOut {
 struct _GlobalUniforms {
   colorXform: mat4x4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 @group(0) @binding(10000) var s_Sampler: sampler;
 @group(0) @binding(10001) var s_Texture: texture_2d<f32>;
 fn _skslMain(_stageOut: ptr<function, FSOut>) {

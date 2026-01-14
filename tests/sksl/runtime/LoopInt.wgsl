@@ -4,7 +4,7 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
   colorGreen: vec4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 const kZero: i32 = 0;
 fn return_loop_ii(five: i32) -> i32 {
   {

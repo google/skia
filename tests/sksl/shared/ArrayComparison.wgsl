@@ -1,7 +1,3 @@
-### Compilation failed:
-
-error: Tint compilation failed.
-
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
 struct FSOut {
@@ -10,10 +6,10 @@ struct FSOut {
 struct _GlobalUniforms {
   colorGreen: vec4<f32>,
   colorRed: vec4<f32>,
-  testArray: array<f32, 5>,
-  testArrayNegative: array<f32, 5>,
+  testArray: array<_skArrayElement_f, 5>,
+  testArrayNegative: array<_skArrayElement_f, 5>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 struct S {
   x: i32,
   y: i32,
@@ -32,13 +28,21 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     const s1: array<S, 3> = array<S, 3>(S(1, 2), S(3, 4), S(5, 6));
     const s2: array<S, 3> = array<S, 3>(S(1, 2), S(0, 0), S(5, 6));
     const s3: array<S, 3> = array<S, 3>(S(1, 2), S(3, 4), S(5, 6));
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((((((((((f1[0] == f2[0]) && (f1[1] == f2[1]) && (f1[2] == f2[2]) && (f1[3] == f2[3]) && (f1[4] == f2[4])) && ((f1[0] != f3[0]) || (f1[1] != f3[1]) || (f1[2] != f3[2]) || (f1[3] != f3[3]) || (f1[4] != f3[4]))) && ((_globalUniforms.testArray[0] != _globalUniforms.testArrayNegative[0]) || (_globalUniforms.testArray[1] != _globalUniforms.testArrayNegative[1]) || (_globalUniforms.testArray[2] != _globalUniforms.testArrayNegative[2]) || (_globalUniforms.testArray[3] != _globalUniforms.testArrayNegative[3]) || (_globalUniforms.testArray[4] != _globalUniforms.testArrayNegative[4]))) && ((_globalUniforms.testArray[0] == f1[0]) && (_globalUniforms.testArray[1] == f1[1]) && (_globalUniforms.testArray[2] == f1[2]) && (_globalUniforms.testArray[3] == f1[3]) && (_globalUniforms.testArray[4] == f1[4]))) && ((_globalUniforms.testArray[0] != f3[0]) || (_globalUniforms.testArray[1] != f3[1]) || (_globalUniforms.testArray[2] != f3[2]) || (_globalUniforms.testArray[3] != f3[3]) || (_globalUniforms.testArray[4] != f3[4]))) && ((f1[0] == _globalUniforms.testArray[0]) && (f1[1] == _globalUniforms.testArray[1]) && (f1[2] == _globalUniforms.testArray[2]) && (f1[3] == _globalUniforms.testArray[3]) && (f1[4] == _globalUniforms.testArray[4]))) && ((f3[0] != _globalUniforms.testArray[0]) || (f3[1] != _globalUniforms.testArray[1]) || (f3[2] != _globalUniforms.testArray[2]) || (f3[3] != _globalUniforms.testArray[3]) || (f3[4] != _globalUniforms.testArray[4]))) && (all(v1[0] == v2[0]) && all(v1[1] == v2[1]))) && (any(v1[0] != v3[0]) || any(v1[1] != v3[1]))) && ((all(m1[0][0] == m2[0][0]) && all(m1[0][1] == m2[0][1])) && (all(m1[1][0] == m2[1][0]) && all(m1[1][1] == m2[1][1])) && (all(m1[2][0] == m2[2][0]) && all(m1[2][1] == m2[2][1])))) && ((any(m1[0][0] != m3[0][0]) || any(m1[0][1] != m3[0][1])) || (any(m1[1][0] != m3[1][0]) || any(m1[1][1] != m3[1][1])) || (any(m1[2][0] != m3[2][0]) || any(m1[2][1] != m3[2][1])))) && (((s1[0].x != s2[0].x) || (s1[0].y != s2[0].y)) || ((s1[1].x != s2[1].x) || (s1[1].y != s2[1].y)) || ((s1[2].x != s2[2].x) || (s1[2].y != s2[2].y)))) && (((s3[0].x == s1[0].x) && (s3[0].y == s1[0].y)) && ((s3[1].x == s1[1].x) && (s3[1].y == s1[1].y)) && ((s3[2].x == s1[2].x) && (s3[2].y == s1[2].y)))));
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((((((((((f1[0] == f2[0]) && (f1[1] == f2[1]) && (f1[2] == f2[2]) && (f1[3] == f2[3]) && (f1[4] == f2[4])) && ((f1[0] != f3[0]) || (f1[1] != f3[1]) || (f1[2] != f3[2]) || (f1[3] != f3[3]) || (f1[4] != f3[4]))) && ((_skUnpacked__globalUniforms_testArray[0] != _skUnpacked__globalUniforms_testArrayNegative[0]) || (_skUnpacked__globalUniforms_testArray[1] != _skUnpacked__globalUniforms_testArrayNegative[1]) || (_skUnpacked__globalUniforms_testArray[2] != _skUnpacked__globalUniforms_testArrayNegative[2]) || (_skUnpacked__globalUniforms_testArray[3] != _skUnpacked__globalUniforms_testArrayNegative[3]) || (_skUnpacked__globalUniforms_testArray[4] != _skUnpacked__globalUniforms_testArrayNegative[4]))) && ((_skUnpacked__globalUniforms_testArray[0] == f1[0]) && (_skUnpacked__globalUniforms_testArray[1] == f1[1]) && (_skUnpacked__globalUniforms_testArray[2] == f1[2]) && (_skUnpacked__globalUniforms_testArray[3] == f1[3]) && (_skUnpacked__globalUniforms_testArray[4] == f1[4]))) && ((_skUnpacked__globalUniforms_testArray[0] != f3[0]) || (_skUnpacked__globalUniforms_testArray[1] != f3[1]) || (_skUnpacked__globalUniforms_testArray[2] != f3[2]) || (_skUnpacked__globalUniforms_testArray[3] != f3[3]) || (_skUnpacked__globalUniforms_testArray[4] != f3[4]))) && ((f1[0] == _skUnpacked__globalUniforms_testArray[0]) && (f1[1] == _skUnpacked__globalUniforms_testArray[1]) && (f1[2] == _skUnpacked__globalUniforms_testArray[2]) && (f1[3] == _skUnpacked__globalUniforms_testArray[3]) && (f1[4] == _skUnpacked__globalUniforms_testArray[4]))) && ((f3[0] != _skUnpacked__globalUniforms_testArray[0]) || (f3[1] != _skUnpacked__globalUniforms_testArray[1]) || (f3[2] != _skUnpacked__globalUniforms_testArray[2]) || (f3[3] != _skUnpacked__globalUniforms_testArray[3]) || (f3[4] != _skUnpacked__globalUniforms_testArray[4]))) && (all(v1[0] == v2[0]) && all(v1[1] == v2[1]))) && (any(v1[0] != v3[0]) || any(v1[1] != v3[1]))) && ((all(m1[0][0] == m2[0][0]) && all(m1[0][1] == m2[0][1])) && (all(m1[1][0] == m2[1][0]) && all(m1[1][1] == m2[1][1])) && (all(m1[2][0] == m2[2][0]) && all(m1[2][1] == m2[2][1])))) && ((any(m1[0][0] != m3[0][0]) || any(m1[0][1] != m3[0][1])) || (any(m1[1][0] != m3[1][0]) || any(m1[1][1] != m3[1][1])) || (any(m1[2][0] != m3[2][0]) || any(m1[2][1] != m3[2][1])))) && (((s1[0].x != s2[0].x) || (s1[0].y != s2[0].y)) || ((s1[1].x != s2[1].x) || (s1[1].y != s2[1].y)) || ((s1[2].x != s2[2].x) || (s1[2].y != s2[2].y)))) && (((s3[0].x == s1[0].x) && (s3[0].y == s1[0].y)) && ((s3[1].x == s1[1].x) && (s3[1].y == s1[1].y)) && ((s3[2].x == s1[2].x) && (s3[2].y == s1[2].y)))));
   }
 }
 @fragment fn main() -> FSOut {
+  _skInitializePolyfilledUniforms();
   var _stageOut: FSOut;
   _stageOut.sk_FragColor = _skslMain(/*fragcoord*/ vec2<f32>());
   return _stageOut;
 }
-
-1 error
+struct _skArrayElement_f {
+  @align(16) e : f32
+};
+var<private> _skUnpacked__globalUniforms_testArray: array<f32, 5>;
+var<private> _skUnpacked__globalUniforms_testArrayNegative: array<f32, 5>;
+fn _skInitializePolyfilledUniforms() {
+  _skUnpacked__globalUniforms_testArray = array<f32, 5>(_globalUniforms.testArray[0].e, _globalUniforms.testArray[1].e, _globalUniforms.testArray[2].e, _globalUniforms.testArray[3].e, _globalUniforms.testArray[4].e);
+  _skUnpacked__globalUniforms_testArrayNegative = array<f32, 5>(_globalUniforms.testArrayNegative[0].e, _globalUniforms.testArrayNegative[1].e, _globalUniforms.testArrayNegative[2].e, _globalUniforms.testArrayNegative[3].e, _globalUniforms.testArrayNegative[4].e);
+}

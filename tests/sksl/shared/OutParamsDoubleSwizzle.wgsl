@@ -7,7 +7,7 @@ struct _GlobalUniforms {
   colorGreen: vec4<f32>,
   colorRed: vec4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn swizzle_lvalue_h2hhh2h(x: f32, y: f32, color: ptr<function, vec2<f32>>, z: f32) -> vec2<f32> {
   {
     (*color) = ((*color)).yx;

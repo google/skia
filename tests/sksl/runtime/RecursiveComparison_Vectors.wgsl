@@ -4,7 +4,7 @@ struct _GlobalUniforms {
   colorGreen: vec4<f32>,
   colorRed: vec4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn test_same_vectors_bbffff(eq: bool, f1: f32, f2: f32, f3: f32, f4: f32) -> bool {
   {
     let one: f32 = f32(_globalUniforms.colorGreen.x + 1.0);

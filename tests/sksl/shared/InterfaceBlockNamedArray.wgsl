@@ -22,14 +22,14 @@ fn _skslMain(_stageOut: ptr<function, FSOut>) {
   return _stageOut;
 }
 struct _skArrayElement_f {
-  @size(16) e : f32
+  @align(16) e : f32
 };
 var<private> _skUnpacked_test_a: array<array<f32, 2>, 2>;
 struct _skArrayElement_f22 {
   e : _skMatrix22
 };
 struct _skRow2 {
-  @size(16) r : vec2<f32>
+  @align(16) r : vec2<f32>
 };
 struct _skMatrix22 {
   c : array<_skRow2, 2>

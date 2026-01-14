@@ -1,32 +1,32 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
 struct _GlobalUniforms {
-  testMatrix2x2: mat2x2<f32>,
+  testMatrix2x2: _skMatrix22,
   testMatrix3x3: mat3x3<f32>,
   testInputs: vec4<f32>,
   colorRed: vec4<f32>,
   colorGreen: vec4<f32>,
   unknownInput: f32,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn test_no_op_scalar_X_mat2_b() -> bool {
   {
     var m: mat2x2<f32>;
     var mm: mat2x2<f32>;
     const z: mat2x2<f32> = mat2x2<f32>(0.0, 0.0, 0.0, 0.0);
-    m = _globalUniforms.testMatrix2x2;
-    m = _globalUniforms.testMatrix2x2;
-    if (any(m[0] != _globalUniforms.testMatrix2x2[0]) || any(m[1] != _globalUniforms.testMatrix2x2[1])) {
+    m = _skUnpacked__globalUniforms_testMatrix2x2;
+    m = _skUnpacked__globalUniforms_testMatrix2x2;
+    if (any(m[0] != _skUnpacked__globalUniforms_testMatrix2x2[0]) || any(m[1] != _skUnpacked__globalUniforms_testMatrix2x2[1])) {
       return false;
     }
-    if (any(m[0] != _globalUniforms.testMatrix2x2[0]) || any(m[1] != _globalUniforms.testMatrix2x2[1])) {
+    if (any(m[0] != _skUnpacked__globalUniforms_testMatrix2x2[0]) || any(m[1] != _skUnpacked__globalUniforms_testMatrix2x2[1])) {
       return false;
     }
-    if (any(m[0] != _globalUniforms.testMatrix2x2[0]) || any(m[1] != _globalUniforms.testMatrix2x2[1])) {
+    if (any(m[0] != _skUnpacked__globalUniforms_testMatrix2x2[0]) || any(m[1] != _skUnpacked__globalUniforms_testMatrix2x2[1])) {
       return false;
     }
     m = (-1.0 * m);
-    let _skTemp0 = (-1.0 * _globalUniforms.testMatrix2x2);
+    let _skTemp0 = (-1.0 * _skUnpacked__globalUniforms_testMatrix2x2);
     if (any(m[0] != _skTemp0[0]) || any(m[1] != _skTemp0[1])) {
       return false;
     }
@@ -237,5 +237,16 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   }
 }
 @fragment fn main(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
+  _skInitializePolyfilledUniforms();
   return _skslMain(_coords);
+}
+struct _skRow2 {
+  @align(16) r : vec2<f32>
+};
+struct _skMatrix22 {
+  c : array<_skRow2, 2>
+};
+var<private> _skUnpacked__globalUniforms_testMatrix2x2: mat2x2<f32>;
+fn _skInitializePolyfilledUniforms() {
+  _skUnpacked__globalUniforms_testMatrix2x2 = mat2x2<f32>(_globalUniforms.testMatrix2x2.c[0].r, _globalUniforms.testMatrix2x2.c[1].r);
 }

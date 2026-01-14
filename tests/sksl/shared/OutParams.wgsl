@@ -8,7 +8,7 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
   colorWhite: vec4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn out_half_vh(v: ptr<function, f32>) {
   {
     (*v) = _globalUniforms.colorWhite.x;

@@ -22,7 +22,7 @@ fn _skslMain(_stageOut: ptr<function, FSOut>) {
   return _stageOut;
 }
 struct _skArrayElement_h {
-  @size(16) e : f32
+  @align(16) e : f32
 };
 var<private> _skUnpacked__uniform0_y: array<f32, 2>;
 fn _skInitializePolyfilledUniforms() {

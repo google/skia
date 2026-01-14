@@ -6,7 +6,7 @@ struct FSOut {
 struct _GlobalUniforms {
   uFloat: f32,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn various_parameter_types_vhhh(_stageOut: ptr<function, FSOut>, a: f32, b: ptr<function, f32>, c: ptr<function, f32>) {
   {
     (*_stageOut).sk_FragColor = vec4<f32>(a, (*b), (*c), _globalUniforms.uFloat);

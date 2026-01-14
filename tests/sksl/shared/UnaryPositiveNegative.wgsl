@@ -7,11 +7,11 @@ struct _GlobalUniforms {
   colorWhite: vec4<f32>,
   colorGreen: vec4<f32>,
   colorRed: vec4<f32>,
-  testMatrix2x2: mat2x2<f32>,
+  testMatrix2x2: _skMatrix22,
   testMatrix3x3: mat3x3<f32>,
   testMatrix4x4: mat4x4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn test_iscalar_b() -> bool {
   {
     var x: i32 = i32(_globalUniforms.colorWhite.x);
@@ -36,7 +36,7 @@ fn test_ivec_b() -> bool {
 fn test_mat2_b() -> bool {
   {
     const negated: mat2x2<f32> = mat2x2<f32>(-1.0, -2.0, -3.0, -4.0);
-    var x: mat2x2<f32> = _globalUniforms.testMatrix2x2;
+    var x: mat2x2<f32> = _skUnpacked__globalUniforms_testMatrix2x2;
     x = (-1.0 * x);
     return (all(x[0] == negated[0]) && all(x[1] == negated[1]));
   }
@@ -60,7 +60,7 @@ fn test_mat4_b() -> bool {
 fn test_hmat2_b() -> bool {
   {
     const negated: mat2x2<f32> = mat2x2<f32>(-1.0, -2.0, -3.0, -4.0);
-    var x: mat2x2<f32> = mat2x2<f32>(_globalUniforms.testMatrix2x2);
+    var x: mat2x2<f32> = mat2x2<f32>(_skUnpacked__globalUniforms_testMatrix2x2);
     x = (-1.0 * x);
     return (all(x[0] == negated[0]) && all(x[1] == negated[1]));
   }
@@ -149,7 +149,18 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   }
 }
 @fragment fn main() -> FSOut {
+  _skInitializePolyfilledUniforms();
   var _stageOut: FSOut;
   _stageOut.sk_FragColor = _skslMain(/*fragcoord*/ vec2<f32>());
   return _stageOut;
+}
+struct _skRow2 {
+  @align(16) r : vec2<f32>
+};
+struct _skMatrix22 {
+  c : array<_skRow2, 2>
+};
+var<private> _skUnpacked__globalUniforms_testMatrix2x2: mat2x2<f32>;
+fn _skInitializePolyfilledUniforms() {
+  _skUnpacked__globalUniforms_testMatrix2x2 = mat2x2<f32>(_globalUniforms.testMatrix2x2.c[0].r, _globalUniforms.testMatrix2x2.c[1].r);
 }

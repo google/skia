@@ -7,7 +7,7 @@ struct _GlobalUniforms {
   a: i32,
   b: u32,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
     let b1: i32 = firstLeadingBit(_globalUniforms.a) + i32(firstLeadingBit(_globalUniforms.b));

@@ -6,7 +6,7 @@ struct FSOut {
 struct _GlobalUniforms {
   colorWhite: vec4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn IsEqual_bh4h4(x: vec4<f32>, y: vec4<f32>) -> bool {
   {
     return all(x == y);
