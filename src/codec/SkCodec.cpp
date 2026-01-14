@@ -944,6 +944,8 @@ const char* SkCodec::ResultToString(Result result) {
             return "internal error";
         case kUnimplemented:
             return "unimplemented";
+        case kOutOfMemory:
+            return "out of memory";
         default:
             SkASSERT(false);
             return "bogus result value";
