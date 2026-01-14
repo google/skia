@@ -507,11 +507,10 @@ DEF_TEST(HdrMetadata_Agtm_Serialize, r) {
 DEF_TEST(HdrMetadata_Agtm_Apply_and_Shader, r) {
     // This will tone map several input colors to different targeted HDR headrooms using this
     // RWTMO metadata.
-    skhdr::AgtmImpl agtm;
-    auto& hatm = agtm.fMetadata.fHeadroomAdaptiveToneMap.emplace();
+    skhdr::AdaptiveGlobalToneMap agtm;
+    auto& hatm = agtm.fHeadroomAdaptiveToneMap.emplace();
     hatm.fBaselineHdrHeadroom = 2;
     skhdr::AgtmHelpers::PopulateUsingRwtmo(hatm);
-    agtm.populateGainCurvesXYM();
 
     // We will use the following input pixel values in gain application color space. These include
     // monochrome and non-monochrome values, as well as values that are less than white (less than
@@ -596,7 +595,9 @@ DEF_TEST(HdrMetadata_Agtm_Apply_and_Shader, r) {
         }
 
         // Apply the tone mapping gain in-place on outputTestColors.
-        agtm.applyGain(SkSpan<SkColor4f>(outputTestColors, kNumTestColors), targetedHdrHeadroom);
+        skhdr::AgtmHelpers::ApplyGain(hatm,
+                                      SkSpan<SkColor4f>(outputTestColors, kNumTestColors),
+                                      targetedHdrHeadroom);
 
         // Verify the result matches expectations.
         for (size_t i = 0; i < kNumTestColors; ++i) {
@@ -610,7 +611,7 @@ DEF_TEST(HdrMetadata_Agtm_Apply_and_Shader, r) {
         }
     }
 
-    // Test using an SkColorFilter to apply the gain.
+    // Test using an SkColorFilter to apply the gain using the skhdr::Agtm interface.
     for (size_t t = 0; t < kNumTests; ++t) {
         const auto targetedHdrHeadroom = testTargetedHdrHeadrooms[t];
         skiatest::ReporterContext ctx(r, SkStringPrintf("Agtm::makeColorFilter, targetedHdrHeadroom:%f", targetedHdrHeadroom));
@@ -619,7 +620,7 @@ DEF_TEST(HdrMetadata_Agtm_Apply_and_Shader, r) {
         const auto info = SkImageInfo::Make(
             kNumTestColors, 1,
             kRGBA_F32_SkColorType, kPremul_SkAlphaType,
-            agtm.getGainApplicationSpace());
+            skhdr::AgtmHelpers::GetGainApplicationSpace(hatm));
 
         // Create an SkImage that references the inputTestColors array directly.
         sk_sp<SkImage> inputImage = SkImages::RasterFromData(
@@ -633,8 +634,59 @@ DEF_TEST(HdrMetadata_Agtm_Apply_and_Shader, r) {
 
         // Call drawImage, using the color filter created by Agtm::makeColorFilter.
         {
+            skhdr::AgtmImpl impl;
+            impl.fMetadata = agtm;
+            auto colorFilter = impl.makeColorFilter(targetedHdrHeadroom);
+
             SkPaint paint;
-            auto colorFilter = agtm.makeColorFilter(targetedHdrHeadroom);
+            SkASSERT(colorFilter);
+            paint.setColorFilter(colorFilter);
+            auto canvas = SkCanvas::MakeRasterDirect(bm.info(), bm.getPixels(), bm.rowBytes());
+            canvas->drawImage(inputImage.get(), 0, 0, SkSamplingOptions(), &paint);
+        }
+
+        // Verify that the pixels written into the SkBitmap match the expected values.
+        for (size_t i = 0; i < kNumTestColors; ++i) {
+            const auto& output = *reinterpret_cast<const SkColor4f*>(bm.getAddr(i, 0));
+            const auto& expected = expectedTestColors[t][i];
+            REPORTER_ASSERT(r, SkScalarNearlyEqual(output.fR, expected.fR, kEpsilon));
+            REPORTER_ASSERT(r, SkScalarNearlyEqual(output.fG, expected.fG, kEpsilon));
+            REPORTER_ASSERT(r, SkScalarNearlyEqual(output.fB, expected.fB, kEpsilon));
+            REPORTER_ASSERT(r, SkScalarNearlyEqual(output.fA, expected.fA, kEpsilon));
+        }
+    }
+
+    // Test using an SkColorFilter from skhdr::Metadata.
+    for (size_t t = 0; t < kNumTests; ++t) {
+        const auto targetedHdrHeadroom = testTargetedHdrHeadrooms[t];
+        skiatest::ReporterContext ctx(
+            r, SkStringPrintf("skhdr::Metadata::makeToneMapColorFilter, targetedHdrHeadroom:%f",
+                targetedHdrHeadroom));
+
+        // The input and output images will be kNumTestColors-by-1.
+        const auto info = SkImageInfo::Make(
+            kNumTestColors, 1,
+            kRGBA_F32_SkColorType, kPremul_SkAlphaType,
+            skhdr::AgtmHelpers::GetGainApplicationSpace(hatm));
+
+        // Create an SkImage that references the inputTestColors array directly.
+        const auto inputImage = SkImages::RasterFromData(
+            info,
+            SkData::MakeWithoutCopy(inputTestColors, sizeof(inputTestColors)),
+            info.minRowBytes());
+
+        // Create an output SkBitmap to draw into.
+        SkBitmap bm;
+        bm.allocPixels(info);
+
+        // Call drawImage, using the color filter created by Agtm::makeColorFilter.
+        {
+            skhdr::Metadata metadata;
+            metadata.setAdaptiveGlobalToneMap(agtm);
+            auto colorFilter = metadata.makeToneMapColorFilter(
+                targetedHdrHeadroom, inputImage->colorSpace());
+
+            SkPaint paint;
             SkASSERT(colorFilter);
             paint.setColorFilter(colorFilter);
             auto canvas = SkCanvas::MakeRasterDirect(bm.info(), bm.getPixels(), bm.rowBytes());

@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/private/SkHdrMetadata.h"
+#include "src/codec/SkHdrAgtmPriv.h"
 #include "src/core/SkStreamPriv.h"
 
 namespace skhdr {
@@ -185,6 +187,20 @@ bool Metadata::getMasteringDisplayColorVolume(MasteringDisplayColorVolume* mdcv)
     return true;
 }
 
+bool Metadata::getAdaptiveGlobalToneMap(AdaptiveGlobalToneMap* agtm) const {
+    if (!fAgtm) {
+        return false;
+    }
+    AdaptiveGlobalToneMap agtmParsed;
+    if (!agtmParsed.parse(fAgtm.get())) {
+        return false;
+    }
+    if (agtm) {
+      *agtm = agtmParsed;
+    }
+    return true;
+}
+
 sk_sp<const SkData> Metadata::getSerializedAgtm() const {
     return fAgtm;
 }
@@ -195,6 +211,10 @@ void Metadata::setMasteringDisplayColorVolume(const MasteringDisplayColorVolume&
 
 void Metadata::setContentLightLevelInformation(const ContentLightLevelInformation& clli) {
     fContentLightLevelInformation = clli;
+}
+
+void Metadata::setAdaptiveGlobalToneMap(const AdaptiveGlobalToneMap& agtm) {
+    fAgtm = agtm.serialize();
 }
 
 void Metadata::setSerializedAgtm(sk_sp<const SkData> agtm) {
@@ -215,6 +235,21 @@ bool Metadata::operator==(const Metadata& other) const {
     return fContentLightLevelInformation == other.fContentLightLevelInformation &&
            fMasteringDisplayColorVolume == other.fMasteringDisplayColorVolume &&
            SkData::Equals(fAgtm.get(), other.fAgtm.get());
+}
+
+sk_sp<SkColorFilter> Metadata::makeToneMapColorFilter(
+        float targetedHdrHeadroom, const SkColorSpace* inputColorSpace) const {
+    AdaptiveGlobalToneMap agtm;
+    if (!AgtmHelpers::PopulateToneMapAgtmParams(*this, inputColorSpace, &agtm)) {
+        return nullptr;
+    }
+
+    auto& hatm = agtm.fHeadroomAdaptiveToneMap;
+    if (!hatm.has_value()) {
+        // TODO(https://crbug.com/395659818): Add default tone mapping.
+        return nullptr;
+    }
+    return AgtmHelpers::MakeColorFilter(hatm.value(), targetedHdrHeadroom);
 }
 
 }  // namespace skhdr

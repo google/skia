@@ -323,6 +323,17 @@ class SK_API Metadata {
     void setMasteringDisplayColorVolume(const MasteringDisplayColorVolume& mdcv);
 
     /**
+     * If there does not exists Adaptive Global Tone Map metadata, then return false.
+     * Otherwise return true and if `agtm` is non-nullptr then write the metadata to `agtm`.
+     */
+    bool getAdaptiveGlobalToneMap(AdaptiveGlobalToneMap* agtm) const;
+
+    /**
+     * Set the Adaptive Global Tone Map metadata.
+     */
+    void setAdaptiveGlobalToneMap(const AdaptiveGlobalToneMap& agtm);
+
+    /**
      * Return the serialized Adaptive Global Tone Mapping metadata, or nullptr if none has been set.
      */
     sk_sp<const SkData> getSerializedAgtm() const;
@@ -336,6 +347,20 @@ class SK_API Metadata {
      * Return a human-readable description.
      */
     SkString toString() const;
+
+    /**
+     * Return the SkColorFilter to tone map to the specified targeted HDR headroom.
+     *
+     * The `inputColorSpace` parameter is the color space of the input image that will be
+     * used with the image. If it is PQ or HLG, then the color filter will effectively
+     * reinterpret the image as having the HDR reference white parameter indicated in the
+     * metadata.
+     *
+     * If `inputColorSpace` is PQ or HLG, then a default tone mapping will be provided,
+     * inferring the baseline HDR headroom from the CLLI or MDCV metadata, if present.
+     */
+    sk_sp<SkColorFilter> makeToneMapColorFilter(
+        float targetedHdrHeadroom, const SkColorSpace* inputColorSpace = nullptr) const;
 
     bool operator==(const Metadata& other) const;
     bool operator!=(const Metadata& other) const {

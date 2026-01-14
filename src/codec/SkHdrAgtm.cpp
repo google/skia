@@ -96,7 +96,7 @@ static constexpr char gAgtmSKSL[] =
                    "EvalGainCurve(M.b, curve_texcoord_y, curve_N_cp));"
     "}"
 
-     // Shader equivalent of AgtmImpl::applyGain.
+     // Shader equivalent of AgtmHelpers::ApplyGain.
     "half4 main(half4 color) {"
       "if (weight_i > 0.0) {"
          // Unpremultiply alpha is needed.
@@ -270,14 +270,8 @@ void PopulateSlopeFromPCHIP(AdaptiveGlobalToneMap::GainCurve& gainCurve) {
     }
 }
 
-}  // namespace AgtmHelpers
-
-void AgtmImpl::populateGainCurvesXYM() {
-    if (!fMetadata.fHeadroomAdaptiveToneMap.has_value()) {
-        return;
-    }
-    const auto& hatm = fMetadata.fHeadroomAdaptiveToneMap.value();
-
+sk_sp<SkImage>
+MakeGainCurveXYMImage(const AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm) {
     SkBitmap curve_xym_bm;
     curve_xym_bm.allocPixels(SkImageInfo::Make(
             AdaptiveGlobalToneMap::GainCurve::kMaxNumControlPoints,
@@ -294,10 +288,8 @@ void AgtmImpl::populateGainCurvesXYM() {
         }
     }
     curve_xym_bm.setImmutable();
-    fGainCurvesXYM = SkImages::RasterFromBitmap(curve_xym_bm);
+    return SkImages::RasterFromBitmap(curve_xym_bm);
 }
-
-namespace AgtmHelpers {
 
 void PopulateUsingRwtmo(AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm) {
     hatm.fGainApplicationSpacePrimaries = SkNamedPrimaries::kRec2020;
@@ -434,17 +426,10 @@ Weighting ComputeWeighting(const AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap&
     return result;
 }
 
-}  // namespace AgtmHelpers
-
-void AgtmImpl::applyGain(SkSpan<SkColor4f> colors, float targetedHdrHeadroom) const {
-    // If the HeadroomAdaptiveToneMap metadata group is absent, then do nothing.
-    if (!fMetadata.fHeadroomAdaptiveToneMap.has_value()) {
-        return;
-    }
-    auto& hatm = fMetadata.fHeadroomAdaptiveToneMap.value();
-
-    const auto weighting = AgtmHelpers::ComputeWeighting(
-        fMetadata.fHeadroomAdaptiveToneMap.value(), targetedHdrHeadroom);
+void ApplyGain(const AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm,
+               SkSpan<SkColor4f> colors,
+               float targetedHdrHeadroom) {
+    const auto weighting = AgtmHelpers::ComputeWeighting(hatm, targetedHdrHeadroom);
     if (weighting.fWeight[0] == 0.f) {
         // If no weight is non-zero, then no gain will be applied. Leave the points unchanged.
         return;
@@ -483,18 +468,16 @@ void AgtmImpl::applyGain(SkSpan<SkColor4f> colors, float targetedHdrHeadroom) co
     }
 }
 
-sk_sp<SkColorSpace> AgtmImpl::getGainApplicationSpace() const {
-    if (!fMetadata.fHeadroomAdaptiveToneMap.has_value()) {
-        return nullptr;
-    }
-    auto& hatm = fMetadata.fHeadroomAdaptiveToneMap.value();
-
+sk_sp<SkColorSpace> GetGainApplicationSpace(
+        const AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm) {
     skcms_Matrix3x3 toXYZD50;
     if (!hatm.fGainApplicationSpacePrimaries.toXYZD50(&toXYZD50)) {
         return nullptr;
     }
     return SkColorSpace::MakeRGB(SkNamedTransferFn::kLinear, toXYZD50);
 }
+
+}  // namespace AgtmHelpers
 
 float AgtmImpl::getHdrReferenceWhite() const {
     return fMetadata.fHdrReferenceWhite;
@@ -511,25 +494,32 @@ float AgtmImpl::getBaselineHdrHeadroom() const {
 }
 
 bool AgtmImpl::isClamp() const {
-    if (!fMetadata.fHeadroomAdaptiveToneMap.has_value()) {
+    const auto& hatm = fMetadata.fHeadroomAdaptiveToneMap;
+    if (!hatm.has_value()) {
         return false;
     }
-    auto& hatm = fMetadata.fHeadroomAdaptiveToneMap.value();
-    return hatm.fAlternateImages.size() == 0;
+    return hatm->fAlternateImages.size() == 0;
 }
 
 sk_sp<SkColorFilter> AgtmImpl::makeColorFilter(float targetedHdrHeadroom) const {
+    const auto& hatm = fMetadata.fHeadroomAdaptiveToneMap;
+    if (!hatm.has_value()) {
+        return nullptr;
+    }
+    return AgtmHelpers::MakeColorFilter(hatm.value(), targetedHdrHeadroom);
+}
+
+namespace AgtmHelpers {
+
+sk_sp<SkColorFilter> MakeColorFilter(
+        const AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm,
+        float targetedHdrHeadroom) {
+    const auto weighting = ComputeWeighting(hatm, targetedHdrHeadroom);
+
     auto effect = agtm_runtime_effect();
     if (!effect) {
         return nullptr;
     }
-    const auto& hatm = fMetadata.fHeadroomAdaptiveToneMap;
-
-    AgtmHelpers::Weighting weighting;
-    if (hatm.has_value()) {
-        weighting = AgtmHelpers::ComputeWeighting(hatm.value(), targetedHdrHeadroom);
-    }
-
     SkRuntimeShaderBuilder builder(effect);
     for (size_t a = 0; a < 2; ++a) {
         const char* weight_str[2] = {"weight_i", "weight_j"};
@@ -538,8 +528,7 @@ sk_sp<SkColorFilter> AgtmImpl::makeColorFilter(float targetedHdrHeadroom) const 
         if (weighting.fWeight[a] == 0.f) {
             continue;
         }
-        SkASSERT(hatm.has_value());
-        const auto& gain = hatm->fAlternateImages[
+        const auto& gain = hatm.fAlternateImages[
             weighting.fAlternateImageIndex[a]].fColorGainFunction;
 
         const char* mix_rgbx_str[2] = {"mix_rgbx_i", "mix_rgbx_j"};
@@ -565,13 +554,30 @@ sk_sp<SkColorFilter> AgtmImpl::makeColorFilter(float targetedHdrHeadroom) const 
         builder.uniform(curve_N_cp_str[a]) = static_cast<float>(
             gain.fGainCurve.fControlPoints.size());
     }
-    builder.child("curve_xym") = fGainCurvesXYM->makeRawShader(
-        SkSamplingOptions(SkFilterMode::kNearest));
+
+    if (auto gainCurvesXYM = MakeGainCurveXYMImage(hatm)) {
+        builder.child("curve_xym") = gainCurvesXYM->makeRawShader(
+            SkSamplingOptions(SkFilterMode::kNearest));
+    }
+
+    auto gainApplicationColorSpace = GetGainApplicationSpace(hatm);
+    if (!gainApplicationColorSpace) {
+        return nullptr;
+    }
 
     auto filter = builder.makeColorFilter();
     SkASSERT(filter);
-    return filter->makeWithWorkingColorSpace(getGainApplicationSpace());
+    return filter->makeWithWorkingColorSpace(gainApplicationColorSpace);
 }
+
+bool PopulateToneMapAgtmParams(const Metadata& metadata,
+                               const SkColorSpace* inputColorSpace,
+                               AdaptiveGlobalToneMap* outAgtm) {
+    // TODO(https://crbug.com/395659818): Add scaling and default tone mapping for HLG and PQ.
+    return metadata.getAdaptiveGlobalToneMap(outAgtm);
+}
+
+}  // namespace AgtmHelpers
 
 SkString AdaptiveGlobalToneMap::toString() const {
     SkString result = SkStringPrintf("{hdrReferenceWhite:%f", fHdrReferenceWhite);
@@ -611,7 +617,6 @@ std::unique_ptr<Agtm> Agtm::Make(const SkData* data) {
     if (!result->parse(data)) {
         return nullptr;
     }
-    result->populateGainCurvesXYM();
     return result;
 }
 
@@ -623,7 +628,6 @@ std::unique_ptr<Agtm> Agtm::MakeReferenceWhite(float hdrReferenceWhite, float ba
     auto& hatm = result->fMetadata.fHeadroomAdaptiveToneMap.emplace();
     hatm.fBaselineHdrHeadroom = baselineHdrHeadroom;
     AgtmHelpers::PopulateUsingRwtmo(hatm);
-    result->populateGainCurvesXYM();
     return result;
 }
 
@@ -635,7 +639,6 @@ std::unique_ptr<Agtm> Agtm::MakeClamp(float hdrReferenceWhite, float baselineHdr
     auto& hatm = result->fMetadata.fHeadroomAdaptiveToneMap.emplace();
     hatm.fBaselineHdrHeadroom = baselineHdrHeadroom;
     hatm.fGainApplicationSpacePrimaries = SkNamedPrimaries::kRec2020;
-    result->populateGainCurvesXYM();
     return result;
 }
 
