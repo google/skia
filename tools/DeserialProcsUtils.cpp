@@ -43,9 +43,8 @@ SkDeserialProcs get_default_skp_deserial_procs() {
 
     // SKPs may have typefaces encoded in them (e.g. with FreeType). We can try falling back
     // to the Test FontMgr (possibly a native one) if we have do not have FreeType built-in.
-    procs.fTypefaceProc = [](const void* data, size_t size, void*) -> sk_sp<SkTypeface> {
-        SkStream** stream = reinterpret_cast<SkStream**>(const_cast<void*>(data));
-        return SkTypeface::MakeDeserialize(*stream, ToolUtils::TestFontMgr());
+    procs.fTypefaceStreamProc = [](SkStream& stream, void*) -> sk_sp<SkTypeface> {
+        return SkTypeface::MakeDeserialize(&stream, ToolUtils::TestFontMgr());
     };
     return procs;
 }

@@ -940,7 +940,11 @@ sk_sp<SkTextBlob> MakeEmojiBlob(sk_sp<SkTypeface> serverTf, SkScalar textSize,
 
     SkDeserialProcs d_procs;
     d_procs.fTypefaceCtx = &clientTf;
-    d_procs.fTypefaceProc = [](const void* data, size_t length, void* ctx) -> sk_sp<SkTypeface> {
+    d_procs.fTypefaceStreamProc = [](SkStream& stream, void* ctx) -> sk_sp<SkTypeface> {
+        char u;
+        if (stream.read(&u, 1) != 1) {
+            return nullptr;
+        }
         return *(static_cast<sk_sp<SkTypeface>*>(ctx));
     };
     return SkTextBlob::Deserialize(serialized->data(), serialized->size(), d_procs);
@@ -1015,7 +1019,11 @@ class SkRemoteGlyphCacheTest {
 
         SkDeserialProcs d_procs;
         d_procs.fTypefaceCtx = &clientTf;
-        d_procs.fTypefaceProc = [](const void* data, size_t length, void* ctx) -> sk_sp<SkTypeface> {
+        d_procs.fTypefaceStreamProc = [](SkStream& stream, void* ctx) -> sk_sp<SkTypeface> {
+            char u;
+            if (stream.read(&u, 1) != 1) {
+                return nullptr;
+            }
             return *(static_cast<sk_sp<SkTypeface>*>(ctx));
         };
         return SkTextBlob::Deserialize(serialized->data(), serialized->size(), d_procs);

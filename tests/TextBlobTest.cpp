@@ -19,6 +19,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSerialProcs.h"
+#include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
@@ -407,17 +408,13 @@ static sk_sp<const SkData> SerializeTypeface(SkTypeface* tf, void* ctx) {
     return SkData::MakeWithCopy(&idx, sizeof(idx));
 }
 
-static sk_sp<SkTypeface> DeserializeTypeface(const void* data, size_t length, void* ctx) {
+static sk_sp<SkTypeface> DeserializeTypeface(SkStream& s, void* ctx) {
     auto array = (TArray<sk_sp<SkTypeface>>*)ctx;
-    if (length != sizeof(size_t)) {
+    size_t idx = 0;
+    if (s.read(&idx, sizeof(idx)) != sizeof(idx)) {
         SkDEBUGFAIL("Did not serialize an index");
         return nullptr;
     }
-    if (!data) {
-        return nullptr;
-    }
-    size_t idx = 0;
-    std::memcpy(&idx, data, sizeof(size_t));
     if (idx >= SkToSizeT(array->size())) {
         SkDEBUGFAIL("Index too big");
         return nullptr;
@@ -452,7 +449,7 @@ DEF_TEST(TextBlob_serialize, reporter) {
         "Did not serialize exactly one non-empty font, instead %d", array.size());
     REPORTER_ASSERT(reporter, array[0]->countGlyphs() > 0, "Serialized typeface had no glyphs");
     SkDeserialProcs deserializeProcs;
-    deserializeProcs.fTypefaceProc = &DeserializeTypeface;
+    deserializeProcs.fTypefaceStreamProc = &DeserializeTypeface;
     deserializeProcs.fTypefaceCtx = (void*) &array;
     sk_sp<SkTextBlob> blob1 = SkTextBlob::Deserialize(data->data(), data->size(), deserializeProcs);
     REPORTER_ASSERT(reporter, blob1);

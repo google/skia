@@ -390,19 +390,13 @@ static sk_sp<const SkData> serialize_typeface_proc(SkTypeface* typeface, void* c
     return stream.detachAsData();
 }
 
-static sk_sp<SkTypeface> deserialize_typeface_proc(const void* data, size_t length, void* ctx) {
-    SkStream* stream;
-    if (length < sizeof(stream)) {
-        return nullptr;
-    }
-    memcpy(&stream, data, sizeof(stream));
-
+static sk_sp<SkTypeface> deserialize_typeface_proc(SkStream& stream, void* ctx) {
     SkTypefaceID id;
-    if (!stream->read(&id, sizeof(id))) {
+    if (!stream.read(&id, sizeof(id))) {
         return nullptr;
     }
 
-    sk_sp<SkTypeface> typeface = SkTypeface::MakeDeserialize(stream, ToolUtils::TestFontMgr());
+    sk_sp<SkTypeface> typeface = SkTypeface::MakeDeserialize(&stream, ToolUtils::TestFontMgr());
     return typeface;
 }
 
@@ -893,7 +887,7 @@ DEF_TEST(Serialization, reporter) {
     SkSerialProcs serial_procs;
     serial_procs.fTypefaceProc = serialize_typeface_proc;
     SkDeserialProcs deserial_procs;
-    deserial_procs.fTypefaceProc = deserialize_typeface_proc;
+    deserial_procs.fTypefaceStreamProc = deserialize_typeface_proc;
     TestPictureTypefaceSerialization(&serial_procs, &deserial_procs, reporter);
 }
 
