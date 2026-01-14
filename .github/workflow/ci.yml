@@ -1,0 +1,407 @@
+# Skia Graphite Prebuilt Binaries Workflow
+#
+# This workflow builds Skia with Graphite (Dawn/Metal backend) for mobile platforms.
+# It produces prebuilt static libraries for iOS, macOS, and Android.
+#
+# Outputs (as artifacts):
+#   - skia-graphite-apple: XCFrameworks for iOS device, iOS simulator, macOS
+#   - skia-graphite-android: Static libraries for armeabi-v7a, arm64-v8a, x86, x86_64
+#   - skia-graphite-headers: Dawn/Graphite headers
+#
+# Usage:
+#   Trigger manually via workflow_dispatch or on tag push.
+
+name: Build Skia Graphite Prebuilts
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'graphite-*'
+
+concurrency:
+  group: skia-graphite-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Minimum deployment targets
+  IOS_MIN_VERSION: "15.1"
+  IOS_SIMULATOR_MIN_VERSION: "16.0"
+  MACOS_MIN_VERSION: "11.0"
+  ANDROID_NDK_VERSION: r27c
+  ANDROID_API_LEVEL: "26"
+
+jobs:
+  # ============================================================================
+  # Apple Builds (iOS & macOS)
+  # ============================================================================
+  build-apple:
+    runs-on: macos-14
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: arm64-iphoneos
+            cpu: arm64
+            platform: ios
+            is_simulator: false
+          - target: arm64-iphonesimulator
+            cpu: arm64
+            platform: ios
+            is_simulator: true
+          - target: x64-iphonesimulator
+            cpu: x64
+            platform: ios
+            is_simulator: true
+          - target: arm64-macosx
+            cpu: arm64
+            platform: mac
+            is_simulator: false
+          - target: x64-macosx
+            cpu: x64
+            platform: mac
+            is_simulator: false
+
+    steps:
+      - name: Checkout Skia
+        uses: actions/checkout@v4
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Setup build tools
+        run: |
+          brew install ninja
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Sync dependencies
+        env:
+          GIT_SYNC_DEPS_SKIP_EMSDK: 'true'
+        run: |
+          python3 tools/git-sync-deps
+
+      - name: Determine min target version
+        id: target_version
+        run: |
+          if [[ "${{ matrix.is_simulator }}" == "true" ]]; then
+            echo "min_target=${{ env.IOS_SIMULATOR_MIN_VERSION }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "min_target=${{ env.IOS_MIN_VERSION }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configure build
+        env:
+          ZERO_AR_DATE: 1
+        run: |
+          mkdir -p out/${{ matrix.target }}
+
+          # Construct GN args
+          cat > out/${{ matrix.target }}/args.gn << 'EOF'
+          # Target platform
+          target_os = "${{ matrix.platform }}"
+          target_cpu = "${{ matrix.cpu }}"
+
+          # Build type
+          is_official_build = true
+          is_debug = false
+          is_component_build = false
+
+          # Graphite configuration
+          skia_enable_graphite = true
+          skia_use_dawn = true
+          skia_use_metal = true
+          skia_use_gl = false
+
+          # Feature flags
+          skia_enable_skottie = true
+          skia_enable_pdf = false
+          skia_enable_tools = false
+          skia_use_piex = true
+
+          # System libraries (use bundled versions)
+          skia_use_system_expat = false
+          skia_use_system_libjpeg_turbo = false
+          skia_use_system_libpng = false
+          skia_use_system_libwebp = false
+          skia_use_system_zlib = false
+
+          # Paragraph/text support (using libgrapheme for Apple)
+          skia_enable_skparagraph = true
+          skia_use_harfbuzz = true
+          skia_use_system_harfbuzz = false
+          skia_use_icu = false
+          skia_use_system_icu = false
+          skia_use_client_icu = false
+          skia_use_libgrapheme = true
+          paragraph_tests_enabled = false
+
+          # Compiler
+          cc = "clang"
+          cxx = "clang++"
+
+          # Extra flags for C++ exceptions and RTTI
+          extra_cflags = ["-fexceptions", "-frtti"]
+          EOF
+
+          # Add iOS-specific args
+          if [[ "${{ matrix.platform }}" == "ios" ]]; then
+            echo 'ios_min_target = "${{ steps.target_version.outputs.min_target }}"' >> out/${{ matrix.target }}/args.gn
+          fi
+
+          # Add simulator flag
+          if [[ "${{ matrix.is_simulator }}" == "true" ]]; then
+            echo "ios_use_simulator = true" >> out/${{ matrix.target }}/args.gn
+          fi
+
+          echo "=== GN Args ==="
+          cat out/${{ matrix.target }}/args.gn
+
+          bin/gn gen out/${{ matrix.target }}
+
+      - name: Build
+        env:
+          ZERO_AR_DATE: 1
+        run: |
+          ninja -C out/${{ matrix.target }}
+
+      - name: Upload libraries
+        uses: actions/upload-artifact@v4
+        with:
+          name: apple-${{ matrix.target }}
+          path: |
+            out/${{ matrix.target }}/libskia.a
+            out/${{ matrix.target }}/libskshaper.a
+            out/${{ matrix.target }}/libsvg.a
+            out/${{ matrix.target }}/libskottie.a
+            out/${{ matrix.target }}/libsksg.a
+            out/${{ matrix.target }}/libskparagraph.a
+            out/${{ matrix.target }}/libskunicode_core.a
+            out/${{ matrix.target }}/libskunicode_libgrapheme.a
+
+      - name: Upload Dawn/Graphite headers
+        if: matrix.target == 'arm64-iphoneos'
+        uses: actions/upload-artifact@v4
+        with:
+          name: skia-graphite-headers
+          path: |
+            out/${{ matrix.target }}/gen/third_party/externals/dawn/include/
+            third_party/externals/dawn/include/
+            src/gpu/graphite/ContextOptionsPriv.h
+            src/gpu/graphite/ResourceTypes.h
+            src/gpu/graphite/TextureProxyView.h
+
+  # ============================================================================
+  # Android Builds
+  # ============================================================================
+  build-android:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: arm
+            cpu: arm
+            abi: armeabi-v7a
+          - target: arm64
+            cpu: arm64
+            abi: arm64-v8a
+          - target: x86
+            cpu: x86
+            abi: x86
+          - target: x64
+            cpu: x64
+            abi: x86_64
+
+    steps:
+      - name: Checkout Skia
+        uses: actions/checkout@v4
+
+      - name: Setup Android NDK
+        id: setup-ndk
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: ${{ env.ANDROID_NDK_VERSION }}
+
+      - name: Setup build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Sync dependencies
+        env:
+          GIT_SYNC_DEPS_SKIP_EMSDK: 'true'
+        run: |
+          python3 tools/git-sync-deps
+
+      - name: Configure build
+        env:
+          ANDROID_NDK: ${{ steps.setup-ndk.outputs.ndk-path }}
+          ZERO_AR_DATE: 1
+        run: |
+          mkdir -p out/${{ matrix.target }}
+
+          # Construct GN args
+          cat > out/${{ matrix.target }}/args.gn << EOF
+          # Target platform
+          target_os = "android"
+          target_cpu = "${{ matrix.cpu }}"
+
+          # NDK configuration
+          ndk = "$ANDROID_NDK"
+          ndk_api = ${{ env.ANDROID_API_LEVEL }}
+
+          # Build type
+          is_official_build = true
+          is_debug = false
+          is_component_build = false
+
+          # Graphite configuration
+          skia_enable_graphite = true
+          skia_use_dawn = true
+          skia_use_gl = false
+
+          # Feature flags
+          skia_enable_skottie = true
+          skia_enable_pdf = false
+          skia_enable_tools = false
+          skia_use_piex = true
+
+          # System libraries (use bundled versions)
+          skia_use_system_expat = false
+          skia_use_system_freetype2 = false
+          skia_use_system_libjpeg_turbo = false
+          skia_use_system_libpng = false
+          skia_use_system_libwebp = false
+          skia_use_system_zlib = false
+
+          # Paragraph/text support (using runtime ICU for Android)
+          skia_enable_skparagraph = true
+          skia_use_harfbuzz = true
+          skia_use_system_harfbuzz = false
+          skia_use_icu = true
+          skia_use_runtime_icu = true
+          skia_use_system_icu = false
+          paragraph_tests_enabled = false
+
+          # Compiler
+          cc = "clang"
+          cxx = "clang++"
+
+          # Extra flags
+          extra_cflags = ["-DSKIA_C_DLL", "-DHAVE_SYSCALL_GETRANDOM", "-DXML_DEV_URANDOM"]
+          EOF
+
+          echo "=== GN Args ==="
+          cat out/${{ matrix.target }}/args.gn
+
+          bin/gn gen out/${{ matrix.target }}
+
+      - name: Build
+        env:
+          ZERO_AR_DATE: 1
+        run: |
+          ninja -C out/${{ matrix.target }}
+
+      - name: Upload libraries
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-${{ matrix.target }}
+          path: |
+            out/${{ matrix.target }}/libskia.a
+            out/${{ matrix.target }}/libskshaper.a
+            out/${{ matrix.target }}/libsvg.a
+            out/${{ matrix.target }}/libskottie.a
+            out/${{ matrix.target }}/libsksg.a
+            out/${{ matrix.target }}/libjsonreader.a
+            out/${{ matrix.target }}/libskparagraph.a
+            out/${{ matrix.target }}/libskunicode_core.a
+            out/${{ matrix.target }}/libskunicode_icu.a
+
+  # ============================================================================
+  # Package Apple XCFrameworks
+  # ============================================================================
+  package-apple:
+    needs: build-apple
+    runs-on: macos-latest
+    steps:
+      - name: Download Apple artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: apple-*
+          path: artifacts
+
+      - name: Create fat binaries
+        run: |
+          # iOS Simulator (arm64 + x64)
+          mkdir -p libs/iphonesimulator
+          for lib in libskia.a libskshaper.a libsvg.a libskottie.a libsksg.a libskparagraph.a libskunicode_core.a libskunicode_libgrapheme.a; do
+            lipo -create \
+              artifacts/apple-arm64-iphonesimulator/out/arm64-iphonesimulator/$lib \
+              artifacts/apple-x64-iphonesimulator/out/x64-iphonesimulator/$lib \
+              -output libs/iphonesimulator/$lib
+          done
+
+          # macOS (arm64 + x64)
+          mkdir -p libs/macosx
+          for lib in libskia.a libskshaper.a libsvg.a libskottie.a libsksg.a libskparagraph.a libskunicode_core.a libskunicode_libgrapheme.a; do
+            lipo -create \
+              artifacts/apple-arm64-macosx/out/arm64-macosx/$lib \
+              artifacts/apple-x64-macosx/out/x64-macosx/$lib \
+              -output libs/macosx/$lib
+          done
+
+      - name: Create XCFrameworks
+        run: |
+          mkdir -p xcframeworks
+
+          for lib in libskia libskshaper libsvg libskottie libsksg libskparagraph libskunicode_core libskunicode_libgrapheme; do
+            xcodebuild -create-xcframework \
+              -library artifacts/apple-arm64-iphoneos/out/arm64-iphoneos/${lib}.a \
+              -library libs/iphonesimulator/${lib}.a \
+              -library libs/macosx/${lib}.a \
+              -output xcframeworks/${lib}.xcframework
+          done
+
+      - name: Upload XCFrameworks
+        uses: actions/upload-artifact@v4
+        with:
+          name: skia-graphite-apple
+          path: xcframeworks/
+
+  # ============================================================================
+  # Package Android Libraries
+  # ============================================================================
+  package-android:
+    needs: build-android
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Android artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: android-*
+          path: artifacts
+
+      - name: Organize by ABI
+        run: |
+          mkdir -p android/{armeabi-v7a,arm64-v8a,x86,x86_64}
+          cp artifacts/android-arm/out/arm/*.a android/armeabi-v7a/
+          cp artifacts/android-arm64/out/arm64/*.a android/arm64-v8a/
+          cp artifacts/android-x86/out/x86/*.a android/x86/
+          cp artifacts/android-x64/out/x64/*.a android/x86_64/
+
+      - name: Upload Android libraries
+        uses: actions/upload-artifact@v4
+        with:
+          name: skia-graphite-android
+          path: android/
