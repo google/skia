@@ -7,7 +7,4 @@ default_args = {
   angle_use_wayland = false
   dawn_use_built_dxc = false
   dawn_force_system_component_load = true
-
-  # Skia must stay in C++20 for longer compared to Chromium.
-  use_cxx23 = false
 }
