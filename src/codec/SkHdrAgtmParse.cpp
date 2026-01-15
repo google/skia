@@ -12,6 +12,11 @@
 
 namespace {
 
+// TODO(https://issuetracker.google.com/issues/40044808): Include operator== in SkColorSpace.h.
+bool operator==(const SkColorSpacePrimaries& a, const SkColorSpacePrimaries& b) {
+    return memcmp(&a, &b, sizeof(a)) == 0;
+}
+
 // Return x clamped to [a, b].
 template<typename T, typename U, typename V>
 T clamp(T x, U a, V b) {
