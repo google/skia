@@ -35,7 +35,7 @@ public:
                                Mipmapped mipmapped = Mipmapped::kNo,
                                SkBackingFit backingFit = SkBackingFit::kExact,
                                const SkSurfaceProps* props = nullptr) {
-        return Make(recorder, info, std::move(label), budgeted, mipmapped, backingFit, props,
+        return Make(recorder, info, label, budgeted, mipmapped, backingFit, props,
                     LoadOp::kClear, /*registerWithRecorder=*/true);
     }
     // Make a surface that is not registered with the provided recorder. This surface should be
@@ -48,7 +48,7 @@ public:
                                       Budgeted budgeted = Budgeted::kYes,
                                       Mipmapped mipmapped = Mipmapped::kNo,
                                       SkBackingFit backingFit = SkBackingFit::kApprox) {
-        return Make(recorder, info, std::move(label), budgeted, mipmapped, backingFit,
+        return Make(recorder, info, label, budgeted, mipmapped, backingFit,
                     /*props=*/nullptr, LoadOp::kDiscard, /*registerWithRecorder=*/false);
     }
 

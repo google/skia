@@ -53,7 +53,7 @@ std::tuple<void* /*mappedPtr*/, BindBufferInfo> UploadBufferManager::makeBindInf
                 requiredBytes32,
                 BufferType::kXferCpuToGpu,
                 AccessPattern::kHostVisible,
-                std::move(label));
+                label);
         void* bufferMapPtr = buffer ? buffer->map() : nullptr;
         if (!bufferMapPtr) {
             // Unlike [Draw|Static]BufferManager, the UploadManager does not track if any buffer
@@ -84,7 +84,7 @@ std::tuple<void* /*mappedPtr*/, BindBufferInfo> UploadBufferManager::makeBindInf
                 kReusedBufferSize,
                 BufferType::kXferCpuToGpu,
                 AccessPattern::kHostVisible,
-                std::move(label));
+                label);
         fReusedBufferOffset = 0;
         if (!fReusedBuffer || !fReusedBuffer->map()) {
             fReusedBuffer = nullptr;

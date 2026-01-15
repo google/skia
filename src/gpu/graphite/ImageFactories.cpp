@@ -93,7 +93,7 @@ sk_sp<SkImage> WrapTexture(Recorder* recorder,
     }
 
     sk_sp<Texture> texture =
-            recorder->priv().resourceProvider()->createWrappedTexture(backendTex, std::move(label));
+            recorder->priv().resourceProvider()->createWrappedTexture(backendTex, label);
     if (!texture) {
         SKGPU_LOG_W("Texture creation failed");
         return nullptr;
@@ -139,7 +139,7 @@ sk_sp<SkImage> WrapTexture(Recorder* recorder,
                        SkImages::GenerateMipmapsFromBase::kNo,
                        releaseP,
                        releaseC,
-                       std::move(label));
+                       label);
 }
 
 sk_sp<SkImage> WrapTexture(Recorder* recorder,
@@ -159,7 +159,7 @@ sk_sp<SkImage> WrapTexture(Recorder* recorder,
                        SkImages::GenerateMipmapsFromBase::kNo,
                        releaseP,
                        releaseC,
-                       std::move(label));
+                       label);
 }
 
 sk_sp<SkImage> PromiseTextureFrom(Recorder* recorder,
@@ -205,7 +205,7 @@ sk_sp<SkImage> PromiseTextureFrom(Recorder* recorder,
                                                           fulfillProc,
                                                           imageContext,
                                                           textureReleaseProc,
-                                                          std::move(label));
+                                                          label);
     if (!proxy) {
         return nullptr;
     }

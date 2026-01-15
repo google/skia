@@ -641,7 +641,7 @@ bool StaticBufferManager::BufferState::createAndUpdateBindings(
             fTotalRequiredBytes,
             fBufferType,
             gpuAccessPattern,
-            std::move(label));
+            label);
     if (!staticBuffer) {
         SKGPU_LOG_E("Failed to create static buffer for type %d of size %u bytes.\n",
                     (int) fBufferType, fTotalRequiredBytes);

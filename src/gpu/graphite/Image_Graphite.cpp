@@ -80,7 +80,7 @@ sk_sp<Image> Image::Copy(Recorder* recorder,
         // Copy-as-draw
         sk_sp<Image> srcImage(new Image(srcView, srcColorInfo));
         return CopyAsDraw(recorder, drawContext, srcImage.get(), subset, srcColorInfo,
-                          budgeted, mipmapped, backingFit, std::move(label));
+                          budgeted, mipmapped, backingFit, label);
     }
 
     skgpu::graphite::TextureInfo textureInfo =
@@ -92,7 +92,7 @@ sk_sp<Image> Image::Copy(Recorder* recorder,
             recorder->priv().resourceProvider(),
             backingFit == SkBackingFit::kApprox ? GetApproxSize(subset.size()) : subset.size(),
             textureInfo,
-            std::move(label),
+            label,
             budgeted);
     if (!dst) {
         return nullptr;
@@ -140,7 +140,7 @@ sk_sp<Image> Image::copyImage(Recorder* recorder,
     this->notifyInUse(recorder, /*drawContext=*/nullptr);
     return Image::Copy(recorder, /*drawContext=*/nullptr,
                        fTextureProxyView, this->imageInfo().colorInfo(),
-                       subset, budgeted, mipmapped, backingFit, std::move(label));
+                       subset, budgeted, mipmapped, backingFit, label);
 }
 
 sk_sp<SkImage> Image::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {

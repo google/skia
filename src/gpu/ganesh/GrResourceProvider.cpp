@@ -336,7 +336,7 @@ sk_sp<GrTexture> GrResourceProvider::findAndRefScratchTexture(const skgpu::Scrat
     if (GrGpuResource* resource = fCache->findAndRefScratchResource(key)) {
         fGpu->stats()->incNumScratchTexturesReused();
         GrSurface* surface = static_cast<GrSurface*>(resource);
-        resource->setLabel(std::move(label));
+        resource->setLabel(label);
         return sk_sp<GrTexture>(surface->asTexture());
     }
     return nullptr;
@@ -822,7 +822,7 @@ sk_sp<GrAttachment> GrResourceProvider::refScratchMSAAAttachment(SkISize dimensi
     if (resource) {
         fGpu->stats()->incNumScratchMSAAAttachmentsReused();
         GrAttachment* attachment = static_cast<GrAttachment*>(resource);
-        resource->setLabel(std::move(label));
+        resource->setLabel(label);
         return sk_sp<GrAttachment>(attachment);
     }
 

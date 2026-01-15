@@ -544,7 +544,7 @@ void Context::asyncReadPixelsYUV420(std::unique_ptr<Recorder> recorder,
                          PixelTransferResult* result) {
         sk_sp<Surface> dstSurface = Surface::MakeScratch(recorder.get(),
                                                          planeInfo,
-                                                         std::move(label),
+                                                         label,
                                                          Budgeted::kYes,
                                                          Mipmapped::kNo,
                                                          SkBackingFit::kApprox);

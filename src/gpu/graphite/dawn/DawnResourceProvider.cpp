@@ -614,8 +614,7 @@ sk_sp<DawnBuffer> DawnResourceProvider::findOrCreateDawnBuffer(size_t size,
                                                                BufferType type,
                                                                AccessPattern accessPattern,
                                                                std::string_view label) {
-    sk_sp<Buffer> buffer = this->findOrCreateNonShareableBuffer(
-            size, type, accessPattern, std::move(label));
+    sk_sp<Buffer> buffer = this->findOrCreateNonShareableBuffer(size, type, accessPattern, label);
     DawnBuffer* ptr = static_cast<DawnBuffer*>(buffer.release());
     return sk_sp<DawnBuffer>(ptr);
 }

@@ -77,12 +77,8 @@ sk_sp<Surface> make_renderable_scratch_surface(
 
     // TODO(b/323886870): Historically the scratch surfaces used here were exact-fit but they should
     // be able to be approx-fit and uninstantiated.
-    return Surface::MakeScratch(recorder,
-                                info.makeColorType(ct),
-                                std::move(label),
-                                Budgeted::kYes,
-                                Mipmapped::kNo,
-                                backingFit);
+    return Surface::MakeScratch(
+            recorder, info.makeColorType(ct), label, Budgeted::kYes, Mipmapped::kNo, backingFit);
 }
 
 bool valid_client_provided_image(const SkImage* clientProvided,
@@ -249,7 +245,7 @@ std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder
                                                    recorder->priv().resourceProvider(),
                                                    bmpToUpload.dimensions(),
                                                    textureInfo,
-                                                   std::move(label),
+                                                   label,
                                                    budgeted);
     if (!proxy) {
         return {};
@@ -306,7 +302,7 @@ sk_sp<TextureProxy> MakePromiseImageLazyProxy(
     }
 
     PromiseLazyInstantiateCallback callback{std::move(releaseHelper), fulfillProc,
-                                            fulfillContext, textureReleaseProc, std::move(label)};
+                                            fulfillContext, textureReleaseProc, label};
     // Proxies for promise images are assumed to always be destined for a client's SkImage so
     // are never considered budgeted.
     return TextureProxy::MakeLazy(caps, dimensions, textureInfo, Budgeted::kNo, isVolatile,
@@ -321,12 +317,8 @@ sk_sp<SkImage> MakeFromBitmap(Recorder* recorder,
                               SkImage::RequiredProperties requiredProps,
                               std::string_view label) {
     auto mm = requiredProps.fMipmapped ? Mipmapped::kYes : Mipmapped::kNo;
-    auto [view, ct] = MakeBitmapProxyView(recorder,
-                                          bitmap,
-                                          std::move(mipmaps),
-                                          mm,
-                                          budgeted,
-                                          std::move(label));
+    auto [view, ct] =
+            MakeBitmapProxyView(recorder, bitmap, std::move(mipmaps), mm, budgeted, label);
     if (!view) {
         return nullptr;
     }
@@ -378,12 +370,8 @@ sk_sp<Image> CopyAsDraw(Recorder* recorder,
                                                         .makeAlphaType(kPremul_SkAlphaType));
     // The surface goes out of scope when we return, so it can be scratch, but it may or may
     // not be budgeted depending on how the copied image is used (or returned to the client).
-    sk_sp<Surface> surface = Surface::MakeScratch(recorder,
-                                                  dstInfo,
-                                                  std::move(label),
-                                                  budgeted,
-                                                  mipmapped,
-                                                  backingFit);
+    sk_sp<Surface> surface =
+            Surface::MakeScratch(recorder, dstInfo, label, budgeted, mipmapped, backingFit);
     if (!surface) {
         return nullptr;
     }

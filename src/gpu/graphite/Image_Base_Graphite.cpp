@@ -101,7 +101,7 @@ sk_sp<Image> Image_Base::copyImage(Recorder* recorder,
                                    std::string_view label) const {
     return CopyAsDraw(recorder,
                       /*drawContext=*/nullptr, this, subset, this->imageInfo().colorInfo(),
-                      budgeted, mipmapped, backingFit, std::move(label));
+                      budgeted, mipmapped, backingFit, label);
 }
 
 namespace {
