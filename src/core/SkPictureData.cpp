@@ -349,8 +349,6 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
                 sk_sp<SkTypeface> tf;
                 if (procs.fTypefaceStreamProc) {
                     tf = procs.fTypefaceStreamProc(*stream, procs.fTypefaceCtx);
-                } else if (procs.fTypefaceProc) {
-                    tf = procs.fTypefaceProc(&stream, sizeof(stream), procs.fTypefaceCtx);
                 } else {
                     tf = SkTypeface::MakeDeserialize(stream, nullptr);
                 }

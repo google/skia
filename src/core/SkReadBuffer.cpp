@@ -461,15 +461,11 @@ sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
     } else {    // custom
         size_t size = sk_negate_to_size_t(index);
         const void* data = this->skip(size);
-        if (!this->validate(data && (fProcs.fTypefaceStreamProc || fProcs.fTypefaceProc))) {
+        if (!this->validate(data && fProcs.fTypefaceStreamProc)) {
             return nullptr;
         }
-        if (fProcs.fTypefaceStreamProc) {
-            SkMemoryStream s(data, size, false);
-            return fProcs.fTypefaceStreamProc(s, fProcs.fTypefaceCtx);
-        } else {
-            return fProcs.fTypefaceProc(data, size, fProcs.fTypefaceCtx);
-        }
+        SkMemoryStream s(data, size, false);
+        return fProcs.fTypefaceStreamProc(s, fProcs.fTypefaceCtx);
     }
 }
 

@@ -108,7 +108,6 @@ struct SK_API SkDeserialProcs {
     SkSlugProc                   fSlugProc = nullptr;
     void*                        fSlugCtx = nullptr;
 
-    SkDeserialTypefaceProc       fTypefaceProc = nullptr; // deprecated
     SkDeserialTypefaceStreamProc fTypefaceStreamProc = nullptr;
     void*                        fTypefaceCtx = nullptr;
 
