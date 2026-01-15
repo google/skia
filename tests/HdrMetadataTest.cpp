@@ -288,10 +288,6 @@ DEF_TEST(HdrMetadata_Agtm_Weighting, r) {
           {0.75f, 0.25f}});
 }
 
-static bool operator==(const SkColorSpacePrimaries& a, const SkColorSpacePrimaries& b) {
-    return memcmp(&a, &b, sizeof(a)) == 0;
-}
-
 static void assert_agtms_equal(skiatest::Reporter* r,
                                const skhdr::AdaptiveGlobalToneMap& agtmIn,
                                const skhdr::AdaptiveGlobalToneMap& agtmOut) {
