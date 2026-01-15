@@ -37,7 +37,13 @@ struct SK_API SkColorSpacePrimaries {
      *  representation of SkColorSpace.
      */
     bool toXYZD50(skcms_Matrix3x3* toXYZD50) const;
+
+    bool operator==(const SkColorSpacePrimaries&) const = default;
 };
+
+// TODO(https://issuetracker.google.com/issues/40044808): Remove this when no longer needed by
+// Chromium.
+#define SKIA_COLOR_SPACE_PRIMARIES_OPERATOR_EQUAL
 
 namespace SkNamedPrimaries {
 

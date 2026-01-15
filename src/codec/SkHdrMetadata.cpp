@@ -76,11 +76,6 @@ sk_sp<SkData> ContentLightLevelInformation::serializePngChunk() const {
     return s.detachAsData();
 }
 
-bool ContentLightLevelInformation::operator==(const ContentLightLevelInformation& other) const {
-    return fMaxCLL == other.fMaxCLL &&
-           fMaxFALL == other.fMaxFALL;
-}
-
 // The MDCV metadata stores chrominance [luminance] as an integer equal to the floating point value,
 // multipled by mdcv_chrominance[luminance]_divisor.
 static constexpr float mdcv_chrominance_divisor = 50000.f;
@@ -148,19 +143,6 @@ sk_sp<SkData> MasteringDisplayColorVolume::serialize() const {
     SkStreamPriv::WriteU32BE(
             &s, std::llroundf(fMinimumDisplayMasteringLuminance * mdcv_luminance_divisor));
     return s.detachAsData();
-}
-
-bool MasteringDisplayColorVolume::operator==(const MasteringDisplayColorVolume& other) const {
-    return fDisplayPrimaries.fRX == other.fDisplayPrimaries.fRX &&
-           fDisplayPrimaries.fRY == other.fDisplayPrimaries.fRY &&
-           fDisplayPrimaries.fGX == other.fDisplayPrimaries.fGX &&
-           fDisplayPrimaries.fGY == other.fDisplayPrimaries.fGY &&
-           fDisplayPrimaries.fBX == other.fDisplayPrimaries.fBX &&
-           fDisplayPrimaries.fBY == other.fDisplayPrimaries.fBY &&
-           fDisplayPrimaries.fWX == other.fDisplayPrimaries.fWX &&
-           fDisplayPrimaries.fWY == other.fDisplayPrimaries.fWY &&
-           fMaximumDisplayMasteringLuminance == other.fMaximumDisplayMasteringLuminance &&
-           fMinimumDisplayMasteringLuminance == other.fMinimumDisplayMasteringLuminance;
 }
 
 Metadata Metadata::MakeEmpty() {
