@@ -4,7 +4,7 @@ struct _GlobalUniforms {
   colorGreen: vec4<f32>,
   colorRed: vec4<f32>,
 };
-@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
+@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 struct S {
   f1: f32,
   v2: vec2<f32>,

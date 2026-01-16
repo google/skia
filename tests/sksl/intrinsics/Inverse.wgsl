@@ -7,7 +7,7 @@ struct _GlobalUniforms {
   colorGreen: vec4<f32>,
   colorRed: vec4<f32>,
 };
-@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
+@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn mat3_inverse(m: mat3x3<f32>) -> mat3x3<f32> {
 let a00 = m[0].x; let a01 = m[0].y; let a02 = m[0].z;
 let a10 = m[1].x; let a11 = m[1].y; let a12 = m[1].z;

@@ -4,7 +4,7 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
   colorGreen: vec4<f32>,
 };
-@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
+@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn do_side_effect_bb(x: ptr<function, bool>) -> bool {
   {
     (*x) = true;

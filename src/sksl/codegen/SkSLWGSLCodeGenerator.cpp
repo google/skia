@@ -60,7 +60,6 @@
 #include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLModifierFlags.h"
-#include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLModifiersDeclaration.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
@@ -355,8 +354,6 @@ private:
     bool needsStageOutputStruct() const;
     void writeStageOutputStruct();
     void writeUniformsAndBuffers();
-    void writeInterfaceBlock(const InterfaceBlock& ib);
-
     void prepareUniformPolyfillsForInterfaceBlock(const InterfaceBlock* interfaceBlock,
                                                   std::string_view instanceName,
                                                   MemoryLayout::Standard nativeLayout);
@@ -408,8 +405,8 @@ private:
     IncludeSyntheticCode fGenSyntheticCode;
 
     // These fields control uniform polyfill support in cases where WGSL and std140 disagree.
-    // In std140 layout, matrices need to be represented as arrays of @align(16) vectors, and
-    // array elements are wrapped in a struct containing a single @align(16) element. Arrays
+    // In std140 layout, matrices need to be represented as arrays of @size(16)-aligned vectors, and
+    // array elements are wrapped in a struct containing a single @size(16)-aligned element. Arrays
     // of matrices combine both wrappers. These wrapper structs are unpacked into natively-typed
     // globals at the shader entrypoint.
     struct FieldPolyfillInfo {
@@ -421,8 +418,6 @@ private:
     };
     using FieldPolyfillMap = skia_private::THashMap<const Field*, FieldPolyfillInfo>;
     FieldPolyfillMap fFieldPolyfillMap;
-
-    std::unique_ptr<InterfaceBlock> fSyntheticGlobalUniformsBlock;
 
     // Output processing state.
     int fIndentation = 0;
@@ -1478,7 +1473,7 @@ void WGSLCodeGenerator::writeUniformPolyfills() {
                     this->writeLine(std::to_string(fieldType->rows()));
                 } else {
                     // Create a struct representing the array with extra padding between elements.
-                    this->write("  @align(16) e : ");
+                    this->write("  @size(16) e : ");
                     this->writeLine(to_wgsl_type(fContext, *fieldType, fieldLayout));
                 }
                 this->writeLine("};");
@@ -1497,7 +1492,7 @@ void WGSLCodeGenerator::writeUniformPolyfills() {
                 this->write("struct _skRow");
                 this->write(std::to_string(r));
                 this->writeLine(" {");
-                this->write("  @align(16) r : vec");
+                this->write("  @size(16) r : vec");
                 this->write(std::to_string(r));
                 this->write("<");
                 this->write(to_wgsl_type(fContext, fieldType->componentType(), fieldLayout));
@@ -1912,14 +1907,6 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
     SkASSERT(main.declaration().isMain());
     const ProgramKind programKind = fProgram.fConfig->fKind;
 
-    bool initPolyfill = false;
-    for (const auto& [field, info] : fFieldPolyfillMap) {
-        if (info.fWasAccessed) {
-            initPolyfill = true;
-            break;
-        }
-    }
-
     if (fGenSyntheticCode == IncludeSyntheticCode::kYes &&
         ProgramConfig::IsRuntimeShader(programKind)) {
         // Synthesize a basic entrypoint which just calls straight through to main.
@@ -1928,9 +1915,6 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
         this->writeLine("@fragment fn main(@location(0) _coords: vec2<f32>) -> "
                                      "@location(0) vec4<f32> {");
         ++fIndentation;
-        if (initPolyfill) {
-            this->writeLine("_skInitializePolyfilledUniforms();");
-        }
         this->writeLine("return _skslMain(_coords);");
         --fIndentation;
         this->writeLine("}");
@@ -1975,10 +1959,12 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
     }
     // Initialize polyfilled matrix uniforms if any were used.
     fIndentation++;
-    if (initPolyfill) {
-        this->writeLine("_skInitializePolyfilledUniforms();");
+    for (const auto& [field, info] : fFieldPolyfillMap) {
+        if (info.fWasAccessed) {
+            this->writeLine("_skInitializePolyfilledUniforms();");
+            break;
+        }
     }
-
     // Declare the stage output struct.
     if (this->needsStageOutputStruct()) {
         this->write("var _stageOut: ");
@@ -3985,30 +3971,6 @@ std::string WGSLCodeGenerator::variableReferenceNameForLValue(const VariableRefe
         return "(*" + this->assembleName(v.mangledName()) + ')';
     }
 
-    if (is_in_global_uniforms(v)) {
-        // Assemble polyfill access (see assembleFieldAccess)
-        SkASSERT(fSyntheticGlobalUniformsBlock);
-        FieldPolyfillInfo* polyfillInfo = nullptr;
-        const Type& globalStruct = fSyntheticGlobalUniformsBlock->var()->type().componentType();
-        for (const Field& f : globalStruct.fields()) {
-            if (f.fName == v.name()) {
-                polyfillInfo = fFieldPolyfillMap.find(&f);
-                SkASSERT(polyfillInfo);
-                break;
-            }
-        }
-
-        if (polyfillInfo) {
-            // We found a global variable declaration that had to be polyfilled, so switch to its
-            // replacement expression. This is simpler than assembleFieldAccess() because we don't
-            // need to worry about index expressions.
-            polyfillInfo->fWasAccessed = true;
-            return polyfillInfo->fReplacementName;
-        }
-
-        // Fall through for a regular global variable access
-    }
-
     return this->variablePrefix(v) + this->assembleName(v.mangledName());
 }
 
@@ -4625,113 +4587,99 @@ void WGSLCodeGenerator::writeUniformsAndBuffers() {
         if (!e->is<InterfaceBlock>()) {
             continue;
         }
-        this->writeInterfaceBlock(e->as<InterfaceBlock>());
-    }
-}
+        const InterfaceBlock& ib = e->as<InterfaceBlock>();
 
-void WGSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& ib) {
-    // Determine if this interface block holds uniforms, buffers, or something else (skip it).
-    std::string_view addressSpace;
-    std::string_view accessMode;
-    MemoryLayout::Standard nativeLayout;
-    const bool isPushConstant =
-            static_cast<bool>(ib.var()->layout().fFlags & LayoutFlag::kPushConstant);
-    if (ib.var()->modifierFlags().isUniform()) {
-        if (isPushConstant) {
-            addressSpace = "immediate";
+        // Determine if this interface block holds uniforms, buffers, or something else (skip it).
+        std::string_view addressSpace;
+        std::string_view accessMode;
+        MemoryLayout::Standard nativeLayout;
+        const bool isPushConstant =
+                static_cast<bool>(ib.var()->layout().fFlags & LayoutFlag::kPushConstant);
+        if (ib.var()->modifierFlags().isUniform()) {
+            if (isPushConstant) {
+                addressSpace = "immediate";
+            } else {
+                addressSpace = "uniform";
+            }
+            nativeLayout = MemoryLayout::Standard::kWGSLUniform_Base;
+        } else if (ib.var()->modifierFlags().isBuffer()) {
+            addressSpace = "storage";
+            nativeLayout = MemoryLayout::Standard::kWGSLStorage_Base;
+            accessMode = ib.var()->modifierFlags().isReadOnly() ? ", read" : ", read_write";
         } else {
-            addressSpace = "uniform";
+            continue;
         }
-        nativeLayout = MemoryLayout::Standard::kWGSLUniform_Base;
-    } else if (ib.var()->modifierFlags().isBuffer()) {
-        addressSpace = "storage";
-        nativeLayout = MemoryLayout::Standard::kWGSLStorage_Base;
-        accessMode = ib.var()->modifierFlags().isReadOnly() ? ", read" : ", read_write";
-    } else {
-        return;
+
+        // If we have an anonymous interface block, assign a name like `_uniform0` or `_storage1`.
+        std::string instanceName;
+        if (ib.instanceName().empty()) {
+            instanceName = "_" + std::string(addressSpace) + std::to_string(fScratchCount++);
+            fInterfaceBlockNameMap[&ib.var()->type().componentType()] = instanceName;
+        } else {
+            instanceName = std::string(ib.instanceName());
+        }
+
+        this->prepareUniformPolyfillsForInterfaceBlock(&ib, instanceName, nativeLayout);
+
+        // Create a struct to hold all of the fields from this InterfaceBlock.
+        SkASSERT(!ib.typeName().empty());
+        this->write("struct ");
+        this->write(ib.typeName());
+        this->writeLine(" {");
+
+        // Find the struct type and fields used by this interface block.
+        const Type& ibType = ib.var()->type().componentType();
+        SkASSERT(ibType.isStruct());
+
+        SkSpan<const Field> ibFields = ibType.fields();
+        SkASSERT(!ibFields.empty());
+
+        MemoryLayout layout(MemoryLayout::Standard::k140);
+        this->writeFields(ibFields, &layout);
+        this->writeLine("};");
+        if (!isPushConstant) {
+            this->write("@group(");
+            this->write(std::to_string(std::max(0, ib.var()->layout().fSet)));
+            this->write(") @binding(");
+            this->write(std::to_string(std::max(0, ib.var()->layout().fBinding)));
+            this->write(") ");
+        }
+        this->write("var<");
+        this->write(addressSpace);
+        this->write(accessMode);
+        this->write("> ");
+        this->write(instanceName);
+        this->write(" : ");
+        this->write(to_wgsl_type(fContext, ib.var()->type(), &ib.var()->layout()));
+        this->writeLine(";");
     }
-
-    // If we have an anonymous interface block, assign a name like `_uniform0` or `_storage1`.
-    std::string instanceName;
-    if (ib.instanceName().empty()) {
-        instanceName = "_" + std::string(addressSpace) + std::to_string(fScratchCount++);
-        fInterfaceBlockNameMap[&ib.var()->type().componentType()] = instanceName;
-    } else {
-        instanceName = std::string(ib.instanceName());
-    }
-
-    this->prepareUniformPolyfillsForInterfaceBlock(&ib, instanceName, nativeLayout);
-
-    // Create a struct to hold all of the fields from this InterfaceBlock.
-    SkASSERT(!ib.typeName().empty());
-    this->write("struct ");
-    this->write(ib.typeName());
-    this->writeLine(" {");
-
-    // Find the struct type and fields used by this interface block.
-    const Type& ibType = ib.var()->type().componentType();
-    SkASSERT(ibType.isStruct());
-
-    SkSpan<const Field> ibFields = ibType.fields();
-    SkASSERT(!ibFields.empty());
-
-    MemoryLayout layout(MemoryLayout::Standard::k140);
-    this->writeFields(ibFields, &layout);
-    this->writeLine("};");
-    if (!isPushConstant) {
-        this->write("@group(");
-        this->write(std::to_string(std::max(0, ib.var()->layout().fSet)));
-        this->write(") @binding(");
-        this->write(std::to_string(std::max(0, ib.var()->layout().fBinding)));
-        this->write(") ");
-    }
-    this->write("var<");
-    this->write(addressSpace);
-    this->write(accessMode);
-    this->write("> ");
-    this->write(instanceName);
-    this->write(" : ");
-    this->write(to_wgsl_type(fContext, ib.var()->type(), &ib.var()->layout()));
-    this->writeLine(";");
 }
 
 void WGSLCodeGenerator::writeNonBlockUniformsForTests() {
-    TArray<Field> globalVarFields;
-    Position globalVarPos;
+    bool declaredUniformsStruct = false;
+
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
             const Variable& var = *decls.varDeclaration().var();
-
             if (is_in_global_uniforms(var)) {
-                if (globalVarFields.empty()) {
-                    globalVarPos = var.position();
+                if (!declaredUniformsStruct) {
+                    this->write("struct _GlobalUniforms {\n");
+                    declaredUniformsStruct = true;
                 }
-                globalVarFields.push_back(Field(var.position(), var.layout(), ModifierFlag::kNone,
-                                                var.name(), &var.type()));
+                this->write("  ");
+                this->writeVariableDecl(var.layout(), var.type(), var.mangledName(),
+                                        Delimiter::kComma);
             }
         }
     }
-
-    if (!globalVarFields.empty()) {
-        Layout layout{LayoutFlag::kNone, 0, 0, fProgram.fConfig->fSettings.fDefaultUniformBinding, 0,
-                fProgram.fConfig->fSettings.fDefaultUniformSet, 0, 0};
-        Modifiers modifiers{globalVarPos, layout, ModifierFlag::kUniform};
-
-        // Interface blocks (for SkSL) are normally only allowed in fragment, vertex, or compute
-        // programs and not the synthetic SkSL files that are allowed to declare non-block uniforms
-        // Arbitrarily pick kFragment to temporarily override the config kind to pass validations.
-        ProgramKind orig = fContext.fConfig->fKind;
-        fContext.fConfig->fKind = ProgramKind::kFragment;
-        fSyntheticGlobalUniformsBlock = InterfaceBlock::Convert(fContext,
-                                                                globalVarPos,
-                                                                modifiers,
-                                                                "_GlobalUniforms",
-                                                                std::move(globalVarFields),
-                                                                "_globalUniforms",
-                                                                /*arraySize=*/0);
-        this->writeInterfaceBlock(*fSyntheticGlobalUniformsBlock);
-        fContext.fConfig->fKind = orig;
+    if (declaredUniformsStruct) {
+        int binding = fProgram.fConfig->fSettings.fDefaultUniformBinding;
+        int set = fProgram.fConfig->fSettings.fDefaultUniformSet;
+        this->write("};\n");
+        this->write("@binding(" + std::to_string(binding) + ") ");
+        this->write("@group(" + std::to_string(set) + ") ");
+        this->writeLine("var<uniform> _globalUniforms: _GlobalUniforms;");
     }
 }
 
