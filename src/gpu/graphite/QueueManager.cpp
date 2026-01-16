@@ -122,7 +122,7 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
     if (recorderID != SK_InvalidGenID) {
         uint32_t* recordingID = fLastAddedRecordingIDs.find(recorderID);
         RETURN_FAIL_IF(recordingID && info.fRecording->priv().uniqueID() != *recordingID + 1,
-                       InsertStatus::kInvalidRecording,
+                       InsertStatus::kOutOfOrderRecording,
                        "Recordings are expected to be replayed in order");
 
         // Note the new Recording ID.

@@ -52,7 +52,12 @@ public:
         kAddCommandsFailed,
         // Internal failure, shader pipeline compilation failed (driver issue, or disk corruption),
         // state unrecoverable.
-        kAsyncShaderCompilesFailed
+        kAsyncShaderCompilesFailed,
+        // The inserted Recording is out of order from what the Context expects (when
+        // `[Context|Recorder]Options::fRequireOrderedRecordings` is true), which can either
+        // represent a client synchronization error or an internal failure when a prior dependent
+        // Recording failed for some reason, no CB changes but state likely unrecoverable.
+        kOutOfOrderRecording,
     };
 
     constexpr InsertStatus() : fValue(kSuccess) {}
