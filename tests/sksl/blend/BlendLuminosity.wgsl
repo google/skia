@@ -7,7 +7,7 @@ struct _GlobalUniforms {
   src: vec4<f32>,
   dst: vec4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 const sk_PrivkGuardedDivideEpsilon: f32 = f32(select(0.0, 1e-08, false));
 const sk_PrivkMinNormalHalf: f32 = 6.10351562e-05;
 fn blend_color_saturation_Qhh3(color: vec3<f32>) -> f32 {

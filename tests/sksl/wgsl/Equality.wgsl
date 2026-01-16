@@ -16,16 +16,16 @@ struct _GlobalUniforms {
   hv1: vec2<f32>,
   hv2: vec2<f32>,
   hv3: vec2<f32>,
-  m1: mat2x2<f32>,
-  m2: mat2x2<f32>,
-  m3: mat2x2<f32>,
-  hm1: mat2x2<f32>,
-  hm2: mat2x2<f32>,
-  hm3: mat2x2<f32>,
+  m1: _skMatrix22,
+  m2: _skMatrix22,
+  m3: _skMatrix22,
+  hm1: _skMatrix22,
+  hm2: _skMatrix22,
+  hm3: _skMatrix22,
   colorGreen: vec4<f32>,
   colorRed: vec4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn _skslMain() -> vec4<f32> {
   {
     var ok: bool = true;
@@ -45,23 +45,44 @@ fn _skslMain() -> vec4<f32> {
     ok = ok && any(_globalUniforms.hv1 != _globalUniforms.hv3);
     ok = ok && any(_globalUniforms.v1 != vec2<f32>(_globalUniforms.hv3));
     ok = ok && any(vec2<f32>(_globalUniforms.hv1) != _globalUniforms.v3);
-    ok = ok && (all(_globalUniforms.m1[0] == _globalUniforms.m2[0]) && all(_globalUniforms.m1[1] == _globalUniforms.m2[1]));
-    ok = ok && (all(_globalUniforms.hm1[0] == _globalUniforms.hm2[0]) && all(_globalUniforms.hm1[1] == _globalUniforms.hm2[1]));
-    let _skTemp0 = mat2x2<f32>(_globalUniforms.hm2);
-    ok = ok && (all(_globalUniforms.m1[0] == _skTemp0[0]) && all(_globalUniforms.m1[1] == _skTemp0[1]));
-    let _skTemp1 = mat2x2<f32>(_globalUniforms.hm1);
-    ok = ok && (all(_skTemp1[0] == _globalUniforms.m2[0]) && all(_skTemp1[1] == _globalUniforms.m2[1]));
-    ok = ok && (any(_globalUniforms.m1[0] != _globalUniforms.m3[0]) || any(_globalUniforms.m1[1] != _globalUniforms.m3[1]));
-    ok = ok && (any(_globalUniforms.hm1[0] != _globalUniforms.hm3[0]) || any(_globalUniforms.hm1[1] != _globalUniforms.hm3[1]));
-    let _skTemp2 = mat2x2<f32>(_globalUniforms.hm3);
-    ok = ok && (any(_globalUniforms.m1[0] != _skTemp2[0]) || any(_globalUniforms.m1[1] != _skTemp2[1]));
-    let _skTemp3 = mat2x2<f32>(_globalUniforms.hm1);
-    ok = ok && (any(_skTemp3[0] != _globalUniforms.m3[0]) || any(_skTemp3[1] != _globalUniforms.m3[1]));
+    ok = ok && (all(_skUnpacked__globalUniforms_m1[0] == _skUnpacked__globalUniforms_m2[0]) && all(_skUnpacked__globalUniforms_m1[1] == _skUnpacked__globalUniforms_m2[1]));
+    ok = ok && (all(_skUnpacked__globalUniforms_hm1[0] == _skUnpacked__globalUniforms_hm2[0]) && all(_skUnpacked__globalUniforms_hm1[1] == _skUnpacked__globalUniforms_hm2[1]));
+    let _skTemp0 = mat2x2<f32>(_skUnpacked__globalUniforms_hm2);
+    ok = ok && (all(_skUnpacked__globalUniforms_m1[0] == _skTemp0[0]) && all(_skUnpacked__globalUniforms_m1[1] == _skTemp0[1]));
+    let _skTemp1 = mat2x2<f32>(_skUnpacked__globalUniforms_hm1);
+    ok = ok && (all(_skTemp1[0] == _skUnpacked__globalUniforms_m2[0]) && all(_skTemp1[1] == _skUnpacked__globalUniforms_m2[1]));
+    ok = ok && (any(_skUnpacked__globalUniforms_m1[0] != _skUnpacked__globalUniforms_m3[0]) || any(_skUnpacked__globalUniforms_m1[1] != _skUnpacked__globalUniforms_m3[1]));
+    ok = ok && (any(_skUnpacked__globalUniforms_hm1[0] != _skUnpacked__globalUniforms_hm3[0]) || any(_skUnpacked__globalUniforms_hm1[1] != _skUnpacked__globalUniforms_hm3[1]));
+    let _skTemp2 = mat2x2<f32>(_skUnpacked__globalUniforms_hm3);
+    ok = ok && (any(_skUnpacked__globalUniforms_m1[0] != _skTemp2[0]) || any(_skUnpacked__globalUniforms_m1[1] != _skTemp2[1]));
+    let _skTemp3 = mat2x2<f32>(_skUnpacked__globalUniforms_hm1);
+    ok = ok && (any(_skTemp3[0] != _skUnpacked__globalUniforms_m3[0]) || any(_skTemp3[1] != _skUnpacked__globalUniforms_m3[1]));
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(ok));
   }
 }
 @fragment fn main() -> FSOut {
+  _skInitializePolyfilledUniforms();
   var _stageOut: FSOut;
   _stageOut.sk_FragColor = _skslMain();
   return _stageOut;
+}
+struct _skRow2 {
+  @align(16) r : vec2<f32>
+};
+struct _skMatrix22 {
+  c : array<_skRow2, 2>
+};
+var<private> _skUnpacked__globalUniforms_hm1: mat2x2<f32>;
+var<private> _skUnpacked__globalUniforms_hm2: mat2x2<f32>;
+var<private> _skUnpacked__globalUniforms_hm3: mat2x2<f32>;
+var<private> _skUnpacked__globalUniforms_m1: mat2x2<f32>;
+var<private> _skUnpacked__globalUniforms_m2: mat2x2<f32>;
+var<private> _skUnpacked__globalUniforms_m3: mat2x2<f32>;
+fn _skInitializePolyfilledUniforms() {
+  _skUnpacked__globalUniforms_hm1 = mat2x2<f32>(_globalUniforms.hm1.c[0].r, _globalUniforms.hm1.c[1].r);
+  _skUnpacked__globalUniforms_hm2 = mat2x2<f32>(_globalUniforms.hm2.c[0].r, _globalUniforms.hm2.c[1].r);
+  _skUnpacked__globalUniforms_hm3 = mat2x2<f32>(_globalUniforms.hm3.c[0].r, _globalUniforms.hm3.c[1].r);
+  _skUnpacked__globalUniforms_m1 = mat2x2<f32>(_globalUniforms.m1.c[0].r, _globalUniforms.m1.c[1].r);
+  _skUnpacked__globalUniforms_m2 = mat2x2<f32>(_globalUniforms.m2.c[0].r, _globalUniforms.m2.c[1].r);
+  _skUnpacked__globalUniforms_m3 = mat2x2<f32>(_globalUniforms.m3.c[0].r, _globalUniforms.m3.c[1].r);
 }

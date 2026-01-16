@@ -7,7 +7,7 @@ struct _GlobalUniforms {
   src: vec4<f32>,
   dst: vec4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
     (*_stageOut).sk_FragColor = (1.0 - _globalUniforms.dst.w) * _globalUniforms.src + (1.0 - _globalUniforms.src.w) * _globalUniforms.dst;

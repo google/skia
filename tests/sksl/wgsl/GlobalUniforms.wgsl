@@ -8,7 +8,7 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
   R_array: array<vec4<f32>, 5>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn _skslMain() -> vec4<f32> {
   {
     return vec4<f32>(_globalUniforms.colorGreen.x, _globalUniforms.colorRed.x, 0.0, 1.0);

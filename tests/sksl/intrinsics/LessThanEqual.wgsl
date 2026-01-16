@@ -11,7 +11,7 @@ struct _GlobalUniforms {
   e: vec3<i32>,
   f: vec3<i32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
     const expectTTFF: vec4<bool> = vec4<bool>(true, true, false, false);

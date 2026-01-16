@@ -8,7 +8,7 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
   unknownInput: f32,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn return_on_both_sides_b() -> bool {
   {
     if _globalUniforms.unknownInput == 1.0 {

@@ -9,7 +9,7 @@ struct _GlobalUniforms {
   testMatrix3x3: mat3x3<f32>,
   testMatrix4x4: mat4x4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn test3x3_b() -> bool {
   {
     var matrix: mat3x3<f32>;

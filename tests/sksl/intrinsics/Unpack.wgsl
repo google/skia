@@ -6,7 +6,7 @@ struct FSOut {
 struct _GlobalUniforms {
   a: u32,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
     (*_stageOut).sk_FragColor = vec4<f32>((vec2<f32>(unpack2x16float(_globalUniforms.a))), (*_stageOut).sk_FragColor.zw);

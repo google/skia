@@ -6,7 +6,7 @@ struct FSOut {
 struct _GlobalUniforms {
   colorWhite: vec4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn ifElseTest_h4h4h4h4(colorBlue: vec4<f32>, colorGreen: vec4<f32>, colorRed: vec4<f32>) -> vec4<f32> {
   {
     var result: vec4<f32> = vec4<f32>(0.0);

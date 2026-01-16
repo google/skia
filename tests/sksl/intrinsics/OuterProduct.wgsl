@@ -6,11 +6,11 @@ struct FSOut {
 struct _GlobalUniforms {
   colorGreen: vec4<f32>,
   colorRed: vec4<f32>,
-  testMatrix2x2: mat2x2<f32>,
+  testMatrix2x2: _skMatrix22,
   testMatrix3x3: mat3x3<f32>,
   testInputs: vec4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn outer_product2x2(a: vec2<f32>, b: vec2<f32>) -> mat2x2<f32> {
 var m : mat2x2<f32>;
 for (var c = 0; c < 2; c++) { m[c] = a * b[c]; }
@@ -44,11 +44,11 @@ return m;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     const c12: vec2<f32> = vec2<f32>(1.0, 2.0);
-    let _skTemp0 = outer_product2x2(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1]);
+    let _skTemp0 = outer_product2x2(_skUnpacked__globalUniforms_testMatrix2x2[0], _skUnpacked__globalUniforms_testMatrix2x2[1]);
     const _skTemp1 = mat2x2<f32>(3.0, 6.0, 4.0, 8.0);
     let _skTemp2 = outer_product3x3(_globalUniforms.testMatrix3x3[0], _globalUniforms.testMatrix3x3[1]);
     const _skTemp3 = mat3x3<f32>(4.0, 8.0, 12.0, 5.0, 10.0, 15.0, 6.0, 12.0, 18.0);
-    let _skTemp4 = outer_product3x2(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix3x3[1]);
+    let _skTemp4 = outer_product3x2(_skUnpacked__globalUniforms_testMatrix2x2[0], _globalUniforms.testMatrix3x3[1]);
     const _skTemp5 = mat3x2<f32>(4.0, 8.0, 5.0, 10.0, 6.0, 12.0);
     let _skTemp6 = mat4x4<f32>(outer_product4x4(_globalUniforms.testInputs, vec4<f32>(1.0, 0.0, 0.0, 2.0)));
     const _skTemp7 = mat4x4<f32>(-1.25, 0.0, 0.75, 2.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -2.5, 0.0, 1.5, 4.5);
@@ -60,7 +60,18 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   }
 }
 @fragment fn main() -> FSOut {
+  _skInitializePolyfilledUniforms();
   var _stageOut: FSOut;
   _stageOut.sk_FragColor = _skslMain(/*fragcoord*/ vec2<f32>());
   return _stageOut;
+}
+struct _skRow2 {
+  @align(16) r : vec2<f32>
+};
+struct _skMatrix22 {
+  c : array<_skRow2, 2>
+};
+var<private> _skUnpacked__globalUniforms_testMatrix2x2: mat2x2<f32>;
+fn _skInitializePolyfilledUniforms() {
+  _skUnpacked__globalUniforms_testMatrix2x2 = mat2x2<f32>(_globalUniforms.testMatrix2x2.c[0].r, _globalUniforms.testMatrix2x2.c[1].r);
 }

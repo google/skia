@@ -8,7 +8,7 @@ struct _GlobalUniforms {
   colorGreen: vec4<f32>,
   colorRed: vec4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn resizeMatrix_f22() -> mat2x2<f32> {
   {
     return mat2x2<f32>(_globalUniforms.testMatrix3x3[0][0], _globalUniforms.testMatrix3x3[0][1], _globalUniforms.testMatrix3x3[1][0], _globalUniforms.testMatrix3x3[1][1]);

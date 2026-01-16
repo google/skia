@@ -6,7 +6,7 @@ struct FSOut {
 struct _GlobalUniforms {
   colorGreen: vec4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 struct S {
   f: f32,
   af: array<f32, 5>,

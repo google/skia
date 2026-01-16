@@ -6,7 +6,7 @@ struct FSOut {
 struct _GlobalUniforms {
   colorGreen: vec4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn this_function_is_prototyped_after_its_definition_h4h4(x: vec4<f32>) -> vec4<f32> {
   {
     return -x;

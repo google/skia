@@ -3,7 +3,7 @@ diagnostic(off, chromium.unreachable_code);
 struct _GlobalUniforms {
   colorGreen: vec4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn const_after_in_vf2(x: vec2<f32>) {
   {
   }

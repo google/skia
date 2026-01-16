@@ -20,7 +20,7 @@ fn _skslMain(_stageOut: ptr<function, FSOut>) {
   return _stageOut;
 }
 struct _skRow2 {
-  @size(16) r : vec2<f32>
+  @align(16) r : vec2<f32>
 };
 struct _skMatrix22 {
   c : array<_skRow2, 2>

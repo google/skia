@@ -46,39 +46,39 @@ fn _skslMain() -> vec4<f32> {
   return _stageOut;
 }
 struct _skArrayElement_f {
-  @size(16) e : f32
+  @align(16) e : f32
 };
 var<private> _skUnpacked__storage1_sf: array<f32, 4>;
 struct _skArrayElement_f2 {
-  @size(16) e : vec2<f32>
+  @align(16) e : vec2<f32>
 };
 var<private> _skUnpacked__storage1_sf2: array<vec2<f32>, 4>;
 struct _skArrayElement_f3 {
-  @size(16) e : vec3<f32>
+  @align(16) e : vec3<f32>
 };
 var<private> _skUnpacked__storage1_sf3: array<vec3<f32>, 4>;
 struct _skArrayElement_h {
-  @size(16) e : f32
+  @align(16) e : f32
 };
 var<private> _skUnpacked__storage1_sh: array<f32, 4>;
 struct _skArrayElement_h2 {
-  @size(16) e : vec2<f32>
+  @align(16) e : vec2<f32>
 };
 var<private> _skUnpacked__storage1_sh2: array<vec2<f32>, 4>;
 struct _skArrayElement_h3 {
-  @size(16) e : vec3<f32>
+  @align(16) e : vec3<f32>
 };
 var<private> _skUnpacked__storage1_sh3: array<vec3<f32>, 4>;
 struct _skArrayElement_i {
-  @size(16) e : i32
+  @align(16) e : i32
 };
 var<private> _skUnpacked__storage1_si: array<i32, 4>;
 struct _skArrayElement_i2 {
-  @size(16) e : vec2<i32>
+  @align(16) e : vec2<i32>
 };
 var<private> _skUnpacked__storage1_si2: array<vec2<i32>, 4>;
 struct _skArrayElement_i3 {
-  @size(16) e : vec3<i32>
+  @align(16) e : vec3<i32>
 };
 var<private> _skUnpacked__storage1_si3: array<vec3<i32>, 4>;
 var<private> _skUnpacked__uniform0_uf: array<f32, 3>;

@@ -9,7 +9,7 @@ struct _GlobalUniforms {
   colorGreen: vec4<f32>,
   colorRed: vec4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((((((((sinh(_globalUniforms.inputVal.x) == _globalUniforms.expected.x) && all(sinh(_globalUniforms.inputVal.xy) == _globalUniforms.expected.xy)) && all(sinh(_globalUniforms.inputVal.xyz) == _globalUniforms.expected.xyz)) && all(sinh(_globalUniforms.inputVal) == _globalUniforms.expected)) && (0.0 == _globalUniforms.expected.x)) && all(vec2<f32>(0.0) == _globalUniforms.expected.xy)) && all(vec3<f32>(0.0) == _globalUniforms.expected.xyz)) && all(vec4<f32>(0.0) == _globalUniforms.expected)));

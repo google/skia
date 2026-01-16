@@ -7,7 +7,7 @@ struct _GlobalUniforms {
   src: vec4<f32>,
   dst: vec4<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 const sk_PrivkGuardedDivideEpsilon: f32 = f32(select(0.0, 1e-08, false));
 fn soft_light_component_Qhh2h2(s: vec2<f32>, d: vec2<f32>) -> f32 {
   {

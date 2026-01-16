@@ -8,7 +8,7 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
   testMatrix3x3: mat3x3<f32>,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn GetTestMatrix_f33() -> mat3x3<f32> {
   {
     return _globalUniforms.testMatrix3x3;

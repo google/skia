@@ -9,7 +9,7 @@ struct _GlobalUniforms {
   h: f32,
   f: f32,
 };
-@binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+@group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn _skslMain() -> vec4<f32> {
   {
     var ok: bool = true;
