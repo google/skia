@@ -29,10 +29,6 @@
 #include <cstdint>
 #include <utility>
 
-#ifdef SK_SUPPORT_LEGACY_UNSPANNED_GRADIENTS
-#include "include/effects/SkGradientShader.h"
-#endif
-
 bool SkConicalGradient::FocalData::set(SkScalar r0, SkScalar r1, SkMatrix* matrix) {
     fIsSwapped = false;
     fFocalX = sk_ieee_float_divide(r0, (r0 - r1));
@@ -317,46 +313,3 @@ void SkRegisterConicalGradientShaderFlattenable() {
     // Previous name
     SkFlattenable::Register("SkTwoPointConicalGradient", SkConicalGradient::CreateProc);
 }
-
-#ifdef SK_SUPPORT_LEGACY_UNSPANNED_GRADIENTS
-sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
-                                                      SkScalar startRadius,
-                                                      const SkPoint& end,
-                                                      SkScalar endRadius,
-                                                      const SkColor4f colorPtr[],
-                                                      sk_sp<SkColorSpace> colorSpace,
-                                                      const SkScalar posPtr[],
-                                                      int colorsCount,
-                                                      SkTileMode mode,
-                                                      const Interpolation& interp,
-                                                      const SkMatrix* lm) {
-    MAKE_COLORS_POS_SPANS(colorPtr, posPtr, colorsCount);
-
-    return SkShaders::TwoPointConicalGradient(start, startRadius, end, endRadius,
-                               {{colors, pos, mode, std::move(colorSpace)}, interp}, lm);
-}
-
-sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
-                                                      SkScalar startRadius,
-                                                      const SkPoint& end,
-                                                      SkScalar endRadius,
-                                                      const SkColor colors[],
-                                                      const SkScalar pos[],
-                                                      int colorCount,
-                                                      SkTileMode mode,
-                                                      uint32_t flags,
-                                                      const SkMatrix* localMatrix) {
-    SkColorConverter converter({colors, SkToSizeT(colorCount)});
-    return MakeTwoPointConical(start,
-                               startRadius,
-                               end,
-                               endRadius,
-                               converter.colors4f().data(),
-                               nullptr,
-                               pos,
-                               colorCount,
-                               mode,
-                               flags,
-                               localMatrix);
-}
-#endif

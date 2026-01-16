@@ -23,10 +23,6 @@
 #include <cstdint>
 #include <utility>
 
-#ifdef SK_SUPPORT_LEGACY_UNSPANNED_GRADIENTS
-#include "include/effects/SkGradientShader.h"
-#endif
-
 class SkArenaAlloc;
 enum class SkTileMode;
 
@@ -103,31 +99,3 @@ sk_sp<SkShader> SkShaders::RadialGradient(SkPoint center, float radius,
 void SkRegisterRadialGradientShaderFlattenable() {
     SK_REGISTER_FLATTENABLE(SkRadialGradient);
 }
-
-#ifdef SK_SUPPORT_LEGACY_UNSPANNED_GRADIENTS
-sk_sp<SkShader> SkGradientShader::MakeRadial(const SkPoint& center, SkScalar radius,
-                                             const SkColor4f colorsPtr[],
-                                             sk_sp<SkColorSpace> colorSpace,
-                                             const SkScalar posPtr[],
-                                             int colorsCount,
-                                             SkTileMode mode,
-                                             const Interpolation& interp,
-                                             const SkMatrix* lm) {
-    MAKE_COLORS_POS_SPANS(colorsPtr, posPtr, colorsCount);
-
-    return SkShaders::RadialGradient(center, radius,
-                                     {{colors, pos, mode, std::move(colorSpace)}, interp}, lm);
-}
-
-sk_sp<SkShader> SkGradientShader::MakeRadial(const SkPoint& center, SkScalar radius,
-                                             const SkColor colors[],
-                                             const SkScalar pos[],
-                                             int colorCount,
-                                             SkTileMode mode,
-                                             uint32_t flags,
-                                             const SkMatrix* localMatrix) {
-    SkColorConverter converter({colors, SkToSizeT(colorCount)});
-    return MakeRadial(center, radius, converter.colors4f().data(), nullptr, pos, colorCount, mode,
-                      flags, localMatrix);
-}
-#endif

@@ -24,7 +24,6 @@ skia_effects_public = [
   "$_include/effects/SkDashPathEffect.h",
   "$_include/effects/SkDiscretePathEffect.h",
   "$_include/effects/SkGradient.h",
-  "$_include/effects/SkGradientShader.h",
   "$_include/effects/SkHighContrastFilter.h",
   "$_include/effects/SkImageFilters.h",
   "$_include/effects/SkLumaColorFilter.h",

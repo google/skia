@@ -28,10 +28,6 @@
 #include <tuple>
 #include <utility>
 
-#ifdef SK_SUPPORT_LEGACY_UNSPANNED_GRADIENTS
-#include "include/effects/SkGradientShader.h"
-#endif
-
 class SkArenaAlloc;
 
 SkSweepGradient::SkSweepGradient(const SkPoint& center,
@@ -148,35 +144,3 @@ sk_sp<SkShader> SkShaders::SweepGradient(SkPoint center, float startAngle, float
 void SkRegisterSweepGradientShaderFlattenable() {
     SK_REGISTER_FLATTENABLE(SkSweepGradient);
 }
-
-#ifdef SK_SUPPORT_LEGACY_UNSPANNED_GRADIENTS
-sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
-                                            const SkColor4f colorsPtr[],
-                                            sk_sp<SkColorSpace> colorSpace,
-                                            const SkScalar posPtr[],
-                                            int colorsCount,
-                                            SkTileMode mode,
-                                            SkScalar startAngle,
-                                            SkScalar endAngle,
-                                            const Interpolation& interp,
-                                            const SkMatrix* lm) {
-    MAKE_COLORS_POS_SPANS(colorsPtr, posPtr, colorsCount);
-
-    return SkShaders::SweepGradient({cx, cy}, startAngle, endAngle,
-                                    {{colors, pos, mode, std::move(colorSpace)}, interp}, lm);
-}
-
-sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
-                                            const SkColor colors[],
-                                            const SkScalar pos[],
-                                            int colorCount,
-                                            SkTileMode mode,
-                                            SkScalar startAngle,
-                                            SkScalar endAngle,
-                                            uint32_t flags,
-                                            const SkMatrix* localMatrix) {
-    SkColorConverter converter({colors, SkToSizeT(colorCount)});
-    return MakeSweep(cx, cy, converter.colors4f().data(), nullptr, pos, colorCount,
-                     mode, startAngle, endAngle, flags, localMatrix);
-}
-#endif
