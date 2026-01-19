@@ -154,7 +154,7 @@ SkPathData::SkPathData(size_t npts, size_t nvbs, size_t ncns)
     {
         SkSafeAccumulator accum(sizeof(*this));
         accum.addMul(npts, sizeof(SkPoint))
-             .addMul(ncns, sizeof(SkPoint))
+             .addMul(ncns, sizeof(float))
              .addMul(nvbs, sizeof(SkPathVerb));
         SkASSERT(accum.ok());
     }
@@ -205,7 +205,7 @@ sk_sp<SkPathData> SkPathData::Alloc(size_t npts, size_t nvbs, size_t ncns) {
     SkSafeAccumulator accum(sizeof(SkPathData));
 
     accum.addMul(npts, sizeof(SkPoint))
-         .addMul(ncns, sizeof(SkPoint))
+         .addMul(ncns, sizeof(float))
          .addMul(nvbs, sizeof(SkPathVerb));
 
     if (auto size = accum.total()) {
