@@ -19,6 +19,56 @@
 // To keep Skia resistant to timing attacks, it's important not to branch on pixel data.
 // In particular, don't be tempted to [v]ptest, pmovmskb, etc. to branch on the source alpha.
 
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SKX
+#include <immintrin.h>
+
+static inline __m512i SkPMSrcOver_AVX512(const __m512i& src,
+    const __m512i& dst) {
+        // Abstractly srcover is
+        //     b = s + d*(1-srcA)
+        //
+        // Approximated as:
+        //     b = s + (d*(256-srcA)) >> 8
+
+        // Shuffle each pixel's srcA to the low byte of each 16-bit half.
+        const int _ = -1;   // fills a literal 0 byte.
+
+        __m512i srcA_x2 = _mm512_shuffle_epi8(
+            src,
+            _mm512_set_epi8(
+                _,15,_,15, _,11,_,11, _,7,_,7, _,3,_,3,
+                _,15,_,15, _,11,_,11, _,7,_,7, _,3,_,3,
+                _,15,_,15, _,11,_,11, _,7,_,7, _,3,_,3,
+                _,15,_,15, _,11,_,11, _,7,_,7, _,3,_,3
+            )
+        );
+
+        __m512i scale_x2 = _mm512_sub_epi16(
+            _mm512_set1_epi16(256),
+            srcA_x2
+        );
+
+        // Scale red and blue (low byte of each 16-bit lane)
+        __m512i rb = _mm512_and_si512(
+            _mm512_set1_epi32(0x00ff00ff),
+            dst
+        );
+        rb = _mm512_mullo_epi16(rb, scale_x2);
+        rb = _mm512_srli_epi16(rb, 8);
+
+        // Scale green and alpha (high byte)
+        __m512i ga = _mm512_srli_epi16(dst, 8);
+        ga = _mm512_mullo_epi16(ga, scale_x2);
+        ga = _mm512_andnot_si512(
+            _mm512_set1_epi32(0x00ff00ff),
+            ga
+        );
+
+        return _mm512_adds_epu8(src, _mm512_or_si512(rb, ga));
+    }
+#endif
+
+
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
     #include <immintrin.h>
 
@@ -165,6 +215,16 @@ inline void blit_row_s32a_opaque(SkPMColor* dst, const SkPMColor* src, int len, 
     SkASSERT(alpha == 0xFF);
     sk_msan_assert_initialized(src, src+len);
 
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SKX
+    while (len >= 16) {
+        _mm512_storeu_si512((__m512i*)dst,
+            SkPMSrcOver_AVX512(_mm512_loadu_si512((const __m512i*)src),_mm512_loadu_si512((const __m512i*)dst)));
+            src += 16;
+            dst += 16;
+            len -= 16;
+                                }
+#endif
+            
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
     while (len >= 8) {
         _mm256_storeu_si256((__m256i*)dst,
@@ -230,7 +290,7 @@ inline void blit_row_s32a_opaque(SkPMColor* dst, const SkPMColor* src, int len, 
         len -= 4;
     }
 #endif
-
+    int i = len;
     while (len --> 0) {
         *dst = SkPMSrcOver(*src, *dst);
         src++;
