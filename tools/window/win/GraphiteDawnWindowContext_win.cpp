@@ -15,9 +15,9 @@ namespace {
 
 wgpu::BackendType ToDawnBackendType(sk_app::Window::BackendType backendType) {
     switch (backendType) {
-        case sk_app::Window::kGraphiteDawnD3D11_BackendType:
+        case sk_app::Window::BackendType::kGraphiteDawnD3D11:
             return wgpu::BackendType::D3D11;
-        case sk_app::Window::kGraphiteDawnD3D12_BackendType:
+        case sk_app::Window::BackendType::kGraphiteDawnD3D12:
             return wgpu::BackendType::D3D12;
         default:
             SkASSERT(false);

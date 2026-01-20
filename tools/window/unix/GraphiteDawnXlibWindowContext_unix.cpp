@@ -22,9 +22,9 @@ namespace {
 
 wgpu::BackendType ToDawnBackendType(sk_app::Window::BackendType backendType) {
     switch (backendType) {
-        case sk_app::Window::kGraphiteDawnVulkan_BackendType:
+        case sk_app::Window::BackendType::kGraphiteDawnVulkan:
             return wgpu::BackendType::Vulkan;
-        case sk_app::Window::kGraphiteDawnOpenGLES_BackendType:
+        case sk_app::Window::BackendType::kGraphiteDawnOpenGLES:
             return wgpu::BackendType::OpenGLES;
         default:
             SkASSERT(false);
@@ -33,7 +33,7 @@ wgpu::BackendType ToDawnBackendType(sk_app::Window::BackendType backendType) {
 }
 
 wgpu::TextureFormat GetPreferredFormat(sk_app::Window::BackendType backendType) {
-    if (backendType == sk_app::Window::kGraphiteDawnOpenGLES_BackendType) {
+    if (backendType == sk_app::Window::BackendType::kGraphiteDawnOpenGLES) {
         return wgpu::TextureFormat::RGBA8Unorm;
     }
     return wgpu::TextureFormat::BGRA8Unorm;

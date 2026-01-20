@@ -416,31 +416,31 @@ bool Window_unix::attach(BackendType attachType) {
 
     switch (attachType) {
 #if defined(SK_GRAPHITE) && defined(SK_DAWN)
-        case kGraphiteDawnOpenGLES_BackendType:
-        case kGraphiteDawnVulkan_BackendType:
+        case BackendType::kGraphiteDawnOpenGLES:
+        case BackendType::kGraphiteDawnVulkan:
             fWindowContext = skwindow::MakeGraphiteDawnForXlib(
                     winInfo, fRequestedDisplayParams->clone(), attachType);
             break;
 #endif
 #if defined(SK_GANESH) && defined(SK_VULKAN)
-        case kVulkan_BackendType:
+        case BackendType::kVulkan:
             fWindowContext =
                     skwindow::MakeGaneshVulkanForXlib(winInfo, fRequestedDisplayParams->clone());
             break;
 #endif
 #if defined(SK_GRAPHITE) && defined(SK_VULKAN)
-        case kGraphiteVulkan_BackendType:
+        case BackendType::kGraphiteVulkan:
             fWindowContext = skwindow::MakeGraphiteNativeVulkanForXlib(
                     winInfo, fRequestedDisplayParams->clone());
             break;
 #endif
 #if defined(SK_GANESH) && defined(SK_GL)
-        case kNativeGL_BackendType:
+        case BackendType::kNativeGL:
             fWindowContext =
                     skwindow::MakeGaneshGLForXlib(winInfo, fRequestedDisplayParams->clone());
             break;
 #endif
-        case kRaster_BackendType:
+        case BackendType::kRaster:
             fWindowContext = skwindow::MakeRasterForXlib(winInfo, fRequestedDisplayParams->clone());
             break;
         default:
@@ -470,8 +470,8 @@ void Window_unix::setRequestedDisplayParams(std::unique_ptr<const DisplayParams>
                                             bool allowReattach) {
 #if defined(SK_VULKAN)
     // Vulkan on unix crashes if we reinitialize the vulkan context without remaking the window.
-    const bool isVulkan = fBackend == kVulkan_BackendType ||
-                          fBackend == kGraphiteVulkan_BackendType;
+    const bool isVulkan =
+            fBackend == BackendType::kVulkan || fBackend == BackendType::kGraphiteVulkan;
     if (isVulkan && allowReattach) {
         // Need to change these early, so attach() creates the window context correctly
         fRequestedDisplayParams = std::move(params);

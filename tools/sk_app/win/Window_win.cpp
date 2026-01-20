@@ -351,41 +351,41 @@ bool Window_win::attach(BackendType attachType) {
     fInitializedBackend = true;
 
     switch (attachType) {
-#ifdef SK_GL
-        case kNativeGL_BackendType:
+#if defined(SK_GL)
+        case BackendType::kNativeGL:
             fWindowContext = skwindow::MakeGLForWin(fHWnd, fRequestedDisplayParams->clone());
             break;
 #endif
-#if SK_ANGLE
-        case kANGLE_BackendType:
+#if defined(SK_ANGLE)
+        case BackendType::kANGLE:
             fWindowContext = skwindow::MakeANGLEForWin(fHWnd, fRequestedDisplayParams->clone());
             break;
 #endif
-#ifdef SK_DAWN
+#if defined(SK_DAWN)
 #if defined(SK_GRAPHITE)
-        case kGraphiteDawnD3D11_BackendType:
-        case kGraphiteDawnD3D12_BackendType:
+        case BackendType::kGraphiteDawnD3D11:
+        case BackendType::kGraphiteDawnD3D12:
             fWindowContext = skwindow::MakeGraphiteDawnForWin(
                     fHWnd, fRequestedDisplayParams->clone(), attachType);
             break;
 #endif
 #endif
-        case kRaster_BackendType:
+        case BackendType::kRaster:
             fWindowContext = skwindow::MakeRasterForWin(fHWnd, fRequestedDisplayParams->clone());
             break;
-#ifdef SK_VULKAN
-        case kVulkan_BackendType:
+#if defined(SK_VULKAN)
+        case BackendType::kVulkan:
             fWindowContext = skwindow::MakeVulkanForWin(fHWnd, fRequestedDisplayParams->clone());
             break;
 #if defined(SK_GRAPHITE)
-        case kGraphiteVulkan_BackendType:
+        case BackendType::kGraphiteVulkan:
             fWindowContext =
                     skwindow::MakeGraphiteVulkanForWin(fHWnd, fRequestedDisplayParams->clone());
             break;
 #endif
 #endif
 #ifdef SK_DIRECT3D
-        case kDirect3D_BackendType:
+        case BackendType::kDirect3D:
             fWindowContext = skwindow::MakeD3D12ForWin(fHWnd, fRequestedDisplayParams->clone());
             break;
 #endif

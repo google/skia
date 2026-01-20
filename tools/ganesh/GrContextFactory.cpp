@@ -10,20 +10,20 @@
 
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#ifdef SK_GL
+#if defined(SK_GL)
 #include "tools/ganesh/gl/GLTestContext.h"
 #endif
 
-#if SK_ANGLE
+#if defined(SK_ANGLE)
 #include "tools/ganesh/gl/angle/GLTestContext_angle.h"
 #endif
-#ifdef SK_VULKAN
+#if defined(SK_VULKAN)
 #include "tools/ganesh/vk/VkTestContext.h"
 #endif
-#ifdef SK_METAL
+#if defined(SK_METAL)
 #include "tools/ganesh/mtl/MtlTestContext.h"
 #endif
-#ifdef SK_DIRECT3D
+#if defined(SK_DIRECT3D)
 #include "tools/ganesh/d3d/D3DTestContext.h"
 #endif
 #include "src/gpu/ganesh/GrCaps.h"

@@ -58,20 +58,20 @@ public:
 
     virtual bool scaleContentToFit() const { return false; }
 
-    enum BackendType {
-        kNativeGL_BackendType,
-        kANGLE_BackendType,
-        kGraphiteDawnD3D11_BackendType,
-        kGraphiteDawnD3D12_BackendType,
-        kGraphiteDawnMetal_BackendType,
-        kGraphiteDawnOpenGLES_BackendType,
-        kGraphiteDawnVulkan_BackendType,
-        kVulkan_BackendType,
-        kGraphiteVulkan_BackendType,
-        kMetal_BackendType,
-        kGraphiteMetal_BackendType,
-        kDirect3D_BackendType,
-        kRaster_BackendType,
+    enum class BackendType {
+        kNativeGL,
+        kANGLE,
+        kGraphiteDawnD3D11,
+        kGraphiteDawnD3D12,
+        kGraphiteDawnMetal,
+        kGraphiteDawnOpenGLES,
+        kGraphiteDawnVulkan,
+        kVulkan,
+        kGraphiteVulkan,
+        kMetal,
+        kGraphiteMetal,
+        kDirect3D,
+        kRaster,
     };
 
     virtual bool attach(BackendType) = 0;
