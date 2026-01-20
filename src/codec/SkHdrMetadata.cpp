@@ -240,7 +240,8 @@ bool Metadata::operator==(const Metadata& other) const {
 sk_sp<SkColorFilter> Metadata::makeToneMapColorFilter(
         float targetedHdrHeadroom, const SkColorSpace* inputColorSpace) const {
     AdaptiveGlobalToneMap agtm;
-    if (!AgtmHelpers::PopulateToneMapAgtmParams(*this, inputColorSpace, &agtm)) {
+    float scaleFactor = 1.f;
+    if (!AgtmHelpers::PopulateToneMapAgtmParams(*this, inputColorSpace, &agtm, &scaleFactor)) {
         return nullptr;
     }
 
@@ -249,7 +250,7 @@ sk_sp<SkColorFilter> Metadata::makeToneMapColorFilter(
         // TODO(https://crbug.com/395659818): Add default tone mapping.
         return nullptr;
     }
-    return AgtmHelpers::MakeColorFilter(hatm.value(), targetedHdrHeadroom);
+    return AgtmHelpers::MakeColorFilter(hatm.value(), targetedHdrHeadroom, scaleFactor);
 }
 
 }  // namespace skhdr

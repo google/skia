@@ -82,7 +82,8 @@ void PopulateUsingRwtmo(AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm);
  */
 bool PopulateToneMapAgtmParams(const Metadata& metadata,
                                const SkColorSpace* inputColorSpace,
-                               AdaptiveGlobalToneMap* outAgtm);
+                               AdaptiveGlobalToneMap* outAgtm,
+                               float* outScaleFactor);
 
 /**
  * Apply the tone mapping to `colors` in the gain application color space, targeting the
@@ -99,7 +100,8 @@ void ApplyGain(
  */
 sk_sp<SkColorFilter> MakeColorFilter(
     const AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm,
-    float targetedHdrHeadroom);
+    float targetedHdrHeadroom,
+    float scaleFactor);
 
 /**
  * Return an SkImage containing the control point values for use by the color filter.

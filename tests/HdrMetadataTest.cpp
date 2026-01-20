@@ -610,7 +610,8 @@ DEF_TEST(HdrMetadata_Agtm_Apply_and_Shader, r) {
     // Test using an SkColorFilter to apply the gain using the skhdr::Agtm interface.
     for (size_t t = 0; t < kNumTests; ++t) {
         const auto targetedHdrHeadroom = testTargetedHdrHeadrooms[t];
-        skiatest::ReporterContext ctx(r, SkStringPrintf("Agtm::makeColorFilter, targetedHdrHeadroom:%f", targetedHdrHeadroom));
+        skiatest::ReporterContext ctx(r,
+            SkStringPrintf("Agtm::makeColorFilter, targetedHdrHeadroom:%f", targetedHdrHeadroom));
 
         // The input and output images will be kNumTestColors-by-1.
         const auto info = SkImageInfo::Make(
@@ -671,33 +672,140 @@ DEF_TEST(HdrMetadata_Agtm_Apply_and_Shader, r) {
             SkData::MakeWithoutCopy(inputTestColors, sizeof(inputTestColors)),
             info.minRowBytes());
 
-        // Create an output SkBitmap to draw into.
-        SkBitmap bm;
-        bm.allocPixels(info);
-
-        // Call drawImage, using the color filter created by Agtm::makeColorFilter.
+        constexpr size_t kNumInputImages = 3;
+        const char* inputImageNames[kNumInputImages] = {
+            "linear", "pq", "pq-100",
+        };
+        sk_sp<SkImage> inputImages[kNumInputImages];
+        inputImages[0] = inputImage;
+        inputImages[1] = inputImage->makeColorSpace(
+            nullptr, SkColorSpace::MakeRGB(SkNamedTransferFn::kPQ, SkNamedGamut::kRec2020), {});
         {
-            skhdr::Metadata metadata;
-            metadata.setAdaptiveGlobalToneMap(agtm);
-            auto colorFilter = metadata.makeToneMapColorFilter(
-                targetedHdrHeadroom, inputImage->colorSpace());
-
-            SkPaint paint;
-            SkASSERT(colorFilter);
-            paint.setColorFilter(colorFilter);
-            auto canvas = SkCanvas::MakeRasterDirect(bm.info(), bm.getPixels(), bm.rowBytes());
-            canvas->drawImage(inputImage.get(), 0, 0, SkSamplingOptions(), &paint);
+            skcms_TransferFunction pq100;
+            skcms_TransferFunction_makePQ(&pq100, 100);
+            inputImages[2] = inputImages[1]->reinterpretColorSpace(
+                SkColorSpace::MakeRGB(pq100, SkNamedGamut::kRec2020));
         }
+        for (size_t s = 0; s < kNumInputImages; ++s) {
+            skiatest::ReporterContext subCtx(
+                r, SkStringPrintf("inputImage:%s", inputImageNames[s]));
 
-        // Verify that the pixels written into the SkBitmap match the expected values.
-        for (size_t i = 0; i < kNumTestColors; ++i) {
-            const auto& output = *reinterpret_cast<const SkColor4f*>(bm.getAddr(i, 0));
-            const auto& expected = expectedTestColors[t][i];
-            REPORTER_ASSERT(r, SkScalarNearlyEqual(output.fR, expected.fR, kEpsilon));
-            REPORTER_ASSERT(r, SkScalarNearlyEqual(output.fG, expected.fG, kEpsilon));
-            REPORTER_ASSERT(r, SkScalarNearlyEqual(output.fB, expected.fB, kEpsilon));
-            REPORTER_ASSERT(r, SkScalarNearlyEqual(output.fA, expected.fA, kEpsilon));
+            // Create an output SkBitmap to draw into.
+            SkBitmap bm;
+            bm.allocPixels(info);
+
+            // Call drawImage, using the color filter created by Agtm::makeColorFilter.
+            {
+                skhdr::Metadata metadata;
+                metadata.setAdaptiveGlobalToneMap(agtm);
+                auto colorFilter = metadata.makeToneMapColorFilter(
+                    targetedHdrHeadroom, inputImages[s]->colorSpace());
+
+                SkPaint paint;
+                SkASSERT(colorFilter);
+                paint.setColorFilter(colorFilter);
+                auto canvas = SkCanvas::MakeRasterDirect(bm.info(), bm.getPixels(), bm.rowBytes());
+                canvas->drawImage(inputImages[s].get(), 0, 0, SkSamplingOptions(), &paint);
+            }
+
+            // Verify that the pixels written into the SkBitmap match the expected values.
+            for (size_t i = 0; i < kNumTestColors; ++i) {
+                // There is more error in the PQ transfer function.
+                constexpr float kLooserEpsilon = 1.f/100.f;
+
+                const auto& output = *reinterpret_cast<const SkColor4f*>(bm.getAddr(i, 0));
+                const auto& expected = expectedTestColors[t][i];
+                REPORTER_ASSERT(r, SkScalarNearlyEqual(output.fR, expected.fR, kLooserEpsilon));
+                REPORTER_ASSERT(r, SkScalarNearlyEqual(output.fG, expected.fG, kLooserEpsilon));
+                REPORTER_ASSERT(r, SkScalarNearlyEqual(output.fB, expected.fB, kLooserEpsilon));
+                REPORTER_ASSERT(r, SkScalarNearlyEqual(output.fA, expected.fA, kLooserEpsilon));
+            }
         }
     }
+}
+
+DEF_TEST(HdrMetadata_ShaderParams, r) {
+    sk_sp<SkColorSpace> cs_srgb = SkColorSpace::MakeSRGB();
+    sk_sp<SkColorSpace> cs_pq = SkColorSpace::MakeRGB(
+        SkNamedTransferFn::kPQ, SkNamedGamut::kRec2020);
+    sk_sp<SkColorSpace> cs_pq100;
+    {
+        skcms_TransferFunction pq100;
+        skcms_TransferFunction_makePQ(&pq100, 100);
+        cs_pq100 = SkColorSpace::MakeRGB(pq100, SkNamedGamut::kRec2020);
+    }
+
+    // Start with CLLI and MDCV metadata.
+    skhdr::Metadata metadata;
+    {
+        skhdr::ContentLightLevelInformation clli;
+        clli.fMaxCLL = 406.f;
+        metadata.setContentLightLevelInformation(clli);
+
+        skhdr::MasteringDisplayColorVolume mdcv;
+        mdcv.fMaximumDisplayMasteringLuminance = 812.f;
+        metadata.setMasteringDisplayColorVolume(mdcv);
+    }
+
+    skhdr::AdaptiveGlobalToneMap toneMapAgtm;
+    float scaleFactor = 1.f;
+
+    // Because this has no AGTM metadata, SDR inputs get no tone mapping shader.
+    REPORTER_ASSERT(r, !skhdr::AgtmHelpers::PopulateToneMapAgtmParams(
+        metadata, cs_srgb.get(), &toneMapAgtm, &scaleFactor));
+
+    // This will have headroom log2(406/203)=1 for PQ.
+    REPORTER_ASSERT(r, skhdr::AgtmHelpers::PopulateToneMapAgtmParams(
+        metadata, cs_pq.get(), &toneMapAgtm, &scaleFactor));
+    REPORTER_ASSERT(r, scaleFactor == 1.f);
+    REPORTER_ASSERT(r, toneMapAgtm.fHeadroomAdaptiveToneMap.has_value());
+    REPORTER_ASSERT(r,
+        toneMapAgtm.fHeadroomAdaptiveToneMap->fBaselineHdrHeadroom == 1.f);
+
+    // This will have headroom log2(406/100) for PQ with 100 nit white.
+    REPORTER_ASSERT(r, skhdr::AgtmHelpers::PopulateToneMapAgtmParams(
+        metadata, cs_pq100.get(), &toneMapAgtm, &scaleFactor));
+    REPORTER_ASSERT(r, scaleFactor == 1.f);
+    REPORTER_ASSERT(r, toneMapAgtm.fHeadroomAdaptiveToneMap.has_value());
+    REPORTER_ASSERT(r,
+        toneMapAgtm.fHeadroomAdaptiveToneMap->fBaselineHdrHeadroom == std::log2(4.06f));
+
+    // Invalidate the CLLI metadata.
+    {
+        skhdr::ContentLightLevelInformation clli;
+        clli.fMaxCLL = 0.f;
+        metadata.setContentLightLevelInformation(clli);
+    }
+
+    // This will now have headroom log2(812/203)=2 for PQ.
+    REPORTER_ASSERT(r, skhdr::AgtmHelpers::PopulateToneMapAgtmParams(
+        metadata, cs_pq.get(), &toneMapAgtm, &scaleFactor));
+    REPORTER_ASSERT(r, scaleFactor == 1.f);
+    REPORTER_ASSERT(r, toneMapAgtm.fHeadroomAdaptiveToneMap.has_value());
+    REPORTER_ASSERT(r,
+        toneMapAgtm.fHeadroomAdaptiveToneMap->fBaselineHdrHeadroom == 2.f);
+
+    // Set AGTM metadata with just white level set.
+    {
+        skhdr::AdaptiveGlobalToneMap agtm;
+        agtm.fHdrReferenceWhite = 100.f;
+        metadata.setAdaptiveGlobalToneMap(agtm);
+    }
+
+    // PQ input at 203 nits will be scaled now.
+    REPORTER_ASSERT(r, skhdr::AgtmHelpers::PopulateToneMapAgtmParams(
+        metadata, cs_pq.get(), &toneMapAgtm, &scaleFactor));
+    REPORTER_ASSERT(r, scaleFactor == 203.f/100.f);
+    REPORTER_ASSERT(r, toneMapAgtm.fHeadroomAdaptiveToneMap.has_value());
+    REPORTER_ASSERT(r,
+        toneMapAgtm.fHeadroomAdaptiveToneMap->fBaselineHdrHeadroom == std::log2(812.f / 100.f));
+
+    // PQ input at 100 nits will not be scaled now.
+    REPORTER_ASSERT(r, skhdr::AgtmHelpers::PopulateToneMapAgtmParams(
+        metadata, cs_pq100.get(), &toneMapAgtm, &scaleFactor));
+    REPORTER_ASSERT(r, scaleFactor == 1.f);
+    REPORTER_ASSERT(r, toneMapAgtm.fHeadroomAdaptiveToneMap.has_value());
+    REPORTER_ASSERT(r,
+        toneMapAgtm.fHeadroomAdaptiveToneMap->fBaselineHdrHeadroom == std::log2(812.f / 100.f));
 }
 
