@@ -86,7 +86,10 @@ sk_sp<GrVkBuffer> GrVkBuffer::Make(GrVkGpu* gpu,
     skgpu::VulkanAlloc alloc;
 
     bool isProtected = gpu->protectedContext() &&
-                       accessPattern == kStatic_GrAccessPattern;
+                       accessPattern == kStatic_GrAccessPattern &&
+                       bufferType != GrGpuBufferType::kVertex &&
+                       bufferType != GrGpuBufferType::kIndex &&
+                       bufferType != GrGpuBufferType::kDrawIndirect;
 
     // Protected memory _never_ uses mappable buffers.
     // Otherwise, the only time we don't require mappable buffers is when we have a static
