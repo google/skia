@@ -272,23 +272,40 @@ void PopulateSlopeFromPCHIP(AdaptiveGlobalToneMap::GainCurve& gainCurve) {
 
 sk_sp<SkImage>
 MakeGainCurveXYMImage(const AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm) {
-    SkBitmap curve_xym_bm;
-    curve_xym_bm.allocPixels(SkImageInfo::Make(
-            AdaptiveGlobalToneMap::GainCurve::kMaxNumControlPoints,
-            AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap::kMaxNumAlternateImages,
-            kRGBA_F32_SkColorType, kUnpremul_SkAlphaType));
+    if (hatm.fAlternateImages.empty()) {
+        return nullptr;
+    }
+    size_t maxNumControlPoints = 1;
+    for (const auto& alt : hatm.fAlternateImages) {
+        maxNumControlPoints = std::max(maxNumControlPoints,
+                                       alt.fColorGainFunction.fGainCurve.fControlPoints.size());
+    }
+
+    // Write the X, Y, and M values of the control points into the colors of the rows.
+    SkBitmap bm32;
+    bm32.allocPixels(SkImageInfo::Make(
+            AdaptiveGlobalToneMap::GainCurve::kMaxNumControlPoints, hatm.fAlternateImages.size(),
+            kRGBA_F32_SkColorType, kPremul_SkAlphaType));
     for (size_t a = 0; a < hatm.fAlternateImages.size(); ++a) {
-        auto& cubic = hatm.fAlternateImages[a].fColorGainFunction.fGainCurve;
-        for (size_t c = 0; c < cubic.fControlPoints.size(); ++c) {
-            float* xymX = reinterpret_cast<float*>(curve_xym_bm.getAddr(c, a));
-            xymX[0] = cubic.fControlPoints[c].fX;
-            xymX[1] = cubic.fControlPoints[c].fY;
-            xymX[2] = cubic.fControlPoints[c].fM;
+        const auto& alt = hatm.fAlternateImages[a];
+        const auto& curve = alt.fColorGainFunction.fGainCurve;
+        for (size_t c = 0; c < curve.fControlPoints.size(); ++c) {
+            float* xymX = reinterpret_cast<float*>(bm32.getAddr(c, a));
+            xymX[0] = curve.fControlPoints[c].fX;
+            xymX[1] = curve.fControlPoints[c].fY;
+            xymX[2] = curve.fControlPoints[c].fM;
             xymX[3] = 1.f;
         }
     }
-    curve_xym_bm.setImmutable();
-    return SkImages::RasterFromBitmap(curve_xym_bm);
+
+    // Convert from F32 to F16 for use on the GPU.
+    SkBitmap bm16;
+    bm16.allocPixels(bm32.info().makeColorType(kRGBA_F16_SkColorType));
+    if (!bm32.readPixels(bm16.pixmap())) {
+        return nullptr;
+    }
+    bm16.setImmutable();
+    return SkImages::RasterFromBitmap(bm16);
 }
 
 void PopulateUsingRwtmo(AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm) {
