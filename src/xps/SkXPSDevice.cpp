@@ -1502,7 +1502,9 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
             fillablePath = &modifiedPath;
             pathIsMutable = true;
         }
-        bool fill = skpathutils::FillPathWithPaint(*skeletalPath, *paint, fillablePath);
+        SkPathBuilder builder;
+        bool fill = skpathutils::FillPathWithPaint(*skeletalPath, *paint, &builder);
+        *fillablePath = builder.detach();
 
         SkPaint* writablePaint = paint.writable();
         writablePaint->setPathEffect(nullptr);

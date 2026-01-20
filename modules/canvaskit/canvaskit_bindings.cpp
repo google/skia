@@ -1780,10 +1780,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                            float startD,
                                            float stopD,
                                            bool startWithMoveTo) -> SkPath {
-                          SkPath p;
+                          SkPathBuilder p;
                           bool ok = self.getSegment(startD, stopD, &p, startWithMoveTo);
                           if (ok) {
-                              return p;
+                              return p.detach();
                           }
                           return SkPath();
                       }))
