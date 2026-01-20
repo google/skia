@@ -67,6 +67,25 @@ SkPathBuilder::SkPathBuilder(const SkPath& src) {
     *this = src;
 }
 
+SkPathBuilder& SkPathBuilder::operator=(const SkPath& src) {
+    this->reset().setFillType(src.getFillType());
+    this->setIsVolatile(src.isVolatile());
+
+    if (src.isEmpty()) {
+        return *this;
+    }
+
+    this->addRaw(src.fPathData->raw(src.getFillType(), SkResolveConvexity::kYes));
+
+    // These are not part of SkPathRaw, so we set them separately
+    fLastMoveIndex = SkPathPriv::FindLastMoveToIndex(fVerbs, fPts.size());
+    SkASSERT(fLastMoveIndex < fPts.size());
+    fType = src.fPathData->fType;
+    fIsA  = src.fPathData->fIsA;
+
+    return *this;
+}
+
 SkPathBuilder& SkPathBuilder::reset() {
     fPts.clear();
     fVerbs.clear();
@@ -259,6 +278,21 @@ SkPathBuilder& SkPathBuilder::rCubicTo(SkVector p1, SkVector p2, SkVector p3) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
+
+SkPath SkPathBuilder::snapshot(const SkMatrix* mx) const {
+    if (!mx) {
+        mx = &SkMatrix::I();
+    }
+
+    sk_sp<SkPathData> pdata;
+    if (auto raw = SkPathPriv::Raw(*this, SkResolveConvexity::kNo)) {
+        pdata = SkPathData::MakeTransform(*raw, *mx);
+    }
+    if (pdata && fType != SkPathIsAType::kGeneral) {
+        pdata->setupIsA(fType, fIsA.fDirection, fIsA.fStartIndex);
+    }
+    return SkPath::MakeNullCheck(std::move(pdata), fFillType, fIsVolatile);
+}
 
 SkPath SkPathBuilder::detach(const SkMatrix* mx) {
     auto path = this->snapshot(mx);

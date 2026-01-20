@@ -18,6 +18,20 @@
 #include <iterator>
 #include <optional>
 
+int SkPathPriv::GenIDChangeListenersCount(const SkPath& path) {
+    return path.fPathData->genIDChangeListenerCount();
+}
+
+void SkPathPriv::AddGenIDChangeListener(const SkPath& path, sk_sp<SkIDChangeListener> listener) {
+    auto pdata = path.fPathData.get();
+    // SkPath's error-singleton is never deleted, so we don't want to add any listeners to it.
+    if (pdata != SkPath::PeekErrorSingleton()) {
+        pdata->addGenIDChangeListener(std::move(listener));
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////
+
 /*
  Determines if path is a rect by keeping track of changes in direction
  and looking for a loop either clockwise or counterclockwise.

@@ -357,7 +357,6 @@ skia_filegroup(
         "SkPath.cpp",
         "SkPathData.cpp",
         "SkPath_interpolate.cpp",
-        "SkPath_pathdata.cpp",
         "SkPathBuilder.cpp",
         "SkPathDump.cpp",
         "SkPathEffect.cpp",
