@@ -385,6 +385,9 @@ const char* get_backend_string(sk_app::Window::BackendType type) {
 }
 
 static sk_app::Window::BackendType get_backend_type(const char* str) {
+    if (0 == strcmp(str, "sw")) {
+        return sk_app::Window::kRaster_BackendType;
+    }
 #if defined(SK_DAWN) && defined(SK_GRAPHITE)
     if (0 == strcmp(str, "grdawn_d3d11")) {
         return sk_app::Window::kGraphiteDawnD3D11_BackendType;
@@ -434,19 +437,15 @@ static sk_app::Window::BackendType get_backend_type(const char* str) {
 #if defined(SK_GL) && defined(SK_GANESH)
     if (0 == strcmp(str, "gl")) {
         return sk_app::Window::kNativeGL_BackendType;
-    } else if (0 == strcmp(str, "sw")) {
-        return sk_app::Window::kRaster_BackendType;
     } else
 #   if SK_ANGLE && (defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC))
     if (0 == strcmp(str, "angle")) {
         return sk_app::Window::kANGLE_BackendType;
-    } else
+    }
 #   endif
 #endif
-    {
-        SkDebugf("Unknown backend type, %s, defaulting to sw.", str);
-        return sk_app::Window::kRaster_BackendType;
-    }
+    SkDebugf("Unknown backend type, %s, defaulting to sw.", str);
+    return sk_app::Window::kRaster_BackendType;
 }
 
 static SkColorSpacePrimaries gSrgbPrimaries = {
@@ -485,12 +484,6 @@ struct NamedPrimaries {
 
 static bool primaries_equal(const SkColorSpacePrimaries& a, const SkColorSpacePrimaries& b) {
     return memcmp(&a, &b, sizeof(SkColorSpacePrimaries)) == 0;
-}
-
-static Window::BackendType backend_type_for_window(Window::BackendType backendType) {
-    // In raster mode, we still use GL for the window.
-    // This lets us render the GUI faster (and correct).
-    return Window::kRaster_BackendType == backendType ? Window::kNativeGL_BackendType : backendType;
 }
 
 class NullSlide : public Slide {
@@ -558,13 +551,23 @@ static const Window::BackendType kSupportedBackends[] = {
         sk_app::Window::kDirect3D_BackendType,
 #endif
 
-// Raster backend requries Ganesh+GL to upload to the window
-#if defined(SK_GANESH) && defined(SK_GL)
-        sk_app::Window::kRaster_BackendType,
-#endif
+sk_app::Window::kRaster_BackendType,
 };
 
 constexpr size_t kSupportedBackendTypeCount = std::size(kSupportedBackends);
+
+static Window::BackendType backend_type_for_window(Window::BackendType backendType) {
+    // In raster mode, we still use GL for the window.
+    // This lets us render the GUI faster (and correct).
+#if defined(SK_GANESH) && defined(SK_GL)
+    Window::BackendType windowTypeForRaster = Window::kNativeGL_BackendType;
+#else
+    // kSupportedBackends will always have at least one entry. Picking the first should
+    // usually result in an adequate GPU-backend.
+    Window::BackendType windowTypeForRaster = kSupportedBackends[0];
+#endif
+    return Window::kRaster_BackendType == backendType ? windowTypeForRaster : backendType;
+}
 
 #if defined(SK_GRAPHITE)
 static skwindow::GraphiteDisplayParamsBuilder make_display_params_builder(
