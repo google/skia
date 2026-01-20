@@ -164,6 +164,11 @@ declare_args() {
   skia_libgrapheme_third_party_dir = "//third_party/libgrapheme"
 }
 
+declare_args() {
+  # Deprecated. TODO(kjlubick, egdaniel) Remove after updating graphite/Android
+  skia_use_backup_vma = skia_use_vma && skia_use_vulkan
+}
+
 assert(!skia_use_dawn || skia_enable_graphite)  # Dawn is Graphite-only
 
 #  We only have a GL backend for Ganesh. We make it so we can assume that if skia_use_gl is true
