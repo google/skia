@@ -257,7 +257,7 @@ private:
         std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
         int fColorTypeInfoCount = 0;
 
-        VkFormatProperties fFormatProperties;
+        VkFormatProperties fFormatProperties = {};
         SupportedSampleCounts fSupportedSampleCounts;
         /*
          * The VK_IMAGE_USAGE_HOST_TRANSFER_BIT flag may cause the image to be put in a suboptimal
@@ -276,7 +276,7 @@ private:
          *                                    VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
          *                                    VK_IMAGE_USAGE_TRANSFER_DST_BIT
          */
-        bool fIsEfficientWithHostImageCopy;
+        bool fIsEfficientWithHostImageCopy = false;
 
         // Indicates that a format is only supported if we are wrapping a texture with it.
         SkDEBUGCODE(bool fIsWrappedOnly = false;)
@@ -291,15 +291,15 @@ private:
     static const size_t kNumVkFormats = 24;
     FormatInfo fFormatTable[kNumVkFormats];
 
-    FormatInfo& getFormatInfo(VkFormat);
+    FormatInfo& getFormatInfoForInit(VkFormat);
     const FormatInfo& getFormatInfo(VkFormat) const;
 
     // A more lightweight equivalent to FormatInfo for depth/stencil VkFormats.
     struct DepthStencilFormatInfo {
         void init(const skgpu::VulkanInterface*, const VulkanCaps&, VkPhysicalDevice, VkFormat);
-        bool isDepthStencilSupported(VkFormatFeatureFlags) const;
+        bool isDepthStencilSupported() const;
 
-        VkFormatProperties fFormatProperties;
+        VkFormatProperties fFormatProperties = {};
         SupportedSampleCounts fSupportedSampleCounts;
     };
 
@@ -311,7 +311,7 @@ private:
     static const size_t kNumDepthStencilVkFormats = 5;
     DepthStencilFormatInfo fDepthStencilFormatTable[kNumDepthStencilVkFormats];
 
-    DepthStencilFormatInfo& getDepthStencilFormatInfo(VkFormat);
+    DepthStencilFormatInfo& getDepthStencilFormatInfoForInit(VkFormat);
     const DepthStencilFormatInfo& getDepthStencilFormatInfo(VkFormat) const;
 
     uint32_t fMaxVertexAttributes;
