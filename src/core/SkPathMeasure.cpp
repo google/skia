@@ -63,7 +63,7 @@ bool SkPathMeasure::nextContour() {
 #ifdef SK_SUPPORT_MUTABLE_PATHEFFECT
 bool SkPathMeasure::getSegment(SkScalar startD, SkScalar stopD, SkPath* dst,
                                bool startWithMoveTo) {
-    SkPathBuilder builder;
+    SkPathBuilder builder(*dst);
     if (this->getSegment(startD, stopD, &builder, startWithMoveTo)) {
         *dst = builder.detach();
         return true;

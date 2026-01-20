@@ -32,7 +32,7 @@ bool SkPathEffect::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
 
 bool SkPathEffect::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec, const SkRect* cullR,
                               const SkMatrix& ctm) const {
-    SkPathBuilder builder;
+    SkPathBuilder builder(*dst);
     if (this->filterPath(&builder, src, rec, cullR, ctm)) {
         *dst = builder.detach();
         return true;

@@ -31,7 +31,7 @@ bool FillPathWithPaint(const SkPath& src, const SkPaint& paint, SkPath* dst,
 
 bool FillPathWithPaint(const SkPath& src, const SkPaint& paint, SkPath* dst,
                        const SkRect* cullRect, const SkMatrix& ctm) {
-    SkPathBuilder builder;
+    SkPathBuilder builder(*dst);
     bool isFilled = FillPathWithPaint(src, paint, &builder, cullRect, ctm);
     *dst = builder.detach();
     return isFilled;
@@ -40,8 +40,8 @@ bool FillPathWithPaint(const SkPath& src, const SkPaint& paint, SkPath* dst,
 
 bool FillPathWithPaint(const SkPath& origSrc, const SkPaint& paint, SkPathBuilder* builder,
                        const SkRect* cullRect, const SkMatrix& ctm) {
-    builder->reset();
     if (!origSrc.isFinite()) {
+        builder->reset();
         return false;
     }
 
