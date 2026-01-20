@@ -131,8 +131,6 @@ static sk_sp<SkRuntimeEffect> agtm_runtime_effect() {
 
 namespace skhdr {
 
-AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap::HeadroomAdaptiveToneMap() = default;
-
 SkColor4f AgtmHelpers::EvaluateComponentMixingFunction(
         const AdaptiveGlobalToneMap::ComponentMixingFunction& mix, const SkColor4f& c) {
     // Assert that the parameters satisfy the constraints in clause 5.2.2.
@@ -636,9 +634,10 @@ bool PopulateToneMapAgtmParams(const Metadata& metadata,
     // If no tone mapping was specified, then use RWTMO with the baseline HDR headroom computed
     // from the CLLI and MDCV metadata.
     if (!hatm.has_value()) {
-        hatm.emplace();
-        hatm->fBaselineHdrHeadroom = std::log2(
-            std::max(get_max_luminance(metadata) / agtm.fHdrReferenceWhite, 1.f));
+        hatm = {{
+            .fBaselineHdrHeadroom = std::log2(
+                std::max(get_max_luminance(metadata) / agtm.fHdrReferenceWhite, 1.f))
+        }};
         AgtmHelpers::PopulateUsingRwtmo(hatm.value());
     }
 
@@ -698,10 +697,13 @@ std::unique_ptr<Agtm> Agtm::Make(const SkData* data) {
 std::unique_ptr<Agtm> Agtm::MakeReferenceWhite(float hdrReferenceWhite, float baselineHdrHeadroom) {
     SkASSERT(baselineHdrHeadroom >= 0.f);
     auto result = std::make_unique<AgtmImpl>();
-    result->fMetadata.fHdrReferenceWhite = hdrReferenceWhite;
-    auto& hatm = result->fMetadata.fHeadroomAdaptiveToneMap.emplace();
-    hatm.fBaselineHdrHeadroom = baselineHdrHeadroom;
-    AgtmHelpers::PopulateUsingRwtmo(hatm);
+    result->fMetadata = {
+        .fHdrReferenceWhite = hdrReferenceWhite,
+        .fHeadroomAdaptiveToneMap = {{
+            .fBaselineHdrHeadroom = baselineHdrHeadroom,
+        }},
+    };
+    AgtmHelpers::PopulateUsingRwtmo(result->fMetadata.fHeadroomAdaptiveToneMap.value());
     return result;
 }
 
@@ -709,10 +711,14 @@ std::unique_ptr<Agtm> Agtm::MakeReferenceWhite(float hdrReferenceWhite, float ba
 std::unique_ptr<Agtm> Agtm::MakeClamp(float hdrReferenceWhite, float baselineHdrHeadroom) {
     SkASSERT(baselineHdrHeadroom >= 0.f);
     auto result = std::make_unique<AgtmImpl>();
-    result->fMetadata.fHdrReferenceWhite = hdrReferenceWhite;
-    auto& hatm = result->fMetadata.fHeadroomAdaptiveToneMap.emplace();
-    hatm.fBaselineHdrHeadroom = baselineHdrHeadroom;
-    hatm.fGainApplicationSpacePrimaries = SkNamedPrimaries::kRec2020;
+    result->fMetadata = {
+        .fHdrReferenceWhite = hdrReferenceWhite,
+        .fHeadroomAdaptiveToneMap = {{
+            .fBaselineHdrHeadroom = baselineHdrHeadroom,
+            .fGainApplicationSpacePrimaries = SkNamedPrimaries::kRec2020,
+            .fAlternateImages = {},
+        }},
+    };
     return result;
 }
 

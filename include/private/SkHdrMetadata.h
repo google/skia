@@ -140,12 +140,20 @@ struct SK_API AdaptiveGlobalToneMap {
             float fX = 0.f;
             float fY = 0.f;
             float fM = 0.f;
+
+            bool operator==(const ControlPoint& other) const {
+                return fX == other.fX && fY == other.fY && fM == other.fM;
+            }
         };
 
         // The size of this vector is the value of the GainCurveNumControlPoints metadata item.
         static constexpr size_t kMinNumControlPoints = 1u;
         static constexpr size_t kMaxNumControlPoints = 32u;
-        std::vector<ControlPoint> fControlPoints;
+        std::vector<ControlPoint> fControlPoints = {};
+
+        bool operator==(const GainCurve& other) const {
+            return fControlPoints == other.fControlPoints;
+        }
     };
 
     // A ComponentMix metadata group.
@@ -157,15 +165,24 @@ struct SK_API AdaptiveGlobalToneMap {
         float fMax = 0.f;
         float fMin = 0.f;
         float fComponent = 0.f;
+
+        bool operator==(const ComponentMixingFunction& other) const {
+            return fRed == other.fRed && fGreen == other.fGreen && fBlue == other.fBlue &&
+                   fMax == other.fMax && fMin == other.fMin && fComponent == other.fComponent;
+        }
     };
 
     // A ColorGainFunction metadata group.
     struct SK_API ColorGainFunction {
         // The ComponentMix metadata group.
-        ComponentMixingFunction fComponentMixing;
+        ComponentMixingFunction fComponentMixing = {};
 
         // The GainCurve metadata group.
-        GainCurve fGainCurve;
+        GainCurve fGainCurve = {};
+
+        bool operator==(const ColorGainFunction& other) const {
+            return fComponentMixing == other.fComponentMixing && fGainCurve == other.fGainCurve;
+        }
     };
 
     // Structure holding the metadata items and groups for an alternate image.
@@ -174,13 +191,15 @@ struct SK_API AdaptiveGlobalToneMap {
         float fHdrHeadroom = 0.f;
 
         // The ColorGainFunction metadata group.
-        ColorGainFunction fColorGainFunction;
+        ColorGainFunction fColorGainFunction = {};
+
+        bool operator==(const AlternateImage& other) const {
+            return fHdrHeadroom == other.fHdrHeadroom && fColorGainFunction == other.fColorGainFunction;
+        }
     };
 
     // HeadroomAdaptiveToneMap metadata group.
     struct SK_API HeadroomAdaptiveToneMap {
-        HeadroomAdaptiveToneMap();
-
         // The BaselineHdrHeadroom metadata item.
         float fBaselineHdrHeadroom = 0.f;
 
@@ -190,7 +209,13 @@ struct SK_API AdaptiveGlobalToneMap {
 
         // The size of this vector is the NumAlternateImages metadata item.
         static constexpr size_t kMaxNumAlternateImages = 4u;
-        std::vector<AlternateImage> fAlternateImages;
+        std::vector<AlternateImage> fAlternateImages = {};
+
+        bool operator==(const HeadroomAdaptiveToneMap& other) const {
+            return fBaselineHdrHeadroom == other.fBaselineHdrHeadroom &&
+                   fGainApplicationSpacePrimaries == other.fGainApplicationSpacePrimaries &&
+                   fAlternateImages == other.fAlternateImages;
+        }
     };
 
     // The default value for the HdrReferenceWhite metadata item.
@@ -216,6 +241,11 @@ struct SK_API AdaptiveGlobalToneMap {
      * Return a human-readable description.
      */
     SkString toString() const;
+
+    bool operator==(const AdaptiveGlobalToneMap& other) const {
+        return fHdrReferenceWhite == other.fHdrReferenceWhite &&
+               fHeadroomAdaptiveToneMap == other.fHeadroomAdaptiveToneMap;
+    }
 };
 
 /**

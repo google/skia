@@ -364,7 +364,7 @@ bool AdaptiveGlobalToneMap::parse(const SkData* data) {
     if (syntax.has_adaptive_tone_map_flag == 0) {
         return true;
     }
-    auto& hatm = fHeadroomAdaptiveToneMap.emplace();
+    auto& hatm = fHeadroomAdaptiveToneMap.emplace(HeadroomAdaptiveToneMap{});
 
     // Semantics from clause C.3.4.
     hatm.fBaselineHdrHeadroom =
