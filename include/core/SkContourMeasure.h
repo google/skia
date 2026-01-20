@@ -56,10 +56,6 @@ public:
      */
     [[nodiscard]] bool getSegment(SkScalar startD, SkScalar stopD, SkPathBuilder* dst,
                                   bool startWithMoveTo) const;
-#ifdef SK_SUPPORT_MUTABLE_PATHEFFECT
-    [[nodiscard]] bool getSegment(SkScalar startD, SkScalar stopD, SkPath* dst,
-                                  bool startWithMoveTo) const;
-#endif
 
     /** Return true if the contour is closed()
      */

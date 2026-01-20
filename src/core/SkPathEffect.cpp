@@ -24,23 +24,6 @@ struct SkRect;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_MUTABLE_PATHEFFECT
-bool SkPathEffect::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
-                              const SkRect* bounds) const {
-    return this->filterPath(dst, src, rec, bounds, SkMatrix::I());
-}
-
-bool SkPathEffect::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec, const SkRect* cullR,
-                              const SkMatrix& ctm) const {
-    SkPathBuilder builder(*dst);
-    if (this->filterPath(&builder, src, rec, cullR, ctm)) {
-        *dst = builder.detach();
-        return true;
-    }
-    return false;
-}
-#endif
-
 bool SkPathEffect::filterPath(SkPathBuilder* dst, const SkPath& src, SkStrokeRec* rec) const {
     return this->filterPath(dst, src, rec, nullptr, SkMatrix::I());
 }

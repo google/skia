@@ -34,16 +34,6 @@ SK_API bool FillPathWithPaint(const SkPath& src, const SkPaint& paint, SkPathBui
 
 SK_API SkPath FillPathWithPaint(const SkPath& src, const SkPaint& paint, bool* isFill = nullptr);
 
-#ifdef SK_SUPPORT_MUTABLE_PATHEFFECT
-SK_API bool FillPathWithPaint(const SkPath &src, const SkPaint &paint, SkPath *dst,
-                              const SkRect *cullRect, SkScalar resScale = 1);
-
-SK_API bool FillPathWithPaint(const SkPath &src, const SkPaint &paint, SkPath *dst,
-                              const SkRect *cullRect, const SkMatrix &ctm);
-
-SK_API bool FillPathWithPaint(const SkPath &src, const SkPaint &paint, SkPath *dst);
-#endif
-
 }
 
 #endif

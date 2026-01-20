@@ -731,15 +731,3 @@ SkContourMeasure::VerbMeasure SkContourMeasure::ForwardVerbIterator::operator*()
         SkSpan(fPts.data() + fSegments.front().fPtIndex, seg_pt_count[fSegments.front().fType]),
     };
 }
-
-#ifdef SK_SUPPORT_MUTABLE_PATHEFFECT
-bool SkContourMeasure::getSegment(SkScalar startD, SkScalar stopD, SkPath* dst,
-                                  bool startWithMoveTo) const {
-    SkPathBuilder builder;
-    if (this->getSegment(startD, stopD, &builder, startWithMoveTo)) {
-        *dst = builder.detach();
-        return true;
-    }
-    return false;
-}
-#endif

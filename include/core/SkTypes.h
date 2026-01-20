@@ -145,10 +145,6 @@
     #define SK_DISABLE_SDF_TEXT
 #endif
 
-#ifndef SK_SUPPORT_MUTABLE_PATHEFFECT
-#   define SK_SUPPORT_MUTABLE_PATHEFFECT
-#endif
-
 #if defined(SK_BUILD_FOR_LIBFUZZER) || defined(SK_BUILD_FOR_AFL_FUZZ)
 #if !defined(SK_BUILD_FOR_FUZZER)
     #define SK_BUILD_FOR_FUZZER
