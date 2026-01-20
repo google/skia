@@ -40,17 +40,528 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
     *v1 = (packed & 0x3fff);    // Integer coordinate x1 or y1.
     *w  = (packed >> 14) & 0xf; // Lerp weight for v1; weight for v0 is 16-w.
 }
-
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
-
-    /*not static*/ inline
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SKX
+    inline
     void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
                                  const uint32_t* xy, int count, uint32_t* colors) {
         SkASSERT(count > 0 && colors != nullptr);
         SkASSERT(s.fBilerp);
         SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
         SkASSERT(s.fAlphaScale <= 256);
+        auto interpolate_in_x_512 = [](
+            __m512i A0, __m512i A1,
+            __m512i B0, __m512i B1,
+            __m512i interlaced_x_weights)
+        {
+            // Interleave bytes: [A0,A1,B0,B1]
+            __m512i interlaced_A = _mm512_unpacklo_epi8(A0, A1);
+            __m512i interlaced_B = _mm512_unpacklo_epi8(B0, B1);
 
+            __m512i pixels = _mm512_unpacklo_epi64(interlaced_A, interlaced_B);
+
+            return _mm512_maddubs_epi16(pixels, interlaced_x_weights);
+        };
+        auto interpolate_in_x_and_y_512 = [&](
+            __m512i A0, __m512i A1, __m512i A2, __m512i A3,
+            __m512i B0, __m512i B1, __m512i B2, __m512i B3,
+            __m512i interlaced_x_weights,
+            int wy,
+            int alphaScale)
+        {
+            __m512i top = interpolate_in_x_512(A0,A1, B0,B1, interlaced_x_weights);
+            __m512i bot = interpolate_in_x_512(A2,A3, B2,B3, interlaced_x_weights);
+
+            // px = 16*top + (bot-top)*wy
+            __m512i px = _mm512_add_epi16(
+                _mm512_slli_epi16(top, 4),
+                _mm512_mullo_epi16(
+                    _mm512_sub_epi16(bot, top),
+                    _mm512_set1_epi16(wy)));
+
+            px = _mm512_srli_epi16(px, 8);
+
+            if (alphaScale < 256) {
+                px = _mm512_srli_epi16(
+                    _mm512_mullo_epi16(px, _mm512_set1_epi16(alphaScale)), 8);
+            }
+
+            return px;
+        };
+        int y0, y1, wy;
+        decode_packed_coordinates_and_weight(*xy++, &y0, &y1, &wy);
+
+        auto row0 =
+            (const uint32_t*)((const uint8_t*)s.fPixmap.addr() + y0 * s.fPixmap.rowBytes());
+        auto row1 =
+            (const uint32_t*)((const uint8_t*)s.fPixmap.addr() + y1 * s.fPixmap.rowBytes());
+        
+
+        while (count >= 16) {
+        // Load packed XY (16 entries)
+        __m512i packed = _mm512_loadu_si512(xy);
+
+        // Decode x0, x1, wx
+        __m512i x0 = _mm512_srli_epi32(packed, 18);
+        __m512i x1 = _mm512_and_epi32(packed, _mm512_set1_epi32(0x3fff));
+        __m512i wx = _mm512_and_epi32(_mm512_srli_epi32(packed, 14),
+                                    _mm512_set1_epi32(0xf));
+
+        // Expand weights to bytes
+        __m512i wr = _mm512_shuffle_epi8(wx,
+            _mm512_set_epi8(
+                12,12,12,12, 8,8,8,8, 4,4,4,4, 0,0,0,0,
+                12,12,12,12, 8,8,8,8, 4,4,4,4, 0,0,0,0,
+                12,12,12,12, 8,8,8,8, 4,4,4,4, 0,0,0,0,
+                12,12,12,12, 8,8,8,8, 4,4,4,4, 0,0,0,0));
+
+        __m512i wl = _mm512_sub_epi8(_mm512_set1_epi8(16), wr);
+        __m512i interlaced_x_weights = _mm512_unpacklo_epi8(wl, wr);
+
+        // ⚠ scalar gathers (still expensive)
+        __m512i A0 = _mm512_i32gather_epi32(x0, row0, 4);
+        __m512i A1 = _mm512_i32gather_epi32(x1, row0, 4);
+        __m512i A2 = _mm512_i32gather_epi32(x0, row1, 4);
+        __m512i A3 = _mm512_i32gather_epi32(x1, row1, 4);
+
+        __m512i px = interpolate_in_x_and_y_512(
+            A0, A1, A2, A3,
+            A0, A1, A2, A3,
+            interlaced_x_weights, wy, s.fAlphaScale);
+
+        // Pack & store
+        __m512i out = _mm512_packus_epi16(px, px);
+        _mm512_storeu_si512(colors, out);
+
+        xy     += 16;
+        colors += 16;
+        count  -= 16;
+    }
+
+    // interpolate_in_x() is the crux of the SSSE3 implementation,
+        // interpolating in X for up to two output pixels (A and B) using _mm_maddubs_epi16().
+        auto interpolate_in_x = [](uint32_t A0, uint32_t A1,
+                                   uint32_t B0, uint32_t B1,
+                                   __m128i interlaced_x_weights) {
+            // _mm_maddubs_epi16() is a little idiosyncratic, but great as the core of a lerp.
+            //
+            // It takes two arguments interlaced byte-wise:
+            //    - first  arg: [ l,r, ... 7 more pairs of unsigned 8-bit values ...]
+            //    - second arg: [ w,W, ... 7 more pairs of   signed 8-bit values ...]
+            // and returns 8 signed 16-bit values: [ l*w + r*W, ... 7 more ... ].
+            //
+            // That's why we go to all this trouble to make interlaced_x_weights,
+            // and here we're about to interlace A0 with A1 and B0 with B1 to match.
+            //
+            // Our interlaced_x_weights are all in [0,16], and so we need not worry about
+            // the signedness of that input nor about the signedness of the output.
+
+            __m128i interlaced_A = _mm_unpacklo_epi8(_mm_cvtsi32_si128(A0), _mm_cvtsi32_si128(A1)),
+                    interlaced_B = _mm_unpacklo_epi8(_mm_cvtsi32_si128(B0), _mm_cvtsi32_si128(B1));
+
+            return _mm_maddubs_epi16(_mm_unpacklo_epi64(interlaced_A, interlaced_B),
+                                     interlaced_x_weights);
+        };
+
+        // Interpolate {A0..A3} --> output pixel A, and {B0..B3} --> output pixel B.
+        // Returns two pixels, with each color channel in a 16-bit lane of the __m128i.
+        auto interpolate_in_x_and_y = [&](uint32_t A0, uint32_t A1,
+                                          uint32_t A2, uint32_t A3,
+                                          uint32_t B0, uint32_t B1,
+                                          uint32_t B2, uint32_t B3,
+                                          __m128i interlaced_x_weights,
+                                          int wy) {
+            // Interpolate each row in X, leaving 16-bit lanes scaled by interlaced_x_weights.
+            __m128i top = interpolate_in_x(A0,A1, B0,B1, interlaced_x_weights),
+                    bot = interpolate_in_x(A2,A3, B2,B3, interlaced_x_weights);
+
+            // Interpolate in Y.  As in the SSE2 code, we calculate top*(16-wy) + bot*wy
+            // as 16*top + (bot-top)*wy to save a multiply.
+            __m128i px = _mm_add_epi16(_mm_slli_epi16(top, 4),
+                                       _mm_mullo_epi16(_mm_sub_epi16(bot, top),
+                                                       _mm_set1_epi16(wy)));
+
+            // Scale down by total max weight 16x16 = 256.
+            px = _mm_srli_epi16(px, 8);
+
+            // Scale by alpha if needed.
+            if (s.fAlphaScale < 256) {
+                px = _mm_srli_epi16(_mm_mullo_epi16(px, _mm_set1_epi16(s.fAlphaScale)), 8);
+            }
+            return px;
+        };
+
+        // We're in _DX mode here, so we're only varying in X.
+        // That means the first entry of xy is our constant pair of Y coordinates and weight in Y.
+        // All the other entries in xy will be pairs of X coordinates and the X weight.
+        
+        // decode_packed_coordinates_and_weight(*xy++, &y0, &y1, &wy);
+
+        // row0 = (const uint32_t*)((const uint8_t*)s.fPixmap.addr() + y0 * s.fPixmap.rowBytes());
+        // row1 = (const uint32_t*)((const uint8_t*)s.fPixmap.addr() + y1 * s.fPixmap.rowBytes());
+        
+        // printf("Count1 : %d ",count);
+
+        while (count >= 4) {
+            // We can really get going, loading 4 X-pairs at a time to produce 4 output pixels.
+            int x0[4],
+                x1[4];
+            __m128i wx;
+
+            // decode_packed_coordinates_and_weight(), 4x.
+            __m128i packed = _mm_loadu_si128((const __m128i*)xy);
+            _mm_storeu_si128((__m128i*)x0, _mm_srli_epi32(packed, 18));
+            _mm_storeu_si128((__m128i*)x1, _mm_and_si128 (packed, _mm_set1_epi32(0x3fff)));
+            wx = _mm_and_si128(_mm_srli_epi32(packed, 14), _mm_set1_epi32(0xf));  // [0,15]
+
+            // Splat each x weight 4x (for each color channel) as wr for pixels on the right at x1,
+            // and sixteen minus that as wl for pixels on the left at x0.
+            __m128i wr = _mm_shuffle_epi8(wx, _mm_setr_epi8(0,0,0,0,4,4,4,4,8,8,8,8,12,12,12,12)),
+                    wl = _mm_sub_epi8(_mm_set1_epi8(16), wr);
+
+            // We need to interlace wl and wr for _mm_maddubs_epi16().
+            __m128i interlaced_x_weights_AB = _mm_unpacklo_epi8(wl,wr),
+                    interlaced_x_weights_CD = _mm_unpackhi_epi8(wl,wr);
+
+            enum { A,B,C,D };
+
+            // interpolate_in_x_and_y() can produce two output pixels (A and B) at a time
+            // from eight input pixels {A0..A3} and {B0..B3}, arranged in a 2x2 grid for each.
+            __m128i AB = interpolate_in_x_and_y(row0[x0[A]], row0[x1[A]],
+                                                row1[x0[A]], row1[x1[A]],
+                                                row0[x0[B]], row0[x1[B]],
+                                                row1[x0[B]], row1[x1[B]],
+                                                interlaced_x_weights_AB, wy);
+
+            // Once more with the other half of the x-weights for two more pixels C,D.
+            __m128i CD = interpolate_in_x_and_y(row0[x0[C]], row0[x1[C]],
+                                                row1[x0[C]], row1[x1[C]],
+                                                row0[x0[D]], row0[x1[D]],
+                                                row1[x0[D]], row1[x1[D]],
+                                                interlaced_x_weights_CD, wy);
+
+            // Scale by alpha, pack back together to 8-bit lanes, and write out four pixels!
+            _mm_storeu_si128((__m128i*)colors, _mm_packus_epi16(AB, CD));
+            xy     += 4;
+            colors += 4;
+            count  -= 4;
+        }
+        
+        // printf("Count 1 : %d \n",count );
+        while (count --> 0) {
+            // This is exactly the same flow as the count >= 4 loop above, but writing one pixel.
+            int x0, x1, wx;
+            decode_packed_coordinates_and_weight(*xy++, &x0, &x1, &wx);
+            // row0 = (const uint32_t*)((const uint8_t*)s.fPixmap.addr() + x0 * s.fPixmap.rowBytes());
+            // row1 = (const uint32_t*)((const uint8_t*)s.fPixmap.addr() + x1 * s.fPixmap.rowBytes());
+            // As above, splat out wx four times as wr, and sixteen minus that as wl.
+            __m128i wr = _mm_set1_epi8(wx),     // This splats it out 16 times, but that's fine.
+                    wl = _mm_sub_epi8(_mm_set1_epi8(16), wr);
+
+            __m128i interlaced_x_weights = _mm_unpacklo_epi8(wl, wr);
+
+            __m128i A = interpolate_in_x_and_y(row0[x0], row0[x1],
+                                               row1[x0], row1[x1],
+                                                      0,        0,
+                                                      0,        0,
+                                               interlaced_x_weights, wy);
+
+            *colors++ = _mm_cvtsi128_si32(_mm_packus_epi16(A, _mm_setzero_si128()));
+        }
+
+        // if (count > 0) {
+        //     __mmask16 mask = (1u << count) - 1;
+
+        //     __m512i packed = _mm512_maskz_loadu_epi32(mask, xy);
+
+        //     __m512i x0 = _mm512_srli_epi32(packed, 18);
+        //     __m512i x1 = _mm512_and_epi32(packed, _mm512_set1_epi32(0x3fff));
+        //     __m512i wx = _mm512_and_epi32(_mm512_srli_epi32(packed, 14),
+        //                                 _mm512_set1_epi32(0xf));
+        //     const __m512i weight_shuffle = _mm512_set_epi8(
+        //         12, 12, 12, 12,   8, 8, 8, 8,   4, 4, 4, 4,  0,0,0,0,
+        //         12, 12, 12, 12,   8, 8, 8, 8,   4, 4, 4, 4,  0,0,0,0,
+        //         12, 12, 12, 12,   8, 8, 8, 8,   4, 4, 4, 4,  0,0,0,0,
+        //         12, 12, 12, 12,   8, 8, 8, 8,   4, 4, 4, 4,  0,0,0,0
+        //     );
+
+
+        //     __m512i wr = _mm512_shuffle_epi8(wx, weight_shuffle);
+        //     __m512i wl = _mm512_sub_epi8(_mm512_set1_epi8(16), wr);
+        //     __m512i interlaced_x_weights = _mm512_unpacklo_epi8(wl, wr);
+
+        //     __m512i A0 = _mm512_mask_i32gather_epi32(
+        //         _mm512_setzero_si512(), mask, x0, row0, 4);
+        //     __m512i A1 = _mm512_mask_i32gather_epi32(
+        //         _mm512_setzero_si512(), mask, x1, row0, 4);
+        //     __m512i A2 = _mm512_mask_i32gather_epi32(
+        //         _mm512_setzero_si512(), mask, x0, row1, 4);
+        //     __m512i A3 = _mm512_mask_i32gather_epi32(
+        //         _mm512_setzero_si512(), mask, x1, row1, 4);
+
+        //     __m512i px = interpolate_in_x_and_y_512(
+        //         A0, A1, A2, A3,
+        //         A0, A1, A2, A3,
+        //         interlaced_x_weights,
+        //         wy,
+        //         s.fAlphaScale);
+
+        //     __m512i out = _mm512_packus_epi16(px, px);
+        //     _mm512_mask_storeu_epi32(colors, mask, out);
+        // }
+
+    }
+
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX
+     inline
+    void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
+                                 const uint32_t* xy, int count, uint32_t* colors) {
+                                    
+        SkASSERT(count > 0 && colors != nullptr);
+        SkASSERT(s.fBilerp);
+        SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
+        SkASSERT(s.fAlphaScale <= 256);
+        // printf("Count : %d\n ",count);
+        auto interpolate_in_x_256 = [](
+            __m256i A0, __m256i A1,
+            __m256i B0, __m256i B1,
+            __m256i interlaced_x_weights)
+        {
+            __m256i interlaced_A = _mm256_unpacklo_epi8(A0, A1);
+            __m256i interlaced_B = _mm256_unpacklo_epi8(B0, B1);
+
+            __m256i pixels = _mm256_unpacklo_epi64(interlaced_A, interlaced_B);
+
+            return _mm256_maddubs_epi16(pixels, interlaced_x_weights);
+        };
+        auto interpolate_in_x_and_y_256 = [&](
+            __m256i A0, __m256i A1, __m256i A2, __m256i A3,
+            __m256i B0, __m256i B1, __m256i B2, __m256i B3,
+            __m256i interlaced_x_weights,
+            int wy)
+        {
+            __m256i top = interpolate_in_x_256(A0,A1, B0,B1, interlaced_x_weights);
+            __m256i bot = interpolate_in_x_256(A2,A3, B2,B3, interlaced_x_weights);
+
+            __m256i px = _mm256_add_epi16(
+                _mm256_slli_epi16(top, 4),
+                _mm256_mullo_epi16(
+                    _mm256_sub_epi16(bot, top),
+                    _mm256_set1_epi16(wy)));
+
+            px = _mm256_srli_epi16(px, 8);
+
+            if (s.fAlphaScale < 256) {
+                px = _mm256_srli_epi16(
+                    _mm256_mullo_epi16(px, _mm256_set1_epi16(s.fAlphaScale)), 8);
+            }
+
+            return px;
+        };
+
+        int y0, y1, wy;
+        decode_packed_coordinates_and_weight(*xy++, &y0, &y1, &wy);
+
+        auto row0 =
+            (const uint32_t*)((const uint8_t*)s.fPixmap.addr() + y0 * s.fPixmap.rowBytes());
+        auto row1 =
+            (const uint32_t*)((const uint8_t*)s.fPixmap.addr() + y1 * s.fPixmap.rowBytes());
+
+        // Expand weights
+        const __m256i weight_shuffle =
+            _mm256_setr_epi8(
+                0,0,0,0, 4,4,4,4, 8,8,8,8, 12,12,12,12,
+                0,0,0,0, 4,4,4,4, 8,8,8,8, 12,12,12,12);
+        while (count >= 8) {
+            // Load 8 packed X entries
+            __m256i packed = _mm256_loadu_si256((const __m256i*)xy);
+
+            __m256i x0 = _mm256_srli_epi32(packed, 18);
+            __m256i x1 = _mm256_and_si256(packed, _mm256_set1_epi32(0x3fff));
+            __m256i wx = _mm256_and_si256(
+                _mm256_srli_epi32(packed, 14),
+                _mm256_set1_epi32(0xf));
+
+
+            __m256i wr = _mm256_shuffle_epi8(wx, weight_shuffle);
+            __m256i wl = _mm256_sub_epi8(_mm256_set1_epi8(16), wr);
+            __m256i interlaced_x_weights = _mm256_unpacklo_epi8(wl, wr);
+
+            // Gather pixels (still scalar indexed)
+            alignas(32) uint32_t ix0[8], ix1[8];
+            _mm256_store_si256((__m256i*)ix0, x0);
+            _mm256_store_si256((__m256i*)ix1, x1);
+
+            __m256i A0 = _mm256_setr_epi32(
+                row0[ix0[0]], row0[ix0[1]], row0[ix0[2]], row0[ix0[3]],
+                row0[ix0[4]], row0[ix0[5]], row0[ix0[6]], row0[ix0[7]]);
+
+            __m256i A1 = _mm256_setr_epi32(
+                row0[ix1[0]], row0[ix1[1]], row0[ix1[2]], row0[ix1[3]],
+                row0[ix1[4]], row0[ix1[5]], row0[ix1[6]], row0[ix1[7]]);
+
+            __m256i B0 = _mm256_setr_epi32(
+                row1[ix0[0]], row1[ix0[1]], row1[ix0[2]], row1[ix0[3]],
+                row1[ix0[4]], row1[ix0[5]], row1[ix0[6]], row1[ix0[7]]);
+
+            __m256i B1 = _mm256_setr_epi32(
+                row1[ix1[0]], row1[ix1[1]], row1[ix1[2]], row1[ix1[3]],
+                row1[ix1[4]], row1[ix1[5]], row1[ix1[6]], row1[ix1[7]]);
+
+            __m256i px = interpolate_in_x_and_y_256(
+                A0,A1,B0,B1,
+                A0,A1,B0,B1,
+                interlaced_x_weights, wy);
+
+            __m256i out = _mm256_packus_epi16(px, px);
+            _mm256_storeu_si256((__m256i*)colors, out);
+
+            xy     += 8;
+            colors += 8;
+            count  -= 8;
+        }
+
+        // interpolate_in_x() is the crux of the SSSE3 implementation,
+        // interpolating in X for up to two output pixels (A and B) using _mm_maddubs_epi16().
+        auto interpolate_in_x = [](uint32_t A0, uint32_t A1,
+                                   uint32_t B0, uint32_t B1,
+                                   __m128i interlaced_x_weights) {
+            // _mm_maddubs_epi16() is a little idiosyncratic, but great as the core of a lerp.
+            //
+            // It takes two arguments interlaced byte-wise:
+            //    - first  arg: [ l,r, ... 7 more pairs of unsigned 8-bit values ...]
+            //    - second arg: [ w,W, ... 7 more pairs of   signed 8-bit values ...]
+            // and returns 8 signed 16-bit values: [ l*w + r*W, ... 7 more ... ].
+            //
+            // That's why we go to all this trouble to make interlaced_x_weights,
+            // and here we're about to interlace A0 with A1 and B0 with B1 to match.
+            //
+            // Our interlaced_x_weights are all in [0,16], and so we need not worry about
+            // the signedness of that input nor about the signedness of the output.
+
+            __m128i interlaced_A = _mm_unpacklo_epi8(_mm_cvtsi32_si128(A0), _mm_cvtsi32_si128(A1)),
+                    interlaced_B = _mm_unpacklo_epi8(_mm_cvtsi32_si128(B0), _mm_cvtsi32_si128(B1));
+
+            return _mm_maddubs_epi16(_mm_unpacklo_epi64(interlaced_A, interlaced_B),
+                                     interlaced_x_weights);
+        };
+
+        // Interpolate {A0..A3} --> output pixel A, and {B0..B3} --> output pixel B.
+        // Returns two pixels, with each color channel in a 16-bit lane of the __m128i.
+        auto interpolate_in_x_and_y = [&](uint32_t A0, uint32_t A1,
+                                          uint32_t A2, uint32_t A3,
+                                          uint32_t B0, uint32_t B1,
+                                          uint32_t B2, uint32_t B3,
+                                          __m128i interlaced_x_weights,
+                                          int wy) {
+            // Interpolate each row in X, leaving 16-bit lanes scaled by interlaced_x_weights.
+            __m128i top = interpolate_in_x(A0,A1, B0,B1, interlaced_x_weights),
+                    bot = interpolate_in_x(A2,A3, B2,B3, interlaced_x_weights);
+
+            // Interpolate in Y.  As in the SSE2 code, we calculate top*(16-wy) + bot*wy
+            // as 16*top + (bot-top)*wy to save a multiply.
+            __m128i px = _mm_add_epi16(_mm_slli_epi16(top, 4),
+                                       _mm_mullo_epi16(_mm_sub_epi16(bot, top),
+                                                       _mm_set1_epi16(wy)));
+
+            // Scale down by total max weight 16x16 = 256.
+            px = _mm_srli_epi16(px, 8);
+
+            // Scale by alpha if needed.
+            if (s.fAlphaScale < 256) {
+                px = _mm_srli_epi16(_mm_mullo_epi16(px, _mm_set1_epi16(s.fAlphaScale)), 8);
+            }
+            return px;
+        };
+
+        // We're in _DX mode here, so we're only varying in X.
+        // That means the first entry of xy is our constant pair of Y coordinates and weight in Y.
+        // All the other entries in xy will be pairs of X coordinates and the X weight.
+        
+        // decode_packed_coordinates_and_weight(*xy++, &y0, &y1, &wy);
+
+        // row0 = (const uint32_t*)((const uint8_t*)s.fPixmap.addr() + y0 * s.fPixmap.rowBytes());
+        // row1 = (const uint32_t*)((const uint8_t*)s.fPixmap.addr() + y1 * s.fPixmap.rowBytes());
+        
+
+        while (count >= 4) {
+            // We can really get going, loading 4 X-pairs at a time to produce 4 output pixels.
+            int x0[4],
+                x1[4];
+            __m128i wx;
+
+            // decode_packed_coordinates_and_weight(), 4x.
+            __m128i packed = _mm_loadu_si128((const __m128i*)xy);
+            _mm_storeu_si128((__m128i*)x0, _mm_srli_epi32(packed, 18));
+            _mm_storeu_si128((__m128i*)x1, _mm_and_si128 (packed, _mm_set1_epi32(0x3fff)));
+            wx = _mm_and_si128(_mm_srli_epi32(packed, 14), _mm_set1_epi32(0xf));  // [0,15]
+
+            // Splat each x weight 4x (for each color channel) as wr for pixels on the right at x1,
+            // and sixteen minus that as wl for pixels on the left at x0.
+            __m128i wr = _mm_shuffle_epi8(wx, _mm_setr_epi8(0,0,0,0,4,4,4,4,8,8,8,8,12,12,12,12)),
+                    wl = _mm_sub_epi8(_mm_set1_epi8(16), wr);
+
+            // We need to interlace wl and wr for _mm_maddubs_epi16().
+            __m128i interlaced_x_weights_AB = _mm_unpacklo_epi8(wl,wr),
+                    interlaced_x_weights_CD = _mm_unpackhi_epi8(wl,wr);
+
+            enum { A,B,C,D };
+
+            // interpolate_in_x_and_y() can produce two output pixels (A and B) at a time
+            // from eight input pixels {A0..A3} and {B0..B3}, arranged in a 2x2 grid for each.
+            __m128i AB = interpolate_in_x_and_y(row0[x0[A]], row0[x1[A]],
+                                                row1[x0[A]], row1[x1[A]],
+                                                row0[x0[B]], row0[x1[B]],
+                                                row1[x0[B]], row1[x1[B]],
+                                                interlaced_x_weights_AB, wy);
+
+            // Once more with the other half of the x-weights for two more pixels C,D.
+            __m128i CD = interpolate_in_x_and_y(row0[x0[C]], row0[x1[C]],
+                                                row1[x0[C]], row1[x1[C]],
+                                                row0[x0[D]], row0[x1[D]],
+                                                row1[x0[D]], row1[x1[D]],
+                                                interlaced_x_weights_CD, wy);
+
+            // Scale by alpha, pack back together to 8-bit lanes, and write out four pixels!
+            _mm_storeu_si128((__m128i*)colors, _mm_packus_epi16(AB, CD));
+            xy     += 4;
+            colors += 4;
+            count  -= 4;
+        }
+        
+        // printf("Count 1 : %d \n",count );
+        while (count --> 0) {
+            // This is exactly the same flow as the count >= 4 loop above, but writing one pixel.
+            int x0, x1, wx;
+            decode_packed_coordinates_and_weight(*xy++, &x0, &x1, &wx);
+            // row0 = (const uint32_t*)((const uint8_t*)s.fPixmap.addr() + x0 * s.fPixmap.rowBytes());
+            // row1 = (const uint32_t*)((const uint8_t*)s.fPixmap.addr() + x1 * s.fPixmap.rowBytes());
+            // As above, splat out wx four times as wr, and sixteen minus that as wl.
+            __m128i wr = _mm_set1_epi8(wx),     // This splats it out 16 times, but that's fine.
+                    wl = _mm_sub_epi8(_mm_set1_epi8(16), wr);
+
+            __m128i interlaced_x_weights = _mm_unpacklo_epi8(wl, wr);
+
+            __m128i A = interpolate_in_x_and_y(row0[x0], row0[x1],
+                                               row1[x0], row1[x1],
+                                                      0,        0,
+                                                      0,        0,
+                                               interlaced_x_weights, wy);
+
+            *colors++ = _mm_cvtsi128_si32(_mm_packus_epi16(A, _mm_setzero_si128()));
+        }
+    }
+
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+
+    /*not static*/ inline
+    void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
+                                 const uint32_t* xy, int count, uint32_t* colors) {
+
+
+        SkASSERT(count > 0 && colors != nullptr);
+        SkASSERT(s.fBilerp);
+        SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
+        SkASSERT(s.fAlphaScale <= 256);
         // interpolate_in_x() is the crux of the SSSE3 implementation,
         // interpolating in X for up to two output pixels (A and B) using _mm_maddubs_epi16().
         auto interpolate_in_x = [](uint32_t A0, uint32_t A1,
