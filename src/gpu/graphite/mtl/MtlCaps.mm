@@ -779,7 +779,7 @@ bool MtlCaps::isSampleCountSupported(TextureFormat format, SampleCount requested
         return false;
     }
     if (SkToBool(formatInfo.fFlags & FormatInfo::kMSAA_Flag)) {
-        return SkToBool(fSupportedSampleCounts & requestedSampleCount);
+        return SkToBool(fSupportedSampleCounts & (SampleCount::V) requestedSampleCount);
     } else {
         // Only single sampling is supported for the format, so 1 sample should be generally
         // available, too.
