@@ -26,8 +26,7 @@ namespace VulkanMemoryAllocators {
 // Returns a concrete implementation of a memory allocator. Because this has settings
 // which are done at compile time, we cannot really expose this to clients in a meaningful way.
 sk_sp<VulkanMemoryAllocator> Make(const skgpu::VulkanBackendContext&,
-                                  ThreadSafe,
-                                  std::optional<VkDeviceSize> blockSize);
+                                  ThreadSafe);
 
 }  // namespace VulkanMemoryAllocators
 }  // namespace skgpu
