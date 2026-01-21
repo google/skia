@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright 2026 Google LLC
+# Copyright 2025 Google LLC
 #
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -20,12 +20,13 @@ sys.path.insert(0, INFRA_BOTS_DIR)
 import utils
 
 # From a Chromium checkout, run the following script and look for the file that it downloads.
-# $ tools/clang/scripts/update.py --output-dir /tmp/mac_clang --host-os mac-arm64
-# Downloading https://commondatastorage.googleapis.com/chromium-browser-clang/Mac_arm64/$TAR_FILE
+# $ tools/clang/scripts/update.py --output-dir /tmp/mac_clang --host-os mac
+# Downloading https://commondatastorage.googleapis.com/chromium-browser-clang/Mac/$TAR_FILE
 
-# This contains universal Arm binaries for clang, but does not contain pre-builts of libc++.
+# This contains universal (Mac Arm and Intel) binaries for clang, but does not contain
+# pre-builts of libc++.
 TAR_FILE = "clang-llvmorg-22-init-14273-gea10026b-2.tar.xz"
-GS_URL = f'https://commondatastorage.googleapis.com/chromium-browser-clang/Mac_arm64/{TAR_FILE}'
+GS_URL = f'https://commondatastorage.googleapis.com/chromium-browser-clang/Mac/{TAR_FILE}'
 
 def create_asset(target_dir):
   """Create the asset."""
