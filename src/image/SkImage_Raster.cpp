@@ -181,7 +181,7 @@ sk_sp<SkImage_Raster> SkImage_Raster::MakeFromBitmap(const SkBitmap& bm, SkCopyP
         (!bm.isImmutable() && SkCopyPixelsMode::kNever != cpm)) {
         SkPixmap pmap;
         if (bm.peekPixels(&pmap)) {
-            return sk_ref_sp<SkImage_Raster>(static_cast<SkImage_Raster*>(
+            return sk_sp<SkImage_Raster>(static_cast<SkImage_Raster*>(
                     SkImages::RasterFromPixmapCopy(pmap).release()));
         }
         return nullptr;
