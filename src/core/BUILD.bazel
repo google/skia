@@ -85,7 +85,6 @@ SEMI_PUBLIC_HEADERS = [
     "SkImageFilterTypes.h",
     "SkImageFilter_Base.h",
     "SkImageInfoPriv.h",
-    "SkImagePriv.h",
     "SkLRUCache.h",
     "SkLatticeIter.h",
     "SkLocalMatrixImageFilter.h",
