@@ -233,6 +233,7 @@ func (b *TaskBuilder) asset(assets ...string) {
 func (b *TaskBuilder) usesBazel(hostOSArch string) {
 	archToPkg := map[string]string{
 		"linux_x64":   "bazelisk_linux_amd64",
+		"mac_arm64":   "bazelisk_mac_arm64",
 		"mac_x64":     "bazelisk_mac_amd64",
 		"windows_x64": "bazelisk_win_amd64",
 	}

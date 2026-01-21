@@ -168,34 +168,13 @@
   },
   {
     "cmd": [
-      "[START_DIR]/ccache_mac/bin/ccache",
-      "-s"
-    ],
-    "cwd": "[START_DIR]/cache/work/skia",
-    "env": {
-      "CCACHE_COMPILERCHECK": "content",
-      "CCACHE_DIR": "[START_DIR]/cache/ccache",
-      "CCACHE_MAXFILES": "0",
-      "CCACHE_MAXSIZE": "50G",
-      "CHROME_HEADLESS": "1",
-      "MACOSX_DEPLOYMENT_TARGET": "11.0",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja"
-    },
-    "name": "ccache stats-start"
-  },
-  {
-    "cmd": [
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_NoPrecompile/Debug",
-      "--args=cc=\"clang\" cc_wrapper=\"[START_DIR]/ccache_mac/bin/ccache\" cxx=\"clang++\" extra_cflags=[\"-DREBUILD_IF_CHANGED_xcode_build_version=16a242d\", \"-O1\"] is_trivial_abi=true link_pool_depth=2 skia_enable_graphite=true skia_enable_precompile=false skia_use_client_icu=true skia_use_gl=false skia_use_libgrapheme=true skia_use_metal=true target_cpu=\"arm64\" werror=true"
+      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-DREBUILD_IF_CHANGED_xcode_build_version=16a242d\", \"-O1\"] is_trivial_abi=true link_pool_depth=2 skia_enable_graphite=true skia_enable_precompile=false skia_use_client_icu=true skia_use_gl=false skia_use_libgrapheme=true skia_use_metal=true target_cpu=\"arm64\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
-      "CCACHE_COMPILERCHECK": "content",
-      "CCACHE_DIR": "[START_DIR]/cache/ccache",
-      "CCACHE_MAXFILES": "0",
-      "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
       "MACOSX_DEPLOYMENT_TARGET": "11.0",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja"
@@ -210,32 +189,11 @@
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
-      "CCACHE_COMPILERCHECK": "content",
-      "CCACHE_DIR": "[START_DIR]/cache/ccache",
-      "CCACHE_MAXFILES": "0",
-      "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
       "MACOSX_DEPLOYMENT_TARGET": "11.0",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja"
     },
     "name": "ninja"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/ccache_mac/bin/ccache",
-      "-s"
-    ],
-    "cwd": "[START_DIR]/cache/work/skia",
-    "env": {
-      "CCACHE_COMPILERCHECK": "content",
-      "CCACHE_DIR": "[START_DIR]/cache/ccache",
-      "CCACHE_MAXFILES": "0",
-      "CCACHE_MAXSIZE": "50G",
-      "CHROME_HEADLESS": "1",
-      "MACOSX_DEPLOYMENT_TARGET": "11.0",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja"
-    },
-    "name": "ccache stats-end"
   },
   {
     "cmd": [

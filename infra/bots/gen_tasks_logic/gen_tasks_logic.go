@@ -60,7 +60,7 @@ const (
 	DEBIAN_11_OS         = "Debian-11.5"
 	DEBIAN_10_OS         = "Debian-10.10"
 	DEFAULT_OS_LINUX_GCE = UBUNTU_24_04_OS
-	DEFAULT_OS_MAC       = "Mac-14.5"
+	DEFAULT_OS_MAC       = "Mac-15.7"
 	DEFAULT_OS_WIN_GCE   = "Windows-11-22631"
 	UBUNTU_20_04_OS      = "Ubuntu-20.04"
 	UBUNTU_22_04_OS      = "Ubuntu-22.04"
@@ -895,7 +895,7 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 			"Mac12":       "Mac-12",
 			"Mac13":       "Mac-13",
 			"Mac14":       "Mac-14.7", // Builds run on 14.5, tests on 14.7.
-			"Mac15":       "Mac-15.3",
+			"Mac15":       "Mac-15.7",
 			"Mokey":       "Android",
 			"MokeyGo32":   "Android",
 			"Ubuntu20.04": UBUNTU_20_04_OS,
@@ -990,6 +990,9 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 				},
 				"AppleM3": {
 					"MacBookPro15.3": {"cpu": "arm64-64-Apple_M3"},
+				},
+				"AppleM4": {
+					"MacMini16.10": {"cpu": "arm64-64-Apple_M4"},
 				},
 				"AppleIntel": {
 					"MacBookPro15.1": {"cpu": "x86-64"},
@@ -1086,6 +1089,7 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 				gpu, ok := map[string]string{
 					"AppleM1":             "AppleM1",
 					"AppleM3":             "apple:m3",
+					"AppleM4":             "apple:m4",
 					"IntelHD6000":         "8086:1626",
 					"IntelHD615":          "8086:591e",
 					"IntelIris5100":       "8086:0a2e",
@@ -1134,6 +1138,7 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 					"Mac13": "",
 					"Mac14": "Macmini9,1",
 				},
+				"MacMini16.10": "Mac16,10",
 				// TODO(borenet): This is currently resolving to multiple
 				// different actual device types.
 				"VMware7.1": "",
@@ -1167,10 +1172,18 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 			// Use many-core machines for Build tasks.
 			d["machine_type"] = MACHINE_TYPE_LARGE
 		} else if d["os"] == DEFAULT_OS_MAC {
-			// Mac CPU bots are no longer VMs.
-			d["cpu"] = "x86-64"
-			d["cores"] = "12"
-			delete(d, "gpu")
+			if b.MatchExtraConfig("iOS") {
+				// TODO(borenet): Remove this special case (and the associated
+				// machines) once the new machines have the certs needed to
+				// build for iOS.
+				d["os"] = "Mac-14.5"
+				d["cpu"] = "x86-64"
+				d["cores"] = "12"
+				delete(d, "gpu")
+			} else {
+				d["mac_model"] = "Mac16,10"
+				delete(d, "gpu")
+			}
 		}
 	}
 
@@ -1343,14 +1356,14 @@ func (b *jobBuilder) compile() string {
 					Name: "xcode",
 					Path: "cache/Xcode.app",
 				})
-				b.asset("ccache_mac")
-				b.usesCCache()
+				// b.asset("ccache_mac")
+				// b.usesCCache()
 				if b.MatchExtraConfig("iOS.*") {
 					b.asset("provisioning_profile_ios")
 				}
 				if b.shellsOutToBazel() {
-					// All of our current Mac compile machines are x64 Mac only.
-					b.usesBazel("mac_x64")
+					// All of our current Mac compile machines are arm64 Mac only.
+					b.usesBazel("mac_arm64")
 					b.attempts(1)
 				}
 			}

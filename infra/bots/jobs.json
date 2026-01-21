@@ -1095,6 +1095,15 @@
     "name": "Perf-Mac15-Clang-MacBookPro15.1-GPU-IntelUHDGraphics630-x86_64-Release-All-Metal"
   },
   {
+    "name": "Perf-Mac15-Clang-MacMini16.10-GPU-AppleM4-arm64-Release-All"
+  },
+  {
+    "name": "Perf-Mac15-Clang-MacMini16.10-GPU-AppleM4-arm64-Release-All-Graphite_Dawn_Metal"
+  },
+  {
+    "name": "Perf-Mac15-Clang-MacMini16.10-GPU-AppleM4-arm64-Release-All-Graphite_Native_Metal"
+  },
+  {
     "name": "Perf-Ubuntu22.04-Clang-ThinkCenter-GPU-RadeonVega8-x86_64-Release-All-Vulkan"
   },
   {
@@ -1751,6 +1760,60 @@
   },
   {
     "name": "Test-Mac15-Clang-MacBookPro15.1-GPU-IntelUHDGraphics630-x86_64-Release-All-Metal"
+  },
+  {
+    "name": "Test-Mac15-Clang-MacMini16.10-CPU-AppleM4-arm64-Debug-All"
+  },
+  {
+    "name": "Test-Mac15-Clang-MacMini16.10-CPU-AppleM4-arm64-Debug-All-NativeFonts"
+  },
+  {
+    "name": "Test-Mac15-Clang-MacMini16.10-CPU-AppleM4-arm64-Debug-All-NativeFonts_PDF"
+  },
+  {
+    "name": "Test-Mac15-Clang-MacMini16.10-GPU-AppleM4-arm64-Debug-All"
+  },
+  {
+    "name": "Test-Mac15-Clang-MacMini16.10-GPU-AppleM4-arm64-Debug-All-ASAN_Graphite_Dawn_Metal"
+  },
+  {
+    "name": "Test-Mac15-Clang-MacMini16.10-GPU-AppleM4-arm64-Debug-All-ASAN_Graphite_Native_Metal"
+  },
+  {
+    "name": "Test-Mac15-Clang-MacMini16.10-GPU-AppleM4-arm64-Debug-All-ASAN_Graphite_Native_Metal_ColorSpaces"
+  },
+  {
+    "name": "Test-Mac15-Clang-MacMini16.10-GPU-AppleM4-arm64-Debug-All-Graphite_Dawn_Metal_FakeWGPU"
+  },
+  {
+    "name": "Test-Mac15-Clang-MacMini16.10-GPU-AppleM4-arm64-Debug-All-Graphite_Native_Metal"
+  },
+  {
+    "name": "Test-Mac15-Clang-MacMini16.10-GPU-AppleM4-arm64-Debug-All-Metal"
+  },
+  {
+    "name": "Test-Mac15-Clang-MacMini16.10-GPU-AppleM4-arm64-Debug-All-NativeFonts"
+  },
+  {
+    "name": "Test-Mac15-Clang-MacMini16.10-GPU-AppleM4-arm64-Release-All-Graphite_Dawn_Metal"
+  },
+  {
+    "name": "Test-Mac15-Clang-MacMini16.10-GPU-AppleM4-arm64-Release-All-Graphite_Native_Metal"
+  },
+  {
+    "name": "Test-Mac15-Clang-MacMini16.10-GPU-AppleM4-arm64-Release-All-Graphite_Native_Metal_ColorSpaces"
+  },
+  {
+    "name": "Test-Mac15-Clang-MacMini16.10-GPU-AppleM4-arm64-Release-All-Graphite_Native_Metal_TestPrecompile"
+  },
+  {
+    "name": "Test-Mac15-Clang-MacMini16.10-GPU-AppleM4-arm64-Release-All-Metal"
+  },
+  {
+    "name": "Test-Mac15-Clang-MacMini16.10-GPU-AppleM4-arm64-Release-All-TSAN_Graphite_Dawn_Metal"
+  },
+  {
+    "name": "Test-Mac15-Clang-MacMini16.10-GPU-AppleM4-arm64-Release-All-TSAN_Graphite_Native_Metal"
   },
   {
     "name": "Test-Ubuntu22.04-Clang-ThinkCenter-GPU-RadeonVega8-x86_64-Debug-All-Vulkan"
