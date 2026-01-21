@@ -14,9 +14,15 @@ The destination folder for these files and symlinks are:
 
 load(":clang_layering_check.bzl", "generate_system_module_map")
 
-# https://chrome-infra-packages.appspot.com/p/skia/bots/clang_mac_universal/+/x3dttF6l3fGIF2iFgIAVnLyS5jIUS090wKvk9LHiFkEC
-clang_url = "https://chrome-infra-packages.appspot.com/dl/skia/bots/clang_mac_universal/+/version:0"
-clang_sha256 = "c7776db45ea5ddf1881768858080159cbc92e632144b4f74c0abe4f4b1e21641"
+# https://chrome-infra-packages.appspot.com/p/skia/bots/clang_mac_intel/+/NL1eTB6Iud2w7mk4TkMXSFpVZmzjF3Ms4BwDE130ZkQC
+clang_intel_url = "https://chrome-infra-packages.appspot.com/dl/skia/bots/clang_mac_intel/+/version:0"
+clang_intel_sha256 = "34bd5e4c1e88b9ddb0ee69384e4317485a55666ce317732ce01c03135df46644"
+
+# https://chrome-infra-packages.appspot.com/p/skia/bots/clang_mac_arm/+/lG-b1HzK2Qbd3ebEJvtaaF6iwbZgpcyu8xTerfoa2jAC
+clang_arm_url = "https://chrome-infra-packages.appspot.com/p/skia/bots/clang_mac_arm/+/version:0"
+clang_arm_sha256 = "199a04b8c22ef81b546afaf52265c0c29f52116f2a45de964aca93dc54b64312"
+
+# This should be the same across both arm and intel.
 clang_ver = "22"
 
 def _get_system_sdk_path(ctx):
@@ -57,6 +63,11 @@ def _download_mac_toolchain_impl(ctx):
 
     # Download the clang toolchain (the extraction can take a while)
     # https://bazel.build/rules/lib/repository_ctx#download_and_extract
+    clang_url = clang_intel_url
+    clang_sha256 = clang_intel_sha256
+    if "arm" in ctx.os.arch or "aarch64" in ctx.os.arch:
+        clang_url = clang_arm_url
+        clang_sha256 = clang_arm_sha256
     ctx.download_and_extract(
         url = clang_url,
         type = "zip",
