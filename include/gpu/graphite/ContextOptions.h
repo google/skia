@@ -71,13 +71,6 @@ struct SK_API ContextOptions {
     float fMinimumPathSizeForMSAA = 0;
 
     /**
-     * Will the client make sure to only ever be executing one thread that uses the Context and all
-     * derived classes (e.g. Recorders, Recordings, etc.) at a time. If so we can possibly make some
-     * objects (e.g. VulkanMemoryAllocator) not thread safe to improve single thread performance.
-     */
-    bool fClientWillExternallySynchronizeAllThreads = false;
-
-    /**
      * The maximum size of cache textures used for Skia's Glyph cache.
      */
     size_t fGlyphCacheTextureMaximumBytes = 2048 * 1024 * 4;
@@ -141,17 +134,6 @@ struct SK_API ContextOptions {
 #else
     bool fSetBackendLabels = false;
 #endif
-
-    /**
-     * If Skia is creating a default VMA allocator for the Vulkan backend this value will be used
-     * for the preferredLargeHeapBlockSize. If the value is not set, then Skia will use an
-     * internally defined default size.
-     *
-     * However, it is highly discouraged to have Skia make a default allocator (and support for
-     * doing so will be removed soon,  b/321962001). Instead clients should create their own
-     * allocator to pass into Skia where they can fine tune this value themeselves.
-     */
-    std::optional<uint64_t> fVulkanVMALargeHeapBlockSize;
 
     /**
      * Client-provided context that is passed to the client-provided PipelineCachingCallback

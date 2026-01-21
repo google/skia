@@ -83,11 +83,9 @@ sk_sp<SharedContext> VulkanSharedContext::Make(const VulkanBackendContext& conte
 #if defined(SK_USE_VMA)
     if (!memoryAllocator) {
         // We were not given a memory allocator at creation
-        skgpu::ThreadSafe threadSafe = options.fClientWillExternallySynchronizeAllThreads
-                                               ? skgpu::ThreadSafe::kNo
-                                               : skgpu::ThreadSafe::kYes;
+        constexpr skgpu::ThreadSafe kThreadSafe = skgpu::ThreadSafe::kYes;
         memoryAllocator = skgpu::VulkanMemoryAllocators::Make(context,
-                                                              threadSafe);
+                                                              kThreadSafe);
     }
 #endif
     if (!memoryAllocator) {
