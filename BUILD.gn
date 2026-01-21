@@ -107,6 +107,9 @@ config("skia_private") {
   if (skia_use_gl && skia_use_angle) {
     defines += [ "SK_ANGLE" ]
   }
+  if (skia_use_vma) {
+    defines += [ "SK_USE_VMA" ]
+  }
   if (skia_enable_winuwp) {
     defines += [ "SK_WINUWP" ]
   }
@@ -911,7 +914,7 @@ optional("gpu_shared") {
     if (skia_enable_vulkan_debug_layers) {
       public_defines += [ "SK_ENABLE_VK_LAYERS" ]
     }
-    if (skia_use_vma || skia_use_backup_vma) {
+    if (skia_use_vma) {
       sources += skia_vma_sources
       public_deps += [ "src/gpu/vk/vulkanmemoryallocator" ]
     }
@@ -925,10 +928,6 @@ optional("gpu_shared") {
   if (is_android) {
     sources += skia_shared_android_sources
   }
-}
-
-config("use_backup_vma") {
-  defines = [ "SK_USE_VMA" ]
 }
 
 optional("gpu") {
@@ -1019,9 +1018,6 @@ optional("gpu") {
     configs += [ ":use_skia_vulkan_headers" ]
     if (is_android) {
       sources += skia_gpu_vk_android_private
-    }
-    if (skia_use_backup_vma) {
-      configs += [ ":use_backup_vma" ]
     }
   }
 
@@ -1210,9 +1206,6 @@ optional("graphite") {
         #spvtools depends on this but doesn't deps it in.
         "//third_party/externals/spirv-tools:spvtools_val",
       ]
-    }
-    if (skia_use_backup_vma) {
-      configs += [ ":use_backup_vma" ]
     }
   }
   if (skia_enable_precompile) {
