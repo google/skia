@@ -962,6 +962,7 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 				"Cherry":   "16002.30.0",
 				"Guybrush": "16002.27.0",
 				"Octopus":  "16002.21.0",
+				"Corsola":  "16200.0.0",
 				"Trogdor":  "16002.26.0",
 			}[b.Parts["model"]]
 			if !ok {

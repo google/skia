@@ -103,6 +103,10 @@ def compile_fn(api, checkout_root, out_dir):
       '-L%s' % os.path.join(sysroot_dir, 'gcc-cross'),
       '-L%s' % os.path.join(sysroot_dir, 'lib'),
       '-L%s' % os.path.join(gl_dir, 'lib'),
+      # Explicitly link atomics.
+      '-Wl,-u,__aarch64_swp4_acq_rel',
+      '-Wl,-u,__aarch64_cas4_acq_rel',
+      os.path.join(sysroot_dir, 'gcc-cross', 'libgcc.a'),
     ]
   else:
     gl_dir = os.path.join(top_level,'chromebook_x86_64_gles')
