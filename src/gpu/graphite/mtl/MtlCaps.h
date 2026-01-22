@@ -146,7 +146,7 @@ private:
     MTLPixelFormat fColorTypeToFormatTable[kSkColorTypeCnt];
     void setColorType(SkColorType, std::initializer_list<MTLPixelFormat> formats);
 
-    SkEnumBitMask<SampleCount::V> fSupportedSampleCounts;
+    SkEnumBitMask<SampleCount> fSupportedSampleCounts;
 
     GPUFamily fGPUFamily;
     int fFamilyGroup;
