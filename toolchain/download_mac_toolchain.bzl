@@ -19,8 +19,8 @@ clang_intel_url = "https://chrome-infra-packages.appspot.com/dl/skia/bots/clang_
 clang_intel_sha256 = "34bd5e4c1e88b9ddb0ee69384e4317485a55666ce317732ce01c03135df46644"
 
 # https://chrome-infra-packages.appspot.com/p/skia/bots/clang_mac_arm/+/lG-b1HzK2Qbd3ebEJvtaaF6iwbZgpcyu8xTerfoa2jAC
-clang_arm_url = "https://chrome-infra-packages.appspot.com/p/skia/bots/clang_mac_arm/+/version:0"
-clang_arm_sha256 = "199a04b8c22ef81b546afaf52265c0c29f52116f2a45de964aca93dc54b64312"
+clang_arm_url = "https://chrome-infra-packages.appspot.com/dl/skia/bots/clang_mac_arm/+/version:0"
+clang_arm_sha256 = "946f9bd47ccad906dddde6c426fb5a685ea2c1b660a5ccaef314deadfa1ada30"
 
 # This should be the same across both arm and intel.
 clang_ver = "22"
