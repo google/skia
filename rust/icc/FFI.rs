@@ -439,71 +439,16 @@ fn apply_encoding_factor(
     }
 }
 
-/// Convert moxcms parametric curve parameters to TransferFunction.
-/// Supports all 5 ICC parametric curve types (kG, kGAB, kGABC, kGABCD, kGABCDEF).
-/// TODO(crbug.com/462751628): This function implementation is the same as
-/// moxcms::ParametricCurve::new() but we cannot use it as it is private.
-/// Consider contributing its public exposure to moxcms.
-/// https://github.com/awxkee/moxcms/blob/ce70195bb0f4a911671eea2695f9298d3e77ebe7/src/trc.rs#L234C1-L288C6
-#[allow(clippy::many_single_char_names)]
-fn params_to_transfer_function(params: &[f32]) -> Option<ffi::TransferFunction> {
-    if params.is_empty() {
-        return None;
-    }
-
-    let g = params[0];
-    match &params[1..] {
-        // kG (function type 0): simple gamma, y = x^g
-        [] => Some(ffi::TransferFunction {
-            g,
-            a: 1.0,
-            b: 0.0,
-            c: 0.0,
-            d: 0.0,
-            e: 0.0,
-            f: 0.0,
-        }),
-        // kGAB (function type 1): y = (a*x + b)^g  for x >= -b/a, else 0
-        [a, b] => Some(ffi::TransferFunction {
-            g,
-            a: *a,
-            b: *b,
-            c: 0.0,
-            d: -b / a,
-            e: 0.0,
-            f: 0.0,
-        }),
-        // kGABC (function type 2): y = (a*x + b)^g + c  for x >= -b/a, else c
-        [a, b, c] => Some(ffi::TransferFunction {
-            g,
-            a: *a,
-            b: *b,
-            c: 0.0,
-            d: -b / a,
-            e: *c,
-            f: *c,
-        }),
-        // kGABCD (function type 3): y = (a*x + b)^g  for x >= d, else c*x
-        [a, b, c, d] => Some(ffi::TransferFunction {
-            g,
-            a: *a,
-            b: *b,
-            c: *c,
-            d: *d,
-            e: 0.0,
-            f: 0.0,
-        }),
-        // kGABCDEF (function type 4): full 7-parameter curve
-        [a, b, c, d, e, f] => Some(ffi::TransferFunction {
-            g,
-            a: *a,
-            b: *b,
-            c: *c,
-            d: *d,
-            e: *e,
-            f: *f,
-        }),
-        _ => None,
+/// Convert moxcms ParametricCurve to FFI TransferFunction.
+fn parametric_curve_to_transfer_function(curve: &moxcms::ParametricCurve) -> ffi::TransferFunction {
+    ffi::TransferFunction {
+        g: curve.g,
+        a: curve.a,
+        b: curve.b,
+        c: curve.c,
+        d: curve.d,
+        e: curve.e,
+        f: curve.f,
     }
 }
 
@@ -515,9 +460,9 @@ fn convert_to_curve(trc: &moxcms::ToneReprCurve) -> Option<ffi::Curve> {
 
     match trc {
         ToneReprCurve::Parametric(params) => {
-            params_to_transfer_function(params).map(|tf| ffi::Curve {
+            moxcms::ParametricCurve::new(params).map(|curve| ffi::Curve {
                 table_entries: 0,
-                parametric: tf,
+                parametric: parametric_curve_to_transfer_function(&curve),
                 table_data: Vec::new(),
             })
         }
@@ -691,7 +636,8 @@ fn convert_trc_to_transfer_function(trc: &moxcms::ToneReprCurve) -> Option<ffi::
         ToneReprCurve::Parametric(params) => {
             // moxcms parametric curve: Vec<f32> with 7 parameters (g, a, b, c, d, e, f)
             // Matches skcms transfer function layout
-            params_to_transfer_function(params)
+            moxcms::ParametricCurve::new(params)
+                .map(|curve| parametric_curve_to_transfer_function(&curve))
         }
         ToneReprCurve::Lut(table) => {
             // In ICC, a single u16 value represents gamma in 8.8 fixed-point
@@ -1205,26 +1151,5 @@ mod tests {
         assert_eq!(bytes[2..4], [0xFF, 0x00]);
         assert_eq!(bytes[4..6], [0x00, 0xFF]);
         assert_eq!(bytes[6..8], [0xFF, 0xFF]);
-    }
-
-    #[test]
-    fn test_params_to_transfer_function() {
-        // Test with valid 7 parameters
-        let params = vec![2.2, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0];
-        let result = params_to_transfer_function(&params);
-        assert!(result.is_some());
-        let tf = result.unwrap();
-        assert_eq!(tf.g, 2.2);
-        assert_eq!(tf.a, 1.0);
-
-        // Test with too few parameters
-        let params_short = vec![2.2, 1.0];
-        let result_short = params_to_transfer_function(&params_short);
-        assert!(result_short.is_none());
-
-        // Test with more than 7 parameters (should still work)
-        let params_long = vec![2.2, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 99.0, 99.0];
-        let result_long = params_to_transfer_function(&params_long);
-        assert!(result_long.is_none());
     }
 }
