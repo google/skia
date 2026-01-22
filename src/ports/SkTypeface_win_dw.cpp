@@ -188,6 +188,9 @@ DWriteFontTypeface::DWriteFontTypeface(const SkFontStyle& style,
     if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace2))) {
         SkASSERT_RELEASE(nullptr == fDWriteFontFace2.get());
     }
+    if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace3))) {
+        SkASSERT_RELEASE(nullptr == fDWriteFontFace3.get());
+    }
     if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace4))) {
         SkASSERT_RELEASE(nullptr == fDWriteFontFace4.get());
     }
@@ -317,6 +320,9 @@ void DWriteFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
     sk_careful_memcpy(desc->setPaletteEntryOverrides(fRequestedPalette.overrideCount),
                       fRequestedPalette.overrides,
                       fRequestedPalette.overrideCount * sizeof(fRequestedPalette.overrides[0]));
+
+    desc->setSyntheticBold(this->isSyntheticBold());
+    desc->setSyntheticOblique(this->isSyntheticOblique());
 
     desc->setFactoryId(FactoryId);
     *serialize = SkToBool(fLoaders);
@@ -499,6 +505,14 @@ int DWriteFontTypeface::onGetVariationDesignParameters(
 #endif
 }
 
+bool DWriteFontTypeface::onIsSyntheticBold() const {
+    return fDWriteFontFace->GetSimulations() & DWRITE_FONT_SIMULATIONS_BOLD;
+}
+
+bool DWriteFontTypeface::onIsSyntheticOblique() const {
+    return fDWriteFontFace->GetSimulations() & DWRITE_FONT_SIMULATIONS_OBLIQUE;
+}
+
 int DWriteFontTypeface::onGetTableTags(SkSpan<SkFontTableTag> tags) const {
     DWRITE_FONT_FACE_TYPE type = fDWriteFontFace->GetType();
     if (type != DWRITE_FONT_FACE_TYPE_CFF &&
@@ -538,7 +552,7 @@ sk_sp<SkData> DWriteFontTypeface::onCopyTableData(SkFontTableTag tag) const {
     void* lock;
     BOOL exists;
     fDWriteFontFace->TryGetFontTable(SkEndian_SwapBE32(tag),
-            reinterpret_cast<const void **>(&data), &size, &lock, &exists);
+                                     reinterpret_cast<const void**>(&data), &size, &lock, &exists);
     if (!exists) {
         return nullptr;
     }
@@ -557,6 +571,24 @@ sk_sp<SkTypeface> DWriteFontTypeface::onMakeClone(const SkFontArguments& args) c
     // Skip if the current face index does not match the ttcIndex
     if (fDWriteFontFace->GetIndex() != SkTo<UINT32>(args.getCollectionIndex())) {
         return sk_ref_sp(this);
+    }
+
+    // Any "don't care" resolve to existing
+    DWRITE_FONT_SIMULATIONS originalSimulations = fDWriteFont->GetSimulations();
+    DWRITE_FONT_SIMULATIONS requestedSimulations = originalSimulations;
+    if (args.getSyntheticBold().has_value()) {
+        if (args.getSyntheticBold().value()) {
+            requestedSimulations |= DWRITE_FONT_SIMULATIONS_BOLD;
+        } else {
+            requestedSimulations &= ~DWRITE_FONT_SIMULATIONS_BOLD;
+        }
+    }
+    if (args.getSyntheticOblique().has_value()) {
+        if (args.getSyntheticOblique().value()) {
+            requestedSimulations |= DWRITE_FONT_SIMULATIONS_OBLIQUE;
+        } else {
+            requestedSimulations &= ~DWRITE_FONT_SIMULATIONS_OBLIQUE;
+        }
     }
 
 #if defined(NTDDI_WIN10_RS3) && NTDDI_VERSION >= NTDDI_WIN10_RS3
@@ -581,7 +613,7 @@ sk_sp<SkTypeface> DWriteFontTypeface::onMakeClone(const SkFontArguments& args) c
         SkTScopedComPtr<IDWriteFontResource> fontResource;
         HRN(fontFace5->GetFontResource(&fontResource));
         SkTScopedComPtr<IDWriteFontFace5> newFontFace5;
-        HRN(fontResource->CreateFontFace(fDWriteFont->GetSimulations(),
+        HRN(fontResource->CreateFontFace(requestedSimulations,
                                          fontAxisValue.get(),
                                          fontAxisCount,
                                          &newFontFace5));
@@ -597,6 +629,24 @@ sk_sp<SkTypeface> DWriteFontTypeface::onMakeClone(const SkFontArguments& args) c
     }
 
 #endif
+
+    // If a simulations have changed, a new DirectWrite font will need to be created.
+    if (fDWriteFontFace3 && requestedSimulations != originalSimulations) {
+        SkTScopedComPtr<IDWriteFontFaceReference> fontReference;
+        HRN(fDWriteFontFace3->GetFontFaceReference(&fontReference));
+        SkTScopedComPtr<IDWriteFontFace3> newFontFace3;
+        HRN(fontReference->CreateFontFaceWithSimulations(requestedSimulations, &newFontFace3));
+        if (newFontFace3) {
+            SkTScopedComPtr<IDWriteFontFace> newFontFace;
+            HRN(newFontFace3->QueryInterface(&newFontFace));
+            return DWriteFontTypeface::Make(fFactory.get(),
+                                            newFontFace.get(),
+                                            fDWriteFont.get(),
+                                            fDWriteFontFamily.get(),
+                                            fLoaders,
+                                            args.getPalette());
+        }
+    }
 
     // If the palette args have changed, a new font will need to be created.
     if (args.getPalette().index != fRequestedPalette.index ||
@@ -1156,6 +1206,38 @@ sk_sp<SkTypeface> DWriteFontTypeface::MakeFromStream(std::unique_ptr<SkStreamAss
     HRN(factory->CreateCustomFontCollection(fontCollectionLoader.get(), nullptr, 0,
         &fontCollection));
 
+    struct BestMatch {
+        UINT32 familyIndex = 0;
+        UINT32 fontIndex = 0;
+        int distance = 0;
+    };
+    std::optional<BestMatch> bestMatch;
+
+    // R is the request (known), A is the actual (for each font).
+    // Value is distance from match.
+    // As with CSS3 Oblique matches tighter than Weight.
+    // "Don't care" prefers no simulation.
+    static constexpr uint8_t simulationDistances[9][4] = {
+        //  R\A  ob oB Ob OB
+        {/*--*/  0, 1, 2, 3},
+        {/*-b*/  0, 1, 2, 3},
+        {/*-B*/  2, 0, 3, 1},
+        {/*o-*/  0, 1, 2, 3},
+        {/*ob*/  0, 1, 2, 3},
+        {/*oB*/  1, 0, 3, 2},
+        {/*O-*/  2, 3, 0, 1},
+        {/*Ob*/  2, 3, 0, 1},
+        {/*OB*/  3, 2, 1, 0},
+    };
+    size_t simulationRequestIndex = 0;
+    if (args.getSyntheticBold().has_value()) {
+        simulationRequestIndex += args.getSyntheticBold().value() ? 2 : 1;
+    }
+    if (args.getSyntheticOblique().has_value()) {
+        simulationRequestIndex += args.getSyntheticOblique().value() ? 2 * 3 : 1 * 3;
+    }
+    const uint8_t (&actualSimulationDistances)[4] = simulationDistances[simulationRequestIndex];
+
     // Find the first non-simulated font which has the given ttc index.
     UINT32 familyCount = fontCollection->GetFontFamilyCount();
     for (UINT32 familyIndex = 0; familyIndex < familyCount; ++familyIndex) {
@@ -1167,10 +1249,6 @@ sk_sp<SkTypeface> DWriteFontTypeface::MakeFromStream(std::unique_ptr<SkStreamAss
             SkTScopedComPtr<IDWriteFont> font;
             HRN(fontFamily->GetFont(fontIndex, &font));
 
-            // Skip if the current font is simulated
-            if (font->GetSimulations() != DWRITE_FONT_SIMULATIONS_NONE) {
-                continue;
-            }
             SkTScopedComPtr<IDWriteFontFace> fontFace;
             HRN(font->CreateFontFace(&fontFace));
             int faceIndex = fontFace->GetIndex();
@@ -1181,16 +1259,36 @@ sk_sp<SkTypeface> DWriteFontTypeface::MakeFromStream(std::unique_ptr<SkStreamAss
                 continue;
             }
 
-            apply_fontargument_variation(fontFace, args);
-
-            return DWriteFontTypeface::Make(
-                factory, fontFace.get(), font.get(), fontFamily.get(),
-                sk_make_sp<DWriteFontTypeface::Loaders>(
-                    factory,
-                    autoUnregisterFontFileLoader.detatch(),
-                    autoUnregisterFontCollectionLoader.detatch()),
-                args.getPalette());
+            // Find match the lowest distance from the request.
+            const uint8_t distance = actualSimulationDistances[font->GetSimulations() & 0x3];
+            if (bestMatch.has_value()) {
+                if (distance < bestMatch->distance) {
+                    bestMatch = {familyIndex, fontIndex, distance};
+                }
+            } else {
+                bestMatch = {familyIndex, fontIndex, distance};
+            }
         }
+    }
+    if (bestMatch.has_value()) {
+        SkTScopedComPtr<IDWriteFontFamily> fontFamily;
+        HRN(fontCollection->GetFontFamily(bestMatch->familyIndex, &fontFamily));
+
+        SkTScopedComPtr<IDWriteFont> font;
+        HRN(fontFamily->GetFont(bestMatch->fontIndex, &font));
+
+        SkTScopedComPtr<IDWriteFontFace> fontFace;
+        HRN(font->CreateFontFace(&fontFace));
+
+        apply_fontargument_variation(fontFace, args);
+
+        return DWriteFontTypeface::Make(
+            factory, fontFace.get(), font.get(), fontFamily.get(),
+            sk_make_sp<DWriteFontTypeface::Loaders>(
+                factory,
+                autoUnregisterFontFileLoader.detatch(),
+                autoUnregisterFontCollectionLoader.detatch()),
+            args.getPalette());
     }
 
     return nullptr;

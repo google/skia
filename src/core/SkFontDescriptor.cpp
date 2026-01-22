@@ -31,6 +31,8 @@ enum {
     kItalic         = 0x13, // scalar (0 is Roman, 1 is fully Italic)
 
     // Related to font data. Can also be used with a requested font.
+    kSyntheticBold  = 0xF6, // no data
+    kSyntheticOblique = 0xF7, // no data
     kPaletteIndex   = 0xF8, // int
     kPaletteEntryOverrides = 0xF9, // int count, (int, u32)[count]
     kFontVariation  = 0xFA, // int count, (u32, scalar)[count]
@@ -43,6 +45,32 @@ enum {
 
 SkFontDescriptor::SkFontDescriptor() { }
 
+static bool write_id(SkWStream* stream, uint32_t id) {
+    return stream->writePackedUInt(id);
+}
+static bool write_string(SkWStream* stream, const SkString& string, uint32_t id) {
+    if (string.isEmpty()) { return true; }
+    return write_id(stream, id) &&
+           stream->writePackedUInt(string.size()) &&
+           stream->write(string.c_str(), string.size());
+}
+
+static bool write_uint(SkWStream* stream, size_t n, uint32_t id) {
+    return write_id(stream, id) &&
+           stream->writePackedUInt(n);
+}
+
+static bool write_scalar(SkWStream* stream, SkScalar n, uint32_t id) {
+    return write_id(stream, id) &&
+           stream->writeScalar(n);
+}
+
+[[nodiscard]] static size_t read_id(SkStream* stream) {
+    size_t i;
+    if (!stream->readPackedUInt(&i)) { return kInvalid; }
+    return i;
+}
+
 [[nodiscard]] static bool read_string(SkStream* stream, SkString* string) {
     size_t length;
     if (!stream->readPackedUInt(&length)) { return false; }
@@ -54,29 +82,6 @@ SkFontDescriptor::SkFontDescriptor() { }
         if (stream->read(string->data(), length) != length) { return false; }
     }
     return true;
-}
-
-static bool write_string(SkWStream* stream, const SkString& string, uint32_t id) {
-    if (string.isEmpty()) { return true; }
-    return stream->writePackedUInt(id) &&
-           stream->writePackedUInt(string.size()) &&
-           stream->write(string.c_str(), string.size());
-}
-
-static bool write_uint(SkWStream* stream, size_t n, uint32_t id) {
-    return stream->writePackedUInt(id) &&
-           stream->writePackedUInt(n);
-}
-
-static bool write_scalar(SkWStream* stream, SkScalar n, uint32_t id) {
-    return stream->writePackedUInt(id) &&
-           stream->writeScalar(n);
-}
-
-[[nodiscard]] static size_t read_id(SkStream* stream) {
-    size_t i;
-    if (!stream->readPackedUInt(&i)) { return kInvalid; }
-    return i;
 }
 
 static constexpr SkScalar usWidths[9] {
@@ -190,6 +195,12 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
                     }
                 }
                 break;
+            case kSyntheticBold:
+                result->fSyntheticBold = true;
+                break;
+            case kSyntheticOblique:
+                result->fSyntheticOblique = true;
+                break;
             case kFactoryId:
                 if (!stream->readPackedUInt(&factoryId)) { return false; }
                 if (!SkTFitsIn<FactoryIdType>(factoryId)) { return false; }
@@ -255,6 +266,12 @@ void SkFontDescriptor::serialize(SkWStream* stream) const {
             stream->writePackedUInt(fPaletteEntryOverrides[i].index);
             stream->write32(fPaletteEntryOverrides[i].color);
         }
+    }
+    if (fSyntheticBold) {
+        write_id(stream, kSyntheticBold);
+    }
+    if (fSyntheticOblique) {
+        write_id(stream, kSyntheticOblique);
     }
 
     write_uint(stream, fFactoryId, kFactoryId);

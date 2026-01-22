@@ -79,6 +79,7 @@ public:
     SkTScopedComPtr<IDWriteFontFace> fDWriteFontFace;
     SkTScopedComPtr<IDWriteFontFace1> fDWriteFontFace1;
     SkTScopedComPtr<IDWriteFontFace2> fDWriteFontFace2;
+    SkTScopedComPtr<IDWriteFontFace3> fDWriteFontFace3;
     SkTScopedComPtr<IDWriteFontFace4> fDWriteFontFace4;
     // Once WDK 10.0.25357.0 or newer is required to build, fDWriteFontFace7 can be a smart pointer.
     // If a smart pointer is used then ~DWriteFontTypeface must call the smart pointer's destructor,
@@ -135,6 +136,8 @@ protected:
     int onGetVariationDesignPosition(
                              SkSpan<SkFontArguments::VariationPosition::Coordinate>) const override;
     int onGetVariationDesignParameters(SkSpan<SkFontParameters::Variation::Axis>) const override;
+    bool onIsSyntheticBold() const override;
+    bool onIsSyntheticOblique() const override;
     int onGetTableTags(SkSpan<SkFontTableTag>) const override;
     size_t onGetTableData(SkFontTableTag, size_t offset, size_t length, void* data) const override;
     sk_sp<SkData> onCopyTableData(SkFontTableTag) const override;

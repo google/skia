@@ -113,6 +113,8 @@ public:
     const SkFontArguments::Palette::Override* getPaletteEntryOverrides() const {
         return fPaletteEntryOverrides.get();
     }
+    bool getSyntheticBold() const { return fSyntheticBold; }
+    bool getSyntheticOblique() const { return fSyntheticOblique; }
     SkTypeface::FactoryId getFactoryId() {
         return fFactoryId;
     }
@@ -129,6 +131,8 @@ public:
         fPaletteEntryOverrideCount = paletteEntryOverrideCount;
         return fPaletteEntryOverrides.reset(paletteEntryOverrideCount);
     }
+    void setSyntheticBold(bool bold) { fSyntheticBold = bold; }
+    void setSyntheticOblique(bool oblique) { fSyntheticOblique = oblique; }
     void setFactoryId(SkTypeface::FactoryId factoryId) {
         fFactoryId = factoryId;
     }
@@ -139,7 +143,9 @@ public:
             .setVariationDesignPosition({this->getVariation(),this->getVariationCoordinateCount()})
             .setPalette({this->getPaletteIndex(),
                          this->getPaletteEntryOverrides(),
-                         this->getPaletteEntryOverrideCount()});
+                         this->getPaletteEntryOverrideCount()})
+            .setSyntheticBold(fSyntheticBold)
+            .setSyntheticOblique(fSyntheticOblique);
     }
     static SkFontStyle::Width SkFontStyleWidthForWidthAxisValue(SkScalar width);
     static SkScalar SkFontWidthAxisValueForStyleWidth(int width);
@@ -159,6 +165,8 @@ private:
     int fPaletteIndex = 0;
     int fPaletteEntryOverrideCount = 0;
     skia_private::AutoTMalloc<SkFontArguments::Palette::Override> fPaletteEntryOverrides;
+    bool fSyntheticBold = false;
+    bool fSyntheticOblique = false;
     SkTypeface::FactoryId fFactoryId = 0;
 };
 

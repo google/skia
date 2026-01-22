@@ -56,10 +56,10 @@ public:
     /** Returns the typeface's intrinsic style attributes. */
     SkFontStyle fontStyle() const;
 
-    /** Returns true if style() has the kBold bit set. */
+    /** Returns true if fontStyle() weight is at least semi bold */
     bool isBold() const;
 
-    /** Returns true if style() has the kItalic bit set. */
+    /** Returns true if fontStyle() is not upright. */
     bool isItalic() const;
 
     /** Returns true if the typeface claims to be fixed-pitch.
@@ -91,6 +91,12 @@ public:
      *  cannot.
      */
     int getVariationDesignParameters(SkSpan<SkFontParameters::Variation::Axis> parameters) const;
+
+    /** Returns true if the typeface is internally being fake bolded. */
+    bool isSyntheticBold() const;
+
+    /** Returns true if the typeface is internally being fake obliqued. */
+    bool isSyntheticOblique() const;
 
     /** Return a 32bit value for this typeface, unique for the underlying font
         data. Will never return 0.
@@ -422,6 +428,9 @@ protected:
                                  SkSpan<SkFontArguments::VariationPosition::Coordinate>) const = 0;
 
     virtual int onGetVariationDesignParameters(SkSpan<SkFontParameters::Variation::Axis>) const = 0;
+
+    virtual bool onIsSyntheticBold() const;
+    virtual bool onIsSyntheticOblique() const;
 
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const = 0;
 
