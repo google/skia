@@ -918,6 +918,9 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 			d["os"] = DEFAULT_OS_WIN_GCE
 			d["gce"] = "1"
 		}
+		if os == "Win11" && b.GPU("IntelUHDGraphics770") {
+			d["os"] = "Windows-11-26200.6584"
+		}
 		if strings.Contains(os, "iOS") {
 			d["pool"] = "SkiaIOS"
 			if b.Model("iPhone11") {
@@ -1050,18 +1053,19 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 			// It's a GPU job.
 			if b.MatchOs("Win") {
 				gpu, ok := map[string]string{
-					"GTX1660":       "10de:2184-31.0.15.4601",
-					"IntelHD4400":   "8086:0a16-10.0.26100.1",
-					"IntelIris540":  "8086:1926-26.20.100.7528",
-					"IntelIris6100": "8086:162b-20.19.15.5171",
-					"IntelIris655":  "8086:3ea5-26.20.100.7463",
-					"IntelIrisXe":   "8086:9a49-31.0.101.5333",
-					"RadeonHD7770":  "1002:683d-26.20.13031.18002",
-					"RadeonR9M470X": "1002:6646-21.19.136.0",
-					"QuadroP400":    "10de:1cb3-31.0.15.5222",
-					"RadeonVega6":   "1002:1636-31.0.14057.5006",
-					"RadeonVega8":   "1002:1638-31.0.21916.2",
-					"RTX3060":       "10de:2489-32.0.15.7270",
+					"GTX1660":             "10de:2184-31.0.15.4601",
+					"IntelHD4400":         "8086:0a16-10.0.26100.1",
+					"IntelIris540":        "8086:1926-26.20.100.7528",
+					"IntelIris6100":       "8086:162b-20.19.15.5171",
+					"IntelIris655":        "8086:3ea5-26.20.100.7463",
+					"IntelIrisXe":         "8086:9a49-31.0.101.5333",
+					"IntelUHDGraphics770": "8086:a780-31.0.101.5333",
+					"RadeonHD7770":        "1002:683d-26.20.13031.18002",
+					"RadeonR9M470X":       "1002:6646-21.19.136.0",
+					"QuadroP400":          "10de:1cb3-31.0.15.5222",
+					"RadeonVega6":         "1002:1636-31.0.14057.5006",
+					"RadeonVega8":         "1002:1638-31.0.21916.2",
+					"RTX3060":             "10de:2489-32.0.15.7270",
 				}[b.Parts["cpu_or_gpu_value"]]
 				if !ok {
 					log.Fatalf("Entry %q not found in Win GPU mapping.", b.Parts["cpu_or_gpu_value"])

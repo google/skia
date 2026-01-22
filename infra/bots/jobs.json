@@ -1266,6 +1266,24 @@
     "name": "Perf-Win11-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All-Graphite_Dawn_D3D11"
   },
   {
+    "name": "Perf-Win11-Clang-OptiPlex7010-GPU-IntelUHDGraphics770-x86_64-Release-All-ANGLE"
+  },
+  {
+    "name": "Perf-Win11-Clang-OptiPlex7010-GPU-IntelUHDGraphics770-x86_64-Release-All-Graphite_Dawn_D3D11"
+  },
+  {
+    "name": "Perf-Win11-Clang-OptiPlex7010-GPU-IntelUHDGraphics770-x86_64-Release-All-Graphite_Dawn_D3D12"
+  },
+  {
+    "name": "Perf-Win11-Clang-OptiPlex7010-GPU-IntelUHDGraphics770-x86_64-Release-All-Graphite_Dawn_Vulkan"
+  },
+  {
+    "name": "Perf-Win11-Clang-OptiPlex7010-GPU-IntelUHDGraphics770-x86_64-Release-All-Graphite_Native_Vulkan"
+  },
+  {
+    "name": "Perf-Win11-Clang-OptiPlex7010-GPU-IntelUHDGraphics770-x86_64-Release-All-Vulkan"
+  },
+  {
     "name": "Perf-Win11-Clang-ThinkCenter-GPU-RadeonVega8-x86_64-Release-All-ANGLE"
   },
   {
@@ -2348,6 +2366,36 @@
   },
   {
     "name": "Test-Win11-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All-Graphite_Dawn_D3D11"
+  },
+  {
+    "name": "Test-Win11-Clang-OptiPlex7010-GPU-IntelUHDGraphics770-x86_64-Debug-All-ANGLE"
+  },
+  {
+    "name": "Test-Win11-Clang-OptiPlex7010-GPU-IntelUHDGraphics770-x86_64-Debug-All-Graphite_Dawn_D3D11"
+  },
+  {
+    "name": "Test-Win11-Clang-OptiPlex7010-GPU-IntelUHDGraphics770-x86_64-Debug-All-Graphite_Dawn_Vulkan"
+  },
+  {
+    "name": "Test-Win11-Clang-OptiPlex7010-GPU-IntelUHDGraphics770-x86_64-Debug-All-Graphite_Native_Vulkan"
+  },
+  {
+    "name": "Test-Win11-Clang-OptiPlex7010-GPU-IntelUHDGraphics770-x86_64-Debug-All-Vulkan"
+  },
+  {
+    "name": "Test-Win11-Clang-OptiPlex7010-GPU-IntelUHDGraphics770-x86_64-Release-All-ANGLE"
+  },
+  {
+    "name": "Test-Win11-Clang-OptiPlex7010-GPU-IntelUHDGraphics770-x86_64-Release-All-Graphite_Dawn_D3D11"
+  },
+  {
+    "name": "Test-Win11-Clang-OptiPlex7010-GPU-IntelUHDGraphics770-x86_64-Release-All-Graphite_Dawn_Vulkan"
+  },
+  {
+    "name": "Test-Win11-Clang-OptiPlex7010-GPU-IntelUHDGraphics770-x86_64-Release-All-Graphite_Native_Vulkan"
+  },
+  {
+    "name": "Test-Win11-Clang-OptiPlex7010-GPU-IntelUHDGraphics770-x86_64-Release-All-Vulkan"
   },
   {
     "name": "Test-Win11-Clang-ThinkCenter-GPU-RadeonVega8-x86_64-Debug-All-ANGLE"

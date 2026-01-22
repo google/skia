@@ -592,12 +592,11 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 						skip(ALL, "test", ALL, "PersistentPipelineStorageTest")
 					}
 
-					if b.MatchOs("Win11") &&
-						(b.GPU("RTX3060") || b.GPU("GTX1660") || b.GPU("IntelIrisXe")) {
-						// These 3 GPUs are failing this test on Win11 (b/462240488)
+					if b.MatchOs("Win11") && b.GPU("RTX3060", "GTX1660", "IntelIrisXe", "IntelUHDGraphics770") {
+						// These GPUs are failing this test on Win11 (b/462240488)
 						skip(ALL, "test", ALL, "PersistentPipelineStorageTest")
 					}
-					if b.MatchOs("Win11") && b.GPU("IntelIrisXe") {
+					if b.MatchOs("Win11") && b.GPU("IntelIrisXe", "IntelUHDGraphics770") {
 						// skbug.com/470073298
 						skip(ALL, "gm", ALL, "ycbcrimage")
 					}
@@ -613,7 +612,10 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 					skip(ALL, "test", ALL, "SkRuntimeBlender_Ganesh")
 				}
 			}
-
+			if b.GPU("IntelUHDGraphics770") && b.Os("Win11") && b.ExtraConfig("Vulkan") {
+				// skbug.com/40045530
+				skip(ALL, "test", ALL, "VkYCbcrSampler_DrawImageWithYcbcrSampler")
+			}
 		}
 
 		// ANGLE bot *only* runs the angle ES3 configs
