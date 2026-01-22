@@ -42,6 +42,7 @@ TEST_BUILDERS = [
   'Build-Debian10-Clang-x86_64-Debug-Chromebook_GLES',
   'Build-Debian10-Clang-x86_64-Debug-Coverage',
   'Build-Debian10-Clang-x86_64-Debug-Fontations',
+  'Build-Debian10-Clang-x86_64-Debug-ICU4X',
   'Build-Debian10-Clang-x86_64-Debug-FreeType',
   'Build-Debian10-Clang-x86_64-Debug-MSAN',
   'Build-Debian10-Clang-x86_64-Debug-SK_CPU_LIMIT_SSE41',

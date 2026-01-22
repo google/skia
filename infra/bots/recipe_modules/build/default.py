@@ -267,7 +267,7 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
       'skia_use_libgrapheme': 'true',
     })
 
-  if 'Fontations' in extra_tokens:
+  if 'ICU4X' in extra_tokens:
     args['skia_use_icu4x'] = 'true'
 
   if 'Shared' in extra_tokens:

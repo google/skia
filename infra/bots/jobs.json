@@ -465,6 +465,9 @@
     "cq_config": {}
   },
   {
+    "name": "Build-Ubuntu24.04-Clang-x86_64-Debug-ICU4X"
+  },
+  {
     "name": "Build-Ubuntu24.04-Clang-x86_64-Debug-RustPNG"
   },
   {
