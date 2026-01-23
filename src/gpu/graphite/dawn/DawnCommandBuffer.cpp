@@ -223,7 +223,7 @@ const DawnSampler* DawnCommandBuffer::getSampler(
     if (desc.isImmutable()) {
         const DawnSampler* immutableSampler = fActiveGraphicsPipeline->immutableSampler(index);
         if (immutableSampler) {
-            this->trackCommandBufferResource(sk_ref_sp<Sampler>(immutableSampler));
+            this->trackResource(sk_ref_sp<Sampler>(immutableSampler));
         }
         return immutableSampler;
     } else {

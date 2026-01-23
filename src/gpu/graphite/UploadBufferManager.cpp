@@ -122,13 +122,13 @@ void UploadBufferManager::transferToRecording(Recording* recording) {
 void UploadBufferManager::transferToCommandBuffer(CommandBuffer* commandBuffer) {
     for (sk_sp<Buffer>& buffer : fUsedBuffers) {
         buffer->unmap();
-        commandBuffer->trackCommandBufferResource(std::move(buffer));
+        commandBuffer->trackResource(std::move(buffer));
     }
     fUsedBuffers.clear();
 
     if (fReusedBuffer) {
         fReusedBuffer->unmap();
-        commandBuffer->trackCommandBufferResource(std::move(fReusedBuffer));
+        commandBuffer->trackResource(std::move(fReusedBuffer));
     }
 }
 
