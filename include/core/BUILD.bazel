@@ -49,6 +49,7 @@ PUBLIC_HEADERS = [
     "SkImageFilter.h",
     "SkImageGenerator.h",
     "SkImageInfo.h",
+    "SkLogPriority.h",
     "SkM44.h",
     "SkMallocPixelRef.h",
     "SkMaskFilter.h",
