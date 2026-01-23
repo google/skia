@@ -7,3 +7,4 @@ Local Modifications: Created LICENSE file for compliance purposes. Not included 
                      distribution.
                      Explicit masking in writeBigEndian to satisfy MSVC run time checks.
                      Include path rewriting to build properly in the Skia tree.
+Update Mechanism: Manual
