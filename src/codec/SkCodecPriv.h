@@ -123,6 +123,9 @@ public:
         if (sampleSize > srcDimension) {
             return 1;
         }
+        if (sampleSize == 0) {
+            return 0;
+        }
         return srcDimension / sampleSize;
     }
 

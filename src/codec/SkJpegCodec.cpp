@@ -274,6 +274,12 @@ bool SkJpegCodec::onRewind() {
         return fDecoderMgr->returnFalse("onRewind");
     }
     SkASSERT(decoderMgr);
+
+    if ((int) decoderMgr->dinfo()->image_width != this->getEncodedInfo().width() ||
+        (int) decoderMgr->dinfo()->image_height != this->getEncodedInfo().height()) {
+        return fDecoderMgr->returnFailure("onRewind: dimensions changed", kInternalError);
+    }
+
     fDecoderMgr = std::move(decoderMgr);
 
     fSwizzler.reset(nullptr);
