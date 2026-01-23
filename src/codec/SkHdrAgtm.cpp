@@ -494,40 +494,6 @@ sk_sp<SkColorSpace> GetGainApplicationSpace(
     return SkColorSpace::MakeRGB(SkNamedTransferFn::kLinear, toXYZD50);
 }
 
-}  // namespace AgtmHelpers
-
-float AgtmImpl::getHdrReferenceWhite() const {
-    return fMetadata.fHdrReferenceWhite;
-}
-
-bool AgtmImpl::hasBaselineHdrHeadroom() const {
-    return fMetadata.fHeadroomAdaptiveToneMap.has_value();
-}
-
-float AgtmImpl::getBaselineHdrHeadroom() const {
-    SkASSERT(fMetadata.fHeadroomAdaptiveToneMap.has_value());
-    auto& hatm = fMetadata.fHeadroomAdaptiveToneMap.value();
-    return hatm.fBaselineHdrHeadroom;
-}
-
-bool AgtmImpl::isClamp() const {
-    const auto& hatm = fMetadata.fHeadroomAdaptiveToneMap;
-    if (!hatm.has_value()) {
-        return false;
-    }
-    return hatm->fAlternateImages.size() == 0;
-}
-
-sk_sp<SkColorFilter> AgtmImpl::makeColorFilter(float targetedHdrHeadroom) const {
-    const auto& hatm = fMetadata.fHeadroomAdaptiveToneMap;
-    if (!hatm.has_value()) {
-        return nullptr;
-    }
-    return AgtmHelpers::MakeColorFilter(hatm.value(), targetedHdrHeadroom, 1.f);
-}
-
-namespace AgtmHelpers {
-
 sk_sp<SkColorFilter> MakeColorFilter(
         const AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm,
         float targetedHdrHeadroom,
@@ -686,56 +652,6 @@ SkString AdaptiveGlobalToneMap::toString() const {
         }
     }
     result += "]}";
-    return result;
-}
-
-bool AgtmImpl::parse(const SkData* data) {
-    return fMetadata.parse(data);
-}
-
-sk_sp<SkData> AgtmImpl::serialize() const {
-    return fMetadata.serialize();
-}
-
-SkString AgtmImpl::toString() const {
-    return fMetadata.toString();
-}
-
-// static
-std::unique_ptr<Agtm> Agtm::Make(const SkData* data) {
-    auto result = std::make_unique<AgtmImpl>();
-    if (!result->parse(data)) {
-        return nullptr;
-    }
-    return result;
-}
-
-// static
-std::unique_ptr<Agtm> Agtm::MakeReferenceWhite(float hdrReferenceWhite, float baselineHdrHeadroom) {
-    SkASSERT(baselineHdrHeadroom >= 0.f);
-    auto result = std::make_unique<AgtmImpl>();
-    result->fMetadata = {
-        .fHdrReferenceWhite = hdrReferenceWhite,
-        .fHeadroomAdaptiveToneMap = {{
-            .fBaselineHdrHeadroom = baselineHdrHeadroom,
-        }},
-    };
-    AgtmHelpers::PopulateUsingRwtmo(result->fMetadata.fHeadroomAdaptiveToneMap.value());
-    return result;
-}
-
-// static
-std::unique_ptr<Agtm> Agtm::MakeClamp(float hdrReferenceWhite, float baselineHdrHeadroom) {
-    SkASSERT(baselineHdrHeadroom >= 0.f);
-    auto result = std::make_unique<AgtmImpl>();
-    result->fMetadata = {
-        .fHdrReferenceWhite = hdrReferenceWhite,
-        .fHeadroomAdaptiveToneMap = {{
-            .fBaselineHdrHeadroom = baselineHdrHeadroom,
-            .fGainApplicationSpacePrimaries = SkNamedPrimaries::kRec2020,
-            .fAlternateImages = {},
-        }},
-    };
     return result;
 }
 

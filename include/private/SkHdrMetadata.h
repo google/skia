@@ -249,78 +249,6 @@ struct SK_API AdaptiveGlobalToneMap {
 };
 
 /**
- * TODO(https://crbug.com/468928417): This structure was originally designed to be the interface
- * for parsing SMPTE ST 2094-50 metadata. It is no longer being used in this way, and should be
- * removed or recycled.
- */
-class SK_API Agtm {
-  public:
-    /**
-     * Parse the specified SkData. Returns nullptr if the data fails to parse.
-     */
-    static std::unique_ptr<Agtm> Make(const SkData* data);
-
-    /**
-     * Generate reference white tone mapping metadata for the specified baseline HDR headroom and
-     * HDR reference white values.
-     */
-    static std::unique_ptr<Agtm> MakeReferenceWhite(float hdrReferenceWhite,
-                                                    float baselineHdrHeadroom);
-
-    /**
-     * Generate metadata with a HDR reference white set to `hdrReferenceWhite`, that specifies that
-     * no tone mapping is to be done (that is, just clamping is to be performed), and that the
-     * content has HDR headroom specified by `baselineHdrHeadroom`.
-     */
-    static std::unique_ptr<Agtm> MakeClamp(float hdrReferenceWhite, float baselineHdrHeadroom);
-
-    Agtm() = default;
-    Agtm(const Agtm&) = delete;
-    Agtm& operator=(const Agtm&) = delete;
-    Agtm(Agtm&&) = delete;
-    Agtm& operator=(Agtm&&) = delete;
-    virtual ~Agtm() = default;
-
-    /**
-     * Serialize the data to the format parsed by Make.
-     */
-    virtual sk_sp<SkData> serialize() const = 0;
-
-    /**
-     * The default value for the HdrReferenceWhite metadata item.
-     */
-    static constexpr float kDefaultHdrReferenceWhite = 203.f;
-
-    /**
-     * Return the HdrReferenceWhite metadata item value.
-     */
-    virtual float getHdrReferenceWhite() const = 0;
-
-    /**
-     * Functions to query if the BaselineHdrHeadroom metadata item was specified and retrieve it
-     * (which will assert if was not specified).
-     */
-    virtual bool hasBaselineHdrHeadroom() const = 0;
-    virtual float getBaselineHdrHeadroom() const = 0;
-
-    /**
-     * Return true if this metadata specifies not to do any tone mapping (it is the type that
-     * was created using MakeClamp).
-     */
-    virtual bool isClamp() const = 0;
-
-    /**
-     * Return the SkColorFilter to tone map to the specified targeted HDR headroom.
-     */
-    virtual sk_sp<SkColorFilter> makeColorFilter(float targetedHdrHeadroom) const = 0;
-
-    /**
-     * Return a human-readable description.
-     */
-    virtual SkString toString() const = 0;
-};
-
-/**
  * Structure containing all HDR metadata that can be attached to an image or video frame.
  */
 class SK_API Metadata {
@@ -400,7 +328,7 @@ class SK_API Metadata {
   private:
     std::optional<ContentLightLevelInformation> fContentLightLevelInformation;
     std::optional<MasteringDisplayColorVolume> fMasteringDisplayColorVolume;
-    sk_sp<const SkData> fAgtm;
+    std::optional<AdaptiveGlobalToneMap> fAdaptiveGlobalToneMap;
 };
 
 }  // namespace skhdr

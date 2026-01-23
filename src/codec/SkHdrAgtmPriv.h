@@ -117,35 +117,6 @@ sk_sp<SkColorSpace> GetGainApplicationSpace(
 
 }  // namespace AgtmHelpers
 
-/**
- * Interface for adaptive global tone mapping.
- * TODO(https://crbug.com/468928417): This structure was originally designed to be the interface
- * for parsing SMPTE ST 2094-50 metadata. It is no longer being used in this way, and should be
- * removed or recycled.
- */
-class AgtmImpl final : public Agtm {
-  public:
-    AdaptiveGlobalToneMap fMetadata;
-
-    /**
-     * The encoding is defined in SMPTE ST 2094-50 candidate draft 2. This will deserialize the
-     * smpte_st_2094_50_application_info_v0() bitstream. Return false if parsing fails.
-     */
-    bool parse(const SkData* data);
-
-    /**
-     * Implementation of the Agtm interface.
-     */
-    ~AgtmImpl() override = default;
-    sk_sp<SkData> serialize() const override;
-    float getHdrReferenceWhite() const override;
-    bool hasBaselineHdrHeadroom() const override;
-    float getBaselineHdrHeadroom() const override;
-    bool isClamp() const override;
-    sk_sp<SkColorFilter> makeColorFilter(float targetedHdrHeadroom) const override;
-    SkString toString() const override;
-};
-
 }  // namespace skhdr
 
 #endif

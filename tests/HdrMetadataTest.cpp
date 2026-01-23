@@ -679,12 +679,14 @@ DEF_TEST(HdrMetadata_Agtm_Apply_and_Shader, r) {
     // (not far from 1), we should maintain at least ten bit precision.
     constexpr float kEpsilon = 1.f/1024.f;
 
-    // Test the Agtm::applyGain function.
+    // Test the AgtmHelpers::ApplyGain function.
     for (size_t t = 0; t < kNumTests; ++t) {
         const auto targetedHdrHeadroom = testTargetedHdrHeadrooms[t];
-        skiatest::ReporterContext ctx(r, SkStringPrintf("AgtmImpl::applyGain, targetedHdrHeadroom:%f", targetedHdrHeadroom));
+        skiatest::ReporterContext ctx(
+            r,
+            SkStringPrintf("AgtmHelpers::ApplyGain, targetedHdrHeadroom:%f", targetedHdrHeadroom));
 
-        // Copy the inputTextColors to outputTestColors (because applyGain works in-place).
+        // Copy the inputTextColors to outputTestColors (because ApplyGain works in-place).
         SkColor4f outputTestColors[kNumTestColors];
         for (size_t i = 0; i < kNumTestColors; ++i) {
             outputTestColors[i] = inputTestColors[i];
@@ -700,52 +702,6 @@ DEF_TEST(HdrMetadata_Agtm_Apply_and_Shader, r) {
             const auto& output = outputTestColors[i];
             const auto& expected = expectedTestColors[t][i];
 
-            REPORTER_ASSERT(r, SkScalarNearlyEqual(output.fR, expected.fR, kEpsilon));
-            REPORTER_ASSERT(r, SkScalarNearlyEqual(output.fG, expected.fG, kEpsilon));
-            REPORTER_ASSERT(r, SkScalarNearlyEqual(output.fB, expected.fB, kEpsilon));
-            REPORTER_ASSERT(r, SkScalarNearlyEqual(output.fA, expected.fA, kEpsilon));
-        }
-    }
-
-    // Test using an SkColorFilter to apply the gain using the skhdr::Agtm interface.
-    for (size_t t = 0; t < kNumTests; ++t) {
-        const auto targetedHdrHeadroom = testTargetedHdrHeadrooms[t];
-        skiatest::ReporterContext ctx(r,
-            SkStringPrintf("Agtm::makeColorFilter, targetedHdrHeadroom:%f", targetedHdrHeadroom));
-
-        // The input and output images will be kNumTestColors-by-1.
-        const auto info = SkImageInfo::Make(
-            kNumTestColors, 1,
-            kRGBA_F32_SkColorType, kPremul_SkAlphaType,
-            skhdr::AgtmHelpers::GetGainApplicationSpace(hatm));
-
-        // Create an SkImage that references the inputTestColors array directly.
-        sk_sp<SkImage> inputImage = SkImages::RasterFromData(
-            info,
-            SkData::MakeWithoutCopy(inputTestColors, sizeof(inputTestColors)),
-            info.minRowBytes());
-
-        // Create an output SkBitmap to draw into.
-        SkBitmap bm;
-        bm.allocPixels(info);
-
-        // Call drawImage, using the color filter created by Agtm::makeColorFilter.
-        {
-            skhdr::AgtmImpl impl;
-            impl.fMetadata = agtm;
-            auto colorFilter = impl.makeColorFilter(targetedHdrHeadroom);
-
-            SkPaint paint;
-            SkASSERT(colorFilter);
-            paint.setColorFilter(colorFilter);
-            auto canvas = SkCanvas::MakeRasterDirect(bm.info(), bm.getPixels(), bm.rowBytes());
-            canvas->drawImage(inputImage.get(), 0, 0, SkSamplingOptions(), &paint);
-        }
-
-        // Verify that the pixels written into the SkBitmap match the expected values.
-        for (size_t i = 0; i < kNumTestColors; ++i) {
-            const auto& output = *reinterpret_cast<const SkColor4f*>(bm.getAddr(i, 0));
-            const auto& expected = expectedTestColors[t][i];
             REPORTER_ASSERT(r, SkScalarNearlyEqual(output.fR, expected.fR, kEpsilon));
             REPORTER_ASSERT(r, SkScalarNearlyEqual(output.fG, expected.fG, kEpsilon));
             REPORTER_ASSERT(r, SkScalarNearlyEqual(output.fB, expected.fB, kEpsilon));

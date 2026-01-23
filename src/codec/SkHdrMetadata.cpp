@@ -188,21 +188,18 @@ bool Metadata::getMasteringDisplayColorVolume(MasteringDisplayColorVolume* mdcv)
 }
 
 bool Metadata::getAdaptiveGlobalToneMap(AdaptiveGlobalToneMap* agtm) const {
-    if (!fAgtm) {
-        return false;
-    }
-    AdaptiveGlobalToneMap agtmParsed;
-    if (!agtmParsed.parse(fAgtm.get())) {
+    if (!fAdaptiveGlobalToneMap.has_value()) {
         return false;
     }
     if (agtm) {
-      *agtm = agtmParsed;
+        *agtm = fAdaptiveGlobalToneMap.value();
     }
     return true;
 }
 
 sk_sp<const SkData> Metadata::getSerializedAgtm() const {
-    return fAgtm;
+    return fAdaptiveGlobalToneMap.has_value() ?
+        fAdaptiveGlobalToneMap->serialize() : nullptr;
 }
 
 void Metadata::setMasteringDisplayColorVolume(const MasteringDisplayColorVolume& mdcv) {
@@ -214,27 +211,32 @@ void Metadata::setContentLightLevelInformation(const ContentLightLevelInformatio
 }
 
 void Metadata::setAdaptiveGlobalToneMap(const AdaptiveGlobalToneMap& agtm) {
-    fAgtm = agtm.serialize();
+    fAdaptiveGlobalToneMap = agtm;
 }
 
-void Metadata::setSerializedAgtm(sk_sp<const SkData> agtm) {
-    fAgtm = agtm;
+void Metadata::setSerializedAgtm(sk_sp<const SkData> agtm_encoded) {
+    AdaptiveGlobalToneMap agtm;
+    if (agtm.parse(agtm_encoded.get())) {
+        fAdaptiveGlobalToneMap = agtm;
+    } else {
+        fAdaptiveGlobalToneMap.reset();
+    }
 }
 
 SkString Metadata::toString() const {
-    auto agtm = Agtm::Make(fAgtm.get());
     return SkStringPrintf("{clli:%s, mdcv:%s, agtm:%s}",
         fContentLightLevelInformation.has_value() ?
             fContentLightLevelInformation->toString().c_str() : "None",
         fMasteringDisplayColorVolume.has_value() ?
             fMasteringDisplayColorVolume->toString().c_str() : "None",
-        agtm ? agtm->toString().c_str() : "None");
+        fAdaptiveGlobalToneMap.has_value() ?
+            fAdaptiveGlobalToneMap->toString().c_str() : "None");
 }
 
 bool Metadata::operator==(const Metadata& other) const {
     return fContentLightLevelInformation == other.fContentLightLevelInformation &&
            fMasteringDisplayColorVolume == other.fMasteringDisplayColorVolume &&
-           SkData::Equals(fAgtm.get(), other.fAgtm.get());
+           fAdaptiveGlobalToneMap == other.fAdaptiveGlobalToneMap;
 }
 
 sk_sp<SkColorFilter> Metadata::makeToneMapColorFilter(
