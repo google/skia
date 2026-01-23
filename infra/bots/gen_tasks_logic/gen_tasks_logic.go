@@ -1055,7 +1055,7 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 				gpu, ok := map[string]string{
 					"GTX1660":             "10de:2184-31.0.15.4601",
 					"IntelHD4400":         "8086:0a16-10.0.26100.1",
-					"IntelIris540":        "8086:1926-26.20.100.7528",
+					"IntelIris540":        "8086:1926-31.0.101.2115",
 					"IntelIris6100":       "8086:162b-20.19.15.5171",
 					"IntelIris655":        "8086:3ea5-26.20.100.7463",
 					"IntelIrisXe":         "8086:9a49-31.0.101.5333",
