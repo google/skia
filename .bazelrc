@@ -50,9 +50,6 @@ build --@rules_go//go/config:pure
 # Alias to build configurations below. This makes configuring things from
 # the command line easier.
 
-# Flags used by Skia tools, not to be used by clients
-build --flag_alias=adb_platform=//tools/testrunners/common/android/adb_test_runner:adb_platform
-
 # Public CanvasKit flags
 build --flag_alias=ck_enable_fonts=//modules/canvaskit:enable_fonts
 build --flag_alias=ck_disable_fonts=no//modules/canvaskit:enable_fonts

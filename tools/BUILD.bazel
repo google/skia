@@ -25,7 +25,6 @@ skia_cc_library(
         "//bench:__pkg__",
         "//gm:__pkg__",
         "//tests:__subpackages__",
-        "//tools/testrunners/benchmark:__pkg__",
         "//tools/viewer:__pkg__",
     ],
     deps = ["//:core"],
@@ -60,7 +59,6 @@ skia_cc_library(
         "//bench:__pkg__",
         "//dm:__pkg__",
         "//tools/gpu:__pkg__",
-        "//tools/testrunners/benchmark:__pkg__",
     ],
     deps = ["//src/base"],
 )
@@ -145,7 +143,6 @@ skia_cc_library(
     visibility = [
         "//bench:__pkg__",
         "//dm:__pkg__",
-        "//tools/testrunners/benchmark:__pkg__",
     ],
     deps = ["//:core"],
 )

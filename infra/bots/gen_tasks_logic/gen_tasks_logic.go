@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -2179,15 +2178,11 @@ type labelAndSavedOutputDir struct {
 // The reason we need this mapping is because Buildbucket build names cannot have / or : in them.
 // TODO(borenet/kjlubick): Is there a way to generate a mapping using `bazel query`?
 var shorthandToLabel = map[string]labelAndSavedOutputDir{
-	"all_tests":                  {"//tests:linux_rbe_tests", ""},
 	"core":                       {"//:core", ""},
-	"cpu_8888_benchmark_test":    {"//bench:cpu_8888_test", ""},
-	"cpu_gms":                    {"//gm:cpu_gm_tests", ""},
 	"dm":                         {"//dm", ""},
 	"fontations":                 {"//src/ports:fontmgr_fontations_empty", ""},
 	"full_library":               {"//tools:full_build", ""},
 	"ganesh_gl":                  {"//:ganesh_gl", ""},
-	"hello_bazel_world_test":     {"//gm:hello_bazel_world_test", ""},
 	"modules_canvaskit":          {"//modules/canvaskit:canvaskit", ""},
 	"modules_canvaskit_js_tests": {"//modules/canvaskit:canvaskit_js_tests", ""},
 	"skottie_tool_gpu":           {"//modules/skottie:skottie_tool_gpu", ""},
@@ -2342,26 +2337,6 @@ func (b *jobBuilder) bazelTest() {
 	}
 
 	// Expand task driver name to keep task names short.
-	precompiledKind := precompiledBazelTestNone
-	if taskdriverName == "precompiled_benchmark" {
-		taskdriverName = "bazel_test_precompiled"
-		precompiledKind = precompiledBenchmarkTest
-	}
-	if taskdriverName == "precompiled_gm" {
-		taskdriverName = "bazel_test_precompiled"
-		precompiledKind = precompiledGMTest
-	}
-	if taskdriverName == "precompiled_test" {
-		taskdriverName = "bazel_test_precompiled"
-		precompiledKind = precompiledUnitTest
-	}
-	if taskdriverName == "gm" {
-		taskdriverName = "bazel_test_gm"
-	}
-	if taskdriverName == "benchmark" {
-		taskdriverName = "bazel_test_benchmark"
-	}
-
 	useLUCIAuth := true
 	if taskdriverName == "external_client" {
 		useLUCIAuth = false
@@ -2430,69 +2405,6 @@ func (b *jobBuilder) bazelTest() {
 				"--bazel_config="+buildConfig,
 				"--bazel_cache_dir="+bazelCacheDir)
 
-		case "bazel_test_precompiled":
-			// Compute the file name of the test based on its Bazel label. The file name will be relative to
-			// the bazel-bin directory, which we receive a subset of as a CAS input.
-			command := strings.ReplaceAll(labelAndSavedOutputDir.label, "//", "")
-			command = strings.ReplaceAll(command, ":", "/")
-			command = path.Join(OUTPUT_BAZEL, command)
-
-			// The test's working directory will be its runfiles directory, which simulates the behavior of
-			// the "bazel run" command.
-			commandWorkDir := path.Join(command+".runfiles", "skia")
-
-			cmd = append(cmd,
-				"--command="+command,
-				"--command_workdir="+commandWorkDir)
-
-			switch precompiledKind {
-			case precompiledBenchmarkTest:
-				cmd = append(cmd,
-					"--kind=benchmark",
-					"--git_commit="+specs.PLACEHOLDER_REVISION,
-					"--changelist_id="+specs.PLACEHOLDER_ISSUE,
-					"--patchset_order="+specs.PLACEHOLDER_PATCHSET)
-
-			case precompiledGMTest:
-				cmd = append(cmd,
-					"--kind=gm",
-					"--bazel_label="+labelAndSavedOutputDir.label,
-					"--goldctl_path=./cipd_bin_packages/goldctl",
-					"--git_commit="+specs.PLACEHOLDER_REVISION,
-					"--changelist_id="+specs.PLACEHOLDER_ISSUE,
-					"--patchset_order="+specs.PLACEHOLDER_PATCHSET,
-					"--tryjob_id="+specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID)
-				b.cipd(CIPD_PKGS_GOLDCTL)
-
-			case precompiledUnitTest:
-				cmd = append(cmd, "--kind=unit")
-
-			default:
-				panic(fmt.Sprintf("Unknown precompiled test kind: %v", precompiledKind))
-			}
-
-		case "bazel_test_gm":
-			cmd = append(cmd,
-				"--bazel_label="+labelAndSavedOutputDir.label,
-				"--bazel_config="+buildConfig,
-				"--bazel_cache_dir="+bazelCacheDir,
-				"--goldctl_path=./cipd_bin_packages/goldctl",
-				"--git_commit="+specs.PLACEHOLDER_REVISION,
-				"--changelist_id="+specs.PLACEHOLDER_ISSUE,
-				"--patchset_order="+specs.PLACEHOLDER_PATCHSET,
-				"--tryjob_id="+specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID)
-			b.cipd(CIPD_PKGS_GOLDCTL)
-
-		case "bazel_test_benchmark":
-			// Note that these tasks run on Skolo machines.
-			cmd = append(cmd,
-				"--bazel_label="+labelAndSavedOutputDir.label,
-				"--bazel_config="+buildConfig,
-				"--bazel_cache_dir="+bazelCacheDirOnSkoloLinux,
-				"--git_commit="+specs.PLACEHOLDER_REVISION,
-				"--changelist_id="+specs.PLACEHOLDER_ISSUE,
-				"--patchset_order="+specs.PLACEHOLDER_PATCHSET)
-
 		case "external_client":
 			// For external_client, we want to test how an external user would
 			// build using Skia. Therefore, we change to the workspace in that
@@ -2522,31 +2434,7 @@ func (b *jobBuilder) bazelTest() {
 			panic("unsupported Bazel host " + host)
 		}
 
-		if taskdriverName == "bazel_test_gm" ||
-			taskdriverName == "bazel_test_benchmark" ||
-			taskdriverName == "bazel_test_precompiled" {
-			if taskdriverName == "bazel_test_precompiled" {
-				// This task precompiles the test and stores it to CAS.
-				b.dep(fmt.Sprintf("BazelBuild-%s-%s-linux_x64", shorthand, buildConfig))
-			}
-
-			// Set dimensions.
-			if deviceSpecificBazelConfig == nil {
-				log.Fatalf("While processing job %q: task driver %q requires a device-specific Bazel config.", b.Name, taskdriverName)
-			}
-			if len(deviceSpecificBazelConfig.SwarmingDimensions) == 0 {
-				log.Fatalf("While processing job %q: device-specific Bazel config %q does not provide Swarming dimensions.", b.Name, deviceSpecificBazelConfig.Name)
-			}
-			var dimensions []string
-			for name, value := range deviceSpecificBazelConfig.SwarmingDimensions {
-				dimensions = append(dimensions, fmt.Sprintf("%s:%s", name, value))
-			}
-			dimensions = append(dimensions, fmt.Sprintf("pool:%s", b.cfg.Pool))
-			sort.Strings(dimensions)
-			b.dimension(dimensions...)
-		} else {
-			b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
-		}
+		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 
 		b.cmd(cmd...)
 		b.idempotent()

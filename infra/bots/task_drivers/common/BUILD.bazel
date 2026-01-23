@@ -6,7 +6,6 @@ go_library(
         "bazel_clean_step.go",
         "bazel_flags.go",
         "bazel_utils.go",
-        "goldctl_steps.go",
         "perf_steps.go",
     ],
     importpath = "go.skia.org/skia/infra/bots/task_drivers/common",
