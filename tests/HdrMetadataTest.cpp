@@ -296,11 +296,12 @@ static void assert_agtms_equal(skiatest::Reporter* r,
                                const skhdr::AdaptiveGlobalToneMap& agtmIn,
                                const skhdr::AdaptiveGlobalToneMap& agtmOut) {
     // Allow error for headrooms, x, and y to twice the their encoding step.
-    constexpr float kHeadroomError = 2.f * 1.f / 10000.f;
-    constexpr float kXError = 2.f * 1.f / 1000.f;
-    constexpr float kYError = 2.f * 1.f / 4000.f;
-    // Allow a wider error for slope because its encoding is non-uniform.
-    constexpr float kMError = 0.005f;
+    constexpr float kHeadroomError = 0.0002f;
+    constexpr float kXError = 0.002f;
+    constexpr float kYError = 0.0002f;
+    // The slope is non-uniformly sampled. It has higher precision than the Y values near 0, but
+    // lower precision at higher values.
+    constexpr float kMError = 0.0004f;
 
     REPORTER_ASSERT(r, agtmIn.fHdrReferenceWhite == agtmOut.fHdrReferenceWhite);
 
@@ -385,9 +386,24 @@ DEF_TEST(HdrMetadata_Agtm_Serialize, r) {
         skhdr::AdaptiveGlobalToneMap agtmOut;
         REPORTER_ASSERT(r, agtmOut.parse(agtmIn.serialize().get()));
 
-        // TODO(https://crbug.com/395659818): Identify when the tone mapping is equal to RWTMO to
-        // further compress the serialization.
-        // assert_agtms_equal(r, agtmIn, agtmOut);
+        assert_agtms_equal(r, agtmIn, agtmOut);
+    }
+
+    {
+        skiatest::ReporterContext ctx(r, "RWTMO-high-headroom");
+
+        skhdr::AdaptiveGlobalToneMap agtmIn =
+        {
+            .fHeadroomAdaptiveToneMap = {{
+                .fBaselineHdrHeadroom = 6.f,
+            }}
+        };
+        skhdr::AgtmHelpers::PopulateUsingRwtmo(agtmIn.fHeadroomAdaptiveToneMap.value());
+
+        skhdr::AdaptiveGlobalToneMap agtmOut;
+        REPORTER_ASSERT(r, agtmOut.parse(agtmIn.serialize().get()));
+
+        assert_agtms_equal(r, agtmIn, agtmOut);
     }
 
     {
@@ -455,7 +471,7 @@ DEF_TEST(HdrMetadata_Agtm_Serialize, r) {
                             },
                             .fGainCurve = {
                                 .fControlPoints = {
-                                    { .fX = 0.f, .fY = 1.f, .fM = 0.f },
+                                    { .fX = 0.f, .fY = -1.f, .fM = 0.f },
                                 }
                             }
                         }
@@ -468,10 +484,10 @@ DEF_TEST(HdrMetadata_Agtm_Serialize, r) {
                             },
                             .fGainCurve = {
                                 .fControlPoints = {
-                                    { .fX = 0.f, .fY = 1.f,  .fM = 0.f  },
-                                    { .fX = 1.f, .fY = 0.5f, .fM = 0.1f },
-                                    { .fX = 2.f, .fY = 0.4f, .fM = 0.2f },
-                                    { .fX = 3.f, .fY = 0.3f, .fM = 0.3f },
+                                    { .fX = 0.f, .fY = -1.f,  .fM = 0.f  },
+                                    { .fX = 1.f, .fY = -0.5f, .fM = 0.1f },
+                                    { .fX = 2.f, .fY = -0.4f, .fM = 0.2f },
+                                    { .fX = 3.f, .fY = -0.3f, .fM = 0.3f },
                                 },
                             },
                         },
@@ -509,6 +525,68 @@ DEF_TEST(HdrMetadata_Agtm_Serialize, r) {
                     },
                 },
             }},
+        };
+
+        skhdr::AdaptiveGlobalToneMap agtmOut;
+        REPORTER_ASSERT(r, agtmOut.parse(agtmIn.serialize().get()));
+
+        assert_agtms_equal(r, agtmIn, agtmOut);
+    }
+
+    {
+        skiatest::ReporterContext ctx(r, "InverseToneMap");
+
+        skhdr::AdaptiveGlobalToneMap agtmIn = {
+            .fHeadroomAdaptiveToneMap = {{
+                .fBaselineHdrHeadroom = 0.f,
+                .fGainApplicationSpacePrimaries = SkNamedPrimaries::kSMPTE_EG_432_1,
+                .fAlternateImages = {
+                    {
+                        .fHdrHeadroom = 2.f,
+                        .fColorGainFunction = {
+                            .fComponentMixing = {
+                                .fMax = 0.3f,
+                            },
+                            .fGainCurve = {
+                                .fControlPoints = {
+                                    { .fX = 0.5f,       .fY = 0.9998566f, .fM = 0.0015297f },
+                                    { .fX = 0.5208116f, .fY = 1.0027409f, .fM = 0.2734709f },
+                                    { .fX = 0.5413111f, .fY = 1.0109166f, .fM = 0.5211183f },
+                                    { .fX = 0.5614984f, .fY = 1.0237336f, .fM = 0.7456896f },
+                                    { .fX = 0.5813735f, .fY = 1.0406077f, .fM = 0.9495246f },
+                                    { .fX = 0.6009365f, .fY = 1.0610152f, .fM = 1.1343419f },
+                                    { .fX = 0.6201873f, .fY = 1.0844893f, .fM = 1.3021958f },
+                                    { .fX = 0.6391259f, .fY = 1.1106143f, .fM = 1.4547685f },
+                                    { .fX = 0.6577523f, .fY = 1.1390220f, .fM = 1.5937591f },
+                                    { .fX = 0.6760665f, .fY = 1.1693869f, .fM = 1.7207136f },
+                                    { .fX = 0.6940686f, .fY = 1.2014223f, .fM = 1.8370443f },
+                                    { .fX = 0.7117585f, .fY = 1.2348758f, .fM = 1.9440458f },
+                                    { .fX = 0.7291363f, .fY = 1.2695263f, .fM = 2.0429054f },
+                                    { .fX = 0.7462018f, .fY = 1.3051801f, .fM = 2.1347281f },
+                                    { .fX = 0.7629552f, .fY = 1.3416678f, .fM = 2.2204760f },
+                                    { .fX = 0.7793964f, .fY = 1.3788421f, .fM = 2.3010690f },
+                                    { .fX = 0.7955254f, .fY = 1.4165743f, .fM = 2.3773159f },
+                                    { .fX = 0.8113423f, .fY = 1.4547529f, .fM = 2.4499659f },
+                                    { .fX = 0.8268470f, .fY = 1.4932810f, .fM = 2.5197041f },
+                                    { .fX = 0.8420395f, .fY = 1.5320748f, .fM = 2.5871586f },
+                                    { .fX = 0.8569198f, .fY = 1.5710618f, .fM = 2.6529097f },
+                                    { .fX = 0.8714880f, .fY = 1.6101797f, .fM = 2.7174979f },
+                                    { .fX = 0.8857440f, .fY = 1.6493748f, .fM = 2.7814233f },
+                                    { .fX = 0.8996878f, .fY = 1.6886011f, .fM = 2.8451656f },
+                                    { .fX = 0.9133194f, .fY = 1.7278194f, .fM = 2.9091748f },
+                                    { .fX = 0.9266389f, .fY = 1.7669963f, .fM = 2.9738880f },
+                                    { .fX = 0.9396462f, .fY = 1.8061036f, .fM = 3.0397306f },
+                                    { .fX = 0.9523413f, .fY = 1.8451175f, .fM = 3.1071218f },
+                                    { .fX = 0.9647242f, .fY = 1.8840181f, .fM = 3.1764804f },
+                                    { .fX = 0.9767950f, .fY = 1.9227892f, .fM = 3.2482303f },
+                                    { .fX = 0.9885535f, .fY = 1.9614173f, .fM = 3.3228070f },
+                                    { .fX = 1.0000000f, .fY = 1.9998918f, .fM = 3.4006599f },
+                                },
+                            },
+                        }
+                    }
+                }
+            }}
         };
 
         skhdr::AdaptiveGlobalToneMap agtmOut;
