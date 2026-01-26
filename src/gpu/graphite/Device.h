@@ -257,6 +257,10 @@ public:
 
     bool drawBlurredRRect(const SkRRect&, const SkPaint&, float deviceSigma) override;
 
+#if defined(GPU_TEST_UTILS)
+    int testingOnly_pendingRenderSteps() const;
+#endif
+
 private:
     class IntersectionTreeSet;
 

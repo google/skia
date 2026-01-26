@@ -128,7 +128,6 @@ public:
                   Coverage coverage,
                   TextureFormat targetFormat);
 
-    Coverage rendererCoverage()  const { return fRendererCoverage; }
     bool dstReadRequired() const { return SkToBool(fDstUsage & DstUsage::kDstReadRequired); }
 
     using Result = std::tuple<UniquePaintParamsID, SkEnumBitMask<DstUsage>>;
@@ -143,13 +142,16 @@ private:
     bool handleDstRead(const KeyContext&) const;
     void handleClipping(const KeyContext&) const;
 
-    const PaintParams&      fPaint;
-    const NonMSAAClip&      fNonMSAAClip;
-    const SkShader*         fClipShader;
+    const PaintParams& fPaint;
+    const NonMSAAClip& fNonMSAAClip;
+    const SkShader*    fClipShader;
 
-    Coverage                fRendererCoverage;
-    TextureFormat           fTargetFormat;
-    SkEnumBitMask<DstUsage> fDstUsage;
+    // Base (incomplete) dst usage that will be augmented by opacity analysis calculated in toKey()
+    const SkEnumBitMask<DstUsage> fDstUsage;
+
+    // Used for asserts
+    SkDEBUGCODE(const SkEnumBitMask<DstUsage> fDstUsageNoCoverage;)
+    SkDEBUGCODE(const Coverage fRendererCoverage;)
 };
 
 } // namespace skgpu::graphite

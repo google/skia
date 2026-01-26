@@ -176,10 +176,17 @@ enum class BarrierType : uint8_t {
 };
 
 enum class DstUsage : uint8_t {
-    kNone            = 0,
-    kDependsOnDst    = 0b001,
-    kDstReadRequired = 0b010,
-    kAdvancedBlend   = 0b100,
+    // Prior values of dst pixels will have no effect on final written color
+    kNone                  = 0,
+    // Prior values of dst pixels can have an effect on the final written color
+    kDependsOnDst          = 0b0001,
+    // The prior values of dst pixels must be available in the fragment shader
+    kDstReadRequired       = 0b0010,
+    // The final written color uses an advanced blend function, which may require barriers for HW
+    kAdvancedBlend         = 0b0100,
+    // The only reason for kDependsOnDst is because the Renderer has analytic coverage. Switching
+    // to a Coverage::kNone Renderer would result in DstUsage::kNone for the same paint.
+    kDstOnlyUsedByRenderer = 0b1000,
 };
 SK_MAKE_BITMASK_OPS(DstUsage)
 
