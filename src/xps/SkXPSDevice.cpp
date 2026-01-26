@@ -1990,9 +1990,12 @@ void SkXPSDevice::drawImageRect(const SkImage* image,
                                 const SkSamplingOptions& sampling,
                                 const SkPaint& paint,
                                 SkCanvas::SrcRectConstraint constraint) {
+    SkASSERT(image);
+
     // TODO: support gpu images
     SkBitmap bitmap;
-    if (!as_IB(image)->getROPixels(nullptr, &bitmap)) {
+    auto imageBase = as_IB(image);
+    if (!imageBase->getROPixels(nullptr, &bitmap)) {
         return;
     }
 
@@ -2009,7 +2012,8 @@ void SkXPSDevice::drawImageRect(const SkImage* image,
         matrix.mapRect(&actualDst, srcBounds);
     }
 
-    auto img = SkImage_Raster::MakeFromBitmap(bitmap, SkCopyPixelsMode::kNever);
+    auto img =
+            SkImage_Raster::MakeFromBitmap(bitmap, SkCopyPixelsMode::kNever, imageBase->refMips());
     auto imgShader = img->makeShaderForPaint(
             paint, SkTileMode::kClamp, SkTileMode::kClamp, sampling, &matrix);
     SkASSERT(imgShader);

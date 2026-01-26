@@ -28,7 +28,26 @@
 
 #include <math.h>
 
-class ShowMipLevels3 : public skiagm::GM {
+/**
+ * This GM explicitly makes mip map levels solid colors so we can see which are being used.
+ *
+ * Rows 0 and 1 don't use mip maps, so the rocket ship gets smaller (and tiled) from
+ * left to right. The only difference is the filter mode - Row 0 (nearest) looks blockier
+ * than Row 1 (linear).
+ *
+ * Rows 2 and 3 use the nearest mip map mode, which means we expect
+ * Everything other than the first two columns (which are closest to mip level 0 - original image)
+ * will be solid colors (Red, Green, Blue) to show this is happening. The sublte difference in
+ * filtering can still be observed in Column 1.
+ *
+ * Rows 4 and 5 use a linear mipmap mode, which means the we'll see a blend of red and spaceships
+ * for columns 1 and 2, and non-pure colors for the remaining columns as the breakpoints don't
+ * land directly on the mip level changes.
+ *
+ * If the image is being rendered and all rows show the spaceships from left to right, the
+ * hand-crafted mips are being lost somewhere in rendering and that is *wrong*.
+ */
+class ShowMipLevels : public skiagm::GM {
     sk_sp<SkImage> fImg;
 
     SkString getName() const override { return SkString("showmiplevels_explicit"); }
@@ -42,6 +61,9 @@ class ShowMipLevels3 : public skiagm::GM {
         const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
 
         SkMipmapBuilder builder(fImg->imageInfo());
+        // The number of levels is derived from the size of the image, so we intentionally
+        // pick an image that's big enough to support 3+ levels.
+        SkASSERT(builder.countLevels() >= (int)std::size(colors));
         for (int i = 0; i < builder.countLevels(); ++i) {
             auto surf = SkSurfaces::WrapPixels(builder.level(i));
             surf->getCanvas()->drawColor(colors[i % std::size(colors)]);
@@ -76,7 +98,5 @@ private:
         }
         return r.height() + 10;
     }
-
-    using INHERITED = skiagm::GM;
 };
-DEF_GM( return new ShowMipLevels3; )
+DEF_GM(return new ShowMipLevels;)

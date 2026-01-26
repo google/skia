@@ -42,20 +42,13 @@ static bool reset_return_false(SkBitmap* bm) {
 
 SkBitmap::SkBitmap() {}
 
-SkBitmap::SkBitmap(const SkBitmap& src)
-    : fPixelRef      (src.fPixelRef)
-    , fPixmap        (src.fPixmap)
-    , fMips          (src.fMips)
-{
+SkBitmap::SkBitmap(const SkBitmap& src) : fPixelRef(src.fPixelRef), fPixmap(src.fPixmap) {
     SkDEBUGCODE(src.validate();)
     SkDEBUGCODE(this->validate();)
 }
 
 SkBitmap::SkBitmap(SkBitmap&& other)
-    : fPixelRef      (std::move(other.fPixelRef))
-    , fPixmap        (std::move(other.fPixmap))
-    , fMips          (std::move(other.fMips))
-{
+        : fPixelRef(std::move(other.fPixelRef)), fPixmap(std::move(other.fPixmap)) {
     SkASSERT(!other.fPixelRef);
     other.fPixmap.reset();
 }
@@ -65,8 +58,7 @@ SkBitmap::~SkBitmap() {}
 SkBitmap& SkBitmap::operator=(const SkBitmap& src) {
     if (this != &src) {
         fPixelRef       = src.fPixelRef;
-        fPixmap         = src.fPixmap;
-        fMips           = src.fMips;
+        fPixmap = src.fPixmap;
     }
     SkDEBUGCODE(this->validate();)
     return *this;
@@ -75,8 +67,7 @@ SkBitmap& SkBitmap::operator=(const SkBitmap& src) {
 SkBitmap& SkBitmap::operator=(SkBitmap&& other) {
     if (this != &other) {
         fPixelRef       = std::move(other.fPixelRef);
-        fPixmap         = std::move(other.fPixmap);
-        fMips           = std::move(other.fMips);
+        fPixmap = std::move(other.fPixmap);
         SkASSERT(!other.fPixelRef);
         other.fPixmap.reset();
     }
@@ -92,7 +83,6 @@ void SkBitmap::swap(SkBitmap& other) {
 void SkBitmap::reset() {
     fPixelRef = nullptr;  // Free pixels.
     fPixmap.reset();
-    fMips.reset();
 }
 
 void SkBitmap::getBounds(SkRect* bounds) const {

@@ -9,6 +9,8 @@ licenses(["notice"])
 IMAGE_FILES = [
     "GrImageUtils.cpp",
     "GrImageUtils.h",
+    "GrMippedBitmap.cpp",
+    "GrMippedBitmap.h",
     "GrTextureGenerator.cpp",
     "SkImage_Ganesh.cpp",
     "SkImage_Ganesh.h",

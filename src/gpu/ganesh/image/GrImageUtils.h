@@ -8,7 +8,6 @@
 #define GrImageUtils_DEFINED
 
 #include "include/core/SkRefCnt.h"
-
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkYUVAPixmaps.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"  // IWYU pragma: keep

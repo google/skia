@@ -39,6 +39,7 @@
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrTextureProxyCacheAccess.h"
 #include "src/gpu/ganesh/GrTextureRenderTargetProxy.h"
+#include "src/gpu/ganesh/image/GrMippedBitmap.h"
 
 #include <functional>
 #include <memory>
@@ -280,7 +281,7 @@ GrSurfaceProxyView GrProxyProvider::findCachedProxyWithColorTypeFallback(
     return {std::move(proxy), origin, swizzle};
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bitmap,
+sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const GrMippedBitmap& bm,
                                                              skgpu::Mipmapped mipmapped,
                                                              SkBackingFit fit,
                                                              skgpu::Budgeted budgeted) {
@@ -291,6 +292,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
         return nullptr;
     }
 
+    SkBitmap bitmap = bm.bitmap();
     if (!SkImageInfoIsValid(bitmap.info())) {
         return nullptr;
     }
@@ -304,20 +306,21 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
     // even if its mutable. In ddl, if the bitmap is mutable then we must make a copy since the
     // upload of the data to the gpu can happen at anytime and the bitmap may change by then.
     SkBitmap copyBitmap = bitmap;
+    sk_sp<const SkMipmap> mips = bm.mips();
     if (!this->renderingDirectly() && !bitmap.isImmutable()) {
         copyBitmap.allocPixels();
         if (!bitmap.readPixels(copyBitmap.pixmap())) {
             return nullptr;
         }
-        if (mipmapped == skgpu::Mipmapped::kYes && bitmap.fMips) {
-            copyBitmap.fMips = sk_sp<SkMipmap>(SkMipmap::Build(copyBitmap.pixmap(),
-                                                               /* factoryProc= */ nullptr,
-                                                               /* computeContents= */ false));
-            if (copyBitmap.fMips) {
-                for (int i = 0; i < copyBitmap.fMips->countLevels(); ++i) {
+        if (mipmapped == skgpu::Mipmapped::kYes && bm.mips()) {
+            mips = sk_sp<SkMipmap>(SkMipmap::Build(copyBitmap.pixmap(),
+                                                   /* factoryProc= */ nullptr,
+                                                   /* computeContents= */ false));
+            if (mips) {
+                for (int i = 0; i < mips->countLevels(); ++i) {
                     SkMipmap::Level src, dst;
-                    bitmap.fMips->getLevel(i, &src);
-                    copyBitmap.fMips->getLevel(i, &dst);
+                    bm.mips()->getLevel(i, &src);
+                    mips->getLevel(i, &dst);
                     src.fPixmap.readPixels(dst.fPixmap);
                 }
             }
@@ -330,7 +333,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
         !SkMipmap::ComputeLevelCount(copyBitmap.dimensions())) {
         proxy = this->createNonMippedProxyFromBitmap(copyBitmap, fit, budgeted);
     } else {
-        proxy = this->createMippedProxyFromBitmap(copyBitmap, budgeted);
+        proxy = this->createMippedProxyFromBitmap(GrMippedBitmap(copyBitmap, mips), budgeted);
     }
 
     if (!proxy) {
@@ -396,17 +399,17 @@ sk_sp<GrTextureProxy> GrProxyProvider::createNonMippedProxyFromBitmap(const SkBi
     return proxy;
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::createMippedProxyFromBitmap(const SkBitmap& bitmap,
+sk_sp<GrTextureProxy> GrProxyProvider::createMippedProxyFromBitmap(const GrMippedBitmap& bm,
                                                                    skgpu::Budgeted budgeted) {
     SkASSERT(this->caps()->mipmapSupport());
-
+    SkBitmap bitmap = bm.bitmap();
     auto colorType = SkColorTypeToGrColorType(bitmap.colorType());
     GrBackendFormat format = this->caps()->getDefaultBackendFormat(colorType, GrRenderable::kNo);
     if (!format.isValid()) {
         return nullptr;
     }
 
-    sk_sp<SkMipmap> mipmaps = bitmap.fMips;
+    sk_sp<const SkMipmap> mipmaps = bm.mips();
     if (!mipmaps) {
         mipmaps.reset(SkMipmap::Build(bitmap.pixmap(), /* factoryProc= */ nullptr));
         if (!mipmaps) {

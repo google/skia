@@ -13,6 +13,7 @@
 
 #include <memory>
 
+class GrMippedBitmap;
 class GrRecordingContext;
 class GrSurfaceProxyView;
 class SkBitmap;
@@ -26,7 +27,7 @@ class ColorTableEffect : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
                                                      GrRecordingContext* context,
-                                                     const SkBitmap& bitmap);
+                                                     const GrMippedBitmap&);
 
     ~ColorTableEffect() override {}
 

@@ -384,6 +384,7 @@ sk_sp<SkImage> SkAnimatedImage::getCurrentFrame() {
 
     SkCanvas canvas(dst);
     this->draw(&canvas);
+    dst.setImmutable();
     return SkImage_Raster::MakeFromBitmap(dst, SkCopyPixelsMode::kNever);
 }
 

@@ -28,6 +28,7 @@
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/ganesh/image/GrMippedBitmap.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -84,8 +85,9 @@ DEF_SIMPLE_GPU_GM_BG(fpcoordinateoverride, rContext, canvas, 512, 512,
 
     SkBitmap bmp;
     ToolUtils::GetResourceAsBitmap("images/mandrill_512_q075.jpg", &bmp);
+    auto bitmap = GrMippedBitmap(bmp);
     auto view = std::get<0>(GrMakeCachedBitmapProxyView(
-            rContext, bmp, /*label=*/"FpCoordinateOverride", skgpu::Mipmapped::kNo));
+            rContext, bitmap, /*label=*/"FpCoordinateOverride", skgpu::Mipmapped::kNo));
     if (!view) {
         return;
     }
