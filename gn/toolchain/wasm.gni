@@ -49,10 +49,6 @@ if (!is_debug && !skia_canvaskit_force_tracing) {
   wasm_defines += [ "SK_DISABLE_TRACING" ]
 }
 
-if (skia_enable_ganesh) {
-  wasm_defines += [ "SK_DISABLE_LEGACY_SHADERCONTEXT" ]
-}
-
 if (!skia_canvaskit_enable_effects_deserialization ||
     !skia_canvaskit_enable_skp_serialization) {
   wasm_defines += [ "SK_DISABLE_EFFECT_DESERIALIZATION" ]

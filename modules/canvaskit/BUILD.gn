@@ -385,10 +385,7 @@ skia_wasm_lib("canvaskit") {
     defines += [ "CK_SERIALIZE_SKP" ]
   }
   if (skia_enable_ganesh) {
-    defines += [
-      "SK_GANESH",
-      "SK_DISABLE_LEGACY_SHADERCONTEXT",
-    ]
+    defines += [ "SK_GANESH" ]
     if (skia_canvaskit_enable_webgl) {
       defines += [
         "SK_GL",

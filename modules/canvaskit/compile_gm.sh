@@ -47,9 +47,8 @@ mkdir -p $BUILD_DIR
 rm -f $BUILD_DIR/*.a
 
 GN_GPU="skia_enable_ganesh=true skia_gl_standard = \"webgl\""
-GN_GPU_FLAGS="\"-DSK_DISABLE_LEGACY_SHADERCONTEXT\","
 WASM_GPU="-lGL -DSK_GANESH -DSK_GL -DCK_ENABLE_WEBGL \
-          -DSK_DISABLE_LEGACY_SHADERCONTEXT --pre-js $BASE_DIR/cpu.js --pre-js $BASE_DIR/webgl.js\
+          --pre-js $BASE_DIR/cpu.js --pre-js $BASE_DIR/webgl.js\
           -sUSE_WEBGL2=1"
 
 GM_LIB="$BUILD_DIR/libgm_wasm.a"
@@ -81,7 +80,6 @@ echo "Compiling bitcode"
   extra_cflags=[\"-sMAIN_MODULE=1\",
     \"-DSKNX_NO_SIMD\",
     \"-DSK_FORCE_8_BYTE_ALIGNMENT\",
-    ${GN_GPU_FLAGS}
     ${EXTRA_CFLAGS}
   ] \
   is_debug=${DEBUG} \
