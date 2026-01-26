@@ -101,7 +101,6 @@ skia_cc_library(
     name = "sk_sharing_proc",
     srcs = ["SkSharingProc.cpp"],
     hdrs = ["SkSharingProc.h"],
-    defines = ["SK_DISABLE_LEGACY_NONCONST_SERIAL_PROCS"],
     visibility = ["//tools/debugger:__pkg__"],
     deps = [
         "//:core",

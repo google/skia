@@ -649,7 +649,6 @@ def strip_non_srcs(sources):
 
 def get_defines(json):
   defines = {d for d in json['targets']['//:skia']['defines']}
-  defines.remove('SK_DISABLE_LEGACY_NONCONST_SERIAL_PROCS')
   return defines
 
 def disallow_platforms(config, desired):
