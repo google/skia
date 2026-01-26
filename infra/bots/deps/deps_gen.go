@@ -49,7 +49,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"chromium.googlesource.com/chromium/src/third_party/abseil-cpp": {
 		Id:      "chromium.googlesource.com/chromium/src/third_party/abseil-cpp",
-		Version: "1597226b825a16493de66c1732171efe89b271d9",
+		Version: "874fd0e155b17575452e960e63b25074bf281442",
 		Path:    "third_party/externals/abseil-cpp",
 	},
 	"chromium.googlesource.com/chromium/src/third_party/freetype2": {
@@ -164,7 +164,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"dawn.googlesource.com/dawn": {
 		Id:      "dawn.googlesource.com/dawn",
-		Version: "3b3f70cfdbd9708973c6084ee2eafe98c038985a",
+		Version: "c90f051cc98627061811004644a9210b66cad954",
 		Path:    "third_party/externals/dawn",
 	},
 	"infra/3pp/tools/ninja": {
