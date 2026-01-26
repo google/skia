@@ -1,0 +1,68 @@
+load("//bazel:skia_rules.bzl", "skia_cc_library")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_cc_library(
+    name = "raster",
+    testonly = True,
+    srcs = [
+        "RasterSurfaceManager.cpp",
+        "SurfaceManager.cpp",
+    ],
+    hdrs = ["SurfaceManager.h"],
+    visibility = [
+        "//gm:__pkg__",
+        "//tools/testrunners:__subpackages__",
+    ],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//tools:tool_utils",
+    ],
+)
+
+skia_cc_library(
+    name = "ganesh_gl",
+    testonly = True,
+    srcs = [
+        "GaneshGLSurfaceManager.cpp",
+        "SurfaceManager.cpp",
+    ],
+    hdrs = ["SurfaceManager.h"],
+    visibility = [
+        "//gm:__pkg__",
+        "//tools/testrunners:__subpackages__",
+    ],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
+        "//tools:tool_utils",
+        "//tools/ganesh:ganesh_gl_utils",
+    ],
+)
+
+skia_cc_library(
+    name = "ganesh_vulkan",
+    testonly = True,
+    srcs = [
+        "GaneshVulkanSurfaceManager.cpp",
+        "SurfaceManager.cpp",
+    ],
+    hdrs = ["SurfaceManager.h"],
+    visibility = [
+        "//gm:__pkg__",
+        "//tools/testrunners:__subpackages__",
+    ],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/gpu/ganesh/vk:ganesh_vulkan_TEST_UTIL",
+        "//tools:tool_utils",
+        "//tools/ganesh:ganesh_vulkan_utils",
+    ],
+)

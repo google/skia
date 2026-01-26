@@ -1,0 +1,19 @@
+load("//bazel:skia_rules.bzl", "skia_cc_library")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_cc_library(
+    name = "testrunner",
+    testonly = True,
+    srcs = ["BazelUnitTestRunner.cpp"],
+    visibility = ["//tests:__pkg__"],
+    deps = [
+        "//:core",
+        "//tests:test_harness",
+        "//tools/testrunners/common:testrunner",
+    ],
+)

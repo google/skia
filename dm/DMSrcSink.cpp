@@ -170,6 +170,11 @@ GMSrc::GMSrc(skiagm::GMFactory factory) : fFactory(factory) {}
 
 Result GMSrc::draw(SkCanvas* canvas, GraphiteTestContext* testContext) const {
     std::unique_ptr<skiagm::GM> gm(fFactory());
+    if (gm->isBazelOnly()) {
+        // We skip Bazel-only GMs because they might overlap with existing DM functionality. See
+        // comments in the skiagm::GM::isBazelOnly function declaration for context.
+        return Result(Result::Status::Skip, SkString("Bazel-only GM"));
+    }
     SkString msg;
 
     skiagm::DrawResult gpuSetupResult = gm->gpuSetup(canvas, &msg, testContext);

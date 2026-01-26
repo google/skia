@@ -1,5 +1,12 @@
 [
   {
+    "name": "BazelBuild-all_tests-debug-linux_x64"
+  },
+  {
+    "name": "BazelBuild-all_tests-release-linux_x64",
+    "cq_config": {}
+  },
+  {
     "name": "BazelBuild-android_math_test-for_android_arm64_release-linux_x64"
   },
   {
@@ -47,6 +54,12 @@
   },
   {
     "name": "BazelTest-cpu_tests-all_go_tests-linux_rbe-linux_x64"
+  },
+  {
+    "name": "BazelTest-cpu_tests-all_tests-cpu_only_debug_rbe-linux_x64",
+    "cq_config": {
+      "experimental": true
+    }
   },
   {
     "name": "BazelTest-external_client-decode_everything-default-linux_x64"

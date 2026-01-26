@@ -1,0 +1,10 @@
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+exports_files(
+    ["BazelGMTestRunner.cpp"],
+    visibility = ["//gm:__pkg__"],
+)

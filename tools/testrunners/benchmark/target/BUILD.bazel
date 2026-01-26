@@ -1,0 +1,69 @@
+load("//bazel:skia_rules.bzl", "skia_cc_library")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_cc_library(
+    name = "raster",
+    testonly = True,
+    srcs = [
+        "BenchmarkTarget.cpp",
+        "RasterBenchmarkTarget.cpp",
+    ],
+    hdrs = ["BenchmarkTarget.h"],
+    visibility = ["//bench:__pkg__"],
+    deps = [
+        "//:core",
+        "//bench:benchmark",
+        "//src/base",
+        "//tools:tool_utils",
+        "//tools/flags:cmd_flags",
+        "//tools/testrunners/common:testrunner",
+        "//tools/testrunners/common/surface_manager:raster",
+    ],
+)
+
+skia_cc_library(
+    name = "ganesh_gl",
+    testonly = True,
+    srcs = [
+        "BenchmarkTarget.cpp",
+        "GaneshBenchmarkTarget.cpp",
+    ],
+    hdrs = ["BenchmarkTarget.h"],
+    visibility = ["//bench:__pkg__"],
+    deps = [
+        "//:core",
+        "//bench:benchmark",
+        "//src/base",
+        "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
+        "//tools:tool_utils",
+        "//tools/flags:cmd_flags",
+        "//tools/testrunners/common:testrunner",
+        "//tools/testrunners/common/surface_manager:ganesh_gl",
+    ],
+)
+
+skia_cc_library(
+    name = "ganesh_vulkan",
+    testonly = True,
+    srcs = [
+        "BenchmarkTarget.cpp",
+        "GaneshBenchmarkTarget.cpp",
+    ],
+    hdrs = ["BenchmarkTarget.h"],
+    visibility = ["//bench:__pkg__"],
+    deps = [
+        "//:core",
+        "//bench:benchmark",
+        "//src/base",
+        "//src/gpu/ganesh/vk:ganesh_vulkan_TEST_UTIL",
+        "//tools:tool_utils",
+        "//tools/flags:cmd_flags",
+        "//tools/testrunners/common:testrunner",
+        "//tools/testrunners/common/surface_manager:ganesh_vulkan",
+    ],
+)

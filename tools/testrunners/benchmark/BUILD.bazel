@@ -1,0 +1,10 @@
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+exports_files(
+    ["BazelBenchmarkTestRunner.cpp"],
+    visibility = ["//bench:__pkg__"],
+)
