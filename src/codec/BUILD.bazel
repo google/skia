@@ -387,7 +387,7 @@ skia_cc_library(
     ],
     hdrs = [
         "//include/codec:any_codec_hdrs",
-        "//include/codec:png_public_hdrs",
+        "//include/codec:libpng_public_hdrs",
     ],
     defines = [
         "SK_CODEC_DECODES_PNG",

@@ -405,7 +405,13 @@ static SkImageInfo make_f16_info(SkISize size) {
 }
 
 void draw(SkCanvas* canvas) {
-    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(SkData::MakeWithoutCopy(data0, data0length)));
+    auto data = SkData::MakeWithoutCopy(data0, data0length);
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+    std::unique_ptr<SkStream> stream = SkMemoryStream::Make(std::move(data));
+    auto codec = SkPngRustDecoder::Decode(std::move(stream), nullptr, nullptr);
+#else
+    auto codec = SkPngDecoder::Decode(data, nullptr, nullptr);
+#endif
     if (!codec) {
         return;
     }

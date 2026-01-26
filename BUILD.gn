@@ -1297,6 +1297,9 @@ optional("png_decode_libpng") {
     "//third_party/libpng",
   ]
   sources = [ "src/codec/SkIcoCodec.cpp" ] + skia_codec_libpng_srcs
+
+  # Export this so fiddles could decode png using libpng
+  public = skia_codec_libpng_public
 }
 
 optional("png_encode_common") {

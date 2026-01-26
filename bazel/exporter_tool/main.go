@@ -60,6 +60,11 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/codec:common_libpng_srcs",
 			},
 		},
+		{Var: "skia_codec_libpng_public",
+			Rules: []string{
+				"//include/codec:libpng_public_hdrs",
+			},
+		},
 		{Var: "skia_codec_rust_png_public",
 			Rules: []string{
 				"//include/codec:rust_png_public_hdrs",

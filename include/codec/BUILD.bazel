@@ -81,7 +81,7 @@ PNG_PUBLIC_HDRS = [
 ]
 
 skia_filegroup(
-    name = "png_public_hdrs",
+    name = "libpng_public_hdrs",
     srcs = PNG_PUBLIC_HDRS,
     visibility = ["//src/codec:__pkg__"],
 )
