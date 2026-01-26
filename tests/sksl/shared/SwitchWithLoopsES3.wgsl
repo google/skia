@@ -1,11 +1,12 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct _GlobalUniforms {
-  colorGreen: vec4<f32>,
-  colorRed: vec4<f32>,
+  colorGreen: vec4<f16>,
+  colorRed: vec4<f16>,
 };
 @group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn switch_with_continue_in_while_loop_bi(x: i32) -> bool {
@@ -135,7 +136,7 @@ fn do_while_loop_with_break_in_switch_bi(x: i32) -> bool {
     return val == 20;
   }
 }
-fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
+fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
   {
     let x: i32 = i32(_globalUniforms.colorGreen.y);
     var _0_val: i32 = 0;
@@ -159,7 +160,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
         _0_val = _0_val + i32(1);
       }
     }
-    var _skTemp4: vec4<f32>;
+    var _skTemp4: vec4<f16>;
     var _skTemp5: bool;
     var _skTemp6: bool;
     var _skTemp7: bool;

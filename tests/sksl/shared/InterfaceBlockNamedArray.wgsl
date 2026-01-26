@@ -1,18 +1,19 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct testBlock {
   @size(16) s: f32,
-  @size(32) m: _skMatrix22,
+  @size(32) m: _skMatrix22f,
   @size(32) a: array<_skArrayElement_f, 2>,
   am: array<_skArrayElement_f22, 2>,
 };
 @group(0) @binding(123) var<uniform> test : array<testBlock, 2>;
 fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
-    (*_stageOut).sk_FragColor = vec4<f32>(f32(test[0].s), f32(_skUnpacked_test_m[1][1].x), f32(_skUnpacked_test_a[0][1]), f32(_skUnpacked_test_am[1][1][0].y));
+    (*_stageOut).sk_FragColor = vec4<f16>(f16(test[0].s), f16(_skUnpacked_test_m[1][1].x), f16(_skUnpacked_test_a[0][1]), f16(_skUnpacked_test_am[1][1][0].y));
   }
 }
 @fragment fn main() -> FSOut {
@@ -26,13 +27,13 @@ struct _skArrayElement_f {
 };
 var<private> _skUnpacked_test_a: array<array<f32, 2>, 2>;
 struct _skArrayElement_f22 {
-  e : _skMatrix22
+  e : _skMatrix22f
 };
-struct _skRow2 {
+struct _skRow2f {
   @align(16) r : vec2<f32>
 };
-struct _skMatrix22 {
-  c : array<_skRow2, 2>
+struct _skMatrix22f {
+  c : array<_skRow2f, 2>
 };
 var<private> _skUnpacked_test_am: array<array<mat2x2<f32>, 2>, 2>;
 var<private> _skUnpacked_test_m: array<mat2x2<f32>, 2>;

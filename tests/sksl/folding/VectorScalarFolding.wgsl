@@ -1,9 +1,10 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct _GlobalUniforms {
-  colorRed: vec4<f32>,
-  colorGreen: vec4<f32>,
-  unknownInput: f32,
+  colorRed: vec4<f16>,
+  colorGreen: vec4<f16>,
+  unknownInput: f16,
 };
 @group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn test_int_b() -> bool {
@@ -79,77 +80,77 @@ fn test_int_b() -> bool {
     return ok;
   }
 }
-fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
+fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
   {
     var _0_ok: bool = true;
-    var _1_x: vec4<f32> = vec4<f32>(6.0, 6.0, 7.0, 8.0);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(6.0, 6.0, 7.0, 8.0));
-    _1_x = vec4<f32>(7.0, 9.0, 9.0, 9.0);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(7.0, 9.0, 9.0, 9.0));
-    _1_x = vec4<f32>(9.0, 9.0, 10.0, 10.0);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(9.0, 9.0, 10.0, 10.0));
-    _1_x = vec4<f32>((vec3<f32>(6.0)), _1_x.w);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(6.0, 6.0, 6.0, 10.0));
-    _1_x = vec4<f32>((vec2<f32>(3.0)), _1_x.zw);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(3.0, 3.0, 6.0, 10.0));
-    _1_x = vec4<f32>(6.0);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(6.0));
-    _1_x = vec4<f32>(6.0, 6.0, 7.0, 8.0);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(6.0, 6.0, 7.0, 8.0));
-    _1_x = vec4<f32>(-7.0, -9.0, -9.0, -9.0);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(-7.0, -9.0, -9.0, -9.0));
-    _1_x = vec4<f32>(9.0, 9.0, 10.0, 10.0);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(9.0, 9.0, 10.0, 10.0));
-    _1_x = vec4<f32>((vec3<f32>(6.0)), _1_x.w);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(6.0, 6.0, 6.0, 10.0));
-    _1_x = vec4<f32>((vec2<f32>(8.0)), _1_x.zw);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(8.0, 8.0, 6.0, 10.0));
-    _1_x = vec4<f32>(2.0, 1.0, 0.5, 0.25);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(2.0, 1.0, 0.5, 0.25));
-    _1_x = vec4<f32>(6.0);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(6.0));
-    let _2_unknown: f32 = _globalUniforms.unknownInput;
-    _1_x = vec4<f32>(_2_unknown);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(_2_unknown));
-    _1_x = vec4<f32>(0.0);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(0.0));
-    _1_x = vec4<f32>(0.0) / _2_unknown;
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(0.0));
-    _1_x = vec4<f32>(_2_unknown);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(_2_unknown));
-    _1_x = vec4<f32>(_2_unknown);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(_2_unknown));
-    _1_x = vec4<f32>(_2_unknown);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(_2_unknown));
-    _1_x = vec4<f32>(_2_unknown);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(_2_unknown));
-    _1_x = vec4<f32>(_2_unknown);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(_2_unknown));
-    _1_x = vec4<f32>(_2_unknown);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(_2_unknown));
-    _1_x = vec4<f32>(0.0);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(0.0));
-    _1_x = 0.0 / vec4<f32>(_2_unknown);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(0.0));
-    _1_x = vec4<f32>(_2_unknown);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(_2_unknown));
-    _1_x = vec4<f32>(_2_unknown);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(_2_unknown));
-    _1_x = vec4<f32>(0.0);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(0.0));
-    _1_x = vec4<f32>(_2_unknown);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(_2_unknown));
-    _1_x = vec4<f32>(_2_unknown);
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(_2_unknown));
-    _1_x = vec4<f32>(_2_unknown);
-    _1_x = _1_x + 1.0;
-    _1_x = _1_x - 1.0;
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(_2_unknown));
-    _1_x = vec4<f32>(_2_unknown);
-    _1_x = _1_x + 1.0;
-    _1_x = _1_x - 1.0;
-    _0_ok = _0_ok && all(_1_x == vec4<f32>(_2_unknown));
-    var _skTemp0: vec4<f32>;
+    var _1_x: vec4<f16> = vec4<f16>(6.0h, 6.0h, 7.0h, 8.0h);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(6.0h, 6.0h, 7.0h, 8.0h));
+    _1_x = vec4<f16>(7.0h, 9.0h, 9.0h, 9.0h);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(7.0h, 9.0h, 9.0h, 9.0h));
+    _1_x = vec4<f16>(9.0h, 9.0h, 10.0h, 10.0h);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(9.0h, 9.0h, 10.0h, 10.0h));
+    _1_x = vec4<f16>((vec3<f16>(6.0h)), _1_x.w);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(6.0h, 6.0h, 6.0h, 10.0h));
+    _1_x = vec4<f16>((vec2<f16>(3.0h)), _1_x.zw);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(3.0h, 3.0h, 6.0h, 10.0h));
+    _1_x = vec4<f16>(6.0h);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(6.0h));
+    _1_x = vec4<f16>(6.0h, 6.0h, 7.0h, 8.0h);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(6.0h, 6.0h, 7.0h, 8.0h));
+    _1_x = vec4<f16>(-7.0h, -9.0h, -9.0h, -9.0h);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(-7.0h, -9.0h, -9.0h, -9.0h));
+    _1_x = vec4<f16>(9.0h, 9.0h, 10.0h, 10.0h);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(9.0h, 9.0h, 10.0h, 10.0h));
+    _1_x = vec4<f16>((vec3<f16>(6.0h)), _1_x.w);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(6.0h, 6.0h, 6.0h, 10.0h));
+    _1_x = vec4<f16>((vec2<f16>(8.0h)), _1_x.zw);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(8.0h, 8.0h, 6.0h, 10.0h));
+    _1_x = vec4<f16>(2.0h, 1.0h, 0.5h, 0.25h);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(2.0h, 1.0h, 0.5h, 0.25h));
+    _1_x = vec4<f16>(6.0h);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(6.0h));
+    let _2_unknown: f16 = _globalUniforms.unknownInput;
+    _1_x = vec4<f16>(_2_unknown);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(_2_unknown));
+    _1_x = vec4<f16>(0.0h);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(0.0h));
+    _1_x = vec4<f16>(0.0h) / _2_unknown;
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(0.0h));
+    _1_x = vec4<f16>(_2_unknown);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(_2_unknown));
+    _1_x = vec4<f16>(_2_unknown);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(_2_unknown));
+    _1_x = vec4<f16>(_2_unknown);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(_2_unknown));
+    _1_x = vec4<f16>(_2_unknown);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(_2_unknown));
+    _1_x = vec4<f16>(_2_unknown);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(_2_unknown));
+    _1_x = vec4<f16>(_2_unknown);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(_2_unknown));
+    _1_x = vec4<f16>(0.0h);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(0.0h));
+    _1_x = 0.0h / vec4<f16>(_2_unknown);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(0.0h));
+    _1_x = vec4<f16>(_2_unknown);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(_2_unknown));
+    _1_x = vec4<f16>(_2_unknown);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(_2_unknown));
+    _1_x = vec4<f16>(0.0h);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(0.0h));
+    _1_x = vec4<f16>(_2_unknown);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(_2_unknown));
+    _1_x = vec4<f16>(_2_unknown);
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(_2_unknown));
+    _1_x = vec4<f16>(_2_unknown);
+    _1_x = _1_x + 1.0h;
+    _1_x = _1_x - 1.0h;
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(_2_unknown));
+    _1_x = vec4<f16>(_2_unknown);
+    _1_x = _1_x + 1.0h;
+    _1_x = _1_x - 1.0h;
+    _0_ok = _0_ok && all(_1_x == vec4<f16>(_2_unknown));
+    var _skTemp0: vec4<f16>;
     var _skTemp1: bool;
     if _0_ok {
       _skTemp1 = test_int_b();
@@ -164,6 +165,6 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     return _skTemp0;
   }
 }
-@fragment fn main(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
+@fragment fn main(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f16> {
   return _skslMain(_coords);
 }

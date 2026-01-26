@@ -1,13 +1,14 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct _GlobalUniforms {
-  colorWhite: vec4<f32>,
-  colorGreen: vec4<f32>,
-  colorRed: vec4<f32>,
-  testMatrix2x2: _skMatrix22,
+  colorWhite: vec4<f16>,
+  colorGreen: vec4<f16>,
+  colorRed: vec4<f16>,
+  testMatrix2x2: _skMatrix22f,
   testMatrix3x3: mat3x3<f32>,
   testMatrix4x4: mat4x4<f32>,
 };
@@ -21,9 +22,9 @@ fn test_iscalar_b() -> bool {
 }
 fn test_fvec_b() -> bool {
   {
-    var x: vec2<f32> = _globalUniforms.colorWhite.xy;
+    var x: vec2<f16> = _globalUniforms.colorWhite.xy;
     x = -x;
-    return all(x == vec2<f32>(-1.0));
+    return all(x == vec2<f16>(-1.0h));
   }
 }
 fn test_ivec_b() -> bool {
@@ -59,33 +60,33 @@ fn test_mat4_b() -> bool {
 }
 fn test_hmat2_b() -> bool {
   {
-    const negated: mat2x2<f32> = mat2x2<f32>(-1.0, -2.0, -3.0, -4.0);
-    var x: mat2x2<f32> = mat2x2<f32>(_skUnpacked__globalUniforms_testMatrix2x2);
+    const negated: mat2x2<f16> = mat2x2<f16>(-1.0h, -2.0h, -3.0h, -4.0h);
+    var x: mat2x2<f16> = mat2x2<f16>(_skUnpacked__globalUniforms_testMatrix2x2);
     x = (-1.0 * x);
     return (all(x[0] == negated[0]) && all(x[1] == negated[1]));
   }
 }
 fn test_hmat3_b() -> bool {
   {
-    const negated: mat3x3<f32> = mat3x3<f32>(-1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, -8.0, -9.0);
-    var x: mat3x3<f32> = mat3x3<f32>(_globalUniforms.testMatrix3x3);
+    const negated: mat3x3<f16> = mat3x3<f16>(-1.0h, -2.0h, -3.0h, -4.0h, -5.0h, -6.0h, -7.0h, -8.0h, -9.0h);
+    var x: mat3x3<f16> = mat3x3<f16>(_globalUniforms.testMatrix3x3);
     x = (-1.0 * x);
     return (all(x[0] == negated[0]) && all(x[1] == negated[1]) && all(x[2] == negated[2]));
   }
 }
 fn test_hmat4_b() -> bool {
   {
-    const negated: mat4x4<f32> = mat4x4<f32>(-1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, -8.0, -9.0, -10.0, -11.0, -12.0, -13.0, -14.0, -15.0, -16.0);
-    var x: mat4x4<f32> = mat4x4<f32>(_globalUniforms.testMatrix4x4);
+    const negated: mat4x4<f16> = mat4x4<f16>(-1.0h, -2.0h, -3.0h, -4.0h, -5.0h, -6.0h, -7.0h, -8.0h, -9.0h, -10.0h, -11.0h, -12.0h, -13.0h, -14.0h, -15.0h, -16.0h);
+    var x: mat4x4<f16> = mat4x4<f16>(_globalUniforms.testMatrix4x4);
     x = (-1.0 * x);
     return (all(x[0] == negated[0]) && all(x[1] == negated[1]) && all(x[2] == negated[2]) && all(x[3] == negated[3]));
   }
 }
-fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
+fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
   {
     var _0_x: f32 = f32(_globalUniforms.colorWhite.x);
     _0_x = -_0_x;
-    var _skTemp0: vec4<f32>;
+    var _skTemp0: vec4<f16>;
     var _skTemp1: bool;
     var _skTemp2: bool;
     var _skTemp3: bool;
@@ -154,11 +155,11 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   _stageOut.sk_FragColor = _skslMain(/*fragcoord*/ vec2<f32>());
   return _stageOut;
 }
-struct _skRow2 {
+struct _skRow2f {
   @align(16) r : vec2<f32>
 };
-struct _skMatrix22 {
-  c : array<_skRow2, 2>
+struct _skMatrix22f {
+  c : array<_skRow2f, 2>
 };
 var<private> _skUnpacked__globalUniforms_testMatrix2x2: mat2x2<f32>;
 fn _skInitializePolyfilledUniforms() {

@@ -1,11 +1,12 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct _GlobalUniforms {
-  colorGreen: vec4<f32>,
-  colorRed: vec4<f32>,
+  colorGreen: vec4<f16>,
+  colorRed: vec4<f16>,
 };
 @group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn TrueFalse_b() -> bool {
@@ -77,14 +78,14 @@ fn FalseFalse_b() -> bool {
   }
   return bool();
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
+fn _skslMain(_skParam0: vec2<f32>) -> vec4<f16> {
   {
     var _0_TrueTrue: bool;
     const _2_y: i32 = 1;
     {
       _0_TrueTrue = (_2_y == 1);
     }
-    var _skTemp3: vec4<f32>;
+    var _skTemp3: vec4<f16>;
     var _skTemp4: bool;
     var _skTemp5: bool;
     var _skTemp6: bool;

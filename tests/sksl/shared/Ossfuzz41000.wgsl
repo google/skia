@@ -1,5 +1,6 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct _GlobalUniforms {
   x: f32,
 };

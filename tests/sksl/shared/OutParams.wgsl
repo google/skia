@@ -1,50 +1,51 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct _GlobalUniforms {
-  colorGreen: vec4<f32>,
-  colorRed: vec4<f32>,
-  colorWhite: vec4<f32>,
+  colorGreen: vec4<f16>,
+  colorRed: vec4<f16>,
+  colorWhite: vec4<f16>,
 };
 @group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
-fn out_half_vh(v: ptr<function, f32>) {
+fn out_half_vh(v: ptr<function, f16>) {
   {
     (*v) = _globalUniforms.colorWhite.x;
   }
 }
-fn out_half2_vh2(v: ptr<function, vec2<f32>>) {
+fn out_half2_vh2(v: ptr<function, vec2<f16>>) {
   {
-    (*v) = vec2<f32>(_globalUniforms.colorWhite.y);
+    (*v) = vec2<f16>(_globalUniforms.colorWhite.y);
   }
 }
-fn out_half3_vh3(v: ptr<function, vec3<f32>>) {
+fn out_half3_vh3(v: ptr<function, vec3<f16>>) {
   {
-    (*v) = vec3<f32>(_globalUniforms.colorWhite.z);
+    (*v) = vec3<f16>(_globalUniforms.colorWhite.z);
   }
 }
-fn out_half4_vh4(v: ptr<function, vec4<f32>>) {
+fn out_half4_vh4(v: ptr<function, vec4<f16>>) {
   {
-    (*v) = vec4<f32>(_globalUniforms.colorWhite.w);
+    (*v) = vec4<f16>(_globalUniforms.colorWhite.w);
   }
 }
-fn out_half2x2_vh22(v: ptr<function, mat2x2<f32>>) {
+fn out_half2x2_vh22(v: ptr<function, mat2x2<f16>>) {
   {
     let _skTemp0 = _globalUniforms.colorWhite.x;
-    (*v) = mat2x2<f32>(_skTemp0, 0.0, 0.0, _skTemp0);
+    (*v) = mat2x2<f16>(_skTemp0, 0.0, 0.0, _skTemp0);
   }
 }
-fn out_half3x3_vh33(v: ptr<function, mat3x3<f32>>) {
+fn out_half3x3_vh33(v: ptr<function, mat3x3<f16>>) {
   {
     let _skTemp1 = _globalUniforms.colorWhite.y;
-    (*v) = mat3x3<f32>(_skTemp1, 0.0, 0.0, 0.0, _skTemp1, 0.0, 0.0, 0.0, _skTemp1);
+    (*v) = mat3x3<f16>(_skTemp1, 0.0, 0.0, 0.0, _skTemp1, 0.0, 0.0, 0.0, _skTemp1);
   }
 }
-fn out_half4x4_vh44(v: ptr<function, mat4x4<f32>>) {
+fn out_half4x4_vh44(v: ptr<function, mat4x4<f16>>) {
   {
     let _skTemp2 = _globalUniforms.colorWhite.z;
-    (*v) = mat4x4<f32>(_skTemp2, 0.0, 0.0, 0.0, 0.0, _skTemp2, 0.0, 0.0, 0.0, 0.0, _skTemp2, 0.0, 0.0, 0.0, 0.0, _skTemp2);
+    (*v) = mat4x4<f16>(_skTemp2, 0.0, 0.0, 0.0, 0.0, _skTemp2, 0.0, 0.0, 0.0, 0.0, _skTemp2, 0.0, 0.0, 0.0, 0.0, _skTemp2);
   }
 }
 fn out_int_vi(v: ptr<function, i32>) {
@@ -125,52 +126,52 @@ fn out_bool4_vb4(v: ptr<function, vec4<bool>>) {
     (*v) = vec4<bool>(bool(_globalUniforms.colorWhite.w));
   }
 }
-fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
+fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
   {
-    var h: f32;
-    var _skTemp6: f32;
+    var h: f16;
+    var _skTemp6: f16;
     out_half_vh(&_skTemp6);
     h = _skTemp6;
-    var h2: vec2<f32>;
-    var _skTemp7: vec2<f32>;
+    var h2: vec2<f16>;
+    var _skTemp7: vec2<f16>;
     out_half2_vh2(&_skTemp7);
     h2 = _skTemp7;
-    var h3: vec3<f32>;
-    var _skTemp8: vec3<f32>;
+    var h3: vec3<f16>;
+    var _skTemp8: vec3<f16>;
     out_half3_vh3(&_skTemp8);
     h3 = _skTemp8;
-    var h4: vec4<f32>;
-    var _skTemp9: vec4<f32>;
+    var h4: vec4<f16>;
+    var _skTemp9: vec4<f16>;
     out_half4_vh4(&_skTemp9);
     h4 = _skTemp9;
-    var _skTemp10: f32;
+    var _skTemp10: f16;
     out_half_vh(&_skTemp10);
     h3.y = _skTemp10;
-    var _skTemp11: vec2<f32>;
+    var _skTemp11: vec2<f16>;
     out_half2_vh2(&_skTemp11);
-    h3 = vec3<f32>((_skTemp11), h3.y).xzy;
-    var _skTemp12: vec4<f32>;
+    h3 = vec3<f16>((_skTemp11), h3.y).xzy;
+    var _skTemp12: vec4<f16>;
     out_half4_vh4(&_skTemp12);
     h4 = (_skTemp12).zwxy;
-    var h2x2: mat2x2<f32>;
-    var _skTemp13: mat2x2<f32>;
+    var h2x2: mat2x2<f16>;
+    var _skTemp13: mat2x2<f16>;
     out_half2x2_vh22(&_skTemp13);
     h2x2 = _skTemp13;
-    var h3x3: mat3x3<f32>;
-    var _skTemp14: mat3x3<f32>;
+    var h3x3: mat3x3<f16>;
+    var _skTemp14: mat3x3<f16>;
     out_half3x3_vh33(&_skTemp14);
     h3x3 = _skTemp14;
-    var h4x4: mat4x4<f32>;
-    var _skTemp15: mat4x4<f32>;
+    var h4x4: mat4x4<f16>;
+    var _skTemp15: mat4x4<f16>;
     out_half4x4_vh44(&_skTemp15);
     h4x4 = _skTemp15;
-    var _skTemp16: vec3<f32>;
+    var _skTemp16: vec3<f16>;
     out_half3_vh3(&_skTemp16);
     h3x3[1] = _skTemp16;
-    var _skTemp17: f32;
+    var _skTemp17: f16;
     out_half_vh(&_skTemp17);
     h4x4[3].w = _skTemp17;
-    var _skTemp18: f32;
+    var _skTemp18: f16;
     out_half_vh(&_skTemp18);
     h2x2[0].x = _skTemp18;
     var i: i32;
@@ -255,7 +256,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     out_bool_vb(&_skTemp40);
     b3.z = _skTemp40;
     var ok: bool = true;
-    ok = ok && (1.0 == ((((((h * h2.x) * h3.x) * h4.x) * h2x2[0].x) * h3x3[0].x) * h4x4[0].x));
+    ok = ok && (1.0h == ((((((h * h2.x) * h3.x) * h4.x) * h2x2[0].x) * h3x3[0].x) * h4x4[0].x));
     ok = ok && (1.0 == ((((((f * f2.x) * f3.x) * f4.x) * f2x2[0].x) * f3x3[0].x) * f4x4[0].x));
     ok = ok && (1 == (((i * i2.x) * i3.x) * i4.x));
     ok = ok && (((b && b2.x) && b3.x) && b4.x);

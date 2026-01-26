@@ -1,7 +1,8 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct testStorageBuffer {
   testArr: array<f32>,
@@ -44,12 +45,12 @@ fn unsizedInParameterF_fS(_skParam0: ptr<storage, array<S>, read>) -> f32 {
     return 0.0;
   }
 }
-fn getColor_h4f(arr: ptr<storage, array<f32>, read>) -> vec4<f32> {
+fn getColor_h4f(arr: ptr<storage, array<f32>, read>) -> vec4<f16> {
   {
-    return vec4<f32>(f32((*arr)[0]), f32((*arr)[1]), f32((*arr)[2]), f32((*arr)[3]));
+    return vec4<f16>(f16((*arr)[0]), f16((*arr)[1]), f16((*arr)[2]), f16((*arr)[3]));
   }
 }
-fn getColor_helper_h4f(arr: ptr<storage, array<f32>, read>) -> vec4<f32> {
+fn getColor_helper_h4f(arr: ptr<storage, array<f32>, read>) -> vec4<f16> {
   {
     return getColor_h4f(arr);
   }

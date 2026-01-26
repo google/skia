@@ -1,23 +1,24 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct _GlobalUniforms {
-  colorGreen: vec4<f32>,
+  colorGreen: vec4<f16>,
 };
 @group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
-fn this_function_is_prototyped_after_its_definition_h4h4(x: vec4<f32>) -> vec4<f32> {
+fn this_function_is_prototyped_after_its_definition_h4h4(x: vec4<f16>) -> vec4<f16> {
   {
     return -x;
   }
 }
-fn this_function_is_defined_before_use_h4h4(x: vec4<f32>) -> vec4<f32> {
+fn this_function_is_defined_before_use_h4h4(x: vec4<f16>) -> vec4<f16> {
   {
     return -this_function_is_prototyped_after_its_definition_h4h4(-x);
   }
 }
-fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
+fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
   {
     return this_function_is_defined_before_use_h4h4(-_globalUniforms.colorGreen);
   }

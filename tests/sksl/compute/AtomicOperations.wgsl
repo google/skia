@@ -1,5 +1,6 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct CSIn {
   @builtin(local_invocation_id) sk_LocalInvocationID: vec3<u32>,
 };

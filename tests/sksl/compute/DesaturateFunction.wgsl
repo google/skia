@@ -1,5 +1,6 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct CSIn {
   @builtin(global_invocation_id) sk_GlobalInvocationID: vec3<u32>,
 };
@@ -7,9 +8,9 @@ struct CSIn {
 @group(0) @binding(1) var dest: texture_storage_2d<rgba32float, write>;
 fn desaturate_vTT(_stageIn: CSIn, src: texture_2d<f32>, dest: texture_storage_2d<rgba32float, write>) {
   {
-    var color: vec4<f32> = textureLoad(src, _stageIn.sk_GlobalInvocationID.xy, 0);
-    color = vec4<f32>((vec3<f32>(dot(color.xyz, vec3<f32>(0.22, 0.67, 0.11)))), color.w);
-    textureStore(dest, _stageIn.sk_GlobalInvocationID.xy, color);
+    var color: vec4<f16> = vec4<f16>(textureLoad(src, _stageIn.sk_GlobalInvocationID.xy, 0));
+    color = vec4<f16>((vec3<f16>(dot(color.xyz, vec3<f16>(0.22h, 0.67h, 0.11h)))), color.w);
+    textureStore(dest, _stageIn.sk_GlobalInvocationID.xy, vec4<f32>(color));
   }
 }
 fn _skslMain(_stageIn: CSIn) {

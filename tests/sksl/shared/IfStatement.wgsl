@@ -1,15 +1,16 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct _GlobalUniforms {
-  colorWhite: vec4<f32>,
+  colorWhite: vec4<f16>,
 };
 @group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
-fn ifElseTest_h4h4h4h4(colorBlue: vec4<f32>, colorGreen: vec4<f32>, colorRed: vec4<f32>) -> vec4<f32> {
+fn ifElseTest_h4h4h4h4(colorBlue: vec4<f16>, colorGreen: vec4<f16>, colorRed: vec4<f16>) -> vec4<f16> {
   {
-    var result: vec4<f32> = vec4<f32>(0.0);
+    var result: vec4<f16> = vec4<f16>(0.0h);
     if any(_globalUniforms.colorWhite != colorBlue) {
       {
         if all(colorGreen == colorRed) {
@@ -53,9 +54,9 @@ fn ifElseTest_h4h4h4h4(colorBlue: vec4<f32>, colorGreen: vec4<f32>, colorRed: ve
     return colorRed;
   }
 }
-fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
+fn _skslMain(_skParam0: vec2<f32>) -> vec4<f16> {
   {
-    return ifElseTest_h4h4h4h4(vec4<f32>(0.0, 0.0, _globalUniforms.colorWhite.z, 1.0), vec4<f32>(0.0, _globalUniforms.colorWhite.y, 0.0, 1.0), vec4<f32>(_globalUniforms.colorWhite.x, 0.0, 0.0, 1.0));
+    return ifElseTest_h4h4h4h4(vec4<f16>(0.0h, 0.0h, _globalUniforms.colorWhite.z, 1.0h), vec4<f16>(0.0h, _globalUniforms.colorWhite.y, 0.0h, 1.0h), vec4<f16>(_globalUniforms.colorWhite.x, 0.0h, 0.0h, 1.0h));
   }
 }
 @fragment fn main() -> FSOut {

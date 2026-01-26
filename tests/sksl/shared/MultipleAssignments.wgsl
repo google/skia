@@ -1,21 +1,22 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
-fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
+fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
   {
     var x: f32;
     var y: f32;
     y = 1.0;
     x = y;
-    var a: f32;
-    var b: f32;
-    var c: f32;
-    c = 0.0;
+    var a: f16;
+    var b: f16;
+    var c: f16;
+    c = 0.0h;
     b = c;
     a = b;
-    return vec4<f32>(a * b, f32(x), c, f32(y));
+    return vec4<f16>(a * b, f16(x), c, f16(y));
   }
 }
 @fragment fn main() -> FSOut {

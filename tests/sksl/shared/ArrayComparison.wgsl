@@ -1,11 +1,12 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct _GlobalUniforms {
-  colorGreen: vec4<f32>,
-  colorRed: vec4<f32>,
+  colorGreen: vec4<f16>,
+  colorRed: vec4<f16>,
   testArray: array<_skArrayElement_f, 5>,
   testArrayNegative: array<_skArrayElement_f, 5>,
 };
@@ -14,7 +15,7 @@ struct S {
   x: i32,
   y: i32,
 };
-fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
+fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
   {
     const f1: array<f32, 5> = array<f32, 5>(1.0, 2.0, 3.0, 4.0, 5.0);
     const f2: array<f32, 5> = array<f32, 5>(1.0, 2.0, 3.0, 4.0, 5.0);
@@ -22,9 +23,9 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     const v1: array<vec3<i32>, 2> = array<vec3<i32>, 2>(vec3<i32>(1, 2, 3), vec3<i32>(4, 5, 6));
     const v2: array<vec3<i32>, 2> = array<vec3<i32>, 2>(vec3<i32>(1, 2, 3), vec3<i32>(4, 5, 6));
     const v3: array<vec3<i32>, 2> = array<vec3<i32>, 2>(vec3<i32>(1, 2, 3), vec3<i32>(4, 5, -6));
-    const m1: array<mat2x2<f32>, 3> = array<mat2x2<f32>, 3>(mat2x2<f32>(1.0, 0.0, 0.0, 1.0), mat2x2<f32>(2.0, 0.0, 0.0, 2.0), mat2x2<f32>(3.0, 4.0, 5.0, 6.0));
-    const m2: array<mat2x2<f32>, 3> = array<mat2x2<f32>, 3>(mat2x2<f32>(1.0, 0.0, 0.0, 1.0), mat2x2<f32>(2.0, 0.0, 0.0, 2.0), mat2x2<f32>(3.0, 4.0, 5.0, 6.0));
-    const m3: array<mat2x2<f32>, 3> = array<mat2x2<f32>, 3>(mat2x2<f32>(1.0, 0.0, 0.0, 1.0), mat2x2<f32>(2.0, 3.0, 4.0, 5.0), mat2x2<f32>(6.0, 0.0, 0.0, 6.0));
+    const m1: array<mat2x2<f16>, 3> = array<mat2x2<f16>, 3>(mat2x2<f16>(1.0h, 0.0, 0.0, 1.0h), mat2x2<f16>(2.0h, 0.0, 0.0, 2.0h), mat2x2<f16>(3.0h, 4.0h, 5.0h, 6.0h));
+    const m2: array<mat2x2<f16>, 3> = array<mat2x2<f16>, 3>(mat2x2<f16>(1.0h, 0.0, 0.0, 1.0h), mat2x2<f16>(2.0h, 0.0, 0.0, 2.0h), mat2x2<f16>(3.0h, 4.0h, 5.0h, 6.0h));
+    const m3: array<mat2x2<f16>, 3> = array<mat2x2<f16>, 3>(mat2x2<f16>(1.0h, 0.0, 0.0, 1.0h), mat2x2<f16>(2.0h, 3.0h, 4.0h, 5.0h), mat2x2<f16>(6.0h, 0.0, 0.0, 6.0h));
     const s1: array<S, 3> = array<S, 3>(S(1, 2), S(3, 4), S(5, 6));
     const s2: array<S, 3> = array<S, 3>(S(1, 2), S(0, 0), S(5, 6));
     const s3: array<S, 3> = array<S, 3>(S(1, 2), S(3, 4), S(5, 6));

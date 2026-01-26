@@ -1,8 +1,9 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct _GlobalUniforms {
-  colorGreen: vec4<f32>,
-  colorRed: vec4<f32>,
+  colorGreen: vec4<f16>,
+  colorRed: vec4<f16>,
 };
 @group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 struct S {
@@ -12,7 +13,7 @@ struct S {
 };
 fn test_same_structs_bbfff(eq: bool, f1: f32, f2: f32, f3: f32) -> bool {
   {
-    let one: f32 = f32(_globalUniforms.colorGreen.x + 1.0);
+    let one: f32 = f32(_globalUniforms.colorGreen.x + 1.0h);
     var a: S;
     a.f1 = f1;
     a.f2 = f2;
@@ -32,7 +33,7 @@ fn test_same_structs_bbfff(eq: bool, f1: f32, f2: f32, f3: f32) -> bool {
 }
 fn test_diff_structs_bbfff(eq: bool, f1: f32, f2: f32, f3: f32) -> bool {
   {
-    let two: f32 = f32(_globalUniforms.colorGreen.x + 2.0);
+    let two: f32 = f32(_globalUniforms.colorGreen.x + 2.0h);
     var a: S;
     a.f1 = f1;
     a.f2 = f2;
@@ -56,12 +57,12 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     let NAN2: f32 = f32(_globalUniforms.colorGreen.z / _globalUniforms.colorGreen.x);
     let ZP: f32 = f32(_globalUniforms.colorGreen.x * _globalUniforms.colorGreen.z);
     let ZM: f32 = f32(-_globalUniforms.colorGreen.x * _globalUniforms.colorGreen.z);
-    let F42: f32 = f32(_globalUniforms.colorGreen.y * 42.0);
-    let F43: f32 = f32(_globalUniforms.colorGreen.y * 43.0);
-    let F44: f32 = f32(_globalUniforms.colorGreen.y * 44.0);
+    let F42: f32 = f32(_globalUniforms.colorGreen.y * 42.0h);
+    let F43: f32 = f32(_globalUniforms.colorGreen.y * 43.0h);
+    let F44: f32 = f32(_globalUniforms.colorGreen.y * 44.0h);
     const EQ: bool = true;
     const NE: bool = false;
-    let _0_one: f32 = f32(_globalUniforms.colorGreen.x + 1.0);
+    let _0_one: f32 = f32(_globalUniforms.colorGreen.x + 1.0h);
     var _1_a: S;
     _1_a.f1 = F42;
     _1_a.f2 = ZM;
@@ -70,7 +71,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     _2_b.f1 = F42 * _0_one;
     _2_b.f2 = ZM * _0_one;
     _2_b.f3 = ZP * _0_one;
-    var _skTemp2: vec4<f32>;
+    var _skTemp2: vec4<f16>;
     var _skTemp3: bool;
     var _skTemp4: bool;
     var _skTemp5: bool;

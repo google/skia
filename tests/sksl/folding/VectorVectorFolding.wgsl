@@ -1,9 +1,10 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct _GlobalUniforms {
-  unknownInput: f32,
-  colorRed: vec4<f32>,
-  colorGreen: vec4<f32>,
+  unknownInput: f16,
+  colorRed: vec4<f16>,
+  colorGreen: vec4<f16>,
 };
 @group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn test_int_b() -> bool {
@@ -25,23 +26,23 @@ fn test_int_b() -> bool {
     return ok;
   }
 }
-fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
+fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
   {
-    let _0_unknown: f32 = _globalUniforms.unknownInput;
+    let _0_unknown: f16 = _globalUniforms.unknownInput;
     var _1_ok: bool = true;
-    _1_ok = _1_ok && all((vec4<f32>(0.0) / vec4<f32>(_0_unknown)) == vec4<f32>(0.0));
-    var _2_val: vec4<f32> = vec4<f32>(_0_unknown);
-    _2_val = _2_val + vec4<f32>(1.0);
-    _2_val = _2_val - vec4<f32>(1.0);
-    _2_val = _2_val + vec4<f32>(1.0);
-    _2_val = _2_val - vec4<f32>(1.0);
-    _1_ok = _1_ok && all(_2_val == vec4<f32>(_0_unknown));
-    _2_val = _2_val * vec4<f32>(2.0);
-    _2_val = _2_val * vec4<f32>(0.5);
-    _2_val = _2_val * vec4<f32>(2.0);
-    _2_val = _2_val * vec4<f32>(0.5);
-    _1_ok = _1_ok && all(_2_val == vec4<f32>(_0_unknown));
-    var _skTemp0: vec4<f32>;
+    _1_ok = _1_ok && all((vec4<f16>(0.0h) / vec4<f16>(_0_unknown)) == vec4<f16>(0.0h));
+    var _2_val: vec4<f16> = vec4<f16>(_0_unknown);
+    _2_val = _2_val + vec4<f16>(1.0h);
+    _2_val = _2_val - vec4<f16>(1.0h);
+    _2_val = _2_val + vec4<f16>(1.0h);
+    _2_val = _2_val - vec4<f16>(1.0h);
+    _1_ok = _1_ok && all(_2_val == vec4<f16>(_0_unknown));
+    _2_val = _2_val * vec4<f16>(2.0h);
+    _2_val = _2_val * vec4<f16>(0.5h);
+    _2_val = _2_val * vec4<f16>(2.0h);
+    _2_val = _2_val * vec4<f16>(0.5h);
+    _1_ok = _1_ok && all(_2_val == vec4<f16>(_0_unknown));
+    var _skTemp0: vec4<f16>;
     var _skTemp1: bool;
     if _1_ok {
       _skTemp1 = test_int_b();
@@ -56,6 +57,6 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     return _skTemp0;
   }
 }
-@fragment fn main(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
+@fragment fn main(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f16> {
   return _skslMain(_coords);
 }

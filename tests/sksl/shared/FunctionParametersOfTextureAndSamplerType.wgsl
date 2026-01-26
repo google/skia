@@ -1,22 +1,23 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSIn {
   @location(1) c: vec2<f32>,
 };
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 @group(0) @binding(1) var aTexture: texture_2d<f32>;
 @group(0) @binding(10000) var aSampledTexture_Sampler: sampler;
 @group(0) @binding(10001) var aSampledTexture_Texture: texture_2d<f32>;
 @group(0) @binding(10002) var aSecondSampledTexture_Sampler: sampler;
 @group(0) @binding(10003) var aSecondSampledTexture_Texture: texture_2d<f32>;
-fn helpers_helper_h4ZT(_stageIn: FSIn, s_Texture: texture_2d<f32>, s_Sampler: sampler, t: texture_2d<f32>) -> vec4<f32> {
+fn helpers_helper_h4ZT(_stageIn: FSIn, s_Texture: texture_2d<f32>, s_Sampler: sampler, t: texture_2d<f32>) -> vec4<f16> {
   {
-    return textureSample(s_Texture, s_Sampler, _stageIn.c);
+    return vec4<f16>(textureSample(s_Texture, s_Sampler, _stageIn.c));
   }
 }
-fn helper_h4TZ(_stageIn: FSIn, t: texture_2d<f32>, s_Texture: texture_2d<f32>, s_Sampler: sampler) -> vec4<f32> {
+fn helper_h4TZ(_stageIn: FSIn, t: texture_2d<f32>, s_Texture: texture_2d<f32>, s_Sampler: sampler) -> vec4<f16> {
   {
     return helpers_helper_h4ZT(_stageIn, s_Texture, s_Sampler, t);
   }

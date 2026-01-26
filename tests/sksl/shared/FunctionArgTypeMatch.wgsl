@@ -1,11 +1,12 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct _GlobalUniforms {
-  colorGreen: vec4<f32>,
-  colorRed: vec4<f32>,
+  colorGreen: vec4<f16>,
+  colorRed: vec4<f16>,
 };
 @group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn takes_void_b() -> bool {
@@ -48,37 +49,37 @@ fn takes_float4x4_bf44(x: mat4x4<f32>) -> bool {
     return true;
   }
 }
-fn takes_half_bh(x: f32) -> bool {
+fn takes_half_bh(x: f16) -> bool {
   {
     return true;
   }
 }
-fn takes_half2_bh2(x: vec2<f32>) -> bool {
+fn takes_half2_bh2(x: vec2<f16>) -> bool {
   {
     return true;
   }
 }
-fn takes_half3_bh3(x: vec3<f32>) -> bool {
+fn takes_half3_bh3(x: vec3<f16>) -> bool {
   {
     return true;
   }
 }
-fn takes_half4_bh4(x: vec4<f32>) -> bool {
+fn takes_half4_bh4(x: vec4<f16>) -> bool {
   {
     return true;
   }
 }
-fn takes_half2x2_bh22(x: mat2x2<f32>) -> bool {
+fn takes_half2x2_bh22(x: mat2x2<f16>) -> bool {
   {
     return true;
   }
 }
-fn takes_half3x3_bh33(x: mat3x3<f32>) -> bool {
+fn takes_half3x3_bh33(x: mat3x3<f16>) -> bool {
   {
     return true;
   }
 }
-fn takes_half4x4_bh44(x: mat4x4<f32>) -> bool {
+fn takes_half4x4_bh44(x: mat4x4<f16>) -> bool {
   {
     return true;
   }
@@ -123,9 +124,9 @@ fn takes_int4_bi4(x: vec4<i32>) -> bool {
     return true;
   }
 }
-fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
+fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
   {
-    var _skTemp0: vec4<f32>;
+    var _skTemp0: vec4<f16>;
     var _skTemp1: bool;
     var _skTemp2: bool;
     var _skTemp3: bool;
@@ -190,37 +191,37 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
       _skTemp16 = false;
     }
     if _skTemp16 {
-      _skTemp15 = takes_half_bh(1.0);
+      _skTemp15 = takes_half_bh(1.0h);
     } else {
       _skTemp15 = false;
     }
     if _skTemp15 {
-      _skTemp14 = takes_half2_bh2(vec2<f32>(2.0));
+      _skTemp14 = takes_half2_bh2(vec2<f16>(2.0h));
     } else {
       _skTemp14 = false;
     }
     if _skTemp14 {
-      _skTemp13 = takes_half3_bh3(vec3<f32>(3.0));
+      _skTemp13 = takes_half3_bh3(vec3<f16>(3.0h));
     } else {
       _skTemp13 = false;
     }
     if _skTemp13 {
-      _skTemp12 = takes_half4_bh4(vec4<f32>(4.0));
+      _skTemp12 = takes_half4_bh4(vec4<f16>(4.0h));
     } else {
       _skTemp12 = false;
     }
     if _skTemp12 {
-      _skTemp11 = takes_half2x2_bh22(mat2x2<f32>(2.0, 0.0, 0.0, 2.0));
+      _skTemp11 = takes_half2x2_bh22(mat2x2<f16>(2.0h, 0.0, 0.0, 2.0h));
     } else {
       _skTemp11 = false;
     }
     if _skTemp11 {
-      _skTemp10 = takes_half3x3_bh33(mat3x3<f32>(3.0, 0.0, 0.0, 0.0, 3.0, 0.0, 0.0, 0.0, 3.0));
+      _skTemp10 = takes_half3x3_bh33(mat3x3<f16>(3.0h, 0.0, 0.0, 0.0, 3.0h, 0.0, 0.0, 0.0, 3.0h));
     } else {
       _skTemp10 = false;
     }
     if _skTemp10 {
-      _skTemp9 = takes_half4x4_bh44(mat4x4<f32>(4.0, 0.0, 0.0, 0.0, 0.0, 4.0, 0.0, 0.0, 0.0, 0.0, 4.0, 0.0, 0.0, 0.0, 0.0, 4.0));
+      _skTemp9 = takes_half4x4_bh44(mat4x4<f16>(4.0h, 0.0, 0.0, 0.0, 0.0, 4.0h, 0.0, 0.0, 0.0, 0.0, 4.0h, 0.0, 0.0, 0.0, 0.0, 4.0h));
     } else {
       _skTemp9 = false;
     }

@@ -1,5 +1,6 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 var<private> f: f32;
 var<private> u: u32;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {

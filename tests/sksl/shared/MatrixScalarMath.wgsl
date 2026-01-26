@@ -1,11 +1,12 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct _GlobalUniforms {
-  colorGreen: vec4<f32>,
-  colorRed: vec4<f32>,
+  colorGreen: vec4<f16>,
+  colorRed: vec4<f16>,
   testInputs: vec4<f32>,
 };
 @group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
@@ -40,7 +41,7 @@ fn test_bifffff22(op: i32, m11: f32, m12: f32, m21: f32, m22: f32, expected: mat
 }
 fn divisionTest_b() -> bool {
   {
-    let ten: f32 = f32(_globalUniforms.colorRed.x * 10.0);
+    let ten: f32 = f32(_globalUniforms.colorRed.x * 10.0h);
     let _skTemp0 = vec2<f32>(ten);
     let _skTemp1 = vec2<f32>(ten);
     var mat: mat2x2<f32> = mat2x2<f32>(_skTemp0[0], _skTemp0[1], _skTemp1[0], _skTemp1[1]);
@@ -49,19 +50,19 @@ fn divisionTest_b() -> bool {
     return all((abs(vec4<f32>(div[0], div[1]) + vec4<f32>(8.0)) < vec4<f32>(0.01))) && all((abs(vec4<f32>(mat[0], mat[1]) + vec4<f32>(8.0)) < vec4<f32>(0.01)));
   }
 }
-fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
+fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
   {
     let f1: f32 = f32(_globalUniforms.colorGreen.y);
-    let f2: f32 = f32(2.0 * _globalUniforms.colorGreen.y);
-    let f3: f32 = f32(3.0 * _globalUniforms.colorGreen.y);
-    let f4: f32 = f32(4.0 * _globalUniforms.colorGreen.y);
+    let f2: f32 = f32(2.0h * _globalUniforms.colorGreen.y);
+    let f3: f32 = f32(3.0h * _globalUniforms.colorGreen.y);
+    let f4: f32 = f32(4.0h * _globalUniforms.colorGreen.y);
     let _0_expected: mat2x2<f32> = mat2x2<f32>(f1 + 1.0, f2 + 1.0, f3 + 1.0, f4 + 1.0);
     let _1_one: f32 = f32(_globalUniforms.colorRed.x);
     var _2_m2: mat2x2<f32> = mat2x2<f32>(f1 * _1_one, f2 * _1_one, f3 * _1_one, f4 * _1_one);
     {
       _2_m2 = mat2x2<f32>(1.0 + _2_m2[0], 1.0 + _2_m2[1]);
     }
-    var _skTemp2: vec4<f32>;
+    var _skTemp2: vec4<f16>;
     var _skTemp3: bool;
     var _skTemp4: bool;
     var _skTemp5: bool;

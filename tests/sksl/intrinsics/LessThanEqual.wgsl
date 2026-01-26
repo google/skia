@@ -1,11 +1,12 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct _GlobalUniforms {
-  a: vec4<f32>,
-  b: vec4<f32>,
+  a: vec4<f16>,
+  b: vec4<f16>,
   c: vec2<u32>,
   d: vec2<u32>,
   e: vec3<i32>,
@@ -16,10 +17,10 @@ fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
     const expectTTFF: vec4<bool> = vec4<bool>(true, true, false, false);
     const expectFFTT: vec4<bool> = vec4<bool>(false, false, true, true);
-    (*_stageOut).sk_FragColor.x = f32((_globalUniforms.a <= _globalUniforms.b).x);
-    (*_stageOut).sk_FragColor.y = f32((_globalUniforms.c <= _globalUniforms.d).y);
-    (*_stageOut).sk_FragColor.z = f32((_globalUniforms.e <= _globalUniforms.f).z);
-    (*_stageOut).sk_FragColor.w = f32(any(expectTTFF) || any(expectFFTT));
+    (*_stageOut).sk_FragColor.x = f16((_globalUniforms.a <= _globalUniforms.b).x);
+    (*_stageOut).sk_FragColor.y = f16((_globalUniforms.c <= _globalUniforms.d).y);
+    (*_stageOut).sk_FragColor.z = f16((_globalUniforms.e <= _globalUniforms.f).z);
+    (*_stageOut).sk_FragColor.w = f16(any(expectTTFF) || any(expectFFTT));
   }
 }
 @fragment fn main() -> FSOut {

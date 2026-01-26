@@ -1,5 +1,6 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 fn d_vi(i: ptr<function, i32>) {
   {
     (*i) = (*i) + i32(1);
@@ -116,15 +117,15 @@ fn a_vi(i: ptr<function, i32>) {
     (*i) = _skTemp29;
   }
 }
-fn _skslMain(xy: vec2<f32>) -> vec4<f32> {
+fn _skslMain(xy: vec2<f32>) -> vec4<f16> {
   {
     var i: i32 = 0;
     var _skTemp30: i32 = i;
     a_vi(&_skTemp30);
     i = _skTemp30;
-    return vec4<f32>(0.0);
+    return vec4<f16>(0.0h);
   }
 }
-@fragment fn main(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
+@fragment fn main(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f16> {
   return _skslMain(_coords);
 }

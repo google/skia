@@ -1,17 +1,18 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct _GlobalUniforms {
-  colorGreen: vec4<f32>,
+  colorGreen: vec4<f16>,
 };
 @group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
-fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
+fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
   {
-    const h: f32 = 65503.9;
+    const h: f16 = 65503.9h;
     let _skTemp0 = h;
-    let hugeH: f32 = (((((((((((((_skTemp0 * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h;
+    let hugeH: f16 = (((((((((((((_skTemp0 * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h) * h;
     const f: f32 = 1e+09;
     let _skTemp1 = 1e+36;
     let hugeF: f32 = ((((((((((_skTemp1 * f) * f) * f) * f) * f) * f) * f) * f) * f) * f) * f;
@@ -39,7 +40,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     let hugeMxV: vec4<f32> = _skTemp11 * vec4<f32>(1e+20);
     let _skTemp12 = vec4<f32>(1e+20);
     let hugeVxM: vec4<f32> = _skTemp12 * mat4x4<f32>(1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20);
-    return ((((((((((((_globalUniforms.colorGreen * saturate(hugeH)) * saturate(f32(hugeF))) * saturate(f32(hugeI))) * saturate(f32(hugeU))) * saturate(f32(hugeS))) * saturate(f32(hugeUS))) * saturate(f32(hugeNI))) * saturate(f32(hugeNS))) * saturate(vec4<f32>(hugeIvec))) * saturate(vec4<f32>(hugeUvec))) * saturate(vec4<f32>(hugeMxM[0]))) * saturate(vec4<f32>(hugeMxV))) * saturate(vec4<f32>(hugeVxM));
+    return ((((((((((((_globalUniforms.colorGreen * saturate(hugeH)) * saturate(f16(hugeF))) * saturate(f16(hugeI))) * saturate(f16(hugeU))) * saturate(f16(hugeS))) * saturate(f16(hugeUS))) * saturate(f16(hugeNI))) * saturate(f16(hugeNS))) * saturate(vec4<f16>(hugeIvec))) * saturate(vec4<f16>(hugeUvec))) * saturate(vec4<f16>(hugeMxM[0]))) * saturate(vec4<f16>(hugeMxV))) * saturate(vec4<f16>(hugeVxM));
   }
 }
 @fragment fn main() -> FSOut {

@@ -1,16 +1,17 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct _GlobalUniforms {
-  testMatrix2x2: _skMatrix22,
+  testMatrix2x2: _skMatrix22f,
   testMatrix3x3: mat3x3<f32>,
-  colorGreen: vec4<f32>,
-  colorRed: vec4<f32>,
+  colorGreen: vec4<f16>,
+  colorRed: vec4<f16>,
 };
 @group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
-fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
+fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
   {
     const testMatrix2x3: mat2x3<f32> = mat2x3<f32>(1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
     let _skTemp0 = transpose(_skUnpacked__globalUniforms_testMatrix2x2);
@@ -28,11 +29,11 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   _stageOut.sk_FragColor = _skslMain(/*fragcoord*/ vec2<f32>());
   return _stageOut;
 }
-struct _skRow2 {
+struct _skRow2f {
   @align(16) r : vec2<f32>
 };
-struct _skMatrix22 {
-  c : array<_skRow2, 2>
+struct _skMatrix22f {
+  c : array<_skRow2f, 2>
 };
 var<private> _skUnpacked__globalUniforms_testMatrix2x2: mat2x2<f32>;
 fn _skInitializePolyfilledUniforms() {

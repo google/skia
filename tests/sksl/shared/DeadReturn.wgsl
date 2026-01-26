@@ -1,11 +1,12 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct _GlobalUniforms {
-  colorGreen: vec4<f32>,
-  colorRed: vec4<f32>,
+  colorGreen: vec4<f16>,
+  colorRed: vec4<f16>,
 };
 @group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 var<private> scratchVar: i32 = 0;
@@ -16,7 +17,7 @@ fn test_flat_b() -> bool {
 }
 fn test_if_b() -> bool {
   {
-    if _globalUniforms.colorGreen.y > 0.0 {
+    if _globalUniforms.colorGreen.y > 0.0h {
       {
         return true;
       }
@@ -31,7 +32,7 @@ fn test_if_b() -> bool {
 }
 fn test_else_b() -> bool {
   {
-    if _globalUniforms.colorGreen.y == 0.0 {
+    if _globalUniforms.colorGreen.y == 0.0h {
       {
         return false;
       }
@@ -49,7 +50,7 @@ fn test_loop_if_b() -> bool {
       var x: i32 = 0;
       loop {
         {
-          if _globalUniforms.colorGreen.y == 0.0 {
+          if _globalUniforms.colorGreen.y == 0.0h {
             {
               return false;
             }
@@ -69,9 +70,9 @@ fn test_loop_if_b() -> bool {
     return true;
   }
 }
-fn _skslMain(xy: vec2<f32>) -> vec4<f32> {
+fn _skslMain(xy: vec2<f32>) -> vec4<f16> {
   {
-    var _skTemp0: vec4<f32>;
+    var _skTemp0: vec4<f16>;
     var _skTemp1: bool;
     var _skTemp2: bool;
     var _skTemp3: bool;

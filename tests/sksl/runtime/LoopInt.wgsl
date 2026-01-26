@@ -1,8 +1,9 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct _GlobalUniforms {
-  colorRed: vec4<f32>,
-  colorGreen: vec4<f32>,
+  colorRed: vec4<f16>,
+  colorGreen: vec4<f16>,
 };
 @group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 const kZero: i32 = 0;
@@ -243,10 +244,10 @@ fn loop_operator_eq_b() -> bool {
     return all(result == vec4<i32>(9, 9, 9, 1));
   }
 }
-fn _skslMain(pos: vec2<f32>) -> vec4<f32> {
+fn _skslMain(pos: vec2<f32>) -> vec4<f16> {
   {
     let five: i32 = i32(clamp(pos.x, f32(_globalUniforms.colorGreen.y), f32(_globalUniforms.colorGreen.w))) * 5;
-    var _skTemp0: vec4<f32>;
+    var _skTemp0: vec4<f16>;
     var _skTemp1: bool;
     var _skTemp2: bool;
     var _skTemp3: bool;
@@ -303,6 +304,6 @@ fn _skslMain(pos: vec2<f32>) -> vec4<f32> {
     return _skTemp0;
   }
 }
-@fragment fn main(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
+@fragment fn main(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f16> {
   return _skslMain(_coords);
 }

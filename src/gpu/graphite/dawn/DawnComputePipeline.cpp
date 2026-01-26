@@ -52,6 +52,8 @@ static ShaderInfo compile_shader_module(const DawnSharedContext* sharedContext,
         SkSL::NativeShader wgsl;
         SkSL::Program::Interface interface;
         SkSL::ProgramSettings settings;
+        // TODO(michaelludwig): Set this to false when "shader-f16" is available.
+        settings.fForceHighPrecision = true;
 
         std::string sksl = BuildComputeSkSL(caps, step, BackendApi::kDawn);
         if (skgpu::SkSLToWGSL(caps->shaderCaps(),

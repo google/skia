@@ -1,16 +1,17 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct UniformBuffer {
-  u22: _skMatrix22,
+  u22: _skMatrix22f,
   u23: mat2x3<f32>,
   u24: mat2x4<f32>,
-  R_u32: _skMatrix32,
+  R_u32: _skMatrix32f,
   u33: mat3x3<f32>,
   u34: mat3x4<f32>,
-  u42: _skMatrix42,
+  u42: _skMatrix42f,
   u43: mat4x3<f32>,
   u44: mat4x4<f32>,
   au22: array<_skArrayElement_f22, 3>,
@@ -25,13 +26,13 @@ struct UniformBuffer {
 };
 @group(0) @binding(1) var<uniform> _uniform0 : UniformBuffer;
 struct StorageBuffer {
-  s22: _skMatrix22,
+  s22: _skMatrix22f,
   s23: mat2x3<f32>,
   s24: mat2x4<f32>,
-  s32: _skMatrix32,
+  s32: _skMatrix32f,
   s33: mat3x3<f32>,
   s34: mat3x4<f32>,
-  s42: _skMatrix42,
+  s42: _skMatrix42f,
   s43: mat4x3<f32>,
   s44: mat4x4<f32>,
   as22: array<_skArrayElement_f22, 3>,
@@ -45,10 +46,10 @@ struct StorageBuffer {
   as44: array<mat4x4<f32>, 3>,
 };
 @group(0) @binding(2) var<storage, read_write> _storage1 : StorageBuffer;
-fn _skslMain() -> vec4<f32> {
+fn _skslMain() -> vec4<f16> {
   {
     let value: f32 = ((((((((((((((((((((((((((((((((((_skUnpacked__uniform0_u22[0].x + _uniform0.u23[0].x) + _uniform0.u24[0].x) + _skUnpacked__uniform0_R_u32[0].x) + _uniform0.u33[0].x) + _uniform0.u34[0].x) + _skUnpacked__uniform0_u42[0].x) + _uniform0.u43[0].x) + _uniform0.au44[0][0].x) + _skUnpacked__uniform0_au22[0][0].x) + _uniform0.au23[0][0].x) + _uniform0.au24[0][0].x) + _skUnpacked__uniform0_au32[0][0].x) + _uniform0.au33[0][0].x) + _uniform0.au34[0][0].x) + _skUnpacked__uniform0_au42[0][0].x) + _uniform0.au43[0][0].x) + _uniform0.au44[0][0].x) + _skUnpacked__storage1_s22[0].x) + _storage1.s23[0].x) + _storage1.s24[0].x) + _skUnpacked__storage1_s32[0].x) + _storage1.s33[0].x) + _storage1.s34[0].x) + _skUnpacked__storage1_s42[0].x) + _storage1.s43[0].x) + _storage1.as44[0][0].x) + _skUnpacked__storage1_as22[0][0].x) + _storage1.as23[0][0].x) + _storage1.as24[0][0].x) + _skUnpacked__storage1_as32[0][0].x) + _storage1.as33[0][0].x) + _storage1.as34[0][0].x) + _skUnpacked__storage1_as42[0][0].x) + _storage1.as43[0][0].x) + _storage1.as44[0][0].x;
-    return vec4<f32>(f32(value));
+    return vec4<f16>(f16(value));
   }
 }
 @fragment fn main() -> FSOut {
@@ -58,27 +59,27 @@ fn _skslMain() -> vec4<f32> {
   return _stageOut;
 }
 struct _skArrayElement_f22 {
-  e : _skMatrix22
+  e : _skMatrix22f
 };
-struct _skRow2 {
+struct _skRow2f {
   @align(16) r : vec2<f32>
 };
-struct _skMatrix22 {
-  c : array<_skRow2, 2>
+struct _skMatrix22f {
+  c : array<_skRow2f, 2>
 };
 var<private> _skUnpacked__storage1_as22: array<mat2x2<f32>, 3>;
 struct _skArrayElement_f32 {
-  e : _skMatrix32
+  e : _skMatrix32f
 };
-struct _skMatrix32 {
-  c : array<_skRow2, 3>
+struct _skMatrix32f {
+  c : array<_skRow2f, 3>
 };
 var<private> _skUnpacked__storage1_as32: array<mat3x2<f32>, 3>;
 struct _skArrayElement_f42 {
-  e : _skMatrix42
+  e : _skMatrix42f
 };
-struct _skMatrix42 {
-  c : array<_skRow2, 4>
+struct _skMatrix42f {
+  c : array<_skRow2f, 4>
 };
 var<private> _skUnpacked__storage1_as42: array<mat4x2<f32>, 3>;
 var<private> _skUnpacked__storage1_s22: mat2x2<f32>;

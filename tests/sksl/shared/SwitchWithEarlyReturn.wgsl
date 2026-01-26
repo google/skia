@@ -1,11 +1,12 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct _GlobalUniforms {
-  colorGreen: vec4<f32>,
-  colorRed: vec4<f32>,
+  colorGreen: vec4<f16>,
+  colorRed: vec4<f16>,
 };
 @group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn return_in_one_case_bi(x: i32) -> bool {
@@ -235,10 +236,10 @@ fn fallthrough_with_loop_continue_bi(x: i32) -> bool {
     }
   }
 }
-fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
+fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
   {
     let x: i32 = i32(_globalUniforms.colorGreen.y);
-    var _skTemp2: vec4<f32>;
+    var _skTemp2: vec4<f16>;
     var _skTemp3: bool;
     var _skTemp4: bool;
     var _skTemp5: bool;

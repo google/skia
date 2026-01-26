@@ -1,5 +1,6 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 fn foo_ff(_skParam0: array<f32, 2>) -> f32 {
   var v = _skParam0;
   {

@@ -1,7 +1,8 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct _GlobalUniforms {
   unknownInput: f32,
@@ -11,7 +12,7 @@ fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
     if _globalUniforms.unknownInput > 5.0 {
       {
-        (*_stageOut).sk_FragColor = vec4<f32>(0.75);
+        (*_stageOut).sk_FragColor = vec4<f16>(0.75h);
       }
     } else {
       {
@@ -22,7 +23,7 @@ fn _skslMain(_stageOut: ptr<function, FSOut>) {
     loop {
       if i < 10 {
         {
-          (*_stageOut).sk_FragColor = (*_stageOut).sk_FragColor * 0.5;
+          (*_stageOut).sk_FragColor = (*_stageOut).sk_FragColor * 0.5h;
           i = i + i32(1);
         }
       } else {
@@ -31,10 +32,10 @@ fn _skslMain(_stageOut: ptr<function, FSOut>) {
     }
     loop {
       {
-        (*_stageOut).sk_FragColor = (*_stageOut).sk_FragColor + 0.25;
+        (*_stageOut).sk_FragColor = (*_stageOut).sk_FragColor + 0.25h;
       }
       continuing {
-        break if (*_stageOut).sk_FragColor.x >= 0.75;
+        break if (*_stageOut).sk_FragColor.x >= 0.75h;
       }
     }
     {

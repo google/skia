@@ -1,12 +1,13 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct _GlobalUniforms {
-  testMatrix2x2: _skMatrix22,
+  testMatrix2x2: _skMatrix22f,
   testMatrix3x3: mat3x3<f32>,
   testInputs: vec4<f32>,
-  colorRed: vec4<f32>,
-  colorGreen: vec4<f32>,
-  unknownInput: f32,
+  colorRed: vec4<f16>,
+  colorGreen: vec4<f16>,
+  unknownInput: f16,
 };
 @group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn test_no_op_mat2_X_vec2_b() -> bool {
@@ -165,9 +166,9 @@ fn test_no_op_vec4_X_mat4_b() -> bool {
     return all(v == vec4<f32>(-4.0, -8.0, -12.0, -16.0));
   }
 }
-fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
+fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
   {
-    var _skTemp8: vec4<f32>;
+    var _skTemp8: vec4<f16>;
     var _skTemp9: bool;
     var _skTemp10: bool;
     var _skTemp11: bool;
@@ -206,15 +207,15 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     return _skTemp8;
   }
 }
-@fragment fn main(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
+@fragment fn main(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f16> {
   _skInitializePolyfilledUniforms();
   return _skslMain(_coords);
 }
-struct _skRow2 {
+struct _skRow2f {
   @align(16) r : vec2<f32>
 };
-struct _skMatrix22 {
-  c : array<_skRow2, 2>
+struct _skMatrix22f {
+  c : array<_skRow2f, 2>
 };
 var<private> _skUnpacked__globalUniforms_testMatrix2x2: mat2x2<f32>;
 fn _skInitializePolyfilledUniforms() {

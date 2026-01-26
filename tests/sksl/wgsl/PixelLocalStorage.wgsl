@@ -1,5 +1,6 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 enable chromium_experimental_pixel_local;
 struct PixelLocalData {
   i: i32,

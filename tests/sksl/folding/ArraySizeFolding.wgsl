@@ -1,8 +1,9 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct _GlobalUniforms {
-  colorRed: vec4<f32>,
-  colorGreen: vec4<f32>,
+  colorRed: vec4<f16>,
+  colorGreen: vec4<f16>,
 };
 @group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn check_array_is_int_2_bi(x: array<i32, 2>) -> bool {
@@ -26,7 +27,7 @@ fn test_param_bff(a: array<f32, 3>, b: array<f32, 3>) -> bool {
     return _skTemp0;
   }
 }
-fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
+fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
   {
     var f: array<f32, 3>;
     var g: array<f32, 3>;
@@ -35,7 +36,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     var _5_d: array<i32, 2>;
     var _6_e: array<i32, 2>;
     var _7_f: array<i32, 2>;
-    var _skTemp1: vec4<f32>;
+    var _skTemp1: vec4<f16>;
     var _skTemp2: bool;
     var _skTemp3: bool;
     var _skTemp4: bool;
@@ -74,6 +75,6 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     return _skTemp1;
   }
 }
-@fragment fn main(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
+@fragment fn main(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f16> {
   return _skslMain(_coords);
 }

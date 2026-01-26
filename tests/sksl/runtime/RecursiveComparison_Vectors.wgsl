@@ -1,13 +1,14 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct _GlobalUniforms {
-  colorGreen: vec4<f32>,
-  colorRed: vec4<f32>,
+  colorGreen: vec4<f16>,
+  colorRed: vec4<f16>,
 };
 @group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn test_same_vectors_bbffff(eq: bool, f1: f32, f2: f32, f3: f32, f4: f32) -> bool {
   {
-    let one: f32 = f32(_globalUniforms.colorGreen.x + 1.0);
+    let one: f32 = f32(_globalUniforms.colorGreen.x + 1.0h);
     let a: vec4<f32> = vec4<f32>(f1, f2, f3, f4);
     let b: vec4<f32> = vec4<f32>(f1 * one, f2 * one, f3 * one, f4 * one);
     var _skTemp0: bool;
@@ -21,7 +22,7 @@ fn test_same_vectors_bbffff(eq: bool, f1: f32, f2: f32, f3: f32, f4: f32) -> boo
 }
 fn test_diff_vectors_bbffff(eq: bool, f1: f32, f2: f32, f3: f32, f4: f32) -> bool {
   {
-    let two: f32 = f32(_globalUniforms.colorGreen.x + 2.0);
+    let two: f32 = f32(_globalUniforms.colorGreen.x + 2.0h);
     let a: vec4<f32> = vec4<f32>(f1, f2, f3, f4);
     let b: vec4<f32> = vec4<f32>(f1 * two, f2 * two, f3 * two, f4 * two);
     var _skTemp1: bool;
@@ -39,16 +40,16 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     let NAN2: f32 = f32(_globalUniforms.colorGreen.z / _globalUniforms.colorGreen.x);
     let ZP: f32 = f32(_globalUniforms.colorGreen.x * _globalUniforms.colorGreen.z);
     let ZM: f32 = f32(-_globalUniforms.colorGreen.x * _globalUniforms.colorGreen.z);
-    let F42: f32 = f32(_globalUniforms.colorGreen.y * 42.0);
-    let F43: f32 = f32(_globalUniforms.colorGreen.y * 43.0);
-    let F44: f32 = f32(_globalUniforms.colorGreen.y * 44.0);
-    let F45: f32 = f32(_globalUniforms.colorGreen.y * 45.0);
+    let F42: f32 = f32(_globalUniforms.colorGreen.y * 42.0h);
+    let F43: f32 = f32(_globalUniforms.colorGreen.y * 43.0h);
+    let F44: f32 = f32(_globalUniforms.colorGreen.y * 44.0h);
+    let F45: f32 = f32(_globalUniforms.colorGreen.y * 45.0h);
     const EQ: bool = true;
     const NE: bool = false;
-    let _0_one: f32 = f32(_globalUniforms.colorGreen.x + 1.0);
+    let _0_one: f32 = f32(_globalUniforms.colorGreen.x + 1.0h);
     let _1_a: vec4<f32> = vec4<f32>(F42, ZM, ZP, F43);
     let _2_b: vec4<f32> = vec4<f32>(F42 * _0_one, ZM * _0_one, ZP * _0_one, F43 * _0_one);
-    var _skTemp2: vec4<f32>;
+    var _skTemp2: vec4<f16>;
     var _skTemp3: bool;
     var _skTemp4: bool;
     var _skTemp5: bool;

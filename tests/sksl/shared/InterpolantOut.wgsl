@@ -1,5 +1,6 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct VSOut {
   @location(0) defaultVarying: f32,
   @location(1) @interpolate(linear) linearVarying: f32,

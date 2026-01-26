@@ -1,11 +1,12 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct _GlobalUniforms {
-  colorGreen: vec4<f32>,
-  colorRed: vec4<f32>,
+  colorGreen: vec4<f16>,
+  colorRed: vec4<f16>,
   testMatrix3x3: mat3x3<f32>,
   testMatrix4x4: mat4x4<f32>,
 };
@@ -31,7 +32,7 @@ fn test4x4_b() -> bool {
     return (all(matrix[0] == _globalUniforms.testMatrix4x4[0]) && all(matrix[1] == _globalUniforms.testMatrix4x4[1]) && all(matrix[2] == _globalUniforms.testMatrix4x4[2]) && all(matrix[3] == _globalUniforms.testMatrix4x4[3]));
   }
 }
-fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
+fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
   {
     var _0_matrix: mat3x3<f32>;
     var _1_values: vec3<f32> = vec3<f32>(3.0, 2.0, 1.0);
@@ -49,7 +50,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
         }
       }
     }
-    var _skTemp0: vec4<f32>;
+    var _skTemp0: vec4<f16>;
     var _skTemp1: bool;
     if (all(_0_matrix[0] == _globalUniforms.testMatrix3x3[0]) && all(_0_matrix[1] == _globalUniforms.testMatrix3x3[1]) && all(_0_matrix[2] == _globalUniforms.testMatrix3x3[2])) {
       _skTemp1 = test4x4_b();

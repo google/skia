@@ -1,10 +1,11 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSIn {
   @location(2) @interpolate(flat, either) bufferIndex: i32,
 };
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct storageBuffer {
   offset: u32,
@@ -19,12 +20,12 @@ struct SomeData {
   a: vec4<f32>,
   b: vec2<f32>,
 };
-fn _skslMain(_stageIn: FSIn, coords: vec2<f32>) -> vec4<f32> {
+fn _skslMain(_stageIn: FSIn, coords: vec2<f32>) -> vec4<f16> {
   {
     let _skTemp2 = _storage0.offset;
     let _skTemp3 = _storage0.offset;
     _storage1.outputData[_skTemp2] = _storage0.inputData[_skTemp3];
-    return vec4<f32>(_storage0.inputData[_stageIn.bufferIndex].a * _storage0.inputData[_stageIn.bufferIndex].b.x);
+    return vec4<f16>(_storage0.inputData[_stageIn.bufferIndex].a * _storage0.inputData[_stageIn.bufferIndex].b.x);
   }
 }
 @fragment fn main(_stageIn: FSIn) -> FSOut {

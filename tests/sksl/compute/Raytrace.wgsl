@@ -1,12 +1,13 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct CSIn {
   @builtin(global_invocation_id) sk_GlobalInvocationID: vec3<u32>,
 };
 @group(0) @binding(0) var dest: texture_storage_2d<rgba32float, write>;
 fn _skslMain(_stageIn: CSIn) {
   {
-    var pixel: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 1.0);
+    var pixel: vec4<f16> = vec4<f16>(0.0h, 0.0h, 0.0h, 1.0h);
     const max_x: f32 = 5.0;
     const max_y: f32 = 5.0;
     let x: f32 = f32(_stageIn.sk_GlobalInvocationID.x * 2u - textureDimensions(dest).x) / f32(textureDimensions(dest).x);
@@ -21,10 +22,10 @@ fn _skslMain(_stageIn: CSIn) {
     let bsqmc: f32 = b * b - c;
     if bsqmc >= 0.0 {
       {
-        pixel = vec4<f32>(0.4, 0.4, 1.0, 1.0);
+        pixel = vec4<f16>(0.4h, 0.4h, 1.0h, 1.0h);
       }
     }
-    textureStore(dest, _stageIn.sk_GlobalInvocationID.xy, pixel);
+    textureStore(dest, _stageIn.sk_GlobalInvocationID.xy, vec4<f32>(pixel));
   }
 }
 @compute @workgroup_size(16, 16, 1) fn main(_stageIn: CSIn) {

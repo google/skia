@@ -1,7 +1,8 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct _GlobalUniforms {
   unknownInput: f32,
@@ -14,7 +15,7 @@ fn _skslMain(_stageOut: ptr<function, FSOut>) {
     let i: i32 = i32(_globalUniforms.unknownInput);
     let us: u32 = u32(_globalUniforms.unknownInput);
     let ui: u32 = u32(_globalUniforms.unknownInput);
-    let h: f32 = f32(_globalUniforms.unknownInput);
+    let h: f16 = f16(_globalUniforms.unknownInput);
     let f: f32 = _globalUniforms.unknownInput;
     let s2s: i32 = s;
     let i2s: i32 = i32(i);
@@ -51,8 +52,8 @@ fn _skslMain(_stageOut: ptr<function, FSOut>) {
     let h2f: f32 = f32(h);
     let f2f: f32 = f;
     let b2f: f32 = f32(b);
-    (*_stageOut).sk_FragColor.x = (((((((((((((((((((((f32(s) + f32(i)) + f32(us)) + f32(ui)) + h) + f32(f)) + f32(s2s)) + f32(i2s)) + f32(us2s)) + f32(ui2s)) + f32(h2s)) + f32(f2s)) + f32(b2s)) + f32(s2i)) + f32(i2i)) + f32(us2i)) + f32(ui2i)) + f32(h2i)) + f32(f2i)) + f32(b2i)) + f32(s2us)) + f32(i2us)) + f32(us2us);
-    (*_stageOut).sk_FragColor.x = (*_stageOut).sk_FragColor.x + (((((((((((((((((f32(ui2us) + f32(h2us)) + f32(f2us)) + f32(b2us)) + f32(s2ui)) + f32(i2ui)) + f32(us2ui)) + f32(ui2ui)) + f32(h2ui)) + f32(f2ui)) + f32(b2ui)) + f32(s2f)) + f32(i2f)) + f32(us2f)) + f32(ui2f)) + f32(h2f)) + f32(f2f)) + f32(b2f));
+    (*_stageOut).sk_FragColor.x = (((((((((((((((((((((f16(s) + f16(i)) + f16(us)) + f16(ui)) + h) + f16(f)) + f16(s2s)) + f16(i2s)) + f16(us2s)) + f16(ui2s)) + f16(h2s)) + f16(f2s)) + f16(b2s)) + f16(s2i)) + f16(i2i)) + f16(us2i)) + f16(ui2i)) + f16(h2i)) + f16(f2i)) + f16(b2i)) + f16(s2us)) + f16(i2us)) + f16(us2us);
+    (*_stageOut).sk_FragColor.x = (*_stageOut).sk_FragColor.x + (((((((((((((((((f16(ui2us) + f16(h2us)) + f16(f2us)) + f16(b2us)) + f16(s2ui)) + f16(i2ui)) + f16(us2ui)) + f16(ui2ui)) + f16(h2ui)) + f16(f2ui)) + f16(b2ui)) + f16(s2f)) + f16(i2f)) + f16(us2f)) + f16(ui2f)) + f16(h2f)) + f16(f2f)) + f16(b2f));
   }
 }
 @fragment fn main() -> FSOut {

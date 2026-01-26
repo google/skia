@@ -1,11 +1,12 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct _GlobalUniforms {
-  colorGreen: vec4<f32>,
-  colorRed: vec4<f32>,
+  colorGreen: vec4<f16>,
+  colorRed: vec4<f16>,
 };
 @group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn checkIntrinsicAsFunctionArg_bf3i3(f3: vec3<f32>, e3: vec3<i32>) -> bool {
@@ -13,9 +14,9 @@ fn checkIntrinsicAsFunctionArg_bf3i3(f3: vec3<f32>, e3: vec3<i32>) -> bool {
     return all(f3 == vec3<f32>(0.75)) && all(e3 == vec3<i32>(3));
   }
 }
-fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
+fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
   {
-    let value: vec4<f32> = vec4<f32>(_globalUniforms.colorGreen.yyyy * 6.0);
+    let value: vec4<f32> = vec4<f32>(_globalUniforms.colorGreen.yyyy * 6.0h);
     var _0_exp: vec4<i32>;
     var result: vec4<f32>;
     var ok: vec4<bool>;

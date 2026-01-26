@@ -1,11 +1,12 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct FSOut {
-  @location(0) sk_FragColor: vec4<f32>,
+  @location(0) sk_FragColor: vec4<f16>,
 };
 struct _GlobalUniforms {
-  colorGreen: vec4<f32>,
-  colorRed: vec4<f32>,
+  colorGreen: vec4<f16>,
+  colorRed: vec4<f16>,
 };
 @group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn returns_float2_f2() -> vec2<f32> {
@@ -38,39 +39,39 @@ fn returns_float4x4_f44() -> mat4x4<f32> {
     return mat4x4<f32>(4.0, 0.0, 0.0, 0.0, 0.0, 4.0, 0.0, 0.0, 0.0, 0.0, 4.0, 0.0, 0.0, 0.0, 0.0, 4.0);
   }
 }
-fn returns_half_h() -> f32 {
+fn returns_half_h() -> f16 {
   {
-    return 1.0;
+    return 1.0h;
   }
 }
-fn returns_half2_h2() -> vec2<f32> {
+fn returns_half2_h2() -> vec2<f16> {
   {
-    return vec2<f32>(2.0);
+    return vec2<f16>(2.0h);
   }
 }
-fn returns_half3_h3() -> vec3<f32> {
+fn returns_half3_h3() -> vec3<f16> {
   {
-    return vec3<f32>(3.0);
+    return vec3<f16>(3.0h);
   }
 }
-fn returns_half4_h4() -> vec4<f32> {
+fn returns_half4_h4() -> vec4<f16> {
   {
-    return vec4<f32>(4.0);
+    return vec4<f16>(4.0h);
   }
 }
-fn returns_half2x2_h22() -> mat2x2<f32> {
+fn returns_half2x2_h22() -> mat2x2<f16> {
   {
-    return mat2x2<f32>(2.0, 0.0, 0.0, 2.0);
+    return mat2x2<f16>(2.0h, 0.0, 0.0, 2.0h);
   }
 }
-fn returns_half3x3_h33() -> mat3x3<f32> {
+fn returns_half3x3_h33() -> mat3x3<f16> {
   {
-    return mat3x3<f32>(3.0, 0.0, 0.0, 0.0, 3.0, 0.0, 0.0, 0.0, 3.0);
+    return mat3x3<f16>(3.0h, 0.0, 0.0, 0.0, 3.0h, 0.0, 0.0, 0.0, 3.0h);
   }
 }
-fn returns_half4x4_h44() -> mat4x4<f32> {
+fn returns_half4x4_h44() -> mat4x4<f16> {
   {
-    return mat4x4<f32>(4.0, 0.0, 0.0, 0.0, 0.0, 4.0, 0.0, 0.0, 0.0, 0.0, 4.0, 0.0, 0.0, 0.0, 0.0, 4.0);
+    return mat4x4<f16>(4.0h, 0.0, 0.0, 0.0, 0.0, 4.0h, 0.0, 0.0, 0.0, 0.0, 4.0h, 0.0, 0.0, 0.0, 0.0, 4.0h);
   }
 }
 fn returns_bool_b() -> bool {
@@ -113,7 +114,7 @@ fn returns_int4_i4() -> vec4<i32> {
     return vec4<i32>(4);
   }
 }
-fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
+fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
   {
     const x1: f32 = 1.0;
     const x2: vec2<f32> = vec2<f32>(2.0);
@@ -122,13 +123,13 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     const x5: mat2x2<f32> = mat2x2<f32>(2.0, 0.0, 0.0, 2.0);
     const x6: mat3x3<f32> = mat3x3<f32>(3.0, 0.0, 0.0, 0.0, 3.0, 0.0, 0.0, 0.0, 3.0);
     const x7: mat4x4<f32> = mat4x4<f32>(4.0, 0.0, 0.0, 0.0, 0.0, 4.0, 0.0, 0.0, 0.0, 0.0, 4.0, 0.0, 0.0, 0.0, 0.0, 4.0);
-    const x8: f32 = 1.0;
-    const x9: vec2<f32> = vec2<f32>(2.0);
-    const x10: vec3<f32> = vec3<f32>(3.0);
-    const x11: vec4<f32> = vec4<f32>(4.0);
-    const x12: mat2x2<f32> = mat2x2<f32>(2.0, 0.0, 0.0, 2.0);
-    const x13: mat3x3<f32> = mat3x3<f32>(3.0, 0.0, 0.0, 0.0, 3.0, 0.0, 0.0, 0.0, 3.0);
-    const x14: mat4x4<f32> = mat4x4<f32>(4.0, 0.0, 0.0, 0.0, 0.0, 4.0, 0.0, 0.0, 0.0, 0.0, 4.0, 0.0, 0.0, 0.0, 0.0, 4.0);
+    const x8: f16 = 1.0h;
+    const x9: vec2<f16> = vec2<f16>(2.0h);
+    const x10: vec3<f16> = vec3<f16>(3.0h);
+    const x11: vec4<f16> = vec4<f16>(4.0h);
+    const x12: mat2x2<f16> = mat2x2<f16>(2.0h, 0.0, 0.0, 2.0h);
+    const x13: mat3x3<f16> = mat3x3<f16>(3.0h, 0.0, 0.0, 0.0, 3.0h, 0.0, 0.0, 0.0, 3.0h);
+    const x14: mat4x4<f16> = mat4x4<f16>(4.0h, 0.0, 0.0, 0.0, 0.0, 4.0h, 0.0, 0.0, 0.0, 0.0, 4.0h, 0.0, 0.0, 0.0, 0.0, 4.0h);
     const x15: bool = true;
     const x16: vec2<bool> = vec2<bool>(true);
     const x17: vec3<bool> = vec3<bool>(true);
@@ -137,7 +138,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     const x20: vec2<i32> = vec2<i32>(2);
     const x21: vec3<i32> = vec3<i32>(3);
     const x22: vec4<i32> = vec4<i32>(4);
-    var _skTemp0: vec4<f32>;
+    var _skTemp0: vec4<f16>;
     var _skTemp1: bool;
     var _skTemp2: bool;
     var _skTemp3: bool;
