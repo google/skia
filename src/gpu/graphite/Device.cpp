@@ -365,7 +365,7 @@ public:
 
     DisjointStencilIndex add(CompressedPaintersOrder drawOrder, Rect rect) {
         auto& trees = fTrees[drawOrder];
-        DisjointStencilIndex stencil = DrawOrder::kUnassigned.next();
+        DisjointStencilIndex stencil = DisjointStencilIndex::First();
         for (auto&& tree : trees) {
             if (tree->add(rect)) {
                 return stencil;
@@ -374,6 +374,7 @@ public:
         }
 
         // If here, no existing intersection tree can hold the rect so add a new one
+        SkASSERT(stencil != DrawOrder::kUnassigned);
         IntersectionTree* newTree = this->makeTree();
         SkAssertResult(newTree->add(rect));
         trees.push_back(newTree);

@@ -113,8 +113,10 @@ public:
     // must come before a draw.
     inline static constexpr
             CompressedPaintersOrder kNoIntersection = CompressedPaintersOrder::First();
-    // The first DisjointStencilIndex is reserved to indicate an unassigned stencil set.
-    inline static constexpr DisjointStencilIndex kUnassigned = DisjointStencilIndex::First();
+    // The last DisjointStencilIndex is reserved to indicate an unassigned stencil set.
+    // This automatically orders stencil-less B2F draws after draws that use the stencil and after
+    // draws that are sorted F2B (packed into stencil index with reverseDepthAsStencil()).
+    inline static constexpr DisjointStencilIndex kUnassigned = DisjointStencilIndex::Last();
 
     explicit DrawOrder(PaintersDepth originalOrder)
             : fPaintOrder(kNoIntersection)
