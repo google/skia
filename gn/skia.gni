@@ -166,7 +166,7 @@ declare_args() {
 
 declare_args() {
   # Deprecated. TODO(kjlubick, egdaniel) Remove after updating graphite/Android
-  skia_use_backup_vma = skia_use_vma && skia_use_vulkan
+  skia_use_backup_vma = skia_use_vma && skia_use_vulkan && skia_enable_graphite
 }
 
 assert(!skia_use_dawn || skia_enable_graphite)  # Dawn is Graphite-only
