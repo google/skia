@@ -38,10 +38,6 @@ using namespace skia_private;
 #define LOCALE_FALLBACK_FONTS_PREFIX "fallback_fonts-"
 #define LOCALE_FALLBACK_FONTS_SUFFIX ".xml"
 
-#ifndef SK_FONT_FILE_PREFIX
-#    define SK_FONT_FILE_PREFIX "/fonts/"
-#endif
-
 /**
  * This file contains TWO 'familyset' handlers:
  * One for JB and earlier which works with
@@ -811,11 +807,12 @@ static void mixin_vendor_fallback_font_families(
 }
 
 void SkFontMgr_Android_Parser::GetSystemFontFamilies(
-        std::vector<std::unique_ptr<FontFamily>>& fontFamilies)
-{
+        std::vector<std::unique_ptr<FontFamily>>& fontFamilies) {
+    static constexpr char kFontFilePrefix[] = "/fonts/";
+
     // Version 21 of the system font configuration does not need any fallback configuration files.
     SkString basePath(getenv("ANDROID_ROOT"));
-    basePath.append(SK_FONT_FILE_PREFIX, sizeof(SK_FONT_FILE_PREFIX) - 1);
+    basePath.append(kFontFilePrefix);
 
     if (append_system_font_families(fontFamilies, basePath) >= 21) {
         return;

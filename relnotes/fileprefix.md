@@ -1,0 +1,1 @@
+As an undocumented feature, `SK_FONT_FILE_PREFIX` could be defined to override how the Android fontmgr searched for system fonts. This has been removed as it was untested and believed to be unused.
