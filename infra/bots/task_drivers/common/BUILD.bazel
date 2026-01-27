@@ -6,7 +6,6 @@ go_library(
         "bazel_clean_step.go",
         "bazel_flags.go",
         "bazel_utils.go",
-        "goldctl_steps.go",
         "perf_steps.go",
     ],
     importpath = "go.skia.org/skia/infra/bots/task_drivers/common",
@@ -30,7 +29,6 @@ go_test(
     srcs = [
         "bazel_clean_step_test.go",
         "bazel_utils_test.go",
-        "goldctl_steps_test.go",
         "perf_steps_test.go",
     ],
     embed = [":common"],

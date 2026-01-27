@@ -940,13 +940,6 @@ public:
 
         while (fGMs) {
             std::unique_ptr<skiagm::GM> gm = fGMs->get()();
-            if (gm->isBazelOnly()) {
-                // We skip Bazel-only GMs because they might not be regular GMs. The Bazel build
-                // reuses the notion of GMs to replace the notion of DM sources of various kinds,
-                // such as codec sources and image generation sources. See comments in the
-                // skiagm::GM::isBazelOnly function declaration for context.
-                continue;
-            }
             fGMs = fGMs->next();
             if (gm->runAsBench()) {
                 fSourceType = "gm";

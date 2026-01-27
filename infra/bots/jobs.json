@@ -1,19 +1,6 @@
 [
   {
-    "name": "BazelBuild-all_tests-debug-linux_x64"
-  },
-  {
-    "name": "BazelBuild-all_tests-release-linux_x64",
-    "cq_config": {}
-  },
-  {
-    "name": "BazelBuild-android_math_test-for_android_arm64_release-linux_x64"
-  },
-  {
     "name": "BazelBuild-core-release-linux_x64"
-  },
-  {
-    "name": "BazelBuild-cpu_8888_benchmark_android_test-for_android_arm64_release-linux_x64"
   },
   {
     "name": "BazelBuild-dm-debug-linux_x64",
@@ -36,9 +23,6 @@
     "name": "BazelBuild-ganesh_gl-release-linux_x64"
   },
   {
-    "name": "BazelBuild-hello_bazel_world_android_test-for_android_arm64_release-linux_x64"
-  },
-  {
     "name": "BazelBuild-modules_canvaskit-ck_full_webgl2_debug-linux_x64",
     "cq_config": {}
   },
@@ -54,12 +38,6 @@
   },
   {
     "name": "BazelTest-cpu_tests-all_go_tests-linux_rbe-linux_x64"
-  },
-  {
-    "name": "BazelTest-cpu_tests-all_tests-cpu_only_debug_rbe-linux_x64",
-    "cq_config": {
-      "experimental": true
-    }
   },
   {
     "name": "BazelTest-external_client-decode_everything-default-linux_x64"

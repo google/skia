@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -2167,44 +2166,38 @@ func (b *jobBuilder) runWasmGMTests() {
 	})
 }
 
-// labelAndSavedOutputDir contains a Bazel label (e.g. //tests:some_test) and a //bazel-bin
-// subdirectory that should be stored into CAS.
-type labelAndSavedOutputDir struct {
-	label          string
-	savedOutputDir string
+// bazelTarget contains a Bazel label (e.g. //tests:some_test) and is open for additional fields
+type bazelTarget struct {
+	label string
 }
 
 // Maps a shorthand version of a label (which can be an arbitrary string) to an absolute Bazel
 // label or "target pattern" https://bazel.build/docs/build#specifying-build-targets
 // The reason we need this mapping is because Buildbucket build names cannot have / or : in them.
 // TODO(borenet/kjlubick): Is there a way to generate a mapping using `bazel query`?
-var shorthandToLabel = map[string]labelAndSavedOutputDir{
-	"all_tests":                  {"//tests:linux_rbe_tests", ""},
-	"core":                       {"//:core", ""},
-	"cpu_8888_benchmark_test":    {"//bench:cpu_8888_test", ""},
-	"cpu_gms":                    {"//gm:cpu_gm_tests", ""},
-	"dm":                         {"//dm", ""},
-	"fontations":                 {"//src/ports:fontmgr_fontations_empty", ""},
-	"full_library":               {"//tools:full_build", ""},
-	"ganesh_gl":                  {"//:ganesh_gl", ""},
-	"hello_bazel_world_test":     {"//gm:hello_bazel_world_test", ""},
-	"modules_canvaskit":          {"//modules/canvaskit:canvaskit", ""},
-	"modules_canvaskit_js_tests": {"//modules/canvaskit:canvaskit_js_tests", ""},
-	"skottie_tool_gpu":           {"//modules/skottie:skottie_tool_gpu", ""},
-	"viewer":                     {"//tools/viewer:viewer", ""},
-	"decode_everything":          {"//example/external_client:decode_everything", ""},
-	"path_combiner":              {"//example/external_client:path_combiner", ""},
-	"png_decoder":                {"//example/external_client:png_decoder", ""},
-	"shape_text":                 {"//example/external_client:shape_text", ""},
-	"svg_with_harfbuzz":          {"//example/external_client:svg_with_harfbuzz", ""},
-	"svg_with_primitive":         {"//example/external_client:svg_with_primitive", ""},
-	"use_ganesh_gl":              {"//example/external_client:use_ganesh_gl", ""},
-	"use_ganesh_vulkan":          {"//example/external_client:use_ganesh_vulkan", ""},
-	"use_graphite_native_vulkan": {"//example/external_client:use_graphite_native_vulkan", ""},
-	"use_skresources":            {"//example/external_client:use_skresources", ""},
-	"write_text_to_png":          {"//example/external_client:write_text_to_png", ""},
-	"write_to_pdf":               {"//example/external_client:write_to_pdf", ""},
-	"play_skottie":               {"//example/external_client:play_skottie", ""},
+var shorthandToLabel = map[string]bazelTarget{
+	"core":                       {"//:core"},
+	"dm":                         {"//dm"},
+	"fontations":                 {"//src/ports:fontmgr_fontations_empty"},
+	"full_library":               {"//tools:full_build"},
+	"ganesh_gl":                  {"//:ganesh_gl"},
+	"modules_canvaskit":          {"//modules/canvaskit:canvaskit"},
+	"modules_canvaskit_js_tests": {"//modules/canvaskit:canvaskit_js_tests"},
+	"skottie_tool_gpu":           {"//modules/skottie:skottie_tool_gpu"},
+	"viewer":                     {"//tools/viewer:viewer"},
+	"decode_everything":          {"//example/external_client:decode_everything"},
+	"path_combiner":              {"//example/external_client:path_combiner"},
+	"png_decoder":                {"//example/external_client:png_decoder"},
+	"shape_text":                 {"//example/external_client:shape_text"},
+	"svg_with_harfbuzz":          {"//example/external_client:svg_with_harfbuzz"},
+	"svg_with_primitive":         {"//example/external_client:svg_with_primitive"},
+	"use_ganesh_gl":              {"//example/external_client:use_ganesh_gl"},
+	"use_ganesh_vulkan":          {"//example/external_client:use_ganesh_vulkan"},
+	"use_graphite_native_vulkan": {"//example/external_client:use_graphite_native_vulkan"},
+	"use_skresources":            {"//example/external_client:use_skresources"},
+	"write_text_to_png":          {"//example/external_client:write_text_to_png"},
+	"write_to_pdf":               {"//example/external_client:write_to_pdf"},
+	"play_skottie":               {"//example/external_client:play_skottie"},
 
 	// Currently there is no way to tell Bazel "only test go_test targets", so we must group them
 	// under a test_suite.
@@ -2226,13 +2219,7 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 	//   (https://bazel.build/reference/command-line-reference#flag--test_tag_filters). Today this
 	//   does not work due to the third party and external BUILD.bazel files mentioned in the
 	//   previous bullet point.
-	"all_go_tests": {"//:all_go_tests", ""},
-
-	// Android tests that run on a device. We store the //bazel-bin/tests directory into CAS for use
-	// by subsequent CI tasks.
-	"android_math_test":               {"//tests:android_math_test", "tests"},
-	"hello_bazel_world_android_test":  {"//gm:hello_bazel_world_android_test", "gm"},
-	"cpu_8888_benchmark_android_test": {"//bench:cpu_8888_android_test", "bench"},
+	"all_go_tests": {"//:all_go_tests"},
 }
 
 // bazelBuild adds a task which builds the specified single-target label (//foo:bar) or
@@ -2241,7 +2228,7 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 // will be stored into CAS for use by subsequent tasks.
 func (b *jobBuilder) bazelBuild() {
 	shorthand, config, host := b.Parts.BazelBuildParts()
-	labelAndSavedOutputDir, ok := shorthandToLabel[shorthand]
+	target, ok := shorthandToLabel[shorthand]
 	if !ok {
 		panic("unsupported Bazel label shorthand " + shorthand)
 	}
@@ -2268,38 +2255,19 @@ func (b *jobBuilder) bazelBuild() {
 			"--project_id=skia-swarming-bots",
 			"--task_id=" + specs.PLACEHOLDER_TASK_ID,
 			"--task_name=" + b.Name,
-			"--bazel_label=" + labelAndSavedOutputDir.label,
+			"--bazel_label=" + target.label,
 			"--bazel_config=" + config,
 			"--bazel_cache_dir=" + bazelCacheDir,
 			"--workdir=./skia",
 		}
 
-		if labelAndSavedOutputDir.savedOutputDir != "" {
-			cmd = append(cmd,
-				"--out_path="+OUTPUT_BAZEL,
-				// Which //bazel-bin subdirectory to copy into the output dir (flag --out_path).
-				"--saved_output_dir="+labelAndSavedOutputDir.savedOutputDir,
-			)
-		}
-
 		if host == "linux_x64" {
 			b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 			b.usesBazel("linux_x64")
-			if labelAndSavedOutputDir.savedOutputDir != "" {
-				// We assume that builds which require storing a subset of //bazel-bin to CAS are Android
-				// builds. We want such builds to use RBE, and we want to download the built top-level
-				// artifacts. Also, we need the adb_test runner to be cross-compiled to run on a Raspberry
-				// Pi.
-				cmd = append(cmd, "--bazel_arg=--config=linux_rbe")
-				cmd = append(cmd, "--bazel_arg=--jobs=100")
-				cmd = append(cmd, "--bazel_arg=--remote_download_toplevel")
-				cmd = append(cmd, "--bazel_arg=--adb_platform=linux_arm64")
-			} else {
-				// We want all Linux Bazel Builds to use RBE
-				cmd = append(cmd, "--bazel_arg=--config=for_linux_x64_with_rbe")
-				cmd = append(cmd, "--bazel_arg=--jobs=100")
-				cmd = append(cmd, "--bazel_arg=--remote_download_minimal")
-			}
+			// We want all Linux Bazel Builds to use RBE
+			cmd = append(cmd, "--bazel_arg=--config=for_linux_x64_with_rbe")
+			cmd = append(cmd, "--bazel_arg=--jobs=100")
+			cmd = append(cmd, "--bazel_arg=--remote_download_minimal")
 		} else if host == "windows_x64" {
 			b.dimension(
 				"cpu:x86-64-Haswell_GCE",
@@ -2319,9 +2287,6 @@ func (b *jobBuilder) bazelBuild() {
 		b.cas(CAS_BAZEL)
 		b.attempts(1)
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
-		if labelAndSavedOutputDir.savedOutputDir != "" {
-			b.output(OUTPUT_BAZEL)
-		}
 	})
 }
 
@@ -2342,26 +2307,6 @@ func (b *jobBuilder) bazelTest() {
 	}
 
 	// Expand task driver name to keep task names short.
-	precompiledKind := precompiledBazelTestNone
-	if taskdriverName == "precompiled_benchmark" {
-		taskdriverName = "bazel_test_precompiled"
-		precompiledKind = precompiledBenchmarkTest
-	}
-	if taskdriverName == "precompiled_gm" {
-		taskdriverName = "bazel_test_precompiled"
-		precompiledKind = precompiledGMTest
-	}
-	if taskdriverName == "precompiled_test" {
-		taskdriverName = "bazel_test_precompiled"
-		precompiledKind = precompiledUnitTest
-	}
-	if taskdriverName == "gm" {
-		taskdriverName = "bazel_test_gm"
-	}
-	if taskdriverName == "benchmark" {
-		taskdriverName = "bazel_test_benchmark"
-	}
-
 	useLUCIAuth := true
 	if taskdriverName == "external_client" {
 		useLUCIAuth = false
@@ -2430,69 +2375,6 @@ func (b *jobBuilder) bazelTest() {
 				"--bazel_config="+buildConfig,
 				"--bazel_cache_dir="+bazelCacheDir)
 
-		case "bazel_test_precompiled":
-			// Compute the file name of the test based on its Bazel label. The file name will be relative to
-			// the bazel-bin directory, which we receive a subset of as a CAS input.
-			command := strings.ReplaceAll(labelAndSavedOutputDir.label, "//", "")
-			command = strings.ReplaceAll(command, ":", "/")
-			command = path.Join(OUTPUT_BAZEL, command)
-
-			// The test's working directory will be its runfiles directory, which simulates the behavior of
-			// the "bazel run" command.
-			commandWorkDir := path.Join(command+".runfiles", "skia")
-
-			cmd = append(cmd,
-				"--command="+command,
-				"--command_workdir="+commandWorkDir)
-
-			switch precompiledKind {
-			case precompiledBenchmarkTest:
-				cmd = append(cmd,
-					"--kind=benchmark",
-					"--git_commit="+specs.PLACEHOLDER_REVISION,
-					"--changelist_id="+specs.PLACEHOLDER_ISSUE,
-					"--patchset_order="+specs.PLACEHOLDER_PATCHSET)
-
-			case precompiledGMTest:
-				cmd = append(cmd,
-					"--kind=gm",
-					"--bazel_label="+labelAndSavedOutputDir.label,
-					"--goldctl_path=./cipd_bin_packages/goldctl",
-					"--git_commit="+specs.PLACEHOLDER_REVISION,
-					"--changelist_id="+specs.PLACEHOLDER_ISSUE,
-					"--patchset_order="+specs.PLACEHOLDER_PATCHSET,
-					"--tryjob_id="+specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID)
-				b.cipd(CIPD_PKGS_GOLDCTL)
-
-			case precompiledUnitTest:
-				cmd = append(cmd, "--kind=unit")
-
-			default:
-				panic(fmt.Sprintf("Unknown precompiled test kind: %v", precompiledKind))
-			}
-
-		case "bazel_test_gm":
-			cmd = append(cmd,
-				"--bazel_label="+labelAndSavedOutputDir.label,
-				"--bazel_config="+buildConfig,
-				"--bazel_cache_dir="+bazelCacheDir,
-				"--goldctl_path=./cipd_bin_packages/goldctl",
-				"--git_commit="+specs.PLACEHOLDER_REVISION,
-				"--changelist_id="+specs.PLACEHOLDER_ISSUE,
-				"--patchset_order="+specs.PLACEHOLDER_PATCHSET,
-				"--tryjob_id="+specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID)
-			b.cipd(CIPD_PKGS_GOLDCTL)
-
-		case "bazel_test_benchmark":
-			// Note that these tasks run on Skolo machines.
-			cmd = append(cmd,
-				"--bazel_label="+labelAndSavedOutputDir.label,
-				"--bazel_config="+buildConfig,
-				"--bazel_cache_dir="+bazelCacheDirOnSkoloLinux,
-				"--git_commit="+specs.PLACEHOLDER_REVISION,
-				"--changelist_id="+specs.PLACEHOLDER_ISSUE,
-				"--patchset_order="+specs.PLACEHOLDER_PATCHSET)
-
 		case "external_client":
 			// For external_client, we want to test how an external user would
 			// build using Skia. Therefore, we change to the workspace in that
@@ -2522,31 +2404,7 @@ func (b *jobBuilder) bazelTest() {
 			panic("unsupported Bazel host " + host)
 		}
 
-		if taskdriverName == "bazel_test_gm" ||
-			taskdriverName == "bazel_test_benchmark" ||
-			taskdriverName == "bazel_test_precompiled" {
-			if taskdriverName == "bazel_test_precompiled" {
-				// This task precompiles the test and stores it to CAS.
-				b.dep(fmt.Sprintf("BazelBuild-%s-%s-linux_x64", shorthand, buildConfig))
-			}
-
-			// Set dimensions.
-			if deviceSpecificBazelConfig == nil {
-				log.Fatalf("While processing job %q: task driver %q requires a device-specific Bazel config.", b.Name, taskdriverName)
-			}
-			if len(deviceSpecificBazelConfig.SwarmingDimensions) == 0 {
-				log.Fatalf("While processing job %q: device-specific Bazel config %q does not provide Swarming dimensions.", b.Name, deviceSpecificBazelConfig.Name)
-			}
-			var dimensions []string
-			for name, value := range deviceSpecificBazelConfig.SwarmingDimensions {
-				dimensions = append(dimensions, fmt.Sprintf("%s:%s", name, value))
-			}
-			dimensions = append(dimensions, fmt.Sprintf("pool:%s", b.cfg.Pool))
-			sort.Strings(dimensions)
-			b.dimension(dimensions...)
-		} else {
-			b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
-		}
+		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 
 		b.cmd(cmd...)
 		b.idempotent()
