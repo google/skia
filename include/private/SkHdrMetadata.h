@@ -225,7 +225,7 @@ struct SK_API AdaptiveGlobalToneMap {
     float fHdrReferenceWhite = kDefaultHdrReferenceWhite;
 
     // The HeadroomAdaptiveToneMap metadata group.
-    std::optional<HeadroomAdaptiveToneMap> fHeadroomAdaptiveToneMap;
+    std::optional<HeadroomAdaptiveToneMap> fHeadroomAdaptiveToneMap = std::nullopt;
 
     /**
      * Decode from the binary encoding in Annex C.

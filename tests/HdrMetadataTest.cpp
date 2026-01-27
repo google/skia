@@ -360,239 +360,421 @@ static void assert_agtms_equal(skiatest::Reporter* r,
 }
 
 // Test round-trip serialization of AGTM metadata.
-DEF_TEST(HdrMetadata_Agtm_Serialize, r) {
-    {
-        skiatest::ReporterContext ctx(r, "NoAdaptiveToneMap");
+DEF_TEST(HdrMetadata_Agtm_RoundTripSerialize, r) {
+    struct Test {
+        // The name of the test.
+        const char* name;
 
-        skhdr::AdaptiveGlobalToneMap agtmIn;
-        agtmIn.fHdrReferenceWhite = 123.f;
+        // The AGTM data that we will serialize and deserialized.
+        skhdr::AdaptiveGlobalToneMap agtm;
 
-        skhdr::AdaptiveGlobalToneMap agtmOut;
-        REPORTER_ASSERT(r, agtmOut.parse(agtmIn.serialize().get()));
+        // Different binary encodings, which should all produce `agtm`, and some of them may be
+        // bit-exact the same as `agtm.serialize()`.
+        struct Encoding {
+            // The name of the serialization, if it has some unique properties.
+            const char* name = nullptr;
 
-        assert_agtms_equal(r, agtmIn, agtmOut);
-    }
+            // If true, then `data` should equal `agtm.serialize()`.
+            const bool is_default_encoding = true;
 
-    {
-        skiatest::ReporterContext ctx(r, "RWTMO");
+            // The serialized data.
+            std::vector<uint8_t> data;
+        };
+        std::vector<Encoding> encodings;
+    };
 
-        skhdr::AdaptiveGlobalToneMap agtmIn = {
+    auto get_rwtmo = [](float hdr_reference_white, float headroom) {
+        skhdr::AdaptiveGlobalToneMap agtm = {
             .fHeadroomAdaptiveToneMap = {{
-                .fBaselineHdrHeadroom = 1.f
+                .fBaselineHdrHeadroom = headroom
             }}
         };
-        skhdr::AgtmHelpers::PopulateUsingRwtmo(agtmIn.fHeadroomAdaptiveToneMap.value());
+        skhdr::AgtmHelpers::PopulateUsingRwtmo(agtm.fHeadroomAdaptiveToneMap.value());
+        return agtm;
+    };
 
-        skhdr::AdaptiveGlobalToneMap agtmOut;
-        REPORTER_ASSERT(r, agtmOut.parse(agtmIn.serialize().get()));
-
-        assert_agtms_equal(r, agtmIn, agtmOut);
-    }
-
-    {
-        skiatest::ReporterContext ctx(r, "RWTMO-high-headroom");
-
-        skhdr::AdaptiveGlobalToneMap agtmIn =
+    Test tests[] = {
         {
-            .fHeadroomAdaptiveToneMap = {{
-                .fBaselineHdrHeadroom = 6.f,
-            }}
-        };
-        skhdr::AgtmHelpers::PopulateUsingRwtmo(agtmIn.fHeadroomAdaptiveToneMap.value());
-
-        skhdr::AdaptiveGlobalToneMap agtmOut;
-        REPORTER_ASSERT(r, agtmOut.parse(agtmIn.serialize().get()));
-
-        assert_agtms_equal(r, agtmIn, agtmOut);
-    }
-
-    {
-        skiatest::ReporterContext ctx(r, "ClampInRec601");
-
-        skhdr::AdaptiveGlobalToneMap agtmIn = {
-            .fHdrReferenceWhite = 100.f,
-            .fHeadroomAdaptiveToneMap = {{
-                .fBaselineHdrHeadroom = 2.f,
-                .fGainApplicationSpacePrimaries = SkNamedPrimaries::kRec601,
+            .name = "NoAdaptiveToneMap-DefaultWhite",
+            .agtm = {},
+            .encodings = {
+                {
+                    .data = { 0x00, 0x00, },
+                },
+                // The application_version syntax element is 7. Because minimum_application_version
+                // is 0, we should still parse this. See Clause C.2.1.
+                {
+                    .name = "application_version=7",
+                    .is_default_encoding = false,
+                    .data = { 0xe0, 0x00, },
+                },
+            },
+        },
+        {
+            .name = "NoAdaptiveToneMap-123-White",
+            .agtm = { .fHdrReferenceWhite = 123.f, },
+            .encodings = {{
+                .data = { 0x00, 0x80, 0x02, 0x67, },
             }},
-        };
-        skhdr::AdaptiveGlobalToneMap agtmOut;
-        REPORTER_ASSERT(r, agtmOut.parse(agtmIn.serialize().get()));
-
-        assert_agtms_equal(r, agtmIn, agtmOut);
-    }
-
-    {
-        skiatest::ReporterContext ctx(r, "OneAlternates");
-
-        skhdr::AdaptiveGlobalToneMap agtmIn = {
-            .fHdrReferenceWhite = 400.f,
-            .fHeadroomAdaptiveToneMap = {{
-                .fBaselineHdrHeadroom = 4.f,
-                .fGainApplicationSpacePrimaries = SkNamedPrimaries::kSMPTE_EG_432_1,
-                .fAlternateImages = {
-                    {
-                        .fHdrHeadroom = 0.f,
-                        .fColorGainFunction = {
-                            .fComponentMixing = {.fMax = 1.f},
-                            .fGainCurve = {
-                                .fControlPoints = {
-                                    {1.f, 0.f, 0.f},
-                                    {16.f, -4.f, 0.f},
+        },
+        {
+            .name = "NoAdaptiveToneMap-MinWhite",
+            .agtm = { .fHdrReferenceWhite = 0.2f, },
+            .encodings = {
+                {
+                    .data = { 0x00, 0x80, 0x00, 0x01, },
+                },
+                // The hdr_reference_white syntax element is 0 but clamped to 1 by Clause C.3.3.
+                {
+                    .name = "hdr_reference_white=0",
+                    .is_default_encoding = false,
+                    .data = { 0x00, 0x80, 0x00, 0x00, },
+                },
+            },
+        },
+        {
+            .name = "NoAdaptiveToneMap-MaxWhite",
+            .agtm = { .fHdrReferenceWhite = 10000.f, },
+            .encodings = {
+                {
+                    .data = { 0x00, 0x80, 0xc3, 0x50, },
+                },
+                // The hdr_reference_white syntax element is 65535 but clamped to 50000 by Clause
+                // C.3.3.
+                {
+                    .name = "hdr_reference_white=65535",
+                    .is_default_encoding = false,
+                    .data = { 0x00, 0x80, 0xff, 0xff, },
+                },
+            },
+        },
+        {
+            .name = "RWTMO-min-headroom",
+            .agtm = get_rwtmo(203.f, 0.f),
+            .encodings = {
+                {
+                    .data = { 0x00, 0x40, 0x00, 0x00, 0x80, },
+                },
+            },
+        },
+        {
+            .name = "RWTMO-mid-headroom",
+            .agtm = get_rwtmo(203.f, 3.f),
+            .encodings = {
+                {
+                    .data = { 0x00, 0x40, 0x75, 0x30, 0x80 },
+                }
+            },
+        },
+        {
+            .name = "RWTMO-max-headroom",
+            .agtm = get_rwtmo(203.f, 6.f),
+            .encodings = {
+                {
+                    .data = { 0x00, 0x40, 0xea, 0x60, 0x80 },
+                },
+                // The baseline_hdr_headroom syntax element is 65535 but clamped to 60000 by Clause
+                // C.3.4.
+                {
+                    .name = "baseline_hdr_headroom=65535",
+                    .is_default_encoding = false,
+                    .data = { 0x00, 0x40, 0xff, 0xff, 0x80 },
+                }
+            },
+        },
+        {
+            .name = "ClampInRec601",
+            .agtm = {
+                .fHdrReferenceWhite = 100.f,
+                .fHeadroomAdaptiveToneMap = {{
+                    .fBaselineHdrHeadroom = 2.f,
+                    .fGainApplicationSpacePrimaries = SkNamedPrimaries::kRec601,
+                }},
+            },
+            .encodings = {
+                {
+                    .data = {
+                        0x00, 0xc0, 0x01, 0xf4, 0x4e, 0x20, 0x0c, 0x7b, 0x0c, 0x42, 0x68, 0x3c,
+                        0x8c, 0x74, 0x36, 0x1e, 0x46, 0x0d, 0xac, 0x3d, 0x13, 0x40, 0x42,
+                    },
+                },
+            },
+        },
+        {
+            .name = "OneAlternates",
+                .agtm = {
+                .fHdrReferenceWhite = 400.f,
+                .fHeadroomAdaptiveToneMap = {{
+                    .fBaselineHdrHeadroom = 4.f,
+                    .fGainApplicationSpacePrimaries = SkNamedPrimaries::kSMPTE_EG_432_1,
+                    .fAlternateImages = {
+                        {
+                            .fHdrHeadroom = 0.f,
+                            .fColorGainFunction = {
+                                .fComponentMixing = {.fMax = 1.f},
+                                .fGainCurve = {
+                                    .fControlPoints = {
+                                        {1.f, 0.f, 0.f},
+                                        {16.f, -4.f, 0.f},
+                                    }
                                 }
                             }
                         }
-                    }
+                    },
+                }}
+            },
+            .encodings = {
+                {
+                    .data = {
+                        0x00, 0xc0, 0x07, 0xd0, 0x9c, 0x40, 0x14, 0x00, 0x00, 0x00, 0x08, 0x03,
+                        0xe8, 0x3e, 0x80, 0x00, 0x00, 0x9c, 0x40, 0x46, 0x50, 0x46, 0x50,
+                    },
                 },
-            }}
-        };
-
-        skhdr::AdaptiveGlobalToneMap agtmOut;
-        REPORTER_ASSERT(r, agtmOut.parse(agtmIn.serialize().get()));
-
-        assert_agtms_equal(r, agtmIn, agtmOut);
-    }
-
-    {
-        skiatest::ReporterContext ctx(r, "FourAlternates");
-
-        skhdr::AdaptiveGlobalToneMap agtmIn = {
-            .fHdrReferenceWhite = 400.f,
-            .fHeadroomAdaptiveToneMap = {{
-                .fBaselineHdrHeadroom = 2.f,
-                .fGainApplicationSpacePrimaries = SkNamedPrimaries::kSMPTE_EG_432_1,
-                .fAlternateImages = {
-                    {
-                        .fHdrHeadroom = 0.f,
-                        .fColorGainFunction = {
-                            .fComponentMixing = {
-                                .fMax = 0.75f,
-                                .fMin = 0.25f
-                            },
-                            .fGainCurve = {
-                                .fControlPoints = {
-                                    { .fX = 0.f, .fY = -1.f, .fM = 0.f },
+            },
+        },
+        {
+            .name = "OneAlternates-MaxValues",
+                .agtm = {
+                .fHeadroomAdaptiveToneMap = {{
+                    .fBaselineHdrHeadroom = 6.f,
+                    .fGainApplicationSpacePrimaries = SkNamedPrimaries::kRec2020,
+                    .fAlternateImages = {
+                        {
+                            .fHdrHeadroom = 0.f,
+                            .fColorGainFunction = {
+                                .fComponentMixing = {.fMax = 1.f},
+                                .fGainCurve = {
+                                    .fControlPoints = {
+                                        {64.f, -6.f, 0.f},
+                                    }
                                 }
                             }
                         }
                     },
-                    {
-                        .fHdrHeadroom = 1.f,
-                        .fColorGainFunction = {
-                            .fComponentMixing = {
-                                .fMax = 1.f,
-                            },
-                            .fGainCurve = {
-                                .fControlPoints = {
-                                    { .fX = 0.f, .fY = -1.f,  .fM = 0.f  },
-                                    { .fX = 1.f, .fY = -0.5f, .fM = 0.1f },
-                                    { .fX = 2.f, .fY = -0.4f, .fM = 0.2f },
-                                    { .fX = 3.f, .fY = -0.3f, .fM = 0.3f },
-                                },
-                            },
-                        },
-                    },
-                    {
-                        .fHdrHeadroom = 3.f,
-                        .fColorGainFunction = {
-                            .fComponentMixing = {
-                                .fComponent = 1.f,
-                            },
-                            .fGainCurve = {
-                                .fControlPoints = {
-                                    { .fX = 0.f, .fY = 1.f,  .fM = 0.f  },
-                                    { .fX = 1.f, .fY = 0.5f, .fM = 0.1f },
-                                },
-                            },
-                        },
-                    },
-                    {
-                        .fHdrHeadroom = 4.f,
-                        .fColorGainFunction = {
-                            .fComponentMixing = {
-                                .fRed   = 0.3f,
-                                .fGreen = 0.6f,
-                                .fBlue  = 0.1f,
-                            },
-                            .fGainCurve = {
-                                .fControlPoints = {
-                                    { .fX = 0.f, .fY = 1.f,  .fM = 0.f  },
-                                    { .fX = 1.f, .fY = 0.5f, .fM = 0.1f },
-                                    { .fX = 2.f, .fY = 0.4f, .fM = 0.5  },
-                                },
-                            },
-                        },
+                }}
+            },
+            .encodings = {
+                {
+                    .data = {
+                        0x00, 0x40, 0xea, 0x60, 0x18, 0x00, 0x00, 0x00, 0x00, 0xfa, 0x00, 0xea,
+                        0x60, 0x46, 0x50,
                     },
                 },
-            }},
-        };
-
-        skhdr::AdaptiveGlobalToneMap agtmOut;
-        REPORTER_ASSERT(r, agtmOut.parse(agtmIn.serialize().get()));
-
-        assert_agtms_equal(r, agtmIn, agtmOut);
-    }
-
-    {
-        skiatest::ReporterContext ctx(r, "InverseToneMap");
-
-        skhdr::AdaptiveGlobalToneMap agtmIn = {
-            .fHeadroomAdaptiveToneMap = {{
-                .fBaselineHdrHeadroom = 0.f,
-                .fGainApplicationSpacePrimaries = SkNamedPrimaries::kSMPTE_EG_432_1,
-                .fAlternateImages = {
-                    {
-                        .fHdrHeadroom = 2.f,
-                        .fColorGainFunction = {
-                            .fComponentMixing = {
-                                .fMax = 0.3f,
-                            },
-                            .fGainCurve = {
-                                .fControlPoints = {
-                                    { .fX = 0.5f,       .fY = 0.9998566f, .fM = 0.0015297f },
-                                    { .fX = 0.5208116f, .fY = 1.0027409f, .fM = 0.2734709f },
-                                    { .fX = 0.5413111f, .fY = 1.0109166f, .fM = 0.5211183f },
-                                    { .fX = 0.5614984f, .fY = 1.0237336f, .fM = 0.7456896f },
-                                    { .fX = 0.5813735f, .fY = 1.0406077f, .fM = 0.9495246f },
-                                    { .fX = 0.6009365f, .fY = 1.0610152f, .fM = 1.1343419f },
-                                    { .fX = 0.6201873f, .fY = 1.0844893f, .fM = 1.3021958f },
-                                    { .fX = 0.6391259f, .fY = 1.1106143f, .fM = 1.4547685f },
-                                    { .fX = 0.6577523f, .fY = 1.1390220f, .fM = 1.5937591f },
-                                    { .fX = 0.6760665f, .fY = 1.1693869f, .fM = 1.7207136f },
-                                    { .fX = 0.6940686f, .fY = 1.2014223f, .fM = 1.8370443f },
-                                    { .fX = 0.7117585f, .fY = 1.2348758f, .fM = 1.9440458f },
-                                    { .fX = 0.7291363f, .fY = 1.2695263f, .fM = 2.0429054f },
-                                    { .fX = 0.7462018f, .fY = 1.3051801f, .fM = 2.1347281f },
-                                    { .fX = 0.7629552f, .fY = 1.3416678f, .fM = 2.2204760f },
-                                    { .fX = 0.7793964f, .fY = 1.3788421f, .fM = 2.3010690f },
-                                    { .fX = 0.7955254f, .fY = 1.4165743f, .fM = 2.3773159f },
-                                    { .fX = 0.8113423f, .fY = 1.4547529f, .fM = 2.4499659f },
-                                    { .fX = 0.8268470f, .fY = 1.4932810f, .fM = 2.5197041f },
-                                    { .fX = 0.8420395f, .fY = 1.5320748f, .fM = 2.5871586f },
-                                    { .fX = 0.8569198f, .fY = 1.5710618f, .fM = 2.6529097f },
-                                    { .fX = 0.8714880f, .fY = 1.6101797f, .fM = 2.7174979f },
-                                    { .fX = 0.8857440f, .fY = 1.6493748f, .fM = 2.7814233f },
-                                    { .fX = 0.8996878f, .fY = 1.6886011f, .fM = 2.8451656f },
-                                    { .fX = 0.9133194f, .fY = 1.7278194f, .fM = 2.9091748f },
-                                    { .fX = 0.9266389f, .fY = 1.7669963f, .fM = 2.9738880f },
-                                    { .fX = 0.9396462f, .fY = 1.8061036f, .fM = 3.0397306f },
-                                    { .fX = 0.9523413f, .fY = 1.8451175f, .fM = 3.1071218f },
-                                    { .fX = 0.9647242f, .fY = 1.8840181f, .fM = 3.1764804f },
-                                    { .fX = 0.9767950f, .fY = 1.9227892f, .fM = 3.2482303f },
-                                    { .fX = 0.9885535f, .fY = 1.9614173f, .fM = 3.3228070f },
-                                    { .fX = 1.0000000f, .fY = 1.9998918f, .fM = 3.4006599f },
-                                },
-                            },
-                        }
+                // The gain_curve_control_points_x and gain_curve_control_points_y syntax elements
+                // are 65535 but are clamped to 64000 and 60000 by Clause C.3.7.
+                {
+                    .name = "gain_curve_control_points_x/y=65535",
+                    .is_default_encoding = false,
+                    .data = {
+                        0x00, 0x40, 0xea, 0x60, 0x18, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff,
+                        0xff, 0x46, 0x50,
                     }
                 }
-            }}
-        };
+            }
+        },
+        {
+            .name = "FourAlternates",
+            .agtm = {
+                .fHdrReferenceWhite = 400.f,
+                .fHeadroomAdaptiveToneMap = {{
+                    .fBaselineHdrHeadroom = 2.f,
+                    .fGainApplicationSpacePrimaries = SkNamedPrimaries::kSMPTE_EG_432_1,
+                    .fAlternateImages = {
+                        {
+                            .fHdrHeadroom = 0.f,
+                            .fColorGainFunction = {
+                                .fComponentMixing = { .fMax = 0.75f, .fMin = 0.25f },
+                                .fGainCurve = {
+                                    .fControlPoints = {
+                                        { .fX = 0.f, .fY = -1.f, .fM = 0.f },
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            .fHdrHeadroom = 1.f,
+                            .fColorGainFunction = {
+                                .fComponentMixing = { .fMax = 1.f, },
+                                .fGainCurve = {
+                                    .fControlPoints = {
+                                        { .fX = 0.f, .fY = -1.f,  .fM = 0.f  },
+                                        { .fX = 1.f, .fY = -0.5f, .fM = 0.1f },
+                                        { .fX = 2.f, .fY = -0.4f, .fM = 0.2f },
+                                        { .fX = 3.f, .fY = -0.3f, .fM = 0.3f },
+                                    },
+                                },
+                            },
+                        },
+                        {
+                            .fHdrHeadroom = 3.f,
+                            .fColorGainFunction = {
+                                .fComponentMixing = { .fComponent = 1.f, },
+                                .fGainCurve = {
+                                    .fControlPoints = {
+                                        { .fX = 0.f, .fY = 1.f,  .fM = 0.f  },
+                                        { .fX = 1.f, .fY = 0.5f, .fM = 0.1f },
+                                    },
+                                },
+                            },
+                        },
+                        {
+                            .fHdrHeadroom = 4.f,
+                            .fColorGainFunction = {
+                                .fComponentMixing = {
+                                    .fRed   = 0.3f,
+                                    .fGreen = 0.6f,
+                                    .fBlue  = 0.1f,
+                                },
+                                .fGainCurve = {
+                                    .fControlPoints = {
+                                        { .fX = 0.f, .fY = 1.f,  .fM = 0.f  },
+                                        { .fX = 1.f, .fY = 0.5f, .fM = 0.1f },
+                                        { .fX = 2.f, .fY = 0.4f, .fM = 0.5f  },
+                                        { .fX = 2.f, .fY = 0.4f, .fM = 0.7f  },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                }},
+            },
+            .encodings = {
+                {
+                    .data = {
+                        0x00, 0xc0, 0x07, 0xd0, 0x4e, 0x20, 0x44, 0x00, 0x00, 0xc6, 0x92, 0x7c,
+                        0x30, 0xd4, 0x00, 0x00, 0x00, 0x27, 0x10, 0x46, 0x50, 0x27, 0x10, 0x00,
+                        0x18, 0x00, 0x00, 0x03, 0xe8, 0x07, 0xd0, 0x0b, 0xb8, 0x27, 0x10, 0x13,
+                        0x88, 0x0f, 0xa0, 0x0b, 0xb8, 0x46, 0x50, 0x4a, 0xc6, 0x4f, 0x26, 0x53,
+                        0x5c, 0x75, 0x30, 0x40, 0x08, 0x00, 0x00, 0x03, 0xe8, 0x27, 0x10, 0x13,
+                        0x88, 0x46, 0x50, 0x4a, 0xc6, 0x9c, 0x40, 0xf8, 0x3a, 0x98, 0x75, 0x30,
+                        0x13, 0x88, 0x18, 0x00, 0x00, 0x03, 0xe8, 0x07, 0xd0, 0x07, 0xd0, 0x27,
+                        0x10, 0x13, 0x88, 0x0f, 0xa0, 0x0f, 0xa0, 0x46, 0x50, 0x4a, 0xc6, 0x5b,
+                        0x11, 0x61, 0xa6,
+                    },
+                },
+                // The num_alternate_images syntax element is 7 but clamped to 4 by Clause C.3.4.
+                // The difference from the above is the 0x74 element, which was previously 0x44.
+                {
+                    .name = "num_alternate_images=7",
+                    .is_default_encoding = false,
+                    .data = {
+                        0x00, 0xc0, 0x07, 0xd0, 0x4e, 0x20, 0x74, 0x00, 0x00, 0xc6, 0x92, 0x7c,
+                        0x30, 0xd4, 0x00, 0x00, 0x00, 0x27, 0x10, 0x46, 0x50, 0x27, 0x10, 0x00,
+                        0x18, 0x00, 0x00, 0x03, 0xe8, 0x07, 0xd0, 0x0b, 0xb8, 0x27, 0x10, 0x13,
+                        0x88, 0x0f, 0xa0, 0x0b, 0xb8, 0x46, 0x50, 0x4a, 0xc6, 0x4f, 0x26, 0x53,
+                        0x5c, 0x75, 0x30, 0x40, 0x08, 0x00, 0x00, 0x03, 0xe8, 0x27, 0x10, 0x13,
+                        0x88, 0x46, 0x50, 0x4a, 0xc6, 0x9c, 0x40, 0xf8, 0x3a, 0x98, 0x75, 0x30,
+                        0x13, 0x88, 0x18, 0x00, 0x00, 0x03, 0xe8, 0x07, 0xd0, 0x07, 0xd0, 0x27,
+                        0x10, 0x13, 0x88, 0x0f, 0xa0, 0x0f, 0xa0, 0x46, 0x50, 0x4a, 0xc6, 0x5b,
+                        0x11, 0x61, 0xa6,
+                    },
+                },
+            },
+        },
+        {
+            // This is an inverse tone map, computed using the script used to generate the figures
+            // used in SMPTE ST 2094-50. This also tests using 32 control points (the maximum
+            // allowable).
+            .name = "InverseToneMap",
+            .agtm = {
+                .fHeadroomAdaptiveToneMap = {{
+                    .fBaselineHdrHeadroom = 0.f,
+                    .fGainApplicationSpacePrimaries = SkNamedPrimaries::kSMPTE_EG_432_1,
+                    .fAlternateImages = {
+                        {
+                            .fHdrHeadroom = 2.f,
+                            .fColorGainFunction = {
+                                .fComponentMixing = {
+                                    .fMax = 1.f,
+                                },
+                                .fGainCurve = {
+                                    .fControlPoints = {
+                                        { .fX = 0.5f,       .fY = 0.9998566f, .fM = 0.0015297f },
+                                        { .fX = 0.5208116f, .fY = 1.0027409f, .fM = 0.2734709f },
+                                        { .fX = 0.5413111f, .fY = 1.0109166f, .fM = 0.5211183f },
+                                        { .fX = 0.5614984f, .fY = 1.0237336f, .fM = 0.7456896f },
+                                        { .fX = 0.5813735f, .fY = 1.0406077f, .fM = 0.9495246f },
+                                        { .fX = 0.6009365f, .fY = 1.0610152f, .fM = 1.1343419f },
+                                        { .fX = 0.6201873f, .fY = 1.0844893f, .fM = 1.3021958f },
+                                        { .fX = 0.6391259f, .fY = 1.1106143f, .fM = 1.4547685f },
+                                        { .fX = 0.6577523f, .fY = 1.1390220f, .fM = 1.5937591f },
+                                        { .fX = 0.6760665f, .fY = 1.1693869f, .fM = 1.7207136f },
+                                        { .fX = 0.6940686f, .fY = 1.2014223f, .fM = 1.8370443f },
+                                        { .fX = 0.7117585f, .fY = 1.2348758f, .fM = 1.9440458f },
+                                        { .fX = 0.7291363f, .fY = 1.2695263f, .fM = 2.0429054f },
+                                        { .fX = 0.7462018f, .fY = 1.3051801f, .fM = 2.1347281f },
+                                        { .fX = 0.7629552f, .fY = 1.3416678f, .fM = 2.2204760f },
+                                        { .fX = 0.7793964f, .fY = 1.3788421f, .fM = 2.3010690f },
+                                        { .fX = 0.7955254f, .fY = 1.4165743f, .fM = 2.3773159f },
+                                        { .fX = 0.8113423f, .fY = 1.4547529f, .fM = 2.4499659f },
+                                        { .fX = 0.8268470f, .fY = 1.4932810f, .fM = 2.5197041f },
+                                        { .fX = 0.8420395f, .fY = 1.5320748f, .fM = 2.5871586f },
+                                        { .fX = 0.8569198f, .fY = 1.5710618f, .fM = 2.6529097f },
+                                        { .fX = 0.8714880f, .fY = 1.6101797f, .fM = 2.7174979f },
+                                        { .fX = 0.8857440f, .fY = 1.6493748f, .fM = 2.7814233f },
+                                        { .fX = 0.8996878f, .fY = 1.6886011f, .fM = 2.8451656f },
+                                        { .fX = 0.9133194f, .fY = 1.7278194f, .fM = 2.9091748f },
+                                        { .fX = 0.9266389f, .fY = 1.7669963f, .fM = 2.9738880f },
+                                        { .fX = 0.9396462f, .fY = 1.8061036f, .fM = 3.0397306f },
+                                        { .fX = 0.9523413f, .fY = 1.8451175f, .fM = 3.1071218f },
+                                        { .fX = 0.9647242f, .fY = 1.8840181f, .fM = 3.1764804f },
+                                        { .fX = 0.9767950f, .fY = 1.9227892f, .fM = 3.2482303f },
+                                        { .fX = 0.9885535f, .fY = 1.9614173f, .fM = 3.3228070f },
+                                        { .fX = 1.0000000f, .fY = 1.9998918f, .fM = 3.4006599f },
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }}
+            },
+            .encodings = {
+                {
+                    .data = {
+                        0x00, 0x40, 0x00, 0x00, 0x14, 0x4e, 0x20, 0x00, 0xf8, 0x01, 0xf4, 0x02,
+                        0x09, 0x02, 0x1d, 0x02, 0x31, 0x02, 0x45, 0x02, 0x59, 0x02, 0x6c, 0x02,
+                        0x7f, 0x02, 0x92, 0x02, 0xa4, 0x02, 0xb6, 0x02, 0xc8, 0x02, 0xd9, 0x02,
+                        0xea, 0x02, 0xfb, 0x03, 0x0b, 0x03, 0x1c, 0x03, 0x2b, 0x03, 0x3b, 0x03,
+                        0x4a, 0x03, 0x59, 0x03, 0x67, 0x03, 0x76, 0x03, 0x84, 0x03, 0x91, 0x03,
+                        0x9f, 0x03, 0xac, 0x03, 0xb8, 0x03, 0xc5, 0x03, 0xd1, 0x03, 0xdd, 0x03,
+                        0xe8, 0x27, 0x0f, 0x27, 0x2b, 0x27, 0x7d, 0x27, 0xfd, 0x28, 0xa6, 0x29,
+                        0x72, 0x2a, 0x5d, 0x2b, 0x62, 0x2c, 0x7e, 0x2d, 0xae, 0x2e, 0xee, 0x30,
+                        0x3d, 0x31, 0x97, 0x32, 0xfc, 0x34, 0x69, 0x35, 0xdc, 0x37, 0x56, 0x38,
+                        0xd4, 0x3a, 0x55, 0x3b, 0xd9, 0x3d, 0x5f, 0x3e, 0xe6, 0x40, 0x6e, 0x41,
+                        0xf6, 0x43, 0x7e, 0x45, 0x06, 0x46, 0x8d, 0x48, 0x13, 0x49, 0x98, 0x4b,
+                        0x1c, 0x4c, 0x9e, 0x4e, 0x1f, 0x46, 0x62, 0x52, 0x43, 0x5b, 0xd1, 0x62,
+                        0xfe, 0x68, 0x4f, 0x6c, 0x48, 0x6f, 0x50, 0x71, 0xab, 0x73, 0x8b, 0x75,
+                        0x0f, 0x76, 0x50, 0x77, 0x5c, 0x78, 0x40, 0x79, 0x04, 0x79, 0xaf, 0x7a,
+                        0x46, 0x7a, 0xcd, 0x7b, 0x47, 0x7b, 0xb7, 0x7c, 0x1d, 0x7c, 0x7d, 0x7c,
+                        0xd7, 0x7d, 0x2d, 0x7d, 0x7f, 0x7d, 0xce, 0x7e, 0x1b, 0x7e, 0x66, 0x7e,
+                        0xb0, 0x7e, 0xf9, 0x7f, 0x42, 0x7f, 0x8a, 0x7f, 0xd3,
+                    }
+                }
+            }
+        }
+    };
 
-        skhdr::AdaptiveGlobalToneMap agtmOut;
-        REPORTER_ASSERT(r, agtmOut.parse(agtmIn.serialize().get()));
+    for (const auto& test : tests) {
+        skiatest::ReporterContext ctx(r, test.name);
 
-        assert_agtms_equal(r, agtmIn, agtmOut);
+        // Serialize the `agtm` member, and verify the bits come out as expected.
+        auto serialized = test.agtm.serialize();
+        REPORTER_ASSERT(r, serialized != nullptr);
+
+        for (const auto& encoding : test.encodings) {
+            skiatest::ReporterContext ctxSubSubTest(r, encoding.name ? encoding.name : "default");
+
+            // Parse `encoding.data`, and verify that parsing it matches `agtm`.
+            skhdr::AdaptiveGlobalToneMap agtmParsed;
+            auto encoding_data = SkData::MakeWithoutCopy(
+                encoding.data.data(), encoding.data.size());
+            REPORTER_ASSERT(r, agtmParsed.parse(encoding_data.get()));
+            assert_agtms_equal(r, test.agtm, agtmParsed);
+
+            // If this is idempotent, then `encoding.data` should bit-equal `serialized`.
+            REPORTER_ASSERT(r, encoding.is_default_encoding ==
+                               SkData::Equals(serialized.get(), encoding_data.get()));
+        }
     }
 }
 
@@ -863,5 +1045,131 @@ DEF_TEST(HdrMetadata_ShaderParams, r) {
     REPORTER_ASSERT(r, toneMapAgtm.fHeadroomAdaptiveToneMap.has_value());
     REPORTER_ASSERT(r,
         toneMapAgtm.fHeadroomAdaptiveToneMap->fBaselineHdrHeadroom == std::log2(812.f / 100.f));
+}
+
+DEF_TEST(HdrMetadata_Agtm_Invalid, r) {
+    const skhdr::AdaptiveGlobalToneMap agtm_baseline_0 = {
+        .fHeadroomAdaptiveToneMap = {{
+            .fBaselineHdrHeadroom = 0.0f,
+            .fGainApplicationSpacePrimaries = SkNamedPrimaries::kRec2020,
+        }},
+    };
+    const skhdr::AdaptiveGlobalToneMap agtm_baseline_2 = {
+        .fHeadroomAdaptiveToneMap = {{
+            .fBaselineHdrHeadroom = 2.0f,
+            .fGainApplicationSpacePrimaries = SkNamedPrimaries::kRec2020,
+        }},
+    };
+
+    {
+        skiatest::ReporterContext ctx(r, "HdrReferenceWhite too low");
+        skhdr::AdaptiveGlobalToneMap agtm = { .fHdrReferenceWhite = -1.f };
+        REPORTER_ASSERT(r, !skhdr::AgtmHelpers::Validate(agtm));
+    }
+    {
+        skiatest::ReporterContext ctx(r, "HdrReferenceWhite too high");
+        skhdr::AdaptiveGlobalToneMap agtm = { .fHdrReferenceWhite = 10000.1f };
+        REPORTER_ASSERT(r, !skhdr::AgtmHelpers::Validate(agtm));
+    }
+    {
+        skiatest::ReporterContext ctx(r, "BaselineHdrHeadroom too low");
+        skhdr::AdaptiveGlobalToneMap agtm = {
+            .fHeadroomAdaptiveToneMap = {{
+                .fBaselineHdrHeadroom = -0.01f,
+            }},
+        };
+        REPORTER_ASSERT(r, !skhdr::AgtmHelpers::Validate(agtm));
+    }
+    {
+        skiatest::ReporterContext ctx(r, "BaselineHdrHeadroom too high");
+        skhdr::AdaptiveGlobalToneMap agtm = {
+            .fHeadroomAdaptiveToneMap = {{
+                .fBaselineHdrHeadroom = 6.01f,
+            }},
+        };
+        REPORTER_ASSERT(r, !skhdr::AgtmHelpers::Validate(agtm));
+    }
+    {
+        skiatest::ReporterContext ctx(r, "Equal headrooms");
+        skhdr::AdaptiveGlobalToneMap agtm = agtm_baseline_0;
+        agtm.fHeadroomAdaptiveToneMap->fAlternateImages = {
+            {
+                .fHdrHeadroom = 0.f,
+                .fColorGainFunction = {
+                    .fComponentMixing = {.fMax = 1.f},
+                    .fGainCurve = { .fControlPoints = { {0.f, 0.f, 0.f}, } }
+                }
+            }
+        };
+        REPORTER_ASSERT(r, !skhdr::AgtmHelpers::Validate(agtm));
+    }
+    {
+        skiatest::ReporterContext ctx(r, "Non-monotone headrooms");
+        skhdr::AdaptiveGlobalToneMap agtm = agtm_baseline_0;
+        agtm.fHeadroomAdaptiveToneMap->fAlternateImages = {
+            {
+                .fHdrHeadroom = 1.f,
+                .fColorGainFunction = {
+                    .fComponentMixing = {.fMax = 1.f},
+                    .fGainCurve = { .fControlPoints = { {0.f, 0.f, 0.f}, } }
+                }
+            },
+            {
+                .fHdrHeadroom = 2.f,
+                .fColorGainFunction = {
+                    .fComponentMixing = {.fMax = 1.f},
+                    .fGainCurve = { .fControlPoints = { {0.f, 0.f, 0.f}, } }
+                }
+            },
+        };
+        REPORTER_ASSERT(r, skhdr::AgtmHelpers::Validate(agtm));
+        std::swap(agtm.fHeadroomAdaptiveToneMap->fAlternateImages[0],
+                  agtm.fHeadroomAdaptiveToneMap->fAlternateImages[1]);
+        REPORTER_ASSERT(r, !skhdr::AgtmHelpers::Validate(agtm));
+    }
+    {
+        skiatest::ReporterContext ctx(r, "Non-monotone X");
+        skhdr::AdaptiveGlobalToneMap agtm = agtm_baseline_2;
+        agtm.fHeadroomAdaptiveToneMap->fAlternateImages = {
+            {
+                .fHdrHeadroom = 0.f,
+                .fColorGainFunction = {
+                    .fComponentMixing = {.fMax = 1.f},
+                    .fGainCurve = {
+                        .fControlPoints = {
+                            {4.f, -2.f, 0.f},
+                            {0.f, 0.f, 0.f},
+                        }
+                    }
+                }
+            },
+        };
+        REPORTER_ASSERT(r, !skhdr::AgtmHelpers::Validate(agtm));
+    }
+    {
+        skiatest::ReporterContext ctx(r, "Discontinuous Y");
+        skhdr::AdaptiveGlobalToneMap agtm = agtm_baseline_2;
+        agtm.fHeadroomAdaptiveToneMap->fAlternateImages = {
+            {
+                .fHdrHeadroom = 0.f,
+                .fColorGainFunction = {
+                    .fComponentMixing = {.fMax = 1.f},
+                    .fGainCurve = {
+                        .fControlPoints = {
+                            {0.f, 0.f, 0.f},
+                            {2.f, -1.f, 0.f},
+                            {2.f, -1.f, 0.f},
+                            {4.f, -2.f, 0.f},
+                        }
+                    }
+                }
+            },
+        };
+        REPORTER_ASSERT(r, skhdr::AgtmHelpers::Validate(agtm));
+
+        auto& alt = agtm.fHeadroomAdaptiveToneMap->fAlternateImages[0];
+        alt.fColorGainFunction.fGainCurve.fControlPoints[2].fY = -2.f;
+        REPORTER_ASSERT(r, !skhdr::AgtmHelpers::Validate(agtm));
+    }
 }
 

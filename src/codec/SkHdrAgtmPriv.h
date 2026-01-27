@@ -36,13 +36,13 @@ SkColor4f EvaluateColorGainFunction(const AdaptiveGlobalToneMap::ColorGainFuncti
                                     const SkColor4f& c);
 
 /**
- * The function evaluation described in Clause 5.2.3.
+ * The function evaluation described in Clause 6.4.3.
  */
 SkColor4f EvaluateComponentMixingFunction(const AdaptiveGlobalToneMap::ComponentMixingFunction& mix,
                                           const SkColor4f& c);
 
 /**
- * The function evaluation described in Clause 6.1.3.
+ * The function evaluation described in Clause 6.5.3.
  */
 float EvaluateGainCurve(const AdaptiveGlobalToneMap::GainCurve& gainCurve, float x);
 
@@ -55,7 +55,7 @@ void PopulateSlopeFromPCHIP(AdaptiveGlobalToneMap::GainCurve& gainCurve);
 
 /**
  * Compute the weighting for the specified targeted HDR headroom according to the computations
- * in Clause 6.4.5, Computation of the adaptive tone map.
+ * in Clause 6.2.5, Computation of the headroom-adaptive tone map.
  */
 struct Weighting {
     // The index into fAlternateImages for fWeight. If fWeight[i] is 0 then
@@ -114,6 +114,12 @@ sk_sp<SkImage> MakeGainCurveXYMImage(
  */
 sk_sp<SkColorSpace> GetGainApplicationSpace(
     const AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm);
+
+/**
+ * Return true if `hatm` or `agtm` satisfies all normative constraints.
+ */
+bool Validate(const AdaptiveGlobalToneMap& agtm);
+bool Validate(const AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap& hatm);
 
 }  // namespace AgtmHelpers
 
