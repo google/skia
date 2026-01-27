@@ -8,5 +8,8 @@ licenses(["notice"])
 
 skia_filegroup(
     name = "shared_android_srcs",
-    srcs = ["AHardwareBufferUtils.cpp"],
+    srcs = [
+        "AHardwareBufferUtils.cpp",
+        "AndroidVulkanMemoryAllocator.cpp",
+    ],
 )
