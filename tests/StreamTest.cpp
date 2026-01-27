@@ -41,8 +41,6 @@ using namespace skia_private;
 #include <fcntl.h>
 #endif
 
-#define MAX_SIZE    (256 * 1024)
-
 static void test_loop_stream(skiatest::Reporter* reporter, SkStream* stream,
                              const void* src, size_t len, int repeat) {
     SkAutoSMalloc<256> storage(len);

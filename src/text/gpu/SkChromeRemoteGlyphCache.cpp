@@ -628,18 +628,6 @@ SkStrikeClientImpl::SkStrikeClientImpl(
       fStrikeCache{strikeCache ? strikeCache : SkStrikeCache::GlobalStrikeCache()},
       fIsLogging{isLogging} {}
 
-// Change the path count to track the line number of the failing read.
-// TODO: change __LINE__ back to glyphPathsCount when bug chromium:1287356 is closed.
-#define READ_FAILURE                                                        \
-    {                                                                       \
-        SkDebugf("Bad font data serialization line: %d", __LINE__);         \
-        SkStrikeClient::DiscardableHandleManager::ReadFailureData data = {  \
-                memorySize,  deserializer.bytesRead(), typefaceSize,        \
-                strikeCount, glyphImagesCount, __LINE__};                   \
-        fDiscardableHandleManager->notifyReadFailure(data);                 \
-        return false;                                                       \
-    }
-
 bool SkStrikeClientImpl::readStrikeData(const volatile void* memory, size_t memorySize) {
     SkASSERT(memorySize != 0);
     SkASSERT(memory != nullptr);

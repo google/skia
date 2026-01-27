@@ -15,7 +15,6 @@
 #include "src/gpu/ganesh/geometry/GrQuadUtils.h"
 #include "tests/Test.h"
 
-#define ASSERT(cond) REPORTER_ASSERT(r, cond)
 #define ASSERTF(cond, ...) REPORTER_ASSERT(r, cond, __VA_ARGS__)
 #define TEST(name) DEF_TEST(GrQuadCrop##name, r)
 #define ASSERT_NEARLY_EQUAL(expected, actual) \

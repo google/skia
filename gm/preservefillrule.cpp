@@ -18,16 +18,6 @@
 
 namespace skiagm {
 
-#define ERR_MSG_ASSERT(COND) \
-    do { \
-        if (!(COND)) { \
-            errorMsg->printf("preservefillrule.cpp(%i): assert(%s)", \
-                             __LINE__, #COND); \
-            return DrawResult::kFail; \
-        } \
-    } while (false)
-
-
 /**
  * This test originally ensured that the ccpr path cache preserved fill rules properly. CCPR is gone
  * now, but we decided to keep the test.

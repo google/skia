@@ -19,8 +19,6 @@
 #define REAL    0.5f
 #define BIG     SkIntToScalar(10)
 #define REALBIG 100.5f
-// The value that produces a sigma of just over 2.
-#define CUTOVER 2.6f
 
 static const char* gStyleName[] = {
     "normal",

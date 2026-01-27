@@ -37,8 +37,6 @@ struct SkImageInfo;
 
 using namespace skia_private;
 
-#define HEAP_BLOCK_SIZE 4096
-
 enum {
     // just need a value that save or getSaveCount would never return
     kNoInitialSave = -1,

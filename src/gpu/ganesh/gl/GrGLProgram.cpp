@@ -34,7 +34,6 @@
 class GrTexture;
 
 #define GL_CALL(X) GR_GL_CALL(fGpu->glInterface(), X)
-#define GL_CALL_RET(R, X) GR_GL_CALL_RET(fGpu->glInterface(), R, X)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

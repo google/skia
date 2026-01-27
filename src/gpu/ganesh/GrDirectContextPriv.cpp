@@ -64,7 +64,6 @@ using MaskFormat = skgpu::MaskFormat;
 #define ASSERT_OWNED_PROXY(P) \
     SkASSERT(!(P) || !((P)->peekTexture()) || (P)->peekTexture()->getContext() == this->context())
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(this->context()->singleOwner())
-#define RETURN_VALUE_IF_ABANDONED(value) if (this->context()->abandoned()) { return (value); }
 
 GrSemaphoresSubmitted GrDirectContextPriv::flushSurfaces(
         SkSpan<GrSurfaceProxy*> proxies,
