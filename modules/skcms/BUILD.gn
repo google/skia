@@ -33,7 +33,7 @@ template("arch") {
 arch("skcms_TransformHsw") {
   enabled = current_cpu == "x64" && target_os != "android"
   sources = skcms_TransformHsw
-  if (is_win) {
+  if (is_msvc) {
     if (is_clang) {
       cflags = [
         "/clang:-mavx2",
@@ -43,6 +43,8 @@ arch("skcms_TransformHsw") {
     } else {
       cflags = [ "/arch:AVX2" ]
     }
+  } else if (is_mingw) {
+    cflags = [ "-march=haswell" ]
   } else {
     cflags = [
       "-mavx2",
@@ -53,9 +55,9 @@ arch("skcms_TransformHsw") {
 }
 
 arch("skcms_TransformSkx") {
-  enabled = current_cpu == "x64" && target_os != "android"
+  enabled = current_cpu == "x64" && target_os != "android" && !is_mingw
   sources = skcms_TransformSkx
-  if (is_win) {
+  if (is_msvc) {
     if (is_clang) {
       cflags = [
         "/clang:-mavx512f",
@@ -90,6 +92,8 @@ static_library("skcms") {
       "SKCMS_DISABLE_HSW",
       "SKCMS_DISABLE_SKX",
     ]
+  } else if (is_mingw) {
+    defines = ["SKCMS_DISABLE_SKX"]
   }
   public = skcms_public_headers
   sources = skcms_public + skcms_TransformBaseline

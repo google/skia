@@ -8,6 +8,7 @@
 #ifndef GrD3DPipelineStateBuilder_DEFINED
 #define GrD3DPipelineStateBuilder_DEFINED
 
+#include "src/gpu/ganesh/d3d/GrD3DRenderTarget.h"
 #include "src/gpu/SkSLToBackend.h"
 #include "src/gpu/ganesh/GrPipeline.h"
 #include "src/gpu/ganesh/GrSPIRVUniformHandler.h"

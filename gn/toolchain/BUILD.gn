@@ -46,7 +46,7 @@ declare_args() {
 }
 
 # For 'shell' see https://ninja-build.org/manual.html#ref_rule_command
-if (host_os == "win") {
+if (is_msvc) {
   shell = "cmd.exe /c "
   stamp = "$shell echo >"
 } else {
@@ -304,8 +304,7 @@ template("gcc_like_toolchain") {
       } else {
         rspfile = "{{output}}.rsp"
         rspfile_content = "{{inputs}}"
-        rm_py = rebase_path("../rm.py")
-        command = "$shell python3 \"$rm_py\" \"{{output}}\" && $ar rcs {{output}} @$rspfile"
+        command = "$ar rcs {{output}} @$rspfile"
       }
 
       outputs =
@@ -324,6 +323,8 @@ template("gcc_like_toolchain") {
       rpath = "-Wl,-soname,$soname"
       if (is_mac || is_ios) {
         rpath = "-Wl,-install_name,@rpath/$soname"
+      } else if (is_mingw) {
+        rpath = ""
       }
 
       rspfile = "{{output}}.rsp"
@@ -341,12 +342,16 @@ template("gcc_like_toolchain") {
         _start_group = ""
         _end_group = ""
       }
-
-      command = "$link -shared {{ldflags}} $_start_group @$rspfile {{frameworks}} {{solibs}} $_end_group {{libs}} $rpath -o {{output}}"
-      outputs = [ "{{root_out_dir}}/$soname" ]
+      soname_flags = ""
+      if (is_mingw) {
+        soname_flags = "-Wl,--out-implib=$soname.a"
+      }
+      command = "$link -shared $soname_flags {{ldflags}} $_start_group @$rspfile {{frameworks}} {{solibs}} {{libs}} $_end_group $rpath -o {{output}}"      outputs = [ "{{root_out_dir}}/$soname" ]
       output_prefix = "lib"
-      if (is_mac || is_ios) {
+       if (is_mac || is_ios) {
         default_output_extension = ".dylib"
+      } else if (is_mingw) {
+        default_output_extension = ".dll"
       } else {
         default_output_extension = ".so"
       }
