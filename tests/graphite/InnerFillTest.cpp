@@ -34,21 +34,28 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(InnerFillTest, reporter, context,
                                         LoadOp::kClear,
                                         "inner-fill");
 
-    int expectedRenderSteps = 0;
-
     // Default rrect size is sufficient to avoid the small-size exclusion criteria
     auto testRRect = [&](const SkPaint& paint, bool innerFillExpected, float rrectSize = 128.f) {
         SkRRect rrect = SkRRect::MakeRectXY(SkRect::MakeXYWH(0.f, 0.f, rrectSize, rrectSize),
                                             0.1f * rrectSize, 0.1f * rrectSize);
+        int initialRenderSteps = device->testingOnly_pendingRenderSteps();
         device->drawRRect(rrect, paint);
         int actualRenderSteps = device->testingOnly_pendingRenderSteps();
+
+        if (actualRenderSteps == 1) {
+            // This either represents the first draw of the tests, or it represents the draw after
+            // a dst-read texture copy flush (which should only happen if we are not expecting an
+            // inner fill draw as well).
+            SkASSERT(initialRenderSteps == 0 || !innerFillExpected);
+            initialRenderSteps = 0;
+        }
+
         // TODO(michaelludwig): After migrating to the layer draw tracking system, having a way to
         // traverse the recorded draws and inspect them could let these checks be more robust, e.g.
         // one of the steps is actually the CoverBoundsRenderStep AND it's in the front.
-        expectedRenderSteps += (innerFillExpected ? 2 : 1);
+        int expectedRenderSteps = initialRenderSteps + (innerFillExpected ? 2 : 1);
         REPORTER_ASSERT(reporter, actualRenderSteps == expectedRenderSteps,
                         "Expected (%d) vs Actual (%d)", expectedRenderSteps, actualRenderSteps);
-        expectedRenderSteps = actualRenderSteps; // reset so failures don't cascade
     };
 
     const bool srcWithCoverageIsHW =
