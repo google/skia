@@ -22,7 +22,7 @@ GrD3DPipelineStateDataManager::GrD3DPipelineStateDataManager(const UniformInfoAr
                  uniformInfo.fVariable.getArrayCount() > 0);
         SkDEBUGCODE(
             uniform.fArrayCount = uniformInfo.fVariable.getArrayCount();
-            uniform.fType = uniformInfo.fVariable.getType();
+            uniform.setType(uniformInfo.fVariable.getType());
         )
 
         uniform.fOffset = uniformInfo.fUBOOffset;
