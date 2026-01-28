@@ -84,26 +84,26 @@ int GrUniformDataManager::copyUniforms(void* dest,
 template <int N, SkSLType FullType, SkSLType HalfType>
 void GrUniformDataManager::set(UniformHandle u, const void* v) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == FullType || uni.fType == HalfType);
+    SkASSERT(uni.type() == FullType || uni.type() == HalfType);
     SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
-    this->copyUniforms(buffer, v, N, uni.fType);
+    this->copyUniforms(buffer, v, N, uni.type());
 }
 
 template <int N, SkSLType FullType, SkSLType HalfType>
 void GrUniformDataManager::setv(UniformHandle u, int arrayCount, const void* v) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == FullType || uni.fType == HalfType);
+    SkASSERT(uni.type() == FullType || uni.type() == HalfType);
     SkASSERT(arrayCount > 0);
     SkASSERT(arrayCount <= uni.fArrayCount ||
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
 
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
     if constexpr (N == 4) {
-        this->copyUniforms(buffer, v, arrayCount * 4, uni.fType);
+        this->copyUniforms(buffer, v, arrayCount * 4, uni.type());
     } else {
         for (int i = 0; i < arrayCount; ++i) {
-            int uniformSize = this->copyUniforms(buffer, v, N, uni.fType);
+            int uniformSize = this->copyUniforms(buffer, v, N, uni.type());
             buffer = SkTAddOffset<void>(buffer, /*numUniforms*/4 * uniformSize);
             v = static_cast<const char*>(v) + N * 4;
         }
@@ -236,19 +236,19 @@ inline void GrUniformDataManager::setMatrices(UniformHandle u,
                                               int arrayCount,
                                               const float matrices[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == FullType || uni.fType == HalfType);
+    SkASSERT(uni.type() == FullType || uni.type() == HalfType);
     SkASSERT(arrayCount > 0);
     SkASSERT(arrayCount <= uni.fArrayCount ||
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
 
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
     if constexpr (N == 4) {
-        this->copyUniforms(buffer, matrices, arrayCount * 16, uni.fType);
+        this->copyUniforms(buffer, matrices, arrayCount * 16, uni.type());
     } else {
         for (int i = 0; i < arrayCount; ++i) {
             const float* matrix = &matrices[N * N * i];
             for (int j = 0; j < N; ++j) {
-                int uniformSize = this->copyUniforms(buffer, &matrix[j * N], N, uni.fType);
+                int uniformSize = this->copyUniforms(buffer, &matrix[j * N], N, uni.type());
                 buffer = SkTAddOffset<void>(buffer, /*numUniforms*/4 * uniformSize);
             }
         }

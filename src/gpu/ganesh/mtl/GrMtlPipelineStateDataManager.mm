@@ -31,7 +31,7 @@ GrMtlPipelineStateDataManager::GrMtlPipelineStateDataManager(const UniformInfoAr
             uniform.fArrayCount = uniformInfo.fVariable.getArrayCount();
         )
         uniform.fOffset = uniformInfo.fUBOffset;
-        uniform.fType = uniformInfo.fVariable.getType();
+        uniform.setType(uniformInfo.fVariable.getType());
         ++i;
     }
 
@@ -42,52 +42,52 @@ void GrMtlPipelineStateDataManager::set1iv(UniformHandle u,
                                            int arrayCount,
                                            const int32_t v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == SkSLType::kInt || uni.fType == SkSLType::kShort);
+    SkASSERT(uni.type() == SkSLType::kInt || uni.type() == SkSLType::kShort);
     SkASSERT(arrayCount > 0);
     SkASSERT(arrayCount <= uni.fArrayCount ||
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
 
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
-    this->copyUniforms(buffer, v, arrayCount, uni.fType);
+    this->copyUniforms(buffer, v, arrayCount, uni.type());
 }
 
 void GrMtlPipelineStateDataManager::set1fv(UniformHandle u,
                                            int arrayCount,
                                            const float v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == SkSLType::kFloat || uni.fType == SkSLType::kHalf);
+    SkASSERT(uni.type() == SkSLType::kFloat || uni.type() == SkSLType::kHalf);
     SkASSERT(arrayCount > 0);
     SkASSERT(arrayCount <= uni.fArrayCount ||
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
 
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
-    this->copyUniforms(buffer, v, arrayCount, uni.fType);
+    this->copyUniforms(buffer, v, arrayCount, uni.type());
 }
 
 void GrMtlPipelineStateDataManager::set2iv(UniformHandle u,
                                            int arrayCount,
                                            const int32_t v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == SkSLType::kInt2 || uni.fType == SkSLType::kShort2);
+    SkASSERT(uni.type() == SkSLType::kInt2 || uni.type() == SkSLType::kShort2);
     SkASSERT(arrayCount > 0);
     SkASSERT(arrayCount <= uni.fArrayCount ||
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
 
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
-    this->copyUniforms(buffer, v, arrayCount * 2, uni.fType);
+    this->copyUniforms(buffer, v, arrayCount * 2, uni.type());
 }
 
 void GrMtlPipelineStateDataManager::set2fv(UniformHandle u,
                                            int arrayCount,
                                            const float v[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == SkSLType::kFloat2 || uni.fType == SkSLType::kHalf2);
+    SkASSERT(uni.type() == SkSLType::kFloat2 || uni.type() == SkSLType::kHalf2);
     SkASSERT(arrayCount > 0);
     SkASSERT(arrayCount <= uni.fArrayCount ||
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
 
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
-    this->copyUniforms(buffer, v, arrayCount * 2, uni.fType);
+    this->copyUniforms(buffer, v, arrayCount * 2, uni.type());
 }
 
 void GrMtlPipelineStateDataManager::setMatrix2f(UniformHandle u, const float matrix[]) const {
@@ -98,13 +98,13 @@ void GrMtlPipelineStateDataManager::setMatrix2fv(UniformHandle u,
                                                  int arrayCount,
                                                  const float m[]) const {
     const Uniform& uni = fUniforms[u.toIndex()];
-    SkASSERT(uni.fType == SkSLType::kFloat2x2 || uni.fType == SkSLType::kHalf2x2);
+    SkASSERT(uni.type() == SkSLType::kFloat2x2 || uni.type() == SkSLType::kHalf2x2);
     SkASSERT(arrayCount > 0);
     SkASSERT(arrayCount <= uni.fArrayCount ||
              (1 == arrayCount && GrShaderVar::kNonArray == uni.fArrayCount));
 
     void* buffer = this->getBufferPtrAndMarkDirty(uni);
-    this->copyUniforms(buffer, m, arrayCount * 4, uni.fType);
+    this->copyUniforms(buffer, m, arrayCount * 4, uni.type());
 }
 
 void GrMtlPipelineStateDataManager::uploadAndBindUniformBuffers(

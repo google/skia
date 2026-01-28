@@ -57,10 +57,17 @@ public:
 protected:
     struct Uniform {
         uint32_t fOffset : 24;
-        SkSLType fType   : 8;
+        uint32_t fType   : 8;
         SkDEBUGCODE(
-            int  fArrayCount;
+            int32_t  fArrayCount;
         )
+
+        SkSLType type() const {
+            return static_cast<SkSLType>(fType);
+        }
+        void setType(SkSLType newType) {
+            fType = static_cast<uint32_t>(newType);
+        }
     };
 
     int copyUniforms(void* dest, const void* src, int numUniforms, SkSLType uniformType) const;
