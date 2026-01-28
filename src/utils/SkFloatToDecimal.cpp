@@ -111,7 +111,7 @@ unsigned SkFloatToDecimal(float value, char output[kMaximumSkFloatToDecimalLengt
         *output_ptr = '\0';
         return static_cast<unsigned>(output_ptr - output);
     }
-    if (value < 0.0) {
+    if (value < 0.0f) {
         *output_ptr++ = '-';
         value = -value;
     }

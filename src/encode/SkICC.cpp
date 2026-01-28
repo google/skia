@@ -49,7 +49,7 @@ SkFixed float_round_to_fixed(float x) {
 
 // Convert a float to a uInt16Number, with 0.0 mapping go 0 and 1.0 mapping to |one|.
 uint16_t float_to_uInt16Number(float x, uint16_t one) {
-    x = x * one + 0.5;
+    x = x * one + 0.5f;
     if (x > one) return one;
     if (x < 0) return 0;
     return static_cast<uint16_t>(x);

@@ -671,9 +671,9 @@ static void sweepCode(const SkShaderBase::GradientInfo& info,
 // and make the inner circle just inside the outer one to match raster
 static void FixUpRadius(const SkPoint& p1, SkScalar& r1, const SkPoint& p2, SkScalar& r2) {
     // detect touching circles
-    SkScalar distance = SkPoint::Distance(p1, p2);
-    SkScalar subtractRadii = fabs(r1 - r2);
-    if (fabs(distance - subtractRadii) < 0.002f) {
+    float distance = SkPoint::Distance(p1, p2);
+    float subtractRadii = fabsf(r1 - r2);
+    if (fabsf(distance - subtractRadii) < 0.002f) {
         if (r1 > r2) {
             r1 += 0.002f;
         } else {
@@ -1051,7 +1051,7 @@ static SkPDFGradientShader::Key make_key(const SkShader* shader,
     if (key.fInfo.fPremulInterp) {
         bool changedByPremul = false;
         for (auto&& c : SkSpan(key.fInfo.fColors, key.fInfo.fColorCount)) {
-            if (c.fA != 1.0) {
+            if (c.fA != 1.0f) {
                 changedByPremul = true;
             }
             SkRGBA4f<kPremul_SkAlphaType> pm = c.premul();

@@ -47,7 +47,7 @@ void CanvasParagraphPainter::drawTextBlob(const sk_sp<SkTextBlob>& blob, SkScala
 void CanvasParagraphPainter::drawTextShadow(const sk_sp<SkTextBlob>& blob, SkScalar x, SkScalar y, SkColor color, SkScalar blurSigma) {
     SkPaint paint;
     paint.setColor(color);
-    if (blurSigma != 0.0) {
+    if (blurSigma != 0.0f) {
         sk_sp<SkMaskFilter> filter = SkMaskFilter::MakeBlur(
             kNormal_SkBlurStyle, blurSigma, false);
         paint.setMaskFilter(filter);

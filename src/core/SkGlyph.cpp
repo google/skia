@@ -456,11 +456,12 @@ static std::tuple<SkScalar, SkScalar> calculate_path_gap(
     };
 
     auto addQuad = [&](SkSpan<const SkPoint> pts, SkScalar offset) {
-        SkScalar intersectionStorage[2];
+        float intersectionStorage[2];
         auto intersections = SkBezierQuad::IntersectWithHorizontalLine(
                 pts, offset, intersectionStorage);
-        for (SkScalar x : intersections) {
-            expandGap(x);
+
+        for(float intersection : intersections) {
+            expandGap(intersection);
         }
     };
 
@@ -469,7 +470,7 @@ static std::tuple<SkScalar, SkScalar> calculate_path_gap(
         auto intersections = SkBezierCubic::IntersectWithHorizontalLine(
                 pts, offset, intersectionStorage);
 
-        for(double intersection : intersections) {
+        for(float intersection : intersections) {
             expandGap(intersection);
         }
     };

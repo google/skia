@@ -84,9 +84,9 @@ SkBitmap MakeDitherLUT() {
                     unsigned int m = (y & 1) << 5 | (x & 1) << 4 |
                                      (y & 2) << 2 | (x & 2) << 1 |
                                      (y & 4) >> 1 | (x & 4) >> 2;
-                    float value = float(m) * 1.0 / 64.0 - 63.0 / 128.0;
+                    float value = static_cast<float>(m) * (1.0f / 64.0f) - (63.0f / 128.0f);
                     // Bias by 0.5 to be in 0..1, mul by 255 and round to nearest int to make byte.
-                    data[y * 8 + x] = (uint8_t)((value + 0.5) * 255.f + 0.5f);
+                    data[y * 8 + x] = (uint8_t)((value + 0.5f) * 255.f + 0.5f);
                 }
             }
         }

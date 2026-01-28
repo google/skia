@@ -128,9 +128,9 @@ private:
         }
 
         SkRuntimeShaderBuilder builder(bulge_effect());
-        float adjHeight = std::abs(fHeight)/4;
-        float r = (1 + adjHeight)/2/sqrt(adjHeight);
-        float h = std::pow(adjHeight, 3)*1.3;
+        float adjHeight = std::abs(fHeight)/4.f;
+        float r = (1.f + adjHeight)/2.f/sqrt(adjHeight);
+        float h = std::pow(adjHeight, 3)*1.3f;
         builder.uniform("u_center")       = fCenter;
         builder.uniform("u_radius")       = fRadius;
         builder.uniform("u_radius_inv")   = SkVector{1/fRadius.fX, 1/fRadius.fY};

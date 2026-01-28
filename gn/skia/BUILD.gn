@@ -517,7 +517,6 @@ config("warnings") {
       "-Wno-pedantic",
       "-Wno-reserved-id-macro",
       "-Wno-reserved-identifier",
-      "-Wno-shift-sign-overflow",
       "-Wno-signed-enum-bitfield",
       "-Wno-switch-enum",
       "-Wno-thread-safety-negative",
