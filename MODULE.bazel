@@ -63,7 +63,6 @@ use_repo(
     "org_chromium_go_luci",
     "org_golang_google_api",
     "org_golang_google_protobuf",
-    "org_golang_x_exp",
     "org_skia_go_infra",
 )
 
