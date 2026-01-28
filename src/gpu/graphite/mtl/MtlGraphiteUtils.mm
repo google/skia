@@ -100,24 +100,28 @@ sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedCon
 // are extracted from Frameworks/Metal/MTLPixelFormat.h to avoid guarding with an @available check,
 // although MtlCaps must still do so when enabling a particular format.
 
+#define MTL_PIXEL_FORMAT(name, value) \
+    static constexpr MTLPixelFormat name = static_cast<MTLPixelFormat>(value)
+
 // Either unsupported on iOS or high min iOS, so considered "mac-only"
-static constexpr MTLPixelFormat MTLPixelFormatBC1_RGBA_{130};
-static constexpr MTLPixelFormat MTLPixelFormatBC1_RGBA_sRGB_{131};
-static constexpr MTLPixelFormat MTLPixelFormatDepth24Unorm_Stencil8_{255};
+MTL_PIXEL_FORMAT(MTLPixelFormatBC1_RGBA_, 130);
+MTL_PIXEL_FORMAT(MTLPixelFormatBC1_RGBA_sRGB_, 131);
+MTL_PIXEL_FORMAT(MTLPixelFormatDepth24Unorm_Stencil8_, 255);
 // Requires Mac 11.0+, while we support 10.15+. All meet Graphite's minimum supported iOS version
-static constexpr MTLPixelFormat MTLPixelFormatB5G6R5Unorm_{40};
-static constexpr MTLPixelFormat MTLPixelFormatABGR4Unorm_{42};
-static constexpr MTLPixelFormat MTLPixelFormatBGR10_XR_{554};
-static constexpr MTLPixelFormat MTLPixelFormatBGRA10_XR_{552};
-static constexpr MTLPixelFormat MTLPixelFormatETC2_RGB8_{180};
-static constexpr MTLPixelFormat MTLPixelFormatETC2_RGB8_sRGB_{181};
+MTL_PIXEL_FORMAT(MTLPixelFormatB5G6R5Unorm_, 40);
+MTL_PIXEL_FORMAT(MTLPixelFormatABGR4Unorm_, 42);
+MTL_PIXEL_FORMAT(MTLPixelFormatBGR10_XR_, 554);
+MTL_PIXEL_FORMAT(MTLPixelFormatBGRA10_XR_, 552);
+MTL_PIXEL_FORMAT(MTLPixelFormatETC2_RGB8_, 180);
+MTL_PIXEL_FORMAT(MTLPixelFormatETC2_RGB8_sRGB_, 181);
+
+#if defined(SK_BUILD_FOR_MAC)
+static_assert(MTLPixelFormatBC1_RGBA_ == MTLPixelFormatBC1_RGBA);
+static_assert(MTLPixelFormatBC1_RGBA_sRGB_ == MTLPixelFormatBC1_RGBA_sRGB);
+static_assert(MTLPixelFormatDepth24Unorm_Stencil8_ == MTLPixelFormatDepth24Unorm_Stencil8);
+#endif
 
 static void validate_mtl_pixelformats() {
-#if defined(SK_BUILD_FOR_MAC)
-    SkASSERT(MTLPixelFormatBC1_RGBA_ == MTLPixelFormatBC1_RGBA);
-    SkASSERT(MTLPixelFormatBC1_RGBA_sRGB_ == MTLPixelFormatBC1_RGBA_sRGB);
-    SkASSERT(MTLPixelFormatDepth24Unorm_Stencil8_ == MTLPixelFormatDepth24Unorm_Stencil8);
-#endif
     if (@available(macOS 11.0, iOS 10.0, *)) {
         SkASSERT(MTLPixelFormatB5G6R5Unorm_ == MTLPixelFormatB5G6R5Unorm);
         SkASSERT(MTLPixelFormatABGR4Unorm_ == MTLPixelFormatABGR4Unorm);
