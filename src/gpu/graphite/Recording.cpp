@@ -226,7 +226,7 @@ bool RecordingPriv::addCommands(Context* context,
                                 SkIVector targetTranslation,
                                 SkIRect targetClip) {
     for (size_t i = 0; i < fRecording->fExtraResourceRefs.size(); ++i) {
-        commandBuffer->trackResource(fRecording->fExtraResourceRefs[i]);
+        commandBuffer->trackCommandBufferResource(fRecording->fExtraResourceRefs[i]);
     }
 
     // There's no need to differentiate kSuccess and kDiscard at the root list level; if every task

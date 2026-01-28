@@ -109,7 +109,7 @@ bool DrawPass::addResourceRefs(ResourceProvider* resourceProvider,
         commandBuffer->trackResource(fFullPipelines[i]);
     }
     for (int i = 0; i < fSampledTextures.size(); ++i) {
-        commandBuffer->trackResource(fSampledTextures[i]->refTexture());
+        commandBuffer->trackCommandBufferResource(fSampledTextures[i]->refTexture());
     }
 
     return true;

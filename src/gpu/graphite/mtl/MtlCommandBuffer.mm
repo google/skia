@@ -324,7 +324,7 @@ bool MtlCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
     fActiveRenderCommandEncoder = MtlRenderCommandEncoder::Make(fSharedContext,
                                                                 fCommandBuffer.get(),
                                                                 descriptor.get());
-    this->trackResource(fActiveRenderCommandEncoder);
+    this->trackCommandBufferResource(fActiveRenderCommandEncoder);
 
     if (loadMSAAFromResolve) {
         // Manually load the contents of the resolve texture into the MSAA attachment as a draw,
@@ -509,7 +509,7 @@ MtlBlitCommandEncoder* MtlCommandBuffer::getBlitCommandEncoder() {
 
     // We add the ref on the command buffer for the BlitCommandEncoder now so that we don't need
     // to add a ref for every copy we do.
-    this->trackResource(fActiveBlitCommandEncoder);
+    this->trackCommandBufferResource(fActiveBlitCommandEncoder);
     return fActiveBlitCommandEncoder.get();
 }
 
