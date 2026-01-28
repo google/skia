@@ -72,25 +72,25 @@ skia_filegroup(
     ],
 )
 
-skia_filegroup(
-    name = "shader_utils_hdrs",
-    srcs = [
-        "SkShaderUtils.h",
-    ],
-    visibility = [
-        "//src/gpu:__subpackages__",
-        "//src/sksl/codegen:__subpackages__",
-    ],
-)
-
-skia_filegroup(
-    name = "shader_utils_srcs",
+skia_cc_library(
+    name = "shader_utils",
     srcs = [
         "SkShaderUtils.cpp",
     ],
+    hdrs = [
+        "SkShaderUtils.h",
+    ],
+    features = ["layering_check"],
     visibility = [
-        "//src/gpu:__subpackages__",
-        "//src/sksl/codegen:__subpackages__",
+        "//src/gpu:__pkg__",
+        "//src/gpu/ganesh/gl:__pkg__",
+        "//src/gpu/ganesh/vk:__pkg__",
+        "//src/sksl/codegen:__pkg__",
+    ],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
     ],
 )
 
@@ -103,6 +103,7 @@ skia_cc_library(
     hdrs = [
         "//include/docs:multi_picture_document_hdrs",
     ],
+    features = ["layering_check"],
     visibility = [
         "//dm:__pkg__",
         "//tools:__pkg__",
@@ -122,6 +123,7 @@ skia_cc_library(
     hdrs = [
         "SkFloatToDecimal.h",
     ],
+    features = ["layering_check"],
     visibility = [
         "//src/pdf:__pkg__",
     ],
@@ -138,12 +140,14 @@ skia_cc_library(
     hdrs = [
         "SkClipStackUtils.h",
     ],
+    features = ["layering_check"],
     visibility = [
         "//src/pdf:__pkg__",
     ],
     deps = [
-        "//:core",
         "//:pathops",
+        "//src/core",
+        "//src/core:core_priv",
     ],
 )
 
@@ -155,6 +159,7 @@ skia_cc_library(
         "@platforms//os:linux": ["SkGetExecutablePath_linux.cpp"],
     }),
     hdrs = ["SkGetExecutablePath.h"],
+    features = ["layering_check"],
     visibility = [
         "//src/core:__pkg__",
         "//tools/sksl-minify:__pkg__",
@@ -165,8 +170,12 @@ skia_cc_library(
     name = "char_to_glyphcache",
     srcs = ["SkCharToGlyphCache.cpp"],
     hdrs = ["SkCharToGlyphCache.h"],
+    features = ["layering_check"],
     visibility = [
         "//src/ports:__pkg__",
     ],
-    deps = ["//:core"],
+    deps = [
+        "//:core",
+        "//src/base",
+    ],
 )

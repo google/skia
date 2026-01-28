@@ -349,7 +349,6 @@ skia_cc_library(
         "//src/gpu/ganesh/tessellate:tessellate_srcs",
         "//src/gpu/ganesh/text:srcs",
         "//src/text/gpu:gpu_srcs",
-        "//src/utils:shader_utils_srcs",
         # TODO(kjlubick, egdaniel) Remove this coupling
         "//src/gpu/ganesh/mock:mock_srcs",
     ],
@@ -371,7 +370,6 @@ skia_cc_library(
         "//src/gpu/ganesh/tessellate:tessellate_hdrs",
         "//src/gpu/ganesh/text:private_hdrs",
         "//src/text/gpu:gpu_hdrs",
-        "//src/utils:shader_utils_hdrs",
         # TODO(kjlubick, egdaniel) Remove this coupling
         "//src/gpu/ganesh/mock:mock_hdrs",
         "//include/gpu/ganesh/mock:public_hdrs",

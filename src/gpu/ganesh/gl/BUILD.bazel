@@ -101,6 +101,7 @@ skia_cc_library(
         "//src/gpu",
         "//src/gpu/ganesh",
         "//src/sksl/codegen:glsl",
+        "//src/utils:shader_utils",
     ],
 )
 
@@ -136,5 +137,6 @@ skia_cc_library(
         "//src/gpu",
         "//src/gpu/ganesh:ganesh_TEST_UTIL",
         "//src/sksl/codegen:glsl",
+        "//src/utils:shader_utils",
     ],
 )

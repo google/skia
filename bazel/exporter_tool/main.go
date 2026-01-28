@@ -619,8 +619,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/utils:multi_picture_document",
 				"//src/utils:clip_stack_utils",
 				"//src/utils:float_to_decimal",
-				"//src/utils:utils_skslc_hdrs",
-				"//src/utils:utils_skslc_srcs",
+				"//src/utils:shader_utils",
 			}},
 		{Var: "skia_clipstack_utils_sources",
 			Rules: []string{

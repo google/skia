@@ -117,6 +117,7 @@ skia_cc_library(
         "//src/gpu/ganesh",
         "//src/gpu/vk",
         "//src/gpu/vk/vulkanmemoryallocator:vulkanmemoryallocator_priv",
+        "//src/utils:shader_utils",
         "@vulkan_headers",
     ],
 )
@@ -146,6 +147,7 @@ skia_cc_library(
         "//src/gpu",
         "//src/gpu/ganesh",
         "//src/gpu/vk",
+        "//src/utils:shader_utils",
         "@vulkan_headers",
     ],
 )
@@ -182,6 +184,7 @@ skia_cc_library(
         "//src/gpu/ganesh:ganesh_TEST_UTIL",
         "//src/gpu/vk",
         "//src/gpu/vk/vulkanmemoryallocator:vulkanmemoryallocator_priv",
+        "//src/utils:shader_utils",
         "@vulkan_headers",
     ],
 )
