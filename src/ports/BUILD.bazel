@@ -120,6 +120,7 @@ skia_cc_library(
         "SkTypeface_FreeType.h",
         "//include/ports:typeface_freetype_hdrs",
     ],
+    defines = ["SK_TYPEFACE_FACTORY_FREETYPE"],
     implementation_deps = [
         "//:pathops",
         "@freetype",
@@ -220,7 +221,10 @@ skia_objc_library(
     hdrs = [
         "//include/ports:coretext_fontmgr_hdrs",
     ],
-    defines = ["SK_FONTMGR_CORETEXT_AVAILABLE"],
+    defines = [
+        "SK_FONTMGR_CORETEXT_AVAILABLE",
+        "SK_TYPEFACE_FACTORY_CORETEXT",
+    ],
     features = ["layering_check"],
     ios_frameworks = [
         "CoreText",
@@ -309,8 +313,7 @@ skia_cc_library(
 skia_filegroup(
     name = "typeface_fontations_hdrs",
     srcs = [
-        "SkFontScanner_fontations_priv.h",
-        "SkTypeface_fontations_priv.h",
+        "SkTypeface_fontations_factory.h",
     ],
 )
 
@@ -318,7 +321,9 @@ skia_filegroup(
     name = "typeface_fontations_srcs",
     srcs = [
         "SkFontScanner_fontations.cpp",
+        "SkFontScanner_fontations_priv.h",
         "SkTypeface_fontations.cpp",
+        "SkTypeface_fontations_priv.h",
     ],
 )
 

@@ -92,6 +92,8 @@ sk_sp<SkTypeface> CreateTypefaceFromResource(const char* resource, int ttcIndex 
 // This returns a font using DefaultTypeface()
 SkFont DefaultFont();
 
+void RegisterAvailableTypefaceFactories();
+
 }  // namespace ToolUtils
 
 #endif

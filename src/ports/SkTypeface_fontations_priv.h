@@ -8,8 +8,10 @@
 #ifndef SkTypeface_Fontations_priv_DEFINED
 #define SkTypeface_Fontations_priv_DEFINED
 
+#include "include/core/SkFontArguments.h"
 #include "include/core/SkFontParameters.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
@@ -18,6 +20,7 @@
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkScalerContext.h"
 #include "src/ports/fontations/src/ffi.rs.h"
+#include "src/ports/SkTypeface_fontations_factory.h"
 
 #include <memory>
 
@@ -206,7 +209,7 @@ public:
         return SkSpan(reinterpret_cast<const SkColor*>(fPalette.data()), fPalette.size());
     }
 
-    static constexpr SkTypeface::FactoryId FactoryId = SkSetFourByteTag('f', 'n', 't', 'a');
+    static constexpr SkTypeface::FactoryId FactoryId = SkTypefaces::Fontations::FactoryId;
 
     static sk_sp<SkTypeface> MakeFromData(sk_sp<const SkData> fontData, const SkFontArguments&);
     static sk_sp<SkTypeface> MakeFromStream(std::unique_ptr<SkStreamAsset>, const SkFontArguments&);

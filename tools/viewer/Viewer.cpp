@@ -65,6 +65,7 @@
 #include "tools/flags/CommonFlags.h"
 #include "tools/flags/CommonFlagsGanesh.h"
 #include "tools/flags/CommonFlagsGraphite.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/skui/InputState.h"
 #include "tools/skui/Key.h"
 #include "tools/skui/ModifierKey.h"
@@ -635,6 +636,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     SkGraphics::SetOpenTypeSVGDecoderFactory(SkSVGOpenTypeSVGDecoder::Make);
 #endif
     CodecUtils::RegisterAllAvailable();
+    ToolUtils::RegisterAvailableTypefaceFactories();
 
     SkDebugf("Command line arguments: ");
     for (int i = 1; i < argc; ++i) {

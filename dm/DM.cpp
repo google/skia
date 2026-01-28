@@ -1641,6 +1641,7 @@ int main(int argc, char** argv) {
 #endif
     SkTaskGroup::Enabler enabled(FLAGS_threads);
     CodecUtils::RegisterAllAvailable();
+    ToolUtils::RegisterAvailableTypefaceFactories();
 
     if (nullptr == GetResourceAsData("images/color_wheel.png")) {
         info("Some resources are missing.  Do you need to set --resourcePath?\n");
