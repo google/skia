@@ -133,7 +133,7 @@ public:
     /** Write a unique signature to a stream, sufficient to reconstruct a
         typeface referencing the same font when Deserialize is called.
      */
-    void serialize(SkWStream*, SerializeBehavior = SerializeBehavior::kIncludeDataIfLocal) const;
+    bool serialize(SkWStream*, SerializeBehavior = SerializeBehavior::kIncludeDataIfLocal) const;
 
     /**
      *  Same as serialize(SkWStream*, ...) but returns the serialized data in SkData, instead of

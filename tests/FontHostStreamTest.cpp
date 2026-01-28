@@ -94,7 +94,10 @@ DEF_TEST(FontHostStream, reporter) {
 
         {
             SkDynamicMemoryWStream wstream;
-            typeface->serialize(&wstream, SkTypeface::SerializeBehavior::kDoIncludeData);
+            if (!typeface->serialize(&wstream, SkTypeface::SerializeBehavior::kDoIncludeData)) {
+                REPORT_FAILURE(reporter, "serialize typeface", SkString());
+                return;
+            }
             std::unique_ptr<SkStreamAsset> stream = wstream.detachAsStream();
             sk_sp<SkTypeface> deserializedTypeface = SkTypeface::MakeDeserialize(&*stream, mgr);
             if (!deserializedTypeface) {

@@ -88,7 +88,7 @@ public:
     // Does not affect ownership of SkStream.
     static bool Deserialize(SkStream*, SkFontDescriptor* result);
 
-    void serialize(SkWStream*) const;
+    bool serialize(SkWStream*) const;
 
     SkFontStyle getStyle() const { return fStyle; }
     void setStyle(SkFontStyle style) { fStyle = style; }

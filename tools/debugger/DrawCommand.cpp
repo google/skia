@@ -600,12 +600,10 @@ static void store_bool(SkJSONWriter& writer, const char* key, bool value, bool d
     }
 }
 
-static SkString encode_data(const void*     bytes,
-                            size_t          count,
+static SkString encode_data(SkData*         data,
                             const char*     contentType,
                             UrlDataManager& urlDataManager) {
-    sk_sp<SkData> data(SkData::MakeWithCopy(bytes, count));
-    return urlDataManager.addData(data.get(), contentType);
+    return urlDataManager.addData(data, contentType);
 }
 
 void DrawCommand::flatten(const SkFlattenable* flattenable,
@@ -613,10 +611,8 @@ void DrawCommand::flatten(const SkFlattenable* flattenable,
                           UrlDataManager&      urlDataManager) {
     SkBinaryWriteBuffer buffer({});  // TODO(kjlubick, bungeman) feed SkSerialProcs through API
     flattenable->flatten(buffer);
-    void* data = sk_malloc_throw(buffer.bytesWritten());
-    buffer.writeToMemory(data);
-    SkString url =
-            encode_data(data, buffer.bytesWritten(), "application/octet-stream", urlDataManager);
+    sk_sp<SkData> data = buffer.snapshotAsData();
+    SkString url = encode_data(data.get(), "application/octet-stream", urlDataManager);
     writer.appendCString(DEBUGCANVAS_ATTRIBUTE_NAME, flattenable->getTypeName());
     writer.appendString(DEBUGCANVAS_ATTRIBUTE_DATA, url);
 
@@ -624,8 +620,6 @@ void DrawCommand::flatten(const SkFlattenable* flattenable,
     JsonWriteBuffer jsonBuffer(&writer, &urlDataManager);
     flattenable->flatten(jsonBuffer);
     writer.endObject();  // values
-
-    sk_free(data);
 }
 
 void DrawCommand::WritePNG(const SkBitmap& bitmap, SkWStream& out) {
@@ -677,13 +671,12 @@ bool DrawCommand::flatten(const SkImage&  image,
         writer.endObject();
         return false;
     }
-    auto dataPtr = encoded->data();
-    if (!dataPtr) {
+    if (!encoded->data()) {
       SkDebugf("DrawCommand::flatten SkImage: encoding as PNG produced zero length data\n");
       writer.endObject();
       return false;
     }
-    SkString url = encode_data(encoded->data(), encoded->size(), "image/png", urlDataManager);
+    SkString url = encode_data(encoded.get(), "image/png", urlDataManager);
     writer.appendString(DEBUGCANVAS_ATTRIBUTE_DATA, url);
     writer.endObject();
     return true;
@@ -877,15 +870,14 @@ static void apply_font_typeface(const SkFont&   font,
                                 UrlDataManager& urlDataManager) {
     SkTypeface* typeface = font.getTypeface();
     if (typeface != nullptr) {
-        writer.beginObject(DEBUGCANVAS_ATTRIBUTE_TYPEFACE);
         SkDynamicMemoryWStream buffer;
-        typeface->serialize(&buffer);
-        void* data = sk_malloc_throw(buffer.bytesWritten());
-        buffer.copyTo(data);
-        SkString url = encode_data(
-                data, buffer.bytesWritten(), "application/octet-stream", urlDataManager);
+        if (!typeface->serialize(&buffer)) {
+            return;
+        }
+        writer.beginObject(DEBUGCANVAS_ATTRIBUTE_TYPEFACE);
+        sk_sp<SkData> data = buffer.detachAsData();
+        SkString url = encode_data(data.get(), "application/octet-stream", urlDataManager);
         writer.appendString(DEBUGCANVAS_ATTRIBUTE_DATA, url);
-        sk_free(data);
         writer.endObject();
     }
 }

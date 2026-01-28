@@ -637,12 +637,18 @@ SkString DumpFontMetrics(const SkFontMetrics& metrics) {
 static void TestTypefaceSerialization(skiatest::Reporter* reporter,
                                       const sk_sp<SkTypeface>& typeface) {
     SkDynamicMemoryWStream typefaceWStream;
-    typeface->serialize(&typefaceWStream);
+    if (!typeface->serialize(&typefaceWStream)) {
+        REPORT_FAILURE(reporter, "serialize typeface", SkString());
+        return;
+    }
 
     std::unique_ptr<SkStream> typefaceStream = typefaceWStream.detachAsStream();
     sk_sp<SkTypeface> cloneTypeface =
             SkTypeface::MakeDeserialize(typefaceStream.get(), ToolUtils::TestFontMgr());
-    SkASSERT(cloneTypeface);
+    if (!cloneTypeface) {
+        REPORTER_ASSERT(reporter, cloneTypeface);
+        return;
+    }
 
     SkString name, cloneName;
     typeface->getFamilyName(&name);

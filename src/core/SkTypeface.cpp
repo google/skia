@@ -198,7 +198,7 @@ void SkTypeface::Register(
     decoders()->push_back(DecoderProc{id, make});
 }
 
-void SkTypeface::serialize(SkWStream* wstream, SerializeBehavior behavior) const {
+bool SkTypeface::serialize(SkWStream* wstream, SerializeBehavior behavior) const {
     bool isLocalData = false;
     SkFontDescriptor desc;
     this->onGetFontDescriptor(&desc, &isLocalData);
@@ -229,13 +229,12 @@ void SkTypeface::serialize(SkWStream* wstream, SerializeBehavior behavior) const
             }
         }
     }
-    desc.serialize(wstream);
+    return desc.serialize(wstream);
 }
 
 sk_sp<SkData> SkTypeface::serialize(SerializeBehavior behavior) const {
     SkDynamicMemoryWStream stream;
-    this->serialize(&stream, behavior);
-    return stream.detachAsData();
+    return this->serialize(&stream, behavior) ? stream.detachAsData() : nullptr;
 }
 
 sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream, sk_sp<SkFontMgr> lastResortMgr) {
