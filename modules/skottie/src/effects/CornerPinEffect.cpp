@@ -78,10 +78,10 @@ private:
     const sk_sp<sksg::Matrix<SkMatrix>> fMatrixNode;
     const SkSize                        fLayerSize;
 
-    Vec2Value fUL,
-              fLL,
-              fUR,
-              fLR;
+    Vec2Value fUL = {0,0},
+              fLL = {0,0},
+              fUR = {0,0},
+              fLR = {0,0};
 };
 
 } // namespace
