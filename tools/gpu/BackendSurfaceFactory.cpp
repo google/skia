@@ -139,7 +139,6 @@ sk_sp<SkSurface> MakeBackendTextureSurface(skgpu::graphite::Recorder* recorder,
     }
     return SkSurfaces::WrapBackendTexture(recorder,
                                           mbet->texture(),
-                                          ii.colorType(),
                                           ii.refColorSpace(),
                                           props,
                                           ManagedGraphiteTexture::ReleaseProc,
@@ -189,7 +188,6 @@ sk_sp<SkSurface> MakeBackendTextureViewSurface(skgpu::graphite::Recorder* record
 
     return SkSurfaces::WrapBackendTexture(recorder,
                                           betFromView,
-                                          ii.colorType(),
                                           ii.refColorSpace(),
                                           props,
                                           release,
