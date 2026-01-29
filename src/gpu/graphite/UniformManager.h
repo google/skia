@@ -106,7 +106,9 @@ class UniformDataBlock;
  * behave like this, but we do not currently utilize it.
  *
  * The rules for std430 can be easily extended to f16 by applying N = 2 instead of N = 4 for the
- * base primitive alignment.
+ * base primitive alignment. The rules for std140 can be extended to f16 similarly except that
+ * any alignment rounded up to vec4 always refers to vec4<f32> == 16, even if the component type
+ * were defined in terms of f16.
  *
  * NOTE: This could also apply to the int vs. short or uint vs. ushort types, but these smaller
  * integer types are not supported on all platforms as uniforms. We disallow short integer uniforms
@@ -123,15 +125,16 @@ class UniformDataBlock;
  * 1. If the base primitive type is "half" and the Layout expects half floats, N = 2; else, N = 4.
  *
  * 2. For arrays of scalars or vectors (with # of components, M = 1,2,3,4):
- *    a. If arrays must be aligned on vec4 boundaries OR M=3, then align and stride = 4*N.
- *    b. Otherwise, the align and stride = M*N.
+ *    a. If arrays must be aligned on 16 byte boundaries, then align and stride = 16
+ *       (equivalent to vec4 alignment when N=4).
+ *    b. Otherwise, the align and stride = SkNextPow2(M)*N (e.g. N,2N,4N,4N).
  *
  *    In both cases, the total size required for the uniform is "array size"*stride.
  *
  * 3. For single scalars or vectors (M = 1,2,3,4), the align is SkNextPow2(M)*N (e.g. N,2N,4N,4N).
  *    a. If M = 3 and the Layout aligns the size with the alignment, the size is 4*N and N
  *       padding bytes must be zero'ed out afterwards.
- *    b. Otherwise, the align and size = M*N
+ *    b. Otherwise, the size = M*N
  *
  * 4. The starting offset to write data is the current offset aligned to the calculated align value.
  *    The current offset is then incremented by the total size of the uniform.
@@ -156,20 +159,14 @@ class UniformDataBlock;
  * row-major data) to be column-major. Thus, for layout purposes, a matrix or an array of matrices
  * can be laid out equivalently to an array of the column type with an array count multiplied by the
  * number of columns.
- *
- * Graphite does not embed structs within structs for its UBO or SSBO declarations for paint or
- * RenderSteps. However, when the "uniforms" are defined for use with SSBO random access, the
- * ordered set of uniforms is actually defining a struct instead of just a top-level interface.
- * As such, once all uniforms are recorded, the size must be rounded up to the maximum alignment
- * encountered for its members to satisfy alignment rules for all Layouts.
- *
- * If Graphite starts to define sub-structs, UniformOffsetCalculator can be used recursively.
  */
 namespace LayoutRules {
     // The three diverging behaviors across the different Layouts:
     static constexpr bool PadVec3Size(Layout layout) { return layout == Layout::kMetal; }
-    static constexpr bool AlignArraysAsVec4(Layout layout) { return layout == Layout::kStd140; }
-    static constexpr bool UseFullPrecision(Layout layout) { return layout != Layout::kMetal; }
+    static constexpr bool AlignArraysTo16(Layout layout) { return layout == Layout::kStd140 ||
+                                                                  layout == Layout::kStd140_F16; }
+    static constexpr bool UseFullPrecision(Layout layout) { return layout == Layout::kStd140 ||
+                                                                   layout == Layout::kStd430; }
 }
 
 class UniformOffsetCalculator {
@@ -181,7 +178,7 @@ public:
     }
 
     static UniformOffsetCalculator ForStruct(Layout layout) {
-        const int reqAlignment = LayoutRules::AlignArraysAsVec4(layout) ? 16 : 1;
+        const int reqAlignment = LayoutRules::AlignArraysTo16(layout) ? 16 : 1;
         return UniformOffsetCalculator(layout, /*offset=*/0, reqAlignment);
     }
 
@@ -261,6 +258,7 @@ public:
     void reset() { this->resetWithNewLayout(fLayout); }
     void rewindToMark();
 
+    Layout layout() const { return fLayout; }
     int size() const { return fStorage.size(); }
 
     void tryShrinkCapacity() {
@@ -407,7 +405,8 @@ private:
     // Other than validation, actual layout doesn't care about 'type' and the logic can be
     // based on vector length and whether or not it's half or full precision.
     template <int N, bool Half> void write(const void* src, SkSLType type);
-    template <int N, bool Half> void writeArray(const void* src, int count, SkSLType type);
+    template <int N, bool Half, bool Align16>
+    void writeArray(const void* src, int count, SkSLType type);
 
     // Helpers to select dimensionality and convert to full precision if required by the Layout.
     template <SkSLType Type> void write(const void* src) {
@@ -420,10 +419,19 @@ private:
     }
     template <SkSLType Type> void writeArray(const void* src, int count) {
         static constexpr int N = SkSLTypeVecLength(Type);
+        const bool align16 = LayoutRules::AlignArraysTo16(fLayout);
         if (IsHalfVector(Type) && !LayoutRules::UseFullPrecision(fLayout)) {
-            this->writeArray<N, /*Half=*/true>(src, count, Type);
+            if (align16) {
+                this->writeArray<N, /*Half=*/true, /*Align16=*/true>(src, count, Type);
+            } else {
+                this->writeArray<N, /*Half=*/true, /*Align16=*/false>(src, count, Type);
+            }
         } else {
-            this->writeArray<N, /*Half=*/false>(src, count, Type);
+            if (align16) {
+                this->writeArray<N, /*Half=*/false, /*Align16=*/true>(src, count, Type);
+            } else {
+                this->writeArray<N, /*Half=*/false, /*Align16=*/false>(src, count, Type);
+            }
         }
     }
 
@@ -538,19 +546,24 @@ void UniformManager::write(const void* src, SkSLType type) {
     }
 }
 
-template<int N, bool Half>
+template<int N, bool Half, bool Align16>
 void UniformManager::writeArray(const void* src, int count, SkSLType type) {
     using L = LayoutTraits<N, Half>;
     static constexpr int kSrcStride = N * 4; // Source data is always in multiples of 4 bytes.
 
     SkDEBUGCODE(L::Validate(src, type, fLayout);)
     SkASSERT(count > 0);
+    SkASSERT(Align16 == LayoutRules::AlignArraysTo16(fLayout));
 
-    if (Half || N == 3 || (N != 4 && LayoutRules::AlignArraysAsVec4(fLayout))) {
-        // A non-dense array (N == 3 is always padded to vec4, or the Layout requires it),
-        // or we have to perform half conversion so iterate over each element.
-        static constexpr int kStride  = Half ? L::kAlign : 4*L::kElemSize;
-        SkASSERT(!(Half && LayoutRules::AlignArraysAsVec4(fLayout))); // should be exclusive
+    if constexpr (Half || N == 3 || (N != 4 && Align16)) {
+        //         Size (H|F)  Align (H|F)  Padding (H|F) Align16-Padding (H|F)
+        // N = 1   2|4         2|4          0|0(*)        14|12
+        // N = 2   4|8         4|8          0|0(*)        12|8
+        // N = 3   6|12        8|16         2|4           10|4
+        // N = 4   8|16        8|16         0|0(*)         8|0(*)
+        // Padding entries marked with (*) represent cases that fall into the else block below.
+        // All other cases need per-element half conversion and/or per-element padding added.
+        static constexpr int kStride = Align16 ? 16 : L::kAlign;
 
         const char* srcBytes = reinterpret_cast<const char*>(src);
         char* dst = this->append(kStride, kStride*count);

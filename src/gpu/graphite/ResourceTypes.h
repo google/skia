@@ -116,16 +116,20 @@ static const int kBufferTypeCount = static_cast<int>(BufferType::kLast) + 1;
 enum class Layout : uint8_t {
     kInvalid = 0,
     kStd140,
+    kStd140_F16,
     kStd430,
+    kStd430_F16,
     kMetal,
 };
 
 static constexpr const char* LayoutString(Layout layout) {
     switch(layout) {
-        case Layout::kStd140:  return "std140";
-        case Layout::kStd430:  return "std430";
-        case Layout::kMetal:   return "metal";
-        case Layout::kInvalid: return "invalid";
+        case Layout::kStd140:     return "std140";
+        case Layout::kStd140_F16: return "std140-f16";
+        case Layout::kStd430:     return "std430";
+        case Layout::kStd430_F16: return "std430-f16";
+        case Layout::kMetal:      return "metal";
+        case Layout::kInvalid:    return "invalid";
     }
     SkUNREACHABLE;
 }

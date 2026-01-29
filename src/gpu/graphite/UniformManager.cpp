@@ -31,13 +31,14 @@ int UniformOffsetCalculator::advanceOffset(SkSLType type, int count) {
     // Bump dimension up to 4 if the array or vec3 consumes 4 primitives per element
     // NOTE: This affects the size, alignment already rounds up to a power of 2 automatically.
     const bool isArray = count > Uniform::kNonArray;
-    if ((isArray && LayoutRules::AlignArraysAsVec4(fLayout)) ||
-        (dimension == 3 && (isArray || LayoutRules::PadVec3Size(fLayout)))) {
+    const bool forceAlign16 = isArray && LayoutRules::AlignArraysTo16(fLayout);
+    if (forceAlign16 || (dimension == 3 && (isArray || LayoutRules::PadVec3Size(fLayout)))) {
         dimension = 4;
     }
 
     const int primitiveSize = LayoutRules::UseFullPrecision(fLayout) ||
-                              SkSLTypeIsFullPrecisionNumericType(type) ? 4 : 2;
+                              SkSLTypeIsFullPrecisionNumericType(type) ||
+                              forceAlign16 ? 4 : 2;
     const int align = SkNextPow2(dimension) * primitiveSize;
     const int alignedOffset = SkAlignTo(fOffset, align);
     fOffset = alignedOffset + dimension * primitiveSize * std::max(count, 1);
@@ -53,7 +54,7 @@ int UniformOffsetCalculator::advanceStruct(const UniformOffsetCalculator& substr
     // base alignment rounded up to 16-byte alignment, which should have been accounted for in
     // 'substruct's constructor.
     const int baseAlignment = substruct.requiredAlignment();
-    SkASSERT(!LayoutRules::AlignArraysAsVec4(fLayout) || SkIsAlign16(baseAlignment));
+    SkASSERT(!LayoutRules::AlignArraysTo16(fLayout) || SkIsAlign16(baseAlignment));
 
     // Per layout rule #9, the struct size must be padded to its base alignment
     // (see https://registry.khronos.org/OpenGL/specs/gl/glspec45.core.pdf#page=159).
@@ -130,39 +131,41 @@ void UniformManager::write(const Uniform& u, const void* data) {
     SkASSERT(SkSLTypeMatrixSize(type) < 0); // Matrix types should have been flattened
 
     const bool fullPrecision = LayoutRules::UseFullPrecision(fLayout) || !IsHalfVector(type);
+
+#define GEN_WRITE_TABLE(M, Half, Align16) \
+    switch(SkSLTypeVecLength(type)) { \
+        case 1: M(1, Half, Align16); break; \
+        case 2: M(2, Half, Align16); break; \
+        case 3: M(3, Half, Align16); break; \
+        case 4: M(4, Half, Align16); break; }
+#define FOR_NON_ARRAY(N, Half, Align16) this->write<N, Half>(data, type)
+#define FOR_ARRAY(N, Half, Align16) this->writeArray<N, Half, Align16>(data, count, type)
+
     if (count == Uniform::kNonArray) {
         if (fullPrecision) {
-            switch(SkSLTypeVecLength(type)) {
-                case 1: this->write<1, /*Half=*/false>(data, type); break;
-                case 2: this->write<2, /*Half=*/false>(data, type); break;
-                case 3: this->write<3, /*Half=*/false>(data, type); break;
-                case 4: this->write<4, /*Half=*/false>(data, type); break;
-            }
+            GEN_WRITE_TABLE(FOR_NON_ARRAY, /*Half=*/false, /*ignored*/)
         } else {
-            switch(SkSLTypeVecLength(type)) {
-                case 1: this->write<1, /*Half=*/true>(data, type); break;
-                case 2: this->write<2, /*Half=*/true>(data, type); break;
-                case 3: this->write<3, /*Half=*/true>(data, type); break;
-                case 4: this->write<4, /*Half=*/true>(data, type); break;
-            }
+            GEN_WRITE_TABLE(FOR_NON_ARRAY, /*Half=*/true,  /*ignored*/)
         }
     } else {
-        if (fullPrecision) {
-            switch(SkSLTypeVecLength(type)) {
-                case 1: this->writeArray<1, /*Half=*/false>(data, count, type); break;
-                case 2: this->writeArray<2, /*Half=*/false>(data, count, type); break;
-                case 3: this->writeArray<3, /*Half=*/false>(data, count, type); break;
-                case 4: this->writeArray<4, /*Half=*/false>(data, count, type); break;
+        if (LayoutRules::AlignArraysTo16(fLayout)) {
+            if (fullPrecision) {
+                GEN_WRITE_TABLE(FOR_ARRAY, /*Half=*/false, /*Align16=*/true)
+            } else {
+                GEN_WRITE_TABLE(FOR_ARRAY, /*Half=*/true,  /*Align16=*/true)
             }
         } else {
-            switch(SkSLTypeVecLength(type)) {
-                case 1: this->writeArray<1, /*Half=*/true>(data, count, type); break;
-                case 2: this->writeArray<2, /*Half=*/true>(data, count, type); break;
-                case 3: this->writeArray<3, /*Half=*/true>(data, count, type); break;
-                case 4: this->writeArray<4, /*Half=*/true>(data, count, type); break;
+            if (fullPrecision) {
+                GEN_WRITE_TABLE(FOR_ARRAY, /*Half=*/false, /*Align16=*/false)
+            } else {
+                GEN_WRITE_TABLE(FOR_ARRAY, /*Half=*/true,  /*Align16=*/false)
             }
         }
     }
+
+#undef FOR_ARRAY
+#undef FOR_NON_ARRAY
+#undef GEN_WRITE_TABLE
 }
 
 #if defined(SK_DEBUG)
