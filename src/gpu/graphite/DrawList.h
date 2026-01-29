@@ -252,8 +252,8 @@ private:
     // The returned Transform reference remains valid for the lifetime of the DrawList.
     const Transform& deduplicateTransform(const Transform&);
 
-    SkTBlockList<Transform, 16> fTransforms{SkBlockAllocator::GrowthPolicy::kFibonacci};
-    SkTBlockList<Draw, 16>      fDraws{SkBlockAllocator::GrowthPolicy::kFibonacci};
+    SkTBlockList<Transform, 4> fTransforms{SkBlockAllocator::GrowthPolicy::kFibonacci};
+    SkTBlockList<Draw, 4>      fDraws{SkBlockAllocator::GrowthPolicy::kFibonacci};
 
     // Running total of RenderSteps for all draws, assuming nothing is culled
     int fRenderStepCount = 0;
