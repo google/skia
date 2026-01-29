@@ -168,6 +168,8 @@ skia_core_sources = [
   "$_include/private/base/SkFixed.h",
   "$_include/private/base/SkFloatingPoint.h",
   "$_include/private/base/SkLoadUserConfig.h",
+  "$_include/private/base/SkLog.h",
+  "$_include/private/base/SkLogPriority.h",
   "$_include/private/base/SkMacros.h",
   "$_include/private/base/SkMalloc.h",
   "$_include/private/base/SkMath.h",

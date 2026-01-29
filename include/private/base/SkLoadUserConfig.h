@@ -9,6 +9,8 @@
 
 // Include this to set reasonable defaults (e.g. for SK_CPU_LENDIAN)
 #include "include/private/base/SkFeatures.h"
+// Include this so that users can define the lowest active log priority in their config
+#include "include/private/base/SkLogPriority.h" // IWYU pragma: keep
 
 // Allows embedders that want to disable macros that take arguments to just
 // define that symbol to be one of these
@@ -17,7 +19,6 @@
 #define SK_NOTHING_ARG3(arg1, arg2, arg3)
 
 // IWYU pragma: begin_exports
-
 // Note: SK_USER_CONFIG_HEADER will not work with Bazel builds and some C++ compilers.
 #if defined(SK_USER_CONFIG_HEADER)
     #include SK_USER_CONFIG_HEADER
