@@ -380,7 +380,7 @@ private:
             that.fID = 0;
         }
 
-        Sampler(GrGLuint id, const GrGLInterface* interface) : fID(id), fInterface(interface) {}
+        Sampler(GrGLuint id, const GrGLInterface* iface) : fID(id), fInterface(iface) {}
 
         ~Sampler() {
             if (fID) {
@@ -412,25 +412,25 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface,
+std::unique_ptr<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> iface,
                                      const GrContextOptions& options,
                                      GrDirectContext* direct) {
 #if !defined(SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE)
-    if (!interface) {
-        interface = GrGLMakeNativeInterface();
-        if (!interface) {
+    if (!iface) {
+        iface = GrGLMakeNativeInterface();
+        if (!iface) {
             return nullptr;
         }
     }
 #else
-    if (!interface) {
+    if (!iface) {
         return nullptr;
     }
 #endif
 #ifdef USE_NSIGHT
     const_cast<GrContextOptions&>(options).fSuppressPathRendering = true;
 #endif
-    auto glContext = GrGLContext::Make(std::move(interface), options);
+    auto glContext = GrGLContext::Make(std::move(iface), options);
     if (!glContext) {
         return nullptr;
     }
@@ -1498,7 +1498,7 @@ static sk_sp<GrTexture> return_null_texture() {
 }
 
 static GrGLTextureParameters::SamplerOverriddenState set_initial_texture_params(
-        const GrGLInterface* interface,
+        const GrGLInterface* iface,
         const GrGLCaps& caps,
         GrGLenum target) {
     // Some drivers like to know filter/wrap before seeing glTexImage2D. Some
@@ -1509,10 +1509,10 @@ static GrGLTextureParameters::SamplerOverriddenState set_initial_texture_params(
     state.fMagFilter = GR_GL_NEAREST;
     state.fWrapS = GR_GL_CLAMP_TO_EDGE;
     state.fWrapT = GR_GL_CLAMP_TO_EDGE;
-    GR_GL_CALL(interface, TexParameteri(target, GR_GL_TEXTURE_MAG_FILTER, state.fMagFilter));
-    GR_GL_CALL(interface, TexParameteri(target, GR_GL_TEXTURE_MIN_FILTER, state.fMinFilter));
-    GR_GL_CALL(interface, TexParameteri(target, GR_GL_TEXTURE_WRAP_S, state.fWrapS));
-    GR_GL_CALL(interface, TexParameteri(target, GR_GL_TEXTURE_WRAP_T, state.fWrapT));
+    GR_GL_CALL(iface, TexParameteri(target, GR_GL_TEXTURE_MAG_FILTER, state.fMagFilter));
+    GR_GL_CALL(iface, TexParameteri(target, GR_GL_TEXTURE_MIN_FILTER, state.fMinFilter));
+    GR_GL_CALL(iface, TexParameteri(target, GR_GL_TEXTURE_WRAP_S, state.fWrapS));
+    GR_GL_CALL(iface, TexParameteri(target, GR_GL_TEXTURE_WRAP_T, state.fWrapT));
     return state;
 }
 
@@ -3375,9 +3375,9 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     auto errorHandler = this->getContext()->priv().getShaderErrorHandler();
     SkSL::NativeShader glsl[kGrShaderTypeCount];
     SkSL::ProgramSettings settings;
-    SkSL::Program::Interface interface;
+    SkSL::Program::Interface iface;
     skgpu::SkSLToGLSL(shaderCaps, vertexSkSL, SkSL::ProgramKind::kVertex, settings,
-                      &glsl[kVertex_GrShaderType], &interface, errorHandler);
+                      &glsl[kVertex_GrShaderType], &iface, errorHandler);
     GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext,
                                                   fCopyPrograms[progIdx].fProgram,
                                                   GR_GL_VERTEX_SHADER,
@@ -3385,7 +3385,7 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
                                                   /*shaderWasCached=*/false,
                                                   fProgramCache->stats(),
                                                   errorHandler);
-    SkASSERT(interface == SkSL::Program::Interface());
+    SkASSERT(iface == SkSL::Program::Interface());
     if (!vshader) {
         // Just delete the program, no shaders to delete
         cleanup_program(this, &fCopyPrograms[progIdx].fProgram, nullptr, nullptr);
@@ -3393,7 +3393,7 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     }
 
     skgpu::SkSLToGLSL(shaderCaps, fragmentSkSL, SkSL::ProgramKind::kFragment, settings,
-                      &glsl[kFragment_GrShaderType], &interface, errorHandler);
+                      &glsl[kFragment_GrShaderType], &iface, errorHandler);
     GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext,
                                                   fCopyPrograms[progIdx].fProgram,
                                                   GR_GL_FRAGMENT_SHADER,
@@ -3401,7 +3401,7 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
                                                   /*shaderWasCached=*/false,
                                                   fProgramCache->stats(),
                                                   errorHandler);
-    SkASSERT(interface == SkSL::Program::Interface());
+    SkASSERT(iface == SkSL::Program::Interface());
     if (!fshader) {
         // Delete the program and previously compiled vertex shader
         cleanup_program(this, &fCopyPrograms[progIdx].fProgram, &vshader, nullptr);
@@ -3559,10 +3559,10 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     auto errorHandler = this->getContext()->priv().getShaderErrorHandler();
     SkSL::NativeShader glsl[kGrShaderTypeCount];
     SkSL::ProgramSettings settings;
-    SkSL::Program::Interface interface;
+    SkSL::Program::Interface iface;
 
     skgpu::SkSLToGLSL(shaderCaps, vertexSkSL, SkSL::ProgramKind::kVertex, settings,
-                      &glsl[kVertex_GrShaderType], &interface, errorHandler);
+                      &glsl[kVertex_GrShaderType], &iface, errorHandler);
     GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext,
                                                   fMipmapPrograms[progIdx].fProgram,
                                                   GR_GL_VERTEX_SHADER,
@@ -3570,14 +3570,14 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
                                                   /*shaderWasCached=*/false,
                                                   fProgramCache->stats(),
                                                   errorHandler);
-    SkASSERT(interface == SkSL::Program::Interface());
+    SkASSERT(iface == SkSL::Program::Interface());
     if (!vshader) {
         cleanup_program(this, &fMipmapPrograms[progIdx].fProgram, nullptr, nullptr);
         return false;
     }
 
     skgpu::SkSLToGLSL(shaderCaps, fragmentSkSL, SkSL::ProgramKind::kFragment, settings,
-                      &glsl[kFragment_GrShaderType], &interface, errorHandler);
+                      &glsl[kFragment_GrShaderType], &iface, errorHandler);
     GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext,
                                                   fMipmapPrograms[progIdx].fProgram,
                                                   GR_GL_FRAGMENT_SHADER,
@@ -3585,7 +3585,7 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
                                                   /*shaderWasCached=*/false,
                                                   fProgramCache->stats(),
                                                   errorHandler);
-    SkASSERT(interface == SkSL::Program::Interface());
+    SkASSERT(iface == SkSL::Program::Interface());
     if (!fshader) {
         cleanup_program(this, &fMipmapPrograms[progIdx].fProgram, &vshader, nullptr);
         return false;

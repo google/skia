@@ -92,7 +92,7 @@ template("third_party") {
       if (!defined(cflags)) {
         cflags = []
       }
-      if (is_win) {
+      if (is_msvc) {
         cflags += [ "/w" ]
       } else {
         cflags += [ "-w" ]

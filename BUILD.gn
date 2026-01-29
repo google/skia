@@ -167,7 +167,7 @@ is_loong64 = current_cpu == "loong64"
 opts("hsw") {
   enabled = is_x86
   sources = skia_opts.hsw_sources
-  if (is_win) {
+  if (is_msvc) {
     cflags = [ "/arch:AVX2" ]
   } else {
     cflags = [ "-march=haswell" ]
@@ -177,7 +177,7 @@ opts("hsw") {
 opts("skx") {
   enabled = is_x86
   sources = skia_opts.skx_sources
-  if (is_win) {
+  if (is_msvc) {
     cflags = [ "/arch:AVX512" ]
   } else {
     cflags = [ "-march=skylake-avx512" ]
@@ -492,7 +492,11 @@ optional("fontmgr_win_gdi") {
   public_defines = [ "SK_FONTMGR_GDI_AVAILABLE" ]
   public = skia_ports_windows_fonts_public
   sources = skia_ports_fonthost_win_sources
-  libs = [ "Gdi32.lib" ]
+  if (is_msvc) {
+    libs = [ "Gdi32.lib" ]
+  } else {
+    libs = [ "gdi32" ]
+  }
 }
 
 if (skia_lex) {
@@ -893,7 +897,31 @@ optional("gpu_shared") {
 
   if (skia_use_dawn) {
     public_defines += [ "SK_DAWN" ]
-    public_deps += [ "//third_party/dawn" ]
+
+    # When building for WASM, the WebGPU headers are provided by Emscripten. For native builds we
+    # have to depend on Dawn directly.
+    if (!skia_use_webgpu) {
+      public_deps += [
+        "//third_party/externals/dawn/include/dawn:cpp_headers",
+        "//third_party/externals/dawn/src/dawn:cpp",
+        "//third_party/externals/dawn/src/dawn:proc",
+      ]
+
+      if (dawn_enable_d3d12 || dawn_enable_d3d11 || dawn_enable_desktop_gl ||
+          dawn_enable_metal || dawn_enable_opengles || dawn_enable_vulkan) {
+        public_deps += [ "//third_party/externals/dawn/src/dawn/native" ]
+      }
+      if (dawn_enable_d3d12) {
+        if (is_msvc) {
+          libs += ["d3d12.lib", "dxgi.lib", "d3dcompiler.lib"]
+        } else {
+          libs += ["d3d12", "dxgi", "d3dcompiler"]
+        }
+
+      } else if (dawn_enable_metal) {
+        frameworks += [ "Metal.framework" ]
+      }
+    }
   }
 
   if (skia_use_direct3d) {
@@ -1001,7 +1029,12 @@ optional("gpu") {
         "src/gpu/ganesh/gl/win/GrGLMakeWinInterface.cpp",
       ]
       if (target_cpu != "arm64") {
-        libs += [ "OpenGL32.lib" ]
+        if (is_msvc) {
+          libs += [ "OpenGL32.lib" ]
+        } else {
+          libs += [ "opengl32" ]
+        }
+
       }
     } else {
       sources += [ "src/gpu/ganesh/gl/GrGLMakeNativeInterface_none.cpp" ]
@@ -1029,11 +1062,19 @@ optional("gpu") {
     if (skia_enable_direct3d_debug_layer) {
       public_defines += [ "SK_ENABLE_D3D_DEBUG_LAYER" ]
     }
-    libs += [
-      "d3d12.lib",
-      "dxgi.lib",
-      "d3dcompiler.lib",
-    ]
+    if(is_msvc) {
+      libs += [
+        "d3d12.lib",
+        "dxgi.lib",
+        "d3dcompiler.lib",
+      ]
+    } else {
+      libs += [
+        "d3d12",
+        "dxgi",
+        "d3dcompiler",
+      ]
+    }
   }
 
   cflags_objcc = []
@@ -1918,17 +1959,18 @@ skia_component("skia") {
                  "src/ports/SkDebug_win.cpp",
                  "src/ports/SkImageGeneratorWIC.cpp",
                ]
-    libs += [
-      "Ole32.lib",
-      "OleAut32.lib",
-    ]
-
+    if(is_msvc) {
+        libs += ["Ole32.lib","OleAut32.lib"]
+    } else {
+        libs += ["ole32","oleaut32"]
+    }
     if (!skia_enable_winuwp) {
-      libs += [
-        "FontSub.lib",
-        "User32.lib",
-        "Usp10.lib",
-      ]
+      if(is_msvc) {
+        libs += ["FontSub.lib", "User32.lib", "Usp10.lib"]
+      } else {
+        libs += ["fontsub", "user32", "usp10"]
+      }
+
     }
   } else {
     sources += [ "src/ports/SkOSFile_posix.cpp" ]
@@ -2079,6 +2121,14 @@ action("skia.h") {
          rebase_path(skia_public_includes)
   depfile = "$skia_h.deps"
   outputs = [ skia_h ]
+}
+
+config("cpp17") {
+  if (is_msvc) {
+    cflags_cc = [ "/std:c++17" ]
+  } else {
+    cflags_cc = [ "-std=c++17" ]
+  }
 }
 
 skia_source_set("public_headers_warnings_check") {

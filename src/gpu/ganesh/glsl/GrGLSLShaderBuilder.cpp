@@ -300,10 +300,10 @@ void GrGLSLShaderBuilder::appendDecls(const VarArray& vars, SkString* out) const
     }
 }
 
-void GrGLSLShaderBuilder::addLayoutQualifier(const char* param, InterfaceQualifier interface) {
+void GrGLSLShaderBuilder::addLayoutQualifier(const char* param, InterfaceQualifier iface) {
     SkASSERT(fProgramBuilder->shaderCaps()->fGLSLGeneration >= SkSL::GLSLGeneration::k330 ||
              fProgramBuilder->shaderCaps()->mustEnableAdvBlendEqs());
-    fLayoutParams[interface].push_back() = param;
+    fLayoutParams[iface].push_back() = param;
 }
 
 void GrGLSLShaderBuilder::compileAndAppendLayoutQualifiers() {
@@ -312,8 +312,8 @@ void GrGLSLShaderBuilder::compileAndAppendLayoutQualifiers() {
         "out"
     };
 
-    for (int interface = 0; interface <= kLastInterfaceQualifier; ++interface) {
-        const TArray<SkString>& params = fLayoutParams[interface];
+    for (int iface = 0; iface <= kLastInterfaceQualifier; ++iface) {
+        const TArray<SkString>& params = fLayoutParams[iface];
         if (params.empty()) {
             continue;
         }
@@ -321,7 +321,7 @@ void GrGLSLShaderBuilder::compileAndAppendLayoutQualifiers() {
         for (int i = 1; i < params.size(); ++i) {
             this->layoutQualifiers().appendf(", %s", params[i].c_str());
         }
-        this->layoutQualifiers().appendf(") %s;\n", interfaceQualifierNames[interface]);
+        this->layoutQualifiers().appendf(") %s;\n", interfaceQualifierNames[iface]);
     }
 
     static_assert(0 == GrGLSLShaderBuilder::kIn_InterfaceQualifier);
