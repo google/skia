@@ -31,6 +31,7 @@ std::tuple<int, SkYUVAPixmapInfo::DataType> SkYUVAPixmapInfo::NumChannelsAndData
     // We could allow BGR[A] color types, but then we'd have to decide whether B should be the 0th
     // or 2nd channel. Our docs currently say channel order is always R=0, G=1, B=2[, A=3].
     switch (ct) {
+        case kR8_unorm_SkColorType:
         case kAlpha_8_SkColorType:
         case kGray_8_SkColorType:    return {1, DataType::kUnorm8 };
         case kR16_unorm_SkColorType:
