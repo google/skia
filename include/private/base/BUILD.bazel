@@ -27,8 +27,6 @@ PRIVATE_HEADERS = [
     "SkFeatures.h",
     "SkFixed.h",
     "SkLoadUserConfig.h",
-    "SkLog.h",
-    "SkLogPriority.h",
     "SkMacros.h",
     "SkMath.h",
     "SkMutex.h",
