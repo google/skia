@@ -262,6 +262,18 @@ bool GraphiteVulkanWindowContext::createSwapchain(int width, int height) {
         return false;
     }
 
+    SkColorType colorType;
+    switch (surfaceFormat) {
+        case VK_FORMAT_R8G8B8A8_UNORM:
+            colorType = kRGBA_8888_SkColorType;
+            break;
+        case VK_FORMAT_B8G8R8A8_UNORM:
+            colorType = kBGRA_8888_SkColorType;
+            break;
+        default:
+            return false;
+    }
+
     // If mailbox mode is available, use it, as it is the lowest-latency non-tearing mode. If not,
     // fall back to FIFO which is always available.
     VkPresentModeKHR mode = VK_PRESENT_MODE_FIFO_KHR;
@@ -325,6 +337,7 @@ bool GraphiteVulkanWindowContext::createSwapchain(int width, int height) {
     // If buffer creation fails, destroy the swapchain.
     if (!this->populateSwapchainImages(swapchainCreateInfo.imageFormat,
                                        usageFlags,
+                                       colorType,
                                        swapchainCreateInfo.imageSharingMode)) {
         fDeviceWaitIdle(fDevice);
         this->resetSwapchainImages();
@@ -338,6 +351,7 @@ bool GraphiteVulkanWindowContext::createSwapchain(int width, int height) {
 
 bool GraphiteVulkanWindowContext::populateSwapchainImages(VkFormat format,
                                                           VkImageUsageFlags usageFlags,
+                                                          SkColorType colorType,
                                                           VkSharingMode sharingMode) {
     // Determine number of swapchain images
     uint32_t swapchainImgCount;
@@ -383,6 +397,7 @@ bool GraphiteVulkanWindowContext::populateSwapchainImages(VkFormat format,
                                                                        skgpu::VulkanAlloc());
         fImages[i].fSurface = SkSurfaces::WrapBackendTexture(this->graphiteRecorder(),
                                                              backendTex,
+                                                             colorType,
                                                              fDisplayParams->colorSpace(),
                                                              &fDisplayParams->surfaceProps());
         if (!fImages[i].fSurface) {

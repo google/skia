@@ -145,7 +145,6 @@ public:
                                       RenderPassDesc*,
                                       const RendererProvider*) const { return false; }
 
-    SkColorType getDefaultColorType(const TextureInfo&) const;
     bool areColorTypeAndTextureInfoCompatible(SkColorType, const TextureInfo&) const;
 
     // Tries to return a sample count > 1 if needing MSAA to render into the target specification.

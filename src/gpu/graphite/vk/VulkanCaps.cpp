@@ -939,6 +939,14 @@ void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
             info.fColorTypeInfoCount = 3;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
             int ctIdx = 0;
+            // Format: VK_FORMAT_R8_UNORM, Surface: kR_8
+            {
+                constexpr SkColorType ct = SkColorType::kR8_unorm_SkColorType;
+                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
+                ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
+                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+            }
             // Format: VK_FORMAT_R8_UNORM, Surface: kAlpha_8
             {
                 constexpr SkColorType ct = SkColorType::kAlpha_8_SkColorType;
@@ -948,14 +956,6 @@ void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 ctInfo.fReadSwizzle = skgpu::Swizzle("000r");
                 ctInfo.fWriteSwizzle = skgpu::Swizzle("a000");
-            }
-            // Format: VK_FORMAT_R8_UNORM, Surface: kR_8
-            {
-                constexpr SkColorType ct = SkColorType::kR8_unorm_SkColorType;
-                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = ct;
-                ctInfo.fTransferColorType = ct;
-                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
             // Format: VK_FORMAT_R8_UNORM, Surface: kGray_8
             {

@@ -51,7 +51,7 @@ private:
     void destroyContext();
 
     bool createSwapchain(int width, int height);
-    bool populateSwapchainImages(VkFormat, VkImageUsageFlags, VkSharingMode);
+    bool populateSwapchainImages(VkFormat, VkImageUsageFlags, SkColorType, VkSharingMode);
 
     /**
      * Swap backbuffers/frames, presenting the next available image.
