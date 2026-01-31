@@ -233,20 +233,36 @@ public:
     virtual bool supportsReadPixels(const TextureInfo&) const = 0;
 
     /**
-     * Given a texture config and its color type interpretation, returns the color type that matches
-     * the texture's layout after a copy (i.e. does not have any of the automatic swizzling that
-     * occurs during regular sampling). The returned colortype either represents the color type that
-     * source data must be coaxed into for writePixels(), or it represents the color type after a
-     * readPixels() operation.
+     * Given a dst pixel config and a src color type what color type must the caller coax the
+     * the data into in order to use writePixels.
      *
      * We currently don't have an SkColorType for a 3 channel RGB format. Additionally the current
      * implementation of raster pipeline requires power of 2 channels, so it is not easy to add such
      * an SkColorType. Thus we need to check for data that is 3 channels using the isRGBFormat
-     * return value and handle it manually.
+     * return value and handle it manually
      */
-    std::pair<SkColorType, bool /*isRGB888Format*/> supportedTransferColorType(
-            SkColorType colorType,
-            const TextureInfo& textureInfo) const;
+    virtual std::pair<SkColorType, bool /*isRGB888Format*/> supportedWritePixelsColorType(
+            SkColorType dstColorType,
+            const TextureInfo& dstTextureInfo,
+            SkColorType srcColorType) const = 0;
+
+    /**
+     * Given a src surface's color type and its texture info as well as a color type the caller
+     * would like read into, this provides a legal color type that the caller can use for
+     * readPixels. The returned color type may differ from the passed dstColorType, in
+     * which case the caller must convert the read pixel data (see GrConvertPixels). When converting
+     * to dstColorType the swizzle in the returned struct should be applied. The caller must check
+     * the returned color type for kUnknown.
+     *
+     * We currently don't have an SkColorType for a 3 channel RGB format. Additionally the current
+     * implementation of raster pipeline requires power of 2 channels, so it is not easy to add such
+     * an SkColorType. Thus we need to check for data that is 3 channels using the isRGBFormat
+     * return value and handle it manually
+     */
+    virtual std::pair<SkColorType, bool /*isRGBFormat*/> supportedReadPixelsColorType(
+            SkColorType srcColorType,
+            const TextureInfo& srcTextureInfo,
+            SkColorType dstColorType) const = 0;
 
     /**
      * Checks whether the passed color type is renderable. If so, the same color type is passed
@@ -573,9 +589,7 @@ protected:
 
 private:
     virtual bool onIsTexturable(const TextureInfo&) const = 0;
-    virtual SkSpan<const ColorTypeInfo> getColorTypeInfos(const TextureInfo&) const = 0;
-
-    const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const;
+    virtual const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const = 0;
 
     sk_sp<SkCapabilities> fCapabilities;
 };

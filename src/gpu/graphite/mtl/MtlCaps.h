@@ -87,13 +87,22 @@ private:
         return fColorTypeToFormatTable[idx];
     }
 
-    SkSpan<const ColorTypeInfo> getColorTypeInfos(const TextureInfo&) const override;
+    const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const override;
 
     bool onIsTexturable(const TextureInfo&) const override;
     bool isTexturable(MTLPixelFormat) const;
 
     bool supportsWritePixels(const TextureInfo&) const override;
     bool supportsReadPixels(const TextureInfo&) const override;
+
+    std::pair<SkColorType, bool /*isRGBFormat*/> supportedWritePixelsColorType(
+            SkColorType dstColorType,
+            const TextureInfo& dstTextureInfo,
+            SkColorType srcColorType) const override;
+    std::pair<SkColorType, bool /*isRGBFormat*/> supportedReadPixelsColorType(
+            SkColorType srcColorType,
+            const TextureInfo& srcTextureInfo,
+            SkColorType dstColorType) const override;
 
     struct FormatInfo {
         uint32_t colorTypeFlags(SkColorType colorType) const {

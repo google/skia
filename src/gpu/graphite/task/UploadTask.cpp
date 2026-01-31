@@ -135,8 +135,8 @@ UploadSource UploadSource::Make(const Caps* caps,
 
     SkColorType supportedColorType;
     bool isRGB888Format;
-    std::tie(supportedColorType, isRGB888Format) = caps->supportedTransferColorType(
-            dstColorInfo.colorType(), texInfo);
+    std::tie(supportedColorType, isRGB888Format) = caps->supportedWritePixelsColorType(
+            dstColorInfo.colorType(), texInfo, srcColorInfo.colorType());
     if (supportedColorType == kUnknown_SkColorType) {
         return Invalid();
     }

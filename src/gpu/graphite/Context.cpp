@@ -736,7 +736,9 @@ Context::PixelTransferResult Context::transferPixels(Recorder* recorder,
     SkColorType supportedColorType;
     bool isRGB888Format;
     std::tie(supportedColorType, isRGB888Format) =
-            caps->supportedTransferColorType(srcColorType, srcProxy->textureInfo());
+            caps->supportedReadPixelsColorType(srcColorType,
+                                               srcProxy->textureInfo(),
+                                               dstColorInfo.colorType());
     if (supportedColorType == kUnknown_SkColorType) {
         return {};
     }

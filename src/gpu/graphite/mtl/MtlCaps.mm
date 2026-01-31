@@ -939,14 +939,22 @@ TextureInfo MtlCaps::getDefaultStorageTextureInfo(SkColorType colorType) const {
     return TextureInfos::MakeMetal(info);
 }
 
-SkSpan<const Caps::ColorTypeInfo> MtlCaps::getColorTypeInfos(const TextureInfo& textureInfo) const {
+const Caps::ColorTypeInfo* MtlCaps::getColorTypeInfo(
+        SkColorType ct, const TextureInfo& textureInfo) const {
     MTLPixelFormat mtlFormat = TextureInfoPriv::Get<MtlTextureInfo>(textureInfo).fFormat;
     if (mtlFormat == MTLPixelFormatInvalid) {
-        return {};
+        return nullptr;
     }
 
-    const FormatInfo& formatInfo = this->getFormatInfo(mtlFormat);
-    return {formatInfo.fColorTypeInfos.get(), formatInfo.fColorTypeInfoCount};
+    const FormatInfo& info = this->getFormatInfo(mtlFormat);
+    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
+        const ColorTypeInfo& ctInfo = info.fColorTypeInfos[i];
+        if (ctInfo.fColorType == ct) {
+            return &ctInfo;
+        }
+    }
+
+    return nullptr;
 }
 
 static constexpr int kMtlGraphicsPipelineKeyData32Count = 4;
@@ -1159,6 +1167,50 @@ bool MtlCaps::supportsReadPixels(const TextureInfo& texInfo) const {
     }
 
     return true;
+}
+
+std::pair<SkColorType, bool /*isRGBFormat*/> MtlCaps::supportedWritePixelsColorType(
+        SkColorType dstColorType,
+        const TextureInfo& dstTextureInfo,
+        SkColorType srcColorType) const {
+    if (!dstTextureInfo.isValid()) {
+        return {kUnknown_SkColorType, false};
+    }
+    const auto& mtlInfo = TextureInfoPriv::Get<MtlTextureInfo>(dstTextureInfo);
+
+    const FormatInfo& info = this->getFormatInfo(mtlInfo.fFormat);
+    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
+        const auto& ctInfo = info.fColorTypeInfos[i];
+        if (ctInfo.fColorType == dstColorType) {
+            return {ctInfo.fTransferColorType, false};
+        }
+    }
+    return {kUnknown_SkColorType, false};
+}
+
+std::pair<SkColorType, bool /*isRGBFormat*/> MtlCaps::supportedReadPixelsColorType(
+        SkColorType srcColorType,
+        const TextureInfo& srcTextureInfo,
+        SkColorType dstColorType) const {
+    if (!srcTextureInfo.isValid()) {
+        return {kUnknown_SkColorType, false};
+    }
+    const auto& mtlInfo = TextureInfoPriv::Get<MtlTextureInfo>(srcTextureInfo);
+
+    // TODO: handle compressed formats
+    if (MtlFormatIsCompressed(mtlInfo.fFormat)) {
+        SkASSERT(this->isTexturable(mtlInfo.fFormat));
+        return {kUnknown_SkColorType, false};
+    }
+
+    const FormatInfo& info = this->getFormatInfo(mtlInfo.fFormat);
+    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
+        const auto& ctInfo = info.fColorTypeInfos[i];
+        if (ctInfo.fColorType == srcColorType) {
+            return {ctInfo.fTransferColorType, false};
+        }
+    }
+    return {kUnknown_SkColorType, false};
 }
 
 void MtlCaps::buildKeyForTexture(SkISize dimensions,
