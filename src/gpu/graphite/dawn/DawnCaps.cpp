@@ -357,23 +357,16 @@ SkISize DawnCaps::getDepthAttachmentDimensions(const TextureInfo& textureInfo,
     return colorAttachmentDimensions;
 }
 
-const Caps::ColorTypeInfo* DawnCaps::getColorTypeInfo(SkColorType colorType,
-                                                      const TextureInfo& textureInfo) const {
+SkSpan<const Caps::ColorTypeInfo> DawnCaps::getColorTypeInfos(
+        const TextureInfo& textureInfo) const {
     auto dawnFormat = TextureInfoPriv::Get<DawnTextureInfo>(textureInfo).getViewFormat();
     if (dawnFormat == wgpu::TextureFormat::Undefined) {
         SkASSERT(false);
-        return nullptr;
+        return {};
     }
 
-    const FormatInfo& info = this->getFormatInfo(dawnFormat);
-    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
-        const ColorTypeInfo& ctInfo = info.fColorTypeInfos[i];
-        if (ctInfo.fColorType == colorType) {
-            return &ctInfo;
-        }
-    }
-
-    return nullptr;
+    const FormatInfo& formatInfo = this->getFormatInfo(dawnFormat);
+    return {formatInfo.fColorTypeInfos.get(), formatInfo.fColorTypeInfoCount};
 }
 
 bool DawnCaps::supportsWritePixels(const TextureInfo& textureInfo) const {
@@ -384,41 +377,6 @@ bool DawnCaps::supportsWritePixels(const TextureInfo& textureInfo) const {
 bool DawnCaps::supportsReadPixels(const TextureInfo& textureInfo) const {
     const auto& dawnInfo = TextureInfoPriv::Get<DawnTextureInfo>(textureInfo);
     return dawnInfo.fUsage & wgpu::TextureUsage::CopySrc;
-}
-
-std::pair<SkColorType, bool /*isRGBFormat*/> DawnCaps::supportedWritePixelsColorType(
-        SkColorType dstColorType,
-        const TextureInfo& dstTextureInfo,
-        SkColorType srcColorType) const {
-    const auto viewFormat = TextureInfoPriv::Get<DawnTextureInfo>(dstTextureInfo).getViewFormat();
-    const FormatInfo& info = this->getFormatInfo(viewFormat);
-    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
-        const auto& ctInfo = info.fColorTypeInfos[i];
-        if (ctInfo.fColorType == dstColorType) {
-            return {ctInfo.fTransferColorType, false};
-        }
-    }
-    return {kUnknown_SkColorType, false};
-}
-
-std::pair<SkColorType, bool /*isRGBFormat*/> DawnCaps::supportedReadPixelsColorType(
-        SkColorType srcColorType,
-        const TextureInfo& srcTextureInfo,
-        SkColorType dstColorType) const {
-    const auto viewFormat = TextureInfoPriv::Get<DawnTextureInfo>(srcTextureInfo).getViewFormat();
-
-    if (DawnFormatToCompressionType(viewFormat) != SkTextureCompressionType::kNone) {
-        return {kUnknown_SkColorType, false};
-    }
-
-    const FormatInfo& info = this->getFormatInfo(viewFormat);
-    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
-        const auto& ctInfo = info.fColorTypeInfos[i];
-        if (ctInfo.fColorType == srcColorType) {
-            return {ctInfo.fTransferColorType, false};
-        }
-    }
-    return {kUnknown_SkColorType, false};
 }
 
 void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextOptions& options) {
@@ -930,13 +888,18 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
     {
         info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::External)];
         info->fFlags = FormatInfo::kTexturable_Flag;
-        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfoCount = 2;
         info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: External, Surface: kRGBA_8888
         {
             auto& ctInfo = info->fColorTypeInfos[ctIdx++];
             ctInfo.fColorType = kRGBA_8888_SkColorType;
+        }
+        // Format: External, Surface: kRGB_888x
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = kRGB_888x_SkColorType;
         }
     }
 #endif

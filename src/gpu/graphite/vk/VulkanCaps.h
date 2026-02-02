@@ -196,21 +196,12 @@ private:
                                      VkPhysicalDevice,
                                      const VkPhysicalDeviceProperties&);
 
-    const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const override;
+    SkSpan<const ColorTypeInfo> getColorTypeInfos(const TextureInfo&) const override;
 
     bool onIsTexturable(const TextureInfo&) const override;
 
     bool supportsWritePixels(const TextureInfo&) const override;
     bool supportsReadPixels(const TextureInfo&) const override;
-
-    std::pair<SkColorType, bool /*isRGBFormat*/> supportedWritePixelsColorType(
-            SkColorType dstColorType,
-            const TextureInfo& dstTextureInfo,
-            SkColorType srcColorType) const override;
-    std::pair<SkColorType, bool /*isRGBFormat*/> supportedReadPixelsColorType(
-            SkColorType srcColorType,
-            const TextureInfo& srcTextureInfo,
-            SkColorType dstColorType) const override;
 
     /*
      * Whether the texture supports multisampled-render-to-single-sampled.  When
@@ -318,14 +309,6 @@ private:
     uint64_t fMaxUniformBufferRange;
     uint64_t fMaxStorageBufferRange;
     VkPhysicalDeviceMemoryProperties2 fPhysicalDeviceMemoryProperties2;
-
-    // ColorTypeInfo struct for use w/ external formats.
-    static constexpr SkColorType kExternalFormatColorType = SkColorType::kRGBA_8888_SkColorType;
-    const ColorTypeInfo fExternalFormatColorTypeInfo = {kExternalFormatColorType,
-                                                        kExternalFormatColorType,
-                                                        /*flags=*/0,
-                                                        skgpu::Swizzle::RGBA(),
-                                                        skgpu::Swizzle::RGBA()};
 
     // Various bools to define whether certain Vulkan features are supported.
     bool fSupportsMemorylessAttachments = false;
