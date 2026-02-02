@@ -137,7 +137,6 @@ skia_cc_binary(
         "//tools/skui",
         "//tools/timer",
         "//tools/trace",
-        "//tools/window:window_graphite",
         "@delaunator",
         "@imgui",
     ] + select({

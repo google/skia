@@ -21,6 +21,7 @@ cc_library(
         "misc/cpp/imgui_stdlib.h",
     ],
     hdrs = ["imgui.h"],
+    copts = ["-Wno-nontrivial-memcall"],
     defines = ["IMGUI_ENABLE_OSX_DEFAULT_CLIPBOARD_FUNCTIONS"],
     visibility = ["//visibility:public"],
 )

@@ -169,6 +169,7 @@ skia_cc_library(
     ],
     features = ["layering_check"],
     visibility = [
+        "//src/gpu/graphite/vk:__pkg__",
         "//tools/skslc:__pkg__",
     ],
     deps = [

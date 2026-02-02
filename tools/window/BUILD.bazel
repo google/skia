@@ -7,7 +7,7 @@ package(
 licenses(["notice"])
 
 skia_filegroup(
-    name = "common_hdrs",
+    name = "public_hdrs",
     srcs = [
         "DisplayParams.h",
         "WindowContext.h",
@@ -23,7 +23,7 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "common_linux_hdrs",
+    name = "public_unix_hdrs",
     srcs = [
         "unix/RasterWindowContext_unix.h",
         "unix/XlibWindowInfo.h",
@@ -31,14 +31,14 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "common_linux_srcs",
+    name = "common_unix_srcs",
     srcs = [
         "unix/RasterWindowContext_unix.cpp",
     ],
 )
 
 skia_filegroup(
-    name = "common_mac_hdrs",
+    name = "public_mac_hdrs",
     srcs = [
         "mac/RasterWindowContext_mac.h",
     ],
@@ -68,21 +68,21 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "linux_ganesh_gl_hdrs",
+    name = "public_unix_ganesh_gl_hdrs",
     srcs = [
         "unix/GaneshGLWindowContext_unix.h",
     ],
 )
 
 skia_filegroup(
-    name = "linux_ganesh_gl_srcs",
+    name = "unix_ganesh_gl_srcs",
     srcs = [
         "unix/GaneshGLWindowContext_unix.cpp",
     ],
 )
 
 skia_filegroup(
-    name = "mac_ganesh_gl_hdrs",
+    name = "public_mac_ganesh_gl_hdrs",
     srcs = [
         "mac/GaneshGLWindowContext_mac.h",
     ],
@@ -97,21 +97,15 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "common_metal_hdrs",
-    srcs = [
-        "MetalWindowContext.h",
-    ],
-)
-
-skia_filegroup(
     name = "common_metal_non_arc_srcs",
     srcs = [
+        "MetalWindowContext.h",
         "MetalWindowContext.mm",
     ],
 )
 
 skia_filegroup(
-    name = "mac_ganesh_metal_hdrs",
+    name = "public_mac_ganesh_metal_hdrs",
     srcs = [
         "mac/GaneshMetalWindowContext_mac.h",
     ],
@@ -133,16 +127,67 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "linux_ganesh_vulkan_hdrs",
+    name = "public_unix_ganesh_vulkan_hdrs",
     srcs = [
         "unix/GaneshVulkanWindowContext_unix.h",
     ],
 )
 
 skia_filegroup(
-    name = "linux_ganesh_vulkan_srcs",
+    name = "unix_ganesh_vulkan_srcs",
     srcs = [
         "unix/GaneshVulkanWindowContext_unix.cpp",
+    ],
+)
+
+skia_filegroup(
+    name = "public_graphite_hdrs",
+    srcs = [
+        "GraphiteDisplayParams.h",
+    ],
+)
+
+skia_filegroup(
+    name = "common_graphite_vulkan_srcs",
+    srcs = [
+        "GraphiteNativeVulkanWindowContext.cpp",
+        "GraphiteNativeVulkanWindowContext.h",
+    ],
+)
+
+skia_filegroup(
+    name = "public_unix_graphite_vulkan_hdrs",
+    srcs = [
+        "unix/GraphiteNativeVulkanWindowContext_unix.h",
+    ],
+)
+
+skia_filegroup(
+    name = "unix_graphite_vulkan_srcs",
+    srcs = [
+        "unix/GraphiteNativeVulkanWindowContext_unix.cpp",
+    ],
+)
+
+skia_filegroup(
+    name = "common_graphite_metal_srcs",
+    srcs = [
+        "GraphiteNativeMetalWindowContext.h",
+        "GraphiteNativeMetalWindowContext.mm",
+    ],
+)
+
+skia_filegroup(
+    name = "public_mac_graphite_metal_hdrs",
+    srcs = [
+        "mac/GraphiteNativeMetalWindowContext_mac.h",
+    ],
+)
+
+skia_filegroup(
+    name = "mac_graphite_metal_srcs",
+    srcs = [
+        "mac/GraphiteNativeMetalWindowContext_mac.mm",
     ],
 )
 
@@ -153,7 +198,6 @@ skia_cc_library(
     deps = select({
         "@platforms//os:linux": [":window_linux"],
         "@platforms//os:macos": [":window_mac"],
-        "@platforms//os:ios": [":window_ios"],
     }),
 )
 
@@ -162,17 +206,21 @@ skia_cc_library(
     testonly = True,
     srcs = [
         ":common_ganesh_gl_srcs",
-        ":common_linux_srcs",
+        ":common_graphite_vulkan_srcs",
         ":common_srcs",
+        ":common_unix_srcs",
         ":common_vulkan_srcs",
-        ":linux_ganesh_gl_srcs",
-        ":linux_ganesh_vulkan_srcs",
+        ":unix_ganesh_gl_srcs",
+        ":unix_ganesh_vulkan_srcs",
+        ":unix_graphite_vulkan_srcs",
     ],
     hdrs = [
-        ":common_hdrs",
-        ":common_linux_hdrs",
-        ":linux_ganesh_gl_hdrs",
-        ":linux_ganesh_vulkan_hdrs",
+        ":public_graphite_hdrs",
+        ":public_hdrs",
+        ":public_unix_ganesh_gl_hdrs",
+        ":public_unix_ganesh_vulkan_hdrs",
+        ":public_unix_graphite_vulkan_hdrs",
+        ":public_unix_hdrs",
     ],
     linkopts = [
         "-lX11",
@@ -183,11 +231,16 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
+        "//tools/gpu/vk:testutils",
+        # Ganesh Support
         "//src/gpu/ganesh:ganesh_TEST_UTIL",
         "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
         "//src/gpu/ganesh/gl/glx:glx_factory_TEST_UTIL",
         "//src/gpu/ganesh/vk:ganesh_vulkan_TEST_UTIL",
-        "//tools/gpu/vk:testutils",
+        # Graphite Support
+        "//tools/graphite:graphite_utils",
+        "//src/gpu/graphite:graphite_TEST_UTIL",
+        "//src/gpu/graphite/vk:graphite_native_vulkan_TEST_UTIL",
     ],
 )
 
@@ -195,21 +248,25 @@ skia_objc_library(
     name = "window_mac",
     testonly = True,
     srcs = [
-        "common_ganesh_gl_srcs",
+        ":common_ganesh_gl_srcs",
         ":common_srcs",
     ],
     hdrs = [
-        ":common_hdrs",
-        ":common_mac_hdrs",
-        ":common_metal_hdrs",
-        ":mac_ganesh_gl_hdrs",
-        ":mac_ganesh_metal_hdrs",
+        ":public_graphite_hdrs",
+        ":public_hdrs",
+        ":public_mac_ganesh_gl_hdrs",
+        ":public_mac_ganesh_metal_hdrs",
+        ":public_mac_graphite_metal_hdrs",
+        ":public_mac_hdrs",
     ],
     non_arc_srcs = [
         ":common_mac_non_arc_srcs",
         ":mac_ganesh_gl_non_arc_srcs",
         ":mac_ganesh_metal_non_arc_srcs",
+        ":common_graphite_metal_srcs",
         ":common_metal_non_arc_srcs",
+        ":common_ganesh_gl_srcs",
+        ":mac_graphite_metal_srcs",
     ],
     sdk_frameworks = [
         "QuartzCore",
@@ -218,47 +275,14 @@ skia_objc_library(
     ],
     deps = [
         "//:core",
+        "//tools:tool_utils",
+        # Ganesh Support
         "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
         "//src/gpu/ganesh/gl/mac:mac_factory_TEST_UTIL",
         "//src/gpu/ganesh/mtl:ganesh_metal_TEST_UTIL",
-        "//tools:tool_utils",
-    ],
-)
-
-skia_objc_library(
-    name = "window_ios",
-    testonly = True,
-    srcs = [
-        "common_ganesh_gl_srcs",
-        ":common_ios_srcs",
-        ":common_srcs",
-    ],
-    hdrs = [
-        "ios/WindowContextFactory_ios.h",
-        ":common_hdrs",
-        ":common_metal_hdrs",
-        "//tools/sk_app:hdrs",
-        "//tools/sk_app/ios:hdrs",
-    ],
-    deps = [
-        "//:core",
-        "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
-        "//src/gpu/ganesh/gl/iOS:ios_factory",
-        "//tools:tool_utils",
-        "//tools/skui",
-    ],
-)
-
-# TODO(kjlubick): fold this into window above for the backends which depend on graphite
-skia_cc_library(
-    name = "window_graphite",
-    testonly = True,
-    hdrs = [
-        "GraphiteDisplayParams.h",
-    ],
-    visibility = ["//tools:__subpackages__"],
-    deps = [
-        ":window",
+        # Graphite Support
         "//tools/graphite:graphite_utils",
+        "//src/gpu/graphite:graphite_TEST_UTIL",
+        "//src/gpu/graphite/mtl:graphite_native_metal_TEST_UTIL",
     ],
 )

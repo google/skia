@@ -30,21 +30,21 @@
 #include "src/core/SkTypefaceCache.h"
 #include "src/sfnt/SkOTTable_OS_2.h"
 
-#ifdef SK_TYPEFACE_FACTORY_FREETYPE
+#if defined(SK_TYPEFACE_FACTORY_FREETYPE)
 #include "src/ports/SkTypeface_FreeType.h"
 #endif
 
-#ifdef SK_TYPEFACE_FACTORY_CORETEXT
+#if defined(SK_TYPEFACE_FACTORY_CORETEXT)
 #include "src/ports/SkTypeface_mac_ct.h"
 #endif
 
-#ifdef SK_TYPEFACE_FACTORY_DIRECTWRITE
+#if defined(SK_TYPEFACE_FACTORY_DIRECTWRITE)
 #include "src/ports/SkTypeface_win_dw.h"
 #endif
 
-// TODO(skbug.com/40045343): This needs to be set by Bazel rules.
-#ifdef SK_TYPEFACE_FACTORY_FONTATIONS
-#include "src/ports/SkTypeface_fontations_priv.h"
+#if defined(SK_TYPEFACE_FACTORY_FONTATIONS)
+#include "include/ports/SkTypeface_fontations.h"
+#include "src/ports/SkTypeface_fontations_factory.h"
 #endif
 
 #include <algorithm>
@@ -178,7 +178,7 @@ namespace {
             { SkTypeface_FreeType::FactoryId, SkTypeface_FreeType::MakeFromStream },
 #endif
 #ifdef SK_TYPEFACE_FACTORY_FONTATIONS
-            { SkTypeface_Fontations::FactoryId, SkTypeface_Fontations::MakeFromStream },
+            { SkTypefaces::Fontations::FactoryId, SkTypeface_Make_Fontations },
 #endif
         }};
         return decoders.get();

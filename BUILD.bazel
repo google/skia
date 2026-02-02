@@ -253,6 +253,11 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+alias(
+    name = "typeface_coretext",
+    actual = "//src/ports:coretext_typeface",
+    visibility = ["//visibility:public"],
+)
 ###
 
 alias(

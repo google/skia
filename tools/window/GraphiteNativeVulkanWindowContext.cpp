@@ -29,7 +29,6 @@
 #include "src/gpu/graphite/vk/VulkanGraphiteUtils.h"
 #include "src/gpu/vk/VulkanInterface.h"
 #include "src/gpu/vk/vulkanmemoryallocator/VulkanAMDMemoryAllocator.h"
-#include "tools/ToolUtils.h"
 #include "tools/graphite/GraphiteToolUtils.h"
 
 #include <algorithm>

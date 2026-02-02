@@ -150,6 +150,8 @@ WARNINGS = [
     "-Wdeprecated-this-capture",
     "-Wdeprecated-volatile",
     "-Wdeprecated-writable-strings",
+    # Shows up in imgui's public headers a bunch
+    "-Wno-nontrivial-memcall",
     # A catch-all for when the version of clang we are using does not have the prior options
     "-Wno-unknown-warning-option",
 ] + select({

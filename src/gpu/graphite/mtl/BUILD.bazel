@@ -72,3 +72,37 @@ skia_objc_library(
         "//src/gpu/mtl:gpu_mtl",
     ],
 )
+
+skia_objc_library(
+    name = "graphite_native_metal_TEST_UTIL",
+    testonly = True,
+    srcs = [
+        ":mtl_hdrs",
+        ":mtl_srcs",
+    ],
+    hdrs = [
+        "//include/gpu:shared_gpu_hdrs",
+        "//include/gpu/graphite:public_hdrs",
+        "//include/gpu/graphite/mtl:public_hdrs",
+        "//include/gpu/mtl:public_hdrs",
+        "//include/ports:core_foundation_hdrs",
+    ],
+    copts = DEFAULT_OBJC_COPTS + [
+        "-fno-objc-arc",
+        "-DGPU_TEST_UTILS",
+    ],
+    defines = ["SK_METAL"],
+    sdk_frameworks = [
+        "Foundation",
+        "Metal",
+    ],
+    visibility = ["//tools:__subpackages__"],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
+        "//src/gpu",
+        "//src/gpu/graphite:graphite_TEST_UTIL",
+        "//src/gpu/mtl:gpu_mtl",
+    ],
+)
