@@ -71,6 +71,8 @@ public:
 
     explicit PipelineLabelInfoCollector(SkSpan<const PipelineLabel> cases, SkipFunc);
 
+    int numNotCovered() const;
+
     int processLabel(const std::string& precompiledLabel, int precompileCase);
 
     void finalReport();
@@ -117,7 +119,7 @@ void RunTest(skgpu::graphite::PrecompileContext* precompileContext,
              int precompileSettingsIndex,
              SkSpan<const PipelineLabel> cases,
              PipelineLabelInfoCollector* collector,
-             bool checkCoverage);
+             bool checkPaintOptionCoverage);
 
 typedef void (*VisitSettingsFunc)(
             skgpu::graphite::PrecompileContext*,
@@ -130,7 +132,8 @@ void PrecompileTest(skiatest::Reporter* reporter,
                     skgpu::graphite::Context* context,
                     SkSpan<const PipelineLabel> labels,
                     VisitSettingsFunc visitSettings,
-                    bool checkCoverage = true);
+                    bool checkPaintOptionCoverage = true,
+                    bool checkPipelineLabelCoverage = false);
 
 #if defined(SK_VULKAN)
 

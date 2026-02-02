@@ -171,6 +171,18 @@ int PipelineLabelInfoCollector::processLabel(const std::string& precompiledLabel
     return result->second.fCasesIndex;
 }
 
+int PipelineLabelInfoCollector::numNotCovered() const {
+    int numNotCovered = 0;
+
+    for (const auto& iter : fMap) {
+        if (iter.second.fPrecompileCase < 0) {
+            ++numNotCovered;
+        }
+    }
+
+    return numNotCovered;
+}
+
 void PipelineLabelInfoCollector::finalReport() {
     std::vector<int> skipped, missed;
     int numCovered = 0, numIntentionallySkipped = 0, numMissed = 0;
@@ -232,7 +244,7 @@ void RunTest(skgpu::graphite::PrecompileContext* precompileContext,
              int precompileSettingsIndex,
              SkSpan<const PipelineLabel> cases,
              PipelineLabelInfoCollector* collector,
-             bool checkCoverage) {
+             bool checkPaintOptionCoverage) {
     using namespace skgpu::graphite;
 
     precompileContext->priv().globalCache()->resetGraphicsPipelines();
@@ -286,7 +298,7 @@ void RunTest(skgpu::graphite::PrecompileContext* precompileContext,
 
     float utilization = ((float) matchesInCases.size())/generatedLabels.size();
 
-    if (checkCoverage) {
+    if (checkPaintOptionCoverage) {
         REPORTER_ASSERT(reporter, matchesInCases.size() >= 1,   // This tests requirement 1, above
                         "%d: num matches: %zu", precompileSettingsIndex, matchesInCases.size());
         REPORTER_ASSERT(reporter, utilization >= 0.4f,         // This tests requirement 2, above
@@ -325,7 +337,8 @@ void PrecompileTest(skiatest::Reporter* reporter,
                     skgpu::graphite::Context* context,
                     SkSpan<const PipelineLabel> labels,
                     VisitSettingsFunc visitSettings,
-                    bool checkCoverage) {
+                    bool checkPaintOptionCoverage,
+                    bool checkPipelineLabelCoverage) {
     using namespace skgpu::graphite;
 
 //    find_duplicates(labels);
@@ -359,6 +372,7 @@ void PrecompileTest(skiatest::Reporter* reporter,
 
     PipelineLabelInfoCollector collector(labels, skip);
     RuntimeEffectManager effectManager;
+    bool skipped = false;
 
     (*visitSettings)(
          precompileContext.get(),
@@ -370,6 +384,7 @@ void PrecompileTest(skiatest::Reporter* reporter,
 
             static const int kChosenCase = -1; // only test this entry in 'kPrecompileCases'
             if (kChosenCase != -1 && kChosenCase != index) {
+                skipped = true;
                 return;
             }
 
@@ -384,6 +399,7 @@ void PrecompileTest(skiatest::Reporter* reporter,
                 }
 
                 if (skip) {
+                    skipped = true;
                     return;
                 }
             }
@@ -401,12 +417,18 @@ void PrecompileTest(skiatest::Reporter* reporter,
             }
 
             if (skip) {
+                skipped = true;
                 return;
             }
 
             RunTest(precompileContext, reporter, precompileCase, index, labels, &collector,
-                    checkCoverage);
+                    checkPaintOptionCoverage);
         });
+
+    if (checkPipelineLabelCoverage && !skipped) {
+        REPORTER_ASSERT(reporter, collector.numNotCovered() == 0,
+                        "%d Pipeline labels are not covered", collector.numNotCovered());
+    }
 
 #if defined(FINAL_REPORT)
     // This block prints out a final report. This includes a list of the cases in 'labels' that
