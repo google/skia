@@ -12,6 +12,9 @@
 #include "include/gpu/ganesh/gl/GrGLTypes.h"
 #include "include/private/base/SkTLogic.h"
 
+#if defined(__EMSCRIPTEN__)
+#include <emscripten/version.h>
+#endif
 
 extern "C" {
 
@@ -218,7 +221,7 @@ using GrGLMultiDrawElementsInstancedBaseVertexBaseInstanceFn = GrGLvoid GR_GL_FU
 /* ARB_sync */
 using GrGLFenceSyncFn = GrGLsync GR_GL_FUNCTION_TYPE(GrGLenum condition, GrGLbitfield flags);
 using GrGLIsSyncFn = GrGLboolean GR_GL_FUNCTION_TYPE(GrGLsync sync);
-#if defined(__EMSCRIPTEN__)
+#if defined(__EMSCRIPTEN__) && (__EMSCRIPTEN_major__ < 5)
 using GrGLClientWaitSyncFn = GrGLenum GR_GL_FUNCTION_TYPE(GrGLsync sync, GrGLbitfield flags, GrGLint timeoutLo, GrGLint timeoutHi);
 using GrGLWaitSyncFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLsync sync, GrGLbitfield flags, GrGLuint timeoutLo, GrGLuint timeoutHi);
 #else

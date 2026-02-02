@@ -79,6 +79,10 @@
 #include <string>
 #include <utility>
 
+#if defined(__EMSCRIPTEN__)
+#include <emscripten/version.h>
+#endif
+
 namespace skgpu { class MutableTextureState; }
 
 using namespace skia_private;
@@ -4391,7 +4395,7 @@ bool GrGLGpu::testSync(GrGLsync sync) {
         case GrGLCaps::FenceType::kSyncObject: {
             constexpr GrGLbitfield kFlags = 0;
             GrGLenum result;
-#if defined(__EMSCRIPTEN__)
+#if defined(__EMSCRIPTEN__) && __EMSCRIPTEN_major__ < 5
             GL_CALL_RET(result, ClientWaitSync(sync, kFlags, 0, 0));
 #else
             GL_CALL_RET(result, ClientWaitSync(sync, kFlags, 0));
@@ -4443,7 +4447,7 @@ void GrGLGpu::waitSemaphore(GrSemaphore* semaphore) {
     SkASSERT(semaphore);
     GrGLSemaphore* glSem = static_cast<GrGLSemaphore*>(semaphore);
 
-#if defined(__EMSCRIPTEN__)
+#if defined(__EMSCRIPTEN__) && __EMSCRIPTEN_major__ < 5
     constexpr auto kLo = SkTo<GrGLuint>(GR_GL_TIMEOUT_IGNORED & 0xFFFFFFFFull);
     constexpr auto kHi = SkTo<GrGLuint>(GR_GL_TIMEOUT_IGNORED >> 32);
     GL_CALL(WaitSync(glSem->sync(), 0, kLo, kHi));
