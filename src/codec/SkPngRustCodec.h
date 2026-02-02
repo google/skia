@@ -126,6 +126,7 @@ private:
                        size_t rowBytes,
                        const Options&,
                        int* rowsDecoded) override;
+    bool onSupportsIncrementalDecode(const SkImageInfo&) override { return true; }
     Result onStartIncrementalDecode(const SkImageInfo& dstInfo,
                                     void* pixels,
                                     size_t rowBytes,

@@ -1085,6 +1085,13 @@ private:
         return kUnimplemented;
     }
 
+    /**
+     *  Checks whether the implementation supports incremental decoding for the given info.
+     *
+     *  Note that onStartIncrementalDecode can stil fail regardless of this result.
+     */
+    virtual bool onSupportsIncrementalDecode(const SkImageInfo&) { return false; }
+
     virtual Result onStartIncrementalDecode(const SkImageInfo& /*dstInfo*/, void*, size_t,
             const Options&) {
         return kUnimplemented;

@@ -78,6 +78,7 @@ protected:
      */
     bool processData();
 
+    bool onSupportsIncrementalDecode(const SkImageInfo&) override { return true; }
     Result onStartIncrementalDecode(const SkImageInfo& dstInfo, void* pixels, size_t rowBytes,
             const SkCodec::Options&) override;
     Result onIncrementalDecode(int*) override;

@@ -72,6 +72,7 @@ private:
 
     bool onSkipScanlines(int count) override;
 
+    bool onSupportsIncrementalDecode(const SkImageInfo&) override;
     Result onStartIncrementalDecode(const SkImageInfo& dstInfo, void* pixels, size_t rowBytes,
             const SkCodec::Options&) override;
 

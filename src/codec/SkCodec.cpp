@@ -611,6 +611,9 @@ SkCodec::Result SkCodec::startIncrementalDecode(const SkImageInfo& info, void* p
         size_t rowBytes, const SkCodec::Options* options) {
     fStartedIncrementalDecode = false;
 
+    if (!this->onSupportsIncrementalDecode(info)) {
+        return kUnimplemented;
+    }
     if (kUnknown_SkColorType == info.colorType()) {
         return kInvalidConversion;
     }
@@ -653,16 +656,8 @@ SkCodec::Result SkCodec::startIncrementalDecode(const SkImageInfo& info, void* p
     const Result result = this->onStartIncrementalDecode(info, pixels, rowBytes, fOptions);
     if (kSuccess == result) {
         fStartedIncrementalDecode = true;
-    } else if (kUnimplemented == result) {
-        // FIXME: This is temporarily necessary, until we transition SkCodec
-        // implementations from scanline decoding to incremental decoding.
-        // SkAndroidCodec will first attempt to use incremental decoding, but
-        // will fall back to scanline decoding if incremental returns
-        // kUnimplemented. rewindIfNeeded(), above, set fNeedsRewind to true
-        // (after potentially rewinding), but we do not want the next call to
-        // startScanlineDecode() to do a rewind.
-        fNeedsRewind = false;
     }
+    SkASSERT(result != kUnimplemented);
     return result;
 }
 
@@ -713,15 +708,6 @@ SkCodec::Result SkCodec::startScanlineDecode(const SkImageInfo& info,
     if (result != SkCodec::kSuccess) {
         return result;
     }
-
-    // FIXME: See startIncrementalDecode. That method set fNeedsRewind to false
-    // so that when onStartScanlineDecode calls rewindIfNeeded it would not
-    // rewind. But it also relies on that call to rewindIfNeeded to set
-    // fNeedsRewind to true for future decodes. When
-    // fUsingCallbackForHandleFrameIndex is true, that call to rewindIfNeeded is
-    // skipped, so this method sets it back to true.
-    SkASSERT(fUsingCallbackForHandleFrameIndex || fNeedsRewind);
-    fNeedsRewind = true;
 
     fCurrScanline = 0;
     fDstInfo = info;

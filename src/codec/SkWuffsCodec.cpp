@@ -255,6 +255,7 @@ private:
     SkEncodedImageFormat onGetEncodedFormat() const override;
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, int*) override;
     const SkFrameHolder* getFrameHolder() const override;
+    bool                 onSupportsIncrementalDecode(const SkImageInfo&) override { return true; }
     Result               onStartIncrementalDecode(const SkImageInfo&      dstInfo,
                                                   void*                   dst,
                                                   size_t                  rowBytes,

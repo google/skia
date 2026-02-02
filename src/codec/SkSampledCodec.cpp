@@ -257,7 +257,7 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
             return SkCodec::kInvalidInput;
         } else if (startResult != SkCodec::kUnimplemented) {
             return startResult;
-        } // kUnimplemented means use the old method.
+        } // For kUnimplemented we fall back to the old method.
     }
 
     // Start the scanline decode.

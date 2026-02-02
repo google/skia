@@ -342,8 +342,25 @@ bool SkIcoCodec::onSkipScanlines(int count) {
     return fCurrCodec->skipScanlines(count);
 }
 
+bool SkIcoCodec::onSupportsIncrementalDecode(const SkImageInfo& dstInfo) {
+    for (int i = 0; ;++i) {
+        i = this->chooseCodec(dstInfo.dimensions(), i);
+        if (i < 0) {
+            break;
+        }
+        SkASSERT(i < fEmbeddedCodecs->size());
+        if ((*fEmbeddedCodecs)[i]->onSupportsIncrementalDecode(dstInfo)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 SkCodec::Result SkIcoCodec::onStartIncrementalDecode(const SkImageInfo& dstInfo,
-        void* pixels, size_t rowBytes, const SkCodec::Options& options) {
+                                                     void* pixels,
+                                                     size_t rowBytes,
+                                                     const SkCodec::Options& options) {
     int index = 0;
     while (true) {
         index = this->chooseCodec(dstInfo.dimensions(), index);
@@ -352,31 +369,10 @@ SkCodec::Result SkIcoCodec::onStartIncrementalDecode(const SkImageInfo& dstInfo,
         }
 
         SkCodec* embeddedCodec = fEmbeddedCodecs->at(index).get();
-        switch (embeddedCodec->startIncrementalDecode(dstInfo,
-                pixels, rowBytes, &options)) {
-            case kSuccess:
-                fCurrCodec = embeddedCodec;
-                return kSuccess;
-            case kUnimplemented:
-                // FIXME: embeddedCodec is a BMP. If scanline decoding would work,
-                // return kUnimplemented so that SkSampledCodec will fall through
-                // to use the scanline decoder.
-                // Note that calling startScanlineDecode will require an extra
-                // rewind. The embedded codec has an SkMemoryStream, which is
-                // cheap to rewind, though it will do extra work re-reading the
-                // header.
-                // Also note that we pass nullptr for Options. This is because
-                // Options that are valid for incremental decoding may not be
-                // valid for scanline decoding.
-                // Once BMP supports incremental decoding this workaround can go
-                // away.
-                if (embeddedCodec->startScanlineDecode(dstInfo) == kSuccess) {
-                    return kUnimplemented;
-                }
-                // Move on to the next embedded codec.
-                break;
-            default:
-                break;
+        if (embeddedCodec->
+                startIncrementalDecode(dstInfo, pixels, rowBytes, &options) == kSuccess) {
+            fCurrCodec = embeddedCodec;
+            return kSuccess;
         }
 
         index++;
