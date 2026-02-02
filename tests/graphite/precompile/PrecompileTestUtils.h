@@ -28,6 +28,10 @@
 namespace skiatest {
     class Reporter;
 }
+namespace skgpu::graphite {
+    class Context;
+}
+class RuntimeEffectManager;
 
 namespace PrecompileTestUtils {
 
@@ -112,7 +116,21 @@ void RunTest(skgpu::graphite::PrecompileContext* precompileContext,
              const PrecompileSettings& precompileSettings,
              int precompileSettingsIndex,
              SkSpan<const PipelineLabel> cases,
-             PipelineLabelInfoCollector* collector);
+             PipelineLabelInfoCollector* collector,
+             bool checkCoverage);
+
+typedef void (*VisitSettingsFunc)(
+            skgpu::graphite::PrecompileContext*,
+            RuntimeEffectManager& effectManager,
+            const std::function<void(skgpu::graphite::PrecompileContext*,
+                                     const PrecompileSettings&,
+                                     int index)>& func);
+
+void PrecompileTest(skiatest::Reporter* reporter,
+                    skgpu::graphite::Context* context,
+                    SkSpan<const PipelineLabel> labels,
+                    VisitSettingsFunc visitSettings,
+                    bool checkCoverage = true);
 
 #if defined(SK_VULKAN)
 

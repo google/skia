@@ -1078,7 +1078,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ChromePrecompileTest, is_dawn_metal_context_type,
 
         RunTest(precompileContext.get(), reporter, kPrecompileCases[i], i,
                 { kCases },
-                &collector);
+                &collector,
+                /* checkCoverage= */ true);
     }
 
 #if defined(FINAL_REPORT)

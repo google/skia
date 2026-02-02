@@ -135,9 +135,9 @@ RuntimeEffectManager::RuntimeEffectManager() {
         uniform shader image;
         uniform shader lux;
         vec4 main(vec2 xy) {
-            float localMax = lux.eval(xy * 0.4).r;
+            float tmp = lux.eval(xy * 0.4).r;
             float4 rgba = image.eval(xy);
-            float3 linear = rgba.rgb * 0.7;
+            float3 linear = rgba.rgb * tmp;
 
             return float4(linear, rgba.a);
         }

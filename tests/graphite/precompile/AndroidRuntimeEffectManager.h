@@ -9,11 +9,10 @@
 #define AndroidRuntimeEffectManager_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/effects/SkRuntimeEffect.h"
 
 #include <map>
 #include <string>
-
-class SkRuntimeEffect;
 
 namespace ui {
 

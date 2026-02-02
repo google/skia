@@ -8,23 +8,11 @@
 #include "tests/Test.h"
 
 #if defined(SK_GRAPHITE)
-#include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/PrecompileContext.h"
-#include "src/gpu/graphite/PrecompileContextPriv.h"
-#include "src/gpu/graphite/TextureInfoPriv.h"
-#include "src/sksl/SkSLUtil.h"
-#include "tests/graphite/precompile/AndroidRuntimeEffectManager.h"
 #include "tests/graphite/precompile/PrecompileTestUtils.h"
 
 using namespace skgpu::graphite;
 using namespace PrecompileTestUtils;
-
-typedef void (*VisitSettingsFunc)(
-            skgpu::graphite::PrecompileContext*,
-            RuntimeEffectManager& effectManager,
-            const std::function<void(skgpu::graphite::PrecompileContext*,
-                                     const PrecompileSettings&,
-                                     int index)>& func);
 
 void VisitAndroidPrecompileSettings_Old(
             skgpu::graphite::PrecompileContext*,
@@ -221,7 +209,7 @@ static const PipelineLabel kOldLabels[] = {
                 "RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader [ SolidColor ] Src" },
 /*  55 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] ColorSpaceTransformSRGB ] Src" },
+                "Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] Src" },
 /*  56 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "SolidColor Src" },
@@ -1579,128 +1567,11 @@ static const PipelineLabel kNewLabels[] = {
         "Compose [ PrimitiveColor Compose [ GaussianColorFilter BlendCompose [ SolidColor Passthrough Modulate ] ] ] SrcOver" },
 };
 
-bool skip(const char* str) {
-#if !defined(SK_VULKAN)
-    if (strstr(str, "HardwareImage(3:")) {
-        return true;
-    }
-#endif // SK_VULKAN
-    if (strstr(str, "RE_GainmapEffect")) {
-        return true;
-    }
-    return false;
-}
-
-// Find any duplicate Pipeline labels
-[[maybe_unused]] void find_duplicates(SkSpan<const PipelineLabel> labels) {
-    for (size_t i = 0; i < labels.size(); ++i) {
-        for (size_t j = i+1; j < labels.size(); ++j) {
-            if (!strcmp(labels[j].fString, labels[i].fString)) {
-                SkDebugf("%zu is a duplicate of %zu\n", i, j);
-            }
-        }
-    }
-}
-
 // The pipeline strings were created with Android Vulkan but we're going to run the test
 // on Dawn Metal and all the Native Vulkan configs
 bool is_acceptable_context_type(skgpu::ContextType type) {
     return type == skgpu::ContextType::kDawn_Metal ||
            type == skgpu::ContextType::kVulkan;
-}
-
-void test(skiatest::Reporter* reporter,
-          skgpu::graphite::Context* context,
-          SkSpan<const PipelineLabel> labels,
-          VisitSettingsFunc visitSettings) {
-    using namespace skgpu::graphite;
-
-    //find_duplicates(labels);
-
-#if defined(SK_VULKAN)
-    // Use this call to map back from a HardwareImage sub-string to a VulkanYcbcrConversionInfo
-    //Base642YCbCr("kAwAEPcAAAAAAAAA");
-#endif
-
-    std::unique_ptr<PrecompileContext> precompileContext = context->makePrecompileContext();
-    const skgpu::graphite::Caps* caps = precompileContext->priv().caps();
-
-    TextureInfo textureInfo = caps->getDefaultSampledTextureInfo(kBGRA_8888_SkColorType,
-                                                                 skgpu::Mipmapped::kNo,
-                                                                 skgpu::Protected::kNo,
-                                                                 skgpu::Renderable::kYes);
-
-    const bool msaaSupported = caps->getCompatibleMSAASampleCount(textureInfo) > SampleCount::k1;
-
-
-    if (!msaaSupported) {
-        // The following pipelines rely on having MSAA
-        return;
-    }
-
-#ifdef SK_ENABLE_VELLO_SHADERS
-    if (caps->computeSupport()) {
-        // The following pipelines rely on not utilizing Vello
-        return;
-    }
-#endif
-
-    PipelineLabelInfoCollector collector(labels, skip);
-    RuntimeEffectManager effectManager;
-
-    (*visitSettings)(
-         precompileContext.get(),
-         effectManager,
-         [&](skgpu::graphite::PrecompileContext* precompileContext,
-             const PrecompileSettings& precompileCase,
-             int index) {
-            const skgpu::graphite::Caps* caps = precompileContext->priv().caps();
-
-            static const int kChosenCase = -1; // only test this entry in 'kPrecompileCases'
-            if (kChosenCase != -1 && kChosenCase != index) {
-                return;
-            }
-
-            if (caps->getDepthStencilFormat(DepthStencilFlags::kDepth) != TextureFormat::kD16) {
-                // The Pipeline labels in 'kOldLabels' have "D16" for this case (i.e., "D32F" is a
-                // fine Depth buffer type but won't match the strings).
-                bool skip = false;
-                for (const RenderPassProperties& rpp : precompileCase.fRenderPassProps) {
-                    if (rpp.fDSFlags == DepthStencilFlags::kDepth) {
-                        skip = true;
-                    }
-                }
-
-                if (skip) {
-                    return;
-                }
-            }
-
-            SkSpan<const SkBlendMode> blendModes = precompileCase.fPaintOptions.getBlendModes();
-            bool skip = false;
-            for (SkBlendMode bm : blendModes) {
-                if (bm == SkBlendMode::kSrc && !caps->shaderCaps()->fDualSourceBlendingSupport) {
-                    // The Pipeline labels were gathered on a device w/ dual source blending.
-                    // kSrc blend mode w/o dual source blending can result in a dst read and, thus,
-                    // break the string matching.
-                    skip = true;
-                    break;
-                }
-            }
-
-            if (skip) {
-                return;
-            }
-
-            RunTest(precompileContext, reporter, precompileCase, index, labels, &collector);
-        });
-
-#if defined(FINAL_REPORT)
-    // This block prints out a final report. This includes a list of the cases in 'labels' that
-    // were not covered by the PaintOptions.
-
-    collector.finalReport();
-#endif
 }
 
 } // anonymous namespace
@@ -1716,12 +1587,12 @@ void test(skiatest::Reporter* reporter,
 // Also of note, the "skip" method documents the Pipelines we're intentionally skipping and why.
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(AndroidPrecompileTest_Old, is_acceptable_context_type,
                                reporter, context, /* testContext */, CtsEnforcement::kNever) {
-    test(reporter, context, kOldLabels, VisitAndroidPrecompileSettings_Old);
+    PrecompileTest(reporter, context, kOldLabels, VisitAndroidPrecompileSettings_Old);
 }
 
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(AndroidPrecompileTest_Protected, is_acceptable_context_type,
                                reporter, context, /* testContext */, CtsEnforcement::kNever) {
-    test(reporter, context, kNewLabels, VisitAndroidPrecompileSettings_Protected);
+    PrecompileTest(reporter, context, kNewLabels, VisitAndroidPrecompileSettings_Protected);
 }
 
 #endif // SK_GRAPHITE
