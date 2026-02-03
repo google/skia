@@ -1483,13 +1483,17 @@ void GrVkCaps::FormatInfo::initSampleCounts(const GrContextOptions& contextOptio
                               VK_IMAGE_USAGE_SAMPLED_BIT |
                               VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     VkImageFormatProperties properties;
-    GR_VK_CALL(interface, GetPhysicalDeviceImageFormatProperties(physDev,
-                                                                 format,
-                                                                 VK_IMAGE_TYPE_2D,
-                                                                 VK_IMAGE_TILING_OPTIMAL,
-                                                                 usage,
-                                                                 0,  // createFlags
-                                                                 &properties));
+    VkResult result = GR_VK_CALL(interface,
+                                 GetPhysicalDeviceImageFormatProperties(physDev,
+                                                                        format,
+                                                                        VK_IMAGE_TYPE_2D,
+                                                                        VK_IMAGE_TILING_OPTIMAL,
+                                                                        usage,
+                                                                        0,  // createFlags
+                                                                        &properties));
+    if (result != VK_SUCCESS) {
+        return;
+    }
     VkSampleCountFlags flags = properties.sampleCounts;
     if (flags & VK_SAMPLE_COUNT_1_BIT) {
         fColorSampleCounts.push_back(1);
