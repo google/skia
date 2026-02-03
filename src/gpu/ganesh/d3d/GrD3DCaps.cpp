@@ -711,6 +711,7 @@ void GrD3DCaps::initFormatTable(const DXGI_ADAPTER_DESC& adapterDesc, ID3D12Devi
     this->setColorType(GrColorType::kRGBA_8888,        { DXGI_FORMAT_R8G8B8A8_UNORM      });
     this->setColorType(GrColorType::kRGBA_8888_SRGB,   { DXGI_FORMAT_R8G8B8A8_UNORM_SRGB });
     this->setColorType(GrColorType::kRGB_888x,         { DXGI_FORMAT_R8G8B8A8_UNORM      });
+    this->setColorType(GrColorType::kR_8,              { DXGI_FORMAT_R8_UNORM            });
     this->setColorType(GrColorType::kRG_88,            { DXGI_FORMAT_R8G8_UNORM          });
     this->setColorType(GrColorType::kBGRA_8888,        { DXGI_FORMAT_B8G8R8A8_UNORM      });
     this->setColorType(GrColorType::kRGBA_1010102,     { DXGI_FORMAT_R10G10B10A2_UNORM   });
@@ -1122,6 +1123,7 @@ std::vector<GrTest::TestFormatColorTypeCombination> GrD3DCaps::getTestingCombina
         {GrColorType::kRGBA_8888,      GrBackendFormat::MakeDxgi(DXGI_FORMAT_R8G8B8A8_UNORM)      },
         {GrColorType::kRGBA_8888_SRGB, GrBackendFormat::MakeDxgi(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB) },
         {GrColorType::kRGB_888x,       GrBackendFormat::MakeDxgi(DXGI_FORMAT_R8G8B8A8_UNORM)      },
+        {GrColorType::kR_8,            GrBackendFormat::MakeDxgi(DXGI_FORMAT_R8_UNORM)            },
         {GrColorType::kRG_88,          GrBackendFormat::MakeDxgi(DXGI_FORMAT_R8G8_UNORM)          },
         {GrColorType::kBGRA_8888,      GrBackendFormat::MakeDxgi(DXGI_FORMAT_B8G8R8A8_UNORM)      },
         {GrColorType::kRGBA_1010102,   GrBackendFormat::MakeDxgi(DXGI_FORMAT_R10G10B10A2_UNORM)   },

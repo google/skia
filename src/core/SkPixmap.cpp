@@ -232,7 +232,9 @@ SkColor SkPixmap::getColor(int x, int y) const {
         }
         case kR16G16_unorm_SkColorType: {
             uint32_t value = *this->addr32(x, y);
-            return SkColorSetRGB((uint8_t)(value & 0xffff), (uint8_t)((value >> 16) & 0xffff), 0);
+            uint8_t r = ((value >>  0) & 0xffff) * (255.0f / 65535.0f),
+                    g = ((value >> 16) & 0xffff) * (255.0f / 65535.0f);
+            return SkColorSetRGB(r, g, 0);
         }
         case kR16G16_float_SkColorType: {
             uint32_t value = *this->addr32(x, y);
@@ -427,8 +429,8 @@ SkColor4f SkPixmap::getColor4f(int x, int y) const {
         }
         case kR16G16_unorm_SkColorType: {
             uint32_t value = *this->addr32(x, y);
-            float r = ((value >>  0) & 0xffff) * (255 / 65535.0f),
-                  g = ((value >> 16) & 0xffff) * (255 / 65535.0f);
+            float r = ((value >>  0) & 0xffff) * (1.0f / 65535.0f),
+                  g = ((value >> 16) & 0xffff) * (1.0f / 65535.0f);
             return SkColor4f{r, g, 0.0, 1.0};
         }
         case kR16G16_float_SkColorType: {
