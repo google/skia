@@ -587,7 +587,6 @@ def generate_args(target_os, enable_gpu, renderengine = False):
 
   if enable_gpu:
     d['skia_use_vulkan']     = 'true'
-    d['skia_use_backup_vma'] = 'true'
     d['skia_enable_ganesh']  = 'true'
     if renderengine:
       d['skia_enable_graphite'] = 'true'

@@ -18,6 +18,7 @@ skia_filegroup(
 
 skia_cc_library(
     name = "vulkanmemoryallocator",
+    # TODO(kjlubick): make this testonly after updating G3
     srcs = [
         "VulkanAMDMemoryAllocator.cpp",
         "VulkanAMDMemoryAllocator.h",

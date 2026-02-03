@@ -91,8 +91,9 @@ skia_filegroup(
     srcs = ["AHardwareBufferVk.cpp"],
 )
 
+# TODO(kjlubick, egdaniel) Get G3 clients to update and remove.
 skia_cc_library(
-    name = "ganesh_vulkan",
+    name = "legacy_ganesh_vulkan",
     srcs = [
         ":vk_hdrs",
         ":vk_srcs",
@@ -104,9 +105,12 @@ skia_cc_library(
         "//include/gpu/ganesh/vk:public_hdrs",
         "//include/gpu/vk:shared_public_hdrs",
     ],
+    defines = [
+        "SK_VULKAN",
+    ],
     features = ["layering_check"],
     local_defines = [
-        "SK_USE_VMA",  # TODO(kjlubick, egdaniel) Turn this off by default and remove.
+        "SK_USE_VMA",
     ],
     visibility = ["//:__pkg__"],
     deps = [
@@ -120,6 +124,13 @@ skia_cc_library(
         "//src/utils:shader_utils",
         "@vulkan_headers",
     ],
+)
+
+# TODO(kjlubick, egdaniel) Get G3 clients to update and remove.
+alias(
+    name = "ganesh_vulkan",
+    actual = ":legacy_ganesh_vulkan",
+    visibility = ["//:__pkg__"],
 )
 
 # TODO(kjlubick, michaelludwig): Rename this target to `ganesh_vulkan` once we've migrated all
@@ -137,6 +148,9 @@ skia_cc_library(
         "//include/gpu/ganesh:ganesh_hdrs",
         "//include/gpu/ganesh/vk:public_hdrs",
         "//include/gpu/vk:shared_public_hdrs",
+    ],
+    defines = [
+        "SK_VULKAN",
     ],
     features = ["layering_check"],
     visibility = ["//:__pkg__"],
@@ -168,7 +182,6 @@ skia_cc_library(
         "//include/gpu/vk:shared_public_hdrs",
     ],
     defines = [
-        "SK_GANESH",
         "SK_VULKAN",
     ],
     features = ["layering_check"],
@@ -183,7 +196,6 @@ skia_cc_library(
         "//src/gpu",
         "//src/gpu/ganesh:ganesh_TEST_UTIL",
         "//src/gpu/vk",
-        "//src/gpu/vk/vulkanmemoryallocator:vulkanmemoryallocator_priv",
         "//src/utils:shader_utils",
         "@vulkan_headers",
     ],

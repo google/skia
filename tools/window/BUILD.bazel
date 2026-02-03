@@ -232,6 +232,7 @@ skia_cc_library(
     deps = [
         "//:core",
         "//tools/gpu/vk:testutils",
+        "//src/gpu/vk/vulkanmemoryallocator",
         # Ganesh Support
         "//src/gpu/ganesh:ganesh_TEST_UTIL",
         "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",

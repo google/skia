@@ -24,6 +24,7 @@ skia_cc_library(
         "//src/gpu/ganesh/vk:ganesh_vulkan_TEST_UTIL",
         "//tools/library:load_dynamic_library",
         "@vulkan_headers",
+        "@vulkanmemoryallocator//:hdrs",
     ],
 )
 

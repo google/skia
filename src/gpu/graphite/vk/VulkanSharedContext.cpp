@@ -22,10 +22,6 @@
 #include "src/gpu/vk/VulkanInterface.h"
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 
-#if defined(SK_USE_VMA)
-#include "src/gpu/vk/vulkanmemoryallocator/VulkanMemoryAllocatorPriv.h"
-#endif
-
 namespace skgpu::graphite {
 
 sk_sp<SharedContext> VulkanSharedContext::Make(const VulkanBackendContext& context,
@@ -80,14 +76,6 @@ sk_sp<SharedContext> VulkanSharedContext::Make(const VulkanBackendContext& conte
                                                           context.fProtectedContext));
 
     sk_sp<skgpu::VulkanMemoryAllocator> memoryAllocator = context.fMemoryAllocator;
-#if defined(SK_USE_VMA)
-    if (!memoryAllocator) {
-        // We were not given a memory allocator at creation
-        constexpr skgpu::ThreadSafe kThreadSafe = skgpu::ThreadSafe::kYes;
-        memoryAllocator = skgpu::VulkanMemoryAllocators::Make(context,
-                                                              kThreadSafe);
-    }
-#endif
     if (!memoryAllocator) {
         SKGPU_LOG_E("No supplied vulkan memory allocator and unable to create one internally.");
         return nullptr;

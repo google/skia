@@ -91,7 +91,7 @@ alias(
 
 alias(
     name = "ganesh_vulkan",
-    actual = "//src/gpu/ganesh/vk:ganesh_vulkan",
+    actual = "//src/gpu/ganesh/vk:ganesh_vulkan_novma",
     visibility = ["//visibility:public"],
 )
 
