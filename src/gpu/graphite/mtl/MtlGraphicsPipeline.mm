@@ -484,7 +484,10 @@ MtlGraphicsPipeline::MtlGraphicsPipeline(const skgpu::graphite::SharedContext* s
         : GraphicsPipeline(sharedContext, pipelineInfo, pipelineLabel)
         , fPipelineState(std::move(pso))
         , fDepthStencilState(std::move(dss))
-        , fStencilReferenceValue(refValue) {}
+        , fStencilReferenceValue(refValue) {
+    // Update the newly-created underlying GPU object's label to match the Resource's
+    this->synchronizeBackendLabel();
+}
 
 void MtlGraphicsPipeline::freeGpuData() {
     fPipelineState.reset();

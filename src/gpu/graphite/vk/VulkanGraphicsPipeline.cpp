@@ -1306,7 +1306,10 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
     , fDepthStencilSettings(depthStencilSettings)
     , fRenderStepID(renderStepID)
     , fVertexBindingDescriptions(std::move(vertexBindingDescriptions))
-    , fVertexAttributeDescriptions(std::move(vertexAttributeDescriptions)) {}
+    , fVertexAttributeDescriptions(std::move(vertexAttributeDescriptions)) {
+    // Update the newly-created underlying GPU object's label to match the Resource's
+    this->synchronizeBackendLabel();
+}
 
 void VulkanGraphicsPipeline::freeGpuData() {
     auto sharedCtxt = static_cast<const VulkanSharedContext*>(this->sharedContext());
