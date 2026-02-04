@@ -1133,33 +1133,6 @@
     "name": "Perf-Ubuntu24.04-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan"
   },
   {
-    "name": "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
-  },
-  {
-    "name": "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE"
-  },
-  {
-    "name": "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
-  },
-  {
-    "name": "Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All"
-  },
-  {
-    "name": "Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_D3D11"
-  },
-  {
-    "name": "Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_D3D12"
-  },
-  {
-    "name": "Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_Vulkan"
-  },
-  {
-    "name": "Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Native_Vulkan"
-  },
-  {
-    "name": "Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
-  },
-  {
     "name": "Perf-Win11-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE"
   },
   {
@@ -1179,6 +1152,15 @@
   },
   {
     "name": "Perf-Win11-Clang-GCE-CPU-AVX2-x86_64-Release-All"
+  },
+  {
+    "name": "Perf-Win11-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
+  },
+  {
+    "name": "Perf-Win11-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE"
+  },
+  {
+    "name": "Perf-Win11-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
   },
   {
     "name": "Perf-Win11-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Release-All-ANGLE"
@@ -1266,6 +1248,24 @@
   },
   {
     "name": "Perf-Win11-Clang-ThinkCenter-GPU-RadeonVega8-x86_64-Release-All-Graphite_Dawn_D3D11"
+  },
+  {
+    "name": "Perf-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All"
+  },
+  {
+    "name": "Perf-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_D3D11"
+  },
+  {
+    "name": "Perf-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_D3D12"
+  },
+  {
+    "name": "Perf-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_Vulkan"
+  },
+  {
+    "name": "Perf-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Native_Vulkan"
+  },
+  {
+    "name": "Perf-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
   },
   {
     "name": "Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All"
@@ -2052,89 +2052,6 @@
     }
   },
   {
-    "name": "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All"
-  },
-  {
-    "name": "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE"
-  },
-  {
-    "name": "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-BonusConfigs"
-  },
-  {
-    "name": "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-GpuTess"
-  },
-  {
-    "name": "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ReleaseAndAbandonGpuContext"
-  },
-  {
-    "name": "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan"
-  },
-  {
-    "name": "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
-  },
-  {
-    "name": "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE"
-  },
-  {
-    "name": "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-BonusConfigs"
-  },
-  {
-    "name": "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ReleaseAndAbandonGpuContext"
-  },
-  {
-    "name": "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
-  },
-  {
-    "name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All"
-  },
-  {
-    "name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Direct3D"
-  },
-  {
-    "name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Dawn_D3D11",
-    "cq_config": {
-      "location_regexes": [
-        "(tests|src/gpu)/graphite/.*",
-        "src/sksl/generated/.*",
-        "bazel/external/dawn/*",
-        "DEPS"
-      ]
-    }
-  },
-  {
-    "name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Dawn_D3D12"
-  },
-  {
-    "name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Dawn_Vulkan"
-  },
-  {
-    "name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Native_Vulkan"
-  },
-  {
-    "name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan"
-  },
-  {
-    "name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All"
-  },
-  {
-    "name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Direct3D"
-  },
-  {
-    "name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_D3D11"
-  },
-  {
-    "name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_D3D12"
-  },
-  {
-    "name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_Vulkan"
-  },
-  {
-    "name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Native_Vulkan"
-  },
-  {
-    "name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
-  },
-  {
     "name": "Test-Win11-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All-ANGLE"
   },
   {
@@ -2215,6 +2132,39 @@
   {
     "name": "Test-Win11-Clang-GCE-CPU-AVX2-x86_64-Release-All",
     "cq_config": {}
+  },
+  {
+    "name": "Test-Win11-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All"
+  },
+  {
+    "name": "Test-Win11-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE"
+  },
+  {
+    "name": "Test-Win11-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-BonusConfigs"
+  },
+  {
+    "name": "Test-Win11-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-GpuTess"
+  },
+  {
+    "name": "Test-Win11-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ReleaseAndAbandonGpuContext"
+  },
+  {
+    "name": "Test-Win11-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan"
+  },
+  {
+    "name": "Test-Win11-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
+  },
+  {
+    "name": "Test-Win11-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE"
+  },
+  {
+    "name": "Test-Win11-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-BonusConfigs"
+  },
+  {
+    "name": "Test-Win11-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ReleaseAndAbandonGpuContext"
+  },
+  {
+    "name": "Test-Win11-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
   },
   {
     "name": "Test-Win11-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Debug-All-ANGLE"
@@ -2398,6 +2348,56 @@
   },
   {
     "name": "Test-Win11-MSVC-GCE-CPU-AVX2-x86_64-Release-All"
+  },
+  {
+    "name": "Test-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All"
+  },
+  {
+    "name": "Test-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Direct3D"
+  },
+  {
+    "name": "Test-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Dawn_D3D11",
+    "cq_config": {
+      "location_regexes": [
+        "(tests|src/gpu)/graphite/.*",
+        "src/sksl/generated/.*",
+        "bazel/external/dawn/*",
+        "DEPS"
+      ]
+    }
+  },
+  {
+    "name": "Test-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Dawn_D3D12"
+  },
+  {
+    "name": "Test-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Dawn_Vulkan"
+  },
+  {
+    "name": "Test-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Native_Vulkan"
+  },
+  {
+    "name": "Test-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan"
+  },
+  {
+    "name": "Test-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All"
+  },
+  {
+    "name": "Test-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Direct3D"
+  },
+  {
+    "name": "Test-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_D3D11"
+  },
+  {
+    "name": "Test-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_D3D12"
+  },
+  {
+    "name": "Test-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_Vulkan"
+  },
+  {
+    "name": "Test-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Native_Vulkan"
+  },
+  {
+    "name": "Test-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
   },
   {
     "name": "Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Debug-All"
