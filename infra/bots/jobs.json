@@ -37,6 +37,9 @@
     "name": "BazelBuild-viewer-release-linux_x64"
   },
   {
+    "name": "BazelBuild-viewer-release-mac_arm64"
+  },
+  {
     "name": "BazelTest-cpu_tests-all_go_tests-linux_rbe-linux_x64"
   },
   {

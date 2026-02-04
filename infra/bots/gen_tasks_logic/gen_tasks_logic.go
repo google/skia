@@ -94,6 +94,7 @@ const (
 	// The Bazel cache can grow large (>10GB), so this should be in a partition with enough free
 	// space.
 	bazelCacheDirOnGCELinux = "/home/chrome-bot/bazel_cache"
+	bazelCacheDirOnMac      = "/Volumes/Work/s/w/bazel_cache"
 
 	// bazelCacheDirOnSkoloLinux is like bazelCacheDirOnGCELinux for Skolo Linux machines. Unlike GCE
 	// Linux machines, the partition mounted at / on Skolo Linux machines is large enough. While
@@ -191,20 +192,6 @@ var (
 	CIPD_PKG_LUCI_AUTH = cipd.MustGetPackage("infra/tools/luci-auth/${platform}")
 
 	CIPD_PKGS_GOLDCTL = cipd.MustGetPackage("skia/tools/goldctl/${platform}")
-
-	CIPD_PKGS_XCODE = []*specs.CipdPackage{
-		// https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#317
-		// This package is really just an installer for XCode.
-		{
-			Name: "infra/tools/mac_toolchain/${platform}",
-			Path: "mac_toolchain",
-			// When this is updated, also update
-			// https://skia.googlesource.com/skcms.git/+/f1e2b45d18facbae2dece3aca673fe1603077846/infra/bots/gen_tasks.go#56
-			// and
-			// https://skia.googlesource.com/skia.git/+/main/infra/bots/recipe_modules/xcode/api.py#38
-			Version: "git_revision:0cb1e51344de158f72524c384f324465aebbcef2",
-		},
-	}
 
 	// These properties are required by some tasks, eg. for running
 	// bot_update, but they prevent de-duplication, so they should only be
@@ -1354,11 +1341,7 @@ func (b *jobBuilder) compile() string {
 					b.asset("dwritecore")
 				}
 			} else if b.MatchOs("Mac") {
-				b.cipd(CIPD_PKGS_XCODE...)
-				b.Spec.Caches = append(b.Spec.Caches, &specs.Cache{
-					Name: "xcode",
-					Path: "cache/Xcode.app",
-				})
+				b.usesXCode()
 				// b.asset("ccache_mac")
 				// b.usesCCache()
 				if b.MatchExtraConfig("iOS.*") {
@@ -2237,6 +2220,7 @@ func (b *jobBuilder) bazelBuild() {
 		bazelCacheDir, ok := map[string]string{
 			// We only run builds in GCE.
 			"linux_x64":   bazelCacheDirOnGCELinux,
+			"mac_arm64":   bazelCacheDirOnMac,
 			"windows_x64": bazelCacheDirOnWindows,
 		}[host]
 		if !ok {
@@ -2278,6 +2262,10 @@ func (b *jobBuilder) bazelBuild() {
 			)
 			b.usesBazel("windows_x64")
 			cmd = append(cmd, "--bazel_arg=--experimental_scale_timeouts=2.0")
+		} else if host == "mac_arm64" {
+			b.usesBazel("mac_arm64")
+			b.dimension("cpu:arm64-64-Apple_M4", "pool:Skia")
+			b.usesXCode()
 		} else {
 			panic("unsupported Bazel host " + host)
 		}

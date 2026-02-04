@@ -404,6 +404,22 @@ func (b *TaskBuilder) usesPython() {
 	b.env("VPYTHON_LOG_TRACE", "1")
 }
 
+func (b *TaskBuilder) usesXCode() {
+	b.cipd(&specs.CipdPackage{
+		Name: "infra/tools/mac_toolchain/${platform}",
+		Path: "mac_toolchain",
+		// When this is updated, also update
+		// https://skia.googlesource.com/skcms.git/+/f1e2b45d18facbae2dece3aca673fe1603077846/infra/bots/gen_tasks.go#56
+		// and
+		// https://skia.googlesource.com/skia.git/+/main/infra/bots/recipe_modules/xcode/api.py#38
+		Version: "git_revision:0cb1e51344de158f72524c384f324465aebbcef2",
+	})
+	b.Spec.Caches = append(b.Spec.Caches, &specs.Cache{
+		Name: "xcode",
+		Path: "cache/Xcode.app",
+	})
+}
+
 func (b *TaskBuilder) usesLUCIAuth() {
 	b.cipd(CIPD_PKG_LUCI_AUTH)
 	b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin")
