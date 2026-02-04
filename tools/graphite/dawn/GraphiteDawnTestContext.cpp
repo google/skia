@@ -101,48 +101,7 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType bac
 
     std::vector<wgpu::FeatureName> features;
     wgpu::Adapter adapter = matchedAdaptor.Get();
-    if (adapter.HasFeature(wgpu::FeatureName::MSAARenderToSingleSampled)) {
-        features.push_back(wgpu::FeatureName::MSAARenderToSingleSampled);
-    }
-    if (adapter.HasFeature(wgpu::FeatureName::TransientAttachments)) {
-        features.push_back(wgpu::FeatureName::TransientAttachments);
-    }
-    if (adapter.HasFeature(wgpu::FeatureName::Unorm16TextureFormats)) {
-        features.push_back(wgpu::FeatureName::Unorm16TextureFormats);
-    }
-    if (adapter.HasFeature(wgpu::FeatureName::DualSourceBlending)) {
-        features.push_back(wgpu::FeatureName::DualSourceBlending);
-    }
-    if (adapter.HasFeature(wgpu::FeatureName::FramebufferFetch)) {
-        features.push_back(wgpu::FeatureName::FramebufferFetch);
-    }
-    if (adapter.HasFeature(wgpu::FeatureName::BufferMapExtendedUsages)) {
-        features.push_back(wgpu::FeatureName::BufferMapExtendedUsages);
-    }
-    if (adapter.HasFeature(wgpu::FeatureName::TextureCompressionETC2)) {
-        features.push_back(wgpu::FeatureName::TextureCompressionETC2);
-    }
-    if (adapter.HasFeature(wgpu::FeatureName::TextureCompressionBC)) {
-        features.push_back(wgpu::FeatureName::TextureCompressionBC);
-    }
-    if (adapter.HasFeature(wgpu::FeatureName::TextureFormatsTier1)) {
-        features.push_back(wgpu::FeatureName::TextureFormatsTier1);
-    }
-    if (adapter.HasFeature(wgpu::FeatureName::DawnLoadResolveTexture)) {
-        features.push_back(wgpu::FeatureName::DawnLoadResolveTexture);
-    }
-    if (adapter.HasFeature(wgpu::FeatureName::DawnPartialLoadResolveTexture)) {
-        features.push_back(wgpu::FeatureName::DawnPartialLoadResolveTexture);
-    }
-    if (adapter.HasFeature(wgpu::FeatureName::TimestampQuery)) {
-        features.push_back(wgpu::FeatureName::TimestampQuery);
-    }
-    if (adapter.HasFeature(wgpu::FeatureName::DawnTexelCopyBufferRowAlignment)) {
-        features.push_back(wgpu::FeatureName::DawnTexelCopyBufferRowAlignment);
-    }
-    if (adapter.HasFeature(wgpu::FeatureName::ImplicitDeviceSynchronization)) {
-        features.push_back(wgpu::FeatureName::ImplicitDeviceSynchronization);
-    }
+    skiatest::graphite::AddPreferredFeatures(adapter, features);
 
     wgpu::DeviceDescriptor desc;
     desc.requiredFeatureCount  = features.size();

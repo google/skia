@@ -10,6 +10,8 @@
 
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 
+#include <vector>
+
 namespace skiatest::graphite {
 
 // Toggles to be passed when creating the wgpu::Instance.
@@ -17,6 +19,10 @@ wgpu::DawnTogglesDescriptor GetInstanceToggles();
 
 // Toggles to be passed when creating the wgpu::Adapter.
 wgpu::DawnTogglesDescriptor GetAdapterToggles();
+
+// Appends preferred features that the adapter lists as available that aren't already included
+// in `features`.
+void AddPreferredFeatures(const wgpu::Adapter& adapter, std::vector<wgpu::FeatureName>& features);
 
 }  // namespace skiatest::graphite
 

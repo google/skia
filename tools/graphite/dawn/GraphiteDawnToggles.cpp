@@ -43,4 +43,33 @@ wgpu::DawnTogglesDescriptor GetAdapterToggles() {
     return togglesDesc;
 }
 
+void AddPreferredFeatures(const wgpu::Adapter& adapter, std::vector<wgpu::FeatureName>& features) {
+    auto addFeature = [&](wgpu::FeatureName feature) {
+        if (adapter.HasFeature(feature)) {
+            for (auto existing : features) {
+                if (existing == feature) {
+                    return; // Don't re-add it if it was already in `features`
+                }
+            }
+            features.push_back(feature);
+        }
+    };
+
+    addFeature(wgpu::FeatureName::BufferMapExtendedUsages);
+    addFeature(wgpu::FeatureName::DawnLoadResolveTexture);
+    addFeature(wgpu::FeatureName::DawnPartialLoadResolveTexture);
+    addFeature(wgpu::FeatureName::DawnTexelCopyBufferRowAlignment);
+    addFeature(wgpu::FeatureName::DualSourceBlending);
+    addFeature(wgpu::FeatureName::FramebufferFetch);
+    addFeature(wgpu::FeatureName::ImplicitDeviceSynchronization);
+    addFeature(wgpu::FeatureName::MSAARenderToSingleSampled);
+    addFeature(wgpu::FeatureName::TextureCompressionBC);
+    addFeature(wgpu::FeatureName::TextureCompressionETC2);
+    addFeature(wgpu::FeatureName::TextureFormatsTier1);
+    addFeature(wgpu::FeatureName::TimestampQuery);
+    addFeature(wgpu::FeatureName::TransientAttachments);
+    addFeature(wgpu::FeatureName::Unorm16TextureFormats);
+}
+
+
 }  // namespace skiatest::graphite
