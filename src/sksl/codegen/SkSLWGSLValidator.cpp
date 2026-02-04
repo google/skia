@@ -23,6 +23,7 @@ static bool validate_wgsl(ErrorReporter& reporter,
     // Enable the WGSL optional features that Skia might rely on.
     tint::wgsl::reader::Options options;
     for (auto extension : {tint::wgsl::Extension::kChromiumExperimentalPixelLocal,
+                           tint::wgsl::Extension::kChromiumExperimentalFramebufferFetch,
                            tint::wgsl::Extension::kDualSourceBlending,
                            tint::wgsl::Extension::kF16}) {
         options.allowed_features.extensions.insert(extension);

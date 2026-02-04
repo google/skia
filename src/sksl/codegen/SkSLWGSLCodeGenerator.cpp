@@ -906,7 +906,7 @@ std::string_view wgsl_builtin_name(WGSLCodeGenerator::Builtin builtin) {
     return "unsupported";
 }
 
-std::string_view wgsl_builtin_type(WGSLCodeGenerator::Builtin builtin) {
+std::string_view wgsl_builtin_type(WGSLCodeGenerator::Builtin builtin, const Context& context) {
     using Builtin = WGSLCodeGenerator::Builtin;
     switch (builtin) {
         case Builtin::kVertexIndex:
@@ -916,7 +916,9 @@ std::string_view wgsl_builtin_type(WGSLCodeGenerator::Builtin builtin) {
         case Builtin::kPosition:
             return "vec4<f32>";
         case Builtin::kLastFragColor:
-            return "vec4<f32>";
+            // The last frag color is declared as a half4 in SkSL, so its type depends on f16
+            // being available or not.
+            return context.fConfig->fSettings.fForceHighPrecision ? "vec4<f32>" : "vec4<f16>";
         case Builtin::kFrontFacing:
             return "bool";
         case Builtin::kSampleIndex:
@@ -1797,7 +1799,7 @@ void WGSLCodeGenerator::writeBuiltinIODecl(const Type& type,
     this->write(" ");
     this->write(this->assembleName(name));
     this->write(": ");
-    this->write(wgsl_builtin_type(builtin));
+    this->write(wgsl_builtin_type(builtin, fContext));
     this->writeLine(delimiter_to_str(delimiter));
 }
 

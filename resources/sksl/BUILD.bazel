@@ -1201,5 +1201,6 @@ skia_filegroup(
         "wgsl/UserDefinedPipelineIO.sksl",
         "wgsl/VertexPositionOutputIsAlwaysDeclared.vert",
         "wgsl/WorkgroupSize.compute",
+        "workarounds/LastFragColor.sksl",
     ],
 )
