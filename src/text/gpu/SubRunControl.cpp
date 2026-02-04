@@ -122,12 +122,13 @@ SubRunControl::getSDFFont(const SkFont& font, const SkMatrix& viewMatrix,
 #endif
 
     dfFont.setSize(dfMaskSize);
-    dfFont.setEdging(SkFont::Edging::kAntiAlias);
     dfFont.setForceAutoHinting(false);
     dfFont.setHinting(SkFontHinting::kNormal);
 
-    // The sub-pixel position will always happen when transforming to the screen.
+    // The sub-pixel position will always happen when transforming to the screen, so we effectively
+    // disable the LCD path in StrikeSpec creation by overwriting the edging here.
     dfFont.setSubpixel(false);
+    dfFont.setEdging(SkFont::Edging::kAntiAlias);
 
     SkScalar minMatrixScale = dfMaskScaleFloor / textSize,
              maxMatrixScale = dfMaskScaleCeil  / textSize;

@@ -833,6 +833,11 @@ public:
                             SkRect creationBounds,
                             const SDFTMatrixRange& matrixRange,
                             SubRunAllocator* alloc) {
+        // NOTE: The MaskFormat is hard coded to kA8 here. This means that when isLCD() is called
+        // from VertexFiller, it always returns false. However, VertexFiller has no other behavior
+        // that depends on this function, and drawAtlasSubrun instead determines LCD based on the
+        // fUseLCDText member variable. If this ever changes, VertexFiller will need to take an
+        // additional isLCD argument on the constructor.
         auto vertexFiller = VertexFiller::Make(MaskFormat::kA8,
                                                creationMatrix,
                                                creationBounds,
@@ -843,6 +848,10 @@ public:
         auto glyphVector = GlyphVector::Make(
                 std::move(strikePromise), get_packedIDs(accepted), alloc);
 
+        // NOTE: When creating the SubRun, only the runFont edging determines LCD usage. This is
+        // because the upstream preparation in SubRunContainer::MakeInAlloc is identical between
+        // LCD and non-LCD. Instead LCD is set here, so that when the subRun is consumed in
+        // drawAtlasSubRun, the SDFLCD renderer is chosen.
         return alloc->makeUnique<SDFTSubRun>(
                 runFont.getEdging() == SkFont::Edging::kSubpixelAntiAlias,
                 has_some_antialiasing(runFont),

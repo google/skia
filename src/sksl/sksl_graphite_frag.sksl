@@ -1392,18 +1392,22 @@ $pure half3 $sample_indexed_atlas_lcd(float2 textureCoords,
             distance.x = sample(atlas1, half2(textureCoords) - offset).r;
             distance.y = sample(atlas1, textureCoords).r;
             distance.z = sample(atlas1, half2(textureCoords) + offset).r;
+            break;
         case 2:
             distance.x = sample(atlas2, half2(textureCoords) - offset).r;
             distance.y = sample(atlas2, textureCoords).r;
             distance.z = sample(atlas2, half2(textureCoords) + offset).r;
+            break;
         case 3:
             distance.x = sample(atlas3, half2(textureCoords) - offset).r;
             distance.y = sample(atlas3, textureCoords).r;
             distance.z = sample(atlas3, half2(textureCoords) + offset).r;
+            break;
         default:
             distance.x = sample(atlas0, half2(textureCoords) - offset).r;
             distance.y = sample(atlas0, textureCoords).r;
             distance.z = sample(atlas0, half2(textureCoords) + offset).r;
+            break;
     }
     return distance;
 }

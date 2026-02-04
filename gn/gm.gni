@@ -117,6 +117,7 @@ gm_sources = [
   "$_gm/crbug_1257515.cpp",
   "$_gm/crbug_1313579.cpp",
   "$_gm/crbug_224618.cpp",
+  "$_gm/crbug_478659067.cpp",
   "$_gm/crbug_691386.cpp",
   "$_gm/crbug_788500.cpp",
   "$_gm/crbug_847759.cpp",

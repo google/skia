@@ -1144,6 +1144,8 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
 
     rec->fMaskFormat = compute_mask_format(font);
 
+    // NOTE: SDFLCD text will never have kLCD16_Format at this point, and effectively skips this
+    // block. Instead the subPixelGeometry is piped in during drawAtlasSubrun.
     if (SkMask::kLCD16_Format == rec->fMaskFormat) {
         if (too_big_for_lcd(*rec, checkPost2x2)) {
             rec->fMaskFormat = SkMask::kA8_Format;
