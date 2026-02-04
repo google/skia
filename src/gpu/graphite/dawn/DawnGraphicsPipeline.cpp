@@ -339,8 +339,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
     SkSL::ProgramSettings settings;
     settings.fSharpenTextures = true;
     settings.fForceNoRTFlip = true;
-    // TODO(michaelludwig): Set this to false when "shader-f16" is available.
-    settings.fForceHighPrecision = true;
+    settings.fForceHighPrecision = !caps.supportsHalfPrecision();
 
     ShaderErrorHandler* errorHandler = caps.shaderErrorHandler();
 
