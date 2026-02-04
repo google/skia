@@ -11,7 +11,7 @@ CORE_LINKOPTS = select({
     "@platforms//os:android": [
         "-landroid",
         "-ldl",
-        "-llog",  # Provides __android_log_vprint, needed by //src/ports/SkDebug_android.cpp.
+        "-llog",  # Provides __android_log_vprint, needed by //src/ports/SkLog_android.cpp.
     ],
     "//conditions:default": [],
 })

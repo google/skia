@@ -9,7 +9,7 @@ SOURCES = ../../../src/base/SkSemaphore.cpp \
 		  ../../../src/base/SkSafeMath.cpp \
           ../../../src/core/SkString.cpp \
 		  ../../../src/base/SkTime.cpp \
-          ../../../src/ports/SkDebug_stdio.cpp \
+          ../../../src/ports/SkLog_stdio.cpp \
           ../../../src/ports/SkMemory_malloc.cpp \
           ../../../src/core/SkChecksum.cpp
 

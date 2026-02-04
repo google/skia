@@ -1918,8 +1918,8 @@ skia_component("skia") {
 
   if (is_win) {
     sources += skia_ports_windows_sources + [
-                 "src/ports/SkDebug_win.cpp",
                  "src/ports/SkImageGeneratorWIC.cpp",
+                 "src/ports/SkLog_win.cpp",
                ]
     libs += [
       "Ole32.lib",
@@ -1946,7 +1946,7 @@ skia_component("skia") {
     if (defined(ndk) && ndk != "") {
       deps += [ "//third_party/cpu-features" ]
     }
-    sources += [ "src/ports/SkDebug_android.cpp" ]
+    sources += [ "src/ports/SkLog_android.cpp" ]
     libs += [
       "EGL",
       "GLESv2",
@@ -1955,7 +1955,7 @@ skia_component("skia") {
   }
 
   if (is_linux || is_wasm) {
-    sources += [ "src/ports/SkDebug_stdio.cpp" ]
+    sources += [ "src/ports/SkLog_stdio.cpp" ]
     if (skia_use_egl) {
       libs += [ "GLESv2" ]
     }
@@ -1964,8 +1964,8 @@ skia_component("skia") {
   if (is_mac) {
     public += [ "include/ports/SkCFObject.h" ]
     sources += [
-      "src/ports/SkDebug_stdio.cpp",
       "src/ports/SkImageGeneratorCG.cpp",
+      "src/ports/SkLog_stdio.cpp",
     ]
     frameworks = [
       "ApplicationServices.framework",
@@ -1976,8 +1976,8 @@ skia_component("skia") {
   if (is_ios) {
     public += [ "include/ports/SkCFObject.h" ]
     sources += [
-      "src/ports/SkDebug_stdio.cpp",
       "src/ports/SkImageGeneratorCG.cpp",
+      "src/ports/SkLog_stdio.cpp",
     ]
     frameworks = [
       "CoreFoundation.framework",

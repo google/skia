@@ -84,6 +84,7 @@ skia_filegroup(
         "SkDebug.cpp",
         "SkDeque.cpp",
         "SkFloatingPoint.cpp",
+        "SkLog.cpp",
         "SkQuads.cpp",
         "SkSharedMutex.cpp",
         "SkSpinlock.cpp",

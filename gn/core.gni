@@ -220,6 +220,7 @@ skia_core_sources = [
   "$_src/base/SkHalf.cpp",
   "$_src/base/SkHalf.h",
   "$_src/base/SkLeanWindows.h",
+  "$_src/base/SkLog.cpp",
   "$_src/base/SkMSAN.h",
   "$_src/base/SkMalloc.cpp",
   "$_src/base/SkMathPriv.cpp",
