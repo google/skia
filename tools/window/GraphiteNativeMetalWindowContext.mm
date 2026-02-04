@@ -105,7 +105,6 @@ sk_sp<SkSurface> GraphiteMetalWindowContext::getBackbufferSurface() {
 
     surface = SkSurfaces::WrapBackendTexture(this->graphiteRecorder(),
                                              backendTex,
-                                             kBGRA_8888_SkColorType,
                                              fDisplayParams->colorSpace(),
                                              &fDisplayParams->surfaceProps());
     fDrawableHandle = CFRetain((CFTypeRef)currentDrawable);

@@ -40,28 +40,35 @@ sk_sp<SkSurface> WrapAndroidHardwareBuffer(Recorder* recorder,
     AHardwareBuffer_Desc bufferDesc;
     AHardwareBuffer_describe(hardwareBuffer, &bufferDesc);
 
+    // AHB formats that mask out the alpha channel do not make sense to render into. This is
+    // consistent with ::RenderTarget(SkColorType) not allowing types like kRGB_888x to be an
+    // SkSurface. However, these AHB formats may get imported into Vulkan/GL as a backend format
+    // that does not mask the alpha channel, e.g. AHB_FORMAT_R8G8B8X8_UNORM maps to
+    // VK_FORMAT_R8G8AB8A8_UNORM (https://developer.android.com/ndk/reference/group/a-hardware-buffer#group___a_hardware_buffer_1gga94397844440c1c27b5b454d56ba5ff38af4f001b0b3e8aea568b533f682418e7f)
+    //
+    // We also require them to be usable as color output and sampled images.
     if (!SkToBool(bufferDesc.usage & AHARDWAREBUFFER_USAGE_GPU_COLOR_OUTPUT) ||
-        !SkToBool(bufferDesc.usage & AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE)) {
+        !SkToBool(bufferDesc.usage & AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE) ||
+        bufferDesc.format == AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM) {
         if (releaseP) {
             releaseP(releaseC);
         }
         return nullptr;
     }
 
-    bool isProtectedContent = SkToBool(bufferDesc.usage & AHARDWAREBUFFER_USAGE_PROTECTED_CONTENT);
+    const bool isProtectedContent =
+            SkToBool(bufferDesc.usage & AHARDWAREBUFFER_USAGE_PROTECTED_CONTENT);
 
-    bool fromWindowLocal = false;
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    fromWindowLocal = fromWindow;
+#if !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+    fromWindow = false; // ignored for non-framework builds
 #endif
 
-    SkISize dims = SkISize::Make(bufferDesc.width, bufferDesc.height);
-
+    const SkISize dims = SkISize::Make(bufferDesc.width, bufferDesc.height);
     BackendTexture backendTexture = recorder->createBackendTexture(hardwareBuffer,
                                                                    /* isRenderable= */ true,
                                                                    isProtectedContent,
                                                                    dims,
-                                                                   fromWindowLocal);
+                                                                   fromWindow);
     if (!backendTexture.isValid()) {
         if (releaseP) {
             releaseP(releaseC);
@@ -69,26 +76,9 @@ sk_sp<SkSurface> WrapAndroidHardwareBuffer(Recorder* recorder,
         return nullptr;
     }
 
-    // Skia determines that the AHwBuf should be imported using an external format.
-    // In this case - even though we can never write to a texture using an external format - Skia
-    // validity checks will expect the usage of kExternalFormatColorType (see VulkanCaps's
-    // fExternalFormatColorTypeInfo), so enforce that here.
-    const bool textureUsesExternalFormat =
-            TextureInfoPriv::ViewFormat(backendTexture.info()) == TextureFormat::kExternal;
-    SkColorType colorType = textureUsesExternalFormat
-            ? AHardwareBufferUtils::kExternalFormatColorType
-            : AHardwareBufferUtils::GetSkColorTypeFromBufferFormat(bufferDesc.format);
-
-    // Ensure that we have not somehow ended up in a situation where the determined color type is
-    // incompatible with the texture's format.
-    SkASSERT(textureUsesExternalFormat ||
-             recorder->priv().caps()->areColorTypeAndTextureInfoCompatible(colorType,
-                                                                           backendTexture.info()));
-
     // Will call 'releaseP' if SkSurface creation fails.
     return SkSurfaces::WrapBackendTexture(recorder,
                                           backendTexture,
-                                          colorType,
                                           std::move(colorSpace),
                                           surfaceProps,
                                           releaseP,
