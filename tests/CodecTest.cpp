@@ -2606,7 +2606,7 @@ public:
 
 DEF_TEST(jpeg_invalid_stream_state, r) {
     // Invalid/corrupted jpeg data.
-    auto data = GetResourceAsData("images/b464333052.jpg");
+    auto data = GetResourceAsData("invalid_images/b464333052.jpg");
     REPORTER_ASSERT(r, data);
     auto codec = SkAndroidCodec::MakeFromData(std::move(data));
     REPORTER_ASSERT(r, codec);
