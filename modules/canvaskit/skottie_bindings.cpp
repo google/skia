@@ -9,7 +9,6 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkImage.h"
-#include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkOnce.h"
@@ -25,7 +24,6 @@
 #include "modules/skshaper/utils/FactoryHelpers.h"
 #include "modules/skunicode/include/SkUnicode.h"
 #include "src/base/SkUTF.h"
-#include "src/ports/SkTypeface_FreeType.h"
 #include "tools/skui/InputState.h"
 #include "tools/skui/ModifierKey.h"
 
@@ -48,7 +46,7 @@
 #endif
 
 #if !defined(CK_NO_FONTS)
-#include "include/ports/SkFontMgr_empty.h"
+#include "include/ports/SkFontMgr_data.h"
 #endif
 
 using namespace emscripten;
@@ -188,15 +186,6 @@ public:
         return nullptr;
     }
 
-    sk_sp<SkTypeface> loadTypeface(const char name[], const char[] /* url */) const override {
-        sk_sp<SkData> faceData = this->findAsset(name);
-        if (!faceData) {
-            return nullptr;
-        }
-        auto stream = std::make_unique<SkMemoryStream>(faceData);
-        return SkTypeface_FreeType::MakeFromStream(std::move(stream), SkFontArguments());
-    }
-
     sk_sp<SkData> load(const char[]/*path*/, const char name[]) const override {
         // Ignore paths.
         return this->findAsset(name);
@@ -261,6 +250,7 @@ class ManagedAnimation final : public SkRefCnt {
 public:
     static sk_sp<ManagedAnimation> Make(const std::string& json,
                                         sk_sp<skottie::ResourceProvider> rp,
+                                        sk_sp<SkFontMgr> fontmgr,
                                         std::string prop_prefix,
                                         emscripten::val logger) {
         auto mgr = std::make_unique<skottie_utils::CustomPropertyManager>(
@@ -273,6 +263,7 @@ public:
         builder.setMarkerObserver(mgr->getMarkerObserver())
                .setPropertyObserver(mgr->getPropertyObserver())
                .setResourceProvider(rp)
+               .setFontManager(std::move(fontmgr))
                .setPrecompInterceptor(std::move(pinterceptor))
                .setTextShapingFactory(SkShapers::BestAvailable())
                .setLogger(JSLogger::Make(std::move(logger)));
@@ -770,9 +761,17 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         SkottieAssetProvider::AssetVec assets;
         assets.reserve(assetCount);
 
+        std::vector<sk_sp<SkData>> font_assets;
+
         for (size_t i = 0; i < assetCount; i++) {
             auto name  = SkString(assetNames[i]);
             auto bytes = SkData::MakeFromMalloc(assetDatas[i], assetSizes[i]);
+
+            // We don't have a way to differentiate fonts from e.g. images at this stage,
+            // so we throw everyhing at the font manager, hoping it can sort things out.
+            // TODO: pass fonts in a separate list? (public API change)
+            font_assets.push_back(bytes);
+
             assets.push_back(std::make_pair(std::move(name), std::move(bytes)));
         }
 
@@ -796,7 +795,7 @@ EMSCRIPTEN_BINDINGS(Skottie) {
 
         sk_sp<SkFontMgr> fontmgr;
 #if !defined(CK_NO_FONTS)
-        fontmgr = SkFontMgr_New_Custom_Empty();
+        fontmgr = SkFontMgr_New_Custom_Data(font_assets);
 #endif
 
         return ManagedAnimation::Make(json,
@@ -804,8 +803,8 @@ EMSCRIPTEN_BINDINGS(Skottie) {
                                           SkottieAssetProvider::Make(std::move(assets),
                                                                      std::move(soundMap)),
                                           skresources::ImageDecodeStrategy::kPreDecode,
-                                          std::move(fontmgr)),
-                                      prop_prefix, std::move(logger));
+                                          fontmgr),
+                                      fontmgr, prop_prefix, std::move(logger));
     }));
 
     enum_<skui::InputState>("InputState")
