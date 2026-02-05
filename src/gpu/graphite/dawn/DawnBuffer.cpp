@@ -237,7 +237,7 @@ void DawnBuffer::onAsyncMap(GpuFinishedProc proc, GpuFinishedContext ctx) {
             proc(ctx, CallbackResult::kSuccess);
             return;
         }
-        fAsyncMapCallbacks.push_back(RefCntedCallback::Make(proc, ctx));
+        fAsyncMapCallbacks.emplace_back(proc, ctx);
     }
     if (this->isUnmappable()) {
         return;
@@ -337,7 +337,7 @@ void DawnBuffer::mapCallback(StatusT status, MessageT message) {
     } else {
         log_map_error(status, message);
         for (auto& cb : this->fAsyncMapCallbacks) {
-            cb->setFailureResult();
+            cb.setFailureResult();
         }
     }
     this->fAsyncMapCallbacks.clear();

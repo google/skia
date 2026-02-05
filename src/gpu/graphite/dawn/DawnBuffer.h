@@ -53,7 +53,7 @@ private:
 
     wgpu::Buffer fBuffer;
     SkMutex fAsyncMutex;
-    skia_private::TArray<sk_sp<RefCntedCallback>> fAsyncMapCallbacks SK_GUARDED_BY(fAsyncMutex);
+    skia_private::STArray<1, AutoCallback> fAsyncMapCallbacks SK_GUARDED_BY(fAsyncMutex);
 };
 
 } // namespace skgpu::graphite
