@@ -201,6 +201,10 @@ private:
     const char* fLoadStoreOpNoneExtension = nullptr;
     // VK_EXT_conservative_rasterization
     const char* fConservativeRasterizationExtension = nullptr;
+#if defined(SK_BUILD_FOR_ANDROID)
+    // VK_ANDROID_external_memory_android_hardware_buffer
+    const char* fExternalMemoryAHardwareBufferExtension = nullptr;
+#endif
 
     // Extensions that the other extensions above depend on:
     // Dependency of VK_EXT_graphics_pipeline_library: VK_KHR_pipeline_library
@@ -210,6 +214,10 @@ private:
     const char* fFormatFeatureFlags2Extension = nullptr;
     // Dependency of VK_EXT_multisampled_render_to_single_sampled: VK_KHR_depth_stencil_resolve
     const char* fDepthStencilResolveExtension = nullptr;
+#if defined(SK_BUILD_FOR_ANDROID)
+    // Dependency of VK_ANDROID_external_memory_android_hardware_buffer: VK_EXT_queue_family_foreign
+    const char* fQueueFamilyForeignExtension = nullptr;
+#endif
 };
 
 }  // namespace skgpu
