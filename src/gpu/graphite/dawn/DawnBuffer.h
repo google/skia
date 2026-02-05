@@ -34,7 +34,7 @@ private:
     DawnBuffer(const DawnSharedContext*, size_t size, wgpu::Buffer, void* mapAtCreationPtr);
 
 #if defined(__EMSCRIPTEN__)
-    bool prepareForReturnToCache(const std::function<void()>& takeRef) override;
+    bool prepareForReturnToCache(Resource::TakeRefFunc takeRef, void* takeRefCtx) override;
     void onAsyncMap(GpuFinishedProc, GpuFinishedContext) override;
 #endif
     void onMap() override;

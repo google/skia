@@ -266,8 +266,11 @@ bool ResourceCache::returnResource(Resource* resource) {
         resource->requiresPrepareForReturnToCache()) {
         // If we get here, we know the usage ref count is 0, so the only way for that to increase
         // again is if the Resource triggers the initial usage ref in the callback.
-        SkDEBUGCODE(bool takeRefActuallyCalled = false;)
-        bool takeRefCalled = resource->prepareForReturnToCache([&] {
+        struct TakeRefContext {
+            Resource* resource;
+            SkDEBUGCODE(bool takeRefActuallyCalled = false;)
+        } ctx = {resource};
+        bool takeRefCalled = resource->prepareForReturnToCache([](void* ctx) {
                 // This adds a usage ref AND removes the return queue ref. When returnResource()
                 // returns true, the cache takes responsibility for releasing the return queue ref.
                 // If we returned false from returnResource() when the resource invokes the takeRef
@@ -290,13 +293,14 @@ bool ResourceCache::returnResource(Resource* resource) {
                 // return false from prepareForReturnToCache() so that cache shutdown is detected.
                 // This can add unnecessary preparation work for resources that won't ever be used,
                 // but keeps the preparation logic relatively simple w/o needing a mutex.
-                resource->initialUsageRef();
-                resource->unrefReturnQueue();
+                auto* context = static_cast<TakeRefContext*>(ctx);
+                context->resource->initialUsageRef();
+                context->resource->unrefReturnQueue();
 
-                SkDEBUGCODE(takeRefActuallyCalled = true;
-            )});
+                SkDEBUGCODE(context->takeRefActuallyCalled = true;
+            )}, &ctx);
 
-        SkASSERT(takeRefCalled == takeRefActuallyCalled);
+        SkASSERT(takeRefCalled == ctx.takeRefActuallyCalled);
         if (takeRefCalled) {
             // Return 'true' here because we've removed the return queue ref already and don't
             // want Resource to try and do that again. But since we added an initial ref, this

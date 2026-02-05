@@ -197,7 +197,7 @@ DawnBuffer::DawnBuffer(const DawnSharedContext* sharedContext,
 }
 
 #if defined(__EMSCRIPTEN__)
-bool DawnBuffer::prepareForReturnToCache(const std::function<void()>& takeRef) {
+bool DawnBuffer::prepareForReturnToCache(Resource::TakeRefFunc takeRef, void* takeRefCtx) {
     // This function is only useful for Emscripten where we have to pre-map the buffer
     // once it is returned to the cache.
     SkASSERT(this->sharedContext()->caps()->bufferMapsAreAsync());
@@ -216,7 +216,7 @@ bool DawnBuffer::prepareForReturnToCache(const std::function<void()>& takeRef) {
     if (this->isMapped()) {
         return false;
     }
-    takeRef();
+    takeRef(takeRefCtx);
     this->asyncMap([](void* ctx, skgpu::CallbackResult result) {
                        sk_sp<DawnBuffer> buffer(static_cast<DawnBuffer*>(ctx));
                        if (result != skgpu::CallbackResult::kSuccess) {

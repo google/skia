@@ -320,6 +320,8 @@ protected:
     // Needs to be protected for DawnBuffer's emscripten prepareForReturnToCache
     void setDeleteASAP() { fDeleteASAP = DeleteASAP::kYes; }
 
+    using TakeRefFunc = void (*)(void* ctx);
+
 private:
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // The following set of functions are only meant to be called by the [Global|Proxy]Cache. We
@@ -389,7 +391,7 @@ private:
      *
      * Return true if takeRef() was invoked.
      */
-    virtual bool prepareForReturnToCache(const std::function<void()>& takeRef) { return false; }
+    virtual bool prepareForReturnToCache(TakeRefFunc takeRef, void* takeRefCtx) { return false; }
 
     // Adds a cache ref to the resource. May only be called once.
     void registerWithCache(sk_sp<ResourceCache>, const GraphiteResourceKey&, Budgeted, Shareable);
