@@ -465,16 +465,14 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     // TODO: support clamp to border.
     fClampToBorderSupport = false;
 
+    // We use async map.
+    fBufferMapsAreAsync = true;
+
 #if defined(GPU_TEST_UTILS)
     fDrawBufferCanBeMappedForReadback = false;
 #endif
 
-#if defined(__EMSCRIPTEN__)
-    // For wasm, we use async map.
-    fBufferMapsAreAsync = true;
-#else
-    // For Dawn native, we use direct mapping.
-    fBufferMapsAreAsync = false;
+#if !defined(__EMSCRIPTEN__)
     fDrawBufferCanBeMapped =
             backendContext.fDevice.HasFeature(wgpu::FeatureName::BufferMapExtendedUsages);
 
