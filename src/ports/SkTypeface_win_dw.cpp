@@ -245,14 +245,27 @@ bool DWriteFontTypeface::onGetPostScriptName(SkString* skPostScriptName) const {
     SkString localSkPostScriptName;
     SkTScopedComPtr<IDWriteLocalizedStrings> postScriptNames;
     BOOL exists = FALSE;
-    if (FAILED(fDWriteFont->GetInformationalStrings(
-                    DWRITE_INFORMATIONAL_STRING_POSTSCRIPT_NAME,
-                    &postScriptNames,
-                    &exists)) ||
-        !exists ||
-        FAILED(sk_get_locale_string(postScriptNames.get(), nullptr, &localSkPostScriptName)))
-    {
-        return false;
+    // Prefer to retrieve information directly from the face when available
+    if (fDWriteFontFace3) {
+        if (FAILED(fDWriteFontFace3->GetInformationalStrings(
+                       DWRITE_INFORMATIONAL_STRING_POSTSCRIPT_NAME,
+                       &postScriptNames,
+                       &exists)) ||
+            !exists ||
+            FAILED(sk_get_locale_string(postScriptNames.get(), nullptr, &localSkPostScriptName)))
+        {
+            return false;
+        }
+    } else {
+        if (FAILED(fDWriteFont->GetInformationalStrings(
+                       DWRITE_INFORMATIONAL_STRING_POSTSCRIPT_NAME,
+                       &postScriptNames,
+                       &exists)) ||
+            !exists ||
+            FAILED(sk_get_locale_string(postScriptNames.get(), nullptr, &localSkPostScriptName)))
+        {
+            return false;
+        }
     }
     if (skPostScriptName) {
         *skPostScriptName = localSkPostScriptName;
@@ -574,7 +587,7 @@ sk_sp<SkTypeface> DWriteFontTypeface::onMakeClone(const SkFontArguments& args) c
     }
 
     // Any "don't care" resolve to existing
-    DWRITE_FONT_SIMULATIONS originalSimulations = fDWriteFont->GetSimulations();
+    DWRITE_FONT_SIMULATIONS originalSimulations = fDWriteFontFace->GetSimulations();
     DWRITE_FONT_SIMULATIONS requestedSimulations = originalSimulations;
     if (args.getSyntheticBold().has_value()) {
         if (args.getSyntheticBold().value()) {
