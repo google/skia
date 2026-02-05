@@ -236,7 +236,11 @@ DWriteFontTypeface::Loaders::~Loaders() {
 
 void DWriteFontTypeface::onGetFamilyName(SkString* familyName) const {
     SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;
-    HRV(fDWriteFontFamily->GetFamilyNames(&familyNames));
+    if (fDWriteFontFace3) {
+        HRV(fDWriteFontFace3->GetFamilyNames(&familyNames));
+    } else {
+        HRV(fDWriteFontFamily->GetFamilyNames(&familyNames));
+    }
 
     sk_get_locale_string(familyNames.get(), nullptr/*fMgr->fLocaleName.get()*/, familyName);
 }
@@ -321,7 +325,11 @@ void DWriteFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
                                              bool* serialize) const {
     // Get the family name.
     SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;
-    HRV(fDWriteFontFamily->GetFamilyNames(&familyNames));
+    if (fDWriteFontFace3) {
+        HRV(fDWriteFontFace3->GetFamilyNames(&familyNames));
+    } else {
+        HRV(fDWriteFontFamily->GetFamilyNames(&familyNames));
+    }
 
     SkString utf8FamilyName;
     sk_get_locale_string(familyNames.get(), nullptr/*fMgr->fLocaleName.get()*/, &utf8FamilyName);
@@ -403,7 +411,13 @@ SkTypeface::LocalizedStrings* DWriteFontTypeface::onCreateFamilyNameIterator() c
         SkOTUtils::LocalizedStrings_NameTable::MakeForFamilyNames(*this);
     if (!nameIter) {
         SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;
-        HRNM(fDWriteFontFamily->GetFamilyNames(&familyNames), "Could not obtain family names.");
+        if (fDWriteFontFace3) {
+            HRNM(fDWriteFontFace3->GetFamilyNames(&familyNames),
+                 "Could not obtain family names from font face.");
+        } else {
+            HRNM(fDWriteFontFamily->GetFamilyNames(&familyNames),
+                 "Could not obtain family names from font family.");
+        }
         nameIter = sk_make_sp<LocalizedStrings_IDWriteLocalizedStrings>(familyNames.release());
     }
     return nameIter.release();
