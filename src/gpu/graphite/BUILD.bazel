@@ -52,6 +52,7 @@ GRAPHITE_FILES = [
     "DrawContext.h",
     "DrawList.cpp",
     "DrawList.h",
+    "DrawListBase.h",
     "DrawOrder.h",
     "DrawParams.h",
     "DrawPass.cpp",
