@@ -261,7 +261,6 @@ private:
 #endif
 
     // Free and release and resources being held by the GrBackendTexture.
-    // The (deprecated) union types need special care.
     void cleanup();
 
     bool fIsValid;
@@ -389,7 +388,6 @@ private:
 #endif
 
     // Free and release and resources being held by the GrBackendTexture.
-    // The (deprecated) union types need special care.
     void cleanup();
 
     bool fIsValid;
