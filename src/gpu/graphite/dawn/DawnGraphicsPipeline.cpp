@@ -769,7 +769,10 @@ DawnGraphicsPipeline::DawnGraphicsPipeline(
     , fGroupLayouts(std::move(groupLayouts))
     , fPrimitiveType(primitiveType)
     , fStencilReferenceValue(refValue)
-    , fImmutableSamplers(std::move(immutableSamplers)) {}
+    , fImmutableSamplers(std::move(immutableSamplers)) {
+    // Update the newly-created underlying GPU object's label to match the Resource's
+    this->synchronizeBackendLabel();
+}
 
 DawnGraphicsPipeline::~DawnGraphicsPipeline() {
     this->freeGpuData();
