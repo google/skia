@@ -595,7 +595,7 @@ private:
 
     void poison() {
 #ifdef SK_SANITIZE_ADDRESS
-        if (fData && fCapacity > fSize) {
+        if (fData && fCapacity > SkToUInt(fSize)) {
             // SkDebugf("  POISONING %p : %zu -> %zu\n", fData, Bytes(fSize), Bytes(fCapacity));
             sk_asan_poison_memory_region(this->end(), Bytes(fCapacity - fSize));
             fPoisoned = true;
