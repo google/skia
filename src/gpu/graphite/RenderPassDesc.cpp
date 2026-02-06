@@ -110,11 +110,11 @@ RenderPassDesc RenderPassDesc::Make(const Caps* caps,
         TextureFormat dsFormat = caps->getDepthStencilFormat(depthStencilFlags);
         SkASSERT(dsFormat != TextureFormat::kUnsupported);
         // Depth and stencil values are currently always cleared and don't need to persist.
-        // The sample count should always match the color attachment.
+        // The sample count should always match render pass.
         desc.fDepthStencilAttachment = {dsFormat,
                                         LoadOp::kClear,
                                         StoreOp::kDiscard,
-                                        desc.fColorAttachment.fSampleCount};
+                                        desc.fSampleCount};
     } else {
         SkASSERT(desc.fDepthStencilAttachment.fFormat == TextureFormat::kUnsupported);
     }
@@ -142,8 +142,6 @@ SkString RenderPassDesc::toPipelineLabel() const {
     SkASSERT(fColorAttachment.fFormat != TextureFormat::kUnsupported);
     SkASSERT(fColorResolveAttachment.fFormat == TextureFormat::kUnsupported ||
              fColorResolveAttachment.fFormat == fColorAttachment.fFormat);
-    SkASSERT(fDepthStencilAttachment.fFormat == TextureFormat::kUnsupported ||
-             fDepthStencilAttachment.fSampleCount == fColorAttachment.fSampleCount);
     SkASSERT(fColorResolveAttachment.fFormat == TextureFormat::kUnsupported ||
              fColorResolveAttachment.fSampleCount == SampleCount::k1);
     SkASSERT(fColorAttachment.fSampleCount == fSampleCount ||

@@ -53,7 +53,7 @@ uint32_t VulkanRenderPass::GetRenderPassKey(const RenderPassDesc& originalRender
     SkASSERT(color.fFormat != TextureFormat::kUnsupported);
     SkASSERT(!hasResolveAttachment || resolve.fFormat == color.fFormat);
     SkASSERT(depthStencil.fFormat == TextureFormat::kUnsupported ||
-             depthStencil.fSampleCount == color.fSampleCount);
+             depthStencil.fSampleCount == renderPassDesc.fSampleCount);
     SkASSERT(depthStencil.fFormat == TextureFormat::kUnsupported ||
              depthStencil.fLoadOp == LoadOp::kClear);
     SkASSERT(depthStencil.fFormat == TextureFormat::kUnsupported ||
@@ -154,7 +154,7 @@ void VulkanRenderPass::ExtractRenderPassDesc(uint32_t key,
     *renderPassDesc = {};
     renderPassDesc->fColorAttachment = {colorFormat, colorLoadOp, colorStoreOp, attachmentSamples};
     renderPassDesc->fDepthStencilAttachment = {
-            depthStencilFormat, LoadOp::kClear, StoreOp::kDiscard, attachmentSamples};
+            depthStencilFormat, LoadOp::kClear, StoreOp::kDiscard, sampleCount};
     if (attachmentSamples > SampleCount::k1 && !isMultisampledRenderToSingleSampled) {
         renderPassDesc->fColorResolveAttachment = {colorFormat,
                                                    resolveLoadOp,
