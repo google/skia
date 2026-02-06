@@ -284,7 +284,7 @@ GrBackendTexture::GrBackendTexture(int width,
         , fMipmapped(skgpu::Mipmapped(d3dInfo.fLevelCount > 1))
         , fBackend(GrBackendApi::kDirect3D)
         , fTextureType(GrTextureType::k2D)
-        , fD3DInfo(d3dInfo, state.release()) {}
+        , fD3DInfo(d3dInfo, std::move(state)) {}
 #endif
 
 GrBackendTexture::GrBackendTexture(int width,
@@ -301,15 +301,17 @@ GrBackendTexture::GrBackendTexture(int width,
         , fTextureType(GrTextureType::k2D)
         , fMockInfo(mockInfo) {}
 
+// TODO(kjlubick) After removing the union type, this can be = default;
 GrBackendTexture::~GrBackendTexture() {
     this->cleanup();
 }
 
+// TODO(kjlubick) After removing the union type, this can be inlined.
 void GrBackendTexture::cleanup() {
     fTextureData.reset();
 #ifdef SK_DIRECT3D
     if (this->isValid() && GrBackendApi::kDirect3D == fBackend) {
-        fD3DInfo.cleanup();
+        fD3DInfo.~GrD3DBackendSurfaceInfo();
     }
 #endif
 }
@@ -329,7 +331,6 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
         return *this;
     } else if (fIsValid && this->fBackend != that.fBackend) {
         this->cleanup();
-        fIsValid = false;
     }
     fWidth = that.fWidth;
     fHeight = that.fHeight;
@@ -346,7 +347,7 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
             break;
 #ifdef SK_DIRECT3D
         case GrBackendApi::kDirect3D:
-            fD3DInfo.assign(that.fD3DInfo, this->isValid());
+            fD3DInfo = that.fD3DInfo;
             break;
 #endif
         case GrBackendApi::kMock:
@@ -510,7 +511,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fSampleCnt(std::max(1U, d3dInfo.fSampleCount))
         , fStencilBits(0)
         , fBackend(GrBackendApi::kDirect3D)
-        , fD3DInfo(d3dInfo, state.release()) {}
+        , fD3DInfo(d3dInfo, std::move(state)) {}
 #endif
 
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
@@ -530,11 +531,12 @@ GrBackendRenderTarget::~GrBackendRenderTarget() {
     this->cleanup();
 }
 
+// TODO(kjlubick) After removing the union type, this can be inlined.
 void GrBackendRenderTarget::cleanup() {
     fRTData.reset();
 #ifdef SK_DIRECT3D
     if (this->isValid() && GrBackendApi::kDirect3D == fBackend) {
-        fD3DInfo.cleanup();
+        fD3DInfo.~GrD3DBackendSurfaceInfo();
     }
 #endif
 }
@@ -554,7 +556,6 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
         return *this;
     } else if (fIsValid && this->fBackend != that.fBackend) {
         this->cleanup();
-        fIsValid = false;
     }
     fWidth = that.fWidth;
     fHeight = that.fHeight;
@@ -571,7 +572,7 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
             break;
 #ifdef SK_DIRECT3D
         case GrBackendApi::kDirect3D:
-            fD3DInfo.assign(that.fD3DInfo, this->isValid());
+            fD3DInfo = that.fD3DInfo;
             break;
 #endif
         case GrBackendApi::kMock:
@@ -580,7 +581,7 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
         default:
             SK_ABORT("Unknown GrBackend");
     }
-    fIsValid = that.fIsValid;
+    fIsValid = true;
     return *this;
 }
 
