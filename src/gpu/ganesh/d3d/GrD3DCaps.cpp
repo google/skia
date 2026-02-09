@@ -506,7 +506,7 @@ void GrD3DCaps::initFormatTable(const DXGI_ADAPTER_DESC& adapterDesc, ID3D12Devi
         info.init(adapterDesc, device, format);
         info.fFormatColorType = GrColorType::kR_F16;
         if (SkToBool(info.fFlags & FormatInfo::kTexturable_Flag)) {
-            info.fColorTypeInfoCount = 1;
+            info.fColorTypeInfoCount = 2;
             info.fColorTypeInfos.reset(new ColorTypeInfo[info.fColorTypeInfoCount]());
             int ctIdx = 0;
             // Format: DXGI_FORMAT_R16_FLOAT, Surface: kAlpha_F16
@@ -517,6 +517,13 @@ void GrD3DCaps::initFormatTable(const DXGI_ADAPTER_DESC& adapterDesc, ID3D12Devi
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 ctInfo.fReadSwizzle = skgpu::Swizzle("000r");
                 ctInfo.fWriteSwizzle = skgpu::Swizzle("a000");
+            }
+            // Format: DXGI_FORMAT_R16_FLOAT, Surface: kR_F16
+            {
+                constexpr GrColorType ct = GrColorType::kR_F16;
+                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
+                ctInfo.fColorType = ct;
+                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
         }
     }
@@ -718,6 +725,7 @@ void GrD3DCaps::initFormatTable(const DXGI_ADAPTER_DESC& adapterDesc, ID3D12Devi
     this->setColorType(GrColorType::kRGB_101010x,      { DXGI_FORMAT_R10G10B10A2_UNORM   });
     this->setColorType(GrColorType::kGray_8,           { DXGI_FORMAT_R8_UNORM            });
     this->setColorType(GrColorType::kAlpha_F16,        { DXGI_FORMAT_R16_FLOAT           });
+    this->setColorType(GrColorType::kR_F16,            { DXGI_FORMAT_R16_FLOAT           });
     this->setColorType(GrColorType::kRGBA_F16,         { DXGI_FORMAT_R16G16B16A16_FLOAT  });
     this->setColorType(GrColorType::kRGBA_F16_Clamped, { DXGI_FORMAT_R16G16B16A16_FLOAT  });
     this->setColorType(GrColorType::kRGB_F16F16F16x,   { DXGI_FORMAT_R16G16B16A16_FLOAT  });
@@ -1130,6 +1138,7 @@ std::vector<GrTest::TestFormatColorTypeCombination> GrD3DCaps::getTestingCombina
         {GrColorType::kRGB_101010x,    GrBackendFormat::MakeDxgi(DXGI_FORMAT_R10G10B10A2_UNORM)   },
         {GrColorType::kGray_8,         GrBackendFormat::MakeDxgi(DXGI_FORMAT_R8_UNORM)            },
         {GrColorType::kAlpha_F16,      GrBackendFormat::MakeDxgi(DXGI_FORMAT_R16_FLOAT)           },
+        {GrColorType::kR_F16,          GrBackendFormat::MakeDxgi(DXGI_FORMAT_R16_FLOAT)           },
         {GrColorType::kRGBA_F16,       GrBackendFormat::MakeDxgi(DXGI_FORMAT_R16G16B16A16_FLOAT)  },
         {GrColorType::kRGBA_F16_Clamped, GrBackendFormat::MakeDxgi(DXGI_FORMAT_R16G16B16A16_FLOAT)},
         {GrColorType::kRGB_F16F16F16x,   GrBackendFormat::MakeDxgi(DXGI_FORMAT_R16G16B16A16_FLOAT)},

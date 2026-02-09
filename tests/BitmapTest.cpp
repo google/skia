@@ -118,6 +118,7 @@ static void test_allocpixels(skiatest::Reporter* reporter) {
         kR16_unorm_SkColorType,
         kR16G16_unorm_SkColorType,
         kA16_float_SkColorType,
+        kR16_float_SkColorType,
         kR16G16_float_SkColorType,
         kR16G16B16A16_unorm_SkColorType,
     }) {
@@ -434,6 +435,7 @@ DEF_TEST(getalphaf, reporter) {
         { kGray_8_SkColorType,             opaque },
         { kR8G8_unorm_SkColorType,         opaque },
         { kR16_unorm_SkColorType,          opaque },
+        { kR16_float_SkColorType,          opaque },
         { kR16G16_unorm_SkColorType,       opaque },
         { kR16G16_float_SkColorType,       opaque },
         { kRGB_888x_SkColorType,           opaque },

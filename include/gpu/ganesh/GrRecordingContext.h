@@ -66,6 +66,7 @@ public:
         if (colorType == kR16G16_unorm_SkColorType       ||
             colorType == kA16_unorm_SkColorType          ||
             colorType == kA16_float_SkColorType          ||
+            colorType == kR16_float_SkColorType          ||
             colorType == kR16_unorm_SkColorType          ||
             colorType == kR16G16_float_SkColorType       ||
             colorType == kR16G16B16A16_unorm_SkColorType ||

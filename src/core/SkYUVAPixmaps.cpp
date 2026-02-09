@@ -36,6 +36,7 @@ std::tuple<int, SkYUVAPixmapInfo::DataType> SkYUVAPixmapInfo::NumChannelsAndData
         case kGray_8_SkColorType:    return {1, DataType::kUnorm8 };
         case kR16_unorm_SkColorType:
         case kA16_unorm_SkColorType: return {1, DataType::kUnorm16};
+        case kR16_float_SkColorType:
         case kA16_float_SkColorType: return {1, DataType::kFloat16};
 
         case kR8G8_unorm_SkColorType:   return {2, DataType::kUnorm8  };

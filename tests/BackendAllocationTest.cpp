@@ -639,6 +639,7 @@ void color_type_backend_allocation_test(const sk_gpu_test::ContextInfo& ctxInfo,
         { kR16G16_unorm_SkColorType,      SkColors::kGreen         },
         { kA16_unorm_SkColorType,         kTransCol                },
         { kA16_float_SkColorType,         kTransCol                },
+        { kR16_float_SkColorType,         { .25f, 0, 0, 1 }        },
         { kR16G16_float_SkColorType,      { .25f, .75f, 0, 1 }     },
         { kR16G16B16A16_unorm_SkColorType,{ .25f, .5f, .75f, 1 }   },
         { kR8_unorm_SkColorType,          { .25f, 0, 0, 1 }        },
@@ -852,6 +853,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(GLBackendAllocationTest,
 
         { GrColorType::kRG_88,            GR_GL_RG8,                  { 1, 0.5f, 0, 1 }    },
         { GrColorType::kAlpha_F16,        GR_GL_R16F,                 { 1.0f, 0, 0, 0.5f } },
+        { GrColorType::kR_F16,            GR_GL_R16F,                 SkColors::kRed       },
         { GrColorType::kAlpha_F16,        GR_GL_LUMINANCE16F,         kGrayCol             },
 
         { GrColorType::kAlpha_16,         GR_GL_R16,                  kTransCol            },
@@ -1020,6 +1022,7 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest,
 
         { GrColorType::kRG_88,            VK_FORMAT_R8G8_UNORM,               { 1, 0.5f, 0, 1 }   },
         { GrColorType::kAlpha_F16,        VK_FORMAT_R16_SFLOAT,               { 1.0f, 0, 0, 0.5f }},
+        { GrColorType::kR_F16,            VK_FORMAT_R16_SFLOAT,               SkColors::kRed      },
 
         { GrColorType::kAlpha_16,         VK_FORMAT_R16_UNORM,                kTransCol           },
         { GrColorType::kRG_1616,          VK_FORMAT_R16G16_UNORM,             SkColors::kYellow   },

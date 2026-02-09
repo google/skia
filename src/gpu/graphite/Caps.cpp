@@ -89,6 +89,7 @@ static inline SkColorType color_type_fallback(SkColorType ct) {
         case kRGBA_F16Norm_SkColorType:
             return kRGBA_8888_SkColorType;
         case kA16_float_SkColorType:
+        case kR16_float_SkColorType:
             return kRGBA_F16_SkColorType;
         case kGray_8_SkColorType:
         case kRGB_F16F16F16x_SkColorType:

@@ -91,6 +91,7 @@ void SkRasterPipeline::uncheckedAppend(SkRasterPipelineOp op, void* ctx) {
         COLOR_TYPE_CASE(rg1616, kR16G16_unorm_SkColorType)
         COLOR_TYPE_CASE(f16, kRGBA_F16_SkColorType)
         COLOR_TYPE_CASE(af16, kA16_float_SkColorType)
+        COLOR_TYPE_CASE(rf16, kR16_float_SkColorType)
         COLOR_TYPE_CASE(rgf16, kR16G16_float_SkColorType)
         COLOR_TYPE_CASE(f32, kRGBA_F32_SkColorType)
         COLOR_TYPE_CASE(1010102, kRGBA_1010102_SkColorType)
@@ -341,6 +342,7 @@ void SkRasterPipeline::appendLoad(SkColorType ct, const SkRasterPipelineContexts
         case kAlpha_8_SkColorType:           this->append(Op::load_a8,      ctx); break;
         case kA16_unorm_SkColorType:         this->append(Op::load_a16,     ctx); break;
         case kA16_float_SkColorType:         this->append(Op::load_af16,    ctx); break;
+        case kR16_float_SkColorType:         this->append(Op::load_rf16,    ctx); break;
         case kRGB_565_SkColorType:           this->append(Op::load_565,     ctx); break;
         case kARGB_4444_SkColorType:         this->append(Op::load_4444,    ctx); break;
         case kR8G8_unorm_SkColorType:        this->append(Op::load_rg88,    ctx); break;
@@ -411,6 +413,7 @@ void SkRasterPipeline::appendLoadDst(SkColorType ct,
         case kAlpha_8_SkColorType:            this->append(Op::load_a8_dst,      ctx); break;
         case kA16_unorm_SkColorType:          this->append(Op::load_a16_dst,     ctx); break;
         case kA16_float_SkColorType:          this->append(Op::load_af16_dst,    ctx); break;
+        case kR16_float_SkColorType:          this->append(Op::load_rf16_dst,    ctx); break;
         case kRGB_565_SkColorType:            this->append(Op::load_565_dst,     ctx); break;
         case kARGB_4444_SkColorType:          this->append(Op::load_4444_dst,    ctx); break;
         case kR8G8_unorm_SkColorType:         this->append(Op::load_rg88_dst,    ctx); break;
@@ -484,6 +487,7 @@ void SkRasterPipeline::appendStore(SkColorType ct, const SkRasterPipelineContext
         case kR8_unorm_SkColorType:           this->append(Op::store_r8,      ctx); break;
         case kA16_unorm_SkColorType:          this->append(Op::store_a16,     ctx); break;
         case kA16_float_SkColorType:          this->append(Op::store_af16,    ctx); break;
+        case kR16_float_SkColorType:          this->append(Op::store_rf16,    ctx); break;
         case kRGB_565_SkColorType:            this->append(Op::store_565,     ctx); break;
         case kARGB_4444_SkColorType:          this->append(Op::store_4444,    ctx); break;
         case kR8G8_unorm_SkColorType:         this->append(Op::store_rg88,    ctx); break;

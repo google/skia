@@ -606,6 +606,7 @@ static constexpr SkColorType GrColorTypeToSkColorType(GrColorType ct) {
         case GrColorType::kGray_8:           return kGray_8_SkColorType;
         case GrColorType::kGrayAlpha_88:     return kUnknown_SkColorType;
         case GrColorType::kAlpha_F16:        return kA16_float_SkColorType;
+        case GrColorType::kR_F16:            return kR16_float_SkColorType;
         case GrColorType::kRGBA_F16:         return kRGBA_F16_SkColorType;
         case GrColorType::kRGBA_F16_Clamped: return kRGBA_F16Norm_SkColorType;
         case GrColorType::kRGB_F16F16F16x:   return kRGB_F16F16F16x_SkColorType;
@@ -621,7 +622,6 @@ static constexpr SkColorType GrColorTypeToSkColorType(GrColorType ct) {
         case GrColorType::kRGB_888:          return kUnknown_SkColorType;
         case GrColorType::kR_8:              return kR8_unorm_SkColorType;
         case GrColorType::kR_16:             return kR16_unorm_SkColorType;
-        case GrColorType::kR_F16:            return kUnknown_SkColorType;
         case GrColorType::kGray_F16:         return kUnknown_SkColorType;
         case GrColorType::kARGB_4444:        return kUnknown_SkColorType;
         case GrColorType::kBGRA_4444:        return kUnknown_SkColorType;
@@ -656,6 +656,7 @@ static constexpr GrColorType SkColorTypeToGrColorType(SkColorType ct) {
         case kR16_unorm_SkColorType:          return GrColorType::kR_16;
         case kR16G16_unorm_SkColorType:       return GrColorType::kRG_1616;
         case kA16_float_SkColorType:          return GrColorType::kAlpha_F16;
+        case kR16_float_SkColorType:          return GrColorType::kR_F16;
         case kR16G16_float_SkColorType:       return GrColorType::kRG_F16;
         case kR16G16B16A16_unorm_SkColorType: return GrColorType::kRGBA_16161616;
         case kR8_unorm_SkColorType:           return GrColorType::kR_8;
