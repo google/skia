@@ -260,9 +260,6 @@ private:
     sk_sp<GrD3DResourceState> getGrD3DResourceState() const;
 #endif
 
-    // Free and release and resources being held by the GrBackendTexture.
-    void cleanup();
-
     bool fIsValid;
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
@@ -272,12 +269,10 @@ private:
     GrTextureType fTextureType;
     AnyTextureData fTextureData;
 
-    union {
-        GrMockTextureInfo fMockInfo;
+    GrMockTextureInfo fMockInfo;
 #ifdef SK_DIRECT3D
-        GrD3DBackendSurfaceInfo fD3DInfo;
+    GrD3DBackendSurfaceInfo fD3DInfo;
 #endif
-    };
 };
 
 class SK_API GrBackendRenderTarget {
@@ -387,9 +382,6 @@ private:
     sk_sp<GrD3DResourceState> getGrD3DResourceState() const;
 #endif
 
-    // Free and release and resources being held by the GrBackendTexture.
-    void cleanup();
-
     bool fIsValid;
     bool fFramebufferOnly = false;
     int fWidth;         //<! width in pixels
@@ -401,12 +393,10 @@ private:
     GrBackendApi fBackend;
     AnyRenderTargetData fRTData;
 
-    union {
-        GrMockRenderTargetInfo fMockInfo;
+    GrMockRenderTargetInfo fMockInfo;
 #ifdef SK_DIRECT3D
-        GrD3DBackendSurfaceInfo fD3DInfo;
+    GrD3DBackendSurfaceInfo fD3DInfo;
 #endif
-    };
 };
 
 #endif
