@@ -333,6 +333,8 @@ static const char* get_path_renderer_strategy_string(
             return "Tessellation";
         case Strategy::kTessellationAndSmallAtlas:
             return "Tessellation w/ Small Path Atlas";
+        case Strategy::kCPUSparseStripsMSAA8:
+            return "CPU Sparse Strips (8xMSAA)";
     }
 
     SkUNREACHABLE;
@@ -357,6 +359,8 @@ static std::optional<skgpu::graphite::PathRendererStrategy> get_path_renderer_st
         return Strategy::kTessellation;
     } else if (0 == strcmp(str, "tessellation+atlas")) {
         return Strategy::kTessellationAndSmallAtlas;
+    } else if (0 == strcmp(str, "sparse8"))  {
+        return Strategy::kCPUSparseStripsMSAA8;
     } else {
         SkDebugf("Unknown path renderer strategy type, %s, defaulting to default.", str);
         return {};

@@ -38,6 +38,8 @@ namespace skgpu::graphite {
 
 bool RendererProvider::IsSupported(PathRendererStrategy strategy, const Caps* caps) {
     switch (strategy) {
+        case PathRendererStrategy::kCPUSparseStripsMSAA8:
+            return true;
         case PathRendererStrategy::kTessellationAndSmallAtlas:
             if (caps->minPathSizeForMSAA() <= 0) {
                 return false; // Disabled explicitly

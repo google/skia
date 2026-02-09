@@ -67,6 +67,10 @@ enum class PathRendererStrategy {
     // supports 16 and 8 sample SW-emulated MSAA. Clipping paths are rendered using kTessellation.
     kComputeMSAA16,
     kComputeMSAA8,
+
+    // Runs the SparseStrips pipeline with SW-emulated MSAA with rasterization on the CPU. Clipping
+    // paths are rendered using kTessellation.
+    kCPUSparseStripsMSAA8,
 };
 
 /**

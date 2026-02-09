@@ -461,6 +461,7 @@ sk_sp<Device> Device::Make(Recorder* recorder,
             }
             break;
 
+        case PathRendererStrategy::kCPUSparseStripsMSAA8:
         case PathRendererStrategy::kRasterAtlas:
         case PathRendererStrategy::kComputeAnalyticAA:
         case PathRendererStrategy::kComputeMSAA16:
@@ -2015,6 +2016,10 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
 
         case PathRendererStrategy::kTessellation:
             // Never uses an atlas for rendering, leave it null
+            break;
+
+        case PathRendererStrategy::kCPUSparseStripsMSAA8:
+            // Atlas in the future
             break;
     }
 
