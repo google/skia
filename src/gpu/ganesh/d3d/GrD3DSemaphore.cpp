@@ -7,8 +7,8 @@
 
 #include "src/gpu/ganesh/d3d/GrD3DSemaphore.h"
 
+#include "include/gpu/ganesh/d3d/GrD3DBackendSemaphore.h"
 #include "src/gpu/ganesh/d3d/GrD3DGpu.h"
-
 
 std::unique_ptr<GrD3DSemaphore> GrD3DSemaphore::Make(GrD3DGpu* gpu) {
     GrD3DFenceInfo fenceInfo;
@@ -25,7 +25,5 @@ std::unique_ptr<GrD3DSemaphore> GrD3DSemaphore::MakeWrapped(const GrD3DFenceInfo
 GrD3DSemaphore::GrD3DSemaphore(const GrD3DFenceInfo& fenceInfo) : fFenceInfo(fenceInfo) {}
 
 GrBackendSemaphore GrD3DSemaphore::backendSemaphore() const {
-    GrBackendSemaphore backendSemaphore;
-    backendSemaphore.initDirect3D(fFenceInfo);
-    return backendSemaphore;
+    return GrBackendSemaphores::MakeD3D(fFenceInfo);
 }

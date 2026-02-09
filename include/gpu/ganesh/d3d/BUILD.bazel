@@ -12,6 +12,7 @@ skia_filegroup(
     name = "public_hdrs",
     srcs = [
         "GrD3DBackendContext.h",
+        "GrD3DBackendSemaphore.h",
         "GrD3DTypes.h",
     ],
 )
