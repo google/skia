@@ -1852,17 +1852,18 @@ void SkScalerContext_DW::generateFontMetrics(SkFontMetrics* metrics) {
 
     sk_bzero(metrics, sizeof(*metrics));
 
+    IDWriteFontFace* fontFace = this->getDWriteTypeface()->fDWriteFontFace.get();
     DWRITE_FONT_METRICS dwfm;
     if (DWRITE_MEASURING_MODE_GDI_CLASSIC == fMeasuringMode ||
         DWRITE_MEASURING_MODE_GDI_NATURAL == fMeasuringMode)
     {
-        this->getDWriteTypeface()->fDWriteFontFace->GetGdiCompatibleMetrics(
+        fontFace->GetGdiCompatibleMetrics(
              fTextSizeRender,
              1.0f, // pixelsPerDip
              &fXform,
              &dwfm);
     } else {
-        this->getDWriteTypeface()->fDWriteFontFace->GetMetrics(&dwfm);
+        fontFace->GetMetrics(&dwfm);
     }
 
     SkScalar upem = SkIntToScalar(dwfm.designUnitsPerEm);
@@ -1882,17 +1883,16 @@ void SkScalerContext_DW::generateFontMetrics(SkFontMetrics* metrics) {
     metrics->fFlags |= SkFontMetrics::kStrikeoutThicknessIsValid_Flag;
     metrics->fFlags |= SkFontMetrics::kStrikeoutPositionIsValid_Flag;
 
-    SkTScopedComPtr<IDWriteFontFace5> fontFace5;
-    if (SUCCEEDED(this->getDWriteTypeface()->fDWriteFontFace->QueryInterface(&fontFace5))) {
-        if (fontFace5->HasVariations()) {
-            // The bounds are only valid for the default variation.
-            metrics->fFlags |= SkFontMetrics::kBoundsInvalid_Flag;
-        }
+    IDWriteFontFace5* fontFace5 = this->getDWriteTypeface()->fDWriteFontFace5.get();
+    if (fontFace5 && fontFace5->HasVariations()) {
+        // The bounds are only valid for the default variation.
+        metrics->fFlags |= SkFontMetrics::kBoundsInvalid_Flag;
     }
 
-    if (this->getDWriteTypeface()->fDWriteFontFace1.get()) {
+    IDWriteFontFace1* fontFace1 = this->getDWriteTypeface()->fDWriteFontFace1.get();
+    if (fontFace1) {
         DWRITE_FONT_METRICS1 dwfm1;
-        this->getDWriteTypeface()->fDWriteFontFace1->GetMetrics(&dwfm1);
+        fontFace1->GetMetrics(&dwfm1);
         metrics->fTop = -fTextSizeRender * SkIntToScalar(dwfm1.glyphBoxTop) / upem;
         metrics->fBottom = -fTextSizeRender * SkIntToScalar(dwfm1.glyphBoxBottom) / upem;
         metrics->fXMin = fTextSizeRender * SkIntToScalar(dwfm1.glyphBoxLeft) / upem;
@@ -1902,7 +1902,7 @@ void SkScalerContext_DW::generateFontMetrics(SkFontMetrics* metrics) {
         return;
     }
 
-    AutoTDWriteTable<SkOTTableHead> head(this->getDWriteTypeface()->fDWriteFontFace.get());
+    AutoTDWriteTable<SkOTTableHead> head(fontFace);
     if (head.fExists &&
         head.fSize >= sizeof(SkOTTableHead) &&
         head->version == SkOTTableHead::version1)
