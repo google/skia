@@ -332,6 +332,7 @@ def _CheckBazelBUILDFiles(input_api, output_api):
   results = []
   for affected_file in input_api.AffectedFiles(include_deletes=False):
     affected_file_path = affected_file.LocalPath()
+    norm_path = np(affected_file_path)
     is_bazel = affected_file_path.endswith('BUILD.bazel')
     # This list lines up with the one in autoroller_lib.py (see G3).
     excluded_paths = ["infra/", "bazel/rbe/", "bazel/external/", "bazel/common_config_settings/",
@@ -339,7 +340,7 @@ def _CheckBazelBUILDFiles(input_api, output_api):
                       "tests/", "resources/", "bazel/deps_parser/", "bazel/exporter_tool/",
                       "tools/ganesh/gl/interface/", "bazel/utils/", "include/config/",
                       "bench/", "example/external_client/"]
-    is_excluded = any(affected_file_path.startswith(os.path.normpath(n)) for n in excluded_paths)
+    is_excluded = any(norm_path.startswith(n) for n in excluded_paths)
     if is_bazel and not is_excluded:
       with open(affected_file_path, 'r') as file:
         contents = file.read()
@@ -574,8 +575,9 @@ def _CheckBannedAPIs(input_api, output_api):
       for (re, replacement, exceptions) in compiled_replacements:
         match = re.search(line)
         if match:
+          norm_path = np(affected_filepath)
           for exc in exceptions:
-            if exc.search(affected_filepath):
+            if exc.search(norm_path):
               break
           else:
             errors.append('%s:%s: Instead of %s, please use %s.' % (
