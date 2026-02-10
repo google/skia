@@ -8,6 +8,7 @@
 #ifndef SkottiePriv_DEFINED
 #define SkottiePriv_DEFINED
 
+#include "include/core/SkFontArguments.h"
 #include "include/core/SkRefCnt.h"
 #include "modules/skottie/include/Skottie.h"
 
@@ -82,12 +83,15 @@ public:
     AnimationInfo parse(const skjson::ObjectValue&);
 
     struct FontInfo {
+        using VariationInstance = std::vector<SkFontArguments::VariationPosition::Coordinate>;
+
         SkString            fFamily,
                             fStyle,
                             fPath;
         SkScalar            fAscentPct;
         sk_sp<SkTypeface>   fTypeface;
         CustomFont::Builder fCustomFontBuilder;
+        VariationInstance   fVariation;
 
         bool matches(const char family[], const char style[]) const;
     };
