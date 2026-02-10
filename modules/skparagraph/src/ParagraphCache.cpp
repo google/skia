@@ -5,11 +5,53 @@
 #include "modules/skparagraph/include/ParagraphCache.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "src/base/SkFloatBits.h"
+#include "src/core/SkLRUCache.h"
 
 using namespace skia_private;
 
 namespace skia {
 namespace textlayout {
+
+class ParagraphCacheKey;
+class ParagraphCacheValue;
+
+struct ParagraphCache::Cache {
+    Cache()
+        : fLRUCacheMap(kMaxEntries)
+        , fCacheIsOn(true)
+        , fLastCachedValue(nullptr)
+#ifdef PARAGRAPH_CACHE_STATS
+        , fTotalRequests(0)
+        , fCacheMisses(0)
+        , fHashMisses(0)
+#endif
+    {}
+
+    void printStatistics() const {
+        SkDebugf("--- Paragraph Cache ---\n");
+        SkDebugf("Total requests: %d\n", fTotalRequests);
+        SkDebugf("Cache misses: %d\n", fCacheMisses);
+        SkDebugf("Cache miss %%: %f\n", (fTotalRequests > 0) ? 100.f * fCacheMisses / fTotalRequests : 0.f);
+        int cacheHits = fTotalRequests - fCacheMisses;
+        SkDebugf("Hash miss %%: %f\n", (cacheHits > 0) ? 100.f * fHashMisses / cacheHits : 0.f);
+        SkDebugf("---------------------\n");
+    }
+
+    struct KeyHash {
+        uint32_t operator()(const ParagraphCacheKey& key) const;
+    };
+    static const int kMaxEntries = 128;
+
+    SkLRUCache<ParagraphCacheKey, std::unique_ptr<Entry>, KeyHash> fLRUCacheMap;
+    bool fCacheIsOn;
+    ParagraphCacheValue* fLastCachedValue;
+
+#ifdef PARAGRAPH_CACHE_STATS
+    int fTotalRequests;
+    int fCacheMisses;
+    int fHashMisses; // cache hit but hash table missed
+#endif
+};
 
 namespace {
     int32_t relax(SkScalar a) {
@@ -162,7 +204,7 @@ uint32_t ParagraphCacheKey::computeHash() const {
     return hash;
 }
 
-uint32_t ParagraphCache::KeyHash::operator()(const ParagraphCacheKey& key) const {
+uint32_t ParagraphCache::Cache::KeyHash::operator()(const ParagraphCacheKey& key) const {
     return key.hash();
 }
 
@@ -240,17 +282,13 @@ struct ParagraphCache::Entry {
 
 ParagraphCache::ParagraphCache()
     : fChecker([](ParagraphImpl* impl, const char*, bool){ })
-    , fLRUCacheMap(kMaxEntries)
-    , fCacheIsOn(true)
-    , fLastCachedValue(nullptr)
-#ifdef PARAGRAPH_CACHE_STATS
-    , fTotalRequests(0)
-    , fCacheMisses(0)
-    , fHashMisses(0)
-#endif
+    , fCache(std::make_unique<Cache>())
 { }
 
 ParagraphCache::~ParagraphCache() { }
+
+void ParagraphCache::turnOn(bool value) { fCache->fCacheIsOn = value; }
+int ParagraphCache::count() { return fCache->fLRUCacheMap.count(); }
 
 void ParagraphCache::updateTo(ParagraphImpl* paragraph, const Entry* entry) {
 
@@ -273,13 +311,7 @@ void ParagraphCache::updateTo(ParagraphImpl* paragraph, const Entry* entry) {
 }
 
 void ParagraphCache::printStatistics() {
-    SkDebugf("--- Paragraph Cache ---\n");
-    SkDebugf("Total requests: %d\n", fTotalRequests);
-    SkDebugf("Cache misses: %d\n", fCacheMisses);
-    SkDebugf("Cache miss %%: %f\n", (fTotalRequests > 0) ? 100.f * fCacheMisses / fTotalRequests : 0.f);
-    int cacheHits = fTotalRequests - fCacheMisses;
-    SkDebugf("Hash miss %%: %f\n", (cacheHits > 0) ? 100.f * fHashMisses / cacheHits : 0.f);
-    SkDebugf("---------------------\n");
+    fCache->printStatistics();
 }
 
 void ParagraphCache::abandon() {
@@ -289,29 +321,29 @@ void ParagraphCache::abandon() {
 void ParagraphCache::reset() {
     SkAutoMutexExclusive lock(fParagraphMutex);
 #ifdef PARAGRAPH_CACHE_STATS
-    fTotalRequests = 0;
-    fCacheMisses = 0;
-    fHashMisses = 0;
+    fCache->fTotalRequests = 0;
+    fCache->fCacheMisses = 0;
+    fCache->fHashMisses = 0;
 #endif
-    fLRUCacheMap.reset();
-    fLastCachedValue = nullptr;
+    fCache->fLRUCacheMap.reset();
+    fCache->fLastCachedValue = nullptr;
 }
 
 bool ParagraphCache::findParagraph(ParagraphImpl* paragraph) {
-    if (!fCacheIsOn) {
+    if (!fCache->fCacheIsOn) {
         return false;
     }
 #ifdef PARAGRAPH_CACHE_STATS
-    ++fTotalRequests;
+    ++fCache->fTotalRequests;
 #endif
     SkAutoMutexExclusive lock(fParagraphMutex);
     ParagraphCacheKey key(paragraph);
-    std::unique_ptr<Entry>* entry = fLRUCacheMap.find(key);
+    std::unique_ptr<Entry>* entry = fCache->fLRUCacheMap.find(key);
 
     if (!entry) {
         // We have a cache miss
 #ifdef PARAGRAPH_CACHE_STATS
-        ++fCacheMisses;
+        ++fCache->fCacheMisses;
 #endif
         fChecker(paragraph, "missingParagraph", true);
         return false;
@@ -322,16 +354,16 @@ bool ParagraphCache::findParagraph(ParagraphImpl* paragraph) {
 }
 
 bool ParagraphCache::updateParagraph(ParagraphImpl* paragraph) {
-    if (!fCacheIsOn) {
+    if (!fCache->fCacheIsOn) {
         return false;
     }
 #ifdef PARAGRAPH_CACHE_STATS
-    ++fTotalRequests;
+    ++fCache->fTotalRequests;
 #endif
     SkAutoMutexExclusive lock(fParagraphMutex);
 
     ParagraphCacheKey key(paragraph);
-    std::unique_ptr<Entry>* entry = fLRUCacheMap.find(key);
+    std::unique_ptr<Entry>* entry = fCache->fLRUCacheMap.find(key);
     if (!entry) {
         // isTooMuchMemoryWasted(paragraph) not needed for now
         if (isPossiblyTextEditing(paragraph)) {
@@ -339,9 +371,9 @@ bool ParagraphCache::updateParagraph(ParagraphImpl* paragraph) {
             return false;
         }
         ParagraphCacheValue* value = new ParagraphCacheValue(std::move(key), paragraph);
-        fLRUCacheMap.insert(value->fKey, std::make_unique<Entry>(value));
+        fCache->fLRUCacheMap.insert(value->fKey, std::make_unique<Entry>(value));
         fChecker(paragraph, "addedParagraph", true);
-        fLastCachedValue = value;
+        fCache->fLastCachedValue = value;
         return true;
     } else {
         // We do not have to update the paragraph
@@ -352,11 +384,11 @@ bool ParagraphCache::updateParagraph(ParagraphImpl* paragraph) {
 // Special situation: (very) long paragraph that is close to the last formatted paragraph
 #define NOCACHE_PREFIX_LENGTH 40
 bool ParagraphCache::isPossiblyTextEditing(ParagraphImpl* paragraph) {
-    if (fLastCachedValue == nullptr) {
+    if (fCache->fLastCachedValue == nullptr) {
         return false;
     }
 
-    auto& lastText = fLastCachedValue->fKey.text();
+    auto& lastText = fCache->fLastCachedValue->fKey.text();
     auto& text = paragraph->fText;
 
     if ((lastText.size() < NOCACHE_PREFIX_LENGTH) || (text.size() < NOCACHE_PREFIX_LENGTH)) {
