@@ -1,2 +1,0 @@
-Add VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION (and VK_EXT_QUEUE_FAMILY_FOREIGN
-which it depends on) to VulkanPreferredFeatures when building for Android.
