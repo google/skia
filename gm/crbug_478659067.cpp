@@ -53,7 +53,7 @@ protected:
 
     SkISize getISize() override { return SkISize::Make(1024, 1280); }
 
-    void onDraw(SkCanvas* canvas) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkISize size = this->getISize();
         if (!canvas->getBaseLayerSize().isEmpty()) {
             size = canvas->getBaseLayerSize();
@@ -70,22 +70,23 @@ protected:
 #if defined(SK_GRAPHITE)
         if (auto recorder = canvas->recorder()) {
             surface = SkSurfaces::RenderTarget(recorder, info, skgpu::Mipmapped::kNo, &props);
+            dfSize = recorder->priv().caps()->glyphsAsPathsFontSize();
         }
-        dfSize = canvas->recorder()->priv().caps()->glyphsAsPathsFontSize();
 #endif
         // Effectively make this test graphite only
         if (!surface) {
-            return;
+            *errorMsg = "Graphite only";
+            return DrawResult::kSkip;
         }
 
         // Create a new canvas with the DeviceIndepdentFonts flag enabled
-        canvas = surface->getCanvas();
-        canvas->clear(0xffffffff);
+        SkCanvas* graphiteCanvas = surface->getCanvas();
+        graphiteCanvas->clear(0xffffffff);
 
         const char* dfText = "TheQuickBrownFoxJumpsOverTheLazyDog_0123456789";
         const size_t dfLen = strlen(dfText);
 
-        SkScalar scale = canvas->getLocalToDeviceAs3x3().getMaxScale();
+        SkScalar scale = graphiteCanvas->getLocalToDeviceAs3x3().getMaxScale();
         if (scale <= 0.0f) {
             scale = 1.0f;
         }
@@ -100,13 +101,16 @@ protected:
 
         SkScalar lineSpacing = font.getSize();
         for (int i = 1; i <= 6; ++i) {
-            SkAutoCanvasRestore acr(canvas, true);
-            canvas->translate(SkIntToScalar(10), (i * lineSpacing) - 10);
+            SkAutoCanvasRestore acr(graphiteCanvas, true);
+            graphiteCanvas->translate(SkIntToScalar(10), (i * lineSpacing) - 10);
             // We skew the font in order to prevent glyph reuse. This is needed to overflow the
             // cache page
             font.setSkewX(i * 0.05f);
-            canvas->drawSimpleText(dfText, dfLen, SkTextEncoding::kUTF8, 0, 0, font, paint);
+            graphiteCanvas->drawSimpleText(dfText, dfLen, SkTextEncoding::kUTF8, 0, 0, font, paint);
         }
+
+        graphiteCanvas->getSurface()->draw(canvas, 0, 0);
+        return DrawResult::kOk;
     }
 };
 
