@@ -11,32 +11,16 @@
 #include "include/private/base/SkDebug.h"
 #include "src/gpu/ganesh/GrBackendSemaphorePriv.h"
 
-#ifdef SK_DIRECT3D
-#include "include/gpu/ganesh/d3d/GrD3DTypes.h"
-#endif
-
-GrBackendSemaphore::GrBackendSemaphore()
-        : fBackend(GrBackendApi::kUnsupported), fIsInitialized(false) {}
+GrBackendSemaphore::GrBackendSemaphore() = default;
 
 GrBackendSemaphoreData::~GrBackendSemaphoreData() = default;
 
-GrBackendSemaphore::~GrBackendSemaphore() {
-#ifdef SK_DIRECT3D
-    if (fIsInitialized && GrBackendApi::kDirect3D == fBackend) {
-        delete fD3DFenceInfo;
-        fD3DFenceInfo = nullptr;
-        fIsInitialized = false;
-    }
-#endif
-}
+GrBackendSemaphore::~GrBackendSemaphore() = default;
 
-GrBackendSemaphore::GrBackendSemaphore(const GrBackendSemaphore& that) {
-    fIsInitialized = false;
-    *this = that;
-}
+GrBackendSemaphore::GrBackendSemaphore(const GrBackendSemaphore& that) { *this = that; }
 
 GrBackendSemaphore& GrBackendSemaphore::operator=(const GrBackendSemaphore& that) {
-    SkASSERT(!fIsInitialized || fBackend == that.fBackend);
+    SkASSERT(fBackend == GrBackendApi::kUnsupported || fBackend == that.fBackend);
     fBackend = that.fBackend;
     fSemaphoreData.reset();
     switch (that.fBackend) {
@@ -45,35 +29,12 @@ GrBackendSemaphore& GrBackendSemaphore::operator=(const GrBackendSemaphore& that
             break;
         case GrBackendApi::kVulkan:
         case GrBackendApi::kMetal:
+        case GrBackendApi::kDirect3D:
             that.fSemaphoreData->copyTo(fSemaphoreData);
             break;
-#ifdef SK_DIRECT3D
-        case GrBackendApi::kDirect3D:
-            this->assignD3DFenceInfo(*that.fD3DFenceInfo);
-            break;
-#endif
         default:
             SK_ABORT("Unknown GrBackend");
     }
-    fIsInitialized = true;
     return *this;
 }
 
-#ifdef SK_DIRECT3D
-void GrBackendSemaphore::assignD3DFenceInfo(const GrD3DFenceInfo& info) {
-    SkASSERT(GrBackendApi::kDirect3D == fBackend);
-    if (fIsInitialized) {
-        *fD3DFenceInfo = info;
-    } else {
-        fD3DFenceInfo = new GrD3DFenceInfo(info);
-    }
-}
-
-bool GrBackendSemaphore::getD3DFenceInfo(GrD3DFenceInfo* outInfo) const {
-    if (fIsInitialized && GrBackendApi::kDirect3D == fBackend) {
-        *outInfo = *fD3DFenceInfo;
-        return true;
-    }
-    return false;
-}
-#endif // SK_DIRECT3D

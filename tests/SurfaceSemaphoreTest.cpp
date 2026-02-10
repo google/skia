@@ -358,3 +358,36 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest,
     }
 #endif
 }
+
+#if defined(SK_VULKAN)
+// Make sure our various constructors/operators work as expected.
+DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(GrVkBackendSemaphoreTest,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kNever) {
+    auto dContext = ctxInfo.directContext();
+    GrBackendSemaphore sema;
+    REPORTER_ASSERT(reporter, !sema.isInitialized());
+
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(dContext->priv().getGpu());
+    VkDevice device = gpu->device();
+
+    VkSemaphore vkSem;
+    VkSemaphoreCreateInfo createInfo;
+    createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    createInfo.pNext = nullptr;
+    createInfo.flags = 0;
+    GR_VK_CALL_ERRCHECK(gpu, CreateSemaphore(device, &createInfo, nullptr, &vkSem));
+    sema = GrBackendSemaphores::MakeVk(vkSem);
+
+    REPORTER_ASSERT(reporter, sema.isInitialized());
+    REPORTER_ASSERT(reporter, sema.backend() == GrBackendApi::kVulkan);
+
+    GrBackendSemaphore copy(sema);
+    REPORTER_ASSERT(reporter, copy.isInitialized());
+    REPORTER_ASSERT(reporter, copy.backend() == GrBackendApi::kVulkan);
+
+    // Cleanup
+    GR_VK_CALL(gpu->vkInterface(), DestroySemaphore(device, vkSem, nullptr));
+}
+#endif

@@ -11,6 +11,7 @@
 #include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/gpu/ganesh/d3d/GrD3DBackendContext.h"
+#include "include/gpu/ganesh/d3d/GrD3DBackendSemaphore.h"
 #include "src/base/SkRectMemcpy.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipmap.h"
@@ -1772,11 +1773,9 @@ bool GrD3DGpu::onSubmitToGpu(const GrSubmitInfo& info) {
 std::unique_ptr<GrSemaphore> GrD3DGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
                                                             GrSemaphoreWrapType /* wrapType */,
                                                             GrWrapOwnership /* ownership */) {
+    SkASSERT(semaphore.backend() == GrBackendApi::kDirect3D);
     SkASSERT(this->caps()->backendSemaphoreSupport());
-    GrD3DFenceInfo fenceInfo;
-    if (!semaphore.getD3DFenceInfo(&fenceInfo)) {
-        return nullptr;
-    }
+    GrD3DFenceInfo fenceInfo = GrBackendSemaphores::GetD3DFenceInfo(semaphore);
     return GrD3DSemaphore::MakeWrapped(fenceInfo);
 }
 
