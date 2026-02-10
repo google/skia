@@ -205,8 +205,8 @@ TabWidth:        4
 UseTab:          Never
 ...
 ---
-#Language:      Json
-#DisableFormat: true
+Language:      Json
+DisableFormat: true
 ---
 Language:      JavaScript
 DisableFormat: true

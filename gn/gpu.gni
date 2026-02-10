@@ -776,7 +776,6 @@ skia_direct3d_sources = [
   "$_src/gpu/ganesh/d3d/GrD3DAMDMemoryAllocator.h",
   "$_src/gpu/ganesh/d3d/GrD3DAttachment.cpp",
   "$_src/gpu/ganesh/d3d/GrD3DAttachment.h",
-  "$_src/gpu/ganesh/d3d/GrD3DBackendSemaphore.cpp",
   "$_src/gpu/ganesh/d3d/GrD3DBuffer.cpp",
   "$_src/gpu/ganesh/d3d/GrD3DBuffer.h",
   "$_src/gpu/ganesh/d3d/GrD3DCaps.cpp",

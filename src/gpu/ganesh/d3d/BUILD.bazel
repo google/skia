@@ -13,7 +13,6 @@ D3D_FILES = [
     "GrD3DAMDMemoryAllocator.h",
     "GrD3DAttachment.cpp",
     "GrD3DAttachment.h",
-    "GrD3DBackendSemaphore.cpp",
     "GrD3DBuffer.cpp",
     "GrD3DBuffer.h",
     "GrD3DCaps.cpp",

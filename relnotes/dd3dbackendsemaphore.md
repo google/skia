@@ -1,1 +1,0 @@
- `GrBackendSemaphore::initDirect3D`, and `GrBackendSemaphore::getD3DFenceInfo` have been replaced with `GrBackendSemaphores::MakeD3D` and `GrBackendSemaphores::GetD3DFenceInfo`, defined in `include/gpu/ganesh/d3d/GrD3DBackendSemaphore.h`.
