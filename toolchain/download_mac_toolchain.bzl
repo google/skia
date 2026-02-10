@@ -130,10 +130,12 @@ filegroup(
 
 # Any framework that Skia depends on directly or indirectly needs to be listed here.
 FRAMEWORK_GLOB = [
+    "symlinks/xcode/MacSDK/System/Library/Frameworks/_LocationEssentials.framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/AppKit.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/ApplicationServices.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/AVFAudio.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/AVFoundation.Framework/**",
+    "symlinks/xcode/MacSDK/System/Library/Frameworks/AVRouting.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/Carbon.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/CFNetwork.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/CloudKit.Framework/**",
