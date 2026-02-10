@@ -23,7 +23,7 @@ bool is_map_succeeded(WGPUBufferMapAsyncStatus status) {
 [[maybe_unused]]
 void log_map_error(WGPUBufferMapAsyncStatus status, const char*) {
     const char* statusStr;
-    SkLogPriority priority = SkLogPriority::kError;
+    LogPriority priority = LogPriority::kError;
     switch (status) {
         case WGPUBufferMapAsyncStatus_ValidationError:
             statusStr = "ValidationError";
@@ -36,11 +36,11 @@ void log_map_error(WGPUBufferMapAsyncStatus status, const char*) {
             break;
         case WGPUBufferMapAsyncStatus_DestroyedBeforeCallback:
             statusStr = "DestroyedBeforeCallback";
-            priority = SkLogPriority::kDebug;
+            priority = LogPriority::kDebug;
             break;
         case WGPUBufferMapAsyncStatus_UnmappedBeforeCallback:
             statusStr = "UnmappedBeforeCallback";
-            priority = SkLogPriority::kDebug;
+            priority = LogPriority::kDebug;
             break;
         case WGPUBufferMapAsyncStatus_MappingAlreadyPending:
             statusStr = "MappingAlreadyPending";
@@ -80,7 +80,7 @@ void log_map_error(wgpu::MapAsyncStatus status, wgpu::StringView message) {
             SkDEBUGFAIL("This status is not an error");
             return;
     }
-    SKGPU_LOG(SkLogPriority::kError,
+    SKGPU_LOG(LogPriority::kError,
               "Buffer async map failed with status %s, message '%.*s'.",
               statusStr,
               static_cast<int>(message.length),
