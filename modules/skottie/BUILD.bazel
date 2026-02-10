@@ -107,7 +107,6 @@ skia_cc_library(
     ],
     features = ["layering_check"],
     local_defines = [
-        "SK_DISABLE_LEGACY_SHAPER_FACTORY",
         "SK_ENABLE_SKOTTIE_SKSLEFFECT",
     ],
     visibility = ["//:__subpackages__"],
@@ -144,9 +143,6 @@ skia_cc_library(
     name = "textshaper",
     srcs = ["//modules/skottie/src/text:text_shaper_srcs"],
     hdrs = ["//modules/skottie/include:text_shaper_hdrs"],
-    defines = [
-        "SK_DISABLE_LEGACY_SHAPER_FACTORY",
-    ],
     features = ["layering_check"],
     visibility = ["//:__subpackages__"],
     deps = [

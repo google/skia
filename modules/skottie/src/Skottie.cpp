@@ -46,10 +46,6 @@
 #include <ratio>
 #include <utility>
 
-#if !defined(SK_DISABLE_LEGACY_SHAPER_FACTORY)
-#include "modules/skshaper/utils/FactoryHelpers.h"
-#endif
-
 namespace sksg {
 class Color;
 }
@@ -414,11 +410,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
         return nullptr;
     }
 
-#if defined(SK_DISABLE_LEGACY_SHAPER_FACTORY)
     auto factory = fShapingFactory ? fShapingFactory : ::SkShapers::Primitive::Factory();
-#else
-    auto factory = fShapingFactory ? fShapingFactory : ::SkShapers::BestAvailable();
-#endif
     SkASSERT(resolvedProvider);
     internal::AnimationBuilder builder(std::move(resolvedProvider), fFontMgr,
                                        std::move(fPropertyObserver),

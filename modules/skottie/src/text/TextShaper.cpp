@@ -34,10 +34,6 @@
 #include <optional>
 #include <utility>
 
-#if !defined(SK_DISABLE_LEGACY_SHAPER_FACTORY)
-#include "modules/skshaper/utils/FactoryHelpers.h"
-#endif
-
 class SkPaint;
 
 using namespace skia_private;
@@ -742,18 +738,5 @@ SkRect Shaper::Result::computeVisualBounds() const {
 
     return bounds;
 }
-
-#if !defined(SK_DISABLE_LEGACY_SHAPER_FACTORY)
-Shaper::Result Shaper::Shape(const SkString& text, const TextDesc& desc, const SkPoint& point,
-             const sk_sp<SkFontMgr>& fontmgr) {
-    return Shaper::Shape(text, desc, point, fontmgr, SkShapers::BestAvailable());
-}
-
-Shaper::Result Shaper::Shape(const SkString& text, const TextDesc& desc, const SkRect& box,
-             const sk_sp<SkFontMgr>& fontmgr) {
-    return Shaper::Shape(text, desc, box, fontmgr, SkShapers::BestAvailable());
-}
-
-#endif
 
 } // namespace skottie
