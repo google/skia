@@ -1,1 +1,0 @@
-More public path utilities now take SkPathBuilder instead of SkPath. This allows the caller to avoid a potential extra copy of path data when calling these functions. This affects SkContourMeasure::getSegment, SkPathEffect::filterPath, SkPathMeasure::getSegment, and skpathutils::FillPathWithPaint.
