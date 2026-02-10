@@ -124,7 +124,7 @@ public:
 
     void addSpacesAtTheEnd(SkScalar space, Cluster* cluster);
     SkScalar addLetterSpacesEvenly(SkScalar space, Cluster* cluster);
-    SkScalar addLetterSpacesEvenly(SkScalar space);
+    SkScalar addAllLetterSpacesEvenly(SkScalar space, bool hasWhitespaces);
     void shift(const Cluster* cluster, SkScalar offset);
     void extend(const Cluster* cluster, SkScalar offset);
 

@@ -420,18 +420,12 @@ void ParagraphImpl::applySpacingAndBuildClusterTable() {
 
     if (letterSpacingStyles == 1 && !hasWordSpacing && fTextStyles.size() == 1 &&
         fTextStyles[0].fRange.width() == fText.size() && fRuns.size() == 1) {
-        // We have to letter space the entire paragraph (second most common case)
-        auto& run = fRuns[0];
-        auto& style = fTextStyles[0].fStyle;
-        run.addLetterSpacesEvenly(style.getLetterSpacing());
 
         this->buildClusterTable();
 
-        // This is something Flutter requires
-        for (auto& cluster : fClusters) {
-            cluster.setHalfLetterSpacing(style.getLetterSpacing() / 2);
-        }
-
+        // We have to letter space the entire paragraph (second most common case)
+        fRuns[0].addAllLetterSpacesEvenly(fTextStyles[0].fStyle.getLetterSpacing(),
+                                          this->fHasWhitespacesInside);
         return;
     }
 
