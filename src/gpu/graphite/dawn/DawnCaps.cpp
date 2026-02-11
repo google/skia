@@ -98,13 +98,6 @@ DawnCaps::DawnCaps(const DawnBackendContext& backendContext, const ContextOption
 
 DawnCaps::~DawnCaps() = default;
 
-bool DawnCaps::isTexturableIgnoreSampleCount(const TextureInfo& info) const {
-    auto overrideDawnInfo = TextureInfoPriv::Get<DawnTextureInfo>(info);
-    overrideDawnInfo.fSampleCount = SampleCount::k1;
-    TextureInfo overrideInfo = TextureInfos::MakeDawn(overrideDawnInfo);
-    return this->isTexturable(overrideInfo);
-}
-
 bool DawnCaps::onIsTexturable(const TextureInfo& info) const {
     if (!info.isValid()) {
         return false;
@@ -369,12 +362,12 @@ SkSpan<const Caps::ColorTypeInfo> DawnCaps::getColorTypeInfos(
     return {formatInfo.fColorTypeInfos.get(), formatInfo.fColorTypeInfoCount};
 }
 
-bool DawnCaps::supportsWritePixels(const TextureInfo& textureInfo) const {
+bool DawnCaps::isCopyableDst(const TextureInfo& textureInfo) const {
     const auto& dawnInfo = TextureInfoPriv::Get<DawnTextureInfo>(textureInfo);
     return dawnInfo.fUsage & wgpu::TextureUsage::CopyDst;
 }
 
-bool DawnCaps::supportsReadPixels(const TextureInfo& textureInfo) const {
+bool DawnCaps::isCopyableSrc(const TextureInfo& textureInfo) const {
     const auto& dawnInfo = TextureInfoPriv::Get<DawnTextureInfo>(textureInfo);
     return dawnInfo.fUsage & wgpu::TextureUsage::CopySrc;
 }

@@ -61,9 +61,13 @@ SkISize Caps::getDepthAttachmentDimensions(const TextureInfo& textureInfo,
     return colorAttachmentDimensions;
 }
 
-bool Caps::isTexturable(const TextureInfo& info) const {
+bool Caps::isTexturable(const TextureInfo& info, bool allowMSAA) const {
     if (info.sampleCount() > SampleCount::k1) {
-        return false;
+        if (allowMSAA) {
+            return this->onIsTexturable(TextureInfoPriv::ReplaceSampleCount(info, SampleCount::k1));
+        } else {
+            return false;
+        }
     }
     return this->onIsTexturable(info);
 }

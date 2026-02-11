@@ -92,8 +92,8 @@ private:
     bool onIsTexturable(const TextureInfo&) const override;
     bool isTexturable(MTLPixelFormat) const;
 
-    bool supportsWritePixels(const TextureInfo&) const override;
-    bool supportsReadPixels(const TextureInfo&) const override;
+    bool isCopyableDst(const TextureInfo&) const override;
+    bool isCopyableSrc(const TextureInfo&) const override;
 
     struct FormatInfo {
         uint32_t colorTypeFlags(SkColorType colorType) const {

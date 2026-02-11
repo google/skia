@@ -380,7 +380,7 @@ void Context::asyncReadPixels(std::unique_ptr<Recorder> recorder,
 
     const Caps* caps = fSharedContext->caps();
     TextureProxyView view = AsView(params.fSrcImage);
-    if (!view || !caps->supportsReadPixels(view.proxy()->textureInfo())) {
+    if (!view || !caps->isCopyableSrc(view.proxy()->textureInfo())) {
         // This is either a YUVA image (null view) or the texture can't be read directly, so
         // perform a draw into a compatible texture format and/or flatten any YUVA planes to RGBA.
         if (!recorder) {
@@ -728,7 +728,7 @@ Context::PixelTransferResult Context::transferPixels(Recorder* recorder,
     SkASSERT(SkColorInfoIsValid(dstColorInfo));
 
     const Caps* caps = fSharedContext->caps();
-    if (!srcProxy || !caps->supportsReadPixels(srcProxy->textureInfo())) {
+    if (!srcProxy || !caps->isCopyableSrc(srcProxy->textureInfo())) {
         return {};
     }
 
@@ -975,7 +975,7 @@ bool ContextPriv::readPixels(const SkPixmap& pm,
     // This is roughly equivalent to the logic taken in asyncRescaleAndRead(SkSurface) to either
     // try the image-based readback (with copy-as-draw fallbacks) or read the texture directly
     // if it supports reading.
-    if (!fContext->fSharedContext->caps()->supportsReadPixels(textureProxy->textureInfo())) {
+    if (!fContext->fSharedContext->caps()->isCopyableSrc(textureProxy->textureInfo())) {
         // Since this is a synchronous testing-only API, callers should have flushed any pending
         // work that modifies this texture proxy already. This means we don't have to worry about
         // re-wrapping the proxy in a new Image (that wouldn't tbe connected to any Device, etc.).

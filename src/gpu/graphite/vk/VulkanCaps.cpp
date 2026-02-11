@@ -2034,7 +2034,7 @@ bool VulkanCaps::isTransferDst(const VulkanTextureInfo& vkInfo) const {
     return info.isTransferDst(vkInfo.fImageTiling);
 }
 
-bool VulkanCaps::supportsWritePixels(const TextureInfo& texInfo) const {
+bool VulkanCaps::isCopyableDst(const TextureInfo& texInfo) const {
     const auto& vkInfo = TextureInfoPriv::Get<VulkanTextureInfo>(texInfo);
 
     // Can't write if it needs a YCbCr sampler
@@ -2053,7 +2053,7 @@ bool VulkanCaps::supportsWritePixels(const TextureInfo& texInfo) const {
     return true;
 }
 
-bool VulkanCaps::supportsReadPixels(const TextureInfo& texInfo) const {
+bool VulkanCaps::isCopyableSrc(const TextureInfo& texInfo) const {
     if (texInfo.isProtected() == Protected::kYes) {
         return false;
     }

@@ -32,7 +32,7 @@ wgpu::Texture DawnTexture::MakeDawnTexture(const DawnSharedContext* sharedContex
     const auto& dawnInfo = TextureInfoPriv::Get<DawnTextureInfo>(info);
 
     if (dawnInfo.fUsage & wgpu::TextureUsage::TextureBinding &&
-        !caps->isTexturableIgnoreSampleCount(info)) {
+        !caps->isTexturable(info, /*allowMSAA=*/true)) {
         return {};
     }
 

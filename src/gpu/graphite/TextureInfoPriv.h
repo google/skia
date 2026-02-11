@@ -49,6 +49,14 @@ public:
         return true;
     }
 
+    static TextureInfo ReplaceSampleCount(const TextureInfo& info, SampleCount sampleCount) {
+        TextureInfo copy = info;
+        if (copy.isValid()) {
+            copy.fData->fSampleCount = sampleCount;
+        }
+        return copy;
+    }
+
 private:
     TextureInfoPriv() = delete;
     TextureInfoPriv(const TextureInfoPriv&) = delete;
