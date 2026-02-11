@@ -38,12 +38,6 @@ public:
         Note: only affects stroked paths.
     */
     static sk_sp<SkPathEffect> Make(SkSpan<const SkScalar> intervals, SkScalar phase);
-
-#ifdef SK_SUPPORT_UNSPANNED_APIS
-    static sk_sp<SkPathEffect> Make(const SkScalar intervals[], int count, SkScalar phase) {
-        return intervals ? Make({intervals, count}, phase) : nullptr;
-    }
-#endif
 };
 
 #endif

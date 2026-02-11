@@ -977,15 +977,6 @@ public:
     */
     bool isInverseFillType() const { return SkPathFillType_IsInverse(fFillType); }
 
-#ifdef SK_SUPPORT_UNSPANNED_APIS
-    SkPathBuilder& addPolygon(const SkPoint pts[], int count, bool close) {
-        return this->addPolygon({pts, count}, close);
-    }
-    SkPathBuilder& polylineTo(const SkPoint pts[], int count) {
-        return this->polylineTo({pts, count});
-    }
-#endif
-
     SkSpan<const SkPoint> points() const {
         return fPts;
     }

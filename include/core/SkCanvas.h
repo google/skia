@@ -1328,11 +1328,6 @@ public:
         example: https://fiddle.skia.org/c/@Canvas_drawPoints
     */
     void drawPoints(PointMode mode, SkSpan<const SkPoint>, const SkPaint& paint);
-#ifdef SK_SUPPORT_UNSPANNED_APIS
-    void drawPoints(PointMode mode, size_t count, const SkPoint pts[], const SkPaint& paint) {
-        this->drawPoints(mode, {pts, count}, paint);
-    }
-#endif
 
     /** Draws point at (x, y) using clip, SkMatrix and SkPaint paint.
 
@@ -1915,17 +1910,6 @@ public:
     void drawGlyphs(SkSpan<const SkGlyphID> glyphs, SkSpan<const SkPoint> positions,
                     SkSpan<const uint32_t> clusters, SkSpan<const char> utf8text,
                     SkPoint origin, const SkFont& font, const SkPaint& paint);
-#ifdef SK_SUPPORT_UNSPANNED_APIS
-    void drawGlyphs(int count, const SkGlyphID glyphs[], const SkPoint positions[],
-                    const uint32_t clusters[], int textByteCount, const char utf8text[],
-                    SkPoint origin, const SkFont& font, const SkPaint& paint) {
-        this->drawGlyphs({glyphs,    count},
-                         {positions, count},
-                         {clusters,  count},
-                         {utf8text,  textByteCount},
-                         origin, font, paint);
-    }
-#endif
 
     /** Draws count glyphs, at positions relative to origin styled with font and paint.
 
@@ -1947,12 +1931,6 @@ public:
     */
     void drawGlyphs(SkSpan<const SkGlyphID> glyphs, SkSpan<const SkPoint> positions,
                     SkPoint origin, const SkFont& font, const SkPaint& paint);
-#ifdef SK_SUPPORT_UNSPANNED_APIS
-    void drawGlyphs(int count, const SkGlyphID glyphs[], const SkPoint positions[],
-                    SkPoint origin, const SkFont& font, const SkPaint& paint) {
-        this->drawGlyphs({glyphs, count}, {positions, count}, origin, font, paint);
-    }
-#endif
 
     /** Draws count glyphs, at positions relative to origin styled with font and paint.
 
@@ -1975,12 +1953,6 @@ public:
     */
     void drawGlyphsRSXform(SkSpan<const SkGlyphID> glyphs, SkSpan<const SkRSXform> xforms,
                            SkPoint origin, const SkFont& font, const SkPaint& paint);
-#ifdef SK_SUPPORT_UNSPANNED_APIS
-    void drawGlyphs(int count, const SkGlyphID glyphs[], const SkRSXform xforms[],
-                    SkPoint origin, const SkFont& font, const SkPaint& paint) {
-        this->drawGlyphsRSXform({glyphs, count}, {xforms, count}, origin, font, paint);
-    }
-#endif
 
     /** Draws SkTextBlob blob at (x, y), using clip, SkMatrix, and SkPaint paint.
 
@@ -2209,17 +2181,6 @@ public:
     void drawAtlas(const SkImage* atlas, SkSpan<const SkRSXform> xform,
                    SkSpan<const SkRect> tex, SkSpan<const SkColor> colors, SkBlendMode mode,
                    const SkSamplingOptions& sampling, const SkRect* cullRect, const SkPaint* paint);
-#ifdef SK_SUPPORT_UNSPANNED_APIS
-    void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
-                   const SkColor colors[], int count, SkBlendMode mode,
-                   const SkSamplingOptions& samp, const SkRect* cullRect, const SkPaint* paint) {
-        this->drawAtlas(atlas,
-                        {xform, count},
-                        {tex, tex ? count : 0},
-                        {colors, colors ? count : 0},
-                        mode, samp, cullRect, paint);
-    }
-#endif
 
     /** Draws SkDrawable drawable using clip and SkMatrix, concatenated with
         optional matrix.

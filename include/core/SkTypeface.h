@@ -353,33 +353,6 @@ public:
             FactoryId id,
             sk_sp<SkTypeface> (*make)(std::unique_ptr<SkStreamAsset>, const SkFontArguments&));
 
-#ifdef SK_SUPPORT_UNSPANNED_APIS
-public:
-    int getVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
-                                   int count) const {
-        return this->getVariationDesignPosition({coordinates, count});
-    }
-    int getVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
-                                     int count) const {
-        return this->getVariationDesignParameters({parameters, count});
-    }
-    void unicharsToGlyphs(const SkUnichar unis[], int count, SkGlyphID glyphs[]) const {
-        this->unicharsToGlyphs({unis, count}, {glyphs, count});
-    }
-    int textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
-                     SkGlyphID glyphs[], int maxGlyphCount) const {
-        return (int)this->textToGlyphs(text, byteLength, encoding, {glyphs, maxGlyphCount});
-    }
-    int getTableTags(SkFontTableTag tags[]) const {
-        const size_t count = tags ? MAX_REASONABLE_TABLE_COUNT : 0;
-        return this->readTableTags({tags, count});
-    }
-    bool getKerningPairAdjustments(const SkGlyphID glyphs[], int count,
-                                   int32_t adjustments[]) const {
-        return this->getKerningPairAdjustments({glyphs, count}, {adjustments, count});
-    }
-#endif
-
 protected:
     // needed until onGetTableTags() is updated to take a span
     enum { MAX_REASONABLE_TABLE_COUNT = (1 << 16) - 1 };

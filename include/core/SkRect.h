@@ -951,18 +951,6 @@ struct SK_API SkRect {
      */
     void setBoundsNoCheck(SkSpan<const SkPoint> pts);
 
-#ifdef SK_SUPPORT_UNSPANNED_APIS
-    void setBounds(const SkPoint pts[], int count) {
-        this->setBounds({pts, count});
-    }
-    void setBoundsNoCheck(const SkPoint pts[], int count) {
-        this->setBoundsNoCheck({pts, count});
-    }
-    bool setBoundsCheck(const SkPoint pts[], int count) {
-        return this->setBoundsCheck({pts, count});
-    }
-#endif
-
     /** Sets bounds to the smallest SkRect enclosing SkPoint p0 and p1. The result is
         sorted and may be empty. Does not check to see if values are finite.
 

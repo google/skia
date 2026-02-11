@@ -262,28 +262,6 @@ public:
         const RunRecord* fRunRecord;
     };
 
-#ifdef SK_SUPPORT_UNSPANNED_APIS
-    static sk_sp<SkTextBlob> MakeFromPosTextH(const void* text, size_t byteLength,
-                                              const SkScalar xpos[], SkScalar constY,
-                                              const SkFont& font,
-                                              SkTextEncoding encoding = SkTextEncoding::kUTF8) {
-        const size_t worstCaseCount = byteLength;
-        return MakeFromPosTextH(text, byteLength, {xpos, worstCaseCount}, constY, font, encoding);
-    }
-    static sk_sp<SkTextBlob> MakeFromPosText(const void* text, size_t byteLength,
-                                             const SkPoint pos[], const SkFont& font,
-                                             SkTextEncoding encoding = SkTextEncoding::kUTF8) {
-        const size_t worstCaseCount = byteLength;
-        return MakeFromPosText(text, byteLength, {pos, worstCaseCount}, font, encoding);
-    }
-    static sk_sp<SkTextBlob> MakeFromRSXform(const void* text, size_t byteLength,
-                                              const SkRSXform xform[], const SkFont& font,
-                                              SkTextEncoding encoding = SkTextEncoding::kUTF8) {
-        const size_t worstCaseCount = byteLength;
-        return MakeFromRSXform(text, byteLength, {xform, worstCaseCount}, font, encoding);
-    }
-#endif
-
 private:
     friend class SkNVRefCnt<SkTextBlob>;
 
