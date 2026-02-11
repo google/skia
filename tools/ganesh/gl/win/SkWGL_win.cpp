@@ -15,8 +15,6 @@
 #include "src/base/SkTSearch.h"
 #include "src/base/SkTSort.h"
 
-#include <array>    // std::size
-
 bool SkWGLExtensions::hasExtension(HDC dc, const char* ext) const {
     if (nullptr == this->fGetExtensionsString) {
         return false;

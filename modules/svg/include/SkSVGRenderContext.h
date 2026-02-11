@@ -17,7 +17,6 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkTHash_impl.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/skshaper/include/SkShaper_factory.h"
 #include "modules/svg/include/SkSVGAttribute.h"
@@ -25,6 +24,7 @@
 #include "modules/svg/include/SkSVGNode.h"
 #include "modules/svg/include/SkSVGTypes.h"
 #include "src/base/SkTLazy.h"
+#include "src/core/SkTHash.h"
 
 #include <cstddef>
 #include <cstdint>

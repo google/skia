@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/base/SkMath.h"
 #include "src/gpu/RectanizerPow2.h"
 
 namespace skgpu {

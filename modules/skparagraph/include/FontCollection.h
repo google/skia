@@ -8,10 +8,10 @@
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
-#include "include/private/base/SkTHash_impl.h"
 #include "modules/skparagraph/include/FontArguments.h"
 #include "modules/skparagraph/include/ParagraphCache.h"
 #include "modules/skparagraph/include/TextStyle.h"
+#include "src/core/SkTHash.h"
 
 namespace skia {
 namespace textlayout {

@@ -7,7 +7,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTHash_impl.h"
+#include "src/core/SkTHash.h"
 
 #include <string>
 #include <unordered_map>
