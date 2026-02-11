@@ -15,6 +15,7 @@
 #include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/ganesh/vk/GrVkTypes.h"
 #include "include/gpu/vk/VulkanTypes.h"
+#include "include/private/base/SkLog.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/vk/GrVkCaps.h"
@@ -170,7 +171,7 @@ static GrBackendTexture make_vk_backend_texture(
 
     VkFormat grBackendVkFormat;
     if (!GrBackendFormats::AsVkFormat(grBackendFormat, &grBackendVkFormat)) {
-        SkDebugf("AsVkFormat failed (valid: %d, backend: %u)",
+        SKIA_LOG_E("AsVkFormat failed (valid: %d, backend: %u)",
                  grBackendFormat.isValid(),
                  (unsigned)grBackendFormat.backend());
         return GrBackendTexture();
@@ -192,7 +193,7 @@ static GrBackendTexture make_vk_backend_texture(
     // necessary features. Thus, it is acceptable for hwbVkFormat to differ from grBackendVkFormat
     // iff we are importing the AHardwareBuffer using an external format.
     if (!importAsExternalFormat && hwbVkFormat != grBackendVkFormat) {
-        SkDebugf("Queried format not consistent with expected format; got: %d, expected: %d",
+        SKIA_LOG_E("Queried format not consistent with expected format; got: %d, expected: %d",
                  hwbVkFormat,
                  grBackendVkFormat);
         return GrBackendTexture();
@@ -215,14 +216,14 @@ static GrBackendTexture make_vk_backend_texture(
 
     if (isRenderable && (importAsExternalFormat || // cannot render to external formats
                          !gpu->vkCaps().isFormatRenderable(grBackendVkFormat, tiling))) {
-        SkDebugf("Renderable texture requested from an AHardwareBuffer which uses a "
+        SKIA_LOG_E("Renderable texture requested from an AHardwareBuffer which uses a "
                  "VkFormat that Skia cannot render to (VkFormat: %d).\n", grBackendVkFormat);
         return GrBackendTexture();
     }
 
     if (importAsExternalFormat) {
         if (!ycbcrConversion->isValid()) {
-            SkDebugf("YCbCr conversion must be valid when importing an AHardwareBuffer with an "
+            SKIA_LOG_E("YCbCr conversion must be valid when importing an AHardwareBuffer with an "
                      "external format");
             return GrBackendTexture();
         }

@@ -15,6 +15,7 @@
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "include/gpu/ganesh/gl/GrGLTypes.h"
+#include "include/private/base/SkLog.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
@@ -98,13 +99,13 @@ void GLTextureHelper::rebind(GrDirectContext* dContext) {
     glBindTexture(fTexTarget, fTexID);
     GLenum status = GL_NO_ERROR;
     if ((status = glGetError()) != GL_NO_ERROR) {
-        SkDebugf("glBindTexture(%#x, %d) failed (%#x)", (int) fTexTarget,
+        SKIA_LOG_E("glBindTexture(%#x, %d) failed (%#x)", (int) fTexTarget,
             (int) fTexID, (int) status);
         return;
     }
     glEGLImageTargetTexture2DOES(fTexTarget, fImage);
     if ((status = glGetError()) != GL_NO_ERROR) {
-        SkDebugf("glEGLImageTargetTexture2DOES failed (%#x)", (int) status);
+        SKIA_LOG_E("glEGLImageTargetTexture2DOES failed (%#x)", (int) status);
         return;
     }
     dContext->resetContext(kTextureBinding_GrGLBackendState);
@@ -133,7 +134,7 @@ static GrBackendTexture make_gl_backend_texture(
 
     auto textureType = backendFormat.textureType();
     if (textureType != GrTextureType::k2D && textureType != GrTextureType::kExternal) {
-        SkDebugf("Unsupported texture target type: %d\n", (int) textureType);
+        SKIA_LOG_E("Unsupported texture target type: %d\n", (int) textureType);
         return GrBackendTexture();
     }
 
@@ -147,7 +148,7 @@ static GrBackendTexture make_gl_backend_texture(
     EGLImageKHR image = eglCreateImageKHR(display, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID,
                                           clientBuffer, attribs);
     if (EGL_NO_IMAGE_KHR == image) {
-        SkDebugf("Could not create EGL image, err = (%#x)", (int) eglGetError() );
+        SKIA_LOG_E("Could not create EGL image, err = (%#x)", (int) eglGetError() );
         return GrBackendTexture();
     }
 
@@ -175,14 +176,14 @@ static GrBackendTexture make_gl_backend_texture(
     glBindTexture(target, texID);
     GLenum status = GL_NO_ERROR;
     if ((status = glGetError()) != GL_NO_ERROR) {
-        SkDebugf("glBindTexture failed (%#x)", (int) status);
+        SKIA_LOG_E("glBindTexture failed (%#x)", (int) status);
         glDeleteTextures(1, &texID);
         eglDestroyImageKHR(display, image);
         return GrBackendTexture();
     }
     glEGLImageTargetTexture2DOES(target, image);
     if ((status = glGetError()) != GL_NO_ERROR) {
-        SkDebugf("glEGLImageTargetTexture2DOES failed (%#x)", (int) status);
+        SKIA_LOG_E("glEGLImageTargetTexture2DOES failed (%#x)", (int) status);
         glDeleteTextures(1, &texID);
         eglDestroyImageKHR(display, image);
         return GrBackendTexture();
