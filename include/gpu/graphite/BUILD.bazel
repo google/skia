@@ -14,7 +14,6 @@ PUBLIC_HEADERS = [
     "GraphiteTypes.h",
     "Image.h",
     "ImageProvider.h",
-    "LogPriority.h",
     "PersistentPipelineStorage.h",
     "PrecompileContext.h",
     "Recorder.h",
