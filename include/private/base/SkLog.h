@@ -26,8 +26,17 @@ void SK_SPI SkLog(SkLogPriority priority, const char format[], ...) SK_PRINTF_LI
  * priority, so we check for that define as well. Eventually, we should move clients using this
  * define to the new one.
  */
- #if defined (SKGPU_GRAPHITE_LOWEST_ACTIVE_LOG_PRIORITY)
-   #define SKIA_LOWEST_ACTIVE_LOG_PRIORITY SKGPU_GRAPHITE_LOWEST_ACTIVE_LOG_PRIORITY
+#if defined(SKGPU_GRAPHITE_LOWEST_ACTIVE_LOG_PRIORITY)
+    static constexpr SkLogPriority MapGraphitePriority(skgpu::graphite::LogPriority priority) {
+        switch (priority) {
+            case skgpu::graphite::LogPriority::kError:   return SkLogPriority::kError;
+            case skgpu::graphite::LogPriority::kWarning: return SkLogPriority::kWarning;
+            case skgpu::graphite::LogPriority::kInfo:    return SkLogPriority::kInfo;
+            case skgpu::graphite::LogPriority::kDebug:   return SkLogPriority::kDebug;
+            default: return SkLogPriority::kError;
+        }
+    }
+    #define SKIA_LOWEST_ACTIVE_LOG_PRIORITY MapGraphitePriority(SKGPU_GRAPHITE_LOWEST_ACTIVE_LOG_PRIORITY)
 #endif
 
 #if !defined(SKIA_LOWEST_ACTIVE_LOG_PRIORITY)
