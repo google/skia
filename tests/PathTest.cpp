@@ -5644,3 +5644,10 @@ DEF_TEST(path_read_from_memory_corrupt_rrect, reporter) {
     REPORTER_ASSERT(reporter, !result.has_value());
     REPORTER_ASSERT(reporter, bytesRead == 0);
 }
+
+DEF_TEST(path_empty_iter, reporter) {
+    const SkPath p;
+
+    SkPath::Iter iter(p, false);
+    REPORTER_ASSERT(reporter, !iter.next());
+}
