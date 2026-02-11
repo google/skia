@@ -1096,7 +1096,7 @@ void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
         auto& info = this->getFormatInfoForInit(format);
         info.init(interface, *this, physDev, format);
         if (info.isTexturable(VK_IMAGE_TILING_OPTIMAL)) {
-            info.fColorTypeInfoCount = 2;
+            info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
             int ctIdx = 0;
             // Format: VK_FORMAT_R16_SFLOAT, Surface: kAlpha_F16
@@ -1108,14 +1108,6 @@ void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 ctInfo.fReadSwizzle = skgpu::Swizzle("000r");
                 ctInfo.fWriteSwizzle = skgpu::Swizzle("a000");
-            }
-            // Format: VK_FORMAT_R16_SFLOAT, Surface: kR_F16
-            {
-                constexpr SkColorType ct = SkColorType::kR16_float_SkColorType;
-                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = ct;
-                ctInfo.fTransferColorType = ct;
-                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
         }
     }
@@ -1529,7 +1521,6 @@ void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     this->setColorType(ct::kRGB_101010x_SkColorType,        { VK_FORMAT_A2B10G10R10_UNORM_PACK32 });
     this->setColorType(ct::kGray_8_SkColorType,             { VK_FORMAT_R8_UNORM                 });
     this->setColorType(ct::kA16_float_SkColorType,          { VK_FORMAT_R16_SFLOAT               });
-    this->setColorType(ct::kR16_float_SkColorType,          { VK_FORMAT_R16_SFLOAT               });
     this->setColorType(ct::kRGBA_F16_SkColorType,           { VK_FORMAT_R16G16B16A16_SFLOAT      });
     this->setColorType(ct::kRGB_F16F16F16x_SkColorType,     { VK_FORMAT_R16G16B16A16_SFLOAT      });
     this->setColorType(ct::kA16_unorm_SkColorType,          { VK_FORMAT_R16_UNORM                });

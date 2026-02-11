@@ -117,7 +117,6 @@ static bool convert_to_alpha8(const SkImageInfo& dstInfo,       void* vdst, size
         case kR8G8_unorm_SkColorType:
         case kR16_unorm_SkColorType:
         case kR16G16_unorm_SkColorType:
-        case kR16_float_SkColorType:
         case kR16G16_float_SkColorType:
         case kRGB_888x_SkColorType:
         case kRGB_101010x_SkColorType:

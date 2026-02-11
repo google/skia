@@ -395,7 +395,6 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
             case kRGBA_F32_SkColorType:
             case kR8G8_unorm_SkColorType:
             case kA16_float_SkColorType:
-            case kR16_float_SkColorType:
             case kA16_unorm_SkColorType:
             case kR16G16_float_SkColorType:
             case kR16_unorm_SkColorType:

@@ -1051,7 +1051,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
         auto& info = this->getFormatInfo(format);
         info.init(contextOptions, interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
-            info.fColorTypeInfoCount = 2;
+            info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
             int ctIdx = 0;
             // Format: VK_FORMAT_R16_SFLOAT, Surface: kAlpha_F16
@@ -1063,14 +1063,6 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
                 ctInfo.fReadSwizzle = skgpu::Swizzle("000r");
                 ctInfo.fWriteSwizzle = skgpu::Swizzle("a000");
-            }
-            // Format: VK_FORMAT_R16_SFLOAT, Surface: kRed_F16
-            {
-                constexpr GrColorType ct = GrColorType::kR_F16;
-                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
-                ctInfo.fColorType = ct;
-                ctInfo.fTransferColorType = ct;
-                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
         }
     }
@@ -1447,7 +1439,6 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     this->setColorType(GrColorType::kRGB_101010x,      { VK_FORMAT_A2B10G10R10_UNORM_PACK32 });
     this->setColorType(GrColorType::kGray_8,           { VK_FORMAT_R8_UNORM });
     this->setColorType(GrColorType::kAlpha_F16,        { VK_FORMAT_R16_SFLOAT });
-    this->setColorType(GrColorType::kR_F16,            { VK_FORMAT_R16_SFLOAT });
     this->setColorType(GrColorType::kRGBA_F16,         { VK_FORMAT_R16G16B16A16_SFLOAT });
     this->setColorType(GrColorType::kRGBA_F16_Clamped, { VK_FORMAT_R16G16B16A16_SFLOAT });
     this->setColorType(GrColorType::kRGB_F16F16F16x,   { VK_FORMAT_R16G16B16A16_SFLOAT});
@@ -2157,7 +2148,6 @@ std::vector<GrTest::TestFormatColorTypeCombination> GrVkCaps::getTestingCombinat
           GrBackendFormats::MakeVk(VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16)},
         { GrColorType::kGray_8,           GrBackendFormats::MakeVk(VK_FORMAT_R8_UNORM)            },
         { GrColorType::kAlpha_F16,        GrBackendFormats::MakeVk(VK_FORMAT_R16_SFLOAT)          },
-        { GrColorType::kR_F16,            GrBackendFormats::MakeVk(VK_FORMAT_R16_SFLOAT)          },
         { GrColorType::kRGBA_F16,         GrBackendFormats::MakeVk(VK_FORMAT_R16G16B16A16_SFLOAT) },
         { GrColorType::kRGBA_F16_Clamped, GrBackendFormats::MakeVk(VK_FORMAT_R16G16B16A16_SFLOAT) },
         { GrColorType::kRGB_F16F16F16x,   GrBackendFormats::MakeVk(VK_FORMAT_R16G16B16A16_SFLOAT) },

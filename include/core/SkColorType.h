@@ -112,10 +112,6 @@ enum SkColorType : int {
     // Single channel data (16-bit half-float) interpreted as alpha. RGB are 0.
     //   Bits: [A:15..0]
     kA16_float_SkColorType,
-    // Single channel data (16 bits half-float) interpreted as red. G and B are forced to 0, alpha
-    // is forced to opaque.
-    //   Bits: [R:15..0]
-    kR16_float_SkColorType,
     // Two channel RG data (16-bit half-float per channel) packed into a LE 32-bit word.
     // Blue is forced to 0, alpha is forced to opaque.
     //   Bits: [G:31..16 R:15..0]

@@ -58,7 +58,7 @@ struct ColorTypeFilter_8 {
     }
 };
 
-struct ColorTypeFilter_F16 {
+struct ColorTypeFilter_Alpha_F16 {
     typedef uint16_t Type;
     static skvx::float4 Expand(uint16_t x) {
         uint64_t x4 = (uint64_t)x; // add 0s out to four lanes (0,0,0,x)
@@ -546,15 +546,14 @@ std::unique_ptr<SkMipmapDownSampler> SkMipmap::MakeDownSampler(const SkPixmap& r
             proc_3_3 = downsample_3_3<ColorTypeFilter_1010102>;
             break;
         case kA16_float_SkColorType:
-        case kR16_float_SkColorType:
-            proc_1_2 = downsample_1_2<ColorTypeFilter_F16>;
-            proc_1_3 = downsample_1_3<ColorTypeFilter_F16>;
-            proc_2_1 = downsample_2_1<ColorTypeFilter_F16>;
-            proc_2_2 = downsample_2_2<ColorTypeFilter_F16>;
-            proc_2_3 = downsample_2_3<ColorTypeFilter_F16>;
-            proc_3_1 = downsample_3_1<ColorTypeFilter_F16>;
-            proc_3_2 = downsample_3_2<ColorTypeFilter_F16>;
-            proc_3_3 = downsample_3_3<ColorTypeFilter_F16>;
+            proc_1_2 = downsample_1_2<ColorTypeFilter_Alpha_F16>;
+            proc_1_3 = downsample_1_3<ColorTypeFilter_Alpha_F16>;
+            proc_2_1 = downsample_2_1<ColorTypeFilter_Alpha_F16>;
+            proc_2_2 = downsample_2_2<ColorTypeFilter_Alpha_F16>;
+            proc_2_3 = downsample_2_3<ColorTypeFilter_Alpha_F16>;
+            proc_3_1 = downsample_3_1<ColorTypeFilter_Alpha_F16>;
+            proc_3_2 = downsample_3_2<ColorTypeFilter_Alpha_F16>;
+            proc_3_3 = downsample_3_3<ColorTypeFilter_Alpha_F16>;
             break;
         case kR16G16_float_SkColorType:
             proc_1_2 = downsample_1_2<ColorTypeFilter_F16F16>;
