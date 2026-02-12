@@ -21,10 +21,10 @@
   },
   {
     "cmd": [
-      "gsutil",
+      "gcloud",
+      "storage",
       "cp",
-      "-z",
-      "json",
+      "--gzip-local=json",
       "[START_DIR]/perf/buildstats_abc123.json",
       "gs://skia-perf/buildstats-json-v1/2012/05/14/12/BuildStats-Ubuntu24.04-Clang-x86_64-Release/abc123_buildstats_abc123.json"
     ],
@@ -33,10 +33,10 @@
   },
   {
     "cmd": [
-      "gsutil",
+      "gcloud",
+      "storage",
       "cp",
-      "-z",
-      "json",
+      "--gzip-local=json",
       "[START_DIR]/perf/buildstats_def.json",
       "gs://skia-perf/buildstats-json-v1/2012/05/14/12/BuildStats-Ubuntu24.04-Clang-x86_64-Release/abc123_buildstats_def.json"
     ],
