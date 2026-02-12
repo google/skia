@@ -313,12 +313,6 @@ public:
     SkEncodedImageFormat getEncodedFormat() const { return this->onGetEncodedFormat(); }
 
     /**
-     *  Return the underlying encoded data stream. This may be nullptr if the original
-     *  stream could not be duplicated.
-     */
-    virtual std::unique_ptr<SkStream> getEncodedData() const;
-
-    /**
      *  Whether or not the memory passed to getPixels is zero initialized.
      */
     enum ZeroInitialized {
@@ -1132,6 +1126,12 @@ private:
      *  Only valid during scanline decoding or incremental decoding.
      */
     virtual SkSampler* getSampler(bool /*createIfNecessary*/) { return nullptr; }
+
+    /**
+     *  Return the underlying encoded data. This may be nullptr if the original
+     *  stream could not be duplicated/read.
+     */
+    virtual sk_sp<const SkData> getEncodedData() const;
 
     friend class DM::CodecSrc;  // for fillIncompleteImage
     friend class PNGCodecGM;    // for fillIncompleteImage

@@ -248,8 +248,6 @@ public:
 
     const SkWuffsFrame* frame(int i) const;
 
-    std::unique_ptr<SkStream> getEncodedData() const override;
-
 private:
     // SkCodec overrides.
     SkEncodedImageFormat onGetEncodedFormat() const override;
@@ -265,6 +263,7 @@ private:
     bool                 onGetFrameInfo(int, FrameInfo*) const override;
     int                  onGetRepetitionCount() override;
     IsAnimated           onIsAnimated() override;
+    sk_sp<const SkData>  getEncodedData() const override;
 
     // Two separate implementations of onStartIncrementalDecode and
     // onIncrementalDecode, named "one pass" and "two pass" decoding. One pass
@@ -986,9 +985,17 @@ void SkWuffsCodec::updateNumFullyReceivedFrames() {
 //
 // TODO(https://crbug.com/370522089): See if `SkCodec` can be tweaked to avoid
 // the need to hide the stream from it.
-std::unique_ptr<SkStream> SkWuffsCodec::getEncodedData() const {
-    SkASSERT(fPrivStream);
-    return fPrivStream->duplicate();
+sk_sp<const SkData> SkWuffsCodec::getEncodedData() const {
+    SkASSERT_RELEASE(fPrivStream);
+    sk_sp<const SkData> data = fPrivStream->getData();
+    if (data) {
+        return data;
+    }
+    auto dStream = fPrivStream->duplicate();
+    if (!dStream->hasLength()) {
+        return nullptr;
+    }
+    return SkData::MakeFromStream(dStream.get(), dStream->getLength());
 }
 
 namespace SkGifDecoder {

@@ -1153,9 +1153,17 @@ const SkFrameHolder* SkPngRustCodec::getFrameHolder() const { return &fFrameHold
 //
 // TODO(https://crbug.com/370522089): See if `SkCodec` can be tweaked to avoid
 // the need to hide the stream from it.
-std::unique_ptr<SkStream> SkPngRustCodec::getEncodedData() const {
+sk_sp<const SkData> SkPngRustCodec::getEncodedData() const {
     SkASSERT_RELEASE(fPrivStream);
-    return fPrivStream->duplicate();
+    sk_sp<const SkData> data = fPrivStream->getData();
+    if (data) {
+        return data;
+    }
+    auto dStream = fPrivStream->duplicate();
+    if (!dStream->hasLength()) {
+        return nullptr;
+    }
+    return SkData::MakeFromStream(dStream.get(), dStream->getLength());
 }
 
 SkPngRustCodec::FrameHolder::~FrameHolder() = default;

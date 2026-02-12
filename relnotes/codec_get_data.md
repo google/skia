@@ -1,0 +1,1 @@
+`SkCodec::getEncodedData()` has been removed from the public API

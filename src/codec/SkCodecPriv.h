@@ -334,6 +334,11 @@ public:
             }
         }
     }
+
+    static sk_sp<const SkData> GetEncodedData(const SkCodec* codec) {
+        SkASSERT(codec);
+        return codec->getEncodedData();
+    }
 };
 
 #endif // SkCodecPriv_DEFINED
