@@ -14,6 +14,7 @@
 package main
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"flag"
@@ -21,17 +22,18 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
+	"cloud.google.com/go/storage"
 	"github.com/flynn/json5"
 
 	"go.skia.org/infra/go/skerr"
 )
 
 const (
-	gcsBucketAndPrefix = "gs://skia-cdn/bazel/"
+	gcsBucket = "skia-cdn"
+	gcsPrefix = "bazel/"
 )
 
 func main() {
@@ -131,21 +133,7 @@ func processOneDownload(workDir, url, hash, addSuffix string, noSuffix bool) err
 	if actual := hex.EncodeToString(h[:]); actual != hash {
 		return skerr.Fmt("Invalid hash of %s. %s != %s", url, actual, hash)
 	}
-	fmt.Printf("Uploading %s to GCS...\n", url)
-	// Write to disk so gsutil can access it
-	tmpFile := filepath.Join(workDir, hash+suf)
-	if err := os.WriteFile(tmpFile, contents, 0644); err != nil {
-		return skerr.Wrapf(err, "writing %d bytes to %s", len(contents), tmpFile)
-	}
-	// Upload using gsutil (which is assumed to be properly authed)
-	cmd := exec.Command("gsutil",
-		// Add custom metadata so we can figure out what the unrecognizable file name was created
-		// from. Custom metadata values must start with x-goog-meta-
-		"-h", "x-goog-meta-original-url:"+url,
-		"cp", tmpFile, gcsBucketAndPrefix+hash+suf)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	return skerr.Wrapf(cmd.Run(), "uploading %s to GCS", tmpFile)
+	return skerr.Wrap(upload(context.Background(), contents, hash, suf, "x-goog-meta-original-url", url))
 }
 
 func processOneLocalFile(file, hash string) error {
@@ -166,16 +154,30 @@ func processOneLocalFile(file, hash string) error {
 	if actual := hex.EncodeToString(h[:]); actual != hash {
 		return skerr.Fmt("Invalid hash of %s. %s != %s", file, actual, hash)
 	}
-	fmt.Printf("Uploading %s to GCS...\n", file)
-	// Upload using gsutil (which is assumed to be properly authed)
-	cmd := exec.Command("gsutil",
-		// Add custom metadata so we can figure out what the unrecognizable file name was created
-		// from. Custom metadata values must start with x-goog-meta-
-		"-h", "x-goog-meta-original-file:"+file,
-		"cp", file, gcsBucketAndPrefix+hash+suf)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	return skerr.Wrapf(cmd.Run(), "uploading %s to GCS", file)
+	return skerr.Wrap(upload(context.Background(), contents, hash, suf, "x-goog-meta-original-file", file))
+}
+
+func upload(ctx context.Context, contents []byte, hash, suffix, metadataKey, metadataValue string) error {
+	// Upload.
+	fmt.Println("Uploading to GCS...")
+	client, err := storage.NewClient(ctx)
+	if err != nil {
+		return skerr.Wrapf(err, "failed to create storage client")
+	}
+	obj := client.Bucket(gcsBucket).Object(gcsPrefix + hash + suffix)
+	w := obj.NewWriter(ctx)
+	if _, err := w.Write(contents); err != nil {
+		return skerr.Wrapf(err, "failed writing object")
+	}
+	if err := w.Close(); err != nil {
+		return skerr.Wrapf(err, "failed to close writer")
+	}
+	if _, err := obj.Update(ctx, storage.ObjectAttrsToUpdate{
+		Metadata: map[string]string{metadataKey: metadataValue},
+	}); err != nil {
+		return skerr.Wrapf(err, "failed to set object metadata")
+	}
+	return nil
 }
 
 var supportedSuffixes = []string{".tar.gz", ".tgz", ".tar.xz", ".deb", ".zip"}
