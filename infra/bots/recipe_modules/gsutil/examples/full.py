@@ -18,9 +18,9 @@ DEPS = [
 
 def RunSteps(api):
   api.vars.setup()
-  # The gsutil flag --blah is not supported and has been removed.
-  api.gcloud.storage.cp('test file', '/foo/file', 'gs://bar-bucket/file',
-                        extra_args=['--gzip-local-all'])
+  api.gsutil.cp('test file', '/foo/file', 'gs://bar-bucket/file',
+                extra_gsutil_args=['--blah'], extra_args=['-Z'],
+                multithread=True)
 
 def GenTests(api):
   yield (
