@@ -462,20 +462,25 @@ bool AdaptiveGlobalToneMap::parse(const SkData* data) {
                     .fMax = 1.f / 2.f,
                 };
                 break;
-            case 3:
-                mix.fRed = uint16_to_float(
-                    syntax.component_mixing_coefficient[a][0], 0u, 50000u, 0u, 50000.f);
-                mix.fGreen = uint16_to_float(
-                    syntax.component_mixing_coefficient[a][1], 0u, 50000u, 0u, 50000.f);
-                mix.fBlue = uint16_to_float(
-                    syntax.component_mixing_coefficient[a][2], 0u, 50000u, 0u, 50000.f);
-                mix.fMax = uint16_to_float(
-                    syntax.component_mixing_coefficient[a][3], 0u, 50000u, 0u, 50000.f);
-                mix.fMin = uint16_to_float(
-                    syntax.component_mixing_coefficient[a][4], 0u, 50000u, 0u, 50000.f);
-                mix.fComponent = uint16_to_float(
-                    syntax.component_mixing_coefficient[a][5], 0u, 50000u, 0u, 50000.f);
+            case 3: {
+                float p[AgtmSyntax::kNumMixCoefficients];
+                float p_sum = 0.f;
+                for (uint8_t k = 0; k < AgtmSyntax::kNumMixCoefficients; ++k) {
+                    p[k] = uint16_to_float(
+                        syntax.component_mixing_coefficient[a][k], 0u, 50000u, 0u, 50000.f);
+                    p_sum += p[k];
+                }
+                if (p_sum == 0.f) {
+                    return false;
+                }
+                mix.fRed       = p[0] / p_sum;
+                mix.fGreen     = p[1] / p_sum;
+                mix.fBlue      = p[2] / p_sum;
+                mix.fMax       = p[3] / p_sum;
+                mix.fMin       = p[4] / p_sum;
+                mix.fComponent = p[5] / p_sum;
                 break;
+            }
         }
     }
 

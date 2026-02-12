@@ -751,6 +751,37 @@ DEF_TEST(HdrMetadata_Agtm_RoundTripSerialize, r) {
                     }
                 }
             }
+        },
+        {
+            .name = "Mix-Normalization",
+            .agtm = {
+                .fHeadroomAdaptiveToneMap = {{
+                    .fBaselineHdrHeadroom = 1.f,
+                    .fGainApplicationSpacePrimaries = SkNamedPrimaries::kRec2020,
+                    .fAlternateImages = {
+                        {
+                            .fHdrHeadroom = 0.f,
+                            .fColorGainFunction = {
+                                .fComponentMixing = {.fMax = 0.75f, .fComponent = 0.25f},
+                                .fGainCurve = {
+                                    .fControlPoints = {
+                                        {1.f, -1.f, -0.5f},
+                                    }
+                                }
+                            }
+                        }
+                    },
+                }}
+            },
+            .encodings = {
+                {
+                    .is_default_encoding = false,
+                    .data = {
+                        0x00, 0x40, 0x27, 0x10, 0x18, 0x00, 0x00, 0xc5, 0x00, 0x03, 0x00, 0x01,
+                        0x00, 0x03, 0xe8, 0x27, 0x10, 0x31, 0x8f,
+                    }
+                }
+            }
         }
     };
 
