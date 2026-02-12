@@ -59,4 +59,4 @@ class GoldUploadApi(recipe_api.RecipeApi):
     json_file = results_dir.joinpath(DM_JSON)
     # -Z compresses the json file at rest with gzip.
     self.m.gsutil.cp('dm.json', json_file,
-                  summary_dest_path + '/' + DM_JSON, extra_args=['--gzip-local-all'])
+                  summary_dest_path + '/' + DM_JSON, extra_args=['-Z'])
