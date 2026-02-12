@@ -16,7 +16,7 @@ DEPS = [
   'recipe_engine/properties',
   'recipe_engine/step',
   'recipe_engine/time',
-  'gcloud',
+  'gsutil',
   'vars',
 ]
 
@@ -43,8 +43,8 @@ def RunSteps(api):
     # For some reason, glob returns results_dir when it should return nothing.
     files_to_upload = [f for f in files_to_upload if str(f).endswith(ext)]
     if len(files_to_upload) > 0:
-      api.gcloud.storage.cp('%s images' % ext, results_dir.joinpath('*%s' % ext),
-                       image_dest_path)
+      api.gsutil.cp('%s images' % ext, results_dir.joinpath('*%s' % ext),
+                       image_dest_path, multithread=True)
 
   # Compute the directory to upload results to
   now = api.time.utcnow()
@@ -70,14 +70,14 @@ def RunSteps(api):
   json_file = results_dir.joinpath(DM_JSON)
   log_file = results_dir.joinpath(VERBOSE_LOG)
 
-  api.gcloud.storage.cp('dm.json', json_file,
-                summary_dest_path + '/' + DM_JSON, extra_args=['--gzip-local-all'])
+  api.gsutil.cp('dm.json', json_file,
+                summary_dest_path + '/' + DM_JSON, extra_args=['-Z'])
 
   files = api.file.listdir('check for optional verbose.log file',
                            results_dir, test_data=['dm.json', 'verbose.log'])
   if log_file in files:
-    api.gcloud.storage.cp('verbose.log', log_file,
-                  summary_dest_path + '/' + VERBOSE_LOG, extra_args=['--gzip-local-all'])
+    api.gsutil.cp('verbose.log', log_file,
+                  summary_dest_path + '/' + VERBOSE_LOG, extra_args=['-Z'])
 
 
 def GenTests(api):
