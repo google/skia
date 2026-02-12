@@ -31,6 +31,7 @@ class GoldUploadApi(recipe_api.RecipeApi):
         extra_gsutil_args = None
         if self.m.platform.is_mac:
           extra_gsutil_args = ['-o', 'GSUtil:parallel_process_count=1']
+        # gsutil command cannot be translated because of unsupported top-level flag: -o
         self.m.gsutil.cp('%s images' % ext, results_dir.joinpath('*%s' % ext),
                         image_dest_path, extra_gsutil_args=extra_gsutil_args,
                         multithread=True)
@@ -58,5 +59,5 @@ class GoldUploadApi(recipe_api.RecipeApi):
     # Directly upload dm.json if it exists.
     json_file = results_dir.joinpath(DM_JSON)
     # -Z compresses the json file at rest with gzip.
-    self.m.gsutil.cp('dm.json', json_file,
-                  summary_dest_path + '/' + DM_JSON, extra_args=['-Z'])
+    self.m.gcloud.storage.cp('dm.json', json_file,
+                  summary_dest_path + '/' + DM_JSON, extra_args=['--gzip-local-all'])

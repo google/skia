@@ -64,7 +64,7 @@ def create_asset(target_dir):
   # cannot download over the internet using svg_downloader.py.
   for skbug in ['skbug4713', 'skbug6918', 'skbug11244']:
     subprocess.check_call([
-        'gsutil', '-m', 'cp', os.path.join(SVG_GS_BUCKET, skbug, '*'),
+        'gcloud', 'storage', 'cp', os.path.join(SVG_GS_BUCKET, skbug, '*'),
         target_svg_dir
     ])
 
