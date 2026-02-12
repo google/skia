@@ -291,7 +291,7 @@ private:
 
     // NOTE: These are stored by pointer to allow them to be forward declared.
     std::unique_ptr<TaskList> fRootTaskList;
-    // Aggregated one-time uploads that preceed all tasks in the root task list.
+    // Aggregated one-time uploads that precede all tasks in the root task list.
     std::unique_ptr<UploadList> fRootUploads;
 
     std::unique_ptr<DrawBufferManager> fDrawBufferManager;

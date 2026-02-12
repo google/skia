@@ -182,7 +182,7 @@ public:
 
     /** Copy into tags[] (allocated by the caller) the list of table tags in
      *  the font, and return the number. This will be the same as CountTables()
-     *  or 0 if an error occured. If tags is empty, this only returns the count
+     *  or 0 if an error occurred. If tags is empty, this only returns the count
      *  (the same as calling countTables()).
      */
     int readTableTags(SkSpan<SkFontTableTag> tags) const;
@@ -196,7 +196,7 @@ public:
      *  (which for most truetype tables is big endian). If the table tag is
      *  not found, or there is an error copying the data, then 0 is returned.
      *  If this happens, it is possible that some or all of the memory pointed
-     *  to by data may have been written to, even though an error has occured.
+     *  to by data may have been written to, even though an error has occurred.
      *
      *  @param tag  The table tag whose contents are to be copied
      *  @param offset The offset in bytes into the table's contents where the

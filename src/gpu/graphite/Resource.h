@@ -494,7 +494,7 @@ private:
 #endif
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
-    // The remaining calls are meant to be truely private (including virtuals for subclasses)
+    // The remaining calls are meant to be truly private (including virtuals for subclasses)
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     // Overridden to free GPU resources in the backend API.
