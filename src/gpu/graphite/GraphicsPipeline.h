@@ -12,6 +12,9 @@
 #include "src/gpu/graphite/Resource.h"
 #include "src/gpu/graphite/UniquePaintParamsID.h"
 
+#include <optional>
+#include <string>
+
 namespace skgpu::graphite {
 
 class ShaderInfo;
@@ -86,9 +89,9 @@ public:
     uint16_t epoch() const { return fPipelineInfo.fEpoch; }
 
     // GraphicsPipeline compiles can take a while. If the underlying compilation is performed
-    // asynchronously, we may create a GraphicsPipeline object that later "fails" and need to remove
-    // it from the GlobalCache.
-    virtual bool didAsyncCompilationFail() const { return false; }
+    // asynchronously, we may create a GraphicsPipeline object that later "fails".
+    // If the compilation failed, this will return an error message.
+    virtual std::optional<std::string> didAsyncCompilationFail() const { return std::nullopt; }
 
 protected:
     // GraphicsPipeline labels are often provided to the description of what needs to be compiled,

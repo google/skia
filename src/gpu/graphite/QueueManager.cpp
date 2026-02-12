@@ -190,18 +190,25 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
         // If the commands failed, iterate over all the used pipelines to see if their async
         // compilation was the reason for failure. Clients that manage pipeline disk caches may
         // want to handle the failure differently than when any other GPU command failed.
+        // We will only report the 1st pipeline creation's failure message.
+        std::string failureMsg;
         const bool validPipelines = info.fRecording->priv().taskList()->visitPipelines(
-                [](const GraphicsPipeline* pipeline) {
-                    return !pipeline->didAsyncCompilationFail();
+                [&failureMsg](const GraphicsPipeline* pipeline) {
+                    if (auto failure = pipeline->didAsyncCompilationFail()) {
+                        failureMsg = *failure;
+                        return false;
+                    }
+                    return true;
                 });
 
         // We are already definitely going to fail, it's just a matter of which status to return
         RETURN_FAIL_IF(validPipelines,
                        InsertStatus::kAddCommandsFailed,
                        "Adding Recording commands to the CommandBuffer has failed");
-        RETURN_FAIL_IF(true,
-                       InsertStatus::kAsyncShaderCompilesFailed,
-                       "Async pipeline compiles failed, unable to add Recording commands");
+        RETURN_FAIL_IF(
+                true,
+                InsertStatus(InsertStatus::kAsyncShaderCompilesFailed, std::move(failureMsg)),
+                "Async pipeline compiles failed, unable to add Recording commands");
     }
 
     SIMULATE_FAIL(InsertStatus::kAddCommandsFailed);

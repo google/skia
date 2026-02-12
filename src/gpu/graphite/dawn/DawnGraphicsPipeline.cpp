@@ -253,6 +253,7 @@ struct AsyncPipelineCreationBase {
     AsyncPipelineCreationBase(const UniqueKey& key) : fKey(key) {}
 
     wgpu::RenderPipeline fRenderPipeline;
+    std::string fErrorMessage;
     std::atomic<bool> fFinished = false;
     UniqueKey fKey; // for logging the wait to resolve a Pipeline future in dawnRenderPipeline
 #if SK_HISTOGRAMS_ENABLED
@@ -699,10 +700,10 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
                                                          wgpu::RenderPipeline pipeline,
                                                          wgpu::StringView message) {
                     if (status != wgpu::CreatePipelineAsyncStatus::Success) {
-                        SKGPU_LOG_E("Failed to create render pipeline (%d): %.*s",
+                        asyncCreationPtr->fErrorMessage = std::string(message.data, message.length);
+                        SKGPU_LOG_E("Failed to create render pipeline (%d): %s",
                                     static_cast<int>(status),
-                                    static_cast<int>(message.length),
-                                    message.data);
+                                    asyncCreationPtr->fErrorMessage.c_str());
                         // invalidate AsyncPipelineCreation pointer to signal that this pipeline has
                         // failed.
                         asyncCreationPtr->fRenderPipeline = nullptr;
@@ -780,10 +781,15 @@ void DawnGraphicsPipeline::freeGpuData() {
     fAsyncPipelineCreation = nullptr;
 }
 
-bool DawnGraphicsPipeline::didAsyncCompilationFail() const {
-    return fAsyncPipelineCreation &&
-           fAsyncPipelineCreation->fFinished &&
-           !fAsyncPipelineCreation->fRenderPipeline;
+std::optional<std::string> DawnGraphicsPipeline::didAsyncCompilationFail() const {
+    if (fAsyncPipelineCreation &&
+        fAsyncPipelineCreation->fFinished &&
+        !fAsyncPipelineCreation->fRenderPipeline) {
+        return fAsyncPipelineCreation->fErrorMessage.empty()
+                       ? "Unknown error"
+                       : fAsyncPipelineCreation->fErrorMessage;
+    }
+    return std::nullopt;
 }
 
 const wgpu::RenderPipeline& DawnGraphicsPipeline::dawnRenderPipeline() const {

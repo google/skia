@@ -14,6 +14,7 @@
 #include "include/gpu/GpuTypes.h"
 
 #include <memory>
+#include <string>
 
 class SkSurface;
 
@@ -60,12 +61,15 @@ public:
         kOutOfOrderRecording,
     };
 
-    constexpr InsertStatus() : fValue(kSuccess) {}
-    /*implicit*/ constexpr InsertStatus(V v) : fValue(v) {}
+    InsertStatus() : fValue(kSuccess) {}
+    /*implicit*/ InsertStatus(V v) : fValue(v) {}
+    InsertStatus(V v, std::string message) : fValue(v), fMessage(std::move(message)) {}
 
     operator InsertStatus::V() const {
         return fValue;
     }
+
+    const std::string& message() const { return fMessage; }
 
     // Assist migration from old bool return value of insertRecording; kSuccess is true,
     // all other error statuses are false.
@@ -78,6 +82,7 @@ public:
 
 private:
     V fValue;
+    std::string fMessage;
 };
 
 /**
