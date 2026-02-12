@@ -20,10 +20,10 @@
   },
   {
     "cmd": [
-      "gsutil",
+      "gcloud",
+      "storage",
       "cp",
-      "-z",
-      "json",
+      "--gzip-local=json",
       "[START_DIR]/perf/nanobench_abc123.json",
       "gs://skia-perf/trybot/nano-json-v1/2012/05/14/12/Perf-Debian10-Clang-GCE-CPU-AVX2-x86_64-All-Debug/456789/12/nanobench_abc123.json"
     ],

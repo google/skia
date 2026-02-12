@@ -5,12 +5,12 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# This tool updates the OSS-Fuzz corpus using Google Cloud's 'gsutil' tool.
+# This tool updates the OSS-Fuzz corpus using Google Cloud's 'gcloud storage' tool.
 
 # You will need to be given access to the Google Storage fuzzer repo (at
 # gs://skia-fuzzer/oss-fuzz/) by the Skia Infra team.
 
-# You will also need to set up credentials for gsutil on your machine by running:
+# You will also need to set up credentials for gcloud on your machine by running:
 #   gcloud auth login
 
 import os
@@ -45,15 +45,9 @@ with tempfile.NamedTemporaryFile(suffix='primary.zip', delete=False, mode='w') a
     try:
         # Upload our zip file to cloud storage.
         output = subprocess.check_output(
-                ['gsutil', 'cp', pathToZip.name,
+                ['gcloud', 'storage', 'cp', pathToZip.name,
                  'gs://skia-fuzzer/oss-fuzz/sksl_seed_corpus.zip'],
                  stderr=subprocess.STDOUT)
-
-        # Make the uploaded file world-readable.
-        output = subprocess.check_output(
-                ['gsutil', 'acl', 'ch', '-u', 'AllUsers:R',
-                 'gs://skia-fuzzer/oss-fuzz/sksl_seed_corpus.zip'],
-                stderr=subprocess.STDOUT)
 
     except subprocess.CalledProcessError as err:
         # Report the error.
