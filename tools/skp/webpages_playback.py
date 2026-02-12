@@ -508,7 +508,7 @@ class GoogleStorageDataStore(DataStore):
   def does_storage_object_exist(self, name):
     try:
       output = subprocess.check_output([
-          'gsutil', 'ls', '/'.join((self._url, name))])
+          'gcloud', 'storage', 'ls', '/'.join((self._url, name))])
     except subprocess.CalledProcessError:
       return False
     if len(output.splitlines()) != 1:
@@ -516,15 +516,15 @@ class GoogleStorageDataStore(DataStore):
     return True
 
   def delete_path(self, path):
-    subprocess.check_call(['gsutil', 'rm', '-r', '/'.join((self._url, path))])
+    subprocess.check_call(['gcloud', 'storage', 'rm', '--recursive', '/'.join((self._url, path))])
 
   def download_file(self, name, local_path):
     subprocess.check_call([
-        'gsutil', 'cp', '/'.join((self._url, name)), local_path])
+        'gcloud', 'storage', 'cp', '/'.join((self._url, name)), local_path])
 
   def upload_dir_contents(self, source_dir, dest_dir):
     subprocess.check_call([
-        'gsutil', 'cp', '-r', source_dir, '/'.join((self._url, dest_dir))])
+        'gcloud', 'storage', 'cp', '--recursive', source_dir, '/'.join((self._url, dest_dir))])
 
 
 class LocalFileSystemDataStore(DataStore):

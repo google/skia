@@ -167,7 +167,7 @@ def create_asset(chrome_src_path, browser_executable, target_dir,
   new_skps_dir = tempfile.mkdtemp()
   print('Copying non-generated SKPs from private GCS bucket...')
   subprocess.check_call([
-    'gsutil', 'cp', os.path.join(PRIVATE_SKPS_GS, '*'), old_skps_dir])
+    'gcloud', 'storage', 'cp', os.path.join(PRIVATE_SKPS_GS, '*'), old_skps_dir])
   print('Updating non-generated SKP versions')
   subprocess.check_call([
       dm_path,
