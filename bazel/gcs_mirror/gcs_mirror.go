@@ -138,11 +138,12 @@ func processOneDownload(workDir, url, hash, addSuffix string, noSuffix bool) err
 		return skerr.Wrapf(err, "writing %d bytes to %s", len(contents), tmpFile)
 	}
 	// Upload using gsutil (which is assumed to be properly authed)
-	cmd := exec.Command("gsutil",
+	cmd := exec.Command("gcloud", "storage",
 		// Add custom metadata so we can figure out what the unrecognizable file name was created
 		// from. Custom metadata values must start with x-goog-meta-
-		"-h", "x-goog-meta-original-url:"+url,
-		"cp", tmpFile, gcsBucketAndPrefix+hash+suf)
+		"cp",
+		"--custom-metadata=x-goog-meta-original-file="+url,
+		tmpFile, gcsBucketAndPrefix+hash+suf)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return skerr.Wrapf(cmd.Run(), "uploading %s to GCS", tmpFile)
@@ -168,11 +169,12 @@ func processOneLocalFile(file, hash string) error {
 	}
 	fmt.Printf("Uploading %s to GCS...\n", file)
 	// Upload using gsutil (which is assumed to be properly authed)
-	cmd := exec.Command("gsutil",
+	cmd := exec.Command("gcloud", "storage",
 		// Add custom metadata so we can figure out what the unrecognizable file name was created
 		// from. Custom metadata values must start with x-goog-meta-
-		"-h", "x-goog-meta-original-file:"+file,
-		"cp", file, gcsBucketAndPrefix+hash+suf)
+		"cp",
+		"--custom-metadata=x-goog-meta-original-file="+file,
+		file, gcsBucketAndPrefix+hash+suf)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return skerr.Wrapf(cmd.Run(), "uploading %s to GCS", file)
