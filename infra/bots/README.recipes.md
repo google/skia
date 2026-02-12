@@ -212,7 +212,7 @@ Args:
   extra_args: optional list of args to be passed to gsutil cp. e.g. [-Z]
     asks all files be compressed with gzip after upload and before download.
   multi_thread: if the -m argument should be used to copy multiple items
-    at once (e.g. gsutil -m cp foo* gs://bar/dir)
+    at once (e.g. gcloud storage cp foo* gs://bar/dir)
 
 If the operation fails, it will be retried multiple times.
 ### *recipe_modules* / [infra](/infra/bots/recipe_modules/infra)
