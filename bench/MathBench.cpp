@@ -14,16 +14,6 @@
 #include "src/base/SkRandom.h"
 #include "src/core/SkColorData.h"
 
-static float sk_fsel(float pred, float result_ge, float result_lt) {
-    return pred >= 0 ? result_ge : result_lt;
-}
-
-static float fast_floor(float x) {
-//    float big = sk_fsel(x, 0x1.0p+23, -0x1.0p+23);
-    float big = sk_fsel(x, (float)(1 << 23), -(float)(1 << 23));
-    return (x + big) - big;
-}
-
 class MathBench : public Benchmark {
     enum {
         kBuffer = 100,
@@ -99,20 +89,6 @@ private:
     using INHERITED = MathBench;
 };
 
-class SkRSqrtMathBench : public MathBench {
-public:
-    SkRSqrtMathBench() : INHERITED("sk_float_rsqrt") {}
-protected:
-    void performTest(float* SK_RESTRICT dst, const float* SK_RESTRICT src, int count) override {
-        for (int i = 0; i < count; ++i) {
-            dst[i] = sk_float_rsqrt(src[i]);
-        }
-    }
-private:
-    using INHERITED = MathBench;
-};
-
-
 class SlowISqrtMathBench : public MathBench {
 public:
     SlowISqrtMathBench() : INHERITED("slowIsqrt") {}
@@ -137,31 +113,6 @@ protected:
     }
 private:
     using INHERITED = MathBench;
-};
-
-static inline uint32_t QMul64(uint32_t value, U8CPU alpha) {
-    SkASSERT((uint8_t)alpha == alpha);
-    const uint32_t mask = 0xFF00FF;
-
-    uint64_t tmp = value;
-    tmp = (tmp & mask) | ((tmp & ~mask) << 24);
-    tmp *= alpha;
-    return (uint32_t) (((tmp >> 8) & mask) | ((tmp >> 32) & ~mask));
-}
-
-class QMul64Bench : public MathBenchU32 {
-public:
-    QMul64Bench() : INHERITED("qmul64") {}
-protected:
-    void performITest(uint32_t* SK_RESTRICT dst,
-                      const uint32_t* SK_RESTRICT src,
-                      int count) override {
-        for (int i = 0; i < count; ++i) {
-            dst[i] = QMul64(src[i], (uint8_t)i);
-        }
-    }
-private:
-    using INHERITED = MathBenchU32;
 };
 
 class QMul32Bench : public MathBenchU32 {
@@ -301,67 +252,6 @@ protected:
 
 private:
     IsFiniteProc    fProc;
-    const char*     fName;
-
-    using INHERITED = Benchmark;
-};
-
-class FloorBench : public Benchmark {
-    enum {
-        ARRAY = 1000,
-    };
-    float fData[ARRAY];
-    bool fFast;
-public:
-
-    FloorBench(bool fast) : fFast(fast) {
-        SkRandom rand;
-
-        for (int i = 0; i < ARRAY; ++i) {
-            fData[i] = rand.nextSScalar1();
-        }
-
-        if (fast) {
-            fName = "floor_fast";
-        } else {
-            fName = "floor_std";
-        }
-    }
-
-    bool isSuitableFor(Backend backend) override {
-        return backend == Backend::kNonRendering;
-    }
-
-    virtual void process(float) {}
-
-protected:
-    void onDraw(int loops, SkCanvas*) override {
-        SkRandom rand;
-        float accum = 0;
-        const float* data = fData;
-
-        if (fFast) {
-            for (int j = 0; j < loops; ++j) {
-                for (int i = 0; i < ARRAY; ++i) {
-                    accum += fast_floor(data[i]);
-                }
-                this->process(accum);
-            }
-        } else {
-            for (int j = 0; j < loops; ++j) {
-                for (int i = 0; i < ARRAY; ++i) {
-                    accum += std::floor(data[i]);
-                }
-                this->process(accum);
-            }
-        }
-    }
-
-    const char* onGetName() override {
-        return fName;
-    }
-
-private:
     const char*     fName;
 
     using INHERITED = Benchmark;
@@ -581,10 +471,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 DEF_BENCH( return new NoOpMathBench(); )
-DEF_BENCH( return new SkRSqrtMathBench(); )
 DEF_BENCH( return new SlowISqrtMathBench(); )
 DEF_BENCH( return new FastISqrtMathBench(); )
-DEF_BENCH( return new QMul64Bench(); )
 DEF_BENCH( return new QMul32Bench(); )
 
 DEF_BENCH( return new IsFiniteBench(-1); )
@@ -592,9 +480,6 @@ DEF_BENCH( return new IsFiniteBench(0); )
 DEF_BENCH( return new IsFiniteBench(1); )
 DEF_BENCH( return new IsFiniteBench(2); )
 DEF_BENCH( return new IsFiniteBench(3); )
-
-DEF_BENCH( return new FloorBench(false); )
-DEF_BENCH( return new FloorBench(true); )
 
 DEF_BENCH( return new CLZBench(false); )
 DEF_BENCH( return new CLZBench(true); )
