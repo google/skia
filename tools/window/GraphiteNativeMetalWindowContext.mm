@@ -60,15 +60,15 @@ void GraphiteMetalWindowContext::initializeContext() {
     backendContext.fQueue.retain((CFTypeRef)fQueue.get());
 
     SkASSERT(fDisplayParams->graphiteTestOptions());
-    skwindow::GraphiteTestOptions opts = *fDisplayParams->graphiteTestOptions();
+    skiatest::graphite::TestOptions opts = *fDisplayParams->graphiteTestOptions();
 
-    opts.fTestOptions.fContextOptions.fRequireOrderedRecordings = true;
+    opts.fContextOptions.fRequireOrderedRecordings = true;
     // Needed to make synchronous readPixels work:
-    opts.fPriv.fStoreContextRefInRecorder = true;
+    opts.fOptionsPriv.fStoreContextRefInRecorder = true;
     fDisplayParams =
             GraphiteDisplayParamsBuilder(fDisplayParams.get()).graphiteTestOptions(opts).detach();
     fGraphiteContext = skgpu::graphite::ContextFactory::MakeMetal(
-            backendContext, fDisplayParams->graphiteTestOptions()->fTestOptions.fContextOptions);
+            backendContext, fDisplayParams->graphiteTestOptions()->fContextOptions);
     fGraphiteRecorder = fGraphiteContext->makeRecorder(ToolUtils::CreateTestingRecorderOptions());
     // TODO
     //    if (!fGraphiteContext && fDisplayParams->msaaSampleCount() > 1) {

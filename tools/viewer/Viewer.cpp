@@ -119,6 +119,7 @@
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/RendererProvider.h"
+#include "tools/graphite/TestOptions.h"
 #include "tools/window/GraphiteDisplayParams.h"
 #endif
 
@@ -691,12 +692,11 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 #endif
 
 #if defined(SK_GRAPHITE)
-    skwindow::GraphiteTestOptions gto;
-    CommonFlags::SetTestOptions(&gto.fTestOptions);
-    gto.fPriv.fPathRendererStrategy = get_path_renderer_strategy_type(FLAGS_pathstrategy[0]);
+    skiatest::graphite::TestOptions gto;
+    CommonFlags::SetTestOptions(&gto);
+    gto.fOptionsPriv.fPathRendererStrategy = get_path_renderer_strategy_type(FLAGS_pathstrategy[0]);
     if (FLAGS_msaa <= 0) {
-        gto.fTestOptions.fContextOptions.fInternalMultisampleCount =
-                skgpu::graphite::SampleCount::k1;
+        gto.fContextOptions.fInternalMultisampleCount = skgpu::graphite::SampleCount::k1;
     }
     paramsBuilder.graphiteTestOptions(gto);
 #endif
@@ -1461,7 +1461,7 @@ void Viewer::updateTitle() {
 #if defined(SK_GRAPHITE)
         auto graphiteOptions = fWindow->getRequestedDisplayParams()->graphiteTestOptions();
         SkASSERT(graphiteOptions);
-        auto strategy = graphiteOptions->fPriv.fPathRendererStrategy;
+        auto strategy = graphiteOptions->fOptionsPriv.fPathRendererStrategy;
         if (strategy.has_value()) {
             title.appendf(" [Path renderer strategy: %s]",
                           get_path_renderer_strategy_string(strategy));
@@ -2532,14 +2532,14 @@ void Viewer::drawImGui() {
                     if (is_graphite_backend_type(fBackendType) && gctx) {
                         using skgpu::graphite::PathRendererStrategy;
                         SkASSERT(params->graphiteTestOptions());
-                        skwindow::GraphiteTestOptions opts = *params->graphiteTestOptions();
-                        auto prevPrs = opts.fPriv.fPathRendererStrategy;
+                        skiatest::graphite::TestOptions opts = *params->graphiteTestOptions();
+                        auto prevPrs = opts.fOptionsPriv.fPathRendererStrategy;
                         auto prsButton =
                                 [&](std::optional<skgpu::graphite::PathRendererStrategy> s) {
                                     if (ImGui::RadioButton(get_path_renderer_strategy_string(s),
                                                            prevPrs == s)) {
-                                        if (s != opts.fPriv.fPathRendererStrategy) {
-                                            opts.fPriv.fPathRendererStrategy = s;
+                                        if (s != opts.fOptionsPriv.fPathRendererStrategy) {
+                                            opts.fOptionsPriv.fPathRendererStrategy = s;
                                             newParamsBuilder.graphiteTestOptions(opts);
                                             displayParamsChanged = true;
                                         }

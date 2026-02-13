@@ -14,62 +14,42 @@
 
 namespace skwindow {
 
-struct GraphiteTestOptions {
-    GraphiteTestOptions() { fTestOptions.fContextOptions.fOptionsPriv = &fPriv; }
-
-    GraphiteTestOptions(const GraphiteTestOptions& other)
-            : fTestOptions(other.fTestOptions), fPriv(other.fPriv) {
-        fTestOptions.fContextOptions.fOptionsPriv = &fPriv;
-    }
-
-    GraphiteTestOptions& operator=(const GraphiteTestOptions& other) {
-        fTestOptions = other.fTestOptions;
-        fPriv = other.fPriv;
-        fTestOptions.fContextOptions.fOptionsPriv = &fPriv;
-        return *this;
-    }
-
-    skiatest::graphite::TestOptions fTestOptions;
-    skgpu::graphite::ContextOptionsPriv fPriv;
-};
-
 class GraphiteDisplayParams : public DisplayParams {
 public:
-    GraphiteDisplayParams(GraphiteTestOptions opts) : DisplayParams(), fGraphiteTestOptions(opts) {}
+    GraphiteDisplayParams(const skiatest::graphite::TestOptions& opts)
+            : DisplayParams(), fGraphiteTestOptions(opts) {}
 
-    GraphiteDisplayParams(const DisplayParams* other) : DisplayParams(other) {
-        if (auto existing = other->graphiteTestOptions()) {
-            fGraphiteTestOptions = *existing;
-        } else {
-            fGraphiteTestOptions = GraphiteTestOptions();
-        }
-    }
+    GraphiteDisplayParams(const DisplayParams* other)
+            : DisplayParams(other)
+            , fGraphiteTestOptions(other->graphiteTestOptions()
+                                           ? *other->graphiteTestOptions()
+                                           : skiatest::graphite::TestOptions()) {}
 
     std::unique_ptr<DisplayParams> clone() const override {
         return std::make_unique<GraphiteDisplayParams>(*this);
     }
 
-    const GraphiteTestOptions* graphiteTestOptions() const override {
+    const skiatest::graphite::TestOptions* graphiteTestOptions() const override {
         return &fGraphiteTestOptions;
     }
 
 private:
     friend class GraphiteDisplayParamsBuilder;
 
-    GraphiteTestOptions fGraphiteTestOptions;
+    skiatest::graphite::TestOptions fGraphiteTestOptions;
 };
 
 class GraphiteDisplayParamsBuilder : public DisplayParamsBuilder {
 public:
     GraphiteDisplayParamsBuilder()
-            : DisplayParamsBuilder(std::make_unique<GraphiteDisplayParams>(GraphiteTestOptions())) {
-    }
+            : DisplayParamsBuilder(
+                      std::make_unique<GraphiteDisplayParams>(skiatest::graphite::TestOptions())) {}
 
     GraphiteDisplayParamsBuilder(const DisplayParams* other)
             : DisplayParamsBuilder(std::make_unique<GraphiteDisplayParams>(other)) {}
 
     GraphiteDisplayParamsBuilder& graphiteTestOptions(
-            const GraphiteTestOptions& graphiteTestOptions) {
+            const skiatest::graphite::TestOptions& graphiteTestOptions) {
         SkASSERT_RELEASE(fDisplayParams);
         reinterpret_cast<GraphiteDisplayParams*>(fDisplayParams.get())->fGraphiteTestOptions =
                 graphiteTestOptions;

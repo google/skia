@@ -61,15 +61,15 @@ void GraphiteDawnWindowContext::initializeContext(int width, int height) {
     backendContext.fQueue = fDevice.GetQueue();
 
     SkASSERT(fDisplayParams->graphiteTestOptions());
-    skwindow::GraphiteTestOptions opts = *fDisplayParams->graphiteTestOptions();
+    skiatest::graphite::TestOptions opts = *fDisplayParams->graphiteTestOptions();
 
     // Needed to make synchronous readPixels work:
-    opts.fPriv.fStoreContextRefInRecorder = true;
+    opts.fOptionsPriv.fStoreContextRefInRecorder = true;
     fDisplayParams =
             GraphiteDisplayParamsBuilder(fDisplayParams.get()).graphiteTestOptions(opts).detach();
 
     fGraphiteContext = skgpu::graphite::ContextFactory::MakeDawn(backendContext,
-                                                                 opts.fTestOptions.fContextOptions);
+                                                                 opts.fContextOptions);
     if (!fGraphiteContext) {
         SkASSERT(false);
         return;
@@ -175,7 +175,7 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
 
     wgpu::DawnTogglesDescriptor deviceTogglesDesc;
 
-    if (fDisplayParams->graphiteTestOptions()->fTestOptions.fDisableTintSymbolRenaming) {
+    if (fDisplayParams->graphiteTestOptions()->fDisableTintSymbolRenaming) {
         static constexpr const char* kOptionalDeviceToggles[] = {
             "disable_symbol_renaming",
         };
