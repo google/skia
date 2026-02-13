@@ -30,7 +30,6 @@ rust_static_library(
     name = "ffi_rs",
     srcs = [":rs_srcs"],
     crate_root = "FFI.rs",
-    edition = "2021",
     visibility = [
         "//experimental/rust_bmp:__subpackages__",
     ],

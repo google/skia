@@ -96,7 +96,7 @@ rust.toolchain(
     versions = [
         # supported versions from https://github.com/bazelbuild/rules_rust/blob/6bdae371374a3740e97370bd9379da5b3ecab389/util/fetch_shas/fetch_shas_VERSIONS.txt
         # The rust rules validate a toolchain by sha256 hash, as listed in https://github.com/bazelbuild/rules_rust/blob/6bdae371374a3740e97370bd9379da5b3ecab389/rust/known_shas.bzl
-        "1.86.0",
+        "1.89.0",
     ],
 )
 
@@ -141,8 +141,11 @@ crate.spec(
 crate.spec(
     default_features = False,
     features = ["bmp"],
+    # Using image crate with streaming/resumable BMP decoder API.
+    # rows_decoded() returns RowsDecoded enum for orientation detection.
+    git = "https://github.com/image-rs/image.git",
     package = "image",
-    version = "=0.25.9",
+    rev = "5d0418d0eff747c829d52738c092581312f775c9",
 )
 crate.spec(
     package = "moxcms",

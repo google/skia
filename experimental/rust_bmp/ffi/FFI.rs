@@ -37,6 +37,16 @@ mod ffi {
         Unpremul = 1,
     }
 
+    /// Information about decoded rows.
+    /// Returned by get_next_rows() to tell C++ where to place the decoded data.
+    struct DecodedRowsInfo {
+        /// The destination row index where the buffer should start being copied.
+        /// Copy src row i to dst row (dst_row_start + i).
+        dst_row_start: u32,
+        /// The number of valid rows in the buffer.
+        row_count: u32,
+    }
+
     unsafe extern "C++" {
         include!("rust/common/SkStreamAdapter.h");
 
@@ -58,8 +68,38 @@ mod ffi {
         fn height(self: &Reader) -> u32;
         fn color(self: &Reader) -> BmpColor;
         fn alpha(self: &Reader) -> BmpAlpha;
-        fn next_row(self: &mut Reader, buffer: &mut [u8]) -> DecodingResult;
+        fn metadata_loaded(self: &Reader) -> bool;
+
+        /// Attempt to read and parse BMP header metadata from the stream.
+        /// Returns Success if metadata was loaded, IncompleteInput if more data is needed.
+        fn read_metadata(self: &mut Reader) -> DecodingResult;
+
+        /// Attempt to read all image pixel data from the stream into internal buffer.
+        /// Returns Success if all data was read, IncompleteInput if more data is needed.
+        /// After success, use get_image_data() to access the decoded pixels.
+        fn read_image_data(self: &mut Reader) -> DecodingResult;
+
+        /// Check if all image data has been loaded into the internal buffer.
+        fn image_data_loaded(self: &Reader) -> bool;
+
+        /// Get info about NEW rows since last call.
+        /// Returns DecodedRowsInfo with row placement info and populates the buffer
+        /// output parameter with the pixel data for the new rows.
+        ///
+        /// # Safety
+        /// CXX requires `unsafe` for functions with explicit lifetimes. The caller
+        /// must ensure the returned buffer is not used after `self` is mutated or dropped.
+        unsafe fn get_next_rows<'a>(self: &'a mut Reader, buffer: &mut &'a [u8])
+            -> DecodedRowsInfo;
+
+        /// Get the number of bytes per row.
+        fn row_bytes(self: &Reader) -> u32;
+
+        /// Reset internal state for re-decoding (clears buffered image data).
         fn reset_decode_state(self: &mut Reader);
+
+        // ICC profile support
+        fn icc_profile(self: &mut Reader) -> Vec<u8>;
     }
 }
 
@@ -68,7 +108,6 @@ pub use ffi::*;
 #[derive(Debug)]
 enum BmpError {
     InsufficientData,
-    InvalidData,
     UnsupportedFeature,
     InvalidHeader,
     IoError,
@@ -88,7 +127,15 @@ impl From<image::ImageError> for BmpError {
             }
             image::ImageError::Limits(_) => BmpError::UnsupportedFeature,
             image::ImageError::Unsupported(_) => BmpError::UnsupportedFeature,
-            image::ImageError::IoError(_) => BmpError::IoError,
+            image::ImageError::IoError(io_err) => {
+                // Check if the underlying IO error is UnexpectedEof, which indicates
+                // insufficient data in streaming mode
+                if io_err.kind() == std::io::ErrorKind::UnexpectedEof {
+                    BmpError::InsufficientData
+                } else {
+                    BmpError::IoError
+                }
+            }
         }
     }
 }
@@ -119,7 +166,6 @@ impl ResultOfReader {
             Err(BmpError::InvalidHeader) => DecodingResult::FormatError,
             Err(BmpError::InsufficientData) => DecodingResult::IncompleteInput,
             Err(BmpError::UnsupportedFeature) => DecodingResult::UnsupportedFeature,
-            Err(BmpError::InvalidData) => DecodingResult::FormatError,
             Err(BmpError::IoError) => DecodingResult::OtherError,
             Err(BmpError::FormatError) => DecodingResult::FormatError,
         }
@@ -133,72 +179,48 @@ impl ResultOfReader {
     }
 }
 
-/// Image-rs BMP decoder doesn't support true row-by-row streaming, so this
-/// Reader decodes the entire image upfront and provides row access via next_row().
+/// BMP decoder with resumable/streaming support.
+/// Both read_metadata() and read_image_data() can be retried on IncompleteInput.
 pub struct Reader {
-    pixels: Vec<u8>,
+    decoder: Option<
+        image::codecs::bmp::BmpDecoder<std::io::BufReader<cxx::UniquePtr<ffi::SkStreamAdapter>>>,
+    >,
+    metadata_loaded: bool,
     width: u32,
     height: u32,
     color: BmpColor,
     alpha: BmpAlpha,
     bytes_per_pixel: u32,
-    current_row: u32,
+    /// Buffered decoded image data (all rows)
+    image_data: Vec<u8>,
+    image_data_loaded: bool,
+    last_consumed_row_count: u32,
 }
-
 impl Reader {
-    fn new(mut input: cxx::UniquePtr<ffi::SkStreamAdapter>) -> Result<Self, BmpError> {
-        use std::io::{Cursor, Read};
+    fn new(input: cxx::UniquePtr<ffi::SkStreamAdapter>) -> Result<Self, BmpError> {
+        use std::io::BufReader;
 
-        // TODO(crbug.com/452666425): Support incremental decoding for incomplete data. Currently we
-        // read the entire stream upfront because image-rs BmpDecoder requires
-        // seekable input (std::io::Seek). This means if the stream has incomplete
-        // data, we fail during MakeFromStream and the caller must retry from scratch.
-        // For better streaming: buffer data incrementally and retry BmpDecoder::new()
-        // when more data arrives (similar to SkPngRustCodec).
+        // Use a larger buffer (64KB) to reduce syscall overhead for large images.
+        // Default BufReader uses 8KB which causes many small reads.
+        const BUFFER_SIZE: usize = 64 * 1024;
+        let buffered = BufReader::with_capacity(BUFFER_SIZE, input);
 
-        let mut data = Vec::new();
-        input
-            .as_mut()
-            .expect("input should not be null")
-            .read_to_end(&mut data)
-            .map_err(|_| BmpError::InsufficientData)?;
-
-        let mut cursor = Cursor::new(&data);
-        let decoder = image::codecs::bmp::BmpDecoder::new(&mut cursor)
-            .map_err(|_| BmpError::InvalidHeader)?;
-
-        let (width, height) = image::ImageDecoder::dimensions(&decoder);
-        let image_color_type = image::ImageDecoder::color_type(&decoder);
-
-        // image-rs converts BGR→RGB internally. BmpColor also supports BGR for
-        // future decoders that might preserve native order.
-        let (color, alpha, bytes_per_pixel) = match image_color_type {
-            image::ColorType::Rgb8 => (BmpColor::RGB, BmpAlpha::Opaque, 3),
-            image::ColorType::Rgba8 => (BmpColor::RGBA, BmpAlpha::Unpremul, 4),
-            _ => {
-                return Err(BmpError::UnsupportedFeature);
-            }
-        };
-
-        // TODO(crbug.com/452666425): Extract ICC profile for color-managed decoding. BMP files can
-        // embed ICC profiles in BITMAPV5HEADER format at offset 0x7A, but
-        // image-rs doesn't expose this. Once rust/icc module lands, parse the
-        // BMP header manually to extract profile bytes, validate with
-        // rust/icc::parse_icc_profile(), and pass to C++ via ResultOfReader
-        // for SkEncodedInfo integration.
-
-        let total_bytes = image::ImageDecoder::total_bytes(&decoder) as usize;
-        let mut pixels = vec![0u8; total_bytes];
-        image::ImageDecoder::read_image(decoder, &mut pixels).map_err(|_| BmpError::InvalidData)?;
+        // new_resumable() creates the decoder without reading any data from the stream.
+        // The caller must call read_metadata() to read the BMP headers.
+        // This constructor is infallible - it just wraps the reader.
+        let decoder = image::codecs::bmp::BmpDecoder::new_resumable(buffered);
 
         Ok(Reader {
-            pixels,
-            width,
-            height,
-            color,
-            alpha,
-            bytes_per_pixel,
-            current_row: 0,
+            decoder: Some(decoder),
+            metadata_loaded: false,
+            width: 0,
+            height: 0,
+            color: BmpColor::RGB,
+            alpha: BmpAlpha::Opaque,
+            bytes_per_pixel: 0,
+            image_data: Vec::new(),
+            image_data_loaded: false,
+            last_consumed_row_count: 0,
         })
     }
 
@@ -218,26 +240,173 @@ impl Reader {
         self.alpha
     }
 
-    pub fn reset_decode_state(&mut self) {
-        self.current_row = 0;
+    pub fn metadata_loaded(&self) -> bool {
+        self.metadata_loaded
     }
 
-    pub fn next_row(&mut self, buffer: &mut [u8]) -> DecodingResult {
-        if self.current_row >= self.height {
+    pub fn read_metadata(&mut self) -> DecodingResult {
+        if self.metadata_loaded {
             return DecodingResult::Success;
         }
 
-        let row_bytes = (self.width * self.bytes_per_pixel) as usize;
+        let decoder = match &mut self.decoder {
+            Some(d) => d,
+            None => return DecodingResult::FormatError,
+        };
 
-        if buffer.len() < row_bytes {
+        match decoder.read_metadata() {
+            Ok(()) => {}
+            Err(e) => {
+                return match BmpError::from(e) {
+                    BmpError::InsufficientData => DecodingResult::IncompleteInput,
+                    BmpError::UnsupportedFeature => DecodingResult::UnsupportedFeature,
+                    _ => DecodingResult::FormatError,
+                };
+            }
+        }
+
+        use image::ImageDecoder;
+        let (width, height) = decoder.dimensions();
+        let image_color_type = decoder.color_type();
+
+        let (color, alpha, bytes_per_pixel) = match image_color_type {
+            image::ColorType::Rgb8 => (BmpColor::RGB, BmpAlpha::Opaque, 3),
+            image::ColorType::Rgba8 => (BmpColor::RGBA, BmpAlpha::Unpremul, 4),
+            _ => {
+                return DecodingResult::UnsupportedFeature;
+            }
+        };
+
+        self.width = width;
+        self.height = height;
+        self.color = color;
+        self.alpha = alpha;
+        self.bytes_per_pixel = bytes_per_pixel;
+        self.metadata_loaded = true;
+
+        DecodingResult::Success
+    }
+
+    pub fn read_image_data(&mut self) -> DecodingResult {
+        if self.image_data_loaded {
+            return DecodingResult::Success;
+        }
+
+        if !self.metadata_loaded {
             return DecodingResult::ParameterError;
         }
 
-        let row_offset = (self.current_row as usize) * row_bytes;
-        buffer[..row_bytes].copy_from_slice(&self.pixels[row_offset..row_offset + row_bytes]);
+        let row_bytes = self.row_bytes() as usize;
+        let total_bytes = row_bytes * (self.height as usize);
 
-        self.current_row += 1;
-        DecodingResult::Success
+        let decoder = match self.decoder.as_mut() {
+            Some(d) => d,
+            None => return DecodingResult::FormatError,
+        };
+
+        // Allocate zero-initialized buffer for the image data.
+        // Zero-initialization ensures that any unwritten bytes (e.g., on partial
+        // decode) are valid zeros rather than garbage.
+        if self.image_data.len() < total_bytes {
+            self.image_data = vec![0u8; total_bytes];
+        }
+
+        match decoder.read_image_data(&mut self.image_data) {
+            Ok(()) => {
+                self.image_data_loaded = true;
+                DecodingResult::Success
+            }
+            Err(e) => {
+                // On IncompleteInput, keep the partially decoded data in the buffer.
+                // The decoder writes row data as it decodes, and rows_decoded() tells
+                // us how many rows are complete. We keep the full buffer allocated
+                // but get_image_data() will only return the valid portion.
+                match BmpError::from(e) {
+                    BmpError::InsufficientData => DecodingResult::IncompleteInput,
+                    BmpError::UnsupportedFeature => {
+                        self.image_data.clear();
+                        DecodingResult::UnsupportedFeature
+                    }
+                    _ => {
+                        self.image_data.clear();
+                        DecodingResult::FormatError
+                    }
+                }
+            }
+        }
+    }
+
+    pub fn image_data_loaded(&self) -> bool {
+        self.image_data_loaded
+    }
+
+    /// Get info about NEW rows since last call.
+    /// Returns DecodedRowsInfo with row placement info and populates the buffer
+    /// output parameter with the pixel data for the new rows.
+    pub fn get_next_rows<'a>(&'a mut self, buffer: &mut &'a [u8]) -> DecodedRowsInfo {
+        let already_consumed = self.last_consumed_row_count;
+        let row_bytes = self.row_bytes() as usize;
+        let height = self.height;
+
+        let rows_decoded = self.decoder.as_ref().unwrap().rows_decoded();
+        let current_rows = rows_decoded.rows();
+        let is_top_down = matches!(
+            rows_decoded,
+            image::codecs::bmp::RowsDecoded::TopDown { .. }
+        );
+
+        if current_rows <= already_consumed {
+            // No new rows
+            *buffer = &[];
+            return DecodedRowsInfo {
+                dst_row_start: 0,
+                row_count: 0,
+            };
+        }
+
+        let new_row_count = current_rows - already_consumed;
+        self.last_consumed_row_count = current_rows;
+
+        // Calculate buffer offset and destination row based on orientation
+        let (buf_start, dst_row_start) = if is_top_down {
+            // Top-down: new rows follow already consumed rows
+            let buf_start = (already_consumed as usize) * row_bytes;
+            (buf_start, already_consumed)
+        } else {
+            // Bottom-up: rows decode from bottom to top, stored at end of buffer
+            let buf_start = (height as usize - current_rows as usize) * row_bytes;
+            let dst_start = height - current_rows;
+            (buf_start, dst_start)
+        };
+
+        let new_bytes = (new_row_count as usize) * row_bytes;
+        *buffer = &self.image_data[buf_start..buf_start + new_bytes];
+
+        DecodedRowsInfo {
+            dst_row_start,
+            row_count: new_row_count,
+        }
+    }
+
+    pub fn row_bytes(&self) -> u32 {
+        self.width * self.bytes_per_pixel
+    }
+
+    pub fn reset_decode_state(&mut self) {
+        self.image_data.clear();
+        self.image_data_loaded = false;
+        self.last_consumed_row_count = 0;
+    }
+
+    pub fn icc_profile(&mut self) -> Vec<u8> {
+        use image::ImageDecoder;
+        match &mut self.decoder {
+            Some(d) => match d.icc_profile() {
+                Ok(Some(profile)) => profile,
+                Ok(None) | Err(_) => Vec::new(),
+            },
+            None => Vec::new(),
+        }
     }
 }
 
@@ -261,7 +430,7 @@ mod tests {
         assert!(!is_bmp_data(&valid_ba));
 
         // Invalid signature
-        let invalid = vec![0x89, b'P', b'N', b'G']; // PNG signature
+        let invalid = vec![0x89, b'P', b'N', b'G'];
         assert!(!is_bmp_data(&invalid));
 
         // Too short
