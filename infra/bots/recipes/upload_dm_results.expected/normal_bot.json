@@ -19,8 +19,8 @@
   },
   {
     "cmd": [
-      "gsutil",
-      "-m",
+      "gcloud",
+      "storage",
       "cp",
       "[START_DIR]/test/*.png",
       "gs://skia-infra-gm/dm-images-v1"
@@ -47,9 +47,10 @@
   },
   {
     "cmd": [
-      "gsutil",
+      "gcloud",
+      "storage",
       "cp",
-      "-Z",
+      "--gzip-local-all",
       "[START_DIR]/test/dm.json",
       "gs://skia-infra-gm/dm-json-v1/2012/05/14/12/abc123/Upload-Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All/1337000001/dm.json"
     ],
@@ -75,9 +76,10 @@
   },
   {
     "cmd": [
-      "gsutil",
+      "gcloud",
+      "storage",
       "cp",
-      "-Z",
+      "--gzip-local-all",
       "[START_DIR]/test/verbose.log",
       "gs://skia-infra-gm/dm-json-v1/2012/05/14/12/abc123/Upload-Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All/1337000001/verbose.log"
     ],

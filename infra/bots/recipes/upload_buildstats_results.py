@@ -49,7 +49,7 @@ def RunSteps(api):
 
     api.step(
         'upload %s' % src,
-        cmd=['gsutil', 'cp', '-z', 'json', src, dst],
+        cmd=['gcloud', 'storage', 'cp', '--gzip-local=json', src, dst],
         infra_step=True)
 
 

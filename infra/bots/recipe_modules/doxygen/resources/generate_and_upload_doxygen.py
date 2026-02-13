@@ -65,11 +65,10 @@ def generate_and_upload_doxygen():
         subprocess.check_output([DOXYGEN_BINARY, '--version']).rstrip()))
 
   # Upload.
-  cmd = ['gsutil', 'cp', '-a', 'public-read', '-R',
+  cmd = ['gcloud', 'storage', 'cp', '--predefined-acl=publicRead', '--recursive',
          DOXYGEN_WORKING_DIR, DOXYGEN_GS_PATH]
   subprocess.check_call(cmd)
 
 
 if '__main__' == __name__:
   generate_and_upload_doxygen()
-
