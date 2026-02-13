@@ -217,8 +217,7 @@ void TextWrapper::trimEndSpaces(TextAlign align) {
          --cluster) {
         fEndLine.trim(cluster);
     }
-    // Trimming the part of the cluster is unnecessary and currently wrong (for RTL)
-    // fEndLine.trim();
+    fEndLine.trim();
 }
 
 SkScalar TextWrapper::getClustersTrimmedWidth() {
