@@ -67,7 +67,8 @@ private:
                                        fShowTrackerUI        = false,
                                        fShowSlotManager      = false,
                                        fDraggingProgress     = false,
-                                       fPreferGlyphPaths     = false;
+                                       fPreferGlyphPaths     = false,
+                                       fPreferCoretext       = false;
 };
 
 #endif // SK_ENABLE_SKOTTIE
