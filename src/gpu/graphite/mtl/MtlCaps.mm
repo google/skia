@@ -519,6 +519,22 @@ void MtlCaps::initFormatTable(const id<MTLDevice> device) {
         }
     }
 
+    // Format: RGBA32Float
+    {
+        info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA32Float)];
+        info->fFlags = FormatInfo::kAllFlags;
+        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
+        int ctIdx = 0;
+        // Format: RGBA32Float, Surface: RGBA_F32
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = kRGBA_F32_SkColorType;
+            ctInfo.fTransferColorType = kRGBA_F32_SkColorType;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
+    }
+
     // Format: R16Float
     {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatR16Float)];
@@ -760,7 +776,7 @@ void MtlCaps::initFormatTable(const id<MTLDevice> device) {
     this->setColorType(kRGBA_F16Norm_SkColorType,      { MTLPixelFormatRGBA16Float     });
     this->setColorType(kRGBA_F16_SkColorType,          { MTLPixelFormatRGBA16Float     });
     this->setColorType(kRGB_F16F16F16x_SkColorType,    { MTLPixelFormatRGBA16Float     });
-    // kRGBA_F32_SkColorType
+    this->setColorType(kRGBA_F32_SkColorType,         { MTLPixelFormatRGBA32Float     });
     this->setColorType(kR8G8_unorm_SkColorType,        { MTLPixelFormatRG8Unorm        });
     this->setColorType(kA16_float_SkColorType,         { MTLPixelFormatR16Float        });
     this->setColorType(kR16G16_float_SkColorType,      { MTLPixelFormatRG16Float       });
