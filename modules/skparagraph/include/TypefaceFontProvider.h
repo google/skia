@@ -7,7 +7,6 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/private/base/SkTArray.h"
-#include "src/core/SkTHash.h"
 
 #include <string>
 #include <unordered_map>
@@ -69,8 +68,8 @@ public:
     sk_sp<SkTypeface> onLegacyMakeTypeface(const char[], SkFontStyle) const override;
 
 private:
-    skia_private::THashMap<SkString, sk_sp<TypefaceFontStyleSet>> fRegisteredFamilies;
-    skia_private::TArray<SkString> fFamilyNames;
+    std::unordered_map<std::string, sk_sp<TypefaceFontStyleSet>> fRegisteredFamilies;
+    skia_private::TArray<std::string> fFamilyNames;
 };
 
 }  // namespace textlayout

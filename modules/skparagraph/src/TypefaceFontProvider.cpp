@@ -9,22 +9,30 @@
 namespace skia {
 namespace textlayout {
 
-int TypefaceFontProvider::onCountFamilies() const { return fRegisteredFamilies.count(); }
+int TypefaceFontProvider::onCountFamilies() const { return fRegisteredFamilies.size(); }
 
 void TypefaceFontProvider::onGetFamilyName(int index, SkString* familyName) const {
-    SkASSERT(index < fRegisteredFamilies.count());
+    SkASSERT((unsigned)index < fRegisteredFamilies.size());
     familyName->set(fFamilyNames[index]);
 }
 
 sk_sp<SkFontStyleSet> TypefaceFontProvider::onMatchFamily(const char familyName[]) const {
-    auto found = fRegisteredFamilies.find(SkString(familyName));
-    return found ? *found : nullptr;
+    auto found = fRegisteredFamilies.find(familyName);
+    if (found != fRegisteredFamilies.end()) {
+        return found->second;
+    } else {
+        return nullptr;
+    }
 }
 
 sk_sp<SkFontStyleSet> TypefaceFontProvider::onCreateStyleSet(int index) const {
-    SkASSERT(index < fRegisteredFamilies.count());
+    SkASSERT((unsigned)index < fRegisteredFamilies.size());
     auto found = fRegisteredFamilies.find(fFamilyNames[index]);
-    return found ? *found : nullptr;
+    if (found != fRegisteredFamilies.end()) {
+        return found->second;
+    } else {
+        return nullptr;
+    }
 }
 
 sk_sp<SkTypeface> TypefaceFontProvider::onMatchFamilyStyle(const char familyName[], const SkFontStyle& pattern) const {
@@ -52,13 +60,15 @@ size_t TypefaceFontProvider::registerTypeface(sk_sp<SkTypeface> typeface, const 
         return 0;
     }
 
-    auto found = fRegisteredFamilies.find(familyName);
-    if (found == nullptr) {
-        found = fRegisteredFamilies.set(familyName, sk_make_sp<TypefaceFontStyleSet>(familyName));
-        fFamilyNames.emplace_back(familyName);
+    auto fname(familyName.c_str());
+    auto found = fRegisteredFamilies.find(fname);
+    if (found == fRegisteredFamilies.end()) {
+        auto val = fRegisteredFamilies[fname] = sk_make_sp<TypefaceFontStyleSet>(familyName);
+        fFamilyNames.emplace_back(fname);
+        val->appendTypeface(std::move(typeface));
+    } else {
+        found->second->appendTypeface(std::move(typeface));
     }
-
-    (*found)->appendTypeface(std::move(typeface));
 
     return 1;
 }
