@@ -32,6 +32,8 @@
 #include <emscripten/version.h>
 #endif
 
+namespace skgpu::graphite {
+
 namespace {
 
 skgpu::UniqueKey::Domain get_pipeline_domain() {
@@ -72,21 +74,47 @@ static constexpr wgpu::TextureFormat kFormats[] = {
 #endif
 };
 
+bool is_valid_view(const DawnTextureInfo& dawnInfo) {
 #if !defined(__EMSCRIPTEN__)
-bool IsMultiplanarFormat(wgpu::TextureFormat format) {
-    switch (format) {
+    switch (dawnInfo.fFormat) {
         case wgpu::TextureFormat::R8BG8Biplanar420Unorm:
-        case wgpu::TextureFormat::R10X6BG10X6Biplanar420Unorm:
-        case wgpu::TextureFormat::R8BG8A8Triplanar420Unorm:
-            return true;
-        default:
-            return false;
-    }
-}
-#endif
-}  // anonymous namespace
+            if (dawnInfo.fAspect == wgpu::TextureAspect::Plane0Only) {
+                return dawnInfo.getViewFormat() == wgpu::TextureFormat::R8Unorm;
+            } else if (dawnInfo.fAspect == wgpu::TextureAspect::Plane1Only) {
+                return dawnInfo.getViewFormat() == wgpu::TextureFormat::RG8Unorm;
+            }
+            break; // else fall through to validate All aspect
 
-namespace skgpu::graphite {
+        case wgpu::TextureFormat::R10X6BG10X6Biplanar420Unorm:
+            if (dawnInfo.fAspect == wgpu::TextureAspect::Plane0Only) {
+                return dawnInfo.getViewFormat() == wgpu::TextureFormat::R16Unorm;
+            } else if (dawnInfo.fAspect == wgpu::TextureAspect::Plane1Only) {
+                return dawnInfo.getViewFormat() == wgpu::TextureFormat::RG16Unorm;
+            }
+            break; // else fall through to validate All aspect
+
+        case wgpu::TextureFormat::R8BG8A8Triplanar420Unorm:
+            if (dawnInfo.fAspect == wgpu::TextureAspect::Plane0Only ||
+                dawnInfo.fAspect == wgpu::TextureAspect::Plane2Only) {
+                return dawnInfo.getViewFormat() == wgpu::TextureFormat::R8Unorm;
+            } else if (dawnInfo.fAspect == wgpu::TextureAspect::Plane1Only) {
+                return dawnInfo.getViewFormat() == wgpu::TextureFormat::RG8Unorm;
+            }
+            break; // else fall through to validate All aspect
+
+        default:
+            // Not a multiplanar format, fall through
+            break;
+    }
+#endif
+
+    // No multiplanar formats in pure WebGPU, so require that aspect == All and view format and
+    // base format are the same.
+    return dawnInfo.fAspect == wgpu::TextureAspect::All &&
+           dawnInfo.fFormat == dawnInfo.getViewFormat();
+}
+
+}  // anonymous namespace
 
 DawnCaps::DawnCaps(const DawnBackendContext& backendContext, const ContextOptions& options)
     : Caps() {
@@ -98,115 +126,82 @@ DawnCaps::DawnCaps(const DawnBackendContext& backendContext, const ContextOption
 
 DawnCaps::~DawnCaps() = default;
 
-bool DawnCaps::onIsTexturable(const TextureInfo& info) const {
-    if (!info.isValid()) {
-        return false;
-    }
-
-    const auto& dawnInfo = TextureInfoPriv::Get<DawnTextureInfo>(info);
-
-    if (!(dawnInfo.fUsage & wgpu::TextureUsage::TextureBinding)) {
-        return false;
-    }
-
-#if !defined(__EMSCRIPTEN__)
-    switch (dawnInfo.fFormat) {
-        case wgpu::TextureFormat::R8BG8Biplanar420Unorm: {
-            if (dawnInfo.fAspect == wgpu::TextureAspect::Plane0Only &&
-                dawnInfo.getViewFormat() != wgpu::TextureFormat::R8Unorm) {
-                return false;
-            }
-            if (dawnInfo.fAspect == wgpu::TextureAspect::Plane1Only &&
-                dawnInfo.getViewFormat() != wgpu::TextureFormat::RG8Unorm) {
-                return false;
-            }
-            break;
-        }
-        case wgpu::TextureFormat::R10X6BG10X6Biplanar420Unorm: {
-            if (dawnInfo.fAspect == wgpu::TextureAspect::Plane0Only &&
-                dawnInfo.getViewFormat() != wgpu::TextureFormat::R16Unorm) {
-                return false;
-            }
-            if (dawnInfo.fAspect == wgpu::TextureAspect::Plane1Only &&
-                dawnInfo.getViewFormat() != wgpu::TextureFormat::RG16Unorm) {
-                return false;
-            }
-            break;
-        }
-        case wgpu::TextureFormat::R8BG8A8Triplanar420Unorm: {
-            if (dawnInfo.fAspect == wgpu::TextureAspect::Plane0Only &&
-                dawnInfo.getViewFormat() != wgpu::TextureFormat::R8Unorm) {
-                return false;
-            }
-            if (dawnInfo.fAspect == wgpu::TextureAspect::Plane1Only &&
-                dawnInfo.getViewFormat() != wgpu::TextureFormat::RG8Unorm) {
-                return false;
-            }
-            if (dawnInfo.fAspect == wgpu::TextureAspect::Plane2Only &&
-                dawnInfo.getViewFormat() != wgpu::TextureFormat::R8Unorm) {
-                return false;
-            }
-            break;
-        }
-        default:
-            break;
-    }
-#endif
-
-    const FormatInfo& formatInfo = this->getFormatInfo(dawnInfo.getViewFormat());
-    return SkToBool(FormatInfo::kTexturable_Flag & formatInfo.fFlags);
-}
-
-bool DawnCaps::isRenderable(const TextureInfo& info) const {
-    if (!info.isValid()) {
-        return false;
-    }
-    TextureFormat format = TextureInfoPriv::ViewFormat(info);
-    const auto& dawnInfo = TextureInfoPriv::Get<DawnTextureInfo>(info);
-    return (dawnInfo.fUsage & wgpu::TextureUsage::RenderAttachment) &&
-           this->isSampleCountSupported(format, info.sampleCount());
-}
-
-bool DawnCaps::isStorage(const TextureInfo& info) const {
-    if (!info.isValid()) {
-        return false;
-    }
-    const auto& dawnInfo = TextureInfoPriv::Get<DawnTextureInfo>(info);
-    if (!(dawnInfo.fUsage & wgpu::TextureUsage::StorageBinding)) {
-        return false;
-    }
-    const FormatInfo& formatInfo = this->getFormatInfo(dawnInfo.getViewFormat());
-    return info.sampleCount() == SampleCount::k1 &&
-           SkToBool(FormatInfo::kStorage_Flag & formatInfo.fFlags);
-}
-
-bool DawnCaps::isSampleCountSupported(TextureFormat format,
-                                      SampleCount requestedSampleCount) const {
+std::pair<SkEnumBitMask<TextureUsage>, SkEnumBitMask<SampleCount>> DawnCaps::getTextureSupport(
+        TextureFormat format, Tiling tiling) const {
+    // TODO(michaelludwig): Define supported usage by porting the table from
+    // https://gpuweb.github.io/gpuweb/#plain-color-formats to C++
     const FormatInfo& formatInfo = this->getFormatInfo(TextureFormatToDawnFormat(format));
-    if (!SkToBool(formatInfo.fFlags & FormatInfo::kRenderable_Flag)) {
-        return 0;
+    if (tiling == Tiling::kLinear || formatInfo.fFlags == 0) {
+        return {{}, {}}; // Not supported or unavailable in WebGPU
     }
-    if (SkToBool(formatInfo.fFlags & FormatInfo::kMSAA_Flag)) {
-        // WebGPU only supports a sample count of 1 or 4.
-        return requestedSampleCount == SampleCount::k1 || requestedSampleCount == SampleCount::k4;
-    } else {
-        return requestedSampleCount == SampleCount::k1;
+
+    // At this point, we can claim at least 1 sample is supported
+    SkEnumBitMask<SampleCount> sampleCounts = SampleCount::k1;
+    SkEnumBitMask<TextureUsage> supported;
+
+    if (formatInfo.fFlags & FormatInfo::kTexturable_Flag) {
+        supported |= TextureUsage::kSample;
     }
+
+    if (formatInfo.fFlags & FormatInfo::kRenderable_Flag) {
+        supported |= TextureUsage::kRender;
+
+        uint16_t msaaFlag = FormatInfo::kMSAA_Flag;
+        if (!TextureFormatIsDepthOrStencil(format)) {
+            // We never resolve depth/stencil, but Graphite assumes we resolve to color formats
+            msaaFlag |= FormatInfo::kResolve_Flag;
+        }
+        if ((formatInfo.fFlags & msaaFlag) == msaaFlag) {
+            // WebGPU only supports 1x and 4x MSAA
+            sampleCounts |= SampleCount::k4;
+        }
+    }
+
+    if (formatInfo.fFlags & FormatInfo::kStorage_Flag) {
+        supported |= TextureUsage::kStorage;
+    }
+
+    if (TextureFormatCompressionType(format) != SkTextureCompressionType::kNone) {
+        // Compressed textures can be copied into, but disallow copying out
+        supported |= TextureUsage::kCopyDst;
+    } else if (format != TextureFormat::kExternal) {
+        // Plain textures can be copied into and out of
+        supported |= TextureUsage::kCopySrc | TextureUsage::kCopyDst;
+    } // else no copying for external texture formats
+
+    return {supported, sampleCounts};
 }
 
-TextureFormat DawnCaps::getDepthStencilFormat(SkEnumBitMask<DepthStencilFlags> mask) const {
-    if (mask == DepthStencilFlags::kDepth) {
-        // If needed for workarounds or performance, Depth32Float is also available but requires 2x
-        // the amount of memory.
-        return TextureFormat::kD16;
-    } else if (mask == DepthStencilFlags::kStencil) {
-        return TextureFormat::kS8;
-    } else if (mask == DepthStencilFlags::kDepthStencil) {
-        // For WebGPU, this maps to kDepth24PlusStencil8, which might end up choosing the equivalent
-        // of D32F_S8 under the hood.
-        return TextureFormat::kD24_S8;
+std::pair<SkEnumBitMask<TextureUsage>, Tiling> DawnCaps::getTextureUsage(
+        const TextureInfo& info) const {
+    const auto& dawnInfo = TextureInfoPriv::Get<DawnTextureInfo>(info);
+
+    SkEnumBitMask<TextureUsage> usage;
+    if (is_valid_view(dawnInfo)) {
+        if (dawnInfo.fUsage & wgpu::TextureUsage::RenderAttachment) {
+            usage |= TextureUsage::kRender;
+            // All color renderable formats can be used with MSRTSS when the extension is available
+            if (this->msaaRenderToSingleSampledSupport() &&
+                !TextureFormatIsDepthOrStencil(TextureInfoPriv::ViewFormat(info))) {
+                usage |= TextureUsage::kMSRTSS;
+            }
+        }
+        if (dawnInfo.fUsage & wgpu::TextureUsage::TextureBinding) {
+            usage |= TextureUsage::kSample;
+        }
+        if (dawnInfo.fUsage & wgpu::TextureUsage::CopySrc) {
+            usage |= TextureUsage::kCopySrc;
+        }
+        if (dawnInfo.fUsage & wgpu::TextureUsage::CopyDst) {
+            usage |= TextureUsage::kCopyDst;
+        }
+        if (dawnInfo.fUsage & wgpu::TextureUsage::StorageBinding) {
+            usage |= TextureUsage::kStorage;
+        }
+        // NOTE: No support for TextureUsage::kHostCopy yet
     }
-    return TextureFormat::kUnsupported;
+
+    return {usage, Tiling::kOptimal};
 }
 
 TextureInfo DawnCaps::getDefaultAttachmentTextureInfo(AttachmentDesc desc,
@@ -339,11 +334,21 @@ SkISize DawnCaps::getDepthAttachmentDimensions(const TextureInfo& textureInfo,
     // textures (R8, R8G8, vs R8BG8Biplanar420Unorm), so we have to query texture format from
     // wgpu::Texture object, and then use it reconstruct the full dimensions.
     const auto& dawnInfo = TextureInfoPriv::Get<DawnTextureInfo>(textureInfo);
-    wgpu::TextureFormat format = dawnInfo.fFormat;
-    if (IsMultiplanarFormat(format) && dawnInfo.fAspect == wgpu::TextureAspect::Plane1Only) {
-        // Dawn requires depth attachment to match the size of Y plane (texture size).
-        return SkISize::Make(colorAttachmentDimensions.width() * 2,
-                             colorAttachmentDimensions.height() * 2);
+    switch (dawnInfo.fFormat) {
+        case wgpu::TextureFormat::R8BG8Biplanar420Unorm:
+        case wgpu::TextureFormat::R10X6BG10X6Biplanar420Unorm:
+        case wgpu::TextureFormat::R8BG8A8Triplanar420Unorm:
+            if (dawnInfo.fAspect == wgpu::TextureAspect::Plane1Only) {
+                // Dawn requires depth attachment to match the size of Y plane (texture size).
+                return SkISize::Make(colorAttachmentDimensions.width() * 2,
+                                     colorAttachmentDimensions.height() * 2);
+            }
+
+            // Otherwise this is the Y or A plane, so no adjustment needed
+            [[fallthrough]];
+        default:
+            // Not multiplanar, so no adjustment needed
+            break;
     }
 #endif
 
@@ -360,16 +365,6 @@ SkSpan<const Caps::ColorTypeInfo> DawnCaps::getColorTypeInfos(
 
     const FormatInfo& formatInfo = this->getFormatInfo(dawnFormat);
     return {formatInfo.fColorTypeInfos.get(), formatInfo.fColorTypeInfoCount};
-}
-
-bool DawnCaps::isCopyableDst(const TextureInfo& textureInfo) const {
-    const auto& dawnInfo = TextureInfoPriv::Get<DawnTextureInfo>(textureInfo);
-    return dawnInfo.fUsage & wgpu::TextureUsage::CopyDst;
-}
-
-bool DawnCaps::isCopyableSrc(const TextureInfo& textureInfo) const {
-    const auto& dawnInfo = TextureInfoPriv::Get<DawnTextureInfo>(textureInfo);
-    return dawnInfo.fUsage & wgpu::TextureUsage::CopySrc;
 }
 
 void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextOptions& options) {

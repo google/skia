@@ -125,11 +125,6 @@ public:
     /* Returns whether multisampled render to single sampled is supported. */
     bool msaaRenderToSingleSampledSupport() const { return fMSAARenderToSingleSampledSupport; }
 
-    /* Returns whether multisampled render to single sampled is supported for a given texture. */
-    virtual bool msaaTextureRenderToSingleSampledSupport(const TextureInfo& info) const {
-        return this->msaaRenderToSingleSampledSupport();
-    }
-
     /**
      * Returns whether a render pass can have MSAA/depth/stencil attachments and a resolve
      * attachment with mismatched sizes. Note: the MSAA attachment and the depth/stencil attachment
@@ -142,15 +137,13 @@ public:
 
     /* Get required depth attachment dimensions for a givin color attachment info and dimensions. */
     virtual SkISize getDepthAttachmentDimensions(const TextureInfo&,
-                                                 const SkISize colorAttachmentDimensions) const;
+                                                 const SkISize colorAttachmentDimensions) const {
+        return colorAttachmentDimensions;
+    }
 
-    /**
-     * TODO(b/390473370): Once backends initialize a Caps-level format table, these will not need
-     * to be virtual anymore:
-     */
-    virtual bool isSampleCountSupported(TextureFormat, SampleCount) const = 0;
+    bool isSampleCountSupported(TextureFormat, SampleCount) const;
     /* Return the TextureFormat that satisfies `dsFlags`. */
-    virtual TextureFormat getDepthStencilFormat(SkEnumBitMask<DepthStencilFlags>) const = 0;
+    TextureFormat getDepthStencilFormat(SkEnumBitMask<DepthStencilFlags>) const;
 
     virtual TextureInfo getDefaultAttachmentTextureInfo(AttachmentDesc,
                                                         Protected,
@@ -183,21 +176,22 @@ public:
     // sampled targets to show MSAA isn't supported.
     SampleCount getCompatibleMSAASampleCount(const TextureInfo&) const;
 
-
     // If true, the texture can be sampled within a shader (possibly with MSAA, although by default
     // we consider multisampled textures not to be sampleable because that requires backend-specific
     // shader code not exposed in SkSL).
     bool isTexturable(const TextureInfo&, bool allowMSAA=false) const;
     // If true, the texture can be rasterized and/or resolved to (possibly with MSAA)
-    virtual bool isRenderable(const TextureInfo&) const = 0;
+    bool isRenderable(const TextureInfo&) const;
+    // If true, the texture can be rasterized using multisample-render-to-single-sample features.
+    bool isRenderableWithMSRTSS(const TextureInfo&) const;
     // If true, the texture can be the source of data copied to another texture or to a buffer.
     // If false, the texture can only be copied via drawing (which requires isTexturable()).
-    virtual bool isCopyableSrc(const TextureInfo&) const = 0;
+    bool isCopyableSrc(const TextureInfo&) const;
     // If true, the texture can be the destination of data copied from another texture or buffer.
     // If false, the texture can only be updated by drawing (which requires isRenderable()).
-    virtual bool isCopyableDst(const TextureInfo&) const = 0;
+    bool isCopyableDst(const TextureInfo&) const;
     // If true, the texture can be used as a storage texture in compute shaders.
-    virtual bool isStorage(const TextureInfo&) const = 0;
+    bool isStorage(const TextureInfo&) const;
 
      /**
      * Backends can optionally override this method to return meaningful sampler conversion info.
@@ -571,10 +565,36 @@ protected:
     bool fSetBackendLabels = false;
 
 private:
-    virtual bool onIsTexturable(const TextureInfo&) const = 0;
+    // TODO(michaelludwig): Remove these functions as Caps takes a more TextureFormat/Usage oriented
+    // approach to textures and color types.
+    const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const;
     virtual SkSpan<const ColorTypeInfo> getColorTypeInfos(const TextureInfo&) const = 0;
 
-    const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const;
+    // Return the supported TextureUsages and SampleCounts for a texture of the given format and
+    // tiling, assuming the textures are created with the requisite usages.
+    virtual std::pair<SkEnumBitMask<TextureUsage>, SkEnumBitMask<SampleCount>> getTextureSupport(
+            TextureFormat format, Tiling) const = 0;
+
+    // Return the mask of TextureUsages supported by the described texture, as well as its tiling
+    // representation. Subclasses can assume that this will only be called on valid TextureInfos
+    // and do not need to account for TextureFormat supported features; Caps will combine the usage
+    // and format support automatically.
+    virtual std::pair<SkEnumBitMask<TextureUsage>, Tiling> getTextureUsage(
+            const TextureInfo&) const = 0;
+
+    // Returns true if the texture supports all usages in `test`, checking its declared usages
+    // against its format's supported usages and its sample count against its format's supported
+    // sample counts.
+    //
+    // `allowMSAA=false` forces false to be returned for any info with a sample count > 1. The other
+    // allow flags are validation checks that are asserted against (and presumably implicit in the
+    // usages that a format supports).
+    bool isSupported(const TextureInfo&,
+                     SkEnumBitMask<TextureUsage> test,
+                     bool allowMSAA,
+                     bool allowExternal,
+                     bool allowCompressed,
+                     bool allowProtected) const;
 
     sk_sp<SkCapabilities> fCapabilities;
 };

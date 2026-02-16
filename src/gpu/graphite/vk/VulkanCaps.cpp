@@ -661,33 +661,151 @@ static constexpr VkFormat kDepthStencilVkFormats[] = {
     VK_FORMAT_D32_SFLOAT_S8_UINT,
 };
 
-bool VulkanCaps::isSampleCountSupported(TextureFormat format,
-                                        SampleCount requestedSampleCount) const {
-    VkFormat vkFormat = TextureFormatToVkFormat(format);
-    const SupportedSampleCounts* sampleCounts;
+std::pair<SkEnumBitMask<TextureUsage>, SkEnumBitMask<SampleCount>> VulkanCaps::getTextureSupport(
+        TextureFormat format, Tiling tiling) const {
+    SkEnumBitMask<TextureUsage> supports;
+    SkEnumBitMask<SampleCount> sampleCounts;
+
+    const VkFormat vkFormat = TextureFormatToVkFormat(format);
 
     // TODO(b/390473370): When Caps stores the format tables, the color format and depth stencil
     // format infos will be combined and this will be simplified.
+    const VkFormatProperties* props = nullptr;
+    const SupportedSampleCounts* supportedSampleCounts = nullptr;
+    bool isEfficientWithHostImageCopy = false;
+
+    VkFormatFeatureFlags renderBits;
     if (TextureFormatIsDepthOrStencil(format)) {
         const DepthStencilFormatInfo& formatInfo = this->getDepthStencilFormatInfo(vkFormat);
-        if (!formatInfo.isDepthStencilSupported()) {
-            return false;
-        }
-        sampleCounts = &formatInfo.fSupportedSampleCounts;
+        props = &formatInfo.fFormatProperties;
+        supportedSampleCounts = &formatInfo.fSupportedSampleCounts;
+
+        renderBits = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
     } else {
         const FormatInfo& formatInfo = this->getFormatInfo(vkFormat);
-        if (!formatInfo.isRenderable(VK_IMAGE_TILING_OPTIMAL, SampleCount::k1)) {
-            return false;
-        }
-        sampleCounts = &formatInfo.fSupportedSampleCounts;
+        props = &formatInfo.fFormatProperties;
+        supportedSampleCounts = &formatInfo.fSupportedSampleCounts;
+        // Assume linear tiling is always efficient for copying directly.
+        isEfficientWithHostImageCopy = tiling == Tiling::kLinear ||
+                                       formatInfo.fIsEfficientWithHostImageCopy;
+
+        renderBits = VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT |
+                     VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT;
     }
 
-    return sampleCounts->isSampleCountSupported(requestedSampleCount);
+    VkFormatFeatureFlags featureFlags = tiling == Tiling::kOptimal ? props->optimalTilingFeatures
+                                                                   : props->linearTilingFeatures;
+
+    if ((featureFlags & renderBits) == renderBits) {
+        supports |= TextureUsage::kRender;
+        if (this->msaaRenderToSingleSampledSupport() &&
+            supportedSampleCounts->fSampleCounts > VK_SAMPLE_COUNT_1_BIT) {
+            // SupportedSampleCounts' initialization validates the sample counts that are
+            // available when using VK_IMAGE_CREATE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT
+            // so if it is more than just 1x, we can assume MSRTSS is supported for this format.
+            supports |= TextureUsage::kMSRTSS;
+        }
+    }
+
+    if (VkFormatNeedsYcbcrSampler(vkFormat)) {
+        // Assume all external formats are sampleable, since we support adjusting the filtering on
+        // a per-immutable sampler basis.
+        supports |= TextureUsage::kSample;
+    } else if ((featureFlags & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) &&
+               (featureFlags & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
+        // Otherwise require full filtering control to count as sampleable
+        supports |= TextureUsage::kSample;
+    }
+
+    // NOTE: We don't check the protected-ness of the Context for format support. It is handled on
+    // a per-texture basis if that texture ends up being allocated with protected memory.
+    if (featureFlags & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT) {
+        supports |= TextureUsage::kCopySrc;
+    }
+
+    if (featureFlags & VK_FORMAT_FEATURE_TRANSFER_DST_BIT) {
+        supports |= TextureUsage::kCopyDst;
+
+        if (isEfficientWithHostImageCopy) {
+            // NOTE: We will check protectedness on a texture-by-texture basis.
+            supports |= TextureUsage::kHostCopy;
+        }
+    }
+
+    if (featureFlags & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT) {
+        supports |= TextureUsage::kStorage;
+    }
+
+
+    // VkSampleCount is bit equal to SampleCount, so VkSampleCountFlags will be bit-equal to
+    // SkEnumBitMask<SampleCount>, but given the type wrapping we have to cast to SampleCount.
+    sampleCounts = static_cast<SampleCount>(supportedSampleCounts->fSampleCounts);
+    // Some drivers report no sample counts for multiplanar or compressed formats, even when they
+    // can be sampled. There is a pedantic argument that this is valid since neither of these types
+    // of textures have conventional texels to begin with, but in practice, sampling acts as though
+    // its 1x. Include 1x to simplify higher-level support checks.
+    if (!SkToBool(sampleCounts & SampleCount::k1) && SkToBool(supports & TextureUsage::kSample)) {
+        sampleCounts |= SampleCount::k1;
+    }
+
+    return {supports, sampleCounts};
 }
 
-TextureFormat VulkanCaps::getDepthStencilFormat(SkEnumBitMask<DepthStencilFlags> flags) const {
-    VkFormat format = fDepthStencilFlagsToFormatTable[flags.value()];
-    return VkFormatToTextureFormat(format);
+std::pair<SkEnumBitMask<TextureUsage>, Tiling> VulkanCaps::getTextureUsage(
+        const TextureInfo& info) const {
+    const auto& vkInfo = TextureInfoPriv::Get<VulkanTextureInfo>(info);
+
+    SkEnumBitMask<TextureUsage> usage;
+
+    if (TextureFormatIsDepthOrStencil(TextureInfoPriv::ViewFormat(info))) {
+        if (SkToBool(vkInfo.fImageUsageFlags & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT)) {
+            usage |= TextureUsage::kRender;
+        }
+    } else {
+        // All color renderable vulkan textures within graphite must have input attachment usage
+        if (SkToBool(vkInfo.fImageUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) &&
+            SkToBool(vkInfo.fImageUsageFlags & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT)) {
+            usage |= TextureUsage::kRender;
+
+            // And flag MSRTSS if the creation flag was set on the texture
+            if (this->msaaRenderToSingleSampledSupport() && SkToBool(vkInfo.fFlags &
+                        VK_IMAGE_CREATE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT)) {
+                usage |= TextureUsage::kMSRTSS;
+            }
+        }
+    }
+
+    // All images using external formats are required to be able to be sampled per Vulkan spec.
+    // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkAndroidHardwareBufferFormatPropertiesANDROID.html#_description
+    if (vkInfo.fFormat == VK_FORMAT_UNDEFINED && vkInfo.fYcbcrConversionInfo.isValid()) {
+        usage |= TextureUsage::kSample;
+    } else if (SkToBool(vkInfo.fImageUsageFlags & VK_IMAGE_USAGE_SAMPLED_BIT)) {
+        usage |= TextureUsage::kSample;
+    }
+
+    // We include CopyDst/CopySrc without worrying about format support since that is masked out
+    // automatically with getTextureSupport()'s handling of compressed and external formats.
+    if (info.isProtected() == Protected::kNo &&
+        SkToBool(vkInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT)) {
+        usage |= TextureUsage::kCopySrc;
+    }
+
+    if (SkToBool(vkInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT)) {
+        usage |= TextureUsage::kCopyDst;
+
+        if (info.isProtected() == Protected::kNo &&
+            SkToBool(vkInfo.fImageUsageFlags & VK_IMAGE_USAGE_HOST_TRANSFER_BIT)) {
+            usage |= TextureUsage::kHostCopy;
+        }
+    }
+
+    if (SkToBool(vkInfo.fImageUsageFlags & VK_IMAGE_USAGE_STORAGE_BIT)) {
+        usage |= TextureUsage::kStorage;
+    }
+
+    const Tiling tiling = vkInfo.fImageTiling == VK_IMAGE_TILING_OPTIMAL ? Tiling::kOptimal
+                                                                         : Tiling::kLinear;
+    return {usage, tiling};
 }
 
 TextureInfo VulkanCaps::getDefaultAttachmentTextureInfo(AttachmentDesc desc,
@@ -1531,35 +1649,17 @@ void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     this->setColorType(ct::kRGBA_10x6_SkColorType,          { VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16 });
 }
 
-namespace {
-void set_ds_flags_to_format(VkFormat& slot, VkFormat format) {
-    if (slot == VK_FORMAT_UNDEFINED) {
-        slot = format;
-    }
-}
-} // namespace
-
 void VulkanCaps::initDepthStencilFormatTable(const skgpu::VulkanInterface* interface,
                                              VkPhysicalDevice physDev,
                                              const VkPhysicalDeviceProperties& properties) {
     static_assert(std::size(kDepthStencilVkFormats) == VulkanCaps::kNumDepthStencilVkFormats,
                   "Size of DepthStencilVkFormats array must match static value in header");
 
-    using DSFlags = SkEnumBitMask<DepthStencilFlags>;
-    constexpr DSFlags stencilFlags = DepthStencilFlags::kStencil;
-    constexpr DSFlags depthFlags = DepthStencilFlags::kDepth;
-    constexpr DSFlags dsFlags = DepthStencilFlags::kDepthStencil;
-
-    std::fill_n(fDepthStencilFlagsToFormatTable, kNumDepthStencilFlags, VK_FORMAT_UNDEFINED);
     // Format: VK_FORMAT_S8_UINT
     {
         constexpr VkFormat format = VK_FORMAT_S8_UINT;
         auto& info = this->getDepthStencilFormatInfoForInit(format);
         info.init(interface, *this, physDev, format);
-        if (info.fFormatProperties.optimalTilingFeatures &
-            VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
-            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[stencilFlags.value()], format);
-        }
     }
     // Format: VK_FORMAT_D16_UNORM
     {
@@ -1572,10 +1672,6 @@ void VulkanCaps::initDepthStencilFormatTable(const skgpu::VulkanInterface* inter
             constexpr VkFormat format = VK_FORMAT_D16_UNORM;
             auto& info = this->getDepthStencilFormatInfoForInit(format);
             info.init(interface, *this, physDev, format);
-            if (info.fFormatProperties.optimalTilingFeatures &
-                VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
-                set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[depthFlags.value()], format);
-            }
         }
     }
     // Format: VK_FORMAT_D32_SFLOAT
@@ -1583,34 +1679,18 @@ void VulkanCaps::initDepthStencilFormatTable(const skgpu::VulkanInterface* inter
         constexpr VkFormat format = VK_FORMAT_D32_SFLOAT;
         auto& info = this->getDepthStencilFormatInfoForInit(format);
         info.init(interface, *this, physDev, format);
-        if (info.fFormatProperties.optimalTilingFeatures &
-            VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
-            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[depthFlags.value()], format);
-        }
     }
     // Format: VK_FORMAT_D24_UNORM_S8_UINT
     {
         constexpr VkFormat format = VK_FORMAT_D24_UNORM_S8_UINT;
         auto& info = this->getDepthStencilFormatInfoForInit(format);
         info.init(interface, *this, physDev, format);
-        if (info.fFormatProperties.optimalTilingFeatures &
-            VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
-            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[stencilFlags.value()], format);
-            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[depthFlags.value()], format);
-            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[dsFlags.value()], format);
-        }
     }
     // Format: VK_FORMAT_D32_SFLOAT_S8_UINT
     {
         constexpr VkFormat format = VK_FORMAT_D32_SFLOAT_S8_UINT;
         auto& info = this->getDepthStencilFormatInfoForInit(format);
         info.init(interface, *this, physDev, format);
-        if (info.fFormatProperties.optimalTilingFeatures &
-            VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
-            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[stencilFlags.value()], format);
-            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[depthFlags.value()], format);
-            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[dsFlags.value()], format);
-        }
     }
 }
 
@@ -1701,6 +1781,7 @@ bool VulkanCaps::SupportedSampleCounts::isSampleCountSupported(SampleCount reque
 
 
 namespace {
+
 bool is_texturable(VkFormatFeatureFlags flags) {
     return SkToBool(VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT & flags) &&
            SkToBool(VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT & flags);
@@ -1714,13 +1795,6 @@ bool is_storage(VkFormatFeatureFlags flags) {
     return SkToBool(VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT & flags);
 }
 
-bool is_transfer_src(VkFormatFeatureFlags flags) {
-    return SkToBool(VK_FORMAT_FEATURE_TRANSFER_SRC_BIT & flags);
-}
-
-bool is_transfer_dst(VkFormatFeatureFlags flags) {
-    return SkToBool(VK_FORMAT_FEATURE_TRANSFER_DST_BIT & flags);
-}
 }
 
 void VulkanCaps::FormatInfo::init(const skgpu::VulkanInterface* interface,
@@ -1810,30 +1884,6 @@ bool VulkanCaps::FormatInfo::isStorage(VkImageTiling imageTiling) const {
             return is_storage(fFormatProperties.optimalTilingFeatures);
         case VK_IMAGE_TILING_LINEAR:
             return is_storage(fFormatProperties.linearTilingFeatures);
-        default:
-            return false;
-    }
-    SkUNREACHABLE;
-}
-
-bool VulkanCaps::FormatInfo::isTransferSrc(VkImageTiling imageTiling) const {
-    switch (imageTiling) {
-        case VK_IMAGE_TILING_OPTIMAL:
-            return is_transfer_src(fFormatProperties.optimalTilingFeatures);
-        case VK_IMAGE_TILING_LINEAR:
-            return is_transfer_src(fFormatProperties.linearTilingFeatures);
-        default:
-            return false;
-    }
-    SkUNREACHABLE;
-}
-
-bool VulkanCaps::FormatInfo::isTransferDst(VkImageTiling imageTiling) const {
-    switch (imageTiling) {
-        case VK_IMAGE_TILING_OPTIMAL:
-            return is_transfer_dst(fFormatProperties.optimalTilingFeatures);
-        case VK_IMAGE_TILING_LINEAR:
-            return is_transfer_dst(fFormatProperties.linearTilingFeatures);
         default:
             return false;
     }
@@ -1974,115 +2024,6 @@ SkSpan<const Caps::ColorTypeInfo> VulkanCaps::getColorTypeInfos(
 
     const FormatInfo& formatInfo = this->getFormatInfo(vkFormat);
     return {formatInfo.fColorTypeInfos.get(), formatInfo.fColorTypeInfoCount};
-}
-
-bool VulkanCaps::onIsTexturable(const TextureInfo& texInfo) const {
-    return texInfo.isValid() &&
-           this->isTexturable(TextureInfoPriv::Get<VulkanTextureInfo>(texInfo));
-}
-
-bool VulkanCaps::isRenderable(const TextureInfo& texInfo) const {
-    return texInfo.isValid() &&
-           this->isRenderable(TextureInfoPriv::Get<VulkanTextureInfo>(texInfo));
-}
-
-bool VulkanCaps::isStorage(const TextureInfo& texInfo) const {
-    if (!texInfo.isValid()) {
-        return false;
-    }
-    const auto& vkInfo = TextureInfoPriv::Get<VulkanTextureInfo>(texInfo);
-
-    const FormatInfo& info = this->getFormatInfo(vkInfo.fFormat);
-    return info.isStorage(vkInfo.fImageTiling);
-}
-
-bool VulkanCaps::isFormatSupported(VkFormat format) const {
-    const FormatInfo& formatInfo = this->getFormatInfo(format);
-
-    // If Skia claims support for a VkFormat we should have a nonzero fColorTypeInfoCount and valid
-    // fColorTypeInfos ptr. Therefore, just checking these should be more than sufficient to confirm
-    // that the format is supported by Skia.
-    return formatInfo.fColorTypeInfoCount != 0 && formatInfo.fColorTypeInfos != nullptr;
-}
-
-bool VulkanCaps::isTexturable(const VulkanTextureInfo& vkInfo) const {
-    // All images using external formats are required to be able to be sampled per Vulkan spec.
-    // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkAndroidHardwareBufferFormatPropertiesANDROID.html#_description
-    if (vkInfo.fFormat == VK_FORMAT_UNDEFINED && vkInfo.fYcbcrConversionInfo.isValid()) {
-        return true;
-    }
-
-    // Otherwise, we are working with a known format and can simply reference the format table info.
-    const FormatInfo& info = this->getFormatInfo(vkInfo.fFormat);
-    return info.isTexturable(vkInfo.fImageTiling);
-}
-
-bool VulkanCaps::isRenderable(const VulkanTextureInfo& vkInfo) const {
-    const FormatInfo& info = this->getFormatInfo(vkInfo.fFormat);
-    // All renderable vulkan textures within graphite must also support input attachment usage
-    return info.isRenderable(vkInfo.fImageTiling, (SampleCount) vkInfo.fSampleCount) &&
-           SkToBool(vkInfo.fImageUsageFlags & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT);
-}
-
-bool VulkanCaps::isTransferSrc(const VulkanTextureInfo& vkInfo) const {
-    const FormatInfo& info = this->getFormatInfo(vkInfo.fFormat);
-    return info.isTransferSrc(vkInfo.fImageTiling);
-}
-
-bool VulkanCaps::isTransferDst(const VulkanTextureInfo& vkInfo) const {
-    const FormatInfo& info = this->getFormatInfo(vkInfo.fFormat);
-    return info.isTransferDst(vkInfo.fImageTiling);
-}
-
-bool VulkanCaps::isCopyableDst(const TextureInfo& texInfo) const {
-    const auto& vkInfo = TextureInfoPriv::Get<VulkanTextureInfo>(texInfo);
-
-    // Can't write if it needs a YCbCr sampler
-    if (VkFormatNeedsYcbcrSampler(vkInfo.fFormat)) {
-        return false;
-    }
-
-    if (vkInfo.fSampleCount > SampleCount::k1) {
-        return false;
-    }
-
-    if (!SkToBool(vkInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT)) {
-        return false;
-    }
-
-    return true;
-}
-
-bool VulkanCaps::isCopyableSrc(const TextureInfo& texInfo) const {
-    if (texInfo.isProtected() == Protected::kYes) {
-        return false;
-    }
-
-    const auto& vkInfo = TextureInfoPriv::Get<VulkanTextureInfo>(texInfo);
-
-    // Can't read if it needs a YCbCr sampler
-    if (VkFormatNeedsYcbcrSampler(vkInfo.fFormat)) {
-        return false;
-    }
-
-    if (VkFormatIsCompressed(vkInfo.fFormat)) {
-        return false;
-    }
-
-    if (vkInfo.fSampleCount > SampleCount::k1) {
-        return false;
-    }
-
-    if (!SkToBool(vkInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT)) {
-        return false;
-    }
-
-    return true;
-}
-
-bool VulkanCaps::msaaTextureRenderToSingleSampledSupport(const TextureInfo& info) const {
-    const auto& vkInfo = TextureInfoPriv::Get<VulkanTextureInfo>(info);
-    return vkInfo.fFlags & VK_IMAGE_CREATE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT;
 }
 
 // 4 uint32s for the render step id, paint id, compatible render pass description, and write
