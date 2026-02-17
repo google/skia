@@ -431,6 +431,9 @@ class SkpDebugPlayer {
         SkDeserialProcs procs;
         procs.fImageProc = SkSharingDeserialContext::deserializeImage;
         procs.fImageCtx = deserialContext.get();
+        sk_sp<SkFontMgr> fallback = SkFontMgr_New_Custom_Empty();
+        procs.fTypefaceCtx = &fallback;
+        procs.fTypefaceStreamProc = deserializeTypeface;
 
         int page_count = SkMultiPictureDocument::ReadPageCount(stream);
         if (!page_count) {
