@@ -592,9 +592,13 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 						skip(ALL, "test", ALL, "PersistentPipelineStorageTest")
 					}
 
-					if b.MatchOs("Win11") && b.GPU("RTX3060", "GTX1660", "IntelIrisXe", "IntelUHDGraphics770") {
+					if b.MatchOs("Win11") &&
+						b.GPU("RTX3060", "GTX1660", "IntelIrisXe", "IntelUHDGraphics770", "IntelIris540") {
 						// These GPUs are failing this test on Win11 (b/462240488)
 						skip(ALL, "test", ALL, "PersistentPipelineStorageTest")
+					}
+					if b.MatchOs("Win11") && b.GPU("IntelIris540") {
+						skip(ALL, "test", ALL, "NotifyInUseTestLayer") // b/485241813
 					}
 					if b.MatchOs("Win11") && b.GPU("IntelIrisXe", "IntelUHDGraphics770") {
 						// skbug.com/470073298
