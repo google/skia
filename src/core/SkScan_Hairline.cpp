@@ -295,15 +295,28 @@ static uint32_t compute_int_quad_dist(const SkPoint pts[3]) {
     }
 }
 
-static void hair_quad(const SkPoint pts[3], const SkRegion* clip,
-                     SkBlitter* blitter, int level, SkScan::HairRgnProc lineproc) {
+using mask2 = skvx::Vec<2, uint32_t>;
+
+static inline mask2 float2_is_finite(const float2& x) {
+    const mask2 exp_mask = mask2(0xFF << 23);
+    return (sk_bit_cast<mask2>(x) & exp_mask) != exp_mask;
+}
+
+// Draw a quadratic by subdividing it into a series of line segments.
+// Assuming none of those points are infinite/nan, then draw the line.
+static void hair_quad(const SkPoint pts[3],
+                      const SkRegion* clip,
+                      SkBlitter* blitter,
+                      int level,
+                      SkScan::HairRgnProc lineproc) {
     SkASSERT(level <= kMaxQuadSubdivideLevel);
 
+    // Convert the quadratic points into coefficients for the form: p(t) = At^2 + Bt + C
     SkQuadCoeff coeff(pts);
 
     const unsigned lines = 1 << level;
     float2 t(0);
-    float2 dt(SK_Scalar1 / lines);
+    float2 dt(1.0f / lines);
 
     SkPoint tmp[(1 << kMaxQuadSubdivideLevel) + 1];
     SkASSERT((unsigned)lines < std::size(tmp));
@@ -312,12 +325,17 @@ static void hair_quad(const SkPoint pts[3], const SkRegion* clip,
     float2 A = coeff.fA;
     float2 B = coeff.fB;
     float2 C = coeff.fC;
+    mask2 is_finite(~0);  // start out as true
     for (unsigned i = 1; i < lines; ++i) {
         t = t + dt;
-        ((A * t + B) * t + C).store(&tmp[i]);
+        float2 p = (A * t + B) * t + C;
+        is_finite &= float2_is_finite(p);
+        p.store(&tmp[i]);
     }
-    tmp[lines] = pts[2];
-    lineproc({tmp, lines + 1}, clip, blitter);
+    if (all(is_finite)) {
+        tmp[lines] = pts[2];
+        lineproc({tmp, lines + 1}, clip, blitter);
+    }
 }
 
 static SkRect compute_nocheck_quad_bounds(const SkPoint pts[3]) {
@@ -410,14 +428,11 @@ static bool quick_cubic_niceness_check(const SkPoint pts[4]) {
            lt_90(pts[2], pts[3], pts[0]);
 }
 
-using mask2 = skvx::Vec<2, uint32_t>;
-
-static inline mask2 float2_is_finite(const float2& x) {
-    const mask2 exp_mask = mask2(0xFF << 23);
-    return (sk_bit_cast<mask2>(x) & exp_mask) != exp_mask;
-}
-
-static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* blitter,
+// Draw a cubic by subdividing it into a series of line segments.
+// Assuming none of those points are infinite/nan, then draw the line.
+static void hair_cubic(const SkPoint pts[4],
+                       const SkRegion* clip,
+                       SkBlitter* blitter,
                        SkScan::HairRgnProc lineproc) {
     const size_t lines = compute_cubic_segs(pts);
     SkASSERT(lines > 0);
@@ -426,10 +441,11 @@ static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* bl
         return;
     }
 
+    // Convert the cubic points into coefficients for the form: p(t) = At^3 + Bt^2 + Ct + D
     SkCubicCoeff coeff(pts);
 
-    const float2 dt(SK_Scalar1 / lines);
     float2 t(0);
+    const float2 dt(1.0f / lines);
 
     SkPoint tmp[(1 << kMaxCubicSubdivideLevel) + 1];
     SkASSERT((unsigned)lines < std::size(tmp));
@@ -439,8 +455,8 @@ static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* bl
     float2 B = coeff.fB;
     float2 C = coeff.fC;
     float2 D = coeff.fD;
-    mask2 is_finite(~0);   // start out as true
-    for (size_t i = 1; i < lines; ++i) {
+    mask2 is_finite(~0);  // start out as true
+    for (unsigned i = 1; i < lines; ++i) {
         t = t + dt;
         float2 p = ((A * t + B) * t + C) * t + D;
         is_finite &= float2_is_finite(p);
