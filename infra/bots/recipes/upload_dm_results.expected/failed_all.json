@@ -19,8 +19,8 @@
   },
   {
     "cmd": [
-      "gsutil",
-      "-m",
+      "gcloud",
+      "storage",
       "cp",
       "[START_DIR]/test/*.png",
       "gs://skia-infra-gm/dm-images-v1"
@@ -32,8 +32,8 @@
   },
   {
     "cmd": [
-      "gsutil",
-      "-m",
+      "gcloud",
+      "storage",
       "cp",
       "[START_DIR]/test/*.png",
       "gs://skia-infra-gm/dm-images-v1"
@@ -45,8 +45,8 @@
   },
   {
     "cmd": [
-      "gsutil",
-      "-m",
+      "gcloud",
+      "storage",
       "cp",
       "[START_DIR]/test/*.png",
       "gs://skia-infra-gm/dm-images-v1"
@@ -58,8 +58,8 @@
   },
   {
     "cmd": [
-      "gsutil",
-      "-m",
+      "gcloud",
+      "storage",
       "cp",
       "[START_DIR]/test/*.png",
       "gs://skia-infra-gm/dm-images-v1"
@@ -71,8 +71,8 @@
   },
   {
     "cmd": [
-      "gsutil",
-      "-m",
+      "gcloud",
+      "storage",
       "cp",
       "[START_DIR]/test/*.png",
       "gs://skia-infra-gm/dm-images-v1"
