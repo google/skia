@@ -2193,6 +2193,7 @@ GrGLenum GrGLGpu::bindBuffer(GrGpuBufferType type, const GrBuffer* buffer) {
     } else if (static_cast<const GrGpuBuffer*>(buffer)->uniqueID() !=
                bufferState->fBoundBufferUniqueID) {
         const GrGLBuffer* glBuffer = static_cast<const GrGLBuffer*>(buffer);
+        SkASSERT(glBuffer->validBindingTarget(bufferState->fGLTarget));
         GL_CALL(BindBuffer(bufferState->fGLTarget, glBuffer->bufferID()));
         bufferState->fBufferZeroKnownBound = false;
         bufferState->fBoundBufferUniqueID = glBuffer->uniqueID();

@@ -39,6 +39,10 @@ public:
     void setHasAttachedToTexture() { fHasAttachedToTexture = true; }
     bool hasAttachedToTexture() const { return fHasAttachedToTexture; }
 
+#ifdef SK_DEBUG
+    bool validBindingTarget(GrGLenum target) const;
+#endif // SK_DEBUG
+
 protected:
     GrGLBuffer(GrGLGpu*,
                size_t size,
@@ -66,6 +70,15 @@ private:
     GrGLuint        fBufferID;
     GrGLenum        fUsage;
     bool            fHasAttachedToTexture;
+
+#ifdef SK_DEBUG
+    enum class BindingCategory {
+      kUndefined,
+      kIndexBuffer,
+      kOtherData,
+    };
+  mutable BindingCategory fBindingCategory = BindingCategory::kUndefined;
+#endif // SK_DEBUG
 
     using INHERITED = GrGpuBuffer;
 };

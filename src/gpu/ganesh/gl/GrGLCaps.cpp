@@ -265,6 +265,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fClientCanDisableMultisample = false;
     }
 
+    fBufferBindingRestriction = GR_IS_GR_WEBGL(standard);
+
     if (GR_IS_GR_GL(standard)) {
         // 3.1 has draw_instanced but not instanced_arrays, for the time being we only care about
         // instanced arrays, but we could make this more granular if we wanted
