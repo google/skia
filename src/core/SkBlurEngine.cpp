@@ -556,62 +556,64 @@ private:
         skvx::Vec<4, uint32_t>* buffer0Cursor = fBuffer0Cursor;
         skvx::Vec<4, uint32_t>* buffer1Cursor = fBuffer1Cursor;
         skvx::Vec<4, uint32_t>* buffer2Cursor = fBuffer2Cursor;
-        v4u32 sum0 = __lsx_vld(fSum0, 0); // same as skvx::Vec<4, uint32_t>::Load(fSum0);
-        v4u32 sum1 = __lsx_vld(fSum1, 0);
-        v4u32 sum2 = __lsx_vld(fSum2, 0);
+        v4u32 sum0 = (v4u32)__lsx_vld(fSum0, 0); // same as skvx::Vec<4, uint32_t>::Load(fSum0);
+        v4u32 sum1 = (v4u32)__lsx_vld(fSum1, 0);
+        v4u32 sum2 = (v4u32)__lsx_vld(fSum2, 0);
 
         auto processValue = [&](v4u32& vLeadingEdge){
           sum0 += vLeadingEdge;
           sum1 += sum0;
           sum2 += sum1;
 
-          v4u32 divisorFactor = __lsx_vreplgr2vr_w(fDivider.divisorFactor());
-          v4u32 blurred = __lsx_vmuh_w(divisorFactor, sum2);
+          v4u32 divisorFactor = (v4u32)__lsx_vreplgr2vr_w(fDivider.divisorFactor());
+          v4u32 blurred = (v4u32)__lsx_vmuh_w((__m128i)divisorFactor, (__m128i)sum2);
 
-          v4u32 buffer2Value = __lsx_vld(buffer2Cursor, 0); //Not fBuffer0Cursor, out of bounds.
+          v4u32 buffer2Value = (v4u32)__lsx_vld(buffer2Cursor, 0); //Not fBuffer0Cursor, out of bounds.
           sum2 -= buffer2Value;
-          __lsx_vst(sum1, (void *)buffer2Cursor, 0);
+          __lsx_vst((__m128i)sum1, (void *)buffer2Cursor, 0);
           buffer2Cursor = (buffer2Cursor + 1) < fBuffersEnd ? buffer2Cursor + 1 : fBuffer2;
-          v4u32 buffer1Value = __lsx_vld(buffer1Cursor, 0);
+          v4u32 buffer1Value = (v4u32)__lsx_vld(buffer1Cursor, 0);
           sum1 -= buffer1Value;
-          __lsx_vst(sum0, (void *)buffer1Cursor, 0);
+          __lsx_vst((__m128i)sum0, (void *)buffer1Cursor, 0);
           buffer1Cursor = (buffer1Cursor + 1) < fBuffer2 ? buffer1Cursor + 1 : fBuffer1;
-          v4u32 buffer0Value = __lsx_vld(buffer0Cursor, 0);
+          v4u32 buffer0Value = (v4u32)__lsx_vld(buffer0Cursor, 0);
           sum0 -= buffer0Value;
-          __lsx_vst(vLeadingEdge, (void *)buffer0Cursor, 0);
+          __lsx_vst((__m128i)vLeadingEdge, (void *)buffer0Cursor, 0);
           buffer0Cursor = (buffer0Cursor + 1) < fBuffer1 ? buffer0Cursor + 1 : fBuffer0;
 
           v16u8 shuf = {0x0,0x4,0x8,0xc,0x0};
-          v16u8 ret = __lsx_vshuf_b(blurred, blurred, shuf);
+          v16u8 ret = (v16u8)__lsx_vshuf_b((__m128i)blurred, (__m128i)blurred, (__m128i)shuf);
           return ret;
         };
 
-        v4u32 zero = __lsx_vldi(0x0);
+        v4u32 zero = (v4u32)__lsx_vldi(0x0);
         if (!src32 && !dst32) {
             while (n --> 0) {
                 (void)processValue(zero);
             }
         } else if (src32 && !dst32) {
             while (n --> 0) {
-                v4u32 edge = __lsx_vinsgr2vr_w(zero, *src32, 0);
-                edge = __lsx_vilvl_b(zero, edge);
-                edge = __lsx_vilvl_h(zero, edge);
+                v4u32 edge = (v4u32)__lsx_vinsgr2vr_w((__m128i)zero, *src32, 0);
+                edge = (v4u32)__lsx_vilvl_b((__m128i)zero, (__m128i)edge);
+                edge = (v4u32)__lsx_vilvl_h((__m128i)zero, (__m128i)edge);
                 (void)processValue(edge);
                 src32 += srcStride;
             }
         } else if (!src32 && dst32) {
             while (n --> 0) {
-                v4u32 ret = processValue(zero);
-                __lsx_vstelm_w(ret, dst32, 0, 0); // 3rd is offset, 4th is idx.
+                v16u8 ret_vec = processValue(zero);
+		v4u32 ret = (v4u32)ret_vec;
+                __lsx_vstelm_w((__m128i)ret, dst32, 0, 0); // 3rd is offset, 4th is idx.
                 dst32 += dstStride;
             }
         } else if (src32 && dst32) {
             while (n --> 0) {
-                v4u32 edge = __lsx_vinsgr2vr_w(zero, *src32, 0);
-                edge = __lsx_vilvl_b(zero, edge);
-                edge = __lsx_vilvl_h(zero, edge);
-                v4u32 ret = processValue(edge);
-                __lsx_vstelm_w(ret, dst32, 0, 0);
+                v4u32 edge = (v4u32)__lsx_vinsgr2vr_w((__m128i)zero, *src32, 0);
+                edge = (v4u32)__lsx_vilvl_b((__m128i)zero, (__m128i)edge);
+                edge = (v4u32)__lsx_vilvl_h((__m128i)zero, (__m128i)edge);
+                v16u8 ret_vec = processValue(edge);
+		v4u32 ret = (v4u32)ret_vec;
+                __lsx_vstelm_w((__m128i)ret, dst32, 0, 0);
                 src32 += srcStride;
                 dst32 += dstStride;
             }
@@ -622,9 +624,9 @@ private:
         fBuffer1Cursor = buffer1Cursor;
         fBuffer2Cursor = buffer2Cursor;
 
-        __lsx_vst(sum0, fSum0, 0);
-        __lsx_vst(sum1, fSum1, 0);
-        __lsx_vst(sum2, fSum2, 0);
+        __lsx_vst((__m128i)sum0, fSum0, 0);
+        __lsx_vst((__m128i)sum1, fSum1, 0);
+        __lsx_vst((__m128i)sum2, fSum2, 0);
 #else
         skvx::Vec<4, uint32_t>* buffer0Cursor = fBuffer0Cursor;
         skvx::Vec<4, uint32_t>* buffer1Cursor = fBuffer1Cursor;
