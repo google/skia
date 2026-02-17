@@ -11,6 +11,7 @@ DEPS = [
   'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/properties',
+  'recipe_engine/service_account',
   'recipe_engine/step',
   'recipe_engine/time',
   'vars',
@@ -46,10 +47,13 @@ def RunSteps(api):
   dst = '/'.join((
       'gs://%s' % api.properties['gs_bucket'], gs_path, basename))
 
-  api.step(
-      'upload',
-      cmd=['gcloud', 'storage', 'cp', '--gzip-local=json', src, dst],
-      infra_step=True)
+  token = api.service_account.default().get_access_token(
+      scopes=['https://www.googleapis.com/auth/devstorage.read_write'])
+  with api.context(env={'CLOUDSDK_AUTH_ACCESS_TOKEN': token}):
+    api.step(
+        'upload',
+        cmd=['gcloud', 'storage', 'cp', '--gzip-local=json', src, dst],
+        infra_step=True)
 
 
 def GenTests(api):

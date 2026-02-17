@@ -20,6 +20,18 @@
   },
   {
     "cmd": [
+      "luci-auth",
+      "token",
+      "-scopes",
+      "https://www.googleapis.com/auth/devstorage.read_write",
+      "-lifetime",
+      "3m"
+    ],
+    "infra_step": true,
+    "name": "get access token for default account"
+  },
+  {
+    "cmd": [
       "gcloud",
       "storage",
       "cp",
@@ -27,6 +39,9 @@
       "[START_DIR]/perf/nanobench_abc123.json",
       "gs://skia-perf/trybot/nano-json-v1/2012/05/14/12/Perf-Debian10-Clang-GCE-CPU-AVX2-x86_64-All-Debug/456789/12/nanobench_abc123.json"
     ],
+    "env": {
+      "CLOUDSDK_AUTH_ACCESS_TOKEN": "extra.secret.token.should.not.be.logged"
+    },
     "infra_step": true,
     "name": "upload"
   },
