@@ -661,7 +661,9 @@ bool OneLineShaper::shape() {
                 // Create one more font to try
                 SkFont font(std::move(typeface), block.fStyle.getFontSize());
                 font.setEdging(block.fStyle.getFontEdging());
-                font.setHinting(block.fStyle.getFontHinting());
+                font.setHinting(
+                  fParagraph->paragraphStyle().hintingIsOn() ? block.fStyle.getFontHinting() : SkFontHinting:kNone
+                );
                 font.setSubpixel(block.fStyle.getSubpixel());
 
                 if (fParagraph->paragraphStyle().fakeMissingFontStyles()) {
