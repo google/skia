@@ -7,11 +7,11 @@
 
 #include "src/gpu/ganesh/d3d/GrD3DTexture.h"
 
+#include "include/gpu/ganesh/d3d/GrD3DTypes.h"
 #include "src/gpu/ganesh/GrTexture.h"
+#include "src/gpu/ganesh/d3d/GrD3DBackendSurfacePriv.h"
 #include "src/gpu/ganesh/d3d/GrD3DGpu.h"
 #include "src/gpu/ganesh/d3d/GrD3DUtil.h"
-
-#include "include/gpu/ganesh/d3d/GrD3DTypes.h"
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrD3DTexture::GrD3DTexture(GrD3DGpu* gpu,
@@ -161,7 +161,8 @@ void GrD3DTexture::onAbandon() {
 }
 
 GrBackendTexture GrD3DTexture::getBackendTexture() const {
-    return GrBackendTexture(this->width(), this->height(), fInfo, this->grD3DResourceState());
+    return GrBackendTextures::MakeD3D(
+            this->width(), this->height(), fInfo, this->grD3DResourceState());
 }
 
 GrD3DGpu* GrD3DTexture::getD3DGpu() const {

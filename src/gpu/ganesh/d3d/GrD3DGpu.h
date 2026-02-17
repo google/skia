@@ -8,6 +8,7 @@
 #ifndef GrD3DGpu_DEFINED
 #define GrD3DGpu_DEFINED
 
+#include "include/gpu/ganesh/d3d/GrD3DBackendSurface.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDeque.h"
 #include "src/gpu/RefCntedCallback.h"
@@ -86,7 +87,7 @@ public:
                                               SkISize dimensions, int numStencilSamples) override;
 
     GrBackendFormat getPreferredStencilFormat(const GrBackendFormat&) override {
-        return GrBackendFormat::MakeDxgi(this->d3dCaps().preferredStencilFormat());
+        return GrBackendFormats::MakeD3D(this->d3dCaps().preferredStencilFormat());
     }
 
     sk_sp<GrAttachment> makeMSAAAttachment(SkISize dimensions,

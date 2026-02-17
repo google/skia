@@ -13,6 +13,7 @@
 #include "src/gpu/ganesh/GrSPIRVUniformHandler.h"
 #include "src/gpu/ganesh/GrSPIRVVaryingHandler.h"
 #include "src/gpu/ganesh/d3d/GrD3DPipelineState.h"
+#include "src/gpu/ganesh/d3d/GrD3DRenderTarget.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
 #include "src/sksl/codegen/SkSLHLSLCodeGenerator.h"
 #include "src/sksl/ir/SkSLProgram.h"

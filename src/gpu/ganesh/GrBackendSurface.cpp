@@ -16,12 +16,6 @@
 #include "src/gpu/ganesh/GrBackendSurfacePriv.h"
 #include "src/gpu/ganesh/GrUtil.h"
 
-#ifdef SK_DIRECT3D
-#include "include/gpu/ganesh/d3d/GrD3DTypes.h"
-#include "src/gpu/ganesh/d3d/GrD3DResourceState.h"
-#include "src/gpu/ganesh/d3d/GrD3DUtil.h"
-#endif
-
 #include <algorithm>
 #include <new>
 
@@ -37,17 +31,13 @@ GrBackendFormat::GrBackendFormat(const GrBackendFormat& that)
     }
 
     switch (fBackend) {
-        case GrBackendApi::kOpenGL:
+        case GrBackendApi::kDirect3D: [[fallthrough]];
+        case GrBackendApi::kMetal:    [[fallthrough]];
+        case GrBackendApi::kOpenGL:   [[fallthrough]];
         case GrBackendApi::kVulkan:
-        case GrBackendApi::kMetal:
             fFormatData.reset();
             that.fFormatData->copyTo(fFormatData);
             break;  // fFormatData is sufficient
-#ifdef SK_DIRECT3D
-        case GrBackendApi::kDirect3D:
-            fDxgiFormat = that.fDxgiFormat;
-            break;
-#endif
         case GrBackendApi::kMock:
             fMock = that.fMock;
             break;
@@ -63,23 +53,6 @@ GrBackendFormat& GrBackendFormat::operator=(const GrBackendFormat& that) {
     }
     return *this;
 }
-
-#ifdef SK_DIRECT3D
-GrBackendFormat::GrBackendFormat(DXGI_FORMAT dxgiFormat)
-    : fBackend(GrBackendApi::kDirect3D)
-    , fValid(true)
-    , fDxgiFormat(dxgiFormat)
-    , fTextureType(GrTextureType::k2D) {
-}
-
-bool GrBackendFormat::asDxgiFormat(DXGI_FORMAT* dxgiFormat) const {
-    if (this->isValid() && GrBackendApi::kDirect3D == fBackend) {
-        *dxgiFormat = fDxgiFormat;
-        return true;
-    }
-    return false;
-}
-#endif
 
 GrBackendFormat::GrBackendFormat(GrColorType colorType, SkTextureCompressionType compression,
                                  bool isStencilFormat)
@@ -97,14 +70,11 @@ uint32_t GrBackendFormat::channelMask() const {
         return 0;
     }
     switch (fBackend) {
-        case GrBackendApi::kOpenGL:
+        case GrBackendApi::kDirect3D: [[fallthrough]];
+        case GrBackendApi::kMetal:    [[fallthrough]];
+        case GrBackendApi::kOpenGL:   [[fallthrough]];
         case GrBackendApi::kVulkan:
-        case GrBackendApi::kMetal:
             return fFormatData->channelMask();
-#ifdef SK_DIRECT3D
-        case GrBackendApi::kDirect3D:
-            return GrDxgiFormatChannels(fDxgiFormat);
-#endif
         case GrBackendApi::kMock:
             return GrColorTypeChannelFlags(fMock.fColorType);
 
@@ -118,14 +88,11 @@ GrColorFormatDesc GrBackendFormat::desc() const {
         return GrColorFormatDesc::MakeInvalid();
     }
     switch (fBackend) {
-        case GrBackendApi::kOpenGL:
+        case GrBackendApi::kDirect3D: [[fallthrough]];
+        case GrBackendApi::kMetal:    [[fallthrough]];
+        case GrBackendApi::kOpenGL:   [[fallthrough]];
         case GrBackendApi::kVulkan:
-        case GrBackendApi::kMetal:
             return fFormatData->desc();
-#ifdef SK_DIRECT3D
-        case GrBackendApi::kDirect3D:
-            return GrDxgiFormatDesc(fDxgiFormat);
-#endif
         case GrBackendApi::kMock:
             return GrGetColorTypeDesc(fMock.fColorType);
 
@@ -179,8 +146,8 @@ bool GrBackendFormat::isMockStencilFormat() const {
 
 GrBackendFormat GrBackendFormat::makeTexture2D() const {
     GrBackendFormat copy = *this;
-    // TODO(b/293490566): Remove this kVulkan check once all backends are using fFormatData.
-    if (fBackend==GrBackendApi::kVulkan) {
+    // TODO(b/293490566): Remove this kVulkan check once mock backend is using fFormatData.
+    if (fBackend == GrBackendApi::kVulkan) {
         copy.fFormatData->makeTexture2D();
     }
     copy.fTextureType = GrTextureType::k2D;
@@ -204,17 +171,14 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
     }
 
     switch (fBackend) {
+        case GrBackendApi::kDirect3D: [[fallthrough]];
+        case GrBackendApi::kMetal:    [[fallthrough]];
         case GrBackendApi::kOpenGL:   [[fallthrough]];
-        case GrBackendApi::kVulkan:   [[fallthrough]];
-        case GrBackendApi::kMetal:
+        case GrBackendApi::kVulkan:
             return fFormatData->equal(that.fFormatData.get());
         case GrBackendApi::kMock:
             return fMock.fColorType == that.fMock.fColorType &&
                    fMock.fCompressionType == that.fMock.fCompressionType;
-#ifdef SK_DIRECT3D
-        case GrBackendApi::kDirect3D:
-            return fDxgiFormat == that.fDxgiFormat;
-#endif
         default:
             SK_ABORT("Unknown GrBackend");
     }
@@ -234,15 +198,11 @@ SkString GrBackendFormat::toStr() const {
     str.appendf("%s-", GrBackendApiToStr(fBackend));
 
     switch (fBackend) {
-        case GrBackendApi::kOpenGL:
+        case GrBackendApi::kDirect3D: [[fallthrough]];
+        case GrBackendApi::kMetal:    [[fallthrough]];
+        case GrBackendApi::kOpenGL:   [[fallthrough]];
         case GrBackendApi::kVulkan:
-        case GrBackendApi::kMetal:
             str.append(fFormatData->toString());
-            break;
-        case GrBackendApi::kDirect3D:
-#ifdef SK_DIRECT3D
-            str.append(GrDxgiFormatToStr(fDxgiFormat));
-#endif
             break;
         case GrBackendApi::kMock:
             str.append(GrColorTypeToStr(fMock.fColorType));
@@ -259,33 +219,6 @@ SkString GrBackendFormat::toStr() const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 GrBackendTexture::GrBackendTexture() : fIsValid(false) {}
-
-#ifdef SK_DIRECT3D
-GrBackendTexture::GrBackendTexture(int width,
-                                   int height,
-                                   const GrD3DTextureResourceInfo& d3dInfo,
-                                   std::string_view label)
-        : GrBackendTexture(width,
-                           height,
-                           d3dInfo,
-                           sk_sp<GrD3DResourceState>(new GrD3DResourceState(
-                                   static_cast<D3D12_RESOURCE_STATES>(d3dInfo.fResourceState))),
-                           label) {}
-
-GrBackendTexture::GrBackendTexture(int width,
-                                   int height,
-                                   const GrD3DTextureResourceInfo& d3dInfo,
-                                   sk_sp<GrD3DResourceState> state,
-                                   std::string_view label)
-        : fIsValid(true)
-        , fWidth(width)
-        , fHeight(height)
-        , fLabel(label)
-        , fMipmapped(skgpu::Mipmapped(d3dInfo.fLevelCount > 1))
-        , fBackend(GrBackendApi::kDirect3D)
-        , fTextureType(GrTextureType::k2D)
-        , fD3DInfo(d3dInfo, std::move(state)) {}
-#endif
 
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
@@ -324,16 +257,12 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
     fTextureType = that.fTextureType;
 
     switch (that.fBackend) {
-        case GrBackendApi::kOpenGL:
+        case GrBackendApi::kDirect3D: [[fallthrough]];
+        case GrBackendApi::kMetal:    [[fallthrough]];
+        case GrBackendApi::kOpenGL:   [[fallthrough]];
         case GrBackendApi::kVulkan:
-        case GrBackendApi::kMetal:
             that.fTextureData->copyTo(fTextureData);
             break;
-#ifdef SK_DIRECT3D
-        case GrBackendApi::kDirect3D:
-            fD3DInfo = that.fD3DInfo;
-            break;
-#endif
         case GrBackendApi::kMock:
             fMockInfo = that.fMockInfo;
             break;
@@ -347,29 +276,6 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
 sk_sp<skgpu::MutableTextureState> GrBackendTexture::getMutableState() const {
     return fTextureData->getMutableState();
 }
-
-#ifdef SK_DIRECT3D
-bool GrBackendTexture::getD3DTextureResourceInfo(GrD3DTextureResourceInfo* outInfo) const {
-    if (this->isValid() && GrBackendApi::kDirect3D == fBackend) {
-        *outInfo = fD3DInfo.snapTextureResourceInfo();
-        return true;
-    }
-    return false;
-}
-
-void GrBackendTexture::setD3DResourceState(GrD3DResourceStateEnum state) {
-    if (this->isValid() && GrBackendApi::kDirect3D == fBackend) {
-        fD3DInfo.setResourceState(state);
-    }
-}
-
-sk_sp<GrD3DResourceState> GrBackendTexture::getGrD3DResourceState() const {
-    if (this->isValid() && GrBackendApi::kDirect3D == fBackend) {
-        return fD3DInfo.getGrD3DResourceState();
-    }
-    return nullptr;
-}
-#endif
 
 bool GrBackendTexture::getMockTextureInfo(GrMockTextureInfo* outInfo) const {
     if (this->isValid() && GrBackendApi::kMock == fBackend) {
@@ -405,15 +311,11 @@ bool GrBackendTexture::isSameTexture(const GrBackendTexture& that) {
         return false;
     }
     switch (fBackend) {
-        case GrBackendApi::kOpenGL:
+        case GrBackendApi::kDirect3D: [[fallthrough]];
+        case GrBackendApi::kMetal:    [[fallthrough]];
+        case GrBackendApi::kOpenGL:   [[fallthrough]];
         case GrBackendApi::kVulkan:
-        case GrBackendApi::kMetal:
             return fTextureData->isSameTexture(that.fTextureData.get());
-#ifdef SK_DIRECT3D
-        case GrBackendApi::kDirect3D:
-            return fD3DInfo.snapTextureResourceInfo().fResource ==
-                    that.fD3DInfo.snapTextureResourceInfo().fResource;
-#endif
         case GrBackendApi::kMock:
             return fMockInfo.id() == that.fMockInfo.id();
         default:
@@ -426,16 +328,11 @@ GrBackendFormat GrBackendTexture::getBackendFormat() const {
         return GrBackendFormat();
     }
     switch (fBackend) {
-        case GrBackendApi::kOpenGL:
+        case GrBackendApi::kDirect3D: [[fallthrough]];
+        case GrBackendApi::kMetal:    [[fallthrough]];
+        case GrBackendApi::kOpenGL:   [[fallthrough]];
         case GrBackendApi::kVulkan:
-        case GrBackendApi::kMetal:
             return fTextureData->getBackendFormat();
-#ifdef SK_DIRECT3D
-        case GrBackendApi::kDirect3D: {
-            auto d3dInfo = fD3DInfo.snapTextureResourceInfo();
-            return GrBackendFormat::MakeDxgi(d3dInfo.fFormat);
-        }
-#endif
         case GrBackendApi::kMock:
             return fMockInfo.getBackendFormat();
         default:
@@ -457,16 +354,13 @@ bool GrBackendTexture::TestingOnly_Equals(const GrBackendTexture& t0, const GrBa
     }
 
     switch (t0.fBackend) {
-        case GrBackendApi::kOpenGL:
+        case GrBackendApi::kDirect3D: [[fallthrough]];
+        case GrBackendApi::kMetal:    [[fallthrough]];
+        case GrBackendApi::kOpenGL:   [[fallthrough]];
         case GrBackendApi::kVulkan:
-        case GrBackendApi::kMetal:
             return t0.fTextureData->equal(t1.fTextureData.get());
         case GrBackendApi::kMock:
             return t0.fMockInfo == t1.fMockInfo;
-#ifdef SK_DIRECT3D
-        case GrBackendApi::kDirect3D:
-            return t0.fD3DInfo == t1.fD3DInfo;
-#endif
         default:
             return false;
     }
@@ -476,27 +370,6 @@ bool GrBackendTexture::TestingOnly_Equals(const GrBackendTexture& t0, const GrBa
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrBackendRenderTarget::GrBackendRenderTarget() : fIsValid(false) {}
-
-#ifdef SK_DIRECT3D
-GrBackendRenderTarget::GrBackendRenderTarget(int width, int height,
-                                             const GrD3DTextureResourceInfo& d3dInfo)
-        : GrBackendRenderTarget(
-                width, height, d3dInfo,
-                sk_sp<GrD3DResourceState>(new GrD3DResourceState(
-                        static_cast<D3D12_RESOURCE_STATES>(d3dInfo.fResourceState)))) {}
-
-GrBackendRenderTarget::GrBackendRenderTarget(int width,
-                                             int height,
-                                             const GrD3DTextureResourceInfo& d3dInfo,
-                                             sk_sp<GrD3DResourceState> state)
-        : fIsValid(true)
-        , fWidth(width)
-        , fHeight(height)
-        , fSampleCnt(std::max(1U, d3dInfo.fSampleCount))
-        , fStencilBits(0)
-        , fBackend(GrBackendApi::kDirect3D)
-        , fD3DInfo(d3dInfo, std::move(state)) {}
-#endif
 
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
@@ -534,16 +407,12 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
     fBackend = that.fBackend;
 
     switch (that.fBackend) {
-        case GrBackendApi::kOpenGL:
+        case GrBackendApi::kDirect3D: [[fallthrough]];
+        case GrBackendApi::kMetal:    [[fallthrough]];
+        case GrBackendApi::kOpenGL:   [[fallthrough]];
         case GrBackendApi::kVulkan:
-        case GrBackendApi::kMetal:
             that.fRTData->copyTo(fRTData);
             break;
-#ifdef SK_DIRECT3D
-        case GrBackendApi::kDirect3D:
-            fD3DInfo = that.fD3DInfo;
-            break;
-#endif
         case GrBackendApi::kMock:
             fMockInfo = that.fMockInfo;
             break;
@@ -558,44 +427,16 @@ sk_sp<skgpu::MutableTextureState> GrBackendRenderTarget::getMutableState() const
     return fRTData->getMutableState();
 }
 
-#ifdef SK_DIRECT3D
-bool GrBackendRenderTarget::getD3DTextureResourceInfo(GrD3DTextureResourceInfo* outInfo) const {
-    if (this->isValid() && GrBackendApi::kDirect3D == fBackend) {
-        *outInfo = fD3DInfo.snapTextureResourceInfo();
-        return true;
-    }
-    return false;
-}
-
-void GrBackendRenderTarget::setD3DResourceState(GrD3DResourceStateEnum state) {
-    if (this->isValid() && GrBackendApi::kDirect3D == fBackend) {
-        fD3DInfo.setResourceState(state);
-    }
-}
-
-sk_sp<GrD3DResourceState> GrBackendRenderTarget::getGrD3DResourceState() const {
-    if (this->isValid() && GrBackendApi::kDirect3D == fBackend) {
-        return fD3DInfo.getGrD3DResourceState();
-    }
-    return nullptr;
-}
-#endif
-
 GrBackendFormat GrBackendRenderTarget::getBackendFormat() const {
     if (!this->isValid()) {
         return GrBackendFormat();
     }
     switch (fBackend) {
-        case GrBackendApi::kOpenGL:
+        case GrBackendApi::kDirect3D: [[fallthrough]];
+        case GrBackendApi::kMetal:    [[fallthrough]];
+        case GrBackendApi::kOpenGL:   [[fallthrough]];
         case GrBackendApi::kVulkan:
-        case GrBackendApi::kMetal:
             return fRTData->getBackendFormat();
-#ifdef SK_DIRECT3D
-        case GrBackendApi::kDirect3D: {
-            auto info = fD3DInfo.snapTextureResourceInfo();
-            return GrBackendFormat::MakeDxgi(info.fFormat);
-        }
-#endif
         case GrBackendApi::kMock:
             return fMockInfo.getBackendFormat();
         default:
@@ -645,16 +486,13 @@ bool GrBackendRenderTarget::TestingOnly_Equals(const GrBackendRenderTarget& r0,
     }
 
     switch (r0.fBackend) {
-        case GrBackendApi::kOpenGL:
+        case GrBackendApi::kDirect3D: [[fallthrough]];
+        case GrBackendApi::kMetal:    [[fallthrough]];
+        case GrBackendApi::kOpenGL:   [[fallthrough]];
         case GrBackendApi::kVulkan:
-        case GrBackendApi::kMetal:
             return r0.fRTData->equal(r1.fRTData.get());
         case GrBackendApi::kMock:
             return r0.fMockInfo == r1.fMockInfo;
-#ifdef SK_DIRECT3D
-        case GrBackendApi::kDirect3D:
-            return r0.fD3DInfo == r1.fD3DInfo;
-#endif
         default:
             return false;
     }

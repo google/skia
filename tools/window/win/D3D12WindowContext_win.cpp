@@ -11,6 +11,7 @@
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/ganesh/d3d/GrD3DBackendContext.h"
+#include "include/gpu/ganesh/d3d/GrD3DBackendSurface.h"
 #include "tools/ganesh/d3d/D3DTestUtils.h"
 #include "tools/window/DisplayParams.h"
 #include "tools/window/WindowContext.h"
@@ -156,7 +157,7 @@ void D3D12WindowContext::setupSurfaces(int width, int height) {
 
         info.fResource = fBuffers[i];
         if (fSampleCount > 1) {
-            GrBackendTexture backendTexture(width, height, info);
+            auto backendTexture = GrBackendTextures::MakeD3D(width, height, info);
             fSurfaces[i] = SkSurfaces::WrapBackendTexture(fContext.get(),
                                                           backendTexture,
                                                           kTopLeft_GrSurfaceOrigin,
@@ -165,7 +166,7 @@ void D3D12WindowContext::setupSurfaces(int width, int height) {
                                                           fDisplayParams->colorSpace(),
                                                           &fDisplayParams->surfaceProps());
         } else {
-            GrBackendRenderTarget backendRT(width, height, info);
+            auto backendRT = GrBackendRenderTargets::MakeD3D(width, height, info);
             fSurfaces[i] = SkSurfaces::WrapBackendRenderTarget(fContext.get(),
                                                                backendRT,
                                                                kTopLeft_GrSurfaceOrigin,

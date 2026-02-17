@@ -19,6 +19,7 @@ D3D_FILES = [
     "GrD3DCaps.cpp",
     "GrD3DCaps.h",
     "GrD3DCommandList.cpp",
+    "GrD3DBackendSurface.cpp",
     "GrD3DCommandList.h",
     "GrD3DCommandSignature.cpp",
     "GrD3DCommandSignature.h",

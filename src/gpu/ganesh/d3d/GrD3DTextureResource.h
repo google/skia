@@ -10,6 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
+#include "include/gpu/ganesh/d3d/GrD3DBackendSurface.h"
 #include "include/gpu/ganesh/d3d/GrD3DTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrManagedResource.h"
@@ -37,7 +38,7 @@ public:
     }
     DXGI_FORMAT dxgiFormat() const { return fInfo.fFormat; }
     GrBackendFormat getBackendFormat() const {
-        return GrBackendFormat::MakeDxgi(this->dxgiFormat());
+        return GrBackendFormats::MakeD3D(this->dxgiFormat());
     }
     sk_sp<Resource> resource() const {
         SkASSERT(fResource);

@@ -27,11 +27,6 @@ namespace skgpu {
 class MutableTextureState;
 }
 
-#ifdef SK_DIRECT3D
-#include "include/private/gpu/ganesh/GrD3DTypesMinimal.h"
-class GrD3DResourceState;
-#endif
-
 #if defined(SK_DEBUG) || defined(GPU_TEST_UTILS)
 class SkString;
 #endif
@@ -48,12 +43,6 @@ public:
     GrBackendFormat(const GrBackendFormat&);
     GrBackendFormat& operator=(const GrBackendFormat&);
     ~GrBackendFormat();
-
-#ifdef SK_DIRECT3D
-    static GrBackendFormat MakeDxgi(DXGI_FORMAT format) {
-        return GrBackendFormat(format);
-    }
-#endif
 
     static GrBackendFormat MakeMock(GrColorType colorType,
                                     SkTextureCompressionType compression,
@@ -72,14 +61,6 @@ public:
     uint32_t channelMask() const;
 
     GrColorFormatDesc desc() const;
-
-#ifdef SK_DIRECT3D
-    /**
-     * If the backend API is Direct3D this gets the format as a DXGI_FORMAT and returns true.
-     * Otherwise, returns false.
-     */
-    bool asDxgiFormat(DXGI_FORMAT*) const;
-#endif
 
     /**
      * If the backend API is not Mock these three calls will return kUnknown, kNone or false,
@@ -119,10 +100,6 @@ private:
         fFormatData.emplace<FormatData>(formatData);
     }
 
-#ifdef SK_DIRECT3D
-    explicit GrBackendFormat(DXGI_FORMAT dxgiFormat);
-#endif
-
     GrBackendFormat(GrColorType, SkTextureCompressionType, bool isStencilFormat);
 
 #ifdef SK_DEBUG
@@ -133,16 +110,11 @@ private:
     bool fValid = false;
     AnyFormatData fFormatData;
 
-    union {
-#ifdef SK_DIRECT3D
-        DXGI_FORMAT fDxgiFormat;
-#endif
-        struct {
-            GrColorType fColorType;
-            SkTextureCompressionType fCompressionType;
-            bool fIsStencilFormat;
-        } fMock;
-    };
+    struct {
+        GrColorType fColorType;
+        SkTextureCompressionType fCompressionType;
+        bool fIsStencilFormat;
+    } fMock;
     GrTextureType fTextureType = GrTextureType::kNone;
 };
 
@@ -150,13 +122,6 @@ class SK_API GrBackendTexture {
 public:
     // Creates an invalid backend texture.
     GrBackendTexture();
-
-#ifdef SK_DIRECT3D
-    GrBackendTexture(int width,
-                     int height,
-                     const GrD3DTextureResourceInfo& d3dInfo,
-                     std::string_view label = {});
-#endif
 
     GrBackendTexture(int width,
                      int height,
@@ -178,17 +143,6 @@ public:
     bool hasMipmaps() const { return fMipmapped == skgpu::Mipmapped::kYes; }
     GrBackendApi backend() const {return fBackend; }
     GrTextureType textureType() const { return fTextureType; }
-
-#ifdef SK_DIRECT3D
-    // If the backend API is Direct3D, copies a snapshot of the GrD3DTextureResourceInfo struct into
-    // the passed in pointer and returns true. This snapshot will set the fResourceState to the
-    // current resource state. Otherwise returns false if the backend API is not D3D.
-    bool getD3DTextureResourceInfo(GrD3DTextureResourceInfo*) const;
-
-    // Anytime the client changes the D3D12_RESOURCE_STATES of the D3D12_RESOURCE captured by this
-    // GrBackendTexture, they must call this function to notify Skia of the changed layout.
-    void setD3DResourceState(GrD3DResourceStateEnum);
-#endif
 
     // Get the GrBackendFormat for this texture (or an invalid format if this is not valid).
     GrBackendFormat getBackendFormat() const;
@@ -249,17 +203,6 @@ private:
     friend class GrVkGpu;  // for getMutableState
     sk_sp<skgpu::MutableTextureState> getMutableState() const;
 
-#ifdef SK_DIRECT3D
-    friend class GrD3DTexture;
-    friend class GrD3DGpu;     // for getGrD3DResourceState
-    GrBackendTexture(int width,
-                     int height,
-                     const GrD3DTextureResourceInfo& vkInfo,
-                     sk_sp<GrD3DResourceState> state,
-                     std::string_view label = {});
-    sk_sp<GrD3DResourceState> getGrD3DResourceState() const;
-#endif
-
     bool fIsValid;
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
@@ -270,21 +213,12 @@ private:
     AnyTextureData fTextureData;
 
     GrMockTextureInfo fMockInfo;
-#ifdef SK_DIRECT3D
-    GrD3DBackendSurfaceInfo fD3DInfo;
-#endif
 };
 
 class SK_API GrBackendRenderTarget {
 public:
     // Creates an invalid backend texture.
     GrBackendRenderTarget();
-
-#ifdef SK_DIRECT3D
-    GrBackendRenderTarget(int width,
-                          int height,
-                          const GrD3DTextureResourceInfo& d3dInfo);
-#endif
 
     GrBackendRenderTarget(int width,
                           int height,
@@ -304,16 +238,6 @@ public:
     int stencilBits() const { return fStencilBits; }
     GrBackendApi backend() const {return fBackend; }
     bool isFramebufferOnly() const { return fFramebufferOnly; }
-
-#ifdef SK_DIRECT3D
-    // If the backend API is Direct3D, copies a snapshot of the GrMtlTextureInfo struct into the
-    // passed in pointer and returns true. Otherwise returns false if the backend API is not D3D.
-    bool getD3DTextureResourceInfo(GrD3DTextureResourceInfo*) const;
-
-    // Anytime the client changes the D3D12_RESOURCE_STATES of the D3D12_RESOURCE captured by this
-    // GrBackendTexture, they must call this function to notify Skia of the changed layout.
-    void setD3DResourceState(GrD3DResourceStateEnum);
-#endif
 
     // Get the GrBackendFormat for this render target (or an invalid format if this is not valid).
     GrBackendFormat getBackendFormat() const;
@@ -372,16 +296,6 @@ private:
     friend class GrVkGpu; // for getMutableState
     sk_sp<skgpu::MutableTextureState> getMutableState() const;
 
-#ifdef SK_DIRECT3D
-    friend class GrD3DGpu;
-    friend class GrD3DRenderTarget;
-    GrBackendRenderTarget(int width,
-                          int height,
-                          const GrD3DTextureResourceInfo& d3dInfo,
-                          sk_sp<GrD3DResourceState> state);
-    sk_sp<GrD3DResourceState> getGrD3DResourceState() const;
-#endif
-
     bool fIsValid;
     bool fFramebufferOnly = false;
     int fWidth;         //<! width in pixels
@@ -394,9 +308,6 @@ private:
     AnyRenderTargetData fRTData;
 
     GrMockRenderTargetInfo fMockInfo;
-#ifdef SK_DIRECT3D
-    GrD3DBackendSurfaceInfo fD3DInfo;
-#endif
 };
 
 #endif

@@ -10,6 +10,7 @@
 
 #include "src/gpu/ganesh/GrAttachment.h"
 
+#include "include/gpu/ganesh/d3d/GrD3DBackendSurface.h"
 #include "include/gpu/ganesh/d3d/GrD3DTypes.h"
 #include "src/gpu/ganesh/d3d/GrD3DDescriptorHeap.h"
 #include "src/gpu/ganesh/d3d/GrD3DTextureResource.h"
@@ -25,7 +26,7 @@ public:
 
     ~GrD3DAttachment() override {}
 
-    GrBackendFormat backendFormat() const override { return GrBackendFormat::MakeDxgi(fFormat); }
+    GrBackendFormat backendFormat() const override { return GrBackendFormats::MakeD3D(fFormat); }
 
     D3D12_CPU_DESCRIPTOR_HANDLE view() const { return fView.fHandle; }
 

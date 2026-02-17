@@ -6,13 +6,13 @@ package(
 
 licenses(["notice"])
 
-# Not yet referenced by Bazel target.
-# Exported to //gn/gpu.gni:skia_direct3d_sources.
+# In own file group for gni export
 skia_filegroup(
     name = "public_hdrs",
     srcs = [
         "GrD3DBackendContext.h",
         "GrD3DBackendSemaphore.h",
+        "GrD3DBackendSurface.h",
         "GrD3DTypes.h",
     ],
 )

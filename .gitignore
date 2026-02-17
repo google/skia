@@ -13,6 +13,7 @@
 .recipe_deps/
 .settings/
 .vscode/
+.vs/
 .win_toolchain/
 TAGS
 bower_components

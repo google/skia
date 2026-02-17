@@ -79,6 +79,7 @@
 #endif
 
 #if defined(SK_DIRECT3D)
+#include "include/gpu/ganesh/d3d/GrD3DBackendSurface.h"
 #include "include/private/gpu/ganesh/GrD3DTypesMinimal.h"
 #endif
 
@@ -203,9 +204,7 @@ static bool isBGRA8(const GrBackendFormat& format) {
 #endif
         case GrBackendApi::kDirect3D: {
 #ifdef SK_DIRECT3D
-            DXGI_FORMAT d3dFormat;
-            format.asDxgiFormat(&d3dFormat);
-            return d3dFormat == DXGI_FORMAT_B8G8R8A8_UNORM;
+            return GrBackendFormats::AsDxgiFormat(format) == DXGI_FORMAT_B8G8R8A8_UNORM;
 #else
             return false;
 #endif

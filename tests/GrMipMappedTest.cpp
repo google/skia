@@ -68,6 +68,7 @@
 class GrRenderTask;
 
 #if defined(SK_DIRECT3D)
+#include "include/gpu/ganesh/d3d/GrD3DBackendSurface.h"
 #include "include/gpu/ganesh/d3d/GrD3DTypes.h"
 #endif
 
@@ -255,7 +256,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest,
             GrBackendTexture genBackendTex = genTexture->getBackendTexture();
 
             if (GrBackendApi::kOpenGL == genBackendTex.backend()) {
-#ifdef SK_GL
+#if defined(SK_GL)
                 GrGLTextureInfo genTexInfo;
                 GrGLTextureInfo origTexInfo;
                 if (GrBackendTextures::GetGLTextureInfo(genBackendTex, &genTexInfo) &&
@@ -270,7 +271,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest,
                     ERRORF(reporter, "Failed to get GrGLTextureInfo");
                 }
 #endif
-#ifdef SK_VULKAN
+#if defined(SK_VULKAN)
             } else if (GrBackendApi::kVulkan == genBackendTex.backend()) {
                 GrVkImageInfo genImageInfo;
                 GrVkImageInfo origImageInfo;
@@ -286,7 +287,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest,
                     ERRORF(reporter, "Failed to get GrVkImageInfo");
                 }
 #endif
-#ifdef SK_METAL
+#if defined(SK_METAL)
             } else if (GrBackendApi::kMetal == genBackendTex.backend()) {
                 GrMtlTextureInfo genImageInfo;
                 GrMtlTextureInfo origImageInfo;
@@ -302,22 +303,17 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest,
                     ERRORF(reporter, "Failed to get GrMtlTextureInfo");
                 }
 #endif
-#ifdef SK_DIRECT3D
+#if defined(SK_DIRECT3D)
             } else if (GrBackendApi::kDirect3D == genBackendTex.backend()) {
-                GrD3DTextureResourceInfo genImageInfo;
-                GrD3DTextureResourceInfo origImageInfo;
-                if (genBackendTex.getD3DTextureResourceInfo(&genImageInfo) &&
-                    backendTex.getD3DTextureResourceInfo(&origImageInfo)) {
-                    if (requestMipmapped == Mipmapped::kYes && betMipmapped == Mipmapped::kNo) {
-                        // We did a copy so the texture resources should be different
-                        REPORTER_ASSERT(reporter,
-                                        origImageInfo.fResource != genImageInfo.fResource);
-                    } else {
-                        REPORTER_ASSERT(reporter,
-                                        origImageInfo.fResource == genImageInfo.fResource);
-                    }
+                GrD3DTextureResourceInfo genImageInfo =
+                        GrBackendTextures::GetD3DTextureResourceInfo(genBackendTex);
+                GrD3DTextureResourceInfo origImageInfo =
+                        GrBackendTextures::GetD3DTextureResourceInfo(backendTex);
+                if (requestMipmapped == Mipmapped::kYes && betMipmapped == Mipmapped::kNo) {
+                    // We did a copy so the texture resources should be different
+                    REPORTER_ASSERT(reporter, origImageInfo.fResource != genImageInfo.fResource);
                 } else {
-                    ERRORF(reporter, "Failed to get GrMtlTextureInfo");
+                    REPORTER_ASSERT(reporter, origImageInfo.fResource == genImageInfo.fResource);
                 }
 #endif
             } else {

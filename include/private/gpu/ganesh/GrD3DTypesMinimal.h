@@ -32,7 +32,6 @@ struct GrD3DFenceInfo;
 // track the current D3D12_RESOURCE_STATES which can be shared with an internal GrD3DTextureResource
 // so that state updates can be seen by all users of the texture.
 struct GrD3DBackendSurfaceInfo {
-    GrD3DBackendSurfaceInfo();
     GrD3DBackendSurfaceInfo(const GrD3DTextureResourceInfo& info, sk_sp<GrD3DResourceState> state);
     ~GrD3DBackendSurfaceInfo();
 
@@ -44,7 +43,7 @@ struct GrD3DBackendSurfaceInfo {
 
     void setResourceState(GrD3DResourceStateEnum state);
 
-    sk_sp<GrD3DResourceState> getGrD3DResourceState() const;
+    sk_sp<GrD3DResourceState> getResourceState() const;
 
     GrD3DTextureResourceInfo snapTextureResourceInfo() const;
 
