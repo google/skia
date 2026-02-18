@@ -388,6 +388,25 @@ protected:
         }
     }
 
+    void onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle e) override {
+        fRecorder.getRecordingCanvas()->clipRect(rect, op, e);
+    }
+    void onClipRRect(const SkRRect& rect, SkClipOp op, ClipEdgeStyle e) override {
+        fRecorder.getRecordingCanvas()->clipRRect(rect, op, e);
+    }
+    void onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle e) override {
+        fRecorder.getRecordingCanvas()->clipPath(path, op, e);
+    }
+    void onClipShader(sk_sp<SkShader> shader, SkClipOp op) override {
+        fRecorder.getRecordingCanvas()->clipShader(std::move(shader), op);
+    }
+    void onClipRegion(const SkRegion& region, SkClipOp op) override {
+        fRecorder.getRecordingCanvas()->clipRegion(region, op);
+    }
+    void onResetClip() override {
+        // TODO: Android only
+    }
+
 private:
     void recordPicCmd() {
         auto cmd = std::make_unique<PicCmd>();
