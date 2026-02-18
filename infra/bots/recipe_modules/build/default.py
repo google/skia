@@ -287,7 +287,7 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
   if 'Metal' in extra_tokens and not 'Dawn' in extra_tokens:
     args['skia_use_metal'] = 'true'
     args['skia_use_gl'] = 'false'
-  if 'iOS' in extra_tokens or 'iOS18' in extra_tokens:
+  if any('iOS' in t for t in extra_tokens):
     # Bots use Chromium signing cert.
     args['skia_ios_identity'] = '".*83FNP.*"'
     # Get mobileprovision via the CIPD package.
@@ -321,7 +321,7 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
     'cxx': cxx,
     'sanitize': sanitize,
     'target_cpu': target_arch,
-    'target_os': 'ios' if ('iOS' in extra_tokens or 'iOS18' in extra_tokens) else '',
+    'target_os': 'ios' if any('iOS' in t for t in extra_tokens) else '',
     'win_sdk': win_toolchain + '/win_sdk' if 'Win' in os else '',
     'win_vc': win_toolchain + '/VC' if 'Win' in os else '',
     'skia_dwritecore_sdk': dwritecore if 'DWriteCore' in extra_tokens else '',
@@ -360,7 +360,7 @@ def compile_fn(api, checkout_root, out_dir):
 
   if api.vars.builder_cfg.get('os', '') in ('Mac'):
     api.xcode.install()
-    if 'iOS' in extra_tokens:
+    if any('iOS' in t for t in extra_tokens):
       ensure_file_path = api.build.resource('ios.ensure')
       api.cipd.ensure(workdir, ensure_file_path, name='download provisioning profile')
 
