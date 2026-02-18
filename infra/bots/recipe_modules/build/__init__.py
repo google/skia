@@ -10,6 +10,7 @@ DEPS = [
   'docker',
   'env',
   'infra',
+  'recipe_engine/cipd',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/path',

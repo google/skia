@@ -1344,9 +1344,6 @@ func (b *jobBuilder) compile() string {
 				b.usesXCode()
 				// b.asset("ccache_mac")
 				// b.usesCCache()
-				if b.MatchExtraConfig("iOS.*") {
-					b.asset("provisioning_profile_ios")
-				}
 				if b.shellsOutToBazel() {
 					// All of our current Mac compile machines are arm64 Mac only.
 					b.usesBazel("mac_arm64")
