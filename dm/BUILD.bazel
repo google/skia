@@ -20,7 +20,6 @@ skia_cc_binary(
     data = [
         "//resources",
     ],
-    defines = ["SK_DISABLE_LEGACY_TESTS"],
     deps = [
         "//:core",
         "//:fontmgr_directory_freetype",

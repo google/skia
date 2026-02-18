@@ -3,13 +3,6 @@
     "name": "BazelBuild-core-release-linux_x64"
   },
   {
-    "name": "BazelBuild-dm-debug-linux_x64",
-    "cq_config": {}
-  },
-  {
-    "name": "BazelBuild-dm-release-linux_x64"
-  },
-  {
     "name": "BazelBuild-fontations-release-linux_x64"
   },
   {

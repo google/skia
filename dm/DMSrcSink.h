@@ -15,22 +15,19 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/docs/SkMultiPictureDocument.h"
 #include "tools/flags/CommonFlagsConfig.h"
+#include "tools/graphite/TestOptions.h"
 
 #if defined(SK_GANESH)
 #include "tools/ganesh/MemoryCache.h"
 #endif
 
 #if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/PrecompileContext.h"
 #include "tools/graphite/GraphiteMemoryPipelineStorage.h"
 #endif
 
 #include <functional>
-
-#if !defined (SK_DISABLE_LEGACY_TESTS)
-    #include "include/gpu/graphite/ContextOptions.h"
-    #include "tools/graphite/TestOptions.h"
-#endif
 
 //#define TEST_VIA_SVG
 
@@ -42,6 +39,7 @@ class VerifierList;
 }
 namespace skiatools::graphite {
     class PipelineCallBackHandler;
+    struct ContextOptions;
 }
 namespace DM {
 
