@@ -100,7 +100,7 @@ for file_path in to_rewrite():
     lines = open(file_path).readlines()
 
     # Write it back out again line by line with substitutions for #includes.
-    output = StringIO() if args.dry_run else open(file_path, 'w')
+    output = StringIO() if args.dry_run else open(file_path, 'w', newline='\n')
 
     includes = []
     for line in lines:
