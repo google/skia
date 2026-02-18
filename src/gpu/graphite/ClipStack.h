@@ -13,6 +13,7 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkTBlockList.h"
+#include "src/gpu/graphite/DrawListTypes.h"
 #include "src/gpu/graphite/DrawOrder.h"
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/geom/Rect.h"
@@ -112,10 +113,11 @@ public:
     //
     // If the provided `clipState` indicates that the draw will be clipped out, then this method has
     // no effect and returns DrawOrder::kNoIntersection.
-    CompressedPaintersOrder updateClipStateForDraw(const Clip& clip,
-                                                   const ElementList& effectiveElements,
-                                                   const BoundsManager*,
-                                                   PaintersDepth z);
+    std::pair<CompressedPaintersOrder, Layer*> updateClipStateForDraw(
+            const Clip& clip,
+            const ElementList& effectiveElements,
+            const BoundsManager*,
+            PaintersDepth z);
 
     void recordDeferredClipDraws();
 
@@ -227,18 +229,23 @@ private:
         //
         // Assuming that this element does not clip out the draw, returns the painters order the
         // draw must sort after.
-        CompressedPaintersOrder updateForDraw(const BoundsManager* boundsManager,
-                                              const Rect& deviceBounds,
-                                              const Rect& drawBounds,
-                                              PaintersDepth drawZ);
+        std::pair<CompressedPaintersOrder, Layer*> updateForDraw(
+                Device* device,
+                const BoundsManager* boundsManager,
+                const Rect& deviceBounds,
+                const Rect& drawBounds,
+                PaintersDepth drawZ);
 
         // Record a depth-only draw to the given device, restricted to the portion of the clip that
         // is actually required based on prior recorded draws. Resets usage tracking for subsequent
         // passes.
         void drawClip(Device*);
 
+        Layer* drawClipImmediate(Device*, const Rect& snappedOuterBounds);
+
         void validate() const;
 
+        Layer* deferredLayer() const { return fDepthLayer; }
     private:
         // TODO: Should only combine elements within the same save record, that don't have pending
         // draws already. Otherwise, we're changing the geometry that will be rasterized and it
@@ -268,6 +275,17 @@ private:
         // the save record that invalidated it. This makes it easy to undo when the save record is
         // popped from the stack, and is stable as the current save record is modified.
         int fInvalidatedByIndex;
+
+        // Used exclusively by the drawListLayer path to track depth-only draws.
+        //
+        // fCaptureParams: Points to the drawParams of the depth-only draw. Allows: 1) The initial
+        //                 coarse bounds (recorded in drawClipImmediate) to be updated to tighter
+        //                 bounds later. 2) Deferred assignment of the Z value the draw will use.
+        // fDepthLayer: The layer inserted into by the depth-only draw. This acts as a dependency
+        //              barrier; clipped draws affected by this rawElement must be inserted after
+        //              the latest fDepthLayer of all their dependencies.
+        DrawParams* fCaptureParams;
+        Layer* fDepthLayer;
     };
 
     // Represents a saved point in the clip stack, and manages the life time of elements added to

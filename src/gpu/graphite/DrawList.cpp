@@ -18,16 +18,19 @@
 
 namespace skgpu::graphite {
 
-void DrawList::recordDraw(const Renderer* renderer,
-                          const Transform& localToDevice,
-                          const Geometry& geometry,
-                          const Clip& clip,
-                          DrawOrder ordering,
-                          UniquePaintParamsID paintID,
-                          SkEnumBitMask<DstUsage> dstUsage,
-                          BarrierType barrierBeforeDraws,
-                          PipelineDataGatherer* gatherer,
-                          const StrokeStyle* stroke) {
+std::pair<DrawParams*, Layer*> DrawList::recordDraw(
+        const Renderer* renderer,
+        const Transform& localToDevice,
+        const Geometry& geometry,
+        const Clip& clip,
+        DrawOrder ordering,
+        UniquePaintParamsID paintID,
+        SkEnumBitMask<DstUsage> dstUsage,
+        BarrierType barrierBeforeDraws,
+        PipelineDataGatherer* gatherer,
+        const StrokeStyle* stroke,
+        const Layer* latestDepthLayer) {
+
     SkASSERT(localToDevice.valid());
     SkASSERT(!geometry.isEmpty() && !clip.drawBounds().isEmptyNegativeOrNaN());
     SkASSERT(!(renderer->depthStencilFlags() & DepthStencilFlags::kStencil) ||
@@ -80,6 +83,8 @@ void DrawList::recordDraw(const Renderer* renderer,
         fCoverageMaskShapeDrawCount++;
     }
 #endif
+
+    return {nullptr, nullptr};
 }
 
 std::unique_ptr<DrawPass> DrawList::snapDrawPass(Recorder* recorder,
@@ -181,10 +186,10 @@ std::unique_ptr<DrawPass> DrawList::snapDrawPass(Recorder* recorder,
                                         renderStep.staticDataStride(),
                                         renderStep.appendDataStride(),
                                         renderStep.getRenderStateFlags(),
-                                        draw.barrierBeforeDraws());
+                                        draw.drawParams().barrierBeforeDraws());
         } else if (stateChange) {
             drawWriter.newDynamicState();
-        } else if (draw.barrierBeforeDraws() != BarrierType::kNone &&
+        } else if (draw.drawParams().barrierBeforeDraws() != BarrierType::kNone &&
                    priorDrawPaintOrder != draw.drawParams().order().paintOrder()) {
             // Even if there is no pipeline or state change, we must consider whether a
             // DrawPassCommand to add barriers must be inserted before any draw commands. If so,

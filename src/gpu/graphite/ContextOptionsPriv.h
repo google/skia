@@ -30,6 +30,11 @@ struct ContextOptionsPriv {
     bool fStoreContextRefInRecorder = false;
 
     /**
+     * If true, enables layer based draw ordering.
+     */
+    bool fDrawListLayer = false;
+
+    /**
      * Override Caps' default strategy heuristics to prioritize this one if set *and* is supported.
      */
     std::optional<PathRendererStrategy> fPathRendererStrategy;

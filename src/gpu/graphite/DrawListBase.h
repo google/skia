@@ -35,6 +35,8 @@ class Geometry;
 class Renderer;
 class Recorder;
 
+struct Layer;
+
 /**
  * The base interface for recording draw commands. DrawList implements the existing Graphite
  * drawing behavior. In the next CL, DrawListLayer.h will implement the experimental layer based
@@ -49,7 +51,7 @@ public:
     DrawListBase() {}
     virtual ~DrawListBase() = default;
 
-    virtual void recordDraw(
+    virtual std::pair<DrawParams*, Layer*> recordDraw(
             const Renderer* renderer,
             const Transform& localToDevice,
             const Geometry& geometry,
@@ -59,7 +61,8 @@ public:
             SkEnumBitMask<DstUsage> dstUsage,
             BarrierType barrierBeforeDraws,
             PipelineDataGatherer* gatherer,
-            const StrokeStyle* stroke) = 0;
+            const StrokeStyle* stroke,
+            const Layer* latestDepthLayer) = 0;
 
     virtual std::unique_ptr<DrawPass> snapDrawPass(Recorder* recorder,
                                                    sk_sp<TextureProxy> target,

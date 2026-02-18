@@ -23,6 +23,7 @@
 #include "src/gpu/graphite/ComputePathAtlas.h"
 #include "src/gpu/graphite/DrawList.h"
 #include "src/gpu/graphite/DrawListBase.h"
+#include "src/gpu/graphite/DrawListLayer.h"
 #include "src/gpu/graphite/DrawOrder.h"
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawPass.h"
@@ -91,7 +92,9 @@ DrawContext::DrawContext(const Caps* caps,
         , fAdvancedBlendsRequireBarrier(caps->blendEquationSupport() ==
                                             Caps::BlendEquationSupport::kAdvancedNoncoherent)
         , fCurrentDrawTask(sk_make_sp<DrawTask>(fTarget))
-        , fPendingDraws(std::make_unique<DrawList>())
+        , fPendingDraws(caps->useDrawListLayer() ?
+                        std::unique_ptr<DrawListBase>(std::make_unique<DrawListLayer>()) :
+                        std::unique_ptr<DrawListBase>(std::make_unique<DrawList>()))
         , fPendingUploads(std::make_unique<UploadList>()) {
     // Must determine a valid strategy to use should a dst texture read be required.
     SkASSERT(fDstReadStrategy != DstReadStrategy::kNoneRequired);
@@ -150,15 +153,17 @@ bool DrawContext::readsTexture(const TextureProxy* texture) const {
     return !notFound; // double negation means its found in a pending child task
 }
 
-void DrawContext::recordDraw(const Renderer* renderer,
-                             const Transform& localToDevice,
-                             const Geometry& geometry,
-                             const Clip& clip,
-                             DrawOrder ordering,
-                             UniquePaintParamsID paintID,
-                             SkEnumBitMask<DstUsage> dstUsage,
-                             PipelineDataGatherer* gatherer,
-                             const StrokeStyle* stroke) {
+std::pair<DrawParams*, Layer*> DrawContext::recordDraw(
+        const Renderer* renderer,
+        const Transform& localToDevice,
+        const Geometry& geometry,
+        const Clip& clip,
+        DrawOrder ordering,
+        UniquePaintParamsID paintID,
+        SkEnumBitMask<DstUsage> dstUsage,
+        PipelineDataGatherer* gatherer,
+        const StrokeStyle* stroke,
+        Layer* latestDepthLayer) {
     SkASSERTF(SkIRect::MakeSize(this->imageInfo().dimensions()).contains(clip.scissor()),
               "Image %dx%d, scissor %d,%d,%d,%d",
               this->imageInfo().width(), this->imageInfo().height(),
@@ -178,8 +183,9 @@ void DrawContext::recordDraw(const Renderer* renderer,
         barrierBeforeDraws = BarrierType::kAdvancedNoncoherentBlend;
     }
 
-    fPendingDraws->recordDraw(renderer, localToDevice, geometry, clip, ordering, paintID, dstUsage,
-                              barrierBeforeDraws, gatherer, stroke);
+    return fPendingDraws->recordDraw(renderer, localToDevice, geometry, clip, ordering, paintID,
+                                     dstUsage,  barrierBeforeDraws, gatherer, stroke,
+                                     latestDepthLayer);
 }
 
 bool DrawContext::recordUpload(Recorder* recorder,

@@ -78,15 +78,17 @@ public:
     void clear(const SkColor4f& clearColor);
     void discard();
 
-    void recordDraw(const Renderer* renderer,
-                    const Transform& localToDevice,
-                    const Geometry& geometry,
-                    const Clip& clip,
-                    DrawOrder ordering,
-                    UniquePaintParamsID paintID,
-                    SkEnumBitMask<DstUsage> dstUsage,
-                    PipelineDataGatherer* gatherer,
-                    const StrokeStyle* stroke);
+    std::pair<DrawParams*, Layer*> recordDraw(
+            const Renderer* renderer,
+            const Transform& localToDevice,
+            const Geometry& geometry,
+            const Clip& clip,
+            DrawOrder ordering,
+            UniquePaintParamsID paintID,
+            SkEnumBitMask<DstUsage> dstUsage,
+            PipelineDataGatherer* gatherer,
+            const StrokeStyle* stroke,
+            Layer* latestDepthLayer);
 
     bool recordUpload(Recorder* recorder,
                       sk_sp<TextureProxy> targetProxy,

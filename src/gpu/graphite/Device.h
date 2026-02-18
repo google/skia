@@ -298,6 +298,13 @@ private:
     // the transform, clip, and DrawOrder (although Device still tracks stencil buffer usage).
     void drawClipShape(const Transform&, const Shape&, const Clip&, DrawOrder);
 
+    std::pair<DrawParams*, Layer*> drawClipShapeImmediate(const Transform&,
+                                                          const Shape&,
+                                                          const Clip&,
+                                                          DrawOrder);
+
+    void updateNextDepthForClipping(PaintersDepth depth);
+
     sktext::gpu::AtlasDrawDelegate atlasDelegate();
     // Handles primitive processing for atlas-based text
     void drawAtlasSubRun(const sktext::gpu::AtlasSubRun*,
@@ -353,6 +360,7 @@ private:
 
     ClipStack fClip;
 
+    // TODO (thomsmit): remove these when layering is added
     // Tracks accumulated intersections for ordering dependent use of the color and depth attachment
     // (i.e. depth-based clipping, and transparent blending)
     std::unique_ptr<BoundsManager> fColorDepthBoundsManager;

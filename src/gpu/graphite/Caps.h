@@ -220,6 +220,9 @@ public:
             SkColorType colorType,
             const TextureInfo& textureInfo) const;
 
+    // If true, uses experimental drawListLayer ordering.
+    bool useDrawListLayer() const { return fDrawListLayer; }
+
     /**
      * Returns the skgpu::Swizzle to use when sampling or reading back from a texture with the
      * passed in SkColorType and TextureInfo.
@@ -504,6 +507,7 @@ protected:
     bool fMSAARenderToSingleSampledSupport = false;
     bool fDifferentResolveAttachmentSizeSupport = false;
     bool fAvoidMSAA = false;
+    bool fDrawListLayer = false;
 
     bool fComputeSupport = false;
     bool fSupportsAHardwareBufferImages = false;
