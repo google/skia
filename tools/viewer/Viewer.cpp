@@ -31,6 +31,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTextBlob.h"
 #include "include/private/base/SkDebug.h"
+#include "include/private/base/SkLog.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
 #include "include/utils/SkPaintFilterCanvas.h"
@@ -578,14 +579,17 @@ static const Window::BackendType kSupportedBackends[] = {
 constexpr size_t kSupportedBackendTypeCount = std::size(kSupportedBackends);
 
 static Window::BackendType backend_type_for_window(Window::BackendType backendType) {
-    // In raster mode, we still use GL for the window.
+    // In raster mode, we still use a GPU-backed window.
     // This lets us render the GUI faster (and correct).
-#if defined(SK_GANESH) && defined(SK_GL)
-    Window::BackendType windowTypeForRaster = Window::BackendType::kNativeGL;
+#if defined(SK_DIRECT3D)
+    // OpenGL support on Windows VMs (which some devs use) does not work great
+    constexpr Window::BackendType windowTypeForRaster = Window::BackendType::kDirect3D;
+#elif defined(SK_GL)
+    constexpr Window::BackendType windowTypeForRaster = Window::BackendType::kNativeGL;
 #else
     // kSupportedBackends will always have at least one entry. Picking the first should
     // usually result in an adequate GPU-backend.
-    Window::BackendType windowTypeForRaster = kSupportedBackends[0];
+    const Window::BackendType windowTypeForRaster = kSupportedBackends[0];
 #endif
     return Window::BackendType::kRaster == backendType ? windowTypeForRaster : backendType;
 }
@@ -1643,6 +1647,7 @@ SkMatrix Viewer::computeMatrix() {
 }
 
 void Viewer::setBackend(sk_app::Window::BackendType backendType) {
+    SKIA_LOG_D("Switching to %s", get_backend_string(backendType));
 #if defined(SK_GANESH)
     fPersistentCache.reset();
 #endif

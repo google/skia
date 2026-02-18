@@ -10,6 +10,7 @@
 
 #include "tools/ganesh/gl/win/SkWGL.h"
 
+#include "include/private/base/SkLog.h"
 #include "include/private/base/SkOnce.h"
 #include "include/private/base/SkTDArray.h"
 #include "src/base/SkTSearch.h"
@@ -297,6 +298,8 @@ SkWGLExtensions::SkWGLExtensions() {
             wglMakeCurrent(tempDC, nullptr);
             wglDeleteContext(tempGLRC);
             destroy_temp_window(tempWND);
+        } else {
+            SKIA_LOG_E("Could not make temp window. Error: %lu", GetLastError());
         }
 
         wglMakeCurrent(prevDC, prevGLRC);
@@ -341,8 +344,10 @@ static void get_pixel_formats_to_try(HDC dc, const SkWGLExtensions& extensions,
         unsigned int num;
         int formats[64];
         extensions.choosePixelFormat(dc, msaaIAttrs.begin(), fAttrs, 64, formats, &num);
+        SKIA_LOG_D("choosePixelFormat for MSAA found %u formats.", num);
         num = std::min(num, 64U);
         formatsToTry[0] = extensions.selectFormat(formats, num, dc, msaaSampleCount);
+        SKIA_LOG_D("selectFormat for MSAA chose format %d.", formatsToTry[0]);
     }
 
     // Get a non-MSAA format
@@ -350,6 +355,7 @@ static void get_pixel_formats_to_try(HDC dc, const SkWGLExtensions& extensions,
     unsigned int num;
     appendAttr(iAttrs, 0, 0);
     extensions.choosePixelFormat(dc, iAttrs.begin(), fAttrs, 1, format, &num);
+    SKIA_LOG_D("choosePixelFormat for non-MSAA found %u formats, chose %d.", num, *format);
 }
 
 static HGLRC create_gl_context(HDC dc, const SkWGLExtensions& extensions,
@@ -422,6 +428,7 @@ HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, bool deepColor,
                          SkWGLContextRequest contextType, HGLRC shareContext) {
     SkWGLExtensions extensions;
     if (!extensions.hasExtension(dc, "WGL_ARB_pixel_format")) {
+        SKIA_LOG_W("No WGL_ARB_pixel_format extensions");
         return nullptr;
     }
 
@@ -438,6 +445,7 @@ HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, bool deepColor,
     }
 
     if (!set) {
+        SKIA_LOG_W("Could not find a pixel format that works");
         return nullptr;
     }
 

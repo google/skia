@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkSurface.h"
+#include "include/private/base/SkLog.h"
 #include "src/base/SkAutoMalloc.h"
 #include "tools/window/RasterWindowContext.h"
 #include "tools/window/win/WindowContextFactory_win.h"
@@ -88,7 +89,8 @@ std::unique_ptr<WindowContext> MakeRasterForWin(HWND wnd,
                                                 std::unique_ptr<const DisplayParams> params) {
     std::unique_ptr<WindowContext> ctx(new RasterWindowContext_win(wnd, std::move(params)));
     if (!ctx->isValid()) {
-        ctx = nullptr;
+        SKIA_LOG_D("Invalid raster context for Windows");
+        return nullptr;
     }
     return ctx;
 }

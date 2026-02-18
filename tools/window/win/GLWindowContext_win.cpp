@@ -1,15 +1,15 @@
-
 /*
  * Copyright 2015 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "tools/window/win/WindowContextFactory_win.h"
 
 #include "include/gpu/ganesh/gl/GrGLInterface.h"
+#include "include/private/base/SkLog.h"
 #include "tools/ganesh/gl/win/SkWGL.h"
 #include "tools/window/GLWindowContext.h"
-#include "tools/window/win/WindowContextFactory_win.h"
 
 #include <Windows.h>
 #include <GL/gl.h>
@@ -22,6 +22,7 @@ using skwindow::internal::GLWindowContext;
 namespace skwindow {
 
 std::unique_ptr<WindowContext> MakeGLForWin(HWND, std::unique_ptr<const DisplayParams>) {
+    SKIA_LOG_E("GL is not supported on Windows on ARM.");
     return nullptr;
 }
 
@@ -65,7 +66,8 @@ sk_sp<const GrGLInterface> GLWindowContext_win::onInitializeContext() {
                                 fDisplayParams->msaaSampleCount(),
                                 false /* deepColor */,
                                 kGLPreferCompatibilityProfile_SkWGLContextRequest);
-    if (nullptr == fHGLRC) {
+    if (!fHGLRC) {
+        SKIA_LOG_E("SkCreateWGLContext 1 failed");
         return nullptr;
     }
 
@@ -85,7 +87,8 @@ sk_sp<const GrGLInterface> GLWindowContext_win::onInitializeContext() {
                                         fDisplayParams->msaaSampleCount(),
                                         false /* deepColor */,
                                         kGLPreferCoreProfile_SkWGLContextRequest);
-            if (nullptr == fHGLRC) {
+            if (!fHGLRC) {
+                SKIA_LOG_E("SkCreateWGLContext 2 failed");
                 return nullptr;
             }
         }
@@ -147,6 +150,7 @@ namespace skwindow {
 std::unique_ptr<WindowContext> MakeGLForWin(HWND wnd, std::unique_ptr<const DisplayParams> params) {
     std::unique_ptr<WindowContext> ctx(new GLWindowContext_win(wnd, std::move(params)));
     if (!ctx->isValid()) {
+        SKIA_LOG_E("Invalid GL context for Windows. GL support on VMs is known to not work.");
         return nullptr;
     }
     return ctx;
