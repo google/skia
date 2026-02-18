@@ -28,7 +28,8 @@ enum class SkLogPriority : int {
     kFatal = 0,
     kError = 1,
     kWarning = 2,
-    kDebug = 3,
+    kInfo = 3,
+    kDebug = 4,
 };
 
 #endif // SkLogPriority_DEFINED
