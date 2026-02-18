@@ -135,6 +135,32 @@ public:
     ~CmdRecordCanvas() override { this->recordPicCmd(); }
 
 protected:
+    void willSave() override {
+        fRecorder.getRecordingCanvas()->save();
+    }
+    SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override {
+        return SkCanvas::kNoLayer_SaveLayerStrategy;
+    }
+    bool onDoSaveBehind(const SkRect*) override {
+        return false;
+    }
+    void willRestore() override {
+        fRecorder.getRecordingCanvas()->restore();
+    }
+
+    void didConcat44(const SkM44& m44) override {
+        fRecorder.getRecordingCanvas()->concat(m44);
+    }
+    void didSetM44(const SkM44& m44) override {
+        fRecorder.getRecordingCanvas()->setMatrix(m44);
+    }
+    void didScale(SkScalar x, SkScalar y) override {
+        fRecorder.getRecordingCanvas()->scale(x, y);
+    }
+    void didTranslate(SkScalar x, SkScalar y) override {
+        fRecorder.getRecordingCanvas()->translate(x, y);
+    }
+
     void onDrawPaint(const SkPaint& paint) override {
         fRecorder.getRecordingCanvas()->drawPaint(paint);
     }
