@@ -1949,9 +1949,6 @@
     "cq_config": {}
   },
   {
-    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN"
-  },
-  {
     "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Native_Vulkan"
   },
   {
@@ -1980,9 +1977,6 @@
     "name": "Test-Ubuntu24.04-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Debug-All"
   },
   {
-    "name": "Test-Ubuntu24.04-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Debug-All-ASAN_Vulkan"
-  },
-  {
     "name": "Test-Ubuntu24.04-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Debug-All-DDL3_ASAN_Vulkan"
   },
   {
@@ -1996,9 +1990,6 @@
   },
   {
     "name": "Test-Ubuntu24.04-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Release-All-TSAN_Graphite_Native_Vulkan"
-  },
-  {
-    "name": "Test-Ubuntu24.04-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Release-All-TSAN_Vulkan"
   },
   {
     "name": "Test-Ubuntu24.04-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All"
