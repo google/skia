@@ -11,6 +11,6 @@ import os
 import subprocess
 import sys
 
-path = os.path.dirname(__file__) + '/../tools/git-sync-deps'
+path = os.path.join(os.path.dirname(__file__), os.pardir, 'tools', 'git-sync-deps')
 subprocess.check_call([sys.executable, path] + sys.argv[:1],
                       env=dict(os.environ, GIT_SYNC_DEPS_QUIET='T'))

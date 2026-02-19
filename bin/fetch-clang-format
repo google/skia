@@ -20,7 +20,7 @@ else:
 os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
 
 def fetch(target):
-  deps_path = 'buildtools/DEPS'
+  deps_path = os.path.join('buildtools', 'DEPS')
   try:
     with open(deps_path, 'r') as contents:
       deps_globals = {}
@@ -33,24 +33,25 @@ def fetch(target):
   if 'arm' in platform.processor():
       if 'darwin' in sys.platform:
         obj = 'mac_arm64-format'
-        target_path = 'buildtools/mac_arm64/'
+        target_path = os.path.join('buildtools', 'mac_arm64')
       else:
         print('unsupported platform')
         exit(1)
   else:
       if 'linux' in sys.platform:
         obj = 'linux64-format'
-        target_path = 'buildtools/linux64/'
+        target_path = os.path.join('buildtools', 'linux64')
       elif 'darwin' in sys.platform:
         obj = 'mac-format'
-        target_path = 'buildtools/mac/clang-format'
+        target_path = os.path.join('buildtools', 'mac', 'clang-format')
       else:
         obj = 'win-format'
-        target_path = 'buildtools\\win\\'
+        target_path = os.path.join('buildtools', 'win')
 
   sha256sum = deps[obj]['objects'][0]['sha256sum']
   object_name = deps[obj]['objects'][0]['object_name']
   output_file = os.path.join('bin', deps[obj]['objects'][0]['output_file'])
+  os.makedirs(target_path, exist_ok=True)
   target_path = os.path.join(target_path, deps[obj]['objects'][0]['output_file'])
 
   def sha256_of_file(path):
