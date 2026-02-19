@@ -66,10 +66,6 @@
 #include <memory>
 #include <utility>
 
-#ifdef SK_DIRECT3D
-#include "src/gpu/ganesh/d3d/GrD3DGpu.h"
-#endif
-
 using namespace skia_private;
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(this->singleOwner())
@@ -1206,26 +1202,3 @@ sk_sp<GrDirectContext> GrDirectContext::MakeMock(const GrMockOptions* mockOption
 
     return direct;
 }
-
-#ifdef SK_DIRECT3D
-/*************************************************************************************************/
-sk_sp<GrDirectContext> GrDirectContext::MakeDirect3D(const GrD3DBackendContext& backendContext) {
-    GrContextOptions defaultOptions;
-    return MakeDirect3D(backendContext, defaultOptions);
-}
-
-sk_sp<GrDirectContext> GrDirectContext::MakeDirect3D(const GrD3DBackendContext& backendContext,
-                                                     const GrContextOptions& options) {
-    sk_sp<GrDirectContext> direct(new GrDirectContext(
-            GrBackendApi::kDirect3D,
-            options,
-            GrContextThreadSafeProxyPriv::Make(GrBackendApi::kDirect3D, options)));
-
-    direct->fGpu = GrD3DGpu::Make(backendContext, options, direct.get());
-    if (!direct->init()) {
-        return nullptr;
-    }
-
-    return direct;
-}
-#endif

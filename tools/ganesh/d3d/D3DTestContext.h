@@ -10,8 +10,6 @@
 
 #include "tools/ganesh/TestContext.h"
 
-#ifdef SK_DIRECT3D
-
 #include "include/gpu/ganesh/d3d/GrD3DBackendContext.h"
 
 namespace sk_gpu_test {
@@ -44,4 +42,3 @@ D3DTestContext* CreatePlatformD3DTestContext(D3DTestContext*);
 
 #endif
 
-#endif

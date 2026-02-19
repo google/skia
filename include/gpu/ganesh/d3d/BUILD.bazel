@@ -13,6 +13,7 @@ skia_filegroup(
         "GrD3DBackendContext.h",
         "GrD3DBackendSemaphore.h",
         "GrD3DBackendSurface.h",
+        "GrD3DDirectContext.h",
         "GrD3DTypes.h",
     ],
 )

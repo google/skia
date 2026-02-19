@@ -772,6 +772,7 @@ skia_ganesh_d3d_public = [
   "$_include/gpu/ganesh/d3d/GrD3DBackendContext.h",
   "$_include/gpu/ganesh/d3d/GrD3DBackendSemaphore.h",
   "$_include/gpu/ganesh/d3d/GrD3DBackendSurface.h",
+  "$_include/gpu/ganesh/d3d/GrD3DDirectContext.h",
   "$_include/gpu/ganesh/d3d/GrD3DTypes.h",
 ]
 
@@ -801,6 +802,7 @@ skia_ganesh_d3d_private = [
   "$_src/gpu/ganesh/d3d/GrD3DDescriptorHeap.h",
   "$_src/gpu/ganesh/d3d/GrD3DDescriptorTableManager.cpp",
   "$_src/gpu/ganesh/d3d/GrD3DDescriptorTableManager.h",
+  "$_src/gpu/ganesh/d3d/GrD3DDirectContext.cpp",
   "$_src/gpu/ganesh/d3d/GrD3DGpu.cpp",
   "$_src/gpu/ganesh/d3d/GrD3DGpu.h",
   "$_src/gpu/ganesh/d3d/GrD3DOpsRenderPass.cpp",

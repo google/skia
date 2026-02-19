@@ -42,7 +42,6 @@ class SkTraceMemoryDump;
 enum SkColorType : int;
 enum class SkTextureCompressionType;
 struct GrMockOptions;
-struct GrD3DBackendContext; // IWYU pragma: keep
 
 namespace skgpu {
     class MutableTextureState;
@@ -59,14 +58,6 @@ enum class BackendSurfaceAccess;
 
 class SK_API GrDirectContext : public GrRecordingContext {
 public:
-#ifdef SK_DIRECT3D
-    /**
-     * Makes a GrDirectContext which uses Direct3D as the backend. The Direct3D context
-     * must be kept alive until the returned GrDirectContext is first destroyed or abandoned.
-     */
-    static sk_sp<GrDirectContext> MakeDirect3D(const GrD3DBackendContext&, const GrContextOptions&);
-    static sk_sp<GrDirectContext> MakeDirect3D(const GrD3DBackendContext&);
-#endif
 
     static sk_sp<GrDirectContext> MakeMock(const GrMockOptions*, const GrContextOptions&);
     static sk_sp<GrDirectContext> MakeMock(const GrMockOptions*);

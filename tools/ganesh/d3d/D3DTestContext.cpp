@@ -7,9 +7,8 @@
 
 #include "tools/ganesh/d3d/D3DTestContext.h"
 
-#ifdef SK_DIRECT3D
-
 #include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/d3d/GrD3DDirectContext.h"
 #include "tools/ganesh/d3d/D3DTestUtils.h"
 
 namespace {
@@ -39,7 +38,7 @@ public:
     void testAbandon() override {}
 
     sk_sp<GrDirectContext> makeContext(const GrContextOptions& options) override {
-        return GrDirectContext::MakeDirect3D(fD3D, options);
+        return GrDirectContexts::MakeD3D(fD3D, options);
     }
 
 protected:
@@ -70,4 +69,3 @@ D3DTestContext* CreatePlatformD3DTestContext(D3DTestContext* sharedContext) {
 }
 }  // namespace sk_gpu_test
 
-#endif

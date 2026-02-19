@@ -29,6 +29,7 @@ D3D_FILES = [
     "GrD3DDescriptorHeap.h",
     "GrD3DDescriptorTableManager.cpp",
     "GrD3DDescriptorTableManager.h",
+    "GrD3DDirectContext.cpp",
     "GrD3DGpu.cpp",
     "GrD3DGpu.h",
     "GrD3DOpsRenderPass.cpp",
