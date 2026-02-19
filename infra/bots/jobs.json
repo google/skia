@@ -1138,15 +1138,6 @@
     "name": "Perf-Win11-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-Graphite_Dawn_D3D12"
   },
   {
-    "name": "Perf-Win11-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-Graphite_Dawn_Vulkan"
-  },
-  {
-    "name": "Perf-Win11-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-Graphite_Native_Vulkan"
-  },
-  {
-    "name": "Perf-Win11-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-Vulkan"
-  },
-  {
     "name": "Perf-Win11-Clang-GCE-CPU-AVX2-x86_64-Release-All"
   },
   {
@@ -2053,28 +2044,10 @@
     "name": "Test-Win11-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All-Graphite_Dawn_D3D11"
   },
   {
-    "name": "Test-Win11-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All-Graphite_Dawn_Vulkan"
-  },
-  {
-    "name": "Test-Win11-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All-Graphite_Native_Vulkan"
-  },
-  {
-    "name": "Test-Win11-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All-Vulkan"
-  },
-  {
     "name": "Test-Win11-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE"
   },
   {
     "name": "Test-Win11-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-Graphite_Dawn_D3D11"
-  },
-  {
-    "name": "Test-Win11-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-Graphite_Dawn_Vulkan"
-  },
-  {
-    "name": "Test-Win11-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-Graphite_Native_Vulkan"
-  },
-  {
-    "name": "Test-Win11-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-Vulkan"
   },
   {
     "name": "Test-Win11-Clang-Dell3930-GPU-GTX1660-x86_64-Debug-All-ANGLE"
