@@ -50,6 +50,7 @@ class AndroidFlavor(default.DefaultFlavor):
       'GalaxyS9',
       'GalaxyS20',
       'GalaxyS24',
+      'GalaxyS25Plus',
       'JioNext',
       'MotoG4',
       'MotoG73',

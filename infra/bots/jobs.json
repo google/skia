@@ -862,6 +862,12 @@
     "name": "Perf-Android-Clang-GalaxyS24-GPU-Adreno750-arm64-Release-All-Android_Vulkan"
   },
   {
+    "name": "Perf-Android-Clang-GalaxyS25Plus-GPU-Adreno830-arm64-Release-All-Android"
+  },
+  {
+    "name": "Perf-Android-Clang-GalaxyS25Plus-GPU-Adreno830-arm64-Release-All-Android_Vulkan"
+  },
+  {
     "name": "Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All-Android"
   },
   {
@@ -1325,6 +1331,24 @@
   },
   {
     "name": "Test-Android-Clang-GalaxyS24-GPU-Adreno750-arm64-Release-All-Android_Vulkan"
+  },
+  {
+    "name": "Test-Android-Clang-GalaxyS25Plus-CPU-Adreno830-arm64-Release-All-Android_NativeFonts_AndroidNDKFonts"
+  },
+  {
+    "name": "Test-Android-Clang-GalaxyS25Plus-GPU-Adreno830-arm64-Debug-All-Android"
+  },
+  {
+    "name": "Test-Android-Clang-GalaxyS25Plus-GPU-Adreno830-arm64-Debug-All-Android_Graphite_Native_Vulkan_Protected"
+  },
+  {
+    "name": "Test-Android-Clang-GalaxyS25Plus-GPU-Adreno830-arm64-Debug-All-Android_Vulkan"
+  },
+  {
+    "name": "Test-Android-Clang-GalaxyS25Plus-GPU-Adreno830-arm64-Release-All-Android"
+  },
+  {
+    "name": "Test-Android-Clang-GalaxyS25Plus-GPU-Adreno830-arm64-Release-All-Android_Vulkan"
   },
   {
     "name": "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android"

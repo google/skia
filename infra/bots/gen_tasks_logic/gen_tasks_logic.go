@@ -841,6 +841,7 @@ var androidDeviceInfos = map[string][]string{
 	"GalaxyS9":        {"exynos9810", "QP1A.190711.020"},
 	"GalaxyS20":       {"exynos990", "QP1A.190711.020"},
 	"GalaxyS24":       {"pineapple", "UP1A.231005.007"},
+	"GalaxyS25Plus":   {"sun", "BP2A.250605.031.A3"},
 	"JioNext":         {"msm8937", "RKQ1.210602.002"},
 	"Mokey":           {"mokey", "UP1A.231105.001"},
 	"MokeyGo32":       {"mokey_go32", "UQ1A.240105.003.A1"},
