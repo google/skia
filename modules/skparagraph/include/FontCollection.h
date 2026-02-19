@@ -11,7 +11,6 @@
 #include "modules/skparagraph/include/FontArguments.h"
 #include "modules/skparagraph/include/ParagraphCache.h"
 #include "modules/skparagraph/include/TextStyle.h"
-#include "src/core/SkTHash.h"
 
 namespace skia {
 namespace textlayout {
@@ -21,6 +20,7 @@ class Paragraph;
 class FontCollection : public SkRefCnt {
 public:
     FontCollection();
+    ~FontCollection() override;
 
     size_t getFontManagersCount() const;
 
@@ -55,25 +55,9 @@ private:
 
     sk_sp<SkTypeface> matchTypeface(const SkString& familyName, SkFontStyle fontStyle);
 
-    struct FamilyKey {
-        FamilyKey(const std::vector<SkString>& familyNames, SkFontStyle style, const std::optional<FontArguments>& args)
-                : fFamilyNames(familyNames), fFontStyle(style), fFontArguments(args) {}
-
-        FamilyKey() {}
-
-        std::vector<SkString> fFamilyNames;
-        SkFontStyle fFontStyle;
-        std::optional<FontArguments> fFontArguments;
-
-        bool operator==(const FamilyKey& other) const;
-
-        struct Hasher {
-            size_t operator()(const FamilyKey& key) const;
-        };
-    };
-
+    struct FaceCache;
+    std::unique_ptr<FaceCache> fFaceCache;
     bool fEnableFontFallback;
-    skia_private::THashMap<FamilyKey, std::vector<sk_sp<SkTypeface>>, FamilyKey::Hasher> fTypefaces;
     sk_sp<SkFontMgr> fDefaultFontManager;
     sk_sp<SkFontMgr> fAssetFontManager;
     sk_sp<SkFontMgr> fDynamicFontManager;
