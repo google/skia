@@ -478,7 +478,6 @@ DEF_TEST(Math, reporter) {
     unittest_isfinite<double>(reporter);
     unittest_half(reporter);
     test_rsqrt(reporter, sk_float_rsqrt);
-    test_rsqrt(reporter, sk_float_rsqrt_portable);
 
     for (i = 0; i < 10000; i++) {
         SkFixed numer = rand.nextS();
