@@ -205,12 +205,20 @@ private:
         // Backpointer to the draw that produced the sort key
         const Draw* fDraw;
 
+// https://issues.skia.org/issues/485303056
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wtautological-value-range-compare"
+#endif
         static_assert(ColorDepthOrderField::kBits >= sizeof(CompressedPaintersOrder));
         static_assert(StencilIndexField::kBits    >= sizeof(DisjointStencilIndex));
-        static_assert(RenderStepField::kBits      >= SkNextLog2_portable(Renderer::kMaxRenderSteps));
-        static_assert(PipelineField::kBits        >= SkNextLog2_portable(DrawListBase::kMaxRenderSteps));
-        static_assert(UniformField::kBits         >= 1+SkNextLog2_portable(DrawListBase::kMaxRenderSteps));
-        static_assert(TextureBindingsField::kBits >= 1+SkNextLog2_portable(DrawListBase::kMaxRenderSteps));
+        static_assert(RenderStepField::kBits      >= SkNextLog2(Renderer::kMaxRenderSteps));
+        static_assert(PipelineField::kBits        >= SkNextLog2(DrawListBase::kMaxRenderSteps));
+        static_assert(UniformField::kBits         >= 1+SkNextLog2(DrawListBase::kMaxRenderSteps));
+        static_assert(TextureBindingsField::kBits >= 1+SkNextLog2(DrawListBase::kMaxRenderSteps));
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
     };
 
     SkTBlockList<Draw, 4> fDraws{SkBlockAllocator::GrowthPolicy::kFibonacci};

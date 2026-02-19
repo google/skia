@@ -115,10 +115,10 @@ public:
      * as a replacement for them.
      */
     uint32_t asKey(bool anisoIsOrthogonal) const {
-        constexpr int kNumWrapBits       = SkNextLog2_portable(kWrapModeCount);
-        constexpr int kNumMaxAnisoBits   = SkNextLog2_portable(kMaxMaxAniso);
-        constexpr int kNumFilterBits     = SkNextLog2_portable(kFilterCount);
-        constexpr int kNumMipmapModeBits = SkNextLog2_portable(kMipmapModeCount);
+        constexpr int kNumWrapBits       = SkNextLog2(kWrapModeCount);
+        constexpr int kNumMaxAnisoBits   = SkNextLog2(kMaxMaxAniso);
+        constexpr int kNumFilterBits     = SkNextLog2(kFilterCount);
+        constexpr int kNumMipmapModeBits = SkNextLog2(kMipmapModeCount);
 
         constexpr int kWrapXShift      = 0;
         constexpr int kWrapYShift      = kWrapXShift    + kNumWrapBits;

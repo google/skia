@@ -24,23 +24,6 @@ constexpr int SkCTZ(uint32_t x) {
     return std::countr_zero<uint32_t>(x);
 }
 
-//! Returns the number of leading zero bits (0...32)
-// From Hacker's Delight 2nd Edition
-//
-// Seems to be needed, at least sometimes, on Windows builds,
-// to avoid what appears to be a compiler bug, where it thinks the result
-// is a 4-bit number.
-// See https://issues.skia.org/issues/485303056
-constexpr int SkCLZ_portable(uint32_t x) {
-    int n = 32;
-    uint32_t y = x >> 16; if (y != 0) {n -= 16; x = y;}
-             y = x >>  8; if (y != 0) {n -=  8; x = y;}
-             y = x >>  4; if (y != 0) {n -=  4; x = y;}
-             y = x >>  2; if (y != 0) {n -=  2; x = y;}
-             y = x >>  1; if (y != 0) {return n - 2;}
-    return n - static_cast<int>(x);
-}
-
 /**
  *  Return the integer square root of value, with a bias of bitBias
  */
@@ -173,14 +156,9 @@ int SkPopCount_portable(uint32_t n);
  *  SkNextLog2(4) -> 2
  *  SkNextLog2(5) -> 3
  */
-static inline int SkNextLog2(uint32_t value) {
+constexpr int SkNextLog2(uint32_t value) {
     SkASSERT(value != 0);
     return 32 - SkCLZ(value - 1);
-}
-
-constexpr int SkNextLog2_portable(uint32_t value) {
-    SkASSERT(value != 0);
-    return 32 - SkCLZ_portable(value - 1);
 }
 
 /**
@@ -192,12 +170,7 @@ constexpr int SkNextLog2_portable(uint32_t value) {
 *  SkPrevLog2(4) -> 2
 *  SkPrevLog2(5) -> 2
 */
-static inline int SkPrevLog2(uint32_t value) {
-    SkASSERT(value != 0);
-    return 32 - SkCLZ(value >> 1);
-}
-
-constexpr int SkPrevLog2_portable(uint32_t value) {
+constexpr int SkPrevLog2(uint32_t value) {
     SkASSERT(value != 0);
     return 32 - SkCLZ(value >> 1);
 }
@@ -207,14 +180,9 @@ constexpr int SkPrevLog2_portable(uint32_t value) {
  *  is already a power of 2, then it is returned unchanged. It is undefined
  *  if value is <= 0.
  */
-static inline int SkNextPow2(int value) {
+constexpr int SkNextPow2(int value) {
     SkASSERT(value > 0);
     return 1 << SkNextLog2(static_cast<uint32_t>(value));
-}
-
-constexpr int SkNextPow2_portable(int value) {
-    SkASSERT(value > 0);
-    return 1 << SkNextLog2_portable(static_cast<uint32_t>(value));
 }
 
 /**
@@ -222,14 +190,9 @@ constexpr int SkNextPow2_portable(int value) {
 *  is already a power of 2, then it is returned unchanged. It is undefined
 *  if value is <= 0.
 */
-static inline int SkPrevPow2(int value) {
+constexpr int SkPrevPow2(int value) {
     SkASSERT(value > 0);
     return 1 << SkPrevLog2(static_cast<uint32_t>(value));
-}
-
-constexpr int SkPrevPow2_portable(int value) {
-    SkASSERT(value > 0);
-    return 1 << SkPrevLog2_portable(static_cast<uint32_t>(value));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

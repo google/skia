@@ -398,10 +398,9 @@ DEF_TEST(PopCount, reporter) {
     }
 }
 
-static void test_clz_portable(skiatest::Reporter* reporter) {
+static void test_clz(skiatest::Reporter* reporter) {
     auto expect = [reporter](uint32_t value, int count) {
         REPORTER_ASSERT(reporter, SkCLZ(value)          == count);
-        REPORTER_ASSERT(reporter, SkCLZ_portable(value) == count);
     };
 
     expect(0, 32);
@@ -508,7 +507,7 @@ DEF_TEST(Math, reporter) {
     // disable for now
     if ((false)) test_blend31();  // avoid bit rot, suppress warning
 
-    test_clz_portable(reporter);
+    test_clz(reporter);
 }
 
 template <typename T> struct PairRec {
@@ -726,7 +725,7 @@ DEF_TEST(SkNextPow2, reporter) {
         int actual = SkNextPow2(c.fInput);
         REPORTER_ASSERT(reporter, c.fExpected == actual,
             "SkNextPow2(%d) == %d not %d", c.fInput, actual, c.fExpected);
-        REPORTER_ASSERT(reporter, actual == SkNextPow2_portable(c.fInput));
+        REPORTER_ASSERT(reporter, actual == SkNextPow2(c.fInput));
     }
 
     // exhaustive search for all the between numbers
@@ -735,7 +734,7 @@ DEF_TEST(SkNextPow2, reporter) {
         int expected = std::pow(2.f, std::ceil(logf(i)/logf(2)));
         REPORTER_ASSERT(reporter, expected == actual,
             "SkNextPow2(%d) == %d not %d", i, actual, expected);
-        REPORTER_ASSERT(reporter, actual == SkNextPow2_portable(i));
+        REPORTER_ASSERT(reporter, actual == SkNextPow2(i));
     }
 }
 

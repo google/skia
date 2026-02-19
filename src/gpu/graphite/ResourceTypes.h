@@ -303,9 +303,9 @@ struct SamplerDesc {
 
     // These are public such that backends can bitshift data in order to determine whatever
     // sampler qualities they need from fDesc.
-    static constexpr int kNumTileModeBits   = SkNextLog2_portable(int(SkTileMode::kLastTileMode)+1);
-    static constexpr int kNumFilterModeBits = SkNextLog2_portable(int(SkFilterMode::kLast)+1);
-    static constexpr int kNumMipmapModeBits = SkNextLog2_portable(int(SkMipmapMode::kLast)+1);
+    static constexpr int kNumTileModeBits   = SkNextLog2(int(SkTileMode::kLastTileMode)+1);
+    static constexpr int kNumFilterModeBits = SkNextLog2(int(SkFilterMode::kLast)+1);
+    static constexpr int kNumMipmapModeBits = SkNextLog2(int(SkMipmapMode::kLast)+1);
     static constexpr int kMaxNumConversionInfoBits =
             32 - kNumFilterModeBits - kNumMipmapModeBits - kNumTileModeBits;
 
