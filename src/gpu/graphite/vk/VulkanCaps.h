@@ -28,6 +28,9 @@ public:
                Protected);
     ~VulkanCaps() override;
 
+    bool isSampleCountSupported(TextureFormat, SampleCount requestedSampleCount) const override;
+    TextureFormat getDepthStencilFormat(SkEnumBitMask<DepthStencilFlags>) const override;
+
     TextureInfo getDefaultAttachmentTextureInfo(AttachmentDesc,
                                                 Protected,
                                                 Discardable) const override;
@@ -58,6 +61,16 @@ public:
                               RenderPassDesc*,
                               const RendererProvider*) const override;
     UniqueKey makeComputePipelineKey(const ComputePipelineDesc&) const override { return {}; }
+
+
+    bool isRenderable(const TextureInfo&) const override;
+    bool isStorage(const TextureInfo&) const override;
+
+    bool isFormatSupported(VkFormat) const;
+    bool isTexturable(const VulkanTextureInfo&) const;
+    bool isRenderable(const VulkanTextureInfo&) const;
+    bool isTransferSrc(const VulkanTextureInfo&) const;
+    bool isTransferDst(const VulkanTextureInfo&) const;
 
     void buildKeyForTexture(SkISize dimensions,
                             const TextureInfo&,
@@ -184,10 +197,20 @@ private:
                                      const VkPhysicalDeviceProperties&);
 
     SkSpan<const ColorTypeInfo> getColorTypeInfos(const TextureInfo&) const override;
-    std::pair<SkEnumBitMask<TextureUsage>, SkEnumBitMask<SampleCount>> getTextureSupport(
-            TextureFormat format, Tiling) const override;
-    std::pair<SkEnumBitMask<TextureUsage>, Tiling> getTextureUsage(
-            const TextureInfo&) const override;
+
+    bool onIsTexturable(const TextureInfo&) const override;
+
+    bool isCopyableDst(const TextureInfo&) const override;
+    bool isCopyableSrc(const TextureInfo&) const override;
+
+    /*
+     * Whether the texture supports multisampled-render-to-single-sampled.  When
+     * VK_EXT_multisampled_render_to_single_sampled is supported, all textures created by Graphite
+     * that are renderable will support this feature.  Textures imported into Graphite however
+     * depend on whether the application has created the image with the
+     * VK_IMAGE_CREATE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT flag.
+     */
+    bool msaaTextureRenderToSingleSampledSupport(const TextureInfo&) const override;
 
     // Struct that determines and stores which sample count quantities a VkFormat supports.
     struct SupportedSampleCounts {
@@ -218,6 +241,8 @@ private:
         bool isTexturable(VkImageTiling) const;
         bool isRenderable(VkImageTiling, SampleCount sampleCount) const;
         bool isStorage(VkImageTiling) const;
+        bool isTransferSrc(VkImageTiling) const;
+        bool isTransferDst(VkImageTiling) const;
         bool isEfficientWithHostImageCopy(VkImageTiling, Protected) const;
 
         std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
@@ -268,6 +293,10 @@ private:
         VkFormatProperties fFormatProperties = {};
         SupportedSampleCounts fSupportedSampleCounts;
     };
+
+    // Map DepthStencilFlags to VkFormat.
+    static const size_t kNumDepthStencilFlags = 4;
+    VkFormat fDepthStencilFlagsToFormatTable[kNumDepthStencilFlags];
 
     // Map depth/stencil VkFormats to DepthStencilFormatInfo.
     static const size_t kNumDepthStencilVkFormats = 5;

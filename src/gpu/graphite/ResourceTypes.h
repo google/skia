@@ -207,25 +207,6 @@ struct BindBufferInfo {
     bool operator!=(const BindBufferInfo& o) const { return !(*this == o); }
 };
 
-// How texture memory is arranged on the GPU, which can impact what operations are supported.
-enum class Tiling : uint8_t {
-    kOptimal,
-    kLinear
-};
-
-// Coarse ways in which a specific texture can be used, or the theoretic set of usages a texture
-// format supports.
-enum class TextureUsage : uint8_t {
-    kRender   = 0x01, // Can be used as a rendering attachment
-    kMSRTSS   = 0x02, // Can be rendered with MSAA-render-to-single-sampled functionality
-    kSample   = 0x04, // Can be sampled within a shader
-    kCopySrc  = 0x08, // Can be copied into another texture or buffer
-    kCopyDst  = 0x10, // Can be the copy target of another texture or buffer
-    kStorage  = 0x20, // Can be read and written to in a compute pipeline
-    kHostCopy = 0x40, // Can be written to directly from host memory
-};
-SK_MAKE_BITMASK_OPS(TextureUsage)
-
 struct ImmutableSamplerInfo {
     // If the sampler requires YCbCr conversion, backends can place that information here.
     // In order to fit within SamplerDesc's uint32 desc field, backends can only utilize up to
