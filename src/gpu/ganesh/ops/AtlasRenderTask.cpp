@@ -54,6 +54,17 @@ bool AtlasRenderTask::addPath(const SkMatrix& viewMatrix, const SkPath& path,
     SkASSERT(this->isEmpty());
     SkASSERT(!fDynamicAtlas->isInstantiated());  // Paths can't be added after instantiate().
 
+    // Check for room in the list first and return false if prior draws need to be flushed first.
+    if (GrFillRuleForSkPath(path) == GrFillRule::kNonzero) {
+        if (!fWindingPathList.canAdd(path)) {
+            return false;
+        }
+    } else {
+        if (!fEvenOddPathList.canAdd(path)) {
+            return false;
+        }
+    }
+
     if (!fDynamicAtlas->addRect(widthInAtlas, heightInAtlas, locationInAtlas)) {
         return false;
     }

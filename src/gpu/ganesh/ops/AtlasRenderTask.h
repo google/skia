@@ -22,6 +22,7 @@
 #include "src/gpu/ganesh/ops/OpsTask.h"
 #include "src/gpu/ganesh/tessellate/PathTessellator.h"
 
+#include <limits>
 #include <memory>
 #include <utility>
 
@@ -89,6 +90,7 @@ private:
     class AtlasPathList : SkNoncopyable {
     public:
         void add(PathDrawAllocator* alloc, const SkMatrix& pathMatrix, const SkPath& path) {
+            SkASSERT(this->canAdd(path));
             fPathDrawList = &alloc->emplace_back(pathMatrix, path, SK_PMColor4fTRANSPARENT,
                                                  fPathDrawList);
             if (path.isInverseFillType()) {
@@ -98,6 +100,12 @@ private:
             fTotalCombinedPathVerbCnt += path.countVerbs();
             ++fPathCount;
         }
+
+        bool canAdd(const SkPath& path) const {
+            // Return true so long as we won't overflow the total verb count
+            return std::numeric_limits<int>::max() - fTotalCombinedPathVerbCnt >= path.countVerbs();
+        }
+
         const PathDrawList* pathDrawList() const { return fPathDrawList; }
         int totalCombinedPathVerbCnt() const { return fTotalCombinedPathVerbCnt; }
         int pathCount() const { return fPathCount; }
