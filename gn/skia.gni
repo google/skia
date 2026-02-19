@@ -114,7 +114,10 @@ declare_args() {
   #
   # While GCC is supported, it lacks CI coverage to catch regressions.
   # Therefore, we disable it by default on GCC builds.
-  skia_use_partition_alloc = is_clang
+  #
+  # TODO(b/351867706): Re-enable. One Android test reaches PA_NOTREACHED() at
+  # the moment.
+  skia_use_partition_alloc = false
   skia_partition_alloc_dir = "//third_party/externals/partition_alloc"
 }
 
