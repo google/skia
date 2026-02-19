@@ -1951,8 +1951,7 @@
     "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-PreAbandonGpuContext"
   },
   {
-    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan",
-    "cq_config": {}
+    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan"
   },
   {
     "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",
