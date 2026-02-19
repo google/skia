@@ -1631,6 +1631,11 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 		// HWASAN adds tag bytes to pointers. That's incompatible with this test -- it compares
 		// pointers from unrelated stack frames to check that RP isn't growing the stack.
 		skip(ALL, "test", ALL, "SkRasterPipeline_stack_rewind")
+
+		if b.MatchGpu("Adreno618") && b.ExtraConfig("Vulkan") && b.ExtraConfig("Graphite") {
+			// b/485830988
+			skip(ALL, "test", ALL, "SkSLMatrixToVectorCast_Graphite")
+		}
 	}
 
 	if b.MatchOs("Mac") && b.GPU("IntelHD6000") {
