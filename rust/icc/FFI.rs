@@ -300,11 +300,13 @@ pub fn parse_icc_profile(data: &[u8], out: &mut ffi::IccProfile) -> bool {
     true
 }
 
-/// Convert Vec<u16> to Vec<u8> in little-endian byte order.
+/// Convert Vec<u16> to Vec<u8> in big-endian byte order.
+/// skcms expects all 16-bit table and grid data in big-endian (ICC native) format.
+/// See skcms.cc eval_curve() and Transform_inl.h sample_clut_16().
 fn u16_vec_to_bytes(values: &[u16]) -> Vec<u8> {
     let mut bytes = Vec::with_capacity(values.len() * 2);
     for value in values {
-        bytes.extend(value.to_le_bytes());
+        bytes.extend(value.to_be_bytes());
     }
     bytes
 }
@@ -1147,9 +1149,10 @@ mod tests {
 
         assert_eq!(bytes.len(), 8);
 
+        // Big-endian: high byte first, matching ICC/skcms expectations.
         assert_eq!(bytes[0..2], [0x00, 0x00]);
-        assert_eq!(bytes[2..4], [0xFF, 0x00]);
-        assert_eq!(bytes[4..6], [0x00, 0xFF]);
+        assert_eq!(bytes[2..4], [0x00, 0xFF]);
+        assert_eq!(bytes[4..6], [0xFF, 0x00]);
         assert_eq!(bytes[6..8], [0xFF, 0xFF]);
     }
 }
