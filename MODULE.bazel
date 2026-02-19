@@ -136,7 +136,7 @@ crate.spec(
 )
 crate.spec(
     package = "png",
-    version = "=0.18.0-rc",
+    version = "=0.18.1",
 )
 crate.spec(
     default_features = False,
