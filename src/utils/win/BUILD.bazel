@@ -24,7 +24,6 @@ WIN_FILES = [
     "SkIStream.h",
     "SkObjBase.h",
     "SkTScopedComPtr.h",
-    "SkWGL_win.cpp",
 ]
 
 split_srcs_and_hdrs(
