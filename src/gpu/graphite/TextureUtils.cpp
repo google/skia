@@ -514,36 +514,44 @@ sk_sp<SkImage> RescaleImage(Recorder* recorder,
     return SkSurfaces::AsImage(std::move(dst));
 }
 
-bool GenerateMipmaps(Recorder* recorder,
-                     DrawContext* drawContext,
-                     sk_sp<TextureProxy> texture,
-                     const SkColorInfo& colorInfo) {
-    constexpr SkSamplingOptions kSamplingOptions = SkSamplingOptions(SkFilterMode::kLinear);
-
+bool GenerateMipmaps(Recorder* recorder, DrawContext* drawContext, sk_sp<TextureProxy> texture) {
     SkASSERT(texture->mipmapped() == Mipmapped::kYes);
 
-    // Within a rescaling pass scratchImg is read from and a scratch surface is written to.
-    // At the end of the pass the scratch surface's texture is wrapped and assigned to scratchImg.
+    // GenerateMipmaps uses Surface and Image to generate mipmaps by drawing each level at 1/2
+    // scale compared to the last level and then copying from the scratch surface into `texture`.
+    // Surface and Image require SkColorInfo but it does not matter what is chosen so long as the
+    // final color management results in the identity function (including read/write swizzles).
+    // This ensures that whatever the original color handling of `texture` is, the regenerated
+    // levels will match. To do this, we use these settings for both surface and images
+    //   - the default color type for the texture's format
+    //   - kOpaque_SkAlphaType to disable all premul/unpremul conversions and remain renderable,
+    //     (which is okay since all our drawing uses kSrc blending anyways)
+    //   - provide no SkColorSpace
+    //
+    // NOTE: In the future, if we were generate mipmaps in linear gamma, we would need to know about
+    // the original image's color space and alpha type.  We would also have to implement a custom
+    // filtering shader that sampled the base level several times with nearest filtering, convert
+    // each sample to linear+premul space, average them, and then convert that to the source color
+    // space and alpha type.
+    SkColorType colorType = recorder->priv().caps()->getDefaultColorType(texture->textureInfo());
+    SkColorInfo colorInfo{colorType, kOpaque_SkAlphaType, /*cs=*/nullptr};
 
-    // The scratch surface we create below will use a write swizzle derived from SkColorType and
-    // pixel format. We have to be consistent and swizzle on the read.
+    // Configure swizzle for the initial image to match what happens in Surface::asImage()
     auto imgSwizzle = recorder->priv().caps()->getReadSwizzle(colorInfo.colorType(),
                                                               texture->textureInfo());
     sk_sp<SkImage> scratchImg(new Image(TextureProxyView(texture, imgSwizzle), colorInfo));
 
-    SkISize srcSize = texture->dimensions();
-    const SkColorInfo outColorInfo = colorInfo.makeAlphaType(kPremul_SkAlphaType);
-
     // Alternate between two scratch surfaces to avoid reading from and writing to a texture in the
     // same pass. The dimensions of the first usages of the two scratch textures will be 1/2 and 1/4
     // those of the original texture, respectively.
+    SkISize srcSize = texture->dimensions();
     sk_sp<Surface> scratchSurfaces[2];
     for (int i = 0; i < 2; ++i) {
         scratchSurfaces[i] = make_renderable_scratch_surface(
                 recorder,
                 SkImageInfo::Make(SkISize::Make(std::max(1, srcSize.width() >> (i + 1)),
                                                 std::max(1, srcSize.height() >> (i + 1))),
-                                  outColorInfo),
+                                  colorInfo),
                 SkBackingFit::kApprox,
                 "GenerateMipmapsScratchTexture");
         if (!scratchSurfaces[i]) {
@@ -551,6 +559,8 @@ bool GenerateMipmaps(Recorder* recorder,
         }
     }
 
+    // Within a rescaling pass scratchImg is read from and a scratch surface is written to.
+    // At the end of the pass the scratch surface's texture is wrapped and assigned to scratchImg.
     for (int mipLevel = 1; srcSize.width() > 1 || srcSize.height() > 1; ++mipLevel) {
         const SkISize dstSize = SkISize::Make(std::max(srcSize.width() >> 1, 1),
                                               std::max(srcSize.height() >> 1, 1));
@@ -562,7 +572,7 @@ bool GenerateMipmaps(Recorder* recorder,
         scratchSurface->getCanvas()->drawImageRect(scratchImg,
                                                    SkRect::Make(srcSize),
                                                    SkRect::Make(dstSize),
-                                                   kSamplingOptions,
+                                                   SkFilterMode::kLinear,
                                                    &paint,
                                                    SkCanvas::kStrict_SrcRectConstraint);
 

@@ -110,7 +110,7 @@ sk_sp<Image> Image::Copy(Recorder* recorder,
     }
 
     if (mipmapped == Mipmapped::kYes) {
-        if (!GenerateMipmaps(recorder, drawContext, dst, srcColorInfo)) {
+        if (!GenerateMipmaps(recorder, drawContext, dst)) {
             SKGPU_LOG_W("Image::Copy failed to generate mipmaps");
             return nullptr;
         }

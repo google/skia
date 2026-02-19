@@ -322,7 +322,7 @@ void DrawContext::flush(Recorder* recorder) {
         fCurrentDrawTask->addTask(RenderPassTask::Make(std::move(passes), desc, fTarget,
                                                        std::move(dstCopy), dstReadPixelBounds));
         if (fTarget->mipmapped() == Mipmapped::kYes) {
-            if (!GenerateMipmaps(recorder, this, fTarget, fImageInfo.colorInfo())) {
+            if (!GenerateMipmaps(recorder, this, fTarget)) {
                 SKGPU_LOG_W("DrawContext::flush GenerateMipmaps failed, draw pass dropped!");
                 return;
             }

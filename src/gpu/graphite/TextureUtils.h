@@ -84,7 +84,7 @@ sk_sp<SkImage> RescaleImage(Recorder*,
                             SkImage::RescaleGamma rescaleGamma,
                             SkImage::RescaleMode rescaleMode);
 
-bool GenerateMipmaps(Recorder*, DrawContext*, sk_sp<TextureProxy>, const SkColorInfo&);
+bool GenerateMipmaps(Recorder*, DrawContext*, sk_sp<TextureProxy>);
 
 // Returns the underlying TextureProxyView if it's a non-YUVA Graphite-backed image.
 TextureProxyView AsView(const SkImage*);
