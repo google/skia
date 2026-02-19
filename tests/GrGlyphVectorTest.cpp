@@ -37,8 +37,12 @@ public:
     static const SkDescriptor& GetDescriptor(const GlyphVector& v) {
         return v.fStrikePromise.descriptor();
     }
-    static SkSpan<GlyphVector::Variant> GetGlyphs(const GlyphVector& v) {
-        return v.fGlyphs;
+    static SkPackedGlyphID GetPackedID(const GlyphVector& v, int i) {
+        const auto& g = v.fGlyphs[i];
+        if (v.fGetGlyphID) {
+            return v.fGetGlyphID(g.data());
+        }
+        return *reinterpret_cast<const SkPackedGlyphID*>(g.data());
     }
 };
 
@@ -69,10 +73,12 @@ DEF_TEST(GlyphVector_Serialization, r) {
                     GlyphVectorTestingPeer::GetDescriptor(src) ==
                             GlyphVectorTestingPeer::GetDescriptor(*dst));
 
-    auto srcGlyphs = GlyphVectorTestingPeer::GetGlyphs(src);
-    auto dstGlyphs = GlyphVectorTestingPeer::GetGlyphs(*dst);
-    for (auto [srcGlyphID, dstGlyphID] : SkMakeZip(srcGlyphs, dstGlyphs)) {
-        REPORTER_ASSERT(r, srcGlyphID.packedGlyphID == dstGlyphID.packedGlyphID);
+    REPORTER_ASSERT(r, src.glyphCount() == dst->glyphCount());
+    auto n = std::min(src.glyphCount(), dst->glyphCount());
+    for (int i = 0; i < n; ++i) {
+        auto s = GlyphVectorTestingPeer::GetPackedID(src, i);
+        auto d = GlyphVectorTestingPeer::GetPackedID(*dst, i);
+        REPORTER_ASSERT(r, s == d);
     }
 }
 

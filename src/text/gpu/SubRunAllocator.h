@@ -32,6 +32,24 @@ namespace sktext::gpu {
 
 // BagOfBytes parcels out bytes with a given size and alignment.
 class BagOfBytes {
+    // The maximum alignment supported by GrBagOfBytes. 16 seems to be a good number for alignment.
+    // If a use case for larger alignments is found, we can turn this into a template parameter.
+    inline static constexpr int kMaxAlignment = std::max(16, (int)alignof(std::max_align_t));
+    // The largest size that can be allocated. In larger sizes, the block is rounded up to 4K
+    // chunks. Leave a 4K of slop.
+    inline static constexpr int k4K = (1 << 12);
+    // This should never overflow with the calculations done on the code.
+    inline static constexpr int kMaxByteSize = std::numeric_limits<int>::max() - k4K;
+    // The assumed alignment of new char[] given the platform.
+    // There is a bug in Emscripten's allocator that make alignment different than max_align_t.
+    // kAllocationAlignment accounts for this difference. For more information see:
+    // https://github.com/emscripten-core/emscripten/issues/10072
+#if !defined(SK_FORCE_8_BYTE_ALIGNMENT)
+    static constexpr int kAllocationAlignment = alignof(std::max_align_t);
+#else
+    static constexpr int kAllocationAlignment = 8;
+#endif
+
 public:
     BagOfBytes(char* block, size_t blockSize, size_t firstHeapAllocation);
     explicit BagOfBytes(size_t firstHeapAllocation = 0);
@@ -104,37 +122,22 @@ public:
         return 0 <= n && n < kMaxN;
     }
 
-    // Returns a pointer to memory suitable for holding n Ts.
-    template <typename T> char* allocateBytesFor(int n = 1) {
-        static_assert(alignof(T) <= kMaxAlignment, "Alignment is too big for arena");
-        static_assert(sizeof(T) < kMaxByteSize, "Size is too big for arena");
-        SkASSERT_RELEASE(WillCountFit<T>(n));
+    // Returns a pointer to memory suitable for holding n values each with Size and Alignment.
+    // Allocates 1 aligned byte if n == 0.
+    template <size_t Size, size_t Alignment> char* allocateBytesFor(int n = 1)
+        requires (Alignment <= kMaxAlignment && Size < kMaxByteSize && Size % Alignment == 0) {
+        int size = n ? n * Size : 1;
+        SkASSERT_RELEASE(size <= kMaxByteSize);
+        return this->allocateBytes(size, Alignment);
+    }
 
-        int size = n ? n * sizeof(T) : 1;
-        return this->allocateBytes(size, alignof(T));
+    template <typename T> char* allocateBytesFor(int n = 1) {
+        return allocateBytesFor<sizeof(T), alignof(T)>(n);
     }
 
     void* alignedBytes(int unsafeSize, int unsafeAlignment);
 
 private:
-    // The maximum alignment supported by GrBagOfBytes. 16 seems to be a good number for alignment.
-    // If a use case for larger alignments is found, we can turn this into a template parameter.
-    inline static constexpr int kMaxAlignment = std::max(16, (int)alignof(std::max_align_t));
-    // The largest size that can be allocated. In larger sizes, the block is rounded up to 4K
-    // chunks. Leave a 4K of slop.
-    inline static constexpr int k4K = (1 << 12);
-    // This should never overflow with the calculations done on the code.
-    inline static constexpr int kMaxByteSize = std::numeric_limits<int>::max() - k4K;
-    // The assumed alignment of new char[] given the platform.
-    // There is a bug in Emscripten's allocator that make alignment different than max_align_t.
-    // kAllocationAlignment accounts for this difference. For more information see:
-    // https://github.com/emscripten-core/emscripten/issues/10072
-    #if !defined(SK_FORCE_8_BYTE_ALIGNMENT)
-        static constexpr int kAllocationAlignment = alignof(std::max_align_t);
-    #else
-        static constexpr int kAllocationAlignment = 8;
-    #endif
-
     static constexpr size_t AlignUp(int size, int alignment) {
         return (size + (alignment - 1)) & -alignment;
     }
@@ -259,9 +262,10 @@ public:
         return std::unique_ptr<T, Destroyer>{new (bytes) T(std::forward<Args>(args)...)};
     }
 
-    template<typename T> T* makePODArray(int n) {
+    template<typename T, size_t Alignment = alignof(T)> T* makePODArray(int n)
+        requires (sizeof(T) % Alignment == 0) {
         static_assert(HasNoDestructor<T>, "This is not POD. Use makeUniqueArray.");
-        return reinterpret_cast<T*>(fAlloc.template allocateBytesFor<T>(n));
+        return reinterpret_cast<T*>(fAlloc.template allocateBytesFor<sizeof(T), Alignment>(n));
     }
 
     template<typename T>

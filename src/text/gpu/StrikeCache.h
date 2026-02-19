@@ -31,42 +31,42 @@ struct SkPackedGlyphID;
 
 namespace sktext::gpu {
 
-class Glyph;
 class StrikeCache;
 
-// The TextStrike manages an SkArenaAlloc for Glyphs. The SkStrike is what actually creates
-// the mask. The TextStrike may outlive the generating SkStrike. However, it retains a copy
-// of it's SkDescriptor as a key to access (or regenerate) the SkStrike. TextStrikes are
-// created by and owned by a StrikeCache.
-class TextStrike : public SkNVRefCnt<TextStrike> {
+/**
+ * Abstract base class for backend-specific text strike caches. This allows a
+ * shared StrikeCache implementation.
+ */
+class TextStrikeBase : public SkRefCnt {
 public:
-    TextStrike(StrikeCache* strikeCache,
-               const SkStrikeSpec& strikeSpec);
+    ~TextStrikeBase() override = default;
 
-    Glyph* getGlyph(SkPackedGlyphID);
     const SkStrikeSpec& strikeSpec() const { return fStrikeSpec; }
     const SkDescriptor& getDescriptor() const { return fStrikeSpec.descriptor(); }
 
-private:
-    StrikeCache* const fStrikeCache;
+    size_t memoryUsed() const { return fMemoryUsed; }
 
-    // Key for retrieving the SkStrike for creating new atlas data.
+protected:
+    TextStrikeBase(StrikeCache* strikeCache, const SkStrikeSpec& strikeSpec)
+            : fStrikeCache(strikeCache), fStrikeSpec(strikeSpec) {}
+
+    static sk_sp<TextStrikeBase> Find(const StrikeCache*, const SkDescriptor&);
+    static void Add(StrikeCache*, sk_sp<TextStrikeBase>);
+
+    // Called by derived classes when allocating glyphs to update cache accounting
+    void addMemoryUsed(size_t bytes);
+
+    StrikeCache* const fStrikeCache;
     const SkStrikeSpec fStrikeSpec;
 
-    struct HashTraits {
-        static const SkPackedGlyphID& GetKey(const Glyph* glyph);
-        static uint32_t Hash(SkPackedGlyphID key);
-    };
-    // Map SkPackedGlyphID -> Glyph*.
-    skia_private::THashTable<Glyph*, SkPackedGlyphID, HashTraits> fCache;
-
-    // Store for the glyph information.
+    // Store for the glyph information (backend-specific glyphs allocated here)
     SkArenaAlloc fAlloc{512};
 
-    TextStrike*  fNext{nullptr};
-    TextStrike*  fPrev{nullptr};
-    size_t       fMemoryUsed{sizeof(TextStrike)};
-    bool         fRemoved{false};
+    // Linked list for LRU cache management
+    TextStrikeBase* fNext{nullptr};
+    TextStrikeBase* fPrev{nullptr};
+    size_t fMemoryUsed{sizeof(TextStrikeBase)};
+    bool fRemoved{false};
 
     friend class StrikeCache;
 };
@@ -77,18 +77,13 @@ class StrikeCache {
 public:
     ~StrikeCache();
 
-    // The user of the cache may hold a long-lived ref to the returned strike.
-    sk_sp<TextStrike> findOrCreateStrike(const SkStrikeSpec& strikeSpec);
-
     void freeAll();
 
 private:
-    friend class TextStrike;  // for TextStrike::getGlyph
-    sk_sp<TextStrike> internalFindStrikeOrNull(const SkDescriptor& desc);
-    sk_sp<TextStrike> generateStrike(const SkStrikeSpec& strikeSpec);
+    friend class TextStrikeBase;
 
-    void internalRemoveStrike(TextStrike* strike);
-    void internalAttachToHead(sk_sp<TextStrike> strike);
+    void internalRemoveStrike(TextStrikeBase* strike);
+    void internalAttachToHead(sk_sp<TextStrikeBase> strike);
 
     // Checkout budgets, modulated by the specified min-bytes-needed-to-purge,
     // and attempt to purge caches to match.
@@ -98,14 +93,15 @@ private:
     // A simple accounting of what each glyph cache reports and the strike cache total.
     void validate() const;
 
-    TextStrike* fHead{nullptr};
-    TextStrike* fTail{nullptr};
+    TextStrikeBase* fHead{nullptr};
+    TextStrikeBase* fTail{nullptr};
 
     struct HashTraits {
-        static const SkDescriptor& GetKey(const sk_sp<TextStrike>& strike);
+        static const SkDescriptor& GetKey(const sk_sp<TextStrikeBase>& strike);
         static uint32_t Hash(const SkDescriptor& strikeSpec);
     };
-    using StrikeHash = skia_private::THashTable<sk_sp<TextStrike>, const SkDescriptor&, HashTraits>;
+    using StrikeHash =
+            skia_private::THashTable<sk_sp<TextStrikeBase>, const SkDescriptor&, HashTraits>;
 
     StrikeHash fCache;
 
@@ -114,6 +110,18 @@ private:
     int32_t fCacheCountLimit{SK_DEFAULT_GPU_FONT_CACHE_COUNT_LIMIT};
     int32_t fCacheCount{0};
 };
+
+inline sk_sp<TextStrikeBase> TextStrikeBase::Find(const StrikeCache* cache,
+                                                  const SkDescriptor& desc) {
+    auto entry = cache->fCache.find(desc);
+    return entry ? *entry : nullptr;
+}
+
+inline void TextStrikeBase::Add(StrikeCache* cache, sk_sp<TextStrikeBase> strike) {
+    SkASSERT(!Find(cache, strike->getDescriptor()));
+    cache->internalAttachToHead(std::move(strike));
+    cache->internalPurge();
+}
 
 }  // namespace sktext::gpu
 

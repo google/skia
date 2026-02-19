@@ -7,6 +7,10 @@ package(
 licenses(["notice"])
 
 CORE_FILES = [
+    "GlyphData.cpp",
+    "GlyphData.h",
+    "TextStrike.cpp",
+    "TextStrike.h",
     "TextAtlasManager.cpp",
     "TextAtlasManager.h",
 ]

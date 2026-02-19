@@ -29,16 +29,16 @@
 #include "src/gpu/graphite/DrawAtlas.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"  // IWYU pragma: keep
+#include "src/gpu/graphite/text/GlyphData.h"
 #include "src/sksl/SkSLUtil.h"
-#include "src/text/gpu/Glyph.h"
-#include "src/text/gpu/GlyphVector.h"
+#include "src/text/gpu/GlyphUtils.h"
 #include "src/text/gpu/StrikeCache.h"
 
 #include <cstring>
 #include <new>
 #include <tuple>
 
-using Glyph = sktext::gpu::Glyph;
+using Glyph = skgpu::graphite::Glyph;
 
 namespace skgpu::graphite {
 
@@ -68,9 +68,8 @@ void TextAtlasManager::freeGpuResources() {
     }
 }
 
-bool TextAtlasManager::hasGlyph(MaskFormat format, Glyph* glyph) {
-    SkASSERT(glyph);
-    return this->getAtlas(format)->hasID(glyph->fAtlasLocator.plotLocator());
+bool TextAtlasManager::hasGlyph(MaskFormat format, const GlyphEntry& glyph) {
+    return this->getAtlas(format)->hasID(glyph.fAtlasLocator.plotLocator());
 }
 
 template <typename INT_TYPE>
@@ -102,7 +101,7 @@ static void get_packed_glyph_image(
     const void* src = glyph.image();
     SkASSERT(src != nullptr);
 
-    MaskFormat maskFormat = Glyph::FormatFromSkGlyph(glyph.maskFormat());
+    MaskFormat maskFormat = sktext::gpu::FormatFromSkGlyph(glyph.maskFormat());
     if (maskFormat == expectedMaskFormat) {
         int srcRB = glyph.rowBytes();
         // Notice this comparison is with the glyphs raw mask format, and not its MaskFormat.
@@ -194,7 +193,7 @@ MaskFormat TextAtlasManager::resolveMaskFormat(MaskFormat format) const {
 // Returns kSucceeded if glyph successfully added to texture atlas, kTryAgain if a RenderPassTask
 // needs to be snapped before adding the glyph, and kError if it can't be added at all.
 DrawAtlas::ErrorCode TextAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
-                                                       Glyph* glyph,
+                                                       GlyphEntry* glyph,
                                                        int srcPadding) {
 #if !defined(SK_DISABLE_SDF_TEXT)
     SkASSERT(0 <= srcPadding && srcPadding <= SK_DistanceFieldInset);
@@ -207,7 +206,7 @@ DrawAtlas::ErrorCode TextAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
     }
     SkASSERT(glyph != nullptr);
 
-    MaskFormat glyphFormat = Glyph::FormatFromSkGlyph(skGlyph.maskFormat());
+    MaskFormat glyphFormat = sktext::gpu::FormatFromSkGlyph(skGlyph.maskFormat());
     MaskFormat expectedMaskFormat = this->resolveMaskFormat(glyphFormat);
     int bytesPerPixel = MaskFormatBytesPerPixel(expectedMaskFormat);
 
@@ -282,11 +281,10 @@ bool TextAtlasManager::recordUploads(DrawContext* dc) {
 
 void TextAtlasManager::addGlyphToBulkAndSetUseToken(BulkUsePlotUpdater* updater,
                                                     MaskFormat format,
-                                                    Glyph* glyph,
+                                                    const GlyphEntry& glyph,
                                                     Token token) {
-    SkASSERT(glyph);
-    if (updater->add(glyph->fAtlasLocator)) {
-        this->getAtlas(format)->setLastUseToken(glyph->fAtlasLocator, token);
+    if (updater->add(glyph.fAtlasLocator)) {
+        this->getAtlas(format)->setLastUseToken(glyph.fAtlasLocator, token);
     }
 }
 
@@ -333,82 +331,3 @@ void TextAtlasManager::compact() {
 }
 
 }  // namespace skgpu::graphite
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace sktext::gpu {
-
-using DrawAtlas = skgpu::graphite::DrawAtlas;
-
-std::tuple<bool, int> GlyphVector::regenerateAtlasForGraphite(int begin,
-                                                              int end,
-                                                              skgpu::MaskFormat maskFormat,
-                                                              int srcPadding,
-                                                              skgpu::graphite::Recorder* recorder) {
-    auto atlasManager = recorder->priv().atlasProvider()->textAtlasManager();
-    auto tokenTracker = recorder->priv().tokenTracker();
-
-    // TODO: this is not a great place for this -- need a better way to init atlases when needed
-    unsigned int numActiveProxies;
-    const sk_sp<skgpu::graphite::TextureProxy>* proxies =
-            atlasManager->getProxies(maskFormat, &numActiveProxies);
-    if (!proxies) {
-        SkDebugf("Could not allocate backing texture for atlas\n");
-        return {false, 0};
-    }
-
-    uint64_t currentAtlasGen = atlasManager->atlasGeneration(maskFormat);
-
-    this->packedGlyphIDToGlyph(recorder->priv().strikeCache());
-
-    if (fAtlasGeneration != currentAtlasGen) {
-        // Calculate the texture coordinates for the vertexes during first use (fAtlasGeneration
-        // is set to kInvalidAtlasGeneration) or the atlas has changed in subsequent calls..
-        fBulkUseUpdater.reset();
-
-        SkBulkGlyphMetricsAndImages metricsAndImages{fTextStrike->strikeSpec()};
-
-        // Update the atlas information in the GrStrike.
-        auto glyphs = fGlyphs.subspan(begin, end - begin);
-        int glyphsPlacedInAtlas = 0;
-        bool success = true;
-        for (const Variant& variant : glyphs) {
-            Glyph* gpuGlyph = variant.glyph;
-            SkASSERT(gpuGlyph != nullptr);
-
-            if (!atlasManager->hasGlyph(maskFormat, gpuGlyph)) {
-                const SkGlyph& skGlyph = *metricsAndImages.glyph(gpuGlyph->fPackedID);
-                auto code = atlasManager->addGlyphToAtlas(skGlyph, gpuGlyph, srcPadding);
-                if (code != DrawAtlas::ErrorCode::kSucceeded) {
-                    success = code != DrawAtlas::ErrorCode::kError;
-                    break;
-                }
-            }
-            atlasManager->addGlyphToBulkAndSetUseToken(
-                    &fBulkUseUpdater, maskFormat, gpuGlyph,
-                    tokenTracker->nextFlushToken());
-            glyphsPlacedInAtlas++;
-        }
-
-        // Update atlas generation if there are no more glyphs to put in the atlas.
-        if (success && begin + glyphsPlacedInAtlas == SkCount(fGlyphs)) {
-            // Need to get the freshest value of the atlas' generation because
-            // updateTextureCoordinates may have changed it.
-            fAtlasGeneration = atlasManager->atlasGeneration(maskFormat);
-        }
-
-        return {success, glyphsPlacedInAtlas};
-    } else {
-        // The atlas hasn't changed, so our texture coordinates are still valid.
-        if (end == SkCount(fGlyphs)) {
-            // The atlas hasn't changed and the texture coordinates are all still valid. Update
-            // all the plots used to the new use token.
-            atlasManager->setUseTokenBulk(fBulkUseUpdater,
-                                          tokenTracker->nextFlushToken(),
-                                          maskFormat);
-        }
-        return {true, end - begin};
-    }
-}
-
-}  // namespace sktext::gpu

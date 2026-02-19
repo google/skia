@@ -14,7 +14,6 @@
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/gpu/AtlasTypes.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDrawOpAtlas.h"
 #include "src/gpu/ganesh/GrOnFlushResourceProvider.h"
@@ -29,8 +28,8 @@ class GrResourceProvider;
 class GrSurfaceProxyView;
 class SkGlyph;
 
-namespace sktext::gpu {
-class Glyph;
+namespace skgpu::ganesh {
+struct GlyphEntry;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -64,10 +63,10 @@ public:
 
     void freeAll();
 
-    bool hasGlyph(skgpu::MaskFormat, sktext::gpu::Glyph*);
+    bool hasGlyph(skgpu::MaskFormat, const skgpu::ganesh::GlyphEntry&);
 
     GrDrawOpAtlas::ErrorCode addGlyphToAtlas(const SkGlyph&,
-                                             sktext::gpu::Glyph*,
+                                             skgpu::ganesh::GlyphEntry*,
                                              int srcPadding,
                                              GrResourceProvider*,
                                              GrDeferredUploadTarget*);
@@ -77,8 +76,10 @@ public:
     // A BulkUsePlotUpdater is used to manage bulk last use token updating in the Atlas.
     // For convenience, this function will also set the use token for the current glyph if required
     // NOTE: the bulk uploader is only valid if the subrun has a valid atlasGeneration
-    void addGlyphToBulkAndSetUseToken(skgpu::BulkUsePlotUpdater*, skgpu::MaskFormat,
-                                      sktext::gpu::Glyph*, skgpu::Token);
+    void addGlyphToBulkAndSetUseToken(skgpu::BulkUsePlotUpdater*,
+                                      skgpu::MaskFormat,
+                                      const skgpu::ganesh::GlyphEntry&,
+                                      skgpu::Token);
 
     void setUseTokenBulk(const skgpu::BulkUsePlotUpdater& updater,
                          skgpu::Token token,

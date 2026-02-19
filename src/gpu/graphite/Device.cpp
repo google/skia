@@ -97,8 +97,8 @@
 #include "src/gpu/graphite/geom/Transform.h"
 #include "src/gpu/graphite/task/Task.h"
 #include "src/gpu/graphite/task/UploadTask.h"
+#include "src/gpu/graphite/text/GlyphData.h"
 #include "src/image/SkImage_Base.h"
-#include "src/text/gpu/GlyphVector.h"
 #include "src/text/gpu/SlugImpl.h"
 #include "src/text/gpu/SubRunContainer.h"
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
@@ -1430,17 +1430,22 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
     const Transform& localToDevice = this->localToDeviceTransform();
 
     const int subRunEnd = subRun->glyphCount();
-    auto regenerateDelegate = [&](sktext::gpu::GlyphVector* glyphs,
-                                  int begin,
-                                  int end,
-                                  skgpu::MaskFormat maskFormat,
-                                  int padding) {
-        return glyphs->regenerateAtlasForGraphite(begin, end, maskFormat, padding, fRecorder);
-    };
+
+    if (!subRun->glyphVector().hasBackendData()) {
+        subRun->glyphVector().initBackendData<GlyphData>(this->recorder()->priv().strikeCache());
+    }
+
+    auto& glyphData = subRun->glyphVector().accessBackendData<GlyphData>();
+
     for (int subRunCursor = 0; subRunCursor < subRunEnd;) {
         // For the remainder of the run, add any atlas uploads to the Recorder's TextAtlasManager
-        auto[ok, glyphsRegenerated] = subRun->regenerateAtlas(subRunCursor, subRunEnd,
-                                                              regenerateDelegate);
+        auto [ok, glyphsRegenerated] = glyphData.regenerateAtlas(subRunCursor,
+                                                                 subRunEnd,
+                                                                 subRun->glyphVector(),
+                                                                 subRun->maskFormat(),
+                                                                 subRun->glyphSrcPadding(),
+                                                                 this->recorder());
+
         // There was a problem allocating the glyph in the atlas. Bail.
         if (!ok) {
             return;
@@ -1449,8 +1454,7 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
             auto [bounds, maskToDevice] =
                     subRun->vertexFiller().boundsAndDeviceMatrix(localToDevice, drawOrigin);
 
-
-            this->drawGeometry(maskToDevice,
+            this->drawGeometry(Transform{SkM44{maskToDevice}},
                                Geometry(SubRunData(subRun,
                                                    subRunStorage,
                                                    bounds,

@@ -88,8 +88,6 @@ using namespace skia_private;
 
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
-using MaskFormat = skgpu::MaskFormat;
-
 namespace skgpu::ganesh {
 
 namespace {

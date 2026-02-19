@@ -20,8 +20,6 @@
 
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
-using MaskFormat = skgpu::MaskFormat;
-
 #ifdef DF_PATH_TRACKING
 static int g_NumCachedShapes = 0;
 static int g_NumFreedShapes = 0;

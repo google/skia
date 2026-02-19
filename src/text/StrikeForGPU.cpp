@@ -29,7 +29,6 @@ SkStrike* SkStrikePromise::strike() {
         // Turn the strike spec into a strike.
         std::unique_ptr<SkStrikeSpec> spec =
             std::exchange(std::get<std::unique_ptr<SkStrikeSpec>>(fStrikeOrSpec), nullptr);
-
         fStrikeOrSpec = SkStrikeCache::GlobalStrikeCache()->findOrCreateStrike(*spec);
     }
     return std::get<sk_sp<SkStrike>>(fStrikeOrSpec).get();

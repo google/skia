@@ -18,13 +18,10 @@
 
 class SkGlyph;
 
-namespace sktext::gpu {
-class Glyph;
-}
-
 namespace skgpu::graphite {
 
 class DrawContext;
+struct GlyphEntry;
 class Recorder;
 class TextureProxy;
 
@@ -52,19 +49,16 @@ public:
 
     void freeGpuResources();
 
-    bool hasGlyph(MaskFormat, sktext::gpu::Glyph*);
+    bool hasGlyph(MaskFormat, const GlyphEntry&);
 
-    DrawAtlas::ErrorCode addGlyphToAtlas(const SkGlyph&,
-                                         sktext::gpu::Glyph*,
-                                         int srcPadding);
+    DrawAtlas::ErrorCode addGlyphToAtlas(const SkGlyph&, GlyphEntry*, int srcPadding);
 
     // To ensure the DrawAtlas does not evict the Glyph Mask from its texture backing store,
-    // the client must pass in the current draw token along with the sktext::gpu::Glyph.
+    // the client must pass in the current draw token along with the Glyph.
     // A BulkUsePlotUpdater is used to manage bulk last use token updating in the Atlas.
     // For convenience, this function will also set the use token for the current glyph if required
     // NOTE: the bulk uploader is only valid if the subrun has a valid atlasGeneration
-    void addGlyphToBulkAndSetUseToken(BulkUsePlotUpdater*, MaskFormat,
-                                      sktext::gpu::Glyph*, Token);
+    void addGlyphToBulkAndSetUseToken(BulkUsePlotUpdater*, MaskFormat, const GlyphEntry&, Token);
 
     void setUseTokenBulk(const BulkUsePlotUpdater& updater,
                          Token token,
@@ -105,14 +99,14 @@ private:
     MaskFormat resolveMaskFormat(MaskFormat format) const;
 
     // There is a 1:1 mapping between skgpu::MaskFormats and atlas indices
-    static int MaskFormatToAtlasIndex(skgpu::MaskFormat format) {
+    static int MaskFormatToAtlasIndex(MaskFormat format) {
         return static_cast<int>(format);
     }
-    static skgpu::MaskFormat AtlasIndexToMaskFormat(int idx) {
-        return static_cast<skgpu::MaskFormat>(idx);
+    static MaskFormat AtlasIndexToMaskFormat(int idx) {
+        return static_cast<MaskFormat>(idx);
     }
 
-    DrawAtlas* getAtlas(skgpu::MaskFormat format) const {
+    DrawAtlas* getAtlas(MaskFormat format) const {
         format = this->resolveMaskFormat(format);
         int atlasIndex = MaskFormatToAtlasIndex(format);
         SkASSERT(fAtlases[atlasIndex]);

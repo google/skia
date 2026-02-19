@@ -40,9 +40,9 @@
 #include "src/gpu/ganesh/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
+#include "src/gpu/ganesh/text/GlyphData.h"
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
 #include "src/text/gpu/DistanceFieldAdjustTable.h"
-#include "src/text/gpu/GlyphVector.h"
 #include "src/text/gpu/SubRunContainer.h"
 
 #if defined(SK_GAMMA_APPLY_TO_A8)
@@ -353,8 +353,25 @@ auto AtlasTextOp::Geometry::Make(const sktext::gpu::AtlasSubRun& subRun,
 }
 
 void AtlasTextOp::Geometry::fillVertexData(void *dst, int offset, int count) const {
-    fSubRun.fillVertexData(
-            dst, offset, count, fColor, fDrawMatrix, fDrawOrigin, fClipRect);
+    SkASSERT(fSubRun.glyphVector().hasBackendData());
+
+    // Get the backend-specific glyph data
+    auto& glyphData = fSubRun.glyphVector().accessBackendData<GlyphData>();
+
+    auto glyphSpan = fSubRun.glyphVector().accessBackendGlyphs<Glyph>();
+
+    // Apply the draw origin translation to the matrix
+    SkMatrix positionMatrix = fDrawMatrix;
+    positionMatrix.preTranslate(fDrawOrigin.x(), fDrawOrigin.y());
+
+    glyphData.fillVertexData(fSubRun.vertexFiller(),
+                             glyphSpan,
+                             offset,
+                             count,
+                             fColor,
+                             positionMatrix,
+                             fClipRect,
+                             dst);
 }
 
 void AtlasTextOp::visitProxies(const GrVisitProxyFunc& func) const {
@@ -519,24 +536,33 @@ void AtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
 
     for (const Geometry* geo = fHead; geo != nullptr; geo = geo->fNext) {
         const sktext::gpu::AtlasSubRun& subRun = geo->fSubRun;
-        SkASSERTF((int) subRun.vertexStride(geo->fDrawMatrix) == vertexStride,
-                  "subRun stride: %d vertex buffer stride: %d\n",
-                  (int)subRun.vertexStride(geo->fDrawMatrix), vertexStride);
+
+        if (!subRun.glyphVector().hasBackendData()) {
+            subRun.glyphVector().initBackendData<GlyphData>(target->strikeCache());
+        }
+
+        auto& glyphData = subRun.glyphVector().accessBackendData<GlyphData>();
+
+        SkDEBUGCODE(int strideCheck = SkToInt(glyphData.vertexStride(subRun.maskFormat(),
+                                                                     geo->fDrawMatrix)));
+        SkASSERTF(strideCheck == vertexStride,
+                   "subRun stride: %d vertex buffer stride: %d\n",
+                   strideCheck, vertexStride);
 
         const int subRunEnd = subRun.glyphCount();
-        auto regenerateDelegate = [&](sktext::gpu::GlyphVector* glyphs,
-                                      int begin,
-                                      int end,
-                                      skgpu::MaskFormat maskFormat,
-                                      int padding) {
-            return glyphs->regenerateAtlasForGanesh(begin, end, maskFormat, padding, target);
-        };
+
         for (int subRunCursor = 0; subRunCursor < subRunEnd;) {
             // Regenerate the atlas for the remainder of the glyphs in the run, or the remainder
             // of the glyphs to fill the vertex buffer.
             int regenEnd = subRunCursor + std::min(subRunEnd - subRunCursor, quadEnd - quadCursor);
-            auto[ok, glyphsRegenerated] = subRun.regenerateAtlas(subRunCursor, regenEnd,
-                                                                 regenerateDelegate);
+
+            auto [ok, glyphsRegenerated] = glyphData.regenerateAtlas(subRunCursor,
+                                                                     regenEnd,
+                                                                     subRun.glyphVector(),
+                                                                     maskFormat,
+                                                                     subRun.glyphSrcPadding(),
+                                                                     target);
+
             // There was a problem allocating the glyph in the atlas. Bail.
             if (!ok) {
                 return;

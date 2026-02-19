@@ -9,8 +9,9 @@ licenses(["notice"])
 skia_filegroup(
     name = "srcs",
     srcs = [
-        "GaneshVertexFiller.cpp",
+        "GlyphData.cpp",
         "GrAtlasManager.cpp",
+        "TextStrike.cpp",
     ],
     visibility = ["//src/gpu/ganesh:__pkg__"],
 )
@@ -18,7 +19,9 @@ skia_filegroup(
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
+        "GlyphData.h",
         "GrAtlasManager.h",
+        "TextStrike.h",
     ],
     visibility = ["//src/gpu/ganesh:__pkg__"],
 )

@@ -21,14 +21,14 @@
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrDeferredUpload.h"
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"
-#include "src/text/gpu/Glyph.h"
-#include "src/text/gpu/GlyphVector.h"
+#include "src/gpu/ganesh/text/GlyphData.h"
+#include "src/text/gpu/GlyphUtils.h"
 #include "src/text/gpu/StrikeCache.h"
 
 #include <cstring>
 #include <tuple>
 
-using Glyph = sktext::gpu::Glyph;
+using GlyphEntry = skgpu::ganesh::GlyphEntry;
 using MaskFormat = skgpu::MaskFormat;
 
 GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider,
@@ -49,9 +49,8 @@ void GrAtlasManager::freeAll() {
     }
 }
 
-bool GrAtlasManager::hasGlyph(MaskFormat format, Glyph* glyph) {
-    SkASSERT(glyph);
-    return this->getAtlas(format)->hasID(glyph->fAtlasLocator.plotLocator());
+bool GrAtlasManager::hasGlyph(MaskFormat format, const GlyphEntry& glyph) {
+    return this->getAtlas(format)->hasID(glyph.fAtlasLocator.plotLocator());
 }
 
 template <typename INT_TYPE>
@@ -83,7 +82,7 @@ static void get_packed_glyph_image(
     const void* src = glyph.image();
     SkASSERT(src != nullptr);
 
-    MaskFormat maskFormat = Glyph::FormatFromSkGlyph(glyph.maskFormat());
+    MaskFormat maskFormat = sktext::gpu::FormatFromSkGlyph(glyph.maskFormat());
     if (maskFormat == expectedMaskFormat) {
         int srcRB = glyph.rowBytes();
         // Notice this comparison is with the glyphs raw mask format, and not its MaskFormat.
@@ -163,7 +162,7 @@ static void get_packed_glyph_image(
 
 // returns true if glyph successfully added to texture atlas, false otherwise.
 GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
-                                                         Glyph* glyph,
+                                                         GlyphEntry* glyph,
                                                          int srcPadding,
                                                          GrResourceProvider* resourceProvider,
                                                          GrDeferredUploadTarget* uploadTarget) {
@@ -178,7 +177,7 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
     }
     SkASSERT(glyph != nullptr);
 
-    MaskFormat glyphFormat = Glyph::FormatFromSkGlyph(skGlyph.maskFormat());
+    MaskFormat glyphFormat = sktext::gpu::FormatFromSkGlyph(skGlyph.maskFormat());
     MaskFormat expectedMaskFormat = this->resolveMaskFormat(glyphFormat);
     int bytesPerPixel = MaskFormatBytesPerPixel(expectedMaskFormat);
 
@@ -253,11 +252,11 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addToAtlas(GrResourceProvider* resource
 }
 
 void GrAtlasManager::addGlyphToBulkAndSetUseToken(skgpu::BulkUsePlotUpdater* updater,
-                                                  MaskFormat format, Glyph* glyph,
+                                                  MaskFormat format,
+                                                  const GlyphEntry& glyph,
                                                   skgpu::Token token) {
-    SkASSERT(glyph);
-    if (updater->add(glyph->fAtlasLocator)) {
-        this->getAtlas(format)->setLastUseToken(glyph->fAtlasLocator, token);
+    if (updater->add(glyph.fAtlasLocator)) {
+        this->getAtlas(format)->setLastUseToken(glyph.fAtlasLocator, token);
     }
 }
 
@@ -287,70 +286,3 @@ bool GrAtlasManager::initAtlas(MaskFormat format) {
     }
     return true;
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace sktext::gpu {
-
-std::tuple<bool, int> GlyphVector::regenerateAtlasForGanesh(
-        int begin, int end, MaskFormat maskFormat, int srcPadding, GrMeshDrawTarget* target) {
-    GrAtlasManager* atlasManager = target->atlasManager();
-    GrDeferredUploadTarget* uploadTarget = target->deferredUploadTarget();
-
-    uint64_t currentAtlasGen = atlasManager->atlasGeneration(maskFormat);
-
-    this->packedGlyphIDToGlyph(target->strikeCache());
-
-    if (fAtlasGeneration != currentAtlasGen) {
-        // Calculate the texture coordinates for the vertexes during first use (fAtlasGeneration
-        // is set to kInvalidAtlasGeneration) or the atlas has changed in subsequent calls..
-        fBulkUseUpdater.reset();
-
-        SkBulkGlyphMetricsAndImages metricsAndImages{fTextStrike->strikeSpec()};
-
-        // Update the atlas information in the GrStrike.
-        auto tokenTracker = uploadTarget->tokenTracker();
-        auto glyphs = fGlyphs.subspan(begin, end - begin);
-        int glyphsPlacedInAtlas = 0;
-        bool success = true;
-        for (const Variant& variant : glyphs) {
-            Glyph* gpuGlyph = variant.glyph;
-            SkASSERT(gpuGlyph != nullptr);
-
-            if (!atlasManager->hasGlyph(maskFormat, gpuGlyph)) {
-                const SkGlyph& skGlyph = *metricsAndImages.glyph(gpuGlyph->fPackedID);
-                auto code = atlasManager->addGlyphToAtlas(
-                        skGlyph, gpuGlyph, srcPadding, target->resourceProvider(), uploadTarget);
-                if (code != GrDrawOpAtlas::ErrorCode::kSucceeded) {
-                    success = code != GrDrawOpAtlas::ErrorCode::kError;
-                    break;
-                }
-            }
-            atlasManager->addGlyphToBulkAndSetUseToken(
-                    &fBulkUseUpdater, maskFormat, gpuGlyph,
-                    tokenTracker->nextDrawToken());
-            glyphsPlacedInAtlas++;
-        }
-
-        // Update atlas generation if there are no more glyphs to put in the atlas.
-        if (success && begin + glyphsPlacedInAtlas == SkCount(fGlyphs)) {
-            // Need to get the freshest value of the atlas' generation because
-            // updateTextureCoordinates may have changed it.
-            fAtlasGeneration = atlasManager->atlasGeneration(maskFormat);
-        }
-
-        return {success, glyphsPlacedInAtlas};
-    } else {
-        // The atlas hasn't changed, so our texture coordinates are still valid.
-        if (end == SkCount(fGlyphs)) {
-            // The atlas hasn't changed and the texture coordinates are all still valid. Update
-            // all the plots used to the new use token.
-            atlasManager->setUseTokenBulk(fBulkUseUpdater,
-                                          uploadTarget->tokenTracker()->nextDrawToken(),
-                                          maskFormat);
-        }
-        return {true, end - begin};
-    }
-}
-
-}  // namespace sktext::gpu
