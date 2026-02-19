@@ -530,7 +530,7 @@
     "name": "Build-Ubuntu24.04-Clang-x86_64-Release-NoDEPS"
   },
   {
-    "name": "Build-Ubuntu24.04-Clang-x86_64-Release-SKNX_NO_SIMD"
+    "name": "Build-Ubuntu24.04-Clang-x86_64-Release-SKVX_DISABLE_SIMD"
   },
   {
     "name": "Build-Ubuntu24.04-Clang-x86_64-Release-SK_CPU_LIMIT_SSE2"
@@ -1874,7 +1874,7 @@
     "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Release-All-MSAN"
   },
   {
-    "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Release-All-SKNX_NO_SIMD"
+    "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Release-All-SKVX_DISABLE_SIMD"
   },
   {
     "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Release-All-SK_CPU_LIMIT_SSE2"

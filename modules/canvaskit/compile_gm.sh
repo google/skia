@@ -78,7 +78,7 @@ echo "Compiling bitcode"
   --args="skia_emsdk_dir=\"${EMSDK}\" \
   extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-sMAIN_MODULE=1\",
-    \"-DSKNX_NO_SIMD\",
+    \"-DSKVX_DISABLE_SIMD\",
     \"-DSK_FORCE_8_BYTE_ALIGNMENT\",
     ${EXTRA_CFLAGS}
   ] \
