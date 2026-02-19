@@ -10,6 +10,7 @@
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"
 
 #include <algorithm>
+#include <limits>
 
 GrVertexChunkBuilder::~GrVertexChunkBuilder() {
     if (!fChunks->empty()) {
@@ -37,6 +38,12 @@ bool GrVertexChunkBuilder::allocChunk(int minCount) {
         fCurrChunkVertexCapacity = 0;
         return false;
     }
-    fMinVerticesPerChunk *= 2;
+
+    int maxVerticesPerChunk = std::numeric_limits<int>::max() / fStride;
+    if (maxVerticesPerChunk / 2 > fMinVerticesPerChunk) {
+        fMinVerticesPerChunk *= 2;
+    } else {
+        fMinVerticesPerChunk = maxVerticesPerChunk;
+    }
     return true;
 }
