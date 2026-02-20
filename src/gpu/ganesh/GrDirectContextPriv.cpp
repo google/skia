@@ -46,7 +46,6 @@
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
-#include "src/gpu/ganesh/image/GrMippedBitmap.h"
 #include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
 #include "src/image/SkImage_Base.h"
@@ -288,11 +287,11 @@ static bool test_for_preserving_PM_conversions(GrDirectContext* dContext) {
     // This function is only ever called if we are in a GrDirectContext since we are calling read
     // pixels here. Thus the pixel data will be uploaded immediately and we don't need to keep the
     // pixel data alive in the proxy. Therefore the ReleaseProc is nullptr.
-    std::optional<GrMippedBitmap> bitmap = GrMippedBitmap::Make(pmII, srcData, 4 * kSize);
-    SkASSERT(bitmap);
-    SkASSERT(bitmap->alphaType() == kPremul_SkAlphaType);
+    SkBitmap bitmap;
+    bitmap.installPixels(pmII, srcData, 4 * kSize);
+    bitmap.setImmutable();
 
-    auto dataView = std::get<0>(GrMakeUncachedBitmapProxyView(dContext, bitmap.value()));
+    auto dataView = std::get<0>(GrMakeUncachedBitmapProxyView(dContext, bitmap));
     if (!dataView) {
         return false;
     }
@@ -309,8 +308,7 @@ static bool test_for_preserving_PM_conversions(GrDirectContext* dContext) {
     // from readTex to tempTex followed by a PM->UPM draw to readTex and finally read the data.
     // We then verify that two reads produced the same values.
 
-    auto fp1 =
-            make_unpremul_effect(GrTextureEffect::Make(std::move(dataView), kPremul_SkAlphaType));
+    auto fp1 = make_unpremul_effect(GrTextureEffect::Make(std::move(dataView), bitmap.alphaType()));
     readSFC->fillRectWithFP(SkIRect::MakeWH(kSize, kSize), std::move(fp1));
     if (!readSFC->readPixels(dContext, firstReadPM, {0, 0})) {
         return false;

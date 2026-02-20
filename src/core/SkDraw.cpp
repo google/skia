@@ -47,7 +47,6 @@
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixUtils.h"
-#include "src/core/SkMipmap.h"
 #include "src/core/SkPathData.h"
 #include "src/core/SkPathEffectBase.h"
 #include "src/core/SkPathPriv.h"
@@ -69,23 +68,14 @@ using namespace skia_private;
 
 namespace skcpu {
 
-static SkPaint make_paint_with_image_and_mips(const SkPaint& origPaint,
-                                              const SkBitmap& bitmap,
-                                              const SkSamplingOptions& sampling,
-                                              SkMatrix* matrix,
-                                              sk_sp<SkMipmap> mips) {
+static SkPaint make_paint_with_image(const SkPaint& origPaint, const SkBitmap& bitmap,
+                                     const SkSamplingOptions& sampling,
+                                     SkMatrix* matrix = nullptr) {
     SkPaint paint(origPaint);
-    auto img = SkImage_Raster::MakeFromBitmap(bitmap, SkCopyPixelsMode::kNever, std::move(mips));
+    auto img = SkImage_Raster::MakeFromBitmap(bitmap, SkCopyPixelsMode::kNever);
     paint.setShader(img->makeShaderForPaint(
             origPaint, SkTileMode::kClamp, SkTileMode::kClamp, sampling, matrix));
     return paint;
-}
-
-static SkPaint make_paint_with_image(const SkPaint& origPaint,
-                                     const SkBitmap& bitmap,
-                                     const SkSamplingOptions& sampling,
-                                     SkMatrix* matrix) {
-    return make_paint_with_image_and_mips(origPaint, bitmap, sampling, matrix, nullptr);
 }
 
 Draw::Draw() { fBlitterChooser = SkBlitter::Choose; }
@@ -369,8 +359,7 @@ void Draw::drawBitmap(const SkBitmap& bitmap,
                       const SkMatrix& prematrix,
                       const SkRect* dstBounds,
                       const SkSamplingOptions& sampling,
-                      const SkPaint& origPaint,
-                      sk_sp<SkMipmap> mips) const {
+                      const SkPaint& origPaint) const {
     SkDEBUGCODE(this->validate();)
 
     // nothing to draw
@@ -431,8 +420,7 @@ void Draw::drawBitmap(const SkBitmap& bitmap,
     }
 #endif
 
-    SkPaint paintWithShader =
-            make_paint_with_image_and_mips(*paint, bitmap, sampling, nullptr, mips);
+    SkPaint paintWithShader = make_paint_with_image(*paint, bitmap, sampling);
     const SkRect srcBounds = SkRect::MakeIWH(bitmap.width(), bitmap.height());
     if (dstBounds) {
         this->drawRect(srcBounds, paintWithShader, &prematrix, dstBounds);
@@ -599,7 +587,7 @@ void Draw::drawBitmapAsMask(const SkBitmap& bitmap,
             SkPaint tmpPaint;
             tmpPaint.setAntiAlias(paint.isAntiAlias());
             tmpPaint.setDither(paint.isDither());
-            SkPaint paintWithShader = make_paint_with_image(tmpPaint, bitmap, sampling, nullptr);
+            SkPaint paintWithShader = make_paint_with_image(tmpPaint, bitmap, sampling);
             SkRect rr;
             rr.setIWH(bitmap.width(), bitmap.height());
             c.drawRect(rr, paintWithShader);

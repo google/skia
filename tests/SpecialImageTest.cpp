@@ -29,10 +29,9 @@
 #if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
-#include "src/gpu/ganesh/GrColorInfo.h"  // IWYU pragma: keep
+#include "src/gpu/ganesh/GrColorInfo.h" // IWYU pragma: keep
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/SkGr.h"
-#include "src/gpu/ganesh/image/GrMippedBitmap.h"
 #include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
 #endif
 
@@ -197,9 +196,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu,
                                        CtsEnforcement::kApiLevel_T) {
     auto context = ctxInfo.directContext();
     SkBitmap bm = create_bm();
-    std::optional<GrMippedBitmap> bitmap = GrMippedBitmap::Make(bm.pixmap());
-    SkASSERT_RELEASE(bitmap);
-    auto [view, ct] = GrMakeUncachedBitmapProxyView(context, bitmap.value());
+    auto [view, ct] = GrMakeUncachedBitmapProxyView(context, bm);
     if (!view) {
         return;
     }

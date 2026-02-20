@@ -67,7 +67,6 @@
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/GrThreadSafeCache.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
-#include "src/gpu/ganesh/image/GrMippedBitmap.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 #include "tests/ComparePixels.h"
@@ -690,11 +689,8 @@ GrSurfaceProxyView TestHelper::CreateViewOnCpu(GrRecordingContext* rContext,
                                                Stats* stats) {
     GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
 
-    sk_sp<GrTextureProxy> proxy =
-            proxyProvider->createProxyFromBitmap(GrMippedBitmap(create_bitmap(wh)),
-                                                 skgpu::Mipmapped::kNo,
-                                                 SkBackingFit::kExact,
-                                                 skgpu::Budgeted::kYes);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxyFromBitmap(
+            create_bitmap(wh), skgpu::Mipmapped::kNo, SkBackingFit::kExact, skgpu::Budgeted::kYes);
     if (!proxy) {
         return {};
     }

@@ -36,13 +36,12 @@
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
-#include "src/gpu/ganesh/GrColorInfo.h"  // IWYU pragma: keep
+#include "src/gpu/ganesh/GrColorInfo.h" // IWYU pragma: keep
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/SkGr.h"
-#include "src/gpu/ganesh/image/GrMippedBitmap.h"
 #include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
 #endif
 
@@ -50,23 +49,23 @@
 #include <tuple>
 #include <utility>
 
- class GrRecordingContext;
- struct GrContextOptions;
+class GrRecordingContext;
+struct GrContextOptions;
 
- static const int kSmallerSize = 10;
- static const int kPad = 3;
- static const int kFullSize = kSmallerSize + 2 * kPad;
+static const int kSmallerSize = 10;
+static const int kPad = 3;
+static const int kFullSize = kSmallerSize + 2 * kPad;
 
- static SkBitmap create_bm() {
-     SkImageInfo ii =
-             SkImageInfo::Make(kFullSize, kFullSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+static SkBitmap create_bm() {
+    SkImageInfo ii = SkImageInfo::Make(kFullSize, kFullSize, kRGBA_8888_SkColorType,
+                                       kPremul_SkAlphaType);
 
-     SkBitmap bm;
-     bm.allocPixels(ii);
-     bm.eraseColor(SK_ColorTRANSPARENT);
-     bm.setImmutable();
-     return bm;
- }
+    SkBitmap bm;
+    bm.allocPixels(ii);
+    bm.eraseColor(SK_ColorTRANSPARENT);
+    bm.setImmutable();
+    return bm;
+}
 
 static sk_sp<SkImageFilter> make_filter() {
     sk_sp<SkColorFilter> filter(SkColorFilters::Blend(SK_ColorBLUE, SkBlendMode::kSrcIn));
@@ -252,7 +251,7 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
 #if defined(SK_GANESH)
 static GrSurfaceProxyView create_proxy_view(GrRecordingContext* rContext) {
     SkBitmap srcBM = create_bm();
-    return std::get<0>(GrMakeUncachedBitmapProxyView(rContext, GrMippedBitmap(srcBM)));
+    return std::get<0>(GrMakeUncachedBitmapProxyView(rContext, srcBM));
 }
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU,

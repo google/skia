@@ -427,8 +427,6 @@ skia_ganesh_private = [
   "$_src/gpu/ganesh/gradients/GrGradientShader.h",
   "$_src/gpu/ganesh/image/GrImageUtils.cpp",
   "$_src/gpu/ganesh/image/GrImageUtils.h",
-  "$_src/gpu/ganesh/image/GrMippedBitmap.cpp",
-  "$_src/gpu/ganesh/image/GrMippedBitmap.h",
   "$_src/gpu/ganesh/image/GrTextureGenerator.cpp",
   "$_src/gpu/ganesh/image/SkImage_Ganesh.cpp",
   "$_src/gpu/ganesh/image/SkImage_Ganesh.h",

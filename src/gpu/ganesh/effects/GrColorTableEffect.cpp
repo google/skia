@@ -29,7 +29,6 @@
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/ganesh/image/GrMippedBitmap.h"
 
 #include <cstdint>
 #include <tuple>
@@ -76,8 +75,9 @@ std::unique_ptr<GrFragmentProcessor::ProgramImpl> ColorTableEffect::onMakeProgra
 std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(
         std::unique_ptr<GrFragmentProcessor> inputFP,
         GrRecordingContext* context,
-        const GrMippedBitmap& bitmap) {
+        const SkBitmap& bitmap) {
     SkASSERT(kPremul_SkAlphaType == bitmap.alphaType());
+    SkASSERT(bitmap.isImmutable());
 
     auto view = std::get<0>(GrMakeCachedBitmapProxyView(context,
                                                         bitmap,

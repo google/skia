@@ -37,7 +37,7 @@ struct PinnedData {
 class SkImage_RasterPinnable final : public SkImage_Raster {
 public:
     SkImage_RasterPinnable(const SkBitmap& bm)
-            : SkImage_Raster(bm, /*mipmaps=*/nullptr, /*bitmapMayBeMutable = */ true) {}
+            : SkImage_Raster(bm, /*bitmapMayBeMutable = */ true) {}
 
     std::tuple<GrSurfaceProxyView, GrColorType> asView(GrRecordingContext*,
                                                        skgpu::Mipmapped,

@@ -22,14 +22,13 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
-#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkSpan_impl.h"
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMask.h"
-#include "src/core/SkMipmap.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeSpec.h"
@@ -412,8 +411,7 @@ void GlyphRunListPainter::drawForBitmapDevice(SkCanvas* canvas,
 
                 // Draw the bitmap using the rect from the scaled cache, and not the source
                 // rectangle for the glyph.
-                bitmapDevice->drawBitmap(
-                        bm, translate, nullptr, SkFilterMode::kLinear, paint, nullptr);
+                bitmapDevice->drawBitmap(bm, translate, nullptr, SkFilterMode::kLinear, paint);
             }
         }
 

@@ -29,7 +29,6 @@ class SkDevice;
 class SkGlyph;
 class SkMaskFilter;
 class SkMatrix;
-class SkMipmap;
 class SkPath;
 struct SkPathRaw;
 class SkRRect;
@@ -85,8 +84,7 @@ public:
                             const SkMatrix&,
                             const SkRect* dstOrNull,
                             const SkSamplingOptions&,
-                            const SkPaint&,
-                            sk_sp<SkMipmap>) const = 0;
+                            const SkPaint&) const = 0;
 };
 
 /**
@@ -184,12 +182,8 @@ public:
                                       const SkRect& devBounds);
 
     /* If dstOrNull is null, computes a dst by mapping the bitmap's bounds through the matrix. */
-    void drawBitmap(const SkBitmap&,
-                    const SkMatrix&,
-                    const SkRect* dstOrNull,
-                    const SkSamplingOptions&,
-                    const SkPaint&,
-                    sk_sp<SkMipmap>) const override;
+    void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
+                    const SkSamplingOptions&, const SkPaint&) const override;
     void drawSprite(const SkBitmap&, int x, int y, const SkPaint&) const;
     void drawGlyphRunList(SkCanvas* canvas,
                           GlyphRunListPainter* glyphPainter,
