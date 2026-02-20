@@ -1171,7 +1171,7 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 				d["cores"] = "12"
 				delete(d, "gpu")
 			} else {
-				d["mac_model"] = "Mac16,10"
+				d["mac_model"] = "Mac16,11"
 				delete(d, "gpu")
 			}
 		}
