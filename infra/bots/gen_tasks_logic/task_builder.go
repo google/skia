@@ -274,7 +274,7 @@ func (b *TaskBuilder) usesCMake() {
 // usesGit adds attributes to tasks which use git.
 func (b *TaskBuilder) usesGit() {
 	b.cache(CACHES_GIT...)
-	b.cipd(specs.CIPD_PKGS_GIT...)
+	b.cipd(setPkgPaths("cipd_bin_packages", specs.CIPD_PKGS_GIT...)...)
 	b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin")
 }
 
@@ -391,7 +391,8 @@ func (b *TaskBuilder) getRecipeProps() string {
 
 // usesPython adds attributes to tasks which use python.
 func (b *TaskBuilder) usesPython() {
-	b.cipd(cipd.PkgsPython...)
+	b.cipd(getCIPDPackage("infra/3pp/tools/cpython3/${platform}", "cipd_bin_packages/cpython3"))
+	b.cipd(getCIPDPackage("infra/tools/luci/vpython3/${platform}", "cipd_bin_packages"))
 	b.addToPATH(
 		"cipd_bin_packages/cpython3",
 		"cipd_bin_packages/cpython3/bin",
