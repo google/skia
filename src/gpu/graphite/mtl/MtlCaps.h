@@ -22,6 +22,9 @@ public:
     MtlCaps(const id<MTLDevice>, const ContextOptions&);
     ~MtlCaps() override {}
 
+    bool isSampleCountSupported(TextureFormat, SampleCount requestedSampleCount) const override;
+    TextureFormat getDepthStencilFormat(SkEnumBitMask<DepthStencilFlags>) const override;
+
     TextureInfo getDefaultAttachmentTextureInfo(AttachmentDesc,
                                                 Protected,
                                                 Discardable) const override;
@@ -57,6 +60,9 @@ public:
     bool isApple() const { return fGPUFamily == GPUFamily::kApple;    }
     bool isIntel() const { return fGPUFamily == GPUFamily::kMacIntel; }
 
+    bool isRenderable(const TextureInfo&) const override;
+    bool isStorage(const TextureInfo&) const override;
+
     void buildKeyForTexture(SkISize dimensions,
                             const TextureInfo&,
                             ResourceType,
@@ -82,10 +88,12 @@ private:
     }
 
     SkSpan<const ColorTypeInfo> getColorTypeInfos(const TextureInfo&) const override;
-    std::pair<SkEnumBitMask<TextureUsage>, SkEnumBitMask<SampleCount>> getTextureSupport(
-            TextureFormat format, Tiling) const override;
-    std::pair<SkEnumBitMask<TextureUsage>, Tiling> getTextureUsage(
-            const TextureInfo&) const override;
+
+    bool onIsTexturable(const TextureInfo&) const override;
+    bool isTexturable(MTLPixelFormat) const;
+
+    bool isCopyableDst(const TextureInfo&) const override;
+    bool isCopyableSrc(const TextureInfo&) const override;
 
     struct FormatInfo {
         uint32_t colorTypeFlags(SkColorType colorType) const {
