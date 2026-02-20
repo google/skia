@@ -170,7 +170,13 @@
     "name": "Build-Mac-Clang-arm64-Release-Graphite_Dawn_Metal"
   },
   {
+    "name": "Build-Mac-Clang-arm64-Release-Graphite_Dawn_Metal_TestDrawListLayer"
+  },
+  {
     "name": "Build-Mac-Clang-arm64-Release-Graphite_Native_Metal"
+  },
+  {
+    "name": "Build-Mac-Clang-arm64-Release-Graphite_Native_Metal_TestDrawListLayer"
   },
   {
     "name": "Build-Mac-Clang-arm64-Release-Metal"
@@ -255,6 +261,9 @@
   },
   {
     "name": "Build-Mac-Clang-x86_64-Release-Graphite_Native_Metal"
+  },
+  {
+    "name": "Build-Mac-Clang-x86_64-Release-Graphite_Native_Metal_TestDrawListLayer"
   },
   {
     "name": "Build-Mac-Clang-x86_64-Release-Metal"
@@ -363,7 +372,13 @@
     }
   },
   {
+    "name": "Build-Ubuntu24.04-Clang-arm64-Release-Android_Graphite_Dawn_Vulkan_TestDrawListLayer"
+  },
+  {
     "name": "Build-Ubuntu24.04-Clang-arm64-Release-Android_Graphite_Native_Vulkan"
+  },
+  {
+    "name": "Build-Ubuntu24.04-Clang-arm64-Release-Android_Graphite_Native_Vulkan_TestDrawListLayer"
   },
   {
     "name": "Build-Ubuntu24.04-Clang-arm64-Release-Android_Vulkan"
@@ -519,6 +534,9 @@
   },
   {
     "name": "Build-Ubuntu24.04-Clang-x86_64-Release-Graphite_Dawn_Vulkan"
+  },
+  {
+    "name": "Build-Ubuntu24.04-Clang-x86_64-Release-Graphite_Native_Metal_TestDrawListLayer"
   },
   {
     "name": "Build-Ubuntu24.04-Clang-x86_64-Release-Graphite_Native_Vulkan"
@@ -910,7 +928,13 @@
     "name": "Perf-Android-Clang-Pixel10-GPU-IMG_DXT_48_1536-arm64-Release-All-Android_Graphite_Dawn_Vulkan"
   },
   {
+    "name": "Perf-Android-Clang-Pixel10-GPU-IMG_DXT_48_1536-arm64-Release-All-Android_Graphite_Dawn_Vulkan_TestDrawListLayer"
+  },
+  {
     "name": "Perf-Android-Clang-Pixel10-GPU-IMG_DXT_48_1536-arm64-Release-All-Android_Graphite_Native_Vulkan"
+  },
+  {
+    "name": "Perf-Android-Clang-Pixel10-GPU-IMG_DXT_48_1536-arm64-Release-All-Android_Graphite_Native_Vulkan_TestDrawListLayer"
   },
   {
     "name": "Perf-Android-Clang-Pixel10-GPU-IMG_DXT_48_1536-arm64-Release-All-Android_Vulkan"
@@ -943,6 +967,9 @@
     "name": "Perf-Android-Clang-Pixel5-GPU-Adreno620-arm64-Release-All-Android_Graphite_Native_Vulkan"
   },
   {
+    "name": "Perf-Android-Clang-Pixel5-GPU-Adreno620-arm64-Release-All-Android_Graphite_Native_Vulkan_TestDrawListLayer"
+  },
+  {
     "name": "Perf-Android-Clang-Pixel5-GPU-Adreno620-arm64-Release-All-Android_Vulkan"
   },
   {
@@ -955,7 +982,13 @@
     "name": "Perf-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_Vulkan"
   },
   {
+    "name": "Perf-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_Vulkan_TestDrawListLayer"
+  },
+  {
     "name": "Perf-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Native_Vulkan"
+  },
+  {
+    "name": "Perf-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Native_Vulkan_TestDrawListLayer"
   },
   {
     "name": "Perf-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Vulkan"
@@ -970,7 +1003,13 @@
     "name": "Perf-Android-Clang-Pixel7-GPU-MaliG710-arm64-Release-All-Android_Graphite_Dawn_Vulkan"
   },
   {
+    "name": "Perf-Android-Clang-Pixel7-GPU-MaliG710-arm64-Release-All-Android_Graphite_Dawn_Vulkan_TestDrawListLayer"
+  },
+  {
     "name": "Perf-Android-Clang-Pixel7-GPU-MaliG710-arm64-Release-All-Android_Graphite_Native_Vulkan"
+  },
+  {
+    "name": "Perf-Android-Clang-Pixel7-GPU-MaliG710-arm64-Release-All-Android_Graphite_Native_Vulkan_TestDrawListLayer"
   },
   {
     "name": "Perf-Android-Clang-Pixel7-GPU-MaliG710-arm64-Release-All-Android_Vulkan"
@@ -997,7 +1036,13 @@
     "name": "Perf-Android-Clang-Pixel9-GPU-MaliG715-arm64-Release-All-Android_Graphite_Dawn_Vulkan"
   },
   {
+    "name": "Perf-Android-Clang-Pixel9-GPU-MaliG715-arm64-Release-All-Android_Graphite_Dawn_Vulkan_TestDrawListLayer"
+  },
+  {
     "name": "Perf-Android-Clang-Pixel9-GPU-MaliG715-arm64-Release-All-Android_Graphite_Native_Vulkan"
+  },
+  {
+    "name": "Perf-Android-Clang-Pixel9-GPU-MaliG715-arm64-Release-All-Android_Graphite_Native_Vulkan_TestDrawListLayer"
   },
   {
     "name": "Perf-Android-Clang-Pixel9-GPU-MaliG715-arm64-Release-All-Android_Vulkan"
@@ -1057,6 +1102,9 @@
     "name": "Perf-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Dawn_Metal"
   },
   {
+    "name": "Perf-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Dawn_Metal_TestDrawListLayer"
+  },
+  {
     "name": "Perf-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Native_Metal",
     "cq_config": {
       "location_regexes": [
@@ -1066,6 +1114,9 @@
     }
   },
   {
+    "name": "Perf-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Native_Metal_TestDrawListLayer"
+  },
+  {
     "name": "Perf-Mac15-Clang-MacBookPro15.1-CPU-AppleIntel-x86_64-Release-All"
   },
   {
@@ -1073,6 +1124,9 @@
   },
   {
     "name": "Perf-Mac15-Clang-MacBookPro15.1-GPU-IntelUHDGraphics630-x86_64-Release-All-Graphite_Native_Metal"
+  },
+  {
+    "name": "Perf-Mac15-Clang-MacBookPro15.1-GPU-IntelUHDGraphics630-x86_64-Release-All-Graphite_Native_Metal_TestDrawListLayer"
   },
   {
     "name": "Perf-Mac15-Clang-MacBookPro15.1-GPU-IntelUHDGraphics630-x86_64-Release-All-Metal"
