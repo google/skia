@@ -6,6 +6,7 @@
  */
 
 #include <cstddef>
+#include <cstdint>
 #include <initializer_list>
 #include <memory>
 
@@ -18,6 +19,7 @@
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
+#include "tools/fonts/TestFontMgr.h"
 
 using namespace skottie;
 
@@ -492,5 +494,77 @@ DEF_TEST(Skottie_Shaper_breakiter, r) {
     check({1, 5, 9}, {1, 5, 7, 9},   {1, 5, 9});
 }
 
-#endif
+#endif // SK_SHAPER_HARFBUZZ_AVAILABLE && !SK_BUILD_FOR_WIN
 
+#if defined(SK_SHAPER_CORETEXT_AVAILABLE)
+#include "modules/skshaper/include/SkShaper_coretext.h"
+
+DEF_TEST(Skottie_Shaper_CTStrict, r) {
+    const Shaper::TextDesc desc = {
+        .fTypeface  = ToolUtils::DefaultTypeface(),
+        .fTextSize  = 64,
+        .fLinebreak = Shaper::LinebreakPolicy::kParagraph,
+        .fFlags     = Shaper::kFragmentGlyphs, // need fragmented glyphs for line info
+    };
+    const SkRect box = SkRect::MakeWH(120, 800); // roughly 3 glyphs wide
+    const auto fontmgr = ToolUtils::TestFontMgr();
+
+    using SkShapers::CT::LineBreakMode;
+
+    static const struct {
+        const char*           txt;
+        std::vector<uint32_t> line_map;
+        LineBreakMode         lbm = LineBreakMode::kDefault;
+    } tests[] = {
+        {""   , {0}},
+        {""   , {0}, LineBreakMode::kStrict},
+
+        {"foo", {0, 0, 0}},
+        {"foo", {0, 0, 0}, LineBreakMode::kStrict},
+
+        {"  foo  ", {0, 0, 1, 1, 1, 1, 1}},
+        {"  foo  ", {0, 0, 1, 1, 1, 1, 1}, LineBreakMode::kStrict},
+
+        {"foo bar", {0, 0, 0, 0, 1, 1, 1}},
+        {"foo bar", {0, 0, 0, 0, 1, 1, 1}, LineBreakMode::kStrict},
+
+        {"  foo bar  ", {0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2}},
+        {"  foo bar  ", {0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2}, LineBreakMode::kStrict},
+
+        {"foobar", {0, 0, 0, 1, 1, 1}},
+        {"foobar", {0, 0, 0, 0, 0, 0}, LineBreakMode::kStrict},
+
+        {"  foobar  ", {0, 0, 1, 1, 1, 2, 2, 2, 2, 2}},
+        {"  foobar  ", {0, 0, 1, 1, 1, 1, 1, 1, 2, 2}, LineBreakMode::kStrict},
+
+        {"f oobar", {0, 0, 1, 1, 1, 2, 2}},
+        {"f oobar", {0, 0, 1, 1, 1, 1, 1}, LineBreakMode::kStrict},
+
+        {"  f oobar  ", {0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 2}},
+        {"  f oobar  ", {0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2}, LineBreakMode::kStrict},
+
+        {"fooba r", {0, 0, 0, 1, 1, 1, 1}},
+        {"fooba r", {0, 0, 0, 0, 0, 1, 1}, LineBreakMode::kStrict},
+
+        {"  fooba r  ", {0, 0, 1, 1, 1, 2, 2, 2, 2, 2, 2}},
+        {"  fooba r  ", {0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2}, LineBreakMode::kStrict},
+
+        {"f oobarba z", {0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3}},
+        {"f oobarba z", {0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2}, LineBreakMode::kStrict},
+
+        {"  f oobarba z  ", {0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3}},
+        {"  f oobarba z  ", {0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2}, LineBreakMode::kStrict},
+    };
+
+    for (const auto& tst : tests) {
+        auto fact = sk_make_sp<SkShapers::CoreTextFactory>(tst.lbm);
+        auto res = Shaper::Shape(SkString(tst.txt), desc, box, fontmgr, fact);
+
+        REPORTER_ASSERT(r, res.fFragments.size() == tst.line_map.size());
+        for (size_t i = 0; i < res.fFragments.size(); ++i) {
+            REPORTER_ASSERT(r, res.fFragments[i].fLineIndex == tst.line_map[i]);
+        }
+    }
+}
+
+#endif  // SK_SHAPER_CORETEXT_AVAILABLE

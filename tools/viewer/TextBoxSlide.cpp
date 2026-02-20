@@ -229,7 +229,7 @@ DEF_SLIDE(return new TextBoxSlide(SkShapers::Primitive::PrimitiveText,
                                   "primitive");)
 
 #if defined(SK_SHAPER_CORETEXT_AVAILABLE)
-DEF_SLIDE(return new TextBoxSlide(SkShapers::CT::CoreText,
+DEF_SLIDE(return new TextBoxSlide([]() { return SkShapers::CT::CoreText(); },
                                   make_trivial_bidi,
                                   make_trivial_script_runner,
                                   "coretext");)
