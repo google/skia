@@ -68,7 +68,7 @@ static constexpr wgpu::TextureFormat kFormats[] = {
         wgpu::TextureFormat::ETC2RGB8Unorm,
 
 #if !defined(__EMSCRIPTEN__)
-        wgpu::TextureFormat::External,
+        wgpu::TextureFormat::OpaqueYCbCrAndroid,
 #endif
 };
 
@@ -883,7 +883,7 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
 #if !defined(__EMSCRIPTEN__)
     // Format: External
     {
-        info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::External)];
+        info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::OpaqueYCbCrAndroid)];
         info->fFlags = FormatInfo::kTexturable_Flag;
         info->fColorTypeInfoCount = 2;
         info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);

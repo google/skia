@@ -101,7 +101,7 @@ SkTextureCompressionType DawnFormatToCompressionType(wgpu::TextureFormat format)
         M(TextureFormat::kRGBA16,         wgpu::TextureFormat::RGBA16Unorm)                 \
         M(TextureFormat::kYUV8_P2_420,    wgpu::TextureFormat::R8BG8Biplanar420Unorm)       \
         M(TextureFormat::kYUV10x6_P2_420, wgpu::TextureFormat::R10X6BG10X6Biplanar420Unorm) \
-        M(TextureFormat::kExternal,       wgpu::TextureFormat::External)
+        M(TextureFormat::kExternal,       wgpu::TextureFormat::OpaqueYCbCrAndroid)
 #else
 #define DAWN_FORMAT_MAPPING_NATIVE_ONLY(M)
 #endif
