@@ -162,9 +162,6 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
 
     int saveCount = originalCanvas->save();
 
-    originalCanvas->resetMatrix();
-    SkCanvasPriv::ResetClip(originalCanvas);
-
     DebugPaintFilterCanvas filterCanvas(originalCanvas);
     SkCanvas* finalCanvas = fOverdrawViz ? &filterCanvas : originalCanvas;
 
