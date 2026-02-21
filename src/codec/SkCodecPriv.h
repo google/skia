@@ -17,6 +17,7 @@
 #include "src/codec/SkColorPalette.h"
 #include "src/core/SkColorData.h"
 
+#include <memory>
 #include <string_view>
 
 #ifdef SK_PRINT_CODEC_MESSAGES
@@ -93,6 +94,10 @@ private:
 
     skcms_ICCProfile     fProfile;
     sk_sp<const SkData>  fData;
+
+    // Opaque handle that keeps alive any externally-allocated data that
+    // fProfile's raw pointers (e.g. A2B grid/curve tables) reference.
+    std::shared_ptr<void> fRetainedData;
 };
 
 }  // namespace SkCodecs

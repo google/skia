@@ -111,7 +111,9 @@ std::unique_ptr<ColorProfile> ColorProfile::MakeCICP(
 }
 
 std::unique_ptr<ColorProfile> ColorProfile::clone() const {
-    return std::unique_ptr<ColorProfile>(new ColorProfile(fProfile, fData));
+    auto cloned = std::unique_ptr<ColorProfile>(new ColorProfile(fProfile, fData));
+    cloned->fRetainedData = fRetainedData;
+    return cloned;
 }
 
 ColorProfile::DataSpace ColorProfile::dataSpace() const {
@@ -161,4 +163,3 @@ ColorProfile::ColorProfile(const skcms_ICCProfile& profile, sk_sp<const SkData> 
 {}
 
 }  // namespace SkCodecs
-
