@@ -536,9 +536,6 @@
     "name": "Build-Ubuntu24.04-Clang-x86_64-Release-Graphite_Dawn_Vulkan"
   },
   {
-    "name": "Build-Ubuntu24.04-Clang-x86_64-Release-Graphite_Native_Metal_TestDrawListLayer"
-  },
-  {
     "name": "Build-Ubuntu24.04-Clang-x86_64-Release-Graphite_Native_Vulkan"
   },
   {
