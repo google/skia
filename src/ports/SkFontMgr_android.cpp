@@ -308,27 +308,19 @@ protected:
         return sset->matchStyle(style);
     }
 
-    enum class NameType { Self, Fallback, SelfNot, FallbackNot };
+    using Matcher = bool (*)(const SkString& familyName, const NameToFamily&);
     static sk_sp<SkTypeface_AndroidSystem> find_family_style_character(
             const SkString& familyName,
             const TArray<NameToFamily, true>& nameToFamilyMap,
-            NameType nameType,
             const SkFontStyle& style, bool elegant,
-            const SkString& langTag, SkUnichar character)
+            const SkString& langTag, SkUnichar character,
+            Matcher matcher)
     {
         for (auto&& nameToFamily : nameToFamilyMap) {
-            SkFontStyleSet_Android* family = nameToFamily.styleSet;
-            bool matches;
-            switch (nameType) {
-                case NameType::Self: matches = familyName == nameToFamily.name; break;
-                case NameType::Fallback: matches = familyName == family->fFallbackFor; break;
-                case NameType::SelfNot: matches = familyName != nameToFamily.name; break;
-                case NameType::FallbackNot: matches = familyName != family->fFallbackFor; break;
-            }
-            if (!matches) {
+            if (!matcher(familyName, nameToFamily)) {
                 continue;
             }
-            sk_sp<SkTypeface_AndroidSystem> face(family->matchAStyle(style));
+            sk_sp<SkTypeface_AndroidSystem> face(nameToFamily.styleSet->matchAStyle(style));
 
             if (!langTag.isEmpty() &&
                 std::none_of(face->fLang.begin(), face->fLang.end(), [&](const SkLanguage& lang){
@@ -358,37 +350,76 @@ protected:
         // The variant 'default' means 'compact and elegant'.
         // As a result, it is not possible to know the variant context from the font alone.
         // TODO: add 'is_elegant' and 'is_compact' bits to 'style' request.
+
+        // The order of family name matching is
+        // 1. named font that matches familyName (if familyName not empty)
+        // 2. fallback font with fallback-for that matches familyName (if familyName not empty)
+        // 3. fallback font with fallback-for which is empty
+        // 4. named font which does not match familyName
+        // 5. fallback font with fallback-for which does not match familyName or empty
+
+        auto find = [this, &style, &character](const SkString& familyName,
+                                               const SkString& lang,
+                                               bool elegant) -> sk_sp<SkTypeface_AndroidSystem>
+        {
+            sk_sp<SkTypeface_AndroidSystem> matchingTypeface;
+            if (!familyName.isEmpty()) {
+                matchingTypeface = find_family_style_character(
+                    familyName, fNameToFamilyMap, style, elegant, lang, character,
+                    [](const SkString& familyName, const NameToFamily& nameToFamily) {
+                        return familyName == nameToFamily.name;
+                    });
+                if (matchingTypeface) {
+                    return matchingTypeface;
+                }
+                matchingTypeface = find_family_style_character(
+                    familyName, fFallbackNameToFamilyMap, style, elegant, lang, character,
+                    [](const SkString& familyName, const NameToFamily& nameToFamily) {
+                        return familyName == nameToFamily.styleSet->fFallbackFor;
+                    });
+                if (matchingTypeface) {
+                    return matchingTypeface;
+                }
+            }
+            matchingTypeface = find_family_style_character(
+                SkString(), fFallbackNameToFamilyMap, style, elegant, lang, character,
+                [](const SkString&, const NameToFamily& nameToFamily) {
+                    return nameToFamily.styleSet->fFallbackFor.isEmpty();
+                });
+            if (matchingTypeface) {
+                return matchingTypeface;
+            }
+            matchingTypeface = find_family_style_character(
+                familyName, fNameToFamilyMap, style, elegant, lang, character,
+                [](const SkString& familyName, const NameToFamily& nameToFamily) {
+                    return familyName != nameToFamily.name;
+                });
+            if (matchingTypeface) {
+                return matchingTypeface;
+            }
+            matchingTypeface = find_family_style_character(
+                familyName, fFallbackNameToFamilyMap, style, elegant, lang, character,
+                [](const SkString& familyName, const NameToFamily& nameToFamily) {
+                    return familyName != nameToFamily.styleSet->fFallbackFor &&
+                           !nameToFamily.styleSet->fFallbackFor.isEmpty();
+                });
+            if (matchingTypeface) {
+                return matchingTypeface;
+            }
+            return nullptr;
+        };
+
+
         sk_sp<SkTypeface_AndroidSystem> matchingTypeface;
         // If familyName is empty, don't look through everything twice.
         SkString familyNames[2] = { SkString(familyName), SkString() };
         size_t familyNamesCount = familyNames[0].isEmpty() ? 1 : 2;
         for (const SkString& currentFamilyName : SkSpan(familyNames, familyNamesCount)) {
-            // The first time match anything elegant, second time anything not elegant.
-            for (int elegant = 2; elegant --> 0;) {
+            for (bool elegant : {true, false}) {
                 for (int bcp47Index = bcp47Count; bcp47Index --> 0;) {
                     SkLanguage lang(bcp47[bcp47Index]);
                     while (!lang.getTag().isEmpty()) {
-                        matchingTypeface = find_family_style_character(
-                            currentFamilyName, fNameToFamilyMap, NameType::Self,
-                            style, SkToBool(elegant), lang.getTag(), character);
-                        if (matchingTypeface) {
-                            return matchingTypeface;
-                        }
-                        matchingTypeface = find_family_style_character(
-                            currentFamilyName, fFallbackNameToFamilyMap, NameType::Fallback,
-                            style, SkToBool(elegant), lang.getTag(), character);
-                        if (matchingTypeface) {
-                            return matchingTypeface;
-                        }
-                        matchingTypeface = find_family_style_character(
-                            currentFamilyName, fNameToFamilyMap, NameType::SelfNot,
-                            style, SkToBool(elegant), lang.getTag(), character);
-                        if (matchingTypeface) {
-                            return matchingTypeface;
-                        }
-                        matchingTypeface = find_family_style_character(
-                            currentFamilyName, fFallbackNameToFamilyMap, NameType::FallbackNot,
-                            style, SkToBool(elegant), lang.getTag(), character);
+                        matchingTypeface = find(currentFamilyName, lang.getTag(), elegant);
                         if (matchingTypeface) {
                             return matchingTypeface;
                         }
@@ -396,27 +427,7 @@ protected:
                         lang = lang.getParent();
                     }
                 }
-                matchingTypeface = find_family_style_character(
-                    currentFamilyName, fNameToFamilyMap, NameType::Self,
-                    style, SkToBool(elegant), SkString(), character);
-                if (matchingTypeface) {
-                    return matchingTypeface;
-                }
-                matchingTypeface = find_family_style_character(
-                    currentFamilyName, fFallbackNameToFamilyMap, NameType::Fallback,
-                    style, SkToBool(elegant), SkString(), character);
-                if (matchingTypeface) {
-                    return matchingTypeface;
-                }
-                matchingTypeface = find_family_style_character(
-                    currentFamilyName, fNameToFamilyMap, NameType::SelfNot,
-                    style, SkToBool(elegant), SkString(), character);
-                if (matchingTypeface) {
-                    return matchingTypeface;
-                }
-                matchingTypeface = find_family_style_character(
-                    currentFamilyName, fFallbackNameToFamilyMap, NameType::FallbackNot,
-                    style, SkToBool(elegant), SkString(), character);
+                matchingTypeface = find(currentFamilyName, SkString(), elegant);
                 if (matchingTypeface) {
                     return matchingTypeface;
                 }
