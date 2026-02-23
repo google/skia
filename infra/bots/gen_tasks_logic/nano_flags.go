@@ -318,6 +318,7 @@ func (b *TaskBuilder) nanobenchFlags(doUpload bool) {
 
 	// TODO (thomsmit): Remove this when testing is over
 	if b.ExtraConfig("TestDrawListLayer") {
+		args = append(args, "--useDrawListLayer")
 		match = append(match, "skp")
 	}
 	// We do not need or want to benchmark the decodes of incomplete images.
