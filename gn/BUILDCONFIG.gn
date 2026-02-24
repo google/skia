@@ -197,6 +197,9 @@ if (is_trivial_abi) {
 if (!is_official_build) {
   default_configs += [ "//gn/skia:debug_symbols" ]
 }
+if (is_wasm) {
+  default_configs += [ "//gn/skia:wasm" ]
+}
 default_configs += [ "//gn/skia:extra_flags" ]
 
 set_defaults("executable") {

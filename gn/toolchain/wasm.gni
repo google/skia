@@ -2,10 +2,12 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import("../../modules/canvaskit/canvaskit.gni")
-
 # Defines the configuration of emscripten for building WASM targets.
 import("../skia.gni")
+if (is_canvaskit) {
+  import("../../modules/canvaskit/canvaskit.gni")
+}
+
 declare_args() {
   # The location of an activated emsdk. We default to the one brought in by
   # DEPS and bin/activate-emsdk.
@@ -45,15 +47,19 @@ wasm_defines = [
   "SK_FORCE_8_BYTE_ALIGNMENT",
 ]
 
-if (!is_debug && !skia_canvaskit_force_tracing) {
+if (is_canvaskit) {
+  if (!is_debug && !skia_canvaskit_force_tracing) {
+    wasm_defines += [ "SK_DISABLE_TRACING" ]
+  }
+
+  if (!skia_canvaskit_enable_effects_deserialization ||
+      !skia_canvaskit_enable_skp_serialization) {
+    wasm_defines += [ "SK_DISABLE_EFFECT_DESERIALIZATION" ]
+  }
+
+  if (!skia_canvaskit_enable_alias_font) {
+    wasm_defines += [ "CANVASKIT_NO_ALIAS_FONT" ]
+  }
+} else {
   wasm_defines += [ "SK_DISABLE_TRACING" ]
-}
-
-if (!skia_canvaskit_enable_effects_deserialization ||
-    !skia_canvaskit_enable_skp_serialization) {
-  wasm_defines += [ "SK_DISABLE_EFFECT_DESERIALIZATION" ]
-}
-
-if (!skia_canvaskit_enable_alias_font) {
-  wasm_defines += [ "CANVASKIT_NO_ALIAS_FONT" ]
 }

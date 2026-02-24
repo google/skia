@@ -3,16 +3,18 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import("../../gn/skia.gni")
 import("../zlib/zlib.gni")
 
 declare_args() {
   # TODO: build from source all the time for testing?
   skia_use_system_freetype2 =
-      (is_official_build || !(is_android || sanitize == "MSAN")) && !is_wasm
+      (is_official_build || !(is_android || sanitize == "MSAN")) &&
+      !is_canvaskit
   skia_system_freetype2_include_path = "/usr/include/freetype2"
   skia_system_freetype2_lib = "freetype"
 
-  skia_use_freetype_woff2 = is_wasm
+  skia_use_freetype_woff2 = is_canvaskit
   skia_use_freetype_svg = true
   skia_use_freetype_zlib = true
   skia_use_freetype_zlib_bundled = !skia_use_system_zlib

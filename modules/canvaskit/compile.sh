@@ -209,6 +209,7 @@ echo "Compiling"
   is_official_build=${IS_OFFICIAL_BUILD} \
   is_component_build=false \
   is_trivial_abi=true \
+  is_canvaskit=true \
   werror=true \
   target_cpu=\"wasm\" \
   \

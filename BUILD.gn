@@ -93,7 +93,7 @@ config("skia_private") {
       "SK_GAMMA_CONTRAST=0.0",
     ]
   }
-  if (is_skia_dev_build && !is_wasm) {
+  if (is_skia_dev_build && !is_canvaskit) {
     defines += [
       "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
       "GPU_TEST_UTILS=1",
@@ -1999,7 +1999,7 @@ skia_component("skia") {
 }
 
 # DebugCanvas used in experimental/wasm-skp-debugger
-if (is_wasm) {
+if (is_canvaskit) {
   skia_static_library("debugcanvas") {
     public_configs = [ ":skia_public" ]
 
@@ -2023,7 +2023,7 @@ group("modules") {
     "modules/svg",
   ]
 
-  if (is_wasm) {
+  if (is_canvaskit) {
     deps += [ "modules/canvaskit" ]
   }
 }
@@ -2294,7 +2294,7 @@ if (skia_enable_tools) {
       libs = []
       frameworks = []
 
-      if (skia_use_gl && target_cpu != "wasm") {
+      if (skia_use_gl && !is_canvaskit) {
         if (is_android || skia_use_egl) {
           sources +=
               [ "tools/ganesh/gl/egl/CreatePlatformGLTestContext_egl.cpp" ]
@@ -2317,6 +2317,10 @@ if (skia_enable_tools) {
           if (target_cpu != "arm64") {
             libs += [ "OpenGL32.lib" ]
           }
+        } else if (is_wasm) {
+          # TODO: replace with webgl test context
+          sources +=
+              [ "tools/ganesh/gl/none/CreatePlatformGLTestContext_none.cpp" ]
         }
       }
 
@@ -2563,7 +2567,7 @@ if (skia_enable_tools) {
       ]
     }
 
-    if (target_cpu != "wasm") {
+    if (!is_canvaskit) {
       sources += [ "tools/CrashHandler.cpp" ]
     }
     libs = []
@@ -2797,7 +2801,7 @@ if (skia_enable_tools) {
       "//third_party/libpng",
     ]
   }
-  if (target_cpu != "wasm") {
+  if (!is_canvaskit) {
     if (skia_enable_tools_that_might_need_ganesh) {
       test_app("convert-to-nia") {
         sources = [ "tools/convert-to-nia.cpp" ]
@@ -3444,7 +3448,7 @@ if (skia_enable_tools) {
     group("modules_testonly") {
       testonly = true
       deps = []
-      if (is_wasm) {
+      if (is_canvaskit) {
         deps += [ "modules/canvaskit:viewer_wasm" ]
       }
     }

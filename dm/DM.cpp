@@ -369,8 +369,12 @@ static void find_culprit() {
         SetUnhandledExceptionFilter(crash_handler);
     }
 #else
+    #if defined(__GLIBC__) && !defined(SK_BUILD_FOR_ANDROID)
+        #define BACKTRACE_AVAILABLE
+    #endif
+
     #include <signal.h>
-    #if !defined(SK_BUILD_FOR_ANDROID)
+    #if defined(BACKTRACE_AVAILABLE)
         #include <execinfo.h>
     #endif
 
@@ -394,7 +398,7 @@ static void find_culprit() {
         }
         find_culprit();
 
-    #if !defined(SK_BUILD_FOR_ANDROID)
+    #if defined(BACKTRACE_AVAILABLE)
         void* stack[128];
         int count = backtrace(stack, std::size(stack));
         char** symbols = backtrace_symbols(stack, count);

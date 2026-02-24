@@ -3,8 +3,10 @@
 # found in the LICENSE file.
 _src = "../externals/icu/source"
 
+import("../../gn/skia.gni")
+
 declare_args() {
-  skia_use_system_icu = is_official_build && !is_wasm
+  skia_use_system_icu = is_official_build && !is_canvaskit
 }
 
 icu_sources = [

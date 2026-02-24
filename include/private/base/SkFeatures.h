@@ -19,6 +19,10 @@
         #define SK_BUILD_FOR_WIN
     #elif defined(ANDROID) || defined(__ANDROID__)
         #define SK_BUILD_FOR_ANDROID
+    #elif defined(__EMSCRIPTEN__)
+        // WASM toolchains expose a Unix-like compilation environment, but it is
+        // not Unix (e.g. posix signals are not supported).
+        #define SK_BUILD_FOR_WASM
     #elif defined(linux) || defined(__linux) || defined(__FreeBSD__) || \
           defined(__OpenBSD__) || defined(__sun) || defined(__NetBSD__) || \
           defined(__DragonFly__) || defined(__Fuchsia__) || \

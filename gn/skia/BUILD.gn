@@ -300,7 +300,7 @@ config("default") {
     }
   }
 
-  if (is_wasm) {
+  if (is_canvaskit) {
     cflags += [ "--sysroot=$skia_emsdk_dir/upstream/emscripten/cache/sysroot" ]
     ldflags += [ "--sysroot=$skia_emsdk_dir/upstream/emscripten/cache/sysroot" ]
   }
@@ -710,7 +710,7 @@ config("optimize") {
     }
     if (is_mac || is_ios) {
       ldflags += [ "-dead_strip" ]
-    } else if (!is_wasm) {
+    } else if (!is_canvaskit) {
       cflags += [
         "-fdata-sections",
         "-ffunction-sections",
@@ -766,5 +766,39 @@ config("executable") {
       "/INCREMENTAL:NO",  # Quiet warnings about failing to incrementally link
                           # by never trying to.
     ]
+  }
+}
+
+if (is_wasm) {
+  if (is_canvaskit) {
+    # CK manages its flags separately.
+    config("wasm") {
+    }
+  } else {
+    config("wasm") {
+      common = [
+        "--sysroot=$skia_emsdk_dir/upstream/emscripten/cache/sysroot",
+        "-pthread",
+      ]
+      cflags = common
+      ldflags = common
+      ldflags += [
+        "-sDYNAMIC_EXECUTION=0",  # Disallow eval(): widens portability
+        "-sMIN_WEBGL_VERSION=2",
+        "-sMAX_WEBGL_VERSION=2",
+        "-sWASM=1",
+        "-sALLOW_MEMORY_GROWTH=1",
+        "-sSTACK_SIZE=1048576",  # 1 MB
+        "-sEXPORT_ES6=1",
+        "-sMODULARIZE=1",  # Do not pollute global JS scope
+      ]
+      if (is_debug) {
+        ldflags += [
+          "-sASSERTIONS=1",
+          "-sPTHREADS_DEBUG=1",
+          "-gsource-map",
+        ]
+      }
+    }
   }
 }

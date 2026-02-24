@@ -310,7 +310,11 @@ template("gcc_like_toolchain") {
 
       outputs =
           [ "{{root_out_dir}}/{{target_output_name}}{{output_extension}}" ]
-      default_output_extension = ".a"
+      if (is_wasm && !is_canvaskit) {
+        default_output_extension = ".a.wasm"
+      } else {
+        default_output_extension = ".a"
+      }
       output_prefix = "lib"
       description = "link {{output}}"
       if (0 <= link_pool_depth) {
@@ -347,6 +351,8 @@ template("gcc_like_toolchain") {
       output_prefix = "lib"
       if (is_mac || is_ios) {
         default_output_extension = ".dylib"
+      } else if (is_wasm && !is_canvaskit) {
+        default_output_extension = ".so.wasm"
       } else {
         default_output_extension = ".so"
       }
@@ -379,6 +385,12 @@ template("gcc_like_toolchain") {
       description = "link {{output}}"
       if (0 <= link_pool_depth) {
         pool = ":link_pool($default_toolchain)"
+      }
+
+      if (is_wasm && !is_canvaskit) {
+        # Executables for wasm are run via Emscripten JS hooks. Those hooks will
+        # only be generated when the output extension is .js.
+        default_output_extension = ".js"
       }
     }
 
