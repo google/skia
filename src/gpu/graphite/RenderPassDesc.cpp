@@ -69,8 +69,7 @@ RenderPassDesc RenderPassDesc::Make(const Caps* caps,
     // msaa-render-to-single-sample or with separate attachments, and select non-MSAA techniques if
     // they weren't supported. getCompatibleMSAASampleCount() downgrades to single-sampled if we got
     // here and MSAA isn't supported.
-    const bool msaaRenderToSingleSampledSupport =
-            caps->msaaTextureRenderToSingleSampledSupport(targetInfo);
+    const bool msaaRenderToSingleSampledSupport = caps->isRenderableWithMSRTSS(targetInfo);
     desc.fSampleCount = requiresMSAA ? caps->getCompatibleMSAASampleCount(targetInfo)
                                      : targetInfo.sampleCount();
 

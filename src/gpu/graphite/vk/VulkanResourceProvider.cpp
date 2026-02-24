@@ -646,10 +646,10 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* h
         return {};
     }
 
-    // Import as external if the AHardwareBuffer has an undefined format or if graphite does not
-    // support the provided VkFormat.
+    // Import as external if the AHardwareBuffer has an undefined format or if the VkFormat does not
+    // map back to a TextureFormat.
     bool importAsExternalFormat = hwbFormatProps.format == VK_FORMAT_UNDEFINED ||
-                                  !vkCaps.isFormatSupported(hwbFormatProps.format);
+            VkFormatToTextureFormat(hwbFormatProps.format) == TextureFormat::kUnsupported;
 #if defined(SK_DEBUG)
     if (importAsExternalFormat && hwbFormatProps.format != VK_FORMAT_UNDEFINED) {
         SKGPU_LOG_D("Ignoring AHardwareBuffer VkFormat(%d) because it is not supported by graphite."
@@ -668,7 +668,10 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* h
     VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
     // When importing as an external format the image usage can only be VK_IMAGE_USAGE_SAMPLED_BIT.
     if (!importAsExternalFormat) {
-        usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+        usageFlags |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+        if (!isProtectedContent) {
+            usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+        }
         if (isRenderable) {
             // Renderable attachments can be used as input attachments if we are loading from MSAA.
             usageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
@@ -693,15 +696,19 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* h
             VK_IMAGE_ASPECT_COLOR_BIT,
             VulkanYcbcrConversionInfo() };
 
-    if (isRenderable && (importAsExternalFormat || !vkCaps.isRenderable(vkTexInfo))) {
+    // Wrap in TextureInfo for Caps checks, although it will be invalidated if we modify vkTexInfo
+    // later on as a result of those checks.
+    TextureInfo texInfo = TextureInfos::MakeVulkan(vkTexInfo);
+    if (isRenderable && (importAsExternalFormat || !vkCaps.isRenderable(texInfo))) {
         SKGPU_LOG_W("Renderable texture requested from an AHardwareBuffer which uses a VkFormat "
                     "that Skia cannot render to (VkFormat: %d).\n",  hwbFormatProps.format);
         return {};
     }
 
-    if (!importAsExternalFormat && (!vkCaps.isTransferSrc(vkTexInfo) ||
-                                    !vkCaps.isTransferDst(vkTexInfo) ||
-                                    !vkCaps.isTexturable(vkTexInfo))) {
+    // We don't require copyable-src if it's protected content
+    if (!importAsExternalFormat && (!(vkCaps.isCopyableSrc(texInfo) || isProtectedContent) ||
+                                    !vkCaps.isCopyableDst(texInfo) ||
+                                    !vkCaps.isTexturable(texInfo))) {
         if (isRenderable) {
             SKGPU_LOG_W("VkFormat %d does not support the necessary format features. Because a "
                         "renderable texture was requested, we cannot fall back to importing with "

@@ -773,37 +773,81 @@ void MtlCaps::initFormatTable(const id<MTLDevice> device) {
 
 }
 
-bool MtlCaps::isSampleCountSupported(TextureFormat format, SampleCount requestedSampleCount) const {
+std::pair<SkEnumBitMask<TextureUsage>, SkEnumBitMask<SampleCount>> MtlCaps::getTextureSupport(
+        TextureFormat format, Tiling tiling) const {
+    // TODO(michaelludwig): Define supported usage by porting the table from
+    // https://developer.apple.com/metal/Metal-Feature-Set-Tables.pdf
     const FormatInfo& formatInfo = this->getFormatInfo(TextureFormatToMTLPixelFormat(format));
-    if (!SkToBool(formatInfo.fFlags & FormatInfo::kRenderable_Flag)) {
-        return false;
+    if (tiling == Tiling::kLinear || formatInfo.fFlags == 0) {
+        return {{}, {}}; // Not supported or unavailable in Metal
     }
-    if (SkToBool(formatInfo.fFlags & FormatInfo::kMSAA_Flag)) {
-        return SkToBool(fSupportedSampleCounts & requestedSampleCount);
+
+    // At this point, we can claim at least 1 sample is supported
+    SkEnumBitMask<SampleCount> sampleCounts = SampleCount::k1;
+    SkEnumBitMask<TextureUsage> supported;
+
+    if (formatInfo.fFlags & FormatInfo::kTexturable_Flag) {
+        supported |= TextureUsage::kSample;
+    }
+
+    if (formatInfo.fFlags & FormatInfo::kRenderable_Flag) {
+        supported |= TextureUsage::kRender;
+
+        uint16_t msaaFlag = FormatInfo::kMSAA_Flag;
+        if (!TextureFormatIsDepthOrStencil(format)) {
+            // We never resolve depth/stencil, but Graphite assumes we can resolve to color formats
+            // if we can render it with MSAA.
+            msaaFlag |= FormatInfo::kResolve_Flag;
+        }
+        if ((formatInfo.fFlags & msaaFlag) == msaaFlag) {
+            sampleCounts |= fSupportedSampleCounts;
+        }
+    }
+
+    if (formatInfo.fFlags & FormatInfo::kStorage_Flag) {
+        supported |= TextureUsage::kStorage;
+    }
+
+    if (TextureFormatCompressionType(format) != SkTextureCompressionType::kNone) {
+        // Compressed textures can be copied into, but disallow copying out
+        supported |= TextureUsage::kCopyDst;
     } else {
-        // Only single sampling is supported for the format, so 1 sample should be generally
-        // available, too.
-        SkASSERT(SkToBool(fSupportedSampleCounts & SampleCount::k1));
-        return requestedSampleCount == SampleCount::k1;
+        // Plain textures can be copied into and out of, and Metal doesn't have external formats
+        SkASSERT(format != TextureFormat::kExternal);
+        supported |= TextureUsage::kCopySrc | TextureUsage::kCopyDst;
     }
+
+    return {supported, sampleCounts};
 }
 
-TextureFormat MtlCaps::getDepthStencilFormat(SkEnumBitMask<DepthStencilFlags> mask) const {
-    if (mask == DepthStencilFlags::kDepth) {
-        // Graphite only needs 16-bits for depth values, so save some memory. If needed for
-        // workarounds, MTLPixelFormatDepth32Float is also available.
-        return TextureFormat::kD16;
-    } else if (mask == DepthStencilFlags::kStencil) {
-        return TextureFormat::kS8;
-    } else if (mask == DepthStencilFlags::kDepthStencil) {
-#if defined(SK_BUILD_FOR_MAC)
-        if (SkToBool(this->getFormatInfo(MTLPixelFormatDepth24Unorm_Stencil8).fFlags)) {
-            return TextureFormat::kD24_S8;
-        }
-#endif
-        return TextureFormat::kD32F_S8;
+std::pair<SkEnumBitMask<TextureUsage>, Tiling> MtlCaps::getTextureUsage(
+        const TextureInfo& info) const {
+    const auto& mtlInfo = TextureInfoPriv::Get<MtlTextureInfo>(info);
+
+    SkEnumBitMask<TextureUsage> usage;
+    if (mtlInfo.fUsage & MTLTextureUsageRenderTarget) {
+        usage |= TextureUsage::kRender;
+        // NOTE: No support for MSRTSS
     }
-    return TextureFormat::kUnsupported;
+
+    // Other than rendering, every other usage is blocked if it's framebuffer-only
+    if (!mtlInfo.fFramebufferOnly) {
+        if (mtlInfo.fUsage & MTLTextureUsageShaderRead) {
+            usage |= TextureUsage::kSample;
+
+            if (mtlInfo.fUsage & MTLTextureUsageShaderWrite) {
+                usage |= TextureUsage::kStorage;
+            }
+        }
+
+        // Always include CopySrc and CopyDst, relying on the format's supported flags to mask
+        // the final capabilities automatically (e.g. if this were compressed)
+        usage |= TextureUsage::kCopySrc | TextureUsage::kCopyDst;
+
+        // NOTE: No support for TextureUsage::kHostCopy yet
+    }
+
+    return {usage, Tiling::kOptimal};
 }
 
 TextureInfo MtlCaps::getDefaultAttachmentTextureInfo(AttachmentDesc desc,
@@ -1077,88 +1121,6 @@ UniqueKey MtlCaps::makeComputePipelineKey(const ComputePipelineDesc& pipelineDes
         builder.finish();
     }
     return pipelineKey;
-}
-
-bool MtlCaps::onIsTexturable(const TextureInfo& info) const {
-    if (!info.isValid()) {
-        return false;
-    }
-    const auto& mtlInfo = TextureInfoPriv::Get<MtlTextureInfo>(info);
-    if (!(mtlInfo.fUsage & MTLTextureUsageShaderRead)) {
-        return false;
-    }
-    if (mtlInfo.fFramebufferOnly) {
-        return false;
-    }
-    return this->isTexturable(mtlInfo.fFormat);
-}
-
-bool MtlCaps::isTexturable(MTLPixelFormat format) const {
-    const FormatInfo& formatInfo = this->getFormatInfo(format);
-    return SkToBool(FormatInfo::kTexturable_Flag & formatInfo.fFlags);
-}
-
-bool MtlCaps::isRenderable(const TextureInfo& info) const {
-    if (!info.isValid()) {
-        return false;
-    }
-    TextureFormat format = TextureInfoPriv::ViewFormat(info);
-    const auto& mtlInfo = TextureInfoPriv::Get<MtlTextureInfo>(info);
-    return (mtlInfo.fUsage & MTLTextureUsageRenderTarget) &&
-           this->isSampleCountSupported(format, info.sampleCount());
-}
-
-bool MtlCaps::isStorage(const TextureInfo& info) const {
-    if (!info.isValid()) {
-        return false;
-    }
-    const auto& mtlInfo = TextureInfoPriv::Get<MtlTextureInfo>(info);
-    if (!(mtlInfo.fUsage & MTLTextureUsageShaderWrite)) {
-        return false;
-    }
-    if (mtlInfo.fFramebufferOnly) {
-        return false;
-    }
-    const FormatInfo& formatInfo = this->getFormatInfo(mtlInfo.fFormat);
-    return info.sampleCount() == SampleCount::k1 &&
-           SkToBool(FormatInfo::kStorage_Flag & formatInfo.fFlags);
-}
-
-bool MtlCaps::isCopyableDst(const TextureInfo& texInfo) const {
-    if (!texInfo.isValid()) {
-        return false;
-    }
-    const auto& mtlInfo = TextureInfoPriv::Get<MtlTextureInfo>(texInfo);
-    if (mtlInfo.fFramebufferOnly) {
-        return false;
-    }
-
-    if (texInfo.sampleCount() > SampleCount::k1) {
-        return false;
-    }
-
-    return true;
-}
-
-bool MtlCaps::isCopyableSrc(const TextureInfo& texInfo) const {
-    if (!texInfo.isValid()) {
-        return false;
-    }
-    const auto& mtlInfo = TextureInfoPriv::Get<MtlTextureInfo>(texInfo);
-    if (mtlInfo.fFramebufferOnly) {
-        return false;
-    }
-
-    // We disallow reading back directly from compressed textures.
-    if (MtlFormatIsCompressed(mtlInfo.fFormat)) {
-        return false;
-    }
-
-    if (texInfo.sampleCount() > SampleCount::k1) {
-        return false;
-    }
-
-    return true;
 }
 
 void MtlCaps::buildKeyForTexture(SkISize dimensions,
