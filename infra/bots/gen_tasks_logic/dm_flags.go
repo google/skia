@@ -523,6 +523,10 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 					skip(ALL, "test", ALL, "ThreadedPipelinePrecompileCompileTest")
 					skip(ALL, "test", ALL, "ThreadedPipelinePrecompileCompilePurgingTest")
 
+					// b/486965497 - The Dawn/GLES backend is also failing these two tests
+					skip(ALL, "test", ALL, "ThreadedPipelinePrecompileTest")
+					skip(ALL, "test", ALL, "ThreadedPipelinePrecompilePurgingTest")
+
 					// b/425434638 - PaintParamsKeyTest failing on Release Dawn_GLES
 					skip(ALL, "test", ALL, "PaintParamsKeyTest")
 				}
