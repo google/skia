@@ -397,10 +397,13 @@ void DawnResourceProvider::BlitWithDrawEncoder::EncodeBlit(
     SkASSERT(std::abs(deltaY) < std::numeric_limits<int16_t>::max());
     int32_t baseInstance = (deltaX & 0xffff) | (deltaY << 16);
 
+    // NOTE(b/457887457): need to cast baseInstance to uint32_t explicitly otherwise it would cause
+    // TypeError in emscripten, because baseInstance value could be negative in signed integer
+    // representation.
     renderEncoder.Draw(/*vertexCount=*/3,
                        /*instanceCount=*/ 1,
                        /*firstVertex=*/0,
-                       /*firstInstance=*/baseInstance);
+                       /*firstInstance=*/static_cast<uint32_t>(baseInstance));
 }
 
 // ----------------------------------------------------------------------------
