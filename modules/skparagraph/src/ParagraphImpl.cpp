@@ -418,12 +418,19 @@ void ParagraphImpl::applySpacingAndBuildClusterTable() {
         return;
     }
 
+    // Simple case: we have to letter space the entire paragraph (second most common case)
+    // With one exception (there are whitespaces, and we have to space them as CSS spec requires)
+    // which is treated as a common case down below
     if (letterSpacingStyles == 1 && !hasWordSpacing && fTextStyles.size() == 1 &&
-        fTextStyles[0].fRange.width() == fText.size() && fRuns.size() == 1) {
-        // We have to letter space the entire paragraph (second most common case)
+        fTextStyles[0].fRange.width() == fText.size() && fRuns.size() == 1 &&
+        !(this->fHasWhitespacesInside && this->fParagraphStyle.getLetterSpacingByCSSSpec())
+        ) {
         auto& run = fRuns[0];
         auto& style = fTextStyles[0].fStyle;
-        run.addLetterSpacesEvenly(style.getLetterSpacing());
+        if (!run.isCursiveScript()) {
+            // Do not apply letter spacing for script languages (no exception here)
+            run.addLetterSpacesEvenly(style.getLetterSpacing());
+        }
 
         this->buildClusterTable();
 
@@ -488,10 +495,15 @@ void ParagraphImpl::applySpacingAndBuildClusterTable() {
                     wordSpacingPending = false;
                 }
             }
-            // Process letter spacing (it will be cancelled out for Script languages
+            // We do not apply letter spacing for script languages
+            // except for one case (cluster is whitespace, and we have to follow CSS spec)
             if ((currentStyle->fStyle.getLetterSpacing() != 0)) {
-                shift +=
+                if (!run.isCursiveScript() ||
+                    (cluster->isWhitespaceBreak() &&
+                     this->fParagraphStyle.getLetterSpacingByCSSSpec())) {
+                    shift +=
                         run.addLetterSpacesEvenly(currentStyle->fStyle.getLetterSpacing(), cluster);
+                }
             }
 
             if (soFarWhitespacesOnly && !cluster->isWhitespaceBreak()) {
