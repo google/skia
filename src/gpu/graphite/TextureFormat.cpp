@@ -74,6 +74,15 @@ SkTextureCompressionType TextureFormatCompressionType(TextureFormat format) {
     }
 }
 
+TextureFormat CompressionTypeToTextureFormat(SkTextureCompressionType type) {
+    switch (type) {
+        case SkTextureCompressionType::kBC1_RGB8_UNORM:  return TextureFormat::kRGB8_BC1;
+        case SkTextureCompressionType::kBC1_RGBA8_UNORM: return TextureFormat::kRGBA8_BC1;
+        case SkTextureCompressionType::kETC2_RGB8_UNORM: return TextureFormat::kRGB8_ETC2;
+        default:                                         return TextureFormat::kUnsupported;
+    }
+}
+
 size_t TextureFormatBytesPerBlock(TextureFormat format) {
     switch (format) {
         case TextureFormat::kUnsupported: return 0;

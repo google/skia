@@ -145,23 +145,22 @@ public:
     /* Return the TextureFormat that satisfies `dsFlags`. */
     TextureFormat getDepthStencilFormat(SkEnumBitMask<DepthStencilFlags>) const;
 
-    virtual TextureInfo getDefaultAttachmentTextureInfo(AttachmentDesc,
-                                                        Protected,
-                                                        Discardable) const = 0;
+    TextureInfo getDefaultAttachmentTextureInfo(AttachmentDesc,
+                                                Protected,
+                                                Discardable) const;
 
-    virtual TextureInfo getDefaultSampledTextureInfo(SkColorType,
-                                                     Mipmapped,
-                                                     Protected,
-                                                     Renderable) const = 0;
+    TextureInfo getDefaultSampledTextureInfo(SkColorType,
+                                             Mipmapped,
+                                             Protected,
+                                             Renderable) const;
 
-    virtual TextureInfo getTextureInfoForSampledCopy(const TextureInfo&,
-                                                     Mipmapped) const = 0;
+    TextureInfo getTextureInfoForSampledCopy(const TextureInfo&,  Mipmapped) const;
 
-    virtual TextureInfo getDefaultCompressedTextureInfo(SkTextureCompressionType,
-                                                        Mipmapped,
-                                                        Protected) const = 0;
+    TextureInfo getDefaultCompressedTextureInfo(SkTextureCompressionType,
+                                                Mipmapped,
+                                                Protected) const;
 
-    virtual TextureInfo getDefaultStorageTextureInfo(SkColorType) const = 0;
+    TextureInfo getDefaultStorageTextureInfo(SkColorType) const;
 
     SkColorType getDefaultColorType(const TextureInfo&) const;
 
@@ -573,6 +572,23 @@ private:
     // approach to textures and color types.
     const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const;
     virtual SkSpan<const ColorTypeInfo> getColorTypeInfos(const TextureInfo&) const = 0;
+    virtual TextureFormat getFormatForColorType(SkColorType) const = 0;
+
+    // Return a TextureInfo that is configured to support the given usages with the requested format
+    // and other properties. This is only called if getTextureSupport() matches for kOptimal tiling.
+    virtual TextureInfo onGetDefaultTextureInfo(SkEnumBitMask<TextureUsage> usage,
+                                                TextureFormat,
+                                                SampleCount,
+                                                Mipmapped,
+                                                Protected,
+                                                Discardable) const = 0;
+    // Validates format support and calls onGetDefaultTextureInfo if it would be valid
+    TextureInfo getDefaultTextureInfo(SkEnumBitMask<TextureUsage> usage,
+                                      TextureFormat,
+                                      SampleCount,
+                                      Mipmapped,
+                                      Protected,
+                                      Discardable) const;
 
     // Return the supported TextureUsages and SampleCounts for a texture of the given format and
     // tiling, assuming the textures are created with the requisite usages.

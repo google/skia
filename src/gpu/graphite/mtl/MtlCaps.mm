@@ -850,70 +850,52 @@ std::pair<SkEnumBitMask<TextureUsage>, Tiling> MtlCaps::getTextureUsage(
     return {usage, Tiling::kOptimal};
 }
 
-TextureInfo MtlCaps::getDefaultAttachmentTextureInfo(AttachmentDesc desc,
-                                                     Protected,
-                                                     Discardable discardable) const {
-    if (!this->isSampleCountSupported(desc.fFormat, desc.fSampleCount)) {
-        return {};
-    }
+TextureInfo MtlCaps::onGetDefaultTextureInfo(SkEnumBitMask<TextureUsage> usage,
+                                             TextureFormat format,
+                                             SampleCount sampleCount,
+                                             Mipmapped mipmapped,
+                                             Protected,
+                                             Discardable discardable) const {
+    MTLPixelFormat mtlFormat = TextureFormatToMTLPixelFormat(format);
+    SkASSERT(mtlFormat != MTLPixelFormatInvalid); // should have been caught by support check first
 
     // Default to private in the event it's not discardable or memoryless is not available
     MTLStorageMode storageMode = MTLStorageModePrivate;
+    MTLTextureUsage mtlUsage = MTLTextureUsageUnknown;
 
-    // Try to use memoryless if it's available (only on new Apple silicon)
-    if (discardable == Discardable::kYes && this->isApple()) {
-        if (@available(macOS 11.0, iOS 10.0, tvOS 10.0, *)) {
-            storageMode = MTLStorageModeMemoryless;
+    if (usage & TextureUsage::kSample) {
+        mtlUsage |= MTLTextureUsageShaderRead;
+    }
+    if (usage & TextureUsage::kStorage) {
+        mtlUsage |= MTLTextureUsageShaderRead | MTLTextureUsageShaderWrite;
+    }
+    if (usage & TextureUsage::kRender) {
+        mtlUsage |= MTLTextureUsageRenderTarget;
+        // Switch to memoryless for discardable render targets when possible (only on Apple silicon)
+        if (discardable == Discardable::kYes && this->isApple()) {
+            if (@available(macOS 11.0, iOS 10.0, tvOS 10.0, *)) {
+                storageMode = MTLStorageModeMemoryless;
+            }
         }
     }
+    // NOTE: CopyDst and CopySrc are not MTLTextureUsages that have to be requested, so ignore them.
+    // Caps should not be requested anything with HostCopy or MSRTSS since these are not supported.
+    SkASSERT(!SkToBool(usage & TextureUsage::kHostCopy) &&
+             !SkToBool(usage & TextureUsage::kMSRTSS));
 
     MtlTextureInfo info;
-    info.fSampleCount = desc.fSampleCount;
-    info.fMipmapped = Mipmapped::kNo;
-    info.fFormat = TextureFormatToMTLPixelFormat(desc.fFormat);
-    info.fUsage = MTLTextureUsageRenderTarget;
+    info.fSampleCount = sampleCount;
+    info.fMipmapped = mipmapped;
+    info.fFormat = mtlFormat;
+    info.fUsage = mtlUsage;
     info.fStorageMode = storageMode;
     info.fFramebufferOnly = false;
 
     return TextureInfos::MakeMetal(info);
 }
 
-TextureInfo MtlCaps::getDefaultSampledTextureInfo(SkColorType colorType,
-                                                  Mipmapped mipmapped,
-                                                  Protected,
-                                                  Renderable renderable) const {
-    MTLTextureUsage usage = MTLTextureUsageShaderRead;
-    if (renderable == Renderable::kYes) {
-        usage |= MTLTextureUsageRenderTarget;
-    }
-
-    MTLPixelFormat format = this->getFormatFromColorType(colorType);
-    if (format == MTLPixelFormatInvalid) {
-        return {};
-    }
-
-    MtlTextureInfo info;
-    info.fSampleCount = SampleCount::k1;
-    info.fMipmapped = mipmapped;
-    info.fFormat = format;
-    info.fUsage = usage;
-    info.fStorageMode = MTLStorageModePrivate;
-    info.fFramebufferOnly = false;
-
-    return TextureInfos::MakeMetal(info);
-}
-
-TextureInfo MtlCaps::getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
-                                                  Mipmapped mipmapped) const {
-    MtlTextureInfo info;
-    info.fSampleCount = SampleCount::k1;
-    info.fMipmapped = mipmapped;
-    info.fFormat = TextureInfoPriv::Get<MtlTextureInfo>(textureInfo).fFormat;
-    info.fUsage = MTLTextureUsageShaderRead;
-    info.fStorageMode = MTLStorageModePrivate;
-    info.fFramebufferOnly = false;
-
-    return TextureInfos::MakeMetal(info);
+TextureFormat MtlCaps::getFormatForColorType(SkColorType colorType) const {
+    return MTLPixelFormatToTextureFormat(this->getFormatFromColorType(colorType));
 }
 
 namespace {
@@ -925,62 +907,6 @@ skgpu::UniqueKey::Domain get_domain() {
     return kMtlGraphicsPipelineDomain;
 }
 
-MTLPixelFormat format_from_compression(SkTextureCompressionType compression) {
-    switch (compression) {
-        case SkTextureCompressionType::kETC2_RGB8_UNORM:
-            return kMTLPixelFormatETC2_RGB8;
-        case SkTextureCompressionType::kBC1_RGBA8_UNORM:
-#ifdef SK_BUILD_FOR_MAC
-            return MTLPixelFormatBC1_RGBA;
-#endif
-        default:
-            return MTLPixelFormatInvalid;
-    }
-}
-}
-
-TextureInfo MtlCaps::getDefaultCompressedTextureInfo(SkTextureCompressionType compression,
-                                                     Mipmapped mipmapped,
-                                                     Protected) const {
-    MTLTextureUsage usage = MTLTextureUsageShaderRead;
-
-    MTLPixelFormat format = format_from_compression(compression);
-    if (format == MTLPixelFormatInvalid) {
-        return {};
-    }
-
-    MtlTextureInfo info;
-    info.fSampleCount = SampleCount::k1;
-    info.fMipmapped = mipmapped;
-    info.fFormat = format;
-    info.fUsage = usage;
-    info.fStorageMode = MTLStorageModePrivate;
-    info.fFramebufferOnly = false;
-
-    return TextureInfos::MakeMetal(info);
-}
-
-TextureInfo MtlCaps::getDefaultStorageTextureInfo(SkColorType colorType) const {
-    // Storage textures are currently always sampleable from a shader.
-    MTLPixelFormat format = static_cast<MTLPixelFormat>(this->getFormatFromColorType(colorType));
-    if (format == MTLPixelFormatInvalid) {
-        return {};
-    }
-
-    const FormatInfo& formatInfo = this->getFormatInfo(format);
-    if (!SkToBool(FormatInfo::kStorage_Flag & formatInfo.fFlags)) {
-        return {};
-    }
-
-    MtlTextureInfo info;
-    info.fSampleCount = SampleCount::k1;
-    info.fMipmapped = Mipmapped::kNo;
-    info.fFormat = format;
-    info.fUsage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead;
-    info.fStorageMode = MTLStorageModePrivate;
-    info.fFramebufferOnly = false;
-
-    return TextureInfos::MakeMetal(info);
 }
 
 SkSpan<const Caps::ColorTypeInfo> MtlCaps::getColorTypeInfos(const TextureInfo& textureInfo) const {

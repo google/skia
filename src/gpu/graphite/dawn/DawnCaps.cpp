@@ -72,6 +72,8 @@ static constexpr wgpu::TextureFormat kFormats[] = {
 #if !defined(__EMSCRIPTEN__)
         wgpu::TextureFormat::OpaqueYCbCrAndroid,
 #endif
+
+        wgpu::TextureFormat::Undefined
 };
 
 bool is_valid_view(const DawnTextureInfo& dawnInfo) {
@@ -207,127 +209,57 @@ std::pair<SkEnumBitMask<TextureUsage>, Tiling> DawnCaps::getTextureUsage(
     return {usage, Tiling::kOptimal};
 }
 
-TextureInfo DawnCaps::getDefaultAttachmentTextureInfo(AttachmentDesc desc,
-                                                      Protected,
-                                                      Discardable discardable) const {
-    if (!this->isSampleCountSupported(desc.fFormat, desc.fSampleCount)) {
-        return {};
+TextureInfo DawnCaps::onGetDefaultTextureInfo(SkEnumBitMask<TextureUsage> usage,
+                                              TextureFormat format,
+                                              SampleCount sampleCount,
+                                              Mipmapped mipmapped,
+                                              Protected,
+                                              Discardable discardable) const {
+    wgpu::TextureFormat dawnFormat = TextureFormatToDawnFormat(format);
+    SkASSERT(dawnFormat != wgpu::TextureFormat::Undefined); // should have been caught by Caps first
+
+    wgpu::TextureUsage dawnUsage = wgpu::TextureUsage::None;
+
+    if (usage & TextureUsage::kSample) {
+        dawnUsage |= wgpu::TextureUsage::TextureBinding;
     }
+    if (usage & TextureUsage::kStorage) {
+        dawnUsage |= wgpu::TextureUsage::StorageBinding;
+    }
+    if (usage & TextureUsage::kCopySrc) {
+        dawnUsage |= wgpu::TextureUsage::CopySrc;
+    }
+    if (usage & TextureUsage::kCopyDst) {
+        dawnUsage |= wgpu::TextureUsage::CopyDst;
+    }
+    if (usage & TextureUsage::kRender) {
+        dawnUsage |= wgpu::TextureUsage::RenderAttachment;
+        // Use transient attachments if possible for discardable textures
+        if (fSupportedTransientAttachmentUsage != wgpu::TextureUsage::None &&
+            discardable == Discardable::kYes) {
+            dawnUsage |= fSupportedTransientAttachmentUsage;
+        }
+        if (fEmulateLoadStoreResolve && !TextureFormatIsDepthOrStencil(format)) {
+            // When emulating the store, the color attachment is sampled into the resolve so add
+            // this usage even if higher-up Graphite logic wasn't expecting to sample it.
+            dawnUsage |= wgpu::TextureUsage::TextureBinding;
+        }
+    }
+    // NOTE: kMSRTSS is ignored since it's implicitly available on any wgpu::Texture if the
+    // extension is available. kHostCopy should not be requested from Caps since it's unsupported.
+    SkASSERT(!SkToBool(usage & TextureUsage::kHostCopy));
 
     DawnTextureInfo info;
-    info.fSampleCount = desc.fSampleCount;
-    info.fMipmapped   = Mipmapped::kNo;
-    info.fFormat      = TextureFormatToDawnFormat(desc.fFormat);
-    info.fUsage       = wgpu::TextureUsage::RenderAttachment;
-
-    if (fSupportedTransientAttachmentUsage != wgpu::TextureUsage::None &&
-        discardable == Discardable::kYes) {
-        info.fUsage |= fSupportedTransientAttachmentUsage;
-    }
-    if (fEmulateLoadStoreResolve && !TextureFormatIsDepthOrStencil(desc.fFormat)) {
-        // When emulating the store, the color attachment is sampled into the resolve.
-        info.fUsage |= wgpu::TextureUsage::TextureBinding;
-    }
-
-    return TextureInfos::MakeDawn(info);
-}
-
-TextureInfo DawnCaps::getDefaultSampledTextureInfo(SkColorType colorType,
-                                                   Mipmapped mipmapped,
-                                                   Protected,
-                                                   Renderable renderable) const {
-    wgpu::TextureUsage usage = wgpu::TextureUsage::TextureBinding |
-                               wgpu::TextureUsage::CopyDst |
-                               wgpu::TextureUsage::CopySrc;
-    if (renderable == Renderable::kYes) {
-        usage |= wgpu::TextureUsage::RenderAttachment;
-    }
-
-    wgpu::TextureFormat format = this->getFormatFromColorType(colorType);
-    if (format == wgpu::TextureFormat::Undefined) {
-        return {};
-    }
-
-    DawnTextureInfo info;
-    info.fSampleCount = SampleCount::k1;
+    info.fSampleCount = sampleCount;
     info.fMipmapped = mipmapped;
-    info.fFormat = format;
-    info.fViewFormat = format;
-    info.fUsage = usage;
+    info.fFormat = dawnFormat;
+    info.fUsage = dawnUsage;
 
     return TextureInfos::MakeDawn(info);
 }
 
-TextureInfo DawnCaps::getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
-                                                   Mipmapped mipmapped) const {
-    DawnTextureInfo info;
-    info.fSampleCount = SampleCount::k1;
-    info.fMipmapped = mipmapped;
-    info.fFormat = TextureInfoPriv::Get<DawnTextureInfo>(textureInfo).getViewFormat();
-    info.fUsage = wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::CopyDst |
-                  wgpu::TextureUsage::CopySrc;
-
-    return TextureInfos::MakeDawn(info);
-}
-
-namespace {
-wgpu::TextureFormat format_from_compression(SkTextureCompressionType compression) {
-    switch (compression) {
-        case SkTextureCompressionType::kETC2_RGB8_UNORM:
-            return wgpu::TextureFormat::ETC2RGB8Unorm;
-        case SkTextureCompressionType::kBC1_RGBA8_UNORM:
-            return wgpu::TextureFormat::BC1RGBAUnorm;
-        default:
-            return wgpu::TextureFormat::Undefined;
-    }
-}
-}
-
-TextureInfo DawnCaps::getDefaultCompressedTextureInfo(SkTextureCompressionType compression,
-                                                      Mipmapped mipmapped,
-                                                      Protected) const {
-    wgpu::TextureUsage usage = wgpu::TextureUsage::TextureBinding |
-                               wgpu::TextureUsage::CopyDst |
-                               wgpu::TextureUsage::CopySrc;
-
-    wgpu::TextureFormat format = format_from_compression(compression);
-    if (format == wgpu::TextureFormat::Undefined) {
-        return {};
-    }
-
-    DawnTextureInfo info;
-    info.fSampleCount = SampleCount::k1;
-    info.fMipmapped = mipmapped;
-    info.fFormat = format;
-    info.fViewFormat = format;
-    info.fUsage = usage;
-
-    return TextureInfos::MakeDawn(info);
-}
-
-TextureInfo DawnCaps::getDefaultStorageTextureInfo(SkColorType colorType) const {
-    wgpu::TextureFormat format = this->getFormatFromColorType(colorType);
-    if (format == wgpu::TextureFormat::Undefined) {
-        SkDebugf("colorType=%d is not supported\n", static_cast<int>(colorType));
-        return {};
-    }
-
-    const FormatInfo& formatInfo = this->getFormatInfo(format);
-    if (!SkToBool(FormatInfo::kStorage_Flag & formatInfo.fFlags)) {
-        return {};
-    }
-
-    wgpu::TextureUsage usage = wgpu::TextureUsage::StorageBinding |
-                               wgpu::TextureUsage::TextureBinding |
-                               wgpu::TextureUsage::CopySrc;
-    DawnTextureInfo info;
-    info.fSampleCount = SampleCount::k1;
-    info.fMipmapped = Mipmapped::kNo;
-    info.fFormat = format;
-    info.fViewFormat = format;
-    info.fUsage = usage;
-
-    return TextureInfos::MakeDawn(info);
+TextureFormat DawnCaps::getFormatForColorType(SkColorType colorType) const {
+    return DawnFormatToTextureFormat(this->getFormatFromColorType(colorType));
 }
 
 SkISize DawnCaps::getDepthAttachmentDimensions(const TextureInfo& textureInfo,

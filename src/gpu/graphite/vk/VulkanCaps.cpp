@@ -731,12 +731,17 @@ std::pair<SkEnumBitMask<TextureUsage>, SkEnumBitMask<SampleCount>> VulkanCaps::g
     }
 
     // NOTE: We don't check the protected-ness of the Context for format support. It is handled on
-    // a per-texture basis if that texture ends up being allocated with protected memory.
-    if (featureFlags & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT) {
+    // a per-texture basis if that texture ends up being allocated with protected memory. We
+    // intentionally skip adding CopySrc for compressed formats since there is no current support
+    // for read back in higher-level Graphite code.
+    if ((featureFlags & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT) &&
+        TextureFormatCompressionType(format) == SkTextureCompressionType::kNone) {
         supports |= TextureUsage::kCopySrc;
     }
 
     if (featureFlags & VK_FORMAT_FEATURE_TRANSFER_DST_BIT) {
+        // Unlike CopySrc, we include CopyDst for compressed formats since there are specialized
+        // upload code paths.
         supports |= TextureUsage::kCopyDst;
 
         if (isEfficientWithHostImageCopy) {
@@ -817,189 +822,80 @@ std::pair<SkEnumBitMask<TextureUsage>, Tiling> VulkanCaps::getTextureUsage(
     return {usage, tiling};
 }
 
-TextureInfo VulkanCaps::getDefaultAttachmentTextureInfo(AttachmentDesc desc,
-                                                        Protected isProtected,
-                                                        Discardable discardable) const {
-    if ((isProtected == Protected::kYes && !this->protectedSupport()) ||
-         !this->isSampleCountSupported(desc.fFormat, desc.fSampleCount)) {
-        return {};
-    }
+TextureInfo VulkanCaps::onGetDefaultTextureInfo(SkEnumBitMask<TextureUsage> usage,
+                                                TextureFormat format,
+                                                SampleCount sampleCount,
+                                                Mipmapped mipmapped,
+                                                Protected isProtected,
+                                                Discardable discardable) const {
+    VkFormat vkFormat = TextureFormatToVkFormat(format);
+    SkASSERT(vkFormat != VK_FORMAT_UNDEFINED); // should have been caught by Caps first
 
-    const bool isDepthStencil = TextureFormatIsDepthOrStencil(desc.fFormat);
-
-    /**
-     * Graphite, unlike ganesh, does not require a dedicated MSAA attachment on every surface.
-     * MSAA textures now get resolved within the scope of a render pass, which can be done simply
-     * with the color attachment usage flag. So we no longer require transfer src/dst usage flags.
-     * All renderable textures in Vulkan are made with input attachment usage.
-     */
+    VkImageUsageFlags vkUsage = 0;
     VkImageCreateFlags createFlags =
-            (isProtected == Protected::kYes) ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
-    VkImageUsageFlags usageFlags = isDepthStencil ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
-                                                  : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
-                                                            VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+            isProtected == Protected::kYes ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
 
-    if (discardable == Discardable::kYes && fSupportsMemorylessAttachments) {
-        usageFlags = usageFlags | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
+    if (usage & TextureUsage::kSample) {
+        vkUsage |= VK_IMAGE_USAGE_SAMPLED_BIT;
+    }
+    if (usage & TextureUsage::kStorage) {
+        vkUsage |= VK_IMAGE_USAGE_STORAGE_BIT;
+    }
+    if (usage & TextureUsage::kCopySrc) {
+        vkUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    }
+    if (usage & TextureUsage::kCopyDst) {
+        vkUsage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+        if (usage & TextureUsage::kHostCopy) {
+            SkASSERT(this->supportsHostImageCopy());
+            vkUsage |= VK_IMAGE_USAGE_HOST_TRANSFER_BIT;
+        }
+    }
+    if (usage & TextureUsage::kRender) {
+        if (TextureFormatIsDepthOrStencil(format)) {
+            vkUsage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+        } else {
+            // We make all renderable color images support being used as input attachment
+            vkUsage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+                       VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+        }
+
+        if (usage & TextureUsage::kMSRTSS) {
+            SkASSERT(this->msaaRenderToSingleSampledSupport());
+            createFlags |= VK_IMAGE_CREATE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT;
+        }
+        if (discardable == Discardable::kYes && fSupportsMemorylessAttachments) {
+            vkUsage |= VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
+        }
     }
 
-    /*
-     * When VK_EXT_multisampled_render_to_single_sampled is supported, proactively use the
-     * VK_IMAGE_CREATE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT flag. This flag is expected to
-     * be harmless (if not, it's a driver bug).
-     */
-    if (desc.fSampleCount == SampleCount::k1 && this->msaaRenderToSingleSampledSupport()) {
-        createFlags |= VK_IMAGE_CREATE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT;
-    }
-
-    VulkanTextureInfo info;
-    info.fSampleCount = desc.fSampleCount;
-    info.fMipmapped = Mipmapped::kNo;
-    info.fFlags = createFlags;
-    info.fFormat = TextureFormatToVkFormat(desc.fFormat);
-    info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
-    info.fImageUsageFlags = usageFlags;
-    info.fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    info.fAspectMask = isDepthStencil
-            ? ((TextureFormatHasDepth(desc.fFormat)   ? VK_IMAGE_ASPECT_DEPTH_BIT   : 0) |
-               (TextureFormatHasStencil(desc.fFormat) ? VK_IMAGE_ASPECT_STENCIL_BIT : 0))
-            : VK_IMAGE_ASPECT_COLOR_BIT;
-
-    return TextureInfos::MakeVulkan(info);
-}
-
-TextureInfo VulkanCaps::getDefaultSampledTextureInfo(SkColorType ct,
-                                                     Mipmapped mipmapped,
-                                                     Protected isProtected,
-                                                     Renderable isRenderable) const {
-    VkFormat format = this->getFormatFromColorType(ct);
-    const FormatInfo& formatInfo = this->getFormatInfo(format);
-
-    if ((isProtected == Protected::kYes && !this->protectedSupport()) ||
-        !formatInfo.isTexturable(VK_IMAGE_TILING_OPTIMAL) ||
-        (isRenderable == Renderable::kYes &&
-         !formatInfo.isRenderable(VK_IMAGE_TILING_OPTIMAL, SampleCount::k1)) ) {
-        return {};
-    }
-
-    VulkanTextureInfo info;
-    info.fSampleCount = SampleCount::k1;
-    info.fMipmapped = mipmapped;
-    info.fFlags = (isProtected == Protected::kYes) ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
-    info.fFormat = format;
-    info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
-    info.fImageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT |
-                            VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-                            VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-    if (isRenderable == Renderable::kYes) {
-        // We make all renderable images support being used as input attachment
-        info.fImageUsageFlags = info.fImageUsageFlags |
-                                VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
-                                VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
-        // Proactively prepare the image for multisampled rendering.
-        if (this->msaaRenderToSingleSampledSupport()) {
-            info.fFlags |= VK_IMAGE_CREATE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT;
+    VkImageAspectFlags vkAspectMask = 0;
+    if (TextureFormatIsDepthOrStencil(format)) {
+        if (TextureFormatHasDepth(format)) {
+            vkAspectMask |= VK_IMAGE_ASPECT_DEPTH_BIT;
+        }
+        if (TextureFormatHasStencil(format)) {
+            vkAspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
         }
     } else {
-        // On every known driver where VK_EXT_host_image_copy is used by Skia, it is known that
-        // using the host-image-copy flag reduces the performance of renderable images. So, we don't
-        // even bother with a query in the `Renderable::kYes` case.
-        if (formatInfo.isEfficientWithHostImageCopy(info.fImageTiling, isProtected)) {
-            info.fImageUsageFlags |= VK_IMAGE_USAGE_HOST_TRANSFER_BIT;
-        }
+        vkAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     }
-    info.fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    info.fAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
-    return TextureInfos::MakeVulkan(info);
-}
-
-TextureInfo VulkanCaps::getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
-                                                     Mipmapped mipmapped) const {
     VulkanTextureInfo info;
-    info.fSampleCount = SampleCount::k1;
+    info.fSampleCount = sampleCount;
     info.fMipmapped = mipmapped;
-    info.fFormat = TextureInfoPriv::Get<VulkanTextureInfo>(textureInfo).fFormat;
-    info.fFlags = (textureInfo.isProtected() == Protected::kYes) ?
-            VK_IMAGE_CREATE_PROTECTED_BIT : 0;
+    info.fFlags = createFlags;
+    info.fFormat = vkFormat;
     info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
-    info.fImageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT |
-                            VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-                            VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-    const FormatInfo& formatInfo = this->getFormatInfo(info.fFormat);
-    if (formatInfo.isEfficientWithHostImageCopy(info.fImageTiling, textureInfo.isProtected())) {
-        info.fImageUsageFlags |= VK_IMAGE_USAGE_HOST_TRANSFER_BIT;
-    }
+    info.fImageUsageFlags = vkUsage;
     info.fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    info.fAspectMask = vkAspectMask;
 
     return TextureInfos::MakeVulkan(info);
 }
 
-namespace {
-VkFormat format_from_compression(SkTextureCompressionType compression) {
-    switch (compression) {
-        case SkTextureCompressionType::kETC2_RGB8_UNORM:
-            return VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
-        case SkTextureCompressionType::kBC1_RGB8_UNORM:
-            return VK_FORMAT_BC1_RGB_UNORM_BLOCK;
-        case SkTextureCompressionType::kBC1_RGBA8_UNORM:
-            return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
-        default:
-            return VK_FORMAT_UNDEFINED;
-    }
-}
-}
-
-TextureInfo VulkanCaps::getDefaultCompressedTextureInfo(SkTextureCompressionType compression,
-                                                        Mipmapped mipmapped,
-                                                        Protected isProtected) const {
-    VkFormat format = format_from_compression(compression);
-    const FormatInfo& formatInfo = this->getFormatInfo(format);
-    if ((isProtected == Protected::kYes && !this->protectedSupport()) ||
-        !formatInfo.isTexturable(VK_IMAGE_TILING_OPTIMAL)) {
-        return {};
-    }
-
-    VulkanTextureInfo info;
-    info.fSampleCount = SampleCount::k1;
-    info.fMipmapped = mipmapped;
-    info.fFlags = (isProtected == Protected::kYes) ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
-    info.fFormat = format;
-    info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
-    info.fImageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT |
-                            VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-                            VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-    if (formatInfo.isEfficientWithHostImageCopy(info.fImageTiling, isProtected)) {
-        info.fImageUsageFlags |= VK_IMAGE_USAGE_HOST_TRANSFER_BIT;
-    }
-    info.fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    info.fAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-
-    return TextureInfos::MakeVulkan(info);
-}
-
-TextureInfo VulkanCaps::getDefaultStorageTextureInfo(SkColorType colorType) const {
-    VkFormat format = this->getFormatFromColorType(colorType);
-    const FormatInfo& formatInfo = this->getFormatInfo(format);
-    if (!formatInfo.isTexturable(VK_IMAGE_TILING_OPTIMAL) ||
-        !formatInfo.isStorage(VK_IMAGE_TILING_OPTIMAL)) {
-        return {};
-    }
-
-    VulkanTextureInfo info;
-    info.fSampleCount = SampleCount::k1;
-    info.fMipmapped = Mipmapped::kNo;
-    info.fFlags = 0;
-    info.fFormat = format;
-    info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
-    // Storage textures are currently always sampleable from a shader
-    info.fImageUsageFlags = VK_IMAGE_USAGE_STORAGE_BIT |
-                            VK_IMAGE_USAGE_SAMPLED_BIT |
-                            VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-    info.fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    info.fAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-
-    return TextureInfos::MakeVulkan(info);
+TextureFormat VulkanCaps::getFormatForColorType(SkColorType colorType) const {
+    return VkFormatToTextureFormat(this->getFormatFromColorType(colorType));
 }
 
 void VulkanCaps::initShaderCaps(const EnabledFeatures enabledFeatures, const uint32_t vendorID) {

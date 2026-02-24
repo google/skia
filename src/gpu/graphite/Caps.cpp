@@ -12,6 +12,7 @@
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/private/base/SkTo.h"
 #include "src/gpu/graphite/ContextOptionsPriv.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/sksl/SkSLUtil.h"
@@ -183,6 +184,116 @@ bool Caps::isRenderableWithMSRTSS(const TextureInfo& info) const {
                              /*allowExternal=*/true,
                              /*allowCompressed=*/false,
                              /*allowProtected=*/true);
+}
+
+TextureInfo Caps::getDefaultTextureInfo(SkEnumBitMask<TextureUsage> usage,
+                                        TextureFormat format,
+                                        SampleCount sampleCount,
+                                        Mipmapped mipmapped,
+                                        Protected isProtected,
+                                        Discardable discardable) const {
+    // Assert we're only requesting Discardable::kYes when the requested usages make sense for it.
+    [[maybe_unused]] static constexpr SkEnumBitMask<TextureUsage> kDiscardableAllowed =
+            TextureUsage::kRender | TextureUsage::kMSRTSS;
+    SkASSERT(discardable == Discardable::kNo || (usage & kDiscardableAllowed) == usage);
+
+    if (isProtected == Protected::kYes && !this->protectedSupport()) {
+        return {}; // Cannot handle protected content on this Context
+    }
+
+    auto [supportedUsage, supportedSampleCounts] =
+            this->getTextureSupport(format, Tiling::kOptimal);
+    if ((supportedUsage & usage) != usage || !SkToBool(supportedSampleCounts & sampleCount)) {
+        return {}; // unsupported
+    }
+
+    if (SkToBool(usage & TextureUsage::kRender) &&
+        SkToBool(supportedUsage & TextureUsage::kMSRTSS) &&
+        sampleCount == SampleCount::k1) {
+        // Proactively prepare a single-sampled image for use with MSRTSS if it's supported by the
+        // format and kRender is requested. This flag is expected to be harmless (if not, it's a
+        // driver bug).
+        usage |= TextureUsage::kMSRTSS;
+    }
+
+    if (SkToBool(usage & TextureUsage::kCopyDst) &&
+        SkToBool(supportedUsage & TextureUsage::kHostCopy) &&
+        !SkToBool(usage & TextureUsage::kRender) &&
+        isProtected == Protected::kNo) {
+        // Proactively enable kHostCopy when supported by the format and kCopyDst is requested, so
+        // long as it's not going to be protected or rendered into. On every known driver where
+        // VK_EXT_host_image_copy is used by Skia, it's known that using the host-image-copy flag
+        // reduces the performance of renderable images.
+        usage |= TextureUsage::kHostCopy;
+    }
+    return this->onGetDefaultTextureInfo(usage, format, sampleCount, mipmapped,
+                                         isProtected, discardable);
+}
+
+TextureInfo Caps::getDefaultAttachmentTextureInfo(AttachmentDesc desc,
+                                                  Protected isProtected,
+                                                  Discardable discardable) const {
+    return this->getDefaultTextureInfo(TextureUsage::kRender,
+                                       desc.fFormat,
+                                       desc.fSampleCount,
+                                       Mipmapped::kNo,
+                                       isProtected,
+                                       discardable);
+}
+
+// Graphite by default requires copy-src and copy-dst for sampled textures.
+static constexpr SkEnumBitMask<TextureUsage> kDefaultSampledUsage =
+        TextureUsage::kSample | TextureUsage::kCopySrc | TextureUsage::kCopyDst;
+
+TextureInfo Caps::getDefaultSampledTextureInfo(SkColorType colorType,
+                                               Mipmapped mipmapped,
+                                               Protected isProtected,
+                                               Renderable renderable) const {
+    SkEnumBitMask<TextureUsage> usage = kDefaultSampledUsage;
+    if (renderable == Renderable::kYes) {
+        usage |= TextureUsage::kRender;
+    }
+
+    return this->getDefaultTextureInfo(usage,
+                                       this->getFormatForColorType(colorType),
+                                       SampleCount::k1,
+                                       mipmapped,
+                                       isProtected,
+                                       Discardable::kNo);
+}
+
+TextureInfo Caps::getTextureInfoForSampledCopy(const TextureInfo& info, Mipmapped mipmapped) const {
+    return this->getDefaultTextureInfo(kDefaultSampledUsage,
+                                       TextureInfoPriv::ViewFormat(info),
+                                       SampleCount::k1,
+                                       mipmapped,
+                                       info.isProtected(),
+                                       Discardable::kNo);
+}
+
+TextureInfo Caps::getDefaultCompressedTextureInfo(SkTextureCompressionType compressionType,
+                                                  Mipmapped mipmapped,
+                                                  Protected isProtected) const {
+    // Remove CopySrc for compressed textures
+    return this->getDefaultTextureInfo(kDefaultSampledUsage & ~TextureUsage::kCopySrc,
+                                       CompressionTypeToTextureFormat(compressionType),
+                                       SampleCount::k1,
+                                       mipmapped,
+                                       isProtected,
+                                       Discardable::kNo);
+}
+
+TextureInfo Caps::getDefaultStorageTextureInfo(SkColorType colorType) const {
+    // Storage textures are currently always assumed to be sampleable from a shader and can be
+    // copied out of (for unit tests).
+    return this->getDefaultTextureInfo(TextureUsage::kStorage |
+                                       TextureUsage::kSample |
+                                       TextureUsage::kCopySrc,
+                                       this->getFormatForColorType(colorType),
+                                       SampleCount::k1,
+                                       Mipmapped::kNo,
+                                       Protected::kNo,
+                                       Discardable::kNo);
 }
 
 bool Caps::areColorTypeAndTextureInfoCompatible(SkColorType ct, const TextureInfo& info) const {

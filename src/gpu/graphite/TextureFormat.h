@@ -135,6 +135,8 @@ const char* TextureFormatName(TextureFormat);
 
 SkTextureCompressionType TextureFormatCompressionType(TextureFormat);
 
+TextureFormat CompressionTypeToTextureFormat(SkTextureCompressionType);
+
 size_t TextureFormatBytesPerBlock(TextureFormat);
 
 // The value is mask of SkColorChannelFlag values.
