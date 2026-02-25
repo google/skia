@@ -380,10 +380,10 @@ public:
     Event operator[](size_t i) const {
         SkASSERT(i < fEvents.size());
         auto& [y, start, endOfBegin, endOfHorizontal, endOfEnd] = fEvents[i];
-        SkSpan<const Segment> begin{&fSegmentStorage[start], SkToSizeT(endOfBegin - start)};
+        SkSpan<const Segment> begin{fSegmentStorage.data() + start, SkToSizeT(endOfBegin - start)};
         SkSpan<const Segment>
             horizontal{&fSegmentStorage[endOfBegin], SkToSizeT(endOfHorizontal - endOfBegin)};
-        SkSpan<const Segment> end{&fSegmentStorage[endOfHorizontal],
+        SkSpan<const Segment> end{fSegmentStorage.data() + endOfHorizontal,
                                   SkToSizeT(endOfEnd - endOfHorizontal)};
         return Event{y, begin, horizontal, end};
     }
