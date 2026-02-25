@@ -12,6 +12,7 @@
 #include "include/core/SkTypeface.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkTHash.h"
+#include "src/gpu/MaskFormat.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
@@ -20,11 +21,10 @@
 
 #if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrDirectContext.h"
-#include "src/gpu/AtlasTypes.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#endif
 
 using MaskFormat = skgpu::MaskFormat;
-#endif
 
 static sk_sp<SkTypeface> chinese_typeface() {
 #ifdef SK_BUILD_FOR_ANDROID

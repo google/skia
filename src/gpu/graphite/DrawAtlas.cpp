@@ -19,7 +19,8 @@
 #include "include/private/base/SkTPin.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/gpu/AtlasTypes.h"
+#include "src/gpu/MaskFormat.h"
+#include "src/gpu/graphite/AtlasTypes.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/DrawContext.h"
 #include "src/gpu/graphite/RecorderPriv.h"
@@ -228,7 +229,7 @@ DrawAtlas::ErrorCode DrawAtlas::addRect(Recorder* recorder,
             // Make sure we have a Page for the AtlasLocator to refer to
             this->activateNewPage(recorder);
         }
-        atlasLocator->updateRect(skgpu::IRect16::MakeXYWH(0, 0, 0, 0));
+        atlasLocator->updateRect(IRect16::MakeXYWH(0, 0, 0, 0));
         // Use the MRU Plot from the first Page
         atlasLocator->updatePlotLocator(fPages[0].fPlotList.head()->plotLocator());
         return ErrorCode::kSucceeded;

@@ -17,7 +17,7 @@
 #include "include/private/base/SkPoint_impl.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkColorData.h"
-#include "src/gpu/AtlasTypes.h"
+#include "src/gpu/MaskFormat.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
 #include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrCaps.h"

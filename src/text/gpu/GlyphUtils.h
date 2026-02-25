@@ -9,7 +9,7 @@
 #define sktext_gpu_GlyphUtils_DEFINED
 
 #include "src/core/SkMask.h"
-#include "src/gpu/AtlasTypes.h"
+#include "src/gpu/MaskFormat.h"
 
 namespace sktext::gpu {
 

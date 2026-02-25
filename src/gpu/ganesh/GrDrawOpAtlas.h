@@ -13,7 +13,7 @@
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
-#include "src/gpu/AtlasTypes.h"
+#include "src/gpu/ganesh/GrAtlasTypes.h"
 #include "src/gpu/ganesh/GrDeferredUpload.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 
@@ -29,6 +29,10 @@ class GrProxyProvider;
 class GrResourceProvider;
 class GrTextureProxy;
 enum SkColorType : int;
+
+namespace skgpu {
+enum class MaskFormat : int;
+}
 
 /**
  * This class manages one or more atlas textures on behalf of GrDrawOps. The draw ops that use the
@@ -83,12 +87,13 @@ public:
      */
     static std::unique_ptr<GrDrawOpAtlas> Make(GrProxyProvider* proxyProvider,
                                                const GrBackendFormat& format,
-                                               SkColorType ct, size_t bpp,
+                                               SkColorType ct,
+                                               size_t bpp,
                                                int width, int height,
                                                int plotWidth, int plotHeight,
-                                               skgpu::AtlasGenerationCounter* generationCounter,
+                                               GrAtlasGenerationCounter* generationCounter,
                                                AllowMultitexturing allowMultitexturing,
-                                               skgpu::PlotEvictionCallback* evictor,
+                                               GrPlotEvictionCallback* evictor,
                                                std::string_view label);
 
     /**
@@ -113,14 +118,17 @@ public:
         kTryAgain
     };
 
-    ErrorCode addToAtlas(GrResourceProvider*, GrDeferredUploadTarget*,
-                         int width, int height, const void* image, skgpu::AtlasLocator*);
+    ErrorCode addToAtlas(GrResourceProvider*,
+                         GrDeferredUploadTarget*,
+                         int width, int height,
+                         const void* image,
+                         GrAtlasLocator*);
 
     const GrSurfaceProxyView* getViews() const { return fViews; }
 
     uint64_t atlasGeneration() const { return fAtlasGeneration; }
 
-    bool hasID(const skgpu::PlotLocator& plotLocator) {
+    bool hasID(const GrPlotLocator& plotLocator) {
         if (!plotLocator.isValid()) {
             return false;
         }
@@ -133,28 +141,27 @@ public:
     }
 
     /** To ensure the atlas does not evict a given entry, the client must set the last use token. */
-    void setLastUseToken(const skgpu::AtlasLocator& atlasLocator, skgpu::Token token) {
+    void setLastUseToken(const GrAtlasLocator& atlasLocator, skgpu::Token token) {
         SkASSERT(this->hasID(atlasLocator.plotLocator()));
         uint32_t plotIdx = atlasLocator.plotIndex();
         SkASSERT(plotIdx < fNumPlots);
         uint32_t pageIdx = atlasLocator.pageIndex();
         SkASSERT(pageIdx < fNumActivePages);
-        skgpu::Plot* plot = fPages[pageIdx].fPlotArray[plotIdx].get();
+        GrPlot* plot = fPages[pageIdx].fPlotArray[plotIdx].get();
         this->makeMRU(plot, pageIdx);
         plot->setLastUseToken(token);
     }
 
     uint32_t numActivePages() { return fNumActivePages; }
 
-    void setLastUseTokenBulk(const skgpu::BulkUsePlotUpdater& updater,
-                             skgpu::Token token) {
+    void setLastUseTokenBulk(const GrBulkUsePlotUpdater& updater, skgpu::Token token) {
         int count = updater.count();
         for (int i = 0; i < count; i++) {
-            const skgpu::BulkUsePlotUpdater::PlotData& pd = updater.plotData(i);
+            const GrBulkUsePlotUpdater::PlotData& pd = updater.plotData(i);
             // it's possible we've added a plot to the updater and subsequently the plot's page
             // was deleted -- so we check to prevent a crash
             if (pd.fPageIndex < fNumActivePages) {
-                skgpu::Plot* plot = fPages[pd.fPageIndex].fPlotArray[pd.fPlotIndex].get();
+                GrPlot* plot = fPages[pd.fPageIndex].fPlotArray[pd.fPlotIndex].get();
                 this->makeMRU(plot, pd.fPageIndex);
                 plot->setLastUseToken(token);
             }
@@ -172,14 +179,19 @@ public:
 private:
     friend class GrDrawOpAtlasTools;
 
-    GrDrawOpAtlas(GrProxyProvider*, const GrBackendFormat& format, SkColorType, size_t bpp,
-                  int width, int height, int plotWidth, int plotHeight,
-                  skgpu::AtlasGenerationCounter* generationCounter,
-                  AllowMultitexturing allowMultitexturing, std::string_view label);
+    GrDrawOpAtlas(GrProxyProvider*,
+                  const GrBackendFormat& format,
+                  SkColorType,
+                  size_t bpp,
+                  int width, int height,
+                  int plotWidth, int plotHeight,
+                  GrAtlasGenerationCounter* generationCounter,
+                  AllowMultitexturing allowMultitexturing,
+                  std::string_view label);
 
-    inline bool updatePlot(GrDeferredUploadTarget*, skgpu::AtlasLocator*, skgpu::Plot*);
+    inline bool updatePlot(GrDeferredUploadTarget*, GrAtlasLocator*, GrPlot*);
 
-    inline void makeMRU(skgpu::Plot* plot, uint32_t pageIdx) {
+    inline void makeMRU(GrPlot* plot, uint32_t pageIdx) {
         if (fPages[pageIdx].fPlotList.head() == plot) {
             return;
         }
@@ -191,19 +203,22 @@ private:
         // the front and remove from the back there is no need for MRU.
     }
 
-    bool uploadToPage(unsigned int pageIdx, GrDeferredUploadTarget*, int width, int height,
-                      const void* image, skgpu::AtlasLocator*);
+    bool uploadToPage(unsigned int pageIdx,
+                      GrDeferredUploadTarget*,
+                      int width, int height,
+                      const void* image,
+                      GrAtlasLocator*);
 
     void uploadPlotToTexture(GrDeferredTextureUploadWritePixelsFn& writePixels,
                              GrTextureProxy* proxy,
-                             skgpu::Plot* plot);
+                             GrPlot* plot);
 
-    bool createPages(GrProxyProvider*, skgpu::AtlasGenerationCounter*);
+    bool createPages(GrProxyProvider*, GrAtlasGenerationCounter*);
     bool activateNewPage(GrResourceProvider*);
     void deactivateLastPage();
 
-    void processEviction(skgpu::PlotLocator);
-    inline void processEvictionAndResetRects(skgpu::Plot* plot) {
+    void processEviction(GrPlotLocator);
+    inline void processEvictionAndResetRects(GrPlot* plot) {
         this->processEviction(plot->plotLocator());
         plot->resetRects(/*freeData=*/false);
     }
@@ -223,8 +238,8 @@ private:
     // the generation counter. If a Glyph's generation is less than the atlas's
     // generation, then it knows it's been evicted and is either free to be deleted or
     // re-added to the atlas if necessary.
-    skgpu::AtlasGenerationCounter* const fGenerationCounter;
-    uint64_t                      fAtlasGeneration;
+    GrAtlasGenerationCounter* const fGenerationCounter;
+    uint64_t                        fAtlasGeneration;
 
     // nextFlushToken() value at the end of the previous flush
     skgpu::Token fPrevFlushToken;
@@ -232,22 +247,22 @@ private:
     // the number of flushes since this atlas has been last used
     int                   fFlushesSinceLastUse;
 
-    std::vector<skgpu::PlotEvictionCallback*> fEvictionCallbacks;
+    std::vector<GrPlotEvictionCallback*> fEvictionCallbacks;
 
     struct Page {
         // allocated array of Plots
-        std::unique_ptr<sk_sp<skgpu::Plot>[]> fPlotArray;
+        std::unique_ptr<sk_sp<GrPlot>[]> fPlotArray;
         // LRU list of Plots (MRU at head - LRU at tail)
-        skgpu::PlotList fPlotList;
+        GrPlotList fPlotList;
     };
     // proxies kept separate to make it easier to pass them up to client
-    GrSurfaceProxyView fViews[skgpu::PlotLocator::kMaxMultitexturePages];
-    Page fPages[skgpu::PlotLocator::kMaxMultitexturePages];
+    GrSurfaceProxyView fViews[GrPlotLocator::kMaxMultitexturePages];
+    Page fPages[GrPlotLocator::kMaxMultitexturePages];
     uint32_t fMaxPages;
 
     uint32_t fNumActivePages;
 
-    SkDEBUGCODE(void validate(const skgpu::AtlasLocator& atlasLocator) const;)
+    SkDEBUGCODE(void validate(const GrAtlasLocator& atlasLocator) const;)
 };
 
 // There are three atlases (A8, 565, ARGB) that are kept in relation with one another. In

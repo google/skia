@@ -12,8 +12,8 @@
 #include "include/private/base/SkTDArray.h"
 #include "src/base/SkTInternalLList.h"
 #include "src/core/SkTHash.h"
-#include "src/gpu/AtlasTypes.h"
 #include "src/gpu/ResourceKey.h"
+#include "src/gpu/graphite/AtlasTypes.h"
 #include "src/gpu/graphite/ClipStack.h"
 #include "src/gpu/graphite/DrawAtlas.h"
 

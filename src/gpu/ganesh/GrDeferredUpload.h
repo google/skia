@@ -8,7 +8,7 @@
 #ifndef GrDeferredUpload_DEFINED
 #define GrDeferredUpload_DEFINED
 
-#include "src/gpu/AtlasTypes.h"
+#include "src/gpu/ganesh/GrAtlasTypes.h"
 
 #include <cstddef>
 #include <functional>

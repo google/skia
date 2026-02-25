@@ -9,6 +9,8 @@ licenses(["notice"])
 GRAPHITE_FILES = [
     "AtlasProvider.cpp",
     "AtlasProvider.h",
+    "AtlasTypes.cpp",
+    "AtlasTypes.h",
     "Attribute.h",
     "BackendSemaphore.cpp",
     "BackendSemaphorePriv.h",

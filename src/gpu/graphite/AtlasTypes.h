@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_AtlasTypes_DEFINED
-#define skgpu_AtlasTypes_DEFINED
+#ifndef skgpu_graphite_AtlasTypes_DEFINED
+#define skgpu_graphite_AtlasTypes_DEFINED
 
 #include "include/core/SkColor.h"
 #include "include/core/SkColorType.h"
@@ -28,13 +28,12 @@
 #include <utility>
 
 class SkPixmap;
-namespace skgpu::graphite { class RecorderPriv; }
 
 /**
- * This file includes internal types that are used by all of our gpu backends for atlases.
+ * This file includes internal types that are used by Graphite for atlases.
  */
 
-namespace skgpu {
+namespace skgpu::graphite {
 
 struct IRect16 {
     int16_t fLeft, fTop, fRight, fBottom;
@@ -91,45 +90,6 @@ struct IRect16 {
         fBottom += dy;
     }
 };
-
-/**
- *  Formats for masks, used by the font cache. Important that these are 0-based.
- */
-enum class MaskFormat : int {
-    kA8,    //!< 1-byte per pixel
-    kA565,  //!< 2-bytes per pixel, RGB represent 3-channel LCD coverage
-    kARGB,  //!< 4-bytes per pixel, color format
-
-    kLast = kARGB
-};
-static const int kMaskFormatCount = static_cast<int>(MaskFormat::kLast) + 1;
-
-/**
- *  Return the number of bytes-per-pixel for the specified mask format.
- */
-inline constexpr int MaskFormatBytesPerPixel(MaskFormat format) {
-    SkASSERT(static_cast<int>(format) < kMaskFormatCount);
-    // kA8   (0) -> 1
-    // kA565 (1) -> 2
-    // kARGB (2) -> 4
-    static_assert(static_cast<int>(MaskFormat::kA8) == 0, "enum_order_dependency");
-    static_assert(static_cast<int>(MaskFormat::kA565) == 1, "enum_order_dependency");
-    static_assert(static_cast<int>(MaskFormat::kARGB) == 2, "enum_order_dependency");
-
-    return SkTo<int>(1u << static_cast<int>(format));
-}
-
-static constexpr SkColorType MaskFormatToColorType(MaskFormat format) {
-    switch (format) {
-        case MaskFormat::kA8:
-            return kAlpha_8_SkColorType;
-        case MaskFormat::kA565:
-            return kRGB_565_SkColorType;
-        case MaskFormat::kARGB:
-            return kRGBA_8888_SkColorType;
-    }
-    SkUNREACHABLE;
-}
 
 /**
  * Keep track of generation number for atlases and Plots.
@@ -196,9 +156,9 @@ public:
     uint64_t genID() const { return fGenID; }
 
 private:
-    uint64_t fGenID:48;
-    uint64_t fPlotIndex:8;
-    uint64_t fPageIndex:8;
+    uint64_t fGenID : 48;
+    uint64_t fPlotIndex : 8;
+    uint64_t fPageIndex : 8;
 };
 
 // AtlasLocator handles atlas position information. It keeps a left-top, right-bottom pair of
@@ -258,7 +218,7 @@ public:
         fUVs[2] = (fUVs[2] & 0x1FFF) | page;
     }
 
-    void updateRect(skgpu::IRect16 rect) {
+    void updateRect(IRect16 rect) {
         SkASSERT(rect.fLeft <= rect.fRight);
         SkASSERT(rect.fRight <= 0x1FFF);
         fUVs[0] = (fUVs[0] & 0xE000) | rect.fLeft;
@@ -277,7 +237,7 @@ private:
 
 /**
  * An interface for eviction callbacks. Whenever an atlas evicts a specific PlotLocator,
- * it will call all of the registered listeners so they can process the eviction.
+ * it will call all the registered listeners so they can process the eviction.
  */
 class PlotEvictionCallback {
 public:
@@ -300,7 +260,7 @@ public:
         memcpy(fPlotAlreadyUpdated, that.fPlotAlreadyUpdated, sizeof(fPlotAlreadyUpdated));
     }
 
-    bool add(const skgpu::AtlasLocator& atlasLocator) {
+    bool add(const AtlasLocator& atlasLocator) {
         int plotIdx = atlasLocator.plotIndex();
         int pageIdx = atlasLocator.pageIndex();
         if (this->find(pageIdx, plotIdx)) {
@@ -327,7 +287,7 @@ public:
 
 private:
     bool find(int pageIdx, int index) const {
-        SkASSERT(index < skgpu::PlotLocator::kMaxPlots);
+        SkASSERT(index < PlotLocator::kMaxPlots);
         return (fPlotAlreadyUpdated[pageIdx] >> index) & 1;
     }
 
@@ -340,7 +300,7 @@ private:
     inline static constexpr int kMinItems = 4;
     skia_private::STArray<kMinItems, PlotData, true> fPlotsToUpdate;
     // TODO: increase this to uint64_t to allow more plots per page
-    uint32_t fPlotAlreadyUpdated[skgpu::PlotLocator::kMaxMultitexturePages];
+    uint32_t fPlotAlreadyUpdated[PlotLocator::kMaxMultitexturePages];
 };
 
 /**
@@ -353,8 +313,13 @@ class Plot : public SkRefCnt {
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(Plot);
 
 public:
-    Plot(int pageIndex, int plotIndex, AtlasGenerationCounter* generationCounter,
-         int offX, int offY, int width, int height, SkColorType colorType, size_t bpp);
+    Plot(int pageIndex,
+         int plotIndex,
+         AtlasGenerationCounter* generationCounter,
+         int offX, int offY,
+         int width, int height,
+         SkColorType colorType,
+         size_t bpp);
 
     uint32_t pageIndex() const { return fPageIndex; }
 
@@ -398,10 +363,10 @@ public:
      * use lastUse to determine when we can evict a plot from the cache, i.e. if the last use
      * has already flushed through the gpu then we can reuse the plot.
      */
-    skgpu::Token lastUploadToken() const { return fLastUpload; }
-    skgpu::Token lastUseToken() const { return fLastUse; }
-    void setLastUploadToken(skgpu::Token token) { fLastUpload = token; }
-    void setLastUseToken(skgpu::Token token) { fLastUse = token; }
+    Token lastUploadToken() const { return fLastUpload; }
+    Token lastUseToken() const { return fLastUse; }
+    void setLastUploadToken(Token token) { fLastUpload = token; }
+    void setLastUseToken(Token token) { fLastUse = token; }
 
     int flushesSinceLastUsed() { return fFlushesSinceLastUse; }
     void resetFlushesSinceLastUsed() { fFlushesSinceLastUse = 0; }
@@ -424,9 +389,13 @@ public:
      * the atlas
      */
     sk_sp<Plot> clone() const {
-        return sk_sp<Plot>(new Plot(
-            fPageIndex, fPlotIndex, fGenerationCounter, fX, fY, fWidth, fHeight, fColorType,
-            fBytesPerPixel));
+        return sk_sp<Plot>(new Plot(fPageIndex,
+                                    fPlotIndex,
+                                    fGenerationCounter,
+                                    fX, fY,
+                                    fWidth, fHeight,
+                                    fColorType,
+                                    fBytesPerPixel));
     }
 
 #ifdef SK_DEBUG
@@ -441,9 +410,9 @@ private:
     size_t rowBytes() const { return fWidth * fBytesPerPixel; }
     void* dataAt(SkIPoint atlasPoint);
 
-    skgpu::Token fLastUpload;
-    skgpu::Token fLastUse;
-    int          fFlushesSinceLastUse;
+    Token fLastUpload;
+    Token fLastUse;
+    int   fFlushesSinceLastUse;
 
     struct {
         const uint32_t fPageIndex : 16;
@@ -457,7 +426,7 @@ private:
     const int fHeight;
     const int fX;
     const int fY;
-    skgpu::RectanizerSkyline fRectanizer;
+    RectanizerSkyline fRectanizer;
     const SkIPoint16 fOffset;  // the offset of the plot in the backing texture
     const SkColorType fColorType;
     const size_t fBytesPerPixel;
@@ -468,6 +437,6 @@ private:
 
 typedef SkTInternalLList<Plot> PlotList;
 
-} // namespace skgpu
+}  // namespace skgpu::graphite
 
-#endif // skgpu_AtlasTypes_DEFINED
+#endif  // skgpu_AtlasTypes_DEFINED

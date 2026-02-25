@@ -24,6 +24,8 @@ CORE_FILES = [
     "Device_drawTexture.cpp",
     "Device.h",
     "GrAppliedClip.h",
+    "GrAtlasTypes.cpp",
+    "GrAtlasTypes.h",
     "GrAttachment.cpp",
     "GrAttachment.h",
     "GrAuditTrail.cpp",

@@ -61,6 +61,8 @@ skia_graphite_public = [
 skia_graphite_sources = [
   "$_src/gpu/graphite/AtlasProvider.cpp",
   "$_src/gpu/graphite/AtlasProvider.h",
+  "$_src/gpu/graphite/AtlasTypes.cpp",
+  "$_src/gpu/graphite/AtlasTypes.h",
   "$_src/gpu/graphite/Attribute.h",
   "$_src/gpu/graphite/BackendSemaphore.cpp",
   "$_src/gpu/graphite/BackendSemaphorePriv.h",

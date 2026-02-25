@@ -20,8 +20,8 @@
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/gpu/AtlasTypes.h"
 #include "src/gpu/SkBackingFit.h"
+#include "src/gpu/ganesh/GrAtlasTypes.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDeferredUpload.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -58,9 +58,9 @@ const int kNumPlots = 2;
 const int kPlotSize = 32;
 const int kAtlasSize = kNumPlots * kPlotSize;
 
-class AssertOnEvict : public skgpu::PlotEvictionCallback {
+class AssertOnEvict : public GrPlotEvictionCallback {
 public:
-    void evict(skgpu::PlotLocator) override {
+    void evict(GrPlotLocator) override {
         SkASSERT(0); // The unit test shouldn't exercise this code path
     }
 };
@@ -69,13 +69,13 @@ void check(skiatest::Reporter* r, GrDrawOpAtlas* atlas,
            uint32_t expectedActive, int expectedAlloced) {
     REPORTER_ASSERT(r, atlas->numActivePages() == expectedActive);
     REPORTER_ASSERT(r, GrDrawOpAtlasTools::NumAllocated(atlas) == expectedAlloced);
-    REPORTER_ASSERT(r, atlas->maxPages() == skgpu::PlotLocator::kMaxMultitexturePages);
+    REPORTER_ASSERT(r, atlas->maxPages() == GrPlotLocator::kMaxMultitexturePages);
 }
 
 bool fill_plot(GrDrawOpAtlas* atlas,
                GrResourceProvider* resourceProvider,
                GrDeferredUploadTarget* target,
-               skgpu::AtlasLocator* atlasLocator,
+               GrAtlasLocator* atlasLocator,
                int alpha) {
     SkImageInfo ii = SkImageInfo::MakeA8(kPlotSize, kPlotSize);
 
@@ -136,7 +136,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas,
                                                            GrRenderable::kNo);
 
     AssertOnEvict evictor;
-    skgpu::AtlasGenerationCounter counter;
+    GrAtlasGenerationCounter counter;
 
     std::unique_ptr<GrDrawOpAtlas> atlas = GrDrawOpAtlas::Make(
                                                 proxyProvider,
@@ -152,7 +152,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas,
     check(reporter, atlas.get(), 0, 0);
 
     // Fill up the first level
-    skgpu::AtlasLocator atlasLocators[kNumPlots * kNumPlots];
+    GrAtlasLocator atlasLocators[kNumPlots * kNumPlots];
     for (int i = 0; i < kNumPlots * kNumPlots; ++i) {
         bool result = fill_plot(
                 atlas.get(), resourceProvider, &uploadTarget, &atlasLocators[i], i * 32);
@@ -164,7 +164,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas,
     check(reporter, atlas.get(), 1, 1);
 
     // Force allocation of a second level
-    skgpu::AtlasLocator atlasLocator;
+    GrAtlasLocator atlasLocator;
     bool result = fill_plot(atlas.get(), resourceProvider, &uploadTarget, &atlasLocator, 4 * 32);
     REPORTER_ASSERT(reporter, result);
     check(reporter, atlas.get(), 2, 2);

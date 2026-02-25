@@ -11,7 +11,7 @@
 #include "src/base/SkZip.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkStrike.h"
-#include "src/gpu/AtlasTypes.h"
+#include "src/gpu/ganesh/GrAtlasTypes.h"
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"
 #include "src/gpu/ganesh/text/GrAtlasManager.h"

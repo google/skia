@@ -8,8 +8,7 @@ licenses(["notice"])
 
 SHARED_FILES = [
     "AsyncReadTypes.h",
-    "AtlasTypes.cpp",
-    "AtlasTypes.h",
+    "MaskFormat.h",
     "Blend.cpp",
     "Blend.h",
     "BlendFormula.cpp",

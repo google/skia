@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/AtlasTypes.h"
+#include "src/gpu/ganesh/GrAtlasTypes.h"
 
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkImageInfo.h"
@@ -13,12 +13,15 @@
 #include "include/private/base/SkMalloc.h"
 #include "src/core/SkSwizzlePriv.h"
 
-namespace skgpu {
-
-Plot::Plot(int pageIndex, int plotIndex, AtlasGenerationCounter* generationCounter,
-           int offX, int offY, int width, int height, SkColorType colorType, size_t bpp)
-        : fLastUpload(Token::InvalidToken())
-        , fLastUse(Token::InvalidToken())
+GrPlot::GrPlot(int pageIndex,
+               int plotIndex,
+               GrAtlasGenerationCounter* generationCounter,
+               int offX, int offY,
+               int width, int height,
+               SkColorType colorType,
+               size_t bpp)
+        : fLastUpload(skgpu::Token::InvalidToken())
+        , fLastUse(skgpu::Token::InvalidToken())
         , fFlushesSinceLastUse(0)
         , fPageIndex(pageIndex)
         , fPlotIndex(plotIndex)
@@ -46,11 +49,11 @@ Plot::Plot(int pageIndex, int plotIndex, AtlasGenerationCounter* generationCount
     fDirtyRect.setEmpty();
 }
 
-Plot::~Plot() {
+GrPlot::~GrPlot() {
     sk_free(fData);
 }
 
-bool Plot::addRect(int width, int height, AtlasLocator* atlasLocator) {
+bool GrPlot::addRect(int width, int height, GrAtlasLocator* atlasLocator) {
     SkASSERT(width <= fWidth && height <= fHeight);
 
     SkIPoint16 loc;
@@ -58,7 +61,7 @@ bool Plot::addRect(int width, int height, AtlasLocator* atlasLocator) {
         return false;
     }
 
-    auto rect = skgpu::IRect16::MakeXYWH(loc.fX, loc.fY, width, height);
+    auto rect = GrIRect16::MakeXYWH(loc.fX, loc.fY, width, height);
     fDirtyRect.join({rect.fLeft, rect.fTop, rect.fRight, rect.fBottom});
 
     rect.offset(fOffset.fX, fOffset.fY);
@@ -68,7 +71,7 @@ bool Plot::addRect(int width, int height, AtlasLocator* atlasLocator) {
     return true;
 }
 
-void* Plot::dataAt(SkIPoint atlasPoint) {
+void* GrPlot::dataAt(SkIPoint atlasPoint) {
     if (!fData) {
         // We use calloc here because our contract is that all pixel data is initially zero.
         // This is of particular importance when a caller uses padding with prepForRender().
@@ -84,11 +87,11 @@ void* Plot::dataAt(SkIPoint atlasPoint) {
     return fData + offset;
 }
 
-void* Plot::dataAt(const AtlasLocator& atlasLocator) { return dataAt(atlasLocator.topLeft()); }
+void* GrPlot::dataAt(const GrAtlasLocator& atlasLocator) { return dataAt(atlasLocator.topLeft()); }
 
-SkPixmap Plot::prepForRender(const AtlasLocator& al,
-                             int padding,
-                             std::optional<SkColor> initialColor) {
+SkPixmap GrPlot::prepForRender(const GrAtlasLocator& al,
+                               int padding,
+                               std::optional<SkColor> initialColor) {
     SkASSERT(padding >= 0);
     auto info = SkImageInfo::Make(al.width(), al.height(), fColorType, kOpaque_SkAlphaType);
     SkPixmap outerPM{info, this->dataAt(al.topLeft()), this->rowBytes()};
@@ -106,7 +109,7 @@ SkPixmap Plot::prepForRender(const AtlasLocator& al,
     return innerPM;
 }
 
-void Plot::copySubImage(const AtlasLocator& al, const void* image) {
+void GrPlot::copySubImage(const GrAtlasLocator& al, const void* image) {
     const unsigned char* imagePtr = (const unsigned char*)image;
     unsigned char* dataPtr = (unsigned char*)this->dataAt(al);
     int width = al.width();
@@ -131,7 +134,7 @@ void Plot::copySubImage(const AtlasLocator& al, const void* image) {
     }
 }
 
-bool Plot::addSubImage(int width, int height, const void* image, AtlasLocator* atlasLocator) {
+bool GrPlot::addSubImage(int width, int height, const void* image, GrAtlasLocator* atlasLocator) {
     if (fIsFull || !this->addRect(width, height, atlasLocator)) {
         return false;
     }
@@ -140,7 +143,7 @@ bool Plot::addSubImage(int width, int height, const void* image, AtlasLocator* a
     return true;
 }
 
-std::pair<const void*, SkIRect> Plot::prepareForUpload() {
+std::pair<const void*, SkIRect> GrPlot::prepareForUpload() {
     // We should only be issuing uploads if we are dirty
     SkASSERT(fDirty);
     if (!fData) {
@@ -164,15 +167,15 @@ std::pair<const void*, SkIRect> Plot::prepareForUpload() {
     fIsFull = false;
     SkDEBUGCODE(fDirty = false);
 
-    return { dataPtr, offsetRect };
+    return {dataPtr, offsetRect};
 }
 
-void Plot::resetRects(bool freeData) {
+void GrPlot::resetRects(bool freeData) {
     fRectanizer.reset();
     fGenID = fGenerationCounter->next();
-    fPlotLocator = PlotLocator(fPageIndex, fPlotIndex, fGenID);
-    fLastUpload = Token::InvalidToken();
-    fLastUse = Token::InvalidToken();
+    fPlotLocator = GrPlotLocator(fPageIndex, fPlotIndex, fGenID);
+    fLastUpload = skgpu::Token::InvalidToken();
+    fLastUse = skgpu::Token::InvalidToken();
 
     if (freeData) {
         sk_free(fData);
@@ -186,5 +189,3 @@ void Plot::resetRects(bool freeData) {
     fIsFull = false;
     SkDEBUGCODE(fDirty = false;)
 }
-
-} // namespace skgpu

@@ -10,7 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "src/core/SkGlyph.h"
-#include "src/gpu/AtlasTypes.h"
+#include "src/gpu/graphite/AtlasTypes.h"
 #include "src/gpu/graphite/text/TextStrike.h"
 
 #include <cstdint>

@@ -14,6 +14,7 @@
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/MaskFormat.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDrawOpAtlas.h"
 #include "src/gpu/ganesh/GrOnFlushResourceProvider.h"
@@ -39,7 +40,7 @@ struct GlyphEntry;
  *  This implies that all of the advanced atlasManager functionality (i.e.,
  *  adding glyphs to the atlas) are only available at flush time.
  */
-class GrAtlasManager : public GrOnFlushCallbackObject, public skgpu::AtlasGenerationCounter {
+class GrAtlasManager : public GrOnFlushCallbackObject, public GrAtlasGenerationCounter {
 public:
     GrAtlasManager(GrProxyProvider*,
                    size_t maxTextureBytes,
@@ -76,21 +77,24 @@ public:
     // A BulkUsePlotUpdater is used to manage bulk last use token updating in the Atlas.
     // For convenience, this function will also set the use token for the current glyph if required
     // NOTE: the bulk uploader is only valid if the subrun has a valid atlasGeneration
-    void addGlyphToBulkAndSetUseToken(skgpu::BulkUsePlotUpdater*,
+    void addGlyphToBulkAndSetUseToken(GrBulkUsePlotUpdater*,
                                       skgpu::MaskFormat,
                                       const skgpu::ganesh::GlyphEntry&,
                                       skgpu::Token);
 
-    void setUseTokenBulk(const skgpu::BulkUsePlotUpdater& updater,
+    void setUseTokenBulk(const GrBulkUsePlotUpdater& updater,
                          skgpu::Token token,
                          skgpu::MaskFormat format) {
         this->getAtlas(format)->setLastUseTokenBulk(updater, token);
     }
 
     // add to texture atlas that matches this format
-    GrDrawOpAtlas::ErrorCode addToAtlas(GrResourceProvider*, GrDeferredUploadTarget*,
-                                        skgpu::MaskFormat, int width, int height, const void* image,
-                                        skgpu::AtlasLocator*);
+    GrDrawOpAtlas::ErrorCode addToAtlas(GrResourceProvider*,
+                                        GrDeferredUploadTarget*,
+                                        skgpu::MaskFormat,
+                                        int width, int height,
+                                        const void* image,
+                                        GrAtlasLocator*);
 
     // Some clients may wish to verify the integrity of the texture backing store of the
     // GrDrawOpAtlas. The atlasGeneration returned below is a monotonically increasing number which

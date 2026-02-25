@@ -12,7 +12,7 @@
 #include "include/core/SkSpan.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTArray.h"
-#include "src/gpu/AtlasTypes.h"
+#include "src/gpu/ganesh/GrAtlasTypes.h"
 #include "src/gpu/ganesh/GrBufferAllocPool.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrHashMapWithCache.h"

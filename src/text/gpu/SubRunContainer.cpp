@@ -42,7 +42,7 @@
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/gpu/AtlasTypes.h"
+#include "src/gpu/MaskFormat.h"
 #include "src/text/GlyphRun.h"
 #include "src/text/StrikeForGPU.h"
 #include "src/text/gpu/GlyphUtils.h"

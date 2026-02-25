@@ -12,7 +12,7 @@
 #include "include/core/SkSize.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
-#include "src/gpu/AtlasTypes.h"
+#include "src/gpu/graphite/AtlasTypes.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -23,6 +23,10 @@
 
 class SkAutoPixmapStorage;
 enum SkColorType : int;
+
+namespace skgpu {
+enum class MaskFormat : int;
+}
 
 namespace skgpu::graphite {
 
