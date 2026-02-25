@@ -278,14 +278,13 @@ sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(
         update_and_sync_resource_label(resource, label);
         return sk_sp<Buffer>(static_cast<Buffer*>(resource));
     }
-    auto buffer = this->createBuffer(size, type, accessPattern);
-    if (!buffer) {
-        return nullptr;
+
+    if (auto buffer = this->createBuffer(size, type, accessPattern, label)) {
+        fResourceCache->insertResource(buffer.get(), key, kBudgeted, shareable);
+        return buffer;
     }
 
-    update_and_sync_resource_label(buffer.get(), label);
-    fResourceCache->insertResource(buffer.get(), key, kBudgeted, shareable);
-    return buffer;
+    return nullptr;
 }
 
 namespace {

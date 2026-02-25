@@ -572,8 +572,9 @@ sk_sp<Texture> DawnResourceProvider::createTexture(SkISize dimensions, const Tex
 
 sk_sp<Buffer> DawnResourceProvider::createBuffer(size_t size,
                                                  BufferType type,
-                                                 AccessPattern accessPattern) {
-    return DawnBuffer::Make(this->dawnSharedContext(), size, type, accessPattern);
+                                                 AccessPattern accessPattern,
+                                                 std::string_view label) {
+    return DawnBuffer::Make(this->dawnSharedContext(), size, type, accessPattern, label);
 }
 
 sk_sp<Sampler> DawnResourceProvider::createSampler(const SamplerDesc& samplerDesc) {

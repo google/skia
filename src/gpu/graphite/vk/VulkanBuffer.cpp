@@ -17,7 +17,8 @@ namespace skgpu::graphite {
 sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
                                  size_t size,
                                  BufferType type,
-                                 AccessPattern accessPattern) {
+                                 AccessPattern accessPattern,
+                                 std::string_view label) {
     if (size <= 0) {
         return nullptr;
     }
@@ -167,9 +168,15 @@ sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
         return nullptr;
     }
 
-    return sk_sp<Buffer>(new VulkanBuffer(
-            sharedContext, size, type, accessPattern, std::move(buffer), alloc, bufInfo.usage,
-            Protected(isProtected)));
+    return sk_sp<Buffer>(new VulkanBuffer(sharedContext,
+                                          size,
+                                          type,
+                                          accessPattern,
+                                          std::move(buffer),
+                                          alloc,
+                                          bufInfo.usage,
+                                          Protected(isProtected),
+                                          label));
 }
 
 VulkanBuffer::VulkanBuffer(const VulkanSharedContext* sharedContext,
@@ -179,16 +186,21 @@ VulkanBuffer::VulkanBuffer(const VulkanSharedContext* sharedContext,
                            VkBuffer buffer,
                            const skgpu::VulkanAlloc& alloc,
                            const VkBufferUsageFlags usageFlags,
-                           Protected isProtected)
+                           Protected isProtected,
+                           std::string_view label)
         : Buffer(sharedContext,
                  size,
                  isProtected,
+                 label,
                  /*reusableRequiresPurgeable=*/alloc.fFlags & skgpu::VulkanAlloc::kMappable_Flag)
         , fBuffer(std::move(buffer))
         , fAlloc(alloc)
         , fBufferUsageFlags(usageFlags)
         // We assume a buffer is used for CPU reads only in the case of GPU->CPU transfer buffers.
-        , fBufferUsedForCPURead(type == BufferType::kXferGpuToCpu) {}
+        , fBufferUsedForCPURead(type == BufferType::kXferGpuToCpu) {
+    // Update the newly-created underlying GPU object's label to match the Resource's
+    this->synchronizeBackendLabel();
+}
 
 void VulkanBuffer::freeGpuData() {
     if (fMapPtr) {

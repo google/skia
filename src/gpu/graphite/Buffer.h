@@ -46,6 +46,7 @@ protected:
     Buffer(const SharedContext* sharedContext,
            size_t size,
            Protected isProtected,
+           std::string_view label,
            bool reusableRequiresPurgeable = false,
            bool requiresPrepareForReturnToCache = false)
             : Resource(sharedContext,
@@ -54,7 +55,11 @@ protected:
                        reusableRequiresPurgeable,
                        requiresPrepareForReturnToCache)
             , fSize(size)
-            , fIsProtected(isProtected) {}
+            , fIsProtected(isProtected) {
+        // TODO(b/387505250): Remove this once Resource is modified to accept a label upon
+        // construction.
+        this->setLabel(label);
+    }
 
     void* fMapPtr = nullptr;
 

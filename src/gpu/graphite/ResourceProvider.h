@@ -141,7 +141,10 @@ protected:
 private:
     virtual sk_sp<ComputePipeline> createComputePipeline(const ComputePipelineDesc&) = 0;
     virtual sk_sp<Texture> createTexture(SkISize, const TextureInfo&) = 0;
-    virtual sk_sp<Buffer> createBuffer(size_t size, BufferType type, AccessPattern) = 0;
+    virtual sk_sp<Buffer> createBuffer(size_t,
+                                       BufferType,
+                                       AccessPattern,
+                                       std::string_view label) = 0;
     virtual sk_sp<Sampler> createSampler(const SamplerDesc&) = 0;
 
     sk_sp<Texture> findOrCreateTexture(SkISize dimensions,
