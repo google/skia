@@ -19,12 +19,8 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
     } else {
       color.w = 1.0h;
     }
-    loop {
-      if _globalUniforms.colorWhite.x == 2.0h {
-        ;
-      } else {
-        break;
-      }
+    for (; _globalUniforms.colorWhite.x == 2.0h; ) {
+      ;
     }
     loop {
       ;

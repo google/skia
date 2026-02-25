@@ -1,0 +1,18 @@
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    float val = 0.0;
+    // complex cond (mod uses sqrt(a) twice), simple next
+    for (float a = 12.0; a > mod(sqrt(a), 0.5); a -= 1.0) {
+        val += a;
+    }
+    // simple cond, complex next (mod uses 1.0-sqrt(a) twice)
+    for (float a = 0.0; a < 20.0; a = a + mod(1.0 - sqrt(a), 3.0) + 1.0) {
+        val += a;
+    }
+    // both complex
+    for (float a = 12.0; a > mod(sqrt(a), 0.5); a = a - mod(1.0 - sqrt(a), 3.0) - 1.0) {
+        val += a;
+    }
+    return val > 0.0 ? colorGreen : colorRed;
+}

@@ -14,46 +14,28 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
     let one: i32 = i32(_globalUniforms.colorGreen.y);
     {
       var x: i32 = zero;
-      loop {
-        if x < 100 {
+      for (; x < 100; x = x + i32(1)) {
+        {
           {
-            {
-              var y: i32 = one;
-              loop {
-                if y < 100 {
+            var y: i32 = one;
+            for (; y < 100; y = y + i32(1)) {
+              {
+                var _0_x: i32 = x;
+                var _1_result: i32 = 0;
+                for (; _0_x >= y; ) {
                   {
-                    var _0_x: i32 = x;
-                    var _1_result: i32 = 0;
-                    loop {
-                      if _0_x >= y {
-                        {
-                          _1_result = _1_result + i32(1);
-                          _0_x = _0_x - y;
-                        }
-                      } else {
-                        break;
-                      }
-                    }
-                    if (x / y) != _1_result {
-                      {
-                        return vec4<f16>(1.0h, f16(f32(x) * 0.003921569), f16(f32(y) * 0.003921569), 1.0h);
-                      }
-                    }
+                    _1_result = _1_result + i32(1);
+                    _0_x = _0_x - y;
                   }
-                } else {
-                  break;
                 }
-                continuing {
-                  y = y + i32(1);
+                if (x / y) != _1_result {
+                  {
+                    return vec4<f16>(1.0h, f16(f32(x) * 0.003921569), f16(f32(y) * 0.003921569), 1.0h);
+                  }
                 }
               }
             }
           }
-        } else {
-          break;
-        }
-        continuing {
-          x = x + i32(1);
         }
       }
     }

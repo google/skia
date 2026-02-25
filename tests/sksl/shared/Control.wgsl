@@ -20,14 +20,10 @@ fn _skslMain(_stageOut: ptr<function, FSOut>) {
       }
     }
     var i: i32 = 0;
-    loop {
-      if i < 10 {
-        {
-          (*_stageOut).sk_FragColor = (*_stageOut).sk_FragColor * 0.5h;
-          i = i + i32(1);
-        }
-      } else {
-        break;
+    for (; i < 10; ) {
+      {
+        (*_stageOut).sk_FragColor = (*_stageOut).sk_FragColor * 0.5h;
+        i = i + i32(1);
       }
     }
     loop {
@@ -40,7 +36,7 @@ fn _skslMain(_stageOut: ptr<function, FSOut>) {
     }
     {
       var i: i32 = 0;
-      loop {
+      for (; i < 10; i = i + i32(1)) {
         {
           if (i % 2) == 1 {
             break;
@@ -51,10 +47,6 @@ fn _skslMain(_stageOut: ptr<function, FSOut>) {
               continue;
             }
           }
-        }
-        continuing {
-          i = i + i32(1);
-          break if i >= 10;
         }
       }
     }

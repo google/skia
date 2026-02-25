@@ -11,17 +11,13 @@ fn return_loop_ii(five: i32) -> i32 {
   {
     {
       var i: i32 = kZero;
-      loop {
+      for (; i < 10; i = i + i32(1)) {
         {
           if i == five {
             {
               return i;
             }
           }
-        }
-        continuing {
-          i = i + i32(1);
-          break if i >= 10;
         }
       }
     }
@@ -34,7 +30,7 @@ fn continue_loop_ii(five: i32) -> i32 {
     var sum: i32 = 0;
     {
       var i: i32 = 0;
-      loop {
+      for (; i < kTen; i = i + i32(1)) {
         {
           if i < five {
             {
@@ -42,10 +38,6 @@ fn continue_loop_ii(five: i32) -> i32 {
             }
           }
           sum = sum + i;
-        }
-        continuing {
-          i = i + i32(1);
-          break if i >= kTen;
         }
       }
     }
@@ -58,7 +50,7 @@ fn break_loop_ii(five: i32) -> i32 {
     const kOne: i32 = 1;
     {
       var i: i32 = 0;
-      loop {
+      for (; i < 10; i = i + kOne) {
         {
           if i > five {
             {
@@ -66,10 +58,6 @@ fn break_loop_ii(five: i32) -> i32 {
             }
           }
           sum = sum + i;
-        }
-        continuing {
-          i = i + kOne;
-          break if i >= 10;
         }
       }
     }
@@ -81,25 +69,17 @@ fn loop_operator_le_b() -> bool {
     var result: vec4<i32> = vec4<i32>(8);
     {
       var i: i32 = 0;
-      loop {
+      for (; i <= 0; i = i + i32(1)) {
         {
           result = result + vec4<i32>(1);
-        }
-        continuing {
-          i = i + i32(1);
-          break if i > 0;
         }
       }
     }
     {
       var i: i32 = 1;
-      loop {
+      for (; i <= 3; i = i + i32(1)) {
         {
           result = vec4<i32>(result.yzw, i);
-        }
-        continuing {
-          i = i + i32(1);
-          break if i > 3;
         }
       }
     }
@@ -111,25 +91,17 @@ fn loop_operator_lt_b() -> bool {
     var result: vec4<i32> = vec4<i32>(8);
     {
       var i: i32 = 0;
-      loop {
+      for (; i < 1; i = i + i32(1)) {
         {
           result = result + vec4<i32>(1);
-        }
-        continuing {
-          i = i + i32(1);
-          break if i >= 1;
         }
       }
     }
     {
       var i: i32 = 1;
-      loop {
+      for (; i < 4; i = i + i32(1)) {
         {
           result = vec4<i32>(result.yzw, i);
-        }
-        continuing {
-          i = i + i32(1);
-          break if i >= 4;
         }
       }
     }
@@ -141,25 +113,17 @@ fn loop_operator_ge_b() -> bool {
     var result: vec4<i32> = vec4<i32>(8);
     {
       var i: i32 = 0;
-      loop {
+      for (; i >= 0; i = i - i32(1)) {
         {
           result = result + vec4<i32>(1);
-        }
-        continuing {
-          i = i - i32(1);
-          break if i < 0;
         }
       }
     }
     {
       var i: i32 = 3;
-      loop {
+      for (; i >= 1; i = i - i32(1)) {
         {
           result = vec4<i32>(result.yzw, i);
-        }
-        continuing {
-          i = i - i32(1);
-          break if i < 1;
         }
       }
     }
@@ -171,25 +135,17 @@ fn loop_operator_gt_b() -> bool {
     var result: vec4<i32> = vec4<i32>(8);
     {
       var i: i32 = 1;
-      loop {
+      for (; i > 0; i = i - i32(1)) {
         {
           result = result + vec4<i32>(1);
-        }
-        continuing {
-          i = i - i32(1);
-          break if i <= 0;
         }
       }
     }
     {
       var i: i32 = 3;
-      loop {
+      for (; i > 0; i = i - i32(1)) {
         {
           result = vec4<i32>(result.yzw, i);
-        }
-        continuing {
-          i = i - i32(1);
-          break if i <= 0;
         }
       }
     }
@@ -201,25 +157,17 @@ fn loop_operator_ne_b() -> bool {
     var result: vec4<i32> = vec4<i32>(8);
     {
       var i: i32 = 1;
-      loop {
+      for (; i != 2; i = i + i32(1)) {
         {
           result = result + vec4<i32>(1);
-        }
-        continuing {
-          i = i + i32(1);
-          break if i == 2;
         }
       }
     }
     {
       var i: i32 = 1;
-      loop {
+      for (; i != 4; i = i + i32(1)) {
         {
           result = vec4<i32>(result.yzw, i);
-        }
-        continuing {
-          i = i + i32(1);
-          break if i == 4;
         }
       }
     }
@@ -231,13 +179,9 @@ fn loop_operator_eq_b() -> bool {
     var result: vec4<i32> = vec4<i32>(9);
     {
       var i: i32 = 1;
-      loop {
+      for (; i == 1; i = i + i32(1)) {
         {
           result = vec4<i32>(result.yzw, i);
-        }
-        continuing {
-          i = i + i32(1);
-          break if i != 1;
         }
       }
     }

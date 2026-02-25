@@ -17,14 +17,10 @@ fn test3x3_b() -> bool {
     var values: vec3<f32> = vec3<f32>(1.0, 2.0, 3.0);
     {
       var index: i32 = 0;
-      loop {
+      for (; index < 3; index = index + i32(1)) {
         {
           matrix[index] = values;
           values = values + 3.0;
-        }
-        continuing {
-          index = index + i32(1);
-          break if index >= 3;
         }
       }
     }
@@ -37,14 +33,10 @@ fn test4x4_b() -> bool {
     var values: vec4<f32> = vec4<f32>(1.0, 2.0, 3.0, 4.0);
     {
       var index: i32 = 0;
-      loop {
+      for (; index < 4; index = index + i32(1)) {
         {
           matrix[index] = values;
           values = values + 4.0;
-        }
-        continuing {
-          index = index + i32(1);
-          break if index >= 4;
         }
       }
     }

@@ -14,13 +14,9 @@ fn fn_hh4(v: vec4<f16>) -> f16 {
   {
     {
       var x: i32 = 1;
-      loop {
+      for (; x <= 2; x = x + i32(1)) {
         {
           return v.x;
-        }
-        continuing {
-          x = x + i32(1);
-          break if x > 2;
         }
       }
     }

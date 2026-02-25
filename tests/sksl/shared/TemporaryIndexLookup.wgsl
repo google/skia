@@ -20,11 +20,11 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
     var expected: f32 = 0.0;
     {
       var i: i32 = 0;
-      loop {
+      for (; i < 3; i = i + i32(1)) {
         {
           {
             var j: i32 = 0;
-            loop {
+            for (; j < 3; j = j + i32(1)) {
               {
                 expected = expected + 1.0;
                 if GetTestMatrix_f33()[i][j] != expected {
@@ -33,16 +33,8 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
                   }
                 }
               }
-              continuing {
-                j = j + i32(1);
-                break if j >= 3;
-              }
             }
           }
-        }
-        continuing {
-          i = i + i32(1);
-          break if i >= 3;
         }
       }
     }

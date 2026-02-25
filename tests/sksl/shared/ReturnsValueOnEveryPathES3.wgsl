@@ -12,13 +12,9 @@ struct _GlobalUniforms {
 @group(0) @binding(0) var<uniform> _globalUniforms : _GlobalUniforms;
 fn inside_while_loop_b() -> bool {
   {
-    loop {
-      if _globalUniforms.unknownInput == 123.0h {
-        {
-          return false;
-        }
-      } else {
-        break;
+    for (; _globalUniforms.unknownInput == 123.0h; ) {
+      {
+        return false;
       }
     }
     return true;
@@ -39,13 +35,9 @@ fn inside_infinite_do_loop_b() -> bool {
 }
 fn inside_infinite_while_loop_b() -> bool {
   {
-    loop {
-      if true {
-        {
-          return true;
-        }
-      } else {
-        break;
+    for (; true; ) {
+      {
+        return true;
       }
     }
   }
@@ -66,12 +58,8 @@ fn after_do_loop_b() -> bool {
 }
 fn after_while_loop_b() -> bool {
   {
-    loop {
-      if true {
-        {
-          break;
-        }
-      } else {
+    for (; true; ) {
+      {
         break;
       }
     }
@@ -126,13 +114,9 @@ fn switch_with_break_in_loop_b() -> bool {
         if _skTemp3 == 1 {
           {
             var x: i32 = 0;
-            loop {
+            for (; x <= 10; x = x + i32(1)) {
               {
                 break;
-              }
-              continuing {
-                x = x + i32(1);
-                break if x > 10;
               }
             }
           }
@@ -151,13 +135,9 @@ fn switch_with_continue_in_loop_b() -> bool {
         if _skTemp5 == 1 {
           {
             var x: i32 = 0;
-            loop {
+            for (; x <= 10; x = x + i32(1)) {
               {
                 continue;
-              }
-              continuing {
-                x = x + i32(1);
-                break if x > 10;
               }
             }
           }

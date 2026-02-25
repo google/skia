@@ -16,12 +16,12 @@ fn test3x3_b() -> bool {
     var expected: vec3<f32> = vec3<f32>(3.0, 2.0, 1.0);
     {
       var c: i32 = 0;
-      loop {
+      for (; c < 3; c = c + i32(1)) {
         {
           let vec: vec3<f32> = _globalUniforms.testMatrix3x3[c];
           {
             var r: i32 = 0;
-            loop {
+            for (; r < 3; r = r + i32(1)) {
               {
                 if vec.zyx[r] != expected[r] {
                   {
@@ -29,17 +29,9 @@ fn test3x3_b() -> bool {
                   }
                 }
               }
-              continuing {
-                r = r + i32(1);
-                break if r >= 3;
-              }
             }
           }
           expected = expected + 3.0;
-        }
-        continuing {
-          c = c + i32(1);
-          break if c >= 3;
         }
       }
     }
@@ -51,12 +43,12 @@ fn test4x4_b() -> bool {
     var expected: vec4<f32> = vec4<f32>(4.0, 3.0, 2.0, 1.0);
     {
       var c: i32 = 0;
-      loop {
+      for (; c < 4; c = c + i32(1)) {
         {
           let vec: vec4<f32> = _globalUniforms.testMatrix4x4[c];
           {
             var r: i32 = 0;
-            loop {
+            for (; r < 4; r = r + i32(1)) {
               {
                 if vec.wzyx[r] != expected[r] {
                   {
@@ -64,17 +56,9 @@ fn test4x4_b() -> bool {
                   }
                 }
               }
-              continuing {
-                r = r + i32(1);
-                break if r >= 4;
-              }
             }
           }
           expected = expected + 4.0;
-        }
-        continuing {
-          c = c + i32(1);
-          break if c >= 4;
         }
       }
     }

@@ -26,36 +26,24 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
     var values: vec3<f32> = vec3<f32>(0.0);
     {
       var i: i32 = 0;
-      loop {
+      for (; i < 3; i = i + i32(1)) {
         {
           {
             var j: i32 = 0;
-            loop {
+            for (; j < 3; j = j + i32(1)) {
               {
                 values = values + vec3<f32>(1.0, 10.0, 100.0);
                 {
                   var k: i32 = 0;
-                  loop {
+                  for (; k < 3; k = k + i32(1)) {
                     {
                       data.outer[i].inner[j].values[k] = values[k];
-                    }
-                    continuing {
-                      k = k + i32(1);
-                      break if k >= 3;
                     }
                   }
                 }
               }
-              continuing {
-                j = j + i32(1);
-                break if j >= 3;
-              }
             }
           }
-        }
-        continuing {
-          i = i + i32(1);
-          break if i >= 3;
         }
       }
     }

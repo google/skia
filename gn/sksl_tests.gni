@@ -470,6 +470,7 @@ sksl_wgsl_tests = [
   "wgsl/CastVec4ToMat2x2.sksl",
   "wgsl/EntrypointIsWrittenLast.sksl",
   "wgsl/Equality.sksl",
+  "wgsl/ForLoopComplexCondAndNext.sksl",
   "wgsl/FunctionCallDependencies.sksl",
   "wgsl/GlobalUniforms.sksl",
   "wgsl/IfStatement.sksl",

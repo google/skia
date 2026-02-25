@@ -6,38 +6,22 @@ fn _skslMain(xy: vec2<f32>) -> vec4<f16> {
     var i: i32;
     {
       var a: i32 = 0;
-      loop {
+      for (; a < 10; a = a + i32(1)) {
         {
           var b: i32 = 0;
-          loop {
+          for (; b < 10; b = b + i32(1)) {
             {
               var c: i32 = 0;
-              loop {
+              for (; c < 10; c = c + i32(1)) {
                 {
                   var d: i32 = 0;
-                  loop {
+                  for (; d < 10; d = d + i32(1)) {
                     i = i + i32(1);
-                    continuing {
-                      d = d + i32(1);
-                      break if d >= 10;
-                    }
                   }
-                }
-                continuing {
-                  c = c + i32(1);
-                  break if c >= 10;
                 }
               }
             }
-            continuing {
-              b = b + i32(1);
-              break if b >= 10;
-            }
           }
-        }
-        continuing {
-          a = a + i32(1);
-          break if a >= 10;
         }
       }
     }

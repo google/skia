@@ -121,13 +121,9 @@ fn test_loop_break_b() -> bool {
   {
     {
       var x: i32 = 0;
-      loop {
+      for (; x <= 1; x = x + i32(1)) {
         {
           break;
-        }
-        continuing {
-          x = x + i32(1);
-          break if x > 1;
         }
       }
     }

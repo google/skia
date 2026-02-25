@@ -13,32 +13,24 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
     var x: vec4<f16> = _globalUniforms.colorWhite;
     {
       var r: f16 = -5.0h;
-      loop {
+      for (; r < 5.0h; r = r + 1.0h) {
         {
           x.x = saturate(r);
           if x.x == 0.0h {
             break;
           }
         }
-        continuing {
-          r = r + 1.0h;
-          break if r >= 5.0h;
-        }
       }
     }
     {
       var b: f16 = 5.0h;
-      loop {
+      for (; b >= 0.0h; b = b - 1.0h) {
         {
           x.z = b;
           if x.w == 1.0h {
             continue;
           }
           x.y = 0.0h;
-        }
-        continuing {
-          b = b - 1.0h;
-          break if b < 0.0h;
         }
       }
     }

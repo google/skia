@@ -22,13 +22,9 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
     b = b;
     {
       var x: i32 = 0;
-      loop {
+      for (; x < 1; x = x + i32(1)) {
         {
           continue;
-        }
-        continuing {
-          x = x + i32(1);
-          break if x >= 1;
         }
       }
     }

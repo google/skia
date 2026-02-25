@@ -7,29 +7,21 @@ struct FSOut {
 fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
   {
     var x: vec4<f16> = vec4<f16>(1.0h);
-    loop {
-      if x.w == 1.0h {
-        {
-          x.x = x.x - 0.25h;
-          if x.x <= 0.0h {
-            break;
-          }
+    for (; x.w == 1.0h; ) {
+      {
+        x.x = x.x - 0.25h;
+        if x.x <= 0.0h {
+          break;
         }
-      } else {
-        break;
       }
     }
-    loop {
-      if x.z > 0.0h {
-        {
-          x.z = x.z - 0.25h;
-          if x.w == 1.0h {
-            continue;
-          }
-          x.y = 0.0h;
+    for (; x.z > 0.0h; ) {
+      {
+        x.z = x.z - 0.25h;
+        if x.w == 1.0h {
+          continue;
         }
-      } else {
-        break;
+        x.y = 0.0h;
       }
     }
     return x;

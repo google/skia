@@ -14,17 +14,13 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
   {
     {
       var index: i32 = 0;
-      loop {
+      for (; index < 5; index = index + i32(1)) {
         {
           if _skUnpacked__globalUniforms_testArray[index] != f32(index + 1) {
             {
               return _globalUniforms.colorRed;
             }
           }
-        }
-        continuing {
-          index = index + i32(1);
-          break if index >= 5;
         }
       }
     }

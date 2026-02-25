@@ -187,14 +187,10 @@ fn fallthrough_with_loop_break_bi(x: i32) -> bool {
         if x == 1 {
           {
             var i: i32 = 0;
-            loop {
+            for (; i < 5; i = i + i32(1)) {
               {
                 val = val + i32(1);
                 break;
-              }
-              continuing {
-                i = i + i32(1);
-                break if i >= 5;
               }
             }
           }
@@ -216,14 +212,10 @@ fn fallthrough_with_loop_continue_bi(x: i32) -> bool {
         if x == 1 {
           {
             var i: i32 = 0;
-            loop {
+            for (; i < 5; i = i + i32(1)) {
               {
                 val = val + i32(1);
                 continue;
-              }
-              continuing {
-                i = i + i32(1);
-                break if i >= 5;
               }
             }
           }

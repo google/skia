@@ -26,8 +26,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
           break;
         }
         continuing {
-          a = a + f16(1);
-          b = b - f16(1);
+          a = a + f16(1); b = b - f16(1); 
         }
       }
     }
@@ -39,16 +38,9 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
     var sumC: i32 = 0;
     {
       var c: i32 = 0;
-      loop {
-        if c < 10 {
-          {
-            sumC = sumC + c;
-          }
-        } else {
-          break;
-        }
-        continuing {
-          c = c + i32(1);
+      for (; c < 10; c = c + i32(1)) {
+        {
+          sumC = sumC + c;
         }
       }
     }
@@ -61,16 +53,9 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
     {
       var d: array<f32, 2> = array<f32, 2>(0.0, 10.0);
       const e: array<f32, 4> = array<f32, 4>(1.0, 2.0, 3.0, 4.0);
-      loop {
-        if d[0] < d[1] {
-          {
-            sumE = sumE + f32(f16(e[0]));
-          }
-        } else {
-          break;
-        }
-        continuing {
-          d[0] = d[0] + f32(1);
+      for (; d[0] < d[1]; d[0] = d[0] + f32(1)) {
+        {
+          sumE = sumE + f32(f16(e[0]));
         }
       }
     }
@@ -80,14 +65,13 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
       }
     }
     {
-      loop {
+      for (;; ) {
         break;
       }
     }
     {
       ;
-
-      loop {
+      for (;; ) {
         return _globalUniforms.colorGreen;
       }
     }

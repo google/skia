@@ -5,12 +5,8 @@ fn d_vi(i: ptr<function, i32>) {
   {
     {
       var x: i32 = 0;
-      loop {
+      for (; x < 10; x = x + i32(1)) {
         (*i) = (*i) + i32(1);
-        continuing {
-          x = x + i32(1);
-          break if x >= 10;
-        }
       }
     }
   }
@@ -19,14 +15,10 @@ fn c_vi(i: ptr<function, i32>) {
   {
     {
       var x: i32 = 0;
-      loop {
+      for (; x < 10; x = x + i32(1)) {
         var _skTemp0: i32 = (*i);
         d_vi(&_skTemp0);
         (*i) = _skTemp0;
-        continuing {
-          x = x + i32(1);
-          break if x >= 10;
-        }
       }
     }
   }
@@ -35,14 +27,10 @@ fn b_vi(i: ptr<function, i32>) {
   {
     {
       var x: i32 = 0;
-      loop {
+      for (; x < 10; x = x + i32(1)) {
         var _skTemp1: i32 = (*i);
         c_vi(&_skTemp1);
         (*i) = _skTemp1;
-        continuing {
-          x = x + i32(1);
-          break if x >= 10;
-        }
       }
     }
   }
@@ -51,14 +39,10 @@ fn a_vi(i: ptr<function, i32>) {
   {
     {
       var x: i32 = 0;
-      loop {
+      for (; x < 10; x = x + i32(1)) {
         var _skTemp2: i32 = (*i);
         b_vi(&_skTemp2);
         (*i) = _skTemp2;
-        continuing {
-          x = x + i32(1);
-          break if x >= 10;
-        }
       }
     }
   }

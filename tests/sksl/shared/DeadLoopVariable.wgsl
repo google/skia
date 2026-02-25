@@ -12,12 +12,8 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f16> {
   {
     {
       const x: i32 = 0;
-      loop {
-        if x < 4 {
-          {
-            break;
-          }
-        } else {
+      for (; x < 4; ) {
+        {
           break;
         }
       }
