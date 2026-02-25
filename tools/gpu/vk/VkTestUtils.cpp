@@ -193,41 +193,15 @@ DebugUtilsMessenger(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 // Returns the index into layers array for the layer we want. Returns -1 if not supported.
 static bool should_include_extension(const char* extensionName) {
     const char* kValidExtensions[] = {
-            // single merged layer
-            VK_ARM_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_EXTENSION_NAME,
-            VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME,
-            VK_EXT_CONSERVATIVE_RASTERIZATION_EXTENSION_NAME,
             VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
             VK_EXT_DEVICE_FAULT_EXTENSION_NAME,
-            VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME,
-            VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME,
-            VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME,
-            VK_EXT_GRAPHICS_PIPELINE_LIBRARY_EXTENSION_NAME,
-            VK_EXT_HOST_IMAGE_COPY_EXTENSION_NAME,
-            VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME,
             VK_EXT_LAYER_SETTINGS_EXTENSION_NAME,
-            VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME,
-            VK_EXT_PIPELINE_CREATION_CACHE_CONTROL_EXTENSION_NAME,
-            VK_EXT_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_EXTENSION_NAME,
-            VK_EXT_RGBA10X6_FORMATS_EXTENSION_NAME,
-            VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME,
-            VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,
-            VK_KHR_COPY_COMMANDS_2_EXTENSION_NAME,
-            VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,
-            VK_KHR_DRIVER_PROPERTIES_EXTENSION_NAME,
-            VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME,
-            VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME,
-            VK_KHR_FORMAT_FEATURE_FLAGS_2_EXTENSION_NAME,
-            VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
-            VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
-            VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME,
-            VK_KHR_MAINTENANCE1_EXTENSION_NAME,
-            VK_KHR_MAINTENANCE2_EXTENSION_NAME,
-            VK_KHR_MAINTENANCE3_EXTENSION_NAME,
-            VK_KHR_PIPELINE_LIBRARY_EXTENSION_NAME,
-            VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME,
             VK_KHR_SURFACE_EXTENSION_NAME,
             VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+            // Currently only used by Ganesh:
+            VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME,
+            VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME, // Required for above extension if using 1.1
+            VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME,
             // Below are all platform specific extensions. The name macros like we use above are
             // all defined in platform specific vulkan headers. We currently don't include these
             // headers as they are a little bit of a pain (e.g. windows headers requires including
@@ -237,8 +211,6 @@ static bool should_include_extension(const char* extensionName) {
             // changing is next to zero.
             "VK_KHR_win32_surface",  // VK_KHR_WIN32_SURFACE_EXTENSION_NAME
             "VK_KHR_xcb_surface",    // VK_KHR_XCB_SURFACE_EXTENSION_NAME,
-            "VK_ANDROID_external_memory_android_hardware_buffer",
-            // VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME,
             "VK_KHR_android_surface",  // VK_KHR_ANDROID_SURFACE_EXTENSION_NAME,
     };
 
@@ -512,24 +484,18 @@ static bool setup_features(const skgpu::VulkanGetProc& getProc,
         tailPNext = &testVkFeatures.protectedMemoryFeatures.pNext;
     }
 
+    // Allow Skia's VulkanPreferredFeatures to add any desired features or extensions to the query.
     testVkFeatures.skiaFeatures.addFeaturesToQuery(
             deviceExtensions.begin(), deviceExtensions.size(), testVkFeatures.deviceFeatures);
 
     ACQUIRE_VK_PROC_LOCAL(GetPhysicalDeviceFeatures2, inst, VK_NULL_HANDLE);
     grVkGetPhysicalDeviceFeatures2(physDev, &testVkFeatures.deviceFeatures);
 
-    // Robustness has adverse effect on performance on a few GPUs, and besides we can't depend on it
-    // on all platforms.
+    // We can manually disable any undesired features here. Currently, we only disable robust
+    // buffer access which can negatively impact performance on some GPUs.
     testVkFeatures.deviceFeatures.features.robustBufferAccess = VK_FALSE;
 
-    // If we want to disable any extension features do so here.
-
-    if (isProtected) {
-        if (!testVkFeatures.protectedMemoryFeatures.protectedMemory) {
-            return false;
-        }
-    }
-    return true;
+    return !isProtected || testVkFeatures.protectedMemoryFeatures.protectedMemory;
 }
 
 bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
@@ -552,11 +518,11 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
         return false;
     }
     SkASSERT(instanceVersion >= VK_API_VERSION_1_1);
-    // We can set the apiVersion to be whatever the highest api we may use in skia. For now we
-    // set it to 1.1 since that is the most common Vulkan version on Android devices.
-    const uint32_t apiVersion = VK_API_VERSION_1_1;
 
-    instanceVersion = std::min(instanceVersion, apiVersion);
+    // We could set the Vulkan API version to be the newest version supported by Skia, but for now,
+    // set it to 1.1 (the most common Vulkan version on Android devices).
+    static const uint32_t kApiVersion = VK_API_VERSION_1_1;
+    instanceVersion = std::min(instanceVersion, kApiVersion);
 
     STArray<2, VkPhysicalDevice> physDevs;
     VkDevice device;
@@ -569,8 +535,11 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
         0,                                  // applicationVersion
         "vktest",                           // pEngineName
         0,                                  // engineVerison
-        apiVersion,                         // apiVersion
+        kApiVersion,                        // apiVersion
     };
+    // Initialize VulkanPreferredFeatures using whatever API value matches that of the version
+    // assigned to VkApplicationInfo. based on API value passed in to VkApplicationInfo (apiVersion)
+    testVkFeatures->skiaFeatures.init(kApiVersion);
 
     TArray<VkLayerProperties> instanceLayers;
     TArray<VkExtensionProperties> instanceExtensions;
@@ -590,7 +559,6 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
         instanceExtensionNames.push_back(instanceExtensions[i].extensionName);
     }
 
-    testVkFeatures->skiaFeatures.init(apiVersion);
     testVkFeatures->skiaFeatures.addToInstanceExtensions(
             instanceExtensions.begin(), instanceExtensions.size(), instanceExtensionNames);
 
@@ -734,7 +702,7 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
 
     VkPhysicalDeviceProperties physDeviceProperties;
     grVkGetPhysicalDeviceProperties(physDev, &physDeviceProperties);
-    uint32_t physDeviceVersion = std::min(physDeviceProperties.apiVersion, apiVersion);
+    uint32_t physDeviceVersion = std::min(physDeviceProperties.apiVersion, kApiVersion);
 
     // query to get the initial queue props size
     uint32_t queueCount;
@@ -912,7 +880,7 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
     ctx->fDevice = device;
     ctx->fQueue = queue;
     ctx->fGraphicsQueueIndex = graphicsQueueIndex;
-    ctx->fMaxAPIVersion = apiVersion;
+    ctx->fMaxAPIVersion = kApiVersion;
     ctx->fVkExtensions = extensions;
     ctx->fDeviceFeatures2 = &testVkFeatures->deviceFeatures;
     ctx->fGetProc = getProc;
