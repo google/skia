@@ -70,11 +70,11 @@ namespace skgpu {
  *     DeviceExtensions. If extension is promoted to core in the API version used by the
  *     application, the VkPhysicalDeviceVulkan??Features struct should be used for the same feature
  *     instead, if available.
- *   - In get_features_to_add(), if the extension is promoted to a core version, set the
+ *   - In get_features_to_query(), if the extension is promoted to a core version, set the
  *     FeaturesToAdd flag to false as the VkPhysicalDeviceVulkan??Features struct would be used to
  *     query the same feature.
- *   - In get_features_to_add() additionally, set the FeaturesToAdd flag to false if the application
- *     has already included the corresponding feature struct in its own chain.
+ *   - In get_features_to_query() additionally, set the FeaturesToAdd flag to false if the
+ *     application has already included the corresponding feature struct in its own chain.
  *   - Back in addFeaturesToQuery(), chain the feature struct if the FeaturesToAdd flag is set.
  * - In addFeaturesToEnable():
  *   - Set the FeaturesToAdd flag to true iff the sType of the feature struct is set.
@@ -96,7 +96,7 @@ namespace skgpu {
  *
  * - Add the VkPhysicalDeviceVulkan??Features struct to VulkanPreferredFeatures, and a flag for it
  *   in FeaturesToAdd.
- * - In get_features_to_add(), check for the Vulkan version and decided if that struct should be
+ * - In get_features_to_query(), check for the Vulkan version and decided if that struct should be
  *   used, or the individual feature structs from extensions that were promoted to core in that
  *   version.
  *   - Check in the same function if the application has already included
@@ -129,7 +129,6 @@ struct DeviceExtensions {
     bool fExtendedDynamicState2EXT = false;
     bool fVertexInputDynamicStateEXT = false;
     bool fGraphicsPipelineLibraryEXT = false;
-    bool fSamplerYcbcrConversionKHR = false;
     bool fRGBA10x6FormatsEXT = false;
     bool fSynchronization2KHR = false;
     bool fDynamicRenderingKHR = false;
@@ -176,6 +175,7 @@ struct DeviceExtensions {
     bool fFrameBoundaryEXT = false;
 };
 
+// Given a list of device extensions, mark which ones are present.
 void mark_device_extensions(DeviceExtensions& exts, const char* name) {
     if (strcmp(name, VK_ARM_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_EXTENSION_NAME) == 0) {
         exts.fRasterizationOrderAttachmentAccessARM = true;
@@ -191,8 +191,6 @@ void mark_device_extensions(DeviceExtensions& exts, const char* name) {
         exts.fVertexInputDynamicStateEXT = true;
     } else if (strcmp(name, VK_EXT_GRAPHICS_PIPELINE_LIBRARY_EXTENSION_NAME) == 0) {
         exts.fGraphicsPipelineLibraryEXT = true;
-    } else if (strcmp(name, VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME) == 0) {
-        exts.fSamplerYcbcrConversionKHR = true;
     } else if (strcmp(name, VK_EXT_RGBA10X6_FORMATS_EXTENSION_NAME) == 0) {
         exts.fRGBA10x6FormatsEXT = true;
     } else if (strcmp(name, VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME) == 0) {
@@ -255,13 +253,13 @@ void mark_device_extensions(DeviceExtensions& exts, const char* name) {
 
 DeviceExtensions get_supported_device_extensions(const VkExtensionProperties* deviceExtensions,
                                                  size_t deviceExtensionCount) {
-    DeviceExtensions exts;
+    DeviceExtensions supportedExts;
 
     for (size_t i = 0; i < deviceExtensionCount; ++i) {
-        mark_device_extensions(exts, deviceExtensions[i].extensionName);
+        mark_device_extensions(supportedExts, deviceExtensions[i].extensionName);
     }
 
-    return exts;
+    return supportedExts;
 }
 
 struct FeaturesToAdd {
@@ -275,7 +273,6 @@ struct FeaturesToAdd {
     bool fExtendedDynamicState2 = true;
     bool fVertexInputDynamicState = true;
     bool fGraphicsPipelineLibrary = true;
-    bool fSamplerYcbcrConversion = true;
     bool fRGBA10x6Formats = true;
     bool fSynchronization2 = true;
     bool fDynamicRendering = true;
@@ -284,73 +281,75 @@ struct FeaturesToAdd {
     bool fHostImageCopy = true;
     bool fPipelineCreationCacheControl = true;
     bool fFrameBoundary = true;
+    bool fSamplerYcbcrConversion = true;
 };
 
-FeaturesToAdd get_features_to_add(uint32_t apiVersion,
-                                  const DeviceExtensions& exts,
-                                  const VkPhysicalDeviceFeatures2& appFeatures) {
-    FeaturesToAdd toAdd;
+FeaturesToAdd get_features_to_query(uint32_t apiVersion,
+                                    const DeviceExtensions& exts,
+                                    const VkPhysicalDeviceFeatures2& appFeatures) {
+    FeaturesToAdd toQuery;
 
     // First, exclude feature structs that are not available / are unnecessary based on apiVersion
     // and available extensions.
     if (apiVersion >= VK_API_VERSION_1_4) {
         // VK_KHR_dynamic_rendering_local_read's feature is included in
         // VkPhysicalDeviceVulkan14Features
-        toAdd.fDynamicRenderingLocalRead = false;
+        toQuery.fDynamicRenderingLocalRead = false;
         // VK_EXT_host_image_copy's feature is included in VkPhysicalDeviceVulkan14Features
-        toAdd.fHostImageCopy = false;
+        toQuery.fHostImageCopy = false;
     } else {
-        toAdd.fVulkan14 = false;
+        toQuery.fVulkan14 = false;
         // Check for support via individual extensions' feature structs
-        toAdd.fDynamicRenderingLocalRead = exts.fDynamicRenderingLocalReadKHR;
-        toAdd.fHostImageCopy = exts.fHostImageCopyEXT;
+        toQuery.fDynamicRenderingLocalRead = exts.fDynamicRenderingLocalReadKHR;
+        toQuery.fHostImageCopy = exts.fHostImageCopyEXT;
     }
     if (apiVersion >= VK_API_VERSION_1_3) {
         // VK_KHR_synchronization2's feature is included in VkPhysicalDeviceVulkan13Features
-        toAdd.fSynchronization2 = false;
+        toQuery.fSynchronization2 = false;
         // VK_KHR_dynamic_rendering's feature is included in VkPhysicalDeviceVulkan13Features
-        toAdd.fDynamicRendering = false;
+        toQuery.fDynamicRendering = false;
         // VK_EXT_pipeline_creation_cache_control's feature is included in
         // VkPhysicalDeviceVulkan13Features
-        toAdd.fPipelineCreationCacheControl = false;
+        toQuery.fPipelineCreationCacheControl = false;
         // VK_EXT_extended_dynamic_state is core in Vulkan 1.3, but no feature for it is present in
         // VkPhysicalDeviceVulkan13Features; it's assumed supported / enabled.
-        toAdd.fExtendedDynamicState = false;
+        toQuery.fExtendedDynamicState = false;
         // Note: VK_EXT_extended_dynamic_state2 was partially promoted to Vulkan 1.3. Only dynamic
         // state from the main feature is used by Skia, so it's ok to rely on Vulkan 1.3 to provide
         // them, but if the optional features of this extension are needed, the extension struct
         // should still be used to query and enable those features.
-        toAdd.fExtendedDynamicState2 = false;
+        toQuery.fExtendedDynamicState2 = false;
     } else {
-        toAdd.fVulkan13 = false;
+        toQuery.fVulkan13 = false;
         // Check for support via individual extensions' feature structs
-        toAdd.fSynchronization2 = exts.fSynchronization2KHR;
-        toAdd.fDynamicRendering = exts.fDynamicRenderingKHR;
-        toAdd.fPipelineCreationCacheControl = exts.fPipelineCreationCacheControlEXT;
-        toAdd.fExtendedDynamicState = exts.fExtendedDynamicStateEXT;
-        toAdd.fExtendedDynamicState2 = exts.fExtendedDynamicState2EXT;
+        toQuery.fSynchronization2 = exts.fSynchronization2KHR;
+        toQuery.fDynamicRendering = exts.fDynamicRenderingKHR;
+        toQuery.fPipelineCreationCacheControl = exts.fPipelineCreationCacheControlEXT;
+        toQuery.fExtendedDynamicState = exts.fExtendedDynamicStateEXT;
+        toQuery.fExtendedDynamicState2 = exts.fExtendedDynamicState2EXT;
     }
     if (apiVersion >= VK_API_VERSION_1_2) {
-        // VK_KHR_sampler_ycbcr_conversion's feature is included in
+        // VkPhysicalDeviceSamplerYcbcrConversionFeature's feature is included within
         // VkPhysicalDeviceVulkan11Features. Note that this struct was introduced in Vulkan 1.2.
-        toAdd.fSamplerYcbcrConversion = false;
+        toQuery.fSamplerYcbcrConversion = false;
         // No feature from VkPhysicalDeviceVulkan12Features is used by Skia currently.
     } else {
-        toAdd.fVulkan12 = false;
-        toAdd.fVulkan11 = false;
-        // Check for support via individual extensions' feature structs
-        toAdd.fSamplerYcbcrConversion = exts.fSamplerYcbcrConversionKHR;
+        toQuery.fVulkan12 = false;
+        toQuery.fVulkan11 = false;
+        // For Vulkan 1.1, always query for YCbCr conversion feature support (if the app doesn't
+        // already do so independently).
+        toQuery.fSamplerYcbcrConversion = true;
     }
     // Check for support via individual extensions' feature structs (none of which have been
     // promoted to core).
-    toAdd.fRasterizationOrderAttachmentAccess = exts.fRasterizationOrderAttachmentAccessARM ||
-                                                exts.fRasterizationOrderAttachmentAccessEXT;
-    toAdd.fBlendOperationAdvanced = exts.fBlendOperationAdvancedEXT;
-    toAdd.fVertexInputDynamicState = exts.fVertexInputDynamicStateEXT;
-    toAdd.fGraphicsPipelineLibrary = exts.fGraphicsPipelineLibraryEXT;
-    toAdd.fRGBA10x6Formats = exts.fRGBA10x6FormatsEXT;
-    toAdd.fMultisampledRenderToSingleSampled = exts.fMultisampledRenderToSingleSampledEXT;
-    toAdd.fFrameBoundary = exts.fFrameBoundaryEXT;
+    toQuery.fRasterizationOrderAttachmentAccess = exts.fRasterizationOrderAttachmentAccessARM ||
+                                                  exts.fRasterizationOrderAttachmentAccessEXT;
+    toQuery.fBlendOperationAdvanced = exts.fBlendOperationAdvancedEXT;
+    toQuery.fVertexInputDynamicState = exts.fVertexInputDynamicStateEXT;
+    toQuery.fGraphicsPipelineLibrary = exts.fGraphicsPipelineLibraryEXT;
+    toQuery.fRGBA10x6Formats = exts.fRGBA10x6FormatsEXT;
+    toQuery.fMultisampledRenderToSingleSampled = exts.fMultisampledRenderToSingleSampledEXT;
+    toQuery.fFrameBoundary = exts.fFrameBoundaryEXT;
 
     // Then, go over appFeatures::pNext and exclude features that are already being queried by the
     // app.
@@ -358,61 +357,61 @@ FeaturesToAdd get_features_to_add(uint32_t apiVersion,
     while (pNext) {
         switch (pNext->sType) {
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES:
-                toAdd.fVulkan11 = false;
+                toQuery.fVulkan11 = false;
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES:
-                toAdd.fVulkan12 = false;
+                toQuery.fVulkan12 = false;
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES:
-                toAdd.fVulkan13 = false;
+                toQuery.fVulkan13 = false;
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES:
-                toAdd.fVulkan14 = false;
+                toQuery.fVulkan14 = false;
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT:
-                toAdd.fRasterizationOrderAttachmentAccess = false;
+                toQuery.fRasterizationOrderAttachmentAccess = false;
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT:
-                toAdd.fBlendOperationAdvanced = false;
+                toQuery.fBlendOperationAdvanced = false;
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT:
-                toAdd.fExtendedDynamicState = false;
+                toQuery.fExtendedDynamicState = false;
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT:
-                toAdd.fExtendedDynamicState2 = false;
+                toQuery.fExtendedDynamicState2 = false;
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT:
-                toAdd.fVertexInputDynamicState = false;
+                toQuery.fVertexInputDynamicState = false;
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT:
-                toAdd.fGraphicsPipelineLibrary = false;
+                toQuery.fGraphicsPipelineLibrary = false;
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES:
-                toAdd.fSamplerYcbcrConversion = false;
+                toQuery.fSamplerYcbcrConversion = false;
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RGBA10X6_FORMATS_FEATURES_EXT:
-                toAdd.fRGBA10x6Formats = false;
+                toQuery.fRGBA10x6Formats = false;
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES:
-                toAdd.fSynchronization2 = false;
+                toQuery.fSynchronization2 = false;
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES:
-                toAdd.fDynamicRendering = false;
+                toQuery.fDynamicRendering = false;
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_LOCAL_READ_FEATURES:
-                toAdd.fDynamicRenderingLocalRead = false;
+                toQuery.fDynamicRenderingLocalRead = false;
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT:
-                toAdd.fMultisampledRenderToSingleSampled = false;
+                toQuery.fMultisampledRenderToSingleSampled = false;
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES:
-                toAdd.fHostImageCopy = false;
+                toQuery.fHostImageCopy = false;
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES:
-                toAdd.fPipelineCreationCacheControl = false;
+                toQuery.fPipelineCreationCacheControl = false;
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT:
-                toAdd.fFrameBoundary = false;
+                toQuery.fFrameBoundary = false;
                 break;
             default:
                 break;
@@ -421,7 +420,7 @@ FeaturesToAdd get_features_to_add(uint32_t apiVersion,
         pNext = pNext->pNext;
     }
 
-    return toAdd;
+    return toQuery;
 }
 
 template <typename VulkanStruct> void chain(void**& chainEnd, VulkanStruct* toAdd) {
@@ -540,10 +539,11 @@ void VulkanPreferredFeatures::addFeaturesToQuery(const VkExtensionProperties* de
         fVulkan11.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES;
         fVulkan12.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
     } else {
-        if (exts.fSamplerYcbcrConversionKHR) {
-            fSamplerYcbcrConversion.sType =
-                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES;
-        }
+        // Always query for YCbCr support if we are using Vulkan 1.1. It is technically possible for
+        // it to be supported even if the associated extension, VK_KHR_sampler_ycbcr_conversion
+        // (which was promoted to 1.1), is not.
+        fSamplerYcbcrConversion.sType =
+                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES;
         if (exts.fDriverPropertiesKHR) {
             fDriverPropertiesExtension = VK_KHR_DRIVER_PROPERTIES_EXTENSION_NAME;
         }
@@ -603,83 +603,83 @@ void VulkanPreferredFeatures::addFeaturesToQuery(const VkExtensionProperties* de
     }
 
     // Inspect the list of features the app has already included and decide on which features to
-    // add.
-    const FeaturesToAdd toAdd = get_features_to_add(fAPIVersion, exts, appFeatures);
+    // add to the query.
+    const FeaturesToAdd toQuery = get_features_to_query(fAPIVersion, exts, appFeatures);
 
     // Chain any new features we'd like to query.
-    if (toAdd.fVulkan11) {
+    if (toQuery.fVulkan11) {
         SkASSERT(fVulkan11.sType != 0);
         AddToPNextChain(&appFeatures, &fVulkan11);
     }
-    if (toAdd.fVulkan12) {
+    if (toQuery.fVulkan12) {
         SkASSERT(fVulkan12.sType != 0);
         AddToPNextChain(&appFeatures, &fVulkan12);
     }
-    if (toAdd.fVulkan13) {
+    if (toQuery.fVulkan13) {
         SkASSERT(fVulkan13.sType != 0);
         AddToPNextChain(&appFeatures, &fVulkan13);
     }
-    if (toAdd.fVulkan14) {
+    if (toQuery.fVulkan14) {
         SkASSERT(fVulkan14.sType != 0);
         AddToPNextChain(&appFeatures, &fVulkan14);
     }
-    if (toAdd.fRasterizationOrderAttachmentAccess) {
+    if (toQuery.fRasterizationOrderAttachmentAccess) {
         SkASSERT(fRasterizationOrderAttachmentAccess.sType != 0);
         AddToPNextChain(&appFeatures, &fRasterizationOrderAttachmentAccess);
     }
-    if (toAdd.fBlendOperationAdvanced) {
+    if (toQuery.fBlendOperationAdvanced) {
         SkASSERT(fBlendOperationAdvanced.sType != 0);
         AddToPNextChain(&appFeatures, &fBlendOperationAdvanced);
     }
-    if (toAdd.fExtendedDynamicState) {
+    if (toQuery.fExtendedDynamicState) {
         SkASSERT(fExtendedDynamicState.sType != 0);
         AddToPNextChain(&appFeatures, &fExtendedDynamicState);
     }
-    if (toAdd.fExtendedDynamicState2) {
+    if (toQuery.fExtendedDynamicState2) {
         SkASSERT(fExtendedDynamicState2.sType != 0);
         AddToPNextChain(&appFeatures, &fExtendedDynamicState2);
     }
-    if (toAdd.fVertexInputDynamicState) {
+    if (toQuery.fVertexInputDynamicState) {
         SkASSERT(fVertexInputDynamicState.sType != 0);
         AddToPNextChain(&appFeatures, &fVertexInputDynamicState);
     }
-    if (toAdd.fGraphicsPipelineLibrary) {
+    if (toQuery.fGraphicsPipelineLibrary) {
         SkASSERT(fGraphicsPipelineLibrary.sType != 0);
         AddToPNextChain(&appFeatures, &fGraphicsPipelineLibrary);
     }
-    if (toAdd.fSamplerYcbcrConversion) {
+    if (toQuery.fSamplerYcbcrConversion) {
         SkASSERT(fSamplerYcbcrConversion.sType != 0);
         AddToPNextChain(&appFeatures, &fSamplerYcbcrConversion);
     }
-    if (toAdd.fRGBA10x6Formats) {
+    if (toQuery.fRGBA10x6Formats) {
         SkASSERT(fRGBA10x6Formats.sType != 0);
         AddToPNextChain(&appFeatures, &fRGBA10x6Formats);
     }
-    if (toAdd.fSynchronization2) {
+    if (toQuery.fSynchronization2) {
         SkASSERT(fSynchronization2.sType != 0);
         AddToPNextChain(&appFeatures, &fSynchronization2);
     }
-    if (toAdd.fDynamicRendering) {
+    if (toQuery.fDynamicRendering) {
         SkASSERT(fDynamicRendering.sType != 0);
         AddToPNextChain(&appFeatures, &fDynamicRendering);
     }
-    if (toAdd.fDynamicRenderingLocalRead) {
+    if (toQuery.fDynamicRenderingLocalRead) {
         SkASSERT(fDynamicRenderingLocalRead.sType != 0);
         AddToPNextChain(&appFeatures, &fDynamicRenderingLocalRead);
     }
-    if (toAdd.fMultisampledRenderToSingleSampled) {
+    if (toQuery.fMultisampledRenderToSingleSampled) {
         SkASSERT(fMultisampledRenderToSingleSampled.sType != 0);
         AddToPNextChain(&appFeatures, &fMultisampledRenderToSingleSampled);
     }
-    if (toAdd.fHostImageCopy) {
+    if (toQuery.fHostImageCopy) {
         SkASSERT(fHostImageCopy.sType != 0);
         AddToPNextChain(&appFeatures, &fHostImageCopy);
     }
-    if (toAdd.fPipelineCreationCacheControl) {
+    if (toQuery.fPipelineCreationCacheControl) {
         SkASSERT(fPipelineCreationCacheControl.sType != 0);
         AddToPNextChain(&appFeatures, &fPipelineCreationCacheControl);
     }
-    if (toAdd.fFrameBoundary) {
+    if (toQuery.fFrameBoundary) {
         SkASSERT(fFrameBoundary.sType != 0);
         AddToPNextChain(&appFeatures, &fFrameBoundary);
     }
@@ -696,141 +696,147 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
     }
     SkASSERT(fHasAddedFeaturesToQuery);
 
-    FeaturesToAdd toAdd;
-    toAdd.fVulkan11 = fVulkan11.sType != 0;
-    toAdd.fVulkan12 = fVulkan12.sType != 0;
-    toAdd.fVulkan13 = fVulkan13.sType != 0;
-    toAdd.fVulkan14 = fVulkan14.sType != 0;
-    toAdd.fRasterizationOrderAttachmentAccess = fRasterizationOrderAttachmentAccess.sType != 0;
-    toAdd.fBlendOperationAdvanced = fBlendOperationAdvanced.sType != 0;
-    toAdd.fExtendedDynamicState = fExtendedDynamicState.sType != 0;
-    toAdd.fExtendedDynamicState2 = fExtendedDynamicState2.sType != 0;
-    toAdd.fVertexInputDynamicState = fVertexInputDynamicState.sType != 0;
-    toAdd.fGraphicsPipelineLibrary = fGraphicsPipelineLibrary.sType != 0;
-    toAdd.fSamplerYcbcrConversion = fSamplerYcbcrConversion.sType != 0;
-    toAdd.fRGBA10x6Formats = fRGBA10x6Formats.sType != 0;
-    toAdd.fSynchronization2 = fSynchronization2.sType != 0;
-    toAdd.fDynamicRendering = fDynamicRendering.sType != 0;
-    toAdd.fDynamicRenderingLocalRead = fDynamicRenderingLocalRead.sType != 0;
-    toAdd.fMultisampledRenderToSingleSampled = fMultisampledRenderToSingleSampled.sType != 0;
-    toAdd.fHostImageCopy = fHostImageCopy.sType != 0;
-    toAdd.fPipelineCreationCacheControl = fPipelineCreationCacheControl.sType != 0;
-    toAdd.fFrameBoundary = fFrameBoundary.sType != 0;
+    FeaturesToAdd toEnable;
+    toEnable.fVulkan11 = fVulkan11.sType != 0;
+    toEnable.fVulkan12 = fVulkan12.sType != 0;
+    toEnable.fVulkan13 = fVulkan13.sType != 0;
+    toEnable.fVulkan14 = fVulkan14.sType != 0;
+    toEnable.fRasterizationOrderAttachmentAccess = fRasterizationOrderAttachmentAccess.sType != 0;
+    toEnable.fBlendOperationAdvanced = fBlendOperationAdvanced.sType != 0;
+    toEnable.fExtendedDynamicState = fExtendedDynamicState.sType != 0;
+    toEnable.fExtendedDynamicState2 = fExtendedDynamicState2.sType != 0;
+    toEnable.fVertexInputDynamicState = fVertexInputDynamicState.sType != 0;
+    toEnable.fGraphicsPipelineLibrary = fGraphicsPipelineLibrary.sType != 0;
+    toEnable.fRGBA10x6Formats = fRGBA10x6Formats.sType != 0;
+    toEnable.fSynchronization2 = fSynchronization2.sType != 0;
+    toEnable.fDynamicRendering = fDynamicRendering.sType != 0;
+    toEnable.fDynamicRenderingLocalRead = fDynamicRenderingLocalRead.sType != 0;
+    toEnable.fMultisampledRenderToSingleSampled = fMultisampledRenderToSingleSampled.sType != 0;
+    toEnable.fHostImageCopy = fHostImageCopy.sType != 0;
+    toEnable.fPipelineCreationCacheControl = fPipelineCreationCacheControl.sType != 0;
+    toEnable.fFrameBoundary = fFrameBoundary.sType != 0;
+
+    // Note on enabling the YCbCr conversion feature: Regardless of whether Skia or the app added
+    // VkPhysicalDeviceSamplerYcbcrConversionFeatures to the list of device features to query, we
+    // expect that it is enabled OR the client has explicitly disabled it. In either case, we should
+    // not override their selection.
 
     // Check which extensions are already enabled by the application.
-    DeviceExtensions exts;
+    DeviceExtensions appEnabledExts;
     for (const char* name : appExtensions) {
-        mark_device_extensions(exts, name);
+        mark_device_extensions(appEnabledExts, name);
     }
 
     // Add extensions that are not enabled by the app.
-    if (!exts.fRasterizationOrderAttachmentAccessARM &&
-        !exts.fRasterizationOrderAttachmentAccessEXT && toAdd.fRasterizationOrderAttachmentAccess) {
-        appExtensions.push_back(fRasterizationOrderAttachmentAccessExtension);
-        exts.fRasterizationOrderAttachmentAccessEXT = true;
-    }
-    if (!exts.fBlendOperationAdvancedEXT && toAdd.fBlendOperationAdvanced) {
-        appExtensions.push_back(VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME);
-        exts.fBlendOperationAdvancedEXT = true;
-    }
-    if (!exts.fExtendedDynamicStateEXT && toAdd.fExtendedDynamicState) {
-        appExtensions.push_back(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME);
-        exts.fExtendedDynamicStateEXT = true;
-    }
-    if (!exts.fExtendedDynamicState2EXT && toAdd.fExtendedDynamicState2) {
-        appExtensions.push_back(VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME);
-        exts.fExtendedDynamicState2EXT = true;
-    }
-    if (!exts.fVertexInputDynamicStateEXT && toAdd.fVertexInputDynamicState) {
-        appExtensions.push_back(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME);
-        exts.fVertexInputDynamicStateEXT = true;
-    }
-    if (!exts.fGraphicsPipelineLibraryEXT && toAdd.fGraphicsPipelineLibrary) {
-        appExtensions.push_back(VK_EXT_GRAPHICS_PIPELINE_LIBRARY_EXTENSION_NAME);
-        exts.fGraphicsPipelineLibraryEXT = true;
-    }
-    if (!exts.fSamplerYcbcrConversionKHR && toAdd.fSamplerYcbcrConversion) {
-        appExtensions.push_back(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME);
-        exts.fSamplerYcbcrConversionKHR = true;
-    }
-    if (!exts.fRGBA10x6FormatsEXT && toAdd.fRGBA10x6Formats) {
-        appExtensions.push_back(VK_EXT_RGBA10X6_FORMATS_EXTENSION_NAME);
-        exts.fRGBA10x6FormatsEXT = true;
-    }
-    if (!exts.fSynchronization2KHR && toAdd.fSynchronization2) {
-        appExtensions.push_back(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME);
-        exts.fSynchronization2KHR = true;
-    }
-    if (!exts.fDynamicRenderingKHR && toAdd.fDynamicRendering) {
-        appExtensions.push_back(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
-        exts.fDynamicRenderingKHR = true;
-    }
-    if (!exts.fDynamicRenderingLocalReadKHR && toAdd.fDynamicRenderingLocalRead) {
-        appExtensions.push_back(VK_KHR_DYNAMIC_RENDERING_LOCAL_READ_EXTENSION_NAME);
-        exts.fDynamicRenderingLocalReadKHR = true;
-    }
-    if (!exts.fMultisampledRenderToSingleSampledEXT && toAdd.fMultisampledRenderToSingleSampled) {
-        appExtensions.push_back(VK_EXT_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_EXTENSION_NAME);
-        exts.fMultisampledRenderToSingleSampledEXT = true;
-    }
-    if (!exts.fHostImageCopyEXT && toAdd.fHostImageCopy) {
-        appExtensions.push_back(VK_EXT_HOST_IMAGE_COPY_EXTENSION_NAME);
-        exts.fHostImageCopyEXT = true;
-    }
-    if (!exts.fPipelineCreationCacheControlEXT && toAdd.fPipelineCreationCacheControl) {
-        appExtensions.push_back(VK_EXT_PIPELINE_CREATION_CACHE_CONTROL_EXTENSION_NAME);
-        exts.fPipelineCreationCacheControlEXT = true;
-    }
-    if (!exts.fFrameBoundaryEXT && toAdd.fFrameBoundary) {
-        appExtensions.push_back(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
-        exts.fFrameBoundaryEXT = true;
-    }
-    if (!exts.fDriverPropertiesKHR && fDriverPropertiesExtension != nullptr) {
-        appExtensions.push_back(fDriverPropertiesExtension);
-        exts.fDriverPropertiesKHR = true;
-    }
-    if (!exts.fCreateRenderpass2KHR && fCreateRenderpass2Extension != nullptr) {
-        appExtensions.push_back(fCreateRenderpass2Extension);
-        exts.fCreateRenderpass2KHR = true;
-    }
-    if (!exts.fLoadStoreOpNoneKHR && !exts.fLoadStoreOpNoneEXT &&
-        fLoadStoreOpNoneExtension != nullptr) {
-        appExtensions.push_back(fLoadStoreOpNoneExtension);
-        exts.fCreateRenderpass2KHR = true;
-    }
-    if (!exts.fConservativeRasterizationEXT && fConservativeRasterizationExtension != nullptr) {
-        appExtensions.push_back(fConservativeRasterizationExtension);
-        exts.fConservativeRasterizationEXT = true;
-    }
+    {
+        if (!appEnabledExts.fRasterizationOrderAttachmentAccessARM &&
+            !appEnabledExts.fRasterizationOrderAttachmentAccessEXT &&
+            toEnable.fRasterizationOrderAttachmentAccess) {
+            appExtensions.push_back(fRasterizationOrderAttachmentAccessExtension);
+            appEnabledExts.fRasterizationOrderAttachmentAccessEXT = true;
+        }
+        if (!appEnabledExts.fBlendOperationAdvancedEXT && toEnable.fBlendOperationAdvanced) {
+            appExtensions.push_back(VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME);
+            appEnabledExts.fBlendOperationAdvancedEXT = true;
+        }
+        if (!appEnabledExts.fExtendedDynamicStateEXT && toEnable.fExtendedDynamicState) {
+            appExtensions.push_back(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME);
+            appEnabledExts.fExtendedDynamicStateEXT = true;
+        }
+        if (!appEnabledExts.fExtendedDynamicState2EXT && toEnable.fExtendedDynamicState2) {
+            appExtensions.push_back(VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME);
+            appEnabledExts.fExtendedDynamicState2EXT = true;
+        }
+        if (!appEnabledExts.fVertexInputDynamicStateEXT && toEnable.fVertexInputDynamicState) {
+            appExtensions.push_back(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME);
+            appEnabledExts.fVertexInputDynamicStateEXT = true;
+        }
+        if (!appEnabledExts.fGraphicsPipelineLibraryEXT && toEnable.fGraphicsPipelineLibrary) {
+            appExtensions.push_back(VK_EXT_GRAPHICS_PIPELINE_LIBRARY_EXTENSION_NAME);
+            appEnabledExts.fGraphicsPipelineLibraryEXT = true;
+        }
+        if (!appEnabledExts.fRGBA10x6FormatsEXT && toEnable.fRGBA10x6Formats) {
+            appExtensions.push_back(VK_EXT_RGBA10X6_FORMATS_EXTENSION_NAME);
+            appEnabledExts.fRGBA10x6FormatsEXT = true;
+        }
+        if (!appEnabledExts.fSynchronization2KHR && toEnable.fSynchronization2) {
+            appExtensions.push_back(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME);
+            appEnabledExts.fSynchronization2KHR = true;
+        }
+        if (!appEnabledExts.fDynamicRenderingKHR && toEnable.fDynamicRendering) {
+            appExtensions.push_back(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
+            appEnabledExts.fDynamicRenderingKHR = true;
+        }
+        if (!appEnabledExts.fDynamicRenderingLocalReadKHR && toEnable.fDynamicRenderingLocalRead) {
+            appExtensions.push_back(VK_KHR_DYNAMIC_RENDERING_LOCAL_READ_EXTENSION_NAME);
+            appEnabledExts.fDynamicRenderingLocalReadKHR = true;
+        }
+        if (!appEnabledExts.fMultisampledRenderToSingleSampledEXT &&
+            toEnable.fMultisampledRenderToSingleSampled) {
+            appExtensions.push_back(VK_EXT_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_EXTENSION_NAME);
+            appEnabledExts.fMultisampledRenderToSingleSampledEXT = true;
+        }
+        if (!appEnabledExts.fHostImageCopyEXT && toEnable.fHostImageCopy) {
+            appExtensions.push_back(VK_EXT_HOST_IMAGE_COPY_EXTENSION_NAME);
+            appEnabledExts.fHostImageCopyEXT = true;
+        }
+        if (!appEnabledExts.fPipelineCreationCacheControlEXT &&
+            toEnable.fPipelineCreationCacheControl) {
+            appExtensions.push_back(VK_EXT_PIPELINE_CREATION_CACHE_CONTROL_EXTENSION_NAME);
+            appEnabledExts.fPipelineCreationCacheControlEXT = true;
+        }
+        if (!appEnabledExts.fFrameBoundaryEXT && toEnable.fFrameBoundary) {
+            appExtensions.push_back(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
+            appEnabledExts.fFrameBoundaryEXT = true;
+        }
+        if (!appEnabledExts.fDriverPropertiesKHR && fDriverPropertiesExtension != nullptr) {
+            appExtensions.push_back(fDriverPropertiesExtension);
+            appEnabledExts.fDriverPropertiesKHR = true;
+        }
+        if (!appEnabledExts.fCreateRenderpass2KHR && fCreateRenderpass2Extension != nullptr) {
+            appExtensions.push_back(fCreateRenderpass2Extension);
+            appEnabledExts.fCreateRenderpass2KHR = true;
+        }
+        if (!appEnabledExts.fLoadStoreOpNoneKHR && !appEnabledExts.fLoadStoreOpNoneEXT &&
+            fLoadStoreOpNoneExtension != nullptr) {
+            appExtensions.push_back(fLoadStoreOpNoneExtension);
+            appEnabledExts.fCreateRenderpass2KHR = true;
+        }
+        if (!appEnabledExts.fConservativeRasterizationEXT &&
+            fConservativeRasterizationExtension != nullptr) {
+            appExtensions.push_back(fConservativeRasterizationExtension);
+            appEnabledExts.fConservativeRasterizationEXT = true;
+        }
 #if defined(SK_BUILD_FOR_ANDROID)
-    if (!exts.fExternalMemoryAHardwareBufferEXT &&
-        fExternalMemoryAHardwareBufferExtension != nullptr) {
-        appExtensions.push_back(fExternalMemoryAHardwareBufferExtension);
-        exts.fExternalMemoryAHardwareBufferEXT = true;
-    }
+        if (!appEnabledExts.fExternalMemoryAHardwareBufferEXT &&
+            fExternalMemoryAHardwareBufferExtension != nullptr) {
+            appExtensions.push_back(fExternalMemoryAHardwareBufferExtension);
+            appEnabledExts.fExternalMemoryAHardwareBufferEXT = true;
+        }
 #endif
-    if (!exts.fPipelineLibraryKHR && fPipelineLibraryExtension != nullptr) {
-        appExtensions.push_back(fPipelineLibraryExtension);
-        exts.fPipelineLibraryKHR = true;
-    }
-    if (!exts.fCopyCommands2KHR && fCopyCommands2Extension != nullptr) {
-        appExtensions.push_back(fCopyCommands2Extension);
-        exts.fCopyCommands2KHR = true;
-    }
-    if (!exts.fFormatFeatureFlags2KHR && fFormatFeatureFlags2Extension != nullptr) {
-        appExtensions.push_back(fFormatFeatureFlags2Extension);
-        exts.fFormatFeatureFlags2KHR = true;
-    }
-    if (!exts.fDepthStencilResolveKHR && fDepthStencilResolveExtension != nullptr) {
-        appExtensions.push_back(fDepthStencilResolveExtension);
-        exts.fDepthStencilResolveKHR = true;
-    }
+        if (!appEnabledExts.fPipelineLibraryKHR && fPipelineLibraryExtension != nullptr) {
+            appExtensions.push_back(fPipelineLibraryExtension);
+            appEnabledExts.fPipelineLibraryKHR = true;
+        }
+        if (!appEnabledExts.fCopyCommands2KHR && fCopyCommands2Extension != nullptr) {
+            appExtensions.push_back(fCopyCommands2Extension);
+            appEnabledExts.fCopyCommands2KHR = true;
+        }
+        if (!appEnabledExts.fFormatFeatureFlags2KHR && fFormatFeatureFlags2Extension != nullptr) {
+            appExtensions.push_back(fFormatFeatureFlags2Extension);
+            appEnabledExts.fFormatFeatureFlags2KHR = true;
+        }
+        if (!appEnabledExts.fDepthStencilResolveKHR && fDepthStencilResolveExtension != nullptr) {
+            appExtensions.push_back(fDepthStencilResolveExtension);
+            appEnabledExts.fDepthStencilResolveKHR = true;
+        }
 #if defined(SK_BUILD_FOR_ANDROID)
-    if (!exts.fQueueFamilyForeignEXT && fQueueFamilyForeignExtension != nullptr) {
-        appExtensions.push_back(fQueueFamilyForeignExtension);
-        exts.fQueueFamilyForeignEXT = true;
-    }
+        if (!appEnabledExts.fQueueFamilyForeignEXT && fQueueFamilyForeignExtension != nullptr) {
+            appExtensions.push_back(fQueueFamilyForeignExtension);
+            appEnabledExts.fQueueFamilyForeignEXT = true;
+        }
 #endif
+    }
 
     // Go over the app features.  There are a couple of possibilities:
     //
@@ -838,8 +844,10 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
     //   is required to be supported when the extension is present, that feature is enabled.
     //   If an optional feature is supported but disabled by the app, Skia has no visibility into it
     //   right now, but no such feature is used by Skia currently.
-    // - A struct is included byFeaturesToQuery: In this case, if there are features that Skia
+    //
+    // - A struct is included by addFeaturesToQuery: In this case, if there are features that Skia
     //   doesn't need, they are disabled since the app wasn't relying on those features.
+    //
     // - If a Vulkan1X feature struct needs to be chained, then the individual feature structs that
     //   it subsumes are removed from the chain and their features are enabled in the Vulkan1X
     //   struct instead.
@@ -860,7 +868,7 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
     void* newChainStart = nullptr;
     void** newChainEnd = &newChainStart;
 
-    if (toAdd.fVulkan11) {
+    if (toEnable.fVulkan11) {
         // Disable all features not used by Skia
         fVulkan11.storageBuffer16BitAccess = VK_FALSE;
         fVulkan11.uniformAndStorageBuffer16BitAccess = VK_FALSE;
@@ -881,11 +889,11 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
 
         // The following are features from promoted extensions, where the original extension did not
         // have a feature.
-        if (exts.fShaderDrawParametersKHR) {
+        if (appEnabledExts.fShaderDrawParametersKHR) {
             fVulkan11.shaderDrawParameters = VK_TRUE;
         }
     }
-    if (toAdd.fVulkan12) {
+    if (toEnable.fVulkan12) {
         // Disable all features not used by Skia
         fVulkan12.samplerMirrorClampToEdge = VK_FALSE;
         fVulkan12.drawIndirectCount = VK_FALSE;
@@ -940,24 +948,24 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
 
         // The following are features from promoted extensions, where the original extension did not
         // have a feature.
-        if (exts.fDrawIndirectCountKHR) {
+        if (appEnabledExts.fDrawIndirectCountKHR) {
             fVulkan12.drawIndirectCount = VK_TRUE;
         }
-        if (exts.fSamplerMirrorClampToEdgeKHR) {
+        if (appEnabledExts.fSamplerMirrorClampToEdgeKHR) {
             fVulkan12.samplerMirrorClampToEdge = VK_TRUE;
         }
-        if (exts.fDescriptorIndexingEXT) {
+        if (appEnabledExts.fDescriptorIndexingEXT) {
             fVulkan12.descriptorIndexing = VK_TRUE;
         }
-        if (exts.fSamplerFilterMinmaxEXT) {
+        if (appEnabledExts.fSamplerFilterMinmaxEXT) {
             fVulkan12.samplerFilterMinmax = VK_TRUE;
         }
-        if (exts.fShaderViewportIndexLayerEXT) {
+        if (appEnabledExts.fShaderViewportIndexLayerEXT) {
             fVulkan12.shaderOutputViewportIndex = VK_TRUE;
             fVulkan12.shaderOutputLayer = VK_TRUE;
         }
     }
-    if (toAdd.fVulkan13) {
+    if (toEnable.fVulkan13) {
         // Disable all features not used by Skia
         fVulkan13.robustImageAccess = VK_FALSE;
         fVulkan13.inlineUniformBlock = VK_FALSE;
@@ -978,7 +986,7 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
         fVulkan13.dynamicRendering = VK_TRUE;
         fVulkan13.pipelineCreationCacheControl = VK_TRUE;
     }
-    if (toAdd.fVulkan14) {
+    if (toEnable.fVulkan14) {
         // Disable all features not used by Skia
         fVulkan14.globalPriorityQuery = VK_FALSE;
         fVulkan14.shaderSubgroupRotate = VK_FALSE;
@@ -1005,15 +1013,15 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
 
         // The following are features from promoted extensions, where the original extension did not
         // have a feature.
-        if (exts.fPushDescriptorKHR) {
+        if (appEnabledExts.fPushDescriptorKHR) {
             fVulkan14.pushDescriptor = VK_TRUE;
         }
     }
 
-    bool hasVulkan11Features = toAdd.fVulkan11;
-    bool hasVulkan12Features = toAdd.fVulkan12;
-    bool hasVulkan13Features = toAdd.fVulkan13;
-    bool hasVulkan14Features = toAdd.fVulkan14;
+    bool hasVulkan11Features = toEnable.fVulkan11;
+    bool hasVulkan12Features = toEnable.fVulkan12;
+    bool hasVulkan13Features = toEnable.fVulkan13;
+    bool hasVulkan14Features = toEnable.fVulkan14;
 
     // If chained by Skia, disable depth/stencil coherence even if supported, in case it comes with
     // a perf cost.
@@ -1157,12 +1165,12 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT: {
                 chain(newChainEnd, pNext);
-                toAdd.fRasterizationOrderAttachmentAccess = false;
+                toEnable.fRasterizationOrderAttachmentAccess = false;
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT: {
                 chain(newChainEnd, pNext);
-                toAdd.fBlendOperationAdvanced = false;
+                toEnable.fBlendOperationAdvanced = false;
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT: {
@@ -1171,14 +1179,14 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
                     chain(newChainEnd, pNext);
 
                     // Enable the main feature
-                    if (exts.fExtendedDynamicStateEXT) {
+                    if (appEnabledExts.fExtendedDynamicStateEXT) {
                         auto* features =
                                 reinterpret_cast<VkPhysicalDeviceExtendedDynamicStateFeaturesEXT*>(
                                         pNext);
                         features->extendedDynamicState = VK_TRUE;
                     }
                 }
-                toAdd.fExtendedDynamicState = false;
+                toEnable.fExtendedDynamicState = false;
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT: {
@@ -1191,35 +1199,35 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
                     chain(newChainEnd, pNext);
 
                     // Enable the main feature
-                    if (exts.fExtendedDynamicState2EXT) {
+                    if (appEnabledExts.fExtendedDynamicState2EXT) {
                         features->extendedDynamicState2 = VK_TRUE;
                     }
                 }
-                toAdd.fExtendedDynamicState2 = false;
+                toEnable.fExtendedDynamicState2 = false;
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT: {
                 chain(newChainEnd, pNext);
                 // Enable the main feature
-                if (exts.fVertexInputDynamicStateEXT) {
+                if (appEnabledExts.fVertexInputDynamicStateEXT) {
                     auto* features =
                             reinterpret_cast<VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT*>(
                                     pNext);
                     features->vertexInputDynamicState = VK_TRUE;
                 }
-                toAdd.fVertexInputDynamicState = false;
+                toEnable.fVertexInputDynamicState = false;
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT: {
                 chain(newChainEnd, pNext);
                 // Enable the main feature
-                if (exts.fGraphicsPipelineLibraryEXT) {
+                if (appEnabledExts.fGraphicsPipelineLibraryEXT) {
                     auto* features =
                             reinterpret_cast<VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT*>(
                                     pNext);
                     features->graphicsPipelineLibrary = VK_TRUE;
                 }
-                toAdd.fGraphicsPipelineLibrary = false;
+                toEnable.fGraphicsPipelineLibrary = false;
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES: {
@@ -1227,20 +1235,19 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
                 if (!hasVulkan11Features) {
                     chain(newChainEnd, pNext);
 
-                    // Enable the main feature
-                    if (exts.fSamplerYcbcrConversionKHR) {
-                        auto* features =
-                                reinterpret_cast<VkPhysicalDeviceSamplerYcbcrConversionFeatures*>(
-                                        pNext);
-                        features->samplerYcbcrConversion = VK_TRUE;
-                    }
+                    // Do not explicitly enable the YCbCr conversion feature even if we know
+                    // we could by nature of the device supporting VK_KHR_sampler_ycbcr_conversion.
+                    // Instead, always rely upon adding this feature struct to the list of
+                    // features to query. If queried and supported, we expect that the feature will
+                    // be enabled. If not, that means the client manually disabled it, which we also
+                    // want to respect.
                 }
-                toAdd.fSamplerYcbcrConversion = false;
+                toEnable.fSamplerYcbcrConversion = false;
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RGBA10X6_FORMATS_FEATURES_EXT: {
                 chain(newChainEnd, pNext);
-                toAdd.fRGBA10x6Formats = false;
+                toEnable.fRGBA10x6Formats = false;
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES: {
@@ -1248,13 +1255,13 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
                 if (!hasVulkan13Features) {
                     chain(newChainEnd, pNext);
                     // Enable the main feature
-                    if (exts.fSynchronization2KHR) {
+                    if (appEnabledExts.fSynchronization2KHR) {
                         auto* features =
                                 reinterpret_cast<VkPhysicalDeviceSynchronization2Features*>(pNext);
                         features->synchronization2 = VK_TRUE;
                     }
                 }
-                toAdd.fSynchronization2 = false;
+                toEnable.fSynchronization2 = false;
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES: {
@@ -1262,13 +1269,13 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
                 if (!hasVulkan13Features) {
                     chain(newChainEnd, pNext);
                     // Enable the main feature
-                    if (exts.fDynamicRenderingKHR) {
+                    if (appEnabledExts.fDynamicRenderingKHR) {
                         auto* features =
                                 reinterpret_cast<VkPhysicalDeviceDynamicRenderingFeatures*>(pNext);
                         features->dynamicRendering = VK_TRUE;
                     }
                 }
-                toAdd.fDynamicRendering = false;
+                toEnable.fDynamicRendering = false;
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_LOCAL_READ_FEATURES: {
@@ -1276,24 +1283,24 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
                 if (!hasVulkan14Features) {
                     chain(newChainEnd, pNext);
                     // Enable the main feature
-                    if (exts.fDynamicRenderingLocalReadKHR) {
+                    if (appEnabledExts.fDynamicRenderingLocalReadKHR) {
                         auto* features = reinterpret_cast<
                                 VkPhysicalDeviceDynamicRenderingLocalReadFeatures*>(pNext);
                         features->dynamicRenderingLocalRead = VK_TRUE;
                     }
-                    toAdd.fDynamicRenderingLocalRead = false;
+                    toEnable.fDynamicRenderingLocalRead = false;
                 }
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT: {
                 chain(newChainEnd, pNext);
                 // Enable the main feature
-                if (exts.fMultisampledRenderToSingleSampledEXT) {
+                if (appEnabledExts.fMultisampledRenderToSingleSampledEXT) {
                     auto* features = reinterpret_cast<
                             VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT*>(pNext);
                     features->multisampledRenderToSingleSampled = VK_TRUE;
                 }
-                toAdd.fMultisampledRenderToSingleSampled = false;
+                toEnable.fMultisampledRenderToSingleSampled = false;
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES: {
@@ -1301,13 +1308,13 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
                 if (!hasVulkan14Features) {
                     chain(newChainEnd, pNext);
                     // Enable the main feature
-                    if (exts.fHostImageCopyEXT) {
+                    if (appEnabledExts.fHostImageCopyEXT) {
                         auto* features =
                                 reinterpret_cast<VkPhysicalDeviceHostImageCopyFeatures*>(pNext);
                         features->hostImageCopy = VK_TRUE;
                     }
                 }
-                toAdd.fHostImageCopy = false;
+                toEnable.fHostImageCopy = false;
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES: {
@@ -1315,13 +1322,13 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
                 if (!hasVulkan13Features) {
                     chain(newChainEnd, pNext);
                     // Enable the main feature
-                    if (exts.fPipelineCreationCacheControlEXT) {
+                    if (appEnabledExts.fPipelineCreationCacheControlEXT) {
                         auto* features = reinterpret_cast<
                                 VkPhysicalDevicePipelineCreationCacheControlFeatures*>(pNext);
                         features->pipelineCreationCacheControl = VK_TRUE;
                     }
                 }
-                toAdd.fPipelineCreationCacheControl = false;
+                toEnable.fPipelineCreationCacheControl = false;
                 break;
             }
             // Gather features promoted to Vulkan 1.1 and drop their structs per the following valid
@@ -1818,13 +1825,13 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT: {
                 chain(newChainEnd, pNext);
-                if (exts.fFrameBoundaryEXT) {
+                if (appEnabledExts.fFrameBoundaryEXT) {
                     auto* features =
                             reinterpret_cast<VkPhysicalDeviceFrameBoundaryFeaturesEXT*>(
                                     pNext);
                     features->frameBoundary = VK_TRUE;
                 }
-                toAdd.fFrameBoundary = false;
+                toEnable.fFrameBoundary = false;
                 break;
             }
 
@@ -1851,49 +1858,49 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
     if (hasVulkan14Features) {
         chain(newChainEnd, &fVulkan14);
     }
-    if (toAdd.fRasterizationOrderAttachmentAccess) {
+    if (toEnable.fRasterizationOrderAttachmentAccess) {
         chain(newChainEnd, &fRasterizationOrderAttachmentAccess);
     }
-    if (toAdd.fBlendOperationAdvanced) {
+    if (toEnable.fBlendOperationAdvanced) {
         chain(newChainEnd, &fBlendOperationAdvanced);
     }
-    if (toAdd.fExtendedDynamicState) {
+    if (toEnable.fExtendedDynamicState) {
         chain(newChainEnd, &fExtendedDynamicState);
     }
-    if (toAdd.fExtendedDynamicState2) {
+    if (toEnable.fExtendedDynamicState2) {
         chain(newChainEnd, &fExtendedDynamicState2);
     }
-    if (toAdd.fVertexInputDynamicState) {
+    if (toEnable.fVertexInputDynamicState) {
         chain(newChainEnd, &fVertexInputDynamicState);
     }
-    if (toAdd.fGraphicsPipelineLibrary) {
+    if (toEnable.fGraphicsPipelineLibrary) {
         chain(newChainEnd, &fGraphicsPipelineLibrary);
     }
-    if (toAdd.fSamplerYcbcrConversion) {
+    if (toEnable.fSamplerYcbcrConversion) {
         chain(newChainEnd, &fSamplerYcbcrConversion);
     }
-    if (toAdd.fRGBA10x6Formats) {
+    if (toEnable.fRGBA10x6Formats) {
         chain(newChainEnd, &fRGBA10x6Formats);
     }
-    if (toAdd.fSynchronization2) {
+    if (toEnable.fSynchronization2) {
         chain(newChainEnd, &fSynchronization2);
     }
-    if (toAdd.fDynamicRendering) {
+    if (toEnable.fDynamicRendering) {
         chain(newChainEnd, &fDynamicRendering);
     }
-    if (toAdd.fDynamicRenderingLocalRead) {
+    if (toEnable.fDynamicRenderingLocalRead) {
         chain(newChainEnd, &fDynamicRenderingLocalRead);
     }
-    if (toAdd.fMultisampledRenderToSingleSampled) {
+    if (toEnable.fMultisampledRenderToSingleSampled) {
         chain(newChainEnd, &fMultisampledRenderToSingleSampled);
     }
-    if (toAdd.fHostImageCopy) {
+    if (toEnable.fHostImageCopy) {
         chain(newChainEnd, &fHostImageCopy);
     }
-    if (toAdd.fPipelineCreationCacheControl) {
+    if (toEnable.fPipelineCreationCacheControl) {
         chain(newChainEnd, &fPipelineCreationCacheControl);
     }
-    if (toAdd.fFrameBoundary) {
+    if (toEnable.fFrameBoundary) {
         chain(newChainEnd, &fFrameBoundary);
     }
 
