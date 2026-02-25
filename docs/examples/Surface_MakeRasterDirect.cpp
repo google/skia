@@ -6,6 +6,7 @@ void draw(SkCanvas*) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);
     const size_t size = info.computeMinByteSize();
     SkPMColor* pixels = new SkPMColor[size];
+    SkPMColor* raw_pixels = pixels; // Save the original address to prevent memory free crashes
     sk_sp<SkSurface> surface(SkSurfaces::WrapPixels(info, pixels, info.minRowBytes()));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorWHITE);
@@ -18,6 +19,6 @@ void draw(SkCanvas*) {
         }
         SkDebugf("\n");
     }
-    delete[] pixels;
+    delete[] raw_pixels;
 }
 }  // END FIDDLE

@@ -7,6 +7,7 @@ void draw(SkCanvas*) {
     const size_t minRowBytes = info.minRowBytes();  // bytes used by one bitmap row
     const size_t size = info.computeMinByteSize();  // bytes used by all rows
     SkPMColor* pixels = new SkPMColor[size]; // allocate storage for pixels
+    SkPMColor* raw_pixels = pixels; // Save the original address to prevent memory free crashes
     // create a SkCanvas backed by a raster device, and delete it when the
     // function goes out of scope.
     std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(info, pixels, minRowBytes);
@@ -20,6 +21,6 @@ void draw(SkCanvas*) {
         }
         SkDebugf("\n");
     }
-    delete[] pixels;
+    delete[] raw_pixels;
 }
 }  // END FIDDLE
