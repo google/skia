@@ -1,7 +1,7 @@
 // Copyright 2020 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
-REG_FIDDLE(PaintDump, 256, 256, true, 0) {
+REG_FIDDLE(PaintDump, 256, 256, true, 1) {
 static const char* str(SkPaint::Cap v) {
     switch (v) {
         case SkPaint::kButt_Cap:   return "SkPaint::kButt_Cap";
@@ -87,6 +87,7 @@ void draw(SkCanvas* canvas) {
     p.setStrokeWidth(10);
     p.setBlendMode(SkBlendMode::kDstOver);
     p.setStrokeCap(SkPaint::kRound_Cap);
+    // The image pointer will be well-initialized when fImageIndex in [1...6]
     p.setShader(image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, SkSamplingOptions()));
 
     auto s = PaintStringDump(p);
