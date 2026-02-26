@@ -94,6 +94,13 @@ protected:
             for (int i = 0; i < numPlanes; ++i) {
                 auto info = SkImageInfo::Make(dimensions[i], colorTypes[i], kPremul_SkAlphaType);
                 auto surf = SkSurfaces::RenderTarget(recorder, info, skgpu::Mipmapped::kYes);
+                if (colorTypes[i] == kRGB_888x_SkColorType && !surf) {
+                    // kRGB_888x is rarely renderable with a native texture format, so fallback to
+                    // RGBA8 and the YUV shaders will ignore the extra alpha channel.
+                    surf = SkSurfaces::RenderTarget(recorder,
+                                                    info.makeColorType(kRGBA_8888_SkColorType),
+                                                    skgpu::Mipmapped::kYes);
+                }
                 if (!surf) {
                     continue;
                 }
