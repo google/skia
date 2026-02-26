@@ -3,7 +3,7 @@
   "direct": [
     {
       "build_file": "//bazel/external/dawn:BUILD.bazel",
-      "commit": "b9cc1fc1c571d94e333d06568203cedffa07b720",
+      "commit": "40eed19beff149e26447145c9767d0b77b53a90e",
       "name": "dawn",
       "remote": "https://dawn.googlesource.com/dawn.git"
     },
@@ -197,7 +197,7 @@
       "remote": "https://skia.googlesource.com/external/github.com/google/brotli.git"
     },
     {
-      "commit": "74d426ccd39ca11ed753ec2135a2f33ec6597de8",
+      "commit": "ea09accd9adefed426f583b4a7351c4920e28de1",
       "name": "abseil_cpp",
       "remote": "https://chromium.googlesource.com/chromium/src/third_party/abseil-cpp"
     },
