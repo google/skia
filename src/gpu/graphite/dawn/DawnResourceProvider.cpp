@@ -511,7 +511,8 @@ DawnResourceProvider::BlitWithDrawEncoder DawnResourceProvider::findOrCreateBlit
     return BlitWithDrawEncoder(std::move(pipeline), srcIsMSAA);
 }
 
-sk_sp<Texture> DawnResourceProvider::onCreateWrappedTexture(const BackendTexture& texture) {
+sk_sp<Texture> DawnResourceProvider::onCreateWrappedTexture(const BackendTexture& texture,
+                                                            std::string_view label) {
     // Convert to smart pointers. wgpu::Texture* constructor will increment the ref count.
     wgpu::Texture dawnTexture         = BackendTextures::GetDawnTexturePtr(texture);
     wgpu::TextureView dawnTextureView = BackendTextures::GetDawnTextureViewPtr(texture);
@@ -525,12 +526,14 @@ sk_sp<Texture> DawnResourceProvider::onCreateWrappedTexture(const BackendTexture
         return DawnTexture::MakeWrapped(this->dawnSharedContext(),
                                         texture.dimensions(),
                                         texture.info(),
-                                        std::move(dawnTexture));
+                                        std::move(dawnTexture),
+                                        label);
     } else {
         return DawnTexture::MakeWrapped(this->dawnSharedContext(),
                                         texture.dimensions(),
                                         texture.info(),
-                                        std::move(dawnTextureView));
+                                        std::move(dawnTextureView),
+                                        label);
     }
 }
 
@@ -566,8 +569,9 @@ sk_sp<ComputePipeline> DawnResourceProvider::createComputePipeline(
     return DawnComputePipeline::Make(this->dawnSharedContext(), desc);
 }
 
-sk_sp<Texture> DawnResourceProvider::createTexture(SkISize dimensions, const TextureInfo& info) {
-    return DawnTexture::Make(this->dawnSharedContext(), dimensions, info);
+sk_sp<Texture> DawnResourceProvider::createTexture(
+        SkISize dimensions, const TextureInfo& info, std::string_view label) {
+    return DawnTexture::Make(this->dawnSharedContext(), dimensions, info, label);
 }
 
 sk_sp<Buffer> DawnResourceProvider::createBuffer(size_t size,

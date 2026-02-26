@@ -161,7 +161,8 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
 sk_sp<Texture> VulkanTexture::Make(const VulkanSharedContext* sharedContext,
                                    SkISize dimensions,
                                    const TextureInfo& info,
-                                   sk_sp<VulkanYcbcrConversion> ycbcrConversion) {
+                                   sk_sp<VulkanYcbcrConversion> ycbcrConversion,
+                                   std::string_view label) {
     CreatedImageInfo imageInfo;
     if (!MakeVkImage(sharedContext, dimensions, info, &imageInfo)) {
         return nullptr;
@@ -174,7 +175,8 @@ sk_sp<Texture> VulkanTexture::Make(const VulkanSharedContext* sharedContext,
                                             imageInfo.fImage,
                                             imageInfo.fMemoryAlloc,
                                             Ownership::kOwned,
-                                            std::move(ycbcrConversion)));
+                                            std::move(ycbcrConversion),
+                                            label));
 }
 
 sk_sp<Texture> VulkanTexture::MakeWrapped(const VulkanSharedContext* sharedContext,
@@ -183,7 +185,8 @@ sk_sp<Texture> VulkanTexture::MakeWrapped(const VulkanSharedContext* sharedConte
                                           sk_sp<MutableTextureState> mutableState,
                                           VkImage image,
                                           const VulkanAlloc& alloc,
-                                          sk_sp<VulkanYcbcrConversion> ycbcrConversion) {
+                                          sk_sp<VulkanYcbcrConversion> ycbcrConversion,
+                                          std::string_view label) {
     return sk_sp<Texture>(new VulkanTexture(sharedContext,
                                             dimensions,
                                             info,
@@ -191,7 +194,8 @@ sk_sp<Texture> VulkanTexture::MakeWrapped(const VulkanSharedContext* sharedConte
                                             image,
                                             alloc,
                                             Ownership::kWrapped,
-                                            std::move(ycbcrConversion)));
+                                            std::move(ycbcrConversion),
+                                            label));
 }
 
 VulkanTexture::~VulkanTexture() {}
@@ -318,17 +322,21 @@ VulkanTexture::VulkanTexture(const VulkanSharedContext* sharedContext,
                              VkImage image,
                              const VulkanAlloc& alloc,
                              Ownership ownership,
-                             sk_sp<VulkanYcbcrConversion> ycbcrConversion)
+                             sk_sp<VulkanYcbcrConversion> ycbcrConversion,
+                             std::string_view label)
         : Texture(sharedContext,
                   dimensions,
                   info,
                   uses_lazy_memory(alloc),
                   std::move(mutableState),
-                  ownership)
+                  ownership,
+                  label)
         , fImage(image)
         , fMemoryAlloc(alloc)
         , fYcbcrConversion(std::move(ycbcrConversion)) {
     SkASSERT(!uses_lazy_memory(fMemoryAlloc) || has_transient_usage(info));
+    // Update the newly-created underlying GPU object's label to match the Resource's
+    this->synchronizeBackendLabel();
 }
 
 void VulkanTexture::freeGpuData() {

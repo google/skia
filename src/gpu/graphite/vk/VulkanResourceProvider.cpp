@@ -111,7 +111,8 @@ VulkanSharedContext* VulkanResourceProvider::nonConstVulkanSharedContext() {
     return static_cast<VulkanSharedContext*>(fSharedContext);
 }
 
-sk_sp<Texture> VulkanResourceProvider::onCreateWrappedTexture(const BackendTexture& texture) {
+sk_sp<Texture> VulkanResourceProvider::onCreateWrappedTexture(const BackendTexture& texture,
+                                                              std::string_view label) {
     sk_sp<VulkanYcbcrConversion> ycbcrConversion;
     const auto& vkInfo = TextureInfoPriv::Get<VulkanTextureInfo>(texture.info());
     if (vkInfo.fYcbcrConversionInfo.isValid()) {
@@ -127,7 +128,8 @@ sk_sp<Texture> VulkanResourceProvider::onCreateWrappedTexture(const BackendTextu
                                       BackendTextures::GetMutableState(texture),
                                       BackendTextures::GetVkImage(texture),
                                       /*alloc=*/{} /*Skia does not own wrapped texture memory*/,
-                                      std::move(ycbcrConversion));
+                                      std::move(ycbcrConversion),
+                                      label);
 }
 
 sk_sp<ComputePipeline> VulkanResourceProvider::createComputePipeline(const ComputePipelineDesc&) {
@@ -135,7 +137,8 @@ sk_sp<ComputePipeline> VulkanResourceProvider::createComputePipeline(const Compu
 }
 
 sk_sp<Texture> VulkanResourceProvider::createTexture(SkISize size,
-                                                     const TextureInfo& info) {
+                                                     const TextureInfo& info,
+                                                     std::string_view label) {
     sk_sp<VulkanYcbcrConversion> ycbcrConversion;
     const auto& vkInfo = TextureInfoPriv::Get<VulkanTextureInfo>(info);
     if (vkInfo.fYcbcrConversionInfo.isValid()) {
@@ -148,7 +151,8 @@ sk_sp<Texture> VulkanResourceProvider::createTexture(SkISize size,
     return VulkanTexture::Make(this->vulkanSharedContext(),
                                size,
                                info,
-                               std::move(ycbcrConversion));
+                               std::move(ycbcrConversion),
+                               label);
 }
 
 sk_sp<Buffer> VulkanResourceProvider::createBuffer(size_t size,

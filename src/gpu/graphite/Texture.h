@@ -50,10 +50,11 @@ public:
 protected:
     Texture(const SharedContext*,
             SkISize dimensions,
-            const TextureInfo& info,
+            const TextureInfo&,
             bool isTransient,
-            sk_sp<MutableTextureState> mutableState,
-            Ownership);
+            sk_sp<MutableTextureState>,
+            Ownership,
+            std::string_view label);
 
     MutableTextureState* mutableState() const;
 

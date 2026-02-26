@@ -26,17 +26,20 @@ public:
 
     static sk_sp<Texture> Make(const DawnSharedContext*,
                                SkISize dimensions,
-                               const TextureInfo&);
+                               const TextureInfo&,
+                               std::string_view label);
 
     static sk_sp<Texture> MakeWrapped(const DawnSharedContext*,
                                       SkISize dimensions,
                                       const TextureInfo&,
-                                      wgpu::Texture);
+                                      wgpu::Texture,
+                                      std::string_view label);
 
     static sk_sp<Texture> MakeWrapped(const DawnSharedContext*,
                                       SkISize dimensions,
                                       const TextureInfo&,
-                                      const wgpu::TextureView&);
+                                      const wgpu::TextureView&,
+                                      std::string_view label);
 
     ~DawnTexture() override {}
 
@@ -55,7 +58,8 @@ private:
                 wgpu::Texture,
                 wgpu::TextureView sampleTextureView,
                 wgpu::TextureView renderTextureView,
-                Ownership);
+                Ownership,
+                std::string_view label);
 
     void freeGpuData() override;
 

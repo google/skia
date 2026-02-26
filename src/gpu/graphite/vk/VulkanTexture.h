@@ -46,7 +46,8 @@ public:
     static sk_sp<Texture> Make(const VulkanSharedContext*,
                                SkISize dimensions,
                                const TextureInfo&,
-                               sk_sp<VulkanYcbcrConversion>);
+                               sk_sp<VulkanYcbcrConversion>,
+                               std::string_view label);
 
     static sk_sp<Texture> MakeWrapped(const VulkanSharedContext*,
                                       SkISize dimensions,
@@ -54,7 +55,8 @@ public:
                                       sk_sp<MutableTextureState>,
                                       VkImage,
                                       const VulkanAlloc&,
-                                      sk_sp<VulkanYcbcrConversion>);
+                                      sk_sp<VulkanYcbcrConversion>,
+                                      std::string_view label);
 
     ~VulkanTexture() override;
 
@@ -109,12 +111,13 @@ public:
 private:
     VulkanTexture(const VulkanSharedContext* sharedContext,
                   SkISize dimensions,
-                  const TextureInfo& info,
+                  const TextureInfo&,
                   sk_sp<MutableTextureState>,
                   VkImage,
                   const VulkanAlloc&,
                   Ownership,
-                  sk_sp<VulkanYcbcrConversion>);
+                  sk_sp<VulkanYcbcrConversion>,
+                  std::string_view label);
 
     void freeGpuData() override;
 

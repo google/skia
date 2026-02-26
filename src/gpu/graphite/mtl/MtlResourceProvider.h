@@ -35,8 +35,8 @@ private:
 
     sk_sp<ComputePipeline> createComputePipeline(const ComputePipelineDesc&) override;
 
-    sk_sp<Texture> createTexture(SkISize, const TextureInfo&) override;
-    sk_sp<Texture> onCreateWrappedTexture(const BackendTexture&) override;
+    sk_sp<Texture> createTexture(SkISize, const TextureInfo&, std::string_view label) override;
+    sk_sp<Texture> onCreateWrappedTexture(const BackendTexture&, std::string_view label) override;
     sk_sp<Buffer> createBuffer(size_t, BufferType, AccessPattern, std::string_view label) override;
     sk_sp<Sampler> createSampler(const SamplerDesc&) override;
 
