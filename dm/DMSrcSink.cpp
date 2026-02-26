@@ -1155,7 +1155,9 @@ Name ColorCodecSrc::name() const {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 static DEFINE_int(skpViewportSize, 1000,
-                  "Width & height of the viewport used to crop skp rendering.");
+                  "Width & height of the viewport used to crop skp rendering.\n"
+                  "Special options:\n"
+                  "0: Rendered in original SKP dimensions without cropping.");
 
 SKPSrc::SKPSrc(Path path) : fPath(path) { }
 
@@ -1202,7 +1204,9 @@ Result SKPSrc::draw(SkCanvas* canvas, GraphiteTestContext*) const {
         return Result::Fatal("Couldn't parse file %s.", fPath.c_str());
     }
     stream = nullptr;  // Might as well drop this when we're done with it.
-    canvas->clipRect(SkRect::MakeWH(FLAGS_skpViewportSize, FLAGS_skpViewportSize));
+    if (FLAGS_skpViewportSize != 0) {
+        canvas->clipRect(SkRect::MakeWH(FLAGS_skpViewportSize, FLAGS_skpViewportSize));
+    }
     canvas->drawPicture(pic);
     return Result::Ok();
 }
@@ -1222,7 +1226,8 @@ static SkRect get_cull_rect_for_skp(const char* path) {
 
 SkISize SKPSrc::size() const {
     SkRect viewport = get_cull_rect_for_skp(fPath.c_str());
-    if (!viewport.intersect((SkRect::MakeWH(FLAGS_skpViewportSize, FLAGS_skpViewportSize)))) {
+    if (!viewport.intersect((SkRect::MakeWH(FLAGS_skpViewportSize, FLAGS_skpViewportSize))) &&
+        (FLAGS_skpViewportSize != 0)) {
         return {0, 0};
     }
     return viewport.roundOut().size();
