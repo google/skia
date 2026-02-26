@@ -4,8 +4,9 @@
 REG_FIDDLE(ImageInfo_bytesPerPixel, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     const char* colors[] = {"Unknown", "Alpha_8", "RGB_565", "ARGB_4444", "RGBA_8888", "RGB_888x",
-                            "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16Norm",
-                            "RGBA_F16"};
+                            "BGRA_8888", "RGBA_1010102", "BGRA_1010102", "RGB_101010x",
+                            "BGR_101010x", "BGR_101010x_XR", "BGRA_10101010_XR", "RGBA_10x6",
+                            "Gray_8", "RGBA_F16Norm", "RGBA_F16"};
     for (SkColorType colorType : {
     kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
     kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,

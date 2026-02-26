@@ -4,8 +4,9 @@
 REG_FIDDLE(Bitmap_bytesPerPixel, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     const char* colors[] = {"Unknown", "Alpha_8", "RGB_565", "ARGB_4444", "RGBA_8888", "RGB_888x",
-                            "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16Norm",
-                            "RGBA_F16"};
+                            "BGRA_8888", "RGBA_1010102", "BGRA_1010102", "RGB_101010x",
+                            "BGR_101010x", "BGR_101010x_XR", "BGRA_10101010_XR", "RGBA_10x6",
+                            "Gray_8", "RGBA_F16Norm", "RGBA_F16"};
     SkImageInfo info = SkImageInfo::MakeA8(1, 1);
     SkBitmap bitmap;
     for (SkColorType colorType : {
