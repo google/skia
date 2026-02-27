@@ -11,7 +11,6 @@
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SingleOwner.h"
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/Buffer.h"
@@ -39,8 +38,10 @@ private:
                void* mapAtCreationPtr,
                std::string_view label);
 
+#if defined(__EMSCRIPTEN__)
     bool prepareForReturnToCache(Resource::TakeRefFunc takeRef, void* takeRefCtx) override;
     void onAsyncMap(GpuFinishedProc, GpuFinishedContext) override;
+#endif
     void onMap() override;
     void onUnmap() override;
 
@@ -56,10 +57,8 @@ private:
     void setBackendLabel(char const* label) override;
 
     wgpu::Buffer fBuffer;
-    skia_private::STArray<1, AutoCallback> fAsyncMapCallbacks;
-
-    // Ensure that only one thread can call asyncMap().
-    [[maybe_unused]] SingleOwner fSingleMapCaller;
+    SkMutex fAsyncMutex;
+    skia_private::STArray<1, AutoCallback> fAsyncMapCallbacks SK_GUARDED_BY(fAsyncMutex);
 };
 
 } // namespace skgpu::graphite
