@@ -181,6 +181,7 @@ wgpu::CommandBuffer DawnCommandBuffer::finishEncoding() {
     wgpu::CommandBuffer cmdBuffer = fCommandEncoder.Finish();
 
     fCommandEncoder = nullptr;
+    fResourceProvider->releasePendingIntrinsicBuffers();
 
     return cmdBuffer;
 }
@@ -223,7 +224,7 @@ const DawnSampler* DawnCommandBuffer::getSampler(
     if (desc.isImmutable()) {
         const DawnSampler* immutableSampler = fActiveGraphicsPipeline->immutableSampler(index);
         if (immutableSampler) {
-            this->trackCommandBufferResource(sk_ref_sp<Sampler>(immutableSampler));
+            this->trackResource(sk_ref_sp<Sampler>(immutableSampler));
         }
         return immutableSampler;
     } else {

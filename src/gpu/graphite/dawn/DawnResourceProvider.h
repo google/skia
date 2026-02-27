@@ -82,6 +82,8 @@ public:
     BindBufferInfo findOrCreateIntrinsicBindBufferInfo(DawnCommandBuffer* cb,
                                                        UniformDataBlock intrinsicValues);
 
+    void releasePendingIntrinsicBuffers();
+
 private:
     sk_sp<ComputePipeline> createComputePipeline(const ComputePipelineDesc&) override;
 
