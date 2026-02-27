@@ -69,6 +69,22 @@ sk_sp<Image> Surface::asImage() const {
     return fImageView;
 }
 
+sk_sp<Image> Surface::asImage(SkColorType otherCT, SkAlphaType otherAT) const {
+
+    TextureProxyView view = fImageView->textureProxyView();
+    SkASSERT(fDevice->recorder()->priv().caps()->areColorTypeAndTextureInfoCompatible(
+            otherCT, view.proxy()->textureInfo()));
+
+    // No conversion, save a malloc.
+    if (otherCT == fImageView->colorType() && otherAT == fImageView->alphaType()) {
+        return fImageView;
+    }
+    // Override the color info for sampling the texture
+    return Image::WrapDevice(fDevice,
+                             SkColorInfo{otherCT, otherAT, fDevice->imageInfo().refColorSpace()});
+}
+
+
 sk_sp<SkImage> Surface::onMakeTemporaryImage() {
     if (this->hasCachedImage()) {
         SKGPU_LOG_W("Intermingling makeImageSnapshot and makeTemporaryImage calls may produce "

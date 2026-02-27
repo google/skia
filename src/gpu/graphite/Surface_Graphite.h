@@ -88,6 +88,9 @@ public:
 
     TextureProxyView readSurfaceView() const;
     sk_sp<Image> asImage() const;
+    // Shares the texture but returns an Image with adjusted SkColorInfo to reflect the compatible
+    // `otherCT` and `otherAT`.
+    sk_sp<Image> asImage(SkColorType otherCT, SkAlphaType otherAT) const;
     sk_sp<Image> makeImageCopy(const SkIRect* subset, Mipmapped) const;
     TextureProxy* backingTextureProxy() const;
 

@@ -234,13 +234,6 @@ public:
      */
     skgpu::Swizzle getWriteSwizzle(SkColorType, const TextureInfo&) const;
 
-    /**
-     * Checks whether the passed color type is renderable. If so, the same color type is passed
-     * back. If not, provides an alternative (perhaps lower bit depth and/or unorm instead of float)
-     * color type that is supported or kUnknown if there no renderable fallback format.
-     */
-    SkColorType getRenderableColorType(SkColorType) const;
-
     int maxTextureSize() const { return fMaxTextureSize; }
 
     virtual void buildKeyForTexture(SkISize dimensions,

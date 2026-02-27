@@ -302,7 +302,7 @@ void Context::asyncRescaleAndReadImpl(ReadFn Context::* asyncRead,
                                       SkImage::RescaleMode rescaleMode,
                                       const AsyncParams<SkImage>& params,
                                       ExtraArgs... extraParams) {
-    if (!params.validate()) {
+    if (!params.validate() || !as_IB(params.fSrcImage)->isGraphiteBacked()) {
         return params.fail();
     }
 
@@ -314,7 +314,7 @@ void Context::asyncRescaleAndReadImpl(ReadFn Context::* asyncRead,
     // Make a recorder to collect the rescale drawing commands and the copy commands
     std::unique_ptr<Recorder> recorder = this->makeInternalRecorder();
     sk_sp<SkImage> scaledImage = RescaleImage(recorder.get(),
-                                              params.fSrcImage,
+                                              static_cast<const Image_Base*>(params.fSrcImage),
                                               params.fSrcRect,
                                               params.fDstImageInfo,
                                               rescaleGamma,

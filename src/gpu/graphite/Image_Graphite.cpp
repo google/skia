@@ -40,16 +40,43 @@ Image::Image(TextureProxyView view,
 
 Image::~Image() = default;
 
-sk_sp<Image> Image::WrapDevice(sk_sp<Device> device) {
-    TextureProxyView proxy = device->readSurfaceView();
-    if (!proxy) {
+sk_sp<Image> Image::WrapDevice(sk_sp<Device> device, std::optional<SkColorInfo> overrideInfo) {
+    TextureProxyView view = device->readSurfaceView();
+    if (!view) {
         return nullptr;
     }
+
+    // If an overrideInfo is provided, it needs to be compatible with the format still and the
+    // changes to alpha type need to make sense.
+    if (overrideInfo.has_value()) {
+        const Caps* caps = device->recorder()->priv().caps();
+        if (!caps->areColorTypeAndTextureInfoCompatible(overrideInfo->colorType(),
+                                                        view.proxy()->textureInfo())) {
+            return nullptr;
+        }
+        // For alpha type, it should match the device's alpha type or be changing from kOpaque back
+        // to kPremul or kUnpremul.
+        const SkAlphaType overrideAT = overrideInfo->alphaType();
+        const SkAlphaType devAT = device->imageInfo().alphaType();
+        if (overrideAT != devAT &&
+            (devAT != kOpaque_SkAlphaType || (overrideAT != kPremul_SkAlphaType &&
+                                              overrideAT != kUnpremul_SkAlphaType))) {
+            return nullptr;
+        }
+
+        // Update the swizzle on the texture view to match the change in color type
+        Swizzle readSwizzle = caps->getReadSwizzle(
+                overrideInfo->colorType(), view.proxy()->textureInfo());
+        view = view.replaceSwizzle(readSwizzle);
+    } else {
+        // Leave the texture view alone since its swizzle should match the device already
+        overrideInfo = device->imageInfo().colorInfo();
+    }
+
     // NOTE: If the device was created with an approx backing fit, its SkImageInfo reports the
     // logical dimensions, but its proxy has the approximate fit. These larger dimensions are
     // propagated to the SkImageInfo of this image view.
-    sk_sp<Image> image = sk_make_sp<Image>(std::move(proxy),
-                                           device->imageInfo().colorInfo());
+    sk_sp<Image> image = sk_make_sp<Image>(std::move(view), *overrideInfo);
     image->linkDevice(std::move(device));
     return image;
 }

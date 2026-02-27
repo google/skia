@@ -12,6 +12,8 @@
 
 #include "src/gpu/graphite/TextureProxyView.h"
 
+#include <optional>
+
 namespace skgpu {
     class RefCntedCallback;
 }
@@ -30,7 +32,8 @@ public:
 
     // Create an Image that wraps the Device and automatically flushes or references the Device's
     // pending tasks when the Image is used in a draw to another canvas.
-    static sk_sp<Image> WrapDevice(sk_sp<Device> device);
+    static sk_sp<Image> WrapDevice(sk_sp<Device> device,
+                                   std::optional<SkColorInfo> overrideInfo = std::nullopt);
 
     // Create an Image by copying the provided texture proxy view into a new texturable proxy.
     // The source texture does not have to be texturable if it is blittable.
