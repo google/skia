@@ -65,7 +65,7 @@ private:
     }
 
     SkSpan<const ColorTypeInfo> getColorTypeInfos(const TextureInfo&) const override;
-    TextureFormat getFormatForColorType(SkColorType) const override;
+    TextureFormat getFormatForColorType(SkColorType, Renderable) const override;
     TextureInfo onGetDefaultTextureInfo(SkEnumBitMask<TextureUsage> usage,
                                         TextureFormat,
                                         SampleCount,
@@ -103,9 +103,9 @@ private:
         int fColorTypeInfoCount = 0;
     };
 #ifdef SK_BUILD_FOR_MAC
-    inline static constexpr size_t kNumMtlFormats = 23;
+    inline static constexpr int kNumMtlFormats = 23;
 #else
-    inline static constexpr size_t kNumMtlFormats = 21;
+    inline static constexpr int kNumMtlFormats = 21;
 #endif
 
     static size_t GetFormatIndex(MTLPixelFormat);

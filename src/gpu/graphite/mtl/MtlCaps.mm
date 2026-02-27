@@ -319,13 +319,20 @@ void MtlCaps::initFormatTable(const id<MTLDevice> device) {
     {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA8Unorm)];
         info->fFlags = FormatInfo::kAllFlags;
-        info->fColorTypeInfoCount = 2;
+        info->fColorTypeInfoCount = 3;
         info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: RGBA8Unorm, Surface: kRGBA_8888
         {
             auto& ctInfo = info->fColorTypeInfos[ctIdx++];
             ctInfo.fColorType = kRGBA_8888_SkColorType;
+            ctInfo.fTransferColorType = kRGBA_8888_SkColorType;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
+        // Format: RGBA8Unorm, Surface: kBGRA_8888
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = kBGRA_8888_SkColorType;
             ctInfo.fTransferColorType = kRGBA_8888_SkColorType;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
         }
@@ -392,7 +399,7 @@ void MtlCaps::initFormatTable(const id<MTLDevice> device) {
     {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatBGRA8Unorm)];
         info->fFlags = FormatInfo::kAllFlags;
-        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfoCount = 3;
         info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: BGRA8Unorm, Surface: kBGRA_8888
@@ -401,6 +408,23 @@ void MtlCaps::initFormatTable(const id<MTLDevice> device) {
             ctInfo.fColorType = kBGRA_8888_SkColorType;
             ctInfo.fTransferColorType = kBGRA_8888_SkColorType;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
+        // Format: BGRA8Unorm, Surface: kRGBA_8888
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = kRGBA_8888_SkColorType;
+            ctInfo.fTransferColorType = kBGRA_8888_SkColorType;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
+        // Format: BGRA8Unorm, Surface: kRGB_888x
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = kRGB_888x_SkColorType;
+            // There is no kBGR_888x color type, so report that the data is BGRA and rely on
+            // SkConvertPixels to force alpha to opaque when kRGB_888x is either the src or dst type
+            ctInfo.fTransferColorType = kBGRA_8888_SkColorType;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
+            ctInfo.fReadSwizzle = skgpu::Swizzle::RGB1();
         }
     }
 
@@ -468,7 +492,7 @@ void MtlCaps::initFormatTable(const id<MTLDevice> device) {
         } else {
             info->fFlags = FormatInfo::kTexturable_Flag;
         }
-        info->fColorTypeInfoCount = 2;
+        info->fColorTypeInfoCount = 4;
         info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: RGB10A2Unorm, Surface: kRGBA_1010102
@@ -478,10 +502,25 @@ void MtlCaps::initFormatTable(const id<MTLDevice> device) {
             ctInfo.fTransferColorType = kRGBA_1010102_SkColorType;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
         }
+        // Format: RGB10A2Unorm, Surface: kBGRA_1010102
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = kBGRA_1010102_SkColorType;
+            ctInfo.fTransferColorType = kRGBA_1010102_SkColorType;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
         // Format: RGB10A2Unorm, Surface: kRGB_101010x
         {
             auto& ctInfo = info->fColorTypeInfos[ctIdx++];
             ctInfo.fColorType = kRGB_101010x_SkColorType;
+            ctInfo.fTransferColorType = kRGB_101010x_SkColorType;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
+            ctInfo.fReadSwizzle = skgpu::Swizzle::RGB1();
+        }
+        // Format: BGR10A2Unorm, Surface: kBGR_101010x
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = kBGR_101010x_SkColorType;
             ctInfo.fTransferColorType = kRGB_101010x_SkColorType;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
             ctInfo.fReadSwizzle = skgpu::Swizzle::RGB1();
@@ -894,8 +933,40 @@ TextureInfo MtlCaps::onGetDefaultTextureInfo(SkEnumBitMask<TextureUsage> usage,
     return TextureInfos::MakeMetal(info);
 }
 
-TextureFormat MtlCaps::getFormatForColorType(SkColorType colorType) const {
-    return MTLPixelFormatToTextureFormat(this->getFormatFromColorType(colorType));
+TextureFormat MtlCaps::getFormatForColorType(SkColorType colorType, Renderable renderable) const {
+    MTLPixelFormat mtlFormat = this->getFormatFromColorType(colorType);
+    if (mtlFormat == MTLPixelFormatInvalid) {
+        return TextureFormat::kUnsupported;
+    }
+
+    auto supportsColorType = [colorType, renderable](const FormatInfo& info) {
+        for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
+            const ColorTypeInfo& ctInfo = info.fColorTypeInfos[i];
+            if (ctInfo.fColorType == colorType &&
+                (renderable == Renderable::kNo ||
+                        ctInfo.fFlags & Caps::ColorTypeInfo::kRenderable_Flag)) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    const FormatInfo& preferredInfo = this->getFormatInfo(mtlFormat);
+    if (supportsColorType(preferredInfo)) {
+        return MTLPixelFormatToTextureFormat(mtlFormat);
+    }
+
+    // We don't just use getFormatFromColorType(), since that returns the first format that
+    // initialized the color type, but is not necessarily the color type that supports the
+    // renderability requirement, e.g. RGBA8 can support RGBx but is not renderable; RGB8 also
+    // supports RGBx and is renderable.
+    for (int j = 0; j < kNumMtlFormats; ++j) {
+        if (supportsColorType(fFormatTable[j])) {
+            return MTLPixelFormatToTextureFormat(kMtlFormats[j]);
+        }
+    }
+
+    return TextureFormat::kUnsupported;
 }
 
 namespace {

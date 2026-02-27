@@ -121,7 +121,7 @@ size_t TextureFormatBytesPerBlock(TextureFormat format) {
         case TextureFormat::kD16:         return 2;
         case TextureFormat::kD32F:        return 4;
         case TextureFormat::kD24_S8:      return 4;
-        case TextureFormat::kD32F_S8:     return 8;
+        case TextureFormat::kD32F_S8:     return 5; // assuming it's multiplanar
         // NOTE: For compressed formats, the block size refers to an actual compressed block of
         // multiple texels, whereas with other formats the block size represents a single pixel.
         case TextureFormat::kRGB8_ETC2:
