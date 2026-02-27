@@ -177,15 +177,15 @@ ClipAtlasManager::DrawAtlasMgr::DrawAtlasMgr(size_t width, size_t height,
                                              size_t plotWidth, size_t plotHeight,
                                              DrawAtlas::UseStorageTextures useStorageTextures,
                                              std::string_view label, const Caps* caps) {
-    static constexpr SkColorType kColorType = kAlpha_8_SkColorType;
-    fDrawAtlas = DrawAtlas::Make(kColorType,
-                                 SkColorTypeBytesPerPixel(kColorType),
+    static constexpr auto kMaskFormat = MaskFormat::kA8;
+
+    fDrawAtlas = DrawAtlas::Make(kMaskFormat,
                                  width, height,
                                  plotWidth, plotHeight,
                                  /*generationCounter=*/this,
-                                 caps->allowMultipleAtlasTextures() ?
-                                         DrawAtlas::AllowMultitexturing::kYes :
-                                         DrawAtlas::AllowMultitexturing::kNo,
+                                 caps->allowMultipleAtlasTextures()
+                                         ? DrawAtlas::AllowMultitexturing::kYes
+                                         : DrawAtlas::AllowMultitexturing::kNo,
                                  useStorageTextures,
                                  /*evictor=*/this,
                                  label);

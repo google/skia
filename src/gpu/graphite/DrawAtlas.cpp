@@ -58,16 +58,21 @@ void DrawAtlas::validate(const AtlasLocator& atlasLocator) const {
 }
 #endif
 
-std::unique_ptr<DrawAtlas> DrawAtlas::Make(SkColorType colorType, size_t bpp, int width,
-                                           int height, int plotWidth, int plotHeight,
+std::unique_ptr<DrawAtlas> DrawAtlas::Make(MaskFormat maskFormat,
+                                           int width, int height,
+                                           int plotWidth, int plotHeight,
                                            AtlasGenerationCounter* generationCounter,
                                            AllowMultitexturing allowMultitexturing,
                                            UseStorageTextures useStorageTextures,
                                            PlotEvictionCallback* evictor,
                                            std::string_view label) {
-    std::unique_ptr<DrawAtlas> atlas(new DrawAtlas(colorType, bpp, width, height,
-                                                   plotWidth, plotHeight, generationCounter,
-                                                   allowMultitexturing, useStorageTextures, label));
+    std::unique_ptr<DrawAtlas> atlas(new DrawAtlas(maskFormat,
+                                                   width, height,
+                                                   plotWidth, plotHeight,
+                                                   generationCounter,
+                                                   allowMultitexturing,
+                                                   useStorageTextures,
+                                                   label));
 
     if (evictor != nullptr) {
         atlas->fEvictionCallbacks.emplace_back(evictor);
@@ -84,13 +89,14 @@ static uint32_t next_id() {
     } while (id == SK_InvalidGenID);
     return id;
 }
-DrawAtlas::DrawAtlas(SkColorType colorType, size_t bpp, int width, int height,
-                     int plotWidth, int plotHeight, AtlasGenerationCounter* generationCounter,
+DrawAtlas::DrawAtlas(MaskFormat maskFormat,
+                     int width, int height,
+                     int plotWidth, int plotHeight,
+                     AtlasGenerationCounter* generationCounter,
                      AllowMultitexturing allowMultitexturing,
                      UseStorageTextures useStorageTextures,
                      std::string_view label)
-        : fColorType(colorType)
-        , fBytesPerPixel(bpp)
+        : fMaskFormat(maskFormat)
         , fTextureWidth(width)
         , fTextureHeight(height)
         , fPlotWidth(plotWidth)
@@ -102,8 +108,9 @@ DrawAtlas::DrawAtlas(SkColorType colorType, size_t bpp, int width, int height,
         , fAtlasGeneration(fGenerationCounter->next())
         , fPrevFlushToken(Token::InvalidToken())
         , fFlushesSinceLastUse(0)
-        , fMaxPages(allowMultitexturing == AllowMultitexturing::kYes ?
-                            PlotLocator::kMaxMultitexturePages : 1)
+        , fMaxPages(allowMultitexturing == AllowMultitexturing::kYes
+                            ? PlotLocator::kMaxMultitexturePages
+                            : 1)
         , fNumActivePages(0) {
     int numPlotsX = width/plotWidth;
     int numPlotsY = height/plotHeight;
@@ -177,10 +184,12 @@ bool DrawAtlas::recordUploads(DrawContext* dc, Recorder* recorder) {
                 }
 
                 std::vector<MipLevel> levels;
-                levels.push_back({dataPtr, fBytesPerPixel*fPlotWidth});
+                levels.push_back({dataPtr, plot->rowBytes()});
 
                 // Src and dst colorInfo are the same
-                SkColorInfo colorInfo(fColorType, kUnknown_SkAlphaType, nullptr);
+                SkColorInfo colorInfo(MaskFormatToColorType(fMaskFormat),
+                                      kUnknown_SkAlphaType,
+                                      nullptr);
                 const UploadSource uploadSource = UploadSource::Make(
                         recorder->priv().caps(), *proxy, colorInfo, colorInfo, levels, dstRect);
                 if (!uploadSource.isValid()) {
@@ -229,7 +238,7 @@ DrawAtlas::ErrorCode DrawAtlas::addRect(Recorder* recorder,
             // Make sure we have a Page for the AtlasLocator to refer to
             this->activateNewPage(recorder);
         }
-        atlasLocator->updateRect(IRect16::MakeXYWH(0, 0, 0, 0));
+        atlasLocator->updateRect(SkIRect::MakeEmpty());
         // Use the MRU Plot from the first Page
         atlasLocator->updatePlotLocator(fPages[0].fPlotList.head()->plotLocator());
         return ErrorCode::kSucceeded;
@@ -463,15 +472,18 @@ bool DrawAtlas::createPages(AtlasGenerationCounter* generationCounter) {
         fProxies[i] = nullptr;
 
         // set up allocated plots
-        fPages[i].fPlotArray = std::make_unique<sk_sp<Plot>[]>(numPlotsX * numPlotsY);
+        fPages[i].fPlotArray = std::make_unique<std::unique_ptr<Plot>[]>(numPlotsX * numPlotsY);
 
-        sk_sp<Plot>* currPlot = fPages[i].fPlotArray.get();
+        auto* currPlot = fPages[i].fPlotArray.get();
         for (int y = numPlotsY - 1, r = 0; y >= 0; --y, ++r) {
             for (int x = numPlotsX - 1, c = 0; x >= 0; --x, ++c) {
                 uint32_t plotIndex = r * numPlotsX + c;
-                currPlot->reset(new Plot(
-                    i, plotIndex, generationCounter, x, y, fPlotWidth, fPlotHeight, fColorType,
-                    fBytesPerPixel));
+                *currPlot = Plot::Make(i,
+                                       plotIndex,
+                                       generationCounter,
+                                       x, y,
+                                       fPlotWidth, fPlotHeight,
+                                       fMaskFormat);
 
                 // build LRU list
                 fPages[i].fPlotList.addToHead(currPlot->get());
@@ -487,10 +499,12 @@ bool DrawAtlas::activateNewPage(Recorder* recorder) {
     SkASSERT(fNumActivePages < this->maxPages());
     SkASSERT(!fProxies[fNumActivePages]);
 
+    auto ct = MaskFormatToColorType(fMaskFormat);
+
     const Caps* caps = recorder->priv().caps();
     auto textureInfo = fUseStorageTextures == UseStorageTextures::kYes
-                               ? caps->getDefaultStorageTextureInfo(fColorType)
-                               : caps->getDefaultSampledTextureInfo(fColorType,
+                               ? caps->getDefaultStorageTextureInfo(ct)
+                               : caps->getDefaultSampledTextureInfo(ct,
                                                                     Mipmapped::kNo,
                                                                     recorder->priv().isProtected(),
                                                                     Renderable::kNo);

@@ -86,16 +86,15 @@ PathAtlas::DrawAtlasMgr::DrawAtlasMgr(size_t width, size_t height,
                                       DrawAtlas::UseStorageTextures useStorageTextures,
                                       std::string_view label,
                                       const Caps* caps) {
-    static constexpr SkColorType colorType = kAlpha_8_SkColorType;
+    static constexpr auto kMaskFormat = MaskFormat::kA8;
 
-    fDrawAtlas = DrawAtlas::Make(colorType,
-                                 SkColorTypeBytesPerPixel(colorType),
+    fDrawAtlas = DrawAtlas::Make(kMaskFormat,
                                  width, height,
                                  plotWidth, plotHeight,
                                  /*generationCounter=*/this,
-                                 caps->allowMultipleAtlasTextures() ?
-                                         DrawAtlas::AllowMultitexturing::kYes :
-                                         DrawAtlas::AllowMultitexturing::kNo,
+                                 caps->allowMultipleAtlasTextures()
+                                         ? DrawAtlas::AllowMultitexturing::kYes
+                                         : DrawAtlas::AllowMultitexturing::kNo,
                                  useStorageTextures,
                                  /*evictor=*/this,
                                  label);

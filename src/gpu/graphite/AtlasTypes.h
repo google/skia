@@ -9,16 +9,15 @@
 #define skgpu_graphite_AtlasTypes_DEFINED
 
 #include "include/core/SkColor.h"
-#include "include/core/SkColorType.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
-#include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkTInternalLList.h"
 #include "src/core/SkIPoint16.h"
+#include "src/gpu/MaskFormat.h"
 #include "src/gpu/RectanizerSkyline.h"
 #include "src/gpu/Token.h"
 
@@ -34,62 +33,6 @@ class SkPixmap;
  */
 
 namespace skgpu::graphite {
-
-struct IRect16 {
-    int16_t fLeft, fTop, fRight, fBottom;
-
-    [[nodiscard]] static IRect16 MakeEmpty() {
-        IRect16 r;
-        r.setEmpty();
-        return r;
-    }
-
-    [[nodiscard]] static IRect16 MakeWH(int16_t w, int16_t h) {
-        IRect16 r;
-        r.set(0, 0, w, h);
-        return r;
-    }
-
-    [[nodiscard]] static IRect16 MakeXYWH(int16_t x, int16_t y, int16_t w, int16_t h) {
-        IRect16 r;
-        r.set(x, y, x + w, y + h);
-        return r;
-    }
-
-    [[nodiscard]] static IRect16 Make(const SkIRect& ir) {
-        IRect16 r;
-        r.set(ir);
-        return r;
-    }
-
-    int width() const { return fRight - fLeft; }
-    int height() const { return fBottom - fTop; }
-    int area() const { return this->width() * this->height(); }
-    bool isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
-
-    void setEmpty() { memset(this, 0, sizeof(*this)); }
-
-    void set(int16_t left, int16_t top, int16_t right, int16_t bottom) {
-        fLeft = left;
-        fTop = top;
-        fRight = right;
-        fBottom = bottom;
-    }
-
-    void set(const SkIRect& r) {
-        fLeft   = SkToS16(r.fLeft);
-        fTop    = SkToS16(r.fTop);
-        fRight  = SkToS16(r.fRight);
-        fBottom = SkToS16(r.fBottom);
-    }
-
-    void offset(int16_t dx, int16_t dy) {
-        fLeft   += dx;
-        fTop    += dy;
-        fRight  += dx;
-        fBottom += dy;
-    }
-};
 
 /**
  * Keep track of generation number for atlases and Plots.
@@ -186,11 +129,7 @@ public:
         return {fUVs[0] & 0x1FFF, fUVs[1]};
     }
 
-    SkPoint widthHeight() const {
-        auto width =  fUVs[2] - fUVs[0],
-             height = fUVs[3] - fUVs[1];
-        return SkPoint::Make(width, height);
-    }
+    SkISize dimensions() const { return {fUVs[2] - fUVs[0], fUVs[3] - fUVs[1]}; }
 
     uint16_t width() const {
         return fUVs[2] - fUVs[0];
@@ -218,13 +157,13 @@ public:
         fUVs[2] = (fUVs[2] & 0x1FFF) | page;
     }
 
-    void updateRect(IRect16 rect) {
+    void updateRect(SkIRect rect) {
         SkASSERT(rect.fLeft <= rect.fRight);
         SkASSERT(rect.fRight <= 0x1FFF);
-        fUVs[0] = (fUVs[0] & 0xE000) | rect.fLeft;
-        fUVs[1] = rect.fTop;
-        fUVs[2] = (fUVs[2] & 0xE000) | rect.fRight;
-        fUVs[3] = rect.fBottom;
+        fUVs[0] = (fUVs[0] & 0xE000) | SkToU16(rect.fLeft);
+        fUVs[1] = SkToU16(rect.fTop);
+        fUVs[2] = (fUVs[2] & 0xE000) | SkToU16(rect.fRight);
+        fUVs[3] = SkToU16(rect.fBottom);
     }
 
 private:
@@ -305,26 +244,44 @@ private:
 
 /**
  * The backing texture for an atlas is broken into a spatial grid of Plots. The Plots
- * keep track of subimage placement via their Rectanizer. A Plot may be subclassed if
- * the atlas class needs to track additional information. Plots are initialized to zero
+ * keep track of subimage placement via their Rectanizer. Plots are initialized to zero
  * for all color types.
  */
-class Plot : public SkRefCnt {
+class Plot final {
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(Plot);
 
-public:
     Plot(int pageIndex,
          int plotIndex,
          AtlasGenerationCounter* generationCounter,
          int offX, int offY,
          int width, int height,
-         SkColorType colorType,
-         size_t bpp);
+         MaskFormat);
 
-    uint32_t pageIndex() const { return fPageIndex; }
+    Plot(const Plot&) = delete;
+    Plot(Plot&&) = delete;
 
-    /** plotIndex() is a unique id for the plot relative to the owning GrAtlas and page. */
-    uint32_t plotIndex() const { return fPlotIndex; }
+    Plot& operator=(const Plot&) = delete;
+    Plot& operator=(Plot&&) = delete;
+
+public:
+    static std::unique_ptr<Plot> Make(int pageIndex,
+                                      int plotIndex,
+                                      AtlasGenerationCounter* generationCounter,
+                                      int offX, int offY,
+                                      int width, int height,
+                                      MaskFormat format) {
+        return std::unique_ptr<Plot>{new Plot{pageIndex,
+                                              plotIndex,
+                                              generationCounter,
+                                              offX, offY,
+                                              width, height,
+                                              format}};
+    }
+
+    ~Plot();
+
+    uint32_t pageIndex() const { return this->plotLocator().pageIndex(); }
+
     /**
      * genID() is incremented when the plot is evicted due to a atlas spill. It is used to
      * know if a particular subimage is still present in the atlas.
@@ -334,16 +291,19 @@ public:
         SkASSERT(fPlotLocator.isValid());
         return fPlotLocator;
     }
-    SkDEBUGCODE(size_t bpp() const { return fBytesPerPixel; })
+
+    size_t bpp() const { return MaskFormatBytesPerPixel(fMaskFormat); }
+    size_t rowBytes() const { return fWidth * this->bpp(); }
 
     /**
      * To add data to the Plot, first call addRect to see if it's possible. If successful,
-     * use the atlasLocator to get a pointer to the location in the atlas via dataAt() and render to
-     * that location, or if you already have data use copySubImage().
+     * use the atlasLocator to copy data to the location using copySubImage() or use
+     * prepForRender() to software rasterize to the location.
      */
     bool addRect(int width, int height, AtlasLocator* atlasLocator);
-    void* dataAt(const AtlasLocator& atlasLocator);
+
     void copySubImage(const AtlasLocator& atlasLocator, const void* image);
+
     // Returns a Pixmap pointing to the backing data for the locator. Optionally, the caller can
     // provide an inset that is applied to all four sides. This is useful for use cases that need
     // to leave space between items in the atlas. The pixmap will exclude the padding. The entire
@@ -353,9 +313,6 @@ public:
                            int padding = 0,
                            std::optional<SkColor> initialColor = {});
 
-    // TODO: Utility method for Ganesh, consider removing
-    bool addSubImage(int width, int height, const void* image, AtlasLocator* atlasLocator);
-
     /**
      * To manage the lifetime of a plot, we use two tokens. We use the last upload token to
      * know when we can 'piggy back' uploads, i.e. if the last upload hasn't been flushed to
@@ -363,9 +320,7 @@ public:
      * use lastUse to determine when we can evict a plot from the cache, i.e. if the last use
      * has already flushed through the gpu then we can reuse the plot.
      */
-    Token lastUploadToken() const { return fLastUpload; }
     Token lastUseToken() const { return fLastUse; }
-    void setLastUploadToken(Token token) { fLastUpload = token; }
     void setLastUseToken(Token token) { fLastUse = token; }
 
     int flushesSinceLastUsed() { return fFlushesSinceLastUse; }
@@ -384,20 +339,6 @@ public:
     bool isEmpty() const { return fRectanizer.percentFull() == 0; }
     bool hasAllocation() const { return fData != nullptr; }
 
-    /**
-     * Create a clone of this plot. The cloned plot will take the place of the current plot in
-     * the atlas
-     */
-    sk_sp<Plot> clone() const {
-        return sk_sp<Plot>(new Plot(fPageIndex,
-                                    fPlotIndex,
-                                    fGenerationCounter,
-                                    fX, fY,
-                                    fWidth, fHeight,
-                                    fColorType,
-                                    fBytesPerPixel));
-    }
-
 #ifdef SK_DEBUG
     void resetListPtrs() {
         fPrev = fNext = nullptr;
@@ -406,33 +347,24 @@ public:
 #endif
 
 private:
-    ~Plot() override;
-    size_t rowBytes() const { return fWidth * fBytesPerPixel; }
     void* dataAt(SkIPoint atlasPoint);
 
-    Token fLastUpload;
     Token fLastUse;
     int   fFlushesSinceLastUse;
 
-    struct {
-        const uint32_t fPageIndex : 16;
-        const uint32_t fPlotIndex : 16;
-    };
     AtlasGenerationCounter* const fGenerationCounter;
     uint64_t fGenID;
     PlotLocator fPlotLocator;
-    std::byte* fData;
+    std::unique_ptr<std::byte[]> fData;
     const int fWidth;
     const int fHeight;
     const int fX;
     const int fY;
     RectanizerSkyline fRectanizer;
     const SkIPoint16 fOffset;  // the offset of the plot in the backing texture
-    const SkColorType fColorType;
-    const size_t fBytesPerPixel;
+    const MaskFormat fMaskFormat;
     SkIRect fDirtyRect;  // area in the Plot that needs to be uploaded
     bool fIsFull;
-    SkDEBUGCODE(bool fDirty;)
 };
 
 typedef SkTInternalLList<Plot> PlotList;

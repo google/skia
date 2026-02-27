@@ -64,11 +64,10 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BasicDrawAtlas,
     auto recorder = context->makeRecorder();
 
     gEvictCount = 0;
-    SkColorType atlasColorType = kAlpha_8_SkColorType;
+    MaskFormat atlasMaskFormat = MaskFormat::kA8;
     PlotEvictionCounter evictor;
     AtlasGenerationCounter counter;
-    std::unique_ptr<DrawAtlas> atlas = DrawAtlas::Make(atlasColorType,
-                                                       SkColorTypeBytesPerPixel(atlasColorType),
+    std::unique_ptr<DrawAtlas> atlas = DrawAtlas::Make(atlasMaskFormat,
                                                        kAtlasSize, kAtlasSize,
                                                        kAtlasSize/kNumPlots, kAtlasSize/kNumPlots,
                                                        &counter,
@@ -176,8 +175,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ThrashDrawAtlasCache,
     constexpr int maxPages = PlotLocator::kMaxMultitexturePages;
     constexpr int totalPlots = numPlots * numPlots * maxPages;
 
-    std::unique_ptr<DrawAtlas> atlas = DrawAtlas::Make(kAlpha_8_SkColorType,
-                                                       1,
+    std::unique_ptr<DrawAtlas> atlas = DrawAtlas::Make(MaskFormat::kA8,
                                                        atlasSize,
                                                        atlasSize,
                                                        plotSize,
@@ -275,8 +273,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(DrawAtlasProxyLifetime,
     PlotEvictionCounter evictor;
     AtlasGenerationCounter counter;
     constexpr int plotsOnPage = kNumPlots * kNumPlots;
-    std::unique_ptr<DrawAtlas> atlas = DrawAtlas::Make(kAlpha_8_SkColorType,
-                                                       1,
+    std::unique_ptr<DrawAtlas> atlas = DrawAtlas::Make(MaskFormat::kA8,
                                                        kAtlasSize,
                                                        kAtlasSize,
                                                        kPlotSize,

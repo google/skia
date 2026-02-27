@@ -319,10 +319,10 @@ public:
            SkColorType colorType,
            size_t bpp);
 
-    uint32_t pageIndex() const { return fPageIndex; }
+    uint32_t pageIndex() const { return this->plotLocator().pageIndex(); }
 
     /** plotIndex() is a unique id for the plot relative to the owning GrAtlas and page. */
-    uint32_t plotIndex() const { return fPlotIndex; }
+    uint32_t plotIndex() const { return this->plotLocator().plotIndex(); }
     /**
      * genID() is incremented when the plot is evicted due to a atlas spill. It is used to
      * know if a particular subimage is still present in the atlas.
@@ -334,24 +334,6 @@ public:
     }
     SkDEBUGCODE(size_t bpp() const { return fBytesPerPixel; })
 
-    /**
-     * To add data to the Plot, first call addRect to see if it's possible. If successful,
-     * use the atlasLocator to get a pointer to the location in the atlas via dataAt() and render to
-     * that location, or if you already have data use copySubImage().
-     */
-    bool addRect(int width, int height, GrAtlasLocator* atlasLocator);
-    void* dataAt(const GrAtlasLocator& atlasLocator);
-    void copySubImage(const GrAtlasLocator& atlasLocator, const void* image);
-    // Returns a Pixmap pointing to the backing data for the locator. Optionally, the caller can
-    // provide an inset that is applied to all four sides. This is useful for use cases that need
-    // to leave space between items in the atlas. The pixmap will exclude the padding. The entire
-    // Plot is cleared to zero when allocated. By passing an initialColor here, the caller can
-    // re-clear the entire locator's rect (including any padding) to any color.
-    SkPixmap prepForRender(const GrAtlasLocator&,
-                           int padding = 0,
-                           std::optional<SkColor> initialColor = {});
-
-    // TODO: Utility method for Ganesh, consider removing
     bool addSubImage(int width, int height, const void* image, GrAtlasLocator* atlasLocator);
 
     /**
@@ -378,17 +360,13 @@ public:
     // when we know we won't be adding to the Plot immediately afterwards.
     void resetRects(bool freeData);
 
-    void markFullIfUsed() { fIsFull = !fDirtyRect.isEmpty(); }
-    bool isEmpty() const { return fRectanizer.percentFull() == 0; }
-    bool hasAllocation() const { return fData != nullptr; }
-
     /**
      * Create a clone of this plot. The cloned plot will take the place of the current plot in
      * the atlas
      */
     sk_sp<GrPlot> clone() const {
-        return sk_sp<GrPlot>(new GrPlot(fPageIndex,
-                                        fPlotIndex,
+        return sk_sp<GrPlot>(new GrPlot(this->pageIndex(),
+                                        this->plotIndex(),
                                         fGenerationCounter,
                                         fX, fY,
                                         fWidth, fHeight,
@@ -407,15 +385,12 @@ private:
     ~GrPlot() override;
     size_t rowBytes() const { return fWidth * fBytesPerPixel; }
     void* dataAt(SkIPoint atlasPoint);
+    bool addRect(int width, int height, GrAtlasLocator* atlasLocator);
 
     skgpu::Token fLastUpload;
     skgpu::Token fLastUse;
     int          fFlushesSinceLastUse;
 
-    struct {
-        const uint32_t fPageIndex : 16;
-        const uint32_t fPlotIndex : 16;
-    };
     GrAtlasGenerationCounter* const fGenerationCounter;
     uint64_t fGenID;
     GrPlotLocator fPlotLocator;
@@ -429,7 +404,6 @@ private:
     const SkColorType fColorType;
     const size_t fBytesPerPixel;
     SkIRect fDirtyRect;  // area in the Plot that needs to be uploaded
-    bool fIsFull;
     SkDEBUGCODE(bool fDirty;)
 };
 

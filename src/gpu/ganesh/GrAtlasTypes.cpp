@@ -23,11 +23,9 @@ GrPlot::GrPlot(int pageIndex,
         : fLastUpload(skgpu::Token::InvalidToken())
         , fLastUse(skgpu::Token::InvalidToken())
         , fFlushesSinceLastUse(0)
-        , fPageIndex(pageIndex)
-        , fPlotIndex(plotIndex)
         , fGenerationCounter(generationCounter)
         , fGenID(fGenerationCounter->next())
-        , fPlotLocator(fPageIndex, fPlotIndex, fGenID)
+        , fPlotLocator(pageIndex, plotIndex, fGenID)
         , fData(nullptr)
         , fWidth(width)
         , fHeight(height)
@@ -37,7 +35,6 @@ GrPlot::GrPlot(int pageIndex,
         , fOffset(SkIPoint16::Make(fX * fWidth, fY * fHeight))
         , fColorType(colorType)
         , fBytesPerPixel(bpp)
-        , fIsFull(false)
 #ifdef SK_DEBUG
         , fDirty(false)
 #endif
@@ -87,33 +84,13 @@ void* GrPlot::dataAt(SkIPoint atlasPoint) {
     return fData + offset;
 }
 
-void* GrPlot::dataAt(const GrAtlasLocator& atlasLocator) { return dataAt(atlasLocator.topLeft()); }
-
-SkPixmap GrPlot::prepForRender(const GrAtlasLocator& al,
-                               int padding,
-                               std::optional<SkColor> initialColor) {
-    SkASSERT(padding >= 0);
-    auto info = SkImageInfo::Make(al.width(), al.height(), fColorType, kOpaque_SkAlphaType);
-    SkPixmap outerPM{info, this->dataAt(al.topLeft()), this->rowBytes()};
-    if (initialColor) {
-#if defined(SK_DEBUG)
-        if (*initialColor == 0) {
-            SkDebugf("Plot Data: potential redudant clear of Plot to zero.");
-        }
-#endif
-        outerPM.erase(*initialColor);
+bool GrPlot::addSubImage(int width, int height, const void* image, GrAtlasLocator* atlasLocator) {
+    if (!this->addRect(width, height, atlasLocator)) {
+        return false;
     }
-    SkPixmap innerPM;
-    SkIRect rect = SkIRect::MakeSize(outerPM.dimensions()).makeInset(padding, padding);
-    SkAssertResult(outerPM.extractSubset(&innerPM, rect));
-    return innerPM;
-}
 
-void GrPlot::copySubImage(const GrAtlasLocator& al, const void* image) {
     const unsigned char* imagePtr = (const unsigned char*)image;
-    unsigned char* dataPtr = (unsigned char*)this->dataAt(al);
-    int width = al.width();
-    int height = al.height();
+    unsigned char* dataPtr = (unsigned char*)this->dataAt(atlasLocator->topLeft());
     size_t imageRB = width * fBytesPerPixel;
     size_t plotRB = this->rowBytes();
 
@@ -132,13 +109,6 @@ void GrPlot::copySubImage(const GrAtlasLocator& al, const void* image) {
             imagePtr += imageRB;
         }
     }
-}
-
-bool GrPlot::addSubImage(int width, int height, const void* image, GrAtlasLocator* atlasLocator) {
-    if (fIsFull || !this->addRect(width, height, atlasLocator)) {
-        return false;
-    }
-    this->copySubImage(*atlasLocator, image);
 
     return true;
 }
@@ -164,7 +134,6 @@ std::pair<const void*, SkIRect> GrPlot::prepareForUpload() {
     offsetRect = fDirtyRect.makeOffset(fOffset.fX, fOffset.fY);
 
     fDirtyRect.setEmpty();
-    fIsFull = false;
     SkDEBUGCODE(fDirty = false);
 
     return {dataPtr, offsetRect};
@@ -173,7 +142,7 @@ std::pair<const void*, SkIRect> GrPlot::prepareForUpload() {
 void GrPlot::resetRects(bool freeData) {
     fRectanizer.reset();
     fGenID = fGenerationCounter->next();
-    fPlotLocator = GrPlotLocator(fPageIndex, fPlotIndex, fGenID);
+    fPlotLocator = GrPlotLocator(this->pageIndex(), this->plotIndex(), fGenID);
     fLastUpload = skgpu::Token::InvalidToken();
     fLastUse = skgpu::Token::InvalidToken();
 
@@ -186,6 +155,5 @@ void GrPlot::resetRects(bool freeData) {
     }
 
     fDirtyRect.setEmpty();
-    fIsFull = false;
     SkDEBUGCODE(fDirty = false;)
 }

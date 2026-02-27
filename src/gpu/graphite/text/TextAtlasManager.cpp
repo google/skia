@@ -302,11 +302,9 @@ void TextAtlasManager::setAtlasDimensionsToMinimum_ForTesting() {
 bool TextAtlasManager::initAtlas(MaskFormat format) {
     int index = MaskFormatToAtlasIndex(format);
     if (fAtlases[index] == nullptr) {
-        SkColorType colorType = MaskFormatToColorType(format);
         SkISize atlasDimensions = fAtlasConfig.atlasDimensions(format);
         SkISize plotDimensions = fAtlasConfig.plotDimensions(format);
-        fAtlases[index] = DrawAtlas::Make(colorType,
-                                          SkColorTypeBytesPerPixel(colorType),
+        fAtlases[index] = DrawAtlas::Make(format,
                                           atlasDimensions.width(), atlasDimensions.height(),
                                           plotDimensions.width(), plotDimensions.height(),
                                           /*generationCounter=*/this,
