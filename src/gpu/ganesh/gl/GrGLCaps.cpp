@@ -4835,6 +4835,14 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fPadRG88TransferAlignment = true;
     }
 #endif
+
+    // Mali HW doesn't have builtin support for no perspective varying interpolation. It's more
+    // efficient to use the smooth interpolation qualifier on Mali HW since it's otherwise emulated
+    // by patching up shaders.
+    if ((ctxInfo.renderer() == GrGLRenderer::kMaliG ||
+         ctxInfo.renderer() == GrGLRenderer::kMaliT)) {
+        shaderCaps->fNoPerspectiveInterpolationSupport = false;
+    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
