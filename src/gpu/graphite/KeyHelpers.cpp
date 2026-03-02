@@ -46,7 +46,6 @@
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/PipelineData.h"
-#include "src/gpu/graphite/ReadSwizzle.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
@@ -1014,7 +1013,7 @@ namespace {
 void add_color_space_uniforms(const KeyContext& keyContext,
                               BuiltInCodeSnippetID id,
                               const SkColorSpaceXformSteps& steps,
-                              ReadSwizzle readSwizzle) {
+                              Swizzle readSwizzle) {
     SkASSERT(id == BuiltInCodeSnippetID::kColorSpaceXformPremul ||     // premul/unpremul/opaque
              id == BuiltInCodeSnippetID::kColorSpaceXformSRGB ||       // + sRGB [d]encode/gamut
              id == BuiltInCodeSnippetID::kColorSpaceXformColorFilter); // + everything else
@@ -1029,9 +1028,8 @@ void add_color_space_uniforms(const KeyContext& keyContext,
     // - do both: {-1, 0}
     // - alpha swizzle 1: {1, 1}
     // - alpha swizzle r: {1, 0}
-    const bool alphaSwizzleR = readSwizzle == ReadSwizzle::k000R;
-    const bool alphaSwizzle1 = readSwizzle == ReadSwizzle::kRGB1 ||
-                               readSwizzle == ReadSwizzle::kRRR1;
+    const bool alphaSwizzleR = readSwizzle[3] == 'r';
+    const bool alphaSwizzle1 = readSwizzle[3] == '1';
 
     // It doesn't make sense to unpremul/premul in opaque cases, but we might get a request to
     // anyways, which we can just ignore.
@@ -1046,7 +1044,7 @@ void add_color_space_uniforms(const KeyContext& keyContext,
     if (id == BuiltInCodeSnippetID::kColorSpaceXformPremul) {
         // If either of these asserts would fail, we can't correctly use this specialized shader for
         // the given transform.
-        SkASSERT(readSwizzle == ReadSwizzle::kRGBA || readSwizzle == ReadSwizzle::kRGB1);
+        SkASSERT(readSwizzle == Swizzle::RGBA() || readSwizzle == Swizzle::RGB1());
         // If these are both true, that implies there's a color space transfer or gamut transform.
         SkASSERT(!(steps.fFlags.unpremul && steps.fFlags.premul));
         // And given these assertions, the 6 cases encoded in srcW and dstW are reduced to:
@@ -1058,29 +1056,51 @@ void add_color_space_uniforms(const KeyContext& keyContext,
     // srcW and dstW will be used later with the other transfer function values, but for the
     // more complex shaders, we put the gamut matrix first for alignment.
 
-    SkMatrix gamutTransform;
-    const float identity[] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
-    // TODO: it seems odd to copy this into an SkMatrix just to write it to the gatherer
-    // fSrcToDstMatrix is column-major, SkMatrix is row-major.
+    const float identity[] = { 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f };
     const float* m = steps.fFlags.gamut_transform ? steps.fSrcToDstMatrix : identity;
-    if (readSwizzle == ReadSwizzle::kRRR1) {
-        gamutTransform.setAll(m[0] + m[3] + m[6], 0, 0,
-                            m[1] + m[4] + m[7], 0, 0,
-                            m[2] + m[5] + m[8], 0, 0);
-    } else if (readSwizzle == ReadSwizzle::kBGRA) {
-        gamutTransform.setAll(m[6], m[3], m[0],
-                            m[7], m[4], m[1],
-                            m[8], m[5], m[2]);
-    } else if (readSwizzle == ReadSwizzle::k000R) {
-        gamutTransform.setAll(0, 0, 0,
-                            0, 0, 0,
-                            0, 0, 0);
-    } else if (steps.fFlags.gamut_transform) {
-        gamutTransform.setAll(m[0], m[3], m[6],
-                            m[1], m[4], m[7],
-                            m[2], m[5], m[8]);
+    float gamutTransform[] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
+
+    // Accumulate each column of the gamut transform based on the swizzle
+    for (int i = 0; i < 3; ++i) {
+        // The ith column of the gamut transform contributes to the jth column when we're
+        // transforming a sample value that is in the readSwizzle channel order instead of RGB order
+        // This is a sum so that 0 swizzles and replicated channels accumulate correctly.
+        const int ci = 3 * i;
+        switch(readSwizzle[i]) {
+            // j = 0
+            case 'r': gamutTransform[0] += m[ci + 0];
+                      gamutTransform[1] += m[ci + 1];
+                      gamutTransform[2] += m[ci + 2];
+                      break;
+            // j = 1
+            case 'g': gamutTransform[3] += m[ci + 0];
+                      gamutTransform[4] += m[ci + 1];
+                      gamutTransform[5] += m[ci + 2];
+                      break;
+            // j = 2
+            case 'b': gamutTransform[6] += m[ci + 0];
+                      gamutTransform[7] += m[ci + 1];
+                      gamutTransform[8] += m[ci + 2];
+                      break;
+            case '0':
+                // No contribution to the final gamut matrix
+                break;
+
+            // Unexpected swizzle components for RGB as these are for alpha handling.
+            case 'a':
+            case '1':
+                SkASSERT(false);
+                break; // leave as 0s for release builds
+        }
     }
-    keyContext.pipelineDataGatherer()->writeHalf(gamutTransform);
+
+    // TODO(b/489417262): It is a little funny to have to transpose `gamutTransform` from column
+    // major into SkMatrix's row-major order to write a 3x3 matrix when internally, it writes
+    // column major.
+    keyContext.pipelineDataGatherer()->writeHalf(
+            SkMatrix::MakeAll(gamutTransform[0], gamutTransform[3], gamutTransform[6],
+                              gamutTransform[1], gamutTransform[4], gamutTransform[7],
+                              gamutTransform[2], gamutTransform[5], gamutTransform[8]));
 
     // To encode which transfer function to apply, we use the src and dst gamma values:
     // - identity: 0
@@ -1136,23 +1156,30 @@ void add_color_space_uniforms(const KeyContext& keyContext,
         SkV4 dst_ootf = {0.f, 0.f, 0.f, 0.f};
 
         if (steps.fFlags.src_ootf) {
-          if (readSwizzle == ReadSwizzle::kBGRA) {
-              src_ootf = SkV4{
-                  steps.fSrcOotf[2], steps.fSrcOotf[1], steps.fSrcOotf[0], steps.fSrcOotf[3]};
-          } else {
-              src_ootf = SkV4{
-                  steps.fSrcOotf[0], steps.fSrcOotf[1], steps.fSrcOotf[2], steps.fSrcOotf[3]};
-          }
+            // The src OOTF parameters are provided in RGB order (the 4th parameter is not alpha,
+            // but an exponent). Since the src-OOTF parameters are applied before the gamut
+            // transform that also handles swizzling, we need to apply the inverse swizzle.
+            src_ootf.w = steps.fSrcOotf[3];
+            for (int i = 0; i < 3; ++i) {
+                switch (readSwizzle[i]) {
+                    case 'r': src_ootf[i] += steps.fSrcOotf[0]; break;
+                    case 'g': src_ootf[i] += steps.fSrcOotf[1]; break;
+                    case 'b': src_ootf[i] += steps.fSrcOotf[2]; break;
+                    case '0': /* leave as 0 */ break;
+
+                    // Unexpected swizzles for RGB channels as these are used for alpha handling
+                    case 'a':
+                    case '1':
+                        SkASSERT(false);
+                        break; // leave ootf parameter as 0 in release builds
+                }
+            }
         }
 
         if (steps.fFlags.dst_ootf) {
-          if (readSwizzle == ReadSwizzle::kBGRA) {
-              dst_ootf = SkV4{
-                  steps.fDstOotf[2], steps.fDstOotf[1], steps.fDstOotf[0], steps.fDstOotf[3]};
-          } else {
-              dst_ootf = SkV4{
-                  steps.fDstOotf[0], steps.fDstOotf[1], steps.fDstOotf[2], steps.fDstOotf[3]};
-          }
+            // The dst OOTF parameters are applied *after* the gamut matrix, which is also where
+            // any swizzle is resolved, so there's no need to adjust the order of these params.
+            dst_ootf = {steps.fDstOotf[0], steps.fDstOotf[1], steps.fDstOotf[2], steps.fDstOotf[3]};
         }
 
         keyContext.pipelineDataGatherer()->write(src_ootf);
@@ -1178,15 +1205,16 @@ void ColorSpaceTransformBlock::AddBlock(const KeyContext& keyContext,
                                          data.fSteps.fFlags.src_ootf  ||
                                          data.fSteps.fFlags.dst_ootf  ||
                                          data.fSteps.fFlags.gamut_transform;
-    const bool swizzleNeedsGamutTransform = !(data.fReadSwizzle == ReadSwizzle::kRGBA ||
-                                              data.fReadSwizzle == ReadSwizzle::kRGB1);
+    const bool swizzleNeedsGamutTransform = data.fReadSwizzle[0] != 'r' ||
+                                            data.fReadSwizzle[1] != 'g' ||
+                                            data.fReadSwizzle[2] != 'b';
 
     // Use a specialized shader if we don't need transfer function or gamut transforms.
     if (!(xformNeedsGamutOrXferFn || swizzleNeedsGamutTransform)) {
         // When enabled, the most specialized is to do nothing at all. To simplify calling code,
         // this adds a passthrough block vs. having callers know how to reconfigure their blocks.
         if (SkToBool(keyContext.flags() & KeyGenFlags::kEnableIdentityColorSpaceXform) &&
-            data.fReadSwizzle == ReadSwizzle::kRGBA &&
+            data.fReadSwizzle == Swizzle::RGBA() &&
             !data.fSteps.fFlags.premul && !data.fSteps.fFlags.unpremul) {
             keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kPriorOutput);
             return;
@@ -1994,12 +2022,7 @@ static void add_image_to_key(const KeyContext& keyContext,
     imgData.fSampling = samplingHasNoEffect ? SkFilterMode::kNearest : newSampling;
     imgData.fTextureProxy = view.refProxy();
     skgpu::Swizzle readSwizzle = view.swizzle();
-    // If the color type is alpha-only, propagate the alpha value to the other channels.
-    if (imageToDraw->isAlphaOnly()) {
-        readSwizzle = skgpu::Swizzle::Concat(readSwizzle, skgpu::Swizzle("000a"));
-    }
-    ColorSpaceTransformBlock::ColorSpaceTransformData colorXformData(
-            SwizzleClassToReadEnum(readSwizzle));
+    ColorSpaceTransformBlock::ColorSpaceTransformData colorXformData(readSwizzle);
 
     if (!isRaw) {
         colorXformData.fSteps = SkColorSpaceXformSteps(imageToDraw->colorSpace(),

@@ -21,7 +21,6 @@
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/PrecompileInternal.h"
-#include "src/gpu/graphite/ReadSwizzle.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/precompile/PrecompileBaseComplete.h"
 #include "src/gpu/graphite/precompile/PrecompileBasePriv.h"
@@ -304,12 +303,8 @@ void PrecompileImageShader::addToKey(const KeyContext& keyContext, int desiredCo
             colorInfo.colorType(),
             caps->getDefaultSampledTextureInfo(
                     colorInfo.colorType(), Mipmapped::kNo, Protected::kNo, Renderable::kNo));
-    if (alphaOnly) {
-        readSwizzle = Swizzle::Concat(readSwizzle, Swizzle("000a"));
-    }
 
-    ColorSpaceTransformBlock::ColorSpaceTransformData colorXformData(
-            SwizzleClassToReadEnum(readSwizzle));
+    ColorSpaceTransformBlock::ColorSpaceTransformData colorXformData(readSwizzle);
 
     if (!fRaw) {
         const SkColorSpace* dstColorSpace = sk_srgb_singleton();
@@ -470,8 +465,7 @@ private:
                 colorInfo.colorType(),
                 caps->getDefaultSampledTextureInfo(
                         colorInfo.colorType(), Mipmapped::kNo, Protected::kNo, Renderable::kNo));
-        ColorSpaceTransformBlock::ColorSpaceTransformData colorXformData(
-                SwizzleClassToReadEnum(readSwizzle));
+        ColorSpaceTransformBlock::ColorSpaceTransformData colorXformData(readSwizzle);
 
         const SkColorSpace* dstColorSpace = fUseDstColorSpace
                                             ? keyContext.dstColorInfo().colorSpace()

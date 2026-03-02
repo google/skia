@@ -23,7 +23,6 @@
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
-#include "src/gpu/graphite/ReadSwizzle.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/shaders/SkShaderBase.h"
@@ -39,7 +38,6 @@ class DrawContext;
 class FloatStorageManager;
 class PipelineDataGatherer;
 class UniquePaintParamsID;
-enum class ReadSwizzle;
 
 /**
  * The KeyHelpers can be used to manually construct an SkPaintParamsKey.
@@ -306,11 +304,11 @@ struct ColorSpaceTransformBlock {
                                 const SkColorSpace* dst,
                                 SkAlphaType dstAT);
         ColorSpaceTransformData(const SkColorSpaceXformSteps& steps) { fSteps = steps; }
-        ColorSpaceTransformData(ReadSwizzle swizzle) : fReadSwizzle(swizzle) {
+        ColorSpaceTransformData(Swizzle swizzle) : fReadSwizzle(swizzle) {
             SkASSERT(fSteps.fFlags.mask() == 0);  // By default, the colorspace should have no effect
         }
         SkColorSpaceXformSteps fSteps;
-        ReadSwizzle            fReadSwizzle = ReadSwizzle::kRGBA;
+        Swizzle                fReadSwizzle = Swizzle::RGBA();
     };
 
     static void AddBlock(const KeyContext&, const ColorSpaceTransformData&);

@@ -160,7 +160,6 @@ skia_graphite_sources = [
   "$_src/gpu/graphite/RasterPathAtlas.h",
   "$_src/gpu/graphite/RasterPathUtils.cpp",
   "$_src/gpu/graphite/RasterPathUtils.h",
-  "$_src/gpu/graphite/ReadSwizzle.h",
   "$_src/gpu/graphite/Recorder.cpp",
   "$_src/gpu/graphite/RecorderOptionsPriv.h",
   "$_src/gpu/graphite/RecorderPriv.h",

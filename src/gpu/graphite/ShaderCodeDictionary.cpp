@@ -15,7 +15,6 @@
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/Log.h"
-#include "src/gpu/graphite/ReadSwizzle.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/ShaderInfo.h"

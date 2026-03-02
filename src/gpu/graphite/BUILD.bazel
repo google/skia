@@ -106,7 +106,6 @@ GRAPHITE_FILES = [
     "RasterPathAtlas.h",
     "RasterPathUtils.cpp",
     "RasterPathUtils.h",
-    "ReadSwizzle.h",
     "Recorder.cpp",
     "RecorderOptionsPriv.h",
     "RecorderPriv.h",
