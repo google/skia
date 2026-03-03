@@ -278,19 +278,6 @@ static constexpr MTLPixelFormat kMtlFormats[] = {
     MTLPixelFormatInvalid,
 };
 
-void MtlCaps::setColorType(SkColorType colorType, std::initializer_list<MTLPixelFormat> formats) {
-    int idx = static_cast<int>(colorType);
-    for (auto it = formats.begin(); it != formats.end(); ++it) {
-        const auto& info = this->getFormatInfo(*it);
-        for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
-            if (info.fColorTypeInfos[i].fColorType == colorType) {
-                fColorTypeToFormatTable[idx] = *it;
-                return;
-            }
-        }
-    }
-}
-
 size_t MtlCaps::GetFormatIndex(MTLPixelFormat pixelFormat) {
     static_assert(std::size(kMtlFormats) == MtlCaps::kNumMtlFormats,
                   "Size of kMtlFormats array must match static value in header");
@@ -770,46 +757,6 @@ void MtlCaps::initFormatTable(const id<MTLDevice> device) {
         }
         info->fColorTypeInfoCount = 0;
     }
-
-    ////////////////////////////////////////////////////////////////////////////
-    // Map SkColorTypes (used for creating SkSurfaces) to MTLPixelFormats. The order in which the
-    // formats are passed into the setColorType function indicates the priority in selecting which
-    // format we use for a given SkColorType.
-
-    std::fill_n(fColorTypeToFormatTable, kSkColorTypeCnt, MTLPixelFormatInvalid);
-
-    this->setColorType(kAlpha_8_SkColorType,          { MTLPixelFormatR8Unorm,
-                                                        MTLPixelFormatA8Unorm });
-    if (@available(macOS 11.0, iOS 8.0, tvOS 9.0, *)) {
-        if (this->isApple()) {
-            this->setColorType(kRGB_565_SkColorType,   { MTLPixelFormatB5G6R5Unorm });
-            this->setColorType(kARGB_4444_SkColorType, { MTLPixelFormatABGR4Unorm  });
-        }
-    }
-
-    this->setColorType(kRGBA_8888_SkColorType,         { MTLPixelFormatRGBA8Unorm      });
-    this->setColorType(kRGB_888x_SkColorType,          { MTLPixelFormatRGBA8Unorm      });
-    this->setColorType(kBGRA_8888_SkColorType,         { MTLPixelFormatBGRA8Unorm      });
-    this->setColorType(kRGBA_1010102_SkColorType,      { MTLPixelFormatRGB10A2Unorm    });
-    this->setColorType(kRGB_101010x_SkColorType,       { MTLPixelFormatRGB10A2Unorm    });
-    // kBGRA_1010102_SkColorType
-    // kBGR_101010x_SkColorType
-    // kBGR_101010x_XR_SkColorType
-    this->setColorType(kGray_8_SkColorType,            { MTLPixelFormatR8Unorm         });
-    this->setColorType(kRGBA_F16Norm_SkColorType,      { MTLPixelFormatRGBA16Float     });
-    this->setColorType(kRGBA_F16_SkColorType,          { MTLPixelFormatRGBA16Float     });
-    this->setColorType(kRGB_F16F16F16x_SkColorType,    { MTLPixelFormatRGBA16Float     });
-    // kRGBA_F32_SkColorType
-    this->setColorType(kR8G8_unorm_SkColorType,        { MTLPixelFormatRG8Unorm        });
-    this->setColorType(kA16_float_SkColorType,         { MTLPixelFormatR16Float        });
-    this->setColorType(kR16G16_float_SkColorType,      { MTLPixelFormatRG16Float       });
-    this->setColorType(kA16_unorm_SkColorType,         { MTLPixelFormatR16Unorm        });
-    this->setColorType(kR16_unorm_SkColorType,         { MTLPixelFormatR16Unorm        });
-    this->setColorType(kR16G16_unorm_SkColorType,      { MTLPixelFormatRG16Unorm       });
-    this->setColorType(kR16G16B16A16_unorm_SkColorType,{ MTLPixelFormatRGBA16Unorm     });
-    this->setColorType(kSRGBA_8888_SkColorType,        { MTLPixelFormatRGBA8Unorm_sRGB });
-    this->setColorType(kR8_unorm_SkColorType,          { MTLPixelFormatR8Unorm         });
-
 }
 
 std::pair<SkEnumBitMask<TextureUsage>, SkEnumBitMask<SampleCount>> MtlCaps::getTextureSupport(
@@ -931,42 +878,6 @@ TextureInfo MtlCaps::onGetDefaultTextureInfo(SkEnumBitMask<TextureUsage> usage,
     info.fFramebufferOnly = false;
 
     return TextureInfos::MakeMetal(info);
-}
-
-TextureFormat MtlCaps::getFormatForColorType(SkColorType colorType, Renderable renderable) const {
-    MTLPixelFormat mtlFormat = this->getFormatFromColorType(colorType);
-    if (mtlFormat == MTLPixelFormatInvalid) {
-        return TextureFormat::kUnsupported;
-    }
-
-    auto supportsColorType = [colorType, renderable](const FormatInfo& info) {
-        for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
-            const ColorTypeInfo& ctInfo = info.fColorTypeInfos[i];
-            if (ctInfo.fColorType == colorType &&
-                (renderable == Renderable::kNo ||
-                        ctInfo.fFlags & Caps::ColorTypeInfo::kRenderable_Flag)) {
-                return true;
-            }
-        }
-        return false;
-    };
-
-    const FormatInfo& preferredInfo = this->getFormatInfo(mtlFormat);
-    if (supportsColorType(preferredInfo)) {
-        return MTLPixelFormatToTextureFormat(mtlFormat);
-    }
-
-    // We don't just use getFormatFromColorType(), since that returns the first format that
-    // initialized the color type, but is not necessarily the color type that supports the
-    // renderability requirement, e.g. RGBA8 can support RGBx but is not renderable; RGB8 also
-    // supports RGBx and is renderable.
-    for (int j = 0; j < kNumMtlFormats; ++j) {
-        if (supportsColorType(fFormatTable[j])) {
-            return MTLPixelFormatToTextureFormat(kMtlFormats[j]);
-        }
-    }
-
-    return TextureFormat::kUnsupported;
 }
 
 namespace {

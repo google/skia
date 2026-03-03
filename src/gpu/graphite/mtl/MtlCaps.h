@@ -59,13 +59,7 @@ private:
     };
     static bool GetGPUFamily(id<MTLDevice>, GPUFamily*, int* group);
 
-    MTLPixelFormat getFormatFromColorType(SkColorType colorType) const {
-        int idx = static_cast<int>(colorType);
-        return fColorTypeToFormatTable[idx];
-    }
-
     SkSpan<const ColorTypeInfo> getColorTypeInfos(const TextureInfo&) const override;
-    TextureFormat getFormatForColorType(SkColorType, Renderable) const override;
     TextureInfo onGetDefaultTextureInfo(SkEnumBitMask<TextureUsage> usage,
                                         TextureFormat,
                                         SampleCount,
@@ -115,9 +109,6 @@ private:
         size_t index = GetFormatIndex(pixelFormat);
         return fFormatTable[index];
     }
-
-    MTLPixelFormat fColorTypeToFormatTable[kSkColorTypeCnt];
-    void setColorType(SkColorType, std::initializer_list<MTLPixelFormat> formats);
 
     SkEnumBitMask<SampleCount> fSupportedSampleCounts;
 

@@ -240,6 +240,19 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
         return Invalid();
     }
 
+    SkColorType supportedColorType;
+    bool isRGB888Format;
+    std::tie(supportedColorType, isRGB888Format) = caps->supportedTransferColorType(
+            dstColorInfo.colorType(), textureProxy->textureInfo());
+    SkASSERT(supportedColorType != kUnknown_SkColorType); // UploadSource verified this
+    SkColorInfo supportedColorInfo = dstColorInfo.makeColorType(supportedColorType);
+    if (supportedColorInfo.alphaType() == kUnknown_SkAlphaType) {
+        supportedColorInfo = supportedColorInfo.makeAlphaType(kOpaque_SkAlphaType);
+    }
+    SkColorInfo inputColorInfo = srcColorInfo;
+    if (inputColorInfo.alphaType() == kUnknown_SkAlphaType) {
+        inputColorInfo = inputColorInfo.makeAlphaType(kOpaque_SkAlphaType);
+    }
     UploadInstance upload{bufferInfo.fBuffer,
                           source.bytesPerPixel(),
                           std::move(textureProxy),
@@ -248,7 +261,7 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
     // Fill in copy data
     int32_t currentWidth = dstRect.width();
     int32_t currentHeight = dstRect.height();
-    bool needsConversion = (srcColorInfo != dstColorInfo);
+    bool needsConversion = (inputColorInfo != supportedColorInfo);
     for (uint32_t currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
         const size_t trimRowBytes = currentWidth * source.bytesPerPixel();
         const size_t srcRowBytes = levels[currentMipLevel].fRowBytes;
@@ -259,8 +272,8 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
 
         if (source.isRGB888Format()) {
             SkISize dims = {currentWidth, currentHeight};
-            SkImageInfo srcImageInfo = SkImageInfo::Make(dims, srcColorInfo);
-            SkImageInfo dstImageInfo = SkImageInfo::Make(dims, dstColorInfo);
+            SkImageInfo srcImageInfo = SkImageInfo::Make(dims, inputColorInfo);
+            SkImageInfo dstImageInfo = SkImageInfo::Make(dims, supportedColorInfo);
 
             const void* rgbConvertSrc = src;
             size_t rgbSrcRowBytes = srcRowBytes;
@@ -284,8 +297,8 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
                                     currentHeight);
         } else if (needsConversion) {
             SkISize dims = {currentWidth, currentHeight};
-            SkImageInfo srcImageInfo = SkImageInfo::Make(dims, srcColorInfo);
-            SkImageInfo dstImageInfo = SkImageInfo::Make(dims, dstColorInfo);
+            SkImageInfo srcImageInfo = SkImageInfo::Make(dims, inputColorInfo);
+            SkImageInfo dstImageInfo = SkImageInfo::Make(dims, supportedColorInfo);
 
             writer.convertAndWrite(
                     mipOffset, srcImageInfo, src, srcRowBytes, dstImageInfo, dstRowBytes);

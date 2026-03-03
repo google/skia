@@ -8,12 +8,15 @@
 #ifndef skgpu_graphite_TextureFormat_DEFINED
 #define skgpu_graphite_TextureFormat_DEFINED
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkTextureCompressionType.h"
 #include "src/gpu/Swizzle.h"
 
 #include <stddef.h>
 #include <cstdint>
 #include <optional>
+
+enum SkColorType : int;
 
 enum SkColorType : int;
 
@@ -171,6 +174,12 @@ Swizzle ReadSwizzleForColorType(SkColorType, TextureFormat);
 // Returns the skgpu::Swizzle to use when writing colors to a surface with the passed in SkColorType
 // and TextureInfo. If the returned optional is empty, it means the color type cannot be rendered to
 std::optional<Swizzle> WriteSwizzleForColorType(SkColorType, TextureFormat);
+
+// Formats are ordered from most preferred to least based on the policies described above in
+// TextureFormat. These must still be filtered by support for a given Caps. A TextureFormat that
+// can used with the provided SkColorType is not necessarily included in this list, e.g. we often
+// allow BGR vs RGB mismatches between CPU and GPU layouts if that's what the client provides.
+SkSpan<const TextureFormat> PreferredTextureFormats(SkColorType);
 
 } // namespace skgpu::graphite
 

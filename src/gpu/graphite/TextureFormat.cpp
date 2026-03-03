@@ -423,4 +423,57 @@ std::optional<skgpu::Swizzle> WriteSwizzleForColorType(SkColorType ct, TextureFo
     }
 }
 
+SkSpan<const TextureFormat> PreferredTextureFormats(SkColorType ct) {
+    #define N(...) std::size({__VA_ARGS__})
+    #define CASE(C, ...) case C: { \
+            static const std::array<TextureFormat, N(__VA_ARGS__)> kFormats{{__VA_ARGS__}}; \
+            return SkSpan(kFormats); }
+
+    switch (ct) {
+        case kUnknown_SkColorType:  return {};
+        // NOTE: Not all backends support all TextureFormats. Some of the more advanced formats
+        // may not be supported at all and have no viable fallback. For color types that have
+        // equivalent texture formats differing only in RGB vs. BGR swizzle, we allow both
+        // format variations to maximize color types that have some format. For alpha-only color
+        // types, we only match to red-channel formats as they have the broadest support.
+
+        CASE(kAlpha_8_SkColorType,            TextureFormat::kR8)
+        // NOTE: kRGB_565_SkColorType is misnamed and natively matches B5_G6_R5
+        CASE(kRGB_565_SkColorType,            TextureFormat::kB5_G6_R5, TextureFormat::kR5_G6_B5)
+        // NOTE: kARGB_4444_SkColorType is misnamed and natively matches ABGR4
+        CASE(kARGB_4444_SkColorType,          TextureFormat::kABGR4,    TextureFormat::kARGB4)
+        CASE(kRGBA_8888_SkColorType,          TextureFormat::kRGBA8,    TextureFormat::kBGRA8)
+        CASE(kRGB_888x_SkColorType,           TextureFormat::kRGB8,
+                                              TextureFormat::kRGBA8,
+                                              TextureFormat::kBGRA8)
+        CASE(kBGRA_8888_SkColorType,          TextureFormat::kBGRA8,    TextureFormat::kRGBA8)
+        CASE(kRGBA_1010102_SkColorType,       TextureFormat::kRGB10_A2, TextureFormat::kBGR10_A2)
+        CASE(kBGRA_1010102_SkColorType,       TextureFormat::kBGR10_A2, TextureFormat::kRGB10_A2)
+        CASE(kRGB_101010x_SkColorType,        TextureFormat::kRGB10_A2, TextureFormat::kBGR10_A2)
+        CASE(kBGR_101010x_SkColorType,        TextureFormat::kBGR10_A2, TextureFormat::kRGB10_A2)
+        CASE(kBGR_101010x_XR_SkColorType,     TextureFormat::kBGR10_XR)
+        CASE(kBGRA_10101010_XR_SkColorType,   TextureFormat::kBGRA10x6_XR)
+        CASE(kRGBA_10x6_SkColorType,          TextureFormat::kRGBA10x6)
+        CASE(kGray_8_SkColorType,             TextureFormat::kR8)
+        CASE(kRGBA_F16Norm_SkColorType,       TextureFormat::kRGBA16F)
+        CASE(kRGBA_F16_SkColorType,           TextureFormat::kRGBA16F)
+        CASE(kRGB_F16F16F16x_SkColorType,     TextureFormat::kRGBA16F)
+        CASE(kRGBA_F32_SkColorType,           TextureFormat::kRGBA32F)
+        CASE(kR8G8_unorm_SkColorType,         TextureFormat::kRG8)
+        CASE(kA16_float_SkColorType,          TextureFormat::kR16F)
+        CASE(kR16G16_float_SkColorType,       TextureFormat::kRG16F)
+        CASE(kA16_unorm_SkColorType,          TextureFormat::kR16)
+        CASE(kR16_unorm_SkColorType,          TextureFormat::kR16)
+        CASE(kR16G16_unorm_SkColorType,       TextureFormat::kRG16)
+        CASE(kR16G16B16A16_unorm_SkColorType, TextureFormat::kRGBA16)
+        CASE(kSRGBA_8888_SkColorType,         TextureFormat::kRGBA8_sRGB,
+                                              TextureFormat::kBGRA8_sRGB)
+        CASE(kR8_unorm_SkColorType,           TextureFormat::kR8)
+    }
+
+    SkUNREACHABLE;
+    #undef CASE
+    #undef N
+}
+
 } // namespace skgpu::graphite
