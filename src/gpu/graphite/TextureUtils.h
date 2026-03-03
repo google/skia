@@ -38,14 +38,14 @@ class Image_Base;
 class Recorder;
 class TextureProxyView;
 
-// Create TextureProxyView and SkColorType pair using pixel data in SkBitmap,
-// adding any necessary copy commands to Recorder
-std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder*,
-                                                              const SkBitmap&,
-                                                              sk_sp<SkMipmap>,
-                                                              Mipmapped,
-                                                              skgpu::Budgeted,
-                                                              std::string_view label);
+// Create TextureProxyView using pixel data in SkBitmap, adding any necessary copy commands to
+// Recorder. This will fail if the color type does not have a supported texture format.
+TextureProxyView MakeBitmapProxyView(Recorder*,
+                                     const SkBitmap&,
+                                     sk_sp<SkMipmap>,
+                                     Mipmapped,
+                                     skgpu::Budgeted,
+                                     std::string_view label);
 
 sk_sp<TextureProxy> MakePromiseImageLazyProxy(const Caps*,
                                               SkISize dimensions,
@@ -56,14 +56,6 @@ sk_sp<TextureProxy> MakePromiseImageLazyProxy(const Caps*,
                                               SkImages::GraphitePromiseTextureFulfillContext,
                                               SkImages::GraphitePromiseTextureReleaseProc,
                                               std::string_view label);
-
-sk_sp<SkImage> MakeFromBitmap(Recorder*,
-                              const SkColorInfo&,
-                              const SkBitmap&,
-                              sk_sp<SkMipmap>,
-                              skgpu::Budgeted,
-                              SkImage::RequiredProperties,
-                              std::string_view label);
 
 // NOTE: This estimates a GPU size assuming the texture is not actually memoryless.
 size_t ComputeSize(SkISize dimensions, const TextureInfo&);

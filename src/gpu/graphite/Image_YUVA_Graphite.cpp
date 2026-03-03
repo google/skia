@@ -140,9 +140,20 @@ sk_sp<Image_YUVA> Image_YUVA::Make(const Caps* caps,
     for (int i = 0; i < SkYUVAInfo::kYUVAChannelCount; ++i) {
         auto [plane, channel] = locations[i];
         if (plane >= 0) {
-            // Compose the YUVA location with the data swizzle. replaceSwizzle() is used since
-            // selectChannelInR() effectively does the composition (vs. Swizzle::Concat).
+            // Compose the YUVA location with the data's read swizzle. This maps the data into the
+            // R channel for the rest of the YUV shader logic. We add an extra check to detect alpha
+            // only colortype swizzles (e.g. 000r), which can show up when wrapping single-channel
+            // planar data (the public APIs accept A8 or R8 for instance).
+            if (planes[plane].swizzle() == Swizzle("000r") ||
+                TextureInfoPriv::ViewFormat(planes[plane].proxy()->textureInfo())
+                        == TextureFormat::kA8) {
+                // Pull the alpha channel into R, this is equivalent to having concatenated
+                // Swizzle("aaaa") with the plane's read swizzle.
+                channel = SkColorChannel::kA;
+            }
             Swizzle channelSwizzle = planes[plane].swizzle().selectChannelInR((int) channel);
+
+            // Use replaceSwizzle() since selectChannelInR effectively includes a Swizzle::Concat.
             channelProxies[i] = planes[plane].replaceSwizzle(channelSwizzle);
         } else if (i == kA) {
             // The alpha channel is allowed to be not provided, set it to an empty view
@@ -172,11 +183,6 @@ sk_sp<Image_YUVA> Image_YUVA::WrapImages(const Caps* caps,
         if (!planes[i]) {
             // A null image, or not graphite-backed, or not backed by a single texture.
             return nullptr;
-        }
-        // The YUVA shader expects to sample from the red channel for single-channel textures, so
-        // reset the swizzle for alpha-only textures to compensate for that
-        if (images[i]->isAlphaOnly()) {
-            planes[i] = planes[i].makeSwizzle(Swizzle("aaaa"));
         }
     }
 

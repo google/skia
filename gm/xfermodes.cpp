@@ -122,7 +122,7 @@ static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst,
     transparent->eraseColor(SK_ColorTRANSPARENT);
 }
 
-static uint16_t gData[] = { 0xFFFF, 0xCCCF, 0xCCCF, 0xFFFF };
+static uint32_t gData[] = { 0xFFFFFFFF, 0xFFCCCCCC, 0xFFCCCCCC, 0xFFFFFFFF };
 
 class XfermodesGM : public skiagm::GM {
     SkBitmap    fBG;
@@ -210,9 +210,8 @@ class XfermodesGM : public skiagm::GM {
     }
 
     void onOnceBeforeDraw() override {
-        fBG.installPixels(SkImageInfo::Make(2, 2, kARGB_4444_SkColorType,
-                                            kOpaque_SkAlphaType),
-                          gData, 4);
+        fBG.installPixels(SkImageInfo::Make(2, 2, kRGBA_8888_SkColorType, kOpaque_SkAlphaType),
+                          gData, 8);
 
         make_bitmaps(W, H, &fSrcB, &fDstB, &fTransparent);
     }

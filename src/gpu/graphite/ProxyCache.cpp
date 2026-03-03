@@ -117,8 +117,8 @@ sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
             return CacheEntry{};
         }
 
-        auto [ view, ct ] = MakeBitmapProxyView(recorder, bitmap, nullptr, Mipmapped::kNo,
-                                                Budgeted::kYes, finalLabel);
+        auto view = MakeBitmapProxyView(recorder, bitmap, /*mipmapData=*/nullptr, Mipmapped::kNo,
+                                        Budgeted::kYes, finalLabel);
         if (!view) {
             return CacheEntry{};
         }

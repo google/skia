@@ -1805,7 +1805,8 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
                 case 'a': imgData.fChannelSelect[locIndex] = {0.f, 0.f, 0.f, 1.f}; break;
                 default:
                     imgData.fChannelSelect[locIndex] = {0.f, 0.f, 0.f, 0.f};
-                    SkDEBUGFAILF("Unexpected swizzle for YUVA data: %c", view.swizzle()[0]);
+                    SkDEBUGFAILF("Unexpected swizzle for YUVA data: %c in %s",
+                                 view.swizzle()[0], view.swizzle().asString().c_str());
                     break;
             }
         } else {

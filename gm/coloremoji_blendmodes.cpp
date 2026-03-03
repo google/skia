@@ -35,7 +35,7 @@
 
 namespace {
 
-static uint16_t gData[] = { 0xFFFF, 0xCCCF, 0xCCCF, 0xFFFF };
+static uint32_t gData[] = { 0xFFFFFFFF, 0xFFCCCCCC, 0xFFCCCCCC, 0xFFFFFFFF };
 
 class ColorEmojiBlendModesGM : public skiagm::GM {
 public:
@@ -60,8 +60,8 @@ protected:
         SkASSERT(orig);
         fColorSample = ToolUtils::EmojiSample(fFormat);
 
-        fBG.installPixels(SkImageInfo::Make(2, 2, kARGB_4444_SkColorType,
-                                            kOpaque_SkAlphaType), gData, 4);
+        fBG.installPixels(SkImageInfo::Make(2, 2, kRGBA_8888_SkColorType, kOpaque_SkAlphaType),
+                          gData, 8);
     }
 
     SkString getName() const override {

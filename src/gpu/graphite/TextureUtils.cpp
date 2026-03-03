@@ -247,15 +247,15 @@ private:
 
 } // anonymous namespace
 
-std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder,
-                                                              const SkBitmap& bitmap,
-                                                              sk_sp<SkMipmap> mipmapsIn,
-                                                              Mipmapped mipmapped,
-                                                              Budgeted budgeted,
-                                                              std::string_view label) {
+TextureProxyView MakeBitmapProxyView(Recorder* recorder,
+                                     const SkBitmap& bitmap,
+                                     sk_sp<SkMipmap> mipmapsIn,
+                                     Mipmapped mipmapped,
+                                     Budgeted budgeted,
+                                     std::string_view label) {
     // Adjust params based on input and Caps
     const Caps* caps = recorder->priv().caps();
-    SkColorType ct = bitmap.info().colorType();
+    const SkColorType ct = bitmap.info().colorType();
 
     if (bitmap.dimensions().area() <= 1) {
         mipmapped = Mipmapped::kNo;
@@ -265,43 +265,26 @@ std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder
     auto textureInfo = caps->getDefaultSampledTextureInfo(ct, mipmapped, isProtected,
                                                           Renderable::kNo);
     if (!textureInfo.isValid()) {
-        ct = kRGBA_8888_SkColorType;
-        textureInfo = caps->getDefaultSampledTextureInfo(ct, mipmapped, isProtected,
-                                                         Renderable::kNo);
+        return {};
     }
-    SkASSERT(textureInfo.isValid());
-
-    // Convert bitmap to texture colortype if necessary
-    SkBitmap bmpToUpload;
-    if (ct != bitmap.info().colorType()) {
-        if (!bmpToUpload.tryAllocPixels(bitmap.info().makeColorType(ct)) ||
-            !bitmap.readPixels(bmpToUpload.pixmap())) {
-            return {};
-        }
-        bmpToUpload.setImmutable();
-    } else {
-        bmpToUpload = bitmap;
-    }
-
-    if (!SkImageInfoIsValid(bmpToUpload.info())) {
+    if (!SkImageInfoIsValid(bitmap.info())) {
         return {};
     }
 
     int mipLevelCount = (mipmapped == Mipmapped::kYes) ?
             SkMipmap::ComputeLevelCount(bitmap.width(), bitmap.height()) + 1 : 1;
 
-
     // setup MipLevels
     sk_sp<SkMipmap> mipmaps;
     std::vector<MipLevel> texels;
     if (mipLevelCount == 1) {
         texels.resize(mipLevelCount);
-        texels[0].fPixels = bmpToUpload.getPixels();
-        texels[0].fRowBytes = bmpToUpload.rowBytes();
+        texels[0].fPixels = bitmap.getPixels();
+        texels[0].fRowBytes = bitmap.rowBytes();
     } else {
         mipmaps = SkToBool(mipmapsIn)
                           ? mipmapsIn
-                          : sk_sp<SkMipmap>(SkMipmap::Build(bmpToUpload.pixmap(), nullptr));
+                          : sk_sp<SkMipmap>(SkMipmap::Build(bitmap.pixmap(), nullptr));
         if (!mipmaps) {
             return {};
         }
@@ -309,8 +292,8 @@ std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder
         SkASSERT(mipLevelCount == mipmaps->countLevels() + 1);
         texels.resize(mipLevelCount);
 
-        texels[0].fPixels = bmpToUpload.getPixels();
-        texels[0].fRowBytes = bmpToUpload.rowBytes();
+        texels[0].fPixels = bitmap.getPixels();
+        texels[0].fRowBytes = bitmap.rowBytes();
 
         for (int i = 1; i < mipLevelCount; ++i) {
             SkMipmap::Level generatedMipLevel;
@@ -318,14 +301,14 @@ std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder
             texels[i].fPixels = generatedMipLevel.fPixmap.addr();
             texels[i].fRowBytes = generatedMipLevel.fPixmap.rowBytes();
             SkASSERT(texels[i].fPixels);
-            SkASSERT(generatedMipLevel.fPixmap.colorType() == bmpToUpload.colorType());
+            SkASSERT(generatedMipLevel.fPixmap.colorType() == bitmap.colorType());
         }
     }
 
     // Create proxy
     sk_sp<TextureProxy> proxy = TextureProxy::Make(caps,
                                                    recorder->priv().resourceProvider(),
-                                                   bmpToUpload.dimensions(),
+                                                   bitmap.dimensions(),
                                                    textureInfo,
                                                    label,
                                                    budgeted);
@@ -336,11 +319,11 @@ std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder
     SkASSERT(mipmapped == Mipmapped::kNo || proxy->mipmapped() == Mipmapped::kYes);
 
     // Src and dst colorInfo are the same
-    const SkColorInfo& colorInfo = bmpToUpload.info().colorInfo();
+    const SkColorInfo& colorInfo = bitmap.info().colorInfo();
     // Add upload to the root upload list. These bitmaps are uploaded to unique textures so there is
     // no need to coordinate resource sharing. It is better to then group them into a single task
     // at the start of the Recording.
-    const SkIRect dimensions = SkIRect::MakeSize(bmpToUpload.dimensions());
+    const SkIRect dimensions = SkIRect::MakeSize(bitmap.dimensions());
     UploadSource uploadSource = UploadSource::Make(
             recorder->priv().caps(), *proxy, colorInfo, colorInfo, texels, dimensions);
     if (!uploadSource.isValid()) {
@@ -358,12 +341,7 @@ std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder
         return {};
     }
 
-    Swizzle swizzle = caps->getReadSwizzle(ct, textureInfo);
-    // If the color type is alpha-only, propagate the alpha value to the other channels.
-    if (SkColorTypeIsAlphaOnly(colorInfo.colorType())) {
-        swizzle = Swizzle::Concat(swizzle, Swizzle("aaaa"));
-    }
-    return {{std::move(proxy), swizzle}, ct};
+    return {std::move(proxy), caps->getReadSwizzle(ct, textureInfo)};
 }
 
 sk_sp<TextureProxy> MakePromiseImageLazyProxy(
@@ -389,24 +367,6 @@ sk_sp<TextureProxy> MakePromiseImageLazyProxy(
     // are never considered budgeted.
     return TextureProxy::MakeLazy(caps, dimensions, textureInfo, Budgeted::kNo, isVolatile,
                                   std::move(callback));
-}
-
-sk_sp<SkImage> MakeFromBitmap(Recorder* recorder,
-                              const SkColorInfo& colorInfo,
-                              const SkBitmap& bitmap,
-                              sk_sp<SkMipmap> mipmaps,
-                              Budgeted budgeted,
-                              SkImage::RequiredProperties requiredProps,
-                              std::string_view label) {
-    auto mm = requiredProps.fMipmapped ? Mipmapped::kYes : Mipmapped::kNo;
-    auto [view, ct] =
-            MakeBitmapProxyView(recorder, bitmap, std::move(mipmaps), mm, budgeted, label);
-    if (!view) {
-        return nullptr;
-    }
-
-    SkASSERT(!requiredProps.fMipmapped || view.proxy()->mipmapped() == Mipmapped::kYes);
-    return sk_make_sp<skgpu::graphite::Image>(std::move(view), colorInfo.makeColorType(ct));
 }
 
 size_t ComputeSize(SkISize dimensions, const TextureInfo& info) {
