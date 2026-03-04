@@ -87,6 +87,9 @@ public:
     /** Returns true if there is work that was submitted to the GPU that has not finished. */
     bool hasUnfinishedGpuWork() const;
 
+    /** Returns true if there is pending GPU work that needs to be submitted. */
+    bool hasPendingGPUWork() const;
+
     /** Makes image pixel data available to caller, possibly asynchronously. It can also rescale
         the image pixels.
 

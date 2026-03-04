@@ -315,6 +315,14 @@ bool QueueManager::submitToGpu(const SubmitInfo& submitInfo) {
 
 bool QueueManager::hasUnfinishedGpuWork() { return !fOutstandingSubmissions.empty(); }
 
+bool QueueManager::hasPendingGPUWork() const {
+    // Only check if fCurrentCommandBuffer is non-null.
+    // If there is no command in the command buffer i.e. fCurrentCommandBuffer->hasWork() is false,
+    // it's still considered valid. Because clients can insert a recording without any command just
+    // to track the finish proc.
+    return fCurrentCommandBuffer != nullptr;
+}
+
 void QueueManager::checkForFinishedWork(SyncToCpu sync) {
     TRACE_EVENT1("skia.gpu", TRACE_FUNC, "sync", sync == SyncToCpu::kYes);
 
