@@ -70,7 +70,7 @@ private:
                           const SkStrokeRec&,
                           SkIRect shapeBounds,
                           SkIVector transformedMaskOffset,
-                          const AtlasLocator&) override;
+                          const DrawAtlas::AtlasLocator&) override;
     };
 
     RasterAtlasMgr fCachedAtlasMgr;

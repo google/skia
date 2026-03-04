@@ -42,6 +42,61 @@ using Glyph = skgpu::graphite::Glyph;
 
 namespace skgpu::graphite {
 
+using AtlasConfig = TextAtlasManager::AtlasConfig;
+
+AtlasConfig::AtlasConfig(int maxTextureSize, size_t maxBytes) {
+    static const SkISize kARGBDimensions[] = {
+            {256, 256},    // maxBytes < 2^19
+            {512, 256},    // 2^19 <= maxBytes < 2^20
+            {512, 512},    // 2^20 <= maxBytes < 2^21
+            {1024, 512},   // 2^21 <= maxBytes < 2^22
+            {1024, 1024},  // 2^22 <= maxBytes < 2^23
+            {2048, 1024},  // 2^23 <= maxBytes
+    };
+
+    // Index 0 corresponds to maxBytes of 2^18, so start by dividing it by that
+    maxBytes >>= 18;
+    // Take the floor of the log to get the index
+    int index = maxBytes > 0
+        ? SkTPin<int>(SkPrevLog2(maxBytes), 0, std::size(kARGBDimensions) - 1)
+        : 0;
+
+    SkASSERT(kARGBDimensions[index].width() <= kMaxAtlasDim);
+    SkASSERT(kARGBDimensions[index].height() <= kMaxAtlasDim);
+    fARGBDimensions.set(std::min<int>(kARGBDimensions[index].width(), maxTextureSize),
+                        std::min<int>(kARGBDimensions[index].height(), maxTextureSize));
+    fMaxTextureSize = std::min<int>(maxTextureSize, kMaxAtlasDim);
+}
+
+SkISize AtlasConfig::atlasDimensions(MaskFormat type) const {
+    if (MaskFormat::kA8 == type) {
+        // A8 is always 2x the ARGB dimensions, clamped to the max allowed texture size
+        return {std::min<int>(2 * fARGBDimensions.width(), fMaxTextureSize),
+                std::min<int>(2 * fARGBDimensions.height(), fMaxTextureSize)};
+    } else {
+        return fARGBDimensions;
+    }
+}
+
+SkISize AtlasConfig::plotDimensions(MaskFormat type) const {
+    if (MaskFormat::kA8 == type) {
+        SkISize atlasDimensions = this->atlasDimensions(type);
+        // For A8 we want to grow the plots at larger texture sizes to accept more of the
+        // larger SDF glyphs. Since the largest SDF glyph can be 170x170 with padding, this
+        // allows us to pack 3 in a 512x256 plot, or 9 in a 512x512 plot.
+
+        // This will give us 512x256 plots for 2048x1024, 512x512 plots for 2048x2048,
+        // and 256x256 plots otherwise.
+        int plotWidth = atlasDimensions.width() >= 2048 ? 512 : 256;
+        int plotHeight = atlasDimensions.height() >= 2048 ? 512 : 256;
+
+        return {plotWidth, plotHeight};
+    } else {
+        // ARGB and LCD always use 256x256 plots -- this has been shown to be faster
+        return {256, 256};
+    }
+}
+
 TextAtlasManager::TextAtlasManager(Recorder* recorder)
         : fRecorder(recorder)
         , fSupportBilerpAtlas{recorder->priv().caps()->supportBilerpFromGlyphAtlas()}
@@ -279,7 +334,7 @@ bool TextAtlasManager::recordUploads(DrawContext* dc) {
     return true;
 }
 
-void TextAtlasManager::addGlyphToBulkAndSetUseToken(BulkUsePlotUpdater* updater,
+void TextAtlasManager::addGlyphToBulkAndSetUseToken(DrawAtlas::BulkUsePlotUpdater* updater,
                                                     MaskFormat format,
                                                     const GlyphEntry& glyph,
                                                     Token token) {
@@ -296,7 +351,7 @@ void TextAtlasManager::setAtlasDimensionsToMinimum_ForTesting() {
     }
 
     // Set all the atlas sizes to 1x1 plot each.
-    new (&fAtlasConfig) DrawAtlasConfig{2048, 0};
+    new (&fAtlasConfig) AtlasConfig{2048, 0};
 }
 
 bool TextAtlasManager::initAtlas(MaskFormat format) {

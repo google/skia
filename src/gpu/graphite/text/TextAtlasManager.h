@@ -28,8 +28,34 @@ class TextureProxy;
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /** The TextAtlasManager manages the lifetime of and access to DrawAtlases used in glyph rendering.
  */
-class TextAtlasManager : public AtlasGenerationCounter {
+class TextAtlasManager : public DrawAtlas::GenerationCounter {
 public:
+    // For text there are three atlases (A8, 565, ARGB) that are kept in relation with one another.
+    // In general, because A8 is the most frequently used mask format its dimensions are 2x the 565
+    // and ARGB dimensions, with the constraint that an atlas size will always contain at least one
+    // plot. Since the ARGB atlas takes the most space, its dimensions are used to size the other
+    // two atlases.
+    class AtlasConfig {
+    public:
+        // The capabilities of the GPU define maxTextureSize. The client provides maxBytes, and this
+        // represents the largest they want a single atlas texture to be. Due to multitexturing, we
+        // may expand temporarily to use more space as needed.
+        AtlasConfig(int maxTextureSize, size_t maxBytes);
+
+        SkISize atlasDimensions(MaskFormat type) const;
+        SkISize plotDimensions(MaskFormat type) const;
+
+    private:
+        // On some systems texture coordinates are represented using half-precision floating point
+        // with 11 significant bits, which limits the largest atlas dimensions to 2048x2048.
+        // For simplicity we'll use this constraint for all of our atlas textures.
+        // This can be revisited later if we need larger atlases.
+        inline static constexpr int kMaxAtlasDim = 2048;
+
+        SkISize fARGBDimensions;
+        int fMaxTextureSize;
+    };
+
     TextAtlasManager(Recorder*);
     ~TextAtlasManager();
 
@@ -58,9 +84,9 @@ public:
     // A BulkUsePlotUpdater is used to manage bulk last use token updating in the Atlas.
     // For convenience, this function will also set the use token for the current glyph if required
     // NOTE: the bulk uploader is only valid if the subrun has a valid atlasGeneration
-    void addGlyphToBulkAndSetUseToken(BulkUsePlotUpdater*, MaskFormat, const GlyphEntry&, Token);
+    void addGlyphToBulkAndSetUseToken(DrawAtlas::BulkUsePlotUpdater*, MaskFormat, const GlyphEntry&, Token);
 
-    void setUseTokenBulk(const BulkUsePlotUpdater& updater,
+    void setUseTokenBulk(const DrawAtlas::BulkUsePlotUpdater& updater,
                          Token token,
                          MaskFormat format) {
         this->getAtlas(format)->setLastUseTokenBulk(updater, token);
@@ -118,7 +144,7 @@ private:
     std::unique_ptr<DrawAtlas> fAtlases[kMaskFormatCount];
     static_assert(kMaskFormatCount == 3);
     bool fSupportBilerpAtlas;
-    DrawAtlasConfig fAtlasConfig;
+    AtlasConfig fAtlasConfig;
 };
 
 }  // namespace skgpu::graphite

@@ -83,7 +83,7 @@ sk_sp<TextureProxy> RasterPathAtlas::onAddShape(const Shape& shape,
 
     // Try to add to uncached DrawAtlas
     if (!proxy) {
-        AtlasLocator loc;
+        DrawAtlas::AtlasLocator loc;
         proxy = fUncachedAtlasMgr.addToAtlas(fRecorder,
                                              shape,
                                              localToDevice,
@@ -134,7 +134,7 @@ bool RasterPathAtlas::RasterAtlasMgr::onAddToAtlas(const Shape& shape,
                                                    const SkStrokeRec& strokeRec,
                                                    SkIRect shapeBounds,
                                                    SkIVector transformedMaskOffset,
-                                                   const AtlasLocator& locator) {
+                                                   const DrawAtlas::AtlasLocator& locator) {
     SkPixmap pixmap = fDrawAtlas->prepForRender(locator, kEntryPadding);
 
     RasterMaskHelper helper(pixmap, -transformedMaskOffset);

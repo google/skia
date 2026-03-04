@@ -10,7 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "src/core/SkGlyph.h"
-#include "src/gpu/graphite/AtlasTypes.h"
+#include "src/gpu/graphite/DrawAtlas.h"
 #include "src/gpu/graphite/text/TextStrike.h"
 
 #include <cstdint>
@@ -38,7 +38,7 @@ struct GlyphEntry final {
     explicit GlyphEntry(SkPackedGlyphID id) : fPackedID(id) {}
 
     const SkPackedGlyphID fPackedID;
-    AtlasLocator fAtlasLocator;
+    DrawAtlas::AtlasLocator fAtlasLocator;
 };
 
 /** Adapts GlyphEntry* to conform to GlyphVector's GlyphType requirements. */
@@ -98,8 +98,8 @@ private:
     GlyphData& operator=(GlyphData&&) = delete;
 
     sk_sp<TextStrike> fTextStrike;
-    uint64_t fAtlasGeneration{AtlasGenerationCounter::kInvalidGeneration};
-    BulkUsePlotUpdater fBulkUseUpdater;
+    uint64_t fAtlasGeneration{DrawAtlas::GenerationCounter::kInvalidGeneration};
+    DrawAtlas::BulkUsePlotUpdater fBulkUseUpdater;
 };
 
 }  // namespace skgpu::graphite

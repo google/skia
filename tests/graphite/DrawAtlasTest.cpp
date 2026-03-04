@@ -14,6 +14,7 @@
 #include "src/gpu/graphite/DrawAtlas.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/text/TextAtlasManager.h"
 
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
@@ -27,21 +28,22 @@ const int kPlotSize = 32;
 const int kAtlasSize = kNumPlots * kPlotSize;
 uint32_t gEvictCount = 0;
 
-class PlotEvictionCounter : public PlotEvictionCallback {
+class PlotEvictionCounter : public DrawAtlas::PlotEvictionCallback {
 public:
-    void evict(PlotLocator) override {
-        ++gEvictCount;
-    }
+    void evict(DrawAtlas::PlotLocator) override { ++gEvictCount; }
 };
 
 void check(skiatest::Reporter* r, DrawAtlas* atlas,
            uint32_t expectedActive, uint32_t expectedEvictCount) {
     REPORTER_ASSERT(r, atlas->numActivePages() == expectedActive);
     REPORTER_ASSERT(r, gEvictCount == expectedEvictCount);
-    REPORTER_ASSERT(r, atlas->maxPages() == PlotLocator::kMaxMultitexturePages);
+    REPORTER_ASSERT(r, atlas->maxPages() == DrawAtlas::kMaxMultitexturePages);
 }
 
-bool fill_plot(DrawAtlas* atlas, Recorder* recorder, AtlasLocator* atlasLocator, int alpha) {
+bool fill_plot(DrawAtlas* atlas,
+               Recorder* recorder,
+               DrawAtlas::AtlasLocator* atlasLocator,
+               int alpha) {
     SkImageInfo ii = SkImageInfo::MakeA8(kPlotSize, kPlotSize);
 
     SkBitmap data;
@@ -66,7 +68,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BasicDrawAtlas,
     gEvictCount = 0;
     MaskFormat atlasMaskFormat = MaskFormat::kA8;
     PlotEvictionCounter evictor;
-    AtlasGenerationCounter counter;
+    DrawAtlas::GenerationCounter counter;
     std::unique_ptr<DrawAtlas> atlas = DrawAtlas::Make(atlasMaskFormat,
                                                        kAtlasSize, kAtlasSize,
                                                        kAtlasSize/kNumPlots, kAtlasSize/kNumPlots,
@@ -78,8 +80,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BasicDrawAtlas,
     check(reporter, atlas.get(), /*expectedActive=*/0, /*expectedEvictCount=*/0);
 
     // Fill up the first page
-    AtlasLocator atlasLocator;
-    AtlasLocator testAtlasLocator;
+    DrawAtlas::AtlasLocator atlasLocator;
+    DrawAtlas::AtlasLocator testAtlasLocator;
     for (int i = 0; i < kNumPlots * kNumPlots; ++i) {
         bool result = fill_plot(atlas.get(), recorder.get(), &atlasLocator, i * 32);
         REPORTER_ASSERT(reporter, result);
@@ -166,13 +168,13 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ThrashDrawAtlasCache,
                                          CtsEnforcement::kNever) {
     auto recorder = context->makeRecorder();
     PlotEvictionCounter evictor;
-    AtlasGenerationCounter counter;
+    DrawAtlas::GenerationCounter counter;
 
     // Use a 4-page atlas with 4 plots per page (16 total plots)
     constexpr int numPlots = 2;
     constexpr int plotSize = 32;
     constexpr int atlasSize = numPlots * plotSize;
-    constexpr int maxPages = PlotLocator::kMaxMultitexturePages;
+    constexpr int maxPages = DrawAtlas::kMaxMultitexturePages;
     constexpr int totalPlots = numPlots * numPlots * maxPages;
 
     std::unique_ptr<DrawAtlas> atlas = DrawAtlas::Make(MaskFormat::kA8,
@@ -185,7 +187,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ThrashDrawAtlasCache,
                                                        DrawAtlas::UseStorageTextures::kNo,
                                                        &evictor,
                                                        /*label=*/"ThrashDrawAtlasTest");
-    std::vector<AtlasLocator> locators(totalPlots);
+    std::vector<DrawAtlas::AtlasLocator> locators(totalPlots);
     SkASSERT(totalPlots == 16);
 
     // Test kTryAgain failure and recovery
@@ -238,7 +240,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ThrashDrawAtlasCache,
 
     // Use only one plot on the last page repeatedly, making others on that page stale.
     // The locator for the first plot on the last page is at index (totalPlots - numPlots*numPlots).
-    AtlasLocator& lastPagePlot = locators[totalPlots - (numPlots * numPlots)];
+    DrawAtlas::AtlasLocator& lastPagePlot = locators[totalPlots - (numPlots * numPlots)];
 
     // After many flushes, the other 3 plots on the last page should be evicted.
     // We loop one more than kPlotRecentlyUsedCount (32) times to ensure eviction.
@@ -271,7 +273,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(DrawAtlasProxyLifetime,
     gEvictCount = 0;
     auto recorder = context->makeRecorder();
     PlotEvictionCounter evictor;
-    AtlasGenerationCounter counter;
+    DrawAtlas::GenerationCounter counter;
     constexpr int plotsOnPage = kNumPlots * kNumPlots;
     std::unique_ptr<DrawAtlas> atlas = DrawAtlas::Make(MaskFormat::kA8,
                                                        kAtlasSize,
@@ -286,7 +288,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(DrawAtlasProxyLifetime,
 
     // Fill three pages and collect a shared pointer to each page's TextureProxy.
     std::vector<sk_sp<TextureProxy>> proxies;
-    std::vector<AtlasLocator> locators(plotsOnPage * 3);
+    std::vector<DrawAtlas::AtlasLocator> locators(plotsOnPage * 3);
 
     for (int i = 0; i < plotsOnPage * 3; ++i) {
         REPORTER_ASSERT(reporter, fill_plot(atlas.get(), recorder.get(), &locators[i], i));
@@ -307,7 +309,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(DrawAtlasProxyLifetime,
     // Simulate many frames where only a plot on the first page (page 0) is ever used. This will
     // make pages 1 and 2 stale and eligible for compaction. Use the first locator we created, which
     // is guaranteed to be on page 0.
-    AtlasLocator& firstPageLocator = locators[0];
+    DrawAtlas::AtlasLocator& firstPageLocator = locators[0];
 
     for (int i = 0; i < 50; ++i) {
         atlas->setLastUseToken(firstPageLocator, recorder->priv().tokenTracker()->nextFlushToken());
@@ -333,7 +335,7 @@ namespace {
 void test_draw_atlas_config(skiatest::Reporter* reporter, int maxTextureSize, size_t maxBytes,
                             MaskFormat maskFormat, SkISize expectedDimensions,
                             SkISize expectedPlotDimensions) {
-    DrawAtlasConfig config(maxTextureSize, maxBytes);
+    TextAtlasManager::AtlasConfig config(maxTextureSize, maxBytes);
     REPORTER_ASSERT(reporter, config.atlasDimensions(maskFormat) == expectedDimensions);
     REPORTER_ASSERT(reporter, config.plotDimensions(maskFormat) == expectedPlotDimensions);
 }

@@ -219,7 +219,7 @@ sk_sp<TextureProxy> ClipAtlasManager::DrawAtlasMgr::findOrCreateEntry(
         entry = entry->fNext;
     }
 
-    AtlasLocator locator;
+    DrawAtlas::AtlasLocator locator;
     sk_sp<TextureProxy> proxy = this->addToAtlas(recorder, elementList, maskDeviceBounds, outPos,
                                                  &locator);
     if (!proxy) {
@@ -262,11 +262,11 @@ sk_sp<TextureProxy> ClipAtlasManager::DrawAtlasMgr::findOrCreateEntry(
 }
 
 sk_sp<TextureProxy> ClipAtlasManager::DrawAtlasMgr::addToAtlas(
-            Recorder* recorder,
-            const ClipStack::ElementList* elementsForMask,
-            SkIRect maskDeviceBounds,
-            SkIPoint* outPos,
-            AtlasLocator* locator) {
+        Recorder* recorder,
+        const ClipStack::ElementList* elementsForMask,
+        SkIRect maskDeviceBounds,
+        SkIPoint* outPos,
+        DrawAtlas::AtlasLocator* locator) {
     // Render mask.
     SkISize maskSize = maskDeviceBounds.size();
     if (maskSize.isEmpty()) {
@@ -308,7 +308,7 @@ bool ClipAtlasManager::DrawAtlasMgr::recordUploads(DrawContext* dc, Recorder* re
     return (fDrawAtlas && !fDrawAtlas->recordUploads(dc, recorder));
 }
 
-void ClipAtlasManager::DrawAtlasMgr::evict(PlotLocator plotLocator) {
+void ClipAtlasManager::DrawAtlasMgr::evict(DrawAtlas::PlotLocator plotLocator) {
     // Remove all entries for this Plot from the MaskCache
     uint32_t index = fDrawAtlas->getListIndex(plotLocator);
     MaskKeyList::Iter iter;

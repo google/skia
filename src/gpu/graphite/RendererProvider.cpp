@@ -9,7 +9,6 @@
 
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkVertices.h"
-#include "src/gpu/graphite/AtlasTypes.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/InternalDrawTypeFlags.h"
 #include "src/gpu/graphite/UniformManager.h"

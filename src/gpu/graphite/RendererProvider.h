@@ -12,7 +12,6 @@
 #include "include/core/SkVertices.h"
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/MaskFormat.h"
-#include "src/gpu/graphite/AtlasTypes.h"
 #include "src/gpu/graphite/Renderer.h"
 
 namespace skgpu::graphite {
