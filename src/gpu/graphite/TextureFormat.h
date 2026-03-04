@@ -9,9 +9,13 @@
 #define skgpu_graphite_TextureFormat_DEFINED
 
 #include "include/core/SkTextureCompressionType.h"
+#include "src/gpu/Swizzle.h"
 
 #include <stddef.h>
 #include <cstdint>
+#include <optional>
+
+enum SkColorType : int;
 
 namespace skgpu::graphite {
 
@@ -45,29 +49,6 @@ namespace skgpu::graphite {
  *  - RG formats sample in the shader as RG01; and store only RG of the out color.
  *  - RGB/BGR formats sample as RGB1; and store only RGB of the out color.
  *  - RGBA/BGRA/ARGB/ABGR all sample as RGBA and store RGBA.
- *
- * Unlike TextureFormat, SkColorType encapsulates both a data representation and semantics that
- * introduce a possible layer of indirection when using a TextureFormat to fulfill an SkColorType.
- * These operations may require modifying how the values are rendered or sampled, and/or performing
- * transformations on the CPU before/after a copy. Every SkColorType has a list of TextureFormats
- * that can be used with that type with minimal intervention. Formats are ordered from most to least
- * compatible by:
- *  1. Exact match: does not require any shader swizzling or CPU manipulation.
- *  2. Lossless w/ no semantic differences: does not require shader swizzling, but does require
- *     CPU manipulation (e.g. swap RG or force opaque).
- *  3. Lossless w/ semantic differences: requires shader swizzling, and may or may not require
- *     CPU manipulation for upload and readback.
- *  4. Lossy or data mismatch w/o any better fit. This is to support TextureFormats that aren't
- *     representable by any SkColorType on the CPU, but requires a valid SkColorType for the
- *     SkImageInfo of the textures' SkImage or SkSurface, e.g. compressed texture formats,
- *     multiplanar formats, or 32-bit float formats that can be used entirely within the GPU without
- *     needing to interpret it as a SkColorType on the CPU.
- *
- * The mapping between SkColorType and TextureFormat is defined statically. When a client creates a
- * new SkImage or SkSurface from an SkImageInfo, the TextureFormat is chosen as the first compatible
- * format for that SkColorType that has backend support on the device. When a client wraps a
- * BackendTexture, they also provide an SkColorType. The wrap fails if that color type's compatible
- * format list does not include the format of the provided BackendTexture.
  */
 enum class TextureFormat : uint8_t {
     kUnsupported,
@@ -154,6 +135,42 @@ bool TextureFormatIsMultiplanar(TextureFormat);
 bool TextureFormatAutoClamps(TextureFormat);
 
 bool TextureFormatIsFloatingPoint(TextureFormat);
+
+/**
+ * The remaining functions help define how CPU data (i.e. SkColorType) maps to GPU data (i.e.
+ * TextureFormat).
+ *
+ * Unlike TextureFormat, SkColorType encapsulates both a data representation and semantics that
+ * introduce a possible layer of indirection when using a TextureFormat to fulfill an SkColorType.
+ * These operations may require modifying how the values are rendered or sampled, and/or performing
+ * transformations on the CPU before/after a copy. Every SkColorType has a list of TextureFormats
+ * that can be used with that type with minimal intervention. Formats are ordered from most to least
+ * compatible by:
+ *  1. Exact match: does not require any shader swizzling or CPU manipulation.
+ *  2. Lossless w/ no semantic differences: does not require shader swizzling, but does require
+ *     CPU manipulation (e.g. swap RG or force opaque).
+ *  3. Lossless w/ semantic differences: requires shader swizzling, and may or may not require
+ *     CPU manipulation for upload and readback.
+ *  4. Lossy or data mismatch w/o any better fit. This is to support TextureFormats that aren't
+ *     representable by any SkColorType on the CPU, but requires a valid SkColorType for the
+ *     SkImageInfo of the textures' SkImage or SkSurface, e.g. compressed texture formats,
+ *     multiplanar formats, or 32-bit float formats that can be used entirely within the GPU without
+ *     needing to interpret it as a SkColorType on the CPU.
+ *
+ * The mapping between SkColorType and TextureFormat is defined statically. When a client creates a
+ * new SkImage or SkSurface from an SkImageInfo, the TextureFormat is chosen as the first compatible
+ * format for that SkColorType that has backend support on the device. When a client wraps a
+ * BackendTexture, they also provide an SkColorType. The wrap fails if that color type's compatible
+ * format list does not include the format of the provided BackendTexture.
+ */
+
+// Returns the skgpu::Swizzle to use when sampling or reading back from a texture with the passed in
+// SkColorType and TextureInfo.
+Swizzle ReadSwizzleForColorType(SkColorType, TextureFormat);
+
+// Returns the skgpu::Swizzle to use when writing colors to a surface with the passed in SkColorType
+// and TextureInfo. If the returned optional is empty, it means the color type cannot be rendered to
+std::optional<Swizzle> WriteSwizzleForColorType(SkColorType, TextureFormat);
 
 } // namespace skgpu::graphite
 

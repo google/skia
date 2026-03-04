@@ -22,6 +22,8 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
+#include "src/gpu/graphite/TextureFormat.h"
+#include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/gpu/graphite/TextureUtils.h"
 #include "src/gpu/graphite/task/CopyTask.h"
 
@@ -65,8 +67,9 @@ sk_sp<Image> Image::WrapDevice(sk_sp<Device> device, std::optional<SkColorInfo> 
         }
 
         // Update the swizzle on the texture view to match the change in color type
-        Swizzle readSwizzle = caps->getReadSwizzle(
-                overrideInfo->colorType(), view.proxy()->textureInfo());
+        Swizzle readSwizzle = ReadSwizzleForColorType(
+                overrideInfo->colorType(),
+                TextureInfoPriv::ViewFormat(view.proxy()->textureInfo()));
         view = view.replaceSwizzle(readSwizzle);
     } else {
         // Leave the texture view alone since its swizzle should match the device already

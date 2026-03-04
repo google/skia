@@ -341,7 +341,9 @@ TextureProxyView MakeBitmapProxyView(Recorder* recorder,
         return {};
     }
 
-    return {std::move(proxy), caps->getReadSwizzle(ct, textureInfo)};
+    const Swizzle swizzle = ReadSwizzleForColorType(
+            ct, TextureInfoPriv::ViewFormat(proxy->textureInfo()));
+    return {std::move(proxy), swizzle};
 }
 
 sk_sp<TextureProxy> MakePromiseImageLazyProxy(
@@ -581,8 +583,8 @@ bool GenerateMipmaps(Recorder* recorder, DrawContext* drawContext, sk_sp<Texture
     SkASSERT(make_renderable(colorInfo, colorInfo) == colorInfo);
 
     // Configure swizzle for the initial image to match what happens in Surface::asImage()
-    auto imgSwizzle = recorder->priv().caps()->getReadSwizzle(colorInfo.colorType(),
-                                                              texture->textureInfo());
+    auto imgSwizzle = ReadSwizzleForColorType(colorInfo.colorType(),
+                                              TextureInfoPriv::ViewFormat(texture->textureInfo()));
     sk_sp<SkImage> scratchImg(new Image(TextureProxyView(texture, imgSwizzle), colorInfo));
 
     // Alternate between two scratch surfaces to avoid reading from and writing to a texture in the
@@ -766,8 +768,9 @@ public:
         }
 
         const SkColorInfo& colorInfo = data.info().colorInfo();
-        skgpu::Swizzle swizzle = fRecorder->priv().caps()->getReadSwizzle(colorInfo.colorType(),
-                                                                          proxy->textureInfo());
+        skgpu::Swizzle swizzle = skgpu::graphite::ReadSwizzleForColorType(
+                colorInfo.colorType(),
+                skgpu::graphite::TextureInfoPriv::ViewFormat(proxy->textureInfo()));
         return sk_make_sp<skgpu::graphite::Image>(
                 skgpu::graphite::TextureProxyView(std::move(proxy), swizzle),
                 colorInfo);

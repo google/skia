@@ -667,14 +667,14 @@ sk_sp<SkDevice> Device::createDevice(const CreateInfo& info, const SkPaint*) {
 sk_sp<SkSurface> Device::makeSurface(const SkImageInfo& ii, const SkSurfaceProps& props) {
     return SkSurfaces::RenderTarget(fRecorder, ii, Mipmapped::kNo, &props);
 }
-
-// Although we have a drawContext here, we pass a nullptr to both flushPendingWork and Image::Copy
-// so that tasks end up on the root task list.
 sk_sp<Image> Device::makeImageCopy(const SkIRect& subset,
                                    Budgeted budgeted,
                                    Mipmapped mipmapped,
                                    SkBackingFit backingFit) {
     ASSERT_SINGLE_OWNER
+
+    // Although we have our own DrawContext here, we pass a nullptr to both flushPendingWork and
+    // Image::Copy so that tasks end up on the root task list.
     this->flushPendingWork(/*drawContext=*/nullptr);
 
     const SkColorInfo& colorInfo = this->imageInfo().colorInfo();
@@ -682,8 +682,8 @@ sk_sp<Image> Device::makeImageCopy(const SkIRect& subset,
     if (!srcView) {
         // readSurfaceView() returns an empty view when the target is not texturable. Create an
         // equivalent view for the blitting operation.
-        Swizzle readSwizzle = fRecorder->priv().caps()->getReadSwizzle(
-                colorInfo.colorType(), this->target()->textureInfo());
+        Swizzle readSwizzle = ReadSwizzleForColorType(
+                colorInfo.colorType(), TextureInfoPriv::ViewFormat(this->target()->textureInfo()));
         srcView = {sk_ref_sp(this->target()), readSwizzle};
     }
     std::string label = this->target()->label();
