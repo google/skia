@@ -17,6 +17,7 @@
 #include "src/pdf/SkPDFTypes.h"
 
 #include <cstddef>
+#include <variant>
 
 class SkPDFDocument;
 struct SkPDFStructElem;
@@ -52,18 +53,28 @@ public:
 
     // Create a new marked-content identifier (MCID) to be used with a marked-content sequence
     // parented by the structure element (StructElem) with the given element identifier (elemId).
-    // The StructTreeRoot::ParentTree[Page::StructParent][mcid] will refer to the structure element.
+    // The StructTreeRoot::ParentTree[?::StructParents][mcid] will refer to the structure element.
     // The structure element will add this MCID as its next child (in StructElem::K).
     // Returns a false Mark if if elemId does not refer to a StructElem.
-    SkPDFStructTree::Mark createMarkForElemId(int elemId, unsigned pageIndex);
+    //
+    // If a true Mark is returned and structParentsKey is false, the Mark will be added to a new
+    // StructParents and structParentsKey will be updated to reference the StructParents entry.
+    SkPDFStructTree::Mark createMarkForElemId(int elemId, unsigned pageIndex,
+                                              SkPDFParentTreeKey& structParentsKey);
+
+    static constexpr SkPDFIndirectReference kPageContentStreamRef = SkPDFIndirectReference{-2};
+    void setContentStreamRefForStructParentsKey(SkPDFParentTreeKey structParentsKey,
+                                                SkPDFIndirectReference contentStreamRef);
+    SkPDFIndirectReference getContentStreamRefForStructParentsKey(
+            SkPDFParentTreeKey structParentsKey) const;
 
     // Create a key to use with /StructParent in a content item (usually an annotation) which refers
     // to the structure element (StructElem) with the given element identifier (elemId).
     // The StructTreeRoot ParentTree will map from this key to the structure element.
     // The structure element will add the content item as its next child (as StructElem::K::OBJR).
     // Returns -1 if elemId does not refer to a StructElem.
-    int createStructParentKeyForElemId(int elemId, SkPDFIndirectReference contentItemRef,
-                                       unsigned pageIndex);
+    SkPDFParentTreeKey createStructParentKeyForElemId(int elemId, unsigned pageIndex,
+                                                      SkPDFIndirectReference contentItemRef);
 
     void addStructElemTitle(int elemId, SkSpan<const char>);
     SkPDFIndirectReference emitStructTreeRoot(SkPDFDocument* doc) const;
@@ -83,10 +94,18 @@ private:
     skia_private::THashMap<int, SkPDFStructElem*> fStructElemForElemId;
     SkPDFStructElem* fRoot = nullptr;
     SkPDF::Metadata::Outline fOutline = SkPDF::Metadata::Outline::None;
-    // fStructElemForMcidForPage[Page::StructParents][mcid] -> parent StructElem of mcid
-    skia_private::TArray<skia_private::TArray<SkPDFStructElem*>> fStructElemForMcidForPage;
-    // fStructElemForContentItem[?::StructParent] -> parent StructElem of content-item
-    skia_private::TArray<SkPDFStructElem*> fStructElemForContentItem;
+
+    struct Item {
+        SkPDFStructElem* fStructElem;
+    };
+    struct Stream {
+        skia_private::TArray<SkPDFStructElem*> fChildren; // indexed by mcid
+        // the non-page content stream reference, kPageContentStreamRef, or empty
+        SkPDFIndirectReference fContentStreamRef;
+    };
+    using ParentTreeEntry = std::variant<Item, Stream>;
+    // indexed by ?::StructParent or ?::StructParents
+    skia_private::TArray<ParentTreeEntry> fParentTree;
 };
 
 #endif

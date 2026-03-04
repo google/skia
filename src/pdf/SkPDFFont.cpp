@@ -767,7 +767,7 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
             canvas.translate(-glyphBBox.fLeft, -glyphBBox.fTop);
             canvas.drawDrawable(drawable);
             SkPDFIndirectReference xobject = SkPDFMakeFormXObject(
-                    doc, glyphDevice->content(),
+                    doc, glyphDevice->content(), SkPDFParentTreeKey(),
                     SkPDFMakeArray(0, 0, glyphBBox.width(), glyphBBox.height()),
                     glyphDevice->makeResourceDict(),
                     SkMatrix::Translate(glyphBBox.fLeft, glyphBBox.fTop), nullptr);
@@ -853,7 +853,7 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
                 SkCanvas canvas(glyphDevice);
                 canvas.drawImage(pimg.fImage, 0, 0);
                 SkPDFIndirectReference sMask = SkPDFMakeFormXObject(
-                        doc, glyphDevice->content(),
+                        doc, glyphDevice->content(), SkPDFParentTreeKey(),
                         SkPDFMakeArray(0, 0, pimg.fImage->width(), pimg.fImage->height()),
                         glyphDevice->makeResourceDict(),
                         SkMatrix(), "DeviceGray");

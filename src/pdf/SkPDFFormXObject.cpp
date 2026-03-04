@@ -9,12 +9,14 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkStream.h"
+#include "src/pdf/SkPDFDocumentPriv.h"
 #include "src/pdf/SkPDFUtils.h"
 
 #include <utility>
 
 SkPDFIndirectReference SkPDFMakeFormXObject(SkPDFDocument* doc,
                                             std::unique_ptr<SkStreamAsset> content,
+                                            SkPDFParentTreeKey structParentsKey,
                                             std::unique_ptr<SkPDFArray> mediaBox,
                                             std::unique_ptr<SkPDFDict> resourceDict,
                                             const SkMatrix& inverseTransform,
@@ -28,6 +30,11 @@ SkPDFIndirectReference SkPDFMakeFormXObject(SkPDFDocument* doc,
     dict->insertObject("Resources", std::move(resourceDict));
     dict->insertObject("BBox", std::move(mediaBox));
 
+    if (structParentsKey) {
+        dict->insertInt("StructParents", structParentsKey.fValue);
+    }
+    // "StructParent" is not supported in favor of using `Do` in a marked-content sequence.
+
     // Right now FormXObject is only used for saveLayer, which implies
     // isolated blending.  Do this conditionally if that changes.
     // TODO(halcanary): Is this comment obsolete, since we use it for
@@ -39,5 +46,9 @@ SkPDFIndirectReference SkPDFMakeFormXObject(SkPDFDocument* doc,
     }
     group->insertBool("I", true);  // Isolated.
     dict->insertObject("Group", std::move(group));
-    return SkPDFStreamOut(std::move(dict), std::move(content), doc);
+    SkPDFIndirectReference xobject = SkPDFStreamOut(std::move(dict), std::move(content), doc);
+    if (structParentsKey) {
+        doc->setContentStreamRefForStructParentsKey(structParentsKey, xobject);
+    }
+    return xobject;
 }

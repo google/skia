@@ -224,4 +224,80 @@ DEF_TEST(SkPDF_structelem_header_outline_doc_noheader, r) {
                               EmitHeader::No);
 }
 
+
+// Test that structure tagging is preserved inside saveLayer (FormXObject).
+DEF_TEST(SkPDF_tagged_saveLayer, r) {
+    REQUIRE_PDF_DOCUMENT(SkPDF_tagged_saveLayer, r);
+
+    SkPDF::Metadata metadata;
+    metadata.fTitle = "Tagged SaveLayer Test";
+    metadata.fCreator = "Skia";
+    metadata.allowNoJpegs = true;
+    metadata.fCompressionLevel = SkPDF::Metadata::CompressionLevel::None;
+
+    auto makeElement = [](int elemId, SkString type) -> std::unique_ptr<PDFTag> {
+        auto element = std::make_unique<PDFTag>();
+        element->fNodeId = elemId;
+        element->fTypeString = type;
+        return element;
+    };
+
+    int elemId = 1;
+    auto root = makeElement(elemId++, SkString("Document"));
+    root->fChildVector.push_back(makeElement(elemId++, SkString("P")));
+    root->fChildVector.push_back(makeElement(elemId++, SkString("P")));
+
+    metadata.fStructureElementTreeRoot = root.get();
+
+    SkDynamicMemoryWStream outputStream;
+    sk_sp<SkDocument> document = SkPDF::MakeDocument(&outputStream, metadata);
+
+    SkPaint paint;
+    paint.setColor(SK_ColorBLACK);
+    SkFont font(ToolUtils::DefaultTypeface(), 14);
+    SkCanvas* canvas =
+            document->beginPage(SkSize::Make(612, 792).width(), SkSize::Make(612, 792).height());
+
+    SkPDF::SetNodeId(canvas, root->fChildVector[0]->fNodeId);
+    canvas->drawString("Before saveLayer", 72, 72, font, paint);
+
+    SkPaint layerPaint;
+    layerPaint.setAlphaf(0.8f);
+    canvas->saveLayer(nullptr, &layerPaint);
+    SkPDF::SetNodeId(canvas, root->fChildVector[1]->fNodeId);
+    canvas->drawString("Inside saveLayer", 72, 144, font, paint);
+    canvas->restore();
+
+    document->endPage();
+    document->close();
+
+    sk_sp<SkData> pdfData = outputStream.detachAsData();
+    SkSpan data(static_cast<const char*>(pdfData->data()), pdfData->size());
+
+    auto contains = [](SkSpan<const char> haystack, SkSpan<const char> needle) -> bool {
+        return std::search(haystack.begin(), haystack.end(),
+                           needle.begin(), needle.end() - 1)
+               != haystack.end();
+    };
+    auto count = [](SkSpan<const char> haystack, SkSpan<const char> needle) -> int {
+        int found = 0;
+        auto haystackBegin = haystack.begin();
+        while ((haystackBegin = std::search(haystackBegin, haystack.end(),
+                                            needle.begin(), needle.end() - 1))
+               != haystack.end())
+        {
+            ++haystackBegin;
+            ++found;
+        }
+        return found;
+    };
+
+    // Expect both a page stream and a FormXObject stream carrying marked content.
+    REPORTER_ASSERT(r, count(data, SkSpan("/StructParents ")) >= 2);
+
+    // Marks in the FormXObject stream should be referenced from the structure tree with /Stm.
+    REPORTER_ASSERT(r, contains(data, SkSpan("/Type /MCR")));
+    REPORTER_ASSERT(r, contains(data, SkSpan("/Stm ")));
+}
+
 #endif
