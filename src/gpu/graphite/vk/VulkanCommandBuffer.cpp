@@ -110,6 +110,11 @@ VulkanCommandBuffer::~VulkanCommandBuffer() {
         fActive = false;
     }
 
+    if (fTimestampQueryPool != VK_NULL_HANDLE) {
+        VULKAN_CALL(fSharedContext->interface(),
+                    DestroyQueryPool(fSharedContext->device(), fTimestampQueryPool, nullptr));
+    }
+
     if (VK_NULL_HANDLE != fSubmitFence) {
         VULKAN_CALL(fSharedContext->interface(),
                     DestroyFence(fSharedContext->device(), fSubmitFence, nullptr));
@@ -117,6 +122,77 @@ VulkanCommandBuffer::~VulkanCommandBuffer() {
     // This should delete any command buffers as well.
     VULKAN_CALL(fSharedContext->interface(),
                 DestroyCommandPool(fSharedContext->device(), fPool, nullptr));
+}
+
+bool VulkanCommandBuffer::startTimerQuery() {
+    if (fTimestampQueryPool == VK_NULL_HANDLE) {
+        VkQueryPoolCreateInfo info = {};
+        info.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
+        info.pNext = nullptr;
+        info.flags = 0;
+        info.queryType = VK_QUERY_TYPE_TIMESTAMP;
+        info.queryCount = 2;
+        info.pipelineStatistics = 0;
+
+        VkResult result;
+        VULKAN_CALL_RESULT(
+                fSharedContext,
+                result,
+                CreateQueryPool(fSharedContext->device(), &info, nullptr, &fTimestampQueryPool));
+        if (result != VK_SUCCESS) {
+            return false;
+        }
+    }
+    VULKAN_CALL(fSharedContext->interface(),
+                CmdResetQueryPool(fPrimaryCommandBuffer, fTimestampQueryPool, 0, 2));
+    VULKAN_CALL(fSharedContext->interface(),
+                CmdWriteTimestamp(fPrimaryCommandBuffer,
+                                  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                  fTimestampQueryPool,
+                                  0));
+    return true;
+}
+
+void VulkanCommandBuffer::endTimerQuery() {
+    VULKAN_CALL(fSharedContext->interface(),
+                CmdWriteTimestamp(fPrimaryCommandBuffer,
+                                  VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                  fTimestampQueryPool,
+                                  1));
+}
+
+std::optional<GpuStats> VulkanCommandBuffer::gpuStats() {
+    if (fTimestampQueryPool == VK_NULL_HANDLE) {
+        return {};
+    }
+
+    uint64_t timestamps[2];
+    VkResult result;
+    VULKAN_CALL_RESULT(fSharedContext,
+                       result,
+                       GetQueryPoolResults(fSharedContext->device(),
+                                           fTimestampQueryPool,
+                                           0,
+                                           2,
+                                           sizeof(timestamps),
+                                           timestamps,
+                                           sizeof(uint64_t),
+                                           VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT));
+    if (result != VK_SUCCESS) {
+        return {};
+    }
+
+    // kElapsedTime is only exposed if timestampComputeAndGraphics, which guarantees
+    // timestampValidBits >= 36 on GRAPHICS and COMPUTE queues. We only ever use
+    // this on graphics queues so we can assume support here.
+    uint32_t validBits =
+            fSharedContext->vulkanCaps().timestampValidBits(fSharedContext->queueIndex());
+    uint64_t mask = validBits == 64 ? ~0ULL : (1ULL << validBits) - 1;
+
+    uint64_t elapsedTicks = (timestamps[1] - timestamps[0]) & mask;
+    uint64_t elapsedNanos = elapsedTicks * fSharedContext->vulkanCaps().timestampPeriod();
+
+    return GpuStats{elapsedNanos};
 }
 
 void VulkanCommandBuffer::onResetCommandBuffer() {
