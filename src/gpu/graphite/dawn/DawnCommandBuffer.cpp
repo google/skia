@@ -67,7 +67,7 @@ DawnCommandBuffer::DawnCommandBuffer(const DawnSharedContext* sharedContext,
 
 DawnCommandBuffer::~DawnCommandBuffer() {}
 
-bool DawnCommandBuffer::startTimerQuery() {
+bool DawnCommandBuffer::startStatsQuery(GpuStatsFlags) {
     if (fHasStatsQuery) {
         SKGPU_LOG_W(
                 "startTimerQuery called more than once for the same command "
@@ -131,7 +131,7 @@ bool DawnCommandBuffer::startTimerQuery() {
     return true;
 }
 
-void DawnCommandBuffer::endTimerQuery() {
+void DawnCommandBuffer::endStatsQuery(GpuStatsFlags) {
     // Only called if startTimerQuery succeeded.
     SkASSERT(fTimestampQuerySet);
     SkASSERT(fTimestampQueryBuffer);

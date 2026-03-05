@@ -62,8 +62,8 @@ public:
     // If any work is needed to create new resources for a fresh command buffer do that here.
     virtual bool setNewCommandBufferResources() = 0;
 
-    virtual bool startTimerQuery() { SK_ABORT("Timer query unsupported."); }
-    virtual void endTimerQuery() { SK_ABORT("Timer query unsupported."); }
+    virtual bool startStatsQuery(GpuStatsFlags) { SK_ABORT("Stats query unsupported."); }
+    virtual void endStatsQuery(GpuStatsFlags) { SK_ABORT("Stats query unsupported."); }
     virtual std::optional<GpuStats> gpuStats() { return {}; }
 
     void addFinishedProc(sk_sp<RefCntedCallback> finishedProc);

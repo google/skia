@@ -124,7 +124,7 @@ VulkanCommandBuffer::~VulkanCommandBuffer() {
                 DestroyCommandPool(fSharedContext->device(), fPool, nullptr));
 }
 
-bool VulkanCommandBuffer::startTimerQuery() {
+bool VulkanCommandBuffer::startStatsQuery(GpuStatsFlags) {
     if (fHasStatsQuery) {
         SKGPU_LOG_W(
                 "startTimerQuery called more than once for the same command "
@@ -161,7 +161,7 @@ bool VulkanCommandBuffer::startTimerQuery() {
     return true;
 }
 
-void VulkanCommandBuffer::endTimerQuery() {
+void VulkanCommandBuffer::endStatsQuery(GpuStatsFlags) {
     // Only called if startTimerQuery succeeded.
     VULKAN_CALL(fSharedContext->interface(),
                 CmdWriteTimestamp(fPrimaryCommandBuffer,

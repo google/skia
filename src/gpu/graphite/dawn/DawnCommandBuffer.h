@@ -43,8 +43,8 @@ public:
     }
 #endif
 
-    bool startTimerQuery() override;
-    void endTimerQuery() override;
+    bool startStatsQuery(GpuStatsFlags) override;
+    void endStatsQuery(GpuStatsFlags) override;
     std::optional<GpuStats> gpuStats() override;
 
 private:

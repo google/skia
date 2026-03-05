@@ -88,13 +88,17 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
 
     // Configure the callback before validation so that failures are propagated to the finish
     // procs that were registered on `info` as well.
-    bool addTimerQuery = false;
+    GpuStatsFlags activeStatsFlags = GpuStatsFlags::kNone;
     sk_sp<RefCntedCallback> callback;
     if (info.fFinishedWithStatsProc) {
-        addTimerQuery = info.fGpuStatsFlags & GpuStatsFlags::kElapsedTime;
-        if (addTimerQuery && !(context->supportedGpuStats() & GpuStatsFlags::kElapsedTime)) {
-            addTimerQuery = false;
-            SKGPU_LOG_W("Requested elapsed time reporting but not supported by Context.");
+        activeStatsFlags = info.fGpuStatsFlags;
+        if (activeStatsFlags != GpuStatsFlags::kNone) {
+            GpuStatsFlags unsupportedStatsFlags = activeStatsFlags & ~context->supportedGpuStats();
+            if (unsupportedStatsFlags != GpuStatsFlags::kNone) {
+                activeStatsFlags &= ~unsupportedStatsFlags;
+                SKGPU_LOG_W("Requested GpuStats reporting (0x%x) but not supported by Context.",
+                            static_cast<uint32_t>(unsupportedStatsFlags));
+            }
         }
         callback = RefCntedCallback::Make(info.fFinishedWithStatsProc, info.fFinishedContext);
     } else if (info.fFinishedProc) {
@@ -178,9 +182,9 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
 
     SIMULATE_FAIL(InsertStatus::kPromiseImageInstantiationFailed);
 
-    if (addTimerQuery) {
-        if (!fCurrentCommandBuffer->startTimerQuery()) {
-            addTimerQuery = false;
+    if (activeStatsFlags != GpuStatsFlags::kNone) {
+        if (!fCurrentCommandBuffer->startStatsQuery(activeStatsFlags)) {
+            activeStatsFlags = GpuStatsFlags::kNone;
         }
     }
     fCurrentCommandBuffer->addWaitSemaphores(info.fNumWaitSemaphores, info.fWaitSemaphores);
@@ -221,8 +225,8 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
         fCurrentCommandBuffer->prepareSurfaceForStateUpdate(info.fTargetSurface,
                                                             info.fTargetTextureState);
     }
-    if (addTimerQuery) {
-        fCurrentCommandBuffer->endTimerQuery();
+    if (activeStatsFlags != GpuStatsFlags::kNone) {
+        fCurrentCommandBuffer->endStatsQuery(activeStatsFlags);
     }
 
     if (callback) {
