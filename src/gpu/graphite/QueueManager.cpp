@@ -179,7 +179,9 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
     SIMULATE_FAIL(InsertStatus::kPromiseImageInstantiationFailed);
 
     if (addTimerQuery) {
-        fCurrentCommandBuffer->startTimerQuery();
+        if (!fCurrentCommandBuffer->startTimerQuery()) {
+            addTimerQuery = false;
+        }
     }
     fCurrentCommandBuffer->addWaitSemaphores(info.fNumWaitSemaphores, info.fWaitSemaphores);
     if (!info.fRecording->priv().addCommands(context,

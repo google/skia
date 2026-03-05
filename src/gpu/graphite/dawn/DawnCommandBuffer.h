@@ -182,6 +182,7 @@ private:
     size_t fCurrentIndirectBufferOffset = 0;
 
     bool fWroteFirstPassTimestamps = false;
+    bool fHasStatsQuery = false;
     wgpu::QuerySet fTimestampQuerySet;
     sk_sp<DawnBuffer> fTimestampQueryBuffer;
     sk_sp<DawnBuffer> fTimestampQueryXferBuffer;

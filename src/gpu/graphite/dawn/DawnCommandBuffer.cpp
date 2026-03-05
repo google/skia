@@ -68,6 +68,13 @@ DawnCommandBuffer::DawnCommandBuffer(const DawnSharedContext* sharedContext,
 DawnCommandBuffer::~DawnCommandBuffer() {}
 
 bool DawnCommandBuffer::startTimerQuery() {
+    if (fHasStatsQuery) {
+        SKGPU_LOG_W(
+                "startTimerQuery called more than once for the same command "
+                "buffer. Currently, stats queries are only supported when "
+                "each recording gets its own submission.");
+        return false;
+    }
     wgpu::QuerySet querySet = std::move(fTimestampQuerySet);
 
     auto buffer = fResourceProvider->findOrCreateDawnBuffer(2 * sizeof(uint64_t),
@@ -120,10 +127,12 @@ bool DawnCommandBuffer::startTimerQuery() {
         fWroteFirstPassTimestamps = false;
     }
 
+    fHasStatsQuery = true;
     return true;
 }
 
 void DawnCommandBuffer::endTimerQuery() {
+    // Only called if startTimerQuery succeeded.
     SkASSERT(fTimestampQuerySet);
     SkASSERT(fTimestampQueryBuffer);
     if (fSharedContext->dawnCaps()->supportsCommandBufferTimestamps()) {
@@ -205,6 +214,7 @@ void DawnCommandBuffer::onResetCommandBuffer() {
     fTimestampQueryBuffer = {};
     fTimestampQueryXferBuffer = {};
     fWroteFirstPassTimestamps = false;
+    fHasStatsQuery = false;
 }
 
 bool DawnCommandBuffer::setNewCommandBufferResources() {
