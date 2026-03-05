@@ -688,6 +688,7 @@ HRESULT SkXPSDevice::createXpsImageBrush(
         HRM(xpsImageBrush->QueryInterface(xpsBrush), "QI failed.");
     } else {
         //TODO(bungeman): compute how big this really needs to be.
+        //This is the extent of the clamp area (XPS does not support clamp).
         const SkScalar BIG = SkIntToScalar(1000); //SK_ScalarMax;
         const FLOAT BIG_F = SkScalarToFLOAT(BIG);
         const SkScalar bWidth = SkIntToScalar(bitmap.width());
@@ -715,6 +716,8 @@ HRESULT SkXPSDevice::createXpsImageBrush(
         HRM(centralPath->SetFillBrushLocal(xpsImageBrush.get()),
             "Could not set fill brush for image brush central path.");
 
+        XPS_RECT bound = {0, 0, bWidth, bHeight};
+
         //add left/right
         if (SkTileMode::kClamp == xy[0]) {
             SkRect leftArea = SkRect::MakeLTRB(-BIG, 0, 0, bHeight);
@@ -734,6 +737,8 @@ HRESULT SkXPSDevice::createXpsImageBrush(
             HR(this->sideOfClamp(rightArea, rightImageViewBox,
                                  imageResource.get(),
                                  brushVisuals.get()));
+            bound.x -= BIG_F;
+            bound.width = bWidth + 2*BIG_F;
         }
 
         //add top/bottom
@@ -755,6 +760,8 @@ HRESULT SkXPSDevice::createXpsImageBrush(
             HR(this->sideOfClamp(bottomArea, bottomImageViewBox,
                                  imageResource.get(),
                                  brushVisuals.get()));
+            bound.y = -BIG_F;
+            bound.height = bHeight + 2*BIG_F;
         }
 
         //add tl, tr, bl, br
@@ -780,25 +787,6 @@ HRESULT SkXPSDevice::createXpsImageBrush(
         }
 
         //create visual brush from canvas
-        XPS_RECT bound = {};
-        if (SkTileMode::kClamp == xy[0] &&
-            SkTileMode::kClamp == xy[1]) {
-
-            bound.x = BIG_F / -2;
-            bound.y = BIG_F / -2;
-            bound.width = BIG_F;
-            bound.height = BIG_F;
-        } else if (SkTileMode::kClamp == xy[0]) {
-            bound.x = BIG_F / -2;
-            bound.y = 0.0f;
-            bound.width = BIG_F;
-            bound.height = static_cast<FLOAT>(bitmap.height());
-        } else if (SkTileMode::kClamp == xy[1]) {
-            bound.x = 0;
-            bound.y = BIG_F / -2;
-            bound.width = static_cast<FLOAT>(bitmap.width());
-            bound.height = BIG_F;
-        }
         SkTScopedComPtr<IXpsOMVisualBrush> clampBrush;
         HRM(this->fXpsFactory->CreateVisualBrush(&bound, &bound, &clampBrush),
             "Could not create visual brush for image brush.");
