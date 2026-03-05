@@ -15,7 +15,8 @@ namespace skgpu::graphite {
 
 sk_sp<VulkanDescriptorPool> VulkanDescriptorPool::Make(const VulkanSharedContext* context,
                                                        SkSpan<DescriptorData> requestedDescCounts,
-                                                       VkDescriptorSetLayout layout) {
+                                                       VkDescriptorSetLayout layout,
+                                                       uint32_t numSets) {
 
     if (requestedDescCounts.empty()) {
         return nullptr;
@@ -43,12 +44,12 @@ sk_sp<VulkanDescriptorPool> VulkanDescriptorPool::Make(const VulkanSharedContext
         // Map each DescriptorSetType to the appropriate backend VkDescriptorType
         poolSize.type = DsTypeEnumToVkDs(requestedDescCounts[i].fType);
         // Create a pool large enough to accommodate the maximum possible number of descriptor sets
-        poolSize.descriptorCount = requestedDescCounts[i].fCount * kMaxNumSets;
+        poolSize.descriptorCount = requestedDescCounts[i].fCount * numSets;
     }
 
     VkDescriptorPoolCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    createInfo.maxSets = kMaxNumSets;
+    createInfo.maxSets = numSets;
     createInfo.poolSizeCount = requestedDescCounts.size();
     createInfo.pPoolSizes = &poolSizes.front();
 

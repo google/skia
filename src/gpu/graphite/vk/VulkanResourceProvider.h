@@ -120,6 +120,8 @@ private:
 
     SkLRUCache<UniformBindGroupKey, sk_sp<VulkanDescriptorSet>,
                UniformBindGroupKey::Hash> fUniformBufferDescSetCache;
+
+    skia_private::TArray<std::pair<GraphiteResourceKey, uint32_t>> fCurrentPoolSizes;
 };
 
 } // namespace skgpu::graphite

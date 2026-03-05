@@ -270,7 +270,25 @@ sk_sp<VulkanDescriptorSet> VulkanResourceProvider::findOrCreateDescriptorSet(
     if (!layout) {
         return nullptr;
     }
-    auto pool = VulkanDescriptorPool::Make(context, requestedDescriptors, layout);
+
+    static constexpr uint32_t kStartNumSets = 16;
+    static constexpr uint32_t kMaxNumSets = 512;
+
+    uint32_t numSets = kStartNumSets;
+    for (int i = 0; i < fCurrentPoolSizes.size(); i++) {
+        if (key == fCurrentPoolSizes.at(i).first) {
+            uint32_t& poolSize = fCurrentPoolSizes.at(i).second;
+            numSets = poolSize + ((poolSize + 1) >> 1);
+            numSets = std::min(numSets, kMaxNumSets);
+            poolSize = numSets;
+            break;
+        }
+    }
+    if (numSets == kStartNumSets) {
+        fCurrentPoolSizes.push_back(std::make_pair(key, numSets));
+    }
+
+    auto pool = VulkanDescriptorPool::Make(context, requestedDescriptors, layout, numSets);
     if (!pool) {
         VULKAN_CALL(context->interface(), DestroyDescriptorSetLayout(context->device(),
                                                                      layout,
@@ -290,12 +308,12 @@ sk_sp<VulkanDescriptorSet> VulkanResourceProvider::findOrCreateDescriptorSet(
 
     // Continue to allocate & cache the maximum number of sets so they can be easily accessed as
     // they're needed.
-    for (int i = 1; i < VulkanDescriptorPool::kMaxNumSets ; i++) {
+    for (uint32_t i = 1; i < numSets ; i++) {
         auto descSet =
                 add_new_desc_set_to_cache(context, pool, key, fResourceCache.get());
         if (!descSet) {
-            SKGPU_LOG_W("Descriptor set allocation %d of %d was unsuccessful; no more sets will be"
-                        "allocated from this pool.", i, VulkanDescriptorPool::kMaxNumSets);
+            SKGPU_LOG_W("Descriptor set allocation %u of %u was unsuccessful; no more sets will be"
+                        "allocated from this pool.", i, numSets);
             break;
         }
     }

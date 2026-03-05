@@ -20,8 +20,6 @@ class VulkanSharedContext;
 
 class VulkanDescriptorPool : public SkRefCnt {
 public:
-    // Conservative upper bound of number of sets supported per pool.
-    static constexpr int kMaxNumSets = 512;
     /**
      * Given a span of descriptor types and counts, a descriptor pool will be created which houses
      * enough of the descriptor types and quantities requested to allocate the maximum number of
@@ -29,7 +27,8 @@ public:
     */
     static sk_sp<VulkanDescriptorPool> Make(const VulkanSharedContext*,
                                             SkSpan<DescriptorData>,
-                                            VkDescriptorSetLayout);
+                                            VkDescriptorSetLayout,
+                                            uint32_t numSets);
 
     VkDescriptorPool descPool() { return fDescPool; }
 
