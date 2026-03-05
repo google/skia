@@ -124,7 +124,14 @@ SkXPSDevice::SkXPSDevice(SkISize s, SkXPS::Options opts)
         : SkClipStackDevice(SkImageInfo::MakeUnknown(s.width(), s.height()), SkSurfaceProps())
         , fCurrentPage(0)
         , fTopTypefaces(&fTypefaces)
-        , fOpts(opts) {}
+        , fOpts(opts)
+{
+    if (!opts.pngEncoder) {
+        if (!opts.allowNoPngs) {
+            SK_ABORT("Must set a PNG encoder to make XPS documents");
+        }
+    }
+}
 
 SkXPSDevice::~SkXPSDevice() {}
 
