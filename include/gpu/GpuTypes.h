@@ -82,10 +82,12 @@ enum class Origin : unsigned {
 enum class GpuStatsFlags : uint32_t {
     kNone = 0b00,
     kElapsedTime = 0b01,
+    kOcclusionPassSamples = 0b10,
 };
 
 struct GpuStats {
     uint64_t elapsedTime = 0;
+    uint64_t numOcclusionPassSamples = 0;
 };
 
 } // namespace skgpu

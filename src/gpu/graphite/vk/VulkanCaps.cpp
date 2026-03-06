@@ -239,6 +239,11 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
         fSupportedGpuStats |= GpuStatsFlags::kElapsedTime;
     }
 
+    fOcclusionQueryPrecise = enabledFeatures.fOcclusionQueryPrecise;
+    if (fOcclusionQueryPrecise) {
+        fSupportedGpuStats |= GpuStatsFlags::kOcclusionPassSamples;
+    }
+
     // Note: ARM GPUs have always been coherent, do not add a subpass self-dependency even if the
     // application hasn't enabled this feature as it comes with a performance cost on this GPU. Use
     // of VK_EXT_rasterization_order_attachment_access is disabled on ARM due to an unexplained
@@ -320,6 +325,7 @@ VulkanCaps::EnabledFeatures VulkanCaps::getEnabledFeatures(
     if (features) {
         // Base features:
         enabled.fDualSrcBlend = features->features.dualSrcBlend;
+        enabled.fOcclusionQueryPrecise = features->features.occlusionQueryPrecise;
 
         if (physicalDeviceVersion >= VK_API_VERSION_1_3) {
             enabled.fExtendedDynamicState = true;

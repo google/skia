@@ -115,6 +115,11 @@ VulkanCommandBuffer::~VulkanCommandBuffer() {
                     DestroyQueryPool(fSharedContext->device(), fTimestampQueryPool, nullptr));
     }
 
+    if (fOcclusionQueryPool != VK_NULL_HANDLE) {
+        VULKAN_CALL(fSharedContext->interface(),
+                    DestroyQueryPool(fSharedContext->device(), fOcclusionQueryPool, nullptr));
+    }
+
     if (VK_NULL_HANDLE != fSubmitFence) {
         VULKAN_CALL(fSharedContext->interface(),
                     DestroyFence(fSharedContext->device(), fSubmitFence, nullptr));
@@ -124,7 +129,7 @@ VulkanCommandBuffer::~VulkanCommandBuffer() {
                 DestroyCommandPool(fSharedContext->device(), fPool, nullptr));
 }
 
-bool VulkanCommandBuffer::startStatsQuery(GpuStatsFlags) {
+bool VulkanCommandBuffer::startStatsQuery(GpuStatsFlags flags) {
     if (fHasStatsQuery) {
         SKGPU_LOG_W(
                 "startTimerQuery called more than once for the same command "
@@ -132,76 +137,136 @@ bool VulkanCommandBuffer::startStatsQuery(GpuStatsFlags) {
                 "each recording gets its own submission.");
         return false;
     }
-    if (fTimestampQueryPool == VK_NULL_HANDLE) {
-        VkQueryPoolCreateInfo info = {};
-        info.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
-        info.pNext = nullptr;
-        info.flags = 0;
-        info.queryType = VK_QUERY_TYPE_TIMESTAMP;
-        info.queryCount = 2;
-        info.pipelineStatistics = 0;
+    bool hasElapsedTime = SkToBool(flags & GpuStatsFlags::kElapsedTime);
+    bool hasOcclusion = SkToBool(flags & GpuStatsFlags::kOcclusionPassSamples);
 
-        VkResult result;
-        VULKAN_CALL_RESULT(
-                fSharedContext,
-                result,
-                CreateQueryPool(fSharedContext->device(), &info, nullptr, &fTimestampQueryPool));
-        if (result != VK_SUCCESS) {
-            return false;
+    if (hasElapsedTime) {
+        if (fTimestampQueryPool == VK_NULL_HANDLE) {
+            VkQueryPoolCreateInfo info = {};
+            info.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
+            info.pNext = nullptr;
+            info.flags = 0;
+            info.queryType = VK_QUERY_TYPE_TIMESTAMP;
+            info.queryCount = 2;
+            info.pipelineStatistics = 0;
+
+            VkResult result;
+            VULKAN_CALL_RESULT(
+                    fSharedContext,
+                    result,
+                    CreateQueryPool(
+                            fSharedContext->device(), &info, nullptr, &fTimestampQueryPool));
+            if (result != VK_SUCCESS) {
+                return false;
+            }
         }
+        VULKAN_CALL(fSharedContext->interface(),
+                    CmdResetQueryPool(fPrimaryCommandBuffer, fTimestampQueryPool, 0, 2));
+        VULKAN_CALL(fSharedContext->interface(),
+                    CmdWriteTimestamp(fPrimaryCommandBuffer,
+                                      VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                      fTimestampQueryPool,
+                                      0));
     }
-    VULKAN_CALL(fSharedContext->interface(),
-                CmdResetQueryPool(fPrimaryCommandBuffer, fTimestampQueryPool, 0, 2));
-    VULKAN_CALL(fSharedContext->interface(),
-                CmdWriteTimestamp(fPrimaryCommandBuffer,
-                                  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                  fTimestampQueryPool,
-                                  0));
+
+    if (hasOcclusion) {
+        if (fOcclusionQueryPool == VK_NULL_HANDLE) {
+            VkQueryPoolCreateInfo info = {};
+            info.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
+            info.pNext = nullptr;
+            info.flags = 0;
+            info.queryType = VK_QUERY_TYPE_OCCLUSION;
+            info.queryCount = 1;
+            info.pipelineStatistics = 0;
+
+            VkResult result;
+            VULKAN_CALL_RESULT(
+                    fSharedContext,
+                    result,
+                    CreateQueryPool(
+                            fSharedContext->device(), &info, nullptr, &fOcclusionQueryPool));
+            if (result != VK_SUCCESS) {
+                return false;
+            }
+        }
+        VULKAN_CALL(fSharedContext->interface(),
+                    CmdResetQueryPool(fPrimaryCommandBuffer, fOcclusionQueryPool, 0, 1));
+        VULKAN_CALL(fSharedContext->interface(),
+                    CmdBeginQuery(fPrimaryCommandBuffer,
+                                  fOcclusionQueryPool,
+                                  0,
+                                  VK_QUERY_CONTROL_PRECISE_BIT));
+    }
+
     fHasStatsQuery = true;
     return true;
 }
 
-void VulkanCommandBuffer::endStatsQuery(GpuStatsFlags) {
+void VulkanCommandBuffer::endStatsQuery(GpuStatsFlags flags) {
     // Only called if startTimerQuery succeeded.
-    VULKAN_CALL(fSharedContext->interface(),
-                CmdWriteTimestamp(fPrimaryCommandBuffer,
-                                  VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                  fTimestampQueryPool,
-                                  1));
+    if (flags & GpuStatsFlags::kOcclusionPassSamples) {
+        VULKAN_CALL(fSharedContext->interface(),
+                    CmdEndQuery(fPrimaryCommandBuffer, fOcclusionQueryPool, 0));
+    }
+    if (flags & GpuStatsFlags::kElapsedTime) {
+        VULKAN_CALL(fSharedContext->interface(),
+                    CmdWriteTimestamp(fPrimaryCommandBuffer,
+                                      VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                      fTimestampQueryPool,
+                                      1));
+    }
 }
 
 std::optional<GpuStats> VulkanCommandBuffer::gpuStats() {
-    if (fTimestampQueryPool == VK_NULL_HANDLE) {
-        return {};
+    GpuStats stats;
+
+    if (fTimestampQueryPool != VK_NULL_HANDLE) {
+        uint64_t timestamps[2];
+        VkResult result;
+        VULKAN_CALL_RESULT(fSharedContext,
+                           result,
+                           GetQueryPoolResults(fSharedContext->device(),
+                                               fTimestampQueryPool,
+                                               0,
+                                               2,
+                                               sizeof(timestamps),
+                                               timestamps,
+                                               sizeof(uint64_t),
+                                               VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT));
+        if (result == VK_SUCCESS) {
+            // kElapsedTime is only exposed if timestampComputeAndGraphics, which guarantees
+            // timestampValidBits >= 36 on GRAPHICS and COMPUTE queues. We only ever use
+            // this on graphics queues so we can assume support here.
+            uint32_t validBits =
+                    fSharedContext->vulkanCaps().timestampValidBits(fSharedContext->queueIndex());
+            uint64_t mask = validBits == 64 ? ~0ULL : (1ULL << validBits) - 1;
+
+            uint64_t elapsedTicks = (timestamps[1] - timestamps[0]) & mask;
+            uint64_t elapsedNanos = elapsedTicks * fSharedContext->vulkanCaps().timestampPeriod();
+
+            stats.elapsedTime = elapsedNanos;
+        }
     }
 
-    uint64_t timestamps[2];
-    VkResult result;
-    VULKAN_CALL_RESULT(fSharedContext,
-                       result,
-                       GetQueryPoolResults(fSharedContext->device(),
-                                           fTimestampQueryPool,
-                                           0,
-                                           2,
-                                           sizeof(timestamps),
-                                           timestamps,
-                                           sizeof(uint64_t),
-                                           VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT));
-    if (result != VK_SUCCESS) {
-        return {};
+    if (fOcclusionQueryPool != VK_NULL_HANDLE) {
+        uint64_t occlusion = 0;
+        VkResult result;
+        VULKAN_CALL_RESULT(fSharedContext,
+                           result,
+                           GetQueryPoolResults(fSharedContext->device(),
+                                               fOcclusionQueryPool,
+                                               0,
+                                               1,
+                                               sizeof(occlusion),
+                                               &occlusion,
+                                               sizeof(uint64_t),
+                                               VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT));
+        if (result == VK_SUCCESS) {
+            stats.numOcclusionPassSamples = occlusion;
+        }
     }
 
-    // kElapsedTime is only exposed if timestampComputeAndGraphics, which guarantees
-    // timestampValidBits >= 36 on GRAPHICS and COMPUTE queues. We only ever use
-    // this on graphics queues so we can assume support here.
-    uint32_t validBits =
-            fSharedContext->vulkanCaps().timestampValidBits(fSharedContext->queueIndex());
-    uint64_t mask = validBits == 64 ? ~0ULL : (1ULL << validBits) - 1;
-
-    uint64_t elapsedTicks = (timestamps[1] - timestamps[0]) & mask;
-    uint64_t elapsedNanos = elapsedTicks * fSharedContext->vulkanCaps().timestampPeriod();
-
-    return GpuStats{elapsedNanos};
+    return stats;
 }
 
 void VulkanCommandBuffer::onResetCommandBuffer() {
@@ -1986,4 +2051,4 @@ void VulkanCommandBuffer::setViewport(SkIRect viewport) {
                                &vkViewport));
 }
 
-} // namespace skgpu::graphite
+}  // namespace skgpu::graphite

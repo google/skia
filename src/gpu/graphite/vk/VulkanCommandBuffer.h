@@ -238,6 +238,7 @@ private:
 
     bool fHasStatsQuery = false;
     VkQueryPool fTimestampQueryPool = VK_NULL_HANDLE;
+    VkQueryPool fOcclusionQueryPool = VK_NULL_HANDLE;
 };
 
 } // namespace skgpu::graphite
