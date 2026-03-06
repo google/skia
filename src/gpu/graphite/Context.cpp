@@ -257,8 +257,6 @@ bool Context::submit(SubmitInfo submitInfo) {
 
 bool Context::hasUnfinishedGpuWork() const { return fQueueManager->hasUnfinishedGpuWork(); }
 
-bool Context::hasPendingGPUWork() const { return fQueueManager->hasPendingGPUWork(); }
-
 template <typename SrcPixels>
 struct Context::AsyncParams {
     const SrcPixels* fSrcImage;

@@ -290,13 +290,19 @@ bool QueueManager::addFinishInfo(const InsertFinishInfo& info,
 bool QueueManager::submitToGpu(const SubmitInfo& submitInfo) {
     TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_FUNC);
 
-    if (!this->hasPendingGPUWork()) {
+    if (!fCurrentCommandBuffer) {
         // We warn because this probably representative of a bad client state, where they don't
         // need to submit but didn't notice, but technically the submit itself is fine (no-op), so
         // we return true.
-        SKGPU_LOG_D("Submitting empty command buffer!");
+        SKGPU_LOG_D("Submit called with no active command buffer!");
         return true;
     }
+
+#ifdef SK_DEBUG
+    if (!fCurrentCommandBuffer->hasWork()) {
+        SKGPU_LOG_D("Submitting empty command buffer!");
+    }
+#endif
 
     auto submission = this->onSubmitToGpu(submitInfo);
     if (!submission) {
@@ -308,10 +314,6 @@ bool QueueManager::submitToGpu(const SubmitInfo& submitInfo) {
 }
 
 bool QueueManager::hasUnfinishedGpuWork() { return !fOutstandingSubmissions.empty(); }
-
-bool QueueManager::hasPendingGPUWork() const {
-    return fCurrentCommandBuffer && fCurrentCommandBuffer->hasWork();
-}
 
 void QueueManager::checkForFinishedWork(SyncToCpu sync) {
     TRACE_EVENT1("skia.gpu", TRACE_FUNC, "sync", sync == SyncToCpu::kYes);

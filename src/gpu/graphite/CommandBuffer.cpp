@@ -161,7 +161,7 @@ bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,
     // We just assume if you are adding a render pass that the render pass will actually do work. In
     // theory we could have a discard load that doesn't submit any draws, clears, etc. But hopefully
     // something so trivial would be caught before getting here.
-    fHasWork = true;
+    SkDEBUGCODE(fHasWork = true;)
 
     return true;
 }
@@ -173,7 +173,7 @@ bool CommandBuffer::addComputePass(DispatchGroupSpan dispatchGroups) {
         return false;
     }
 
-    fHasWork = true;
+    SkDEBUGCODE(fHasWork = true;)
 
     return true;
 }
@@ -192,7 +192,7 @@ bool CommandBuffer::copyBufferToBuffer(const Buffer* srcBuffer,
 
     this->trackResource(std::move(dstBuffer));
 
-    fHasWork = true;
+    SkDEBUGCODE(fHasWork = true;)
 
     return true;
 }
@@ -213,7 +213,7 @@ bool CommandBuffer::copyTextureToBuffer(sk_sp<Texture> texture,
     this->trackResource(std::move(texture));
     this->trackResource(std::move(buffer));
 
-    fHasWork = true;
+    SkDEBUGCODE(fHasWork = true;)
 
     return true;
 }
@@ -232,7 +232,7 @@ bool CommandBuffer::copyBufferToTexture(const Buffer* buffer,
 
     this->trackResource(std::move(texture));
 
-    fHasWork = true;
+    SkDEBUGCODE(fHasWork = true;)
 
     return true;
 }
@@ -257,7 +257,7 @@ bool CommandBuffer::copyTextureToTexture(sk_sp<Texture> src,
     this->trackResource(std::move(src));
     this->trackResource(std::move(dst));
 
-    fHasWork = true;
+    SkDEBUGCODE(fHasWork = true;)
 
     return true;
 }
@@ -272,7 +272,7 @@ bool CommandBuffer::synchronizeBufferToCpu(sk_sp<Buffer> buffer) {
 
     if (didResultInWork) {
         this->trackResource(std::move(buffer));
-        fHasWork = true;
+        SkDEBUGCODE(fHasWork = true;)
     }
 
     return true;
@@ -285,7 +285,7 @@ bool CommandBuffer::clearBuffer(const Buffer* buffer, size_t offset, size_t size
         return false;
     }
 
-    fHasWork = true;
+    SkDEBUGCODE(fHasWork = true;)
 
     return true;
 }

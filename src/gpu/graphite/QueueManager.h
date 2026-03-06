@@ -65,7 +65,6 @@ public:
 
     [[nodiscard]] bool submitToGpu(const SubmitInfo&);
     [[nodiscard]] bool hasUnfinishedGpuWork();
-    [[nodiscard]] bool hasPendingGPUWork() const;
     void checkForFinishedWork(SyncToCpu);
 
 #if defined(GPU_TEST_UTILS)

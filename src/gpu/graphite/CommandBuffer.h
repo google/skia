@@ -49,7 +49,9 @@ public:
 
     virtual ~CommandBuffer();
 
-    bool hasWork() const { return fHasWork; }
+#ifdef SK_DEBUG
+    bool hasWork() { return fHasWork; }
+#endif
 
     // Takes a CommandBuffer ref on the Resource that will be released when the command buffer has
     // finished execution. This allows a Resource to be returned to ResourceCache for reuse while
@@ -201,7 +203,9 @@ private:
     virtual bool onSynchronizeBufferToCpu(const Buffer*, bool* outDidResultInWork) = 0;
     virtual bool onClearBuffer(const Buffer*, size_t offset, size_t size) = 0;
 
+#ifdef SK_DEBUG
     bool fHasWork = false;
+#endif
     inline static constexpr int kInitialTrackedResourcesCount = 32;
     template <typename T>
     using TrackedResourceArray = skia_private::STArray<kInitialTrackedResourcesCount, T>;
