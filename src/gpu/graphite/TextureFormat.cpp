@@ -13,138 +13,141 @@
 
 namespace skgpu::graphite {
 
+using TF = TextureFormat; // for brevity in this file
+
 const char* TextureFormatName(TextureFormat format) {
     switch (format) {
-        case TextureFormat::kUnsupported:    return "Unsupported";
-        case TextureFormat::kR8:             return "R8";
-        case TextureFormat::kR16:            return "R16";
-        case TextureFormat::kR16F:           return "R16F";
-        case TextureFormat::kR32F:           return "R32F";
-        case TextureFormat::kA8:             return "A8";
-        case TextureFormat::kRG8:            return "RG8";
-        case TextureFormat::kRG16:           return "RG16";
-        case TextureFormat::kRG16F:          return "RG16F";
-        case TextureFormat::kRG32F:          return "RG32F";
-        case TextureFormat::kRGB8:           return "RGB8";
-        case TextureFormat::kBGR8:           return "BGR8";
-        case TextureFormat::kB5_G6_R5:       return "B5_G6_R5";
-        case TextureFormat::kR5_G6_B5:       return "R5_G6_B5";
-        case TextureFormat::kRGB16:          return "RGB16";
-        case TextureFormat::kRGB16F:         return "RGB16F";
-        case TextureFormat::kRGB32F:         return "RGB32F";
-        case TextureFormat::kRGB8_sRGB:      return "RGB8_sRGB";
-        case TextureFormat::kBGR10_XR:       return "BGR10_XR";
-        case TextureFormat::kRGBA8:          return "RGBA8";
-        case TextureFormat::kRGBA16:         return "RBGA16";
-        case TextureFormat::kRGBA16F:        return "RGBA16F";
-        case TextureFormat::kRGBA32F:        return "RGBA32F";
-        case TextureFormat::kRGB10_A2:       return "RGB10_A2";
-        case TextureFormat::kRGBA10x6:       return "RGBA10x6";
-        case TextureFormat::kRGBA8_sRGB:     return "RGBA8_sRGB";
-        case TextureFormat::kBGRA8:          return "BGRA8";
-        case TextureFormat::kBGR10_A2:       return "BGR10_A2";
-        case TextureFormat::kBGRA8_sRGB:     return "BGRA8_sRGB";
-        case TextureFormat::kABGR4:          return "ABGR4";
-        case TextureFormat::kARGB4:          return "ARGB4";
-        case TextureFormat::kBGRA10x6_XR:    return "BGRA10x6_XR";
-        case TextureFormat::kRGB8_ETC2:      return "RGB8_ETC2";
-        case TextureFormat::kRGB8_ETC2_sRGB: return "RGB8_ETC2_sRGB";
-        case TextureFormat::kRGB8_BC1:       return "RGB8_BC1";
-        case TextureFormat::kRGBA8_BC1:      return "RGBA8_BC1";
-        case TextureFormat::kRGBA8_BC1_sRGB: return "RGBA8_BC1_sRGB";
-        case TextureFormat::kYUV8_P2_420:    return "YUV8_P2_420";
-        case TextureFormat::kYUV8_P3_420:    return "YUV8_P3_420";
-        case TextureFormat::kYUV10x6_P2_420: return "YUV10x6_P2_420";
-        case TextureFormat::kExternal:       return "External";
-        case TextureFormat::kS8:             return "S8";
-        case TextureFormat::kD16:            return "D16";
-        case TextureFormat::kD32F:           return "D32F";
-        case TextureFormat::kD24_S8:         return "D24_S8";
-        case TextureFormat::kD32F_S8:        return "D32F_S8";
+        case TF::kUnsupported:    return "Unsupported";
+        case TF::kR8:             return "R8";
+        case TF::kR16:            return "R16";
+        case TF::kR16F:           return "R16F";
+        case TF::kR32F:           return "R32F";
+        case TF::kA8:             return "A8";
+        case TF::kRG8:            return "RG8";
+        case TF::kRG16:           return "RG16";
+        case TF::kRG16F:          return "RG16F";
+        case TF::kRG32F:          return "RG32F";
+        case TF::kRGB8:           return "RGB8";
+        case TF::kBGR8:           return "BGR8";
+        case TF::kB5_G6_R5:       return "B5_G6_R5";
+        case TF::kR5_G6_B5:       return "R5_G6_B5";
+        case TF::kRGB16:          return "RGB16";
+        case TF::kRGB16F:         return "RGB16F";
+        case TF::kRGB32F:         return "RGB32F";
+        case TF::kRGB8_sRGB:      return "RGB8_sRGB";
+        case TF::kBGR10_XR:       return "BGR10_XR";
+        case TF::kRGBA8:          return "RGBA8";
+        case TF::kRGBA16:         return "RBGA16";
+        case TF::kRGBA16F:        return "RGBA16F";
+        case TF::kRGBA32F:        return "RGBA32F";
+        case TF::kRGB10_A2:       return "RGB10_A2";
+        case TF::kRGBA10x6:       return "RGBA10x6";
+        case TF::kRGBA8_sRGB:     return "RGBA8_sRGB";
+        case TF::kBGRA8:          return "BGRA8";
+        case TF::kBGR10_A2:       return "BGR10_A2";
+        case TF::kBGRA8_sRGB:     return "BGRA8_sRGB";
+        case TF::kABGR4:          return "ABGR4";
+        case TF::kARGB4:          return "ARGB4";
+        case TF::kBGRA10x6_XR:    return "BGRA10x6_XR";
+        case TF::kRGB8_ETC2:      return "RGB8_ETC2";
+        case TF::kRGB8_ETC2_sRGB: return "RGB8_ETC2_sRGB";
+        case TF::kRGB8_BC1:       return "RGB8_BC1";
+        case TF::kRGBA8_BC1:      return "RGBA8_BC1";
+        case TF::kRGBA8_BC1_sRGB: return "RGBA8_BC1_sRGB";
+        case TF::kYUV8_P2_420:    return "YUV8_P2_420";
+        case TF::kYUV8_P3_420:    return "YUV8_P3_420";
+        case TF::kYUV10x6_P2_420: return "YUV10x6_P2_420";
+        case TF::kExternal:       return "External";
+        case TF::kS8:             return "S8";
+        case TF::kD16:            return "D16";
+        case TF::kD32F:           return "D32F";
+        case TF::kD24_S8:         return "D24_S8";
+        case TF::kD32F_S8:        return "D32F_S8";
     }
     SkUNREACHABLE;
 }
 
 SkTextureCompressionType TextureFormatCompressionType(TextureFormat format) {
     switch (format) {
-        case TextureFormat::kRGB8_ETC2:      [[fallthrough]];
-        case TextureFormat::kRGB8_ETC2_sRGB: return SkTextureCompressionType::kETC2_RGB8_UNORM;
-        case TextureFormat::kRGB8_BC1:       return SkTextureCompressionType::kBC1_RGB8_UNORM;
-        case TextureFormat::kRGBA8_BC1:      [[fallthrough]];
-        case TextureFormat::kRGBA8_BC1_sRGB: return SkTextureCompressionType::kBC1_RGBA8_UNORM;
-        default:                             return SkTextureCompressionType::kNone;
+        case TF::kRGB8_ETC2:      [[fallthrough]];
+        case TF::kRGB8_ETC2_sRGB: return SkTextureCompressionType::kETC2_RGB8_UNORM;
+        case TF::kRGB8_BC1:       return SkTextureCompressionType::kBC1_RGB8_UNORM;
+        case TF::kRGBA8_BC1:      [[fallthrough]];
+        case TF::kRGBA8_BC1_sRGB: return SkTextureCompressionType::kBC1_RGBA8_UNORM;
+        default:                  return SkTextureCompressionType::kNone;
     }
 }
 
 TextureFormat CompressionTypeToTextureFormat(SkTextureCompressionType type) {
     switch (type) {
-        case SkTextureCompressionType::kBC1_RGB8_UNORM:  return TextureFormat::kRGB8_BC1;
-        case SkTextureCompressionType::kBC1_RGBA8_UNORM: return TextureFormat::kRGBA8_BC1;
-        case SkTextureCompressionType::kETC2_RGB8_UNORM: return TextureFormat::kRGB8_ETC2;
-        default:                                         return TextureFormat::kUnsupported;
+        case SkTextureCompressionType::kBC1_RGB8_UNORM:  return TF::kRGB8_BC1;
+        case SkTextureCompressionType::kBC1_RGBA8_UNORM: return TF::kRGBA8_BC1;
+        case SkTextureCompressionType::kETC2_RGB8_UNORM: return TF::kRGB8_ETC2;
+        default:                                         return TF::kUnsupported;
     }
 }
 
 size_t TextureFormatBytesPerBlock(TextureFormat format) {
     switch (format) {
-        case TextureFormat::kUnsupported: return 0;
-        case TextureFormat::kR8:          return 1;
-        case TextureFormat::kR16:         return 2;
-        case TextureFormat::kR16F:        return 2;
-        case TextureFormat::kR32F:        return 4;
-        case TextureFormat::kA8:          return 1;
-        case TextureFormat::kRG8:         return 2;
-        case TextureFormat::kRG16:        return 4;
-        case TextureFormat::kRG16F:       return 4;
-        case TextureFormat::kRG32F:       return 8;
-        case TextureFormat::kRGB8:        return 3;
-        case TextureFormat::kBGR8:        return 3;
-        case TextureFormat::kB5_G6_R5:    return 2;
-        case TextureFormat::kR5_G6_B5:    return 2;
-        case TextureFormat::kRGB16:       return 6;
-        case TextureFormat::kRGB16F:      return 6;
-        case TextureFormat::kRGB32F:      return 12;
-        case TextureFormat::kRGB8_sRGB:   return 3;
-        case TextureFormat::kBGR10_XR:    return 4;
-        case TextureFormat::kRGBA8:       return 4;
-        case TextureFormat::kRGBA16:      return 8;
-        case TextureFormat::kRGBA16F:     return 8;
-        case TextureFormat::kRGBA32F:     return 16;
-        case TextureFormat::kRGB10_A2:    return 4;
-        case TextureFormat::kRGBA10x6:    return 8;
-        case TextureFormat::kRGBA8_sRGB:  return 4;
-        case TextureFormat::kBGRA8:       return 4;
-        case TextureFormat::kBGR10_A2:    return 4;
-        case TextureFormat::kBGRA8_sRGB:  return 4;
-        case TextureFormat::kABGR4:       return 2;
-        case TextureFormat::kARGB4:       return 2;
-        case TextureFormat::kBGRA10x6_XR: return 8;
-        case TextureFormat::kS8:          return 1;
-        case TextureFormat::kD16:         return 2;
-        case TextureFormat::kD32F:        return 4;
-        case TextureFormat::kD24_S8:      return 4;
-        case TextureFormat::kD32F_S8:     return 5; // assuming it's multiplanar
+        case TF::kUnsupported: return 0;
+        case TF::kR8:          return 1;
+        case TF::kR16:         return 2;
+        case TF::kR16F:        return 2;
+        case TF::kR32F:        return 4;
+        case TF::kA8:          return 1;
+        case TF::kRG8:         return 2;
+        case TF::kRG16:        return 4;
+        case TF::kRG16F:       return 4;
+        case TF::kRG32F:       return 8;
+        case TF::kRGB8:        return 3;
+        case TF::kBGR8:        return 3;
+        case TF::kB5_G6_R5:    return 2;
+        case TF::kR5_G6_B5:    return 2;
+        case TF::kRGB16:       return 6;
+        case TF::kRGB16F:      return 6;
+        case TF::kRGB32F:      return 12;
+        case TF::kRGB8_sRGB:   return 3;
+        case TF::kBGR10_XR:    return 4;
+        case TF::kRGBA8:       return 4;
+        case TF::kRGBA16:      return 8;
+        case TF::kRGBA16F:     return 8;
+        case TF::kRGBA32F:     return 16;
+        case TF::kRGB10_A2:    return 4;
+        case TF::kRGBA10x6:    return 8;
+        case TF::kRGBA8_sRGB:  return 4;
+        case TF::kBGRA8:       return 4;
+        case TF::kBGR10_A2:    return 4;
+        case TF::kBGRA8_sRGB:  return 4;
+        case TF::kABGR4:       return 2;
+        case TF::kARGB4:       return 2;
+        case TF::kBGRA10x6_XR: return 8;
+        case TF::kS8:          return 1;
+        case TF::kD16:         return 2;
+        case TF::kD32F:        return 4;
+        case TF::kD24_S8:      return 4;
+        case TF::kD32F_S8:     return 5; // Assuming it's multiplanar
+
         // NOTE: For compressed formats, the block size refers to an actual compressed block of
         // multiple texels, whereas with other formats the block size represents a single pixel.
-        case TextureFormat::kRGB8_ETC2:
-        case TextureFormat::kRGB8_ETC2_sRGB:
-        case TextureFormat::kRGB8_BC1:
-        case TextureFormat::kRGBA8_BC1:
-        case TextureFormat::kRGBA8_BC1_sRGB:
+        case TF::kRGB8_ETC2:
+        case TF::kRGB8_ETC2_sRGB:
+        case TF::kRGB8_BC1:
+        case TF::kRGBA8_BC1:
+        case TF::kRGBA8_BC1_sRGB:
             return 8;
         // NOTE: We don't actually know the size of external formats, so this is an arbitrary value.
         // We will see external formats only in wrapped SkImages, so this won't impact Skia's
         // internal budgeting.
-        case TextureFormat::kExternal:
+        case TF::kExternal:
             return 4;
         // TODO(b/401016699): We are just over estimating this value to be used in gpu size
         // calculations even though the actually size is probably less. We should instead treat
         // planar formats similar to compressed textures that go through their own special query for
         // calculating size.
-        case TextureFormat::kYUV8_P2_420:
-        case TextureFormat::kYUV8_P3_420:
+        case TF::kYUV8_P2_420:
+        case TF::kYUV8_P3_420:
             return 3;
-        case TextureFormat::kYUV10x6_P2_420:
+        case TF::kYUV10x6_P2_420:
             return 6;
     }
     SkUNREACHABLE;
@@ -152,57 +155,57 @@ size_t TextureFormatBytesPerBlock(TextureFormat format) {
 
 uint32_t TextureFormatChannelMask(TextureFormat format) {
     switch (format) {
-        case TextureFormat::kA8:             return kAlpha_SkColorChannelFlag;
+        case TF::kA8:             return kAlpha_SkColorChannelFlag;
 
-        case TextureFormat::kR8:             [[fallthrough]];
-        case TextureFormat::kR16:
-        case TextureFormat::kR16F:
-        case TextureFormat::kR32F:           return kRed_SkColorChannelFlag;
+        case TF::kR8:             [[fallthrough]];
+        case TF::kR16:
+        case TF::kR16F:
+        case TF::kR32F:           return kRed_SkColorChannelFlag;
 
-        case TextureFormat::kRG8:            [[fallthrough]];
-        case TextureFormat::kRG16:
-        case TextureFormat::kRG16F:
-        case TextureFormat::kRG32F:          return kRG_SkColorChannelFlags;
+        case TF::kRG8:            [[fallthrough]];
+        case TF::kRG16:
+        case TF::kRG16F:
+        case TF::kRG32F:          return kRG_SkColorChannelFlags;
 
-        case TextureFormat::kRGB8:           [[fallthrough]];
-        case TextureFormat::kBGR8:
-        case TextureFormat::kB5_G6_R5:
-        case TextureFormat::kR5_G6_B5:
-        case TextureFormat::kRGB16:
-        case TextureFormat::kRGB16F:
-        case TextureFormat::kRGB32F:
-        case TextureFormat::kRGB8_sRGB:
-        case TextureFormat::kBGR10_XR:
-        case TextureFormat::kRGB8_ETC2:
-        case TextureFormat::kRGB8_ETC2_sRGB:
-        case TextureFormat::kRGB8_BC1:
-        case TextureFormat::kYUV8_P2_420:
-        case TextureFormat::kYUV8_P3_420:
-        case TextureFormat::kYUV10x6_P2_420: return kRGB_SkColorChannelFlags;
+        case TF::kRGB8:           [[fallthrough]];
+        case TF::kBGR8:
+        case TF::kB5_G6_R5:
+        case TF::kR5_G6_B5:
+        case TF::kRGB16:
+        case TF::kRGB16F:
+        case TF::kRGB32F:
+        case TF::kRGB8_sRGB:
+        case TF::kBGR10_XR:
+        case TF::kRGB8_ETC2:
+        case TF::kRGB8_ETC2_sRGB:
+        case TF::kRGB8_BC1:
+        case TF::kYUV8_P2_420:
+        case TF::kYUV8_P3_420:
+        case TF::kYUV10x6_P2_420: return kRGB_SkColorChannelFlags;
 
-        case TextureFormat::kRGBA8:          [[fallthrough]];
-        case TextureFormat::kRGBA16:
-        case TextureFormat::kRGBA16F:
-        case TextureFormat::kRGBA32F:
-        case TextureFormat::kRGB10_A2:
-        case TextureFormat::kRGBA10x6:
-        case TextureFormat::kRGBA8_sRGB:
-        case TextureFormat::kBGRA8:
-        case TextureFormat::kBGR10_A2:
-        case TextureFormat::kBGRA8_sRGB:
-        case TextureFormat::kABGR4:
-        case TextureFormat::kARGB4:
-        case TextureFormat::kBGRA10x6_XR:
-        case TextureFormat::kRGBA8_BC1:
-        case TextureFormat::kRGBA8_BC1_sRGB:
-        case TextureFormat::kExternal:       return kRGBA_SkColorChannelFlags;
+        case TF::kRGBA8:          [[fallthrough]];
+        case TF::kRGBA16:
+        case TF::kRGBA16F:
+        case TF::kRGBA32F:
+        case TF::kRGB10_A2:
+        case TF::kRGBA10x6:
+        case TF::kRGBA8_sRGB:
+        case TF::kBGRA8:
+        case TF::kBGR10_A2:
+        case TF::kBGRA8_sRGB:
+        case TF::kABGR4:
+        case TF::kARGB4:
+        case TF::kBGRA10x6_XR:
+        case TF::kRGBA8_BC1:
+        case TF::kRGBA8_BC1_sRGB:
+        case TF::kExternal:       return kRGBA_SkColorChannelFlags;
 
-        case TextureFormat::kS8:             [[fallthrough]];
-        case TextureFormat::kD16:
-        case TextureFormat::kD32F:
-        case TextureFormat::kD24_S8:
-        case TextureFormat::kD32F_S8:
-        case TextureFormat::kUnsupported:    return 0;
+        case TF::kS8:             [[fallthrough]];
+        case TF::kD16:
+        case TF::kD32F:
+        case TF::kD24_S8:
+        case TF::kD32F_S8:
+        case TF::kUnsupported:    return 0;
     }
     SkUNREACHABLE;
 }
@@ -211,73 +214,73 @@ bool TextureFormatAutoClamps(TextureFormat format) {
     // Floating point formats, extended range formats, and non-normalized integer formats do not
     // auto-clamp. Everything behaves like an unsigned normalized number.
     return !(TextureFormatIsFloatingPoint(format) ||
-             format == TextureFormat::kBGR10_XR ||
-             format == TextureFormat::kBGRA10x6_XR ||
-             format == TextureFormat::kS8);
+             format == TF::kBGR10_XR ||
+             format == TF::kBGRA10x6_XR ||
+             format == TF::kS8);
 }
 
 bool TextureFormatIsFloatingPoint(TextureFormat format) {
     switch (format) {
         // Floating point formats
-        case TextureFormat::kR16F:           [[fallthrough]];
-        case TextureFormat::kR32F:
-        case TextureFormat::kRG16F:
-        case TextureFormat::kRG32F:
-        case TextureFormat::kRGB16F:
-        case TextureFormat::kRGB32F:
-        case TextureFormat::kRGBA16F:
-        case TextureFormat::kRGBA32F:
-        case TextureFormat::kD32F:
-        case TextureFormat::kD32F_S8:        return true;
+        case TF::kR16F:           [[fallthrough]];
+        case TF::kR32F:
+        case TF::kRG16F:
+        case TF::kRG32F:
+        case TF::kRGB16F:
+        case TF::kRGB32F:
+        case TF::kRGBA16F:
+        case TF::kRGBA32F:
+        case TF::kD32F:
+        case TF::kD32F_S8:        return true;
 
         // Everything else is unorm, unorm-srgb, fixed point, or integral
-        case TextureFormat::kUnsupported:    [[fallthrough]];
-        case TextureFormat::kR8:
-        case TextureFormat::kR16:
-        case TextureFormat::kA8:
-        case TextureFormat::kRG8:
-        case TextureFormat::kRG16:
-        case TextureFormat::kRGB8:
-        case TextureFormat::kBGR8:
-        case TextureFormat::kB5_G6_R5:
-        case TextureFormat::kR5_G6_B5:
-        case TextureFormat::kRGB16:
-        case TextureFormat::kRGB8_sRGB:
-        case TextureFormat::kBGR10_XR:
-        case TextureFormat::kRGBA8:
-        case TextureFormat::kRGBA16:
-        case TextureFormat::kRGB10_A2:
-        case TextureFormat::kRGBA10x6:
-        case TextureFormat::kRGBA8_sRGB:
-        case TextureFormat::kBGRA8:
-        case TextureFormat::kBGR10_A2:
-        case TextureFormat::kBGRA8_sRGB:
-        case TextureFormat::kABGR4:
-        case TextureFormat::kARGB4:
-        case TextureFormat::kBGRA10x6_XR:
-        case TextureFormat::kRGB8_ETC2:
-        case TextureFormat::kRGB8_ETC2_sRGB:
-        case TextureFormat::kRGB8_BC1:
-        case TextureFormat::kRGBA8_BC1:
-        case TextureFormat::kRGBA8_BC1_sRGB:
-        case TextureFormat::kYUV8_P2_420:
-        case TextureFormat::kYUV8_P3_420:
-        case TextureFormat::kYUV10x6_P2_420:
-        case TextureFormat::kExternal:
-        case TextureFormat::kS8:
-        case TextureFormat::kD16:
-        case TextureFormat::kD24_S8:          return false;
+        case TF::kUnsupported:    [[fallthrough]];
+        case TF::kR8:
+        case TF::kR16:
+        case TF::kA8:
+        case TF::kRG8:
+        case TF::kRG16:
+        case TF::kRGB8:
+        case TF::kBGR8:
+        case TF::kB5_G6_R5:
+        case TF::kR5_G6_B5:
+        case TF::kRGB16:
+        case TF::kRGB8_sRGB:
+        case TF::kBGR10_XR:
+        case TF::kRGBA8:
+        case TF::kRGBA16:
+        case TF::kRGB10_A2:
+        case TF::kRGBA10x6:
+        case TF::kRGBA8_sRGB:
+        case TF::kBGRA8:
+        case TF::kBGR10_A2:
+        case TF::kBGRA8_sRGB:
+        case TF::kABGR4:
+        case TF::kARGB4:
+        case TF::kBGRA10x6_XR:
+        case TF::kRGB8_ETC2:
+        case TF::kRGB8_ETC2_sRGB:
+        case TF::kRGB8_BC1:
+        case TF::kRGBA8_BC1:
+        case TF::kRGBA8_BC1_sRGB:
+        case TF::kYUV8_P2_420:
+        case TF::kYUV8_P3_420:
+        case TF::kYUV10x6_P2_420:
+        case TF::kExternal:
+        case TF::kS8:
+        case TF::kD16:
+        case TF::kD24_S8:          return false;
     }
     SkUNREACHABLE;
 }
 
 bool TextureFormatIsDepthOrStencil(TextureFormat format) {
     switch (format) {
-        case TextureFormat::kS8:      [[fallthrough]];
-        case TextureFormat::kD16:
-        case TextureFormat::kD32F:
-        case TextureFormat::kD24_S8:
-        case TextureFormat::kD32F_S8:
+        case TF::kS8:      [[fallthrough]];
+        case TF::kD16:
+        case TF::kD32F:
+        case TF::kD24_S8:
+        case TF::kD32F_S8:
             return true;
         default:
             return false;
@@ -286,10 +289,10 @@ bool TextureFormatIsDepthOrStencil(TextureFormat format) {
 
 bool TextureFormatHasDepth(TextureFormat format) {
     switch (format) {
-        case TextureFormat::kD16:     [[fallthrough]];
-        case TextureFormat::kD32F:
-        case TextureFormat::kD24_S8:
-        case TextureFormat::kD32F_S8:
+        case TF::kD16:     [[fallthrough]];
+        case TF::kD32F:
+        case TF::kD24_S8:
+        case TF::kD32F_S8:
             return true;
         default:
             return false;
@@ -298,9 +301,9 @@ bool TextureFormatHasDepth(TextureFormat format) {
 
 bool TextureFormatHasStencil(TextureFormat format) {
     switch (format) {
-        case TextureFormat::kS8:      [[fallthrough]];
-        case TextureFormat::kD24_S8:
-        case TextureFormat::kD32F_S8:
+        case TF::kS8:      [[fallthrough]];
+        case TF::kD24_S8:
+        case TF::kD32F_S8:
             return true;
         default:
             return false;
@@ -309,9 +312,9 @@ bool TextureFormatHasStencil(TextureFormat format) {
 
 bool TextureFormatIsMultiplanar(TextureFormat format) {
     switch (format) {
-        case TextureFormat::kYUV8_P2_420:    [[fallthrough]];
-        case TextureFormat::kYUV8_P3_420:
-        case TextureFormat::kYUV10x6_P2_420:
+        case TF::kYUV8_P2_420:    [[fallthrough]];
+        case TF::kYUV8_P3_420:
+        case TF::kYUV10x6_P2_420:
             return true;
         default:
             return false;
@@ -336,7 +339,7 @@ Swizzle ReadSwizzleForColorType(SkColorType ct, TextureFormat format) {
     // channel ordering for RGB vs BGR is handled by hardware. All we have to handle is mapping to
     // "gray", red-vs-alpha, and forcing to opaque.
     if (SkColorTypeIsAlphaOnly(ct)) {
-        // If the format isn't just an alpha channel (e.g. TextureFormat::kA8), we need to adjust
+        // If the format isn't just an alpha channel (e.g. TF::kA8), we need to adjust
         if (formatChannels != kAlpha_SkColorChannelFlag) {
             // If the format has an alpha channel, mask every other channel to 0
             if (formatChannels & kAlpha_SkColorChannelFlag) {
@@ -401,7 +404,7 @@ std::optional<skgpu::Swizzle> WriteSwizzleForColorType(SkColorType ct, TextureFo
     //     rendering by always using shader-based blending or by guaranteeing a one-time initialize
     //     draw that forced any alpha channel to 1 (b/489785214).
     if (SkColorTypeIsAlphaOnly(ct)) {
-        // If the format isn't just an alpha channel (e.g. TextureFormat::kA8), we need to adjust
+        // If the format isn't just an alpha channel (e.g. TF::kA8), we need to adjust
         if (formatChannels != kAlpha_SkColorChannelFlag) {
             // If the format has an alpha channel, mask every other channel to 0
             if (formatChannels & kAlpha_SkColorChannelFlag) {
@@ -437,38 +440,36 @@ SkSpan<const TextureFormat> PreferredTextureFormats(SkColorType ct) {
         // format variations to maximize color types that have some format. For alpha-only color
         // types, we only match to red-channel formats as they have the broadest support.
 
-        CASE(kAlpha_8_SkColorType,            TextureFormat::kR8)
+        CASE(kAlpha_8_SkColorType,            TF::kR8)
         // NOTE: kRGB_565_SkColorType is misnamed and natively matches B5_G6_R5
-        CASE(kRGB_565_SkColorType,            TextureFormat::kB5_G6_R5, TextureFormat::kR5_G6_B5)
+        CASE(kRGB_565_SkColorType,            TF::kB5_G6_R5,   TF::kR5_G6_B5)
         // NOTE: kARGB_4444_SkColorType is misnamed and natively matches ABGR4
-        CASE(kARGB_4444_SkColorType,          TextureFormat::kABGR4,    TextureFormat::kARGB4)
-        CASE(kRGBA_8888_SkColorType,          TextureFormat::kRGBA8,    TextureFormat::kBGRA8)
-        CASE(kRGB_888x_SkColorType,           TextureFormat::kRGB8,
-                                              TextureFormat::kRGBA8,
-                                              TextureFormat::kBGRA8)
-        CASE(kBGRA_8888_SkColorType,          TextureFormat::kBGRA8,    TextureFormat::kRGBA8)
-        CASE(kRGBA_1010102_SkColorType,       TextureFormat::kRGB10_A2, TextureFormat::kBGR10_A2)
-        CASE(kBGRA_1010102_SkColorType,       TextureFormat::kBGR10_A2, TextureFormat::kRGB10_A2)
-        CASE(kRGB_101010x_SkColorType,        TextureFormat::kRGB10_A2, TextureFormat::kBGR10_A2)
-        CASE(kBGR_101010x_SkColorType,        TextureFormat::kBGR10_A2, TextureFormat::kRGB10_A2)
-        CASE(kBGR_101010x_XR_SkColorType,     TextureFormat::kBGR10_XR)
-        CASE(kBGRA_10101010_XR_SkColorType,   TextureFormat::kBGRA10x6_XR)
-        CASE(kRGBA_10x6_SkColorType,          TextureFormat::kRGBA10x6)
-        CASE(kGray_8_SkColorType,             TextureFormat::kR8)
-        CASE(kRGBA_F16Norm_SkColorType,       TextureFormat::kRGBA16F)
-        CASE(kRGBA_F16_SkColorType,           TextureFormat::kRGBA16F)
-        CASE(kRGB_F16F16F16x_SkColorType,     TextureFormat::kRGBA16F)
-        CASE(kRGBA_F32_SkColorType,           TextureFormat::kRGBA32F)
-        CASE(kR8G8_unorm_SkColorType,         TextureFormat::kRG8)
-        CASE(kA16_float_SkColorType,          TextureFormat::kR16F)
-        CASE(kR16G16_float_SkColorType,       TextureFormat::kRG16F)
-        CASE(kA16_unorm_SkColorType,          TextureFormat::kR16)
-        CASE(kR16_unorm_SkColorType,          TextureFormat::kR16)
-        CASE(kR16G16_unorm_SkColorType,       TextureFormat::kRG16)
-        CASE(kR16G16B16A16_unorm_SkColorType, TextureFormat::kRGBA16)
-        CASE(kSRGBA_8888_SkColorType,         TextureFormat::kRGBA8_sRGB,
-                                              TextureFormat::kBGRA8_sRGB)
-        CASE(kR8_unorm_SkColorType,           TextureFormat::kR8)
+        CASE(kARGB_4444_SkColorType,          TF::kABGR4,      TF::kARGB4)
+        CASE(kRGBA_8888_SkColorType,          TF::kRGBA8,      TF::kBGRA8)
+        CASE(kRGB_888x_SkColorType,           TF::kRGB8,       TF::kRGBA8,      TF::kBGRA8)
+        CASE(kBGRA_8888_SkColorType,          TF::kBGRA8,      TF::kRGBA8)
+        CASE(kRGBA_1010102_SkColorType,       TF::kRGB10_A2,   TF::kBGR10_A2)
+        CASE(kBGRA_1010102_SkColorType,       TF::kBGR10_A2,   TF::kRGB10_A2)
+        CASE(kRGB_101010x_SkColorType,        TF::kRGB10_A2,   TF::kBGR10_A2)
+        CASE(kBGR_101010x_SkColorType,        TF::kBGR10_A2,   TF::kRGB10_A2)
+        CASE(kBGR_101010x_XR_SkColorType,     TF::kBGR10_XR)
+        CASE(kBGRA_10101010_XR_SkColorType,   TF::kBGRA10x6_XR)
+        CASE(kRGBA_10x6_SkColorType,          TF::kRGBA10x6)
+        CASE(kGray_8_SkColorType,             TF::kR8)
+        CASE(kRGBA_F16Norm_SkColorType,       TF::kRGBA16F)
+        CASE(kRGBA_F16_SkColorType,           TF::kRGBA16F)
+        CASE(kRGB_F16F16F16x_SkColorType,     TF::kRGBA16F)
+        CASE(kRGBA_F32_SkColorType,           TF::kRGBA32F)
+        CASE(kR8G8_unorm_SkColorType,         TF::kRG8)
+        CASE(kA16_float_SkColorType,          TF::kR16F)
+        CASE(kR16G16_float_SkColorType,       TF::kRG16F)
+        CASE(kA16_unorm_SkColorType,          TF::kR16)
+        CASE(kR16_unorm_SkColorType,          TF::kR16)
+        CASE(kR16G16_unorm_SkColorType,       TF::kRG16)
+        CASE(kR16G16B16A16_unorm_SkColorType, TF::kRGBA16)
+        CASE(kSRGBA_8888_SkColorType,         TF::kRGBA8_sRGB,
+                                              TF::kBGRA8_sRGB)
+        CASE(kR8_unorm_SkColorType,           TF::kR8)
     }
 
     SkUNREACHABLE;
