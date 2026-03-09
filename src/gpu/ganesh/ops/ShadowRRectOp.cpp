@@ -40,6 +40,7 @@
 #include "src/gpu/ganesh/GrUserStencilSettings.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/effects/GrShadowGeoProc.h"
+#include "src/gpu/ganesh/image/GrMippedBitmap.h"
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
@@ -754,7 +755,7 @@ static GrSurfaceProxyView create_falloff_texture(GrRecordingContext* rContext) {
     }
     bitmap.setImmutable();
 
-    view = std::get<0>(GrMakeUncachedBitmapProxyView(rContext, bitmap));
+    view = std::get<0>(GrMakeUncachedBitmapProxyView(rContext, GrMippedBitmap(bitmap)));
     if (!view) {
         return {};
     }

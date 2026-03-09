@@ -33,6 +33,7 @@
 #include "src/codec/SkSampler.h"
 #include "src/codec/SkScalingCodec.h"
 #include "src/core/SkDraw.h"
+#include "src/core/SkMipmap.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkStreamPriv.h"
 
@@ -743,7 +744,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecodeTwoPass() {
         draw.fRC = &rc;
 
         SkMatrix translate = SkMatrix::Translate(dirty_rect.min_incl_x, dirty_rect.min_incl_y);
-        draw.drawBitmap(src, translate, nullptr, SkSamplingOptions(), paint);
+        draw.drawBitmap(src, translate, nullptr, SkSamplingOptions(), paint, nullptr);
     }
 
     if (result == SkCodec::kSuccess) {

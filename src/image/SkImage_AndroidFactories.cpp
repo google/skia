@@ -17,4 +17,3 @@ sk_sp<SkImage> RasterFromBitmapNoCopy(const SkBitmap& bm) {
 }
 
 }  // namespace SkImages
-
