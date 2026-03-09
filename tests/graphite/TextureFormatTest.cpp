@@ -8,10 +8,12 @@
 #include "tests/Test.h"
 
 #include "include/core/SkColorType.h"
+#include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/TextureFormat.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
 
@@ -40,7 +42,6 @@ struct FormatExpectation {
     skia_private::TArray<ColorTypeExpectation> fCompatibleColorTypes;
 };
 
-inline
 FormatExpectation MakeColor(TextureFormat format,
                             size_t bytesPerBlock,
                             uint32_t channels,
@@ -52,7 +53,6 @@ FormatExpectation MakeColor(TextureFormat format,
             /*fHasStencil=*/false, multiplanar, autoClamps, isFloatingPoint, compatibleColorTypes};
 }
 
-inline
 FormatExpectation MakeCompressed(TextureFormat format,
                                  SkTextureCompressionType compressionType,
                                  size_t bytesPerBlock,
@@ -63,7 +63,6 @@ FormatExpectation MakeCompressed(TextureFormat format,
             /*fIsFloatingPoint=*/false, compatibleColorTypes};
 }
 
-inline
 FormatExpectation MakeDepthStencil(TextureFormat format, size_t
                                    bytesPerBlock,
                                    bool hasDepth,
@@ -457,16 +456,7 @@ static const FormatExpectation kExpectations[] {
                      /*isFloatingPoint=*/true),
 };
 
-// TODO(michaelludwig): For now format-colortype validation relies on Caps APIs that require a full
-// TextureInfo, but they will be moved to fixed rules by TextureFormat. At that point, the
-// backend-specific test files can also go away.
-using TextureInfoFactoryFn = TextureInfo(*)(TextureFormat);
-
-inline
-void RunTextureFormatTest(skiatest::Reporter* r,
-                          const Caps* caps,
-                          TextureFormat format,
-                          TextureInfoFactoryFn /*unused*/) {
+void run_texture_format_test(skiatest::Reporter* r, const Caps* caps, TextureFormat format) {
     bool foundExpectation = false;
     for (auto&& e : kExpectations) {
         if (e.fFormat != format) {
@@ -551,6 +541,12 @@ void RunTextureFormatTest(skiatest::Reporter* r,
 
     // All formats should have expectations
     REPORTER_ASSERT(r, foundExpectation, "Missing expectation for %s", TextureFormatName(format));
+}
+
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(TextureFormatTest, r, ctx, CtsEnforcement::kNextRelease) {
+    for (int i = 0; i < kTextureFormatCount; ++i) {
+        run_texture_format_test(r, ctx->priv().caps(), static_cast<TextureFormat>(i));
+    }
 }
 
 } // namespace skgpu::graphite

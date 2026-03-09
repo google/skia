@@ -324,7 +324,7 @@ graphite_tests_sources = [
   "$_tests/graphite/RecordingSurfacesTest.cpp",
   "$_tests/graphite/RectTest.cpp",
   "$_tests/graphite/ShapeTest.cpp",
-  "$_tests/graphite/TextureFormatTest.h",
+  "$_tests/graphite/TextureFormatTest.cpp",
   "$_tests/graphite/TextureProxyTest.cpp",
   "$_tests/graphite/TransformTest.cpp",
   "$_tests/graphite/UniformManagerTest.cpp",
@@ -354,16 +354,9 @@ precompile_tests_sources = [
   "$_tests/graphite/precompile/UserdefinedStableKeyTest.cpp",
 ]
 
-graphite_dawn_tests_sources = [
-  "$_tests/graphite/DawnBackendTextureTest.cpp",
-  "$_tests/graphite/TextureFormatTest_dawn.cpp",
-]
-graphite_metal_tests_sources = [
-  "$_tests/graphite/MtlBackendTextureTest.mm",
-  "$_tests/graphite/TextureFormatTest_mtl.mm",
-]
+graphite_dawn_tests_sources = [ "$_tests/graphite/DawnBackendTextureTest.cpp" ]
+graphite_metal_tests_sources = [ "$_tests/graphite/MtlBackendTextureTest.mm" ]
 graphite_vulkan_tests_sources = [
-  "$_tests/graphite/TextureFormatTest_vk.cpp",
   "$_tests/graphite/VulkanBackendTextureTest.cpp",
   "$_tests/graphite/VulkanDstReadRenderpassReuseTest.cpp",
 ]
