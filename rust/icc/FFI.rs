@@ -48,6 +48,7 @@ mod ffi {
     // assertions to verify that the enum values match between Rust and C++.
     extern "C++" {
         include!("modules/skcms/skcms.h");
+        include!("rust/icc/FFI.h");
 
         #[namespace = ""]
         type skcms_Signature;
@@ -143,7 +144,10 @@ mod ffi {
         connection_space: skcms_Signature,
         to_xyzd50: Matrix3x3,
         has_to_xyzd50: bool,
-        trc: [TransferFunction; 3],
+        /// Transfer curves for R, G, B channels (or gray replicated x3).
+        trc_r: Curve,
+        trc_g: Curve,
+        trc_b: Curve,
         has_trc: bool,
         cicp: Cicp,
         has_cicp: bool,
@@ -151,21 +155,6 @@ mod ffi {
         has_a2b: bool,
         b2a: B2A,
         has_b2a: bool,
-    }
-
-    // C++ wrapper for skcms_ApproximateCurve.
-    // Using cxx::bridge for compile-time type safety.
-    // The C++ side (FFI.cpp) wraps skcms_ApproximateCurve, so any signature changes
-    // in skcms will cause a compile error rather than silent ABI breakage.
-    unsafe extern "C++" {
-        include!("rust/icc/FFI.h");
-
-        #[cxx_name = "ApproximateCurveWrapper"]
-        fn approximate_curve_wrapper(
-            table: &[u16],
-            out_approx: &mut TransferFunction,
-            out_max_error: &mut f32,
-        ) -> bool;
     }
 
     extern "Rust" {
@@ -239,21 +228,50 @@ pub fn parse_icc_profile(data: &[u8], out: &mut ffi::IccProfile) -> bool {
     out.to_xyzd50 = matrix3d_to_ffi(&matrix);
     out.has_to_xyzd50 = is_valid_colorant_matrix(&matrix);
 
+    // For GRAY ICC profiles with XYZ PCS and no colorant matrix (no rXYZ/gXYZ/bXYZ
+    // tags), skcms synthesizes a diagonal toXYZD50 from the ICC header illuminant,
+    // which ICC spec requires to be D50.
+    if !out.has_to_xyzd50
+        && profile.color_space == moxcms::DataColorSpace::Gray
+        && profile.pcs == moxcms::DataColorSpace::Xyz
+    {
+        let wp = &profile.white_point;
+        out.to_xyzd50 = ffi::Matrix3x3 {
+            vals: [
+                [wp.x as f32, 0.0, 0.0],
+                [0.0, wp.y as f32, 0.0],
+                [0.0, 0.0, wp.z as f32],
+            ],
+        };
+        out.has_to_xyzd50 = true;
+    }
+
     out.has_trc = false;
     if let Some(gray_trc) = &profile.gray_trc {
-        if let Some(tf) = convert_trc_to_transfer_function(gray_trc) {
-            out.trc = [tf, tf, tf];
+        // GRAY profile: all three channels share the single kTRC curve.
+        // Call convert_trc_to_curve thrice to produce independent Curve
+        // values owning their own table_data bytes.
+        if let (Some(r_curve), Some(g_curve), Some(b_curve)) = (
+            convert_trc_to_curve(gray_trc),
+            convert_trc_to_curve(gray_trc),
+            convert_trc_to_curve(gray_trc),
+        ) {
+            out.trc_r = r_curve;
+            out.trc_g = g_curve;
+            out.trc_b = b_curve;
             out.has_trc = true;
         }
     } else if let (Some(r_trc), Some(g_trc), Some(b_trc)) =
         (&profile.red_trc, &profile.green_trc, &profile.blue_trc)
     {
-        if let (Some(r_tf), Some(g_tf), Some(b_tf)) = (
-            convert_trc_to_transfer_function(r_trc),
-            convert_trc_to_transfer_function(g_trc),
-            convert_trc_to_transfer_function(b_trc),
+        if let (Some(r_curve), Some(g_curve), Some(b_curve)) = (
+            convert_trc_to_curve(r_trc),
+            convert_trc_to_curve(g_trc),
+            convert_trc_to_curve(b_trc),
         ) {
-            out.trc = [r_tf, g_tf, b_tf];
+            out.trc_r = r_curve;
+            out.trc_g = g_curve;
+            out.trc_b = b_curve;
             out.has_trc = true;
         }
     }
@@ -629,41 +647,55 @@ fn convert_to_a2b(
     }
 }
 
-/// Convert moxcms ToneReprCurve to skcms-compatible TransferFunction.
-/// Returns None if the curve cannot be represented as a parametric function.
-fn convert_trc_to_transfer_function(trc: &moxcms::ToneReprCurve) -> Option<ffi::TransferFunction> {
+/// Convert moxcms ToneReprCurve to a skcms-compatible Curve.
+///
+/// For multi-entry Lut tables we pass the raw big-endian bytes through
+/// directly instead of calling ApproximateCurve.  skcms evaluates table
+/// curves by exact interpolation, whereas the parametric approximation
+/// produced by ApproximateCurve can differ by ±1 ULP at 8-bit output,
+/// which manifests as a 1-value max-difference across the whole image.
+///
+/// Returns None if the curve cannot be converted (e.g. empty table or
+/// malformed parametric).
+fn convert_trc_to_curve(trc: &moxcms::ToneReprCurve) -> Option<ffi::Curve> {
     use moxcms::ToneReprCurve;
 
     match trc {
         ToneReprCurve::Parametric(params) => {
-            // moxcms parametric curve: Vec<f32> with 7 parameters (g, a, b, c, d, e, f)
-            // Matches skcms transfer function layout
-            moxcms::ParametricCurve::new(params)
-                .map(|curve| parametric_curve_to_transfer_function(&curve))
+            // moxcms parametric curve: Vec<f32> with up to 7 parameters
+            // (g, a, b, c, d, e, f) matching skcms_TransferFunction layout.
+            moxcms::ParametricCurve::new(params).map(|curve| ffi::Curve {
+                table_entries: 0,
+                parametric: parametric_curve_to_transfer_function(&curve),
+                table_data: Vec::new(),
+            })
         }
         ToneReprCurve::Lut(table) => {
-            // In ICC, a single u16 value represents gamma in 8.8 fixed-point
             if table.len() == 1 {
+                // Single-entry curv tag encodes gamma in 8.8 fixed-point.
+                // Represent as a parametric power-law (g=gamma, a=1, rest 0).
                 let gamma = table[0] as f32 / 256.0;
-                Some(ffi::TransferFunction {
-                    g: gamma,
-                    a: 1.0,
-                    b: 0.0,
-                    c: 0.0,
-                    d: 0.0,
-                    e: 0.0,
-                    f: 0.0,
+                Some(ffi::Curve {
+                    table_entries: 0,
+                    parametric: ffi::TransferFunction {
+                        g: gamma,
+                        a: 1.0,
+                        b: 0.0,
+                        c: 0.0,
+                        d: 0.0,
+                        e: 0.0,
+                        f: 0.0,
+                    },
+                    table_data: Vec::new(),
                 })
             } else if !table.is_empty() {
-                // Multi-entry table: use skcms_ApproximateCurve to fit a parametric function
-                let mut approx = ffi::TransferFunction::default();
-                let mut max_error: f32 = 0.0;
-
-                if ffi::approximate_curve_wrapper(table, &mut approx, &mut max_error) {
-                    Some(approx)
-                } else {
-                    None
-                }
+                // Multi-entry curv tag: pass through as a big-endian u16 table.
+                // skcms interpolates the table exactly; no approximation needed.
+                Some(ffi::Curve {
+                    table_entries: table.len() as u32,
+                    parametric: ffi::TransferFunction::default(),
+                    table_data: u16_vec_to_bytes(table),
+                })
             } else {
                 None
             }
@@ -675,6 +707,15 @@ fn convert_trc_to_transfer_function(trc: &moxcms::ToneReprCurve) -> Option<ffi::
 mod tests {
     use super::*;
 
+    /// Helper to create an empty Curve (parametric, identity-like default).
+    fn empty_curve() -> ffi::Curve {
+        ffi::Curve {
+            table_entries: 0,
+            parametric: ffi::TransferFunction::default(),
+            table_data: Vec::new(),
+        }
+    }
+
     /// Helper to create an empty IccProfile for testing
     fn empty_icc_profile() -> ffi::IccProfile {
         ffi::IccProfile {
@@ -684,7 +725,9 @@ mod tests {
                 vals: [[0.0; 3]; 3],
             },
             has_to_xyzd50: false,
-            trc: [ffi::TransferFunction::default(); 3],
+            trc_r: empty_curve(),
+            trc_g: empty_curve(),
+            trc_b: empty_curve(),
             has_trc: false,
             cicp: ffi::Cicp {
                 color_primaries: 0,
@@ -836,55 +879,11 @@ mod tests {
         assert!(out.has_trc, "AdobeRGB should have TRCs");
 
         // Verify the TRCs are gamma 2.2 (encoded as 563 in 8.8 fixed point = 2.199...)
+        // Single-entry Lut → parametric Curve (table_entries == 0).
         assert!(
-            (out.trc[0].g - 2.2).abs() < 0.01,
+            (out.trc_r.parametric.g - 2.2).abs() < 0.01,
             "Red TRC should be ~2.2, got {}",
-            out.trc[0].g
-        );
-    }
-
-    #[test]
-    fn test_approximate_curve_linear() {
-        let table: Vec<u16> = (0..=255).map(|i| (i as u16) * 257).collect();
-
-        let mut approx = ffi::TransferFunction::default();
-        let mut max_error: f32 = 0.0;
-
-        let success = ffi::approximate_curve_wrapper(&table, &mut approx, &mut max_error);
-        assert!(success, "Should successfully approximate linear curve");
-
-        // Linear curve should have g ≈ 1.0, a ≈ 1.0, b ≈ 0.0
-        assert!(
-            (approx.g - 1.0).abs() < 0.1,
-            "Linear curve gamma should be ~1.0, got {}",
-            approx.g
-        );
-        assert!(max_error < 0.01, "Linear curve error should be very small");
-    }
-
-    #[test]
-    fn test_approximate_curve_gamma() {
-        let table: Vec<u16> = (0..=255)
-            .map(|i| {
-                let x = i as f32 / 255.0;
-                let y = x.powf(2.2);
-                (y * 65535.0) as u16
-            })
-            .collect();
-
-        let mut approx = ffi::TransferFunction::default();
-        let mut max_error: f32 = 0.0;
-
-        // For testing, use the C++ wrapper directly
-        let success = ffi::approximate_curve_wrapper(&table, &mut approx, &mut max_error);
-        assert!(success, "Should successfully approximate gamma curve");
-
-        // skcms_ApproximateCurve may not fit gamma curves perfectly
-        // Allow a reasonable tolerance since approximation trades off accuracy
-        assert!(
-            (approx.g - 2.2).abs() < 0.5,
-            "Gamma curve should be roughly ~2.2, got {}",
-            approx.g
+            out.trc_r.parametric.g
         );
     }
 

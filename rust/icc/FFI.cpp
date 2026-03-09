@@ -13,56 +13,8 @@
 #include <cstddef>
 #include <cstring>
 #include <type_traits>
-#include <vector>
 
 namespace rust_icc {
-
-bool ApproximateCurveWrapper(rust::Slice<const uint16_t> table,
-                             TransferFunction& out_approx,
-                             float& out_max_error) {
-    if (table.empty()) {
-        return false;
-    }
-
-    // moxcms stores TRC curve entries as native-endian uint16_t values
-    // (read via u16::from_be_bytes in the Rust reader).  skcms_Curve::table_16
-    // expects big-endian packed bytes (two bytes per entry, most-significant
-    // byte first).  Convert here so that skcms_ApproximateCurve receives
-    // correctly-ordered data on little-endian platforms.
-    std::vector<uint8_t> be_bytes(table.size() * 2);
-    for (size_t i = 0; i < table.size(); ++i) {
-        be_bytes[2 * i]     = static_cast<uint8_t>(table[i] >> 8);
-        be_bytes[2 * i + 1] = static_cast<uint8_t>(table[i] & 0xFF);
-    }
-
-    // Construct skcms_Curve for the table
-    skcms_Curve curve;
-    memset(&curve, 0, sizeof(skcms_Curve));
-    curve.table_entries = static_cast<uint32_t>(table.size());
-    curve.table_8 = nullptr;
-    curve.table_16 = be_bytes.data();
-
-    // Call skcms_ApproximateCurve (signature verified at compile time)
-    skcms_TransferFunction skcms_approx;
-    float max_error = 0.0f;
-    bool success = skcms_ApproximateCurve(&curve, &skcms_approx, &max_error);
-
-    if (!success) {
-        return false;
-    }
-
-    // Copy result field-by-field to avoid memcpy of non-trivial type
-    out_approx.g = skcms_approx.g;
-    out_approx.a = skcms_approx.a;
-    out_approx.b = skcms_approx.b;
-    out_approx.c = skcms_approx.c;
-    out_approx.d = skcms_approx.d;
-    out_approx.e = skcms_approx.e;
-    out_approx.f = skcms_approx.f;
-    out_max_error = max_error;
-
-    return true;
-}
 
 void ToSkcmsMatrix3x3(const Matrix3x3& rust_matrix, skcms_Matrix3x3* out_skcms) {
     // Note: std::is_layout_compatible_v (C++20) is not yet implemented in LLVM (P0466R5).
@@ -285,15 +237,13 @@ bool ToSkcmsIccProfile(const IccProfile& rust_profile, skcms_ICCProfile* out_skc
         ToSkcmsMatrix3x3(rust_profile.to_xyzd50, &out_skcms->toXYZD50);
     }
 
-    // Copy transfer curves if present
+    // Copy transfer curves if present preserving the original curve type
+    // (parametric or table).
     out_skcms->has_trc = rust_profile.has_trc;
     if (rust_profile.has_trc) {
-        // Convert each channel's transfer function
-        for (int i = 0; i < 3; i++) {
-            // Set up the skcms_Curve as a parametric function (not a LUT)
-            out_skcms->trc[i].table_entries = 0;  // 0 = parametric, not table
-            ToSkcmsTransferFunction(rust_profile.trc[i], &out_skcms->trc[i].parametric);
-        }
+        ToSkcmsCurve(rust_profile.trc_r, &out_skcms->trc[0]);
+        ToSkcmsCurve(rust_profile.trc_g, &out_skcms->trc[1]);
+        ToSkcmsCurve(rust_profile.trc_b, &out_skcms->trc[2]);
     }
 
     // Copy CICP data if present

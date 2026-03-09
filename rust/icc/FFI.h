@@ -29,12 +29,6 @@ struct Matrix3x3;
 struct TransferFunction;
 struct IccProfile;
 
-/// Wrapper for skcms_ApproximateCurve.
-/// Used by cxx::bridge to avoid manual extern "C" declarations.
-bool ApproximateCurveWrapper(rust::Slice<const uint16_t> table,
-                             TransferFunction& out_approx,
-                             float& out_max_error);
-
 /// Convert rust_icc::Matrix3x3 to skcms_Matrix3x3.
 void ToSkcmsMatrix3x3(const Matrix3x3& rust_matrix, skcms_Matrix3x3* out_skcms);
 

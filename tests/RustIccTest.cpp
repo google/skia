@@ -142,14 +142,15 @@ DEF_TEST(RustIcc_profile_conversion, r) {
 
     // Set up simple gamma curves
     rust_profile.has_trc = true;
-    for (int i = 0; i < 3; i++) {
-        rust_profile.trc[i].g = 2.2f;
-        rust_profile.trc[i].a = 1.0f;
-        rust_profile.trc[i].b = 0.0f;
-        rust_profile.trc[i].c = 0.0f;
-        rust_profile.trc[i].d = 0.0f;
-        rust_profile.trc[i].e = 0.0f;
-        rust_profile.trc[i].f = 0.0f;
+    for (auto* ch : {&rust_profile.trc_r, &rust_profile.trc_g, &rust_profile.trc_b}) {
+        ch->table_entries = 0;  // parametric curve (no table)
+        ch->parametric.g = 2.2f;
+        ch->parametric.a = 1.0f;
+        ch->parametric.b = 0.0f;
+        ch->parametric.c = 0.0f;
+        ch->parametric.d = 0.0f;
+        ch->parametric.e = 0.0f;
+        ch->parametric.f = 0.0f;
     }
 
     // Convert to skcms
@@ -255,14 +256,15 @@ DEF_TEST(RustIcc_profile_with_a2b_curves, r) {
     rust_profile.to_xyzd50.vals[2][2] = 1.0f;
 
     rust_profile.has_trc = true;
-    for (int i = 0; i < 3; i++) {
-        rust_profile.trc[i].g = 2.2f;
-        rust_profile.trc[i].a = 1.0f;
-        rust_profile.trc[i].b = 0.0f;
-        rust_profile.trc[i].c = 0.0f;
-        rust_profile.trc[i].d = 0.0f;
-        rust_profile.trc[i].e = 0.0f;
-        rust_profile.trc[i].f = 0.0f;
+    for (auto* ch : {&rust_profile.trc_r, &rust_profile.trc_g, &rust_profile.trc_b}) {
+        ch->table_entries = 0;  // parametric curve (no table)
+        ch->parametric.g = 2.2f;
+        ch->parametric.a = 1.0f;
+        ch->parametric.b = 0.0f;
+        ch->parametric.c = 0.0f;
+        ch->parametric.d = 0.0f;
+        ch->parametric.e = 0.0f;
+        ch->parametric.f = 0.0f;
     }
 
     // Add A2B transform with input curves
@@ -348,14 +350,15 @@ DEF_TEST(RustIcc_profile_with_a2b_matrix, r) {
     rust_profile.to_xyzd50.vals[2][2] = 1.0f;
 
     rust_profile.has_trc = true;
-    for (int i = 0; i < 3; i++) {
-        rust_profile.trc[i].g = 2.2f;
-        rust_profile.trc[i].a = 1.0f;
-        rust_profile.trc[i].b = 0.0f;
-        rust_profile.trc[i].c = 0.0f;
-        rust_profile.trc[i].d = 0.0f;
-        rust_profile.trc[i].e = 0.0f;
-        rust_profile.trc[i].f = 0.0f;
+    for (auto* ch : {&rust_profile.trc_r, &rust_profile.trc_g, &rust_profile.trc_b}) {
+        ch->table_entries = 0;  // parametric curve (no table)
+        ch->parametric.g = 2.2f;
+        ch->parametric.a = 1.0f;
+        ch->parametric.b = 0.0f;
+        ch->parametric.c = 0.0f;
+        ch->parametric.d = 0.0f;
+        ch->parametric.e = 0.0f;
+        ch->parametric.f = 0.0f;
     }
 
     // Add A2B transform with matrix
@@ -432,14 +435,15 @@ DEF_TEST(RustIcc_profile_with_table_curves, r) {
     rust_profile.to_xyzd50.vals[2][2] = 1.0f;
 
     rust_profile.has_trc = true;
-    for (int i = 0; i < 3; i++) {
-        rust_profile.trc[i].g = 2.2f;
-        rust_profile.trc[i].a = 1.0f;
-        rust_profile.trc[i].b = 0.0f;
-        rust_profile.trc[i].c = 0.0f;
-        rust_profile.trc[i].d = 0.0f;
-        rust_profile.trc[i].e = 0.0f;
-        rust_profile.trc[i].f = 0.0f;
+    for (auto* ch : {&rust_profile.trc_r, &rust_profile.trc_g, &rust_profile.trc_b}) {
+        ch->table_entries = 0;  // parametric curve (no table)
+        ch->parametric.g = 2.2f;
+        ch->parametric.a = 1.0f;
+        ch->parametric.b = 0.0f;
+        ch->parametric.c = 0.0f;
+        ch->parametric.d = 0.0f;
+        ch->parametric.e = 0.0f;
+        ch->parametric.f = 0.0f;
     }
 
     // Add A2B transform with table-based curves
@@ -534,14 +538,15 @@ DEF_TEST(RustIcc_profile_with_b2a, r) {
     rust_profile.to_xyzd50.vals[2][2] = 1.0f;
 
     rust_profile.has_trc = true;
-    for (int i = 0; i < 3; i++) {
-        rust_profile.trc[i].g = 2.2f;
-        rust_profile.trc[i].a = 1.0f;
-        rust_profile.trc[i].b = 0.0f;
-        rust_profile.trc[i].c = 0.0f;
-        rust_profile.trc[i].d = 0.0f;
-        rust_profile.trc[i].e = 0.0f;
-        rust_profile.trc[i].f = 0.0f;
+    for (auto* ch : {&rust_profile.trc_r, &rust_profile.trc_g, &rust_profile.trc_b}) {
+        ch->table_entries = 0;  // parametric curve (no table)
+        ch->parametric.g = 2.2f;
+        ch->parametric.a = 1.0f;
+        ch->parametric.b = 0.0f;
+        ch->parametric.c = 0.0f;
+        ch->parametric.d = 0.0f;
+        ch->parametric.e = 0.0f;
+        ch->parametric.f = 0.0f;
     }
 
     // Add B2A transform
@@ -728,10 +733,15 @@ static void compare_a2b_grid_data(
 
 DEF_TEST(RustIcc_equivalence_with_skcms_resource_files, r) {
     // List of ICC profile files in resources/icc_profiles.
-    // apng19.icc is an ICCv4 scanner profile with only A2B tags (no TRC/XYZ),
-    // including 256-entry M curve tables and 16-bit CLUT grid data.
-    // swapped.icc is an ICCv2 display profile with 1024-entry table TRC curves;
-    // it exercises ApproximateCurveWrapper's endianness fix.
+    // - apng19.icc is an ICCv4 scanner profile with only A2B tags (no TRC/XYZ),
+    //   including 256-entry M curve tables and 16-bit CLUT grid data.
+    // - swapped.icc is an ICCv2 display profile with 1024-entry table TRC curves;
+    //   exercises the TRC table pass-through path (raw big-endian bytes, no approximation).
+    // - mu_gray.icc is a GRAY/prtr printer profile with kTRC (256-entry curv) and
+    //   no colorant matrix; exercises the GRAY toXYZD50 synthesis path.
+    // - tiles.icc is the Apple RGB monitor profile (RGB/mntr, 1024-entry curv TRCs)
+    //   embedded in tiles.png, which is used by the svg/as-border-image Blink layout
+    //   test.  Same TRC structure as swapped.icc but a distinct profile.
     const char* icc_files[] = {
         "icc_profiles/AdobeRGB1998.icc",
         "icc_profiles/HP_Z32x.icc",
@@ -739,8 +749,12 @@ DEF_TEST(RustIcc_equivalence_with_skcms_resource_files, r) {
         "icc_profiles/srgb_lab_pcs.icc",
         "icc_profiles/upperLeft.icc",
         "icc_profiles/upperRight.icc",
+        // Files added after regressions found during development of the Rust parser, not covered
+        // by existing ICC profiles in Skia's resources:
         "icc_profiles/apng19.icc",
-        "icc_profiles/swapped.icc"
+        "icc_profiles/swapped.icc",
+        "icc_profiles/mu_gray.icc",
+        "icc_profiles/tiles.icc",
     };
 
     for (const char* path : icc_files) {
@@ -956,20 +970,15 @@ DEF_TEST(RustIcc_equivalence_with_skcms_resource_files, r) {
     }
 }
 
-// Regression test for the ApproximateCurveWrapper endianness bug.
+// Regression test for multi-entry TRC table pass-through.
 //
-// moxcms stores TRC curve entries as native-endian uint16_t values.  The
-// original ApproximateCurveWrapper cast them directly to uint8_t* for
-// skcms_Curve::table_16, which expects big-endian bytes.  On little-endian
-// platforms (x86 / ARM64) every byte pair was swapped, causing
-// skcms_ApproximateCurve to receive garbage data and return false, so the
-// Rust path produced has_trc=false for any display profile with a multi-entry
-// table TRC.  This caused profiles to be silently dropped and hundreds of
-// blink web tests to fail with wrong colours.
-//
-// swapped.icc is a real ICC v2 display profile with 1024-entry table TRCs
-// that exercises this exact path.
-DEF_TEST(RustIcc_trc_table_approximation_endianness, r) {
+// swapped.icc is a real ICC v2 display profile with 1024-entry curv TRCs.
+// The Rust bridge must pass the raw big-endian u16 table bytes through to
+// skcms unchanged (table_entries > 0, table_16 set) rather than approximating
+// the curve as a parametric function.  Passing the table exactly eliminates
+// the ±1 ULP rounding difference that previously caused a max_difference=1
+// pixel error across the entire image in svg/as-border-image.
+DEF_TEST(RustIcc_trc_table_passthrough, r) {
     auto data = GetResourceAsData("icc_profiles/swapped.icc");
     if (!data) {
         ERRORF(r, "Failed to load icc_profiles/swapped.icc");
@@ -985,9 +994,7 @@ DEF_TEST(RustIcc_trc_table_approximation_endianness, r) {
     REPORTER_ASSERT(r, skcms_prof.has_trc,
                     "skcms should report has_trc=true for swapped.icc");
 
-    // Rust/moxcms path: before the endianness fix this returned has_trc=false
-    // because ApproximateCurveWrapper received byte-swapped data and
-    // skcms_ApproximateCurve returned false for every channel.
+    // Rust/moxcms path: must expose the 1024-entry table TRC bit-exactly.
     auto rust_profile = SkCodecs::MakeICCProfileWithRust(data);
     if (!rust_profile) {
         ERRORF(r, "Rust ICC parser failed to parse swapped.icc");
@@ -997,15 +1004,14 @@ DEF_TEST(RustIcc_trc_table_approximation_endianness, r) {
 
     REPORTER_ASSERT(r, rp.has_trc,
                     "Rust ICC path must set has_trc=true for swapped.icc; "
-                    "failure indicates the ApproximateCurveWrapper endianness bug");
+                    "failure indicates the TRC table pass-through is broken");
 
     if (!rp.has_trc || !skcms_prof.has_trc) {
         return;
     }
 
-    // The Rust path approximates the table as a parametric curve; compare
-    // both against the skcms table by sampling at several input values.
-    // Allow 1% tolerance for the approximation error.
+    // The Rust path now passes the table through bit-exactly.  Both profiles
+    // should have table_entries > 0 and identical big-endian byte content.
     for (int c = 0; c < 3; ++c) {
         compare_curves_by_evaluation(r, "swapped.icc", "trc", c,
                                      rp.trc[c], skcms_prof.trc[c]);
