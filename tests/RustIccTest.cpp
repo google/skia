@@ -617,6 +617,25 @@ DEF_TEST(RustIcc_profile_with_b2a, r) {
 // Helper to compare two skcms_Curve objects by evaluating them at sample points.
 // Works for both parametric and table-based curves. For table curves, reads the
 // raw big-endian bytes the same way skcms_Transform would.
+// Evaluate a skcms_Curve at a normalised x in [0, 1].
+// Handles both parametric (table_entries == 0) and table-based curves
+// (table_16 stores big-endian uint16_t pairs).
+static float eval_skcms_curve(const skcms_Curve& c, float x) {
+    if (c.table_entries == 0) {
+        return skcms_TransferFunction_eval(&c.parametric, x);
+    }
+    x = x < 0.0f ? 0.0f : (x > 1.0f ? 1.0f : x);
+    float idx = x * (float)(c.table_entries - 1);
+    int lo = (int)idx;
+    int hi = lo + 1 < (int)c.table_entries ? lo + 1 : lo;
+    float frac = idx - (float)lo;
+    auto read16 = [&](int i) -> float {
+        uint16_t v = (uint16_t)((c.table_16[2*i] << 8) | c.table_16[2*i+1]);
+        return (float)v / 65535.0f;
+    };
+    return read16(lo) * (1.0f - frac) + read16(hi) * frac;
+}
+
 static void compare_curves_by_evaluation(
         skiatest::Reporter* r,
         const char* path,
@@ -630,30 +649,38 @@ static void compare_curves_by_evaluation(
                                   rust_curve.parametric, skcms_curve.parametric);
         return;
     }
-    // Both must have the same table_entries.
-    if (rust_curve.table_entries != skcms_curve.table_entries) {
-        ERRORF(r, "[%s] %s[%d].table_entries mismatch: rust=%u, skcms=%u",
-               path, stage, channel,
-               rust_curve.table_entries, skcms_curve.table_entries);
+    // If both are table-based with the same number of entries, compare bytes.
+    if (rust_curve.table_entries != 0 &&
+        rust_curve.table_entries == skcms_curve.table_entries) {
+        const uint32_t n = rust_curve.table_entries;
+        const uint8_t* rust_data  = rust_curve.table_16;
+        const uint8_t* skcms_data = skcms_curve.table_16;
+        if (!rust_data || !skcms_data) {
+            ERRORF(r, "[%s] %s[%d] null table_16 pointer", path, stage, channel);
+            return;
+        }
+        for (uint32_t i = 0; i < n; ++i) {
+            uint16_t rv = (uint16_t)(rust_data[2*i]  << 8 | rust_data[2*i+1]);
+            uint16_t sv = (uint16_t)(skcms_data[2*i] << 8 | skcms_data[2*i+1]);
+            if (rv != sv) {
+                ERRORF(r, "[%s] %s[%d] table entry %u mismatch: rust=%u, skcms=%u",
+                       path, stage, channel, i, rv, sv);
+                return;
+            }
+        }
         return;
     }
-    // Compare raw table bytes. Both should be big-endian u16 values.
-    // skcms table_16 points into the raw ICC buffer; Rust table_16 points
-    // into an owned Vec<u8>. Both must contain identical big-endian data.
-    const uint32_t n = rust_curve.table_entries;
-    const uint8_t* rust_data = rust_curve.table_16;
-    const uint8_t* skcms_data = skcms_curve.table_16;
-    if (!rust_data || !skcms_data) {
-        ERRORF(r, "[%s] %s[%d] null table_16 pointer", path, stage, channel);
-        return;
-    }
-    for (uint32_t i = 0; i < n; ++i) {
-        uint16_t rust_val  = (uint16_t)(rust_data[2*i] << 8 | rust_data[2*i+1]);
-        uint16_t skcms_val = (uint16_t)(skcms_data[2*i] << 8 | skcms_data[2*i+1]);
-        if (rust_val != skcms_val) {
-            ERRORF(r, "[%s] %s[%d] table entry %u mismatch: rust=%u, skcms=%u",
-                   path, stage, channel, i, rust_val, skcms_val);
-            return;  // Report first mismatch only.
+    // Mixed representation (e.g. Rust approximates table as parametric):
+    // compare by sampling both curves at several points with 1% tolerance.
+    static const float kSamples[] = {0.0f, 0.05f, 0.1f, 0.25f,
+                                     0.5f, 0.75f, 0.9f, 1.0f};
+    for (float x : kSamples) {
+        float rv = eval_skcms_curve(rust_curve,  x);
+        float sv = eval_skcms_curve(skcms_curve, x);
+        if (fabsf(rv - sv) > 0.01f) {
+            ERRORF(r, "[%s] %s[%d] curve eval mismatch at x=%.2f: rust=%f, skcms=%f",
+                   path, stage, channel, x, rv, sv);
+            return;
         }
     }
 }
@@ -671,6 +698,10 @@ static void compare_a2b_grid_data(
     }
     if (grid_size == 0) return;
 
+    if (!rust_a2b.grid_8 && !rust_a2b.grid_16 && !skcms_a2b.grid_8 && !skcms_a2b.grid_16) {
+        // Both parsers found no CLUT - consistent, no error.
+        return;
+    }
     if (rust_a2b.grid_16 && skcms_a2b.grid_16) {
         // 16-bit grid: compare big-endian bytes
         for (uint64_t i = 0; i < grid_size; ++i) {
@@ -690,7 +721,7 @@ static void compare_a2b_grid_data(
             ERRORF(r, "[%s] A2B grid_8 data mismatch", path);
         }
     } else {
-        // One is 8-bit and the other is 16-bit
+        // One parser has grid data, the other doesn't, or they use mismatched formats.
         ERRORF(r, "[%s] A2B grid format mismatch (8 vs 16 bit)", path);
     }
 }
@@ -699,6 +730,8 @@ DEF_TEST(RustIcc_equivalence_with_skcms_resource_files, r) {
     // List of ICC profile files in resources/icc_profiles.
     // apng19.icc is an ICCv4 scanner profile with only A2B tags (no TRC/XYZ),
     // including 256-entry M curve tables and 16-bit CLUT grid data.
+    // swapped.icc is an ICCv2 display profile with 1024-entry table TRC curves;
+    // it exercises ApproximateCurveWrapper's endianness fix.
     const char* icc_files[] = {
         "icc_profiles/AdobeRGB1998.icc",
         "icc_profiles/HP_Z32x.icc",
@@ -706,7 +739,8 @@ DEF_TEST(RustIcc_equivalence_with_skcms_resource_files, r) {
         "icc_profiles/srgb_lab_pcs.icc",
         "icc_profiles/upperLeft.icc",
         "icc_profiles/upperRight.icc",
-        "icc_profiles/apng19.icc"
+        "icc_profiles/apng19.icc",
+        "icc_profiles/swapped.icc"
     };
 
     for (const char* path : icc_files) {
@@ -747,22 +781,19 @@ DEF_TEST(RustIcc_equivalence_with_skcms_resource_files, r) {
             }
         }
 
-        // Compare has_trc and transfer functions
+        // Compare has_trc and transfer functions.
+        // Note: the Rust path approximates multi-entry table TRC curves as
+        // parametric functions via skcms_ApproximateCurve, so trc[c].table_entries
+        // may be 0 in the Rust profile and non-zero in the skcms profile.  Use
+        // compare_curves_by_evaluation which handles both representations.
         if (rust.has_trc != skcms.has_trc) {
             ERRORF(r, "[%s] has_trc mismatch: rust=%d, skcms=%d",
                    path, rust.has_trc, skcms.has_trc);
         }
         if (rust.has_trc && skcms.has_trc) {
             for (int c = 0; c < 3; ++c) {
-                if (rust.trc[c].table_entries != skcms.trc[c].table_entries) {
-                    ERRORF(r, "[%s] trc[%d].table_entries mismatch: rust=%u, skcms=%u",
-                           path, c, rust.trc[c].table_entries, skcms.trc[c].table_entries);
-                    continue;
-                }
-                if (rust.trc[c].table_entries == 0 && skcms.trc[c].table_entries == 0) {
-                    // Parametric - compare transfer function parameters
-                    compare_transfer_functions(r, path, c, rust.trc[c].parametric, skcms.trc[c].parametric);
-                }
+                compare_curves_by_evaluation(r, path, "trc", c,
+                                             rust.trc[c], skcms.trc[c]);
             }
         }
 
@@ -922,5 +953,61 @@ DEF_TEST(RustIcc_equivalence_with_skcms_resource_files, r) {
                                              skcms.B2A.output_curves[i]);
             }
         }
+    }
+}
+
+// Regression test for the ApproximateCurveWrapper endianness bug.
+//
+// moxcms stores TRC curve entries as native-endian uint16_t values.  The
+// original ApproximateCurveWrapper cast them directly to uint8_t* for
+// skcms_Curve::table_16, which expects big-endian bytes.  On little-endian
+// platforms (x86 / ARM64) every byte pair was swapped, causing
+// skcms_ApproximateCurve to receive garbage data and return false, so the
+// Rust path produced has_trc=false for any display profile with a multi-entry
+// table TRC.  This caused profiles to be silently dropped and hundreds of
+// blink web tests to fail with wrong colours.
+//
+// swapped.icc is a real ICC v2 display profile with 1024-entry table TRCs
+// that exercises this exact path.
+DEF_TEST(RustIcc_trc_table_approximation_endianness, r) {
+    auto data = GetResourceAsData("icc_profiles/swapped.icc");
+    if (!data) {
+        ERRORF(r, "Failed to load icc_profiles/swapped.icc");
+        return;
+    }
+
+    // skcms reference: must parse and expose table-based TRC.
+    skcms_ICCProfile skcms_prof;
+    if (!skcms_Parse(data->data(), data->size(), &skcms_prof)) {
+        ERRORF(r, "skcms_Parse failed on swapped.icc");
+        return;
+    }
+    REPORTER_ASSERT(r, skcms_prof.has_trc,
+                    "skcms should report has_trc=true for swapped.icc");
+
+    // Rust/moxcms path: before the endianness fix this returned has_trc=false
+    // because ApproximateCurveWrapper received byte-swapped data and
+    // skcms_ApproximateCurve returned false for every channel.
+    auto rust_profile = SkCodecs::MakeICCProfileWithRust(data);
+    if (!rust_profile) {
+        ERRORF(r, "Rust ICC parser failed to parse swapped.icc");
+        return;
+    }
+    const skcms_ICCProfile& rp = *rust_profile->profile();
+
+    REPORTER_ASSERT(r, rp.has_trc,
+                    "Rust ICC path must set has_trc=true for swapped.icc; "
+                    "failure indicates the ApproximateCurveWrapper endianness bug");
+
+    if (!rp.has_trc || !skcms_prof.has_trc) {
+        return;
+    }
+
+    // The Rust path approximates the table as a parametric curve; compare
+    // both against the skcms table by sampling at several input values.
+    // Allow 1% tolerance for the approximation error.
+    for (int c = 0; c < 3; ++c) {
+        compare_curves_by_evaluation(r, "swapped.icc", "trc", c,
+                                     rp.trc[c], skcms_prof.trc[c]);
     }
 }

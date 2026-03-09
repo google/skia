@@ -13,6 +13,7 @@
 #include <cstddef>
 #include <cstring>
 #include <type_traits>
+#include <vector>
 
 namespace rust_icc {
 
@@ -23,12 +24,23 @@ bool ApproximateCurveWrapper(rust::Slice<const uint16_t> table,
         return false;
     }
 
+    // moxcms stores TRC curve entries as native-endian uint16_t values
+    // (read via u16::from_be_bytes in the Rust reader).  skcms_Curve::table_16
+    // expects big-endian packed bytes (two bytes per entry, most-significant
+    // byte first).  Convert here so that skcms_ApproximateCurve receives
+    // correctly-ordered data on little-endian platforms.
+    std::vector<uint8_t> be_bytes(table.size() * 2);
+    for (size_t i = 0; i < table.size(); ++i) {
+        be_bytes[2 * i]     = static_cast<uint8_t>(table[i] >> 8);
+        be_bytes[2 * i + 1] = static_cast<uint8_t>(table[i] & 0xFF);
+    }
+
     // Construct skcms_Curve for the table
     skcms_Curve curve;
     memset(&curve, 0, sizeof(skcms_Curve));
     curve.table_entries = static_cast<uint32_t>(table.size());
     curve.table_8 = nullptr;
-    curve.table_16 = reinterpret_cast<const uint8_t*>(table.data());
+    curve.table_16 = be_bytes.data();
 
     // Call skcms_ApproximateCurve (signature verified at compile time)
     skcms_TransferFunction skcms_approx;
@@ -124,10 +136,12 @@ static bool ToSkcmsA2B(const rust_icc::A2B& rust_a2b, skcms_A2B* out_skcms) {
         return false;
     }
     memcpy(out_skcms->grid_points, rust_a2b.grid_points.data(), 4);
-    if (rust_a2b.is_16bit_grid) {
-        out_skcms->grid_16 = rust_a2b.grid_data.data();
-    } else {
-        out_skcms->grid_8 = rust_a2b.grid_data.data();
+    if (!rust_a2b.grid_data.empty()) {
+        if (rust_a2b.is_16bit_grid) {
+            out_skcms->grid_16 = rust_a2b.grid_data.data();
+        } else {
+            out_skcms->grid_8 = rust_a2b.grid_data.data();
+        }
     }
 
     // Matrix curves and matrix
@@ -236,10 +250,12 @@ static bool ToSkcmsB2A(const rust_icc::B2A& rust_b2a, skcms_B2A* out_skcms) {
         return false;
     }
     memcpy(out_skcms->grid_points, rust_b2a.grid_points.data(), 4);
-    if (rust_b2a.is_16bit_grid) {
-        out_skcms->grid_16 = rust_b2a.grid_data.data();
-    } else {
-        out_skcms->grid_8 = rust_b2a.grid_data.data();
+    if (!rust_b2a.grid_data.empty()) {
+        if (rust_b2a.is_16bit_grid) {
+            out_skcms->grid_16 = rust_b2a.grid_data.data();
+        } else {
+            out_skcms->grid_8 = rust_b2a.grid_data.data();
+        }
     }
 
     // Output curves
