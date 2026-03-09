@@ -315,7 +315,9 @@ TextureProxyView MakeBitmapProxyView(Recorder* recorder,
     if (!proxy) {
         return {};
     }
-    SkASSERT(caps->areColorTypeAndTextureInfoCompatible(ct, proxy->textureInfo()));
+
+    const TextureFormat format = TextureInfoPriv::ViewFormat(proxy->textureInfo());
+    SkASSERT(AreColorTypeAndFormatCompatible(ct, format));
     SkASSERT(mipmapped == Mipmapped::kNo || proxy->mipmapped() == Mipmapped::kYes);
 
     // Src and dst colorInfo are the same
@@ -341,8 +343,7 @@ TextureProxyView MakeBitmapProxyView(Recorder* recorder,
         return {};
     }
 
-    const Swizzle swizzle = ReadSwizzleForColorType(
-            ct, TextureInfoPriv::ViewFormat(proxy->textureInfo()));
+    const Swizzle swizzle = ReadSwizzleForColorType(ct, format);
     return {std::move(proxy), swizzle};
 }
 
@@ -576,7 +577,8 @@ bool GenerateMipmaps(Recorder* recorder, DrawContext* drawContext, sk_sp<Texture
     // filtering shader that sampled the base level several times with nearest filtering, convert
     // each sample to linear+premul space, average them, and then convert that to the source color
     // space and alpha type.
-    SkColorType colorType = recorder->priv().caps()->getDefaultColorType(texture->textureInfo());
+    auto [colorType, _] =
+            TextureFormatColorTypeInfo(TextureInfoPriv::ViewFormat(texture->textureInfo()));
     SkColorInfo colorInfo{colorType, kOpaque_SkAlphaType, /*cs=*/nullptr};
     // Since we are creating the color info from the default color type for the texture format,
     // it should match what we'd expect from make_renderable already.

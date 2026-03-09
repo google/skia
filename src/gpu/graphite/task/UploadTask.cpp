@@ -104,7 +104,8 @@ UploadSource UploadSource::Make(const Caps* caps,
     const TextureInfo& texInfo = textureProxy.textureInfo();
 
     SkASSERT(caps->isTexturable(texInfo));
-    SkASSERT(caps->areColorTypeAndTextureInfoCompatible(dstColorInfo.colorType(), texInfo));
+    SkASSERT(AreColorTypeAndFormatCompatible(dstColorInfo.colorType(),
+                                             TextureInfoPriv::ViewFormat(texInfo)));
 
     unsigned int mipLevelCount = levels.size();
     // The assumption is either that we have no mipmaps, or that our rect is the entire texture

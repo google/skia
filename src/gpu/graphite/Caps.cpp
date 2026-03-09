@@ -314,13 +314,6 @@ TextureInfo Caps::getDefaultStorageTextureInfo(SkColorType colorType) const {
                                        Discardable::kNo);
 }
 
-bool Caps::areColorTypeAndTextureInfoCompatible(SkColorType ct, const TextureInfo& info) const {
-    // TODO: add SkTextureCompressionType handling
-    // (can be handled by setting up the colorTypeInfo instead?)
-
-    return SkToBool(this->getColorTypeInfo(ct, info));
-}
-
 const Caps::ColorTypeInfo* Caps::getColorTypeInfo(SkColorType ct, const TextureInfo& info) const {
     if (!info.isValid()) {
         return nullptr;
@@ -332,20 +325,6 @@ const Caps::ColorTypeInfo* Caps::getColorTypeInfo(SkColorType ct, const TextureI
         }
     }
     return nullptr;
-}
-
-SkColorType Caps::getDefaultColorType(const TextureInfo& info) const {
-    if (!info.isValid()) {
-        return kUnknown_SkColorType;
-    }
-
-    const bool isRenderable = this->isRenderable(info);
-    for (const ColorTypeInfo& colorInfo : this->getColorTypeInfos(info)) {
-        if (!isRenderable || (colorInfo.fFlags & ColorTypeInfo::kRenderable_Flag)) {
-            return colorInfo.fColorType;
-        }
-    }
-    return kUnknown_SkColorType;
 }
 
 SampleCount Caps::getCompatibleMSAASampleCount(const TextureInfo& info) const {

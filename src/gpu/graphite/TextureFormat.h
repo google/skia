@@ -10,6 +10,7 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTextureCompressionType.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/gpu/Swizzle.h"
 
 #include <stddef.h>
@@ -175,11 +176,37 @@ Swizzle ReadSwizzleForColorType(SkColorType, TextureFormat);
 // and TextureInfo. If the returned optional is empty, it means the color type cannot be rendered to
 std::optional<Swizzle> WriteSwizzleForColorType(SkColorType, TextureFormat);
 
-// Formats are ordered from most preferred to least based on the policies described above in
-// TextureFormat. These must still be filtered by support for a given Caps. A TextureFormat that
-// can used with the provided SkColorType is not necessarily included in this list, e.g. we often
-// allow BGR vs RGB mismatches between CPU and GPU layouts if that's what the client provides.
+// Formats are ordered from most preferred to least based on the policies described above. These
+// must still be filtered by support for a given Caps.
 SkSpan<const TextureFormat> PreferredTextureFormats(SkColorType);
+
+// Extra operations that must be applied to CPU data to make it exactly match the SkColorType
+enum class FormatXferOp {
+    kIdentity  = 0x0, // No extra conversion needed to copy between color type and texture format
+    kSwapRB    = 0x1, // No SkColorType matches the channel ordering, so swap RB on read or write
+    kDropAlpha = 0x2, // No alpha channel in the format but SkColorType expects it so drop or pad
+    kDisabled  = 0x4, // No SkColorType can represent the CPU data, transfers are disabled
+};
+SK_MAKE_BITMASK_OPS(FormatXferOp)
+
+// Returns the best SkColorType matching the TextureFormat. This is the color type to use in
+// SkImageInfos for the Images wrapping textures with the given format (barring any modification to
+// handle alpha-only color type requests). If this returns kUnknown_SkColorType, then the texture
+// cannot be represented as an SkImage.
+//
+// Additionally, this returns any extra data manipulation that must be performed to make the
+// texture's data exactly match the SkColorType (either before uploading into the texture, or
+// following readback before invoking client callbacks). If this includes kDisabled, it means read
+// and write operations in terms of SkColorType are not allowed. The returned SkColorType in this
+// case represents a best-fit for any SkImageInfo, but is otherwise a GPU-only image.
+//
+// Lastly, when performing a readback operation on a texture, its read swizzle must also be applied.
+std::pair<SkColorType, SkEnumBitMask<FormatXferOp>> TextureFormatColorTypeInfo(TextureFormat);
+
+// Returns whether or not the color type is compatible with the TextureFormat, which returns true
+// if the color type has the same data type as that returned from TextureFormatColorTypeInfo()
+// and any other differences in channel definition are handled by HW or by ReadSwizzleForColorType()
+bool AreColorTypeAndFormatCompatible(SkColorType, TextureFormat);
 
 } // namespace skgpu::graphite
 

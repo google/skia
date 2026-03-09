@@ -419,7 +419,8 @@ std::optional<skgpu::Swizzle> WriteSwizzleForColorType(SkColorType ct, TextureFo
             return Swizzle::RGBA();
         }
     } else {
-        if ((colorChannels != formatChannels) || (colorChannels & kGray_SkColorChannelFlag)) {
+        if (((colorChannels & formatChannels) != formatChannels) ||
+            (colorChannels & kGray_SkColorChannelFlag)) {
             return std::nullopt;
         }
         return Swizzle::RGBA();
@@ -440,6 +441,7 @@ SkSpan<const TextureFormat> PreferredTextureFormats(SkColorType ct) {
         // format variations to maximize color types that have some format. For alpha-only color
         // types, we only match to red-channel formats as they have the broadest support.
 
+        //   SkColorType                    | TextureFormat(s)...
         CASE(kAlpha_8_SkColorType,            TF::kR8)
         // NOTE: kRGB_565_SkColorType is misnamed and natively matches B5_G6_R5
         CASE(kRGB_565_SkColorType,            TF::kB5_G6_R5,   TF::kR5_G6_B5)
@@ -475,6 +477,99 @@ SkSpan<const TextureFormat> PreferredTextureFormats(SkColorType ct) {
     SkUNREACHABLE;
     #undef CASE
     #undef N
+}
+
+std::pair<SkColorType, SkEnumBitMask<FormatXferOp>>
+TextureFormatColorTypeInfo(TextureFormat format) {
+    #define CASE(TF, CT, Ops) case TF: return {CT, Ops};
+    using X = FormatXferOp;
+
+    switch (format) {
+        //   TextureFormat      | SkColorType                    | FormatXferOp(s)
+        CASE(TF::kUnsupported,    kUnknown_SkColorType,            X::kDisabled)
+
+        CASE(TF::kR8,             kR8_unorm_SkColorType,           X::kIdentity)
+        CASE(TF::kR16,            kR16_unorm_SkColorType,          X::kIdentity)
+        CASE(TF::kR16F,           kA16_float_SkColorType,          X::kIdentity)
+        CASE(TF::kR32F,           kA16_float_SkColorType,          X::kDisabled)
+        CASE(TF::kA8,             kAlpha_8_SkColorType,            X::kIdentity)
+        CASE(TF::kRG8,            kR8G8_unorm_SkColorType,         X::kIdentity)
+        CASE(TF::kRG16,           kR16G16_unorm_SkColorType,       X::kIdentity)
+        CASE(TF::kRG16F,          kR16G16_float_SkColorType,       X::kIdentity)
+        CASE(TF::kRG32F,          kR16G16_float_SkColorType,       X::kDisabled)
+        CASE(TF::kRGB8,           kRGB_888x_SkColorType,           X::kDropAlpha)
+        CASE(TF::kBGR8,           kRGB_888x_SkColorType,           X::kSwapRB | X::kDropAlpha)
+        // NOTE: kRGB_565_SkColorType is misnamed and natively matches TextureFormat::kB5_G6_R5
+        CASE(TF::kB5_G6_R5,       kRGB_565_SkColorType,            X::kIdentity)
+        CASE(TF::kR5_G6_B5,       kRGB_565_SkColorType,            X::kSwapRB)
+        CASE(TF::kRGB16,          kR16G16B16A16_unorm_SkColorType, X::kDropAlpha)
+        CASE(TF::kRGB16F,         kRGB_F16F16F16x_SkColorType,     X::kDropAlpha)
+        CASE(TF::kRGB32F,         kRGBA_F32_SkColorType,           X::kDropAlpha)
+        CASE(TF::kRGB8_sRGB,      kSRGBA_8888_SkColorType,         X::kDropAlpha)
+        CASE(TF::kBGR10_XR,       kBGR_101010x_XR_SkColorType,     X::kIdentity)
+        CASE(TF::kRGBA8,          kRGBA_8888_SkColorType,          X::kIdentity)
+        CASE(TF::kRGBA16,         kR16G16B16A16_unorm_SkColorType, X::kIdentity)
+        CASE(TF::kRGBA16F,        kRGBA_F16_SkColorType,           X::kIdentity)
+        CASE(TF::kRGBA32F,        kRGBA_F32_SkColorType,           X::kIdentity)
+        CASE(TF::kRGB10_A2,       kRGBA_1010102_SkColorType,       X::kIdentity)
+        CASE(TF::kRGBA10x6,       kRGBA_10x6_SkColorType,          X::kIdentity)
+        CASE(TF::kRGBA8_sRGB,     kSRGBA_8888_SkColorType,         X::kIdentity)
+        CASE(TF::kBGRA8,          kBGRA_8888_SkColorType,          X::kIdentity)
+        CASE(TF::kBGR10_A2,       kBGRA_1010102_SkColorType,       X::kIdentity)
+        CASE(TF::kBGRA8_sRGB,     kSRGBA_8888_SkColorType,         X::kSwapRB)
+        // NOTE: kARGB_4444_SkColorType is misnamed and natively matches TextureFormat::kABGR4
+        CASE(TF::kABGR4,          kARGB_4444_SkColorType,          X::kIdentity)
+        CASE(TF::kARGB4,          kARGB_4444_SkColorType,          X::kSwapRB)
+        CASE(TF::kBGRA10x6_XR,    kBGRA_10101010_XR_SkColorType,   X::kIdentity)
+
+        // Compressed, multi-planar, and external formats can't exactly describe their data as
+        // an SkColorType (although transfers with specialized data could be allowed).
+        CASE(TF::kRGB8_ETC2,      kRGB_888x_SkColorType,           X::kDisabled)
+        CASE(TF::kRGB8_ETC2_sRGB, kSRGBA_8888_SkColorType,         X::kDisabled)
+        CASE(TF::kRGB8_BC1,       kRGB_888x_SkColorType,           X::kDisabled)
+        CASE(TF::kRGBA8_BC1,      kRGBA_8888_SkColorType,          X::kDisabled)
+        CASE(TF::kRGBA8_BC1_sRGB, kSRGBA_8888_SkColorType,         X::kDisabled)
+        CASE(TF::kYUV8_P2_420,    kRGB_888x_SkColorType,           X::kDisabled)
+        CASE(TF::kYUV8_P3_420,    kRGB_888x_SkColorType,           X::kDisabled)
+        CASE(TF::kYUV10x6_P2_420, kRGBA_10x6_SkColorType,          X::kDisabled)
+        CASE(TF::kExternal,       kRGBA_8888_SkColorType,          X::kDisabled)
+
+        // Non color texture formats can't be used with SkColorType
+        CASE(TF::kS8,             kUnknown_SkColorType,            X::kDisabled)
+        CASE(TF::kD16,            kUnknown_SkColorType,            X::kDisabled)
+        CASE(TF::kD32F,           kUnknown_SkColorType,            X::kDisabled)
+        CASE(TF::kD24_S8,         kUnknown_SkColorType,            X::kDisabled)
+        CASE(TF::kD32F_S8,        kUnknown_SkColorType,            X::kDisabled)
+    }
+
+    SkUNREACHABLE;
+    #undef CASE
+}
+
+bool AreColorTypeAndFormatCompatible(SkColorType targetColorType, TextureFormat format) {
+    // If the format maps to the color type, they are compatible
+    auto [baseColorType, _] = TextureFormatColorTypeInfo(format);
+    if (baseColorType != kUnknown_SkColorType && baseColorType == targetColorType) {
+        return true; // shortcut
+    }
+
+    // If the color type could map to the format, they are compatible
+    for (TextureFormat preferred : PreferredTextureFormats(targetColorType)) {
+        if (preferred == format) {
+            return true;
+        }
+    }
+
+    // Also allow kRGB_888x if kRGBA_8888 is compatible since RGBx is just a swizzle. This is almost
+    // always handled by the combination of base color type and preferred formats, but for external
+    // and compressed formats those two functions aren't quite descriptive enough.
+    if (targetColorType == kRGB_888x_SkColorType &&
+        AreColorTypeAndFormatCompatible(kRGBA_8888_SkColorType, format)) {
+        return true;
+    }
+
+    // Otherwise consider them incompatible
+    return false;
 }
 
 } // namespace skgpu::graphite
