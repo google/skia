@@ -67,28 +67,12 @@ struct SingleDraw {
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(SingleDraw);
 };
 
-struct DepthDraw {
-    DepthDraw(const LayerKey& key,
-              const RenderStep* step,
-              const DrawParams* drawParams,
-              const UniformDataCache::Index uniformIndex)
-            : fKey(key), fStep(step), fDrawParams(drawParams), fUniformIndex(uniformIndex) {}
-
-    const LayerKey fKey;
-    const RenderStep* fStep;
-    const DrawParams* fDrawParams;
-    const UniformDataCache::Index fUniformIndex;
-
-    SK_DECLARE_INTERNAL_LLIST_INTERFACE(DepthDraw);
-};
-
 struct StencilDraws {
     StencilDraws(const LayerKey& key, const RenderStep* step) : fKey(key), fStep(step) {}
 
+    SkTInternalLList<SingleDraw> fDraws;
     const LayerKey fKey;
     const RenderStep* fStep;
-    SkTInternalLList<SingleDraw> fDraws;
-
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(StencilDraws);
 };
 
@@ -113,17 +97,10 @@ struct StencilDrawList : public BindingWrapper {
     SkTInternalLList<StencilDraws> fStencilDraws;
 };
 
-struct DepthDrawList {
-    Rect fBounds = Rect::InfiniteInverted();
-    bool fIsStencil = false;
-    SkTInternalLList<DepthDraw> fDraws;
-};
-
 struct Layer {
     Layer(const CompressedPaintersOrder& order) : fOrder(order) {}
 
     const CompressedPaintersOrder fOrder;
-    DepthDrawList* fDepthInfo = nullptr;
     SkTInternalLList<BindingWrapper> fBindings;
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(Layer);
 
@@ -139,28 +116,7 @@ struct Layer {
         return nullptr;
     }
 
-    SK_ALWAYS_INLINE
-    BoundsTest depthOnlyTest(const Rect& drawBounds, const LayerKey& key, bool disjointStencil,
-                             bool requiresBarrier) {
-        // Can depth only draws ever require a barrier?
-        if (requiresBarrier || (disjointStencil && fDepthInfo && fDepthInfo->fIsStencil)) {
-            if (fDepthInfo->fBounds.intersects(drawBounds)) {
-                return BoundsTest::kIncompatibleOverlap;
-            }
-        }
-
-        // Depth only draws are treated as though they are always dependsOnDst with non-depth draws,
-        // so they are not allowed to overlap, regardless of requiresBarrier
-        for (BindingWrapper* list : fBindings) {
-            if (list->fBounds.intersects(drawBounds)) {
-                return BoundsTest::kIncompatibleOverlap;
-            }
-        }
-
-        return BoundsTest::kCompatibleOverlap;
-    }
-
-    template <bool kIsStencil>
+    template <bool kIsStencil, bool kIsDepthOnly = false>
     SK_ALWAYS_INLINE std::pair<BoundsTest, BindingWrapper*> test(const Rect& drawBounds,
                                                                  const LayerKey& key,
                                                                  bool requiresBarrier) {
@@ -171,12 +127,6 @@ struct Layer {
                     if (single->fKey == key) {
                         return {BoundsTest::kCompatibleOverlap, fBindings.head()};
                     }
-                }
-            }
-        } else {
-            if (fDepthInfo && fDepthInfo->fIsStencil) {
-                if (fDepthInfo->fBounds.intersects(drawBounds)) {
-                    return {BoundsTest::kIncompatibleOverlap, nullptr};
                 }
             }
         }
@@ -198,7 +148,12 @@ struct Layer {
                     SingleDrawList* single = static_cast<SingleDrawList*>(list);
                     if (single->fKey == key) {
                         foundMatch = list;
-                        if (!requiresBarrier) continue;
+                        // If it's a depth only draw, its ok to overlap with itself. If it wasn't a
+                        // depth only draw, it shouldn't be able to match on the key. For safety
+                        // statically check anyways.
+                        if constexpr (!kIsDepthOnly) {
+                            if (!requiresBarrier) continue;
+                        }
                     }
                 }
             }
@@ -211,23 +166,13 @@ struct Layer {
         return {foundMatch ? BoundsTest::kCompatibleOverlap : BoundsTest::kDisjoint, foundMatch};
     }
 
-    SK_ALWAYS_INLINE
-    void addDepthOnlyDraw(SkArenaAllocWithReset* alloc,
-                          DepthDraw* deferredDraw,
-                          bool disjointStencil) {
-        if (!fDepthInfo) {
-            fDepthInfo = alloc->make<DepthDrawList>();
-        }
-        fDepthInfo->fDraws.addToTail(deferredDraw);
-        fDepthInfo->fBounds.join(deferredDraw->fDrawParams->drawBounds());
-    }
-
-    void add(SkArenaAllocWithReset* alloc,
-             BindingWrapper* match,
-             const LayerKey& key,
-             SingleDraw* draw,
-             const RenderStep* step,
-             bool insertBefore) {
+    template <bool kIsDepthOnly = false>
+    SK_ALWAYS_INLINE void add(SkArenaAllocWithReset* alloc,
+                              BindingWrapper* match,
+                              const LayerKey& key,
+                              SingleDraw* draw,
+                              const RenderStep* step,
+                              bool insertBefore) {
         SingleDrawList* single;
         if (match) {
             single = static_cast<SingleDrawList*>(match);
@@ -237,7 +182,11 @@ struct Layer {
             single->fKey = key;
             single->fStep = const_cast<RenderStep*>(step);
             single->fBounds = draw->fDrawParams->drawBounds();
-            fBindings.addToTail(single);
+            if constexpr (kIsDepthOnly) {
+                fBindings.addToHead(single);
+            } else {
+                fBindings.addToTail(single);
+            }
         }
 
         if (insertBefore) {
@@ -247,6 +196,7 @@ struct Layer {
         }
     }
 
+    template <bool kIsDepthOnly = false>
     void addStencil(SkArenaAllocWithReset* alloc,
                     BindingWrapper*& match,
                     const LayerKey& key,
@@ -263,7 +213,11 @@ struct Layer {
         } else {
             stencil = alloc->make<StencilDrawList>(BindingListType::kStencil);
             stencil->fBounds = draw->fDrawParams->drawBounds();
-            fBindings.addToTail(stencil);
+            if constexpr (kIsDepthOnly) {
+                fBindings.addToHead(stencil);
+            } else {
+                fBindings.addToTail(stencil);
+            }
             match = stencil;
         }
 
