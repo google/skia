@@ -10,6 +10,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
 #include "src/base/SkEndian.h"
+#include "src/base/SkSafeMath.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkJpegConstants.h"
 #include "src/codec/SkJpegSegmentScan.h"
@@ -127,7 +128,9 @@ std::unique_ptr<SkJpegMultiPictureParameters> SkJpegMultiPictureParameters::Make
                     SkCodecPrintf("MP entries data could not be extracted.\n");
                     return nullptr;
                 }
-                if (mpEntriesData->size() != kMPEntrySize * numberOfImages) {
+                SkSafeMath expectedSizeSafe;
+                const size_t expectedSize = expectedSizeSafe.mul(kMPEntrySize, numberOfImages);
+                if (!expectedSizeSafe.ok() || mpEntriesData->size() != expectedSize) {
                     SkCodecPrintf("MP entries data should be %ux%u bytes, was %u.\n",
                                   kMPEntrySize,
                                   numberOfImages,
@@ -179,10 +182,14 @@ std::unique_ptr<SkJpegMultiPictureParameters> SkJpegMultiPictureParameters::Make
 
     // Parse the MP Entries data.
     for (uint32_t i = 0; i < numberOfImages; ++i) {
-        const uint8_t* mpEntryData = mpEntriesData->bytes() + kMPEntrySize * i;
-        const uint32_t attribute = SkCodecPriv::GetEndianInt(mpEntryData + 0, littleEndian);
-        const uint32_t size = SkCodecPriv::GetEndianInt(mpEntryData + 4, littleEndian);
-        const uint32_t dataOffset = SkCodecPriv::GetEndianInt(mpEntryData + 8, littleEndian);
+        const auto mpEntry = SkData::MakeSubset(mpEntriesData.get(), kMPEntrySize * i, kMPEntrySize);
+        if (!mpEntry) {
+            SkCodecPrintf("MP Entry data unavailable\n");
+            return nullptr;
+        }
+        const uint32_t attribute = SkCodecPriv::GetEndianInt(mpEntry->bytes() + 0, littleEndian);
+        const uint32_t size = SkCodecPriv::GetEndianInt(mpEntry->bytes() + 4, littleEndian);
+        const uint32_t dataOffset = SkCodecPriv::GetEndianInt(mpEntry->bytes() + 8, littleEndian);
 
         const bool isPrimary =
                 (attribute & kMPEntryAttributeTypeMask) == kMPEntryAttributeTypePrimary;
