@@ -261,8 +261,7 @@ DrawAtlas::ErrorCode TextAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
     }
     SkASSERT(glyph != nullptr);
 
-    MaskFormat glyphFormat = sktext::gpu::FormatFromSkGlyph(skGlyph.maskFormat());
-    MaskFormat expectedMaskFormat = this->resolveMaskFormat(glyphFormat);
+    MaskFormat expectedMaskFormat = this->resolveMaskFormat(glyph->fGlyphEntryKey.fFormat);
     int bytesPerPixel = MaskFormatBytesPerPixel(expectedMaskFormat);
 
     int padding;
