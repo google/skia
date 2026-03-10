@@ -1838,7 +1838,19 @@ EMSCRIPTEN_BINDINGS(Skia) {
                           j.set("ascent", fm.fAscent);
                           j.set("descent", fm.fDescent);
                           j.set("leading", fm.fLeading);
-                          if (!(fm.fFlags & SkFontMetrics::kBoundsInvalid_Flag)) {
+                          if (SkScalar thickness; fm.hasUnderlineThickness(&thickness)) {
+                              j.set("underlineThickness", thickness);
+                          }
+                          if (SkScalar position; fm.hasUnderlinePosition(&position)) {
+                              j.set("underlinePosition", position);
+                          }
+                          if (SkScalar thickness; fm.hasStrikeoutThickness(&thickness)) {
+                              j.set("strikeoutThickness", thickness);
+                          }
+                          if (SkScalar position; fm.hasStrikeoutPosition(&position)) {
+                              j.set("strikeoutPosition", position);
+                          }
+                          if (fm.hasBounds()) {
                               const float rect[] = {fm.fXMin, fm.fTop, fm.fXMax, fm.fBottom};
                               j.set("bounds", MakeTypedArray(4, rect));
                           }

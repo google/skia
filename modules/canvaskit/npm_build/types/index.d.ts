@@ -1924,6 +1924,10 @@ export interface FontMetrics {
     ascent: number;     // suggested space above the baseline. < 0
     descent: number;    // suggested space below the baseline. > 0
     leading: number;    // suggested spacing between descent of previous line and ascent of next line.
+    underlineThickness?: number; // underline thickness
+    underlinePosition?: number;  // distance from baseline to top of stroke, typically positive
+    strikeoutThickness?: number; // strikeout thickness
+    strikeoutPosition?: number;  // distance from baseline to bottom of stroke, typically negative
     bounds?: Rect;      // smallest rect containing all glyphs (relative to 0,0)
 }
 
