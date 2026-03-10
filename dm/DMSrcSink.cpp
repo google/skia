@@ -1484,7 +1484,8 @@ Result MSKPSrc::draw(int i, SkCanvas* canvas, GraphiteTestContext*) const {
         if (!stream) {
             return Result::Fatal("Unable to open file: %s", fPath.c_str());
         }
-        if (!SkMultiPictureDocument::Read(stream.get(), &fPages[0], fPages.size())) {
+        SkDeserialProcs dprocs = ToolUtils::get_default_skp_deserial_procs();
+        if (!SkMultiPictureDocument::Read(stream.get(), &fPages[0], fPages.size(), &dprocs)) {
             return Result::Fatal("SkMultiPictureDocument reader failed on page %d: %s", i,
                                  fPath.c_str());
         }
