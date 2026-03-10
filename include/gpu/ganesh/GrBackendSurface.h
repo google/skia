@@ -12,13 +12,11 @@
 #include "include/core/SkSize.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/GrTypes.h"
-#include "include/gpu/ganesh/mock/GrMockTypes.h"
 #include "include/private/base/SkAPI.h"
 #include "include/private/base/SkAnySubclass.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 
-enum class SkTextureCompressionType;
 class GrBackendFormatData;
 class GrBackendTextureData;
 class GrBackendRenderTargetData;
@@ -70,26 +68,7 @@ public:
     SkString toStr() const;
 #endif
 
-#if !defined(SK_DISABLE_LEGACY_MOCK_BACKENDSURFACE)
-public:
-#else
 private:
-#endif
-    static GrBackendFormat MakeMock(GrColorType colorType,
-                                    SkTextureCompressionType compression,
-                                    bool isStencilFormat = false);
-    /**
-     * If the backend API is not Mock these three calls will return kUnknown, kNone or false,
-     * respectively. Otherwise, only one of the following can be true. The GrColorType is not
-     * kUnknown, the compression type is not kNone, or this is a mock stencil format.
-     */
-    GrColorType asMockColorType() const;
-    SkTextureCompressionType asMockCompressionType() const;
-    bool isMockStencilFormat() const;
-
-private:
-    friend class GrMockBackendSurfacePriv;
-
     // Size determined by looking at the GrBackendFormatData subclasses, then guessing-and-checking.
     // Compiler will complain if this is too small - in that case, just increase the number.
     inline constexpr static size_t kMaxSubclassSize = 80;
@@ -102,26 +81,14 @@ private:
     // GrBackendFormats::MakeGL instead.
     template <typename FormatData>
     GrBackendFormat(GrTextureType textureType, GrBackendApi api, const FormatData& formatData)
-            : fBackend(api), fValid(true), fTextureType(textureType) {
+            : fBackend(api), fTextureType(textureType), fValid(true) {
         fFormatData.emplace<FormatData>(formatData);
     }
 
-    GrBackendFormat(GrColorType, SkTextureCompressionType, bool isStencilFormat);
-
-#ifdef SK_DEBUG
-    bool validateMock() const;
-#endif
-
-    GrBackendApi fBackend = GrBackendApi::kMock;
-    bool fValid = false;
     AnyFormatData fFormatData;
-
-    struct {
-        GrColorType fColorType;
-        SkTextureCompressionType fCompressionType;
-        bool fIsStencilFormat;
-    } fMock;
+    GrBackendApi fBackend = GrBackendApi::kUnsupported;
     GrTextureType fTextureType = GrTextureType::kNone;
+    bool fValid = false;
 };
 
 class SK_API GrBackendTexture {
@@ -164,21 +131,6 @@ public:
     static bool TestingOnly_Equals(const GrBackendTexture&, const GrBackendTexture&);
 #endif
 
-#if !defined(SK_DISABLE_LEGACY_MOCK_BACKENDSURFACE)
-public:
-#else
-private:
-#endif
-    friend class GrMockBackendSurfacePriv;
-    GrBackendTexture(int width,
-                     int height,
-                     skgpu::Mipmapped,
-                     const GrMockTextureInfo& mockInfo,
-                     std::string_view label = {});
-    // If the backend API is Mock, copies a snapshot of the GrMockTextureInfo struct into the passed
-    // in pointer and returns true. Otherwise returns false if the backend API is not Mock.
-    bool getMockTextureInfo(GrMockTextureInfo*) const;
-
 private:
     // Size determined by looking at the GrBackendTextureData subclasses, then guessing-and-checking.
     // Compiler will complain if this is too small - in that case, just increase the number.
@@ -216,20 +168,16 @@ private:
     int fHeight;        //<! height in pixels
     const std::string fLabel;
     skgpu::Mipmapped fMipmapped;
-    GrBackendApi fBackend;
+    GrBackendApi fBackend = GrBackendApi::kUnsupported;
     GrTextureType fTextureType;
     AnyTextureData fTextureData;
-
-    GrMockTextureInfo fMockInfo;
 };
 
 class SK_API GrBackendRenderTarget {
 public:
     // Creates an invalid backend texture.
     GrBackendRenderTarget();
-
     ~GrBackendRenderTarget();
-
     GrBackendRenderTarget(const GrBackendRenderTarget& that);
     GrBackendRenderTarget& operator=(const GrBackendRenderTarget&);
 
@@ -260,23 +208,8 @@ public:
 #if defined(GPU_TEST_UTILS)
     static bool TestingOnly_Equals(const GrBackendRenderTarget&, const GrBackendRenderTarget&);
 #endif
-#if !defined(SK_DISABLE_LEGACY_MOCK_BACKENDSURFACE)
-public:
-#else
-private:
-#endif
-    // If the backend API is Mock, copies a snapshot of the GrMockTextureInfo struct into the passed
-    // in pointer and returns true. Otherwise returns false if the backend API is not Mock.
-    bool getMockRenderTargetInfo(GrMockRenderTargetInfo*) const;
-    GrBackendRenderTarget(int width,
-                          int height,
-                          int sampleCnt,
-                          int stencilBits,
-                          const GrMockRenderTargetInfo& mockInfo);
 
 private:
-    friend class GrMockBackendSurfacePriv;
-
     // Size determined by looking at the GrBackendRenderTargetData subclasses, then
     // guessing-and-checking. Compiler will complain if this is too small - in that case, just
     // increase the number.
@@ -317,10 +250,8 @@ private:
     int fSampleCnt;
     int fStencilBits;
 
-    GrBackendApi fBackend;
+    GrBackendApi fBackend = GrBackendApi::kUnsupported;
     AnyRenderTargetData fRTData;
-
-    GrMockRenderTargetInfo fMockInfo;
 };
 
 #endif
