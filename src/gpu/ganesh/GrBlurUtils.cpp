@@ -85,7 +85,6 @@
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
-#include "src/gpu/ganesh/image/GrMippedBitmap.h"
 
 #include <algorithm>
 #include <array>
@@ -222,18 +221,15 @@ static GrSurfaceProxyView sw_create_filtered_mask(GrRecordingContext* rContext,
 
         // we now have a device-aligned 8bit mask in dstM, ready to be drawn using
         // the current clip (and identity matrix) and GrPaint settings
-        std::optional<GrMippedBitmap> bm = GrMippedBitmap::Make(
-                SkImageInfo::MakeA8(dstM.fBounds.width(), dstM.fBounds.height()),
-                autoDst.release(),
-                dstM.fRowBytes,
-                mask_release_proc,
-                nullptr);
-        if (!bm) {
+        SkBitmap bm;
+        if (!bm.installPixels(SkImageInfo::MakeA8(dstM.fBounds.width(), dstM.fBounds.height()),
+                              autoDst.release(), dstM.fRowBytes, mask_release_proc, nullptr)) {
             return {};
         }
+        bm.setImmutable();
 
         std::tie(filteredMaskView, std::ignore) = GrMakeUncachedBitmapProxyView(
-                rContext, bm.value(), skgpu::Mipmapped::kNo, SkBackingFit::kApprox);
+                rContext, bm, skgpu::Mipmapped::kNo, SkBackingFit::kApprox);
         if (!filteredMaskView) {
             return {};
         }
@@ -491,7 +487,7 @@ static std::unique_ptr<GrFragmentProcessor> create_profile_effect(GrRecordingCon
         bm = skgpu::CreateCircleProfile(sigma * scale, circleR * scale, kProfileTextureWidth);
     }
 
-    profileView = std::get<0>(GrMakeUncachedBitmapProxyView(rContext, GrMippedBitmap(bm)));
+    profileView = std::get<0>(GrMakeUncachedBitmapProxyView(rContext, bm));
     if (!profileView) {
         return nullptr;
     }
@@ -565,12 +561,12 @@ static std::unique_ptr<GrFragmentProcessor> make_rect_integral_fp(GrRecordingCon
                 std::move(view), kPremul_SkAlphaType, m, GrSamplerState::Filter::kLinear);
     }
 
-    SkBitmap bm = skgpu::CreateIntegralTable(width);
-    if (bm.empty()) {
+    SkBitmap bitmap = skgpu::CreateIntegralTable(width);
+    if (bitmap.empty()) {
         return {};
     }
 
-    view = std::get<0>(GrMakeUncachedBitmapProxyView(rContext, GrMippedBitmap(bm)));
+    view = std::get<0>(GrMakeUncachedBitmapProxyView(rContext, bitmap));
     if (!view) {
         return {};
     }
@@ -821,7 +817,7 @@ static GrSurfaceProxyView create_mask_on_cpu(GrRecordingContext* rContext,
         return {};
     }
 
-    auto view = std::get<0>(GrMakeUncachedBitmapProxyView(rContext, GrMippedBitmap(result)));
+    auto view = std::get<0>(GrMakeUncachedBitmapProxyView(rContext, result));
     if (!view) {
         return {};
     }

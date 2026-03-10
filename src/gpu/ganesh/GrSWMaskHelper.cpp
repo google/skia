@@ -25,7 +25,6 @@
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/geometry/GrShape.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
-#include "src/gpu/ganesh/image/GrMippedBitmap.h"
 
 #include <cstddef>
 #include <tuple>
@@ -139,15 +138,11 @@ GrSurfaceProxyView GrSWMaskHelper::toTextureView(GrRecordingContext* rContext, S
     SkImageInfo ii = SkImageInfo::MakeA8(fPixels->width(), fPixels->height());
     size_t rowBytes = fPixels->rowBytes();
 
-    std::optional<GrMippedBitmap> bitmap = GrMippedBitmap::Make(
-            ii,
-            fPixels->detachPixels(),
-            rowBytes,
-            [](void* addr, void* context) { sk_free(addr); },
-            nullptr);
-    if (!bitmap) {
-        return {};
-    }
-    return std::get<0>(
-            GrMakeUncachedBitmapProxyView(rContext, bitmap.value(), skgpu::Mipmapped::kNo, fit));
+    SkBitmap bitmap;
+    SkAssertResult(bitmap.installPixels(ii, fPixels->detachPixels(), rowBytes,
+                                        [](void* addr, void* context) { sk_free(addr); },
+                                        nullptr));
+    bitmap.setImmutable();
+
+    return std::get<0>(GrMakeUncachedBitmapProxyView(rContext, bitmap, skgpu::Mipmapped::kNo, fit));
 }

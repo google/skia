@@ -24,7 +24,6 @@ class SkBlender;
 class SkImage;
 class SkMatrix;
 class SkMesh;
-class SkMipmap;
 class SkPaint;
 class SkPath;
 class SkPixmap;
@@ -146,12 +145,8 @@ private:
     bool onPeekPixels(SkPixmap*) override;
     bool onAccessPixels(SkPixmap*) override;
 
-    void drawBitmap(const SkBitmap&,
-                    const SkMatrix&,
-                    const SkRect* dstOrNull,
-                    const SkSamplingOptions&,
-                    const SkPaint&,
-                    sk_sp<SkMipmap>);
+    void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
+                    const SkSamplingOptions&, const SkPaint&);
 
     void* fRasterHandle = nullptr;
     skcpu::RecorderImpl* fRecorder = nullptr;

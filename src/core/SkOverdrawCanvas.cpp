@@ -29,7 +29,6 @@
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkMask.h"
-#include "src/core/SkMipmap.h"
 #include "src/text/GlyphRun.h"
 
 class SkBitmap;
@@ -79,12 +78,8 @@ public:
         }
     }
 
-    void drawBitmap(const SkBitmap&,
-                    const SkMatrix&,
-                    const SkRect* dstOrNull,
-                    const SkSamplingOptions&,
-                    const SkPaint&,
-                    sk_sp<SkMipmap>) const override {}
+    void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
+                    const SkSamplingOptions&, const SkPaint&) const override {}
 
     void onDrawGlyphRunList(SkCanvas* canvas,
                             const sktext::GlyphRunList& glyphRunList,

@@ -58,7 +58,6 @@
 #include "src/gpu/ganesh/effects/GrBicubicEffect.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/effects/GrYUVtoRGBEffect.h"
-#include "src/gpu/ganesh/image/GrMippedBitmap.h"
 #include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
 #include "src/gpu/ganesh/image/SkImage_RasterPinnable.h"
@@ -109,18 +108,15 @@ std::tuple<GrSurfaceProxyView, GrColorType> RasterAsView(GrRecordingContext* rCo
             mipmapped = skgpu::Mipmapped::kYes;
         }
         return GrMakeCachedBitmapProxyView(rContext,
-                                           GrMippedBitmap(raster->bitmap(), raster->refMips()),
+                                           raster->bitmap(),
                                            /*label=*/"TextureForImageRasterWithPolicyEqualKDraw",
                                            mipmapped);
     }
     auto budgeted = (policy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted)
                             ? skgpu::Budgeted::kNo
                             : skgpu::Budgeted::kYes;
-    return GrMakeUncachedBitmapProxyView(rContext,
-                                         GrMippedBitmap(raster->bitmap(), raster->refMips()),
-                                         mipmapped,
-                                         SkBackingFit::kExact,
-                                         budgeted);
+    return GrMakeUncachedBitmapProxyView(
+            rContext, raster->bitmap(), mipmapped, SkBackingFit::kExact, budgeted);
 }
 
 // Returns the GrColorType to use with the GrTextureProxy returned from lockTextureProxy. This
@@ -177,21 +173,20 @@ static GrSurfaceProxyView texture_proxy_view_from_planes(GrRecordingContext* ctx
             SkASSERT(cachedData);
             cachedData->unref();
         };
-        std::optional<GrMippedBitmap> bitmap =
-                GrMippedBitmap::Make(yuvaPixmaps.plane(i).info(),
-                                     yuvaPixmaps.plane(i).writable_addr(),
-                                     yuvaPixmaps.plane(i).rowBytes(),
-                                     releaseProc,
-                                     SkRef(dataStorage.get()));
-        if (!bitmap) {
-            return {};
-        }
-        pixmapColorTypes[i] = SkColorTypeToGrColorType(bitmap->colorType());
+        SkBitmap bitmap;
+        bitmap.installPixels(yuvaPixmaps.plane(i).info(),
+                             yuvaPixmaps.plane(i).writable_addr(),
+                             yuvaPixmaps.plane(i).rowBytes(),
+                             releaseProc,
+                             SkRef(dataStorage.get()));
+        bitmap.setImmutable();
+
         std::tie(views[i], std::ignore) =
-                GrMakeUncachedBitmapProxyView(ctx, bitmap.value(), skgpu::Mipmapped::kNo, fit);
+                GrMakeUncachedBitmapProxyView(ctx, bitmap, skgpu::Mipmapped::kNo, fit);
         if (!views[i]) {
             return {};
         }
+        pixmapColorTypes[i] = SkColorTypeToGrColorType(bitmap.colorType());
     }
 
     // TODO: investigate preallocating mip maps here
@@ -384,13 +379,11 @@ GrSurfaceProxyView LockTextureProxyView(GrRecordingContext* rContext,
         auto budgeted = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
                                 ? skgpu::Budgeted::kNo
                                 : skgpu::Budgeted::kYes;
-
-        auto view = std::get<0>(
-                GrMakeUncachedBitmapProxyView(rContext,
-                                              GrMippedBitmap(bitmap, as_IB(img)->refMips()),
-                                              mipmapped,
-                                              SkBackingFit::kExact,
-                                              budgeted));
+        auto view = std::get<0>(GrMakeUncachedBitmapProxyView(rContext,
+                                                              bitmap,
+                                                              mipmapped,
+                                                              SkBackingFit::kExact,
+                                                              budgeted));
         if (view) {
             installKey(view);
             return view;
@@ -784,8 +777,7 @@ public:
 
         auto view = threadSafeCache->find(key);
         if (!view) {
-            view = std::get<0>(GrMakeUncachedBitmapProxyView(
-                    fContext.get(), GrMippedBitmap(data)));
+            view = std::get<0>(GrMakeUncachedBitmapProxyView(fContext.get(), data));
             if (!view) {
                 return nullptr;
             }
