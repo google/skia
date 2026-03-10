@@ -188,7 +188,7 @@ public:
         // Attempt to deserialize with an image sharing serial proc.
         auto deserialContext = std::make_unique<SkSharingDeserialContext>();
         SkDeserialProcs procs;
-        procs.fImageProc = SkSharingDeserialContext::deserializeImage;
+        procs.fImageDataProc = SkSharingContext::deserializeImage;
         procs.fImageCtx = deserialContext.get();
 
         // The outer format of multi-frame skps is the multi-picture document, which is a
