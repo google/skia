@@ -312,9 +312,9 @@ void DrawContext::flush(Recorder* recorder) {
                 this->colorInfo().colorType(), TextureInfoPriv::ViewFormat(fTarget->textureInfo()));
         if (!writeSwizzle.has_value()) {
             writeSwizzle = Swizzle::RGBA(); // Fall back to rgba in release builds
-            SkDEBUGFAILF("No valid write swizzle for color type %d with format %s",
-                         (int) this->colorInfo().colorType(),
-                         TextureFormatName(TextureInfoPriv::ViewFormat(fTarget->textureInfo())));
+            SKGPU_LOG_W("No valid write swizzle for color type %d with format %s",
+                        (int) this->colorInfo().colorType(),
+                        TextureFormatName(TextureInfoPriv::ViewFormat(fTarget->textureInfo())));
         }
         RenderPassDesc desc = RenderPassDesc::Make(caps, fTarget->textureInfo(), loadOp, storeOp,
                                                    dsFlags,
