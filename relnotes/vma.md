@@ -1,1 +1,0 @@
-`VulkanBackendContext::fMemoryAllocator` is no longer optional.
