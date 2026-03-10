@@ -2,6 +2,21 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 147
+-------------
+  * `SkCodec::getEncodedData()` has been removed from the public API
+  * Direct3D-specific calls are removed from GrBackendSurface.h. Clients should use the equivalents found in `include/gpu/ganesh/d3d/GrD3DBackendSurface.h"`
+  *  `GrDirectContext::MakeDirect3D` has been replaced with `GrDirectContexts::MakeD3D` located in `include/gpu/ganesh/d3d/GrD3DDirectContext.h`
+  *  `GrBackendSemaphore::initDirect3D`, and `GrBackendSemaphore::getD3DFenceInfo` have been replaced with `GrBackendSemaphores::MakeD3D` and `GrBackendSemaphores::GetD3DFenceInfo`, defined in `include/gpu/ganesh/d3d/GrD3DBackendSemaphore.h`.
+  * Priority-based log filtering is now supported at a core Skia level. This update includes moving
+    LoggingPriority out of Graphite and into core Skia. SKGPU_GRAPHITE_LOWEST_ACTIVE_LOG_PRIORITY is
+    still supported for backwards compatibility, but new users are encouraged to use
+    SKIA_LOWEST_ACTIVE_LOG_PRIORITY in their config file.
+  * SK_SUPPORT_UNSPANNED_APIS has been removed.
+  * `VulkanBackendContext::fMemoryAllocator` is no longer optional.
+
+* * *
+
 Milestone 146
 -------------
   * `skgpu::graphite::ContextOptions.fClientWillExternallySynchronizeAllThreads` has been removed in

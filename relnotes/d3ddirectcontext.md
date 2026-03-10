@@ -1,1 +1,0 @@
- `GrDirectContext::MakeDirect3D` has been replaced with `GrDirectContexts::MakeD3D` located in `include/gpu/ganesh/d3d/GrD3DDirectContext.h`
