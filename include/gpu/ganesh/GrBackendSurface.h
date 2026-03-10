@@ -44,10 +44,6 @@ public:
     GrBackendFormat& operator=(const GrBackendFormat&);
     ~GrBackendFormat();
 
-    static GrBackendFormat MakeMock(GrColorType colorType,
-                                    SkTextureCompressionType compression,
-                                    bool isStencilFormat = false);
-
     bool operator==(const GrBackendFormat& that) const;
     bool operator!=(const GrBackendFormat& that) const { return !(*this == that); }
 
@@ -62,15 +58,6 @@ public:
 
     GrColorFormatDesc desc() const;
 
-    /**
-     * If the backend API is not Mock these three calls will return kUnknown, kNone or false,
-     * respectively. Otherwise, only one of the following can be true. The GrColorType is not
-     * kUnknown, the compression type is not kNone, or this is a mock stencil format.
-     */
-    GrColorType asMockColorType() const;
-    SkTextureCompressionType asMockCompressionType() const;
-    bool isMockStencilFormat() const;
-
     // If possible, copies the GrBackendFormat and forces the texture type to be Texture2D. If the
     // GrBackendFormat was for Vulkan and it originally had a skgpu::VulkanYcbcrConversionInfo,
     // we will remove the conversion and set the format to be VK_FORMAT_R8G8B8A8_UNORM.
@@ -83,7 +70,26 @@ public:
     SkString toStr() const;
 #endif
 
+#if !defined(SK_DISABLE_LEGACY_MOCK_BACKENDSURFACE)
+public:
+#else
 private:
+#endif
+    static GrBackendFormat MakeMock(GrColorType colorType,
+                                    SkTextureCompressionType compression,
+                                    bool isStencilFormat = false);
+    /**
+     * If the backend API is not Mock these three calls will return kUnknown, kNone or false,
+     * respectively. Otherwise, only one of the following can be true. The GrColorType is not
+     * kUnknown, the compression type is not kNone, or this is a mock stencil format.
+     */
+    GrColorType asMockColorType() const;
+    SkTextureCompressionType asMockCompressionType() const;
+    bool isMockStencilFormat() const;
+
+private:
+    friend class GrMockBackendSurfacePriv;
+
     // Size determined by looking at the GrBackendFormatData subclasses, then guessing-and-checking.
     // Compiler will complain if this is too small - in that case, just increase the number.
     inline constexpr static size_t kMaxSubclassSize = 80;
@@ -122,17 +128,8 @@ class SK_API GrBackendTexture {
 public:
     // Creates an invalid backend texture.
     GrBackendTexture();
-
-    GrBackendTexture(int width,
-                     int height,
-                     skgpu::Mipmapped,
-                     const GrMockTextureInfo& mockInfo,
-                     std::string_view label = {});
-
     GrBackendTexture(const GrBackendTexture& that);
-
     ~GrBackendTexture();
-
     GrBackendTexture& operator=(const GrBackendTexture& that);
 
     SkISize dimensions() const { return {fWidth, fHeight}; }
@@ -146,10 +143,6 @@ public:
 
     // Get the GrBackendFormat for this texture (or an invalid format if this is not valid).
     GrBackendFormat getBackendFormat() const;
-
-    // If the backend API is Mock, copies a snapshot of the GrMockTextureInfo struct into the passed
-    // in pointer and returns true. Otherwise returns false if the backend API is not Mock.
-    bool getMockTextureInfo(GrMockTextureInfo*) const;
 
     // If the client changes any of the mutable backend of the GrBackendTexture they should call
     // this function to inform Skia that those values have changed. The backend API specific state
@@ -170,6 +163,21 @@ public:
 #if defined(GPU_TEST_UTILS)
     static bool TestingOnly_Equals(const GrBackendTexture&, const GrBackendTexture&);
 #endif
+
+#if !defined(SK_DISABLE_LEGACY_MOCK_BACKENDSURFACE)
+public:
+#else
+private:
+#endif
+    friend class GrMockBackendSurfacePriv;
+    GrBackendTexture(int width,
+                     int height,
+                     skgpu::Mipmapped,
+                     const GrMockTextureInfo& mockInfo,
+                     std::string_view label = {});
+    // If the backend API is Mock, copies a snapshot of the GrMockTextureInfo struct into the passed
+    // in pointer and returns true. Otherwise returns false if the backend API is not Mock.
+    bool getMockTextureInfo(GrMockTextureInfo*) const;
 
 private:
     // Size determined by looking at the GrBackendTextureData subclasses, then guessing-and-checking.
@@ -220,12 +228,6 @@ public:
     // Creates an invalid backend texture.
     GrBackendRenderTarget();
 
-    GrBackendRenderTarget(int width,
-                          int height,
-                          int sampleCnt,
-                          int stencilBits,
-                          const GrMockRenderTargetInfo& mockInfo);
-
     ~GrBackendRenderTarget();
 
     GrBackendRenderTarget(const GrBackendRenderTarget& that);
@@ -241,10 +243,6 @@ public:
 
     // Get the GrBackendFormat for this render target (or an invalid format if this is not valid).
     GrBackendFormat getBackendFormat() const;
-
-    // If the backend API is Mock, copies a snapshot of the GrMockTextureInfo struct into the passed
-    // in pointer and returns true. Otherwise returns false if the backend API is not Mock.
-    bool getMockRenderTargetInfo(GrMockRenderTargetInfo*) const;
 
     // If the client changes any of the mutable backend of the GrBackendTexture they should call
     // this function to inform Skia that those values have changed. The backend API specific state
@@ -262,8 +260,23 @@ public:
 #if defined(GPU_TEST_UTILS)
     static bool TestingOnly_Equals(const GrBackendRenderTarget&, const GrBackendRenderTarget&);
 #endif
+#if !defined(SK_DISABLE_LEGACY_MOCK_BACKENDSURFACE)
+public:
+#else
+private:
+#endif
+    // If the backend API is Mock, copies a snapshot of the GrMockTextureInfo struct into the passed
+    // in pointer and returns true. Otherwise returns false if the backend API is not Mock.
+    bool getMockRenderTargetInfo(GrMockRenderTargetInfo*) const;
+    GrBackendRenderTarget(int width,
+                          int height,
+                          int sampleCnt,
+                          int stencilBits,
+                          const GrMockRenderTargetInfo& mockInfo);
 
 private:
+    friend class GrMockBackendSurfacePriv;
+
     // Size determined by looking at the GrBackendRenderTargetData subclasses, then
     // guessing-and-checking. Compiler will complain if this is too small - in that case, just
     // increase the number.

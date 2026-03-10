@@ -331,6 +331,7 @@ skia_cc_library(
         "//src/base:headers_to_compile",
         "//src/codec:headers_to_compile",
         "//src/core:headers_to_compile",
+        "//src/gpu/ganesh/mock:headers_to_compile",
     ],
     copts = [
         # We don't want errors like "unused symbol"

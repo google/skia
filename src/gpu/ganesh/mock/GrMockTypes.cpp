@@ -10,14 +10,19 @@
 #include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/gpu/ganesh/GrTypes.h"
+#include "include/gpu/ganesh/mock/GrMockBackendSurface.h"
 #include "src/gpu/ganesh/mock/GrMockTypesPriv.h"
 
 GrBackendFormat GrMockRenderTargetInfo::getBackendFormat() const {
-    return GrBackendFormat::MakeMock(fColorType, SkTextureCompressionType::kNone);
+    return GrBackendFormats::MakeMockColorType(fColorType);
 }
 
 GrBackendFormat GrMockTextureInfo::getBackendFormat() const {
-    return GrBackendFormat::MakeMock(fColorType, fCompressionType);
+    if (fColorType != GrColorType::kUnknown) {
+        return GrBackendFormats::MakeMockColorType(fColorType);
+    }
+    SkASSERT(fCompressionType != SkTextureCompressionType::kNone);
+    return GrBackendFormats::MakeMockCompressionType(fCompressionType);
 }
 
 GrMockSurfaceInfo GrMockTextureSpecToSurfaceInfo(const GrMockTextureSpec& mockSpec,

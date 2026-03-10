@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_cc_library", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_cc_library", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -8,6 +8,8 @@ licenses(["notice"])
 
 MOCK_FILES = [
     "GrMockAttachment.h",
+    "GrMockBackendSurface.cpp",
+    "GrMockBackendSurfacePriv.h",
     "GrMockBuffer.h",
     "GrMockCaps.cpp",
     "GrMockCaps.h",
@@ -39,5 +41,22 @@ skia_cc_library(
     visibility = ["//:__pkg__"],
     deps = [
         "//src/gpu/ganesh",
+    ],
+)
+
+generate_cpp_files_for_headers(
+    name = "headers_to_compile",
+    headers = [
+        "GrMockAttachment.h",
+        "GrMockBackendSurfacePriv.h",
+        "GrMockBuffer.h",
+        "GrMockCaps.h",
+        "GrMockGpu.h",
+        "GrMockOpTarget.h",
+        "GrMockOpsRenderPass.h",
+        "GrMockRenderTask.h",
+        "GrMockSurfaceProxy.h",
+        "GrMockTexture.h",
+        "GrMockTypesPriv.h",
     ],
 )

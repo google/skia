@@ -14,6 +14,7 @@
 #include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
+#include "include/gpu/ganesh/mock/GrMockBackendSurface.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -30,8 +31,7 @@ class GrSurface;
 class GrMockSurfaceProxy : public GrSurfaceProxy {
 public:
     GrMockSurfaceProxy(SkString name, std::string_view label)
-            : GrSurfaceProxy(GrBackendFormat::MakeMock(GrColorType::kRGBA_8888,
-                                                       SkTextureCompressionType::kNone),
+            : GrSurfaceProxy(GrBackendFormats::MakeMockColorType(GrColorType::kRGBA_8888),
                              SkISize::Make(1, 1),
                              SkBackingFit::kExact,
                              skgpu::Budgeted::kNo,

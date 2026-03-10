@@ -6,7 +6,10 @@ package(
 
 licenses(["notice"])
 
-PUBLIC_HEADERS = ["GrMockTypes.h"]
+PUBLIC_HEADERS = [
+    "GrMockBackendSurface.h",
+    "GrMockTypes.h",
+]
 
 skia_filegroup(
     name = "public_hdrs",

@@ -13,6 +13,7 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/DataUtils.h"
 #include "src/gpu/ganesh/GrBackendSurfacePriv.h"
+#include "src/gpu/ganesh/mock/GrMockBackendSurfacePriv.h"
 
 SkTextureCompressionType GrBackendFormatToCompressionType(const GrBackendFormat& format) {
     switch (format.backend()) {
@@ -22,7 +23,7 @@ SkTextureCompressionType GrBackendFormatToCompressionType(const GrBackendFormat&
         case GrBackendApi::kVulkan:
             return GrBackendSurfacePriv::GetBackendData(format)->compressionType();
         case GrBackendApi::kMock: {
-            return format.asMockCompressionType();
+            return GrMockBackendSurfacePriv::AsMockCompressionType(format);
         }
         case GrBackendApi::kUnsupported: {
             break;
@@ -39,14 +40,15 @@ size_t GrBackendFormatBytesPerBlock(const GrBackendFormat& format) {
         case GrBackendApi::kVulkan:
             return GrBackendSurfacePriv::GetBackendData(format)->bytesPerBlock();
         case GrBackendApi::kMock: {
-            SkTextureCompressionType compression = format.asMockCompressionType();
+            SkTextureCompressionType compression =
+                    GrMockBackendSurfacePriv::AsMockCompressionType(format);
             if (compression != SkTextureCompressionType::kNone) {
                 return skgpu::CompressedRowBytes(compression, 1);
-            } else if (format.isMockStencilFormat()) {
+            } else if (GrMockBackendSurfacePriv::IsMockStencilFormat(format)) {
                 static constexpr int kMockStencilSize = 4;
                 return kMockStencilSize;
             }
-            return GrColorTypeBytesPerPixel(format.asMockColorType());
+            return GrColorTypeBytesPerPixel(GrMockBackendSurfacePriv::AsMockColorType(format));
         }
         case GrBackendApi::kUnsupported: {
             break;
@@ -70,7 +72,7 @@ int GrBackendFormatStencilBits(const GrBackendFormat& format) {
         case GrBackendApi::kVulkan:
             return GrBackendSurfacePriv::GetBackendData(format)->stencilBits();
         case GrBackendApi::kMock: {
-            if (format.isMockStencilFormat()) {
+            if (GrMockBackendSurfacePriv::IsMockStencilFormat(format)) {
                 static constexpr int kMockStencilBits = 8;
                 return kMockStencilBits;
             }

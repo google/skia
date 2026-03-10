@@ -67,6 +67,7 @@ skia_gpu_public = [
   "$_include/gpu/ganesh/SkImageGanesh.h",
   "$_include/gpu/ganesh/SkMeshGanesh.h",
   "$_include/gpu/ganesh/SkSurfaceGanesh.h",
+  "$_include/gpu/ganesh/mock/GrMockBackendSurface.h",
   "$_include/gpu/ganesh/mock/GrMockTypes.h",
 ]
 
@@ -444,6 +445,8 @@ skia_ganesh_private = [
   "$_src/gpu/ganesh/image/SkSpecialImage_Ganesh.cpp",
   "$_src/gpu/ganesh/image/SkSpecialImage_Ganesh.h",
   "$_src/gpu/ganesh/mock/GrMockAttachment.h",
+  "$_src/gpu/ganesh/mock/GrMockBackendSurface.cpp",
+  "$_src/gpu/ganesh/mock/GrMockBackendSurfacePriv.h",
   "$_src/gpu/ganesh/mock/GrMockBuffer.h",
   "$_src/gpu/ganesh/mock/GrMockCaps.cpp",
   "$_src/gpu/ganesh/mock/GrMockCaps.h",

@@ -12,6 +12,7 @@
 #include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
+#include "include/gpu/ganesh/mock/GrMockBackendSurface.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrAttachment.h"
@@ -38,8 +39,7 @@ public:
     }
 
     GrBackendFormat backendFormat() const override {
-        return GrBackendFormat::MakeMock(GrColorType::kUnknown, SkTextureCompressionType::kNone,
-                                         /*isStencilFormat*/ true);
+        return GrBackendFormats::MakeMockStencilFormat();
     }
 
 private:

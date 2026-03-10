@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/mock/GrMockCaps.h"
 
+#include "include/gpu/ganesh/mock/GrMockBackendSurface.h"
 #include "include/private/base/SkDebug.h"
 #include "src/base/SkMathPriv.h"
 #include "src/gpu/ganesh/GrProgramDesc.h"
@@ -37,64 +38,43 @@ GrProgramDesc GrMockCaps::makeDesc(GrRenderTarget* /* rt */,
 
 uint64_t GrMockCaps::computeFormatKey(const GrBackendFormat& format) const {
 #ifdef SK_DEBUG
-    SkTextureCompressionType compression = format.asMockCompressionType();
+    SkTextureCompressionType compression = GrBackendFormats::AsMockCompressionType(format);
     SkASSERT(compression == SkTextureCompressionType::kNone);
 #endif
-    auto ct = format.asMockColorType();
+    auto ct = GrBackendFormats::AsMockColorType(format);
     return (uint64_t)ct;
 }
 
 #if defined(GPU_TEST_UTILS)
 std::vector<GrTest::TestFormatColorTypeCombination> GrMockCaps::getTestingCombinations() const {
+    using GCT = GrColorType;
+    using TCT = SkTextureCompressionType;
     // TODO: need to add compressed formats to this list
     std::vector<GrTest::TestFormatColorTypeCombination> combos = {
-        { GrColorType::kAlpha_8,        GrBackendFormat::MakeMock(GrColorType::kAlpha_8,
-                                                                  SkTextureCompressionType::kNone)},
-        { GrColorType::kBGR_565,        GrBackendFormat::MakeMock(GrColorType::kBGR_565,
-                                                                  SkTextureCompressionType::kNone)},
-        { GrColorType::kRGB_565,        GrBackendFormat::MakeMock(GrColorType::kRGB_565,
-                                                                  SkTextureCompressionType::kNone)},
-        { GrColorType::kABGR_4444,      GrBackendFormat::MakeMock(GrColorType::kABGR_4444,
-                                                                  SkTextureCompressionType::kNone)},
-        { GrColorType::kRGBA_8888,      GrBackendFormat::MakeMock(GrColorType::kRGBA_8888,
-                                                                  SkTextureCompressionType::kNone)},
-        { GrColorType::kRGBA_8888_SRGB, GrBackendFormat::MakeMock(GrColorType::kRGBA_8888_SRGB,
-                                                                  SkTextureCompressionType::kNone)},
-        { GrColorType::kRGB_888x,       GrBackendFormat::MakeMock(GrColorType::kRGB_888x,
-                                                                  SkTextureCompressionType::kNone)},
-        { GrColorType::kRG_88,          GrBackendFormat::MakeMock(GrColorType::kRG_88,
-                                                                  SkTextureCompressionType::kNone)},
-        { GrColorType::kBGRA_8888,      GrBackendFormat::MakeMock(GrColorType::kBGRA_8888,
-                                                                  SkTextureCompressionType::kNone)},
-        { GrColorType::kRGBA_1010102,   GrBackendFormat::MakeMock(GrColorType::kRGBA_1010102,
-                                                                  SkTextureCompressionType::kNone)},
-        { GrColorType::kBGRA_1010102,   GrBackendFormat::MakeMock(GrColorType::kBGRA_1010102,
-                                                                  SkTextureCompressionType::kNone)},
-        { GrColorType::kGray_8,         GrBackendFormat::MakeMock(GrColorType::kGray_8,
-                                                                  SkTextureCompressionType::kNone)},
-        { GrColorType::kAlpha_F16,      GrBackendFormat::MakeMock(GrColorType::kAlpha_F16,
-                                                                  SkTextureCompressionType::kNone)},
-        { GrColorType::kRGBA_F16,       GrBackendFormat::MakeMock(GrColorType::kRGBA_F16,
-                                                                  SkTextureCompressionType::kNone)},
-        { GrColorType::kRGBA_F16_Clamped,GrBackendFormat::MakeMock(GrColorType::kRGBA_F16_Clamped,
-                                                                  SkTextureCompressionType::kNone)},
-        { GrColorType::kRGB_F16F16F16x,  GrBackendFormat::MakeMock(GrColorType::kRGB_F16F16F16x,
-                                                                  SkTextureCompressionType::kNone)},
-        { GrColorType::kAlpha_16,       GrBackendFormat::MakeMock(GrColorType::kAlpha_16,
-                                                                  SkTextureCompressionType::kNone)},
-        { GrColorType::kRG_1616,        GrBackendFormat::MakeMock(GrColorType::kRG_1616,
-                                                                  SkTextureCompressionType::kNone)},
-        { GrColorType::kRGBA_16161616,  GrBackendFormat::MakeMock(GrColorType::kRGBA_16161616,
-                                                                  SkTextureCompressionType::kNone)},
-        { GrColorType::kRG_F16,         GrBackendFormat::MakeMock(GrColorType::kRG_F16,
-                                                                  SkTextureCompressionType::kNone)},
+        { GCT::kAlpha_8,          GrBackendFormats::MakeMockColorType(GCT::kAlpha_8)},
+        { GCT::kBGR_565,          GrBackendFormats::MakeMockColorType(GCT::kBGR_565)},
+        { GCT::kRGB_565,          GrBackendFormats::MakeMockColorType(GCT::kRGB_565)},
+        { GCT::kABGR_4444,        GrBackendFormats::MakeMockColorType(GCT::kABGR_4444)},
+        { GCT::kRGBA_8888,        GrBackendFormats::MakeMockColorType(GCT::kRGBA_8888)},
+        { GCT::kRGBA_8888_SRGB,   GrBackendFormats::MakeMockColorType(GCT::kRGBA_8888_SRGB)},
+        { GCT::kRGB_888x,         GrBackendFormats::MakeMockColorType(GCT::kRGB_888x)},
+        { GCT::kRG_88,            GrBackendFormats::MakeMockColorType(GCT::kRG_88)},
+        { GCT::kBGRA_8888,        GrBackendFormats::MakeMockColorType(GCT::kBGRA_8888)},
+        { GCT::kRGBA_1010102,     GrBackendFormats::MakeMockColorType(GCT::kRGBA_1010102)},
+        { GCT::kBGRA_1010102,     GrBackendFormats::MakeMockColorType(GCT::kBGRA_1010102)},
+        { GCT::kGray_8,           GrBackendFormats::MakeMockColorType(GCT::kGray_8)},
+        { GCT::kAlpha_F16,        GrBackendFormats::MakeMockColorType(GCT::kAlpha_F16)},
+        { GCT::kRGBA_F16,         GrBackendFormats::MakeMockColorType(GCT::kRGBA_F16)},
+        { GCT::kRGBA_F16_Clamped, GrBackendFormats::MakeMockColorType(GCT::kRGBA_F16_Clamped)},
+        { GCT::kRGB_F16F16F16x,   GrBackendFormats::MakeMockColorType(GCT::kRGB_F16F16F16x)},
+        { GCT::kAlpha_16,         GrBackendFormats::MakeMockColorType(GCT::kAlpha_16)},
+        { GCT::kRG_1616,          GrBackendFormats::MakeMockColorType(GCT::kRG_1616)},
+        { GCT::kRGBA_16161616,    GrBackendFormats::MakeMockColorType(GCT::kRGBA_16161616)},
+        { GCT::kRG_F16,           GrBackendFormats::MakeMockColorType(GCT::kRG_F16)},
         // For these two compressed image formats the color type will effectively be RGB_888x
-        { GrColorType::kRGB_888x,       GrBackendFormat::MakeMock(GrColorType::kUnknown,
-                                                    SkTextureCompressionType::kETC2_RGB8_UNORM)},
-        { GrColorType::kRGB_888x,       GrBackendFormat::MakeMock(GrColorType::kUnknown,
-                                                    SkTextureCompressionType::kBC1_RGB8_UNORM)},
-        { GrColorType::kRGBA_8888,      GrBackendFormat::MakeMock(GrColorType::kUnknown,
-                                                    SkTextureCompressionType::kBC1_RGBA8_UNORM)},
+        { GCT::kRGB_888x,         GrBackendFormats::MakeMockCompressionType(TCT::kETC2_RGB8_UNORM)},
+        { GCT::kRGB_888x,         GrBackendFormats::MakeMockCompressionType(TCT::kBC1_RGB8_UNORM)},
+        { GCT::kRGBA_8888,        GrBackendFormats::MakeMockCompressionType(TCT::kBC1_RGBA8_UNORM)},
     };
 
 #ifdef SK_DEBUG

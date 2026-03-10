@@ -11,6 +11,7 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/mock/GrMockBackendSurface.h"
 #include "include/gpu/ganesh/mock/GrMockTypes.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -55,7 +56,7 @@ public:
     ~GrMockTexture() override {}
 
     GrBackendTexture getBackendTexture() const override {
-        return GrBackendTexture(this->width(), this->height(), this->mipmapped(), fInfo);
+        return GrBackendTextures::MakeMock(this->width(), this->height(), this->mipmapped(), fInfo);
     }
 
     GrBackendFormat backendFormat() const override {
@@ -144,7 +145,8 @@ public:
         if (GrAttachment* stencil = this->getStencilAttachment()) {
             numStencilBits = GrBackendFormatStencilBits(stencil->backendFormat());
         }
-        return {this->width(), this->height(), this->numSamples(), numStencilBits, fInfo};
+        return GrBackendRenderTargets::MakeMock(
+                this->width(), this->height(), this->numSamples(), numStencilBits, fInfo);
     }
 
     GrBackendFormat backendFormat() const override {
