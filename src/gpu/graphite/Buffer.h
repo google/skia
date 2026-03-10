@@ -52,14 +52,11 @@ protected:
             : Resource(sharedContext,
                        Ownership::kOwned,
                        size,
+                       label,
                        reusableRequiresPurgeable,
                        requiresPrepareForReturnToCache)
             , fSize(size)
-            , fIsProtected(isProtected) {
-        // TODO(b/387505250): Remove this once Resource is modified to accept a label upon
-        // construction.
-        this->setLabel(label);
-    }
+            , fIsProtected(isProtected) {}
 
     void* fMapPtr = nullptr;
 

@@ -830,7 +830,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteScratchResourcesTest, reporter, conte
 
     REPORTER_ASSERT(reporter, key == resource->key());
     Resource* resourcePtr2 = resourceCache->findAndRefResource(
-            key, Budgeted::kYes, Shareable::kScratch, &unavailable);
+            key, Budgeted::kYes, Shareable::kScratch, /*label=*/{}, &unavailable);
     REPORTER_ASSERT(reporter, !resourcePtr2);
 
     // Return the non-shareable resource and verify that it can now be requested as scratch
@@ -839,7 +839,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteScratchResourcesTest, reporter, conte
     REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 1);
 
     resource = sk_sp(resourceCache->findAndRefResource(
-            key, Budgeted::kYes, Shareable::kScratch, &unavailable));
+            key, Budgeted::kYes, Shareable::kScratch, /*label=*/{}, &unavailable));
     REPORTER_ASSERT(reporter, resource.get() == resourcePtr);
     REPORTER_ASSERT(reporter, resource->budgeted() == Budgeted::kYes);
     REPORTER_ASSERT(reporter, resource->shareable() == Shareable::kScratch);
@@ -856,14 +856,14 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteScratchResourcesTest, reporter, conte
     // A request for another scratch resource can return the existing one if it hasn't been marked
     // unavailable in the set passed to the cache.
     resourcePtr2 = resourceCache->findAndRefResource(
-            key, Budgeted::kYes, Shareable::kScratch, &unavailable);
+            key, Budgeted::kYes, Shareable::kScratch, /*label=*/{}, &unavailable);
     REPORTER_ASSERT(reporter, resourcePtr2 == resourcePtr);
     resourcePtr2->unref();
 
     // Mark the original resource as unvailable and now it shouldn't be seen by the request.
     unavailable.add(resourcePtr);
     resourcePtr2 = resourceCache->findAndRefResource(
-            key, Budgeted::kYes, Shareable::kScratch, &unavailable);
+            key, Budgeted::kYes, Shareable::kScratch, /*label=*/{}, &unavailable);
     REPORTER_ASSERT(reporter, !resourcePtr2);
 
     // Return the scratch resource, and then simulate a threading race where there's a request for
@@ -872,7 +872,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteScratchResourcesTest, reporter, conte
     unavailable.reset();
     resource.reset();
     resource = sk_sp(resourceCache->findAndRefResource(
-            key, Budgeted::kYes, Shareable::kScratch, &unavailable));
+            key, Budgeted::kYes, Shareable::kScratch, /*label=*/{}, &unavailable));
     REPORTER_ASSERT(reporter, resource.get() == resourcePtr);
     // At this point, resourcePtr has a usage ref and should be in the return queue
     REPORTER_ASSERT(reporter, resourceCache->testingInReturnQueue(resourcePtr));

@@ -526,6 +526,7 @@ VulkanRenderPass::VulkanRenderPass(const VulkanSharedContext* context,
         : Resource(context,
                    Ownership::kOwned,
                    /*gpuMemorySize=*/0,
+                   /*label=*/"",
                    /*reusableRequiresPurgeable=*/false)
         , fSharedContext(context)
         , fRenderPass(renderPass)

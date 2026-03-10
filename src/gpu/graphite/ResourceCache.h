@@ -52,7 +52,8 @@ public:
     // non-null and is used to filter the scratch resources that can fulfill this request.
     Resource* findAndRefResource(const GraphiteResourceKey& key,
                                  Budgeted, Shareable,
-                                 const ScratchResourceSet* unavailable=nullptr);
+                                 std::string_view label = {},
+                                 const ScratchResourceSet* unavailable = nullptr);
 
     // Purge resources not used since the passed point in time. Resources that have a gpu memory
     // size of zero will not be purged.

@@ -37,6 +37,7 @@ VulkanDescriptorSet::VulkanDescriptorSet(const VulkanSharedContext* ctxt,
         : Resource(ctxt,
                    Ownership::kOwned,
                    /*gpuMemorySize=*/0,
+                   /*label=*/{},
                    // Explicitly set reusableRequiresPurgeable because this object may be modified
                    // by VulkanCommandBuffer immediately during Skia API calls, outside of the flow
                    // of command buffer command execution.

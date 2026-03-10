@@ -255,9 +255,8 @@ sk_sp<VulkanDescriptorSet> VulkanResourceProvider::findOrCreateDescriptorSet(
 
     // Search for available descriptor sets by assembling a key based upon the set's structure.
     GraphiteResourceKey key = build_desc_set_key(requestedDescriptors);
-    if (auto descSet = fResourceCache->findAndRefResource(
-                key, skgpu::Budgeted::kYes, Shareable::kNo)) {
-        // A non-null resource pointer indicates we have found an available descriptor set.
+    if (auto descSet =
+            fResourceCache->findAndRefResource(key, skgpu::Budgeted::kYes, Shareable::kNo)) {
         return sk_sp<VulkanDescriptorSet>(static_cast<VulkanDescriptorSet*>(descSet));
     }
 

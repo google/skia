@@ -218,6 +218,7 @@ VulkanYcbcrConversion::VulkanYcbcrConversion(const VulkanSharedContext* context,
         : Resource(context,
                    Ownership::kOwned,
                    /*gpuMemorySize=*/0,
+                   /*label=*/"",
                    /*reusableRequiresPurgeable=*/false)
         , fYcbcrConversion(ycbcrConversion)
         , fRequiredFilter(requiredFilter) {}
