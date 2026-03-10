@@ -60,7 +60,6 @@ private:
     bool setNewCommandBufferResources() override;
 
     bool onAddRenderPass(const RenderPassDesc&,
-                         SkIRect renderPassBounds,
                          const Texture* colorTexture,
                          const Texture* resolveTexture,
                          const Texture* depthStencilTexture,
@@ -72,7 +71,6 @@ private:
     // Methods for populating a Dawn RenderPassEncoder:
     bool beginRenderPass(const RenderPassDesc&,
                          const SkIPoint& resolveOffset,
-                         SkIRect renderPassBounds,
                          const Texture* colorTexture,
                          const Texture* resolveTexture,
                          const Texture* depthStencilTexture);
@@ -80,7 +78,6 @@ private:
             const RenderPassDesc& intendedRenderPassDesc,
             const wgpu::RenderPassDescriptor& intendedDawnRenderPassDesc,
             const SkIPoint& resolveOffset,
-            const SkIRect& renderPassBounds,
             const DawnTexture* msaaTexture,
             const DawnTexture* resolveTexture);
     bool doBlitWithDraw(const wgpu::RenderPassEncoder& renderEncoder,

@@ -80,7 +80,6 @@ private:
                               int32_t index);
 
     bool onAddRenderPass(const RenderPassDesc&,
-                         SkIRect renderPassBounds,
                          const Texture* colorTexture,
                          const Texture* resolveTexture,
                          const Texture* depthStencilTexture,
@@ -89,7 +88,6 @@ private:
                          const DrawPassList&) override;
 
     bool beginRenderPass(const RenderPassDesc&,
-                         SkIRect renderPassBounds,
                          const Texture* colorTexture,
                          const Texture* resolveTexture,
                          const Texture* depthStencilTexture);

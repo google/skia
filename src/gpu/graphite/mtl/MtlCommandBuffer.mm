@@ -159,7 +159,6 @@ void MtlCommandBuffer::addSignalSemaphores(size_t numSignalSemaphores,
 }
 
 bool MtlCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
-                                       SkIRect renderPassBounds,
                                        const Texture* colorTexture,
                                        const Texture* resolveTexture,
                                        const Texture* depthStencilTexture,
@@ -356,7 +355,7 @@ void MtlCommandBuffer::endRenderPass() {
 bool MtlCommandBuffer::addDrawPass(DrawPass* drawPass) {
     const SkIRect replayedBounds = drawPass->bounds().makeOffset(fReplayTranslation.x(),
                                                                  fReplayTranslation.y());
-    if (!SkIRect::Intersects(replayedBounds, fRenderPassBounds)) {
+    if (!SkIRect::Intersects(replayedBounds, fRenderTargetBounds)) {
         // The entire DrawPass is offscreen given the replay translation so skip adding any
         // commands. When the DrawPass is partially offscreen individual draw commands will be
         // culled while preserving state changing commands.
@@ -605,7 +604,7 @@ void MtlCommandBuffer::bindTextureAndSampler(const Texture* texture,
 void MtlCommandBuffer::setScissor(const Scissor& scissor) {
     SkASSERT(fActiveRenderCommandEncoder);
 
-    SkIRect rect = scissor.getRect(fReplayTranslation, fRenderPassBounds);
+    SkIRect rect = scissor.getRect(fReplayTranslation, fRenderTargetBounds);
     fDrawIsOffscreen = rect.isEmpty();
 
     fActiveRenderCommandEncoder->setScissorRect({

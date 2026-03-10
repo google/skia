@@ -33,6 +33,7 @@ public:
         return fSupportedResolveTextureLoadOp;
     }
     bool supportsPartialLoadResolve() const { return fSupportsPartialLoadResolve; }
+    bool supportsRenderPassRenderArea() const { return fSupportsRenderPassRenderArea; }
 
     SkISize getDepthAttachmentDimensions(const TextureInfo&,
                                          const SkISize colorAttachmentDimensions) const override;
@@ -132,6 +133,7 @@ private:
     // and resolve. With this feature, we can do that partially according to the actual damage
     // region.
     bool fSupportsPartialLoadResolve = false;
+    bool fSupportsRenderPassRenderArea = false;
 
     bool fEmulateLoadStoreResolve = false;
 

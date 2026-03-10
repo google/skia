@@ -73,7 +73,6 @@ private:
     void onResetCommandBuffer() override;
 
     bool onAddRenderPass(const RenderPassDesc&,
-                         SkIRect renderPassBounds,
                          const Texture* colorTexture,
                          const Texture* resolveTexture,
                          const Texture* depthStencilTexture,
