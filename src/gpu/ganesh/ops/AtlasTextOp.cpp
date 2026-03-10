@@ -538,7 +538,7 @@ void AtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
         const sktext::gpu::AtlasSubRun& subRun = geo->fSubRun;
 
         if (!subRun.glyphVector().hasBackendData()) {
-            subRun.glyphVector().initBackendData<GlyphData>(target->strikeCache());
+            subRun.glyphVector().initBackendData<GlyphData>(target->strikeCache(), maskFormat);
         }
 
         auto& glyphData = subRun.glyphVector().accessBackendData<GlyphData>();

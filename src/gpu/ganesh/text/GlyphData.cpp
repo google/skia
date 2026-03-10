@@ -171,7 +171,9 @@ GlyphData::GlyphData(sk_sp<TextStrike> strike) : fTextStrike{std::move(strike)} 
 
 GlyphData::~GlyphData() = default;
 
-Glyph GlyphData::makeGlyphFromID(SkPackedGlyphID id) { return Glyph{fTextStrike->getGlyph(id)}; }
+Glyph GlyphData::makeGlyphFromID(SkPackedGlyphID id, MaskFormat format) {
+    return Glyph{fTextStrike->getGlyph(id, format)};
+}
 
 std::tuple<bool, int> GlyphData::regenerateAtlas(int begin,
                                                  int end,
@@ -199,7 +201,7 @@ std::tuple<bool, int> GlyphData::regenerateAtlas(int begin,
         bool success = true;
         for (int i = begin; i < end; i++) {
             const Glyph& glyph = glyphSpan[i];
-
+            SkASSERT(glyph.entry().fGlyphEntryKey.fFormat == maskFormat);
             if (!atlasManager->hasGlyph(maskFormat, glyph.entry())) {
                 const SkGlyph& skGlyph = *metricsAndImages.glyph(glyph.packedID());
                 auto code = atlasManager->addGlyphToAtlas(skGlyph,

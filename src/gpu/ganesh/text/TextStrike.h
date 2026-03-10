@@ -10,6 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "src/core/SkTHash.h"
+#include "src/gpu/MaskFormat.h"
 #include "src/text/gpu/StrikeCache.h"
 
 struct SkPackedGlyphID;
@@ -18,6 +19,7 @@ class SkStrikeSpec;
 namespace skgpu::ganesh {
 
 struct GlyphEntry;
+struct GlyphEntryKey;
 
 /**
  * Ganesh-specific text strike cache entry.
@@ -34,14 +36,15 @@ public:
     static sk_sp<TextStrike> GetOrCreate(sktext::gpu::StrikeCache* strikeCache,
                                          const SkStrikeSpec& strikeSpec);
 
-    GlyphEntry* getGlyph(SkPackedGlyphID packedGlyphID);
+    GlyphEntry* getGlyph(SkPackedGlyphID packedGlyphID, MaskFormat format);
 
 private:
     struct HashTraits {
-        static const SkPackedGlyphID& GetKey(const GlyphEntry* glyph);
-        static uint32_t Hash(SkPackedGlyphID key);
+        static const GlyphEntryKey& GetKey(const GlyphEntry* glyph);
+        static uint32_t Hash(GlyphEntryKey key);
     };
-    skia_private::THashTable<GlyphEntry*, SkPackedGlyphID, HashTraits> fCache;
+
+    skia_private::THashTable<GlyphEntry*, GlyphEntryKey, HashTraits> fCache;
 
     friend class sktext::gpu::StrikeCache;
 };

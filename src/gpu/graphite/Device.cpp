@@ -1432,7 +1432,8 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
     const int subRunEnd = subRun->glyphCount();
 
     if (!subRun->glyphVector().hasBackendData()) {
-        subRun->glyphVector().initBackendData<GlyphData>(this->recorder()->priv().strikeCache());
+        subRun->glyphVector().initBackendData<GlyphData>(this->recorder()->priv().strikeCache(),
+                                                         subRun->maskFormat());
     }
 
     auto& glyphData = subRun->glyphVector().accessBackendData<GlyphData>();

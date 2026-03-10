@@ -34,13 +34,31 @@ enum class MaskFormat : int;
 namespace skgpu::ganesh {
 class TextStrike;
 
+struct GlyphEntryKey {
+    explicit GlyphEntryKey(SkPackedGlyphID id, MaskFormat format) : fPackedID(id), fFormat(format) {}
+
+    const SkPackedGlyphID fPackedID;
+    MaskFormat fFormat;
+
+    bool operator==(const GlyphEntryKey& that) const {
+        return fPackedID == that.fPackedID && fFormat == that.fFormat;
+    }
+    bool operator!=(const GlyphEntryKey& that) const {
+        return !(*this == that);
+    }
+
+    uint32_t hash() const {
+        return fPackedID.hash();
+    }
+};
+
 /**
  * Ganesh-specific glyph type with atlas location information.
  */
 struct GlyphEntry {
-    explicit GlyphEntry(SkPackedGlyphID id) : fPackedID(id) {}
+    explicit GlyphEntry(SkPackedGlyphID id, MaskFormat format) : fGlyphEntryKey(id, format) {}
 
-    const SkPackedGlyphID fPackedID;
+    const GlyphEntryKey fGlyphEntryKey;
     GrAtlasLocator fAtlasLocator;
 };
 
@@ -56,7 +74,7 @@ class Glyph {
 
 public:
     explicit Glyph(GlyphEntry* entry) : fEntry{entry} { SkASSERT(entry); }
-    SkPackedGlyphID packedID() const { return fEntry->fPackedID; }
+    SkPackedGlyphID packedID() const { return fEntry->fGlyphEntryKey.fPackedID; }
     GlyphEntry& entry() const { return *fEntry; }
 };
 
@@ -74,7 +92,7 @@ public:
 
     ~GlyphData();
 
-    Glyph makeGlyphFromID(SkPackedGlyphID);
+    Glyph makeGlyphFromID(SkPackedGlyphID, MaskFormat);
 
     // Regenerate atlas entries for glyphs in range [begin, end).
     // Returns {success, glyphs_placed_in_atlas}.
