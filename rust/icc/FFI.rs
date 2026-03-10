@@ -261,19 +261,15 @@ pub fn parse_icc_profile(data: &[u8], out: &mut ffi::IccProfile) -> bool {
             out.trc_b = b_curve;
             out.has_trc = true;
         }
-    } else if let (Some(r_trc), Some(g_trc), Some(b_trc)) =
-        (&profile.red_trc, &profile.green_trc, &profile.blue_trc)
-    {
-        if let (Some(r_curve), Some(g_curve), Some(b_curve)) = (
-            convert_trc_to_curve(r_trc),
-            convert_trc_to_curve(g_trc),
-            convert_trc_to_curve(b_trc),
-        ) {
-            out.trc_r = r_curve;
-            out.trc_g = g_curve;
-            out.trc_b = b_curve;
-            out.has_trc = true;
-        }
+    } else if let (Some(r_curve), Some(g_curve), Some(b_curve)) = (
+        profile.red_trc.as_ref().and_then(convert_trc_to_curve),
+        profile.green_trc.as_ref().and_then(convert_trc_to_curve),
+        profile.blue_trc.as_ref().and_then(convert_trc_to_curve),
+    ) {
+        out.trc_r = r_curve;
+        out.trc_g = g_curve;
+        out.trc_b = b_curve;
+        out.has_trc = true;
     }
 
     out.has_cicp = false;
@@ -289,30 +285,28 @@ pub fn parse_icc_profile(data: &[u8], out: &mut ffi::IccProfile) -> bool {
 
     // Extract A2B transform (device-to-PCS with LUTs)
     out.has_a2b = false;
-    if let Some(ref lut) = profile
+    if let Some(a2b) = profile
         .lut_a_to_b_perceptual
         .as_ref()
         .or(profile.lut_a_to_b_colorimetric.as_ref())
         .or(profile.lut_a_to_b_saturation.as_ref())
+        .and_then(|lut| convert_to_a2b(lut, profile.pcs, LutTagType::A2B))
     {
-        if let Some(a2b) = convert_to_a2b(lut, profile.pcs, LutTagType::A2B) {
-            out.a2b = a2b;
-            out.has_a2b = true;
-        }
+        out.a2b = a2b;
+        out.has_a2b = true;
     }
 
     // Extract B2A transform (PCS-to-device with LUTs)
     out.has_b2a = false;
-    if let Some(ref lut) = profile
+    if let Some(a2b_data) = profile
         .lut_b_to_a_perceptual
         .as_ref()
         .or(profile.lut_b_to_a_colorimetric.as_ref())
         .or(profile.lut_b_to_a_saturation.as_ref())
+        .and_then(|lut| convert_to_a2b(lut, profile.pcs, LutTagType::B2A))
     {
-        if let Some(a2b_data) = convert_to_a2b(lut, profile.pcs, LutTagType::B2A) {
-            out.b2a = a2b_to_b2a(a2b_data);
-            out.has_b2a = true;
-        }
+        out.b2a = a2b_to_b2a(a2b_data);
+        out.has_b2a = true;
     }
 
     true
@@ -451,11 +445,11 @@ fn apply_encoding_factor(
         LutTagType::B2A => 32768.0 / 65535.0,
     };
 
-    for i in 0..3 {
+    for (i, bias) in matrix_bias.iter_mut().enumerate() {
         for j in 0..3 {
             matrix.vals[i][j] *= encoding_factor;
         }
-        matrix_bias[i] *= encoding_factor;
+        *bias *= encoding_factor;
     }
 }
 
@@ -523,11 +517,8 @@ fn convert_to_a2b(
 
     match lut {
         LutWarehouse::Multidimensional(mdt) => {
-            let input_curves: Vec<ffi::Curve> = mdt
-                .a_curves
-                .iter()
-                .filter_map(|c| convert_to_curve(c))
-                .collect();
+            let input_curves: Vec<ffi::Curve> =
+                mdt.a_curves.iter().filter_map(convert_to_curve).collect();
 
             let (grid_data, is_16bit_grid) = if let Some(ref clut) = mdt.clut {
                 convert_grid_data(clut)
@@ -535,11 +526,8 @@ fn convert_to_a2b(
                 (Vec::new(), false)
             };
 
-            let matrix_curves: Vec<ffi::Curve> = mdt
-                .m_curves
-                .iter()
-                .filter_map(|c| convert_to_curve(c))
-                .collect();
+            let matrix_curves: Vec<ffi::Curve> =
+                mdt.m_curves.iter().filter_map(convert_to_curve).collect();
 
             let mut matrix = matrix3d_to_ffi(&mdt.matrix);
             let mut matrix_bias = [
@@ -549,11 +537,8 @@ fn convert_to_a2b(
             ];
             apply_encoding_factor(&mut matrix, &mut matrix_bias, pcs, tag_type);
 
-            let output_curves: Vec<ffi::Curve> = mdt
-                .b_curves
-                .iter()
-                .filter_map(|c| convert_to_curve(c))
-                .collect();
+            let output_curves: Vec<ffi::Curve> =
+                mdt.b_curves.iter().filter_map(convert_to_curve).collect();
 
             let grid_points: [u8; 4] = mdt.grid_points[..4].try_into().unwrap();
 
