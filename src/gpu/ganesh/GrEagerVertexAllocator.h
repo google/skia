@@ -37,6 +37,7 @@ public:
 
     skgpu::VertexWriter lockWriter(size_t stride, int eagerCount) {
         void* p = this->lock(stride, eagerCount);
+        // If we have `p`, stride*eagerCount won't overflow
         return p ? skgpu::VertexWriter{p, stride * eagerCount} : skgpu::VertexWriter{};
     }
 };

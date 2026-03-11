@@ -43,7 +43,7 @@ void* GrCpuVertexAllocator::lock(size_t stride, int eagerCount) {
     SkASSERT(!fLockStride && !fVertices && !fVertexData);
     SkASSERT(stride && eagerCount);
 
-    fVertices = sk_malloc_throw(eagerCount * stride);
+    fVertices = sk_malloc_throw(stride, eagerCount);
     fLockStride = stride;
 
     return fVertices;
