@@ -167,7 +167,7 @@ public:
 
     const VertexFiller& vertexFiller() const { return fVertexFiller; }
 
-    virtual void testingOnly_packedGlyphIDToGlyph(StrikeCache* cache) const = 0;
+    virtual void testingOnly_packedGlyphIDToGlyph(StrikeCache* cache, skgpu::MaskFormat) const = 0;
 
 protected:
     const VertexFiller fVertexFiller;

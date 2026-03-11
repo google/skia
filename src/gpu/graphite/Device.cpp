@@ -1428,6 +1428,7 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
                                   int padding) {
         return glyphs->regenerateAtlasForGraphite(begin, end, maskFormat, padding, fRecorder);
     };
+
     for (int subRunCursor = 0; subRunCursor < subRunEnd;) {
         // For the remainder of the run, add any atlas uploads to the Recorder's TextAtlasManager
         auto[ok, glyphsRegenerated] = subRun->regenerateAtlas(subRunCursor, subRunEnd,

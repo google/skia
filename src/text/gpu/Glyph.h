@@ -14,6 +14,25 @@
 
 namespace sktext::gpu {
 
+struct GlyphEntryKey {
+    explicit GlyphEntryKey(SkPackedGlyphID id, skgpu::MaskFormat format)
+            : fPackedID(id), fFormat(format) {}
+
+    const SkPackedGlyphID fPackedID;
+    skgpu::MaskFormat fFormat;
+
+    bool operator==(const GlyphEntryKey& that) const {
+        return fPackedID == that.fPackedID && fFormat == that.fFormat;
+    }
+    bool operator!=(const GlyphEntryKey& that) const {
+        return !(*this == that);
+    }
+
+    uint32_t hash() const {
+        return fPackedID.hash();
+    }
+};
+
 class Glyph {
 public:
     static skgpu::MaskFormat FormatFromSkGlyph(SkMask::Format format) {
@@ -34,10 +53,11 @@ public:
         SkUNREACHABLE;
     }
 
-    explicit Glyph(SkPackedGlyphID packedGlyphID) : fPackedID(packedGlyphID) {}
+    explicit Glyph(SkPackedGlyphID packedGlyphID, skgpu::MaskFormat format)
+             : fGlyphEntryKey(packedGlyphID, format) {}
 
-    const SkPackedGlyphID       fPackedID;
-    skgpu::AtlasLocator         fAtlasLocator;
+    const GlyphEntryKey fGlyphEntryKey;
+    skgpu::AtlasLocator fAtlasLocator;
 };
 
 }  // namespace sktext::gpu

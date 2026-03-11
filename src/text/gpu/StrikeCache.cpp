@@ -207,10 +207,11 @@ TextStrike::TextStrike(StrikeCache* strikeCache, const SkStrikeSpec& strikeSpec)
         : fStrikeCache(strikeCache)
         , fStrikeSpec{strikeSpec} {}
 
-Glyph* TextStrike::getGlyph(SkPackedGlyphID packedGlyphID) {
-    Glyph* glyph = fCache.findOrNull(packedGlyphID);
+Glyph* TextStrike::getGlyph(SkPackedGlyphID packedGlyphID, skgpu::MaskFormat format) {
+    GlyphEntryKey localKey(packedGlyphID, format);
+    Glyph* glyph = fCache.findOrNull(localKey);
     if (glyph == nullptr) {
-        glyph = fAlloc.make<Glyph>(packedGlyphID);
+        glyph = fAlloc.make<Glyph>(packedGlyphID, format);
         fCache.set(glyph);
         fMemoryUsed += sizeof(Glyph);
         if (!fRemoved) {
@@ -220,11 +221,11 @@ Glyph* TextStrike::getGlyph(SkPackedGlyphID packedGlyphID) {
     return glyph;
 }
 
-const SkPackedGlyphID& TextStrike::HashTraits::GetKey(const Glyph* glyph) {
-    return glyph->fPackedID;
+const GlyphEntryKey& TextStrike::HashTraits::GetKey(const Glyph* glyph) {
+    return glyph->fGlyphEntryKey;
 }
 
-uint32_t TextStrike::HashTraits::Hash(SkPackedGlyphID key) {
+uint32_t TextStrike::HashTraits::Hash(GlyphEntryKey key) {
     return key.hash();
 }
 

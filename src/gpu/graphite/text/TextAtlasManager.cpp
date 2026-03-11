@@ -207,8 +207,7 @@ DrawAtlas::ErrorCode TextAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
     }
     SkASSERT(glyph != nullptr);
 
-    MaskFormat glyphFormat = Glyph::FormatFromSkGlyph(skGlyph.maskFormat());
-    MaskFormat expectedMaskFormat = this->resolveMaskFormat(glyphFormat);
+    MaskFormat expectedMaskFormat = this->resolveMaskFormat(glyph->fGlyphEntryKey.fFormat);
     int bytesPerPixel = MaskFormatBytesPerPixel(expectedMaskFormat);
 
     int padding;
@@ -359,7 +358,7 @@ std::tuple<bool, int> GlyphVector::regenerateAtlasForGraphite(int begin,
 
     uint64_t currentAtlasGen = atlasManager->atlasGeneration(maskFormat);
 
-    this->packedGlyphIDToGlyph(recorder->priv().strikeCache());
+    this->packedGlyphIDToGlyph(recorder->priv().strikeCache(), maskFormat);
 
     if (fAtlasGeneration != currentAtlasGen) {
         // Calculate the texture coordinates for the vertexes during first use (fAtlasGeneration
@@ -375,9 +374,10 @@ std::tuple<bool, int> GlyphVector::regenerateAtlasForGraphite(int begin,
         for (const Variant& variant : glyphs) {
             Glyph* gpuGlyph = variant.glyph;
             SkASSERT(gpuGlyph != nullptr);
-
+            SkASSERT(gpuGlyph->fGlyphEntryKey.fFormat == maskFormat);
             if (!atlasManager->hasGlyph(maskFormat, gpuGlyph)) {
-                const SkGlyph& skGlyph = *metricsAndImages.glyph(gpuGlyph->fPackedID);
+                const SkGlyph& skGlyph =
+                    *metricsAndImages.glyph(gpuGlyph->fGlyphEntryKey.fPackedID);
                 auto code = atlasManager->addGlyphToAtlas(skGlyph, gpuGlyph, srcPadding);
                 if (code != DrawAtlas::ErrorCode::kSucceeded) {
                     success = code != DrawAtlas::ErrorCode::kError;
