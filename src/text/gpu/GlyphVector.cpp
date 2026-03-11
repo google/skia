@@ -99,14 +99,14 @@ SkSpan<const Glyph*> GlyphVector::glyphs() const {
 
 // packedGlyphIDToGlyph must be run in single-threaded mode.
 // If fSkStrike is not sk_sp<SkStrike> then the conversion to Glyph* has not happened.
-void GlyphVector::packedGlyphIDToGlyph(StrikeCache* cache) {
+void GlyphVector::packedGlyphIDToGlyph(StrikeCache* cache, MaskFormat maskFormat) {
     if (fTextStrike == nullptr) {
         SkStrike* strike = fStrikePromise.strike();
         fTextStrike = cache->findOrCreateStrike(strike->strikeSpec());
 
         // Get all the atlas locations for each glyph.
         for (Variant& variant : fGlyphs) {
-            variant.glyph = fTextStrike->getGlyph(variant.packedGlyphID);
+            variant.glyph = fTextStrike->getGlyph(variant.packedGlyphID, maskFormat);
         }
 
         // This must be pinned for the Atlas filling to work.
