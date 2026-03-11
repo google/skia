@@ -18,7 +18,7 @@
 #include <cstring>
 
 std::unique_ptr<SkDescriptor> SkDescriptor::Alloc(size_t length) {
-    SkASSERT(length >= sizeof(SkDescriptor) && SkAlign4(length) == length);
+    SkASSERT(length >= sizeof(SkDescriptor) && SkIsAlign4(length));
     void* allocation = ::operator new(length);
     return std::unique_ptr<SkDescriptor>(new (allocation) SkDescriptor{});
 }
@@ -34,7 +34,7 @@ void SkDescriptor::flatten(SkWriteBuffer& buffer) const {
 
 void* SkDescriptor::addEntry(uint32_t tag, size_t length, const void* data) {
     SkASSERT(tag);
-    SkASSERT(SkAlign4(length) == length);
+    SkASSERT(SkIsAlign4(length));
     SkASSERT(this->findEntry(tag, nullptr) == nullptr);
 
     Entry* entry = (Entry*)((char*)this + fLength);
@@ -82,6 +82,7 @@ bool SkDescriptor::operator==(const SkDescriptor& other) const {
     //       remove the aa < stop test in the loop...
     const uint32_t* aa = (const uint32_t*)this;
     const uint32_t* bb = (const uint32_t*)&other;
+    SkASSERT(SkIsAlign4(fLength));
     const uint32_t* stop = (const uint32_t*)((const char*)aa + fLength);
     do {
         if (*aa++ != *bb++)
@@ -111,7 +112,7 @@ uint32_t SkDescriptor::ComputeChecksum(const SkDescriptor* desc) {
 bool SkDescriptor::isValid() const {
     uint32_t count = fCount;
     size_t lengthRemaining = this->fLength;
-    if (lengthRemaining < sizeof(SkDescriptor)) {
+    if (lengthRemaining < sizeof(SkDescriptor) || !SkIsAlign4(lengthRemaining)) {
         return false;
     }
     lengthRemaining -= sizeof(SkDescriptor);
@@ -125,7 +126,7 @@ bool SkDescriptor::isValid() const {
 
         const Entry* entry = (const Entry*)(reinterpret_cast<const char*>(this) + offset);
 
-        if (lengthRemaining < entry->fLen) {
+        if (lengthRemaining < entry->fLen || !SkIsAlign4(entry->fLen)) {
             return false;
         }
         lengthRemaining -= entry->fLen;
