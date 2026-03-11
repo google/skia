@@ -13,6 +13,7 @@
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTHash.h"
+#include "src/gpu/AtlasTypes.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -32,6 +33,7 @@ struct SkPackedGlyphID;
 namespace sktext::gpu {
 
 class Glyph;
+struct GlyphEntryKey;
 class StrikeCache;
 
 // The TextStrike manages an SkArenaAlloc for Glyphs. The SkStrike is what actually creates
@@ -43,7 +45,7 @@ public:
     TextStrike(StrikeCache* strikeCache,
                const SkStrikeSpec& strikeSpec);
 
-    Glyph* getGlyph(SkPackedGlyphID);
+    Glyph* getGlyph(SkPackedGlyphID, skgpu::MaskFormat format);
     const SkStrikeSpec& strikeSpec() const { return fStrikeSpec; }
     const SkDescriptor& getDescriptor() const { return fStrikeSpec.descriptor(); }
 
@@ -54,11 +56,11 @@ private:
     const SkStrikeSpec fStrikeSpec;
 
     struct HashTraits {
-        static const SkPackedGlyphID& GetKey(const Glyph* glyph);
-        static uint32_t Hash(SkPackedGlyphID key);
+        static const GlyphEntryKey& GetKey(const Glyph* glyph);
+        static uint32_t Hash(GlyphEntryKey key);
     };
     // Map SkPackedGlyphID -> Glyph*.
-    skia_private::THashTable<Glyph*, SkPackedGlyphID, HashTraits> fCache;
+    skia_private::THashTable<Glyph*, GlyphEntryKey, HashTraits> fCache;
 
     // Store for the glyph information.
     SkArenaAlloc fAlloc{512};
