@@ -18,6 +18,7 @@
 #include "src/gpu/ganesh/effects/GrMatrixEffect.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/ganesh/image/GrMippedBitmap.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
@@ -189,14 +190,16 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(fp_sample_chaining, rContext, canvas, errorMsg, 232, 
     auto nextRow = [&] { x = 10; y += (64 + 10); };
 
     auto draw = [&](std::initializer_list<EffectType> effects) {
-        // Enable TestPatternEffect to get a fully procedural inner effect. It's not quite as nice
-        // visually (no text labels in each box), but it avoids the extra GrMatrixEffect.
-        // Switching it on actually triggers *more* shader compilation failures.
+    // Enable TestPatternEffect to get a fully procedural inner effect. It's not quite as nice
+    // visually (no text labels in each box), but it avoids the extra GrMatrixEffect.
+    // Switching it on actually triggers *more* shader compilation failures.
 #if 0
         auto fp = std::unique_ptr<GrFragmentProcessor>(new TestPatternEffect());
 #else
-        auto view = std::get<0>(GrMakeCachedBitmapProxyView(
-                rContext, bmp, /*label=*/"FpSampleChaining", skgpu::Mipmapped::kNo));
+        auto view = std::get<0>(GrMakeCachedBitmapProxyView(rContext,
+                                                            GrMippedBitmap(bmp),
+                                                            /*label=*/"FpSampleChaining",
+                                                            skgpu::Mipmapped::kNo));
         auto fp = GrTextureEffect::Make(std::move(view), bmp.alphaType());
 #endif
         for (EffectType effectType : effects) {

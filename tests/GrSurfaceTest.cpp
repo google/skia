@@ -53,6 +53,7 @@
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/TestFormatColorTypeCombination.h"
+#include "src/gpu/ganesh/image/GrMippedBitmap.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/gpu/ContextType.h"
@@ -502,12 +503,9 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture,
                 write.addr32(),
                 kSize*GrColorTypeBytesPerPixel(GrColorType::kRGBA_8888));
         REPORTER_ASSERT(reporter, gpuWriteResult == (ioType == kRW_GrIOType));
-
-        SkBitmap copySrcBitmap;
-        copySrcBitmap.installPixels(write);
-        copySrcBitmap.setImmutable();
-
-        auto copySrc = std::get<0>(GrMakeUncachedBitmapProxyView(dContext, copySrcBitmap));
+        std::optional<GrMippedBitmap> bm = GrMippedBitmap::Make(write);
+        SkASSERT_RELEASE(bm);
+        auto copySrc = std::get<0>(GrMakeUncachedBitmapProxyView(dContext, bm.value()));
 
         REPORTER_ASSERT(reporter, copySrc);
         auto copyResult = surfContext->testCopy(copySrc.refProxy());
