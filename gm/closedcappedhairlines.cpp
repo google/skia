@@ -95,13 +95,13 @@ static void draw_hairline_contours_with_caps(SkCanvas* canvas, SkPaint::Cap cap)
 
     // second row
     auto lineOffOpen = lineOnOpen
-                        .makeOffset(0.5, 15);
+                        .makeOffset(0.5, 0.5).makeOffset(0, 15);
     pathCanvas->drawPath(lineOffOpen, paint);
     auto quadOffOpen = quadOnOpen
-                        .makeOffset(0.5, 15);
+                        .makeOffset(0.5, 0.5).makeOffset(0, 15);
     pathCanvas->drawPath(quadOffOpen, paint);
     auto cubicOffOpen = cubicOnOpen
-                        .makeOffset(0.5, 15);
+                        .makeOffset(0.5, 0.5).makeOffset(0, 15);
     pathCanvas->drawPath(cubicOffOpen, paint);
 
     // third row
@@ -117,13 +117,13 @@ static void draw_hairline_contours_with_caps(SkCanvas* canvas, SkPaint::Cap cap)
 
     // forth row
     auto lineOffClosed = SkPathBuilder(lineOnOpen).close().detach()
-                            .makeOffset(0.5, 45);
+                            .makeOffset(0.5, 0.5).makeOffset(0, 45);
     pathCanvas->drawPath(lineOffClosed, paint);
     auto quadOffClosed = SkPathBuilder(quadOnOpen).close().detach()
-                            .makeOffset(0.5, 45);
+                            .makeOffset(0.5, 0.5).makeOffset(0, 45);
     pathCanvas->drawPath(quadOffClosed, paint);
     auto cubicOffClosed = SkPathBuilder(cubicOnOpen).close().detach()
-                            .makeOffset(0.5, 45);
+                            .makeOffset(0.5, 0.5).makeOffset(0, 45);
     pathCanvas->drawPath(cubicOffClosed, paint);
 
     auto pathImg = pathSurface->makeImageSnapshot();
