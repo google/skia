@@ -7,7 +7,6 @@
 
 #include "tools/SkSharingProc.h"
 
-#include "include/codec/SkCodec.h"
 #include "include/codec/SkPngDecoder.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
@@ -17,10 +16,9 @@
 #include "include/core/SkSerialProcs.h"
 #include "include/core/SkStream.h"
 #include "include/encode/SkPngEncoder.h"
-#include "include/private/base/SkLog.h"
 
-static SkSerialReturnType collect_nontexture_images_proc(SkImage* img, void* ctx) {
-    SkASSERT(img);
+namespace {
+SkSerialReturnType collectNonTextureImagesProc(SkImage* img, void* ctx) {
     SkSharingSerialContext* context = reinterpret_cast<SkSharingSerialContext*>(ctx);
     uint32_t originalId = img->uniqueID();
     sk_sp<SkImage>* imageInMap = context->fNonTexMap.find(originalId);
@@ -32,12 +30,13 @@ static SkSerialReturnType collect_nontexture_images_proc(SkImage* img, void* ctx
     // we really only want to build our map. The output of this function is ignored.
     return SkData::MakeEmpty();
 }
+}
 
 void SkSharingSerialContext::collectNonTextureImagesFromPicture(
     const SkPicture* pic, SkSharingSerialContext* sharingCtx) {
     SkSerialProcs tempProc;
     tempProc.fImageCtx = sharingCtx;
-    tempProc.fImageProc = collect_nontexture_images_proc;
+    tempProc.fImageProc = collectNonTextureImagesProc;
     SkNullWStream ns;
     pic->serialize(&ns, &tempProc);
 }
@@ -46,9 +45,7 @@ void SkSharingSerialContext::setDirectContext(GrDirectContext* ctx) {
     fDirectContext = ctx;
 }
 
-namespace SkSharingContext {
-
-SkSerialReturnType serializeImage(SkImage* img, void* ctx) {
+SkSerialReturnType SkSharingSerialContext::serializeImage(SkImage* img, void* ctx) {
     SkSharingSerialContext* context = reinterpret_cast<SkSharingSerialContext*>(ctx);
     uint32_t id = img->uniqueID(); // get this process's id for the image. these are not hashes.
     // find out if we have already serialized this, and if so, what its in-file id is.
@@ -76,42 +73,41 @@ SkSerialReturnType serializeImage(SkImage* img, void* ctx) {
     return SkData::MakeWithCopy(fid, sizeof(*fid));
 }
 
-sk_sp<SkImage> deserializeImage(sk_sp<SkData> data,
-                                std::optional<SkAlphaType> alphaType,
-                                void* ctx) {
-    if (!data || data->empty() || !ctx) {
-        SKIA_LOG_W("SkSharingContext::deserializeImage arguments invalid %p.\n", ctx);
+sk_sp<SkImage> SkSharingDeserialContext::deserializeImage(
+  const void* data, size_t length, void* ctx) {
+    if (!data || !length || !ctx) {
+        SkDebugf("SkSharingDeserialContext::deserializeImage arguments invalid %p %zu %p.\n",
+            data, length, ctx);
         // Return something so the rest of the debugger can proceed.
         SkBitmap bm;
         bm.allocPixels(SkImageInfo::MakeN32Premul(1, 1));
         return bm.asImage();
     }
     SkSharingDeserialContext* context = reinterpret_cast<SkSharingDeserialContext*>(ctx);
-    uint32_t fid = std::numeric_limits<uint32_t>::max();
+    uint32_t fid;
     // If the data is an image fid, look up an already deserialized image from our map
-    if (data->size() == sizeof(fid)) {
-        data->copyRange(0, sizeof(fid), &fid);
+    if (length == sizeof(fid)) {
+        memcpy(&fid, data, sizeof(fid));
         if (fid >= context->fImages.size()) {
-            SKIA_LOG_E("Cannot deserialize using id, We do not have the data for image %u.\n", fid);
+            SkDebugf("Cannot deserialize using id, We do not have the data for image %u.\n", fid);
             return nullptr;
         }
         return context->fImages[fid];
     }
     // Otherwise, the data is an image, deserialise it, store it in our map at its fid.
-    auto codec = SkPngDecoder::Decode(std::move(data), nullptr);
+    // TODO(nifong): make DeserialProcs accept sk_sp<SkData> so we don't have to copy this.
+    sk_sp<SkData> dataView = SkData::MakeWithCopy(data, length);
+    auto codec = SkPngDecoder::Decode(std::move(dataView), nullptr);
     if (!codec) {
-        SKIA_LOG_E("Cannot deserialize image - might not be a PNG.\n");
+        SkDebugf("Cannot deserialize image - might not be a PNG.\n");
         return nullptr;
     }
-    auto image = SkCodecs::DeferredImage(std::move(codec), alphaType);
-    if (!image) {
-        SKIA_LOG_E("Cannot initialize image.\n");
-        return nullptr;
+    SkImageInfo info = codec->getInfo().makeAlphaType(kPremul_SkAlphaType);
+    auto [image, result] = codec->getImage(info);
+    if (result != SkCodec::Result::kSuccess) {
+        SkDebugf("Error decoding image %d.\n", result);
+        // Might have partially decoded.
     }
-    image = image->makeRasterImage(nullptr);
-    SkASSERT(image);
     context->fImages.push_back(image);
     return image;
 }
-
-}  // namespace SkSharingContext

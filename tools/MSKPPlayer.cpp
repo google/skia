@@ -250,7 +250,7 @@ private:
 std::unique_ptr<MSKPPlayer> MSKPPlayer::Make(SkStreamSeekable* stream) {
     auto deserialContext = std::make_unique<SkSharingDeserialContext>();
     SkDeserialProcs procs;
-    procs.fImageDataProc = SkSharingContext::deserializeImage;
+    procs.fImageProc = SkSharingDeserialContext::deserializeImage;
     procs.fImageCtx = deserialContext.get();
 
     int pageCount = SkMultiPictureDocument::ReadPageCount(stream);
