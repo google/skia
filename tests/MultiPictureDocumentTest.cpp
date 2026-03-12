@@ -106,7 +106,7 @@ DEF_TEST(SkMultiPictureDocument_Serialize_and_deserialize, reporter) {
     SkSharingSerialContext ctx;
     ctx.setDirectContext(nullptr);
     SkSerialProcs procs;
-    procs.fImageProc = SkSharingSerialContext::serializeImage;
+    procs.fImageProc = SkSharingContext::serializeImage;
     procs.fImageCtx = &ctx;
 
     // Create the multi picture document used for recording frames.
@@ -152,7 +152,7 @@ DEF_TEST(SkMultiPictureDocument_Serialize_and_deserialize, reporter) {
     // Set up deserialization
     SkSharingDeserialContext deserialContext;
     SkDeserialProcs dprocs;
-    dprocs.fImageProc = SkSharingDeserialContext::deserializeImage;
+    dprocs.fImageDataProc = SkSharingContext::deserializeImage;
     dprocs.fImageCtx = &deserialContext;
 
     // Confirm data is a MultiPictureDocument
@@ -352,7 +352,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkMultiPictureDocument_AHardwarebuffer,
     SkSharingSerialContext ctx;
     ctx.setDirectContext(context);
     SkSerialProcs procs;
-    procs.fImageProc = SkSharingSerialContext::serializeImage;
+    procs.fImageProc = SkSharingContext::serializeImage;
     procs.fImageCtx = &ctx;
 
     // Create the multi picture document used for recording frames.
@@ -398,7 +398,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkMultiPictureDocument_AHardwarebuffer,
     // Set up deserialization
     SkSharingDeserialContext deserialContext;
     SkDeserialProcs dprocs;
-    dprocs.fImageProc = SkSharingDeserialContext::deserializeImage;
+    dprocs.fImageDataProc = SkSharingContext::deserializeImage;
     dprocs.fImageCtx = &deserialContext;
 
     // Confirm data is a MultiPictureDocument
