@@ -1803,7 +1803,23 @@ skia_source_set("core") {
   sources = skia_core_sources
 
   # These deps don't belong to :core, but they are currently needed to support (de)serialization.
+  deps = [
+    ":fontmgr_mac_ct",
+    ":fontmgr_win",
+    ":fontmgr_win_gdi",
+    ":png_decode_libpng",
+    ":png_encode_libpng",
+    ":typeface_fontations",
+    ":typeface_freetype",
+  ]
+}
+
+skia_component("skia") {
+  public_configs = [ ":skia_public" ]
+  configs = skia_library_configs
+
   public_deps = [
+    ":core",
     ":fontmgr_FontConfigInterface",
     ":fontmgr_android",
     ":fontmgr_android_ndk",
@@ -1815,23 +1831,13 @@ skia_source_set("core") {
     ":fontmgr_mac_ct",
     ":fontmgr_win",
     ":fontmgr_win_gdi",
-    ":png_decode_libpng",
-    ":png_encode_libpng",
-  ]
-  deps = [ ":typeface_fontations" ]
-}
-
-skia_component("skia") {
-  public_configs = [ ":skia_public" ]
-  configs = skia_library_configs
-
-  public_deps = [
-    ":core",
     ":gpu",
     ":graphite",
     ":jpeg_encode",
     ":pdf",
     ":pdf_jpeg_helpers",
+    ":png_decode_libpng",
+    ":png_encode_libpng",
     ":webp_encode",
     ":xps",
   ]
@@ -1851,6 +1857,7 @@ skia_component("skia") {
     ":rust_icc",
     ":skx",
     ":typeface_fontations",
+    ":typeface_freetype",
     ":vello",
     ":webp_decode",
     ":wuffs",
