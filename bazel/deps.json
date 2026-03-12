@@ -39,7 +39,7 @@
     },
     {
       "build_file": "//bazel/external/harfbuzz:BUILD.bazel",
-      "commit": "31695252eb6ed25096893aec7f848889dad874bc",
+      "commit": "9cb1fee51069b206effb4736e443b038d230789d",
       "name": "harfbuzz",
       "patches": [
         "//bazel/external/harfbuzz:config_files.patch"
