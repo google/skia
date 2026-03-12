@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+
 #include "include/core/SkColorType.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
@@ -15,6 +16,8 @@
 #include "tools/flags/CommandLineFlags.h"
 
 #include <cstdint>
+
+#if !defined(SK_DISABLE_TRACING)
 
 static DEFINE_bool(slowTracingTest, false,
                    "Artificially slow down tracing test to produce nicer JSON");
@@ -192,3 +195,5 @@ DEF_TEST(Tracing, reporter) {
     test_trace_counters();
     test_trace_objects();
 }
+
+#endif // SK_DISABLE_TRACING

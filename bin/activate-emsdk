@@ -10,7 +10,10 @@ import subprocess
 import sys
 import sysconfig
 
-EMSDK_ROOT = os.path.join('third_party', 'externals', 'emsdk')
+THIS_DIR = os.path.dirname(__file__)
+SRC_ROOT_DIR = os.path.abspath(os.path.join(THIS_DIR, os.path.pardir))
+
+EMSDK_ROOT = os.path.join(SRC_ROOT_DIR, 'third_party', 'externals', 'emsdk')
 
 EMSDK_PATH = os.path.join(EMSDK_ROOT, 'emsdk.py')
 

@@ -249,6 +249,13 @@ template("gcc_like_toolchain") {
     lib_switch = "-l"
     lib_dir_switch = "-L"
 
+    current_cpu = invoker.cpu
+    current_os = invoker.os
+
+    if (defined(invoker.deps)) {
+      deps = invoker.deps
+    }
+
     tool("cc") {
       depfile = "{{output}}.d"
       command = "$cc_wrapper $cc -MD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}"
@@ -294,12 +301,12 @@ template("gcc_like_toolchain") {
       description = "assemble {{source}}"
     }
 
-    if (is_mac || is_ios) {
+    if (current_os == "mac" || current_os == "ios" || current_os == "tvos") {
       not_needed([ "ar" ])  # We use libtool instead.
     }
 
     tool("alink") {
-      if (is_mac || is_ios) {
+      if (current_os == "mac" || current_os == "ios" || current_os == "tvos") {
         command = "libtool -static -o {{output}} -no_warning_for_no_symbols {{inputs}}"
       } else {
         rspfile = "{{output}}.rsp"
@@ -310,8 +317,8 @@ template("gcc_like_toolchain") {
 
       outputs =
           [ "{{root_out_dir}}/{{target_output_name}}{{output_extension}}" ]
-      if (is_wasm && !is_canvaskit) {
-        default_output_extension = ".a.wasm"
+      if (current_os == "wasm" && !is_canvaskit) {
+        default_output_extension = ".wasm.a"
       } else {
         default_output_extension = ".a"
       }
@@ -326,7 +333,7 @@ template("gcc_like_toolchain") {
       soname = "{{target_output_name}}{{output_extension}}"
 
       rpath = "-Wl,-soname,$soname"
-      if (is_mac || is_ios) {
+      if (current_os == "mac" || current_os == "ios" || current_os == "tvos") {
         rpath = "-Wl,-install_name,@rpath/$soname"
       }
 
@@ -341,18 +348,23 @@ template("gcc_like_toolchain") {
       # LLD doesn't need these flags, but accepts and ignores them.
       _start_group = "-Wl,--start-group"
       _end_group = "-Wl,--end-group"
-      if (is_mac || is_ios) {
+      if (current_os == "mac" || current_os == "ios" || current_os == "tvos") {
         _start_group = ""
         _end_group = ""
       }
 
-      command = "$link -shared {{ldflags}} $_start_group @$rspfile {{frameworks}} {{solibs}} $_end_group {{libs}} $rpath -o {{output}}"
+      _emcc_flags = ""
+      if (current_os == "wasm") {
+        _emcc_flags = "-sSIDE_MODULE=1"
+      }
+
+      command = "$link -shared {{ldflags}} $_start_group @$rspfile {{frameworks}} {{solibs}} $_end_group {{libs}} $rpath $_emcc_flags -o {{output}}"
       outputs = [ "{{root_out_dir}}/$soname" ]
       output_prefix = "lib"
-      if (is_mac || is_ios) {
+      if (current_os == "mac" || current_os == "ios" || current_os == "tvos") {
         default_output_extension = ".dylib"
-      } else if (is_wasm && !is_canvaskit) {
-        default_output_extension = ".so.wasm"
+      } else if (current_os == "wasm" && !is_canvaskit) {
+        default_output_extension = ".wasm.so"
       } else {
         default_output_extension = ".so"
       }
@@ -375,7 +387,7 @@ template("gcc_like_toolchain") {
       # LLD doesn't need these flags, but accepts and ignores them.
       _start_group = "-Wl,--start-group"
       _end_group = "-Wl,--end-group"
-      if (is_mac || is_ios) {
+      if (current_os == "mac" || current_os == "ios" || current_os == "tvos") {
         _start_group = ""
         _end_group = ""
       }
@@ -387,7 +399,7 @@ template("gcc_like_toolchain") {
         pool = ":link_pool($default_toolchain)"
       }
 
-      if (is_wasm && !is_canvaskit) {
+      if (current_os == "wasm" && !is_canvaskit) {
         # Executables for wasm are run via Emscripten JS hooks. Those hooks will
         # only be generated when the output extension is .js.
         default_output_extension = ".js"
@@ -457,5 +469,9 @@ if (is_wasm) {
       cxx = "$skia_emsdk_dir/upstream/emscripten/em++"
     }
     link = cxx
+
+    if (!is_canvaskit) {
+      deps = [ "//gn/toolchain/emsdk:activate(//gn/toolchain:$host_toolchain)" ]
+    }
   }
 }

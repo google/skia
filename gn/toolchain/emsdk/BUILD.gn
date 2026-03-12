@@ -1,0 +1,7 @@
+if (current_toolchain == "//gn/toolchain:$host_toolchain") {
+  action("activate") {
+    script = "//bin/activate-emsdk"
+    args = []
+    outputs = [ "$target_gen_dir/emsdk_done.stamp" ]
+  }
+}

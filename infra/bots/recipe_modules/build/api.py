@@ -25,7 +25,7 @@ class BuildApi(recipe_api.RecipeApi):
     elif 'Chromebook' in b:
       self.compile_fn = chromebook.compile_fn
       self.copy_fn = chromebook.copy_build_products
-    elif 'EMCC' in b:
+    elif 'EMCC' in b and not 'StandaloneWasm' in b:
       self.compile_fn = canvaskit.compile_fn
       self.copy_fn = canvaskit.copy_build_products
     elif 'CMake' in b:
