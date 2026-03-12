@@ -290,7 +290,22 @@ bool QueueManager::addFinishInfo(const InsertFinishInfo& info,
 bool QueueManager::submitToGpu(const SubmitInfo& submitInfo) {
     TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_FUNC);
 
+    sk_sp<RefCntedCallback> callback;
+    if (submitInfo.fFinishedProc) {
+        callback = RefCntedCallback::Make(submitInfo.fFinishedProc, submitInfo.fFinishedContext);
+    }
+
     if (!fCurrentCommandBuffer) {
+        // If a finish proc was provided, attach it to the most recent outstanding submission,
+        // or let it fire immediately if the GPU is idle (when callback goes out of scope).
+        if (callback) {
+            if (!fOutstandingSubmissions.empty()) {
+                OutstandingSubmission* back =
+                        (OutstandingSubmission*)fOutstandingSubmissions.back();
+                (*back)->addFinishedProc(std::move(callback));
+            }
+            return true;
+        }
         // We warn because this probably representative of a bad client state, where they don't
         // need to submit but didn't notice, but technically the submit itself is fine (no-op), so
         // we return true.
@@ -303,6 +318,10 @@ bool QueueManager::submitToGpu(const SubmitInfo& submitInfo) {
         SKGPU_LOG_D("Submitting empty command buffer!");
     }
 #endif
+
+    if (callback) {
+        fCurrentCommandBuffer->addFinishedProc(std::move(callback));
+    }
 
     auto submission = this->onSubmitToGpu(submitInfo);
     if (!submission) {

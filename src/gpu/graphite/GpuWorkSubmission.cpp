@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/GpuWorkSubmission.h"
 
+#include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/QueueManager.h"
@@ -49,6 +50,10 @@ void GpuWorkSubmission::waitUntilFinished(const SharedContext* sharedContext) {
             fQueueManager->tick();
         }
     }
+}
+
+void GpuWorkSubmission::addFinishedProc(sk_sp<RefCntedCallback> finishedProc) {
+    fCommandBuffer->addFinishedProc(std::move(finishedProc));
 }
 
 } // namespace skgpu::graphite

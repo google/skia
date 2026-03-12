@@ -190,6 +190,12 @@ struct SubmitInfo {
     MarkFrameBoundary fMarkBoundary = MarkFrameBoundary::kNo;
     uint64_t fFrameID = 0;
 
+    // Optional finish proc that is invoked when all GPU work submitted by this call has
+    // completed. If there is no pending work to submit, the proc is attached to the most
+    // recently outstanding GPU submission, or invoked immediately if the GPU is idle.
+    GpuFinishedProc fFinishedProc = nullptr;
+    GpuFinishedContext fFinishedContext = nullptr;
+
     constexpr SubmitInfo() = default;
 
     constexpr SubmitInfo(SyncToCpu sync)
