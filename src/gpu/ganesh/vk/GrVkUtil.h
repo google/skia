@@ -56,8 +56,8 @@ struct ProgramSettings;
 #define GR_VK_CALL_RESULT(GPU, RESULT, X)                                 \
     do {                                                                  \
         (RESULT) = GR_VK_CALL(GPU->vkInterface(), X);                     \
-        SkASSERT(VK_SUCCESS == RESULT || VK_ERROR_DEVICE_LOST == RESULT); \
         GR_VK_LOG_IF_NOT_SUCCESS(GPU, RESULT, #X);                        \
+        SkASSERT(VK_SUCCESS == RESULT || VK_ERROR_DEVICE_LOST == RESULT); \
         GPU->checkVkResult(RESULT);                                       \
     } while (false)
 
