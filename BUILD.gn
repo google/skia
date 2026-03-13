@@ -2923,6 +2923,14 @@ if (skia_enable_tools) {
       if (skia_enable_graphite) {
         deps += [ ":common_flags_graphite" ]
       }
+      if (skia_use_pprof) {
+        # https://packages.debian.org/trixie/libgoogle-perftools-dev
+        libs = [
+          "profiler",
+          "tcmalloc",
+        ]
+        defines = [ "SK_USE_PPROF" ]
+      }
     }
   }
 
