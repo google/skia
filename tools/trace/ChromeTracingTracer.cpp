@@ -56,8 +56,6 @@ ChromeTracingTracer::ChromeTracingTracer(const char* filename) : fFilename(filen
     this->createBlock();
 }
 
-ChromeTracingTracer::~ChromeTracingTracer() { this->flush(); }
-
 void ChromeTracingTracer::createBlock() {
     fCurBlock.fBlock         = BlockPtr(new uint8_t[kBlockSize]);
     fCurBlock.fEventsInBlock = 0;
@@ -269,7 +267,7 @@ static void trace_event_to_json(SkJSONWriter*                 writer,
     writer->endObject();
 }
 
-void ChromeTracingTracer::flush() {
+void ChromeTracingTracer::onExit() {
     SkAutoSpinlock lock(fMutex);
 
     SkString dirname = SkOSPath::Dirname(fFilename.c_str());

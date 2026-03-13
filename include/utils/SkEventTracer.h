@@ -32,7 +32,8 @@ public:
      *
      * On failure, the tracer is deleted; on success the tracer will be held until process exit, and
      * will not have its destructor run. This avoids race conditions when using Skia from multiple
-     * threads in the midst of application teardown.
+     * threads in the midst of application teardown. However, subclasses can override `onExit()` to
+     * perform operations at exit, such as flushing to disk.
      */
     static bool SetInstance(SkEventTracer*);
 
@@ -83,6 +84,10 @@ protected:
     SkEventTracer() = default;
     SkEventTracer(const SkEventTracer&) = delete;
     SkEventTracer& operator=(const SkEventTracer&) = delete;
+
+    // Called inside an atexit() callback. Must be threadsafe as other threads could still be
+    // attempting to add trace events.
+    virtual void onExit() {}
 };
 
 #endif // SkEventTracer_DEFINED

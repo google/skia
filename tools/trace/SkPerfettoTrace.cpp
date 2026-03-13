@@ -39,10 +39,6 @@ SkPerfettoTrace::SkPerfettoTrace() {
     this->openNewTracingSession(FLAGS_perfettoOutputFileName[0]);
 }
 
-SkPerfettoTrace::~SkPerfettoTrace() {
-    this->closeTracingSession();
-}
-
 void SkPerfettoTrace::openNewTracingSession(const std::string& baseFileName) {
     perfetto::TracingInitArgs args;
     /* Store the current tracing session's output file path as a member attribute so it can

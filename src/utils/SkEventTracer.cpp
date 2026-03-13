@@ -54,6 +54,13 @@ bool SkEventTracer::SetInstance(SkEventTracer* tracer) {
     }
     // Once set, `tracer` remains alive until the process is destroyed.
     SK_INTENTIONALLY_LEAKED(tracer);
+
+    // GetInstance() will return `tracer` here, but allows us to avoid capturing anything in the
+    // lambda. Even if it returned the SkDefaultEventTracer, calling onExit() on that is safe.
+    // SkDefaultEventTracer::onExit() is a no-op, which is why we don't unconditionally add the
+    // atexit() callback; it's only of interest if a custom tracer is installed.
+    atexit([]() { GetInstance()->onExit(); });
+
     return true;
 }
 

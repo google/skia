@@ -22,7 +22,6 @@ class SkJSONWriter;
 class ChromeTracingTracer : public SkEventTracer {
 public:
     explicit ChromeTracingTracer(const char* filename);
-    ~ChromeTracingTracer() override;
 
     SkEventTracer::Handle addTraceEvent(char            phase,
                                         const uint8_t*  categoryEnabledFlag,
@@ -50,7 +49,7 @@ public:
     void newTracingSection(const char* name) override {}
 
 private:
-    void flush();
+    void onExit() override;
 
     enum {
         // Events are variable size, but most commonly 48 bytes, assuming 64-bit pointers and
