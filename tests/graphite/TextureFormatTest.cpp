@@ -30,7 +30,7 @@ struct FormatExpectation {
 
     // Fixed properties
     SkTextureCompressionType fCompressionType;
-    size_t fBytesPerBlock;
+    int fBytesPerBlock;
     uint32_t fChannelMask;
     bool fHasDepth;
     bool fHasStencil;
@@ -43,7 +43,7 @@ struct FormatExpectation {
 };
 
 FormatExpectation MakeColor(TextureFormat format,
-                            size_t bytesPerBlock,
+                            int bytesPerBlock,
                             uint32_t channels,
                             bool multiplanar,
                             bool autoClamps,
@@ -55,7 +55,7 @@ FormatExpectation MakeColor(TextureFormat format,
 
 FormatExpectation MakeCompressed(TextureFormat format,
                                  SkTextureCompressionType compressionType,
-                                 size_t bytesPerBlock,
+                                 int bytesPerBlock,
                                  uint32_t channels,
                                  std::initializer_list<ColorTypeExpectation> compatibleColorTypes) {
     return {format, compressionType, bytesPerBlock, channels, /*fHasDepth=*/false,
@@ -63,8 +63,8 @@ FormatExpectation MakeCompressed(TextureFormat format,
             /*fIsFloatingPoint=*/false, compatibleColorTypes};
 }
 
-FormatExpectation MakeDepthStencil(TextureFormat format, size_t
-                                   bytesPerBlock,
+FormatExpectation MakeDepthStencil(TextureFormat format,
+                                   int bytesPerBlock,
                                    bool hasDepth,
                                    bool hasStencil,
                                    bool autoClamps,

@@ -122,7 +122,7 @@ SkTextureCompressionType TextureFormatCompressionType(TextureFormat);
 
 TextureFormat CompressionTypeToTextureFormat(SkTextureCompressionType);
 
-size_t TextureFormatBytesPerBlock(TextureFormat);
+int TextureFormatBytesPerBlock(TextureFormat);
 
 // The value is mask of SkColorChannelFlag values.
 uint32_t TextureFormatChannelMask(TextureFormat);

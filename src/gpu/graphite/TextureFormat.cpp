@@ -87,7 +87,7 @@ TextureFormat CompressionTypeToTextureFormat(SkTextureCompressionType type) {
     }
 }
 
-size_t TextureFormatBytesPerBlock(TextureFormat format) {
+int TextureFormatBytesPerBlock(TextureFormat format) {
     switch (format) {
         case TF::kUnsupported: return 0;
         case TF::kR8:          return 1;

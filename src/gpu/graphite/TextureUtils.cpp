@@ -384,7 +384,7 @@ size_t ComputeSize(SkISize dimensions, const TextureInfo& info) {
                                                 info.mipmapped() == Mipmapped::kYes);
     } else {
         // TODO(b/401016699): Add logic to handle multiplanar formats
-        size_t bytesPerPixel = TextureFormatBytesPerBlock(format);
+        int bytesPerPixel = TextureFormatBytesPerBlock(format);
 
         colorSize = (size_t)dimensions.width() * dimensions.height() * bytesPerPixel;
     }

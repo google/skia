@@ -1789,7 +1789,7 @@ bool VulkanCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
     const VulkanTexture* dstTexture = static_cast<const VulkanTexture*>(texture);
 
     TextureFormat format = TextureInfoPriv::ViewFormat(dstTexture->textureInfo());
-    size_t bytesPerBlock = TextureFormatBytesPerBlock(format);
+    int bytesPerBlock = TextureFormatBytesPerBlock(format);
     SkISize oneBlockDims = CompressedDimensions(TextureFormatCompressionType(format), {1, 1});
 
     // Set up copy regions.
