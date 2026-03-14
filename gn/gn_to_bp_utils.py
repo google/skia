@@ -48,6 +48,7 @@ def CleanupCFlags(cflags):
   cflags = cflags.union([
     "-Wno-implicit-fallthrough",
     "-Wno-missing-field-initializers",
+    "-Wno-psabi",
     "-Wno-sign-conversion",
     "-Wno-thread-safety-analysis",
     "-Wno-unknown-warning-option",
