@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC.
+// Copyright 2020 Google LLC
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
 REG_FIDDLE(SkFontMgr_example2, 1536, 512, false, 0) {

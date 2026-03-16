@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2019 Google LLC
 #ifndef TextLine_DEFINED
 #define TextLine_DEFINED
 

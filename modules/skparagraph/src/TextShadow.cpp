@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2019 Google LLC
 #include "include/core/SkColor.h"
 #include "modules/skparagraph/include/TextShadow.h"
 

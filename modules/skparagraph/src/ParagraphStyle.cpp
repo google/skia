@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2019 Google LLC
 
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"

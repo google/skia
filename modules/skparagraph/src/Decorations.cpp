@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC.
+// Copyright 2020 Google LLC
 #include "include/core/SkPathBuilder.h"
 #include "modules/skparagraph/src/Decorations.h"
 

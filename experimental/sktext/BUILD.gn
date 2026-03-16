@@ -1,4 +1,4 @@
-# Copyright 2021 Google LLC.
+# Copyright 2021 Google LLC
 
 import("../../gn/skia.gni")
 import("../../modules/skshaper/skshaper.gni")

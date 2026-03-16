@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC.
+// Copyright 2020 Google LLC
 #ifndef Decorations_DEFINED
 #define Decorations_DEFINED
 

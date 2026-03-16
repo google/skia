@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2019 Google LLC
 #include "modules/skparagraph/src/OneLineShaper.h"
 
 #include "modules/skparagraph/src/Iterators.h"

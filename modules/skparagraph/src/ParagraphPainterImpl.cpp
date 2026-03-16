@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2019 Google LLC
 
 #include "include/core/SkBlurTypes.h"
 #include "include/core/SkMaskFilter.h"

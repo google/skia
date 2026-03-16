@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google Inc.
+ * Copyright 2017 Google LLC
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -29,7 +29,7 @@
 
 static constexpr const char HEADER[] =
     "/*\n"
-    " * Copyright 2017 Google Inc.\n"
+    " * Copyright 2017 Google LLC\n"
     " *\n"
     " * Use of this source code is governed by a BSD-style license that can be\n"
     " * found in the LICENSE file.\n"

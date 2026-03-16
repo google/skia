@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2019 Google LLC
 #ifndef ParagraphStyle_DEFINED
 #define ParagraphStyle_DEFINED
 

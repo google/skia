@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2019 Google LLC
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkTextBlob.h"
 #include "include/private/base/SkFloatingPoint.h"

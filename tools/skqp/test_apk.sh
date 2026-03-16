@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright 2018 Google LLC.
+# Copyright 2018 Google LLC
 # Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
 # If you have more than one device attached, run `adb devices -l` and then set

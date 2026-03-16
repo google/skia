@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC.
+// Copyright 2020 Google LLC
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
 REG_FIDDLE_SRGB(bug7573_1, 260, 260, false, 5, 0, false) {

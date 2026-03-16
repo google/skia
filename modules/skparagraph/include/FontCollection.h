@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2019 Google LLC
 #ifndef FontCollection_DEFINED
 #define FontCollection_DEFINED
 

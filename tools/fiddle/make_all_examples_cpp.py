@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2019 Google LLC.
+# Copyright 2019 Google LLC
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 """Run this script to re-generate the `all_examples.cpp` file after adding or
@@ -29,7 +29,7 @@ with open(ALL_EXAMPLES, 'r') as o:
 
 with open(ALL_EXAMPLES, 'w+') as o:
     o.write(
-        '// Copyright 2019 Google LLC.\n// Use of this source code is '
+        '// Copyright 2019 Google LLC\n// Use of this source code is '
         'governed by a BSD-style license that can be found in the '
         'LICENSE file.\n'
     )

@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2019 Google LLC
 #ifndef ParagraphBuilder_DEFINED
 #define ParagraphBuilder_DEFINED
 

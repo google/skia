@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google Inc.
+ * Copyright 2017 Google LLC
  *
  * Use of this source code is governed by a BD-style license that can be
  * found in the LICENSE file.

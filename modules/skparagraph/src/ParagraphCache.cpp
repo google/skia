@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2019 Google LLC
 #include <memory>
 
 #include "modules/skparagraph/include/FontArguments.h"

@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2019 Google LLC
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
 REG_FIDDLE(Canvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star, 256, 256, true, 0) {

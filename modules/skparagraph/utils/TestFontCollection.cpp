@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2019 Google LLC
 #include "modules/skparagraph/utils/TestFontCollection.h"
 
 #include "include/core/SkStream.h"

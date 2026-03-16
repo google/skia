@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2019 Google LLC
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkFontMgr.h"

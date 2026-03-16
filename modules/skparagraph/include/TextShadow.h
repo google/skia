@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC.
+// Copyright 2019 Google LLC
 #ifndef TextShadow_DEFINED
 #define TextShadow_DEFINED
 
