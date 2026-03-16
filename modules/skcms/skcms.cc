@@ -650,6 +650,9 @@ typedef struct {
     uint8_t variable      [1/*variable*/];  // value_count, 8.8 if 1, uint16 (n*65535) if > 1
 } curv_Layout;
 
+// See https://crbug.com/492744328 for how this was determined.
+static const uint32_t kMaxTableEntries = 1 << 24; // 16,777,216
+
 static bool read_curve_curv(const uint8_t* buf, uint32_t size,
                             skcms_Curve* curve, uint32_t* curve_size) {
     if (size < SAFE_FIXED_SIZE(curv_Layout)) {
@@ -682,12 +685,14 @@ static bool read_curve_curv(const uint8_t* buf, uint32_t size,
             // Single entry tables are a shorthand for simple gamma
             curve->parametric.g = read_big_u16(curvTag->variable) * (1.0f / 256.0f);
         }
-    } else {
-        curve->table_8       = nullptr;
-        curve->table_16      = curvTag->variable;
-        curve->table_entries = value_count;
+        return true;
     }
-
+    if (value_count > kMaxTableEntries) {
+        return false;
+    }
+    curve->table_8       = nullptr;
+    curve->table_16      = curvTag->variable;
+    curve->table_entries = value_count;
     return true;
 }
 
@@ -2330,7 +2335,7 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
         return false;
     }
 
-    if (curve->table_entries == 1 || curve->table_entries > (uint32_t)INT_MAX) {
+    if (curve->table_entries == 1 || curve->table_entries > kMaxTableEntries) {
         // We need at least two points, and must put some reasonable cap on the maximum number.
         return false;
     }
@@ -2526,14 +2531,20 @@ static OpAndArg select_curve_op(const skcms_Curve* curve, int channel) {
             case skcms_TFType_HLGinvish:  return OpAndArg{op.HLGinvish, &tf};
         }
     }
+    // The table_* ops make this assumption.
+    assert(curve->table_entries <= kMaxTableEntries);
     return OpAndArg{op.table, curve};
 }
 
+// Returns negative if any of the curves are malformed.
 static int select_curve_ops(const skcms_Curve* curves, int numChannels, OpAndArg* ops) {
     // We process the channels in reverse order, yielding ops in ABGR order.
     // (Working backwards allows us to fuse trailing B+G+R ops into a single RGB op.)
     int cursor = 0;
     for (int index = numChannels; index-- > 0; ) {
+        if (curves[index].table_entries > kMaxTableEntries) {
+            return -1;
+        }
         ops[cursor] = select_curve_op(&curves[index], index);
         if (ops[cursor].arg) {
             ++cursor;
@@ -2740,15 +2751,19 @@ bool skcms_Transform(const void*             src,
         *contexts++ = c;
     };
 
-    auto add_curve_ops = [&](const skcms_Curve* curves, int numChannels) {
+    auto add_curve_ops = [&](const skcms_Curve* curves, int numChannels) -> bool {
         OpAndArg oa[4];
         assert(numChannels <= ARRAY_COUNT(oa));
 
         int numOps = select_curve_ops(curves, numChannels, oa);
+        if (numOps < 0) {
+            return false;
+        }
 
         for (int i = 0; i < numOps; ++i) {
             add_op_ctx(oa[i].op, oa[i].arg);
         }
+        return true;
     };
 
     // If the source has a TRC that is specified by CICP and not the TRC
@@ -2859,14 +2874,18 @@ bool skcms_Transform(const void*             src,
         } else if (srcProfile->has_A2B) {
             src_using_A2B = true;
             if (srcProfile->A2B.input_channels) {
-                add_curve_ops(srcProfile->A2B.input_curves,
-                              (int)srcProfile->A2B.input_channels);
+                if (!add_curve_ops(srcProfile->A2B.input_curves,
+                              (int)srcProfile->A2B.input_channels)) {
+                    return false;
+                }
                 add_op(Op::clamp);
                 add_op_ctx(Op::clut_A2B, &srcProfile->A2B);
             }
 
             if (srcProfile->A2B.matrix_channels == 3) {
-                add_curve_ops(srcProfile->A2B.matrix_curves, /*numChannels=*/3);
+                if (!add_curve_ops(srcProfile->A2B.matrix_curves, /*numChannels=*/3)) {
+                    return false;
+                }
 
                 static const skcms_Matrix3x4 I = {{
                     {1,0,0,0},
@@ -2879,7 +2898,9 @@ bool skcms_Transform(const void*             src,
             }
 
             if (srcProfile->A2B.output_channels == 3) {
-                add_curve_ops(srcProfile->A2B.output_curves, /*numChannels=*/3);
+                if (!add_curve_ops(srcProfile->A2B.output_curves, /*numChannels=*/3)) {
+                    return false;
+                }
             }
 
             if (srcProfile->pcs == skcms_Signature_Lab) {
@@ -2887,7 +2908,9 @@ bool skcms_Transform(const void*             src,
             }
 
         } else if (srcProfile->has_trc && srcProfile->has_toXYZD50) {
-            add_curve_ops(srcProfile->trc, /*numChannels=*/3);
+            if (!add_curve_ops(srcProfile->trc, /*numChannels=*/3)) {
+                return false;
+            }
         } else {
             return false;
         }
@@ -2910,7 +2933,9 @@ bool skcms_Transform(const void*             src,
             }
 
             if (dstProfile->B2A.input_channels == 3) {
-                add_curve_ops(dstProfile->B2A.input_curves, /*numChannels=*/3);
+                if (!add_curve_ops(dstProfile->B2A.input_curves, /*numChannels=*/3)) {
+                    return false;
+                }
             }
 
             if (dstProfile->B2A.matrix_channels == 3) {
@@ -2923,15 +2948,19 @@ bool skcms_Transform(const void*             src,
                     add_op_ctx(Op::matrix_3x4, &dstProfile->B2A.matrix);
                 }
 
-                add_curve_ops(dstProfile->B2A.matrix_curves, /*numChannels=*/3);
+                if (!add_curve_ops(dstProfile->B2A.matrix_curves, /*numChannels=*/3)) {
+                    return false;
+                }
             }
 
             if (dstProfile->B2A.output_channels) {
                 add_op(Op::clamp);
                 add_op_ctx(Op::clut_B2A, &dstProfile->B2A);
 
-                add_curve_ops(dstProfile->B2A.output_curves,
-                              (int)dstProfile->B2A.output_channels);
+                if (!add_curve_ops(dstProfile->B2A.output_curves,
+                              (int)dstProfile->B2A.output_channels)) {
+                    return false;
+                }
             }
         } else {
             // This is a TRC destination.
@@ -2968,6 +2997,9 @@ bool skcms_Transform(const void*             src,
             // Encode back to dst RGB using its parametric transfer functions.
             OpAndArg oa[3];
             int numOps = select_curve_ops(dst_curves, /*numChannels=*/3, oa);
+            // All dst_curves should be parametric, not table-based, so select_curve_ops should
+            // not fail.
+            assert(numOps >= 0);
             for (int index = 0; index < numOps; ++index) {
                 assert(oa[index].op != Op::table_r &&
                        oa[index].op != Op::table_g &&
