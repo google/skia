@@ -51,6 +51,12 @@ public:
     // sets all other channels to 0. For a swizzle `s`, this is constructing "s[i]000".
     constexpr Swizzle selectChannelInR(int i) const;
 
+    // Returns as close to an inverse of this swizzle as possible. If this swizzle is one-to-one
+    // (e.g. has all of RGBA, no duplicates, and no references to 0 or 1), the inverse is exact.
+    // Repeated channel values will map to the earliest encountered channel. Channels not present
+    // use their default value (0 for RGB and 1 for A).
+    constexpr Swizzle invert() const;
+
     /** Applies this swizzle to the input color and returns the swizzled color. */
     constexpr std::array<float, 4> applyTo(std::array<float, 4> color) const;
 
@@ -163,6 +169,32 @@ constexpr Swizzle Swizzle::Concat(const Swizzle& a, const Swizzle& b) {
             idx = ((a.fKey >> (4 * idx)) & 0xfU);
         }
         key |= (idx << (4U * i));
+    }
+    return Swizzle(key);
+}
+
+constexpr Swizzle Swizzle::invert() const {
+    // Our starting value will be "0001", but with a blank mask so everything can be overridden by a
+    // swizzle component reference
+    uint16_t key = Swizzle("0001").asKey();
+    uint16_t mask = 0;
+    for (unsigned i = 0; i < 4; ++i) {
+        // This swizzle maps the sampled channel 'idx' to the final channel 'i'
+        int idx = (fKey >> (4U * i)) & 0xfU;
+        // The inverse is to store 'i' at 'idx' in key, if 'idx' is r,g,b,a (in [0,3])
+        if (idx <= 3) {
+            // Set the 4 bits of the idx channel, unless idx has already been written to (blocked
+            // by mask).
+            int channelMask = (0xfU << (4U * idx)) & ~mask;
+            key = (key & ~channelMask) | ((i << (4U * idx)) & channelMask);
+            mask |= 0xfU << (4U * idx); // update mask to block future writes
+        } else {
+            // Push the '0' or '1' constant value into channel i if it hasn't been set yet, which
+            // preserves non-default constant values. We don't update the mask so future channel
+            // references could still overwrite it with an actual swizzle.
+            int channelMask = (0xfU << (4U * i)) & ~mask;
+            key = (key & ~channelMask) | ((idx << (4U * i)) & channelMask);
+        }
     }
     return Swizzle(key);
 }

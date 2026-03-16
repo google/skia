@@ -325,6 +325,7 @@ graphite_tests_sources = [
   "$_tests/graphite/RectTest.cpp",
   "$_tests/graphite/ShapeTest.cpp",
   "$_tests/graphite/SubmitWithFinishProcTest.cpp",
+  "$_tests/graphite/SwizzleTest.cpp",
   "$_tests/graphite/TextureFormatTest.cpp",
   "$_tests/graphite/TextureProxyTest.cpp",
   "$_tests/graphite/TransformTest.cpp",
