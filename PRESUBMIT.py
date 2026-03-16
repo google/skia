@@ -137,6 +137,10 @@ def _CopyrightChecks(input_api, output_api, source_file_filter=None):
     if not re.search(copyright_pattern, contents):
       results.append(output_api.PresubmitError(
           '%s is missing a correct copyright header.' % affected_file))
+    if affected_file.Action() == 'A':
+      if 'Google Inc' in contents:
+        results.append(output_api.PresubmitError(
+            '%s contains "Google Inc" in copyright header. New files should use "Google LLC".' % affected_file))
   return results
 
 
