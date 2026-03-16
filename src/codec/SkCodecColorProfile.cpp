@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/chromium/SkCodecsICCProfileChromium.h"
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/core/SkColorSpacePriv.h"
@@ -12,6 +13,8 @@
 #if defined(SK_CODEC_COLOR_PROFILE_PARSE_WITH_RUST)
 #include "src/codec/SkCodecColorProfileRust.h"
 #endif
+
+static bool gForceSkcmsForICCProfiles = false;
 
 namespace SkCodecs {
 
@@ -67,8 +70,15 @@ std::unique_ptr<ColorProfile> ColorProfile::MakeICCProfileWithSkCMS(
     return nullptr;
 }
 
+void ICCProfileChromium::ForceSkcms(bool forceSkcms) {
+    gForceSkcmsForICCProfiles = forceSkcms;
+}
+
 std::unique_ptr<ColorProfile> ColorProfile::MakeICCProfile(
         sk_sp<const SkData> data) {
+    if (gForceSkcmsForICCProfiles) {
+        return MakeICCProfileWithSkCMS(data);
+    }
 #if defined(SK_CODEC_COLOR_PROFILE_PARSE_WITH_RUST)
     return MakeICCProfileWithRust(data);
 #else
@@ -161,5 +171,28 @@ ColorProfile::ColorProfile(const skcms_ICCProfile& profile, sk_sp<const SkData> 
     : fProfile(profile)
     , fData(std::move(data))
 {}
+
+class ICCProfileChromiumImpl final : public ICCProfileChromium {
+public:
+    ICCProfileChromiumImpl(std::unique_ptr<ColorProfile> colorProfile)
+        : fICCProfile(std::move(colorProfile)) {}
+
+    const skcms_ICCProfile& GetProfile() const override {
+        return *fICCProfile->profile();
+    }
+
+private:
+    std::unique_ptr<ColorProfile> fICCProfile;
+};
+
+// static
+std::unique_ptr<ICCProfileChromium>
+ICCProfileChromium::Make(sk_sp<SkData> data) {
+    auto profile = ColorProfile::MakeICCProfile(data);
+    if (!profile) {
+        return nullptr;
+    }
+    return std::make_unique<ICCProfileChromiumImpl>(std::move(profile));
+}
 
 }  // namespace SkCodecs

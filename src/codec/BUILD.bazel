@@ -69,7 +69,10 @@ skia_filegroup(
 # cause issues with producing a shared library (e.g. duplicate symbols showing up).
 skia_cc_library(
     name = "any_decoder",
-    srcs = ANY_DECODER_SRCS + ["//include/codec:any_codec_hdrs"],
+    srcs = ANY_DECODER_SRCS + [
+        "//include/codec:any_codec_hdrs",
+        "//include/private/chromium:codec_icc_chromium_hdrs",
+    ],
     hdrs = PRIVATE_CODEC_HEADERS + ANY_DECODER_HDRS + ["//include/private:decode_srcs"],
     features = ["layering_check"],
     local_defines = ["SK_DISABLE_LEGACY_INIT_DECODERS"],
@@ -417,7 +420,9 @@ skia_filegroup(
 
 skia_cc_library(
     name = "rust_png_decoder",
-    srcs = [":rust_png_srcs"],
+    srcs = [
+        ":rust_png_srcs",
+    ],
     hdrs = ["//include/codec:rust_png_public_hdrs"],
     defines = ["SK_CODEC_DECODES_PNG_WITH_RUST"],
     features = ["layering_check"],

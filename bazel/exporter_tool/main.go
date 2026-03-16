@@ -31,6 +31,11 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//include/codec:any_codec_hdrs",
 			},
 		},
+		{Var: "skia_codec_icc_chromium",
+			Rules: []string{
+				"//include/private/chromium:codec_icc_chromium_hdrs",
+			},
+		},
 		{Var: "skia_codec_decode_bmp",
 			Rules: []string{
 				"//src/codec:bmp_decode",

@@ -53,3 +53,11 @@ skia_filegroup(
     ],
     visibility = ["//src/core:__pkg__"],
 )
+
+skia_filegroup(
+    name = "codec_icc_chromium_hdrs",
+    srcs = [
+        "SkCodecsICCProfileChromium.h",
+    ],
+    visibility = ["//src/codec:__pkg__"],
+)
