@@ -89,13 +89,6 @@ public:
                                                   sk_sp<FontCollection> fontCollection,
                                                   sk_sp<SkUnicode> unicode);
 
-
-#if !defined(SK_DISABLE_LEGACY_PARAGRAPH_UNICODE)
-    // Just until we fix all the code; calls icu::make inside
-    static std::unique_ptr<ParagraphBuilder> make(const ParagraphStyle& style,
-                                                  sk_sp<FontCollection> fontCollection);
-#endif
-
     static bool RequiresClientICU();
 protected:
     void startStyledBlock();
