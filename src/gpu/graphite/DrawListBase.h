@@ -35,7 +35,7 @@ class Geometry;
 class Renderer;
 class Recorder;
 
-struct Layer;
+struct Insertion;
 
 /**
  * The base interface for recording draw commands. DrawList implements the existing Graphite
@@ -51,7 +51,7 @@ public:
     DrawListBase() {}
     virtual ~DrawListBase() = default;
 
-    virtual std::pair<DrawParams*, Layer*> recordDraw(
+    virtual std::pair<DrawParams*, Insertion> recordDraw(
             const Renderer* renderer,
             const Transform& localToDevice,
             const Geometry& geometry,
@@ -62,7 +62,7 @@ public:
             BarrierType barrierBeforeDraws,
             PipelineDataGatherer* gatherer,
             const StrokeStyle* stroke,
-            const Layer* latestDepthLayer) = 0;
+            const Insertion& latestInsertion) = 0;
 
     virtual std::unique_ptr<DrawPass> snapDrawPass(Recorder* recorder,
                                                    sk_sp<TextureProxy> target,

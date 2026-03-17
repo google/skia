@@ -78,7 +78,7 @@ public:
     void clear(const SkColor4f& clearColor);
     void discard();
 
-    std::pair<DrawParams*, Layer*> recordDraw(
+    std::pair<DrawParams*, Insertion> recordDraw(
             const Renderer* renderer,
             const Transform& localToDevice,
             const Geometry& geometry,
@@ -88,7 +88,7 @@ public:
             SkEnumBitMask<DstUsage> dstUsage,
             PipelineDataGatherer* gatherer,
             const StrokeStyle* stroke,
-            Layer* latestDepthLayer);
+            const Insertion& latestInsertion);
 
     bool recordUpload(Recorder* recorder,
                       sk_sp<TextureProxy> targetProxy,

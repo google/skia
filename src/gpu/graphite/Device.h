@@ -298,10 +298,10 @@ private:
     // the transform, clip, and DrawOrder (although Device still tracks stencil buffer usage).
     void drawClipShape(const Transform&, const Shape&, const Clip&, DrawOrder);
 
-    std::pair<DrawParams*, Layer*> drawClipShapeImmediate(const Transform&,
-                                                          const Shape&,
-                                                          const Clip&,
-                                                          DrawOrder);
+    std::pair<DrawParams*, Insertion> drawClipShapeImmediate(const Transform&,
+                                                             const Shape&,
+                                                             const Clip&,
+                                                             DrawOrder);
 
     void updateNextDepthForClipping(PaintersDepth depth);
 
