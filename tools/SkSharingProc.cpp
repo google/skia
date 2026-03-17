@@ -46,21 +46,6 @@ void SkSharingSerialContext::setDirectContext(GrDirectContext* ctx) {
     fDirectContext = ctx;
 }
 
-// TODO: staging functions, move Android to new implementation
-SkSerialReturnType SkSharingSerialContext::serializeImage(SkImage* img, void* ctx) {
-    // Simply forward to the new implementation
-    return SkSharingContext::serializeImage(img, ctx);
-}
-
-sk_sp<SkImage> SkSharingDeserialContext::deserializeImage(const void *data, size_t length,
-                                                          void *ctx) {
-        if (!data || !length) {
-            return nullptr;
-        }
-        auto skData = SkData::MakeWithCopy(data, length);
-        return SkSharingContext::deserializeImage(std::move(skData), std::nullopt, ctx);
-    }
-
 namespace SkSharingContext {
 
 SkSerialReturnType serializeImage(SkImage* img, void* ctx) {

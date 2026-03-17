@@ -53,18 +53,12 @@ struct SkSharingSerialContext {
     // A map from the ids from SkImage::uniqueID() to ids used within the file
     // The keys are ids of original images, not of non-texture copies
     skia_private::THashMap<uint32_t, int> fImageMap;
-
-    // TODO: staging function, move Android to new implementation
-    static SkSerialReturnType serializeImage(SkImage* img, void* ctx);
 };
 
 struct SkSharingDeserialContext {
     // a list of unique images in the order they were encountered in the file
     // Subsequent occurrences of an image refer to it by its index in this list.
     std::vector<sk_sp<SkImage>> fImages;
-
-    // TODO: staging function, move Android to new implementation
-    static sk_sp<SkImage> deserializeImage(const void* data, size_t length, void* ctx);
 };
 
 namespace SkSharingContext {
