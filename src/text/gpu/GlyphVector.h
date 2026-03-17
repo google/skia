@@ -11,6 +11,7 @@
 #include "include/core/SkSpan.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkStrike.h"  // IWYU pragma: keep
+#include "src/gpu/MaskFormat.h"
 #include "src/text/gpu/StrikeCache.h"
 
 #include <cstddef>
@@ -80,7 +81,8 @@ template <typename T>
 concept BackendData = requires(T& t,
                                StrikeCache* cache,
                                const SkStrikeSpec& spec,
-                               SkPackedGlyphID id) {
+                               SkPackedGlyphID id,
+                               skgpu::MaskFormat maskFormat) {
     requires alignof(T) <= alignof(max_align_t);
     requires sizeof(T)  <= kMaxBackendDataSize;
 
@@ -89,7 +91,7 @@ concept BackendData = requires(T& t,
     requires std::derived_from<typename decltype(T::FindStrike(cache, spec))::element_type, TextStrikeBase>;
 
     // Must have a makeGlyphFromID that returns a GlyphType
-    { t.makeGlyphFromID(id) } -> GlyphType;
+    { t.makeGlyphFromID(id, maskFormat) } -> GlyphType;
 };
 }  // namespace GlyphVector_Concepts
 
@@ -110,7 +112,8 @@ class GlyphVector {
     using Strike = std::invoke_result_t<decltype(B::FindStrike), StrikeCache*, const SkStrikeSpec&>;
 
     template <GlyphVector_Concepts::BackendData B>
-    using Glyph = decltype(std::declval<B>().makeGlyphFromID(SkPackedGlyphID{}));
+    using Glyph = decltype(std::declval<B>().makeGlyphFromID(SkPackedGlyphID{},
+                                                             skgpu::MaskFormat::kARGB));
 
 public:
     static size_t Size(int numGlyphs) {
@@ -166,7 +169,7 @@ public:
     }
 
     template <GlyphVector_Concepts::BackendData B>
-    void initBackendData(StrikeCache* cache, auto&&... args)
+    void initBackendData(StrikeCache* cache, skgpu::MaskFormat maskFormat, auto&&... args)
         requires std::is_constructible_v<B, Strike<B>, decltype(args)...> {
         SkASSERT(!this->hasBackendData());
         SkASSERT(cache);
@@ -184,7 +187,7 @@ public:
 
         for (auto& g : fGlyphs) {
             auto id = *reinterpret_cast<SkPackedGlyphID*>(g.data());
-            new (g.data()) G{backendData->makeGlyphFromID(id)};
+            new (g.data()) G{backendData->makeGlyphFromID(id, maskFormat)};
         }
 
         fBackendDataReleaser = [](std::byte* p) { reinterpret_cast<B*>(p)->~B(); };
