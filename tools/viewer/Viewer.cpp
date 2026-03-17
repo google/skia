@@ -993,7 +993,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fCommands.addCommand('a', "Transform", "Toggle Animation", [this]() {
         fAnimTimer.togglePauseResume();
     });
-    fCommands.addCommand('u', "GUI", "Zoom UI", [this]() {
+    fCommands.addCommand('u', "GUI", "Zoom Stats UI", [this]() {
         fZoomUI = !fZoomUI;
         fStatsLayer.setDisplayScale((fZoomUI ? 2.0f : 1.0f) * fWindow->scaleFactor());
         fWindow->inval();

@@ -37,11 +37,14 @@ The desktop Viewers are controlled using the keyboard and mouse: left (←) and 
 (→) arrows to move from slide to slide; up (↑) and down (↓) arrows to
 zoom in and out; clicking and dragging will translate. Other display options and a slide
 picker can be found in the Tools UI, which can be toggled by hitting the spacebar.
+The h key toggles the help menu (hit once to group commands by functionality, a second time
+for alphabetically, a third time to hide).
 
 Key    | Action
 -------|-------------
 ← →    | Move between the slides
 ↑ ↓    | Zoom in / out
+h      | See all commands
 d      | Change render methods among raster, OpenGL and Vulkan
 s      | Display rendering times and graph
 Space  | Toggle display of Tools UI
