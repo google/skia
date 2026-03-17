@@ -38,6 +38,13 @@ public:
     // Return the parsed profile. The pointers in the structure are guaranteed
     // to be valid until `this` is destroyed.
     virtual const skcms_ICCProfile& GetProfile() const = 0;
+
+protected:
+    ICCProfileChromium() = default;
+
+private:
+    ICCProfileChromium(const ICCProfileChromium&) = delete;
+    ICCProfileChromium& operator=(const ICCProfileChromium&) = delete;
 };
 
 }  // namespace SkCodecs
