@@ -406,7 +406,6 @@ def get_third_party_locations():
     "-DTINT_BUILD_BENCHMARKS=OFF",
     "-DTINT_BUILD_IR_BINARY=OFF",
     "-DTINT_BUILD_TESTS=OFF",
-    "-DDAWN_USE_X11=OFF",
 
     # Explicitly mark third_party deps as not here to make debugging easier
     "-DDAWN_EMDAWNWEBGPU_DIR=NOT_SYNCED_BY_SKIA",

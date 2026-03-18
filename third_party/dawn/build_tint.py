@@ -81,6 +81,7 @@ def main():
       "-DDAWN_ENABLE_DESKTOP_GL=OFF",
       "-DDAWN_ENABLE_OPENGLES=OFF",
       "-DDAWN_ENABLE_VULKAN=OFF",
+      "-DDAWN_USE_X11=OFF",
   ]
   configure_cmd += get_third_party_locations()
   if args.enable_rtti:

@@ -290,8 +290,29 @@ action("dawn_cmake") {
   args += sanitizer_args
 }
 
+config("dawn_defines") {
+  defines = []
+  if (dawn_enable_d3d11 && is_win) {
+    defines += [ "SK_DAWN_HAS_D3D11" ]
+  }
+  if (dawn_enable_d3d12 && is_win) {
+    defines += [ "SK_DAWN_HAS_D3D12" ]
+  }
+  if (dawn_enable_vulkan && (is_win || is_android || is_linux)) {
+    defines += [ "SK_DAWN_HAS_VULKAN" ]
+  }
+  if (dawn_enable_opengles && (is_android || is_linux)) {
+    defines += [ "SK_DAWN_HAS_OPENGLES" ]
+  }
+  if (dawn_enable_metal && (is_mac || is_ios)) {
+    defines += [ "SK_DAWN_HAS_METAL" ]
+  }
+}
+
 group("dawn") {
   public_deps = [ ":dawn_cmake" ]
 
   public_configs = [ ":dawn_api_config" ]
+
+  all_dependent_configs = [ ":dawn_defines" ]
 }

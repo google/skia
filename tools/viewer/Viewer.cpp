@@ -538,15 +538,19 @@ static const Window::BackendType kSupportedBackends[] = {
 #endif
 
 #if defined(SK_DAWN) && defined(SK_GRAPHITE)
-#if defined(SK_BUILD_FOR_WIN)
+#if defined(SK_DAWN_HAS_D3D11)
         sk_app::Window::BackendType::kGraphiteDawnD3D11,
+#endif
+#if defined(SK_DAWN_HAS_D3D12)
         sk_app::Window::BackendType::kGraphiteDawnD3D12,
 #endif
-#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+#if defined(SK_DAWN_HAS_METAL)
         sk_app::Window::BackendType::kGraphiteDawnMetal,
 #endif
-#if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_ANDROID)
+#if defined(SK_DAWN_HAS_OPENGLES)
         sk_app::Window::BackendType::kGraphiteDawnOpenGLES,
+#endif
+#if defined(SK_DAWN_HAS_VULKAN)
         sk_app::Window::BackendType::kGraphiteDawnVulkan,
 #endif
 #endif
