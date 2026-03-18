@@ -117,7 +117,9 @@ skia_wasm_lib("canvaskit") {
   if (skia_canvaskit_enable_embedded_font) {
     deps += [ ":create_notomono_cpp" ]
   }
-
+  if (skia_canvaskit_enable_pathops) {
+    deps += [ "../..:pathops" ]
+  }
   sources = [
     "WasmCommon.h",
     "canvaskit_bindings.cpp",

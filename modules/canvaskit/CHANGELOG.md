@@ -6,9 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.41.0] - 2026-03-18
+
 ### Breaking
  - `Path` objects are now immutable.
  - `PathBuilder` has been exposed to allow clients to create `Path` objects incrementally.
+
+### Added
+ - Underline and strikeout metrics have been added to FontMetrics
 
 ### Fixed
  - Fix compilation setting to keep up with [emsdk#24079](https://github.com/emscripten-core/emscripten/pull/24079)
