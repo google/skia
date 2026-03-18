@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_cc_library")
+load("//bazel:skia_rules.bzl", "skia_cc_library_with_testutil")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -6,25 +6,8 @@ package(
 
 licenses(["notice"])
 
-skia_cc_library(
+skia_cc_library_with_testutil(
     name = "glx_factory",
-    srcs = [
-        "GrGLMakeGLXInterface.cpp",
-    ],
-    hdrs = [
-        "//include/gpu/ganesh/gl/glx:public_hdrs",
-    ],
-    defines = ["SK_DISABLE_LEGACY_GLXINTERFACE_FACTORY"],
-    visibility = ["//:__pkg__"],
-    deps = [
-        "//:core",
-        "//:ganesh_gl",
-    ],
-)
-
-skia_cc_library(
-    name = "glx_factory_TEST_UTIL",
-    testonly = True,
     srcs = [
         "GrGLMakeGLXInterface.cpp",
     ],
@@ -40,12 +23,13 @@ skia_cc_library(
         "-lXau",  # dep of xcb
         "-lXdmcp",  # dep of xcb
     ],
-    visibility = [
+    priv_visibility = [
         "//tools/ganesh:__pkg__",
         "//tools/window:__pkg__",
     ],
+    visibility = ["//:__pkg__"],
     deps = [
         "//:core",
-        "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
+        "//:ganesh_gl",
     ],
 )

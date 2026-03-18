@@ -28,11 +28,11 @@ skia_cc_library(
     name = "vk",
     srcs = [
         ":_vk_srcs",
-        "//include/private/gpu/vk:private_hdrs",
     ],
     hdrs = [
         ":_vk_hdrs",
         "//include/gpu/vk:shared_public_hdrs",
+        "//include/private/gpu/vk:private_hdrs",
     ],
     features = ["layering_check"],
     implementation_deps = [

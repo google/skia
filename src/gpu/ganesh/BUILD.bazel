@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "skia_cc_library_with_testutil", "skia_filegroup", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -277,7 +277,7 @@ skia_filegroup(
     ],
 )
 
-skia_cc_library(
+skia_cc_library_with_testutil(
     name = "ganesh",
     srcs = [
         ":core_skslc_srcs",
@@ -319,71 +319,16 @@ skia_cc_library(
     ],
     defines = ["SK_GANESH"],
     features = ["layering_check"],
-    visibility = [
-        "//src/gpu/ganesh:__subpackages__",
-        "//tools/debugger:__pkg__",
+    priv_visibility = [
         "//tools/flags:__pkg__",
+        "//tools/ganesh:__pkg__",
+        "//tools/gpu:__pkg__",
+        "//tools/window:__pkg__",
+        "//tools:__pkg__",
+        "//src/gpu/ganesh:__subpackages__",
     ],
-    deps = [
-        "//:core",
-        "//modules/skcms",
-        "//src/base",
-        "//src/core:core_priv",
-        "//src/gpu",
-        "//src/sksl/codegen:gpu",
-    ],
-)
-
-# TODO(lovisolo, kjlubick): Do this with a macro.
-skia_cc_library(
-    name = "ganesh_TEST_UTIL",
-    testonly = True,
-    srcs = [
-        ":core_skslc_srcs",
-        ":core_srcs",
-        "//src/gpu/ganesh/effects:effects_srcs",
-        "//src/gpu/ganesh/geometry:geometry_srcs",
-        "//src/gpu/ganesh/glsl:glsl_srcs",
-        "//src/gpu/ganesh/gradients:gradient_srcs",
-        "//src/gpu/ganesh/image:image_srcs",
-        "//src/gpu/ganesh/ops:ops_srcs",
-        "//src/gpu/ganesh/surface:surface_srcs",
-        "//src/gpu/ganesh/tessellate:tessellate_srcs",
-        "//src/gpu/ganesh/text:srcs",
-        "//src/text/gpu:gpu_srcs",
-        # TODO(kjlubick, egdaniel) Remove this coupling
-        "//src/gpu/ganesh/mock:mock_srcs",
-    ],
-    hdrs = [
-        ":core_hdrs",
-        ":core_skslc_hdrs",
-        "//include/android:private_hdrs",
-        "//include/gpu:shared_gpu_hdrs",
-        "//include/gpu/ganesh:ganesh_hdrs",
-        "//include/private/gpu/ganesh:private_hdrs",
-        "//include/private/chromium:ganesh_private_hdrs",
-        "//src/gpu/ganesh/effects:effects_hdrs",
-        "//src/gpu/ganesh/geometry:geometry_hdrs",
-        "//src/gpu/ganesh/glsl:glsl_hdrs",
-        "//src/gpu/ganesh/gradients:gradient_hdrs",
-        "//src/gpu/ganesh/image:image_hdrs",
-        "//src/gpu/ganesh/ops:ops_hdrs",
-        "//src/gpu/ganesh/surface:surface_hdrs",
-        "//src/gpu/ganesh/tessellate:tessellate_hdrs",
-        "//src/gpu/ganesh/text:private_hdrs",
-        "//src/text/gpu:gpu_hdrs",
-        # TODO(kjlubick, egdaniel) Remove this coupling
-        "//src/gpu/ganesh/mock:mock_hdrs",
-        "//include/gpu/ganesh/mock:public_hdrs",
-    ],
-    defines = [
-        "GPU_TEST_UTILS",
-        "SK_GANESH",
-    ],
-    features = ["layering_check"],
     visibility = [
         "//src/gpu/ganesh:__subpackages__",
-        "//tools:__subpackages__",
     ],
     deps = [
         "//:core",

@@ -269,3 +269,176 @@ def split_srcs_and_hdrs(name, files, visibility = None):
         srcs = hdrs,
         visibility = visibility,
     )
+
+_ALLOWED_TEST_UTIL_NAMES = set([
+    "ganesh",
+    "ganesh_gl",
+    "ganesh_vulkan",
+    "glx_factory",
+    "graphite",
+    "graphite_native_metal",
+    "graphite_native_vulkan",
+    "precompile",
+])
+
+_REWRITE_TEST_UTIL_DEPS = {
+    "//:ganesh_gl": "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
+    "//:ganesh_vulkan": "//src/gpu/ganesh/vk:ganesh_vulkan_TEST_UTIL",
+    "//:glx_factory": "//src/gpu/ganesh/gl/glx:glx_factory_TEST_UTIL",
+    "//:graphite_native_metal": "//src/gpu/graphite/mtl:graphite_native_metal_TEST_UTIL",
+    "//:graphite_native_vulkan": "//src/gpu/graphite/vk:graphite_native_vulkan_TEST_UTIL",
+    "//src/gpu/ganesh": "//src/gpu/ganesh:ganesh_TEST_UTIL",
+    "//src/gpu/ganesh/gl/glx:glx_factory": "//src/gpu/ganesh/gl/glx:glx_factory_TEST_UTIL",
+    "//src/gpu/ganesh/gl:ganesh_gl": "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
+    "//src/gpu/ganesh/vk:ganesh_vulkan": "//src/gpu/ganesh/vk:ganesh_vulkan_TEST_UTIL",
+    "//src/gpu/graphite": "//src/gpu/graphite:graphite_TEST_UTIL",
+    "//src/gpu/graphite/mtl:graphite_native_metal": "//src/gpu/graphite/mtl:graphite_native_metal_TEST_UTIL",
+    "//src/gpu/graphite/precompile": "//src/gpu/graphite/precompile:precompile_TEST_UTIL",
+    "//src/gpu/graphite/vk:graphite_native_vulkan": "//src/gpu/graphite/vk:graphite_native_vulkan_TEST_UTIL",
+}
+
+def _rewrite_deps(deps):
+    rewritten_deps = []
+    for dep in deps:
+        if dep in _REWRITE_TEST_UTIL_DEPS:
+            rewritten_deps.append(_REWRITE_TEST_UTIL_DEPS[dep])
+        else:
+            rewritten_deps.append(dep)
+    return rewritten_deps
+
+def skia_cc_library_with_testutil(
+        name,
+        srcs,
+        hdrs,
+        deps,
+        visibility,
+        priv_visibility,
+        linkopts = None,
+        defines = None,
+        features = None,
+        implementation_deps = None,
+        local_defines = None):
+    """Create a pair of skia_cc_library rules, a normal one and a test-only one with GPU_TEST_UTILS
+
+    This will re-write any deps in the test version to refer to the other TEST_UTIL libraries.
+
+    Args:
+        name: see https://bazel.build/reference/be/c-cpp#cc_library
+        srcs: see https://bazel.build/reference/be/c-cpp#cc_library
+        hdrs: see https://bazel.build/reference/be/c-cpp#cc_library
+        deps: see https://bazel.build/reference/be/c-cpp#cc_library
+        visibility: see https://bazel.build/reference/be/c-cpp#cc_library
+        priv_visibility: the visibility rules that will be used for the test version
+        linkopts: see https://bazel.build/reference/be/c-cpp#cc_library, optional. Only passed
+                  to the test version.
+                  TODO(kjlubick): can we always have these be forwarded? I'm worried about G3.
+        defines: see https://bazel.build/reference/be/c-cpp#cc_library, optional
+        features: see https://bazel.build/reference/be/c-cpp#cc_library, optional
+        implementation_deps: see https://bazel.build/reference/be/c-cpp#cc_library, optional
+        local_defines: see https://bazel.build/reference/be/c-cpp#cc_library, optional
+    """
+    if not linkopts:
+        linkopts = []
+    if not defines:
+        defines = []
+    if not features:
+        features = []
+    if not implementation_deps:
+        implementation_deps = []
+    if not local_defines:
+        local_defines = []
+
+    if name not in _ALLOWED_TEST_UTIL_NAMES:
+        fail("Was not registered to re-write " + name)
+
+    if "GPU_TEST_UTILS" in defines:
+        fail("You shouldn't put GPU_TEST_UTILS in the defines")
+
+    skia_cc_library(
+        name = name,
+        srcs = srcs,
+        hdrs = hdrs,
+        defines = defines,
+        deps = deps,
+        features = features,
+        visibility = visibility,
+        implementation_deps = implementation_deps,
+        local_defines = local_defines,
+    )
+
+    rewritten_deps = _rewrite_deps(deps)
+
+    for dep in implementation_deps:
+        if dep in _REWRITE_TEST_UTIL_DEPS:
+            fail("not supported " + dep)
+
+    skia_cc_library(
+        name = name + "_TEST_UTIL",
+        testonly = True,
+        srcs = srcs,
+        hdrs = hdrs,
+        features = features,
+        defines = defines + ["GPU_TEST_UTILS"],
+        visibility = priv_visibility,
+        deps = rewritten_deps,
+        implementation_deps = implementation_deps,
+        local_defines = local_defines,
+        linkopts = linkopts,
+    )
+
+def skia_objc_library_with_testutil(
+        name,
+        srcs,
+        hdrs,
+        copts,
+        defines,
+        sdk_frameworks,
+        deps,
+        visibility,
+        priv_visibility):
+    """Create a pair of skia_objc_library, a normal one and a test-only one with GPU_TEST_UTILS
+
+    This will re-write any deps in the test version to refer to the other TEST_UTIL libraries.
+
+    Args:
+        name: see https://bazel.build/reference/be/objective-c#objc_library
+        srcs: see https://bazel.build/reference/be/objective-c#objc_library
+        hdrs: see https://bazel.build/reference/be/objective-c#objc_library
+        copts: see https://bazel.build/reference/be/objective-c#objc_library
+        defines: see https://bazel.build/reference/be/objective-c#objc_library
+        deps: see https://bazel.build/reference/be/objective-c#objc_library
+        visibility: see https://bazel.build/reference/be/objective-c#objc_library
+        priv_visibility: the visibility rules that will be used for the test version
+        sdk_frameworks: https://bazel.build/reference/be/objective-c#objc_library
+    """
+
+    if name not in _ALLOWED_TEST_UTIL_NAMES:
+        fail("Was not registered to re-write " + name)
+
+    if "GPU_TEST_UTILS" in defines:
+        fail("You shouldn't put GPU_TEST_UTILS in the defines")
+
+    skia_objc_library(
+        name = name,
+        srcs = srcs,
+        hdrs = hdrs,
+        defines = defines,
+        sdk_frameworks = sdk_frameworks,
+        copts = copts,
+        deps = deps,
+        visibility = visibility,
+    )
+
+    rewritten_deps = _rewrite_deps(deps)
+
+    skia_objc_library(
+        name = name + "_TEST_UTIL",
+        testonly = True,
+        srcs = srcs,
+        hdrs = hdrs,
+        sdk_frameworks = sdk_frameworks,
+        defines = defines + ["GPU_TEST_UTILS"],
+        copts = copts,
+        deps = rewritten_deps,
+        visibility = priv_visibility,
+    )

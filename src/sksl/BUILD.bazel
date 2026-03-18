@@ -155,7 +155,10 @@ skia_filegroup(
 skia_cc_library(
     name = "generated_sksl",
     textual_hdrs = [":txts"],
-    visibility = ["//src/core:__pkg__"],
+    visibility = [
+        "//src/core:__pkg__",
+        "//src/gpu/graphite:__pkg__",
+    ],
 )
 
 skia_filegroup(

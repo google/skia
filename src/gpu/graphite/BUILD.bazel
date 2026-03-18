@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "skia_cc_library_with_testutil", "skia_filegroup", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -182,7 +182,7 @@ skia_filegroup(
     ],
 )
 
-skia_cc_library(
+skia_cc_library_with_testutil(
     name = "graphite",
     srcs = [
         ":_graphite_srcs",
@@ -209,61 +209,26 @@ skia_cc_library(
     defines = [
         "SK_GRAPHITE",
     ],
-    visibility = [
-        "//src/gpu/graphite/mtl:__pkg__",
-        "//src/gpu/graphite/precompile:__pkg__",
-        "//src/gpu/graphite/vk:__pkg__",
-    ],
-    deps = [
-        "//:core",
-        "//src/base",
-        "//src/core:core_priv",
-        "//src/gpu",
-        "//src/sksl/codegen:gpu",
-    ],
-)
-
-skia_cc_library(
-    name = "graphite_TEST_UTIL",
-    testonly = True,
-    srcs = [
-        ":_graphite_srcs",
-        "//src/gpu/graphite/compute:compute_srcs",
-        "//src/gpu/graphite/geom:geom_srcs",
-        "//src/gpu/graphite/render:render_srcs",
-        "//src/gpu/graphite/task:task_srcs",
-        "//src/gpu/graphite/text:text_srcs",
-        "//src/sksl:sksl_graphite_modules_hdrs",
-        "//src/sksl:sksl_graphite_modules_srcs",
-        "//src/text/gpu:gpu_hdrs",
-        "//src/text/gpu:gpu_srcs",
-    ],
-    hdrs = [
-        ":_graphite_hdrs",
-        "//include/gpu:shared_gpu_hdrs",
-        "//include/gpu/graphite:public_hdrs",
-        "//src/gpu/graphite/compute:compute_hdrs",
-        "//src/gpu/graphite/geom:geom_hdrs",
-        "//src/gpu/graphite/render:render_hdrs",
-        "//src/gpu/graphite/task:task_hdrs",
-        "//src/gpu/graphite/text:text_hdrs",
-    ],
-    defines = [
-        "SK_GRAPHITE",
-        "GPU_TEST_UTILS",
-    ],
-    visibility = [
+    features = ["layering_check"],
+    priv_visibility = [
         "//dm:__pkg__",
         "//src/gpu/graphite/mtl:__pkg__",
         "//src/gpu/graphite/precompile:__pkg__",
         "//src/gpu/graphite/vk:__pkg__",
         "//tools:__subpackages__",
     ],
+    visibility = [
+        "//src/gpu/graphite/mtl:__pkg__",
+        "//src/gpu/graphite/precompile:__pkg__",
+        "//src/gpu/graphite/vk:__pkg__",
+    ],
     deps = [
         "//:core",
         "//src/base",
         "//src/core:core_priv",
         "//src/gpu",
+        "//src/sksl:generated_sksl",
         "//src/sksl/codegen:gpu",
+        "//src/utils:shader_utils",
     ],
 )

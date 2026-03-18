@@ -1,5 +1,5 @@
 load("@skia_user_config//:copts.bzl", "DEFAULT_OBJC_COPTS")
-load("//bazel:skia_rules.bzl", "skia_objc_library", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "skia_objc_library_with_testutil", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -43,7 +43,7 @@ split_srcs_and_hdrs(
     files = METAL_FILES,
 )
 
-skia_objc_library(
+skia_objc_library_with_testutil(
     name = "graphite_native_metal",
     srcs = [
         ":mtl_hdrs",
@@ -58,6 +58,7 @@ skia_objc_library(
     ],
     copts = DEFAULT_OBJC_COPTS + ["-fno-objc-arc"],
     defines = ["SK_METAL"],
+    priv_visibility = ["//tools:__subpackages__"],
     sdk_frameworks = [
         "Foundation",
         "Metal",
@@ -69,40 +70,6 @@ skia_objc_library(
         "//src/core:core_priv",
         "//src/gpu",
         "//src/gpu/graphite",
-        "//src/gpu/mtl:gpu_mtl",
-    ],
-)
-
-skia_objc_library(
-    name = "graphite_native_metal_TEST_UTIL",
-    testonly = True,
-    srcs = [
-        ":mtl_hdrs",
-        ":mtl_srcs",
-    ],
-    hdrs = [
-        "//include/gpu:shared_gpu_hdrs",
-        "//include/gpu/graphite:public_hdrs",
-        "//include/gpu/graphite/mtl:public_hdrs",
-        "//include/gpu/mtl:public_hdrs",
-        "//include/ports:core_foundation_hdrs",
-    ],
-    copts = DEFAULT_OBJC_COPTS + [
-        "-fno-objc-arc",
-        "-DGPU_TEST_UTILS",
-    ],
-    defines = ["SK_METAL"],
-    sdk_frameworks = [
-        "Foundation",
-        "Metal",
-    ],
-    visibility = ["//tools:__subpackages__"],
-    deps = [
-        "//:core",
-        "//src/base",
-        "//src/core:core_priv",
-        "//src/gpu",
-        "//src/gpu/graphite:graphite_TEST_UTIL",
         "//src/gpu/mtl:gpu_mtl",
     ],
 )
