@@ -24,12 +24,11 @@ class VulkanExtensions;
 
 namespace sk_gpu_test {
     struct TestVkFeatures {
-        VkPhysicalDeviceFeatures2 deviceFeatures;
+        VkPhysicalDeviceFeatures2 deviceFeatures {};
 
-        // protectedMemoryFeatures and structs from skiaFeatures may be chained into deviceFeatures,
-        // so must share the same lifetime.
+        // Structs from skiaFeatures may be chained into deviceFeatures and therefore must share the
+        // same lifetime.
         skgpu::VulkanPreferredFeatures skiaFeatures;
-        VkPhysicalDeviceProtectedMemoryFeatures protectedMemoryFeatures;
     };
 
     bool LoadVkLibraryAndGetProcAddrFuncs(PFN_vkGetInstanceProcAddr*);
