@@ -21,7 +21,7 @@
     },
     {
       "build_file": "//bazel/external/expat:BUILD.bazel",
-      "commit": "8e49998f003d693213b538ef765814c7d21abada",
+      "commit": "6154446fccefbf3ca644894f598969113b0c7bcd",
       "name": "expat",
       "patches": [
         "//bazel/external/expat:config_files.patch"

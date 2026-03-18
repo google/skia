@@ -2,7 +2,7 @@ new file mode 100644
 index 0000000..fffffff
 --- /dev/null
 +++ expat_config.h
-@@ -0,0 +1,143 @@
+@@ -0,0 +1,140 @@
 +/* expat_config.h.  Generated from expat_config.h.in by configure.  */
 +/* expat_config.h.in.  Generated from configure.ac by autoheader.  */
 +
@@ -19,7 +19,7 @@ index 0000000..fffffff
 +/* #undef HAVE_ARC4RANDOM */
 +
 +/* Define to 1 if you have the `arc4random_buf' function. */
-+/* #define HAVE_ARC4RANDOM_BUF 1 */
++/* #undef HAVE_ARC4RANDOM_BUF */
 +
 +/* define if the compiler supports basic C++11 syntax */
 +#define HAVE_CXX11 1
@@ -34,13 +34,10 @@ index 0000000..fffffff
 +#define HAVE_GETPAGESIZE 1
 +
 +/* Define to 1 if you have the `getrandom' function. */
-+/* #define HAVE_GETRANDOM 1 */
++/* #undef HAVE_GETRANDOM */
 +
 +/* Define to 1 if you have the <inttypes.h> header file. */
 +#define HAVE_INTTYPES_H 1
-+
-+/* Define to 1 if you have the 'bsd' library (-lbsd). */
-+/* #undef HAVE_LIBBSD */
 +
 +/* Define to 1 if you have a working 'mmap' system call. */
 +#define HAVE_MMAP 1
@@ -61,7 +58,7 @@ index 0000000..fffffff
 +#define HAVE_STRING_H 1
 +
 +/* Define to 1 if you have `syscall' and `SYS_getrandom'. */
-+/* #define HAVE_SYSCALL_GETRANDOM 1 */
++/* #undef HAVE_SYSCALL_GETRANDOM */
 +
 +/* Define to 1 if you have the <sys/param.h> header file. */
 +#define HAVE_SYS_PARAM_H 1
@@ -88,7 +85,7 @@ index 0000000..fffffff
 +#define PACKAGE_NAME "expat"
 +
 +/* Define to the full name and version of this package. */
-+#define PACKAGE_STRING "expat 2.7.1"
++#define PACKAGE_STRING "expat 2.7.4"
 +
 +/* Define to the one symbol short name of this package. */
 +#define PACKAGE_TARNAME "expat"
@@ -97,7 +94,7 @@ index 0000000..fffffff
 +#define PACKAGE_URL ""
 +
 +/* Define to the version of this package. */
-+#define PACKAGE_VERSION "2.7.1"
++#define PACKAGE_VERSION "2.7.4"
 +
 +/* Define to 1 if all of the C89 standard headers exist (not just the ones
 +   required in a freestanding environment). This macro is provided for
@@ -105,7 +102,7 @@ index 0000000..fffffff
 +#define STDC_HEADERS 1
 +
 +/* Version number of package */
-+#define VERSION "2.7.1"
++#define VERSION "2.7.4"
 +
 +/* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
 +   significant byte first (like Motorola and SPARC, unlike Intel). */
