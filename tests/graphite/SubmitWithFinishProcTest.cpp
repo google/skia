@@ -14,6 +14,7 @@
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/Surface.h"
 #include "tests/Test.h"
+#include "tools/graphite/GraphiteTestContext.h"
 
 using namespace skgpu::graphite;
 
@@ -32,10 +33,11 @@ void FinishProc(GpuFinishedContext ctx, skgpu::CallbackResult result) {
 
 }  // anonymous namespace
 
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(SubmitWithFinishProc_PendingCommandBuffer, reporter, context,
-                                   CtsEnforcement::kNextRelease) {
+DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(SubmitWithFinishProc_PendingCommandBuffer,
+                                               reporter, context, testCtx, /*condition=*/true,
+                                               CtsEnforcement::kNextRelease) {
     // Ensure the Context is fully idle initially.
-    context->submit(SyncToCpu::kYes);
+    testCtx->syncedSubmit(context);
 
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     SkImageInfo ii = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
@@ -67,15 +69,16 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(SubmitWithFinishProc_PendingCommandBuffer, re
     context->submit(submitInfo);
 
     // Syncing should trigger both callbacks.
-    context->submit(SyncToCpu::kYes);
+    testCtx->syncedSubmit(context);
     REPORTER_ASSERT(reporter, recordingFinishContext.fCalled);
     REPORTER_ASSERT(reporter, submitFinishContext.fCalled);
 }
 
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(SubmitWithFinishProc_NoPendingCommandBuffer, reporter, context,
-                                   CtsEnforcement::kNextRelease) {
+DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(SubmitWithFinishProc_NoPendingCommandBuffer,
+                                               reporter, context, testCtx, /*condition=*/true,
+                                               CtsEnforcement::kNextRelease) {
     // Ensure the Context is fully idle.
-    context->submit(SyncToCpu::kYes);
+    testCtx->syncedSubmit(context);
 
     FinishContext finishContext;
     finishContext.fReporter = reporter;
