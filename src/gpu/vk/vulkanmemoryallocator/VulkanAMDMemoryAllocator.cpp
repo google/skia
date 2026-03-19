@@ -108,7 +108,7 @@ VkResult VulkanAMDMemoryAllocator::allocateImageMemory(VkImage image,
                                                        uint32_t allocationPropertyFlags,
                                                        skgpu::VulkanBackendMemory* backendMemory) {
     TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_FUNC);
-    VmaAllocationCreateInfo info;
+    VmaAllocationCreateInfo info = {};
     info.flags = 0;
     info.usage = VMA_MEMORY_USAGE_UNKNOWN;
     info.requiredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
@@ -140,7 +140,7 @@ VkResult VulkanAMDMemoryAllocator::allocateBufferMemory(VkBuffer buffer,
                                                         uint32_t allocationPropertyFlags,
                                                         skgpu::VulkanBackendMemory* backendMemory) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-    VmaAllocationCreateInfo info;
+    VmaAllocationCreateInfo info = {};
     info.flags = 0;
     info.usage = VMA_MEMORY_USAGE_UNKNOWN;
     info.memoryTypeBits = 0;
