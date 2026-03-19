@@ -2030,7 +2030,8 @@
     "cq_config": {}
   },
   {
-    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Native_Vulkan"
+    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Native_Vulkan",
+    "cq_config": {}
   },
   {
     "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Native_Vulkan_TestPrecompile",
