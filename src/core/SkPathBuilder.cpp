@@ -75,7 +75,7 @@ SkPathBuilder& SkPathBuilder::operator=(const SkPath& src) {
         return *this;
     }
 
-    this->addRaw(src.fPathData->raw(src.getFillType(), SkResolveConvexity::kYes));
+    this->addRaw(src.fPathData->raw(src.getFillType(), SkResolveConvexity::kYes), Reserve::kExact);
 
     // These are not part of SkPathRaw, so we set them separately
     fLastMoveIndex = SkPathPriv::FindLastMoveToIndex(fVerbs, fPts.size());
@@ -118,9 +118,9 @@ bool SkPathBuilder::operator==(const SkPathBuilder& o) const {
 }
 
 void SkPathBuilder::incReserve(int extraPtCount, int extraVbCount, int extraCnCount) {
-    fPts.reserve_exact(Sk32_sat_add(fPts.size(), extraPtCount));
-    fVerbs.reserve_exact(Sk32_sat_add(fVerbs.size(), extraVbCount));
-    fConicWeights.reserve_exact(Sk32_sat_add(fConicWeights.size(), extraCnCount));
+    fPts.reserve(Sk32_sat_add(fPts.size(), extraPtCount));
+    fVerbs.reserve(Sk32_sat_add(fVerbs.size(), extraVbCount));
+    fConicWeights.reserve(Sk32_sat_add(fConicWeights.size(), extraCnCount));
 }
 
 std::tuple<SkPoint*, SkScalar*> SkPathBuilder::growForVerbsInPath(const SkPath& path) {
@@ -687,8 +687,14 @@ SkPathIter SkPathBuilder::iter() const {
     return SkPathIter(fPts, fVerbs, fConicWeights);
 }
 
-SkPathBuilder& SkPathBuilder::addRaw(const SkPathRaw& raw) {
-    this->incReserve(raw.points().size(), raw.verbs().size(), raw.conics().size());
+SkPathBuilder& SkPathBuilder::addRaw(const SkPathRaw& raw, Reserve reserve) {
+    if (reserve == Reserve::kGrow) {
+        this->incReserve(raw.points().size(), raw.verbs().size(), raw.conics().size());
+    } else {
+        fPts         .reserve_exact(Sk32_sat_add(fPts.size()         , raw.points().size()));
+        fVerbs       .reserve_exact(Sk32_sat_add(fVerbs.size()       , raw.verbs().size()));
+        fConicWeights.reserve_exact(Sk32_sat_add(fConicWeights.size(), raw.conics().size()));
+    }
 
     for (auto iter = raw.iter(); auto rec = iter.next();) {
         const auto pts = rec->fPoints;
@@ -717,7 +723,7 @@ SkPathBuilder& SkPathBuilder::addRaw(const SkPathRaw& raw) {
 SkPathBuilder& SkPathBuilder::addRect(const SkRect& rect, SkPathDirection dir, unsigned index) {
     const bool wasEmpty = (fSegmentMask == 0);
 
-    this->addRaw(SkPathRawShapes::Rect(rect, dir, index));
+    this->addRaw(SkPathRawShapes::Rect(rect, dir, index), Reserve::kGrow);
 
     if (wasEmpty) {
         // now we're a rect
@@ -729,7 +735,7 @@ SkPathBuilder& SkPathBuilder::addRect(const SkRect& rect, SkPathDirection dir, u
 SkPathBuilder& SkPathBuilder::addOval(const SkRect& oval, SkPathDirection dir, unsigned index) {
     const bool wasEmpty = (fSegmentMask == 0);
 
-    this->addRaw(SkPathRawShapes::Oval(oval, dir, index));
+    this->addRaw(SkPathRawShapes::Oval(oval, dir, index), Reserve::kGrow);
 
     if (wasEmpty) {
         fType            = SkPathIsAType::kOval;
@@ -757,7 +763,7 @@ SkPathBuilder& SkPathBuilder::addRRect(const SkRRect& rrect, SkPathDirection dir
 
     const bool wasEmpty = (fSegmentMask == 0);
 
-    this->addRaw(SkPathRawShapes::RRect(rrect, dir, index));
+    this->addRaw(SkPathRawShapes::RRect(rrect, dir, index), Reserve::kGrow);
 
     if (wasEmpty) {
         fType            = SkPathIsAType::kRRect;

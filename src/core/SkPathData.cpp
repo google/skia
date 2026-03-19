@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkPathData.h"
+
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkSpan.h"
@@ -12,7 +15,6 @@
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkSafeMath.h"
-#include "src/core/SkPathData.h"
 #include "src/core/SkPathEnums.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkPathRawShapes.h"
@@ -255,10 +257,10 @@ sk_sp<SkPathData> SkPathData::MakeTransform(const SkPathRaw& src, const SkMatrix
     }
 
     if (mx.hasPerspective()) {
-        SkPathBuilder bu;
-        bu.addRaw(src);
-        bu.transform(mx);
-        return bu.detachData();
+        return SkPathBuilder()
+            .addRaw(src, SkPathBuilder::Reserve::kExact)
+            .transform(mx)
+            .detachData();
     }
 
     // Allocate our result, so we can map the new points directly into it

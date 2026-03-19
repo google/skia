@@ -6,6 +6,7 @@
  */
 #include "src/pathops/SkPathWriter.h"
 
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkMath.h"
 #include "src/base/SkTSort.h"
@@ -31,7 +32,7 @@ void SkPathWriter::close() {
 #endif
     fCurrent.close();
     if (auto raw = SkPathPriv::Raw(fCurrent, SkResolveConvexity::kNo)) {
-        fBuilder.addRaw(*raw);
+        fBuilder.addRaw(*raw, SkPathBuilder::Reserve::kExact);
     }
     init();
 }

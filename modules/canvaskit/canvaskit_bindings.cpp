@@ -740,7 +740,7 @@ void PathAddVerbsPointsWeights(SkPathBuilder& self,
         SkSpan<const SkPathVerb>(verbs, SkToSizeT(numVerbs)),
         SkSpan<const float>(weights, SkToSizeT(numWts)),
     };
-    self.addRaw(raw);
+    self.addRaw(raw, SkPathBuilder::Reserve::kExact);
 }
 
 //========================================================================================

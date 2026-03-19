@@ -1131,7 +1131,6 @@ private:
     using INHERITED = Benchmark;
 };
 
-
 const SkRect ConservativelyContainsBench::kBounds = SkRect::MakeWH(SkIntToScalar(100), SkIntToScalar(100));
 const SkSize ConservativelyContainsBench::kQueryMin = {SkIntToScalar(1), SkIntToScalar(1)};
 const SkSize ConservativelyContainsBench::kQueryMax = {SkIntToScalar(40), SkIntToScalar(40)};
@@ -1381,3 +1380,45 @@ DEF_BENCH( return new PathIsRectBench("complex_norect", SkPathBuilder()
                                                     .conicTo(10, 20, 20, 20, .7f)
                                                     .close()
                                                     .detach()); )
+
+// Measures SkPathBuilder perf when appending a large number of simple shapes (addRect etc).
+// Since internally we know how to reserve exactly or with growth, might consider exposing
+// that option in these helpers: addREct, addOval, etc.
+class PathBuilderManyShapes final : public Benchmark {
+public:
+    using Proc = void(*)(SkPathBuilder*);
+    PathBuilderManyShapes(const char* suffix, Proc proc)
+        : fName(SkStringPrintf("pathbuilder_many_%s", suffix))
+        , fProc(proc)
+    {}
+
+protected:
+    bool isSuitableFor(Backend backend) override {
+        return backend == Backend::kNonRendering;
+    }
+
+    const char* onGetName() override { return fName.c_str(); }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        static constexpr size_t kManyCount = 10000;
+        for (int i = 0; i < loops; ++i) {
+            SkPathBuilder builder;
+            for (size_t c = 0; c < kManyCount; ++c) {
+                fProc(&builder);
+            }
+        }
+    }
+
+private:
+    const SkString fName;
+    const Proc     fProc;
+};
+
+DEF_BENCH( return new PathBuilderManyShapes("rects",
+                [](SkPathBuilder* b) { b->addRect({0, 0, 10, 20}); }); )
+DEF_BENCH( return new PathBuilderManyShapes("rrects",
+                [](SkPathBuilder* b) { b->addRRect(SkRRect::MakeRect({0, 0, 10, 20})); }); )
+DEF_BENCH( return new PathBuilderManyShapes("ovals",
+                [](SkPathBuilder* b) { b->addOval({0, 0, 10, 20}); }); )
+DEF_BENCH( return new PathBuilderManyShapes("circles",
+                [](SkPathBuilder* b) { b->addCircle({10, 10}, 5); }); )
