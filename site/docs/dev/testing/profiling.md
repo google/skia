@@ -12,11 +12,15 @@ compatible with the [pprof](https://github.com/google/pprof) visualizer.
 Prerequisites
 -------------
 
+### Installing the profiler
+To install the gperftool headers for compiling and the shared libraries for linking.
+This includes `libprofiler.so` (for CPU) and `libtcmalloc.so` (for Heap).
+
     # On Debian/Ubuntu:
     $ sudo apt-get install libgoogle-perftools-dev
 
-This provides `libprofiler.so` (for CPU) and `libtcmalloc.so` (for Heap).
 
+### Installing the visualizer
 Googlers already have the `pprof` analysis tool, but external users can do the following to install `google-pprof` (and may want to make an alias to call it `pprof`).
 
     # On Debian/Ubuntu:
@@ -28,7 +32,7 @@ Terminology
 When analyzing profiles, you will see two primary metrics:
 
 *   **Flat**: Time (or memory) spent **strictly within** that specific function. High flat time indicates a bottleneck in the function's own logic (e.g., a heavy loop).
-*   **Cumulative (cum)**: Total time spent (or memory allocated) in that function *plus all functions it calls*. High cumulative time with low flat time indicates a bottleneck in one of the function's children.
+*   **Cumulative**: Total time spent (or memory allocated) in that function *plus all functions it calls*. High cumulative time with low flat time indicates a bottleneck in one of the function's children.
 
 Building with Profiling Support
 -------------------------------
