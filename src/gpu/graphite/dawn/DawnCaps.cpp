@@ -175,6 +175,12 @@ std::pair<SkEnumBitMask<TextureUsage>, SkEnumBitMask<SampleCount>> DawnCaps::get
         if ((formatInfo.fFlags & msaaFlag) == msaaFlag) {
             // WebGPU only supports 1x and 4x MSAA
             sampleCounts |= SampleCount::k4;
+            if (this->msaaRenderToSingleSampledSupport() &&
+                !TextureFormatIsDepthOrStencil(format)) {
+                // If WebGPU exposes the MSRTSS extension, assume that all color formats that
+                // support MSAA can support MSRTSS.
+                supported |= TextureUsage::kMSRTSS;
+            }
         }
     }
 
