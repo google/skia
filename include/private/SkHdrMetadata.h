@@ -55,6 +55,20 @@ struct SK_API ContentLightLevelInformation {
     sk_sp<SkData> serialize() const;
 
     /**
+     * Helper functions for accessing members as uint16_t, which is often needed when interacting
+     * with libraries using the CTA semantics.
+     */
+    static ContentLightLevelInformation MakeUint16(uint16_t maxCLL, uint16_t maxFALL) {
+        return { .fMaxCLL = static_cast<float>(maxCLL), .fMaxFALL = static_cast<float>(maxFALL) };
+    }
+    uint16_t getUint16MaxCLL() const {
+        return static_cast<uint16_t>(std::clamp(std::round(fMaxCLL), 0.f, 65535.f));
+    }
+    uint16_t getUint16MaxFALL() const {
+        return static_cast<uint16_t>(std::clamp(std::round(fMaxFALL), 0.f, 65535.f));
+    }
+
+    /**
      * Decode from the binary encoding listed at:
      *   Portable Network Graphics (PNG) Specification (Third Edition)
      *   11.3.2.8 cLLI Content Light Level Information
