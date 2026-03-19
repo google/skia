@@ -113,6 +113,9 @@ def main():
   if args.enable_rtti:
     configure_cmd.append("-DDAWN_ENABLE_RTTI=ON")
 
+  if target_os == "Linux":
+    configure_cmd.append("-DDAWN_USE_X11=ON")
+
   cxx_flags = args.cxx_flags or []
   ld_flags = args.ld_flags or []
 
