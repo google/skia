@@ -1117,7 +1117,7 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 			// We sometimes have machines on different versions of Mac-N.x, so this lets us adjust
 			// those on the specific hardware.
 			if dims, ok := map[string]dimensionMap{
-				"MacBookPro11.5": {"mac_model": "MacBookPro11,5", "os": "Mac-11.7"},
+				"MacBookPro11.5": {"mac_model": "MacBookPro11,5", "os": "Mac-12.7"},
 				"MacBookPro15.1": {"mac_model": "MacBookPro15,1", "os": "Mac-15.3"},
 				"MacBookPro15.3": {"mac_model": "Mac15,3", "os": "Mac-13.5"},
 				"MacMini8.1":     {"mac_model": "Macmini8,1"}, // on both 14.5 and 14.7
