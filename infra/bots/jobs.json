@@ -1626,13 +1626,21 @@
     "name": "Test-Android-Clang-Pixel9-GPU-MaliG715-arm64-Release-All-Android_Graphite_Native_Vulkan",
     "cq_config": {
       "location_regexes": [
+        "tools/gpu/vk/.*",
         "(tests|src/gpu)/graphite/.*",
         "src/sksl/generated/.*"
       ]
     }
   },
   {
-    "name": "Test-Android-Clang-Pixel9-GPU-MaliG715-arm64-Release-All-Android_Vulkan"
+    "name": "Test-Android-Clang-Pixel9-GPU-MaliG715-arm64-Release-All-Android_Vulkan",
+    "cq_config": {
+      "location_regexes": [
+        "tools/gpu/vk/.*",
+        "(tests|src/gpu)/ganesh/.*",
+        "src/sksl/generated/.*"
+      ]
+    }
   },
   {
     "name": "Test-Android12-Clang-Pixel5-GPU-Adreno620-arm64-Debug-All-Android"
@@ -2050,7 +2058,13 @@
     "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-SK_USE_PADDED_BLUR_UPSCALE"
   },
   {
-    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
+    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan",
+    "cq_config": {
+      "location_regexes": [
+        "tools/gpu/vk/.*",
+        "tests/ganesh/.*"
+      ]
+    }
   },
   {
     "name": "Test-Ubuntu24.04-Clang-NUC11TZi5-CPU-AVX2-x86_64-Release-All"
