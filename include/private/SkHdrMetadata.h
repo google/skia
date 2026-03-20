@@ -12,6 +12,8 @@
 #include "include/core/SkData.h"
 #include "include/private/base/SkAPI.h"
 
+#include <algorithm>
+#include <cmath>
 #include <memory>
 #include <optional>
 #include <vector>
