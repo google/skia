@@ -787,8 +787,7 @@ int SkTypeface_Mac::onGetVariationDesignPosition(
 }
 
 int SkTypeface_Mac::onGetUPEM() const {
-    SkUniqueCFRef<CGFontRef> cgFont(CTFontCopyGraphicsFont(fFontRef.get(), nullptr));
-    return CGFontGetUnitsPerEm(cgFont.get());
+    return CTFontGetUnitsPerEm(fFontRef.get());
 }
 
 SkTypeface::LocalizedStrings* SkTypeface_Mac::onCreateFamilyNameIterator() const {
