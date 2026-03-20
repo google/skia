@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/TextureProxy.h"
 
 #include "include/gpu/graphite/Recorder.h"
+#include "include/private/SkPixelStorage.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/RecorderPriv.h"
@@ -55,6 +56,10 @@ TextureProxy::TextureProxy(SkISize dimensions,
 }
 
 TextureProxy::~TextureProxy() {}
+
+SkPixelStorage::Type TextureProxy::type() const {
+    return SkPixelStorage::Type::kTextureProxy;
+}
 
 SkISize TextureProxy::dimensions() const {
     SkASSERT(!this->isFullyLazy() || this->isInstantiated());

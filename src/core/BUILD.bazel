@@ -374,6 +374,7 @@ skia_filegroup(
         "SkPictureRecord.cpp",
         "SkPictureRecorder.cpp",
         "SkPixelRef.cpp",
+        "SkPixelStorage.cpp",
         "SkPixmap.cpp",
         "SkPixmapDraw.cpp",
         "SkPoint.cpp",

@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/gpu/graphite/TextureInfo.h"
+#include "include/private/SkPixelStorage.h"
 #include "include/private/base/SkTo.h"
 
 #include <functional>
@@ -25,11 +26,13 @@ class ResourceProvider;
 class ScratchResourceManager;
 class Texture;
 
-class TextureProxy : public SkRefCnt {
+class TextureProxy : public SkPixelStorage, public SkRefCnt {
 public:
     TextureProxy() = delete;
 
     ~TextureProxy() override;
+
+    Type type() const override;
 
     SampleCount sampleCount() const { return fInfo.sampleCount(); }
     Mipmapped mipmapped() const { return fInfo.mipmapped(); }
