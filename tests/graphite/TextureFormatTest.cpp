@@ -11,11 +11,19 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/private/base/SkTArray.h"
+#include "src/base/SkFloatBits.h"
+#include "src/base/SkHalf.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/TextureFormat.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
+#include "tools/ToolUtils.h"
+
+// Uncomment the SK_ABORT() to exit on first pixel mismatch to help debugging
+#define STOP_ON_TRANSFER_FAILURE // SK_ABORT();
 
 namespace skgpu::graphite {
 
@@ -120,6 +128,359 @@ private:
     }
 };
 
+using PixelData = std::array<uint8_t, 16>; // The largest texel/pixel size is RGBA32F = 16 bytes
+
+uint32_t channel_to_bits(const Channel& channel, float value) {
+    switch (channel.fType) {
+        case Pad:
+            // Pad should only be used with 'x', then just fall through to turn x's value as Unorm
+            // for packing into the right bit size
+            SkASSERT(channel.fName == 'x');
+            [[fallthrough]];
+        case sRGB:
+            // sRGB data is stored in a non-linear gamma and automatically decodes to linear when
+            // being sampled or rendered into. This means an SRGB_8888 image with a linear
+            // SkColorSpace behaves like a regular 8888 image with an sRGB SkColorSpace. But
+            // transfers between CPU and GPU assume the SkColorSpace is the same, so we need to
+            // interpret the `v` as if it were an 8888 image with a linear SkColorSpace and map to
+            // the sRGB encoding.
+            if (channel.fType == sRGB) {
+                value = skcms_TransferFunction_eval(skcms_sRGB_Inverse_TransferFunction(), value);
+            }
+            [[fallthrough]];
+
+        case UNorm:
+            return (uint32_t) std::round(value * ((1 << channel.fBits) - 1));
+
+        case XR:
+            // See SkRP_opts::store_1010102_xr
+            SkASSERT(channel.fBits == 10);
+            return std::min((uint32_t) std::round(value * 510 + 384), 1023u);
+
+        case FNorm:
+            // For simplicity fall through to Float, the Norm is just a hint about range
+            [[fallthrough]];
+        case Float:
+            SkASSERT(channel.fBits == 16 || channel.fBits == 32);
+            return channel.fBits == 16 ? (uint32_t) SkFloatToHalf(value) : SkFloat2Bits(value);
+
+        case Signed:
+            // This should only be used for 's' channels, which are already not reaching this code
+            SK_ABORT("Should not be generating Signed values for pixel data");
+    }
+    SkUNREACHABLE;
+}
+
+float channel_to_float(const Channel& channel, uint32_t bits) {
+    switch (channel.fType) {
+        case sRGB: [[fallthrough]]; // first treat as unorm then apply gamma TF
+        case UNorm: {
+            float vf = bits * (1 / (float) ((1 << channel.fBits) - 1));
+            if (channel.fType == sRGB) {
+                vf = skcms_TransferFunction_eval(skcms_sRGB_TransferFunction(), vf);
+            }
+            return vf;
+        }
+
+        case XR:     return (bits - 384.f) * (1/510.f);
+
+        case FNorm:  [[fallthrough]]; // Values are interpreted the same, values are in [0,1]
+        case Float:  return channel.fBits == 16 ? SkHalfToFloat((SkHalf) bits) : SkBits2Float(bits);
+
+        case Signed: [[fallthrough]];
+        case Pad:    return SK_FloatNaN; // No floating point printing
+    }
+    SkUNREACHABLE;
+}
+
+// Generate a unique value for `channel` by applying `srcToDst` to the source channels.
+float gen_channel_value(const Channel& channel,
+                        const Swizzle& srcToDst,
+                        SkSpan<const Channel> srcChannels) {
+    // First apply the swizzle
+    char name = channel.fName;
+    switch (name) {
+        case 'r': name = srcToDst[0]; break;
+        case 'g': name = srcToDst[1]; break;
+        case 'b': name = srcToDst[2]; break;
+        case 'a': name = srcToDst[3]; break;
+    }
+
+    // Try to look for an exact channel match, in which case we use the unique value corresponding
+    // to that channel name.
+    for (size_t c = 0; c < srcChannels.size(); ++c) {
+        if (srcChannels[c].fName == name ||
+            (srcChannels[c].fName == 'G' && (name == 'r' || name == 'g' || name == 'b'))) {
+            uint32_t v;
+            switch (srcChannels[c].fName) {
+                case 'r': v = 0b0001; break;
+                case 'g': v = 0b0010; break;
+                case 'b': v = 0b0100; break;
+                case 'a': v = 0b1010; break; // `A` must additionally fit into 2 bit channel formats
+                case 'x': v = 0b0101; break;
+                case '0': v = 0b0000; break;
+                case '1': v = 0b1111; break;
+                case 'G': v = 0b1100; break; // arbitrary starting Gray value
+                default:
+                    // NOTE: 'd', 's', 'y', 'u', 'v' are valid channel names, but the formats that
+                    // have those should not be participating in the read/write transfer testing.
+                    SK_ABORT("Bad source channel name for pixel data generation: %c", name);
+            }
+            // Route through the source channel's bit representation to account for rounding
+            return channel_to_float(srcChannels[c], channel_to_bits(srcChannels[c], v / 15.f));
+        }
+    }
+
+    // We didn't find an exact channel match, so we either use default values or apply gray handling
+    switch (name) {
+        // Trivial default values
+        case 'x':                               return SK_FloatNaN;
+        case 'r': case 'g': case 'b': case '0': return 0.f;
+        case 'a': case '1':                     return 1.f;
+
+        // Construct a gray value from r, g, and b values of the source
+        case 'G': {
+            float r = gen_channel_value({'r', channel.fBits, channel.fType}, srcToDst, srcChannels);
+            float g = gen_channel_value({'g', channel.fBits, channel.fType}, srcToDst, srcChannels);
+            float b = gen_channel_value({'b', channel.fBits, channel.fType}, srcToDst, srcChannels);
+
+            return 0.2126f * r + 0.7142f * g + 0.0722f * b;
+        }
+
+        default:
+            SK_ABORT("Bad dst channel name for pixel data generation: %c", name);
+    }
+}
+
+// Src and Dst must be (uint32_t, PixelData) or (PixelData, uint32_t), and `dst` should be
+// zero-initialized before calling. Returns the bitOffset for the next channel.
+template <typename Src, typename Dst>
+int copy_unaligned_bits(int numBits, int bitOffset, const Src& src, Dst& dst) {
+    static_assert(std::is_same_v<Src, uint32_t> || std::is_same_v<Src, PixelData>);
+    static_assert(std::is_same_v<Dst, uint32_t> || std::is_same_v<Dst, PixelData>);
+    static_assert(!std::is_same_v<Src, Dst>);
+    static constexpr bool kBytesToChannel = std::is_same_v<Src, PixelData>;
+
+    int srcBitsLeft = numBits;
+    while (srcBitsLeft > 0) {
+        int arrayIndex = bitOffset / 8;
+        int arrayBitsLeft = (arrayIndex + 1) * 8 - bitOffset;
+        int copyBits = std::min(arrayBitsLeft, srcBitsLeft);
+
+        int channelBitShift = numBits - srcBitsLeft;
+        int arrayBitShift = 8 - arrayBitsLeft;
+
+        if constexpr (kBytesToChannel) {
+            dst |= ((src[arrayIndex] >> arrayBitShift) & ((1<<copyBits) - 1)) << channelBitShift;
+        } else {
+            dst[arrayIndex] |= ((src >> channelBitShift) & ((1<<copyBits) - 1)) << arrayBitShift;
+        }
+        srcBitsLeft -= copyBits;
+        bitOffset += copyBits;
+    }
+    return bitOffset;
+}
+
+PixelData gen_pixel_data(SkSpan<const Channel> dstChannels,
+                         Swizzle srcToDst,
+                         SkSpan<const Channel> srcChannels) {
+    PixelData pixel{}; // zero-initialize all bytes
+    int bitOffset = 0;
+    for (size_t c = 0; c < dstChannels.size(); ++c) {
+        float srcValue = gen_channel_value(dstChannels[c], srcToDst, srcChannels);
+        uint32_t channelValue = channel_to_bits(dstChannels[c], srcValue);
+        bitOffset = copy_unaligned_bits(dstChannels[c].fBits, bitOffset, channelValue, pixel);
+    }
+
+    return pixel;
+}
+
+// No swizzling or data conversion variant for input data generation
+PixelData gen_pixel_data(SkSpan<const Channel> channels) {
+    return gen_pixel_data(channels, Swizzle::RGBA(), channels);
+}
+
+const char* channel_type_name(ChannelDataType type) {
+    switch (type) {
+        case UNorm:  return "u";
+        case Signed: return "s";
+        case Float:  return "f";
+        case FNorm:  return "fn";
+        case sRGB:   return "srgb";
+        case XR:     return "xr";
+        case Pad:    return "_";
+    }
+    SkUNREACHABLE;
+}
+
+skia_private::TArray<SkString> print_channel_names(SkSpan<const Channel> channels) {
+    skia_private::TArray<SkString> names;
+    names.push_back(SkString()); // empty to align with channel values row label
+    names.push_back(SkString("raw"));
+    for (const Channel& c : channels) {
+        const char* typeName = channel_type_name(c.fType);
+        names.push_back(SkStringPrintf("%c(%s%d)", c.fName, typeName, c.fBits));
+    }
+    return names;
+}
+
+skia_private::TArray<SkString> print_channel_values(
+        const char* prefix, SkSpan<const Channel> channels, const PixelData& pixel) {
+    skia_private::TArray<SkString> values;
+
+    values.push_back(SkString(prefix));
+
+    values.push_back(SkString()); // Raw hex value
+    for (int i = 0; i < 16; ++i) {
+        values[1].appendf(" %0.2x", pixel[i]);
+    }
+
+    int bitOffset = 0;
+    for (const Channel& c : channels) {
+        uint32_t channelValue = 0;
+        bitOffset = copy_unaligned_bits(c.fBits, bitOffset, pixel, channelValue);
+
+        SkString binary;
+        for (int i = 0; i < c.fBits; ++i) {
+            binary.prependUnichar((channelValue >> i) & 1 ? '1' : '0');
+        }
+        float vf = channel_to_float(c, channelValue);
+
+        SkString numeric;
+        switch (c.fType) {
+            case Pad:    numeric = "-"; break;
+            case Signed: numeric = SkStringPrintf("%u", channelValue); break;
+
+            case sRGB:   [[fallthrough]];
+            case XR:
+            case UNorm:  numeric = SkStringPrintf("0x%x / %.2f", channelValue, vf); break;
+
+            case FNorm:  [[fallthrough]];
+            case Float:  numeric = SkStringPrintf("%0.4f", vf); break;
+        }
+        values.push_back(SkStringPrintf("%s (%s)", binary.c_str(), numeric.c_str()));
+    }
+
+    return values;
+}
+
+void dump_string(const SkString& str, int length) {
+    int strLen = SkTo<int>(str.size());
+    SkASSERT(strLen <= length);
+    SkDebugf("%*s", std::min(length, strLen), str.data());
+    length -= strLen;
+    while(length > 0) {
+        SkDebugf(" ");
+        length--;
+    }
+}
+
+void dump_pixel_comparison(const SkString& inputName,
+                           SkSpan<const Channel> inputChannels,
+                           const PixelData& inputPixel,
+                           const SkString& outputName,
+                           SkSpan<const Channel> outputChannels,
+                           const PixelData& expectedOutputPixel,
+                           const PixelData& actualOutputPixel) {
+    SkDebugf("Transfer from %s to %s:\n", inputName.c_str(), outputName.c_str());
+
+    auto inputChannelNames = print_channel_names(inputChannels);
+    auto inputChannelValues = print_channel_values("Input", inputChannels, inputPixel);
+
+    auto outputChannelNames = print_channel_names(outputChannels);
+    auto expectedChannelValues =
+            print_channel_values("Expected", outputChannels, expectedOutputPixel);
+    auto actualChannelValues =
+            print_channel_values("Actual", outputChannels, actualOutputPixel);
+
+    const int colCount = std::max(inputChannelNames.size(), outputChannelNames.size());
+    auto rows = {inputChannelNames,
+                 inputChannelValues,
+                 outputChannelNames,
+                 expectedChannelValues,
+                 actualChannelValues};
+    for (auto&& row : rows) {
+        for (int c = 0; c < std::min(colCount, row.size()); ++c) {
+            if (c == 0) {
+                SkDebugf(" ");
+            } else {
+                SkDebugf(" | ");
+            }
+            int colWidth = 0;
+            for (auto&& otherRow : rows) {
+                if (c < otherRow.size()) {
+                    colWidth = std::max(colWidth, SkTo<int>(otherRow[c].size()));
+                }
+            }
+            dump_string(row[c], colWidth);
+        }
+        SkDebugf("\n");
+    }
+}
+
+int channel_tolerance(SkSpan<const Channel> dstChannels, SkSpan<const Channel> srcChannels) {
+    bool srcHasSRGB = false;
+    for (const Channel c : srcChannels) {
+        srcHasSRGB |= c.fType == sRGB;
+    }
+    bool dstHasSRGBOrGray = false;
+    for (const Channel c : dstChannels) {
+         dstHasSRGBOrGray |= c.fType == sRGB || c.fName == 'G';
+    }
+    // If the input or output data involves sRGB encoding/decoding or conversion to gray, we
+    // allow 1 bit of difference because of mismatches between how SkRasterPipeline calculates
+    // channel values vs. the value generation in these tests.
+    return srcHasSRGB || dstHasSRGBOrGray ? 1 : 0;
+}
+
+bool compare_pixels(SkSpan<const Channel> channels,
+                    const PixelData& expected,
+                    const PixelData& actual,
+                    int channelTolerance) {
+    int bitOffset = 0;
+    for (const Channel& c : channels) {
+        uint32_t actualChannelBits = 0;
+        uint32_t expectedChannelBits = 0;
+        copy_unaligned_bits(c.fBits, bitOffset, expected, expectedChannelBits);
+        copy_unaligned_bits(c.fBits, bitOffset, actual, actualChannelBits);
+        bitOffset += c.fBits;
+
+        int64_t channelDiff = static_cast<int64_t>(actualChannelBits) -
+                              static_cast<int64_t>(expectedChannelBits);
+        if (c.fType != Pad && std::abs(channelDiff) > channelTolerance) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// TODO(michaelludwig): This is a simple stub implementation (we aren't planning to use the
+// SkConvertPixels code currently used by UploadTask and asyncReads). It's purpose is to validate
+// that the generated test cases make sense before we introduce a new TextureFormatXferFn utility.
+// As such, 3-channel formats are not supported.
+PixelData transfer_data(SkColorType srcType,
+                        SkEnumBitMask<FormatXferOp> xferOps,
+                        Swizzle srcToDst,
+                        SkColorType dstType,
+                        const PixelData& inputData) {
+    SkASSERT(!(xferOps & FormatXferOp::kDropAlpha));
+    SkASSERT(!(xferOps & FormatXferOp::kDisabled));
+
+    PixelData outputData{}; // zero-initialize for comparison stability on unwritten values.
+    SkRasterPipelineContexts::MemoryCtx srcCtx{const_cast<PixelData*>(&inputData), 1},
+                                        dstCtx{&outputData, 1};
+
+    SkRasterPipeline_<256> rp;
+    rp.appendLoad(srcType, &srcCtx);
+    if (xferOps & FormatXferOp::kSwapRB) {
+        srcToDst = Swizzle::Concat(srcToDst, Swizzle::BGRA());
+    }
+    srcToDst.apply(&rp);
+    rp.appendStore(dstType, &dstCtx);
+    rp.run(0, 0, 1, 1);
+
+    return outputData;
+}
 
 // Define the channel layout for every SkColorType for use in generating and validating the
 // result of transferring data to or from a texture format.
@@ -244,7 +605,7 @@ static const FormatExpectation kExpectations[] {
     {.fFormat=TextureFormat::kR32F,
      .fChannels={{'r', 32, Float}},
      .fXferSwizzle=std::nullopt,
-     // TODO(michaelludwig): Use kR16_float_SkColorType once
+     // TODO(b/494552359): Use kR16_float_SkColorType once
      // https://skia-review.git.corp.google.com/c/skia/+/1165337 is landed.
      .fCompatibleColorTypes={{kA16_float_SkColorType, Swizzle("000r"), Swizzle("a000")}}},
 
@@ -485,6 +846,124 @@ static const FormatExpectation kExpectations[] {
      .fCompatibleColorTypes={}},
 };
 
+void test_format_transfers(skiatest::Reporter* r,
+                           const FormatExpectation& textureFormat,
+                           const ColorTypeExpectation& textureCT) {
+    auto [baseCT, xferOps] = TextureFormatColorTypeInfo(textureFormat.fFormat);
+    if (xferOps & FormatXferOp::kDropAlpha) {
+        // 3-channel formats aren't supported by transfer_data() yet.
+        return;
+    }
+    if (textureCT.fColorType == kA16_float_SkColorType) {
+        // TODO(b/494552359): Re-enable this once we have a kR16F color type
+        return;
+    }
+
+    // When transferring to CPU->GPU, we want to apply the textureCT's write swizzle, but if that
+    // is undefined because rendering is disabled, infer a "write" swizzle by picking the swizzle
+    // from its color type.
+    Swizzle writeSwizzle;
+    if (textureCT.fWriteSwizzle.has_value()) {
+        writeSwizzle = *textureCT.fWriteSwizzle;
+    } else {
+        for (const ColorTypeChannels& texCT : kColorTypeChannels) {
+            if (texCT.fColorType == textureCT.fColorType) {
+                writeSwizzle = texCT.fEffectiveSwizzle;
+                break;
+            }
+        }
+    }
+
+    SkString gpuLabel = SkStringPrintf("GPU format %s as %s",
+            TextureFormatName(textureFormat.fFormat),
+            ToolUtils::colortype_name(textureCT.fColorType));
+    // Transfering from srcCT into a GPU textureFormat interpreted as textureCT
+    for (const ColorTypeChannels& src : kColorTypeChannels) {
+        if (textureFormat.fXferSwizzle.has_value()) {
+            REPORTER_ASSERT(r, !(xferOps & FormatXferOp::kDisabled),
+                            "Expected CPU->GPU xfer function");
+
+            PixelData cpuPixel = gen_pixel_data(src.fChannels);
+
+            // The expected GPU value is formed by applying the source colortype's effective
+            // swizzle (i.e. fill in missing channels), and the format's compatible colortype's
+            // write swizzle to the channel definition of format.
+            PixelData expectedGpuPixel = gen_pixel_data(
+                        textureFormat.fChannels,
+                        Swizzle::Concat(src.fEffectiveSwizzle, writeSwizzle),
+                        src.fChannels);
+            PixelData actualGpuPixel = transfer_data(src.fColorType,
+                                                     xferOps,
+                                                     writeSwizzle,
+                                                     baseCT,
+                                                     cpuPixel);
+
+            const int tol = channel_tolerance(textureFormat.fChannels, src.fChannels);
+            if (!compare_pixels(textureFormat.fChannels, expectedGpuPixel, actualGpuPixel, tol)) {
+                SkString ctLabel = SkStringPrintf("CPU colortype %s",
+                                                  ToolUtils::colortype_name(src.fColorType));
+                dump_pixel_comparison(ctLabel,
+                                      src.fChannels,
+                                      cpuPixel,
+                                      gpuLabel,
+                                      textureFormat.fChannels,
+                                      expectedGpuPixel,
+                                      actualGpuPixel);
+                REPORTER_ASSERT(r, false,  "Pixel mismatch uploading from %s", ctLabel.c_str());
+                STOP_ON_TRANSFER_FAILURE
+            }
+        } else {
+            // Uploads are expected to be disabled, so the xferFn should be empty
+            REPORTER_ASSERT(r, xferOps & FormatXferOp::kDisabled,
+                            "Expected empty CPU->GPU xfer function");
+        }
+    }
+
+    // Transfering from a GPU textureFormat interpreted as textureCT into dstCT
+    for (const ColorTypeChannels& dst : kColorTypeChannels) {
+        if (textureFormat.fXferSwizzle.has_value()) {
+            REPORTER_ASSERT(r, !(xferOps & FormatXferOp::kDisabled),
+                            "Expected GPU->CPU xfer function");
+
+            PixelData gpuPixel = gen_pixel_data(textureFormat.fChannels);
+
+            // The expected CPU value is formed by applying the TextureFormat's implicit transfer
+            // swizzle (i.e. fill in missing channels), its compatible colortype's read swizzle
+            // to the channel definition of the dst color type.
+            PixelData expectedCpuPixel = gen_pixel_data(
+                    dst.fChannels,
+                    Swizzle::Concat(*textureFormat.fXferSwizzle, textureCT.fReadSwizzle),
+                    textureFormat.fChannels);
+
+            PixelData actualCpuPixel = transfer_data(baseCT,
+                                                     xferOps,
+                                                     textureCT.fReadSwizzle,
+                                                     dst.fColorType,
+                                                     gpuPixel);
+
+            const int tol = channel_tolerance(dst.fChannels, textureFormat.fChannels);
+            if (!compare_pixels(dst.fChannels, expectedCpuPixel, actualCpuPixel, tol)) {
+                SkString ctLabel = SkStringPrintf("CPU colortype %s",
+                                                  ToolUtils::colortype_name(dst.fColorType));
+
+                dump_pixel_comparison(gpuLabel,
+                                      textureFormat.fChannels,
+                                      gpuPixel,
+                                      ctLabel,
+                                      dst.fChannels,
+                                      expectedCpuPixel,
+                                      actualCpuPixel);
+                REPORTER_ASSERT(r, false,  "Pixel mismatch reading back to %s", ctLabel.c_str());
+                STOP_ON_TRANSFER_FAILURE
+            }
+        } else {
+            // Readbacks are expected to be disabled, so the xferFn should be empty
+            REPORTER_ASSERT(r, xferOps & FormatXferOp::kDisabled,
+                            "Expected empty GPU->CPU xfer function");
+        }
+    }
+}
+
 void run_texture_format_test(skiatest::Reporter* r, const Caps* caps, TextureFormat format) {
     bool foundExpectation = false;
     for (auto&& e : kExpectations) {
@@ -533,8 +1012,8 @@ void run_texture_format_test(skiatest::Reporter* r, const Caps* caps, TextureFor
                                     (int) ec.fColorType);
                     foundColorExpectation = true;
 
-                    // Check swizzles here, the rest of the color type checks happen outside the
-                    // loop based on `foundColorExpectation`.
+                    // Check swizzles and transfers here, the rest of the color type checks happen
+                    // outside the loop based on `foundColorExpectation`.
                     Swizzle actualReadSwizzle = ReadSwizzleForColorType(ct, format);
                     REPORTER_ASSERT(r, ec.fReadSwizzle == actualReadSwizzle,
                                     "actual %s vs. expected %s",
@@ -557,6 +1036,8 @@ void run_texture_format_test(skiatest::Reporter* r, const Caps* caps, TextureFor
                                 ct, Mipmapped::kNo, Protected::kNo, Renderable::kYes);
                         REPORTER_ASSERT(r, format != TextureInfoPriv::ViewFormat(renderableInfo));
                     }
+
+                    test_format_transfers(r, e, ec);
                 }
             }
 
