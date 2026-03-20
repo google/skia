@@ -156,7 +156,10 @@ sk_sp<SkPDFStrike> SkPDFStrike::Make(SkPDFDocument* doc, const SkFont& font, con
 #endif
 
     SkScalar unitsPerEm = static_cast<SkScalar>(font.getTypeface()->getUnitsPerEm());
-    SkASSERT(0 < unitsPerEm);
+    int glyphCount = font.getTypeface()->countGlyphs();
+    if (unitsPerEm <= 0 || glyphCount <= 0) {
+        return nullptr;
+    }
 
     SkFont canonFont(font);
     canonFont.setBaselineSnap(false);  // canonicalize
