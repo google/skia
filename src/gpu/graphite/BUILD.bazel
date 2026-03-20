@@ -144,6 +144,8 @@ GRAPHITE_FILES = [
     "Texture.h",
     "TextureFormat.cpp",
     "TextureFormat.h",
+    "TextureFormatXferFn.cpp",
+    "TextureFormatXferFn.h",
     "TextureInfo.cpp",
     "TextureInfoPriv.h",
     "TextureProxy.cpp",

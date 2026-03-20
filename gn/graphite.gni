@@ -199,6 +199,8 @@ skia_graphite_sources = [
   "$_src/gpu/graphite/Texture.h",
   "$_src/gpu/graphite/TextureFormat.cpp",
   "$_src/gpu/graphite/TextureFormat.h",
+  "$_src/gpu/graphite/TextureFormatXferFn.cpp",
+  "$_src/gpu/graphite/TextureFormatXferFn.h",
   "$_src/gpu/graphite/TextureInfo.cpp",
   "$_src/gpu/graphite/TextureInfoPriv.h",
   "$_src/gpu/graphite/TextureProxy.cpp",

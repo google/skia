@@ -14,11 +14,11 @@
 #include "src/base/SkFloatBits.h"
 #include "src/base/SkHalf.h"
 #include "src/core/SkRasterPipeline.h"
-#include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/TextureFormat.h"
+#include "src/gpu/graphite/TextureFormatXferFn.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
 #include "tools/ToolUtils.h"
 
@@ -454,31 +454,9 @@ bool compare_pixels(SkSpan<const Channel> channels,
     return true;
 }
 
-// TODO(michaelludwig): This is a simple stub implementation (we aren't planning to use the
-// SkConvertPixels code currently used by UploadTask and asyncReads). It's purpose is to validate
-// that the generated test cases make sense before we introduce a new TextureFormatXferFn utility.
-// As such, 3-channel formats are not supported.
-PixelData transfer_data(SkColorType srcType,
-                        SkEnumBitMask<FormatXferOp> xferOps,
-                        Swizzle srcToDst,
-                        SkColorType dstType,
-                        const PixelData& inputData) {
-    SkASSERT(!(xferOps & FormatXferOp::kDropAlpha));
-    SkASSERT(!(xferOps & FormatXferOp::kDisabled));
-
+PixelData transfer_data(const TextureFormatXferFn& xferFn, const PixelData& inputData) {
     PixelData outputData{}; // zero-initialize for comparison stability on unwritten values.
-    SkRasterPipelineContexts::MemoryCtx srcCtx{const_cast<PixelData*>(&inputData), 1},
-                                        dstCtx{&outputData, 1};
-
-    SkRasterPipeline_<256> rp;
-    rp.appendLoad(srcType, &srcCtx);
-    if (xferOps & FormatXferOp::kSwapRB) {
-        srcToDst = Swizzle::Concat(srcToDst, Swizzle::BGRA());
-    }
-    srcToDst.apply(&rp);
-    rp.appendStore(dstType, &dstCtx);
-    rp.run(0, 0, 1, 1);
-
+    xferFn.run(1, 1, &inputData, sizeof(PixelData), &outputData, sizeof(PixelData));
     return outputData;
 }
 
@@ -849,7 +827,7 @@ static const FormatExpectation kExpectations[] {
 void test_format_transfers(skiatest::Reporter* r,
                            const FormatExpectation& textureFormat,
                            const ColorTypeExpectation& textureCT) {
-    auto [baseCT, xferOps] = TextureFormatColorTypeInfo(textureFormat.fFormat);
+    auto [_, xferOps] = TextureFormatColorTypeInfo(textureFormat.fFormat);
     if (xferOps & FormatXferOp::kDropAlpha) {
         // 3-channel formats aren't supported by transfer_data() yet.
         return;
@@ -879,10 +857,13 @@ void test_format_transfers(skiatest::Reporter* r,
             ToolUtils::colortype_name(textureCT.fColorType));
     // Transfering from srcCT into a GPU textureFormat interpreted as textureCT
     for (const ColorTypeChannels& src : kColorTypeChannels) {
-        if (textureFormat.fXferSwizzle.has_value()) {
-            REPORTER_ASSERT(r, !(xferOps & FormatXferOp::kDisabled),
-                            "Expected CPU->GPU xfer function");
+        std::optional<TextureFormatXferFn> xferFn =
+                TextureFormatXferFn::MakeCpuToGpu(src.fColorType,
+                                                  textureFormat.fFormat,
+                                                  textureCT.fReadSwizzle);
+        REPORTER_ASSERT(r, textureFormat.fXferSwizzle.has_value() == xferFn.has_value());
 
+        if (textureFormat.fXferSwizzle.has_value() && xferFn.has_value()) {
             PixelData cpuPixel = gen_pixel_data(src.fChannels);
 
             // The expected GPU value is formed by applying the source colortype's effective
@@ -892,11 +873,7 @@ void test_format_transfers(skiatest::Reporter* r,
                         textureFormat.fChannels,
                         Swizzle::Concat(src.fEffectiveSwizzle, writeSwizzle),
                         src.fChannels);
-            PixelData actualGpuPixel = transfer_data(src.fColorType,
-                                                     xferOps,
-                                                     writeSwizzle,
-                                                     baseCT,
-                                                     cpuPixel);
+            PixelData actualGpuPixel = transfer_data(*xferFn, cpuPixel);
 
             const int tol = channel_tolerance(textureFormat.fChannels, src.fChannels);
             if (!compare_pixels(textureFormat.fChannels, expectedGpuPixel, actualGpuPixel, tol)) {
@@ -912,19 +889,18 @@ void test_format_transfers(skiatest::Reporter* r,
                 REPORTER_ASSERT(r, false,  "Pixel mismatch uploading from %s", ctLabel.c_str());
                 STOP_ON_TRANSFER_FAILURE
             }
-        } else {
-            // Uploads are expected to be disabled, so the xferFn should be empty
-            REPORTER_ASSERT(r, xferOps & FormatXferOp::kDisabled,
-                            "Expected empty CPU->GPU xfer function");
         }
     }
 
     // Transfering from a GPU textureFormat interpreted as textureCT into dstCT
     for (const ColorTypeChannels& dst : kColorTypeChannels) {
-        if (textureFormat.fXferSwizzle.has_value()) {
-            REPORTER_ASSERT(r, !(xferOps & FormatXferOp::kDisabled),
-                            "Expected GPU->CPU xfer function");
+        std::optional<TextureFormatXferFn> xferFn =
+                TextureFormatXferFn::MakeGpuToCpu(textureFormat.fFormat,
+                                                  textureCT.fReadSwizzle,
+                                                  dst.fColorType);
+        REPORTER_ASSERT(r, textureFormat.fXferSwizzle.has_value() == xferFn.has_value());
 
+        if (textureFormat.fXferSwizzle.has_value() && xferFn.has_value()) {
             PixelData gpuPixel = gen_pixel_data(textureFormat.fChannels);
 
             // The expected CPU value is formed by applying the TextureFormat's implicit transfer
@@ -935,11 +911,7 @@ void test_format_transfers(skiatest::Reporter* r,
                     Swizzle::Concat(*textureFormat.fXferSwizzle, textureCT.fReadSwizzle),
                     textureFormat.fChannels);
 
-            PixelData actualCpuPixel = transfer_data(baseCT,
-                                                     xferOps,
-                                                     textureCT.fReadSwizzle,
-                                                     dst.fColorType,
-                                                     gpuPixel);
+            PixelData actualCpuPixel = transfer_data(*xferFn, gpuPixel);
 
             const int tol = channel_tolerance(dst.fChannels, textureFormat.fChannels);
             if (!compare_pixels(dst.fChannels, expectedCpuPixel, actualCpuPixel, tol)) {
@@ -956,10 +928,6 @@ void test_format_transfers(skiatest::Reporter* r,
                 REPORTER_ASSERT(r, false,  "Pixel mismatch reading back to %s", ctLabel.c_str());
                 STOP_ON_TRANSFER_FAILURE
             }
-        } else {
-            // Readbacks are expected to be disabled, so the xferFn should be empty
-            REPORTER_ASSERT(r, xferOps & FormatXferOp::kDisabled,
-                            "Expected empty GPU->CPU xfer function");
         }
     }
 }
