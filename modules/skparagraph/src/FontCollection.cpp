@@ -50,8 +50,34 @@ struct FontCollection::FaceCache {
     skia_private::THashMap<FamilyKey, std::vector<sk_sp<SkTypeface>>, FamilyKey::Hasher> fTypefaces;
 };
 
+struct FontCollection::VariationCache {
+    struct Key {
+        Key(SkTypefaceID typefaceID, const FontArguments& args)
+                : fTypefaceID(typefaceID), fFontArguments(args) {}
+
+        Key() : fFontArguments(SkFontArguments()) {}
+
+        SkTypefaceID fTypefaceID;
+        FontArguments fFontArguments;
+
+        bool operator==(const Key& other) const {
+            return fTypefaceID == other.fTypefaceID &&
+                   fFontArguments == other.fFontArguments;
+        }
+
+        struct Hasher {
+            size_t operator()(const Key& key) const {
+                return std::hash<SkTypefaceID>()(key.fTypefaceID) ^
+                       std::hash<FontArguments>()(key.fFontArguments);
+            }
+        };
+    };
+    skia_private::THashMap<Key, sk_sp<SkTypeface>, Key::Hasher> fTypefaces;
+};
+
 FontCollection::FontCollection()
         : fFaceCache(std::make_unique<FaceCache>())
+        , fVariationCache(std::make_unique<VariationCache>())
         , fEnableFontFallback(true)
         , fDefaultFamilyNames({SkString(DEFAULT_FONT_FAMILY)}) { }
 
@@ -121,7 +147,7 @@ std::vector<sk_sp<SkTypeface>> FontCollection::findTypefaces(const std::vector<S
     for (const SkString& familyName : familyNames) {
         sk_sp<SkTypeface> match = matchTypeface(familyName, fontStyle);
         if (match && fontArgs) {
-            match = fontArgs->CloneTypeface(match);
+            match = cloneTypeface(match, fontArgs.value());
         }
         if (match) {
             typefaces.emplace_back(std::move(match));
@@ -146,7 +172,7 @@ std::vector<sk_sp<SkTypeface>> FontCollection::findTypefaces(const std::vector<S
         }
         if (match) {
             if (fontArgs) {
-                match = fontArgs->CloneTypeface(match);
+                match = cloneTypeface(match, fontArgs.value());
             }
             typefaces.emplace_back(std::move(match));
         }
@@ -190,7 +216,7 @@ sk_sp<SkTypeface> FontCollection::defaultFallback(SkUnichar unicode,
 
         if (typeface != nullptr) {
             if (fontArgs) {
-                typeface = fontArgs->CloneTypeface(typeface);
+                typeface = cloneTypeface(typeface, fontArgs.value());
             }
             return typeface;
         }
@@ -244,12 +270,25 @@ sk_sp<SkTypeface> FontCollection::defaultFallback() {
     return nullptr;
 }
 
+sk_sp<SkTypeface> FontCollection::cloneTypeface(const sk_sp<SkTypeface>& typeface,
+                                                const FontArguments& args) {
+    VariationCache::Key variationKey(typeface->uniqueID(), args);
+    auto found = fVariationCache->fTypefaces.find(variationKey);
+    if (found) {
+        return *found;
+    }
+    sk_sp<SkTypeface> clone = args.CloneTypeface(typeface);
+    fVariationCache->fTypefaces.set(variationKey, clone);
+    return clone;
+}
+
 void FontCollection::disableFontFallback() { fEnableFontFallback = false; }
 void FontCollection::enableFontFallback() { fEnableFontFallback = true; }
 
 void FontCollection::clearCaches() {
     fParagraphCache.reset();
     fFaceCache->fTypefaces.reset();
+    fVariationCache->fTypefaces.reset();
     SkShapers::HB::PurgeCaches();
 }
 
