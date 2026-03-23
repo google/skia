@@ -320,6 +320,11 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/gpu/graphite/precompile:_precompile_srcs",
 				"//src/gpu/graphite:precompile_srcs",
 			}},
+		{Var: "skia_graphite_sparse_strips_sources",
+			Rules: []string{
+				"//src/gpu/graphite/sparse_strips:sparse_strips_hdrs",
+				"//src/gpu/graphite/sparse_strips:sparse_strips_srcs",
+			}},
 	}},
 	{GNI: "gn/pathops.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_pathops_public",

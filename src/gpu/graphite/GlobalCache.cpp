@@ -22,6 +22,10 @@
 #include "src/gpu/graphite/SerializationUtils.h"
 #include "src/gpu/graphite/SharedContext.h"
 
+#if defined(SK_ENABLE_SPARSE_STRIPS)
+#include "src/gpu/graphite/sparse_strips/MSAA_LUT.h"
+#endif
+
 namespace {
 
 uint32_t next_compilation_id() {
@@ -50,7 +54,11 @@ namespace skgpu::graphite {
 GlobalCache::GlobalCache()
         : fGraphicsPipelineCache(kGlobalGraphicsPipelineCacheSizeLimit, &fStats)
         , fComputePipelineCache(kGlobalComputePipelineCacheSizeLimit)
-        , fDynamicSamplers({}) {}
+        , fDynamicSamplers({})
+#if defined(SK_ENABLE_SPARSE_STRIPS)
+        , fMSAAMaskLUT(GenerateMSAALUT<uint8_t>())
+#endif
+        {}
 
 GlobalCache::~GlobalCache() {
     // These should have been cleared out earlier by deleteResources().

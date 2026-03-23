@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/base/SkSpinlock.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/ResourceKey.h"
@@ -138,6 +139,13 @@ public:
 
     bool initializeDynamicSamplers(ResourceProvider*, const Caps*) SK_EXCLUDES(fSpinLock);
 
+#if defined(SK_ENABLE_SPARSE_STRIPS)
+    // Retrieve the static MSAA 8x mask lookup table.
+    const SkTDArray<uint8_t>& getMSAA8MaskLUT() const {
+        return fMSAAMaskLUT;
+    }
+#endif
+
 #if defined(GPU_TEST_UTILS)
     struct StaticVertexCopyRanges {
         uint32_t fOffset;
@@ -201,6 +209,11 @@ private:
     // of tile modes and sampling options. The array is indexed by a bitmask generated from these
     // properties. The actual Sampler objects are owned by `fStaticResource`.
     std::array<const Sampler*, kNumDynamicSamplers> fDynamicSamplers SK_GUARDED_BY(fSpinLock);
+
+#if defined(SK_ENABLE_SPARSE_STRIPS)
+    // Static MSAA mask lookup table.
+    SkTDArray<uint8_t> fMSAAMaskLUT;
+#endif
 
 #if defined(GPU_TEST_UTILS)
     skia_private::TArray<StaticVertexCopyRanges> fStaticVertexInfo SK_GUARDED_BY(fSpinLock);

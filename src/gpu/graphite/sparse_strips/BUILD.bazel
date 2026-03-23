@@ -1,0 +1,32 @@
+load("//bazel:skia_rules.bzl", "skia_cc_library", "split_srcs_and_hdrs")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+SPARSE_STRIPS_FILES = [
+    "MSAA_LUT.h",
+    "StripGenerator.cpp",
+    "StripGenerator.h",
+]
+
+split_srcs_and_hdrs(
+    name = "sparse_strips",
+    files = SPARSE_STRIPS_FILES,
+)
+
+skia_cc_library(
+    name = "sparse_strips",
+    srcs = [
+        ":sparse_strips_hdrs",
+        ":sparse_strips_srcs",
+    ],
+    deps = [
+        "//:core",
+        "//src/gpu",
+        "//src/gpu/graphite",
+        "//src/gpu/graphite:graphite_TEST_UTIL",
+    ],
+)

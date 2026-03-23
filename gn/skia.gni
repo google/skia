@@ -30,6 +30,7 @@ declare_args() {
   skia_enable_skottie = !is_component_build
   skia_enable_svg = !is_component_build
   skia_enable_tools = is_skia_dev_build
+  skia_enable_sparse_strips = false
   skia_disable_tracing = is_official_build
   skia_enable_vello_shaders = false
   skia_disable_vma_stl_shared_mutex = false

@@ -1173,6 +1173,11 @@ optional("graphite") {
     sources += skia_graphite_vello_sources
   }
 
+  if (skia_enable_sparse_strips) {
+    sources += skia_graphite_sparse_strips_sources
+    public_defines += [ "SK_ENABLE_SPARSE_STRIPS" ]
+  }
+
   if (skia_use_dawn) {
     public += skia_graphite_dawn_public
     sources += skia_graphite_dawn_sources
@@ -2695,6 +2700,9 @@ if (skia_enable_tools) {
       }
       if (skia_enable_graphite) {
         sources += graphite_tests_sources
+        if (skia_enable_sparse_strips) {
+          sources += sparse_strips_test_sources
+        }
         if (skia_use_dawn) {
           sources += graphite_dawn_tests_sources
         }

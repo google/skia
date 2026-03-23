@@ -37,8 +37,6 @@ namespace skgpu::graphite {
 
 bool RendererProvider::IsSupported(PathRendererStrategy strategy, const Caps* caps) {
     switch (strategy) {
-        case PathRendererStrategy::kCPUSparseStripsMSAA8:
-            return true;
         case PathRendererStrategy::kTessellationAndSmallAtlas:
             if (caps->minPathSizeForMSAA() <= 0) {
                 return false; // Disabled explicitly
@@ -60,6 +58,12 @@ bool RendererProvider::IsSupported(PathRendererStrategy strategy, const Caps* ca
             // The Vello compute strategies are supported if included in the build and has compute.
 #if defined(SK_ENABLE_VELLO_SHADERS)
             return caps->computeSupport();
+#else
+            return false;
+#endif
+        case PathRendererStrategy::kCPUSparseStripsMSAA8:
+#if defined(SK_ENABLE_SPARSE_STRIPS)
+            return true;
 #else
             return false;
 #endif

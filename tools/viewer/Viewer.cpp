@@ -2564,6 +2564,7 @@ void Viewer::drawImGui() {
                                 PathRendererStrategy::kRasterAtlas,
                                 PathRendererStrategy::kTessellation,
                                 PathRendererStrategy::kTessellationAndSmallAtlas,
+                                PathRendererStrategy::kCPUSparseStripsMSAA8,
                         };
                         for (size_t i = 0; i < std::size(strategies); ++i) {
                             if (skgpu::graphite::RendererProvider::IsSupported(
