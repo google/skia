@@ -234,40 +234,68 @@ SkColor4f EvaluateColorGainFunction(
 
 void PopulateSlopeFromPCHIP(AdaptiveGlobalToneMap::GainCurve& gainCurve) {
     auto& cp = gainCurve.fControlPoints;
-    size_t N = cp.size();
+    SkASSERT_RELEASE(cp.size() >= AdaptiveGlobalToneMap::GainCurve::kMinNumControlPoints &&
+                     cp.size() <= AdaptiveGlobalToneMap::GainCurve::kMaxNumControlPoints);
+    int N = static_cast<int>(cp.size());
 
     // Compute the interval width (h) and piecewise linear slope (s).
-    float s[AdaptiveGlobalToneMap::GainCurve::kMaxNumControlPoints];
-    float h[AdaptiveGlobalToneMap::GainCurve::kMaxNumControlPoints];
-    for (size_t i = 0; i < N - 1; ++i) {
+    std::array<float, AdaptiveGlobalToneMap::GainCurve::kMaxNumControlPoints> h;
+    for (int i = 0; i < N - 1; ++i) {
         h[i] = cp[i+1].fX - cp[i].fX;
     }
-    for (size_t i = 0; i < N - 1; ++i) {
-        s[i] = (cp[i+1].fY - cp[i].fY) / h[i];
-    }
-
-    // Handle the left and right control points.
-    if (N >= 3) {
-        // Formula (C.7) and Formula (C.8).
-        cp[0].fM   = ((2 * h[0]   + h[1]  ) * s[0]   - h[0]   * s[1]  ) / (h[0]   + h[1]  );
-        cp[N-1].fM = ((2 * h[N-2] + h[N-3]) * s[N-2] - h[N-2] * s[N-3]) / (h[N-2] + h[N-3]);
-    } else if (N == 2) {
-        cp[0].fM   = s[0];
-        cp[N-1].fM = s[0];
-    } else {
-        cp[0].fM   = 0.f;
-        cp[N-1].fM = 0.f;
-    }
-
-    // Populate internal control points.
-    for (size_t i = 1; i <= N - 2; ++i) {
-        // Formula (C.9).
-        if (s[i-1] * s[i] < 0.f) {
-            cp[i].fM = 0.f;
+    std::array<float, AdaptiveGlobalToneMap::GainCurve::kMaxNumControlPoints> s;
+    for (int i = 0; i < N - 1; ++i) {
+        // Formula (C.7).
+        if (h[i] != 0.f) {
+          s[i] = (cp[i+1].fY - cp[i].fY) / h[i];
         } else {
-            float num = 3 * (h[i-1] + h[i]) * s[i-1] * s[i];
-            float den = (2 * h[i-1] + h[i]) * s[i-1] + (h[i-1] + 2 * h[i]) * s[i];
-            cp[i].fM = num / den;
+          s[i] = 0.f;
+        }
+    }
+
+    // Common formulation for formulas (C.9) and (C.10).
+    auto three_point_finite_difference = [](float h0, float h1, float s0, float s1) {
+        const float num = (2.f * h0 + h1) * s0 - h0 * s1;
+        const float den = h0 + h1;
+        float m = num / den;
+        if (std::signbit(m) != std::signbit(s0)) {
+            m = 0.f;
+        } else if (std::signbit(m) != std::signbit(s1) && std::abs(m) > 3.f * std::abs(s0)) {
+            m = 3.f * s0;
+        }
+        return m;
+    };
+
+    for (int i = 0; i < N; ++i) {
+        if (i - 1 >= 0 && i + 1 < N && cp[i].fX < cp[i+1].fX) {
+            // Interior point, formula (C.8).
+            if (std::signbit(s[i-1]) != std::signbit(s[i])) {
+                cp[i].fM = 0.f;
+            } else {
+                const float num = 3 * (h[i-1] + h[i]) * s[i-1] * s[i];
+                const float den = (2 * h[i-1] + h[i]) * s[i-1] + (h[i-1] + 2 * h[i]) * s[i];
+                cp[i].fM = num / den;
+            }
+        } else if (i + 1 < N && cp[i].fX < cp[i+1].fX) {
+            // Left endpoint.
+            if (i + 2 < N && cp[i+1].fX < cp[i+2].fX) {
+                // Three-point finite difference, formula (C.9).
+                cp[i].fM = three_point_finite_difference(h[i], h[i+1], s[i], s[i+1]);
+            } else {
+                // Two-point finite difference.
+                cp[i].fM = s[i];
+            }
+        } else if (i - 1 >= 0 && cp[i-1].fX < cp[i].fX) {
+            // Right endpoint.
+            if (i - 2 >= 0 && cp[i-2].fX < cp[i-1].fX) {
+                // Three-point finite difference, formula (C.10).
+                cp[i].fM = three_point_finite_difference(h[i-1], h[i-2], s[i-1], s[i-2]);
+            } else {
+                // Two-point finite difference.
+                cp[i].fM = s[i-1];
+            }
+        } else {
+            cp[i].fM = 0.f;
         }
     }
 }
