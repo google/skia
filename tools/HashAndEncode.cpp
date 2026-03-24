@@ -57,6 +57,7 @@ HashAndEncode::HashAndEncode(const SkBitmap& bitmap) : fSize(bitmap.info().dimen
 
         case kR8G8_unorm_SkColorType:         return;
         case kR16_unorm_SkColorType:          return;
+        case kR16_float_SkColorType:          return;
         case kR16G16_unorm_SkColorType:       return;
         case kR16G16_float_SkColorType:       return;
         case kA16_unorm_SkColorType:          return;
@@ -197,4 +198,3 @@ bool HashAndEncode::encodePNG(SkWStream* st,
     png_destroy_write_struct(&png, &info);
     return true;
 }
-

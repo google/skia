@@ -70,6 +70,7 @@ std::vector<GrTest::TestFormatColorTypeCombination> GrMockCaps::getTestingCombin
         { GCT::kAlpha_16,         GrBackendFormats::MakeMockColorType(GCT::kAlpha_16)},
         { GCT::kRG_1616,          GrBackendFormats::MakeMockColorType(GCT::kRG_1616)},
         { GCT::kRGBA_16161616,    GrBackendFormats::MakeMockColorType(GCT::kRGBA_16161616)},
+        { GCT::kR_F16,            GrBackendFormats::MakeMockColorType(GCT::kR_F16)},
         { GCT::kRG_F16,           GrBackendFormats::MakeMockColorType(GCT::kRG_F16)},
         // For these two compressed image formats the color type will effectively be RGB_888x
         { GCT::kRGB_888x,         GrBackendFormats::MakeMockCompressionType(TCT::kETC2_RGB8_UNORM)},

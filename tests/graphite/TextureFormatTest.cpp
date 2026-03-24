@@ -540,6 +540,7 @@ PixelData transfer_data(const TextureFormatXferFn& xferFn, const PixelData& inpu
                                                         {'a', 32, Float}}},
     {kR8G8_unorm_SkColorType,         Swizzle("rg01"), {{'r', 8, UNorm}, {'g', 8, UNorm}}},
     {kA16_float_SkColorType,          Swizzle("000a"), {{'a', 16, Float}}},
+    {kR16_float_SkColorType,          Swizzle("r001"), {{'r', 16, Float}}},
     {kR16G16_float_SkColorType,       Swizzle("rg01"), {{'r', 16, Float}, {'g', 16, Float}}},
     {kA16_unorm_SkColorType,          Swizzle("000a"), {{'a', 16, UNorm}}},
     {kR16_unorm_SkColorType,          Swizzle("r001"), {{'r', 16, UNorm}}},
@@ -581,14 +582,13 @@ static const FormatExpectation kExpectations[] {
     {.fFormat=TextureFormat::kR16F,
      .fChannels={{'r', 16, Float}},
      .fXferSwizzle=Swizzle("r001"),
-     .fCompatibleColorTypes={{kA16_float_SkColorType, Swizzle("000r"), Swizzle("a000")}}},
+     .fCompatibleColorTypes={{kR16_float_SkColorType, Swizzle::RGBA(), Swizzle::RGBA()},
+                             {kA16_float_SkColorType, Swizzle("000r"), Swizzle("a000")}}},
 
     {.fFormat=TextureFormat::kR32F,
      .fChannels={{'r', 32, Float}},
      .fXferSwizzle=std::nullopt,
-     // TODO(b/494552359): Use kR16_float_SkColorType once
-     // https://skia-review.git.corp.google.com/c/skia/+/1165337 is landed.
-     .fCompatibleColorTypes={{kA16_float_SkColorType, Swizzle("000r"), Swizzle("a000")}}},
+     .fCompatibleColorTypes={{kR16_float_SkColorType, Swizzle::RGBA(), Swizzle::RGBA()}}},
 
     {.fFormat=TextureFormat::kA8,
      .fChannels={{'a', 8, UNorm}},
@@ -830,11 +830,6 @@ static const FormatExpectation kExpectations[] {
 void test_format_transfers(skiatest::Reporter* r,
                            const FormatExpectation& textureFormat,
                            const ColorTypeExpectation& textureCT) {
-    if (textureCT.fColorType == kA16_float_SkColorType) {
-        // TODO(b/494552359): Re-enable this once we have a kR16F color type
-        return;
-    }
-
     // When transferring to CPU->GPU, we want to apply the textureCT's write swizzle, but if that
     // is undefined because rendering is disabled, infer a "write" swizzle by picking the swizzle
     // from its color type.

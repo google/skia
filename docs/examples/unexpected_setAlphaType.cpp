@@ -19,6 +19,7 @@ static const char* colortype_name(SkColorType ct) {
         case kAlpha_8_SkColorType:            return "Alpha_8";
         case kA16_unorm_SkColorType:          return "Alpha_16";
         case kA16_float_SkColorType:          return "A16_float";
+        case kR16_float_SkColorType:          return "R16_float";
         case kRGB_565_SkColorType:            return "RGB_565";
         case kARGB_4444_SkColorType:          return "ARGB_4444";
         case kRGBA_8888_SkColorType:          return "RGBA_8888";

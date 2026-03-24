@@ -62,6 +62,7 @@ float DitherRangeForConfig(SkColorType dstColorType) {
         case kUnknown_SkColorType:
         // Half
         case kA16_float_SkColorType:
+        case kR16_float_SkColorType:
         case kR16G16_float_SkColorType:
         case kRGBA_F16_SkColorType:
         case kRGB_F16F16F16x_SkColorType:

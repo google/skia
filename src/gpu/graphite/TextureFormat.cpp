@@ -464,6 +464,7 @@ SkSpan<const TextureFormat> PreferredTextureFormats(SkColorType ct) {
         CASE(kRGBA_F32_SkColorType,           TF::kRGBA32F)
         CASE(kR8G8_unorm_SkColorType,         TF::kRG8)
         CASE(kA16_float_SkColorType,          TF::kR16F)
+        CASE(kR16_float_SkColorType,          TF::kR16F)
         CASE(kR16G16_float_SkColorType,       TF::kRG16F)
         CASE(kA16_unorm_SkColorType,          TF::kR16)
         CASE(kR16_unorm_SkColorType,          TF::kR16)
@@ -490,8 +491,8 @@ TextureFormatColorTypeInfo(TextureFormat format) {
 
         CASE(TF::kR8,             kR8_unorm_SkColorType,           X::kIdentity)
         CASE(TF::kR16,            kR16_unorm_SkColorType,          X::kIdentity)
-        CASE(TF::kR16F,           kA16_float_SkColorType,          X::kIdentity)
-        CASE(TF::kR32F,           kA16_float_SkColorType,          X::kDisabled)
+        CASE(TF::kR16F,           kR16_float_SkColorType,          X::kIdentity)
+        CASE(TF::kR32F,           kR16_float_SkColorType,          X::kDisabled)
         CASE(TF::kA8,             kAlpha_8_SkColorType,            X::kIdentity)
         CASE(TF::kRG8,            kR8G8_unorm_SkColorType,         X::kIdentity)
         CASE(TF::kRG16,           kR16G16_unorm_SkColorType,       X::kIdentity)
