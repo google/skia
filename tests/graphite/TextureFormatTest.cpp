@@ -133,10 +133,13 @@ using PixelData = std::array<uint8_t, 16>; // The largest texel/pixel size is RG
 uint32_t channel_to_bits(const Channel& channel, float value) {
     switch (channel.fType) {
         case Pad:
-            // Pad should only be used with 'x', then just fall through to turn x's value as Unorm
-            // for packing into the right bit size
+            // Pad should only be used with 'x', which produces NaN in channel_to_float, so
+            // replace `value` with the default 'x' bit pattern in gen_channel_values, and then
+            // fall through to UNorm handling to adjust it to the right bit depth
             SkASSERT(channel.fName == 'x');
+            value = 0b0101 / 15.f;
             [[fallthrough]];
+
         case sRGB:
             // sRGB data is stored in a non-linear gamma and automatically decodes to linear when
             // being sampled or rendered into. This means an SRGB_8888 image with a linear
