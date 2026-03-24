@@ -74,24 +74,25 @@ hb_position_t skhb_position(SkScalar value) {
     return SkScalarRoundToInt(value * kHbPosition1);
 }
 
-hb_bool_t skhb_glyph(hb_font_t* hb_font,
-                     void* font_data,
-                     hb_codepoint_t unicode,
-                     hb_codepoint_t variation_selector,
-                     hb_codepoint_t* glyph,
-                     void* user_data) {
-    SkFont& font = *reinterpret_cast<SkFont*>(font_data);
-
-    *glyph = font.unicharToGlyph(unicode);
-    return *glyph != 0;
-}
+// TODO: SkFont::unicharToGlyph to take variation selectors
+//hb_bool_t skhb_variation_glyph(hb_font_t* hb_font,
+//                               void* font_data,
+//                               hb_codepoint_t unicode,
+//                               hb_codepoint_t variation_selector,
+//                               hb_codepoint_t* glyph,
+//                               void* user_data) {
+//    return hb_font_get_variation_glyph(hb_font_get_parent(hb_font),
+//                                       unicode, variation_selector, glyph);
+//}
 
 hb_bool_t skhb_nominal_glyph(hb_font_t* hb_font,
                              void* font_data,
                              hb_codepoint_t unicode,
                              hb_codepoint_t* glyph,
                              void* user_data) {
-  return skhb_glyph(hb_font, font_data, unicode, 0, glyph, user_data);
+    SkFont& font = *reinterpret_cast<SkFont*>(font_data);
+    *glyph = font.unicharToGlyph(unicode);
+    return *glyph != 0;
 }
 
 unsigned skhb_nominal_glyphs(hb_font_t *hb_font, void *font_data,
@@ -210,7 +211,10 @@ hb_font_funcs_t* skhb_get_font_funcs() {
     static hb_font_funcs_t* const funcs = []{
         // HarfBuzz will use the default (parent) implementation if they aren't set.
         hb_font_funcs_t* const funcs = hb_font_funcs_create();
-        hb_font_funcs_set_variation_glyph_func(funcs, skhb_glyph, nullptr, nullptr);
+        // TODO: SkFont::unicharToGlyph to take variation selectors
+        // Not setting this allows harfbuzz to find these itself or return 0.
+        // All backends and HarfBuzz currently agree on reported glyph ids for supported formats.
+        //hb_font_funcs_set_variation_glyph_func(funcs, skhb_variation_glyph, nullptr, nullptr);
         hb_font_funcs_set_nominal_glyph_func(funcs, skhb_nominal_glyph, nullptr, nullptr);
 #if SK_HB_VERSION_CHECK(2, 0, 0)
         hb_font_funcs_set_nominal_glyphs_func(funcs, skhb_nominal_glyphs, nullptr, nullptr);
