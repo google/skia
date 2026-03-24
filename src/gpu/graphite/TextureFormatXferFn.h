@@ -43,17 +43,31 @@ public:
              const void* src, size_t srcRowBytes,
              void* dst, size_t dstRowBytes) const;
 private:
-    TextureFormatXferFn(SkColorType srcCT,
+    TextureFormatXferFn(TextureFormat format,
+                        SkEnumBitMask<FormatXferOp> preOps,
+                        SkColorType srcCT,
                         Swizzle srcToDstSwizzle,
-                        SkColorType dstCT)
-            : fSrcColorType(srcCT)
+                        SkColorType dstCT,
+                        SkEnumBitMask<FormatXferOp> postOps)
+            : fFormat(format)
+            , fPreOps(preOps)
+            , fSrcColorType(srcCT)
             , fSrcToDstSwizzle(srcToDstSwizzle)
-            , fDstColorType(dstCT) {}
+            , fDstColorType(dstCT)
+            , fPostOps(postOps) {}
+
+    // At most one of fPreOps or fPostOps will be non-identity; whichever that is determines the
+    // side of the conversion for which this TextureFormat defines the raw data format. When both
+    // pre and post ops are identity, the TextureFormat is equivalent to the src or dst color type
+    // and that ambiguity ends up irrelevant in the conversion logic.
+    TextureFormat fFormat;
 
     // Logical flow of conversion:
-    SkColorType fSrcColorType;            // 1. The src colortype loaded via SkRasterPipeline
-    Swizzle fSrcToDstSwizzle;             // 2. Swizzle applied via SkRasterPipeline to produce dst
-    SkColorType fDstColorType;            // 3. The dst colortype stored via SkRasterPipeline
+    SkEnumBitMask<FormatXferOp> fPreOps;  // 1. Bit manipulations to convert raw data to src ct
+    SkColorType fSrcColorType;            // 2. The src colortype loaded via SkRasterPipeline
+    Swizzle fSrcToDstSwizzle;             // 3. Swizzle applied via SkRasterPipeline to produce dst
+    SkColorType fDstColorType;            // 4. The dst colortype stored via SkRasterPipeline
+    SkEnumBitMask<FormatXferOp> fPostOps; // 5. Bit manipulations to convert dst to raw data
 };
 
 } // namespace skgpu::graphite

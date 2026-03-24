@@ -830,11 +830,6 @@ static const FormatExpectation kExpectations[] {
 void test_format_transfers(skiatest::Reporter* r,
                            const FormatExpectation& textureFormat,
                            const ColorTypeExpectation& textureCT) {
-    auto [_, xferOps] = TextureFormatColorTypeInfo(textureFormat.fFormat);
-    if (xferOps & FormatXferOp::kDropAlpha) {
-        // 3-channel formats aren't supported by transfer_data() yet.
-        return;
-    }
     if (textureCT.fColorType == kA16_float_SkColorType) {
         // TODO(b/494552359): Re-enable this once we have a kR16F color type
         return;
