@@ -173,9 +173,7 @@ uint32_t channel_to_bits(const Channel& channel, float value) {
 
 float channel_to_float(const Channel& channel, uint32_t bits) {
     switch (channel.fType) {
-        case Signed:
-        case Pad:
-        case sRGB: [[fallthrough]]; // first treat as unorm then apply gamma TF (when sRGB)
+        case sRGB: [[fallthrough]]; // first treat as unorm then apply gamma TF
         case UNorm: {
             float vf = bits * (1 / (float) ((1 << channel.fBits) - 1));
             if (channel.fType == sRGB) {
@@ -188,6 +186,9 @@ float channel_to_float(const Channel& channel, uint32_t bits) {
 
         case FNorm:  [[fallthrough]]; // Values are interpreted the same, values are in [0,1]
         case Float:  return channel.fBits == 16 ? SkHalfToFloat((SkHalf) bits) : SkBits2Float(bits);
+
+        case Signed: [[fallthrough]];
+        case Pad:    return SK_FloatNaN; // No floating point printing
     }
     SkUNREACHABLE;
 }
