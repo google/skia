@@ -273,6 +273,7 @@ public:
     // scalars
     void write(float f)     { this->write<SkSLType::kFloat>(&f); }
     void write(int32_t i)   { this->write<SkSLType::kInt  >(&i); }
+    void write(uint32_t u)  { this->write<SkSLType::kUint >(&u); }
     void writeHalf(float f) { this->write<SkSLType::kHalf >(&f); }
 
     // [i|h]vec4 and arrays thereof (just add overloads as needed)
