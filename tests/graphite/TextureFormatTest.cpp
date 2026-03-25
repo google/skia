@@ -831,18 +831,15 @@ void test_format_transfers(skiatest::Reporter* r,
                            const FormatExpectation& textureFormat,
                            const ColorTypeExpectation& textureCT) {
     // When transferring to CPU->GPU, we want to apply the textureCT's write swizzle, but if that
-    // is undefined because rendering is disabled, infer a "write" swizzle by picking the swizzle
-    // from its color type.
-    Swizzle writeSwizzle;
-    if (textureCT.fWriteSwizzle.has_value()) {
-        writeSwizzle = *textureCT.fWriteSwizzle;
-    } else {
-        for (const ColorTypeChannels& texCT : kColorTypeChannels) {
-            if (texCT.fColorType == textureCT.fColorType) {
-                writeSwizzle = texCT.fEffectiveSwizzle;
-                break;
-            }
-        }
+    // is undefined because rendering is disabled, switch to RGB1. This is applicable for the
+    // RGBx cases and for gray (alongside adjusting the texture channel to produce 'G').
+    Swizzle writeSwizzle = textureCT.fWriteSwizzle.value_or(Swizzle::RGB1());
+    skia_private::TArray<Channel> expectedTextureChannels = textureFormat.fChannels;
+    // Adjust the R8 channel to be 'G' for gray-storing textures so that gen_pixel_data includes
+    // any conversion to or from luminance.
+    if (textureCT.fColorType == kGray_8_SkColorType) {
+        SkASSERT(expectedTextureChannels.size() == 1 && expectedTextureChannels[0].fName == 'r');
+        expectedTextureChannels[0].fName = 'G';
     }
 
     SkString gpuLabel = SkStringPrintf("GPU format %s as %s",
@@ -863,12 +860,12 @@ void test_format_transfers(skiatest::Reporter* r,
             // swizzle (i.e. fill in missing channels), and the format's compatible colortype's
             // write swizzle to the channel definition of format.
             PixelData expectedGpuPixel = gen_pixel_data(
-                        textureFormat.fChannels,
+                        expectedTextureChannels,
                         Swizzle::Concat(src.fEffectiveSwizzle, writeSwizzle),
                         src.fChannels);
             PixelData actualGpuPixel = transfer_data(*xferFn, cpuPixel);
 
-            const int tol = channel_tolerance(textureFormat.fChannels, src.fChannels);
+            const int tol = channel_tolerance(expectedTextureChannels, src.fChannels);
             if (!compare_pixels(textureFormat.fChannels, expectedGpuPixel, actualGpuPixel, tol)) {
                 SkString ctLabel = SkStringPrintf("CPU colortype %s",
                                                   ToolUtils::colortype_name(src.fColorType));
@@ -894,7 +891,7 @@ void test_format_transfers(skiatest::Reporter* r,
         REPORTER_ASSERT(r, textureFormat.fXferSwizzle.has_value() == xferFn.has_value());
 
         if (textureFormat.fXferSwizzle.has_value() && xferFn.has_value()) {
-            PixelData gpuPixel = gen_pixel_data(textureFormat.fChannels);
+            PixelData gpuPixel = gen_pixel_data(expectedTextureChannels);
 
             // The expected CPU value is formed by applying the TextureFormat's implicit transfer
             // swizzle (i.e. fill in missing channels), its compatible colortype's read swizzle
@@ -902,17 +899,17 @@ void test_format_transfers(skiatest::Reporter* r,
             PixelData expectedCpuPixel = gen_pixel_data(
                     dst.fChannels,
                     Swizzle::Concat(*textureFormat.fXferSwizzle, textureCT.fReadSwizzle),
-                    textureFormat.fChannels);
+                    expectedTextureChannels);
 
             PixelData actualCpuPixel = transfer_data(*xferFn, gpuPixel);
 
-            const int tol = channel_tolerance(dst.fChannels, textureFormat.fChannels);
+            const int tol = channel_tolerance(dst.fChannels, expectedTextureChannels);
             if (!compare_pixels(dst.fChannels, expectedCpuPixel, actualCpuPixel, tol)) {
                 SkString ctLabel = SkStringPrintf("CPU colortype %s",
                                                   ToolUtils::colortype_name(dst.fColorType));
 
                 dump_pixel_comparison(gpuLabel,
-                                      textureFormat.fChannels,
+                                      expectedTextureChannels,
                                       gpuPixel,
                                       ctLabel,
                                       dst.fChannels,

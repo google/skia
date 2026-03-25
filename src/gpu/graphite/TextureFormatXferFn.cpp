@@ -220,7 +220,18 @@ std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeCpuToGpu(SkColorType
     }
 
     uint8_t postOps = 0;
-    Swizzle srcToDst = dstReadSwizzle.invert();
+    Swizzle srcToDst;
+    if (dstReadSwizzle == Swizzle::RRRA() &&
+        baseCT == kR8_unorm_SkColorType &&
+        srcCT != kGray_8_SkColorType) {
+        // While we are storing an R8 value, we need to adjust the baseCT in order to induce
+        // SkRasterPipeline to compute luminance from the non-gray src values.
+        baseCT = kGray_8_SkColorType;
+        srcToDst = Swizzle::RGBA();
+    } else {
+        srcToDst = dstReadSwizzle.invert();
+    }
+
     if (xferOps & FormatXferOp::kSwapRB) {
         srcToDst = Swizzle::Concat(srcToDst, Swizzle::BGRA());
     }
@@ -242,6 +253,9 @@ std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeGpuToCpu(TextureForm
 
     uint8_t preOps = 0;
     Swizzle srcToDst = srcReadSwizzle;
+    // NOTE: no need to adjust baseCT for red vs. gray in this direction as the ambiguity is
+    // irrelevant since the read swizzle pushes the "red" value into all three channels, any
+    // conversion to gray works back out to the original value.
     if (xferOps & FormatXferOp::kSwapRB) {
         srcToDst = Swizzle::Concat(srcToDst, Swizzle::BGRA());
     }
