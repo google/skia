@@ -971,6 +971,9 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.ExtraConfig("NativeFonts") { // images won't exercise native font integration :)
 		removeFromArgs("image")
 		removeFromArgs("colorImage")
+	} else {
+		// Not reliable on non-NativeFonts
+		skip(ALL, "test", ALL, "Skottie_Shaper_CTStrict")
 	}
 
 	if b.MatchExtraConfig("Graphite") {
