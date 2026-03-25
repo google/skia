@@ -962,15 +962,16 @@ void run_texture_format_test(skiatest::Reporter* r, const Caps* caps, TextureFor
         for (int c = 0; c <= kLastEnum_SkColorType; ++c) {
             SkColorType ct = static_cast<SkColorType>(c);
 
-            skiatest::ReporterContext ctScope{r, SkStringPrintf("color type %d\n", c)};
+            skiatest::ReporterContext ctScope{
+                    r, SkStringPrintf("color type %s\n", ToolUtils::colortype_name(ct))};
 
             bool foundColorExpectation = false;
             for (auto&& ec : e.fCompatibleColorTypes) {
                 if (ec.fColorType == ct) {
                     // Expected to be compatible (and should only find it once)
                     REPORTER_ASSERT(r, !foundColorExpectation,
-                                    "Color type listed multiple times: %d",
-                                    (int) ec.fColorType);
+                                    "Color type listed multiple times: %s",
+                                    ToolUtils::colortype_name(ec.fColorType));
                     foundColorExpectation = true;
 
                     // Check swizzles and transfers here, the rest of the color type checks happen

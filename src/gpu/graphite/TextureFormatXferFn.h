@@ -8,9 +8,12 @@
 #ifndef skgpu_graphite_TextureFormatXferFn_DEFINED
 #define skgpu_graphite_TextureFormatXferFn_DEFINED
 
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/gpu/graphite/TextureFormat.h"
 
 #include <cstdint>
+#include <functional>
 #include <optional>
 
 enum SkColorType : int;
@@ -42,19 +45,33 @@ public:
     void run(int width, int height,
              const void* src, size_t srcRowBytes,
              void* dst, size_t dstRowBytes) const;
+
 private:
+    struct RPOps {
+        SkRasterPipelineContexts::MemoryCtx fSrcCtx{nullptr, 0};
+        SkRasterPipelineContexts::MemoryCtx fDstCtx{nullptr, 0};
+        SkRasterPipeline_<256> fRP;
+
+        const int fSrcBpp;
+        const int fDstBpp;
+
+        static std::unique_ptr<RPOps> Make(SkColorType srcCT, Swizzle srcToDst, SkColorType dstCT);
+
+        // Returns true if RasterPipeline can process the whole 2D block via its strides
+        bool setStrides(size_t srcRowBytes, size_t dstRowBytes, uint8_t otherOps);
+
+    private:
+        RPOps(int srcBpp, int dstBpp) : fSrcBpp(srcBpp), fDstBpp(dstBpp) {}
+    };
+
     TextureFormatXferFn(TextureFormat format,
-                        SkEnumBitMask<FormatXferOp> preOps,
-                        SkColorType srcCT,
-                        Swizzle srcToDstSwizzle,
-                        SkColorType dstCT,
-                        SkEnumBitMask<FormatXferOp> postOps)
-            : fFormat(format)
-            , fPreOps(preOps)
-            , fSrcColorType(srcCT)
-            , fSrcToDstSwizzle(srcToDstSwizzle)
-            , fDstColorType(dstCT)
-            , fPostOps(postOps) {}
+                        uint8_t preOps,
+                        std::unique_ptr<RPOps> rp,
+                        uint8_t postOps)
+            : fFormat(format), fPreOps(preOps), fRP(std::move(rp)), fPostOps(postOps) {
+        // At least one direction should not add extra conversion operations
+        SkASSERT(preOps == 0 || postOps == 0);
+    }
 
     // At most one of fPreOps or fPostOps will be non-identity; whichever that is determines the
     // side of the conversion for which this TextureFormat defines the raw data format. When both
@@ -62,12 +79,11 @@ private:
     // and that ambiguity ends up irrelevant in the conversion logic.
     TextureFormat fFormat;
 
-    // Logical flow of conversion:
-    SkEnumBitMask<FormatXferOp> fPreOps;  // 1. Bit manipulations to convert raw data to src ct
-    SkColorType fSrcColorType;            // 2. The src colortype loaded via SkRasterPipeline
-    Swizzle fSrcToDstSwizzle;             // 3. Swizzle applied via SkRasterPipeline to produce dst
-    SkColorType fDstColorType;            // 4. The dst colortype stored via SkRasterPipeline
-    SkEnumBitMask<FormatXferOp> fPostOps; // 5. Bit manipulations to convert dst to raw data
+    // Logical flow of conversion (preOps and postOps are bit masks holding an extended set of
+    // conversion ops built from FormatXferOp):
+    uint8_t fPreOps;            // 1. Bit manipulations to convert raw data to src ct
+    std::unique_ptr<RPOps> fRP; // 2. Raster pipeline to convert to dst ct
+    uint8_t fPostOps;           // 3. Bit manipulations to convert dst ct to raw data
 };
 
 } // namespace skgpu::graphite

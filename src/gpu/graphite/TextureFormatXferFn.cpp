@@ -218,12 +218,18 @@ std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeCpuToGpu(SkColorType
     if (xferOps & FormatXferOp::kDisabled) {
         return std::nullopt;
     }
-    return TextureFormatXferFn(dstFormat,
-                               /*preOps=*/FormatXferOp::kIdentity,
-                               srcCT,
-                               dstReadSwizzle.invert(),
-                               baseCT,
-                               /*postOps=*/xferOps);
+
+    uint8_t postOps = 0;
+    Swizzle srcToDst = dstReadSwizzle.invert();
+    if (xferOps & FormatXferOp::kSwapRB) {
+        srcToDst = Swizzle::Concat(srcToDst, Swizzle::BGRA());
+    }
+    if (xferOps & FormatXferOp::kDropAlpha) {
+        // On CPU->GPU conversion, FormatXferOp::kDropAlpha actually drops the alpha bits
+        postOps |= kDropAlpha;
+    }
+    auto rp = RPOps::Make(srcCT, srcToDst, baseCT);
+    return TextureFormatXferFn(dstFormat, /*preOps=*/0, std::move(rp), postOps);
 }
 
 std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeGpuToCpu(TextureFormat srcFormat,
@@ -233,12 +239,53 @@ std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeGpuToCpu(TextureForm
     if (xferOps & FormatXferOp::kDisabled) {
         return std::nullopt;
     }
-    return TextureFormatXferFn(srcFormat,
-                               /*preOps=*/xferOps,
-                               baseCT,
-                               srcReadSwizzle,
-                               dstCT,
-                               /*postOps=*/FormatXferOp::kIdentity);
+
+    uint8_t preOps = 0;
+    Swizzle srcToDst = srcReadSwizzle;
+    if (xferOps & FormatXferOp::kSwapRB) {
+        srcToDst = Swizzle::Concat(srcToDst, Swizzle::BGRA());
+    }
+    if (xferOps & FormatXferOp::kDropAlpha) {
+        // On GPU->CPU conversion, FormatXferOp::kDropAlpha must pad alpha bits back
+        preOps |= kPadAlpha;
+    }
+    auto rp = RPOps::Make(baseCT, srcToDst, dstCT);
+    return TextureFormatXferFn(srcFormat, preOps, std::move(rp), /*postOps=*/0);
+}
+
+std::unique_ptr<TextureFormatXferFn::RPOps> TextureFormatXferFn::RPOps::Make(
+        SkColorType srcColorType,
+        Swizzle srcToDst,
+        SkColorType dstColorType) {
+    if (srcColorType == dstColorType && srcToDst == Swizzle::RGBA()) {
+        return nullptr; // Identity conversion
+    }
+    std::unique_ptr<RPOps> ops{new RPOps(/*srcBpp=*/SkColorTypeBytesPerPixel(srcColorType),
+                                         /*dstBpp=*/SkColorTypeBytesPerPixel(dstColorType))};
+
+    // NOTE: The src and dst memory contexts are not modified here, they just provide stable
+    // pointers for the appended ops to reference, and will be patched during run().
+    ops->fRP.appendLoad(srcColorType, &ops->fSrcCtx);
+    srcToDst.apply(&ops->fRP);
+    ops->fRP.appendStore(dstColorType, &ops->fDstCtx);
+    return ops;
+}
+
+bool TextureFormatXferFn::RPOps::setStrides(size_t srcRowBytes,
+                                            size_t dstRowBytes,
+                                            uint8_t otherOps) {
+    // SkRasterPipeline operates in pixel units for its strides, so we should only be relying on
+    // RP's built-in row stride handling if the data is aligned to the pixel size.
+    if (srcRowBytes % fSrcBpp == 0 && dstRowBytes % fDstBpp == 0 && otherOps == 0) {
+        fSrcCtx.stride = SkTo<int>(srcRowBytes / fSrcBpp);
+        fDstCtx.stride = SkTo<int>(dstRowBytes / fDstBpp);
+        return true;
+    } else {
+        // Control loop must proceed row by row, so stride can be 0
+        fSrcCtx.stride = 0;
+        fDstCtx.stride = 0;
+        return false;
+    }
 }
 
 // TODO(michaelludwig): This is a WIP implementation, it is not focusing on performance yet.
@@ -247,94 +294,59 @@ void TextureFormatXferFn::run(int width, int height,
                               void* dst, size_t dstRowBytes) const {
     SkASSERT(width >= 1 && height >= 1);
 
-    // NOTE: If the texture format drops its alpha channel, then one of srcBpp or dstBpp will be
-    // different from the texture's bpp.
-    const int srcBpp = SkColorTypeBytesPerPixel(fSrcColorType);
-    const int dstBpp = SkColorTypeBytesPerPixel(fDstColorType);
-    SkDEBUGCODE(const int texBpp = TextureFormatBytesPerBlock(fFormat);)
-
-    // At least one direction of conversion should require no extra operations
-    SkASSERT(fPreOps == FormatXferOp::kIdentity || fPostOps == FormatXferOp::kIdentity);
-    uint8_t preOps = 0;
-    uint8_t postOps = 0;
-    Swizzle srcToDst = fSrcToDstSwizzle;
-    if ((fPreOps | fPostOps) & FormatXferOp::kSwapRB) {
-        // TODO(michaelludwig): Be flexible about how kSwapRB is applied; it could be better to
-        // apply it per-row like kPad/DropAlpha if nothing else requires SkRP. Conversely, if
-        // something else requires SkRP, then staying within SkRP is probably more efficient if
-        // nothing else requires per-row conversions. We can also coelesce multiple channel
-        // swaps between the xfer op, the swizzle, and any implicit channel ordering from src to
-        // dst color type conversion.
-        srcToDst = Swizzle::Concat(srcToDst, Swizzle::BGRA());
-    }
-    if (fPreOps & FormatXferOp::kDropAlpha) {
-        // When kDropAlpha shows up in the pre-ops, that means it's converting from the texture
-        // (with no alpha already) to the color type (requiring the alpha), so we actually pad
-        preOps |= kPadAlpha;
-    }
-    if (fPostOps & FormatXferOp::kDropAlpha) {
-        postOps |= kDropAlpha;
-    }
-
     int rpInvokeCount;
     SkAutoMalloc tempRowStorage; // empty if no FormatXferOps have to be applied
-    SkRasterPipelineContexts::MemoryCtx srcCtx{nullptr, 0},
-                                        dstCtx{nullptr, 0};
-    if (!preOps && !postOps && srcRowBytes % srcBpp == 0 && dstRowBytes % dstBpp == 0) {
-        // Either `src` or `dst` could be the texture data, but there's no change from the color
-        // type, so texBpp should be equal to at least one of them.
-        SkASSERT(texBpp == srcBpp || texBpp == dstBpp);
-        SkASSERT(srcRowBytes / srcBpp >= (size_t) width);
-        SkASSERT(dstRowBytes / dstBpp >= (size_t) width);
 
-        // Any conversions occur entirely within SkRasterPipeline, so we can configure the
-        // MemoryCtx's to process the whole 2D image. The "strides" specified in the SkRP contexts
-        // are in pixel units so we have to convert (which is why we only use the bulk 2D
-        // invocation when the rowbytes are multiples of the bytes-per-pixel).
+    if (fRP && fRP->setStrides(srcRowBytes, dstRowBytes, fPreOps | fPostOps)) {
+        // Conversions occur entirely within SkRasterPipeline, so we can configure the
+        // MemoryCtx's to process the whole 2D image.
         rpInvokeCount = 1;
-        srcCtx.stride = SkTo<int>(srcRowBytes / srcBpp);
-        dstCtx.stride = SkTo<int>(dstRowBytes / dstBpp);
     } else {
         // Conversions will have to occur row-by-row. The SkRP row function will patch the
         // memory contexts to each row's offset address so we can leave stride as 0.
+        SkASSERT(!fRP || (fRP->fSrcCtx.stride == 0 && fRP->fDstCtx.stride == 0));
         rpInvokeCount = height;
         height = 1;
     }
 
     skia_private::STArray<2, XferRowFn> rowFns; // At most 2 actions per row
-    if (preOps) {
+    if (fPreOps) {
         // `src` is definitively the texture
-       SkASSERT(srcRowBytes / texBpp >= (size_t) width);
-       SkASSERT(dstRowBytes / dstBpp >= (size_t) width);
-
-        // We need a temporary buffer equal to srcBpp*width to hold the output of the preOps
-        // that is used as the source of data for SkRasterPipeline (executed per row).
-        tempRowStorage.reset(srcBpp * width);
-        rowFns.push_back(get_xfer_row_fn(fFormat, preOps));
+        if (fRP) {
+            // We need a temporary buffer equal to srcBpp*width to hold the output of the preOps
+            // that is used as the source of data for SkRasterPipeline (executed per row).
+            tempRowStorage.reset(fRP->fSrcBpp * width);
+        }
+        rowFns.push_back(get_xfer_row_fn(fFormat, fPreOps));
     }
 
-    // TODO(michaelludwig): Skip creating an SkRP step
-    SkRasterPipeline_<256> rp;
-    rp.appendLoad(fSrcColorType, &srcCtx);
-    srcToDst.apply(&rp);
-    rp.appendStore(fDstColorType, &dstCtx);
-    rowFns.push_back([&](const char* src, char* dst, int width) {
-        // NOTE: When height != 1, this invocation actually processes the entire image. Otherwise
-        // we assume src and dst have been offset by y so we update the MemoryCtx's pixel addresses.
-        srcCtx.pixels = const_cast<char*>(src); // Losing const is fine, it won't be written to
-        dstCtx.pixels = dst;
-        rp.run(0, 0, width, height);
-    });
+    if (fRP) {
+        rowFns.push_back([&](const char* src, char* dst, int width) {
+            // NOTE: When height != 1, this invocation actually processes the entire image.
+            // Otherwise we assume src and dst have been offset by y so we update the MemoryCtx's
+            // pixel addresses.
+            fRP->fSrcCtx.pixels = const_cast<char*>(src); // This won't be written to
+            fRP->fDstCtx.pixels = dst;
+            fRP->fRP.run(0, 0, width, height);
+        });
+    }
 
-    if (postOps) {
+    if (fPostOps) {
         // `dst` is definitively the texture
-       SkASSERT(srcRowBytes / srcBpp >= (size_t) width);
-       SkASSERT(dstRowBytes / texBpp >= (size_t) width);
+        if (fRP) {
+            // We need a temporary buffer equal to dstBpp*width to hold the output of the
+            // SkRasterPipeline conversion that is used as the input to postOps (executed per row).
+            tempRowStorage.reset(fRP->fDstBpp * width);
+        }
+        rowFns.push_back(get_xfer_row_fn(fFormat, fPostOps));
+    }
 
-        // We need a temporary buffer equal to dstBpp*width to hold the output of the
-        // SkRasterPipeline conversion that is used as the input to postOps (executed per row).
-        tempRowStorage.reset(dstBpp * width);
-        rowFns.push_back(get_xfer_row_fn(fFormat, postOps));
+    if (rowFns.empty()) {
+        // Identity conversion function still needs to move the data
+        const int bpp = TextureFormatBytesPerBlock(fFormat);
+        rowFns.push_back([bpp](const char* src, char* dst, int width) {
+            memcpy(dst, src, bpp * width);
+        });
     }
 
     for (int y = 0; y < rpInvokeCount; ++y) {
