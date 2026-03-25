@@ -34,6 +34,14 @@ void SkLogVAList(SkLogPriority priority, const char format[], va_list args) {
         fflush(stdout);
     }
 
+    // Forces all Info and Debug logs to show as warnings in Android's RenderEngine. This hack
+    // should be dropped as we update SkDebugf call sites to have more precise priority.
+#if defined(SK_IN_RENDERENGINE)
+    if (priority > SkLogPriority::kWarning) {
+        priority = SkLogPriority::kWarning;
+    }
+#endif
+
     int android_priority;
     switch (priority) {
         case SkLogPriority::kFatal:   android_priority = ANDROID_LOG_FATAL;   break;
@@ -43,12 +51,6 @@ void SkLogVAList(SkLogPriority priority, const char format[], va_list args) {
         case SkLogPriority::kDebug:   android_priority = ANDROID_LOG_DEBUG;   break;
         default:                      android_priority = ANDROID_LOG_DEBUG;   break;
     }
-
-// Forces all Render Engine logs to show as warnings. This hack should be dropped as we update
-// SkDebugf call sites to have more precise priority.
-#if defined(SK_IN_RENDERENGINE)
-    android_priority = ANDROID_LOG_WARN;
-#endif
 
     __android_log_vprint(android_priority, LOG_TAG, format, args);
 }
