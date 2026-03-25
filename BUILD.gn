@@ -1367,7 +1367,8 @@ if (is_debug) {
 # from having multiple copies of the Rust standard library.
 
 if (skia_use_fontations || skia_use_rust_png_decode ||
-    skia_use_rust_png_encode || skia_use_rust_bmp_decode || skia_use_rust_icc) {
+    skia_use_rust_png_encode || skia_use_rust_bmp_decode || skia_use_rust_icc ||
+    skia_use_rust_exif) {
   # Collect all Rust targets, sources, outputs based on what's enabled
   _rust_targets = []
   _rust_sources = []
@@ -1375,9 +1376,9 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
   _rust_output_mappings = []
 
   # Add cxx dependency if any feature that needs it is enabled
-  _needs_cxx =
-      skia_use_fontations || skia_use_rust_png_decode ||
-      skia_use_rust_png_encode || skia_use_rust_bmp_decode || skia_use_rust_icc
+  _needs_cxx = skia_use_fontations || skia_use_rust_png_decode ||
+               skia_use_rust_png_encode || skia_use_rust_bmp_decode ||
+               skia_use_rust_icc || skia_use_rust_exif
   if (_needs_cxx) {
     _rust_targets += [ "@crates//:cxx_cc" ]
     _rust_sources += [
@@ -1487,6 +1488,28 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
     ]
   }
 
+  if (skia_use_rust_exif) {
+    _rust_targets += [ "//rust/exif:ffi_rs" ]
+    _rust_sources += [
+      "rust/exif/BUILD.bazel",
+      "rust/exif/FFI.h",
+      "rust/exif/FFI.rs",
+    ]
+    _rust_outputs += [
+      "$root_out_dir/librust_exif_ffi_rs.a",
+      "$root_out_dir/rust/exif/FFI.rs.h",
+      "$root_out_dir/rust/exif/FFI.rs.cc",
+    ]
+    _rust_output_mappings += [
+      rebase_path("//bazel-bin/rust/exif/libffi_rs.a", root_build_dir) +
+          "=librust_exif_ffi_rs.a",
+      rebase_path("//bazel-bin/rust/exif/FFI.rs.h", root_build_dir) +
+          "=rust/exif/FFI.rs.h",
+      rebase_path("//bazel-bin/rust/exif/FFI.rs.cc", root_build_dir) +
+          "=rust/exif/FFI.rs.cc",
+    ]
+  }
+
   # Single unified action that builds all Rust FFI library targets
   action("rust_all_ffi_bazel_build") {
     script = "gn/bazel_build.py"
@@ -1516,6 +1539,9 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
     if (skia_use_rust_icc) {
       _all_rust_libs += [ "$root_out_dir/librust_icc_ffi_rs.a" ]
     }
+    if (skia_use_rust_exif) {
+      _all_rust_libs += [ "$root_out_dir/librust_exif_ffi_rs.a" ]
+    }
 
     public_configs = [ ":rust_ffi_libs_config" ]
     all_dependent_configs = [ ":rust_ffi_libs_config" ]
@@ -1537,6 +1563,9 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
     }
     if (skia_use_rust_icc) {
       _all_rust_libs += [ "$root_out_dir/librust_icc_ffi_rs.a" ]
+    }
+    if (skia_use_rust_exif) {
+      _all_rust_libs += [ "$root_out_dir/librust_exif_ffi_rs.a" ]
     }
     libs = _all_rust_libs
 
@@ -1658,6 +1687,35 @@ optional("rust_icc") {
     ":rust_ffi_libs",
     ":rust_icc_cxx_bridge",
     "//modules/skcms",
+  ]
+}
+
+if (skia_use_rust_exif) {
+  config("rust_exif_cxx_bridge_private_config") {
+    include_dirs = [
+      # This entry is needed so that `FFI.rs.cc` can resolve
+      # `#include "rust/exif/FFI.h"`
+      ".",
+    ]
+  }
+  skia_source_set("rust_exif_cxx_bridge") {
+    deps = [ ":rust_all_ffi_bazel_build" ]
+    public = [ "${root_out_dir}/rust/exif/FFI.rs.h" ]
+    sources = [ "${root_out_dir}/rust/exif/FFI.rs.cc" ]
+    public_configs = [ ":rust_common_cxx_bridge_public_config" ]
+    configs = [ ":rust_exif_cxx_bridge_private_config" ]
+  }
+}
+
+optional("rust_exif") {
+  enabled = skia_use_rust_exif
+  public = skia_rust_exif_ffi_cpp_hdrs
+  sources = skia_rust_exif_ffi_cpp_srcs
+  sources_for_tests = [ "tests/RustExifTest.cpp" ]
+  public_configs = [ ":rust_common_cxx_bridge_public_config" ]
+  deps = [
+    ":rust_exif_cxx_bridge",
+    ":rust_ffi_libs",
   ]
 }
 
@@ -2740,6 +2798,7 @@ if (skia_enable_tools) {
         ":png_decode_libpng_tests",
         ":png_decode_rust_tests",
         ":png_encode_rust_tests",
+        ":rust_exif_tests",
         ":rust_icc_tests",
         ":skia",
         ":test",
