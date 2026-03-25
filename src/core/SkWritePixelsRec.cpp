@@ -8,9 +8,12 @@
 #include "src/core/SkWritePixelsRec.h"
 
 #include "include/core/SkRect.h"
+#include "src/base/SkSafeMath.h"
 
 bool SkWritePixelsRec::trim(int dstWidth, int dstHeight) {
-    if (nullptr == fPixels || fRowBytes < fInfo.minRowBytes()) {
+    // fInfo.minRowBytes() returns 0 if the size doesn't fit in `size_t`.
+    const size_t minRowBytes = fInfo.minRowBytes();
+    if (nullptr == fPixels || fRowBytes < minRowBytes || minRowBytes == 0) {
         return false;
     }
     if (0 >= fInfo.width() || 0 >= fInfo.height()) {
@@ -31,9 +34,17 @@ bool SkWritePixelsRec::trim(int dstWidth, int dstHeight) {
     if (y > 0) {
         y = 0;
     }
-    // here x,y are either 0 or negative
+    // here x,y are either 0 or negative (safe to cast to size_t)
     // we negate and add them so UBSAN (pointer-overflow) doesn't get confused.
-    fPixels = ((const char*)fPixels + -y*fRowBytes + -x*fInfo.bytesPerPixel());
+    SkSafeMath safeMath;
+    const size_t y_offset = safeMath.mul(-y, fRowBytes);
+    const size_t x_offset = safeMath.mul(-x, fInfo.bytesPerPixel());
+    const size_t total = safeMath.add(y_offset, x_offset);
+    if (!safeMath.ok()) {
+        return false;
+    }
+
+    fPixels = ((const char*)fPixels + total);
     // the intersect may have shrunk info's logical size
     fInfo = fInfo.makeDimensions(dstR.size());
     fX = dstR.x();
