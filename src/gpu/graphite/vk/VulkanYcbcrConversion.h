@@ -15,6 +15,7 @@
 
 #include <cinttypes>
 #include <optional>
+#include <string>
 
 namespace skgpu {
 struct VulkanYcbcrConversionInfo;
@@ -45,6 +46,7 @@ public:
     // VulkanTextureInfo.
     static ImmutableSamplerInfo ToImmutableSamplerInfo(const VulkanYcbcrConversionInfo&);
     static VulkanYcbcrConversionInfo FromImmutableSamplerInfo(ImmutableSamplerInfo);
+    static std::string InfoToString(const VulkanYcbcrConversionInfo&);
 
 private:
     VulkanYcbcrConversion(const VulkanSharedContext*,

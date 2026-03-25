@@ -9,6 +9,7 @@
 #include "include/gpu/vk/VulkanMutableTextureState.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtils.h"
+#include "src/gpu/graphite/vk/VulkanYcbcrConversion.h"
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 
 #include <cstdint>
@@ -18,12 +19,15 @@ namespace skgpu::graphite {
 SkString VulkanTextureInfo::toBackendString() const {
     return SkStringPrintf(
             "flags=0x%08X,imageTiling=%d,imageUsageFlags=0x%08X,sharingMode=%d,"
-            "aspectMask=%u",
+            "aspectMask=%u,sampler=(%s)",
             fFlags,
             fImageTiling,
             fImageUsageFlags,
             fSharingMode,
-            fAspectMask);
+            fAspectMask,
+            fYcbcrConversionInfo.isValid()
+                    ? VulkanYcbcrConversion::InfoToString(fYcbcrConversionInfo).c_str()
+                    : "mutable");
 }
 
 TextureFormat VulkanTextureInfo::viewFormat() const {
