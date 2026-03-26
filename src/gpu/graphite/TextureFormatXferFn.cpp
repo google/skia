@@ -13,6 +13,7 @@
 #include "src/base/SkHalf.h"
 #include "src/base/SkMathPriv.h"
 #include "src/base/SkVx.h"
+#include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
@@ -211,9 +212,11 @@ XferRowFn get_xfer_row_fn(TextureFormat format, uint8_t ops) {
 
 } // anonymous namespace
 
-std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeCpuToGpu(SkColorType srcCT,
-                                                                     TextureFormat dstFormat,
-                                                                     Swizzle dstReadSwizzle) {
+std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeCpuToGpu(
+        SkColorType srcCT,
+        const SkColorSpaceXformSteps& csSteps,
+        TextureFormat dstFormat,
+        Swizzle dstReadSwizzle) {
     auto [baseCT, xferOps] = TextureFormatColorTypeInfo(dstFormat);
     if (xferOps & FormatXferOp::kDisabled) {
         return std::nullopt;
@@ -239,13 +242,15 @@ std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeCpuToGpu(SkColorType
         // On CPU->GPU conversion, FormatXferOp::kDropAlpha actually drops the alpha bits
         postOps |= kDropAlpha;
     }
-    auto rp = RPOps::Make(srcCT, srcToDst, baseCT);
+    auto rp = RPOps::Make(srcCT, baseCT, csSteps, srcToDst);
     return TextureFormatXferFn(dstFormat, /*preOps=*/0, std::move(rp), postOps);
 }
 
-std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeGpuToCpu(TextureFormat srcFormat,
-                                                                     Swizzle srcReadSwizzle,
-                                                                     SkColorType dstCT) {
+std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeGpuToCpu(
+        TextureFormat srcFormat,
+        Swizzle srcReadSwizzle,
+        const SkColorSpaceXformSteps& csSteps,
+        SkColorType dstCT) {
     auto [baseCT, xferOps] = TextureFormatColorTypeInfo(srcFormat);
     if (xferOps & FormatXferOp::kDisabled) {
         return std::nullopt;
@@ -263,15 +268,17 @@ std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeGpuToCpu(TextureForm
         // On GPU->CPU conversion, FormatXferOp::kDropAlpha must pad alpha bits back
         preOps |= kPadAlpha;
     }
-    auto rp = RPOps::Make(baseCT, srcToDst, dstCT);
+    auto rp = RPOps::Make(baseCT, dstCT, srcToDst, csSteps);
     return TextureFormatXferFn(srcFormat, preOps, std::move(rp), /*postOps=*/0);
 }
 
+template <typename... RPModifiers>
 std::unique_ptr<TextureFormatXferFn::RPOps> TextureFormatXferFn::RPOps::Make(
         SkColorType srcColorType,
-        Swizzle srcToDst,
-        SkColorType dstColorType) {
-    if (srcColorType == dstColorType && srcToDst == Swizzle::RGBA()) {
+        SkColorType dstColorType,
+        RPModifiers... rpModifiers) {
+    if (srcColorType == dstColorType &&
+        (!SkToBool(rpModifiers) && ...)) {
         return nullptr; // Identity conversion
     }
     std::unique_ptr<RPOps> ops{new RPOps(/*srcBpp=*/SkColorTypeBytesPerPixel(srcColorType),
@@ -280,7 +287,11 @@ std::unique_ptr<TextureFormatXferFn::RPOps> TextureFormatXferFn::RPOps::Make(
     // NOTE: The src and dst memory contexts are not modified here, they just provide stable
     // pointers for the appended ops to reference, and will be patched during run().
     ops->fRP.appendLoad(srcColorType, &ops->fSrcCtx);
-    srcToDst.apply(&ops->fRP);
+
+    // We must create a copy of rpModifiers[i] in the arena, because its apply() function may
+    // reference parts of itself as the context's passed to the appended raster pipeline ops
+    (ops->fArena.make<decltype(rpModifiers)>(rpModifiers)->apply(&ops->fRP), ...);
+
     ops->fRP.appendStore(dstColorType, &ops->fDstCtx);
     return ops;
 }

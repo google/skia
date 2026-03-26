@@ -36,6 +36,8 @@ public:
 
     static constexpr Swizzle Concat(const Swizzle& a, const Swizzle& b);
 
+    constexpr explicit operator bool() const { return fKey != 0x3210; }
+
     constexpr bool operator==(const Swizzle& that) const { return fKey == that.fKey; }
     constexpr bool operator!=(const Swizzle& that) const { return !(*this == that); }
 

@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_TextureFormatXferFn_DEFINED
 #define skgpu_graphite_TextureFormatXferFn_DEFINED
 
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/gpu/graphite/TextureFormat.h"
@@ -16,6 +17,7 @@
 #include <functional>
 #include <optional>
 
+struct SkColorSpaceXformSteps;
 enum SkColorType : int;
 
 namespace skgpu::graphite {
@@ -24,16 +26,20 @@ class TextureFormatXferFn {
 public:
     // Builds a transfer function that will convert from CPU data described by `srcCT` to the
     // bit layout required for `dstFormat`, such that converted data can be copied into a texture of
-    // the same format.
+    // the same format. Colorspace and alpha type conversions are applied between loading src data
+    // and writing out the dst format data.
     static std::optional<TextureFormatXferFn> MakeCpuToGpu(SkColorType srcCT,
+                                                           const SkColorSpaceXformSteps& csSteps,
                                                            TextureFormat dstFormat,
                                                            Swizzle dstReadSwizzle);
 
     // Builds a transfer function that will convert from GPU data described by `srcFormat` to the
     // CPU-oriented `dstCT`. This assumes that the input data is the result of a texture-to-buffer
-    // copy from a texture of the same format.
+    // copy from a texture of the same format. Colorspace and alpha type conversions are applied
+    // between loading the swizzled src format data and writing out the dst color data.
     static std::optional<TextureFormatXferFn> MakeGpuToCpu(TextureFormat srcFormat,
                                                            Swizzle srcReadSwizzle,
+                                                           const SkColorSpaceXformSteps& csSteps,
                                                            SkColorType dstCT);
 
     // Apply the transfer function to a width x height block of pixels in `src` and write the
@@ -50,18 +56,21 @@ private:
     struct RPOps {
         SkRasterPipelineContexts::MemoryCtx fSrcCtx{nullptr, 0};
         SkRasterPipelineContexts::MemoryCtx fDstCtx{nullptr, 0};
-        SkRasterPipeline_<256> fRP;
+
+        SkSTArenaAlloc<256> fArena; // holds raster pipeline and other op contexts
+        SkRasterPipeline fRP; // backed by fArena
 
         const int fSrcBpp;
         const int fDstBpp;
 
-        static std::unique_ptr<RPOps> Make(SkColorType srcCT, Swizzle srcToDst, SkColorType dstCT);
+        template<typename... RPModifiers>
+        static std::unique_ptr<RPOps> Make(SkColorType srcCT, SkColorType dstCT, RPModifiers...);
 
         // Returns true if RasterPipeline can process the whole 2D block via its strides
         bool setStrides(size_t srcRowBytes, size_t dstRowBytes, uint8_t otherOps);
 
     private:
-        RPOps(int srcBpp, int dstBpp) : fSrcBpp(srcBpp), fDstBpp(dstBpp) {}
+        RPOps(int srcBpp, int dstBpp) : fRP(&fArena), fSrcBpp(srcBpp), fDstBpp(dstBpp) {}
     };
 
     TextureFormatXferFn(TextureFormat format,

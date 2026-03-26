@@ -13,6 +13,7 @@
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkFloatBits.h"
 #include "src/base/SkHalf.h"
+#include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/Caps.h"
@@ -196,18 +197,21 @@ float channel_to_float(const Channel& channel, uint32_t bits) {
     SkUNREACHABLE;
 }
 
-// Generate a unique value for `channel` by applying `srcToDst` to the source channels.
-float gen_channel_value(const Channel& channel,
-                        const Swizzle& srcToDst,
-                        SkSpan<const Channel> srcChannels) {
-    // First apply the swizzle
-    char name = channel.fName;
-    switch (name) {
-        case 'r': name = srcToDst[0]; break;
-        case 'g': name = srcToDst[1]; break;
-        case 'b': name = srcToDst[2]; break;
-        case 'a': name = srcToDst[3]; break;
+char apply_swizzle_to_name(char dstName, const Swizzle& srcToDst) {
+    switch (dstName) {
+        case 'r': return srcToDst[0];
+        case 'g': return srcToDst[1];
+        case 'b': return srcToDst[2];
+        case 'a': return srcToDst[3];
+        default:  return dstName;
     }
+}
+
+// Generate a unique value for `channelName` by applying `srcToDst` to the source channels.
+float gen_channel_value(char name,
+                        const Swizzle& loadSrcSwizzle,
+                        SkSpan<const Channel> srcChannels) {
+    name = apply_swizzle_to_name(name, loadSrcSwizzle);
 
     // Try to look for an exact channel match, in which case we use the unique value corresponding
     // to that channel name.
@@ -243,10 +247,13 @@ float gen_channel_value(const Channel& channel,
 
         // Construct a gray value from r, g, and b values of the source
         case 'G': {
-            float r = gen_channel_value({'r', channel.fBits, channel.fType}, srcToDst, srcChannels);
-            float g = gen_channel_value({'g', channel.fBits, channel.fType}, srcToDst, srcChannels);
-            float b = gen_channel_value({'b', channel.fBits, channel.fType}, srcToDst, srcChannels);
+            float r = gen_channel_value('r', loadSrcSwizzle, srcChannels);
+            float g = gen_channel_value('g', loadSrcSwizzle, srcChannels);
+            float b = gen_channel_value('b', loadSrcSwizzle, srcChannels);
 
+            // Since this is a linear sum, if we divided or multiplied by A after converting
+            // through source's precision, we would arrive at the same value as if we applied
+            // the premul/unpremul multiplication in gen_pixel_data applied to G
             return 0.2126f * r + 0.7142f * g + 0.0722f * b;
         }
 
@@ -284,13 +291,46 @@ int copy_unaligned_bits(int numBits, int bitOffset, const Src& src, Dst& dst) {
     return bitOffset;
 }
 
+bool needs_premul(SkAlphaType srcAlphaType, SkAlphaType dstAlphaType) {
+    return dstAlphaType == kPremul_SkAlphaType && (srcAlphaType == kUnpremul_SkAlphaType ||
+                                                   srcAlphaType == kUnknown_SkAlphaType);
+}
+bool needs_unpremul(SkAlphaType srcAlphaType, SkAlphaType dstAlphaType) {
+    return srcAlphaType == kPremul_SkAlphaType && (dstAlphaType == kUnpremul_SkAlphaType ||
+                                                   dstAlphaType == kUnknown_SkAlphaType);
+}
+
 PixelData gen_pixel_data(SkSpan<const Channel> dstChannels,
-                         Swizzle srcToDst,
-                         SkSpan<const Channel> srcChannels) {
+                         Swizzle storeDstSwizzle,
+                         SkAlphaType dstAlphaType,
+                         SkSpan<const Channel> srcChannels,
+                         Swizzle loadSrcSwizzle,
+                         SkAlphaType srcAlphaType) {
     PixelData pixel{}; // zero-initialize all bytes
     int bitOffset = 0;
     for (size_t c = 0; c < dstChannels.size(); ++c) {
-        float srcValue = gen_channel_value(dstChannels[c], srcToDst, srcChannels);
+        char name = apply_swizzle_to_name(dstChannels[c].fName, storeDstSwizzle);
+        float srcValue = gen_channel_value(name, loadSrcSwizzle, srcChannels);
+
+        // Handle alpha type conversion
+        if (name == 'a') {
+            if (srcAlphaType == kOpaque_SkAlphaType) {
+                srcValue = 1.f;
+            }
+        } else if (name == 'r' || name == 'g' || name == 'b' || name == 'G') {
+            if (needs_premul(srcAlphaType, dstAlphaType)) {
+                // Must multiply other channels by the alpha value
+                const float srcAlpha = gen_channel_value('a', loadSrcSwizzle, srcChannels);
+                srcValue *= srcAlpha;
+            } else if (needs_unpremul(srcAlphaType, dstAlphaType)) {
+                // Must divide the other channels by the alpha value
+                const float srcAlpha = gen_channel_value('a', loadSrcSwizzle, srcChannels);
+                srcValue *= 1.f / srcAlpha;
+            }
+            // else we're the same alpha type on both sides, or a mix of opaque and unknown, in
+            // which case premul vs. unpremul is a no-op.
+        }
+
         uint32_t channelValue = channel_to_bits(dstChannels[c], srcValue);
         bitOffset = copy_unaligned_bits(dstChannels[c].fBits, bitOffset, channelValue, pixel);
     }
@@ -299,8 +339,9 @@ PixelData gen_pixel_data(SkSpan<const Channel> dstChannels,
 }
 
 // No swizzling or data conversion variant for input data generation
-PixelData gen_pixel_data(SkSpan<const Channel> channels) {
-    return gen_pixel_data(channels, Swizzle::RGBA(), channels);
+PixelData gen_pixel_data(SkSpan<const Channel> channels, Swizzle readSwizzle, SkAlphaType alphaType) {
+    return gen_pixel_data(channels, readSwizzle.invert(), alphaType,
+                          channels, readSwizzle, alphaType);
 }
 
 const char* channel_type_name(ChannelDataType type) {
@@ -421,19 +462,23 @@ void dump_pixel_comparison(const SkString& inputName,
     }
 }
 
-int channel_tolerance(SkSpan<const Channel> dstChannels, SkSpan<const Channel> srcChannels) {
-    bool srcHasSRGB = false;
+int channel_tolerance(SkSpan<const Channel> srcChannels, SkAlphaType srcAT,
+                      SkSpan<const Channel> dstChannels, SkAlphaType dstAT) {
+    bool srcHasSRGBOrGray = false;
     for (const Channel c : srcChannels) {
-        srcHasSRGB |= c.fType == sRGB;
+        srcHasSRGBOrGray |= c.fType == sRGB || c.fName == 'G';
     }
     bool dstHasSRGBOrGray = false;
     for (const Channel c : dstChannels) {
          dstHasSRGBOrGray |= c.fType == sRGB || c.fName == 'G';
     }
-    // If the input or output data involves sRGB encoding/decoding or conversion to gray, we
-    // allow 1 bit of difference because of mismatches between how SkRasterPipeline calculates
-    // channel values vs. the value generation in these tests.
-    return srcHasSRGB || dstHasSRGBOrGray ? 1 : 0;
+    // If the input or output data involves sRGB encoding/decoding or conversion to gray, or are
+    // doing premul/unpremul math, we allow 1 bit of difference because of mismatches between how
+    // SkRasterPipeline calculates channel values vs. the value generation in these tests.
+    return srcHasSRGBOrGray ||
+           dstHasSRGBOrGray ||
+           needs_premul(srcAT, dstAT) ||
+           needs_unpremul(srcAT, dstAT) ? 1 : 0;
 }
 
 bool compare_pixels(SkSpan<const Channel> channels,
@@ -829,7 +874,10 @@ static const FormatExpectation kExpectations[] {
 
 void test_format_transfers(skiatest::Reporter* r,
                            const FormatExpectation& textureFormat,
-                           const ColorTypeExpectation& textureCT) {
+                           const ColorTypeExpectation& textureCT,
+                           SkAlphaType srcAT,
+                           SkAlphaType dstAT,
+                           bool applyCS) {
     // When transferring to CPU->GPU, we want to apply the textureCT's write swizzle, but if that
     // is undefined because rendering is disabled, switch to RGB1. This is applicable for the
     // RGBx cases and for gray (alongside adjusting the texture channel to produce 'G').
@@ -842,6 +890,14 @@ void test_format_transfers(skiatest::Reporter* r,
         expectedTextureChannels[0].fName = 'G';
     }
 
+    // This colorspace is constructed to have a linear gamma curve and an identity gamut transform
+    // so that any operations that it applies are just multiplies by 0 or 1. Anything else adds
+    // minor bit variations to processed data, making checking expectations harder.
+    sk_sp<SkColorSpace> srcCS = SkColorSpace::MakeRGB(SkNamedTransferFn::kLinear,
+                                                      SkNamedGamut::kXYZ);
+    sk_sp<SkColorSpace> dstCS = applyCS ? srcCS->makeColorSpin() : srcCS;
+    SkColorSpaceXformSteps csSteps{srcCS.get(), srcAT, dstCS.get(), dstAT};
+
     SkString gpuLabel = SkStringPrintf("GPU format %s as %s",
             TextureFormatName(textureFormat.fFormat),
             ToolUtils::colortype_name(textureCT.fColorType));
@@ -849,23 +905,34 @@ void test_format_transfers(skiatest::Reporter* r,
     for (const ColorTypeChannels& src : kColorTypeChannels) {
         std::optional<TextureFormatXferFn> xferFn =
                 TextureFormatXferFn::MakeCpuToGpu(src.fColorType,
+                                                  csSteps,
                                                   textureFormat.fFormat,
                                                   textureCT.fReadSwizzle);
         REPORTER_ASSERT(r, textureFormat.fXferSwizzle.has_value() == xferFn.has_value());
 
         if (textureFormat.fXferSwizzle.has_value() && xferFn.has_value()) {
-            PixelData cpuPixel = gen_pixel_data(src.fChannels);
+            PixelData cpuPixel = gen_pixel_data(src.fChannels, Swizzle::RGBA(), srcAT);
 
             // The expected GPU value is formed by applying the source colortype's effective
             // swizzle (i.e. fill in missing channels), and the format's compatible colortype's
             // write swizzle to the channel definition of format.
-            PixelData expectedGpuPixel = gen_pixel_data(
-                        expectedTextureChannels,
-                        Swizzle::Concat(src.fEffectiveSwizzle, writeSwizzle),
-                        src.fChannels);
+            Swizzle loadSrc = src.fEffectiveSwizzle;
+            if (applyCS) {
+                // The colorspace conversion is constructed to be a spin via gamut transform matrix,
+                // so the end effect should match a rotation swizzle on R,G,B (ignoring alpha).
+                loadSrc = Swizzle::Concat(loadSrc, Swizzle("gbra"));
+            }
+
+            PixelData expectedGpuPixel = gen_pixel_data(expectedTextureChannels,
+                                                        writeSwizzle,
+                                                        dstAT,
+                                                        src.fChannels,
+                                                        loadSrc,
+                                                        srcAT);
             PixelData actualGpuPixel = transfer_data(*xferFn, cpuPixel);
 
-            const int tol = channel_tolerance(expectedTextureChannels, src.fChannels);
+            const int tol = channel_tolerance(src.fChannels, srcAT,
+                                              expectedTextureChannels, dstAT);
             if (!compare_pixels(textureFormat.fChannels, expectedGpuPixel, actualGpuPixel, tol)) {
                 SkString ctLabel = SkStringPrintf("CPU colortype %s",
                                                   ToolUtils::colortype_name(src.fColorType));
@@ -876,7 +943,11 @@ void test_format_transfers(skiatest::Reporter* r,
                                       textureFormat.fChannels,
                                       expectedGpuPixel,
                                       actualGpuPixel);
-                REPORTER_ASSERT(r, false,  "Pixel mismatch uploading from %s", ctLabel.c_str());
+                REPORTER_ASSERT(r, false,  "Pixel mismatch uploading from %s, alpha %s -> %s%s",
+                                ctLabel.c_str(),
+                                ToolUtils::alphatype_name(srcAT),
+                                ToolUtils::alphatype_name(dstAT),
+                                applyCS ? " with colorspace conversion" : "");
                 STOP_ON_TRANSFER_FAILURE
             }
         }
@@ -887,35 +958,49 @@ void test_format_transfers(skiatest::Reporter* r,
         std::optional<TextureFormatXferFn> xferFn =
                 TextureFormatXferFn::MakeGpuToCpu(textureFormat.fFormat,
                                                   textureCT.fReadSwizzle,
+                                                  csSteps,
                                                   dst.fColorType);
         REPORTER_ASSERT(r, textureFormat.fXferSwizzle.has_value() == xferFn.has_value());
 
         if (textureFormat.fXferSwizzle.has_value() && xferFn.has_value()) {
-            PixelData gpuPixel = gen_pixel_data(expectedTextureChannels);
+            PixelData gpuPixel = gen_pixel_data(expectedTextureChannels,
+                                                textureCT.fReadSwizzle,
+                                                srcAT);
 
             // The expected CPU value is formed by applying the TextureFormat's implicit transfer
             // swizzle (i.e. fill in missing channels), its compatible colortype's read swizzle
             // to the channel definition of the dst color type.
-            PixelData expectedCpuPixel = gen_pixel_data(
-                    dst.fChannels,
-                    Swizzle::Concat(*textureFormat.fXferSwizzle, textureCT.fReadSwizzle),
-                    expectedTextureChannels);
+            Swizzle loadSrc = Swizzle::Concat(*textureFormat.fXferSwizzle, textureCT.fReadSwizzle);
+            if (applyCS) {
+                loadSrc = Swizzle::Concat(loadSrc, Swizzle("gbra")); // See above
+            }
+            PixelData expectedCpuPixel = gen_pixel_data(dst.fChannels,
+                                                        Swizzle::RGBA(),
+                                                        dstAT,
+                                                        expectedTextureChannels,
+                                                        loadSrc,
+                                                        srcAT);
 
             PixelData actualCpuPixel = transfer_data(*xferFn, gpuPixel);
 
-            const int tol = channel_tolerance(dst.fChannels, expectedTextureChannels);
+            const int tol = channel_tolerance(expectedTextureChannels, srcAT,
+                                              dst.fChannels, dstAT);
             if (!compare_pixels(dst.fChannels, expectedCpuPixel, actualCpuPixel, tol)) {
                 SkString ctLabel = SkStringPrintf("CPU colortype %s",
                                                   ToolUtils::colortype_name(dst.fColorType));
 
                 dump_pixel_comparison(gpuLabel,
-                                      expectedTextureChannels,
+                                      textureFormat.fChannels,
                                       gpuPixel,
                                       ctLabel,
                                       dst.fChannels,
                                       expectedCpuPixel,
                                       actualCpuPixel);
-                REPORTER_ASSERT(r, false,  "Pixel mismatch reading back to %s", ctLabel.c_str());
+                REPORTER_ASSERT(r, false,  "Pixel mismatch reading back to %s, alpha %s -> %s%s",
+                                ctLabel.c_str(),
+                                ToolUtils::alphatype_name(srcAT),
+                                ToolUtils::alphatype_name(dstAT),
+                                applyCS ? " with colorspace conversion" : "");
                 STOP_ON_TRANSFER_FAILURE
             }
         }
@@ -996,7 +1081,19 @@ void run_texture_format_test(skiatest::Reporter* r, const Caps* caps, TextureFor
                         REPORTER_ASSERT(r, format != TextureInfoPriv::ViewFormat(renderableInfo));
                     }
 
-                    test_format_transfers(r, e, ec);
+                    // Test all combinations of alpha type x 2 (texture vs cpu) and whether or not
+                    // colorspace conversions are handled in the transfer.
+                    static constexpr int kAlphaTypeCount = (int) kLastEnum_SkAlphaType + 1;
+                    for (bool applyCS : {false, true}) {
+                        for (int srcAT = 0; srcAT < kAlphaTypeCount; ++srcAT) {
+                            for (int dstAT = 0; dstAT < kAlphaTypeCount; ++dstAT) {
+                                test_format_transfers(r, e, ec,
+                                                      static_cast<SkAlphaType>(srcAT),
+                                                      static_cast<SkAlphaType>(dstAT),
+                                                      applyCS);
+                            }
+                        }
+                    }
                 }
             }
 
