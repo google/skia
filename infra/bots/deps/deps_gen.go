@@ -244,7 +244,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"skia.googlesource.com/third_party/libpng": {
 		Id:      "skia.googlesource.com/third_party/libpng",
-		Version: "4e3f57d50f552841550a36eabbb3fbcecacb7750",
+		Version: "d5515b5b8be3901aac04e5bd8bd5c89f287bcd33",
 		Path:    "third_party/externals/libpng",
 	},
 	"skia/tools/bazel_build": {
