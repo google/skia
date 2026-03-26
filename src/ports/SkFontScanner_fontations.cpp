@@ -89,15 +89,15 @@ bool SkFontScanner_Fontations::scanInstance(SkStreamAsset* stream,
                                             AxisDefinitions* axes,
                                             VariationPosition* position) const {
     sk_sp<const SkData> fontData = make_data_avoiding_copy(stream);
-    rust::Box<fontations_ffi::BridgeFontRef> bridgeFontFaceRef =
-            make_bridge_font_ref(fontData.get(), faceIndex);
+    rust::Box<fontations_ffi::BridgeFontRef> bridgeFontRef =
+            make_bridge_font_ref(fontData.get(), faceIndex + (instanceIndex << 16));
     stream->rewind();
-    if (!fontations_ffi::font_ref_is_valid(*bridgeFontFaceRef)) {
+    if (!fontations_ffi::font_ref_is_valid(*bridgeFontRef)) {
         return false;
     }
 
     if (name != nullptr) {
-        rust::String readFamilyName = fontations_ffi::family_name(*bridgeFontFaceRef);
+        rust::String readFamilyName = fontations_ffi::family_name(*bridgeFontRef);
         *name = SkString(readFamilyName.data(), readFamilyName.size());
     }
 
@@ -105,77 +105,97 @@ bool SkFontScanner_Fontations::scanInstance(SkStreamAsset* stream,
         *isFixedPitch = false;  // TODO
     }
 
+    using VariationPosition = SkFontArguments::VariationPosition;
+
+    auto getInstancePosition = [&,
+        cached = false,
+        cachedResult = std::optional<const VariationPosition>(),
+        extractedCoords = std::unique_ptr<VariationPosition::Coordinate[]>()
+    ]() mutable -> const std::optional<const VariationPosition>& {
+        if (cached) {
+            return cachedResult;
+        }
+        cached = true;
+        size_t numNamedInstanceCoords =
+                fontations_ffi::coordinates_for_shifted_named_instance_index(
+                        *bridgeFontRef,
+                        instanceIndex << 16,
+                        rust::cxxbridge1::Slice<fontations_ffi::SkiaDesignCoordinate>());
+        extractedCoords.reset(new VariationPosition::Coordinate[numNamedInstanceCoords]);
+
+        rust::cxxbridge1::Slice<fontations_ffi::SkiaDesignCoordinate> targetSlice(
+                reinterpret_cast<fontations_ffi::SkiaDesignCoordinate*>(extractedCoords.get()),
+                numNamedInstanceCoords);
+        size_t retrievedNamedInstanceCoords =
+                fontations_ffi::coordinates_for_shifted_named_instance_index(
+                        *bridgeFontRef, instanceIndex << 16, targetSlice);
+        if (numNamedInstanceCoords != retrievedNamedInstanceCoords) {
+            return cachedResult;
+        }
+
+        VariationPosition variationPosition;
+        variationPosition.coordinateCount = numNamedInstanceCoords;
+        variationPosition.coordinates = extractedCoords.get();
+        cachedResult.emplace(variationPosition);
+        return cachedResult;
+    };
+
     if (style != nullptr) {
-        auto num = SkToInt(fontations_ffi::num_named_instances(*bridgeFontFaceRef));
+        *style = SkFontStyle::Normal();
+        auto num = SkToInt(fontations_ffi::num_named_instances(*bridgeFontRef));
         if (instanceIndex > num) {
             return false;
         } else if (instanceIndex == 0) {
             // This is the default instance
             rust::Slice<const fontations_ffi::SkiaDesignCoordinate> coordinates;
             rust::Box<fontations_ffi::BridgeNormalizedCoords> normalizedCoords =
-                    resolve_into_normalized_coords(*bridgeFontFaceRef, coordinates);
+                    resolve_into_normalized_coords(*bridgeFontRef, coordinates);
             fontations_ffi::BridgeFontStyle fontStyle;
-            if (fontations_ffi::get_font_style(*bridgeFontFaceRef, *normalizedCoords, fontStyle)) {
-                *style = SkFontStyle(fontStyle.weight, fontStyle.width, (SkFontStyle::Slant)fontStyle.slant);
-            } else {
-                *style = SkFontStyle::Normal();
-            }
-        } else {
-            std::unique_ptr<SkFontArguments::VariationPosition::Coordinate[]> extractedCoords =
-                    nullptr;
-            size_t numNamedInstanceCoords =
-                    fontations_ffi::coordinates_for_shifted_named_instance_index(
-                            *bridgeFontFaceRef,
-                            instanceIndex << 16,
-                            rust::cxxbridge1::Slice<fontations_ffi::SkiaDesignCoordinate>());
-            extractedCoords.reset(new SkFontArguments::VariationPosition::Coordinate[numNamedInstanceCoords]);
-
-            rust::cxxbridge1::Slice<fontations_ffi::SkiaDesignCoordinate> targetSlice(
-                    reinterpret_cast<fontations_ffi::SkiaDesignCoordinate*>(extractedCoords.get()),
-                    numNamedInstanceCoords);
-            size_t retrievedNamedInstanceCoords =
-                    fontations_ffi::coordinates_for_shifted_named_instance_index(
-                            *bridgeFontFaceRef, faceIndex + (instanceIndex << 16), targetSlice);
-            if (numNamedInstanceCoords != retrievedNamedInstanceCoords) {
-                return false;
-            }
-
-            SkFontArguments::VariationPosition variationPosition;
-            variationPosition.coordinateCount = numNamedInstanceCoords;
-            variationPosition.coordinates = extractedCoords.get();
-
-            rust::Box<fontations_ffi::BridgeNormalizedCoords> normalizedCoords =
-                    make_normalized_coords(*bridgeFontFaceRef, variationPosition);
-            fontations_ffi::BridgeFontStyle fontStyle;
-            if (fontations_ffi::get_font_style(*bridgeFontFaceRef, *normalizedCoords, fontStyle)) {
+            if (fontations_ffi::get_font_style(*bridgeFontRef, *normalizedCoords, fontStyle)) {
                 *style = SkFontStyle(fontStyle.weight,
                                      fontStyle.width,
                                      static_cast<SkFontStyle::Slant>(fontStyle.slant));
             }
-            if (position) {
-                position->reset(variationPosition.coordinateCount);
-                for (int i = 0; i < variationPosition.coordinateCount; ++i) {
-                    (*position)[i] = variationPosition.coordinates[i];
+        } else {
+            const std::optional<const VariationPosition>& variationPosition = getInstancePosition();
+            if (variationPosition) {
+                rust::Box<fontations_ffi::BridgeNormalizedCoords> normalizedCoords =
+                        make_normalized_coords(*bridgeFontRef, *variationPosition);
+
+                fontations_ffi::BridgeFontStyle fontStyle;
+                if (fontations_ffi::get_font_style(*bridgeFontRef, *normalizedCoords, fontStyle)) {
+                    *style = SkFontStyle(fontStyle.weight,
+                                         fontStyle.width,
+                                         static_cast<SkFontStyle::Slant>(fontStyle.slant));
                 }
             }
         }
     }
 
     if (axes != nullptr) {
-        rust::Box<fontations_ffi::BridgeFontRef> bridgeFontNamedInstanceRef =
-                make_bridge_font_ref(fontData.get(), faceIndex + (instanceIndex << 16));
-        stream->rewind();
-        auto size = SkToInt(fontations_ffi::num_axes(*bridgeFontNamedInstanceRef));
+        auto size = SkToInt(fontations_ffi::num_axes(*bridgeFontRef));
         axes->reset(size);
         auto variationAxes = std::make_unique<SkFontParameters::Variation::Axis[]>(size);
         sk_fontations::AxisWrapper axisWrapper(variationAxes.get(), size);
-        SkASSERT(size == fontations_ffi::populate_axes(*bridgeFontNamedInstanceRef, axisWrapper));
+        SkASSERT(size == fontations_ffi::populate_axes(*bridgeFontRef, axisWrapper));
         for (auto i = 0; i < size; ++i) {
             const auto var = variationAxes[i];
             (*axes)[i].tag = var.tag;
             (*axes)[i].min = var.min;
             (*axes)[i].def = var.def;
             (*axes)[i].max = var.max;
+        }
+    }
+
+    if (position != nullptr) {
+        const std::optional<const VariationPosition>& variationPosition = getInstancePosition();
+        if (variationPosition) {
+            position->reset(variationPosition->coordinateCount);
+            for (int i = 0; i < variationPosition->coordinateCount; ++i) {
+                (*position)[i] = variationPosition->coordinates[i];
+            }
+        } else {
+            position->reset(0);
         }
     }
 
