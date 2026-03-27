@@ -632,9 +632,12 @@ bool SkStrikeClientImpl::readStrikeData(const volatile void* memory, size_t memo
     SkASSERT(memorySize != 0);
     SkASSERT(memory != nullptr);
 
+    // Use a local copy to defend against volatile memory TOCTOU issues during deserialization.
+    sk_sp<SkData> safeMemory = SkData::MakeWithCopy(const_cast<const void*>(memory), memorySize);
+
     // We do not need to set any SkDeserialProcs here because SkStrikeServerImpl::writeStrikeData
     // did not encode any SkImages.
-    SkReadBuffer buffer{const_cast<const void*>(memory), memorySize};
+    SkReadBuffer buffer{safeMemory->data(), safeMemory->size()};
     // Limit the kinds of effects that appear in a glyph's drawable (crbug.com/1442140):
     buffer.setAllowSkSL(false);
 
