@@ -13,6 +13,7 @@
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/private/SkPixelStorage.h"
 #include "include/private/base/SkTo.h"
+#include "src/gpu/graphite/TextureInfoPriv.h"
 
 #include <functional>
 
@@ -25,6 +26,7 @@ class Recorder;
 class ResourceProvider;
 class ScratchResourceManager;
 class Texture;
+enum class TextureFormat : uint8_t;
 
 class TextureProxy : public SkPixelStorage, public SkRefCnt {
 public:
@@ -36,7 +38,7 @@ public:
 
     SampleCount sampleCount() const { return fInfo.sampleCount(); }
     Mipmapped mipmapped() const { return fInfo.mipmapped(); }
-
+    TextureFormat format() const { return TextureInfoPriv::ViewFormat(fInfo); }
     SkISize dimensions() const;
     const TextureInfo& textureInfo() const { return fInfo; }
 

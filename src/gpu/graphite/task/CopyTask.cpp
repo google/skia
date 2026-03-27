@@ -133,8 +133,8 @@ sk_sp<CopyTextureToTextureTask> CopyTextureToTextureTask::Make(sk_sp<TextureProx
         return nullptr;
     }
     // Texture-to-texture copies do not do format conversions
-    TextureFormat srcFormat = TextureInfoPriv::ViewFormat(srcProxy->textureInfo());
-    TextureFormat dstFormat = TextureInfoPriv::ViewFormat(dstProxy->textureInfo());
+    TextureFormat srcFormat = srcProxy->format();
+    TextureFormat dstFormat = dstProxy->format();
     if (srcFormat != dstFormat) {
         SKGPU_LOG_E("Unable to copy between textures of different formats, src = %s, dst = %s",
                     TextureFormatName(srcFormat), TextureFormatName(dstFormat));

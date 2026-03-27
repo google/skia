@@ -108,8 +108,7 @@ sk_sp<SkImage> WrapTexture(Recorder* recorder,
     sk_sp<TextureProxy> proxy = TextureProxy::Wrap(std::move(texture));
     SkASSERT(proxy);
 
-    skgpu::Swizzle swizzle = ReadSwizzleForColorType(
-            ct, TextureInfoPriv::ViewFormat(proxy->textureInfo()));
+    skgpu::Swizzle swizzle = ReadSwizzleForColorType(ct, proxy->format());
     TextureProxyView view(std::move(proxy), swizzle, origin);
 
     if (genMipmaps == GenerateMipmapsFromBase::kYes) {

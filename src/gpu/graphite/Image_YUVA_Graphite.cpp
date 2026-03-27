@@ -145,8 +145,7 @@ sk_sp<Image_YUVA> Image_YUVA::Make(const Caps* caps,
             // only colortype swizzles (e.g. 000r), which can show up when wrapping single-channel
             // planar data (the public APIs accept A8 or R8 for instance).
             if (planes[plane].swizzle() == Swizzle("000r") ||
-                TextureInfoPriv::ViewFormat(planes[plane].proxy()->textureInfo())
-                        == TextureFormat::kA8) {
+                planes[plane].proxy()->format() == TextureFormat::kA8) {
                 // Pull the alpha channel into R, this is equivalent to having concatenated
                 // Swizzle("aaaa") with the plane's read swizzle.
                 channel = SkColorChannel::kA;
