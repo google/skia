@@ -151,8 +151,11 @@ UploadSource UploadSource::Make(const Caps* caps,
     source.fIsRGB888Format = isRGB888Format;
     source.fBytesPerPixel =
             isRGB888Format ? kRGB888Bytes : SkColorTypeBytesPerPixel(supportedColorType);
-    source.fCanUploadOnHost = dstView.proxy()->isInstantiated() &&
-                              dstView.proxy()->texture()->canUploadOnHost(source);
+    // Don't upload on the host if we need to perform conversions that could be done directly into
+    // a mapped GPU buffer.
+    source.fCanUploadOnHost = !isRGB888Format &&
+                              dstView.proxy()->isInstantiated() &&
+                              dstView.proxy()->texture()->canUploadOnHost();
 
     return source;
 }
@@ -192,8 +195,8 @@ UploadSource UploadSource::MakeCompressed(const Caps* caps,
 
     source.fCompression = compression;
     source.fBytesPerPixel = SkCompressedBlockSize(compression);
-    source.fCanUploadOnHost =
-            textureProxy.isInstantiated() ? textureProxy.texture()->canUploadOnHost(source) : false;
+    source.fCanUploadOnHost = textureProxy.isInstantiated() &&
+                              textureProxy.texture()->canUploadOnHost();
 
     return source;
 }

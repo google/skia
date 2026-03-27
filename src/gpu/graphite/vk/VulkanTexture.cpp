@@ -493,7 +493,7 @@ void VulkanTexture::addCachedFramebuffer(sk_sp<VulkanFramebuffer> fb) {
     fCachedFramebuffers.push_back(std::move(fb));
 }
 
-bool VulkanTexture::canUploadOnHost(const UploadSource& source) const {
+bool VulkanTexture::canUploadOnHost() const {
     // Can't use host-image-copy if the usage flag is not set.
     if ((this->vulkanTextureInfo().fImageUsageFlags & VK_IMAGE_USAGE_HOST_TRANSFER_BIT) == 0) {
         return false;
@@ -501,12 +501,6 @@ bool VulkanTexture::canUploadOnHost(const UploadSource& source) const {
 
     // Can't use host-image-copy if the image is busy on the GPU.
     if (this->isTextureBusyOnGPU()) {
-        return false;
-    }
-
-    if (source.isRGB888Format()) {
-        // Need to transform RGBX8 to RGBA8 in a temp memory anyway, might as well use the buffer
-        // upload path for faster temp memory -> image copy by the GPU.
         return false;
     }
 
