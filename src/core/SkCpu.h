@@ -113,4 +113,4 @@ inline bool SkCpu::Supports(uint32_t mask) {
     return (features & mask) == mask;
 }
 
-#endif  // SkCpu_DEFINED
+#endif//SkCpu_DEFINED
