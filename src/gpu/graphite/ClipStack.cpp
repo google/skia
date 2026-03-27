@@ -818,14 +818,9 @@ std::pair<CompressedPaintersOrder, Insertion> ClipStack::RawElement::updateForDr
         Device* device,
         const BoundsManager* boundsManager,
         const Rect& deviceBounds,
-        const Rect& drawBounds,
+        const Rect& snappedDrawBounds,
         PaintersDepth drawZ) {
     SkASSERT(!this->isInvalid());
-    SkASSERT(!drawBounds.isEmptyNegativeOrNaN());
-
-    // Always record snapped draw bounds to avoid scissor thrashing since these bounds will be used
-    // to determine the scissor applied to the depth-only draw for the clip element.
-    Rect snappedDrawBounds = snap_scissor(drawBounds, deviceBounds);
 
     if (!this->hasPendingDraw()) {
         // No usage yet so we need an order that we will use when drawing to just the depth
@@ -1909,6 +1904,11 @@ std::pair<CompressedPaintersOrder, Insertion> ClipStack::updateClipStateForDraw(
     // fDeferredLayer yields the latest layer.
     Insertion latestInsertion;
     Rect deviceBounds = this->deviceBounds();
+    SkASSERT(!clip.drawBounds().isEmptyNegativeOrNaN());
+
+    // Always record snapped draw bounds to avoid scissor thrashing since these bounds will be used
+    // to determine the scissor applied to the depth-only draw for the clip element.
+    Rect snappedDrawBounds = snap_scissor(clip.drawBounds(), deviceBounds);
     CompressedPaintersOrder maxClipOrder = DrawOrder::kNoIntersection;
     for (int i = 0; i < effectiveElements.size(); ++i) {
         // ClipStack owns the elements in the `clipState` so it's OK to downcast and cast away
@@ -1917,7 +1917,7 @@ std::pair<CompressedPaintersOrder, Insertion> ClipStack::updateClipStateForDraw(
         // its element pointers become dangling and assert validity here.
         const RawElement* e = static_cast<const RawElement*>(effectiveElements[i]);
         auto [order, insertion] =  const_cast<RawElement*>(e)->updateForDraw(
-                fDevice, boundsManager, deviceBounds, clip.drawBounds(), z);
+                fDevice, boundsManager, deviceBounds, snappedDrawBounds, z);
         maxClipOrder = std::max(order, maxClipOrder);
         // Note, the > operator on the insertion only considers the layer. In the case that both
         // insertions reside on the same layer, we arbitrarily skip the update, meaning that the

@@ -233,7 +233,7 @@ private:
                 Device* device,
                 const BoundsManager* boundsManager,
                 const Rect& deviceBounds,
-                const Rect& drawBounds,
+                const Rect& snappedDrawBounds,
                 PaintersDepth drawZ);
 
         // Record a depth-only draw to the given device, restricted to the portion of the clip that
