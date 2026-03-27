@@ -135,9 +135,10 @@ public:
 
     SkStrikeDeviceInfo strikeDeviceInfo() const override;
 
-    TextureProxy* target();
-    // May be null if target is not sampleable.
-    TextureProxyView readSurfaceView() const;
+    // May not be texturable, but includes the swizzle required when sampling or reading to CPU
+    const TextureProxyView& target() const;
+    bool isTexturable() const;
+
     // Can succeed if target is readable but not sampleable. Assumes 'subset' is contained in bounds
     sk_sp<Image> makeImageCopy(const SkIRect& subset, Budgeted, Mipmapped, SkBackingFit);
 

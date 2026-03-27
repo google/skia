@@ -17,6 +17,7 @@
 #include "include/gpu/graphite/Surface.h"
 #include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
+#include "src/gpu/graphite/TextureProxyView.h"
 
 namespace skgpu::graphite {
 
@@ -48,7 +49,7 @@ void run_test(skiatest::Reporter* reporter,
     sk_sp<SkSurface> surface =
             SkSurfaces::RenderTarget(surfaceRecorder.get(), surfaceImageInfo, canvasMipmapped);
     Surface* graphiteSurface = static_cast<Surface*>(surface.get());
-    const TextureInfo& textureInfo = graphiteSurface->backingTextureProxy()->textureInfo();
+    const TextureInfo& textureInfo = graphiteSurface->target().proxy()->textureInfo();
 
     // Flush the initial clear added by MakeGraphite.
     std::unique_ptr<skgpu::graphite::Recording> surfaceRecording = surfaceRecorder->snap();
@@ -476,7 +477,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestTwoCanvases, reporter, c
     sk_sp<SkSurface> surface =
             SkSurfaces::RenderTarget(recorder.get(), kImageInfo, skgpu::Mipmapped::kNo);
     const TextureInfo& textureInfo =
-            static_cast<Surface*>(surface.get())->backingTextureProxy()->textureInfo();
+            static_cast<Surface*>(surface.get())->target().proxy()->textureInfo();
 
     // First canvas is created successfully.
     REPORTER_ASSERT(reporter, recorder->makeDeferredCanvas(kImageInfo, textureInfo) != nullptr);

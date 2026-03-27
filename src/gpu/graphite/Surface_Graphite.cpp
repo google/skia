@@ -48,8 +48,8 @@ Recorder* Surface::onGetRecorder() const { return fDevice->recorder(); }
 
 SkRecorder* Surface::onGetBaseRecorder() const { return fDevice->recorder(); }
 
-TextureProxyView Surface::readSurfaceView() const {
-    return fDevice->readSurfaceView();
+const TextureProxyView& Surface::target() const {
+    return fDevice->target();
 }
 
 SkCanvas* Surface::onNewCanvas() { return new SkCanvas(fDevice); }
@@ -59,7 +59,7 @@ sk_sp<SkSurface> Surface::onNewSurface(const SkImageInfo& ii) {
 }
 
 sk_sp<SkImage> Surface::onNewImageSnapshot(const SkIRect* subset) {
-    return this->makeImageCopy(subset, fDevice->target()->mipmapped());
+    return this->makeImageCopy(subset, fDevice->target().mipmapped());
 }
 
 sk_sp<Image> Surface::asImage() const {
@@ -133,8 +133,6 @@ sk_sp<const SkCapabilities> Surface::onCapabilities() {
     return fDevice->recorder()->priv().caps()->capabilities();
 }
 
-TextureProxy* Surface::backingTextureProxy() const { return fDevice->target(); }
-
 // Note, devices flushed with this method add their tasks to the provided drawContext's task list,
 // but no last task is tracked. If no drawContext is provided, the task is added to the root task
 // list and if the device is a scratch device, the last task is recorded.
@@ -165,7 +163,7 @@ sk_sp<Surface> Surface::Make(Recorder* recorder,
     }
     // A non-budgeted surface should be fully instantiated before we return it
     // to the client.
-    SkASSERT(budgeted == Budgeted::kYes || device->target()->isInstantiated());
+    SkASSERT(budgeted == Budgeted::kYes || device->target().proxy()->isInstantiated());
     return sk_make_sp<Surface>(std::move(device));
 }
 
@@ -215,6 +213,7 @@ bool validate_backend_texture(const Caps* caps,
 } // anonymous namespace
 
 namespace SkSurfaces {
+
 sk_sp<SkImage> AsImage(sk_sp<const SkSurface> surface) {
     if (!surface) {
         return nullptr;

@@ -33,6 +33,7 @@
 #include "src/gpu/graphite/TextureFormat.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/TextureProxyView.h"
 #include "src/gpu/graphite/UploadBufferManager.h"
 
 #include <algorithm>
@@ -96,12 +97,12 @@ UploadSource& UploadSource::operator=(UploadSource&&) = default;
 UploadSource::~UploadSource() = default;
 
 UploadSource UploadSource::Make(const Caps* caps,
-                                const TextureProxy& textureProxy,
+                                const TextureProxyView& dstView,
                                 const SkColorInfo& srcColorInfo,
                                 const SkColorInfo& dstColorInfo,
                                 SkSpan<const MipLevel> levels,
                                 const SkIRect& dstRect) {
-    const TextureInfo& texInfo = textureProxy.textureInfo();
+    const TextureInfo& texInfo = dstView.proxy()->textureInfo();
 
     SkASSERT(caps->isTexturable(texInfo));
     SkASSERT(AreColorTypeAndFormatCompatible(dstColorInfo.colorType(),
@@ -109,14 +110,14 @@ UploadSource UploadSource::Make(const Caps* caps,
 
     unsigned int mipLevelCount = levels.size();
     // The assumption is either that we have no mipmaps, or that our rect is the entire texture
-    SkASSERT(mipLevelCount == 1 || dstRect == SkIRect::MakeSize(textureProxy.dimensions()));
+    SkASSERT(mipLevelCount == 1 || dstRect == SkIRect::MakeSize(dstView.dimensions()));
 
     // We assume that if the texture has mip levels, we either upload to all the levels or just the
     // first.
 #ifdef SK_DEBUG
     unsigned int numExpectedLevels = 1;
     if (texInfo.mipmapped() == Mipmapped::kYes) {
-        numExpectedLevels = SkMipmap::ComputeLevelCount(textureProxy.dimensions()) + 1;
+        numExpectedLevels = SkMipmap::ComputeLevelCount(dstView.dimensions()) + 1;
     }
     SkASSERT(mipLevelCount == 1 || mipLevelCount == numExpectedLevels);
 #endif
@@ -150,8 +151,8 @@ UploadSource UploadSource::Make(const Caps* caps,
     source.fIsRGB888Format = isRGB888Format;
     source.fBytesPerPixel =
             isRGB888Format ? kRGB888Bytes : SkColorTypeBytesPerPixel(supportedColorType);
-    source.fCanUploadOnHost =
-            textureProxy.isInstantiated() ? textureProxy.texture()->canUploadOnHost(source) : false;
+    source.fCanUploadOnHost = dstView.proxy()->isInstantiated() &&
+                              dstView.proxy()->texture()->canUploadOnHost(source);
 
     return source;
 }
@@ -212,7 +213,7 @@ UploadInstance::UploadInstance(const Buffer* buffer,
         , fConditionalContext(std::move(condContext)) {}
 
 UploadInstance UploadInstance::Make(Recorder* recorder,
-                                    sk_sp<TextureProxy> textureProxy,
+                                    const TextureProxyView& dstView,
                                     const SkColorInfo& srcColorInfo,
                                     const SkColorInfo& dstColorInfo,
                                     const UploadSource& source,
@@ -244,7 +245,7 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
     SkColorType supportedColorType;
     bool isRGB888Format;
     std::tie(supportedColorType, isRGB888Format) = caps->supportedTransferColorType(
-            dstColorInfo.colorType(), textureProxy->textureInfo());
+            dstColorInfo.colorType(), dstView.proxy()->textureInfo());
     SkASSERT(supportedColorType != kUnknown_SkColorType); // UploadSource verified this
     SkColorInfo supportedColorInfo = dstColorInfo.makeColorType(supportedColorType);
     if (supportedColorInfo.alphaType() == kUnknown_SkAlphaType) {
@@ -256,7 +257,7 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
     }
     UploadInstance upload{bufferInfo.fBuffer,
                           source.bytesPerPixel(),
-                          std::move(textureProxy),
+                          dstView.refProxy(),
                           std::move(condContext)};
 
     // Fill in copy data
@@ -489,7 +490,7 @@ Task::Status UploadInstance::addCommand(Context* context,
 //---------------------------------------------------------------------------
 
 bool UploadList::recordUpload(Recorder* recorder,
-                              sk_sp<TextureProxy> textureProxy,
+                              const TextureProxyView& dstView,
                               const SkColorInfo& srcColorInfo,
                               const SkColorInfo& dstColorInfo,
                               const UploadSource& source,
@@ -497,11 +498,11 @@ bool UploadList::recordUpload(Recorder* recorder,
                               std::unique_ptr<ConditionalUploadContext> condContext) {
     // If possible, upload the data directly on host.
     if (source.canUploadOnHost()) {
-        return textureProxy->texture()->uploadDataOnHost(source, dstRect);
+        return dstView.proxy()->texture()->uploadDataOnHost(source, dstRect);
     }
 
     UploadInstance instance = UploadInstance::Make(recorder,
-                                                   std::move(textureProxy),
+                                                   std::move(dstView),
                                                    srcColorInfo,
                                                    dstColorInfo,
                                                    source,

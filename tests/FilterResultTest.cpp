@@ -925,7 +925,7 @@ private:
             auto view = skgpu::graphite::AsView(specialImage->asImage());
             auto proxyII = ii.makeWH(view.width(), view.height());
             SkAssertResult(fRecorder->priv().context()->priv().readPixels(
-                    bm.pixmap(), view.proxy(), proxyII, srcX, srcY));
+                    bm.pixmap(), view, proxyII, srcX, srcY));
         } else
 #endif
         {

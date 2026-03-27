@@ -28,7 +28,7 @@ class Recorder;
 class RendererProvider;
 class ResourceProvider;
 class ShaderCodeDictionary;
-class TextureProxy;
+class TextureProxyView;
 enum class PathRendererStrategy;
 struct ContextOptions;
 
@@ -77,7 +77,7 @@ public:
     }
 
     bool readPixels(const SkPixmap&,
-                    const TextureProxy*,
+                    const TextureProxyView&,
                     const SkImageInfo& srcImageInfo,
                     int srcX, int srcY);
 #endif

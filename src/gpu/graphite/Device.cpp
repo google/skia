@@ -566,7 +566,7 @@ bool Device::notifyInUse(Recorder* recorder, DrawContext* drawContext) {
     if (this->isScratchDevice()) {
         if (fLastTask) {
             // Increment the pending read count for the device's target
-            recorder->priv().addPendingRead(this->target());
+            recorder->priv().addPendingRead(fDC->target().proxy());
             if (drawContext) {
                 // Add a reference to the device's drawTask to `drawContext` if that's provided.
                 drawContext->recordDependency(fLastTask);
@@ -647,7 +647,7 @@ sk_sp<SkDevice> Device::createDevice(const CreateInfo& info, const SkPaint*) {
     // Skia's convention is to only clear a device if it is non-opaque.
     LoadOp initialLoadOp = info.fInfo.isOpaque() ? LoadOp::kDiscard : LoadOp::kClear;
 
-    std::string label = this->target()->label();
+    std::string label = fDC->target().proxy()->label();
     if (label.empty()) {
         label = "ChildDevice";
     } else {
@@ -677,24 +677,22 @@ sk_sp<Image> Device::makeImageCopy(const SkIRect& subset,
     // Image::Copy so that tasks end up on the root task list.
     this->flushPendingWork(/*drawContext=*/nullptr);
 
-    const SkColorInfo& colorInfo = this->imageInfo().colorInfo();
-    TextureProxyView srcView = this->readSurfaceView();
-    if (!srcView) {
-        // readSurfaceView() returns an empty view when the target is not texturable. Create an
-        // equivalent view for the blitting operation.
-        Swizzle readSwizzle = ReadSwizzleForColorType(
-                colorInfo.colorType(), TextureInfoPriv::ViewFormat(this->target()->textureInfo()));
-        srcView = {sk_ref_sp(this->target()), readSwizzle};
-    }
-    std::string label = this->target()->label();
+    std::string label = fDC->target().proxy()->label();
     if (label.empty()) {
         label = "CopyDeviceTexture";
     } else {
         label += "_DeviceCopy";
     }
 
-    return Image::Copy(fRecorder, /*drawContext=*/nullptr, srcView, colorInfo, subset, budgeted,
-                       mipmapped, backingFit, label);
+    return Image::Copy(fRecorder,
+                       /*drawContext=*/nullptr,
+                       fDC->target(),
+                       this->imageInfo().colorInfo(),
+                       subset,
+                       budgeted,
+                       mipmapped,
+                       backingFit,
+                       label);
 }
 
 bool Device::onReadPixels(const SkPixmap& pm, int srcX, int srcY) {
@@ -727,7 +725,7 @@ bool Device::onWritePixels(const SkPixmap& src, int x, int y) {
     // TODO: we may need to share this in a more central place to handle uploads
     // to backend textures
 
-    const TextureProxy* target = fDC->target();
+    const TextureProxy* target = fDC->target().proxy();
 
     // TODO: add mipmap support for createBackendTexture
 
@@ -781,7 +779,7 @@ bool Device::onWritePixels(const SkPixmap& src, int x, int y) {
     // the next call to flushDeviceToRecorder() will produce a non-null DrawTask. If this Device's
     // target is mipmapped, mipmap generation tasks will be added automatically at that point.
     const UploadSource uploadSource = UploadSource::Make(fRecorder->priv().caps(),
-                                                         *fDC->refTarget(),
+                                                         fDC->target(),
                                                          src.info().colorInfo(),
                                                          this->imageInfo().colorInfo(),
                                                          levels,
@@ -790,7 +788,7 @@ bool Device::onWritePixels(const SkPixmap& src, int x, int y) {
         return false;
     }
     return fDC->recordUpload(fRecorder,
-                             fDC->refTarget(),
+                             fDC->target(),
                              src.info().colorInfo(),
                              this->imageInfo().colorInfo(),
                              uploadSource,
@@ -1596,7 +1594,7 @@ void Device::drawGeometry(const Transform& localToDevice,
                           clip.nonMSAAClip(),
                           clip.shader(),
                           renderer ? renderer->coverage() : Coverage::kSingleChannel,
-                          TextureInfoPriv::ViewFormat(fDC->target()->textureInfo())};
+                          TextureInfoPriv::ViewFormat(fDC->target().proxy()->textureInfo())};
 
     // Some shapes and styles combine multiple draws so the total render step count is split between
     // the main renderer and possibly a secondaryRenderer. As we can't be sure whether a secondary
@@ -1666,7 +1664,7 @@ void Device::drawGeometry(const Transform& localToDevice,
     const bool overwritesAllPixels = dstUsage == DstUsage::kNone &&
                                      geometry.isShape() &&
                                      geometry.shape().isFloodFill() &&
-                                     !fDC->target()->isFullyLazy() &&
+                                     !fDC->target().proxy()->isFullyLazy() &&
                                      clipElements.empty() &&
                                      clip.scissor().contains(this->bounds());
     if (overwritesAllPixels) {
@@ -1683,7 +1681,7 @@ void Device::drawGeometry(const Transform& localToDevice,
             // avoid that scenario, we clear to a known value instead.
             if (paint.finalBlendMode() == SkBlendMode::kSrcOver &&
                 TextureFormatIsFloatingPoint(
-                        TextureInfoPriv::ViewFormat(fDC->target()->textureInfo()))) {
+                        TextureInfoPriv::ViewFormat(fDC->target().proxy()->textureInfo()))) {
                 fDC->clear(SkColors::kMagenta); // This color doesn't matter
             } else {
                 fDC->discard();
@@ -2141,7 +2139,7 @@ void Device::flushPendingWork(DrawContext* drawContext) {
         // we need flush all tracked devices that have pending reads from this Device, because those
         // need to be resolved *before* `drawTask` would be executed and modify its texture state.
         fMustFlushDependencies = false;
-        fRecorder->priv().flushTrackedDevices(this->target());
+        fRecorder->priv().flushTrackedDevices(fDC->target().proxy());
     }
 
     // While unbounded recursion is gone, bounded re-entrant flushing is still possible during
@@ -2296,7 +2294,8 @@ sk_sp<SkSpecialImage> Device::snapSpecial(const SkIRect& subset, bool forceCopy)
     // recorder), but in those cases it should not be a copy and just returns the image view.
     sk_sp<Image> deviceImage;
     SkIRect finalSubset;
-    if (forceCopy || !this->readSurfaceView() || this->readSurfaceView().proxy()->isFullyLazy()) {
+
+    if (forceCopy || !this->isTexturable()) {
         deviceImage = this->makeImageCopy(
                 subset, Budgeted::kYes, Mipmapped::kNo, SkBackingFit::kApprox);
         finalSubset = SkIRect::MakeSize(subset.size());
@@ -2326,9 +2325,9 @@ sk_sp<skif::Backend> Device::createImageFilteringBackend(const SkSurfaceProps& s
     return skif::MakeGraphiteBackend(fRecorder, surfaceProps, colorType);
 }
 
-TextureProxy* Device::target() { return fDC->target(); }
+const TextureProxyView& Device::target() const { return fDC->target(); }
 
-TextureProxyView Device::readSurfaceView() const { return fDC->readSurfaceView(); }
+bool Device::isTexturable() const { return fDC->isTexturable(); }
 
 bool Device::isScratchDevice() const {
     // Scratch device status is inferred from whether or not the Device's target is instantiated.
@@ -2340,7 +2339,8 @@ bool Device::isScratchDevice() const {
     // Recorder::snap(). Truly scratch devices that have gone out of scope as intended will have
     // already been destroyed at this point. Scratch devices that become longer-lived (linked to
     // a client-owned object) automatically transition to non-scratch usage.
-    return !fDC->target()->isInstantiated() && !fDC->target()->isLazy();
+    const TextureProxy* proxy = fDC->target().proxy();
+    return !proxy->isInstantiated() && !proxy->isLazy();
 }
 
 sk_sp<sktext::gpu::Slug> Device::convertGlyphRunListToSlug(const sktext::GlyphRunList& glyphRunList,

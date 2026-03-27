@@ -86,13 +86,15 @@ public:
     bool onCopyOnWrite(ContentChangeMode) override;
     sk_sp<const SkCapabilities> onCapabilities() override;
 
-    TextureProxyView readSurfaceView() const;
+    // May not be texturable, but includes the swizzle required when sampling or reading to CPU
+    const TextureProxyView& target() const;
+    // Will be null if the target is not texturable.
     sk_sp<Image> asImage() const;
     // Shares the texture but returns an Image with adjusted SkColorInfo to reflect the compatible
     // `otherCT` and `otherAT`.
     sk_sp<Image> asImage(SkColorType otherCT, SkAlphaType otherAT) const;
+
     sk_sp<Image> makeImageCopy(const SkIRect* subset, Mipmapped) const;
-    TextureProxy* backingTextureProxy() const;
 
     void flushToDrawContext(DrawContext*);
 

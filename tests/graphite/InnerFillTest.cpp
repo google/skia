@@ -14,6 +14,7 @@
 #include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
+#include "src/gpu/graphite/TextureProxyView.h"
 
 using namespace skgpu;
 using namespace skgpu::graphite;
@@ -60,7 +61,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(InnerFillTest, reporter, context,
 
     const bool srcWithCoverageIsHW =
             CanUseHardwareBlending(context->priv().caps(),
-                                   TextureInfoPriv::ViewFormat(device->target()->textureInfo()),
+                                   TextureInfoPriv::ViewFormat(device->target().proxy()->textureInfo()),
                                    SkBlendMode::kSrc,
                                    Coverage::kSingleChannel);
 

@@ -171,8 +171,8 @@ bool DrawAtlas::recordUploads(DrawContext* dc, Recorder* recorder) {
         plotIter.init(fPages[pageIdx].fPlotList, PlotList::Iter::kHead_IterStart);
         for (Plot* plot = plotIter.get(); plot; plot = plotIter.next()) {
             if (plot->needsUpload()) {
-                TextureProxy* proxy = fProxies[pageIdx].get();
-                SkASSERT(proxy);
+                TextureProxyView view{fProxies[pageIdx]};
+                SkASSERT(view);
 
                 const void* dataPtr;
                 SkIRect dstRect;
@@ -189,12 +189,12 @@ bool DrawAtlas::recordUploads(DrawContext* dc, Recorder* recorder) {
                                       kUnknown_SkAlphaType,
                                       nullptr);
                 const UploadSource uploadSource = UploadSource::Make(
-                        recorder->priv().caps(), *proxy, colorInfo, colorInfo, levels, dstRect);
+                        recorder->priv().caps(), view, colorInfo, colorInfo, levels, dstRect);
                 if (!uploadSource.isValid()) {
                     return false;
                 }
                 if (!dc->recordUpload(recorder,
-                                      sk_ref_sp(proxy),
+                                      view,
                                       colorInfo,
                                       colorInfo,
                                       uploadSource,

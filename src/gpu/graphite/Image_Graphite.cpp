@@ -43,8 +43,8 @@ Image::Image(TextureProxyView view,
 Image::~Image() = default;
 
 sk_sp<Image> Image::WrapDevice(sk_sp<Device> device, std::optional<SkColorInfo> overrideInfo) {
-    TextureProxyView view = device->readSurfaceView();
-    if (!view) {
+    TextureProxyView view = device->target();
+    if (!view || !device->isTexturable()) {
         return nullptr;
     }
 
@@ -202,7 +202,7 @@ bool Image::readPixelsGraphite(SkRecorder* recorder,
             return false;
         }
         return context->priv().readPixels(dst,
-                                          fTextureProxyView.proxy(),
+                                          fTextureProxyView,
                                           this->imageInfo(),
                                           srcX,
                                           srcY);

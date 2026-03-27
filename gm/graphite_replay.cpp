@@ -107,7 +107,7 @@ private:
                 canvas->imageInfo().makeDimensions(SkISize::Make(kTileWidth, kTileHeight));
         skgpu::graphite::TextureInfo textureInfo =
                 static_cast<skgpu::graphite::Surface*>(canvas->getSurface())
-                        ->backingTextureProxy()
+                        ->target().proxy()
                         ->textureInfo();
 
         skgpu::graphite::Context* context = canvasRecorder->priv().context();

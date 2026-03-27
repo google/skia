@@ -282,7 +282,7 @@ struct Context::AsyncParams {
         if (!fSrcImage) {
             return false;
         }
-        // SkImage::isProtected() -> bool, TextureProxy::isProtected() -> Protected enum.
+        // SkImage::isProtected() -> bool, TextureProxyView::isProtected() -> Protected enum.
         // The explicit cast makes this function work for both template instantiations since
         // the Protected enum is backed by a bool.
         if ((bool) fSrcImage->isProtected()) {
@@ -355,9 +355,9 @@ void Context::asyncRescaleAndReadPixels(const SkSurface* src,
         // no rescaling
         if (src && asConstSB(src)->isGraphiteBacked() &&
             srcRect.size() == dstImageInfo.dimensions()) {
-            TextureProxy* proxy = static_cast<const Surface*>(src)->backingTextureProxy();
+            TextureProxyView view = static_cast<const Surface*>(src)->target();
             return this->asyncReadTexture(/*recorder=*/nullptr,
-                                          {proxy, srcRect, dstImageInfo, callback, callbackContext},
+                                          {&view, srcRect, dstImageInfo, callback, callbackContext},
                                           src->imageInfo().colorInfo());
         }
         // else fall through and let asyncRescaleAndReadPixels() invoke the callback when it detects
@@ -408,12 +408,12 @@ void Context::asyncReadPixels(std::unique_ptr<Recorder> recorder,
     }
 
     // Can copy directly from the image's texture
-    this->asyncReadTexture(std::move(recorder), params.withNewSource(view.proxy(), params.fSrcRect),
+    this->asyncReadTexture(std::move(recorder), params.withNewSource(&view, params.fSrcRect),
                            params.fSrcImage->imageInfo().colorInfo());
 }
 
 void Context::asyncReadTexture(std::unique_ptr<Recorder> recorder,
-                               const AsyncParams<TextureProxy>& params,
+                               const AsyncParams<TextureProxyView>& params,
                                const SkColorInfo& srcColorInfo) {
     SkASSERT(params.fSrcRect.size() == params.fDstImageInfo.dimensions());
 
@@ -422,7 +422,7 @@ void Context::asyncReadTexture(std::unique_ptr<Recorder> recorder,
         return params.fail();
     }
     PixelTransferResult transferResult = this->transferPixels(recorder.get(),
-                                                              params.fSrcImage,
+                                                              *params.fSrcImage,
                                                               srcColorInfo,
                                                               params.fDstImageInfo.colorInfo(),
                                                               params.fSrcRect);
@@ -577,7 +577,7 @@ void Context::asyncReadPixelsYUV420(std::unique_ptr<Recorder> recorder,
         Flush(dstSurface);
         // Must use planeInfo.bounds() for srcRect since dstSurface is kApprox-fit.
         *result = this->transferPixels(recorder.get(),
-                                       dstSurface->backingTextureProxy(),
+                                       dstSurface->target(),
                                        dstSurface->imageInfo().colorInfo(),
                                        planeInfo.colorInfo(),
                                        planeInfo.bounds());
@@ -722,15 +722,15 @@ void Context::finalizeAsyncReadPixels(std::unique_ptr<Recorder> recorder,
 }
 
 Context::PixelTransferResult Context::transferPixels(Recorder* recorder,
-                                                     const TextureProxy* srcProxy,
+                                                     const TextureProxyView& srcView,
                                                      const SkColorInfo& srcColorInfo,
                                                      const SkColorInfo& dstColorInfo,
                                                      const SkIRect& srcRect) {
-    SkASSERT(SkIRect::MakeSize(srcProxy->dimensions()).contains(srcRect));
+    SkASSERT(SkIRect::MakeSize(srcView.dimensions()).contains(srcRect));
     SkASSERT(SkColorInfoIsValid(dstColorInfo));
 
     const Caps* caps = fSharedContext->caps();
-    if (!srcProxy || !caps->isCopyableSrc(srcProxy->textureInfo())) {
+    if (!srcView || !caps->isCopyableSrc(srcView.proxy()->textureInfo())) {
         return {};
     }
 
@@ -738,7 +738,7 @@ Context::PixelTransferResult Context::transferPixels(Recorder* recorder,
     SkColorType supportedColorType;
     bool isRGB888Format;
     std::tie(supportedColorType, isRGB888Format) =
-            caps->supportedTransferColorType(srcColorType, srcProxy->textureInfo());
+            caps->supportedTransferColorType(srcColorType, srcView.proxy()->textureInfo());
     if (supportedColorType == kUnknown_SkColorType) {
         return {};
     }
@@ -763,7 +763,7 @@ Context::PixelTransferResult Context::transferPixels(Recorder* recorder,
 
     // Set up copy task. Since we always use a new buffer the offset can be 0 and we don't need to
     // worry about aligning it to the required transfer buffer alignment.
-    sk_sp<CopyTextureToBufferTask> copyTask = CopyTextureToBufferTask::Make(sk_ref_sp(srcProxy),
+    sk_sp<CopyTextureToBufferTask> copyTask = CopyTextureToBufferTask::Make(srcView.refProxy(),
                                                                             srcRect,
                                                                             buffer,
                                                                             /*bufferOffset=*/0,
@@ -965,7 +965,7 @@ void Context::deregisterRecorder(const Recorder* recorder) {
 }
 
 bool ContextPriv::readPixels(const SkPixmap& pm,
-                             const TextureProxy* textureProxy,
+                             const TextureProxyView& srcView,
                              const SkImageInfo& srcImageInfo,
                              int srcX, int srcY) {
     auto rect = SkIRect::MakeXYWH(srcX, srcY, pm.width(), pm.height());
@@ -985,11 +985,11 @@ bool ContextPriv::readPixels(const SkPixmap& pm,
     // This is roughly equivalent to the logic taken in asyncRescaleAndRead(SkSurface) to either
     // try the image-based readback (with copy-as-draw fallbacks) or read the texture directly
     // if it supports reading.
-    if (!fContext->fSharedContext->caps()->isCopyableSrc(textureProxy->textureInfo())) {
+    if (!fContext->fSharedContext->caps()->isCopyableSrc(srcView.proxy()->textureInfo())) {
         // Since this is a synchronous testing-only API, callers should have flushed any pending
         // work that modifies this texture proxy already. This means we don't have to worry about
         // re-wrapping the proxy in a new Image (that wouldn't tbe connected to any Device, etc.).
-        sk_sp<SkImage> image{new Image(TextureProxyView(sk_ref_sp(textureProxy)), srcColorInfo)};
+        sk_sp<SkImage> image{new Image(srcView, srcColorInfo)};
         Context::AsyncParams<SkImage> params {image.get(), rect, pm.info(),
                                               asyncCallback, &asyncContext};
         if (!params.validate()) {
@@ -999,7 +999,7 @@ bool ContextPriv::readPixels(const SkPixmap& pm,
         }
     } else {
         fContext->asyncReadTexture(/*recorder=*/nullptr,
-                                   {textureProxy, rect, pm.info(), asyncCallback, &asyncContext},
+                                   {&srcView, rect, pm.info(), asyncCallback, &asyncContext},
                                    srcImageInfo.colorInfo());
     }
 

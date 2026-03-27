@@ -89,7 +89,7 @@ DEF_GRAPHITE_TEST_FOR_VULKAN_CONTEXT(VulkanDstReadsShareRenderpass, reporter, co
     SharedContext* sharedContext = context->priv().sharedContext();
 
     TextureFormat targetFormat = TextureInfoPriv::ViewFormat(
-            static_cast<const Surface*>(surface.get())->backingTextureProxy()->textureInfo());
+            static_cast<const Surface*>(surface.get())->target().proxy()->textureInfo());
 
     // Select which blend modes to use for testing: one that we do expect to require a dst read on
     // most hardware and one we do not. Assert that the dst read requirements of the modes align to

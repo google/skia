@@ -35,6 +35,7 @@ class ResourceProvider;
 class RuntimeEffectDictionary;
 class ScratchResourceManager;
 class TextureProxy;
+class TextureProxyView;
 
 struct MipLevel {
     const void* fPixels = nullptr;
@@ -84,7 +85,7 @@ public:
 class UploadSource {
 public:
     static UploadSource Make(const Caps*,
-                             const TextureProxy& textureProxy,
+                             const TextureProxyView& dstView,
                              const SkColorInfo& srcColorInfo,
                              const SkColorInfo& dstColorInfo,
                              SkSpan<const MipLevel> levels,
@@ -130,7 +131,7 @@ private:
 class UploadInstance {
 public:
     static UploadInstance Make(Recorder*,
-                               sk_sp<TextureProxy> textureProxy,
+                               const TextureProxyView& dst,
                                const SkColorInfo& srcColorInfo,
                                const SkColorInfo& dstColorInfo,
                                const UploadSource& source,
@@ -183,7 +184,7 @@ private:
 class UploadList {
 public:
     bool recordUpload(Recorder*,
-                      sk_sp<TextureProxy> targetProxy,
+                      const TextureProxyView& dst,
                       const SkColorInfo& srcColorInfo,
                       const SkColorInfo& dstColorInfo,
                       const UploadSource& source,

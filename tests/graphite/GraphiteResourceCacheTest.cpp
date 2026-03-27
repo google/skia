@@ -88,7 +88,7 @@ static sk_sp<SkData> create_image_data(const SkImageInfo& info) {
 
 static skgpu::graphite::TextureProxy* top_device_graphite_target_proxy(SkCanvas* canvas) {
     if (auto gpuDevice = SkCanvasPriv::TopDevice(canvas)->asGraphiteDevice()) {
-        return gpuDevice->target();
+        return gpuDevice->target().proxy();
     }
     return nullptr;
 }

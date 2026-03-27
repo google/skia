@@ -53,11 +53,11 @@ public:
     int height() const { return this->proxy()->dimensions().height(); }
     SkISize dimensions() const { return this->proxy()->dimensions(); }
 
-    skgpu::Mipmapped mipmapped() const {
-        if (const TextureProxy* proxy = this->proxy()) {
-            return proxy->mipmapped();
-        }
-        return skgpu::Mipmapped::kNo;
+    Protected isProtected() const {
+        return fProxy ? fProxy->isProtected() : Protected::kNo;
+    }
+    Mipmapped mipmapped() const {
+        return fProxy ? fProxy->mipmapped() : Mipmapped::kNo;
     }
 
     TextureProxy* proxy() const { return fProxy.get(); }
@@ -67,7 +67,7 @@ public:
     Origin origin() const { return fOrigin; }
 
     void concatSwizzle(Swizzle swizzle) {
-        fSwizzle = skgpu::Swizzle::Concat(fSwizzle, swizzle);
+        fSwizzle = Swizzle::Concat(fSwizzle, swizzle);
     }
 
     // makeSwizzle returns a new view with 'swizzle' composed on to this view's existing swizzle

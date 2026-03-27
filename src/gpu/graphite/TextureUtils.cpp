@@ -320,6 +320,9 @@ TextureProxyView MakeBitmapProxyView(Recorder* recorder,
     SkASSERT(AreColorTypeAndFormatCompatible(ct, format));
     SkASSERT(mipmapped == Mipmapped::kNo || proxy->mipmapped() == Mipmapped::kYes);
 
+    const Swizzle swizzle = ReadSwizzleForColorType(ct, format);
+    TextureProxyView view{std::move(proxy), swizzle};
+
     // Src and dst colorInfo are the same
     const SkColorInfo& colorInfo = bitmap.info().colorInfo();
     // Add upload to the root upload list. These bitmaps are uploaded to unique textures so there is
@@ -327,13 +330,13 @@ TextureProxyView MakeBitmapProxyView(Recorder* recorder,
     // at the start of the Recording.
     const SkIRect dimensions = SkIRect::MakeSize(bitmap.dimensions());
     UploadSource uploadSource = UploadSource::Make(
-            recorder->priv().caps(), *proxy, colorInfo, colorInfo, texels, dimensions);
+            recorder->priv().caps(), view, colorInfo, colorInfo, texels, dimensions);
     if (!uploadSource.isValid()) {
         SKGPU_LOG_E("MakeBitmapProxyView: Could not create UploadSource");
         return {};
     }
     if (!recorder->priv().rootUploadList()->recordUpload(recorder,
-                                                         proxy,
+                                                         view,
                                                          colorInfo,
                                                          colorInfo,
                                                          uploadSource,
@@ -343,8 +346,7 @@ TextureProxyView MakeBitmapProxyView(Recorder* recorder,
         return {};
     }
 
-    const Swizzle swizzle = ReadSwizzleForColorType(ct, format);
-    return {std::move(proxy), swizzle};
+    return view;
 }
 
 sk_sp<TextureProxy> MakePromiseImageLazyProxy(
@@ -630,7 +632,7 @@ bool GenerateMipmaps(Recorder* recorder, DrawContext* drawContext, sk_sp<Texture
         scratchSurface->flushToDrawContext(drawContext);
 
         sk_sp<CopyTextureToTextureTask> copyTask = CopyTextureToTextureTask::Make(
-                static_cast<const Surface*>(scratchSurface)->readSurfaceView().refProxy(),
+                static_cast<const Surface*>(scratchSurface)->target().refProxy(),
                 SkIRect::MakeSize(dstSize),
                 texture,
                 {0, 0},

@@ -157,7 +157,7 @@ const Texture* RecordingPriv::setupDeferredTarget(ResourceProvider* resourceProv
                                                   SkIRect targetClip) {
     SkASSERT(targetSurface && fRecording->fTargetProxyData);
 
-    TextureProxy* surfaceTexture = targetSurface->backingTextureProxy();
+    TextureProxy* surfaceTexture = targetSurface->target().proxy();
     SkASSERT(surfaceTexture->isInstantiated());
 
     const TextureProxy* targetProxy = fRecording->fTargetProxyData->lazyProxy();
