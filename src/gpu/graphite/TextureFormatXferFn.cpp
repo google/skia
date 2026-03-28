@@ -210,6 +210,37 @@ XferRowFn get_xfer_row_fn(TextureFormat format, uint8_t ops) {
     }
 }
 
+void optimize_colortypes_and_swizzle(SkColorType* texBaseCT, Swizzle* readSwizzle) {
+    // Some combinations of swizzle and load/store ops in raster pipeline are redundant so try to
+    // make adjustments to reduce or eliminate the use of raster pipeline entirely.
+
+    // The most trivial cases are swizzling between alpha-only and red-only color types which should
+    // be a no-op in either direction as long as the underlying data type is the same.
+    SkColorType adjustedBase = *texBaseCT;
+    if (*readSwizzle == Swizzle("000r")) {
+        // Red -> Alpha so shift the texture's "base" colortype to be the corresponding alpha type
+        switch(adjustedBase) {
+            case kR8_unorm_SkColorType:  adjustedBase = kAlpha_8_SkColorType; break;
+            case kR16_unorm_SkColorType: adjustedBase = kA16_unorm_SkColorType; break;
+            case kR16_float_SkColorType: adjustedBase = kA16_float_SkColorType; break;
+            default: break; // Go through regular RP + swizzle flow
+        }
+    } else if (*readSwizzle == Swizzle("rrra") && adjustedBase == kR8_unorm_SkColorType) {
+        // Red -> Gray so shift to kGray, which either ensures RP will generate the gray values from
+        // a non-gray input, or will be detected as a no-op when transferring to/from existing gray.
+        adjustedBase = kGray_8_SkColorType;
+    }
+
+    // TODO(michaelludwig): Include adjustments to account for redundant RB swaps between colortype
+    // and the swizzle and the FormatXferOp, and remove unnecessary alpha opacity masking (e.g.
+    // rgbx -> rgba) if the target will be masking alpha when sampling/reading anyways.
+
+    if (adjustedBase != *texBaseCT) {
+        *texBaseCT = adjustedBase;
+        *readSwizzle = Swizzle::RGBA();
+    }
+}
+
 } // anonymous namespace
 
 std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeCpuToGpu(
@@ -222,18 +253,10 @@ std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeCpuToGpu(
         return std::nullopt;
     }
 
+    optimize_colortypes_and_swizzle(&baseCT, &dstReadSwizzle);
+
     uint8_t postOps = 0;
-    Swizzle srcToDst;
-    if (dstReadSwizzle == Swizzle::RRRA() &&
-        baseCT == kR8_unorm_SkColorType &&
-        srcCT != kGray_8_SkColorType) {
-        // While we are storing an R8 value, we need to adjust the baseCT in order to induce
-        // SkRasterPipeline to compute luminance from the non-gray src values.
-        baseCT = kGray_8_SkColorType;
-        srcToDst = Swizzle::RGBA();
-    } else {
-        srcToDst = dstReadSwizzle.invert();
-    }
+    Swizzle srcToDst = dstReadSwizzle.invert();
 
     if (xferOps & FormatXferOp::kSwapRB) {
         srcToDst = Swizzle::Concat(srcToDst, Swizzle::BGRA());
@@ -256,11 +279,10 @@ std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeGpuToCpu(
         return std::nullopt;
     }
 
+    optimize_colortypes_and_swizzle(&baseCT, &srcReadSwizzle);
+
     uint8_t preOps = 0;
     Swizzle srcToDst = srcReadSwizzle;
-    // NOTE: no need to adjust baseCT for red vs. gray in this direction as the ambiguity is
-    // irrelevant since the read swizzle pushes the "red" value into all three channels, any
-    // conversion to gray works back out to the original value.
     if (xferOps & FormatXferOp::kSwapRB) {
         srcToDst = Swizzle::Concat(srcToDst, Swizzle::BGRA());
     }
@@ -273,7 +295,7 @@ std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeGpuToCpu(
 }
 
 template <typename... RPModifiers>
-std::unique_ptr<TextureFormatXferFn::RPOps> TextureFormatXferFn::RPOps::Make(
+sk_sp<TextureFormatXferFn::RPOps> TextureFormatXferFn::RPOps::Make(
         SkColorType srcColorType,
         SkColorType dstColorType,
         RPModifiers... rpModifiers) {
@@ -281,8 +303,8 @@ std::unique_ptr<TextureFormatXferFn::RPOps> TextureFormatXferFn::RPOps::Make(
         (!SkToBool(rpModifiers) && ...)) {
         return nullptr; // Identity conversion
     }
-    std::unique_ptr<RPOps> ops{new RPOps(/*srcBpp=*/SkColorTypeBytesPerPixel(srcColorType),
-                                         /*dstBpp=*/SkColorTypeBytesPerPixel(dstColorType))};
+    sk_sp<RPOps> ops{new RPOps(/*srcBpp=*/SkColorTypeBytesPerPixel(srcColorType),
+                               /*dstBpp=*/SkColorTypeBytesPerPixel(dstColorType))};
 
     // NOTE: The src and dst memory contexts are not modified here, they just provide stable
     // pointers for the appended ops to reference, and will be patched during run().
@@ -389,3 +411,21 @@ void TextureFormatXferFn::run(int width, int height,
 }
 
 } // namespace skgpu::graphite
+
+// TODO(b/390473370): TextureUploadWriter isn't very useful with TextureFormatXferFn's
+// capabilities and the writer model doesn't work well with the more explicit placement of dst
+// data that has to happen. UploadBufferManager should just provide a span and then we can call
+// run() directly and delete TextureUploadWriter entirely.
+#include "src/gpu/BufferWriter.h"
+
+namespace skgpu {
+
+void TextureUploadWriter::convert(size_t offset, int width, int height,
+                                  const void* src, size_t srcRowBytes,
+                                  const graphite::TextureFormatXferFn& dst, size_t dstRowBytes) {
+    this->validate(offset + dstRowBytes * height);
+    void* dstPtr = SkTAddOffset<void>(fPtr, offset);
+    dst.run(width, height, src, srcRowBytes, dstPtr, dstRowBytes);
+}
+
+} // namespace skgpu

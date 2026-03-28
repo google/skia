@@ -14,6 +14,7 @@
 #include "include/core/SkSpan.h"
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/graphite/CommandTypes.h"
+#include "src/gpu/graphite/TextureFormatXferFn.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -103,9 +104,9 @@ public:
 
     SkSpan<const MipLevel> levels() const { return fLevels; }
     bool canUploadOnHost() const { return fCanUploadOnHost; }
-    bool isRGB888Format() const { return fIsRGB888Format; }
     SkTextureCompressionType compression() const { return fCompression; }
     size_t bytesPerPixel() const { return fBytesPerPixel; }
+    const std::optional<TextureFormatXferFn>& formatXferFn() const { return fXferFn; }
 
 private:
     static UploadSource Invalid() { return {}; }
@@ -116,12 +117,12 @@ private:
 
     // Whether the texture supports uploads directly from host memory.
     bool fCanUploadOnHost = false;
-    // Whether the texture is RGB888, which is typically emulated by RGBA8888.
-    bool fIsRGB888Format = false;
     // Compression type, if any.
     SkTextureCompressionType fCompression;
     // Bytes per pixel or block (if compressed)
     size_t fBytesPerPixel = 0;
+    // Not present for compressed formats
+    std::optional<TextureFormatXferFn> fXferFn;
 };
 
 /**

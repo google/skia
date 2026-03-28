@@ -166,14 +166,17 @@ bool DrawAtlas::addRectToPage(unsigned int pageIdx, int width, int height,
 
 bool DrawAtlas::recordUploads(DrawContext* dc, Recorder* recorder) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    const SkColorType maskCT = MaskFormatToColorType(fMaskFormat);
+    // Src and dst colorInfo are the same
+    const SkColorInfo colorInfo(maskCT, kUnknown_SkAlphaType, nullptr);
     for (uint32_t pageIdx = 0; pageIdx < fNumActivePages; ++pageIdx) {
         PlotList::Iter plotIter;
         plotIter.init(fPages[pageIdx].fPlotList, PlotList::Iter::kHead_IterStart);
+
+        Swizzle readSwizzle = ReadSwizzleForColorType(maskCT, fProxies[pageIdx]->format());
+        TextureProxyView view{fProxies[pageIdx], readSwizzle};
         for (Plot* plot = plotIter.get(); plot; plot = plotIter.next()) {
             if (plot->needsUpload()) {
-                TextureProxyView view{fProxies[pageIdx]};
-                SkASSERT(view);
-
                 const void* dataPtr;
                 SkIRect dstRect;
                 std::tie(dataPtr, dstRect) = plot->prepareForUpload();
@@ -184,10 +187,6 @@ bool DrawAtlas::recordUploads(DrawContext* dc, Recorder* recorder) {
                 std::vector<MipLevel> levels;
                 levels.push_back({dataPtr, plot->rowBytes()});
 
-                // Src and dst colorInfo are the same
-                SkColorInfo colorInfo(MaskFormatToColorType(fMaskFormat),
-                                      kUnknown_SkAlphaType,
-                                      nullptr);
                 const UploadSource uploadSource = UploadSource::Make(
                         recorder->priv().caps(), view, colorInfo, colorInfo, levels, dstRect);
                 if (!uploadSource.isValid()) {

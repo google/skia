@@ -45,6 +45,7 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkCPUContextImpl.h"
 #include "src/core/SkCPURecorderImpl.h"
+#include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkTraceEvent.h"
@@ -69,6 +70,8 @@
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
+#include "src/gpu/graphite/TextureFormatXferFn.h"
+#include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/TextureProxyView.h"
 #include "src/gpu/graphite/TextureUtils.h"
@@ -729,30 +732,25 @@ Context::PixelTransferResult Context::transferPixels(Recorder* recorder,
     SkASSERT(SkIRect::MakeSize(srcView.dimensions()).contains(srcRect));
     SkASSERT(SkColorInfoIsValid(dstColorInfo));
 
+    const TextureInfo& texInfo = srcView.proxy()->textureInfo();
+    const TextureFormat format = TextureInfoPriv::ViewFormat(texInfo);
     const Caps* caps = fSharedContext->caps();
-    if (!srcView || !caps->isCopyableSrc(srcView.proxy()->textureInfo())) {
+
+    if (!srcView || !caps->isCopyableSrc(texInfo)) {
         return {};
     }
 
-    const SkColorType srcColorType = srcColorInfo.colorType();
-    SkColorType supportedColorType;
-    bool isRGB888Format;
-    std::tie(supportedColorType, isRGB888Format) =
-            caps->supportedTransferColorType(srcColorType, srcView.proxy()->textureInfo());
-    if (supportedColorType == kUnknown_SkColorType) {
+    SkColorSpaceXformSteps csSteps{srcColorInfo.colorSpace(), srcColorInfo.alphaType(),
+                                   dstColorInfo.colorSpace(), dstColorInfo.alphaType()};
+    auto xferFn = TextureFormatXferFn::MakeGpuToCpu(format,
+                                                    srcView.swizzle(),
+                                                    csSteps,
+                                                    dstColorInfo.colorType());
+    if (!xferFn) {
         return {};
     }
 
-    // Fail if read color type does not have all of dstCT's color channels and those missing color
-    // channels are in the src.
-    uint32_t dstChannels = SkColorTypeChannelFlags(dstColorInfo.colorType());
-    uint32_t legalReadChannels = SkColorTypeChannelFlags(supportedColorType);
-    uint32_t srcChannels = SkColorTypeChannelFlags(srcColorType);
-    if ((~legalReadChannels & dstChannels) & srcChannels) {
-        return {};
-    }
-
-    int bpp = isRGB888Format ? 3 : SkColorTypeBytesPerPixel(supportedColorType);
+    int bpp = TextureFormatBytesPerBlock(format);
     size_t rowBytes = caps->getAlignedTextureDataRowBytes(bpp * srcRect.width());
     size_t size = SkAlignTo(rowBytes * srcRect.height(), caps->requiredTransferBufferAlignment());
     sk_sp<Buffer> buffer = fResourceProvider->findOrCreateNonShareableBuffer(
@@ -791,48 +789,17 @@ Context::PixelTransferResult Context::transferPixels(Recorder* recorder,
     PixelTransferResult result;
     result.fTransferBuffer = std::move(buffer);
     result.fSize = srcRect.size();
-    // srcColorInfo describes the texture; readColorInfo describes the result of the copy-to-buffer,
-    // which may be different; dstColorInfo is what we have to transform it into when invoking the
-    // async callbacks.
-    SkColorInfo readColorInfo = srcColorInfo.makeColorType(supportedColorType);
-    if (readColorInfo.alphaType() == kUnknown_SkAlphaType) {
-        readColorInfo = readColorInfo.makeAlphaType(kOpaque_SkAlphaType);
-    }
-    SkColorInfo outColorInfo = dstColorInfo;
-    if (outColorInfo.alphaType() == kUnknown_SkAlphaType) {
-        outColorInfo = outColorInfo.makeAlphaType(kOpaque_SkAlphaType);
-    }
-    if (readColorInfo != outColorInfo || isRGB888Format) {
-        SkISize dims = srcRect.size();
-        SkImageInfo srcInfo = SkImageInfo::Make(dims, readColorInfo);
-        SkImageInfo dstInfo = SkImageInfo::Make(dims, outColorInfo);
-
-        result.fRowBytes = dstInfo.minRowBytes();
-        result.fPixelConverter = [dstInfo, srcInfo, rowBytes, isRGB888Format](
-                void* dst, const void* src) {
-            SkAutoPixmapStorage temp;
-            size_t srcRowBytes = rowBytes;
-            if (isRGB888Format) {
-                temp.alloc(srcInfo);
-                size_t tRowBytes = temp.rowBytes();
-                auto* sRow = reinterpret_cast<const char*>(src);
-                auto* tRow = reinterpret_cast<char*>(temp.writable_addr());
-                for (int y = 0; y < srcInfo.height(); ++y, sRow += srcRowBytes, tRow += tRowBytes) {
-                    for (int x = 0; x < srcInfo.width(); ++x) {
-                        auto s = sRow + x*3;
-                        auto t = tRow + x*sizeof(uint32_t);
-                        memcpy(t, s, 3);
-                        t[3] = static_cast<char>(0xFF);
-                    }
-                }
-                src = temp.addr();
-                srcRowBytes = tRowBytes;
-            }
-            SkAssertResult(SkConvertPixels(dstInfo, dst, dstInfo.minRowBytes(),
-                                           srcInfo, src, srcRowBytes));
-        };
-    } else {
+    if (xferFn->isIdentity()) {
         result.fRowBytes = rowBytes;
+    } else {
+        SkImageInfo dstInfo = SkImageInfo::Make(srcRect.size(), dstColorInfo);
+        result.fRowBytes = dstInfo.minRowBytes();
+        result.fPixelConverter = [xferFn, dstInfo, rowBytes](void* dst, const void* src) {
+            SkASSERT(xferFn.has_value());
+            xferFn->run(dstInfo.width(), dstInfo.height(),
+                        src, rowBytes,
+                        dst, dstInfo.minRowBytes());
+        };
     }
 
     return result;

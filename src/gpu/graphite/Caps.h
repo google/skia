@@ -199,22 +199,6 @@ public:
     /* Returns a compressed label describing the immutable sampler for the Pipeline label */
     virtual std::string toString(const ImmutableSamplerInfo&) const { return ""; }
 
-    /**
-     * Given a texture config and its color type interpretation, returns the color type that matches
-     * the texture's layout after a copy (i.e. does not have any of the automatic swizzling that
-     * occurs during regular sampling). The returned colortype either represents the color type that
-     * source data must be coaxed into for writePixels(), or it represents the color type after a
-     * readPixels() operation.
-     *
-     * We currently don't have an SkColorType for a 3 channel RGB format. Additionally the current
-     * implementation of raster pipeline requires power of 2 channels, so it is not easy to add such
-     * an SkColorType. Thus we need to check for data that is 3 channels using the isRGBFormat
-     * return value and handle it manually.
-     */
-    std::pair<SkColorType, bool /*isRGB888Format*/> supportedTransferColorType(
-            SkColorType colorType,
-            const TextureInfo& textureInfo) const;
-
     // If true, uses experimental drawListLayer ordering.
     bool useDrawListLayer() const { return fDrawListLayer; }
 

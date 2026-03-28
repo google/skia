@@ -350,24 +350,6 @@ SampleCount Caps::getCompatibleMSAASampleCount(const TextureInfo& info) const {
     return SampleCount::k1;
 }
 
-std::pair<SkColorType, bool /*isRGBFormat*/> Caps::supportedTransferColorType(
-        SkColorType colorType,
-        const TextureInfo& textureInfo) const {
-    // NOTE: Compressed textures can't be read back, and external format textures can't be read or
-    // written to. However, this is not checked here. Instead that is expected to be handled by
-    // supports[Read|Write]Pixels().
-    const ColorTypeInfo* colorInfo = this->getColorTypeInfo(colorType, textureInfo);
-    if (colorInfo) {
-        const TextureFormat format = TextureInfoPriv::ViewFormat(textureInfo);
-        const bool rgbRequiresIntervention =
-                TextureFormatChannelMask(format) == kRGB_SkColorChannelFlags &&
-                colorInfo->fTransferColorType != kRGB_565_SkColorType;
-        return {colorInfo->fTransferColorType, rgbRequiresIntervention};
-    } else {
-        return {kUnknown_SkColorType, false};
-    }
-}
-
 DstReadStrategy Caps::getDstReadStrategy() const {
     // TODO(b/238757201; b/383769988): Dst reads are currently only supported by FB fetch and
     // texture copy.
