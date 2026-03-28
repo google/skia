@@ -61,3 +61,11 @@ skia_filegroup(
     ],
     visibility = ["//src/codec:__pkg__"],
 )
+
+skia_filegroup(
+    name = "codec_exif_chromium_hdrs",
+    srcs = [
+        "SkExifChromium.h",
+    ],
+    visibility = ["//src/codec:__pkg__"],
+)

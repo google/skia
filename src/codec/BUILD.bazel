@@ -71,6 +71,7 @@ skia_cc_library(
     name = "any_decoder",
     srcs = ANY_DECODER_SRCS + [
         "//include/codec:any_codec_hdrs",
+        "//include/private/chromium:codec_exif_chromium_hdrs",
         "//include/private/chromium:codec_icc_chromium_hdrs",
     ],
     hdrs = PRIVATE_CODEC_HEADERS + ANY_DECODER_HDRS + ["//include/private:decode_srcs"],
