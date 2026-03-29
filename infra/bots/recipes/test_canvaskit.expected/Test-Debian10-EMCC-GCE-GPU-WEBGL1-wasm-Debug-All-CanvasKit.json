@@ -243,8 +243,8 @@
   },
   {
     "cmd": [
-      "gsutil",
-      "-m",
+      "gcloud",
+      "storage",
       "cp",
       "[START_DIR]/[SWARM_OUT_DIR]/*.png",
       "gs://skia-infra-gm/dm-images-v1"
@@ -253,9 +253,10 @@
   },
   {
     "cmd": [
-      "gsutil",
+      "gcloud",
+      "storage",
       "cp",
-      "-Z",
+      "--gzip-local-all",
       "[START_DIR]/[SWARM_OUT_DIR]/dm.json",
       "gs://skia-infra-gm/dm-json-v1/2012/05/14/12/abc123/Test-Debian10-EMCC-GCE-GPU-WEBGL1-wasm-Debug-All-CanvasKit/1337000001/dm.json"
     ],

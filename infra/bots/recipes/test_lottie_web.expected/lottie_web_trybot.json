@@ -217,8 +217,8 @@
   },
   {
     "cmd": [
-      "gsutil",
-      "-m",
+      "gcloud",
+      "storage",
       "cp",
       "[START_DIR]/[SWARM_OUT_DIR]/*.png",
       "gs://skia-infra-gm/dm-images-v1"
@@ -227,9 +227,10 @@
   },
   {
     "cmd": [
-      "gsutil",
+      "gcloud",
+      "storage",
       "cp",
-      "-Z",
+      "--gzip-local-all",
       "[START_DIR]/[SWARM_OUT_DIR]/dm.json",
       "gs://skia-infra-gm/trybot/dm-json-v1/2012/05/14/12/1234_7/Test-Debian10-none-GCE-CPU-AVX2-x86_64-Debug-All-LottieWeb/1337000001/dm.json"
     ],
