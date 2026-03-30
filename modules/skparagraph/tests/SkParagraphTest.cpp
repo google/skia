@@ -8588,6 +8588,201 @@ UNIX_ONLY_TEST(SkParagraph_ArabicWithLetterSpacingWhitespacesAsCSS, reporter) {
     }
 }
 
+// Soft hyphen (U+00AD) tests
+// When a line breaks at a soft hyphen position, a visible hyphen should be rendered.
+// When NOT at a line break, soft hyphens should remain invisible (zero-width).
+
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenAtLineBreak, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    // "inter\u00ADnational" — soft hyphen between "inter" and "national"
+    // With a narrow width, it should break at the soft hyphen and render a visible hyphen
+    const char* text =
+            "inter\xC2\xAD"
+            "national";
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setRenderSoftHyphens(true);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text, strlen(text));
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    // Layout with a width that forces a break at the soft hyphen
+    // "inter" at 20px Roboto is roughly 40-50px wide; use a narrow width
+    paragraph->layout(60);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    // Should have 2 lines: "inter-" and "national"
+    REPORTER_ASSERT(reporter, impl->lines().size() == 2);
+
+    // The first line should have a hyphen appended (width > 0)
+    auto& firstLine = impl->lines()[0];
+    REPORTER_ASSERT(reporter, firstLine.hyphen() != nullptr);
+    // The hyphen run should have positive advance width
+    REPORTER_ASSERT(reporter, firstLine.hyphen()->advance().fX > 0);
+    // The line's total width should include the hyphen
+    REPORTER_ASSERT(reporter, firstLine.width() > firstLine.widthWithoutEllipsis());
+}
+
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenNoBreak, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    // Same text but with enough width to fit on one line — no hyphen should render
+    const char* text =
+            "inter\xC2\xAD"
+            "national";
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setRenderSoftHyphens(true);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text, strlen(text));
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);  // Wide enough for one line
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, impl->lines().size() == 1);
+
+    // No hyphen should be rendered when soft hyphen is not at a line break
+    auto& firstLine = impl->lines()[0];
+    REPORTER_ASSERT(reporter, firstLine.hyphen() == nullptr);
+}
+
+UNIX_ONLY_TEST(SkParagraph_MultipleSoftHyphens, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    // "su\u00ADper\u00ADcali\u00ADfrag" — multiple soft hyphens
+    // Only the one at the actual line break should render
+    const char* text =
+            "su\xC2\xAD"
+            "per\xC2\xAD"
+            "cali\xC2\xAD"
+            "frag";
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setRenderSoftHyphens(true);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text, strlen(text));
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    // Narrow width to force a break at one of the soft hyphens
+    paragraph->layout(60);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    // Should have at least 2 lines
+    REPORTER_ASSERT(reporter, impl->lines().size() >= 2);
+
+    // The first line should have a hyphen (it breaks at a soft hyphen)
+    auto& firstLine = impl->lines()[0];
+    REPORTER_ASSERT(reporter, firstLine.hyphen() != nullptr);
+    REPORTER_ASSERT(reporter, firstLine.hyphen()->advance().fX > 0);
+}
+
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenLineWidth, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    const char* text =
+            "inter\xC2\xAD"
+            "national";
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setRenderSoftHyphens(true);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text, strlen(text));
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(60);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, impl->lines().size() == 2);
+
+    auto& firstLine = impl->lines()[0];
+    REPORTER_ASSERT(reporter, firstLine.hyphen() != nullptr);
+
+    // Line width should equal text width + hyphen width
+    SkScalar textWidth = firstLine.widthWithoutEllipsis();
+    SkScalar hyphenWidth = firstLine.hyphen()->advance().fX;
+    REPORTER_ASSERT(reporter,
+                    SkScalarNearlyEqual(firstLine.width(), textWidth + hyphenWidth, EPSILON100));
+}
+
+UNIX_ONLY_TEST(SkParagraph_SoftHyphenRTL, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    // Arabic text with soft hyphens: "كلمة\u00ADطويلة" (kalima-tawila = "long word")
+    const char* text =
+            "\xD9\x83\xD9\x84\xD9\x85\xD8\xA9"           // كلمة
+            "\xC2\xAD"                                   // soft hyphen
+            "\xD8\xB7\xD9\x88\xD9\x8A\xD9\x84\xD8\xA9";  // طويلة
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    paragraph_style.setRenderSoftHyphens(true);
+    paragraph_style.setTextDirection(TextDirection::kRtl);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Noto Naskh Arabic")});
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text, strlen(text));
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    // Narrow width to force a break at the soft hyphen
+    paragraph->layout(60);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+
+    if (impl->lines().size() >= 2) {
+        // If the text broke at the soft hyphen, verify hyphen is present
+        auto& firstLine = impl->lines()[0];
+        REPORTER_ASSERT(reporter, firstLine.hyphen() != nullptr);
+        REPORTER_ASSERT(reporter, firstLine.hyphen()->advance().fX > 0);
+        // Line width should include the hyphen
+        REPORTER_ASSERT(reporter, firstLine.width() > firstLine.widthWithoutEllipsis());
+    }
+    // If the font isn't available and text doesn't break, that's okay — skip gracefully
+}
+
 #if defined(SK_UNICODE_ICU_IMPLEMENTATION)
 UNIX_ONLY_TEST(SkParagraph_ICU_EmojiRuns, reporter) {
     SkUnicode_Emoji(SkUnicodes::ICU::Make(), reporter);

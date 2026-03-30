@@ -237,10 +237,8 @@ void TextLine::ensureTextBlobCachePopulated() {
     if (fTextBlobCachePopulated) {
         return;
     }
-    if (fBlockRange.width() == 1 &&
-        fRunsInVisualOrder.size() == 1 &&
-        fEllipsis == nullptr &&
-        fOwner->run(fRunsInVisualOrder[0]).placeholderStyle() == nullptr) {
+    if (fBlockRange.width() == 1 && fRunsInVisualOrder.size() == 1 && fEllipsis == nullptr &&
+        fHyphen == nullptr && fOwner->run(fRunsInVisualOrder[0]).placeholderStyle() == nullptr) {
         if (fClusterRange.width() == 0) {
             return;
         }
@@ -628,6 +626,27 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
         fTextIncludingNewlines.end = fTextIncludingNewlines.start;
         fTextExcludingSpaces.end = fTextExcludingSpaces.start;
         fAdvance.fX = 0;
+    }
+}
+
+void TextLine::createSoftHyphen() {
+    if (fEllipsis) {
+        return;
+    }
+    if (fClusterRange.width() == 0) {
+        return;
+    }
+
+    auto& lastCluster = fOwner->cluster(fClusterRange.end - 1);
+    if (!lastCluster.isSoftHyphen()) {
+        return;
+    }
+
+    SkString hyphenStr("-");
+    fHyphen = this->shapeEllipsis(hyphenStr, &lastCluster);
+    if (fHyphen) {
+        fHyphen->setOwner(fOwner);
+        fHyphen->fClusterStart = lastCluster.textRange().start;
     }
 }
 
@@ -1066,6 +1085,13 @@ void TextLine::iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisi
         }
     }
 
+    if (this->hyphen() != nullptr &&
+        fOwner->paragraphStyle().getTextDirection() == TextDirection::kRtl) {
+        runOffset = this->hyphen()->offset().fX;
+        if (visitor(hyphen(), runOffset, hyphen()->textRange(), &width)) {
+        }
+    }
+
     for (auto& runIndex : fRunsInVisualOrder) {
 
         const auto run = &this->fOwner->run(runIndex);
@@ -1097,6 +1123,13 @@ void TextLine::iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisi
 
     if (this->ellipsis() != nullptr && fOwner->paragraphStyle().getTextDirection() == TextDirection::kLtr) {
         if (visitor(ellipsis(), runOffset, ellipsis()->textRange(), &width)) {
+            totalWidth += width;
+        }
+    }
+
+    if (this->hyphen() != nullptr &&
+        fOwner->paragraphStyle().getTextDirection() == TextDirection::kLtr) {
+        if (visitor(hyphen(), runOffset, hyphen()->textRange(), &width)) {
             totalWidth += width;
         }
     }
