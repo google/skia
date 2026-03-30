@@ -9,6 +9,8 @@ licenses(["notice"])
 skia_cc_library(
     name = "vulkan",
     hdrs = [
+        "vulkan/vk_icd.h",
+        "vulkan/vk_layer.h",
         "vulkan/vk_video/vulkan_video_codec_av1std.h",
         "vulkan/vk_video/vulkan_video_codec_av1std_decode.h",
         "vulkan/vk_video/vulkan_video_codec_av1std_encode.h",
@@ -18,9 +20,13 @@ skia_cc_library(
         "vulkan/vk_video/vulkan_video_codec_h265std.h",
         "vulkan/vk_video/vulkan_video_codec_h265std_decode.h",
         "vulkan/vk_video/vulkan_video_codec_h265std_encode.h",
+        "vulkan/vk_video/vulkan_video_codec_vp9std.h",
+        "vulkan/vk_video/vulkan_video_codec_vp9std_decode.h",
         "vulkan/vk_video/vulkan_video_codecs_common.h",
         "vulkan/vulkan.h",
+        "vulkan/vulkan.hpp",
         "vulkan/vulkan_core.h",
+        "vulkan/vulkan_screen.h",
     ],
     includes = ["."],
     textual_hdrs = [
