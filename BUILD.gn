@@ -3112,6 +3112,7 @@ if (skia_enable_tools) {
         "fuzz/oss_fuzz/FuzzAnimatedImage.cpp",
         "fuzz/oss_fuzz/FuzzCOLRv1.cpp",
         "fuzz/oss_fuzz/FuzzColorspace.cpp",
+        "fuzz/oss_fuzz/FuzzHdrAgtm.cpp",
         "fuzz/oss_fuzz/FuzzImage.cpp",
         "fuzz/oss_fuzz/FuzzImageFilterDeserialize.cpp",
         "fuzz/oss_fuzz/FuzzIncrementalImage.cpp",
@@ -3920,6 +3921,11 @@ if (skia_build_fuzzers) {
 
   libfuzzer_app("parse_path") {
     sources = [ "fuzz/oss_fuzz/FuzzParsePath.cpp" ]
+    deps = []
+  }
+
+  libfuzzer_app("hdr_agtm") {
+    sources = [ "fuzz/oss_fuzz/FuzzHdrAgtm.cpp" ]
     deps = []
   }
 }

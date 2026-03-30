@@ -54,6 +54,7 @@ static constexpr char g_type_message[] = "How to interpret --bytes, one of:\n"
                                          "color_deserialize\n"
                                          "colrv1\n"
                                          "filter_fuzz (equivalent to Chrome's filter_fuzz_stub)\n"
+                                         "hdr_agtm\n"
                                          "image_decode\n"
                                          "image_decode_incremental\n"
                                          "image_mode\n"
@@ -91,6 +92,7 @@ static void fuzz_api(const sk_sp<SkData>&, const SkString& name);
 static void fuzz_color_deserialize(const sk_sp<SkData>&);
 static void fuzz_colrv1(const sk_sp<SkData>&);
 static void fuzz_filter_fuzz(const sk_sp<SkData>&);
+static void fuzz_hdr_agtm(const sk_sp<SkData>& data);
 static void fuzz_image_decode(const sk_sp<SkData>&);
 static void fuzz_image_decode_incremental(const sk_sp<SkData>&);
 static void fuzz_img(const sk_sp<SkData>&, uint8_t, uint8_t);
@@ -199,6 +201,10 @@ static int fuzz_file(const SkString& path, SkString type) {
     }
     if (type.equals("filter_fuzz")) {
         fuzz_filter_fuzz(std::move(bytes));
+        return 0;
+    }
+    if (type.equals("hdr_agtm")) {
+        fuzz_hdr_agtm(std::move(bytes));
         return 0;
     }
     if (type.equals("image_decode")) {
@@ -815,6 +821,13 @@ void FuzzImageFilterDeserialize(const uint8_t *data, size_t size);
 static void fuzz_filter_fuzz(const sk_sp<SkData>& data) {
     FuzzImageFilterDeserialize(data->bytes(), data->size());
     SkDebugf("[terminated] filter_fuzz didn't crash!\n");
+}
+
+void FuzzHdrAgtm(const uint8_t* data, size_t size);
+
+static void fuzz_hdr_agtm(const sk_sp<SkData>& data) {
+    FuzzHdrAgtm(data->bytes(), data->size());
+    SkDebugf("[terminated] Done HdrAgtm!\n");
 }
 
 void FuzzSkMeshSpecification(const uint8_t *fuzzData, size_t fuzzSize);
