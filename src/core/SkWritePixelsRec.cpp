@@ -19,6 +19,10 @@ bool SkWritePixelsRec::trim(int dstWidth, int dstHeight) {
     if (0 >= fInfo.width() || 0 >= fInfo.height()) {
         return false;
     }
+    // negating the largest negative integer (below) is UB
+    if (fX == INT_MIN || fY == INT_MIN) {
+        return false;
+    }
 
     int x = fX;
     int y = fY;

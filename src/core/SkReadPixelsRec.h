@@ -17,6 +17,11 @@
  *  Helper class to package and trim the parameters passed to readPixels()
  */
 struct SkReadPixelsRec {
+    /**
+     *  @param x, y  The offset into the source. Negative values are supported; the portion
+     *               of the rectangle that is "off-screen" (negative x or y) will leave the
+     *               corresponding area in the destination pixels untouched.
+     */
     SkReadPixelsRec(const SkImageInfo& info, void* pixels, size_t rowBytes, int x, int y)
         : fPixels(pixels)
         , fRowBytes(rowBytes)
@@ -41,7 +46,8 @@ struct SkReadPixelsRec {
 
     /*
      *  On true, may have modified its fields (except fRowBytes) to make it a legal subset
-     *  of the specified src width/height.
+     *  of the specified src width/height. Negative fX or fY will cause fPixels to be
+     *  incremented and fInfo to be reduced to account for the portion that is "off-screen".
      *
      *  On false, leaves self unchanged, but indicates that it does not overlap src, or
      *  is not valid (e.g. bad fInfo) for readPixels().
