@@ -70,15 +70,9 @@ DEF_TEST(ReadPixelsRec_trim, reporter) {
 
     {
         skiatest::ReporterContext ctx(reporter, "Explicitly trigger y_offset overflow");
-        size_t hugeRowBytes = 0;
-        int hugeY = 0;
-        if (sizeof(size_t) == 8) {
-            hugeRowBytes = (size_t)1 << 35;
-            hugeY = INT_MIN;
-        } else {
-            hugeRowBytes = (size_t)1 << 19;
-            hugeY = INT_MIN;
-        }
+        // arbitrarily large value that will overflow when multiplied by hugeY
+        size_t hugeRowBytes = static_cast<size_t>(INT_MAX) >> 13;
+        int hugeY = INT_MIN;
         SkReadPixelsRec rec(info, pixels, hugeRowBytes, 0, hugeY);
         REPORTER_ASSERT(reporter, !rec.trim(W, H));
     }
@@ -173,15 +167,9 @@ DEF_TEST(WritePixelsRec_trim, reporter) {
 
     {
         skiatest::ReporterContext ctx(reporter, "Explicitly trigger y_offset overflow");
-        size_t hugeRowBytes = 0;
-        int hugeY = 0;
-        if (sizeof(size_t) == 8) {
-            hugeRowBytes = (size_t)1 << 35;
-            hugeY = INT_MIN;
-        } else {
-            hugeRowBytes = (size_t)1 << 19;
-            hugeY = INT_MIN;
-        }
+        // arbitrarily large value that will overflow when multiplied by hugeY
+        size_t hugeRowBytes = static_cast<size_t>(INT_MAX) >> 13;
+        int hugeY = INT_MIN;
         SkWritePixelsRec rec(info, pixels, hugeRowBytes, 0, hugeY);
         REPORTER_ASSERT(reporter, !rec.trim(W, H));
     }
