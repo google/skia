@@ -56,8 +56,11 @@ namespace SkOpts {
             if (SkCpu::Supports(SkX64::ML3)) { Init_ml3(); }
         #endif
 
-        #if (SK_CPU_X64_LEVEL < SK_CPU_X64_LEVEL_ML4) && defined(SK_ENABLE_AVX512_OPTS)
-            if (SkCpu::Supports(SkX64::ML4)) { Init_ml4(); }
+        #if (SK_CPU_X64_LEVEL < SK_CPU_X64_LEVEL_ML4)
+            // TODO(kjlubick): Remove the SK_ENABLE_AVX512_OPTS flag in favor of the disable one
+            #if defined(SK_ENABLE_AVX512_OPTS) && !defined(SK_DISABLE_AVX512_OPTS)
+                if (SkCpu::Supports(SkX64::ML4)) { Init_ml4(); }
+            #endif
         #endif
 
     #elif defined(SK_CPU_LOONGARCH)
