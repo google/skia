@@ -3823,7 +3823,7 @@ if (skia_build_fuzzers) {
     deps = []
   }
 
-  libfuzzer_app("grshape") {
+  libfuzzer_app("api_grshape") {
     sources = [
       "fuzz/FuzzCanvasHelpers.cpp",
       "fuzz/FuzzCanvasHelpers.h",
