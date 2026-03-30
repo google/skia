@@ -75,7 +75,6 @@ skia_codec_rust_png_ffi_crate_root = "$_rust/png/FFI.rs"
 const rustGNIFooter = `
 skia_rust_common_ffi_crate_root = "$_rust/common/io_traits_ffi.rs"
 skia_rust_icc_ffi_crate_root = "$_rust/icc/FFI.rs"
-skia_rust_exif_ffi_crate_root = "$_rust/exif/FFI.rs"
 `
 
 // The footer written to gn/sksl_tests.gni.

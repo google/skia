@@ -1709,7 +1709,6 @@ if (skia_use_rust_exif) {
 
 optional("rust_exif") {
   enabled = skia_use_rust_exif
-  public_defines = [ "SK_EXIF_PARSE_WITH_RUST" ]
   public = skia_rust_exif_ffi_cpp_hdrs
   sources = skia_rust_exif_ffi_cpp_srcs
   sources_for_tests = [ "tests/RustExifTest.cpp" ]
