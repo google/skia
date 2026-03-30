@@ -28,12 +28,12 @@ namespace SkOpts {
     #if defined(SK_ENABLE_OPTIMIZE_SIZE)
         // All Init_foo functions are omitted when optimizing for size
     #elif defined(SK_CPU_X86)
-        #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SSSE3
-            if (SkCpu::Supports(SkCpu::SSSE3)) { Init_BitmapProcState_ssse3(); }
+        #if SK_CPU_X64_LEVEL < SK_CPU_X64_LEVEL_SSSE3
+            if (SkCpu::Supports(SkX64::SSSE3)) { Init_BitmapProcState_ssse3(); }
         #endif
     #elif defined(SK_CPU_LOONGARCH)
         #if SK_CPU_LSX_LEVEL < SK_CPU_LSX_LEVEL_LASX
-            if (SkCpu::Supports(SkCpu::LOONGARCH_ASX)) { Init_BitmapProcState_lasx(); }
+            if (SkCpu::Supports(SkLoongArch::ASX)) { Init_BitmapProcState_lasx(); }
         #endif
     #endif
       return true;

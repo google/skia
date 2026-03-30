@@ -878,8 +878,7 @@ def main():
       'cflags':          bpfmt(8, cflags, False),
       'cflags_cc':       bpfmt(8, cflags_cc),
 
-      'x86_srcs':      bpfmt(16, strip_non_srcs(defs['hsw'] +
-                                               defs['skx'])),
+      'x86_srcs': bpfmt(16, strip_non_srcs(defs['ml3'] + defs['ml4'])),
 
       'gm_includes'       : bpfmt(8, gm_includes),
       'gm_srcs'           : bpfmt(8, gm_srcs),

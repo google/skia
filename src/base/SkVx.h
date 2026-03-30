@@ -39,11 +39,11 @@
 #endif
 
 #if SKVX_USE_SIMD
-    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX
+    #if SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_AVX
         #include <immintrin.h>
-    #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+    #elif SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE41
         #include <smmintrin.h>
-    #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+    #elif SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE1
         #include <emmintrin.h>
         #include <xmmintrin.h>
     #elif defined(SK_ARM_HAS_NEON)
@@ -486,14 +486,14 @@ SIT Vec<1,T> if_then_else(const Vec<1,M<T>>& cond, const Vec<1,T>& t, const Vec<
 }
 SINT Vec<N,T> if_then_else(const Vec<N,M<T>>& cond, const Vec<N,T>& t, const Vec<N,T>& e) {
     // Specializations inline here so they can generalize what types the apply to.
-#if SKVX_USE_SIMD && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+#if SKVX_USE_SIMD && SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_AVX2
     if constexpr (N*sizeof(T) == 32) {
         return sk_bit_cast<Vec<N,T>>(_mm256_blendv_epi8(sk_bit_cast<__m256i>(e),
                                                         sk_bit_cast<__m256i>(t),
                                                         sk_bit_cast<__m256i>(cond)));
     }
 #endif
-#if SKVX_USE_SIMD && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+#if SKVX_USE_SIMD && SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE41
     if constexpr (N*sizeof(T) == 16) {
         return sk_bit_cast<Vec<N,T>>(_mm_blendv_epi8(sk_bit_cast<__m128i>(e),
                                                      sk_bit_cast<__m128i>(t),
@@ -534,17 +534,17 @@ SIT  bool any(const Vec<1,T>& x) { return x.val != 0; }
 SINT bool any(const Vec<N,T>& x) {
     // For any(), the _mm_testz intrinsics are correct and don't require comparing 'x' to 0, so it's
     // lower latency compared to _mm_movemask + _mm_compneq on plain SSE.
-#if SKVX_USE_SIMD && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+#if SKVX_USE_SIMD && SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_AVX2
     if constexpr (N*sizeof(T) == 32) {
         return !_mm256_testz_si256(sk_bit_cast<__m256i>(x), _mm256_set1_epi32(-1));
     }
 #endif
-#if SKVX_USE_SIMD && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+#if SKVX_USE_SIMD && SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE41
     if constexpr (N*sizeof(T) == 16) {
         return !_mm_testz_si128(sk_bit_cast<__m128i>(x), _mm_set1_epi32(-1));
     }
 #endif
-#if SKVX_USE_SIMD && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+#if SKVX_USE_SIMD && SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE1
     if constexpr (N*sizeof(T) == 16) {
         // On SSE, movemask checks only the MSB in each lane, which is fine if the lanes were set
         // directly from a comparison op (which sets all bits to 1 when true), but skvx::Vec<>
@@ -586,7 +586,7 @@ SIT  bool all(const Vec<1,T>& x) { return x.val != 0; }
 SINT bool all(const Vec<N,T>& x) {
 // Unlike any(), we have to respect the lane layout, or we'll miss cases where a
 // true lane has a mix of 0 and 1 bits.
-#if SKVX_USE_SIMD && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+#if SKVX_USE_SIMD && SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE1
     // Unfortunately, the _mm_testc intrinsics don't let us avoid the comparison to 0 for all()'s
     // correctness, so always just use the plain SSE version.
     if constexpr (N == 4 && sizeof(T) == 4) {
@@ -718,12 +718,12 @@ SI Vec<1,int> lrint(const Vec<1,float>& x) {
     return (int)lrintf(x.val);
 }
 SIN Vec<N,int> lrint(const Vec<N,float>& x) {
-#if SKVX_USE_SIMD && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX
+#if SKVX_USE_SIMD && SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_AVX
     if constexpr (N == 8) {
         return sk_bit_cast<Vec<N,int>>(_mm256_cvtps_epi32(sk_bit_cast<__m256>(x)));
     }
 #endif
-#if SKVX_USE_SIMD && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+#if SKVX_USE_SIMD && SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE1
     if constexpr (N == 4) {
         return sk_bit_cast<Vec<N,int>>(_mm_cvtps_epi32(sk_bit_cast<__m128>(x)));
     }
@@ -833,12 +833,12 @@ SIN Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,uint8_t>& y
 // saturated_add(x,y) sums values and clamps to the maximum value instead of overflowing.
 SINT std::enable_if_t<std::is_unsigned_v<T>, Vec<N,T>> saturated_add(const Vec<N,T>& x,
                                                                      const Vec<N,T>& y) {
-#if SKVX_USE_SIMD && (SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1 || defined(SK_ARM_HAS_NEON) || \
+#if SKVX_USE_SIMD && (SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE1 || defined(SK_ARM_HAS_NEON) || \
         SK_CPU_LSX_LEVEL >= SK_CPU_LSX_LEVEL_LSX)
     // Both SSE and ARM have 16-lane saturated adds, so use intrinsics for those and recurse down
     // or join up to take advantage.
     if constexpr (N == 16 && sizeof(T) == 1) {
-        #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+        #if SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE1
         return sk_bit_cast<Vec<N,T>>(_mm_adds_epu8(sk_bit_cast<__m128i>(x),
                                                    sk_bit_cast<__m128i>(y)));
         #elif SK_CPU_LSX_LEVEL >= SK_CPU_LSX_LEVEL_LSX
@@ -939,7 +939,7 @@ SIN Vec<N,uint32_t> mull(const Vec<N,uint16_t>& x,
 
 SIN Vec<N,uint16_t> mulhi(const Vec<N,uint16_t>& x,
                           const Vec<N,uint16_t>& y) {
-#if SKVX_USE_SIMD && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+#if SKVX_USE_SIMD && SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE1
     // Use _mm_mulhi_epu16 for 8xuint16_t and join or split to get there.
     if constexpr (N == 8) {
         return sk_bit_cast<Vec<8,uint16_t>>(_mm_mulhi_epu16(sk_bit_cast<__m128i>(x),
@@ -1059,7 +1059,7 @@ IMPL_LOAD4_TRANSPOSED(16, int8_t, vld4q_s8)
 IMPL_LOAD4_TRANSPOSED(4, float, vld4q_f32)
 #undef IMPL_LOAD4_TRANSPOSED
 
-#elif SKVX_USE_SIMD && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+#elif SKVX_USE_SIMD && SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE1
 
 SI void strided_load4(const float* v,
                       Vec<4,float>& a,

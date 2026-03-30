@@ -44,25 +44,25 @@ namespace SkOpts {
 #undef M
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
-    void Init_hsw();
-    void Init_skx();
+    void Init_ml3();
+    void Init_ml4();
     void Init_lasx();
 
     static bool init() {
     #if defined(SK_ENABLE_OPTIMIZE_SIZE)
         // All Init_foo functions are omitted when optimizing for size
     #elif defined(SK_CPU_X86)
-        #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_AVX2
-            if (SkCpu::Supports(SkCpu::HSW)) { Init_hsw(); }
+        #if SK_CPU_X64_LEVEL < SK_CPU_X64_LEVEL_AVX2
+            if (SkCpu::Supports(SkX64::ML3)) { Init_ml3(); }
         #endif
 
-        #if (SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SKX) && defined(SK_ENABLE_AVX512_OPTS)
-            if (SkCpu::Supports(SkCpu::SKX)) { Init_skx(); }
+        #if (SK_CPU_X64_LEVEL < SK_CPU_X64_LEVEL_ML4) && defined(SK_ENABLE_AVX512_OPTS)
+            if (SkCpu::Supports(SkX64::ML4)) { Init_ml4(); }
         #endif
 
     #elif defined(SK_CPU_LOONGARCH)
         #if SK_CPU_LSX_LEVEL < SK_CPU_LSX_LEVEL_LASX
-            if (SkCpu::Supports(SkCpu::LOONGARCH_ASX)) { Init_lasx(); }
+            if (SkCpu::Supports(SkLoongArch::ASX)) { Init_lasx(); }
         #endif
     #endif
         return true;

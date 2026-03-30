@@ -6,6 +6,6 @@
 # Things are easiest for everyone if these source paths are absolute.
 _src = get_path_info("../src", "abspath")
 
-hsw = [ "$_src/opts/SkOpts_hsw.cpp" ]
-skx = [ "$_src/opts/SkOpts_skx.cpp" ]
+ml3 = [ "$_src/opts/SkOpts_ml3.cpp" ]
+ml4 = [ "$_src/opts/SkOpts_ml4.cpp" ]
 lasx = [ "$_src/opts/SkOpts_lasx.cpp" ]

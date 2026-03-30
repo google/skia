@@ -168,22 +168,24 @@ template("opts") {
 is_x86 = current_cpu == "x64" || current_cpu == "x86"
 is_loong64 = current_cpu == "loong64"
 
-opts("hsw") {
+opts("ml3") {
   enabled = is_x86
-  sources = skia_opts.hsw_sources
+  sources = skia_opts.ml3_sources
   if (is_win) {
     cflags = [ "/arch:AVX2" ]
   } else {
+    # TODO(kjlubick) use -march=x86-64-v3
     cflags = [ "-march=haswell" ]
   }
 }
 
-opts("skx") {
+opts("ml4") {
   enabled = is_x86
-  sources = skia_opts.skx_sources
+  sources = skia_opts.ml4_sources
   if (is_win) {
     cflags = [ "/arch:AVX512" ]
   } else {
+    # TODO(kjlubick) use -march=x86-64-v4
     cflags = [ "-march=skylake-avx512" ]
   }
 }
@@ -1910,16 +1912,16 @@ skia_component("skia") {
     ":android_utils",
     ":avif",
     ":crabbyavif",
-    ":hsw",
     ":jpeg_decode",
     ":jpegxl_decode",
     ":lasx",
     ":minify_sksl",
+    ":ml3",
+    ":ml4",
     ":ndk_images",
     ":png_decode_rust",
     ":raw",
     ":rust_icc",
-    ":skx",
     ":typeface_fontations",
     ":typeface_freetype",
     ":vello",

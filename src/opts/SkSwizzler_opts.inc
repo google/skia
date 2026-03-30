@@ -14,7 +14,7 @@
 #include <cmath>
 #include <utility>
 
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+#if SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE1
     #include <immintrin.h>
 #elif defined(SK_ARM_HAS_NEON)
     #include <arm_neon.h>
@@ -65,7 +65,7 @@ SI float reciprocal_alpha_times_255(float a) {
 SI float reciprocal_alpha(float a) {
     return reciprocal_alpha_portable(a);
 }
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1 && (defined(__clang__) || !defined(_MSC_VER))
+#elif SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE1 && (defined(__clang__) || !defined(_MSC_VER))
 // -- SSE -- Harden against timing attacks -- MSVC is not supported.
 using F4 = __m128;
 
@@ -126,7 +126,7 @@ SI uint32_t pixel_round_as_RP(float n) {
 #elif defined(SK_ARM_HAS_NEON) && !defined(SK_CPU_ARM64)
     float32x4_t vN{n + 0.5f};
     return vcvtq_u32_f32(vN)[0];
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2 && (defined(__clang__) || !defined(_MSC_VER))
+#elif SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE2 && (defined(__clang__) || !defined(_MSC_VER))
     return _mm_cvtps_epi32(__m128{n})[0];
 #else
     return (uint32_t)(n + 0.5f);
@@ -593,7 +593,7 @@ void rgbA_to_BGRA(uint32_t* dst, const uint32_t* src, int count) {
     common_rgbA_to_RGBA</*swapRB=*/true>(dst, src, count);
 }
 
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+#elif SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_AVX2
 // -- AVX2 -----------------------------------------------------------------------------------------
 
 // Scale a byte by another.
@@ -850,7 +850,7 @@ void rgbA_to_BGRA(uint32_t* dst, const uint32_t* src, int count) {
     rgbA_to_BGRA_portable(dst, src, count);
 }
 
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+#elif SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSSE3
 // -- SSSE3 ----------------------------------------------------------------------------------------
 
 // Scale a byte by another.
@@ -1664,7 +1664,7 @@ static void gray_to_RGB1_portable(uint32_t dst[], const uint8_t* src, int count)
         }
         gray_to_RGB1_portable(dst, src, count);
     }
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+#elif SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_AVX2
     void gray_to_RGB1(uint32_t dst[], const uint8_t* src, int count) {
         const __m256i alphas = _mm256_set1_epi8((uint8_t) 0xFF);
         while (count >= 32) {
@@ -1709,7 +1709,7 @@ static void gray_to_RGB1_portable(uint32_t dst[], const uint8_t* src, int count)
         }
         gray_to_RGB1_portable(dst, src, count);
     }
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3  // TODO: just check >= SSE2?
+#elif SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSSE3  // TODO: just check >= SSE2?
     void gray_to_RGB1(uint32_t dst[], const uint8_t* src, int count) {
         const __m128i alphas = _mm_set1_epi8((uint8_t) 0xFF);
         while (count >= 16) {
@@ -1886,7 +1886,7 @@ static void RGB_to_BGR1_portable(uint32_t dst[], const uint8_t* src, int count) 
     void RGB_to_BGR1(uint32_t dst[], const uint8_t* src, int count) {
         insert_alpha_should_swaprb(true, dst, src, count);
     }
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+#elif SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSSE3
     static void insert_alpha_should_swaprb(bool kSwapRB,
                                            uint32_t dst[], const uint8_t* src, int count) {
         const __m128i alphaMask = _mm_set1_epi32(0xFF000000);

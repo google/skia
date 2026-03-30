@@ -33,7 +33,7 @@
 #endif
 
 // Renamed from "pause" to avoid conflict with function defined in unistd.h
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+#if SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE2
     #include <emmintrin.h>
     static void do_pause() { _mm_pause(); }
 #else

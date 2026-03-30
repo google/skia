@@ -73,23 +73,23 @@ struct Ctx {
 
 using NoCtx = const void*;
 
-#if defined(SKRP_CPU_SCALAR) || defined(SKRP_CPU_NEON) || defined(SKRP_CPU_HSW) || \
-        defined(SKRP_CPU_SKX) || defined(SKRP_CPU_AVX) || defined(SKRP_CPU_SSE41) || \
+#if defined(SKRP_CPU_SCALAR) || defined(SKRP_CPU_NEON) || defined(SKRP_CPU_AVX2) || \
+        defined(SKRP_CPU_ML4) || defined(SKRP_CPU_AVX) || defined(SKRP_CPU_SSE41) || \
         defined(SKRP_CPU_SSE2)
     // Honor the existing setting
 #elif !defined(__clang__) && !defined(__GNUC__)
     #define SKRP_CPU_SCALAR
 #elif defined(SK_ARM_HAS_NEON)
     #define SKRP_CPU_NEON
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SKX
-    #define SKRP_CPU_SKX
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
-    #define SKRP_CPU_HSW
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX
+#elif SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_ML4
+    #define SKRP_CPU_ML4
+#elif SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_AVX2
+    #define SKRP_CPU_AVX2
+#elif SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_AVX
     #define SKRP_CPU_AVX
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+#elif SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE41
     #define SKRP_CPU_SSE41
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+#elif SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE2
     #define SKRP_CPU_SSE2
 #elif SK_CPU_LSX_LEVEL >= SK_CPU_LSX_LEVEL_LASX
     #define SKRP_CPU_LASX
@@ -331,7 +331,7 @@ namespace SK_OPTS_NS {
         vst4q_f32(ptr, (float32x4x4_t{{r,g,b,a}}));
     }
 
-#elif defined(SKRP_CPU_SKX)
+#elif defined(SKRP_CPU_ML4)
     template <typename T> using V = Vec<16, T>;
     using F   = V<float   >;
     using I32 = V< int32_t>;
@@ -578,7 +578,7 @@ namespace SK_OPTS_NS {
         _mm512_storeu_ps(ptr+48, _cdef);
     }
 
-#elif defined(SKRP_CPU_HSW)
+#elif defined(SKRP_CPU_AVX2)
     // These are __m256 and __m256i, but friendlier and strongly-typed.
     template <typename T> using V = Vec<8, T>;
     using F   = V<float   >;
@@ -1421,10 +1421,10 @@ SI F from_half(U16 h) {
 #if defined(SKRP_CPU_NEON) && defined(SK_CPU_ARM64)
     return vcvt_f32_f16((float16x4_t)h);
 
-#elif defined(SKRP_CPU_SKX)
+#elif defined(SKRP_CPU_ML4)
     return _mm512_cvtph_ps((__m256i)h);
 
-#elif defined(SKRP_CPU_HSW)
+#elif defined(SKRP_CPU_AVX2)
     return _mm256_cvtph_ps((__m128i)h);
 
 #else
@@ -1444,10 +1444,10 @@ SI U16 to_half(F f) {
 #if defined(SKRP_CPU_NEON) && defined(SK_CPU_ARM64)
     return (U16)vcvt_f16_f32(f);
 
-#elif defined(SKRP_CPU_SKX)
+#elif defined(SKRP_CPU_ML4)
     return (U16)_mm512_cvtps_ph(f, _MM_FROUND_CUR_DIRECTION);
 
-#elif defined(SKRP_CPU_HSW)
+#elif defined(SKRP_CPU_AVX2)
     return (U16)_mm256_cvtps_ph(f, _MM_FROUND_CUR_DIRECTION);
 
 #else
@@ -3499,7 +3499,7 @@ HIGHP_STAGE(matrix_perspective, const float* m) {
 SI void gradient_lookup(const SkRasterPipelineContexts::GradientCtx* c, U32 idx, F t,
                         F* r, F* g, F* b, F* a) {
     F fr, br, fg, bg, fb, bb, fa, ba;
-#if defined(SKRP_CPU_HSW)
+#if defined(SKRP_CPU_AVX2)
     if (c->stopCount <=8) {
         fr = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->factors[0]), (__m256i)idx);
         br = _mm256_permutevar8x32_ps(_mm256_loadu_ps(c->biases[0]), (__m256i)idx);
@@ -5242,7 +5242,7 @@ namespace lowp {
 
 #else  // We are compiling vector code with Clang... let's make some lowp stages!
 
-#if defined(SKRP_CPU_SKX) || defined(SKRP_CPU_HSW) || defined(SKRP_CPU_LASX)
+#if defined(SKRP_CPU_ML4) || defined(SKRP_CPU_AVX2) || defined(SKRP_CPU_LASX)
     template <typename T> using V = Vec<16, T>;
 #else
     template <typename T> using V = Vec<8, T>;
@@ -5576,10 +5576,10 @@ SI U32 trunc_(F x) { return (U32)cast<I32>(x); }
 
 // Use approximate instructions and one Newton-Raphson step to calculate 1/x.
 SI F rcp_precise(F x) {
-#if defined(SKRP_CPU_SKX)
+#if defined(SKRP_CPU_ML4)
     F e = _mm512_rcp14_ps(x);
     return _mm512_fnmadd_ps(x, e, _mm512_set1_ps(2.0f)) * e;
-#elif defined(SKRP_CPU_HSW)
+#elif defined(SKRP_CPU_AVX2)
     __m256 lo,hi;
     split(x, &lo,&hi);
     return join<F>(SK_OPTS_NS::rcp_precise(lo), SK_OPTS_NS::rcp_precise(hi));
@@ -5604,9 +5604,9 @@ SI F rcp_precise(F x) {
 #endif
 }
 SI F sqrt_(F x) {
-#if defined(SKRP_CPU_SKX)
+#if defined(SKRP_CPU_ML4)
     return _mm512_sqrt_ps(x);
-#elif defined(SKRP_CPU_HSW)
+#elif defined(SKRP_CPU_AVX2)
     __m256 lo,hi;
     split(x, &lo,&hi);
     return join<F>(_mm256_sqrt_ps(lo), _mm256_sqrt_ps(hi));
@@ -5649,9 +5649,9 @@ SI F floor_(F x) {
     float32x4_t lo,hi;
     split(x, &lo,&hi);
     return join<F>(vrndmq_f32(lo), vrndmq_f32(hi));
-#elif defined(SKRP_CPU_SKX)
+#elif defined(SKRP_CPU_ML4)
     return _mm512_floor_ps(x);
-#elif defined(SKRP_CPU_HSW)
+#elif defined(SKRP_CPU_AVX2)
     __m256 lo,hi;
     split(x, &lo,&hi);
     return join<F>(_mm256_floor_ps(lo), _mm256_floor_ps(hi));
@@ -5679,9 +5679,9 @@ SI F floor_(F x) {
 // The result is a number on [-1, 1).
 // Note: on neon this is a saturating multiply while the others are not.
 SI I16 scaled_mult(I16 a, I16 b) {
-#if defined(SKRP_CPU_SKX)
+#if defined(SKRP_CPU_ML4)
     return (I16)_mm256_mulhrs_epi16((__m256i)a, (__m256i)b);
-#elif defined(SKRP_CPU_HSW)
+#elif defined(SKRP_CPU_AVX2)
     return (I16)_mm256_mulhrs_epi16((__m256i)a, (__m256i)b);
 #elif defined(SKRP_CPU_SSE41) || defined(SKRP_CPU_AVX)
     return (I16)_mm_mulhrs_epi16((__m128i)a, (__m128i)b);
@@ -5985,7 +5985,7 @@ SI void store(T* ptr, V v) {
     memcpy(ptr, &v, sizeof(v));
 }
 
-#if defined(SKRP_CPU_SKX)
+#if defined(SKRP_CPU_ML4)
     template <typename V, typename T>
     SI V gather(const T* ptr, U32 ix) {
         return V{ ptr[ix[ 0]], ptr[ix[ 1]], ptr[ix[ 2]], ptr[ix[ 3]],
@@ -6008,7 +6008,7 @@ SI void store(T* ptr, V v) {
     SI V gather_unaligned(const T* ptr, U32 ix) {
         return gather<V, T>(ptr, ix);
     }
-#elif defined(SKRP_CPU_HSW)
+#elif defined(SKRP_CPU_AVX2)
     template <typename V, typename T>
     SI V gather(const T* ptr, U32 ix) {
         return V{ ptr[ix[ 0]], ptr[ix[ 1]], ptr[ix[ 2]], ptr[ix[ 3]],
@@ -6089,13 +6089,13 @@ SI void store(T* ptr, V v) {
 // ~~~~~~ 32-bit memory loads and stores ~~~~~~ //
 
 SI void from_8888(U32 rgba, U16* r, U16* g, U16* b, U16* a) {
-#if defined(SKRP_CPU_SKX)
+#if defined(SKRP_CPU_ML4)
     rgba = (U32)_mm512_permutexvar_epi64(_mm512_setr_epi64(0,1,4,5,2,3,6,7), (__m512i)rgba);
     auto cast_U16 = [](U32 v) -> U16 {
         return (U16)_mm256_packus_epi32(_mm512_castsi512_si256((__m512i)v),
                     _mm512_extracti64x4_epi64((__m512i)v, 1));
     };
-#elif defined(SKRP_CPU_HSW)
+#elif defined(SKRP_CPU_AVX2)
     // Swap the middle 128-bit lanes to make _mm256_packus_epi32() in cast_U16() work out nicely.
     __m256i _01,_23;
     split(rgba, &_01, &_23);
@@ -6594,7 +6594,7 @@ SI void gradient_lookup(const SkRasterPipelineContexts::GradientCtx* c,
                         U16* b,
                         U16* a) {
     F fr, fg, fb, fa, br, bg, bb, ba;
-#if defined(SKRP_CPU_HSW)
+#if defined(SKRP_CPU_AVX2)
     if (c->stopCount <=8) {
         __m256i lo, hi;
         split(idx, &lo, &hi);

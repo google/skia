@@ -27,14 +27,16 @@ package(
 licenses(["notice"])
 
 skia_cc_library(
-    name = "hsw",  # https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#Advanced_Vector_Extensions_2
+    # https://en.wikipedia.org/wiki/X86-64#Microarchitecture_levels and this is level 3
+    name = "ml3",
     srcs = [
-        "SkOpts_hsw.cpp",
+        "SkOpts_ml3.cpp",
         "//include/core:opts_srcs",
         "//src/core:opts_srcs",
         "//src/shaders:opts_srcs",
         "//src/sksl/tracing:opts_srcs",
     ],
+    # TODO(kjlubick) use -march=x86-64-v3
     copts = DEFAULT_COPTS + ["-march=haswell"],
     textual_hdrs = [
         "SkRasterPipeline_opts.h",
@@ -48,14 +50,16 @@ skia_cc_library(
 )
 
 skia_cc_library(
-    name = "skx",
+    # Microarchitecture Level 4
+    name = "ml4",
     srcs = [
-        "SkOpts_skx.cpp",
+        "SkOpts_ml4.cpp",
         "//include/core:opts_srcs",
         "//src/core:opts_srcs",
         "//src/shaders:opts_srcs",
         "//src/sksl/tracing:opts_srcs",
     ],
+    # TODO(kjlubick) use -march=x86-64-v4
     copts = DEFAULT_COPTS + ["-march=skylake-avx512"],
     textual_hdrs = [
         "SkRasterPipeline_opts.h",
@@ -73,8 +77,8 @@ skia_cc_library(
     visibility = ["//src/core:__pkg__"],
     deps = selects.with_or({
         ("@platforms//cpu:x86_64", "@platforms//cpu:x86_32"): [
-            ":hsw",
-            ":skx",
+            ":ml3",
+            ":ml4",
         ],
         "//bazel/common_config_settings:cpu_wasm": [],
         "//conditions:default": [],

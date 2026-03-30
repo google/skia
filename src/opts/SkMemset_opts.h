@@ -15,7 +15,7 @@ namespace SK_OPTS_NS {
 
     template <typename T>
     static void memsetT(T buffer[], T value, int count) {
-    #if defined(SK_CPU_SSE_LEVEL) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX
+    #if defined(SK_CPU_X64_LEVEL) && SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_AVX
         static constexpr int VecSize = 32 / sizeof(T);
     #else
         static constexpr int VecSize = 16 / sizeof(T);

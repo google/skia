@@ -9,11 +9,11 @@
 
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
-#define SK_OPTS_NS hsw
+#define SK_OPTS_NS ml3
 #include "src/opts/SkRasterPipeline_opts.h"
 
 namespace SkOpts {
-    void Init_hsw() {
+    void Init_ml3() {
         raster_pipeline_lowp_stride  = SK_OPTS_NS::raster_pipeline_lowp_stride();
         raster_pipeline_highp_stride = SK_OPTS_NS::raster_pipeline_highp_stride();
 

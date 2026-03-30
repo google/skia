@@ -19,7 +19,7 @@
 // To keep Skia resistant to timing attacks, it's important not to branch on pixel data.
 // In particular, don't be tempted to [v]ptest, pmovmskb, etc. to branch on the source alpha.
 
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+#if SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_AVX2
     #include <immintrin.h>
 
     static inline __m256i SkPMSrcOver_AVX2(const __m256i& src, const __m256i& dst) {
@@ -68,7 +68,7 @@
     }
 #endif
 
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+#if SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE2
     #include <immintrin.h>
 
     static inline __m128i SkPMSrcOver_SSE2(const __m128i& src, const __m128i& dst) {
@@ -165,7 +165,7 @@ inline void blit_row_s32a_opaque(SkPMColor* dst, const SkPMColor* src, int len, 
     SkASSERT(alpha == 0xFF);
     sk_msan_assert_initialized(src, src+len);
 
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+#if SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_AVX2
     while (len >= 8) {
         _mm256_storeu_si256((__m256i*)dst,
                             SkPMSrcOver_AVX2(_mm256_loadu_si256((const __m256i*)src),
@@ -176,7 +176,7 @@ inline void blit_row_s32a_opaque(SkPMColor* dst, const SkPMColor* src, int len, 
     }
 #endif
 
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+#if SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE2
     while (len >= 4) {
         _mm_storeu_si128((__m128i*)dst, SkPMSrcOver_SSE2(_mm_loadu_si128((const __m128i*)src),
                                                          _mm_loadu_si128((const __m128i*)dst)));

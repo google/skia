@@ -45,7 +45,7 @@
 #include <utility>
 
 
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+#if SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE1
     #include <xmmintrin.h>
     #define SK_PREFETCH(ptr) _mm_prefetch(reinterpret_cast<const char*>(ptr), _MM_HINT_T0)
 #elif defined(__GNUC__)

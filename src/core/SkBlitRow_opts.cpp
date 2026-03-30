@@ -21,19 +21,19 @@ namespace SkOpts {
     DEFINE_DEFAULT(blit_row_color32);
     DEFINE_DEFAULT(blit_row_s32a_opaque);
 
-    void Init_BlitRow_hsw();
+    void Init_BlitRow_ml3();
     void Init_BlitRow_lasx();
 
     static bool init() {
     #if defined(SK_ENABLE_OPTIMIZE_SIZE)
         // All Init_foo functions are omitted when optimizing for size
     #elif defined(SK_CPU_X86)
-        #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_AVX2
-            if (SkCpu::Supports(SkCpu::HSW)) { Init_BlitRow_hsw(); }
+        #if SK_CPU_X64_LEVEL < SK_CPU_X64_LEVEL_AVX2
+            if (SkCpu::Supports(SkX64::ML3)) { Init_BlitRow_ml3(); }
         #endif
     #elif defined(SK_CPU_LOONGARCH)
         #if SK_CPU_LSX_LEVEL < SK_CPU_LSX_LEVEL_LASX
-            if (SkCpu::Supports(SkCpu::LOONGARCH_ASX)) { Init_BlitRow_lasx(); }
+            if (SkCpu::Supports(SkLoongArch::ASX)) { Init_BlitRow_lasx(); }
         #endif
     #endif
       return true;
