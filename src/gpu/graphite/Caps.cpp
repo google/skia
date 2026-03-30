@@ -55,6 +55,7 @@ void Caps::finishInitialization(const ContextOptions& options) {
     fSupportBilerpFromGlyphAtlas = options.fSupportBilerpFromGlyphAtlas;
     fRequireOrderedRecordings = options.fRequireOrderedRecordings;
     fSetBackendLabels = options.fSetBackendLabels;
+    fDrawListLayer = true;
 }
 
 sk_sp<SkCapabilities> Caps::capabilities() const { return fCapabilities; }
