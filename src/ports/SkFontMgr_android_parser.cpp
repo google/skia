@@ -32,6 +32,7 @@ using namespace skia_private;
 #define OLD_SYSTEM_FONTS_FILE "/system/etc/system_fonts.xml"
 #define FALLBACK_FONTS_FILE "/system/etc/fallback_fonts.xml"
 #define VENDOR_FONTS_FILE "/vendor/etc/fallback_fonts.xml"
+#define PRODUCT_CUSTOMIZATION_FILE "/product/etc/fonts_customization.xml"
 
 #define LOCALE_FALLBACK_FONTS_SYSTEM_DIR "/system/etc"
 #define LOCALE_FALLBACK_FONTS_VENDOR_DIR "/vendor/etc"
@@ -849,6 +850,11 @@ void SkFontMgr_Android_Parser::GetSystemFontFamilies(
     basePath.append(kFontFilePrefix);
 
     if (append_system_font_families(fontFamilies, basePath) >= 21) {
+        // Product fonts (fonts_customization.xml) leverage <fonts-modification version="21">
+        // Therefore, we only attempt to parse them on modern devices (Android Lollipop+).
+        // Pre-21 systems fall through to the legacy fallback fonts handling below.
+        SkFontMgr_Android_Parser::GetCustomFontFamilies(
+                fontFamilies, basePath, PRODUCT_CUSTOMIZATION_FILE, nullptr, nullptr);
         return;
     }
 
