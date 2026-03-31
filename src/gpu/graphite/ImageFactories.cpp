@@ -128,6 +128,92 @@ sk_sp<SkImage> WrapTexture(Recorder* recorder,
 
 sk_sp<SkImage> WrapTexture(Recorder* recorder,
                            const BackendTexture& backendTex,
+                           SkAlphaType at,
+                           sk_sp<SkColorSpace> cs,
+                           skgpu::Origin origin,
+                           GenerateMipmapsFromBase genMipmaps,
+                           TextureReleaseProc releaseP,
+                           ReleaseContext releaseC,
+                           std::string_view label) {
+    auto releaseHelper = skgpu::RefCntedCallback::Make(releaseP, releaseC);
+
+    if (!recorder) {
+        return nullptr;
+    }
+
+    const Caps* caps = recorder->priv().caps();
+
+    TextureFormat format = TextureInfoPriv::ViewFormat(backendTex.info());
+    auto [ct, _] = TextureFormatColorTypeInfo(format);
+    // TODO(michaelludwig): Generalize this function for promise images and wrapped surfaces.
+    // The ambiguity for single-channel textures (R) being interpreted at a high-level in Skia as
+    // alpha-only (which impacts effect generation) or just as red data is resolved by looking at
+    // the requested alpha type. If the alpha type is premul/unpremul we assume the texture should
+    // be interpreted as an alpha texture; if it's opaque then it'll be red.
+    if (at == kPremul_SkAlphaType || at == kUnpremul_SkAlphaType) {
+        switch (ct) {
+            case kR8_unorm_SkColorType: ct = kAlpha_8_SkColorType; break;
+            case kR16_unorm_SkColorType: ct = kA16_unorm_SkColorType; break;
+            case kR16_float_SkColorType: ct = kA16_float_SkColorType; break;
+            default: break; // no adjustment
+        }
+    }
+
+    skgpu::Swizzle swizzle = ReadSwizzleForColorType(ct, format);
+    // An unknown alpha type needs to be forced to opaque by a swizzle if the texture format won't
+    // do it for us automatically. Once we force it to opaque, we can report kOpaque for the
+    // higher-level SkImage's alpha type so Skia's logic can benefit from our swizzling.
+    if (at == kUnknown_SkAlphaType) {
+        at = kOpaque_SkAlphaType;
+        if (SkToBool(TextureFormatChannelMask(format) & kAlpha_SkColorChannelFlag) &&
+            swizzle[3] != '1') {
+            swizzle = skgpu::Swizzle::Concat(swizzle, skgpu::Swizzle::RGB1());
+            // Patch `ct` if possible:
+            switch (ct) {
+                case kRGBA_8888_SkColorType:    ct = kRGB_888x_SkColorType; break;
+                case kRGBA_1010102_SkColorType: ct = kRGB_101010x_SkColorType; break;
+                case kBGRA_1010102_SkColorType: ct = kBGR_101010x_SkColorType; break;
+                case kRGBA_F16_SkColorType:     ct = kRGB_F16F16F16x_SkColorType; break;
+                default: break; // no further adjustment
+            }
+        }
+    }
+
+    SkColorInfo info(ct, at, std::move(cs));
+    if (!validate_backend_texture(caps, backendTex, info)) {
+        return nullptr;
+    }
+
+    if (label.empty()) {
+        label = "WrappedImage";
+    }
+
+    sk_sp<Texture> texture =
+            recorder->priv().resourceProvider()->createWrappedTexture(backendTex, label);
+    if (!texture) {
+        SKGPU_LOG_W("Texture creation failed");
+        return nullptr;
+    }
+    texture->setReleaseCallback(std::move(releaseHelper));
+
+    TextureProxyView view(TextureProxy::Wrap(std::move(texture)), swizzle, origin);
+    if (genMipmaps == GenerateMipmapsFromBase::kYes) {
+        if (view.proxy()->mipmapped() == skgpu::Mipmapped::kNo) {
+            SKGPU_LOG_W("Failed SkImage:::WrapTexture because asked to generate mipmaps for "
+                        "nonmipmapped texture");
+            return nullptr;
+        }
+        if (!GenerateMipmaps(recorder, /*drawContext=*/nullptr, view.refProxy())) {
+            SKGPU_LOG_W("Failed SkImage::WrapTexture. Could not generate mipmaps.");
+            return nullptr;
+        }
+    }
+
+    return sk_make_sp<skgpu::graphite::Image>(view, info);
+}
+
+sk_sp<SkImage> WrapTexture(Recorder* recorder,
+                           const BackendTexture& backendTex,
                            SkColorType ct,
                            SkAlphaType at,
                            sk_sp<SkColorSpace> cs,

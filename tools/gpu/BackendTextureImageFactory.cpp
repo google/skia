@@ -103,14 +103,30 @@ sk_sp<SkImage> MakeBackendTextureImage(Recorder* recorder,
         return nullptr;
     }
 
-    return SkImages::WrapTexture(recorder,
-                                 mbet->texture(),
-                                 pixmap.colorType(),
-                                 pixmap.alphaType(),
-                                 pixmap.refColorSpace(),
-                                 origin,
-                                 sk_gpu_test::ManagedGraphiteTexture::ImageReleaseProc,
-                                 mbet->releaseContext());
+    // TODO(b/476410476): The new WrapTexture API that does not take a colortype currently has no
+    // way to be interpreted as gray. This is handled internally in the old WrapTexture call by
+    // choosing an RRR1 swizzle. If we allow wrapping backend textures with swizzles, that will
+    // be sufficient and we can remove the old API. Otherwise we will either remove kGray_8 or
+    // expand the new API to augment the alpha-type with a semantic (red-as-gray, red-as-alpha,
+    // alpha-only, force-opaque, etc.)
+    if (pixmap.colorType() == kGray_8_SkColorType) {
+        return SkImages::WrapTexture(recorder,
+                                     mbet->texture(),
+                                     pixmap.colorType(),
+                                     pixmap.alphaType(),
+                                     pixmap.refColorSpace(),
+                                     origin,
+                                     sk_gpu_test::ManagedGraphiteTexture::ImageReleaseProc,
+                                     mbet->releaseContext());
+    } else {
+        return SkImages::WrapTexture(recorder,
+                                    mbet->texture(),
+                                    pixmap.alphaType(),
+                                    pixmap.refColorSpace(),
+                                    origin,
+                                    sk_gpu_test::ManagedGraphiteTexture::ImageReleaseProc,
+                                    mbet->releaseContext());
+    }
 }
 
 sk_sp<SkImage> MakeBackendTextureImage(Recorder* recorder,

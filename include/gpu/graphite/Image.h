@@ -52,18 +52,56 @@ using GraphitePromiseTextureReleaseProc = void (*)(GraphitePromiseTextureRelease
 /** Creates an SkImage from a GPU texture associated with the recorder. The client is still
     responsible for managing the backend texture's lifetime.
 
-    SkImage is returned if the format of backendTexture is recognized and supported.
-    Recognized formats vary by GPU back-end.
+    SkImage is returned if the format of backendTexture is recognized and supported. Recognized
+    formats vary by GPU back-end.
+
+    The provided `alphaType` determines how the wrapped texture is sampled:
+     - kUnknown_SkAlphaType:  Sampled as RGB1, ignoring any alpha data. G and B are automatically
+                              treated as 0 if the format does not provide them. Single channel
+                              texture formats are interpretd as the "red" SkColorTypes instead of
+                              the "alpha-only" SkColorTypes.
+     - kOpaque_SkAlphaType:   Sampled as RGBA but higher-level logic *assumes* that all A values are
+                              equal to 1. Single channel texture formats are interpeted as "red"
+                              instead of "alpha-only" for disambiguating SkColorTypes.
+     - kPremul_SkAlphaType:   Sampled as RGBA and higher-level logic assumes the RGB values have
+                              been premultiplied with the A value. Single channel texture formats
+                              are interpreted as "alpha-only" color types (e.g. 000A or 000R
+                              swizzles depending on the texture format).
+     - kUnpremul_SkAlphaType: Sampled as RGBA and higher-level logic assumes the RGB values have not
+                              been multiplied with A yet. Single channel texture formats are
+                              interpreted as "alpha-only" color types the same as
+                              kPremul_SkAlphaType.
+
+    The SkColorType of the returned SkImage is selected to best match the bit depth and
+    representation of the texture format of the backend texture. This is not necessarily an exact
+    match since texture formats may have more options than SkColorType. Any mismatch between the
+    format and the SkColorType is handled automatically for read/write operations on the image (the
+    SkColorType represents how the image data will be made available on the CPU).
+
+    If possible, the color type will also take into account the behavior of `alphaType`, such as
+    using kRGB_888x_SkColorType for an RGBA8 texture with kUnknown_SkAlphaType. For single-channel
+    textures with kUnknown|kOpaque_SkAlphaType, the best "red-only" color type is chosen, e.g.
+    kR8_unorm_SkColorType. For single-channel textures with kPremul|kUnpremul_SkAlphaType, the best
+    "alpha-only" color type is chosen, e.g. kAlpha_8_SkColorType. This preserves the semantic
+    behaviors in Skia's high-level shading logic that treats red formats as color data, and
+    automatically colorizes alpha formats based on the paint's color or shader.
+
+    When using such a single-channel texture in a runtime effect, this semantic distinction defines
+    which channel of the float4 shader value has the interesting data (R001 vs 000A). When combining
+    multiple single-channel textures into a multiplaner YUV[A] SkImage, either colortype behaves the
+    same. The most significant distinction occurs when the SkImage is used in
+    SkCanvas::drawImageRect() or combined into a non-runtime SkShader.
 
     @param recorder                The recorder
     @param backendTexture          texture residing on GPU
-    @param colorSpace              This describes the color space of this image's contents, as
-                                   seen after sampling. In general, if the format of the backend
-                                   texture is SRGB, some linear colorSpace should be supplied
-                                   (e.g., SkColorSpace::MakeSRGBLinear()). If the format of the
-                                   backend texture is linear, then the colorSpace should include
-                                   a description of the transfer function as
-                                   well (e.g., SkColorSpace::MakeSRGB()).
+    @param alphaType               The nature of alpha channel data provided in the texture.
+    @param colorSpace              This describes the color space of this image's contents, as seen
+                                   after sampling. In general, if the format of the backend texture
+                                   is SRGB, some linear colorSpace should be supplied (e.g.,
+                                   SkColorSpace::MakeSRGBLinear()). If the format of the backend
+                                   texture is linear, then the colorSpace should include a
+                                   description of the transfer function as well (e.g.,
+                                   SkColorSpace::MakeSRGB()).
     @param origin                  Whether the Texture logically treats the origin as TopLeft or
                                    BottomLeft
     @param generateMipmapsFromBase If kYes then the pixel contents of the textures upper mipmap
@@ -74,6 +112,41 @@ using GraphitePromiseTextureReleaseProc = void (*)(GraphitePromiseTextureRelease
                                    valid.
     @return                        created SkImage, or nullptr
 */
+SK_API sk_sp<SkImage> WrapTexture(skgpu::graphite::Recorder*,
+                                  const skgpu::graphite::BackendTexture&,
+                                  SkAlphaType alphaType,
+                                  sk_sp<SkColorSpace> colorSpace,
+                                  skgpu::Origin origin,
+                                  GenerateMipmapsFromBase genMipmaps,
+                                  TextureReleaseProc = nullptr,
+                                  ReleaseContext = nullptr,
+                                  std::string_view label = {});
+
+SK_API inline sk_sp<SkImage> WrapTexture(skgpu::graphite::Recorder* recorder,
+                                         const skgpu::graphite::BackendTexture& backendTex,
+                                         SkAlphaType alphaType,
+                                         sk_sp<SkColorSpace> colorSpace,
+                                         skgpu::Origin origin,
+                                         TextureReleaseProc releaseP = nullptr,
+                                         ReleaseContext releaseC = nullptr,
+                                         std::string_view label = {}) {
+    return WrapTexture(recorder, backendTex, alphaType, std::move(colorSpace), origin,
+                       GenerateMipmapsFromBase::kNo, releaseP, releaseC, label);
+}
+
+SK_API inline sk_sp<SkImage> WrapTexture(skgpu::graphite::Recorder* recorder,
+                                         const skgpu::graphite::BackendTexture& backendTex,
+                                         SkAlphaType alphaType,
+                                         sk_sp<SkColorSpace> colorSpace,
+                                         TextureReleaseProc releaseP = nullptr,
+                                         ReleaseContext releaseC = nullptr,
+                                         std::string_view label = {}) {
+    return WrapTexture(recorder, backendTex, alphaType, std::move(colorSpace),
+                       skgpu::Origin::kTopLeft, releaseP, releaseC, label);
+}
+
+// DEPRECATED: The WrapTexture calls that take an SkColorType are deprecated. Use the new versions
+// that automatically pick a compatible color type from the texture's format.
 SK_API sk_sp<SkImage> WrapTexture(skgpu::graphite::Recorder*,
                                   const skgpu::graphite::BackendTexture&,
                                   SkColorType colorType,

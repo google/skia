@@ -429,27 +429,47 @@ static void graphite_read_pixels_test_driver(skiatest::Reporter* reporter,
 
             SkAutoPixmapStorage refPixels = make_ref_data(refInfo, forceOpaque);
             // Convert the ref data to our desired src color type.
-            const auto srcInfo = SkImageInfo::Make(kW, kH, srcCT, srcAT, SkColorSpace::MakeSRGB());
-            SkAutoPixmapStorage srcPixels;
-            srcPixels.alloc(srcInfo);
+            auto srcInfo = SkImageInfo::Make(kW, kH, srcCT, srcAT, SkColorSpace::MakeSRGB());
+            SkAutoPixmapStorage srcStorage;
+            srcStorage.alloc(srcInfo);
             {
-                SkPixmap readPixmap = srcPixels;
+                SkPixmap readPixmap = srcStorage;
                 // Spoof the alpha type to kUnpremul so the read will succeed without doing any
                 // conversion (because we made our surface also use kUnpremul).
                 if (srcAT == kUnknown_SkAlphaType) {
-                    readPixmap.reset(srcPixels.info().makeAlphaType(kUnpremul_SkAlphaType),
-                                     srcPixels.addr(),
-                                     srcPixels.rowBytes());
+                    readPixmap.reset(srcStorage.info().makeAlphaType(kUnpremul_SkAlphaType),
+                                     srcStorage.addr(),
+                                     srcStorage.rowBytes());
                 }
                 refPixels.readPixels(readPixmap, 0, 0);
             }
 
             std::unique_ptr<skgpu::graphite::Recorder> recorder = context->makeRecorder();
 
-            auto src = srcFactory(recorder.get(), srcPixels);
+            auto src = srcFactory(recorder.get(), srcStorage);
             if (!src) {
                 continue;
             }
+
+            if (SkColorTypeIsAlphaOnly(srcCT) &&
+                !SkColorTypeIsAlphaOnly(src->imageInfo().colorType())) {
+                // Alpha type changed texture's interpretation to red, so we don't need to regen
+                // the expected source data, we'll just "cast" it to the red version
+                srcInfo = src->imageInfo();
+            } else if (!SkColorTypeIsAlphaOnly(srcCT) &&
+                       SkColorTypeIsAlphaOnly(src->imageInfo().colorType())) {
+                // Mirror of the above, red type to alpha-only based on the alpha type
+                srcInfo = src->imageInfo();
+            } else if (srcAT == kUnknown_SkAlphaType) {
+                // Graphite will be forcing this to opaque on readback, so regenerate the expected
+                // data to be opaque.
+                srcInfo = srcInfo.makeAlphaType(kOpaque_SkAlphaType);
+                srcStorage.alloc(srcInfo);
+                refPixels = make_ref_data(refInfo, /*forceOpaque=*/true);
+                refPixels.readPixels(srcStorage, 0, 0);
+            }
+
+            SkPixmap srcPixels{srcInfo, srcStorage.addr(), srcStorage.rowBytes()};
             if (SkColorTypeIsAlwaysOpaque(srcCT) && srcCTTestedThoroughly[srcCT] &&
                 (kPremul_SkAlphaType == srcAT || kUnpremul_SkAlphaType == srcAT)) {
                 continue;

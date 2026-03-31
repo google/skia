@@ -228,7 +228,6 @@ public:
 
         fMutatingImg = SkImages::WrapTexture(fRecorder,
                                              fBETexture,
-                                             kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType,
                                              /* colorSpace= */ nullptr);
         REPORTER_ASSERT(fReporter, fMutatingImg);

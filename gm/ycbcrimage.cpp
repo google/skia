@@ -91,8 +91,7 @@ protected:
 
         fYCbCrImage = SkImages::WrapTexture(recorder,
                                             ycbcrHelper->backendTexture(),
-                                            kRGB_888x_SkColorType,
-                                            kPremul_SkAlphaType,
+                                            kUnknown_SkAlphaType, // force alpha channel to 1
                                             /*colorSpace=*/nullptr,
                                             release_ycbcrhelper,
                                             ycbcrHelper.get());

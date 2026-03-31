@@ -20,6 +20,7 @@
 #include "include/gpu/vk/VulkanTypes.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
+#include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtils.h"
 
@@ -152,23 +153,159 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageBackendTextureTest, reporter, context,
 
             sk_sp<SkImage> image = SkImages::WrapTexture(recorder.get(),
                                                          texture,
-                                                         kRGBA_8888_SkColorType,
                                                          kPremul_SkAlphaType,
                                                          /*colorSpace=*/nullptr);
             REPORTER_ASSERT(reporter, image);
             REPORTER_ASSERT(reporter, image->hasMipmaps() == (mipmapped == Mipmapped::kYes));
+            REPORTER_ASSERT(reporter, image->colorType() == kRGBA_8888_SkColorType);
+            REPORTER_ASSERT(reporter, image->alphaType() == kPremul_SkAlphaType);
 
             image.reset();
 
-            // We should fail when trying to wrap the same texture in an image with a non-compatible
-            // color type.
+            // We should switch to k888x when possible for forceOpaque
             image = SkImages::WrapTexture(recorder.get(),
                                           texture,
-                                          kAlpha_8_SkColorType,
-                                          kPremul_SkAlphaType,
-                                          /* colorSpace= */ nullptr);
-            REPORTER_ASSERT(reporter, !image);
+                                          kUnknown_SkAlphaType,
+                                          /*colorSpace=*/nullptr);
+            REPORTER_ASSERT(reporter, image);
+            REPORTER_ASSERT(reporter, image->hasMipmaps() == (mipmapped == Mipmapped::kYes));
+            REPORTER_ASSERT(reporter, image->colorType() == kRGB_888x_SkColorType);
+            REPORTER_ASSERT(reporter, image->alphaType() == kOpaque_SkAlphaType);
 
+            image.reset();
+            recorder->deleteBackendTexture(texture);
+
+            // We should still be flagged as opaque and have a A=1 swizzle for color types that
+            // don't have an A->X variant
+            info = caps->getDefaultSampledTextureInfo(kARGB_4444_SkColorType,
+                                                      mipmapped,
+                                                      Protected::kNo,
+                                                      renderable);
+
+            texture = recorder->createBackendTexture(kSize, info);
+            // 4444 is not universally supported however
+            if (texture.isValid()) {
+                image = SkImages::WrapTexture(recorder.get(),
+                                              texture,
+                                              kUnknown_SkAlphaType,
+                                              /*colorSpace=*/nullptr);
+                REPORTER_ASSERT(reporter, image);
+                REPORTER_ASSERT(reporter, image->hasMipmaps() == (mipmapped == Mipmapped::kYes));
+                REPORTER_ASSERT(reporter, image->colorType() == kARGB_4444_SkColorType);
+                REPORTER_ASSERT(reporter, image->alphaType() == kOpaque_SkAlphaType);
+
+                Swizzle readSwizzle =
+                        static_cast<Image*>(image.get())->textureProxyView().swizzle();
+                REPORTER_ASSERT(reporter, readSwizzle[3] == '1');
+
+                image.reset();
+                recorder->deleteBackendTexture(texture);
+            }
+
+            // Now test handling of red format ambiguity
+            info = caps->getDefaultSampledTextureInfo(kR8_unorm_SkColorType,
+                                                      mipmapped,
+                                                      Protected::kNo,
+                                                      renderable);
+            texture = recorder->createBackendTexture(kSize, info);
+
+            // Opaque/unknown becomes red + opaque
+            image = SkImages::WrapTexture(recorder.get(),
+                                          texture,
+                                          kOpaque_SkAlphaType,
+                                          /*colorSpace=*/nullptr);
+            REPORTER_ASSERT(reporter, image);
+            REPORTER_ASSERT(reporter, image->hasMipmaps() == (mipmapped == Mipmapped::kYes));
+            REPORTER_ASSERT(reporter, image->colorType() == kR8_unorm_SkColorType);
+            REPORTER_ASSERT(reporter, image->alphaType() == kOpaque_SkAlphaType);
+
+            image = SkImages::WrapTexture(recorder.get(),
+                                          texture,
+                                          kUnknown_SkAlphaType,
+                                          /*colorSpace=*/nullptr);
+            REPORTER_ASSERT(reporter, image);
+            REPORTER_ASSERT(reporter, image->hasMipmaps() == (mipmapped == Mipmapped::kYes));
+            REPORTER_ASSERT(reporter, image->colorType() == kR8_unorm_SkColorType);
+            REPORTER_ASSERT(reporter, image->alphaType() == kOpaque_SkAlphaType);
+
+            // Premul/unpremul becomes alpha-only
+            image = SkImages::WrapTexture(recorder.get(),
+                                          texture,
+                                          kPremul_SkAlphaType,
+                                          /*colorSpace=*/nullptr);
+            REPORTER_ASSERT(reporter, image);
+            REPORTER_ASSERT(reporter, image->hasMipmaps() == (mipmapped == Mipmapped::kYes));
+            REPORTER_ASSERT(reporter, image->colorType() == kAlpha_8_SkColorType);
+            REPORTER_ASSERT(reporter, image->alphaType() == kPremul_SkAlphaType);
+
+            image = SkImages::WrapTexture(recorder.get(),
+                                          texture,
+                                          kUnpremul_SkAlphaType,
+                                          /*colorSpace=*/nullptr);
+            REPORTER_ASSERT(reporter, image);
+            REPORTER_ASSERT(reporter, image->hasMipmaps() == (mipmapped == Mipmapped::kYes));
+            REPORTER_ASSERT(reporter, image->colorType() == kAlpha_8_SkColorType);
+            REPORTER_ASSERT(reporter, image->alphaType() == kUnpremul_SkAlphaType);
+
+            image.reset();
+            recorder->deleteBackendTexture(texture);
+
+            // Test how an A8 texture format behaves, which does not have the red/alpha ambiguity
+            // and stays as an alpha-only colortype regardless of SkAlphaType. A8 is not always
+            // available, so skip it if the TextureInfo selects an R8 texture again.
+            info = caps->getDefaultSampledTextureInfo(kAlpha_8_SkColorType,
+                                                      mipmapped,
+                                                      Protected::kNo,
+                                                      renderable);
+            if (TextureInfoPriv::ViewFormat(info) != TextureFormat::kA8) {
+                // A8 isn't always available and if we picked R8, we'd really just be re-testing
+                // the above scenarios.
+                continue;
+            }
+            texture = recorder->createBackendTexture(kSize, info);
+
+            // Opaque/unknown becomes opaque alpha (not super useful)
+            image = SkImages::WrapTexture(recorder.get(),
+                                          texture,
+                                          kOpaque_SkAlphaType,
+                                          /*colorSpace=*/nullptr);
+            REPORTER_ASSERT(reporter, image);
+            REPORTER_ASSERT(reporter, image->hasMipmaps() == (mipmapped == Mipmapped::kYes));
+            REPORTER_ASSERT(reporter, image->colorType() == kAlpha_8_SkColorType);
+            REPORTER_ASSERT(reporter, image->alphaType() == kOpaque_SkAlphaType);
+
+            image = SkImages::WrapTexture(recorder.get(),
+                                          texture,
+                                          kUnknown_SkAlphaType,
+                                          /*colorSpace=*/nullptr);
+            REPORTER_ASSERT(reporter, image);
+            REPORTER_ASSERT(reporter, image->hasMipmaps() == (mipmapped == Mipmapped::kYes));
+            REPORTER_ASSERT(reporter, image->colorType() == kAlpha_8_SkColorType);
+            REPORTER_ASSERT(reporter, image->alphaType() == kOpaque_SkAlphaType);
+             Swizzle readSwizzle =
+                        static_cast<Image*>(image.get())->textureProxyView().swizzle();
+                REPORTER_ASSERT(reporter, readSwizzle[3] == '1');
+
+            // Premul/unpremul stay alpha-only
+            image = SkImages::WrapTexture(recorder.get(),
+                                          texture,
+                                          kPremul_SkAlphaType,
+                                          /*colorSpace=*/nullptr);
+            REPORTER_ASSERT(reporter, image);
+            REPORTER_ASSERT(reporter, image->hasMipmaps() == (mipmapped == Mipmapped::kYes));
+            REPORTER_ASSERT(reporter, image->colorType() == kAlpha_8_SkColorType);
+            REPORTER_ASSERT(reporter, image->alphaType() == kPremul_SkAlphaType);
+
+            image = SkImages::WrapTexture(recorder.get(),
+                                          texture,
+                                          kUnpremul_SkAlphaType,
+                                          /*colorSpace=*/nullptr);
+            REPORTER_ASSERT(reporter, image);
+            REPORTER_ASSERT(reporter, image->hasMipmaps() == (mipmapped == Mipmapped::kYes));
+            REPORTER_ASSERT(reporter, image->colorType() == kAlpha_8_SkColorType);
+            REPORTER_ASSERT(reporter, image->alphaType() == kUnpremul_SkAlphaType);
+
+            image.reset();
             recorder->deleteBackendTexture(texture);
         }
     }

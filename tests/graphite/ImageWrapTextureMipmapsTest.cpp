@@ -84,7 +84,6 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageWrapTextureMipmapsTest,
 
         auto image = SkImages::WrapTexture(recorder.get(),
                                            mbet->texture(),
-                                           info.colorType(),
                                            info.alphaType(),
                                            info.refColorSpace(),
                                            Origin::kTopLeft,
