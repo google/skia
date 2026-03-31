@@ -272,6 +272,38 @@ DEF_TEST_SCANNERS(FontMgrAndroidParser, reporter) {
     }
 }
 
+DEF_TEST_SCANNERS(FontMgrAndroidParserFamilyList, reporter) {
+    bool resourcesMissing = false;
+    std::vector<std::unique_ptr<FontFamily>> families;
+    SkFontMgr_Android_Parser::GetCustomFontFamilies(
+            families,
+            SkString("/custom/font/path/"),
+            GetResourcePath("android_fonts/family_list/fonts_family_list.xml").c_str(),
+            nullptr);
+
+    if (families.size() > 0) {
+        REPORTER_ASSERT(reporter, families.size() == 2);
+
+        REPORTER_ASSERT(reporter, families[0]->fNames.size() == 1);
+        REPORTER_ASSERT(reporter, families[0]->fNames[0].equals("list-family"));
+        REPORTER_ASSERT(reporter, families[0]->fFonts.size() == 1);
+        REPORTER_ASSERT(reporter, families[0]->fFonts[0].fFileName.equals("ListFont.ttf"));
+        REPORTER_ASSERT(reporter, !families[0]->fIsFallbackFont);
+
+        REPORTER_ASSERT(reporter, families[1]->fNames.size() == 1);
+        REPORTER_ASSERT(reporter, families[1]->fNames[0].equals("list-family"));
+        REPORTER_ASSERT(reporter, families[1]->fFonts.size() == 1);
+        REPORTER_ASSERT(reporter, families[1]->fFonts[0].fFileName.equals("ListFontFallback.ttf"));
+        REPORTER_ASSERT(reporter, !families[1]->fIsFallbackFont);
+    } else {
+        resourcesMissing = true;
+    }
+
+    if (resourcesMissing) {
+        SkDebugf("---- Resource files missing for FontConfigParser family-list test\n");
+    }
+}
+
 DEF_TEST_SCANNERS(FontMgrAndroidLegacyMakeTypeface, reporter) {
     constexpr char fontsXmlFilename[] = "fonts/fonts.xml";
     SkString basePath = GetResourcePath("fonts/");

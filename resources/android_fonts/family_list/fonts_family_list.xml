@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<familyset version="21">
+    <family-list name="LiSt-FaMiLy">
+        <family>
+            <font weight="400" style="normal">ListFont.ttf</font>
+        </family>
+        <family>
+            <font weight="700" style="italic">ListFontFallback.ttf</font>
+        </family>
+    </family-list>
+</familyset>

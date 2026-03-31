@@ -118,6 +118,8 @@ struct FamilyData {
     const bool fIsFallback;                     // The file being parsed is a fallback file
     const char* fFilename;                      // The name of the file currently being parsed.
 
+    SkString fCurrentFamilyList;                // Name from family-list tag
+
     int fDepth;                                 // The current element depth of the parse.
     int fSkip;                                  // The depth to stop skipping, 0 if not skipping.
     SkTDArray<const TagHandler*> fHandler;      // The stack of current tag handlers.
@@ -297,6 +299,12 @@ static const TagHandler familyHandler = {
         // If there is no name, this is a fallback only font.
         FontFamily* family = new FontFamily(self->fBasePath, true);
         self->fCurrentFamily.reset(family);
+
+        if (!self->fCurrentFamilyList.isEmpty()) {
+            family->fNames.push_back().set(self->fCurrentFamilyList);
+            family->fIsFallbackFont = false;
+        }
+
         for (size_t i = 0; ATTS_NON_NULL(attributes, i); i += 2) {
             const char* name = attributes[i];
             const char* value = attributes[i+1];
@@ -328,6 +336,30 @@ static const TagHandler familyHandler = {
         return nullptr;
     },
     /*chars*/nullptr,
+};
+
+static const TagHandler familyListHandler = {
+        /*start*/ [](FamilyData* self, const char* tag, const char** attributes) {
+            for (size_t i = 0; ATTS_NON_NULL(attributes, i); i += 2) {
+                const char* name = attributes[i];
+                const char* value = attributes[i + 1];
+                size_t nameLen = strlen(name);
+                if (MEMEQ("name", name, nameLen)) {
+                    SkAutoAsciiToLC tolc(value);
+                    self->fCurrentFamilyList.set(tolc.lc());
+                }
+            }
+        },
+        /*end*/ [](FamilyData* self, const char* tag) { self->fCurrentFamilyList.reset(); },
+        /*tag*/
+        [](FamilyData* self, const char* tag, const char** attributes) -> const TagHandler* {
+            size_t len = strlen(tag);
+            if (MEMEQ("family", tag, len)) {
+                return &familyHandler;
+            }
+            return nullptr;
+        },
+        /*chars*/ nullptr,
 };
 
 static FontFamily* find_family(FamilyData* self, const SkString& familyName) {
@@ -403,6 +435,8 @@ static const TagHandler familySetHandler = {
         size_t len = strlen(tag);
         if (MEMEQ("family", tag, len)) {
             return &familyHandler;
+        } else if (MEMEQ("family-list", tag, len)) {
+            return &familyListHandler;
         } else if (MEMEQ("alias", tag, len)) {
             return &aliasHandler;
         }
