@@ -314,19 +314,6 @@ TextureInfo Caps::getDefaultStorageTextureInfo(SkColorType colorType) const {
                                        Discardable::kNo);
 }
 
-const Caps::ColorTypeInfo* Caps::getColorTypeInfo(SkColorType ct, const TextureInfo& info) const {
-    if (!info.isValid()) {
-        return nullptr;
-    }
-
-    for (const ColorTypeInfo& colorInfo : this->getColorTypeInfos(info)) {
-        if (colorInfo.fColorType == ct) {
-            return &colorInfo;
-        }
-    }
-    return nullptr;
-}
-
 SampleCount Caps::getCompatibleMSAASampleCount(const TextureInfo& info) const {
     if (info.sampleCount() > SampleCount::k1) {
         // Use the inherent sample count since it's already MSAA

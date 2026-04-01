@@ -529,11 +529,6 @@ protected:
     bool fSetBackendLabels = false;
 
 private:
-    // TODO(michaelludwig): Remove these functions as Caps takes a more TextureFormat/Usage oriented
-    // approach to textures and color types.
-    const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const;
-    virtual SkSpan<const ColorTypeInfo> getColorTypeInfos(const TextureInfo&) const = 0;
-
     // Validates format support and calls onGetDefaultTextureInfo if it would be valid, returning
     // a TextureInfo for the first format that is supported.
     TextureInfo getDefaultTextureInfo(SkEnumBitMask<TextureUsage> usage,

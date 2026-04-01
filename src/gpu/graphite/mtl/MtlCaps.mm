@@ -898,16 +898,6 @@ skgpu::UniqueKey::Domain get_domain() {
 
 }
 
-SkSpan<const Caps::ColorTypeInfo> MtlCaps::getColorTypeInfos(const TextureInfo& textureInfo) const {
-    MTLPixelFormat mtlFormat = TextureInfoPriv::Get<MtlTextureInfo>(textureInfo).fFormat;
-    if (mtlFormat == MTLPixelFormatInvalid) {
-        return {};
-    }
-
-    const FormatInfo& formatInfo = this->getFormatInfo(mtlFormat);
-    return {formatInfo.fColorTypeInfos.get(), formatInfo.fColorTypeInfoCount};
-}
-
 static constexpr int kMtlGraphicsPipelineKeyData32Count = 4;
 
 UniqueKey MtlCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipelineDesc,

@@ -178,7 +178,6 @@ private:
                                      VkPhysicalDevice,
                                      const VkPhysicalDeviceProperties&);
 
-    SkSpan<const ColorTypeInfo> getColorTypeInfos(const TextureInfo&) const override;
     TextureInfo onGetDefaultTextureInfo(SkEnumBitMask<TextureUsage> usage,
                                         TextureFormat,
                                         SampleCount,

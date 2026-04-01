@@ -308,17 +308,6 @@ SkISize DawnCaps::getDepthAttachmentDimensions(const TextureInfo& textureInfo,
     return colorAttachmentDimensions;
 }
 
-SkSpan<const Caps::ColorTypeInfo> DawnCaps::getColorTypeInfos(
-        const TextureInfo& textureInfo) const {
-    auto dawnFormat = TextureInfoPriv::Get<DawnTextureInfo>(textureInfo).getViewFormat();
-    if (dawnFormat == wgpu::TextureFormat::Undefined) {
-        return {};
-    }
-
-    const FormatInfo& formatInfo = this->getFormatInfo(dawnFormat);
-    return {formatInfo.fColorTypeInfos.get(), formatInfo.fColorTypeInfoCount};
-}
-
 void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextOptions& options) {
     // GetAdapter() is not available in WASM and there's no way to get AdapterInfo off of
     // the WGPUDevice directly.
