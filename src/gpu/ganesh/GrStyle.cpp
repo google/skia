@@ -18,8 +18,18 @@
 
 int GrStyle::KeySize(const GrStyle &style, Apply apply, uint32_t flags) {
     static_assert(sizeof(uint32_t) == sizeof(SkScalar));
+
+    // We embed the dash interval pattern into the key, and the key size must fit within 16-bits.
+    // However, we put a more conservative upper limit on the dashes because we don't want to keep
+    // key memory locked up in caches during pathological cases.
+    static constexpr int kDashIntervalKeyLimit = 512;
+
     int size = 0;
     if (style.isDashed()) {
+        if (style.dashIntervalCnt() > kDashIntervalKeyLimit) {
+            return -1; // Disable caching for pathologically large dash patterns
+        }
+
         // One scalar for scale, one for dash phase, and one for each dash value.
         size += 2 + style.dashIntervalCnt();
     } else if (style.pathEffect()) {

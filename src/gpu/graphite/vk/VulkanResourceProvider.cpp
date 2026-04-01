@@ -223,7 +223,7 @@ GraphiteResourceKey build_desc_set_key(const SkSpan<DescriptorData>& requestedDe
     }
 
     GraphiteResourceKey key;
-    GraphiteResourceKey::Builder builder(&key, kType, keyData.size());
+    GraphiteResourceKey::Builder builder(&key, kType, SkTo<uint16_t>(keyData.size()));
 
     for (int i = 0; i < keyData.size(); i++) {
         builder[i] = keyData[i];
@@ -570,7 +570,7 @@ sk_sp<VulkanYcbcrConversion> VulkanResourceProvider::findOrCreateCompatibleYcbcr
     GraphiteResourceKey key;
     {
         static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
-        static constexpr int kKeySize = 3;
+        static constexpr uint16_t kKeySize = 3;
 
         GraphiteResourceKey::Builder builder(&key, kType, kKeySize);
         ImmutableSamplerInfo packedInfo = VulkanYcbcrConversion::ToImmutableSamplerInfo(ycbcrInfo);

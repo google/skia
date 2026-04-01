@@ -19,6 +19,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <limits>
 #include <new>
 #include <utility>
 
@@ -77,14 +78,10 @@ public:
         }
 
     protected:
-        Builder(ResourceKey* key, uint32_t domain, int data32Count) : fKey(key) {
-            size_t count = SkToSizeT(data32Count);
+        Builder(ResourceKey* key, uint16_t domain, uint16_t data32Count) : fKey(key) {
             SkASSERT(domain != kInvalidDomain);
-            key->fKey.reset(kMetaDataCnt + count);
-            size_t size = (count + kMetaDataCnt) * sizeof(uint32_t);
-            SkASSERT(SkToU16(size) == size);
-            SkASSERT(SkToU16(domain) == domain);
-            key->fKey[kDomainAndSize_MetaDataIdx] = SkToU32(domain | (size << 16));
+            key->fKey.reset(kMetaDataCnt + data32Count);
+            key->fKey[kDomainAndSize_MetaDataIdx] = domain | (data32Count << 16);
         }
 
     private:
@@ -92,7 +89,7 @@ public:
     };
 
 protected:
-    static const uint32_t kInvalidDomain = 0;
+    static const uint16_t kInvalidDomain = 0;
 
     ResourceKey() { this->reset(); }
 
@@ -118,10 +115,10 @@ protected:
         return *this;
     }
 
-    uint32_t domain() const { return fKey[kDomainAndSize_MetaDataIdx] & 0xffff; }
+    uint16_t domain() const { return fKey[kDomainAndSize_MetaDataIdx] & 0xffff; }
 
     /** size of the key data, excluding meta-data (hash, domain, etc).  */
-    size_t dataSize() const { return this->size() - 4 * kMetaDataCnt; }
+    size_t dataSize() const { return (fKey[kDomainAndSize_MetaDataIdx] >> 16) * sizeof(uint32_t); }
 
     /** ptr to the key data, excluding meta-data (hash, domain, etc).  */
     const uint32_t* data() const {
@@ -149,14 +146,17 @@ protected:
 private:
     enum MetaDataIdx {
         kHash_MetaDataIdx,
-        // The key domain and size are packed into a single uint32_t.
+        // The key domain and size are packed into a single uint32_t. The stored size is in units
+        // of uint32_t and does not include the metadata, i.e. it stores the data32Count provided
+        // to the original key builder.
         kDomainAndSize_MetaDataIdx,
 
         kLastMetaDataIdx = kDomainAndSize_MetaDataIdx
     };
     static const uint32_t kMetaDataCnt = kLastMetaDataIdx + 1;
 
-    size_t internalSize() const { return fKey[kDomainAndSize_MetaDataIdx] >> 16; }
+    // Total size in bytes, including metadata
+    size_t internalSize() const { return this->dataSize() + sizeof(uint32_t) * kMetaDataCnt; }
 
     void validate() const {
         SkASSERT(this->isValid());
@@ -197,7 +197,7 @@ private:
 class ScratchKey : public ResourceKey {
 public:
     /** Uniquely identifies the type of resource that is cached as scratch. */
-    typedef uint32_t ResourceType;
+    typedef uint16_t ResourceType;
 
     /** Generate a unique ResourceType. */
     static ResourceType GenerateResourceType();
@@ -219,7 +219,7 @@ public:
 
     class Builder : public ResourceKey::Builder {
     public:
-        Builder(ScratchKey* key, ResourceType type, int data32Count)
+        Builder(ScratchKey* key, ResourceType type, uint16_t data32Count)
                 : ResourceKey::Builder(key, type, data32Count) {}
     };
 };
@@ -240,7 +240,7 @@ public:
  */
 class UniqueKey : public ResourceKey {
 public:
-    typedef uint32_t Domain;
+    typedef uint16_t Domain;
     /** Generate a Domain for unique keys. */
     static Domain GenerateDomain();
 
@@ -279,17 +279,17 @@ public:
 
     class Builder : public ResourceKey::Builder {
     public:
-        Builder(UniqueKey* key, Domain type, int data32Count, const char* tag = nullptr)
+        Builder(UniqueKey* key, Domain type, uint16_t data32Count, const char* tag = nullptr)
                 : ResourceKey::Builder(key, type, data32Count) {
             key->fTag = tag;
         }
 
         /** Used to build a key that wraps another key and adds additional data. */
-        Builder(UniqueKey* key, const UniqueKey& innerKey, Domain domain, int extraData32Cnt,
+        Builder(UniqueKey* key, const UniqueKey& innerKey, Domain domain, uint16_t extraData32Cnt,
                 const char* tag = nullptr)
                 : ResourceKey::Builder(key,
                                        domain,
-                                       Data32CntForInnerKey(innerKey) + extraData32Cnt) {
+                                       Data32CntForInnerKey(innerKey, extraData32Cnt)) {
             SkASSERT(&innerKey != key);
             // add the inner key to the end of the key so that op[] can be indexed normally.
             uint32_t* innerKeyData = &this->operator[](extraData32Cnt);
@@ -300,9 +300,15 @@ public:
         }
 
     private:
-        static int Data32CntForInnerKey(const UniqueKey& innerKey) {
-            // key data + domain
-            return SkToInt((innerKey.dataSize() >> 2) + 1);
+        static uint16_t Data32CntForInnerKey(const UniqueKey& innerKey, uint16_t extraData32Cnt) {
+            // key data + domain + extraData32Cnt needs to fit into a uint16_t. This key builder is
+            // only used in Ganesh for wrapping textures
+            uint16_t innerData32Cnt = innerKey.dataSize() >> 2;
+            // The Builder API doesn't have a way to return a failure, so if this is somehow
+            // exceeded, then we have no way to recover.
+            SkASSERT_RELEASE((uint32_t) extraData32Cnt + (uint32_t) innerData32Cnt + 1 <=
+                             (uint32_t) std::numeric_limits<uint16_t>::max());
+            return innerData32Cnt + extraData32Cnt + 1;
         }
     };
 

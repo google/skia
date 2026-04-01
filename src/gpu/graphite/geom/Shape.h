@@ -184,7 +184,7 @@ public:
     /**
      * Gets the size of the key for the shape represented by this Shape.
      */
-    int keySize() const;
+    uint16_t keySize() const;
 
     /**
      * Writes keySize() bytes into the provided pointer. Assumes that there is enough

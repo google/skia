@@ -140,7 +140,7 @@ skgpu::UniqueKey GeneratePathMaskKey(const Shape& shape,
     skgpu::UniqueKey maskKey;
     {
         static const skgpu::UniqueKey::Domain kDomain = skgpu::UniqueKey::GenerateDomain();
-        int styleKeySize = 7;
+        uint16_t styleKeySize = 7;
         if (!strokeRec.isHairlineStyle() && !strokeRec.isFillStyle()) {
             // Add space for width and miter if needed
             styleKeySize += 2;
@@ -185,66 +185,56 @@ skgpu::UniqueKey GenerateClipMaskKey(uint32_t stackRecordID,
     skgpu::UniqueKey maskKey;
     // if the element list is too large we just use the stackRecordID
     if (elementsForMask->size() <= kMaxShapeCountForKey) {
-        constexpr int kXformKeySize = 5;
-        int keySize = 0;
-        bool canCreateKey = true;
-        // Iterate through to get key size and see if we can create a key at all
+        static constexpr int kXformKeySize = 5;
+        uint16_t keySize = includeBounds ? 2 : 0;
+        // Iterate through to get key size; given kMaxShapeCountForKey and Shape's own key size
+        // limitations, this should always fit safely within a 16-bit number
         for (int i = 0; i < elementsForMask->size(); ++i) {
-            int shapeKeySize = (*elementsForMask)[i]->fShape.keySize();
-            if (shapeKeySize < 0) {
-                canCreateKey = false;
-                break;
-            }
-            keySize += kXformKeySize + shapeKeySize;
+            keySize += kXformKeySize + (*elementsForMask)[i]->fShape.keySize();
         }
-        if (canCreateKey) {
-            if (includeBounds) {
-                keySize += 2;
-            }
-            skgpu::UniqueKey::Builder builder(&maskKey, kDomain, keySize,
-                                              "Clip Path Mask");
-            int elementKeyIndex = 0;
-            Rect unclippedBounds = Rect::InfiniteInverted();
-            for (int i = 0; i < elementsForMask->size(); ++i) {
-                const ClipStack::Element* element = (*elementsForMask)[i];
 
-                // Add transform key and get packed fractional translation bits
-                uint32_t fracBits = add_transform_key(&builder,
-                                                      elementKeyIndex,
-                                                      element->fLocalToDevice);
-                uint32_t opBits = static_cast<uint32_t>(element->fOp);
-                builder[elementKeyIndex + 4] = fracBits | (opBits << 16);
+        skgpu::UniqueKey::Builder builder(&maskKey, kDomain, keySize, "Clip Path Mask");
+        int elementKeyIndex = 0;
+        Rect unclippedBounds = Rect::InfiniteInverted();
+        for (int i = 0; i < elementsForMask->size(); ++i) {
+            const ClipStack::Element* element = (*elementsForMask)[i];
 
-                const Shape& shape = element->fShape;
-                shape.writeKey(&builder[elementKeyIndex + kXformKeySize],
-                               /*includeInverted=*/true);
+            // Add transform key and get packed fractional translation bits
+            uint32_t fracBits = add_transform_key(&builder,
+                                                    elementKeyIndex,
+                                                    element->fLocalToDevice);
+            uint32_t opBits = static_cast<uint32_t>(element->fOp);
+            builder[elementKeyIndex + 4] = fracBits | (opBits << 16);
 
-                elementKeyIndex += kXformKeySize + shape.keySize();
+            const Shape& shape = element->fShape;
+            shape.writeKey(&builder[elementKeyIndex + kXformKeySize],
+                            /*includeInverted=*/true);
 
-                Rect transformedBounds = element->fLocalToDevice.mapRect(element->fShape.bounds());
-                unclippedBounds.join(transformedBounds);
-            }
+            elementKeyIndex += kXformKeySize + shape.keySize();
 
-            // The keyBounds are the maskDeviceBounds relative to the full transformed mask. We use
-            // this to ensure we capture the situation where the maskDeviceBounds are equal in two
-            // cases but actually enclose different regions of the full mask due to an integer
-            // translation (which is not captured in the key) in the element transforms.
-            *keyBounds = maskDeviceBounds.makeOffset(-unclippedBounds.left(),
-                                                     -unclippedBounds.top());
-
-            if (includeBounds) {
-                SkASSERT(SkTFitsIn<int16_t>(keyBounds->left()));
-                SkASSERT(SkTFitsIn<int16_t>(keyBounds->top()));
-                SkASSERT(SkTFitsIn<int16_t>(keyBounds->right()));
-                SkASSERT(SkTFitsIn<int16_t>(keyBounds->bottom()));
-
-                builder[elementKeyIndex] = keyBounds->left() | (keyBounds->top() << 16);
-                builder[elementKeyIndex+1] = keyBounds->right() | (keyBounds->bottom() << 16);
-            }
-
-            *usesPathKey = true;
-            return maskKey;
+            Rect transformedBounds = element->fLocalToDevice.mapRect(element->fShape.bounds());
+            unclippedBounds.join(transformedBounds);
         }
+
+        // The keyBounds are the maskDeviceBounds relative to the full transformed mask. We use
+        // this to ensure we capture the situation where the maskDeviceBounds are equal in two
+        // cases but actually enclose different regions of the full mask due to an integer
+        // translation (which is not captured in the key) in the element transforms.
+        *keyBounds = maskDeviceBounds.makeOffset(-unclippedBounds.left(),
+                                                    -unclippedBounds.top());
+
+        if (includeBounds) {
+            SkASSERT(SkTFitsIn<int16_t>(keyBounds->left()));
+            SkASSERT(SkTFitsIn<int16_t>(keyBounds->top()));
+            SkASSERT(SkTFitsIn<int16_t>(keyBounds->right()));
+            SkASSERT(SkTFitsIn<int16_t>(keyBounds->bottom()));
+
+            builder[elementKeyIndex] = keyBounds->left() | (keyBounds->top() << 16);
+            builder[elementKeyIndex+1] = keyBounds->right() | (keyBounds->bottom() << 16);
+        }
+
+        *usesPathKey = true;
+        return maskKey;
     }
 
     // Either we have too many elements or at least one shape can't create a key

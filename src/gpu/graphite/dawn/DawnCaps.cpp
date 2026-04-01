@@ -1054,7 +1054,7 @@ uint32_t DawnCaps::getRenderPassDescKeyForPipeline(const RenderPassDesc& renderP
            loadResolveAttachmentKey;
 }
 
-static constexpr int kDawnGraphicsPipelineKeyData32Count = 4;
+static constexpr uint16_t kDawnGraphicsPipelineKeyData32Count = 4;
 
 UniqueKey DawnCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipelineDesc,
                                             const RenderPassDesc& renderPassDesc) const {
@@ -1272,7 +1272,7 @@ void DawnCaps::buildKeyForTexture(SkISize dimensions,
     SkASSERT(static_cast<uint32_t>(dawnInfo.fUsage) < (1u << 28)); // usage is remaining 28 bits
 
     // We need two uint32_ts for dimensions, 1 for format, and 1 for the rest of the key;
-    int num32DataCnt = 2 + 1 + 1;
+    uint16_t num32DataCnt = 2 + 1 + 1;
     bool hasYcbcrInfo = false;
 #if !defined(__EMSCRIPTEN__)
     // If we are using ycbcr texture/sampling, more key information is needed.

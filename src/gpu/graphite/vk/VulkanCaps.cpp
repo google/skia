@@ -1961,7 +1961,7 @@ const VulkanCaps::DepthStencilFormatInfo& VulkanCaps::getDepthStencilFormatInfo(
 
 // 4 uint32s for the render step id, paint id, compatible render pass description, and write
 // swizzle.
-static constexpr int kPipelineKeyData32Count = 4;
+static constexpr uint16_t kPipelineKeyData32Count = 4;
 
 static constexpr int kPipelineKeyRenderStepIDIndex = 0;
 static constexpr int kPipelineKeyPaintParamsIDIndex = 1;
@@ -2047,15 +2047,15 @@ void VulkanCaps::buildKeyForTexture(SkISize dimensions,
     SkASSERT(vkInfo.fAspectMask                 < (1u << 11)); // aspectMask is bits 8 - 19
 
     // We need two uint32_ts for dimensions and 3 for miscellaneous information.
-    static constexpr int kNum32DimensionDataCnt = 2;
-    static constexpr int kNum32MiscDataCnt = 3;
+    static constexpr uint16_t kNum32DimensionDataCnt = 2;
+    static constexpr uint16_t kNum32MiscDataCnt = 3;
     // Non-YCbCr formats need 1 int for format.
     // YCbCr conversion needs 1 int for non-format flags, and a 64-bit format (external or regular).
-    static constexpr int kNum32FormatDataCntNoYcbcr = 1;
-    static constexpr int kNum32FormatDataCntYcbcr = 3;
+    static constexpr uint16_t kNum32FormatDataCntNoYcbcr = 1;
+    static constexpr uint16_t kNum32FormatDataCntYcbcr = 3;
 
     const VulkanYcbcrConversionInfo& ycbcrInfo = vkInfo.fYcbcrConversionInfo;
-    const int num32DataCnt =
+    const uint16_t num32DataCnt =
             kNum32DimensionDataCnt + kNum32MiscDataCnt +
             (ycbcrInfo.isValid() ? kNum32FormatDataCntYcbcr : kNum32FormatDataCntNoYcbcr);
 

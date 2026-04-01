@@ -252,11 +252,11 @@ public:
 
     /**
      * Gets the size of the key for the shape represented by this GrStyledShape (ignoring its
-     * styling). A negative value is returned if the shape has no key (shouldn't be cached).
+     * styling). A zero value is returned if the shape has no key (shouldn't be cached).
      */
-    int unstyledKeySize() const;
+    uint16_t unstyledKeySize() const;
 
-    bool hasUnstyledKey() const { return this->unstyledKeySize() >= 0; }
+    bool hasUnstyledKey() const { return this->unstyledKeySize() > 0; }
 
     /**
      * Writes unstyledKeySize() bytes into the provided pointer. Assumes that there is enough

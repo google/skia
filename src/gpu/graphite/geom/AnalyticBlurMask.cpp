@@ -375,7 +375,7 @@ std::optional<AnalyticBlurMask> AnalyticBlurMask::MakeRRect(Recorder* recorder,
     static const UniqueKey::Domain kRRectBlurDomain = UniqueKey::GenerateDomain();
     UniqueKey key;
     {
-        static constexpr int kKeySize = sizeof(DerivedParams) / sizeof(uint32_t);
+        static constexpr uint16_t kKeySize = sizeof(DerivedParams) / sizeof(uint32_t);
         static_assert(SkIsAlign4(sizeof(DerivedParams)));
         // TODO: We should discretize the sigma to perceptibly meaningful changes to the table,
         // as well as the underlying the round rect geometry.

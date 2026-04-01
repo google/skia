@@ -165,7 +165,7 @@ sk_sp<Sampler> ResourceProvider::findOrCreateCompatibleSampler(const SamplerDesc
         // immutable sampler details into the SamplerDesc, so there is no need to delegate to Caps
         // to create a specific key.
         const SkSpan<const uint32_t>& samplerData = samplerDesc.asSpan();
-        GraphiteResourceKey::Builder builder(&key, kType, samplerData.size());
+        GraphiteResourceKey::Builder builder(&key, kType, SkTo<uint16_t>(samplerData.size()));
 
         for (size_t i = 0; i < samplerData.size(); i++) {
             builder[i] = samplerData[i];
@@ -219,8 +219,8 @@ sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(
         // For the key we need ((sizeof(size_t) + (sizeof(uint32_t) - 1)) / (sizeof(uint32_t))
         // uint32_t's for the size and one uint32_t for the rest.
         static_assert(sizeof(uint32_t) == 4);
-        static const int kSizeKeyNum32DataCnt = (sizeof(size_t) + 3) / 4;
-        static const int kKeyNum32DataCnt =  kSizeKeyNum32DataCnt + 1;
+        static const uint16_t kSizeKeyNum32DataCnt = (sizeof(size_t) + 3) / 4;
+        static const uint16_t kKeyNum32DataCnt =  kSizeKeyNum32DataCnt + 1;
 
         SkASSERT(static_cast<uint32_t>(type) < (1u << 4));
         SkASSERT(static_cast<uint32_t>(accessPattern) < (1u << 2));
