@@ -953,7 +953,7 @@ const Caps::ColorTypeInfo* MtlCaps::getColorTypeInfo(
     return nullptr;
 }
 
-static constexpr int kMtlGraphicsPipelineKeyData32Count = 4;
+static constexpr uint16_t kMtlGraphicsPipelineKeyData32Count = 4;
 
 UniqueKey MtlCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipelineDesc,
                                            const RenderPassDesc& renderPassDesc) const {
@@ -1241,7 +1241,7 @@ void MtlCaps::buildKeyForTexture(SkISize dimensions,
     SkASSERT(static_cast<uint32_t>(isFBOnly)    < (1u << 1));
 
     // We need two uint32_ts for dimensions, 2 for format, and 1 for the rest of the key;
-    static int kNum32DataCnt = 2 + 2 + 1;
+    static uint16_t kNum32DataCnt = 2 + 2 + 1;
 
     GraphiteResourceKey::Builder builder(key, type, kNum32DataCnt);
 
