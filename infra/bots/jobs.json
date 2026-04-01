@@ -457,6 +457,9 @@
     "name": "Build-Ubuntu24.04-Clang-x86_64-Debug-ICU4X"
   },
   {
+    "name": "Build-Ubuntu24.04-Clang-x86_64-Debug-RustALL"
+  },
+  {
     "name": "Build-Ubuntu24.04-Clang-x86_64-Debug-RustPNG"
   },
   {
@@ -1932,8 +1935,11 @@
     "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-OldestSupportedSkpVersion"
   },
   {
-    "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-RustPNG",
+    "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-RustALL",
     "cq_config": {}
+  },
+  {
+    "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-RustPNG"
   },
   {
     "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"

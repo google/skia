@@ -233,6 +233,14 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
     # TODO(b/356875275) set skia_use_libpng_encode to false also
   if 'RustBMP' in extra_tokens:
     args['skia_use_rust_bmp_decode'] = 'true'
+  if 'RustALL' in extra_tokens:
+    args['skia_use_rust_bmp_decode'] = 'true'
+    args['skia_use_rust_exif'] = 'true'
+    args['skia_use_rust_icc'] = 'true'
+    args['skia_use_rust_png_decode'] = 'true'
+    args['skia_use_rust_png_encode'] = 'true'
+    args['skia_use_libpng_decode'] = 'false'
+    # TODO(b/356875275) set skia_use_libpng_encode to false also
   if 'FreeType' in extra_tokens:
     args['skia_use_freetype'] = 'true'
     args['skia_use_system_freetype2'] = 'false'

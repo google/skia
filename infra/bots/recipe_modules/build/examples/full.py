@@ -60,6 +60,7 @@ TEST_BUILDERS = [
   'Build-Debian10-Clang-x86_64-Release-CMake',
   'Build-Debian10-Clang-x86_64-Release-Fast',
   'Build-Debian10-Clang-x86_64-Release-NoDEPS',
+  'Build-Debian10-Clang-x86_64-Release-RustALL',
   'Build-Debian10-Clang-x86_64-Release-RustBMP',
   'Build-Debian10-Clang-x86_64-Release-RustPNG',
   'Build-Debian10-Clang-x86_64-Release-SK_USE_PADDED_BLUR_UPSCALE',

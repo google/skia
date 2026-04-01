@@ -1711,6 +1711,17 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 		}
 	}
 
+	if b.MatchExtraConfig("RustALL") {
+		skipped = []string{}
+		match = []string{
+			"RustBmpCodec",
+			"RustEncodePng",
+			"RustExif",
+			"RustIcc",
+			"RustPngCodec",
+		}
+	}
+
 	if len(skipped) > 0 {
 		args = append(args, "--skip")
 		args = append(args, skipped...)
