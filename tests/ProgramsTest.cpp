@@ -22,11 +22,11 @@
 #include "include/gpu/ganesh/gl/GrGLTypes.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkAutoLocaleSetter.h"
 #include "src/base/SkRandom.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/Swizzle.h"
-#include "src/gpu/ganesh/GrAutoLocaleSetter.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrDrawOpTest.h"
@@ -449,9 +449,9 @@ DEF_GANESH_TEST(Programs, reporter, options, CtsEnforcement::kNever) {
     // Set a locale that would cause shader compilation to fail because of , as decimal separator.
     // skbug.com/40034453
 #ifdef SK_BUILD_FOR_WIN
-    GrAutoLocaleSetter als("sv-SE");
+    SkAutoLocaleSetter als("sv-SE");
 #else
-    GrAutoLocaleSetter als("sv_SE.UTF-8");
+    SkAutoLocaleSetter als("sv_SE.UTF-8");
 #endif
 
     // We suppress prints to avoid spew

@@ -11,10 +11,10 @@
 
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/d3d/GrD3DTypes.h"
+#include "src/base/SkAutoLocaleSetter.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/SkSLToBackend.h"
-#include "src/gpu/ganesh/GrAutoLocaleSetter.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrPersistentCacheUtils.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
@@ -40,7 +40,7 @@ std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::MakePipelineState
         const GrProgramDesc& desc,
         const GrProgramInfo& programInfo) {
     // ensure that we use "." as a decimal separator when creating SkSL code
-    GrAutoLocaleSetter als("C");
+    SkAutoLocaleSetter als("C");
 
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc

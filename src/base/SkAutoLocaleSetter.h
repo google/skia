@@ -1,18 +1,18 @@
 /*
- * Copyright 2015 Google Inc.
+ * Copyright 2015 Google LLC
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#ifndef GrAutoLocaleSetter_DEFINED
-#define GrAutoLocaleSetter_DEFINED
+#ifndef SkAutoLocaleSetter_DEFINED
+#define SkAutoLocaleSetter_DEFINED
 
-#include "include/core/SkTypes.h"
 #include "include/private/base/SkNoncopyable.h"
 
 #if defined(SK_BUILD_FOR_WIN)
-#include "include/core/SkString.h"
+#include <optional>
+#include <string>
 #endif
 
 #if !defined(SK_BUILD_FOR_ANDROID)
@@ -37,17 +37,14 @@
  * Helper class for ensuring that we don't use the wrong locale when building shaders. Android
  * doesn't support locale in the NDK, so this is a no-op there.
  */
-class GrAutoLocaleSetter : public SkNoncopyable {
+class SkAutoLocaleSetter : public SkNoncopyable {
 public:
-    GrAutoLocaleSetter (const char* name) {
+    SkAutoLocaleSetter (const char* name) {
 #if defined(SK_BUILD_FOR_WIN)
         fOldPerThreadLocale = _configthreadlocale(_ENABLE_PER_THREAD_LOCALE);
         char* oldLocale = setlocale(LC_ALL, name);
         if (oldLocale) {
-            fOldLocale = oldLocale;
-            fShouldRestoreLocale = true;
-        } else {
-            fShouldRestoreLocale = false;
+            fOldLocale.emplace(oldLocale);
         }
 #elif HAVE_LOCALE_T
 #if HAVE_XLOCALE
@@ -67,10 +64,10 @@ public:
 #endif
     }
 
-    ~GrAutoLocaleSetter () {
+    ~SkAutoLocaleSetter () {
 #if defined(SK_BUILD_FOR_WIN)
-        if (fShouldRestoreLocale) {
-            setlocale(LC_ALL, fOldLocale.c_str());
+        if (fOldLocale) {
+            setlocale(LC_ALL, fOldLocale->c_str());
         }
         _configthreadlocale(fOldPerThreadLocale);
 #elif HAVE_LOCALE_T
@@ -84,8 +81,7 @@ public:
 private:
 #if defined(SK_BUILD_FOR_WIN)
     int fOldPerThreadLocale;
-    bool fShouldRestoreLocale;
-    SkString fOldLocale;
+    std::optional<std::string> fOldLocale;
 #elif HAVE_LOCALE_T
     locale_t fOldLocale;
     locale_t fLocale;

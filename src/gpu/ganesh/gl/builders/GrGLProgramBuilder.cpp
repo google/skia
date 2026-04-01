@@ -14,11 +14,11 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkAutoLocaleSetter.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/gpu/ganesh/GrAutoLocaleSetter.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
@@ -65,7 +65,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::CreateProgram(
                                                const GrProgramInfo& programInfo,
                                                const GrGLPrecompiledProgram* precompiledProgram) {
     TRACE_EVENT0_ALWAYS("skia.shaders", "shader_compile");
-    GrAutoLocaleSetter als("C");
+    SkAutoLocaleSetter als("C");
 
     GrGLGpu* glGpu = static_cast<GrGLGpu*>(dContext->priv().getGpu());
 

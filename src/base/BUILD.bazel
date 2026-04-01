@@ -14,6 +14,7 @@ licenses(["notice"])
 PRIVATE_HEADERS = [
     "SkArenaAlloc.h",
     "SkArenaAllocList.h",
+    "SkAutoLocaleSetter.h",
     "SkAutoMalloc.h",
     "SkBase64.h",
     "SkBezierCurves.h",

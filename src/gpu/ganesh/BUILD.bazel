@@ -30,7 +30,6 @@ CORE_FILES = [
     "GrAttachment.h",
     "GrAuditTrail.cpp",
     "GrAuditTrail.h",
-    "GrAutoLocaleSetter.h",
     "GrBackendSemaphore.cpp",
     "GrBackendSemaphorePriv.h",
     "GrBackendSurface.cpp",
