@@ -77,9 +77,7 @@ sk_sp<MtlSampler> MtlSampler::Make(const MtlSharedContext* sharedContext,
     (*desc).lodMaxClamp = FLT_MAX;  // default value according to docs.
     (*desc).maxAnisotropy = 1;      // TODO: if we start using aniso, need to add to key
     (*desc).normalizedCoordinates = true;
-    if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
-        (*desc).compareFunction = MTLCompareFunctionNever;
-    }
+    (*desc).compareFunction = MTLCompareFunctionNever;
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     NSString* tileModeLabels[] = {
         @"Clamp",
@@ -117,4 +115,3 @@ void MtlSampler::freeGpuData() {
 }
 
 } // namespace skgpu::graphite
-

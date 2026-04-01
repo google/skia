@@ -61,15 +61,9 @@ sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedCon
     // Framebuffer fetch is supported in MSL 2.3 in MacOS 11+.
     if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
         options.languageVersion = MTLLanguageVersion2_3;
-
-    // array<> is supported in MSL 2.0 on MacOS 10.13+ and iOS 11+,
-    // and in MSL 1.2 on iOS 10+ (but not MacOS).
-    } else if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-        options.languageVersion = MTLLanguageVersion2_0;
-#if defined(SK_BUILD_FOR_IOS)
-    } else if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, *)) {
-        options.languageVersion = MTLLanguageVersion1_2;
-#endif
+    } else {
+        // Supported by iOS 13, Graphite's minimum iOS version
+        options.languageVersion = MTLLanguageVersion2_2;
     }
 
     NSError* error = nil;
@@ -107,30 +101,12 @@ sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedCon
 MTL_PIXEL_FORMAT(MTLPixelFormatBC1_RGBA_, 130);
 MTL_PIXEL_FORMAT(MTLPixelFormatBC1_RGBA_sRGB_, 131);
 MTL_PIXEL_FORMAT(MTLPixelFormatDepth24Unorm_Stencil8_, 255);
-// Requires Mac 11.0+, while we support 10.15+. All meet Graphite's minimum supported iOS version
-MTL_PIXEL_FORMAT(MTLPixelFormatB5G6R5Unorm_, 40);
-MTL_PIXEL_FORMAT(MTLPixelFormatABGR4Unorm_, 42);
-MTL_PIXEL_FORMAT(MTLPixelFormatBGR10_XR_, 554);
-MTL_PIXEL_FORMAT(MTLPixelFormatBGRA10_XR_, 552);
-MTL_PIXEL_FORMAT(MTLPixelFormatETC2_RGB8_, 180);
-MTL_PIXEL_FORMAT(MTLPixelFormatETC2_RGB8_sRGB_, 181);
 
 #if defined(SK_BUILD_FOR_MAC)
 static_assert(MTLPixelFormatBC1_RGBA_ == MTLPixelFormatBC1_RGBA);
 static_assert(MTLPixelFormatBC1_RGBA_sRGB_ == MTLPixelFormatBC1_RGBA_sRGB);
 static_assert(MTLPixelFormatDepth24Unorm_Stencil8_ == MTLPixelFormatDepth24Unorm_Stencil8);
 #endif
-
-static void validate_mtl_pixelformats() {
-    if (@available(macOS 11.0, iOS 10.0, *)) {
-        SkASSERT(MTLPixelFormatB5G6R5Unorm_ == MTLPixelFormatB5G6R5Unorm);
-        SkASSERT(MTLPixelFormatABGR4Unorm_ == MTLPixelFormatABGR4Unorm);
-        SkASSERT(MTLPixelFormatBGR10_XR_ == MTLPixelFormatBGR10_XR);
-        SkASSERT(MTLPixelFormatBGRA10_XR_ == MTLPixelFormatBGRA10_XR);
-        SkASSERT(MTLPixelFormatETC2_RGB8_ == MTLPixelFormatETC2_RGB8);
-        SkASSERT(MTLPixelFormatETC2_RGB8_sRGB_ == MTLPixelFormatETC2_RGB8_sRGB);
-    }
-}
 
 #define MTL_FORMAT_MAPPING(M) \
     M(TextureFormat::kR8,             MTLPixelFormatR8Unorm)                \
@@ -144,13 +120,13 @@ static void validate_mtl_pixelformats() {
     M(TextureFormat::kRG32F,          MTLPixelFormatRG32Float)              \
     /*TextureFormat::kRGB8,           unsupported */                        \
     /*TextureFormat::kBGR8,           unsupported */                        \
-    M(TextureFormat::kB5_G6_R5,       MTLPixelFormatB5G6R5Unorm_)           \
+    M(TextureFormat::kB5_G6_R5,       MTLPixelFormatB5G6R5Unorm)            \
     /*TextureFormat::kR5_G6_B5,       unsupported */                        \
     /*TextureFormat::kRGB16,          unsupported */                        \
     /*TextureFormat::kRGB16F,         unsupported */                        \
     /*TextureFormat::kRGB32F,         unsupported */                        \
     /*TextureFormat::kRGB8_sRGB,      unsupported */                        \
-    M(TextureFormat::kBGR10_XR,       MTLPixelFormatBGR10_XR_)              \
+    M(TextureFormat::kBGR10_XR,       MTLPixelFormatBGR10_XR)               \
     M(TextureFormat::kRGBA8,          MTLPixelFormatRGBA8Unorm)             \
     M(TextureFormat::kRGBA16,         MTLPixelFormatRGBA16Unorm)            \
     M(TextureFormat::kRGBA16F,        MTLPixelFormatRGBA16Float)            \
@@ -161,11 +137,11 @@ static void validate_mtl_pixelformats() {
     M(TextureFormat::kBGRA8,          MTLPixelFormatBGRA8Unorm)             \
     M(TextureFormat::kBGR10_A2,       MTLPixelFormatBGR10A2Unorm)           \
     M(TextureFormat::kBGRA8_sRGB,     MTLPixelFormatBGRA8Unorm_sRGB)        \
-    M(TextureFormat::kABGR4,          MTLPixelFormatABGR4Unorm_)            \
+    M(TextureFormat::kABGR4,          MTLPixelFormatABGR4Unorm)             \
     /*TextureFormat::kARGB4,          unsupported */                        \
-    M(TextureFormat::kBGRA10x6_XR,    MTLPixelFormatBGRA10_XR_)             \
-    M(TextureFormat::kRGB8_ETC2,      MTLPixelFormatETC2_RGB8_)             \
-    M(TextureFormat::kRGB8_ETC2_sRGB, MTLPixelFormatETC2_RGB8_sRGB_)        \
+    M(TextureFormat::kBGRA10x6_XR,    MTLPixelFormatBGRA10_XR)              \
+    M(TextureFormat::kRGB8_ETC2,      MTLPixelFormatETC2_RGB8)              \
+    M(TextureFormat::kRGB8_ETC2_sRGB, MTLPixelFormatETC2_RGB8_sRGB)         \
     /*TextureFormat::kRGB8_BC1,       unsupported */                        \
     M(TextureFormat::kRGBA8_BC1,      MTLPixelFormatBC1_RGBA_)              \
     M(TextureFormat::kRGBA8_BC1_sRGB, MTLPixelFormatBC1_RGBA_sRGB_)         \
@@ -188,9 +164,6 @@ TextureFormat MTLPixelFormatToTextureFormat(MTLPixelFormat format) {
 #undef M
 }
 MTLPixelFormat TextureFormatToMTLPixelFormat(TextureFormat format) {
-    // Validate constants that can't be statically validated due to @available
-    validate_mtl_pixelformats();
-
 #define M(TF, MTL) case TF: return MTL;
     switch(format) {
         MTL_FORMAT_MAPPING(M)

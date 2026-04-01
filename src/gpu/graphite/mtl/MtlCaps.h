@@ -57,7 +57,6 @@ private:
         kMac,
         kMacIntel,
     };
-    static bool GetGPUFamily(id<MTLDevice>, GPUFamily*, int* group);
 
     TextureInfo onGetDefaultTextureInfo(SkEnumBitMask<TextureUsage> usage,
                                         TextureFormat,

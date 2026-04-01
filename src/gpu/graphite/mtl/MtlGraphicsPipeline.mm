@@ -40,11 +40,7 @@ inline MTLVertexFormat attribute_type_to_mtlformat(VertexAttribType type) {
         case VertexAttribType::kFloat4:
             return MTLVertexFormatFloat4;
         case VertexAttribType::kHalf:
-            if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-                return MTLVertexFormatHalf;
-            } else {
-                return MTLVertexFormatInvalid;
-            }
+            return MTLVertexFormatHalf;
         case VertexAttribType::kHalf2:
             return MTLVertexFormatHalf2;
         case VertexAttribType::kHalf4:
@@ -58,31 +54,19 @@ inline MTLVertexFormat attribute_type_to_mtlformat(VertexAttribType type) {
         case VertexAttribType::kUInt2:
             return MTLVertexFormatUInt2;
         case VertexAttribType::kByte:
-            if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-                return MTLVertexFormatChar;
-            } else {
-                return MTLVertexFormatInvalid;
-            }
+            return MTLVertexFormatChar;
         case VertexAttribType::kByte2:
             return MTLVertexFormatChar2;
         case VertexAttribType::kByte4:
             return MTLVertexFormatChar4;
         case VertexAttribType::kUByte:
-            if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-                return MTLVertexFormatUChar;
-            } else {
-                return MTLVertexFormatInvalid;
-            }
+            return MTLVertexFormatUChar;
         case VertexAttribType::kUByte2:
             return MTLVertexFormatUChar2;
         case VertexAttribType::kUByte4:
             return MTLVertexFormatUChar4;
         case VertexAttribType::kUByte_norm:
-            if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-                return MTLVertexFormatUCharNormalized;
-            } else {
-                return MTLVertexFormatInvalid;
-            }
+            return MTLVertexFormatUCharNormalized;
         case VertexAttribType::kUByte4_norm:
             return MTLVertexFormatUChar4Normalized;
         case VertexAttribType::kShort2:
@@ -98,11 +82,7 @@ inline MTLVertexFormat attribute_type_to_mtlformat(VertexAttribType type) {
         case VertexAttribType::kUInt:
             return MTLVertexFormatUInt;
         case VertexAttribType::kUShort_norm:
-            if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-                return MTLVertexFormatUShortNormalized;
-            } else {
-                return MTLVertexFormatInvalid;
-            }
+            return MTLVertexFormatUShortNormalized;
         case VertexAttribType::kUShort4_norm:
             return MTLVertexFormatUShort4Normalized;
     }
@@ -187,29 +167,13 @@ static MTLBlendFactor blend_coeff_to_mtl_blend(skgpu::BlendCoeff coeff) {
         case skgpu::BlendCoeff::kIConstC:
             return MTLBlendFactorOneMinusBlendColor;
         case skgpu::BlendCoeff::kS2C:
-            if (@available(macOS 10.12, iOS 11.0, tvOS 11.0, *)) {
-                return MTLBlendFactorSource1Color;
-            } else {
-                return MTLBlendFactorZero;
-            }
+            return MTLBlendFactorSource1Color;
         case skgpu::BlendCoeff::kIS2C:
-            if (@available(macOS 10.12, iOS 11.0, tvOS 11.0, *)) {
-                return MTLBlendFactorOneMinusSource1Color;
-            } else {
-                return MTLBlendFactorZero;
-            }
+            return MTLBlendFactorOneMinusSource1Color;
         case skgpu::BlendCoeff::kS2A:
-            if (@available(macOS 10.12, iOS 11.0, tvOS 11.0, *)) {
-                return MTLBlendFactorSource1Alpha;
-            } else {
-                return MTLBlendFactorZero;
-            }
+            return MTLBlendFactorSource1Alpha;
         case skgpu::BlendCoeff::kIS2A:
-            if (@available(macOS 10.12, iOS 11.0, tvOS 11.0, *)) {
-                return MTLBlendFactorOneMinusSource1Alpha;
-            } else {
-                return MTLBlendFactorZero;
-            }
+            return MTLBlendFactorOneMinusSource1Alpha;
         case skgpu::BlendCoeff::kIllegal:
             return MTLBlendFactorZero;
     }

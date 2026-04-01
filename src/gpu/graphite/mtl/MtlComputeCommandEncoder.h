@@ -56,21 +56,17 @@ public:
     void setBuffer(id<MTLBuffer> buffer, NSUInteger offset, NSUInteger index) {
         SkASSERT(buffer != nil);
         SkASSERT(index < kMaxExpectedBuffers);
-        if (@available(macOS 10.11, iOS 8.3, tvOS 9.0, *)) {
-            if (fBuffers[index] == buffer) {
-                this->setBufferOffset(offset, index);
-                return;
-            }
+        if (fBuffers[index] == buffer) {
+            this->setBufferOffset(offset, index);
+            return;
         }
-        if (fBuffers[index] != buffer || fBufferOffsets[index] != offset) {
-            [(*fCommandEncoder) setBuffer:buffer offset:offset atIndex:index];
-            fBuffers[index] = buffer;
-            fBufferOffsets[index] = offset;
-        }
+
+        [(*fCommandEncoder) setBuffer:buffer offset:offset atIndex:index];
+        fBuffers[index] = buffer;
+        fBufferOffsets[index] = offset;
     }
 
-    void setBufferOffset(NSUInteger offset, NSUInteger index)
-            SK_API_AVAILABLE(macos(10.11), ios(8.3), tvos(9.0)) {
+    void setBufferOffset(NSUInteger offset, NSUInteger index) {
         SkASSERT(index < kMaxExpectedBuffers);
         if (fBufferOffsets[index] != offset) {
             [(*fCommandEncoder) setBufferOffset:offset atIndex:index];

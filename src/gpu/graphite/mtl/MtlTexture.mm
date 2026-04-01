@@ -65,11 +65,8 @@ sk_cfp<id<MTLTexture>> MtlTexture::MakeMtlTexture(const MtlSharedContext* shared
 }
 
 static bool has_transient_usage(const TextureInfo& info) {
-    if (@available(macOS 11.0, iOS 10.0, tvOS 10.0, *)) {
-        const auto& mtlInfo = TextureInfoPriv::Get<MtlTextureInfo>(info);
-        return mtlInfo.fStorageMode == MTLStorageModeMemoryless;
-    }
-    return false;
+    const auto& mtlInfo = TextureInfoPriv::Get<MtlTextureInfo>(info);
+    return mtlInfo.fStorageMode == MTLStorageModeMemoryless;
 }
 
 MtlTexture::MtlTexture(const MtlSharedContext* sharedContext,

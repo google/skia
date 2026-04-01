@@ -22,22 +22,20 @@ sk_sp<Buffer> MtlBuffer::Make(const MtlSharedContext* sharedContext,
     }
 
     NSUInteger options = 0;
-    if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
-        if (accessPattern == AccessPattern::kHostVisible) {
+    if (accessPattern == AccessPattern::kHostVisible) {
 #ifdef SK_BUILD_FOR_MAC
-            const MtlCaps& mtlCaps = sharedContext->mtlCaps();
-            if (mtlCaps.isMac()) {
-                options |= MTLResourceStorageModeManaged;
-            } else {
-                SkASSERT(mtlCaps.isApple());
-                options |= MTLResourceStorageModeShared;
-            }
-#else
-            options |= MTLResourceStorageModeShared;
-#endif
+        const MtlCaps& mtlCaps = sharedContext->mtlCaps();
+        if (mtlCaps.isMac()) {
+            options |= MTLResourceStorageModeManaged;
         } else {
-            options |= MTLResourceStorageModePrivate;
+            SkASSERT(mtlCaps.isApple());
+            options |= MTLResourceStorageModeShared;
         }
+#else
+        options |= MTLResourceStorageModeShared;
+#endif
+    } else {
+        options |= MTLResourceStorageModePrivate;
     }
 
     sk_cfp<id<MTLBuffer>> buffer([sharedContext->device() newBufferWithLength:size

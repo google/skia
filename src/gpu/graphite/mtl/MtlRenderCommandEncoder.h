@@ -89,14 +89,12 @@ public:
                                       atIndex:index];
     }
 
-    void setVertexBytes(const void* bytes, NSUInteger length, NSUInteger index)
-            SK_API_AVAILABLE(macos(10.11), ios(8.3), tvos(9.0)) {
+    void setVertexBytes(const void* bytes, NSUInteger length, NSUInteger index) {
         [(*fCommandEncoder) setVertexBytes:bytes
                                     length:length
                                    atIndex:index];
     }
-    void setFragmentBytes(const void* bytes, NSUInteger length, NSUInteger index)
-            SK_API_AVAILABLE(macos(10.11), ios(8.3), tvos(9.0)) {
+    void setFragmentBytes(const void* bytes, NSUInteger length, NSUInteger index) {
         [(*fCommandEncoder) setFragmentBytes:bytes
                                       length:length
                                      atIndex:index];
@@ -157,8 +155,7 @@ public:
     }
     void drawPrimitives(MTLPrimitiveType primitiveType, NSUInteger vertexStart,
                         NSUInteger vertexCount, NSUInteger instanceCount,
-                        NSUInteger baseInstance)
-            SK_API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0)) {
+                        NSUInteger baseInstance) {
         [(*fCommandEncoder) drawPrimitives:primitiveType
                             vertexStart:vertexStart
                             vertexCount:vertexCount
@@ -166,8 +163,7 @@ public:
                            baseInstance:baseInstance];
     }
     void drawPrimitives(MTLPrimitiveType primitiveType, id<MTLBuffer> indirectBuffer,
-                        NSUInteger indirectBufferOffset)
-            SK_API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0)) {
+                        NSUInteger indirectBufferOffset) {
         [(*fCommandEncoder) drawPrimitives:primitiveType
                             indirectBuffer:indirectBuffer
                       indirectBufferOffset:indirectBufferOffset];
@@ -187,8 +183,7 @@ public:
                                NSUInteger indexBufferOffset,
                                NSUInteger instanceCount,
                                NSInteger baseVertex,
-                               NSUInteger baseInstance)
-            SK_API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0)) {
+                               NSUInteger baseInstance) {
         [(*fCommandEncoder) drawIndexedPrimitives:primitiveType
                                     indexCount:indexCount
                                      indexType:indexType
@@ -201,8 +196,7 @@ public:
     void drawIndexedPrimitives(MTLPrimitiveType primitiveType,
                                MTLIndexType indexType, id<MTLBuffer> indexBuffer,
                                NSUInteger indexBufferOffset, id<MTLBuffer> indirectBuffer,
-                               NSUInteger indirectBufferOffset)
-            SK_API_AVAILABLE(macos(10.11), ios(9.0), tvos(9.0)) {
+                               NSUInteger indirectBufferOffset) {
         [(*fCommandEncoder) drawIndexedPrimitives:primitiveType
                                         indexType:indexType
                                       indexBuffer:indexBuffer

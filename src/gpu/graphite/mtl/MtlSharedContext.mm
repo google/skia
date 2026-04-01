@@ -23,14 +23,14 @@ namespace skgpu::graphite {
 
 sk_sp<SharedContext> MtlSharedContext::Make(const MtlBackendContext& context,
                                             const ContextOptions& options) {
-    if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
+    if (@available(macOS 12, iOS 13.0, tvOS 13.0, *)) {
         // no warning needed
     } else {
         SKGPU_LOG_E("Skia's Graphite backend no longer supports this OS version.");
 #ifdef SK_BUILD_FOR_IOS
         SKGPU_LOG_E("Minimum supported version is iOS/tvOS 13.0.");
 #else
-        SKGPU_LOG_E("Minimum supported version is MacOS 10.15.");
+        SKGPU_LOG_E("Minimum supported version is MacOS 12.");
 #endif
         return nullptr;
     }

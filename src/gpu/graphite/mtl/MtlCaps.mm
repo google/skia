@@ -39,90 +39,61 @@ MtlCaps::MtlCaps(const id<MTLDevice> device, const ContextOptions& options)
     this->finishInitialization(options);
 }
 
-bool MtlCaps::GetGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* group) {
-#if SKGPU_GRAPHITE_METAL_SDK_VERSION >= 220
-    if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
-        // Apple Silicon
-#if SKGPU_GRAPHITE_METAL_SDK_VERSION >= 230
-        if ([device supportsFamily:MTLGPUFamilyApple7]) {
-            *gpuFamily = GPUFamily::kApple;
-            *group = 7;
-            return true;
-        }
-#endif
-#ifdef SK_BUILD_FOR_IOS
-        if ([device supportsFamily:MTLGPUFamilyApple6]) {
-            *gpuFamily = GPUFamily::kApple;
-            *group = 6;
-            return true;
-        }
-        if ([device supportsFamily:MTLGPUFamilyApple5]) {
-            *gpuFamily = GPUFamily::kApple;
-            *group = 5;
-            return true;
-        }
-        if ([device supportsFamily:MTLGPUFamilyApple4]) {
-            *gpuFamily = GPUFamily::kApple;
-            *group = 4;
-            return true;
-        }
-        if ([device supportsFamily:MTLGPUFamilyApple3]) {
-            *gpuFamily = GPUFamily::kApple;
-            *group = 3;
-            return true;
-        }
-        if ([device supportsFamily:MTLGPUFamilyApple2]) {
-            *gpuFamily = GPUFamily::kApple;
-            *group = 2;
-            return true;
-        }
-        if ([device supportsFamily:MTLGPUFamilyApple1]) {
-            *gpuFamily = GPUFamily::kApple;
-            *group = 1;
-            return true;
-        }
-#endif
-
-        // Older Macs
-        // MTLGPUFamilyMac1, MTLGPUFamilyMacCatalyst1, and MTLGPUFamilyMacCatalyst2 are deprecated.
-        // However, some MTLGPUFamilyMac1 only hardware is still supported.
-        // MacCatalyst families have the same features as Mac, so treat them the same
-        //
-        // Check if an Intel GPU is present; allow targeting issues specific to that hardware.
-        bool isIntel = [device.name containsString:@"Intel"];
-        if ([device supportsFamily:MTLGPUFamilyMac2] ||
-            [device supportsFamily:(MTLGPUFamily)4002/*MTLGPUFamilyMacCatalyst2*/]) {
-            *gpuFamily = isIntel ? GPUFamily::kMacIntel : GPUFamily::kMac;
-            *group = 2;
-            return true;
-        }
-        if ([device supportsFamily:(MTLGPUFamily)2001/*MTLGPUFamilyMac1*/] ||
-            [device supportsFamily:(MTLGPUFamily)4001/*MTLGPUFamilyMacCatalyst1*/]) {
-            *gpuFamily = isIntel ? GPUFamily::kMacIntel : GPUFamily::kMac;
-            *group = 1;
-            return true;
-        }
-    }
-#endif
-
-    // No supported GPU families were found
-    return false;
-}
-
 void MtlCaps::initGPUFamily(id<MTLDevice> device) {
-    if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
-        if (GetGPUFamily(device, &fGPUFamily, &fFamilyGroup)) {
-            return;
-        }
+    static_assert(SKGPU_GRAPHITE_METAL_SDK_VERSION >= 230);
+
+    // Apple Silicon
+    if ([device supportsFamily:MTLGPUFamilyApple7]) {
+        fGPUFamily = GPUFamily::kApple;
+        fFamilyGroup = 7;
+        return;
+    }
+#ifdef SK_BUILD_FOR_IOS
+    if ([device supportsFamily:MTLGPUFamilyApple6]) {
+        fGPUFamily = GPUFamily::kApple;
+        fFamilyGroup = 6;
+        return;
+    }
+    if ([device supportsFamily:MTLGPUFamilyApple5]) {
+        fGPUFamily = GPUFamily::kApple;
+        fFamilyGroup = 5;
+        return;
+    }
+    if ([device supportsFamily:MTLGPUFamilyApple4]) {
+        fGPUFamily = GPUFamily::kApple;
+        fFamilyGroup = 4;
+        return;
+    }
+    if ([device supportsFamily:MTLGPUFamilyApple3]) {
+        fGPUFamily = GPUFamily::kApple;
+        fFamilyGroup = 3;
+        return;
+    }
+    if ([device supportsFamily:MTLGPUFamilyApple2]) {
+        fGPUFamily = GPUFamily::kApple;
+        fFamilyGroup = 2;
+        return;
+    }
+#endif
+
+    // Older Macs are supported for Mac2 and MacCatalyst2, but we treat them the same.
+    //
+    // Check if an Intel GPU is present; allow targeting issues specific to that hardware.
+    bool isIntel = [device.name containsString:@"Intel"];
+    if ([device supportsFamily:MTLGPUFamilyMac2] ||
+        [device supportsFamily:(MTLGPUFamily)4002/*MTLGPUFamilyMacCatalyst2*/]) {
+        fGPUFamily = isIntel ? GPUFamily::kMacIntel : GPUFamily::kMac;
+        fFamilyGroup = 2;
+        return;
     }
 
-    // We don't know what this is, fall back to minimum defaults
+    // No supported GPU families were found, fall back to minimum defaults
 #ifdef SK_BUILD_FOR_MAC
     fGPUFamily = GPUFamily::kMac;
-    fFamilyGroup = 1;
+    fFamilyGroup = 2;
 #else
     fGPUFamily = GPUFamily::kApple;
-    fFamilyGroup = 1;
+    fFamilyGroup = 2;
 #endif
 }
 
@@ -192,11 +163,9 @@ void MtlCaps::initCaps(const id<MTLDevice> device) {
     // Init sample counts. All devices support 1
     fSupportedSampleCounts = SampleCount::k1;
     if (!this->isIntel()) {
-        if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
-            for (auto sampleCnt : {SampleCount::k2, SampleCount::k4, SampleCount::k8}) {
-                if ([device supportsTextureSampleCount: (uint8_t) sampleCnt]) {
-                    fSupportedSampleCounts |= sampleCnt;
-                }
+        for (auto sampleCnt : {SampleCount::k2, SampleCount::k4, SampleCount::k8}) {
+            if ([device supportsTextureSampleCount: (uint8_t) sampleCnt]) {
+                fSupportedSampleCounts |= sampleCnt;
             }
         }
     } else {
@@ -209,20 +178,16 @@ void MtlCaps::initCaps(const id<MTLDevice> device) {
 void MtlCaps::initShaderCaps() {
     SkSL::ShaderCaps* shaderCaps = fShaderCaps.get();
 
-    // Dual source blending requires Metal 1.2.
-    if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, *)) {
-        shaderCaps->fDualSourceBlendingSupport = true;
-    }
+    // Dual source blending requires Metal 1.2, but our minimum requirements ensure 2.2
+    shaderCaps->fDualSourceBlendingSupport = true;
 
     shaderCaps->fFlatInterpolationSupport = true;
     shaderCaps->fShaderDerivativeSupport = true;
     shaderCaps->fInfinitySupport = true;
 
-    if (@available(macOS 11.0, *)) {
-        if (this->isApple()) {
-            shaderCaps->fFBFetchSupport = true;
-            shaderCaps->fFBFetchColorName = "sk_LastFragColor";
-        }
+    if (this->isApple()) {
+        shaderCaps->fFBFetchSupport = true;
+        shaderCaps->fFBFetchColorName = "sk_LastFragColor";
     }
 
     if (this->isIntel()) {
@@ -292,11 +257,9 @@ size_t MtlCaps::GetFormatIndex(MTLPixelFormat pixelFormat) {
 void MtlCaps::initFormatTable(const id<MTLDevice> device) {
     FormatInfo* info;
 
-    if (@available(macOS 11.0, iOS 8.0, tvOS 9.0, *)) {
-        if (this->isApple()) {
-            SkASSERT(kMTLPixelFormatB5G6R5Unorm == MTLPixelFormatB5G6R5Unorm);
-            SkASSERT(kMTLPixelFormatABGR4Unorm == MTLPixelFormatABGR4Unorm);
-        }
+    if (this->isApple()) {
+        SkASSERT(kMTLPixelFormatB5G6R5Unorm == MTLPixelFormatB5G6R5Unorm);
+        SkASSERT(kMTLPixelFormatABGR4Unorm == MTLPixelFormatABGR4Unorm);
     }
 
     // NOTE: MTLPixelFormat's naming convention orders channels from least significant to most,
@@ -415,42 +378,40 @@ void MtlCaps::initFormatTable(const id<MTLDevice> device) {
         }
     }
 
-    if (@available(macOS 11.0, iOS 8.0, tvOS 9.0, *)) {
-        if (this->isApple()) {
-            // Format: B5G6R5Unorm
+    if (this->isApple()) {
+        // Format: B5G6R5Unorm
+        {
+            info = &fFormatTable[GetFormatIndex(MTLPixelFormatB5G6R5Unorm)];
+            info->fFlags = FormatInfo::kAllFlags;
+            info->fColorTypeInfoCount = 1;
+            info->fColorTypeInfos =
+                    std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
+            int ctIdx = 0;
+            // Format: B5G6R5Unorm, Surface: kRGB_565; misnamed SkColorType is really BGR data
             {
-                info = &fFormatTable[GetFormatIndex(MTLPixelFormatB5G6R5Unorm)];
-                info->fFlags = FormatInfo::kAllFlags;
-                info->fColorTypeInfoCount = 1;
-                info->fColorTypeInfos =
-                        std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
-                int ctIdx = 0;
-                // Format: B5G6R5Unorm, Surface: kRGB_565; misnamed SkColorType is really BGR data
-                {
-                    auto& ctInfo = info->fColorTypeInfos[ctIdx++];
-                    ctInfo.fColorType = kRGB_565_SkColorType;
-                    ctInfo.fTransferColorType = kRGB_565_SkColorType;
-                    ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag |
-                                    ColorTypeInfo::kRenderable_Flag;
-                }
+                auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+                ctInfo.fColorType = kRGB_565_SkColorType;
+                ctInfo.fTransferColorType = kRGB_565_SkColorType;
+                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag |
+                                ColorTypeInfo::kRenderable_Flag;
             }
+        }
 
-            // Format: ABGR4Unorm
+        // Format: ABGR4Unorm
+        {
+            info = &fFormatTable[GetFormatIndex(MTLPixelFormatABGR4Unorm)];
+            info->fFlags = FormatInfo::kAllFlags;
+            info->fColorTypeInfoCount = 1;
+            info->fColorTypeInfos =
+                    std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
+            int ctIdx = 0;
+            // Format: ABGR4Unorm, Surface: kARGB_4444; misnamed SkColorType is really ABGR data
             {
-                info = &fFormatTable[GetFormatIndex(MTLPixelFormatABGR4Unorm)];
-                info->fFlags = FormatInfo::kAllFlags;
-                info->fColorTypeInfoCount = 1;
-                info->fColorTypeInfos =
-                        std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
-                int ctIdx = 0;
-                // Format: ABGR4Unorm, Surface: kARGB_4444; misnamed SkColorType is really ABGR data
-                {
-                    auto& ctInfo = info->fColorTypeInfos[ctIdx++];
-                    ctInfo.fColorType = kARGB_4444_SkColorType;
-                    ctInfo.fTransferColorType = kARGB_4444_SkColorType;
-                    ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag |
-                                    ColorTypeInfo::kRenderable_Flag;
-                }
+                auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+                ctInfo.fColorType = kARGB_4444_SkColorType;
+                ctInfo.fTransferColorType = kARGB_4444_SkColorType;
+                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag |
+                                ColorTypeInfo::kRenderable_Flag;
             }
         }
     }
@@ -673,20 +634,18 @@ void MtlCaps::initFormatTable(const id<MTLDevice> device) {
 
     // Format: ETC2_RGB8
     {
-        if (@available(macOS 11.0, iOS 8.0, tvOS 9.0, *)) {
-            if (this->isApple()) {
-                info = &fFormatTable[GetFormatIndex(MTLPixelFormatETC2_RGB8)];
-                info->fFlags = FormatInfo::kTexturable_Flag;
-                info->fColorTypeInfoCount = 1;
-                info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
-                int ctIdx = 0;
-                // Format: ETC2_RGB8, Surface: kRGB_888x
-                {
-                    auto& ctInfo = info->fColorTypeInfos[ctIdx++];
-                    ctInfo.fColorType = kRGB_888x_SkColorType;
-                    ctInfo.fTransferColorType = kRGB_888x_SkColorType;
-                    ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
-                }
+        if (this->isApple()) {
+            info = &fFormatTable[GetFormatIndex(MTLPixelFormatETC2_RGB8)];
+            info->fFlags = FormatInfo::kTexturable_Flag;
+            info->fColorTypeInfoCount = 1;
+            info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
+            int ctIdx = 0;
+            // Format: ETC2_RGB8, Surface: kRGB_888x
+            {
+                auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+                ctInfo.fColorType = kRGB_888x_SkColorType;
+                ctInfo.fTransferColorType = kRGB_888x_SkColorType;
+                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
             }
         }
     }
@@ -866,9 +825,7 @@ TextureInfo MtlCaps::onGetDefaultTextureInfo(SkEnumBitMask<TextureUsage> usage,
         mtlUsage |= MTLTextureUsageRenderTarget;
         // Switch to memoryless for discardable render targets when possible (only on Apple silicon)
         if (discardable == Discardable::kYes && this->isApple()) {
-            if (@available(macOS 11.0, iOS 10.0, tvOS 10.0, *)) {
-                storageMode = MTLStorageModeMemoryless;
-            }
+            storageMode = MTLStorageModeMemoryless;
         }
     }
     // NOTE: CopyDst and CopySrc are not MTLTextureUsages that have to be requested, so ignore them.
