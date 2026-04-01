@@ -112,8 +112,8 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
     size_t paletteEntryOverrideIndex;
     using PaletteEntryOverrideIndexType = decltype(result->fPaletteEntryOverrides[0].index);
 
-    SkScalar weight = SkFontStyle::kNormal_Weight;
-    SkScalar width = SkFontStyle::kNormal_Width;
+    SkScalar weight = 400;
+    SkScalar width = 100;
     SkScalar slant = 0;
     SkScalar italic = 0;
 
