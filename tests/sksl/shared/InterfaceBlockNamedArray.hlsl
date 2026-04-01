@@ -27,6 +27,8 @@ error: SPIR-V validation error: Block decoration on target <id> '15[%_arr_testBl
                OpMemberDecorate %testBlock 1 MatrixStride 16
                OpMemberDecorate %testBlock 2 Offset 48
                OpMemberDecorate %testBlock 3 Offset 80
+               OpMemberDecorate %testBlock 3 ColMajor
+               OpMemberDecorate %testBlock 3 MatrixStride 16
                OpDecorate %_arr_testBlock_int_2 ArrayStride 144
                OpDecorate %_arr_testBlock_int_2 Block
                OpDecorate %7 Binding 123

@@ -151,6 +151,19 @@ static constexpr float kUniformTestMatrix4x4[] = {1.0f,  2.0f,  3.0f,  4.0f,
 static constexpr float kUniformTestArray[] = {1, 2, 3, 4, 5};
 static constexpr float kUniformTestArrayNegative[] = {-1, -2, -3, -4, -5};
 
+// float3x3[3]
+static constexpr float kUniformTestMatrixArray[] = {1.0f, 0.0f, 0.0f,
+                                                    0.0f, 0.0f, 0.0f,
+                                                    0.0f, 0.0f, 0.0f,
+
+                                                    0.0f, 0.0f, 0.0f,
+                                                    0.0f, 1.0f, 0.0f,
+                                                    0.0f, 0.0f, 0.0f,
+
+                                                    0.0f, 0.0f, 0.0f,
+                                                    0.0f, 0.0f, 0.0f,
+                                                    0.0f, 0.0f, 1.0f};
+
 static constexpr UniformData kUniformData[] = {
         {"colorBlack", kUniformColorBlack},
         {"colorRed", kUniformColorRed},
@@ -164,7 +177,8 @@ static constexpr UniformData kUniformData[] = {
         {"testMatrix4x4", kUniformTestMatrix4x4},
         {"testArray", kUniformTestArray},
         {"testArrayNegative", kUniformTestArrayNegative},
-};
+        {"testMatrixArray", kUniformTestMatrixArray},
+    };
 
 static SkBitmap bitmap_from_shader(skiatest::Reporter* r,
                                    SkSurface* surface,
@@ -1291,6 +1305,7 @@ SKSL_TEST(CPU | GPU,     kApiLevel_202404, TernaryOneZeroOptimization,      "sha
 SKSL_TEST(CPU | GPU,     kApiLevel_U,      TernarySideEffects,              "shared/TernarySideEffects.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T,      UnaryPositiveNegative,           "shared/UnaryPositiveNegative.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T,      UniformArray,                    "shared/UniformArray.sksl")
+SKSL_TEST(CPU | GPU,     kNextRelease,     UniformMatrixArray,              "shared/UniformMatrixArray.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_U,      UniformMatrixResize,             "shared/UniformMatrixResize.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T,      UnusedVariables,                 "shared/UnusedVariables.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T,      VectorConstructors,              "shared/VectorConstructors.sksl")

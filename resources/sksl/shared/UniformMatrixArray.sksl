@@ -1,0 +1,11 @@
+uniform float3x3 testMatrixArray[3];
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    for (int index=0; index<3; ++index) {
+        if (testMatrixArray[index][index][index] != 1.0) {
+            return colorRed;
+        }
+    }
+    return colorGreen;
+}

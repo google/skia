@@ -770,6 +770,7 @@ sksl_shared_tests = [
   "shared/UnaryPositiveNegative.sksl",
   "shared/UniformArray.sksl",
   "shared/UniformBuffers.sksl",
+  "shared/UniformMatrixArray.sksl",
   "shared/UniformMatrixResize.sksl",
   "shared/UnusedVariables.sksl",
   "shared/VectorConstructors.sksl",
