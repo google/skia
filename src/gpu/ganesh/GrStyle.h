@@ -74,6 +74,8 @@ public:
      * into a key. This occurs when there is a path effect that is not a dash. The key can
      * either reflect just the path effect (if one) or the path effect and the strokerec. Note
      * that a simple fill has a zero sized key.
+     *
+     * If a positive value is returned, it will fit in a uint16_t.
      */
     static int KeySize(const GrStyle&, Apply, uint32_t flags = 0);
 
