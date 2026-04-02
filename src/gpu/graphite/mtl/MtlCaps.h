@@ -13,6 +13,7 @@
 #import <Metal/Metal.h>
 
 #include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/TextureFormat.h"
 
 namespace skgpu::graphite {
 struct ContextOptions;
@@ -35,10 +36,13 @@ public:
     // UniqueKeys (e.g. makeGraphicsPipelineKey).
     uint32_t getRenderPassDescKey(const RenderPassDesc&) const;
 
-    bool isMac() const   { return fGPUFamily == GPUFamily::kMac ||
-                                  fGPUFamily == GPUFamily::kMacIntel; }
-    bool isApple() const { return fGPUFamily == GPUFamily::kApple;    }
-    bool isIntel() const { return fGPUFamily == GPUFamily::kMacIntel; }
+    bool isMac() const { return fGPUFamily == MTLGPUFamilyMac2; }
+    bool isApple() const {
+        // Apple silicon vs. legacy Mac hardware is mutually exclusive
+        SkASSERT(this->isMac() || (fGPUFamily >= MTLGPUFamilyApple2 &&
+                                   fGPUFamily <= MTLGPUFamilyApple9));
+        return !this->isMac();
+    }
 
     void buildKeyForTexture(SkISize dimensions,
                             const TextureInfo&,
@@ -49,14 +53,7 @@ private:
     void initGPUFamily(const id<MTLDevice>);
 
     void initCaps(const id<MTLDevice>);
-    void initShaderCaps();
     void initFormatTable(const id<MTLDevice>);
-
-    enum class GPUFamily {
-        kApple,
-        kMac,
-        kMacIntel,
-    };
 
     TextureInfo onGetDefaultTextureInfo(SkEnumBitMask<TextureUsage> usage,
                                         TextureFormat,
@@ -64,54 +61,23 @@ private:
                                         Mipmapped,
                                         Protected,
                                         Discardable) const override;
-    std::pair<SkEnumBitMask<TextureUsage>, SkEnumBitMask<SampleCount>> getTextureSupport(
-            TextureFormat format, Tiling) const override;
     std::pair<SkEnumBitMask<TextureUsage>, Tiling> getTextureUsage(
             const TextureInfo&) const override;
 
-    struct FormatInfo {
-        uint32_t colorTypeFlags(SkColorType colorType) const {
-            for (int i = 0; i < fColorTypeInfoCount; ++i) {
-                if (fColorTypeInfos[i].fColorType == colorType) {
-                    return fColorTypeInfos[i].fFlags;
-                }
-            }
-            return 0;
+    std::pair<SkEnumBitMask<TextureUsage>, SkEnumBitMask<SampleCount>> getTextureSupport(
+            TextureFormat format, Tiling tiling) const override {
+        if (tiling == Tiling::kLinear) {
+            return {{}, {}}; // Linear tiling is not supported
         }
-
-        enum {
-            kTexturable_Flag  = 0x01,
-            kRenderable_Flag  = 0x02, // Render attachment (color or depth/stencil)
-            kMSAA_Flag        = 0x04,
-            kResolve_Flag     = 0x08,
-            kStorage_Flag     = 0x10,
-        };
-        static const uint16_t kAllFlags =
-                kTexturable_Flag | kRenderable_Flag | kMSAA_Flag | kResolve_Flag | kStorage_Flag;
-
-        uint16_t fFlags = 0;
-
-        std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
-        int fColorTypeInfoCount = 0;
-    };
-#ifdef SK_BUILD_FOR_MAC
-    inline static constexpr int kNumMtlFormats = 23;
-#else
-    inline static constexpr int kNumMtlFormats = 21;
-#endif
-
-    static size_t GetFormatIndex(MTLPixelFormat);
-    FormatInfo fFormatTable[kNumMtlFormats];
-
-    const FormatInfo& getFormatInfo(const MTLPixelFormat pixelFormat) const {
-        size_t index = GetFormatIndex(pixelFormat);
-        return fFormatTable[index];
+        return fFormatSupport[static_cast<int>(format)];
     }
 
-    SkEnumBitMask<SampleCount> fSupportedSampleCounts;
+    // Cache conversion from MTLPixelFormat support queries to TextureFormat and TextureUsage
+    // support and per-format supported SampleCounts.
+    std::array<std::pair<SkEnumBitMask<TextureUsage>, SkEnumBitMask<SampleCount>>,
+               kTextureFormatCount> fFormatSupport;
 
-    GPUFamily fGPUFamily;
-    int fFamilyGroup;
+    MTLGPUFamily fGPUFamily;
 };
 
 } // namespace skgpu::graphite
