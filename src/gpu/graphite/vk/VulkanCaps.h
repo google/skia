@@ -115,7 +115,10 @@ private:
     struct EnabledFeatures {
         // VkPhysicalDeviceFeatures
         bool fDualSrcBlend = false;
+        // Vulkan 1.0 core:
         bool fOcclusionQueryPrecise = false;
+        // Vulkan 1.1 core:
+        bool fProtectedMemory = false;
         // From VkPhysicalDeviceSamplerYcbcrConversionFeatures or VkPhysicalDeviceVulkan11Features:
         bool fSamplerYcbcrConversion = false;
         // From VkPhysicalDeviceFaultFeaturesEXT:

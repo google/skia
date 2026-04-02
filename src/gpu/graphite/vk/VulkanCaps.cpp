@@ -116,9 +116,7 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     this->setDeviceName(deviceProperties.fBase.properties.deviceName);
 #endif
 
-    // Graphite requires Vulkan version 1.1 or later, which always has protected support. The
-    // protectedMemory feature is assumed enabled if isProtected is true.
-    if (isProtected == Protected::kYes) {
+    if (isProtected == Protected::kYes && enabledFeatures.fProtectedMemory) {
         fProtectedSupport = true;
         fShouldAlwaysUseDedicatedImageMemory = true;
     }
@@ -442,6 +440,12 @@ VulkanCaps::EnabledFeatures VulkanCaps::getEnabledFeatures(
                             const VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT*>(pNext);
                     enabled.fFormatRGBA10x6WithoutYCbCrSampler =
                             feature->formatRgba10x6WithoutYCbCrSampler;
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROTECTED_MEMORY_FEATURES: {
+                    const auto *feature = reinterpret_cast<
+                            const VkPhysicalDeviceProtectedMemoryFeatures*>(pNext);
+                    enabled.fProtectedMemory = feature->protectedMemory;
                     break;
                 }
                 default:
