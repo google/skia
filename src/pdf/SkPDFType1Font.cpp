@@ -158,7 +158,6 @@ static sk_sp<SkData> convert_type1_font_stream(std::unique_ptr<SkStreamAsset> sr
                                                size_t* dataLen,
                                                size_t* trailerLen) {
     size_t srcLen = srcStream ? srcStream->getLength() : 0;
-    SkASSERT(srcLen);
     if (!srcLen) {
         return nullptr;
     }
@@ -172,38 +171,42 @@ static sk_sp<SkData> convert_type1_font_stream(std::unique_ptr<SkStreamAsset> sr
     if (parsePFB(src, srcLen, headerLen, dataLen, trailerLen)) {
         static const int kPFBSectionHeaderLength = 6;
         const size_t length = *headerLen + *dataLen + *trailerLen;
-        SkASSERT(length > 0);
-        SkASSERT(length + (2 * kPFBSectionHeaderLength) <= srcLen);
-
+        if (length == 0) {
+            return nullptr;
+        }
+        if (srcLen < length + (2 * kPFBSectionHeaderLength)) {
+            return nullptr;
+        }
         sk_sp<SkData> data(SkData::MakeUninitialized(length));
 
-        const uint8_t* const srcHeader = src + kPFBSectionHeaderLength;
         // There is a six-byte section header before header and data
         // (but not trailer) that we're not going to copy.
+        const uint8_t* const srcHeader = src + kPFBSectionHeaderLength;
         const uint8_t* const srcData = srcHeader + *headerLen + kPFBSectionHeaderLength;
-        const uint8_t* const srcTrailer = srcData + *headerLen;
+        const uint8_t* const srcTrailer = srcData + *dataLen;
+        SkASSERT(srcTrailer + *trailerLen == src + length + (2 * kPFBSectionHeaderLength));
 
-        uint8_t* const resultHeader = (uint8_t*)data->writable_data();
-        uint8_t* const resultData = resultHeader + *headerLen;
-        uint8_t* const resultTrailer = resultData + *dataLen;
+        uint8_t* const dstHeader = (uint8_t*)data->writable_data();
+        uint8_t* const dstData = dstHeader + *headerLen;
+        uint8_t* const dstTrailer = dstData + *dataLen;
+        SkASSERT(dstTrailer + *trailerLen == dstHeader + length);
 
-        SkASSERT(resultTrailer + *trailerLen == resultHeader + length);
-
-        memcpy(resultHeader,  srcHeader,  *headerLen);
-        memcpy(resultData,    srcData,    *dataLen);
-        memcpy(resultTrailer, srcTrailer, *trailerLen);
+        memcpy(dstHeader,  srcHeader,  *headerLen);
+        memcpy(dstData,    srcData,    *dataLen);
+        memcpy(dstTrailer, srcTrailer, *trailerLen);
 
         return data;
     }
 
     // A PFA has to be converted for PDF.
     size_t hexDataLen;
-    if (!parsePFA((const char*)src, srcLen, headerLen, &hexDataLen, dataLen,
-                 trailerLen)) {
+    if (!parsePFA((const char*)src, srcLen, headerLen, &hexDataLen, dataLen, trailerLen)) {
         return nullptr;
     }
     const size_t length = *headerLen + *dataLen + *trailerLen;
-    SkASSERT(length > 0);
+    if (length == 0) {
+        return nullptr;
+    }
     auto data = SkData::MakeUninitialized(length);
     uint8_t* buffer = (uint8_t*)data->writable_data();
 
@@ -234,7 +237,7 @@ static sk_sp<SkData> convert_type1_font_stream(std::unique_ptr<SkStreamAsset> sr
     }
     SkASSERT(outputOffset == *dataLen);
 
-    uint8_t* const resultTrailer = &(buffer[SkToInt(*headerLen + outputOffset)]);
+    uint8_t* const resultTrailer = &(buffer[*headerLen + outputOffset]);
     memcpy(resultTrailer, src + *headerLen + hexDataLen, *trailerLen);
     return data;
 }
@@ -256,9 +259,9 @@ static SkPDFIndirectReference make_type1_font_descriptor(SkPDFDocument* doc,
         SkPDFFont::PopulateCommonFontDescriptor(&descriptor, *info, emSize, 0);
         if (can_embed(*info)) {
             int ttcIndex;
-            size_t header SK_INIT_TO_AVOID_WARNING;
-            size_t data SK_INIT_TO_AVOID_WARNING;
-            size_t trailer SK_INIT_TO_AVOID_WARNING;
+            size_t header = 0;
+            size_t data = 0;
+            size_t trailer = 0;
             const SkTypeface& typeface = pdfStrikeSpec.fStrikeSpec.typeface();
             std::unique_ptr<SkStreamAsset> rawFontData = typeface.openStream(&ttcIndex);
             sk_sp<SkData> fontData = convert_type1_font_stream(std::move(rawFontData),
