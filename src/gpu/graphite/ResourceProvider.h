@@ -112,7 +112,7 @@ public:
     void purgeResourcesNotUsedSince(StdSteadyClock::time_point purgeTime);
     void forceProcessReturnedResources() { fResourceCache->forceProcessReturnedResources(); }
 
-#if defined(GPU_TEST_UTILS)
+#if defined(GPU_TEST_UTILS) || defined(SK_DEBUG)
     ResourceCache* resourceCache() { return fResourceCache.get(); }
     const SharedContext* sharedContext() { return fSharedContext; }
 #endif

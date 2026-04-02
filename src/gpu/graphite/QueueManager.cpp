@@ -378,10 +378,11 @@ void QueueManager::returnCommandBuffer(std::unique_ptr<CommandBuffer> commandBuf
     bufferList->push_back(std::move(commandBuffer));
 }
 
-void QueueManager::addUploadBufferManagerRefs(UploadBufferManager* uploadManager) {
+void QueueManager::addUploadBufferManagerRefs(UploadBufferManager* uploadManager,
+                                              ResourceProvider* resourceProvider) {
+    this->setupCommandBuffer(resourceProvider, skgpu::Protected::kNo);
     SkASSERT(fCurrentCommandBuffer);
     uploadManager->transferToCommandBuffer(fCurrentCommandBuffer.get());
 }
-
 
 } // namespace skgpu::graphite

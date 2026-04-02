@@ -13,6 +13,7 @@
 #include "include/private/base/SkMath.h"
 #include "include/private/base/SkTo.h"
 #include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/QueueManager.h"
@@ -695,6 +696,8 @@ StaticBufferManager::FinishResult StaticBufferManager::finalize(Context* context
         return FinishResult::kNoWork;
     }
 
+    queueManager->addUploadBufferManagerRefs(&fUploadManager, context->priv().resourceProvider());
+
     if (!fVertexBufferState.createAndUpdateBindings(fResourceProvider,
                                                    context,
                                                    queueManager,
@@ -723,7 +726,6 @@ StaticBufferManager::FinishResult StaticBufferManager::finalize(Context* context
                                                    "StaticIndexBuffer")) {
         return FinishResult::kFailure;
     }
-    queueManager->addUploadBufferManagerRefs(&fUploadManager);
 
     // Reset the static buffer manager since the Recording's copy tasks now manage ownership of
     // the transfer buffers and the GlobalCache owns the final static buffers.

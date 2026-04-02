@@ -77,7 +77,7 @@ public:
 
     virtual void tick() const {}
 
-    void addUploadBufferManagerRefs(UploadBufferManager*);
+    void addUploadBufferManagerRefs(UploadBufferManager*, ResourceProvider*);
 
 protected:
     QueueManager(const SharedContext* sharedContext);

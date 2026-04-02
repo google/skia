@@ -79,6 +79,10 @@ public:
     void forceNextEpochOverflow() SK_EXCLUDES(fSpinLock);
 #endif
 
+#if defined(SK_DEBUG)
+    bool isResourceTracked(const Resource* resource) const;
+#endif
+
     struct PipelineStats {
 #if defined(GPU_TEST_UTILS)
         int fGraphicsCacheHits = 0;

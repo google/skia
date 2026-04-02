@@ -505,6 +505,17 @@ sk_sp<Buffer> GlobalCache::getStaticVertexBuffer() {
 
 #endif // defined(GPU_TEST_UTILS)
 
+#if defined(SK_DEBUG)
+bool GlobalCache::isResourceTracked(const Resource* resource) const {
+    SkAutoSpinlock lock{fSpinLock};
+    for (const sk_sp<Resource>& staticResource : fStaticResource) {
+        if (resource == staticResource.get())
+            return true;
+    }
+    return false;
+}
+#endif
+
 GlobalCache::PipelineStats GlobalCache::getStats() const {
     SkAutoSpinlock lock{fSpinLock};
 

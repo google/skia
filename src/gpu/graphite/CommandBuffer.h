@@ -49,8 +49,9 @@ public:
 
     virtual ~CommandBuffer();
 
-#ifdef SK_DEBUG
+#if defined(SK_DEBUG)
     bool hasWork() { return fHasWork; }
+    bool isResourceTracked(const Resource* resource);
 #endif
 
     // Takes a CommandBuffer ref on the Resource that will be released when the command buffer has
