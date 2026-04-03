@@ -315,7 +315,6 @@ public:
     bool isIdeographic() const { return fIsIdeographic; }
 
     bool isSoftBreak() const;
-    bool isSoftHyphen() const;
     bool isGraphemeBreak() const;
     bool canBreakLineAfter() const { return isHardBreak() || isSoftBreak(); }
     size_t startPos() const { return fStart; }

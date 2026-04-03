@@ -365,16 +365,6 @@ bool Cluster::isSoftBreak() const {
                                        SkUnicode::CodeUnitFlags::kSoftLineBreakBefore);
 }
 
-bool Cluster::isSoftHyphen() const {
-    // U+00AD is encoded as 0xC2 0xAD in UTF-8
-    auto text = fOwner->text();
-    if (fTextRange.width() == 2) {
-        return (uint8_t)text[fTextRange.start] == 0xC2 &&
-               (uint8_t)text[fTextRange.start + 1] == 0xAD;
-    }
-    return false;
-}
-
 bool Cluster::isGraphemeBreak() const {
     return fOwner->codeUnitHasProperty(fTextRange.end, SkUnicode::CodeUnitFlags::kGraphemeStart);
 }
