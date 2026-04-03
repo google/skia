@@ -156,8 +156,6 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_VULKAN_CONTEXTS(StaticVerticesPaddingTest,
         return;
     }
 
-    submit_recording(context, testContext, recorder.get());
-
     // Readback exact size of static data
     const uint32_t readbackSize = staticGpuVertexBuffer->size();
     auto copyBuff = get_readback_buffer(recorder.get(), readbackSize);
