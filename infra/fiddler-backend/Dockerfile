@@ -1,28 +1,30 @@
-FROM gcr.io/skia-public/fiddler-base@sha256:a97f84c66b9f4c8dff42710a5f66e8d97f4911a1a697c2fa64da62b036b89971
+FROM gcr.io/skia-public/fiddler-base@sha256:0f8c900876083561d7c78df77b33375e7fb0a5b88c8047095ee2e57706636ef4 AS skia-build
+
+# We need to call gclient config so gclient sync works later to get our third party deps
+# We want --unmanaged to make gclient not sync Skia and instead use the files we copied
+# into the container.
+RUN cd /tmp \
+  && git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git \
+  && PATH="/tmp/depot_tools:$PATH" gclient config --unmanaged --name=skia https://skia.googlesource.com/skia.git
 
 # https://stackoverflow.com/a/44766666
 # Copy the skia files that Louhi has cloned into the image. Louhi hasn't synced third party
 # deps, so we will need to do that before compiling (see next steps).
 COPY --chown=skia:skia . /tmp/skia
 
-# We need to call gclient config so gclient sync works later to get our third party deps
-# We want --unmanaged to make gclient not sync Skia and instead use the files we copied
-# into the container.
-RUN cd /tmp && gclient config --unmanaged --name=skia https://skia.googlesource.com/skia.git
+RUN cd /tmp/skia \
+  # Fetch things we need but delete large third-party folders that we don't need for fiddler
+  && ./bin/fetch-gn \
+  && PATH="/tmp/depot_tools:$PATH" gclient sync \
+  && rm -rf third_party/externals/dawn \
+            third_party/externals/emsdk \
+            third_party/externals/icu4x \
+            third_party/externals/opengl-registry \
+            third_party/externals/perfetto \
+            third_party/externals/swiftshader \
+            third_party/externals/unicodetools
 
 WORKDIR /tmp/skia/
-
-# Fetch things we need but delete large third-party folders that we don't need for fiddler
-RUN ./bin/fetch-gn \
-  && ./bin/fetch-ninja \
-  && gclient sync \
-  && rm -rf third_party/externals/dawn \
-           third_party/externals/emsdk \
-           third_party/externals/icu4x \
-           third_party/externals/opengl-registry \
-           third_party/externals/perfetto \
-           third_party/externals/swiftshader \
-           third_party/externals/unicodetools
 
 RUN mkdir -p ./out/Static
 RUN echo '  \n\
@@ -50,8 +52,11 @@ extra_ldflags = [  \n\
 # Build Skia once so that incremental builds are much faster
 RUN ./bin/gn gen out/Static
 RUN git rev-parse HEAD > VERSION
-RUN ./third_party/ninja/ninja -C out/Static fiddle
+RUN ninja -C out/Static fiddle
 
 # Cleanup .git directories because they are not needed and take up space.
 # (can't do this sooner because we need to create VERSION)
 RUN find . -name .git -print0 | xargs -0 rm -rf
+
+FROM gcr.io/skia-public/fiddler-base@sha256:0f8c900876083561d7c78df77b33375e7fb0a5b88c8047095ee2e57706636ef4
+COPY --from=skia-build /tmp/skia /tmp/skia
