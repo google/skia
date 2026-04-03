@@ -35,6 +35,7 @@ skia_cc_binary(
         "//src/gpu/graphite:graphite_TEST_UTIL",
         "//src/ports:imagegenerator",
         "//src/utils:multi_picture_document",
+        "//tests",
         "//tools:autorelease_pool",
         "//tools:codec_utils",
         "//tools:deserial_procs_utils",

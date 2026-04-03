@@ -88,6 +88,7 @@ skia_cc_library(
     visibility = [
         "//bench:__pkg__",
         "//modules/skottie:__pkg__",
+        "//tests:__pkg__",
         "//tools:__subpackages__",
     ],
     deps = [

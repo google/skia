@@ -1,5 +1,32 @@
+load("//bazel:skia_rules.bzl", "skia_cc_library")
+
 package(
     default_applicable_licenses = ["//:license"],
 )
 
 licenses(["notice"])
+
+skia_cc_library(
+    name = "tests",
+    testonly = True,
+    srcs = [
+        "CtsEnforcement.cpp",
+        "Test.cpp",
+        "TestHarness.cpp",
+    ],
+    hdrs = [
+        "CtsEnforcement.h",
+        "Test.h",
+        "TestHarness.h",
+        "TestType.h",
+    ],
+    visibility = [
+        "//dm:__pkg__",
+    ],
+    deps = [
+        "//:core",
+        "//tools:registry",
+        "//tools/flags:cmd_flags",
+        "//tools/timer",
+    ],
+)
