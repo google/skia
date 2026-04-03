@@ -564,8 +564,11 @@ bool VulkanTestHelper::init(skiatest::Reporter* reporter) {
     if (!fExtensions->hasExtension(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME, 1)) {
         return false;
     }
+    if (!fExtensions->hasExtension(VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME, 1)) {
+        return false;
+    }
     if (!fExtensions->hasExtension(VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME, 1)) {
-       return false;
+    //    return false;
     }
 
     ACQUIRE_INST_VK_PROC(GetPhysicalDeviceMemoryProperties2);
