@@ -2,6 +2,24 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 148
+-------------
+  * * The `leakTracer` argument to `SkEventTracer::SetInstance` is removed and now behaves as if
+      `leakTracer=true`. Previously, with `leakTracer=false` the `SkEventTracer` would be deleted in an
+      `atexit` handler, but this could lead to race conditions in a multithreaded application during
+      process exiting. Leaking the object at exit is effectively the same behavior but avoids the races.
+    * `SkEventTracer` adds a new `onExit()` virtual that defaults to doing nothing. This will be called
+      on process exit and can be used in place of any flushing logic in a destructor.
+  * * `SkImages::WrapTexture` no longer requires providing an `SkColorType`. A closest compatible
+       SkColorType will be chosen as long as the texture's format is supported and the texture is
+       sampleable. Additionally, wrapped textures can now be forced to opaque by specifying
+       `kUnknown_SkAlphaType`. Single-channel texture formats map to either alpha-only or red color
+       types based on the provided `SkAlphaType`.
+  * Mock-specific calls are removed from GrBackendSurface.h. Clients should use the equivalents found in `include/gpu/ganesh/mock/GrMockBackendSurface.h`
+  * Adds `kR16_float_SkColorType` enum value to hold f16 red values, analogous to `kAlpha16_float_SkColorType`. Now all single-channel data types can represent red or alpha.
+
+* * *
+
 Milestone 147
 -------------
   * `SkCodec::getEncodedData()` has been removed from the public API
