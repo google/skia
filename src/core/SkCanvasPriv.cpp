@@ -25,6 +25,7 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/core/SkWriter32.h"
 
+#include <limits>
 #include <utility>
 #include <cstdint>
 
@@ -55,13 +56,25 @@ SkAutoCanvasMatrixPaint::~SkAutoCanvasMatrixPaint() {
 
 bool SkCanvasPriv::ReadLattice(SkReadBuffer& buffer, SkCanvas::Lattice* lattice) {
     lattice->fXCount = buffer.readInt();
+    if (lattice->fXCount < 0) {
+        return false;
+    }
     lattice->fXDivs = buffer.skipT<int32_t>(lattice->fXCount);
     lattice->fYCount = buffer.readInt();
+    if (lattice->fYCount < 0) {
+        return false;
+    }
     lattice->fYDivs = buffer.skipT<int32_t>(lattice->fYCount);
     int flagCount = buffer.readInt();
     lattice->fRectTypes = nullptr;
     lattice->fColors = nullptr;
+    // flagCount was serialized as (xCount + 1) * (yCount + 1) if there were rect types and colors,
+    // so if that isn't still the case the buffer is invalid.
     if (flagCount) {
+        if (flagCount < 0 || (uint64_t) flagCount != ((uint64_t) lattice->fXCount + 1) *
+                                                     ((uint64_t) lattice->fYCount + 1)) {
+            return false;
+        }
         lattice->fRectTypes = buffer.skipT<SkCanvas::Lattice::RectType>(flagCount);
         lattice->fColors = buffer.skipT<SkColor>(flagCount);
     }
