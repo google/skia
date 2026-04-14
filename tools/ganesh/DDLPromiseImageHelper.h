@@ -221,7 +221,7 @@ private:
     static void CreateBETexturesForPromiseImage(GrDirectContext*, PromiseImageInfo*);
     static void DeleteBETexturesForPromiseImage(PromiseImageInfo*);
 
-    static sk_sp<SkImage> CreatePromiseImages(const void* rawData, size_t length, void* ctxIn);
+    static sk_sp<SkImage> CreatePromiseImages(sk_sp<SkData>, std::optional<SkAlphaType>, void*);
 
     bool isValidID(int id) const { return id >= 0 && id < fImageInfo.size(); }
     const PromiseImageInfo& getInfo(int id) const { return fImageInfo[id]; }

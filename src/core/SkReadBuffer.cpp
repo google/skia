@@ -349,11 +349,7 @@ static sk_sp<SkImage> deserialize_image(sk_sp<SkData> data, SkDeserialProcs dPro
     if (dProcs.fImageDataProc) {
         image = dProcs.fImageDataProc(data, alphaType, dProcs.fImageCtx);
     } else if (dProcs.fImageProc) {
-#if !defined(SK_LEGACY_DESERIAL_IMAGE_PROC)
-        image = dProcs.fImageProc(data->data(), data->size(), dProcs.fImageCtx);
-#else
         image = dProcs.fImageProc(data->data(), data->size(), alphaType, dProcs.fImageCtx);
-#endif
     }
     return image;
 }

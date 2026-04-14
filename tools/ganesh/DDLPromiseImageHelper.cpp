@@ -296,21 +296,21 @@ sk_sp<SkPicture> DDLPromiseImageHelper::reinflateSKP(
 
     SkDeserialProcs procs;
     procs.fImageCtx = (void*) &procContext;
-    procs.fImageProc = CreatePromiseImages;
+    procs.fImageDataProc = CreatePromiseImages;
 
     return SkPicture::MakeFromData(compressedPictureData, &procs);
 }
 
 // This generates promise images to replace the indices in the compressed picture.
-sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(const void* rawData,
-                                                          size_t length,
+sk_sp<SkImage> DDLPromiseImageHelper::CreatePromiseImages(sk_sp<SkData> data,
+                                                          std::optional<SkAlphaType>,
                                                           void* ctxIn) {
     DeserialImageProcContext* procContext = static_cast<DeserialImageProcContext*>(ctxIn);
     DDLPromiseImageHelper* helper = procContext->fHelper;
 
-    SkASSERT(length == sizeof(int));
+    SkASSERT(data->size() == sizeof(int));
 
-    const int* indexPtr = static_cast<const int*>(rawData);
+    const int* indexPtr = static_cast<const int*>(data->data());
     if (!helper->isValidID(*indexPtr)) {
         return nullptr;
     }
