@@ -79,20 +79,9 @@ private:
     std::pair<SkEnumBitMask<TextureUsage>, Tiling> getTextureUsage(
             const TextureInfo&) const override;
 
-    std::pair<SkEnumBitMask<TextureUsage>, SkEnumBitMask<SampleCount>> getTextureSupport(
-            TextureFormat format, Tiling tiling) const override {
-        if (tiling == Tiling::kLinear) {
-            return {{}, {}}; // Linear tiling is not supported
-        }
-        return fFormatSupport[static_cast<int>(format)];
-    }
-
     void initCaps(const DawnBackendContext&, const ContextOptions&);
     void initShaderCaps(const wgpu::Device&);
     void initFormatTable(const wgpu::Device&);
-
-    std::array<std::pair<SkEnumBitMask<TextureUsage>, SkEnumBitMask<SampleCount>>,
-               kTextureFormatCount> fFormatSupport;
 
     // When supported, this value will hold the TransientAttachment usage symbol that is only
     // defined in Dawn native builds and not EMSCRIPTEN but this avoids having to #define guard it.

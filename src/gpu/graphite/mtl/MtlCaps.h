@@ -64,19 +64,6 @@ private:
     std::pair<SkEnumBitMask<TextureUsage>, Tiling> getTextureUsage(
             const TextureInfo&) const override;
 
-    std::pair<SkEnumBitMask<TextureUsage>, SkEnumBitMask<SampleCount>> getTextureSupport(
-            TextureFormat format, Tiling tiling) const override {
-        if (tiling == Tiling::kLinear) {
-            return {{}, {}}; // Linear tiling is not supported
-        }
-        return fFormatSupport[static_cast<int>(format)];
-    }
-
-    // Cache conversion from MTLPixelFormat support queries to TextureFormat and TextureUsage
-    // support and per-format supported SampleCounts.
-    std::array<std::pair<SkEnumBitMask<TextureUsage>, SkEnumBitMask<SampleCount>>,
-               kTextureFormatCount> fFormatSupport;
-
     MTLGPUFamily fGPUFamily;
 };
 

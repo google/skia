@@ -93,8 +93,7 @@ bool is_valid_view(const DawnTextureInfo& dawnInfo) {
 }  // anonymous namespace
 
 DawnCaps::DawnCaps(const DawnBackendContext& backendContext, const ContextOptions& options)
-        : Caps()
-        , fFormatSupport{} {
+        : Caps() {
     this->initCaps(backendContext, options);
     this->initShaderCaps(backendContext.fDevice);
     this->initFormatTable(backendContext.fDevice);
@@ -109,7 +108,8 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
         wgpu::TextureFormat format = TextureFormatToDawnFormat(tf);
         SkEnumBitMask<DawnFormatFlag> formatCaps = DawnTextureFormatSupport(device, format);
 
-        auto& [supportedUsage, supportedSampleCounts] = fFormatSupport[i];
+        // The Dawn backend currently only supports optimal tiling
+        auto& [supportedUsage, supportedSampleCounts] = fFormatSupport[(int) Tiling::kOptimal][i];
         if (formatCaps == DawnFormatFlag::None) {
             SkASSERT(!SkToBool(supportedUsage) && !SkToBool(supportedSampleCounts));
             continue;

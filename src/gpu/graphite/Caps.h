@@ -17,6 +17,7 @@
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/ResourceTypes.h"
+#include "src/gpu/graphite/TextureFormat.h"
 #include "src/text/gpu/SubRunControl.h"
 
 #include <cstddef>
@@ -42,7 +43,6 @@ class RendererProvider;
 class TextureInfo;
 enum class DepthStencilFlags : int;
 enum class PathRendererStrategy;
-enum class TextureFormat : uint8_t;
 struct AttachmentDesc;
 struct ContextOptions;
 struct RenderPassDesc;
@@ -418,32 +418,11 @@ protected:
     }
 #endif
 
-    /* ColorTypeInfo for a specific format. Used in format tables. */
-    struct ColorTypeInfo {
-        ColorTypeInfo() = default;
-        ColorTypeInfo(SkColorType ct, SkColorType transferCt, uint32_t flags,
-                      skgpu::Swizzle readSwizzle, skgpu::Swizzle writeSwizzle)
-                : fColorType(ct)
-                , fTransferColorType(transferCt)
-                , fFlags(flags)
-                , fReadSwizzle(readSwizzle)
-                , fWriteSwizzle(writeSwizzle) {}
-
-        SkColorType fColorType = kUnknown_SkColorType;
-        SkColorType fTransferColorType = kUnknown_SkColorType;
-        enum {
-            kUploadData_Flag = 0x1,
-            /**
-             * Does Graphite itself support rendering to this colorType & format pair. Renderability
-             * still additionally depends on if the format itself is renderable.
-             */
-            kRenderable_Flag = 0x2,
-        };
-        uint32_t fFlags = 0;
-
-        skgpu::Swizzle fReadSwizzle;
-        skgpu::Swizzle fWriteSwizzle;
-    };
+    using FormatSupport = std::pair<SkEnumBitMask<TextureUsage>, SkEnumBitMask<SampleCount>>;
+    // Indexed by Tiling then TextureFormat, must be filled out by subclasses during initialization.
+    // This is zero-initialized so that every format defaults to unsupported unless a subclass
+    // provides more information.
+    std::array<std::array<FormatSupport, kTextureFormatCount>, 2> fFormatSupport{};
 
     int fMaxTextureSize = 0;
 
@@ -549,8 +528,9 @@ private:
 
     // Return the supported TextureUsages and SampleCounts for a texture of the given format and
     // tiling, assuming the textures are created with the requisite usages.
-    virtual std::pair<SkEnumBitMask<TextureUsage>, SkEnumBitMask<SampleCount>> getTextureSupport(
-            TextureFormat format, Tiling) const = 0;
+    FormatSupport getTextureSupport(TextureFormat format, Tiling tiling) const {
+        return fFormatSupport[static_cast<int>(tiling)][static_cast<int>(format)];
+    }
 
     // Return the mask of TextureUsages supported by the described texture, as well as its tiling
     // representation. Subclasses can assume that this will only be called on valid TextureInfos

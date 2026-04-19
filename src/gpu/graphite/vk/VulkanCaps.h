@@ -184,11 +184,6 @@ private:
     std::pair<SkEnumBitMask<TextureUsage>, Tiling> getTextureUsage(
             const TextureInfo&) const override;
 
-    std::pair<SkEnumBitMask<TextureUsage>, SkEnumBitMask<SampleCount>> getTextureSupport(
-            TextureFormat format, Tiling tiling) const override {
-        return fFormatSupport[static_cast<int>(tiling)][static_cast<int>(format)];
-    }
-
     // Helper functions to compute supported texture usage and sample counts, only called during
     // initialization of VulkanCaps and then cached in `fFormatSupport`.
     SkEnumBitMask<SampleCount> getSupportedSampleCounts(const skgpu::VulkanInterface* interface,
@@ -204,11 +199,6 @@ private:
             TextureFormat format,
             Tiling tiling,
             const VkFormatProperties& props) const;
-
-    // Indexed by Tiling then TextureFormat
-    std::array<std::array<std::pair<SkEnumBitMask<TextureUsage>,
-                                    SkEnumBitMask<SampleCount>>,
-                          kTextureFormatCount>, 2> fFormatSupport;
 
     uint32_t fMaxVertexAttributes;
     uint64_t fMaxUniformBufferRange;

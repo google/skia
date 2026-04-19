@@ -27,9 +27,7 @@
 
 namespace skgpu::graphite {
 
-MtlCaps::MtlCaps(const id<MTLDevice> device, const ContextOptions& options)
-        : Caps()
-        , fFormatSupport{} { // zero-initialize format support so everything defaults to unsupported
+MtlCaps::MtlCaps(const id<MTLDevice> device, const ContextOptions& options) : Caps() {
     // Metal-specific MtlCaps
     this->initGPUFamily(device);
     this->initCaps(device);
@@ -192,7 +190,8 @@ void MtlCaps::initFormatTable(const id<MTLDevice> device) {
         }
 #endif
 
-        auto& [supportedUsage, supportedSampleCounts] = fFormatSupport[i];
+        // The metal backend only supports optimal tiling currently
+        auto& [supportedUsage, supportedSampleCounts] = fFormatSupport[(int) Tiling::kOptimal][i];
         if (features == MTLFeatureFlag::NotAvailable) {
             SkASSERT(!SkToBool(supportedUsage) && !SkToBool(supportedSampleCounts));
             continue;
