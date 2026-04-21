@@ -17,6 +17,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkCanvasPriv.h"
@@ -373,20 +374,68 @@ DEF_TEST(SkPictureBackedGlyphDrawable_Basic, reporter) {
     REPORTER_ASSERT(reporter, !badReadBuffer.isValid());
 }
 
-static sk_sp<SkDrawable> make_sksl_drawable() {
+namespace {
+
+// There is currently on SkMaskFilter that directly creates runtime effects
+enum class SkSLSource {
+    kShader, kColorFilter, kBlender, kImageFilter
+};
+
+} // anonymous namespace
+
+static sk_sp<SkDrawable> make_sksl_drawable(SkSLSource source) {
     SkRect rect = SkRect::MakeWH(50, 50);
 
     SkPictureRecorder recorder;
     SkCanvas* canvas = recorder.beginRecording(rect);
 
-    const sk_sp<SkRuntimeEffect> effect =
-            SkRuntimeEffect::MakeForShader(
+    SkPaint paint;
+
+    switch (source) {
+        case SkSLSource::kShader: {
+            const sk_sp<SkRuntimeEffect> effect = SkRuntimeEffect::MakeForShader(
                     SkString("half4 main(float2 xy) { return half4(0, 1, 0, 1); }"))
                     .effect;
-    SkASSERT(effect);
+            SkASSERT(effect);
 
-    SkPaint paint;
-    paint.setShader(effect->makeShader(/*uniforms=*/nullptr, /*children=*/{}));
+            paint.setShader(effect->makeShader(/*uniforms=*/nullptr, /*children=*/{}));
+            break;
+        }
+
+        case SkSLSource::kColorFilter: {
+            const sk_sp<SkRuntimeEffect> effect = SkRuntimeEffect::MakeForColorFilter(
+                    SkString("half4 main(half4 color) { return 0.5 * color; }"))
+                    .effect;
+            SkASSERT(effect);
+
+            paint.setColorFilter(effect->makeColorFilter(/*uniforms=*/nullptr, /*children=*/{}));
+            break;
+        }
+
+        case SkSLSource::kBlender: {
+            const sk_sp<SkRuntimeEffect> effect = SkRuntimeEffect::MakeForBlender(
+                    SkString("half4 main(half4 src, half4 dst) { return src + dst; }"))
+                    .effect;
+            SkASSERT(effect);
+
+            paint.setBlender(effect->makeBlender(/*uniforms=*/nullptr, /*children=*/{}));
+            break;
+        }
+
+        case SkSLSource::kImageFilter: {
+            const sk_sp<SkRuntimeEffect> effect =
+                    SkRuntimeEffect::MakeForShader(
+                            SkString("uniform shader child;"
+                                     "half4 main(float2 xy) { return 0.5 * child.eval(xy); }"))
+                            .effect;
+            SkASSERT(effect);
+
+            SkRuntimeEffectBuilder builder{std::move(effect)};
+            paint.setImageFilter(SkImageFilters::RuntimeShader(builder, "child", nullptr));
+            break;
+        }
+    }
+
     // See note in make_nested_sksl_drawable: We include enough ops that this drawable will be
     // preserved as a sub-picture when we wrap it in a second layer.
     for (int i = 0; i < kMaxPictureOpsToUnrollInsteadOfRef + 1; ++i) {
@@ -396,13 +445,13 @@ static sk_sp<SkDrawable> make_sksl_drawable() {
     return recorder.finishRecordingAsDrawable();
 }
 
-static sk_sp<SkDrawable> make_nested_sksl_drawable() {
+static sk_sp<SkDrawable> make_nested_sksl_drawable(SkSLSource source) {
     SkRect rect = SkRect::MakeWH(50, 50);
 
     SkPictureRecorder recorder;
     SkCanvas* canvas = recorder.beginRecording(rect);
 
-    auto sksl_drawable = make_sksl_drawable();
+    auto sksl_drawable = make_sksl_drawable(source);
     sk_sp<SkPicture> sksl_picture = sksl_drawable->makePictureSnapshot();
 
     // We need to ensure that the op count of our picture is larger than this threshold, so we
@@ -414,23 +463,32 @@ static sk_sp<SkDrawable> make_nested_sksl_drawable() {
 }
 
 DEF_TEST(SkPictureBackedGlyphDrawable_SkSL, reporter) {
-    for (const sk_sp<SkDrawable>& drawable : {make_sksl_drawable(), make_nested_sksl_drawable()}) {
-        for (bool allowSkSL : {true, false}) {
-            REPORTER_ASSERT(reporter, drawable);
+    for (SkSLSource source : {SkSLSource::kShader,
+                              SkSLSource::kColorFilter,
+                              SkSLSource::kBlender,
+                              SkSLSource::kImageFilter}) {
+        for (const sk_sp<SkDrawable>& drawable : {make_sksl_drawable(source),
+                                                  make_nested_sksl_drawable(source)}) {
+            for (bool allowSkSL : {true, false}) {
+                skiatest::ReporterContext ctx{reporter,
+                        SkStringPrintf("source: %d, allow sksl: %d", (int) source, allowSkSL)};
 
-            SkBinaryWriteBuffer writeBuffer({});
-            SkPictureBackedGlyphDrawable::FlattenDrawable(writeBuffer, drawable.get());
+                REPORTER_ASSERT(reporter, drawable);
 
-            sk_sp<SkData> data = writeBuffer.snapshotAsData();
+                SkBinaryWriteBuffer writeBuffer({});
+                SkPictureBackedGlyphDrawable::FlattenDrawable(writeBuffer, drawable.get());
 
-            SkReadBuffer readBuffer{data->data(), data->size()};
-            readBuffer.setAllowSkSL(allowSkSL);
+                sk_sp<SkData> data = writeBuffer.snapshotAsData();
 
-            sk_sp<SkPictureBackedGlyphDrawable> dstDrawable =
-                    SkPictureBackedGlyphDrawable::MakeFromBuffer(readBuffer);
+                SkReadBuffer readBuffer{data->data(), data->size()};
+                readBuffer.setAllowSkSL(allowSkSL);
 
-            REPORTER_ASSERT(reporter, readBuffer.isValid() == allowSkSL);
-            REPORTER_ASSERT(reporter, !!dstDrawable == allowSkSL);
+                sk_sp<SkPictureBackedGlyphDrawable> dstDrawable =
+                        SkPictureBackedGlyphDrawable::MakeFromBuffer(readBuffer);
+
+                REPORTER_ASSERT(reporter, readBuffer.isValid() == allowSkSL);
+                REPORTER_ASSERT(reporter, !!dstDrawable == allowSkSL);
+            }
         }
     }
 }
