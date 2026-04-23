@@ -80,6 +80,10 @@ public:
         return fAdvance.fX + (fEllipsis != nullptr ? fEllipsis->fAdvance.fX : 0) +
                (fHyphen != nullptr ? fHyphen->fAdvance.fX : 0);
     }
+    // Returns the bare advance of the line's source-text content, excluding both
+    // line-end affixes: the ellipsis (if any) and the rendered soft hyphen (if any).
+    // The name is historical -- it predates soft hyphen rendering -- but the value
+    // is the source-text advance, i.e. width() minus any affix widths.
     SkScalar widthWithoutEllipsis() const { return fAdvance.fX; }
     SkVector offset() const;
 
@@ -146,7 +150,9 @@ public:
     bool endsWithHardLineBreak() const;
 
 private:
-    std::unique_ptr<Run> shapeEllipsis(const SkString& ellipsis, const Cluster* cluster);
+    std::unique_ptr<Run> shapeEllipsis(const SkString& ellipsis,
+                                       const Cluster* cluster,
+                                       bool isHyphen = false);
     void justify(SkScalar maxWidth);
 
     void buildTextBlob(TextRange textRange, const TextStyle& style, const ClipContext& context);

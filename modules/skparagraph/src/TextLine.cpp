@@ -643,19 +643,29 @@ void TextLine::createSoftHyphen() {
     }
 
     SkString hyphenStr("-");
-    fHyphen = this->shapeEllipsis(hyphenStr, &lastCluster);
+    fHyphen = this->shapeEllipsis(hyphenStr, &lastCluster, /*isHyphen=*/true);
     if (fHyphen) {
-        fHyphen->setOwner(fOwner);
         fHyphen->fClusterStart = lastCluster.textRange().start;
     }
 }
 
-std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Cluster* cluster) {
+std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis,
+                                             const Cluster* cluster,
+                                             bool isHyphen) {
 
     class ShapeHandler final : public SkShaper::RunHandler {
     public:
-        ShapeHandler(SkScalar lineHeight, bool useHalfLeading, SkScalar baselineShift, const SkString& ellipsis)
-            : fRun(nullptr), fLineHeight(lineHeight), fUseHalfLeading(useHalfLeading), fBaselineShift(baselineShift), fEllipsis(ellipsis) {}
+        ShapeHandler(SkScalar lineHeight,
+                     bool useHalfLeading,
+                     SkScalar baselineShift,
+                     const SkString& ellipsis,
+                     bool isHyphen)
+            : fRun(nullptr)
+            , fLineHeight(lineHeight)
+            , fUseHalfLeading(useHalfLeading)
+            , fBaselineShift(baselineShift)
+            , fEllipsis(ellipsis)
+            , fIsHyphen(isHyphen) {}
         std::unique_ptr<Run> run() & { return std::move(fRun); }
 
     private:
@@ -676,6 +686,7 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Clu
             fRun->fAdvance.fY = fRun->advance().fY;
             fRun->fPlaceholderIndex = std::numeric_limits<size_t>::max();
             fRun->fEllipsis = true;
+            fRun->fHyphen = fIsHyphen;
         }
 
         void commitLine() override {}
@@ -685,6 +696,7 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Clu
         bool fUseHalfLeading;
         SkScalar fBaselineShift;
         SkString fEllipsis;
+        bool fIsHyphen;
     };
 
     const Run& run = cluster->run();
@@ -701,7 +713,11 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Clu
     }
 
     auto shaped = [&](sk_sp<SkTypeface> typeface, sk_sp<SkFontMgr> fallback) -> std::unique_ptr<Run> {
-        ShapeHandler handler(run.heightMultiplier(), run.useHalfLeading(), run.baselineShift(), ellipsis);
+        ShapeHandler handler(run.heightMultiplier(),
+                             run.useHalfLeading(),
+                             run.baselineShift(),
+                             ellipsis,
+                             isHyphen);
         SkFont font(std::move(typeface), textStyle.getFontSize());
         font.setEdging(textStyle.getFontEdging());
         font.setHinting(textStyle.getFontHinting());
@@ -1218,6 +1234,13 @@ void TextLine::getRectsForRange(TextRange textRange0,
     this->iterateThroughVisualRuns(true,
         [textRange0, rectHeightStyle, rectWidthStyle, &boxes, &lastRun, startBox, this]
         (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
+        // The rendered soft hyphen is a synthetic glyph run that does not correspond
+        // to any source text. Its synthetic textRange (offsets into the "-" string)
+        // would falsely intersect caller-supplied source ranges and produce a
+        // spurious selection rect at the line-end hyphen position. Skip it.
+        if (run->isHyphen()) {
+            return true;
+        }
         *runWidthInLine = this->iterateThroughSingleRunByStyles(
         TextAdjustment::GraphemeGluster, run, runOffsetInLine, textRange, StyleType::kNone,
         [run, runOffsetInLine, textRange0, rectHeightStyle, rectWidthStyle, &boxes, &lastRun, startBox, this]
