@@ -185,31 +185,33 @@ sk_sp<GraphicsPipeline> GlobalCache::findGraphicsPipeline(
     [[maybe_unused]] bool forPrecompile =
             SkToBool(pipelineCreationFlags & PipelineCreationFlags::kForPrecompilation);
 
-    sk_sp<GraphicsPipeline>* entry = nullptr;
+    sk_sp<GraphicsPipeline> result;
     {
         SkAutoSpinlock lock{fSpinLock};
 
-        entry = fGraphicsPipelineCache.find(key);
+        sk_sp<GraphicsPipeline>* entry = fGraphicsPipelineCache.find(key);
         if (entry) {
-            if ((*entry)->didAsyncCompilationFail()) SK_UNLIKELY {
+            result = *entry;
+
+            if (result->didAsyncCompilationFail()) SK_UNLIKELY {
                 // If the pipeline failed, remove it from the cache and let it be regenerated.
-                this->removeGraphicsPipeline((*entry).get());
+                this->removeGraphicsPipeline(result.get());
                 return nullptr;
             }
 #if defined(GPU_TEST_UTILS)
             ++fStats.fGraphicsCacheHits;
 #endif
 
-            if ((*entry)->epoch() != fEpochCounter) {
-                (*entry)->markEpoch(fEpochCounter);   // update epoch due to use in a new epoch
+            if (result->epoch() != fEpochCounter) {
+                result->markEpoch(fEpochCounter);   // update epoch due to use in a new epoch
                 ++fStats.fPipelineUsesInEpoch;
             }
-            if (!forPrecompile && (*entry)->fromPrecompile() && !(*entry)->wasUsed()) {
+            if (!forPrecompile && result->fromPrecompile() && !result->wasUsed()) {
                 ++fStats.fNormalPreemptedByPrecompile;
             }
 
-            (*entry)->updateAccessTime();
-            (*entry)->markUsed();
+            result->updateAccessTime();
+            result->markUsed();
 
 #if defined(SK_PIPELINE_LIFETIME_LOGGING)
             static const char* kNames[2] = { "CacheHitForN", "CacheHitForP" };
@@ -217,7 +219,7 @@ sk_sp<GraphicsPipeline> GlobalCache::findGraphicsPipeline(
                                  TRACE_STR_STATIC(kNames[forPrecompile]),
                                  TRACE_EVENT_SCOPE_THREAD,
                                  "key", key.hash(),
-                                 "compilationID", (*entry)->getPipelineInfo().fCompilationID);
+                                 "compilationID", result->getPipelineInfo().fCompilationID);
 #endif
         } else {
 #if defined(GPU_TEST_UTILS)
@@ -242,12 +244,11 @@ sk_sp<GraphicsPipeline> GlobalCache::findGraphicsPipeline(
         }
     }
 
-    if (entry) {
-        this->invokePipelineCallback(ContextOptions::PipelineCacheOp::kPipelineFound, entry->get());
-        return *entry;
+    if (result) {
+        this->invokePipelineCallback(ContextOptions::PipelineCacheOp::kPipelineFound, result.get());
     }
 
-    return nullptr;
+    return result;
 }
 
 #if SK_HISTOGRAMS_ENABLED
