@@ -38,9 +38,6 @@ inline bool SkRegionValueIsSentinel(int32_t value) {
     return value == (int32_t)SkRegion_kRunTypeSentinel;
 }
 
-#define assert_sentinel(value, isSentinel) \
-    SkASSERT(SkRegionValueIsSentinel(value) == isSentinel)
-
 #ifdef SK_DEBUG
 // Given the first interval (just past the interval-count), compute the
 // interval count, by search for the x-sentinel
