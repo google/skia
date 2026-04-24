@@ -23,14 +23,30 @@
 
 using namespace skia_private;
 
-/* Region Layout
+/* SkRegion Run-Length Encoding (RLE) Format:
  *
- *  TOP
+ * A region is stored as a series of non-overlapping horizontal strips (scanlines).
+ * All rectangles in a strip share the same Top and Bottom Y-coordinates.
  *
- *  [ Bottom, X-Intervals, [Left, Right]..., X-Sentinel ]
- *  ...
+ * Data layout:
+ * [Top-Y]
+ *    [Bottom-Y, Interval-Count (N), Left-1, Right-1, ..., Left-N, Right-N, X-Sentinel]
+ *    [Bottom-Y, Interval-Count (M), Left-1, Right-1, ..., Left-M, Right-M, X-Sentinel]
+ *    ...
+ * [Y-Sentinel]
  *
- *  Y-Sentinel
+ * - Sentinels are 0x7FFFFFFF (SkRegion_kRunTypeSentinel).
+ * - Interval-Count can be 0 (representing a vertical gap between strips).
+ * - Strips are sorted by Y; Intervals within a strip are sorted by X.
+ *
+ * Example: Two rects [10, 10, 20, 20] and [30, 10, 40, 20] on one line,
+ *          then a gap until Y=30, then [15, 30, 25, 40] would be:
+ *
+ *          10                       // Global Top-Y
+ *          20, 2, 10, 20, 30, 40, S // Strip 1: Y 10-20, 2 rects, X-Sentinel
+ *          30, 0, S                 // Strip 2: Y 20-30, 0 rects (gap), X-Sentinel
+ *          40, 1, 15, 25, S         // Strip 3: Y 30-40, 1 rect, X-Sentinel
+ *          S                        // Y-Sentinel
  */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -96,6 +112,10 @@ static SkRegionPriv::RunType* skip_intervals(const SkRegionPriv::RunType runs[])
 #endif
     runs += intervals * 2 + 1;
     return const_cast<SkRegionPriv::RunType*>(runs);
+}
+
+static inline void assert_sentinel(int32_t value, bool isSentinel) {
+    SkASSERT(SkRegionValueIsSentinel(value) == isSentinel);
 }
 
 bool SkRegion::RunsAreARect(const SkRegion::RunType runs[], int count,
@@ -299,7 +319,7 @@ bool SkRegion::setRuns(RunType runs[], int count) {
         if (runs[3] == SkRegion_kRunTypeSentinel) {  // should be first left...
             runs += 3;  // skip empty initial span
             runs[0] = runs[-2]; // set new top to prev bottom
-            assert_sentinel(runs[1], false);    // bot: a sentinal would mean two in a row
+            assert_sentinel(runs[1], false);    // bot: a sentinel would mean two in a row
             assert_sentinel(runs[2], false);    // intervalcount
             assert_sentinel(runs[3], false);    // left
             assert_sentinel(runs[4], false);    // right
@@ -879,7 +899,7 @@ public:
 
     int flush() {
         (*fArray)[fStartDst] = fTop;
-        // Previously reserved enough for TWO sentinals.
+        // Previously reserved enough for TWO sentinels.
         SkASSERT(fArray->count() > SkToInt(fPrevDst + fPrevLen));
         (*fArray)[fPrevDst + fPrevLen] = SkRegion_kRunTypeSentinel;
         return (int)(fPrevDst - fStartDst + fPrevLen + 1);
@@ -1050,20 +1070,18 @@ bool SkRegion::Oper(const SkRegion& rgnaOrig, const SkRegion& rgnbOrig, Op op,
     // swith to using pointers, so we can swap them as needed
     const SkRegion* rgna = &rgnaOrig;
     const SkRegion* rgnb = &rgnbOrig;
-    // after this point, do not refer to rgnaOrig or rgnbOrig!!!
 
-    // collaps difference and reverse-difference into just difference
+    // collapse difference and reverse-difference into just difference
     if (kReverseDifference_Op == op) {
-        using std::swap;
-        swap(rgna, rgnb);
+        std::swap(rgna, rgnb);
         op = kDifference_Op;
     }
 
     SkIRect bounds;
-    bool    a_empty = rgna->isEmpty();
-    bool    b_empty = rgnb->isEmpty();
-    bool    a_rect = rgna->isRect();
-    bool    b_rect = rgnb->isRect();
+    bool a_empty = rgna->isEmpty();
+    bool b_empty = rgnb->isEmpty();
+    bool a_rect = rgna->isRect();
+    bool b_rect = rgnb->isRect();
 
     switch (op) {
     case kDifference_Op:
@@ -1188,9 +1206,11 @@ static bool validate_run_count(int ySpanCount, int intervalCount, int runCount) 
     }
     SkSafeMath safeMath;
     int sum = 2;
+    // 3 bytes per ySpan (stop Y, how many intervals, sentinel)
     sum = safeMath.addInt(sum, ySpanCount);
     sum = safeMath.addInt(sum, ySpanCount);
     sum = safeMath.addInt(sum, ySpanCount);
+    // 2 bytes per interval (startX, stop X)
     sum = safeMath.addInt(sum, intervalCount);
     sum = safeMath.addInt(sum, intervalCount);
     return safeMath && sum == runCount;
@@ -1218,6 +1238,7 @@ static bool validate_run(const int32_t* runs,
     const int32_t* const end = runs + runCount;
     SkIRect bounds = {0, 0, 0 ,0};  // calulated bounds
     SkIRect rect = {0, 0, 0, 0};    // current rect
+    bool prevWasEmpty = true;       // If we start with an empty slice, that's corrupted data.
     rect.fTop = *runs++;
     if (rect.fTop == SkRegion_kRunTypeSentinel) {
         return false;  // no rect can contain SkRegion_kRunTypeSentinel
@@ -1246,6 +1267,15 @@ static bool validate_run(const int32_t* runs,
         if (xIntervals < 0 || xIntervals > intervalCount || runs + 1 + 2 * xIntervals > end) {
             return false;
         }
+        if (xIntervals == 0) {
+            if (prevWasEmpty) {
+                // back to back empty spans are invalid; our serialization always has them together
+                return false;
+            }
+            prevWasEmpty = true;
+        } else {
+            prevWasEmpty = false;
+        }
         intervalCount -= xIntervals;
         bool firstInterval = true;
         int32_t lastRight = 0;  // check that x-intervals are distinct and ordered.
@@ -1263,7 +1293,7 @@ static bool validate_run(const int32_t* runs,
             bounds.join(rect);
         }
         if (*runs++ != SkRegion_kRunTypeSentinel) {
-            return false;  // required check sentinal.
+            return false;  // required check sentinel.
         }
         rect.fTop = rect.fBottom;
         SkASSERT(runs < end);
