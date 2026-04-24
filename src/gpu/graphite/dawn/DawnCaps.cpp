@@ -96,6 +96,8 @@ bool is_valid_view(const DawnTextureInfo& dawnInfo) {
 #if !defined(__EMSCRIPTEN__)
     switch (dawnInfo.fFormat) {
         case wgpu::TextureFormat::R8BG8Biplanar420Unorm:
+        case wgpu::TextureFormat::R8BG8Biplanar422Unorm:
+        case wgpu::TextureFormat::R8BG8Biplanar444Unorm:
             if (dawnInfo.fAspect == wgpu::TextureAspect::Plane0Only) {
                 return dawnInfo.getViewFormat() == wgpu::TextureFormat::R8Unorm;
             } else if (dawnInfo.fAspect == wgpu::TextureAspect::Plane1Only) {
@@ -104,6 +106,8 @@ bool is_valid_view(const DawnTextureInfo& dawnInfo) {
             break; // else fall through to validate All aspect
 
         case wgpu::TextureFormat::R10X6BG10X6Biplanar420Unorm:
+        case wgpu::TextureFormat::R10X6BG10X6Biplanar422Unorm:
+        case wgpu::TextureFormat::R10X6BG10X6Biplanar444Unorm:
             if (dawnInfo.fAspect == wgpu::TextureAspect::Plane0Only) {
                 return dawnInfo.getViewFormat() == wgpu::TextureFormat::R16Unorm;
             } else if (dawnInfo.fAspect == wgpu::TextureAspect::Plane1Only) {
@@ -111,6 +115,7 @@ bool is_valid_view(const DawnTextureInfo& dawnInfo) {
             }
             break; // else fall through to validate All aspect
 
+        // There are not yet triplanar variants for 10-bit YUV formats.
         case wgpu::TextureFormat::R8BG8A8Triplanar420Unorm:
             if (dawnInfo.fAspect == wgpu::TextureAspect::Plane0Only ||
                 dawnInfo.fAspect == wgpu::TextureAspect::Plane2Only) {
