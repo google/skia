@@ -222,30 +222,48 @@ const SkSL::RP::Program* SkRuntimeEffect::getRPProgram(SkSL::DebugTracePriv* deb
     fCompileRPProgramOnce([&] {
         // We generally do not run the inliner when an SkRuntimeEffect program is initially created,
         // because the final compile to native shader code will do this. However, in SkRP, there's
-        // no additional compilation occurring, so we need to manually inline here if we want the
-        // performance boost of inlining.
-        if (!(fFlags & kDisableOptimization_Flag)) {
-            SkSL::Compiler compiler;
-            fBaseProgram->fConfig->fSettings.fInlineThreshold = SkSL::kDefaultInlineThreshold;
-            compiler.runInliner(*fBaseProgram);
+        // no additional compilation occurring, so we need to optimize/inline here if we want the
+        // performance boost of inlining. Since fBaseProgram is a shared (const) object, we can't
+        // mutate it in-place (e.g. calling compiler.runInliner). If optimization is neccesary,
+        // we re-compile the program from source with inlining and optimization enabled to get a
+        // freshly optimized copy (it's pretty cheap to re-compile and there's no easy way to copy
+        // an SkSL::Program).
+        const SkSL::Program* programToUse = fBaseProgram.get();
+        const SkSL::FunctionDefinition* mainToUse = &fMain;
 
-            // After inlining, the program is likely to have dead functions left behind.
-            while (SkSL::Transform::EliminateDeadFunctions(*fBaseProgram)) {
-                // Removing dead functions may cause more functions to become unreferenced.
+        std::unique_ptr<SkSL::Program> optimizedCopy;
+        bool shouldOptimize = !(fFlags & kDisableOptimization_Flag);
+        SkSL::ProgramSettings settings = fBaseProgram->fConfig->fSettings;
+        bool needsOptimization = !settings.fOptimize ||
+                                  settings.fInlineThreshold < SkSL::kDefaultInlineThreshold;
+        if (shouldOptimize && needsOptimization) {
+            SkSL::Compiler compiler;
+            settings.fOptimize = true;
+            settings.fInlineThreshold = SkSL::kDefaultInlineThreshold;
+            optimizedCopy = compiler.convertProgram(
+                    fBaseProgram->fConfig->fKind, *fBaseProgram->fSource, settings);
+            SkASSERT(optimizedCopy);
+            if (optimizedCopy) {
+                const auto* mainDecl = optimizedCopy->getFunction("main");
+                SkASSERT(mainDecl);
+                if (mainDecl) {
+                    programToUse = optimizedCopy.get();
+                    mainToUse = mainDecl->definition();
+                }
             }
         }
 
         SkSL::DebugTracePriv tempDebugTrace;
         if (debugTrace) {
             const_cast<SkRuntimeEffect*>(this)->fRPProgram = MakeRasterPipelineProgram(
-                    *fBaseProgram, fMain, debugTrace, /*writeTraceOps=*/true);
+                    *programToUse, *mainToUse, debugTrace, /*writeTraceOps=*/true);
         } else if (kRPEnableLiveTrace) {
             debugTrace = &tempDebugTrace;
             const_cast<SkRuntimeEffect*>(this)->fRPProgram = MakeRasterPipelineProgram(
-                    *fBaseProgram, fMain, debugTrace, /*writeTraceOps=*/false);
+                    *programToUse, *mainToUse, debugTrace, /*writeTraceOps=*/false);
         } else {
             const_cast<SkRuntimeEffect*>(this)->fRPProgram = MakeRasterPipelineProgram(
-                    *fBaseProgram, fMain, /*debugTrace=*/nullptr, /*writeTraceOps=*/false);
+                    *programToUse, *mainToUse, /*debugTrace=*/nullptr, /*writeTraceOps=*/false);
         }
 
         if (kRPEnableLiveTrace) {
@@ -450,8 +468,9 @@ void SkRuntimeEffectPriv::WriteChildEffects(
 }
 
 SkSL::ProgramSettings SkRuntimeEffect::MakeSettings(const Options& options) {
+    constexpr int kDisableSKSLInlining = 0;
     SkSL::ProgramSettings settings;
-    settings.fInlineThreshold = 0;
+    settings.fInlineThreshold = kDisableSKSLInlining;
     settings.fForceNoInline = options.forceUnoptimized;
     settings.fOptimize = !options.forceUnoptimized;
     settings.fMaxVersionAllowed = options.maxVersionAllowed;
