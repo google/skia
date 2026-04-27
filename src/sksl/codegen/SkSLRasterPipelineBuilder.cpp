@@ -387,7 +387,7 @@ void Builder::discard_stack(int32_t count, int stackID) {
             case BuilderOp::copy_stack_to_slots_unmasked: {
                 // Look for a pattern of `push, immediate-ops, pop` and simplify it down to an
                 // immediate-op directly to the value slot.
-                if (count == 1) {
+                if (count == lastInstruction->fImmA) {
                     if (this->simplifyImmediateUnmaskedOp()) {
                         return;
                     }
@@ -1374,7 +1374,7 @@ Program::StackDepths Program::tempStackMaxDepths() const {
         current[stackID] += stack_usage(inst);
         largest[stackID] = std::max(current[stackID], largest[stackID]);
         // If we assert here, the generated program has popped off the top of the stack.
-        SkASSERTF(current[stackID] >= 0, "unbalanced temp stack push/pop on stack %d", stackID);
+        SkASSERTF_RELEASE(current[stackID] >= 0, "unbalanced temp stack push/pop on stack");
     }
 
     // Ensure that when the program is complete, our stacks are fully balanced.
