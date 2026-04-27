@@ -1795,3 +1795,45 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrSkSLFP_UniformArray,
     }
 }
 #endif
+
+DEF_TEST(SkRuntimeShader_b500080194, r) {
+    constexpr const char* kSkSL =
+        "half4 main(float2 xy) {"
+          "float4 v;"
+          "v.x += xy.x;"
+          "(v = abs(v)).xyz;"
+          "(v = abs(v)).xyz;"
+          "(v = abs(v)).xyz;"
+          "(v = abs(v)).xyz;"
+          "(v = abs(v)).xyz;"
+          "(v = abs(v)).xyz;"
+          "(v = abs(v)).xyz;"
+          "(v = abs(v)).xyz;"
+          "(v = abs(v)).xyz;"
+          "(v = abs(v)).xyz;"
+          "(v = abs(v)).xyz;"
+          "(v = abs(v)).xyz;"
+          "(v = abs(v)).xyz;"
+          "(v = abs(v)).xyz;"
+          "(v = abs(v)).xyz;"
+          "(v = abs(v)).xyz;"
+          "(v = abs(v)).xyz;"
+          "(v = abs(v)).xyz;"
+          "(v = abs(v)).xyz;"
+          "(v = abs(v)).xyz;"
+          "return half4(v);"
+        "}";
+
+    auto [effect, err] = SkRuntimeEffect::MakeForShader(SkString(kSkSL));
+
+    if (!effect) {
+        REPORT_FAILURE(r, "SkSL compile failed", SkString("SkSL compile failed"));
+    } else {
+        sk_sp<SkShader> shader = effect->makeShader(/*uniforms=*/nullptr, {});
+        SkPaint paint;
+        paint.setShader(std::move(shader));
+        sk_sp<SkSurface> surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(64, 64));
+        // This caused a crash before the patch.
+        surface->getCanvas()->drawPaint(paint);
+    }
+}
