@@ -4155,6 +4155,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fMSAAResolvesAutomatically = false;
     }
 
+    // https://skbug.com/503013389
+    if (ctxInfo.driver() == GrGLDriver::kNVIDIA) {
+        fMSAAResolvesAutomatically = false;
+    }
+
 #ifndef SK_BUILD_FOR_IOS
     if (ctxInfo.renderer() == GrGLRenderer::kPowerVR54x   ||
         ctxInfo.renderer() == GrGLRenderer::kPowerVRRogue ||
