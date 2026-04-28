@@ -21,6 +21,7 @@
 #include "include/ports/SkFontScanner_FreeType.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkMutex.h"
+#include "include/private/base/SkTFitsIn.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
@@ -1137,7 +1138,7 @@ FT_Error SkScalerContext_FreeType::setupSize() {
 
 bool SkScalerContext_FreeType::getBoundsOfCurrentOutlineGlyph(FT_GlyphSlot glyph, SkRect* bounds) {
     if (glyph->format != FT_GLYPH_FORMAT_OUTLINE) {
-        SkASSERT(false);
+        SkDEBUGFAIL("unexpected format type");
         return false;
     }
     if (0 == glyph->outline.n_contours) {
@@ -1146,6 +1147,16 @@ bool SkScalerContext_FreeType::getBoundsOfCurrentOutlineGlyph(FT_GlyphSlot glyph
 
     FT_BBox bbox;
     FT_Outline_Get_CBox(&glyph->outline, &bbox);
+    // The FreeType docs say these will be 32 bits at most.
+    if (!SkTFitsIn<SkFDot6>(bbox.xMin) || !SkTFitsIn<SkFDot6>(bbox.xMax) ||
+        !SkTFitsIn<SkFDot6>(bbox.yMin) || !SkTFitsIn<SkFDot6>(bbox.yMax)) {
+        return false;
+    }
+
+    if (bbox.xMin >= bbox.xMax || bbox.yMin >= bbox.yMax) {
+        return false;
+    }
+
     *bounds = SkRect::MakeLTRB(SkFDot6ToScalar(bbox.xMin), -SkFDot6ToScalar(bbox.yMax),
                                SkFDot6ToScalar(bbox.xMax), -SkFDot6ToScalar(bbox.yMin));
     return true;

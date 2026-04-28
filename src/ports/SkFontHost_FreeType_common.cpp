@@ -18,6 +18,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/effects/SkGradient.h"
+#include "include/private/base/SkTFitsIn.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkFDot6.h"
@@ -1636,7 +1637,7 @@ void SkScalerContextFTUtils::generateGlyphImage(FT_Face face, const SkGlyph& gly
         case FT_GLYPH_FORMAT_OUTLINE: {
             FT_Outline* outline = &face->glyph->outline;
 
-            int dx = 0, dy = 0;
+            SkFDot6 dx = 0, dy = 0;
             if (this->isSubpixel()) {
                 dx = SkFixedToFDot6(glyph.getSubXFixed());
                 dy = SkFixedToFDot6(glyph.getSubYFixed());
@@ -1727,16 +1728,19 @@ void SkScalerContextFTUtils::generateGlyphImage(FT_Face face, const SkGlyph& gly
                 FT_BBox     bbox;
                 FT_Bitmap   target;
                 FT_Outline_Get_CBox(outline, &bbox);
-                /*
-                    what we really want to do for subpixel is
-                        offset(dx, dy)
-                        compute_bounds
-                        offset(bbox & !63)
-                    but that is two calls to offset, so we do the following, which
-                    achieves the same thing with only one offset call.
-                */
-                FT_Outline_Translate(outline, dx - ((bbox.xMin + dx) & ~63),
-                                              dy - ((bbox.yMin + dy) & ~63));
+                if (!SkTFitsIn<SkFDot6>(bbox.xMin) || !SkTFitsIn<SkFDot6>(bbox.xMax) ||
+                    !SkTFitsIn<SkFDot6>(bbox.yMin) || !SkTFitsIn<SkFDot6>(bbox.yMax)) {
+                    return;
+                }
+
+                // We want to apply the subpixel offset (dx, dy), and then align the resulting
+                // bounding box to the integer pixel grid of our destination bitmap.
+                // We do this by calculating the translation required to move the glyph's
+                // pixel-rounded left edge (in the destination space) to the origin which allows
+                // us to only make one call to Translate.
+                auto xShift = dx - SkIntToFDot6(SkFDot6Floor(bbox.xMin + dx));
+                auto yShift = dy - SkIntToFDot6(SkFDot6Floor(bbox.yMin + dy));
+                FT_Outline_Translate(outline, xShift, yShift);
 
                 target.width = glyph.width();
                 target.rows = glyph.height();
