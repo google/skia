@@ -4149,7 +4149,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // https://b.corp.google.com/issues/143074513
     // https://skbug.com/40042528
     if (ctxInfo.renderer() == GrGLRenderer::kAdreno615 ||
-        ctxInfo.renderer() == GrGLRenderer::kAdreno620) {
+        ctxInfo.renderer() == GrGLRenderer::kAdreno620 ||
+        ctxInfo.renderer() == GrGLRenderer::kAdreno621) {
         fMSFBOType = kNone_MSFBOType;
         fMSAAResolvesAutomatically = false;
     }
@@ -4438,6 +4439,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         ctxInfo.renderer() == GrGLRenderer::kAdreno5xx_other ||
         ctxInfo.renderer() == GrGLRenderer::kAdreno615 ||
         ctxInfo.renderer() == GrGLRenderer::kAdreno620 ||
+        ctxInfo.renderer() == GrGLRenderer::kAdreno621 ||
         ctxInfo.renderer() == GrGLRenderer::kAdreno630 ||
         ctxInfo.renderer() == GrGLRenderer::kAdreno640 ||
         ctxInfo.renderer() == GrGLRenderer::kAdreno6xx_other) {

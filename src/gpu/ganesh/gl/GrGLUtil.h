@@ -168,6 +168,7 @@ enum class GrGLRenderer {
     kAdreno5xx_other,
     kAdreno615,  // Pixel3a
     kAdreno620,  // Pixel5
+    kAdreno621,  // A650-class (A662 derivative)
     kAdreno630,  // Pixel3
     kAdreno640,  // Pixel4
     kAdreno6xx_other,
