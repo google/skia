@@ -58,6 +58,8 @@ public:
     static sk_sp<TestSVGTypeface> Default();
     static sk_sp<TestSVGTypeface> Planets();
     void                          exportTtxCbdt(SkWStream*, SkSpan<unsigned> strikeSizes) const;
+    void                          exportTtxCbdtAlpha(SkWStream*, SkSpan<unsigned> strikeSizes,
+                                                     int imageFormat = 1) const;
     void                          exportTtxSbix(SkWStream*, SkSpan<unsigned> strikeSizes) const;
     void                          exportTtxColr(SkWStream*) const;
     virtual bool                  getPathOp(SkColor, SkPathOp*) const = 0;
