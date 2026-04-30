@@ -13,6 +13,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkBlurEngine.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkDevice.h"
@@ -275,33 +276,19 @@ TextureProxyView MakeBitmapProxyView(Recorder* recorder,
             SkMipmap::ComputeLevelCount(bitmap.width(), bitmap.height()) + 1 : 1;
 
     // setup MipLevels
-    sk_sp<SkMipmap> mipmaps;
-    std::vector<MipLevel> texels;
-    if (mipLevelCount == 1) {
-        texels.resize(mipLevelCount);
-        texels[0].fPixels = bitmap.getPixels();
-        texels[0].fRowBytes = bitmap.rowBytes();
-    } else {
-        mipmaps = SkToBool(mipmapsIn)
-                          ? mipmapsIn
-                          : sk_sp<SkMipmap>(SkMipmap::Build(bitmap.pixmap(), nullptr));
-        if (!mipmaps) {
+    sk_sp<SkMipmap> mipmaps = mipmapsIn;
+    skia_private::STArray<16, MipLevel> levels(mipLevelCount);
+    levels.push_back({bitmap.getPixels(), bitmap.rowBytes()}); // base level is always included
+    if (mipLevelCount > 1) {
+        if (!mipmaps && !(mipmaps = sk_sp<SkMipmap>(SkMipmap::Build(bitmap.pixmap(), nullptr)))) {
+            SKGPU_LOG_E("Generating mipmaps failed");
             return {};
         }
-
         SkASSERT(mipLevelCount == mipmaps->countLevels() + 1);
-        texels.resize(mipLevelCount);
-
-        texels[0].fPixels = bitmap.getPixels();
-        texels[0].fRowBytes = bitmap.rowBytes();
-
         for (int i = 1; i < mipLevelCount; ++i) {
-            SkMipmap::Level generatedMipLevel;
-            mipmaps->getLevel(i - 1, &generatedMipLevel);
-            texels[i].fPixels = generatedMipLevel.fPixmap.addr();
-            texels[i].fRowBytes = generatedMipLevel.fPixmap.rowBytes();
-            SkASSERT(texels[i].fPixels);
-            SkASSERT(generatedMipLevel.fPixmap.colorType() == bitmap.colorType());
+            SkMipmap::Level mipLevel;
+            SkAssertResult(mipmaps->getLevel(i - 1, &mipLevel));
+            levels.push_back({mipLevel.fPixmap.addr(), mipLevel.fPixmap.rowBytes()});
         }
     }
 
@@ -331,7 +318,7 @@ TextureProxyView MakeBitmapProxyView(Recorder* recorder,
     const SkIRect dimensions = SkIRect::MakeSize(bitmap.dimensions());
     // Move the view into `uploadSource` so that it is the unique holder of the proxy
     UploadSource uploadSource = UploadSource::Make(
-            recorder->priv().caps(), std::move(view), colorInfo, colorInfo, texels, dimensions);
+            recorder->priv().caps(), std::move(view), colorInfo, colorInfo, levels, dimensions);
     if (!uploadSource.isValid()) {
         SKGPU_LOG_E("MakeBitmapProxyView: Could not create UploadSource");
         return {};

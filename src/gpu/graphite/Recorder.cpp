@@ -392,34 +392,23 @@ bool Recorder::updateBackendTexture(const BackendTexture& backendTex,
         return false;
     }
 
-    SkColorType ct = srcData[0].colorType();
-
-    TextureFormat format = TextureInfoPriv::ViewFormat(backendTex.info());
-    if (!AreColorTypeAndFormatCompatible(ct, format)) {
-        return false;
-    }
-
     sk_sp<Texture> texture = this->priv().resourceProvider()->createWrappedTexture(backendTex, "");
     if (!texture) {
         return false;
     }
     texture->setReleaseCallback(std::move(releaseHelper));
 
-    std::vector<MipLevel> mipLevels;
-    mipLevels.resize(numLevels);
-
+    skia_private::STArray<16, MipLevel> mipLevels(numLevels);
     for (int i = 0; i < numLevels; ++i) {
-        SkASSERT(srcData[i].addr());
         SkASSERT(srcData[i].info().colorInfo() == srcData[0].info().colorInfo());
-
-        mipLevels[i].fPixels = srcData[i].addr();
-        mipLevels[i].fRowBytes = srcData[i].rowBytes();
+        mipLevels.push_back({srcData[i].addr(), srcData[i].rowBytes()});
     }
 
     // Src and dst colorInfo are the same
     const SkColorInfo& colorInfo = srcData[0].info().colorInfo();
+    TextureFormat format = TextureInfoPriv::ViewFormat(backendTex.info());
     TextureProxyView view{TextureProxy::Wrap(std::move(texture)),
-                          ReadSwizzleForColorType(srcData[0].info().colorType(), format)};
+                          ReadSwizzleForColorType(colorInfo.colorType(), format)};
     const SkIRect dimensions = SkIRect::MakeSize(backendTex.dimensions());
     UploadSource uploadSource = UploadSource::Make(
             this->priv().caps(), std::move(view), colorInfo, colorInfo, mipLevels, dimensions);

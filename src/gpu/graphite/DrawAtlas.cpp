@@ -184,11 +184,10 @@ bool DrawAtlas::recordUploads(DrawContext* dc, Recorder* recorder) {
                     continue;
                 }
 
-                std::vector<MipLevel> levels;
-                levels.push_back({dataPtr, plot->rowBytes()});
-
+                MipLevel level{dataPtr, plot->rowBytes()};
                 const UploadSource uploadSource = UploadSource::Make(
-                        recorder->priv().caps(), view, colorInfo, colorInfo, levels, dstRect);
+                        recorder->priv().caps(), view, colorInfo, colorInfo,
+                        SkSpan(&level, 1), dstRect);
                 if (!dc->recordUpload(recorder, uploadSource)) {
                     return false;
                 }

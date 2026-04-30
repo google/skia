@@ -726,21 +726,6 @@ bool Device::onWritePixels(const SkPixmap& src, int x, int y) {
     // to backend textures
 
     const TextureProxy* target = fDC->target().proxy();
-
-    // TODO: add mipmap support for createBackendTexture
-
-    if (src.colorType() == kUnknown_SkColorType) {
-        return false;
-    }
-
-    // If one alpha type is unknown and the other isn't, it's too underspecified.
-    if ((src.alphaType() == kUnknown_SkAlphaType) !=
-        (this->imageInfo().alphaType() == kUnknown_SkAlphaType)) {
-        return false;
-    }
-
-    // TODO: canvas2DFastPath?
-
     if (!fRecorder->priv().caps()->isCopyableDst(target->textureInfo())) {
         auto image = SkImages::RasterFromPixmap(src, nullptr, nullptr);
         image = SkImages::TextureFromImage(fRecorder, image.get());
@@ -759,7 +744,7 @@ bool Device::onWritePixels(const SkPixmap& src, int x, int y) {
         return true;
     }
 
-    // TODO: check for flips and either handle here or pass info to UploadTask
+    SkASSERT(fDC->target().origin() == Origin::kTopLeft);
 
     // Determine rect to copy
     SkIRect dstRect = SkIRect::MakePtSize({x, y}, src.dimensions());
@@ -767,10 +752,8 @@ bool Device::onWritePixels(const SkPixmap& src, int x, int y) {
         return false;
     }
 
-    // Set up copy location
-    const void* addr = src.addr(dstRect.fLeft - x, dstRect.fTop - y);
-    std::vector<MipLevel> levels;
-    levels.push_back({addr, src.rowBytes()});
+    // Adjust the copy location for any change after intersection
+    MipLevel level{src.addr(dstRect.fLeft - x, dstRect.fTop - y), src.rowBytes()};
 
     // The writePixels() still respects painter's order, so flush everything to tasks before this
     // recording the upload for the pixel data.
@@ -782,7 +765,7 @@ bool Device::onWritePixels(const SkPixmap& src, int x, int y) {
                                                          fDC->target(),
                                                          src.info().colorInfo(),
                                                          this->imageInfo().colorInfo(),
-                                                         levels,
+                                                         SkSpan(&level, 1),
                                                          dstRect);
     return fDC->recordUpload(fRecorder, uploadSource);
 }
