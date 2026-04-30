@@ -43,9 +43,9 @@ public:
 
     virtual bool canUploadOnHost() const { return false; }
 
-    // With the assumption that source.canUploadOnHost() is true, attempts to write to the
+    // With the assumption that the source data can upload on the host, attempts to write to the
     // texture on the host directly. Returns `false` only if driver calls fail.
-    virtual bool uploadDataOnHost(const UploadSource& source, const SkIRect& dstRect);
+    virtual bool uploadDataOnHost(const UploadSource& source);
 
 protected:
     Texture(const SharedContext*,

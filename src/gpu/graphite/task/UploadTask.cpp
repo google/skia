@@ -52,13 +52,15 @@ namespace skgpu::graphite {
 // the aligned destination rowBytes for each level.
 std::pair<size_t, size_t> compute_combined_buffer_size(
         const Caps* caps,
+        TextureFormat format,
         int mipLevelCount,
-        size_t bytesPerBlock,
         const SkISize& baseDimensions,
-        SkTextureCompressionType compressionType,
         TArray<std::pair<size_t, size_t>>* levelOffsetsAndRowBytes) {
     SkASSERT(levelOffsetsAndRowBytes && levelOffsetsAndRowBytes->empty());
     SkASSERT(mipLevelCount >= 1);
+
+    const size_t bytesPerBlock = TextureFormatBytesPerBlock(format);
+    const SkTextureCompressionType compressionType = TextureFormatCompressionType(format);
 
     SkISize compressedBlockDimensions = CompressedDimensionsInBlocks(compressionType,
                                                                      baseDimensions);
@@ -92,7 +94,7 @@ std::pair<size_t, size_t> compute_combined_buffer_size(
     return {combinedBufferSize, minTransferBufferAlignment};
 }
 
-UploadSource::UploadSource() : fCompression(SkTextureCompressionType::kNone) {}
+UploadSource::UploadSource(TextureProxyView view) : fView(std::move(view)) {}
 UploadSource::UploadSource(UploadSource&&) = default;
 UploadSource& UploadSource::operator=(UploadSource&&) = default;
 UploadSource::~UploadSource() = default;
@@ -103,36 +105,27 @@ UploadSource UploadSource::Make(const Caps* caps,
                                 const SkColorInfo& dstColorInfo,
                                 SkSpan<const MipLevel> levels,
                                 const SkIRect& dstRect) {
-    SkDEBUGCODE(const TextureInfo& texInfo = dstView.proxy()->textureInfo());
-
-    SkASSERT(caps->isTexturable(texInfo));
-    SkASSERT(AreColorTypeAndFormatCompatible(dstColorInfo.colorType(), dstView.proxy()->format()));
-
-    unsigned int mipLevelCount = levels.size();
-    // The assumption is either that we have no mipmaps, or that our rect is the entire texture
-    SkASSERT(mipLevelCount == 1 || dstRect == SkIRect::MakeSize(dstView.dimensions()));
-
-    // We assume that if the texture has mip levels, we either upload to all the levels or just the
-    // first.
-#ifdef SK_DEBUG
-    unsigned int numExpectedLevels = 1;
-    if (texInfo.mipmapped() == Mipmapped::kYes) {
-        numExpectedLevels = SkMipmap::ComputeLevelCount(dstView.dimensions()) + 1;
-    }
-    SkASSERT(mipLevelCount == 1 || mipLevelCount == numExpectedLevels);
-#endif
-
+    // No data to upload
     if (dstRect.isEmpty()) {
         return Invalid();
     }
+    // Ensure data would fit into the texture
+    if (!dstView.proxy()->isFullyLazy() &&
+        !SkIRect::MakeSize(dstView.dimensions()).contains(dstRect)) {
+        return Invalid();
+    }
 
-    UploadSource source;
-    for (unsigned int i = 0; i < mipLevelCount; ++i) {
-        // We do not allow any gaps in the mip data
-        if (!levels[i].fPixels) {
-            return Invalid();
-        }
-        source.fLevels.push_back(levels[i]);
+    unsigned int mipLevelCount = levels.size();
+    // The assumption is either that we have no mipmaps, or that our rect is the entire texture
+    if (mipLevelCount != 1 && dstRect != SkIRect::MakeSize(dstView.dimensions())) {
+        return Invalid();
+    }
+
+    // We assume that if the texture has mips, we either upload to all the levels or just the first.
+    unsigned int numExpectedLevels = dstView.mipmapped() == Mipmapped::kYes ?
+            SkMipmap::ComputeLevelCount(dstView.dimensions()) + 1 : 1;
+    if (numExpectedLevels != mipLevelCount) {
+        return Invalid();
     }
 
     SkColorSpaceXformSteps csSteps{srcColorInfo.colorSpace(), srcColorInfo.alphaType(),
@@ -145,54 +138,78 @@ UploadSource UploadSource::Make(const Caps* caps,
         return Invalid();
     }
 
-    source.fXferFn = xferFn;
-    source.fBytesPerPixel = TextureFormatBytesPerBlock(dstView.proxy()->format());
-    // Don't upload on the host if we need to perform conversions that could be done directly into
-    // a mapped GPU buffer.
-    source.fCanUploadOnHost = xferFn->isIdentity() &&
-                              dstView.proxy()->isInstantiated() &&
-                              dstView.proxy()->texture()->canUploadOnHost();
+    UploadSource source{std::move(dstView)};
+    for (unsigned int i = 0; i < mipLevelCount; ++i) {
+        // We do not allow any gaps in the mip data
+        if (!levels[i].fPixels) {
+            return Invalid();
+        }
+        source.fLevels.push_back(levels[i]);
+    }
 
+    source.fDstRect = dstRect;
+    source.fXferFn = xferFn;
     return source;
 }
 
 UploadSource UploadSource::MakeCompressed(const Caps* caps,
-                                          const TextureProxy& textureProxy,
+                                          sk_sp<TextureProxy> textureProxy,
                                           const void* data,
                                           size_t dataSize) {
     if (!data) {
         return Invalid();  // no data to upload
     }
-
-    const TextureInfo& texInfo = textureProxy.textureInfo();
-    SkASSERT(caps->isTexturable(texInfo));
-
-    SkTextureCompressionType compression = TextureFormatCompressionType(textureProxy.format());
+    SkTextureCompressionType compression = TextureFormatCompressionType(textureProxy->format());
     if (compression == SkTextureCompressionType::kNone) {
         return Invalid();
     }
-
     // Create a transfer buffer and fill with data.
-    const SkISize dimensions = textureProxy.dimensions();
-    skia_private::STArray<16, size_t> srcMipOffsets;
-    SkDEBUGCODE(size_t computedSize =) SkCompressedDataSize(
-            compression, dimensions, &srcMipOffsets, texInfo.mipmapped() == Mipmapped::kYes);
-    SkASSERT(computedSize == dataSize);
+    const SkISize dimensions = textureProxy->dimensions();
+    STArray<16, size_t> srcMipOffsets;
+    size_t computedSize = SkCompressedDataSize(
+            compression, dimensions, &srcMipOffsets, textureProxy->mipmapped() == Mipmapped::kYes);
+    if (computedSize != dataSize) {
+        return Invalid();
+    }
+
+    auto xferFn = TextureFormatXferFn::MakeIdentity(textureProxy->format());
+    SkASSERT(xferFn.has_value());
 
     const unsigned int mipLevelCount = srcMipOffsets.size();
 
-    UploadSource source;
+    UploadSource source{TextureProxyView(textureProxy)};
     source.fLevels.resize(mipLevelCount);
+    int currentWidth = textureProxy->dimensions().width();
     for (unsigned int i = 0; i < mipLevelCount; ++i) {
         source.fLevels[i].fPixels = SkTAddOffset<const void>(data, srcMipOffsets[i]);
-        source.fLevels[i].fRowBytes = 0;  // Tightly packed
+        // Assume the source data is tightly packed.
+        source.fLevels[i].fRowBytes = CompressedRowBytes(compression, currentWidth);
+        currentWidth = std::max(1, currentWidth / 2);
     }
 
-    source.fCompression = compression;
-    source.fBytesPerPixel = SkCompressedBlockSize(compression);
-    source.fCanUploadOnHost = textureProxy.isInstantiated() &&
-                              textureProxy.texture()->canUploadOnHost();
+    source.fDstRect = SkIRect::MakeSize(dimensions);
+    source.fXferFn = xferFn;
     return source;
+}
+
+bool UploadSource::attemptUploadOnhost() const {
+    SkASSERT(this->isValid());
+
+    // Don't upload on the host if we need to perform conversions that could be done directly into
+    // a mapped GPU buffer.
+    if (!fXferFn->isIdentity() ||
+        !fView.proxy()->isInstantiated() ||
+        !fView.proxy()->texture()->canUploadOnHost()) {
+        return false;
+    }
+
+    // Don't upload on the host if the UploadSource doesn't have a unique hold on the TextureProxy
+    // (otherwise some other thread could trigger GPU work while this thread was modifying the
+    // underlying Texture resource).
+    if (!fView.proxy()->unique()) {
+        return false;
+    }
+    return fView.proxy()->texture()->uploadDataOnHost(*this);
 }
 
 UploadInstance::UploadInstance() = default;
@@ -201,104 +218,35 @@ UploadInstance& UploadInstance::operator=(UploadInstance&&) = default;
 UploadInstance::~UploadInstance() = default;
 
 UploadInstance::UploadInstance(const Buffer* buffer,
-                               size_t bytesPerPixel,
                                sk_sp<TextureProxy> textureProxy,
                                std::unique_ptr<ConditionalUploadContext> condContext)
         : fBuffer(buffer)
-        , fBytesPerPixel(bytesPerPixel)
         , fTextureProxy(textureProxy)
         , fConditionalContext(std::move(condContext)) {}
 
 UploadInstance UploadInstance::Make(Recorder* recorder,
-                                    const TextureProxyView& dstView,
-                                    const SkColorInfo& srcColorInfo,
-                                    const SkColorInfo& dstColorInfo,
                                     const UploadSource& source,
-                                    const SkIRect& dstRect,
                                     std::unique_ptr<ConditionalUploadContext> condContext) {
+    sk_sp<TextureProxy> textureProxy = source.view().refProxy();
+    const SkIRect dstRect = source.dstRect();
+    const SkTextureCompressionType compression =
+            TextureFormatCompressionType(textureProxy->format());
+
     const Caps* caps = recorder->priv().caps();
     SkSpan<const MipLevel> levels = source.levels();
     uint32_t mipLevelCount = static_cast<uint32_t>(levels.size());
 
-    TArray<std::pair<size_t, size_t>> levelOffsetsAndRowBytes(mipLevelCount);
-
+    STArray<16, std::pair<size_t, size_t>> levelOffsetsAndRowBytes(mipLevelCount);
     auto [combinedBufferSize, minAlignment] =
             compute_combined_buffer_size(caps,
+                                         textureProxy->format(),
                                          mipLevelCount,
-                                         source.bytesPerPixel(),
                                          dstRect.size(),
-                                         source.compression(),
                                          &levelOffsetsAndRowBytes);
     SkASSERT(combinedBufferSize);
 
     UploadBufferManager* bufferMgr = recorder->priv().uploadBufferManager();
     auto [writer, bufferInfo] = bufferMgr->getTextureUploadWriter(combinedBufferSize, minAlignment);
-    if (!writer) {
-        SKGPU_LOG_W("Failed to get write-mapped buffer for texture upload of size %zu",
-                    combinedBufferSize);
-        return Invalid();
-    }
-    SkASSERT(source.formatXferFn().has_value()); // UploadSource verified this
-
-    UploadInstance upload{bufferInfo.fBuffer,
-                          source.bytesPerPixel(),
-                          dstView.refProxy(),
-                          std::move(condContext)};
-
-    // Fill in copy data
-    int32_t currentWidth = dstRect.width();
-    int32_t currentHeight = dstRect.height();
-    for (uint32_t currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
-        const size_t srcRowBytes = levels[currentMipLevel].fRowBytes;
-        const auto [mipOffset, dstRowBytes] = levelOffsetsAndRowBytes[currentMipLevel];
-
-        // copy data into the buffer, skipping any trailing bytes
-        const char* src = (const char*)levels[currentMipLevel].fPixels;
-        writer.convert(mipOffset, currentWidth, currentHeight,
-                       src, srcRowBytes, *source.formatXferFn(), dstRowBytes);
-
-        // For mipped data, the dstRect is always the full texture so we don't need to worry about
-        // modifying the TL coord as it will always be 0,0,for all levels.
-        upload.fCopyData.push_back({
-            /*fBufferOffset=*/bufferInfo.fOffset + mipOffset,
-            /*fBufferRowBytes=*/dstRowBytes,
-            /*fRect=*/SkIRect::MakeXYWH(dstRect.left(), dstRect.top(), currentWidth, currentHeight),
-            /*fMipLevel=*/currentMipLevel
-        });
-
-        currentWidth = std::max(1, currentWidth / 2);
-        currentHeight = std::max(1, currentHeight / 2);
-    }
-
-    ATRACE_ANDROID_FRAMEWORK("Upload %sTexture [%dx%d]",
-                             mipLevelCount > 1 ? "MipMap " : "",
-                             dstRect.width(), dstRect.height());
-
-    return upload;
-}
-
-UploadInstance UploadInstance::MakeCompressed(Recorder* recorder,
-                                              sk_sp<TextureProxy> textureProxy,
-                                              const UploadSource& source) {
-    const Caps* caps = recorder->priv().caps();
-    const SkISize dimensions = textureProxy->dimensions();
-    SkSpan<const MipLevel> levels = source.levels();
-    uint32_t mipLevelCount = static_cast<uint32_t>(levels.size());
-
-    TArray<std::pair<size_t, size_t>> levelOffsetsAndRowBytes(mipLevelCount);
-    auto [combinedBufferSize, minAlignment] =
-            compute_combined_buffer_size(caps,
-                                         mipLevelCount,
-                                         source.bytesPerPixel(),
-                                         dimensions,
-                                         source.compression(),
-                                         &levelOffsetsAndRowBytes);
-    SkASSERT(combinedBufferSize);
-
-    UploadBufferManager* bufferMgr = recorder->priv().uploadBufferManager();
-    auto [writer, bufferInfo] = bufferMgr->getTextureUploadWriter(combinedBufferSize, minAlignment);
-
-    std::vector<BufferTextureCopyData> copyData(mipLevelCount);
 
     if (!bufferInfo.fBuffer) {
         SKGPU_LOG_W("Failed to get write-mapped buffer for texture upload of size %zu",
@@ -306,48 +254,54 @@ UploadInstance UploadInstance::MakeCompressed(Recorder* recorder,
         return Invalid();
     }
 
-    UploadInstance upload{bufferInfo.fBuffer, source.bytesPerPixel(), std::move(textureProxy)};
+    ATRACE_ANDROID_FRAMEWORK("Upload %s %sTexture [%dx%d]",
+                             TextureFormatName(textureProxy->format()),
+                             mipLevelCount > 1 ? "MipMap " : "",
+                             dstRect.width(),
+                             dstRect.height());
+
+    UploadInstance upload{bufferInfo.fBuffer, std::move(textureProxy), std::move(condContext)};
 
     // Fill in copy data
-    int32_t currentWidth = dimensions.width();
-    int32_t currentHeight = dimensions.height();
+    int32_t currentWidth = dstRect.width();
+    int32_t currentHeight = dstRect.height();
     for (uint32_t currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
+        // NOTE: When not compressed, this function automatically returns currentWidth and height,
+        // e.g. uncompressed blocks are the same as texels.
         SkISize blockDimensions =
-                CompressedDimensionsInBlocks(source.compression(), {currentWidth, currentHeight});
-        int32_t blockHeight = blockDimensions.height();
+                CompressedDimensionsInBlocks(compression, {currentWidth, currentHeight});
 
-        const size_t trimRowBytes = CompressedRowBytes(source.compression(), currentWidth);
-        const size_t srcRowBytes = trimRowBytes;
+        const size_t srcRowBytes = levels[currentMipLevel].fRowBytes;
         const auto [dstMipOffset, dstRowBytes] = levelOffsetsAndRowBytes[currentMipLevel];
 
         // copy data into the buffer, skipping any trailing bytes
         const void* src = levels[currentMipLevel].fPixels;
-
-        writer.write(dstMipOffset, src, srcRowBytes, dstRowBytes, trimRowBytes, blockHeight);
+        writer.convert(dstMipOffset, blockDimensions.width(), blockDimensions.height(),
+                       src, srcRowBytes, source.formatXferFn(), dstRowBytes);
 
         int32_t copyWidth = currentWidth;
         int32_t copyHeight = currentHeight;
-        if (caps->fullCompressedUploadSizeMustAlignToBlockDims()) {
-            SkISize oneBlockDims = CompressedDimensions(source.compression(), {1, 1});
+        if (compression != SkTextureCompressionType::kNone &&
+            caps->fullCompressedUploadSizeMustAlignToBlockDims()) {
+            SkISize oneBlockDims = CompressedDimensions(compression, {1, 1});
             copyWidth = SkAlignTo(copyWidth, oneBlockDims.fWidth);
             copyHeight = SkAlignTo(copyHeight, oneBlockDims.fHeight);
         }
 
+        // For compressed and mipped data, the dstRect is always the full texture so we don't need
+        // to worry about modifying the TL coord as it will always be 0,0,for all levels.
+        SkASSERT((dstRect.left() == 0 && dstRect.top() == 0) ||
+                 (mipLevelCount == 1 && compression == SkTextureCompressionType::kNone));
         upload.fCopyData.push_back({
             /*fBufferOffset=*/bufferInfo.fOffset + dstMipOffset,
             /*fBufferRowBytes=*/dstRowBytes,
-            /*fRect=*/SkIRect::MakeXYWH(0, 0, copyWidth, copyHeight),
+            /*fRect=*/SkIRect::MakeXYWH(dstRect.left(), dstRect.top(), copyWidth, copyHeight),
             /*fMipLevel=*/currentMipLevel
         });
 
         currentWidth = std::max(1, currentWidth / 2);
         currentHeight = std::max(1, currentHeight / 2);
     }
-
-    ATRACE_ANDROID_FRAMEWORK("Upload Compressed %sTexture [%dx%d]",
-                             mipLevelCount > 1 ? "MipMap " : "",
-                             dimensions.width(),
-                             dimensions.height());
 
     return upload;
 }
@@ -414,10 +368,11 @@ Task::Status UploadInstance::addCommand(Context* context,
             return Status::kSuccess;
         }
 
+        const int bpp = TextureFormatBytesPerBlock(fTextureProxy->format());
         BufferTextureCopyData transformedCopyData = copyData;
         transformedCopyData.fBufferOffset +=
                 (croppedDstRect.y() - dstRect.y()) * copyData.fBufferRowBytes +
-                (croppedDstRect.x() - dstRect.x()) * fBytesPerPixel;
+                (croppedDstRect.x() - dstRect.x()) * bpp;
         transformedCopyData.fRect = croppedDstRect;
 
         if (!commandBuffer->copyBufferToTexture(fBuffer,
@@ -439,23 +394,10 @@ Task::Status UploadInstance::addCommand(Context* context,
 //---------------------------------------------------------------------------
 
 bool UploadList::recordUpload(Recorder* recorder,
-                              const TextureProxyView& dstView,
-                              const SkColorInfo& srcColorInfo,
-                              const SkColorInfo& dstColorInfo,
                               const UploadSource& source,
-                              const SkIRect& dstRect,
                               std::unique_ptr<ConditionalUploadContext> condContext) {
-    // If possible, upload the data directly on host.
-    if (source.canUploadOnHost()) {
-        return dstView.proxy()->texture()->uploadDataOnHost(source, dstRect);
-    }
-
     UploadInstance instance = UploadInstance::Make(recorder,
-                                                   std::move(dstView),
-                                                   srcColorInfo,
-                                                   dstColorInfo,
                                                    source,
-                                                   dstRect,
                                                    std::move(condContext));
     if (!instance.isValid()) {
         return false;

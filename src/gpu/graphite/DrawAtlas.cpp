@@ -189,16 +189,7 @@ bool DrawAtlas::recordUploads(DrawContext* dc, Recorder* recorder) {
 
                 const UploadSource uploadSource = UploadSource::Make(
                         recorder->priv().caps(), view, colorInfo, colorInfo, levels, dstRect);
-                if (!uploadSource.isValid()) {
-                    return false;
-                }
-                if (!dc->recordUpload(recorder,
-                                      view,
-                                      colorInfo,
-                                      colorInfo,
-                                      uploadSource,
-                                      dstRect,
-                                      /*ConditionalUploadContext=*/nullptr)) {
+                if (!dc->recordUpload(recorder, uploadSource)) {
                     return false;
                 }
             }

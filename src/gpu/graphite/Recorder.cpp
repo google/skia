@@ -422,24 +422,19 @@ bool Recorder::updateBackendTexture(const BackendTexture& backendTex,
                           ReadSwizzleForColorType(srcData[0].info().colorType(), format)};
     const SkIRect dimensions = SkIRect::MakeSize(backendTex.dimensions());
     UploadSource uploadSource = UploadSource::Make(
-            this->priv().caps(), view, colorInfo, colorInfo, mipLevels, dimensions);
+            this->priv().caps(), std::move(view), colorInfo, colorInfo, mipLevels, dimensions);
     if (!uploadSource.isValid()) {
         SKGPU_LOG_E("Recorder::updateBackendTexture: Could not create UploadSource");
         return false;
     }
 
-    // Attempt to update the texture directly on the host if possible.
-    if (uploadSource.canUploadOnHost()) {
-        return view.proxy()->texture()->uploadDataOnHost(uploadSource, dimensions);
+    if (uploadSource.attemptUploadOnhost()) {
+        return true;
     }
 
     // Add UploadTask to Recorder
     UploadInstance upload = UploadInstance::Make(this,
-                                                 view,
-                                                 colorInfo,
-                                                 colorInfo,
                                                  uploadSource,
-                                                 dimensions,
                                                  std::make_unique<ImageUploadContext>());
     if (!upload.isValid()) {
         SKGPU_LOG_E("Recorder::updateBackendTexture: Could not create UploadInstance");
@@ -482,20 +477,20 @@ bool Recorder::updateCompressedBackendTexture(const BackendTexture& backendTex,
     sk_sp<TextureProxy> proxy = TextureProxy::Wrap(std::move(texture));
 
     UploadSource uploadSource =
-            UploadSource::MakeCompressed(this->priv().caps(), *proxy, data, dataSize);
+            UploadSource::MakeCompressed(this->priv().caps(), std::move(proxy), data, dataSize);
     if (!uploadSource.isValid()) {
         SKGPU_LOG_E("Recorder::updateBackendTexture: Could not create compressed UploadSource");
         return false;
     }
 
-    // Attempt to update the texture directly on the host if possible.
-    if (uploadSource.canUploadOnHost()) {
-        return proxy->texture()->uploadDataOnHost(uploadSource,
-                                                  SkIRect::MakeSize(proxy->dimensions()));
+    if (uploadSource.attemptUploadOnhost()) {
+        return true;
     }
 
     // Add UploadTask to Recorder
-    UploadInstance upload = UploadInstance::MakeCompressed(this, std::move(proxy), uploadSource);
+    UploadInstance upload = UploadInstance::Make(this,
+                                                 uploadSource,
+                                                 std::make_unique<ImageUploadContext>());
     if (!upload.isValid()) {
         SKGPU_LOG_E("Recorder::updateBackendTexture: Could not create compressed UploadInstance");
         return false;

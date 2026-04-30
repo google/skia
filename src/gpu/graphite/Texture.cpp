@@ -44,7 +44,7 @@ void Texture::invokeReleaseProc() {
     }
 }
 
-bool Texture::uploadDataOnHost(const UploadSource& source, const SkIRect& dstRect) {
+bool Texture::uploadDataOnHost(const UploadSource& source) {
     SK_ABORT("Not implemented");
 }
 

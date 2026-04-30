@@ -960,11 +960,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureReadAndWrite
         return;
     }
     UploadInstance upload = UploadInstance::Make(recorder.get(),
-                                                 TextureProxyView(srcProxy),
-                                                 srcPixels.info().colorInfo(),
-                                                 srcPixels.info().colorInfo(),
                                                  uploadSource,
-                                                 SkIRect::MakeWH(kDim, kDim),
                                                  std::make_unique<ImageUploadContext>());
     if (!upload.isValid()) {
         ERRORF(reporter, "Could not create UploadInstance");

@@ -784,16 +784,7 @@ bool Device::onWritePixels(const SkPixmap& src, int x, int y) {
                                                          this->imageInfo().colorInfo(),
                                                          levels,
                                                          dstRect);
-    if (!uploadSource.isValid()) {
-        return false;
-    }
-    return fDC->recordUpload(fRecorder,
-                             fDC->target(),
-                             src.info().colorInfo(),
-                             this->imageInfo().colorInfo(),
-                             uploadSource,
-                             dstRect,
-                             nullptr);
+    return fDC->recordUpload(fRecorder, uploadSource);
 }
 
 

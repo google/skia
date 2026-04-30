@@ -329,24 +329,27 @@ TextureProxyView MakeBitmapProxyView(Recorder* recorder,
     // no need to coordinate resource sharing. It is better to then group them into a single task
     // at the start of the Recording.
     const SkIRect dimensions = SkIRect::MakeSize(bitmap.dimensions());
+    // Move the view into `uploadSource` so that it is the unique holder of the proxy
     UploadSource uploadSource = UploadSource::Make(
-            recorder->priv().caps(), view, colorInfo, colorInfo, texels, dimensions);
+            recorder->priv().caps(), std::move(view), colorInfo, colorInfo, texels, dimensions);
     if (!uploadSource.isValid()) {
         SKGPU_LOG_E("MakeBitmapProxyView: Could not create UploadSource");
         return {};
     }
+
+    if (uploadSource.attemptUploadOnhost()) {
+        return uploadSource.view();
+    }
+    // else it failed or was unavailable, so use a task on the root upload list
+
     if (!recorder->priv().rootUploadList()->recordUpload(recorder,
-                                                         view,
-                                                         colorInfo,
-                                                         colorInfo,
                                                          uploadSource,
-                                                         dimensions,
                                                          std::make_unique<ImageUploadContext>())) {
         SKGPU_LOG_E("MakeBitmapProxyView: Could not create UploadInstance");
         return {};
     }
 
-    return view;
+    return uploadSource.view();
 }
 
 sk_sp<TextureProxy> MakePromiseImageLazyProxy(

@@ -15,6 +15,7 @@
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/graphite/CommandTypes.h"
 #include "src/gpu/graphite/TextureFormatXferFn.h"
+#include "src/gpu/graphite/TextureProxyView.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -36,7 +37,6 @@ class ResourceProvider;
 class RuntimeEffectDictionary;
 class ScratchResourceManager;
 class TextureProxy;
-class TextureProxyView;
 
 struct MipLevel {
     const void* fPixels = nullptr;
@@ -92,7 +92,7 @@ public:
                              SkSpan<const MipLevel> levels,
                              const SkIRect& dstRect);
     static UploadSource MakeCompressed(const Caps*,
-                                       const TextureProxy& textureProxy,
+                                       sk_sp<TextureProxy> textureProxy,
                                        const void* data,
                                        size_t dataSize);
 
@@ -102,26 +102,36 @@ public:
 
     bool isValid() const { return !fLevels.empty(); }
 
+    const TextureProxyView& view() const { return fView; }
+
     SkSpan<const MipLevel> levels() const { return fLevels; }
-    bool canUploadOnHost() const { return fCanUploadOnHost; }
-    SkTextureCompressionType compression() const { return fCompression; }
-    size_t bytesPerPixel() const { return fBytesPerPixel; }
-    const std::optional<TextureFormatXferFn>& formatXferFn() const { return fXferFn; }
+    const SkIRect& dstRect() const { return fDstRect; }
+    const TextureFormatXferFn& formatXferFn() const { return *fXferFn; }
+
+    // This uploads the data to the texture directly without going through any command buffer.
+    // This is a) not always desired (e.g. for repeated uploads in a task graph), and b) not
+    // always possible (if it's in use by the GPU and the backend doesn't synchronize a host copy).
+    //
+    // This returns true if the upload succeeded, otherwise false, in which case a regular
+    // upload should be attempted with `UploadInstance`. When uploading on a host is desired, the
+    // target proxy should be moved into the UploadSource in order to track that the target is
+    // uniquely held by the current thread (required to ensure no simultaneous GPU use starts
+    // using the texture).
+    bool attemptUploadOnhost() const;
 
 private:
-    static UploadSource Invalid() { return {}; }
+    static UploadSource Invalid() { return {{}}; }
 
-    UploadSource();
+    UploadSource(TextureProxyView);
 
+    // Technically after we've created the TextureFormatXferFn, we don't need the view's swizzle
+    // anymore, but hold on to the view for convenience since moving the original view/proxy into
+    // the UploadSource for host uploads is encouraged.
+    TextureProxyView fView;
+    SkIRect fDstRect;
     skia_private::STArray<16, MipLevel> fLevels;
 
-    // Whether the texture supports uploads directly from host memory.
-    bool fCanUploadOnHost = false;
-    // Compression type, if any.
-    SkTextureCompressionType fCompression;
-    // Bytes per pixel or block (if compressed)
-    size_t fBytesPerPixel = 0;
-    // Not present for compressed formats
+    // All valid UploadSources will have a transfer function.
     std::optional<TextureFormatXferFn> fXferFn;
 };
 
@@ -132,15 +142,8 @@ private:
 class UploadInstance {
 public:
     static UploadInstance Make(Recorder*,
-                               const TextureProxyView& dst,
-                               const SkColorInfo& srcColorInfo,
-                               const SkColorInfo& dstColorInfo,
                                const UploadSource& source,
-                               const SkIRect& dstRect,
                                std::unique_ptr<ConditionalUploadContext>);
-    static UploadInstance MakeCompressed(Recorder*,
-                                         sk_sp<TextureProxy> textureProxy,
-                                         const UploadSource& source);
 
     static UploadInstance Invalid() { return {}; }
 
@@ -162,12 +165,10 @@ private:
     UploadInstance();
     // Copy data is appended directly after the object is created
     UploadInstance(const Buffer*,
-                   size_t bytesPerPixel,
                    sk_sp<TextureProxy>,
                    std::unique_ptr<ConditionalUploadContext> = nullptr);
 
     const Buffer* fBuffer;
-    size_t fBytesPerPixel;
     sk_sp<TextureProxy> fTextureProxy;
     skia_private::STArray<1, BufferTextureCopyData> fCopyData;
     std::unique_ptr<ConditionalUploadContext> fConditionalContext;
@@ -185,12 +186,8 @@ private:
 class UploadList {
 public:
     bool recordUpload(Recorder*,
-                      const TextureProxyView& dst,
-                      const SkColorInfo& srcColorInfo,
-                      const SkColorInfo& dstColorInfo,
                       const UploadSource& source,
-                      const SkIRect& dstRect,
-                      std::unique_ptr<ConditionalUploadContext>);
+                      std::unique_ptr<ConditionalUploadContext> = nullptr);
 
     int size() { return fInstances.size(); }
 

@@ -106,7 +106,7 @@ public:
     bool canUploadOnHost() const override;
     // Once upload is finished, the image will be in the VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
     // layout.
-    bool uploadDataOnHost(const UploadSource& source, const SkIRect& dstRect) override;
+    bool uploadDataOnHost(const UploadSource& source) override;
 
 private:
     VulkanTexture(const VulkanSharedContext* sharedContext,

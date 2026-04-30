@@ -294,6 +294,17 @@ std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeGpuToCpu(
     return TextureFormatXferFn(srcFormat, preOps, std::move(rp), /*postOps=*/0);
 }
 
+std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeIdentity(TextureFormat format) {
+    auto [baseCT, xferOps] = TextureFormatColorTypeInfo(format);
+    if (xferOps & FormatXferOp::kDisabled) {
+        if (TextureFormatCompressionType(format) == SkTextureCompressionType::kNone) {
+            return std::nullopt;
+        } // else allow compressed formats through for identity conversion uploads
+    }
+
+    return TextureFormatXferFn(format, /*preOps=*/0, /*rp=*/nullptr, /*postOps=*/0);
+}
+
 template <typename... RPModifiers>
 sk_sp<TextureFormatXferFn::RPOps> TextureFormatXferFn::RPOps::Make(
         SkColorType srcColorType,
