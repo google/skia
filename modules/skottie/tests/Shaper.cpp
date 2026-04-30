@@ -494,6 +494,24 @@ DEF_TEST(Skottie_Shaper_breakiter, r) {
     check({1, 5, 9}, {1, 5, 7, 9},   {1, 5, 9});
 }
 
+DEF_TEST(Skottie_Shaper_fallback_metrics, reporter) {
+    const SkString text("Foo 推动全球交通可");
+    const Shaper::TextDesc desc = {
+        .fTypeface = ToolUtils::DefaultTypeface(),
+        .fTextSize = 18,
+        .fLineHeight = 18,
+        .fFlags = Shaper::kFragmentGlyphs | Shaper::kTrackFragmentAdvanceAscent,
+    };
+    const auto result =
+        Shaper::Shape(text, desc, SkRect::MakeWH(1000, 1000), ToolUtils::TestFontMgr(),
+            SkShapers::BestAvailable());
+        REPORTER_ASSERT(reporter, !result.fFragments.empty());
+
+    for (const auto& frag : result.fFragments) {
+        REPORTER_ASSERT(reporter, frag.fAdvance > 0);
+    }
+}
+
 #endif // SK_SHAPER_HARFBUZZ_AVAILABLE && !SK_BUILD_FOR_WIN
 
 #if defined(SK_SHAPER_CORETEXT_AVAILABLE)
