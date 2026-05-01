@@ -585,6 +585,7 @@ bool OpsTask::onExecute(GrOpFlushState* flushState) {
         stencil = renderTarget->getStencilAttachment(fUsesMSAASurface);
     }
 
+    bool markStencilCleared = false;
     GrLoadOp stencilLoadOp;
     switch (fInitialStencilContent) {
         case StencilContent::kDontCare:
@@ -602,7 +603,7 @@ bool OpsTask::onExecute(GrOpFlushState* flushState) {
             }
             if (!stencil->hasPerformedInitialClear()) {
                 stencilLoadOp = GrLoadOp::kClear;
-                stencil->markHasPerformedInitialClear();
+                markStencilCleared = true;
                 break;
             }
             // SurfaceDrawContexts are required to leave the user stencil bits in a cleared state
@@ -642,6 +643,9 @@ bool OpsTask::onExecute(GrOpFlushState* flushState) {
 
     if (!renderPass) {
         return false;
+    }
+    if (markStencilCleared) {
+        stencil->markHasPerformedInitialClear();
     }
     flushState->setOpsRenderPass(renderPass);
     renderPass->begin();
