@@ -24,7 +24,7 @@ GrStagingBufferManager::Slice GrStagingBufferManager::allocateStagingBufferSlice
         size_t totalBufferSize = fBuffers[i].fBuffer->size();
         size_t currentOffset = fBuffers[i].fOffset;
         offset = ((currentOffset + requiredAlignment - 1)/requiredAlignment)*requiredAlignment;
-        if (totalBufferSize - offset >= size) {
+        if (offset <= totalBufferSize && totalBufferSize - offset >= size) {
             buffer = &fBuffers[i];
             break;
         }
