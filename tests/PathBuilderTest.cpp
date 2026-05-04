@@ -1071,3 +1071,38 @@ DEF_TEST(SkPathBuilder_b_463584612, reporter) {
     SkPath p = builder.detach();
     REPORTER_ASSERT(reporter, !p.isEmpty());
 }
+
+DEF_TEST(SkPathBuilder_conic_semantics, reporter) {
+    {
+        // If w is finite and not one, appends kConic_Verb to verb array;
+        // and pt1, pt2 to SkPoint array; and w to conic weights.
+        SkPath p = SkPathBuilder().conicTo({10, 5}, {10, 10}, 0.5f).detach();
+        REPORTER_ASSERT(reporter, !p.isEmpty());
+        REPORTER_ASSERT(reporter, p.verbs().size() == 2u); // moveTo, conicTo
+        REPORTER_ASSERT(reporter, p.points().size() == 3u);
+        REPORTER_ASSERT(reporter, p.conicWeights().size() == 1u);
+        REPORTER_ASSERT(reporter, p.getSegmentMasks() == SkPath::kConic_SegmentMask);
+    }
+
+    {
+        // If w is one, appends kQuad_Verb to verb array, and
+        // pt1, pt2 to SkPoint array.
+        SkPath p = SkPathBuilder().conicTo({10, 5}, {10, 10}, 1).detach();
+        REPORTER_ASSERT(reporter, !p.isEmpty());
+        REPORTER_ASSERT(reporter, p.verbs().size() == 2u); // moveTo, quadTo
+        REPORTER_ASSERT(reporter, p.points().size() == 3u);
+        REPORTER_ASSERT(reporter, p.conicWeights().empty());
+        REPORTER_ASSERT(reporter, p.getSegmentMasks() == SkPath::kQuad_SegmentMask);
+    }
+
+    {
+        // If w is not finite, appends kLine_Verb twice to verb array, and
+        // pt1, pt2 to SkPoint array.
+        SkPath p = SkPathBuilder().conicTo({10, 5}, {10, 10}, SK_ScalarInfinity).detach();
+        REPORTER_ASSERT(reporter, !p.isEmpty());
+        REPORTER_ASSERT(reporter, p.verbs().size() == 3u); // moveTo, lineTo, lineTo
+        REPORTER_ASSERT(reporter, p.points().size() == 3u);
+        REPORTER_ASSERT(reporter, p.conicWeights().empty());
+        REPORTER_ASSERT(reporter, p.getSegmentMasks() == SkPath::kLine_SegmentMask);
+    }
+}
