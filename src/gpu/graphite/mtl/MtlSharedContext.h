@@ -60,7 +60,7 @@ private:
                      SkExecutor*,
                      SkSpan<sk_sp<SkRuntimeEffect>> userDefinedKnownRuntimeEffects);
 
-    void createCompatibleDepthStencilState(const DepthStencilSettings&);
+    void createCompatibleDepthStencilState(const DepthStencilSettings&, const char* label);
 
     sk_sp<GraphicsPipeline> createGraphicsPipeline(
             const RuntimeEffectDictionary*,
