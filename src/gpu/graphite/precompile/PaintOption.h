@@ -45,13 +45,16 @@ public:
     void toKey(const KeyContext&) const;
 
 private:
-    void addPaintColorToKey(const KeyContext&) const;
-    void handlePrimitiveColor(const KeyContext&) const;
-    void handlePaintAlpha(const KeyContext&) const;
-    void handleColorFilter(const KeyContext&) const;
-    bool shouldDither(SkColorType dstCT) const;
-    void handleDithering(const KeyContext&) const;
+    // These all return true if the resulting PaintOption is known to be opaque; false otherwise.
+    bool addPaintColorToKey(const KeyContext&) const;
+    bool handlePrimitiveColor(const KeyContext&) const;
+    bool handlePaintAlpha(const KeyContext&) const;
+    bool handleColorFilter(const KeyContext&) const;
+    bool handleDithering(const KeyContext&) const;
+
     void handleClipping(const KeyContext&) const;
+
+    bool shouldDither(SkColorType dstCT) const;
 
     bool fOpaquePaintColor;
     std::pair<sk_sp<PrecompileBlender>, int> fFinalBlender;
