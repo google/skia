@@ -14,6 +14,7 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTPin.h"
+#include "src/base/SkSafeMath.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"
 
@@ -404,6 +405,12 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
         return false;
     }
 
+    SkSafeMath safe;
+    int indicesAllocation = safe.addInt(safe.mulInt(18, path.countPoints()), 6);
+    if (!safe.ok()) {
+        return false;
+    }
+
     // Outer ring: 3*numPts
     // Middle ring: numPts
     // Presumptive inner ring: numPts
@@ -411,7 +418,7 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
     // Outer ring: 12*numPts
     // Middle ring: 0
     // Presumptive inner ring: 6*numPts + 6
-    fIndices.reserve(18*path.countPoints() + 6);
+    fIndices.reserve(indicesAllocation);
 
     // Reset the accumulated error for all the future lineTo() calls when iterating over the path.
     fAccumLinearError = 0.f;
