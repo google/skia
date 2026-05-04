@@ -17,7 +17,6 @@
 #include "include/private/base/SingleOwner.h"
 #include "include/private/base/SkAPI.h"
 #include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTDArray.h"
 
 #include <chrono>
 #include <cstddef>
@@ -284,7 +283,7 @@ private:
     void deregisterDevice(const Device*);
 
     SkCanvas* makeCaptureCanvas(SkCanvas*) override;
-    void createCaptureBreakpoint(SkSurface*) override;
+    SkContentID createCaptureBreakpoint(SkSurface*) override;
 
     sk_sp<SharedContext> fSharedContext;
     ResourceProvider* fResourceProvider; // May point to the Context's resource provider

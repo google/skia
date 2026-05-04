@@ -10,6 +10,7 @@
 #include "include/private/base/SkAPI.h"
 
 class SkCanvas;
+class SkContentID;
 class SkSurface;
 
 namespace skcpu {
@@ -41,7 +42,7 @@ private:
     * Returns nullptr if capture is not enabled.
     */
     virtual SkCanvas* makeCaptureCanvas(SkCanvas*) = 0;
-    virtual void createCaptureBreakpoint(SkSurface*) = 0;
+    virtual SkContentID createCaptureBreakpoint(SkSurface*) = 0;
 
     friend class SkSurface_Base; // for capture functionality
 };

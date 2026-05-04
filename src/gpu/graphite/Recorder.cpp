@@ -23,6 +23,7 @@
 #include "include/gpu/graphite/ImageProvider.h"
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/TextureInfo.h"
+#include "src/capture/SkCaptureManager.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GpuTypesPriv.h"
@@ -304,10 +305,11 @@ SkCanvas* Recorder::makeCaptureCanvas(SkCanvas* canvas) {
     return nullptr;
 }
 
-void Recorder::createCaptureBreakpoint(SkSurface* surface) {
+SkContentID Recorder::createCaptureBreakpoint(SkSurface* surface) {
    if (fSharedContext->captureManager()) {
-        fSharedContext->captureManager()->snapPicture(surface);
+        return fSharedContext->captureManager()->snapPicture(surface);
     }
+    return SkContentID();
 }
 
 void Recorder::registerDevice(sk_sp<Device> device) {

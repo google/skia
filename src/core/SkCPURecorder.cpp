@@ -7,6 +7,7 @@
 #include "include/core/SkCPURecorder.h"
 
 #include "include/core/SkTypes.h"
+#include "src/capture/SkCaptureManager.h"
 #include "src/core/SkCPUContextImpl.h"
 
 #include <memory>
@@ -16,6 +17,10 @@ namespace skcpu {
 Recorder* Recorder::TODO() {
     static Recorder* gRecorder = ContextImpl::TODO()->makeRecorder().release();
     return gRecorder;
+}
+
+SkContentID Recorder::createCaptureBreakpoint(SkSurface*) {
+    return SkContentID();
 }
 
 }  // namespace skcpu

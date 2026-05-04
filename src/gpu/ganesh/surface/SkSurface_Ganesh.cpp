@@ -418,6 +418,11 @@ sk_sp<const SkCapabilities> SkSurface_Ganesh::onCapabilities() {
     return fDevice->recordingContext()->skCapabilities();
 }
 
+uint32_t SkSurface_Ganesh::getPixelStorageID() const {
+    // TODO(b/412351769): Implement getPixelStorageID for Ganesh
+    return 0;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static bool validate_backend_texture(const GrCaps* caps,

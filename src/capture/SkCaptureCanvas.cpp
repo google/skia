@@ -10,10 +10,13 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkRasterHandleAllocator.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSurface.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkLog.h"
 #include "include/utils/SkNWayCanvas.h"
 #include "src/capture/SkCaptureManager.h"
 #include "src/core/SkCanvasPriv.h"
+#include "src/image/SkImage_Base.h"
 
 SkCaptureCanvas::SkCaptureCanvas(SkCanvas* canvas, SkCaptureManager* manager)
         : SkNWayCanvas(canvas->imageInfo().width(), canvas->imageInfo().height()) {
@@ -199,6 +202,18 @@ void SkCaptureCanvas::onDrawImage2(const SkImage* image,
                                    const SkPaint* paint) {
     this->pollCapturingStatus();
     this->SkNWayCanvas::onDrawImage2(image, left, top, sampling, paint);
+    if (uint32_t id = as_IB(image)->getDerivedSurfaceID()) {
+        SkRect bounds = SkRect::MakeXYWH(left, top, image->width(), image->height());
+        this->drawAnnotation(bounds, "SkCapture_DerivedSurfaceID",
+                             SkData::MakeWithCopy(&id, sizeof(id)).get());
+        SkContentID contentID = as_IB(image)->getContentID();
+        SKIA_LOG_D("SkCaptureCanvas::onDrawImage2: DerivedSurfaceID=%u, ContentID=%u\n",
+                   id, contentID.asUInt());
+        if (contentID) {
+            this->drawAnnotation(bounds, "SkCapture_ContentID",
+                                 SkData::MakeWithCopy(&contentID, sizeof(contentID)).get());
+        }
+    }
 }
 
 void SkCaptureCanvas::onDrawImageRect2(const SkImage* image,
@@ -209,6 +224,17 @@ void SkCaptureCanvas::onDrawImageRect2(const SkImage* image,
                                        SrcRectConstraint constraint) {
     this->pollCapturingStatus();
     this->SkNWayCanvas::onDrawImageRect2(image, src, dst, sampling, paint, constraint);
+    if (uint32_t id = as_IB(image)->getDerivedSurfaceID()) {
+        this->drawAnnotation(dst, "SkCapture_DerivedSurfaceID",
+                             SkData::MakeWithCopy(&id, sizeof(id)).get());
+        SkContentID contentID = as_IB(image)->getContentID();
+        SKIA_LOG_D("SkCaptureCanvas::onDrawImageRect2: DerivedSurfaceID=%u, ContentID=%u\n",
+                   id, contentID.asUInt());
+        if (contentID) {
+            this->drawAnnotation(dst, "SkCapture_ContentID",
+                                 SkData::MakeWithCopy(&contentID, sizeof(contentID)).get());
+        }
+    }
 }
 
 void SkCaptureCanvas::onDrawImageLattice2(const SkImage* image,
@@ -218,6 +244,17 @@ void SkCaptureCanvas::onDrawImageLattice2(const SkImage* image,
                                           const SkPaint* paint) {
     this->pollCapturingStatus();
     this->SkNWayCanvas::onDrawImageLattice2(image, lattice, dst, filter, paint);
+    if (uint32_t id = as_IB(image)->getDerivedSurfaceID()) {
+        this->drawAnnotation(dst, "SkCapture_DerivedSurfaceID",
+                             SkData::MakeWithCopy(&id, sizeof(id)).get());
+        SkContentID contentID = as_IB(image)->getContentID();
+        SKIA_LOG_D("SkCaptureCanvas::onDrawImageLattice2: DerivedSurfaceID=%u, ContentID=%u\n",
+                   id, contentID.asUInt());
+        if (contentID) {
+            this->drawAnnotation(dst, "SkCapture_ContentID",
+                                 SkData::MakeWithCopy(&contentID, sizeof(contentID)).get());
+        }
+    }
 }
 
 void SkCaptureCanvas::onDrawAtlas2(const SkImage* image,
@@ -231,6 +268,18 @@ void SkCaptureCanvas::onDrawAtlas2(const SkImage* image,
                                    const SkPaint* paint) {
     this->pollCapturingStatus();
     this->SkNWayCanvas::onDrawAtlas2(image, xform, tex, colors, count, bmode, sampling, cull, paint);
+    if (uint32_t id = as_IB(image)->getDerivedSurfaceID()) {
+        SkRect bounds = cull ? *cull : SkRect::MakeEmpty();
+        this->drawAnnotation(bounds, "SkCapture_DerivedSurfaceID",
+                             SkData::MakeWithCopy(&id, sizeof(id)).get());
+        SkContentID contentID = as_IB(image)->getContentID();
+        SKIA_LOG_D("SkCaptureCanvas::onDrawAtlas2: DerivedSurfaceID=%u, ContentID=%u\n",
+                   id, contentID.asUInt());
+        if (contentID) {
+            this->drawAnnotation(bounds, "SkCapture_ContentID",
+                                 SkData::MakeWithCopy(&contentID, sizeof(contentID)).get());
+        }
+    }
 }
 
 void SkCaptureCanvas::onDrawGlyphRunList(const sktext::GlyphRunList& list, const SkPaint& paint) {
@@ -308,6 +357,19 @@ void SkCaptureCanvas::onDrawEdgeAAImageSet2(const ImageSetEntry set[],
     this->pollCapturingStatus();
     this->SkNWayCanvas::onDrawEdgeAAImageSet2(
             set, count, dstClips, preViewMatrices, sampling, paint, constraint);
+    for (int i = 0; i < count; ++i) {
+        if (uint32_t id = as_IB(set[i].fImage.get())->getDerivedSurfaceID()) {
+            this->drawAnnotation(set[i].fDstRect, "SkCapture_DerivedSurfaceID",
+                                 SkData::MakeWithCopy(&id, sizeof(id)).get());
+            SkContentID contentID = as_IB(set[i].fImage.get())->getContentID();
+            SKIA_LOG_D("SkCaptureCanvas::onDrawEdgeAAImageSet[%d]: DerivedSurface=%u, Content=%u\n",
+                       i, id, contentID.asUInt());
+            if (contentID) {
+                this->drawAnnotation(set[i].fDstRect, "SkCapture_ContentID",
+                                     SkData::MakeWithCopy(&contentID, sizeof(contentID)).get());
+            }
+        }
+    }
 }
 
 SkSurface* SkCaptureCanvas::getBaseCanvasSurface() const {

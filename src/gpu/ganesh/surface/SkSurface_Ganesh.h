@@ -89,6 +89,8 @@ public:
 
     sk_sp<const SkCapabilities> onCapabilities() override;
 
+    uint32_t getPixelStorageID() const override;
+
     skgpu::ganesh::Device* getDevice();
     GrBackendTexture getBackendTexture(BackendHandleAccess);
     GrBackendRenderTarget getBackendRenderTarget(BackendHandleAccess);

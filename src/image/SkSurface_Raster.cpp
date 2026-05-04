@@ -184,6 +184,10 @@ SkRecorder* SkSurface_Raster::onGetBaseRecorder() const {
     return fRecorder;
 }
 
+uint32_t SkSurface_Raster::getPixelStorageID() const {
+    return fBitmap.pixelRef()->getPixelStorageId();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 namespace SkSurfaces {
 sk_sp<SkSurface> WrapPixels(const SkImageInfo& info,

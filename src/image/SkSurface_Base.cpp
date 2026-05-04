@@ -20,6 +20,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
 #include "src/capture/SkCaptureCanvas.h"
+#include "src/capture/SkCaptureManager.h"
 #include "src/image/SkRescaleAndReadPixels.h"
 
 #include <atomic>
@@ -137,8 +138,9 @@ sk_sp<const SkCapabilities> SkSurface_Base::onCapabilities() {
     return SkCapabilities::RasterBackend();
 }
 
-void SkSurface_Base::createCaptureBreakpoint() {
+SkContentID SkSurface_Base::createCaptureBreakpoint() {
     if (this->baseRecorder()) {
-        this->baseRecorder()->createCaptureBreakpoint(this);
+        return this->baseRecorder()->createCaptureBreakpoint(this);
     }
+    return SkContentID();
 }

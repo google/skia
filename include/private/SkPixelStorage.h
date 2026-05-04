@@ -25,7 +25,7 @@ public:
         kPixelRef,
     };
 
-    uint32_t getId() const { return fID; }
+    uint32_t getPixelStorageId() const { return fID; }
     virtual Type type() const = 0;
 
 private:

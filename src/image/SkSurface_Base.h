@@ -16,6 +16,8 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "src/capture/SkCaptureManager.h"
+#include "src/image/SkImage_Base.h"
 
 #include <cstdint>
 #include <memory>
@@ -165,11 +167,13 @@ public:
 
     virtual sk_sp<const SkCapabilities> onCapabilities() = 0;
 
+    virtual uint32_t getPixelStorageID() const = 0;
+
     /**
      * If capturing, signals to the capture manager and capture canvas to break off the recording
      * SkPicture into a new SkPicture.
      */
-    void createCaptureBreakpoint();
+    SkContentID createCaptureBreakpoint();
 
     inline SkCanvas* getCachedCanvas();
     inline sk_sp<SkImage> refCachedImage();
@@ -220,9 +224,13 @@ sk_sp<SkImage> SkSurface_Base::refCachedImage() {
     if (fCachedImage) {
         return fCachedImage;
     }
-    this->createCaptureBreakpoint();
+    SkContentID contentID = this->createCaptureBreakpoint();
 
     fCachedImage = this->onNewImageSnapshot();
+    if (fCachedImage) {
+        as_IB(fCachedImage)->setDerivedSurfaceID(this->getPixelStorageID());
+        as_IB(fCachedImage)->setContentID(contentID);
+    }
 
     SkASSERT(!fCachedCanvas || fCachedCanvas->getSurfaceBase() == this);
     return fCachedImage;

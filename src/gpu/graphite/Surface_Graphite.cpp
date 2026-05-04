@@ -133,6 +133,11 @@ sk_sp<const SkCapabilities> Surface::onCapabilities() {
     return fDevice->recorder()->priv().caps()->capabilities();
 }
 
+uint32_t Surface::getPixelStorageID() const {
+    return this->target().proxy()->getPixelStorageId();
+}
+
+
 // Note, devices flushed with this method add their tasks to the provided drawContext's task list,
 // but no last task is tracked. If no drawContext is provided, the task is added to the root task
 // list and if the device is a scratch device, the last task is recorded.
