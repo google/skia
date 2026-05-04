@@ -503,21 +503,6 @@ test:NUC5PPYH --test_arg=Debian10
 test:NUC5PPYH --test_arg=--gpuName
 test:NUC5PPYH --test_arg=IntelHD405
 
-test:NUC5i7RYH --strategy=TestRunner=local
-test:NUC5i7RYH --test_arg=--device-specific-bazel-config
-test:NUC5i7RYH --test_arg=NUC5i7RYH
-test:NUC5i7RYH --test_arg=--key
-test:NUC5i7RYH --test_arg=arch
-test:NUC5i7RYH --test_arg=x86_64
-test:NUC5i7RYH --test_arg=model
-test:NUC5i7RYH --test_arg=NUC5i7RYH
-test:NUC5i7RYH --test_arg=os
-test:NUC5i7RYH --test_arg=Win10
-test:NUC5i7RYH --test_arg=--cpuName
-test:NUC5i7RYH --test_arg=AVX2
-test:NUC5i7RYH --test_arg=--gpuName
-test:NUC5i7RYH --test_arg=IntelIris6100
-
 test:NUC6i5SYK --strategy=TestRunner=local
 test:NUC6i5SYK --test_arg=--device-specific-bazel-config
 test:NUC6i5SYK --test_arg=NUC6i5SYK

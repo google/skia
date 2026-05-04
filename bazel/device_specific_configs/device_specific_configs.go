@@ -435,16 +435,6 @@ var Configs = map[string]Config{
 		},
 		GPU: "IntelHD405",
 	},
-	"NUC5i7RYH": {
-		Name: "NUC5i7RYH",
-		Keys: map[string]string{
-			"arch":  "x86_64",
-			"model": "NUC5i7RYH",
-			"os":    "Win10",
-		},
-		CPU: "AVX2",
-		GPU: "IntelIris6100",
-	},
 	"NUC6i5SYK": {
 		Name: "NUC6i5SYK",
 		Keys: map[string]string{
