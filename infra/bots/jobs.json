@@ -23,8 +23,7 @@
     "name": "BazelBuild-use_ganesh_gl-for_windows_x64_release-windows_x64"
   },
   {
-    "name": "BazelBuild-viewer-debug-linux_x64",
-    "cq_config": {}
+    "name": "BazelBuild-viewer-debug-linux_x64"
   },
   {
     "name": "BazelBuild-viewer-release-linux_x64"
