@@ -242,7 +242,9 @@ const SkSL::RP::Program* SkRuntimeEffect::getRPProgram(SkSL::DebugTracePriv* deb
             settings.fInlineThreshold = SkSL::kDefaultInlineThreshold;
             optimizedCopy = compiler.convertProgram(
                     fBaseProgram->fConfig->fKind, *fBaseProgram->fSource, settings);
-            SkASSERT(optimizedCopy);
+            // We might fail to inline the sksl if there's symbol conflicts. In that
+            // case, we'll use the unoptimized version which may or may not produce
+            // what the user wanted.
             if (optimizedCopy) {
                 const auto* mainDecl = optimizedCopy->getFunction("main");
                 SkASSERT(mainDecl);

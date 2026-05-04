@@ -1837,3 +1837,36 @@ DEF_TEST(SkRuntimeShader_b500080194, r) {
         surface->getCanvas()->drawPaint(paint);
     }
 }
+
+DEF_TEST(SkRuntimeShader_b507643404, r) {
+    constexpr const char* kSkSL =
+        "half4 blend_src_over(half4,half4 dst){"
+          "float a;return(a)/dst;"
+        "}"
+        "half4 main(half4 src,half4){"
+          "return blend_src_over(src,half4(0));"
+        "}";
+
+    // This effect compiles when we aren't optimizing/inlining, but fails when we are.
+    SkRuntimeEffect::Options options;
+    options.forceUnoptimized = false;
+    auto [effect, err] = SkRuntimeEffect::MakeForBlender(SkString(kSkSL));
+    if (!effect) {
+        SkDebugf("Error: %s\n", err.c_str());
+        REPORT_FAILURE(r, "SkSL compile failed", SkString("SkSL compile failed"));
+    } else {
+        sk_sp<SkBlender> blender = effect->makeBlender(nullptr);
+        REPORTER_ASSERT(r, blender);
+        if (!blender) {
+            return;
+        }
+        SkPaint paint;
+        paint.setColor(SK_ColorRED);
+        paint.setBlender(std::move(blender));
+
+        sk_sp<SkSurface> s = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(4, 4));
+        REPORTER_ASSERT(r, s);
+        // We should make sure this doesn't crash
+        s->getCanvas()->drawPaint(paint);
+    }
+}
