@@ -1,1 +1,0 @@
-The PrecompileContext's getPipelineLabel method can now, optionally, return the uniqueHash for the serializedPipelineKey. Note that this uniqueHash is only valid for the lifetime of the Context used to create the invoking PrecompileContext.
