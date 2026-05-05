@@ -60,7 +60,10 @@ void AddPreferredFeatures(const wgpu::Adapter& adapter, std::vector<wgpu::Featur
     addFeature(wgpu::FeatureName::DawnPartialLoadResolveTexture);
     addFeature(wgpu::FeatureName::DawnTexelCopyBufferRowAlignment);
     addFeature(wgpu::FeatureName::DualSourceBlending);
+#ifndef SK_BUILD_FOR_ANDROID
+    // TODO(crbug.com/493892934): Enable FramebufferFetch again once Tint supports it with f16.
     addFeature(wgpu::FeatureName::FramebufferFetch);
+#endif
     addFeature(wgpu::FeatureName::ImplicitDeviceSynchronization);
     addFeature(wgpu::FeatureName::MSAARenderToSingleSampled);
     addFeature(wgpu::FeatureName::ShaderF16);
