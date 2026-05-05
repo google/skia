@@ -1092,7 +1092,6 @@ float4 circular_arc_vertex_fn(float3 position,
 
 float4 text_vertex_fn(float2 baseCoords,
                       // Uniforms
-                      sampler2D text_atlas_0,
                       float4x4 maskToDevice,
                       float4x4 localToDevice,
                       // Instance Attributes
@@ -1103,7 +1102,6 @@ float4 text_vertex_fn(float2 baseCoords,
                       float depth,
                       // Varyings
                       out float2 unormTexCoords,
-                      out float2 textureCoords,
                       // Render Step
                       out float2 stepLocalCoords) {
     baseCoords.xy *= float2(size);
@@ -1120,9 +1118,6 @@ float4 text_vertex_fn(float2 baseCoords,
     stepLocalCoords = (inverse(localToDevice) * position).xy;
 
     unormTexCoords = baseCoords + uvPos;
-    // Match the previous CPU-side behavior where it is assumed that all text atlases are of the
-    // same size.
-    textureCoords = unormTexCoords / float2(textureSize(text_atlas_0));
 
     return float4(position.xy, depth*position.w, position.w);
 }

@@ -1361,7 +1361,7 @@ $pure half4 sk_gaussian_colorfilter(half4 inColor) {
     return half4(factor);
 }
 
-$pure half4 sample_indexed_atlas(float2 textureCoords,
+$pure half4 sample_indexed_atlas(float2 unormTexCoords, // unormalized texture coords
                                  int atlasIndex,
                                  sampler2D atlas0,
                                  sampler2D atlas1,
@@ -1369,17 +1369,17 @@ $pure half4 sample_indexed_atlas(float2 textureCoords,
                                  sampler2D atlas3) {
     switch (atlasIndex) {
         case 1:
-            return sample(atlas1, textureCoords);
+            return sample(atlas1, unormTexCoords / float2(textureSize(atlas1)));
         case 2:
-            return sample(atlas2, textureCoords);
+            return sample(atlas2, unormTexCoords / float2(textureSize(atlas2)));
         case 3:
-            return sample(atlas3, textureCoords);
+            return sample(atlas3, unormTexCoords / float2(textureSize(atlas3)));
         default:
-            return sample(atlas0, textureCoords);
+            return sample(atlas0, unormTexCoords / float2(textureSize(atlas0)));
     }
 }
 
-$pure half3 $sample_indexed_atlas_lcd(float2 textureCoords,
+$pure half3 $sample_indexed_atlas_lcd(float2 unormTexCoords, // unormalized texture coords
                                       int atlasIndex,
                                       float2 offset,
                                       sampler2D atlas0,
@@ -1387,23 +1387,28 @@ $pure half3 $sample_indexed_atlas_lcd(float2 textureCoords,
                                       sampler2D atlas2,
                                       sampler2D atlas3) {
     half3 distance = half3(1);
+    float2 textureCoords;
     switch (atlasIndex) {
         case 1:
+            textureCoords = unormTexCoords / float2(textureSize(atlas1));
             distance.x = sample(atlas1, textureCoords - offset).r;
             distance.y = sample(atlas1, textureCoords).r;
             distance.z = sample(atlas1, textureCoords + offset).r;
             break;
         case 2:
+            textureCoords = unormTexCoords / float2(textureSize(atlas2));
             distance.x = sample(atlas2, textureCoords - offset).r;
             distance.y = sample(atlas2, textureCoords).r;
             distance.z = sample(atlas2, textureCoords + offset).r;
             break;
         case 3:
+            textureCoords = unormTexCoords / float2(textureSize(atlas3));
             distance.x = sample(atlas3, textureCoords - offset).r;
             distance.y = sample(atlas3, textureCoords).r;
             distance.z = sample(atlas3, textureCoords + offset).r;
             break;
         default:
+            textureCoords = unormTexCoords / float2(textureSize(atlas0));
             distance.x = sample(atlas0, textureCoords - offset).r;
             distance.y = sample(atlas0, textureCoords).r;
             distance.z = sample(atlas0, textureCoords + offset).r;
@@ -1468,7 +1473,6 @@ $pure half4 sdf_text_coverage_fn(half texColor,
 $pure half4 sdf_text_lcd_coverage_fn(half2 pixelGeometryDelta,
                                      half4 gammaParams,
                                      float2 unormTexCoords, // unormalized texture coords
-                                     float2 textureCoords,
                                      float texIndex,
                                      sampler2D atlas0,
                                      sampler2D atlas1,
@@ -1481,7 +1485,7 @@ $pure half4 sdf_text_lcd_coverage_fn(half2 pixelGeometryDelta,
     float2x2 jacobian = float2x2(dFdx(unormTexCoords), dFdy(unormTexCoords));
     float2 offset = jacobian * float2(pixelGeometryDelta);
 
-    half3 distance = $sample_indexed_atlas_lcd(textureCoords,
+    half3 distance = $sample_indexed_atlas_lcd(unormTexCoords,
                                                int(texIndex),
                                                offset,
                                                atlas0,

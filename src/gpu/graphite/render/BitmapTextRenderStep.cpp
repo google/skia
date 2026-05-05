@@ -74,7 +74,7 @@ BitmapTextRenderStep::BitmapTextRenderStep(Layout layout, skgpu::MaskFormat vari
                       {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
                       {"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt}}},
                      /*varyings=*/
-                     {{{"textureCoords", SkSLType::kFloat2},
+                     {{{"unormTexCoords", SkSLType::kFloat2},
                       {"texIndex", SkSLType::kHalf},
                       {"maskFormat", SkSLType::kHalf}}}) {}
 
@@ -99,9 +99,7 @@ std::string BitmapTextRenderStep::vertexSkSL() const {
     // must write to an already-defined float2 stepLocalCoords variable.
     return "texIndex = half(indexAndFlags.x);"
            "maskFormat = half(indexAndFlags.y);"
-           "float2 unormTexCoords;" // unused
            "float4 devPosition = text_vertex_fn(float2(sk_VertexID >> 1, sk_VertexID & 1), "
-                                               "text_atlas_0, "
                                                "maskToDevice, "
                                                "localToDevice, "
                                                "float2(size), "
@@ -110,7 +108,6 @@ std::string BitmapTextRenderStep::vertexSkSL() const {
                                                "strikeToSourceScale, "
                                                "depth, "
                                                "unormTexCoords, "
-                                               "textureCoords, "
                                                "stepLocalCoords);";
 }
 
@@ -131,7 +128,7 @@ const char* BitmapTextRenderStep::fragmentColorSkSL() const {
     // The returned SkSL must write its color into a 'half4 primitiveColor' variable
     // (defined in the calling code).
     static_assert(kNumTextAtlasTextures == 4);
-    return "primitiveColor = sample_indexed_atlas(textureCoords, "
+    return "primitiveColor = sample_indexed_atlas(unormTexCoords, "
                                                  "int(texIndex), "
                                                  "text_atlas_0, "
                                                  "text_atlas_1, "
@@ -143,7 +140,7 @@ const char* BitmapTextRenderStep::fragmentCoverageSkSL() const {
     // The returned SkSL must write its coverage into a 'half4 outputCoverage' variable (defined in
     // the calling code) with the actual coverage splatted out into all four channels.
     static_assert(kNumTextAtlasTextures == 4);
-    return "outputCoverage = bitmap_text_coverage_fn(sample_indexed_atlas(textureCoords, "
+    return "outputCoverage = bitmap_text_coverage_fn(sample_indexed_atlas(unormTexCoords, "
                                                                          "int(texIndex), "
                                                                          "text_atlas_0, "
                                                                          "text_atlas_1, "

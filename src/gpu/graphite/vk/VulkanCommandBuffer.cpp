@@ -618,16 +618,14 @@ bool VulkanCommandBuffer::onAddRenderPass(const RenderPassDesc& rpDesc,
         // Our current implementation of setting texture image layouts does not allow layout changes
         // once we have already begun a render pass, so prior to any other commands, set the layout
         // of all sampled textures from the drawpass so they can be sampled from the shader.
-
         for (const sk_sp<TextureProxy>& textureProxy : drawPass->sampledTextures()) {
             VulkanTexture* vulkanTexture = const_cast<VulkanTexture*>(
                                            static_cast<const VulkanTexture*>(
                                            textureProxy->texture()));
-            vulkanTexture->setImageLayout(
-                    this,
-                    VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                    VK_ACCESS_SHADER_READ_BIT,
-                    VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_VERTEX_SHADER_BIT);
+            vulkanTexture->setImageLayout(this,
+                                          VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                          VK_ACCESS_SHADER_READ_BIT,
+                                          VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
         }
     }
     if (fDstCopy.first) {
@@ -1539,12 +1537,11 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
                 // active graphics pipeline and can be indexed directly with `i`.
                 const Sampler* immutableSampler = fActiveGraphicsPipeline->immutableSampler(i);
                 SkASSERT(SkToBool(immutableSampler) == command->fSamplers[i].isImmutable());
-                descriptors.push_back(
-                        {DescriptorType::kCombinedTextureSampler,
-                         /*count=*/1,
-                         /*bindingIdx=*/i,
-                         PipelineStageFlags::kFragmentShader | PipelineStageFlags::kVertexShader,
-                         immutableSampler});
+                descriptors.push_back({DescriptorType::kCombinedTextureSampler,
+                                       /*count=*/1,
+                                       /*bindingIdx=*/i,
+                                       PipelineStageFlags::kFragmentShader,
+                                       immutableSampler});
             }
         }
         // If required the dst copy texture+sampler is the last one in the descriptor set

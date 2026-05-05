@@ -559,12 +559,11 @@ static bool texture_sampler_desc_set_layout(VkDescriptorSetLayout& outLayout,
         if (!immutableSamplers.empty() && immutableSamplers[i]) {
             immutableSampler = immutableSamplers[i].get();
         }
-        textureSamplerDescs.push_back(
-                {DescriptorType::kCombinedTextureSampler,
-                 /*count=*/1,
-                 /*bindingIdx=*/i,
-                 PipelineStageFlags::kVertexShader | PipelineStageFlags::kFragmentShader,
-                 immutableSampler});
+        textureSamplerDescs.push_back({DescriptorType::kCombinedTextureSampler,
+                                       /*count=*/1,
+                                       /*bindingIdx=*/i,
+                                       PipelineStageFlags::kFragmentShader,
+                                       immutableSampler});
     }
 
     // If no texture/samplers are used, a mock VkDescriptorSetLayout handle by passing in the

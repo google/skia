@@ -72,8 +72,7 @@ SDFTextRenderStep::SDFTextRenderStep(Layout layout)
                       {"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt}}},
                      /*varyings=*/
                      {{{"unormTexCoords", SkSLType::kFloat2},
-                       {"textureCoords", SkSLType::kFloat2},
-                       {"texIndex", SkSLType::kFloat}}}) {}
+                      {"texIndex", SkSLType::kFloat}}}) {}
 
 SDFTextRenderStep::~SDFTextRenderStep() {}
 
@@ -82,7 +81,6 @@ std::string SDFTextRenderStep::vertexSkSL() const {
     // must write to an already-defined float2 stepLocalCoords variable.
     return "texIndex = half(indexAndFlags.x);"
            "float4 devPosition = text_vertex_fn(float2(sk_VertexID >> 1, sk_VertexID & 1), "
-                                               "sdf_atlas_0, "
                                                "maskToDevice, "
                                                "localToDevice, "
                                                "float2(size), "
@@ -91,7 +89,6 @@ std::string SDFTextRenderStep::vertexSkSL() const {
                                                "strikeToSourceScale, "
                                                "depth, "
                                                "unormTexCoords, "
-                                               "textureCoords, "
                                                "stepLocalCoords);";
 }
 
@@ -117,7 +114,7 @@ const char* SDFTextRenderStep::fragmentCoverageSkSL() const {
     // TODO: Need to add 565 support.
     // TODO: Need aliased and possibly sRGB support.
     static_assert(kNumSDFAtlasTextures == 4);
-    return "outputCoverage = sdf_text_coverage_fn(sample_indexed_atlas(textureCoords, "
+    return "outputCoverage = sdf_text_coverage_fn(sample_indexed_atlas(unormTexCoords, "
                                                                       "int(texIndex), "
                                                                       "sdf_atlas_0, "
                                                                       "sdf_atlas_1, "
