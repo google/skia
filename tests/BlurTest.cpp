@@ -25,6 +25,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/private/base/SkTPin.h"
@@ -666,3 +667,41 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BlurPointCircle,
 }
 
 #endif // SK_GRAPHITE
+
+DEF_TEST(blur_b508075339, reporter) {
+    // This test verifies that eval_blur_passes correctly handles a specific edge case where
+    // the source and destination bounds do not intersect on the axis being processed.
+    //
+    // The parameters are chosen to create the following scenario:
+    // 1. A very small sigmaX (0.390625f) evaluates to a 1D blur window of 1 on the X-axis
+    //    (when SK_AVOID_SLOW_RASTER_PIPELINE_BLURS is active). A window of 1 causes the
+    //    blur engine to skip the X-pass entirely.
+    // 2. A large negative offsetX (-65.618912f) shifts the source image completely off the
+    //    left side of the 64x64 canvas.
+    // 3. Despite being off-canvas, the blur radius expands the transparent pixels just enough
+    //    that they touch the canvas boundary. This triggers padding logic (makePixelOutset)
+    //    that slightly expands the destination bounds relative to the source.
+    //
+    // Historically, skipping the X-pass combined with this artificial bounds padding meant
+    // that the starting X-coordinate for the Y-pass (loopStart) could be greater than the
+    // source image width.
+    constexpr int kCanvasSize = 64;
+    constexpr float sigmaX = 0.390625f;
+    constexpr float sigmaY = 99.609375f;
+    constexpr float offsetX = -65.618912f;
+    constexpr float offsetY = -99.999985f;
+
+    auto inner = SkImageFilters::Offset(offsetX, offsetY, nullptr);
+    auto filter = SkImageFilters::Blur(sigmaX, sigmaY, std::move(inner));
+
+    auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(kCanvasSize, kCanvasSize));
+    REPORTER_ASSERT(reporter, surface);
+    SkCanvas* canvas = surface->getCanvas();
+
+    SkPaint paint;
+    paint.setImageFilter(std::move(filter));
+
+    // This drawRect triggers the image filter graph evaluation. The test passes if it
+    // completes without triggering an SkASSERT in SkBitmap::getAddr.
+    canvas->drawRect(SkRect::MakeWH(kCanvasSize, kCanvasSize), paint);
+}

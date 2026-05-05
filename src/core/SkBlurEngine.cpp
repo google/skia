@@ -203,19 +203,21 @@ static sk_sp<SkSpecialImage> eval_blur_passes(PassMaker* makerX, PassMaker* make
         loopStart = std::max(srcBounds.top(),    dstBounds.top());
         loopEnd   = std::min(srcBounds.bottom(), dstBounds.bottom());
 
-        auto srcAddr = reinterpret_cast<T*>(src.getAddr(0, loopStart - srcBounds.top()));
-        auto dstAddr = reinterpret_cast<T*>(dst.getAddr(0, loopStart - dstBounds.top()));
+        if (loopStart < loopEnd) {
+            auto srcAddr = reinterpret_cast<T*>(src.getAddr(0, loopStart - srcBounds.top()));
+            auto dstAddr = reinterpret_cast<T*>(dst.getAddr(0, loopStart - dstBounds.top()));
 
-        // Iterate over each row to calculate 1D blur along X.
-        Pass* pass = makerX->makePass(buffer, alloc);
-        for (int y = loopStart; y < loopEnd; ++y) {
-            pass->blur<T>(srcBounds.left()  - dstBounds.left(),
-                          srcBounds.right() - dstBounds.left(),
-                          dstBounds.width(),
-                          srcAddr, 1,
-                          dstAddr, 1);
-            srcAddr += src.rowBytesAsPixels();
-            dstAddr += dst.rowBytesAsPixels();
+            // Iterate over each row to calculate 1D blur along X.
+            Pass* pass = makerX->makePass(buffer, alloc);
+            for (int y = loopStart; y < loopEnd; ++y) {
+                pass->blur<T>(srcBounds.left()  - dstBounds.left(),
+                              srcBounds.right() - dstBounds.left(),
+                              dstBounds.width(),
+                              srcAddr, 1,
+                              dstAddr, 1);
+                srcAddr += src.rowBytesAsPixels();
+                dstAddr += dst.rowBytesAsPixels();
+            }
         }
 
         // Set up the Y pass to blur from the full dst into the non-outset portion of dst
@@ -235,18 +237,20 @@ static sk_sp<SkSpecialImage> eval_blur_passes(PassMaker* makerX, PassMaker* make
     // into dst for a 1D blur; or it's blurring from dst into dst for the second pass of a 2D
     // blur.
     if (makerY->window() > 1) {
-        auto srcAddr = reinterpret_cast<T*>(src.getAddr(loopStart - srcBounds.left(), 0));
-        auto dstAddr = reinterpret_cast<T*>(dst.getAddr(loopStart - dstBounds.left(), dstYOffset));
+        if (loopStart < loopEnd) {
+            auto srcAddr = reinterpret_cast<T*>(src.getAddr(loopStart - srcBounds.left(), 0));
+            auto dstAddr = reinterpret_cast<T*>(dst.getAddr(loopStart - dstBounds.left(), dstYOffset));
 
-        Pass* pass = makerY->makePass(buffer, alloc);
-        for (int x = loopStart; x < loopEnd; ++x) {
-            pass->blur<T>(srcBounds.top()    - dstBounds.top(),
-                          srcBounds.bottom() - dstBounds.top(),
-                          dstBounds.height(),
-                          srcAddr, src.rowBytesAsPixels(),
-                          dstAddr, dst.rowBytesAsPixels());
-            srcAddr += 1;
-            dstAddr += 1;
+            Pass* pass = makerY->makePass(buffer, alloc);
+            for (int x = loopStart; x < loopEnd; ++x) {
+                pass->blur<T>(srcBounds.top()    - dstBounds.top(),
+                              srcBounds.bottom() - dstBounds.top(),
+                              dstBounds.height(),
+                              srcAddr, src.rowBytesAsPixels(),
+                              dstAddr, dst.rowBytesAsPixels());
+                srcAddr += 1;
+                dstAddr += 1;
+            }
         }
     }
 
