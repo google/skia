@@ -44,10 +44,10 @@ SkPictureBackedGlyphDrawable::MakeFromBuffer(SkReadBuffer& buffer) {
         return nullptr;
     }
 
-    // Propagate the outer buffer's allow-SkSL setting to the picture decoder, using the flag on
-    // the deserial procs.
+    // Glyphs have a limited set of what they can be. We explicitly disable sksl for security
+    // purposes (see b/40064011, b/40064341)
     SkDeserialProcs procs;
-    procs.fAllowSkSL = buffer.allowSkSL();
+    procs.fAllowSkSL = false;
     sk_sp<SkPicture> picture = SkPicture::MakeFromData(pictureData.get(), &procs);
     if (!buffer.validate(picture != nullptr)) {
         return nullptr;

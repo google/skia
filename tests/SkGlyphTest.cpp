@@ -462,13 +462,15 @@ static sk_sp<SkDrawable> make_nested_sksl_drawable(SkSLSource source) {
     return recorder.finishRecordingAsDrawable();
 }
 
-DEF_TEST(SkPictureBackedGlyphDrawable_SkSL, reporter) {
+DEF_TEST(SkPictureBackedGlyphDrawable_RejectsAnyShadersThatNeedSkSL, reporter) {
     for (SkSLSource source : {SkSLSource::kShader,
                               SkSLSource::kColorFilter,
                               SkSLSource::kBlender,
                               SkSLSource::kImageFilter}) {
         for (const sk_sp<SkDrawable>& drawable : {make_sksl_drawable(source),
                                                   make_nested_sksl_drawable(source)}) {
+            // Make sure that regardless if the passed in buffer has sksl set or not, we
+            // don't deserialize it.
             for (bool allowSkSL : {true, false}) {
                 skiatest::ReporterContext ctx{reporter,
                         SkStringPrintf("source: %d, allow sksl: %d", (int) source, allowSkSL)};
@@ -479,6 +481,8 @@ DEF_TEST(SkPictureBackedGlyphDrawable_SkSL, reporter) {
                 SkPictureBackedGlyphDrawable::FlattenDrawable(writeBuffer, drawable.get());
 
                 sk_sp<SkData> data = writeBuffer.snapshotAsData();
+                REPORTER_ASSERT(reporter, data);
+                REPORTER_ASSERT(reporter, data->size() > 0);
 
                 SkReadBuffer readBuffer{data->data(), data->size()};
                 readBuffer.setAllowSkSL(allowSkSL);
@@ -486,8 +490,8 @@ DEF_TEST(SkPictureBackedGlyphDrawable_SkSL, reporter) {
                 sk_sp<SkPictureBackedGlyphDrawable> dstDrawable =
                         SkPictureBackedGlyphDrawable::MakeFromBuffer(readBuffer);
 
-                REPORTER_ASSERT(reporter, readBuffer.isValid() == allowSkSL);
-                REPORTER_ASSERT(reporter, !!dstDrawable == allowSkSL);
+                REPORTER_ASSERT(reporter, !readBuffer.isValid());
+                REPORTER_ASSERT(reporter, !dstDrawable);
             }
         }
     }
