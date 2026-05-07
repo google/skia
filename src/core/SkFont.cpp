@@ -17,6 +17,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkStrikeRef.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkDebug.h"
@@ -235,6 +236,12 @@ static inline SkRect scale_pos(SkRect r, SkScalar s) {
         r.fLeft * s, r.fTop * s, r.fRight * s, r.fBottom * s,
     };
 }
+
+SkStrikeRef SkFont::makeStrikeRef() const {
+    auto [strikeSpec, strikeToSourceScale] = SkStrikeSpec::MakeCanonicalized(*this);
+    return SkStrikeRef(strikeSpec.findOrCreateStrike(), strikeToSourceScale);
+}
+
 void SkFont::getWidthsBounds(SkSpan<const SkGlyphID> glyphIDs,
                              SkSpan<SkScalar> widths,
                              SkSpan<SkRect> bounds,

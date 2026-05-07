@@ -86,6 +86,7 @@ PUBLIC_HEADERS = [
     "SkSpan.h",
     "SkStream.h",
     "SkString.h",
+    "SkStrikeRef.h",
     "SkStrokeRec.h",
     "SkSurface.h",
     "SkSurfaceProps.h",
