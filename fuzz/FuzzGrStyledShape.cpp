@@ -15,8 +15,7 @@
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 
 DEF_FUZZ(GrStyledShape, fuzz) {
-    SkPathBuilder pb;
-    FuzzNicePath(fuzz, &pb, 10);
+    SkPath path = FuzzNicePath(fuzz, 10);
 
     SkRect rect;
     fuzz->next(&rect);
@@ -33,13 +32,11 @@ DEF_FUZZ(GrStyledShape, fuzz) {
     SkPaint paint;
     FuzzPaint(fuzz, &paint, 3);
 
-    GrStyledShape shape1(pb.detach(), paint);
+    GrStyledShape shape1(path, paint);
     GrStyledShape shape2(rect, paint);
     GrStyledShape shape3(rrect, paint);
 
-    SkPathBuilder pb2;
-    FuzzNicePath(fuzz, &pb2, 10);
-    SkPath path = pb.detach();
+    path = FuzzNicePath(fuzz, 10);
     GrStyledShape shape4(path);
     GrStyledShape shape5(rect);
     GrStyledShape shape6(rrect);

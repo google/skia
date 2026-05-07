@@ -21,13 +21,7 @@
 class SkData;
 
 // allows some float values for path points
-void FuzzNicePath(Fuzz* fuzz, SkPathBuilder*, int maxOps);
-
-static inline SkPath FuzzNicePath(Fuzz* fuzz, int maxOps) {
-    SkPathBuilder builder;
-    FuzzNicePath(fuzz, &builder, maxOps);
-    return builder.detach();
-}
+SkPath FuzzNicePath(Fuzz* fuzz, int maxOps);
 
 // allows all float values for path points
 SkPath FuzzEvilPath(Fuzz* fuzz, int last_verb);
