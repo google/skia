@@ -470,6 +470,9 @@ sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
 }
 
 SkFlattenable* SkReadBuffer::readRawFlattenable() {
+    if (!this->isValid()) {
+        return nullptr;
+    }
     SkFlattenable::Factory factory = nullptr;
 
     if (fFactoryCount > 0) {

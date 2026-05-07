@@ -142,10 +142,8 @@ sk_sp<SkPicture> SkPicture::Forwardport(const SkPictInfo& info,
     return r.finishRecordingAsPicture();
 }
 
-static const int kNestedSKPLimit = 100; // Arbitrarily set
-
 sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, const SkDeserialProcs* procs) {
-    return MakeFromStreamPriv(stream, procs, nullptr, kNestedSKPLimit);
+    return MakeFromStreamPriv(stream, procs, nullptr, SkPicturePriv::kDefaultRecursionLimit);
 }
 
 sk_sp<SkPicture> SkPicture::MakeFromData(const void* data, size_t size,
@@ -154,7 +152,7 @@ sk_sp<SkPicture> SkPicture::MakeFromData(const void* data, size_t size,
         return nullptr;
     }
     SkMemoryStream stream(data, size);
-    return MakeFromStreamPriv(&stream, procs, nullptr, kNestedSKPLimit);
+    return MakeFromStreamPriv(&stream, procs, nullptr, SkPicturePriv::kDefaultRecursionLimit);
 }
 
 sk_sp<SkPicture> SkPicture::MakeFromData(const SkData* data, const SkDeserialProcs* procs) {
@@ -162,7 +160,7 @@ sk_sp<SkPicture> SkPicture::MakeFromData(const SkData* data, const SkDeserialPro
         return nullptr;
     }
     SkMemoryStream stream(data->data(), data->size());
-    return MakeFromStreamPriv(&stream, procs, nullptr, kNestedSKPLimit);
+    return MakeFromStreamPriv(&stream, procs, nullptr, SkPicturePriv::kDefaultRecursionLimit);
 }
 
 sk_sp<SkPicture> SkPicture::MakeFromStreamPriv(SkStream* stream, const SkDeserialProcs* procsPtr,
@@ -211,6 +209,9 @@ sk_sp<SkPicture> SkPicture::MakeFromStreamPriv(SkStream* stream, const SkDeseria
 }
 
 sk_sp<SkPicture> SkPicturePriv::MakeFromBuffer(SkReadBuffer& buffer) {
+    if (!buffer.isValid()) {
+        return nullptr;
+    }
     SkPictInfo info;
     if (!SkPicture::BufferIsSKP(&buffer, &info)) {
         return nullptr;
@@ -229,7 +230,7 @@ sk_sp<SkPicture> SkPicturePriv::MakeFromBuffer(SkReadBuffer& buffer) {
         // 1 is the magic 'size' that means SkPictureData follows
         return nullptr;
     }
-   std::unique_ptr<SkPictureData> data(SkPictureData::CreateFromBuffer(buffer, info));
+    std::unique_ptr<SkPictureData> data(SkPictureData::CreateFromBuffer(buffer, info));
     return SkPicture::Forwardport(info, data.get(), &buffer);
 }
 

@@ -31,6 +31,7 @@ public:
      *  @return A new SkPicture representing the serialized data, or NULL if the buffer is
      *          invalid.
      */
+    static constexpr int kDefaultRecursionLimit = 100;
     static sk_sp<SkPicture> MakeFromBuffer(SkReadBuffer& buffer);
 
     /**

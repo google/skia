@@ -227,6 +227,21 @@ public:
 
     SkSamplingOptions readSampling();
 
+    // SKPs can contain other SKPs and ImageFilters can contain other ImageFilters, so this
+    // can be used to limit how deeply nested things are.
+    void downLevel() {
+        fRecursionLimit -= 1;
+        this->validate(fRecursionLimit > 0);
+    }
+    void upLevel() {
+        fRecursionLimit += 1;
+        // If the readbuffer hit the limit, we'll maintain the error state
+    }
+    void setRecursionLimit(int newLimit) {
+        fRecursionLimit = newLimit;
+        this->validate(fRecursionLimit > 0);
+    }
+
 private:
     const char* readString(size_t* length);
 
@@ -255,6 +270,8 @@ private:
     static bool IsPtrAlign4(const void* ptr) {
         return SkIsAlign4((uintptr_t)ptr);
     }
+
+    int fRecursionLimit = 100;
 
     bool fAllowSkSL = true;
     bool fError = false;
