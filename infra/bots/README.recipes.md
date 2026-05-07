@@ -531,11 +531,11 @@ Run the DM test.
 
 &mdash; **def [RunSteps](/infra/bots/recipe_modules/xcode/examples/full.py#14)(api):**
 
-[depot_tools/recipe_modules/bot_update]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/a9e01d55dbd1213e45cf9465aff7091cedc1f7c2/recipes/README.recipes.md#recipe_modules-bot_update
-[depot_tools/recipe_modules/gclient]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/a9e01d55dbd1213e45cf9465aff7091cedc1f7c2/recipes/README.recipes.md#recipe_modules-gclient
-[depot_tools/recipe_modules/git]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/a9e01d55dbd1213e45cf9465aff7091cedc1f7c2/recipes/README.recipes.md#recipe_modules-git
-[depot_tools/recipe_modules/gitiles]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/a9e01d55dbd1213e45cf9465aff7091cedc1f7c2/recipes/README.recipes.md#recipe_modules-gitiles
-[depot_tools/recipe_modules/tryserver]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/a9e01d55dbd1213e45cf9465aff7091cedc1f7c2/recipes/README.recipes.md#recipe_modules-tryserver
+[depot_tools/recipe_modules/bot_update]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/059acdf446d83eea090f56d674fe038f7607804a/recipes/README.recipes.md#recipe_modules-bot_update
+[depot_tools/recipe_modules/gclient]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/059acdf446d83eea090f56d674fe038f7607804a/recipes/README.recipes.md#recipe_modules-gclient
+[depot_tools/recipe_modules/git]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/059acdf446d83eea090f56d674fe038f7607804a/recipes/README.recipes.md#recipe_modules-git
+[depot_tools/recipe_modules/gitiles]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/059acdf446d83eea090f56d674fe038f7607804a/recipes/README.recipes.md#recipe_modules-gitiles
+[depot_tools/recipe_modules/tryserver]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/059acdf446d83eea090f56d674fe038f7607804a/recipes/README.recipes.md#recipe_modules-tryserver
 [recipe_engine/recipe_modules/cipd]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/89aade9865c132c78ae28dbfb44111ae03322153/README.recipes.md#recipe_modules-cipd
 [recipe_engine/recipe_modules/context]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/89aade9865c132c78ae28dbfb44111ae03322153/README.recipes.md#recipe_modules-context
 [recipe_engine/recipe_modules/file]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/89aade9865c132c78ae28dbfb44111ae03322153/README.recipes.md#recipe_modules-file
