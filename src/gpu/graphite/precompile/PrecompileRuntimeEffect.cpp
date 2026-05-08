@@ -183,6 +183,12 @@ public:
     PrecompileRTShader(sk_sp<SkRuntimeEffect> effect,
                        SkSpan<const PrecompileChildOptions> childOptions)
             : PrecompileRTEffectBase(std::move(effect), childOptions) {}
+
+private:
+    bool isOpaque(int /*desiredCombination*/) const override {
+        // Runtime effect's analysis is not dependent on the actual bound children.
+        return SkRuntimeEffectPriv::AlwaysOpaque(fEffect.get());
+    }
 };
 
 class PrecompileRTColorFilter : public PrecompileRTEffectBase<PrecompileColorFilter> {

@@ -41,12 +41,12 @@ static constexpr int kExpectedOverdrawCFCombos = 1;
 static constexpr int kExpectedTableCFCombos = 1;
 
 // shaders
-static constexpr int kExpectedGradientCombos = 3;
+static constexpr int kExpectedGradientCombos = 6;
 static constexpr int kExpectedImageCombos = 24;
 static constexpr int kExpectedPerlinNoiseCombos = 1;
 static constexpr int kExpectedPictureCombos = 48;
 static constexpr int kExpectedRawImageCombos = 10;
-static constexpr int kExpectedSolidColorCombos = 1;
+static constexpr int kExpectedSolidColorCombos = 2;
 
 // A default kSrcOver blend mode will be supplied if no other blend options are added
 void no_blend_mode_option_test(const KeyContext& keyContext,
@@ -55,7 +55,7 @@ void no_blend_mode_option_test(const KeyContext& keyContext,
     PaintOptions paintOptions;
     paintOptions.setShaders({{ PrecompileShaders::Color() }});
 
-    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 1);
+    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == kExpectedSolidColorCombos);
 
     std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(keyContext,
@@ -71,7 +71,7 @@ void no_blend_mode_option_test(const KeyContext& keyContext,
                                                                precompileIDs.push_back(id);
                                                            });
 
-    SkASSERT(precompileIDs.size() == 1);
+    SkASSERT(precompileIDs.size() == kExpectedSolidColorCombos);
 }
 
 // This test checks that the 'PaintOptions::numCombinations' method and the number actually
@@ -111,16 +111,16 @@ void big_test(const KeyContext& keyContext,
               const RenderPassDesc& renderPassDesc,
               skiatest::Reporter* reporter) {
 
-    static constexpr int kNumExpected = 1596;
-    // paintOptions (1596 = 4*399)
-    //  |- (399 = 3+396) sweepGrad_0 (3) |
-    //  |                blendShader_0 (396 = 1*4*99)
+    static constexpr int kNumExpected = 6360;
+    // paintOptions (6360 = 4*1590)
+    //  |- (1590 = 6+1584) sweepGrad_0 (3*2) |
+    //  |                blendShader_0 (1584 = 1*8*198)
     //  |                 |- 0: (1)       kSrc (1)
-    //  |                 |- 1: (4=3+1)   (dsts) linearGrad_0 (3) | solid_0 (1)
-    //  |                 |- 2: (99=3+96) (srcs) linearGrad_1 (3) |
-    //  |                                        blendShader_1 (96=1*4*24)
+    //  |                 |- 1: (8=6+2)   (dsts) linearGrad_0 (3*2) | solid_0 (2)
+    //  |                 |- 2: (198=6+192) (srcs) linearGrad_1 (3*2) |
+    //  |                                        blendShader_1 (192=1*8*24)
     //  |                                         |- 0: (1) kDst (1)
-    //  |                                         |- 1: (4=3+1) (dsts) radGrad_0 (3) | solid_1 (1)
+    //  |                                         |- 1: (8=6+2) (dsts) radGrad_0 (3*2) | solid_1 (2)
     //  |                                         |- 2: (24) (srcs) imageShader_0 (24)
     //  |
     //  |- (4) 4-built-in-blend-modes
@@ -137,7 +137,7 @@ void big_test(const KeyContext& keyContext,
     // Second top-level option (blendShader_0)
     auto blendShader_0 = PrecompileShaders::Blend(
                                 SkSpan<const SkBlendMode>(blendModes),          // std::array
-                                {{                                               // initializer_list
+                                {{                                              // initializer_list
                                     PrecompileShaders::LinearGradient(),
                                     PrecompileShaders::Color()
                                 }},
@@ -465,7 +465,7 @@ void shader_subtest(const KeyContext& keyContext,
                  /* expectedNumOptions= */ kExpectedPerlinNoiseCombos + kExpectedPerlinNoiseCombos);
     }
 
-    // Each gradient shader generates 3 combinations
+    // Each gradient shader generates 3 combinations x 2 opacities
     {
         PaintOptions paintOptions;
         paintOptions.setShaders({{ PrecompileShaders::LinearGradient(),
@@ -567,7 +567,7 @@ void colorfilter_subtest(const KeyContext& keyContext,
     {
         PaintOptions paintOptions;
         paintOptions.setColorFilters({{ PrecompileColorFilters::LinearToSRGBGamma(),
-                                         PrecompileColorFilters::SRGBToLinearGamma() }});
+                                        PrecompileColorFilters::SRGBToLinearGamma() }});
 
         // LinearToSRGB and SRGBToLinear both map to the colorspace colorfilter
         run_test(keyContext, renderPassDesc, reporter, paintOptions,

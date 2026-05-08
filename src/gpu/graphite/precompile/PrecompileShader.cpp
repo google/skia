@@ -14,6 +14,7 @@
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkKnownRuntimeEffects.h"
+#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/graphite/BuiltInCodeSnippetID.h"
 #include "src/gpu/graphite/KeyContext.h"
@@ -36,6 +37,8 @@
 #if defined(SK_DEBUG)
 #include "src/base/SkMathPriv.h"
 #endif
+
+using namespace SkKnownRuntimeEffects;
 
 namespace skgpu::graphite {
 
@@ -71,6 +74,8 @@ sk_sp<PrecompileShader> PrecompileShader::makeWithWorkingColorSpace(
 //--------------------------------------------------------------------------------------------------
 class PrecompileEmptyShader final : public PrecompileShader {
 private:
+    bool isOpaque(int /*desiredCombination*/) const override { return false; }
+
     void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination == 0); // The empty shader only ever has one combination
         keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kPriorOutput);
@@ -84,13 +89,26 @@ sk_sp<PrecompileShader> PrecompileShaders::Empty() {
 //--------------------------------------------------------------------------------------------------
 class PrecompileColorShader final : public PrecompileShader {
 private:
+    // The matrix values define whether or not alpha is unchanged (which can affect final paint key
+    // decisions for blending). Keep two combinations to represent the alpha-unchanged vs.
+    // alpha-changing scenarios.
+    int numIntrinsicCombinations() const override { return 2; }
+
     bool isConstant(int desiredCombination) const override {
-        SkASSERT(desiredCombination == 0); // The color shader only ever has one combination
+        // The color shader only ever has two combinations, both of which are constant
+        SkASSERT(desiredCombination == 0 || desiredCombination == 1);
         return true;
     }
 
+    bool isOpaque(int desiredCombination) const override {
+        SkASSERT(desiredCombination == 0 || desiredCombination == 1);
+        return desiredCombination == 1;
+    }
+
     void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
-        SkASSERT(desiredCombination == 0); // The color shader only ever has one combination
+        // NOTE: desiredCombination (i.e. whether or not alpha is unchanged) doesn't impact what
+        // this node would add to the key, but it can bubble up to later decisions for the key.
+        SkASSERT(desiredCombination == 0 || desiredCombination == 1);
         // The white PMColor is just a placeholder for the actual paint params color
         SolidColorShaderBlock::AddBlock(keyContext, SK_PMColor4fWHITE);
     }
@@ -131,7 +149,7 @@ private:
         return fBlenderOptions.numCombinations() * fNumDstCombos * fNumSrcCombos;
     }
 
-    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
+    std::tuple<int, int, int> getChildCombinations(int desiredCombination) const {
         SkASSERT(desiredCombination < this->numCombinations());
 
         const int desiredDstCombination = desiredCombination % fNumDstCombos;
@@ -142,6 +160,42 @@ private:
 
         int desiredBlendCombination = remainingCombinations;
         SkASSERT(desiredBlendCombination < fBlenderOptions.numCombinations());
+        return {desiredDstCombination, desiredSrcCombination, desiredBlendCombination};
+    }
+
+    bool isOpaque(int desiredCombination) const override {
+        auto [desiredDstCombination, desiredSrcCombination, desiredBlendCombination] =
+                this->getChildCombinations(desiredCombination);
+        auto [dst, dstCombination] = SelectOption(SkSpan(fDstOptions), desiredDstCombination);
+        auto [src, srcCombination] = SelectOption(SkSpan(fSrcOptions), desiredSrcCombination);
+        auto [blender, blenderCombination] = fBlenderOptions.selectOption(desiredBlendCombination);
+        if (blender->priv().asBlendMode()) {
+            // Match SkBlendShader::isOpaque()
+            SkBlendModeCoeff srcCoeff, dstCoeff;
+            if (!SkBlendMode_AsCoeff(*blender->priv().asBlendMode(), &srcCoeff, &dstCoeff)) {
+                return false;
+            }
+            const bool srcIsOpaque = src->priv().isOpaque(srcCombination);
+            const bool dstIsOpaque = dst->priv().isOpaque(dstCombination);
+            auto coeffIsOpaque = [&](SkBlendModeCoeff coeff) {
+                bool srcAlpha = coeff == SkBlendModeCoeff::kSA || coeff == SkBlendModeCoeff::kSC;
+                bool dstAlpha = coeff == SkBlendModeCoeff::kDA || coeff == SkBlendModeCoeff::kDC;
+                return coeff == SkBlendModeCoeff::kOne ||
+                    (srcAlpha && srcIsOpaque) ||
+                    (dstAlpha && dstIsOpaque);
+            };
+            return (srcIsOpaque && coeffIsOpaque(srcCoeff)) ||
+                   (dstIsOpaque && coeffIsOpaque(dstCoeff));
+        } else {
+            const SkRuntimeEffect* blendEffect =
+                    GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kBlend);
+            return SkRuntimeEffectPriv::AlwaysOpaque(blendEffect);
+        }
+    }
+
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
+        auto [desiredDstCombination, desiredSrcCombination, desiredBlendCombination] =
+                this->getChildCombinations(desiredCombination);
 
         auto [blender, blenderCombination] = fBlenderOptions.selectOption(desiredBlendCombination);
         if (blender->priv().asBlendMode()) {
@@ -208,6 +262,11 @@ private:
         return fNumShaderCombos;
     }
 
+    bool isOpaque(int desiredCombination) const override {
+        auto [child, childOption] = SelectOption(SkSpan(fShaders), desiredCombination);
+        return child->priv().isOpaque(childOption);
+    }
+
     void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination < fNumShaderCombos);
 
@@ -249,6 +308,17 @@ PrecompileImageShader::PrecompileImageShader(SkEnumBitMask<ImageShaderFlags> fla
 
 void PrecompileImageShader::setImmutableSamplerInfo(const ImmutableSamplerInfo& samplerInfo) {
     fImmutableSamplerInfo = samplerInfo;
+}
+
+bool PrecompileImageShader::isOpaque(int desiredCombination) const {
+    SkASSERT(this->numChildCombinations() == 1);
+    SkASSERT(desiredCombination < this->numIntrinsicCombinations());
+
+    const int numSamplingTilingCombos = fTileModes.size() + fNumExtraSamplingTilingCombos;
+    const int desiredColorInfo = desiredCombination / numSamplingTilingCombos;
+    SkASSERT(desiredColorInfo < static_cast<int>(fColorInfos.size()));
+
+    return fColorInfos[desiredColorInfo].isOpaque();
 }
 
 int PrecompileImageShader::numIntrinsicCombinations() const {
@@ -319,7 +389,8 @@ void PrecompileImageShader::addToKey(const KeyContext& keyContext, int desiredCo
                 colorInfo.colorSpace(), colorInfo.alphaType(),
                 dstColorSpace, dstAT);
 
-        if (alphaOnly) {
+        if (alphaOnly &&
+            !(keyContext.flags() & KeyGenFlags::kDisableAlphaOnlyImageColorization)) {
             Blend(keyContext,
                   /* addBlendToKey= */ [&] () -> void {
                       AddFixedBlendMode(keyContext, SkBlendMode::kDstIn);
@@ -422,6 +493,12 @@ private:
         return fNumTilingModes * fColorInfos.size();
     }
 
+    bool isOpaque(int desiredCombination) const override {
+        SkASSERT(desiredCombination < this->numIntrinsicCombinations());
+        int desiredColorInfo = desiredCombination / fNumTilingModes;
+        return fColorInfos[desiredColorInfo].isOpaque();
+    }
+
     void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination < this->numIntrinsicCombinations());
 
@@ -507,8 +584,9 @@ public:
     PrecompilePerlinNoiseShader() {}
 
 private:
-    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
+    bool isOpaque(int /*desiredCombination*/) const override { return false; }
 
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination == 0); // The Perlin noise shader only ever has one combination
 
         // TODO: update PerlinNoiseShaderBlock so the NoiseData is optional
@@ -517,7 +595,6 @@ private:
 
         PerlinNoiseShaderBlock::AddBlock(keyContext, kIgnoredNoiseData);
     }
-
 };
 
 sk_sp<PrecompileShader> PrecompileShaders::MakeFractalNoise() {
@@ -579,16 +656,25 @@ private:
         SkASSERT(fNumStopVariants <= kMaxStopVariants);
     }
 
-    int numIntrinsicCombinations() const override { return fNumStopVariants; }
+    int numIntrinsicCombinations() const override { return 2 * fNumStopVariants; }
+
+    bool isOpaque(int desiredCombination) const override {
+        // Similar to PrecompileColorShader, gradients have an intrinsic variation that represents
+        // the optimization path when all color stops are opaque. This doesn't impact what it adds
+        // to the key, but can influence later decisions.
+        SkASSERT(desiredCombination < this->numIntrinsicCombinations());
+        return desiredCombination < fNumStopVariants;
+    }
 
     void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(this->numChildCombinations() == 1);
-        SkASSERT(desiredCombination < fNumStopVariants);
+        SkASSERT(desiredCombination < this->numIntrinsicCombinations());
 
         bool useStorageBuffer = keyContext.caps()->gradientBufferSupport();
 
+        const int desiredStopCombination = desiredCombination % fNumStopVariants;
         GradientShaderBlocks::GradientData gradData(fType,
-                                                    fStopVariants[desiredCombination],
+                                                    fStopVariants[desiredStopCombination],
                                                     useStorageBuffer);
 
         // The logic for setting up color spaces here should match that in the "add_gradient_to_key"
@@ -692,25 +778,6 @@ public:
         }
     }
 
-    bool isConstant(int desiredCombination) const override {
-        SkASSERT(desiredCombination < this->numCombinations());
-
-        /*
-         * Regardless of whether the LocalMatrixShader elides itself or not, we always want
-         * the Constant-ness of the wrapped shader.
-         */
-        int desiredWrappedCombination = desiredCombination / kNumIntrinsicCombinations;
-        SkASSERT(desiredWrappedCombination < fNumWrappedCombos);
-
-        std::pair<sk_sp<PrecompileShader>, int> wrapped =
-                PrecompileBase::SelectOption(SkSpan(fWrapped), desiredWrappedCombination);
-        if (wrapped.first) {
-            return wrapped.first->priv().isConstant(wrapped.second);
-        }
-
-        return false;
-    }
-
     SkSpan<const sk_sp<PrecompileShader>> getWrapped() const {
         return fWrapped;
     }
@@ -736,7 +803,7 @@ private:
 
     int numChildCombinations() const override { return fNumWrappedCombos; }
 
-    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
+    std::pair<int, int> getChildCombinations(int desiredCombination) const {
         SkASSERT(desiredCombination < this->numCombinations());
 
         int desiredLMCombination, desiredWrappedCombination;
@@ -749,6 +816,30 @@ private:
             desiredWrappedCombination = desiredCombination / kNumIntrinsicCombinations;
         }
         SkASSERT(desiredWrappedCombination < fNumWrappedCombos);
+        return {desiredLMCombination, desiredWrappedCombination};
+    }
+
+    bool isConstant(int desiredCombination) const override {
+        auto [_, desiredWrappedCombination] =
+                this->getChildCombinations(desiredCombination);
+
+        auto [wrapped, wrappedCombination] =
+                PrecompileBase::SelectOption(SkSpan(fWrapped), desiredWrappedCombination);
+        return wrapped->priv().isConstant(wrappedCombination);
+    }
+
+    bool isOpaque(int desiredCombination) const override {
+        auto [_, desiredWrappedCombination] =
+                this->getChildCombinations(desiredCombination);
+
+        auto [wrapped, wrappedCombination] =
+                PrecompileBase::SelectOption(SkSpan(fWrapped), desiredWrappedCombination);
+        return wrapped->priv().isOpaque(wrappedCombination);
+    }
+
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
+        auto [desiredLMCombination, desiredWrappedCombination] =
+                this->getChildCombinations(desiredCombination);
 
         if (desiredLMCombination == kWithLocalMatrix) {
             SkMatrix matrix = SkMatrix::I();
@@ -826,13 +917,31 @@ public:
 private:
     int numChildCombinations() const override { return fNumShaderCombos * fNumColorFilterCombos; }
 
-    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
+    std::pair<int, int> getChildCombinations(int desiredCombination) const {
         SkASSERT(desiredCombination < this->numCombinations());
 
         int desiredShaderCombination = desiredCombination % fNumShaderCombos;
         int desiredColorFilterCombination = desiredCombination / fNumShaderCombos;
         SkASSERT(desiredColorFilterCombination < fNumColorFilterCombos);
+        return {desiredShaderCombination, desiredColorFilterCombination};
+    }
 
+    bool isOpaque(int desiredCombination) const override {
+        auto [desiredShaderCombination, desiredColorFilterCombination] =
+                this->getChildCombinations(desiredCombination);
+        auto [shader, shaderCombination] =
+                SelectOption(SkSpan(fShaders), desiredShaderCombination);
+        auto [filter, filterCombination] =
+                SelectOption(SkSpan(fColorFilters), desiredColorFilterCombination);
+        // See SkColorFilterShader::isOpaque
+        return shader->priv().isOpaque(shaderCombination) &&
+               filter->priv().isAlphaUnchanged(desiredColorFilterCombination);
+    }
+
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
+        int desiredShaderCombination, desiredColorFilterCombination;
+        std::tie(desiredShaderCombination, desiredColorFilterCombination) =
+                this->getChildCombinations(desiredCombination);
         Compose(keyContext,
                 /* addInnerToKey= */ [&]() -> void {
                     AddToKey<PrecompileShader>(keyContext, fShaders, desiredShaderCombination);
@@ -890,6 +999,12 @@ public:
 
 private:
     int numChildCombinations() const override { return fNumShaderCombos * fColorSpaces.size(); }
+
+    bool isOpaque(int desiredCombination) const override {
+        int desiredShaderCombination = desiredCombination % fNumShaderCombos;
+        auto [child, childCombination] = SelectOption(SkSpan(fShaders), desiredShaderCombination);
+        return child->priv().isOpaque(childCombination);
+    }
 
     void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination < this->numCombinations());
@@ -985,14 +1100,14 @@ public:
 
     bool isConstant(int desiredCombination) const override {
         SkASSERT(desiredCombination < fNumWrappedCombos);
+        auto [child, childCombination] = SelectOption(SkSpan(fWrapped), desiredCombination);
+        return child->priv().isConstant(childCombination);
+    }
 
-        std::pair<sk_sp<PrecompileShader>, int> wrapped =
-                PrecompileBase::SelectOption(SkSpan(fWrapped), desiredCombination);
-        if (wrapped.first) {
-            return wrapped.first->priv().isConstant(wrapped.second);
-        }
-
-        return false;
+    bool isOpaque(int desiredCombination) const override {
+        SkASSERT(desiredCombination < fNumWrappedCombos);
+        auto [child, childCombination] = SelectOption(SkSpan(fWrapped), desiredCombination);
+        return child->priv().isOpaque(childCombination);
     }
 
 private:
@@ -1028,28 +1143,38 @@ public:
 
 private:
     // 6 known 1D blur effects + 6 known 2D blur effects
-    inline static constexpr int kNumIntrinsicCombinations = 12;
-
-    int numIntrinsicCombinations() const override { return kNumIntrinsicCombinations; }
-
-    int numChildCombinations() const override { return fNumWrappedCombos; }
-
-    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
-        SkASSERT(desiredCombination < this->numCombinations());
-
-        using namespace SkKnownRuntimeEffects;
-
-        int desiredBlurCombination = desiredCombination % kNumIntrinsicCombinations;
-        int desiredWrappedCombination = desiredCombination / kNumIntrinsicCombinations;
-        SkASSERT(desiredWrappedCombination < fNumWrappedCombos);
-
-        static const StableKey kIDs[kNumIntrinsicCombinations] = {
+    static constexpr StableKey kIDs[] = {
                 StableKey::k1DBlur4,  StableKey::k1DBlur8,  StableKey::k1DBlur12,
                 StableKey::k1DBlur16, StableKey::k1DBlur20, StableKey::k1DBlur28,
 
                 StableKey::k2DBlur4,  StableKey::k2DBlur8,  StableKey::k2DBlur12,
                 StableKey::k2DBlur16, StableKey::k2DBlur20, StableKey::k2DBlur28,
         };
+    inline static constexpr int kNumIntrinsicCombinations = std::size(kIDs);
+
+    int numIntrinsicCombinations() const override { return kNumIntrinsicCombinations; }
+
+    int numChildCombinations() const override { return fNumWrappedCombos; }
+
+    bool isOpaque(int /*desiredCombination*/) const override {
+        const SkRuntimeEffect* effect = GetKnownRuntimeEffect(StableKey::k1DBlur4);
+#if defined(SK_DEBUG)
+        // All blurs should behave the same
+        for (int i = 0; i < kNumIntrinsicCombinations; ++i) {
+            const SkRuntimeEffect* other = GetKnownRuntimeEffect(kIDs[i]);
+            SkASSERT(SkRuntimeEffectPriv::AlwaysOpaque(effect) ==
+                     SkRuntimeEffectPriv::AlwaysOpaque(other));
+        }
+#endif
+        return SkRuntimeEffectPriv::AlwaysOpaque(effect);
+    }
+
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
+        SkASSERT(desiredCombination < this->numCombinations());
+        int desiredBlurCombination = desiredCombination % kNumIntrinsicCombinations;
+        int desiredWrappedCombination = desiredCombination / kNumIntrinsicCombinations;
+        SkASSERT(desiredWrappedCombination < fNumWrappedCombos);
+
 
         const SkRuntimeEffect* effect = GetKnownRuntimeEffect(kIDs[desiredBlurCombination]);
         SkASSERT(effect->children().size() == 1);
@@ -1093,6 +1218,20 @@ private:
 
     int numChildCombinations() const override { return fNumWrappedCombos; }
 
+    bool isOpaque(int /*desiredCombination*/) const override {
+        const SkRuntimeEffect* effect = GetKnownRuntimeEffect(StableKey::kMatrixConvUniforms);
+#if defined(SK_DEBUG)
+        // The other two stable key variants should be equivalent
+        const SkRuntimeEffect* effectTexSm = GetKnownRuntimeEffect(StableKey::kMatrixConvTexSm);
+        const SkRuntimeEffect* effectTexLg = GetKnownRuntimeEffect(StableKey::kMatrixConvTexLg);
+        SkASSERT(SkRuntimeEffectPriv::AlwaysOpaque(effect) ==
+                 SkRuntimeEffectPriv::AlwaysOpaque(effectTexSm));
+        SkASSERT(SkRuntimeEffectPriv::AlwaysOpaque(effect) ==
+                 SkRuntimeEffectPriv::AlwaysOpaque(effectTexLg));
+#endif
+        return SkRuntimeEffectPriv::AlwaysOpaque(effect);
+    }
+
     void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
 
         int desiredTextureCombination = 0;
@@ -1102,12 +1241,10 @@ private:
 
         SkKnownRuntimeEffects::StableKey stableKey = SkKnownRuntimeEffects::StableKey::kInvalid;
         if (remainingCombinations == 0) {
-            stableKey = SkKnownRuntimeEffects::StableKey::kMatrixConvUniforms;
+            stableKey = StableKey::kMatrixConvUniforms;
         } else {
-            static constexpr SkKnownRuntimeEffects::StableKey kTextureBasedStableKeys[] = {
-                    SkKnownRuntimeEffects::StableKey::kMatrixConvTexSm,
-                    SkKnownRuntimeEffects::StableKey::kMatrixConvTexLg,
-            };
+            static constexpr StableKey kTextureBasedStableKeys[] =
+                    { StableKey::kMatrixConvTexSm, StableKey::kMatrixConvTexLg };
 
             --remainingCombinations;
             stableKey = kTextureBasedStableKeys[remainingCombinations % 2];
@@ -1120,7 +1257,7 @@ private:
         RuntimeEffectBlock::BeginBlock(keyContext, { sk_ref_sp(effect) });
             fWrapped->priv().addToKey(keyContext.forRuntimeEffect(effect, /*child=*/0),
                                       desiredWrappedCombination);
-            if (stableKey != SkKnownRuntimeEffects::StableKey::kMatrixConvUniforms) {
+            if (stableKey != StableKey::kMatrixConvUniforms) {
                 SkASSERT(effect->children().size() == 2);
                 fRawImageShader->priv().addToKey(keyContext.forRuntimeEffect(effect, /*child=*/1),
                                                  desiredTextureCombination);
@@ -1144,17 +1281,21 @@ sk_sp<PrecompileShader> PrecompileShadersPriv::MatrixConvolution(
 //--------------------------------------------------------------------------------------------------
 class PrecompileMorphologyShader final : public PrecompileShader {
 public:
-    PrecompileMorphologyShader(sk_sp<PrecompileShader> wrapped,
-                               SkKnownRuntimeEffects::StableKey stableKey)
+    PrecompileMorphologyShader(sk_sp<PrecompileShader> wrapped, StableKey stableKey)
             : fWrapped(std::move(wrapped))
             , fStableKey(stableKey) {
         fNumWrappedCombos = fWrapped->priv().numCombinations();
-        SkASSERT(stableKey == SkKnownRuntimeEffects::StableKey::kLinearMorphology ||
-                 stableKey == SkKnownRuntimeEffects::StableKey::kSparseMorphology);
+        SkASSERT(stableKey == StableKey::kLinearMorphology ||
+                 stableKey == StableKey::kSparseMorphology);
     }
 
 private:
     int numChildCombinations() const override { return fNumWrappedCombos; }
+
+    bool isOpaque(int /*desiredCombination*/) const override {
+        const SkRuntimeEffect* effect = GetKnownRuntimeEffect(fStableKey);
+        return SkRuntimeEffectPriv::AlwaysOpaque(effect);
+    }
 
     void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination < fNumWrappedCombos);
@@ -1170,19 +1311,15 @@ private:
 
     sk_sp<PrecompileShader> fWrapped;
     int fNumWrappedCombos;
-    SkKnownRuntimeEffects::StableKey fStableKey;
+    StableKey fStableKey;
 };
 
 sk_sp<PrecompileShader> PrecompileShadersPriv::LinearMorphology(sk_sp<PrecompileShader> wrapped) {
-    return sk_make_sp<PrecompileMorphologyShader>(
-            std::move(wrapped),
-            SkKnownRuntimeEffects::StableKey::kLinearMorphology);
+    return sk_make_sp<PrecompileMorphologyShader>(std::move(wrapped), StableKey::kLinearMorphology);
 }
 
 sk_sp<PrecompileShader> PrecompileShadersPriv::SparseMorphology(sk_sp<PrecompileShader> wrapped) {
-    return sk_make_sp<PrecompileMorphologyShader>(
-            std::move(wrapped),
-            SkKnownRuntimeEffects::StableKey::kSparseMorphology);
+    return sk_make_sp<PrecompileMorphologyShader>(std::move(wrapped), StableKey::kSparseMorphology);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1199,6 +1336,11 @@ public:
 private:
     int numChildCombinations() const override { return fNumDisplacementCombos * fNumColorCombos; }
 
+    bool isOpaque(int /*desiredCombination*/) const override {
+        const SkRuntimeEffect* effect = GetKnownRuntimeEffect(StableKey::kDisplacement);
+        return SkRuntimeEffectPriv::AlwaysOpaque(effect);
+    }
+
     void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination < this->numChildCombinations());
 
@@ -1206,8 +1348,7 @@ private:
         const int desiredColorCombination = desiredCombination / fNumDisplacementCombos;
         SkASSERT(desiredColorCombination < fNumColorCombos);
 
-        const SkRuntimeEffect* effect =
-                GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kDisplacement);
+        const SkRuntimeEffect* effect = GetKnownRuntimeEffect(StableKey::kDisplacement);
         SkASSERT(effect->children().size() == 2);
 
         RuntimeEffectBlock::BeginBlock(keyContext, { sk_ref_sp(effect) });
@@ -1241,13 +1382,16 @@ public:
 private:
     int numChildCombinations() const override { return fNumWrappedCombos; }
 
+    bool isOpaque(int /*desiredCombination*/) const override {
+        const SkRuntimeEffect* lightingEffect = GetKnownRuntimeEffect(StableKey::kLighting);
+        return SkRuntimeEffectPriv::AlwaysOpaque(lightingEffect);
+    }
+
     void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination < fNumWrappedCombos);
 
-        const SkRuntimeEffect* normalEffect =
-                GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kNormal);
-        const SkRuntimeEffect* lightingEffect =
-                GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kLighting);
+        const SkRuntimeEffect* normalEffect = GetKnownRuntimeEffect(StableKey::kNormal);
+        const SkRuntimeEffect* lightingEffect = GetKnownRuntimeEffect(StableKey::kLighting);
         SkASSERT(normalEffect->children().size() == 1 &&
                  lightingEffect->children().size() == 1);
 

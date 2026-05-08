@@ -20,6 +20,9 @@ public:
     bool isConstant(int desiredCombination) const {
         return fPrecompileShader->isConstant(desiredCombination);
     }
+    bool isOpaque(int desiredCombination) const {
+        return fPrecompileShader->isOpaque(desiredCombination);
+    }
 
     bool isALocalMatrixShader() const {
         return fPrecompileShader->isALocalMatrixShader();

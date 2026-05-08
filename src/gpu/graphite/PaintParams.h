@@ -139,7 +139,6 @@ private:
     bool handlePaintAlpha(const KeyContext&) const;
     bool handleColorFilter(const KeyContext&) const;
     bool handleDithering(const KeyContext&) const;
-    bool handleDstRead(const KeyContext&) const;
     void handleClipping(const KeyContext&) const;
 
     const PaintParams& fPaint;

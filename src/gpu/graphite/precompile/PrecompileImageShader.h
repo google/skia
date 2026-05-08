@@ -87,6 +87,8 @@ private:
 
     int numIntrinsicCombinations() const override;
 
+    bool isOpaque(int /*desiredCombination*/) const override;
+
     void addToKey(const KeyContext& keyContext, int desiredCombination) const override;
 };
 

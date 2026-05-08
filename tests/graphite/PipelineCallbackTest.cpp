@@ -110,8 +110,14 @@ void pipeline_precompile_callback(void* context,
 
     SkASSERT(!label.empty());
     SkASSERT(fromPrecompile);
-    SkASSERT(serializedKey);
-    data->push_back(std::move(serializedKey));
+    if (op == ContextOptions::PipelineCacheOp::kAddingPipeline) {
+        SkASSERT(serializedKey);
+        data->push_back(std::move(serializedKey));
+    } else {
+        // Some PaintOption combinatorics produce the same paint key (e.g. opacity variations that
+        // lead to no net change). In these cases, we get cache hits on subsequent callbacks.
+        SkASSERT(op == skgpu::graphite::ContextOptions::PipelineCacheOp::kPipelineFound);
+    }
 }
 
 void precompile_linear_gradient(PrecompileContext* precompileContext) {
@@ -232,7 +238,7 @@ struct PipelineCheckData {
 namespace {
 
 void pipeline_checking_callback(void* context,
-                                ContextOptions::PipelineCacheOp /* op */,
+                                ContextOptions::PipelineCacheOp op,
                                 const std::string& label,
                                 uint32_t uniqueKeyHash,
                                 bool fromPrecompile,
@@ -241,13 +247,27 @@ void pipeline_checking_callback(void* context,
 
     SkASSERT(!label.empty());
     SkASSERT(fromPrecompile);
-    SkASSERT(serializedKey);
 
-    for (PipelineCheckData& d : *data) {
-        if (*d.fData == *serializedKey) {
-            d.fSeen = true;
-            d.fMatched = (d.fUniqueHash == uniqueKeyHash);
+    if (op == ContextOptions::PipelineCacheOp::kAddingPipeline) {
+        SkASSERT(serializedKey);
+
+        for (PipelineCheckData& d : *data) {
+            if (*d.fData == *serializedKey) {
+                d.fSeen = true;
+                d.fMatched = (d.fUniqueHash == uniqueKeyHash);
+            }
         }
+    } else {
+        SkASSERT(op == skgpu::graphite::ContextOptions::PipelineCacheOp::kPipelineFound);
+        [[maybe_unused]] bool hashMatch = false;
+        for (PipelineCheckData& d : *data) {
+            // On found pipelines, serializedKey is null so we can only search for the hash
+            if (d.fUniqueHash == uniqueKeyHash) {
+                hashMatch = true;
+                break;
+            }
+        }
+        SkASSERT(hashMatch);
     }
 }
 

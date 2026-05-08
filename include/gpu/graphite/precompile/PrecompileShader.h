@@ -86,6 +86,7 @@ protected:
     ~PrecompileShader() override;
 
     virtual bool isConstant(int /* desiredCombination */) const { return false; }
+    virtual bool isOpaque(int /* desiredCombination */) const = 0;
 
     virtual bool isALocalMatrixShader() const { return false; }
 };
