@@ -504,4 +504,5 @@ skia_graphite_sparse_strips_sources = [
   "$_src/gpu/graphite/sparse_strips/SparseStripsTypes.h",
   "$_src/gpu/graphite/sparse_strips/StripGenerator.cpp",
   "$_src/gpu/graphite/sparse_strips/StripGenerator.h",
+  "$_src/gpu/graphite/sparse_strips/Tiler.h",
 ]

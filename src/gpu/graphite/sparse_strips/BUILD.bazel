@@ -14,6 +14,7 @@ SPARSE_STRIPS_FILES = [
     "SparseStripsTypes.h",
     "StripGenerator.cpp",
     "StripGenerator.h",
+    "Tiler.h",
 ]
 
 split_srcs_and_hdrs(

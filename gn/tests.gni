@@ -362,6 +362,7 @@ sparse_strips_test_sources = [
   "$_tests/graphite/sparse_strips/FlattenTest.cpp",
   "$_tests/graphite/sparse_strips/LUTTest.cpp",
   "$_tests/graphite/sparse_strips/PolylineTest.cpp",
+  "$_tests/graphite/sparse_strips/TilerTest.cpp",
 ]
 
 graphite_dawn_tests_sources = [ "$_tests/graphite/DawnBackendTextureTest.cpp" ]
