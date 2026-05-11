@@ -126,12 +126,11 @@ public:
     DataType dataType() const { return fDataType; }
 
     /**
-     * Row bytes for the ith plane. Returns zero if i >= numPlanes() or this SkYUVAPixmapInfo is
-     * invalid.
+     * Row bytes for the ith plane. Returns zero if this SkYUVAPixmapInfo is invalid.
      */
     size_t rowBytes(int i) const { return fRowBytes[static_cast<size_t>(i)]; }
 
-    /** Image info for the ith plane, or default SkImageInfo if i >= numPlanes() */
+    /** Image info for the ith plane */
     const SkImageInfo& planeInfo(int i) const { return fPlaneInfos[static_cast<size_t>(i)]; }
 
     /**
@@ -234,8 +233,7 @@ public:
     const std::array<SkPixmap, kMaxPlanes>& planes() const { return fPlanes; }
 
     /**
-     * Get the ith SkPixmap plane. SkPixmap will be default initialized if i >= numPlanes or this
-     * SkYUVAPixmaps is invalid.
+     * Get the ith SkPixmap plane. SkPixmap will be default initialized if SkYUVAPixmaps is invalid.
      */
     const SkPixmap& plane(int i) const { return fPlanes[SkToSizeT(i)]; }
 
