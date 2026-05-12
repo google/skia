@@ -253,8 +253,27 @@ GrBackendTexture MakeGLBackendTexture(GrDirectContext* dContext,
         return GrBackendTexture();
     }
 
-    return make_gl_backend_texture(dContext, hardwareBuffer, width, height, deleteProc,
-                                   updateProc, imageCtx, isProtectedContent, backendFormat);
+    GrBackendTexture tex =
+            make_gl_backend_texture(dContext, hardwareBuffer, width, height, deleteProc,
+                                    updateProc, imageCtx, isProtectedContent, backendFormat);
+    // Retry if we can still fallback external texture target.
+    //
+    // Even when the format is known, an AHB can fail to be imported as a regular GL_TEXTURE_2D for
+    // reasons hidden from the GL API (e.g. lossy compression is meant for sample-only textures, in
+    // which case a driver might fail glEGLImageTargetTexture2DOES for regular texture targets).
+    //
+    // NOTE: We exclude this fallback when `isRenderable == true` since we never treat external
+    // formats as renderable. If we instead called MakeGLBackendTexture, we'd just fail the
+    // renderable validation check above.
+    if (!tex.isValid() &&
+        !isRenderable &&
+        backendFormat.textureType() != GrTextureType::kExternal) {
+        tex = make_gl_backend_texture(dContext, hardwareBuffer, width, height, deleteProc,
+                                      updateProc, imageCtx, isProtectedContent,
+                                      GrBackendFormats::MakeGLExternal());
+    }
+
+    return tex;
 }
 
 }  // namespace GrAHardwareBufferUtils
