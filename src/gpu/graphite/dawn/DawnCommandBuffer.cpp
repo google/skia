@@ -797,8 +797,10 @@ bool DawnCommandBuffer::bindGraphicsPipeline(const GraphicsPipeline* graphicsPip
         // not also every other time the textures are changed).
         const auto* texture = static_cast<const DawnTexture*>(fDstCopy.first);
         const auto* sampler = static_cast<const DawnSampler*>(fDstCopy.second);
+
         wgpu::BindGroup bindGroup =
                 fResourceProvider->findOrCreateSingleTextureSamplerBindGroup(sampler, texture);
+
         fActiveRenderPassEncoder.SetBindGroup(
                 DawnGraphicsPipeline::kTextureBindGroupIndex, bindGroup);
     }
@@ -879,6 +881,9 @@ void DawnCommandBuffer::bindTextureAndSamplers(
     }
 #endif
 
+    const auto& groupLayouts = fActiveGraphicsPipeline->dawnGroupLayouts();
+    wgpu::BindGroupLayout groupLayout = groupLayouts[DawnGraphicsPipeline::kTextureBindGroupIndex];
+
     wgpu::BindGroup bindGroup;
     // Optimize for single texture with dynamic sampling.
     if (numTexturesAndSamplers == 1 && !usingSingleStaticSampler) {
@@ -887,6 +892,7 @@ void DawnCommandBuffer::bindTextureAndSamplers(
 
         const auto* texture = static_cast<const DawnTexture*>(command.fTextures[0]->texture());
         const auto* sampler = this->getSampler(command, 0);
+
         bindGroup = fResourceProvider->findOrCreateSingleTextureSamplerBindGroup(sampler, texture);
     } else {
         std::vector<wgpu::BindGroupEntry> entries;
@@ -938,9 +944,7 @@ void DawnCommandBuffer::bindTextureAndSamplers(
             entries.push_back(textureEntry);
         }
 
-        const auto& groupLayouts = fActiveGraphicsPipeline->dawnGroupLayouts();
-        bindGroup = fResourceProvider->createBindGroup(
-                entries, groupLayouts[DawnGraphicsPipeline::kTextureBindGroupIndex]);
+        bindGroup = fResourceProvider->createBindGroup(entries, groupLayout);
     }
 
     fActiveRenderPassEncoder.SetBindGroup(DawnGraphicsPipeline::kTextureBindGroupIndex, bindGroup);

@@ -32,7 +32,6 @@ namespace {
 
 constexpr uint32_t kBufferBindingSizeAlignment = 16;
 constexpr int kMaxNumberOfCachedBufferBindGroups = 1024;
-constexpr int kMaxNumberOfCachedTextureBindGroups = 4096;
 
 wgpu::ShaderModule create_shader_module(const wgpu::Device& device, const char* source) {
 #if defined(__EMSCRIPTEN__)
@@ -136,21 +135,6 @@ UniformBindGroupKey make_ubo_bind_group_key(
                 builder[2 * i + 1] = 0;
             }
         }
-
-        builder.finish();
-    }
-
-    return uniqueKey;
-}
-
-BindGroupKey<1> make_texture_bind_group_key(const DawnSampler* sampler,
-                                            const DawnTexture* texture) {
-    BindGroupKey<1> uniqueKey;
-    {
-        BindGroupKey<1>::Builder builder(&uniqueKey);
-
-        builder[0] = sampler->uniqueID().asUInt();
-        builder[1] = texture->uniqueID().asUInt();
 
         builder.finish();
     }
@@ -444,7 +428,6 @@ DawnResourceProvider::DawnResourceProvider(SharedContext* sharedContext,
                                            size_t resourceBudget)
         : ResourceProvider(sharedContext, singleOwner, recorderID, resourceBudget)
         , fUniformBufferBindGroupCache(kMaxNumberOfCachedBufferBindGroups)
-        , fSingleTextureSamplerBindGroups(kMaxNumberOfCachedTextureBindGroups)
         , fSingleOwner(singleOwner) {
     fIntrinsicConstantsManager = std::make_unique<IntrinsicConstantsManager>(this);
 
@@ -688,6 +671,30 @@ wgpu::BindGroup DawnResourceProvider::createBindGroup(SkSpan<wgpu::BindGroupEntr
     return device.CreateBindGroup(&desc);
 }
 
+wgpu::BindGroup DawnResourceProvider::findOrCreateSingleTextureSamplerBindGroup(
+        const DawnSampler* sampler, const DawnTexture* texture) {
+    SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
+
+    // First check if we already have a cached bind group we can use.
+    auto cachedBindGroup = texture->getCachedSingleTextureBindGroup(sampler);
+    if (cachedBindGroup) {
+        return *cachedBindGroup;
+    }
+
+    // Otherwise, create one and store it on the Texture for potential future reuse.
+    std::array<wgpu::BindGroupEntry, 2> entries;
+    entries[0].binding = 0;
+    entries[0].sampler = sampler->dawnSampler();
+    entries[1].binding = 1;
+    entries[1].textureView = texture->sampleTextureView();
+
+    wgpu::BindGroup bindGroup = this->createBindGroup(
+            entries, this->dawnSharedContext()->getSingleTextureSamplerBindGroupLayout());
+    texture->addCachedSingleTextureBindGroup(bindGroup, sampler);
+
+    return bindGroup;
+}
+
 wgpu::BindGroup DawnResourceProvider::findOrCreateUniformBuffersBindGroup(const std::array<
         std::pair<const DawnBuffer*, uint32_t>, kNumUniformEntries>& boundBuffersAndSizes) {
     SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
@@ -729,30 +736,6 @@ wgpu::BindGroup DawnResourceProvider::findOrCreateUniformBuffersBindGroup(const 
     return *fUniformBufferBindGroupCache.insert(key, bindGroup);
 }
 
-wgpu::BindGroup DawnResourceProvider::findOrCreateSingleTextureSamplerBindGroup(
-        const DawnSampler* sampler, const DawnTexture* texture) {
-    SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
-
-    auto key = make_texture_bind_group_key(sampler, texture);
-    auto* existingBindGroup = fSingleTextureSamplerBindGroups.find(key);
-    if (existingBindGroup) {
-        // cache hit.
-        return *existingBindGroup;
-    }
-
-    std::array<wgpu::BindGroupEntry, 2> entries;
-
-    entries[0].binding = 0;
-    entries[0].sampler = sampler->dawnSampler();
-    entries[1].binding = 1;
-    entries[1].textureView = texture->sampleTextureView();
-
-    wgpu::BindGroup bindGroup = this->createBindGroup(
-            entries, this->dawnSharedContext()->getSingleTextureSamplerBindGroupLayout());
-
-    return *fSingleTextureSamplerBindGroups.insert(key, bindGroup);
-}
-
 void DawnResourceProvider::onFreeGpuResources() {
     SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
 
@@ -760,7 +743,6 @@ void DawnResourceProvider::onFreeGpuResources() {
     // The wgpu::Textures and wgpu::Buffers held by the BindGroups should be explicitly destroyed
     // when the DawnTexture and DawnBuffer is destroyed, but removing the bind groups themselves
     // helps reduce CPU memory periodically.
-    fSingleTextureSamplerBindGroups.reset();
     fUniformBufferBindGroupCache.reset();
 }
 

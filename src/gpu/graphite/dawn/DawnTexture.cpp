@@ -11,6 +11,7 @@
 #include "include/gpu/MutableTextureState.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/TextureUtils.h"
 #include "src/gpu/graphite/dawn/DawnCaps.h"
 #include "src/gpu/graphite/dawn/DawnGraphiteUtils.h"
@@ -249,6 +250,22 @@ void DawnTexture::setBackendLabel(char const* label) {
         fSampleTextureView.SetLabel(SkStringPrintf("%s_%s", label, "_SampleTextureView").c_str());
         fRenderTextureView.SetLabel(SkStringPrintf("%s_%s", label, "_RenderTextureView").c_str());
     }
+}
+
+const wgpu::BindGroup* DawnTexture::getCachedSingleTextureBindGroup(const Sampler* sampler) const {
+    SkASSERT(sampler);
+    for (auto& cachedGroup : fCachedSingleTextureBindGroups) {
+        if (cachedGroup.first->uniqueID() == sampler->uniqueID()) {
+            return &cachedGroup.second;
+        }
+    }
+    return nullptr;
+}
+
+void DawnTexture::addCachedSingleTextureBindGroup(wgpu::BindGroup bindGroup,
+                                                  const Sampler* sampler) const {
+    SkASSERT(sampler);
+    fCachedSingleTextureBindGroups.push_back({sampler, bindGroup});
 }
 
 } // namespace skgpu::graphite

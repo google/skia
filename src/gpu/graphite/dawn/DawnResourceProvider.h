@@ -118,7 +118,6 @@ private:
                                       typename BindGroupKey<NumEntries>::Hash>;
 
     BindGroupCache<kNumUniformEntries> fUniformBufferBindGroupCache;
-    BindGroupCache<1> fSingleTextureSamplerBindGroups;
 
     class IntrinsicBuffer;
     class IntrinsicConstantsManager;
