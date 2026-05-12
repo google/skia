@@ -9,6 +9,10 @@
 # While waiting for partition_alloc to do the same, they need to be set:
 is_asan = sanitize == "ASAN"
 is_hwasan = sanitize == "HWASAN"
+is_lsan = sanitize == "LSAN"
+is_msan = sanitize == "MSAN"
+is_tsan = sanitize == "TSAN"
+is_ubsan = sanitize == "UBSAN"
 is_castos = false
 is_cronet_build = false
 is_nacl = false
