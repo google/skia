@@ -52,6 +52,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <limits>
 #include <new>
 #include <tuple>
 #include <utility>
@@ -706,6 +707,10 @@ GrOp::CombineResult AtlasTextOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, con
         }
     }
 
+    if (std::numeric_limits<int>::max() - fNumGlyphs < that->fNumGlyphs) {
+        return CombineResult::kCannotCombine;
+    }
+
     fNumGlyphs += that->fNumGlyphs;
 
     // After concat, that's geometry list is emptied so it will not unref the blobs when destructed
@@ -756,5 +761,3 @@ GrGeometryProcessor* AtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
 #endif // !defined(SK_DISABLE_SDF_TEXT)
 
 } // namespace skgpu::ganesh
-
-
