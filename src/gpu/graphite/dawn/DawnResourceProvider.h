@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_DawnResourceProvider_DEFINED
 #define skgpu_graphite_DawnResourceProvider_DEFINED
 
+#include "include/core/SkSpan.h"
 #include "include/gpu/graphite/dawn/DawnGraphiteTypes.h"
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkTHash.h"
@@ -65,18 +66,19 @@ public:
                                              AccessPattern,
                                              std::string_view label);
 
+    wgpu::BindGroup createBindGroup(SkSpan<wgpu::BindGroupEntry>, const wgpu::BindGroupLayout);
+
     // Find the cached bind group or create a new one based on the bound buffers and their
     // binding sizes (boundBuffersAndSizes) for these uniforms (in order):
     // - Intrinsic constants.
     // - Render step uniforms.
     // - Paint uniforms.
-    const wgpu::BindGroup& findOrCreateUniformBuffersBindGroup(
-            const std::array<std::pair<const DawnBuffer*, uint32_t>, kNumUniformEntries>&
-                    boundBuffersAndSizes);
+    wgpu::BindGroup findOrCreateUniformBuffersBindGroup(const std::array<
+            std::pair<const DawnBuffer*, uint32_t>, kNumUniformEntries>& boundBuffersAndSizes);
 
     // Find or create a bind group containing the given sampler & texture.
-    const wgpu::BindGroup& findOrCreateSingleTextureSamplerBindGroup(const DawnSampler* sampler,
-                                                                     const DawnTexture* texture);
+    wgpu::BindGroup findOrCreateSingleTextureSamplerBindGroup(const DawnSampler*,
+                                                              const DawnTexture*);
 
     // Find the cached bind buffer info, or create a new one for the given intrinsic values.
     BindBufferInfo findOrCreateIntrinsicBindBufferInfo(DawnCommandBuffer* cb,

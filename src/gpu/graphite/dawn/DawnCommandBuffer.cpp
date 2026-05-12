@@ -938,13 +938,9 @@ void DawnCommandBuffer::bindTextureAndSamplers(
             entries.push_back(textureEntry);
         }
 
-        wgpu::BindGroupDescriptor desc;
         const auto& groupLayouts = fActiveGraphicsPipeline->dawnGroupLayouts();
-        desc.layout = groupLayouts[DawnGraphicsPipeline::kTextureBindGroupIndex];
-        desc.entryCount = entries.size();
-        desc.entries = entries.data();
-
-        bindGroup = fSharedContext->device().CreateBindGroup(&desc);
+        bindGroup = fResourceProvider->createBindGroup(
+                entries, groupLayouts[DawnGraphicsPipeline::kTextureBindGroupIndex]);
     }
 
     fActiveRenderPassEncoder.SetBindGroup(DawnGraphicsPipeline::kTextureBindGroupIndex, bindGroup);

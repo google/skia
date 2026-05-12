@@ -676,9 +676,20 @@ const wgpu::Buffer& DawnResourceProvider::getOrCreateNullBuffer() {
     return fNullBuffer;
 }
 
-const wgpu::BindGroup& DawnResourceProvider::findOrCreateUniformBuffersBindGroup(
-        const std::array<std::pair<const DawnBuffer*, uint32_t>, kNumUniformEntries>&
-                boundBuffersAndSizes) {
+wgpu::BindGroup DawnResourceProvider::createBindGroup(SkSpan<wgpu::BindGroupEntry> entries,
+                                                      const wgpu::BindGroupLayout layout) {
+    const auto& device = this->dawnSharedContext()->device();
+
+    wgpu::BindGroupDescriptor desc;
+    desc.layout = layout;
+    desc.entryCount = entries.size();
+    desc.entries = entries.data();
+
+    return device.CreateBindGroup(&desc);
+}
+
+wgpu::BindGroup DawnResourceProvider::findOrCreateUniformBuffersBindGroup(const std::array<
+        std::pair<const DawnBuffer*, uint32_t>, kNumUniformEntries>& boundBuffersAndSizes) {
     SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
 
     auto key = make_ubo_bind_group_key(boundBuffersAndSizes);
@@ -712,18 +723,13 @@ const wgpu::BindGroup& DawnResourceProvider::findOrCreateUniformBuffersBindGroup
         }
     }
 
-    wgpu::BindGroupDescriptor desc;
-    desc.layout = this->dawnSharedContext()->getUniformBuffersBindGroupLayout();
-    desc.entryCount = entries.size();
-    desc.entries = entries.data();
-
-    const auto& device = this->dawnSharedContext()->device();
-    auto bindGroup = device.CreateBindGroup(&desc);
+    wgpu::BindGroup bindGroup = this->createBindGroup(
+            entries, this->dawnSharedContext()->getUniformBuffersBindGroupLayout());
 
     return *fUniformBufferBindGroupCache.insert(key, bindGroup);
 }
 
-const wgpu::BindGroup& DawnResourceProvider::findOrCreateSingleTextureSamplerBindGroup(
+wgpu::BindGroup DawnResourceProvider::findOrCreateSingleTextureSamplerBindGroup(
         const DawnSampler* sampler, const DawnTexture* texture) {
     SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
 
@@ -741,13 +747,8 @@ const wgpu::BindGroup& DawnResourceProvider::findOrCreateSingleTextureSamplerBin
     entries[1].binding = 1;
     entries[1].textureView = texture->sampleTextureView();
 
-    wgpu::BindGroupDescriptor desc;
-    desc.layout = this->dawnSharedContext()->getSingleTextureSamplerBindGroupLayout();
-    desc.entryCount = entries.size();
-    desc.entries = entries.data();
-
-    const auto& device = this->dawnSharedContext()->device();
-    auto bindGroup = device.CreateBindGroup(&desc);
+    wgpu::BindGroup bindGroup = this->createBindGroup(
+            entries, this->dawnSharedContext()->getSingleTextureSamplerBindGroupLayout());
 
     return *fSingleTextureSamplerBindGroups.insert(key, bindGroup);
 }
