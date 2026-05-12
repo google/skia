@@ -1031,10 +1031,10 @@ void add_color_space_uniforms(const KeyContext& keyContext,
     const bool alphaSwizzleR = readSwizzle[3] == 'r';
     const bool alphaSwizzle1 = readSwizzle[3] == '1';
 
-    // It doesn't make sense to unpremul/premul in opaque cases, but we might get a request to
-    // anyways, which we can just ignore.
-    const bool unpremul = alphaSwizzle1 ? false : steps.fFlags.unpremul;
-    const bool premul = alphaSwizzle1 ? false : steps.fFlags.premul;
+    // It doesn't make sense to unpremul/premul in opaque or alpha-only cases, but we might get a
+    // request to anyways, which we can just ignore.
+    const bool unpremul = alphaSwizzle1 || alphaSwizzleR ? false : steps.fFlags.unpremul;
+    const bool premul   = alphaSwizzle1 || alphaSwizzleR ? false : steps.fFlags.premul;
 
     const float srcW = unpremul ? -1.f :
                        (alphaSwizzleR || alphaSwizzle1) ? 1.f :
