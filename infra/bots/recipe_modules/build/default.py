@@ -266,6 +266,7 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
       'skia_use_libpng_encode':        'false',
       'skia_use_libwebp_decode':       'false',
       'skia_use_libwebp_encode':       'false',
+      'skia_use_partition_alloc':      'false',
       'skia_use_vulkan':               'false',
       'skia_use_wuffs':                'false',
       'skia_use_zlib':                 'false',
