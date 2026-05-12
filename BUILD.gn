@@ -174,8 +174,7 @@ opts("ml3") {
   if (is_win) {
     cflags = [ "/arch:AVX2" ]
   } else {
-    # TODO(kjlubick) use -march=x86-64-v3
-    cflags = [ "-march=haswell" ]
+    cflags = [ "-march=x86-64-v3" ]
   }
 }
 
@@ -185,8 +184,10 @@ opts("ml4") {
   if (is_win) {
     cflags = [ "/arch:AVX512" ]
   } else {
-    # TODO(kjlubick) use -march=x86-64-v4
-    cflags = [ "-march=skylake-avx512" ]
+    cflags = [
+      "-march=x86-64-v4",
+      "-mprefer-vector-width=512",
+    ]
   }
 }
 
