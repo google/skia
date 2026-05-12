@@ -305,7 +305,7 @@ protected:
                         auto w = kSizes[widthIdx];
                         SkPaint paint;
                         paint.setColor(SK_ColorWHITE);
-                        SkImage* img;
+                        SkImage* img = nullptr;
                         switch (mode) {
                             case 0:
                                 img = fReferenceMasks[sigmaIdx][heightIdx][widthIdx].get();
