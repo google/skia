@@ -7,6 +7,7 @@ the MODULE.bazel.lock file has a checksum of the .bzl files
 """
 
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+load("//bazel/external/dawn:dawn_repo.bzl", "dawn_repo")
 
 # https://bazel.build/rules/lib/globals/bzl.html#tag_class
 _from_file_tag = tag_class(
@@ -42,16 +43,26 @@ def _cpp_modules_impl(ctx):
         for repo_data in data["direct"]:
             name = repo_data.get("name")
             if name not in all_deps:
-                git_repository(
-                    build_file = repo_data.get("build_file"),
-                    commit = repo_data.get("commit"),
-                    name = name,
-                    patch_args = repo_data.get("patch_args", []),
-                    patch_cmds = repo_data.get("patch_cmds"),
-                    patch_cmds_win = repo_data.get("patch_cmds_win"),
-                    patches = repo_data.get("patches"),
-                    remote = repo_data.get("remote"),
-                )
+                if name == "dawn":
+                    dawn_repo(
+                        build_file = repo_data.get("build_file"),
+                        commit = repo_data.get("commit"),
+                        files_bzl = "//bazel/external/dawn:dawn_files.bzl",
+                        name = name,
+                        patches = repo_data.get("patches", []),
+                        remote = repo_data.get("remote"),
+                    )
+                else:
+                    git_repository(
+                        build_file = repo_data.get("build_file"),
+                        commit = repo_data.get("commit"),
+                        name = name,
+                        patch_args = repo_data.get("patch_args", []),
+                        patch_cmds = repo_data.get("patch_cmds"),
+                        patch_cmds_win = repo_data.get("patch_cmds_win"),
+                        patches = repo_data.get("patches"),
+                        remote = repo_data.get("remote"),
+                    )
                 direct_deps.append(name)
             all_deps.add(name)
 
