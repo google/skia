@@ -319,4 +319,17 @@ void DawnBuffer::setBackendLabel(char const* label) {
     }
 }
 
+const wgpu::BindGroup* DawnBuffer::getCachedSingleBufferBindGroup(size_t bindingSize) const {
+    for (auto& cachedGroup : fCachedSingleBufferBindGroups) {
+        if (cachedGroup.first == bindingSize) {
+            return &cachedGroup.second;
+        }
+    }
+    return nullptr;
+}
+void DawnBuffer::addCachedSingleBufferBindGroup(wgpu::BindGroup bindGroup,
+                                                size_t bindingSize) const {
+    fCachedSingleBufferBindGroups.push_back({bindingSize, bindGroup});
+}
+
 } // namespace skgpu::graphite

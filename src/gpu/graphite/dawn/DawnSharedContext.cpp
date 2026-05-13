@@ -111,7 +111,7 @@ void DawnSharedContext::deviceTick(Context* context) {
 void DawnSharedContext::createUniformBuffersBindGroupLayout() {
     const Caps* caps = this->caps();
 
-    std::array<wgpu::BindGroupLayoutEntry, DawnGraphicsPipeline::kNumUniformBuffers> entries;
+    std::array<wgpu::BindGroupLayoutEntry, DawnGraphicsPipeline::kMaxNumUniformBuffers> entries;
     entries[0].binding = DawnGraphicsPipeline::kIntrinsicUniformBufferIndex;
     entries[0].visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment;
     entries[0].buffer.type = wgpu::BufferBindingType::Uniform;

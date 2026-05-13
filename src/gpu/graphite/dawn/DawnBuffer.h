@@ -32,6 +32,9 @@ public:
 
     const wgpu::Buffer& dawnBuffer() const { return fBuffer; }
 
+    const wgpu::BindGroup* getCachedSingleBufferBindGroup(size_t bindingSize) const;
+    void addCachedSingleBufferBindGroup(wgpu::BindGroup, size_t bindingSize) const;
+
 private:
     DawnBuffer(const DawnSharedContext*,
                size_t,
@@ -60,6 +63,10 @@ private:
 
     // Ensure that only one thread can access fAsyncMapCallbacks.
     [[maybe_unused]] SingleOwner fSingleAsyncMapCallbacksOwner;
+
+    // By the time the command buffer requests a bind group, the provided Buffer pointer is const
+    // so this attribute must be mutable to avoid a const_cast.
+    mutable skia_private::TArray<std::pair<size_t, wgpu::BindGroup>> fCachedSingleBufferBindGroups;
 };
 
 } // namespace skgpu::graphite

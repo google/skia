@@ -161,7 +161,7 @@ private:
 
     bool fBoundUniformBuffersDirty = false;
 
-    std::array<BindBufferInfo, DawnGraphicsPipeline::kNumUniformBuffers> fBoundUniforms;
+    std::array<BindBufferInfo, DawnGraphicsPipeline::kMaxNumUniformBuffers> fBoundUniforms;
 
     wgpu::CommandEncoder fCommandEncoder;
     wgpu::RenderPassEncoder fActiveRenderPassEncoder;
