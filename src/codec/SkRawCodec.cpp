@@ -32,6 +32,7 @@
 #include <functional>
 #include <limits>
 #include <memory>
+#include <mutex>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -56,6 +57,9 @@
 #include "dng_tag_types.h"  // NO_G3_REWRITE
 #include "dng_types.h"  // NO_G3_REWRITE
 #include "dng_utils.h"  // NO_G3_REWRITE
+#if qDNGUseXMP
+#include "dng_xmp_sdk.h" // NO_G3_REWRITE
+#endif
 
 #include "src/piex.h"  // NO_G3_REWRITE
 #include "src/piex_types.h"  // NO_G3_REWRITE
@@ -619,6 +623,19 @@ private:
 
     bool readDng() {
         try {
+#if qDNGUseXMP
+            // There is no multithreading protection in dng_xmp_sdk::InitializeSDK().
+            // If multiple threads attempt to read a dng at the same time with xmp enabled,
+            // they all call InitializeSDK() and race to initialize a shared variable,
+            // sRegisteredNamespaces. By explicitly calling InitializeSDK() and guarding it
+            // with call_once, we can safely ensure the initialization is only attempted by
+            // a single thread and is completed before any attempts to read a dng.
+            static std::once_flag fInitializeDngSDK;
+            std::call_once(fInitializeDngSDK, []() {
+                dng_xmp_sdk::InitializeSDK();
+            });
+#endif
+
             // Due to the limit of DNG SDK, we need to reset host and info.
             fHost = std::make_unique<SkDngHost>(&fAllocator);
             fInfo = std::make_unique<dng_info>();
