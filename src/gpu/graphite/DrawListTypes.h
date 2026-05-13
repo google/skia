@@ -132,8 +132,9 @@ struct Layer {
     //
     // This was implemented in https://review.skia.org/1171836 and slightly regresses performance
     // due to the overhead it introduces.
-    template <bool kIsStencil, bool kIsDepthOnly = false, bool kForwards>
-    SK_ALWAYS_INLINE std::pair<BoundsTest, BindingList*> test(const Rect& drawBounds,
+    template <bool kIsStencil, bool kForwards>
+    SK_ALWAYS_INLINE std::pair<BoundsTest, BindingList*> test(bool isDepthOnly,
+                                                              const Rect& drawBounds,
                                                               const LayerKey& key,
                                                               bool requiresBarrier,
                                                               BindingList* startList,
@@ -152,7 +153,7 @@ struct Layer {
         for (; list != end; list = kForwards ? list->fNext : list->fPrev) {
             if (list->fKey.isEqual(key, matchUniform)) {
                 // Depth-only and stencil draws check for intersection under the rules listed below.
-                if constexpr (!kIsDepthOnly && !kIsStencil) {
+                if (!isDepthOnly && !kIsStencil) {
                     foundMatch = list;
                     if (!requiresBarrier) continue;
                 } else {
@@ -182,7 +183,7 @@ struct Layer {
                     // process !list->fIsDepthOnly as true. Even though the overlapping geometry
                     // is purely depth, the traversal sees a shading intersection and prematurely
                     // halts, and potentially breaking batching with earlier extant depth draws.
-                    if (list->fIsDepthOnly == kIsDepthOnly) {
+                    if (list->fIsDepthOnly == isDepthOnly) {
                         foundMatch = list;
                     }
                 }
@@ -220,8 +221,8 @@ struct Layer {
         return {foundMatch ? BoundsTest::kCompatibleOverlap : BoundsTest::kDisjoint, foundMatch};
     }
 
-    template <bool kIsDepthOnly>
-    SK_ALWAYS_INLINE BindingList* add(SkArenaAllocWithReset* alloc,
+    SK_ALWAYS_INLINE BindingList* add(bool isDepthOnly,
+                                      SkArenaAllocWithReset* alloc,
                                       BindingList* list,
                                       const LayerKey& key,
                                       Draw* draw,
@@ -231,17 +232,17 @@ struct Layer {
             list->fBounds.join(draw->fDrawParams->drawBounds());
         } else {
             fListOrder = fListOrder.next();
-            list = alloc->make<BindingList>(fListOrder, kIsDepthOnly);
+            list = alloc->make<BindingList>(fListOrder, isDepthOnly);
             list->fKey = key;
             list->fStep = const_cast<RenderStep*>(step);
             list->fBounds = draw->fDrawParams->drawBounds();
-            if constexpr (kIsDepthOnly) {
+            if (isDepthOnly) {
                 fBindings.addToHead(list);
             } else {
                 fBindings.addToTail(list);
             }
         }
-        SkASSERT(kIsDepthOnly == list->fIsDepthOnly);
+        SkASSERT(isDepthOnly == list->fIsDepthOnly);
 
         if (insertBefore) {
             list->fDraws.addToHead(draw);

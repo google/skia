@@ -66,9 +66,9 @@ public:
     void reset(LoadOp op, SkColor4f clearColor = {0.f, 0.f, 0.f, 0.f}) override;
 
 private:
-    template<bool kIsDepthOnly>
     void recordBackwards(int stepIndex,
                          bool isStencil,
+                         bool isDepthOnly,
                          bool dependsOnDst,
                          bool requiresBarrier,
                          const RenderStep* step,
