@@ -156,16 +156,6 @@ bool SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
         return true;
     }
 
-    enum SkipFillState {
-        kEmpty_SkipFillState,
-        kSingleLine_SkipFillState,
-        kNonSingleLine_SkipFillState,
-    };
-    SkipFillState fillState = kEmpty_SkipFillState;
-    //if (paintStyle != SkPaint::kFill_Style) {
-    //    fillState = kNonSingleLine_SkipFillState;
-    //}
-    SkPoint lastMovePt = SkPoint::Make(0,0);
     SkDynamicMemoryWStream currentSegment;
     const bool preserveEmptyVerbs = emptyVerb == EmptyVerb::Preserve;
     bool wroteContent = false;
@@ -177,23 +167,15 @@ bool SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
         switch (rec->fVerb) {
             case SkPathVerb::kMove:
                 MoveTo(args[0].fX, args[0].fY, &currentSegment);
-                lastMovePt = args[0];
-                fillState = kEmpty_SkipFillState;
                 break;
             case SkPathVerb::kLine:
                 if (preserveEmptyVerbs || !SkPathPriv::AllPointsEq(args)) {
                     AppendLine(args[1].fX, args[1].fY, &currentSegment);
-                    if ((fillState == kEmpty_SkipFillState) && (args[0] != lastMovePt)) {
-                        fillState = kSingleLine_SkipFillState;
-                        break;
-                    }
-                    fillState = kNonSingleLine_SkipFillState;
                 }
                 break;
             case SkPathVerb::kQuad:
                 if (preserveEmptyVerbs || !SkPathPriv::AllPointsEq(args)) {
                     append_quad(args, &currentSegment);
-                    fillState = kNonSingleLine_SkipFillState;
                 }
                 break;
             case SkPathVerb::kConic:
@@ -203,21 +185,18 @@ bool SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
                     for (int i = 0; i < converter.countQuads(); ++i) {
                         append_quad({&quads[i * 2], 3}, &currentSegment);
                     }
-                    fillState = kNonSingleLine_SkipFillState;
                 }
                 break;
             case SkPathVerb::kCubic:
                 if (preserveEmptyVerbs || !SkPathPriv::AllPointsEq(args)) {
                     append_cubic(args[1].fX, args[1].fY, args[2].fX, args[2].fY,
                                  args[3].fX, args[3].fY, &currentSegment);
-                    fillState = kNonSingleLine_SkipFillState;
                 }
                 break;
             case SkPathVerb::kClose:
                 ClosePath(&currentSegment);
-                currentSegment.writeToStream(content);
+                currentSegment.writeToAndReset(content);
                 wroteContent = true;
-                currentSegment.reset();
                 break;
         }
     }
