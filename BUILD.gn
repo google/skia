@@ -173,6 +173,8 @@ opts("ml3") {
   sources = skia_opts.ml3_sources
   if (is_win) {
     cflags = [ "/arch:AVX2" ]
+  } else if (current_cpu == "x86") {
+    cflags = [ "-march=haswell" ]
   } else {
     cflags = [ "-march=x86-64-v3" ]
   }
@@ -183,6 +185,8 @@ opts("ml4") {
   sources = skia_opts.ml4_sources
   if (is_win) {
     cflags = [ "/arch:AVX512" ]
+  } else if (current_cpu == "x86") {
+    cflags = [ "-march=skylake-avx512" ]
   } else {
     cflags = [
       "-march=x86-64-v4",
