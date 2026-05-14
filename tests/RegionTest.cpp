@@ -217,62 +217,7 @@ static void test_proc(skiatest::Reporter* reporter,
     }
 }
 
-static void rand_rect(SkIRect* rect, SkRandom& rand) {
-    int bits = 6;
-    int shift = 32 - bits;
-    rect->setLTRB(rand.nextU() >> shift, rand.nextU() >> shift,
-                  rand.nextU() >> shift, rand.nextU() >> shift);
-    rect->sort();
-}
-
-static bool test_rects(const SkIRect rect[], int count) {
-    SkRegion rgn0, rgn1;
-
-    for (int i = 0; i < count; i++) {
-        rgn0.op(rect[i], SkRegion::kUnion_Op);
-    }
-    rgn1.setRects(rect, count);
-
-    if (rgn0 != rgn1) {
-        SkDebugf("\n");
-        for (int i = 0; i < count; i++) {
-            SkDebugf(" { %d, %d, %d, %d },\n",
-                     rect[i].fLeft, rect[i].fTop,
-                     rect[i].fRight, rect[i].fBottom);
-        }
-        SkDebugf("\n");
-        return false;
-    }
-    return true;
-}
-
 DEF_TEST(Region, reporter) {
-    const SkIRect r2[] = {
-        { 0, 0, 1, 1 },
-        { 2, 2, 3, 3 },
-    };
-    REPORTER_ASSERT(reporter, test_rects(r2, std::size(r2)));
-
-    const SkIRect rects[] = {
-        { 0, 0, 1, 2 },
-        { 2, 1, 3, 3 },
-        { 4, 0, 5, 1 },
-        { 6, 0, 7, 4 },
-    };
-    REPORTER_ASSERT(reporter, test_rects(rects, std::size(rects)));
-
-    SkRandom rand;
-    for (int i = 0; i < 1000; i++) {
-        SkRegion rgn0, rgn1;
-
-        const int N = 8;
-        SkIRect rect[N];
-        for (int j = 0; j < N; j++) {
-            rand_rect(&rect[j], rand);
-        }
-        REPORTER_ASSERT(reporter, test_rects(rect, N));
-    }
-
     test_proc(reporter, contains_proc);
     test_proc(reporter, intersects_proc);
     test_empties(reporter);
@@ -696,4 +641,69 @@ DEF_TEST(SkRegion_ReadFromMemory_SingleEmptySlice_Valid, reporter) {
     while (!iter.done()) {
         iter.next();
     }
+}
+
+static bool test_rects(SkSpan<const SkIRect> rects) {
+    SkRegion rgn0, rgn1;
+
+    for (size_t i = 0; i < rects.size(); i++) {
+        rgn0.op(rects[i], SkRegion::kUnion_Op);
+    }
+    rgn1.setRects(rects.data(), rects.size());
+
+    if (rgn0 != rgn1) {
+        SkDebugf("\n");
+        for (size_t i = 0; i < rects.size(); i++) {
+            SkDebugf(" { %d, %d, %d, %d },\n",
+                     rects[i].fLeft, rects[i].fTop,
+                     rects[i].fRight, rects[i].fBottom);
+        }
+        SkDebugf("\n");
+        return false;
+    }
+    return true;
+}
+
+DEF_TEST(Region_setRects, reporter) {
+    auto test = [&](const char* name, SkSpan<const SkIRect> rects) {
+        skiatest::ReporterContext ctx(reporter, SkString(name));
+        REPORTER_ASSERT(reporter, test_rects(rects));
+
+        SkRegion rgn;
+        bool nonEmpty = rgn.setRects(rects.data(), rects.size());
+        REPORTER_ASSERT(reporter, nonEmpty == !rgn.isEmpty());
+    };
+
+    test("0_rects", {});
+
+    const SkIRect r1[] = {{0, 0, 10, 10}};
+    test("1_rect", r1);
+
+    const SkIRect r2[] = {{0, 0, 1, 1}, {2, 2, 3, 3}};
+    test("2_rects", r2);
+
+    const SkIRect r3[] = {{0, 0, 1, 1}, {2, 2, 3, 3}, {4, 4, 5, 5}};
+    test("3_rects", r3);
+
+    const SkIRect r4[] = {
+        { 0, 0, 1, 2 },
+        { 2, 1, 3, 3 },
+        { 4, 0, 5, 1 },
+        { 6, 0, 7, 4 },
+    };
+    test("4_rects", r4);
+
+    const SkIRect rOverlap[] = {{0, 0, 10, 10}, {5, 0, 15, 10}, {0, 5, 10, 15}, {5, 5, 15, 15}};
+    test("overlapping_rects", rOverlap);
+
+    const SkIRect rEmpty[] = {{0, 0, 0, 0}, {10, 10, 10, 10}};
+    test("empty_rects", rEmpty);
+
+    SkIRect grid[100];
+    for (int y = 0; y < 10; ++y) {
+        for (int x = 0; x < 10; ++x) {
+            grid[y * 10 + x] = SkIRect::MakeXYWH(x * 20, y * 20, 10, 10);
+        }
+    }
+    test("100_rects_grid", grid);
 }
