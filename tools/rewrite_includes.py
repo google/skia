@@ -108,7 +108,6 @@ for file_path in to_rewrite():
       if (len(parts) == 3
           and '#' in parts[0]
           and 'include' in parts[0]
-          and not parts[1].startswith('partition_alloc/')
           and os.path.basename(parts[1]) in headers):
         include_paths = headers[os.path.basename(parts[1])]
         if (len(include_paths) == 1):
