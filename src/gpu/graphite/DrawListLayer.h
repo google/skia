@@ -81,6 +81,7 @@ private:
 
     void recordForwards(int stepIndex,
                         bool isStencil,
+                        bool isDepthOnly,
                         bool dependsOnDst,
                         bool requiresBarrier,
                         const RenderStep* step,
