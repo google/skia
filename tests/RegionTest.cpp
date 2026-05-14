@@ -649,7 +649,7 @@ static bool test_rects(SkSpan<const SkIRect> rects) {
     for (size_t i = 0; i < rects.size(); i++) {
         rgn0.op(rects[i], SkRegion::kUnion_Op);
     }
-    rgn1.setRects(rects.data(), rects.size());
+    rgn1.setRects(rects);
 
     if (rgn0 != rgn1) {
         SkDebugf("\n");
@@ -670,7 +670,7 @@ DEF_TEST(Region_setRects, reporter) {
         REPORTER_ASSERT(reporter, test_rects(rects));
 
         SkRegion rgn;
-        bool nonEmpty = rgn.setRects(rects.data(), rects.size());
+        bool nonEmpty = rgn.setRects(rects);
         REPORTER_ASSERT(reporter, nonEmpty == !rgn.isEmpty());
     };
 

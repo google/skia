@@ -10,6 +10,7 @@
 
 #include "include/core/SkPath.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkSpan.h"
 #include "include/private/base/SkAPI.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
@@ -224,7 +225,12 @@ public:
 
         example: https://fiddle.skia.org/c/@Region_setRects
     */
-    bool setRects(const SkIRect rects[], int count);
+    bool setRects(SkSpan<const SkIRect> rects);
+#if !defined(SK_DISABLE_LEGACY_SKREGION_UNSPANNED_APIS)
+    bool setRects(const SkIRect rects[], int count) {
+        return this->setRects({rects, count});
+    }
+#endif
 
     /** Constructs a copy of an existing region.
         Makes two regions identical by value. Internally, region and

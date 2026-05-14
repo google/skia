@@ -5,7 +5,7 @@ REG_FIDDLE(Region_setRects, 256, 70, false, 0) {
 void draw(SkCanvas* canvas) {
     SkIRect rects[] = { {10, 10, 40, 40}, {20, 20, 50, 50}, {30, 30, 60, 60} };
     SkRegion region;
-    region.setRects(rects, std::size(rects));
+    region.setRects(rects);
     canvas->drawRegion(region, SkPaint());
     region.setEmpty();
     for (auto add : rects) {

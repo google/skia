@@ -676,18 +676,18 @@ void SkRegion::translate(int dx, int dy, SkRegion* dst) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkRegion::setRects(const SkIRect rects[], int count) {
-    if (0 == count) {
+bool SkRegion::setRects(SkSpan<const SkIRect> rects) {
+    if (rects.empty()) {
         return this->setEmpty();
     }
-    if (1 == count) {
+    if (rects.size() == 1) {
         return this->setRect(rects[0]);
     }
     // The depth here is O(log_2(count)) so we shouldn't run out of stackframes.
-    int mid = count / 2;
+    int mid = rects.size() / 2;
     SkRegion left, right;
-    left.setRects(rects, mid);
-    right.setRects(rects + mid, count - mid);
+    left.setRects(rects.first(mid));
+    right.setRects(rects.subspan(mid));
     return this->op(left, right, kUnion_Op);
 }
 
