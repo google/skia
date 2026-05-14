@@ -1,0 +1,461 @@
+/*
+ * Copyright 2026 Google LLC
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+#include "tests/graphite/sparse_strips/TileTestCases.h"
+
+#include "src/gpu/graphite/sparse_strips/Polyline.h"
+#include "src/gpu/graphite/sparse_strips/Tiler.h"
+
+namespace skgpu::graphite {
+
+namespace TileTestCases {
+
+TileTestCase::TileTestCase(const char* name,
+                           std::initializer_list<Line> unscaledLines,
+                           std::initializer_list<Tile> expectedTiles,
+                           float scale)
+        : fName(name), fExpected(expectedTiles) {
+    fLines.reserve(unscaledLines.size());
+    for (const auto& line : unscaledLines) {
+        fLines.push_back({{line.p0.fX * scale, line.p0.fY * scale},
+                          {line.p1.fX * scale, line.p1.fY * scale}});
+    }
+}
+
+std::vector<TileTestCase> Get(float scale, uint16_t viewportDim) {
+    // TODO (thomsmit): update this when constants are moved into header
+    static constexpr uint32_t T = IntersectionBits::T;
+    static constexpr uint32_t B = IntersectionBits::B;
+    static constexpr uint32_t L = IntersectionBits::L;
+    static constexpr uint32_t R = IntersectionBits::R;
+    static constexpr uint32_t W = IntersectionBits::W;
+
+    const float unscaledDim = static_cast<float>(viewportDim);
+
+    return {{"CulledLines",
+             {
+                     {{1.0f, -7.0f}, {3.0f, -1.0f}},
+                     {{1.0f, -11.0f}, {3.0f, -1.0f}},
+                     {{unscaledDim + 1.0f, 50.0f}, {unscaledDim + 3.0f, 70.0f}},
+                     {{1.0f, unscaledDim + 1.0f}, {3.0f, unscaledDim + 7.0f}},
+                     {{1.0f, unscaledDim + 1.0f}, {3.0f, unscaledDim + 13.0f}},
+             },
+             {},
+             scale},
+            {"SlopedLineCrossingTop",
+             {
+                     {{-2.0f, -3.0f}, {2.0f, 1.0f}},
+                     {{6.0f, -1.0f}, {5.0f, 2.0f}},
+                     {{9.0f, -10.0f}, {10.0f, 3.0f}},
+                     {{2.0f, 1.0f}, {-2.0f, -3.0f}},
+             },
+             {
+                     Tile(0, 0, 0, W | T),
+                     Tile(1, 0, 1, W | T),
+                     Tile(2, 0, 2, W | T),
+                     Tile(0, 0, 3, W | T),
+             },
+             scale},
+            {"SlopedLineCrossingBot",
+             {
+                     {{5.0f, unscaledDim + 3.0f}, {6.0f, unscaledDim - 2.0f}},
+                     {{10.0f, unscaledDim + 1.0f}, {9.0f, unscaledDim - 1.0f}},
+                     {{2.0f, unscaledDim - 2.0f}, {3.0f, unscaledDim + 3.0f}},
+             },
+             {
+                     Tile(1, 24, 0, B),
+                     Tile(2, 24, 1, B),
+                     Tile(0, 24, 2, B),
+             },
+             scale},
+            {"SlopedLineCrossingTopMultiTile",
+             {
+                     {{1.0f, -5.0f}, {6.0f, 7.0f}},
+                     {{2.5f, -10.0f}, {3.5f, 6.0f}},
+             },
+             {
+                     Tile(0, 0, 0, W | T | R),
+                     Tile(1, 0, 0, L | B),
+                     Tile(1, 1, 0, W | T),
+                     Tile(0, 0, 1, W | T | B),
+                     Tile(0, 1, 1, W | T),
+             },
+             scale},
+            {"SlopedLineCrossingBotMultiTile",
+             {
+                     {{12.0f, unscaledDim + 10.0f}, {2.0f, 94.0f}},
+                     {{1.5f, unscaledDim + 5.0f}, {3.5f, 94.0f}},
+             },
+             {
+                     Tile(0, 23, 0, B),
+                     Tile(0, 24, 0, W | T | R),
+                     Tile(1, 24, 0, B | L),
+                     Tile(0, 23, 1, B),
+                     Tile(0, 24, 1, W | T | B),
+             },
+             scale},
+            {"SlopedLineCrossingRight",
+             {
+                     {{97.0f, 1.0f}, {unscaledDim + 1.0f, 2.0f}},
+                     {{93.0f, 1.0f}, {unscaledDim + 5.0f, 2.0f}},
+             },
+             {
+                     Tile(24, 0, 0, R),
+                     Tile(23, 0, 1, R),
+                     Tile(24, 0, 1, R | L),
+             },
+             scale},
+            {"SlopedLineCrossingLeft",
+             {
+                     {{-5.0f, 1.0f}, {1.0f, 2.0f}},
+                     {{-5.0f, 1.0f}, {5.0f, 2.0f}},
+                     {{-5.0f, 1.0f}, {13.0f, 9.0f}},
+             },
+             {
+                     Tile(0, 0, 0, L),
+                     Tile(0, 0, 1, L | R),
+                     Tile(1, 0, 1, L),
+                     Tile(0, 0, 2, L | B),
+                     Tile(0, 1, 2, W | R | T),
+                     Tile(1, 1, 2, R | L),
+                     Tile(2, 1, 2, L | B),
+                     Tile(2, 2, 2, W | R | T),
+                     Tile(3, 2, 2, L),
+             },
+             scale},
+            {"HorizontalLineAboveViewport", {{{10.0f, -5.0f}, {90.0f, -5.0f}}}, {}, scale},
+            {"HorizontalLineBelowViewport",
+             {{{10.0f, unscaledDim + 5.0f}, {90.0f, unscaledDim + 5.0f}}},
+             {},
+             scale},
+            {"HorizontalLineCrossingLeftViewport",
+             {{{-10.0f, 10.0f}, {10.0f, 10.0f}}},
+             {
+                     Tile(0, 2, 0, L | R),
+                     Tile(1, 2, 0, L | R),
+                     Tile(2, 2, 0, L),
+             },
+             scale},
+            {"HorizontalLineCrossingRightViewport",
+             {{{unscaledDim - 5.0f, 10.0f}, {unscaledDim + 5.0f, 10.0f}}},
+             {Tile(23, 2, 0, R), Tile(24, 2, 0, L | R)},
+             scale},
+            {"VerticalLinesOutsideViewport",
+             {
+                     {{1.0f, -5.0f}, {1.0f, -1.0f}},
+                     {{1.0f, unscaledDim + 1.0f}, {1.0f, unscaledDim + 5.0f}},
+             },
+             {},
+             scale},
+            {"VerticalLineCrossingTopViewport",
+             {
+                     {{1.0f, -7.0f}, {1.0f, 3.0f}},
+                     {{1.0f, -7.0f}, {1.0f, 7.0f}},
+                     {{1.0f, -7.0f}, {1.0f, 8.0f}},
+             },
+             {
+                     Tile(0, 0, 0, W | T),
+                     Tile(0, 0, 1, W | B | T),
+                     Tile(0, 1, 1, W | T),
+                     Tile(0, 0, 2, W | B | T),
+                     Tile(0, 1, 2, W | T),
+             },
+             scale},
+            {"VerticalLineCrossingBotViewport",
+             {
+                     {{1.0f, unscaledDim - 1.0f}, {1.0f, unscaledDim + 5.0f}},
+                     {{1.0f, unscaledDim - 5.0f}, {1.0f, unscaledDim + 5.0f}},
+             },
+             {
+                     Tile(0, 24, 0, B),
+                     Tile(0, 23, 1, B),
+                     Tile(0, 24, 1, W | T | B),
+             },
+             scale},
+            {"ClipTopLeftCorner",
+             {{{-1.0f, 2.0f}, {2.0f, -1.0f}}},
+             {Tile(0, 0, 0, W | L | T)},
+             scale},
+            {"ClipBottomRightCorner",
+             {{{unscaledDim + 1.0f, unscaledDim - 2.0f}, {unscaledDim - 2.0f, unscaledDim + 1.0f}}},
+             {Tile(24, 24, 0, R | B)},
+             scale},
+            {"HorizontalLineLeftToRightThreeTile",
+             {{{1.5f, 1.0f}, {8.5f, 1.0f}}},
+             {
+                     Tile(0, 0, 0, R),
+                     Tile(1, 0, 0, R | L),
+                     Tile(2, 0, 0, L),
+             },
+             scale},
+            {"HorizontalLineRightToLeftThreeTile",
+             {{{8.5f, 1.0f}, {1.5f, 1.0f}}},
+             {
+                     Tile(0, 0, 0, R),
+                     Tile(1, 0, 0, R | L),
+                     Tile(2, 0, 0, L),
+             },
+             scale},
+            {"HorizontalLineMultiTile",
+             {{{1.5f, 1.0f}, {12.5f, 1.0f}}},
+             {
+                     Tile(0, 0, 0, R),
+                     Tile(1, 0, 0, R | L),
+                     Tile(2, 0, 0, R | L),
+                     Tile(3, 0, 0, L),
+             },
+             scale},
+            {"VerticalLineDownThreeTile",
+             {{{1.0f, 1.5f}, {1.0f, 8.5f}}},
+             {
+                     Tile(0, 0, 0, B),
+                     Tile(0, 1, 0, W | T | B),
+                     Tile(0, 2, 0, W | T),
+             },
+             scale},
+            {"VerticalLineDownMultiTile",
+             {{{1.0f, 1.0f}, {1.0f, 13.0f}}},
+             {
+                     Tile(0, 0, 0, B),
+                     Tile(0, 1, 0, W | T | B),
+                     Tile(0, 2, 0, W | T | B),
+                     Tile(0, 3, 0, W | T),
+             },
+             scale},
+            {"VerticalLineUpThreeTile",
+             {{{1.0f, 13.0f}, {1.0f, 1.0f}}},
+             {
+                     Tile(0, 0, 0, B),
+                     Tile(0, 1, 0, W | T | B),
+                     Tile(0, 2, 0, W | T | B),
+                     Tile(0, 3, 0, W | T),
+             },
+             scale},
+            {"VerticalLineUpMultiTile",
+             {{{1.0f, 8.5f}, {1.0f, 1.5f}}},
+             {
+                     Tile(0, 0, 0, B),
+                     Tile(0, 1, 0, W | T | B),
+                     Tile(0, 2, 0, W | T),
+             },
+             scale},
+            {"VerticalLineTouchingBot",
+             {{{1.0f, 1.0f}, {1.0f, 8.0f}}},
+             {
+                     Tile(0, 0, 0, B),
+                     Tile(0, 1, 0, W | T),
+             },
+             scale},
+            {"VerticalLineTouchingTop",
+             {{{1.0f, 0.0f}, {1.0f, 7.0f}}},
+             {
+                     Tile(0, 0, 0, W | B),
+                     Tile(0, 1, 0, W | T),
+             },
+             scale},
+            {"VerticalLineTouchingLeft",
+             {{{4.0f, 0.0f}, {4.0f, 7.0f}}},
+             {
+                     Tile(1, 0, 0, W | B),
+                     Tile(1, 1, 0, W | T),
+             },
+             scale},
+            {"TopLeftToBottomRight",
+             {{{1.0f, 1.0f}, {11.0f, 9.0f}}},
+             {
+                     Tile(0, 0, 0, R),
+                     Tile(1, 0, 0, L | B),
+                     Tile(1, 1, 0, W | R | T),
+                     Tile(2, 1, 0, L | B),
+                     Tile(2, 2, 0, W | T),
+             },
+             scale},
+            {"BottomRightToTopLeft",
+             {{{11.0f, 9.0f}, {1.0f, 1.0f}}},
+             {
+                     Tile(0, 0, 0, R),
+                     Tile(1, 0, 0, L | B),
+                     Tile(1, 1, 0, W | R | T),
+                     Tile(2, 1, 0, L | B),
+                     Tile(2, 2, 0, W | T),
+             },
+             scale},
+            {"BottomLeftToTopRight",
+             {{{2.0f, 11.0f}, {14.0f, 6.0f}}},
+             {
+                     Tile(2, 1, 0, R | B),
+                     Tile(3, 1, 0, L),
+                     Tile(0, 2, 0, R),
+                     Tile(1, 2, 0, R | L),
+                     Tile(2, 2, 0, W | L | T),
+             },
+             scale},
+            {"TopRightToBottomLeft",
+             {{{14.0f, 6.0f}, {2.0f, 11.0f}}},
+             {
+                     Tile(2, 1, 0, R | B),
+                     Tile(3, 1, 0, L),
+                     Tile(0, 2, 0, R),
+                     Tile(1, 2, 0, R | L),
+                     Tile(2, 2, 0, W | L | T),
+             },
+             scale},
+            {"TwoLinesInSingleTile",
+             {
+                     {{1.0f, 3.0f}, {3.0f, 3.0f}},
+                     {{3.0f, 3.0f}, {0.0f, 1.0f}},
+             },
+             {
+                     Tile(0, 0, 0, 0),
+                     Tile(0, 0, 1, 0),
+             },
+             scale},
+            {"DiagonalCrossCorner",
+             {{{3.0f, 5.0f}, {5.0f, 3.0f}}},
+             {
+                     Tile(1, 0, 0, L),
+                     Tile(0, 1, 0, R),
+                     Tile(1, 1, 0, W | L | T),
+             },
+             scale},
+            {"DiagonalCrossCornerTwo",
+             {{{7.9f, 7.9f}, {0.1f, 0.1f}}},
+             {
+                     Tile(0, 0, 0, R),
+                     Tile(1, 0, 0, L),
+                     Tile(1, 1, 0, W | T),
+             },
+             scale},
+            {"DiagonalDownSlopeTiles",
+             {{{5.0f, 5.0f}, {9.0f, 9.0f}}},
+             {
+                     Tile(1, 1, 0, R),
+                     Tile(2, 1, 0, L),
+                     Tile(2, 2, 0, W | T),
+             },
+             scale},
+            {"DiagonalUpSlopeTiles",
+             {{{5.0f, 9.0f}, {9.0f, 5.0f}}},
+             {
+                     Tile(1, 1, 0, R | B),
+                     Tile(2, 1, 0, L),
+                     Tile(1, 2, 0, W | T),
+             },
+             scale},
+            {"DiagonalDownOneTile",
+             {{{0.0f, 0.0f}, {4.0f, 4.0f}}},
+             {
+                     Tile(0, 0, 0, W | R),
+                     Tile(1, 0, 0, L),
+             },
+             scale},
+            {"DiagonalUpOneTile",
+             {{{0.0f, 4.0f}, {4.0f, 0.0f}}},
+             {
+                     Tile(0, 0, 0, R),
+                     Tile(1, 0, 0, W | L),
+             },
+             scale},
+            {"DiagonalDownTwoTile",
+             {{{0.0f, 0.0f}, {8.0f, 8.0f}}},
+             {
+                     Tile(0, 0, 0, W | R),
+                     Tile(1, 0, 0, L),
+                     Tile(1, 1, 0, W | R | T),
+                     Tile(2, 1, 0, L),
+             },
+             scale},
+            {"DiagonalUpTwoTile",
+             {{{0.0f, 8.0f}, {8.0f, 0.0f}}},
+             {
+                     Tile(1, 0, 0, R | L),
+                     Tile(2, 0, 0, W | L),
+                     Tile(0, 1, 0, R),
+                     Tile(1, 1, 0, W | L | T),
+             },
+             scale},
+            {"SlopedEndingRight",
+             {{{1.0f, 1.0f}, {8.0f, 2.0f}}},
+             {
+                     Tile(0, 0, 0, R),
+                     Tile(1, 0, 0, R | L),
+                     Tile(2, 0, 0, L),
+             },
+             scale},
+            {"SlopedTouchingTop",
+             {{{0.0f, 8.0f}, {4.0f, 0.0f}}},
+             {
+                     Tile(0, 0, 0, R | B),
+                     Tile(1, 0, 0, W | L),
+                     Tile(0, 1, 0, W | T),
+             },
+             scale},
+            {"SlopedTouchingBot",
+             {{{0.0f, 0.0f}, {4.0f, 8.0f}}},
+             {
+                     Tile(0, 0, 0, W | B),
+                     Tile(0, 1, 0, W | R | T),
+                     Tile(1, 1, 0, L),
+             },
+             scale},
+            {"SlopedDownThree",
+             {{{1.0f, 1.0f}, {5.0f, 11.0f}}},
+             {
+                     Tile(0, 0, 0, B),
+                     Tile(0, 1, 0, W | T | B),
+                     Tile(0, 2, 0, W | T | R),
+                     Tile(1, 2, 0, L),
+             },
+             scale},
+            {"SameTile", {{{1.0f, 1.0f}, {3.0f, 3.0f}}}, {Tile(0, 0, 0, 0)}, scale},
+            {"SameTileLeft", {{{0.0f, 1.0f}, {3.0f, 1.0f}}}, {Tile(0, 0, 0, 0)}, scale},
+            {"SameTileTop", {{{1.0f, 0.0f}, {1.0f, 3.0f}}}, {Tile(0, 0, 0, W)}, scale},
+            {"SameTileRight",
+             {{{1.0f, 1.0f}, {4.0f, 1.0f}}},
+             {
+                     Tile(0, 0, 0, R),
+                     Tile(1, 0, 0, L),
+             },
+             scale},
+            {"SameTileBottom",
+             {
+                     {{1.0f, 1.0f}, {1.0f, 4.0f}},
+                     {{1.0f, 1.0f}, {2.0f, 4.0f}},
+             },
+             {
+                     Tile(0, 0, 0, 0),
+                     Tile(0, 0, 1, 0),
+             },
+             scale},
+            {"SameTileTopLeft",
+             {
+                     {{0.0f, 1.0f}, {1.0f, 0.0f}},
+                     {{0.0f, 0.0001f}, {0.0001f, 0.0f}},
+             },
+             {
+                     Tile(0, 0, 0, W),
+                     Tile(0, 0, 1, W),
+             },
+             scale},
+            {"ExactRightEdgeCoincidence",
+             {{{4.0f, 1.0f}, {4.0f, 3.0f}}},
+             {Tile(1, 0, 0, 0)},
+             scale},
+            {"ExactBottomEdgeCoincidence", {{{1.0f, 4.0f}, {3.0f, 4.0f}}}, {}, scale},
+            {"Tricky Precision",
+             {{{0.000000, 15.856406}, {8.000000, 2.000000}}},
+             {Tile(1, 0, 0, B | R),
+              Tile(2, 0, 0, L),
+              Tile(1, 1, 0, W | T | B),
+              Tile(0, 2, 0, B | R),
+              Tile(1, 2, 0, W | T | L),
+              Tile(0, 3, 0, W | T)},
+             scale}};
+}
+
+}  // namespace TileTestCases
+
+}  // namespace skgpu::graphite

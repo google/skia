@@ -8,25 +8,13 @@
 #include "src/gpu/graphite/sparse_strips/Polyline.h"
 #include "src/gpu/graphite/sparse_strips/Tiler.h"
 #include "tests/Test.h"
+#include "tests/graphite/sparse_strips/TileTestCases.h"
 
 #include <cmath>
 
 namespace skgpu::graphite {
 
 namespace {
-
-SkTDArray<Line> scale_lines(const SkTDArray<Line>& input, float scale) {
-    if (scale == 1.0f) {
-        return input;
-    }
-    SkTDArray<Line> scaled;
-    scaled.reserve(input.size());
-    for (const auto& line : input) {
-        scaled.push_back({{line.p0.fX * scale, line.p0.fY * scale},
-                          {line.p1.fX * scale, line.p1.fY * scale}});
-    }
-    return scaled;
-}
 
 Polyline make_polyline(const SkTDArray<Line>& lines) {
     Polyline p;
@@ -55,18 +43,17 @@ void build_polyline_and_mapping(const SkTDArray<Line>& lines,
 
 template <uint16_t kTileWidth, uint16_t kTileHeight>
 void check_tiles_match(skiatest::Reporter* reporter,
-                       const SkTDArray<Line>& rawLines,
+                       const SkTDArray<Line>& lines,
                        const SkTDArray<Tile>& expected,
                        const char* testName,
-                       float scale) {
+                       uint16_t scaledDim) {
     Polyline polyline;
     std::vector<uint32_t> expectedToActualIdx;
-    const SkTDArray<Line> lines = scale_lines(rawLines, scale);
+
     build_polyline_and_mapping(lines, &polyline, &expectedToActualIdx);
 
     Tiles<kTileWidth, kTileHeight> tiles;
-    uint16_t kScaledDim = static_cast<uint16_t>(100.0f * scale);
-    tiles.makeTilesMSAA(polyline, kScaledDim, kScaledDim);
+    tiles.makeTilesMSAA(polyline, scaledDim, scaledDim);
     const SkTDArray<Tile>& actual = tiles.getTiles();
 
     bool hasFailure = (actual.size() != expected.size());
@@ -91,14 +78,14 @@ void check_tiles_match(skiatest::Reporter* reporter,
         dump.appendf("\n--- [%s] ---\n", testName);
 
         dump.append("Lines:\n{\n");
-        for (int32_t i = 0; i < rawLines.size(); ++i) {
-            const auto& line = rawLines[i];
+        for (int32_t i = 0; i < lines.size(); ++i) {
+            const auto& line = lines[i];
             dump.appendf("    {{%gf, %gf}, {%gf, %gf}}%s\n",
                          line.p0.fX,
                          line.p0.fY,
                          line.p1.fX,
                          line.p1.fY,
-                         (i < rawLines.size() - 1) ? "," : "");
+                         (i < lines.size() - 1) ? "," : "");
         }
         dump.append("}\n\n");
 
@@ -207,582 +194,19 @@ void check_sorted(skiatest::Reporter* reporter, const SkTDArray<Tile>& buf) {
 template <uint16_t kTileWidth, uint16_t kTileHeight> class TileTestRunner : IntersectionBits {
     static_assert(kTileWidth == kTileHeight);  // only support square tiles for now
     static constexpr float kScale = static_cast<float>(kTileWidth) / 4.0f;
-    static constexpr float kUnscaledDim = 100.0f;
-    static constexpr uint16_t kScaledDim = static_cast<uint16_t>(kUnscaledDim * kScale);
+    static constexpr uint16_t kViewportDim = 100;
+    static constexpr uint16_t kScaledDim = static_cast<uint16_t>(kViewportDim * kScale);
     static constexpr float kScaledDimF = static_cast<float>(kScaledDim);
 
 public:
-    static void runAll(skiatest::Reporter* reporter) {
-        {
-            const SkTDArray<Line> lines = {
-                    {{1.0f, -7.0f}, {3.0f, -1.0f}},
-                    {{1.0f, -11.0f}, {3.0f, -1.0f}},
-                    {{kUnscaledDim + 1.0f, 50.0f}, {kUnscaledDim + 3.0f, 70.0f}},
-                    {{1.0f, kUnscaledDim + 1.0f}, {3.0f, kUnscaledDim + 7.0f}},
-                    {{1.0f, kUnscaledDim + 1.0f}, {3.0f, kUnscaledDim + 13.0f}},
-            };
-            const SkTDArray<Tile> expected = {};
+    static void RunAll(skiatest::Reporter* reporter) {
+        // General test cases
+        for (const auto& testCase : TileTestCases::Get(kScale, kViewportDim)) {
             check_tiles_match<kTileWidth, kTileHeight>(
-                    reporter, lines, expected, "CulledLines", kScale);
+                    reporter, testCase.fLines, testCase.fExpected, testCase.fName, kScaledDim);
         }
 
-        {
-            const SkTDArray<Line> lines = {
-                    {{-2.0f, -3.0f}, {2.0f, 1.0f}},
-                    {{6.0f, -1.0f}, {5.0f, 2.0f}},
-                    {{9.0f, -10.0f}, {10.0f, 3.0f}},
-                    {{2.0f, 1.0f}, {-2.0f, -3.0f}},
-            };
-            const SkTDArray<Tile> expected = {
-                    Tile(0, 0, 0, W | T),
-                    Tile(1, 0, 1, W | T),
-                    Tile(2, 0, 2, W | T),
-                    Tile(0, 0, 3, W | T),
-            };
-            check_tiles_match<kTileWidth, kTileHeight>(
-                    reporter, lines, expected, "SlopedLineCrossingTop", kScale);
-        }
-
-        {
-            const SkTDArray<Line> lines = {
-                    {{5.0f, kUnscaledDim + 3.0f}, {6.0f, kUnscaledDim - 2.0f}},
-                    {{10.0f, kUnscaledDim + 1.0f}, {9.0f, kUnscaledDim - 1.0f}},
-                    {{2.0f, kUnscaledDim - 2.0f}, {3.0f, kUnscaledDim + 3.0f}},
-            };
-            const SkTDArray<Tile> expected = {
-                    Tile(1, 24, 0, B),
-                    Tile(2, 24, 1, B),
-                    Tile(0, 24, 2, B),
-            };
-            check_tiles_match<kTileWidth, kTileHeight>(
-                    reporter, lines, expected, "SlopedLineCrossingBot", kScale);
-        }
-
-        {
-            const SkTDArray<Line> lines = {
-                    {{1.0f, -5.0f}, {6.0f, 7.0f}},
-                    {{2.5f, -10.0f}, {3.5f, 6.0f}},
-            };
-            const SkTDArray<Tile> expected = {
-                    Tile(0, 0, 0, W | T | R),
-                    Tile(1, 0, 0, L | B),
-                    Tile(1, 1, 0, W | T),
-                    Tile(0, 0, 1, W | T | B),
-                    Tile(0, 1, 1, W | T),
-            };
-            check_tiles_match<kTileWidth, kTileHeight>(
-                    reporter, lines, expected, "SlopedLineCrossingTopMultiTile", kScale);
-        }
-
-        {
-            const SkTDArray<Line> lines = {
-                    {{12.0f, kUnscaledDim + 10.0f}, {2.0f, 94.0f}},
-                    {{1.5f, kUnscaledDim + 5.0f}, {3.5f, 94.0f}},
-            };
-            const SkTDArray<Tile> expected = {
-                    Tile(0, 23, 0, B),
-                    Tile(0, 24, 0, W | T | R),
-                    Tile(1, 24, 0, B | L),
-                    Tile(0, 23, 1, B),
-                    Tile(0, 24, 1, W | T | B),
-            };
-            check_tiles_match<kTileWidth, kTileHeight>(
-                    reporter, lines, expected, "SlopedLineCrossingBotMultiTile", kScale);
-        }
-
-        {
-            const SkTDArray<Line> lines = {
-                    {{97.0f, 1.0f}, {kUnscaledDim + 1.0f, 2.0f}},
-                    {{93.0f, 1.0f}, {kUnscaledDim + 5.0f, 2.0f}},
-            };
-            const SkTDArray<Tile> expected = {
-                    Tile(24, 0, 0, R),
-                    Tile(23, 0, 1, R),
-                    Tile(24, 0, 1, R | L),
-            };
-            check_tiles_match<kTileWidth, kTileHeight>(
-                    reporter, lines, expected, "SlopedLineCrossingRight", kScale);
-        }
-
-        {
-            const SkTDArray<Line> lines = {
-                    {{-5.0f, 1.0f}, {1.0f, 2.0f}},
-                    {{-5.0f, 1.0f}, {5.0f, 2.0f}},
-                    {{-5.0f, 1.0f}, {13.0f, 9.0f}},
-            };
-            const SkTDArray<Tile> expected = {
-                    Tile(0, 0, 0, L),
-                    Tile(0, 0, 1, L | R),
-                    Tile(1, 0, 1, L),
-                    Tile(0, 0, 2, L | B),
-                    Tile(0, 1, 2, W | R | T),
-                    Tile(1, 1, 2, R | L),
-                    Tile(2, 1, 2, L | B),
-                    Tile(2, 2, 2, W | R | T),
-                    Tile(3, 2, 2, L),
-            };
-            check_tiles_match<kTileWidth, kTileHeight>(
-                    reporter, lines, expected, "SlopedLineCrossingLeft", kScale);
-        }
-
-        {
-            const SkTDArray<Line> lines = {{{10.0f, -5.0f}, {90.0f, -5.0f}}};
-            const SkTDArray<Tile> expected = {};
-            check_tiles_match<kTileWidth, kTileHeight>(
-                    reporter, lines, expected, "HorizontalLineAboveViewport", kScale);
-        }
-
-        {
-            const SkTDArray<Line> lines = {
-                    {{10.0f, kUnscaledDim + 5.0f}, {90.0f, kUnscaledDim + 5.0f}}};
-            const SkTDArray<Tile> expected = {};
-            check_tiles_match<kTileWidth, kTileHeight>(
-                    reporter, lines, expected, "HorizontalLineBelowViewport", kScale);
-        }
-
-        {
-            const SkTDArray<Line> lines = {{{-10.0f, 10.0f}, {10.0f, 10.0f}}};
-            const SkTDArray<Tile> expected = {
-                    Tile(0, 2, 0, L | R),
-                    Tile(1, 2, 0, L | R),
-                    Tile(2, 2, 0, L),
-            };
-            check_tiles_match<kTileWidth, kTileHeight>(
-                    reporter, lines, expected, "HorizontalLineCrossingLeftViewport", kScale);
-        }
-
-        {
-            const SkTDArray<Line> lines = {
-                    {{kUnscaledDim - 5.0f, 10.0f}, {kUnscaledDim + 5.0f, 10.0f}}};
-            const SkTDArray<Tile> expected = {Tile(23, 2, 0, R), Tile(24, 2, 0, L | R)};
-            check_tiles_match<kTileWidth, kTileHeight>(
-                    reporter, lines, expected, "HorizontalLineCrossingRightViewport", kScale);
-        }
-
-        {
-            const SkTDArray<Line> lines = {
-                    {{1.0f, -5.0f}, {1.0f, -1.0f}},
-                    {{1.0f, kUnscaledDim + 1.0f}, {1.0f, kUnscaledDim + 5.0f}},
-            };
-            const SkTDArray<Tile> expected = {};
-            check_tiles_match<kTileWidth, kTileHeight>(
-                    reporter, lines, expected, "VerticalLinesOutsideViewport", kScale);
-        }
-
-        {
-            const SkTDArray<Line> lines = {
-                    {{1.0f, -7.0f}, {1.0f, 3.0f}},
-                    {{1.0f, -7.0f}, {1.0f, 7.0f}},
-                    {{1.0f, -7.0f}, {1.0f, 8.0f}},
-            };
-            const SkTDArray<Tile> expected = {
-                    Tile(0, 0, 0, W | T),
-                    Tile(0, 0, 1, W | B | T),
-                    Tile(0, 1, 1, W | T),
-                    Tile(0, 0, 2, W | B | T),
-                    Tile(0, 1, 2, W | T),
-            };
-            check_tiles_match<kTileWidth, kTileHeight>(
-                    reporter, lines, expected, "VerticalLineCrossingTopViewport", kScale);
-        }
-
-        {
-            const SkTDArray<Line> lines = {
-                    {{1.0f, kUnscaledDim - 1.0f}, {1.0f, kUnscaledDim + 5.0f}},
-                    {{1.0f, kUnscaledDim - 5.0f}, {1.0f, kUnscaledDim + 5.0f}},
-            };
-            const SkTDArray<Tile> expected = {
-                    Tile(0, 24, 0, B),
-                    Tile(0, 23, 1, B),
-                    Tile(0, 24, 1, W | T | B),
-            };
-            check_tiles_match<kTileWidth, kTileHeight>(
-                    reporter, lines, expected, "VerticalLineCrossingBotViewport", kScale);
-        }
-
-        {
-            const SkTDArray<Line> lines = {{{-1.0f, 2.0f}, {2.0f, -1.0f}}};
-            const SkTDArray<Tile> expected = {Tile(0, 0, 0, W | L | T)};
-            check_tiles_match<kTileWidth, kTileHeight>(
-                    reporter, lines, expected, "ClipTopLeftCorner", kScale);
-        }
-
-        {
-            const SkTDArray<Line> lines = {{{kUnscaledDim + 1.0f, kUnscaledDim - 2.0f},
-                                              {kUnscaledDim - 2.0f, kUnscaledDim + 1.0f}}};
-            const SkTDArray<Tile> expected = {Tile(24, 24, 0, R | B)};
-            check_tiles_match<kTileWidth, kTileHeight>(
-                    reporter, lines, expected, "ClipBottomRightCorner", kScale);
-        }
-
-        {
-            {
-                const SkTDArray<Line> lines = {{{1.5f, 1.0f}, {8.5f, 1.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, R),
-                        Tile(1, 0, 0, R | L),
-                        Tile(2, 0, 0, L),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "HorizontalLineLeftToRightThreeTile", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{8.5f, 1.0f}, {1.5f, 1.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, R),
-                        Tile(1, 0, 0, R | L),
-                        Tile(2, 0, 0, L),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "HorizontalLineRightToLeftThreeTile", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{1.5f, 1.0f}, {12.5f, 1.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, R),
-                        Tile(1, 0, 0, R | L),
-                        Tile(2, 0, 0, R | L),
-                        Tile(3, 0, 0, L),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "HorizontalLineMultiTile", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{1.0f, 1.5f}, {1.0f, 8.5f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, B),
-                        Tile(0, 1, 0, W | T | B),
-                        Tile(0, 2, 0, W | T),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "VerticalLineDownThreeTile", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{1.0f, 1.0f}, {1.0f, 13.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, B),
-                        Tile(0, 1, 0, W | T | B),
-                        Tile(0, 2, 0, W | T | B),
-                        Tile(0, 3, 0, W | T),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "VerticalLineDownMultiTile", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{1.0f, 13.0f}, {1.0f, 1.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, B),
-                        Tile(0, 1, 0, W | T | B),
-                        Tile(0, 2, 0, W | T | B),
-                        Tile(0, 3, 0, W | T),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "VerticalLineUpThreeTile", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{1.0f, 8.5f}, {1.0f, 1.5f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, B),
-                        Tile(0, 1, 0, W | T | B),
-                        Tile(0, 2, 0, W | T),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "VerticalLineUpMultiTile", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{1.0f, 1.0f}, {1.0f, 8.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, B),
-                        Tile(0, 1, 0, W | T),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "VerticalLineTouchingBot", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{1.0f, 0.0f}, {1.0f, 7.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, W | B),
-                        Tile(0, 1, 0, W | T),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "VerticalLineTouchingTop", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{4.0f, 0.0f}, {4.0f, 7.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(1, 0, 0, W | B),
-                        Tile(1, 1, 0, W | T),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "VerticalLineTouchingLeft", kScale);
-            }
-        }
-
-        {
-            {
-                const SkTDArray<Line> lines = {{{1.0f, 1.0f}, {11.0f, 9.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, R),
-                        Tile(1, 0, 0, L | B),
-                        Tile(1, 1, 0, W | R | T),
-                        Tile(2, 1, 0, L | B),
-                        Tile(2, 2, 0, W | T),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "TopLeftToBottomRight", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{11.0f, 9.0f}, {1.0f, 1.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, R),
-                        Tile(1, 0, 0, L | B),
-                        Tile(1, 1, 0, W | R | T),
-                        Tile(2, 1, 0, L | B),
-                        Tile(2, 2, 0, W | T),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "BottomRightToTopLeft", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{2.0f, 11.0f}, {14.0f, 6.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(2, 1, 0, R | B),
-                        Tile(3, 1, 0, L),
-                        Tile(0, 2, 0, R),
-                        Tile(1, 2, 0, R | L),
-                        Tile(2, 2, 0, W | L | T),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "BottomLeftToTopRight", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{14.0f, 6.0f}, {2.0f, 11.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(2, 1, 0, R | B),
-                        Tile(3, 1, 0, L),
-                        Tile(0, 2, 0, R),
-                        Tile(1, 2, 0, R | L),
-                        Tile(2, 2, 0, W | L | T),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "TopRightToBottomLeft", kScale);
-            }
-        }
-
-        {
-            {
-                const SkTDArray<Line> lines = {
-                        {{1.0f, 3.0f}, {3.0f, 3.0f}},
-                        {{3.0f, 3.0f}, {0.0f, 1.0f}},
-                };
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, 0),
-                        Tile(0, 0, 1, 0),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "TwoLinesInSingleTile", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{3.0f, 5.0f}, {5.0f, 3.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(1, 0, 0, L),
-                        Tile(0, 1, 0, R),
-                        Tile(1, 1, 0, W | L | T),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "DiagonalCrossCorner", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{7.9f, 7.9f}, {0.1f, 0.1f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, R),
-                        Tile(1, 0, 0, L),
-                        Tile(1, 1, 0, W | T),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "DiagonalCrossCornerTwo", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{5.0f, 5.0f}, {9.0f, 9.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(1, 1, 0, R),
-                        Tile(2, 1, 0, L),
-                        Tile(2, 2, 0, W | T),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "DiagonalDownSlopeTiles", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{5.0f, 9.0f}, {9.0f, 5.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(1, 1, 0, R | B),
-                        Tile(2, 1, 0, L),
-                        Tile(1, 2, 0, W | T),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "DiagonalUpSlopeTiles", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{0.0f, 0.0f}, {4.0f, 4.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, W | R),
-                        Tile(1, 0, 0, L),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "DiagonalDownOneTile", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{0.0f, 4.0f}, {4.0f, 0.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, R),
-                        Tile(1, 0, 0, W | L),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "DiagonalUpOneTile", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{0.0f, 0.0f}, {8.0f, 8.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, W | R),
-                        Tile(1, 0, 0, L),
-                        Tile(1, 1, 0, W | R | T),
-                        Tile(2, 1, 0, L),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "DiagonalDownTwoTile", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{0.0f, 8.0f}, {8.0f, 0.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(1, 0, 0, R | L),
-                        Tile(2, 0, 0, W | L),
-                        Tile(0, 1, 0, R),
-                        Tile(1, 1, 0, W | L | T),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "DiagonalUpTwoTile", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{1.0f, 1.0f}, {8.0f, 2.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, R),
-                        Tile(1, 0, 0, R | L),
-                        Tile(2, 0, 0, L),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "SlopedEndingRight", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{0.0f, 8.0f}, {4.0f, 0.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, R | B),
-                        Tile(1, 0, 0, W | L),
-                        Tile(0, 1, 0, W | T),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "SlopedTouchingTop", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{0.0f, 0.0f}, {4.0f, 8.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, W | B),
-                        Tile(0, 1, 0, W | R | T),
-                        Tile(1, 1, 0, L),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "SlopedTouchingBot", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{1.0f, 1.0f}, {5.0f, 11.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, B),
-                        Tile(0, 1, 0, W | T | B),
-                        Tile(0, 2, 0, W | T | R),
-                        Tile(1, 2, 0, L),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "SlopedDownThree", kScale);
-            }
-        }
-
-        {
-            {
-                const SkTDArray<Line> lines = {{{1.0f, 1.0f}, {3.0f, 3.0f}}};
-                const SkTDArray<Tile> expected = {Tile(0, 0, 0, 0)};
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "SameTile", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{0.0f, 1.0f}, {3.0f, 1.0f}}};
-                const SkTDArray<Tile> expected = {Tile(0, 0, 0, 0)};
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "SameTileLeft", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{1.0f, 0.0f}, {1.0f, 3.0f}}};
-                const SkTDArray<Tile> expected = {Tile(0, 0, 0, W)};
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "SameTileTop", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{1.0f, 1.0f}, {4.0f, 1.0f}}};
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, R),
-                        Tile(1, 0, 0, L),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "SameTileRight", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {
-                        {{1.0f, 1.0f}, {1.0f, 4.0f}},
-                        {{1.0f, 1.0f}, {2.0f, 4.0f}},
-                };
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, 0),
-                        Tile(0, 0, 1, 0),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "SameTileBottom", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {
-                        {{0.0f, 1.0f}, {1.0f, 0.0f}},
-                        {{0.0f, 0.0001f}, {0.0001f, 0.0f}},
-                };
-                const SkTDArray<Tile> expected = {
-                        Tile(0, 0, 0, W),
-                        Tile(0, 0, 1, W),
-                };
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "SameTileTopLeft", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{4.0f, 1.0f}, {4.0f, 3.0f}}};
-                const SkTDArray<Tile> expected = {Tile(1, 0, 0, 0)};
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "ExactRightEdgeCoincidence", kScale);
-            }
-            {
-                const SkTDArray<Line> lines = {{{1.0f, 4.0f}, {3.0f, 4.0f}}};
-                const SkTDArray<Tile> expected = {};
-                check_tiles_match<kTileWidth, kTileHeight>(
-                        reporter, lines, expected, "ExactBottomEdgeCoincidence", kScale);
-            }
-        }
-
-        {
-            const SkTDArray<Line> lines = {{{0.000000, 15.856406}, {8.000000, 2.000000}}};
-            const SkTDArray<Tile> expected = {Tile(1, 0, 0, B | R),
-                                              Tile(2, 0, 0, L),
-                                              Tile(1, 1, 0, W | T | B),
-                                              Tile(0, 2, 0, B | R),
-                                              Tile(1, 2, 0, W | T | L),
-                                              Tile(0, 3, 0, W | T)};
-            check_tiles_match<kTileWidth, kTileHeight>(
-                    reporter, lines, expected, "Tricky Precision", kScale);
-        }
-
+        // Sort test
         {
             Polyline polyline;
             Tiles<kTileWidth, kTileHeight> tiles;
@@ -810,6 +234,7 @@ public:
             check_sorted(reporter, tiles.getTiles());
         }
 
+        // Crash tests, pass if nothing crashes.
         {
             Tiles<kTileWidth, kTileHeight> tiles;
             const SkTDArray<Line> lines = {
@@ -821,7 +246,7 @@ public:
         {
             Tiles<kTileWidth, kTileHeight> tiles;
             const SkTDArray<Line> lines = {{{59.60001f * kScale, 40.78f * kScale},
-                                              {520599.6f * kScale, 100.18f * kScale}}};
+                                            {520599.6f * kScale, 100.18f * kScale}}};
             tiles.makeTilesMSAA(
                     make_polyline(lines), (uint16_t)(200 * kScale), (uint16_t)(100 * kScale));
         }
@@ -829,11 +254,11 @@ public:
 };
 
 DEF_TEST(SparseStrips_Tiler_4x4, reporter) {
-    skgpu::graphite::TileTestRunner<4, 4>::runAll(reporter);
+    skgpu::graphite::TileTestRunner<4, 4>::RunAll(reporter);
 }
 
 DEF_TEST(SparseStrips_Tiler_8x8, reporter) {
-    skgpu::graphite::TileTestRunner<8, 8>::runAll(reporter);
+    skgpu::graphite::TileTestRunner<8, 8>::RunAll(reporter);
 }
 
 }  // namespace skgpu::graphite
