@@ -116,8 +116,62 @@ string "SkDevice" has appeared in the last 10 commits:
   images or new perf regressions, that they are aware of what happened, and they
   use these tools to take appropriate action.
 
-<a name="skia_gardener_doc"></a>
+#### Basic workflow for triaging Perf issues
 
+1. Click on the regressions link on the Skia Status page to navigate to Perf's regressions page.
+![screenshot of status skia emphasizing perf regressions](skia_status_view.png)
+
+2. The regressions page lists all currently untriaged regressing CLs. In this example, there is only one, an autoroll.
+
+![screenshot of perf list of regressions](skia_perf_view.png)
+
+
+3. The columns to the right of each CL record its performance impact. A ∅ indicates no change, while a ? in the high or low column indicates a potential improvement or regression.
+
+![screenshot of perf with the ? symbols](skia_perf_columns.png)
+
+4. Clicking a ? opens a window that displays the statistical analysis of the performance change, and tools for investigating the change further:
+
+    * **Gauge the noise**: Use the provided Least Squares Error and step size to determine if the change is a true regression or just statistical noise.
+
+    * **Investigate the CL**: Click the linked CL ID (in this example 79169) to review the exact commit and see if it's the root cause or, in the case of a roll, to dig into the upstream changes.
+
+![screenshot of perf regression window](skia_perf_mini_graph.png)
+
+
+5. The "View on Dashboard" link is one of the most important tools for triaging performance regressions. Perf will automatically filter which benchmarks are affected by a CL; "View on Dashboard" graphs the performance of these benchmarks at each merged CL, marking the regressing CL with a red line (such as in this diagram). Each line is the test run on different devices. The vertical refers to some metric in performance (e.g. seconds) and the horizontal represents time (i.e. CLs). You may click the right hand check boxes to view or hide a line.
+
+    When looking at this graph, keep the following in mind:
+    * **Expand the window range**: Considering the trend helps determine if the regression is a true change or just a transient spike.
+    * **Look for broad impact**: A true regression usually impacts multiple benchmarks.
+
+
+![the main skia perf graph showcasing the test under scrutiny across multiple devices.](skia_perf_graph.png)
+
+6. Once confident that a CL is truly regressing or not, mark the corresponding check ✓ (for "not an issue") or x (for "this is an issue") and fill out the justification text box. Selecting x will also take you to Buganizer to file a bug for the regression.
+
+![Screenshot of the Perf regression window with options to mark as not an issue or file a bug](skia_perf_mini_graph_triaged.png)
+
+### Perf Tips
+
+Responding to performance regressions is similar to responding to Gold regressions. If you see a performance regression from a change, you usually want to notify the person who made the patch.
+
+Although statistical analysis triggers the Perf alerts, the underlying data can be very noisy. Often, a regression is simply noise or, on Android devices, thermal throttling.
+
+Although the performance on some devices can be flaky, a regression will rarely regress only a single device, so pay attention to all the different devices.
+
+For notifying someone of a regression:
+- If it's a GPU driver issue -> notify the current GPU gardener
+- If it's a patch from a Skia team member -> notify them
+- If it's a roll from another Google team -> investigate further
+
+Sometimes perf will find a regression that is very tiny; you can ignore these
+but use prudence.
+
+Remember to zoom out and look at the overall trend of Perf, to see whether or not the issue is transient.
+
+
+<a name="skia_gardener_doc"></a>
 ### Documentation
 
 - Improve/update this documentation page for future gardeners, especially the
@@ -214,8 +268,11 @@ accordingly.
 
 See the revert documentation [here](https://skia.org/docs/dev/contrib/revert).
 
-<a name="deps_roll_failures"></a>
 
+
+
+
+<a name="deps_roll_failures"></a>
 ### What to do if DEPS roll fails to land
 
 A common cause of DEPS roll failures are layout tests. Find the offending Skia
