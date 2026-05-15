@@ -340,7 +340,6 @@ DAWN_NATIVE_SRCS = [
     "src/dawn/native/dawn_platform.cpp",
     "src/dawn/native/stream/BlobSource.cpp",
     "src/dawn/native/stream/ByteVectorSink.cpp",
-    "src/dawn/native/stream/Stream.cpp",
     "src/dawn/native/webgpu_absl_format.cpp",
     "src/dawn/native/ChainUtils_autogen.cpp",
     "src/dawn/native/ObjectType_autogen.cpp",

@@ -50,14 +50,15 @@ DAWN_PUBLIC_HDRS = [
 ]
 
 DAWN_GENERATED_HDRS = [
-    "include/dawn/webgpu.h",
     "include/dawn/dawn_proc_table.h",
+    "include/dawn/dawn_version.h",
+    "include/dawn/webgpu.h",
     "include/dawn/webgpu_cpp.h",
-    "include/webgpu/webgpu_cpp_chained_struct.h",
     "include/dawn/webgpu_cpp_print.h",
     "include/dawn/wire/client/webgpu.h",
     "include/dawn/wire/client/webgpu_cpp.h",
     "include/dawn/wire/client/webgpu_cpp_print.h",
+    "include/webgpu/webgpu_cpp_chained_struct.h",
     "src/dawn/common/GPUInfo_autogen.h",
     "src/dawn/common/Version_autogen.h",
     "src/dawn/native/ChainUtils_autogen.h",
@@ -273,6 +274,7 @@ genrule(
     name = "generate_version",
     srcs = DAWN_GENERATOR_TEMPLATES + ["src/dawn/dawn.json"],
     outs = [
+        "include/dawn/dawn_version.h",
         "src/dawn/common/Version_autogen.h",
     ],
     cmd = "$(location :dawn_version_generator) " +
