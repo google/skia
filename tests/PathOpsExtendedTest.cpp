@@ -294,9 +294,7 @@ static int comparePaths(skiatest::Reporter* reporter, const char* testName, cons
     if (ExpectMatch::kYes == expectMatch && errors2x2 >= MAX_ERRORS) {
         SkAutoMutexExclusive autoM(compareDebugOut3);
         showPathOpPath(testName, one, two, a, b, scaledOne, scaledTwo, shapeOp, scale);
-        SkDebugf("\n/*");
-        REPORTER_ASSERT(reporter, 0);
-        SkDebugf(" */\n");
+        ERRORF(reporter, "PathOp mismatch for %s", testName);
     }
     return errors2x2 >= MAX_ERRORS ? errors2x2 : 0;
 }
@@ -478,8 +476,7 @@ static bool inner_simplify(skiatest::Reporter* reporter, const SkPath& path, con
                              SkDEBUGPARAMS(sTestName));
     if (!out.has_value()) {
         if (ExpectSuccess::kYes == expectSuccess) {
-            SkDebugf("%s did not expect %s failure\n", __FUNCTION__, filename);
-            REPORTER_ASSERT(reporter, 0);
+            ERRORF(reporter, "Simplify failed for %s", filename);
         }
         if (PathOpsDebug::gJson) {
             json_status(expectSuccess, expectMatch, false);
@@ -488,8 +485,7 @@ static bool inner_simplify(skiatest::Reporter* reporter, const SkPath& path, con
         return false;
     } else {
         if (ExpectSuccess::kNo == expectSuccess) {
-            SkDebugf("%s %s unexpected success\n", __FUNCTION__, filename);
-            REPORTER_ASSERT(reporter, 0);
+            ERRORF(reporter, "Simplify unexpected success for %s", filename);
         }
         if (PathOpsDebug::gJson) {
             json_status(expectSuccess, expectMatch, true);
@@ -500,12 +496,11 @@ static bool inner_simplify(skiatest::Reporter* reporter, const SkPath& path, con
     int errors = comparePaths(reporter, filename, path, *out, bitmap);
     if (ExpectMatch::kNo == expectMatch) {
         if (!errors) {
-            SkDebugf("%s failing test %s now succeeds\n", __FUNCTION__, filename);
-            REPORTER_ASSERT(reporter, 0);
+            ERRORF(reporter, "Failing Simplify test %s now succeeds", filename);
             return false;
         }
     } else if (ExpectMatch::kYes == expectMatch && errors) {
-        REPORTER_ASSERT(reporter, 0);
+        ERRORF(reporter, "Simplify mismatch for %s", filename);
     }
     reporter->bumpTestCount();
     return errors == 0;
@@ -553,8 +548,7 @@ static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
                        SkDEBUGPARAMS(testName));
     if (!out.has_value()) {
         if (ExpectSuccess::kYes == expectSuccess) {
-            SkDebugf("%s %s did not expect failure\n", __FUNCTION__, testName);
-            REPORTER_ASSERT(reporter, 0);
+            ERRORF(reporter, "PathOp failed for %s", testName);
         }
         if (PathOpsDebug::gJson) {
             json_status(expectSuccess, expectMatch, false);
@@ -563,8 +557,7 @@ static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
         return false;
     } else {
         if (ExpectSuccess::kNo == expectSuccess) {
-                SkDebugf("%s %s unexpected success\n", __FUNCTION__, testName);
-                REPORTER_ASSERT(reporter, 0);
+            ERRORF(reporter, "PathOp unexpected success for %s", testName);
         }
         if (PathOpsDebug::gJson) {
             json_status(expectSuccess, expectMatch, true);

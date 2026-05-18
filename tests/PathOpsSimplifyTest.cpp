@@ -9985,3 +9985,31 @@ DEF_TEST(PathOpsSimplify, reporter) {
         RunTestSet(reporter, subTests, subTestCount, firstSubTest, nullptr, stopTest, runReverse);
     }
 }
+
+DEF_TEST(bug_513001309, reporter) {
+    SkPathBuilder path;
+    for (int i = 0; i < 5; ++i) {
+        float off = i * 0.0001f;
+        path.setFillType(SkPathFillType::kEvenOdd);
+        path.moveTo(SkBits2Float(0x43b40000) + off, SkBits2Float(0xcf000000));
+        path.cubicTo(SkBits2Float(0x4e0d628f), SkBits2Float(0xceffffff), SkBits2Float(0x4e800003), SkBits2Float(0xcec6b143), SkBits2Float(0x4e800002), SkBits2Float(0xce7ffffc));
+        path.cubicTo(SkBits2Float(0x4e800002), SkBits2Float(0xcde53aee), SkBits2Float(0x4e0d6292), SkBits2Float(0xc307820e), SkBits2Float(0x44627d00), SkBits2Float(0x437ffff2));
+        path.lineTo(SkBits2Float(0x444bf3bc), SkBits2Float(0x4460537e));
+        path.lineTo(SkBits2Float(0x43553abd), SkBits2Float(0x440f3cbd));
+        path.lineTo(SkBits2Float(0x42000000), SkBits2Float(0x41800000));
+        path.lineTo(SkBits2Float(0x42c80000), SkBits2Float(0x44000000));
+        path.lineTo(SkBits2Float(0x43553abd), SkBits2Float(0x440f3cbd));
+        path.lineTo(SkBits2Float(0x43b40000), SkBits2Float(0x44800000));
+        path.lineTo(SkBits2Float(0x43b40000), SkBits2Float(0x45816000));
+
+        path.setFillType(SkPathFillType::kWinding);
+        path.moveTo(SkBits2Float(0x42fe0000) + off, SkBits2Float(0x43a08000));
+        path.lineTo(SkBits2Float(0x45d5c000), SkBits2Float(0x43870000));
+        path.lineTo(SkBits2Float(0xd0a00000), SkBits2Float(0x4cbebc20));
+        path.lineTo(SkBits2Float(0x451f7000), SkBits2Float(0x42800000));
+        path.lineTo(SkBits2Float(0x42fe0000), SkBits2Float(0x43a08000));
+        path.close();
+    }
+    // This caused a corruption/assert w/o the fix
+    (void) Simplify(path.detach());
+}
