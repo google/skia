@@ -695,8 +695,8 @@ bool SkOpCoincidence::addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
                 : overlap->oppPtTEnd()->fT < test->oppPtTEnd()->fT) {
             overlap->setOppPtTEnd(test->oppPtTEnd());
         }
-        if (!fHead || !this->release(fHead, test)) {
-            SkAssertResult(this->release(fTop, test));
+        if (!fHead || !this->release(&fHead, test)) {
+            SkAssertResult(this->release(&fTop, test));
         }
     }
     const SkOpPtT* cs = coinSeg->existing(coinTs, oppSeg);
@@ -1157,57 +1157,54 @@ bool SkOpCoincidence::apply(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
 }
 
 // Please keep this in sync with debugRelease()
-bool SkOpCoincidence::release(SkCoincidentSpans* coin, SkCoincidentSpans* remove)  {
-    SkCoincidentSpans* head = coin;
+bool SkOpCoincidence::release(SkCoincidentSpans** headPtr, SkCoincidentSpans* remove)  {
+    SkASSERT(headPtr == &fHead || headPtr == &fTop);
+    SkCoincidentSpans* coin = *headPtr;
     SkCoincidentSpans* prev = nullptr;
     SkCoincidentSpans* next;
-    do {
+    while (coin) {
         next = coin->next();
         if (coin == remove) {
             if (prev) {
                 prev->setNext(next);
-            } else if (head == fHead) {
-                fHead = next;
             } else {
-                fTop = next;
+                *headPtr = next;
             }
             break;
         }
         prev = coin;
-    } while ((coin = next));
+        coin = next;
+    }
     return coin != nullptr;
 }
 
-void SkOpCoincidence::releaseDeleted(SkCoincidentSpans* coin) {
-    if (!coin) {
-        return;
-    }
-    SkCoincidentSpans* head = coin;
+void SkOpCoincidence::releaseDeleted(SkCoincidentSpans** headPtr) {
+    SkASSERT(headPtr == &fHead || headPtr == &fTop);
+    SkCoincidentSpans* coin = *headPtr;
     SkCoincidentSpans* prev = nullptr;
     SkCoincidentSpans* next;
-    do {
+    while (coin) {
         next = coin->next();
         if (coin->coinPtTStart()->deleted()) {
             SkOPASSERT(coin->flipped() ? coin->oppPtTEnd()->deleted() :
                     coin->oppPtTStart()->deleted());
             if (prev) {
                 prev->setNext(next);
-            } else if (head == fHead) {
-                fHead = next;
             } else {
-                fTop = next;
+                *headPtr = next;
             }
         } else {
              SkOPASSERT(coin->flipped() ? !coin->oppPtTEnd()->deleted() :
                     !coin->oppPtTStart()->deleted());
             prev = coin;
         }
-    } while ((coin = next));
+        coin = next;
+    }
 }
 
 void SkOpCoincidence::releaseDeleted() {
-    this->releaseDeleted(fHead);
-    this->releaseDeleted(fTop);
+    this->releaseDeleted(&fHead);
+    this->releaseDeleted(&fTop);
 }
 
 void SkOpCoincidence::restoreHead() {
@@ -1248,7 +1245,7 @@ bool SkOpCoincidence::expand(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
                 }
                 if (coin->coinPtTStart() == test->coinPtTStart()
                         && coin->oppPtTStart() == test->oppPtTStart()) {
-                    this->release(fHead, test);
+                    this->release(&fHead, test);
                     break;
                 }
             } while ((test = test->next()));
@@ -1297,45 +1294,52 @@ bool SkOpCoincidence::findOverlaps(SkOpCoincidence* overlaps  DEBUG_COIN_DECLARE
 void SkOpCoincidence::fixUp(SkOpPtT* deleted, const SkOpPtT* kept) {
     SkOPASSERT(deleted != kept);
     if (fHead) {
-        this->fixUp(fHead, deleted, kept);
+        this->fixUp(&fHead, deleted, kept);
     }
     if (fTop) {
-        this->fixUp(fTop, deleted, kept);
+        this->fixUp(&fTop, deleted, kept);
     }
 }
 
-void SkOpCoincidence::fixUp(SkCoincidentSpans* coin, SkOpPtT* deleted, const SkOpPtT* kept) {
-    SkCoincidentSpans* head = coin;
-    do {
+void SkOpCoincidence::fixUp(SkCoincidentSpans** headPtr, SkOpPtT* deleted, const SkOpPtT* kept) {
+    SkASSERT(headPtr == &fHead || headPtr == &fTop);
+    SkCoincidentSpans* coin = *headPtr;
+    while (coin) {
+        SkCoincidentSpans* next = coin->next();
         if (coin->coinPtTStart() == deleted) {
             if (coin->coinPtTEnd()->span() == kept->span()) {
-                this->release(head, coin);
+                this->release(headPtr, coin);
+                coin = next;
                 continue;
             }
             coin->setCoinPtTStart(kept);
         }
         if (coin->coinPtTEnd() == deleted) {
             if (coin->coinPtTStart()->span() == kept->span()) {
-                this->release(head, coin);
+                this->release(headPtr, coin);
+                coin = next;
                 continue;
             }
             coin->setCoinPtTEnd(kept);
        }
         if (coin->oppPtTStart() == deleted) {
             if (coin->oppPtTEnd()->span() == kept->span()) {
-                this->release(head, coin);
+                this->release(headPtr, coin);
+                coin = next;
                 continue;
             }
             coin->setOppPtTStart(kept);
         }
         if (coin->oppPtTEnd() == deleted) {
             if (coin->oppPtTStart()->span() == kept->span()) {
-                this->release(head, coin);
+                this->release(headPtr, coin);
+                coin = next;
                 continue;
             }
             coin->setOppPtTEnd(kept);
         }
-    } while ((coin = coin->next()));
+        coin = next;
+    }
 }
 
 // Please keep this in sync with debugMark()
@@ -1386,9 +1390,11 @@ bool SkOpCoincidence::mark(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
 }
 
 // Please keep in sync with debugMarkCollapsed()
-void SkOpCoincidence::markCollapsed(SkCoincidentSpans* coin, SkOpPtT* test) {
-    SkCoincidentSpans* head = coin;
+void SkOpCoincidence::markCollapsed(SkCoincidentSpans** headPtr, SkOpPtT* test) {
+    SkASSERT(headPtr == &fHead || headPtr == &fTop);
+    SkCoincidentSpans* coin = *headPtr;
     while (coin) {
+        SkCoincidentSpans* next = coin->next();
         if (coin->collapsed(test)) {
             if (zero_or_one(coin->coinPtTStart()->fT) && zero_or_one(coin->coinPtTEnd()->fT)) {
                 coin->coinPtTStartWritable()->segment()->markAllDone();
@@ -1396,16 +1402,16 @@ void SkOpCoincidence::markCollapsed(SkCoincidentSpans* coin, SkOpPtT* test) {
             if (zero_or_one(coin->oppPtTStart()->fT) && zero_or_one(coin->oppPtTEnd()->fT)) {
                 coin->oppPtTStartWritable()->segment()->markAllDone();
             }
-            this->release(head, coin);
+            this->release(headPtr, coin);
         }
-        coin = coin->next();
+        coin = next;
     }
 }
 
 // Please keep in sync with debugMarkCollapsed()
 void SkOpCoincidence::markCollapsed(SkOpPtT* test) {
-    markCollapsed(fHead, test);
-    markCollapsed(fTop, test);
+    markCollapsed(&fHead, test);
+    markCollapsed(&fTop, test);
 }
 
 bool SkOpCoincidence::Ordered(const SkOpSegment* coinSeg, const SkOpSegment* oppSeg) {
@@ -1439,18 +1445,16 @@ bool SkOpCoincidence::overlap(const SkOpPtT* coin1s, const SkOpPtT* coin1e,
     return *overS < *overE;
 }
 
-// Commented-out lines keep this in sync with debugRelease()
 void SkOpCoincidence::release(const SkOpSegment* deleted) {
     SkCoincidentSpans* coin = fHead;
-    if (!coin) {
-        return;
-    }
-    do {
+    while (coin) {
+        SkCoincidentSpans* next = coin->next();
         if (coin->coinPtTStart()->segment() == deleted
                 || coin->coinPtTEnd()->segment() == deleted
                 || coin->oppPtTStart()->segment() == deleted
                 || coin->oppPtTEnd()->segment() == deleted) {
-            this->release(fHead, coin);
+            this->release(&fHead, coin);
         }
-    } while ((coin = coin->next()));
+        coin = next;
+    }
 }
