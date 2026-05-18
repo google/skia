@@ -723,8 +723,7 @@
     "name": "Build-Win-MSVC-x86_64-Debug-Graphite_Dawn_D3D11"
   },
   {
-    "name": "Build-Win-MSVC-x86_64-Debug-Graphite_Dawn_D3D12",
-    "cq_config": {}
+    "name": "Build-Win-MSVC-x86_64-Debug-Graphite_Dawn_D3D12"
   },
   {
     "name": "Build-Win-MSVC-x86_64-Debug-Graphite_Dawn_Vulkan"
