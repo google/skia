@@ -739,9 +739,11 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
            paint->getStyle() == SkPaint::kFill_Style ||
            (paint->getStrokeCap() != SkPaint::kRound_Cap &&
             paint->getStrokeCap() != SkPaint::kSquare_Cap);
-    using SkPDFUtils::EmptyPath, SkPDFUtils::EmptyVerb;
-    if (SkPDFUtils::EmitPath(modifiedPath, paint->getStyle(), EmptyPath::Discard,
+    bool discardEmptyArea = paint->getStyle() == SkPaint::kFill_Style;
+    using SkPDFUtils::EmptyPath, SkPDFUtils::EmptyVerb, SkPDFUtils::EmptyArea;
+    if (SkPDFUtils::EmitPath(modifiedPath, EmptyPath::Discard,
                              discardEmptyVerbs ? EmptyVerb::Discard : EmptyVerb::Preserve,
+                             discardEmptyArea ? EmptyArea::Discard : EmptyArea::Preserve,
                              content.stream(), tolerance))
     {
         SkPDFUtils::PaintPath(paint->getStyle(), modifiedPath.getFillType(), content.stream());

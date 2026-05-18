@@ -34,6 +34,7 @@
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTo.h"
+#include "include/utils/SkParsePath.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
@@ -492,4 +493,86 @@ DEF_TEST(fuzz875632f0, reporter) {
 
     canvas->drawPath(SkPath(), paint);
 }
+
+DEF_TEST(SkPDF_EmitPath, reporter) {
+    enum Selector : uint32_t {
+        kDiscardEmptyPath = 1 << 0,
+        kDiscardEmptyVerb = 1 << 1,
+        kDiscardEmptyArea = 1 << 2,
+    };
+
+    static constexpr struct {
+        const char* svgPath;
+        const char* expectedPdf;
+        uint32_t    discardMask = 0; // Discard all degenerates by default
+    } gTests[] = {
+        // Empty path
+        { "", "0 0 0 0 re\n" },
+        { "", "", kDiscardEmptyPath },
+
+        { "M10,10", "" }, // TODO: this looks iffy, we prolly want an empty rect here too?
+        { "M10,10", "", kDiscardEmptyPath },
+
+        // Empty verb
+        { "M10,10 L20,20 L20,20", "10 10 m\n20 20 l\n20 20 l\n" },
+        { "M10,10 L20,20 L20,20", "10 10 m\n20 20 l\n", kDiscardEmptyVerb },
+
+        // Empty area
+        { "M10,10 L10,10", "10 10 m\n10 10 l\n" },
+        { "M10,10 L10,10", "", kDiscardEmptyArea },
+
+        { "M10,10 L20,20", "10 10 m\n20 20 l\n" },
+        { "M10,10 L20,20", "", kDiscardEmptyArea },
+
+        { "M10,10 L20,20 L30,30", "10 10 m\n20 20 l\n30 30 l\n" },
+        { "M10,10 L20,20 L30,30", "", kDiscardEmptyArea },
+
+        { "M10,10 L20,20 L0,0", "10 10 m\n20 20 l\n0 0 l\n" },
+        { "M10,10 L20,20 L0,0", "", kDiscardEmptyArea },
+
+        { "M5,5   M10,10 L20,20 L20 30", "10 10 m\n20 20 l\n20 30 l\n" },
+        { "M5,5   M10,10 L20,20 L20 30", "10 10 m\n20 20 l\n20 30 l\n", kDiscardEmptyArea },
+
+        { "M5,5   M10,10 L20,20 L20 30 Z",
+              "10 10 m\n20 20 l\n20 30 l\n10 10 l\nh\n" },
+        { "M5,5   M10,10 L20,20 L20 30 Z",
+              "10 10 m\n20 20 l\n20 30 l\n10 10 l\nh\n", kDiscardEmptyArea },
+
+        { "M5,5   M0,10 L20,20   M10,10 L20,20 L20,0   M10,0 L20,20",
+              "0 10 m\n20 20 l\n10 10 m\n20 20 l\n20 0 l\n10 0 m\n20 20 l\n" },
+        { "M5,5   M0,10 L20,20   M10,10 L20,20 L20,0   M10,0 L20,20",
+              "10 10 m\n20 20 l\n20 0 l\n", kDiscardEmptyArea },
+
+        { "M5,5   M0,10 L20,20 Z   M10,10 L20,20 L20,0 Z   M10,0 L20,20 Z",
+              "0 10 m\n20 20 l\n0 10 l\nh\n10 10 m\n20 20 l\n20 0 l\n10 10 l\nh\n"
+              "10 0 m\n20 20 l\n10 0 l\nh\n" },
+        { "M5,5   M0,10 L20,20 Z   M10,10 L20,20 L20,0 Z   M10,0 L20,20 Z",
+              "10 10 m\n20 20 l\n20 0 l\n10 10 l\nh\n", kDiscardEmptyArea },
+    };
+
+    SkDynamicMemoryWStream str;
+    for (const auto& tst : gTests) {
+        const SkPath src = SkParsePath::FromSVGString(tst.svgPath).value();
+        const auto emptyPath = (tst.discardMask & kDiscardEmptyPath)
+                ? SkPDFUtils::EmptyPath::Discard
+                : SkPDFUtils::EmptyPath::Preserve;
+        const auto emptyVerb = (tst.discardMask & kDiscardEmptyVerb)
+                ? SkPDFUtils::EmptyVerb::Discard
+                : SkPDFUtils::EmptyVerb::Preserve;
+        const auto emptyArea = (tst.discardMask & kDiscardEmptyArea)
+                ? SkPDFUtils::EmptyArea::Discard
+                : SkPDFUtils::EmptyArea::Preserve;
+
+        bool didEmit = SkPDFUtils::EmitPath(src, emptyPath, emptyVerb, emptyArea, &str);
+        const auto str_data = str.detachAsData();
+        const auto result = SkString(reinterpret_cast<const char*>(str_data->bytes()),
+                                     str_data->size());
+
+        REPORTER_ASSERT(reporter, result == SkString(tst.expectedPdf),
+            "*** Unexpected PDF path for \"%s\":\n---\n%s---\nExpected:\n---\n%s---\n",
+            tst.svgPath, result.c_str(), tst.expectedPdf);
+        REPORTER_ASSERT(reporter, didEmit != result.isEmpty());
+    }
+}
+
 #endif

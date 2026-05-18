@@ -27,7 +27,9 @@
 #include "src/pdf/SkPDFUtils.h"
 
 #include <algorithm>
+#include <array>
 #include <ctime>
+#include <optional>
 #include <utility>
 
 #if defined(SK_BUILD_FOR_WIN)
@@ -129,9 +131,142 @@ void SkPDFUtils::AppendRectangle(const SkRect& rect, SkWStream* content) {
     content->writeText(" re\n");
 }
 
-bool SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
-                          EmptyPath emptyPath, EmptyVerb emptyVerb,
-                          SkWStream* content, SkScalar tolerance) {
+namespace {
+
+// A helper which wraps a content output stream and filters out zero-area contours when needed.
+// Contours are considered to have an empty area when all their points are collinear.
+//
+// Note: the current approach is limited to contour granularity, and it's still possible to have
+// zero-area extrusions within a non-zero-area contour (with e.g. partial segment backtracking).
+// Solving the general problem leads to reinventing pathops' Simplify, which is unfortunately
+// too slow to use in this context (https://skia-review.googlesource.com/c/skia/+/767256).
+class ContourBuffer {
+public:
+    ContourBuffer(SkWStream* contentStream, SkPDFUtils::EmptyArea emptyArea)
+        : fContentStream(contentStream)
+        , fEmptyArea(emptyArea)
+    {}
+
+    void appendMove(SkSpan<const SkPoint> pts) {
+        SkASSERT(pts.size() == 1);
+
+        this->flushContour();
+
+        SkPDFUtils::MoveTo(pts[0].fX, pts[0].fY, &fBuffer);
+    }
+
+    void appendLine(SkSpan<const SkPoint> pts) {
+        SkASSERT(pts.size() == 2);
+
+        this->updateState(pts);
+
+        SkPDFUtils::AppendLine(pts[1].fX, pts[1].fY, &fBuffer);
+    }
+
+    void appendQuad(SkSpan<const SkPoint> pts) {
+        SkASSERT(pts.size() == 3);
+
+        this->updateState(pts);
+
+        append_quad(pts, &fBuffer);
+    }
+
+    void appendCubic(SkSpan<const SkPoint> pts) {
+        SkASSERT(pts.size() == 4);
+
+        this->updateState(pts);
+
+        append_cubic(pts[1].fX, pts[1].fY,
+                     pts[2].fX, pts[2].fY,
+                     pts[3].fX, pts[3].fY,
+                     &fBuffer);
+    }
+
+    void appendClose() {
+        SkPDFUtils::ClosePath(&fBuffer);
+
+        this->flushContour();
+    }
+
+    void flushContour() {
+        const bool discard = fEmptyArea == SkPDFUtils::EmptyArea::Discard && fAllCollinear;
+        if (!discard) {
+            fBuffer.writeToStream(fContentStream);
+            fWroteContent |= fBuffer.bytesWritten() > 0;
+        }
+
+        fBuffer.reset();
+        fCurrentLine.reset();
+        fAllCollinear = true;
+    }
+
+    bool wroteContent() const { return fWroteContent; }
+
+private:
+    struct Line {
+        SkPoint  fOrig;
+        SkVector fVec;
+    };
+
+    // Pick a line determined by two distinct points in the list or return nullopt if
+    // all points are the same.  Because we only care about collinearity, it's not
+    // important which particular points we select as long as they are distinct.
+    static std::optional<Line> SelectLine(SkSpan<const SkPoint> pts) {
+        const SkPoint p0 = pts.front();
+        pts = pts.subspan(1);
+
+        for (auto it = pts.rbegin(); it != pts.rend(); ++it) {
+            if (*it != p0) {
+                return {{p0, *it - p0}};
+            }
+        }
+
+        return std::nullopt;
+    }
+
+    void updateState(SkSpan<const SkPoint> pts) {
+        SkASSERT(pts.size() >= 2);
+
+        if (fEmptyArea == SkPDFUtils::EmptyArea::Preserve || !fAllCollinear) {
+            return;
+        }
+
+        if (!fCurrentLine) {
+            fCurrentLine = SelectLine(pts);
+            if (!fCurrentLine) {
+                // All points are coincident.
+                return;
+            }
+        }
+
+        // We receive a starting point for all verbs, which coincides with the last point
+        // of the previous verb.  It can be ignored for collinearity tests.
+        for (const auto& pt : pts.subspan(1)) {
+            // SkScalarNearlyZero's default epsilon is too coarse for some of the GMs
+            // stress-testing large scales.
+            static constexpr float eps = 1.0f / (1 << 24);
+
+            if (!SkScalarNearlyZero(
+                    SkPoint::CrossProduct(fCurrentLine->fVec, pt - fCurrentLine->fOrig), eps)) {
+                fAllCollinear = false;
+                break;
+            }
+        }
+    }
+
+    SkWStream*                  fContentStream;
+    const SkPDFUtils::EmptyArea fEmptyArea;
+
+    SkDynamicMemoryWStream      fBuffer;
+    std::optional<Line>         fCurrentLine;
+    bool                        fAllCollinear = true;
+    bool                        fWroteContent = false;
+};
+
+}  // namespace
+
+bool SkPDFUtils::EmitPath(const SkPath& path, EmptyPath emptyPath, EmptyVerb emptyVerb,
+                          EmptyArea emptyArea, SkWStream* content, SkScalar tolerance) {
     if (path.isEmpty()) {
         if (emptyPath == EmptyPath::Preserve) {
             SkPDFUtils::AppendRectangle({0, 0, 0, 0}, content);
@@ -139,10 +274,6 @@ bool SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
         }
         return false;
     }
-    // Filling a path with no area results in a drawing in PDF renderers but
-    // Chrome expects to be able to draw some such entities with no visible
-    // result, so we detect those cases and discard the drawing for them.
-    // Specifically: moveTo(X), lineTo(Y) and moveTo(X), lineTo(X), lineTo(Y).
 
     SkRect rect;
     bool isClosed; // Both closure and direction need to be checked.
@@ -156,9 +287,11 @@ bool SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
         return true;
     }
 
-    SkDynamicMemoryWStream currentSegment;
+    // Filling a path with no area results in a drawing in PDF renderers but
+    // Chrome expects to be able to draw some such entities with no visible
+    // result, so we detect those cases and discard the drawing for them.
+    ContourBuffer cbuffer(content, emptyArea);
     const bool preserveEmptyVerbs = emptyVerb == EmptyVerb::Preserve;
-    bool wroteContent = false;
 
     SkPath::Iter iter(path, false);
     while (auto rec = iter.next()) {
@@ -166,16 +299,16 @@ bool SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
         SkSpan<const SkPoint> args = rec->fPoints;
         switch (rec->fVerb) {
             case SkPathVerb::kMove:
-                MoveTo(args[0].fX, args[0].fY, &currentSegment);
+                cbuffer.appendMove(args);
                 break;
             case SkPathVerb::kLine:
                 if (preserveEmptyVerbs || !SkPathPriv::AllPointsEq(args)) {
-                    AppendLine(args[1].fX, args[1].fY, &currentSegment);
+                    cbuffer.appendLine(args);
                 }
                 break;
             case SkPathVerb::kQuad:
                 if (preserveEmptyVerbs || !SkPathPriv::AllPointsEq(args)) {
-                    append_quad(args, &currentSegment);
+                    cbuffer.appendQuad(args);
                 }
                 break;
             case SkPathVerb::kConic:
@@ -183,28 +316,24 @@ bool SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
                     SkAutoConicToQuads converter;
                     const SkPoint* quads = converter.computeQuads(args, rec->conicWeight(), tolerance);
                     for (int i = 0; i < converter.countQuads(); ++i) {
-                        append_quad({&quads[i * 2], 3}, &currentSegment);
+                        cbuffer.appendQuad({&quads[i * 2], 3});
                     }
                 }
                 break;
             case SkPathVerb::kCubic:
                 if (preserveEmptyVerbs || !SkPathPriv::AllPointsEq(args)) {
-                    append_cubic(args[1].fX, args[1].fY, args[2].fX, args[2].fY,
-                                 args[3].fX, args[3].fY, &currentSegment);
+                    cbuffer.appendCubic(args);
                 }
                 break;
             case SkPathVerb::kClose:
-                ClosePath(&currentSegment);
-                currentSegment.writeToAndReset(content);
-                wroteContent = true;
+                cbuffer.appendClose();
                 break;
         }
     }
-    if (currentSegment.bytesWritten() > 0) {
-        currentSegment.writeToStream(content);
-        wroteContent = true;
-    }
-    return wroteContent;
+
+    cbuffer.flushContour();
+
+    return cbuffer.wroteContent();
 }
 
 void SkPDFUtils::ClosePath(SkWStream* content) {

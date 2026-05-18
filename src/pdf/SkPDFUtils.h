@@ -68,7 +68,8 @@ void AppendLine(SkScalar x, SkScalar y, SkWStream* content);
 void AppendRectangle(const SkRect& rect, SkWStream* content);
 enum class EmptyPath : bool { Discard, Preserve };
 enum class EmptyVerb : bool { Discard, Preserve };
-[[nodiscard]] bool EmitPath(const SkPath&, SkPaint::Style, EmptyPath, EmptyVerb,
+enum class EmptyArea : bool { Discard, Preserve };
+[[nodiscard]] bool EmitPath(const SkPath&, EmptyPath, EmptyVerb, EmptyArea,
                             SkWStream* content, SkScalar tolerance = 0.25f);
 void ClosePath(SkWStream* content);
 void PaintPath(SkPaint::Style style, SkPathFillType fill, SkWStream* content);

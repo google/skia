@@ -98,9 +98,12 @@ static void apply_clip(const SkClipStack& stack, const SkRect& outerBounds, F fn
 }
 
 static void append_clip_path(const SkPath& clipPath, SkWStream* wStream) {
-    using SkPDFUtils::EmptyPath, SkPDFUtils::EmptyVerb;
-    if (!SkPDFUtils::EmitPath(clipPath, SkPaint::kFill_Style,
-                              EmptyPath::Preserve, EmptyVerb::Discard, wStream))
+    using SkPDFUtils::EmptyPath, SkPDFUtils::EmptyVerb, SkPDFUtils::EmptyArea;
+    if (!SkPDFUtils::EmitPath(clipPath,
+                              EmptyPath::Preserve,
+                              EmptyVerb::Discard,
+                              EmptyArea::Preserve,
+                              wStream))
     {
         return;
     }
