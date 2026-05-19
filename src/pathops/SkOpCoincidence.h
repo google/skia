@@ -287,7 +287,8 @@ private:
     bool overlap(const SkOpPtT* coinStart1, const SkOpPtT* coinEnd1,
                  const SkOpPtT* coinStart2, const SkOpPtT* coinEnd2,
                  double* overS, double* overE) const;
-    bool release(SkCoincidentSpans** headPtr, SkCoincidentSpans* );
+    bool release(SkCoincidentSpans** headPtr, SkCoincidentSpans*);
+    void release(SkCoincidentSpans** headPtr, const SkOpSegment*);
     void releaseDeleted(SkCoincidentSpans** headPtr);
     void restoreHead();
     // return coinPtT->segment()->t mapped from overS->fT <= t <= overE->fT
