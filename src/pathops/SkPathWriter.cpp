@@ -55,6 +55,7 @@ void SkPathWriter::cubicTo(const SkPoint& pt1, const SkPoint& pt2, const SkOpPtT
 }
 
 bool SkPathWriter::deferredLine(const SkOpPtT* pt) {
+    SkASSERT(pt);
     SkASSERT(fFirstPtT);
     SkASSERT(fDefer[0]);
     if (fDefer[0] == pt) {
@@ -77,6 +78,7 @@ bool SkPathWriter::deferredLine(const SkOpPtT* pt) {
 }
 
 void SkPathWriter::deferredMove(const SkOpPtT* pt) {
+    SkASSERT(pt);
     if (!fDefer[1]) {
         fFirstPtT = fDefer[0] = pt;
         return;
@@ -160,6 +162,7 @@ void SkPathWriter::quadTo(const SkPoint& pt1, const SkOpPtT* pt2) {
 // if last point to be written matches the current path's first point, alter the
 // last to avoid writing a degenerate lineTo when the path is closed
 SkPoint SkPathWriter::update(const SkOpPtT* pt) {
+    SkASSERT(pt);
     if (!fDefer[1]) {
         this->moveTo();
     } else if (!this->matchedLast(fDefer[0])) {
@@ -179,6 +182,7 @@ bool SkPathWriter::someAssemblyRequired() {
 }
 
 bool SkPathWriter::changedSlopes(const SkOpPtT* ptT) const {
+    SkASSERT(ptT);
     if (matchedLast(fDefer[0])) {
         return false;
     }
@@ -213,7 +217,15 @@ void SkPathWriter::assemble() {
     SkOpPtT const* const* runs = fEndPtTs.begin();  // starts, ends of partial contours
     int endCount = fEndPtTs.size(); // all starts and ends
     SkASSERT(endCount > 0);
-    SkASSERT(endCount == fPartials.size() * 2);
+    SkASSERT(endCount == (int)fPartials.size() * 2);
+
+    // Limit the number of partial contours to avoid O(N^2) complexity and integer overflows.
+    // 10,000 partial contours results in 20,000 ends and ~200,000,000 distance entries.
+    constexpr int kMaxPartialContours = 10000;
+    if (endCount > kMaxPartialContours * 2) {
+        return;
+    }
+
 #if DEBUG_ASSEMBLE
     for (int index = 0; index < endCount; index += 2) {
         const SkOpPtT* eStart = runs[index];
@@ -363,7 +375,10 @@ void SkPathWriter::assemble() {
                 if (forward) {
                     next = contourPts.empty() ? SkPoint{0, 0} : contourPts.front();
                 } else {
-                    SkASSERT(!contourPts.empty());
+                    if (contourPts.empty()) {
+                        SkDEBUGFAIL("unexpected empty contour");
+                        return;
+                    }
                     next = contourPts.back();
                 }
                 if (*prior != next) {
