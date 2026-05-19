@@ -1,0 +1,30 @@
+# Copyright 2026 Google LLC.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Provide the MiraclePtr "raw_ptr" definitions. Depending on the configuration,
+# this is either:
+# 1. Delegated to the `partition_alloc` library.
+# 2. Provided by Skia a simple "no-op" pointer wrapper (in construction).
+
+load("//bazel:skia_rules.bzl", "skia_cc_library")
+
+package(default_applicable_licenses = ["//:license"])
+
+licenses(["notice"])
+
+skia_cc_library(
+    name = "raw_ptr",
+    srcs = [
+        "noop/raw_ptr.h",
+        "noop/raw_ptr_exclusion.h",
+        "noop/raw_ref.h",
+    ],
+    hdrs = [
+        "raw_ptr.h",
+        "raw_ptr_exclusion.h",
+        "raw_ref.h",
+    ],
+    visibility = ["//:__subpackages__"],
+)
