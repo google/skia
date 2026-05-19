@@ -15,13 +15,11 @@ namespace {
 // Return at least as many bytes to keep malloc aligned.
 constexpr size_t kMinBytes = alignof(max_align_t);
 
-SkSpan<std::byte> complete_size(void* ptr, size_t size) {
-    if (ptr == nullptr) {
-        return {};
-    }
-
-    return {static_cast<std::byte*>(ptr), sk_malloc_size(ptr, size)};
+size_t good_size(size_t size) {
+    // Make sure to ask for at least the minimum number of bytes.
+    return sk_malloc_good_size(std::max(kMinBytes, size));
 }
+
 }  // namespace
 
 SkSpan<std::byte> SkContainerAllocator::allocate(int capacity, double growthFactor) {
@@ -60,20 +58,21 @@ size_t SkContainerAllocator::growthFactorCapacity(int capacity, double growthFac
 
 
 SkSpan<std::byte> sk_allocate_canfail(size_t size) {
-    // Make sure to ask for at least the minimum number of bytes.
-    const size_t adjustedSize = std::max(size, kMinBytes);
+    if (size == 0) {
+        return {};
+    }
+    const size_t adjustedSize = good_size(size);
     void* ptr = sk_malloc_canfail(adjustedSize);
-    return complete_size(ptr, adjustedSize);
+    return SkSpan(static_cast<std::byte*>(ptr), ptr ? adjustedSize : 0);
 }
 
 SkSpan<std::byte> sk_allocate_throw(size_t size) {
     if (size == 0) {
         return {};
     }
-    // Make sure to ask for at least the minimum number of bytes.
-    const size_t adjustedSize = std::max(size, kMinBytes);
+    const size_t adjustedSize = good_size(size);
     void* ptr = sk_malloc_throw(adjustedSize);
-    return complete_size(ptr, adjustedSize);
+    return SkSpan(static_cast<std::byte*>(ptr), ptr ? adjustedSize : 0);
 }
 
 void sk_report_container_overflow_and_die() {

@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <limits>
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 #include <malloc/malloc.h>
@@ -116,23 +117,26 @@ void* sk_malloc_flags(size_t size, unsigned flags) {
     }
 }
 
-size_t sk_malloc_size(void* addr, size_t size) {
-    size_t completeSize = size;
-
+size_t sk_malloc_good_size(size_t size) {
     // Use the OS specific calls to find the actual capacity.
     #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-        // TODO: remove the max, when the chrome implementation of malloc_size doesn't return 0.
-        completeSize = std::max(malloc_size(addr), size);
-    #elif defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 17
-        completeSize = malloc_usable_size(addr);
-        SkASSERT(completeSize >= size);
-    #elif defined(SK_BUILD_FOR_UNIX)
-        completeSize = malloc_usable_size(addr);
-        SkASSERT(completeSize >= size);
-    #elif defined(SK_BUILD_FOR_WIN)
-        completeSize = _msize(addr);
-        SkASSERT(completeSize >= size);
-    #endif
+        // Apple provides malloc_good_size
+        return std::max(malloc_good_size(size), size);
+    #else
+        // Other platforms do not provide malloc_good_size, so pick a reasonable implementation.
 
-    return completeSize;
+        // Round up to a nice size. If > 32K align to 4K boundary else up to max_align_t. The > 32K
+        // heuristic is from the JEMalloc behavior (see SkArenaAlloc for history).
+        static constexpr size_t kMinAlign = alignof(std::max_align_t); // likely 8 or 16
+        static constexpr size_t kMaxAlign = 1 << 12; // 4k
+        static constexpr size_t kMaxAlignLimit = 1 << 15; // 32k
+        size_t mask = (size > kMaxAlignLimit ? kMaxAlign : kMinAlign) - 1;
+
+        if (size > std::numeric_limits<size_t>::max() - mask) {
+            // Aligning would overflow, just return the original requested size
+            return size;
+        } else {
+            return (size + mask) & ~mask;
+        }
+    #endif
 }
