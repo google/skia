@@ -491,8 +491,12 @@ void AtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
     } else
 #endif
     {
-        auto filter = fNeedsGlyphTransform ? GrSamplerState::Filter::kLinear
-                                           : GrSamplerState::Filter::kNearest;
+        // Only use linear padding if the glyphs were also padded for it. If we somehow get a direct
+        // subrun with a corrupted transform, we should still use nearest neighbor since it was
+        // packed tightly.
+        const bool hasGlyphPadding = fHead->fSubRun.glyphSrcPadding() > 0;
+        auto filter = fNeedsGlyphTransform && hasGlyphPadding ? GrSamplerState::Filter::kLinear
+                                                              : GrSamplerState::Filter::kNearest;
         // Bitmap text uses a single color, combineIfPossible ensures all geometries have the same
         // color, so we can use the first's without worry.
         flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
@@ -647,8 +651,9 @@ void AtlasTextOp::createDrawForGeneratedGlyphs(GrMeshDrawTarget* target,
         } else
 #endif
         {
-            auto filter = fNeedsGlyphTransform ? GrSamplerState::Filter::kLinear
-                                               : GrSamplerState::Filter::kNearest;
+            const bool hasGlyphPadding = fHead->fSubRun.glyphSrcPadding() > 0;
+            auto filter = fNeedsGlyphTransform && hasGlyphPadding
+                    ? GrSamplerState::Filter::kLinear : GrSamplerState::Filter::kNearest;
             reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewViews(views, numActiveViews, filter);
         }
     }
@@ -674,6 +679,12 @@ GrOp::CombineResult AtlasTextOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, con
         fHasPerspective != that->fHasPerspective ||
         fUseGammaCorrectDistanceTable != that->fUseGammaCorrectDistanceTable) {
         // All flags must match for an op to be combined
+        return CombineResult::kCannotCombine;
+    }
+
+    // We use the same filter for every Geometry that is combined, but the filter choice only looks
+    // at the head's src padding, so we can only combine if we are consistent with that.
+    if (fHead->fSubRun.glyphSrcPadding() != that->fHead->fSubRun.glyphSrcPadding()) {
         return CombineResult::kCannotCombine;
     }
 
