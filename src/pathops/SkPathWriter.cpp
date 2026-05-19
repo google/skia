@@ -263,7 +263,7 @@ void SkPathWriter::assemble() {
             *runsPtr = opPtT;
         } while (true);
         partWriter.finishContour();
-        const TArray<SkPathBuilder>& partPartials = partWriter.partials();
+        const TArray<SkPathBuilder>& partPartials = partWriter.fPartials;
         if (partPartials.empty()) {
             continue;
         }
@@ -279,13 +279,14 @@ void SkPathWriter::assemble() {
             partial = reverse;
         }
     }
-    SkTDArray<int> sLink, eLink;
+    STArray<8, int, true> sLink, eLink;
     int linkCount = endCount / 2; // number of partial contours
-    sLink.append(linkCount);
-    eLink.append(linkCount);
+    sLink.reserve_exact(linkCount);
+    eLink.reserve_exact(linkCount);
     int rIndex, iIndex;
     for (rIndex = 0; rIndex < linkCount; ++rIndex) {
-        sLink[rIndex] = eLink[rIndex] = SK_MaxS32;
+        sLink.push_back(SK_MaxS32);
+        eLink.push_back(SK_MaxS32);
     }
     const int entries = endCount * (endCount - 1) / 2;  // folded triangle
     STArray<8, double, true> distances(entries);

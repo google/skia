@@ -12,7 +12,6 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTDArray.h"
 
 class SkOpPtT;
 
@@ -38,18 +37,16 @@ public:
 private:
     bool changedSlopes(const SkOpPtT* pt) const;
     void close();
-    const SkTDArray<const SkOpPtT*>& endPtTs() const { return fEndPtTs; }
     void lineTo();
     bool matchedLast(const SkOpPtT*) const;
     void moveTo();
-    const skia_private::TArray<SkPathBuilder>& partials() const { return fPartials; }
     bool someAssemblyRequired();
     SkPoint update(const SkOpPtT* pt);
 
     SkPathBuilder fBuilder;
     SkPathBuilder fCurrent;  // contour under construction
     skia_private::TArray<SkPathBuilder> fPartials;   // contours with mismatched starts and ends
-    SkTDArray<const SkOpPtT*> fEndPtTs;  // possible pt values for partial starts and ends
+    skia_private::TArray<const SkOpPtT*> fEndPtTs;  // possible pt values for partial starts and ends
     const SkOpPtT* fDefer[2];  // [0] deferred move, [1] deferred line
     const SkOpPtT* fFirstPtT;  // first in current contour
 };
