@@ -114,6 +114,9 @@ def main():
       f"-DDAWN_ENABLE_OPENGLES={gn_bool_to_cmake(args.dawn_enable_opengles)}",
       f"-DDAWN_ENABLE_METAL={gn_bool_to_cmake(args.dawn_enable_metal)}",
       f"-DDAWN_ENABLE_VULKAN={gn_bool_to_cmake(args.dawn_enable_vulkan)}",
+      # SPIRV_VALIDATION defaults to on in Windows builds, which we don't need
+      # in a D3D only build.
+      f"-DDAWN_ENABLE_SPIRV_VALIDATION={gn_bool_to_cmake(args.dawn_enable_vulkan)}",
   ]
   configure_cmd += get_third_party_locations()
 
