@@ -180,3 +180,33 @@ DEF_BENCH(return new RegionSetRectsBench(50, true);)
 DEF_BENCH(return new RegionSetRectsBench(500, true);)
 DEF_BENCH(return new RegionSetRectsBench(2500, true);)
 DEF_BENCH(return new RegionSetRectsBench(10000, true);)
+
+class RegionCheckerboardBench : public Benchmark {
+public:
+    RegionCheckerboardBench() {}
+
+protected:
+    const char* onGetName() override { return "region_checkerboard"; }
+
+    bool isSuitableFor(Backend backend) override {
+        return backend == Backend::kNonRendering;
+    }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        for (int i = 0; i < loops; ++i) {
+            SkRegion rgn;
+            // Simulate a 300x200 grid of tiles where every other tile is missing.
+            // This creates 30,000 non-merging rectangles with high coordinate values
+            // similar to b/511952524.
+            for (int y = 0; y < 300; ++y) {
+                for (int x = 0; x < 200; ++x) {
+                    if ((x + y) % 2 == 0) {
+                        rgn.op(SkIRect::MakeXYWH(x * 256, y * 256, 256, 256), SkRegion::kUnion_Op);
+                    }
+                }
+            }
+        }
+    }
+};
+
+DEF_BENCH(return new RegionCheckerboardBench();)
