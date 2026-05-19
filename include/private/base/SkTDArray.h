@@ -17,6 +17,8 @@
 #include <initializer_list>
 #include <utility>
 
+// We'd prefer not to use these types anymore. SkTDArray can be replaced skia_private::TArray
+
 class SK_SPI SkTDStorage {
 public:
     explicit SkTDStorage(int sizeOfT);
