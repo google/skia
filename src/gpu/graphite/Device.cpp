@@ -1309,32 +1309,31 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
                 dstToDraw.setEmpty();
             }
         }
-        if (dstToDraw.isEmpty()) {
-            continue; // Nothing to draw for this set entry
+        if (!dstToDraw.isEmpty()) {
+            PaintParams::SimpleImage imageShader{
+                    set[i].fImage.get(),
+                    &localMatrix,
+                    constraint == SkCanvas::kStrict_SrcRectConstraint ? subset : imageBounds,
+                    sampling};
+
+            // NOTE: See drawEdgeAAQuad for details, we do not snap non-AA quads.
+            SkEnumBitMask<EdgeAAQuad::Flags> flags =
+                    static_cast<EdgeAAQuad::Flags>(set[i].fAAFlags);
+            EdgeAAQuad quad = set[i].fHasClip ? EdgeAAQuad(dstClips + dstClipIndex, flags)
+                                              : EdgeAAQuad(dstToDraw, flags);
+
+            // TODO: Calling drawGeometry() for each entry re-evaluates the clip stack every time,
+            // which is consistent with Ganesh's behavior. It also matches the behavior if edge-AA
+            // images were submitted one at a time by SkiaRenderer (a nice client simplification).
+            // However, we should explore the performance trade off with doing one bulk evaluation
+            // for the whole set
+            const SkMatrix* xtraXform =
+                    set[i].fMatrixIndex < 0 ? nullptr : &preViewMatrices[set[i].fMatrixIndex];
+            this->drawGeometry(xtraXform ? localToDevice.concat(SkM44(*xtraXform)) : localToDevice,
+                               Geometry(quad),
+                               PaintParams(paint, imageShader, set[i].fAlpha),
+                               DefaultFillStyle());
         }
-
-        PaintParams::SimpleImage imageShader{set[i].fImage.get(),
-                                             &localMatrix,
-                                             constraint == SkCanvas::kStrict_SrcRectConstraint ?
-                                                    subset : imageBounds,
-                                             sampling};
-
-        // NOTE: See drawEdgeAAQuad for details, we do not snap non-AA quads.
-        SkEnumBitMask<EdgeAAQuad::Flags> flags = static_cast<EdgeAAQuad::Flags>(set[i].fAAFlags);
-        EdgeAAQuad quad = set[i].fHasClip ? EdgeAAQuad(dstClips + dstClipIndex, flags)
-                                          : EdgeAAQuad(dstToDraw, flags);
-
-        // TODO: Calling drawGeometry() for each entry re-evaluates the clip stack every time, which
-        // is consistent with Ganesh's behavior. It also matches the behavior if edge-AA images were
-        // submitted one at a time by SkiaRenderer (a nice client simplification). However, we
-        // should explore the performance trade off with doing one bulk evaluation for the whole set
-        const SkMatrix* xtraXform = set[i].fMatrixIndex < 0 ? nullptr
-                                                            : &preViewMatrices[set[i].fMatrixIndex];
-        this->drawGeometry(xtraXform ?  localToDevice.concat(SkM44(*xtraXform)) : localToDevice,
-                           Geometry(quad),
-                           PaintParams(paint, imageShader, set[i].fAlpha),
-                           DefaultFillStyle());
-
         dstClipIndex += 4 * set[i].fHasClip;
     }
 }

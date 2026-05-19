@@ -336,6 +336,7 @@ graphite_tests_sources = [
   "$_tests/graphite/UpdateBackendTextureTest.cpp",
   "$_tests/graphite/UploadBufferManagerTest.cpp",
   "$_tests/graphite/VerticesPaddingTest.cpp",
+  "$_tests/graphite/crbug_513836996.cpp",
 ]
 
 precompile_tests_sources = [
