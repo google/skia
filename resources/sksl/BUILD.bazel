@@ -284,6 +284,8 @@ skia_filegroup(
         "errors/FloatRemainder.rts",
         "errors/ForInitStmt.sksl",
         "errors/ForLoopInductionVariableScope.sksl",
+        "errors/ForLoopNEQOverflow.rts",
+        "errors/ForLoopOverflow.rts",
         "errors/ForTypeMismatch.rts",
         "errors/FunctionParamBadType.rts",
         "errors/FunctionParamShadowedByLocal.rts",

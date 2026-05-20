@@ -7,6 +7,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkFloatingPoint.h"
+#include "src/base/SkSafeMath.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLErrorReporter.h"
@@ -35,25 +36,106 @@ class Context;
 // Loops that run for 100000+ iterations will exceed our program size limit.
 static constexpr int kLoopTerminationLimit = 100000;
 
-static int calculate_count(double start, double end, double delta, bool forwards, bool inclusive) {
-    if ((forwards && start > end) || (!forwards && start < end)) {
-        // The loop starts in a completed state (the start has already advanced past the end).
-        return 0;
-    }
-    if ((delta == 0.0) || forwards != (delta > 0.0)) {
-        // The loop does not progress toward a completed state, and will never terminate.
-        return kLoopTerminationLimit;
-    }
+enum class Direction {
+    kBackwards,
+    kForwards,
+};
+
+enum class Inclusive : bool {
+    kNo = false,
+    kYes = true,
+};
+
+enum class LoopType {
+    kFloat,
+    kInt,
+};
+
+static int calculate_count_float(double start, double end, double delta,
+                                 Inclusive inclusive) {
     double iterations = sk_ieee_double_divide(end - start, delta);
     double count = std::ceil(iterations);
-    if (inclusive && (count == iterations)) {
+    if (inclusive == Inclusive::kYes && (count == iterations)) {
         count += 1.0;
     }
     if (count > kLoopTerminationLimit || !std::isfinite(count)) {
         // The loop runs for more iterations than we can safely unroll.
         return kLoopTerminationLimit;
     }
-    return (int)count;
+    return sk_double_saturate2int(count);
+}
+
+static int calculate_count_int(int32_t start, int32_t end, int32_t delta,
+                               Inclusive inclusive) {
+    if (delta == 0) {
+        return kLoopTerminationLimit;
+    }
+    SkSafeMath math;
+    int roundUp = delta > 0 ? math.subInt(delta, 1) : math.addInt(delta, 1);
+    int width = math.subInt(end, start);
+    int iterations = math.addInt(width, roundUp) / delta;
+    if (inclusive == Inclusive::kYes && width % delta == 0) {
+        iterations = math.addInt(iterations, 1);
+    }
+    // Check that we won't overflow while looping
+    math.addInt(start, math.mulInt(delta, iterations));
+    if (!math || iterations < 0 || iterations > kLoopTerminationLimit) {
+        return kLoopTerminationLimit;
+    }
+    return iterations;
+}
+
+static int calculate_count(double start, double end, double delta, Direction dir,
+                           Inclusive inclusive, LoopType loop) {
+    if ((dir == Direction::kForwards && start > end) ||
+        (dir == Direction::kBackwards && start < end)) {
+        // The loop starts in a completed state (the start has already advanced past the end).
+        return 0;
+    }
+    if ((delta == 0.0) ||
+        (delta > 0.0 && dir == Direction::kBackwards) ||
+        (delta < 0.0 && dir == Direction::kForwards)) {
+        // The loop does not progress toward a completed state, and will never terminate.
+        return kLoopTerminationLimit;
+    }
+    if (loop == LoopType::kInt) {
+        return calculate_count_int((int32_t)start, (int32_t)end, (int32_t)delta, inclusive);
+    }
+    return calculate_count_float(start, end, delta, inclusive);
+}
+
+static int calculate_count_neq_int(int32_t start, int32_t end, int32_t delta) {
+    if (delta == 0) {
+        return kLoopTerminationLimit;
+    }
+    SkSafeMath math;
+    int iterations = math.subInt(end, start) / delta;
+    // Check that we won't overflow while looping and that we actually hit end.
+    int lastValue = math.addInt(start, math.mulInt(delta, iterations));
+    if (!math || lastValue != end || iterations < 0 || iterations > kLoopTerminationLimit) {
+        return kLoopTerminationLimit;
+    }
+    return iterations;
+}
+
+static int calculate_count_neq_float(double start, double end, double delta) {
+    if (delta == 0.0) {
+        return kLoopTerminationLimit;
+    }
+    double iterations = sk_ieee_double_divide(end - start, delta);
+    double count = std::ceil(iterations);
+    if (count < 0 || count != iterations || !std::isfinite(iterations)) {
+        // The loop doesn't reach the exact endpoint and so will never terminate.
+        return kLoopTerminationLimit;
+    }
+    return sk_double_saturate2int(count);
+}
+
+static int calculate_count_neq(double start, double end, double delta, LoopType loop) {
+    if (loop == LoopType::kInt) {
+        return calculate_count_neq_int((int32_t)start, (int32_t)end, (int32_t)delta);
+    }
+    return calculate_count_neq_float(start, end, delta);
 }
 
 std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(const Context& context,
@@ -226,35 +308,43 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(const Context& conte
     // Finally, compute the iteration count, based on the bounds, and the termination operator.
     loopInfo->fCount = 0;
 
+    // Strict ES2 requires loop induction variables to be either 'int' or 'float'. For 'int'
+    // variables, we simulate the loop using 32-bit signed math to correctly detect the integer
+    // wraparound behavior that would occur at runtime on the GPU. (For 'float' variables,
+    // the existing double-precision calculation is sufficient.)
+    LoopType loop;
+    if (initDecl.baseType().isSigned()) {
+        SkASSERT(initDecl.baseType().bitWidth() == 32);
+        loop = LoopType::kInt;
+    } else {
+        SkASSERT(initDecl.baseType().isFloat());
+        loop = LoopType::kFloat;
+    }
+
     switch (cond->getOperator().kind()) {
         case Operator::Kind::LT:
             loopInfo->fCount = calculate_count(loopInfo->fStart, loopEnd, loopInfo->fDelta,
-                                              /*forwards=*/true, /*inclusive=*/false);
+                                               Direction::kForwards, Inclusive::kNo, loop);
             break;
 
         case Operator::Kind::GT:
             loopInfo->fCount = calculate_count(loopInfo->fStart, loopEnd, loopInfo->fDelta,
-                                              /*forwards=*/false, /*inclusive=*/false);
+                                               Direction::kBackwards, Inclusive::kNo, loop);
             break;
 
         case Operator::Kind::LTEQ:
             loopInfo->fCount = calculate_count(loopInfo->fStart, loopEnd, loopInfo->fDelta,
-                                              /*forwards=*/true, /*inclusive=*/true);
+                                               Direction::kForwards, Inclusive::kYes, loop);
             break;
 
         case Operator::Kind::GTEQ:
             loopInfo->fCount = calculate_count(loopInfo->fStart, loopEnd, loopInfo->fDelta,
-                                              /*forwards=*/false, /*inclusive=*/true);
+                                               Direction::kBackwards, Inclusive::kYes, loop);
             break;
 
         case Operator::Kind::NEQ: {
-            float iterations = sk_ieee_double_divide(loopEnd - loopInfo->fStart, loopInfo->fDelta);
-            loopInfo->fCount = std::ceil(iterations);
-            if (loopInfo->fCount < 0 || loopInfo->fCount != iterations ||
-                !std::isfinite(iterations)) {
-                // The loop doesn't reach the exact endpoint and so will never terminate.
-                loopInfo->fCount = kLoopTerminationLimit;
-            }
+            loopInfo->fCount = calculate_count_neq(loopInfo->fStart, loopEnd, loopInfo->fDelta,
+                                                   loop);
             if (loopInfo->fIndex->type().componentType().isFloat()) {
                 // Rewrite `x != n` tests as `x < n` or `x > n` depending on the loop direction.
                 // Less-than and greater-than tests avoid infinite loops caused by rounding error.

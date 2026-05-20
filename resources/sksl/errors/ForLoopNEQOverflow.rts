@@ -1,0 +1,11 @@
+half4 main(float2 coords) {
+    half arr[4];
+    for (int i = 2000000000; i != -2000000000; i += 1000000000) {
+        arr[i - 2000000000] = half(1);
+    }
+    return half4(0);
+}
+
+/*%%*
+loop must guarantee termination in fewer iterations
+*%%*/
