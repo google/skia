@@ -31,7 +31,7 @@ public:
 
     void initRenderState(GrMtlRenderCommandEncoder*);
 
-    void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;
+    bool inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;
     void submit();
 
 private:

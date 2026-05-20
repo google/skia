@@ -42,7 +42,7 @@ public:
     }
 
     GrGpu* gpu() override { return fGpu; }
-    void inlineUpload(GrOpFlushState*, GrDeferredTextureUploadFn&) override {}
+    bool inlineUpload(GrOpFlushState*, GrDeferredTextureUploadFn&) override { return true; }
 
     int numDraws() const { return fNumDraws; }
 

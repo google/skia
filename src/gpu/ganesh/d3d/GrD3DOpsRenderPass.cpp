@@ -339,16 +339,17 @@ void GrD3DOpsRenderPass::onClearStencilClip(const GrScissorState& scissor, bool 
     fGpu->currentCommandList()->clearDepthStencilView(d3dStencil, stencilColor, &clearRect);
 }
 
-void GrD3DOpsRenderPass::inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) {
+bool GrD3DOpsRenderPass::inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) {
     // If we ever start using copy command lists for doing uploads, then we'll need to make sure
     // we submit our main command list before doing the copy here and then start a new main command
     // list.
-
     fGpu->endRenderPass(fRenderTarget, fOrigin, fBounds);
 
     // We pass in true here to signal that after the upload we need to set the upload texture's
     // resource state back to D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE.
     state->doUpload(upload, true);
+
+    return true;
 }
 
 void GrD3DOpsRenderPass::submit() {
