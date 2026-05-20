@@ -297,6 +297,7 @@ skia_ganesh_private = [
   "$_src/gpu/ganesh/GrTexture.h",
   "$_src/gpu/ganesh/GrTextureProxy.cpp",
   "$_src/gpu/ganesh/GrTextureProxy.h",
+  "$_src/gpu/ganesh/GrTextureProxyCacheAccess.cpp",
   "$_src/gpu/ganesh/GrTextureProxyCacheAccess.h",
   "$_src/gpu/ganesh/GrTextureProxyPriv.h",
   "$_src/gpu/ganesh/GrTextureRenderTargetProxy.cpp",

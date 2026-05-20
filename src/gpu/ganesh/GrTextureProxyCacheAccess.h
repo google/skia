@@ -22,9 +22,7 @@ class UniqueKey;
 class GrTextureProxy::CacheAccess {
 private:
     void setUniqueKey(sk_sp<GrUniquelyKeyedProxyRegistry> uniquelyKeyedProxyRegistry,
-                      const skgpu::UniqueKey& key) {
-        fTextureProxy->setUniqueKey(std::move(uniquelyKeyedProxyRegistry), key);
-    }
+                      const skgpu::UniqueKey& key);
 
     void clearUniqueKey() {
         fTextureProxy->clearUniqueKey();

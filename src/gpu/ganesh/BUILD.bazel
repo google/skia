@@ -211,6 +211,7 @@ CORE_FILES = [
     "GrTexture.h",
     "GrTextureProxy.cpp",
     "GrTextureProxy.h",
+    "GrTextureProxyCacheAccess.cpp",
     "GrTextureProxyCacheAccess.h",
     "GrTextureProxyPriv.h",
     "GrTextureRenderTargetProxy.cpp",
