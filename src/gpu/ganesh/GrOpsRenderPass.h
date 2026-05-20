@@ -129,7 +129,7 @@ public:
                           int baseVertex);
 
     // Performs an upload of vertex data in the middle of a set of a set of draws
-    virtual void inlineUpload(GrOpFlushState*, GrDeferredTextureUploadFn&) = 0;
+    virtual bool inlineUpload(GrOpFlushState*, GrDeferredTextureUploadFn&) = 0;
 
     /**
      * Clear the owned render target. Clears the full target if 'scissor' is disabled, otherwise it

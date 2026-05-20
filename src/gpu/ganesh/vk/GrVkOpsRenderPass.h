@@ -46,7 +46,8 @@ public:
 
     ~GrVkOpsRenderPass() override;
 
-    void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;
+    // Returns true upon successful upload and false upon failure.
+    bool inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;
 
     void onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override;
 
