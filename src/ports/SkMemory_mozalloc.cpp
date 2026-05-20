@@ -12,7 +12,6 @@
 #include "mozilla/mozalloc.h"
 #include "mozilla/mozalloc_abort.h"
 #include "mozilla/mozalloc_oom.h"
-#include "mozilla/mozmemory.h"
 
 // needed for std::max
 #include <algorithm>
@@ -41,6 +40,6 @@ void* sk_malloc_flags(size_t size, unsigned flags) {
     return (flags & SK_MALLOC_THROW) ? moz_xmalloc(size) : malloc(size);
 }
 
-size_t sk_malloc_good_size(size_t size) {
-    return std::max(malloc_good_size(size), size); // mozmemory.h ports this for us
+size_t sk_malloc_size(void* addr, size_t size) {
+    return std::max(moz_malloc_usable_size(addr), size);
 }
