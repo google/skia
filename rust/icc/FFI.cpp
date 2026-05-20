@@ -11,10 +11,33 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <type_traits>
 
 namespace rust_icc {
+
+static constexpr uint64_t kMaxGridPoints = 350000000;
+
+// Keep this at the skcms bridge boundary: moxcms has its own parser limits,
+// while C++ tests and future callers can still construct rust_icc::IccProfile directly.
+static bool ValidateGridPoints(const uint8_t grid_points[4], uint32_t active_channels) {
+    if (active_channels < 1 || active_channels > 4) {
+        return false;
+    }
+
+    uint64_t total_grid_points = 1;
+    for (uint32_t i = 0; i < active_channels; ++i) {
+        if (grid_points[i] < 2) {
+            return false;
+        }
+        total_grid_points *= grid_points[i];
+        if (total_grid_points > kMaxGridPoints) {
+            return false;
+        }
+    }
+    return true;
+}
 
 void ToSkcmsMatrix3x3(const Matrix3x3& rust_matrix, skcms_Matrix3x3* out_skcms) {
     // Note: std::is_layout_compatible_v (C++20) is not yet implemented in LLVM (P0466R5).
@@ -89,12 +112,8 @@ static bool ToSkcmsA2B(const rust_icc::A2B& rust_a2b, skcms_A2B* out_skcms) {
     }
     memcpy(out_skcms->grid_points, rust_a2b.grid_points.data(), 4);
     if (!rust_a2b.grid_data.empty()) {
-        // Each active CLUT dimension must have >= 2 grid points, matching the
-        // constraint enforced by skcms_Parse (crbug.com/504103236).
-        for (uint32_t i = 0; i < out_skcms->input_channels; i++) {
-            if (out_skcms->grid_points[i] < 2) {
-                return false;
-            }
+        if (!ValidateGridPoints(out_skcms->grid_points, out_skcms->input_channels)) {
+            return false;
         }
         if (rust_a2b.is_16bit_grid) {
             out_skcms->grid_16 = rust_a2b.grid_data.data();
@@ -210,11 +229,8 @@ static bool ToSkcmsB2A(const rust_icc::B2A& rust_b2a, skcms_B2A* out_skcms) {
     }
     memcpy(out_skcms->grid_points, rust_b2a.grid_points.data(), 4);
     if (!rust_b2a.grid_data.empty()) {
-        // Each active CLUT dimension must have >= 2 grid points (crbug.com/504103236).
-        for (uint32_t i = 0; i < rust_b2a.output_channels; i++) {
-            if (out_skcms->grid_points[i] < 2) {
-                return false;
-            }
+        if (!ValidateGridPoints(out_skcms->grid_points, rust_b2a.output_channels)) {
+            return false;
         }
         if (rust_b2a.is_16bit_grid) {
             out_skcms->grid_16 = rust_b2a.grid_data.data();

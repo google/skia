@@ -586,8 +586,7 @@ DEF_TEST(RustIcc_profile_with_table_curves, r) {
 
 // Regression tests for crbug.com/504160794 and crbug.com/504103236:
 // ToSkcmsIccProfile must reject A2B structs with out-of-range channel counts
-// or zero in an active grid_points dimension (which would cause skcms to
-// read out of bounds).
+// or zero in an active grid_points dimension, or too many total grid points.
 DEF_TEST(RustIcc_reject_malformed_a2b, r) {
     // Identity output curve reused by every case.
     rust_icc::Curve id_curve;
@@ -609,6 +608,8 @@ DEF_TEST(RustIcc_reject_malformed_a2b, r) {
         {"output_channels=5",  3, 5, {0,0,0,0}, false},
         // b/504103236 – zero in active grid dimension
         {"grid_points[1]=0",   2, 3, {2,0,0,0}, true},
+        // b/513702971 – total CLUT grid points exceed skcms SIMD index limits
+        {"grid_points overflow", 4, 3, {255,255,255,255}, true},
         // b/506010945 – output_channels != 3 causes OOB in clut()
         {"output_channels=1",  1, 1, {2,0,0,0}, true},
         {"output_channels=2",  3, 2, {0,0,0,0}, false},
