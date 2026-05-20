@@ -29,6 +29,7 @@ class GrResourceProvider;
 class GrTextureProxyPriv;
 enum class SkBackingFit;
 struct SkISize;
+class GrUniquelyKeyedProxyRegistry;
 
 // This class delays the acquisition of textures until they are actually required
 class GrTextureProxy : virtual public GrSurfaceProxy {
@@ -202,7 +203,8 @@ private:
     GrDDLProvider    fCreatingProvider = GrDDLProvider::kNo;
 
     skgpu::UniqueKey      fUniqueKey;
-    GrProxyProvider* fProxyProvider; // only set when fUniqueKey is valid
+    // The next field is only set when fUniqueKey is valid
+    sk_sp<GrUniquelyKeyedProxyRegistry> fUniquelyKeyedProxyRegistry;
 
     LazySurfaceDesc callbackDesc() const override;
 
@@ -214,7 +216,7 @@ private:
     size_t onUninstantiatedGpuMemorySize() const override;
 
     // Methods made available via GrTextureProxy::CacheAccess
-    void setUniqueKey(GrProxyProvider*, const skgpu::UniqueKey&);
+    void setUniqueKey(sk_sp<GrUniquelyKeyedProxyRegistry>, const skgpu::UniqueKey&);
     void clearUniqueKey();
 
     SkDEBUGCODE(void onValidateSurface(const GrSurface*) override;)

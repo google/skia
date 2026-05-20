@@ -485,6 +485,7 @@ ganesh_tests_sources = [
   "$_tests/GrTextBlobTest.cpp",
   "$_tests/GrTextureMipMapInvalidationTest.cpp",
   "$_tests/GrThreadSafeCacheTest.cpp",
+  "$_tests/GrUniqueProxyTest.cpp",
   "$_tests/LazyProxyTest.cpp",
   "$_tests/LazyStencilAttachmentTest.cpp",
   "$_tests/MatrixColorFilterTest.cpp",

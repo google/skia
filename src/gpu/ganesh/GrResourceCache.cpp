@@ -173,10 +173,6 @@ void GrResourceCache::releaseAll() {
     SkASSERT(fProxyProvider); // better have called setProxyProvider
     SkASSERT(fThreadSafeCache); // better have called setThreadSafeCache too
 
-    // We must remove the uniqueKeys from the proxies here. While they possess a uniqueKey
-    // they also have a raw pointer back to this class (which is presumably going away)!
-    fProxyProvider->removeAllUniqueKeys();
-
     while (!fNonpurgeableResources.empty()) {
         GrGpuResource* back = *(fNonpurgeableResources.end() - 1);
         SkASSERT(!back->wasDestroyed());

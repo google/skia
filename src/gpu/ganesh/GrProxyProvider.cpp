@@ -48,14 +48,17 @@
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(fImageContext->priv().singleOwner())
 
-GrProxyProvider::GrProxyProvider(GrImageContext* imageContext) : fImageContext(imageContext) {}
+GrProxyProvider::GrProxyProvider(GrImageContext* imageContext)
+     : fImageContext(imageContext)
+     , fUniquelyKeyedProxyRegistry(new GrUniquelyKeyedProxyRegistry()) {
+}
 
 GrProxyProvider::~GrProxyProvider() {
     if (this->renderingDirectly()) {
         // In DDL-mode a proxy provider can still have extant uniquely keyed proxies (since
         // they need their unique keys to, potentially, find a cached resource when the
         // DDL is played) but, in non-DDL-mode they should all have been cleaned up by this point.
-        SkASSERT(!fUniquelyKeyedProxies.count());
+        SkASSERT(!fUniquelyKeyedProxyRegistry->count());
     }
 }
 
@@ -82,21 +85,17 @@ bool GrProxyProvider::assignUniqueKeyToProxy(const skgpu::UniqueKey& key, GrText
     }
 #endif
 
-    SkASSERT(!fUniquelyKeyedProxies.find(key));     // multiple proxies can't get the same key
-
-    proxy->cacheAccess().setUniqueKey(this, key);
+    proxy->cacheAccess().setUniqueKey(fUniquelyKeyedProxyRegistry, key);
     SkASSERT(proxy->getUniqueKey() == key);
-    fUniquelyKeyedProxies.add(proxy);
+    fUniquelyKeyedProxyRegistry->add(proxy);
     return true;
 }
 
 void GrProxyProvider::adoptUniqueKeyFromSurface(GrTextureProxy* proxy, const GrSurface* surf) {
     SkASSERT(surf->getUniqueKey().isValid());
-    proxy->cacheAccess().setUniqueKey(this, surf->getUniqueKey());
+    proxy->cacheAccess().setUniqueKey(fUniquelyKeyedProxyRegistry, surf->getUniqueKey());
     SkASSERT(proxy->getUniqueKey() == surf->getUniqueKey());
-    // multiple proxies can't get the same key
-    SkASSERT(!fUniquelyKeyedProxies.find(surf->getUniqueKey()));
-    fUniquelyKeyedProxies.add(proxy);
+    fUniquelyKeyedProxyRegistry->add(proxy);
 }
 
 void GrProxyProvider::removeUniqueKeyFromProxy(GrTextureProxy* proxy) {
@@ -118,7 +117,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::findProxyByUniqueKey(const skgpu::UniqueK
         return nullptr;
     }
 
-    GrTextureProxy* proxy = fUniquelyKeyedProxies.find(key);
+    GrTextureProxy* proxy = fUniquelyKeyedProxyRegistry->find(key);
     if (proxy) {
         return sk_ref_sp(proxy);
     }
@@ -256,7 +255,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::findOrCreateProxyByUniqueKey(const skgpu:
     result = this->createWrapped(std::move(texture), useAllocator);
     SkASSERT(result->getUniqueKey() == key);
     // createWrapped should've added this for us
-    SkASSERT(fUniquelyKeyedProxies.find(key));
+    SkASSERT(fUniquelyKeyedProxyRegistry->find(key));
     return result;
 }
 
@@ -962,17 +961,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::MakeFullyLazyProxy(LazyInstantiateCallbac
 void GrProxyProvider::processInvalidUniqueKey(const skgpu::UniqueKey& key,
                                               GrTextureProxy* proxy,
                                               InvalidateGPUResource invalidateGPUResource) {
-    this->processInvalidUniqueKeyImpl(key, proxy, invalidateGPUResource, RemoveTableEntry::kYes);
-}
-
-void GrProxyProvider::processInvalidUniqueKeyImpl(const skgpu::UniqueKey& key,
-                                                  GrTextureProxy* proxy,
-                                                  InvalidateGPUResource invalidateGPUResource,
-                                                  RemoveTableEntry removeTableEntry) {
     SkASSERT(key.isValid());
 
     if (!proxy) {
-        proxy = fUniquelyKeyedProxies.find(key);
+        proxy = fUniquelyKeyedProxyRegistry->find(key);
     }
     SkASSERT(!proxy || proxy->getUniqueKey() == key);
 
@@ -991,9 +983,7 @@ void GrProxyProvider::processInvalidUniqueKeyImpl(const skgpu::UniqueKey& key,
     // Note: this method is called for the whole variety of GrGpuResources so often 'key'
     // will not be in 'fUniquelyKeyedProxies'.
     if (proxy) {
-        if (removeTableEntry == RemoveTableEntry::kYes) {
-            fUniquelyKeyedProxies.remove(key);
-        }
+        fUniquelyKeyedProxyRegistry->deregisterUniqueKey(key);
         proxy->cacheAccess().clearUniqueKey();
     }
 
@@ -1020,24 +1010,6 @@ sk_sp<const GrCaps> GrProxyProvider::refCaps() const {
 
 bool GrProxyProvider::isAbandoned() const {
     return fImageContext->priv().abandoned();
-}
-
-void GrProxyProvider::orphanAllUniqueKeys() {
-    fUniquelyKeyedProxies.foreach([&](GrTextureProxy* proxy){
-        proxy->fProxyProvider = nullptr;
-    });
-}
-
-void GrProxyProvider::removeAllUniqueKeys() {
-    fUniquelyKeyedProxies.foreach([&](GrTextureProxy* proxy){
-        // It's not safe to remove table entries while iterating with foreach(),
-        // but since we're going to remove them all anyway, simply save that for the end.
-        this->processInvalidUniqueKeyImpl(proxy->getUniqueKey(), proxy,
-                                          InvalidateGPUResource::kNo,
-                                          RemoveTableEntry::kNo);
-    });
-    // Removing all those table entries is safe now.
-    fUniquelyKeyedProxies.reset();
 }
 
 bool GrProxyProvider::renderingDirectly() const {

@@ -43,7 +43,6 @@ GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
         , fMipmapped(mipmapped)
         , fMipmapStatus(mipmapStatus) SkDEBUGCODE(, fInitialMipmapStatus(fMipmapStatus))
         , fCreatingProvider(creatingProvider)
-        , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
     SkASSERT(!(fSurfaceFlags & GrInternalSurfaceFlags::kFramebufferOnly));
     if (this->textureType() == GrTextureType::kExternal) {
@@ -76,7 +75,6 @@ GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
         , fMipmapped(mipmapped)
         , fMipmapStatus(mipmapStatus) SkDEBUGCODE(, fInitialMipmapStatus(fMipmapStatus))
         , fCreatingProvider(creatingProvider)
-        , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
     SkASSERT(!(fSurfaceFlags & GrInternalSurfaceFlags::kFramebufferOnly));
     if (this->textureType() == GrTextureType::kExternal) {
@@ -88,16 +86,16 @@ GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
 GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf,
                                UseAllocator useAllocator,
                                GrDDLProvider creatingProvider)
-        : INHERITED(std::move(surf), SkBackingFit::kExact, useAllocator)
+        : GrSurfaceProxy(std::move(surf), SkBackingFit::kExact, useAllocator)
         , fMipmapped(fTarget->asTexture()->mipmapped())
         , fMipmapStatus(fTarget->asTexture()->mipmapStatus())
         SkDEBUGCODE(, fInitialMipmapStatus(fMipmapStatus))
         , fCreatingProvider(creatingProvider)
-        , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
     if (fTarget->getUniqueKey().isValid()) {
-        fProxyProvider = fTarget->asTexture()->getContext()->priv().proxyProvider();
-        fProxyProvider->adoptUniqueKeyFromSurface(this, fTarget.get());
+        auto proxyProvider = fTarget->asTexture()->getContext()->priv().proxyProvider();
+        fUniquelyKeyedProxyRegistry = proxyProvider->uniquelyKeyedProxyRegistry();
+        proxyProvider->adoptUniqueKeyFromSurface(this, fTarget.get());
     }
     if (this->textureType() == GrTextureType::kExternal) {
         fSurfaceFlags |= GrInternalSurfaceFlags::kReadOnly;
@@ -109,14 +107,11 @@ GrTextureProxy::~GrTextureProxy() {
     // at this point. Zero out the pointer so the cache invalidation code doesn't try to use it.
     fTarget = nullptr;
 
-    // In DDL-mode, uniquely keyed proxies keep their key even after their originating
-    // proxy provider has gone away. In that case there is noone to send the invalid key
-    // message to (Note: in this case we don't want to remove its cached resource).
-    if (fUniqueKey.isValid() && fProxyProvider) {
-        fProxyProvider->processInvalidUniqueKey(fUniqueKey, this,
-                                                GrProxyProvider::InvalidateGPUResource::kNo);
+    if (fUniqueKey.isValid() && fUniquelyKeyedProxyRegistry) {
+        fUniquelyKeyedProxyRegistry->deregisterUniqueKey(fUniqueKey);
+        this->clearUniqueKey();
     } else {
-        SkASSERT(!fProxyProvider);
+        SkASSERT(!fUniquelyKeyedProxyRegistry);
     }
 }
 
@@ -186,7 +181,8 @@ bool GrTextureProxy::ProxiesAreCompatibleAsDynamicState(const GrSurfaceProxy* fi
            first->backendFormat() == second->backendFormat();
 }
 
-void GrTextureProxy::setUniqueKey(GrProxyProvider* proxyProvider, const skgpu::UniqueKey& key) {
+void GrTextureProxy::setUniqueKey(sk_sp<GrUniquelyKeyedProxyRegistry> uniquelyKeyedProxyRegistry,
+                                  const skgpu::UniqueKey& key) {
     SkASSERT(key.isValid());
     SkASSERT(!fUniqueKey.isValid()); // proxies can only ever get one uniqueKey
 
@@ -198,12 +194,12 @@ void GrTextureProxy::setUniqueKey(GrProxyProvider* proxyProvider, const skgpu::U
     }
 
     fUniqueKey = key;
-    fProxyProvider = proxyProvider;
+    fUniquelyKeyedProxyRegistry = std::move(uniquelyKeyedProxyRegistry);
 }
 
 void GrTextureProxy::clearUniqueKey() {
     fUniqueKey.reset();
-    fProxyProvider = nullptr;
+    fUniquelyKeyedProxyRegistry = nullptr;
 }
 
 GrSurfaceProxy::LazySurfaceDesc GrTextureProxy::callbackDesc() const {

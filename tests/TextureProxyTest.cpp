@@ -48,7 +48,7 @@ class GrResourceProvider;
 struct GrContextOptions;
 
 int GrProxyProvider::numUniqueKeyProxies_TestOnly() const {
-    return fUniquelyKeyedProxies.count();
+    return fUniquelyKeyedProxyRegistry->count();
 }
 
 static constexpr auto kColorType = GrColorType::kRGBA_8888;

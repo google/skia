@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkSpinlock.h"
 #include "src/core/SkTDynamicHash.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/ResourceKey.h"
@@ -42,6 +43,56 @@ enum class Budgeted : bool;
 enum class Mipmapped : bool;
 }  // namespace skgpu
 
+// This object tracks all the uniquely keyed texture proxies for a given ProxyProvider.
+// Each uniquely keyed texture proxy gets a ref to this object and must deregister its
+// unique key when it is destroyed.
+class GrUniquelyKeyedProxyRegistry : public SkRefCnt {
+public:
+    ~GrUniquelyKeyedProxyRegistry() override {
+        SkASSERT(fUniquelyKeyedProxies.count() == 0);
+    }
+
+    int count() const SK_EXCLUDES(fSpinLock) {
+        SkAutoSpinlock lock{fSpinLock};
+        return fUniquelyKeyedProxies.count();
+    }
+
+    void add(GrTextureProxy* proxy) SK_EXCLUDES(fSpinLock) {
+        SkASSERT(proxy->getUniqueKey().isValid());
+        SkASSERT(!this->find(proxy->getUniqueKey()));   // multiple proxies can't get the same key
+
+        SkAutoSpinlock lock{fSpinLock};
+        fUniquelyKeyedProxies.add(proxy);
+    }
+
+    GrTextureProxy* find(const skgpu::UniqueKey& key) const SK_EXCLUDES(fSpinLock) {
+        SkAutoSpinlock lock{fSpinLock};
+        return fUniquelyKeyedProxies.find(key);
+    }
+
+    void deregisterUniqueKey(const skgpu::UniqueKey& key) SK_EXCLUDES(fSpinLock){
+        SkASSERT(key.isValid());
+
+        SkAutoSpinlock lock{fSpinLock};
+        fUniquelyKeyedProxies.remove(key);
+    }
+
+private:
+    mutable SkSpinlock fSpinLock;
+
+    struct UniquelyKeyedProxyHashTraits {
+        static const skgpu::UniqueKey& GetKey(const GrTextureProxy& p) { return p.getUniqueKey(); }
+
+        static uint32_t Hash(const skgpu::UniqueKey& key) { return key.hash(); }
+    };
+    using UniquelyKeyedProxyHash =
+                    SkTDynamicHash<GrTextureProxy, skgpu::UniqueKey, UniquelyKeyedProxyHashTraits>;
+
+    // This holds the texture proxies that have unique keys. It does not get a ref
+    // on these proxies but they must send a message before they are deleted.
+    UniquelyKeyedProxyHash fUniquelyKeyedProxies SK_GUARDED_BY(fSpinLock);
+};
+
 /*
  * A factory for creating GrSurfaceProxy-derived objects.
  */
@@ -52,6 +103,10 @@ public:
     explicit GrProxyProvider(GrImageContext*);
 
     ~GrProxyProvider();
+
+    sk_sp<GrUniquelyKeyedProxyRegistry> uniquelyKeyedProxyRegistry() {
+        return fUniquelyKeyedProxyRegistry;
+    }
 
     /*
      * Assigns a unique key to a proxy. The proxy will be findable via this key using
@@ -258,13 +313,6 @@ public:
 
     int numUniqueKeyProxies_TestOnly() const;
 
-    // This is called on a DDL's proxyprovider when the DDL is finished. The uniquely keyed
-    // proxies need to keep their unique key but cannot hold on to the proxy provider unique
-    // pointer.
-    void orphanAllUniqueKeys();
-    // This is only used by GrContext::releaseResourcesAndAbandonContext()
-    void removeAllUniqueKeys();
-
     /**
      * Does the proxy provider have access to a GrDirectContext? If so, proxies will be
      * instantiated immediately.
@@ -300,12 +348,6 @@ private:
     friend class GrAHardwareBufferImageGenerator; // for createWrapped
     friend class GrResourceProvider; // for createWrapped
 
-    // processInvalidUniqueKey() with control over removing hash table entries,
-    // which is not safe while iterating with foreach().
-    enum class RemoveTableEntry { kNo, kYes };
-    void processInvalidUniqueKeyImpl(const skgpu::UniqueKey&, GrTextureProxy*,
-                                     InvalidateGPUResource, RemoveTableEntry);
-
     /*
      * Create an un-mipmapped texture proxy for the bitmap.
      */
@@ -319,18 +361,8 @@ private:
 
     sk_sp<GrTextureProxy> createWrapped(sk_sp<GrTexture> tex, UseAllocator useAllocator);
 
-    struct UniquelyKeyedProxyHashTraits {
-        static const skgpu::UniqueKey& GetKey(const GrTextureProxy& p) { return p.getUniqueKey(); }
-
-        static uint32_t Hash(const skgpu::UniqueKey& key) { return key.hash(); }
-    };
-    typedef SkTDynamicHash<GrTextureProxy, skgpu::UniqueKey, UniquelyKeyedProxyHashTraits> UniquelyKeyedProxyHash;
-
-    // This holds the texture proxies that have unique keys. The resourceCache does not get a ref
-    // on these proxies but they must send a message to the resourceCache when they are deleted.
-    UniquelyKeyedProxyHash fUniquelyKeyedProxies;
-
     GrImageContext*        fImageContext;
+    sk_sp<GrUniquelyKeyedProxyRegistry> fUniquelyKeyedProxyRegistry;
 };
 
 #endif
