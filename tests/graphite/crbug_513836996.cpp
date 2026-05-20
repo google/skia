@@ -24,6 +24,11 @@
 using namespace skgpu::graphite;
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(crbug_513836996, reporter, context, CtsEnforcement::kNever) {
+    if (context->supportsProtectedContent()) {
+        // Require readback, so exit if not possible
+        return;
+    }
+
     constexpr int kW = 200;
     constexpr int kH = 100;
     const SkImageInfo ii = SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
