@@ -921,14 +921,18 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTimeLimitedPurgeTest,
     // the resource remains in the cache.
     static constexpr auto kZeroMs = std::chrono::milliseconds(0);
     static constexpr auto kNoPurgingTimeLimit = std::nullopt;
+    // Before performing cleanup, force process the cache's returned resources to ensure that
+    // resources' last access times are updated.
+    resourceCache->forceProcessReturnedResources();
+    // Make sure we actually get a new time point such that resources unused in the last 0 ms
+    // actually leads to resource purging.
+    (void)force_newer_timepoint(skgpu::StdSteadyClock::now());
     recorder->performDeferredCleanup(kZeroMs, {kZeroMs});
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
 
-    // For clock granularity, make sure we actually get a new time point such that resources
-    // unused in the last 0 ms actually leads to resource purging.
-    (void)force_newer_timepoint(skgpu::StdSteadyClock::now());
-
     // Now purge with no time limit given to actually empty out the cache.
+    resourceCache->forceProcessReturnedResources(); // Forcibly update resources' last used times
+    (void)force_newer_timepoint(skgpu::StdSteadyClock::now()); // Ensures last used times < now
     recorder->performDeferredCleanup(kZeroMs, kNoPurgingTimeLimit);
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 0);
 
@@ -941,10 +945,12 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTimeLimitedPurgeTest,
                                                  /*gpuMemorySize=*/1);
         REPORTER_ASSERT(reporter, resourcePtr != nullptr);
     }
+    // Update resources' last used times and empty out the return queue before checking cache size
+    resourceCache->forceProcessReturnedResources();
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == kLargeResourceCount);
 
     // Record how long it takes to completely purge all kLargeResourceCount resources.
-    auto timeBeforeFullPurge = skgpu::StdSteadyClock::now();
+    auto timeBeforeFullPurge = force_newer_timepoint(skgpu::StdSteadyClock::now());
     recorder->performDeferredCleanup(kZeroMs, kNoPurgingTimeLimit);
     auto timeAfterFullPurge = force_newer_timepoint(skgpu::StdSteadyClock::now());
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 0);
@@ -959,11 +965,13 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTimeLimitedPurgeTest,
                                                  /*gpuMemorySize=*/1);
         REPORTER_ASSERT(reporter, resourcePtr != nullptr);
     }
+    // Update resources' last used times and empty out the return queue before checking cache size
+    resourceCache->forceProcessReturnedResources();
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == kLargeResourceCount);
 
     // Finally, try purging with a time duration significantly smaller than the actual time recorded
     // in the previous step. This should force only a subset of the resources to be purged.
-    auto timeBeforePartialPurge = skgpu::StdSteadyClock::now();
+    auto timeBeforePartialPurge = force_newer_timepoint(skgpu::StdSteadyClock::now());
     auto smallDuration =
             std::chrono::duration_cast<std::chrono::microseconds>(actualFullPurgeDuration / 5);
     recorder->performDeferredCleanup(kZeroMs, {smallDuration});
