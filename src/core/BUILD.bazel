@@ -515,7 +515,6 @@ skia_cc_library(
         "//modules/skcms",
         "//src/base",
         "//src/opts",
-        "//src/partition_alloc:raw_ptr",
         "//src/sksl:generated_sksl",
     ] + select({
         ":load_sksl_from_disk_true": ["//src/utils:get_executable_path"],
