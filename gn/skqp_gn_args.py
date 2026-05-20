@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-def GetGNArgs(api_level, debug, arch=None, ndk=None, is_android_bp=False):
+def GetGNArgs(api_level, debug, arch=None, ndk=None, is_android_gen_bp=False):
     gn_args = {
         'ndk_api':                          api_level,
         'is_debug':                         'true' if debug else 'false',
@@ -29,7 +29,7 @@ def GetGNArgs(api_level, debug, arch=None, ndk=None, is_android_bp=False):
     def gn_quote(s):
         return '"%s"' % s
 
-    if is_android_bp is True:
+    if is_android_gen_bp is True:
         gn_args.update({
             'target_os':          gn_quote("android"),
             'target_cpu':         gn_quote("none"),

@@ -14,3 +14,10 @@
 # build flag changes.
 per-file */include/config/SkUserConfig.h=set noparent
 per-file */include/config/SkUserConfig.h=file:OWNERS_build_files.android
+
+# Temporary exlusive lock on the new Android.gen.bp file, until the Android framework's downstream
+# copy of Android.bp can be updated to point to Android.gen.bp. This lock is to avoid
+# synchronization issues while doing that update.
+# TODO(b/514746338): remove this restriction.
+per-file Android.gen.bp=set noparent
+per-file Android.gen.bp=nscobie@google.com
