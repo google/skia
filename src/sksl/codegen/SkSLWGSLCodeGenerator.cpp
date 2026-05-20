@@ -3784,16 +3784,21 @@ std::string WGSLCodeGenerator::assembleFunctionCall(const FunctionCall& call,
     for (int index = 0; index < args.size(); ++index) {
         if (params[index]->modifierFlags() & ModifierFlag::kOut) {
             std::unique_ptr<LValue> lvalue = this->makeLValue(*args[index]);
-            if (params[index]->modifierFlags() & ModifierFlag::kIn) {
-                // Load the lvalue's contents into the substitute argument.
-                substituteArgument.push_back(this->writeScratchVar(args[index]->type(),
-                                                                   lvalue->load()));
+            if (lvalue) {
+                if (params[index]->modifierFlags() & ModifierFlag::kIn) {
+                    // Load the lvalue's contents into the substitute argument.
+                    substituteArgument.push_back(this->writeScratchVar(args[index]->type(),
+                                                                       lvalue->load()));
+                } else {
+                    // Create a substitute argument, but leave it uninitialized.
+                    substituteArgument.push_back(this->writeScratchVar(args[index]->type()));
+                }
+                writeback.push_back(std::move(lvalue));
+                needsWriteback = true;
             } else {
-                // Create a substitute argument, but leave it uninitialized.
-                substituteArgument.push_back(this->writeScratchVar(args[index]->type()));
+                substituteArgument.push_back(std::string());
+                writeback.push_back(nullptr);
             }
-            writeback.push_back(std::move(lvalue));
-            needsWriteback = true;
         } else {
             substituteArgument.push_back(std::string());
             writeback.push_back(nullptr);
