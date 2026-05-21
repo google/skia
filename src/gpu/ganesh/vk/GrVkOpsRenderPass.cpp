@@ -89,7 +89,7 @@ void GrVkOpsRenderPass::setAttachmentLayouts(LoadFromResolve loadFromResolve) {
     bool withStencil = fCurrentRenderPass->hasStencilAttachment();
     bool withResolve = fCurrentRenderPass->hasResolveAttachment();
 
-    if (fSelfDependencyFlags == SelfDependencyFlags::kForInputAttachment) {
+    if (fSelfDependencyFlags & SelfDependencyFlags::kForInputAttachment) {
         // We need to use the GENERAL layout in this case since we'll be using texture barriers
         // with an input attachment.
         VkAccessFlags dstAccess = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT |
@@ -738,7 +738,7 @@ bool GrVkOpsRenderPass::onBindTextures(const GrGeometryProcessor& geomProc,
                                                    this->currentCommandBuffer())) {
         return false;
     }
-    if (fSelfDependencyFlags == SelfDependencyFlags::kForInputAttachment) {
+    if (fSelfDependencyFlags & SelfDependencyFlags::kForInputAttachment) {
         // We bind the color attachment as an input attachment
         auto ds = fFramebuffer->colorAttachment()->inputDescSetForBlending(fGpu);
         if (!ds) {
