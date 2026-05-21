@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Changed
+- `Canvas.drawImageCubic` and `Canvas.drawImageOptions` use
+  `Fast_SrcRectConstraint` by default which allows the mipmap and filter options
+  passed in to not be overwritten.
+
 ## [0.41.1] - 2026-04-07
 
 ### Fixed
