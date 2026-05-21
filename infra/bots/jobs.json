@@ -2403,15 +2403,7 @@
     "name": "Test-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Direct3D"
   },
   {
-    "name": "Test-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Dawn_D3D11",
-    "cq_config": {
-      "location_regexes": [
-        "(tests|src/gpu)/graphite/.*",
-        "src/sksl/generated/.*",
-        "bazel/external/dawn/*",
-        "DEPS"
-      ]
-    }
+    "name": "Test-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Dawn_D3D11"
   },
   {
     "name": "Test-Win11-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Dawn_D3D12"
