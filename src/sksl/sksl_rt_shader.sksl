@@ -22,7 +22,7 @@ half4 sk_displacement(shader displMap,
                       half2 scale,
                       half4 xSelect,  // Only one of RGBA will be 1, the rest are 0
                       half4 ySelect) {
-    half4 displColor = unpremul(displMap.eval(coord));
+    half4 displColor = saturate(unpremul(displMap.eval(coord)));
     half2 displ = half2(dot(displColor, xSelect), dot(displColor, ySelect));
     displ = scale * (displ - 0.5);
     return colorMap.eval(coord + displ);
