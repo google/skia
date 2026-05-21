@@ -680,19 +680,22 @@ static void clut(uint32_t input_channels, uint32_t output_channels,
                  F* r, F* g, F* b, F* a) {
 
     const int dim = (int)input_channels;
-    assert (0 < dim && dim <= 4);
+    if (dim <= 0 || dim > 4) {
+        return;
+    }
     assert (output_channels == 3 ||
             output_channels == 4);
 
     // For each of these arrays, think foo[2*dim], but we use foo[8] since we know dim <= 4.
-    I32 index [8];  // Index contribution by dimension, first low from 0, then high from 4.
-    F   weight[8];  // Weight for each contribution, again first low, then high.
+    I32 index [8] = {0,0,0,0, 0,0,0,0};  // Index contribution by dimension, first low from 0, then high from 4.
+    F   weight[8] = {F0,F0,F0,F0, F0,F0,F0,F0};  // Weight for each contribution, again first low, then high.
 
     // O(dim) work first: calculate index,weight from r,g,b,a.
     const F inputs[] = { *r,*g,*b,*a };
     for (int i = dim-1, stride = 1; i >= 0; i--) {
         // x is where we logically want to sample the grid in the i-th dimension.
-        F x = inputs[i] * (float)(grid_points[i] - 1);
+        // We MUST clamp to [0,1] here to avoid negative indices.
+        F x = max_(F0, min_(inputs[i], F1)) * (float)(grid_points[i] - 1);
 
         // But we can't index at floats.  lo and hi are the two integer grid points surrounding x.
         I32 lo = cast<I32>(            x      ),   // i.e. trunc(x) == floor(x) here.
