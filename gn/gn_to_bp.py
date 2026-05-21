@@ -13,6 +13,7 @@
 # To test this on the CQ, use Canary-Android
 
 import argparse
+from enum import Enum
 import os
 import shutil
 import string
@@ -155,6 +156,16 @@ filegroup {
     name: "libskia_renderengine_srcs",
     srcs: [
         $renderengine_srcs
+    ],
+}
+
+filegroup {
+    // Source files specific to the flagged OOPR variant of
+    // libskia_renderengine, excluding libskia_renderengine_srcs.
+    // TODO(b/515434364): clean this up once it's no longer needed.
+    name: "libskia_renderengine_oopr_srcs",
+    srcs: [
+        $renderengine_oopr_srcs
     ],
 }
 
@@ -326,8 +337,16 @@ android_test {
 }
 ''')
 
+class LibSkiaVariant(Enum):
+    HWUI = 0
+    RENDERENGINE = 1
+    RENDERENGINE_OOPR = 2
+
+    def is_renderengine(self):
+        return self is self.RENDERENGINE or self is self.RENDERENGINE_OOPR
+
 # We'll run GN to get the main source lists and include directories for Skia.
-def generate_args(target_os, enable_gpu, renderengine = False):
+def generate_args(target_os, enable_gpu, libskia_variant = LibSkiaVariant.HWUI):
   d = {
     'is_official_build':                    'true',
 
@@ -336,10 +355,11 @@ def generate_args(target_os, enable_gpu, renderengine = False):
     'target_cpu':                           '"none"',
 
     # Use the custom FontMgr, as the framework will handle fonts.
-    'skia_enable_fontmgr_custom_directory': 'false',
-    'skia_enable_fontmgr_custom_embedded':  'false',
     'skia_enable_fontmgr_android':          'false',
     'skia_enable_fontmgr_android_ndk':      'false',
+    'skia_enable_fontmgr_custom_directory': 'false',
+    'skia_enable_fontmgr_custom_embedded':  'false',
+    'skia_enable_fontmgr_fontations_empty': 'false',
     'skia_enable_fontmgr_win':              'false',
     'skia_enable_fontmgr_win_gdi':          'false',
     'skia_use_fonthost_mac':                'false',
@@ -372,7 +392,7 @@ def generate_args(target_os, enable_gpu, renderengine = False):
   if enable_gpu:
     d['skia_use_vulkan']     = 'true'
     d['skia_enable_ganesh']  = 'true'
-    if renderengine:
+    if libskia_variant.is_renderengine():
       d['skia_enable_graphite'] = 'true'
   else:
     d['skia_use_vulkan']      = 'false'
@@ -390,12 +410,12 @@ def generate_args(target_os, enable_gpu, renderengine = False):
     d['win_sdk_version'] = '"placeholder_version"'
     d['win_toolchain_version'] = '"placeholder_version"'
 
-  if target_os == '"android"' and not renderengine:
+  if target_os == '"android"' and not libskia_variant.is_renderengine():
     d['skia_use_crabbyavif'] = 'true'
   else:
     d['skia_use_crabbyavif'] = 'false'
 
-  if renderengine:
+  if libskia_variant.is_renderengine():
     d['skia_use_libpng_decode'] = 'false'
     d['skia_use_libjpeg_turbo_decode'] = 'false'
     d['skia_use_libjpeg_turbo_encode'] = 'false'
@@ -404,6 +424,7 @@ def generate_args(target_os, enable_gpu, renderengine = False):
     d['skia_use_wuffs'] = 'false'
     d['skia_enable_pdf'] = 'false'
     d['skia_use_freetype'] = 'false'
+    d['skia_use_fontations'] = 'false'
     d['skia_use_fixed_gamma_text'] = 'false'
     d['skia_use_expat'] = 'false'
     d['skia_enable_fontmgr_custom_empty'] = 'false'
@@ -415,6 +436,12 @@ def generate_args(target_os, enable_gpu, renderengine = False):
     d['skia_enable_fontmgr_custom_empty'] = 'true'
     d['skia_use_wuffs'] = 'true'
     d['skia_use_jpeg_gainmaps'] = 'true'
+
+  # Tweaks for OOPR-specific variant of RenderEngine
+  if libskia_variant is LibSkiaVariant.RENDERENGINE_OOPR:
+    d['skia_use_libpng_decode'] = 'true'
+    d['skia_use_freetype'] = 'true'
+    d['skia_use_fontations'] = 'true'
 
   return d
 
@@ -489,7 +516,8 @@ def main():
   gn_args_linux = generate_args('"linux"',   False)
   gn_args_mac   = generate_args('"mac"',     False)
   gn_args_win   = generate_args('"win"',     False)
-  gn_args_renderengine  = generate_args('"android"', True, True)
+  gn_args_renderengine  = generate_args('"android"', True, LibSkiaVariant.RENDERENGINE)
+  gn_args_renderengine_oopr  = generate_args('"android"', True, LibSkiaVariant.RENDERENGINE_OOPR)
 
   js = gn_to_bp_utils.GenerateJSONFromGN(args.gn, gn_args)
   build_dir = js['build_settings']['build_dir']
@@ -574,13 +602,21 @@ def main():
   cflags = gn_to_bp_utils.CleanupCFlags(cflags)
   cflags_cc = gn_to_bp_utils.CleanupCCFlags(cflags_cc)
 
-  # Execute GN for specialized RenderEngine target
+  # Execute GN for specialized RenderEngine target(s)
   js_renderengine   = gn_to_bp_utils.GenerateJSONFromGN(args.gn, gn_args_renderengine)
   renderengine_srcs = strip_slashes(
       js_renderengine['targets']['//:skia']['sources'])
   gn_to_bp_utils.GrabDependentValues(js_renderengine, '//:skia', 'sources',
                                      renderengine_srcs, VMA_DEP)
   renderengine_srcs = strip_non_srcs(renderengine_srcs)
+  # OOPR variant
+  js_renderengine_oopr   = gn_to_bp_utils.GenerateJSONFromGN(args.gn, gn_args_renderengine_oopr)
+  renderengine_oopr_srcs = strip_slashes(
+      js_renderengine_oopr['targets']['//:skia']['sources'])
+  gn_to_bp_utils.GrabDependentValues(js_renderengine_oopr, '//:skia', 'sources',
+                                     renderengine_oopr_srcs, VMA_DEP)
+  renderengine_oopr_srcs = strip_non_srcs(renderengine_oopr_srcs)
+  renderengine_oopr_srcs = renderengine_oopr_srcs.difference(renderengine_srcs)
 
   # Execute GN for specialized SkQP target
   skqp_sdk_version = 26
@@ -629,14 +665,17 @@ def main():
   win_defines          = get_defines(js_win)
   renderengine_defines = get_defines(js_renderengine)
   renderengine_defines.add('SK_IN_RENDERENGINE')
+  renderengine_oopr_defines = get_defines(js_renderengine_oopr)
+  renderengine_oopr_defines.add('SK_IN_RENDERENGINE')
 
-  os.makedirs(out_path('android/include/config/'),      exist_ok=True)
-  os.makedirs(out_path('linux/include/config/'),        exist_ok=True)
-  os.makedirs(out_path('mac/include/config/'),          exist_ok=True)
-  os.makedirs(out_path('win/include/config/'),          exist_ok=True)
-  os.makedirs(out_path('renderengine/include/config/'), exist_ok=True)
-  os.makedirs(out_path('skqp/include/config/'),         exist_ok=True)
-  os.makedirs(out_path('vma_android/include'),          exist_ok=True)
+  os.makedirs(out_path('android/include/config/'),           exist_ok=True)
+  os.makedirs(out_path('linux/include/config/'),             exist_ok=True)
+  os.makedirs(out_path('mac/include/config/'),               exist_ok=True)
+  os.makedirs(out_path('win/include/config/'),               exist_ok=True)
+  os.makedirs(out_path('renderengine/include/config/'),      exist_ok=True)
+  os.makedirs(out_path('renderengine_oopr/include/config/'), exist_ok=True)
+  os.makedirs(out_path('skqp/include/config/'),              exist_ok=True)
+  os.makedirs(out_path('vma_android/include'),               exist_ok=True)
 
   shutil.copy('third_party/externals/vulkanmemoryallocator/include/vk_mem_alloc.h',
               out_path('vma_android/include'))
@@ -644,6 +683,7 @@ def main():
 
   write_android_config(out_path('android/include/config/SkUserConfig.h'), android_defines)
   write_android_config(out_path('renderengine/include/config/SkUserConfig.h'), renderengine_defines)
+  write_android_config(out_path('renderengine_oopr/include/config/SkUserConfig.h'), renderengine_oopr_defines)
   write_android_config(out_path('skqp/include/config/SkUserConfig.h'), skqp_defines, True)
 
   write_config(out_path('linux/include/config/SkUserConfig.h'), linux_defines, 'UNIX')
@@ -687,6 +727,7 @@ def main():
       'win_srcs':      bpfmt(10, win_srcs),
 
       'renderengine_srcs': bpfmt(8, renderengine_srcs),
+      'renderengine_oopr_srcs': bpfmt(8, renderengine_oopr_srcs),
     }), file=Android_gen_bp)
 
     print(skqp_instance_bp.substitute({
