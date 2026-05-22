@@ -186,8 +186,6 @@ class SkShaderBase : public SkShader {
 public:
     ~SkShaderBase() override;
 
-    uint32_t uniqueID() const { return fUniqueID; }
-
     sk_sp<SkShader> makeInvertAlpha() const;
     sk_sp<SkShader> makeWithCTM(const SkMatrix&) const;  // owns its own ctm
 
@@ -409,8 +407,6 @@ protected:
     }
 
 private:
-    const uint32_t fUniqueID;
-
     friend class SkShaders::MatrixRec;
 };
 inline SkShaderBase* as_SB(SkShader* shader) {
