@@ -20,22 +20,6 @@
 
 class SkWriteBuffer;
 
-namespace {
-
-// The 32-bit shader ID counter is not expected to wrap. In the unlikely event that it does, we
-// assume that the associated shaders will be sufficiently temporally separated such that shaders
-// with the same recycled IDs are no longer in use.
-uint32_t next_unique_id() {
-    static std::atomic<uint32_t> gNextUniqueID{SK_InvalidUniqueID + 1};
-    uint32_t id = SK_InvalidUniqueID;
-    do {
-        id = gNextUniqueID.fetch_add(1, std::memory_order_relaxed);
-    } while (id == SK_InvalidUniqueID);
-    return id;
-}
-
-} // anonymous namespace
-
 namespace SkShaders {
 MatrixRec::MatrixRec(const SkMatrix& ctm) : fCTM(ctm) {}
 
@@ -92,7 +76,7 @@ MatrixRec MatrixRec::concat(const SkMatrix& m) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-SkShaderBase::SkShaderBase() : fUniqueID(next_unique_id()) {}
+SkShaderBase::SkShaderBase() {}
 
 SkShaderBase::~SkShaderBase() = default;
 
