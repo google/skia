@@ -462,6 +462,23 @@ private:
  * DrawPass. It de-duplicates gradient data by caching based on the SkGradientBaseShader pointer.
  */
 class FloatStorageManager : public SkRefCnt {
+    // Size limit for individual gradients (anything larger will be dropped)
+    static constexpr int kMaxGradientStops = 1024 * 1024; // ~5MB of data in the shader
+
+    // Size limit for the max buffer size. If a new draw would exceed this limit, we drop the draw.
+    // The float storage manager is used by all Devices in a Recorder and is reset at snap(),
+    // requiring a global flush to otherwise get a new buffer (which is undesirable). Instead, we
+    // assume that exceeding this limit happens in two situations:
+    //   1. Adversarial content, at which point correctness is not critical.
+    //   2. A truly bespoke application requiring 4GB of gradient color data should be having its
+    //      workload managed at the application level where it can snap Recordings.
+    //
+    // It is also likely that even if we accumulate this much CPU data, a GPU driver will fail to
+    // create a buffer for us to copy to, causing the snap() to fail.
+    static constexpr int kMaxStorageFloats =
+            static_cast<int>(std::numeric_limits<uint32_t>::max() / sizeof(float));
+    static_assert(std::numeric_limits<uint32_t>::max() / sizeof(float)
+                        <= (uint32_t) std::numeric_limits<int>::max());
 public:
     FloatStorageManager() = default;
 
@@ -473,14 +490,26 @@ public:
     // Checks if data already exists for the requested gradient shader. If so, it returns
     // a nullptr and the existing offset. If not, it allocates space, caches the offset,
     // and returns a pointer to the start of the new data and the calculated offset.
+    //
+    // If it was not possible to store the gradient data, a nullptr and negative offset
+    // are returned to signal the error state.
     std::pair<float*, int> allocateGradientData(int numStops, const SkGradientBaseShader* shader) {
         SkASSERT(!this->isFinalized());
+        if (numStops > kMaxGradientStops) {
+            return {nullptr, -1};
+        }
+
         int* existingOffset = fGradientOffsetCache.find(shader->uniqueID());
         if (existingOffset) {
             return {nullptr, *existingOffset};
         }
         auto [ptr, offset] = this->allocateFloatData(numStops * 5); // 4 for color, 1 for offset
-        fGradientOffsetCache.set(shader->uniqueID(), offset);
+
+        // Only cache the storage if it was allocated successfully.
+        if (ptr) {
+            SkASSERT(offset >= 0);
+            fGradientOffsetCache.set(shader->uniqueID(), offset);
+        }
 
         return {ptr, offset};
     }
@@ -488,6 +517,7 @@ public:
     bool finalize(DrawBufferManager* bufferMgr) {
         SkASSERT(!this->isFinalized());
         if (!fGradientStorage.empty()) {
+            SkASSERT(fGradientStorage.size() <= kMaxStorageFloats);
             auto [writer, bufferInfo, _] =
                     bufferMgr->getMappedStorageBuffer(fGradientStorage.size(), sizeof(float));
             if (writer) {
@@ -512,6 +542,9 @@ private:
     // of the new allocation and its offset from the beginning of the buffer.
     std::pair<float*, int> allocateFloatData(int floatCount) {
         int currentSize = fGradientStorage.size();
+        if (kMaxStorageFloats - floatCount < currentSize) {
+            return {nullptr, -1}; // We've accumulated too much
+        }
         fGradientStorage.resize(currentSize + floatCount);
         float* startPtr = fGradientStorage.begin() + currentSize;
 
