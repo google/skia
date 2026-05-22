@@ -66,6 +66,8 @@ public:
 
     bool hasGlyph(skgpu::MaskFormat, const skgpu::ganesh::GlyphEntry&);
 
+    bool supportsBilerp() const { return fSupportBilerpAtlas; }
+
     GrDrawOpAtlas::ErrorCode addGlyphToAtlas(const SkGlyph&,
                                              skgpu::ganesh::GlyphEntry*,
                                              int srcPadding,
