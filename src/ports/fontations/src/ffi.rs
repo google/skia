@@ -21,7 +21,9 @@ use crate::{
         variation_position, BridgeFontRef, BridgeMappingIndex, BridgeNormalizedCoords,
         BridgeOutlineCollection,
     },
-    bitmap::{bitmap_glyph, bitmap_metrics, has_bitmap_glyph, png_data, BridgeBitmapGlyph},
+    bitmap::{bitmap_glyph, bitmap_metrics, has_bitmap_glyph, png_data,
+             alpha_mask_data, alpha_mask_size, has_alpha_mask,
+             BridgeBitmapGlyph},
     colr::{
         draw_colr_glyph, get_colrv1_clip_box, has_colrv0_glyph, has_colrv1_glyph, next_color_stop,
         num_color_stops, resolve_palette, BridgeColorStops,
@@ -160,6 +162,12 @@ pub mod ffi {
         inner_bearing_y: f32,
         // Some, but not all, bitmap glyphs have a special bitmap advance
         advance: f32,
+    }
+
+    #[derive(Default)]
+    struct AlphaBitmapSize {
+        width: u32,
+        height: u32,
     }
 
     pub enum AutoHintingControl {
@@ -301,6 +309,9 @@ pub mod ffi {
         ) -> Box<BridgeBitmapGlyph<'a>>;
         unsafe fn png_data<'a>(bitmap_glyph: &'a BridgeBitmapGlyph) -> &'a [u8];
         unsafe fn bitmap_metrics<'a>(bitmap_glyph: &'a BridgeBitmapGlyph) -> &'a BitmapMetrics;
+        unsafe fn alpha_mask_data<'a>(bitmap_glyph: &'a BridgeBitmapGlyph) -> &'a [u8];
+        fn has_alpha_mask(bitmap_glyph: &BridgeBitmapGlyph) -> bool;
+        fn alpha_mask_size(bitmap_glyph: &BridgeBitmapGlyph) -> AlphaBitmapSize;
 
         fn table_data(font_ref: &BridgeFontRef, tag: u32, offset: usize, data: &mut [u8]) -> usize;
         fn table_tags(font_ref: &BridgeFontRef, tags: &mut [u32]) -> u16;

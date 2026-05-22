@@ -418,6 +418,7 @@ gl_gm_sources = [ "$_gm/rectangletexture.cpp" ]
 
 fontations_gm_sources = [
   "$_gm/fontations.cpp",
+  "$_gm/fontations_cbdt.cpp",
   "$_gm/fontations_ft_compare.cpp",
 ]
 

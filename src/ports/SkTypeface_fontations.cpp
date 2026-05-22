@@ -606,38 +606,47 @@ protected:
                 }
             }
         } else if (has_bitmap_glyph) {
-            mx.maskFormat = SkMask::kARGB32_Format;
             mx.neverRequestPath = true;
             mx.extraBits = ScalerContextBits::BITMAP;
 
             rust::cxxbridge1::Box<fontations_ffi::BridgeBitmapGlyph> bitmap_glyph =
                     fontations_ffi::bitmap_glyph(fBridgeFontRef, glyph.getGlyphID(), fScale.y());
-            rust::cxxbridge1::Slice<const uint8_t> png_data =
-                    fontations_ffi::png_data(*bitmap_glyph);
-
-            if (png_data.empty()) {
-                return mx;
-            }
 
             const fontations_ffi::BitmapMetrics bitmapMetrics =
                     fontations_ffi::bitmap_metrics(*bitmap_glyph);
 
-            sk_sp<SkImage> img = SkImages::DeferredFromEncodedData(
-                    SkData::MakeWithoutCopy(png_data.data(), png_data.size()));
-            if (!img) {
-                check_png();
+            SkRect bounds;
+            rust::cxxbridge1::Slice<const uint8_t> png_data =
+                    fontations_ffi::png_data(*bitmap_glyph);
+            if (!png_data.empty()) {
+                mx.maskFormat = SkMask::kARGB32_Format;
+
+                sk_sp<SkImage> img = SkImages::DeferredFromEncodedData(
+                        SkData::MakeWithoutCopy(png_data.data(), png_data.size()));
+                if (!img) {
+                    check_png();
+                    return mx;
+                }
+                bounds = SkRect::Make(img->imageInfo().bounds());
+            } else if (fontations_ffi::has_alpha_mask(*bitmap_glyph)) {
+                mx.maskFormat = SkMask::kA8_Format;
+
+                fontations_ffi::AlphaBitmapSize size =
+                        fontations_ffi::alpha_mask_size(*bitmap_glyph);
+                if (size.width == 0 || size.height == 0) {
+                    return mx;
+                }
+
+                bounds = SkRect::MakeWH(size.width, size.height);
+            } else {
                 return mx;
             }
 
-            SkImageInfo info = img->imageInfo();
-
-            SkRect bounds = SkRect::Make(info.bounds());
-            SkMatrix matrix = fRemainingMatrix;
-
             // We deal with two scale factors here: Scaling from font units to
-            // device pixels, and scaling the embedded PNG from its number of
+            // device pixels, and scaling the embedded bitmap from its number of
             // rows to a specific size, depending on the ppem values in the
             // bitmap glyph information.
+            SkMatrix matrix = fRemainingMatrix;
             float imageToSize = fScale.y() / bitmapMetrics.ppem_y;
             float fontUnitsToSize = fScale.y() /
                                     fontations_ffi::units_per_em_or_zero(fBridgeFontRef);
@@ -652,7 +661,7 @@ protected:
 
             // For sbix bitmap glyphs, the origin is the bottom left of the image.
             float heightAdjustment =
-                    bitmapMetrics.placement_origin_bottom_left ? bounds.height() : 0;
+                        bitmapMetrics.placement_origin_bottom_left ? bounds.height() : 0;
             matrix.preTranslate(0, -heightAdjustment);
 
             if (this->isSubpixel()) {
@@ -672,30 +681,55 @@ protected:
         return mx;
     }
 
-    void generatePngImage(const SkGlyph& glyph, void* imageBuffer) {
-        SkASSERT(glyph.maskFormat() == SkMask::kARGB32_Format);
+    void generateBitmapImage(const SkGlyph& glyph, void* imageBuffer) {
+        rust::cxxbridge1::Box<fontations_ffi::BridgeBitmapGlyph> bitmap_glyph =
+                fontations_ffi::bitmap_glyph(fBridgeFontRef, glyph.getGlyphID(), fScale.y());
+
+        // Build source image: either from decoded alpha or PNG data.
+        sk_sp<SkImage> srcImage;
+        if (glyph.maskFormat() == SkMask::kARGB32_Format) {
+            rust::cxxbridge1::Slice<const uint8_t> png_data =
+                    fontations_ffi::png_data(*bitmap_glyph);
+            SkASSERT(png_data.size());
+            srcImage = SkImages::DeferredFromEncodedData(
+                    SkData::MakeWithoutCopy(png_data.data(), png_data.size()));
+            if (!srcImage) {
+                check_png();
+                return;
+            }
+        }else if (glyph.maskFormat() == SkMask::kA8_Format) {
+            rust::cxxbridge1::Slice<const uint8_t> alpha_data =
+                    fontations_ffi::alpha_mask_data(*bitmap_glyph);
+            fontations_ffi::AlphaBitmapSize size =
+                    fontations_ffi::alpha_mask_size(*bitmap_glyph);
+            if (alpha_data.empty() || size.width == 0 || size.height == 0) {
+                return;
+            }
+            SkBitmap srcBitmap;
+            srcBitmap.installPixels(SkImageInfo::MakeA8(size.width, size.height),
+                    const_cast<uint8_t*>(alpha_data.data()), size.width);
+            srcImage = srcBitmap.asImage();
+        }
+        if (!srcImage) {
+            return;
+        }
+
+        // Set up destination canvas.
         SkBitmap dstBitmap;
-        dstBitmap.installPixels(
-                SkImageInfo::Make(
-                        glyph.width(), glyph.height(), kN32_SkColorType, kPremul_SkAlphaType),
-                imageBuffer,
-                glyph.rowBytes());
+        if (glyph.maskFormat() == SkMask::kARGB32_Format) {
+            dstBitmap.installPixels(
+                    SkImageInfo::Make(glyph.width(), glyph.height(),
+                                     kN32_SkColorType, kPremul_SkAlphaType),
+                    imageBuffer, glyph.rowBytes());
+        }else if (glyph.maskFormat() == SkMask::kA8_Format) {
+            dstBitmap.installPixels(
+                    SkImageInfo::MakeA8(glyph.width(), glyph.height()),
+                    imageBuffer, glyph.rowBytes());
+        }
 
         SkCanvas canvas(dstBitmap);
 
         canvas.translate(-glyph.left(), -glyph.top());
-
-        rust::cxxbridge1::Box<fontations_ffi::BridgeBitmapGlyph> bitmap_glyph =
-                fontations_ffi::bitmap_glyph(fBridgeFontRef, glyph.getGlyphID(), fScale.y());
-        rust::cxxbridge1::Slice<const uint8_t> png_data = fontations_ffi::png_data(*bitmap_glyph);
-        SkASSERT(png_data.size());
-
-        sk_sp<SkImage> glyph_image = SkImages::DeferredFromEncodedData(
-                SkData::MakeWithoutCopy(png_data.data(), png_data.size()));
-        if (!glyph_image) {
-            check_png();
-            return;
-        }
 
         canvas.clear(SK_ColorTRANSPARENT);
         canvas.concat(fRemainingMatrix);
@@ -719,12 +753,12 @@ protected:
                          -bitmapMetrics.inner_bearing_y);
 
         float heightAdjustment =
-                bitmapMetrics.placement_origin_bottom_left ? glyph_image->height() : 0;
+                bitmapMetrics.placement_origin_bottom_left ? srcImage->height() : 0;
 
         canvas.translate(0, -heightAdjustment);
 
         SkSamplingOptions sampling(SkFilterMode::kLinear, SkMipmapMode::kNearest);
-        canvas.drawImage(glyph_image, 0, 0, sampling);
+        canvas.drawImage(srcImage, 0, 0, sampling);
     }
 
     void generateImage(const SkGlyph& glyph, void* imageBuffer) override {
@@ -750,7 +784,7 @@ protected:
 
             drawCOLRGlyph(glyph, fRec.fForegroundColor, &canvas);
         } else if (format == ScalerContextBits::BITMAP) {
-            generatePngImage(glyph, imageBuffer);
+            generateBitmapImage(glyph, imageBuffer);
         } else {
             SK_ABORT("Bad format");
         }

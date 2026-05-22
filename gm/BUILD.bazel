@@ -12,6 +12,7 @@ filegroup(
         "bitmaprect.cpp",
         "colrv1.cpp",
         "fontations.cpp",
+        "fontations_cbdt.cpp",
         "palette.cpp",
     ],
     visibility = ["//tools/viewer:__pkg__"],
