@@ -290,6 +290,9 @@ void add_conical_gradient_uniform_data(const KeyContext& keyContext,
 
 // Writes the color and offset data directly in the gatherer gradient buffer and returns the
 // offset the data begins at in the buffer.
+//
+// Returns a negative offset to signal failure, in which case the paint key must be poisoned
+// to drop the draw.
 static int write_color_and_offset_bufdata(int numStops,
                                            const SkPMColor4f* colors,
                                            const float* offsets,
@@ -297,6 +300,7 @@ static int write_color_and_offset_bufdata(int numStops,
                                            FloatStorageManager* floatStorageManager) {
     auto [dstData, bufferOffset] = floatStorageManager->allocateGradientData(numStops, shader);
     if (dstData) {
+        SkASSERT(bufferOffset >= 0);
         // Data doesn't already exist so we need to write it.
         // Writes all offset data, then color data. This way when binary searching through the
         // offsets, there is better cache locality.
@@ -389,16 +393,24 @@ GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type
 void GradientShaderBlocks::AddBlock(const KeyContext& keyContext, const GradientData& gradData) {
     int bufferOffset = 0;
     if (gradData.fNumStops > GradientData::kNumInternalStorageStops && keyContext.recorder()) {
+        bool hasStorage;
         if (gradData.fUseStorageBuffer) {
             bufferOffset = write_color_and_offset_bufdata(gradData.fNumStops,
                                                           gradData.fSrcColors,
                                                           gradData.fSrcOffsets,
                                                           gradData.fSrcShader,
                                                           keyContext.floatStorageManager());
+            hasStorage = bufferOffset >= 0;
         } else {
-            SkASSERT(gradData.fColorsAndOffsetsProxy);
             keyContext.pipelineDataGatherer()->add(gradData.fColorsAndOffsetsProxy,
                           {SkFilterMode::kNearest, SkTileMode::kClamp});
+            hasStorage = SkToBool(gradData.fColorsAndOffsetsProxy);
+        }
+
+        if (!hasStorage) {
+            keyContext.paintParamsKeyBuilder()->addErrorBlock();
+            SKGPU_LOG_W("Couldn't upload large gradient color stop data");
+            return;
         }
     }
 
