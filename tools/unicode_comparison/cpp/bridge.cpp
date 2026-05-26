@@ -69,9 +69,9 @@ int getFlags(int index) {
     if (gUnicode == nullptr) {
         SK_ABORT("Unicode object does not exist");
     } else if (gCodeUnitFlags.size() == 0) {
-        SK_ABORT("Unicode object is empty or not initialized\n");
+        SK_ABORT("Unicode object is empty or not initialized");
     } else if (index < 0 || index >= gCodeUnitFlags.size()) {
-        SK_ABORT("Index value %d outside of valid range [%d:%d)\n", index, 0, gCodeUnitFlags.size());
+        SK_ABORT("Index value %d outside of valid range [%d:%d)", index, 0, gCodeUnitFlags.size());
     }
     return gCodeUnitFlags[index];
 }

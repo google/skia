@@ -152,7 +152,7 @@ protected:
             std::unique_ptr<SkSL::Program> program = fCompiler.convertProgram(kind, fSrc,
                                                                               fSettings);
             if (fCompiler.errorCount()) {
-                SK_ABORT("shader compilation failed: %s\n", fCompiler.errorText().c_str());
+                SK_ABORT("shader compilation failed: %s", fCompiler.errorText().c_str());
             }
             SkSL::NativeShader result;
             switch (fOutput) {

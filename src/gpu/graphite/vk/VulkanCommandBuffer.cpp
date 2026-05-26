@@ -571,8 +571,7 @@ bool VulkanCommandBuffer::isFinished() {
             return false;
 
         default:
-            SKGPU_LOG_F("Error calling vkGetFenceStatus. Error: %d", err);
-            SK_ABORT("Got an invalid fence status");
+            SK_ABORT("Error calling vkGetFenceStatus. Error: %d", err);
             return false;
     }
 }
