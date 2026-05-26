@@ -213,6 +213,8 @@ protected:
         // from the transfer buffer's color type to the requested color type.
         std::function<ConversionFn> fPixelConverter;
     };
+    struct AsyncReadPixelContext;
+
     PixelTransferResult transferPixels(GrColorType colorType, const SkIRect& rect);
 
     // The async read step of asyncRescaleAndReadPixels()
