@@ -7,6 +7,7 @@ hcm@google.com
 kjlubick@google.com
 michaelludwig@google.com
 robertphillips@google.com
+# Note: please update ../OWNERS.android when modifying this list.
 
 per-file BUILD.bazel=borenet@google.com
 per-file BUILD.bazel=kjlubick@google.com
