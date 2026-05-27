@@ -8,6 +8,7 @@
 #ifndef SkDebugUtils_DEFINED
 #define SkDebugUtils_DEFINED
 
+#include "include/core/SkFourByteTag.h"
 #include "include/core/SkTileMode.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
@@ -50,6 +51,10 @@ inline void SkDumpBuffer(uint8_t const* const buffer, int w, int h, int rowBytes
 #else
 inline void SkDumpBuffer(uint8_t*, int, int, int) {}
 #endif
+
+static inline void SkDumpTag(SkFourByteTag tag) {
+    SkDebugf("%c%c%c%c", (char)(tag >> 24), (char)(tag >> 16) & 0xFF, (char)(tag >> 8) & 0xFF, (char)tag & 0xFF);
+}
 
 
 #endif // SkDebugUtils_DEFINED
