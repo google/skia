@@ -17,6 +17,7 @@
 #include "include/gpu/graphite/Surface.h"
 #include "include/gpu/graphite/dawn/DawnBackendContext.h"
 #include "include/gpu/graphite/dawn/DawnGraphiteTypes.h"
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/graphite/ContextOptionsPriv.h"
 #include "tools/ToolUtils.h"
 #include "tools/graphite/GraphiteToolUtils.h"
@@ -166,12 +167,12 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
             [](const wgpu::Device&, wgpu::DeviceLostReason reason, wgpu::StringView message) {
                 if (reason == wgpu::DeviceLostReason::Unknown ||
                     reason == wgpu::DeviceLostReason::FailedCreation) {
-                    SKIA_LOG_F("Device lost: %.*s\n", static_cast<int>(message.length), message.data);
+                    SK_ABORT("Device lost: %.*s", static_cast<int>(message.length), message.data);
                 }
             });
     deviceDescriptor.SetUncapturedErrorCallback(
             [](const wgpu::Device&, wgpu::ErrorType, wgpu::StringView message) {
-                SKIA_LOG_F("Device error: %.*s\n", static_cast<int>(message.length), message.data);
+                SK_ABORT("Device error: %.*s", static_cast<int>(message.length), message.data);
             });
 
     wgpu::DawnTogglesDescriptor deviceTogglesDesc;

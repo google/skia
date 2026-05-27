@@ -691,7 +691,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
     if (useAsync) {
 #if defined(__EMSCRIPTEN__)
         // We shouldn't use CreateRenderPipelineAsync in wasm.
-        SKGPU_LOG_F("CreateRenderPipelineAsync shouldn't be used in WASM");
+        SK_ABORT("CreateRenderPipelineAsync shouldn't be used in WASM");
 #else
         asyncCreation->fFuture = device.CreateRenderPipelineAsync(
                 &descriptor,
@@ -805,7 +805,7 @@ const wgpu::RenderPipeline& DawnGraphicsPipeline::dawnRenderPipeline() const {
     }
 #if defined(__EMSCRIPTEN__)
     // We shouldn't use CreateRenderPipelineAsync in wasm.
-    SKGPU_LOG_F("CreateRenderPipelineAsync shouldn't be used in WASM");
+    SK_ABORT("CreateRenderPipelineAsync shouldn't be used in WASM");
 #else
 
 #if defined(SK_PIPELINE_LIFETIME_LOGGING)

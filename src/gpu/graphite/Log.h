@@ -13,7 +13,6 @@
 #define SKGPU_LOG(priority, fmt, ...) \
     SKIA_LOG((SkLogPriority)priority, "[graphite] " fmt, ##__VA_ARGS__)
 
-#define SKGPU_LOG_F(fmt, ...) SKIA_LOG(SkLogPriority::kFatal,   "[graphite] " fmt, ##__VA_ARGS__)
 #define SKGPU_LOG_E(fmt, ...) SKIA_LOG(SkLogPriority::kError,   "[graphite] " fmt, ##__VA_ARGS__)
 #define SKGPU_LOG_W(fmt, ...) SKIA_LOG(SkLogPriority::kWarning, "[graphite] " fmt, ##__VA_ARGS__)
 #define SKGPU_LOG_D(fmt, ...) SKIA_LOG(SkLogPriority::kDebug,   "[graphite] " fmt, ##__VA_ARGS__)

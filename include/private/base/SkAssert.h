@@ -11,6 +11,7 @@
 #include "include/private/base/SkAPI.h"
 #include "include/private/base/SkAttributes.h"
 #include "include/private/base/SkDebug.h" // IWYU pragma: keep
+#include "include/private/base/SkLog.h"
 
 #include <cstddef>
 #include <limits>
@@ -69,7 +70,7 @@
 #  endif
 #  define SK_ABORT(message, ...) \
     do { \
-        SkDebugf(SK_DUMP_LINE_FORMAT ": fatal error: \"" message "\"\n", \
+        SKIA_LOG_E(SK_DUMP_LINE_FORMAT ": fatal error: \"" message "\"", \
                  __FILE__, __LINE__, ##__VA_ARGS__); \
         SK_DUMP_GOOGLE3_STACK(); \
         sk_abort_no_print(); \
@@ -137,7 +138,7 @@
 #endif
 
 [[noreturn]] SK_API inline void sk_print_index_out_of_bounds(size_t i, size_t size) {
-    SK_ABORT("Index (%zu) out of bounds for size %zu.\n", i, size);
+    SK_ABORT("Index (%zu) out of bounds for size %zu.", i, size);
 }
 
 template <typename T> SK_API inline T sk_collection_check_bounds(T i, T size) {
@@ -155,7 +156,7 @@ template <typename T> SK_API inline T sk_collection_check_bounds(T i, T size) {
 }
 
 [[noreturn]] SK_API inline void sk_print_length_too_big(size_t i, size_t size) {
-    SK_ABORT("Length (%zu) is too big for size %zu.\n", i, size);
+    SK_ABORT("Length (%zu) is too big for size %zu.", i, size);
 }
 
 template <typename T> SK_API inline T sk_collection_check_length(T i, T size) {
@@ -175,7 +176,7 @@ template <typename T> SK_API inline T sk_collection_check_length(T i, T size) {
 SK_API inline void sk_collection_not_empty(bool empty) {
     if (empty) SK_UNLIKELY {
         #if defined(SK_DEBUG)
-            SK_ABORT("Collection is empty.\n");
+            SK_ABORT("Collection is empty.");
         #else
             SkUNREACHABLE;
         #endif
@@ -183,7 +184,7 @@ SK_API inline void sk_collection_not_empty(bool empty) {
 }
 
 [[noreturn]] SK_API inline void sk_print_size_too_big(size_t size, size_t maxSize) {
-    SK_ABORT("Size (%zu) can't be represented in bytes. Max size is %zu.\n", size, maxSize);
+    SK_ABORT("Size (%zu) can't be represented in bytes. Max size is %zu.", size, maxSize);
 }
 
 template <typename T>

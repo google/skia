@@ -35,7 +35,7 @@ protected:
     void onPerCanvasPreDraw(SkCanvas* canvas) override;
 
     void drawMPDPicture() override {
-        SK_ABORT("MPD not supported\n");
+        SK_ABORT("MPD not supported");
     }
     void drawPicture() override;
 

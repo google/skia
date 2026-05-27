@@ -64,7 +64,7 @@ void MtlCaps::initGPUFamily(id<MTLDevice> device) {
     }
 
     // If we've reached here, we didn't find a supported family and nothing can be trusted.
-    SKGPU_LOG_F("Unable to detect supported MTLGPUFamily");
+    SK_ABORT("Unable to detect supported MTLGPUFamily");
 }
 
 void MtlCaps::initCaps(const id<MTLDevice> device) {
