@@ -356,6 +356,7 @@ cc_library(
         "include",
         "src",
     ],
+    deps = ["//src/utils"],
 )
 
 cc_library(
