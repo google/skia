@@ -37,7 +37,7 @@ static sk_sp<SkData> open_asset_data(const char* path) {
                 data = SkData::MakeUninitialized(size);
                 int ret = AAsset_read(asset, data->writable_data(), size);
                 if (ret != SkToInt(size)) {
-                    SK_ABORT("ERROR: AAsset_read != AAsset_getLength (%s)", path);
+                    SK_ABORT("ERROR: AAsset_read != AAsset_getLength (%s)\n", path);
                 }
             }
             AAsset_close(asset);

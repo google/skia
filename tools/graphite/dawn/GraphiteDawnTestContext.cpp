@@ -103,7 +103,7 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType bac
             wgpu::CallbackMode::AllowSpontaneous,
             [](const wgpu::Device&, wgpu::DeviceLostReason reason, wgpu::StringView message) {
                 if (reason != wgpu::DeviceLostReason::Destroyed) {
-                    SK_ABORT("Device lost: %.*s", static_cast<int>(message.length), message.data);
+                    SK_ABORT("Device lost: %.*s\n", static_cast<int>(message.length), message.data);
                 }
             });
     desc.SetUncapturedErrorCallback([](const wgpu::Device&, wgpu::ErrorType,

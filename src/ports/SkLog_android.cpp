@@ -44,6 +44,7 @@ void SkLogVAList(SkLogPriority priority, const char format[], va_list args) {
 
     int android_priority;
     switch (priority) {
+        case SkLogPriority::kFatal:   android_priority = ANDROID_LOG_FATAL;   break;
         case SkLogPriority::kError:   android_priority = ANDROID_LOG_ERROR;   break;
         case SkLogPriority::kWarning: android_priority = ANDROID_LOG_WARN;    break;
         case SkLogPriority::kInfo:    android_priority = ANDROID_LOG_INFO;    break;

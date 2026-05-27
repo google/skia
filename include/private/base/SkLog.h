@@ -50,10 +50,16 @@ void SK_SPI SkLog(SkLogPriority priority, const char format[], ...) SK_PRINTF_LI
 #define SKIA_LOG(priority, fmt, ...)                                           \
     do {                                                                       \
         if constexpr (priority <= SKIA_LOWEST_ACTIVE_LOG_PRIORITY) {           \
-            SkLog(priority, "[skia] " fmt "\n", ##__VA_ARGS__);                \
+            if constexpr (priority == SkLogPriority::kFatal) {                 \
+                SK_ABORT("[skia] " fmt, ##__VA_ARGS__);                        \
+            }                                                                  \
+            else {                                                             \
+                SkLog(priority, "[skia] " fmt "\n", ##__VA_ARGS__);            \
+            }                                                                  \
         }                                                                      \
     } while (0)
 
+#define SKIA_LOG_F(fmt, ...) SKIA_LOG(SkLogPriority::kFatal, "** ERROR ** " fmt, ##__VA_ARGS__)
 #define SKIA_LOG_E(fmt, ...) SKIA_LOG(SkLogPriority::kError, "** ERROR ** " fmt, ##__VA_ARGS__)
 #define SKIA_LOG_W(fmt, ...) SKIA_LOG(SkLogPriority::kWarning, "WARNING - " fmt, ##__VA_ARGS__)
 #define SKIA_LOG_I(fmt, ...) SKIA_LOG(SkLogPriority::kInfo, fmt, ##__VA_ARGS__)

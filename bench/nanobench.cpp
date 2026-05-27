@@ -33,7 +33,6 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/encode/SkPngEncoder.h"
-#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkLog.h"
 #include "include/private/base/SkMacros.h"
 #include "src/base/SkAutoMalloc.h"
@@ -1499,14 +1498,14 @@ int main(int argc, char** argv) {
 #if defined(SK_USE_PPROF)
         ProfilerStart(FLAGS_cpuprofile[0]);
 #else
-        SK_ABORT("Must be compiled with -DSK_USE_PPROF (e.g. skia_use_pprof)");
+        SKIA_LOG_F("Must be compiled with -DSK_USE_PPROF (e.g. skia_use_pprof");
 #endif
     }
     if (!FLAGS_memprofile.isEmpty()) {
 #if defined(SK_USE_PPROF)
         HeapProfilerStart(FLAGS_memprofile[0]);
 #else
-        SK_ABORT("Must be compiled with -DSK_USE_PPROF (e.g. skia_use_pprof)");
+        SKIA_LOG_F("Must be compiled with -DSK_USE_PPROF (e.g. skia_use_pprof");
 #endif
     }
 

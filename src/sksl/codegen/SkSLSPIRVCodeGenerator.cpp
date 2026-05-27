@@ -5637,7 +5637,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, SPIRVBlob& ou
     } else if (ProgramConfig::IsCompute(program.fConfig->fKind)) {
         this->writeWord(SpvExecutionModelGLCompute, out);
     } else {
-        SK_ABORT("cannot write this kind of program to SPIR-V");
+        SK_ABORT("cannot write this kind of program to SPIR-V\n");
     }
     const Analysis::SpecializedFunctionKey mainKey{main, Analysis::kUnspecialized};
     SpvId entryPoint = fFunctionMap[mainKey];

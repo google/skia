@@ -25,10 +25,11 @@
  * However, debug logs would be omitted.
  */
 enum class SkLogPriority : int {
-    kError = 0,
-    kWarning = 1,
-    kInfo = 2,
-    kDebug = 3,
+    kFatal = 0,
+    kError = 1,
+    kWarning = 2,
+    kInfo = 3,
+    kDebug = 4,
 };
 
 #endif // SkLogPriority_DEFINED
