@@ -19,6 +19,7 @@
 #include "include/private/base/SkTo.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/base/SkBezierCurves.h"
+#include "src/core/SkPictureData.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkWriteBuffer.h"
@@ -47,7 +48,14 @@ SkPictureBackedGlyphDrawable::MakeFromBuffer(SkReadBuffer& buffer) {
     // Propagate the outer buffer's allow-SkSL setting to the picture decoder, using the flag on
     // the deserial procs.
     SkDeserialProcs procs;
-    procs.fAllowSkSL = buffer.allowSkSL();
+    procs.fAllowSkSL = false;
+    procs.fAllowTagsProc = [](SkFourByteTag tag, void*) -> bool {
+        return tag == SK_PICT_BUFFER_SIZE_TAG ||
+               tag == SK_PICT_FACTORY_TAG ||
+               tag == SK_PICT_PAINT_BUFFER_TAG ||
+               tag == SK_PICT_PATH_BUFFER_TAG ||
+               tag == SK_PICT_READER_TAG;
+    };
     sk_sp<SkPicture> picture = SkPicture::MakeFromData(pictureData.get(), &procs);
     if (!buffer.validate(picture != nullptr)) {
         return nullptr;
