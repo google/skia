@@ -149,7 +149,7 @@ def discover_dependencies(build_dir, targets):
     #     ../../../../../cipd/clang_win/lib/clang/18/include/x86gprintrin.h
     #     ../../../../../cipd/win_toolchain/VC/Tools/MSVC/14.39.33519/include/__msvc_bit_utils.hpp
     #     ../../../../../cipd/win_toolchain/VC/Tools/MSVC/14.39.33519/include/cctype
-    #     ../../../../../cipd/win_toolchain/win_sdk/Include/10.0.22621.0/ucrt/wchar.h
+    #     ../../../../../cipd/win_toolchain/Windows Kits/10/Include/10.0.22621.0/ucrt/wchar.h
     #     ../../../third_party/externals/dawn/src/tint/api/common/binding_point.h
     #     ../../../third_party/externals/dawn/src/tint/lang/core/constant/clone_context.h
     # If there's not a match, it's a simple message like:

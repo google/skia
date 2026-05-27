@@ -258,8 +258,7 @@ const char* DrawCommand::GetCommandString(OpType type) {
         case kSetMatrix_OpType: return "SetMatrix";
         case kSetM44_OpType: return "SetM44";
         default:
-            SkDebugf("OpType error 0x%08x\n", type);
-            SkASSERT(0);
+            SkDEBUGFAILF("OpType error 0x%08x\n", (unsigned int)type);
             break;
     }
     SkDEBUGFAIL("DrawType UNUSED\n");

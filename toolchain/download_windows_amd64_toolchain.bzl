@@ -24,7 +24,7 @@ clang_sha256 = "22c5907db053026cc2a8ff96d21c0f642a90d24d66c23c6d28ee7b1d572b82e8
 clang_url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-x86_64-pc-windows-msvc.tar.xz"
 
 win_toolchain_pkg = "skia/bots/win_toolchain"
-win_toolchain_tag = "version:15"
+win_toolchain_tag = "version:15"  # TODO(kjlubick) when updating to 16, update win_sdk path below
 win_toolchain_sha256 = "f3dfb040052661124470d959faf8350aef4c2da9b396ad191a2c922d7a01c43f"
 
 def _download_windows_amd64_toolchain_impl(ctx):
@@ -104,9 +104,12 @@ filegroup(
     if ctx.os.name.lower().find("windows") != -1:
         msvc_version = ctx.execute(["powershell.exe", "/c", "(Get-ChildItem -Path VC/Tools/MSVC | sort Name | select -Last 1).BaseName"]).stdout.rstrip()
         win_sdk_version = ctx.execute(["powershell.exe", "/c", "(Get-ChildItem -Path win_sdk/Include | sort Name | select -Last 1).BaseName"]).stdout.rstrip()
+        # win_sdk_version = ctx.execute(["powershell.exe", "/c", "(Get-ChildItem -Path Windows Kits/10/Include | sort Name | select -Last 1).BaseName"]).stdout.rstrip()
+
     else:
         msvc_version = ctx.execute(["bash", "-c", "ls VC/Tools/MSVC | sort | tail -1"]).stdout.rstrip()
         win_sdk_version = ctx.execute(["bash", "-c", "ls win_sdk/Include | sort | tail -1"]).stdout.rstrip()
+        # win_sdk_version = ctx.execute(["bash", "-c", "ls Windows Kits/10/Include | sort | tail -1"]).stdout.rstrip()
 
     # Write vars.bzl.
     ctx.file(
@@ -118,6 +121,8 @@ MSVC_LIB = "VC/Tools/MSVC/" + MSVC_VERSION + "/lib"
 WIN_SDK_VERSION = "%s"
 WIN_SDK_INCLUDE = "win_sdk/Include/" + WIN_SDK_VERSION
 WIN_SDK_LIB = "win_sdk/Lib/" + WIN_SDK_VERSION
+# WIN_SDK_INCLUDE = "Windows Kits/10/Include/" + WIN_SDK_VERSION
+# WIN_SDK_LIB = "Windows Kits/10/Lib/" + WIN_SDK_VERSION
 """ % (msvc_version, win_sdk_version),
         executable = False,
     )

@@ -83,6 +83,7 @@ struct TracingRect : public TracingShape {
 
 }  // namespace
 
+[[maybe_unused]]
 static SkScalar gTracingTestWorkSink = 1.0f;
 
 static void do_work(int howMuchWork) {

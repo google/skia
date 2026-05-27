@@ -23,13 +23,13 @@
 #include <dxgi1_4.h>
 #include <wrl/client.h>
 
-#define GR_D3D_CALL_ERRCHECK(X)                                         \
-    do {                                                                \
-        HRESULT result = X;                                             \
-        SkASSERT(SUCCEEDED(result));                                    \
-        if (!SUCCEEDED(result)) {                                       \
-            SkDebugf("Failed Direct3D call. Error: 0x%08lx\n", result); \
-        }                                                               \
+#define GR_D3D_CALL_ERRCHECK(X)                                                        \
+    do {                                                                               \
+        HRESULT result = X;                                                            \
+        SkASSERT(SUCCEEDED(result));                                                   \
+        if (!SUCCEEDED(result)) {                                                      \
+            SkDebugf("Failed Direct3D call. Error: 0x%08lx\n", (unsigned long)result); \
+        }                                                                              \
     } while (false)
 
 using namespace Microsoft::WRL;

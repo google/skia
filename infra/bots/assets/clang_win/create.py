@@ -20,24 +20,19 @@ sys.path.insert(0, INFRA_BOTS_DIR)
 import utils
 
 
-# Copied from https://cs.chromium.org/chromium/src/tools/clang/scripts/update.py
-CLANG_REVISION = 'llvmorg-18-init-17730-gf670112a'
-CLANG_SUB_REVISION = 5
+# From a Chromium checkout, run the following script and look for the file that it downloads.
+# $ tools/clang/scripts/update.py --output-dir /tmp/win_clang --host-os win
+# Downloading https://commondatastorage.googleapis.com/chromium-browser-clang/Win/$TAR_FILE
 
-PACKAGE_VERSION = '%s-%s' % (CLANG_REVISION, CLANG_SUB_REVISION)
-
-# (End copying)
-
-GS_URL = ('https://commondatastorage.googleapis.com/chromium-browser-clang'
-          '/Win/clang-%s.tgz' % PACKAGE_VERSION)
-
+TAR_FILE = "clang-llvmorg-23-init-10931-g20b6ec66-11.tar.xz"
+GS_URL = f'https://commondatastorage.googleapis.com/chromium-browser-clang/Win/{TAR_FILE}'
 
 def create_asset(target_dir):
   """Create the asset."""
   with utils.chdir(target_dir):
-    tarball = 'clang.tgz'
+    tarball = 'clang.tar.xz'
     subprocess.check_call(['wget', '-O', tarball, GS_URL])
-    subprocess.check_call(['tar', 'zxvf', tarball])
+    subprocess.check_call(['tar', 'xf', tarball])
     os.remove(tarball)
 
 

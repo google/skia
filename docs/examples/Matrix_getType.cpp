@@ -5,8 +5,8 @@ REG_FIDDLE(Matrix_getType, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkMatrix matrix;
     matrix.setAll(1, 0, 0,   0, 1, 0,    0, 0, 1);
-    SkDebugf("identity flags hex: %0x decimal: %d\n", matrix.getType(), matrix.getType());
+    SkDebugf("identity flags hex: %0x decimal: %d\n", (unsigned)matrix.getType(), matrix.getType());
     matrix.setAll(1, 0, 0,   0, 1, 0,    0, 0, .5f);
-    SkDebugf("set all  flags hex: %0x decimal: %d\n", matrix.getType(), matrix.getType());
+    SkDebugf("set all  flags hex: %0x decimal: %d\n", (unsigned)matrix.getType(), matrix.getType());
 }
 }  // END FIDDLE

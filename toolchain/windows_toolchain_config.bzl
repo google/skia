@@ -31,12 +31,21 @@ load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 # time required to download and extract these archives, we've opted to hard-code
 # the versions and paths here.
 #load("@clang_windows_amd64//:vars.bzl", "MSVC_INCLUDE", "MSVC_LIB", "WIN_SDK_INCLUDE", "WIN_SDK_LIB")
+# TODO(kjlubick) use commented out versions after updating to new toolchain
+
 MSVC_VERSION = "14.39.33519"
+
+#MSVC_VERSION = "14.51.36231"
 MSVC_INCLUDE = "VC/Tools/MSVC/" + MSVC_VERSION + "/include"
 MSVC_LIB = "VC/Tools/MSVC/" + MSVC_VERSION + "/lib"
+
 WIN_SDK_VERSION = "10.0.22621.0"
+
+# WIN_SDK_VERSION = "10.0.26100.0"
 WIN_SDK_INCLUDE = "win_sdk/Include/" + WIN_SDK_VERSION
 WIN_SDK_LIB = "win_sdk/Lib/" + WIN_SDK_VERSION
+# WIN_SDK_INCLUDE = "Windows Kits/10/Include/" + WIN_SDK_VERSION
+# WIN_SDK_LIB = "Windows Kits/10/Lib/" + WIN_SDK_VERSION
 
 # The location of the downloaded clang toolchain.
 CLANG_TOOLCHAIN = "external/clang_windows_amd64"

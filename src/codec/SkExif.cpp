@@ -26,6 +26,7 @@
 #include <memory>
 #include <utility>
 
+[[maybe_unused]]
 static bool gForceSkExifCpp = true;
 
 namespace SkExif {

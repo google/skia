@@ -7,13 +7,14 @@
 
 
 """
-Create an updated VS toolchain
+This asset contains MSVC and a Windows SDK from a Visual Studio installation
 
-Before you can run this script, you need a collated VC toolchain + Windows SDK.
-To generate that, run depot_tools/win_toolchain/package_from_installed.py
+Before you can run this script, you need a collated VC toolchain + Windows SDK
+created from depot_tools/win_toolchain/package_from_installed.py
 That script pulls all of the compiler and SDK bits from your locally installed
 version of Visual Studio. The comments in that script include instructions on
 which components need to be installed (C++, ARM64, etc...)
+See https://g-issues.skia.org/issues/514697001#comment2 for more details.
 
 That script produces a .zip file with a SHA filename. Unzip that file, then
 pass the unzipped directory as the src_dir to this script.
@@ -64,10 +65,6 @@ def filter_toolchain_files(dirname, files):
 
 
 def main():
-  if sys.platform != 'win32':
-    print('This script only runs on Windows.', file=sys.stderr)
-    sys.exit(1)
-
   parser = argparse.ArgumentParser()
   parser.add_argument('--target_dir', '-t', required=True)
   args = parser.parse_args()
