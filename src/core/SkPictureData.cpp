@@ -18,6 +18,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkAutoMalloc.h"
+#include "src/core/SkDebugUtils.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkPictureRecord.h"
 #include "src/core/SkPtrRecorder.h"
@@ -309,6 +310,11 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
                                    const SkDeserialProcs& procs,
                                    SkTypefacePlayback* topLevelTFPlayback,
                                    int recursionLimit) {
+    if (procs.fAllowTagsProc && !procs.fAllowTagsProc(tag, procs.fAllowTagsCtx)) {
+        // Typefaces are always set but if there's 0 of them, we won't mark the stream as invalid
+        // if the typeface tag is not allowed.
+        return size == 0;
+    }
     switch (tag) {
         case SK_PICT_READER_TAG:
             SkASSERT(nullptr == fOpData);
@@ -456,6 +462,15 @@ bool new_array_from_buffer(SkReadBuffer& buffer,
 }
 
 void SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t size) {
+#if defined(SK_DUMP_TAGS)
+    SkDebugf("parseBufferTag ");
+    SkDumpTag(tag);
+    SkDebugf(" size %u\n", size);
+#endif
+    if (!buffer.allowTags(tag)) {
+        buffer.validate(size == 0);
+        return;
+    }
     switch (tag) {
         case SK_PICT_PAINT_BUFFER_TAG: {
             if (!buffer.validate(SkTFitsIn<int>(size))) {

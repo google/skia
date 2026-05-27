@@ -11,6 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkFlattenable.h"
+#include "include/core/SkFourByteTag.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathEffect.h"
@@ -185,6 +186,13 @@ public:
 
     bool allowSkSL() const { return fAllowSkSL; }
     void setAllowSkSL(bool allow) { fAllowSkSL = allow; }
+
+    bool allowTags(SkFourByteTag tag) const {
+        if (!fProcs.fAllowTagsProc) {
+            return true;
+        }
+        return fProcs.fAllowTagsProc(tag, fProcs.fAllowTagsCtx);
+    }
 
     /**
      *  If isValid is false, sets the buffer to be "invalid". Returns true if the buffer
