@@ -15,10 +15,12 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
+#include "include/core/SkTextBlob.h"
 #include "include/utils/SkCustomTypeface.h"
 #include "src/core/SkFontPriv.h"
 #include "tools/Resources.h"
 #include "tools/fonts/FontToolUtils.h"
+
 
 static sk_sp<SkDrawable> make_drawable(const SkPath& path) {
     const auto bounds = path.computeTightBounds();
@@ -73,8 +75,6 @@ static sk_sp<SkTypeface> make_tf() {
     return builder.detach();
 }
 
-#include "include/core/SkTextBlob.h"
-
 static sk_sp<SkTypeface> round_trip(sk_sp<SkTypeface> tf) {
     auto data = tf->serialize();
     SkMemoryStream stream(data->data(), data->size());
@@ -90,9 +90,8 @@ public:
     UserFontGM() {}
 
     void onOnceBeforeDraw() override {
-        fTF = make_tf();
         // test serialization
-        fTF = round_trip(fTF);
+        fTF = round_trip(make_tf());
     }
 
     static sk_sp<SkTextBlob> make_blob(sk_sp<SkTypeface> tf, float size, float* spacing) {
