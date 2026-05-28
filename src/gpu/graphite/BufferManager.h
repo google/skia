@@ -351,6 +351,10 @@ public:
     // for recording buffer data for the next Recording.
     [[nodiscard]] bool transferToRecording(Recording*);
 
+#if defined(GPU_TEST_UTILS)
+    void testingOnly_onFailedBuffer() { this->onFailedBuffer(); }
+#endif
+
 private:
     friend class BufferSubAllocator;
 
