@@ -737,7 +737,7 @@ DEF_TEST(canvas_savelayer_destructor, reporter) {
 }
 
 DEF_TEST(Canvas_saveLayer_colorSpace, reporter) {
-    SkColor pixels[1];
+    SkColor pixels[1] = { SK_ColorBLACK };
     const SkImageInfo info = SkImageInfo::MakeN32(1, 1, kOpaque_SkAlphaType);
     SkPixmap pm(info, pixels, sizeof(SkColor));
 

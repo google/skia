@@ -67,6 +67,36 @@ Configure and Compile Skia with MSAN
     bin/gn gen out/msan
     ninja -C out/msan
 
+When running `dm` under MSAN, you'll want to include `--nogpu` because MSAN won't have
+instrumented driver memory and such and will flag unrelated issues.
+
+### Symbolizing MSAN Traces
+
+By default, MSan will print hexadecimal addresses in stack traces. To see function names and line
+numbers, you must provide the path to `llvm-symbolizer` via an environment variable.
+
+<!--?prettify lang=sh?-->
+
+    CLANGDIR="${HOME}/clang"
+    export MSAN_SYMBOLIZER_PATH="${CLANGDIR}/bin/llvm-symbolizer"
+    ./out/msan/dm ...
+
+### Stack Overflow during MSAN Reporting
+
+If you encounter a stack overflow (segfault) while MSAN is trying to report an error, it is likely
+because `libunwind` was itself instrumented with MSAN. This causes infinite recursion during
+stack unwinding.
+
+While our toolchain build script has been updated to fix this, you may need to apply a workaround
+to an existing toolchain:
+
+1. Locate the `msan` directory in your clang asset (e.g., `~/clang/msan`).
+2. Delete the instrumented unwinder files:
+   `rm ~/clang/msan/libunwind.so* ~/clang/msan/libunwind.a`
+3. Force a relink of your binary (e.g., `rm out/msan/dm && ninja -C out/msan dm`).
+
+This will force the loader to use the system's uninstrumented `libunwind`.
+
 Configure and Compile Skia with ASAN
 ------------------------------------
 

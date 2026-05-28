@@ -43,7 +43,7 @@ SkBase64::Error SkBase64::Decode(const void* srcv, size_t srcLength, void* dstv,
     bool padThree = false;
     char unsigned const * const end = src + srcLength;
     while (src < end) {
-        unsigned char bytes[4];
+        unsigned char bytes[4] = {0, 0, 0, 0};
         int byte = 0;
         do {
             unsigned char srcByte = *src++;

@@ -102,10 +102,21 @@ RUN cp -r tsan_out/lib ${TARGET_DIR}/tsan
 # We would be following the instructions from
 # https://github.com/google/sanitizers/wiki/MemorySanitizerLibcxxHowTo
 # but those are currently out of date (https://github.com/google/sanitizers/issues/1574)
+
+# It is important that libunwind NOT be instrumented with MSAN, otherwise
+# it can lead to infinite recursion during stack unwinding.
+RUN mkdir msan_unwind_out && \
+    cmake -G Ninja -S runtimes -B msan_unwind_out \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DLLVM_ENABLE_RUNTIMES="libunwind"
+
+RUN ninja -C msan_unwind_out unwind
+RUN cp -r msan_unwind_out/lib ${TARGET_DIR}/msan
+
 RUN mkdir msan_out && \
     cmake -GNinja -S runtimes -B msan_out \
     -DCMAKE_BUILD_TYPE=Release \
-    -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind;compiler-rt" \
+    -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;compiler-rt" \
     -DLLVM_USE_SANITIZER=MemoryWithOrigins
 
 RUN ninja -C msan_out cxx cxxabi
