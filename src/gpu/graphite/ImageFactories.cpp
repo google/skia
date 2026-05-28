@@ -18,6 +18,7 @@
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
 #include "include/gpu/graphite/YUVABackendTextures.h"
+#include "include/private/base/SkLog.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/gpu/RefCntedCallback.h"
@@ -25,7 +26,6 @@
 #include "src/gpu/graphite/Image_Base_Graphite.h"
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/Image_YUVA_Graphite.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
@@ -100,7 +100,7 @@ sk_sp<SkImage> WrapTexture(Recorder* recorder,
     sk_sp<Texture> texture =
             recorder->priv().resourceProvider()->createWrappedTexture(backendTex, label);
     if (!texture) {
-        SKGPU_LOG_W("Texture creation failed");
+        SKIA_LOG_W("Texture creation failed");
         return nullptr;
     }
     texture->setReleaseCallback(std::move(releaseHelper));
@@ -113,12 +113,12 @@ sk_sp<SkImage> WrapTexture(Recorder* recorder,
 
     if (genMipmaps == GenerateMipmapsFromBase::kYes) {
         if (view.proxy()->mipmapped() == skgpu::Mipmapped::kNo) {
-            SKGPU_LOG_W("Failed SkImage:::WrapTexture because asked to generate mipmaps for "
+            SKIA_LOG_W("Failed SkImage:::WrapTexture because asked to generate mipmaps for "
                         "nonmipmapped texture");
             return nullptr;
         }
         if (!GenerateMipmaps(recorder, /*drawContext=*/nullptr, view.refProxy())) {
-            SKGPU_LOG_W("Failed SkImage::WrapTexture. Could not generate mipmaps.");
+            SKIA_LOG_W("Failed SkImage::WrapTexture. Could not generate mipmaps.");
             return nullptr;
         }
     }
@@ -191,7 +191,7 @@ sk_sp<SkImage> WrapTexture(Recorder* recorder,
     sk_sp<Texture> texture =
             recorder->priv().resourceProvider()->createWrappedTexture(backendTex, label);
     if (!texture) {
-        SKGPU_LOG_W("Texture creation failed");
+        SKIA_LOG_W("Texture creation failed");
         return nullptr;
     }
     texture->setReleaseCallback(std::move(releaseHelper));
@@ -199,12 +199,12 @@ sk_sp<SkImage> WrapTexture(Recorder* recorder,
     TextureProxyView view(TextureProxy::Wrap(std::move(texture)), swizzle, origin);
     if (genMipmaps == GenerateMipmapsFromBase::kYes) {
         if (view.proxy()->mipmapped() == skgpu::Mipmapped::kNo) {
-            SKGPU_LOG_W("Failed SkImage:::WrapTexture because asked to generate mipmaps for "
+            SKIA_LOG_W("Failed SkImage:::WrapTexture because asked to generate mipmaps for "
                         "nonmipmapped texture");
             return nullptr;
         }
         if (!GenerateMipmaps(recorder, /*drawContext=*/nullptr, view.refProxy())) {
-            SKGPU_LOG_W("Failed SkImage::WrapTexture. Could not generate mipmaps.");
+            SKIA_LOG_W("Failed SkImage::WrapTexture. Could not generate mipmaps.");
             return nullptr;
         }
     }
@@ -270,7 +270,7 @@ sk_sp<SkImage> PromiseTextureFrom(Recorder* recorder,
     auto releaseHelper = skgpu::RefCntedCallback::Make(imageReleaseProc, imageContext);
 
     if (!recorder) {
-        SKGPU_LOG_W("Null Recorder");
+        SKIA_LOG_W("Null Recorder");
         return nullptr;
     }
 
@@ -278,13 +278,13 @@ sk_sp<SkImage> PromiseTextureFrom(Recorder* recorder,
 
     SkImageInfo info = SkImageInfo::Make(dimensions, colorInfo);
     if (!SkImageInfoIsValid(info)) {
-        SKGPU_LOG_W("Invalid SkImageInfo");
+        SKIA_LOG_W("Invalid SkImageInfo");
         return nullptr;
     }
 
     const TextureFormat format = TextureInfoPriv::ViewFormat(textureInfo);
     if (!AreColorTypeAndFormatCompatible(colorInfo.colorType(), format)) {
-        SKGPU_LOG_W("Incompatible SkColorType and TextureInfo");
+        SKIA_LOG_W("Incompatible SkColorType and TextureInfo");
         return nullptr;
     }
 
@@ -423,7 +423,7 @@ static sk_sp<SkImage> generate_picture_texture(Recorder* recorder,
                                            img->props());
 
     if (!surface) {
-        SKGPU_LOG_E("Failed to create Surface");
+        SKIA_LOG_E("Failed to create Surface");
         return nullptr;
     }
 
@@ -611,7 +611,7 @@ sk_sp<SkImage> TextureFromYUVATextures(Recorder* recorder,
         sk_sp<Texture> texture = recorder->priv().resourceProvider()->createWrappedTexture(
                 yuvaTextures.planeTexture(i), labelStr);
         if (!texture) {
-            SKGPU_LOG_W("Failed to wrap backend texture for YUVA plane %d", i);
+            SKIA_LOG_W("Failed to wrap backend texture for YUVA plane %d", i);
             return nullptr;
         }
         texture->setReleaseCallback(releaseHelper);

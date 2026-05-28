@@ -8,9 +8,9 @@
 #ifndef skgpu_graphite_MtlCommandBuffer_DEFINED
 #define skgpu_graphite_MtlCommandBuffer_DEFINED
 
+#include "include/private/base/SkLog.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/DrawPass.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/mtl/MtlResourceProvider.h"
 
 #include <memory>
@@ -54,7 +54,7 @@ public:
             [(*fCommandBuffer) waitUntilCompleted];
         }
         if (!this->isFinished()) {
-            SKGPU_LOG_E("Unfinished command buffer status: %d",
+            SKIA_LOG_E("Unfinished command buffer status: %d",
                         (int)(*fCommandBuffer).status);
             SkASSERT(false);
         }

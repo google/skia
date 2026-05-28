@@ -486,7 +486,7 @@ std::unique_ptr<DrawPass> DrawListLayer::snapDrawPass(Recorder* recorder,
         renderStep->writeVertices(&drawWriter, drawParams, uniformSsboIndex);
 
         if (bufferMgr->hasMappingFailed()) {
-            SKGPU_LOG_W("Failed to write necessary vertex/instance data for DrawPass, dropping!");
+            SKIA_LOG_W("Failed to write necessary vertex/instance data for DrawPass, dropping!");
             this->reset(LoadOp::kLoad);
             return false;
         }

@@ -8,8 +8,8 @@
 #include "src/gpu/graphite/dawn/DawnCommandBuffer.h"
 
 #include "include/gpu/graphite/TextureInfo.h"
+#include "include/private/base/SkLog.h"
 #include "src/gpu/graphite/ContextUtils.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UniformManager.h"
@@ -69,7 +69,7 @@ DawnCommandBuffer::~DawnCommandBuffer() {}
 
 bool DawnCommandBuffer::startStatsQuery(GpuStatsFlags) {
     if (fHasStatsQuery) {
-        SKGPU_LOG_W(
+        SKIA_LOG_W(
                 "startTimerQuery called more than once for the same command "
                 "buffer. Currently, stats queries are only supported when "
                 "each recording gets its own submission.");
@@ -82,7 +82,7 @@ bool DawnCommandBuffer::startStatsQuery(GpuStatsFlags) {
                                                             AccessPattern::kHostVisible,
                                                             "TimerQuery");
     if (!buffer) {
-        SKGPU_LOG_W("Failed to create buffer for resolving results, timer query will "
+        SKIA_LOG_W("Failed to create buffer for resolving results, timer query will "
                     "not be reported.");
         return false;
     }
@@ -93,7 +93,7 @@ bool DawnCommandBuffer::startStatsQuery(GpuStatsFlags) {
                                                                AccessPattern::kHostVisible,
                                                                "TimerQueryXfer");
         if (!xferBuffer) {
-            SKGPU_LOG_W("Failed to create buffer for transferring timestamp results, timer "
+            SKIA_LOG_W("Failed to create buffer for transferring timestamp results, timer "
                         "query will not be reported.");
             return false;
         }
@@ -106,7 +106,7 @@ bool DawnCommandBuffer::startStatsQuery(GpuStatsFlags) {
         descriptor.nextInChain = nullptr;
         querySet = fSharedContext->device().CreateQuerySet(&descriptor);
         if (!querySet) {
-            SKGPU_LOG_W("Failed to create query set, timer query will not be reported.");
+            SKIA_LOG_W("Failed to create query set, timer query will not be reported.");
             return false;
         }
     }
@@ -174,7 +174,7 @@ std::optional<GpuStats> DawnCommandBuffer::gpuStats() {
     }
     uint64_t* results = static_cast<uint64_t*>(buffer->map());
     if (!results) {
-        SKGPU_LOG_W("Failed to get timer query results because buffer couldn't be mapped.");
+        SKIA_LOG_W("Failed to get timer query results because buffer couldn't be mapped.");
         return {};
     }
     if (results[1] < results[0]) {
@@ -602,7 +602,7 @@ bool DawnCommandBuffer::doBlitWithDraw(const wgpu::RenderPassEncoder& renderEnco
             fResourceProvider->findOrCreateBlitWithDrawEncoder(frontendRenderPassDescKey,
                                                                srcSampleCount);
     if (!blit) {
-        SKGPU_LOG_E("Unable to create pipeline to blit with draw");
+        SKIA_LOG_E("Unable to create pipeline to blit with draw");
         return false;
     }
 
@@ -763,7 +763,7 @@ bool DawnCommandBuffer::addDrawPass(DrawPass* drawPass) {
                 break;
             }
             case DrawPassCommands::Type::kAddBarrier: {
-                SKGPU_LOG_E("DawnCommandBuffer does not support the addition of barriers.");
+                SKIA_LOG_E("DawnCommandBuffer does not support the addition of barriers.");
                 break;
             }
         }

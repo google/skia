@@ -9,6 +9,7 @@
 
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/gpu/graphite/dawn/DawnGraphiteTypes.h"
+#include "include/private/base/SkLog.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/SkSLToBackend.h"
@@ -16,7 +17,6 @@
 #include "src/gpu/graphite/Attribute.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/ShaderInfo.h"
@@ -530,7 +530,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
                         sk_sp<Sampler> immutableSampler =
                                 resourceProvider->findOrCreateCompatibleSampler(samplerDesc);
                         if (!immutableSampler) {
-                            SKGPU_LOG_E("Failed to find/create immutable sampler for pipeline");
+                            SKIA_LOG_E("Failed to find/create immutable sampler for pipeline");
                             return {};
                         }
                         sk_sp<DawnSampler> dawnImmutableSampler = sk_ref_sp<DawnSampler>(
@@ -701,7 +701,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
                                                          wgpu::StringView message) {
                     if (status != wgpu::CreatePipelineAsyncStatus::Success) {
                         asyncCreationPtr->fErrorMessage = std::string(message.data, message.length);
-                        SKGPU_LOG_E("Failed to create render pipeline (%d): %s",
+                        SKIA_LOG_E("Failed to create render pipeline (%d): %s",
                                     static_cast<int>(status),
                                     asyncCreationPtr->fErrorMessage.c_str());
                         // invalidate AsyncPipelineCreation pointer to signal that this pipeline has

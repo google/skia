@@ -11,9 +11,9 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/base/SkLog.h"
 #include "src/gpu/Token.h"
 #include "src/gpu/graphite/DebugUtils.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 
 #include <functional>

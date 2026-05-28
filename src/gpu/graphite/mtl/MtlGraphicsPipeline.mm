@@ -9,10 +9,10 @@
 
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
+#include "include/private/base/SkLog.h"
 #include "src/gpu/graphite/Attribute.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/ShaderInfo.h"
@@ -427,7 +427,7 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(const MtlSharedContext* sha
             [sharedContext->device() newRenderPipelineStateWithDescriptor:psoDescriptor.get()
                                                                     error:&error]);
     if (!pso) {
-        SKGPU_LOG_E("Render pipeline creation failure:\n%s", error.debugDescription.UTF8String);
+        SKIA_LOG_E("Render pipeline creation failure:\n%s", error.debugDescription.UTF8String);
         return nullptr;
     }
 

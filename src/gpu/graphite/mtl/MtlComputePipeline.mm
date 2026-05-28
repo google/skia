@@ -9,9 +9,9 @@
 
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ShaderErrorHandler.h"
+#include "include/private/base/SkLog.h"
 #include "src/gpu/graphite/ComputePipelineDesc.h"
 #include "src/gpu/graphite/ContextUtils.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/mtl/MtlGraphiteUtils.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
@@ -93,7 +93,7 @@ sk_sp<MtlComputePipeline> MtlComputePipeline::Make(const MtlSharedContext* share
                                        reflection:nil
                                             error:&error]);
     if (!pso) {
-        SKGPU_LOG_E("Compute pipeline creation failure:\n%s", error.debugDescription.UTF8String);
+        SKIA_LOG_E("Compute pipeline creation failure:\n%s", error.debugDescription.UTF8String);
         return nullptr;
     }
 

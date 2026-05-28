@@ -6,8 +6,8 @@
  */
 #include "src/gpu/graphite/DrawPass.h"
 
+#include "include/private/base/SkLog.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/PipelineCreationTask.h"
@@ -60,7 +60,7 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
     for (const GraphicsPipelineHandle& handle : fPipelineHandles) {
         sk_sp<GraphicsPipeline> pipeline = resourceProvider->resolveHandle(handle);
         if (!pipeline) {
-            SKGPU_LOG_W("Failed to create GraphicsPipeline for draw in RenderPass. Dropping pass!");
+            SKIA_LOG_W("Failed to create GraphicsPipeline for draw in RenderPass. Dropping pass!");
             return false;
         }
         fFullPipelines.push_back(std::move(pipeline));
@@ -78,7 +78,7 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
         // TODO(b/409888039): Once TextureProxies track their dependendent tasks to include in all
         // Recordings, this "should" be able to changed to asserts.
         if (!fSampledTextures[i]->isInstantiated() && !fSampledTextures[i]->isLazy()) {
-            SKGPU_LOG_W("Cannot sample from an uninstantiated TextureProxy, label %s",
+            SKIA_LOG_W("Cannot sample from an uninstantiated TextureProxy, label %s",
                         fSampledTextures[i]->label());
             return false;
         }

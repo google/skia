@@ -11,8 +11,8 @@
 #include "include/core/SkSpan.h"
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "include/gpu/vk/VulkanTypes.h"
+#include "include/private/base/SkLog.h"
 #include "src/gpu/graphite/DescriptorData.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/vk/VulkanInterface.h"
 #include "src/sksl/codegen/SkSLNativeShader.h"
 

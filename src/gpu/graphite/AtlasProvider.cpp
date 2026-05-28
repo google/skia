@@ -10,10 +10,10 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/TextureInfo.h"
+#include "include/private/base/SkLog.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ClipAtlasManager.h"
 #include "src/gpu/graphite/ComputePathAtlas.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RasterPathAtlas.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/RendererProvider.h"
@@ -113,7 +113,7 @@ void AtlasProvider::freeGpuResources() {
 
 void AtlasProvider::recordUploads(DrawContext* dc) {
     if (!fTextAtlasManager->recordUploads(dc)) {
-        SKGPU_LOG_E("TextAtlasManager uploads have failed -- may see invalid results.");
+        SKIA_LOG_E("TextAtlasManager uploads have failed -- may see invalid results.");
     }
 
     if (fRasterPathAtlas) {

@@ -305,7 +305,7 @@ sk_sp<VulkanDescriptorSet> VulkanResourceProvider::findOrCreateDescriptorSet(
         auto descSet =
                 add_new_desc_set_to_cache(context, pool, key, fResourceCache.get());
         if (!descSet) {
-            SKGPU_LOG_W("Descriptor set allocation %u of %u was unsuccessful; no more sets will be"
+            SKIA_LOG_W("Descriptor set allocation %u of %u was unsuccessful; no more sets will be"
                         "allocated from this pool.", i, numSets);
             break;
         }
@@ -483,7 +483,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanResourceProvider::findOrCreateLoadMSAAPipeli
         const RenderPassDesc& renderPassDesc) {
     if (renderPassDesc.fColorResolveAttachment.fFormat == TextureFormat::kUnsupported ||
         renderPassDesc.fColorAttachment.fFormat == TextureFormat::kUnsupported) {
-        SKGPU_LOG_E("Loading MSAA from resolve texture requires valid color & resolve attachment");
+        SKIA_LOG_E("Loading MSAA from resolve texture requires valid color & resolve attachment");
         return nullptr;
     }
 
@@ -501,7 +501,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanResourceProvider::findOrCreateLoadMSAAPipeli
         fLoadMSAAProgram =
                 VulkanGraphicsPipeline::CreateLoadMSAAProgram(this->vulkanSharedContext());
         if (!fLoadMSAAProgram) {
-            SKGPU_LOG_E("Failed to initialize MSAA load pipeline creation structure(s)");
+            SKIA_LOG_E("Failed to initialize MSAA load pipeline creation structure(s)");
             return nullptr;
         }
     }
@@ -509,7 +509,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanResourceProvider::findOrCreateLoadMSAAPipeli
     sk_sp<VulkanGraphicsPipeline> pipeline = VulkanGraphicsPipeline::MakeLoadMSAAPipeline(
             this->nonConstVulkanSharedContext(), *fLoadMSAAProgram, renderPassDesc);
     if (!pipeline) {
-        SKGPU_LOG_E("Failed to create MSAA load pipeline");
+        SKIA_LOG_E("Failed to create MSAA load pipeline");
         return nullptr;
     }
 
@@ -561,7 +561,7 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* h
             VkFormatToTextureFormat(hwbFormatProps.format) == TextureFormat::kUnsupported;
 #if defined(SK_DEBUG)
     if (importAsExternalFormat && hwbFormatProps.format != VK_FORMAT_UNDEFINED) {
-        SKGPU_LOG_D("Ignoring AHardwareBuffer VkFormat(%d) because it is not supported by graphite."
+        SKIA_LOG_D("Ignoring AHardwareBuffer VkFormat(%d) because it is not supported by graphite."
                     " Falling back to importing as external format.\n", hwbFormatProps.format);
     }
 #endif
@@ -609,7 +609,7 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* h
     // later on as a result of those checks.
     TextureInfo texInfo = TextureInfos::MakeVulkan(vkTexInfo);
     if (isRenderable && (importAsExternalFormat || !vkCaps.isRenderable(texInfo))) {
-        SKGPU_LOG_W("Renderable texture requested from an AHardwareBuffer which uses a VkFormat "
+        SKIA_LOG_W("Renderable texture requested from an AHardwareBuffer which uses a VkFormat "
                     "that Skia cannot render to (VkFormat: %d).\n",  hwbFormatProps.format);
         return {};
     }
@@ -619,7 +619,7 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* h
                                     !vkCaps.isCopyableDst(texInfo) ||
                                     !vkCaps.isTexturable(texInfo))) {
         if (isRenderable) {
-            SKGPU_LOG_W("VkFormat %d does not support the necessary format features. Because a "
+            SKIA_LOG_W("VkFormat %d does not support the necessary format features. Because a "
                         "renderable texture was requested, we cannot fall back to importing with "
                         "an external format.\n", hwbFormatProps.format);
             return {};
@@ -640,7 +640,7 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* h
     if (importAsExternalFormat || skgpu::VkFormatNeedsYcbcrSampler(hwbFormatProps.format)) {
         GetYcbcrConversionInfoFromFormatProps(&ycbcrInfo, hwbFormatProps);
         if (!ycbcrInfo.isValid()) {
-            SKGPU_LOG_W("Failed to create valid YCbCr conversion information from hardware buffer"
+            SKIA_LOG_W("Failed to create valid YCbCr conversion information from hardware buffer"
                         "format properties.\n");
             return {};
         }

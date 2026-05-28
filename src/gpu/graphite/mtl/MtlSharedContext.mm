@@ -10,9 +10,9 @@
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/TextureInfo.h"
+#include "include/private/base/SkLog.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/GlobalCache.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/mtl/MtlCommandBuffer.h"
 #include "src/gpu/graphite/mtl/MtlResourceProvider.h"
 #include "src/gpu/graphite/mtl/MtlTexture.h"
@@ -26,11 +26,11 @@ sk_sp<SharedContext> MtlSharedContext::Make(const MtlBackendContext& context,
     if (@available(macOS 12, iOS 13.0, tvOS 13.0, *)) {
         // no warning needed
     } else {
-        SKGPU_LOG_E("Skia's Graphite backend no longer supports this OS version.");
+        SKIA_LOG_E("Skia's Graphite backend no longer supports this OS version.");
 #ifdef SK_BUILD_FOR_IOS
-        SKGPU_LOG_E("Minimum supported version is iOS/tvOS 13.0.");
+        SKIA_LOG_E("Minimum supported version is iOS/tvOS 13.0.");
 #else
-        SKGPU_LOG_E("Minimum supported version is MacOS 12.");
+        SKIA_LOG_E("Minimum supported version is MacOS 12.");
 #endif
         return nullptr;
     }

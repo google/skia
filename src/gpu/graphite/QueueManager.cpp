@@ -10,6 +10,7 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/Recording.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkLog.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/RefCntedCallback.h"
@@ -18,7 +19,6 @@
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/GpuWorkSubmission.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/gpu/graphite/UploadBufferManager.h"
@@ -69,7 +69,7 @@ bool QueueManager::setupCommandBuffer(ResourceProvider* resourceProvider, Protec
         if (fCurrentCommandBuffer->isProtected() != isProtected) {
             // If we're doing things where we are switching between using protected and unprotected
             // command buffers, it is our job to make sure previous work was submitted.
-            SKGPU_LOG_E("Trying to use a CommandBuffer with protectedness that differs from our "
+            SKIA_LOG_E("Trying to use a CommandBuffer with protectedness that differs from our "
                         "current active command buffer.");
             return false;
         }
@@ -97,7 +97,7 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
             GpuStatsFlags unsupportedStatsFlags = activeStatsFlags & ~context->supportedGpuStats();
             if (unsupportedStatsFlags != GpuStatsFlags::kNone) {
                 activeStatsFlags &= ~unsupportedStatsFlags;
-                SKGPU_LOG_W("Requested GpuStats reporting (0x%x) but not supported by Context.",
+                SKIA_LOG_W("Requested GpuStats reporting (0x%x) but not supported by Context.",
                             static_cast<uint32_t>(unsupportedStatsFlags));
             }
         }
@@ -111,7 +111,7 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
         if (callback) { callback->setFailureResult(); }             \
         info.fRecording->priv().setFailureResultForFinishedProcs(); \
         info.fRecording->priv().deinstantiateVolatileLazyProxies(); \
-        SKGPU_LOG_E(fmt, ##__VA_ARGS__);                            \
+        SKIA_LOG_E(fmt, ##__VA_ARGS__);                            \
         return status;                                              \
     } do {} while(false)
 #define SIMULATE_FAIL(status) \
@@ -247,17 +247,17 @@ bool QueueManager::addTask(Task* task,
                            Protected isProtected) {
     SkASSERT(task);
     if (!task) {
-        SKGPU_LOG_E("No valid Task passed into addTask call");
+        SKIA_LOG_E("No valid Task passed into addTask call");
         return false;
     }
 
     if (!this->setupCommandBuffer(context->priv().resourceProvider(), isProtected)) {
-        SKGPU_LOG_E("CommandBuffer creation failed");
+        SKIA_LOG_E("CommandBuffer creation failed");
         return false;
     }
 
     if (task->addCommands(context, fCurrentCommandBuffer.get(), {}) == Task::Status::kFail) {
-        SKGPU_LOG_E("Adding Task commands to the CommandBuffer has failed");
+        SKIA_LOG_E("Adding Task commands to the CommandBuffer has failed");
         return false;
     }
 
@@ -276,7 +276,7 @@ bool QueueManager::addFinishInfo(const InsertFinishInfo& info,
         if (callback) {
             callback->setFailureResult();
         }
-        SKGPU_LOG_E("CommandBuffer creation failed");
+        SKIA_LOG_E("CommandBuffer creation failed");
         return false;
     }
 
@@ -310,13 +310,13 @@ bool QueueManager::submitToGpu(const SubmitInfo& submitInfo) {
         // We warn because this probably representative of a bad client state, where they don't
         // need to submit but didn't notice, but technically the submit itself is fine (no-op), so
         // we return true.
-        SKGPU_LOG_D("Submit called with no active command buffer!");
+        SKIA_LOG_D("Submit called with no active command buffer!");
         return true;
     }
 
 #ifdef SK_DEBUG
     if (!fCurrentCommandBuffer->hasWork()) {
-        SKGPU_LOG_D("Submitting empty command buffer!");
+        SKIA_LOG_D("Submitting empty command buffer!");
     }
 #endif
 

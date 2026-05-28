@@ -16,10 +16,10 @@
 #include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
+#include "include/private/base/SkLog.h"
 #include "src/core/SkYUVAInfoLocation.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/Image_Graphite.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
@@ -158,7 +158,7 @@ sk_sp<Image_YUVA> Image_YUVA::Make(const Caps* caps,
             // The alpha channel is allowed to be not provided, set it to an empty view
             channelProxies[i] = {};
         } else {
-            SKGPU_LOG_W("YUVA channel %d does not have a valid location", i);
+            SKIA_LOG_W("YUVA channel %d does not have a valid location", i);
             return nullptr;
         }
     }

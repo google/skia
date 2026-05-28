@@ -7,13 +7,13 @@
 
 #include "src/gpu/graphite/PaintParamsKey.h"
 
+#include "include/private/base/SkLog.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/base/SkBase64.h"
 #include "src/base/SkStringView.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 
 using namespace skia_private;
@@ -95,7 +95,7 @@ ShaderNode* PaintParamsKey::createNode(const ShaderCodeDictionary* dict,
 
     const ShaderSnippet* entry = dict->getEntry(id);
     if (!entry) {
-        SKGPU_LOG_E("Unknown snippet ID in key: %d", id);
+        SKIA_LOG_E("Unknown snippet ID in key: %d", id);
         return nullptr;
     }
 

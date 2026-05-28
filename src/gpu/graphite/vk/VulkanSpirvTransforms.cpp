@@ -12,7 +12,7 @@
 #include "src/sksl/spirv.h"
 
 #ifdef SK_DEBUG
-#include "src/gpu/graphite/Log.h"
+#include "include/private/base/SkLog.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/codegen/SkSLSPIRVValidator.h"
 #endif
@@ -510,7 +510,7 @@ SkSL::NativeShader TransformSPIRV(const SkSL::NativeShader& spirv,
     // do this on debug builds.
     static SkSL::Compiler compiler;
     if (!SkSL::ValidateSPIRV(compiler.errorReporter(), {spirv.fBinary})) {
-        SKGPU_LOG_E("SPIR-V transformations yielded invalid SPIR-V.");
+        SKIA_LOG_E("SPIR-V transformations yielded invalid SPIR-V.");
     }
 #endif
 

@@ -12,12 +12,12 @@
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkLog.h"
 #include "include/private/base/SkPoint_impl.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkChecksum.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/CommandBuffer.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/Resource.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
@@ -162,7 +162,7 @@ const Texture* RecordingPriv::setupDeferredTarget(ResourceProvider* resourceProv
 
     const TextureProxy* targetProxy = fRecording->fTargetProxyData->lazyProxy();
     if (surfaceTexture->mipmapped() != targetProxy->mipmapped()) {
-        SKGPU_LOG_E("Deferred canvas mipmap settings don't match instantiating target's.");
+        SKIA_LOG_E("Deferred canvas mipmap settings don't match instantiating target's.");
         return nullptr;
     }
 
@@ -173,18 +173,18 @@ const Texture* RecordingPriv::setupDeferredTarget(ResourceProvider* resourceProv
     if (!targetProxy->isFullyLazy()) {
         SkASSERT(targetProxy->mipmapped() == skgpu::Mipmapped::kYes);
         if (targetProxy->dimensions() != surfaceTexture->dimensions()) {
-            SKGPU_LOG_E(
+            SKIA_LOG_E(
                     "Deferred canvas dimensions don't match instantiating target's dimensions.");
             return nullptr;
         }
         if (!targetTranslation.isZero()) {
-            SKGPU_LOG_E(
+            SKIA_LOG_E(
                     "Replay translation is not allowed when replaying draws to a mipmapped "
                     "deferred canvas.");
             return nullptr;
         }
         if (!targetClip.isEmpty()) {
-            SKGPU_LOG_E(
+            SKIA_LOG_E(
                     "Replay clip is not allowed when replaying draws to a mipmapped deferred "
                     "canvas.");
             return nullptr;
@@ -193,7 +193,7 @@ const Texture* RecordingPriv::setupDeferredTarget(ResourceProvider* resourceProv
 
     if (!fRecording->fTargetProxyData->lazyInstantiate(resourceProvider,
                                                        surfaceTexture->refTexture())) {
-        SKGPU_LOG_E("Could not instantiate deferred texture proxy.");
+        SKIA_LOG_E("Could not instantiate deferred texture proxy.");
         return nullptr;
     }
     return surfaceTexture->texture();

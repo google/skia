@@ -13,13 +13,13 @@
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
+#include "include/private/base/SkLog.h"
 #include "src/core/SkSurfacePriv.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/Image_Graphite.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
@@ -64,7 +64,7 @@ sk_sp<SkImage> Surface::onNewImageSnapshot(const SkIRect* subset) {
 
 sk_sp<Image> Surface::asImage() const {
     if (this->hasCachedImage()) {
-        SKGPU_LOG_W("Intermingling makeImageSnapshot and asImage calls may produce "
+        SKIA_LOG_W("Intermingling makeImageSnapshot and asImage calls may produce "
                     "unexpected results. Please use either the old _or_ new API.");
     }
     return fImageView;
@@ -83,7 +83,7 @@ sk_sp<Image> Surface::asImage(SkColorType otherCT, SkAlphaType otherAT) const {
 
 sk_sp<SkImage> Surface::onMakeTemporaryImage() {
     if (this->hasCachedImage()) {
-        SKGPU_LOG_W("Intermingling makeImageSnapshot and makeTemporaryImage calls may produce "
+        SKIA_LOG_W("Intermingling makeImageSnapshot and makeTemporaryImage calls may produce "
                     "unexpected results. Please use either the old _or_ new API.");
     }
     return this->asImage();
@@ -91,7 +91,7 @@ sk_sp<SkImage> Surface::onMakeTemporaryImage() {
 
 sk_sp<Image> Surface::makeImageCopy(const SkIRect* subset, Mipmapped mipmapped) const {
     if (this->hasCachedImage()) {
-        SKGPU_LOG_W("Intermingling makeImageSnapshot and asImage calls may produce "
+        SKIA_LOG_W("Intermingling makeImageSnapshot and asImage calls may produce "
                     "unexpected results. Please use either the old _or_ new API.");
     }
 
@@ -302,7 +302,7 @@ sk_sp<SkSurface> WrapBackendTexture(Recorder* recorder,
     SkColorInfo info(ct, kPremul_SkAlphaType, std::move(cs));
 
     if (!validate_backend_texture(caps, backendTex, info)) {
-        SKGPU_LOG_E("validate_backend_texture failed: backendTex.info = %s; colorType = %d",
+        SKIA_LOG_E("validate_backend_texture failed: backendTex.info = %s; colorType = %d",
                     backendTex.info().toString().c_str(),
                     info.colorType());
         return nullptr;

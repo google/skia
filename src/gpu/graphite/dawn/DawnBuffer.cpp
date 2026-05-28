@@ -9,7 +9,7 @@
 
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/private/base/SkAlign.h"
-#include "src/gpu/graphite/Log.h"
+#include "include/private/base/SkLog.h"
 #include "src/gpu/graphite/dawn/DawnAsyncWait.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 
@@ -55,7 +55,7 @@ void log_map_error(WGPUBufferMapAsyncStatus status, const char*) {
             statusStr = "<other>";
             break;
     }
-    SKGPU_LOG(priority, "Buffer async map failed with status %s.", statusStr);
+    SKIA_LOG(priority, "Buffer async map failed with status %s.", statusStr);
 }
 
 #else
@@ -80,7 +80,7 @@ void log_map_error(wgpu::MapAsyncStatus status, wgpu::StringView message) {
             SkDEBUGFAIL("This status is not an error");
             return;
     }
-    SKGPU_LOG(SkLogPriority::kError,
+    SKIA_LOG(SkLogPriority::kError,
               "Buffer async map failed with status %s, message '%.*s'.",
               statusStr,
               static_cast<int>(message.length),
@@ -266,7 +266,7 @@ void DawnBuffer::onAsyncMap(GpuFinishedProc proc, GpuFinishedContext ctx) {
 }
 
 void DawnBuffer::onMap() {
-    SKGPU_LOG_W("Synchronous buffer mapping not supported in Dawn. Failing map request.");
+    SKIA_LOG_W("Synchronous buffer mapping not supported in Dawn. Failing map request.");
 }
 
 void DawnBuffer::onUnmap() {

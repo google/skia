@@ -41,6 +41,7 @@
 #include "include/private/base/SingleOwner.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkLog.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/base/SkVx.h"
@@ -72,7 +73,6 @@
 #include "src/gpu/graphite/Image_Base_Graphite.h"
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/KeyContext.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PathAtlas.h"
 #include "src/gpu/graphite/RasterPathAtlas.h"
@@ -1488,7 +1488,7 @@ void Device::drawGeometryWithPathEffect(const Transform& localToDevice,
             dst.setIsVolatile(true);
             geometry.setShape(Shape(dst));
         } else {
-            SKGPU_LOG_W("Path effect failed to apply, drawing original path.");
+            SKIA_LOG_W("Path effect failed to apply, drawing original path.");
         }
 
         // Fallthrough, remaining code assumes the effect has been applied to `geometry` and `style`
@@ -1505,7 +1505,7 @@ void Device::drawGeometry(const Transform& localToDevice,
 
     if (!localToDevice.valid()) {
         // If the transform is not invertible or not finite then drawing isn't well defined.
-        SKGPU_LOG_W("Skipping draw with non-invertible/non-finite transform.");
+        SKIA_LOG_W("Skipping draw with non-invertible/non-finite transform.");
         return;
     }
 
@@ -1546,7 +1546,7 @@ void Device::drawGeometry(const Transform& localToDevice,
                                                       style,
                                                       clip.transformedShapeBounds());
     if (!renderer && !pathAtlas) {
-        SKGPU_LOG_W("Skipping draw with no supported renderer or PathAtlas.");
+        SKIA_LOG_W("Skipping draw with no supported renderer or PathAtlas.");
         return;
     }
 
@@ -1625,7 +1625,7 @@ void Device::drawGeometry(const Transform& localToDevice,
     auto keyResult = shading.toKey(keyContext);
     if (!keyResult) {
         // Converting the SkPaint to a pipeline and set of uniform values + sampled textures failed.
-        SKGPU_LOG_W("Key context creation failed in Device::drawGeometry, draw dropped!");
+        SKIA_LOG_W("Key context creation failed in Device::drawGeometry, draw dropped!");
         return;
     }
     auto [paintID, dstUsage] = *keyResult;
@@ -1694,7 +1694,7 @@ void Device::drawGeometry(const Transform& localToDevice,
         }
 
         if (!atlasMask) {
-            SKGPU_LOG_E("Failed to add shape to atlas!");
+            SKIA_LOG_E("Failed to add shape to atlas!");
             // TODO(b/285195175): This can happen if the atlas is not large enough or a compatible
             // atlas texture cannot be created. Handle the first case in `chooseRenderer` and make
             // sure that the atlas path renderer is not chosen if the path is larger than the atlas
@@ -1825,7 +1825,7 @@ void Device::drawClipShape(const Transform& localToDevice,
                                              DefaultFillStyle(),
                                              clip.transformedShapeBounds());
     if (!renderer) {
-        SKGPU_LOG_W("Skipping clip with no supported path renderer.");
+        SKIA_LOG_W("Skipping clip with no supported path renderer.");
         return;
     } else if (!fRecorder->priv().caps()->useDrawListLayer() &&
                (renderer->depthStencilFlags() & DepthStencilFlags::kStencil)) {
@@ -1871,7 +1871,7 @@ std::pair<DrawParams*, Insertion> Device::drawClipShapeImmediate(const Transform
                                              DefaultFillStyle(),
                                              clip.transformedShapeBounds());
     if (!renderer) {
-        SKGPU_LOG_W("Skipping clip with no supported path renderer.");
+        SKIA_LOG_W("Skipping clip with no supported path renderer.");
         return {nullptr, {}};
     }
 
@@ -2186,7 +2186,7 @@ void Device::drawSpecial(SkSpecialImage* special,
 
     sk_sp<SkImage> img = special->asImage();
     if (!img || !as_IB(img)->isGraphiteBacked()) {
-        SKGPU_LOG_W("Couldn't get Graphite-backed special image as image");
+        SKIA_LOG_W("Couldn't get Graphite-backed special image as image");
         return;
     }
 
@@ -2225,7 +2225,7 @@ void Device::drawCoverageMask(const SkSpecialImage* mask,
 
     auto maskProxyView = AsView(mask->asImage());
     if (!maskProxyView) {
-        SKGPU_LOG_W("Couldn't get Graphite-backed special image as texture proxy view");
+        SKIA_LOG_W("Couldn't get Graphite-backed special image as texture proxy view");
         return;
     }
 

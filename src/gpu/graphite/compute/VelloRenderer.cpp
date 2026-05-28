@@ -10,13 +10,13 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/private/base/SkLog.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/DrawParams.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
@@ -277,7 +277,7 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
     // Clamp the draw region to the target texture dimensions.
     const SkISize dims = target->dimensions();
     if (dims.isEmpty() || dims.fWidth < 0 || dims.fHeight < 0) {
-        SKGPU_LOG_W("VelloRenderer: cannot render to an empty target");
+        SKIA_LOG_W("VelloRenderer: cannot render to an empty target");
         return nullptr;
     }
 

@@ -12,6 +12,7 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/TextureInfo.h"
+#include "include/private/base/SkLog.h"
 #include "include/private/base/SkSpan_impl.h"
 #include "include/private/base/SkTo.h"
 #include "src/gpu/BufferWriter.h"
@@ -19,7 +20,6 @@
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ComputePipeline.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Resource.h"
 #include "src/gpu/graphite/ResourceProvider.h"
@@ -41,7 +41,7 @@ bool DispatchGroup::prepareResources(ResourceProvider* resourceProvider) {
     for (const ComputePipelineDesc& desc : fPipelineDescs) {
         auto pipeline = resourceProvider->findOrCreateComputePipeline(desc);
         if (!pipeline) {
-            SKGPU_LOG_W("Failed to create ComputePipeline for dispatch group. Dropping group!");
+            SKIA_LOG_W("Failed to create ComputePipeline for dispatch group. Dropping group!");
             return false;
         }
         fPipelines.push_back(std::move(pipeline));
@@ -49,11 +49,11 @@ bool DispatchGroup::prepareResources(ResourceProvider* resourceProvider) {
 
     for (int i = 0; i < fTextures.size(); ++i) {
         if (!fTextures[i]->textureInfo().isValid()) {
-            SKGPU_LOG_W("Failed to validate bound texture. Dropping dispatch group!");
+            SKIA_LOG_W("Failed to validate bound texture. Dropping dispatch group!");
             return false;
         }
         if (!TextureProxy::InstantiateIfNotLazy(resourceProvider, fTextures[i].get())) {
-            SKGPU_LOG_W("Failed to instantiate bound texture. Dropping dispatch group!");
+            SKIA_LOG_W("Failed to instantiate bound texture. Dropping dispatch group!");
             return false;
         }
     }
@@ -61,7 +61,7 @@ bool DispatchGroup::prepareResources(ResourceProvider* resourceProvider) {
     for (const SamplerDesc& desc : fSamplerDescs) {
         sk_sp<Sampler> sampler = resourceProvider->findOrCreateCompatibleSampler(desc);
         if (!sampler) {
-            SKGPU_LOG_W("Failed to create sampler. Dropping dispatch group!");
+            SKIA_LOG_W("Failed to create sampler. Dropping dispatch group!");
             return false;
         }
         fSamplers.push_back(std::move(sampler));
@@ -231,7 +231,7 @@ bool Builder::appendStepInternal(
             dispatchResource = *texIdx;
             bindingIndex = texturesUseDistinctIdxRanges ? texIndex++ : bufferOrGlobalIndex++;
         } else {
-            SKGPU_LOG_W("Failed to allocate resource for compute dispatch");
+            SKIA_LOG_W("Failed to allocate resource for compute dispatch");
             return false;
         }
         dispatch.fBindings.push_back({static_cast<BindingIndex>(bindingIndex), dispatchResource});

@@ -34,6 +34,7 @@
 #include "include/gpu/graphite/Surface.h"
 #include "include/private/base/SingleOwner.h"
 #include "include/private/base/SkAlign.h"
+#include "include/private/base/SkLog.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkOnce.h"
 #include "include/private/base/SkTArray.h"
@@ -61,7 +62,6 @@
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/Image_Graphite.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/QueueManager.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/RendererProvider.h"
@@ -189,7 +189,7 @@ bool Context::finishInitialization() {
     }
     if (result == StaticBufferManager::FinishResult::kSuccess &&
         !fQueueManager->submitToGpu(/*submitInfo=*/{})) {
-        SKGPU_LOG_W("Failed to submit initial command buffer for Context creation.\n");
+        SKIA_LOG_W("Failed to submit initial command buffer for Context creation.\n");
         return false;
     } // else result was kNoWork so skip submitting to the GPU
     fSharedContext->setRendererProvider(std::move(renderers));
@@ -249,7 +249,7 @@ bool Context::submit(SubmitInfo submitInfo) {
     ASSERT_SINGLE_OWNER
 
     if (submitInfo.fSync == SyncToCpu::kYes && !fSharedContext->caps()->allowCpuSync()) {
-        SKGPU_LOG_E("SyncToCpu::kYes not supported with ContextOptions::fNeverYieldToWebGPU. "
+        SKIA_LOG_E("SyncToCpu::kYes not supported with ContextOptions::fNeverYieldToWebGPU. "
                     "The parameter is ignored and no synchronization will occur.");
         submitInfo.fSync = SyncToCpu::kNo;
     }
@@ -325,7 +325,7 @@ void Context::asyncRescaleAndReadImpl(ReadFn Context::* asyncRead,
                                               rescaleGamma,
                                               rescaleMode);
     if (!scaledImage) {
-        SKGPU_LOG_W("AsyncRead failed because rescaling failed");
+        SKIA_LOG_W("AsyncRead failed because rescaling failed");
         return params.fail();
     }
     (this->*asyncRead)(std::move(recorder),
@@ -401,7 +401,7 @@ void Context::asyncReadPixels(std::unique_ptr<Recorder> recorder,
                                               SkBackingFit::kApprox,
                                               "AsyncReadPixelsFallbackTexture");
         if (!flattened) {
-            SKGPU_LOG_W("AsyncRead failed because copy-as-drawing into a readable format failed");
+            SKIA_LOG_W("AsyncRead failed because copy-as-drawing into a readable format failed");
             return params.fail();
         }
         // Use the original fSrcRect and not flattened's size since it's approx-fit.
@@ -719,7 +719,7 @@ void Context::finalizeAsyncReadPixels(std::unique_ptr<Recorder> recorder,
     // required clean up for us, just log an error message. The buffers will never be mapped and
     // thus don't need an unmap.
     if (!fQueueManager->addFinishInfo(info, fResourceProvider.get(), buffersToAsyncMap)) {
-        SKGPU_LOG_E("Failed to register finish callbacks for asyncReadPixels.");
+        SKIA_LOG_E("Failed to register finish callbacks for asyncReadPixels.");
         return;
     }
 }

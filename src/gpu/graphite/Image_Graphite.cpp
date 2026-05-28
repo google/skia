@@ -14,11 +14,11 @@
 #include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
+#include "include/private/base/SkLog.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/DrawContext.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
@@ -138,7 +138,7 @@ sk_sp<Image> Image::Copy(Recorder* recorder,
 
     if (mipmapped == Mipmapped::kYes) {
         if (!GenerateMipmaps(recorder, drawContext, dst)) {
-            SKGPU_LOG_W("Image::Copy failed to generate mipmaps");
+            SKIA_LOG_W("Image::Copy failed to generate mipmaps");
             return nullptr;
         }
     }

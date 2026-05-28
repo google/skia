@@ -24,7 +24,7 @@
 #include "include/gpu/vk/VulkanTypes.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/gpu/graphite/ContextOptionsPriv.h"
-#include "src/gpu/graphite/Log.h"
+#include "include/private/base/SkLog.h"
 #include "src/gpu/graphite/TextureFormat.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtils.h"
 #include "src/gpu/vk/VulkanInterface.h"
@@ -385,7 +385,7 @@ bool GraphiteVulkanWindowContext::populateSwapchainImages(VkFormat format,
                                                              fDisplayParams->colorSpace(),
                                                              &fDisplayParams->surfaceProps());
         if (!fImages[i].fSurface) {
-            SKGPU_LOG_W("Failed to create Surface for swapchain image");
+            SKIA_LOG_W("Failed to create Surface for swapchain image");
             // Clean up any previously-created semaphores before returning false to indicate failure
             this->resetSwapchainImages();
             return false;
@@ -449,7 +449,7 @@ void GraphiteVulkanWindowContext::destroyContext() {
 
 bool GraphiteVulkanWindowContext::submitToGpu() {
     if (!fGraphiteContext) {
-        SKGPU_LOG_W("Cannot have null graphite context when submitting work to the GPU for "
+        SKIA_LOG_W("Cannot have null graphite context when submitting work to the GPU for "
                     "presentation.");
         return false;
     }
@@ -457,7 +457,7 @@ bool GraphiteVulkanWindowContext::submitToGpu() {
 
     std::unique_ptr<skgpu::graphite::Recording> recording = fGraphiteRecorder->snap();
     if (!recording) {
-        SKGPU_LOG_W("Failed to snap recording for submitting work to the GPU for presentation. "
+        SKIA_LOG_W("Failed to snap recording for submitting work to the GPU for presentation. "
                     "Will not submit the present operation to the present queue.");
         return false;
     }
@@ -498,7 +498,7 @@ bool GraphiteVulkanWindowContext::submitToGpu() {
                                                          skgpu::CallbackResult status) {
         // Regardless of the status, we need to destroy the waitSemaphore
         if (status != skgpu::CallbackResult::kSuccess) {
-            SKGPU_LOG_W("Recording insertion failed.");
+            SKIA_LOG_W("Recording insertion failed.");
         }
         const auto* context = reinterpret_cast<const FinishContext*>(c);
         VULKAN_CALL(context->fInterface, DestroySemaphore(context->fDevice,
@@ -556,7 +556,7 @@ sk_sp<SkSurface> GraphiteVulkanWindowContext::getBackbufferSurface() {
         return nullptr;
     }
     if (VK_ERROR_OUT_OF_DATE_KHR == res) {
-        SKGPU_LOG_W("Failed to acquire next image for swapchain. Tearing down and trying again.");
+        SKIA_LOG_W("Failed to acquire next image for swapchain. Tearing down and trying again.");
         if (!this->createSwapchain(-1, -1)) {
             VULKAN_CALL(fInterface,
                         DestroySemaphore(fDevice, fAcquireSemaphore, /*pAllocator=*/nullptr));

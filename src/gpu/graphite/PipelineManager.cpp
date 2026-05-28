@@ -7,10 +7,10 @@
 
 #include "src/gpu/graphite/PipelineManager.h"
 
+#include "include/private/base/SkLog.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/GraphicsPipelineHandle.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PipelineCreationTask.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
@@ -83,7 +83,7 @@ void PipelineManager::startPipelineCreationTask(SharedContext* sharedContext,
             task->fPipelineCreationFlags);
 
     if (!pipeline) {
-        SKGPU_LOG_W("Failed to create GraphicsPipeline!");
+        SKIA_LOG_W("Failed to create GraphicsPipeline!");
     }
 
     if (!task->fCompleted.exchange(true)) {

@@ -8,7 +8,7 @@
 #include "src/gpu/graphite/dawn/DawnErrorChecker.h"
 
 #include "include/private/base/SkAssert.h"
-#include "src/gpu/graphite/Log.h"
+#include "include/private/base/SkLog.h"
 #include "src/gpu/graphite/dawn/DawnAsyncWait.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 
@@ -58,7 +58,7 @@ SkEnumBitMask<DawnErrorType> DawnErrorChecker::popErrorScopes() {
         if (status != WGPUErrorType_NoError) {
             SkASSERT(errorState->fScopeIdx >= 0);
             const char* errorScopeName = kErrorScopeNames[errorState->fScopeIdx];
-            SKGPU_LOG_E("Failed in error scope (%s): %s", errorScopeName, msg);
+            SKIA_LOG_E("Failed in error scope (%s): %s", errorScopeName, msg);
             errorState->fError |= kErrorScopeTypes[errorState->fScopeIdx];
         }
         errorState->fScopeIdx--;
@@ -93,7 +93,7 @@ SkEnumBitMask<DawnErrorType> DawnErrorChecker::popErrorScopes() {
         if (type != wgpu::ErrorType::NoError) {
             SkASSERT(errorState->fScopeIdx >= 0);
             const char* errorScopeName = kErrorScopeNames[errorState->fScopeIdx];
-            SKGPU_LOG_E("Failed in error scope (%s): %.*s",
+            SKIA_LOG_E("Failed in error scope (%s): %.*s",
                         errorScopeName,
                         static_cast<int>(msg.length),
                         msg.data);
@@ -115,19 +115,19 @@ SkEnumBitMask<DawnErrorType> DawnErrorChecker::popErrorScopes() {
 
     status = instance.WaitAny(internalFuture, /*timeout=*/std::numeric_limits<uint64_t>::max());
     if (status != wgpu::WaitStatus::Success) {
-        SKGPU_LOG_E("Failed waiting for 'internal' error scope to pop.");
+        SKIA_LOG_E("Failed waiting for 'internal' error scope to pop.");
     }
     SkASSERT(status == wgpu::WaitStatus::Success);
 
     status = instance.WaitAny(oomFuture, /*timeout=*/std::numeric_limits<uint64_t>::max());
     if (status != wgpu::WaitStatus::Success) {
-        SKGPU_LOG_E("Failed waiting for 'out-of-memory' error scope to pop.");
+        SKIA_LOG_E("Failed waiting for 'out-of-memory' error scope to pop.");
     }
     SkASSERT(status == wgpu::WaitStatus::Success);
 
     status = instance.WaitAny(validationFuture, /*timeout=*/std::numeric_limits<uint64_t>::max());
     if (status != wgpu::WaitStatus::Success) {
-        SKGPU_LOG_E("Failed waiting for 'validation' error scope to pop.");
+        SKIA_LOG_E("Failed waiting for 'validation' error scope to pop.");
     }
     SkASSERT(status == wgpu::WaitStatus::Success);
 #endif  // defined(__EMSCRIPTEN__)

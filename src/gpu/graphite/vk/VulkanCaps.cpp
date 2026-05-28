@@ -487,7 +487,7 @@ void VulkanCaps::getProperties(const skgpu::VulkanInterface* vkInterface,
     if (hasDriverProperties) {
         AddToPNextChain(&props->fBase, &props->fDriver);
     } else {
-        SKGPU_LOG_W("VK_KHR_driver_properties is not enabled, driver workarounds cannot "
+        SKIA_LOG_W("VK_KHR_driver_properties is not enabled, driver workarounds cannot "
                     "be correctly applied");
     }
 
@@ -964,7 +964,7 @@ SkEnumBitMask<SampleCount> VulkanCaps::getSupportedSampleCounts(
                                                                       0,  // createFlags
                                                                       &properties));
     if (result != VK_SUCCESS) {
-        SKGPU_LOG_W("Vulkan call GetPhysicalDeviceImageFormatProperties failed: %d", result);
+        SKIA_LOG_W("Vulkan call GetPhysicalDeviceImageFormatProperties failed: %d", result);
         return {};
     }
 
@@ -1000,13 +1000,13 @@ SkEnumBitMask<SampleCount> VulkanCaps::getSupportedSampleCounts(
                         VK_IMAGE_CREATE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT,
                         &properties));
         if (result != VK_SUCCESS && result != VK_ERROR_FORMAT_NOT_SUPPORTED) {
-            SKGPU_LOG_W("Vulkan call GetPhysicalDeviceImageFormatProperties failed: %d", result);
+            SKIA_LOG_W("Vulkan call GetPhysicalDeviceImageFormatProperties failed: %d", result);
             return {};
         }
         if (result == VK_ERROR_FORMAT_NOT_SUPPORTED ||
             properties.sampleCounts <= VK_SAMPLE_COUNT_1_BIT ||
             (sampleCounts & properties.sampleCounts) != sampleCounts) {
-            SKGPU_LOG_W("Inconsistent MSAA rendering support in the presence of "
+            SKIA_LOG_W("Inconsistent MSAA rendering support in the presence of "
                         "VK_EXT_multisampled_render_to_single_sampled (Supported MSAA bits: %#X vs "
                         "with MSRTSS: %#X)",
                         sampleCounts,

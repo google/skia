@@ -62,7 +62,7 @@ VkShaderModule CreateVulkanShaderModule(const VulkanSharedContext* context,
                                           /*const VkAllocationCallbacks*=*/nullptr,
                                           &shaderModule));
     if (result != VK_SUCCESS) {
-        SKGPU_LOG_E("Failed to create VkShaderModule");
+        SKIA_LOG_E("Failed to create VkShaderModule");
         return VK_NULL_HANDLE;
     }
     return shaderModule;

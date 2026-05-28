@@ -9,12 +9,12 @@
 
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/private/base/SkLog.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/BlendFormula.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextUtils.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/ShaderInfo.h"
@@ -875,7 +875,7 @@ void ShaderCodeDictionary::registerUserDefinedKnownRuntimeEffects(
         }
 
         if (fUserDefinedKnownCodeSnippets.size() >= kUserDefinedKnownRuntimeEffectsReservedCnt) {
-            SKGPU_LOG_W("Too many user-defined known runtime effects. Only %d out of %zu "
+            SKIA_LOG_W("Too many user-defined known runtime effects. Only %d out of %zu "
                         "will be known.\n",
                         kUserDefinedKnownRuntimeEffectsReservedCnt,
                         userDefinedKnownRuntimeEffects.size());

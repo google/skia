@@ -10,12 +10,12 @@
 #include "include/gpu/graphite/Recording.h"
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkLog.h"
 #include "include/private/base/SkMath.h"
 #include "include/private/base/SkTo.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/GlobalCache.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/QueueManager.h"
 #include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/Resource.h"
@@ -617,7 +617,7 @@ void* StaticBufferManager::prepareStaticData(BufferState* state,
                                         fRequiredTransferAlignment,
                                         "TransferForStaticBuffer");
     if (!transferMapPtr) {
-        SKGPU_LOG_E("Failed to create or map transfer buffer that initializes static GPU data.");
+        SKIA_LOG_E("Failed to create or map transfer buffer that initializes static GPU data.");
         fMappingFailed = true;
         return nullptr;
     }
@@ -660,7 +660,7 @@ bool StaticBufferManager::BufferState::createAndUpdateBindings(
             gpuAccessPattern,
             label);
     if (!staticBuffer) {
-        SKGPU_LOG_E("Failed to create static buffer for type %d of size %u bytes.\n",
+        SKIA_LOG_E("Failed to create static buffer for type %d of size %u bytes.\n",
                     (int) fBufferType, fTotalRequiredBytes);
         return false;
     }
@@ -686,7 +686,7 @@ bool StaticBufferManager::BufferState::createAndUpdateBindings(
         // read in the vertex shader which doesn't allow protected memory access. Thus all the
         // uploads to these buffers must be done as non-protected commands.
         if (!queueManager->addTask(copyTask.get(), context, Protected::kNo)) {
-            SKGPU_LOG_E("Failed to copy data to static buffer.\n");
+            SKIA_LOG_E("Failed to copy data to static buffer.\n");
             return false;
         }
 

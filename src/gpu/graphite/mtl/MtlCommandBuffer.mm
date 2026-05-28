@@ -9,8 +9,8 @@
 
 #include "include/gpu/graphite/BackendSemaphore.h"
 #include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
+#include "include/private/base/SkLog.h"
 #include "src/gpu/graphite/ContextUtils.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/TextureFormat.h"
@@ -95,7 +95,7 @@ bool MtlCommandBuffer::commit() {
     if ((*fCommandBuffer).status == MTLCommandBufferStatusError) {
         NSString* description = (*fCommandBuffer).error.localizedDescription;
         const char* errorString = [description UTF8String];
-        SKGPU_LOG_E("Failure submitting command buffer: %s", errorString);
+        SKIA_LOG_E("Failure submitting command buffer: %s", errorString);
     }
 
     return ((*fCommandBuffer).status != MTLCommandBufferStatusError);
@@ -321,7 +321,7 @@ bool MtlCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
         SkASSERT(colorInfo.fLoadOp == LoadOp::kDiscard);
         auto loadPipeline = fResourceProvider->findOrCreateLoadMSAAPipeline(renderPassDesc);
         if (!loadPipeline) {
-            SKGPU_LOG_E("Unable to create pipeline to load resolve texture into MSAA attachment");
+            SKIA_LOG_E("Unable to create pipeline to load resolve texture into MSAA attachment");
             return false;
         }
         this->bindGraphicsPipeline(loadPipeline.get());
@@ -476,7 +476,7 @@ bool MtlCommandBuffer::addDrawPass(DrawPass* drawPass) {
                 break;
             }
             case DrawPassCommands::Type::kAddBarrier: {
-                SKGPU_LOG_E("MtlCommandBuffer does not support the addition of barriers.");
+                SKIA_LOG_E("MtlCommandBuffer does not support the addition of barriers.");
                 break;
             }
         }

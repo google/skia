@@ -13,12 +13,12 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkLog.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/DrawPass.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/ScratchResourceManager.h"
@@ -145,8 +145,8 @@ Task::Status RenderPassTask::prepareResources(ResourceProvider* resourceProvider
         instantiated = TextureProxy::InstantiateIfNotLazy(scratchManager, fTarget.get());
     }
     if (!instantiated) {
-        SKGPU_LOG_W("Failed to instantiate RenderPassTask target. Will not create renderpass!");
-        SKGPU_LOG_W("Dimensions are (%d, %d).",
+        SKIA_LOG_W("Failed to instantiate RenderPassTask target. Will not create renderpass!");
+        SKIA_LOG_W("Dimensions are (%d, %d).",
                     fTarget->dimensions().width(), fTarget->dimensions().height());
         return Status::kFail;
     }
@@ -211,7 +211,7 @@ Task::Status RenderPassTask::addCommands(Context* context,
         colorAttachment = resourceProvider->findOrCreateShareableTexture(
                 msaaSize, colorInfo, "DiscardableMSAAAttachment");
         if (!colorAttachment) {
-            SKGPU_LOG_W("Could not get Color attachment for RenderPassTask");
+            SKIA_LOG_W("Could not get Color attachment for RenderPassTask");
             return Status::kFail;
         }
         resolveAttachment = fTarget->refTexture();
@@ -232,7 +232,7 @@ Task::Status RenderPassTask::addCommands(Context* context,
         depthStencilAttachment = resourceProvider->findOrCreateShareableTexture(
                 dimensions, dsInfo, "DepthStencilAttachment");
         if (!depthStencilAttachment) {
-            SKGPU_LOG_W("Could not get DepthStencil attachment for RenderPassTask");
+            SKIA_LOG_W("Could not get DepthStencil attachment for RenderPassTask");
             return Status::kFail;
         }
     }

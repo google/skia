@@ -7,9 +7,9 @@
 #include "src/gpu/graphite/ComputePathAtlas.h"
 
 #include "include/gpu/graphite/Recorder.h"
+#include "include/private/base/SkLog.h"
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/graphite/AtlasProvider.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/TextureUtils.h"
@@ -94,7 +94,7 @@ bool ComputePathAtlas::isSuitableForAtlasing(const Rect& transformedShapeBounds,
 sk_sp<TextureProxy> ComputePathAtlas::addRect(skvx::half2 maskSize,
                                               SkIPoint16* outPos) {
     if (!this->initializeTextureIfNeeded()) {
-        SKGPU_LOG_E("Failed to instantiate an atlas texture");
+        SKIA_LOG_E("Failed to instantiate an atlas texture");
         return nullptr;
     }
 
@@ -305,7 +305,7 @@ bool VelloComputePathAtlas::recordDispatches(Recorder* recorder,
             dispatches->emplace_back(std::move(dispatchGroup));
             return true;
         } else {
-            SKGPU_LOG_E("VelloComputePathAtlas:: Failed to create dispatch group.");
+            SKIA_LOG_E("VelloComputePathAtlas:: Failed to create dispatch group.");
         }
     }
 
@@ -415,7 +415,7 @@ bool VelloComputePathAtlas::VelloAtlasMgr::recordDispatches(
                 dispatches->emplace_back(std::move(dispatchGroup));
                 addedDispatches = true;
             } else {
-                SKGPU_LOG_E("VelloComputePathAtlas:: Failed to create dispatch group.");
+                SKIA_LOG_E("VelloComputePathAtlas:: Failed to create dispatch group.");
             }
         }
     }

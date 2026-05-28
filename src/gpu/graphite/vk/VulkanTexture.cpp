@@ -10,10 +10,10 @@
 #include "include/gpu/MutableTextureState.h"
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "include/gpu/vk/VulkanMutableTextureState.h"
+#include "include/private/base/SkLog.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/DataUtils.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/task/UploadTask.h"
@@ -39,17 +39,17 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
     const VulkanCaps& caps = sharedContext->vulkanCaps();
 
     if (dimensions.isEmpty()) {
-        SKGPU_LOG_E("Tried to create VkImage with empty dimensions.");
+        SKIA_LOG_E("Tried to create VkImage with empty dimensions.");
         return false;
     }
     if (dimensions.width() > caps.maxTextureSize() ||
         dimensions.height() > caps.maxTextureSize()) {
-        SKGPU_LOG_E("Tried to create VkImage with too large a size.");
+        SKIA_LOG_E("Tried to create VkImage with too large a size.");
         return false;
     }
 
     if ((info.isProtected() == Protected::kYes) != caps.protectedSupport()) {
-        SKGPU_LOG_E("Tried to create %s VkImage in %s Context.",
+        SKIA_LOG_E("Tried to create %s VkImage in %s Context.",
                     info.isProtected() == Protected::kYes ? "protected" : "unprotected",
                     caps.protectedSupport() ? "protected" : "unprotected");
         return false;
@@ -101,7 +101,7 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
     VULKAN_CALL_RESULT(
             sharedContext, result, CreateImage(device, &imageCreateInfo, nullptr, &image));
     if (result != VK_SUCCESS) {
-        SKGPU_LOG_E("Failed call to vkCreateImage with error: %d", result);
+        SKIA_LOG_E("Failed call to vkCreateImage with error: %d", result);
         return false;
     }
 
@@ -129,13 +129,13 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
                                                   /*useLazyAllocation=*/false,
                                                   checkResult,
                                                   &outInfo->fMemoryAlloc)) {
-            SKGPU_LOG_W("Could not allocate lazy image memory; using non-lazy instead.");
+            SKIA_LOG_W("Could not allocate lazy image memory; using non-lazy instead.");
             useLazyAllocation = false;
         } else {
             const char* protectednessStr =
                     info.isProtected() == Protected::kYes ? "protected" : "unprotected";
             const char* memoryTypeStr = forceDedicatedMemory ? "dedicated" : "shared";
-            SKGPU_LOG_E("Failed to allocate %s %s image memory.", protectednessStr, memoryTypeStr);
+            SKIA_LOG_E("Failed to allocate %s %s image memory.", protectednessStr, memoryTypeStr);
 
             VULKAN_CALL(sharedContext->interface(), DestroyImage(device, image, nullptr));
             return false;
