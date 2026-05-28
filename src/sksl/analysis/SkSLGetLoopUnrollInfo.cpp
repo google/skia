@@ -73,7 +73,7 @@ static int calculate_count_int(int32_t start, int32_t end, int32_t delta,
     SkSafeMath math;
     int roundUp = delta > 0 ? math.subInt(delta, 1) : math.addInt(delta, 1);
     int width = math.subInt(end, start);
-    int iterations = math.addInt(width, roundUp) / delta;
+    int iterations = math.divInt(math.addInt(width, roundUp), delta);
     if (inclusive == Inclusive::kYes && width % delta == 0) {
         iterations = math.addInt(iterations, 1);
     }
@@ -109,7 +109,7 @@ static int calculate_count_neq_int(int32_t start, int32_t end, int32_t delta) {
         return kLoopTerminationLimit;
     }
     SkSafeMath math;
-    int iterations = math.subInt(end, start) / delta;
+    int iterations = math.divInt(math.subInt(end, start), delta);
     // Check that we won't overflow while looping and that we actually hit end.
     int lastValue = math.addInt(start, math.mulInt(delta, iterations));
     if (!math || lastValue != end || iterations < 0 || iterations > kLoopTerminationLimit) {

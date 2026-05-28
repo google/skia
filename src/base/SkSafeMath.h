@@ -36,37 +36,36 @@ public:
         return result;
     }
 
-    /**
-     *  Return a + b, unless this result is an overflow/underflow. In those cases, fOK will
-     *  be set to false, and it is undefined what this returns.
-     */
     int addInt(int a, int b) {
-        static_assert(sizeof(int) == 4, "int is not 4 bytes");
-        if (b < 0 && a < std::numeric_limits<int>::min() - b) {
+        int64_t result = static_cast<int64_t>(a) + static_cast<int64_t>(b);
+        if (!SkTFitsIn<int>(result)) {
             fOK = false;
-            return a;
-        } else if (b > 0 && a > std::numeric_limits<int>::max() - b) {
-            fOK = false;
-            return a;
         }
-        return a + b;
+        return static_cast<int>(result);
     }
 
     int subInt(int a, int b) {
-        if (b == std::numeric_limits<int>::min()) {
+        int64_t result = static_cast<int64_t>(a) - static_cast<int64_t>(b);
+        if (!SkTFitsIn<int>(result)) {
             fOK = false;
-            return a;
         }
-        return addInt(a, -b);
+        return static_cast<int>(result);
     }
 
     int mulInt(int x, int y) {
-        int64_t result = (int64_t)x * (int64_t)y;
-        if (result > std::numeric_limits<int>::max() || result < std::numeric_limits<int>::min()) {
+        int64_t result = static_cast<int64_t>(x) * static_cast<int64_t>(y);
+        if (!SkTFitsIn<int>(result)) {
             fOK = false;
-            return x;
         }
-        return (int)result;
+        return static_cast<int>(result);
+    }
+
+    int divInt(int a, int b) {
+        if (b == 0 || (a == std::numeric_limits<int>::min() && b == -1)) {
+            fOK = false;
+            return a;
+        }
+        return a / b;
     }
 
     size_t alignUp(size_t x, size_t alignment) {
@@ -128,4 +127,4 @@ private:
     bool fOK = true;
 };
 
-#endif//SkSafeMath_DEFINED
+#endif  // SkSafeMath_DEFINED
