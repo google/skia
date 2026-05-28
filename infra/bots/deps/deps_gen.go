@@ -24,7 +24,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"chrome-internal.googlesource.com/chrome/agents-internal": {
 		Id:      "chrome-internal.googlesource.com/chrome/agents-internal",
-		Version: "464ca2551647693eb9521cb5e1f8445d27de4cfe",
+		Version: "11c700b10e171091b4f0f3cf3bf95f13dee85c93",
 		Path:    "agents/internal",
 	},
 	"chromium.googlesource.com/angle/angle": {
@@ -34,7 +34,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"chromium.googlesource.com/chromium/agents": {
 		Id:      "chromium.googlesource.com/chromium/agents",
-		Version: "695fa86c87e68f1abd80e8a103d2111eace5a0be",
+		Version: "e75efa515896f6bf1dea92eaffbcf8ee711a65d8",
 		Path:    "agents/shared",
 	},
 	"chromium.googlesource.com/chromium/deps/icu": {
