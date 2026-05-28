@@ -12,12 +12,17 @@
 
 namespace sktext::gpu {
 
-const AtlasSubRun* TextBlobTools::FirstSubRun(const TextBlob* blob) {
-    SkASSERT(blob);
-    if (blob->fSubRuns->fSubRuns.isEmpty()) {
+const AtlasSubRun* TextBlobTools::FirstSubRun(const SubRunContainer* container) {
+    SkASSERT(container);
+    if (container->fSubRuns.isEmpty()) {
         return nullptr;
     }
-    return blob->fSubRuns->fSubRuns.front().testingOnly_atlasSubRun();
+    return container->fSubRuns.front().testingOnly_atlasSubRun();
+}
+
+const AtlasSubRun* TextBlobTools::FirstSubRun(const TextBlob* blob) {
+    SkASSERT(blob);
+    return FirstSubRun(blob->fSubRuns.get());
 }
 
 }  // namespace sktext::gpu

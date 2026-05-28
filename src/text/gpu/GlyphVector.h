@@ -147,6 +147,18 @@ public:
     // the sub runs.
     int unflattenSize() const { return Size(fGlyphs.size()); }
 
+    SkPackedGlyphID getPackedGlyphID(int index) const {
+        SkASSERT(index >= 0 && index < this->glyphCount());
+        if (this->hasBackendData()) {
+            return fGetGlyphID(fGlyphs[index].data());
+        } else {
+            return *reinterpret_cast<const SkPackedGlyphID*>(fGlyphs[index].data());
+        }
+    }
+
+    SkStrikePromise& strikePromise() { return fStrikePromise; }
+    const SkStrikePromise& strikePromise() const { return fStrikePromise; }
+
     bool hasBackendData() const {
         SkASSERT(SkToBool(fBackendDataReleaser) == SkToBool(fGetGlyphID));
         return SkToBool(fBackendDataReleaser);

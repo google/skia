@@ -46,37 +46,6 @@ VertexFiller VertexFiller::Make(MaskFormat maskType,
             maskType, creationMatrix, creationBounds, leftTop, fillerType == kIsDirect};
 }
 
-std::optional<VertexFiller> VertexFiller::MakeFromBuffer(SkReadBuffer &buffer,
-                                                         SubRunAllocator *alloc) {
-    int checkingMaskType = buffer.readInt();
-    if (!buffer.validate(
-            0 <= checkingMaskType && checkingMaskType < skgpu::kMaskFormatCount)) {
-        return std::nullopt;
-    }
-    MaskFormat maskType = (MaskFormat) checkingMaskType;
-
-    const bool canDrawDirect = buffer.readBool();
-
-    SkMatrix creationMatrix;
-    buffer.readMatrix(&creationMatrix);
-
-    SkRect creationBounds = buffer.readRect();
-
-    SkSpan<SkPoint> leftTop = MakePointsFromBuffer(buffer, alloc);
-    if (leftTop.empty()) { return std::nullopt; }
-
-    SkASSERT(buffer.isValid());
-    return VertexFiller{maskType, creationMatrix, creationBounds, leftTop, canDrawDirect};
-}
-
-void VertexFiller::flatten(SkWriteBuffer &buffer) const {
-    buffer.writeInt(static_cast<int>(fMaskFormat));
-    buffer.writeBool(fCanDrawDirect);
-    buffer.writeMatrix(fCreationMatrix);
-    buffer.writeRect(fCreationBounds);
-    buffer.writePointArray(fLeftTop);
-}
-
 SkMatrix VertexFiller::viewDifference(const SkMatrix &positionMatrix) const {
     if (SkMatrix inverse; fCreationMatrix.invert(&inverse)) {
         return SkMatrix::Concat(positionMatrix, inverse);
