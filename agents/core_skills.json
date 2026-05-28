@@ -1,0 +1,13 @@
+{
+  "entries": [
+    {
+      "path": "agents/shared/skills/skill-creation"
+    },
+    {
+      "path": "agents/skills/skia-gn-workflow"
+    },
+    {
+      "path": "agents/skills/skia-add-test"
+    }
+  ]
+}

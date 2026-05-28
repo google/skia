@@ -10,6 +10,7 @@
 .idea
 .cproject
 .clwb/
+.jetskicli
 .project
 .recipe_deps/
 .settings/
