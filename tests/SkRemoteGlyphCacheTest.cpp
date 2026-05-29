@@ -13,6 +13,7 @@
 #include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkGraphics.h"
@@ -33,9 +34,12 @@
 #include "include/private/base/SkMutex.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "include/private/chromium/Slug.h"
+#include "src/core/SkFontMetricsPriv.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkScalerContext.h"
+#include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTHash.h"
 #include "src/core/SkTextBlobPriv.h"
@@ -1405,4 +1409,86 @@ DEF_TEST(SkGraphics_Limits, reporter) {
     REPORTER_ASSERT(reporter, prev2 == prev1 + 1);
 
     SkGraphics::SetTypefaceCacheCountLimit(prev1);  // restore orig
+}
+
+DEF_TEST(SkRemoteGlyphCache_b513780208, reporter) {
+    // Legitimate path glyphs should only use kBW_Format, kA8_Format, or kLCD16_Format.
+    // If a malicious strike provided a path with kARGB32_Format, it could trigger an
+    // uninitialized memory issue in SkScalerContext::GenerateImageFromPath.
+    //
+    // SkGlyph::addPathFromBuffer now rejects any path whose format is not an allowed type.
+
+    constexpr int kW = 200;
+    constexpr int kH = 4;
+    constexpr SkTypefaceID kServerTypefaceID = 0x65000000u;  // arbitrary
+    constexpr uint32_t kPackedGlyphID = 0x42u;               // arbitrary
+
+    auto BuildMaliciousStrikeData = [&]() {
+        SkBinaryWriteBuffer buffer{nullptr, 0, {}};
+
+        // --- typefaces ---
+        buffer.writeInt(1);  // typefaceCount
+        buffer.writeUInt(kServerTypefaceID);
+        buffer.writeInt(256);
+        buffer.write32(0);
+        buffer.writeBool(false);
+        buffer.writeBool(false);
+
+        // --- strikes ---
+        buffer.writeInt(1);                   // strikeCount
+        buffer.writeUInt(kServerTypefaceID);  // serverTypefaceID
+        buffer.writeUInt(1);                  // discardableHandleID
+
+        // SkDescriptor: Craft a Rec that triggers GenerateImageFromPath (fFrameWidth >= 0).
+        {
+            SkScalerContextRec rec;
+            rec.fTypefaceID = kServerTypefaceID;
+            rec.fTextSize = 16.0f;
+            rec.fPreScaleX = 1.0f;
+            rec.fPost2x2[0][0] = 1.0f;
+            rec.fPost2x2[1][1] = 1.0f;
+            rec.fFrameWidth = 0.0f;  // triggers fGenerateImageFromPath
+            rec.fMaskFormat = SkMask::kA8_Format;
+            SkAutoDescriptor ad{SkDescriptor::ComputeOverhead(1) + sizeof(rec)};
+            SkDescriptor* desc = ad.getDesc();
+            desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
+            desc->computeChecksum();
+            desc->flatten(buffer);
+        }
+
+        buffer.writeBool(false);  // fontMetricsInitialized == false
+        {
+            SkFontMetrics fm;
+            SkFontMetricsPriv::Flatten(buffer, fm);
+        }
+
+        buffer.writeInt(0);  // imagesCount
+
+        // Craft a path glyph with an invalid mask format (kARGB32_Format).
+        buffer.writeInt(1);  // pathsCount
+        buffer.writeUInt(kPackedGlyphID);
+        buffer.writePoint(SkPoint::Make(static_cast<float>(kW), 0.0f));
+        buffer.writeUInt((static_cast<uint32_t>(kW) << 16) | kH);
+        buffer.writeUInt(0);
+        buffer.writeUInt(static_cast<uint32_t>(SkMask::kARGB32_Format));
+        buffer.writeBool(true);  // hasPath
+        buffer.writeBool(false);
+        buffer.writeBool(false);
+        buffer.writePath(SkPath::Rect(SkRect::MakeXYWH(0, 0, 1, 1)));
+
+        buffer.writeInt(0);  // drawablesCount
+
+        return buffer.snapshotAsData();
+    };
+
+    sk_sp<SkData> blob = BuildMaliciousStrikeData();
+    REPORTER_ASSERT(reporter, blob);
+
+    SkStrikeCache cache;
+    auto discardableManager = sk_make_sp<DiscardableManager>();
+    SkStrikeClient client(discardableManager, /*isLogging=*/false, &cache);
+
+    // This should fail to read the strike data because SkGlyph::addPathFromBuffer
+    // now validates that path glyphs have an expected mask format.
+    REPORTER_ASSERT(reporter, !client.readStrikeData(blob->data(), blob->size()));
 }

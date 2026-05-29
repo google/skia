@@ -572,10 +572,11 @@ void SkScalerContext::GenerateImageFromPath(
             sk_bzero(dstMask.image(), dstMask.computeImageSize());
             return;
         }
+        sk_bzero(dst.writable_addr(), dst.computeByteSize());
     } else {
         dst.reset(info, dstMask.image(), dstMask.fRowBytes);
     }
-    sk_bzero(dst.writable_addr(), dst.computeByteSize());
+    sk_bzero(dstMask.image(), dstMask.computeImageSize());
 
     skcpu::Draw draw;
     draw.fBlitterChooser = SkA8Blitter_Choose;
@@ -600,6 +601,7 @@ void SkScalerContext::GenerateImageFromPath(
             pack4xHToMask(dst, dstMask, maskPreBlend, doBGR, verticalLCD);
             break;
         default:
+            SkUNREACHABLE;
             break;
     }
 }
