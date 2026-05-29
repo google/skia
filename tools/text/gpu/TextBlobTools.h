@@ -11,12 +11,10 @@
 namespace sktext::gpu {
 class AtlasSubRun;
 class TextBlob;
-class SubRunContainer;
 
 class TextBlobTools final {
 public:
     static const AtlasSubRun* FirstSubRun(const TextBlob*);
-    static const AtlasSubRun* FirstSubRun(const SubRunContainer*);
 
 private:
     TextBlobTools();

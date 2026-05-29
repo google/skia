@@ -38,12 +38,8 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTHash.h"
-#include "src/core/SkTextBlobPriv.h"
 #include "src/core/SkTypeface_remote.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/text/StrikeForGPU.h"
-#include "src/text/gpu/SlugImpl.h"
-#include "src/text/gpu/SubRunContainer.h"
 #include "src/text/gpu/SubRunControl.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
@@ -51,7 +47,6 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/fonts/TestEmptyTypeface.h"
-#include "tools/text/gpu/TextBlobTools.h"
 
 #if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrContextOptions.h"
@@ -71,7 +66,7 @@
 #include <memory>
 #include <optional>
 #include <vector>
-#include <type_traits>
+
 using namespace skia_private;
 using Slug = sktext::gpu::Slug;
 
@@ -187,38 +182,6 @@ sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount, int textSi
     }
     return builder.make();
 }
-
-namespace {
-template <typename T>
-const sktext::gpu::SubRunContainer* get_container_ptr(const T& t) {
-    if constexpr (std::is_pointer_v<std::decay_t<T>>) {
-        return t;
-    } else {
-        return t.get();
-    }
-}
-
-template <typename T, typename = void>
-struct HasSubRuns : std::false_type {};
-template <typename T>
-struct HasSubRuns<T, std::void_t<decltype(std::declval<const T>().subRuns())>> : std::true_type {};
-
-template <typename T, typename = void>
-struct HasSubruns : std::false_type {};
-template <typename T>
-struct HasSubruns<T, std::void_t<decltype(std::declval<const T>().subruns())>> : std::true_type {};
-
-template <typename T>
-const sktext::gpu::SubRunContainer* get_container(T* slugImpl) {
-    if constexpr (HasSubRuns<T>::value) {
-        return get_container_ptr(slugImpl->subRuns());
-    } else if constexpr (HasSubruns<T>::value) {
-        return get_container_ptr(slugImpl->subruns());
-    } else {
-        return nullptr;
-    }
-}
-} // namespace anonymous
 
 #if defined(SK_GANESH)
 static void compare_blobs(const SkBitmap& expected, const SkBitmap& actual,
@@ -478,222 +441,6 @@ DEF_GANESH_TEST_FOR_CONTEXTS(SkRemoteGlyphCache_SlugSerialization,
 
     // Must unlock everything on termination, otherwise memory leaks can be reported.
     discardableManager->unlockAndDeleteAll();
-}
-
-DEF_GANESH_TEST_FOR_CONTEXTS(SkRemoteGlyphCache_SlugSerialization_LargeOffset,
-                             skgpu::IsRenderingContext,
-                             reporter,
-                             ctxInfo,
-                             use_padding_options,
-                             CtsEnforcement::kNever) {
-    auto dContext = ctxInfo.directContext();
-    sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager, false);
-    const SkPaint paint;
-
-    auto serverTypeface = ToolUtils::CreateTestTypeface("monospace", SkFontStyle());
-
-    int glyphCount = 10;
-    auto serverBlob = buildTextBlob(serverTypeface, glyphCount);
-    auto props = FindSurfaceProps(dContext);
-    std::unique_ptr<SkCanvas> analysisCanvas = server.makeAnalysisCanvas(
-            200, 200, props, nullptr, dContext->supportsDistanceFieldText(),
-            !dContext->priv().caps()->disablePerspectiveSDFText());
-
-    // Generate slug with a large offset (e.g., 100, 100)
-    auto srcSlug = Slug::ConvertBlob(analysisCanvas.get(), *serverBlob, {100.f, 100.f}, paint);
-    auto dstSlugData = srcSlug->serialize();
-
-    std::vector<uint8_t> serverStrikeData;
-    server.writeStrikeData(&serverStrikeData);
-
-    REPORTER_ASSERT(reporter,
-                    client.readStrikeData(serverStrikeData.data(), serverStrikeData.size()));
-
-    auto draw_with_clip = [&](sk_sp<Slug> slug) {
-        auto surface = MakeSurface(200, 200, dContext);
-        auto canvas = surface->getCanvas();
-        canvas->clipRect(SkRect::MakeLTRB(90, 90, 200, 200));
-        slug->draw(canvas, paint);
-        SkBitmap bitmap;
-        bitmap.allocN32Pixels(200, 200);
-        surface->readPixels(bitmap, 0, 0);
-        return bitmap;
-    };
-
-    SkBitmap expected = draw_with_clip(srcSlug);
-    auto dstSlug = client.deserializeSlugForTest(dstSlugData->data(), dstSlugData->size());
-    REPORTER_ASSERT(reporter, dstSlug != nullptr);
-    SkBitmap actual = draw_with_clip(dstSlug);
-
-    compare_blobs(expected, actual, reporter);
-
-    discardableManager->unlockAndDeleteAll();
-}
-
-DEF_GANESH_TEST_FOR_CONTEXTS(SkRemoteGlyphCache_SubRunBoundsReconstruction,
-                             skgpu::IsRenderingContext,
-                             reporter,
-                             ctxInfo,
-                             use_padding_options,
-                             CtsEnforcement::kNever) {
-    auto dContext = ctxInfo.directContext();
-    sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
-    SkStrikeServer server(discardableManager.get());
-    SkStrikeClient client(discardableManager, false);
-    const SkPaint paint;
-
-    auto serverTypeface = ToolUtils::CreateTestTypeface("monospace", SkFontStyle());
-    auto colrTypeface = ToolUtils::CreateTypefaceFromResource("fonts/colr.ttf");
-    if (!colrTypeface) {
-        return;
-    }
-
-    auto props = FindSurfaceProps(dContext);
-
-    auto check_bounds = [&](sk_sp<SkTextBlob> blob, const SkMatrix& matrix, const char* name) {
-        std::unique_ptr<SkCanvas> analysisCanvas =
-                server.makeAnalysisCanvas(500,
-                                          500,
-                                          props,
-                                          nullptr,
-                                          dContext->supportsDistanceFieldText(),
-                                          !dContext->priv().caps()->disablePerspectiveSDFText());
-
-        analysisCanvas->save();
-        analysisCanvas->concat(matrix);
-        auto srcSlug =
-                sktext::gpu::Slug::ConvertBlob(analysisCanvas.get(), *blob, {0.f, 0.f}, paint);
-        analysisCanvas->restore();
-
-        REPORTER_ASSERT(reporter, srcSlug != nullptr, "Slug is null for %s", name);
-        if (!srcSlug) return;
-        auto dstSlugData = srcSlug->serialize();
-
-        std::vector<uint8_t> serverStrikeData;
-        server.writeStrikeData(&serverStrikeData);
-
-        REPORTER_ASSERT(reporter,
-                        client.readStrikeData(serverStrikeData.data(), serverStrikeData.size()));
-
-        auto dstSlug = client.deserializeSlugForTest(dstSlugData->data(), dstSlugData->size());
-        REPORTER_ASSERT(reporter, dstSlug != nullptr, "Dst slug is null for %s", name);
-        if (!dstSlug) return;
-        auto dstSlugImpl = static_cast<sktext::gpu::SlugImpl*>(dstSlug.get());
-
-        const sktext::gpu::SubRunContainer* dstContainer = get_container(dstSlugImpl);
-        REPORTER_ASSERT(reporter, dstContainer != nullptr, "Dst container is null for %s", name);
-        if (!dstContainer) return;
-
-        const sktext::gpu::AtlasSubRun* dstSubRun =
-                sktext::gpu::TextBlobTools::FirstSubRun(dstContainer);
-
-        if (dstSubRun) {
-            auto dstRect = std::get<1>(dstSubRun->deviceRectAndNeedsTransform(matrix));
-            REPORTER_ASSERT(reporter,
-                            !dstRect.isEmpty(),
-                            "Dst bounds failed to reconstruct (empty) for %s",
-                            name);
-
-            SkRect mappedBlobBounds = blob->bounds();
-            matrix.mapRect(&mappedBlobBounds);
-            REPORTER_ASSERT(reporter,
-                            mappedBlobBounds.contains(dstRect),
-                            "Mapped blob bounds [%f, %f, %f, %f] do not contain reconstructed "
-                            "bounds [%f, %f, %f, %f] for %s",
-                            mappedBlobBounds.fLeft,
-                            mappedBlobBounds.fTop,
-                            mappedBlobBounds.fRight,
-                            mappedBlobBounds.fBottom,
-                            dstRect.fLeft,
-                            dstRect.fTop,
-                            dstRect.fRight,
-                            dstRect.fBottom,
-                            name);
-
-            SkTextBlobRunIterator it(blob.get());
-            while (!it.done()) {
-                SkASSERT(it.positioning() == SkTextBlobRunIterator::kFull_Positioning);
-
-                SkFont font = it.font();
-                int count = it.glyphCount();
-                const uint16_t* glyphs = it.glyphs();
-                const SkPoint* pos = reinterpret_cast<const SkPoint*>(it.pos());
-
-                std::vector<SkRect> glyphBounds(count);
-                font.getBounds(SkSpan<const SkGlyphID>(glyphs, count),
-                               SkSpan<SkRect>(glyphBounds.data(), count),
-                               nullptr);
-
-                // outset the dstRect to account for rounding or SDF text (has 2 pixels of padding)
-                SkScalar outset = dstSubRun->glyphParams().isSDF ? 2.5f : 1.5f;
-                dstRect.outset(outset, outset);
-
-                for (int i = 0; i < count; ++i) {
-                    SkRect mappedGlyphRect = glyphBounds[i];
-                    if (mappedGlyphRect.isEmpty()) {
-                        continue;
-                    }
-                    mappedGlyphRect.offset(pos[i]);
-                    matrix.mapRect(&mappedGlyphRect);
-
-                    REPORTER_ASSERT(reporter,
-                                    dstRect.contains(mappedGlyphRect),
-                                    "Reconstructed bounds [%f, %f, %f, %f] do not contain glyph %d "
-                                    "[%f, %f, %f, %f] in %s",
-                                    dstRect.fLeft,
-                                    dstRect.fTop,
-                                    dstRect.fRight,
-                                    dstRect.fBottom,
-                                    i,
-                                    mappedGlyphRect.fLeft,
-                                    mappedGlyphRect.fTop,
-                                    mappedGlyphRect.fRight,
-                                    mappedGlyphRect.fBottom,
-                                    name);
-                }
-
-                it.next();
-            }
-        } else {
-            ERRORF(reporter, "Dst subrun is null for %s", name);
-        }
-
-        discardableManager->unlockAndDeleteAll();
-    };
-
-    auto build_blob = [](sk_sp<SkTypeface> tf, SkScalar size, const char* text = "abcdefgh") {
-        SkFont font(tf, size);
-        int len = strlen(text);
-        int count = font.countText(text, len, SkTextEncoding::kUTF8);
-
-        SkTextBlobBuilder builder;
-        const auto& runBuffer = builder.allocRunPos(font, count);
-
-        font.textToGlyphs(
-                text, len, SkTextEncoding::kUTF8, SkSpan<SkGlyphID>(runBuffer.glyphs, count));
-        font.getPos(SkSpan<const SkGlyphID>(runBuffer.glyphs, count),
-                    SkSpan<SkPoint>(reinterpret_cast<SkPoint*>(runBuffer.pos), count),
-                    {0, 0});
-
-        return builder.make();
-    };
-
-    auto directBlob = build_blob(serverTypeface, 20);
-    check_bounds(directBlob, SkMatrix::I(), "DirectMaskSubRun");
-
-    if (dContext->supportsDistanceFieldText()) {
-        SkScalar sdftSize = dContext->priv().options().fGlyphsAsPathsFontSize / 2.f;
-        auto sdftBlob = build_blob(serverTypeface, sdftSize);
-        check_bounds(sdftBlob, SkMatrix::I(), "SDFTSubRun");
-    }
-
-    auto hugeBlob = build_blob(colrTypeface, 20, "\U0001F600");
-    SkMatrix perspective = SkMatrix::I();
-    perspective.setPerspX(0.001f);
-    perspective.setPerspY(0.001f);
-    check_bounds(hugeBlob, perspective, "TransformedMaskSubRun");
 }
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_ReleaseTypeFace,
