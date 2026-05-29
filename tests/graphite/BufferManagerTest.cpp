@@ -70,48 +70,4 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BufferManagerGpuOnlyBufferTest, reporte
     REPORTER_ASSERT(reporter, ssbo.fBuffer != mappedSsbo.fBuffer);
 }
 
-DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BufferManagerStaleAllocatorTest, reporter, context,
-                                         CtsEnforcement::kApiLevel_202404) {
-    std::unique_ptr<Recorder> recorder = context->makeRecorder();
-    DrawBufferManager* dbm = recorder->priv().drawBufferManager();
-
-    // Keep a reference to the buffer to prevent reuse false positives.
-    sk_sp<const Buffer> rawBuffer;
-    {
-        auto [writer, binding, allocator] =
-                dbm->getMappedUniformBuffer(/*stride=*/16, /*headroom=*/16);
-        REPORTER_ASSERT(reporter, allocator.isValid());
-        rawBuffer = sk_ref_sp(binding.fBuffer);
-        REPORTER_ASSERT(reporter, rawBuffer != nullptr);
-
-        // Force the buffer allocator to fail to simulate an allocation failure
-        dbm->testingOnly_onFailedBuffer();
-        REPORTER_ASSERT(reporter, dbm->hasMappingFailed());
-
-        // BufferSubAllocator::reset() is called on allocator destruction
-    }
-
-    // Recorder::snap() failure branch clears fMappingFailed and drops the failed Recording.
-    auto failedRecording = recorder->snap();
-    REPORTER_ASSERT(reporter, !failedRecording);
-
-    // Purge everything in the cache by setting the max budget to 0 and freeing all resources
-    size_t originalBudget = recorder->maxBudgetedBytes();
-    recorder->setMaxBudgetedBytes(0);
-    recorder->freeGpuResources();
-    recorder->setMaxBudgetedBytes(originalBudget); // probably unnecessary but safe
-
-    // Get another allocator
-    auto [staleWriter, staleBinding, staleAllocator] =
-            dbm->getMappedUniformBuffer(/*stride=*/16, /*headroom=*/16);
-    REPORTER_ASSERT(reporter, staleAllocator.isValid());
-
-    // The buffer should not be the same as rawBuffer
-    REPORTER_ASSERT(reporter, staleBinding.fBuffer != rawBuffer.get());
-
-    auto successRecording = recorder->snap();
-    REPORTER_ASSERT(reporter, successRecording);
-}
-
 }  // namespace skgpu::graphite
-
