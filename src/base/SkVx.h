@@ -1003,9 +1003,13 @@ SIN Vec<N, double> normalize(const Vec<N, double>& v) {
 }
 
 SINT bool isfinite(const Vec<N, T>& v) {
-    // Multiply all values together with 0. If they were all finite, the output is
-    // 0 (also finite). If any were not, we'll get nan.
-    return SkIsFinite(dot(v, Vec<N, T>(0)));
+    if constexpr (std::is_floating_point_v<T>) {
+        using Mask = M<T>;
+        auto bits = sk_bit_cast<Vec<N, Mask>>(v);
+        Mask mask = (sizeof(T) == 4) ? (Mask)0x7f800000 : (Mask)0x7ff0000000000000;
+        return all((bits & mask) != mask);
+    }
+    return true;
 }
 
 // De-interleaving load of 4 vectors.

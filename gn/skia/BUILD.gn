@@ -81,6 +81,10 @@ config("default") {
     cflags += [
       "/bigobj",  # Some of our files are bigger than the regular limits.
       "/utf-8",  # Set Source and Executable character sets to UTF-8.
+
+      # Without fp:precise, MSVC makes some assumptions about NANs and Infinities that break us.
+      # https://learn.microsoft.com/en-us/cpp/build/reference/fp-specify-floating-point-behavior
+      "/fp:precise",
     ]
     cflags_cc += [ "/std:c++20" ]
 
@@ -665,7 +669,7 @@ config("debug_symbols") {
       cflags += [ "-gcodeview-ghash" ]
       ldflags = [ "/DEBUG:GHASH" ]
     } else {
-      ldflags = [ "/DEBUG:FASTLINK" ]
+      ldflags = [ "/DEBUG:FULL" ]
     }
   } else {
     cflags = [
