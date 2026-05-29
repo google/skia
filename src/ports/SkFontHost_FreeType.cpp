@@ -579,7 +579,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMet
         return nullptr;
     }
 
-    std::unique_ptr<SkAdvancedTypefaceMetrics> info(new SkAdvancedTypefaceMetrics);
+    auto info = std::make_unique<SkAdvancedTypefaceMetrics>();
     info->fPostScriptName.set(FT_Get_Postscript_Name(face));
 
     if (FT_HAS_MULTIPLE_MASTERS(face)) {
@@ -727,11 +727,11 @@ std::unique_ptr<SkScalerContext> SkTypeface_FreeType::onCreateScalerContextAsPro
         const SkScalerContextEffects& effects,
         const SkDescriptor* desc,
         SkTypeface* proxyTypeface) const {
-    std::unique_ptr<SkScalerContext_FreeType> scalerContext(new SkScalerContext_FreeType(
+    auto scalerContext = std::make_unique<SkScalerContext_FreeType>(
             *this,
             effects,
             desc,
-            proxyTypeface ? *proxyTypeface : *const_cast<SkTypeface_FreeType*>(this)));
+            proxyTypeface ? *proxyTypeface : *const_cast<SkTypeface_FreeType*>(this));
     if (scalerContext->success()) {
         return scalerContext;
     }

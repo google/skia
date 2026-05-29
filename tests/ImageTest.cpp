@@ -661,7 +661,7 @@ DEF_GANESH_TEST(AbandonedContextImage, reporter, options, CtsEnforcement::kApiLe
     using Factory = sk_gpu_test::GrContextFactory;
     for (int ct = 0; ct < skgpu::kContextTypeCount; ++ct) {
         auto type = static_cast<Factory::ContextType>(ct);
-        std::unique_ptr<Factory> factory(new Factory);
+        auto factory = std::make_unique<Factory>();
         if (!factory->get(type)) {
             continue;
         }

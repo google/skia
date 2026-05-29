@@ -141,7 +141,7 @@ static inline void SkPDFArray_Append(SkPDFArray* a) {}
 
 template <typename... Args>
 static inline std::unique_ptr<SkPDFArray> SkPDFMakeArray(Args... args) {
-    std::unique_ptr<SkPDFArray> ret(new SkPDFArray());
+    auto ret = std::make_unique<SkPDFArray>();
     ret->reserve(sizeof...(Args));
     SkPDFArray_Append(ret.get(), args...);
     return ret;

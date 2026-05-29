@@ -82,7 +82,7 @@ enum class SaveMarkers : bool {
 static std::tuple<SkCodec::Result, std::unique_ptr<JpegDecoderMgr>> read_header(
         SkStream* stream, SaveMarkers saveMarkers) {
     // Create a JpegDecoderMgr to own all of the decompress information
-    std::unique_ptr<JpegDecoderMgr> decoderMgr(new JpegDecoderMgr(stream));
+    auto decoderMgr = std::make_unique<JpegDecoderMgr>(stream);
 
     // libjpeg errors will be caught and reported here
     skjpeg_error_mgr::AutoPushJmpBuf jmp(decoderMgr->errorMgr());

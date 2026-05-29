@@ -155,7 +155,7 @@ void TestTypeface::getGlyphToUnicodeMap(SkSpan<SkUnichar> glyphToUnicode) const 
 }
 
 std::unique_ptr<SkAdvancedTypefaceMetrics> TestTypeface::onGetAdvancedMetrics() const {  // pdf only
-    std::unique_ptr<SkAdvancedTypefaceMetrics>info(new SkAdvancedTypefaceMetrics);
+    auto info = std::make_unique<SkAdvancedTypefaceMetrics>();
     info->fPostScriptName.set(fTestFont->fName);
     return info;
 }

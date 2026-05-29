@@ -2099,7 +2099,7 @@ DEF_GANESH_TEST_FOR_CONTEXTS(ClipStack_SWMask,
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, kDeviceBounds.size(),
             SkSurfaceProps(), /*label=*/{});
 
-    std::unique_ptr<ClipStack> cs(new ClipStack(kDeviceBounds, &SkMatrix::I(), false));
+    auto cs = std::make_unique<ClipStack>(kDeviceBounds, &SkMatrix::I(), false);
 
     auto addMaskRequiringClip = [&](SkScalar x, SkScalar y, SkScalar radius) {
         SkPath path = SkPathBuilder(SkPathFillType::kEvenOdd)

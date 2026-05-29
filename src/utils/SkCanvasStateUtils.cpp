@@ -183,7 +183,7 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
         return nullptr;
     }
 
-    std::unique_ptr<SkCanvasState_v1> canvasState(new SkCanvasState_v1(canvas));
+    auto canvasState = std::make_unique<SkCanvasState_v1>(canvas);
 
     setup_MC_state(&canvasState->mcState, canvas->getTotalMatrix(), canvas->getDeviceClipBounds());
 
@@ -288,7 +288,7 @@ make_canvas_from_canvas_layer(const SkCanvasLayerState& layerState) {
     SkASSERT(!bitmap.empty());
     SkASSERT(!bitmap.isNull());
 
-    std::unique_ptr<SkCanvas> canvas(new SkCanvas(bitmap));
+    auto canvas = std::make_unique<SkCanvas>(bitmap);
 
     // setup the matrix and clip
     setup_canvas_from_MC_state(layerState.mcState, canvas.get());
@@ -307,7 +307,7 @@ std::unique_ptr<SkCanvas> SkCanvasStateUtils::MakeFromCanvasState(const SkCanvas
         return nullptr;
     }
 
-    std::unique_ptr<SkCanvasStack> canvas(new SkCanvasStack(state->width, state->height));
+    auto canvas = std::make_unique<SkCanvasStack>(state->width, state->height);
 
     // setup the matrix and clip on the n-way canvas
     setup_canvas_from_MC_state(state_v1->mcState, canvas.get());

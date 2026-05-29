@@ -571,7 +571,7 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
     dst.fTop = random->nextRangeScalar(-2000.5f, 1000.f);
     dst.fRight = dst.fLeft + random->nextRangeScalar(0.5f, 1000.f);
     dst.fBottom = dst.fTop + random->nextRangeScalar(0.5f, 1000.f);
-    std::unique_ptr<SkLatticeIter> iter(new SkLatticeIter(lattice, dst));
+    auto iter = std::make_unique<SkLatticeIter>(lattice, dst);
     SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
     auto csxf = GrTest::TestColorXform(random);
     GrSamplerState::Filter filter =

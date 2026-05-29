@@ -263,8 +263,8 @@ static const TagHandler fontHandler = {
             std::unique_ptr<FontFamily>* fallbackFamily =
                     self->fCurrentFamily->fallbackFamilies.find(fallbackFor);
             if (!fallbackFamily) {
-                std::unique_ptr<FontFamily> newFallbackFamily(
-                        new FontFamily(self->fCurrentFamily->fBasePath, true));
+                auto newFallbackFamily =
+                        std::make_unique<FontFamily>(self->fCurrentFamily->fBasePath, true);
                 fallbackFamily = self->fCurrentFamily->fallbackFamilies.set(
                         fallbackFor, std::move(newFallbackFamily));
                 (*fallbackFamily)->fLanguages = self->fCurrentFamily->fLanguages;
@@ -411,8 +411,8 @@ static const TagHandler aliasHandler = {
         }
 
         if (weight) {
-            std::unique_ptr<FontFamily> family(
-                    new FontFamily(targetFamily->fBasePath, self->fIsFallback));
+            auto family =
+                    std::make_unique<FontFamily>(targetFamily->fBasePath, self->fIsFallback);
             family->fNames.push_back().set(aliasName);
 
             for (int i = 0; i < targetFamily->fFonts.size(); i++) {

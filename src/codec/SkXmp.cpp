@@ -650,7 +650,7 @@ bool SkXmpImpl::parseDom(sk_sp<SkData> xmpData, bool extended) {
 // SkXmp
 
 std::unique_ptr<SkXmp> SkXmp::Make(sk_sp<SkData> xmpData) {
-    std::unique_ptr<SkXmpImpl> xmp(new SkXmpImpl);
+    auto xmp = std::make_unique<SkXmpImpl>();
     if (!xmp->parseDom(std::move(xmpData), /*extended=*/false)) {
         return nullptr;
     }
@@ -658,7 +658,7 @@ std::unique_ptr<SkXmp> SkXmp::Make(sk_sp<SkData> xmpData) {
 }
 
 std::unique_ptr<SkXmp> SkXmp::Make(sk_sp<SkData> xmpStandard, sk_sp<SkData> xmpExtended) {
-    std::unique_ptr<SkXmpImpl> xmp(new SkXmpImpl);
+    auto xmp = std::make_unique<SkXmpImpl>();
     if (!xmp->parseDom(std::move(xmpStandard), /*extended=*/false)) {
         return nullptr;
     }
