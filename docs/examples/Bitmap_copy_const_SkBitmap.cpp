@@ -7,7 +7,7 @@ void draw(SkCanvas* canvas) {
     if (original.tryAllocPixels(
             SkImageInfo::Make(25, 35, kRGBA_8888_SkColorType, kOpaque_SkAlphaType))) {
         SkDebugf("original has pixels before copy: %s\n", original.getPixels() ? "true" : "false");
-        SkBitmap copy(original);
+        const SkBitmap& copy(original);
         SkDebugf("original has pixels after copy: %s\n", original.getPixels() ? "true" : "false");
         SkDebugf("copy has pixels: %s\n", copy.getPixels() ? "true" : "false");
     }

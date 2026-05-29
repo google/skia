@@ -26,7 +26,7 @@ DEF_TEST(BO_bentley_ottmann_1_Basic, reporter) {
         REPORTER_ASSERT(reporter, possibleCrossings.has_value());
 
         if (possibleCrossings) {
-            auto crossings = possibleCrossings.value();
+            const auto& crossings = possibleCrossings.value();
             REPORTER_ASSERT(reporter, crossings.size() == 1);
             Point p = {0, 0};
             REPORTER_ASSERT(reporter, crossings[0].crossing == p);
@@ -47,7 +47,7 @@ DEF_TEST(BO_bentley_ottmann_1_Basic, reporter) {
 
         REPORTER_ASSERT(reporter, possibleCrossings.has_value());
         if (possibleCrossings) {
-            auto crossings = possibleCrossings.value();
+            const auto& crossings = possibleCrossings.value();
             REPORTER_ASSERT(reporter, crossings.size() == 0);
         }
     }
@@ -64,7 +64,7 @@ DEF_TEST(BO_bentley_ottmann_1_Basic, reporter) {
 
         REPORTER_ASSERT(reporter, possibleCrossings.has_value());
         if (possibleCrossings) {
-            auto crossings = possibleCrossings.value();
+            const auto& crossings = possibleCrossings.value();
             REPORTER_ASSERT(reporter, crossings.size() == 0);
         }
     }

@@ -264,7 +264,7 @@ SkBlitter* CreateBlitter(const SkPixmap& dst,
 
     for (size_t i = 0; i < stages.size(); i++) {
         shaderPipeline2.append(stages[i].stage, stages[i].ctx);
-        auto stage = debugStages[i];
+        const auto& stage = debugStages[i];
         SkASSERT_RELEASE(stage.panels.size() == stage.ops.size());
         for (size_t j = 0; j < stage.panels.size() && j < stage.ops.size(); j++) {
             auto panelCtx = alloc->make<SkRasterPipelineContexts::MemoryCtx>();

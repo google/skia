@@ -4,7 +4,7 @@
 REG_FIDDLE(ImageInfo_bounds, 256, 64, false, 4) {
 void draw(SkCanvas* canvas) {
     canvas->scale(.5f, .5f);
-    SkImageInfo imageInfo = source.info();
+    const SkImageInfo& imageInfo = source.info();
     SkIRect bounds = imageInfo.bounds();
     for (int x : { 0, bounds.width() } ) {
         for (int y : { 0, bounds.height() } ) {
