@@ -8,6 +8,7 @@
 #ifndef SkSerialProcs_DEFINED
 #define SkSerialProcs_DEFINED
 
+#include "include/core/SkFourByteTag.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkAPI.h"
 
@@ -87,6 +88,8 @@ using SkSlugProc = sk_sp<sktext::gpu::Slug> (*)(SkReadBuffer&, void* ctx);
  */
 using SkDeserialTypefaceProc = sk_sp<SkTypeface> (*)(const void* data, size_t length, void* ctx);
 
+using SkDeserialAllowTagsProc = bool(*)(SkFourByteTag, void* ctx);
+
 struct SK_API SkSerialProcs {
     SkSerialPictureProc fPictureProc = nullptr;
     void*               fPictureCtx = nullptr;
@@ -116,6 +119,10 @@ struct SK_API SkDeserialProcs {
     // parameters and returns a bool). Given that there are only two valid implementations of that
     // proc, we just insert the bool directly.
     bool                         fAllowSkSL = true;
+
+    // Can be used to restrict the tags that will be deserialized from SkPictures.
+    SkDeserialAllowTagsProc      fAllowTagsProc = nullptr;
+    void*                        fAllowTagsCtx = nullptr;
 };
 
 #endif
