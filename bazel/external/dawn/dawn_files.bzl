@@ -33,8 +33,6 @@ DAWN_COMMON_HDRS = [
     "src/dawn/common/Mutex.h",
     "src/dawn/common/MutexProtected.h",
     "src/dawn/common/NSRef.h",
-    "src/dawn/common/NonCopyable.h",
-    "src/dawn/common/NonMovable.h",
     "src/dawn/common/Numeric.h",
     "src/dawn/common/PlacementAllocated.h",
     "src/dawn/common/Preprocessor.h",
