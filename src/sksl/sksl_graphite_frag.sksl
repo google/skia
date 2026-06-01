@@ -1367,15 +1367,18 @@ $pure half4 sample_indexed_atlas(float2 unormTexCoords, // unormalized texture c
                                  sampler2D atlas1,
                                  sampler2D atlas2,
                                  sampler2D atlas3) {
+    // Note: This relies on the (currently true assumption) that all textures have the same size
+    float2 invTexSize = 1.0 / float2(textureSize(atlas0));
+    float2 normalizedTexCoords = unormTexCoords * invTexSize;
     switch (atlasIndex) {
         case 1:
-            return sample(atlas1, unormTexCoords / float2(textureSize(atlas1)));
+            return sample(atlas1, normalizedTexCoords);
         case 2:
-            return sample(atlas2, unormTexCoords / float2(textureSize(atlas2)));
+            return sample(atlas2, normalizedTexCoords);
         case 3:
-            return sample(atlas3, unormTexCoords / float2(textureSize(atlas3)));
+            return sample(atlas3, normalizedTexCoords);
         default:
-            return sample(atlas0, unormTexCoords / float2(textureSize(atlas0)));
+            return sample(atlas0, normalizedTexCoords);
     }
 }
 
@@ -1387,31 +1390,29 @@ $pure half3 $sample_indexed_atlas_lcd(float2 unormTexCoords, // unormalized text
                                       sampler2D atlas2,
                                       sampler2D atlas3) {
     half3 distance = half3(1);
-    float2 textureCoords;
+    // Note: This relies on the (currently true assumption) that all textures have the same size
+    float2 invTexSize = 1.0 / float2(textureSize(atlas0));
+    float2 normalizedTexCoords = unormTexCoords * invTexSize;
     switch (atlasIndex) {
         case 1:
-            textureCoords = unormTexCoords / float2(textureSize(atlas1));
-            distance.x = sample(atlas1, textureCoords - offset).r;
-            distance.y = sample(atlas1, textureCoords).r;
-            distance.z = sample(atlas1, textureCoords + offset).r;
+            distance.x = sample(atlas1, normalizedTexCoords - offset).r;
+            distance.y = sample(atlas1, normalizedTexCoords).r;
+            distance.z = sample(atlas1, normalizedTexCoords + offset).r;
             break;
         case 2:
-            textureCoords = unormTexCoords / float2(textureSize(atlas2));
-            distance.x = sample(atlas2, textureCoords - offset).r;
-            distance.y = sample(atlas2, textureCoords).r;
-            distance.z = sample(atlas2, textureCoords + offset).r;
+            distance.x = sample(atlas2, normalizedTexCoords - offset).r;
+            distance.y = sample(atlas2, normalizedTexCoords).r;
+            distance.z = sample(atlas2, normalizedTexCoords + offset).r;
             break;
         case 3:
-            textureCoords = unormTexCoords / float2(textureSize(atlas3));
-            distance.x = sample(atlas3, textureCoords - offset).r;
-            distance.y = sample(atlas3, textureCoords).r;
-            distance.z = sample(atlas3, textureCoords + offset).r;
+            distance.x = sample(atlas3, normalizedTexCoords - offset).r;
+            distance.y = sample(atlas3, normalizedTexCoords).r;
+            distance.z = sample(atlas3, normalizedTexCoords + offset).r;
             break;
         default:
-            textureCoords = unormTexCoords / float2(textureSize(atlas0));
-            distance.x = sample(atlas0, textureCoords - offset).r;
-            distance.y = sample(atlas0, textureCoords).r;
-            distance.z = sample(atlas0, textureCoords + offset).r;
+            distance.x = sample(atlas0, normalizedTexCoords - offset).r;
+            distance.y = sample(atlas0, normalizedTexCoords).r;
+            distance.z = sample(atlas0, normalizedTexCoords + offset).r;
             break;
     }
     return distance;
