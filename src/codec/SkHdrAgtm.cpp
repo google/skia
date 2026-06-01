@@ -267,7 +267,7 @@ void PopulateSlopeFromPCHIP(AdaptiveGlobalToneMap::GainCurve& gainCurve) {
     };
 
     for (int i = 0; i < N; ++i) {
-        if (i - 1 >= 0 && i + 1 < N && cp[i].fX < cp[i+1].fX) {
+        if (i - 1 >= 0 && i + 1 < N && cp[i-1].fX < cp[i].fX && cp[i].fX < cp[i+1].fX) {
             // Interior point, formula (C.8).
             if (std::signbit(s[i-1]) != std::signbit(s[i])) {
                 cp[i].fM = 0.f;

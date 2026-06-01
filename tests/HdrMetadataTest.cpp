@@ -147,6 +147,24 @@ DEF_TEST(HdrMetadata_Agtm_PCHIP_EdgeCases, r) {
             .expected = { {1, 0.f} }
         },
         {
+            .name = "Interior point, duplicate point left",
+            .curve = { .fControlPoints = {
+                {.fX = 0.f, .fY = 0.f},
+                {.fX = 0.f, .fY = 0.f},
+                {.fX = 1.f, .fY = 2.f}}
+            },
+            .expected = { {1, 2.f} }
+        },
+        {
+            .name = "Interior point, duplicate point right",
+            .curve = { .fControlPoints = {
+                {.fX = 0.f, .fY = 0.f},
+                {.fX = 1.f, .fY = 2.f},
+                {.fX = 1.f, .fY = 2.f}}
+            },
+            .expected = { {1, 2.f} }
+        },
+        {
             .name = "N=2, two-point difference",
             .curve = { .fControlPoints = {
                 {.fX = 0.f, .fY = 0.f},
@@ -161,7 +179,7 @@ DEF_TEST(HdrMetadata_Agtm_PCHIP_EdgeCases, r) {
                 {.fX = 0.f, .fY = 0.f},
                 {.fX = 1.f, .fY = 1.f}}
             },
-            .expected = { {0, 0.f}, {1, 0.f} }
+            .expected = { {0, 0.f}, {1, 1.f} }
         },
         {
             .name = "Right endpoint, three-point, sign change s0 vs m",
