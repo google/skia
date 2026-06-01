@@ -357,11 +357,31 @@ config("default") {
       ]
 
       assert(clang_win != "")
-      libs += [ "$clang_win/lib/clang/$clang_win_version/lib/windows/clang_rt.asan-x86_64.lib" ]
+
+      # Chromium's clang toolchain uses dynamic dependencies for ASAN.
+      # They use clang_rt.asan_dynamic-x86_64.dll.
+      # https://chromium.googlesource.com/chromium/src/+/85202d981e0c257f8f941e24b9baae38000d5019
+      #
+      # We do what they do and link against the dynamic runtime (clang_rt.asan_dynamic-x86_64.lib)
+      # and its associated thunk. Then, we copy the .dll into the out/ASAN (or whatever) directory.
+      # We use /WHOLEARCHIVE for the thunk to ensure all ASan hooks are correctly linked.
+      libs += [ "$clang_win/lib/clang/$clang_win_version/lib/windows/clang_rt.asan_dynamic-x86_64.lib" ]
+      if (is_component_build) {
+        ldflags += [ "/WHOLEARCHIVE:$clang_win/lib/clang/$clang_win_version/lib/windows/clang_rt.asan_dynamic_runtime_thunk-x86_64.lib" ]
+      } else {
+        ldflags += [ "/WHOLEARCHIVE:$clang_win/lib/clang/$clang_win_version/lib/windows/clang_rt.asan_static_runtime_thunk-x86_64.lib" ]
+      }
     } else {
       cflags += [ "-fno-omit-frame-pointer" ]
 
       ldflags += [ "-fsanitize=$sanitizers" ]
+    }
+
+    if (is_win && sanitize == "ASAN") {
+      copy("copy_asan_runtime") {
+        sources = [ "$clang_win/lib/clang/$clang_win_version/lib/windows/clang_rt.asan_dynamic-x86_64.dll" ]
+        outputs = [ "$root_out_dir/clang_rt.asan_dynamic-x86_64.dll" ]
+      }
     }
 
     if (is_linux) {

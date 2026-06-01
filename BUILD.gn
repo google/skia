@@ -1975,6 +1975,10 @@ skia_component("skia") {
   defines = []
   libs = []
 
+  if (is_win && sanitize == "ASAN") {
+    deps += [ "gn/skia:copy_asan_runtime" ]
+  }
+
   if (skia_build_for_debugger) {
     defines += [ "SK_BUILD_FOR_DEBUGGER" ]
   }
