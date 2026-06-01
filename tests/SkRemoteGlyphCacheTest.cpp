@@ -1441,7 +1441,7 @@ DEF_TEST(SkRemoteGlyphCache_b513780208, reporter) {
 
         // SkDescriptor: Craft a Rec that triggers GenerateImageFromPath (fFrameWidth >= 0).
         {
-            SkScalerContextRec rec;
+            SkScalerContextRec rec{};
             rec.fTypefaceID = kServerTypefaceID;
             rec.fTextSize = 16.0f;
             rec.fPreScaleX = 1.0f;
@@ -1458,7 +1458,7 @@ DEF_TEST(SkRemoteGlyphCache_b513780208, reporter) {
 
         buffer.writeBool(false);  // fontMetricsInitialized == false
         {
-            SkFontMetrics fm;
+            SkFontMetrics fm{};
             SkFontMetricsPriv::Flatten(buffer, fm);
         }
 
