@@ -14,6 +14,7 @@
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkTraceEvent.h"
@@ -160,23 +161,37 @@ calculate_clip(const GrClip* clip, SkRect deviceBounds, SkRect glyphBounds) {
 #if !defined(SK_DISABLE_SDF_TEXT)
 static std::tuple<AtlasTextOp::MaskType, uint32_t, bool> calculate_sdf_parameters(
         const skgpu::ganesh::SurfaceDrawContext& sdc,
-        const SkMatrix& drawMatrix,
+        const SkMatrix& viewDiffMatrix,
         bool useLCDText,
         bool isAntiAliased) {
     const GrColorInfo& colorInfo = sdc.colorInfo();
     const SkSurfaceProps& props = sdc.surfaceProps();
     using MT = AtlasTextOp::MaskType;
     bool isLCD = useLCDText && props.pixelGeometry() != kUnknown_SkPixelGeometry;
+    if (isLCD) {
+        // Must check the scaling ratio of the mask texels vs. screen space since the offset for
+        // R and B samples is based on the derivative. If it gets too big, it would sample outside
+        // the 2px padding of each glyph (SK_DistanceFieldInset). We can't allow offsetting to
+        // go outside of our padding (e.g. 2*SK_DistanceFieldInset if two SDF glyphs were next to
+        // each other is theoretically ok). This is because SDF and regular A8 masks are shared in
+        // the same atlas, so an adjacent glyph may not actually have its own padding.
+        //
+        // Multiply by 3 because the derivative offset is multiplied by 1/3 for R and B offsets.
+        static constexpr float kLCDOffsetLimit = 3.f * (SK_DistanceFieldInset - 0.5f);
+        const float maxLCDOffset = viewDiffMatrix.getMaxScale();
+        isLCD &= (maxLCDOffset > 0.f && maxLCDOffset < kLCDOffsetLimit);
+    }
+
     MT maskType = !isAntiAliased ? MT::kAliasedDistanceField
                                  : isLCD ? MT::kLCDDistanceField
                                          : MT::kGrayscaleDistanceField;
 
     bool useGammaCorrectDistanceTable = colorInfo.isLinearlyBlended();
-    uint32_t DFGPFlags = drawMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
-    DFGPFlags |= drawMatrix.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
+    uint32_t DFGPFlags = viewDiffMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
+    DFGPFlags |= viewDiffMatrix.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
     DFGPFlags |= useGammaCorrectDistanceTable ? kGammaCorrect_DistanceFieldEffectFlag : 0;
     DFGPFlags |= MT::kAliasedDistanceField == maskType ? kAliased_DistanceFieldEffectFlag : 0;
-    DFGPFlags |= drawMatrix.hasPerspective() ? kPerspective_DistanceFieldEffectFlag : 0;
+    DFGPFlags |= viewDiffMatrix.hasPerspective() ? kPerspective_DistanceFieldEffectFlag : 0;
 
     if (isLCD) {
         bool isBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
@@ -253,18 +268,19 @@ std::tuple<const GrClip*, GrOp::Owner> AtlasTextOp::Make(SurfaceDrawContext* sdc
 #if !defined(SK_DISABLE_SDF_TEXT)
     auto glyphParams = subrun->glyphParams();
     if (glyphParams.isSDF) {
-         auto [maskType, DFGPFlags, useGammaCorrectDistanceTable] =
-                 calculate_sdf_parameters(*sdc, viewMatrix, glyphParams.isLCD, glyphParams.isAA);
-         op = GrOp::Make<AtlasTextOp>(rContext,
-                                      maskType,
-                                      true,
-                                      subrun->glyphCount(),
-                                      subRunDeviceBounds,
-                                      SkPaintPriv::ComputeLuminanceColor(paint),
-                                      useGammaCorrectDistanceTable,
-                                      DFGPFlags,
-                                      geometry,
-                                      std::move(grPaint));
+        SkMatrix viewDiff = subrun->vertexFiller().viewDifference(positionMatrix);
+        auto [maskType, DFGPFlags, useGammaCorrectDistanceTable] =
+                 calculate_sdf_parameters(*sdc, viewDiff, glyphParams.isLCD, glyphParams.isAA);
+        op = GrOp::Make<AtlasTextOp>(rContext,
+                                     maskType,
+                                     true,
+                                     subrun->glyphCount(),
+                                     subRunDeviceBounds,
+                                     SkPaintPriv::ComputeLuminanceColor(paint),
+                                     useGammaCorrectDistanceTable,
+                                     DFGPFlags,
+                                     geometry,
+                                     std::move(grPaint));
      } else
 #endif
      {

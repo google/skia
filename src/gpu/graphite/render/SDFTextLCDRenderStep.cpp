@@ -18,6 +18,7 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
 #include "src/base/SkEnumBitMask.h"
+#include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/graphite/AtlasProvider.h"
 #include "src/gpu/graphite/Attribute.h"
@@ -167,13 +168,24 @@ void SDFTextLCDRenderStep::writeUniformsAndTextures(const DrawParams& params,
 
     // compute and write pixelGeometry vector
     SkV2 pixelGeometryDelta = {0, 0};
-    if (SkPixelGeometryIsH(subRunData.pixelGeometry())) {
-        pixelGeometryDelta = {1.f/(3*proxies[0]->dimensions().width()), 0};
-    } else if (SkPixelGeometryIsV(subRunData.pixelGeometry())) {
-        pixelGeometryDelta = {0, 1.f/(3*proxies[0]->dimensions().height())};
-    }
-    if (SkPixelGeometryIsBGR(subRunData.pixelGeometry())) {
-        pixelGeometryDelta = -pixelGeometryDelta;
+
+    // There is 2px padding of each glyph (SK_DistanceFieldInset). We can't allow offsetting to go
+    // outside of our padding (e.g. 2*SK_DistanceFieldInset if two SDF glyphs were next to each
+    // other is theoretically ok). This is because SDF and regular A8 masks are shared in the same
+    // atlas, so an adjacent glyph may not actually have its own padding.
+    //
+    // NOTE: kLCDOffsetLimit is multiplied by 3 to account for the scale added to pixelGeometryDelta
+    static constexpr float kLCDOffsetLimit = 3.f * (SK_DistanceFieldInset - 0.5f);
+    float maxLCDOffset = Transform(subRunData.maskToDevice()).localAARadius(subRunData.bounds());
+    if (maxLCDOffset < kLCDOffsetLimit) {
+        if (SkPixelGeometryIsH(subRunData.pixelGeometry())) {
+            pixelGeometryDelta = {1.f/(3*proxies[0]->dimensions().width()), 0};
+        } else if (SkPixelGeometryIsV(subRunData.pixelGeometry())) {
+            pixelGeometryDelta = {0, 1.f/(3*proxies[0]->dimensions().height())};
+        }
+        if (SkPixelGeometryIsBGR(subRunData.pixelGeometry())) {
+            pixelGeometryDelta = -pixelGeometryDelta;
+        }
     }
     gatherer->writeHalf(pixelGeometryDelta);
 
