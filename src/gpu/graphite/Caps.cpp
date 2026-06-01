@@ -24,9 +24,23 @@ namespace skgpu::graphite {
 
 Caps::Caps()
         : fShaderCaps(std::make_unique<SkSL::ShaderCaps>())
-        , fCapabilities(new SkCapabilities()) {}
+        , fCapabilities(new SkCapabilities()) {
+    this->setDefaultShaderCaps();
+}
 
 Caps::~Caps() {}
+
+void Caps::setDefaultShaderCaps() {
+    fShaderCaps->fFlatInterpolationSupport = true;
+    fShaderCaps->fShaderDerivativeSupport = true;
+    fShaderCaps->fExplicitTextureLodSupport = true;
+    fShaderCaps->fSampleMaskSupport = true;
+    fShaderCaps->fInfinitySupport = true;
+    fShaderCaps->fIntegerSupport = true;
+    fShaderCaps->fNonsquareMatrixSupport = true;
+    fShaderCaps->fInverseHyperbolicSupport = true;
+    fShaderCaps->fFloatIs32Bits = true;
+}
 
 void Caps::finishInitialization(const ContextOptions& options) {
     fCapabilities->initSkCaps(fShaderCaps.get());

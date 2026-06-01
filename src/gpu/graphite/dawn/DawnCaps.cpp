@@ -450,12 +450,9 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
 void DawnCaps::initShaderCaps(const wgpu::Device& device) {
     SkSL::ShaderCaps* shaderCaps = fShaderCaps.get();
 
-    // WGSL does not support infinities regardless of hardware support. There are discussions around
-    // enabling it using an extension in the future.
+    // WGSL does not actually support infinities regardless of hardware support. There are
+    // discussions around enabling it using an extension in the future.
     shaderCaps->fInfinitySupport = false;
-
-    // WGSL supports shader derivatives in the fragment shader
-    shaderCaps->fShaderDerivativeSupport = true;
 
     if (device.HasFeature(wgpu::FeatureName::DualSourceBlending)) {
         shaderCaps->fDualSourceBlendingSupport = true;

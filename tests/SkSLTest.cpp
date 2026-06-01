@@ -102,10 +102,11 @@ enum class SkSLTestFlag : int {
     GPU_ES3 = 1 << 3,
 
     /**
-     * `UsesNaN` tests rely on NaN values, so they are only expected to pass on GPUs that generate
-     * them (which is not a requirement, even with ES3).
+     * `UsesNonFinite` tests rely on infinite or NaN values, so they are only expected to pass on
+     * GPUs that generate them (which is not a requirement, even with ES3). These tests also assume
+     * isinf() and isnan() are available and work as expected.
      */
-    UsesNaN = 1 << 4,
+    UsesNonFinite = 1 << 4,
 
     /**
      * `Priv` tests rely on `AllowPrivateAccess` support in the runtime effect.
@@ -711,7 +712,7 @@ static void test_ganesh(skiatest::Reporter* r,
     }
 
     // If this is a test that requires the GPU to generate NaN values, check for that first.
-    if (flags & SkSLTestFlag::UsesNaN) {
+    if (flags & SkSLTestFlag::UsesNonFinite) {
         if (!gpu_generates_nan(r, ctx)) {
             return;
         }
@@ -754,12 +755,13 @@ static void test_graphite(skiatest::Reporter* r,
 
 #if defined(SK_DAWN)
     if (ctx->backend() == skgpu::BackendApi::kDawn) {
-        // If this is a test that requires the GPU to generate NaN values, we don't run it in Dawn.
-        // (WGSL/Dawn does not support infinity or NaN even if the GPU natively does.)
-        if (flags & SkSLTestFlag::UsesNaN) {
+        // If this is a test that requires the GPU to generate non-finte values, we don't run it in
+        // Dawn. (WGSL/Dawn does not support infinity or NaN even if the GPU natively does.)
+        if (flags & SkSLTestFlag::UsesNonFinite) {
             return;
         }
     }
+    // Otherwise we expect Metal and Vulkan to always support non-finite values when using Graphite.
 #endif
 
     // Create a GPU-backed Graphite surface.
@@ -1046,7 +1048,7 @@ constexpr SkSLTestFlags CPU = SkSLTestFlag::CPU;
 constexpr SkSLTestFlags ES3 = SkSLTestFlag::ES3;
 constexpr SkSLTestFlags GPU = SkSLTestFlag::GPU;
 constexpr SkSLTestFlags GPU_ES3 = SkSLTestFlag::GPU_ES3;
-constexpr SkSLTestFlags UsesNaN = SkSLTestFlag::UsesNaN;
+constexpr SkSLTestFlags UsesNonFinite = SkSLTestFlag::UsesNonFinite;
 constexpr SkSLTestFlags Priv = SkSLTestFlag::Priv;
 constexpr auto kApiLevel_T = CtsEnforcement::kApiLevel_T;
 constexpr auto kApiLevel_U = CtsEnforcement::kApiLevel_U;
@@ -1140,7 +1142,7 @@ SKSL_TEST(ES3 | GPU_ES3, kNever,      IntrinsicFloatBitsToUint,        "intrinsi
 SKSL_TEST(CPU | GPU,     kNever,      IntrinsicFloor,                  "intrinsics/Floor.sksl")
 SKSL_TEST(GPU_ES3,       kNever,      IntrinsicFwidth,                 "intrinsics/Fwidth.sksl")
 SKSL_TEST(ES3 | GPU_ES3, kNever,      IntrinsicIntBitsToFloat,         "intrinsics/IntBitsToFloat.sksl")
-SKSL_TEST(GPU_ES3,       kNever,      IntrinsicIsInf,                  "intrinsics/IsInf.sksl")
+SKSL_TEST(GPU_ES3 | UsesNonFinite, kNever, IntrinsicIsInf,             "intrinsics/IsInf.sksl")
 SKSL_TEST(CPU | GPU,     kNever,      IntrinsicLength,                 "intrinsics/Length.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, IntrinsicMatrixCompMultES2,      "intrinsics/MatrixCompMultES2.sksl")
 SKSL_TEST(ES3 | GPU_ES3, kNever,      IntrinsicMatrixCompMultES3,      "intrinsics/MatrixCompMultES3.sksl")
@@ -1184,10 +1186,10 @@ SKSL_TEST(CPU | GPU,     kApiLevel_T,      QualifierOrder,                  "run
 SKSL_TEST(CPU | GPU,     kApiLevel_T,      PrecisionQualifiers,             "runtime/PrecisionQualifiers.rts")
 SKSL_TEST(CPU | GPU,     kApiLevel_202504, SharedFunctions,                 "runtime/SharedFunctions.rts")
 
-SKSL_TEST(ES3 | GPU_ES3 | UsesNaN, kNever, RecursiveComparison_Arrays,  "runtime/RecursiveComparison_Arrays.rts")
-SKSL_TEST(ES3 | GPU_ES3 | UsesNaN, kNever, RecursiveComparison_Structs, "runtime/RecursiveComparison_Structs.rts")
-SKSL_TEST(ES3 | GPU_ES3 | UsesNaN, kNever, RecursiveComparison_Types,   "runtime/RecursiveComparison_Types.rts")
-SKSL_TEST(ES3 | GPU_ES3 | UsesNaN, kNever, RecursiveComparison_Vectors, "runtime/RecursiveComparison_Vectors.rts")
+SKSL_TEST(ES3 | GPU_ES3 | UsesNonFinite, kNever, RecursiveComparison_Arrays,  "runtime/RecursiveComparison_Arrays.rts")
+SKSL_TEST(ES3 | GPU_ES3 | UsesNonFinite, kNever, RecursiveComparison_Structs, "runtime/RecursiveComparison_Structs.rts")
+SKSL_TEST(ES3 | GPU_ES3 | UsesNonFinite, kNever, RecursiveComparison_Types,   "runtime/RecursiveComparison_Types.rts")
+SKSL_TEST(ES3 | GPU_ES3 | UsesNonFinite, kNever, RecursiveComparison_Vectors, "runtime/RecursiveComparison_Vectors.rts")
 
 SKSL_TEST(ES3 | GPU_ES3, kNever,           ArrayCast,                       "shared/ArrayCast.sksl")
 SKSL_TEST(ES3 | GPU_ES3, kNever,           ArrayComparison,                 "shared/ArrayComparison.sksl")

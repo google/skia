@@ -406,6 +406,10 @@ public:
 protected:
     Caps();
 
+    // Initializes ShaderCaps to the baseline feature levels that Graphite assumes to be true.
+    // Called in Caps' constructor so subclasses can override or set additional flags afterwards.
+    void setDefaultShaderCaps();
+
     /**
      * Subclasses must call this at the end of their init method in order to do final processing on
      * the caps.

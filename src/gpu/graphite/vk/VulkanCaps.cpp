@@ -663,7 +663,6 @@ void VulkanCaps::initShaderCaps(const EnabledFeatures enabledFeatures, const uin
     // Avoid RelaxedPrecision with OpImageSampleImplicitLod due to driver bug with YCbCr sampling.
     // (skbug.com/421927604)
     fShaderCaps->fCannotUseRelaxedPrecisionOnImageSample = vendorID == kNvidia_VkVendor;
-
     fShaderCaps->fDualSourceBlendingSupport = enabledFeatures.fDualSrcBlend;
 }
 

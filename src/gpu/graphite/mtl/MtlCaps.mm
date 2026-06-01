@@ -137,31 +137,16 @@ void MtlCaps::initCaps(const id<MTLDevice> device) {
         fAvoidMSAA = true;
     }
 
-    // ShaderCaps
+    // ShaderCaps overrides
     SkSL::ShaderCaps* shaderCaps = fShaderCaps.get();
 
     // Dual source blending requires Metal 1.2, but our minimum requirements ensure 2.2
     shaderCaps->fDualSourceBlendingSupport = true;
-
-    shaderCaps->fFlatInterpolationSupport = true;
-    shaderCaps->fShaderDerivativeSupport = true;
-    shaderCaps->fInfinitySupport = true;
-
+    shaderCaps->fVectorClampMinMaxSupport = !isIntel;
     if (this->isApple()) {
         shaderCaps->fFBFetchSupport = true;
         shaderCaps->fFBFetchColorName = "sk_LastFragColor";
     }
-
-    if (isIntel) {
-        shaderCaps->fVectorClampMinMaxSupport = false;
-    }
-
-    shaderCaps->fIntegerSupport = true;
-    shaderCaps->fNonsquareMatrixSupport = true;
-    shaderCaps->fInverseHyperbolicSupport = true;
-
-    // Metal uses IEEE floats so assuming those values here.
-    shaderCaps->fFloatIs32Bits = true;
 }
 
 
