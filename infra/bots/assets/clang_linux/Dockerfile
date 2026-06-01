@@ -1,10 +1,10 @@
 # This is based off the official LLVM docker container
 # https://github.com/llvm/llvm-project/blob/76fd4bf675b5ceeeca0e4e15cf15d89c7acf4947/llvm/utils/docker/debian10/Dockerfile
 #
-# This was launcher.gcr.io/google/debian10:latest on Sep 22 2022
+# This was launcher.gcr.io/google/debian11:latest on May 28 2026
 # Found by running
-# docker pull launcher.gcr.io/google/debian10:latest && docker images --digests | grep debian10
-FROM launcher.gcr.io/google/debian10@sha256:3242ff21417c7722482c2085f86f28ed4f76cde00bf880f15fc1795975bc2a81
+# docker pull launcher.gcr.io/google/debian11:latest && docker images --digests | grep debian11
+FROM launcher.gcr.io/google/debian11@sha256:f456f8014492a6901ee6631e70c27742a2b11edaa4641dfcc382a05ae5f2f6f2
 
 # Install build dependencies of llvm.
 # First, Update the apt's source list and include the sources of the packages.
@@ -13,14 +13,19 @@ RUN grep deb /etc/apt/sources.list | \
 # Install compiler, python, etc. We need clang and lld because otherwise we have issues compiling
 # compiler-rt (it fails using the built-in ld).
 #
-# The versions were added after seeing what was available when this image was created on Sep 22 2022
+# The versions were added after seeing what was available when this image was created on May 28 2026
+# by running:
+# docker run --rm launcher.gcr.io/google/debian11@sha256:f456f8014492a6901ee6631e70c27742a2b11edaa4641dfcc382a05ae5f2f6f2 \
+#    /bin/bash -c "apt-get update > /dev/null && apt-cache policy ca-certificates gnupg build-essential \
+#    make python3 zlib1g wget unzip git clang lld"
+#
 # Specifying the versions makes this Docker container comply with SLSA level 1.
 RUN apt-get update && \
     apt-get install -y --no-install-recommends  \
-           ca-certificates=20200601~deb10u2 gnupg=2.2.12-1+deb10u2 \
-           build-essential=12.6 make=4.2.1-1.2 python3=3.7.3-1 \
-           zlib1g=1:1.2.11.dfsg-1+deb10u2 wget=1.20.1-1.1 unzip=6.0-23+deb10u3 \
-           git=1:2.20.1-2+deb10u3 clang=1:7.0-47 lld=1:7.0-47 && \
+           ca-certificates=20230311+deb12u1~deb11u1 gnupg=2.2.27-2+deb11u3 \
+           build-essential=12.9 make=4.3-4.1 python3=3.9.2-3 \
+           zlib1g=1:1.2.11.dfsg-2+deb11u2 wget=1.21-1+deb11u2 unzip=6.0-26+deb11u1 \
+           git=1:2.30.2-1+deb11u5 clang=1:11.0-51+nmu5 lld=1:11.0-51+nmu5 && \
     rm -rf /var/lib/apt/lists/*
 
 # Install a newer ninja release.
@@ -38,24 +43,10 @@ RUN wget "https://github.com/Kitware/CMake/releases/download/v3.30.3/cmake-3.30.
     rm cmake-3.30.3-linux-x86_64.tar.gz
 
 ENV TARGET_DIR=/tmp/clang_output
-ENV CLANG_RELEASE=llvmorg-18.1.8
+ENV CLANG_RELEASE=llvmorg-22.1.0
 
 RUN mkdir -p /tmp/clang && cd /tmp/clang && \
     git clone --depth 1 -b ${CLANG_RELEASE} https://llvm.googlesource.com/llvm-project
-
-# As of August 30, 2024, iwyu 0.22 (for clang 18) is a branch. Unfortunately, this branch requires
-# python 3.9. Commit "Loosen Python version requirements for functools.cache" [0] restored support
-# for python 3.2+. However, clang internally made an incompatable change, which iwyu picked up with
-# "[clang compat] Update InclusionDirective override" [1] which came before it. So we must
-# checkout 0.22 and cherry-pick the python fix.
-# [0] https://github.com/include-what-you-use/include-what-you-use/commit/88e414728702390ed8eebf11d14b992a01df1ee0
-# [1] https://github.com/include-what-you-use/include-what-you-use/commit/f27fafa378a70b975aeaa9a1428b275a1edcfe5a
-RUN git clone https://github.com/include-what-you-use/include-what-you-use.git /tmp/iwyu && \
-    cd /tmp/iwyu && \
-    git checkout 377eaef70cdda47368939f4d9beabfabe3f628f0 && \
-    git config user.email "sk_asset_create@example.com" && \
-    git config user.name "SkAsset Create" && \
-    git cherry-pick 88e414728702390ed8eebf11d14b992a01df1ee0
 
 WORKDIR /tmp/clang/llvm-project
 
@@ -63,9 +54,7 @@ ENV CC=/usr/bin/clang
 ENV CXX=/usr/bin/clang++
 
 # https://libcxx.llvm.org/BuildingLibcxx.html#bootstrapping-build
-# https://github.com/include-what-you-use/include-what-you-use#how-to-build-as-part-of-llvm
-# This will build clang first and then use that new clang to build the runtimes and the
-# iwyu probject.
+# This will build clang first and then use that new clang to build the runtimes.
 RUN mkdir ${TARGET_DIR} out && \
     cmake -G Ninja -S llvm -B out \
     -DCMAKE_BUILD_TYPE=Release \
@@ -75,9 +64,7 @@ RUN mkdir ${TARGET_DIR} out && \
     -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON \
     -DLLVM_USE_LINKER=lld \
     -DLLVM_ENABLE_UNWIND_TABLES=OFF \
-    -DLLVM_ENABLE_TERMINFO=OFF \
-    -DLLVM_EXTERNAL_PROJECTS=iwyu \
-    -DLLVM_EXTERNAL_IWYU_SOURCE_DIR=/tmp/iwyu
+    -DLLVM_ENABLE_TERMINFO=OFF
 
 RUN ninja -C out install
 RUN cp out/bin/llvm-symbolizer out/bin/llvm-profdata out/bin/llvm-cov ${TARGET_DIR}/bin
@@ -111,14 +98,16 @@ RUN mkdir msan_unwind_out && \
     -DLLVM_ENABLE_RUNTIMES="libunwind"
 
 RUN ninja -C msan_unwind_out unwind
-RUN cp -r msan_unwind_out/lib ${TARGET_DIR}/msan
 
 RUN mkdir msan_out && \
     cmake -GNinja -S runtimes -B msan_out \
     -DCMAKE_BUILD_TYPE=Release \
-    -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;compiler-rt" \
+    -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind;compiler-rt" \
     -DLLVM_USE_SANITIZER=MemoryWithOrigins
 
 RUN ninja -C msan_out cxx cxxabi
 
-RUN cp -r msan_out/lib ${TARGET_DIR}/msan
+RUN mkdir -p ${TARGET_DIR}/msan
+RUN cp -r msan_out/lib/* ${TARGET_DIR}/msan
+# Overwrite the instrumented libunwind with the uninstrumented one.
+RUN cp -r msan_unwind_out/lib/libunwind* ${TARGET_DIR}/msan

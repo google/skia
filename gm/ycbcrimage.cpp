@@ -72,8 +72,7 @@ protected:
                 static_cast<const VulkanSharedContext*>(recorder->priv().sharedContext());
         SkASSERT(vulkanSharedCtxt);
 
-        std::unique_ptr<VkYcbcrSamplerHelper> ycbcrHelper(
-                new VkYcbcrSamplerHelper(vulkanSharedCtxt));
+        auto ycbcrHelper = std::make_unique<VkYcbcrSamplerHelper>(vulkanSharedCtxt);
         if (!ycbcrHelper) {
             *errorMsg = "Failed to create VkYcbcrSamplerHelper.";
             return skiagm::DrawResult::kFail;
@@ -107,7 +106,7 @@ protected:
 
 #if defined(SK_GANESH)
     DrawResult createYCbCrImage(GrDirectContext* dContext, SkString* errorMsg) {
-        std::unique_ptr<VkYcbcrSamplerHelper> ycbcrHelper(new VkYcbcrSamplerHelper(dContext));
+        auto ycbcrHelper = std::make_unique<VkYcbcrSamplerHelper>(dContext);
 
         if (!ycbcrHelper->isYCbCrSupported()) {
             *errorMsg = "YCbCr sampling not supported.";

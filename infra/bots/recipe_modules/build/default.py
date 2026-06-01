@@ -142,7 +142,7 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
 
   if 'Tidy' in extra_tokens:
     # Swap in clang-tidy.sh for clang++, but update PATH so it can find clang++.
-    cxx = skia_dir.joinpath("tools/clang-tidy.sh")
+    args['cc_wrapper'] = '"%s"' % skia_dir.joinpath("tools/clang-tidy.sh")
     env['PATH'] = '%s:%%(PATH)s' % (clang_linux + '/bin')
     # Increase ClangTidy code coverage by enabling features.
     args.update({

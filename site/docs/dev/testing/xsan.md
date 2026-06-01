@@ -81,22 +81,6 @@ numbers, you must provide the path to `llvm-symbolizer` via an environment varia
     export MSAN_SYMBOLIZER_PATH="${CLANGDIR}/bin/llvm-symbolizer"
     ./out/msan/dm ...
 
-### Stack Overflow during MSAN Reporting
-
-If you encounter a stack overflow (segfault) while MSAN is trying to report an error, it is likely
-because `libunwind` was itself instrumented with MSAN. This causes infinite recursion during
-stack unwinding.
-
-While our toolchain build script has been updated to fix this, you may need to apply a workaround
-to an existing toolchain:
-
-1. Locate the `msan` directory in your clang asset (e.g., `~/clang/msan`).
-2. Delete the instrumented unwinder files:
-   `rm ~/clang/msan/libunwind.so* ~/clang/msan/libunwind.a`
-3. Force a relink of your binary (e.g., `rm out/msan/dm && ninja -C out/msan dm`).
-
-This will force the loader to use the system's uninstrumented `libunwind`.
-
 Configure and Compile Skia with ASAN
 ------------------------------------
 

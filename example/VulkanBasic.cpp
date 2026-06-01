@@ -44,8 +44,8 @@
 int main(int argc, char** argv) {
     skgpu::VulkanBackendContext backendContext;
     VkDebugUtilsMessengerEXT debugMessenger;
-    std::unique_ptr<skgpu::VulkanExtensions> extensions(new skgpu::VulkanExtensions());
-    std::unique_ptr<sk_gpu_test::TestVkFeatures> features(new sk_gpu_test::TestVkFeatures);
+    auto extensions = std::make_unique<skgpu::VulkanExtensions>();
+    auto features = std::make_unique<sk_gpu_test::TestVkFeatures>();
 
     // First we need to create a VulkanBackendContext so that we can make a Vulkan GrDirectContext.
     // The vast majority of this chunk of code is setting up the VkInstance and VkDevice objects.

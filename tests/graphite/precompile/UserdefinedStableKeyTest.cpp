@@ -356,7 +356,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(UserDefinedStableKeyTest,
                                            /* condition= */ true,
                                            CtsEnforcement::kNever) {
 
-    std::unique_ptr<PipelineCallBackHandler> pipelineHandler(new PipelineCallBackHandler);
+    auto pipelineHandler = std::make_unique<PipelineCallBackHandler>();
 
     TestOptions newOptions(origOptions);
     newOptions.fContextOptions.fPipelineCallbackContext = pipelineHandler.get();
@@ -450,7 +450,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(UserDefinedStableKeyTest_Duplicates,
                                            /* condition= */ true,
                                            CtsEnforcement::kNever) {
 
-    std::unique_ptr<PipelineCallBackHandler> pipelineHandler(new PipelineCallBackHandler);
+    auto pipelineHandler = std::make_unique<PipelineCallBackHandler>();
 
     TestOptions newOptions(origOptions);
     newOptions.fContextOptions.fPipelineCallbackContext = pipelineHandler.get();
@@ -489,7 +489,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(UserDefinedStableKeyTest_Nullptrs,
                                            /* condition= */ true,
                                            CtsEnforcement::kNever) {
 
-    std::unique_ptr<PipelineCallBackHandler> pipelineHandler(new PipelineCallBackHandler);
+    auto pipelineHandler = std::make_unique<PipelineCallBackHandler>();
 
     TestOptions newOptions(origOptions);
     newOptions.fContextOptions.fPipelineCallbackContext = pipelineHandler.get();
@@ -530,7 +530,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(UserDefinedStableKeyTest_Overflow,
                                            /* condition= */ true,
                                            CtsEnforcement::kNever) {
 
-    std::unique_ptr<PipelineCallBackHandler> pipelineHandler(new PipelineCallBackHandler);
+    auto pipelineHandler = std::make_unique<PipelineCallBackHandler>();
 
     TestOptions newOptions(origOptions);
     newOptions.fContextOptions.fPipelineCallbackContext = pipelineHandler.get();
