@@ -176,7 +176,8 @@ enum class BarrierType : uint8_t {
 };
 
 enum class DstUsage : uint8_t {
-    // Prior values of dst pixels will have no effect on final written color
+    // Prior values of dst pixels will have no effect on final written color for all uses of the
+    // pipeline (e.g. not just specific to the current draw's alpha value).
     kNone                  = 0,
     // Prior values of dst pixels can have an effect on the final written color
     kDependsOnDst          = 0b0001,

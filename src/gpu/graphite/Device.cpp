@@ -1647,17 +1647,10 @@ void Device::drawGeometry(const Transform& localToDevice,
             return;
         } else {
             // This paint does not depend on the destination and covers the entire surface, so
-            // discard everything previously recorded and proceed with the draw. However, if we are
-            // here because of a paint with src-over blending that just happens to be opaque, the
-            // discarded dst can still be accessed. For non-floating point formats, that is fine,
-            // but float formats can have NaNs after a discard that cause blending to fail. To
-            // avoid that scenario, we clear to a known value instead.
-            if (paint.finalBlendMode() == SkBlendMode::kSrcOver &&
-                TextureFormatIsFloatingPoint(format)) {
-                fDC->clear(SkColors::kMagenta); // This color doesn't matter
-            } else {
-                fDC->discard();
-            }
+            // discard everything previously recorded and proceed with the draw. DstUsage::kNone
+            // implies no blending will be enabled for the draw, so discards on floating-point
+            // formats (that could inject NaNs into the dst) will be overwritten correctly.
+            fDC->discard();
             // But then continue to render the flood fill with shading
         }
     }

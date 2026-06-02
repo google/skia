@@ -180,6 +180,7 @@ void Precompile(PrecompileContext* precompileContext,
                 // For color emoji text, shaders don't affect the final color
                 PaintOptions tmp = options;
                 tmp.setShaders({});
+                tmp.priv().setPrimitiveBlendMode(SkBlendMode::kDstIn);
 
                 // ARGB text doesn't emit coverage and always has a primitive blender
                 PrecompileCombinations(rendererProvider,

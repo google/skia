@@ -1788,6 +1788,11 @@ static const PipelineLabel kNewLabels[] = {
         "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
         "VerticesRenderStep[TrisColor] + "
         "Compose [ PrimitiveColor Compose [ GaussianColorFilter BlendCompose [ SolidColor Passthrough Modulate ] ] ] SrcOver" },
+    // Synthetic copy of label 165 where an opaque color converts to Src
+/* */ { -1,
+        "RP((RGBA8+D16 x1).rgba) + "
+        "CoverBoundsRenderStep[NonAAFill] + "
+        "SolidColor Src" },
 };
 
 // The pipeline strings were created with Android Vulkan but we're going to run the test

@@ -109,6 +109,15 @@ void PaintOption::toKey(const KeyContext& keyContext) const {
                                                         fTargetFormat,
                                                         *finalBlendMode,
                                                         effectiveCoverage);
+        // Match PaintParams::toKey's logic to convert kSrcOver to kSrc
+        if (finalBlendMode == SkBlendMode::kSrcOver && isOpaque) {
+            const bool dstUsageNone = !hasAnalyticClip && fRendererCoverage == Coverage::kNone;
+            if (dstUsageNone && optimizeSrcBlend) {
+                SkASSERT(CanUseHardwareBlending(keyContext.caps(), fTargetFormat,
+                                                SkBlendMode::kSrc, fRendererCoverage));
+                finalBlendMode = SkBlendMode::kSrc;
+            }
+        }
         if (!dstReadReq || (finalBlendMode == SkBlendMode::kSrc && optimizeSrcBlend)) {
             AddFixedBlendMode(keyContext, *finalBlendMode);
         } else {
