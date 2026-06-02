@@ -86,7 +86,6 @@ protected:
 
 private:
     static void RegisterFlattenablesIfNeeded();
-    static void Finalize();
 
     friend class SkGraphics;
 
