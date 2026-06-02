@@ -10,18 +10,21 @@ out/Debug/viewer --match <pattern>
 ## Common Flags
 
 ### Matching/Filtering
-- `--match <pattern>`: Case-insensitive glob on test names.
-- `--config <name>`: Start with a specific config (e.g., `8888`, `gpu`, `vk`).
+- `--match` (or `-m`): Filter slides by name (case-sensitive substring).
+- `--slide <name>`: Start on a specific slide.
+- `--backend` (or `-b`): Backend to use: `sw` (default), `gl`, `vulkan`, `metal`, `d3d`.
 - `--skps <dir>`: Directory to read SKP files.
 - `--svgs <dir>`: Directory to read SVG files.
 
 ### Window/UI
+- `--resourcePath` (or `-i`): Path to resources. **Ensure this is correct if assets fail to load.**
 - `--width <n>`, `--height <n>`: Initial window dimensions.
-- `--notitle`: Disable the window title bar.
+- `--stats`: Show stats overlay on startup.
+- `--redraw`: Toggle continuous redraw.
 
 ## Interactive Controls (Keyboard)
 - `[` / `]`: Previous/Next slide.
-- `b`: Cycle backends (8888, GPU, etc.).
+- `b`: Cycle backends (if multiple are available).
 - `m`: Toggle MSAA.
 - `i`: Show/Hide ImGui overlay (HUD).
 - `z`: Toggle zoom window.
@@ -32,7 +35,6 @@ out/Debug/viewer --match <pattern>
 1. Press `i` to show the HUD.
 2. Go to the **Shaders** window.
 3. You can view the SkSL, GLSL/SPIR-V, and even **apply changes** to SkSL in real-time to debug shader issues.
-4. Use **Dump SkSL** to save generated shaders to `resources/sksl/`.
 
 ## Example Workflows
 
