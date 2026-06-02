@@ -1,1 +1,0 @@
-`SkRegion::setRects(const SkIRect[], int)` has been deprecated in favor of `SkRegion::setRects(SkSpan<const SkIRect>)`.
