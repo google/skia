@@ -1522,6 +1522,15 @@ void Device::drawGeometry(const Transform& localToDevice,
         return;
     }
 
+    // Currently Graphite ignores the inverted-ness of a shape when it's stroked (since inversion
+    // is part of the "fill" style). This differs from Ganesh and CPU rasterization, which only
+    // ignore inverted-ness for hairlines. Setting the inverted bit here enforces consistent
+    // behavior between Graphite's different path rendering strategies.
+    if (geometry.isShape() && geometry.shape().inverted() &&
+        (style.isHairlineStyle() || style.getStyle() == SkStrokeRec::kStroke_Style)) {
+        geometry.shape().setInverted(false);
+    }
+
     ScopedDrawBuilder scopedDrawBuilder(fRecorder);
 
     // Calculate the clipped bounds of the draw and determine the clip elements that affect the
