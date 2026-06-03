@@ -1074,12 +1074,6 @@
     "name": "Perf-ChromeOS-Clang-Trogdor-GPU-Adreno618-arm64-Release-All"
   },
   {
-    "name": "Perf-Mac12-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Graphite_Native_Metal"
-  },
-  {
-    "name": "Perf-Mac12-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal"
-  },
-  {
     "name": "Perf-Mac13-Clang-MacBookPro15.3-GPU-AppleM3-arm64-Debug-All"
   },
   {
@@ -1691,21 +1685,6 @@
   },
   {
     "name": "Test-ChromeOS-Clang-Trogdor-GPU-Adreno618-arm64-Release-All"
-  },
-  {
-    "name": "Test-Mac12-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Graphite_Native_Metal"
-  },
-  {
-    "name": "Test-Mac12-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal"
-  },
-  {
-    "name": "Test-Mac12-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal_ColorSpaces"
-  },
-  {
-    "name": "Test-Mac12-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal"
-  },
-  {
-    "name": "Test-Mac12-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal_ColorSpaces"
   },
   {
     "name": "Test-Mac13-Clang-MacBookPro15.3-GPU-AppleM3-arm64-Debug-All"
