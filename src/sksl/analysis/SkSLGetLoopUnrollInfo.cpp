@@ -313,7 +313,7 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(const Context& conte
     // wraparound behavior that would occur at runtime on the GPU. (For 'float' variables,
     // the existing double-precision calculation is sufficient.)
     LoopType loop;
-    if (initDecl.baseType().isSigned()) {
+    if (initDecl.baseType().isInteger()) {
         SkASSERT(initDecl.baseType().bitWidth() == 32);
         loop = LoopType::kInt;
     } else {
