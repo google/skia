@@ -179,7 +179,7 @@ static std::tuple<AtlasTextOp::MaskType, uint32_t, bool> calculate_sdf_parameter
         //
         // Multiply by 3 because the derivative offset is multiplied by 1/3 for R and B offsets.
         static constexpr float kLCDOffsetLimit = 3.f * (SK_DistanceFieldInset - 0.5f);
-        const float maxLCDOffset = viewDiffMatrix.getMaxScale();
+        const float maxLCDOffset = sk_ieee_float_divide(1.f, viewDiffMatrix.getMinScale());
         isLCD &= (maxLCDOffset > 0.f && maxLCDOffset < kLCDOffsetLimit);
     }
 
