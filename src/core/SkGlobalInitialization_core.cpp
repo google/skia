@@ -13,5 +13,6 @@ void SkFlattenable::RegisterFlattenablesIfNeeded() {
     once([]{
         SkFlattenable::PrivateInitializer::InitEffects();
         SkFlattenable::PrivateInitializer::InitImageFilters();
+        SkFlattenable::Finalize();
     });
 }
