@@ -401,6 +401,7 @@ skia_filegroup(
         "errors/Ossfuzz50798.sksl",
         "errors/Ossfuzz50922.sksl",
         "errors/Ossfuzz516126015.sksl",
+        "errors/Ossfuzz519154489.sksl",
         "errors/Ossfuzz56373.sksl",
         "errors/Ossfuzz58037.sksl",
         "errors/Ossfuzz58375.sksl",

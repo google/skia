@@ -67,6 +67,8 @@ DEF_TEST(SafeMath_Int_Success, r) {
     REPORTER_ASSERT(r, safe.mulInt(maxInt, 1) == maxInt);
     REPORTER_ASSERT(r, safe.mulInt(maxInt, 0) == 0);
     REPORTER_ASSERT(r, safe.divInt(6, 3) == 2);
+    REPORTER_ASSERT(r, safe.modInt(6, 3) == 0);
+    REPORTER_ASSERT(r, safe.modInt(9, 4) == 1);
     REPORTER_ASSERT(r, safe.ok());
 }
 
@@ -121,5 +123,13 @@ DEF_TEST(SafeMath_Int_Failure, r) {
 
     safe = {};
     (void)safe.divInt(minInt, -1);
+    REPORTER_ASSERT(r, !safe.ok());
+
+    safe = {};
+    (void)safe.modInt(6, 0);
+    REPORTER_ASSERT(r, !safe.ok());
+
+    safe = {};
+    (void)safe.modInt(minInt, -1);
     REPORTER_ASSERT(r, !safe.ok());
 }

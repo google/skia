@@ -68,6 +68,14 @@ public:
         return a / b;
     }
 
+    int modInt(int a, int b) {
+        if (b == 0 || (a == std::numeric_limits<int>::min() && b == -1)) {
+            fOK = false;
+            return a;
+        }
+        return a % b;
+    }
+
     size_t alignUp(size_t x, size_t alignment) {
         SkASSERT(alignment && !(alignment & (alignment - 1)));
         return add(x, alignment - 1) & ~(alignment - 1);

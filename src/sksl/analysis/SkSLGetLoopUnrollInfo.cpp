@@ -74,7 +74,7 @@ static int calculate_count_int(int32_t start, int32_t end, int32_t delta,
     int roundUp = delta > 0 ? math.subInt(delta, 1) : math.addInt(delta, 1);
     int width = math.subInt(end, start);
     int iterations = math.divInt(math.addInt(width, roundUp), delta);
-    if (inclusive == Inclusive::kYes && width % delta == 0) {
+    if (inclusive == Inclusive::kYes && math.modInt(width, delta) == 0) {
         iterations = math.addInt(iterations, 1);
     }
     // Check that we won't overflow while looping
