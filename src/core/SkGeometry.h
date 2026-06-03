@@ -527,6 +527,17 @@ public:
     }
 
     const SkPoint* computeQuads(SkSpan<const SkPoint> pts, SkScalar weight, SkScalar tol) {
+        if (weight <= 0) {
+            // The underlying conic.chopIntoQuads... is based on an algorithm that
+            // requires a positive, non-zero weight. So for w = 0 (or any invalid w < 0),
+            // we just make this a quad that is a line between the two points.
+            fQuadCount = 1;
+            SkPoint* outPts = fStorage.reset(3);
+            outPts[0] = pts[0];
+            outPts[1] = {(pts[0].fX + pts[2].fX) * 0.5f, (pts[0].fY + pts[2].fY) * 0.5f};
+            outPts[2] = pts[2];
+            return outPts;
+        }
         SkConic conic;
         conic.set(pts.data(), weight);
         return computeQuads(conic, tol);

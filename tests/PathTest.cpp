@@ -5651,3 +5651,20 @@ DEF_TEST(path_empty_iter, reporter) {
     SkPath::Iter iter(p, false);
     REPORTER_ASSERT(reporter, !iter.next());
 }
+
+DEF_TEST(path_b511244869, reporter) {
+    SkPath path =
+            SkPathBuilder()
+                    .moveTo(2.11521295e+37f, 15.9130936f)
+                    .conicTo(2.11521295e+37f, 15.9130936f, -1.90539568e+38f, 15.9130936f, 0.0f)
+                    .detach();
+
+    SkMatrix m;
+    m.setAll(1.356316e-19f, 1.356316e-19f, 1.356316e-19f,
+             1.356316e-19f, -2.128433e+38f, 1.356316e-19f,
+             1.152428e-41f, 0.000000e+00f, 0.000000e+00f);
+
+    // This should not crash or trigger an assertion in debug builds.
+    SkPath transformed = path.makeTransform(m);
+    REPORTER_ASSERT(reporter, transformed.isEmpty());
+}
