@@ -13,6 +13,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/pathops/SkPathOps.h"
+#include "src/base/SkFloatBits.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkRRectPriv.h"
@@ -1558,5 +1559,35 @@ DEF_TEST(RRect_fuzzer_regressions, r) {
             0x04, 0xdd, 0x3d, 0x1c, 0xfe, 0x89, 0x04, 0x0a, 0x0e, 0x05, 0x7e, 0x0a
         };
         REPORTER_ASSERT(r, sizeof(buf) == SkRRect{}.readFromMemory(buf, sizeof(buf)));
+    }
+}
+
+DEF_TEST(RRect_b511391129, r) {
+    const float kValA = SkBits2Float(0x4b4b4b4a); // 13323074.0f
+    const float kValB = SkBits2Float(0x4b4b4b4b); // 13323083.0f
+
+    {
+        SkRect rect = SkRect::MakeLTRB(0.0f, 0.0f, kValB, kValB);
+        SkRRect rrect;
+        rrect.setRectXY(rect, kValA, kValA);
+        REPORTER_ASSERT(r, rrect.isValid());
+    }
+
+    {
+        SkRect rect = SkRect::MakeLTRB(0.0f, 0.0f, kValB, kValB);
+        SkRRect rrect;
+        rrect.setNinePatch(rect, kValA, kValA, kValA, kValA);
+        REPORTER_ASSERT(r, rrect.isValid());
+    }
+
+    {
+        SkRect rect = SkRect::MakeLTRB(0.0f, 0.0f, kValB, kValB);
+        SkVector radii[4] = {{kValA, kValA},
+                             {kValA, kValA},
+                             {kValA, kValA},
+                             {kValA, kValA}};
+        SkRRect rrect;
+        rrect.setRectRadii(rect, radii);
+        REPORTER_ASSERT(r, rrect.isValid());
     }
 }

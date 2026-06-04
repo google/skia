@@ -22,6 +22,7 @@
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkScaleToSides.h"
 #include "src/core/SkStringUtils.h"
+#include "src/utils/SkFloatUtils.h"
 
 #include <algorithm>
 #include <cstring>
@@ -769,15 +770,18 @@ bool SkRRect::isValid() const {
                 return false;
             }
             break;
-        case kOval_Type:
-            if (fRect.isEmpty() || allRadiiZero || !allRadiiSame || allCornersSquare) {
-                return false;
-            }
-
-            for (int i = 0; i < 4; ++i) {
-                if (!SkScalarNearlyEqual(fRadii[i].fX, SkRectPriv::HalfWidth(fRect)) ||
-                    !SkScalarNearlyEqual(fRadii[i].fY, SkRectPriv::HalfHeight(fRect))) {
+        case kOval_Type: {
+                if (fRect.isEmpty() || allRadiiZero || !allRadiiSame || allCornersSquare) {
                     return false;
+                }
+
+                const SkFloatingPoint<float, 1> desiredWidth(SkRectPriv::HalfWidth(fRect));
+                const SkFloatingPoint<float, 1> desiredHeight(SkRectPriv::HalfHeight(fRect));
+                for (int i = 0; i < 4; ++i) {
+                    const SkFloatingPoint<float, 1> x(fRadii[i].fX), y(fRadii[i].fY);
+                    if (!x.AlmostEquals(desiredWidth) || !y.AlmostEquals(desiredHeight)) {
+                        return false;
+                    }
                 }
             }
             break;
