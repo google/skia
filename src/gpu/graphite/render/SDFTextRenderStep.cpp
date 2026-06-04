@@ -58,6 +58,7 @@ SDFTextRenderStep::SDFTextRenderStep(Layout layout)
                      Flags::kAppendInstances,
                      /*uniforms=*/{{"maskToDevice", SkSLType::kFloat4x4},
                                    {"localToDevice", SkSLType::kFloat4x4},
+                                   {"atlasSizeInv", SkSLType::kFloat2},
                                    {"gammaParams", SkSLType::kHalf2}},
                      PrimitiveType::kTriangleStrip,
                      kDirectDepthLEqualPass,
@@ -72,6 +73,7 @@ SDFTextRenderStep::SDFTextRenderStep(Layout layout)
                       {"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt}}},
                      /*varyings=*/
                      {{{"unormTexCoords", SkSLType::kFloat2},
+                      {"textureCoords", SkSLType::kFloat2},
                       {"texIndex", SkSLType::kFloat}}}) {}
 
 SDFTextRenderStep::~SDFTextRenderStep() {}
@@ -83,11 +85,13 @@ std::string SDFTextRenderStep::vertexSkSL() const {
            "float4 devPosition = text_vertex_fn(float2(sk_VertexID >> 1, sk_VertexID & 1), "
                                                "maskToDevice, "
                                                "localToDevice, "
+                                               "atlasSizeInv, "
                                                "float2(size), "
                                                "float2(uvPos), "
                                                "xyPos, "
                                                "strikeToSourceScale, "
                                                "depth, "
+                                               "textureCoords, "
                                                "unormTexCoords, "
                                                "stepLocalCoords);";
 }
@@ -114,14 +118,14 @@ const char* SDFTextRenderStep::fragmentCoverageSkSL() const {
     // TODO: Need to add 565 support.
     // TODO: Need aliased and possibly sRGB support.
     static_assert(kNumSDFAtlasTextures == 4);
-    return "outputCoverage = sdf_text_coverage_fn(sample_indexed_atlas(unormTexCoords, "
+    return "outputCoverage = sdf_text_coverage_fn(sample_indexed_atlas(textureCoords, "
                                                                       "int(texIndex), "
                                                                       "sdf_atlas_0, "
                                                                       "sdf_atlas_1, "
                                                                       "sdf_atlas_2, "
                                                                       "sdf_atlas_3).r, "
-                                                 "unormTexCoords, "
-                                                 "gammaParams);";
+                                                 "gammaParams, "
+                                                 "unormTexCoords);";
 }
 
 void SDFTextRenderStep::writeVertices(DrawWriter* dw,
@@ -163,6 +167,9 @@ void SDFTextRenderStep::writeUniformsAndTextures(const DrawParams& params,
     // instances? We can derive it from the Transform's existing 4x4 inverse.
     gatherer->write(subRunData.maskToDevice());
     gatherer->write(params.transform().matrix()); // local-to-device
+    SkV2 atlasDimensionsInverse = {1.f/proxies[0]->dimensions().width(),
+                                   1.f/proxies[0]->dimensions().height()};
+    gatherer->write(atlasDimensionsInverse);
 
     float gammaAdjustment = 0;
     // TODO: generate LCD adjustment
