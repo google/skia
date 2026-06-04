@@ -20,9 +20,6 @@ using namespace skia_private;
 
 namespace skgpu::graphite {
 
-// We don't want keys to get that large, so this limit is quite strict.
-static constexpr int kEmbeddedDataSizeLimit = 16;
-
 //--------------------------------------------------------------------------------------------------
 // PaintParamsKeyBuilder
 
@@ -52,7 +49,7 @@ void PaintParamsKeyBuilder::pushStack(int32_t codeSnippetID) {
 
 void PaintParamsKeyBuilder::validateData(size_t dataSize) {
     // Check that the size of the embedded data fits our self-imposed limit.
-    SkASSERT(dataSize <= kEmbeddedDataSizeLimit);
+    SkASSERT(dataSize <= PaintParamsKey::kEmbeddedDataSizeLimit);
 
     SkASSERT(!fLocked);
     SkASSERT(!fStack.empty()); // addData() called within code snippet block
@@ -299,7 +296,7 @@ static int key_to_string(const Caps* caps,
         const int dataIndexCount = PaintParamsKey::EncodeDataSize(keyData[currentIndex++]);
         // Printing keys is assumed to be done for keys that were built by PaintParamsKeyBuilder or
         // already validated for deserialization, so we consider them trusted.
-        SkASSERT(dataIndexCount >= 0 && dataIndexCount <= kEmbeddedDataSizeLimit);
+        SkASSERT(dataIndexCount >= 0 && dataIndexCount <= PaintParamsKey::kEmbeddedDataSizeLimit);
         SkASSERT(currentIndex + dataIndexCount < SkTo<int>(keyData.size()));
 
         bool descriptiveFormAppended = false;
@@ -404,7 +401,7 @@ namespace {
         return false;
     }
 
-    uint32_t id = keyData[(*currentIndex)++];
+    int32_t id = keyData[(*currentIndex)++];
     if (id >= kBuiltInCodeSnippetIDCount &&
         !SkKnownRuntimeEffects::IsSkiaKnownRuntimeEffect(id) &&
         !dict->isUserDefinedKnownRuntimeEffect(id)) {
@@ -426,12 +423,12 @@ namespace {
         // and that matches expectations of a valid length (i.e. it started out negative and is
         // now positive and less than the key data limit).
         if (dataLength >= 0 ||
-            dataLength < PaintParamsKey::EncodeDataSize(kEmbeddedDataSizeLimit)) {
+            dataLength < PaintParamsKey::EncodeDataSize(PaintParamsKey::kEmbeddedDataSizeLimit)) {
             // Would not produce a valid size after decoding
             return false;
         }
         dataLength = PaintParamsKey::EncodeDataSize(dataLength);
-        SkASSERT(dataLength >= 0 && dataLength <= kEmbeddedDataSizeLimit);
+        SkASSERT(dataLength >= 0 && dataLength <= PaintParamsKey::kEmbeddedDataSizeLimit);
         if (*currentIndex + dataLength > SkTo<int>(keyData.size())) {
             return false;
         }

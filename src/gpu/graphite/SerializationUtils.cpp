@@ -17,7 +17,6 @@
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
-#include "src/gpu/graphite/TextureInfoPriv.h"
 
 namespace skgpu::graphite {
 
@@ -125,6 +124,101 @@ constexpr bool is_valid_samplecount(uint32_t sampleCount) {
     return true;
 }
 
+// check a single block and, recursively, all its children
+[[nodiscard]] bool block_contains_ext_format(const ShaderCodeDictionary* dict,
+                                             SkStream* stream,
+                                             bool* containsExtFormat) {
+    int32_t codeSnippetID;
+    if (!stream->readS32(&codeSnippetID)) {
+        return false;
+    }
+
+    auto entry = dict->getEntry(codeSnippetID);
+    if (!entry) {
+        return false;
+    }
+
+    if (entry->storesSamplerDescData()) {
+        int32_t dataLengthEncoded;
+        if (!stream->readS32(&dataLengthEncoded)) {
+            return false;
+        }
+
+        // This `dataLengthEncoded` is untrusted, so check that it doesn't overflow EncodeDataSize
+        // and that it matches expectations of a valid length (i.e. it started out negative and is
+        // now positive and less than the key data limit).
+        if (dataLengthEncoded >= 0 ||
+            dataLengthEncoded <
+                           PaintParamsKey::EncodeDataSize(PaintParamsKey::kEmbeddedDataSizeLimit)) {
+            // Would not produce a valid size after decoding
+            return false;
+        }
+
+        int32_t dataLength = PaintParamsKey::EncodeDataSize(dataLengthEncoded);
+        SkASSERT(dataLength >= 0 && dataLength <= PaintParamsKey::kEmbeddedDataSizeLimit);
+        if (stream->getPosition() + 4*dataLength > stream->getLength()) {
+            return false;
+        }
+
+        // A SamplerDesc is serialized as either 1, 2, or 3 uint32_ts:
+        //   0: the descriptor
+        //   1: the format for immutable samplers
+        //   2: the MSB for an external format (combined with the prior uint32_t)
+        // The third uint32_t is only written for external formats so we can just use
+        // the dataLength as a test.
+        if (dataLength == 3) {
+            *containsExtFormat = true;
+        }
+
+        if (stream->skip(4*dataLength) != static_cast<uint32_t>(4*dataLength)) {
+            return false;
+        }
+    }
+
+    for (int i = 0; i < entry->fNumChildren; ++i) {
+        if (!block_contains_ext_format(dict, stream, containsExtFormat)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+[[nodiscard]] bool graphics_pipeline_desc_contains_ext_format(
+        const ShaderCodeDictionary* shaderCodeDictionary,
+        SkMemoryStream* stream,
+        bool* containsExtFormat) {
+
+    uint32_t renderStepID;
+    if (!stream->readU32(&renderStepID)) {
+        return false;
+    }
+    if (renderStepID >= RenderStep::kNumRenderSteps) {
+        return false;
+    }
+
+    uint32_t keySize;
+    if (!stream->readU32(&keySize)) {
+        return false;
+    }
+
+    if (keySize) {
+        uint32_t endOfKey = static_cast<uint32_t>(stream->getPosition()) + 4 * keySize;
+        if (endOfKey > stream->getLength()) {
+            return false;
+        }
+
+        while (stream->getPosition() < endOfKey) {
+            if (!block_contains_ext_format(shaderCodeDictionary, stream, containsExtFormat)) {
+                return false;
+            }
+        }
+
+        SkASSERT(endOfKey == stream->getPosition());
+    }
+
+    return true;
+}
+
 [[nodiscard]] bool serialize_attachment_desc(SkWStream* stream,
                                              const AttachmentDesc& attachmentDesc) {
     uint32_t tag = attachmentDesc.fFormat == TextureFormat::kUnsupported
@@ -229,6 +323,24 @@ constexpr bool is_valid_samplecount(uint32_t sampleCount) {
     return true;
 }
 
+[[nodiscard]] bool render_pass_contains_ext_format(const Caps* caps,
+                                                   SkMemoryStream* stream,
+                                                   bool* containsExtFormat) {
+    RenderPassDesc renderPassDesc;
+
+    if (!deserialize_render_pass_desc(caps, stream, &renderPassDesc)) {
+        return false;
+    }
+
+    if (renderPassDesc.fColorAttachment.fFormat        == TextureFormat::kExternal ||
+        renderPassDesc.fColorResolveAttachment.fFormat == TextureFormat::kExternal ||
+        renderPassDesc.fDepthStencilAttachment.fFormat == TextureFormat::kExternal) {
+        *containsExtFormat = true;
+    }
+
+    return true;
+}
+
 #define SK_BLOB_END_TAG SkSetFourByteTag('e', 'n', 'd', ' ')
 
 bool SerializePipelineDesc(ShaderCodeDictionary* shaderCodeDictionary,
@@ -278,6 +390,39 @@ bool DeserializePipelineDesc(const Caps* caps,
     if (tag != SK_BLOB_END_TAG) {
         return false;
     }
+
+    return true;
+}
+
+bool serialized_key_contains_ext_format(const Caps* caps,
+                                        const ShaderCodeDictionary* shaderCodeDictionary,
+                                        SkMemoryStream* stream,
+                                        bool* containsExtFormat) {
+    SkASSERT(stream);
+
+    if (!stream_is_pipeline(stream)) {
+        return false;
+    }
+
+    if (!graphics_pipeline_desc_contains_ext_format(shaderCodeDictionary,
+                                                    stream, containsExtFormat)) {
+        return false;
+    }
+
+    if (!render_pass_contains_ext_format(caps, stream, containsExtFormat)) {
+        return false;
+    }
+
+    uint32_t tag;
+    if (!stream->readU32(&tag)) {
+        return false;
+    }
+
+    if (tag != SK_BLOB_END_TAG) {
+        return false;
+    }
+
+    SkASSERT(stream->isAtEnd());
 
     return true;
 }
@@ -343,6 +488,18 @@ bool DataToPipelineDesc(const Caps* caps,
     }
 
     return true;
+}
+
+bool DataContainsExternalFormat(const Caps* caps,
+                                const ShaderCodeDictionary* shaderCodeDictionary,
+                                const SkData* data, bool* containsExtFormat) {
+    if (!data) {
+        return false;
+    }
+    SkMemoryStream stream(data->data(), data->size());
+
+    return serialized_key_contains_ext_format(caps, shaderCodeDictionary,
+                                              &stream, containsExtFormat);
 }
 
 #if defined(GPU_TEST_UTILS)

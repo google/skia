@@ -75,6 +75,20 @@ public:
     std::string getPipelineLabel(sk_sp<SkData> serializedPipelineKey,
                                  uint32_t* uniqueHash = nullptr);
 
+    enum class ExternalFormatResult {
+        kInvalid,               // the serialized key was invalid
+        kNoExternalFormat,
+        kHasExternalFormat
+    };
+
+    /**
+     * Determine if a serialized pipeline key contains a usage of an external texture format.
+     *
+     * @param serializedPipelineKey   serialized Pipeline key.
+     * @return                        a tri-state value (see ExternalFormatResult)
+     */
+    ExternalFormatResult containsExternalFormat(sk_sp<SkData> serializedPipelineKey) const;
+
     // Provides access to functions that aren't part of the public API.
     PrecompileContextPriv priv();
     const PrecompileContextPriv priv() const;  // NOLINT(readability-const-return-type)

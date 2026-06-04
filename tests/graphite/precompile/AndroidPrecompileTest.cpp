@@ -6,8 +6,12 @@
  */
 
 #include "tests/Test.h"
+#include "tools/graphite/ContextFactory.h"
+#include "tools/graphite/TestOptions.h"
 
 #if defined(SK_GRAPHITE)
+#include "include/core/SkData.h"
+#include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/PrecompileContext.h"
 #include "tests/graphite/precompile/PrecompileTestUtils.h"
 
@@ -1795,6 +1799,30 @@ static const PipelineLabel kNewLabels[] = {
         "SolidColor Src" },
 };
 
+struct CallbackData {
+    std::unique_ptr<PrecompileContext> fPrecompileContext;
+    skiatest::Reporter* fReporter;
+};
+
+void pipeline_callback_containsExternalFormat(void* context,
+                                              ContextOptions::PipelineCacheOp op,
+                                              const std::string& label,
+                                              uint32_t uniqueKeyHash,
+                                              bool fromPrecompile,
+                                              sk_sp<SkData> serializedKey) {
+    if (label.empty() || !serializedKey) {
+        return;
+    }
+
+    CallbackData* data = static_cast<CallbackData*>(context);
+
+    bool hasInLabel = label.find("HardwareImage(x") != std::string::npos;
+    bool hasInKey = data->fPrecompileContext->containsExternalFormat(serializedKey) ==
+                                     PrecompileContext::ExternalFormatResult::kHasExternalFormat;
+    REPORTER_ASSERT(data->fReporter, hasInLabel == hasInKey,
+                    "label %d != key %d", hasInLabel, hasInKey);
+}
+
 // The pipeline strings were created with Android Vulkan but we're going to run the test
 // on Dawn Metal and all the Native Vulkan configs
 bool is_acceptable_context_type(skgpu::ContextType type) {
@@ -1821,6 +1849,35 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(AndroidPrecompileTest_Old, is_acceptable_context_
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(AndroidPrecompileTest_Protected, is_acceptable_context_type,
                                reporter, context, /* testContext */, CtsEnforcement::kNever) {
     PrecompileTest(reporter, context, kNewLabels, VisitAndroidPrecompileSettings_Protected);
+}
+
+DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(AndroidPrecompileTest_containsExternalFormat,
+                                           is_acceptable_context_type,
+                                           reporter,
+                                           origContext,
+                                           origTestContext,
+                                           origOptions,
+                                           /* optionsProc= */ nullptr,
+                                           /* condition= */ true,
+                                           CtsEnforcement::kNextRelease) {
+    using namespace skiatest::graphite;
+
+    CallbackData data;
+    data.fReporter = reporter;
+
+    TestOptions newOptions(origOptions);
+    newOptions.fContextOptions.fPipelineCallbackContext = &data;
+    newOptions.fContextOptions.fPipelineCachingCallback = pipeline_callback_containsExternalFormat;
+
+    ContextFactory workaroundFactory(newOptions);
+    ContextInfo ctxInfo = workaroundFactory.getContextInfo(origTestContext->contextType());
+
+    Context* newContext = ctxInfo.fContext;
+    data.fPrecompileContext = newContext->makePrecompileContext();
+
+    PrecompileTest(reporter, newContext, kOldLabels, VisitAndroidPrecompileSettings_Old);
+
+    data.fPrecompileContext.reset();
 }
 
 #endif // SK_GRAPHITE
