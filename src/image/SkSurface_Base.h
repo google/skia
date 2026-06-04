@@ -16,6 +16,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkPixelStorage.h"
 #include "src/capture/SkCaptureManager.h"
 #include "src/image/SkImage_Base.h"
 
@@ -40,8 +41,8 @@ struct SkImageInfo;
 
 class SkSurface_Base : public SkSurface {
 public:
-    SkSurface_Base(int width, int height, const SkSurfaceProps*);
-    SkSurface_Base(const SkImageInfo&, const SkSurfaceProps*);
+    SkSurface_Base(int width, int height, const SkSurfaceProps*, sk_sp<SkPixelStorage>);
+    SkSurface_Base(const SkImageInfo&, const SkSurfaceProps*, sk_sp<SkPixelStorage>);
     ~SkSurface_Base() override;
 
     // From SkSurface.h
@@ -167,13 +168,13 @@ public:
 
     virtual sk_sp<const SkCapabilities> onCapabilities() = 0;
 
-    virtual uint32_t getPixelStorageID() const = 0;
+    sk_sp<SkPixelStorage> getPixelStorage() const { return fPixelStorage; }
 
     /**
      * If capturing, signals to the capture manager and capture canvas to break off the recording
      * SkPicture into a new SkPicture.
      */
-    SkContentID createCaptureBreakpoint();
+    void createCaptureBreakpoint();
 
     inline SkCanvas* getCachedCanvas();
     inline sk_sp<SkImage> refCachedImage();
@@ -192,6 +193,7 @@ private:
     std::unique_ptr<SkCanvas> fOwnedBaseCanvas = nullptr;
     sk_sp<SkImage>            fCachedImage  = nullptr;
 
+
     // Returns false if drawing should not take place (allocation failure).
     [[nodiscard]] bool aboutToDraw(ContentChangeMode mode);
 
@@ -201,6 +203,9 @@ private:
 
     friend class SkCanvas;
     friend class SkSurface;
+
+protected:
+    sk_sp<SkPixelStorage>     fPixelStorage = nullptr;
 };
 
 SkCanvas* SkSurface_Base::getCachedCanvas() {
@@ -224,13 +229,9 @@ sk_sp<SkImage> SkSurface_Base::refCachedImage() {
     if (fCachedImage) {
         return fCachedImage;
     }
-    SkContentID contentID = this->createCaptureBreakpoint();
+    this->createCaptureBreakpoint();
 
     fCachedImage = this->onNewImageSnapshot();
-    if (fCachedImage) {
-        as_IB(fCachedImage)->setDerivedSurfaceID(this->getPixelStorageID());
-        as_IB(fCachedImage)->setContentID(contentID);
-    }
 
     SkASSERT(!fCachedCanvas || fCachedCanvas->getSurfaceBase() == this);
     return fCachedImage;

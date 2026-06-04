@@ -26,22 +26,20 @@ SkCanvas* SkCaptureManager::makeCaptureCanvas(SkCanvas* canvas) {
     return rawCanvasPtr;
 }
 
-SkContentID SkCaptureManager::processCanvasContent(SkCaptureCanvas* canvas) {
+void SkCaptureManager::processCanvasContent(SkCaptureCanvas* canvas) {
     auto picture = canvas->snapPicture();
     if (picture) {
-        uint32_t surfaceID = asSB(canvas->getBaseCanvasSurface())->getPixelStorageID();
-        SkContentID contentID = fSurfaceContentCounters[surfaceID];
-        contentID++;
+        if (auto surfacePixelStorage = asSB(canvas->getBaseCanvasSurface())->getPixelStorage()) {
+            surfacePixelStorage->incrementContentId();
+        }
         fPictures.emplace_back(picture);
-        return contentID;
     }
-    return SkContentID();
 }
 
 void SkCaptureManager::snapPictures() {
     for (auto& canvas : fTrackedCanvases) {
         if (canvas) {
-            processCanvasContent(canvas.get());
+            this->processCanvasContent(canvas.get());
         }
     }
 }
@@ -53,21 +51,20 @@ void SkCaptureManager::toggleCapture(bool capturing) {
         this->snapPictures();
         fLastCapture = SkCapture::MakeFromPictures(fPictures);
         fPictures.clear();
-        fSurfaceContentCounters.clear();
     }
     fIsCurrentlyCapturing = capturing;
 }
 
-SkContentID SkCaptureManager::snapPicture(SkSurface* surface) {
+void SkCaptureManager::snapPicture(SkSurface* surface) {
     for (auto& canvas : fTrackedCanvases) {
         if (canvas) {
             if (canvas->getBaseCanvasSurface() == surface) {
-                return processCanvasContent(canvas.get());
+                this->processCanvasContent(canvas.get());
             }
         }
     }
-    return SkContentID();
 }
+
 
 sk_sp<SkCapture> SkCaptureManager::getLastCapture() const {
    return fLastCapture;

@@ -89,8 +89,6 @@ public:
     // May not be texturable, but includes the swizzle required when sampling or reading to CPU
     const TextureProxyView& target() const;
 
-    uint32_t getPixelStorageID() const override;
-
     TextureProxyView readSurfaceView() const;
 
     // Will be null if the target is not texturable.

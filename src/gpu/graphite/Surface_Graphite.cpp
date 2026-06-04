@@ -29,7 +29,8 @@
 namespace skgpu::graphite {
 
 Surface::Surface(sk_sp<Device> device)
-        : SkSurface_Base(device->width(), device->height(), &device->surfaceProps())
+        : SkSurface_Base(device->width(), device->height(), &device->surfaceProps(),
+                         device->target().refProxy())
         , fDevice(std::move(device))
         , fImageView(Image::WrapDevice(fDevice)) {}
 
@@ -132,11 +133,6 @@ void Surface::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
 sk_sp<const SkCapabilities> Surface::onCapabilities() {
     return fDevice->recorder()->priv().caps()->capabilities();
 }
-
-uint32_t Surface::getPixelStorageID() const {
-    return this->target().proxy()->getPixelStorageId();
-}
-
 
 // Note, devices flushed with this method add their tasks to the provided drawContext's task list,
 // but no last task is tracked. If no drawContext is provided, the task is added to the root task

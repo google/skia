@@ -9,7 +9,10 @@
 #define skgpu_graphite_Image_Base_Graphite_DEFINED
 
 #include "include/core/SkRecorder.h"
+#include "include/core/SkRefCnt.h"
 #include "include/gpu/GpuTypes.h"
+#include "include/private/SkPixelStorage.h"
+#include "include/private/base/SkSpan_impl.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkSpinlock.h"
 #include "src/image/SkImage_Base.h"
@@ -94,7 +97,7 @@ public:
                                            ReadPixelsContext) const override;
 
 protected:
-    Image_Base(const SkImageInfo& info, uint32_t uniqueID);
+    Image_Base(const SkImageInfo& info, uint32_t uniqueID, sk_sp<SkPixelStorage> backingStorage);
 
     // If the passed-in image is linked with Devices that modify its texture, copy the links to
     // this Image. This is used when a new Image is created that shares the same texture proxy as

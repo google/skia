@@ -12,6 +12,9 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkPixelStorage.h"
+#include "include/private/base/SkSpan_impl.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/capture/SkCaptureManager.h"
 #include "src/core/SkMipmap.h"
 
@@ -175,22 +178,18 @@ public:
         return nullptr;
     }
 
-    uint32_t getDerivedSurfaceID() const { return fDerivedSurfaceID; }
-    void setDerivedSurfaceID(uint32_t id) { fDerivedSurfaceID = id; }
-
-    SkContentID getContentID() const { return fContentID; }
-    void setContentID(SkContentID id) { fContentID = id; }
+    SkSpan<const sk_sp<SkPixelStorage>> getPixelStorages() const {
+        return fPixelStorages;
+    }
 
 protected:
-    SkImage_Base(const SkImageInfo& info, uint32_t uniqueID);
-
+    SkImage_Base(const SkImageInfo& info, uint32_t uniqueID, sk_sp<SkPixelStorage> backingStorage);
+    // fPixelStorages is protected since SkImage_Raster needs access in ctor
+    skia_private::STArray<1, sk_sp<SkPixelStorage>> fPixelStorages;
 private:
     // Set true by caches when they cache content that's derived from the current pixels.
 
     mutable std::atomic<bool> fAddedToRasterCache;
-
-    uint32_t fDerivedSurfaceID = 0;
-    SkContentID fContentID;
 };
 
 static inline SkImage_Base* as_IB(SkImage* image) {

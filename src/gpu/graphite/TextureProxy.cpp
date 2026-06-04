@@ -23,7 +23,8 @@ TextureProxy::TextureProxy(SkISize dimensions,
                            const TextureInfo& info,
                            std::string_view label,
                            skgpu::Budgeted budgeted)
-        : fDimensions(dimensions)
+        : SkPixelStorage(SkPixelStorage::Type::kTextureProxy)
+        , fDimensions(dimensions)
         , fInfo(info)
         , fLabel(label)
         , fBudgeted(budgeted)
@@ -32,7 +33,8 @@ TextureProxy::TextureProxy(SkISize dimensions,
 }
 
 TextureProxy::TextureProxy(sk_sp<Texture> texture)
-        : fDimensions(texture->dimensions())
+        : SkPixelStorage(SkPixelStorage::Type::kTextureProxy)
+        , fDimensions(texture->dimensions())
         , fInfo(texture->textureInfo())
         , fLabel(texture->getLabel())
         , fBudgeted(texture->budgeted())
@@ -46,7 +48,8 @@ TextureProxy::TextureProxy(SkISize dimensions,
                            skgpu::Budgeted budgeted,
                            Volatile isVolatile,
                            LazyInstantiateCallback&& callback)
-        : fDimensions(dimensions)
+        : SkPixelStorage(SkPixelStorage::Type::kTextureProxy)
+        , fDimensions(dimensions)
         , fInfo(textureInfo)
         , fBudgeted(budgeted)
         , fVolatile(isVolatile)
@@ -56,10 +59,6 @@ TextureProxy::TextureProxy(SkISize dimensions,
 }
 
 TextureProxy::~TextureProxy() {}
-
-SkPixelStorage::Type TextureProxy::type() const {
-    return SkPixelStorage::Type::kTextureProxy;
-}
 
 SkISize TextureProxy::dimensions() const {
     SkASSERT(!this->isFullyLazy() || this->isInstantiated());

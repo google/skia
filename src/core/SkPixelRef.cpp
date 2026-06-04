@@ -31,7 +31,8 @@ uint32_t SkNextID::ImageID() {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkPixelRef::SkPixelRef(int width, int height, void* pixels, size_t rowBytes)
-    : fWidth(width)
+    : SkPixelStorage(SkPixelStorage::Type::kPixelRef)
+    , fWidth(width)
     , fHeight(height)
     , fPixels(pixels)
     , fRowBytes(rowBytes)
@@ -43,10 +44,6 @@ SkPixelRef::SkPixelRef(int width, int height, void* pixels, size_t rowBytes)
 
 SkPixelRef::~SkPixelRef() {
     this->callGenIDChangeListeners();
-}
-
-SkPixelStorage::Type SkPixelRef::type() const {
-    return SkPixelStorage::Type::kPixelRef;
 }
 
 // This is undefined if there are clients in-flight trying to use us

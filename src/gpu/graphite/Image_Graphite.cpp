@@ -37,7 +37,9 @@ namespace skgpu::graphite {
 // Graphite does not cache based on the image's unique ID so always request a new one.
 Image::Image(TextureProxyView view,
              const SkColorInfo& info)
-    : Image_Base(SkImageInfo::Make(view.proxy()->dimensions(), info), kNeedNewImageUniqueID)
+    : Image_Base(SkImageInfo::Make(view.proxy()->dimensions(), info),
+                                   kNeedNewImageUniqueID,
+                                   view.refProxy())
     , fTextureProxyView(std::move(view)) {}
 
 Image::~Image() = default;

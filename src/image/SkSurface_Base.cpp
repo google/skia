@@ -31,11 +31,13 @@ class SkPaint;
 class SkSurfaceProps;
 namespace skgpu { namespace graphite { class Recorder; } }
 
-SkSurface_Base::SkSurface_Base(int width, int height, const SkSurfaceProps* props)
-        : SkSurface(width, height, props) {}
+SkSurface_Base::SkSurface_Base(int width, int height, const SkSurfaceProps* props,
+                               sk_sp<SkPixelStorage> storage)
+        : SkSurface(width, height, props), fPixelStorage(std::move(storage)) {}
 
-SkSurface_Base::SkSurface_Base(const SkImageInfo& info, const SkSurfaceProps* props)
-        : SkSurface(info, props) {}
+SkSurface_Base::SkSurface_Base(const SkImageInfo& info, const SkSurfaceProps* props,
+                               sk_sp<SkPixelStorage> storage)
+        : SkSurface(info, props), fPixelStorage(std::move(storage)) {}
 
 SkSurface_Base::~SkSurface_Base() {
     // in case the canvas outsurvives us, we null the callback
@@ -138,9 +140,8 @@ sk_sp<const SkCapabilities> SkSurface_Base::onCapabilities() {
     return SkCapabilities::RasterBackend();
 }
 
-SkContentID SkSurface_Base::createCaptureBreakpoint() {
+void SkSurface_Base::createCaptureBreakpoint() {
     if (this->baseRecorder()) {
-        return this->baseRecorder()->createCaptureBreakpoint(this);
+        this->baseRecorder()->createCaptureBreakpoint(this);
     }
-    return SkContentID();
 }

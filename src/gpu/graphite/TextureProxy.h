@@ -28,13 +28,11 @@ class ScratchResourceManager;
 class Texture;
 enum class TextureFormat : uint8_t;
 
-class TextureProxy : public SkPixelStorage, public SkRefCnt {
+class TextureProxy : public SkPixelStorage {
 public:
     TextureProxy() = delete;
 
     ~TextureProxy() override;
-
-    Type type() const override;
 
     SampleCount sampleCount() const { return fInfo.sampleCount(); }
     Mipmapped mipmapped() const { return fInfo.mipmapped(); }

@@ -19,8 +19,7 @@ Recorder* Recorder::TODO() {
     return gRecorder;
 }
 
-SkContentID Recorder::createCaptureBreakpoint(SkSurface*) {
-    return SkContentID();
+void Recorder::createCaptureBreakpoint(SkSurface*) {
 }
 
 }  // namespace skcpu

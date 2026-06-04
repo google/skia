@@ -17,6 +17,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
+#include "include/private/SkPixelStorage.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkMath.h"
 #include "src/core/SkBitmapDevice.h"
@@ -78,8 +79,9 @@ SkSurface_Raster::SkSurface_Raster(skcpu::RecorderImpl* recorder,
                                    void (*releaseProc)(void* pixels, void* context),
                                    void* context,
                                    const SkSurfaceProps* props)
-        : SkSurface_Base(info, props), fRecorder(recorder) {
+        : SkSurface_Base(info, props, nullptr), fRecorder(recorder) {
     fBitmap.installPixels(info, pixels, rowBytes, releaseProc, context);
+    fPixelStorage = sk_ref_sp(fBitmap.pixelRef());
     fWeOwnThePixels = false;    // We are "Direct"
 }
 
@@ -87,7 +89,7 @@ SkSurface_Raster::SkSurface_Raster(skcpu::RecorderImpl* recorder,
                                    const SkImageInfo& info,
                                    sk_sp<SkPixelRef> pr,
                                    const SkSurfaceProps* props)
-        : SkSurface_Base(pr->width(), pr->height(), props), fRecorder(recorder) {
+        : SkSurface_Base(pr->width(), pr->height(), props, pr), fRecorder(recorder) {
     fBitmap.setInfo(info, pr->rowBytes());
     fBitmap.setPixelRef(std::move(pr), 0, 0);
     fWeOwnThePixels = true;
@@ -182,10 +184,6 @@ sk_sp<const SkCapabilities> SkSurface_Raster::onCapabilities() {
 
 SkRecorder* SkSurface_Raster::onGetBaseRecorder() const {
     return fRecorder;
-}
-
-uint32_t SkSurface_Raster::getPixelStorageID() const {
-    return fBitmap.pixelRef()->getPixelStorageId();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

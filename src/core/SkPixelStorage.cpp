@@ -17,4 +17,4 @@ uint32_t SkPixelStorage::NextId() {
     return id;
 }
 
-SkPixelStorage::SkPixelStorage() : fID(NextId()) {}
+SkPixelStorage::SkPixelStorage(Type type) : fType(type), fID(NextId()) {}

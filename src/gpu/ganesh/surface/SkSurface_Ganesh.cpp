@@ -58,7 +58,7 @@ class SkPaint;
 class SkPixmap;
 
 SkSurface_Ganesh::SkSurface_Ganesh(sk_sp<skgpu::ganesh::Device> device)
-        : INHERITED(device->width(), device->height(), &device->surfaceProps())
+        : INHERITED(device->width(), device->height(), &device->surfaceProps(), nullptr)
         , fDevice(std::move(device)) {
     SkASSERT(fDevice->targetProxy()->priv().isExact());
 }
@@ -416,11 +416,6 @@ bool SkSurface_Ganesh::draw(sk_sp<const GrDeferredDisplayList> ddl) {
 
 sk_sp<const SkCapabilities> SkSurface_Ganesh::onCapabilities() {
     return fDevice->recordingContext()->skCapabilities();
-}
-
-uint32_t SkSurface_Ganesh::getPixelStorageID() const {
-    // TODO(b/412351769): Implement getPixelStorageID for Ganesh
-    return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

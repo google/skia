@@ -23,8 +23,14 @@
 #include <atomic>
 #include <utility>
 
-SkImage_Base::SkImage_Base(const SkImageInfo& info, uint32_t uniqueID)
-        : SkImage(info, uniqueID), fAddedToRasterCache(false) {}
+SkImage_Base::SkImage_Base(const SkImageInfo& info, uint32_t uniqueID,
+                           sk_sp<SkPixelStorage> storage)
+        : SkImage(info, uniqueID)
+        , fAddedToRasterCache(false) {
+    if (storage) {
+        fPixelStorages.push_back(std::move(storage));
+    }
+}
 
 SkImage_Base::~SkImage_Base() {
     if (fAddedToRasterCache.load()) {

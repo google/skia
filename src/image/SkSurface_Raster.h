@@ -65,8 +65,6 @@ public:
     sk_sp<const SkCapabilities> onCapabilities() override;
     SkRecorder* onGetBaseRecorder() const override;
 
-    uint32_t getPixelStorageID() const override;
-
 private:
     skcpu::RecorderImpl* fRecorder;
     SkBitmap fBitmap;

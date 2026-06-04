@@ -305,11 +305,10 @@ SkCanvas* Recorder::makeCaptureCanvas(SkCanvas* canvas) {
     return nullptr;
 }
 
-SkContentID Recorder::createCaptureBreakpoint(SkSurface* surface) {
+void Recorder::createCaptureBreakpoint(SkSurface* surface) {
    if (fSharedContext->captureManager()) {
-        return fSharedContext->captureManager()->snapPicture(surface);
+        fSharedContext->captureManager()->snapPicture(surface);
     }
-    return SkContentID();
 }
 
 void Recorder::registerDevice(sk_sp<Device> device) {
