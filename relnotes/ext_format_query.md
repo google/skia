@@ -1,1 +1,0 @@
-Added a 'containsExternalFormat' method to 'PrecompileContext'. This allows clients to determine if a serialized key contains an external format.

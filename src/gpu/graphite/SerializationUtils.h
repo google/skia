@@ -32,11 +32,6 @@ class ShaderCodeDictionary;
                                       GraphicsPipelineDesc* pipelineDesc,
                                       RenderPassDesc* renderPassDesc);
 
-[[nodiscard]] bool DataContainsExternalFormat(const Caps*,
-                                              const ShaderCodeDictionary*,
-                                              const SkData*,
-                                              bool* containsExtFormat);
-
 #if defined(GPU_TEST_UTILS)
 void DumpPipelineDesc(const char* label,
                       ShaderCodeDictionary*,

@@ -133,9 +133,6 @@ public:
     // its original length >= 0.
     static int32_t EncodeDataSize(int32_t size) { return -size - 1; }
 
-    // We don't want keys to get that large, so this limit is quite strict.
-    static constexpr int kEmbeddedDataSizeLimit = 16;
-
 private:
     friend class PaintParamsKeyBuilder;   // for the parented-data ctor
 
