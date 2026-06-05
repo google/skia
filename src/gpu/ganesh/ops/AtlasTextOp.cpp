@@ -565,11 +565,16 @@ void AtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
 
         auto& glyphData = subRun.glyphVector().accessBackendData<GlyphData>();
 
-        SkDEBUGCODE(int strideCheck = SkToInt(glyphData.vertexStride(subRun.maskFormat(),
-                                                                     geo->fDrawMatrix)));
-        SkASSERTF(strideCheck == vertexStride,
-                   "subRun stride: %d vertex buffer stride: %d\n",
-                   strideCheck, vertexStride);
+        int strideCheck = SkToInt(glyphData.vertexStride(subRun.maskFormat(), geo->fDrawMatrix));
+        if (strideCheck != vertexStride) {
+            // We (unexpectedly) have buffers of different sizes between CPU and GPU. Bail out.
+            SKIA_LOG_D(
+                    "Warning: stride mismatch detected (subrun stride: %d vertex buffer stride: "
+                    "%d). Aborting draw.\n",
+                    strideCheck,
+                    vertexStride);
+            return;
+        }
 
         const int subRunEnd = subRun.glyphCount();
 
