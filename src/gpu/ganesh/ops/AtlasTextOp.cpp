@@ -563,11 +563,9 @@ void AtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
 
         auto& glyphData = subRun.glyphVector().accessBackendData<GlyphData>();
 
-        SkDEBUGCODE(int strideCheck = SkToInt(glyphData.vertexStride(subRun.maskFormat(),
-                                                                     geo->fDrawMatrix)));
-        SkASSERTF(strideCheck == vertexStride,
-                   "subRun stride: %d vertex buffer stride: %d\n",
-                   strideCheck, vertexStride);
+        int strideCheck = SkToInt(glyphData.vertexStride(subRun.maskFormat(), geo->fDrawMatrix));
+        // If we (unexpectedly) have buffers of different sizes between CPU and GPU, bail out.
+        SkASSERTF_RELEASE(strideCheck == vertexStride, "stride mismatch");
 
         const int subRunEnd = subRun.glyphCount();
 

@@ -169,6 +169,11 @@ std::optional<VertexFiller> make_vertex_filler_from_buffer(SkReadBuffer& buffer,
 
     SkMatrix creationMatrix;
     buffer.readMatrix(&creationMatrix);
+    // The only valid creationMatrices do not have perspective and many rendering parts assume
+    // they are non-affine, so reject any malformed matrices here.
+    if (!buffer.validate(!creationMatrix.hasPerspective())) {
+        return std::nullopt;
+    }
 
     SkSpan<SkPoint> leftTop = make_points_from_buffer(buffer, alloc);
     if (leftTop.empty()) {
