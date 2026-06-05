@@ -17,10 +17,13 @@
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkTInternalLList.h"
 #include "src/core/SkIPoint16.h"
+#include "src/core/SkTHash.h"
 #include "src/gpu/MaskFormat.h"
 #include "src/gpu/RectanizerSkyline.h"
 #include "src/gpu/Token.h"
 
+#include <concepts>
+#include <functional>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -66,8 +69,67 @@ class TextureProxy;
  *
  * Garbage collection is initiated by the DrawAtlas's client via the compact() method.
  */
-class DrawAtlas {
+class DrawAtlas final {
+    class Plot;
+    enum class PlotID  : uint32_t { kInvalid = 0 };
+    enum class EntryID : int32_t {
+        kEmpty  = -1,
+        kInvalid = 0
+    };
+
 public:
+    class Rect16 final {
+    public:
+        Rect16() = default;
+        Rect16(const Rect16&) = default;
+        Rect16& operator=(const Rect16&) = default;
+        Rect16(SkIRect r)
+                : fL{SkToU16(r.fLeft)}
+                , fT{SkToU16(r.fTop)}
+                , fR{SkToU16(r.fRight)}
+                , fB{SkToU16(r.fBottom)} {}
+        operator SkIRect() const { return SkIRect::MakeLTRB(fL, fT, fR, fB); }
+
+    private:
+        uint16_t fL = 0, fT = 0, fR = 0, fB = 0;
+    };
+
+    class Record final {
+    public:
+        bool operator==(const Record& that) const {
+            return fPlotID == that.fPlotID && fEntryID == that.fEntryID;
+        }
+        bool operator!=(const Record& that) const { return !(*this == that); }
+
+        Record() = default;
+
+    private:
+        friend class DrawAtlas;
+        friend class Plot;
+        friend class BulkRecordUseUpdater;
+
+        Record(PlotID plotID, EntryID entryID) : fPlotID{plotID}, fEntryID{entryID} {}
+
+        PlotID fPlotID   = PlotID::kInvalid;
+        EntryID fEntryID = EntryID::kInvalid;
+    };
+
+    class RecordVisitor final {
+    public:
+        void visitRecords(std::invocable<Record> auto&& fn) const;
+    private:
+        friend class DrawAtlas;
+        explicit RecordVisitor(Plot* p) : fPlot{p} {}
+        Plot* fPlot;
+    };
+
+    class EvictionCallback {
+    public:
+        virtual ~EvictionCallback() = default;
+        virtual void evict(const RecordVisitor& visitor) = 0;
+    };
+
+    class BulkRecordUseUpdater;
     // These are both restricted by the space they occupy in the PlotLocator.
     // maxPages was limited by being crammed into the glyph uvs in Ganesh
     // (no longer necessary in Graphite).
@@ -210,7 +272,6 @@ public:
 #endif
 
 private:
-    class Plot;
     using PlotList = SkTInternalLList<Plot>;
 
     DrawAtlas(MaskFormat,
@@ -507,6 +568,9 @@ public:
 
     uint32_t pageIndex() const { return this->plotLocator().pageIndex(); }
 
+    PlotID plotID() const { return static_cast<PlotID>(this->genID()); }
+    void visitEntries(std::invocable<EntryID> auto&& fn) const {} // Stub
+
     /**
      * genID() is incremented when the plot is evicted due to a atlas spill. It is used to
      * know if a particular subimage is still present in the atlas.
@@ -636,6 +700,37 @@ inline DrawAtlas::Plot* DrawAtlas::findPlot(const AtlasLocator& atlasLocator) {
 inline void DrawAtlas::internalSetLastUseToken(Plot* plot, uint32_t pageIdx, Token token) {
     this->makeMRU(plot, pageIdx);
     plot->setLastUseToken(token);
+}
+
+class DrawAtlas::BulkRecordUseUpdater final {
+public:
+    BulkRecordUseUpdater() = default;
+    BulkRecordUseUpdater(const BulkRecordUseUpdater& that) : fPlotsToUpdate(that.fPlotsToUpdate) {}
+
+    bool add(Record record) {
+        auto plotID = record.fPlotID;
+        if (fPlotsToUpdate.contains(plotID)) {
+            return false;
+        }
+        fPlotsToUpdate.add(plotID);
+        return true;
+    }
+
+    void reset() { fPlotsToUpdate.reset(); }
+
+    template <std::invocable<PlotID> Fn>
+    void foreach(Fn&& fn) const {
+        fPlotsToUpdate.foreach(std::forward<Fn>(fn));
+    }
+
+private:
+    skia_private::THashSet<PlotID> fPlotsToUpdate;
+};
+
+inline void DrawAtlas::RecordVisitor::visitRecords(std::invocable<Record> auto&& fn) const {
+    fPlot->visitEntries([fn, pid = fPlot->plotID()](EntryID eid) {
+        std::invoke(fn, Record{pid, eid});
+    });
 }
 
 }  // namespace skgpu::graphite
