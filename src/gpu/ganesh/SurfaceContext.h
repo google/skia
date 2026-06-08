@@ -35,6 +35,7 @@ class GrDirectContext;
 class GrDrawingManager;
 class GrRecordingContext;
 class GrRecordingContextPriv;
+class GrTransferFromRenderTask;
 class SkColorSpace;
 enum GrSurfaceOrigin : int;
 enum SkColorType : int;
@@ -208,6 +209,8 @@ protected:
         sk_sp<GrGpuBuffer> fTransferBuffer;
         // RowBytes for transfer buffer data
         size_t fRowBytes;
+        // The task that is executed to perform the texture->buffer copy
+        sk_sp<GrTransferFromRenderTask> fTransferTask;
         // If this is null then the transfer buffer will contain the data in the requested
         // color type. Otherwise, when the transfer is done this must be called to convert
         // from the transfer buffer's color type to the requested color type.
