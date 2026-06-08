@@ -914,17 +914,26 @@ DEF_GANESH_TEST(AsyncReadPixelsContextShutdown, reporter, options, CtsEnforcemen
                 while (!cbContext.fCalled) {
                     direct->checkAsyncWorkCompletion();
                 }
-                if (!cbContext.fResult) {
-                    const char* readTypeStr;
-                    switch (readType) {
-                        case ReadType::kRGBA: readTypeStr = "rgba"; break;
-                        case ReadType::kYUV:  readTypeStr = "yuv";  break;
-                        case ReadType::kYUVA: readTypeStr = "yuva"; break;
-                    }
+
+                // If in protected mode, there shouldn't be an fResult; if unprotected there should
+                const bool expectsResult = !direct->priv().caps()->supportsProtectedContent();
+                const char* readTypeStr;
+                switch (readType) {
+                    case ReadType::kRGBA: readTypeStr = "rgba"; break;
+                    case ReadType::kYUV:  readTypeStr = "yuv";  break;
+                    case ReadType::kYUVA: readTypeStr = "yuva"; break;
+                }
+                if (expectsResult && !cbContext.fResult) {
                     ERRORF(reporter, "Callback failed on %s. read type is: %s",
                            skgpu::ContextTypeName(type), readTypeStr);
                     continue;
+                } else if (!expectsResult && cbContext.fResult) {
+                    ERRORF(reporter,
+                           "Callback unexpected succeeded  on protected %s. read type is: %s",
+                           skgpu::ContextTypeName(type), readTypeStr);
+                    continue;
                 }
+
                 // For vulkan we need to release all refs to the GrDirectContext before trying to
                 // destroy the test context. The surface here is holding a ref.
                 surf.reset();
