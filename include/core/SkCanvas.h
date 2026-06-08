@@ -45,11 +45,6 @@
 #define SK_SUPPORT_LEGACY_GETTOTALMATRIX
 #endif
 
-namespace sktext {
-class GlyphRunBuilder;
-class GlyphRunList;
-}
-
 class AutoLayerForImageFilter;
 class GrRecordingContext;
 
@@ -80,6 +75,12 @@ struct SkDrawShadowRec;
 
 template<typename E>
 class SkEnumBitMask;
+
+namespace sktext {
+class GlyphRunBuilder;
+class GlyphRun;
+class GlyphRunList;
+}  // namespace sktext
 
 namespace skgpu::graphite { class Recorder; }
 namespace sktext::gpu { class Slug; }
@@ -2559,6 +2560,7 @@ private:
     friend class SkRecords::Draw;
     template <typename Key>
     friend class skiatest::TestCanvas;
+    friend class AutoGlyphRunBuilder;
 
 protected:
     // For use by SkNoDrawCanvas (via SkCanvasVirtualEnforcer, which can't be a friend)
@@ -2704,7 +2706,15 @@ private:
     class AutoUpdateQRBounds;
     void validateClip() const;
 
-    std::unique_ptr<sktext::GlyphRunBuilder> fScratchGlyphRunBuilder;
+    sktext::GlyphRunBuilder* obtainGlyphRunBuilder();
+
+    void releaseGlyphRunBuilder();
+
+    /**
+     * fRunBuilders will be reused across text drawing commands
+     */
+    skia_private::STArray<1, std::unique_ptr<sktext::GlyphRunBuilder>> fRunBuilders;
+    int fRunBuildersUsed = 0;
 };
 
 /** \class SkAutoCanvasRestore
