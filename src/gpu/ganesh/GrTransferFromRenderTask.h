@@ -41,6 +41,8 @@ public:
             , fDstBuffer(std::move(dstBuffer))
             , fDstOffset(dstOffset) {}
 
+    bool wasExecuted() const { return fExecuted; }
+
 private:
     bool onIsUsed(GrSurfaceProxy* proxy) const override {
         SkASSERT(0 == this->numTargets());
@@ -70,7 +72,7 @@ private:
     sk_sp<GrGpuBuffer> fDstBuffer;
     size_t fDstOffset;
 
+    bool fExecuted = false;
 };
 
 #endif
-

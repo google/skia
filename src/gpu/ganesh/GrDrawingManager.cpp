@@ -835,19 +835,21 @@ void GrDrawingManager::newWaitRenderTask(const sk_sp<GrSurfaceProxy>& proxy,
     SkDEBUGCODE(this->validate());
 }
 
-void GrDrawingManager::newTransferFromRenderTask(const sk_sp<GrSurfaceProxy>& srcProxy,
-                                                 const SkIRect& srcRect,
-                                                 GrColorType surfaceColorType,
-                                                 GrColorType dstColorType,
-                                                 sk_sp<GrGpuBuffer> dstBuffer,
-                                                 size_t dstOffset) {
+sk_sp<GrTransferFromRenderTask> GrDrawingManager::newTransferFromRenderTask(
+        const sk_sp<GrSurfaceProxy>& srcProxy,
+        const SkIRect& srcRect,
+        GrColorType surfaceColorType,
+        GrColorType dstColorType,
+        sk_sp<GrGpuBuffer> dstBuffer,
+        size_t dstOffset) {
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
     this->closeActiveOpsTask();
 
-    GrRenderTask* task = this->appendTask(sk_make_sp<GrTransferFromRenderTask>(
+    sk_sp<GrTransferFromRenderTask> task = sk_make_sp<GrTransferFromRenderTask>(
             srcProxy, srcRect, surfaceColorType, dstColorType,
-            std::move(dstBuffer), dstOffset));
+            std::move(dstBuffer), dstOffset);
+    SkAssertResult(this->appendTask(task) == task.get());
 
     const GrCaps& caps = *fContext->priv().caps();
 
@@ -861,6 +863,8 @@ void GrDrawingManager::newTransferFromRenderTask(const sk_sp<GrSurfaceProxy>& sr
     // shouldn't be an active one.
     SkASSERT(!fActiveOpsTask);
     SkDEBUGCODE(this->validate());
+
+    return task;
 }
 
 void GrDrawingManager::newBufferTransferTask(sk_sp<GrGpuBuffer> src,
