@@ -221,6 +221,24 @@ SkSpan<const SkGlyph*> SkStrike::metrics(
     return this->internalPrepare(glyphIDs, kMetricsOnly, results);
 }
 
+void SkStrike::getWidthsStrided(unsigned count,
+                                const uint32_t* first_glyph,
+                                unsigned glyph_stride_32,
+                                SkScalar* first_advance,
+                                unsigned advance_stride_32,
+                                SkScalar scale) {
+    Monitor m{this};
+    const uint32_t* g_ptr = first_glyph;
+    SkScalar* a_ptr = first_advance;
+    for (unsigned i = 0; i < count; ++i) {
+      // TODO(https://crbug.com/skia/521216502): Handle large glyph ids.
+        SkGlyph* glyph = this->glyph(SkPackedGlyphID{static_cast<SkGlyphID>(*g_ptr)});
+        *a_ptr = glyph->advanceX() * scale;
+        g_ptr += glyph_stride_32;
+        a_ptr += advance_stride_32;
+    }
+}
+
 SkSpan<const SkGlyph*> SkStrike::preparePaths(
         SkSpan<const SkGlyphID> glyphIDs, const SkGlyph* results[]) {
     Monitor m{this};

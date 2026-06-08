@@ -90,6 +90,13 @@ public:
     SkSpan<const SkGlyph*> metrics(
             SkSpan<const SkGlyphID> glyphIDs, const SkGlyph* results[]) SK_EXCLUDES(fStrikeLock);
 
+    void getWidthsStrided(unsigned count,
+                          const uint32_t* first_glyph,
+                          unsigned glyph_stride_32,
+                          SkScalar* first_advance,
+                          unsigned advance_stride_32,
+                          SkScalar scale) SK_EXCLUDES(fStrikeLock);
+
     SkSpan<const SkGlyph*> preparePaths(
             SkSpan<const SkGlyphID> glyphIDs, const SkGlyph* results[]) SK_EXCLUDES(fStrikeLock);
 

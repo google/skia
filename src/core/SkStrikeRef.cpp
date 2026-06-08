@@ -70,3 +70,13 @@ void SkStrikeRef::getWidthsBounds(SkSpan<const SkGlyphID> glyphs,
         }
     }
 }
+
+void SkStrikeRef::getWidthsStrided(unsigned count,
+                                   const uint32_t* first_glyph,
+                                   unsigned glyph_stride_32,
+                                   SkScalar* first_advance,
+                                   unsigned advance_stride_32) const {
+    SkASSERT(fStrike);
+    fStrike->getWidthsStrided(count, first_glyph, glyph_stride_32, first_advance,
+                              advance_stride_32, fStrikeToSourceScale);
+}

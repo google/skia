@@ -57,6 +57,22 @@ public:
     */
     SkScalar getWidth(SkGlyphID glyph) const;
 
+    /** Retrieves the advance widths for each glyph, handling arbitrary strides for both
+        input glyphs and output advances.
+
+        @param count              number of glyphs to measure
+        @param first_glyph        pointer to the first glyph ID, glyph is 32-bit, instead
+                                  of SkGlyphID, in preparation for large glyph ids.
+        @param glyph_stride_32    stride in 32-bit words between input glyph IDs
+        @param first_advance      pointer to the first output advance
+        @param advance_stride_32  stride in 32-bit words between output advances
+    */
+    void getWidthsStrided(unsigned count,
+                          const uint32_t* first_glyph,
+                          unsigned glyph_stride_32,
+                          SkScalar* first_advance,
+                          unsigned advance_stride_32) const;
+
     /** Retrieves the advance widths and bounds for each glyph.
         widths receives min(widths.size(), glyphs.size()) values.
         bounds receives min(bounds.size(), glyphs.size()) values.
