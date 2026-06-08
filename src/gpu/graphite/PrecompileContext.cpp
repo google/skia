@@ -134,5 +134,20 @@ std::string PrecompileContext::getPipelineLabel(sk_sp<SkData> serializedPipeline
 #endif
 }
 
+PrecompileContext::ExternalFormatResult PrecompileContext::containsExternalFormat(
+        sk_sp<SkData> serializedPipelineKey) const {
+#if defined(SK_ENABLE_PRECOMPILE)
+    bool containsExtFormat = false;
+    if (!DataContainsExternalFormat(fSharedContext->caps(), fSharedContext->shaderCodeDictionary(),
+                                    serializedPipelineKey.get(), &containsExtFormat)) {
+        return ExternalFormatResult::kInvalid;
+    }
+
+    return containsExtFormat ? ExternalFormatResult::kHasExternalFormat
+                             : ExternalFormatResult::kNoExternalFormat;
+#else
+    return ExternalFormatResult::kInvalid;
+#endif
+}
 
 } // namespace skgpu::graphite
