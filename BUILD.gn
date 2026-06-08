@@ -611,7 +611,10 @@ if (skia_compile_modules) {
     sources += skia_sksl_core_sources
     sources += skia_sksl_codegen_sources
     include_dirs = [ "." ]
-    deps = [ ":run_sksllex" ]
+    deps = [
+      ":run_sksllex",
+      "//src/partition_alloc:raw_ptr",
+    ]
   }
 
   sksl_minify_path = "$root_out_dir/"
@@ -745,6 +748,7 @@ if (skia_compile_sksl_tests) {
     include_dirs = [ "." ]
     deps = [
       ":run_sksllex",
+      "//src/partition_alloc:raw_ptr",
       "//third_party/dawn:tint",
       "//third_party/externals/spirv-tools:spvtools",
       "//third_party/externals/spirv-tools:spvtools_val",
@@ -1934,6 +1938,7 @@ skia_component("skia") {
     ":wuffs",
     ":xml",
     "modules/skcms",
+    "//src/partition_alloc:raw_ptr",
   ]
 
   public = []
