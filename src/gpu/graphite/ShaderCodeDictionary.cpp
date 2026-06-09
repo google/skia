@@ -1420,9 +1420,10 @@ ShaderCodeDictionary::ShaderCodeDictionary(
             /*uniforms=*/{}
     };
 
+#if defined(SK_GRAPHITE_USE_LEGACY_RRECT_CLIP_SHADER)
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kAnalyticClip] = {
             /*name=*/"AnalyticClip",
-            /*staticFn=*/"sk_analytic_clip",
+            /*staticFn=*/"sk_analytic_clip_legacy",
             SnippetRequirementFlags::kLocalCoords,
             /*uniforms=*/{{{ "rect",           SkSLType::kFloat4 },
                            { "radiusPlusHalf", SkSLType::kFloat2 },
@@ -1431,7 +1432,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kAnalyticAndAtlasClip] = {
             /*name=*/"AnalyticAndAtlasClip",
-            /*staticFn=*/"sk_analytic_and_atlas_clip",
+            /*staticFn=*/"sk_analytic_and_atlas_clip_legacy",
             SnippetRequirementFlags::kLocalCoords,
             /*uniforms=*/{{{ "rect",           SkSLType::kFloat4 },
                            { "radiusPlusHalf", SkSLType::kFloat2 },
@@ -1441,6 +1442,29 @@ ShaderCodeDictionary::ShaderCodeDictionary(
                            { "invAtlasSize",   SkSLType::kFloat2 }}},
             /*texturesAndSamplers=*/{{"atlasSampler"}}
     };
+#else
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kAnalyticClip] = {
+            /*name=*/"AnalyticClip",
+            /*staticFn=*/"sk_analytic_clip",
+            SnippetRequirementFlags::kLocalCoords,
+            /*uniforms=*/{{{ "xform",            SkSLType::kFloat4 },
+                           { "rect",             SkSLType::kFloat4 },
+                           { "radiiWithInverse", SkSLType::kFloat4 }}}
+    };
+
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kAnalyticAndAtlasClip] = {
+            /*name=*/"AnalyticAndAtlasClip",
+            /*staticFn=*/"sk_analytic_and_atlas_clip",
+            SnippetRequirementFlags::kLocalCoords,
+            /*uniforms=*/{{{ "xform",            SkSLType::kFloat4 },
+                           { "rect",             SkSLType::kFloat4 },
+                           { "radiiWithInverse", SkSLType::kFloat4 },
+                           { "maskBounds",       SkSLType::kFloat4 },
+                           { "texCoordOffset",   SkSLType::kFloat2 },
+                           { "invAtlasSize",     SkSLType::kFloat2 }}},
+            /*texturesAndSamplers=*/{{"atlasSampler"}}
+    };
+#endif
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCompose] = {
             /*name=*/"Compose",

@@ -1647,6 +1647,8 @@ void ClipStack::clipShape(const Transform& localToDevice,
 // constructor, so only identity transforms are allowed.
 namespace {
 
+#if defined(SK_GRAPHITE_USE_LEGACY_RRECT_CLIP_SHADER)
+
 AnalyticClip can_apply_analytic_clip(const Shape& shape, const Transform& localToDevice) {
     if (localToDevice.type() != Transform::Type::kIdentity) {
         return {};
@@ -1733,6 +1735,93 @@ AnalyticClip can_apply_analytic_clip(const Shape& shape, const Transform& localT
         return {rrect.rect(), circularRadius, edgeFlags, shape.inverted()};
     }
 }
+
+#else
+
+AnalyticClip can_apply_analytic_clip(const Shape& shape, const Transform& localToDevice) {
+    if (localToDevice.type() > Transform::Type::kAffine) {
+        return {};
+    }
+
+    // Since the transformation is affine, it can be represented as a 2x2 matrix and a translation.
+    // To minimize data sent to the GPU, the translation is pre-applied to the rectangle coordinates
+    // and only the 2x2 needs to be sent. The analytic clip is invoked with device coordinates so
+    // the inverse's 2x2 is used.
+    const SkM44& devToLocal = localToDevice.inverse();
+    SkV4 xform = {devToLocal.rc(0,0), devToLocal.rc(1,0), // column-major
+                  devToLocal.rc(0,1), devToLocal.rc(1,1)};
+    // Applying this translation to the local rrect geometry moves it into a new coordinate space
+    // where just the 2x2 of localToDevice is needed to map to device space (conversely, where
+    // just `xform` is needed to map device coords to the rrect's new space).
+    float tx = xform.x*localToDevice.matrix().rc(0,3) + xform.z*localToDevice.matrix().rc(1,3);
+    float ty = xform.y*localToDevice.matrix().rc(0,3) + xform.w*localToDevice.matrix().rc(1,3);
+
+    // Can handle Rect directly.
+    if (shape.isRect()) {
+        return {shape.rect().makeOffset({tx,ty}).asSkRect(),
+                SkV4{0.f, 0.f, 0.f, 0.f},
+                xform,
+                shape.inverted()};
+    }
+
+    // Otherwise we only handle certain kinds of RRects, specifically only rrects with circular
+    // corners (although each corner can differ). We don't just check AllCornersRelativelyCircular
+    // because we can fold an Y-axis scale factor into the 2x2 transform if that non-uniform scaling
+    // could make all corners effectively circular.
+    if (!shape.isRRect()) {
+        return {};
+    }
+
+    const float tolerance =
+            localToDevice.localAARadius(shape.bounds()) * Shape::kDefaultPixelTolerance;
+
+    const SkRRect& rrect = shape.rrect();
+    std::optional<float> scaleYAxis;
+    SkV4 radii;
+    for (int i = 0; i < 4; ++i) {
+        SkVector r = rrect.radii((SkRRect::Corner) i);
+        float cornerScale = SkRRectPriv::IsRelativelyCircular(r.fX, r.fY, tolerance)
+                ? 1.f : sk_ieee_float_divide(r.fX, r.fY);
+
+        if (r.fX < tolerance || r.fY < tolerance) {
+            radii[i] = 0.f; // Clamp to a square corner, so doesn't impact scale factor
+        } else if (!scaleYAxis.has_value()) {
+            // We haven't encountered a non-circular corner yet. Set the scale factor to the
+            // current radii ratio (which will be 1 if it's already circular).
+            scaleYAxis = cornerScale;
+            radii[i] = r.fX;
+        } else {
+            // We already have a scale factor from some other corner, so we need to agree.
+            if (!SkScalarNearlyEqual(cornerScale, *scaleYAxis, tolerance)) {
+                return {}; // Would not pass AllCornersRelativelyCircular after scaling
+            }
+            radii[i] = r.fX;
+        }
+    }
+
+    Rect rect = rrect.rect().makeOffset(tx, ty);
+    if (scaleYAxis.has_value() && !SkScalarNearlyEqual(*scaleYAxis, 1.f, tolerance)) {
+        const float s = *scaleYAxis;
+        rect.setTop(rect.top() * s);
+        rect.setBot(rect.bot() * s);
+
+        // Since we scaled the rrect by s, we should scale its local-to-device matrix by 1/s to
+        // remain the same shape. However, `xform` is the device-to-local matrix so as the inverse,
+        // we also just have to multiply by s.
+        xform.y *= s;
+        xform.w *= s;
+        SkASSERT(SkRRectPriv::AllCornersRelativelyCircular(
+                 *rrect.transform(SkMatrix::Scale(1.f, s)), tolerance));
+    } else {
+        // The loop above should work out to be equivalent to this function if we didn't encounter
+        // a non-uniform scale factor to push into `xform`.
+        SkASSERT(SkRRectPriv::AllCornersRelativelyCircular(rrect, tolerance));
+    }
+
+    return {rect.asSkRect(), radii, xform, shape.inverted()};
+}
+
+#endif // SK_GRAPHITE_USE_LEGACY_RRECT_CLIP_SHADER
 
 }  // anonymous namespace
 

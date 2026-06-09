@@ -225,10 +225,10 @@ $pure half4 sk_color_space_transform_srgb(half4 color,
     return color;
 }
 
-$pure half4 sk_analytic_clip(float2 coords,
-                             float4 rect,
-                             float2 radiusPlusHalf,
-                             half4 edgeSelect) {
+$pure half4 sk_analytic_clip_legacy(float2 coords,
+                                    float4 rect,
+                                    float2 radiusPlusHalf,
+                                    half4 edgeSelect) {
     // Negative x indicates inverse fill
     float2 radius = float2(abs(radiusPlusHalf.x));
     float2 dxy0 = edgeSelect.LT*((rect.LT + radius) - coords);
@@ -248,15 +248,99 @@ $pure half4 sk_analytic_clip(float2 coords,
     return half4(alpha);
 }
 
+$pure half4 sk_analytic_and_atlas_clip_legacy(float2 coords,
+                                              float4 rect,
+                                              float2 radiusPlusHalf,
+                                              half4 edgeSelect,
+                                              float2 texCoordOffset,
+                                              float4 maskBounds,
+                                              float2 invAtlasSize,
+                                              sampler2D atlasSampler) {
+    half4 analyticClip = sk_analytic_clip_legacy(coords, rect, radiusPlusHalf, edgeSelect);
+
+    float2 texCoord = coords + texCoordOffset;
+    float2 clampedTexCoord = clamp(texCoord, maskBounds.LT, maskBounds.RB);
+
+    half atlasClip = sample(atlasSampler, clampedTexCoord * invAtlasSize).r;
+
+    return analyticClip * atlasClip;
+}
+
+/**
+ * `xform` is the 2x2 inverse of the original clip's local-to-device matrix (limited to it being
+ * affine). Any translation from that transform should be pre-applied to `rect`. `rect` and `radii`
+ * describe the circular rrect (although each corner can have a different radii).
+ *
+ * The actual `radii` is calculated from `radiiWithInverse` as "abs(r) - 1". It's assumed that 1
+ * was added to the original radius per corner so that the uniforms would be non-zero. The signs
+ * of `radiiWithInverse` reconstruct a scale and bias added to the final coverage to switch between
+ * intersect and difference clips.
+ *
+ * Assuming that `radiiWithInverse != 0`, the scale factor is sign(r.x) and the bias factor is
+ * 0.5 * (sign(r.y) + sign(r.z)). An intersect clip can be encoded with signs matching (1, -1, 1, 1)
+ * and a difference clip can be encoded with signs matching (-1, 1, 1, 1).
+ */
+$pure half4 sk_analytic_clip(float2 coords,
+                             float4 xform,
+                             float4 rect,
+                             float4 radiiWithInverse) {
+    // Transform the device coordinate to the local space of the round rect
+    coords = float2x2(xform) * coords;
+
+    // Reconstruct scale and bias applied to coverage and the original radii >= 0
+    half4 signs = half4(sign(radiiWithInverse));
+    half scale = signs.x;
+    half bias = 0.5 * (signs.y + signs.z);
+
+    float4 radii = abs(radiiWithInverse) - 1.0;
+
+    // Calculate derivatives for either the corner quarter circles or edge lines
+    float4 dxs = coords.x + float4(-1, 1, 1, -1)*radii - rect.LRRL;
+    float4 dys = coords.y + float4(-1, -1, 1, 1)*radii - rect.TTBB;
+
+    bool4 isEdge = bool4(dxs[0] >= 0.0 || dys[0] >= 0.0,
+                         dxs[1] <= 0.0 || dys[1] >= 0.0,
+                         dxs[2] <= 0.0 || dys[2] <= 0.0,
+                         dxs[3] >= 0.0 || dys[3] <= 0.0);
+
+    dxs = mix(dxs, float4(-0.5, 0, 0.5, 0), isEdge);
+    dys = mix(dys, float4(0, -0.5, 0, -0.5), isEdge);
+
+    // Apply the Jacobian for the local->device transform (which because we're restricted to a 2x2,
+    // is equal to the device->local transform in `xform` already). For the circle equation, the
+    // local gradient is (2dx, 2dy); we push the 2 into the denominator of `invGradLen`. For edges,
+    // the gradient should be (+/-1,0) or (0,+/-1) but by setting them to +/-0.5 lets them use the
+    // same equation.
+    float4 devGradXs = (dxs * xform.x + dys * xform.y);
+    float4 devGradYs = (dxs * xform.z + dys * xform.w);
+    float4 invGradLen = 0.5 / (abs(devGradXs) + abs(devGradYs)); // L1 norm, e.g. fwidth
+
+    // Select either the circular distance or edge distance
+    float4 distances = mix(radii*radii - dxs*dxs - dys*dys,
+                           float4(coords, rect.RB) - float4(rect.LT, coords),
+                           isEdge);
+
+    // Divide the local distance by the gradient length and bias by 0.5 so we're interpolating
+    // between 0 and 1 on either side of the level set.
+    half4 alphas = saturate(0.5 + half4(invGradLen * distances));
+    // Instead of performing three min's, we assume that at most one alpha component will be < 1
+    // so modulation behaves the same. In the event that the rrect is subpixel and a fragment is
+    // affected by multiple edges and corners, modulation looks smoother.
+    half minAlpha = alphas.x * alphas.y * alphas.z * alphas.w;
+
+    // Apply inversion to coverage if needed
+    return half4(bias + scale*minAlpha);
+}
+
 $pure half4 sk_analytic_and_atlas_clip(float2 coords,
+                                       float4 xform,
                                        float4 rect,
-                                       float2 radiusPlusHalf,
-                                       half4 edgeSelect,
-                                       float2 texCoordOffset,
+                                       float4 radiiWithInverse,
                                        float4 maskBounds,
+                                       float2 texCoordOffset,
                                        float2 invAtlasSize,
                                        sampler2D atlasSampler) {
-    half4 analyticClip = sk_analytic_clip(coords, rect, radiusPlusHalf, edgeSelect);
+    half4 analyticClip = sk_analytic_clip(coords, xform, rect, radiiWithInverse);
 
     float2 texCoord = coords + texCoordOffset;
     float2 clampedTexCoord = clamp(texCoord, maskBounds.LT, maskBounds.RB);

@@ -8,15 +8,23 @@
 #ifndef skgpu_graphite_geom_NonMSAAClip_DEFINED
 #define skgpu_graphite_geom_NonMSAAClip_DEFINED
 
-#include "src/gpu/graphite/TextureProxy.h"
+#if defined(SK_GRAPHITE_USE_LEGACY_RRECT_CLIP_SHADER)
 #include "src/gpu/graphite/geom/Rect.h"
+#else
+#include "include/core/SkM44.h"
+#include "include/core/SkRect.h"
+#endif
+
+#include "src/gpu/graphite/TextureProxy.h"
 
 namespace skgpu::graphite {
 
 /**
- * Represents a rect or rrect clip with any non-rect corners having the same circular radii.
+ * Represents a rect or rrect clip with any circular or rectangular corners under an affine
+ * transformation.
  */
 struct AnalyticClip {
+#if defined(SK_GRAPHITE_USE_LEGACY_RRECT_CLIP_SHADER)
     // Indicate which edges are adjacent to circular corners.
     enum EdgeFlags {
         kLeft_EdgeFlag   = 0b0001,
@@ -40,6 +48,18 @@ struct AnalyticClip {
                  fEdgeFlags & kRight_EdgeFlag  ? 1.f : 0.f,
                  fEdgeFlags & kBottom_EdgeFlag ? 1.f : 0.f };
     }
+#else
+    // These defaults will produce no clip
+    SkRect fBounds = { 0, 0, 0, 0 }; // Bounds of clip
+    SkV4   fRadii = {0.f, 0.f, 0.f, 0.f};
+    SkV4   fXform = {1.f, 0.f, 0.f, 1.f}; // device-to-clip's local 2x2
+    // Inversion matches the ClipStack's convention for depth-only draws: an inverse fill is used
+    // for intersection clips and a regular fill is for difference clips.
+    bool   fInverted = false;
+
+    // When this is true, the shader will always evaluate to full coverage
+    bool isEmpty() const { return fBounds.isEmpty() && !fInverted; }
+#endif
 };
 
 /**

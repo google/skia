@@ -288,7 +288,11 @@ void extract_vs_build_subtest(skiatest::Reporter* reporter,
         NonMSAAClip clipData;
         if (hasAnalyticClip) {
             clipData.fAnalyticClip.fBounds = SkRect::MakeWH(15, 15);
+#if defined(SK_GRAPHITE_USE_LEGACY_RRECT_CLIP_SHADER)
             clipData.fAnalyticClip.fRadius = 5;
+#else
+            clipData.fAnalyticClip.fRadii = SkV4{5.f, 5.f, 5.f, 5.f};
+#endif
         }
 
         PaintParams paintParams{paint, primitiveBlender.get()};

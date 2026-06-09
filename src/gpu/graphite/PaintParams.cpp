@@ -369,6 +369,7 @@ bool ShadingParams::handleDithering(const KeyContext& keyContext) const {
 
 void ShadingParams::handleClipping(const KeyContext& keyContext) const {
     if (!fNonMSAAClip.isEmpty()) {
+#if defined(SK_GRAPHITE_USE_LEGACY_RRECT_CLIP_SHADER)
         const AnalyticClip& analyticClip = fNonMSAAClip.fAnalyticClip;
         SkPoint radiusPair;
         SkRect analyticBounds;
@@ -418,6 +419,25 @@ void ShadingParams::handleClipping(const KeyContext& keyContext) const {
             // Without a clip shader, the analytic clip can be the clipping root node.
             NonMSAAClipBlock::AddBlock(keyContext, data);
         }
+#else
+        if (fClipShader) {
+            // For both an analytic clip and clip shader, we need to compose them together into
+            // a single clipping root node.
+            Blend(keyContext,
+                  /* addBlendToKey= */ [&]() -> void {
+                      AddFixedBlendMode(keyContext, SkBlendMode::kModulate);
+                  },
+                  /* addSrcToKey= */ [&]() -> void {
+                      AddAnalyticClip(keyContext, fNonMSAAClip);
+                  },
+                  /* addDstToKey= */ [&]() -> void {
+                      AddToKey(keyContext, fClipShader);
+                  });
+        } else {
+            // Without a clip shader, the analytic clip can be the clipping root node.
+            AddAnalyticClip(keyContext, fNonMSAAClip);
+        }
+#endif // SK_GRAPHITE_USE_LEGACY_RRECT_CLIP_SHADER
     } else if (fClipShader) {
         // Since there's no analytic clip, the clipping root node can be fClipShader directly.
         AddToKey(keyContext, fClipShader);

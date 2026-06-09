@@ -363,11 +363,17 @@ bool SkRRectPriv::AllCornersCircular(const SkRRect& rr, float tolerance) {
 bool SkRRectPriv::IsRelativelyCircular(float rx, float ry, float tolerance) {
     // The ellipse is considered relatively circular if either `rx/ry` or `ry/rx` is within
     // `tolerance` of 1.0, but this is equivalent to comparing the absolute difference between
-    // `rx` and `ry` to `tolerance` multiplied by the largest radii.
+    // `rx` and `ry` to `tolerance` multiplied by the largest radii. We also consider the case
+    // where both `rx` and `ry` are less than tolerance to be "circular" with a radius of 0.
+#if defined(SK_GRAPHITE_USE_LEGACY_RRECT_CLIP_SHADER)
     return std::abs(rx - ry) <= tolerance * std::max(rx, ry);
+#else
+    return (rx <= tolerance && ry <= tolerance) ||
+           std::abs(rx - ry) <= tolerance * std::max(rx, ry);
+#endif
 }
 
-bool SkRRectPriv::AllCornersRelativelyCircular(const SkRRect &rr, float tolerance) {
+bool SkRRectPriv::AllCornersRelativelyCircular(const SkRRect& rr, float tolerance) {
     return IsRelativelyCircular(rr.fRadii[0].fX, rr.fRadii[0].fY, tolerance) &&
            IsRelativelyCircular(rr.fRadii[1].fX, rr.fRadii[1].fY, tolerance) &&
            IsRelativelyCircular(rr.fRadii[2].fX, rr.fRadii[2].fY, tolerance) &&

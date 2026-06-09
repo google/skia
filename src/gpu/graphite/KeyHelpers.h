@@ -314,6 +314,7 @@ struct ColorSpaceTransformBlock {
     static void AddBlock(const KeyContext&, const ColorSpaceTransformData&);
 };
 
+#if defined(SK_GRAPHITE_USE_LEGACY_RRECT_CLIP_SHADER)
 struct NonMSAAClipBlock {
     struct NonMSAAClipData {
         NonMSAAClipData(SkRect rect,
@@ -343,6 +344,10 @@ struct NonMSAAClipBlock {
 
     static void AddBlock(const KeyContext&, const NonMSAAClipData&);
 };
+#else
+// Adds either just AnalyticClip or kAnalyticAndAtlasClip block depending on the state of the clip.
+void AddAnalyticClip(const KeyContext&, const NonMSAAClip&);
+#endif
 
 /**
  * Adds a block that references the primitive color produced by the RenderStep and accounts for
