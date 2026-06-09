@@ -5,7 +5,7 @@ When debugging a crash or assertion failure from a fuzzer (like Clusterfuzz), us
 ## 1. Build and Run the Fuzzer
 Compile the fuzzer tool in Debug mode and execute it on the fuzzed testcase file:
 ```bash
-ninja -C out/Debug fuzz
+ninja --quiet -C out/Debug fuzz
 out/Debug/fuzz --bytes <path_to_testcase>
 ```
 
@@ -37,7 +37,7 @@ DEF_TEST(path_b183475561634, reporter) {
 ## 4. Verify the Crash
 Confirm that your reproduction test crashes in the test runner:
 ```bash
-ninja -C out/Debug dm
+ninja --quiet -C out/Debug dm
 out/Debug/dm --src tests --match <your_test_name>
 ```
 

@@ -20,7 +20,7 @@ Add the path to your new test file to the `tests_sources` list in `gn/tests.gni`
 ### 3. Build the Test
 Compile the `dm` tool, which runs the tests.
 ```bash
-ninja -C out/Debug dm
+ninja --quiet -C out/Debug dm
 ```
 
 ### 4. Run the Test

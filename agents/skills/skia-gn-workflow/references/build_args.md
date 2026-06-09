@@ -1,6 +1,6 @@
 # Skia GN Build Configurations
 
-This reference documents common GN argument sets used for building Skia. Use these with `./bin/gn gen out/<dir> --args='<args>'`.
+This reference documents common GN argument sets used for building Skia. Use these with `./bin/gn gen -q out/<dir> --args='<args>'`.
 
 ## Core Principle: Build Directories
 **NEVER** override a user's existing build directory settings (e.g., `out/Debug`). If you need a different configuration, create a new directory (e.g., `out/Debug2`, `out/ASAN`). Only modify settings in an existing directory if explicitly asked by the user.
@@ -34,20 +34,20 @@ Requires a recent Clang. See `site/docs/dev/testing/xsan.md`.
 ### ASAN (Address Sanitizer)
 ```bash
 # Replace <path_to_clang> with the path provided by the user
-./bin/gn gen out/ASAN --args='sanitize="ASAN" cc="<path_to_clang>" cxx="<path_to_clang++>"'
+./bin/gn gen -q out/ASAN --args='sanitize="ASAN" cc="<path_to_clang>" cxx="<path_to_clang++>"'
 ```
 
 ### MSAN (Memory Sanitizer)
 Requires an MSAN-instrumented libc++. Run `dm` with `--nogpu`.
 ```bash
 # Replace <path_to_clang> with the path provided by the user
-./bin/gn gen out/MSAN --args='sanitize="MSAN" cc="<path_to_clang>" cxx="<path_to_clang++>" skia_use_fontconfig=false'
+./bin/gn gen -q out/MSAN --args='sanitize="MSAN" cc="<path_to_clang>" cxx="<path_to_clang++>" skia_use_fontconfig=false'
 ```
 
 ### TSAN (Thread Sanitizer)
 ```bash
 # Replace <path_to_clang> with the path provided by the user
-./bin/gn gen out/TSAN --args='sanitize="TSAN" is_debug=false cc="<path_to_clang>" cxx="<path_to_clang++>"'
+./bin/gn gen -q out/TSAN --args='sanitize="TSAN" is_debug=false cc="<path_to_clang>" cxx="<path_to_clang++>"'
 ```
 
 ## Performance & Profiling

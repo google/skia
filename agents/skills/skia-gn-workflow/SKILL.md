@@ -1,6 +1,6 @@
 ---
 name: skia-gn-workflow
-description: Use this skill for building Skia with GN. Use this when asked to compile, run tests, run performance benchmarks or other Skia tools.
+description: MANDATORY: Use this skill for ANY and ALL tasks involving building Skia with GN, Ninja, or compiling any Skia tool. It is the authoritative source for Skia's build workflows and MUST be used whenever compilation is required.
 ---
 
 # skia-gn-workflow
@@ -37,10 +37,16 @@ git clang-format origin/main
 ### 4. Cleaning Builds
 If the build system gets into a broken state, clean the directory:
 ```bash
-./bin/gn clean out/Dir
+./bin/gn -q clean out/Dir
 ```
 
-### 5. Rust Dependencies (Bazel)
+### 5. Inspecting the Build
+To understand how a target is being built or to find available targets:
+- **List all targets**: `./bin/gn ls out/Dir` or `ninja -C out/Dir -t targets`
+- **Inspect a target**: `./bin/gn desc out/Dir //:dm` (shows flags, defines, sources, etc.)
+- **Check why a file is included**: `./bin/gn path out/Dir //:dm //src/core/SkPath.cpp`
+
+### 6. Rust Dependencies (Bazel)
 If a build requires Rust dependencies (in `third_party`), use `bazelisk` to manage the toolchain:
 - Download: https://github.com/bazelbuild/bazelisk/releases
 
@@ -55,14 +61,14 @@ If a build requires Rust dependencies (in `third_party`), use `bazelisk` to mana
 - `cc="clang" cxx="clang++"`: Specify the compiler (highly recommended for performance).
 
 ### 2. Sanitizer Builds (`xsan`)
-- **ASAN**: `./bin/gn gen out/ASAN --args='sanitize="ASAN" cc="<path_to_clang>" cxx="<path_to_clang++>"'`
-- **MSAN**: `./bin/gn gen out/MSAN --args='sanitize="MSAN" cc="<path_to_clang>" cxx="<path_to_clang++>" skia_use_fontconfig=false'`
+- **ASAN**: `./bin/gn gen -q out/ASAN --args='sanitize="ASAN" cc="<path_to_clang>" cxx="<path_to_clang++>"'`
+- **MSAN**: `./bin/gn gen -q out/MSAN --args='sanitize="MSAN" cc="<path_to_clang>" cxx="<path_to_clang++>" skia_use_fontconfig=false'`
   - *Note*: Run `dm` with `--nogpu` under MSAN to avoid driver noise.
-- **TSAN**: `./bin/gn gen out/TSAN --args='sanitize="TSAN" is_debug=false cc="<path_to_clang>" cxx="<path_to_clang++>"'`
+- **TSAN**: `./bin/gn gen -q out/TSAN --args='sanitize="TSAN" is_debug=false cc="<path_to_clang>" cxx="<path_to_clang++>"'`
 
 ### 3. Platform Specifics
-- **Android**: `./bin/gn gen out/android --args='ndk="~/ndk" target_cpu="arm64"'`
-- **iOS**: `./bin/gn gen out/ios --args='target_os="ios" target_cpu="arm64"'`
+- **Android**: `./bin/gn gen -q out/android --args='ndk="~/ndk" target_cpu="arm64"'`
+- **iOS**: `./bin/gn gen -q out/ios --args='target_os="ios" target_cpu="arm64"'`
 - **Windows**: Use `clang_win="<path_to_llvm>"` to build with clang-cl (highly recommended).
 
 ## Tool Reference
@@ -117,7 +123,7 @@ If a build requires Rust dependencies (in `third_party`), use `bazelisk` to mana
 ### 6. Debugging Fuzz Cases & Writing Reproduction Tests
 To build and run a fuzzer (like Clusterfuzz or oss-fuzz) to reproduce a crash:
 ```bash
-ninja -C out/Debug fuzz
+ninja --quiet -C out/Debug fuzz
 out/Debug/fuzz --bytes <path_to_testcase>
 ```
 For the full workflow (including writing reproduction unit tests), see [Fuzz Debugging](references/fuzz.md).
