@@ -11,7 +11,7 @@
 #include "include/core/SkM44.h"
 #include "include/core/SkRect.h"
 #include "include/effects/SkImageFilters.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGFilterContext.h"
 #include "modules/svg/include/SkSVGRenderContext.h"

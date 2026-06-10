@@ -8,12 +8,12 @@
 #ifndef skgpu_tessellate_PatchWriter_DEFINED
 #define skgpu_tessellate_PatchWriter_DEFINED
 
+#include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkFloatingPoint.h"
-#include "include/private/base/SkPoint_impl.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkTemplates.h"
 #include "src/base/SkUtils.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkColorData.h"

@@ -10,7 +10,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTo.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/pdf/SkPDFFont.h"

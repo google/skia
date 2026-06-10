@@ -8,7 +8,7 @@
 #define DrawMeshOp_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 
 #include <cstdint>

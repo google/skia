@@ -31,9 +31,9 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkCPUTypes.h"
-#include "include/private/base/SkDeque.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkCPUTypes.h"
+#include "include/private/SkDeque.h"
+#include "include/private/SkTArray.h"
 
 #include <cstddef>
 #include <cstdint>

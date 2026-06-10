@@ -9,8 +9,8 @@
 
 #include "include/core/SkPath.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkNoncopyable.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkNoncopyable.h"
 #include "src/base/SkBlockAllocator.h"
 #include "src/base/SkTBlockList.h"
 #include "src/core/SkColorData.h"

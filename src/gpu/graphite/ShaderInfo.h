@@ -8,8 +8,8 @@
 #ifndef skgpu_graphite_ShaderInfo_DEFINED
 #define skgpu_graphite_ShaderInfo_DEFINED
 
-#include "include/private/base/SkTArray.h"
-#include "src/base/SkArenaAlloc.h"
+#include "include/private/SkTArray.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/Caps.h"

@@ -9,8 +9,8 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkFloatingPoint.h"
 #include "src/base/SkTime.h"
 #include "tools/timer/TimeUtils.h"
 

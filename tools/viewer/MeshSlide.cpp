@@ -17,7 +17,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkVertices.h"
 #include "include/effects/SkGradient.h"
-#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/SkFloatingPoint.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/timer/TimeUtils.h"

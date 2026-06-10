@@ -6,8 +6,8 @@
 #include <stack>
 #include <string>
 #include <tuple>
-#include "include/private/base/SkOnce.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkOnce.h"
+#include "include/private/SkTArray.h"
 #include "modules/skparagraph/include/FontCollection.h"
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/include/ParagraphBuilder.h"

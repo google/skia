@@ -7,7 +7,7 @@
 
 #include "src/gpu/ganesh/effects/GrCoverageSetOpXP.h"
 
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkColorData.h"
 #include "src/gpu/Blend.h"

@@ -9,7 +9,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypeface.h"
 #include "include/ports/SkTypeface_mac.h"
-#include "src/base/SkZip.h"
+#include "src/core/SkZip.h"
 #include "src/utils/SkFloatUtils.h"
 #include "tests/Test.h"
 

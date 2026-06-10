@@ -9,11 +9,11 @@
 #define GrManagedResource_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkMutex.h"
-#include "include/private/base/SkNoncopyable.h"
-#include "include/private/base/SkThreadAnnotations.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkThreadAnnotations.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/ganesh/GrSurface.h"
 

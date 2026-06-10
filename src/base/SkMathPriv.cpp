@@ -7,7 +7,7 @@
 
 #include "src/base/SkMathPriv.h"
 
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 
 #include <cstdint>
 

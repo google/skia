@@ -8,7 +8,7 @@
 #include "include/core/SkImageGenerator.h"
 
 #include "include/core/SkColorType.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/core/SkNextID.h"
 
 SkImageGenerator::SkImageGenerator(const SkImageInfo& info, uint32_t uniqueID)

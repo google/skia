@@ -7,7 +7,7 @@
 
 #include "src/gpu/graphite/PipelineManager.h"
 
-#include "include/private/base/SkLog.h"
+#include "include/private/SkLog.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/GraphicsPipelineHandle.h"

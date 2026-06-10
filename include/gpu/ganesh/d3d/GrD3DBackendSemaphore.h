@@ -9,7 +9,7 @@
 #define GrD3DBackendSemaphore_DEFINED
 
 #include "include/gpu/ganesh/GrBackendSemaphore.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 #include "include/private/gpu/ganesh/GrD3DTypesMinimal.h"
 
 namespace GrBackendSemaphores {

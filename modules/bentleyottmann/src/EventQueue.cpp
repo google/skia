@@ -3,7 +3,7 @@
 
 #include "modules/bentleyottmann/include/EventQueue.h"
 
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include <algorithm>
 #include <cstdint>
 #include <utility>

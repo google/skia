@@ -14,8 +14,8 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
-#include "include/private/base/SkTLogic.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTLogic.h"
+#include "include/private/SkTo.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
 
 #include <cstddef>

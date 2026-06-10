@@ -9,8 +9,8 @@
 #define GrMeshDrawTarget_DEFINED
 
 #include "include/core/SkRefCnt.h"  // IWYU pragma: keep
-#include "include/private/base/SkTArray.h"
-#include "src/base/SkArenaAlloc.h"
+#include "include/private/SkTArray.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
 #include "src/gpu/ganesh/GrDrawIndirectCommand.h"
 #include "src/gpu/ganesh/GrSimpleMesh.h"

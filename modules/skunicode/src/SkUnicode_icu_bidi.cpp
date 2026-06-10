@@ -7,8 +7,8 @@
 #include "modules/skunicode/src/SkUnicode_icu_bidi.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkTFitsIn.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkTFitsIn.h"
 #include "src/base/SkUTF.h"
 
 #include <unicode/ubidi.h>

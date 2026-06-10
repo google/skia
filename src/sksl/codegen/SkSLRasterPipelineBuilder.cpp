@@ -10,11 +10,11 @@
 #include <optional>
 
 #include "include/core/SkStream.h"
-#include "include/private/base/SkMalloc.h"
-#include "include/private/base/SkTFitsIn.h"
-#include "include/private/base/SkTo.h"
-#include "src/base/SkArenaAlloc.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTFitsIn.h"
+#include "include/private/SkTo.h"
 #include "src/base/SkSafeMath.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipelineContextUtils.h"
 #include "src/core/SkRasterPipelineOpContexts.h"

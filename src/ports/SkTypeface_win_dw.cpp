@@ -19,7 +19,7 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkFontTypes.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTo.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontStream.h"
 #include "src/core/SkScalerContext.h"

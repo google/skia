@@ -11,7 +11,7 @@
 #include "include/core/SkSpan.h"
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "include/gpu/vk/VulkanTypes.h"
-#include "include/private/base/SkLog.h"
+#include "include/private/SkLog.h"
 #include "src/gpu/graphite/DescriptorData.h"
 #include "src/gpu/vk/VulkanInterface.h"
 #include "src/sksl/codegen/SkSLNativeShader.h"
@@ -26,7 +26,7 @@ class SkWStream;
 
 // Or uncomment to trace all Vulkan commands from Graphite
 // TODO(b/471244369): expose this functionality as a build argument.
-// #include "include/private/base/SkMacros.h"
+// #include "include/private/SkMacros.h"
 // #include "src/core/SkTraceEvent.h"
 // #define VULKAN_DEBUG_LOG(X) \
 //     TRACE_EVENT1_ALWAYS("skia.gpu", "vk" #X, "line", __FILE__ ":" SK_MACRO_STRINGIFY(__LINE__))

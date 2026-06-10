@@ -19,7 +19,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "src/base/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMask.h"

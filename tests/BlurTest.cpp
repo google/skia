@@ -28,7 +28,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/private/base/SkTPin.h"
+#include "include/private/SkTPin.h"
 #include "src/base/SkFloatBits.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkBlurMask.h"

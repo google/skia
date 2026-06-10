@@ -11,7 +11,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 /**
  *  A compressed form of a rotation+scale matrix.

@@ -9,7 +9,7 @@
 #define AndroidVulkanMemoryAllocator_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 namespace skgpu {
 struct VulkanBackendContext;

@@ -6,8 +6,8 @@
  */
 
 #include "include/core/SkShader.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkTPin.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkTPin.h"
 #include "modules/sksg/include/SkSGPaint.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"
 

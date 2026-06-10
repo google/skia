@@ -7,7 +7,7 @@
 
 #include "modules/skottie/src/animator/KeyframeAnimator.h"
 
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTo.h"
 #include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/src/SkottieJson.h"
 

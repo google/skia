@@ -22,8 +22,8 @@
 #include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkGradient.h"
 #include "include/effects/SkImageFilters.h"
-#include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 

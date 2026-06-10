@@ -12,8 +12,8 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkStrokeRec.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkTDArray.h"
 #include "src/core/SkPointPriv.h"
 
 class SkMatrix;

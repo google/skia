@@ -10,7 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 #include "modules/svg/include/SkSVGContainer.h"
 #include "modules/svg/include/SkSVGNode.h"
 #include "modules/svg/include/SkSVGTypes.h"

@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkColor.h"
-#include "include/private/base/SkTPin.h"
+#include "include/private/SkTPin.h"
 #include "include/private/chromium/SkPMColor.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkColorData.h"

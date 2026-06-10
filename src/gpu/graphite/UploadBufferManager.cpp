@@ -8,8 +8,8 @@
 #include "src/gpu/graphite/UploadBufferManager.h"
 
 #include "include/gpu/graphite/Recording.h"
-#include "include/private/base/SkAlign.h"
-#include "include/private/base/SkTFitsIn.h"
+#include "include/private/SkAlign.h"
+#include "include/private/SkTFitsIn.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"

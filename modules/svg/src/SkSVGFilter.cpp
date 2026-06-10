@@ -11,7 +11,7 @@
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkRect.h"
 #include "include/effects/SkImageFilters.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGFe.h"
 #include "modules/svg/include/SkSVGFilterContext.h"

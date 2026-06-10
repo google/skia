@@ -12,7 +12,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/ports/SkFontConfigInterface.h"
 #include "include/ports/SkFontMgr_FontConfigInterface.h"
-#include "include/private/base/SkMutex.h"
+#include "include/private/SkMutex.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkTypefaceCache.h"

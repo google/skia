@@ -9,7 +9,7 @@
 #define skgpu_VulkanMutableTextureState_DEFINED
 
 #include "include/gpu/MutableTextureState.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
 
 #include <cstdint>

@@ -10,8 +10,11 @@ licenses(["notice"])
 # In separate file list because these files are exported to
 # core.gni:skia_core_sources as well as sksl.gni:skslc_deps.
 CORE_SKSLC_FILES = [
+    "SkArenaAlloc.cpp",
+    "SkArenaAlloc.h",
     "SkChecksum.cpp",
     "SkChecksum.h",
+    "SkContainers.cpp",
     "SkCpu.cpp",
     "SkCpu.h",
     "SkData.cpp",
@@ -36,7 +39,10 @@ SEMI_PUBLIC_HEADERS = [
     "SkATrace.h",
     "SkAdvancedTypefaceMetrics.h",
     "SkAnnotationKeys.h",
+    "SkArenaAlloc.h",
+    "SkArenaAllocList.h",
     "SkAutoPixmapStorage.h",
+    "SkBezierCurves.h",
     "SkBitmapCache.h",
     "SkBitmapDevice.h",
     "SkBitmapProcState.h",
@@ -74,6 +80,7 @@ SEMI_PUBLIC_HEADERS = [
     "SkEffectPriv.h",
     "SkEnumerate.h",
     "SkFDot6.h",
+    "SkFixedArray.h",
     "SkFontDescriptor.h",
     "SkFontMetricsPriv.h",
     "SkFontPriv.h",
@@ -168,6 +175,7 @@ SEMI_PUBLIC_HEADERS = [
     "SkYUVAInfoLocation.h",
     "SkYUVMath.h",
     "SkYUVPlanesCache.h",
+    "SkZip.h",
 ]
 
 skia_filegroup(
@@ -243,8 +251,10 @@ skia_filegroup(
         "SkAlphaRuns.cpp",
         "SkAnalyticEdge.cpp",
         "SkAnnotation.cpp",
+        "SkArenaAlloc.cpp",
         "SkAutoPixmapStorage.cpp",
         "SkBBHFactory.cpp",
+        "SkBezierCurves.cpp",
         "SkBigPicture.cpp",
         "SkBitmap.cpp",
         "SkBitmapCache.cpp",
@@ -285,6 +295,7 @@ skia_filegroup(
         "SkColorSpaceXformSteps.cpp",
         "SkColorTable.cpp",
         "SkCompressedDataUtils.cpp",
+        "SkContainers.cpp",
         "SkContourMeasure.cpp",
         "SkConvertPixels.cpp",
         "SkCpu.cpp",
@@ -455,6 +466,7 @@ skia_filegroup(
     name = "opts_srcs",
     srcs = [
         "Sk4px.h",
+        "SkArenaAlloc.h",
         "SkColorData.h",
         "SkColorPriv.h",
         "SkOpts.h",

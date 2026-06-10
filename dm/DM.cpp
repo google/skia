@@ -14,7 +14,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkDocument.h"
 #include "include/core/SkGraphics.h"
-#include "include/private/base/SkLog.h"
+#include "include/private/SkLog.h"
 #include "src/base/SkHalf.h"
 #include "src/base/SkLeanWindows.h"
 #include "src/base/SkNoDestructor.h"

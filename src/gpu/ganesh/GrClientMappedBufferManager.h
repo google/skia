@@ -9,7 +9,7 @@
 #define GrClientMappedBufferManager_DEFINED
 
 #include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 #include "src/gpu/AsyncReadTypes.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
 

@@ -7,7 +7,7 @@
 
 #include "include/encode/SkEncoder.h"
 
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 
 bool SkEncoder::encodeRows(int numRows) {
     SkASSERT(numRows > 0 && fCurrRow < fSrc.height());

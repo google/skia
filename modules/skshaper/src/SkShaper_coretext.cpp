@@ -20,7 +20,7 @@
 #endif
 
 #include "include/ports/SkTypeface_mac.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTemplates.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkFontPriv.h"
 #include "src/utils/mac/SkCGBase.h"

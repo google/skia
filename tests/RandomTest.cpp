@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkMath.h"
+#include "include/private/SkMath.h"
 #include "src/base/SkRandom.h"
 #include "src/base/SkTSort.h"
 #include "tests/Test.h"

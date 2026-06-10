@@ -9,7 +9,7 @@
 
 #include "include/core/SkPath.h"
 #include "include/pathops/SkPathOps.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 
 #include <utility>
 class SkSVGRenderContext;

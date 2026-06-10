@@ -7,8 +7,8 @@
 
 #include "src/core/SkImageFilterCache.h"
 
-#include "include/private/base/SkMutex.h"
-#include "include/private/base/SkOnce.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkOnce.h"
 #include "src/base/SkTInternalLList.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkImageFilterTypes.h"

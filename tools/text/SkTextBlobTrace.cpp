@@ -10,7 +10,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/base/SkDebug.h"
+#include "include/private/SkDebug.h"
 #include "src/base/SkTLazy.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkFontPriv.h"

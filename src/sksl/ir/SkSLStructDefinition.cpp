@@ -7,7 +7,7 @@
 
 #include "src/sksl/ir/SkSLStructDefinition.h"
 
-#include "include/private/base/SkSpan_impl.h"
+#include "include/core/SkSpan.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLModifierFlags.h"

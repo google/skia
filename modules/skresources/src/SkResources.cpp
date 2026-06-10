@@ -12,7 +12,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkImage.h"
-#include "include/private/base/SkTPin.h"
+#include "include/private/SkTPin.h"
 #include "modules/skresources/src/SkAnimCodecPlayer.h"
 #include "src/base/SkBase64.h"
 #include "src/core/SkOSFile.h"

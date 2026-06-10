@@ -6,7 +6,7 @@
  */
 #include "src/gpu/graphite/DrawPass.h"
 
-#include "include/private/base/SkLog.h"
+#include "include/private/SkLog.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PaintParamsKey.h"

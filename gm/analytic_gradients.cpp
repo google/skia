@@ -48,7 +48,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradient.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTemplates.h"
 
 using namespace skia_private;
 

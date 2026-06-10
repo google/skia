@@ -11,7 +11,7 @@
 
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkStream.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 
 #include <setjmp.h>
 // stdio is needed for jpeglib

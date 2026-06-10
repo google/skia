@@ -30,7 +30,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkVertices.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTemplates.h"
 #include "include/private/chromium/Slug.h"
 #include "src/core/SkDrawShadowInfo.h"
 

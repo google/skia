@@ -8,7 +8,7 @@
 #ifndef SKSL_STRUCTDEFINITION
 #define SKSL_STRUCTDEFINITION
 
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLProgramElement.h"

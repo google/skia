@@ -12,7 +12,7 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 #include "modules/skcms/skcms.h"
 
 namespace SkCodecs {

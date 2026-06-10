@@ -7,7 +7,7 @@
 
 #include "src/sksl/codegen/SkSLHLSLCodeGenerator.h"
 
-#include "include/private/base/SkDebug.h"
+#include "include/private/SkDebug.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/sksl/SkSLContext.h"  // IWYU pragma: keep
 #include "src/sksl/SkSLErrorReporter.h"

@@ -8,7 +8,7 @@
 #include "src/gpu/SkSLToBackend.h"
 
 #include "include/gpu/ShaderErrorHandler.h"
-#include "include/private/base/SkDebug.h"
+#include "include/private/SkDebug.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/codegen/SkSLNativeShader.h"
 #include "src/sksl/ir/SkSLProgram.h"

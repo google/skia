@@ -10,7 +10,7 @@
 
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkVertices.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 #include "src/gpu/MaskFormat.h"
 #include "src/gpu/graphite/Renderer.h"
 

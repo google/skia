@@ -11,7 +11,7 @@
 #include <memory>
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
-#include "include/private/base/SingleOwner.h"
+#include "include/private/SingleOwner.h"
 
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "src/capture/SkCaptureManager.h"

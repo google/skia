@@ -8,7 +8,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkCPUTypes.h"
+#include "include/private/SkCPUTypes.h"
 #include "tests/Test.h"
 
 DEF_TEST(ColorToHSVRoundTrip, reporter) {

@@ -22,7 +22,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/base/SkMalloc.h"
+#include "include/private/SkMalloc.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/base/SkMathPriv.h"
 #include "src/base/SkSafeMath.h"

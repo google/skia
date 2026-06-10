@@ -9,7 +9,7 @@
 #define skgpu_graphite_TextureFormatXferFn_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "src/base/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/gpu/graphite/TextureFormat.h"

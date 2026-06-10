@@ -8,7 +8,7 @@
 
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkMath.h"
+#include "include/private/SkMath.h"
 #include "src/base/SkTSort.h"
 #include "src/core/SkPathPriv.h"
 #include "src/pathops/SkOpSegment.h"

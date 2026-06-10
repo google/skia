@@ -8,7 +8,7 @@
 #ifndef SKSL_CONTEXT
 #define SKSL_CONTEXT
 
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 
 namespace SkSL {
 

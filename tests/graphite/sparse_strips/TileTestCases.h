@@ -8,7 +8,7 @@
 #ifndef skgpu_graphite_TileTestCases_DEFINED
 #define skgpu_graphite_TileTestCases_DEFINED
 
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkTDArray.h"
 
 #include <initializer_list>
 #include <vector>

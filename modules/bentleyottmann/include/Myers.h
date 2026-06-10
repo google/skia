@@ -5,7 +5,7 @@
 #define Myers_DEFINED
 
 #include "include/core/SkSpan.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 
 #include <algorithm>
 #include <cstddef>

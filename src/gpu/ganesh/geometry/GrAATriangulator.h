@@ -13,7 +13,7 @@
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
-#include "src/base/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/gpu/ganesh/geometry/GrTriangulator.h"
 
 #include <cstdint>

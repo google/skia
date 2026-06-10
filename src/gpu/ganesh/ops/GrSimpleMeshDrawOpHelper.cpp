@@ -6,8 +6,8 @@
  */
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
-#include "include/private/base/SkTo.h"
-#include "src/base/SkArenaAlloc.h"
+#include "include/private/SkTo.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
 #include "src/gpu/ganesh/GrDstProxyView.h"

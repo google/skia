@@ -12,7 +12,7 @@
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTemplates.h"
 
 class SkReadBuffer;
 class SkWriteBuffer;

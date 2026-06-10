@@ -9,7 +9,7 @@
 #define GrFixedClip_DEFINED
 
 #include "include/core/SkRect.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrScissorState.h"
 #include "src/gpu/ganesh/GrWindowRectsState.h"

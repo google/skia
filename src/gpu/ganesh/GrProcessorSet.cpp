@@ -6,7 +6,7 @@
  */
 #include "src/gpu/ganesh/GrProcessorSet.h"
 
-#include "include/private/base/SkDebug.h"
+#include "include/private/SkDebug.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
 #include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"

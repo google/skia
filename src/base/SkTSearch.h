@@ -10,7 +10,7 @@
 #ifndef SkTSearch_DEFINED
 #define SkTSearch_DEFINED
 
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 
 #include <cstddef>
 

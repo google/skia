@@ -12,7 +12,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixelRef.h"
-#include "include/private/base/SkMalloc.h"
+#include "include/private/SkMalloc.h"
 
 #include <utility>
 

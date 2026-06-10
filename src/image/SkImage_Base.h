@@ -11,10 +11,10 @@
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkPixelStorage.h"
-#include "include/private/base/SkSpan_impl.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkTDArray.h"
 #include "src/capture/SkCaptureManager.h"
 #include "src/core/SkMipmap.h"
 

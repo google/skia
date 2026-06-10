@@ -10,9 +10,9 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkCPUTypes.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkCPUTypes.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkTo.h"
 
 #include <cstdint>
 

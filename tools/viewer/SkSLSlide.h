@@ -14,8 +14,8 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTemplates.h"
 #include "tools/viewer/Slide.h"
 
 #include <utility>

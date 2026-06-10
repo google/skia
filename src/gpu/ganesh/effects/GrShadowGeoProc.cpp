@@ -8,7 +8,7 @@
 #include "src/gpu/ganesh/effects/GrShadowGeoProc.h"
 
 #include "include/core/SkSamplingOptions.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/ganesh/GrSamplerState.h"

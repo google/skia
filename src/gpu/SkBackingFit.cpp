@@ -7,7 +7,7 @@
 
 #include "src/gpu/SkBackingFit.h"
 
-#include "include/private/base/SkMath.h"
+#include "include/private/SkMath.h"
 #include "src/base/SkMathPriv.h"
 
 #include <algorithm>

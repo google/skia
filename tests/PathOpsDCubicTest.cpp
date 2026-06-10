@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkSpan.h"
-#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/SkFloatingPoint.h"
 #include "src/pathops/SkPathOpsCubic.h"
 #include "src/pathops/SkPathOpsPoint.h"
 #include "tests/PathOpsTestCommon.h"

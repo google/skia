@@ -7,8 +7,8 @@
 
 #include "src/gpu/graphite/dawn/DawnErrorChecker.h"
 
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkLog.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkLog.h"
 #include "src/gpu/graphite/dawn/DawnAsyncWait.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 

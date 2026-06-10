@@ -11,8 +11,8 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "modules/jsonreader/SkJSONReader.h"
-#include "src/base/SkArenaAlloc.h"
 #include "src/base/SkAutoLocaleSetter.h"
+#include "src/core/SkArenaAlloc.h"
 #include "tests/Test.h"
 
 #include <cstring>

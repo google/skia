@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkFeatures.h"
-#include "include/private/base/SkLog.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkFeatures.h"
+#include "include/private/SkLog.h"
 
 #if defined(SK_BUILD_FOR_ANDROID)
 

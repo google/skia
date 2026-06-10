@@ -18,7 +18,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/private/SkIDChangeListener.h"
-#include "include/private/base/SkMalloc.h"
+#include "include/private/SkMalloc.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkMessageBus.h"

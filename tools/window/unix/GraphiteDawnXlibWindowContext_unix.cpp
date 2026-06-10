@@ -7,7 +7,7 @@
 // Important to put this first because webgpu_cpp.h and X.h don't get along.
 // Include these first, before X11 defines None, Success, Status etc.
 #include "dawn/native/DawnNative.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "webgpu/webgpu_cpp.h"
 
 #include "tools/window/unix/GraphiteDawnXlibWindowContext_unix.h"

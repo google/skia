@@ -8,8 +8,8 @@
 #ifndef SkScalar_DEFINED
 #define SkScalar_DEFINED
 
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkFloatingPoint.h"
 
 #include <cmath>
 

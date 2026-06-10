@@ -7,7 +7,7 @@
 
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkTPin.h"
+#include "include/private/SkTPin.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"

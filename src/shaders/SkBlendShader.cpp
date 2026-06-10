@@ -12,7 +12,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkFlattenable.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "src/base/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkEffectPriv.h"

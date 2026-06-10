@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTo.h"
 #include "src/utils/SkCharToGlyphCache.h"
 #include "tests/Test.h"
 

@@ -12,7 +12,7 @@
 
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/TextureInfo.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 #import <CoreFoundation/CoreFoundation.h>
 

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/base/SkFeatures.h"
+#include "include/private/SkFeatures.h"
 #include "src/core/SkOptsTargets.h"
 
 #if defined(SK_CPU_X86) && !defined(SK_ENABLE_OPTIMIZE_SIZE)

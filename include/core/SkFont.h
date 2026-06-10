@@ -16,8 +16,8 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkTo.h"
-#include "include/private/base/SkTypeTraits.h"
+#include "include/private/SkTo.h"
+#include "include/private/SkTypeTraits.h"
 
 #include <cstddef>
 #include <cstdint>

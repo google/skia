@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkFloatingPoint.h"
 #include "src/base/SkUtils.h"
 #include "tests/Test.h"
 

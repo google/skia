@@ -20,7 +20,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
-#include "include/private/base/SkTPin.h"
+#include "include/private/SkTPin.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkTHash.h"
 #include "src/pdf/SkKeyedImage.h"

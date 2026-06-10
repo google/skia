@@ -10,7 +10,7 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkVertices.h"
 #include "include/effects/SkGradient.h"
-#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/SkFloatingPoint.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"

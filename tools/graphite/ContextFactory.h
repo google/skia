@@ -11,7 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 #include "tools/gpu/ContextType.h"
 #include "tools/graphite/GraphiteTestContext.h"
 #include "tools/graphite/TestOptions.h"

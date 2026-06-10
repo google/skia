@@ -12,7 +12,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h" // IWYU pragma: keep
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 #include "include/private/gpu/ganesh/GrContext_Base.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
 

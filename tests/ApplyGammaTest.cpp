@@ -22,7 +22,7 @@
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkColorPriv.h"
 #include "src/core/SkMemset.h"
 #include "src/gpu/ganesh/GrCaps.h"

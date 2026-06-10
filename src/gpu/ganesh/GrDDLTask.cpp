@@ -8,8 +8,8 @@
 #include "src/gpu/ganesh/GrDDLTask.h"
 
 #include "include/core/SkString.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkTArray.h"
 #include "include/private/chromium/GrDeferredDisplayList.h"
 #include "src/gpu/ganesh/GrDeferredDisplayListPriv.h"
 #include "src/gpu/ganesh/GrDrawingManager.h"

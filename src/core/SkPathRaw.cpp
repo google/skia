@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkPathTypes.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkPathRaw.h"
 

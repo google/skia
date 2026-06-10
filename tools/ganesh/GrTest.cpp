@@ -9,7 +9,7 @@
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/gpu/ganesh/GrContextOptions.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTo.h"
 #include "src/base/SkMathPriv.h"
 #include "src/base/SkRandom.h"
 #include "src/gpu/ganesh/GrClip.h"

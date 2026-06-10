@@ -11,7 +11,7 @@
 #include "src/gpu/graphite/Resource.h"
 
 #include "include/gpu/vk/VulkanTypes.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 
 namespace skgpu::graphite {

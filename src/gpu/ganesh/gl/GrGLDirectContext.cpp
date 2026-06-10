@@ -30,7 +30,7 @@
 #endif
 
 #if defined(SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE)
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #endif
 
 namespace GrDirectContexts {

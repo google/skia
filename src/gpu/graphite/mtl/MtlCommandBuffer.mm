@@ -9,7 +9,7 @@
 
 #include "include/gpu/graphite/BackendSemaphore.h"
 #include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
-#include "include/private/base/SkLog.h"
+#include "include/private/SkLog.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/RenderPassDesc.h"

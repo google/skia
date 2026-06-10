@@ -8,8 +8,8 @@
 #include "src/gpu/ganesh/GrAttachment.h"
 
 #include "include/gpu/GpuTypes.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkTo.h"
 #include "src/gpu/DataUtils.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"

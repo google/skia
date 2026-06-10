@@ -16,7 +16,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkYUVAInfo.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTo.h"
 
 #include <array>
 #include <bitset>

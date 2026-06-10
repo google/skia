@@ -9,8 +9,8 @@
 #include "include/core/SkSpan.h"
 
 #include "include/core/SkStream.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkMalloc.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkMalloc.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkStreamPriv.h"
 

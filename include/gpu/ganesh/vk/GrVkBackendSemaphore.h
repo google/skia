@@ -9,7 +9,7 @@
 #define GrVkBackendSemaphore_DEFINED
 
 #include "include/gpu/ganesh/GrBackendSemaphore.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
 
 namespace GrBackendSemaphores {

@@ -9,7 +9,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/ganesh/d3d/GrD3DTypes.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/gpu/ganesh/GrBackendSurfacePriv.h"
 #include "src/gpu/ganesh/d3d/GrD3DBackendSurfacePriv.h"
 #include "src/gpu/ganesh/d3d/GrD3DResourceState.h"

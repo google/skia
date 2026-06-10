@@ -12,7 +12,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/ganesh/GrTypes.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 class GrBackendRenderTarget;
 class GrBackendTexture;

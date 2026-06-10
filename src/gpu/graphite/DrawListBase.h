@@ -9,7 +9,7 @@
 
 #include "include/gpu/graphite/GraphiteTypes.h"
 
-#include "include/private/base/SkDebug.h"
+#include "include/private/SkDebug.h"
 #include "src/base/SkBlockAllocator.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/base/SkTBlockList.h"

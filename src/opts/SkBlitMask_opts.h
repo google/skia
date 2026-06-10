@@ -8,7 +8,7 @@
 #ifndef SkBlitMask_opts_DEFINED
 #define SkBlitMask_opts_DEFINED
 
-#include "include/private/base/SkFeatures.h"
+#include "include/private/SkFeatures.h"
 #include "src/core/Sk4px.h"
 
 #if defined(SK_ARM_HAS_NEON)

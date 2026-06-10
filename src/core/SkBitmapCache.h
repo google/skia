@@ -9,7 +9,7 @@
 #define SkBitmapCache_DEFINED
 
 #include "include/core/SkRect.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 
 #include <cstdint>
 #include <memory>

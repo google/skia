@@ -12,12 +12,12 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/ports/SkFontMgr_android_ndk.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkFeatures.h"
-#include "include/private/base/SkFloatingPoint.h"
-#include "include/private/base/SkMutex.h"
-#include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkFeatures.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTemplates.h"
+#include "src/base/SkSharedMutex.h"
 #include "src/base/SkTSort.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkChecksum.h"
@@ -722,7 +722,7 @@ public:
         uint32_t fHash;
     };
     sk_sp<SkTypeface> find(const Request& request) {
-        SkAutoMutexExclusive lock(fMutex);  // SkLRUCache::find() is mutating
+        SkAutoSharedMutexShared lock(fMutex);
         sk_sp<SkTypeface>* typeface = fRequests.find(request);
         if (typeface) {
             return *typeface;
@@ -730,7 +730,7 @@ public:
         return nullptr;
     }
     void add(const Request& request, sk_sp<SkTypeface> typeface) {
-        SkAutoMutexExclusive lock(fMutex);
+        SkAutoSharedMutexExclusive lock(fMutex);
         fRequests.insert_or_update(request, std::move(typeface));
     }
 
@@ -773,7 +773,7 @@ public:
         uint32_t fHash;
     };
     sk_sp<SkTypeface> find(const Match& match) {
-        SkAutoMutexExclusive lock(fMutex);
+        SkAutoSharedMutexShared lock(fMutex);
         sk_sp<SkTypeface>* typeface = fMatches.find(match);
         if (typeface) {
             return *typeface;
@@ -781,13 +781,13 @@ public:
         return nullptr;
     }
     void add(Match&& match, sk_sp<SkTypeface> typeface) {
-        SkAutoMutexExclusive lock(fMutex);
+        SkAutoSharedMutexExclusive lock(fMutex);
         fMatches.insert_or_update(std::move(match), typeface);
     }
 private:
     SkLRUCache<Request, sk_sp<SkTypeface>, Request::Hash> fRequests;
     SkLRUCache<Match, sk_sp<SkTypeface>, Match::Hash> fMatches;
-    SkMutex fMutex;
+    SkSharedMutex fMutex;
 };
 
 sk_sp<SkTypeface> adjustForStyle(sk_sp<SkTypeface_AndroidNDK>&& typeface, SkFontStyle style,

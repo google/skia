@@ -9,8 +9,8 @@
 
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/Recording.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkLog.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkLog.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/RefCntedCallback.h"
@@ -106,15 +106,13 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
         callback = RefCntedCallback::Make(info.fFinishedProc, info.fFinishedContext);
     }
 
-#define RETURN_FAIL_IF(failureCase, status, fmt, ...)                   \
-    if (failureCase) {                                                  \
-        if (callback) { callback->setFailureResult(); }                 \
-        if (info.fRecording) {                                          \
-            info.fRecording->priv().setFailureResultForFinishedProcs(); \
-            info.fRecording->priv().deinstantiateVolatileLazyProxies(); \
-        }                                                               \
-        SKIA_LOG_E(fmt, ##__VA_ARGS__);                                 \
-        return status;                                                  \
+#define RETURN_FAIL_IF(failureCase, status, fmt, ...)               \
+    if (failureCase) {                                              \
+        if (callback) { callback->setFailureResult(); }             \
+        info.fRecording->priv().setFailureResultForFinishedProcs(); \
+        info.fRecording->priv().deinstantiateVolatileLazyProxies(); \
+        SKIA_LOG_E(fmt, ##__VA_ARGS__);                            \
+        return status;                                              \
     } do {} while(false)
 #define SIMULATE_FAIL(status) \
     RETURN_FAIL_IF(info.fSimulatedStatus == status, status, "Simulating '" #status "' failure")

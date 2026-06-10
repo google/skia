@@ -7,8 +7,8 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkDebug.h"
 #include "include/private/SkWeakRefCnt.h"
-#include "include/private/base/SkDebug.h"
 #include "tests/Test.h"
 
 #include <thread>

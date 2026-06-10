@@ -20,18 +20,18 @@
 #include "include/core/SkStrikeRef.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkFloatingPoint.h"
-#include "include/private/base/SkTemplates.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
 #include "src/base/SkUTF.h"
-#include "src/base/SkZip.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPaintDefaults.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeSpec.h"
+#include "src/core/SkZip.h"
 
 #include <algorithm>
 #include <cstddef>

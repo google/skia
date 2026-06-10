@@ -8,11 +8,11 @@
 #include "include/core/SkStrikeRef.h"
 
 #include "include/core/SkRect.h"
-#include "include/private/base/SkTemplates.h"
-#include "include/private/base/SkTo.h"
-#include "src/base/SkZip.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkStrike.h"
+#include "src/core/SkZip.h"
 
 #include <algorithm>
 

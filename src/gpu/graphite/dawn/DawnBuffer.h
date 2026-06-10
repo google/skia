@@ -11,8 +11,8 @@
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SingleOwner.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SingleOwner.h"
+#include "include/private/SkTArray.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/dawn/DawnAsyncWait.h"

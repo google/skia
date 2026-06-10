@@ -7,7 +7,7 @@
 
 #include "src/gpu/RectanizerSkyline.h"
 
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/core/SkIPoint16.h"
 
 #include <algorithm>

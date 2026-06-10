@@ -7,13 +7,13 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTemplates.h"
 #include "src/base/SkRandom.h"
 #include "src/base/SkTSearch.h"
 #include "src/base/SkTSort.h"
 #include "src/base/SkUtils.h"
-#include "src/base/SkZip.h"
 #include "src/core/SkEnumerate.h"
+#include "src/core/SkZip.h"
 #include "tests/Test.h"
 
 #include <array>

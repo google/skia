@@ -17,8 +17,8 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkOnce.h"
 #include "include/private/SkWeakRefCnt.h"
-#include "include/private/base/SkOnce.h"
 
 #include <cstddef>
 #include <cstdint>

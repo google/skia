@@ -8,7 +8,7 @@
 #ifndef skgpu_graphite_DawnCommandBuffer_DEFINED
 #define skgpu_graphite_DawnCommandBuffer_DEFINED
 
-#include "include/private/base/SkLog.h"
+#include "include/private/SkLog.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/DrawPass.h"
 #include "src/gpu/graphite/GpuWorkSubmission.h"

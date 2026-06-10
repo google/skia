@@ -8,8 +8,8 @@
 #ifndef SkSpinlock_DEFINED
 #define SkSpinlock_DEFINED
 
-#include "include/private/base/SkAPI.h"
-#include "include/private/base/SkThreadAnnotations.h"
+#include "include/private/SkAPI.h"
+#include "include/private/SkThreadAnnotations.h"
 
 #include <atomic>
 

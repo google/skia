@@ -11,11 +11,11 @@
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkStrokeRec.h"
+#include "include/private/SkAlign.h"
+#include "include/private/SkDebug.h"
 #include "include/private/SkIDChangeListener.h"
-#include "include/private/base/SkAlign.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkMalloc.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTo.h"
 
 #include <algorithm>
 #include <cstring>

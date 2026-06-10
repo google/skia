@@ -10,7 +10,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkString.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 #include "tools/sk_app/Window.h"
 
 class SkSurface;

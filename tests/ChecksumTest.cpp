@@ -7,7 +7,7 @@
 
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkAlign.h"
+#include "include/private/SkAlign.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkChecksum.h"
 #include "tests/Test.h"

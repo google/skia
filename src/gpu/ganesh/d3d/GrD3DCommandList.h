@@ -10,7 +10,7 @@
 
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/gpu/ganesh/d3d/GrD3DTypes.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 #include "src/gpu/ganesh/GrManagedResource.h"
 #include "src/gpu/ganesh/GrRingBuffer.h"
 #include "src/gpu/ganesh/d3d/GrD3DRootSignature.h"

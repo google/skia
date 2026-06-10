@@ -11,7 +11,7 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
-#include "include/private/base/SkDebug.h"
+#include "include/private/SkDebug.h"
 #include "modules/svg/include/SkSVGDOM.h"
 #include "modules/svg/include/SkSVGNode.h"
 #include "src/xml/SkDOM.h"

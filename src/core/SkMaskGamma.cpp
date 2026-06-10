@@ -8,9 +8,9 @@
 #include "src/core/SkMaskGamma.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkFloatingPoint.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkTo.h"
 
 #include <cmath>
 

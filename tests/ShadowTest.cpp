@@ -17,7 +17,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTo.h"
 #include "include/utils/SkShadowUtils.h"
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkVerticesPriv.h"

@@ -14,8 +14,8 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/base/SkAPI.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkAPI.h"
+#include "include/private/SkTArray.h"
 
 #include <cstddef>
 #include <cstdint>

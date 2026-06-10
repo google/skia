@@ -8,7 +8,7 @@
 #ifndef SkAutoreleasePool_DEFINED
 #define SkAutoreleasePool_DEFINED
 
-#include "include/private/base/SkFeatures.h"
+#include "include/private/SkFeatures.h"
 
 /*
  * Helper class for managing an autorelease pool for Metal. On other platforms this will

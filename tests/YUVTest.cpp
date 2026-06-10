@@ -19,7 +19,7 @@
 #include "include/core/SkYUVAPixmaps.h"
 #include "include/effects/SkColorMatrix.h"
 #include "include/encode/SkJpegEncoder.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTo.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 

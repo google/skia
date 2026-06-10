@@ -16,9 +16,9 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
+#include "include/private/SkAlign.h"
 #include "include/private/SkEncodedInfo.h"
-#include "include/private/base/SkAlign.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTo.h"
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecPriv.h"
 

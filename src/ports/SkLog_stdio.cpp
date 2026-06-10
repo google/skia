@@ -6,10 +6,10 @@
  */
 
 #include <cstdarg>
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkFeatures.h"
-#include "include/private/base/SkLoadUserConfig.h"
-#include "include/private/base/SkLog.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkFeatures.h"
+#include "include/private/SkLoadUserConfig.h"
+#include "include/private/SkLog.h"
 
 #if !defined(SK_BUILD_FOR_WIN) && !defined(SK_BUILD_FOR_ANDROID)
 

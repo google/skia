@@ -10,7 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/vk/VulkanMemoryAllocator.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 

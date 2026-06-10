@@ -9,7 +9,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/ganesh/GrTypes.h"
-#include "include/private/base/SkDebug.h"
+#include "include/private/SkDebug.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"

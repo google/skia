@@ -8,7 +8,7 @@
 #ifndef skgpu_graphite_VulkanSharedContext_DEFINED
 #define skgpu_graphite_VulkanSharedContext_DEFINED
 
-#include "include/private/base/SkMutex.h"
+#include "include/private/SkMutex.h"
 #include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/ThreadSafeResourceProvider.h"
 

@@ -7,7 +7,7 @@
 
 #include "include/gpu/ganesh/gl/GrGLExtensions.h"
 
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/base/SkTSearch.h"
 #include "src/base/SkTSort.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"

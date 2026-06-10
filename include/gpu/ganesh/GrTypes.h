@@ -10,7 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/private/base/SkTo.h" // IWYU pragma: keep
+#include "include/private/SkTo.h" // IWYU pragma: keep
 
 #include <cstddef>
 #include <cstdint>

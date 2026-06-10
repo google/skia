@@ -10,7 +10,7 @@
 #include <memory>
 
 #include "include/codec/SkCodec.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 class SkStream;
 

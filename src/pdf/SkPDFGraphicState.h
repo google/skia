@@ -10,7 +10,7 @@
 #define SkPDFGraphicState_DEFINED
 
 #include "include/core/SkScalar.h"
-#include "include/private/base/SkMacros.h"
+#include "include/private/SkMacros.h"
 #include "src/core/SkChecksum.h"
 #include "src/pdf/SkPDFTypes.h"
 

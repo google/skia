@@ -8,7 +8,7 @@
 #ifndef skgpu_VulkanPreferredFeatures_DEFINED
 #define skgpu_VulkanPreferredFeatures_DEFINED
 
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
 
 #include <cstddef>

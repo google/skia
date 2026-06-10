@@ -29,7 +29,7 @@
 #include "include/core/SkTiledImageUtils.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/core/SkSamplingPriv.h"
 #include "tests/ComparePixels.h"
 #include "tests/Test.h"

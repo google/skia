@@ -17,9 +17,9 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
+#include "include/private/SkDebug.h"
 #include "include/private/SkEncodedInfo.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTemplates.h"
 
 class SkColorPalette;
 class SkSampler;

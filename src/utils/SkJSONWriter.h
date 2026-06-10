@@ -11,8 +11,8 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkNoncopyable.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkTArray.h"
 #include "src/base/SkUTF.h"
 
 #include <cstring>

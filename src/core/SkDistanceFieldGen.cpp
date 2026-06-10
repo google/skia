@@ -9,9 +9,9 @@
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
-#include "include/private/base/SkMalloc.h"
-#include "include/private/base/SkTPin.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTPin.h"
+#include "include/private/SkTemplates.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkPointPriv.h"

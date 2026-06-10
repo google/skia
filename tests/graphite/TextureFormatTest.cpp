@@ -10,7 +10,7 @@
 #include "include/core/SkColorType.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/TextureInfo.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 #include "src/base/SkFloatBits.h"
 #include "src/base/SkHalf.h"
 #include "src/core/SkColorSpaceXformSteps.h"

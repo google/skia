@@ -7,8 +7,8 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkFloatingPoint.h"
-#include "src/base/SkBezierCurves.h"
+#include "include/private/SkFloatingPoint.h"
+#include "src/core/SkBezierCurves.h"
 #include "src/pathops/SkPathOpsCubic.h"
 #include "src/pathops/SkPathOpsPoint.h"
 #include "src/pathops/SkPathOpsTypes.h"

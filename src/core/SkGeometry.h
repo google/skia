@@ -13,7 +13,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/SkFloatingPoint.h"
 #include "src/base/SkVx.h"
 
 #include <cstring>
@@ -497,7 +497,7 @@ struct SkCubicCoeff {
 
 }  // namespace
 
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTemplates.h"
 
 /**
  *  Help class to allocate storage for approximating a conic with N quads.

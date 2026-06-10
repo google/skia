@@ -10,7 +10,7 @@
 
 #include <cstring>
 #include "include/gpu/ganesh/gl/GrGLTypes.h"
-#include "include/private/base/SkTLogic.h"
+#include "include/private/SkTLogic.h"
 
 #if defined(__EMSCRIPTEN__)
 #include <emscripten/version.h>

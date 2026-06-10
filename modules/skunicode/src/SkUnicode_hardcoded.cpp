@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/base/SkDebug.h"
+#include "include/private/SkDebug.h"
 #include "modules/skunicode/src/SkUnicode_hardcoded.h"
 #include <algorithm>
 #include <array>

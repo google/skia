@@ -7,7 +7,7 @@
 #include "src/gpu/graphite/Buffer.h"
 
 #include "include/gpu/GpuTypes.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/SharedContext.h"
 

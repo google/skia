@@ -20,7 +20,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkDashPathEffect.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTo.h"
 #include "include/svg/SkSVGCanvas.h"
 #include "include/utils/SkParse.h"
 #include "src/shaders/SkImageShader.h"

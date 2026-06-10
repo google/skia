@@ -17,14 +17,14 @@
 #include "include/gpu/graphite/Surface.h"
 #include "include/gpu/graphite/dawn/DawnBackendContext.h"
 #include "include/gpu/graphite/dawn/DawnGraphiteTypes.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/gpu/graphite/ContextOptionsPriv.h"
 #include "tools/ToolUtils.h"
 #include "tools/graphite/GraphiteToolUtils.h"
 #include "tools/graphite/TestOptions.h"
 #include "tools/graphite/dawn/GraphiteDawnToggles.h"
 #include "tools/window/GraphiteDisplayParams.h"
-#include "include/private/base/SkLog.h"
+#include "include/private/SkLog.h"
 
 #include "dawn/dawn_proc.h"
 

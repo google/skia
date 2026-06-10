@@ -16,7 +16,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSerialProcs.h"
 #include "include/core/SkStream.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 #include "src/capture/SkCaptureManager.h"
 
 constexpr SkFourByteTag kMagic1  = SkSetFourByteTag('s','k','i','a');

@@ -10,7 +10,7 @@
 
 #include "include/core/SkM44.h"
 #include "include/core/SkPicture.h"
-#include "include/private/base/SkNoncopyable.h"
+#include "include/private/SkNoncopyable.h"
 #include "src/core/SkPictureFlat.h"
 
 #include <cstddef>

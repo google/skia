@@ -30,7 +30,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradient.h"
 #include "include/encode/SkJpegEncoder.h"
-#include "include/private/base/SkMalloc.h"
+#include "include/private/SkMalloc.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkColorPriv.h"
 #include "src/core/SkReadBuffer.h"

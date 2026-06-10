@@ -8,7 +8,7 @@
 #ifndef SkUtils_DEFINED
 #define SkUtils_DEFINED
 
-#include "include/private/base/SkAttributes.h"
+#include "include/private/SkAttributes.h"
 
 #include <cstring>
 #include <type_traits> // is_trivially_copyable

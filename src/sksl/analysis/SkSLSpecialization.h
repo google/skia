@@ -8,7 +8,7 @@
 #ifndef SKSL_SPECIALIZATION
 #define SKSL_SPECIALIZATION
 
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkTHash.h"
 #include "src/utils/SkBitSet.h"

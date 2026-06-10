@@ -26,8 +26,8 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkGradient.h"
-#include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTemplates.h"
 #include "tools/ToolUtils.h"
 
 #include <initializer_list>

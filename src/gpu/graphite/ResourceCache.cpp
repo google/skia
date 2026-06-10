@@ -7,7 +7,7 @@
 
 #include "src/gpu/graphite/ResourceCache.h"
 
-#include "include/private/base/SingleOwner.h"
+#include "include/private/SingleOwner.h"
 #include "src/base/SkNoDestructor.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkTMultiMap.h"

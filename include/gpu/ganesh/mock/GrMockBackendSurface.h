@@ -9,7 +9,7 @@
 
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/gpu/ganesh/mock/GrMockTypes.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 #include <string_view>
 

@@ -13,10 +13,10 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
-#include "include/private/base/SkAPI.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkMath.h"
-#include "include/private/base/SkTFitsIn.h"
+#include "include/private/SkAPI.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkMath.h"
+#include "include/private/SkTFitsIn.h"
 
 #include <cstddef>
 #include <cstdint>

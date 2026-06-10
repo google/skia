@@ -9,7 +9,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/ganesh/gl/GrGLAssembleInterface.h"
 #include "include/gpu/ganesh/gl/GrGLInterface.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 
 // Define this to get a prototype for glXGetProcAddress on some systems
 #define GLX_GLXEXT_PROTOTYPES 1

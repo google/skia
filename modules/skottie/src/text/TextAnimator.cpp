@@ -8,7 +8,7 @@
 #include "modules/skottie/src/text/TextAnimator.h"
 
 #include "include/core/SkColor.h"
-#include "include/private/base/SkCPUTypes.h"
+#include "include/private/SkCPUTypes.h"
 #include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"

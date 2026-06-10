@@ -9,7 +9,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/base/SkSafeMath.h"
 #include "src/core/SkImageInfoPriv.h"
 

@@ -9,7 +9,7 @@
 
 #include "include/core/SkBBHFactory.h"
 #include "include/core/SkCanvas.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecordDraw.h"
 #include "src/core/SkRecords.h"

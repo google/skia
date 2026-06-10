@@ -7,7 +7,7 @@
 
 // Include guards are intentionally omitted
 
-#include "include/private/base/SkFeatures.h"
+#include "include/private/SkFeatures.h"
 
 #if SK_OPTS_TARGET == SK_OPTS_TARGET_DEFAULT
     // Nothing to do here

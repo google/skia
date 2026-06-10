@@ -9,7 +9,7 @@
 #define GrMockBuffer_DEFINED
 
 #include "include/gpu/GpuTypes.h"
-#include "include/private/base/SkMalloc.h"
+#include "include/private/SkMalloc.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrGpu.h"

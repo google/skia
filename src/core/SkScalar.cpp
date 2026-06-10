@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkScalar.h"
-#include "include/private/base/SkDebug.h"
+#include "include/private/SkDebug.h"
 
 float SkFloatInterpFunc(float searchKey, const float keys[], const float values[], int length) {
     SkASSERT(length > 0);

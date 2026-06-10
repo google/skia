@@ -8,7 +8,7 @@
 #define SkTextCoordShader_DEFINED
 
 #include "include/core/SkScalar.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/shaders/SkShaderBase.h"
 
 class SkMatrix;

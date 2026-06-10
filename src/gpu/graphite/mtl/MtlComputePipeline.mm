@@ -9,7 +9,7 @@
 
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ShaderErrorHandler.h"
-#include "include/private/base/SkLog.h"
+#include "include/private/SkLog.h"
 #include "src/gpu/graphite/ComputePipelineDesc.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/ResourceProvider.h"

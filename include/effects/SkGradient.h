@@ -14,7 +14,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTileMode.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 class SkMatrix;
 

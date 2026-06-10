@@ -8,9 +8,9 @@
 #define GrQuadBuffer_DEFINED
 
 #include "include/core/SkRect.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkTDArray.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
 
 #include <cstdint>

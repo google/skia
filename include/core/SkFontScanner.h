@@ -12,9 +12,9 @@
 #include "include/core/SkFontParameters.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkFixed.h"
-#include "include/private/base/SkNoncopyable.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkFixed.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkTArray.h"
 class SkFontStyle;
 class SkStreamAsset;
 class SkString;

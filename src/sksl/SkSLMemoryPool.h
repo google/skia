@@ -11,7 +11,7 @@
 #include <memory>
 
 #include "include/core/SkTypes.h"
-#include "src/base/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 
 namespace SkSL {
 

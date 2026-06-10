@@ -9,9 +9,9 @@
 #define SkFDot6_DEFINED
 
 #include "include/core/SkScalar.h"
-#include "include/private/base/SkFixed.h"
-#include "include/private/base/SkMath.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkFixed.h"
+#include "include/private/SkMath.h"
+#include "include/private/SkTo.h"
 
 #include <limits>
 

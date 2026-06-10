@@ -14,7 +14,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
-#include "include/private/base/SkTPin.h"
+#include "include/private/SkTPin.h"
 
 #include <cstddef>
 #include <utility>

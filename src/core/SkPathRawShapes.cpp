@@ -8,7 +8,7 @@
 
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkRRect.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/core/SkPathMakers.h"
 
 const SkPathFillType kDefFillType = SkPathFillType::kWinding;

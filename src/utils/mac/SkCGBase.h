@@ -8,7 +8,7 @@
 #ifndef SkCGBase_DEFINED
 #define SkCGBase_DEFINED
 
-#include "include/private/base/SkFeatures.h"
+#include "include/private/SkFeatures.h"
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 

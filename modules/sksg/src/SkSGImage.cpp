@@ -11,7 +11,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 
 namespace sksg {
 

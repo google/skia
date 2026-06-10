@@ -11,7 +11,7 @@
 #include "include/gpu/ganesh/GrContextOptions.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
 
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 #include "tools/ganesh/TestContext.h"
 #include "tools/gpu/ContextType.h"
 

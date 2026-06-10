@@ -21,8 +21,8 @@
 
 #include "src/core/SkCpu.h"
 
-#include "include/private/base/SkFeatures.h"
-#include "include/private/base/SkOnce.h"
+#include "include/private/SkFeatures.h"
+#include "include/private/SkOnce.h"
 
 #if defined(SK_CPU_X86)
     #if defined(_MSC_VER)

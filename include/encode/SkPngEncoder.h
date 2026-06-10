@@ -10,8 +10,8 @@
 
 #include "include/core/SkDataTable.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/SkAPI.h"
 #include "include/private/SkHdrMetadata.h"
-#include "include/private/base/SkAPI.h"
 
 // TODO(kjlubick) update clients to directly include this
 #include "include/encode/SkEncoder.h"  // IWYU pragma: keep

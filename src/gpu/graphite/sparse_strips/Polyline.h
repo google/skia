@@ -9,7 +9,7 @@
 
 #include "include/core/SkScalar.h"
 #include "include/core/SkSpan.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkTDArray.h"
 #include "src/gpu/graphite/sparse_strips/SparseStripsTypes.h"
 
 #include <cmath>

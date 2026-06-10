@@ -10,7 +10,7 @@
 
 #include "include/core/SkFourByteTag.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 #include <cstddef>
 #include <optional>

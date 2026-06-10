@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/base/SkASAN.h"  // IWYU pragma: keep
-#include "include/private/base/SkTArray.h"
-#include "src/base/SkFixedArray.h"
+#include "include/private/SkASAN.h"  // IWYU pragma: keep
+#include "include/private/SkTArray.h"
 #include "src/base/SkRandom.h"
+#include "src/core/SkFixedArray.h"
 #include "tests/Test.h"
 
 #include <array>

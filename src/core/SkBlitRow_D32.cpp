@@ -7,7 +7,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkCPUTypes.h"
+#include "include/private/SkCPUTypes.h"
 #include "src/core/SkBlitRow.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkColorPriv.h"

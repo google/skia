@@ -14,9 +14,9 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkTo.h"
-#include "include/private/base/SkTypeTraits.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkTo.h"
+#include "include/private/SkTypeTraits.h"
 
 #include <cstdint>
 #include <new>

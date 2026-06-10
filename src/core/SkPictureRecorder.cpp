@@ -11,7 +11,7 @@
 #include "include/core/SkDrawable.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkBigPicture.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecordCanvas.h"

@@ -7,10 +7,10 @@
 
 #include "src/gpu/ganesh/text/GlyphData.h"
 
-#include "include/private/base/SkAssert.h"
-#include "src/base/SkZip.h"
+#include "include/private/SkAssert.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkStrike.h"
+#include "src/core/SkZip.h"
 #include "src/gpu/ganesh/GrAtlasTypes.h"
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"

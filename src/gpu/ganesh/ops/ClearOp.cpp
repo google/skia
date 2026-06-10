@@ -7,7 +7,7 @@
 
 #include "src/gpu/ganesh/ops/ClearOp.h"
 
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrOpsRenderPass.h"
 

@@ -16,8 +16,8 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkTemplates.h"
-#include "src/base/SkZip.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkZip.h"
 
 #include <algorithm>
 #include <cstddef>

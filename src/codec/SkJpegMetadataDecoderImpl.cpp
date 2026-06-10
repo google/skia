@@ -8,7 +8,7 @@
 #include "src/codec/SkJpegMetadataDecoderImpl.h"
 
 #include "include/core/SkData.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTemplates.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkJpegConstants.h"
 

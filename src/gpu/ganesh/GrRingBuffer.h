@@ -9,8 +9,8 @@
 #define GrRingBuffer_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkMath.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkMath.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
 
 #include <cstddef>

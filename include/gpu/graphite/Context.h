@@ -15,11 +15,11 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/Recorder.h"  // IWYU pragma: keep
-#include "include/private/base/SingleOwner.h"
-#include "include/private/base/SkThreadAnnotations.h"
+#include "include/private/SingleOwner.h"
+#include "include/private/SkThreadAnnotations.h"
 
 #if defined(GPU_TEST_UTILS)
-#include "include/private/base/SkMutex.h"
+#include "include/private/SkMutex.h"
 #endif
 
 #include <chrono>

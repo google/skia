@@ -18,7 +18,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 #include "include/utils/SkTextUtils.h"
 #include "modules/skottie/include/TextShaper.h"
 

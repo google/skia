@@ -8,7 +8,7 @@
 #define SkColorSpacePriv_DEFINED
 
 #include "include/core/SkColorSpace.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTemplates.h"
 #include "modules/skcms/skcms.h"
 
 // A gamut narrower than sRGB, useful for testing.

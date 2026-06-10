@@ -7,13 +7,13 @@
 
 #include "src/gpu/ganesh/ops/DrawAtlasPathOp.h"
 
+#include "include/core/SkPoint.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
-#include "include/private/base/SkAlignedStorage.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkOnce.h"
-#include "include/private/base/SkPoint_impl.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkAlignedStorage.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkOnce.h"
+#include "include/private/SkTArray.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/KeyBuilder.h"

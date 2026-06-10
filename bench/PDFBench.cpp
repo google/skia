@@ -17,7 +17,7 @@
 #include "include/core/SkStream.h"
 #include "include/docs/SkPDFJpegHelpers.h"
 #include "include/effects/SkGradient.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTo.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/pdf/SkPDFUnion.h"

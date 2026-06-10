@@ -7,8 +7,8 @@
 
 #include "src/text/gpu/SubRunAllocator.h"
 
-#include "include/private/base/SkMath.h"
-#include "include/private/base/SkTFitsIn.h"
+#include "include/private/SkMath.h"
+#include "include/private/SkTFitsIn.h"
 
 #include <cstddef>
 #include <memory>

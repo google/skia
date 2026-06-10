@@ -325,7 +325,6 @@ skia_cc_library(
         "//include/pathops:headers_to_compile",
         "//include/ports:headers_to_compile",
         "//include/private:headers_to_compile",
-        "//include/private/base:headers_to_compile",
         "//include/sksl:headers_to_compile",
         "//include/svg:headers_to_compile",
         "//include/utils:headers_to_compile",

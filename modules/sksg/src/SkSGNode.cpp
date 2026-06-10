@@ -7,7 +7,7 @@
 
 #include "modules/sksg/include/SkSGNode.h"
 
-#include "include/private/base/SkDebug.h"
+#include "include/private/SkDebug.h"
 #include "modules/sksg/include/SkSGInvalidationController.h"
 #include "src/core/SkRectPriv.h"
 

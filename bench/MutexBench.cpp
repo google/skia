@@ -6,7 +6,7 @@
  */
 #include "bench/Benchmark.h"
 #include "include/core/SkString.h"
-#include "include/private/base/SkMutex.h"
+#include "include/private/SkMutex.h"
 #include "src/base/SkSharedMutex.h"
 #include "src/base/SkSpinlock.h"
 

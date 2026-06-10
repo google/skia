@@ -13,7 +13,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkMath.h"
+#include "include/private/SkMath.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"

@@ -12,7 +12,7 @@
 #include "include/encode/SkPngEncoder.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
-#include "include/private/base/SkLog.h"
+#include "include/private/SkLog.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkMemset.h"
 #include "src/core/SkMipmap.h"

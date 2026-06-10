@@ -8,10 +8,10 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkString.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkMacros.h"
-#include "include/private/base/SkPoint_impl.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkMacros.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/KeyBuilder.h"

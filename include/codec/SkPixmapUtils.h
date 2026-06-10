@@ -10,7 +10,7 @@
 
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkImageInfo.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 class SkPixmap;
 

@@ -12,8 +12,8 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkNoncopyable.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkRecord.h"
 
 #include <cstddef>

@@ -14,7 +14,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkMacros.h"
+#include "include/private/SkMacros.h"
 #include "tools/Registry.h"
 
 #include <functional>

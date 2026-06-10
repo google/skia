@@ -9,8 +9,8 @@
 #define SkPoint3_DEFINED
 
 #include "include/core/SkScalar.h"
-#include "include/private/base/SkAPI.h"
-#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/SkAPI.h"
+#include "include/private/SkFloatingPoint.h"
 
 struct SK_API SkPoint3 {
     SkScalar fX, fY, fZ;

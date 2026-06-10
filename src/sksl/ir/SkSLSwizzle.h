@@ -9,7 +9,7 @@
 #define SKSL_SWIZZLE
 
 #include "include/core/SkTypes.h"
-#include "src/base/SkFixedArray.h"
+#include "src/core/SkFixedArray.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLIRNode.h"

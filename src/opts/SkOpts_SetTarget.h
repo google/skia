@@ -7,7 +7,7 @@
 
 // Include guards are intentionally omitted
 
-#include "include/private/base/SkFeatures.h"
+#include "include/private/SkFeatures.h"
 
 #if !defined(SK_OPTS_TARGET)
     #error Define SK_OPTS_TARGET before including SkOpts_SetTarget

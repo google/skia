@@ -7,7 +7,7 @@
 #include "src/gpu/ganesh/GrProgramInfo.h"
 
 #include "include/gpu/GpuTypes.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrSamplerState.h"

@@ -12,8 +12,8 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
-#include "include/private/base/SkAPI.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkAPI.h"
+#include "include/private/SkTArray.h"
 
 class SkMatrix;
 

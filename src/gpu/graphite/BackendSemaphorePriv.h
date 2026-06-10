@@ -8,7 +8,7 @@
 #define skgpu_graphite_BackendSemaphorePriv_DEFINED
 
 #include "include/gpu/graphite/BackendSemaphore.h"
-#include "include/private/base/SkDebug.h"
+#include "include/private/SkDebug.h"
 
 namespace skgpu { enum class BackendApi : unsigned int; }
 

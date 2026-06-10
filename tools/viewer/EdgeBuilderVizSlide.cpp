@@ -17,7 +17,7 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSurface.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/core/SkDebugUtils.h"
 #include "src/core/SkEdge.h"
 #include "src/core/SkEdgeBuilder.h"

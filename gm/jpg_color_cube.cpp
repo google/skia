@@ -17,7 +17,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/encode/SkJpegEncoder.h"
-#include "include/private/base/SkTPin.h"
+#include "include/private/SkTPin.h"
 #include "src/core/SkColorPriv.h"
 
 #include <utility>

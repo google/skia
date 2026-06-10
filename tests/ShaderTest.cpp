@@ -29,7 +29,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 

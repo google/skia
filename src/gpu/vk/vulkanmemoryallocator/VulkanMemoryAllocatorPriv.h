@@ -9,7 +9,7 @@
 #define skgpu_VulkanMemoryAllocatorUtil_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
 
 namespace skgpu {

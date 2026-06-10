@@ -3,7 +3,7 @@
 #ifndef SkUTF_DEFINED
 #define SkUTF_DEFINED
 
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 #include <cstddef>
 #include <cstdint>

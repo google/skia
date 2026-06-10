@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/base/SkMacros.h"
+#include "include/private/SkMacros.h"
 #include "src/gpu/vk/VulkanInterface.h"
 #include "tools/gpu/vk/VkTestMemoryAllocator.h"
 #include "tools/gpu/vk/VkTestUtils.h"

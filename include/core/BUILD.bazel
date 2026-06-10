@@ -121,6 +121,7 @@ skia_filegroup(
         "SkAlphaType.h",
         "SkColor.h",
         "SkScalar.h",
+        "SkSpan.h",
         "SkTypes.h",
     ],
     visibility = ["//src/opts:__pkg__"],

@@ -7,11 +7,11 @@
 
 #include "src/base/SkSpinlock.h"
 
-#include "include/private/base/SkFeatures.h"
-#include "include/private/base/SkThreadAnnotations.h"
+#include "include/private/SkFeatures.h"
+#include "include/private/SkThreadAnnotations.h"
 
 #if 0
-    #include "include/private/base/SkMutex.h"
+    #include "include/private/SkMutex.h"
     #include <execinfo.h>
     #include <stdio.h>
 

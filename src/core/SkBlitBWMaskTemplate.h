@@ -8,7 +8,7 @@
 
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRect.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/core/SkMask.h"
 
 #include <cstddef>

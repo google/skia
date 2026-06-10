@@ -7,7 +7,7 @@
 #ifndef skgpu_graphite_sparse_strips_MSAA_LUT_DEFINED
 #define skgpu_graphite_sparse_strips_MSAA_LUT_DEFINED
 
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkTDArray.h"
 
 #include <array>
 #include <cmath>

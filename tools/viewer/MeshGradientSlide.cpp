@@ -17,7 +17,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkVertices.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/base/SkDebug.h"
+#include "include/private/SkDebug.h"
 #include "src/base/SkRandom.h"
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/Slide.h"

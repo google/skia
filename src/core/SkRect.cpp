@@ -8,8 +8,8 @@
 #include "include/core/SkRect.h"
 
 #include "include/core/SkM44.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkTPin.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkTPin.h"
 #include "src/core/SkRectPriv.h"
 
 class SkMatrix;

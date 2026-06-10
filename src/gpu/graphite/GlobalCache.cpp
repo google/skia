@@ -8,7 +8,7 @@
 #include "src/gpu/graphite/GlobalCache.h"
 
 #include "include/gpu/graphite/Context.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/ComputePipeline.h"

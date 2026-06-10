@@ -15,8 +15,8 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSize.h"
-#include "include/private/base/SkAPI.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAPI.h"
+#include "include/private/SkAssert.h"
 
 #include <cstddef>
 #include <cstdint>

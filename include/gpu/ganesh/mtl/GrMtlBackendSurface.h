@@ -8,7 +8,7 @@
 #define GrMtlBackendSurface_DEFINED
 
 #include "include/gpu/ganesh/mtl/GrMtlTypes.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 #include <string_view>
 

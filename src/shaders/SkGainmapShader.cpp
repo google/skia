@@ -14,8 +14,8 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/private/SkAssert.h"
 #include "include/private/SkGainmapInfo.h"
-#include "include/private/base/SkAssert.h"
 #include "src/core/SkImageInfoPriv.h"
 
 #include <cmath>

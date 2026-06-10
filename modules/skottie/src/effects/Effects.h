@@ -11,7 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
-#include "include/private/base/SkNoncopyable.h"
+#include "include/private/SkNoncopyable.h"
 #include "modules/jsonreader/SkJSONReader.h"  // IWYU pragma: keep
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"

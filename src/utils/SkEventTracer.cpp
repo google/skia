@@ -7,7 +7,7 @@
 
 #include "include/utils/SkEventTracer.h"
 
-#include "include/private/base/SkMacros.h"
+#include "include/private/SkMacros.h"
 
 #include <stdlib.h>
 #include <atomic>

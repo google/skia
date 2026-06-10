@@ -16,7 +16,7 @@
 #include "include/encode/SkJpegEncoder.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/encode/SkWebpEncoder.h"
-#include "include/private/base/SkMalloc.h"
+#include "include/private/SkMalloc.h"
 #include "src/image/SkImageGeneratorPriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"

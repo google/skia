@@ -8,7 +8,7 @@
 #define SubsetPath_DEFINED
 
 #include "include/core/SkPath.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkTDArray.h"
 
 /* Given a path, generate a the desired minimal subset of the original.
 

@@ -7,7 +7,7 @@
 #include "src/gpu/graphite/ComputePathAtlas.h"
 
 #include "include/gpu/graphite/Recorder.h"
-#include "include/private/base/SkLog.h"
+#include "include/private/SkLog.h"
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/graphite/AtlasProvider.h"
 #include "src/gpu/graphite/RecorderPriv.h"

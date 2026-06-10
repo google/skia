@@ -17,7 +17,7 @@
 #include "include/core/SkString.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/private/base/SkDebug.h"
+#include "include/private/SkDebug.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"

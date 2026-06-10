@@ -8,7 +8,7 @@
 #include "tests/Test.h"
 
 #include "include/core/SkBlendMode.h"
-#include "src/base/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"

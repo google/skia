@@ -8,7 +8,7 @@
 #include "include/android/SkAndroidFrameworkUtils.h"
 #include "include/core/SkCanvas.h"
 #include "include/effects/SkGradient.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTemplates.h"
 #include "include/utils/SkPaintFilterCanvas.h"
 #include "src/base/SkTLazy.h"
 #include "src/core/SkDevice.h"

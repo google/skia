@@ -9,7 +9,7 @@
 #define skgpu_graphite_RasterPathUtils_DEFINED
 
 #include "include/core/SkBitmap.h"
-#include "include/private/base/SkNoncopyable.h"
+#include "include/private/SkNoncopyable.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkRasterClip.h"

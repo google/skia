@@ -8,7 +8,7 @@
 #ifndef SkOpts_DEFINED
 #define SkOpts_DEFINED
 
-#include "include/private/base/SkSpan_impl.h"
+#include "include/core/SkSpan.h"
 #include "src/core/SkRasterPipelineOpList.h"
 
 #include <cstddef>

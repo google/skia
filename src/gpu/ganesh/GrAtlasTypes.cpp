@@ -10,7 +10,7 @@
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
-#include "include/private/base/SkMalloc.h"
+#include "include/private/SkMalloc.h"
 #include "src/core/SkSwizzlePriv.h"
 
 GrPlot::GrPlot(int pageIndex,

@@ -9,9 +9,9 @@
 
 #include "include/core/SkScalar.h"
 #include "include/effects/SkGradient.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkMutex.h"
-#include "include/private/base/SkNoncopyable.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkNoncopyable.h"
 #include "src/core/SkColorData.h"
 
 #include <cstddef>

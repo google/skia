@@ -12,7 +12,7 @@
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 #include "include/core/SkRect.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTemplates.h"
 #include "src/base/SkTInternalLList.h"
 #include "src/core/SkChecksum.h"
 #include "src/gpu/ganesh/GrAtlasTypes.h"

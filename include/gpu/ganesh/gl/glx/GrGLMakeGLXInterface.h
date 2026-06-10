@@ -8,7 +8,7 @@
 #define GrGLMakeGLXInterface_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 struct GrGLInterface;
 

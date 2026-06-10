@@ -9,7 +9,7 @@
 #define skgpu_VulkanTypes_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTo.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
 
 #include <cstddef>

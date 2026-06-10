@@ -9,7 +9,7 @@
 #define skgpu_GpuTypes_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkMacros.h"
+#include "include/private/SkMacros.h"
 
 /**
  * This file includes numerous public types that are used by all of our gpu backends.

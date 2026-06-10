@@ -8,7 +8,7 @@
 #ifndef GrFPArgs_DEFINED
 #define GrFPArgs_DEFINED
 
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 
 class GrColorInfo;
 class SkSurfaceProps;

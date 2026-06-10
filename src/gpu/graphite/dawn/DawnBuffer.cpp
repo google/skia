@@ -8,8 +8,8 @@
 #include "src/gpu/graphite/dawn/DawnBuffer.h"
 
 #include "include/core/SkTraceMemoryDump.h"
-#include "include/private/base/SkAlign.h"
-#include "include/private/base/SkLog.h"
+#include "include/private/SkAlign.h"
+#include "include/private/SkLog.h"
 #include "src/gpu/graphite/dawn/DawnAsyncWait.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 

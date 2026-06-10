@@ -6,7 +6,7 @@
  */
 
 #include "bench/Benchmark.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkMemset.h"
 
 using namespace skia_private;

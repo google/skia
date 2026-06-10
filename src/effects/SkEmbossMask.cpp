@@ -10,8 +10,8 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkFixed.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkFixed.h"
+#include "include/private/SkTo.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkMask.h"
 

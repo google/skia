@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkPathBuilder.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "include/utils/SkCustomTypeface.h"
 #include "src/core/SkFontDescriptor.h"
 #include "tools/ToolUtils.h"

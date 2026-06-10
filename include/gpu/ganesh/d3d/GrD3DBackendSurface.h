@@ -7,7 +7,7 @@
 #ifndef GrD3DBackendSurface_DEFINED
 #define GrD3DBackendSurface_DEFINED
 
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 #include "include/private/gpu/ganesh/GrD3DTypesMinimal.h"
 
 #include <string_view>

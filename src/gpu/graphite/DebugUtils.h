@@ -8,7 +8,7 @@
 #ifndef DebugUtils_DEFINED
 #define DebugUtils_DEFINED
 
-#include "include/private/base/SkDebug.h"
+#include "include/private/SkDebug.h"
 
 #if defined(SK_DEBUG) && defined(SK_DUMP_TASKS)
     #define SK_DUMP_TASKS_CODE(...)  __VA_ARGS__

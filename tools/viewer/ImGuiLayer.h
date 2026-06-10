@@ -13,9 +13,9 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTPin.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTPin.h"
+#include "include/private/SkTemplates.h"
 #include "tools/sk_app/Window.h"
 
 #include <algorithm>

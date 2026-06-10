@@ -8,7 +8,7 @@
 
 #include "src/base/SkBase64.h"
 
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 
 #include <cstdint>
 

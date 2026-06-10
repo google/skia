@@ -7,8 +7,8 @@
 
 #include "src/core/SkRTree.h"
 
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkDebug.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkDebug.h"
 
 SkRTree::SkRTree() : fCount(0) {}
 

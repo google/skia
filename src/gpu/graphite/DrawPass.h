@@ -9,8 +9,8 @@
 
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkSpan_impl.h"
-#include "include/private/base/SkTArray.h"
+#include "include/core/SkSpan.h"
+#include "include/private/SkTArray.h"
 #include "src/gpu/graphite/DrawCommands.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/GraphicsPipelineHandle.h"

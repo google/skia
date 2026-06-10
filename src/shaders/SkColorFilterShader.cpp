@@ -9,8 +9,8 @@
 
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkShader.h"
-#include "include/private/base/SkAssert.h"
-#include "src/base/SkArenaAlloc.h"
+#include "include/private/SkAssert.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpList.h"

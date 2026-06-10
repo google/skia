@@ -7,7 +7,7 @@
 #include "src/gpu/ganesh/GrBufferAllocPool.h"
 
 #include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/private/base/SkMacros.h"
+#include "include/private/SkMacros.h"
 #include "src/base/SkSafeMath.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/GrCaps.h"

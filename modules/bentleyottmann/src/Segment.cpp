@@ -3,8 +3,8 @@
 
 #include "modules/bentleyottmann/include/Segment.h"
 
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkTo.h"
 #include "modules/bentleyottmann/include/Int96.h"
 
 #include <algorithm>

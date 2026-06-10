@@ -19,7 +19,7 @@
 #include "include/core/SkYUVAPixmaps.h"
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/SkHdrMetadata.h"
-#include "include/private/base/SkNoncopyable.h"
+#include "include/private/SkNoncopyable.h"
 #include "modules/skcms/skcms.h"
 
 #include <cstddef>

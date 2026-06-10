@@ -11,7 +11,7 @@
 
 #include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
-#include "include/private/base/SkMutex.h"
+#include "include/private/SkMutex.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/GrSurface.h"

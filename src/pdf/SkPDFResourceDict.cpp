@@ -9,7 +9,7 @@
 
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/pdf/SkPDFTypes.h"
 
 #include <cstddef>

@@ -9,9 +9,9 @@
 #define SK_COMMAND_LINE_FLAGS_H
 
 #include "include/core/SkString.h"
-#include "include/private/base/SkMacros.h"
-#include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkMacros.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
 #include "src/core/SkTHash.h"
 
 /**

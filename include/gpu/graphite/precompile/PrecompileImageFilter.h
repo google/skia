@@ -12,7 +12,7 @@
 
 #include "include/core/SkBlendMode.h"
 #include "include/gpu/graphite/precompile/PaintOptions.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTemplates.h"
 
 namespace skgpu::graphite {
 

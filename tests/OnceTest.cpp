@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/base/SkOnce.h"
+#include "include/private/SkOnce.h"
 #include "src/core/SkTaskGroup.h"
 #include "tests/Test.h"
 

@@ -8,12 +8,12 @@
 #ifndef GrPipeline_DEFINED
 #define GrPipeline_DEFINED
 
+#include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkMacros.h"
-#include "include/private/base/SkPoint_impl.h"
-#include "include/private/base/SkTemplates.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkMacros.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"

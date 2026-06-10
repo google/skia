@@ -7,7 +7,7 @@
 
 #include "src/gpu/graphite/task/DrawTask.h"
 
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/gpu/graphite/ScratchResourceManager.h"
 #include "src/gpu/graphite/Texture.h"  // IWYU pragma: keep
 

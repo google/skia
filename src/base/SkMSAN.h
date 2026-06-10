@@ -8,7 +8,7 @@
 #ifndef SkMSAN_DEFINED
 #define SkMSAN_DEFINED
 
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 
 #include <cstddef>
 #include <string.h>

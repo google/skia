@@ -8,10 +8,10 @@
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 
 #include "include/core/SkBlendMode.h"
+#include "include/core/SkPoint.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
-#include "include/private/base/SingleOwner.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkPoint_impl.h"
+#include "include/private/SingleOwner.h"
+#include "include/private/SkAssert.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/Swizzle.h"

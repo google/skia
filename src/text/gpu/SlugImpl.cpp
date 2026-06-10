@@ -11,7 +11,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSerialProcs.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "include/private/chromium/Slug.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkReadBuffer.h"

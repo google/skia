@@ -8,7 +8,7 @@
 #ifndef SkExifChromium_DEFINED
 #define SkExifChromium_DEFINED
 
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 namespace SkExif {
 

@@ -9,8 +9,8 @@
 
 #include "include/core/SkRect.h"
 #include "include/core/SkRegion.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkMath.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkMath.h"
 #include "src/core/SkAAClip.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkPathRaw.h"

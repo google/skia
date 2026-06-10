@@ -10,7 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 class SkCanvas;
 class SkWStream;

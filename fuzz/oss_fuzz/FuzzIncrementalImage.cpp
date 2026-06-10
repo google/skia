@@ -8,7 +8,7 @@
 #include "include/codec/SkCodec.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkStream.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTemplates.h"
 
 bool FuzzIncrementalImageDecode(const uint8_t *data, size_t size) {
     auto codec = SkCodec::MakeFromStream(SkMemoryStream::MakeDirect(data, size));

@@ -8,7 +8,7 @@
 #ifndef GrShaderCaps_DEFINED
 #define GrShaderCaps_DEFINED
 
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/sksl/SkSLUtil.h"
 
 class SkJSONWriter;

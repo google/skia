@@ -13,8 +13,8 @@
 #if defined(GPU_TEST_UTILS)
 
 #include "include/core/SkString.h"
-#include "include/private/base/SkNoncopyable.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkTArray.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"  // IWYU pragma: keep
 

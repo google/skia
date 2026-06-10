@@ -13,7 +13,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
-#include "src/base/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/GrSamplerState.h"

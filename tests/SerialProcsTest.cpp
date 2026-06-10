@@ -24,7 +24,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkTDArray.h"
 #include "tests/Test.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"

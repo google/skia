@@ -15,7 +15,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/base/SkTPin.h"
+#include "include/private/SkTPin.h"
 #include "include/utils/SkTextUtils.h"
 #include "modules/sksg/include/SkSGDraw.h"
 #include "modules/sksg/include/SkSGGeometryNode.h"

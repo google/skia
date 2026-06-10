@@ -7,7 +7,7 @@
 #ifndef SkLeanWindows_DEFINED
 #define SkLeanWindows_DEFINED
 
-#include "include/private/base/SkFeatures.h" // IWYU pragma: keep
+#include "include/private/SkFeatures.h" // IWYU pragma: keep
 
 #ifdef SK_BUILD_FOR_WIN
 // https://devblogs.microsoft.com/oldnewthing/20091130-00/?p=15863

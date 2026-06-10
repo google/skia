@@ -22,7 +22,7 @@
 #include <utility>
 #include "src/partition_alloc/raw_ptr_exclusion.h"
 
-// We do not use "include/private/base/SkAttributes.h" because this file is
+// We do not use "include/private/SkAttributes.h" because this file is
 // used as a polyfill for PartitionAlloc's raw_ptr, and PartitionAlloc should
 // not depend on Skia's internal headers. This prevents issues in strict build
 // environments like G3.

@@ -10,7 +10,7 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/vk/VulkanTypes.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTo.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/vk/GrVkCaps.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"

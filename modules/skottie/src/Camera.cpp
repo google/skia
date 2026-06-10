@@ -7,7 +7,7 @@
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
-#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/SkFloatingPoint.h"
 #include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/src/Camera.h"
 #include "modules/skottie/src/SkottiePriv.h"

@@ -9,7 +9,7 @@
 #define SkottieShapeLayer_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkNoncopyable.h"
+#include "include/private/SkNoncopyable.h"
 #include "modules/sksg/include/SkSGMerge.h"
 
 #include <vector>

@@ -14,7 +14,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurfaceProps.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTo.h"
 #include "src/base/SkTInternalLList.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/text/gpu/SubRunAllocator.h"

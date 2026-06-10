@@ -8,7 +8,7 @@
 #ifndef GrHashMapWithCache_DEFINED
 #define GrHashMapWithCache_DEFINED
 
-#include "include/private/base/SkNoncopyable.h"
+#include "include/private/SkNoncopyable.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkTHash.h"
 

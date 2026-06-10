@@ -18,7 +18,7 @@
 #include "include/core/SkSerialProcs.h"
 #include "include/core/SkStream.h"
 #include "include/encode/SkPngEncoder.h"
-#include "include/private/base/SkLog.h"
+#include "include/private/SkLog.h"
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"

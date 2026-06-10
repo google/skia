@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "include/core/SkString.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTo.h"
 #include "modules/skunicode/include/SkUnicode.h"
 #include "src/base/SkBitmaskEnum.h"
 #include "src/base/SkTime.h"

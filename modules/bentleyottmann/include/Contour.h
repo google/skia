@@ -6,7 +6,7 @@
 
 #include "include/core/SkRect.h"
 #include "include/core/SkSpan.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 
 #include <limits.h>
 #include <cstddef>

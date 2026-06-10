@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkPoint3.h"
-#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/SkFloatingPoint.h"
 
 #include <cmath>
 

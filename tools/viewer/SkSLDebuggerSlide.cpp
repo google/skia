@@ -11,7 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "tools/sk_app/Application.h"
 #include "tools/sksltrace/SkSLTraceUtils.h"
 

@@ -14,7 +14,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/core/SkMatrixPriv.h"
 
 #include <utility>

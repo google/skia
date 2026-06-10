@@ -13,9 +13,9 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkFloatingPoint.h"
-#include "include/private/base/SkSafe32.h"
-#include "include/private/base/SkTFitsIn.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkSafe32.h"
+#include "include/private/SkTFitsIn.h"
 
 #include <algorithm>
 #include <array>

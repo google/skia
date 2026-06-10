@@ -8,8 +8,8 @@
 #ifndef skgpu_graphite_Tiler_DEFINED
 #define skgpu_graphite_Tiler_DEFINED
 
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkTDArray.h"
 #include "src/gpu/graphite/sparse_strips/Polyline.h"
 #include "src/gpu/graphite/sparse_strips/SparseStripsTypes.h"
 

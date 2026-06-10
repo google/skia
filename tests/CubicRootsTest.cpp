@@ -7,7 +7,7 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/SkFloatingPoint.h"
 #include "src/base/SkCubics.h"
 #include "src/base/SkUtils.h"
 #include "src/pathops/SkPathOpsCubic.h"

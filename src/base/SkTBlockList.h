@@ -8,9 +8,9 @@
 #ifndef SkTBlockList_DEFINED
 #define SkTBlockList_DEFINED
 
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkTo.h"
 #include "src/base/SkBlockAllocator.h"
 
 #include <algorithm>

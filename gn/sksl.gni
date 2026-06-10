@@ -325,9 +325,7 @@ skia_sksl_validate_wgsl_sources = [
 #  //src/utils:utils_skslc_hdrs
 #  //src/utils:utils_skslc_srcs
 skslc_deps = [
-  "$_src/base/SkArenaAlloc.cpp",
   "$_src/base/SkBlockAllocator.cpp",
-  "$_src/base/SkContainers.cpp",
   "$_src/base/SkHalf.cpp",
   "$_src/base/SkMalloc.cpp",
   "$_src/base/SkMathPriv.cpp",
@@ -336,8 +334,11 @@ skslc_deps = [
   "$_src/base/SkThreadID.cpp",
   "$_src/base/SkUTF.cpp",
   "$_src/base/SkUtils.cpp",
+  "$_src/core/SkArenaAlloc.cpp",
+  "$_src/core/SkArenaAlloc.h",
   "$_src/core/SkChecksum.cpp",
   "$_src/core/SkChecksum.h",
+  "$_src/core/SkContainers.cpp",
   "$_src/core/SkCpu.cpp",
   "$_src/core/SkCpu.h",
   "$_src/core/SkData.cpp",

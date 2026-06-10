@@ -9,7 +9,7 @@
 #define skgpu_tessellate_LinearTolerances_DEFINED
 
 #include "include/core/SkScalar.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/gpu/tessellate/Tessellation.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 

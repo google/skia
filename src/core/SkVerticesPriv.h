@@ -10,7 +10,7 @@
 
 #include "include/core/SkVertices.h"
 
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTo.h"
 
 class SkReadBuffer;
 class SkWriteBuffer;

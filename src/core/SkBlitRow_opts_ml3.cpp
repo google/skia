@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/base/SkFeatures.h"
+#include "include/private/SkFeatures.h"
 #include "src/core/SkBlitRow.h"
 #include "src/core/SkOptsTargets.h"
 

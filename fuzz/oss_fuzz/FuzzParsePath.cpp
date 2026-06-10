@@ -6,7 +6,7 @@
  */
 #include "include/core/SkPath.h"
 #include "include/core/SkString.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "include/utils/SkParsePath.h"
 
 void FuzzParsePath(const uint8_t* data, size_t size) {

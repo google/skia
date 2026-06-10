@@ -8,7 +8,7 @@
 
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/gpu/ganesh/mtl/GrMtlTypes.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/gpu/ganesh/GrBackendSurfacePriv.h"
 #include "src/gpu/ganesh/mtl/GrMtlCppUtil.h"
 #include "src/gpu/ganesh/mtl/GrMtlUtil.h"

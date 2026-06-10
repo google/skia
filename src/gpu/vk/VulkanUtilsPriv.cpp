@@ -8,10 +8,10 @@
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 
 #include "include/gpu/vk/VulkanBackendContext.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkLog.h"
-#include "include/private/base/SkTFitsIn.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkLog.h"
+#include "include/private/SkTFitsIn.h"
+#include "include/private/SkTo.h"
 #include "src/gpu/vk/VulkanInterface.h"
 
 #include <algorithm>

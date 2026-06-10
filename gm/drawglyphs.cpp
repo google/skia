@@ -11,8 +11,8 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRSXform.h"
 #include "include/core/SkSpan.h"
-#include "include/private/base/SkTDArray.h"
-#include "src/base/SkZip.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkZip.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 

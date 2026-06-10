@@ -13,7 +13,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 #include "src/gpu/GpuRefCnt.h"
 #include "src/gpu/graphite/Resource.h"  // IWYU pragma: keep
 

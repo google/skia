@@ -17,9 +17,9 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkAlign.h"
-#include "include/private/base/SkFloatingPoint.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkAlign.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkTo.h"
 #include "src/core/SkPathEffectBase.h"
 #include "src/core/SkPointPriv.h"
 

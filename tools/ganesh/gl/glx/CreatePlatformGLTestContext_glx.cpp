@@ -6,7 +6,7 @@
  */
 
 #include "include/gpu/ganesh/gl/glx/GrGLMakeGLXInterface.h"
-#include "include/private/base/SkOnce.h"
+#include "include/private/SkOnce.h"
 #include "tools/ganesh/gl/GLTestContext.h"
 
 #include <X11/Xlib.h>

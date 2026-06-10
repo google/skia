@@ -7,7 +7,7 @@
 
 #include "include/core/SkCubicMap.h"
 
-#include "include/private/base/SkTPin.h"
+#include "include/private/SkTPin.h"
 #include "src/base/SkVx.h"
 
 #include <algorithm>

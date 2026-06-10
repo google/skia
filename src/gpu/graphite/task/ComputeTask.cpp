@@ -7,7 +7,7 @@
 
 #include "src/gpu/graphite/task/ComputeTask.h"
 
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ComputePipeline.h"  // IWYU pragma: keep
 #include "src/gpu/graphite/Sampler.h"  // IWYU pragma: keep

@@ -14,9 +14,9 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/Recording.h"
-#include "include/private/base/SingleOwner.h"
-#include "include/private/base/SkAPI.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SingleOwner.h"
+#include "include/private/SkAPI.h"
+#include "include/private/SkTArray.h"
 
 #include <chrono>
 #include <cstddef>

@@ -11,7 +11,7 @@
 #include "include/core/SkClipOp.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 
 class SkMatrix;
 

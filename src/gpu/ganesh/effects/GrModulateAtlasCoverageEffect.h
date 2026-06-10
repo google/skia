@@ -9,7 +9,7 @@
 #define GrGrModulateAtlasCoverageEffect_DEFINED
 
 #include "include/core/SkRect.h"
-#include "include/private/base/SkMacros.h"
+#include "include/private/SkMacros.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 
 #include <memory>

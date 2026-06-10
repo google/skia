@@ -9,8 +9,8 @@
 #ifdef SK_SUPPORT_PDF
 #include "include/core/SkString.h"
 #include "include/docs/SkPDFDocument.h"
-#include "include/private/base/SkTemplates.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
 #include "src/pdf/SkPDFUtils.h"
 #include "tests/Test.h"
 

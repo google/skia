@@ -16,8 +16,8 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkMalloc.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkMalloc.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h" // IWYU pragma: keep
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontPriv.h"

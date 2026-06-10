@@ -13,7 +13,7 @@
 #include "include/core/SkString.h"
 #include "include/gpu/ganesh/GrContextOptions.h"
 #include "include/gpu/ganesh/gl/GrGLTypes.h"
-#include "include/private/base/SkTDArray.h"  // IWYU pragma: keep
+#include "include/private/SkTDArray.h"  // IWYU pragma: keep
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/gl/GrGLProgram.h"
 #include "src/gpu/ganesh/gl/GrGLUniformHandler.h"

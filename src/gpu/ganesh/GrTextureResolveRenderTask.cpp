@@ -7,8 +7,8 @@
 #include "src/gpu/ganesh/GrTextureResolveRenderTask.h"
 
 #include "include/gpu/GpuTypes.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkMacros.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkMacros.h"
 #include "src/gpu/ganesh/GrDrawingManager.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"

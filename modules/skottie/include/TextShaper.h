@@ -13,7 +13,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkTypeTraits.h"
+#include "include/private/SkTypeTraits.h"
 #include "include/utils/SkTextUtils.h"
 #include "modules/skunicode/include/SkUnicode.h"
 

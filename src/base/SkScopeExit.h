@@ -8,7 +8,7 @@
 #ifndef SkScopeExit_DEFINED
 #define SkScopeExit_DEFINED
 
-#include "include/private/base/SkMacros.h"
+#include "include/private/SkMacros.h"
 
 #include <functional>
 #include <utility>

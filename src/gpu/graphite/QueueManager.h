@@ -10,8 +10,8 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
-#include "include/private/base/SkDeque.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkDeque.h"
+#include "include/private/SkTArray.h"
 #include "src/core/SkTHash.h"
 
 #include <memory>

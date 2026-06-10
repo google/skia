@@ -18,7 +18,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkStream.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTemplates.h"
 #include "modules/skcms/skcms.h"
 #include "src/base/SkNoDestructor.h"
 #include "src/codec/SkCodecPriv.h"
@@ -32,7 +32,7 @@
 #include <utility>
 
 #if !defined(SK_DISABLE_LEGACY_INIT_DECODERS)
-#include "include/private/base/SkOnce.h"
+#include "include/private/SkOnce.h"
 
 #if defined(SK_CODEC_DECODES_AVIF)
 #include "include/codec/SkAvifDecoder.h"

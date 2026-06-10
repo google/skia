@@ -11,7 +11,7 @@
 #include <cstdint>
 #include "include/core/SkRecorder.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 class SkCanvas;
 class SkSurface;

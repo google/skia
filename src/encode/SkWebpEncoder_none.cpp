@@ -8,7 +8,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
 #include "include/encode/SkWebpEncoder.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 
 class GrDirectContext;
 class SkImage;

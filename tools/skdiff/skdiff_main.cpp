@@ -8,7 +8,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkPixelRef.h"
 #include "include/core/SkStream.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkTDArray.h"
 #include "src/base/SkTSearch.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"

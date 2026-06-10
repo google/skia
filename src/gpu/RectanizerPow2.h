@@ -8,8 +8,8 @@
 #ifndef skgpu_RectanizerPow2_DEFINED
 #define skgpu_RectanizerPow2_DEFINED
 
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkMalloc.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkMalloc.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/Rectanizer.h"

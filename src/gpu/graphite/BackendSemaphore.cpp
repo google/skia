@@ -8,7 +8,7 @@
 #include "include/gpu/graphite/BackendSemaphore.h"
 
 #include "include/gpu/GpuTypes.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/gpu/graphite/BackendSemaphorePriv.h"
 
 namespace skgpu::graphite {

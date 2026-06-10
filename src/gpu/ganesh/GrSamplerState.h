@@ -10,8 +10,8 @@
 
 #include "include/core/SkSamplingOptions.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/private/base/SkTPin.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTPin.h"
+#include "include/private/SkTo.h"
 #include "src/base/SkMathPriv.h"
 
 #include <limits>

@@ -7,8 +7,8 @@
 #include "src/gpu/ganesh/GrProgramDesc.h"
 
 #include "include/gpu/ganesh/GrBackendSurface.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/Swizzle.h"

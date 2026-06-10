@@ -11,7 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h" // IWYU pragma: keep
 #include "include/encode/SkEncoder.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 class SkPixmap;
 class SkWStream;

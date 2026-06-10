@@ -7,7 +7,7 @@
 
 #include "src/gpu/ganesh/vk/GrVkCommandPool.h"
 
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/vk/GrVkCaps.h"
 #include "src/gpu/ganesh/vk/GrVkCommandBuffer.h"

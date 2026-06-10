@@ -10,8 +10,8 @@
 #include "include/core/SkSize.h"
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/TextureInfo.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkDebug.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkDebug.h"
 
 namespace skgpu { enum class BackendApi : unsigned int; }
 

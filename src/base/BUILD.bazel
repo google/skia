@@ -12,19 +12,15 @@ package(
 licenses(["notice"])
 
 PRIVATE_HEADERS = [
-    "SkArenaAlloc.h",
-    "SkArenaAllocList.h",
     "SkAutoLocaleSetter.h",
     "SkAutoMalloc.h",
     "SkBase64.h",
-    "SkBezierCurves.h",
     "SkBitmaskEnum.h",
     "SkBlockAllocator.h",
     "SkBuffer.h",
     "SkCubics.h",
     "SkEndian.h",
     "SkEnumBitMask.h",
-    "SkFixedArray.h",
     "SkFloatBits.h",
     "SkHalf.h",
     "SkLeanWindows.h",
@@ -49,7 +45,6 @@ PRIVATE_HEADERS = [
     "SkUTF.h",
     "SkUtils.h",
     "SkVx.h",
-    "SkZip.h",
 ]
 
 skia_filegroup(
@@ -61,9 +56,7 @@ skia_filegroup(
 skia_filegroup(
     name = "skslc_srcs",
     srcs = [
-        "SkArenaAlloc.cpp",
         "SkBlockAllocator.cpp",
-        "SkContainers.cpp",
         "SkHalf.cpp",
         "SkMalloc.cpp",
         "SkMathPriv.cpp",
@@ -79,7 +72,6 @@ skia_filegroup(
     name = "srcs",
     srcs = [
         "SkBase64.cpp",
-        "SkBezierCurves.cpp",
         "SkBuffer.cpp",
         "SkCubics.cpp",
         "SkDebug.cpp",
@@ -104,7 +96,7 @@ skia_cc_library(
     ],
     hdrs = [
         ":private_hdrs",
-        "//include/private/base:private_hdrs",
+        "//include/private:private_hdrs",
     ],
     features = ["layering_check"],
     visibility = [

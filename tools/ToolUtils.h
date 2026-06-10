@@ -22,9 +22,9 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypeface.h"  // IWYU pragma: keep
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
 #include "src/base/SkRandom.h"
 #include "src/base/SkTInternalLList.h"
 

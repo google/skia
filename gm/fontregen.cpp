@@ -28,7 +28,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTemplates.h"
 #include "src/gpu/MaskFormat.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"

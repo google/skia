@@ -6,10 +6,10 @@
  */
 #include "src/gpu/tessellate/FixedCountBufferUtils.h"
 
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkPoint_impl.h"
-#include "include/private/base/SkTArray.h"
+#include "include/core/SkPoint.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkTArray.h"
 #include "src/base/SkMathPriv.h"
 #include "src/gpu/BufferWriter.h"
 

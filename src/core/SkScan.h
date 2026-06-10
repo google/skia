@@ -11,7 +11,7 @@
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
-#include "include/private/base/SkFixed.h"
+#include "include/private/SkFixed.h"
 
 class SkBlitter;
 class SkPath;

@@ -8,7 +8,7 @@
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 
 #include "include/core/SkMatrix.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkMatrixPriv.h"
 
 #include <cstddef>

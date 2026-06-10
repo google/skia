@@ -9,7 +9,7 @@
 
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkTDArray.h"
 #include "src/base/SkTInternalLList.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/ResourceKey.h"

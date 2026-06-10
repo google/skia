@@ -16,8 +16,8 @@
 #include "src/base/SkUtils.h"
 #include "src/core/SkMD5.h"
 
-#include "include/private/base/SkFeatures.h"
-#include "include/private/base/SkMalloc.h"
+#include "include/private/SkFeatures.h"
+#include "include/private/SkMalloc.h"
 
 /** MD5 basic transformation. Transforms state based on block. */
 static void transform(uint32_t state[4], const uint8_t block[64]);

@@ -12,9 +12,9 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkCPUTypes.h"
-#include "include/private/base/SkNoncopyable.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkCPUTypes.h"
+#include "include/private/SkNoncopyable.h"
+#include "include/private/SkTo.h"
 #include "src/core/SkColorData.h"
 
 #include <algorithm>

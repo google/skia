@@ -11,7 +11,7 @@
 #include "include/core/SkSize.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/TextureInfo.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 

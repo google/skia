@@ -15,9 +15,9 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/effects/SkGradient.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkColorData.h"
 #include "src/shaders/SkShaderBase.h"
 

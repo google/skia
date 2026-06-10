@@ -8,7 +8,7 @@
 #ifndef skgpu_graphite_ContextOptionsPriv_DEFINED
 #define skgpu_graphite_ContextOptionsPriv_DEFINED
 
-#include "include/private/base/SkMath.h"
+#include "include/private/SkMath.h"
 
 #include <optional>
 

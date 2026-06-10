@@ -9,8 +9,8 @@
 #define GrD3DGpu_DEFINED
 
 #include "include/gpu/ganesh/d3d/GrD3DBackendSurface.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkDeque.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkDeque.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"

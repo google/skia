@@ -9,7 +9,7 @@
 #define SkSize_DEFINED
 
 #include "include/core/SkScalar.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTo.h"
 
 #include <cstdint>
 

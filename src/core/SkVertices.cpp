@@ -7,9 +7,9 @@
 #include "include/core/SkVertices.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkMalloc.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTo.h"
 #include "src/base/SkSafeMath.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkPicturePriv.h"

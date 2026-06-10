@@ -8,7 +8,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkUnPreMultiply.h"
-#include "include/private/base/SkCPUTypes.h"
+#include "include/private/SkCPUTypes.h"
 #include "include/private/chromium/SkPMColor.h"
 #include "src/base/SkMathPriv.h"
 #include "src/base/SkRandom.h"

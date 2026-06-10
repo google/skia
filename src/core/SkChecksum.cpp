@@ -6,7 +6,7 @@
  */
 #include "src/core/SkChecksum.h"
 
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 
 #include <cstring>
 

@@ -10,7 +10,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/graphite/Recorder.h"
-#include "include/private/base/SkLog.h"
+#include "include/private/SkLog.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkTraceEvent.h"

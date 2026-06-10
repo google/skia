@@ -9,7 +9,7 @@
 #include <utility>
 
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "modules/skottie/include/TextShaper.h"
 #include "modules/skunicode/include/SkUnicode.h"
 

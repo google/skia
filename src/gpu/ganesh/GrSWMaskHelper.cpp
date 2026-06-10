@@ -18,7 +18,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/private/base/SkMalloc.h"
+#include "include/private/SkMalloc.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkBlitter_A8.h"
 #include "src/gpu/ganesh/GrStyle.h"

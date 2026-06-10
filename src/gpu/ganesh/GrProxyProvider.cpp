@@ -15,7 +15,7 @@
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/gpu/ganesh/GrContextThreadSafeProxy.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/private/base/SingleOwner.h"
+#include "include/private/SingleOwner.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkMipmap.h"

@@ -9,7 +9,7 @@
 
 #include "include/gpu/MutableTextureState.h"  // IWYU pragma: keep
 #include "include/gpu/ganesh/GrTypes.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/ganesh/GrBackendSurfacePriv.h"

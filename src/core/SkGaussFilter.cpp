@@ -7,7 +7,7 @@
 
 #include "src/core/SkGaussFilter.h"
 
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 
 #include <cmath>
 

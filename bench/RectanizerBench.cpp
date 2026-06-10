@@ -9,7 +9,7 @@
 
 #include "bench/Benchmark.h"
 #include "include/core/SkSize.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkTDArray.h"
 #include "src/base/SkRandom.h"
 
 #include "src/gpu/RectanizerPow2.h"

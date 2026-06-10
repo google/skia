@@ -9,8 +9,8 @@
 #define skgpu_graphite_Recording_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkAPI.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkAPI.h"
+#include "include/private/SkTArray.h"
 #include <cstddef>
 #include <cstdint>
 #include <memory>

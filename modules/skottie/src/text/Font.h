@@ -10,7 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkNoncopyable.h"
+#include "include/private/SkNoncopyable.h"
 #include "include/utils/SkCustomTypeface.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
 #include "src/core/SkTHash.h"

@@ -10,7 +10,7 @@
 
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkMalloc.h"
+#include "include/private/SkMalloc.h"
 
 #include <cstddef>
 

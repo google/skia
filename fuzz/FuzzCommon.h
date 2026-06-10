@@ -16,7 +16,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 
 class SkData;
 

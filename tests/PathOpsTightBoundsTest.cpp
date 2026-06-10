@@ -12,7 +12,7 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/pathops/SkPathOps.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkTDArray.h"
 #include "src/base/SkRandom.h"
 #include "src/pathops/SkPathOpsCommon.h"
 #include "tests/PathOpsExtendedTest.h"

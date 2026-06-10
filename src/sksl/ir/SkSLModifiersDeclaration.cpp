@@ -7,7 +7,7 @@
 
 #include "src/sksl/ir/SkSLModifiersDeclaration.h"
 
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"

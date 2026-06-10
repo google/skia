@@ -10,8 +10,8 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkThreadAnnotations.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkThreadAnnotations.h"
 #include "src/base/SkSpinlock.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"

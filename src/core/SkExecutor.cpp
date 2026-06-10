@@ -6,10 +6,10 @@
  */
 
 #include "include/core/SkExecutor.h"
-#include "include/private/base/SkMutex.h"
-#include "include/private/base/SkSemaphore.h"
-#include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTPin.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkSemaphore.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTPin.h"
 #include "src/base/SkNoDestructor.h"
 
 #include <deque>

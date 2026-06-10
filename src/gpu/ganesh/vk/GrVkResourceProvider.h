@@ -9,8 +9,8 @@
 #define GrVkResourceProvider_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkTArray.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkLRUCache.h"

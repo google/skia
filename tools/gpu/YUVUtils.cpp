@@ -31,7 +31,7 @@
 #ifdef SK_GRAPHITE
 #include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/YUVABackendTextures.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #endif
 

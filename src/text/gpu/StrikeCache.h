@@ -9,7 +9,7 @@
 #define sktext_gpu_StrikeCache_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "src/base/SkArenaAlloc.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTHash.h"

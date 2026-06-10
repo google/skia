@@ -9,7 +9,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/base/SkUTF.h"
 

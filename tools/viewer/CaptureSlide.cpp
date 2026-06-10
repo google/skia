@@ -17,7 +17,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
-#include "include/private/base/SkDebug.h"
+#include "include/private/SkDebug.h"
 #include "src/capture/SkCapture.h"
 #include "src/core/SkBigPicture.h"
 #include "src/core/SkRecord.h"

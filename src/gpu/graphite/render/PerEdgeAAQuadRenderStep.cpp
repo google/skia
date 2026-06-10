@@ -8,9 +8,9 @@
 #include "src/gpu/graphite/render/PerEdgeAAQuadRenderStep.h"
 
 #include "include/core/SkM44.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkFloatingPoint.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkSLTypeShared.h"

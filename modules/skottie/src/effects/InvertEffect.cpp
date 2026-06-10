@@ -8,7 +8,7 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkRefCnt.h"
 #include "include/effects/SkColorMatrix.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/skottie/src/effects/Effects.h"

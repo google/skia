@@ -12,7 +12,7 @@
 
 #ifdef SK_BUILD_FOR_WIN
 
-#include "include/private/base/SkNoncopyable.h"
+#include "include/private/SkNoncopyable.h"
 #include "src/base/SkLeanWindows.h"
 
 /**

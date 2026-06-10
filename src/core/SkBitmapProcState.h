@@ -14,11 +14,11 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkCPUTypes.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkFixed.h"
-#include "src/base/SkArenaAlloc.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkCPUTypes.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkFixed.h"
+#include "src/core/SkArenaAlloc.h"
 
 #include <cstddef>
 #include <cstdint>

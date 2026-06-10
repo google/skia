@@ -14,7 +14,7 @@
 #include "include/gpu/ganesh/d3d/GrD3DBackendContext.h"
 #include "include/gpu/ganesh/d3d/GrD3DBackendSurface.h"
 #include "include/gpu/ganesh/d3d/GrD3DDirectContext.h"
-#include "include/private/base/SkLog.h"
+#include "include/private/SkLog.h"
 #include "tools/ganesh/d3d/D3DTestUtils.h"
 #include "tools/window/DisplayParams.h"
 #include "tools/window/WindowContext.h"

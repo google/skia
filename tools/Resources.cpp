@@ -9,7 +9,7 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
-#include "include/private/base/SkDebug.h"
+#include "include/private/SkDebug.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/flags/CommandLineFlags.h"
 

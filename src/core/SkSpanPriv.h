@@ -9,7 +9,7 @@
 #define SkSpanPriv_DEFINED
 
 #include "include/core/SkSpan.h"
-#include "include/private/base/SkMalloc.h"
+#include "include/private/SkMalloc.h"
 
 #include <algorithm>
 

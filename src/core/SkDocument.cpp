@@ -8,7 +8,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRect.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 
 SkDocument::SkDocument(SkWStream* stream) : fStream(stream), fState(kBetweenPages_State) {}
 

@@ -6,7 +6,7 @@
 #define SkStreamAdapter_DEFINED
 
 #include "include/core/SkStream.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "rust/common/SpanUtils.h"
 
 namespace rust {

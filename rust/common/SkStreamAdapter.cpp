@@ -9,7 +9,7 @@
 
 #include <limits>
 
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "rust/common/SpanUtils.h"
 #include "src/base/SkSafeMath.h"
 #include "third_party/rust/cxx/v1/cxx.h"

@@ -11,7 +11,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
-#include "include/private/base/SkTPin.h"
+#include "include/private/SkTPin.h"
 #include "include/utils/SkParse.h"
 #include "modules/svg/include/SkSVGTypes.h"
 #include "src/base/SkUTF.h"

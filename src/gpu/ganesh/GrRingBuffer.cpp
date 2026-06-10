@@ -7,7 +7,7 @@
 #include "src/gpu/ganesh/GrRingBuffer.h"
 
 #include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/private/base/SkAlign.h"
+#include "include/private/SkAlign.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"

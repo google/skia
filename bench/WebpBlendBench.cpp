@@ -9,7 +9,7 @@
 #include "bench/Benchmark.h"
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkWebpDecoder.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/base/SkAutoMalloc.h"
 #include "tools/Resources.h"
 

@@ -7,7 +7,7 @@
 #include "tools/window/win/WindowContextFactory_win.h"
 
 #include "include/gpu/ganesh/gl/GrGLInterface.h"
-#include "include/private/base/SkLog.h"
+#include "include/private/SkLog.h"
 #include "tools/ganesh/gl/win/SkWGL.h"
 #include "tools/window/GLWindowContext.h"
 

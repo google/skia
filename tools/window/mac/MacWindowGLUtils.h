@@ -8,7 +8,7 @@
 #ifndef MacWindowGLUtils_DEFINED
 #define MacWindowGLUtils_DEFINED
 
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 
 #include <Cocoa/Cocoa.h>
 

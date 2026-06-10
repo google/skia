@@ -8,8 +8,8 @@
 #ifndef SkSynchronizedResourceCache_DEFINED
 #define SkSynchronizedResourceCache_DEFINED
 
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkMutex.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkMutex.h"
 #include "src/core/SkResourceCache.h"
 
 #include <cstddef>

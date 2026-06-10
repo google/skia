@@ -11,7 +11,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRSXform.h"
 #include "include/core/SkScalar.h"
-#include "include/private/base/SkTLogic.h"
+#include "include/private/SkTLogic.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkStrikeSpec.h"

@@ -8,8 +8,8 @@
 #ifndef SkRandom_DEFINED
 #define SkRandom_DEFINED
 
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkFixed.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkFixed.h"
 #include "src/base/SkFloatBits.h"
 
 #include <cstdint>

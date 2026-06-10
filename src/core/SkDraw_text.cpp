@@ -10,11 +10,10 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRegion.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkTo.h"
-#include "src/base/SkArenaAlloc.h"
-#include "src/base/SkZip.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkTo.h"
 #include "src/core/SkAAClip.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkDrawTypes.h"
@@ -23,6 +22,7 @@
 #include "src/core/SkMask.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkSurfacePriv.h"
+#include "src/core/SkZip.h"
 
 #include <cstdint>
 #include <climits>

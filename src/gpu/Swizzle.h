@@ -10,8 +10,8 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkString.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkTypeTraits.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkTypeTraits.h"
 
 #include <array>
 #include <cstddef>

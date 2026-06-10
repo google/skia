@@ -10,7 +10,7 @@
 
 #include "include/gpu/ganesh/GrBackendSemaphore.h"
 #include "include/gpu/ganesh/mtl/GrMtlTypes.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 namespace GrBackendSemaphores {
 // It is the creator's responsibility to ref the MTLEvent passed in here, via __bridge_retained.

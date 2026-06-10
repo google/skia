@@ -9,7 +9,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/ganesh/gl/GrGLInterface.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 typedef GrGLFuncPtr (*GrGLGetProc)(void* ctx, const char name[]);
 

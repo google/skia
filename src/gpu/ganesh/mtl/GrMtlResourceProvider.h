@@ -8,7 +8,7 @@
 #ifndef GrMtlResourceProvider_DEFINED
 #define GrMtlResourceProvider_DEFINED
 
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 #include "src/base/SkSpinlock.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkLRUCache.h"

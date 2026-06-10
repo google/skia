@@ -8,8 +8,8 @@
 #ifndef GrGLSLFragmentShaderBuilder_DEFINED
 #define GrGLSLFragmentShaderBuilder_DEFINED
 
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkMacros.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkMacros.h"
 #include "src/gpu/ganesh/glsl/GrGLSLShaderBuilder.h"
 
 #include <cstdint>

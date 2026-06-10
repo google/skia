@@ -6,9 +6,9 @@
  */
 #include "src/pathops/SkPathOpsCubic.h"
 
-#include "include/private/base/SkFloatingPoint.h"
-#include "include/private/base/SkTPin.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkTPin.h"
+#include "include/private/SkTo.h"
 #include "src/base/SkTSort.h"
 #include "src/core/SkGeometry.h"
 #include "src/pathops/SkIntersections.h"

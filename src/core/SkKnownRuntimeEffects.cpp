@@ -9,7 +9,7 @@
 
 #include "include/core/SkString.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/effects/imagefilters/SkMatrixConvolutionImageFilter.h"
 

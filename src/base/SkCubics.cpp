@@ -7,9 +7,9 @@
 
 #include "src/base/SkCubics.h"
 
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkFloatingPoint.h"
-#include "include/private/base/SkTPin.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkTPin.h"
 #include "src/base/SkQuads.h"
 
 #include <algorithm>

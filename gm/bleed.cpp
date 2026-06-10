@@ -26,7 +26,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTiledImageUtils.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkTDArray.h"
 #include "src/core/SkBlurMask.h"
 #include "tools/ToolUtils.h"
 

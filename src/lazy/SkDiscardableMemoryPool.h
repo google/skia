@@ -8,7 +8,7 @@
 #ifndef SkDiscardableMemoryPool_DEFINED
 #define SkDiscardableMemoryPool_DEFINED
 
-#include "include/private/base/SkMutex.h"
+#include "include/private/SkMutex.h"
 #include "include/private/chromium/SkDiscardableMemory.h"
 
 #ifndef SK_LAZY_CACHE_STATS

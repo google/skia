@@ -7,8 +7,8 @@
 
 #include "src/base/SkBuffer.h"
 
-#include "include/private/base/SkAlign.h"
-#include "include/private/base/SkMalloc.h"
+#include "include/private/SkAlign.h"
+#include "include/private/SkMalloc.h"
 
 #include <cstdint>
 

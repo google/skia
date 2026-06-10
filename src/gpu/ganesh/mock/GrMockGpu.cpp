@@ -8,8 +8,8 @@
 
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/mock/GrMockBackendSurface.h"
-#include "include/private/base/SkDebug.h"
-#include "include/private/base/SkMath.h"
+#include "include/private/SkDebug.h"
+#include "include/private/SkMath.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"

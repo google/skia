@@ -9,9 +9,9 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkFloatingPoint.h"
-#include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTo.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/base/SkHalf.h"
 #include "src/core/SkMatrixInvert.h"

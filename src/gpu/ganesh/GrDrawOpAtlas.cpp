@@ -7,13 +7,13 @@
 
 #include "src/gpu/ganesh/GrDrawOpAtlas.h"
 
+#include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/GrTypes.h"
-#include "include/private/base/SkMath.h"
-#include "include/private/base/SkPoint_impl.h"
-#include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTPin.h"
+#include "include/private/SkMath.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTPin.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkTraceEvent.h"

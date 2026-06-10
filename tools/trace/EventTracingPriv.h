@@ -8,7 +8,7 @@
 #ifndef EventTracingPriv_DEFINED
 #define EventTracingPriv_DEFINED
 
-#include "include/private/base/SkMutex.h"
+#include "include/private/SkMutex.h"
 
 /**
  * Construct and install an SkEventTracer, based on the mode,

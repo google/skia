@@ -8,7 +8,7 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkFixed.h"
+#include "include/private/SkFixed.h"
 #include "src/core/SkEdge.h"
 #include "src/core/SkEdgeBuilder.h"
 #include "src/core/SkGeometry.h"

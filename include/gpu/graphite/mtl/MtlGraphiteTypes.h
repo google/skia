@@ -15,7 +15,7 @@
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/gpu/graphite/mtl/MtlGraphiteTypes_cpp.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 #import <CoreFoundation/CoreFoundation.h>
 #import <Metal/Metal.h>

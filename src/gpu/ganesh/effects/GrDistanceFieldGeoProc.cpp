@@ -8,9 +8,9 @@
 #include "src/gpu/ganesh/effects/GrDistanceFieldGeoProc.h"
 
 #include "include/core/SkSamplingOptions.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkMath.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkMath.h"
+#include "include/private/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkDistanceFieldGen.h"

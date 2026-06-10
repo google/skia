@@ -10,10 +10,10 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
+#include "include/private/SkAPI.h"
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/SkPixelStorage.h"
-#include "include/private/base/SkAPI.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTo.h"
 
 #include <atomic>
 #include <cstddef>

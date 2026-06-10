@@ -8,7 +8,7 @@
 #include "include/gpu/graphite/BackendTexture.h"
 
 #include "include/gpu/GpuTypes.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/gpu/graphite/BackendTexturePriv.h"
 
 namespace skgpu::graphite {

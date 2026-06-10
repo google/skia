@@ -8,7 +8,7 @@
 #include "src/gpu/graphite/TextureFormatXferFn.h"
 
 #include "include/core/SkColorType.h"
-#include "include/private/base/SkLog.h"
+#include "include/private/SkLog.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/base/SkFloatBits.h"
 #include "src/base/SkHalf.h"

@@ -7,7 +7,7 @@
 
 #include "src/base/SkHalf.h"
 
-#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/SkFloatingPoint.h"
 #include "src/base/SkVx.h"
 
 // NOTE: These are defined within the CPP compilation unit so that they are not inlined everywhere

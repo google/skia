@@ -8,7 +8,7 @@
 #include "bench/Benchmark.h"
 #include "bench/Tiger.h"
 #include "include/core/SkPath.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"
 #include "src/gpu/graphite/sparse_strips/Flatten.h"
 #include "src/gpu/graphite/sparse_strips/Polyline.h"

@@ -7,7 +7,7 @@
 #include "src/gpu/ganesh/vk/GrVkImageView.h"
 
 #include "include/gpu/vk/VulkanTypes.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/gpu/ganesh/vk/GrVkCaps.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 #include "src/gpu/ganesh/vk/GrVkResourceProvider.h"

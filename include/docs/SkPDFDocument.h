@@ -9,9 +9,9 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
-#include "include/private/base/SkAPI.h"
-#include "include/private/base/SkMacros.h"
-#include "include/private/base/SkNoncopyable.h"
+#include "include/private/SkAPI.h"
+#include "include/private/SkMacros.h"
+#include "include/private/SkNoncopyable.h"
 
 #include <cstdint>
 #include <memory>

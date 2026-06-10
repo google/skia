@@ -15,7 +15,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 
 #if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrContextOptions.h"

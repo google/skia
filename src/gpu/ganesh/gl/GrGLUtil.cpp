@@ -9,7 +9,7 @@
 #include "include/core/SkString.h"
 #include "include/gpu/ganesh/gl/GrGLExtensions.h"
 #include "include/gpu/ganesh/gl/GrGLFunctions.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 #include "src/core/SkStringUtils.h"
 #include "src/gpu/ganesh/GrStencilSettings.h"
 

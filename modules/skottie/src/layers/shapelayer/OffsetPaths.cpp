@@ -7,7 +7,7 @@
 
 #include "include/core/SkPaint.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkTPin.h"
+#include "include/private/SkTPin.h"
 #include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieJson.h"

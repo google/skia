@@ -11,7 +11,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkOnce.h"
+#include "include/private/SkOnce.h"
 #include "modules/canvaskit/WasmCommon.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SkottieProperty.h"

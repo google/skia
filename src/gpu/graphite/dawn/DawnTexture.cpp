@@ -9,7 +9,7 @@
 
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/gpu/MutableTextureState.h"
-#include "include/private/base/SkLog.h"
+#include "include/private/SkLog.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/TextureUtils.h"

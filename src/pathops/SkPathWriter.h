@@ -11,7 +11,7 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 
 class SkOpPtT;
 

@@ -12,7 +12,7 @@
 
 #include "include/core/SkDataTable.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 class GrDirectContext;
 class SkData;

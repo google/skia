@@ -13,8 +13,8 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkTileMode.h"
 #include "include/gpu/graphite/Recorder.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkDebug.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkDebug.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/graphite/AtlasProvider.h"
@@ -37,7 +37,7 @@
 #include "src/text/gpu/VertexFiller.h"
 
 #if defined(SK_GAMMA_APPLY_TO_A8)
-#include "include/private/base/SkCPUTypes.h"
+#include "include/private/SkCPUTypes.h"
 #include "src/core/SkMaskGamma.h"
 #include "src/text/gpu/DistanceFieldAdjustTable.h"
 #endif

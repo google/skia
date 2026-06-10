@@ -8,7 +8,7 @@
 #include "src/gpu/ganesh/gl/GrGLFinishCallbacks.h"
 
 #include "include/gpu/GpuTypes.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
 
 #include <utility>

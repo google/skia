@@ -11,7 +11,7 @@
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSerialProcs.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/SkTArray.h"
 
 #include <optional>
 

@@ -9,7 +9,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/SkFloatingPoint.h"
 #include "src/base/SkTSort.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"

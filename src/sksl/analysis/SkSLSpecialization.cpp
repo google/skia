@@ -7,8 +7,8 @@
 
 #include "src/sksl/analysis/SkSLSpecialization.h"
 
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkSpan_impl.h"
+#include "include/core/SkSpan.h"
+#include "include/private/SkAssert.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"

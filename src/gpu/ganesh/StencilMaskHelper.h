@@ -9,7 +9,7 @@
 #define StencilMaskHelper_DEFINED
 
 #include "include/core/SkRegion.h"
-#include "include/private/base/SkNoncopyable.h"
+#include "include/private/SkNoncopyable.h"
 #include "src/gpu/ganesh/StencilClip.h"
 
 #include <cstdint>

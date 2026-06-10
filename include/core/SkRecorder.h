@@ -7,7 +7,7 @@
 #ifndef SkRecorder_DEFINED
 #define SkRecorder_DEFINED
 
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 class SkCanvas;
 class SkSurface;

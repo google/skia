@@ -12,12 +12,12 @@
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkAssert.h" // IWYU pragma: keep
+#include "include/private/SkFloatingPoint.h"
 #include "include/private/SkPathRef.h"
-#include "include/private/base/SkAssert.h" // IWYU pragma: keep
-#include "include/private/base/SkFloatingPoint.h"
-#include "include/private/base/SkSafe32.h"
-#include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkSafe32.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTo.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkMatrixPriv.h"

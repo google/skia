@@ -9,7 +9,7 @@
 #define skgpu_graphite_TextAtlasManager_DEFINED
 
 #include "include/core/SkRefCnt.h"  // IWYU pragma: keep
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/gpu/MaskFormat.h"
 #include "src/gpu/graphite/DrawAtlas.h"
 

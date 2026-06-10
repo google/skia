@@ -7,8 +7,8 @@
 
 #include "src/gpu/ganesh/GrUniformDataManager.h"
 
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkTemplates.h"
 #include "src/base/SkHalf.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/ganesh/GrShaderVar.h"

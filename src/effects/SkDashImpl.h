@@ -9,7 +9,7 @@
 #define SkDashImpl_DEFINED
 
 #include "include/core/SkSpan.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkPathEffectBase.h"
 
 #include <optional>

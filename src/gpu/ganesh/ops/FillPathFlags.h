@@ -8,7 +8,7 @@
 #ifndef FillPathFlags_DEFINED
 #define FillPathFlags_DEFINED
 
-#include "include/private/base/SkMacros.h"
+#include "include/private/SkMacros.h"
 
 namespace skgpu::ganesh {
 

@@ -13,7 +13,7 @@
 #include "include/gpu/ganesh/GrBackendSemaphore.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkTo.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkTraceEvent.h"

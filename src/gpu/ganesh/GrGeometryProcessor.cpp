@@ -10,7 +10,7 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkString.h"
 #include "include/private/SkSLSampleUsage.h"
-#include "include/private/base/SkSafe32.h"
+#include "include/private/SkSafe32.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrPipeline.h"

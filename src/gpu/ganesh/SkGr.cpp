@@ -24,7 +24,7 @@
 #include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/SkIDChangeListener.h"
-#include "include/private/base/SkTPin.h"
+#include "include/private/SkTPin.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkMessageBus.h"

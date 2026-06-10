@@ -15,7 +15,7 @@
 #include "include/core/SkScalar.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/Surface.h"
-#include "include/private/base/SkLog.h"
+#include "include/private/SkLog.h"
 #include "src/base/SkHalf.h"
 #include "src/core/SkBlendModeBlender.h"
 #include "src/core/SkBlenderBase.h"

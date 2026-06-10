@@ -17,7 +17,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkGainmapInfo.h"
-#include "include/private/base/SkMutex.h"
+#include "include/private/SkMutex.h"
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/core/SkStreamPriv.h"

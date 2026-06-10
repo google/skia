@@ -12,7 +12,7 @@
 #include "include/core/SkRSXform.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkTDArray.h"
 #include "src/base/SkRandom.h"
 #include "tools/fonts/FontToolUtils.h"
 

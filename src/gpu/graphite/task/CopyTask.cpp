@@ -7,8 +7,8 @@
 
 #include "src/gpu/graphite/task/CopyTask.h"
 
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkLog.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkLog.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/Texture.h"  // IWYU pragma: keep

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkTDArray.h"
 #include "src/base/SkRandom.h"
 #include "src/base/SkTDPQueue.h"
 #include "tests/Test.h"

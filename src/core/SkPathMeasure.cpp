@@ -12,7 +12,7 @@
 #include "include/core/SkPathBuilder.h"  // IWYU pragma: keep
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkTDArray.h"
 #include "src/core/SkPathMeasurePriv.h"
 
 #include <cstddef>

@@ -11,7 +11,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkMacros.h"
+#include "include/private/SkMacros.h"
 
 #include <cmath>
 #include <cstdint>

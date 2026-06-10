@@ -20,7 +20,7 @@
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/base/SkThreadAnnotations.h"
+#include "include/private/SkThreadAnnotations.h"
 #include "src/core/SkTypefaceCache.h"
 
 using namespace skia_private;

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/base/SkMath.h"
+#include "include/private/SkMath.h"
 #include "src/core/SkColorPriv.h"
 #include "tests/Test.h"
 

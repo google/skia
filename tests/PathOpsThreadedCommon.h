@@ -11,7 +11,7 @@
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkTypes.h"
 #include "include/pathops/SkPathOps.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkTDArray.h"
 
 #include <cstring>
 #include <string>

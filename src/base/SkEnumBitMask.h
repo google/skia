@@ -8,7 +8,7 @@
 #ifndef SkEnumBitMask_DEFINED
 #define SkEnumBitMask_DEFINED
 
-#include "include/private/base/SkAttributes.h"
+#include "include/private/SkAttributes.h"
 
 #include <type_traits>
 

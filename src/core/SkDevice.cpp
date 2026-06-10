@@ -25,7 +25,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
-#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/SkFloatingPoint.h"
 #include "include/private/chromium/Slug.h"  // IWYU pragma: keep
 #include "src/core/SkColorPriv.h"
 #include "src/core/SkEnumerate.h"

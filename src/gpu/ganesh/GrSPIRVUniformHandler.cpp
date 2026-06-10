@@ -8,7 +8,7 @@
 
 #include "include/core/SkString.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/ganesh/GrShaderVar.h"
 #include "src/gpu/ganesh/GrUtil.h"

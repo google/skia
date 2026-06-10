@@ -8,8 +8,8 @@
 #ifndef SkBuffer_DEFINED
 #define SkBuffer_DEFINED
 
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkNoncopyable.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkNoncopyable.h"
 #include "src/base/SkSafeMath.h"
 
 #include <cstddef>

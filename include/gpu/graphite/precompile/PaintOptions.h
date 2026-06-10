@@ -11,8 +11,8 @@
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
-#include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
 
 #include <functional>
 

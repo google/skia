@@ -7,7 +7,7 @@
 
 #include "include/core/SkPathTypes.h"
 #include "include/private/SkPathRef.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkTDArray.h"
 #include "src/core/SkCubicClipper.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"

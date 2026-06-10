@@ -4,8 +4,8 @@
 #include "modules/bentleyottmann/include/Myers.h"
 
 #include "include/core/SkSpan.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkTo.h"
 #include "modules/bentleyottmann/include/Int96.h"
 
 #include <algorithm>

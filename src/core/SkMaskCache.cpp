@@ -10,7 +10,7 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "src/base/SkTLazy.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkMask.h"

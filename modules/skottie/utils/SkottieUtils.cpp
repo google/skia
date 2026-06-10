@@ -10,7 +10,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/SkAssert.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skresources/include/SkResources.h"
 

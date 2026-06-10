@@ -11,8 +11,8 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/docs/SkPDFDocument.h"
-#include "include/private/base/SkTArray.h"
-#include "src/base/SkArenaAlloc.h"
+#include "include/private/SkTArray.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkTHash.h"
 #include "src/pdf/SkPDFTypes.h"
 

@@ -12,8 +12,8 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkNoncopyable.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkNoncopyable.h"
 #include "src/core/SkMipmap.h"
 
 #include <utility>

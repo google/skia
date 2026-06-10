@@ -7,7 +7,7 @@
 #ifndef skcpu_Context_DEFINED
 #define skcpu_Context_DEFINED
 
-#include "include/private/base/SkAPI.h"
+#include "include/private/SkAPI.h"
 
 #include <memory>
 

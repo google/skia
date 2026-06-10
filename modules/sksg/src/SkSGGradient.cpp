@@ -10,9 +10,9 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkShader.h"
 #include "include/effects/SkGradient.h"
-#include "include/private/base/SkAssert.h"
-#include "include/private/base/SkTPin.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkTPin.h"
+#include "include/private/SkTo.h"
 
 namespace sksg {
 

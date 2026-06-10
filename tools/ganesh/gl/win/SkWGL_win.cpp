@@ -10,9 +10,9 @@
 
 #include "tools/ganesh/gl/win/SkWGL.h"
 
-#include "include/private/base/SkLog.h"
-#include "include/private/base/SkOnce.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkLog.h"
+#include "include/private/SkOnce.h"
+#include "include/private/SkTDArray.h"
 #include "src/base/SkTSearch.h"
 #include "src/base/SkTSort.h"
 

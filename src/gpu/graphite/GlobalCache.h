@@ -10,9 +10,8 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/graphite/ContextOptions.h"
-#include "include/private/base/SkLog.h"
-#include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
 #include "src/base/SkSpinlock.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/ResourceKey.h"

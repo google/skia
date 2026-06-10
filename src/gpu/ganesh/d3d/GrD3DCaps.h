@@ -11,7 +11,7 @@
 #include "src/gpu/ganesh/GrCaps.h"
 
 #include "include/gpu/ganesh/d3d/GrD3DTypes.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/private/SkTDArray.h"
 #include "src/gpu/ganesh/d3d/GrD3DAttachment.h"
 
 enum class SkTextureCompressionType;
