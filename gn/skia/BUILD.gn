@@ -835,3 +835,28 @@ if (is_wasm) {
     }
   }
 }
+
+if (is_apple) {
+  # On macOS and iOS, this enables support for ARC (automatic reference
+  # counting). See http://clang.llvm.org/docs/AutomaticReferenceCounting.html.
+  #
+  # -fobjc-arc enables ARC overall.
+  #
+  # ARC does not add exception handlers to pure Objective-C code, but does add
+  # them to Objective-C++ code with the rationale that C++ pervasively adds them
+  # in for exception safety. However, exceptions are banned in Skia for
+  # C++ and exceptions in Objective-C code are intended to be fatal, so
+  # -fno-objc-arc-exceptions is specified to disable these unwanted exception
+  # handlers.
+  # -Wobjc-property-assign-on-object-type enables to show warnings when the
+  # assign is used for a property on an Objective-C object under ARC.
+  config("enable_arc") {
+    common_flags = [
+      "-fobjc-arc",
+      "-fno-objc-arc-exceptions",
+      "-Wobjc-property-assign-on-object-type",
+    ]
+    cflags_objc = common_flags
+    cflags_objcc = common_flags
+  }
+}
