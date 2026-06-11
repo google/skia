@@ -317,7 +317,8 @@ pub fn make_font_ref<'a>(font_data: &'a [u8], index: u32) -> Box<BridgeFontRef<'
             f.sbix().is_ok() ||
             // ColorGlyphCollection::get_with_format() first thing checks for presence of colr(),
             // so we do the same:
-            f.colr().is_ok()
+            f.colr().is_ok() ||
+            f.ebdt().is_ok()
         })
         .unwrap_or_default();
 

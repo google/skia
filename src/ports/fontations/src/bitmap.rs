@@ -31,10 +31,11 @@ pub enum BitmapPixelData<'a> {
     },
 }
 
-struct CblcGlyph<'a> {
+struct BitmapTableGlyph<'a> {
     bitmap_data: BitmapData<'a>,
     ppem_x: u8,
     ppem_y: u8,
+    bit_depth: u8,
 }
 
 struct SbixGlyph<'a> {
@@ -110,7 +111,7 @@ fn cblc_glyph<'a>(
     font_ref: &'a FontRef,
     glyph_id: GlyphId,
     font_size: Option<f32>,
-) -> Option<CblcGlyph<'a>> {
+) -> Option<BitmapTableGlyph<'a>> {
     let cblc = font_ref.cblc().ok()?;
     let cbdt = font_ref.cbdt().ok()?;
 
@@ -121,24 +122,52 @@ fn cblc_glyph<'a>(
 
     let location = best_strike.location(cblc.offset_data(), glyph_id).ok()?;
 
-    Some(CblcGlyph {
+    Some(BitmapTableGlyph {
         bitmap_data: cbdt.data(&location).ok()?,
         ppem_x: best_strike.ppem_x,
         ppem_y: best_strike.ppem_y,
+        bit_depth: best_strike.bit_depth,
     })
+}
+
+fn eblc_glyph<'a>(
+    font_ref: &'a FontRef,
+    glyph_id: GlyphId,
+    font_size: Option<f32>,
+) -> Option<BitmapTableGlyph<'a>> {
+    let eblc = font_ref.eblc().ok()?;
+    let ebdt = font_ref.ebdt().ok()?;
+
+    let strikes = &eblc.bitmap_sizes();
+    let best_strike = font_size
+        .and_then(|size| best_strike_size(strikes.iter(), size))
+        .or(strikes.get(0))?;
+
+    let location = best_strike.location(eblc.offset_data(), glyph_id).ok()?;
+
+    Some(BitmapTableGlyph {
+        bitmap_data: ebdt.data(&location).ok()?,
+        ppem_x: best_strike.ppem_x,
+        ppem_y: best_strike.ppem_y,
+        bit_depth: best_strike.bit_depth,
+    })
+}
+
+fn bitmap_table_glyph<'a>(
+    font_ref: &'a FontRef,
+    glyph_id: GlyphId,
+    font_size: Option<f32>,
+) -> Option<BitmapTableGlyph<'a>> {
+    cblc_glyph(font_ref, glyph_id, font_size)
+        .or_else(|| eblc_glyph(font_ref, glyph_id, font_size))
 }
 
 struct AlphaBitmapDimensions {
     width: u32,
     height: u32,
-    bit_depth: u8,
 }
 
-fn bitmap_dimensions(
-    metrics: &BitmapMetrics,
-    font_ref: &FontRef,
-    font_size: Option<f32>,
-) -> Option<AlphaBitmapDimensions> {
+fn bitmap_dimensions(metrics: &BitmapMetrics) -> Option<AlphaBitmapDimensions> {
     let (width, height) = match metrics {
         BitmapMetrics::Small(m) => (m.width as u32, m.height as u32),
         BitmapMetrics::Big(m) => (m.width as u32, m.height as u32),
@@ -146,18 +175,7 @@ fn bitmap_dimensions(
     if width == 0 || height == 0 {
         return None;
     }
-
-    let cblc = font_ref.cblc().ok()?;
-    let strikes = cblc.bitmap_sizes();
-    let best = font_size
-        .and_then(|size| best_strike_size(strikes.iter(), size))
-        .or(strikes.get(0))?;
-
-    Some(AlphaBitmapDimensions {
-        width,
-        height,
-        bit_depth: best.bit_depth,
-    })
+    Some(AlphaBitmapDimensions { width, height })
 }
 
 pub fn has_bitmap_glyph(font_ref: &BridgeFontRef, glyph_id: u16) -> bool {
@@ -165,8 +183,8 @@ pub fn has_bitmap_glyph(font_ref: &BridgeFontRef, glyph_id: u16) -> bool {
         .with_font(|font| {
             let glyph_id = GlyphId::from(glyph_id);
             let has_sbix = sbix_glyph(font, glyph_id, None).is_some();
-            let has_cblc = cblc_glyph(font, glyph_id, None).is_some();
-            Some(has_sbix || has_cblc)
+            let has_cblc_or_eblc = bitmap_table_glyph(font, glyph_id, None).is_some();
+            Some(has_sbix || has_cblc_or_eblc)
         })
         .unwrap_or_default()
 }
@@ -218,7 +236,7 @@ pub unsafe fn bitmap_glyph<'a>(
                         advance: f32::NAN,
                     },
                 }));
-            } else if let Some(cblc_glyph) = cblc_glyph(font, glyph_id, Some(font_size)) {
+            } else if let Some(cblc_glyph) = bitmap_table_glyph(font, glyph_id, Some(font_size)) {
                 let (bearing_x, bearing_y, advance) = match cblc_glyph.bitmap_data.metrics {
                     BitmapMetrics::Small(small_metrics) => (
                         small_metrics.bearing_x() as f32,
@@ -250,18 +268,14 @@ pub unsafe fn bitmap_glyph<'a>(
                         }));
                     }
                     BitmapContent::Data(format, raw_data) => {
-                        let dims = bitmap_dimensions(
-                            &cblc_glyph.bitmap_data.metrics,
-                            font,
-                            Some(font_size),
-                        )?;
+                        let dims = bitmap_dimensions(&cblc_glyph.bitmap_data.metrics)?;
                         let is_packed = match format {
                             BitmapDataFormat::BitAligned => true,
                             BitmapDataFormat::ByteAligned => false,
                             _ => return None,
                         };
                         let mask = MaskData {
-                            bpp: dims.bit_depth,
+                            bpp: cblc_glyph.bit_depth,
                             is_packed,
                             data: raw_data,
                         };

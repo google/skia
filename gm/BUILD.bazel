@@ -13,6 +13,7 @@ filegroup(
         "colrv1.cpp",
         "fontations.cpp",
         "fontations_cbdt.cpp",
+        "fontations_ebdt.cpp",
         "palette.cpp",
     ],
     visibility = ["//tools/viewer:__pkg__"],
