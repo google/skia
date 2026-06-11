@@ -47,9 +47,8 @@ def _cpp_modules_impl(ctx):
                     dawn_repo(
                         build_file = repo_data.get("build_file"),
                         commit = repo_data.get("commit"),
-                        files_bzl = "//bazel/external/dawn:dawn_files.bzl",
+                        generator_py = "//bazel/external/dawn:generate_dawn_files.py",
                         name = name,
-                        patches = repo_data.get("patches", []),
                         remote = repo_data.get("remote"),
                     )
                 else:
