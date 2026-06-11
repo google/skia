@@ -6,7 +6,9 @@
  */
 
 #include "include/private/SkAssert.h"
+#include "include/private/SkTypeTraits.h"
 #include "src/partition_alloc/raw_ptr.h"
+#include "src/partition_alloc/raw_ref.h"
 #include "tests/Test.h"
 
 #include <memory>
@@ -72,4 +74,11 @@ DEF_TEST(RawPtr_DisableDanglingPtrDetection, reporter) {
     raw_ptr<int, DisableDanglingPtrDetection> ptr = owner.get();
     std::ignore = ptr;
     owner.reset();
+}
+
+DEF_TEST(RawPtr_TriviallyRelocatable, reporter) {
+    static_assert(sk_is_trivially_relocatable_v<raw_ptr<int>>);
+    static_assert(sk_is_trivially_relocatable_v<raw_ptr<int, DisableDanglingPtrDetection>>);
+    static_assert(sk_is_trivially_relocatable_v<raw_ref<int>>);
+    static_assert(sk_is_trivially_relocatable_v<raw_ref<int, DisableDanglingPtrDetection>>);
 }

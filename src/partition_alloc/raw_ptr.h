@@ -14,4 +14,9 @@
 #include "src/partition_alloc/noop/raw_ptr.h"
 #endif
 
+#include "include/private/SkTypeTraits.h"
+
+template <typename T, auto Traits>
+struct sk_is_trivially_relocatable<raw_ptr<T, Traits>> : std::true_type {};
+
 #endif  // SRC_PARTITION_ALLOC_RAW_PTR_H_
