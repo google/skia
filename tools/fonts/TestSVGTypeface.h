@@ -51,6 +51,17 @@ struct SkSVGTestTypefaceGlyphData {
 
 class TestSVGTypeface : public SkTypeface {
 public:
+    // OpenType EBDT/CBDT (non-PNG) bitmap data subtable formats. The same
+    // numeric values are defined by both the EBDT and CBDT tables for their
+    // alpha/monochrome subtables.
+    enum class BitmapDataFormat : int {
+        kSmallByteAligned = 1,  // small metrics, byte-aligned rows
+        kSmallBitAligned  = 2,  // small metrics, bit-aligned data
+        kSmallNoMetrics   = 5,  // bit-aligned, metrics live in EBLC
+        kBigByteAligned   = 6,  // big metrics, byte-aligned rows
+        kBigBitAligned    = 7,  // big metrics, bit-aligned data
+    };
+
     ~TestSVGTypeface() override;
     SkVector getAdvance(SkGlyphID) const;
     void getFontMetrics(SkFontMetrics* metrics) const;
@@ -58,8 +69,14 @@ public:
     static sk_sp<TestSVGTypeface> Default();
     static sk_sp<TestSVGTypeface> Planets();
     void                          exportTtxCbdt(SkWStream*, SkSpan<unsigned> strikeSizes) const;
-    void                          exportTtxCbdtAlpha(SkWStream*, SkSpan<unsigned> strikeSizes,
-                                                     int imageFormat = 1) const;
+    void                          exportTtxCbdtAlpha(
+            SkWStream*,
+            SkSpan<unsigned> strikeSizes,
+            BitmapDataFormat imageFormat = BitmapDataFormat::kSmallByteAligned) const;
+    void                          exportTtxEbdt(
+            SkWStream*,
+            SkSpan<unsigned> strikeSizes,
+            BitmapDataFormat imageFormat = BitmapDataFormat::kSmallByteAligned) const;
     void                          exportTtxSbix(SkWStream*, SkSpan<unsigned> strikeSizes) const;
     void                          exportTtxColr(SkWStream*) const;
     virtual bool                  getPathOp(SkColor, SkPathOp*) const = 0;

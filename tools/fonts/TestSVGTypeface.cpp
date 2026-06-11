@@ -50,6 +50,7 @@
 #include "tools/Resources.h"
 
 #include <utility>
+#include <vector>
 
 using namespace skia_private;
 
@@ -986,10 +987,9 @@ void TestSVGTypeface::exportTtxCbdt(SkWStream* out, SkSpan<unsigned> strikeSizes
 }
 
 void TestSVGTypeface::exportTtxCbdtAlpha(SkWStream* out, SkSpan<unsigned> strikeSizes,
-                                         int imageFormat) const {
-    // imageFormat: 1=byte-aligned+Small, 2=bit-aligned+Small,
-    //              6=byte-aligned+Big,   7=bit-aligned+Big
-    bool useBigMetrics = (imageFormat == 6 || imageFormat == 7);
+                                         BitmapDataFormat imageFormat) const {
+    const bool useBigMetrics = (imageFormat == BitmapDataFormat::kBigByteAligned ||
+                                imageFormat == BitmapDataFormat::kBigBitAligned);
     SkPaint paint;
     SkFont  font;
     font.setTypeface(sk_ref_sp(const_cast<TestSVGTypeface*>(this)));
@@ -1001,8 +1001,9 @@ void TestSVGTypeface::exportTtxCbdtAlpha(SkWStream* out, SkSpan<unsigned> strike
         font.setSize(strikeSizes[strikeIndex]);
         SkFontMetrics fm;
         font.getMetrics(&fm);
-        if (!SkTFitsIn<int8_t>((int)(-fm.fTop)) || !SkTFitsIn<int8_t>((int)(-fm.fBottom)) ||
-            !SkTFitsIn<uint8_t>((int)(fm.fXMax - fm.fXMin))) {
+        if (!SkTFitsIn<int8_t>(static_cast<int>(-fm.fTop)) ||
+            !SkTFitsIn<int8_t>(static_cast<int>(-fm.fBottom)) ||
+            !SkTFitsIn<uint8_t>(static_cast<int>(fm.fXMax - fm.fXMin))) {
             SkDebugf("Metrics too big cbdt font size %f for %s.\n", font.getSize(), name.c_str());
             continue;
         }
@@ -1015,7 +1016,7 @@ void TestSVGTypeface::exportTtxCbdtAlpha(SkWStream* out, SkSpan<unsigned> strike
                 SkIRect ibounds = bounds.roundOut();
                 if (!SkTFitsIn<int8_t>(ibounds.fLeft) || !SkTFitsIn<int8_t>(ibounds.fTop) ||
                     !SkTFitsIn<uint8_t>(ibounds.width()) || !SkTFitsIn<uint8_t>(ibounds.height()) ||
-                    !SkTFitsIn<uint8_t>((int)advance)) {
+                    !SkTFitsIn<uint8_t>(static_cast<int>(advance))) {
                     return true;
                 }
             }
@@ -1067,7 +1068,7 @@ void TestSVGTypeface::exportTtxCbdtAlpha(SkWStream* out, SkSpan<unsigned> strike
                                    -bounds.fLeft, -bounds.fTop, font, paint);
 
             out->writeText("      <cbdt_bitmap_format_");
-            out->writeDecAsText(imageFormat);
+            out->writeDecAsText(static_cast<int>(imageFormat));
             out->writeText(" name=\"glyf");
             out->writeHexAsText(i, 4);
             out->writeText("\">\n");
@@ -1086,7 +1087,7 @@ void TestSVGTypeface::exportTtxCbdtAlpha(SkWStream* out, SkSpan<unsigned> strike
                 out->writeDecAsText(-ibounds.fTop);
                 out->writeText("\"/>\n");
                 out->writeText("          <horiAdvance value=\"");
-                out->writeDecAsText((int)advance);
+                out->writeDecAsText(static_cast<int>(advance));
                 out->writeText("\"/>\n");
                 out->writeText("          <vertBearingX value=\"0\"/>\n");
                 out->writeText("          <vertBearingY value=\"0\"/>\n");
@@ -1109,7 +1110,7 @@ void TestSVGTypeface::exportTtxCbdtAlpha(SkWStream* out, SkSpan<unsigned> strike
                 out->writeDecAsText(-ibounds.fTop);
                 out->writeText("\"/>\n");
                 out->writeText("          <Advance value=\"");
-                out->writeDecAsText((int)advance);
+                out->writeDecAsText(static_cast<int>(advance));
                 out->writeText("\"/>\n");
                 out->writeText("        </SmallGlyphMetrics>\n");
             }
@@ -1128,7 +1129,7 @@ void TestSVGTypeface::exportTtxCbdtAlpha(SkWStream* out, SkSpan<unsigned> strike
             }
             out->writeText("\n        </rawimagedata>\n");
             out->writeText("      </cbdt_bitmap_format_");
-            out->writeDecAsText(imageFormat);
+            out->writeDecAsText(static_cast<int>(imageFormat));
             out->writeText(">\n");
         }
         out->writeText("    </strikedata>\n");
@@ -1147,11 +1148,11 @@ void TestSVGTypeface::exportTtxCbdtAlpha(SkWStream* out, SkSpan<unsigned> strike
         out->writeText("      <bitmapSizeTable>\n");
         out->writeText("        <sbitLineMetrics direction=\"hori\">\n");
         out->writeText("          <ascender value=\"");
-        out->writeDecAsText((int)(-fm.fTop));
+        out->writeDecAsText(static_cast<int>(-fm.fTop));
         out->writeText("\"/>\n          <descender value=\"");
-        out->writeDecAsText((int)(-fm.fBottom));
+        out->writeDecAsText(static_cast<int>(-fm.fBottom));
         out->writeText("\"/>\n          <widthMax value=\"");
-        out->writeDecAsText((int)(fm.fXMax - fm.fXMin));
+        out->writeDecAsText(static_cast<int>(fm.fXMax - fm.fXMin));
         out->writeText("\"/>\n");
         out->writeText("          <caretSlopeNumerator value=\"0\"/>\n");
         out->writeText("          <caretSlopeDenominator value=\"0\"/>\n");
@@ -1165,11 +1166,11 @@ void TestSVGTypeface::exportTtxCbdtAlpha(SkWStream* out, SkSpan<unsigned> strike
         out->writeText("        </sbitLineMetrics>\n");
         out->writeText("        <sbitLineMetrics direction=\"vert\">\n");
         out->writeText("          <ascender value=\"");
-        out->writeDecAsText((int)(-fm.fTop));
+        out->writeDecAsText(static_cast<int>(-fm.fTop));
         out->writeText("\"/>\n          <descender value=\"");
-        out->writeDecAsText((int)(-fm.fBottom));
+        out->writeDecAsText(static_cast<int>(-fm.fBottom));
         out->writeText("\"/>\n          <widthMax value=\"");
-        out->writeDecAsText((int)(fm.fXMax - fm.fXMin));
+        out->writeDecAsText(static_cast<int>(fm.fXMax - fm.fXMin));
         out->writeText("\"/>\n");
         out->writeText("          <caretSlopeNumerator value=\"0\"/>\n");
         out->writeText("          <caretSlopeDenominator value=\"0\"/>\n");
@@ -1194,7 +1195,7 @@ void TestSVGTypeface::exportTtxCbdtAlpha(SkWStream* out, SkSpan<unsigned> strike
         out->writeText("      </bitmapSizeTable>\n");
         out->writeText(
                 "      <eblc_index_sub_table_1 imageFormat=\"");
-        out->writeDecAsText(imageFormat);
+        out->writeDecAsText(static_cast<int>(imageFormat));
         out->writeText("\" firstGlyphIndex=\"1\" "
                 "lastGlyphIndex=\"1\">\n");
         for (int i = 0; i < fGlyphCount; ++i) {
@@ -1211,6 +1212,270 @@ void TestSVGTypeface::exportTtxCbdtAlpha(SkWStream* out, SkSpan<unsigned> strike
         out->writeText("    </strike>\n");
     }
     out->writeText("  </CBLC>\n");
+    out->writeText("</ttFont>\n");
+}
+
+void TestSVGTypeface::exportTtxEbdt(SkWStream* out, SkSpan<unsigned> strikeSizes,
+                                    BitmapDataFormat imageFormat) const {
+    // EBDT (the monochrome counterpart of CBDT) uses bit_depth=1 and the same
+    // layout/formats as CBDT, minus PNG and BGRA. We rasterize each glyph into
+    // an 8-bit alpha bitmap, threshold to 1bpp and pack accordingly.
+    const bool useBigMetrics = (imageFormat == BitmapDataFormat::kBigByteAligned ||
+                                imageFormat == BitmapDataFormat::kBigBitAligned);
+    const bool packTightly   = (imageFormat == BitmapDataFormat::kSmallBitAligned ||
+                                imageFormat == BitmapDataFormat::kSmallNoMetrics ||
+                                imageFormat == BitmapDataFormat::kBigBitAligned);
+
+    SkPaint paint;
+    SkFont  font;
+    font.setTypeface(sk_ref_sp(const_cast<TestSVGTypeface*>(this)));
+    SkString name;
+    this->getFamilyName(&name);
+
+    STArray<8, int> goodStrikeSizes;
+    for (size_t strikeIndex = 0; strikeIndex < strikeSizes.size(); ++strikeIndex) {
+        font.setSize(strikeSizes[strikeIndex]);
+        SkFontMetrics fm;
+        font.getMetrics(&fm);
+        if (!SkTFitsIn<int8_t>(static_cast<int>(-fm.fTop)) ||
+            !SkTFitsIn<int8_t>(static_cast<int>(-fm.fBottom)) ||
+            !SkTFitsIn<uint8_t>(static_cast<int>(fm.fXMax - fm.fXMin))) {
+            SkDebugf("Metrics too big ebdt font size %f for %s.\n", font.getSize(), name.c_str());
+            continue;
+        }
+        auto exceedsEbdtLimits = [&]() {
+            for (int i = 0; i < fGlyphCount; ++i) {
+                SkGlyphID gid = i;
+                SkScalar  advance;
+                SkRect    bounds;
+                font.getWidthsBounds({&gid, 1}, {&advance, 1}, {&bounds, 1}, nullptr);
+                SkIRect ibounds = bounds.roundOut();
+                if (!SkTFitsIn<int8_t>(ibounds.fLeft) || !SkTFitsIn<int8_t>(ibounds.fTop) ||
+                    !SkTFitsIn<uint8_t>(ibounds.width()) || !SkTFitsIn<uint8_t>(ibounds.height()) ||
+                    !SkTFitsIn<uint8_t>(static_cast<int>(advance))) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        if (exceedsEbdtLimits()) {
+            SkDebugf("Glyphs too big ebdt font size %f for %s.\n", font.getSize(), name.c_str());
+            continue;
+        }
+
+        goodStrikeSizes.emplace_back(strikeSizes[strikeIndex]);
+    }
+
+    if (goodStrikeSizes.empty()) {
+        SkDebugf("No strike size fit for ebdt font for %s.\n", name.c_str());
+        return;
+    }
+
+    out->writeText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    out->writeText("<ttFont sfntVersion=\"\\x00\\x01\\x00\\x00\" ttLibVersion=\"3.19\">\n");
+    this->exportTtxCommon(out, "EBDT");
+
+    out->writeText("  <EBDT>\n");
+    out->writeText("    <header version=\"2.0\"/>\n");
+    for (int strikeIndex = 0; strikeIndex < goodStrikeSizes.size(); ++strikeIndex) {
+        font.setSize(goodStrikeSizes[strikeIndex]);
+        out->writeText("    <strikedata index=\"");
+        out->writeDecAsText(strikeIndex);
+        out->writeText("\">\n");
+        for (int i = 0; i < fGlyphCount; ++i) {
+            SkGlyphID gid = i;
+            SkScalar  advance;
+            SkRect    bounds;
+            font.getWidthsBounds({&gid, 1}, {&advance, 1}, {&bounds, 1}, nullptr);
+            SkIRect ibounds = bounds.roundOut();
+            if (ibounds.isEmpty()) {
+                continue;
+            }
+
+            int bmpW = ibounds.width();
+            int bmpH = ibounds.height();
+
+            SkImageInfo image_info = SkImageInfo::MakeA8(bmpW, bmpH);
+            SkBitmap bitmap;
+            bitmap.allocPixels(image_info);
+            bitmap.eraseColor(SK_ColorTRANSPARENT);
+            SkCanvas canvas(bitmap);
+            canvas.drawSimpleText(&gid, sizeof(gid), SkTextEncoding::kGlyphID,
+                                   -bounds.fLeft, -bounds.fTop, font, paint);
+
+            // Pack 8-bit alpha into 1-bit MSB-first.
+            // Byte-aligned (1, 6): one row at a time, padded to byte boundary.
+            // Bit-aligned (2, 5, 7): bits packed continuously across rows.
+            const int rowBytes  = (bmpW + 7) / 8;
+            const size_t packedSize = packTightly
+                    ? static_cast<size_t>(bmpW * bmpH + 7) / 8
+                    : static_cast<size_t>(rowBytes) * bmpH;
+            skia_private::AutoTArray<uint8_t> packed(packedSize);
+            sk_bzero(packed.get(), packedSize);
+            if (packTightly) {
+                for (int y = 0; y < bmpH; ++y) {
+                    const uint8_t* row = bitmap.getAddr8(0, y);
+                    for (int x = 0; x < bmpW; ++x) {
+                        if (row[x] >= 0x80) {
+                            int bitIndex = y * bmpW + x;
+                            packed[bitIndex >> 3] |=
+                                    static_cast<uint8_t>(0x80 >> (bitIndex & 7));
+                        }
+                    }
+                }
+            } else {
+                for (int y = 0; y < bmpH; ++y) {
+                    const uint8_t* row = bitmap.getAddr8(0, y);
+                    uint8_t* out_row = packed.get() + y * rowBytes;
+                    for (int x = 0; x < bmpW; ++x) {
+                        if (row[x] >= 0x80) {
+                            out_row[x >> 3] |= static_cast<uint8_t>(0x80 >> (x & 7));
+                        }
+                    }
+                }
+            }
+
+            out->writeText("      <ebdt_bitmap_format_");
+            out->writeDecAsText(static_cast<int>(imageFormat));
+            out->writeText(" name=\"glyf");
+            out->writeHexAsText(i, 4);
+            out->writeText("\">\n");
+            if (useBigMetrics) {
+                out->writeText("        <BigGlyphMetrics>\n");
+                out->writeText("          <height value=\"");
+                out->writeDecAsText(ibounds.height());
+                out->writeText("\"/>\n");
+                out->writeText("          <width value=\"");
+                out->writeDecAsText(ibounds.width());
+                out->writeText("\"/>\n");
+                out->writeText("          <horiBearingX value=\"");
+                out->writeDecAsText(ibounds.fLeft);
+                out->writeText("\"/>\n");
+                out->writeText("          <horiBearingY value=\"");
+                out->writeDecAsText(-ibounds.fTop);
+                out->writeText("\"/>\n");
+                out->writeText("          <horiAdvance value=\"");
+                out->writeDecAsText(static_cast<int>(advance));
+                out->writeText("\"/>\n");
+                out->writeText("          <vertBearingX value=\"0\"/>\n");
+                out->writeText("          <vertBearingY value=\"0\"/>\n");
+                out->writeText("          <vertAdvance value=\"");
+                out->writeDecAsText(ibounds.height());
+                out->writeText("\"/>\n");
+                out->writeText("        </BigGlyphMetrics>\n");
+            } else {
+                out->writeText("        <SmallGlyphMetrics>\n");
+                out->writeText("          <height value=\"");
+                out->writeDecAsText(ibounds.height());
+                out->writeText("\"/>\n");
+                out->writeText("          <width value=\"");
+                out->writeDecAsText(ibounds.width());
+                out->writeText("\"/>\n");
+                out->writeText("          <BearingX value=\"");
+                out->writeDecAsText(ibounds.fLeft);
+                out->writeText("\"/>\n");
+                out->writeText("          <BearingY value=\"");
+                out->writeDecAsText(-ibounds.fTop);
+                out->writeText("\"/>\n");
+                out->writeText("          <Advance value=\"");
+                out->writeDecAsText(static_cast<int>(advance));
+                out->writeText("\"/>\n");
+                out->writeText("        </SmallGlyphMetrics>\n");
+            }
+            out->writeText("        <rawimagedata>");
+            for (size_t j = 0; j < packed.size(); ++j) {
+                if ((j % 0x10) == 0x0) {
+                    out->writeText("\n          ");
+                } else if (((j - 1) % 0x4) == 0x3) {
+                    out->writeText(" ");
+                }
+                out->writeHexAsText(packed[j], 2);
+            }
+            out->writeText("\n        </rawimagedata>\n");
+            out->writeText("      </ebdt_bitmap_format_");
+            out->writeDecAsText(static_cast<int>(imageFormat));
+            out->writeText(">\n");
+        }
+        out->writeText("    </strikedata>\n");
+    }
+    out->writeText("  </EBDT>\n");
+
+    SkFontMetrics fm;
+    out->writeText("  <EBLC>\n");
+    out->writeText("    <header version=\"2.0\"/>\n");
+    for (int strikeIndex = 0; strikeIndex < goodStrikeSizes.size(); ++strikeIndex) {
+        font.setSize(goodStrikeSizes[strikeIndex]);
+        font.getMetrics(&fm);
+        out->writeText("    <strike index=\"");
+        out->writeDecAsText(strikeIndex);
+        out->writeText("\">\n");
+        out->writeText("      <bitmapSizeTable>\n");
+        out->writeText("        <sbitLineMetrics direction=\"hori\">\n");
+        out->writeText("          <ascender value=\"");
+        out->writeDecAsText(static_cast<int>(-fm.fTop));
+        out->writeText("\"/>\n          <descender value=\"");
+        out->writeDecAsText(static_cast<int>(-fm.fBottom));
+        out->writeText("\"/>\n          <widthMax value=\"");
+        out->writeDecAsText(static_cast<int>(fm.fXMax - fm.fXMin));
+        out->writeText("\"/>\n");
+        out->writeText("          <caretSlopeNumerator value=\"0\"/>\n");
+        out->writeText("          <caretSlopeDenominator value=\"0\"/>\n");
+        out->writeText("          <caretOffset value=\"0\"/>\n");
+        out->writeText("          <minOriginSB value=\"0\"/>\n");
+        out->writeText("          <minAdvanceSB value=\"0\"/>\n");
+        out->writeText("          <maxBeforeBL value=\"0\"/>\n");
+        out->writeText("          <minAfterBL value=\"0\"/>\n");
+        out->writeText("          <pad1 value=\"0\"/>\n");
+        out->writeText("          <pad2 value=\"0\"/>\n");
+        out->writeText("        </sbitLineMetrics>\n");
+        out->writeText("        <sbitLineMetrics direction=\"vert\">\n");
+        out->writeText("          <ascender value=\"");
+        out->writeDecAsText(static_cast<int>(-fm.fTop));
+        out->writeText("\"/>\n          <descender value=\"");
+        out->writeDecAsText(static_cast<int>(-fm.fBottom));
+        out->writeText("\"/>\n          <widthMax value=\"");
+        out->writeDecAsText(static_cast<int>(fm.fXMax - fm.fXMin));
+        out->writeText("\"/>\n");
+        out->writeText("          <caretSlopeNumerator value=\"0\"/>\n");
+        out->writeText("          <caretSlopeDenominator value=\"0\"/>\n");
+        out->writeText("          <caretOffset value=\"0\"/>\n");
+        out->writeText("          <minOriginSB value=\"0\"/>\n");
+        out->writeText("          <minAdvanceSB value=\"0\"/>\n");
+        out->writeText("          <maxBeforeBL value=\"0\"/>\n");
+        out->writeText("          <minAfterBL value=\"0\"/>\n");
+        out->writeText("          <pad1 value=\"0\"/>\n");
+        out->writeText("          <pad2 value=\"0\"/>\n");
+        out->writeText("        </sbitLineMetrics>\n");
+        out->writeText("        <colorRef value=\"0\"/>\n");
+        out->writeText("        <startGlyphIndex value=\"1\"/>\n");
+        out->writeText("        <endGlyphIndex value=\"1\"/>\n");
+        out->writeText("        <ppemX value=\"");
+        out->writeDecAsText(goodStrikeSizes[strikeIndex]);
+        out->writeText("\"/>\n        <ppemY value=\"");
+        out->writeDecAsText(goodStrikeSizes[strikeIndex]);
+        out->writeText("\"/>\n");
+        out->writeText("        <bitDepth value=\"1\"/>\n");
+        out->writeText("        <flags value=\"1\"/>\n");
+        out->writeText("      </bitmapSizeTable>\n");
+        out->writeText(
+                "      <eblc_index_sub_table_1 imageFormat=\"");
+        out->writeDecAsText(static_cast<int>(imageFormat));
+        out->writeText("\" firstGlyphIndex=\"1\" "
+                "lastGlyphIndex=\"1\">\n");
+        for (int i = 0; i < fGlyphCount; ++i) {
+            SkGlyphID gid = i;
+            SkRect    bounds = font.getBounds(gid, nullptr);
+            if (bounds.isEmpty()) {
+                continue;
+            }
+            out->writeText("        <glyphLoc name=\"glyf");
+            out->writeHexAsText(i, 4);
+            out->writeText("\"/>\n");
+        }
+        out->writeText("      </eblc_index_sub_table_1>\n");
+        out->writeText("    </strike>\n");
+    }
+    out->writeText("  </EBLC>\n");
     out->writeText("</ttFont>\n");
 }
 
