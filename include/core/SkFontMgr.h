@@ -86,7 +86,7 @@ public:
                                                 const char* bcp47[], int bcp47Count,
                                                 SkUnichar character) const;
 
-    struct Request {
+    struct SK_API Request {
         struct CMapEntry {
             SkUnichar character;
             SkUnichar variation;  // Zero for default variation.
