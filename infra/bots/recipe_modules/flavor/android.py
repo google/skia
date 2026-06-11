@@ -36,10 +36,10 @@ class AndroidFlavor(default.DefaultFlavor):
         perf_data_dir  = android_data_dir + 'perf',
         resource_dir   = android_data_dir + 'resources',
         fonts_dir      = 'NOT_SUPPORTED',
-        images_dir     = android_data_dir + 'skimage',
-        lotties_dir    = android_data_dir + 'lottie-samples',
-        skp_dir        = android_data_dir + 'skp',
-        svg_dir        = android_data_dir + 'svg',
+        images_dir     = android_data_dir + 'images',
+        lotties_dir    = android_data_dir + 'lotties',
+        skp_dir        = android_data_dir + 'skps',
+        svg_dir        = android_data_dir + 'svgs',
         tmp_dir        = android_data_dir,
         texttraces_dir = android_data_dir + 'text_blob_traces')
 
@@ -387,13 +387,12 @@ class AndroidFlavor(default.DefaultFlavor):
     self._adb('push %s %s' % (host, device), 'push', host, device)
 
   def copy_directory_contents_to_device(self, host, device):
-    host_basename = self.m.path.basename(host)
-    device_basename = self.m.path.basename(device)
-    assert host_basename == device_basename, (
-        'Basename of host path does not match device path: %s vs %s' % (
-            host_basename, device_basename))
-    parent = self.m.path.dirname(device)
-    self._adb('push %s %s' % (host, parent), 'push', '--sync', host, parent)
+    with self.m.step.nest('copy %s %s' % (host, device)):
+      contents = self.m.file.glob_paths('ls %s/*' % host,
+                                        host, '*',
+                                        test_data=['foo.png', 'bar.jpg'])
+      for file in contents:
+        self._adb('push %s %s' % (file, device), 'push', file, device)
 
   def copy_directory_contents_to_host(self, device, host):
     # TODO(borenet): When all of our devices are on Android 6.0 and up, we can

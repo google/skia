@@ -94,29 +94,35 @@
     "name": "push dm"
   },
   {
+    "cmd": [],
+    "name": "copy [START_DIR]/skia/resources /sdcard/revenge_of_the_skiabot/resources"
+  },
+  {
     "cmd": [
-      "/usr/bin/adb",
-      "push",
-      "--sync",
+      "vpython3",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
       "[START_DIR]/skia/resources",
-      "/sdcard/revenge_of_the_skiabot"
+      "*"
     ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "ADB_VENDOR_KEYS": "",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
     "infra_step": true,
-    "name": "push [START_DIR]/skia/resources /sdcard/revenge_of_the_skiabot"
+    "name": "copy [START_DIR]/skia/resources /sdcard/revenge_of_the_skiabot/resources.ls [START_DIR]/skia/resources/*",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/skia/resources/bar.jpg@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/skia/resources/foo.png@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
   },
   {
     "cmd": [
       "/usr/bin/adb",
       "push",
-      "--sync",
-      "[START_DIR]/lottie-samples",
-      "/sdcard/revenge_of_the_skiabot"
+      "[START_DIR]/skia/resources/bar.jpg",
+      "/sdcard/revenge_of_the_skiabot/resources"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -125,7 +131,221 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/lottie-samples /sdcard/revenge_of_the_skiabot"
+    "name": "copy [START_DIR]/skia/resources /sdcard/revenge_of_the_skiabot/resources.push [START_DIR]/skia/resources/bar.jpg /sdcard/revenge_of_the_skiabot/resources",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb",
+      "push",
+      "[START_DIR]/skia/resources/foo.png",
+      "/sdcard/revenge_of_the_skiabot/resources"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "copy [START_DIR]/skia/resources /sdcard/revenge_of_the_skiabot/resources.push [START_DIR]/skia/resources/foo.png /sdcard/revenge_of_the_skiabot/resources",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython3",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/skia/infra/bots/assets/lottie-samples/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get lottie-samples VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "vpython3",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "42",
+      "[START_DIR]/tmp/LOTTIE_VERSION"
+    ],
+    "infra_step": true,
+    "name": "write LOTTIE_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@LOTTIE_VERSION@42@@@",
+      "@@@STEP_LOG_END@LOTTIE_VERSION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb",
+      "shell",
+      "test",
+      "-f",
+      "/sdcard/revenge_of_the_skiabot/LOTTIE_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "check if /sdcard/revenge_of_the_skiabot/LOTTIE_VERSION exists"
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb",
+      "shell",
+      "cat",
+      "/sdcard/revenge_of_the_skiabot/LOTTIE_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "read /sdcard/revenge_of_the_skiabot/LOTTIE_VERSION"
+  },
+  {
+    "cmd": [
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/remove_file_on_device.py",
+      "/usr/bin/adb",
+      "/sdcard/revenge_of_the_skiabot/LOTTIE_VERSION"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /sdcard/revenge_of_the_skiabot/LOTTIE_VERSION"
+  },
+  {
+    "cmd": [
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/remove_file_on_device.py",
+      "/usr/bin/adb",
+      "/sdcard/revenge_of_the_skiabot/lotties"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /sdcard/revenge_of_the_skiabot/lotties"
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/sdcard/revenge_of_the_skiabot/lotties"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/lotties"
+  },
+  {
+    "cmd": [],
+    "name": "copy [START_DIR]/lottie-samples /sdcard/revenge_of_the_skiabot/lotties"
+  },
+  {
+    "cmd": [
+      "vpython3",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/lottie-samples",
+      "*"
+    ],
+    "infra_step": true,
+    "name": "copy [START_DIR]/lottie-samples /sdcard/revenge_of_the_skiabot/lotties.ls [START_DIR]/lottie-samples/*",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/lottie-samples/bar.jpg@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/lottie-samples/foo.png@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb",
+      "push",
+      "[START_DIR]/lottie-samples/bar.jpg",
+      "/sdcard/revenge_of_the_skiabot/lotties"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "copy [START_DIR]/lottie-samples /sdcard/revenge_of_the_skiabot/lotties.push [START_DIR]/lottie-samples/bar.jpg /sdcard/revenge_of_the_skiabot/lotties",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb",
+      "push",
+      "[START_DIR]/lottie-samples/foo.png",
+      "/sdcard/revenge_of_the_skiabot/lotties"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "copy [START_DIR]/lottie-samples /sdcard/revenge_of_the_skiabot/lotties.push [START_DIR]/lottie-samples/foo.png /sdcard/revenge_of_the_skiabot/lotties",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb",
+      "push",
+      "[START_DIR]/tmp/LOTTIE_VERSION",
+      "/sdcard/revenge_of_the_skiabot/LOTTIE_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push [START_DIR]/tmp/LOTTIE_VERSION /sdcard/revenge_of_the_skiabot/LOTTIE_VERSION"
   },
   {
     "cmd": [
@@ -198,18 +418,41 @@
       "/path/to/tmp/json",
       "copytree",
       "[START_DIR]/lotties_with_assets",
-      "[CLEANUP]/lwa_tmp_1/lotties_with_assets"
+      "[CLEANUP]/lwa_tmp_1/nosymlinks"
     ],
     "infra_step": true,
     "name": "Copying files on host to remove symlinks"
   },
   {
+    "cmd": [],
+    "name": "copy [CLEANUP]/lwa_tmp_1/nosymlinks /sdcard/revenge_of_the_skiabot/lotties_with_assets"
+  },
+  {
+    "cmd": [
+      "vpython3",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[CLEANUP]/lwa_tmp_1/nosymlinks",
+      "*"
+    ],
+    "infra_step": true,
+    "name": "copy [CLEANUP]/lwa_tmp_1/nosymlinks /sdcard/revenge_of_the_skiabot/lotties_with_assets.ls [CLEANUP]/lwa_tmp_1/nosymlinks/*",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
+      "@@@STEP_LOG_LINE@glob@[CLEANUP]/lwa_tmp_1/nosymlinks/bar.jpg@@@",
+      "@@@STEP_LOG_LINE@glob@[CLEANUP]/lwa_tmp_1/nosymlinks/foo.png@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
     "cmd": [
       "/usr/bin/adb",
       "push",
-      "--sync",
-      "[CLEANUP]/lwa_tmp_1/lotties_with_assets",
-      "/sdcard/revenge_of_the_skiabot"
+      "[CLEANUP]/lwa_tmp_1/nosymlinks/bar.jpg",
+      "/sdcard/revenge_of_the_skiabot/lotties_with_assets"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -218,7 +461,29 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [CLEANUP]/lwa_tmp_1/lotties_with_assets /sdcard/revenge_of_the_skiabot"
+    "name": "copy [CLEANUP]/lwa_tmp_1/nosymlinks /sdcard/revenge_of_the_skiabot/lotties_with_assets.push [CLEANUP]/lwa_tmp_1/nosymlinks/bar.jpg /sdcard/revenge_of_the_skiabot/lotties_with_assets",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb",
+      "push",
+      "[CLEANUP]/lwa_tmp_1/nosymlinks/foo.png",
+      "/sdcard/revenge_of_the_skiabot/lotties_with_assets"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "copy [CLEANUP]/lwa_tmp_1/nosymlinks /sdcard/revenge_of_the_skiabot/lotties_with_assets.push [CLEANUP]/lwa_tmp_1/nosymlinks/foo.png /sdcard/revenge_of_the_skiabot/lotties_with_assets",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -228,14 +493,14 @@
       "--json-output",
       "/path/to/tmp/json",
       "listdir",
-      "[CLEANUP]/lwa_tmp_1/lotties_with_assets"
+      "[CLEANUP]/lwa_tmp_1/nosymlinks"
     ],
     "infra_step": true,
     "name": "list lottie files",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@listdir@[CLEANUP]/lwa_tmp_1/lotties_with_assets/skottie_asset_000@@@",
-      "@@@STEP_LOG_LINE@listdir@[CLEANUP]/lwa_tmp_1/lotties_with_assets/skottie_asset_001@@@",
-      "@@@STEP_LOG_LINE@listdir@[CLEANUP]/lwa_tmp_1/lotties_with_assets/skottie_asset_002@@@",
+      "@@@STEP_LOG_LINE@listdir@[CLEANUP]/lwa_tmp_1/nosymlinks/skottie_asset_000@@@",
+      "@@@STEP_LOG_LINE@listdir@[CLEANUP]/lwa_tmp_1/nosymlinks/skottie_asset_001@@@",
+      "@@@STEP_LOG_LINE@listdir@[CLEANUP]/lwa_tmp_1/nosymlinks/skottie_asset_002@@@",
       "@@@STEP_LOG_END@listdir@@@"
     ]
   },

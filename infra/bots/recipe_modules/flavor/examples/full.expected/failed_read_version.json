@@ -171,17 +171,34 @@
   {
     "cmd": [
       "python3",
-      "RECIPE_MODULE[skia::flavor]/resources/setup_device_for_asan.py",
+      "RECIPE_MODULE[skia::flavor]/resources/set_cpu_scaling_governor.py",
       "/usr/bin/adb",
-      "[START_DIR]/android_ndk_linux/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/18/bin/asan_device_setup"
+      "4",
+      "userspace"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "Setting up device to run ASAN",
-    "timeout": 300
+    "name": "Set CPU 4's governor to userspace",
+    "timeout": 30
+  },
+  {
+    "cmd": [
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/scale_cpu.py",
+      "/usr/bin/adb",
+      "0.6",
+      "4"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "Scale CPU 4 to 0.600000",
+    "timeout": 30
   },
   {
     "cmd": [
@@ -189,14 +206,14 @@
       "RECIPE_MODULE[skia::flavor]/resources/set_cpu_online.py",
       "/usr/bin/adb",
       "0",
-      "1"
+      "0"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "Enabling CPU 0",
+    "name": "Disabling CPU 0",
     "timeout": 30
   },
   {
@@ -205,14 +222,14 @@
       "RECIPE_MODULE[skia::flavor]/resources/set_cpu_online.py",
       "/usr/bin/adb",
       "1",
-      "1"
+      "0"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "Enabling CPU 1",
+    "name": "Disabling CPU 1",
     "timeout": 30
   },
   {
@@ -221,14 +238,14 @@
       "RECIPE_MODULE[skia::flavor]/resources/set_cpu_online.py",
       "/usr/bin/adb",
       "2",
-      "1"
+      "0"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "Enabling CPU 2",
+    "name": "Disabling CPU 2",
     "timeout": 30
   },
   {
@@ -237,53 +254,36 @@
       "RECIPE_MODULE[skia::flavor]/resources/set_cpu_online.py",
       "/usr/bin/adb",
       "3",
-      "1"
+      "0"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "Enabling CPU 3",
+    "name": "Disabling CPU 3",
     "timeout": 30
   },
   {
     "cmd": [
       "python3",
-      "RECIPE_MODULE[skia::flavor]/resources/set_cpu_scaling_governor.py",
+      "RECIPE_MODULE[skia::flavor]/resources/set_gpu_scaling.py",
       "/usr/bin/adb",
-      "4",
-      "ondemand"
+      "600000000"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "Set CPU 4's governor to ondemand",
-    "timeout": 30
-  },
-  {
-    "cmd": [
-      "python3",
-      "RECIPE_MODULE[skia::flavor]/resources/set_cpu_scaling_governor.py",
-      "/usr/bin/adb",
-      "0",
-      "ondemand"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "Set CPU 0's governor to ondemand",
+    "name": "Lock GPU to 600000000 (and other perf tweaks)",
     "timeout": 30
   },
   {
     "cmd": [
       "/usr/bin/adb",
       "push",
-      "[START_DIR]/build/dm",
+      "[START_DIR]/build/nanobench",
       "/data/local/tmp/"
     ],
     "cwd": "[START_DIR]/skia",
@@ -293,7 +293,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push dm"
+    "name": "push nanobench"
   },
   {
     "cmd": [],
@@ -616,7 +616,143 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
+    "name": "read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_EXCEPTION@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "recover device after failure of 'read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION' (attempt 1)"
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb",
+      "kill-server"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "recover device after failure of 'read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION' (attempt 1).adb kill-server",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb",
+      "wait-for-device"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "recover device after failure of 'read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION' (attempt 1).wait for device",
+    "timeout": 180,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb",
+      "devices",
+      "-l"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "recover device after failure of 'read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION' (attempt 1).adb devices -l",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "recover device after failure of 'read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION' (attempt 1).reboot device and wait",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb",
+      "reboot"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "recover device after failure of 'read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION' (attempt 1).reboot device and wait.reboot device",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/wait_for_device.py",
+      "--adb",
+      "/usr/bin/adb"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "recover device after failure of 'read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION' (attempt 1).reboot device and wait.wait for device",
+    "timeout": 600,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb",
+      "root"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "adb root",
+    "timeout": 180
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb",
+      "shell",
+      "cat",
+      "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION (attempt 2)"
   },
   {
     "cmd": [
@@ -941,21 +1077,21 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/dm --some-flag; echo $? >/data/local/tmp/rc",
-      "[START_DIR]/tmp/dm.sh"
+      "set -x; LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/nanobench --some-flag; echo $? >/data/local/tmp/rc",
+      "[START_DIR]/tmp/nanobench.sh"
     ],
     "infra_step": true,
-    "name": "write dm.sh",
+    "name": "write nanobench.sh",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@dm.sh@set -x; LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/dm --some-flag; echo $? >/data/local/tmp/rc@@@",
-      "@@@STEP_LOG_END@dm.sh@@@"
+      "@@@STEP_LOG_LINE@nanobench.sh@set -x; LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/nanobench --some-flag; echo $? >/data/local/tmp/rc@@@",
+      "@@@STEP_LOG_END@nanobench.sh@@@"
     ]
   },
   {
     "cmd": [
       "/usr/bin/adb",
       "push",
-      "[START_DIR]/tmp/dm.sh",
+      "[START_DIR]/tmp/nanobench.sh",
       "/data/local/tmp/"
     ],
     "cwd": "[START_DIR]/skia",
@@ -965,7 +1101,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push dm.sh"
+    "name": "push nanobench.sh"
   },
   {
     "cmd": [
@@ -987,10 +1123,10 @@
       "python3",
       "RECIPE_MODULE[skia::flavor]/resources/run_sh.py",
       "/data/local/tmp/",
-      "dm.sh",
+      "nanobench.sh",
       "/usr/bin/adb"
     ],
-    "name": "dm"
+    "name": "nanobench"
   },
   {
     "cmd": [],
@@ -1000,7 +1136,7 @@
     "cmd": [
       "/usr/bin/adb",
       "pull",
-      "/sdcard/revenge_of_the_skiabot/dm_out",
+      "/sdcard/revenge_of_the_skiabot/perf",
       "[CLEANUP]/adb_pull_tmp_1"
     ],
     "cwd": "[START_DIR]/skia",
@@ -1010,7 +1146,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "adb pull.pull /sdcard/revenge_of_the_skiabot/dm_out",
+    "name": "adb pull.pull /sdcard/revenge_of_the_skiabot/perf",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -1024,7 +1160,7 @@
       "/path/to/tmp/json",
       "glob",
       "[CLEANUP]/adb_pull_tmp_1",
-      "dm_out/*"
+      "perf/*"
     ],
     "infra_step": true,
     "name": "adb pull.list pulled files",
@@ -1120,34 +1256,6 @@
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
-  },
-  {
-    "cmd": [
-      "/usr/bin/adb",
-      "wait-for-device",
-      "shell",
-      "while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "wait for device before uninstalling ASAN",
-    "timeout": 180
-  },
-  {
-    "cmd": [
-      "[START_DIR]/android_ndk_linux/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/18/bin/asan_device_setup",
-      "--revert"
-    ],
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "uninstall ASAN",
-    "timeout": 300
   },
   {
     "cmd": [
