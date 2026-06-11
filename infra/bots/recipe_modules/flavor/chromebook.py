@@ -38,9 +38,13 @@ class ChromebookFlavor(ssh.SSHFlavor):
              'sudo', 'mount', '-i', '-o', 'remount,exec', '/home/chronos')
 
   def _copy_dir(self, src, dest):
-    script = self.module.resource('scp.py')
-    self.m.step(str('scp -r %s %s' % (src, dest)),
-        cmd=['python3', script] + self._ssh_args + [src, dest],
+    self._ssh_setup()
+    src_str = str(src)
+    src_rsync = src_str if src_str.endswith('/') else src_str + '/'
+    ssh_cmd_str = 'ssh %s' % ' '.join(map(str, self._ssh_args))
+    cmd = ['rsync', '-rlptD', '--delete', '-e', ssh_cmd_str, src_rsync, dest]
+    self.m.step(str('rsync %s %s' % (src, dest)),
+        cmd=cmd,
         infra_step=True)
 
   def copy_directory_contents_to_device(self, host_path, device_path):

@@ -26,14 +26,6 @@ commands may be run through ADB.
 """
 
 
-VERSION_FILE_LOTTIE = 'LOTTIE_VERSION'
-VERSION_FILE_SK_IMAGE = 'SK_IMAGE_VERSION'
-VERSION_FILE_SKP = 'SKP_VERSION'
-VERSION_FILE_SVG = 'SVG_VERSION'
-VERSION_FILE_TEXTTRACES = 'TEXTTRACES_VERSION'
-
-VERSION_NONE = -1
-
 def is_android(vars_api):
   return ('Android' in vars_api.extra_tokens or
           'Android' in vars_api.builder_cfg.get('os', ''))
@@ -96,112 +88,34 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
     self._f.install()
 
     if texttraces:
-      self._copy_texttraces()
-    # TODO(borenet): Only copy files which have changed.
+      self.copy_directory_contents_to_device(
+          self.host_dirs.texttraces_dir,
+          self.device_dirs.texttraces_dir)
+
     if resources:
       self.copy_directory_contents_to_device(
           self.m.path.start_dir.joinpath('skia', 'resources'),
           self.device_dirs.resource_dir)
 
     if skps:
-      self._copy_skps()
+      self.copy_directory_contents_to_device(
+          self.host_dirs.skp_dir,
+          self.device_dirs.skp_dir)
+
     if images:
-      self._copy_images()
+      self.copy_directory_contents_to_device(
+          self.host_dirs.images_dir,
+          self.device_dirs.images_dir)
+
     if lotties:
-      self._copy_lotties()
+      self.copy_directory_contents_to_device(
+          self.host_dirs.lotties_dir,
+          self.device_dirs.lotties_dir)
+
     if svgs:
-      self._copy_svgs()
+      self.copy_directory_contents_to_device(
+          self.host_dirs.svg_dir,
+          self.device_dirs.svg_dir)
 
   def cleanup_steps(self):
     return self._f.cleanup_steps()
-
-  def _copy_dir(self, host_version, version_file, tmp_dir,
-                host_path, device_path):
-    actual_version_file = self.m.path.join(tmp_dir, version_file)
-    # Copy to device.
-    device_version_file = self.device_path_join(
-        self.device_dirs.tmp_dir, version_file)
-    if str(actual_version_file) != str(device_version_file):
-      device_version = self.read_file_on_device(device_version_file,
-                                                abort_on_failure=False,
-                                                fail_build_on_failure=False)
-      if not device_version:
-        device_version = VERSION_NONE
-      if device_version != host_version:
-        self.remove_file_on_device(device_version_file)
-        self.create_clean_device_dir(device_path)
-        self.copy_directory_contents_to_device(
-            host_path, device_path)
-
-        # Copy the new version file.
-        self.copy_file_to_device(actual_version_file, device_version_file)
-
-  def _copy_images(self):
-    """Copy test images if needed."""
-    version = self.m.run.asset_version('skimage', self._skia_dir)
-    self.m.run.writefile(
-        self.m.path.join(self.m.vars.tmp_dir, VERSION_FILE_SK_IMAGE),
-        version)
-    self._copy_dir(
-        version,
-        VERSION_FILE_SK_IMAGE,
-        self.m.vars.tmp_dir,
-        self.host_dirs.images_dir,
-        self.device_dirs.images_dir)
-    return version
-
-  def _copy_lotties(self):
-    """Copy test lotties if needed."""
-    version = self.m.run.asset_version('lottie-samples', self._skia_dir)
-    self.m.run.writefile(
-        self.m.path.join(self.m.vars.tmp_dir, VERSION_FILE_LOTTIE),
-        version)
-    self._copy_dir(
-        version,
-        VERSION_FILE_LOTTIE,
-        self.m.vars.tmp_dir,
-        self.host_dirs.lotties_dir,
-        self.device_dirs.lotties_dir)
-    return version
-
-  def _copy_skps(self):
-    """Copy the SKPs if needed."""
-    version = self.m.run.asset_version('skp', self._skia_dir)
-    self.m.run.writefile(
-        self.m.path.join(self.m.vars.tmp_dir, VERSION_FILE_SKP),
-        version)
-    self._copy_dir(
-        version,
-        VERSION_FILE_SKP,
-        self.m.vars.tmp_dir,
-        self.host_dirs.skp_dir,
-        self.device_dirs.skp_dir)
-    return version
-
-  def _copy_svgs(self):
-    """Copy the SVGs if needed."""
-    version = self.m.run.asset_version('svg', self._skia_dir)
-    self.m.run.writefile(
-        self.m.path.join(self.m.vars.tmp_dir, VERSION_FILE_SVG),
-        version)
-    self._copy_dir(
-        version,
-        VERSION_FILE_SVG,
-        self.m.vars.tmp_dir,
-        self.host_dirs.svg_dir,
-        self.device_dirs.svg_dir)
-    return version
-
-  def _copy_texttraces(self):
-    """Copy the text traces if needed."""
-    version = self.m.run.asset_version('text_blob_traces', self._skia_dir)
-    self.m.run.writefile(
-        self.m.path.join(self.m.vars.tmp_dir, VERSION_FILE_TEXTTRACES),
-        version)
-    self._copy_dir(
-        version,
-        VERSION_FILE_TEXTTRACES,
-        self.m.vars.tmp_dir,
-        self.host_dirs.texttraces_dir,
-        self.device_dirs.texttraces_dir)
-    return version
