@@ -194,7 +194,7 @@ def RunSteps(api):
 
   with api.context():
     try:
-      api.flavor.install(resources=True, lotties=True)
+      api.flavor.install(resources=True)
       perf_steps(api)
     finally:
       api.flavor.cleanup_steps()
