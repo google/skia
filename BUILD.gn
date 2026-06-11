@@ -2829,6 +2829,7 @@ if (skia_enable_tools) {
         "modules/skshaper:tests",
         "modules/skunicode:tests",
         "modules/svg:tests",
+        "//src/partition_alloc:raw_ptr",
         "//third_party/libpng",
         "//third_party/libwebp",
         "//third_party/zlib",

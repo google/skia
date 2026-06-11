@@ -1635,6 +1635,7 @@ int main(int argc, char** argv) {
     // If available, use PartitionAlloc as the memory allocator for DM. This allows catching
     // additional memory errors in tests that would otherwise go unnoticed.
     skiatest::InitializePartitionAllocForTesting();
+    skiatest::InitializeDanglingPointerChecksForTesting();
 #endif
 
     CommandLineFlags::Parse(argc, argv);

@@ -12,7 +12,8 @@ namespace skiatest {
 // Enable using PartitionAlloc's allocator.
 void InitializePartitionAllocForTesting();
 
-// TODO(351867706): Add `InitializeDanglingPointerChecksForTesting()`.
+// Install handlers causing a crash when a raw_ptr<T> becomes dangling.
+void InitializeDanglingPointerChecksForTesting();
 
 }  // namespace skiatest
 
