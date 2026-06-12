@@ -19,6 +19,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkOnce.h"
+#include "src/base/SkSharedMutex.h"
 #include "src/utils/mac/SkUniqueCFRef.h"
 
 #ifdef SK_BUILD_FOR_MAC
@@ -129,8 +130,8 @@ protected:
 private:
     mutable std::unique_ptr<SkStreamAsset> fStream;
     mutable SkUniqueCFRef<CFArrayRef> fVariationAxes;
+    mutable SkSharedMutex fStreamMutex;
     bool fIsFromStream;
-    mutable SkOnce fInitStream;
     mutable SkOnce fInitVariationAxes;
 
     using INHERITED = SkTypeface;
