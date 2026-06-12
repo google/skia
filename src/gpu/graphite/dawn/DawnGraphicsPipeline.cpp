@@ -11,7 +11,7 @@
 #include "include/gpu/graphite/dawn/DawnGraphiteTypes.h"
 #include "include/private/SkLog.h"
 #include "include/private/SkTArray.h"
-#include "src/base/SkTBlockList.h"
+#include "src/core/SkTBlockList.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/SkSLToBackend.h"
 #include "src/gpu/Swizzle.h"
