@@ -18,10 +18,10 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/SkTemplates.h"
-#include "src/base/SkMSAN.h"
-#include "src/base/SkSafeMath.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkImageInfoPriv.h"
+#include "src/core/SkMSAN.h"
+#include "src/core/SkSafeMath.h"
 #include "src/encode/SkImageEncoderFns.h"
 
 namespace {

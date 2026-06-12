@@ -13,10 +13,10 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/pathops/SkPathOps.h"
-#include "src/base/SkFloatBits.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkFloatBits.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkRRectPriv.h"
+#include "src/core/SkRandom.h"
 #include "tests/Test.h"
 
 #include <algorithm>

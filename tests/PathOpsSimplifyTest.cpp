@@ -12,7 +12,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/pathops/SkPathOps.h"
-#include "src/base/SkFloatBits.h"
+#include "src/core/SkFloatBits.h"
 #include "src/pathops/SkPathOpsDebug.h"
 #include "tests/PathOpsExtendedTest.h"
 #include "tests/Test.h"

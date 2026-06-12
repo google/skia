@@ -27,12 +27,12 @@
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkRandom.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkVerticesPriv.h"
 

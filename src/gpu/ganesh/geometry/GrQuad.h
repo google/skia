@@ -14,7 +14,7 @@
 #include "include/core/SkScalar.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkFloatingPoint.h"
-#include "src/base/SkVx.h"
+#include "src/core/SkVx.h"
 #include "src/gpu/BufferWriter.h"
 
 #include <algorithm>

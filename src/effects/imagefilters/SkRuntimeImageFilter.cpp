@@ -20,13 +20,13 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkTArray.h"
-#include "src/base/SkSpinlock.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
+#include "src/core/SkSpinlock.h"
 #include "src/core/SkWriteBuffer.h"
 
 #include <cstddef>

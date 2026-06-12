@@ -9,8 +9,8 @@
 #define SkRectPriv_DEFINED
 
 #include "include/core/SkRect.h"
-#include "src/base/SkMathPriv.h"
-#include "src/base/SkVx.h"
+#include "src/core/SkMathPriv.h"
+#include "src/core/SkVx.h"
 
 class SkM44;
 class SkMatrix;

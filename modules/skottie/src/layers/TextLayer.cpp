@@ -24,8 +24,8 @@
 #include "modules/skresources/include/SkResources.h"
 #include "modules/sksg/include/SkSGGroup.h"  // IWYU pragma: keep
 #include "modules/sksg/include/SkSGRenderNode.h"
-#include "src/base/SkTSearch.h"
 #include "src/core/SkTHash.h"
+#include "src/core/SkTSearch.h"
 
 #include <string.h>
 #include <algorithm>

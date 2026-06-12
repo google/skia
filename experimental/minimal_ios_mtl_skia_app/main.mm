@@ -18,7 +18,7 @@
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/ganesh/mtl/GrMtlTypes.h"
-#include "src/base/SkTime.h"
+#include "src/core/SkTime.h"
 
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>

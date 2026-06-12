@@ -11,7 +11,7 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathUtils.h"
 #include "include/core/SkString.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 
 class StrokeBench : public Benchmark {
 public:

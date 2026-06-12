@@ -21,7 +21,6 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
     ],
 )
@@ -59,7 +58,6 @@ skia_cc_library(
     deps = [
         ":skunicode_core",
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
     ] + select({
         "@platforms//os:android": ["@icu//:icu_headers"],

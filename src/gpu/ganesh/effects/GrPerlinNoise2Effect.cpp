@@ -12,7 +12,7 @@
 #include "include/core/SkSize.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"

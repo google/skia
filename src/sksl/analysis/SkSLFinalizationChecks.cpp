@@ -7,8 +7,8 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "src/base/SkEnumBitMask.h"
-#include "src/base/SkSafeMath.h"
+#include "src/core/SkEnumBitMask.h"
+#include "src/core/SkSafeMath.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"

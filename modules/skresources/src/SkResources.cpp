@@ -14,7 +14,7 @@
 #include "include/core/SkImage.h"
 #include "include/private/SkTPin.h"
 #include "modules/skresources/src/SkAnimCodecPlayer.h"
-#include "src/base/SkBase64.h"
+#include "src/core/SkBase64.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 

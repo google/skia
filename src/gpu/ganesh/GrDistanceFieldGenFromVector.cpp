@@ -16,7 +16,7 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
-#include "src/base/SkAutoMalloc.h"
+#include "src/core/SkAutoMalloc.h"
 #include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"

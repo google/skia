@@ -9,8 +9,8 @@
 
 #include "include/core/SkStrokeRec.h"
 #include "include/private/SkFixed.h"
-#include "src/base/SkFloatBits.h"
 #include "src/core/SkBlitter_A8.h"
+#include "src/core/SkFloatBits.h"
 #include "src/gpu/graphite/geom/Shape.h"
 #include "src/gpu/graphite/geom/Transform.h"
 

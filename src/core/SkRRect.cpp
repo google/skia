@@ -15,7 +15,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkFloatingPoint.h"
-#include "src/base/SkBuffer.h"
+#include "src/core/SkBuffer.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkPathRawShapes.h"
 #include "src/core/SkRRectPriv.h"

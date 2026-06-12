@@ -84,7 +84,6 @@ skia_cc_library(
     ],
     deps = [
         "//modules/skcms",
-        "//src/base",
         "//src/core",
         "//src/core:core_priv",
     ],
@@ -164,7 +163,6 @@ skia_cc_library(
     deps = [
         ":any_decoder",
         "//modules/skcms",
-        "//src/base",
         "//src/core",
         "//src/core:core_priv",
     ],
@@ -199,7 +197,6 @@ skia_cc_library(
     deps = [
         ":any_decoder",
         "//modules/skcms",
-        "//src/base",
         "//src/core",
         "//src/core:core_priv",
     ],
@@ -220,7 +217,6 @@ skia_cc_library(
     deps = [
         ":any_decoder",
         "//modules/skcms",
-        "//src/base",
         "//src/core",
         "//src/core:core_priv",
         "@wuffs",
@@ -245,7 +241,6 @@ skia_cc_library(
     features = ["layering_check"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//src/base",
         "//src/core",
         "//src/core:core_priv",
         "//modules/skcms",
@@ -298,7 +293,6 @@ skia_cc_library(
     deps = [
         ":any_decoder",
         "//modules/skcms",
-        "//src/base",
         "//src/core",
         "//src/core:core_priv",
         "@libjpeg_turbo",
@@ -324,7 +318,6 @@ skia_cc_library(
     deps = [
         ":any_decoder",
         "//modules/skcms",
-        "//src/base",
         "//src/core",
         "//src/core:core_priv",
         "@libjxl",
@@ -355,7 +348,6 @@ skia_cc_library(
     deps = [
         ":any_decoder",
         "//modules/skcms",
-        "//src/base",
         "//src/core",
         "//src/core:core_priv",
     ],
@@ -404,7 +396,6 @@ skia_cc_library(
         ":any_decoder",
         ":png_codec_base",
         "//modules/skcms",
-        "//src/base",
         "//src/core",
         "//src/core:core_priv",
         "@libpng",
@@ -437,7 +428,6 @@ skia_cc_library(
         "//rust/common:ffi_utils",
         "//rust/png:cxx_bridge",
         "//rust/png:ffi_cpp",
-        "//src/base",
         "//src/core:core_priv",
         "@crates//:cxx_cc",
     ],
@@ -469,7 +459,6 @@ skia_cc_library(
         ":any_decoder",
         ":bmp_decode",  # Avoid ODR violations by not duplicating .cpp files
         "//modules/skcms",
-        "//src/base",
         "//src/core",
         "//src/core:core_priv",
     ],
@@ -492,7 +481,6 @@ skia_cc_library(
     deps = [
         ":any_decoder",
         "//modules/skcms",
-        "//src/base",
         "//src/core",
         "//src/core:core_priv",
         "@libwebp",

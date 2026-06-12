@@ -12,7 +12,7 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 
 enum Flags {
     kBig_Flag = 1 << 0,

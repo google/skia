@@ -18,7 +18,7 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTLogic.h"
-#include "src/base/SkAutoMalloc.h"
+#include "src/core/SkAutoMalloc.h"
 #include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMask.h"

@@ -17,7 +17,7 @@
 #include "modules/sksg/include/SkSGRect.h"
 #include "modules/sksg/include/SkSGScene.h"
 #include "modules/sksg/include/SkSGTransform.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "tools/timer/TimeUtils.h"
 #include "tools/viewer/Slide.h"
 

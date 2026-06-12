@@ -27,7 +27,7 @@
 #include "modules/sksg/include/SkSGScene.h"
 #include "modules/sksg/include/SkSGText.h"
 #include "modules/sksg/include/SkSGTransform.h"
-#include "src/base/SkBitmaskEnum.h"
+#include "src/core/SkBitmaskEnum.h"
 #include "tools/skui/InputState.h"
 #include "tools/skui/ModifierKey.h"
 #include "tools/timer/TimeUtils.h"

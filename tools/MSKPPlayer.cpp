@@ -14,9 +14,9 @@
 #include "include/docs/SkMultiPictureDocument.h"
 #include "include/private/SkTArray.h"
 #include "include/utils/SkNWayCanvas.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkStringUtils.h"
+#include "src/core/SkTLazy.h"
 #include "tools/SkSharingProc.h"
 
 #if defined(SK_GANESH)

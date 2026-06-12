@@ -11,7 +11,7 @@
 #include "include/private/SkMalloc.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTFitsIn.h"
-#include "src/base/SkLeanWindows.h"
+#include "src/core/SkLeanWindows.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkStringUtils.h"
 

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/base/SkQuads.h"
+#include "src/core/SkQuads.h"
 
 #include "include/private/SkAssert.h"
 #include "include/private/SkFloatingPoint.h"

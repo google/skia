@@ -17,7 +17,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkVertices.h"
 #include "include/gpu/graphite/precompile/PaintOptions.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 
 class SkCanvas;
 

@@ -23,12 +23,12 @@
 #include "include/private/SkOnce.h"
 #include "include/private/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkUtils.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/core/SkSLTypeShared.h"
+#include "src/core/SkUtils.h"
+#include "src/core/SkVx.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ResourceKey.h"
@@ -55,7 +55,7 @@
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
 #if defined(GPU_TEST_UTILS)
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 #include "src/gpu/ganesh/GrTestUtils.h"
 #endif

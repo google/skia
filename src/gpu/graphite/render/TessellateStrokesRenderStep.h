@@ -8,7 +8,7 @@
 #ifndef skgpu_graphite_render_TessellateStrokesRenderStep_DEFINED
 #define skgpu_graphite_render_TessellateStrokesRenderStep_DEFINED
 
-#include "src/base/SkVx.h"
+#include "src/core/SkVx.h"
 #include "src/gpu/graphite/Renderer.h"
 
 #include <string>

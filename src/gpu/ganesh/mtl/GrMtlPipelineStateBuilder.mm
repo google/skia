@@ -8,7 +8,7 @@
 #include "src/gpu/ganesh/mtl/GrMtlPipelineStateBuilder.h"
 
 #include "include/gpu/ganesh/GrDirectContext.h"
-#include "src/base/SkAutoLocaleSetter.h"
+#include "src/core/SkAutoLocaleSetter.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkWriteBuffer.h"

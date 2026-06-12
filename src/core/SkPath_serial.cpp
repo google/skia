@@ -18,12 +18,12 @@
 #include "include/private/SkPathRef.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkAutoMalloc.h"
-#include "src/base/SkBuffer.h"
-#include "src/base/SkSafeMath.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkBuffer.h"
 #include "src/core/SkPathEnums.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRRectPriv.h"
+#include "src/core/SkSafeMath.h"
 
 #include <cstddef>
 #include <cstdint>

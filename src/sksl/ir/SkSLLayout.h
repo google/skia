@@ -8,7 +8,7 @@
 #ifndef SKSL_LAYOUT
 #define SKSL_LAYOUT
 
-#include "src/base/SkEnumBitMask.h"
+#include "src/core/SkEnumBitMask.h"
 
 #include <string>
 

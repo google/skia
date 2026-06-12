@@ -24,11 +24,11 @@
 #include "include/private/SkTDArray.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkThreadAnnotations.h"
-#include "src/base/SkTSort.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkScalerContext.h"
+#include "src/core/SkTSort.h"
 #include "src/core/SkTypefaceCache.h"
 #include "src/ports/SkTypeface_proxy.h"
 

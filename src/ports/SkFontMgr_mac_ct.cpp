@@ -30,7 +30,7 @@
 #include "include/ports/SkFontMgr_mac_ct.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkUTF.h"
+#include "src/core/SkUTF.h"
 #include "src/ports/SkTypeface_mac_ct.h"
 #include "src/utils/mac/SkUniqueCFRef.h"
 

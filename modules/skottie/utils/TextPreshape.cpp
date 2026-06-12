@@ -30,10 +30,10 @@
 #include "modules/skottie/src/text/TextValue.h"
 #include "modules/skresources/include/SkResources.h"
 #include "modules/skshaper/include/SkShaper_factory.h"
-#include "src/base/SkUTF.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkUTF.h"
 
 #include <cstddef>
 #include <iostream>

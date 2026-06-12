@@ -9,7 +9,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkTFitsIn.h"
-#include "src/base/SkUTF.h"
+#include "src/core/SkUTF.h"
 
 #include <unicode/ubidi.h>
 #include <unicode/umachine.h>

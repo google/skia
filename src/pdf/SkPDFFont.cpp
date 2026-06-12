@@ -41,7 +41,7 @@
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkBitmaskEnum.h"
+#include "src/core/SkBitmaskEnum.h"
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkGlyph.h"

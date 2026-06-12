@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/base/SkMathPriv.h"
+#include "src/core/SkMathPriv.h"
 
 #include "include/private/SkAssert.h"
 

@@ -18,7 +18,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkFloatingPoint.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "tools/ToolUtils.h"
 #include "tools/timer/TimeUtils.h"
 

@@ -13,7 +13,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
-#include "src/base/SkAutoMalloc.h"
+#include "src/core/SkAutoMalloc.h"
 
 /**
  *  Time SkCodec.

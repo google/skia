@@ -25,7 +25,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkMathPriv.h"
+#include "src/core/SkMathPriv.h"
 #include "src/core/SkYUVMath.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"

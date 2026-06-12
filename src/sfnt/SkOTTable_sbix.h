@@ -9,7 +9,7 @@
 #define SkOTTable_sbix_DEFINED
 
 #include "include/private/SkTemplates.h"
-#include "src/base/SkUtils.h"
+#include "src/core/SkUtils.h"
 #include "src/sfnt/SkOTTableTypes.h"
 
 #pragma pack(push, 1)

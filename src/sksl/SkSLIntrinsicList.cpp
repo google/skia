@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "src/base/SkNoDestructor.h"
-#include "src/base/SkStringView.h"
+#include "src/core/SkNoDestructor.h"
+#include "src/core/SkStringView.h"
 #include "src/sksl/SkSLIntrinsicList.h"
 
 using namespace skia_private;

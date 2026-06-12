@@ -19,7 +19,7 @@
 #include "include/private/SkAlign.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkAutoMalloc.h"
+#include "src/core/SkAutoMalloc.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"

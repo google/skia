@@ -11,7 +11,7 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkTBlockList.h"
+#include "src/core/SkTBlockList.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrShaderVar.h"

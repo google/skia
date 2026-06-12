@@ -14,7 +14,7 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkTemplates.h"
-#include "src/base/SkMathPriv.h"
+#include "src/core/SkMathPriv.h"
 #include "src/core/SkPathPriv.h"
 
 #include <algorithm>

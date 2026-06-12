@@ -8,7 +8,7 @@
 #include "tests/Test.h"
 
 #include "include/core/SkString.h"
-#include "src/base/SkTime.h"
+#include "src/core/SkTime.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/timer/TimeUtils.h"
 

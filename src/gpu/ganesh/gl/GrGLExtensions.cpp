@@ -8,8 +8,8 @@
 #include "include/gpu/ganesh/gl/GrGLExtensions.h"
 
 #include "include/private/SkAssert.h"
-#include "src/base/SkTSearch.h"
-#include "src/base/SkTSort.h"
+#include "src/core/SkTSearch.h"
+#include "src/core/SkTSort.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 

@@ -10,7 +10,7 @@
 
 #include "include/core/SkString.h"
 #include "include/ports/SkCFObject.h"
-#include "src/base/SkEnumBitMask.h"
+#include "src/core/SkEnumBitMask.h"
 
 class SkStream;
 class SkWStream;

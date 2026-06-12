@@ -14,7 +14,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkSurface.h"
 #include "include/private/SkTemplates.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 
 using namespace skia_private;
 

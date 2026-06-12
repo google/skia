@@ -16,7 +16,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 
 // This is designed to emulate about 4 screens of textual content
 

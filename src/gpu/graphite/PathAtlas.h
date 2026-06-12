@@ -9,8 +9,8 @@
 #define skgpu_graphite_PathAtlas_DEFINED
 
 #include "include/core/SkStrokeRec.h"
-#include "src/base/SkTInternalLList.h"
 #include "src/core/SkTHash.h"
+#include "src/core/SkTInternalLList.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/graphite/DrawAtlas.h"
 #include "src/gpu/graphite/geom/CoverageMaskShape.h"

@@ -8,10 +8,10 @@
 #include "include/core/SkColor.h"
 #include "include/private/SkTPin.h"
 #include "include/private/chromium/SkPMColor.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkColorPriv.h"
 #include "src/core/SkSwizzlePriv.h"
+#include "src/core/SkVx.h"
 
 #include <algorithm>
 

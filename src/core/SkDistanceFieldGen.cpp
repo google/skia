@@ -12,7 +12,7 @@
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
-#include "src/base/SkAutoMalloc.h"
+#include "src/core/SkAutoMalloc.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkPointPriv.h"
 

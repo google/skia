@@ -10,7 +10,7 @@
 #include "tests/Test.h"
 
 #include "include/core/SkSpan.h"
-#include "src/base/SkUTF.h"
+#include "src/core/SkUTF.h"
 #include "src/utils/SkJSONWriter.h"
 
 DEF_TEST(SkShaperTest_cluster, reporter) {

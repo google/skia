@@ -59,7 +59,6 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
         "//src/gpu",
     ],
@@ -82,7 +81,6 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
     ],
 )
@@ -106,7 +104,6 @@ skia_cc_library(
     deps = [
         ":spirv",
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
         "@spirv_cross",
     ],
@@ -130,7 +127,6 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
     ],
 )
@@ -153,7 +149,6 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
         "//src/utils:shader_utils",
     ],
@@ -196,7 +191,6 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
     ],
 )

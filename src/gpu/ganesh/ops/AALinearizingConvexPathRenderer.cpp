@@ -48,7 +48,7 @@
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
 #if defined(GPU_TEST_UTILS)
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/gpu/ganesh/GrTestUtils.h"
 #endif
 

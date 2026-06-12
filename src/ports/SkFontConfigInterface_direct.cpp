@@ -16,8 +16,8 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
 #include "include/private/SkTemplates.h"
-#include "src/base/SkAutoMalloc.h"
-#include "src/base/SkBuffer.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkBuffer.h"
 #include "src/ports/SkFontConfigInterface_direct.h"
 
 #include <fontconfig/fontconfig.h>

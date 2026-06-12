@@ -30,13 +30,13 @@
 #include "include/private/SkMath.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
-#include "src/base/SkSafeMath.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkKnownRuntimeEffects.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkRectPriv.h"
+#include "src/core/SkSafeMath.h"
 #include "src/core/SkWriteBuffer.h"
 
 #include <cstdint>

@@ -18,10 +18,10 @@
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkGradient.h"
 #include "include/utils/SkParsePath.h"
-#include "src/base/SkTime.h"
-#include "src/base/SkUTF.h"
 #include "src/core/SkColorPriv.h"
 #include "src/core/SkGeometry.h"
+#include "src/core/SkTime.h"
+#include "src/core/SkUTF.h"
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/timer/TimeUtils.h"
 #include "tools/viewer/ClickHandlerSlide.h"
@@ -179,7 +179,7 @@ DEF_SLIDE( return new PathSlide; )
 //////////////////////////////////////////////////////////////////////////////
 
 #include "include/effects/SkCornerPathEffect.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 
 class ArcToSlide : public ClickHandlerSlide {
     bool fDoFrame, fDoCorner, fDoConic;

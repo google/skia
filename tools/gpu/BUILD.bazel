@@ -35,7 +35,6 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
         # Currently the cpp/h files in this target are not cleanly separated into pure shared,
         # ganesh, and graphite pieces. So we still rely on Ganesh macros and includes.

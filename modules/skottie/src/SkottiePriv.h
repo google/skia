@@ -21,8 +21,8 @@
 #include "modules/skottie/include/SlotManager.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/skottie/src/text/Font.h"
-#include "src/base/SkUTF.h"
 #include "src/core/SkTHash.h"
+#include "src/core/SkUTF.h"
 
 #include "modules/skshaper/include/SkShaper_factory.h"
 

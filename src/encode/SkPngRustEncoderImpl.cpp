@@ -19,7 +19,7 @@
 #include "include/private/SkEncodedInfo.h"
 #include "rust/png/FFI.rs.h"
 #include "rust/common/SpanUtils.h"
-#include "src/base/SkSafeMath.h"
+#include "src/core/SkSafeMath.h"
 #include "src/encode/SkImageEncoderFns.h"
 #include "src/encode/SkImageEncoderPriv.h"
 #include "third_party/rust/cxx/v1/cxx.h"

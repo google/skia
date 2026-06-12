@@ -19,16 +19,16 @@
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkMath.h"
 #include "include/private/SkSafe32.h"
-#include "src/base/SkMathPriv.h"
-#include "src/base/SkUtils.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkFDot6.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkLineClipper.h"
+#include "src/core/SkMathPriv.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScan.h"
+#include "src/core/SkUtils.h"
+#include "src/core/SkVx.h"
 
 #include <algorithm>
 #include <array>

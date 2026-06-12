@@ -16,7 +16,7 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkTInternalLList.h"
+#include "src/core/SkTInternalLList.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 

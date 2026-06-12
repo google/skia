@@ -11,8 +11,8 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
-#include "src/base/SkUtils.h"
-#include "src/base/SkVx.h"
+#include "src/core/SkUtils.h"
+#include "src/core/SkVx.h"
 
 namespace skgpu::tess {
 

@@ -12,8 +12,8 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkTBlockList.h"
 #include "src/core/SkSLTypeShared.h"
+#include "src/core/SkTBlockList.h"
 #include "src/gpu/ganesh/GrShaderVar.h"
 
 class GrGLSLProgramBuilder;

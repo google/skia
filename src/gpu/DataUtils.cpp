@@ -13,8 +13,8 @@
 #include "include/private/SkMath.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
-#include "src/base/SkMathPriv.h"
 #include "src/core/SkCompressedDataUtils.h"
+#include "src/core/SkMathPriv.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkTraceEvent.h"
 

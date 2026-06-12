@@ -15,7 +15,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
-#include "src/base/SkEnumBitMask.h"
+#include "src/core/SkEnumBitMask.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/graphite/Attribute.h"

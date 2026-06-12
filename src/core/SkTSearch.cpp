@@ -6,7 +6,7 @@
  */
 
 
-#include "src/base/SkTSearch.h"
+#include "src/core/SkTSearch.h"
 
 #include "include/private/SkMalloc.h"
 

@@ -18,7 +18,7 @@
 #include "include/core/SkScalar.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"

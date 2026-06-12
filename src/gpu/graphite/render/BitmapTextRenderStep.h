@@ -8,8 +8,8 @@
 #ifndef skgpu_graphite_render_BitmapTextRenderStep_DEFINED
 #define skgpu_graphite_render_BitmapTextRenderStep_DEFINED
 
-#include "src/base/SkEnumBitMask.h"
-#include "src/base/SkVx.h"
+#include "src/core/SkEnumBitMask.h"
+#include "src/core/SkVx.h"
 #include "src/gpu/graphite/Renderer.h"
 
 #include <string>

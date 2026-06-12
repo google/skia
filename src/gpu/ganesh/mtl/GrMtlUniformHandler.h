@@ -9,7 +9,7 @@
 #define GrMtlUniformHandler_DEFINED
 
 #include "include/private/SkTArray.h"
-#include "src/base/SkTBlockList.h"
+#include "src/core/SkTBlockList.h"
 #include "src/gpu/ganesh/GrShaderVar.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 

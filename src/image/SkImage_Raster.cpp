@@ -23,8 +23,8 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-#include "src/base/SkRectMemcpy.h"
 #include "src/core/SkImageInfoPriv.h"
+#include "src/core/SkRectMemcpy.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkImageShader.h"
 

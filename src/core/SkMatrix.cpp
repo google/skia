@@ -18,11 +18,11 @@
 #include "include/private/SkMalloc.h"
 #include "include/private/SkMath.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkFloatBits.h"
-#include "src/base/SkVx.h"
+#include "src/core/SkFloatBits.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixUtils.h"
 #include "src/core/SkSamplingPriv.h"
+#include "src/core/SkVx.h"
 
 #include <algorithm>
 #include <cmath>

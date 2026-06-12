@@ -13,7 +13,7 @@
 #include "include/core/SkRect.h"
 #include "include/pathops/SkPathOps.h"
 #include "include/private/SkTDArray.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/pathops/SkPathOpsCommon.h"
 #include "tests/PathOpsExtendedTest.h"
 #include "tests/PathOpsThreadedCommon.h"

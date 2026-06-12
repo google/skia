@@ -11,7 +11,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/core/SkVertices.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
@@ -151,7 +151,7 @@ DEF_BENCH(return new VertBench(kColors_VertFlag | kTexture_VertFlag | kBilerp_Ve
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "include/core/SkRSXform.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "tools/Resources.h"
 
 enum AtlasFlags {

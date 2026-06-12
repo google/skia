@@ -7,7 +7,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkFloatingPoint.h"
-#include "src/base/SkSafeMath.h"
+#include "src/core/SkSafeMath.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLErrorReporter.h"

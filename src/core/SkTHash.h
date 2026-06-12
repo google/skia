@@ -9,8 +9,8 @@
 #define SkTHash_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "src/base/SkMathPriv.h"
 #include "src/core/SkChecksum.h"
+#include "src/core/SkMathPriv.h"
 
 #include <initializer_list>
 #include <memory>

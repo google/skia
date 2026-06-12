@@ -19,7 +19,7 @@
 #include "include/private/chromium/GrDeferredDisplayList.h"
 #include "include/private/chromium/GrSurfaceCharacterization.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkTInternalLList.h"
+#include "src/core/SkTInternalLList.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/ganesh/GrAuditTrail.h"

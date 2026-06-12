@@ -9,7 +9,7 @@
 
 #include "include/gpu/ganesh/gl/GrGLAssembleInterface.h"
 #include "include/gpu/ganesh/gl/GrGLInterface.h"
-#include "src/base/SkTime.h"
+#include "src/core/SkTime.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"

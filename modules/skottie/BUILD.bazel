@@ -26,7 +26,6 @@ skia_cc_binary(
         "//modules/skshaper:skshaper_harfbuzz",
         "//modules/skshaper:skshaper_unicode",
         "//modules/skunicode:skunicode_icu",
-        "//src/base",
         "//src/core:core_priv",
         "//tools/flags:cmd_flags",
     ] + select({
@@ -59,7 +58,6 @@ skia_cc_binary(
         "//modules/skshaper:skshaper_harfbuzz",
         "//modules/skshaper:skshaper_unicode",
         "//modules/skunicode:skunicode_icu",
-        "//src/base",
         "//src/core:core_priv",
         "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
         "//tools/flags:cmd_flags",
@@ -82,7 +80,6 @@ skia_cc_binary(
         "//modules/skshaper:skshaper_harfbuzz",
         "//modules/skshaper:skshaper_unicode",
         "//modules/skunicode:skunicode_icu",
-        "//src/base",
         "//src/core:core_priv",
         "//tools/flags:cmd_flags",
     ] + select({
@@ -119,7 +116,6 @@ skia_cc_library(
         "//modules/sksg:sksg_priv",
         "//modules/skshaper:skshaper_core",
         "//modules/skunicode:skunicode_core",
-        "//src/base",
         "//src/codec:codec_support_priv",
         "//src/core:core_priv",
     ],
@@ -149,7 +145,6 @@ skia_cc_library(
         "//:core",
         "//modules/skshaper:skshaper_core",
         "//modules/skunicode:skunicode_core",
-        "//src/base",
         "//src/core:core_priv",
     ],
 )

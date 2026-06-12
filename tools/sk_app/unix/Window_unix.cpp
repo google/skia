@@ -5,7 +5,7 @@
 * found in the LICENSE file.
 */
 
-#include "src/base/SkUTF.h"
+#include "src/core/SkUTF.h"
 #include "tools/sk_app/unix/Window_unix.h"
 #include "tools/skui/ModifierKey.h"
 #include "tools/timer/Timer.h"

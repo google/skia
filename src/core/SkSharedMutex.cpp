@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/base/SkSharedMutex.h"
+#include "src/core/SkSharedMutex.h"
 
 #include "include/private/SkAssert.h"
 #include "include/private/SkSemaphore.h"

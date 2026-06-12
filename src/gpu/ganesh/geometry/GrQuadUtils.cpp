@@ -13,8 +13,8 @@
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkMacros.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkVx.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
 
 #include <algorithm>

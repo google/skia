@@ -22,9 +22,9 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTemplates.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkAAClip.h"
 #include "src/core/SkMask.h"
+#include "src/core/SkRandom.h"
 #include "src/core/SkRasterClip.h"
 #include "tests/Test.h"
 

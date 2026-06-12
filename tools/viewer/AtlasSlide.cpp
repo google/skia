@@ -13,8 +13,8 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkSurface.h"
 #include "include/utils/SkTextUtils.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkPaintPriv.h"
+#include "src/core/SkRandom.h"
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/Slide.h"
 

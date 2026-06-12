@@ -33,7 +33,7 @@
 #include <utility>
 
 #if defined(SK_BUILD_FOR_WIN)
-#include "src/base/SkLeanWindows.h"
+#include "src/core/SkLeanWindows.h"
 #endif
 
 const char* SkPDFUtils::BlendModeName(SkBlendMode mode) {

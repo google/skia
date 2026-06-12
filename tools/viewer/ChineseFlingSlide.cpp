@@ -10,7 +10,7 @@
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/MaskFormat.h"
 #include "tools/Resources.h"

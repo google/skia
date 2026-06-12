@@ -18,7 +18,6 @@ skia_cc_library(
     deps = [
         "//:core",
         "//:pathops",
-        "//src/base",
         "//src/core:core_priv",
     ],
 )

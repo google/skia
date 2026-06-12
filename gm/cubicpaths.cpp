@@ -21,8 +21,8 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradient.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkColorPriv.h"
+#include "src/core/SkRandom.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 

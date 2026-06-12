@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "src/base/SkStringView.h"
 #include "src/core/SkOpts.h"
+#include "src/core/SkStringView.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLFileOutputStream.h"
 #include "src/sksl/SkSLLexer.h"

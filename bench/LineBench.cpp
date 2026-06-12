@@ -12,8 +12,8 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/private/SkTArray.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkColorPriv.h"
+#include "src/core/SkRandom.h"
 
 
 class LineBench : public Benchmark {

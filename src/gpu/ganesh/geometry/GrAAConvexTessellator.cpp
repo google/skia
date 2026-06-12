@@ -14,8 +14,8 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkTPin.h"
-#include "src/base/SkSafeMath.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkSafeMath.h"
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"
 
 #include <algorithm>

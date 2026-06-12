@@ -23,7 +23,7 @@
 #include <utility>
 
 #if defined(GPU_TEST_UTILS)
-#   include "src/base/SkRandom.h"
+#   include "src/core/SkRandom.h"
 #   if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
 #       include <sanitizer/lsan_interface.h>
 #   endif

@@ -23,8 +23,8 @@
 #include "modules/svg/include/SkSVGIDMapper.h"
 #include "modules/svg/include/SkSVGNode.h"
 #include "modules/svg/include/SkSVGTypes.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkTHash.h"
+#include "src/core/SkTLazy.h"
 
 #include <cstddef>
 #include <cstdint>

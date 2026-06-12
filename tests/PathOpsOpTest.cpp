@@ -16,7 +16,7 @@
 #include "include/pathops/SkPathOps.h"
 #include "include/private/SkDebug.h"
 #include "include/utils/SkParsePath.h"
-#include "src/base/SkFloatBits.h"
+#include "src/core/SkFloatBits.h"
 #include "src/core/SkGeometry.h"
 #include "src/pathops/SkPathOpsCubic.h"
 #include "src/pathops/SkPathOpsPoint.h"

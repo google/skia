@@ -24,7 +24,7 @@
 #include "include/effects/SkGradient.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkTDArray.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/shaders/SkLocalMatrixShader.h"
 #include "src/utils/SkPatchUtils.h"

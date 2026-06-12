@@ -20,7 +20,7 @@
 #include "tools/text/gpu/TextBlobTools.h"
 
 #if defined(GPU_TEST_UTILS)
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 #include "src/gpu/ganesh/GrTestUtils.h"
 #endif

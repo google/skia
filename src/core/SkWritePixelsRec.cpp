@@ -8,7 +8,7 @@
 #include "src/core/SkWritePixelsRec.h"
 
 #include "include/core/SkRect.h"
-#include "src/base/SkSafeMath.h"
+#include "src/core/SkSafeMath.h"
 
 bool SkWritePixelsRec::trim(int dstWidth, int dstHeight) {
     // fInfo.minRowBytes() returns 0 if the size doesn't fit in `size_t`.

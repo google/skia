@@ -15,8 +15,8 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkSafeMath.h"
 #include "src/core/SkColorData.h"
+#include "src/core/SkSafeMath.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
 #include "src/gpu/ganesh/GrDefaultGeoProcFactory.h"
@@ -30,7 +30,7 @@
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
 #if defined(GPU_TEST_UTILS)
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 #include "src/gpu/ganesh/GrTestUtils.h"
 #endif

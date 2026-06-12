@@ -83,7 +83,6 @@ skia_cc_library_with_testutil(
     deps = [
         ":dawn_backend_defines",
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
         "//src/gpu",
         "//src/gpu/graphite",

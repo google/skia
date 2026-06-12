@@ -13,7 +13,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 
 static void test_hittest(SkCanvas* canvas, const SkPath& path) {
     SkPaint paint;

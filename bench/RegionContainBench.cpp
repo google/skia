@@ -8,7 +8,7 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkString.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 
 static bool sect_proc(SkRegion& a, SkRegion& b) {
     SkRegion result;

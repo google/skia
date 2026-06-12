@@ -12,10 +12,10 @@
 #include "include/core/SkRect.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkTArray.h"
-#include "src/base/SkUtils.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkUtils.h"
+#include "src/core/SkVx.h"
 #include "src/gpu/tessellate/CullTest.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 

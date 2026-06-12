@@ -12,8 +12,8 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkRandom.h"
 #include "tests/Test.h"
 
 #include <cstddef>

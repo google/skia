@@ -11,7 +11,7 @@
 
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/d3d/GrD3DTypes.h"
-#include "src/base/SkAutoLocaleSetter.h"
+#include "src/core/SkAutoLocaleSetter.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/SkSLToBackend.h"

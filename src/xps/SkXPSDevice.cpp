@@ -8,7 +8,7 @@
 #include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)
 
-#include "src/base/SkLeanWindows.h"
+#include "src/core/SkLeanWindows.h"
 
 #ifndef UNICODE
 #define UNICODE
@@ -36,16 +36,16 @@
 #include "include/pathops/SkPathOps.h"
 #include "include/private/SkTDArray.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkEndian.h"
-#include "src/base/SkTLazy.h"
-#include "src/base/SkUtils.h"
 #include "src/core/SkDraw.h"
+#include "src/core/SkEndian.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkStrikeCache.h"
+#include "src/core/SkTLazy.h"
+#include "src/core/SkUtils.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Raster.h"
 #include "src/sfnt/SkSFNTHeader.h"

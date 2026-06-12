@@ -1,14 +1,14 @@
 .PHONY: all
 
-SOURCES = ../../../src/base/SkSemaphore.cpp \
-          ../../../src/base/SkContainers.cpp \
-		  ../../../src/base/SkThreadID.cpp \
-          ../../../src/base/SkUTF.cpp \
-		  ../../../src/base/SkUtils.cpp \
-		  ../../../src/base/SkMalloc.cpp \
-		  ../../../src/base/SkSafeMath.cpp \
+SOURCES = ../../../src/core/SkSemaphore.cpp \
+          ../../../src/core/SkContainers.cpp \
+		  ../../../src/core/SkThreadID.cpp \
+          ../../../src/core/SkUTF.cpp \
+		  ../../../src/core/SkUtils.cpp \
+		  ../../../src/core/SkMalloc.cpp \
+		  ../../../src/core/SkSafeMath.cpp \
           ../../../src/core/SkString.cpp \
-		  ../../../src/base/SkTime.cpp \
+		  ../../../src/core/SkTime.cpp \
           ../../../src/ports/SkLog_stdio.cpp \
           ../../../src/ports/SkMemory_malloc.cpp \
           ../../../src/core/SkChecksum.cpp

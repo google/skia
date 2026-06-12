@@ -32,9 +32,9 @@
 #include "include/private/SkTypeTraits.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/skunicode/include/SkUnicode.h"
-#include "src/base/SkTDPQueue.h"
-#include "src/base/SkUTF.h"
 #include "src/core/SkLRUCache.h"
+#include "src/core/SkTDPQueue.h"
+#include "src/core/SkUTF.h"
 
 #if !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
 #include "modules/skshaper/include/SkShaper_skunicode.h"

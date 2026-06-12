@@ -14,8 +14,8 @@
 #include "include/private/SkTDArray.h"
 #include "include/private/SkTLogic.h"
 #include "include/private/SkTemplates.h"
-#include "src/base/SkTSearch.h"
 #include "src/core/SkOSFile.h"
+#include "src/core/SkTSearch.h"
 #include "src/ports/SkFontMgr_android_parser.h"
 
 #include <expat.h>

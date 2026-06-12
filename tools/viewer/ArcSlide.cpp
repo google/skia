@@ -20,9 +20,9 @@
 #include "include/effects/SkGradient.h"
 #include "include/utils/SkParsePath.h"
 #include "include/utils/SkTextUtils.h"
-#include "src/base/SkRandom.h"
-#include "src/base/SkUTF.h"
 #include "src/core/SkColorPriv.h"
+#include "src/core/SkRandom.h"
+#include "src/core/SkUTF.h"
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/Slide.h"
 

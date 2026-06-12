@@ -6,7 +6,7 @@
  */
 #include "src/gpu/graphite/sparse_strips/Flatten.h"
 
-#include "src/base/SkVx.h"
+#include "src/core/SkVx.h"
 #include "src/gpu/graphite/sparse_strips/Polyline.h"
 
 namespace skgpu::graphite {

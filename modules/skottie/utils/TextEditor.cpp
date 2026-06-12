@@ -18,7 +18,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
-#include "src/base/SkUTF.h"
+#include "src/core/SkUTF.h"
 #include "tools/skui/InputState.h"
 
 #include <algorithm>

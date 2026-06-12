@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "src/base/SkRandom.h"
-#include "src/base/SkTSort.h"
+#include "src/core/SkRandom.h"
+#include "src/core/SkTSort.h"
 #include "tests/Test.h"
 
 #include <cstdlib>

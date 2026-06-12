@@ -10,7 +10,7 @@
 #include "include/private/SkSemaphore.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTPin.h"
-#include "src/base/SkNoDestructor.h"
+#include "src/core/SkNoDestructor.h"
 
 #include <deque>
 #include <thread>
@@ -19,7 +19,7 @@
 using namespace skia_private;
 
 #if defined(SK_BUILD_FOR_WIN)
-    #include "src/base/SkLeanWindows.h"
+    #include "src/core/SkLeanWindows.h"
     static int num_cores() {
         SYSTEM_INFO sysinfo;
         GetNativeSystemInfo(&sysinfo);

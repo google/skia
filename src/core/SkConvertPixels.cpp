@@ -12,13 +12,13 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
-#include "src/base/SkHalf.h"
-#include "src/base/SkRectMemcpy.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkHalf.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
+#include "src/core/SkRectMemcpy.h"
 #include "src/core/SkSwizzlePriv.h"
 
 #include <cstdint>

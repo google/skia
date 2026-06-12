@@ -15,8 +15,8 @@
 #include "modules/skunicode/src/SkBidiFactory_icu_subset.h"
 #include "modules/skunicode/src/SkUnicode_hardcoded.h"
 #include "modules/skunicode/src/SkUnicode_icu_bidi.h"
-#include "src/base/SkBitmaskEnum.h"
-#include "src/base/SkUTF.h"
+#include "src/core/SkBitmaskEnum.h"
+#include "src/core/SkUTF.h"
 
 #include <algorithm>
 #include <cstdint>

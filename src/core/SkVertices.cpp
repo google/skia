@@ -10,12 +10,12 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkSafeMath.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkSafeMath.h"
 #include "src/core/SkSafeRange.h"
 #include "src/core/SkVerticesPriv.h"
+#include "src/core/SkVx.h"
 #include "src/core/SkWriteBuffer.h"
 
 #include <algorithm>

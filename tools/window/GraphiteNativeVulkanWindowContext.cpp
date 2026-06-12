@@ -22,7 +22,7 @@
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "include/gpu/vk/VulkanMutableTextureState.h"
 #include "include/gpu/vk/VulkanTypes.h"
-#include "src/base/SkAutoMalloc.h"
+#include "src/core/SkAutoMalloc.h"
 #include "src/gpu/graphite/ContextOptionsPriv.h"
 #include "include/private/SkLog.h"
 #include "src/gpu/graphite/TextureFormat.h"

@@ -17,7 +17,7 @@
 #include "include/private/SkCPUTypes.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkAutoMalloc.h"
+#include "src/core/SkAutoMalloc.h"
 
 #include <cstddef>
 #include <cstdint>

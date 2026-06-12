@@ -3,8 +3,8 @@
 
 #include "include/core/SkStream.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
-#include "src/base/SkUTF.h"
 #include "src/core/SkOSFile.h"
+#include "src/core/SkUTF.h"
 #include "tools/Resources.h"
 
 #if defined(SK_TYPEFACE_FACTORY_FREETYPE)

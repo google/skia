@@ -8,7 +8,7 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 
 /**
  * Draws full screen opaque rectangles. It is designed to test any optimizations in the GPU backend

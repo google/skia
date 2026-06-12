@@ -333,7 +333,6 @@ skia_cc_library_with_testutil(
     deps = [
         "//:core",
         "//modules/skcms",
-        "//src/base",
         "//src/core:core_priv",
         "//src/gpu",
         "//src/sksl/codegen:gpu",

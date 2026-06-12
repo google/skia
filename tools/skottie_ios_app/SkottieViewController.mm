@@ -7,7 +7,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
 #include "modules/skottie/include/Skottie.h"
-#include "src/base/SkTime.h"
+#include "src/core/SkTime.h"
 
 #include <cmath>
 

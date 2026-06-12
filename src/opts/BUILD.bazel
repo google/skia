@@ -32,6 +32,7 @@ skia_cc_library(
     srcs = [
         "SkOpts_ml3.cpp",
         "//include/core:opts_srcs",
+        "//include/private:opts_srcs",
         "//src/core:opts_srcs",
         "//src/shaders:opts_srcs",
         "//src/sksl/tracing:opts_srcs",
@@ -44,7 +45,6 @@ skia_cc_library(
     ],
     deps = [
         "//modules/skcms",  # Needed to implement SkRasterPipeline_opts.h
-        "//src/base",
         "@skia_user_config//:user_config",
     ],
 )
@@ -55,6 +55,7 @@ skia_cc_library(
     srcs = [
         "SkOpts_ml4.cpp",
         "//include/core:opts_srcs",
+        "//include/private:opts_srcs",
         "//src/core:opts_srcs",
         "//src/shaders:opts_srcs",
         "//src/sksl/tracing:opts_srcs",
@@ -67,7 +68,6 @@ skia_cc_library(
     ],
     deps = [
         "//modules/skcms",  # Needed to implement SkRasterPipeline_opts.h
-        "//src/base",
         "@skia_user_config//:user_config",
     ],
 )

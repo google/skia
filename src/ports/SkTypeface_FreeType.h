@@ -17,7 +17,7 @@
 #include "include/private/SkMutex.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTArray.h"
-#include "src/base/SkSharedMutex.h"
+#include "src/core/SkSharedMutex.h"
 #include "src/utils/SkCharToGlyphCache.h"
 
 class SkFontData;

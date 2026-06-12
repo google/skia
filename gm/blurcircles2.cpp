@@ -17,8 +17,8 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkBlurMask.h"
+#include "src/core/SkRandom.h"
 #include "tools/timer/TimeUtils.h"
 
 /**

@@ -23,8 +23,8 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradient.h"
-#include "src/base/SkMathPriv.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkMathPriv.h"
+#include "src/core/SkRandom.h"
 #include "tools/GpuToolUtils.h"
 #include "tools/ToolUtils.h"
 

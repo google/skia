@@ -12,7 +12,7 @@
 
 #if defined(LOG_MEMORY_CACHE)
 #include "include/core/SkString.h"
-#include "src/base/SkBase64.h"
+#include "src/core/SkBase64.h"
 
 static SkString data_to_str(const SkData& data) {
     size_t encodeLength = SkBase64::EncodedSize(data.size());

@@ -10,9 +10,9 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/private/SkNoncopyable.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkRasterClip.h"
+#include "src/core/SkVx.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/graphite/ClipStack.h"
 

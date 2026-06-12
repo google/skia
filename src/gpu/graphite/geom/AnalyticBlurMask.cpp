@@ -26,7 +26,7 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkMacros.h"
-#include "src/base/SkFloatBits.h"
+#include "src/core/SkFloatBits.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/gpu/BlurUtils.h"
 #include "src/gpu/ResourceKey.h"

@@ -21,7 +21,7 @@
 #include "include/docs/SkMultiPictureDocument.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/ports/SkFontMgr_empty.h"
-#include "src/base/SkBase64.h"
+#include "src/core/SkBase64.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/ports/SkTypeface_FreeType.h"
 #include "src/utils/SkJSONWriter.h"

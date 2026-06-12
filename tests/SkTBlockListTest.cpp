@@ -7,8 +7,8 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkAlign.h"
-#include "src/base/SkBlockAllocator.h"
-#include "src/base/SkTBlockList.h"
+#include "src/core/SkBlockAllocator.h"
+#include "src/core/SkTBlockList.h"
 #include "tests/Test.h"
 
 #include <cstddef>

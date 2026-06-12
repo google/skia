@@ -23,9 +23,9 @@
 #include "include/effects/SkColorMatrix.h" // IWYU pragma: keep
 #include "include/effects/SkGradient.h"
 #include "include/gpu/GpuTypes.h"
-#include "src/base/SkAutoMalloc.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkAutoMalloc.h"
 #include "src/core/SkColorFilterPriv.h"
+#include "src/core/SkRandom.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"

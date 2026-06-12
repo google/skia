@@ -9,9 +9,9 @@
 #define GrMtlResourceProvider_DEFINED
 
 #include "include/private/SkTArray.h"
-#include "src/base/SkSpinlock.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkLRUCache.h"
+#include "src/core/SkSpinlock.h"
 #include "src/core/SkTDynamicHash.h"
 #include "src/gpu/ganesh/GrProgramDesc.h"
 #include "src/gpu/ganesh/GrThreadSafePipelineBuilder.h"

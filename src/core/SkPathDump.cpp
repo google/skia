@@ -9,7 +9,7 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
-#include "src/base/SkFloatBits.h"
+#include "src/core/SkFloatBits.h"
 #include "src/core/SkStringUtils.h"
 
 #include <functional>

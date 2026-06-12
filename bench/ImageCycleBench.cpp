@@ -13,7 +13,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkSurface.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 
 
 /**

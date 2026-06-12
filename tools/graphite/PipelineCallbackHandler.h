@@ -11,8 +11,8 @@
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/graphite/ContextOptions.h"
-#include "src/base/SkSpinlock.h"
 #include "src/core/SkChecksum.h"
+#include "src/core/SkSpinlock.h"
 #include "src/core/SkTHash.h"
 
 #include <vector>

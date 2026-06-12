@@ -11,7 +11,7 @@
 #include "modules/skparagraph/include/ParagraphPainter.h"
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/Run.h"
-#include "src/base/SkBitmaskEnum.h"
+#include "src/core/SkBitmaskEnum.h"
 
 #include <stddef.h>
 #include <functional>

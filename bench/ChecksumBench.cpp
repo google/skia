@@ -8,9 +8,9 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkString.h"
 #include "include/private/SkTemplates.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkMD5.h"
+#include "src/core/SkRandom.h"
 
 #include <memory>
 

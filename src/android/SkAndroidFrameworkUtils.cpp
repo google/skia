@@ -10,8 +10,8 @@
 #include "include/effects/SkGradient.h"
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkPaintFilterCanvas.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkDevice.h"
+#include "src/core/SkTLazy.h"
 #include "src/image/SkSurface_Base.h"
 #include "src/shaders/SkShaderBase.h"
 

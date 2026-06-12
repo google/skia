@@ -8,7 +8,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
-#include "src/base/SkNoDestructor.h"
+#include "src/core/SkNoDestructor.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLCompiler.h"

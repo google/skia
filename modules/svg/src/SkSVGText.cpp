@@ -31,8 +31,8 @@
 #include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/src/SkSVGTextPriv.h"
-#include "src/base/SkUTF.h"
 #include "src/core/SkTextBlobPriv.h"
+#include "src/core/SkUTF.h"
 
 #include <algorithm>
 #include <cstddef>

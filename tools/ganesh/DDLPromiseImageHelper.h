@@ -14,8 +14,8 @@
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/private/SkTArray.h"
 #include "include/private/chromium/GrPromiseImageTexture.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkCachedData.h"
+#include "src/core/SkTLazy.h"
 
 class GrContextThreadSafeProxy;
 class GrDirectContext;

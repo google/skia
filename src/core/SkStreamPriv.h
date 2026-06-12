@@ -10,7 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
-#include "src/base/SkEndian.h"
+#include "src/core/SkEndian.h"
 
 #include <cstdint>
 

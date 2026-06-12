@@ -11,7 +11,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/effects/SkImageFilters.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 
 #define SMALL   SkIntToScalar(2)
 #define REAL    1.5f

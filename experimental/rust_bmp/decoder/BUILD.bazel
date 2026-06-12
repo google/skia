@@ -33,7 +33,6 @@ skia_cc_library(
         "//experimental/rust_bmp/ffi:cxx_bridge",
         "//experimental/rust_bmp/ffi:ffi_rs",
         "//modules/skcms",
-        "//src/base",
         "//src/codec:codec_support_priv",
         "//src/core:core_priv",
         "@crates//:cxx_cc",  # CXX runtime for C++

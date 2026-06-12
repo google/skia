@@ -10,7 +10,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/effects/SkGradient.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "tools/Resources.h"
 #include "tools/gpu/YUVUtils.h"
 #include "tools/viewer/Slide.h"

@@ -15,7 +15,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypeface.h"
 #include "include/utils/SkNoDrawCanvas.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "tools/SkMetaData.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"

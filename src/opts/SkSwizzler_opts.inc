@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "src/base/SkUtils.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkSwizzlePriv.h"
+#include "src/core/SkUtils.h"
+#include "src/core/SkVx.h"
 
 #include <algorithm>
 #include <cmath>

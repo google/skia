@@ -16,10 +16,10 @@
 #include "include/core/SkStream.h"
 #include "include/effects/SkGradient.h"
 #include "include/private/SkMutex.h"
-#include "src/base/SkScopeExit.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontPriv.h"
+#include "src/core/SkScopeExit.h"
 #include "src/ports/SkTypeface_fontations_priv.h"
 #include "src/ports/fontations/src/skpath_bridge.h"
 

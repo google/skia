@@ -25,7 +25,7 @@
 #include "modules/skottie/src/effects/Effects.h"
 #include "modules/sksg/include/SkSGNode.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 
 #include <algorithm>
 #include <array>

@@ -8,7 +8,7 @@
 #ifndef GrQuadUtils_DEFINED
 #define GrQuadUtils_DEFINED
 
-#include "src/base/SkVx.h"
+#include "src/core/SkVx.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
 
 #include <cstdint>

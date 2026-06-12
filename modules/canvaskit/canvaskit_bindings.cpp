@@ -62,7 +62,7 @@
 #include "include/private/SkOnce.h"
 #include "include/utils/SkParsePath.h"
 #include "include/utils/SkShadowUtils.h"
-#include "src/base/SkFloatBits.h"
+#include "src/core/SkFloatBits.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkPathRaw.h"
 #include "src/core/SkResourceCache.h"

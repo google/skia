@@ -10,7 +10,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkImageFilters.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 
 #include "tools/ToolUtils.h"
 

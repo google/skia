@@ -10,10 +10,10 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "src/base/SkUTF.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTHash.h"
+#include "src/core/SkUTF.h"
 #include "src/pdf/SkPDFGlyphUse.h"
 #include "src/pdf/SkPDFTypes.h"
 

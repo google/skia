@@ -8,7 +8,7 @@
 #include "src/gpu/ganesh/effects/GrBezierEffect.h"
 
 #include "include/core/SkColor.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrShaderVar.h"

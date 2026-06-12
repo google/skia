@@ -24,7 +24,7 @@
 #include "modules/svg/include/SkSVGDOM.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGTypes.h"
-#include "src/base/SkBase64.h"
+#include "src/core/SkBase64.h"
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkTHash.h"
 

@@ -9,9 +9,9 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkTypeface.h"
-#include "src/base/SkRandom.h"
-#include "src/base/SkUTF.h"
 #include "src/core/SkFontPriv.h"
+#include "src/core/SkRandom.h"
+#include "src/core/SkUTF.h"
 #include "src/utils/SkCharToGlyphCache.h"
 #include "tools/fonts/FontToolUtils.h"
 

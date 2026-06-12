@@ -12,8 +12,8 @@
 #include "include/core/SkPixmap.h"
 #include "include/encode/SkJpegEncoder.h"
 #include "include/encode/SkWebpEncoder.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkOSFile.h"
+#include "src/core/SkRandom.h"
 
 #if defined(SK_CODEC_ENCODES_PNG_WITH_LIBPNG)
 #include "include/encode/SkPngEncoder.h"

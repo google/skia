@@ -11,7 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkFloatingPoint.h"
-#include "src/base/SkTime.h"
+#include "src/core/SkTime.h"
 #include "tools/timer/TimeUtils.h"
 
 #include <algorithm>

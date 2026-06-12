@@ -23,7 +23,7 @@
 #include "modules/sksg/include/SkSGInvalidationController.h"
 #include "modules/skshaper/utils/FactoryHelpers.h"
 #include "modules/skunicode/include/SkUnicode.h"
-#include "src/base/SkUTF.h"
+#include "src/core/SkUTF.h"
 #include "tools/skui/InputState.h"
 #include "tools/skui/ModifierKey.h"
 

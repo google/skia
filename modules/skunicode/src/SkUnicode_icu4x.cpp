@@ -13,8 +13,8 @@
 #include "modules/skunicode/include/SkUnicode.h"
 #include "modules/skunicode/include/SkUnicode_icu4x.h"
 #include "modules/skunicode/src/SkUnicode_hardcoded.h"
-#include "src/base/SkBitmaskEnum.h"
-#include "src/base/SkUTF.h"
+#include "src/core/SkBitmaskEnum.h"
+#include "src/core/SkUTF.h"
 
 #include <ICU4XBidi.hpp>
 #include <ICU4XCaseMapper.hpp>

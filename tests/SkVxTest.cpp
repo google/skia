@@ -6,9 +6,9 @@
  */
 
 #include "include/core/SkPoint.h"
-#include "src/base/SkRandom.h"
-#include "src/base/SkUtils.h"
-#include "src/base/SkVx.h"
+#include "src/core/SkRandom.h"
+#include "src/core/SkUtils.h"
+#include "src/core/SkVx.h"
 #include "tests/Test.h"
 
 #include <numeric>

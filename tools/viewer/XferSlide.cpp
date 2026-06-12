@@ -15,7 +15,7 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradient.h"
 #include "include/utils/SkTextUtils.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "tools/DecodeUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/ClickHandlerSlide.h"

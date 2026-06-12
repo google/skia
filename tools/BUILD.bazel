@@ -60,7 +60,7 @@ skia_cc_library(
         "//dm:__pkg__",
         "//tools/gpu:__pkg__",
     ],
-    deps = ["//src/base"],
+    deps = ["//src/core"],
 )
 
 skia_objc_library(
@@ -68,7 +68,7 @@ skia_objc_library(
     hdrs = ["AutoreleasePool.h"],
     non_arc_srcs = ["AutoreleasePool.mm"],
     visibility = ["//tools/ganesh:__pkg__"],
-    deps = ["//src/base"],
+    deps = ["//src/core"],
 )
 
 skia_cc_library(
@@ -165,7 +165,6 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
     ],
 )
@@ -191,7 +190,6 @@ skia_cc_library(
         "//:core",
         "//:png_decode_codec",
         "//:png_encode_codec",
-        "//src/base",
         "//src/core:core_priv",
         "//tools:resources",
     ],
@@ -234,7 +232,6 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
         "//tools/flags:cmd_flags",
     ],
@@ -328,7 +325,6 @@ skia_cc_library(
         "//include/sksl:headers_to_compile",
         "//include/svg:headers_to_compile",
         "//include/utils:headers_to_compile",
-        "//src/base:headers_to_compile",
         "//src/codec:headers_to_compile",
         "//src/core:headers_to_compile",
         "//src/gpu/ganesh/mock:headers_to_compile",

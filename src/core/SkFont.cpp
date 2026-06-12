@@ -24,13 +24,13 @@
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkUTF.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPaintDefaults.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeSpec.h"
+#include "src/core/SkUTF.h"
 #include "src/core/SkZip.h"
 
 #include <algorithm>

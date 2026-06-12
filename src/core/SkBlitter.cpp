@@ -21,7 +21,6 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkAlphaRuns.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBlendModePriv.h"
@@ -33,6 +32,7 @@
 #include "src/core/SkMemset.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkRegionPriv.h"
+#include "src/core/SkTLazy.h"
 #include "src/shaders/SkShaderBase.h"
 
 #include <cstddef>

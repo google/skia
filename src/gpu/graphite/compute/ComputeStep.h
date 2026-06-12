@@ -11,7 +11,7 @@
 #include "include/core/SkSpan.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkEnumBitMask.h"
+#include "src/core/SkEnumBitMask.h"
 #include "src/gpu/graphite/ComputeTypes.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 

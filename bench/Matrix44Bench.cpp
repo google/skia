@@ -8,8 +8,8 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkString.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkMatrixPriv.h"
+#include "src/core/SkRandom.h"
 
 class M4Bench : public Benchmark {
     SkString    fName;

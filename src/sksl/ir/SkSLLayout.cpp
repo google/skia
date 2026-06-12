@@ -8,7 +8,7 @@
 #include "src/sksl/ir/SkSLLayout.h"
 
 #include "include/private/SkAssert.h"
-#include "src/base/SkMathPriv.h"
+#include "src/core/SkMathPriv.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLPosition.h"

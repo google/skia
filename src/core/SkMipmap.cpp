@@ -11,8 +11,8 @@
 #include "include/core/SkColorType.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkMathPriv.h"
 #include "src/core/SkImageInfoPriv.h"
+#include "src/core/SkMathPriv.h"
 #include "src/core/SkMipmapBuilder.h"
 
 #include <new>

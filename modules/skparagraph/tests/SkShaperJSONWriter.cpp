@@ -12,7 +12,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkUTF.h"
+#include "src/core/SkUTF.h"
 #include "src/utils/SkJSONWriter.h"
 
 #include <algorithm>

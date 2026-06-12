@@ -8,8 +8,8 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkRandom.h"
 #include "tests/Test.h"
 
 SkPoint next_point(SkRandom& rand) { return {rand.nextF(), rand.nextF()}; }

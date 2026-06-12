@@ -10,7 +10,7 @@
 
 #include "include/core/SkRefCnt.h"  // IWYU pragma: keep
 #include "include/core/SkSpan.h"
-#include "src/base/SkTInternalLList.h"  // IWYU pragma: keep
+#include "src/core/SkTInternalLList.h"  // IWYU pragma: keep
 
 class GrRenderTask;
 

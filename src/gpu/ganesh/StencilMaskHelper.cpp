@@ -14,7 +14,7 @@
 #include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/private/SkAssert.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkTLazy.h"
+#include "src/core/SkTLazy.h"
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrDrawingManager.h"
 #include "src/gpu/ganesh/GrFixedClip.h"

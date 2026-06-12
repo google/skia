@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "src/base/SkHalf.h"
+#include "src/core/SkHalf.h"
 
 #include "include/private/SkFloatingPoint.h"
-#include "src/base/SkVx.h"
+#include "src/core/SkVx.h"
 
 // NOTE: These are defined within the CPP compilation unit so that they are not inlined everywhere
 // and increase code size. Performance critical code is likely already using skvx directly, and

@@ -6,9 +6,9 @@
  */
 
 #include "include/core/SkStream.h"
-#include "src/base/SkStringView.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkRasterPipeline.h"
+#include "src/core/SkStringView.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/tracing/SkSLDebugTracePriv.h"
 #include "tests/Test.h"

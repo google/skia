@@ -14,8 +14,8 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkMacros.h"
-#include "src/base/SkVx.h" // IWYU pragma: keep
 #include "src/core/SkColorData.h"
+#include "src/core/SkVx.h" // IWYU pragma: keep
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"

@@ -20,7 +20,7 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkAutoMalloc.h"
+#include "src/core/SkAutoMalloc.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkTaskGroup.h"

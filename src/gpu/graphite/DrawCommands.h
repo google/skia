@@ -9,9 +9,9 @@
 #define skgpu_graphite_DrawPassCommands_DEFINED
 
 #include "include/core/SkRect.h"
-#include "src/base/SkBlockAllocator.h"
-#include "src/base/SkTBlockList.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/core/SkBlockAllocator.h"
+#include "src/core/SkTBlockList.h"
 #include "src/gpu/graphite/CommandTypes.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 

@@ -10,9 +10,9 @@
 #include "src/gpu/graphite/DrawListBase.h"
 
 #include "include/private/SkDebug.h"
-#include "src/base/SkBlockAllocator.h"
-#include "src/base/SkEnumBitMask.h"
-#include "src/base/SkTBlockList.h"
+#include "src/core/SkBlockAllocator.h"
+#include "src/core/SkEnumBitMask.h"
+#include "src/core/SkTBlockList.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/DrawCommands.h"
 #include "src/gpu/graphite/DrawListTypes.h"

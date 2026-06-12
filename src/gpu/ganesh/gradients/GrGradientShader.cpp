@@ -27,15 +27,15 @@
 #include "include/private/SkOnce.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkMathPriv.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkMathPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkRuntimeEffectPriv.h"
+#include "src/core/SkVx.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
@@ -62,7 +62,7 @@
 struct SkV4;
 
 #if defined(GPU_TEST_UTILS)
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/gpu/ganesh/GrTestUtils.h"
 #endif
 

@@ -25,8 +25,8 @@
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/skshaper/include/SkShaper_factory.h"
 #include "modules/skunicode/include/SkUnicode.h"
-#include "src/base/SkUTF.h"
 #include "src/core/SkFontPriv.h"
+#include "src/core/SkUTF.h"
 
 #include <algorithm>
 #include <memory>

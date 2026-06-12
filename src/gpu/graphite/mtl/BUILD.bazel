@@ -66,7 +66,6 @@ skia_objc_library_with_testutil(
     visibility = ["//:__pkg__"],
     deps = [
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
         "//src/gpu",
         "//src/gpu/graphite",

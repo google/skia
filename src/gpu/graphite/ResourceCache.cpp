@@ -8,8 +8,8 @@
 #include "src/gpu/graphite/ResourceCache.h"
 
 #include "include/private/SingleOwner.h"
-#include "src/base/SkNoDestructor.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkNoDestructor.h"
+#include "src/core/SkRandom.h"
 #include "src/core/SkTMultiMap.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/GraphiteResourceKey.h"

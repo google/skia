@@ -15,8 +15,8 @@
 #include "include/private/SkTFitsIn.h"
 #include "modules/skplaintexteditor/src/word_boundaries.h"
 #include "modules/skshaper/include/SkShaper.h"
-#include "src/base/SkUTF.h"
 #include "src/core/SkTextBlobPriv.h"
+#include "src/core/SkUTF.h"
 
 #if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
 #include "modules/skshaper/include/SkShaper_harfbuzz.h"

@@ -21,7 +21,7 @@
 
 #include "include/private/SkFeatures.h"
 #include "include/private/SkLoadUserConfig.h"
-#include "src/base/SkUtils.h"
+#include "src/core/SkUtils.h"
 #include <algorithm>         // std::min, std::max
 #include <cassert>           // assert()
 #include <cmath>             // ceilf, floorf, truncf, roundf, sqrtf, etc.

@@ -17,7 +17,7 @@
 #include "include/private/SkMath.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTPin.h"
-#include "src/base/SkMathPriv.h"
+#include "src/core/SkMathPriv.h"
 #include "src/core/SkSwizzlePriv.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/MaskFormat.h"

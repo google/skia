@@ -9,10 +9,10 @@
 #define skgpu_graphite_DrawListTypes_DEFINED
 
 #include "include/private/SkDebug.h"
-#include "src/base/SkBlockAllocator.h"
-#include "src/base/SkEnumBitMask.h"
-#include "src/base/SkTBlockList.h"
-#include "src/base/SkTInternalLList.h"
+#include "src/core/SkBlockAllocator.h"
+#include "src/core/SkEnumBitMask.h"
+#include "src/core/SkTBlockList.h"
+#include "src/core/SkTInternalLList.h"
 #include "src/gpu/graphite/DrawOrder.h"
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawTypes.h"

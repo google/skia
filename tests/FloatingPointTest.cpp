@@ -7,7 +7,7 @@
 
 #include "include/private/SkAssert.h"
 #include "include/private/SkFloatingPoint.h"
-#include "src/base/SkUtils.h"
+#include "src/core/SkUtils.h"
 #include "tests/Test.h"
 
 #include <array>

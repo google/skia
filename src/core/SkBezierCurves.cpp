@@ -11,8 +11,8 @@
 #include "include/core/SkSpan.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkFloatingPoint.h"
-#include "src/base/SkCubics.h"
-#include "src/base/SkQuads.h"
+#include "src/core/SkCubics.h"
+#include "src/core/SkQuads.h"
 
 #include <cstddef>
 

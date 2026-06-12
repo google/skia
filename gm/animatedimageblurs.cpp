@@ -21,7 +21,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/private/SkTPin.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "tools/DecodeUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/timer/TimeUtils.h"

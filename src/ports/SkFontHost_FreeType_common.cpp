@@ -65,7 +65,7 @@ namespace {
     !defined(FT_STATIC_CAST)
 #    undef TT_SUPPORT_COLRV1
 #else
-#    include "src/base/SkScopeExit.h"
+#    include "src/core/SkScopeExit.h"
 #endif
 #endif
 

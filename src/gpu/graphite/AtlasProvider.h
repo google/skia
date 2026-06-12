@@ -9,7 +9,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkEnumBitMask.h"
+#include "src/core/SkEnumBitMask.h"
 
 #include <cstdint>
 #include <memory>

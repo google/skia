@@ -76,22 +76,15 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "base_srcs",
-    srcs = [
-        ":skdebug",
-        # TODO(kjlubick) Chromium will need a way to overwrite the malloc impls. Having malloc
-        # be a module doesn't quite work because ld complains "backward reference detected"
-        # when something in a module like pathops uses malloc without depending on it.
-        ":malloc",
-    ],
-    visibility = ["//src/base:__pkg__"],
-)
-
-skia_filegroup(
     name = "core_srcs",
     srcs = [
         ":global_init",
         ":osfile",
+        ":skdebug",
+        # TODO(kjlubick) Chromium will need a way to overwrite the malloc impls. Having malloc                                                                                           │
+        # be a module doesn't quite work because ld complains "backward reference detected"                                                                                              │
+        # when something in a module like pathops uses malloc without depending on it.
+        ":malloc",
     ],
     visibility = ["//src/core:__pkg__"],
 )
@@ -102,7 +95,6 @@ skia_cc_library(
     hdrs = ["SkFontMgr_custom.h"],
     deps = [
         ":freetype_support",
-        "//src/base",
         "//src/core",
         "//src/core:core_priv",
     ],
@@ -169,7 +161,6 @@ skia_cc_library(
     visibility = ["//:__pkg__"],
     deps = [
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
         "@expat",
     ],
@@ -189,7 +180,6 @@ skia_cc_library(
         ":fontmgr_android_parser",
         ":typeface_proxy",
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
     ],
 )
@@ -208,7 +198,6 @@ skia_cc_library(
         ":fontmgr_android_parser",
         ":typeface_proxy",
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
     ],
 )
@@ -244,7 +233,6 @@ skia_objc_library(
     deps = [
         ":coretext_typeface",
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
         "//src/utils/mac:mac_utils_priv",
     ],
@@ -265,7 +253,6 @@ skia_cc_library(
         ":fontmgr_custom",
         ":freetype_support",
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
     ],
 )
@@ -285,7 +272,6 @@ skia_cc_library(
         ":fontmgr_custom",
         ":freetype_support",
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
     ],
 )
@@ -305,7 +291,6 @@ skia_cc_library(
         ":fontmgr_custom",
         ":freetype_support",
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
     ],
 )
@@ -384,7 +369,6 @@ skia_cc_library(
         ":typeface_proxy",
         "//:core",
         "//bazel/external/fontconfig",
-        "//src/base",
         "//src/core:core_priv",
     ],
 )
@@ -436,7 +420,6 @@ skia_objc_library(
     ],
     deps = [
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
         "//src/utils/mac:mac_utils_priv",
     ],
@@ -460,7 +443,6 @@ skia_objc_library(
     visibility = ["//:__pkg__"],
     deps = [
         "//:core",
-        "//src/base",
         "//src/codec:any_decoder",
         "//src/core:core_priv",
         "//src/utils/mac:mac_utils_priv",
@@ -475,7 +457,6 @@ skia_cc_library(
     visibility = ["//:__pkg__"],
     deps = [
         "//:core",
-        "//src/base",
         "//src/codec:any_decoder",
         "//src/core:core_priv",
     ],
@@ -489,7 +470,6 @@ skia_cc_library(
     visibility = ["//:__pkg__"],
     deps = [
         "//:core",
-        "//src/base",
         "//src/codec:any_decoder",
         "//src/core:core_priv",
     ],

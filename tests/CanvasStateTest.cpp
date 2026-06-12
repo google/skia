@@ -30,7 +30,7 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkCanvasStateUtils.h"
-#include "src/base/SkTLazy.h"
+#include "src/core/SkTLazy.h"
 #include "tests/Test.h"
 
 #include <array>

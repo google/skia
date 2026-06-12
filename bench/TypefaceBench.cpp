@@ -11,9 +11,9 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkTypeface.h"
-#include "src/base/SkRandom.h"
-#include "src/base/SkUTF.h"
-#include "src/base/SkUtils.h"
+#include "src/core/SkRandom.h"
+#include "src/core/SkUTF.h"
+#include "src/core/SkUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
 // From Project Guttenberg. This is UTF-8 text.

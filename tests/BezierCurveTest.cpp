@@ -7,8 +7,8 @@
 
 #include "include/core/SkSpan.h"
 #include "include/private/SkFloatingPoint.h"
-#include "src/base/SkQuads.h"
 #include "src/core/SkBezierCurves.h"
+#include "src/core/SkQuads.h"
 #include "tests/Test.h"
 
 #include <algorithm>

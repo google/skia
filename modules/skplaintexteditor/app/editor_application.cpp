@@ -8,7 +8,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkSurface.h"
-#include "src/base/SkTime.h"
+#include "src/core/SkTime.h"
 
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/Window.h"

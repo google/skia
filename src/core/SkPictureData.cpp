@@ -17,7 +17,7 @@
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkAutoMalloc.h"
+#include "src/core/SkAutoMalloc.h"
 #include "src/core/SkDebugUtils.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkPictureRecord.h"

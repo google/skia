@@ -52,7 +52,6 @@ skia_cc_library(
         "//:core",
         "//modules/skottie",
         "//modules/skresources",
-        "//src/base",
     ],
 )
 
@@ -74,7 +73,6 @@ skia_cc_library(
     deps = [
         "//:core",
         "//modules/skottie",
-        "//src/base",
         "//tools/skui",
     ],
 )
@@ -98,7 +96,6 @@ skia_cc_library(
         "//modules/skottie:skottie_priv",
         "//modules/skresources",
         "//modules/skshaper:skshaper_core",
-        "//src/base",
         "//src/core:core_priv",
     ],
 )

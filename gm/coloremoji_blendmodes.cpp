@@ -27,7 +27,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradient.h"
 #include "include/utils/SkTextUtils.h"
-#include "src/base/SkUTF.h"
+#include "src/core/SkUTF.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 

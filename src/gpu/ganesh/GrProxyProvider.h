@@ -11,7 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkSpinlock.h"
+#include "src/core/SkSpinlock.h"
 #include "src/core/SkTDynamicHash.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/ResourceKey.h"

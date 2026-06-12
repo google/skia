@@ -7,7 +7,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSize.h"
 #include "include/utils/mac/SkCGUtils.h"
-#include "src/base/SkTime.h"
+#include "src/core/SkTime.h"
 
 #import <UIKit/UIKit.h>
 

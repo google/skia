@@ -13,10 +13,10 @@
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkMath.h"
 #include "include/private/SkTPin.h"
-#include "src/base/SkEndian.h"
-#include "src/base/SkHalf.h"
-#include "src/base/SkMathPriv.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkEndian.h"
+#include "src/core/SkHalf.h"
+#include "src/core/SkMathPriv.h"
+#include "src/core/SkRandom.h"
 #include "tests/Test.h"
 
 #include <array>

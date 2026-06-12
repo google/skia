@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkExecutor.h"
-#include "src/base/SkSpinlock.h"
+#include "src/core/SkSpinlock.h"
 #include "src/core/SkTaskGroup.h"
 #include "tests/Test.h"
 

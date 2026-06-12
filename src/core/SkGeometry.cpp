@@ -15,11 +15,11 @@
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkCubics.h"
-#include "src/base/SkUtils.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkBezierCurves.h"
+#include "src/core/SkCubics.h"
 #include "src/core/SkPointPriv.h"
+#include "src/core/SkUtils.h"
+#include "src/core/SkVx.h"
 
 #include <algorithm>
 #include <array>

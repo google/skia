@@ -21,14 +21,14 @@
 #include "modules/skcms/skcms.h"
 #include "rust/png/FFI.rs.h"
 #include "rust/common/SpanUtils.h"
-#include "src/base/SkAutoMalloc.h"
-#include "src/base/SkSafeMath.h"
 #include "src/codec/SkFrameHolder.h"
 #include "src/codec/SkParseEncodedOrigin.h"
 #include "src/codec/SkPngPriv.h"
 #include "src/codec/SkSwizzler.h"
+#include "src/core/SkAutoMalloc.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpList.h"
+#include "src/core/SkSafeMath.h"
 #include "third_party/rust/cxx/v1/cxx.h"
 
 #ifdef __clang__

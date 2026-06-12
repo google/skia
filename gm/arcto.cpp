@@ -18,8 +18,8 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/utils/SkParsePath.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkOSFile.h"
+#include "src/core/SkRandom.h"
 
 #include <stdio.h>
 

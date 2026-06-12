@@ -9,7 +9,7 @@
 #include "include/private/SkMutex.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/chromium/SkDiscardableMemory.h"
-#include "src/base/SkTInternalLList.h"
+#include "src/core/SkTInternalLList.h"
 #include "src/lazy/SkDiscardableMemoryPool.h"
 
 using namespace skia_private;

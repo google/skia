@@ -9,7 +9,7 @@
 
 #include "include/core/SkTypes.h"
 #include "modules/skunicode/include/SkUnicode.h"
-#include "src/base/SkUTF.h"
+#include "src/core/SkUTF.h"
 
 class SKUNICODE_API SkUnicodeHardCodedCharProperties : public SkUnicode {
 public:

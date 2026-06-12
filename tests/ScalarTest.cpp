@@ -11,7 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkFloatBits.h"
+#include "src/core/SkFloatBits.h"
 #include "tests/Test.h"
 
 #include <array>

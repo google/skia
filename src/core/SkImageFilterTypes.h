@@ -26,7 +26,7 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkEnumBitMask.h"
+#include "src/core/SkEnumBitMask.h"
 #include "src/core/SkSpecialImage.h"
 
 #include <cstdint>

@@ -8,7 +8,7 @@
 #include "src/gpu/SkBackingFit.h"
 
 #include "include/private/SkMath.h"
-#include "src/base/SkMathPriv.h"
+#include "src/core/SkMathPriv.h"
 
 #include <algorithm>
 

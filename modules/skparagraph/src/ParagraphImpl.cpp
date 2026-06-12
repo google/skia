@@ -21,8 +21,8 @@
 #include "modules/skparagraph/src/TextLine.h"
 #include "modules/skparagraph/src/TextWrapper.h"
 #include "modules/skunicode/include/SkUnicode.h"
-#include "src/base/SkUTF.h"
 #include "src/core/SkTextBlobPriv.h"
+#include "src/core/SkUTF.h"
 
 #include <algorithm>
 #include <cfloat>

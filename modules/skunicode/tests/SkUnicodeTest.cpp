@@ -9,7 +9,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
-#include "src/base/SkBitmaskEnum.h"
+#include "src/core/SkBitmaskEnum.h"
 #include "tests/Test.h"
 
 #include "modules/skunicode/include/SkUnicode.h"

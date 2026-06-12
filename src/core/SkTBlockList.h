@@ -11,7 +11,7 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkBlockAllocator.h"
+#include "src/core/SkBlockAllocator.h"
 
 #include <algorithm>
 #include <cstring>

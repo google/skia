@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/base/SkMSAN.h"
+#include "src/core/SkMSAN.h"
 #include "src/core/SkMemset.h"
 #include <cstddef>
 #include <cstdint>

@@ -6,7 +6,7 @@
  */
 
 
-#include "src/base/SkBase64.h"
+#include "src/core/SkBase64.h"
 
 #include "include/private/SkAssert.h"
 

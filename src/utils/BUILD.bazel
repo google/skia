@@ -92,7 +92,6 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
     ],
 )
@@ -114,7 +113,6 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
-        "//src/base",
     ],
 )
 
@@ -179,6 +177,5 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
-        "//src/base",
     ],
 )

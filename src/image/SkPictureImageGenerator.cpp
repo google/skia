@@ -18,7 +18,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkSize.h"
-#include "src/base/SkTLazy.h"
+#include "src/core/SkTLazy.h"
 #include "src/image/SkImageGeneratorPriv.h"
 
 #include <memory>

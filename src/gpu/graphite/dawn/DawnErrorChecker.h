@@ -8,7 +8,7 @@
 #ifndef skgpu_graphite_DawnErrorChecker_DEFINED
 #define skgpu_graphite_DawnErrorChecker_DEFINED
 
-#include "src/base/SkEnumBitMask.h"
+#include "src/core/SkEnumBitMask.h"
 
 #include "src/gpu/graphite/dawn/DawnAsyncWait.h"
 

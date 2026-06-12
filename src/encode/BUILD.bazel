@@ -77,7 +77,6 @@ skia_cc_library(
     deps = [
         "//:core",
         "//modules/skcms",
-        "//src/base",
         "//src/core:core_priv",
     ],
 )
@@ -97,7 +96,6 @@ skia_cc_library(
         ":icc_support",
         "//:core",
         "//modules/skcms",
-        "//src/base",
         "//src/codec:any_decoder",
         "//src/core:core_priv",
     ],
@@ -123,7 +121,6 @@ skia_cc_library(
         ":encoder_common",
         "//:core",
         "//modules/skcms",
-        "//src/base",
         "//src/codec:any_decoder",
         "//src/core:core_priv",
     ],
@@ -151,7 +148,6 @@ skia_cc_library(
         ":png_encode_base",
         "//:core",
         "//modules/skcms",
-        "//src/base",
         "//src/codec:any_decoder",
         "//src/core:core_priv",
         "@libpng",
@@ -184,7 +180,6 @@ skia_cc_library(
         "//rust/common:ffi_utils",
         "//rust/png:cxx_bridge",
         "//rust/png:ffi_cpp",
-        "//src/base",
         "//src/codec:any_decoder",
         "//src/core:core_priv",
         "@crates//:cxx_cc",
@@ -208,7 +203,6 @@ skia_cc_library(
     deps = [
         ":encoder_common",
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
         "@libjpeg_turbo",
     ],
@@ -229,7 +223,6 @@ skia_cc_library(
     deps = [
         ":encoder_common",
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
         "@libwebp",
     ],

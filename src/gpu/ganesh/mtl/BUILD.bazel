@@ -99,7 +99,6 @@ skia_objc_library(
     visibility = ["//:__pkg__"],
     deps = [
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
         "//src/gpu",
         "//src/gpu/ganesh",
@@ -134,7 +133,6 @@ skia_objc_library(
     visibility = ["//tools/window:__pkg__"],
     deps = [
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
         "//src/gpu",
         "//src/gpu/ganesh:ganesh_TEST_UTIL",

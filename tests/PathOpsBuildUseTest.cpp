@@ -7,7 +7,7 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
 #include "include/pathops/SkPathOps.h"
-#include "src/base/SkFloatBits.h"
+#include "src/core/SkFloatBits.h"
 #include "tests/PathOpsExtendedTest.h"
 #include "tests/Test.h"
 

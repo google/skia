@@ -21,7 +21,7 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkTFitsIn.h"
-#include "src/base/SkTLazy.h"
+#include "src/core/SkTLazy.h"
 #include "src/image/SkImageGeneratorPriv.h"
 #include "src/image/SkImage_Lazy.h"
 #include "src/image/SkPictureImageGenerator.h"

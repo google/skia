@@ -12,7 +12,7 @@
 #include "include/core/SkStrokeRec.h"
 #include "include/private/SkAssert.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkMathPriv.h"
+#include "src/core/SkMathPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrPaint.h"

@@ -9,7 +9,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/gpu/tessellate/CullTest.h"
 #include "tests/Test.h"
 

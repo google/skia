@@ -23,7 +23,6 @@ skia_cc_library(
         "//:png_decode_codec",
         "//modules/skresources",
         "//modules/skshaper:skshaper_core",
-        "//src/base",
         "//src/core:core_priv",
         "//src/xml",
     ],

@@ -17,7 +17,7 @@
 #include "include/gpu/ganesh/mtl/GrMtlDirectContext.h"
 #include "include/gpu/ganesh/mtl/GrMtlTypes.h"
 #include "include/gpu/ganesh/mtl/SkSurfaceMetal.h"
-#include "src/base/SkMathPriv.h"
+#include "src/core/SkMathPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/image/SkImage_Base.h"

@@ -14,7 +14,7 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/private/SkPixelStorage.h"
 #include "include/private/SkTArray.h"
-#include "src/base/SkSpinlock.h"
+#include "src/core/SkSpinlock.h"
 #include "src/image/SkImage_Base.h"
 
 #include <string_view>

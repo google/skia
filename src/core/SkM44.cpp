@@ -10,10 +10,10 @@
 #include "include/core/SkRect.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkFloatingPoint.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkMatrixInvert.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkVx.h"
 
 bool SkM44::operator==(const SkM44& other) const {
     if (this == &other) {

@@ -12,9 +12,9 @@
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkSafeMath.h"
-#include "src/base/SkUTF.h"
-#include "src/base/SkUtils.h"
+#include "src/core/SkSafeMath.h"
+#include "src/core/SkUTF.h"
+#include "src/core/SkUtils.h"
 
 #include <algorithm>
 #include <cstdio>

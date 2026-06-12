@@ -7,7 +7,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/ganesh/gl/GrGLAssembleInterface.h"
 #include "include/gpu/ganesh/gl/GrGLInterface.h"
-#include "src/base/SkLeanWindows.h"
+#include "src/core/SkLeanWindows.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 
 #include <memory>

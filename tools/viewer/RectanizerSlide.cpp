@@ -9,8 +9,8 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
 #include "include/private/SkTArray.h"
-#include "src/base/SkRandom.h"
-#include "src/base/SkUTF.h"
+#include "src/core/SkRandom.h"
+#include "src/core/SkUTF.h"
 #include "tools/viewer/Slide.h"
 #if defined(SK_GANESH) || defined(SK_GRAPHITE)
 #include "src/gpu/RectanizerPow2.h"

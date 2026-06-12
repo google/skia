@@ -9,12 +9,12 @@
 
 #include "include/private/SkMutex.h"
 #include "include/private/SkOnce.h"
-#include "src/base/SkTInternalLList.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkTDynamicHash.h"
 #include "src/core/SkTHash.h"
+#include "src/core/SkTInternalLList.h"
 
 #include <vector>
 

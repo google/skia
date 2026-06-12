@@ -10,7 +10,7 @@
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkAssert.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrCaps.h"

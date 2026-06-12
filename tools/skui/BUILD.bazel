@@ -6,8 +6,6 @@ package(
 
 licenses(["notice"])
 
-# TODO(kjlubick) make this depend on //src/base after migrating all users
-# of this off the legacy targets
 skia_cc_library(
     name = "skui",
     hdrs = [
@@ -16,5 +14,5 @@ skia_cc_library(
         "ModifierKey.h",
     ],
     visibility = ["//:__subpackages__"],
-    deps = ["//src/base"],
+    deps = ["//src/core:core_priv"],
 )

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/base/SkBlockAllocator.h"
+#include "src/core/SkBlockAllocator.h"
 
 #include "include/private/SkDebug.h"
 #include "include/private/SkTo.h"

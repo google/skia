@@ -11,9 +11,9 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkColorPriv.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkRandom.h"
 
 enum class PathIterType {
     kOldIter,

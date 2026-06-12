@@ -15,7 +15,7 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTPin.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkMathPriv.h"
+#include "src/core/SkMathPriv.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/MaskFormat.h"
 #include "src/gpu/SkBackingFit.h"

@@ -51,7 +51,6 @@
 #include "include/private/SkTo.h"
 #include "include/private/chromium/Slug.h"  // IWYU pragma: keep
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkDraw.h"
@@ -62,6 +61,7 @@
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkStrikeCache.h"
+#include "src/core/SkTLazy.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/gpu/SkBackingFit.h"

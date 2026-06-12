@@ -17,7 +17,7 @@
 #include "include/effects/SkGradient.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"

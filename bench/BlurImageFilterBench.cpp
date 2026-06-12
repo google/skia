@@ -12,7 +12,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/effects/SkImageFilters.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 
 #define FILTER_WIDTH_SMALL  32
 #define FILTER_HEIGHT_SMALL 32

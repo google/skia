@@ -18,8 +18,8 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkColorPriv.h"
+#include "src/core/SkRandom.h"
 
 #include "src/core/SkDraw.h"
 #include "src/core/SkMatrixPriv.h"

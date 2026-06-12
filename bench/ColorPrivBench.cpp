@@ -6,8 +6,8 @@
  */
 #include "bench/Benchmark.h"
 #include "include/core/SkString.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkColorData.h"
+#include "src/core/SkRandom.h"
 
 template <bool kFast, bool kScale>
 class FourByteInterpBench : public Benchmark {

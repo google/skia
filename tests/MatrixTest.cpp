@@ -16,10 +16,10 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkMalloc.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixUtils.h"
 #include "src/core/SkPointPriv.h"
+#include "src/core/SkRandom.h"
 #include "tests/Test.h"
 
 #include <cstring>

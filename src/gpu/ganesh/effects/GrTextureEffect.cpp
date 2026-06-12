@@ -15,7 +15,7 @@
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkMath.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"

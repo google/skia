@@ -36,7 +36,6 @@ skia_objc_library(
     deps = [
         ":mac_utils",
         "//:core",
-        "//src/base",
     ],
 )
 
@@ -57,7 +56,6 @@ skia_objc_library(
     visibility = ["//:__subpackages__"],
     deps = [
         "//:core",
-        "//src/base",
         "//src/encode:icc_encode",
     ],
 )

@@ -11,7 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
-#include "src/base/SkUTF.h"
+#include "src/core/SkUTF.h"
 
 #if !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
 #include "include/core/SkFontMgr.h"

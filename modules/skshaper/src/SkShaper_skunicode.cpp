@@ -11,7 +11,7 @@
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/skshaper/include/SkShaper_skunicode.h"
 #include "modules/skunicode/include/SkUnicode.h"
-#include "src/base/SkUTF.h"
+#include "src/core/SkUTF.h"
 
 #include <cstddef>
 #include <cstdint>

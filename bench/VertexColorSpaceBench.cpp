@@ -9,9 +9,9 @@
 
 #include "include/core/SkString.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
-#include "src/base/SkHalf.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkHalf.h"
+#include "src/core/SkRandom.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"

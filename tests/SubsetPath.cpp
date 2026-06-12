@@ -9,7 +9,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkDebug.h"
-#include "src/base/SkMathPriv.h"
+#include "src/core/SkMathPriv.h"
 #include "src/core/SkPathPriv.h"
 #include "tests/SubsetPath.h"
 

@@ -15,9 +15,9 @@
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkParse.h"
-#include "src/base/SkAutoLocaleSetter.h"
-#include "src/base/SkUTF.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/core/SkAutoLocaleSetter.h"
+#include "src/core/SkUTF.h"
 
 #include <charconv>
 #include <cmath>

@@ -15,7 +15,7 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkTypeTraits.h"
-#include "src/base/SkTBlockList.h"
+#include "src/core/SkTBlockList.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"

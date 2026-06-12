@@ -9,11 +9,11 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskCache.h"
 #include "src/core/SkResourceCache.h"
+#include "src/core/SkTLazy.h"
 #include "tests/Test.h"
 
 #include <cstring>

@@ -30,7 +30,6 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkTemplates.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkBlitter_A8.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkCachedData.h"
@@ -41,6 +40,7 @@
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkResourceCache.h"
+#include "src/core/SkTLazy.h"
 #include "src/core/SkWriteBuffer.h"
 
 #include <algorithm>

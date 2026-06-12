@@ -8,7 +8,7 @@
 #include "src/sksl/ir/SkSLSetting.h"
 
 #include "include/core/SkTypes.h"
-#include "src/base/SkNoDestructor.h"
+#include "src/core/SkNoDestructor.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"

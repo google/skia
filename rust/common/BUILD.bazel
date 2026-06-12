@@ -56,7 +56,7 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
-        "//src/base",
+        "//src/core:core_priv",
         "@crates//:cxx_cc",
     ],
 )

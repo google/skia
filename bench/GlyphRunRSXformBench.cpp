@@ -13,7 +13,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
 #include "include/private/SkTDArray.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "tools/fonts/FontToolUtils.h"
 
 // Creates an RSX form blob from the the randomized fXforms

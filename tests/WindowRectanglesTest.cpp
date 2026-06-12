@@ -7,7 +7,7 @@
 
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/ganesh/GrWindowRectangles.h"
 #include "tests/Test.h"

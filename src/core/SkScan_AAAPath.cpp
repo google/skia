@@ -16,7 +16,6 @@
 #include "include/private/SkMath.h"
 #include "include/private/SkSafe32.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkTSort.h"
 #include "src/core/SkAlphaRuns.h"
 #include "src/core/SkAnalyticEdge.h"
 #include "src/core/SkBlitter.h"
@@ -25,6 +24,7 @@
 #include "src/core/SkPathRaw.h"
 #include "src/core/SkScan.h"
 #include "src/core/SkScanPriv.h"
+#include "src/core/SkTSort.h"
 
 #include <algorithm>
 #include <cstdint>

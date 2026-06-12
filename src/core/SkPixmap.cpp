@@ -13,15 +13,15 @@
 #include "include/core/SkUnPreMultiply.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkTPin.h"
-#include "src/base/SkHalf.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkColorPriv.h"
 #include "src/core/SkConvertPixels.h"
+#include "src/core/SkHalf.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkReadPixelsRec.h"
 #include "src/core/SkSwizzlePriv.h"
+#include "src/core/SkVx.h"
 #include "src/opts/SkMemset_opts.h"
 
 #include <cstdint>

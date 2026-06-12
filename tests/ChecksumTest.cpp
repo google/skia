@@ -8,8 +8,8 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkAlign.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkChecksum.h"
+#include "src/core/SkRandom.h"
 #include "tests/Test.h"
 
 #include <cstddef>

@@ -3,7 +3,7 @@
 #ifndef skui_modifierkey_defined
 #define skui_modifierkey_defined
 
-#include "src/base/SkBitmaskEnum.h"
+#include "src/core/SkBitmaskEnum.h"
 
 namespace skui {
 enum class ModifierKey {

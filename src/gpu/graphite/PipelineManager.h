@@ -9,8 +9,8 @@
 #define skgpu_graphite_PipelineManager_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "src/base/SkEnumBitMask.h"
-#include "src/base/SkSpinlock.h"
+#include "src/core/SkEnumBitMask.h"
+#include "src/core/SkSpinlock.h"
 #include "src/core/SkTHash.h"
 
 namespace skgpu {

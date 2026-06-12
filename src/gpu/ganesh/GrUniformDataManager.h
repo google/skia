@@ -10,7 +10,7 @@
 
 #include "include/private/SkDebug.h"
 #include "include/private/SkTArray.h"
-#include "src/base/SkAutoMalloc.h"
+#include "src/core/SkAutoMalloc.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 
 #include <cstdint>

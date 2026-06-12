@@ -9,7 +9,7 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkRRect.h"
 #include "include/private/SkAssert.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "tools/viewer/Slide.h"
 
 #include <chrono>

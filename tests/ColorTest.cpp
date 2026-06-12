@@ -10,9 +10,9 @@
 #include "include/core/SkUnPreMultiply.h"
 #include "include/private/SkCPUTypes.h"
 #include "include/private/chromium/SkPMColor.h"
-#include "src/base/SkMathPriv.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkColorData.h"
+#include "src/core/SkMathPriv.h"
+#include "src/core/SkRandom.h"
 
 #include "tests/Test.h"
 

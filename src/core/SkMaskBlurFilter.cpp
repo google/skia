@@ -12,10 +12,10 @@
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorPriv.h"
 #include "src/core/SkGaussFilter.h"
+#include "src/core/SkVx.h"
 
 #include <cmath>
 #include <climits>

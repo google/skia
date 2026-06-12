@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/base/SkSafeMath.h"
+#include "src/core/SkSafeMath.h"
 
 size_t SkSafeMath::Add(size_t x, size_t y) {
     SkSafeMath tmp;

@@ -8,7 +8,7 @@
 #define SkWGL_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "src/base/SkLeanWindows.h"
+#include "src/core/SkLeanWindows.h"
 
 /**
  * Working with WGL extensions can be a pain. Among the reasons is that you must

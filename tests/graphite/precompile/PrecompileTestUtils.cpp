@@ -12,7 +12,7 @@
 #include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
 #include "include/gpu/graphite/precompile/PrecompileRuntimeEffect.h"
 #include "include/gpu/graphite/precompile/PrecompileShader.h"
-#include "src/base/SkMathPriv.h"
+#include "src/core/SkMathPriv.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
@@ -27,7 +27,7 @@
 
 #if defined (SK_VULKAN)
 #include "include/gpu/vk/VulkanTypes.h"
-#include "src/base/SkBase64.h"
+#include "src/core/SkBase64.h"
 #include "src/gpu/graphite/vk/VulkanYcbcrConversion.h"
 #endif // SK_VULKAN
 

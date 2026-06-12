@@ -8,8 +8,8 @@
 #include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMaskFilter.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkColorPriv.h"
+#include "src/core/SkRandom.h"
 #include "tools/viewer/Slide.h"
 
 #include <iterator>

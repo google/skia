@@ -13,9 +13,9 @@
 #include "include/private/SkAssert.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkTime.h"
-#include "src/base/SkUtils.h"
 #include "src/core/SkMD5.h"
+#include "src/core/SkTime.h"
+#include "src/core/SkUtils.h"
 #include "src/pdf/SkPDFTypes.h"
 #include "src/pdf/SkPDFUtils.h"
 

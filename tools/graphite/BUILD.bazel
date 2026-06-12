@@ -37,7 +37,6 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
         "//src/gpu/graphite:graphite_TEST_UTIL",
         "//tools/gpu:shared_utils",

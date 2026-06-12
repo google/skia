@@ -10,8 +10,8 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkMalloc.h"
-#include "src/base/SkAutoMalloc.h"
-#include "src/base/SkEndian.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkEndian.h"
 
 #include <algorithm>
 #include <cstdint>

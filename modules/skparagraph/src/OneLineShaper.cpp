@@ -3,7 +3,7 @@
 
 #include "modules/skparagraph/src/Iterators.h"
 #include "modules/skshaper/include/SkShaper_harfbuzz.h"
-#include "src/base/SkUTF.h"
+#include "src/core/SkUTF.h"
 
 #include <algorithm>
 #include <cstdint>

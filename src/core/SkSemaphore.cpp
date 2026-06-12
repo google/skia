@@ -22,7 +22,7 @@
         void wait() { dispatch_semaphore_wait(fSemaphore, DISPATCH_TIME_FOREVER); }
     };
 #elif defined(SK_BUILD_FOR_WIN)
-#include "src/base/SkLeanWindows.h"
+#include "src/core/SkLeanWindows.h"
 
     struct SkSemaphore::OSSemaphore {
         HANDLE fSemaphore;

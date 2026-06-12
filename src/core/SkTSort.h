@@ -9,7 +9,7 @@
 #define SkTSort_DEFINED
 
 #include "include/private/SkTo.h"
-#include "src/base/SkMathPriv.h"
+#include "src/core/SkMathPriv.h"
 
 #include <cstddef>
 #include <utility>

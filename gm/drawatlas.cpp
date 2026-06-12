@@ -35,7 +35,7 @@
 #include "include/core/SkVertices.h"
 #include "include/effects/SkGradient.h"
 #include "include/private/SkTemplates.h"
-#include "src/base/SkAutoMalloc.h"
+#include "src/core/SkAutoMalloc.h"
 #include "src/core/SkFontPriv.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"

@@ -10,9 +10,9 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkDebug.h"
-#include "src/base/SkCubics.h"
-#include "src/base/SkVx.h"
+#include "src/core/SkCubics.h"
 #include "src/core/SkGeometry.h"
+#include "src/core/SkVx.h"
 #include "tests/Test.h"
 
 static float accurate_t(float A, float B, float C, float D) {

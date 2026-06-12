@@ -18,10 +18,10 @@
 #include "modules/skunicode/src/SkBidiFactory_icu_full.h"
 #include "modules/skunicode/src/SkUnicode_icu_bidi.h"
 #include "modules/skunicode/src/SkUnicode_icupriv.h"
-#include "src/base/SkBitmaskEnum.h"
-#include "src/base/SkUTF.h"
+#include "src/core/SkBitmaskEnum.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkTHash.h"
+#include "src/core/SkUTF.h"
 
 #include <unicode/ubrk.h>
 #include <unicode/uchar.h>

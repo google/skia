@@ -19,7 +19,6 @@
 #include "include/private/SkMacros.h"
 #include "include/private/SkMath.h"
 #include "include/private/SkSafe32.h"
-#include "src/base/SkTSort.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkEdge.h"
 #include "src/core/SkEdgeBuilder.h"
@@ -30,6 +29,7 @@
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkScan.h"
 #include "src/core/SkScanPriv.h"
+#include "src/core/SkTSort.h"
 
 #include <algorithm>
 #include <cmath>

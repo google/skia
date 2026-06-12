@@ -9,7 +9,7 @@
 
 #include "include/private/SkAssert.h"
 #include "include/private/SkTemplates.h"
-#include "src/base/SkHalf.h"
+#include "src/core/SkHalf.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/ganesh/GrShaderVar.h"
 

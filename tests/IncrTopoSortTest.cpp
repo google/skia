@@ -11,7 +11,7 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
-#include "src/base/SkTSort.h"
+#include "src/core/SkTSort.h"
 #include "tests/Test.h"
 
 #include <algorithm>

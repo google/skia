@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/base/SkSafeMath.h"
+#include "src/core/SkSafeMath.h"
 #include "tests/Test.h"
 
 #include <cstddef>

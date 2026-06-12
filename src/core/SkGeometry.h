@@ -14,7 +14,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkFloatingPoint.h"
-#include "src/base/SkVx.h"
+#include "src/core/SkVx.h"
 
 #include <cstring>
 

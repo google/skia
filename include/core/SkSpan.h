@@ -30,7 +30,6 @@
 #ifdef SK_USE_LEGACY_SKSPAN
 
 #include "include/private/SkAssert.h"
-#include "include/private/SkDebug.h"
 #include "include/private/SkTo.h"
 
 #include <cstddef>

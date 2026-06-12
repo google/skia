@@ -22,11 +22,11 @@
 #include "include/private/SkExif.h"
 #include "include/private/SkGainmapInfo.h"
 #include "include/private/SkXmp.h"
-#include "src/base/SkEndian.h"
 #include "src/codec/SkJpegMultiPicture.h"
 #include "src/codec/SkJpegSegmentScan.h"
 #include "src/codec/SkJpegSourceMgr.h"
 #include "src/codec/SkJpegXmp.h"
+#include "src/core/SkEndian.h"
 #else
 struct SkGainmapInfo;
 #endif  // SK_CODEC_DECODES_JPEG_GAINMAPS

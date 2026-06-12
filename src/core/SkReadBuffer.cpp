@@ -23,11 +23,11 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkMalloc.h"
-#include "src/base/SkAutoMalloc.h"
-#include "src/base/SkMathPriv.h"
-#include "src/base/SkSafeMath.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkMathPriv.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMipmapBuilder.h"
+#include "src/core/SkSafeMath.h"
 #include "src/core/SkWriteBuffer.h"
 
 #include <memory>

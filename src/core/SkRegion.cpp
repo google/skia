@@ -12,9 +12,9 @@
 #include "include/private/SkMath.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkBuffer.h"
-#include "src/base/SkSafeMath.h"
+#include "src/core/SkBuffer.h"
 #include "src/core/SkRegionPriv.h"
+#include "src/core/SkSafeMath.h"
 
 #include <algorithm>
 #include <atomic>

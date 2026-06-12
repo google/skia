@@ -17,8 +17,8 @@
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkSafeMath.h"
 #include "src/core/SkOSFile.h"
+#include "src/core/SkSafeMath.h"
 #include "src/core/SkStreamPriv.h"
 
 #include <algorithm>

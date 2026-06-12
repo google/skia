@@ -16,8 +16,6 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkUtils.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkBlitMask.h"
 #include "src/core/SkBlitRow.h"
 #include "src/core/SkBlitter.h"
@@ -26,6 +24,8 @@
 #include "src/core/SkCoreBlitters.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMemset.h"
+#include "src/core/SkUtils.h"
+#include "src/core/SkVx.h"
 #include "src/shaders/SkShaderBase.h"
 
 #include <algorithm>

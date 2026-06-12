@@ -14,8 +14,8 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTLogic.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkColorData.h"
+#include "src/core/SkVx.h"
 
 #include <cstddef>
 #include <optional>

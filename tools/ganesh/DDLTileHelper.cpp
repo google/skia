@@ -17,7 +17,7 @@
 #include "include/private/chromium/GrDeferredDisplayListRecorder.h"
 #include "include/private/chromium/GrSurfaceCharacterization.h"
 #include "include/private/chromium/SkImageChromium.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDeferredDisplayListPriv.h"

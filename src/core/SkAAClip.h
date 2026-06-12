@@ -11,7 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkRect.h"
 #include "include/private/SkAssert.h"
-#include "src/base/SkAutoMalloc.h"
+#include "src/core/SkAutoMalloc.h"
 #include "src/core/SkBlitter.h"
 #include <cstdint>
 #include "include/private/SkDebug.h"

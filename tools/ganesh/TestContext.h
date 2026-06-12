@@ -13,7 +13,7 @@
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTemplates.h"
-#include "src/base/SkScopeExit.h"
+#include "src/core/SkScopeExit.h"
 
 class GrDirectContext;
 struct GrContextOptions;

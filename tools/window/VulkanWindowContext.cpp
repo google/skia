@@ -19,7 +19,7 @@
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "src/gpu/GpuTypesPriv.h"
 #include "include/gpu/vk/VulkanMutableTextureState.h"
-#include "src/base/SkAutoMalloc.h"
+#include "src/core/SkAutoMalloc.h"
 #include "src/gpu/ganesh/vk/GrVkImage.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
 #include "src/gpu/vk/VulkanInterface.h"

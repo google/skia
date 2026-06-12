@@ -9,7 +9,7 @@
 #define SKSL_MODIFIERFLAGS
 
 #include "include/private/SkTo.h"
-#include "src/base/SkEnumBitMask.h"
+#include "src/core/SkEnumBitMask.h"
 
 #include <string>
 

@@ -12,7 +12,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTFitsIn.h"
 #include "modules/skshaper/include/SkShaper.h"
-#include "src/base/SkUTF.h"
+#include "src/core/SkUTF.h"
 #include <limits.h>
 #include <algorithm>
 #include <cstring>

@@ -8,9 +8,9 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkRandom.h"
 
 class GeometryBench : public Benchmark {
 public:

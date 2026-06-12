@@ -11,7 +11,7 @@
 
 #include "include/private/SkAssert.h"
 #include "rust/common/SpanUtils.h"
-#include "src/base/SkSafeMath.h"
+#include "src/core/SkSafeMath.h"
 #include "third_party/rust/cxx/v1/cxx.h"
 
 namespace rust {

@@ -14,7 +14,7 @@
 #include "include/private/SkTPin.h"
 #include "include/utils/SkParse.h"
 #include "modules/svg/include/SkSVGTypes.h"
-#include "src/base/SkUTF.h"
+#include "src/core/SkUTF.h"
 
 #include <math.h>
 #include <utility>

@@ -6,11 +6,11 @@
  */
 
 #include "include/private/SkTo.h"
-#include "src/base/SkHalf.h"
-#include "src/base/SkUtils.h"
+#include "src/core/SkHalf.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineContextUtils.h"
+#include "src/core/SkUtils.h"
 #include "src/gpu/Swizzle.h"
 #include "src/sksl/tracing/SkSLTraceHook.h"
 #include "tests/Test.h"

@@ -7,8 +7,8 @@
 
 #include "include/private/SkASAN.h"  // IWYU pragma: keep
 #include "include/private/SkTArray.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkFixedArray.h"
+#include "src/core/SkRandom.h"
 #include "tests/Test.h"
 
 #include <array>

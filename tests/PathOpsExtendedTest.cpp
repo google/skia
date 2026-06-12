@@ -23,7 +23,7 @@
 #include "include/private/SkMutex.h"
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkParsePath.h"
-#include "src/base/SkFloatBits.h"
+#include "src/core/SkFloatBits.h"
 #include "src/core/SkPathPriv.h"
 #include "src/pathops/SkPathOpsCommon.h"
 #include "src/pathops/SkPathOpsDebug.h"

@@ -9,7 +9,7 @@
 #define skgpu_graphite_ThreadSafeResourceProvider_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "src/base/SkSpinlock.h"
+#include "src/core/SkSpinlock.h"
 #include "src/gpu/GpuTypesPriv.h"
 
 #include <memory>

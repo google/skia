@@ -10,7 +10,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 
 static constexpr float kStrokeWidth = 100;
 static constexpr int kTestWidth = 120 * 4;

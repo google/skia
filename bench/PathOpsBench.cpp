@@ -12,7 +12,7 @@
 #include "include/core/SkString.h"
 #include "include/pathops/SkPathOps.h"
 #include "include/private/SkTArray.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 
 class PathOpsBench : public Benchmark {
     SkString    fName;

@@ -25,8 +25,8 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradient.h"
 #include "include/private/SkTDArray.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkColorPriv.h"
+#include "src/core/SkTLazy.h"
 #include "tools/GpuToolUtils.h"
 #include "tools/ToolUtils.h"
 

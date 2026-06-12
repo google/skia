@@ -10,7 +10,7 @@
 
 #include "include/private/SkAssert.h"
 #include "include/private/SkFixed.h"
-#include "src/base/SkFloatBits.h"
+#include "src/core/SkFloatBits.h"
 
 #include <cstdint>
 

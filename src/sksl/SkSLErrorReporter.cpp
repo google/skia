@@ -7,7 +7,7 @@
 
 #include "src/sksl/SkSLErrorReporter.h"
 
-#include "src/base/SkStringView.h"
+#include "src/core/SkStringView.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLPosition.h"
 

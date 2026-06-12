@@ -6,7 +6,7 @@
  */
 
 #include "bench/Benchmark.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
 #include "src/gpu/ganesh/geometry/GrQuadUtils.h"
 

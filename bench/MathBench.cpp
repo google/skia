@@ -10,9 +10,9 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkString.h"
 #include "include/private/SkFixed.h"
-#include "src/base/SkMathPriv.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkColorData.h"
+#include "src/core/SkMathPriv.h"
+#include "src/core/SkRandom.h"
 
 class MathBench : public Benchmark {
     enum {
@@ -367,7 +367,7 @@ DEF_BENCH( return new FixedMathBench(); )
 
 //////////////////////////////////////////////////////////////
 
-#include "src/base/SkFloatBits.h"
+#include "src/core/SkFloatBits.h"
 class Floor2IntBench : public Benchmark {
     enum {
         ARRAY = 1000,

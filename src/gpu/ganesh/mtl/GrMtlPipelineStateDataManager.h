@@ -8,7 +8,7 @@
 #ifndef GrMtlPipelineStateDataManager_DEFINED
 #define GrMtlPipelineStateDataManager_DEFINED
 
-#include "src/base/SkAutoMalloc.h"
+#include "src/core/SkAutoMalloc.h"
 #include "src/gpu/ganesh/GrUniformDataManager.h"
 #include "src/gpu/ganesh/mtl/GrMtlUniformHandler.h"
 

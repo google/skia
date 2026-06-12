@@ -36,7 +36,7 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkSpinlock.h"
+#include "src/core/SkSpinlock.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"

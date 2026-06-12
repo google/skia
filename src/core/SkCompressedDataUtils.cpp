@@ -14,9 +14,9 @@
 #include "include/core/SkSize.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkMathPriv.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkColorPriv.h"
+#include "src/core/SkMathPriv.h"
 #include "src/core/SkMipmap.h"
 
 #include <algorithm>

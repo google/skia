@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkPoint.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/gpu/graphite/sparse_strips/MSAA_LUT.h"
 #include "tests/Test.h"
 

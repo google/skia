@@ -8,8 +8,8 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkFloatingPoint.h"
-#include "src/base/SkCubics.h"
-#include "src/base/SkUtils.h"
+#include "src/core/SkCubics.h"
+#include "src/core/SkUtils.h"
 #include "src/pathops/SkPathOpsCubic.h"
 #include "tests/Test.h"
 

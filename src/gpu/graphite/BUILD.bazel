@@ -225,7 +225,6 @@ skia_cc_library_with_testutil(
     ],
     deps = [
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
         "//src/gpu",
         "//src/sksl:generated_sksl",

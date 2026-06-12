@@ -12,7 +12,7 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/core/SkSamplingPriv.h"
 #include "tests/Test.h"
 #include "tools/DecodeUtils.h"

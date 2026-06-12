@@ -10,11 +10,11 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpList.h"
+#include "src/core/SkVx.h"
 
 bool SkTriColorShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixRec&) const {
     rec.fPipeline->append(SkRasterPipelineOp::seed_shader);

@@ -16,7 +16,7 @@
 #include "include/gpu/graphite/Surface.h"
 #include "include/gpu/graphite/mtl/MtlBackendContext.h"
 #include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
-#include "src/base/SkMathPriv.h"
+#include "src/core/SkMathPriv.h"
 #include "src/gpu/graphite/ContextOptionsPriv.h"
 #include "tools/graphite/GraphiteToolUtils.h"
 #include "tools/graphite/TestOptions.h"

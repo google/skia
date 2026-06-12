@@ -15,7 +15,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/encode/SkPngEncoder.h"
-#include "src/base/SkBase64.h"
+#include "src/core/SkBase64.h"
 
 #include <cstddef>
 #include <cstdint>

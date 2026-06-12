@@ -9,7 +9,7 @@
 #define SKSL_STRING
 
 #include "include/core/SkTypes.h"
-#include "src/base/SkNoDestructor.h"
+#include "src/core/SkNoDestructor.h"
 #include "src/sksl/SkSLDefines.h"
 
 #include <stdarg.h>

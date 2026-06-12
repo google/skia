@@ -9,7 +9,7 @@
 #define skgpu_graphite_ComputePathAtlas_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "src/base/SkVx.h"
+#include "src/core/SkVx.h"
 #include "src/gpu/RectanizerSkyline.h"
 #include "src/gpu/graphite/PathAtlas.h"
 #include "src/gpu/graphite/TextureProxy.h"

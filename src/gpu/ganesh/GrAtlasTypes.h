@@ -17,8 +17,8 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkTInternalLList.h"
 #include "src/core/SkIPoint16.h"
+#include "src/core/SkTInternalLList.h"
 #include "src/gpu/RectanizerSkyline.h"
 #include "src/gpu/Token.h"
 

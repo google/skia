@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/base/SkTime.h"
+#include "src/core/SkTime.h"
 
 #if !defined(__has_feature)
     #define  __has_feature(x) 0

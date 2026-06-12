@@ -12,7 +12,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkUTF.h"
+#include "src/core/SkUTF.h"
 #include <cstddef>
 #include <cstdint>
 #include <limits>

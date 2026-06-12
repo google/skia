@@ -24,10 +24,10 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/core/SkVx.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
@@ -64,7 +64,7 @@
 #include "src/gpu/ganesh/ops/QuadPerEdgeAA.h"
 
 #if defined(GPU_TEST_UTILS)
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrTestUtils.h"
 #endif

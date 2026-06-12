@@ -12,7 +12,7 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkThreadAnnotations.h"
-#include "src/base/SkSpinlock.h"
+#include "src/core/SkSpinlock.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/image/SkImage_GaneshBase.h"

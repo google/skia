@@ -11,8 +11,8 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkString.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkAAClip.h"
+#include "src/core/SkRandom.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // This bench tests out AA/BW clipping via canvas' clipPath and clipRect calls

@@ -13,8 +13,8 @@
 #include "include/core/SkTileMode.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkEnumBitMask.h"
-#include "src/base/SkMathPriv.h"
+#include "src/core/SkEnumBitMask.h"
+#include "src/core/SkMathPriv.h"
 
 namespace skgpu::graphite {
 

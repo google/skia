@@ -9,7 +9,7 @@
 
 #include "include/gpu/ganesh/mock/GrMockBackendSurface.h"
 #include "include/private/SkDebug.h"
-#include "src/base/SkMathPriv.h"
+#include "src/core/SkMathPriv.h"
 #include "src/gpu/ganesh/GrProgramDesc.h"
 #include "src/gpu/ganesh/TestFormatColorTypeCombination.h"
 

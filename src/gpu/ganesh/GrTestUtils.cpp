@@ -20,7 +20,7 @@
 #include "include/private/SkMacros.h"
 #include "include/private/SkOnce.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"

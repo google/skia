@@ -14,9 +14,9 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkRectMemcpy.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkConvertPixels.h"
+#include "src/core/SkRectMemcpy.h"
 
 #include <array>
 #include <cstddef>

@@ -51,7 +51,6 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
-        "//src/base",
         "//src/gpu/vk",
         "@vulkanmemoryallocator//:hdrs",
     ],

@@ -7,7 +7,7 @@
 #include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)
 
-#include "src/base/SkLeanWindows.h"
+#include "src/core/SkLeanWindows.h"
 #include "tools/library/LoadDynamicLibrary.h"
 
 void* SkLoadDynamicLibrary(const char* libraryName) {

@@ -21,7 +21,7 @@
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/sksg/include/SkSGPath.h"
 #include "modules/sksg/include/SkSGTransform.h"
-#include "src/base/SkUTF.h"
+#include "src/core/SkUTF.h"
 
 namespace skottie::internal {
 

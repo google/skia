@@ -10,7 +10,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathUtils.h"
-#include "src/base/SkFloatBits.h"
+#include "src/core/SkFloatBits.h"
 
 static SkPath get_path() {
     SkPathBuilder builder(SkPathFillType::kWinding);

@@ -26,7 +26,7 @@
 #include "include/private/SkMath.h"
 #include "include/private/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkAutoMalloc.h"
+#include "src/core/SkAutoMalloc.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkDistanceFieldGen.h"
@@ -68,7 +68,7 @@
 #include "src/gpu/ganesh/ops/SmallPathShapeData.h"
 
 #if defined(GPU_TEST_UTILS)
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/gpu/ganesh/GrTestUtils.h"
 #endif
 

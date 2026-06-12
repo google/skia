@@ -3,7 +3,7 @@
 
 #include "modules/bentleyottmann/include/Myers.h"
 
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "tests/Test.h"
 
 #include <chrono>

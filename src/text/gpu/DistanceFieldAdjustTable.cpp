@@ -10,7 +10,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkTemplates.h"
-#include "src/base/SkNoDestructor.h"
+#include "src/core/SkNoDestructor.h"
 #include "src/core/SkScalerContext.h"
 
 #include <cstddef>

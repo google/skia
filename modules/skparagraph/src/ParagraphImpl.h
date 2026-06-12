@@ -25,7 +25,7 @@
 #include "modules/skparagraph/src/Run.h"
 #include "modules/skparagraph/src/TextLine.h"
 #include "modules/skunicode/include/SkUnicode.h"
-#include "src/base/SkBitmaskEnum.h"
+#include "src/core/SkBitmaskEnum.h"
 #include "src/core/SkTHash.h"
 
 #include <memory>

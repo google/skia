@@ -11,9 +11,9 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkDebug.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPointPriv.h"
+#include "src/core/SkRandom.h"
 #include "tests/Test.h"
 
 #include <array>

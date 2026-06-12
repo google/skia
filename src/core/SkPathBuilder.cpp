@@ -18,13 +18,13 @@
 #include "include/private/SkSafe32.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPathData.h"
 #include "src/core/SkPathEnums.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkPathRawShapes.h"
+#include "src/core/SkVx.h"
 
 #include <algorithm>
 #include <cmath>

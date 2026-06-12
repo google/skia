@@ -21,7 +21,7 @@
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/SkTDArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkHalf.h"
+#include "src/core/SkHalf.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrPixmap.h"

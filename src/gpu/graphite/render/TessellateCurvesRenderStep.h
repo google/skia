@@ -8,7 +8,7 @@
 #ifndef skgpu_graphite_render_TessellateCurvesRenderStep_DEFINED
 #define skgpu_graphite_render_TessellateCurvesRenderStep_DEFINED
 
-#include "src/base/SkVx.h"
+#include "src/core/SkVx.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include <string>

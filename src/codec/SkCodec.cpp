@@ -20,12 +20,12 @@
 #include "include/core/SkStream.h"
 #include "include/private/SkTemplates.h"
 #include "modules/skcms/skcms.h"
-#include "src/base/SkNoDestructor.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkFrameHolder.h"
 #include "src/codec/SkPixmapUtilsPriv.h"
 #include "src/codec/SkSampler.h"
 #include "src/core/SkColorPriv.h"
+#include "src/core/SkNoDestructor.h"
 
 #include <string>
 #include <string_view>

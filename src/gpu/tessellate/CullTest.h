@@ -12,7 +12,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/private/SkAssert.h"
-#include "src/base/SkVx.h"
+#include "src/core/SkVx.h"
 
 namespace skgpu::tess {
 

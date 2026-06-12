@@ -115,7 +115,6 @@ skia_cc_library(
     visibility = ["//:__pkg__"],
     deps = [
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
         "//src/gpu",
         "//src/gpu/ganesh",
@@ -154,7 +153,6 @@ skia_cc_library_with_testutil(
     visibility = ["//:__pkg__"],
     deps = [
         "//:core",
-        "//src/base",
         "//src/core:core_priv",
         "//src/gpu",
         "//src/gpu/ganesh",

@@ -10,7 +10,7 @@
 
 #include "include/private/SkAssert.h"
 #include "include/private/SkNoncopyable.h"
-#include "src/base/SkSafeMath.h"
+#include "src/core/SkSafeMath.h"
 
 #include <cstddef>
 #include <cstdint>

@@ -10,8 +10,8 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkString.h"
 #include "include/private/SkFixed.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkColorData.h"
+#include "src/core/SkRandom.h"
 
 #define TILE(x, width)  (((x) & 0xFFFF) * width >> 16)
 

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/base/SkSpinlock.h"
+#include "src/core/SkSpinlock.h"
 #include "src/gpu/ganesh/GrMemoryPool.h"
 #include "src/gpu/ganesh/GrProcessor.h"
 

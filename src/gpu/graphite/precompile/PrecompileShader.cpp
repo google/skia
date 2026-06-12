@@ -35,7 +35,7 @@
 #include "src/shaders/gradients/SkLinearGradient.h"
 
 #if defined(SK_DEBUG)
-#include "src/base/SkMathPriv.h"
+#include "src/core/SkMathPriv.h"
 #endif
 
 using namespace SkKnownRuntimeEffects;

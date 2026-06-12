@@ -14,7 +14,6 @@ skia_cc_library(
     visibility = ["//:__subpackages__"],
     deps = [
         "//:core",
-        "//src/base",
         "//src/codec:codec_support_priv",
         "//src/core:core_priv",
     ],

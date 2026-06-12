@@ -10,9 +10,9 @@
 #include "include/core/SkScalar.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkFloatingPoint.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkMatrixInvert.h"
 #include "src/core/SkMatrixPriv.h"
+#include "src/core/SkVx.h"
 #include "src/gpu/graphite/geom/Rect.h"
 
 #include <algorithm>

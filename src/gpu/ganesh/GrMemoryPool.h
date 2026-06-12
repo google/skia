@@ -9,7 +9,7 @@
 #define GrMemoryPool_DEFINED
 
 #include "include/private/SkDebug.h"
-#include "src/base/SkBlockAllocator.h"
+#include "src/core/SkBlockAllocator.h"
 
 #include <cstddef>
 #include <cstdint>

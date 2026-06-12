@@ -23,7 +23,6 @@ cc_binary(
         "//:core",
         "//:png_decode_codec",
         "//:png_encode_codec",
-        "//src/base",
         "//src/core:core_priv",
     ],
 )

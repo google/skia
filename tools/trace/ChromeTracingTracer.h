@@ -10,7 +10,7 @@
 
 #include "include/core/SkString.h"
 #include "include/utils/SkEventTracer.h"
-#include "src/base/SkSpinlock.h"
+#include "src/core/SkSpinlock.h"
 #include "src/core/SkTHash.h"
 #include "tools/trace/EventTracingPriv.h"
 

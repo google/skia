@@ -8,10 +8,10 @@
 #include "src/gpu/graphite/PaintParamsKey.h"
 
 #include "include/private/SkLog.h"
-#include "src/base/SkAutoMalloc.h"
-#include "src/base/SkBase64.h"
-#include "src/base/SkStringView.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/core/SkAutoMalloc.h"
+#include "src/core/SkBase64.h"
+#include "src/core/SkStringView.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"

@@ -10,7 +10,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSurfaceProps.h"
-#include "src/base/SkMathPriv.h"
+#include "src/core/SkMathPriv.h"
 
 #include <memory>
 

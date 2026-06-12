@@ -18,8 +18,8 @@
 #include "include/private/SkMath.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkMathPriv.h"
 #include "src/core/SkColorPriv.h"
+#include "src/core/SkMathPriv.h"
 
 #include <algorithm>
 #include <cmath>

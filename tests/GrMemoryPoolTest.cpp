@@ -7,7 +7,7 @@
 
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
-#include "src/base/SkRandom.h"
+#include "src/core/SkRandom.h"
 #include "src/gpu/ganesh/GrMemoryPool.h"
 #include "tests/Test.h"
 

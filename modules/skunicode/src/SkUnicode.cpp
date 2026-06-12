@@ -6,7 +6,7 @@
  */
 #include "include/private/SkDebug.h"
 #include "modules/skunicode/include/SkUnicode.h"
-#include "src/base/SkBitmaskEnum.h"
+#include "src/core/SkBitmaskEnum.h"
 
 using namespace skia_private;
 

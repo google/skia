@@ -16,10 +16,10 @@
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/SkMath.h"
 #include "include/private/SkTemplates.h"
-#include "src/base/SkHalf.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkColorPriv.h"
+#include "src/core/SkHalf.h"
 #include "src/core/SkSwizzlePriv.h"
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK

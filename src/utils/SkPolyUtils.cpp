@@ -15,11 +15,11 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
 #include "include/private/SkTemplates.h"
-#include "src/base/SkTDPQueue.h"
-#include "src/base/SkTInternalLList.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkRectPriv.h"
+#include "src/core/SkTDPQueue.h"
+#include "src/core/SkTInternalLList.h"
+#include "src/core/SkVx.h"
 
 #include <algorithm>
 #include <cstdint>

@@ -30,12 +30,12 @@
 #include "include/private/SkMalloc.h"
 #include "include/private/SkMath.h"
 #include "include/private/SkTo.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBitmapDevice.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkKnownRuntimeEffects.h"
 #include "src/core/SkSpecialImage.h"
+#include "src/core/SkVx.h"
 
 #include <algorithm>
 #include <array>

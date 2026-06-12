@@ -8,7 +8,7 @@
 #include "tools/CrashHandler.h"
 
 #include "include/private/SkDebug.h"
-#include "src/base/SkLeanWindows.h"
+#include "src/core/SkLeanWindows.h"
 
 #include <array>  // for std::size
 #include <stdlib.h>

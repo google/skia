@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkFontScanner.h"
-#include "src/base/SkAutoMalloc.h"
+#include "src/core/SkAutoMalloc.h"
 #include "src/core/SkTHash.h"
 #include "src/core/SkWriteBuffer.h"
 
