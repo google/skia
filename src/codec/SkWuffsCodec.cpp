@@ -24,6 +24,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkAssert.h"
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTo.h"
@@ -592,6 +593,13 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecodeTwoPass() {
         wuffs_base__rect_ie_u32 frame_rect = fFrameConfig.bounds();
         wuffs_base__table_u8    pixels = fPixelBuffer.plane(0);
 
+        const size_t pixels_w = pixels.width / src_bytes_per_pixel,
+                     pixels_h = pixels.height;
+        SkASSERT_RELEASE(frame_rect.min_incl_x <= pixels_w);
+        SkASSERT_RELEASE(frame_rect.min_incl_y <= pixels_h);
+        SkASSERT_RELEASE(frame_rect.max_excl_x <= pixels_w);
+        SkASSERT_RELEASE(frame_rect.max_excl_y <= pixels_h);
+
         uint8_t* ptr = pixels.ptr + (frame_rect.min_incl_y * pixels.stride) +
                        (frame_rect.min_incl_x * src_bytes_per_pixel);
         size_t len = frame_rect.width() * src_bytes_per_pixel;
@@ -711,6 +719,13 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecodeTwoPass() {
     wuffs_base__rect_ie_u32 dirty_rect = fDecoder->frame_dirty_rect();
     if (!dirty_rect.is_empty()) {
         wuffs_base__table_u8 pixels = fPixelBuffer.plane(0);
+
+        const size_t pixels_w = pixels.width / src_bytes_per_pixel,
+                     pixels_h = pixels.height;
+        SkASSERT_RELEASE(dirty_rect.min_incl_x <= pixels_w);
+        SkASSERT_RELEASE(dirty_rect.min_incl_y <= pixels_h);
+        SkASSERT_RELEASE(dirty_rect.max_excl_x <= pixels_w);
+        SkASSERT_RELEASE(dirty_rect.max_excl_y <= pixels_h);
 
         // The Wuffs model is that the dst buffer is the image, not the frame.
         // The expectation is that you allocate the buffer once, but re-use it
