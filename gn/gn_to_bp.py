@@ -392,8 +392,7 @@ def generate_args(target_os, enable_gpu, libskia_variant = LibSkiaVariant.HWUI):
   if enable_gpu:
     d['skia_use_vulkan']     = 'true'
     d['skia_enable_ganesh']  = 'true'
-    if libskia_variant.is_renderengine():
-      d['skia_enable_graphite'] = 'true'
+    d['skia_enable_graphite'] = 'true'
   else:
     d['skia_use_vulkan']      = 'false'
     d['skia_enable_ganesh']   = 'false'
