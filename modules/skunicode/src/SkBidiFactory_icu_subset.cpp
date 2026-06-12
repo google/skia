@@ -9,43 +9,30 @@
 
 #include <unicode/umachine.h>
 
-// If ICU renaming is disabled (e.g. under clang-tidy/static analysis or in some environments),
-// map the explicit `_skia` suffixed calls back to the standard unsuffixed APIs.
-#if !defined(u_errorName)
-#define u_errorName_skia u_errorName
-#define ubidi_close_skia ubidi_close
-#define ubidi_getDirection_skia ubidi_getDirection
-#define ubidi_getLength_skia ubidi_getLength
-#define ubidi_getLevelAt_skia ubidi_getLevelAt
-#define ubidi_openSized_skia ubidi_openSized
-#define ubidi_setPara_skia ubidi_setPara
-#define ubidi_reorderVisual_skia ubidi_reorderVisual
-#endif
-
 const char* SkBidiSubsetFactory::errorName(UErrorCode status) const {
-    return u_errorName_skia(status);
+    return u_errorName(status);
 }
 
 SkBidiFactory::BidiCloseCallback SkBidiSubsetFactory::bidi_close_callback() const {
-    return ubidi_close_skia;
+    return ubidi_close;
 }
 
 UBiDiDirection SkBidiSubsetFactory::bidi_getDirection(const UBiDi* bidi) const {
-    return ubidi_getDirection_skia(bidi);
+    return ubidi_getDirection(bidi);
 }
 
 SkBidiIterator::Position SkBidiSubsetFactory::bidi_getLength(const UBiDi* bidi) const {
-    return ubidi_getLength_skia(bidi);
+    return ubidi_getLength(bidi);
 }
 
 SkBidiIterator::Level SkBidiSubsetFactory::bidi_getLevelAt(const UBiDi* bidi, int pos) const {
-    return ubidi_getLevelAt_skia(bidi, pos);
+    return ubidi_getLevelAt(bidi, pos);
 }
 
 UBiDi* SkBidiSubsetFactory::bidi_openSized(int32_t maxLength,
                                            int32_t maxRunCount,
                                            UErrorCode* pErrorCode) const {
-    return ubidi_openSized_skia(maxLength, maxRunCount, pErrorCode);
+    return ubidi_openSized(maxLength, maxRunCount, pErrorCode);
 }
 
 void SkBidiSubsetFactory::bidi_setPara(UBiDi* bidi,
@@ -54,7 +41,7 @@ void SkBidiSubsetFactory::bidi_setPara(UBiDi* bidi,
                                        UBiDiLevel paraLevel,
                                        UBiDiLevel* embeddingLevels,
                                        UErrorCode* status) const {
-    return ubidi_setPara_skia(bidi, text, length, paraLevel, embeddingLevels, status);
+    return ubidi_setPara(bidi, text, length, paraLevel, embeddingLevels, status);
 }
 
 void SkBidiSubsetFactory::bidi_reorderVisual(const SkUnicode::BidiLevel runLevels[],
@@ -65,5 +52,5 @@ void SkBidiSubsetFactory::bidi_reorderVisual(const SkUnicode::BidiLevel runLevel
         return;
     }
     SkASSERT(runLevels != nullptr);
-    ubidi_reorderVisual_skia(runLevels, levelsCount, logicalFromVisual);
+    ubidi_reorderVisual(runLevels, levelsCount, logicalFromVisual);
 }
