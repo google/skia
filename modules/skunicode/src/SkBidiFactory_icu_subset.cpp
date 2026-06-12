@@ -9,6 +9,19 @@
 
 #include <unicode/umachine.h>
 
+// If ICU renaming is disabled (e.g. under clang-tidy/static analysis or in some environments),
+// map the explicit `_skia` suffixed calls back to the standard unsuffixed APIs.
+#if !defined(u_errorName)
+#define u_errorName_skia u_errorName
+#define ubidi_close_skia ubidi_close
+#define ubidi_getDirection_skia ubidi_getDirection
+#define ubidi_getLength_skia ubidi_getLength
+#define ubidi_getLevelAt_skia ubidi_getLevelAt
+#define ubidi_openSized_skia ubidi_openSized
+#define ubidi_setPara_skia ubidi_setPara
+#define ubidi_reorderVisual_skia ubidi_reorderVisual
+#endif
+
 const char* SkBidiSubsetFactory::errorName(UErrorCode status) const {
     return u_errorName_skia(status);
 }

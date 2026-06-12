@@ -23,7 +23,7 @@ py_binary(
     srcs = [":make_data_cpp.py"],
 )
 
-_icu_version_major_num = "74"  # defined in source/common/unicode/uvernum.h
+_icu_version_major_num = "78"  # defined in source/common/unicode/uvernum.h
 
 genrule(
     name = "create_icu_wasm_data_cpp",
@@ -103,6 +103,7 @@ ICU_HDRS = [
     "source/common/dictbe.h",
     "source/common/dictionarydata.h",
     "source/common/emojiprops.h",
+    "source/common/fixedstring.h",
     "source/common/hash.h",
     "source/common/icuplugimp.h",
     "source/common/localefallback_data.h",
@@ -609,6 +610,7 @@ ICU_SRCS = [
     "source/common/errorcode.cpp",
     "source/common/filteredbrk.cpp",
     "source/common/filterednormalizer2.cpp",
+    "source/common/fixedstring.cpp",
     "source/common/icudataver.cpp",
     "source/common/icuplug.cpp",
     "source/common/loadednormalizer2impl.cpp",

@@ -49,6 +49,8 @@ icu_sources = [
   "$_src/common/errorcode.cpp",
   "$_src/common/filteredbrk.cpp",
   "$_src/common/filterednormalizer2.cpp",
+  "$_src/common/fixedstring.cpp",
+  "$_src/common/fixedstring.h",
   "$_src/common/hash.h",
   "$_src/common/icudataver.cpp",
   "$_src/common/icuplug.cpp",
