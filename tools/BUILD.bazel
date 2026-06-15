@@ -60,7 +60,7 @@ skia_cc_library(
         "//dm:__pkg__",
         "//tools/gpu:__pkg__",
     ],
-    deps = ["//src/core"],
+    deps = ["//:core"],
 )
 
 skia_objc_library(
@@ -68,7 +68,7 @@ skia_objc_library(
     hdrs = ["AutoreleasePool.h"],
     non_arc_srcs = ["AutoreleasePool.mm"],
     visibility = ["//tools/ganesh:__pkg__"],
-    deps = ["//src/core"],
+    deps = ["//:core"],
 )
 
 skia_cc_library(
