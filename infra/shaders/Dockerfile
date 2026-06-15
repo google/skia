@@ -1,4 +1,4 @@
-FROM gcr.io/skia-public/shaders-base@sha256:9f862803ee5b7ce2f6b5af6fd18a7426d56a14585ca2160132ae149af809a04a
+FROM gcr.io/skia-public/shaders-base@sha256:2ca02a2612d9ec6ed1e4948acedee546e93dc1654930800c304451acf66a709f
 
 COPY canvaskit.js /usr/local/share/shaders/dist/canvaskit.js
 COPY canvaskit.wasm /usr/local/share/shaders/dist/canvaskit.wasm
