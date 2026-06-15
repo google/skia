@@ -546,6 +546,10 @@ void ApplyTransform(SkPathBuilder& p,
     p.transform(m);
 }
 
+void ApplySetFillType(SkPathBuilder& p, SkPathFillType ft) {
+    p.setFillType(ft);
+}
+
 #ifdef CK_INCLUDE_PATHOPS
 SkPathOrNull MakeSimplified(const SkPath& path) {
     if (auto result = Simplify(path)) {
@@ -2469,7 +2473,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             .function("_rMoveTo", &ApplyRMoveTo)
             .function("_rQuadTo", &ApplyRQuadTo)
             .function("reset", &ApplyReset)
-            .function("setFillType", &SkPathBuilder::setFillType)
+            .function("_setFillType", &ApplySetFillType)
             .function("snapshot", optional_override([](SkPathBuilder& self) -> SkPath {
                           return self.snapshot();
                       }))

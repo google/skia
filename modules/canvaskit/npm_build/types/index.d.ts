@@ -2872,7 +2872,7 @@ export interface PathBuilder extends EmbindObject<"SkPathBuilder"> {
      * Sets FillType, the rule used to fill Path.
      * @param fill
      */
-    setFillType(fill: FillType): void;
+    setFillType(fill: FillType): PathBuilder;
 
     /**
      * Returns an immutable Path with all the drawing so far. Keeps the

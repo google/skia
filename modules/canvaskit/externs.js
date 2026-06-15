@@ -683,7 +683,6 @@ var CanvasKit = {
     detachAndDelete: function() {},
     isEmpty: function() {},
     reset: function() {},
-    setFillType: function() {},
     snapshot: function() {},
 
     prototype: {
@@ -710,6 +709,7 @@ var CanvasKit = {
         rLineTo: function() {},
         rMoveTo: function() {},
         rQuadTo: function() {},
+        setFillType: function() {},
         transform: function() {},
     },
 
@@ -737,6 +737,7 @@ var CanvasKit = {
     _rLineTo: function() {},
     _rMoveTo: function() {},
     _rQuadTo: function() {},
+    _setFillType: function() {},
     _transform: function() {},
 
   },

@@ -347,6 +347,11 @@ CanvasKit.onRuntimeInitialized = function() {
     return this;
   };
 
+  CanvasKit["PathBuilder"].prototype["setFillType"] = function(ft) {
+    this._setFillType(ft);
+    return this;
+  };
+
   CanvasKit.Path.prototype.makeStroked = function(opts) {
     // Fill out any missing values with the default values.
     opts = opts || {};
