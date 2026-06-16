@@ -9,7 +9,7 @@
 
 #include "src/gpu/graphite/geom/Transform.h"
 
-DEF_GRAPHITE_TEST(TransformTest, reporter, CtsEnforcement::kNextRelease) {
+DEF_GRAPHITE_TEST(TransformTest, reporter, CtsEnforcement::kApiLevel_202604) {
     // TODO: Michael takes this over
     skgpu::graphite::Transform t{SkM44()};
     REPORTER_ASSERT(reporter, t.type() == skgpu::graphite::Transform::Type::kIdentity);

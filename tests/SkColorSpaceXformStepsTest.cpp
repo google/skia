@@ -446,7 +446,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkColorSpaceXform_Ganesh,
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SkColorSpaceXform_Graphite,
                                          reporter,
                                          context,
-                                         CtsEnforcement::kNextRelease) {
+                                         CtsEnforcement::kApiLevel_202604) {
     using namespace skgpu::graphite;
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     auto make_surface = [&](const SkImageInfo& info) {

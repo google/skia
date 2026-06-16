@@ -34,8 +34,11 @@ void FinishProc(GpuFinishedContext ctx, skgpu::CallbackResult result) {
 }  // anonymous namespace
 
 DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(SubmitWithFinishProc_PendingCommandBuffer,
-                                               reporter, context, testCtx, /*condition=*/true,
-                                               CtsEnforcement::kNextRelease) {
+                                               reporter,
+                                               context,
+                                               testCtx,
+                                               /*condition=*/true,
+                                               CtsEnforcement::kApiLevel_202604) {
     // Ensure the Context is fully idle initially.
     testCtx->syncedSubmit(context);
 
@@ -75,8 +78,11 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(SubmitWithFinishProc_PendingComma
 }
 
 DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(SubmitWithFinishProc_NoPendingCommandBuffer,
-                                               reporter, context, testCtx, /*condition=*/true,
-                                               CtsEnforcement::kNextRelease) {
+                                               reporter,
+                                               context,
+                                               testCtx,
+                                               /*condition=*/true,
+                                               CtsEnforcement::kApiLevel_202604) {
     // Ensure the Context is fully idle.
     testCtx->syncedSubmit(context);
 

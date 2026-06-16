@@ -23,9 +23,10 @@ using namespace skgpu;
 using namespace skgpu::graphite;
 
 // These are unit tests that ensure the secondary "inner fill" draw is recorded when possible.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(InnerFillTest, reporter, context,
-                                   CtsEnforcement::kNextRelease) {
-
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(InnerFillTest,
+                                   reporter,
+                                   context,
+                                   CtsEnforcement::kApiLevel_202604) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     sk_sp<Device> device = Device::Make(recorder.get(),
                                         SkImageInfo::Make(512, 512,

@@ -1141,7 +1141,7 @@ void run_texture_format_test(skiatest::Reporter* r, const Caps* caps, TextureFor
     REPORTER_ASSERT(r, foundExpectation, "Missing expectation for %s", TextureFormatName(format));
 }
 
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(TextureFormatTest, r, ctx, CtsEnforcement::kNextRelease) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(TextureFormatTest, r, ctx, CtsEnforcement::kApiLevel_202604) {
     for (int i = 0; i < kTextureFormatCount; ++i) {
         run_texture_format_test(r, ctx->priv().caps(), static_cast<TextureFormat>(i));
     }

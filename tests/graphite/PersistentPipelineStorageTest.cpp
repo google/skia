@@ -90,8 +90,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(PersistentPipelineStorageTest,
                                            origOptions,
                                            /* optionsProc= */ nullptr,
                                            /* condition= */ true,
-                                           CtsEnforcement::kNextRelease) {
-
+                                           CtsEnforcement::kApiLevel_202604) {
     sk_gpu_test::GraphiteMemoryPipelineStorage memoryPipelineStorage;
 
     REPORTER_ASSERT(reporter, draw(origTestContext, origOptions, &memoryPipelineStorage,

@@ -100,8 +100,12 @@ bool layer_test(SkBitmap& bitmap, Context* context, SkBlendMode blendMode) {
     -------------- END --------------
 */
 
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(NotifyInUseTestSnapshot, /*filter=*/nullptr, reporter, context,
-                               testContext, CtsEnforcement::kNextRelease) {
+DEF_GRAPHITE_TEST_FOR_CONTEXTS(NotifyInUseTestSnapshot,
+                               /*filter=*/nullptr,
+                               reporter,
+                               context,
+                               testContext,
+                               CtsEnforcement::kApiLevel_202604) {
     auto recorder = context->makeRecorder();
     SkImageInfo info = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
@@ -175,8 +179,12 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(NotifyInUseTestSnapshot, /*filter=*/nullptr, repo
     --------------- END ---------------
 
 */
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(NotifyInUseTestAsImage, /*filter=*/nullptr, reporter, context,
-                               testContext, CtsEnforcement::kNextRelease) {
+DEF_GRAPHITE_TEST_FOR_CONTEXTS(NotifyInUseTestAsImage,
+                               /*filter=*/nullptr,
+                               reporter,
+                               context,
+                               testContext,
+                               CtsEnforcement::kApiLevel_202604) {
     auto recorder = context->makeRecorder();
     SkImageInfo aInfo = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     SkImageInfo bInfo = SkImageInfo::Make(20, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
@@ -324,41 +332,66 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(NotifyInUseTestAsImage, /*filter=*/nullptr, repor
     --------------- END ---------------
 */
 
-#define DEFINE_LAYER_BLEND_TEST(TestName, BlendMode, ExpectedBlueOnly, ExpectedGreenOnly,        \
-                                ExpectedBlueAndGreen, ExpectedRedOnly, ExpectedAllOverlap)       \
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(NotifyInUseTestLayer ## TestName, /*filter=*/nullptr, reporter,   \
-                               context, testContext, CtsEnforcement::kNextRelease) {             \
-    SkBitmap bitmap;                                                                             \
-    REPORTER_ASSERT(reporter, layer_test(bitmap, context, BlendMode),                            \
-                        "Failed to read pixels for BlendMode '%s'",                              \
-                        SkBlendMode_Name(BlendMode));                                            \
-                                                                                                 \
-    constexpr int kTolerance = 2;                                                                \
-    SkColor blueOnly = bitmap.getColor(10, 10);                                                  \
-    REPORTER_ASSERT(reporter, colors_are_similar(blueOnly, ExpectedBlueOnly, kTolerance),        \
-                    "Pt(10,10) BlendMode '%s': Expected blue-only ~0x%08X, got 0x%08X",          \
-                    SkBlendMode_Name(BlendMode), (uint32_t)ExpectedBlueOnly, blueOnly);          \
-                                                                                                 \
-    SkColor greenOnly = bitmap.getColor(70, 30);                                                 \
-    REPORTER_ASSERT(reporter, colors_are_similar(greenOnly, ExpectedGreenOnly, kTolerance),      \
-                    "Pt(70,30) BlendMode '%s': Expected green-only ~0x%08X, got 0x%08X",         \
-                    SkBlendMode_Name(BlendMode), (uint32_t)ExpectedGreenOnly, greenOnly);        \
-                                                                                                 \
-    SkColor blueAndGreen = bitmap.getColor(40, 20);                                              \
-    REPORTER_ASSERT(reporter, colors_are_similar(blueAndGreen, ExpectedBlueAndGreen, kTolerance),\
-                    "Pt(40,20) BlendMode '%s': Expected blue/green ~0x%08X, got 0x%08X",         \
-                    SkBlendMode_Name(BlendMode), (uint32_t)ExpectedBlueAndGreen, blueAndGreen);  \
-                                                                                                 \
-    SkColor redOnly = bitmap.getColor(25, 68);                                                   \
-    REPORTER_ASSERT(reporter, colors_are_similar(redOnly, ExpectedRedOnly, kTolerance),          \
-                    "Pt(25,68) BlendMode '%s': Expected red-only ~0x%08X, got 0x%08X",           \
-                    SkBlendMode_Name(BlendMode), (uint32_t)ExpectedRedOnly, redOnly);            \
-                                                                                                 \
-    SkColor allOverlap = bitmap.getColor(40, 40);                                                \
-    REPORTER_ASSERT(reporter, colors_are_similar(allOverlap, ExpectedAllOverlap, kTolerance),    \
-                    "Pt(40,40) BlendMode '%s': Expected all-overlap ~0x%08X, got 0x%08X",        \
-                    SkBlendMode_Name(BlendMode), (uint32_t)ExpectedAllOverlap, allOverlap);      \
-}
+#define DEFINE_LAYER_BLEND_TEST(TestName,                                                     \
+                                BlendMode,                                                    \
+                                ExpectedBlueOnly,                                             \
+                                ExpectedGreenOnly,                                            \
+                                ExpectedBlueAndGreen,                                         \
+                                ExpectedRedOnly,                                              \
+                                ExpectedAllOverlap)                                           \
+    DEF_GRAPHITE_TEST_FOR_CONTEXTS(NotifyInUseTestLayer##TestName,                            \
+                                   /*filter=*/nullptr,                                        \
+                                   reporter,                                                  \
+                                   context,                                                   \
+                                   testContext,                                               \
+                                   CtsEnforcement::kApiLevel_202604) {                        \
+        SkBitmap bitmap;                                                                      \
+        REPORTER_ASSERT(reporter,                                                             \
+                        layer_test(bitmap, context, BlendMode),                               \
+                        "Failed to read pixels for BlendMode '%s'",                           \
+                        SkBlendMode_Name(BlendMode));                                         \
+                                                                                              \
+        constexpr int kTolerance = 2;                                                         \
+        SkColor blueOnly = bitmap.getColor(10, 10);                                           \
+        REPORTER_ASSERT(reporter,                                                             \
+                        colors_are_similar(blueOnly, ExpectedBlueOnly, kTolerance),           \
+                        "Pt(10,10) BlendMode '%s': Expected blue-only ~0x%08X, got 0x%08X",   \
+                        SkBlendMode_Name(BlendMode),                                          \
+                        (uint32_t)ExpectedBlueOnly,                                           \
+                        blueOnly);                                                            \
+                                                                                              \
+        SkColor greenOnly = bitmap.getColor(70, 30);                                          \
+        REPORTER_ASSERT(reporter,                                                             \
+                        colors_are_similar(greenOnly, ExpectedGreenOnly, kTolerance),         \
+                        "Pt(70,30) BlendMode '%s': Expected green-only ~0x%08X, got 0x%08X",  \
+                        SkBlendMode_Name(BlendMode),                                          \
+                        (uint32_t)ExpectedGreenOnly,                                          \
+                        greenOnly);                                                           \
+                                                                                              \
+        SkColor blueAndGreen = bitmap.getColor(40, 20);                                       \
+        REPORTER_ASSERT(reporter,                                                             \
+                        colors_are_similar(blueAndGreen, ExpectedBlueAndGreen, kTolerance),   \
+                        "Pt(40,20) BlendMode '%s': Expected blue/green ~0x%08X, got 0x%08X",  \
+                        SkBlendMode_Name(BlendMode),                                          \
+                        (uint32_t)ExpectedBlueAndGreen,                                       \
+                        blueAndGreen);                                                        \
+                                                                                              \
+        SkColor redOnly = bitmap.getColor(25, 68);                                            \
+        REPORTER_ASSERT(reporter,                                                             \
+                        colors_are_similar(redOnly, ExpectedRedOnly, kTolerance),             \
+                        "Pt(25,68) BlendMode '%s': Expected red-only ~0x%08X, got 0x%08X",    \
+                        SkBlendMode_Name(BlendMode),                                          \
+                        (uint32_t)ExpectedRedOnly,                                            \
+                        redOnly);                                                             \
+                                                                                              \
+        SkColor allOverlap = bitmap.getColor(40, 40);                                         \
+        REPORTER_ASSERT(reporter,                                                             \
+                        colors_are_similar(allOverlap, ExpectedAllOverlap, kTolerance),       \
+                        "Pt(40,40) BlendMode '%s': Expected all-overlap ~0x%08X, got 0x%08X", \
+                        SkBlendMode_Name(BlendMode),                                          \
+                        (uint32_t)ExpectedAllOverlap,                                         \
+                        allOverlap);                                                          \
+    }
 
 // Basic Porter-Duff blend modes
 DEFINE_LAYER_BLEND_TEST(Clear, SkBlendMode::kClear, 0x00000000, 0x00000000, 0x00000000, 0x00000000,

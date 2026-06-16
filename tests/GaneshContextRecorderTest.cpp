@@ -29,7 +29,7 @@
 DEF_GANESH_TEST_FOR_ALL_CONTEXTS(CPUSurface_UsesGaneshContextAndRasterRecorderToDraw_DrawsPixels,
                                  reporter,
                                  ctxInfo,
-                                 CtsEnforcement::kNextRelease) {
+                                 CtsEnforcement::kApiLevel_202604) {
     std::unique_ptr<skcpu::Recorder> recorder = ctxInfo.directContext()->makeCPURecorder();
 
     SkImageInfo imageInfo =
@@ -49,7 +49,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(CPUSurface_UsesGaneshContextAndRasterRecorderTo
 DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageMakeColorSpace_GaneshImageWithContext_Success,
                                  reporter,
                                  ctxInfo,
-                                 CtsEnforcement::kNextRelease) {
+                                 CtsEnforcement::kApiLevel_202604) {
     SkBitmap bm;
     bm.setInfo(SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
     bm.allocPixels();
@@ -70,7 +70,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageMakeColorSpace_GaneshImageWithContext_Succ
 DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageMakeColorSpace_GaneshImageWithRecorder_Success,
                                  reporter,
                                  ctxInfo,
-                                 CtsEnforcement::kNextRelease) {
+                                 CtsEnforcement::kApiLevel_202604) {
     SkBitmap bm;
     bm.setInfo(SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
     bm.allocPixels();
@@ -93,7 +93,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageMakeColorSpace_GaneshImageWithRecorder_Suc
 DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageMakeScaled_GaneshImageWithRecorder_Success,
                                  reporter,
                                  ctxInfo,
-                                 CtsEnforcement::kNextRelease) {
+                                 CtsEnforcement::kApiLevel_202604) {
     SkBitmap bm;
     bm.setInfo(SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
     bm.allocPixels();
@@ -127,7 +127,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageMakeScaled_GaneshImageWithRecorder_Success
 DEF_GANESH_TEST_FOR_ALL_CONTEXTS(CanvasBaseRecorder_GaneshBasedCanvas_IsLinkedToDirectContext,
                                  reporter,
                                  ctxInfo,
-                                 CtsEnforcement::kNextRelease) {
+                                 CtsEnforcement::kApiLevel_202604) {
     auto ctx = ctxInfo.directContext();
 
     auto ii = SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType);

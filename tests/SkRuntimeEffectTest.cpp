@@ -1697,7 +1697,7 @@ void test_using_transformed_coords(skiatest::Reporter* reporter,
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeShader_TransformedCoords_Graphite,
                                          reporter,
                                          context,
-                                         CtsEnforcement::kNextRelease) {
+                                         CtsEnforcement::kApiLevel_202604) {
     std::unique_ptr<skgpu::graphite::Recorder> recorder = context->makeRecorder();
     GraphiteInfo graphiteInfo = {context, recorder.get()};
     test_using_transformed_coords(reporter, /*ganeshContext=*/nullptr, &graphiteInfo);
@@ -1708,7 +1708,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeShader_TransformedCoords_Graph
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeShader_TransformedCoords_Ganesh,
                                        reporter,
                                        contextInfo,
-                                       CtsEnforcement::kNextRelease) {
+                                       CtsEnforcement::kApiLevel_202604) {
     test_using_transformed_coords(reporter, contextInfo.directContext(), /*graphiteInfo=*/nullptr);
 }
 

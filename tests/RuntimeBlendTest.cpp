@@ -128,7 +128,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeBlender_Ganesh,
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeBlender_Graphite,
                                          r,
                                          context,
-                                         CtsEnforcement::kNextRelease) {
+                                         CtsEnforcement::kApiLevel_202604) {
     std::unique_ptr<skgpu::graphite::Recorder> recorder =
             context->makeRecorder(ToolUtils::CreateTestingRecorderOptions());
 

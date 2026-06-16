@@ -1140,7 +1140,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(SurfaceAttachStencil_Gpu,
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DrawSnapshotBackIntoWappedSurface,
                                        reporter,
                                        ctxInfo,
-                                       CtsEnforcement::kNextRelease) {
+                                       CtsEnforcement::kApiLevel_202604) {
     auto context = ctxInfo.directContext();
 
     auto ii = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);

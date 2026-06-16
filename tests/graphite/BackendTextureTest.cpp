@@ -86,8 +86,10 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(BackendTextureTest, reporter, context,
 }
 
 // Tests the wrapping of a BackendTexture in an SkSurface
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(SurfaceBackendTextureTest, reporter, context,
-                                   CtsEnforcement::kNextRelease) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(SurfaceBackendTextureTest,
+                                   reporter,
+                                   context,
+                                   CtsEnforcement::kApiLevel_202604) {
     // TODO: Right now this just tests very basic combinations of surfaces. This should be expanded
     // to cover a much broader set of things once we add more support in Graphite for different
     // formats, color types, etc.
@@ -131,8 +133,10 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(SurfaceBackendTextureTest, reporter, context,
 }
 
 // Tests the wrapping of a BackendTexture in an SkImage
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageBackendTextureTest, reporter, context,
-                                   CtsEnforcement::kNextRelease) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageBackendTextureTest,
+                                   reporter,
+                                   context,
+                                   CtsEnforcement::kApiLevel_202604) {
     // TODO: Right now this just tests very basic combinations of images. This should be expanded
     // to cover a much broader set of things once we add more support in Graphite for different
     // formats, color types, etc.

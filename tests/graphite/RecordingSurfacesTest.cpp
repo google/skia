@@ -270,8 +270,10 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestDrawWithClip, reporter, 
 }
 
 // Tests that a scissor translated to negative coordinates is applied correctly.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestNegativeClip, reporter, context,
-                                   CtsEnforcement::kNextRelease) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestNegativeClip,
+                                   reporter,
+                                   context,
+                                   CtsEnforcement::kApiLevel_202604) {
     SkISize surfaceSize = SkISize::Make(4, 4);
     SkISize recordingSize = SkISize::Make(4, 4);
 

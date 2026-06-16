@@ -89,8 +89,10 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(MultisampleRetainTest, reporter, context,
 // works. With the Vulkan backend in particular, without
 // VK_EXT_multisampled_render_to_single_sampled, the render pass with LoadOp::Load has an extra
 // "unresolve" pass at the start.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(MultisampleClearThenLoad, reporter, context,
-                                   CtsEnforcement::kNextRelease) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(MultisampleClearThenLoad,
+                                   reporter,
+                                   context,
+                                   CtsEnforcement::kApiLevel_202604) {
     const SkImageInfo surfaceImageInfo = SkImageInfo::Make(
             33, 33, SkColorType::kRGBA_8888_SkColorType, SkAlphaType::kPremul_SkAlphaType);
 

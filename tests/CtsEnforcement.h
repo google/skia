@@ -25,6 +25,11 @@ public:
          * test with workarounds.
          */
         kNever = INT32_MAX,
+        /* kToBeDetermined is a placeholder value that any unstable or work-in-progress tests should
+         * use. It implies the authors aren't ready for the test to be enforced in kNextRelease, and
+         * the team needs to make a go / no-go decision for it before bumping kNextRelease.
+         */
+        kToBeDetermined = kNever - 1,
         /* The kApiLevel_* values are directly correlated with Android **vendor** API levels, which
          * are distinct from Android SDK API levels. Every new CTS/SkQP release has a corresponding
          * Android API level that will be captured by these enum values.
@@ -37,12 +42,13 @@ public:
          */
         kApiLevel_202404 = 202404,
         kApiLevel_202504 = 202504,
-        /* kNextRelease is a placeholder value that all new unit tests should use.  It implies that
-         * this test will be enforced in the next Android release.  At the time of the release a
-         * new kApiLevel_* value will be added and all current kNextRelease values will be replaced
-         * with that new value.
+        kApiLevel_202604 = 202604,
+        /* kNextRelease is a placeholder value that all new unit tests should use, as long as
+         * they are considered stable and ready to be enforced.  It implies that this test will be
+         * enforced in the next Android release.  At the time of the release a new kApiLevel_* value
+         * will be added and all current kNextRelease values will be replaced with that new value.
          */
-        kNextRelease = 202604
+        kNextRelease = 202704
     };
 
     /**

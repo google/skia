@@ -160,7 +160,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(PipelineCallbackTest_Deprecated_Norma
                                            origOptions,
                                            /* optionsProc= */ nullptr,
                                            /* condition= */ true,
-                                           CtsEnforcement::kNextRelease) {
+                                           CtsEnforcement::kApiLevel_202604) {
     std::vector<sk_sp<SkData>> data;
 
     TestOptions newOptions(origOptions);
@@ -179,7 +179,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(PipelineCallbackTest_Normal,
                                            origOptions,
                                            /* optionsProc= */ nullptr,
                                            /* condition= */ true,
-                                           CtsEnforcement::kNextRelease) {
+                                           CtsEnforcement::kApiLevel_202604) {
     std::vector<sk_sp<SkData>> data;
 
     TestOptions newOptions(origOptions);
@@ -199,7 +199,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(PipelineCallbackTest_Deprecated_Preco
                                            origOptions,
                                            /* optionsProc= */ nullptr,
                                            /* condition= */ true,
-                                           CtsEnforcement::kNextRelease) {
+                                           CtsEnforcement::kApiLevel_202604) {
     std::vector<sk_sp<SkData>> data;
 
     TestOptions newOptions(origOptions);
@@ -218,7 +218,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(PipelineCallbackTest_Precompile,
                                            origOptions,
                                            /* optionsProc= */ nullptr,
                                            /* condition= */ true,
-                                           CtsEnforcement::kNextRelease) {
+                                           CtsEnforcement::kApiLevel_202604) {
     std::vector<sk_sp<SkData>> data;
 
     TestOptions newOptions(origOptions);

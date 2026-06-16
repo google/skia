@@ -26,7 +26,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(
         CPUSurface_UsesGraphiteContextAndRasterRecorderToDraw_DrawsPixels,
         reporter,
         context,
-        CtsEnforcement::kNextRelease) {
+        CtsEnforcement::kApiLevel_202604) {
     std::unique_ptr<skcpu::Recorder> recorder = context->makeCPURecorder();
 
     SkImageInfo imageInfo =
@@ -48,7 +48,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageMakeColorSpace_GraphiteImageWithRecorder_Success,
                                    reporter,
                                    context,
-                                   CtsEnforcement::kNextRelease) {
+                                   CtsEnforcement::kApiLevel_202604) {
     std::unique_ptr<skgpu::graphite::Recorder> recorder = context->makeRecorder();
 
     SkBitmap bm;
@@ -72,7 +72,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageMakeColorSpace_GraphiteImageWithRecorder
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageMakeScaled_GraphiteImageWithRecorder_Success,
                                    reporter,
                                    context,
-                                   CtsEnforcement::kNextRelease) {
+                                   CtsEnforcement::kApiLevel_202604) {
     std::unique_ptr<skgpu::graphite::Recorder> recorder = context->makeRecorder();
 
     SkBitmap bm;
@@ -107,7 +107,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageMakeScaled_GraphiteImageWithRecorder_Suc
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CanvasBaseRecorder_GraphiteBasedCanvas_IsOriginalRecorder,
                                    reporter,
                                    context,
-                                   CtsEnforcement::kNextRelease) {
+                                   CtsEnforcement::kApiLevel_202604) {
     std::unique_ptr<skgpu::graphite::Recorder> recorder = context->makeRecorder();
 
     auto ii = SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType);

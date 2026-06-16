@@ -1054,8 +1054,11 @@ constexpr auto kApiLevel_T = CtsEnforcement::kApiLevel_T;
 constexpr auto kApiLevel_U = CtsEnforcement::kApiLevel_U;
 constexpr auto kApiLevel_202404 = CtsEnforcement::kApiLevel_202404;
 constexpr auto kApiLevel_202504 = CtsEnforcement::kApiLevel_202504;
+constexpr auto kApiLevel_202604 = CtsEnforcement::kApiLevel_202604;
 constexpr auto kNever = CtsEnforcement::kNever;
+[[maybe_unused]] constexpr auto kToBeDetermined = CtsEnforcement::kToBeDetermined;
 [[maybe_unused]] constexpr auto kNextRelease = CtsEnforcement::kNextRelease;
+
 
 SKSL_TEST(ES3 | GPU_ES3, kApiLevel_T,      ArrayFolding,               "folding/ArrayFolding.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T,      ArraySizeFolding,           "folding/ArraySizeFolding.rts")
@@ -1180,7 +1183,7 @@ SKSL_TEST(CPU | GPU,     kApiLevel_202404, IfElseBinding,                   "run
 SKSL_TEST(CPU | GPU,     kApiLevel_202404, IncrementDisambiguation,         "runtime/IncrementDisambiguation.rts")
 SKSL_TEST(CPU | GPU,     kApiLevel_T,      LoopFloat,                       "runtime/LoopFloat.rts")
 SKSL_TEST(CPU | GPU,     kApiLevel_T,      LoopInt,                         "runtime/LoopInt.rts")
-SKSL_TEST(CPU | GPU,     kNextRelease,     Ossfuzz418486361,                "runtime/Ossfuzz418486361.rts")
+SKSL_TEST(CPU | GPU,     kApiLevel_202604, Ossfuzz418486361,                "runtime/Ossfuzz418486361.rts")
 SKSL_TEST(CPU | GPU,     kApiLevel_U,      Ossfuzz52603,                    "runtime/Ossfuzz52603.rts")
 SKSL_TEST(CPU | GPU,     kApiLevel_T,      QualifierOrder,                  "runtime/QualifierOrder.rts")
 SKSL_TEST(CPU | GPU,     kApiLevel_T,      PrecisionQualifiers,             "runtime/PrecisionQualifiers.rts")
