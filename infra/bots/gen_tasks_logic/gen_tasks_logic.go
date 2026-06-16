@@ -838,7 +838,6 @@ func (b *TaskBuilder) swarmDimensions() {
 var androidDeviceInfos = map[string][]string{
 	"AndroidOne":      {"sprout", "MOB30Q"},
 	"GalaxyS7_G930FD": {"herolte", "R16NW"}, // This is Oreo.
-	"GalaxyS9":        {"exynos9810", "QP1A.190711.020"},
 	"GalaxyS20":       {"exynos990", "QP1A.190711.020"},
 	"GalaxyS24":       {"pineapple", "UP1A.231005.007"},
 	"GalaxyS25Plus":   {"sun", "BP2A.250605.031.A3"},
@@ -847,7 +846,6 @@ var androidDeviceInfos = map[string][]string{
 	"MokeyGo32":       {"mokey_go32", "UQ1A.240105.003.A1"},
 	"MotoG73":         {"devonf", "U1TN34.82-12-17"},
 	"Nexus5":          {"hammerhead", "M4B30Z_3437181"},
-	"Nexus7":          {"grouper", "LMY47V"}, // 2012 Nexus 7
 	"P30":             {"HWELE", "HUAWEIELE-L29"},
 	"Pixel3a":         {"sargo", "QP1A.190711.020"},
 	"Pixel4":          {"flame", "RPB2.200611.009"}, // R Preview
@@ -858,7 +856,6 @@ var androidDeviceInfos = map[string][]string{
 	"Pixel7":          {"panther", "AP4A.241205.013"},
 	"Pixel7Pro":       {"cheetah", "TD1A.221105.002"},
 	"Pixel9":          {"tokay", "AP4A.241205.013"},
-	"Pixel10":         {"frankel", "BP41.250916.012.A1"},
 	"TecnoSpark3Pro":  {"TECNO-KB8", "PPR1.180610.011"},
 	"Wembley":         {"wembley", "SP2A.220505.008"},
 }
