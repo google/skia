@@ -878,7 +878,7 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 			"Mac11":       "Mac-11",
 			"Mac12":       "Mac-12",
 			"Mac13":       "Mac-13",
-			"Mac14":       "Mac-14.7",
+			"Mac14":       "Mac-14.8",
 			"Mac15":       "Mac-15.7",
 			"Mokey":       "Android",
 			"MokeyGo32":   "Android",
@@ -1116,7 +1116,7 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 				"MacBookPro11.5": {"mac_model": "MacBookPro11,5", "os": "Mac-12.7"},
 				"MacBookPro15.1": {"mac_model": "MacBookPro15,1", "os": "Mac-15.3"},
 				"MacBookPro15.3": {"mac_model": "Mac15,3", "os": "Mac-13.5"},
-				"MacMini8.1":     {"mac_model": "Macmini8,1"}, // on both 14.5 and 14.7
+				"MacMini8.1":     {"mac_model": "Macmini8,1"}, // on both 14.5 and 14.8
 				"MacMini9.1":     {"mac_model": "Macmini9,1", "os": "Mac-14.7"},
 				"MacMini16.10":   {"mac_model": "Mac16,10", "os": "Mac-15.7"},
 			}[b.Parts["model"]]; ok {
