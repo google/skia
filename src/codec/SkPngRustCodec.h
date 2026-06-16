@@ -142,6 +142,8 @@ private:
     bool canReadRow();
 
     // SkPngCodecBase overrides:
+    std::unique_ptr<SkCodec> onDecodeGainmap(std::unique_ptr<SkStream> stream,
+                                             SkCodec::Result* result) override;
     std::optional<SkSpan<const PaletteColorEntry>> onTryGetPlteChunk() override;
     std::optional<SkSpan<const uint8_t>> onTryGetTrnsChunk() override;
 

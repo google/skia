@@ -288,10 +288,6 @@ std::optional<SkSpan<const uint8_t>> SkPngCodec::onTryGetTrnsChunk() {
 // Creation
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkPngCodec::IsPng(const void* buf, size_t bytesRead) {
-    return !png_sig_cmp((png_const_bytep) buf, (png_size_t)0, bytesRead);
-}
-
 #if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 6)
 
 static float png_fixed_point_to_float(png_fixed_point x) {
@@ -905,7 +901,7 @@ void AutoCleanPng::infoCallback(size_t idatLength) {
                                                 fChunkReader,
                                                 fPng_ptr,
                                                 fInfo_ptr,
-                                                fChunkReader->takeGaimapStream(),
+                                                fChunkReader->takeGainmapStream(),
                                                 fChunkReader->getGainmapInfo());
         } else {
             *fOutCodec = new SkPngInterlacedDecoder(std::move(encodedInfo),
@@ -914,7 +910,7 @@ void AutoCleanPng::infoCallback(size_t idatLength) {
                                                     fPng_ptr,
                                                     fInfo_ptr,
                                                     numberPasses,
-                                                    fChunkReader->takeGaimapStream(),
+                                                    fChunkReader->takeGainmapStream(),
                                                     fChunkReader->getGainmapInfo());
         }
         static_cast<SkPngCodec*>(*fOutCodec)->setIdatLength(idatLength);
@@ -936,14 +932,16 @@ SkPngCodec::SkPngCodec(SkEncodedInfo&& encodedInfo,
                        void* info_ptr,
                        std::unique_ptr<SkStream> gainmapStream,
                        std::optional<SkGainmapInfo> gainmapInfo)
-        : SkPngCodecBase(std::move(encodedInfo), std::move(stream), kDefaultEncodedOrigin)
-        , fPngChunkReader(std::move(chunkReader))
+        : SkPngCodecBase(std::move(encodedInfo),
+                         std::move(stream),
+                         kDefaultEncodedOrigin,
+                         std::move(chunkReader),
+                         std::move(gainmapStream),
+                         gainmapInfo)
         , fPng_ptr(png_ptr)
         , fInfo_ptr(info_ptr)
         , fIdatLength(0)
-        , fDecodedIdat(false)
-        , fGainmapStream(std::move(gainmapStream))
-        , fGainmapInfo(gainmapInfo) {}
+        , fDecodedIdat(false) {}
 
 SkPngCodec::~SkPngCodec() {
     this->destroyReadStruct();
@@ -1060,66 +1058,13 @@ std::unique_ptr<SkCodec> SkPngCodec::MakeFromStream(std::unique_ptr<SkStream> st
     return std::unique_ptr<SkCodec>(outCodec);
 }
 
-bool SkPngCodec::onGetGainmapCodec(SkGainmapInfo* info, std::unique_ptr<SkCodec>* gainmapCodec) {
-    if (!fGainmapStream) {
-        return false;
-    }
-
-    sk_sp<const SkData> data = fGainmapStream->getData();
-    if (!data) {
-        return false;
-    }
-
-    if (!SkPngDecoder::IsPng(data->bytes(), data->size())) {
-        return false;
-    }
-
-    // The gainmap information lives on the gainmap image itself, so we need to
-    // create the gainmap codec first, then check if it has a metadata chunk.
-    SkCodec::Result result;
-    std::unique_ptr<SkCodec> codec =
-            SkPngCodec::MakeFromStream(fGainmapStream->duplicate(), &result, fPngChunkReader.get());
-
-    if (result != SkCodec::Result::kSuccess) {
-        return false;
-    }
-
-    bool hasInfo = codec->onGetGainmapInfo(info);
-
-    if (hasInfo && gainmapCodec) {
-        // The ISO gainmap payload does not contain the actual alterative image
-        // primaries, so we need to query the ICC profile stored on the gainmap.
-        if (info->fGainmapMathColorSpace) {
-            const auto* colorProfile = codec->getEncodedInfo().colorProfile();
-            if (colorProfile) {
-                auto colorSpace = colorProfile->getExactColorSpace();
-                if (colorSpace) {
-                    info->fGainmapMathColorSpace = std::move(colorSpace);
-                }
-            }
-        }
-
-        *gainmapCodec = std::move(codec);
-    }
-
-    return hasInfo;
-}
-
-bool SkPngCodec::onGetGainmapInfo(SkGainmapInfo* info) {
-    if (fGainmapInfo) {
-        if (info) {
-            *info = *fGainmapInfo;
-        }
-        return true;
-    }
-
-    return false;
+std::unique_ptr<SkCodec> SkPngCodec::onDecodeGainmap(std::unique_ptr<SkStream> stream,
+                                                     SkCodec::Result* result) {
+    return SkPngCodec::MakeFromStream(std::move(stream), result, fPngChunkReader.get());
 }
 
 namespace SkPngDecoder {
-bool IsPng(const void* data, size_t len) {
-    return SkPngCodec::IsPng(data, len);
-}
+bool IsPng(const void* data, size_t len) { return SkPngCodecBase::IsPng(data, len); }
 
 std::unique_ptr<SkCodec> Decode(std::unique_ptr<SkStream> stream,
                                 SkCodec::Result* outResult,

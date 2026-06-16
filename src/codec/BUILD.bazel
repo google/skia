@@ -324,9 +324,15 @@ skia_cc_library(
     ],
 )
 
-PNG_CODEC_BASE_SRCS = ["SkPngCodecBase.cpp"]
+PNG_CODEC_BASE_SRCS = [
+    "SkPngCodecBase.cpp",
+    "SkPngCompositeChunkReader.cpp",
+]
 
-PNG_CODEC_BASE_HDRS = ["SkPngCodecBase.h"]
+PNG_CODEC_BASE_HDRS = [
+    "SkPngCodecBase.h",
+    "SkPngCompositeChunkReader.h",
+]
 
 skia_filegroup(
     name = "png_codec_base_srcs",
@@ -343,6 +349,7 @@ skia_cc_library(
     srcs = [":png_codec_base_srcs"],
     hdrs = PNG_CODEC_BASE_HDRS + [
         "//include/codec:any_codec_hdrs",
+        "//include/codec:png_public_hdrs",
     ],
     features = ["layering_check"],
     deps = [
@@ -355,12 +362,10 @@ skia_cc_library(
 
 BUFFET_LIBPNG_HDRS = [
     "SkPngCodec.h",
-    "SkPngCompositeChunkReader.h",
 ]
 
 BUFFET_LIBPNG_SRCS = [
     "SkPngCodec.cpp",
-    "SkPngCompositeChunkReader.cpp",
 ]
 
 skia_filegroup(
@@ -368,11 +373,11 @@ skia_filegroup(
     srcs = BUFFET_LIBPNG_SRCS + BUFFET_LIBPNG_HDRS,
 )
 
-COMMON_LIBPNG_HDRS = ["SkPngPriv.h"]
+COMMON_PNG_HDRS = ["SkPngPriv.h"]
 
 skia_filegroup(
-    name = "common_libpng_srcs",
-    srcs = COMMON_LIBPNG_HDRS,
+    name = "common_png_srcs",
+    srcs = COMMON_PNG_HDRS,
     visibility = ["//src/encode:__pkg__"],
 )
 
@@ -380,7 +385,7 @@ skia_cc_library(
     name = "png_decode",
     srcs = [
         ":buffet_libpng_srcs",
-        ":common_libpng_srcs",
+        ":common_png_srcs",
     ],
     hdrs = [
         "//include/codec:any_codec_hdrs",
@@ -414,6 +419,7 @@ skia_filegroup(
 skia_cc_library(
     name = "rust_png_decoder",
     srcs = [
+        ":common_png_srcs",
         ":rust_png_srcs",
     ],
     hdrs = ["//include/codec:rust_png_public_hdrs"],
@@ -515,7 +521,7 @@ generate_cpp_files_for_headers(
               JPEGXL_DECODE_HDRS +
               PNG_CODEC_BASE_HDRS +
               BUFFET_LIBPNG_HDRS +
-              COMMON_LIBPNG_HDRS +
+              COMMON_PNG_HDRS +
               WBMP_DECODE_HDRS +
               WEBP_DECODE_HDRS + [
         "SkAvifCodec.h",

@@ -26,18 +26,12 @@ struct SkImageInfo;
 
 class SkPngCodec : public SkPngCodecBase {
 public:
-    static bool IsPng(const void*, size_t);
-
     // Assume IsPng was called and returned true.
     static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*,
                                                    SkPngChunkReader* = nullptr);
 
     // FIXME (scroggo): Temporarily needed by AutoCleanPng.
     void setIdatLength(size_t len) { fIdatLength = len; }
-
-    bool onGetGainmapCodec(SkGainmapInfo*, std::unique_ptr<SkCodec>*) override;
-
-    bool onGetGainmapInfo(SkGainmapInfo*) override;
 
     ~SkPngCodec() override;
 
@@ -83,12 +77,13 @@ protected:
             const SkCodec::Options&) override;
     Result onIncrementalDecode(int*) override;
 
-    sk_sp<SkPngCompositeChunkReader>     fPngChunkReader;
     voidp                                fPng_ptr;
     voidp                                fInfo_ptr;
 
 private:
     // SkPngCodecBase overrides:
+    std::unique_ptr<SkCodec> onDecodeGainmap(std::unique_ptr<SkStream> stream,
+                                             SkCodec::Result* result) override;
     std::optional<SkSpan<const PaletteColorEntry>> onTryGetPlteChunk() override;
     std::optional<SkSpan<const uint8_t>> onTryGetTrnsChunk() override;
 
@@ -103,8 +98,6 @@ private:
     virtual Result decode(int* rowsDecoded) = 0;
 
     size_t                         fIdatLength;
-    bool                           fDecodedIdat;
-    std::unique_ptr<SkStream> fGainmapStream;
-    std::optional<SkGainmapInfo> fGainmapInfo;
+    bool fDecodedIdat;
 };
 #endif  // SkPngCodec_DEFINED

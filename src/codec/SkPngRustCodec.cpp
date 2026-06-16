@@ -455,7 +455,10 @@ SkPngRustCodec::SkPngRustCodec(SkEncodedInfo&& encodedInfo,
                          // avoid unnecessary rewinding, then stop "hiding" our stream
                          // from it.
                          /* stream = */ nullptr,
-                         GetEncodedOrigin(*reader))
+                         GetEncodedOrigin(*reader),
+                         /* chunkReader = */ nullptr,
+                         /* gainmapStream = */ nullptr,
+                         /* gainmapInfo = */ std::nullopt)
         , fReader(std::move(reader))
         , fPrivStream(std::move(stream))
         , fFrameHolder(encodedInfo.width(), encodedInfo.height()) {
@@ -1087,6 +1090,11 @@ SkCodec::IsAnimated SkPngRustCodec::onIsAnimated() {
         return IsAnimated::kYes;
     }
     return IsAnimated::kNo;
+}
+
+std::unique_ptr<SkCodec> SkPngRustCodec::onDecodeGainmap(std::unique_ptr<SkStream> stream,
+                                                         SkCodec::Result* result) {
+    return SkPngRustCodec::MakeFromStream(std::move(stream), result);
 }
 
 std::optional<SkSpan<const SkPngCodecBase::PaletteColorEntry>> SkPngRustCodec::onTryGetPlteChunk() {

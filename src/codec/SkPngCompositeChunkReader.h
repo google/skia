@@ -34,7 +34,7 @@ public:
 
     bool readChunk(const char tag[], const void* data, size_t length) override;
 
-    std::unique_ptr<SkStream> takeGaimapStream() { return std::move(fGainmapStream); }
+    std::unique_ptr<SkStream> takeGainmapStream() { return std::move(fGainmapStream); }
 
     std::optional<SkGainmapInfo> getGainmapInfo() const { return fGainmapInfo; }
 

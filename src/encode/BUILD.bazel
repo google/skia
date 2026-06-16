@@ -131,7 +131,7 @@ skia_cc_library(
     srcs = [
         ":png_encode_hdrs",
         ":png_encode_srcs",
-        "//src/codec:common_libpng_srcs",
+        "//src/codec:common_png_srcs",
     ],
     hdrs = [
         "//include/encode:encode_hdrs",

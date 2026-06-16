@@ -19,7 +19,9 @@
 #include "include/core/SkSpan.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkEncodedInfo.h"
+#include "include/private/SkGainmapInfo.h"
 #include "include/private/SkTemplates.h"
+#include "src/codec/SkPngCompositeChunkReader.h"
 
 class SkColorPalette;
 class SkSampler;
@@ -33,10 +35,17 @@ class SkPngCodecBase : public SkCodec {
 public:
     ~SkPngCodecBase() override;
 
+    static bool IsPng(const void*, size_t);
+
     static bool isCompatibleColorProfileAndType(const SkCodecs::ColorProfile* profile,
                                                 SkEncodedInfo::Color color);
 protected:
-    SkPngCodecBase(SkEncodedInfo&&, std::unique_ptr<SkStream>, SkEncodedOrigin origin);
+    SkPngCodecBase(SkEncodedInfo&&,
+                   std::unique_ptr<SkStream>,
+                   SkEncodedOrigin origin,
+                   sk_sp<SkPngCompositeChunkReader> chunkReader,
+                   std::unique_ptr<SkStream> gainmapStream,
+                   std::optional<SkGainmapInfo> gainmapInfo);
 
     // Initialize most fields needed by `applyXformRow`.
     //
@@ -72,7 +81,15 @@ protected:
     virtual std::optional<SkSpan<const PaletteColorEntry>> onTryGetPlteChunk() = 0;
     virtual std::optional<SkSpan<const uint8_t>> onTryGetTrnsChunk() = 0;
 
+    virtual std::unique_ptr<SkCodec> onDecodeGainmap(std::unique_ptr<SkStream> stream,
+                                                     SkCodec::Result* result) = 0;
+
+    sk_sp<SkPngCompositeChunkReader> fPngChunkReader;
+
 private:
+    bool onGetGainmapCodec(SkGainmapInfo* info, std::unique_ptr<SkCodec>* gainmapCodec) final;
+    bool onGetGainmapInfo(SkGainmapInfo* info) final;
+
     // SkCodec overrides:
     SkEncodedImageFormat onGetEncodedFormat() const final;
     SkSampler* getSampler(bool createIfNecessary) final;
@@ -105,6 +122,9 @@ private:
     size_t fDstRowBytes = 0;      // Size of destination row in bytes.
 
     std::optional<SkImageInfo> fDstInfoOfPreviousColorTableCreation;
+
+    std::unique_ptr<SkStream> fGainmapStream;
+    std::optional<SkGainmapInfo> fGainmapInfo;
 };
 
 #endif  // SkPngCodecBase_DEFINED

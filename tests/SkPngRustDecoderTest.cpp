@@ -10,6 +10,7 @@
 #include <memory>
 #include <utility>
 
+#include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkCodecAnimation.h"
 #include "include/core/SkBitmap.h"
@@ -21,6 +22,7 @@
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
+#include "include/private/SkGainmapInfo.h"
 #include "tests/FakeStreams.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
@@ -831,4 +833,27 @@ DEF_TEST(RustPngCodec_sbit565_ihdr16bits, r) {
     REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
     result = codec->incrementalDecode();
     REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+}
+
+DEF_TEST(RustPngCodec_gainmapNoOp, r) {
+    auto stream = GetResourceAsStream("images/gainmap.png", false);
+    REPORTER_ASSERT(r, stream);
+
+    SkCodec::Result result = SkCodec::kSuccess;
+    std::unique_ptr<SkCodec> baseCodec = SkPngRustDecoder::Decode(std::move(stream), &result);
+    REPORTER_ASSERT(r, baseCodec);
+
+    std::unique_ptr<SkAndroidCodec> androidCodec =
+            SkAndroidCodec::MakeFromCodec(std::move(baseCodec));
+    REPORTER_ASSERT(r, androidCodec);
+
+    SkGainmapInfo gainmapInfo;
+    std::unique_ptr<SkAndroidCodec> gainmapCodec;
+    bool hasGainmap = androidCodec->getGainmapAndroidCodec(&gainmapInfo, &gainmapCodec);
+
+    // Assert that it currently returns false (no-op/unsupported).
+    // TODO(b/381292460): Update this test to assert that gainmaps are successfully
+    // processed once unknown chunks support is wired in the Rust codec.
+    REPORTER_ASSERT(r, !hasGainmap);
+    REPORTER_ASSERT(r, !gainmapCodec);
 }

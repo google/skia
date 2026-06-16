@@ -1291,6 +1291,7 @@ optional("xps") {
 
 optional("png_decode_common") {
   enabled = skia_use_libpng_decode || skia_use_rust_png_decode
+  public = skia_codec_png_public
   sources = skia_codec_png_base
 }
 
@@ -1911,6 +1912,7 @@ skia_component("skia") {
     ":jpeg_encode",
     ":pdf",
     ":pdf_jpeg_helpers",
+    ":png_decode_common",
     ":png_decode_libpng",
     ":png_encode_libpng",
     ":webp_encode",

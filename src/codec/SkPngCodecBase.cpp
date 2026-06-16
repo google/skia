@@ -58,6 +58,16 @@ skcms_PixelFormat ToPixelFormat(const SkEncodedInfo& info) {
 SkPngCodecBase::~SkPngCodecBase() = default;
 
 // static
+bool SkPngCodecBase::IsPng(const void* buf, size_t len) {
+    static constexpr uint8_t kPngSignature[] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+    if (len < sizeof(kPngSignature)) {
+        return false;
+    }
+
+    return memcmp(buf, kPngSignature, sizeof(kPngSignature)) == 0;
+}
+
+// static
 bool SkPngCodecBase::isCompatibleColorProfileAndType(const SkCodecs::ColorProfile* profile,
                                                      SkEncodedInfo::Color color) {
     if (profile) {
@@ -80,8 +90,14 @@ bool SkPngCodecBase::isCompatibleColorProfileAndType(const SkCodecs::ColorProfil
 
 SkPngCodecBase::SkPngCodecBase(SkEncodedInfo&& encodedInfo,
                                std::unique_ptr<SkStream> stream,
-                               SkEncodedOrigin origin)
-        : SkCodec(std::move(encodedInfo), ToPixelFormat(encodedInfo), std::move(stream), origin) {}
+                               SkEncodedOrigin origin,
+                               sk_sp<SkPngCompositeChunkReader> chunkReader,
+                               std::unique_ptr<SkStream> gainmapStream,
+                               std::optional<SkGainmapInfo> gainmapInfo)
+        : SkCodec(std::move(encodedInfo), ToPixelFormat(encodedInfo), std::move(stream), origin)
+        , fPngChunkReader(std::move(chunkReader))
+        , fGainmapStream(std::move(gainmapStream))
+        , fGainmapInfo(gainmapInfo) {}
 
 SkEncodedImageFormat SkPngCodecBase::onGetEncodedFormat() const {
     return SkEncodedImageFormat::kPNG;
@@ -366,4 +382,60 @@ bool SkPngCodecBase::createColorTable(const SkImageInfo& dstInfo) {
 
     fColorTable.reset(new SkColorPalette(colorTable, maxColors));
     return true;
+}
+
+bool SkPngCodecBase::onGetGainmapCodec(SkGainmapInfo* info,
+                                       std::unique_ptr<SkCodec>* gainmapCodec) {
+    if (!fGainmapStream) {
+        return false;
+    }
+
+    sk_sp<const SkData> data = fGainmapStream->getData();
+    if (!data) {
+        return false;
+    }
+
+    if (!SkPngCodecBase::IsPng(data->bytes(), data->size())) {
+        return false;
+    }
+
+    // The gainmap information lives on the gainmap image itself, so we need to
+    // create the gainmap codec first, then check if it has a metadata chunk.
+    SkCodec::Result result;
+    std::unique_ptr<SkCodec> codec = this->onDecodeGainmap(fGainmapStream->duplicate(), &result);
+
+    if (!codec || result != SkCodec::Result::kSuccess) {
+        return false;
+    }
+
+    bool hasInfo = codec->onGetGainmapInfo(info);
+
+    if (hasInfo && gainmapCodec) {
+        // The ISO gainmap payload does not contain the actual alterative image
+        // primaries, so we need to query the ICC profile stored on the gainmap.
+        if (info->fGainmapMathColorSpace) {
+            const auto* colorProfile = codec->getEncodedInfo().colorProfile();
+            if (colorProfile) {
+                auto colorSpace = colorProfile->getExactColorSpace();
+                if (colorSpace) {
+                    info->fGainmapMathColorSpace = std::move(colorSpace);
+                }
+            }
+        }
+
+        *gainmapCodec = std::move(codec);
+    }
+
+    return hasInfo;
+}
+
+bool SkPngCodecBase::onGetGainmapInfo(SkGainmapInfo* info) {
+    if (fGainmapInfo) {
+        if (info) {
+            *info = *fGainmapInfo;
+        }
+        return true;
+    }
+
+    return false;
 }
