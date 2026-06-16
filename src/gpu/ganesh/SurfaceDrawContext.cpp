@@ -910,7 +910,8 @@ void SurfaceDrawContext::drawTextureSet(const GrClip* clip,
                                         SkBlendMode mode,
                                         SkCanvas::SrcRectConstraint constraint,
                                         const SkMatrix& viewMatrix,
-                                        sk_sp<GrColorSpaceXform> texXform) {
+                                        sk_sp<GrColorSpaceXform> texXform,
+                                        bool setMayHavePersp) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -924,7 +925,7 @@ void SurfaceDrawContext::drawTextureSet(const GrClip* clip,
                                                       : ganesh::TextureOp::Saturate::kNo;
     ganesh::TextureOp::AddTextureSetOps(this, clip, fContext, set, cnt, proxyRunCnt, filter, mm,
                                         saturate, mode, aaType, constraint, viewMatrix,
-                                        std::move(texXform));
+                                        std::move(texXform), setMayHavePersp);
 }
 
 void SurfaceDrawContext::drawVertices(const GrClip* clip,

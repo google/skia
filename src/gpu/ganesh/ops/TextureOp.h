@@ -87,7 +87,8 @@ public:
                                  GrAAType,
                                  SkCanvas::SrcRectConstraint,
                                  const SkMatrix& viewMatrix,
-                                 sk_sp<GrColorSpaceXform> textureXform);
+                                 sk_sp<GrColorSpaceXform> textureXform,
+                                 bool setMayHavePersp);
 
 #if defined(GPU_TEST_UTILS)
     static uint32_t ClassID();

@@ -234,7 +234,8 @@ static void textureop_creation_test(skiatest::Reporter* reporter, GrDirectContex
                                     overallAA,
                                     SkCanvas::kStrict_SrcRectConstraint,
                                     SkMatrix::I(),
-                                    nullptr);
+                                    nullptr,
+                                    /* setMayHavePersp= */ true);
     }
 
     auto opsTask = sdc->testingOnly_PeekLastOpsTask();
