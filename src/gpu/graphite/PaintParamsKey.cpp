@@ -71,6 +71,41 @@ void PaintParamsKeyBuilder::popStack() {
     fStack.pop_back();
 }
 
+void PaintParamsKeyBuilder::validateReplacement(int32_t oldCodeSnippetID,
+                                                int32_t newCodeSnippetID) {
+    // Rules for allowed replacements:
+    // 1. BuiltInCodeSnippetIDs only
+    // 2. Have the same number of children (and 0 if allowChildren is false)
+    // 3. Have the same uniform and texture signature
+    // 4. No extra data
+    //
+    // This ensures that replacing on a block by block basis produces a valid ShaderNode tree
+    // after modification, and that extracted uniforms and textures for the original key can be
+    // used with the new key.
+    SkASSERT(oldCodeSnippetID >= 0 && oldCodeSnippetID < kBuiltInCodeSnippetIDCount);
+    SkASSERT(newCodeSnippetID >= 0 && newCodeSnippetID < kBuiltInCodeSnippetIDCount);
+
+    const ShaderSnippet* oldSnippet = fDict->getEntry(oldCodeSnippetID);
+    const ShaderSnippet* newSnippet = fDict->getEntry(newCodeSnippetID);
+
+    SkASSERT(oldSnippet->fNumChildren == newSnippet->fNumChildren);
+
+    // Same signature, not caring about the actual variable names.
+    SkASSERT(oldSnippet->fUniforms.size() == newSnippet->fUniforms.size());
+    for (int u = 0; u < oldSnippet->fUniforms.size(); ++u) {
+        const Uniform& oldU = oldSnippet->fUniforms[u];
+        const Uniform& newU = newSnippet->fUniforms[u];
+        SkASSERT(oldU.type() == newU.type());
+        SkASSERT(oldU.count() == newU.count());
+        SkASSERT(oldU.isPaintColor() == newU.isPaintColor());
+    }
+
+    SkASSERT(oldSnippet->fTexturesAndSamplers.size() == newSnippet->fTexturesAndSamplers.size());
+
+    SkASSERT(!oldSnippet->storesSamplerDescData());
+    SkASSERT(!newSnippet->storesSamplerDescData());
+}
+
 #endif // SK_DEBUG
 
 //--------------------------------------------------------------------------------------------------

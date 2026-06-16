@@ -13,6 +13,7 @@
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/Device.h"
+#include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
@@ -114,4 +115,173 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(InnerFillTest, reporter, context,
     }
 
     // We don't actually care about rendering, so just throw everything away
+}
+
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(OptimizeForOpacity,
+                                   reporter,
+                                   context,
+                                   CtsEnforcement::kNextRelease) {
+    static constexpr SkColor4f kSemiTransparent{1.f, 1.f, 1.f, 0.5f};
+    static constexpr SkColor4f kOpaque{1.f, 1.f, 1.f, 1.f};
+
+    const Caps* caps = context->priv().caps();
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
+    // We need a DrawContext to participate in uniform extraction and key generation
+    SkColorInfo targetInfo{kRGBA_8888_SkColorType, kPremul_SkAlphaType, /*cs=*/nullptr};
+    sk_sp<TextureProxy> target = TextureProxy::Make(
+            caps, recorder->priv().resourceProvider(),
+            /*dimensions=*/{16, 16},
+            caps->getDefaultSampledTextureInfo(targetInfo.colorType(),
+                                               Mipmapped::kNo,
+                                               Protected::kNo,
+                                               Renderable::kYes),
+            "OptimizeForOpacityTarget",
+            Budgeted::kYes);
+    sk_sp<DrawContext> drawContext = DrawContext::Make(
+            caps, std::move(target), {16, 16}, targetInfo, {});
+
+    auto genPaintID = [&](const PaintParams& paint,
+                          Coverage rendererCoverage,
+                          SkEnumBitMask<DstUsage> expectedDstUsage,
+                          const NonMSAAClip& clip={}) {
+        ShadingParams shading{caps, paint, clip, /*clipShader=*/nullptr,
+                              rendererCoverage, TextureFormat::kRGBA8};
+
+        auto keyAndDataBuilder = recorder->priv().popOrCreateKeyAndDataBuilder();
+        // This opts into kPreferFixedSrcBlend as if we were drawing a rect or quad that supports
+        // inner fills (and assuming that `rendererCoverage` is set to match either the AA or the
+        // pixel-aligned case appropriately).
+        KeyContext keyContext{recorder.get(),
+                              drawContext.get(),
+                              recorder->priv().floatStorageManager(),
+                              &keyAndDataBuilder->second,
+                              &keyAndDataBuilder->first,
+                              SkM44(),
+                              SkRect::MakeIWH(16, 16),
+                              targetInfo,
+                              KeyGenFlags::kPreferFixedSrcBlend,
+                              paint.color()};
+
+        auto [paintID, dstUsage] = *shading.toKey(keyContext);
+        // The expected usages should be a subset of what was actually returned
+        REPORTER_ASSERT(reporter, (dstUsage & expectedDstUsage) == expectedDstUsage);
+
+        std::optional<UniquePaintParamsID> opaqueID;
+        if (dstUsage == DstUsage::kNone || (dstUsage & DstUsage::kDstOnlyUsedByRenderer)) {
+            opaqueID = shading.optimizeForOpacity(keyContext, paintID);
+        }
+
+        keyAndDataBuilder->first.resetForDraw();
+        keyAndDataBuilder->second.resetForDraw();
+        recorder->priv().pushKeyAndDataBuilder(std::move(keyAndDataBuilder));
+        return std::make_pair(paintID, opaqueID);
+    };
+
+    // Construct an unclipped solid color + src paint without coverage, e.g. the optimized
+    // paint params key for an inner fill.
+    auto [nonAASrcID, opaqueNonAASrcID] =
+            genPaintID(PaintParams{kSemiTransparent, SkBlendMode::kSrc},
+                       Coverage::kNone,
+                       DstUsage::kNone);
+    REPORTER_ASSERT(reporter, opaqueNonAASrcID.has_value(), "Non-AA + kSrc not detected as opaque");
+    REPORTER_ASSERT(reporter, nonAASrcID == *opaqueNonAASrcID,
+                    "optimizeForOpacity() should be a no-op for non-AA+kSrc");
+
+    // Case 1: src-over + opaque color without coverage is optimized up front to match kSrc
+    {
+        auto [nonAASrcOverID, opaqueNonAASrcOverID] =
+                genPaintID(PaintParams{kOpaque, SkBlendMode::kSrcOver},
+                           Coverage::kNone,
+                           DstUsage::kNone);
+        REPORTER_ASSERT(reporter, opaqueNonAASrcOverID.has_value(),
+                        "Non-AA + kSrcOver not detected as opaque");
+        REPORTER_ASSERT(reporter, nonAASrcOverID == *opaqueNonAASrcOverID,
+                        "optimizeForOpacity() should be a no-op for non-AA+kSrcOver");
+        REPORTER_ASSERT(reporter, nonAASrcOverID == nonAASrcID,
+                        "Opaque paint ID should match between non-AA+kSrcOver and non-AA+kSrc");
+    }
+
+    // Case 2: src with coverage is optimized in second pass for inner fill, although the paint
+    // ID works out the same (the change comes later with a different RenderStep combination).
+    {
+        auto [aaSrcID, opaqueAASrcID] =
+                genPaintID(PaintParams{kOpaque, SkBlendMode::kSrc},
+                           Coverage::kSingleChannel,
+                           DstUsage::kDependsOnDst | DstUsage::kDstOnlyUsedByRenderer);
+        REPORTER_ASSERT(reporter, opaqueAASrcID.has_value(),
+                        "AA + kSrc should have opaque variant");
+        REPORTER_ASSERT(reporter, aaSrcID == *opaqueAASrcID,
+                        "optimizeForOpacity() should be a no-op for AA+kSrc");
+        REPORTER_ASSERT(reporter, *opaqueAASrcID == nonAASrcID,
+                        "Opaque paint ID should match between AA+kSrc and non-AA+kSrc");
+    }
+
+    // Case 3: src-over + opaque color with coverage is optimized in second pass for inner fill
+    {
+        auto [aaSrcOverID, opaqueAASrcOverID] =
+                genPaintID(PaintParams{kOpaque, SkBlendMode::kSrcOver},
+                           Coverage::kSingleChannel,
+                           DstUsage::kDependsOnDst | DstUsage::kDstOnlyUsedByRenderer);
+        REPORTER_ASSERT(reporter, opaqueAASrcOverID.has_value(),
+                        "AA + kSrcOver should have opaque variant");
+        REPORTER_ASSERT(reporter, aaSrcOverID != *opaqueAASrcOverID,
+                        "optimizeForOpacity() should be different for AA+kSrcOver");
+        REPORTER_ASSERT(reporter, *opaqueAASrcOverID == nonAASrcID,
+                        "Opaque paint ID should match between AA+kSrcOver and non-AA+kSrc");
+    }
+
+    // Case 4: src-over + transparent color is not optimized and has no inner fill follow-up
+    {
+        auto [_, opaqueAASrcOverID] =
+                genPaintID(PaintParams{kSemiTransparent, SkBlendMode::kSrcOver},
+                           Coverage::kSingleChannel,
+                           DstUsage::kDependsOnDst);
+        REPORTER_ASSERT(reporter, !opaqueAASrcOverID.has_value(),
+                        "AA + kSrcOver should not have an opaque variant");
+    }
+
+    AnalyticClip clip;
+    clip.fBounds = { 1.f, 1.f, 15.f, 15.f };
+
+    // Case 5: src without coverage but an analytic clip cannot have an inner fill
+    {
+        auto [_, clippedOpaqueNonAASrcID] =
+        genPaintID(PaintParams{kSemiTransparent, SkBlendMode::kSrc},
+                    Coverage::kNone,
+                    DstUsage::kDependsOnDst,
+                    NonMSAAClip{clip, {}});
+        REPORTER_ASSERT(reporter, !clippedOpaqueNonAASrcID.has_value(),
+                        "Non-AA + kSrc + AnalyticClip should not have an opaque variant");
+    }
+    // Case 6: src-over + opaque without coverage but an analytic clip cannot have an inner fill
+    {
+        auto [_, clippedOpaqueNonAASrcOverID] =
+                genPaintID(PaintParams{kOpaque, SkBlendMode::kSrcOver},
+                           Coverage::kNone,
+                           DstUsage::kDependsOnDst,
+                           NonMSAAClip{clip, {}});
+        REPORTER_ASSERT(reporter, !clippedOpaqueNonAASrcOverID.has_value(),
+                        "Non-AA + kSrcOver + AnalyticClip should not have an opaque variant");
+    }
+    // Case 7: src with coverage and an analytic clip cannot have an inner fill
+    {
+        auto [_, clippedOpaqueAASrcID] =
+                genPaintID(PaintParams{kOpaque, SkBlendMode::kSrc},
+                           Coverage::kSingleChannel,
+                           DstUsage::kDependsOnDst,
+                           NonMSAAClip{clip, {}});
+        REPORTER_ASSERT(reporter, !clippedOpaqueAASrcID.has_value(),
+                        "AA + kSrc + AnalyticClip should not have an opaque variant");
+    }
+    // Case 8: src-over + opaque with coverage and an analytic clip cannot have an inner fill
+    {
+        auto [_, clippedOpaqueAASrcOverID] =
+                genPaintID(PaintParams{kOpaque, SkBlendMode::kSrcOver},
+                           Coverage::kSingleChannel,
+                           DstUsage::kDependsOnDst,
+                           NonMSAAClip{clip, {}});
+        REPORTER_ASSERT(reporter, !clippedOpaqueAASrcOverID.has_value(),
+                        "AA + kSrcOver + AnalyticClip should not have an opaque variant");
+    }
 }

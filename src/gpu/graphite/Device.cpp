@@ -1784,9 +1784,11 @@ void Device::drawGeometry(const Transform& localToDevice,
             // The regular draw has analytic coverage, so isn't being sorted front to back, but
             // we do want to sort the inner fill to maximize overdraw reduction
             orderWithoutCoverage.reverseDepthAsStencil();
+
+            UniquePaintParamsID opaqueID = shading.optimizeForOpacity(keyContext, paintID);
             fDC->recordDraw(fRecorder->priv().rendererProvider()->nonAABounds(), localToDevice,
                             Geometry(Shape(innerFillBounds)), clip, orderWithoutCoverage,
-                            paintID, dstUsage, scopedDrawBuilder.gatherer(),
+                            opaqueID, DstUsage::kNone, scopedDrawBuilder.gatherer(),
                             /*stroke=*/nullptr, latestInsertion);
             // Force the coverage draw to come after the non-AA draw in order to benefit from
             // early depth testing.

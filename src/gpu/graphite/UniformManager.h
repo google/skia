@@ -469,6 +469,8 @@ private:
     void checkExpected(const void* dst, SkSLType, int count);
     void checkBeginStruct(int baseAlignment);
     void checkEndStruct();
+
+    friend class PipelineDataGatherer; // peak into fStorage for checkEquivalent() avoiding finish()
 #endif // SK_DEBUG
 };
 

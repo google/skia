@@ -175,6 +175,12 @@ public:
 
     ~PaintParamsKeyBuilder() { SkASSERT(!fLocked); }
 
+    bool operator==(const PaintParamsKey& that) const {
+        // Don't need to lock and unlock the builder because this PaintParamsKey goes out of scope.
+        return PaintParamsKey(fData) == that;
+    }
+    bool operator!=(const PaintParamsKey& that) const { return !(*this == that); }
+
     void beginBlock(BuiltInCodeSnippetID id) { this->beginBlock(static_cast<uint32_t>(id)); }
     void beginBlock(uint32_t codeSnippetID) {
         SkASSERT(!fLocked);
@@ -232,6 +238,38 @@ public:
         SkDEBUGCODE(this->checkReset();)
     }
 
+    BuiltInCodeSnippetID replaceLastBlock(BuiltInCodeSnippetID newID) {
+        // A valid replacement cannot have auxiliary data and requires the children count to be
+        // same. However, since this is taking the old ID from the last index, the old block by
+        // definition has no children so newID cannot either.
+        SkASSERT(!fLocked);
+        SkASSERT(fStack.empty());
+
+        int index = fData.size() - 1;
+        SkASSERT(index >= 0);
+        SkDEBUGCODE(this->validateReplacement(fData[index], (int32_t) newID);)
+        BuiltInCodeSnippetID oldID = static_cast<BuiltInCodeSnippetID>(fData[index]);
+        fData[index] = static_cast<int32_t>(newID);
+        return oldID;
+    }
+
+    void replaceBlocks(BuiltInCodeSnippetID oldID, BuiltInCodeSnippetID newID) {
+        SkASSERT(!fLocked);
+        SkASSERT(fStack.empty());
+        SkDEBUGCODE(this->validateReplacement((int32_t) oldID, (int32_t) newID);)
+        for (int i = 0; i < fData.size(); ++i) {
+            if (fData[i] < 0) {
+                // This is embedded data, so skip over its length in case any of its data values
+                // happened to equal oldID
+                i += PaintParamsKey::EncodeDataSize(fData[i]);
+                continue;
+            } else if (fData[i] == static_cast<int32_t>(oldID)) {
+                // Replace the old ID with the new ID
+                fData[i] = static_cast<int32_t>(newID);
+            } // else leave other IDs alone
+        }
+    }
+
 private:
     friend class AutoLockBuilderAsKey; // for lockAsKey() and unlock()
 
@@ -261,6 +299,7 @@ private:
 #ifdef SK_DEBUG
     void pushStack(int32_t codeSnippetID);
     void validateData(size_t dataSize);
+    void validateReplacement(int32_t oldCodeSnippetID, int32_t newCodeSnippetID);
     void popStack();
 
     // Information about the current block being written
