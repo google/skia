@@ -10,6 +10,7 @@
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathTypes.h"
+#include "include/core/SkShader.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTileMode.h"
@@ -941,7 +942,7 @@ static std::unique_ptr<SkStreamAsset> create_pattern_fill_content(int gsIndex,
     return content.detachAsStream();
 }
 
-static bool gradient_has_alpha(const SkPDFGradientShader::Key& key) {
+static bool has_alpha(const SkPDFGradientShader::Key& key) {
     SkASSERT(key.fType != SkShaderBase::GradientType::kNone);
     for (int i = 0; i < key.fInfo.fColorCount; i++) {
         if (!key.fInfo.fColors[i].isOpaque()) {
@@ -949,6 +950,15 @@ static bool gradient_has_alpha(const SkPDFGradientShader::Key& key) {
         }
     }
     return false;
+}
+
+static bool has_alpha(const SkShader* shader, const SkPDFGradientShader::Key& key) {
+    SkASSERT(shader);
+    SkASSERT(key.fType != SkShaderBase::GradientType::kNone);
+    if (shader->isOpaque()) {
+        return false;
+    }
+    return has_alpha(key);
 }
 
 // warning: does not set fHash on new key.  (Both callers need to change fields.)
@@ -981,7 +991,7 @@ static SkPDFIndirectReference create_smask_graphic_state(SkPDFDocument* doc,
     luminosityState.fInfo.fPremulInterp = false;
     luminosityState.fHash = hash(luminosityState);
 
-    SkASSERT(!gradient_has_alpha(luminosityState));
+    SkASSERT(!has_alpha(luminosityState));
     SkPDFIndirectReference luminosityShader = find_pdf_shader(doc, std::move(luminosityState), false);
     std::unique_ptr<SkPDFDict> resources = get_gradient_resource_dict(luminosityShader,
                                                             SkPDFIndirectReference());
@@ -1009,7 +1019,7 @@ static SkPDFIndirectReference make_alpha_function_shader(SkPDFDocument* doc,
         }
         opaqueState.fHash = hash(opaqueState);
 
-        SkASSERT(!gradient_has_alpha(opaqueState));
+        SkASSERT(!has_alpha(opaqueState));
     }
     SkRect bbox = SkRect::Make(state.fBBox);
     SkPDFIndirectReference colorShader = find_pdf_shader(doc, std::move(opaqueState), false);
@@ -1087,9 +1097,12 @@ SkPDFIndirectReference SkPDFGradientShader::Make(SkPDFDocument* doc,
                                                  SkShader* shader,
                                                  const SkMatrix& canvasTransform,
                                                  const SkIRect& bbox) {
+    SkASSERT(doc);
     SkASSERT(shader);
-    SkASSERT(as_SB(shader)->asGradient() != SkShaderBase::GradientType::kNone);
     SkPDFGradientShader::Key key = make_key(shader, canvasTransform, bbox);
-    const bool makeAlphaShader = gradient_has_alpha(key);
+    const bool makeAlphaShader = has_alpha(shader, key);
+    if (doc->metadata().fRasterizeAlphaGradientsForPrinting && makeAlphaShader) {
+        return SkPDFIndirectReference();
+    }
     return find_pdf_shader(doc, std::move(key), makeAlphaShader);
 }

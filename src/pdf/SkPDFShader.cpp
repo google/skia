@@ -340,7 +340,10 @@ SkPDFIndirectReference SkPDFMakeShader(SkPDFDocument* doc,
     SkASSERT(shader);
     SkASSERT(doc);
     if (as_SB(shader)->asGradient() != SkShaderBase::GradientType::kNone) {
-        return SkPDFGradientShader::Make(doc, shader, canvasTransform, surfaceBBox);
+        if (SkPDFIndirectReference gradientShader =
+                    SkPDFGradientShader::Make(doc, shader, canvasTransform, surfaceBBox)) {
+            return gradientShader;
+        }
     }
     if (surfaceBBox.isEmpty()) {
         return SkPDFIndirectReference();

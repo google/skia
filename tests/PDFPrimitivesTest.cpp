@@ -12,6 +12,7 @@
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkData.h"
 #include "include/core/SkDocument.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontStyle.h"
@@ -23,12 +24,15 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/docs/SkPDFDocument.h"
 #include "include/docs/SkPDFJpegHelpers.h"
+#include "include/effects/SkGradient.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/private/SkDebug.h"
@@ -573,6 +577,85 @@ DEF_TEST(SkPDF_EmitPath, reporter) {
             tst.svgPath, result.c_str(), tst.expectedPdf);
         REPORTER_ASSERT(reporter, didEmit != result.isEmpty());
     }
+}
+
+static bool pdf_contains(const sk_sp<SkData>& data, const char needle[]) {
+    size_t len = strlen(needle);
+    if (len == 0 || data->size() < len) {
+        return false;
+    }
+    const char* bytes = reinterpret_cast<const char*>(data->bytes());
+    for (size_t i = 0, n = data->size() - len; i <= n; ++i) {
+        if (0 == memcmp(bytes + i, needle, len)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static sk_sp<SkShader> make_linear_gradient(SkSpan<const SkColor4f> colors,
+                                            SkTileMode tileMode = SkTileMode::kClamp) {
+    const SkPoint pts[2] = {{0, 0}, {64, 64}};
+    return SkShaders::LinearGradient(pts, {{colors, {}, tileMode}, {}});
+}
+
+static sk_sp<SkData> render_gradient_pdf(SkSpan<const SkColor4f> colors,
+                                         bool rasterizeForPrint,
+                                         SkTileMode tileMode = SkTileMode::kClamp) {
+    SkPDF::Metadata metadata = SkPDF::JPEG::MetadataWithCallbacks();
+    metadata.fRasterizeAlphaGradientsForPrinting = rasterizeForPrint;
+    SkDynamicMemoryWStream stream;
+    auto doc = SkPDF::MakeDocument(&stream, metadata);
+    SkCanvas* canvas = doc->beginPage(64, 64);
+    SkPaint paint;
+    paint.setShader(make_linear_gradient(colors, tileMode));
+    canvas->drawRect(SkRect::MakeWH(64, 64), paint);
+    doc->endPage();
+    doc->close();
+    return stream.detachAsData();
+}
+
+// The print workaround should avoid the alpha-gradient vector encoding that
+// triggers downstream PDF-to-PostScript failures.
+DEF_TEST(SkPDF_RasterizeAlphaGradientForPrinting, reporter) {
+    REQUIRE_PDF_DOCUMENT(SkPDF_RasterizeAlphaGradientForPrinting, reporter);
+    const SkColor4f withAlpha[] = {{1, 0, 0, 0.5f}, {0, 0, 1, 1}};
+
+    sk_sp<SkData> off = render_gradient_pdf(withAlpha, /*rasterizeForPrint=*/false);
+    sk_sp<SkData> on = render_gradient_pdf(withAlpha, /*rasterizeForPrint=*/true);
+
+    REPORTER_ASSERT(reporter, pdf_contains(off, "/S /Luminosity"));
+
+    REPORTER_ASSERT(reporter, !pdf_contains(on, "/S /Luminosity"));
+    REPORTER_ASSERT(reporter, pdf_contains(on, "/Subtype /Image"));
+
+    off = render_gradient_pdf(withAlpha, /*rasterizeForPrint=*/false, SkTileMode::kDecal);
+    on = render_gradient_pdf(withAlpha, /*rasterizeForPrint=*/true, SkTileMode::kDecal);
+
+    REPORTER_ASSERT(reporter, pdf_contains(off, "/S /Luminosity"));
+    REPORTER_ASSERT(reporter, !pdf_contains(on, "/S /Luminosity"));
+    REPORTER_ASSERT(reporter, pdf_contains(on, "/Subtype /Image"));
+}
+
+// The workaround must touch alpha gradients only. An opaque gradient has no
+// soft mask to begin with, so the flag must not change its output at all.
+DEF_TEST(SkPDF_RasterizeAlphaGradientForPrinting_OpaqueUnchanged, reporter) {
+    REQUIRE_PDF_DOCUMENT(SkPDF_RasterizeAlphaGradientForPrinting_OpaqueUnchanged, reporter);
+    const SkColor4f opaque[] = {{1, 0, 0, 1}, {0, 0, 1, 1}};
+
+    sk_sp<SkData> off = render_gradient_pdf(opaque, /*rasterizeForPrint=*/false);
+    sk_sp<SkData> on = render_gradient_pdf(opaque, /*rasterizeForPrint=*/true);
+
+    REPORTER_ASSERT(reporter, !pdf_contains(on, "/Subtype /Image"));
+    REPORTER_ASSERT(reporter, pdf_contains(on, "/Shading"));
+    REPORTER_ASSERT(reporter, off->equals(on.get()));
+
+    off = render_gradient_pdf(opaque, /*rasterizeForPrint=*/false, SkTileMode::kDecal);
+    on = render_gradient_pdf(opaque, /*rasterizeForPrint=*/true, SkTileMode::kDecal);
+
+    REPORTER_ASSERT(reporter, !pdf_contains(on, "/Subtype /Image"));
+    REPORTER_ASSERT(reporter, pdf_contains(on, "/Shading"));
+    REPORTER_ASSERT(reporter, off->equals(on.get()));
 }
 
 #endif

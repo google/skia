@@ -158,6 +158,12 @@ struct Metadata {
     */
     int fEncodingQuality = 101;
 
+    /** If true, rasterize gradients with non-opaque stops for print compatibility.
+        Intended only for physical printing; it trades vector fidelity and file
+        size to avoid PDF-to-PostScript converter bugs.
+    */
+    bool fRasterizeAlphaGradientsForPrinting = false;
+
     /** An optional tree of structured document tags that provide
         a semantic representation of the content. The caller
         should retain ownership.
