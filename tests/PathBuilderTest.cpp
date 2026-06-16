@@ -7,6 +7,7 @@
 
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
+#include "include/core/SkPathMeasure.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
@@ -1098,11 +1099,73 @@ DEF_TEST(SkPathBuilder_conic_semantics, reporter) {
     {
         // If w is not finite, appends kLine_Verb twice to verb array, and
         // pt1, pt2 to SkPoint array.
-        SkPath p = SkPathBuilder().conicTo({10, 5}, {10, 10}, SK_ScalarInfinity).detach();
+        SkPath p = SkPathBuilder().conicTo({10, 5}, {10, 10}, SK_FloatInfinity).detach();
         REPORTER_ASSERT(reporter, !p.isEmpty());
         REPORTER_ASSERT(reporter, p.verbs().size() == 3u); // moveTo, lineTo, lineTo
         REPORTER_ASSERT(reporter, p.points().size() == 3u);
         REPORTER_ASSERT(reporter, p.conicWeights().empty());
         REPORTER_ASSERT(reporter, p.getSegmentMasks() == SkPath::kLine_SegmentMask);
     }
+
+    {
+        // If w is 0, appends kLine_Verb once to verb array, and
+        // pt2 to SkPoint array.
+        SkPath p = SkPathBuilder().conicTo({10, 5}, {10, 10}, 0).detach();
+        REPORTER_ASSERT(reporter, !p.isEmpty());
+        REPORTER_ASSERT(reporter, p.verbs().size() == 2u); // moveTo, lineTo
+        REPORTER_ASSERT(reporter, p.points().size() == 2u);
+        REPORTER_ASSERT(reporter, p.conicWeights().empty());
+        REPORTER_ASSERT(reporter, p.getSegmentMasks() == SkPath::kLine_SegmentMask);
+    }
+}
+
+DEF_TEST(SkPathBuilder_b520944501, reporter) {
+    SkPath path = SkPathBuilder(SkPathFillType::kInverseEvenOdd)
+                          .moveTo(0, 0)
+                          .cubicTo(8.51330895e-18f,
+                                   4.80215861e+30f,
+                                   4.80215347e+30f,
+                                   4.73888368e-38f,
+                                   2.36942783e-38f,
+                                   7.54830852e-30f)
+                          .moveTo(4.80215831e+30f, 1.03969141e-21f)
+                          .conicTo(4.80215831e+30f,
+                                   4.73888368e-38f,
+                                   2.40107915e+30f,
+                                   4.73888368e-38f,
+                                   0.707106769f)
+                          .conicTo(2.0779294e-21f,
+                                   4.73888368e-38f,
+                                   2.0779294e-21f,
+                                   1.03969141e-21f,
+                                   0.707106769f)
+                          .conicTo(2.0779294e-21f,
+                                   2.07938282e-21f,
+                                   2.40107915e+30f,
+                                   2.07938282e-21f,
+                                   0.707106769f)
+                          .conicTo(4.80215831e+30f,
+                                   2.07938282e-21f,
+                                   4.80215831e+30f,
+                                   1.03969141e-21f,
+                                   0.707106769f)
+                          .close()
+                          .detach();
+
+    SkMatrix m;
+    m.setAll(0.0f,
+             0.0f,
+             0.0f,
+             0.0f,
+             0.0f,
+             10159839284371128320.0f,
+             36261335138304000.0f,
+             0.0f,
+             -0.0f);
+
+    // This previously caused an issue where one of the conic weights turned to
+    // 0, causing an assert later. We should be avoiding that.
+    SkPath transformed = path.makeTransform(m);
+    SkPathMeasure meas(transformed, false);
+    (void)meas.getLength();
 }

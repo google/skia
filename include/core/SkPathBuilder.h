@@ -252,11 +252,13 @@ public:
 
         Appends kMove_Verb to verb array and (0, 0) to SkPoint array, if needed.
 
-        If w is finite and not one, appends kConic_Verb to verb array;
+        If w is finite, positive, and not one, appends kConic_Verb to verb array;
         and pt1, pt2 to SkPoint array; and w to conic weights.
 
         If w is one, appends kQuad_Verb to verb array, and
         pt1, pt2 to SkPoint array.
+
+        If w is zero, this is the same as lineTo(pt2)
 
         If w is not finite, appends kLine_Verb twice to verb array, and
         pt1, pt2 to SkPoint array.
