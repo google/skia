@@ -547,6 +547,7 @@ skia_filegroup(
         "SkRasterPipelineOpList.h",
         "SkSafeMath.h",
         "SkUtils.h",
+        "SkVx.h",
     ],
     visibility = ["//src/opts:__pkg__"],
 )
