@@ -96,7 +96,7 @@ private:
 
     void endRenderPass();
 
-    [[nodiscard]] bool addDrawPass(DrawPass*);
+    void addDrawPass(DrawPass*);
 
     // Track descriptor changes for binding prior to draw calls
     void recordBufferBindingInfo(const BindBufferInfo& info, UniformSlot);
