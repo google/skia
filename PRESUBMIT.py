@@ -637,9 +637,7 @@ def _CommonChecks(input_api, output_api):
         input_api, output_api, source_file_filter=sources))
   results.extend(_JsonChecks(input_api, output_api))
   results.extend(_IfDefChecks(input_api, output_api))
-  # TODO: uncomment
-  #results.extend(_CopyrightChecks(input_api, output_api,
-  #                               source_file_filter=sources))
+  results.extend(_CopyrightChecks(input_api, output_api, source_file_filter=sources))
   results.extend(_CheckIncludesFormatted(input_api, output_api))
   results.extend(_CheckGNFormatted(input_api, output_api))
   results.extend(_CheckGitConflictMarkers(input_api, output_api))
