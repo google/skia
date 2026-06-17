@@ -608,11 +608,11 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
     SkBlendMode mode = paint.getBlendMode_or(SkBlendMode::kSrcOver);
 
     AutoTArray<GrTextureSetEntry> textures(count);
-    // We accumulate compatible proxies until we find an incompatible one or reach the end and
+    // We accumulate compatible proxies until we find an an incompatible one or reach the end and
     // issue the accumulated 'n' draws starting at 'base'. 'p' represents the number of proxy
     // switches that occur within the 'n' entries.
     int base = 0, n = 0, p = 0;
-    auto draw = [&](int nextBase, bool setMayHavePersp) {
+    auto draw = [&](int nextBase) {
         if (n > 0) {
             auto textureXform = GrColorSpaceXform::Make(set[base].fImage->imageInfo().colorInfo(),
                                                         fSurfaceDrawContext->colorInfo());
@@ -625,16 +625,12 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
                                                 mode,
                                                 constraint,
                                                 this->localToDevice(),
-                                                std::move(textureXform),
-                                                setMayHavePersp);
+                                                std::move(textureXform));
         }
         base = nextBase;
         n = 0;
         p = 0;
     };
-    // This is a conservatively computed property of the image set that disables a fast path
-    // in TextureOp::AddTextureSetOps.
-    bool setMayHavePersp = this->localToDevice().hasPerspective();
     int dstClipIndex = 0;
     for (int i = 0; i < count; ++i) {
         SkASSERT(!set[i].fHasClip || dstClips);
@@ -648,7 +644,7 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
         // The default SkDevice implementation is based on drawImageRect which does not allow
         // non-sorted src rects. TODO: Decide this is OK or make sure we handle it.
         if (!set[i].fSrcRect.isSorted()) {
-            draw(i + 1, setMayHavePersp);
+            draw(i + 1);
             continue;
         }
 
@@ -672,7 +668,7 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
         if (!view) {
             // This image can't go through the texture op, send through general image pipeline
             // after flushing current batch.
-            draw(i + 1, setMayHavePersp);
+            draw(i + 1);
             SkTCopyOnFirstWrite<SkPaint> entryPaint(paint);
             if (set[i].fAlpha != 1.f) {
                 auto paintAlpha = paint.getAlphaf();
@@ -693,10 +689,6 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
         textures[i].fDstClipQuad = clip;
         textures[i].fPreViewMatrix =
                 set[i].fMatrixIndex < 0 ? nullptr : preViewMatrices + set[i].fMatrixIndex;
-        if (textures[i].fPreViewMatrix && textures[i].fPreViewMatrix->hasPerspective()) {
-            // Once set, this flag stays on for the rest of the image set
-            setMayHavePersp = true;
-        }
         textures[i].fColor = texture_color(paint.getColor4f(), set[i].fAlpha,
                                            SkColorTypeToGrColorType(image->colorType()),
                                            fSurfaceDrawContext->colorInfo());
@@ -709,7 +701,7 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
              textures[i].fProxyView.swizzle() != textures[base].fProxyView.swizzle() ||
              set[i].fImage->alphaType() != set[base].fImage->alphaType() ||
              !SkColorSpace::Equals(set[i].fImage->colorSpace(), set[base].fImage->colorSpace()))) {
-            draw(i, setMayHavePersp);
+            draw(i);
         }
         // Whether or not we submitted a draw in the above if(), this ith entry is in the current
         // set being accumulated so increment n, and increment p if proxies are different.
@@ -720,7 +712,7 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
             ++p;
         }
     }
-    draw(count, setMayHavePersp);
+    draw(count);
 }
 
 bool Device::drawBlurredRRect(const SkRRect& rrect, const SkPaint& paint, float deviceSigma) {

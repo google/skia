@@ -323,8 +323,7 @@ public:
                         SkBlendMode mode,
                         SkCanvas::SrcRectConstraint,
                         const SkMatrix& viewMatrix,
-                        sk_sp<GrColorSpaceXform> texXform,
-                        bool setMayHavePersp);
+                        sk_sp<GrColorSpaceXform> texXform);
 
     /**
      * Draw a roundrect using a paint.
