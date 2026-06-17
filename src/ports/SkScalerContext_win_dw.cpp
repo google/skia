@@ -1853,15 +1853,14 @@ void SkScalerContext_DW::generateFontMetrics(SkFontMetrics* metrics) {
     sk_bzero(metrics, sizeof(*metrics));
 
     IDWriteFontFace* fontFace = this->getDWriteTypeface()->fDWriteFontFace.get();
-    DWRITE_FONT_METRICS dwfm;
+    DWRITE_FONT_METRICS dwfm = {};
     if (DWRITE_MEASURING_MODE_GDI_CLASSIC == fMeasuringMode ||
-        DWRITE_MEASURING_MODE_GDI_NATURAL == fMeasuringMode)
-    {
-        fontFace->GetGdiCompatibleMetrics(
-             fTextSizeRender,
-             1.0f, // pixelsPerDip
-             &fXform,
-             &dwfm);
+        DWRITE_MEASURING_MODE_GDI_NATURAL == fMeasuringMode) {
+        HRVM(fontFace->GetGdiCompatibleMetrics(fTextSizeRender,
+                                               1.0f,  // pixelsPerDip
+                                               &fXform,
+                                               &dwfm),
+             "Could not initialize DWFM with GDI Compatible Metrics.");
     } else {
         fontFace->GetMetrics(&dwfm);
     }
