@@ -57,6 +57,8 @@ constexpr inline bool is_raw_ref_v = is_raw_ref<T>::value;
 template <class T, RawPtrTraits Traits = 0>
 class SK_PA_TRIVIAL_ABI raw_ref {
   public:
+    using sk_is_trivially_relocatable = std::true_type;
+
     // Construct a raw_ref from a pointer, which must not be null.
     SK_PA_ALWAYS_INLINE constexpr static raw_ref from_ptr(T* ptr) noexcept { return raw_ref(*ptr); }
 

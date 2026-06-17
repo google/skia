@@ -27,6 +27,26 @@ struct sk_is_trivially_relocatable
 template <typename T>
 struct sk_is_trivially_relocatable<std::unique_ptr<T>> : std::true_type {};
 
+// Similarly, PartitionAlloc raw_ptr and raw_ref are trivially relocatable, even
+// though they are not trivially copyable.
+#if defined(SK_USE_PARTITION_ALLOC)
+namespace partition_alloc::internal {
+enum class RawPtrTraits : unsigned;
+}
+
+namespace base {
+using partition_alloc::internal::RawPtrTraits;
+template <typename T, RawPtrTraits PointerTraits> class raw_ptr;
+template <typename T, RawPtrTraits PointerTraits> class raw_ref;
+}
+
+template <typename T, base::RawPtrTraits Traits>
+struct sk_is_trivially_relocatable<base::raw_ptr<T, Traits>> : std::true_type {};
+
+template <typename T, base::RawPtrTraits Traits>
+struct sk_is_trivially_relocatable<base::raw_ref<T, Traits>> : std::true_type {};
+#endif
+
 template <typename T>
 inline constexpr bool sk_is_trivially_relocatable_v = sk_is_trivially_relocatable<T>::value;
 

@@ -62,6 +62,8 @@ static constexpr bool is_offset_type = std::is_integral_v<Z> && sizeof(Z) <= siz
 // compiler. We have not managed to construct such an example in Chromium yet.
 template <typename T, RawPtrTraits Traits = 0> class SK_PA_TRIVIAL_ABI raw_ptr {
 public:
+    using sk_is_trivially_relocatable = std::true_type;
+
     SK_PA_ALWAYS_INLINE constexpr raw_ptr() noexcept = default;
 
     // Deliberately implicit, because raw_ptr is supposed to resemble raw ptr.
