@@ -423,7 +423,12 @@ skia_cc_library(
         ":rust_png_srcs",
     ],
     hdrs = ["//include/codec:rust_png_public_hdrs"],
-    defines = ["SK_CODEC_DECODES_PNG_WITH_RUST"],
+    defines = [
+        "SK_CODEC_DECODES_PNG_WITH_RUST",
+    ] + select({
+        "//rust/png:use_unknown_chunks_true": ["SK_CODEC_DECODES_PNG_WITH_RUST_UNKNOWN_CHUNKS"],
+        "//conditions:default": [],
+    }),
     features = ["layering_check"],
     visibility = ["//:__pkg__"],
     deps = [

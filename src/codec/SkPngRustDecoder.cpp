@@ -18,12 +18,16 @@ bool IsPng(const void* buff, size_t bytesRead) { return SkPngCodecBase::IsPng(bu
 
 std::unique_ptr<SkCodec> Decode(std::unique_ptr<SkStream> stream,
                                 SkCodec::Result* result,
-                                SkCodecs::DecodeContext) {
+                                SkCodecs::DecodeContext ctx) {
     SkCodec::Result resultStorage;
     if (!result) {
         result = &resultStorage;
     }
-    return SkPngRustCodec::MakeFromStream(std::move(stream), result);
+    SkPngChunkReader* chunkReader = nullptr;
+    if (ctx) {
+        chunkReader = static_cast<SkPngChunkReader*>(ctx);
+    }
+    return SkPngRustCodec::MakeFromStream(std::move(stream), result, chunkReader);
 }
 
 }  // namespace SkPngRustDecoder

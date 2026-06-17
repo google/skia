@@ -27,10 +27,17 @@ template <typename T> class SkSpan;
 //   transformations implemented in C++).
 class SkPngRustCodec final : public SkPngCodecBase {
 public:
-    static std::unique_ptr<SkPngRustCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
+    static std::unique_ptr<SkPngRustCodec> MakeFromStream(std::unique_ptr<SkStream>,
+                                                          Result*,
+                                                          SkPngChunkReader* = nullptr);
 
     // `public` to support `std::make_unique<SkPngRustCodec>(...)`.
-    SkPngRustCodec(SkEncodedInfo&&, std::unique_ptr<SkStream>, rust::Box<rust_png::Reader>);
+    SkPngRustCodec(SkEncodedInfo&&,
+                   std::unique_ptr<SkStream>,
+                   rust::Box<rust_png::Reader>,
+                   sk_sp<SkPngCompositeChunkReader>,
+                   std::unique_ptr<SkStream> gainmapStream,
+                   std::optional<SkGainmapInfo> gainmapInfo);
 
     ~SkPngRustCodec() override;
 
@@ -140,6 +147,7 @@ private:
     sk_sp<const SkData> getEncodedData() const override;
     // Determines whether or not we can read from the rust decoder directly into dst.
     bool canReadRow();
+    void processUnknownChunks();
 
     // SkPngCodecBase overrides:
     std::unique_ptr<SkCodec> onDecodeGainmap(std::unique_ptr<SkStream> stream,

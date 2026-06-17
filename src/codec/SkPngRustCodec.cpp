@@ -19,10 +19,11 @@
 #include "include/private/SkSafe32.h"
 #include "include/private/SkTemplates.h"
 #include "modules/skcms/skcms.h"
-#include "rust/png/FFI.rs.h"
 #include "rust/common/SpanUtils.h"
+#include "rust/png/FFI.rs.h"
 #include "src/codec/SkFrameHolder.h"
 #include "src/codec/SkParseEncodedOrigin.h"
+#include "src/codec/SkPngCompositeChunkReader.h"
 #include "src/codec/SkPngPriv.h"
 #include "src/codec/SkSwizzler.h"
 #include "src/core/SkAutoMalloc.h"
@@ -414,11 +415,25 @@ bool IsValidFctlIfAny(const SkEncodedInfo& imageInfo,
     return true;
 }
 
+void ReadUnknownChunks(const rust_png::Reader& reader, SkPngCompositeChunkReader* chunkReader) {
+    if (!chunkReader) {
+        return;
+    }
+    size_t unknownChunksCount = reader.get_unknown_chunks_count();
+    for (size_t i = 0; i < unknownChunksCount; ++i) {
+        auto name = reader.get_unknown_chunk_name(i);
+        auto data = reader.get_unknown_chunk_data(i);
+        std::string tag(reinterpret_cast<const char*>(name.data()), 4);
+        chunkReader->readChunk(tag.c_str(), data.data(), data.size());
+    }
+}
+
 }  // namespace
 
 // static
 std::unique_ptr<SkPngRustCodec> SkPngRustCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
-                                                               Result* result) {
+                                                               Result* result,
+                                                               SkPngChunkReader* chunkReader) {
     SkASSERT_RELEASE(stream);
     SkASSERT_RELEASE(result);
 
@@ -443,22 +458,34 @@ std::unique_ptr<SkPngRustCodec> SkPngRustCodec::MakeFromStream(std::unique_ptr<S
         return nullptr;
     }
 
-    return std::make_unique<SkPngRustCodec>(
-            std::move(imageInfo), std::move(stream), std::move(reader));
+    auto compositeReader = sk_make_sp<SkPngCompositeChunkReader>(chunkReader);
+    ReadUnknownChunks(*reader, compositeReader.get());
+    std::unique_ptr<SkStream> gainmapStream = compositeReader->takeGainmapStream();
+    std::optional<SkGainmapInfo> gainmapInfo = compositeReader->getGainmapInfo();
+
+    return std::make_unique<SkPngRustCodec>(std::move(imageInfo),
+                                            std::move(stream),
+                                            std::move(reader),
+                                            std::move(compositeReader),
+                                            std::move(gainmapStream),
+                                            std::move(gainmapInfo));
 }
 
 SkPngRustCodec::SkPngRustCodec(SkEncodedInfo&& encodedInfo,
                                std::unique_ptr<SkStream> stream,
-                               rust::Box<rust_png::Reader> reader)
+                               rust::Box<rust_png::Reader> reader,
+                               sk_sp<SkPngCompositeChunkReader> chunkReader,
+                               std::unique_ptr<SkStream> gainmapStream,
+                               std::optional<SkGainmapInfo> gainmapInfo)
         : SkPngCodecBase(std::move(encodedInfo),
                          // TODO(https://crbug.com/370522089): If/when `SkCodec` can
                          // avoid unnecessary rewinding, then stop "hiding" our stream
                          // from it.
                          /* stream = */ nullptr,
                          GetEncodedOrigin(*reader),
-                         /* chunkReader = */ nullptr,
-                         /* gainmapStream = */ nullptr,
-                         /* gainmapInfo = */ std::nullopt)
+                         std::move(chunkReader),
+                         std::move(gainmapStream),
+                         gainmapInfo)
         , fReader(std::move(reader))
         , fPrivStream(std::move(stream))
         , fFrameHolder(encodedInfo.width(), encodedInfo.height()) {
@@ -524,6 +551,7 @@ SkCodec::Result SkPngRustCodec::seekToStartOfFrame(int index) {
         // expect success here.
         SkASSERT_RELEASE(kSuccess == ToSkCodecResult(resultOfReader->err()));
         fReader = resultOfReader->unwrap();
+        this->processUnknownChunks();
 
         bool idatIsNotPartOfAnimation = fReader->has_actl_chunk() && !fReader->has_fctl_chunk();
         fFrameAtCurrentStreamPosition = idatIsNotPartOfAnimation ? -1 : 0;
@@ -1094,7 +1122,7 @@ SkCodec::IsAnimated SkPngRustCodec::onIsAnimated() {
 
 std::unique_ptr<SkCodec> SkPngRustCodec::onDecodeGainmap(std::unique_ptr<SkStream> stream,
                                                          SkCodec::Result* result) {
-    return SkPngRustCodec::MakeFromStream(std::move(stream), result);
+    return SkPngRustCodec::MakeFromStream(std::move(stream), result, fPngChunkReader.get());
 }
 
 std::optional<SkSpan<const SkPngCodecBase::PaletteColorEntry>> SkPngRustCodec::onTryGetPlteChunk() {
@@ -1282,3 +1310,5 @@ SkCodec::Result SkPngRustCodec::FrameHolder::setFrameInfoFromCurrentFctlChunk(
     this->setAlphaAndRequiredFrame(frame);
     return kSuccess;
 }
+
+void SkPngRustCodec::processUnknownChunks() { ReadUnknownChunks(*fReader, fPngChunkReader.get()); }

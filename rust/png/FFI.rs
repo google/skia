@@ -181,6 +181,9 @@ mod ffi {
         );
         fn has_sbit_chunk(self: &Reader) -> bool;
         fn get_sbit_chunk(self: &Reader) -> &[u8];
+        fn get_unknown_chunks_count(self: &Reader) -> usize;
+        fn get_unknown_chunk_name(self: &Reader, index: usize) -> &[u8; 4];
+        fn get_unknown_chunk_data(self: &Reader, index: usize) -> &[u8];
         fn output_color_type(self: &Reader) -> ColorType;
         fn output_bits_per_component(self: &Reader) -> u8;
         fn next_frame_info(self: &mut Reader) -> DecodingResult;
@@ -437,6 +440,18 @@ impl Reader {
                 options.set_ignore_checksums(true);
             }
             options.set_ignore_text_chunk(true);
+            #[cfg(feature = "use_unknown_chunks")]
+            options
+                .set_captured_chunks(&[
+                    png::chunk::ChunkType(*b"gmAP"),
+                    png::chunk::ChunkType(*b"gdAT"),
+                    png::chunk::ChunkType(*b"cLLI"),
+                    png::chunk::ChunkType(*b"mDCV"),
+                    png::chunk::ChunkType(*b"npTc"),
+                    png::chunk::ChunkType(*b"npLb"),
+                    png::chunk::ChunkType(*b"npOl"),
+                ])
+                .expect("Captured chunks should not include critical chunks");
             png::Decoder::new_with_options(input, options)
         };
 
@@ -699,6 +714,39 @@ impl Reader {
     /// chunk.
     fn get_sbit_chunk(&self) -> &[u8] {
         self.reader.info().sbit.as_ref().unwrap().as_ref()
+    }
+
+    fn get_unknown_chunks_count(&self) -> usize {
+        #[cfg(feature = "use_unknown_chunks")]
+        {
+            self.reader.info().captured_chunks.len()
+        }
+        #[cfg(not(feature = "use_unknown_chunks"))]
+        {
+            0
+        }
+    }
+
+    fn get_unknown_chunk_name(&self, index: usize) -> &[u8; 4] {
+        #[cfg(feature = "use_unknown_chunks")]
+        {
+            &self.reader.info().captured_chunks[index].name.0
+        }
+        #[cfg(not(feature = "use_unknown_chunks"))]
+        {
+            &[][index]
+        }
+    }
+
+    fn get_unknown_chunk_data(&self, index: usize) -> &[u8] {
+        #[cfg(feature = "use_unknown_chunks")]
+        {
+            self.reader.info().captured_chunks[index].data.as_slice()
+        }
+        #[cfg(not(feature = "use_unknown_chunks"))]
+        {
+            [][index]
+        }
     }
 
     fn output_color_type(&self) -> ffi::ColorType {

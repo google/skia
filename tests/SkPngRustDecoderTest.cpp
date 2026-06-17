@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/codec/SkPngChunkReader.h"
 #include "include/codec/SkPngRustDecoder.h"
 
 #include <memory>
@@ -835,6 +836,116 @@ DEF_TEST(RustPngCodec_sbit565_ihdr16bits, r) {
     REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
 }
 
+#ifdef SK_CODEC_DECODES_PNG_WITH_RUST_UNKNOWN_CHUNKS
+class MockChunkReader : public SkPngChunkReader {
+public:
+    bool readChunk(const char tag[], const void* data, size_t length) override {
+        fChunks.push_back({tag, std::string((const char*)data, length)});
+        return true;
+    }
+
+    std::vector<std::pair<std::string, std::string>> fChunks;
+};
+
+DEF_TEST(RustPngCodec_gainmapDecode, r) {
+    auto stream = GetResourceAsStream("images/gainmap.png", false);
+    REPORTER_ASSERT(r, stream);
+
+    SkCodec::Result result = SkCodec::kSuccess;
+    std::unique_ptr<SkCodec> baseCodec = SkPngRustDecoder::Decode(std::move(stream), &result);
+    REPORTER_ASSERT(r, baseCodec);
+
+    std::unique_ptr<SkAndroidCodec> androidCodec =
+            SkAndroidCodec::MakeFromCodec(std::move(baseCodec));
+    REPORTER_ASSERT(r, androidCodec);
+
+    SkGainmapInfo gainmapInfo;
+    std::unique_ptr<SkAndroidCodec> gainmapCodec;
+    bool hasGainmap = androidCodec->getGainmapAndroidCodec(&gainmapInfo, &gainmapCodec);
+
+    REPORTER_ASSERT(r, hasGainmap);
+    REPORTER_ASSERT(r, gainmapCodec);
+
+    // Decode the gainmap bitmap.
+    SkBitmap gainmapBitmap;
+    gainmapBitmap.allocPixels(gainmapCodec->getInfo());
+    REPORTER_ASSERT(r,
+                    SkCodec::kSuccess == gainmapCodec->getAndroidPixels(gainmapBitmap.info(),
+                                                                        gainmapBitmap.getPixels(),
+                                                                        gainmapBitmap.rowBytes()));
+
+    // Spot-check the image size and pixels (dimensions should be 32x32 for gainmap.png)
+    REPORTER_ASSERT(r, gainmapBitmap.dimensions() == SkISize::Make(32, 32));
+    REPORTER_ASSERT(r, gainmapBitmap.getColor(0, 0) == 0xffffffff);
+    REPORTER_ASSERT(r, gainmapBitmap.getColor(31, 31) == 0xff000000);
+
+    // Verify some gainmap info values (matching recs in PngGainmapTest.cpp)
+    REPORTER_ASSERT(r, gainmapInfo.fType == SkGainmapInfo::Type::kDefault);
+    REPORTER_ASSERT(r, gainmapInfo.fBaseImageType == SkGainmapInfo::BaseImageType::kHDR);
+    REPORTER_ASSERT(r, gainmapInfo.fDisplayRatioSdr == 2.f);
+    REPORTER_ASSERT(r, gainmapInfo.fDisplayRatioHdr == 4.f);
+}
+
+DEF_TEST(RustPngCodec_gainmapRewind, r) {
+    auto stream = GetResourceAsStream("images/gainmap.png", false);
+    REPORTER_ASSERT(r, stream);
+
+    MockChunkReader chunkReader;
+    SkCodec::Result result = SkCodec::kSuccess;
+    std::unique_ptr<SkCodec> baseCodec =
+            SkPngRustDecoder::Decode(std::move(stream), &result, &chunkReader);
+    REPORTER_ASSERT(r, baseCodec);
+    REPORTER_ASSERT(r, chunkReader.fChunks.size() == 2);
+
+    // Decode pixels the first time.
+    SkImageInfo info = baseCodec->getInfo();
+    SkBitmap bm;
+    bm.allocPixels(info);
+    result = baseCodec->getPixels(info, bm.getPixels(), bm.rowBytes());
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+    // Should still be 2 (no rewind was needed for first decode).
+    REPORTER_ASSERT(r, chunkReader.fChunks.size() == 2);
+
+    // Decode pixels again (forces rewind).
+    result = baseCodec->getPixels(info, bm.getPixels(), bm.rowBytes());
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+    // Should be 4 now because rewind recreated the reader and processed chunks again.
+    REPORTER_ASSERT(r, chunkReader.fChunks.size() == 4);
+}
+
+DEF_TEST(RustPngCodec_ninepatchPngChunkReader, r) {
+    auto stream = GetResourceAsStream("images/ninepatch.png", false);
+    REPORTER_ASSERT(r, stream);
+
+    MockChunkReader chunkReader;
+
+    SkCodec::Result result;
+    std::unique_ptr<SkCodec> codec(
+            SkPngRustDecoder::Decode(std::move(stream), &result, &chunkReader));
+    REPORTER_ASSERT(r, codec);
+    if (!codec) {
+        return;
+    }
+
+    // Now compare to the original.
+    SkBitmap decodedBm;
+    decodedBm.setInfo(codec->getInfo());
+    decodedBm.allocPixels();
+    result = codec->getPixels(codec->getInfo(), decodedBm.getPixels(), decodedBm.rowBytes());
+    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+    REPORTER_ASSERT(r, decodedBm.getColor(0, 0) == SK_ColorBLUE);
+    REPORTER_ASSERT(r, chunkReader.fChunks.size() == 3);
+    REPORTER_ASSERT(r,
+                    chunkReader.fChunks[0] ==
+                            std::make_pair(std::string("npOl"), std::string("outline", 8)));
+    REPORTER_ASSERT(r,
+                    chunkReader.fChunks[1] ==
+                            std::make_pair(std::string("npLb"), std::string("layoutBounds", 13)));
+    REPORTER_ASSERT(r,
+                    chunkReader.fChunks[2] ==
+                            std::make_pair(std::string("npTc"), std::string("ninePatchData", 14)));
+}
+#else
 DEF_TEST(RustPngCodec_gainmapNoOp, r) {
     auto stream = GetResourceAsStream("images/gainmap.png", false);
     REPORTER_ASSERT(r, stream);
@@ -851,9 +962,8 @@ DEF_TEST(RustPngCodec_gainmapNoOp, r) {
     std::unique_ptr<SkAndroidCodec> gainmapCodec;
     bool hasGainmap = androidCodec->getGainmapAndroidCodec(&gainmapInfo, &gainmapCodec);
 
-    // Assert that it currently returns false (no-op/unsupported).
-    // TODO(b/381292460): Update this test to assert that gainmaps are successfully
-    // processed once unknown chunks support is wired in the Rust codec.
+    // When the build flag is off, it should return false (no gainmap).
     REPORTER_ASSERT(r, !hasGainmap);
     REPORTER_ASSERT(r, !gainmapCodec);
 }
+#endif

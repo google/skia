@@ -138,6 +138,11 @@ crate.spec(
     package = "png",
     version = "=0.18.1",
 )
+crate.annotation(
+    crate = "png",
+    patch_args = ["-p1"],
+    patches = ["//bazel/external/image-png:captured-chunks.patch"],
+)
 crate.spec(
     default_features = False,
     features = ["bmp"],

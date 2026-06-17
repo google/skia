@@ -1,4 +1,5 @@
 load("@rules_rust//rust:defs.bzl", "rust_static_library")
+load("//bazel:flags.bzl", "bool_flag")
 load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
 load(
     "//bazel:skia_rules.bzl",
@@ -11,6 +12,11 @@ package(
 )
 
 licenses(["notice"])
+
+bool_flag(
+    name = "use_unknown_chunks",
+    default = True,
+)
 
 skia_filegroup(
     name = "rs_srcs",
@@ -50,6 +56,10 @@ rust_cxx_bridge(
 rust_static_library(
     name = "ffi_rs",
     srcs = [":rs_srcs"],
+    crate_features = select({
+        ":use_unknown_chunks_true": ["use_unknown_chunks"],
+        "//conditions:default": [],
+    }),
     crate_root = "FFI.rs",
     rustc_flags = ["-Dwarnings"],
     visibility = [

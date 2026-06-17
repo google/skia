@@ -1455,6 +1455,11 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
       rebase_path("//bazel-bin/rust/png/FFI.rs.cc", root_build_dir) +
           "=rust/png/FFI.rs.cc",
     ]
+    if (skia_use_rust_png_decode_unknown_chunks) {
+      bazel_args += [ "--//rust/png:use_unknown_chunks=true" ]
+    } else {
+      bazel_args += [ "--//rust/png:use_unknown_chunks=false" ]
+    }
   }
 
   if (skia_use_rust_bmp_decode) {
@@ -1734,6 +1739,9 @@ optional("rust_exif") {
 
 optional("png_decode_rust") {
   public_defines = [ "SK_CODEC_DECODES_PNG_WITH_RUST" ]
+  if (skia_use_rust_png_decode_unknown_chunks) {
+    public_defines += [ "SK_CODEC_DECODES_PNG_WITH_RUST_UNKNOWN_CHUNKS" ]
+  }
   enabled = skia_use_rust_png_decode
   public = skia_codec_rust_png_public
   sources = skia_codec_rust_png
