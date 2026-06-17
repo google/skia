@@ -523,6 +523,7 @@ ganesh_tests_sources = [
   "$_tests/VkBackendSurfaceTest.cpp",
   "$_tests/VkWrapTests.cpp",
   "$_tests/WrappedSurfaceCopyOnWriteTest.cpp",
+  "$_tests/crbug_500172224.cpp",
 ]
 
 ganesh_gl_tests_sources = [
