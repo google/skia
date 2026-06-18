@@ -22,11 +22,11 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkEnumBitMask.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTo.h"
-#include "src/core/SkEnumBitMask.h"
 #include "src/core/SkSpecialImage.h"
 
 #include <cstdint>

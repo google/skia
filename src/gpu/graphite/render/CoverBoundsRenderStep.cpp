@@ -9,7 +9,7 @@
 
 #include "include/core/SkM44.h"
 #include "include/private/SkDebug.h"
-#include "src/core/SkEnumBitMask.h"
+#include "include/private/SkEnumBitMask.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/core/SkVx.h"
 #include "src/gpu/BufferWriter.h"

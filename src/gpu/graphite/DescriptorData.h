@@ -8,7 +8,7 @@
 #ifndef skgpu_graphite_DescriptorTypes_DEFINED
 #define skgpu_graphite_DescriptorTypes_DEFINED
 
-#include "src/core/SkEnumBitMask.h"
+#include "include/private/SkEnumBitMask.h"
 
 #include <cstdint>
 

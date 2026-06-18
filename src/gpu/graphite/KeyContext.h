@@ -12,9 +12,9 @@
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
+#include "include/private/SkEnumBitMask.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkColorSpaceXformSteps.h"
-#include "src/core/SkEnumBitMask.h"
 #include "src/gpu/graphite/DrawContext.h"
 #include "src/gpu/graphite/TextureProxy.h"
 

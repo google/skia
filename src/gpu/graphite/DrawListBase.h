@@ -10,8 +10,8 @@
 #include "include/gpu/graphite/GraphiteTypes.h"
 
 #include "include/private/SkDebug.h"
+#include "include/private/SkEnumBitMask.h"
 #include "src/core/SkBlockAllocator.h"
-#include "src/core/SkEnumBitMask.h"
 #include "src/core/SkTBlockList.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/DrawCommands.h"

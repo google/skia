@@ -10,7 +10,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
-#include "src/core/SkEnumBitMask.h"
+#include "include/private/SkEnumBitMask.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/geom/NonMSAAClip.h"

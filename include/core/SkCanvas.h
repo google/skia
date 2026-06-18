@@ -33,6 +33,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkCPUTypes.h"
 #include "include/private/SkDeque.h"
+#include "include/private/SkEnumBitMask.h"
 #include "include/private/SkTArray.h"
 
 #include <cstddef>
@@ -2416,11 +2417,7 @@ private:
         kCheckForOverwrite       = 4, // Check if the draw would overwrite the entire surface
         kSkipMaskFilterAutoLayer = 8, // Do not apply mask filters in the AutoLayer
     };
-    // Inlined SK_DECL_BITMASK_OPS_FRIENDS to avoid including SkEnumBitMask.h
-    friend constexpr SkEnumBitMask<PredrawFlags> operator|(PredrawFlags, PredrawFlags);
-    friend constexpr SkEnumBitMask<PredrawFlags> operator&(PredrawFlags, PredrawFlags);
-    friend constexpr SkEnumBitMask<PredrawFlags> operator^(PredrawFlags, PredrawFlags);
-    friend constexpr SkEnumBitMask<PredrawFlags> operator~(PredrawFlags);
+    SK_DECL_BITMASK_OPS_FRIENDS(PredrawFlags)
 
     // notify our surface (if we have one) that we are about to draw, so it
     // can perform copy-on-write or invalidate any cached images

@@ -8,9 +8,9 @@
 #include "src/sksl/SkSLParser.h"
 
 #include "include/core/SkSpan.h"
+#include "include/private/SkEnumBitMask.h"
 #include "include/private/SkTArray.h"
 #include "include/sksl/SkSLVersion.h"
-#include "src/core/SkEnumBitMask.h"
 #include "src/core/SkNoDestructor.h"
 #include "src/core/SkTHash.h"
 #include "src/partition_alloc/raw_ptr.h"

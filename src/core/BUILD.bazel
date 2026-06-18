@@ -101,7 +101,6 @@ SEMI_PUBLIC_HEADERS = [
     "SkEdgeClipper.h",
     "SkEffectPriv.h",
     "SkEndian.h",
-    "SkEnumBitMask.h",
     "SkEnumerate.h",
     "SkFDot6.h",
     "SkFixedArray.h",

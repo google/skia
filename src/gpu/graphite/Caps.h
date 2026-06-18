@@ -13,7 +13,7 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/private/SkAlign.h"
 #include "include/private/SkAssert.h"
-#include "src/core/SkEnumBitMask.h"
+#include "include/private/SkEnumBitMask.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/ResourceTypes.h"

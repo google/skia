@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkEnumBitMask.h"
+#include "include/private/SkEnumBitMask.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/ir/SkSLModifierFlags.h"

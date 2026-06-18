@@ -7,7 +7,7 @@
 
 #include "src/sksl/ir/SkSLVariable.h"
 
-#include "src/core/SkEnumBitMask.h"
+#include "include/private/SkEnumBitMask.h"
 #include "src/core/SkStringView.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"

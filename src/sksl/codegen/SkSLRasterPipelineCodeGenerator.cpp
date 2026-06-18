@@ -9,9 +9,9 @@
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkSpan.h"
+#include "include/private/SkEnumBitMask.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
-#include "src/core/SkEnumBitMask.h"
 #include "src/core/SkStringView.h"
 #include "src/core/SkTHash.h"
 #include "src/core/SkUtils.h"

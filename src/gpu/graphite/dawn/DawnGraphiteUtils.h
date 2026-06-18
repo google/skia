@@ -9,7 +9,7 @@
 #define skgpu_graphite_DawnTypesPriv_DEFINED
 
 #include "include/gpu/graphite/dawn/DawnGraphiteTypes.h"
-#include "src/core/SkEnumBitMask.h"
+#include "include/private/SkEnumBitMask.h"
 #include "src/gpu/SkSLToBackend.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/sksl/SkSLProgramKind.h"

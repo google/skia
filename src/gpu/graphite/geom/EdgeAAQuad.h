@@ -10,7 +10,7 @@
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
-#include "src/core/SkEnumBitMask.h"
+#include "include/private/SkEnumBitMask.h"
 #include "src/core/SkVx.h"
 #include "src/gpu/graphite/geom/Rect.h"
 

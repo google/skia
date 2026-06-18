@@ -13,7 +13,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
-#include "src/core/SkEnumBitMask.h"
+#include "include/private/SkEnumBitMask.h"
 #include "src/core/SkVx.h"
 #include "src/gpu/graphite/Attribute.h"
 #include "src/gpu/graphite/DrawTypes.h"

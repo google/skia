@@ -9,7 +9,7 @@
 #define skgpu_graphite_precompile_PrecompileShadersPriv_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "src/core/SkEnumBitMask.h"
+#include "include/private/SkEnumBitMask.h"
 #include "src/gpu/graphite/precompile/PaintOptionsPriv.h"
 
 namespace skgpu::graphite {

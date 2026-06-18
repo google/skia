@@ -9,10 +9,10 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkEnumBitMask.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
-#include "src/core/SkEnumBitMask.h"
 #include "src/core/SkHalf.h"
 #include "src/core/SkMatrixInvert.h"
 #include "src/sksl/SkSLAnalysis.h"

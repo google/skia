@@ -10,7 +10,7 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTextureCompressionType.h"
-#include "src/core/SkEnumBitMask.h"
+#include "include/private/SkEnumBitMask.h"
 #include "src/gpu/Swizzle.h"
 
 #include <stddef.h>

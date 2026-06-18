@@ -10,9 +10,9 @@
 
 #include "include/core/SkSpan.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/private/SkEnumBitMask.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkArenaAlloc.h"
-#include "src/core/SkEnumBitMask.h"
 #include "src/core/SkKnownRuntimeEffects.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/core/SkSpinlock.h"

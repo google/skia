@@ -9,9 +9,9 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkEnumBitMask.h"
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/SkTArray.h"
-#include "src/core/SkEnumBitMask.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"

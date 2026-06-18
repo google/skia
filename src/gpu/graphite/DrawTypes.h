@@ -9,7 +9,7 @@
 #define skgpu_graphite_DrawTypes_DEFINED
 
 #include "include/private/SkAssert.h"
-#include "src/core/SkEnumBitMask.h"
+#include "include/private/SkEnumBitMask.h"
 
 #include <cstddef>
 #include <cstdint>

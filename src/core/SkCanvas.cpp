@@ -46,7 +46,6 @@
 #include "src/core/SkBlurMaskFilterImpl.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkDevice.h"
-#include "src/core/SkEnumBitMask.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkLatticeIter.h"

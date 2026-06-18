@@ -8,8 +8,8 @@
 #define skgpu_graphite_AtlasProvider_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/private/SkEnumBitMask.h"
 #include "include/private/SkTo.h"
-#include "src/core/SkEnumBitMask.h"
 
 #include <cstdint>
 #include <memory>
