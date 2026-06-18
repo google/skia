@@ -65,6 +65,7 @@ public:
     using sk_is_trivially_relocatable = std::true_type;
 
     SK_PA_ALWAYS_INLINE constexpr raw_ptr() noexcept = default;
+    SK_PA_ALWAYS_INLINE constexpr raw_ptr(const raw_ptr&) noexcept = default;
 
     // Deliberately implicit, because raw_ptr is supposed to resemble raw ptr.
     SK_PA_ALWAYS_INLINE constexpr raw_ptr(std::nullptr_t) noexcept {}
@@ -90,6 +91,11 @@ public:
         ptr.wrapped_ptr_ = nullptr;
     }
 
+    SK_PA_ALWAYS_INLINE constexpr raw_ptr(raw_ptr&& ptr) noexcept
+            : wrapped_ptr_(ptr.wrapped_ptr_) {
+        ptr.wrapped_ptr_ = nullptr;
+    }
+
     SK_PA_ALWAYS_INLINE constexpr raw_ptr& operator=(std::nullptr_t) noexcept {
         wrapped_ptr_ = nullptr;
         return *this;
@@ -99,6 +105,7 @@ public:
         wrapped_ptr_ = p;
         return *this;
     }
+    SK_PA_ALWAYS_INLINE constexpr raw_ptr& operator=(const raw_ptr&) noexcept = default;
 
     // Upcast assignment
     template <typename U,
@@ -115,6 +122,14 @@ public:
     SK_PA_ALWAYS_INLINE constexpr raw_ptr& operator=(raw_ptr<U, Traits>&& ptr) noexcept {
         wrapped_ptr_ = ptr.wrapped_ptr_;
         ptr.wrapped_ptr_ = nullptr;
+        return *this;
+    }
+
+    SK_PA_ALWAYS_INLINE constexpr raw_ptr& operator=(raw_ptr&& ptr) noexcept {
+        if (this != &ptr) {
+            wrapped_ptr_ = ptr.wrapped_ptr_;
+            ptr.wrapped_ptr_ = nullptr;
+        }
         return *this;
     }
 
@@ -147,10 +162,10 @@ public:
         return *this;
     }
     SK_PA_ALWAYS_INLINE constexpr raw_ptr operator++(int /* post_increment */) {
-        return ++wrapped_ptr_;
+        return wrapped_ptr_++;
     }
     SK_PA_ALWAYS_INLINE constexpr raw_ptr operator--(int /* post_decrement */) {
-        return --wrapped_ptr_;
+        return wrapped_ptr_--;
     }
     template <typename Z, typename = std::enable_if_t<partition_alloc::internal::is_offset_type<Z>>>
     SK_PA_ALWAYS_INLINE constexpr raw_ptr& operator+=(Z delta) {
@@ -333,7 +348,6 @@ namespace std {
 // Override so set/map lookups do not create extra raw_ptr. This also allows dangling pointers to be
 // used for lookup.
 template <typename T, RawPtrTraits Traits> struct less<raw_ptr<T, Traits>> {
-    using Impl = typename raw_ptr<T, Traits>::Impl;
     using is_transparent = void;
 
     bool operator()(const raw_ptr<T, Traits>& lhs, const raw_ptr<T, Traits>& rhs) const {
