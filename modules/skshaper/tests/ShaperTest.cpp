@@ -23,6 +23,9 @@
 #include <cinttypes>
 #include <cstdint>
 #include <memory>
+#include <limits>
+#include <set>
+#include <vector>
 
 #if defined(SK_UNICODE_ICU_IMPLEMENTATION)
 #include "modules/skunicode/include/SkUnicode_icu.h"
@@ -270,5 +273,207 @@ SHAPER_TEST(myanmar)
 SHAPER_TEST(taitham)
 SHAPER_TEST(tamil)
 #undef SHAPER_TEST
+
+DEF_TEST(Shaper_LineBreaks, reporter) {
+    auto unicode = get_unicode();
+    if (!unicode) {
+        return;
+    }
+
+    auto shaper = SkShapers::HB::ShaperDrivenWrapper(unicode, SkFontMgr::RefEmpty());
+    if (!shaper) {
+        return;
+    }
+
+    SkFont font = ToolUtils::DefaultFont();
+
+    class CustomScriptRunIterator final : public SkShaper::ScriptRunIterator {
+    public:
+        CustomScriptRunIterator(const std::vector<size_t>& boundaries,
+                                size_t total, SkFourByteTag script)
+            : fBoundaries(boundaries)
+            , fTotal(total)
+            , fCurrent(0)
+            , fIndex(0)
+            , fAtEnd(false)
+            , fScript(script) {}
+
+        void consume() override {
+            if (fIndex < fBoundaries.size()) {
+                fCurrent = fBoundaries[fIndex++];
+            } else {
+                fCurrent = fTotal;
+                fAtEnd = true;
+            }
+        }
+        size_t endOfCurrentRun() const override { return fCurrent; }
+        bool atEnd() const override { return fAtEnd; }
+        SkFourByteTag currentScript() const override { return fScript; }
+
+    private:
+        std::vector<size_t> fBoundaries;
+        size_t fTotal;
+        size_t fCurrent;
+        size_t fIndex;
+        bool fAtEnd;
+        SkFourByteTag fScript;
+    };
+
+    struct LineBreakTracker final : public SkShaper::RunHandler {
+        struct Run {
+            size_t start;
+            size_t end;
+        };
+        struct Line {
+            size_t start;
+            std::vector<Run> runs;
+        };
+        std::vector<Line> fLines;
+        size_t fCurrentLineStart = 0;
+
+        void beginLine() override {
+            fLines.push_back({fCurrentLineStart, {}});
+        }
+        void runInfo(const RunInfo&) override {}
+        void commitRunInfo() override {}
+        Buffer runBuffer(const RunInfo& info) override {
+            static SkGlyphID glyphs[100];
+            static SkPoint pos[100];
+            fLines.back().runs.push_back({info.utf8Range.begin(), info.utf8Range.end()});
+            return {glyphs, pos, nullptr, nullptr, {0, 0}};
+        }
+        void commitRunBuffer(const RunInfo& info) override {
+            fCurrentLineStart = info.utf8Range.end();
+        }
+        void commitLine() override {}
+    };
+
+    auto check_line_breaks = [&](const char* txt,
+                                 const std::vector<size_t>& script_boundaries,
+                                 const std::vector<size_t>& expected_line_breaks) {
+        size_t len = strlen(txt);
+        std::vector<size_t> breaks;
+
+        size_t previousLineCount = std::numeric_limits<size_t>::max();
+        for (size_t i = 0; i < 100; ++i) {
+            const float width = 5.f + i * 5;
+
+            auto fontIter = SkShaper::TrivialFontRunIterator(font, len);
+            auto bidi = SkShaper::TrivialBiDiRunIterator(0, len);
+            CustomScriptRunIterator scriptIter(script_boundaries, len,
+                                               SkSetFourByteTag('L','a','t','n'));
+            auto lang = SkShaper::TrivialLanguageRunIterator("en-US", len);
+
+            LineBreakTracker tracker;
+            shaper->shape(txt, len, fontIter, bidi, scriptIter, lang, nullptr, 0, width, &tracker);
+
+            // Line counts should be monotonic.
+            const size_t lineCount = tracker.fLines.size();
+            REPORTER_ASSERT(reporter, lineCount <= previousLineCount,
+                            "Line count should be monotonic. Width: %f, Line count: %zu, Prev: %zu",
+                             width, lineCount, previousLineCount);
+            previousLineCount = lineCount;
+
+            for (const auto& line : tracker.fLines) {
+                if (line.start > 0) {
+                    if (!i) {
+                        // The first iteration (minimal width) is expected to produce the maximal
+                        // line break set - so we just collect them here.
+                        breaks.push_back(line.start);
+                    } else {
+                        // Subsequent iterations are expected to produce a subset.
+                        REPORTER_ASSERT(
+                            reporter,
+                            std::find(breaks.begin(), breaks.end(), line.start) != breaks.end(),
+                            "Break at offset %zu for width %f is unexpected for '%s'!",
+                            line.start, width, txt);
+                    }
+                }
+            }
+        }
+
+        REPORTER_ASSERT(reporter, previousLineCount == 1,
+                        "Text '%s' should fit on a single line at max width, but had %zu lines",
+                        txt, previousLineCount);
+
+        REPORTER_ASSERT(reporter, breaks == expected_line_breaks,
+                        "Observed breaks did not match expected breaks for: '%s'",
+                        txt);
+    };
+
+    static struct {
+        const char* fText;
+        std::vector<size_t> fScriptBoundaries;
+        std::vector<size_t> fExpectedLineBreaks;
+    } gTests[] = {
+        { "foo", { }, { } },
+        { "foo", {1}, { } },
+        { "foo", {2}, { } },
+        { "foobar", {1, 2, 3, 4, 5}, { } },
+
+        { "foo bar", { }, {4} },
+        { "foo bar", {1}, {4} },
+        { "foo bar", {2}, {4} },
+        { "foo bar", {3}, {4} },
+        { "foo bar", {4}, {4} },
+        { "foo bar", {5}, {4} },
+        { "foo bar", {6}, {4} },
+        { "foo bar", {1, 2, 3, 4, 5, 6}, {4} },
+
+        { "foo, bar baz", {     }, {5, 9} },
+        { "foo, bar baz", {6,  7}, {5, 9} },
+        { "foo, bar baz", {2, 10}, {5, 9} },
+        { "foo, bar baz", {3, 10}, {5, 9} },
+        { "foo, bar baz", {3, 11}, {5, 9} },
+        { "foo, bar baz", {2, 11}, {5, 9} },
+        { "foo, bar baz", {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, {5, 9} },
+
+        { "abra cadabra", {         }, {5} },
+        { "abra cadabra", {1,  2,  3}, {5} },
+        { "abra cadabra", {1,  2,  4}, {5} },
+        { "abra cadabra", {1,  2,  5}, {5} },
+        { "abra cadabra", {1,  2,  6}, {5} },
+        { "abra cadabra", {1,  2,  7}, {5} },
+        { "abra cadabra", {1,  2,  8}, {5} },
+        { "abra cadabra", {1,  2,  9}, {5} },
+        { "abra cadabra", {1,  2, 10}, {5} },
+        { "abra cadabra", {1,  2, 11}, {5} },
+
+        { "abra cadabra", {1,  3, 11}, {5} },
+        { "abra cadabra", {1,  4, 11}, {5} },
+        { "abra cadabra", {1,  5, 11}, {5} },
+        { "abra cadabra", {1,  6, 11}, {5} },
+        { "abra cadabra", {1,  7, 11}, {5} },
+        { "abra cadabra", {1,  8, 11}, {5} },
+        { "abra cadabra", {1,  9, 11}, {5} },
+        { "abra cadabra", {1, 10, 11}, {5} },
+
+        { "abra cadabra", {2, 10, 11}, {5} },
+        { "abra cadabra", {3, 10, 11}, {5} },
+        { "abra cadabra", {4, 10, 11}, {5} },
+        { "abra cadabra", {5, 10, 11}, {5} },
+        { "abra cadabra", {6, 10, 11}, {5} },
+        { "abra cadabra", {7, 10, 11}, {5} },
+        { "abra cadabra", {8, 10, 11}, {5} },
+        { "abra cadabra", {9, 10, 11}, {5} },
+    };
+
+    for (const auto& test : gTests) {
+        check_line_breaks(test.fText, test.fScriptBoundaries, test.fExpectedLineBreaks);
+    }
+
+    {
+        static const char* kText = "abra cadabra";
+        static const std::vector<size_t> expected_breaks = { 5 };
+        static const size_t kLen = strlen(kText);
+
+        // exhaustive combinatorics for 3 runs
+        for (size_t i0 = 1; i0 < kLen - 2; ++i0) {
+            for (size_t i1 = i0 + 1; i1 < kLen - 1; ++i1) {
+                check_line_breaks(kText, {i0, i1}, expected_breaks);
+            }
+        }
+    }
+}
 
 #endif  // #if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
