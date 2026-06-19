@@ -145,3 +145,26 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecorderOrderingTest, reporter, context,
     REPORTER_ASSERT(reporter, insert(o2.get())); // succeeds and recovers
     REPORTER_ASSERT(reporter, insert(o3.get())); // now in order success
 }
+
+// Test to make sure inserting a null Recording (e.g. Recorder::snap() failed and the client didn't
+// check it) returns the correct invalid status.
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(NullRecordingInsertTest, reporter, context,
+                                   CtsEnforcement::kNever) {
+    struct FinishProcContext {
+        skiatest::Reporter* fReporter;
+        bool fFinishProcCalled = false;
+    } finishProcContext{reporter};
+
+    InsertRecordingInfo info;
+    info.fRecording = nullptr; // Set to null to simulate a Recorder::snap() failure.
+    info.fFinishedContext = &finishProcContext;
+    info.fFinishedProc = [](void* ctx, skgpu::CallbackResult result) {
+        FinishProcContext* finishProcContext = static_cast<FinishProcContext*>(ctx);
+        REPORTER_ASSERT(finishProcContext->fReporter, result == skgpu::CallbackResult::kFailed);
+        finishProcContext->fFinishProcCalled = true;
+    };
+
+    InsertStatus status = context->insertRecording(info); // Should not crash on the null Recording!
+    REPORTER_ASSERT(reporter, status == InsertStatus::kInvalidRecording);
+    REPORTER_ASSERT(reporter, finishProcContext.fFinishProcCalled);
+}

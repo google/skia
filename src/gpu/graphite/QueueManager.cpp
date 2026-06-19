@@ -106,20 +106,22 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
         callback = RefCntedCallback::Make(info.fFinishedProc, info.fFinishedContext);
     }
 
-#define RETURN_FAIL_IF(failureCase, status, fmt, ...)               \
-    if (failureCase) {                                              \
-        if (callback) { callback->setFailureResult(); }             \
-        info.fRecording->priv().setFailureResultForFinishedProcs(); \
-        info.fRecording->priv().deinstantiateVolatileLazyProxies(); \
-        SKIA_LOG_E(fmt, ##__VA_ARGS__);                            \
-        return status;                                              \
+#define RETURN_FAIL_IF(failureCase, status, fmt, ...)                   \
+    if (failureCase) {                                                  \
+        if (callback) { callback->setFailureResult(); }                 \
+        if (info.fRecording) {                                          \
+            info.fRecording->priv().setFailureResultForFinishedProcs(); \
+            info.fRecording->priv().deinstantiateVolatileLazyProxies(); \
+        }                                                               \
+        SKIA_LOG_E(fmt, ##__VA_ARGS__);                                 \
+        return status;                                                  \
     } do {} while(false)
 #define SIMULATE_FAIL(status) \
     RETURN_FAIL_IF(info.fSimulatedStatus == status, status, "Simulating '" #status "' failure")
 
     RETURN_FAIL_IF(!info.fRecording,
                    InsertStatus::kInvalidRecording,
-                   "No valid Recording passed into addRecording call");
+                   "Cannot insert null Recording");
 
     // Recordings from a Recorder that requires ordered recordings will have a valid recorder ID.
     // Recordings that don't have any required order are assigned SK_InvalidID.
