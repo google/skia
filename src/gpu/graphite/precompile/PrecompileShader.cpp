@@ -377,6 +377,7 @@ void PrecompileImageShader::addToKey(const KeyContext& keyContext, int desiredCo
     Swizzle readSwizzle = ReadSwizzleForColorType(colorInfo.colorType(), format);
 
     ColorSpaceTransformBlock::ColorSpaceTransformData colorXformData(readSwizzle);
+    colorXformData.fIsAlphaOnly = alphaOnly;
 
     if (!fRaw) {
         const SkColorSpace* dstColorSpace = sk_srgb_singleton();
@@ -1039,20 +1040,21 @@ private:
             outputCS = inputCS;
         }
 
+        KeyContext csContext{keyContext, KeyGenFlags::kSpecializeColorSpaceXform};
         // SkWorkingColorSpaceShader's workInUnpremul is not exposed yet in the public API so
         // precompile can assume that it'll always use dstAT.
         const SkAlphaType workingAT = dstAT;
         KeyContext workingContext =
-                keyContext.withColorInfo({dstInfo.colorType(), workingAT, inputCS});
+                csContext.withColorInfo({dstInfo.colorType(), workingAT, inputCS});
 
-        Compose(keyContext,
+        Compose(csContext,
                 /* addInnerToKey= */ [&]() -> void {
                     AddToKey<PrecompileShader>(workingContext, fShaders, desiredShaderCombination);
                 },
                 /* addOuterToKey= */ [&]() -> void {
                     ColorSpaceTransformBlock::ColorSpaceTransformData data(
                             outputCS.get(), workingAT, dstCS.get(), dstAT);
-                    ColorSpaceTransformBlock::AddBlock(keyContext, data);
+                    ColorSpaceTransformBlock::AddBlock(csContext, data);
                 });
     }
 

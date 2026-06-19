@@ -355,9 +355,9 @@ public:
             // Validate expected uniforms, but don't write a second copy since the paint color
             // uniform can only ever be declared once in the final SkSL program.
             SkDEBUGCODE(
-                    this->checkExpected(/*dst=*/nullptr, SkSLType::kFloat4, Uniform::kNonArray));
+                    this->checkExpected(/*dst=*/nullptr, SkSLType::kHalf4, Uniform::kNonArray));
         } else {
-            this->write<SkSLType::kFloat4>(&color);
+            this->write<SkSLType::kHalf4>(&color);
             fWrotePaintColor = true;
         }
     }

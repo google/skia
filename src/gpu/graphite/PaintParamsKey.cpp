@@ -311,10 +311,31 @@ static int key_to_string(const Caps* caps,
     int32_t id = keyData[currentIndex++];
     auto entry = dict->getEntry(id);
     if (!entry) {
-        str->append("UnknownCodeSnippetID:");
+        str->append("Unknown(");
         str->appendS32(id);
-        str->append(" ");
+        str->append(")");
         return currentIndex;
+    }
+
+    // Single lined Composes get shortened to just a plus between its two children, e.g. Compose [ A
+    // B ] becomes A+B. We don't do a similar prettification for Blend [ A B C ] to (A B)+C because
+    // that's not quite as readable and they aren't nearly as common within keys. To make sure
+    // chains of Composes are not ambiguous, we only consolidate cases where the inner node is not
+    // Compose, e.g. Compose [ A Compose [ B C ]] => A+B+C but [ Compose [ Compose [ A B ] C ] does
+    // not become A+B+C
+    static constexpr int32_t kComposeID = (int32_t) BuiltInCodeSnippetID::kCompose;
+    SkASSERT(dict->getEntry(kComposeID)->fNumChildren == 2);
+    const bool prettyCompose =
+            // single-lined Compose block
+            id == kComposeID && !multiline &&
+            // that doesn't have an inner Compose child
+            currentIndex < SkTo<int>(keyData.size()) && keyData[currentIndex] != kComposeID;
+
+    if (prettyCompose) {
+        SkASSERT(entry->fNumChildren == 2); // ordered [inner, outer]
+        currentIndex = key_to_string(caps, str, dict, keyData, currentIndex, indent);
+        str->append("+");
+        return key_to_string(caps, str, dict, keyData, currentIndex, indent);
     }
 
     str->append(entry->fName);
@@ -371,10 +392,13 @@ static int key_to_string(const Caps* caps,
             str->append(":\n");
             indent++;
         } else {
-            str->append(" [ ");
+            str->append("[");
         }
 
         for (int i = 0; i < entry->fNumChildren; ++i) {
+            if (i > 0) {
+                str->append(", ");
+            }
             currentIndex = key_to_string(caps, str, dict, keyData, currentIndex, indent);
         }
 
@@ -383,9 +407,7 @@ static int key_to_string(const Caps* caps,
         }
     }
 
-    if (!multiline) {
-        str->append(" ");
-    } else if (entry->fNumChildren == 0) {
+    if (multiline && entry->fNumChildren == 0) {
         str->append("\n");
     }
     return currentIndex;
@@ -397,6 +419,7 @@ SkString PaintParamsKey::toString(const Caps* caps,
     const int keySize = SkTo<int>(fData.size());
     for (int currentIndex = 0; currentIndex < keySize;) {
         currentIndex = key_to_string(caps, &str, dict, fData, currentIndex, /*indent=*/-1);
+        str.append(" ");
     }
     return str.isEmpty() ? SkString("(empty)") : str;
 }

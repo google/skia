@@ -263,6 +263,9 @@ $export $pure half4 $unpremul_polar(half4 color) {
     return half4(color.r, color.gb / max(color.a, 0.0001), color.a);
 }
 
+$pure half4  premul(half4  color) { return half4 (color.rgb * color.a, color.a); }
+$pure float4 premul(float4 color) { return float4(color.rgb * color.a, color.a); }
+
 // Convert RGBA -> HSLA (including unpremul).
 //
 // Based on work by Sam Hocevar, Emil Persson, and Ian Taylor [1][2][3].  High-level ideas:

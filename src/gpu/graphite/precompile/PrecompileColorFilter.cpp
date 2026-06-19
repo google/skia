@@ -441,20 +441,22 @@ private:
                                                   : SkColorSpace::MakeSRGB();
         SkAlphaType workingAT;
         sk_sp<SkColorSpace> workingCS = fWorkingFormatCalculator.workingFormat(dstCS, &workingAT);
+
+        KeyContext csOptimize{keyContext, KeyGenFlags::kSpecializeColorSpaceXform};
         KeyContext workingContext =
-                keyContext.withColorInfo({dstInfo.colorType(), workingAT, workingCS});
+                csOptimize.withColorInfo({dstInfo.colorType(), workingAT, workingCS});
 
         // Use two nested compose blocks to chain (dst->working), child, and (working->dst) together
         // while appearing as one block to the parent node.
-        Compose(keyContext,
+        Compose(csOptimize,
                 /* addInnerToKey= */ [&]() -> void {
                     // Inner compose
-                    Compose(keyContext,
+                    Compose(csOptimize,
                             /* addInnerToKey= */ [&]() -> void {
                                 // Innermost (inner of inner compose)
                                 ColorSpaceTransformBlock::ColorSpaceTransformData data1(
                                         dstCS.get(), dstAT, workingCS.get(), workingAT);
-                                ColorSpaceTransformBlock::AddBlock(keyContext, data1);
+                                ColorSpaceTransformBlock::AddBlock(csOptimize, data1);
                             },
                             /* addOuterToKey= */ [&]() -> void {
                                 // Middle (outer of inner compose)
@@ -466,7 +468,7 @@ private:
                     // Outermost (outer of outer compose)
                     ColorSpaceTransformBlock::ColorSpaceTransformData data2(
                             workingCS.get(), workingAT, dstCS.get(), dstAT);
-                    ColorSpaceTransformBlock::AddBlock(keyContext, data2);
+                    ColorSpaceTransformBlock::AddBlock(csOptimize, data2);
                 });
     }
 

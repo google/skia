@@ -212,7 +212,7 @@ static const PipelineLabel kCases[] = {
                "SolidColor SrcOver" },
 /*   3 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
 /*   4 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[RegularCover] + "
                "SolidColor SrcOver" },
@@ -246,14 +246,14 @@ static const PipelineLabel kCases[] = {
                "SolidColor SrcOver" },
 /*   X */ { 9, "RP((BGRA8+D16 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 //--------
 /*  15 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "TessellateWedgesRenderStep[Winding] + "
                "(empty)" },
 /*  16 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
 /*  17 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[RegularCover] + "
                "SolidColor SrcOver" },
@@ -271,7 +271,7 @@ static const PipelineLabel kCases[] = {
                "SolidColor Clear" },
 /*  22 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
 /*   ? */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "       //-----------------------------
                "CoverBoundsRenderStep[InverseCover] + "
                "(empty)" },
@@ -284,10 +284,10 @@ static const PipelineLabel kCases[] = {
 //--------
 /*  26 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] Src" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] Src" },
 /*  27 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
 /*  28 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
                "SolidColor SrcOver" },
@@ -296,7 +296,7 @@ static const PipelineLabel kCases[] = {
                "SolidColor Src" },
 /*   X */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /*  31 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "BitmapTextRenderStep[Mask] + "
                "SolidColor SrcOver" },
@@ -305,14 +305,14 @@ static const PipelineLabel kCases[] = {
                "SolidColor SrcOver" },
 /*   X */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticBlurRenderStep + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver" },
 //--------
 /*   X */ { 7, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /*   X */ { 7, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "AnalyticBlurRenderStep + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver AnalyticClip" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver AnalyticClip" },
 //--------
 /*  36 */ { 7, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "TessellateWedgesRenderStep[EvenOdd] + "
@@ -322,53 +322,53 @@ static const PipelineLabel kCases[] = {
                "SolidColor SrcOver" },
 /*   X */ { 7, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 //--------
 /*   X */ { 7, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
                "SolidColor SrcOver AnalyticClip" },
 /*  40 */ { 7, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] Src" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] Src" },
 //--------
 /*   X */ { 6, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ HWYUVImageNoSwizzle ColorSpaceTransformSRGB ] ] SrcOver AnalyticClip" },
+               "LocalMatrix[HWYUVImageNoSwizzle+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver AnalyticClip" },
 /*  42 */ { 6, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "BitmapTextRenderStep[Mask] + "
-               "LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransformPremul ] ] SrcOver" },
+               "LocalMatrix[LinearGradient4+PreAlpha+PostAlpha] SrcOver" },
 //--------
 /*  43 */ { 6, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] SrcOver" },
+               "LocalMatrix[ImageShaderClamp(0)+PreAlpha+PostAlpha] SrcOver" },
 /*  44 */ { 6, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] Src" },
+               "LocalMatrix[ImageShaderClamp(0)+PreAlpha+PostAlpha] Src" },
 /*   X */ { 6, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ HWYUVImageNoSwizzle ColorSpaceTransformSRGB ] ] SrcOver AnalyticClip" },
+               "LocalMatrix[HWYUVImageNoSwizzle+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver AnalyticClip" },
 /*   X */ { 6, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /*  47 */ { 6, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Src" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] Src" },
 /*  48 */ { 6, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Src" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] Src" },
 /*  49 */ { 6, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[LinearGradient4+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /*   X */ { 6, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticBlurRenderStep + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver AnalyticClip" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver AnalyticClip" },
 //--------
 /*  51 */ { 5, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+               "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  52 */ { 5, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "BitmapTextRenderStep[Mask] + "
-               "LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransformPremul ] ] SrcOver" },
+               "LocalMatrix[LinearGradient4+PreAlpha+PostAlpha] SrcOver" },
 //--------
 /*   X */ { 5, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + "
@@ -376,29 +376,29 @@ static const PipelineLabel kCases[] = {
 //--------
 /*  54 */ { 5, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ YUVImage ColorSpaceTransformSRGB ] ] SrcOver" },
+               "LocalMatrix[YUVImage+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*  55 */ { 5, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ HWYUVImageNoSwizzle ColorSpaceTransformSRGB ] ] SrcOver" },
+               "LocalMatrix[HWYUVImageNoSwizzle+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*  56 */ { 5, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] DstIn" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] DstIn" },
 /*  57 */ { 5, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ YUVImage ColorSpaceTransformSRGB ] ] SrcOver" },
+               "LocalMatrix[YUVImage+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*  58 */ { 5, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ HWYUVImageNoSwizzle ColorSpaceTransformSRGB ] ] SrcOver" },
+               "LocalMatrix[HWYUVImageNoSwizzle+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 //--------
 /*  59 */ { 4, "RP((R8+D16 x1).a000) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ BlendCompose [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] RGBPaintColor DstIn ] ] SrcOver" },
+               "LocalMatrix[BlendCompose[CoordNormalize[HardwareImage(0)]+AlphaOnly, RGBPaintColor, DstIn]] SrcOver" },
 /*  60 */ { 4, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + "
                "SolidColor SrcOver" },
 /*   X */ { 4, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "KnownRuntimeEffect_1DBlur16 [ LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformSRGB ] ] ] Src" },
+               "KnownRuntimeEffect_1DBlur16[LocalMatrix[ImageShaderClamp(0)+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]] Src" },
 /*  62 */ { 4, "RP((R8+D16 x1).a000) + "
                "AnalyticRRectRenderStep + "
                "SolidColor SrcOver" },
@@ -408,19 +408,19 @@ static const PipelineLabel kCases[] = {
                "(empty)" },
 /*   X */ { 4, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ HWYUVImageNoSwizzle ColorSpaceTransformSRGB ] ] SrcOver AnalyticClip" },
+               "LocalMatrix[HWYUVImageNoSwizzle+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver AnalyticClip" },
 /*  65 */ { 4, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ HWYUVImageNoSwizzle ColorSpaceTransformSRGB ] ] SrcOver" },
+               "LocalMatrix[HWYUVImageNoSwizzle+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*  66 */ { 4, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "MiddleOutFanRenderStep[EvenOdd] + "
                "(empty)" },
 /*  67 */ { 4, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ HWYUVImageNoSwizzle ColorSpaceTransformSRGB ] ] SrcOver" },
+               "LocalMatrix[HWYUVImageNoSwizzle+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*  68 */ { 4, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
 /*  69 */ { 4, "RP((BGRA8+D24_S8 x4->1).rgba) + "                    //-----------------------------
                "CoverBoundsRenderStep[InverseCover] + "
                "SolidColor SrcOver" },
@@ -439,31 +439,31 @@ static const PipelineLabel kCases[] = {
                "(empty)" },
 /*   X */ { 4, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ YUVImage ColorSpaceTransformSRGB ] ] SrcOver AnalyticClip" },
+               "LocalMatrix[YUVImage+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver AnalyticClip" },
 /*  75 */ { 4, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ YUVImage ColorSpaceTransformSRGB ] ] SrcOver" },
+               "LocalMatrix[YUVImage+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*  76 */ { 4, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] SrcOver" },
+               "LocalMatrix[ImageShaderClamp(0)+PreAlpha+PostAlpha] SrcOver" },
 /*  77 */ { 4, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ HWYUVImageNoSwizzle ColorSpaceTransformSRGB ] ] SrcOver" },
+               "LocalMatrix[HWYUVImageNoSwizzle+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*  78 */ { 4, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + "
-               "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+               "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  79 */ { 4, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "MiddleOutFanRenderStep[EvenOdd] + "
                "(empty)" },
 /*  80 */ { 4, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ YUVImage ColorSpaceTransformSRGB ] ] SrcOver" },
+               "LocalMatrix[YUVImage+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*  81 */ { 4, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ HWYUVImageNoSwizzle ColorSpaceTransformSRGB ] ] SrcOver" },
+               "LocalMatrix[HWYUVImageNoSwizzle+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*   X */ { 4, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "AnalyticBlurRenderStep + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver AnalyticClip" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver AnalyticClip" },
 //--------
 /*   ? */ { 4, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "          //-----------------------------
                "TessellateWedgesRenderStep[Convex] + "
@@ -477,26 +477,26 @@ static const PipelineLabel kCases[] = {
                "SolidColor SrcOver" },
 /*   X */ { 4, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ YUVImage ColorSpaceTransformSRGB ] ] SrcOver AnalyticClip" },
+               "LocalMatrix[YUVImage+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver AnalyticClip" },
 /*   X */ { 4, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] KnownRuntimeEffect_Luma ] SrcOver" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+KnownRuntimeEffect_Luma SrcOver" },
 /*  88 */ { 4, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] Src" },
+               "LocalMatrix[ImageShaderClamp(0)+PreAlpha+PostAlpha] Src" },
 /*   X */ { 4, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "KnownRuntimeEffect_1DBlur16 [ LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] ] Src" },
+               "KnownRuntimeEffect_1DBlur16[LocalMatrix[ImageShaderClamp(0)+PreAlpha+PostAlpha]] Src" },
 /*   X */ { 4, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + "
                "SolidColor SrcOver AnalyticClip" },
 //--------
 /*  91 */ { 3, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ BlendCompose [ Compose [ Image(0) ColorSpaceTransformSRGB ] RGBPaintColor DstIn ] ] Src" },
+               "LocalMatrix[BlendCompose[Image(0)+AlphaOnly, RGBPaintColor, DstIn]] Src" },
 /*   X */ { 3, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "KnownRuntimeEffect_1DBlur16 [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] Src" },
+               "KnownRuntimeEffect_1DBlur16[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]] Src" },
 //--------
 /*   ? */ { 3, "RP((BGRA8+D24_S8 x4->1).rgba) + "                    //-----------------------------
                "TessellateWedgesRenderStep[Convex] + "
@@ -506,28 +506,28 @@ static const PipelineLabel kCases[] = {
                "SolidColor SrcOver" },
 /*   X */ { 3, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ YUVImage ColorSpaceTransformSRGB ] ] SrcOver AnalyticClip" },
+               "LocalMatrix[YUVImage+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver AnalyticClip" },
 /*  96 */ { 3, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ YUVImage ColorSpaceTransformSRGB ] ] SrcOver" },
+               "LocalMatrix[YUVImage+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*   X */ { 3, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+               "LocalMatrix[ImageShaderClamp(0)+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /*  98 */ { 3, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] DstIn" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] DstIn" },
 /*   X */ { 3, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[RegularCover] + "
                "SolidColor SrcOver AnalyticClip" },
 /*   ? */ { 3, "RP((BGRA8+D24_S8 x4->1).rgba) + "                    //-----------------------------
                "CoverBoundsRenderStep[RegularCover] + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[LinearGradient4+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /* 101 */ { 3, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ YUVImage ColorSpaceTransformSRGB ] ] SrcOver" },
+               "LocalMatrix[YUVImage+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /* 102 */ { 3, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[LinearGradient4+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /*   X */ { 3, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "BitmapTextRenderStep[Mask] + "
                "SolidColor SrcOver AnalyticClip" },
@@ -544,22 +544,22 @@ static const PipelineLabel kCases[] = {
                "(empty)" },
 /*   X */ { 3, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+               "LocalMatrix[ImageShaderClamp(0)+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /*   ? */ { 3, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "       //-----------------------------
                "CoverBoundsRenderStep[RegularCover] + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[LinearGradient4+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /* 109 */ { 3, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[LinearGradient4+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /*   X */ { 3, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverageMaskRenderStep + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver AnalyticClip" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver AnalyticClip" },
 /* 111 */ { 3, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "BitmapTextRenderStep[Color] + "
-               "BlendCompose [ RGBPaintColor Compose [ PrimitiveColor ColorSpaceTransformSRGB ] PorterDuffBlender ] SrcOver" },
+               "BlendCompose[RGBPaintColor, PrimitiveColor+PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PorterDuffBlender] SrcOver" },
 /* 112 */ { 3, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[LinearGradient4+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 //--------
 /* 113 */ { 3, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + "
@@ -570,73 +570,73 @@ static const PipelineLabel kCases[] = {
 //--------
 /*   X */ { 3, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+               "LocalMatrix[ImageShaderClamp(0)+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /* 116 */ { 3, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver" },
 /* 117 */ { 3, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+               "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 118 */ { 3, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransformPremul ] ] SrcOver" },
+               "LocalMatrix[LinearGradient4+PreAlpha+PostAlpha] SrcOver" },
 /* 119 */ { 3, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ Image(0) ColorSpaceTransformPremul ] ] Src" },
+               "LocalMatrix[Image(0)+PreAlpha+PostAlpha] Src" },
 /* 120 */ { 3, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
 /*   X */ { 3, "RP((BGRA8+D16 x1).rgba) + "
                "CoverageMaskRenderStep + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver AnalyticClip" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver AnalyticClip" },
 /* 122 */ { 3, "RP((BGRA8+D16 x1).rgba) + "
                "BitmapTextRenderStep[Color] + "
-               "BlendCompose [ RGBPaintColor Compose [ PrimitiveColor ColorSpaceTransformSRGB ] PorterDuffBlender ] SrcOver" },
+               "BlendCompose[RGBPaintColor, PrimitiveColor+PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PorterDuffBlender] SrcOver" },
 /* 123 */ { 3, "RP((BGRA8+D16 x1).rgba) + "                          //-----------------------------
                "AnalyticRRectRenderStep + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
 //--------
 /* 124 */ { 2, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ BlendCompose [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] RGBPaintColor DstIn ] ] Src" },
+               "LocalMatrix[BlendCompose[CoordNormalize[HardwareImage(0)]+AlphaOnly, RGBPaintColor, DstIn]] Src" },
 /*   X */ { 2, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "KnownRuntimeEffect_1DBlur4 [ LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformSRGB ] ] ] Src" },
+               "KnownRuntimeEffect_1DBlur4[LocalMatrix[ImageShaderClamp(0)+AlphaOnly]] Src" },
 /*   X */ { 2, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "KnownRuntimeEffect_1DBlur4 [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] Src" },
+               "KnownRuntimeEffect_1DBlur4[LocalMatrix[CoordNormalize[HardwareImage(0)]+AlphaOnly]] Src" },
 //--------
 /*   X */ { 2, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "TessellateWedgesRenderStep[Convex] + "
                "SolidColor SrcOver AnalyticClip" },
 /* 128 */ { 2, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] SrcOver" },
+               "LocalMatrix[ImageShaderClamp(0)+PreAlpha+PostAlpha] SrcOver" },
 /*   X */ { 2, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[RegularCover] + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver AnalyticClip" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver AnalyticClip" },
 /* 130 */ { 2, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver" },
 /*   X */ { 2, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverageMaskRenderStep + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver AnalyticClip" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver AnalyticClip" },
 /* 132 */ { 2, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "BitmapTextRenderStep[Mask] + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver" },
 /* 133 */ { 2, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "BitmapTextRenderStep[Color] + "
-               "BlendCompose [ RGBPaintColor Compose [ PrimitiveColor ColorSpaceTransformSRGB ] PorterDuffBlender ] SrcOver" },
+               "BlendCompose[RGBPaintColor, PrimitiveColor+PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PorterDuffBlender] SrcOver" },
 /* 134 */ { 2, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "AnalyticRRectRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[LinearGradient4+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 //--------
 /*   ? */ { 2, "RP((BGRA8+D16 x4->1).rgba) + "                       //-----------------------------
                "TessellateWedgesRenderStep[Convex] + "
                "(empty)" },
 /* 136 */ { 2, "RP((BGRA8+D16 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] DstIn" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] DstIn" },
 //--------
 /* 137 */ { 2, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "TessellateStrokesRenderStep + "
@@ -646,22 +646,22 @@ static const PipelineLabel kCases[] = {
                "SolidColor SrcOver AnalyticClip" },
 /*   X */ { 2, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[RegularCover] + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver AnalyticClip" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver AnalyticClip" },
 /* 140 */ { 2, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradientBuffer ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[LinearGradientBuffer+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /* 141 */ { 2, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] SrcOver" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver" },
 /* 142 */ { 2, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "BitmapTextRenderStep[Mask] + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver" },
 /* 143 */ { 2, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + "
-               "LocalMatrix [ Compose [ HWYUVImageNoSwizzle ColorSpaceTransformSRGB ] ] SrcOver" },
+               "LocalMatrix[HWYUVImageNoSwizzle+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /* 144 */ { 2, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "       //-----------------------------
                "AnalyticRRectRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradient8 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[LinearGradient8+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 //--------
 /*   X */ { 2, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + "
@@ -672,25 +672,25 @@ static const PipelineLabel kCases[] = {
 //--------
 /* 147 */ { 2, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "BlendCompose [ LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+               "BlendCompose[LocalMatrix[ImageShaderClamp(0)+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*   X */ { 2, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+               "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /* 149 */ { 2, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] SrcOver" },
+               "LocalMatrix[ImageShaderClamp(0)+PreAlpha+PostAlpha] SrcOver" },
 /*   ? */ { 2, "RP((BGRA8+D16 x1).rgba) + "                          //-----------------------------
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] SrcOver" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*   X */ { 2, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "KnownRuntimeEffect_1DBlur16 [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] Src" },
-/*  152 */ { 2, "RP((BGRA8+D16 x1).rgba) + "
+               "KnownRuntimeEffect_1DBlur16[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]] Src" },
+/* 152 */ { 2, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + "
-               "LocalMatrix [ Compose [ HWYUVImageNoSwizzle ColorSpaceTransformSRGB ] ] SrcOver" },
-/*  153 */ { 2, "RP((BGRA8+D16 x1).rgba) + "
+               "LocalMatrix[HWYUVImageNoSwizzle+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
+/* 153 */ { 2, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[LinearGradient4+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 //--------
 /*   ? */ { 1, "RP((R8+D24_S8 x4->1).a000) + "                       //-----------------------------
                "TessellateWedgesRenderStep[EvenOdd] + "
@@ -704,86 +704,86 @@ static const PipelineLabel kCases[] = {
                "SolidColor SrcOver AnalyticClip" },
 /*   ? */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "                    //-----------------------------
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Multiply" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] Multiply" },
 /*   X */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "BlendCompose [ LocalMatrix [ Compose [ YUVImage ColorSpaceTransformSRGB ] ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+               "BlendCompose[LocalMatrix[YUVImage+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /*   X */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "BlendCompose [ LocalMatrix [ Compose [ HWYUVImageNoSwizzle ColorSpaceTransformSRGB ] ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+               "BlendCompose[LocalMatrix[HWYUVImageNoSwizzle+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /*   X */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+               "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /*   ? */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "                    //-----------------------------
                "PerEdgeAAQuadRenderStep + "
-               "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] Multiply" },
+               "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] Multiply" },
 /*   ? */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "                    //-----------------------------
                "CoverBoundsRenderStep[RegularCover] + "
-               "Compose [ LocalMatrix [ Compose [ RadialGradient8 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[RadialGradient8+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /*   ? */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "                    //-----------------------------
                "CoverBoundsRenderStep[RegularCover] + "
-               "Compose [ LocalMatrix [ Compose [ RadialGradient4 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[RadialGradient4+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /*   ? */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "                    //-----------------------------
                "CoverBoundsRenderStep[RegularCover] + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradient8 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[LinearGradient8+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /*   ? */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "                    //-----------------------------
                "CoverBoundsRenderStep[RegularCover] + "
-               "Compose [ BlendCompose [ LocalMatrix [ Compose [ RadialGradient4 ColorSpaceTransformSRGB ] ] AlphaOnlyPaintColor SrcIn ] Dither ] SrcOver" },
+               "BlendCompose[LocalMatrix[RadialGradient4+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn]+Dither SrcOver" },
 /*   ? */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "                    //-----------------------------
                "CoverBoundsRenderStep[RegularCover] + "
-               "Compose [ BlendCompose [ LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransformSRGB ] ] AlphaOnlyPaintColor SrcIn ] Dither ] SrcOver" },
+               "BlendCompose[LocalMatrix[LinearGradient4+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn]+Dither SrcOver" },
 /*   X */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /*   X */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver AnalyticClip" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver AnalyticClip" },
 /* 169 */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradientBuffer ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[LinearGradientBuffer+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /*   X */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] SrcOver AnalyticClip" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver AnalyticClip" },
 /* 171 */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] SrcOver" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "BitmapTextRenderStep[Color] + "
-               "BlendCompose [ BlendCompose [ RGBPaintColor Compose [ PrimitiveColor ColorSpaceTransformSRGB ] PorterDuffBlender ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+               "BlendCompose[BlendCompose[RGBPaintColor, PrimitiveColor+PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PorterDuffBlender], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "AnalyticRRectRenderStep + "
-               "LocalMatrix [ Compose [ HWYUVImageNoSwizzle ColorSpaceTransformSRGB ] ] SrcOver" },
+               "LocalMatrix[HWYUVImageNoSwizzle+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*   X */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "AnalyticRRectRenderStep + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver AnalyticClip" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver AnalyticClip" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "AnalyticRRectRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ RadialGradientBuffer ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[RadialGradientBuffer+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "AnalyticRRectRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ RadialGradient8 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[RadialGradient8+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "AnalyticRRectRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ RadialGradient4 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[RadialGradient4+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "AnalyticRRectRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradient8 ColorSpaceTransformSRGB ] ] Dither ] SrcOver AnalyticClip" },
+               "LocalMatrix[LinearGradient8+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver AnalyticClip" },
 /* 179 */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "AnalyticRRectRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradient8 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[LinearGradient8+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "AnalyticRRectRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransformSRGB ] ] Dither ] SrcOver AnalyticClip" },
+               "LocalMatrix[LinearGradient4+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver AnalyticClip" },
 //--------
 /*   X */ { 1, "RP((BGRA8+D16 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /* 182 */ { 1, "RP((BGRA8+D16 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
 /*     */ { 1, "RP((BGRA8+D16 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+               "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*     */ { 1, "RP((BGRA8+D16 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
                "SolidColor SrcOver AnalyticClip" },
@@ -792,7 +792,7 @@ static const PipelineLabel kCases[] = {
                "SolidColor SrcOver AnalyticClip" },
 /*   X */ { 1, "RP((BGRA8+D16 x4->1).rgba) + "
                "AnalyticBlurRenderStep + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver AnalyticClip" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver AnalyticClip" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "TessellateWedgesRenderStep[Convex] + "
                "SolidColor SrcOver AnalyticClip" },
@@ -801,70 +801,70 @@ static const PipelineLabel kCases[] = {
                "SolidColor SrcOver AnalyticClip" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + "
-               "BlendCompose [ LocalMatrix [ Compose [ HWYUVImageNoSwizzle ColorSpaceTransformSRGB ] ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+               "BlendCompose[LocalMatrix[HWYUVImageNoSwizzle+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + "
-               "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+               "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[RegularCover] + "
-               "Compose [ LocalMatrix [ Compose [ RadialGradient8 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[RadialGradient8+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[RegularCover] + "
-               "Compose [ LocalMatrix [ Compose [ RadialGradient4 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[RadialGradient4+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[RegularCover] + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradient8 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[LinearGradient8+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[RegularCover] + "
-               "Compose [ BlendCompose [ LocalMatrix [ Compose [ RadialGradient4 ColorSpaceTransformSRGB ] ] AlphaOnlyPaintColor SrcIn ] Dither ] SrcOver" },
+               "BlendCompose[LocalMatrix[RadialGradient4+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn]+Dither SrcOver" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[RegularCover] + "
-               "Compose [ BlendCompose [ LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransformSRGB ] ] AlphaOnlyPaintColor SrcIn ] Dither ] SrcOver" },
+               "BlendCompose[LocalMatrix[LinearGradient4+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn]+Dither SrcOver" },
 /*   X */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /*   X */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver AnalyticClip" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver AnalyticClip" },
 /* 198 */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver" },
 /*   X */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradientBuffer ColorSpaceTransformSRGB ] ] Dither ] SrcOver AnalyticClip" },
+               "LocalMatrix[LinearGradientBuffer+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver AnalyticClip" },
 /*   X */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] SrcOver AnalyticClip" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver AnalyticClip" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverageMaskRenderStep + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "BitmapTextRenderStep[Color] + "
-               "BlendCompose [ BlendCompose [ RGBPaintColor Compose [ PrimitiveColor ColorSpaceTransformSRGB ] PorterDuffBlender ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+               "BlendCompose[BlendCompose[RGBPaintColor, PrimitiveColor+PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PorterDuffBlender], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 203 */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] SrcOver" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*   X */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /*   X */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver AnalyticClip" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver AnalyticClip" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ RadialGradientBuffer ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[RadialGradientBuffer+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ RadialGradient8 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[RadialGradient8+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ RadialGradient4 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[RadialGradient4+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradient8 ColorSpaceTransformSRGB ] ] Dither ] SrcOver AnalyticClip" },
+               "LocalMatrix[LinearGradient8+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver AnalyticClip" },
 /*     */ { 1, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransformSRGB ] ] Dither ] SrcOver AnalyticClip" },
+               "LocalMatrix[LinearGradient4+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver AnalyticClip" },
 /*     */ { 1, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "TessellateWedgesRenderStep[Convex] + "
                "(empty)" },
@@ -873,130 +873,130 @@ static const PipelineLabel kCases[] = {
                "SolidColor SrcOver" },
 /*     */ { 1, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] SrcOver" },
+               "LocalMatrix[ImageShaderClamp(0)+PreAlpha+PostAlpha] SrcOver" },
 /*     */ { 1, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ HWYUVImageNoSwizzle ColorSpaceTransformSRGB ] ] SrcOver AnalyticClip" },
+               "LocalMatrix[HWYUVImageNoSwizzle+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver AnalyticClip" },
 /* 215 */ { 1, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
 /*     */ { 1, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + "
-               "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+               "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /* 217 */ { 1, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
 /*     */ { 1, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradientBuffer ColorSpaceTransformSRGB ] ] Dither ] SrcOver AnalyticClip" },
+               "LocalMatrix[LinearGradientBuffer+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver AnalyticClip" },
 /*     */ { 1, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradientBuffer ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[LinearGradientBuffer+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /*     */ { 1, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "BitmapTextRenderStep[Color] + "
-               "BlendCompose [ RGBPaintColor Compose [ PrimitiveColor ColorSpaceTransformSRGB ] PorterDuffBlender ] SrcOver" },
+               "BlendCompose[RGBPaintColor, PrimitiveColor+PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PorterDuffBlender] SrcOver" },
 /*     */ { 1, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + "
                "SolidColor SrcOver AnalyticClip" },
 /*     */ { 1, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + "
-               "LocalMatrix [ Compose [ HWYUVImageNoSwizzle ColorSpaceTransformSRGB ] ] SrcOver" },
+               "LocalMatrix[HWYUVImageNoSwizzle+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*     */ { 1, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
-/*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
+               "LocalMatrix[LinearGradient4+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
+/*    */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] DstIn" },
+               "LocalMatrix[ImageShaderClamp(0)+PreAlpha+PostAlpha] DstIn" },
 /*   X */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] KnownRuntimeEffect_Luma ] SrcOver AnalyticClip" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+KnownRuntimeEffect_Luma SrcOver AnalyticClip" },
 /*   X */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver AnalyticClip" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver AnalyticClip" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
                "SolidColor Src AnalyticClip" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ Image(0) ColorSpaceTransformPremul ] ] SrcOver" },
+               "LocalMatrix[Image(0)+PreAlpha+PostAlpha] SrcOver" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ HWYUVImage ColorSpaceTransformSRGB ] ] SrcOver" },
+               "LocalMatrix[HWYUVImage+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] DstIn" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] DstIn" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "KnownRuntimeEffect_1DBlur8 [ LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] ] Src" },
+               "KnownRuntimeEffect_1DBlur8[LocalMatrix[ImageShaderClamp(0)+PreAlpha+PostAlpha]] Src" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "KnownRuntimeEffect_1DBlur16 [ LocalMatrix [ Compose [ Image(0) ColorSpaceTransformPremul ] ] ] Src" },
+               "KnownRuntimeEffect_1DBlur16[LocalMatrix[Image(0)+PreAlpha+PostAlpha]] Src" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "KnownRuntimeEffect_1DBlur12 [ LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] ] Src" },
+               "KnownRuntimeEffect_1DBlur12[LocalMatrix[ImageShaderClamp(0)+PreAlpha+PostAlpha]] Src" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "KnownRuntimeEffect_1DBlur12 [ LocalMatrix [ Compose [ Image(0) ColorSpaceTransformPremul ] ] ] Src" },
+               "KnownRuntimeEffect_1DBlur12[LocalMatrix[Image(0)+PreAlpha+PostAlpha]] Src" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradientBuffer ColorSpaceTransformSRGB ] ] Dither ] SrcOver AnalyticClip" },
+               "LocalMatrix[LinearGradientBuffer+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver AnalyticClip" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradientBuffer ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[LinearGradientBuffer+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradient8 ColorSpaceTransformPremul ] ] Dither ] SrcOver" },
+               "LocalMatrix[LinearGradient8+PreAlpha+PostAlpha]+Dither SrcOver" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransformSRGB ] ] Dither ] SrcOver AnalyticClip" },
+               "LocalMatrix[LinearGradient4+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver AnalyticClip" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ LocalMatrix [ Compose [ Image(0) ColorSpaceTransformPremul ] ] Compose [ MatrixColorFilter MatrixColorFilter ] ] Src" },
+               "LocalMatrix[Image(0)+PreAlpha+PostAlpha]+MatrixColorFilter+MatrixColorFilter Src" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ LocalMatrix [ Compose [ Image(0) ColorSpaceTransformPremul ] ] BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver" },
+               "LocalMatrix[Image(0)+PreAlpha+PostAlpha]+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver" },
 /*   X */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] SrcOver AnalyticClip" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver AnalyticClip" },
 /* 242 */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] SrcOver" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "Compose [ BlendCompose [ LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransformSRGB ] ] AlphaOnlyPaintColor SrcIn ] Dither ] SrcOver" },
+               "BlendCompose[LocalMatrix[LinearGradient4+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn]+Dither SrcOver" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "BlendCompose [ LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+               "BlendCompose[LocalMatrix[ImageShaderClamp(0)+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] PorterDuffBlender ] Src" },
+               "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], PorterDuffBlender] Src" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "BlendCompose [ Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] PorterDuffBlender ] Src" },
+               "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+BlendCompose[SolidColor, Passthrough, PorterDuffBlender], PorterDuffBlender] Src" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CoverageMaskRenderStep + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "CircularArcRenderStep + "
                "SolidColor SrcOver" },
 /*   X */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "BitmapTextRenderStep[Mask] + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver AnalyticClip" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver AnalyticClip" },
 /* 250 */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "BitmapTextRenderStep[Mask] + "
-               "Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver" },
+               "SolidColor+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "BitmapTextRenderStep[Color] + "
-               "BlendCompose [ BlendCompose [ RGBPaintColor Compose [ PrimitiveColor ColorSpaceTransformPremul ] PorterDuffBlender ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+               "BlendCompose[BlendCompose[RGBPaintColor, PrimitiveColor+PreAlpha+PostAlpha, PorterDuffBlender], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 252 */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + "
-               "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] SrcOver" },
+               "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*   X */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradient8 ColorSpaceTransformSRGB ] ] Dither ] SrcOver AnalyticClip" },
+               "LocalMatrix[LinearGradient8+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver AnalyticClip" },
 /*     */ { 1, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + "
-               "Compose [ LocalMatrix [ Compose [ LinearGradient8 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
+               "LocalMatrix[LinearGradient8+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+Dither SrcOver" },
 };
 
 bool skip(const char* str) {

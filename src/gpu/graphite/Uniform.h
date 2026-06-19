@@ -32,7 +32,7 @@ public:
      * once. Its name will not be mangled.
      */
     static constexpr Uniform PaintColor() {
-        return Uniform("paintColor", SkSLType::kFloat4,
+        return Uniform("paintColor", SkSLType::kHalf4,
                        Uniform::kNonArray, /*isPaintColor=*/true);
     }
 

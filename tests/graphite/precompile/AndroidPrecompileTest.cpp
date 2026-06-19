@@ -45,215 +45,215 @@ namespace {
 static const PipelineLabel kOldLabels[] = {
 /*   0 */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
 /*   1 */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*   2 */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] SrcOver" },
+                "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]] SrcOver" },
 /*   ? */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x247 2020+narrow cos cos nearest F rgba cf1lf0) ] ColorSpaceTransform ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] SrcOver" },
+                "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(x247 2020+narrow cos cos nearest F rgba cf1lf0)]+PreAlpha+TF+Gamut+TF+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*   4 */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ SolidColor ] SrcOver" },
+                "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[SolidColor] SrcOver" },
 /*   5 */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_MouriMap_BlurEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] Src" },
+                "RE_MouriMap_BlurEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]] Src" },
 /*   6 */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_MouriMap_Chunk8x8Effect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] Src" },
+                "RE_MouriMap_Chunk8x8Effect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]] Src" },
 /*   7 */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_MouriMap_CrossTalkAndChunk16x16Effect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] Src" },
+                "RE_MouriMap_CrossTalkAndChunk16x16Effect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]] Src" },
 /*   8 */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_MouriMap_CrossTalkAndChunk16x16Effect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x247 2020+narrow cos cos nearest F rgba cf1lf0) ] ColorSpaceTransform ] ] ] Src" },
+                "RE_MouriMap_CrossTalkAndChunk16x16Effect[LocalMatrix[CoordNormalize[HardwareImage(x247 2020+narrow cos cos nearest F rgba cf1lf0)]+Unpremul+PQ+Gamut+sRGB+Premul]] Src" },
 /*   9 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  10 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  11 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "BlendCompose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+                "BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  12 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
 /*  13 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "Compose [ BlendCompose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] SrcOver" },
+                "BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
 /*  14 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "Compose [ Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver" },
+                "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /*  15 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "Compose [ Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver" },
+                "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /*  16 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "Compose [ Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] Dither ] SrcOver" },
+                "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /*  17 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "Compose [ Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] MatrixColorFilter ] Dither ] SrcOver" },
+                "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /*  18 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] MatrixColorFilter ] Dither ] SrcOver" },
+                "Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]+MatrixColorFilter, Dither] SrcOver" },
 /*  19 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver" },
 /*  20 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] MatrixColorFilter ] SrcOver" },
+                "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]+MatrixColorFilter SrcOver" },
 /*  21 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "Compose [ RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x247 2020+narrow cos cos nearest F rgba cf1lf0) ] ColorSpaceTransform ] ] ] Dither ] SrcOver" },
+                "RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(x247 2020+narrow cos cos nearest F rgba cf1lf0)]+PreAlpha+TF+Gamut+TF+PostAlpha]]+Dither SrcOver" },
 /*  22 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
 /*  23 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /*  24 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*  25 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
 /*  26 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] SrcOver" },
+                "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]] SrcOver" },
 /*  27 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + SolidColor SrcOver" },
 /*  28 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  29 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  30 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver" },
+                "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /*  31 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver" },
+                "Compose[BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /*  32 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] Dither ] SrcOver" },
+                "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /*  33 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] Dither ] SrcOver AnalyticClip" },
+                "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
 /*  34 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] MatrixColorFilter ] Dither ] SrcOver" },
+                "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /*  35 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] MatrixColorFilter ] Dither ] SrcOver AnalyticClip" },
+                "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
 /*  36 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] RGBPaintColor DstIn ] ] MatrixColorFilter ] SrcOver" },
+                "CoordNormalize[HardwareImage(0)]+AlphaOnly, RGBPaintColor, DstIn+MatrixColorFilter SrcOver" },
 /*  37 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ LocalMatrix [ BlendCompose [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] RGBPaintColor DstIn ] ] MatrixColorFilter ] SrcOver" },
+                "LocalMatrix[BlendCompose[CoordNormalize[HardwareImage(0)]+AlphaOnly, RGBPaintColor, DstIn]]+MatrixColorFilter SrcOver" },
 /*  38 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver" },
 /*  39 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x247 2020+narrow cos cos nearest F rgba cf1lf0) ] ColorSpaceTransform ] ] ] Dither ] SrcOver" },
+                "RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(x247 2020+narrow cos cos nearest F rgba cf1lf0)]+PreAlpha+TF+Gamut+TF+PostAlpha]]+Dither SrcOver" },
 /*  40 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x247 2020+narrow cos cos nearest F rgba cf1lf0) ] ColorSpaceTransform ] ] ] Dither ] SrcOver AnalyticClip" },
+                "RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(x247 2020+narrow cos cos nearest F rgba cf1lf0)]+PreAlpha+TF+Gamut+TF+PostAlpha]]+Dither SrcOver AnalyticClip" },
 /*  41 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Src" },
-/*  42 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] Src" },
+/*  42 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
 /*  43 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /*  44 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*  45 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] SrcOver AnalyticClip" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver AnalyticClip" },
 /*  46 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
 /*  47 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
 /*  48 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
-/*  49 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_BlurFilter_MixEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] Src" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
+/*  49 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]] Src" },
 /*   X */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_GainmapEffect [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransform ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ColorSpaceTransformPremul ColorSpaceTransformPremul ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransform ] ] ColorSpaceTransformPremul ColorSpaceTransformPremul ] Src" },
+                "RE_GainmapEffect[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+TF+Gamut+TF+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough], PreAlpha+PostAlpha, PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+TF+Gamut+TF+PostAlpha], PreAlpha+PostAlpha, PreAlpha+PostAlpha] Src" },
 // Obsolete - Android will no longer generate
 /*   X */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_KawaseBlurDualFilter_HighSampleBlurEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] Src" },
+                "RE_KawaseBlurDualFilter_HighSampleBlurEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]] Src" },
 // Obsolete - Android will no longer generate
 /*   X */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_KawaseBlurDualFilter_LowSampleBlurEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] Src" },
+                "RE_KawaseBlurDualFilter_LowSampleBlurEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]] Src" },
 // Obsolete - Android will no longer generate
 /*   X */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_KawaseBlurDualFilter_LowSampleBlurEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] SrcOver" },
+                "RE_KawaseBlurDualFilter_LowSampleBlurEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]] SrcOver" },
 /*  54 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader [ SolidColor ] Src" },
+                "RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader[SolidColor] Src" },
 /*  55 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] Src" },
+                "RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul Src" },
 /*  56 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + SolidColor Src" },
 /*  57 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + SolidColor SrcOver" },
 /*  58 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + SolidColor SrcOver AnalyticClip" },
 /*  59 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "PerEdgeAAQuadRenderStep + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Src" },
-/*  60 */ { -1, "RP((RGBA8+D16 x1).rgba) + VerticesRenderStep[TrisColor] + Compose [ PrimitiveColor Compose [ GaussianColorFilter BlendCompose [ SolidColor Passthrough Modulate ] ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] Src" },
+/*  60 */ { -1, "RP((RGBA8+D16 x1).rgba) + VerticesRenderStep[TrisColor] + PrimitiveColor+GaussianColorFilter+BlendCompose[SolidColor, Passthrough, Modulate] SrcOver" },
 /*  61 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "AnalyticRRectRenderStep + "
-                "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  62 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "AnalyticRRectRenderStep + "
-                "BlendCompose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+                "BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  63 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "AnalyticRRectRenderStep + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
 /*  64 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "AnalyticRRectRenderStep + "
-                "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] SrcOver" },
+                "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]] SrcOver" },
 /*  65 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "CoverBoundsRenderStep[InverseCover] + "
                 "(empty)" },
 /*  66 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  67 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  68 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver" },
+                "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /*  69 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] Dither ] SrcOver" },
+                "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /*  70 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ LocalMatrix [ BlendCompose [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] RGBPaintColor DstIn ] ] MatrixColorFilter ] SrcOver" },
+                "LocalMatrix[BlendCompose[CoordNormalize[HardwareImage(0)]+AlphaOnly, RGBPaintColor, DstIn]]+MatrixColorFilter SrcOver" },
 /*  71 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Src" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] Src" },
 /*  72 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
 /*  73 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
 /*  74 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "SolidColor SrcOver" },
@@ -265,13 +265,13 @@ static const PipelineLabel kOldLabels[] = {
                 "(empty)" },
 /*  77 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "Compose [ Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] MatrixColorFilter ] Dither ] SrcOver" },
+                "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /*  78 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[InverseCover] + "
                 "(empty)" },
 /*  79 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x247 2020+narrow cos cos nearest F rgba cf1lf0) ] ColorSpaceTransform ] ] ] Dither ] SrcOver" },
+                "RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(x247 2020+narrow cos cos nearest F rgba cf1lf0)]+PreAlpha+TF+Gamut+TF+PostAlpha]]+Dither SrcOver" },
 /*  80 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "MiddleOutFanRenderStep[EvenOdd] + "
                 "(empty)" },
@@ -280,7 +280,7 @@ static const PipelineLabel kOldLabels[] = {
                 "(empty)" },
 /*  82 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "VerticesRenderStep[TrisColor] + "
-                "Compose [ PrimitiveColor Compose [ GaussianColorFilter BlendCompose [ SolidColor Passthrough Modulate ] ] ] SrcOver" },
+                "PrimitiveColor+GaussianColorFilter+BlendCompose[SolidColor, Passthrough, Modulate] SrcOver" },
 
                 // New Cases 6/10/25
 /*  83 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
@@ -295,217 +295,217 @@ static const PipelineLabel kOldLabels[] = {
 /*  86 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + SolidColor SrcOver" },
 /*  87 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
 /*  88 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
 /*  89 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + SolidColor SrcOver AnalyticClip" },
 /*  90 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /*  91 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /*  92 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + SolidColor Src AnalyticClip" },
 /*  93 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 
 /*  94 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + SolidColor Src AnalyticClip" },
 
 /*  95 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 
 //---------------------------------
           // New Cases 6/17/25
 /*  96 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] SrcOver" },
+                "RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]] SrcOver" },
 /*  97 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/*  98 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/*  99 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_BlurFilter_MixEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] Src" },
+                "BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/*  98 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/*  99 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]] Src" },
 /* 100 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Src" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] Src" },
 
 /* 101 */ { -1, "RP((R8+D16 x1).a000) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ BlendCompose [ Compose [ ImageShaderClamp(0) ColorSpaceTransformSRGB ] RGBPaintColor DstIn ] ] Src" },
+                "LocalMatrix[BlendCompose[ImageShaderClamp(0)+AlphaOnly, RGBPaintColor, DstIn]] Src" },
 /*     */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ RE_MouriMap_Tonemap [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x247 2020+narrow cos cos nearest F rgba cf1lf0) ] ColorSpaceTransform ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] SrcOver" },
+                "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[RE_MouriMap_Tonemap[LocalMatrix[CoordNormalize[HardwareImage(x247 2020+narrow cos cos nearest F rgba cf1lf0)]+PreAlpha+TF+Gamut+TF+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /* 103 */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] SrcOver" },
+                "RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]] SrcOver" },
 /* 104 */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_MouriMap_CrossTalkAndChunk16x16Effect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] Src" },
+                "RE_MouriMap_CrossTalkAndChunk16x16Effect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]] Src" },
 /*     */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RuntimeEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] Src" },
+                "RuntimeEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] Src" },
 /* 106 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /* 107 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "BlendCompose [ SolidColor LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Plus ] SrcOver" },
+                "BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus] SrcOver" },
 /* 108 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "Compose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] MatrixColorFilter ] Dither ] SrcOver" },
+                "Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]+MatrixColorFilter, Dither] SrcOver" },
 /* 109 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] MatrixColorFilter ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter SrcOver" },
 /* 110 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] SrcOver AnalyticClip" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver AnalyticClip" },
 /*     */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: gHoAAO4AAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(3: gHoAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /* 112 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] SrcOver" },
+                "RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]] SrcOver" },
 /* 113 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] SrcOver" },
+                "RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]] SrcOver" },
 /* 114 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] SrcOver" },
+                "RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]] SrcOver" },
 /*     */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ RE_MouriMap_Tonemap [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] SrcOver" },
+                "RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[RE_MouriMap_Tonemap[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*     */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "RuntimeEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] Src" },
+                "RuntimeEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]] Src" },
 /* 117 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose [ BlendCompose [ SolidColor LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Plus ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+                "BlendCompose[BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 118 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 119 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 120 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+                "BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /*     */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose [ RuntimeEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+                "BlendCompose[RuntimeEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 122  */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose [ SolidColor LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Plus ] SrcOver AnalyticClip" },
+                "BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus] SrcOver AnalyticClip" },
 /* 123 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
 /* 124  */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] SrcOver AnalyticClip" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver AnalyticClip" },
 /*     */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ BlendCompose [ RuntimeEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x247 2020+narrow cos cos nearest F rgba cf1lf0) ] ColorSpaceTransform ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] Dither ] SrcOver" },
+                "BlendCompose[RuntimeEffect[LocalMatrix[CoordNormalize[HardwareImage(x247 2020+narrow cos cos nearest F rgba cf1lf0)]+PreAlpha+TF+Gamut+TF+PostAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn]+Dither SrcOver" },
 /* 126 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ Compose [ BlendCompose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver" },
+                "Compose[BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /*     */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ Compose [ LocalMatrix [ BlendCompose [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] RGBPaintColor DstIn ] ] MatrixColorFilter ] Dither ] SrcOver" },
+                "Compose[LocalMatrix[BlendCompose[CoordNormalize[HardwareImage(0)]+AlphaOnly, RGBPaintColor, DstIn]]+MatrixColorFilter, Dither] SrcOver" },
 /* 128 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] SrcOver AnalyticClip" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver AnalyticClip" },
 /* 129 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] MatrixColorFilter ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter SrcOver" },
 
 /*     */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: gHMAAPAAAAAAAAAA) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(3: gHMAAPAAAAAAAAAA)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver" },
 /* 131 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] MatrixColorFilter ] SrcOver AnalyticClip" },
+                "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]+MatrixColorFilter SrcOver AnalyticClip" },
 /*     */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: gHIAAPAAAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(3: gHIAAPAAAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /*     */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: gHoAAO4AAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(3: gHoAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /* 134 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
 /* 135 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /* 136 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /* 137 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] SrcOver" },
+                "RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]] SrcOver" },
 /* 138 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] SrcOver AnalyticClip" },
+                "RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]] SrcOver AnalyticClip" },
 /* 139 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] SrcOver" },
+                "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]] SrcOver" },
 /* 140 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] SrcOver AnalyticClip" },
+                "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]] SrcOver AnalyticClip" },
 /* 141 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] SrcOver" },
+                "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]] SrcOver" },
 /*     */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RuntimeEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] Passthrough ] ] ] SrcOver" },
+                "RuntimeEffect[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+Passthrough]] SrcOver" },
 /*     */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RuntimeEffect [ SolidColor ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] Src" },
+                "RuntimeEffect[SolidColor, PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] Src" },
 //--
 /* 144 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "SolidColor Src AnalyticClip" },
 /* 145 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "VerticesRenderStep[TrisColor] + "
-                "Compose [ PrimitiveColor Compose [ GaussianColorFilter BlendCompose [ SolidColor Passthrough Modulate ] ] ] SrcOver" },
+                "PrimitiveColor+Compose[GaussianColorFilter, BlendCompose[SolidColor, Passthrough, Modulate]] SrcOver" },
 /* 146 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "BlendCompose [ SolidColor LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Plus ] SrcOver" },
+                "BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus] SrcOver" },
 /*     */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "Compose [ Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver" },
+                "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /* 148 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 149 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 
 /* 150 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
 /* 151 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
 /*     */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[RegularCover] + "
                 "SolidColor SrcOver AnalyticClip" },
 
 /*     */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ColorSpaceTransform ColorSpaceTransform ] ColorSpaceTransform ColorSpaceTransform ] SrcOver" },
+                "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough], PreAlpha+TF+Gamut+TF+PostAlpha, PreAlpha+TF+Gamut+TF+PostAlpha], PreAlpha+TF+Gamut+TF+PostAlpha, PreAlpha+TF+Gamut+TF+PostAlpha] SrcOver" },
 
 /* 154 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ Compose [ RE_LutEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x54 2020+full mid mid nearest F rgba cf0lf1) ] ColorSpaceTransform ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ] Dither ] SrcOver" },
+                "Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[RE_LutEffect[LocalMatrix[CoordNormalize[HardwareImage(x54 2020+full mid mid nearest F rgba cf0lf1)]+Unpremul+PQ+Gamut+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Gamut+sRGB+Premul]+Unpremul+sRGB+Premul, Dither] SrcOver" },
 
 /* 155 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x769 709+full mid mid nearest F rgba cf0lf1) ] ColorSpaceTransformPremul ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x769 709+full mid mid nearest F rgba cf0lf1)]+PreAlpha+PostAlpha] SrcOver" },
 
 /* 156 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ Compose [ RE_LinearEffect_BT2020_HLG__UNKNOWN__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x54 2020+full mid mid nearest F rgba cf0lf1) ] ColorSpaceTransform ] ] ] ColorSpaceTransformSRGB ] Dither ] SrcOver" },
+                "Compose[RE_LinearEffect_BT2020_HLG__UNKNOWN__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(x54 2020+full mid mid nearest F rgba cf0lf1)]+Unpremul+PQ+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, Dither] SrcOver" },
 
 // Synthetic placeholders for non-convex draw helpers. These labels are generated
 // for the kNonSimpleShape DrawTypeFlags but don't appear in the naturally
@@ -538,280 +538,279 @@ static const PipelineLabel kOldLabels[] = {
 // utilization check.
 /* 61* */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 63* */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
 /* 66* */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 67* */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 68* */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver" },
+                "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /* 69* */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose [ Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] Dither ] SrcOver" },
+                "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /* 71* */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Src" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] Src" },
 /* 72* */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
 /* 74* */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "SolidColor SrcOver" },
 
 /* 173 */ { -1,
-        "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] SrcOver" },
+        "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
 /* 174 */ { -1,
-        "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] SrcOver" },
+        "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, MatrixColorFilter] SrcOver" },
 /* 175 */ { -1,
-        "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] Dither ] SrcOver" },
+        "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose[Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, MatrixColorFilter], Dither] SrcOver" },
 
 /* 176 */ { -1,
-        "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 177 */ { -1,
-        "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] SrcOver" },
+        "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, MatrixColorFilter] SrcOver" },
 /* 178 */ { -1,
-        "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul]+Unpremul+sRGB+Premul SrcOver" },
 /* 179 */ { -1,
-        "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] Dither ] SrcOver" },
+        "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose[Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, MatrixColorFilter], Dither] SrcOver" },
 /* 180 */ { -1,
-        "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
 
 /* 181 */ { -1,
-        "RP((RGBA16F+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RP((RGBA16F+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul]+Unpremul+sRGB+Premul SrcOver" },
 /* 182 */ { -1,
-        "RP((RGBA16F+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RP((RGBA16F+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
 /* 183 */ { -1,
-        "RP((RGBA16F+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ SolidColor ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RP((RGBA16F+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[SolidColor]+Unpremul+sRGB+Premul SrcOver" },
 /* 184 */ { -1,
-        "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 185 */ { -1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] MatrixColorFilter ] Dither ] SrcOver" },
+        "Compose[Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, MatrixColorFilter], Dither] SrcOver" },
 /* 186 */ { -1,
-        "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] MatrixColorFilter ] SrcOver" },
+        "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, MatrixColorFilter] SrcOver" },
 /* 187 */ { -1,
-        "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] SrcOver" },
+        "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough SrcOver" },
 /* 188 */ { -1,
-        "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul]+Unpremul+sRGB+Premul SrcOver" },
 /* 189 */ { -1,
-        "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 190 */ { -1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] SrcOver" },
+        "BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
 /* 191 */ { -1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver" },
+        "Compose[BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /* 192 */ { -1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] MatrixColorFilter ] Dither ] SrcOver" },
+        "Compose[Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, MatrixColorFilter], Dither] SrcOver" },
 /* 193 */ { -1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] MatrixColorFilter ] Dither ] SrcOver AnalyticClip" },
+        "Compose[Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, MatrixColorFilter], Dither] SrcOver AnalyticClip" },
 /* 194 */ { -1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] MatrixColorFilter ] SrcOver" },
+        "Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, MatrixColorFilter] SrcOver" },
 /* 195 */ { -1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] MatrixColorFilter ] SrcOver AnalyticClip" },
+        "Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, MatrixColorFilter] SrcOver AnalyticClip" },
 /* 196 */ { -1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] SrcOver" },
+        "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough SrcOver" },
 /* 197 */ { -1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
         "RE_BoxShadowEffect SrcOver" },
 /* 198 */ { -1,
-        "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_GainmapEffect [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformPremul ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] Src" },
+        "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_GainmapEffect[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Passthrough, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]] Src" },
 
-/* 199 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_BlurFilter_MixEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] SrcOver" },
+/* 199 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]] SrcOver" },
 // A RRect w/ a RRect clip!!?
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_BlurFilter_MixEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] SrcOver AnalyticClip" },
-/* 201 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_BT2020_HLG__UNKNOWN__false__UNKNOWN__Shader [ SolidColor ] ColorSpaceTransformSRGB ] Src" },
-/* 202 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] SrcOver" },
-/* 203 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/* 204 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver AnalyticClip" },
-/* 205 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
-/* 206 */ { -1, "RP((RGBA16F+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ] SrcOver" },
-/* 207 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver" },
-/* 208 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/* 209 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] SrcOver AnalyticClip" },
-/* 210 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] SrcOver" },
-/* 211 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/* 212 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Src AnalyticClip" },
-/* 213 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] SrcOver" },
+/*     */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]] SrcOver AnalyticClip" },
+/* 201 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_BT2020_HLG__UNKNOWN__false__UNKNOWN__Shader[SolidColor]+Unpremul+sRGB+Premul Src" },
+/* 202 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]] SrcOver" },
+/* 203 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/* 204 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
+/* 205 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
+/* 206 */ { -1, "RP((RGBA16F+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul]+Unpremul+sRGB+Premul SrcOver" },
+/* 207 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose[BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
+/* 208 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/* 209 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough SrcOver AnalyticClip" },
+/* 210 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, MatrixColorFilter] SrcOver" },
+/* 211 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/* 212 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] Src AnalyticClip" },
+/* 213 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough SrcOver" },
 
-/* 214 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
-/* 215 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver AnalyticClip" },
-/* 216 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
+/* 214 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
+/* 215 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver AnalyticClip" },
+/* 216 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
 // 182 should go here
 
-/* 217 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
-/* 218 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver AnalyticClip" },
-/* 219 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
-/* 220 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
+/* 217 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
+/* 218 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver AnalyticClip" },
+/* 219 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
+/* 220 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
 // 16F
-/*  */ { -1, "RP((RGBA16F+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
+/*     */ { -1, "RP((RGBA16F+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
 
-/* 222 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
-/* 223 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver AnalyticClip" },
-/* 224 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
+/* 222 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
+/* 223 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver AnalyticClip" },
+/* 224 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
 // RRect w/ clip!!!
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver AnalyticClip" },
-/* 226 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
+/*     */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver AnalyticClip" },
+/* 226 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
 
-/* 227 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver AnalyticClip" },
-/* 228 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
-/* 229 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
-/* 230 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
+/* 227 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver AnalyticClip" },
+/* 228 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
+/* 229 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
+/* 230 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
 
-/* 231 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+/* 231 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 // RRect w/ clip!!!
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
-/* 233 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/* 234 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+/*     */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
+/* 233 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/* 234 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 
-/* 235 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/* 236 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
-/* 237 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/* 238 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/* 239 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+/* 235 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/* 236 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
+/* 237 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/* 238 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/* 239 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 
-/* fake */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/* 241 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
-/* 242 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose [ Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+/* fake */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/* 241 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
+/* 242 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 
-/* 243 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/* fake */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
-/* 245 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose [ Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+/* 243 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/* fake */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
+/* 245 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 
-/* 246 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] Dither ] SrcOver AnalyticClip" },
+/* 246 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose[Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, MatrixColorFilter], Dither] SrcOver AnalyticClip" },
 // RRect w/ clip!!!
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] Dither ] SrcOver AnalyticClip" },
+/*     */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose[Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, MatrixColorFilter], Dither] SrcOver AnalyticClip" },
 
-/* 248 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] Dither ] SrcOver" },
+/* 248 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose[Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, MatrixColorFilter], Dither] SrcOver" },
 
-/* 249 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ] SrcOver" },
+/* 249 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul]+Unpremul+sRGB+Premul SrcOver" },
 
 /* 250 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + SolidColor Src" },
 /* 251 */ { -1, "RP((RGBA16F+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + SolidColor SrcOver" },
 
-/* 252 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ Compose [ BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver AnalyticClip" },
-// RRect w/ a clip!!!
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver AnalyticClip" },
+/* 252 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose[BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
+// RRect w/ clip!!!
+/*     */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose[BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
 
-/* 254 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver" },
+/* 254 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose[BlendCompose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 
-/* 255 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] SrcOver AnalyticClip" },
+/* 255 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, MatrixColorFilter] SrcOver AnalyticClip" },
 // rrect with clip!!!
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] SrcOver AnalyticClip" },
-// Odd dest
-/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] SrcOver" },
-/* 258 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] SrcOver AnalyticClip" },
+/*     */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, MatrixColorFilter] SrcOver AnalyticClip" },
+/*     */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, MatrixColorFilter] SrcOver" },
+/* 258 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, MatrixColorFilter] SrcOver AnalyticClip" },
 
-/* 259 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
-/* 260 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/* 261 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+/* 259 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
+/* 260 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/* 261 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 
-/* 262 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/* 263 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
-/* 264 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+/* 262 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/* 263 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
+/* 264 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 
-/* 265 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader [ SolidColor ] ColorSpaceTransformSRGB ] Src" },
+/* 265 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader[SolidColor]+Unpremul+sRGB+Premul Src" },
 
-/* 266 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ SolidColor ] ColorSpaceTransformSRGB ] Src" },
+/* 266 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[SolidColor]+Unpremul+sRGB+Premul Src" },
 // Odd color space
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ SolidColor ] ColorSpaceTransformPremul ] Src" },
-/* 268 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_BT2020_ITU_PQ__DISPLAY_P3__false__0x90a0000__Shader [ SolidColor ] ColorSpaceTransformSRGB ] Src" },
+/*     */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[SolidColor]+PreAlpha+PostAlpha Src" },
+/* 268 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_BT2020_ITU_PQ__DISPLAY_P3__false__0x90a0000__Shader[SolidColor]+Unpremul+sRGB+Premul Src" },
 // Odd man out w/ the clip
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ SolidColor ] ColorSpaceTransformSRGB ] SrcOver AnalyticClip" },
-/* fake */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ SolidColor ] ColorSpaceTransformSRGB ] Src" },
+/*     */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[SolidColor]+Unpremul+sRGB+Premul SrcOver AnalyticClip" },
+/* fake */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[SolidColor]+Unpremul+sRGB+Premul Src" },
 
 // RRect w/ clip!!!
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] MatrixColorFilter ] SrcOver AnalyticClip" },
-/* fake */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] MatrixColorFilter ] SrcOver" },
-/* 273 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] MatrixColorFilter ] SrcOver" },
+/*     */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, MatrixColorFilter] SrcOver AnalyticClip" },
+/* fake */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, MatrixColorFilter] SrcOver" },
+/* 273 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, MatrixColorFilter] SrcOver" },
 
 //----
 
 #if 0
-/* 192 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] MatrixColorFilter ] Dither ] SrcOver" },
-/* 193 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] MatrixColorFilter ] Dither ] SrcOver AnalyticClip" },
-/* 185 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] MatrixColorFilter ] Dither ] SrcOver" },
+/* 192 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose[Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, MatrixColorFilter], Dither] SrcOver" },
+/* 193 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose[Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, MatrixColorFilter], Dither] SrcOver AnalyticClip" },
+/* 185 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose[Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, MatrixColorFilter], Dither] SrcOver" },
 #endif
 
-/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ Compose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] MatrixColorFilter ] Dither ] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose[Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, MatrixColorFilter], Dither] SrcOver" },
 //----
 
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ BlendCompose [ Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] Dither ] SrcOver AnalyticClip" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ BlendCompose [ Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] Dither ] SrcOver AnalyticClip" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn]+Dither SrcOver AnalyticClip" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn]+Dither SrcOver AnalyticClip" },
 
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ RE_EdgeExtensionEffect [ BlendCompose [ SolidColor LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] Plus ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[RE_EdgeExtensionEffect[BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul], Plus]]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
 
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ Compose [ RE_LutEffect [ BlendCompose [ SolidColor LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransform ] ] Plus ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ] Dither ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] Dither ] SrcOver AnalyticClip" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ] SrcOver AnalyticClip" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformPremul ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] Dither ] SrcOver AnalyticClip" },
-/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] Dither ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] Dither ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ] ColorSpaceTransformPremul ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ BlendCompose [ SolidColor LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] Plus ] ] ColorSpaceTransformPremul ] MatrixColorFilter ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] SrcOver AnalyticClip" },
-/*  */ { -1, "RP((RGBA16F+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformPremul ] ] ColorSpaceTransformSRGB ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + Compose [ BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[RE_LutEffect[BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+ColorSpaceTransform], Plus], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Gamut+sRGB+Premul]+Unpremul+sRGB+Premul+Dither SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough SrcOver" },
+/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul+Dither SrcOver AnalyticClip" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul]+Unpremul+sRGB+Premul SrcOver AnalyticClip" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose[BlendCompose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough, AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul+Dither SrcOver AnalyticClip" },
+/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul+Dither SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul]+MatrixColorFilter, Dither] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]]+Premul] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], Plus]]+PreAlpha+PostAlpha, MatrixColorFilter] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul]+Unpremul+sRGB+Premul SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver AnalyticClip" },
+/*  */ { -1, "RP((RGBA16F+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Passthrough]+Unpremul+sRGB+Premul SrcOver" },
+/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
 
 
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] SrcOver AnalyticClip" },
-/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] Dither ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_KawaseBlurDualFilterV2_UpSampleBlurEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_KawaseBlurDualFilterV2_QuarterResDownSampleBlurEffect [ LocalMatrix [ CoordClamp [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ] ] Src" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + VerticesRenderStep[TrisColor] + Compose [ PrimitiveColor Compose [ GaussianColorFilter BlendCompose [ SolidColor Passthrough Modulate ] ] ] SrcOver AnalyticClip" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x842094169 709+narrow mid mid nearest F rgba cf0lf1) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_KawaseBlurDualFilterV2_QuarterResDownSampleBlurEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] Src" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]] SrcOver AnalyticClip" },
+/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_KawaseBlurDualFilterV2_UpSampleBlurEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_KawaseBlurDualFilterV2_QuarterResDownSampleBlurEffect[LocalMatrix[CoordClamp[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]]] Src" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + VerticesRenderStep[TrisColor] + PrimitiveColor+GaussianColorFilter+BlendCompose[SolidColor, Passthrough, Modulate] SrcOver AnalyticClip" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x842094169 709+narrow mid mid nearest F rgba cf0lf1)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_KawaseBlurDualFilterV2_QuarterResDownSampleBlurEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]] Src" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]] SrcOver" },
 // RRect with clip??!!
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
-/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose [ RE_BlurFilter_MixEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver AnalyticClip" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose [ Compose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] MatrixColorFilter ] Dither ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_BlurFilter_MixEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_GainmapEffect [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformPremul ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] Src" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x842094169 709+narrow mid mid nearest F rgba cf0lf1) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] MatrixColorFilter ] SrcOver AnalyticClip" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ Compose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] MatrixColorFilter ] Dither ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ Compose [ BlendCompose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] SrcOver AnalyticClip" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose [ Compose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] MatrixColorFilter ] Dither ] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
+/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+MatrixColorFilter, Dither] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_GainmapEffect[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Passthrough, LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]] Src" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + LocalMatrix[CoordNormalize[HardwareImage(x842094169 709+narrow mid mid nearest F rgba cf0lf1)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter SrcOver AnalyticClip" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]]+MatrixColorFilter, Dither] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver AnalyticClip" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+MatrixColorFilter, Dither] SrcOver" },
 };
 
 /*
@@ -823,23 +822,23 @@ static const PipelineLabel kNewLabels[] = {
 /*   0 P (63*) */ { 72,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
 /*   1 P (61*) */ { 65,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*   2 P (46) */ { 39,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
 /*   3 */ { 38,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ LocalMatrix [ BlendCompose [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] RGBPaintColor DstIn ] ] MatrixColorFilter ] SrcOver" },
+        "LocalMatrix[BlendCompose[CoordNormalize[HardwareImage(0)]+AlphaOnly, RGBPaintColor, DstIn]]+MatrixColorFilter SrcOver" },
 /*   4 P (71*) */ { 37,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Src" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] Src" },
 /*   5 P (86) */ { 34,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -851,7 +850,7 @@ static const PipelineLabel kNewLabels[] = {
 /*   7 P (67*) */ { 29,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 
 /*   8 */ { 29,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
@@ -860,31 +859,31 @@ static const PipelineLabel kNewLabels[] = {
 /*   9 */ { 26,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ LocalMatrix [ BlendCompose [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] RGBPaintColor DstIn ] ] MatrixColorFilter ] Dither ] SrcOver" },
+        "Compose[LocalMatrix[BlendCompose[CoordNormalize[HardwareImage(0)]+AlphaOnly, RGBPaintColor, DstIn]]+MatrixColorFilter, Dither] SrcOver" },
 /*  10 P (82) */ { 26,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "VerticesRenderStep[TrisColor] + "
-        "Compose [ PrimitiveColor Compose [ GaussianColorFilter BlendCompose [ SolidColor Passthrough Modulate ] ] ] SrcOver" },
+        "PrimitiveColor+GaussianColorFilter+BlendCompose[SolidColor, Passthrough, Modulate] SrcOver" },
 /*  11 */ { 24,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver AnalyticClip" },
+        "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver AnalyticClip" },
 /*  12 */ { 21,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  13 */ { 20,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
 /*  14 */ { 18,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul]+Unpremul+sRGB+Premul SrcOver" },
 /*  15 P (91) */ { 17,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /*  16 */ { 16,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -892,11 +891,11 @@ static const PipelineLabel kNewLabels[] = {
 /*  17 */ { 16,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul]+Unpremul+sRGB+Premul SrcOver" },
 /*  18 */ { 16,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "RE_BlurFilter_MixEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] SrcOver" },
+        "RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]] SrcOver" },
 /*  19 */ { 16,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -904,63 +903,63 @@ static const PipelineLabel kNewLabels[] = {
 /*  20 */ { 15,
         "RP((RGBA16F+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ SolidColor ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[SolidColor]+Unpremul+sRGB+Premul SrcOver" },
 /*  21 */ { 14,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: gHMAAPAAAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: gHMAAPAAAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /*  22 */ { 14,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
 /*  23 */ { 13,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  24 */ { 12,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHsAAO4AAAAAAAAA) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  25 */ { 12,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /*  26 */ { 11,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /*  27 */ { 10,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHsAAO4AAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /*  28 P (146) */ { 10,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose [ SolidColor LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Plus ] SrcOver" },
+        "BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus] SrcOver" },
 /*  29 */ { 9 ,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHMAAPAAAAAAAAAA) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAPAAAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  30 */ { 9 ,
         "RP((RGBA8+D16 x1).rgba) + "
-       "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "CoverBoundsRenderStep[NonAAFill] + "
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  31 */ { 8 ,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHMAAPAAAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAPAAAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /*  32 */ { 8 ,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  33 */ { 7,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: gHoAAO4AAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: gHoAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /*  34 */ { 7,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
 /*  35 P (89) */ { 7,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -968,35 +967,35 @@ static const PipelineLabel kNewLabels[] = {
 /*  36 */ { 7,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "RE_GainmapEffect [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformPremul ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] Src" },
+        "RE_GainmapEffect[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Passthrough, LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]] Src" },
 /*  37 */ { 7,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+        "BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /*  38 */ { 6,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
 /*  39 */ { 6,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHsAAO4AAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /*  40 */ { 6,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHsAAO4AAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /*  41 */ { 6,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHsAAO4AAAAAAAAA) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  42 */ { 5,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: gHoAAO4AAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: gHoAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /*  43 */ { 5,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
 /*  44 */ { 5,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1004,267 +1003,267 @@ static const PipelineLabel kNewLabels[] = {
 /*  45 */ { 5,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] Passthrough ] ] ] SrcOver" },
+        "RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+Passthrough]] SrcOver" },
 /*  46 P (166 - 69*) */ { 5,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] Dither ] SrcOver" },
+        "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /*  47 */ { 5,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]+Unpremul+sRGB+Gamut+sRGB+Premul]+Unpremul+sRGB+Premul SrcOver" },
 /*  48 */ { 5,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
 /*  49 P (71) */ { 5,
         "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Src" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] Src" },
 /*  50 */ { 5,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  51 */ { 5,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: gHAAAC8AAAAAAAAA) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: gHAAAC8AAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  52 */ { 5,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver AnalyticClip" },
+        "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
 /*  53 */ { 4,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  54 */ { 4,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] Dither ] SrcOver AnalyticClip" },
+        "Compose[Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, MatrixColorFilter], Dither] SrcOver AnalyticClip" },
 /*  55 */ { 4,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
 /*  56 */ { 4,
         "RP((RGBA16F+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
 /*  57 */ { 4,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: gHAAAC8AAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: gHAAAC8AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /*  58 */ { 4,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: gHIAAPAAAAAAAAAA) ] Passthrough ] ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(3: gHIAAPAAAAAAAAAA)]+Passthrough]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  59 */ { 4,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] MatrixColorFilter ] Dither ] SrcOver" },
+        "Compose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]]+MatrixColorFilter, Dither] SrcOver" },
 /*  60 */ { 4,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] MatrixColorFilter ] Dither ] SrcOver" },
+        "Compose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+MatrixColorFilter, Dither] SrcOver" },
 /*  61 */ { 4,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  62 */ { 4,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] Dither ] SrcOver" },
+        "Compose[Compose[RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, MatrixColorFilter], Dither] SrcOver" },
 /*  63 */ { 4,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHsAAO4AAAAAAAAA) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  64 */ { 4,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] SrcOver" },
+        "RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]] SrcOver" },
 /*  65 */ { 4,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] SrcOver" },
+        "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul]+MatrixColorFilter SrcOver" },
 /*  66 */ { 3,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: gHIAAPAAAAAAAAAA) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: gHIAAPAAAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  67 */ { 3,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver AnalyticClip" },
+        "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver AnalyticClip" },
 /*  68 */ { 3,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver" },
+        "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /*  69 */ { 3,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ SolidColor ] ColorSpaceTransformSRGB ] SrcOver" },
-/* 70 */ { 3,
+        "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[SolidColor]+Unpremul+sRGB+Premul SrcOver" },
+/*  70 */ { 3,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: gHAAAC8AAAAAAAAA) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/* 71 */ { 3,
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: gHAAAC8AAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/*  71 */ { 3,
         "RP((RGBA16F+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
         "SolidColor SrcOver" },
-/* 72 */ { 3,
+/*  72 */ { 3,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
-/* 73 */ { 3,
+        "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
+/*  73 */ { 3,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/* 74 P (28)  */ { 3,
+        "BlendCompose[RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/*  74 P (28) */ { 3,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/* 75 */ { 3,
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/*  75 */ { 3,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
-/* 76 */ { 3,
+        "RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul] SrcOver" },
+/*  76 */ { 3,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
-/* 77 */ { 3,
+        "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
+/*  77 */ { 3,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose [ SolidColor LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Plus ] SrcOver AnalyticClip" },
-/* 78 */ { 3,
+        "BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus] SrcOver AnalyticClip" },
+/*  78 */ { 3,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "RE_BlurFilter_MixEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] SrcOver" },
-/* 79 */ { 3,
+        "RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]] SrcOver" },
+/*  79 */ { 3,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
 /*  80 */ { 3,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] SrcOver" },
+        "BlendCompose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
 /*  81 */ { 3,
         "RP((RGBA16F+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kEwAAPcAAAAAAAAA) ] ColorSpaceTransform ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(3: kEwAAPcAAAAAAAAA)]+ColorSpaceTransform], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul]+Unpremul+sRGB+Premul SrcOver" },
 /*  82 */ { 3,
         "RP((RGBA16F+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
 /*  83 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] SrcOver AnalyticClip" },
+        "Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, MatrixColorFilter] SrcOver AnalyticClip" },
 /*  84 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]+Unpremul+sRGB+Gamut+sRGB+Premul+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  85 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "RE_BlurFilter_MixEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] Src" },
+        "RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]] Src" },
 /*  86 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  87 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformSRGB ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*  88 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ RE_LinearEffect_SRGB__SRGB__true__UNKNOWN__Shader [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[RE_LinearEffect_SRGB__SRGB__true__UNKNOWN__Shader[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]+Unpremul+sRGB+Gamut+sRGB+Premul+Unpremul+sRGB+Premul], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  89 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver" },
+        "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /*  90 */ { 2,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose [ BlendCompose [ SolidColor LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Plus ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  91 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] Dither ] SrcOver AnalyticClip" },
+        "RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul+Dither SrcOver AnalyticClip" },
 /*  92 */ { 2,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]+Unpremul+sRGB+Gamut+sRGB+Premul+Unpremul+sRGB+Premul SrcOver" },
 /*  93 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] MatrixColorFilter ] SrcOver" },
+        "RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+MatrixColorFilter SrcOver" },
 /*  94 */ { 2,
         "RP((RGBA16F+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul]+Unpremul+sRGB+Premul SrcOver" },
 /*  95 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose [ Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  96 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul]+Unpremul+sRGB+Premul SrcOver" },
 /*  97 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /*  98 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ Compose [ BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver" },
+        "Compose[Compose[BlendCompose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /*  99 */ { 2,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
 /* 100 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] MatrixColorFilter ] SrcOver" },
+        "RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]]+MatrixColorFilter SrcOver" },
 /* 101 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "RE_GainmapEffect [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] Src" },
+        "RE_GainmapEffect[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul, LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]] Src" },
 /* 102 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] Dither ] SrcOver AnalyticClip" },
+        "Compose[Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, MatrixColorFilter], Dither] SrcOver AnalyticClip" },
 /* 103 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]+Unpremul+sRGB+Gamut+sRGB+Premul+Unpremul+sRGB+Premul] SrcOver" },
 /* 104 */ { 2,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]+Unpremul+sRGB+Gamut+sRGB+Premul+Unpremul+sRGB+Premul] SrcOver" },
 /* 105 P (63) */ { 2,
         "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
         "AnalyticRRectRenderStep + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
 /* 106 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ BlendCompose [ Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] Dither ] SrcOver AnalyticClip" },
+        "BlendCompose[RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn]+Dither SrcOver AnalyticClip" },
 /* 107 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] MatrixColorFilter ] Dither ] SrcOver AnalyticClip" },
+        "Compose[Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]+Unpremul+sRGB+Gamut+sRGB+Premul+Unpremul+sRGB+Premul, MatrixColorFilter], Dither] SrcOver AnalyticClip" },
 /* 108 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ RE_BlurFilter_MixEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 109 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] SrcOver" },
+        "Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, MatrixColorFilter] SrcOver" },
 /* 110 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
 /* 111 */ { 2,
          "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
          "CoverBoundsRenderStep[NonAAFill] + "
@@ -1272,43 +1271,43 @@ static const PipelineLabel kNewLabels[] = {
 /* 112 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ Compose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] Dither ] SrcOver" },
+        "Compose[Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, MatrixColorFilter], Dither] SrcOver" },
 /* 113 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformPremul ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Passthrough]+Unpremul+sRGB+Premul SrcOver" },
 /* 114 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
 /* 115 */ { 2,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] MatrixColorFilter ] SrcOver" },
+        "Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]+Unpremul+sRGB+Gamut+sRGB+Premul+Unpremul+sRGB+Premul, MatrixColorFilter] SrcOver" },
 /* 116 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHMAAO4AAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /* 117 */ { 2,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver" },
+        "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /* 118 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+        "BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /* 119 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "RE_LinearEffect_SRGB__SRGB__true__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_SRGB__SRGB__true__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Gamut+sRGB+Premul+Unpremul+sRGB+Premul+Unpremul+sRGB+Premul] SrcOver" },
 /* 120 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: gHAAAC8AAAAAAAAA) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: gHAAAC8AAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
 /* 121 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHMAAO4AAAAAAAAA) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAO4AAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 122 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -1316,27 +1315,27 @@ static const PipelineLabel kNewLabels[] = {
 /* 123 */ { 2,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] MatrixColorFilter ] SrcOver" },
+        "Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]+Unpremul+sRGB+Gamut+sRGB+Premul+Unpremul+sRGB+Premul, MatrixColorFilter] SrcOver" },
 /* 124 */ { 2,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] Dither ] SrcOver" },
+        "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /* 125 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: gHAAAC8AAAAAAAAA) ] ColorSpaceTransformSRGB ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: gHAAAC8AAAAAAAAA)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /* 126 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver AnalyticClip" },
+        "RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver AnalyticClip" },
 /* 127 */ { 2,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]+Unpremul+sRGB+Gamut+sRGB+Premul+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 128 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ SolidColor ] ColorSpaceTransformSRGB ] Src" },
+        "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[SolidColor]+Unpremul+sRGB+Premul Src" },
 /* 129 */ { 2,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -1344,115 +1343,115 @@ static const PipelineLabel kNewLabels[] = {
 /* 130 */ { 2,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /* 131 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
 /* 132 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] MatrixColorFilter ] SrcOver" },
+        "Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]+Unpremul+sRGB+Gamut+sRGB+Premul+Unpremul+sRGB+Premul, MatrixColorFilter] SrcOver" },
 /* 133 */ { 2,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: gHIAAPAAAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: gHIAAPAAAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /* 134 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] SrcOver AnalyticClip" },
+        "RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]] SrcOver AnalyticClip" },
 /* 135 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHIAAO0AAAAAAAAA) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHIAAO0AAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 136 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHIAAO0AAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHIAAO0AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /* 137 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ Compose [ RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kEwAAPcAAAAAAAAA) ] ColorSpaceTransform ] ] ] ColorSpaceTransformSRGB ] Dither ] SrcOver" },
+        "RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(3: kEwAAPcAAAAAAAAA)]+ColorSpaceTransform]]+Unpremul+sRGB+Premul+Dither SrcOver" },
 /* 138 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: gHIAAPAAAAAAAAAA) ] Passthrough ] ] ] MatrixColorFilter ] Dither ] SrcOver" },
+        "Compose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(3: gHIAAPAAAAAAAAAA)]+Passthrough]]+MatrixColorFilter, Dither] SrcOver" },
 /* 139 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHAAAC8AAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHAAAC8AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /* 140 */ { 1,
         "RP((RGBA16F+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "RE_LinearEffect_SRGB__SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_SRGB__SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]+Unpremul+sRGB+Gamut+sRGB+Premul+Unpremul+sRGB+Premul SrcOver" },
 /* 141 */ { 1,
         "RP((RGBA16F+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ SolidColor LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] Plus ] SrcOver" },
+        "BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], Plus] SrcOver" },
 /* 142 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHMAAPAAAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAPAAAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /* 143 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kEsAAPcAAAAAAAAA) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kEsAAPcAAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 144 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 145 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver AnalyticClip" },
+        "RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver AnalyticClip" },
 /* 146 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] Dither ] SrcOver" },
+        "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul+Dither SrcOver" },
 /* 147 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver" },
 /* 148 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformSRGB ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /* 149 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "VerticesRenderStep[TrisTexCoords] + "
-        "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver" },
 /* 150 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformSRGB ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 151 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ SolidColor LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Plus ] SrcOver" },
+        "BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus] SrcOver" },
 /* 152 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] Dither ] SrcOver AnalyticClip" },
+        "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
 /* 153 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ BlendCompose [ SolidColor LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] Plus ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul], Plus]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 154 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHMAAPAAAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAPAAAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /* 155 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ BlendCompose [ SolidColor LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] Plus ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+        "BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul], Plus]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /* 156 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHMAAO4AAAAAAAAA) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAO4AAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 157 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+        "BlendCompose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /* 158 */ { 1,
         "RP((RGBA16F+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1460,27 +1459,27 @@ static const PipelineLabel kNewLabels[] = {
 /* 159 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver" },
+        "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /* 160 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHMAAPAAAAAAAAAA) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAPAAAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 161 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ Compose [ BlendCompose [ SolidColor LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] Plus ] MatrixColorFilter ] Dither ] SrcOver" },
+        "Compose[BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], Plus]+MatrixColorFilter, Dither] SrcOver" },
 /* 162 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Gamut+sRGB+Premul]+Unpremul+sRGB+Premul+Unpremul+sRGB+Premul SrcOver" },
 /* 163 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver" },
+        "Compose[Compose[BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /* 164 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] SrcOver AnalyticClip" },
+        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver AnalyticClip" },
 /* 165 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1488,59 +1487,59 @@ static const PipelineLabel kNewLabels[] = {
 /* 166 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHIAAO0AAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHIAAO0AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /* 167 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+        "BlendCompose[RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /* 168 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]+Unpremul+sRGB+Gamut+sRGB+Premul+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 169 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] SrcOver" },
+        "RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]] SrcOver" },
 /* 170 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul]+Unpremul+sRGB+Premul SrcOver" },
 /* 171 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 172 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 173 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHoAAO0AAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHoAAO0AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /* 174 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ Compose [ RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+        "BlendCompose[RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /* 175 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] SrcOver" },
+        "Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, MatrixColorFilter] SrcOver" },
 /* 176 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]]+Unpremul+sRGB+Gamut+sRGB+Premul+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 177 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] SrcOver" },
+        "Compose[RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, MatrixColorFilter] SrcOver" },
 /* 178 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver AnalyticClip" },
+        "RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver AnalyticClip" },
 /* 179 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
 
 /* 180 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
@@ -1548,250 +1547,250 @@ static const PipelineLabel kNewLabels[] = {
         "RE_BoxShadowEffect SrcOver AnalyticClip" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHsAAO4AAAAAAAAA) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+"BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"Compose [ BlendCompose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] SrcOver" },
+"BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
 /* */ { 1, "RP((RGBA16F+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ] SrcOver" },
+"Compose[RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[Compose[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "AnalyticRRectRenderStep + "
-"Compose [ Compose [ RE_LinearEffect_BT2020_ITU_HLG__DISPLAY_BT2020__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kEwAAPcAAAAAAAAA) ] ColorSpaceTransform ] ] ] ColorSpaceTransformSRGB ] Dither ] SrcOver" },
+"Compose[Compose[RE_LinearEffect_BT2020_ITU_HLG__DISPLAY_BT2020__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(3: kEwAAPcAAAAAAAAA)]+PreAlpha+TF+Gamut+TF+PostAlpha]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha], Dither] SrcOver" },
 /* */ { 1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHsAAO4AAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+"LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
+"Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /* */ { 1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"Compose [ Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] Dither ] SrcOver" },
+"Compose[Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /* */ { 1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"Compose [ BlendCompose [ SolidColor LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Plus ] MatrixColorFilter ] SrcOver" },
+"BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus]+MatrixColorFilter SrcOver" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"Compose [ BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] SrcOver AnalyticClip" },
+"Compose[BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver AnalyticClip" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHsAAO4AAAAAAAAA) ] ColorSpaceTransformPremul ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] SrcOver" },
-/* */ { 1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
+"RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
+/**/ { 1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
 "AnalyticRRectRenderStep + "
-"RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] SrcOver" },
+"RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]] SrcOver" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"RE_BlurFilter_MixEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] Src" },
+"RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]] Src" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"BlendCompose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+"BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /* */ { 1, "RP((RGBA16F+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kEwAAPcAAAAAAAAA) ] ColorSpaceTransform ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] SrcOver" },
+"RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[Compose[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(3: kEwAAPcAAAAAAAAA)]+PreAlpha+TF+Gamut+TF+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] SrcOver" },
+"RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[Compose[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /* */ { 1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHMAAO4AAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+"LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /* */ { 1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
 "AnalyticRRectRenderStep + "
-"BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHMAAPAAAAAAAAAA) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+"BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAPAAAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "AnalyticRRectRenderStep + "
-"BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHMAAPAAAAAAAAAA) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+"BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAPAAAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* */ { 1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
 "AnalyticRRectRenderStep + "
-"Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] MatrixColorFilter ] Dither ] SrcOver" },
+"Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+"BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] SrcOver" },
+"RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "AnalyticRRectRenderStep + "
-"Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver AnalyticClip" },
+"Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver AnalyticClip" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] SrcOver" },
+"RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"Compose [ Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] MatrixColorFilter ] Dither ] SrcOver AnalyticClip" },
+"Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"Compose [ Compose [ RE_LinearEffect_BT2020_ITU_HLG__DISPLAY_BT2020__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kEwAAPcAAAAAAAAA) ] ColorSpaceTransform ] ] ] ColorSpaceTransformSRGB ] Dither ] SrcOver AnalyticClip" },
+"Compose[Compose[RE_LinearEffect_BT2020_ITU_HLG__DISPLAY_BT2020__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(3: kEwAAPcAAAAAAAAA)]+PreAlpha+TF+Gamut+TF+PostAlpha]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha], Dither] SrcOver AnalyticClip" },
 /* */ { 1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + CoverBoundsRenderStep[NonAAFill] + "
-"LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
+"LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "AnalyticRRectRenderStep + "
-"RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] SrcOver" },
+"RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]] SrcOver" },
 /* */ { 1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
 "AnalyticRRectRenderStep + "
-"Compose [ Compose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] Dither ] SrcOver" },
+"Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] SrcOver" },
+"RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "AnalyticRRectRenderStep + "
-"BlendCompose [ BlendCompose [ SolidColor LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Plus ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+"BlendCompose[BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] SrcOver AnalyticClip" },
+"BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver AnalyticClip" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_SRGB__SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] Dither ] SrcOver AnalyticClip" },
+        "Compose[RE_LinearEffect_SRGB__SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha], Dither] SrcOver AnalyticClip" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kEoAAPcAAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kEoAAPcAAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ BlendCompose [ SolidColor LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Plus ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+        "BlendCompose[BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] SrcOver AnalyticClip" },
-/* */ { 1,
-        "RP((RGBA8+D24_S8 x4->1).rgba) + "
-        "AnalyticRRectRenderStep + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
-/* */ { 1,
-        "RP((RGBA8+D16 x1).rgba) + "
-        "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] SrcOver" },
-/* */ { 1,
-        "RP((RGBA8+D16 x1).rgba) + "
-        "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kEoAAPcAAAAAAAAA) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/* */ { 1,
-        "RP((RGBA8+D16 x1).rgba) + "
-        "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_BT2020_ITU_HLG__DISPLAY_BT2020__false__UNKNOWN__Shader [ SolidColor ] ColorSpaceTransformSRGB ] Src" },
-/* */ { 1,
-        "RP((RGBA8+D16 x1).rgba) + "
-        "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] SrcOver AnalyticClip" },
+        "Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter SrcOver AnalyticClip" },
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHsAAO4AAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
-/* */ { 1,
-        "RP((RGBA8+D24_S8 x4->1).rgba) + "
-        "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ LocalMatrix [ BlendCompose [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] RGBPaintColor DstIn ] ] MatrixColorFilter ] Dither ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] Dither ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformPremul ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kEoAAPcAAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/* */ { 1,
+        "RP((RGBA8+D16 x1).rgba) + "
+        "CoverBoundsRenderStep[NonAAFill] + "
+        "Compose[RE_LinearEffect_BT2020_ITU_HLG__DISPLAY_BT2020__false__UNKNOWN__Shader[SolidColor], PreAlpha+sRGB+Gamut+sRGB+PostAlpha] Src" },
+/* */ { 1,
+        "RP((RGBA8+D16 x1).rgba) + "
+        "CoverBoundsRenderStep[NonAAFill] + "
+        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver AnalyticClip" },
+/* */ { 1,
+        "RP((RGBA8+D24_S8 x4->1).rgba) + "
+        "AnalyticRRectRenderStep + "
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] SrcOver" },
+        "Compose[LocalMatrix[BlendCompose[CoordNormalize[HardwareImage(0)]+AlphaOnly, RGBPaintColor, DstIn]]+MatrixColorFilter, Dither] SrcOver" },
+/* */ { 1,
+        "RP((RGBA8+D16 x1).rgba) + "
+        "CoverBoundsRenderStep[NonAAFill] + "
+        "Compose[Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
+/* */ { 1,
+        "RP((RGBA8+D16 x1).rgba) + "
+        "CoverBoundsRenderStep[NonAAFill] + "
+        "BlendCompose[Compose[RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[Compose[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]], PreAlpha+PostAlpha]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/* */ { 1,
+        "RP((RGBA8+D24_S8 x4->1).rgba) + "
+        "CoverBoundsRenderStep[NonAAFill] + "
+        "RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] SrcOver" },
+        "Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "VerticesRenderStep[TrisColor] + "
-        "Compose [ PrimitiveColor Compose [ GaussianColorFilter BlendCompose [ SolidColor Passthrough Modulate ] ] ] SrcOver" },
+        "PrimitiveColor+GaussianColorFilter+BlendCompose[SolidColor, Passthrough, Modulate] SrcOver" },
 /* */ { 1,
       "RP((RGBA8+D16 x1).rgba) + "
       "CoverBoundsRenderStep[NonAAFill] + "
-      "Compose [ Compose [ Compose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ] ColorSpaceTransformSRGB ] MatrixColorFilter ] Dither ] SrcOver" },
+      "Compose[Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kEwAAPcAAAAAAAAA) ] ColorSpaceTransform ] ] ] ColorSpaceTransformSRGB ] Dither ] SrcOver AnalyticClip" },
+        "Compose[Compose[RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(3: kEwAAPcAAAAAAAAA)]+PreAlpha+TF+Gamut+TF+PostAlpha]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha], Dither] SrcOver AnalyticClip" },
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] Dither ] SrcOver AnalyticClip" },
+        "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ RE_LinearEffect_SRGB__SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] MatrixColorFilter ] Dither ] SrcOver" },
+        "Compose[RE_LinearEffect_SRGB__SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose [ BlendCompose [ RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] SrcOver" },
+        "Compose[BlendRE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: gHAAAC8AAAAAAAAA) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: gHAAAC8AAAAAAAAA)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] MatrixColorFilter ] Dither ] SrcOver" },
+        "Compose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]]+MatrixColorFilter, Dither] SrcOver" },
 /* */ { 1,
         "RP((RGBA16F+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ Compose [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] ColorSpaceTransformSRGB ] ColorSpaceTransformSRGB ColorSpaceTransformSRGB ] SrcOver" },
+        "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[Compose[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ Compose [ RE_LinearEffect_BT2020_ITU_HLG__0x9060000__false__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kEwAAPcAAAAAAAAA) ] ColorSpaceTransform ] ] ] ColorSpaceTransformSRGB ] Dither ] SrcOver AnalyticClip" },
+        "Compose[Compose[RE_LinearEffect_BT2020_ITU_HLG__0x9060000__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(3: kEwAAPcAAAAAAAAA)]+PreAlpha+TF+Gamut+TF+PostAlpha]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha], Dither] SrcOver AnalyticClip" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ BlendCompose [ Compose [ RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ] ColorSpaceTransformSRGB ] AlphaOnlyPaintColor SrcIn ] MatrixColorFilter ] SrcOver" },
+        "Compose[BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHsAAO4AAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] MatrixColorFilter ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: gHAAAC8AAAAAAAAA) ] ColorSpaceTransformPremul ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: gHAAAC8AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose [ RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] ColorSpaceTransformSRGB ] SrcOver" },
+        "Compose[RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver AnalyticClip" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: gHMAAPAAAAAAAAAA) ] ColorSpaceTransformSRGB ] ] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: gHMAAPAAAAAAAAAA)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "RE_EdgeExtensionEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kHsAAO4AAAAAAAAA) ] Passthrough ] ] ] SrcOver" },
+        "RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+Passthrough]] SrcOver" },
 
     // Synthetic copy of label 10 "w/ msaa load"
 /* */ { -1,
         "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
         "VerticesRenderStep[TrisColor] + "
-        "Compose [ PrimitiveColor Compose [ GaussianColorFilter BlendCompose [ SolidColor Passthrough Modulate ] ] ] SrcOver" },
+        "PrimitiveColor+GaussianColorFilter+BlendCompose[SolidColor, Passthrough, Modulate] SrcOver" },
     // Synthetic copy of label 165 where an opaque color converts to Src
 /* */ { -1,
         "RP((RGBA8+D16 x1).rgba) + "

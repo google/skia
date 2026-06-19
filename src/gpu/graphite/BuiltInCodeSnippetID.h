@@ -63,10 +63,43 @@ enum class BuiltInCodeSnippetID : uint32_t {
     kTableColorFilter,
     kGaussianColorFilter,
 
-    // Color space transform snippet and its specializations
-    kColorSpaceXformColorFilter,
-    kColorSpaceXformPremul,
-    kColorSpaceXformSRGB,
+    // Color space, read swizzle, and alpha type conversions w/ specializations - these are built by
+    // composing together specialized or generalized child snippets that handle these stages:
+    // 1. Initial alpha (unpremul, force-opaque, identity, or alpha-swizzle)
+    // 2. Linear transfer function
+    // 3. Gamut transform
+    // 4. Encoding transfer function
+    // 5. Post alpha handling (premul, identity)
+
+    // Initial alpha stages:
+    //  - Alpha-only images are always specialized to _AlphaOnly because the rest of the pipeline
+    //    is already specialized on blending in color. It is never combined with other stages.
+    //  - The generic _PreAlpha can be specialized into _Unpremul, _ForceOpaque, or eliding the
+    //    stage (for no-op) when desired.
+    //  - These stages apply the alpha swizzle of the texture's read swizzle.
+    kCSXform_AlphaOnly,   // handles alpha-swizzle (no other CSXform steps combine with it)
+    kCSXform_PreAlpha,    // handles unpremul, force-opaque, no-op
+    kCSXform_Unpremul,    // specialization always performing unpremul
+    kCSXform_ForceOpaque, // specialization always forcing to opaque
+
+    // Transfer function stages:
+    //  - sRGB and PQ can be used for both linear and encode stages; HLG is used to convert to
+    //    linear, and HLGInv is used to encode.
+    //  - Identity transfer functions can either be elided or encoded into sRGB coefficients.
+    kCSXform_TransferFn, // handles all stages by branching
+    kCSXform_sRGB,       // sRGB linear and encoding
+    kCSXform_PQ,         // PQ linear and encoding
+    kCSXform_HLG,        // linear stage only, supports optional post-ootf parameters
+    kCSXform_HLGInv,     // encoding stage only, supports optional pre-ootf parameters
+
+    // Gamut transform stage:
+    //  - When specializing, can be elided entirely; otherwise can be set to the identity
+    //  - This matrix is also used to apply any RGB swizzle of the texture's read swizzle
+    kCSXform_Gamut,
+
+    // Post alpha stages:
+    kCSXform_PostAlpha, // handles premul and no-op
+    kCSXform_Premul,    // specialization always performing premul
 
     // Emits special variable holding the primitiveColor emitted by a RenderStep
     kPrimitiveColor,

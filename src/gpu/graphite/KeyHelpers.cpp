@@ -1020,57 +1020,148 @@ void TableColorFilterBlock::AddBlock(const KeyContext& keyContext,
 //--------------------------------------------------------------------------------------------------
 namespace {
 
-// There are three variations of color space transforms with increasing complexity, but they are
-// built on the same techniques for managing variations w/o adding branches in the shader.
-void add_color_space_uniforms(const KeyContext& keyContext,
-                              BuiltInCodeSnippetID id,
-                              const SkColorSpaceXformSteps& steps,
-                              Swizzle readSwizzle) {
-    SkASSERT(id == BuiltInCodeSnippetID::kColorSpaceXformPremul ||     // premul/unpremul/opaque
-             id == BuiltInCodeSnippetID::kColorSpaceXformSRGB ||       // + sRGB [d]encode/gamut
-             id == BuiltInCodeSnippetID::kColorSpaceXformColorFilter); // + everything else
 
-    BEGIN_WRITE_UNIFORMS(keyContext, id)
+// This code is simplified by being able to take an address of the transfer function, but kLinear
+// is defined as `constexpr` so does not necessarily have storage. kIdentity is used instead.
+static const skcms_TransferFunction kLinearTF = SkNamedTransferFn::kLinear;
 
-    // To encode whether to do premul/unpremul or make the output opaque, we use
-    // srcDEF_args.w and dstDEF_args.w:
-    // - identity: {0, 1}
-    // - do unpremul: {-1, 1}
-    // - do premul: {0, 0}
-    // - do both: {-1, 0}
-    // - alpha swizzle 1: {1, 1}
-    // - alpha swizzle r: {1, 0}
-    const bool alphaSwizzleR = readSwizzle[3] == 'r';
-    const bool alphaSwizzle1 = readSwizzle[3] == '1';
+SkV4 swizzle_ootf(Swizzle ootfSwizzle, const float* ootf) {
+    SkV4 encodedOOTF = {0.f, 0.f, 0.f, 0.f}; // A W of 0 disables applying the ootf
+    if (ootf) {
+        // If the OOTF is applied before the gamut transform, the inverse of the read swizzle needs
+        // to be included so the channels are scaled correctly.
+        encodedOOTF.w = ootf[3];
+        for (int i = 0; i < 3; ++i) {
+            switch (ootfSwizzle[i]) {
+                case 'r': encodedOOTF[i] += ootf[0]; break;
+                case 'g': encodedOOTF[i] += ootf[1]; break;
+                case 'b': encodedOOTF[i] += ootf[2]; break;
+                case '0': /* leave as 0 */ break;
 
-    // It doesn't make sense to unpremul/premul in opaque or alpha-only cases, but we might get a
-    // request to anyways, which we can just ignore.
-    const bool unpremul = alphaSwizzle1 || alphaSwizzleR ? false : steps.fFlags.unpremul;
-    const bool premul   = alphaSwizzle1 || alphaSwizzleR ? false : steps.fFlags.premul;
+                // Unexpected swizzles for RGB channels as these are used for alpha handling
+                case 'a':
+                case '1':
+                    SkASSERT(false);
+                    break; // leave ootf parameter as 0 in release builds
+            }
+        }
+    }
+    return encodedOOTF;
+}
 
-    const float srcW = unpremul ? -1.f :
-                       (alphaSwizzleR || alphaSwizzle1) ? 1.f :
-                                                          0.f;
-    const float dstW = (premul || alphaSwizzleR) ? 0.f : 1.f;
+// Adds a specific transfer function.
+BuiltInCodeSnippetID add_xfer_fn(const KeyContext& keyContext,
+                                 const skcms_TransferFunction& xferFn,
+                                 Swizzle ootfSwizzle,
+                                 const float* ootf) {
+    switch (skcms_TransferFunction_getType(&xferFn)) {
+        case skcms_TFType_sRGBish: {
+            SkASSERT(!ootf);
+            // Actual sRGB gamma curve to apply
+            BEGIN_WRITE_UNIFORMS(keyContext, BuiltInCodeSnippetID::kCSXform_sRGB)
+            keyContext.pipelineDataGatherer()->write(SkV4{xferFn.g, xferFn.a, xferFn.b, xferFn.c});
+            keyContext.pipelineDataGatherer()->write(SkV3{xferFn.d, xferFn.e, xferFn.f});
+            return BuiltInCodeSnippetID::kCSXform_sRGB;
+        }
 
-    if (id == BuiltInCodeSnippetID::kColorSpaceXformPremul) {
-        // If either of these asserts would fail, we can't correctly use this specialized shader for
-        // the given transform.
-        SkASSERT(readSwizzle == Swizzle::RGBA() || readSwizzle == Swizzle::RGB1());
-        // If these are both true, that implies there's a color space transfer or gamut transform.
-        SkASSERT(!(steps.fFlags.unpremul && steps.fFlags.premul));
-        // And given these assertions, the 6 cases encoded in srcW and dstW are reduced to:
-        //    identity, do unpremul, do premul, and make opaque (alpha swizzle 1)
-        keyContext.pipelineDataGatherer()->writeHalf(SkV2{srcW, dstW});
-        return;
+        case skcms_TFType_PQ: [[fallthrough]];
+        case skcms_TFType_PQish: {
+            SkASSERT(!ootf);
+            BEGIN_WRITE_UNIFORMS(keyContext, BuiltInCodeSnippetID::kCSXform_PQ)
+            keyContext.pipelineDataGatherer()->write(SkV3{xferFn.a, xferFn.b, xferFn.c});
+            keyContext.pipelineDataGatherer()->write(SkV3{xferFn.d, xferFn.e, xferFn.f});
+            return BuiltInCodeSnippetID::kCSXform_PQ;
+        }
+
+        case skcms_TFType_HLG: [[fallthrough]];
+        case skcms_TFType_HLGish: {
+            BEGIN_WRITE_UNIFORMS(keyContext, BuiltInCodeSnippetID::kCSXform_HLG)
+            keyContext.pipelineDataGatherer()->write(swizzle_ootf(ootfSwizzle, ootf));
+            keyContext.pipelineDataGatherer()->write(SkV3{xferFn.a, xferFn.b, xferFn.c});
+            keyContext.pipelineDataGatherer()->write(SkV3{xferFn.d, xferFn.e, xferFn.f});
+            return BuiltInCodeSnippetID::kCSXform_HLG;
+        }
+
+        case skcms_TFType_HLGinvish: {
+            BEGIN_WRITE_UNIFORMS(keyContext, BuiltInCodeSnippetID::kCSXform_HLGInv)
+            keyContext.pipelineDataGatherer()->write(swizzle_ootf(ootfSwizzle, ootf));
+            // skcms has already updated the inverse HLG coefficients to be 1/X except for `f`;
+            // it assumes it will be evaluated as 1 / (f + 1), but that can be precomputed here.
+            const float f = 1.f / (xferFn.f + 1.f);
+            keyContext.pipelineDataGatherer()->write(SkV3{xferFn.a, xferFn.b, xferFn.c});
+            keyContext.pipelineDataGatherer()->write(SkV3{xferFn.d, xferFn.e, f});
+            return BuiltInCodeSnippetID::kCSXform_HLGInv;
+        }
+
+        default:
+            SkUNREACHABLE;
+    }
+}
+
+// Adds the generalized transfer function.
+BuiltInCodeSnippetID add_generic_xfer_fn(const KeyContext& keyContext,
+                                         const skcms_TransferFunction& xferFn,
+                                         Swizzle ootfSwizzle,
+                                         const float* ootf) {
+    // When not specializing, we will encode the type of transfer function in the gamma value
+    // and branch in the shader. OOTF parameters are always provided, but only used in HLG.
+    float g;
+    float f = xferFn.f;
+
+    switch (skcms_TransferFunction_getType(&xferFn)) {
+        case skcms_TFType_sRGBish:
+            SkASSERT(!ootf);
+            // sk_csxform_transfer skips all work when g == 0, so prefer that for an identity step
+            // (vs. calling $apply_srgb_xfer_fn with values resulting in the identity).
+            if (memcmp(&xferFn, &kLinearTF, sizeof(skcms_TransferFunction)) == 0) {
+                g = 0.f;
+            } else {
+                g = xferFn.g;
+            }
+            break;
+
+        case skcms_TFType_PQ: [[fallthrough]];
+        case skcms_TFType_PQish:
+            SkASSERT(!ootf);
+            g = -3.f; // sk_csxform_transfer selects PQ when g < -2
+            break;
+
+        case skcms_TFType_HLG: [[fallthrough]];
+        case skcms_TFType_HLGish:
+            g = -2.f; // sk_csxform_transfer selects HLG when g < -1
+            break;
+
+        case skcms_TFType_HLGinvish:
+            g = -1.f; // sk_csxform_transfer selects HLG^-1 when g < 0
+            f = 1.f / (f + 1.f); // See add_xfer_fn note.
+            break;
+
+        default:
+            SkUNREACHABLE;
     }
 
-    // srcW and dstW will be used later with the other transfer function values, but for the
-    // more complex shaders, we put the gamut matrix first for alignment.
+    BEGIN_WRITE_UNIFORMS(keyContext, BuiltInCodeSnippetID::kCSXform_TransferFn)
+    keyContext.pipelineDataGatherer()->write(swizzle_ootf(ootfSwizzle, ootf));
+    keyContext.pipelineDataGatherer()->write(SkV4{g, xferFn.a, xferFn.b, xferFn.c});
+    keyContext.pipelineDataGatherer()->write(SkV3{xferFn.d, xferFn.e, f});
 
-    const float identity[] = { 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f };
-    const float* m = steps.fFlags.gamut_transform ? steps.fSrcToDstMatrix : identity;
-    float gamutTransform[] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
+    return BuiltInCodeSnippetID::kCSXform_TransferFn;
+}
+
+BuiltInCodeSnippetID add_xfer_fn(const KeyContext& keyContext,
+                                 const skcms_TransferFunction& xferFn,
+                                 Swizzle ootfSwizzle,
+                                 const float* ootf,
+                                 bool specialize) {
+    if (specialize) {
+        return add_xfer_fn(keyContext, xferFn, ootfSwizzle, ootf);
+    } else {
+        return add_generic_xfer_fn(keyContext, xferFn, ootfSwizzle, ootf);
+    }
+}
+
+SkMatrix swizzle_gamut_transform(const float* gamut, Swizzle readSwizzle) {
+     float gamutTransform[] = { 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
 
     // Accumulate each column of the gamut transform based on the swizzle
     for (int i = 0; i < 3; ++i) {
@@ -1080,19 +1171,19 @@ void add_color_space_uniforms(const KeyContext& keyContext,
         const int ci = 3 * i;
         switch(readSwizzle[i]) {
             // j = 0
-            case 'r': gamutTransform[0] += m[ci + 0];
-                      gamutTransform[1] += m[ci + 1];
-                      gamutTransform[2] += m[ci + 2];
+            case 'r': gamutTransform[0] += gamut[ci + 0];
+                      gamutTransform[1] += gamut[ci + 1];
+                      gamutTransform[2] += gamut[ci + 2];
                       break;
             // j = 1
-            case 'g': gamutTransform[3] += m[ci + 0];
-                      gamutTransform[4] += m[ci + 1];
-                      gamutTransform[5] += m[ci + 2];
+            case 'g': gamutTransform[3] += gamut[ci + 0];
+                      gamutTransform[4] += gamut[ci + 1];
+                      gamutTransform[5] += gamut[ci + 2];
                       break;
             // j = 2
-            case 'b': gamutTransform[6] += m[ci + 0];
-                      gamutTransform[7] += m[ci + 1];
-                      gamutTransform[8] += m[ci + 2];
+            case 'b': gamutTransform[6] += gamut[ci + 0];
+                      gamutTransform[7] += gamut[ci + 1];
+                      gamutTransform[8] += gamut[ci + 2];
                       break;
             case '0':
                 // No contribution to the final gamut matrix
@@ -1109,97 +1200,9 @@ void add_color_space_uniforms(const KeyContext& keyContext,
     // TODO(b/489417262): It is a little funny to have to transpose `gamutTransform` from column
     // major into SkMatrix's row-major order to write a 3x3 matrix when internally, it writes
     // column major.
-    keyContext.pipelineDataGatherer()->writeHalf(
-            SkMatrix::MakeAll(gamutTransform[0], gamutTransform[3], gamutTransform[6],
-                              gamutTransform[1], gamutTransform[4], gamutTransform[7],
-                              gamutTransform[2], gamutTransform[5], gamutTransform[8]));
-
-    // To encode which transfer function to apply, we use the src and dst gamma values:
-    // - identity: 0
-    // - sRGB: g > 0
-    // - PQ: -2
-    // - HLG: -1
-    // For the sRGB shader, we allow linear sRGB but that shader has no branches on TF type, so
-    // we have to replace the values with an actual identity sRGB-ish function.
-    const bool treatLinearAsSRGB = id == BuiltInCodeSnippetID::kColorSpaceXformSRGB;
-    if (steps.fFlags.linearize) {
-        const skcms_TFType type = skcms_TransferFunction_getType(&steps.fSrcTF);
-        const float srcG = type == skcms_TFType_sRGBish ? steps.fSrcTF.g :
-                           type == skcms_TFType_PQish ? -2.f :
-                           type == skcms_TFType_HLGish ? -1.f :
-                                                         0.f;
-        keyContext.pipelineDataGatherer()->write(SkV4{srcG, steps.fSrcTF.a,
-                                                      steps.fSrcTF.b, steps.fSrcTF.c});
-        keyContext.pipelineDataGatherer()->write(SkV4{steps.fSrcTF.d, steps.fSrcTF.e,
-                                                      steps.fSrcTF.f, srcW});
-    } else if (treatLinearAsSRGB) {
-        // Branchless identity function with g=1 (sRGB-ish)
-        static constexpr skcms_TransferFunction kI = SkNamedTransferFn::kLinear;
-        keyContext.pipelineDataGatherer()->write(SkV4{kI.g, kI.a, kI.b, kI.c});
-        keyContext.pipelineDataGatherer()->write(SkV4{kI.d, kI.e, kI.f, srcW});
-    } else {
-        // Branched identity that actually skips all operations
-        keyContext.pipelineDataGatherer()->write(SkV4{0.f, 0.f, 0.f, 0.f});
-        keyContext.pipelineDataGatherer()->write(SkV4{0.f, 0.f, 0.f, srcW});
-    }
-
-    if (steps.fFlags.encode) {
-        const skcms_TFType type = skcms_TransferFunction_getType(&steps.fDstTFInv);
-        const float dstG = type == skcms_TFType_sRGBish ? steps.fDstTFInv.g :
-                           type == skcms_TFType_PQish ? -2.f :
-                           type == skcms_TFType_HLGinvish ? -1.f :
-                                                            0.f;
-        keyContext.pipelineDataGatherer()->write(SkV4{dstG, steps.fDstTFInv.a,
-                                                      steps.fDstTFInv.b, steps.fDstTFInv.c});
-        keyContext.pipelineDataGatherer()->write(SkV4{steps.fDstTFInv.d, steps.fDstTFInv.e,
-                                                      steps.fDstTFInv.f, dstW});
-    } else if (treatLinearAsSRGB) {
-        static constexpr skcms_TransferFunction kI = SkNamedTransferFn::kLinear;
-        keyContext.pipelineDataGatherer()->write(SkV4{kI.g, kI.a, kI.b, kI.c});
-        keyContext.pipelineDataGatherer()->write(SkV4{kI.d, kI.e, kI.f, dstW});
-    } else {
-        keyContext.pipelineDataGatherer()->write(SkV4{0.f, 0.f, 0.f, 0.f});
-        keyContext.pipelineDataGatherer()->write(SkV4{0.f, 0.f, 0.f, dstW});
-    }
-
-    const bool hasOOTFUniforms = id == BuiltInCodeSnippetID::kColorSpaceXformColorFilter;
-    if (hasOOTFUniforms) {
-        SkV4 src_ootf = {0.f, 0.f, 0.f, 0.f};
-        SkV4 dst_ootf = {0.f, 0.f, 0.f, 0.f};
-
-        if (steps.fFlags.src_ootf) {
-            // The src OOTF parameters are provided in RGB order (the 4th parameter is not alpha,
-            // but an exponent). Since the src-OOTF parameters are applied before the gamut
-            // transform that also handles swizzling, we need to apply the inverse swizzle.
-            src_ootf.w = steps.fSrcOotf[3];
-            for (int i = 0; i < 3; ++i) {
-                switch (readSwizzle[i]) {
-                    case 'r': src_ootf[i] += steps.fSrcOotf[0]; break;
-                    case 'g': src_ootf[i] += steps.fSrcOotf[1]; break;
-                    case 'b': src_ootf[i] += steps.fSrcOotf[2]; break;
-                    case '0': /* leave as 0 */ break;
-
-                    // Unexpected swizzles for RGB channels as these are used for alpha handling
-                    case 'a':
-                    case '1':
-                        SkASSERT(false);
-                        break; // leave ootf parameter as 0 in release builds
-                }
-            }
-        }
-
-        if (steps.fFlags.dst_ootf) {
-            // The dst OOTF parameters are applied *after* the gamut matrix, which is also where
-            // any swizzle is resolved, so there's no need to adjust the order of these params.
-            dst_ootf = {steps.fDstOotf[0], steps.fDstOotf[1], steps.fDstOotf[2], steps.fDstOotf[3]};
-        }
-
-        keyContext.pipelineDataGatherer()->write(src_ootf);
-        keyContext.pipelineDataGatherer()->write(dst_ootf);
-    } else {
-      SkASSERT(!steps.fFlags.src_ootf);
-      SkASSERT(!steps.fFlags.dst_ootf);
-    }
+    return SkMatrix::MakeAll(gamutTransform[0], gamutTransform[3], gamutTransform[6],
+                             gamutTransform[1], gamutTransform[4], gamutTransform[7],
+                             gamutTransform[2], gamutTransform[5], gamutTransform[8]);
 }
 
 }  // anonymous namespace
@@ -1212,48 +1215,150 @@ ColorSpaceTransformBlock::ColorSpaceTransformData::ColorSpaceTransformData(const
 
 void ColorSpaceTransformBlock::AddBlock(const KeyContext& keyContext,
                                         const ColorSpaceTransformData& data) {
-    const bool xformNeedsGamutOrXferFn = data.fSteps.fFlags.linearize ||
-                                         data.fSteps.fFlags.encode    ||
-                                         data.fSteps.fFlags.src_ootf  ||
-                                         data.fSteps.fFlags.dst_ootf  ||
-                                         data.fSteps.fFlags.gamut_transform;
-    const bool swizzleNeedsGamutTransform = data.fReadSwizzle[0] != 'r' ||
-                                            data.fReadSwizzle[1] != 'g' ||
-                                            data.fReadSwizzle[2] != 'b';
+    // Colorspace transforms are a sequence of stages. We write each stage's uniforms and append
+    // its code snippet ID to a list. Once all stages are collected, the sequence is converted to
+    // a paint key by chaining together with Compose blocks. If there were no stages needed,
+    // the passthrough block is used; if there is only one, that block is appended without any
+    // composition.
 
-    // Use a specialized shader if we don't need transfer function or gamut transforms.
-    if (!(xformNeedsGamutOrXferFn || swizzleNeedsGamutTransform)) {
-        // When enabled, the most specialized is to do nothing at all. To simplify calling code,
-        // this adds a passthrough block vs. having callers know how to reconfigure their blocks.
-        if (SkToBool(keyContext.flags() & KeyGenFlags::kEnableIdentityColorSpaceXform) &&
-            data.fReadSwizzle == Swizzle::RGBA() &&
-            !data.fSteps.fFlags.premul && !data.fSteps.fFlags.unpremul) {
-            keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kPriorOutput);
-            return;
+    if (data.fIsAlphaOnly) {
+        // We always specialize alpha-only because the rest of the pipeline is specializing the
+        // colorization of alpha data.
+        SkASSERT(data.fReadSwizzle == Swizzle("rgba") || // alpha texture format
+                 data.fReadSwizzle == Swizzle("000r") || // red texture format
+                 data.fReadSwizzle == Swizzle("000a"));  // rgba texture format
+        BEGIN_WRITE_UNIFORMS(keyContext, BuiltInCodeSnippetID::kCSXform_AlphaOnly)
+        const bool rToAlpha = data.fReadSwizzle[3] == 'r';
+        keyContext.pipelineDataGatherer()->writeHalf(rToAlpha ? 1.f : 0.f);
+        keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kCSXform_AlphaOnly);
+        return;
+    }
+
+    // For color, Graphite applies read swizzles as part of the gamut transform, so it does not
+    // support referencing A or 1 in a swizzle component for RGB; it only supports no-swizzle or
+    // forcing opaque for alpha. At the moment, there is no way to create a read swizzle that
+    // violates this; the code below is structured to fail gracefully in release builds when these
+    // asserts fire.
+    SkASSERT(data.fReadSwizzle[0] != 'a' && data.fReadSwizzle[0] != '1');
+    SkASSERT(data.fReadSwizzle[1] != 'a' && data.fReadSwizzle[1] != '1');
+    SkASSERT(data.fReadSwizzle[2] != 'a' && data.fReadSwizzle[2] != '1');
+    SkASSERT(data.fReadSwizzle[3] == 'a' || data.fReadSwizzle[3] == '1');
+
+    const bool hasRGBSwizzle = data.fReadSwizzle[0] != 'r' ||
+                               data.fReadSwizzle[1] != 'g' ||
+                               data.fReadSwizzle[2] != 'b';
+
+    // There are up to 5 stages: pre-alpha, linear xfer fn, gamut, encode xfer fn, post-alpha.
+    // NOTE: SkColorSpaceXformSteps also includes src/dst OOTF, but Graphite treats these as
+    // optional steps in the HLG transfer function.
+    const SkColorSpaceXformSteps& steps = data.fSteps;
+    STArray<5, BuiltInCodeSnippetID> stageIDs;
+
+    // Each stage can be optimized to exactly what is needed, or remain general to limit the
+    // pipeline combinations in simple pipelines (e.g. one image sample can afford the
+    // generalization overhead).
+    const bool specialize = SkToBool(keyContext.flags() & KeyGenFlags::kSpecializeColorSpaceXform);
+
+    // When not hyper-specializing, there are three allowed semi-specializations for the combined
+    // linear + gamut + encode stages: full identity, sRGB -> gamut -> sRGB, and TF -> gamut -> TF
+    // The identity transfer function is lifted to linear sRGB if we aren't hyper-specializing and
+    // not hitting the full identity case.
+    const bool identityConversion = !steps.fFlags.linearize &&
+                                    !steps.fFlags.gamut_transform &&
+                                    !steps.fFlags.encode &&
+                                    !hasRGBSwizzle;
+    const skcms_TransferFunction* srcTF =
+            steps.fFlags.linearize             ? &steps.fSrcTF :
+            !specialize && !identityConversion ? &kLinearTF
+                                               : nullptr;
+    // The equivalent logic applies for the dst inverse function.
+    const skcms_TransferFunction* dstTFInv =
+            steps.fFlags.encode                ? &steps.fDstTFInv :
+            !specialize && !identityConversion ? &kLinearTF
+                                               : nullptr;
+    SkASSERT(specialize || identityConversion || (srcTF && dstTFInv));
+
+    // Pre-alpha
+    if (specialize) {
+        // None of the specialized pre-alpha stages take uniforms
+        if (data.fReadSwizzle[3] == '1') {
+            stageIDs.push_back(BuiltInCodeSnippetID::kCSXform_ForceOpaque);
+        } else if (data.fSteps.fFlags.unpremul) {
+            stageIDs.push_back(BuiltInCodeSnippetID::kCSXform_Unpremul);
+        } // else elide the no-op entirely
+    } else {
+        stageIDs.push_back(BuiltInCodeSnippetID::kCSXform_PreAlpha);
+        BEGIN_WRITE_UNIFORMS(keyContext, BuiltInCodeSnippetID::kCSXform_PreAlpha)
+        float mode = data.fReadSwizzle[3] == '1' ?  1.f : // force-opaque
+                     steps.fFlags.unpremul       ? -1.f   // unpremul
+                                                 :  0.f;  // no-op
+        keyContext.pipelineDataGatherer()->writeHalf(mode);
+    }
+
+    // Linear transfer function; this is applied before the gamut, so any ootf must be swizzled
+    if (srcTF) {
+        const bool specializeLinearTF = specialize || (srcTF->g >= 0.f && dstTFInv->g >= 0.f);
+        stageIDs.push_back(add_xfer_fn(keyContext,
+                                       *srcTF,
+                                       data.fReadSwizzle,
+                                       steps.fFlags.src_ootf ? steps.fSrcOotf : nullptr,
+                                       specializeLinearTF));
+    } // else specialization allows us to elide the transfer function entirely
+
+    // Gamut transform and RGB swizzle. This is specialized when overall specialization is
+    // enabled, or if there are no transfer functions at play.
+    const bool specializeGamut = specialize || identityConversion;
+    if (!specializeGamut || hasRGBSwizzle || steps.fFlags.gamut_transform) {
+        stageIDs.push_back(BuiltInCodeSnippetID::kCSXform_Gamut);
+        BEGIN_WRITE_UNIFORMS(keyContext, BuiltInCodeSnippetID::kCSXform_Gamut)
+
+        static const float kIdentityGamut[] = { 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f };
+        SkMatrix gamut = swizzle_gamut_transform(
+                    steps.fFlags.gamut_transform ? steps.fSrcToDstMatrix : kIdentityGamut,
+                    data.fReadSwizzle);
+        keyContext.pipelineDataGatherer()->writeHalf(gamut);
+    } // else elide the stage entirely
+
+    // Encode transfer function; this is applied after the gamut so the ootf does not need adjusting
+    if (dstTFInv) {
+        const bool specializeEncodeTF = specialize || (srcTF->g >= 0.f && dstTFInv->g >= 0.f);
+        stageIDs.push_back(add_xfer_fn(keyContext,
+                                       *dstTFInv,
+                                       Swizzle::RGBA(),
+                                       steps.fFlags.dst_ootf ? steps.fDstOotf : nullptr,
+                                       specializeEncodeTF));
+    } // else specialization allows us to elide the transfer function entirely
+
+    // Post-alpha
+    if (specialize) {
+        if (steps.fFlags.premul) {
+            stageIDs.push_back(BuiltInCodeSnippetID::kCSXform_Premul);
+        } // else elide the no-op
+    } else {
+        stageIDs.push_back(BuiltInCodeSnippetID::kCSXform_PostAlpha);
+        BEGIN_WRITE_UNIFORMS(keyContext, BuiltInCodeSnippetID::kCSXform_PostAlpha)
+        float premul = steps.fFlags.premul ? 0.f : 1.f;
+        keyContext.pipelineDataGatherer()->writeHalf(premul);
+    }
+
+    if (stageIDs.empty()) {
+        // We've specialized down to the identity function, but we need to add a block
+        keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kPriorOutput);
+    } else {
+        // The linear sequence can be represented as a composition chain:
+        // [stageID[0], stageID[1], ...] => Compose [ stageID[0] Compose [ stageID[1] ... ]]
+        // When size = 1, this code reduces to just appending stageIDs[0] w/o Compose blocks
+        for (int i = 0; i < stageIDs.size() - 1; ++i) {
+            keyContext.paintParamsKeyBuilder()->beginBlock(BuiltInCodeSnippetID::kCompose);
+            keyContext.paintParamsKeyBuilder()->addBlock(stageIDs[i]);
         }
-
-        add_color_space_uniforms(keyContext, BuiltInCodeSnippetID::kColorSpaceXformPremul,
-                                 data.fSteps, data.fReadSwizzle);
-        keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kColorSpaceXformPremul);
-        return;
+        // The last stage does not need to be composed with anything else
+        keyContext.paintParamsKeyBuilder()->addBlock(stageIDs.back());
+        // Close the Compose blocks
+        for (int i = 0; i < stageIDs.size() - 1; ++i) {
+            keyContext.paintParamsKeyBuilder()->endBlock();
+        }
     }
-
-    // Use a specialized shader if we're transferring to and from sRGB-ish color spaces.
-    // We take this path even if linearize/encode are false since we can set coefficients
-    // in the sRGB transfer functions to represent identity, and that is better than using the
-    // most general colorspace option.
-    if ((!data.fSteps.fFlags.linearize || skcms_TransferFunction_isSRGBish(&data.fSteps.fSrcTF)) &&
-        (!data.fSteps.fFlags.encode || skcms_TransferFunction_isSRGBish(&data.fSteps.fDstTFInv))) {
-        add_color_space_uniforms(keyContext, BuiltInCodeSnippetID::kColorSpaceXformSRGB,
-                                 data.fSteps, data.fReadSwizzle);
-        keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kColorSpaceXformSRGB);
-        return;
-    }
-
-    // Use the most general color space transform shader if no specializations can be used.
-    add_color_space_uniforms(keyContext, BuiltInCodeSnippetID::kColorSpaceXformColorFilter,
-                             data.fSteps, data.fReadSwizzle);
-    keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kColorSpaceXformColorFilter);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1523,17 +1628,23 @@ void RuntimeEffectBlock::HandleIntrinsics(const KeyContext& keyContext, const Sk
         // NOTE: This must be kept in sync with the logic used to generate the toLinearSrgb() and
         // fromLinearSrgb() expressions for each runtime effect. toLinearSrgb() is assumed to be
         // the second to last child, and fromLinearSrgb() is assumed to be the last.
+        //
+        // The conversions use kOpaque for their alpha type because the public signature takes a
+        // half3 value; any alpha is assumed to be handled by the calling runtime effect.
         ColorSpaceTransformBlock::ColorSpaceTransformData dstToLinear(dstCS,
-                                                                      kUnpremul_SkAlphaType,
+                                                                      kOpaque_SkAlphaType,
                                                                       sk_srgb_linear_singleton(),
-                                                                      kUnpremul_SkAlphaType);
+                                                                      kOpaque_SkAlphaType);
         ColorSpaceTransformBlock::ColorSpaceTransformData linearToDst(sk_srgb_linear_singleton(),
-                                                                      kUnpremul_SkAlphaType,
+                                                                      kOpaque_SkAlphaType,
                                                                       dstCS,
-                                                                      kUnpremul_SkAlphaType);
+                                                                      kOpaque_SkAlphaType);
 
-        ColorSpaceTransformBlock::AddBlock(keyContext, dstToLinear);
-        ColorSpaceTransformBlock::AddBlock(keyContext, linearToDst);
+        // Like working color space shaders, we allow these color space conversions to be
+        // specialized as much as possible.
+        KeyContext csContext{keyContext, KeyGenFlags::kSpecializeColorSpaceXform};
+        ColorSpaceTransformBlock::AddBlock(csContext, dstToLinear);
+        ColorSpaceTransformBlock::AddBlock(csContext, linearToDst);
     }
 }
 
@@ -1736,22 +1847,24 @@ static void add_to_key(const KeyContext& keyContext, const SkWorkingFormatColorF
         dstCS = SkColorSpace::MakeSRGB();
     }
 
+    KeyContext csOptimize{keyContext, KeyGenFlags::kSpecializeColorSpaceXform};
+
     SkAlphaType workingAT;
     sk_sp<SkColorSpace> workingCS = filter->workingFormat(dstCS, &workingAT);
     KeyContext workingContext =
-            keyContext.withColorInfo({dstInfo.colorType(), workingAT, workingCS});
+            csOptimize.withColorInfo({dstInfo.colorType(), workingAT, workingCS});
 
     // Use two nested compose blocks to chain (dst->working), child, and (working->dst) together
     // while appearing as one block to the parent node.
-    Compose(keyContext,
+    Compose(csOptimize,
             /* addInnerToKey= */ [&]() -> void {
                 // Inner compose
-                Compose(keyContext,
+                Compose(csOptimize,
                         /* addInnerToKey= */ [&]() -> void {
                             // Innermost (inner of inner compose)
                             ColorSpaceTransformBlock::ColorSpaceTransformData data1(
                                     dstCS.get(), dstAT, workingCS.get(), workingAT);
-                            ColorSpaceTransformBlock::AddBlock(keyContext, data1);
+                            ColorSpaceTransformBlock::AddBlock(csOptimize, data1);
                         },
                         /* addOuterToKey= */ [&]() -> void {
                             // Middle (outer of inner compose)
@@ -1762,7 +1875,7 @@ static void add_to_key(const KeyContext& keyContext, const SkWorkingFormatColorF
                 // Outermost (outer of outer compose)
                 ColorSpaceTransformBlock::ColorSpaceTransformData data2(
                         workingCS.get(), workingAT, dstCS.get(), dstAT);
-                ColorSpaceTransformBlock::AddBlock(keyContext, data2);
+                ColorSpaceTransformBlock::AddBlock(csOptimize, data2);
             });
 }
 
@@ -2115,6 +2228,7 @@ static void add_image_to_key(const KeyContext& keyContext,
     imgData.fTextureProxy = view.refProxy();
     skgpu::Swizzle readSwizzle = view.swizzle();
     ColorSpaceTransformBlock::ColorSpaceTransformData colorXformData(readSwizzle);
+    colorXformData.fIsAlphaOnly = imageToDraw->isAlphaOnly();
 
     if (!isRaw) {
         colorXformData.fSteps = SkColorSpaceXformSteps(imageToDraw->colorSpace(),
@@ -2388,18 +2502,20 @@ static void add_to_key(const KeyContext& keyContext,
     sk_sp<SkColorSpace> inputCS, outputCS;
     SkAlphaType workingAT;
     std::tie(inputCS, outputCS, workingAT) = shader->workingSpace(dstCS, dstAT);
-    KeyContext workingContext = keyContext.withColorInfo({dstInfo.colorType(), workingAT, inputCS});
+
+    KeyContext csContext{keyContext, KeyGenFlags::kSpecializeColorSpaceXform};
+    KeyContext workingContext = csContext.withColorInfo({dstInfo.colorType(), workingAT, inputCS});
 
     // Compose the inner shader (in the input space) with a (output->dst) transform, under the
     // assumption that the child shader handles conversion between input and output CS/alpha types.
-    Compose(keyContext,
+    Compose(csContext,
         /* addInnerToKey= */ [&]() -> void {
             AddToKey(workingContext, shader->shader().get());
         },
         /* addOuterToKey= */ [&]() -> void {
             ColorSpaceTransformBlock::ColorSpaceTransformData data(
                     outputCS.get(), workingAT, dstCS.get(), dstAT);
-            ColorSpaceTransformBlock::AddBlock(keyContext, data);
+            ColorSpaceTransformBlock::AddBlock(csContext, data);
         });
 }
 

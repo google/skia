@@ -34,9 +34,9 @@ namespace {
 
 const char* get_known_rte_name(StableKey key) {
     switch (key) {
-#define M(type) case StableKey::k##type : return "KnownRuntimeEffect_" #type;
+#define M(type) case StableKey::k##type : return "$" #type;
 #define M1(type)
-#define M2(type, initializer) case StableKey::k##type : return "KnownRuntimeEffect_" #type;
+#define M2(type, initializer) case StableKey::k##type : return "$" #type;
         SK_ALL_STABLEKEYS(M, M1, M2)
 #undef M2
 #undef M1
@@ -518,6 +518,53 @@ std::string GenerateComposePreamble(const ShaderInfo& shaderInfo, const ShaderNo
     return SkSL::String::printf("%s { return %s; }", decl.c_str(), invokeOuter.c_str());
 }
 
+#if defined(SK_DEBUG)
+// The toLinearSRGB and fromLinearSRGB RTE built-ins should only be colorspace transform functions.
+// This recurses the node to make sure it contains only Compose, Passthrough, or CSXform blocks.
+void validate_linearsrgb_node(const ShaderNode* node) {
+    if (node->codeSnippetId() == (int) BuiltInCodeSnippetID::kCompose) {
+        for (const ShaderNode* child : node->children()) {
+            validate_linearsrgb_node(child);
+        }
+    } else {
+        SkASSERT(node->numChildren() == 0);
+        SkASSERT(node->codeSnippetId() < kBuiltInCodeSnippetIDCount);
+        switch ((BuiltInCodeSnippetID) node->codeSnippetId()) {
+            case BuiltInCodeSnippetID::kPriorOutput:
+            case BuiltInCodeSnippetID::kCSXform_sRGB:
+            case BuiltInCodeSnippetID::kCSXform_PQ:
+            case BuiltInCodeSnippetID::kCSXform_HLG:
+            case BuiltInCodeSnippetID::kCSXform_HLGInv:
+            case BuiltInCodeSnippetID::kCSXform_Gamut:
+                // Valid stage
+                break;
+
+            // The to/fromLinearSRGB builtins trigger CSXform specialization, so we shouldn't be
+            // seeding these generic stage blocks.
+            case BuiltInCodeSnippetID::kCSXform_TransferFn:
+            case BuiltInCodeSnippetID::kCSXform_PreAlpha:
+            case BuiltInCodeSnippetID::kCSXform_PostAlpha:
+                SkASSERT(false);
+                break;
+
+            // The to/fromLinearSRGB builtins have kOpaque alpha type, so since they are specialized
+            // there shouldn't be any alpha stage blocks at all.
+            case BuiltInCodeSnippetID::kCSXform_AlphaOnly:
+            case BuiltInCodeSnippetID::kCSXform_ForceOpaque:
+            case BuiltInCodeSnippetID::kCSXform_Unpremul:
+            case BuiltInCodeSnippetID::kCSXform_Premul:
+                SkASSERT(false);
+                break;
+
+            // Anything else is invalid
+            default:
+                SkASSERT(false);
+                break;
+        }
+    }
+}
+#endif
+
 //--------------------------------------------------------------------------------------------------
 class GraphitePipelineCallbacks : public SkSL::PipelineStage::Callbacks {
 public:
@@ -590,12 +637,7 @@ public:
         // conversion *to* linear srgb is the second-to-last child node, and the conversion *from*
         // linear srgb is the last child node.)
         const ShaderNode* toLinearSrgbNode = fNode->child(fNode->numChildren() - 2);
-        SkASSERT(toLinearSrgbNode->codeSnippetId() ==
-                         (int)BuiltInCodeSnippetID::kColorSpaceXformColorFilter ||
-                 toLinearSrgbNode->codeSnippetId() ==
-                         (int)BuiltInCodeSnippetID::kColorSpaceXformPremul ||
-                 toLinearSrgbNode->codeSnippetId() ==
-                         (int)BuiltInCodeSnippetID::kColorSpaceXformSRGB);
+        SkDEBUGCODE(validate_linearsrgb_node(toLinearSrgbNode));
 
         ShaderSnippet::Args args = ShaderSnippet::kDefaultArgs;
         args.fPriorStageOutput = SkSL::String::printf("(%s).rgb1", color.c_str());
@@ -611,12 +653,7 @@ public:
         // conversion *to* linear srgb is the second-to-last child node, and the conversion *from*
         // linear srgb is the last child node.
         const ShaderNode* fromLinearSrgbNode = fNode->child(fNode->numChildren() - 1);
-        SkASSERT(fromLinearSrgbNode->codeSnippetId() ==
-                         (int)BuiltInCodeSnippetID::kColorSpaceXformColorFilter ||
-                 fromLinearSrgbNode->codeSnippetId() ==
-                         (int)BuiltInCodeSnippetID::kColorSpaceXformPremul ||
-                 fromLinearSrgbNode->codeSnippetId() ==
-                         (int)BuiltInCodeSnippetID::kColorSpaceXformSRGB);
+        SkDEBUGCODE(validate_linearsrgb_node(fromLinearSrgbNode));
 
         ShaderSnippet::Args args = ShaderSnippet::kDefaultArgs;
         args.fPriorStageOutput = SkSL::String::printf("(%s).rgb1", color.c_str());
@@ -1383,34 +1420,92 @@ ShaderCodeDictionary::ShaderCodeDictionary(
             SnippetRequirementFlags::kPriorStageOutput,
             /*uniforms=*/{}
     };
-    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kColorSpaceXformColorFilter] = {
-            /*name=*/"ColorSpaceTransform",
-            /*staticFn=*/"sk_color_space_transform",
+
+    // Initial CS alpha stages
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCSXform_AlphaOnly] = {
+            /*name=*/"AlphaOnly",
+            /*staticFn=*/"sk_csxform_alphaonly",
             SnippetRequirementFlags::kPriorStageOutput,
-            /*uniforms=*/{{{ "gamut",        SkSLType::kHalf3x3 },
-                           { "srcGABC",      SkSLType::kFloat4 },
-                           { "srcDEF_args",  SkSLType::kFloat4 },
-                           { "dstGABC",      SkSLType::kFloat4 },
-                           { "dstDEF_args",  SkSLType::kFloat4 },
-                           { "srcOOTF_args", SkSLType::kFloat4 },
-                           { "dstOOTF_args", SkSLType::kFloat4 }}}
+            /*uniforms=*/{{{ "mode", SkSLType::kHalf }}}
+    };
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCSXform_PreAlpha] = {
+            /*name=*/"PreAlpha",
+            /*staticFn=*/"sk_csxform_prealpha",
+            SnippetRequirementFlags::kPriorStageOutput,
+            /*uniforms=*/{{{ "mode", SkSLType::kHalf }}}
+    };
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCSXform_Unpremul] = {
+            /*name=*/"Unpremul",
+            /*staticFn=*/"unpremul",
+            SnippetRequirementFlags::kPriorStageOutput,
+            /*uniforms=*/{}
+    };
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCSXform_ForceOpaque] = {
+            /*name=*/"ForceOpaque",
+            /*staticFn=*/"sk_rgb_opaque",
+            SnippetRequirementFlags::kPriorStageOutput,
+            /*uniforms=*/{}
     };
 
-    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kColorSpaceXformPremul] = {
-            /*name=*/"ColorSpaceTransformPremul",
-            /*staticFn=*/"sk_color_space_transform_premul",
+    // Transfer functions
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCSXform_TransferFn] = {
+            /*name=*/"TF",
+            /*staticFn=*/"sk_csxform_transfer",
             SnippetRequirementFlags::kPriorStageOutput,
-            /*uniforms=*/{{{ "args", SkSLType::kHalf2 }}}
+            /*uniforms=*/{{{ "ootf", SkSLType::kFloat4 },
+                           { "gabc", SkSLType::kFloat4 },
+                           { "def",  SkSLType::kFloat3 }}}
     };
-    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kColorSpaceXformSRGB] = {
-            /*name=*/"ColorSpaceTransformSRGB",
-            /*staticFn=*/"sk_color_space_transform_srgb",
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCSXform_sRGB] = {
+            /*name=*/"sRGB",
+            /*staticFn=*/"sk_csxform_srgb",
             SnippetRequirementFlags::kPriorStageOutput,
-            /*uniforms=*/{{{ "gamut",       SkSLType::kHalf3x3 },
-                           { "srcGABC",     SkSLType::kFloat4 },
-                           { "srcDEF_args", SkSLType::kFloat4 },
-                           { "dstGABC",     SkSLType::kFloat4 },
-                           { "dstDEF_args", SkSLType::kFloat4 }}}
+            /*uniforms=*/{{{ "gabc", SkSLType::kFloat4 },
+                           { "def",  SkSLType::kFloat3 }}}
+    };
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCSXform_PQ] = {
+            /*name=*/"PQ",
+            /*staticFn=*/"sk_csxform_pq",
+            SnippetRequirementFlags::kPriorStageOutput,
+            /*uniforms=*/{{{ "abc", SkSLType::kFloat3 },
+                           { "def", SkSLType::kFloat3 }}}
+    };
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCSXform_HLG] = {
+            /*name=*/"HLG",
+            /*staticFn=*/"sk_csxform_hlg",
+            SnippetRequirementFlags::kPriorStageOutput,
+            /*uniforms=*/{{{ "ootf", SkSLType::kFloat4 },
+                           { "abc",  SkSLType::kFloat3 },
+                           { "def",  SkSLType::kFloat3 }}}
+    };
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCSXform_HLGInv] = {
+            /*name=*/"HLG^-1",
+            /*staticFn=*/"sk_csxform_hlginv",
+            SnippetRequirementFlags::kPriorStageOutput,
+            /*uniforms=*/{{{ "ootf", SkSLType::kFloat4 },
+                           { "abc",  SkSLType::kFloat3 },
+                           { "def",  SkSLType::kFloat3 }}}
+    };
+
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCSXform_Gamut] = {
+            /*name=*/"Gamut",
+            /*staticFn=*/"sk_csxform_gamut",
+            SnippetRequirementFlags::kPriorStageOutput,
+            /*uniforms=*/{{{ "gamut", SkSLType::kHalf3x3 }}}
+    };
+
+    // Final CS alpha stages
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCSXform_PostAlpha] = {
+            /*name=*/"PostAlpha",
+            /*staticFn=*/"sk_csxform_postalpha",
+            SnippetRequirementFlags::kPriorStageOutput,
+            /*uniforms=*/{{{ "mode", SkSLType::kHalf }}}
+    };
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCSXform_Premul] = {
+            /*name=*/"Premul",
+            /*staticFn=*/"premul",
+            SnippetRequirementFlags::kPriorStageOutput,
+            /*uniforms=*/{}
     };
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPrimitiveColor] = {

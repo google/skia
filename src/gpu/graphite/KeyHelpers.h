@@ -309,6 +309,7 @@ struct ColorSpaceTransformBlock {
         }
         SkColorSpaceXformSteps fSteps;
         Swizzle                fReadSwizzle = Swizzle::RGBA();
+        bool                   fIsAlphaOnly = false;
     };
 
     static void AddBlock(const KeyContext&, const ColorSpaceTransformData&);

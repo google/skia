@@ -90,7 +90,7 @@ KeyContext KeyContext::forRuntimeEffect(const SkRuntimeEffect* effect, int child
         // Assume explicit sampling as a proxy for either a likely data lookup (e.g. raw shader)
         // or an effect that might sample the child many times. This means it's worth using
         // eliding colorspace conversions, and we have to disable sampling optimization.
-        xtraFlags |= KeyGenFlags::kEnableIdentityColorSpaceXform |
+        xtraFlags |= KeyGenFlags::kSpecializeColorSpaceXform |
                      KeyGenFlags::kDisableSamplingOptimization;
     }
 
