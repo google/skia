@@ -78,10 +78,18 @@ var depsOverrides = map[string]depConfig{
 	"libavif":       {needsBazelFile: true},
 	"libgav1":       {needsBazelFile: true},
 	"libjpeg-turbo": {bazelNameOverride: "libjpeg_turbo", needsBazelFile: true},
-	"libjxl":        {needsBazelFile: true},
-	"libpng":        {needsBazelFile: true},
-	"libwebp":       {needsBazelFile: true},
-	"libyuv":        {needsBazelFile: true},
+	"libjxl": {
+		needsBazelFile: true,
+		patchCmds: []string{
+			"rm -f lib/BUILD tools/BUILD",
+		},
+		patchCmdsWin: []string{
+			"del /f /q lib\\BUILD tools\\BUILD",
+		},
+	},
+	"libpng":  {needsBazelFile: true},
+	"libwebp": {needsBazelFile: true},
+	"libyuv":  {needsBazelFile: true},
 	"markupsafe": {
 		needsBazelFile: true,
 		patchCmds: []string{

@@ -177,6 +177,13 @@ filegroup {
 }
 
 filegroup {
+    name: "libskia_jpegxl_srcs",
+    srcs: [
+        $jpegxl_srcs
+    ],
+}
+
+filegroup {
     name: "libskia_srcs",
     srcs: [
         $srcs
@@ -381,6 +388,7 @@ def generate_args(target_os, enable_gpu, libskia_variant = LibSkiaVariant.HWUI):
 
     # Unsupported as `target_cpu == "none"` isn't supported.
     'skia_use_partition_alloc':             'false',
+    'skia_use_libjxl_decode':               'true',
   }
   d['target_os'] = target_os
   if target_os == '"android"':
@@ -427,6 +435,7 @@ def generate_args(target_os, enable_gpu, libskia_variant = LibSkiaVariant.HWUI):
     d['skia_use_fixed_gamma_text'] = 'false'
     d['skia_use_expat'] = 'false'
     d['skia_enable_fontmgr_custom_empty'] = 'false'
+    d['skia_use_libjxl_decode'] = 'false'
   else:
     d['skia_enable_android_utils'] = 'true'
     d['skia_use_freetype'] = 'true'
@@ -559,27 +568,32 @@ def main():
   gm_includes   .add("modules/skcms")
 
   VMA_DEP = "//src/gpu/vk/vulkanmemoryallocator:vulkanmemoryallocator"
+  JPEGXL_DEP = "//:jpegxl_decode"
 
-  gn_to_bp_utils.GrabDependentValues(js, '//:skia', 'sources', android_srcs, VMA_DEP)
+  gn_to_bp_utils.GrabDependentValues(js, '//:skia', 'sources', android_srcs, [VMA_DEP, JPEGXL_DEP])
   android_srcs    = strip_non_srcs(android_srcs)
 
   js_linux        = gn_to_bp_utils.GenerateJSONFromGN(args.gn, gn_args_linux)
   linux_srcs      = strip_slashes(js_linux['targets']['//:skia']['sources'])
   gn_to_bp_utils.GrabDependentValues(js_linux, '//:skia', 'sources', linux_srcs,
-                                     None)
+                                     [JPEGXL_DEP])
   linux_srcs      = strip_non_srcs(linux_srcs)
 
   js_mac          = gn_to_bp_utils.GenerateJSONFromGN(args.gn, gn_args_mac)
   mac_srcs        = strip_slashes(js_mac['targets']['//:skia']['sources'])
   gn_to_bp_utils.GrabDependentValues(js_mac, '//:skia', 'sources', mac_srcs,
-                                     None)
+                                     [JPEGXL_DEP])
   mac_srcs        = strip_non_srcs(mac_srcs)
 
   js_win          = gn_to_bp_utils.GenerateJSONFromGN(args.gn, gn_args_win)
   win_srcs        = strip_slashes(js_win['targets']['//:skia']['sources'])
   gn_to_bp_utils.GrabDependentValues(js_win, '//:skia', 'sources', win_srcs,
-                                     None)
+                                     [JPEGXL_DEP])
   win_srcs        = strip_non_srcs(win_srcs)
+
+  jpegxl_srcs = strip_slashes(js['targets'][JPEGXL_DEP].get('sources', []))
+  gn_to_bp_utils.GrabDependentValues(js, JPEGXL_DEP, 'sources', jpegxl_srcs, None)
+  jpegxl_srcs = strip_non_srcs(jpegxl_srcs)
 
   srcs = android_srcs.intersection(linux_srcs).intersection(mac_srcs)
   srcs = srcs.intersection(win_srcs)
@@ -606,14 +620,14 @@ def main():
   renderengine_srcs = strip_slashes(
       js_renderengine['targets']['//:skia']['sources'])
   gn_to_bp_utils.GrabDependentValues(js_renderengine, '//:skia', 'sources',
-                                     renderengine_srcs, VMA_DEP)
+                                     renderengine_srcs, [VMA_DEP, JPEGXL_DEP])
   renderengine_srcs = strip_non_srcs(renderengine_srcs)
   # OOPR variant
   js_renderengine_oopr   = gn_to_bp_utils.GenerateJSONFromGN(args.gn, gn_args_renderengine_oopr)
   renderengine_oopr_srcs = strip_slashes(
       js_renderengine_oopr['targets']['//:skia']['sources'])
   gn_to_bp_utils.GrabDependentValues(js_renderengine_oopr, '//:skia', 'sources',
-                                     renderengine_oopr_srcs, VMA_DEP)
+                                     renderengine_oopr_srcs, [VMA_DEP, JPEGXL_DEP])
   renderengine_oopr_srcs = strip_non_srcs(renderengine_oopr_srcs)
   renderengine_oopr_srcs = renderengine_oopr_srcs.difference(renderengine_srcs)
 
@@ -667,6 +681,10 @@ def main():
   renderengine_oopr_defines = get_defines(js_renderengine_oopr)
   renderengine_oopr_defines.add('SK_IN_RENDERENGINE')
 
+  for defines_set in [android_defines, linux_defines, mac_defines, win_defines]:
+    if 'SK_CODEC_DECODES_JPEGXL' in defines_set:
+      defines_set.remove('SK_CODEC_DECODES_JPEGXL')
+
   os.makedirs(out_path('android/include/config/'),           exist_ok=True)
   os.makedirs(out_path('linux/include/config/'),             exist_ok=True)
   os.makedirs(out_path('mac/include/config/'),               exist_ok=True)
@@ -713,6 +731,7 @@ def main():
       'nanobench_srcs'        : bpfmt(8, nanobench_srcs),
 
       'skcms_srcs': bpfmt(8, skcms_srcs),
+      'jpegxl_srcs': bpfmt(8, jpegxl_srcs),
 
       'skqp_sdk_version': skqp_sdk_version,
       'skqp_includes':    bpfmt(8, skqp_includes),
