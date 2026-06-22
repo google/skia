@@ -68,6 +68,10 @@ public:
         }
     }
 
+    Line getLine(uint32_t index) const {
+        return {fPoints[index], fPoints[index + 1]};
+    }
+
     class LineIterator {
     public:
         LineIterator(const SkPoint* pts, int index, int count)

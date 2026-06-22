@@ -5,64 +5,32 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_Tiler_DEFINED
-#define skgpu_graphite_Tiler_DEFINED
+#ifndef skgpu_graphite_sparse_strips_Tiler_DEFINED
+#define skgpu_graphite_sparse_strips_Tiler_DEFINED
 
 #include "include/private/SkAssert.h"
 #include "include/private/SkTDArray.h"
 #include "src/gpu/graphite/sparse_strips/Polyline.h"
 #include "src/gpu/graphite/sparse_strips/SparseStripsTypes.h"
 
+#include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <limits>
 #include <string>
+#include <tuple>
 
 namespace skgpu::graphite {
-
-// Helper struct for the intersection bits. These will be consolidated into a header in the future.
-struct IntersectionBits {
-    // TODO (thomsmit): reorder these into more orthodox LRTB
-    //
-    // Generally speaking, these record which edges a line "touches" within its tile, and whether
-    // the tile contributes to coarse winding. However, due to tie-breaking for corner cases and
-    // differing inclusive/exclusive rules for lines ending exactly on tile boundaries, these do not
-    // always represent literal touches. Similarly, while coarse Winding and a Top edge touch are
-    // related, they are not always identical. Ultimately, these bits are a driver for
-    // rasterization, not an intuitive description of the line.
-    static constexpr uint32_t T = 0b00001;
-    static constexpr uint32_t B = 0b00010;
-    static constexpr uint32_t L = 0b00100;
-    static constexpr uint32_t R = 0b01000;
-    static constexpr uint32_t W = 0b10000;
-
-    static constexpr uint32_t BOT_SHIFT      = 1;
-    static constexpr uint32_t LEFT_SHIFT     = 2;
-    static constexpr uint32_t RIGHT_SHIFT    = 3;
-    static constexpr uint32_t WINDING_SHIFT  = 4;
-    static constexpr uint32_t INT_MASK_SHIFT = 5;
-
-    static constexpr uint32_t INTERSECTION_MASK = W | R | L | B | T;
-    static constexpr uint32_t MAX_LINES_PER_PATH = 1 << (32 - INT_MASK_SHIFT);
-
-    static std::string maskToString(uint32_t mask) {
-        std::string s;
-        if (mask & W) s += "W";
-        if (mask & T) s += (s.empty() ? "T" : " | T");
-        if (mask & B) s += (s.empty() ? "B" : " | B");
-        if (mask & L) s += (s.empty() ? "L" : " | L");
-        if (mask & R) s += (s.empty() ? "R" : " | R");
-        if (mask == 0) return "empty";
-        return s;
-    }
-};
 
 // A sparse strips tile, contains:
 //  1) The top left corner of the tile in device space, in tile sized units.
 //  2) The coarse winding (W) of the tile
 //  3) The intersection mask (R | L | T | B) of the tile
 //  4) The index of their parent line in the array backing polyline
-struct Tile {
+//
+// TODO (thomsmit): Should move onto SparseStripsTypes?
+struct Tile : public IntersectionBits {
     uint16_t x;
     uint16_t y;
     /// Contains the parent line's index and the intersection/winding mask.
@@ -103,6 +71,147 @@ struct Tile {
     uint32_t intersectionMask() const {
         return fPackedLineIdxIntersectionMask & IntersectionBits::INTERSECTION_MASK;
     }
+    bool coarseWinding() const {
+        return (fPackedLineIdxIntersectionMask & IntersectionBits::W) != 0;
+    }
+    bool hasLeftIntersection() const {
+        return (fPackedLineIdxIntersectionMask & IntersectionBits::L) != 0;
+    }
+
+    // Responsible for consuming the tile coordinates and intersection mask produced by the Tiler
+    // and producing the exact points at which the parent line intersects the edges of the tile.
+    // It also safely handles when there is only one edge intersection, either from the line ending
+    // inside the tile body, or a horizontal edge touch.
+    //
+    // This function provides the following guarantees:
+    //  1) Y-Sorting: The resulting points are always sorted top-to-bottom.
+    //  2) Interior Endpoints: If a line ends inside the tile, its exact endpoint is preserved and
+    //     returned.
+    //  3) Zero-Width Degenerates: A single-point intersection (e.g., a horizontal graze or corner
+    //     touch) produces a second point along that exact same edge, yielding safe, zero-width
+    //     geometry.
+    //  4) Boundary Snapping: Edge intersections are explicitly snapped to the exact bounding
+    //     coordinate of the tile.
+    //
+    // (Note: Guarantees 2 and 4 ensure downstream logic can safely rely on floating-point equality
+    // checks).
+    //
+    // Note, this function is tightly coupled to Tiler and MakeStrips. If the incoming tile
+    // coordinates are incorrect, the results from this function are meaningless. It assumes that:
+    //  1) Derivatives resulting from division by zero (e.g. perfectly vertical or horizontal lines)
+    //     will be set to zero.
+    //  2) Only two bits are ever set in the mask. (Expects that perfect corner touches are tie
+    //     broken by the Tiler.)
+    template <uint16_t kWidth, uint16_t kHeight>
+    static SK_ALWAYS_INLINE std::tuple<Line, bool, bool> ClipToTile(
+            const Line& line,
+            const std::array<SkPoint, 2>& tileBounds,
+            const std::array<float, 4>& derivatives,
+            uint32_t intersectionMask,
+            bool canonicalXDir,
+            bool canonicalYDir) {
+        constexpr float width = static_cast<float>(kWidth);
+        constexpr float height = static_cast<float>(kHeight);
+
+        const SkPoint topLeft = tileBounds[0];
+        const float tileMinX = tileBounds[0].fX;
+        const float tileMinY = tileBounds[0].fY;
+        const float tileMaxX = tileBounds[1].fX;
+        const float tileMaxY = tileBounds[1].fY;
+
+        const float dx = derivatives[0];
+        const float dy = derivatives[1];
+
+        // A line's direction dictates which edges it can cross from the outside-in (entry) versus
+        // inside-out (exit). For example, if dx > 0 (canonicalXDir = true), the vector is monotonic
+        // in the positive X direction. It is impossible to intersect the right edge as an entry
+        // point, or the left edge as an exit point. This reduces the number of edges which must be
+        // checked from four to two candidate entry and two candidate exit edges.
+        uint32_t maskVIn, maskVOut;
+        float boundVIn, boundVOut;
+        if (canonicalXDir) {
+            maskVIn   = L;
+            boundVIn  = tileMinX;
+            maskVOut  = R;
+            boundVOut = tileMaxX;
+        } else {
+            maskVIn   = R;
+            boundVIn  = tileMaxX;
+            maskVOut  = L;
+            boundVOut = tileMinX;
+        }
+
+        uint32_t maskHIn, maskHOut;
+        float boundHIn, boundHOut;
+        if (canonicalYDir) {
+            maskHIn   = T;
+            boundHIn  = tileMinY;
+            maskHOut  = B;
+            boundHOut = tileMaxY;
+        } else {
+            maskHIn   = B;
+            boundHIn  = tileMaxY;
+            maskHOut  = T;
+            boundHOut = tileMinY;
+        }
+
+        const float invDx = derivatives[2];
+        const float invDy = derivatives[3];
+
+        // Check the candidate edges against the intersection mask
+        const uint32_t entryHits = intersectionMask & (maskVIn | maskHIn);
+        const uint32_t exitHits = intersectionMask & (maskVOut | maskHOut);
+
+        auto clipPt = [&](SkPoint p, uint32_t hits, uint32_t maskH, float boundH, float boundV)
+                -> std::pair<SkPoint, bool> {
+            bool isLeft = false;
+            if (hits != 0) {
+                const bool useH = (intersectionMask & maskH) != 0;
+                const float bound = useH ? boundH : boundV;
+                const float start = useH ? line.p0.fY : line.p0.fX;
+                const float invD = useH ? invDy : invDx;
+
+                const float t = (bound - start) * invD;
+
+                p.fX = line.p0.fX + t * dx;
+                p.fY = line.p0.fY + t * dy;
+
+                if (useH) {
+                    p.fY = bound;
+                    p.fX -= topLeft.fX;
+                    p.fY -= topLeft.fY;
+                    p.fX = std::clamp(p.fX, 0.0f, width);
+                } else {
+                    p.fX = bound;
+                    p.fX -= topLeft.fX;
+                    p.fY -= topLeft.fY;
+                    p.fY = std::clamp(p.fY, 0.0f, height);
+                    isLeft = (bound == tileMinX);
+                }
+            } else {
+                p.fX -= topLeft.fX;
+                p.fY -= topLeft.fY;
+                p.fX = std::clamp(p.fX, 0.0f, width);
+                p.fY = std::clamp(p.fY, 0.0f, height);
+            }
+            return {p, isLeft};
+        };
+
+        auto [pEntry, entryLeft] = clipPt(line.p0, entryHits, maskHIn, boundHIn, boundVIn);
+        auto [pExit, exitLeft] = clipPt(line.p1, exitHits, maskHOut, boundHOut, boundVOut);
+
+        // TODO (thomsmit): add a section to the function preamble describing the what these bools
+        // guarantee. Explain, how this works. (Non-Obvious why entry/exit maps to top/bottom.)
+        bool topIsOnLeftEdge = canonicalYDir ? entryLeft : exitLeft;
+        bool botIsOnLeftEdge = canonicalYDir ? exitLeft : entryLeft;
+
+        // Guarantee predictable winding order for downstream rasterization stages.
+        if (canonicalYDir) {
+            return {{pEntry, pExit}, topIsOnLeftEdge, botIsOnLeftEdge};
+        } else {
+            return {{pExit, pEntry}, topIsOnLeftEdge, botIsOnLeftEdge};
+        }
+    }
 };
 
 // Make sure the struct is a size convenient to move around, as tiles will be sorted.
@@ -114,7 +223,6 @@ template <uint16_t kTileWidth, uint16_t kTileHeight>
 class Tiles : public IntersectionBits {
 public:
     Tiles() {}
-
     void reset() {
         fTileBuf.clear();
     }
@@ -131,16 +239,31 @@ public:
 
     // This function has two purposes:
     //     1) The viewport is divided into tiles, whose dimensions are given by the template
-    //     parameters. For each line produced by flattening---contained inside Polyline---find which
-    //     tiles this line intersects. Tiles act as a "coarse rasterization stage," which elides
-    //     carrying a scanline for each MSAA subsample point. (Without this technique, we would
-    //     require 64 scanlines for an 8 tall tile with 8xMSAA). Tile edge touches are vertical
-    //     exclusive, horizontal inclusive. This is because: A) In the vertical case, inclusivity
-    //     would cause the coarse winding to be double counted or negated by the single-point tile
-    //     produced by the touch, and the tile produced by the succeeding line B) In the horizontal
-    //     case, the inclusivity is necessary because the tile produced by the succeeding line will
-    //     not consider itself left touching, and so the single-point tile is necessary to carry
-    //     over the left-edge winding.
+    //     parameters. Tiles act as a "super coarse rasterization stage," which elides carrying a
+    //     scanline for each MSAA subsample point. (Without this technique, we would require 64
+    //     scanlines for an 8 tall tile with 8xMSAA). So for each line produced by
+    //     flattening---contained inside Polyline---we need to find which tiles this line
+    //     intersects.  Tile edge touches are vertical exclusive, horizontal inclusive. This is
+    //     because:
+    //          A) In the vertical case, inclusivity would cause the coarse winding to be double
+    //          counted or negated by a single-point tile produced by a grazing touch.
+    //          B) In the horizontal case, the inclusivity is necessary because the tile produced by
+    //          the succeeding line may not consider itself left-touching (depending on its
+    //          direction), so the single-point tile is necessary to carry over the left-edge
+    //          winding.
+    //     Using the line's direction enforces mutually exclusive ownership of boundary
+    //     intersections between consecutive segments *of the same direction*, ensuring that the
+    //     left-edge winding is neither lost nor double-counted:
+    //
+    //                                  Left edge behavior:
+    //                      +----------------------+----------+------------+
+    //                      | X Direction          | Endpoint | L Bit Set? |
+    //                      +----------------------+----------+------------+
+    //                      | Left-to-Right (L->R) | Start    | No         |
+    //                      | Left-to-Right (L->R) | End      | Yes        |
+    //                      | Right-to-Left (R->L) | Start    | Yes        |
+    //                      | Right-to-Left (R->L) | End      | No         |
+    //                      +----------------------+----------+------------+
     //
     //     2) To enable parallel rasterization, we need to establish a source of truth for the line
     //     intersection points on tiles, such that adjacent tiles agree where intersections occur.
@@ -363,14 +486,14 @@ private:
 
         uint32_t mask = windingInput;
         // If this tile is the start of the row, the line must have entered through the Top edge.
-        // (Unless it's the tile start).
+        // (Unless it's the line start).
         mask |= canonicalRowStart & notStartTile;
         // If this tile is the end of the row, the line must have exited through the Bottom edge.
-        // (Unless it's the global end tile).
+        // (Unless it's the line end).
         mask |= (canonicalRowEnd & notEndTile) << BOT_SHIFT;
 
         // If a tile is NOT the start of the row, it must have been entered horizontally. If it is
-        // NOT the end, it must be exited horizontally. Base L/R on the direction of the line.
+        // NOT the end, it must have exited horizontally. Base L/R on the direction of the line.
         if constexpr (kXDir) {
             mask |= (1 ^ canonicalRowStart) << LEFT_SHIFT;
             mask |= (1 ^ canonicalRowEnd) << RIGHT_SHIFT;
@@ -423,7 +546,7 @@ private:
 
         if (xStart <= xEndVal) {
             // Process the Leftmost Tile of the row. If this is the *only* tile in the row,
-            // `isSingle`, is both the row start and row end so the Winding (W) bit is passed
+            // `isSingle`, it is both the row start and row end so the Winding (W) bit is passed
             // regardless of direction.
             bool isSingle = xStart == xEndVal;
             uint32_t wLeft = (kXDir || isSingle ? W : 0) & wMask;
@@ -503,4 +626,4 @@ private:
 
 }  // namespace skgpu::graphite
 
-#endif  // skgpu_graphite_Tiler_DEFINED
+#endif  // skgpu_graphite_sparse_strips_Tiler_DEFINED

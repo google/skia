@@ -10,11 +10,13 @@ SPARSE_STRIPS_FILES = [
     "Flatten.cpp",
     "Flatten.h",
     "MSAA_LUT.h",
+    "MakeStrips.h",
     "Polyline.h",
     "SparseStripsTypes.h",
     "Strip.h",
     "StripGenerator.cpp",
     "StripGenerator.h",
+    "StripProcessorScalar.h",
     "Tiler.h",
 ]
 

@@ -79,12 +79,15 @@ namespace skgpu::graphite {
  * ----------------------------------
  * LUT Generation
  * ----------------------------------
- * * Because s and t are strictly bounded [0.0, 1.0], we can quantize them into a discrete 2D grid.
- *   The grid has `kWidth` columns representing the translation t, and `kHeight / 2` rows
- *   representing the slope s.
+ * * For each subsample location (x,y), we evaluate the final half-plane equation at discretized
+ *   points, according to the resolution of the LUT. Empirical testing indicates that 64x64 is
+ *   sufficient for almost all rendering scenarios.
  * * Since our mathematical derivation assumes a positive slope (m >= 0), we partition the LUT into
  *   two halves. The bottom half (v >= kHeight / 2) stores masks for positive slopes. The top half
  *   stores masks for negative slopes.
+ * * Because s and t are bounded by [0.0, 1.0], we quantize them into the discrete 2D grid. The grid
+ *   has `kWidth` columns representing the translation t, and `kHeight / 2` rows representing the
+ *   slope s.
  * * For negative slopes, we reuse the exact same mathematical equation but geometrically flip the
  *   Y-axis of our sub-pixel sample points (y = 1.0 - y).
  * * To minimize maximum quantization error, we extract the continuous s and t values from the exact

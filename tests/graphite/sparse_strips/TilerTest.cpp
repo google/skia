@@ -105,7 +105,7 @@ void check_tiles_match(skiatest::Reporter* reporter,
                     }
                 }
 
-                std::string maskStr = IntersectionBits::maskToString(mask);
+                std::string maskStr = IntersectionBits::MaskToString(mask);
                 if (maskStr.empty()) {
                     maskStr = "0";
                 }
@@ -154,8 +154,8 @@ void check_tiles_match(skiatest::Reporter* reporter,
             if (gotMask != wantMask) {
                 dump.appendf("    Tile[%d] Mask mismatch. Want [%s], Got [%s]\n",
                              i,
-                             IntersectionBits::maskToString(wantMask).c_str(),
-                             IntersectionBits::maskToString(gotMask).c_str());
+                             IntersectionBits::MaskToString(wantMask).c_str(),
+                             IntersectionBits::MaskToString(gotMask).c_str());
             }
         }
 

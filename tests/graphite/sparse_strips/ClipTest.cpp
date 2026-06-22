@@ -96,15 +96,19 @@ class ClipTestRunner {
         float tileMaxX = tileMinX + static_cast<float>(kWidth);
         float tileMaxY = tileMinY + static_cast<float>(kHeight);
 
-        std::array<float, 4> bounds = {tileMinX, tileMinY, tileMaxX, tileMaxY};
+        std::array<SkPoint, 2> tileBounds = {
+                SkPoint::Make(tileMinX, tileMinY),
+                SkPoint::Make(tileMaxX, tileMaxY)
+        };
         std::array<float, 4> derivatives = {dx, dy, idx, idy};
         uint32_t mask = tile.intersectionMask();
 
         bool canonicalXDir = (dx >= 0);
         bool canonicalYDir = (dy >= 0);
 
-        std::array<SkPoint, 2> result =
-                Strip::ClipToTile(line, bounds, derivatives, mask, canonicalXDir, canonicalYDir);
+        auto [resultLine, entersLeft, exitsLeft] = Tile::ClipToTile<kWidth, kHeight>(
+                line, tileBounds, derivatives, mask, canonicalXDir, canonicalYDir);
+        std::array<SkPoint, 2> result = {resultLine.p0, resultLine.p1};
 
         // Get the expected clip using Liang-Barsky
         auto expectedClipLb = reference_clip(line, tileMinX, tileMinY, tileMaxX, tileMaxY);

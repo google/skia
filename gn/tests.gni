@@ -362,6 +362,7 @@ precompile_tests_sources = [
 
 sparse_strips_test_sources = [
   "$_tests/graphite/sparse_strips/ClipTest.cpp",
+  "$_tests/graphite/sparse_strips/CoverageTest.cpp",
   "$_tests/graphite/sparse_strips/FlattenTest.cpp",
   "$_tests/graphite/sparse_strips/LUTTest.cpp",
   "$_tests/graphite/sparse_strips/PolylineTest.cpp",
