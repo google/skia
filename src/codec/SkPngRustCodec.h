@@ -148,6 +148,7 @@ private:
     // Determines whether or not we can read from the rust decoder directly into dst.
     bool canReadRow();
     void processUnknownChunks();
+    bool isLastFrame();
 
     // SkPngCodecBase overrides:
     std::unique_ptr<SkCodec> onDecodeGainmap(std::unique_ptr<SkStream> stream,

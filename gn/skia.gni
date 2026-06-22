@@ -86,7 +86,7 @@ declare_args() {
   skia_use_rust_exif = false
   skia_use_rust_icc = false
   skia_use_rust_png_decode = false
-  skia_use_rust_png_decode_unknown_chunks = false
+  skia_use_rust_png_for_android = false
   skia_use_rust_png_encode = false
   skia_use_rust_bmp_decode = false
   skia_use_sfml = false

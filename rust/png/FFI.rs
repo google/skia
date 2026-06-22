@@ -199,6 +199,7 @@ mod ffi {
             bits_per_pixel: u8,
         );
         unsafe fn read_row(self: &mut Reader, output_buffer: &mut [u8]) -> DecodingResult;
+        fn finish_decoding(self: &mut Reader) -> DecodingResult;
 
         fn new_writer(
             output: UniquePtr<WriteTrait>,
@@ -413,10 +414,149 @@ fn compute_transformations(info: &png::Info) -> png::Transformations {
     result
 }
 
+#[cfg(feature = "for_android")]
+mod android_reader {
+    use super::BufReader;
+    use std::cmp;
+    use std::io::{self, BufRead, Read, Seek};
+
+    #[derive(Debug)]
+    pub enum PngState {
+        Signature,
+        ChunkHeader { header_buf: [u8; 8] },
+        ChunkData { is_last_chunk: bool },
+        Eof,
+    }
+
+    // State machine to track PNG chunks and limit reads to chunk boundaries.
+    #[derive(Debug)]
+    pub struct PngStateMachine {
+        state: PngState,
+        // Remaining bytes to be read.
+        // Even though chunk length is restricted to u32, we use u64 to prevent overflow
+        // when adding 4 for the CRC (while this shouldn't be a concern for well-formed
+        // PNGs, it could be an issue on malformed PNGs/garbage data).
+        remaining: u64,
+    }
+
+    impl PngStateMachine {
+        pub fn new() -> Self {
+            Self {
+                state: PngState::Signature,
+                remaining: 8,
+            }
+        }
+
+        pub fn process_bytes(&mut self, bytes: &[u8]) {
+            let mut rest = bytes;
+            while !rest.is_empty() && self.remaining > 0 {
+                let consumed = cmp::min(rest.len() as u64, self.remaining) as usize;
+
+                if let PngState::ChunkHeader { ref mut header_buf } = self.state {
+                    let offset = (8 - self.remaining) as usize;
+                    header_buf[offset..offset + consumed].copy_from_slice(&rest[..consumed]);
+                }
+
+                self.remaining -= consumed as u64;
+                rest = &rest[consumed..];
+
+                if self.remaining == 0 {
+                    match self.state {
+                        PngState::Signature => {
+                            self.state = PngState::ChunkHeader { header_buf: [0; 8] };
+                            self.remaining = 8;
+                        }
+                        PngState::ChunkHeader { header_buf } => {
+                            let length = u32::from_be_bytes([
+                                header_buf[0],
+                                header_buf[1],
+                                header_buf[2],
+                                header_buf[3],
+                            ]);
+                            let is_last_chunk = &header_buf[4..8] == b"IEND";
+                            self.state = PngState::ChunkData { is_last_chunk };
+                            self.remaining = (length as u64) + 4; // For CRC.
+                        }
+                        PngState::ChunkData { is_last_chunk } => {
+                            if is_last_chunk {
+                                self.state = PngState::Eof;
+                            } else {
+                                self.state = PngState::ChunkHeader { header_buf: [0; 8] };
+                                self.remaining = 8;
+                            }
+                        }
+                        PngState::Eof => unreachable!(),
+                    }
+                }
+            }
+        }
+
+        pub fn next_limit(&self) -> u64 {
+            self.remaining
+        }
+    }
+
+    pub struct LimitBufReader<R> {
+        inner: BufReader<io::Take<R>>,
+        state: PngStateMachine,
+    }
+
+    impl<R: Read> LimitBufReader<R> {
+        pub fn with_capacity(capacity: usize, inner: R) -> Self {
+            Self {
+                inner: BufReader::with_capacity(capacity, inner.take(u64::MAX)),
+                state: PngStateMachine::new(),
+            }
+        }
+    }
+
+    impl<R: Read> Read for LimitBufReader<R> {
+        fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+            let nread = {
+                let mut rem = self.fill_buf()?;
+                rem.read(buf)?
+            };
+            self.consume(nread);
+            Ok(nread)
+        }
+    }
+
+    impl<R: Read> BufRead for LimitBufReader<R> {
+        fn fill_buf(&mut self) -> io::Result<&[u8]> {
+            if self.inner.buffer().is_empty() {
+                let limit = self.state.next_limit();
+                self.inner.get_mut().set_limit(limit);
+            }
+            self.inner.fill_buf()
+        }
+
+        fn consume(&mut self, amt: usize) {
+            let amt = cmp::min(amt, self.inner.buffer().len());
+            let consumed_bytes = &self.inner.buffer()[..amt];
+            self.state.process_bytes(consumed_bytes);
+            self.inner.consume(amt);
+        }
+    }
+
+    // TODO(https://crbug.com/378936780): Remove Seek implementation once image-png crate
+    // drops Seek bounds (see https://github.com/image-rs/image-png/pull/687).
+    impl<R: Seek> Seek for LimitBufReader<R> {
+        fn seek(&mut self, _pos: io::SeekFrom) -> io::Result<u64> {
+            Err(io::Error::new(
+                io::ErrorKind::Unsupported,
+                "Seek is not supported. See https://github.com/image-rs/image-png/pull/687",
+            ))
+        }
+    }
+}
+
 /// FFI-friendly wrapper around `png::Reader<R>` (`cxx` can't handle arbitrary
 /// generics, so we manually monomorphize here, but still expose a minimal,
 /// somewhat tweaked API of the original type).
 struct Reader {
+    #[cfg(feature = "for_android")]
+    reader: png::Reader<android_reader::LimitBufReader<cxx::UniquePtr<ffi::SkStreamAdapter>>>,
+    #[cfg(not(feature = "for_android"))]
     reader: png::Reader<BufReader<cxx::UniquePtr<ffi::SkStreamAdapter>>>,
     last_interlace_info: Option<png::InterlaceInfo>,
 }
@@ -431,6 +571,9 @@ impl Reader {
         const BUF_CAPACITY: usize = 32 * 1024;
         // TODO(https://crbug.com/399894620): Consider instead implementing `BufRead` on top of
         // `SkStream` API when/if possible in the future.
+        #[cfg(feature = "for_android")]
+        let input = android_reader::LimitBufReader::with_capacity(BUF_CAPACITY, input);
+        #[cfg(not(feature = "for_android"))]
         let input = BufReader::with_capacity(BUF_CAPACITY, input);
 
         let mut decoder = {
@@ -440,7 +583,7 @@ impl Reader {
                 options.set_ignore_checksums(true);
             }
             options.set_ignore_text_chunk(true);
-            #[cfg(feature = "use_unknown_chunks")]
+            #[cfg(feature = "for_android")]
             options
                 .set_captured_chunks(&[
                     png::chunk::ChunkType(*b"gmAP"),
@@ -717,33 +860,33 @@ impl Reader {
     }
 
     fn get_unknown_chunks_count(&self) -> usize {
-        #[cfg(feature = "use_unknown_chunks")]
+        #[cfg(feature = "for_android")]
         {
             self.reader.info().captured_chunks.len()
         }
-        #[cfg(not(feature = "use_unknown_chunks"))]
+        #[cfg(not(feature = "for_android"))]
         {
             0
         }
     }
 
     fn get_unknown_chunk_name(&self, index: usize) -> &[u8; 4] {
-        #[cfg(feature = "use_unknown_chunks")]
+        #[cfg(feature = "for_android")]
         {
             &self.reader.info().captured_chunks[index].name.0
         }
-        #[cfg(not(feature = "use_unknown_chunks"))]
+        #[cfg(not(feature = "for_android"))]
         {
             &[][index]
         }
     }
 
     fn get_unknown_chunk_data(&self, index: usize) -> &[u8] {
-        #[cfg(feature = "use_unknown_chunks")]
+        #[cfg(feature = "for_android")]
         {
             self.reader.info().captured_chunks[index].data.as_slice()
         }
-        #[cfg(not(feature = "use_unknown_chunks"))]
+        #[cfg(not(feature = "for_android"))]
         {
             [][index]
         }
@@ -798,6 +941,17 @@ impl Reader {
             }
             Ok(None) => ffi::DecodingResult::EndOfFrame,
             Err(e) => ffi::DecodingResult::from(Some(&e)),
+        }
+    }
+
+    fn finish_decoding(&mut self) -> ffi::DecodingResult {
+        #[cfg(feature = "for_android")]
+        {
+            self.reader.finish().as_ref().err().into()
+        }
+        #[cfg(not(feature = "for_android"))]
+        {
+            ffi::DecodingResult::Success
         }
     }
 }

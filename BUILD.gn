@@ -1455,10 +1455,10 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
       rebase_path("//bazel-bin/rust/png/FFI.rs.cc", root_build_dir) +
           "=rust/png/FFI.rs.cc",
     ]
-    if (skia_use_rust_png_decode_unknown_chunks) {
-      bazel_args += [ "--//rust/png:use_unknown_chunks=true" ]
+    if (skia_use_rust_png_for_android) {
+      bazel_args += [ "--//rust/png:for_android=true" ]
     } else {
-      bazel_args += [ "--//rust/png:use_unknown_chunks=false" ]
+      bazel_args += [ "--//rust/png:for_android=false" ]
     }
   }
 
@@ -1686,6 +1686,10 @@ config("rust_common_cxx_bridge_public_config") {
 
 optional("rust_common") {
   enabled = skia_use_rust_png_decode || skia_use_rust_png_encode
+  public_defines = []
+  if (skia_use_rust_png_for_android) {
+    public_defines += [ "SK_CODEC_USES_PNG_WITH_RUST_FOR_ANDROID" ]
+  }
   public = skia_rust_common_ffi_cpp_hdrs
   sources = skia_rust_common_ffi_cpp_srcs
   public_configs = [ ":rust_common_cxx_bridge_public_config" ]
@@ -1739,9 +1743,6 @@ optional("rust_exif") {
 
 optional("png_decode_rust") {
   public_defines = [ "SK_CODEC_DECODES_PNG_WITH_RUST" ]
-  if (skia_use_rust_png_decode_unknown_chunks) {
-    public_defines += [ "SK_CODEC_DECODES_PNG_WITH_RUST_UNKNOWN_CHUNKS" ]
-  }
   enabled = skia_use_rust_png_decode
   public = skia_codec_rust_png_public
   sources = skia_codec_rust_png

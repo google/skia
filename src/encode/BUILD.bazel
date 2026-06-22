@@ -170,7 +170,12 @@ skia_cc_library(
         "//include/encode:encode_hdrs",
         "//include/encode:rust_png_public_hdrs",
     ],
-    defines = ["SK_CODEC_ENCODES_PNG_WITH_RUST"],
+    defines = [
+        "SK_CODEC_ENCODES_PNG_WITH_RUST",
+    ] + select({
+        "//rust/png:for_android_true": ["SK_CODEC_USES_PNG_WITH_RUST_FOR_ANDROID"],
+        "//conditions:default": [],
+    }),
     features = ["layering_check"],
     visibility = ["//:__pkg__"],
     deps = [

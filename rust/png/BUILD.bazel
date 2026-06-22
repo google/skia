@@ -14,7 +14,7 @@ package(
 licenses(["notice"])
 
 bool_flag(
-    name = "use_unknown_chunks",
+    name = "for_android",
     default = True,
 )
 
@@ -57,7 +57,7 @@ rust_static_library(
     name = "ffi_rs",
     srcs = [":rs_srcs"],
     crate_features = select({
-        ":use_unknown_chunks_true": ["use_unknown_chunks"],
+        ":for_android_true": ["for_android"],
         "//conditions:default": [],
     }),
     crate_root = "FFI.rs",

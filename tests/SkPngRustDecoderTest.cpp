@@ -34,6 +34,27 @@
                     "actualResult=\"%s\" != kSuccess",           \
                     SkCodec::ResultToString(actualResult))
 
+namespace {
+// This class wraps another SkStream. It does not own the underlying stream, so
+// that the underlying stream can be reused starting from where the first
+// client left off. This mimics Android's JavaInputStreamAdaptor.
+// Replicated from tests/CodecExactReadTest.cpp.
+class UnowningStream : public SkStream {
+public:
+    explicit UnowningStream(SkStream* stream) : fStream(stream) {}
+
+    size_t read(void* buf, size_t bytes) override { return fStream->read(buf, bytes); }
+
+    bool rewind() override { return fStream->rewind(); }
+
+    bool isAtEnd() const override { return fStream->isAtEnd(); }
+
+private:
+    SkStream* fStream;  // Unowned.
+};
+
+}  // namespace
+
 // Helper wrapping a call to `SkPngRustDecoder::Decode`.
 std::unique_ptr<SkCodec> SkPngRustDecoderDecode(skiatest::Reporter* r, const char* path) {
     sk_sp<SkData> data = GetResourceAsData(path);
@@ -836,7 +857,7 @@ DEF_TEST(RustPngCodec_sbit565_ihdr16bits, r) {
     REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
 }
 
-#ifdef SK_CODEC_DECODES_PNG_WITH_RUST_UNKNOWN_CHUNKS
+#ifdef SK_CODEC_USES_PNG_WITH_RUST_FOR_ANDROID
 class MockChunkReader : public SkPngChunkReader {
 public:
     bool readChunk(const char tag[], const void* data, size_t length) override {
@@ -945,6 +966,53 @@ DEF_TEST(RustPngCodec_ninepatchPngChunkReader, r) {
                     chunkReader.fChunks[2] ==
                             std::make_pair(std::string("npTc"), std::string("ninePatchData", 14)));
 }
+
+DEF_TEST(RustPngCodec_exactRead, r) {
+    // Replicates the Codec_end test from CodecExactReadTest.cpp.
+    // Verifies that with the limit reader enabled, we don't overshoot
+    // and can decode subsequent images from the same stream.
+    for (const char* path : {
+                 "images/plane.png",
+                 "images/yellow_rose.png",
+                 "images/plane_interlaced.png",
+         }) {
+        sk_sp<SkData> data = GetResourceAsData(path);
+        if (!data) {
+            continue;
+        }
+
+        const int kNumImages = 2;
+        const size_t size = data->size();
+        sk_sp<SkData> multiData = SkData::MakeUninitialized(size * kNumImages);
+        void* dst = multiData->writable_data();
+        for (int i = 0; i < kNumImages; i++) {
+            memcpy(SkTAddOffset<void>(dst, size * i), data->data(), size);
+        }
+        data.reset();
+
+        SkMemoryStream stream(std::move(multiData));
+
+        for (int i = 0; i < kNumImages; ++i) {
+            SkCodec::Result result;
+            std::unique_ptr<SkCodec> codec =
+                    SkPngRustDecoder::Decode(std::make_unique<UnowningStream>(&stream), &result);
+            if (!codec) {
+                ERRORF(r, "Failed to create a codec from %s, iteration %i", path, i);
+                continue;
+            }
+
+            auto info = codec->getInfo().makeColorType(kN32_SkColorType);
+            SkBitmap bm;
+            bm.allocPixels(info);
+
+            result = codec->getPixels(bm.info(), bm.getPixels(), bm.rowBytes());
+            if (result != SkCodec::kSuccess) {
+                ERRORF(r, "Failed to getPixels from %s, iteration %i error %i", path, i, result);
+                continue;
+            }
+        }
+    }
+}
 #else
 DEF_TEST(RustPngCodec_gainmapNoOp, r) {
     auto stream = GetResourceAsStream("images/gainmap.png", false);
@@ -965,5 +1033,50 @@ DEF_TEST(RustPngCodec_gainmapNoOp, r) {
     // When the build flag is off, it should return false (no gainmap).
     REPORTER_ASSERT(r, !hasGainmap);
     REPORTER_ASSERT(r, !gainmapCodec);
+}
+
+DEF_TEST(RustPngCodec_exactRead_overshoot, r) {
+    // Replicates the Codec_end test from CodecExactReadTest.cpp.
+    // Verifies that without the limit reader, the decoder overshoots
+    // and fails to decode the second image because the stream is misaligned.
+    const char* path = "images/plane.png";
+    sk_sp<SkData> data = GetResourceAsData(path);
+    if (!data) {
+        return;
+    }
+
+    const int kNumImages = 2;
+    const size_t size = data->size();
+    sk_sp<SkData> multiData = SkData::MakeUninitialized(size * kNumImages);
+    void* dst = multiData->writable_data();
+    for (int i = 0; i < kNumImages; i++) {
+        memcpy(SkTAddOffset<void>(dst, size * i), data->data(), size);
+    }
+    data.reset();
+
+    SkMemoryStream stream(std::move(multiData));
+
+    for (int i = 0; i < kNumImages; ++i) {
+        SkCodec::Result result;
+        std::unique_ptr<SkCodec> codec =
+                SkPngRustDecoder::Decode(std::make_unique<UnowningStream>(&stream), &result);
+        if (i == 0) {
+            if (!codec) {
+                ERRORF(r, "Failed to create a codec from %s, iteration %i", path, i);
+                return;
+            }
+            auto info = codec->getInfo().makeColorType(kN32_SkColorType);
+            SkBitmap bm;
+            bm.allocPixels(info);
+            result = codec->getPixels(bm.info(), bm.getPixels(), bm.rowBytes());
+            if (result != SkCodec::kSuccess) {
+                ERRORF(r, "Failed to getPixels from %s, iteration %i error %i", path, i, result);
+                return;
+            }
+        } else {
+            // We expect failure on the second iteration because the first decode overshot.
+            REPORTER_ASSERT(r, !codec);
+        }
+    }
 }
 #endif

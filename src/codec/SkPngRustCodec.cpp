@@ -757,6 +757,11 @@ void SkPngRustCodec::expandDecodedInterlacedRow(SkSpan<uint8_t> dstFrame,
     }
 }
 
+bool SkPngRustCodec::isLastFrame() {
+    return (this->isAnimated() == IsAnimated::kNo) ||
+           (this->options().fFrameIndex + 1 == this->getRawFrameCount());
+}
+
 // Given the dstInfo and the rust colortype/bits per component, determines if we
 // can use rust_png::Reader::read_row to decode directly into dst.
 bool SkPngRustCodec::canReadRow() {
@@ -852,6 +857,9 @@ SkCodec::Result SkPngRustCodec::incrementalDecodeXForm(DecodingState& decodingSt
 
             // `static_cast` is ok, because `startDecoding` already validated `fFrameIndex`.
             fFrameHolder.markFrameAsFullyReceived(static_cast<size_t>(this->options().fFrameIndex));
+            if (this->isLastFrame()) {
+                return ToSkCodecResult(fReader->finish_decoding());
+            }
             return kSuccess;
         }
 
@@ -955,6 +963,9 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
             }
             // `static_cast` is ok, because `startDecoding` already validated `fFrameIndex`.
             fFrameHolder.markFrameAsFullyReceived(static_cast<size_t>(this->options().fFrameIndex));
+            if (this->isLastFrame()) {
+                return ToSkCodecResult(fReader->finish_decoding());
+            }
             return kSuccess;
         }
 
