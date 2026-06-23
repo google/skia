@@ -19,7 +19,6 @@
                OpMemberDecorate %IndirectDispatchArgs 0 Offset 0
                OpMemberDecorate %IndirectDispatchArgs 1 Offset 4
                OpMemberDecorate %IndirectDispatchArgs 2 Offset 8
-               OpDecorate %_arr_IndirectDispatchArgs_int_3 ArrayStride 16
 
                ; Types, variables and constants
         %int = OpTypeInt 32 1
@@ -32,7 +31,7 @@
          %12 = OpTypeFunction %void
 %IndirectDispatchArgs = OpTypeStruct %int %int %int
       %int_3 = OpConstant %int 3
-%_arr_IndirectDispatchArgs_int_3 = OpTypeArray %IndirectDispatchArgs %int_3     ; ArrayStride 16
+%_arr_IndirectDispatchArgs_int_3 = OpTypeArray %IndirectDispatchArgs %int_3
 %_ptr_Function__arr_IndirectDispatchArgs_int_3 = OpTypePointer Function %_arr_IndirectDispatchArgs_int_3
       %int_0 = OpConstant %int 0
 %_ptr_Function_int = OpTypePointer Function %int

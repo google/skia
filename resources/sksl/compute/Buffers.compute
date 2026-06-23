@@ -1,0 +1,18 @@
+layout(local_size_x = 16) in;
+
+workgroup float[16] scratch;
+
+layout(set=0, binding=0) buffer StorageBuffer {
+    float[16] storage_data;
+};
+
+layout(set=0, binding=1) uniform UniformBuffer {
+    float[16] uniform_data;
+};
+
+void main() {
+    uint id = sk_GlobalInvocationID.x;
+    scratch[id] = uniform_data[id];
+    workgroupBarrier();
+    storage_data[id] = scratch[id];
+}

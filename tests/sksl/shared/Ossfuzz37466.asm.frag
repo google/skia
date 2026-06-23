@@ -9,15 +9,12 @@
                OpName %main "main"                  ; id %7
                OpName %y "y"                        ; id %24
 
-               ; Annotations
-               OpDecorate %_arr_float_int_2 ArrayStride 16
-
                ; Types, variables and constants
         %int = OpTypeInt 32 1
 %_ptr_Input_int = OpTypePointer Input %int
       %float = OpTypeFloat 32
       %int_2 = OpConstant %int 2
-%_arr_float_int_2 = OpTypeArray %float %int_2       ; ArrayStride 16
+%_arr_float_int_2 = OpTypeArray %float %int_2
 %_ptr_Function__arr_float_int_2 = OpTypePointer Function %_arr_float_int_2
          %12 = OpTypeFunction %float %_ptr_Function__arr_float_int_2
       %int_1 = OpConstant %int 1

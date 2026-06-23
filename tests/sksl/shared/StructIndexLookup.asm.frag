@@ -36,10 +36,8 @@
                OpDecorate %11 Binding 0
                OpDecorate %11 DescriptorSet 0
                OpMemberDecorate %InnerLUT 0 Offset 0
-               OpDecorate %_arr_InnerLUT_int_3 ArrayStride 16
                OpMemberDecorate %OuterLUT 0 Offset 0
                OpMemberDecorate %OuterLUT 0 RelaxedPrecision
-               OpDecorate %_arr_OuterLUT_int_3 ArrayStride 48
                OpMemberDecorate %Root 0 Offset 0
                OpMemberDecorate %Root 0 RelaxedPrecision
                OpDecorate %118 RelaxedPrecision
@@ -66,9 +64,9 @@
     %v3float = OpTypeVector %float 3
    %InnerLUT = OpTypeStruct %v3float
       %int_3 = OpConstant %int 3
-%_arr_InnerLUT_int_3 = OpTypeArray %InnerLUT %int_3     ; ArrayStride 16
+%_arr_InnerLUT_int_3 = OpTypeArray %InnerLUT %int_3
    %OuterLUT = OpTypeStruct %_arr_InnerLUT_int_3
-%_arr_OuterLUT_int_3 = OpTypeArray %OuterLUT %int_3     ; ArrayStride 48
+%_arr_OuterLUT_int_3 = OpTypeArray %OuterLUT %int_3
        %Root = OpTypeStruct %_arr_OuterLUT_int_3
 %_ptr_Function_Root = OpTypePointer Function %Root
     %float_1 = OpConstant %float 1

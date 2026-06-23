@@ -39,8 +39,6 @@
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
                OpDecorate %globalVar RelaxedPrecision
-               OpDecorate %_arr_float_int_5 ArrayStride 16
-               OpDecorate %_arr_v4float_int_5 ArrayStride 16
                OpMemberDecorate %S 0 Offset 0
                OpMemberDecorate %S 1 Offset 16
                OpMemberDecorate %S 2 Offset 96
@@ -56,10 +54,6 @@
                OpDecorate %x RelaxedPrecision
                OpDecorate %83 RelaxedPrecision
                OpDecorate %84 RelaxedPrecision
-               OpDecorate %_arr_int_int_1 ArrayStride 16
-               OpDecorate %_arr_v4int_int_1 ArrayStride 16
-               OpDecorate %_arr_mat3v3float_int_1 ArrayStride 48
-               OpDecorate %_arr_v4float_int_1 ArrayStride 16
                OpDecorate %112 RelaxedPrecision
                OpDecorate %113 RelaxedPrecision
                OpDecorate %116 RelaxedPrecision
@@ -86,8 +80,8 @@
 %_ptr_Private_v4float = OpTypePointer Private %v4float
   %globalVar = OpVariable %_ptr_Private_v4float Private     ; RelaxedPrecision
       %int_5 = OpConstant %int 5
-%_arr_float_int_5 = OpTypeArray %float %int_5       ; ArrayStride 16
-%_arr_v4float_int_5 = OpTypeArray %v4float %int_5   ; ArrayStride 16
+%_arr_float_int_5 = OpTypeArray %float %int_5
+%_arr_v4float_int_5 = OpTypeArray %v4float %int_5
           %S = OpTypeStruct %float %_arr_float_int_5 %v4float %_arr_v4float_int_5
 %_ptr_Private_S = OpTypePointer Private %S
 %globalStruct = OpVariable %_ptr_Private_S Private
@@ -131,13 +125,13 @@
          %78 = OpConstantComposite %v3float %float_7 %float_8 %float_9
          %79 = OpConstantComposite %mat3v3float %76 %77 %78
 %_ptr_Function_v4float = OpTypePointer Function %v4float
-%_arr_int_int_1 = OpTypeArray %int %int_1           ; ArrayStride 16
+%_arr_int_int_1 = OpTypeArray %int %int_1
 %_ptr_Function__arr_int_int_1 = OpTypePointer Function %_arr_int_int_1
-%_arr_v4int_int_1 = OpTypeArray %v4int %int_1       ; ArrayStride 16
+%_arr_v4int_int_1 = OpTypeArray %v4int %int_1
 %_ptr_Function__arr_v4int_int_1 = OpTypePointer Function %_arr_v4int_int_1
-%_arr_mat3v3float_int_1 = OpTypeArray %mat3v3float %int_1   ; ArrayStride 48
+%_arr_mat3v3float_int_1 = OpTypeArray %mat3v3float %int_1
 %_ptr_Function__arr_mat3v3float_int_1 = OpTypePointer Function %_arr_mat3v3float_int_1
-%_arr_v4float_int_1 = OpTypeArray %v4float %int_1   ; ArrayStride 16
+%_arr_v4float_int_1 = OpTypeArray %v4float %int_1
 %_ptr_Function__arr_v4float_int_1 = OpTypePointer Function %_arr_v4float_int_1
         %102 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
 %_ptr_Function_S = OpTypePointer Function %S

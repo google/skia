@@ -183,6 +183,7 @@ skia_filegroup(
         "compute/AtomicOperations.compute",
         #"compute/AtomicOperationsOverArrayAndStruct.compute",
         "compute/Barrier.compute",
+        "compute/Buffers.compute",
         "compute/BuiltinStageInputs.compute",
         "compute/Desaturate.compute",
         "compute/DesaturateFunction.compute",
@@ -194,7 +195,7 @@ skia_filegroup(
         "compute/ModuleStructInVariable.compute",
         "compute/Raytrace.compute",
         "compute/Uniforms.compute",
-        #"compute/Workgroup.compute",
+        "compute/Workgroup.compute",
     ],
 )
 

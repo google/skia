@@ -18,7 +18,6 @@
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
-               OpDecorate %_arr_uint_int_1 ArrayStride 16
                OpDecorate %sk_SampleMask BuiltIn SampleMask
                OpDecorate %sk_SampleMaskIn BuiltIn SampleMask
                OpDecorate %27 RelaxedPrecision
@@ -34,7 +33,7 @@
 %sk_FragColor = OpVariable %_ptr_Output_v4float Output  ; RelaxedPrecision, Location 0, Index 0
        %uint = OpTypeInt 32 0
       %int_1 = OpConstant %int 1
-%_arr_uint_int_1 = OpTypeArray %uint %int_1         ; ArrayStride 16
+%_arr_uint_int_1 = OpTypeArray %uint %int_1
 %_ptr_Output__arr_uint_int_1 = OpTypePointer Output %_arr_uint_int_1
 %sk_SampleMask = OpVariable %_ptr_Output__arr_uint_int_1 Output     ; BuiltIn SampleMask
 %_ptr_Input__arr_uint_int_1 = OpTypePointer Input %_arr_uint_int_1

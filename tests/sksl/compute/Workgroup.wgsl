@@ -1,5 +1,6 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
+enable f16;
 struct CSIn {
   @builtin(global_invocation_id) sk_GlobalInvocationID: vec3<u32>,
 };
@@ -33,17 +34,13 @@ fn _skslMain(_stageIn: CSIn) {
     const steps: u32 = 9u;
     {
       var _0_step: u32 = 0u;
-      loop {
+      for (; _0_step < steps; _0_step = _0_step + u32(1)) {
         {
           mask = (1u << _0_step) - 1u;
           rd_id = ((id >> _0_step) << (_0_step + 1u)) + mask;
           wr_id = (rd_id + 1u) + (id & mask);
           store_vIf(wr_id, shared_data[wr_id] + shared_data[rd_id]);
           workgroupBarrier();
-        }
-        continuing {
-          _0_step = _0_step + u32(1);
-          break if _0_step >= steps;
         }
       }
     }

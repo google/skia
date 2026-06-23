@@ -21,8 +21,6 @@
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
                OpMemberDecorate %S 0 Offset 0
-               OpDecorate %_arr_S_int_2 ArrayStride 16
-               OpDecorate %_arr_v2float_int_2 ArrayStride 16
                OpDecorate %99 RelaxedPrecision
 
                ; Types, variables and constants
@@ -40,7 +38,7 @@
 %_ptr_Function_v2float = OpTypePointer Function %v2float
           %S = OpTypeStruct %v2float
       %int_2 = OpConstant %int 2
-%_arr_S_int_2 = OpTypeArray %S %int_2               ; ArrayStride 16
+%_arr_S_int_2 = OpTypeArray %S %int_2
 %_ptr_Function__arr_S_int_2 = OpTypePointer Function %_arr_S_int_2
          %26 = OpTypeFunction %void %_ptr_Function__arr_S_int_2
     %float_1 = OpConstant %float 1
@@ -50,7 +48,7 @@
          %34 = OpConstantComposite %v2float %float_2 %float_1
       %int_1 = OpConstant %int 1
          %37 = OpTypeFunction %v4float %_ptr_Function_v2float
-%_arr_v2float_int_2 = OpTypeArray %v2float %int_2   ; ArrayStride 16
+%_arr_v2float_int_2 = OpTypeArray %v2float %int_2
 %_ptr_Function__arr_v2float_int_2 = OpTypePointer Function %_arr_v2float_int_2
          %44 = OpConstantComposite %v2float %float_1 %float_0
    %float_n1 = OpConstant %float -1

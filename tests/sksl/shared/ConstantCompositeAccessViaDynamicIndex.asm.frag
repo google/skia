@@ -20,7 +20,6 @@
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
                OpDecorate %globalArray RelaxedPrecision
-               OpDecorate %_arr_float_int_2 ArrayStride 16
                OpDecorate %19 RelaxedPrecision
                OpDecorate %globalMatrix RelaxedPrecision
                OpDecorate %localArray RelaxedPrecision
@@ -48,7 +47,7 @@
        %zero = OpVariable %_ptr_Private_int Private
       %int_0 = OpConstant %int 0
       %int_2 = OpConstant %int 2
-%_arr_float_int_2 = OpTypeArray %float %int_2       ; ArrayStride 16
+%_arr_float_int_2 = OpTypeArray %float %int_2
 %_ptr_Private__arr_float_int_2 = OpTypePointer Private %_arr_float_int_2
 %globalArray = OpVariable %_ptr_Private__arr_float_int_2 Private    ; RelaxedPrecision
     %float_1 = OpConstant %float 1

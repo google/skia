@@ -1,0 +1,80 @@
+               OpCapability Shader
+          %5 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main" %sk_GlobalInvocationID
+               OpExecutionMode %main LocalSize 16 1 1
+
+               ; Debug Information
+               OpName %StorageBuffer "StorageBuffer"    ; id %11
+               OpMemberName %StorageBuffer 0 "storage_data"
+               OpName %UniformBuffer "UniformBuffer"    ; id %15
+               OpMemberName %UniformBuffer 0 "uniform_data"
+               OpName %sk_GlobalInvocationID "sk_GlobalInvocationID"    ; id %17
+               OpName %scratch "scratch"                                ; id %21
+               OpName %main "main"                                      ; id %6
+               OpName %id "id"                                          ; id %27
+
+               ; Annotations
+               OpDecorate %_arr_float_int_16 ArrayStride 4
+               OpMemberDecorate %StorageBuffer 0 Offset 0
+               OpDecorate %StorageBuffer BufferBlock
+               OpDecorate %7 Binding 0
+               OpDecorate %7 DescriptorSet 0
+               OpDecorate %_arr_float_int_16_0 ArrayStride 16
+               OpMemberDecorate %UniformBuffer 0 Offset 0
+               OpDecorate %UniformBuffer Block
+               OpDecorate %13 Binding 1
+               OpDecorate %13 DescriptorSet 0
+               OpDecorate %sk_GlobalInvocationID BuiltIn GlobalInvocationId
+
+               ; Types, variables and constants
+        %int = OpTypeInt 32 1
+%_ptr_Input_int = OpTypePointer Input %int
+      %float = OpTypeFloat 32
+     %int_16 = OpConstant %int 16
+%_arr_float_int_16 = OpTypeArray %float %int_16     ; ArrayStride 4
+%StorageBuffer = OpTypeStruct %_arr_float_int_16    ; BufferBlock
+%_ptr_Uniform_StorageBuffer = OpTypePointer Uniform %StorageBuffer
+          %7 = OpVariable %_ptr_Uniform_StorageBuffer Uniform   ; Binding 0, DescriptorSet 0
+%_arr_float_int_16_0 = OpTypeArray %float %int_16               ; ArrayStride 16
+%UniformBuffer = OpTypeStruct %_arr_float_int_16_0              ; Block
+%_ptr_Uniform_UniformBuffer = OpTypePointer Uniform %UniformBuffer
+         %13 = OpVariable %_ptr_Uniform_UniformBuffer Uniform   ; Binding 1, DescriptorSet 0
+       %uint = OpTypeInt 32 0
+     %v3uint = OpTypeVector %uint 3
+%_ptr_Input_v3uint = OpTypePointer Input %v3uint
+%sk_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input    ; BuiltIn GlobalInvocationId
+%_arr_float_int_16_1 = OpTypeArray %float %int_16
+%_ptr_Workgroup__arr_float_int_16_1 = OpTypePointer Workgroup %_arr_float_int_16_1
+    %scratch = OpVariable %_ptr_Workgroup__arr_float_int_16_1 Workgroup
+       %void = OpTypeVoid
+         %25 = OpTypeFunction %void
+%_ptr_Function_uint = OpTypePointer Function %uint
+      %int_0 = OpConstant %int 0
+%_ptr_Uniform_float = OpTypePointer Uniform %float
+%_ptr_Workgroup_float = OpTypePointer Workgroup %float
+     %uint_2 = OpConstant %uint 2
+   %uint_264 = OpConstant %uint 264
+
+
+               ; Function main
+       %main = OpFunction %void None %25
+
+         %26 = OpLabel
+         %id =   OpVariable %_ptr_Function_uint Function
+         %29 =   OpLoad %v3uint %sk_GlobalInvocationID
+         %30 =   OpCompositeExtract %uint %29 0
+                 OpStore %id %30
+         %32 =   OpAccessChain %_ptr_Uniform_float %13 %int_0 %30
+         %34 =   OpLoad %float %32
+         %35 =   OpAccessChain %_ptr_Workgroup_float %scratch %30
+                 OpStore %35 %34
+                 OpControlBarrier %uint_2 %uint_2 %uint_264
+         %39 =   OpLoad %uint %id
+         %40 =   OpAccessChain %_ptr_Workgroup_float %scratch %39
+         %41 =   OpLoad %float %40
+         %42 =   OpLoad %uint %id
+         %43 =   OpAccessChain %_ptr_Uniform_float %7 %int_0 %42
+                 OpStore %43 %41
+                 OpReturn
+               OpFunctionEnd

@@ -23,9 +23,9 @@
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
                OpDecorate %globalArray RelaxedPrecision
-               OpDecorate %_arr_float_int_5 ArrayStride 16
                OpDecorate %16 RelaxedPrecision
                OpDecorate %globalMatrix RelaxedPrecision
+               OpDecorate %_arr_float_int_5 ArrayStride 16
                OpMemberDecorate %_UniformBuffer 0 Offset 0
                OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
                OpMemberDecorate %_UniformBuffer 1 Offset 16

@@ -28,7 +28,6 @@
                OpDecorate %_UniformBuffer Block
                OpDecorate %13 Binding 0
                OpDecorate %13 DescriptorSet 0
-               OpDecorate %_arr_float_int_2 ArrayStride 16
                OpDecorate %75 RelaxedPrecision
                OpDecorate %77 RelaxedPrecision
                OpDecorate %78 RelaxedPrecision
@@ -53,7 +52,7 @@
 %_ptr_Function_float = OpTypePointer Function %float
          %35 = OpTypeFunction %void %_ptr_Function_float
       %int_2 = OpConstant %int 2
-%_arr_float_int_2 = OpTypeArray %float %int_2       ; ArrayStride 16
+%_arr_float_int_2 = OpTypeArray %float %int_2
 %_ptr_Function__arr_float_int_2 = OpTypePointer Function %_arr_float_int_2
       %int_0 = OpConstant %int 0
     %float_2 = OpConstant %float 2

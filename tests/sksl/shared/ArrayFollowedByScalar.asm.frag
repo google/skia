@@ -17,7 +17,6 @@
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
                OpDecorate %rgb RelaxedPrecision
-               OpDecorate %_arr_float_int_3 ArrayStride 16
                OpDecorate %a RelaxedPrecision
                OpDecorate %38 RelaxedPrecision
                OpDecorate %40 RelaxedPrecision
@@ -39,7 +38,7 @@
 %_ptr_Function_v2float = OpTypePointer Function %v2float
          %21 = OpTypeFunction %v4float %_ptr_Function_v2float
       %int_3 = OpConstant %int 3
-%_arr_float_int_3 = OpTypeArray %float %int_3       ; ArrayStride 16
+%_arr_float_int_3 = OpTypeArray %float %int_3
 %_ptr_Function__arr_float_int_3 = OpTypePointer Function %_arr_float_int_3
 %_ptr_Function_float = OpTypePointer Function %float
       %int_0 = OpConstant %int 0

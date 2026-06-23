@@ -272,7 +272,10 @@ private:
 
     SpvId getType(const Type& type);
 
-    SpvId getType(const Type& type, const Layout& typeLayout, const MemoryLayout& memoryLayout);
+    SpvId getType(const Type& type,
+                  const Layout& typeLayout,
+                  const MemoryLayout& memoryLayout,
+                  std::optional<StorageClass> storageClass = std::nullopt);
 
     SpvId getFunctionType(const FunctionDeclaration& function);
 
@@ -293,7 +296,9 @@ private:
 
     void writeFieldLayout(const Layout& layout, SpvId target, int member);
 
-    SpvId writeStruct(const Type& type, const MemoryLayout& memoryLayout);
+    SpvId writeStruct(const Type& type,
+                      const MemoryLayout& memoryLayout,
+                      std::optional<StorageClass> storageClass = std::nullopt);
 
     void writeProgramElement(const ProgramElement& pe, SPIRVBlob& out);
 
@@ -1655,7 +1660,9 @@ SpvId SPIRVCodeGenerator::nextId(Precision precision) {
     return fIdCount++;
 }
 
-SpvId SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memoryLayout) {
+SpvId SPIRVCodeGenerator::writeStruct(const Type& type,
+                                      const MemoryLayout& memoryLayout,
+                                      std::optional<StorageClass> storageClass) {
     // If we've already written out this struct, return its existing SpvId.
     if (SpvId* cachedStructId = fStructMap.find(&type)) {
         return *cachedStructId;
@@ -1666,7 +1673,7 @@ SpvId SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memo
     Words words;
     words.push_back(Word::UniqueResult());
     for (const auto& f : type.fields()) {
-        words.push_back(this->getType(*f.fType, f.fLayout, memoryLayout));
+        words.push_back(this->getType(*f.fType, f.fLayout, memoryLayout, storageClass));
     }
     SpvId resultId = this->writeInstruction(SpvOpTypeStruct, words, fConstantBuffer);
     this->writeInstruction(SpvOpName, resultId, type.name(), fNameBuffer);
@@ -1757,7 +1764,8 @@ static SpvImageFormat layout_flags_to_image_format(LayoutFlags flags) {
 
 SpvId SPIRVCodeGenerator::getType(const Type& rawType,
                                   const Layout& typeLayout,
-                                  const MemoryLayout& memoryLayout) {
+                                  const MemoryLayout& memoryLayout,
+                                  std::optional<StorageClass> storageClass) {
     const Type* type = &rawType;
 
     switch (type->typeKind()) {
@@ -1789,7 +1797,8 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType,
             return NA;
         }
         case Type::TypeKind::kVector: {
-            SpvId scalarTypeId = this->getType(type->componentType(), typeLayout, memoryLayout);
+            SpvId scalarTypeId = this->getType(type->componentType(), typeLayout, memoryLayout,
+                                               storageClass);
             return this->writeInstruction(
                     SpvOpTypeVector,
                     Words{Word::Result(), scalarTypeId, Word::Number(type->columns())},
@@ -1798,7 +1807,8 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType,
         case Type::TypeKind::kMatrix: {
             SpvId vectorTypeId = this->getType(IndexExpression::IndexType(fContext, *type),
                                                typeLayout,
-                                               memoryLayout);
+                                               memoryLayout,
+                                               storageClass);
             return this->writeInstruction(
                     SpvOpTypeMatrix,
                     Words{Word::Result(), vectorTypeId, Word::Number(type->columns())},
@@ -1816,25 +1826,43 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType,
                 return NA;
             }
             size_t stride = arrayMemoryLayout.stride(*type);
-            SpvId typeId = this->getType(type->componentType(), typeLayout, arrayMemoryLayout);
+            SpvId typeId = this->getType(type->componentType(), typeLayout, arrayMemoryLayout,
+                                         storageClass);
             SpvId result = NA;
+            const bool isHostStorageClass = storageClass.has_value() &&
+                                            (*storageClass == StorageClass::kUniform ||
+                                             *storageClass == StorageClass::kStorageBuffer ||
+                                             *storageClass == StorageClass::kPushConstant);
+            // Use a negative stride key for Workgroup memory (which explicitly forbids
+            // ArrayStride decorations) to ensure fOpCache gets unique IDs. All other storage
+            // classes (including Function/Private) can share positive stride keys.
+            const bool isWorkgroup = storageClass.has_value() &&
+                                     *storageClass == StorageClass::kWorkgroup;
+            const int32_t strideKey = isWorkgroup ? -(int32_t)stride : (int32_t)stride;
             if (type->isUnsizedArray()) {
                 result = this->writeInstruction(SpvOpTypeRuntimeArray,
-                                                Words{Word::KeyedResult(stride), typeId},
+                                                Words{Word::KeyedResult(strideKey), typeId},
                                                 fConstantBuffer);
             } else {
                 SpvId countId = this->writeLiteral(type->columns(), *fContext.fTypes.fInt);
                 result = this->writeInstruction(SpvOpTypeArray,
-                                                Words{Word::KeyedResult(stride), typeId, countId},
+                                                Words{Word::KeyedResult(strideKey), typeId, countId},
                                                 fConstantBuffer);
             }
-            this->writeInstruction(SpvOpDecorate,
-                                   {result, SpvDecorationArrayStride, Word::Number(stride)},
-                                   fDecorationBuffer);
+            // Uniforms, StorageBuffers, Physical StorageBuffers, and Push Constants must explicitly
+            // declare their layout, so that there is agreement between the graphics API and the
+            // shader compiler. Workgroup memory is explicitly disallowed from having this
+            // decoration unless SPV_KHR_workgroup_memory_explicit_layout (SPIR-V >= 1.4) is
+            // enabled.
+            if (isHostStorageClass) {
+                this->writeInstruction(SpvOpDecorate,
+                                       {result, SpvDecorationArrayStride, Word::Number(stride)},
+                                       fDecorationBuffer);
+            }
             return result;
         }
         case Type::TypeKind::kStruct: {
-            return this->writeStruct(*type, memoryLayout);
+            return this->writeStruct(*type, memoryLayout, storageClass);
         }
         case Type::TypeKind::kSeparateSampler: {
             return this->writeInstruction(SpvOpTypeSampler, Words{Word::Result()}, fConstantBuffer);
@@ -1843,7 +1871,8 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType,
             if (SpvDimBuffer == type->dimensions()) {
                 fCapabilities |= 1ULL << SpvCapabilitySampledBuffer;
             }
-            SpvId imageTypeId = this->getType(type->textureType(), typeLayout, memoryLayout);
+            SpvId imageTypeId = this->getType(type->textureType(), typeLayout, memoryLayout,
+                                              storageClass);
             return this->writeInstruction(SpvOpTypeSampledImage,
                                           Words{Word::Result(), imageTypeId},
                                           fConstantBuffer);
@@ -1851,7 +1880,8 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType,
         case Type::TypeKind::kTexture: {
             SpvId floatTypeId = this->getType(*fContext.fTypes.fFloat,
                                               kDefaultTypeLayout,
-                                              memoryLayout);
+                                              memoryLayout,
+                                              storageClass);
 
             bool sampled = (type->textureAccess() == Type::TextureAccess::kSample);
             SpvImageFormat format = (!sampled && type->dimensions() != SpvDimSubpassData)
@@ -1974,7 +2004,7 @@ SpvId SPIRVCodeGenerator::getPointerType(const Type& type,
     return this->writeInstruction(SpvOpTypePointer,
                                   Words{Word::Result(),
                                         Word::Number(get_storage_class_spv_id(storageClass)),
-                                        this->getType(type, typeLayout, memoryLayout)},
+                                        this->getType(type, typeLayout, memoryLayout, storageClass)},
                                   fConstantBuffer);
 }
 
@@ -3421,7 +3451,8 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                         *this,
                         memberId,
                         /*isMemoryObjectPointer=*/true,
-                        this->getType(type, kDefaultTypeLayout, this->memoryLayoutForVariable(var)),
+                        this->getType(type, kDefaultTypeLayout, this->memoryLayoutForVariable(var),
+                                      StorageClass::kUniform),
                         precision,
                         StorageClass::kUniform);
             }
@@ -3442,18 +3473,21 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                 SpvId typeId = this->getPointerType(type, storageClass);
                 SpvId indexId = this->writeLiteral(0.0, *fContext.fTypes.fInt);
                 this->writeInstruction(SpvOpAccessChain, typeId, accessId, *entry, indexId, out);
-                return std::make_unique<PointerLValue>(*this,
-                                                       accessId,
-                                                       /*isMemoryObjectPointer=*/true,
-                                                       this->getType(type),
-                                                       precision,
-                                                       storageClass);
+                return std::make_unique<PointerLValue>(
+                        *this,
+                        accessId,
+                        /*isMemoryObjectPointer=*/true,
+                        this->getType(type, kDefaultTypeLayout, fDefaultMemoryLayout, storageClass),
+                        precision,
+                        storageClass);
             }
 
-            SpvId typeId = this->getType(type, var.layout(), this->memoryLayoutForVariable(var));
+            StorageClass storageClass = this->getStorageClass(expr);
+            SpvId typeId = this->getType(type, var.layout(), this->memoryLayoutForVariable(var),
+                                         storageClass);
             return std::make_unique<PointerLValue>(*this, *entry,
                                                    /*isMemoryObjectPointer=*/true,
-                                                   typeId, precision, this->getStorageClass(expr));
+                                                   typeId, precision, storageClass);
         }
         case Expression::Kind::kIndex: // fall through
         case Expression::Kind::kFieldAccess: {
@@ -3472,7 +3506,8 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                     /*isMemoryObjectPointer=*/false,
                     this->getType(type,
                                   kDefaultTypeLayout,
-                                  this->memoryLayoutForStorageClass(storageClass)),
+                                  this->memoryLayoutForStorageClass(storageClass),
+                                  storageClass),
                     precision,
                     storageClass);
         }
@@ -3495,7 +3530,9 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                 this->writeInstruction(SpvOpAccessChain, typeId, member, base, indexId, out);
                 return std::make_unique<PointerLValue>(*this, member,
                                                        /*isMemoryObjectPointer=*/false,
-                                                       this->getType(type),
+                                                       this->getType(type, kDefaultTypeLayout,
+                                                                     this->memoryLayoutForStorageClass(storageClass),
+                                                                     storageClass),
                                                        precision, storageClass);
             } else {
                 return std::make_unique<SwizzleLValue>(*this, base, swizzle.components(),
@@ -4761,7 +4798,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
         fWroteRTFlip = true;
         return result;
     }
-    SpvId typeId = this->getType(type, kDefaultTypeLayout, memoryLayout);
+    SpvId typeId = this->getType(type, kDefaultTypeLayout, memoryLayout, storageClass);
     if (intfVar.layout().fBuiltin == -1) {
         // Note: In SPIR-V 1.3, a storage buffer can be declared with the "StorageBuffer"
         // storage class and the "Block" decoration and the <1.3 approach we use here ("Uniform"

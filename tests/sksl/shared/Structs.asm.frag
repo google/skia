@@ -23,7 +23,6 @@
                OpDecorate %sk_FragColor Index 0
                OpMemberDecorate %A 0 Offset 0
                OpMemberDecorate %A 1 Offset 4
-               OpDecorate %_arr_float_int_2 ArrayStride 16
                OpMemberDecorate %B 0 Offset 0
                OpMemberDecorate %B 1 Offset 16
                OpMemberDecorate %B 2 Offset 48
@@ -42,7 +41,7 @@
 %_ptr_Private_A = OpTypePointer Private %A
          %a1 = OpVariable %_ptr_Private_A Private
       %int_2 = OpConstant %int 2
-%_arr_float_int_2 = OpTypeArray %float %int_2       ; ArrayStride 16
+%_arr_float_int_2 = OpTypeArray %float %int_2
           %B = OpTypeStruct %float %_arr_float_int_2 %A
 %_ptr_Private_B = OpTypePointer Private %B
          %b1 = OpVariable %_ptr_Private_B Private

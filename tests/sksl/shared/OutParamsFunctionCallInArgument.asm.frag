@@ -34,7 +34,6 @@
                OpDecorate %40 RelaxedPrecision
                OpDecorate %41 RelaxedPrecision
                OpDecorate %testArray RelaxedPrecision
-               OpDecorate %_arr_float_int_2 ArrayStride 16
                OpDecorate %51 RelaxedPrecision
                OpDecorate %53 RelaxedPrecision
                OpDecorate %55 RelaxedPrecision
@@ -70,7 +69,7 @@
       %int_1 = OpConstant %int 1
          %43 = OpTypeFunction %v4float %_ptr_Function_v2float
       %int_2 = OpConstant %int 2
-%_arr_float_int_2 = OpTypeArray %float %int_2       ; ArrayStride 16
+%_arr_float_int_2 = OpTypeArray %float %int_2
 %_ptr_Function__arr_float_int_2 = OpTypePointer Function %_arr_float_int_2
        %bool = OpTypeBool
       %false = OpConstantFalse %bool
