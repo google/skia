@@ -4,13 +4,16 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/xml/SkXMLParser.h"
 
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
-#include "src/xml/SkXMLParser.h"
+#include "src/core/SkRandom.h"
+#include "src/core/SkTime.h"
+#include "src/core/SkUtils.h"
 
 #include <expat.h>
 
@@ -59,7 +62,24 @@ void SkXMLParserError::reset() {
 
 namespace {
 
-constexpr const void* kHashSeed = &kHashSeed;
+// Return a random number based on the clock to be consistent
+// across platforms yet hard to guess and not leaking information.
+static uint32_t get_hash_salt() {
+    static const uint32_t s_salt = []() {
+        double nsecs = SkTime::GetNSecs();
+        uint64_t timeVal = sk_bit_cast<uint64_t>(nsecs);
+        uint32_t seed = static_cast<uint32_t>(timeVal ^ timeVal >> 32);
+
+        SkRandom rand(seed);
+        uint32_t salt = rand.nextU();
+        while (salt == 0) [[unlikely]] {
+            // Expat hash seed must be non-zero or the default cPRNG will be used.
+            salt = rand.nextU();
+        }
+        return salt;
+    }();
+    return s_salt;
+}
 
 const XML_Memory_Handling_Suite sk_XML_alloc = {
     sk_malloc_throw,
@@ -149,12 +169,13 @@ bool SkXMLParser::parse(SkStream& docStream)
         return false;
     }
 
-    // Avoid calls to rand_s if this is not set. This seed helps prevent DOS
-    // with a known hash sequence so an address is sufficient. The provided
-    // seed should not be zero as that results in a call to rand_s.
-    unsigned long seed = static_cast<unsigned long>(
-        reinterpret_cast<size_t>(kHashSeed) & 0xFFFFFFFF);
-    XML_SetHashSalt(ctx.fXMLParser, seed ? seed : 1);
+    // Expat calls to rand_s if no salt is set, which is not allowed on Windows.
+    // https://crbug.com/40088338
+    // Setting the salt helps prevent DOS with a known hash sequence. Generating a
+    // random salt once per process oursevles ensures the salt is non-deterministic
+    // and unguessable, while preventing calls to rand_s inside sandboxed processes
+    // on Windows.
+    XML_SetHashSalt(ctx.fXMLParser, get_hash_salt());
 
     XML_SetUserData(ctx.fXMLParser, &ctx);
     XML_SetElementHandler(ctx.fXMLParser, start_element_handler, end_element_handler);
