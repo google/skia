@@ -804,9 +804,24 @@ static void test_subset_decode(skiatest::Reporter* r, const char* resource) {
                 SkCodec::Options options;
                 options.fSubset = &subset;
 
-                REPORTER_ASSERT(r, SkCodec::kSuccess == codec->startIncrementalDecode(
-                    info, tiledBM.getAddr(left, top), tiledBM.rowBytes(), &options));
+                // Decode each subset tile into a tightly allocated temporary bitmap
+                // (sized exactly to the subset). This is a valid use case that
+                // replicates how clients (like Android) perform subset decodes.
+                // Doing so explicitly exercises the tight-allocation path where the
+                // stride is exactly the subset row size (lacking full-image stride
+                // padding), ensuring fDstRowBytes is calculated correctly.
+                SkBitmap subsetBM;
+                subsetBM.allocPixels(info.makeDimensions(subset.size()));
+
+                REPORTER_ASSERT(
+                        r,
+                        SkCodec::kSuccess ==
+                                codec->startIncrementalDecode(
+                                        info, subsetBM.getPixels(), subsetBM.rowBytes(), &options));
                 REPORTER_ASSERT(r, SkCodec::kSuccess == codec->incrementalDecode());
+
+                // Copy the decoded subset into the full tiled bitmap
+                REPORTER_ASSERT(r, tiledBM.writePixels(subsetBM.pixmap(), left, top));
             }
         }
     }
@@ -819,6 +834,7 @@ DEF_TEST(RustPngCodec_subset, r) {
     // those each separately, then comparing to the full image decoded.
     test_subset_decode(r, "images/baby_tux.png");
     test_subset_decode(r, "images/plane_interlaced.png");
+    test_subset_decode(r, "images/basi3p01.png");
 }
 
 DEF_TEST(RustPngCodec_interlaced_animated_blending, r) {
