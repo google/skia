@@ -902,7 +902,7 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 			d["os"] = DEFAULT_OS_WIN_GCE
 			d["gce"] = "1"
 		}
-		if os == "Win11" && b.GPU("IntelUHDGraphics770") {
+		if os == "Win11" && b.GPU("IntelUHDGraphics770", "IntelArc140V") {
 			d["os"] = "Windows-11-26200"
 		}
 		if strings.Contains(os, "iOS") {
@@ -1038,6 +1038,7 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 			if b.MatchOs("Win") {
 				gpu, ok := map[string]string{
 					"GTX1660":             "10de:2184-31.0.15.4601",
+					"IntelArc140V":        "8086:64a0-32.0.101.7029",
 					"IntelHD4400":         "8086:0a16-10.0.26100.1",
 					"IntelIris540":        "8086:1926-31.0.101.2115",
 					"IntelIris655":        "8086:3ea5-26.20.100.7463",
@@ -1052,11 +1053,6 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 				}[b.Parts["cpu_or_gpu_value"]]
 				if !ok {
 					log.Fatalf("Entry %q not found in Win GPU mapping.", b.Parts["cpu_or_gpu_value"])
-				}
-				// TODO(borenet): Remove this block once these machines are all
-				// migrated.
-				if b.Os("Win10") && b.Parts["cpu_or_gpu_value"] == "RTX3060" {
-					gpu = "10de:2489-32.0.15.6094"
 				}
 				d["gpu"] = gpu
 			} else if b.IsLinux() {
