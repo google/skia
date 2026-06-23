@@ -223,17 +223,6 @@
         return img;
       };
 
-      // We try to find the natural media type (for <img> and <video>), display* for
-      // https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame and then fall back to
-      // the height and width (to cover <canvas>, ImageBitmap or ImageData).
-      function getHeight(src) {
-        return src['naturalHeight'] || src['videoHeight'] || src['displayHeight'] || src['height'];
-      }
-
-      function getWidth(src) {
-        return src['naturalWidth'] || src['videoWidth'] || src['displayWidth'] || src['width'];
-      }
-
       function setupTexture(glCtx, newTex, imageInfo, srcIsPremul) {
         glCtx.bindTexture(glCtx.TEXTURE_2D, newTex);
         // See https://github.com/flutter/flutter/issues/106433#issuecomment-1169102945
@@ -256,8 +245,8 @@
         if (!info) {
           // If the user didn't specify the image info, use some sensible defaults.
           info = {
-            'height': getHeight(src),
-            'width': getWidth(src),
+            'height': CanvasKit._getHeight(src),
+            'width': CanvasKit._getWidth(src),
             'colorType': CanvasKit.ColorType.RGBA_8888,
             'alphaType': srcIsPremul ? CanvasKit.AlphaType.Premul: CanvasKit.AlphaType.Unpremul,
           };
@@ -294,7 +283,7 @@
         // Copy the contents of src over the texture associated with this image.
         var tex = setupTexture(glCtx, GL.textures[img._tex], ii, srcIsPremul);
         if (GL.currentContext.version === 2) {
-          glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, getWidth(src), getHeight(src), 0, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
+          glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, CanvasKit._getWidth(src), CanvasKit._getHeight(src), 0, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
         } else {
           glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
         }
@@ -333,8 +322,8 @@
       CanvasKit.MakeLazyImageFromTextureSource = function(src, info, srcIsPremul) {
         if (!info) {
           info = {
-            'height': getHeight(src),
-            'width': getWidth(src),
+            'height': CanvasKit._getHeight(src),
+            'width': CanvasKit._getWidth(src),
             'colorType': CanvasKit.ColorType.RGBA_8888,
             'alphaType': srcIsPremul ? CanvasKit.AlphaType.Premul : CanvasKit.AlphaType.Unpremul,
           };

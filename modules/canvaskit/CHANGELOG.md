@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - `PathBuilder.setFillType` returns a reference to the JavaScript `PathBuilder` and does not make
   a copy of the underlying SkPathBuilder.
+- `MakeImageFromCanvasImageSource` now correctly resolves the dimensions of a Web Codecs `VideoFrame` source.
 
 ### Changed
 - `Canvas.drawImageCubic` and `Canvas.drawImageOptions` use
