@@ -137,15 +137,27 @@ DAWN_GENERATOR_TEMPLATES = glob(
     allow_empty = False,
 )
 
+# TODO(https://crbug.com/dawn/878ee25c690101566294e1ddcfd34a152adc9dc2):
+# Once we no longer need to support Dawn versions older than the commit above,
+# we can make this mandatory and remove the glob/conditional logic.
 DAWN_JSON_GENERATOR_SRCS = DAWN_GENERATOR_TEMPLATES + [
     "src/dawn/dawn.json",
     "src/dawn/dawn_wire.json",
-]
+] + glob(
+    [
+        "src/dawn/dawn_native.json",
+    ],
+    allow_empty = True,
+)
 
 DAWN_JSON_GENERATOR_CMD = (
     "$(location :dawn_json_generator) " +
     "--dawn-json $(location src/dawn/dawn.json) " +
     "--wire-json $(location src/dawn/dawn_wire.json) " +
+    (" --native-json $(location src/dawn/dawn_native.json) " if glob(
+        ["src/dawn/dawn_native.json"],
+        allow_empty = True,
+    ) else "") +
     DAWN_TEMPLATE_DIR_FLAG
 )
 

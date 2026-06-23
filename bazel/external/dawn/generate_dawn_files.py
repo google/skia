@@ -159,8 +159,14 @@ class CMakeParser:
             # Split outputs on any combination of whitespace or semicolons
             outputs = re.split(r'[\s;]+', res.stdout.strip())
             return [os.path.normpath(o) for o in outputs if o]
-        except Exception:
-            return []
+        except subprocess.CalledProcessError as e:
+            msg = (f"Error running generator {script}:\n"
+                   f"Command: {' '.join(cmd)}\n"
+                   f"Stderr: {e.stderr}\n"
+                   f"Stdout: {e.stdout}")
+            raise RuntimeError(msg) from e
+        except Exception as e:
+            raise RuntimeError(f"Unexpected error running generator {script}: {e}") from e
 
     def handle_command(self, name, args):
         """Dispatches CMake commands to their respective specialized handler methods."""
@@ -241,6 +247,12 @@ class CMakeParser:
                 "--dawn-json", "src/dawn/dawn.json",
                 "--wire-json", "src/dawn/dawn_wire.json",
             ])
+            # Once https://crbug.com/dawn/878ee25c690101566294e1ddcfd34a152adc9dc2 lands
+            # we no longer need to support Dawn versions older than the commit above,
+            # we can make this mandatory and remove the os.path.exists check.
+            native_json = "src/dawn/dawn_native.json"
+            if os.path.exists(os.path.join(self.dawn_root, native_json)):
+                extra_params.extend(["--native-json", native_json])
 
         i = 0
         while i < len(args):
