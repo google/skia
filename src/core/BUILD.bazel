@@ -22,6 +22,7 @@ CORE_SKSLC_FILES = [
     "SkData.cpp",
     "SkHalf.cpp",
     "SkHalf.h",
+    "SkLog.cpp",
     "SkMalloc.cpp",
     "SkMathPriv.cpp",
     "SkMathPriv.h",

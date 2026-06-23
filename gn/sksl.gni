@@ -319,6 +319,7 @@ skia_sksl_validate_wgsl_sources = [
 #  //src/gpu/ganesh:core_skslc_srcs
 #  //src/ports:malloc
 #  //src/ports:osfile
+#  //src/ports:skdebug
 #  //src/sksl:sksl_skslc_module_srcs
 #  //src/utils:utils_skslc_hdrs
 #  //src/utils:utils_skslc_srcs
@@ -335,6 +336,7 @@ skslc_deps = [
   "$_src/core/SkData.cpp",
   "$_src/core/SkHalf.cpp",
   "$_src/core/SkHalf.h",
+  "$_src/core/SkLog.cpp",
   "$_src/core/SkMalloc.cpp",
   "$_src/core/SkMathPriv.cpp",
   "$_src/core/SkMathPriv.h",
@@ -354,6 +356,9 @@ skslc_deps = [
   "$_src/core/SkUtils.h",
   "$_src/gpu/ganesh/GrMemoryPool.cpp",
   "$_src/gpu/ganesh/GrMemoryPool.h",
+  "$_src/ports/SkLog_android.cpp",
+  "$_src/ports/SkLog_stdio.cpp",
+  "$_src/ports/SkLog_win.cpp",
   "$_src/ports/SkMemory_malloc.cpp",
   "$_src/ports/SkOSFile_stdio.cpp",
   "$_src/sksl/SkSLModuleDataFile.cpp",

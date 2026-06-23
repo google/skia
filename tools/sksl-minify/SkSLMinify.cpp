@@ -40,13 +40,6 @@ void SkDebugf(const char format[], ...) {
     va_end(args);
 }
 
-void SkLog(SkLogPriority, const char format[], ...) {
-    va_list args;
-    va_start(args, format);
-    vfprintf(stderr, format, args);
-    va_end(args);
-}
-
 namespace SkOpts {
     size_t raster_pipeline_highp_stride = 1;
 }
