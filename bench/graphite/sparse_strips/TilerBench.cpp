@@ -32,15 +32,15 @@ protected:
 
     void onDelayedSetup() override {
         Flatten flattener;
-        std::vector<SkPath> tigerPath = Tiger::GetTigerPaths();
-        for (auto& verb : tigerPath) {
-            flattener.processPaths<FlattenMode::kSimd>(verb, SkMatrix(),
+        std::vector<SkPath> tigerPaths = Tiger::GetTigerPaths();
+        for (auto& subPath : tigerPaths) {
+            flattener.processPaths<FlattenMode::kSimd>(subPath, SkMatrix(),
                                                        Tiger::kTigerWidthF, Tiger::kTigerHeightF,
                                                        &fPolyline);
         }
     }
 
-    void onDraw(int loops, SkCanvas* canvas) override {
+    void onDraw(int loops, SkCanvas* /*canvas*/) override {
         Tiles<kTileWidth, kTileHeight> tiler;
         for (int i = 0; i < loops; ++i) {
             tiler.reset();

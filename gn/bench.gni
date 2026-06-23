@@ -156,6 +156,7 @@ graphite_bench_sources = [
 ]
 
 sparse_strips_bench_sources = [
+  "$_bench/graphite/sparse_strips/CoverageBench.cpp",
   "$_bench/graphite/sparse_strips/FlattenBench.cpp",
   "$_bench/graphite/sparse_strips/TilerBench.cpp",
 ]
