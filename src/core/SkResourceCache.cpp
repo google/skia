@@ -461,16 +461,14 @@ void SkResourceCache::checkMessages() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/** Must hold resource_cache_mutex() when calling. */
 static SkSynchronizedResourceCache* get_cache() {
-    static SkSynchronizedResourceCache* gResourceCache = nullptr;
-    if (nullptr == gResourceCache) {
 #if defined(SK_USE_DISCARDABLE_SCALEDIMAGECACHE)
-        gResourceCache = new SkSynchronizedResourceCache(SkDiscardableMemory::Create);
+    static SkSynchronizedResourceCache* gResourceCache =
+            new SkSynchronizedResourceCache(SkDiscardableMemory::Create);
 #else
-        gResourceCache = new SkSynchronizedResourceCache(SK_DEFAULT_IMAGE_CACHE_LIMIT);
+    static SkSynchronizedResourceCache* gResourceCache =
+            new SkSynchronizedResourceCache(SK_DEFAULT_IMAGE_CACHE_LIMIT);
 #endif
-    }
     return gResourceCache;
 }
 
