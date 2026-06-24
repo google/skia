@@ -205,7 +205,7 @@ public:
 
         @return  true if dimensions do not enclose area
     */
-    bool empty() const { return fPixmap.info().isEmpty(); }
+    bool empty() const { return fPixmap.isEmpty(); }
 
     /** Returns true if SkPixelRef is nullptr.
 
