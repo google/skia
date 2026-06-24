@@ -2,6 +2,7 @@ load("@rules_rust//rust:defs.bzl", "rust_static_library", "rust_test")
 load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
 load(
     "//bazel:skia_rules.bzl",
+    "RUST_COMPATIBILITY",
     "skia_cc_library",
     "skia_filegroup",
 )
@@ -36,6 +37,7 @@ skia_filegroup(
 skia_cc_library(
     name = "ffi_hdrs_lib",
     hdrs = [":ffi_hdrs"],
+    compatible_with = RUST_COMPATIBILITY,
     deps = ["//modules/skcms"],
 )
 
@@ -43,6 +45,7 @@ skia_cc_library(
     name = "ffi_cpp_lib",
     srcs = [":ffi_cpp"],
     hdrs = [":ffi_hdrs"],
+    compatible_with = RUST_COMPATIBILITY,
     features = ["layering_check"],
     visibility = ["//src/codec:__pkg__"],
     deps = [

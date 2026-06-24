@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// avoid issue in G3
+#![allow(unused_attributes)]
+
 //! Common FFI utilities for Rust codec integrations.
 //!
 //! This module provides the SkStreamAdapter type and its Read/Seek trait

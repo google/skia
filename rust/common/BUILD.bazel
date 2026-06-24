@@ -2,6 +2,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
 load(
     "//bazel:skia_rules.bzl",
+    "RUST_COMPATIBILITY",
     "skia_cc_library",
     "skia_filegroup",
 )
@@ -45,6 +46,7 @@ skia_cc_library(
     name = "ffi_utils",
     srcs = [":ffi_cpp"],
     hdrs = [":ffi_hdrs"],
+    compatible_with = RUST_COMPATIBILITY,
     features = ["layering_check"],
     visibility = [
         "//experimental/rust_bmp/decoder/impl:__pkg__",
@@ -75,7 +77,6 @@ rust_cxx_bridge(
 rust_library(
     name = "skia_rust_common",
     srcs = ["io_traits_ffi.rs"],
-    crate_name = "skia_rust_common",
     crate_root = "io_traits_ffi.rs",
     rustc_flags = [
         "-Dwarnings",

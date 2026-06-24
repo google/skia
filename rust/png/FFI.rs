@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// avoid issue in G3
+#![allow(unused_attributes)]
+
 //! This crate provides C++ bindings for the `png` Rust crate.
 //!
 //! The public API of this crate is the C++ API declared by the `#[cxx::bridge]`

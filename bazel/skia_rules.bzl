@@ -444,3 +444,7 @@ def skia_objc_library_with_testutil(
         deps = rewritten_deps,
         visibility = priv_visibility,
     )
+
+# A self-documenting variable that disables the default compatibility of targets.
+# Without this, we run into G3 issues.
+RUST_COMPATIBILITY = []
