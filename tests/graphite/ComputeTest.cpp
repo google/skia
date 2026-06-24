@@ -1534,11 +1534,15 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsTest,
         std::string computeSkSL() const override {
             return R"(
                 workgroup atomicUint localCounter;
+                workgroup atomicUint minCounter;
+                workgroup atomicUint maxCounter;
 
                 void main() {
                     // Initialize the local counter.
                     if (sk_LocalInvocationID.x == 0) {
                         atomicStore(localCounter, 0);
+                        atomicStore(minCounter, 100u);
+                        atomicStore(maxCounter, 100u);
                     }
 
                     // Synchronize the threads in the workgroup so they all see the initial value.
@@ -1546,6 +1550,8 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsTest,
 
                     // All threads increment the counter.
                     atomicAdd(localCounter, 1);
+                    atomicMin(minCounter, 50u);
+                    atomicMax(maxCounter, 50u);
 
                     // Synchronize the threads again to ensure they have all executed the increment
                     // and the following load reads the same value across all threads in the
@@ -1554,7 +1560,9 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsTest,
 
                     // Add the workgroup-only tally to the global counter.
                     if (sk_LocalInvocationID.x == 0) {
-                        atomicAdd(globalCounter, atomicLoad(localCounter));
+                        if (atomicLoad(minCounter) == 50u && atomicLoad(maxCounter) == 100u) {
+                            atomicAdd(globalCounter, atomicLoad(localCounter));
+                        }
                     }
                 }
             )";

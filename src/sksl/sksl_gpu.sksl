@@ -63,6 +63,18 @@ void atomicStore(atomicUint a, uint value);
  */
 uint atomicAdd(atomicUint a, uint value);
 
+/**
+ * Performs an atomic minimum of `value` with the contents of `a` and returns the original contents
+ * of `a` from before the minimum operation occurred.
+ */
+uint atomicMin(atomicUint a, uint value);
+
+/**
+ * Performs an atomic maximum of `value` with the contents of `a` and returns the original contents
+ * of `a` from before the maximum operation occurred.
+ */
+uint atomicMax(atomicUint a, uint value);
+
 // Definitions of functions implementing all of the SkBlendMode blends.
 
 $pure half4 blend_clear(half4 src, half4 dst) { return half4(0); }

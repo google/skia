@@ -246,6 +246,8 @@ private:
         kTextureHeight_SpecialIntrinsic,
         kAtomicAdd_SpecialIntrinsic,
         kAtomicLoad_SpecialIntrinsic,
+        kAtomicMax_SpecialIntrinsic,
+        kAtomicMin_SpecialIntrinsic,
         kAtomicStore_SpecialIntrinsic,
         kStorageBarrier_SpecialIntrinsic,
         kWorkgroupBarrier_SpecialIntrinsic,
@@ -991,6 +993,8 @@ SPIRVCodeGenerator::Intrinsic SPIRVCodeGenerator::getIntrinsic(IntrinsicKind ik)
 
         case k_atomicAdd_IntrinsicKind:   return SPECIAL(AtomicAdd);
         case k_atomicLoad_IntrinsicKind:  return SPECIAL(AtomicLoad);
+        case k_atomicMax_IntrinsicKind:   return SPECIAL(AtomicMax);
+        case k_atomicMin_IntrinsicKind:   return SPECIAL(AtomicMin);
         case k_atomicStore_IntrinsicKind: return SPECIAL(AtomicStore);
 
         case k_storageBarrier_IntrinsicKind:   return SPECIAL(StorageBarrier);
@@ -2540,6 +2544,8 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         }
         case kAtomicAdd_SpecialIntrinsic:
         case kAtomicLoad_SpecialIntrinsic:
+        case kAtomicMax_SpecialIntrinsic:
+        case kAtomicMin_SpecialIntrinsic:
         case kAtomicStore_SpecialIntrinsic:
             result = this->nextId(&callType);
             result = this->writeAtomicIntrinsic(c, kind, result, out);
@@ -2644,6 +2650,28 @@ SpvId SPIRVCodeGenerator::writeAtomicIntrinsic(const FunctionCall& c,
                                    atomicPtrId,
                                    memoryScopeId,
                                    relaxedMemoryOrderId,
+                                   out);
+            break;
+        case kAtomicMax_SpecialIntrinsic:
+            SkASSERT(arguments.size() == 2);
+            this->writeInstruction(SpvOpAtomicUMax,
+                                   this->getType(c.type()),
+                                   resultId,
+                                   atomicPtrId,
+                                   memoryScopeId,
+                                   relaxedMemoryOrderId,
+                                   this->writeExpression(*arguments[1], out),
+                                   out);
+            break;
+        case kAtomicMin_SpecialIntrinsic:
+            SkASSERT(arguments.size() == 2);
+            this->writeInstruction(SpvOpAtomicUMin,
+                                   this->getType(c.type()),
+                                   resultId,
+                                   atomicPtrId,
+                                   memoryScopeId,
+                                   relaxedMemoryOrderId,
+                                   this->writeExpression(*arguments[1], out),
                                    out);
             break;
         case kAtomicStore_SpecialIntrinsic:

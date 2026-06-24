@@ -28,6 +28,8 @@
     SKSL_INTRINSIC(atan)             \
     SKSL_INTRINSIC(atomicAdd)        \
     SKSL_INTRINSIC(atomicLoad)       \
+    SKSL_INTRINSIC(atomicMax)        \
+    SKSL_INTRINSIC(atomicMin)        \
     SKSL_INTRINSIC(atomicStore)      \
     SKSL_INTRINSIC(bitCount)         \
     SKSL_INTRINSIC(ceil)             \

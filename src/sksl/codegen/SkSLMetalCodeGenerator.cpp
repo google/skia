@@ -1396,6 +1396,20 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
             this->writeExpression(*c.arguments()[0], Precedence::kSequence);
             this->write(", memory_order_relaxed)");
             return true;
+        case k_atomicMax_IntrinsicKind:
+            this->write("atomic_fetch_max_explicit(&");
+            this->writeExpression(*c.arguments()[0], Precedence::kSequence);
+            this->write(", ");
+            this->writeExpression(*c.arguments()[1], Precedence::kSequence);
+            this->write(", memory_order_relaxed)");
+            return true;
+        case k_atomicMin_IntrinsicKind:
+            this->write("atomic_fetch_min_explicit(&");
+            this->writeExpression(*c.arguments()[0], Precedence::kSequence);
+            this->write(", ");
+            this->writeExpression(*c.arguments()[1], Precedence::kSequence);
+            this->write(", memory_order_relaxed)");
+            return true;
         case k_atomicStore_IntrinsicKind:
             this->write("atomic_store_explicit(&");
             this->writeExpression(*c.arguments()[0], Precedence::kSequence);

@@ -17,6 +17,8 @@ void main() {
 
     // All threads increment the counter.
     atomicAdd(localCounter, 1);
+    atomicMin(localCounter, 10u);
+    atomicMax(localCounter, 5u);
 
     // Synchronize the threads again to ensure they have all executed the increment
     // and the following load reads the same value across all threads in the

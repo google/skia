@@ -38,6 +38,8 @@
      %uint_2 = OpConstant %uint 2
    %uint_264 = OpConstant %uint 264
      %uint_1 = OpConstant %uint 1
+    %uint_10 = OpConstant %uint 10
+     %uint_5 = OpConstant %uint 5
       %int_0 = OpConstant %int 0
 %_ptr_Uniform_uint = OpTypePointer Uniform %uint
 
@@ -59,19 +61,21 @@
          %25 = OpLabel
                  OpControlBarrier %uint_2 %uint_2 %uint_264
          %29 =   OpAtomicIAdd %uint %localCounter %uint_2 %uint_0 %uint_1
+         %31 =   OpAtomicUMin %uint %localCounter %uint_2 %uint_0 %uint_10
+         %33 =   OpAtomicUMax %uint %localCounter %uint_2 %uint_0 %uint_5
                  OpControlBarrier %uint_2 %uint_2 %uint_264
-         %31 =   OpLoad %v3uint %sk_LocalInvocationID
-         %32 =   OpCompositeExtract %uint %31 0
-         %33 =   OpIEqual %bool %32 %uint_0
-                 OpSelectionMerge %35 None
-                 OpBranchConditional %33 %34 %35
+         %35 =   OpLoad %v3uint %sk_LocalInvocationID
+         %36 =   OpCompositeExtract %uint %35 0
+         %37 =   OpIEqual %bool %36 %uint_0
+                 OpSelectionMerge %39 None
+                 OpBranchConditional %37 %38 %39
 
-         %34 =     OpLabel
-         %38 =       OpAccessChain %_ptr_Uniform_uint %7 %int_0
-         %40 =       OpAtomicLoad %uint %localCounter %uint_2 %uint_0
-         %36 =       OpAtomicIAdd %uint %38 %uint_1 %uint_0 %40
-                     OpBranch %35
+         %38 =     OpLabel
+         %42 =       OpAccessChain %_ptr_Uniform_uint %7 %int_0
+         %44 =       OpAtomicLoad %uint %localCounter %uint_2 %uint_0
+         %40 =       OpAtomicIAdd %uint %42 %uint_1 %uint_0 %44
+                     OpBranch %39
 
-         %35 = OpLabel
+         %39 = OpLabel
                  OpReturn
                OpFunctionEnd

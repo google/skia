@@ -18,6 +18,8 @@ fn _skslMain(_stageIn: CSIn) {
     }
     workgroupBarrier();
     atomicAdd(&localCounter, 1u);
+    atomicMin(&localCounter, 10u);
+    atomicMax(&localCounter, 5u);
     workgroupBarrier();
     if _stageIn.sk_LocalInvocationID.x == 0u {
       {
