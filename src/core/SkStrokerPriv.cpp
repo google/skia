@@ -149,7 +149,7 @@ static void MiterJoiner(SkPathBuilder* outer, SkPathBuilder* inner,
     SkVector    before = beforeUnitNormal;
     SkVector    after = afterUnitNormal;
     SkVector    mid;
-    SkScalar    sinHalfAngle;
+    float       sinHalfAngle;
     bool        ccw;
 
     if (angleType == kNearlyLine_AngleType) {
@@ -187,7 +187,7 @@ static void MiterJoiner(SkPathBuilder* outer, SkPathBuilder* inner,
         My dotProd is opposite sign, since it is built from normals and not tangents
         hence 1 + dot instead of 1 - dot in the formula
     */
-    sinHalfAngle = SkScalarSqrt(SkScalarHalf(SK_Scalar1 + dotProd));
+    sinHalfAngle = std::sqrt((SK_Scalar1 + dotProd) / 2.f);
     if (sinHalfAngle < invMiterLimit) {
         currIsLine = false;
         goto DO_BLUNT;

@@ -219,7 +219,7 @@ static void draw_blob_adorned(SkCanvas* canvas, sk_sp<SkTextBlob> blob) {
 
     AutoTArray<SkScalar> intervals(count);
     blob->getIntercepts(yminmax, intervals.get());
-    count = trim_with_halo(intervals.get(), count, SkScalarHalf(yminmax[1] - yminmax[0]) * 1.5f);
+    count = trim_with_halo(intervals.get(), count, ((yminmax[1] - yminmax[0]) / 2.f) * 1.5f);
     SkASSERT(count >= 2);
 
     const SkScalar y = sk_float_midpoint(yminmax[0], yminmax[1]);

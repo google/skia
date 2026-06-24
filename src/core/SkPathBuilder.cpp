@@ -408,7 +408,7 @@ static int build_arc_conics(const SkRect& oval, const SkVector& start, const SkV
                             SkPoint* singlePt) {
     SkMatrix    matrix;
 
-    matrix.setScale(SkScalarHalf(oval.width()), SkScalarHalf(oval.height()));
+    matrix.setScale(oval.width() / 2.f, oval.height() / 2.f);
     matrix.postTranslate(oval.centerX(), oval.centerY());
 
     int count = SkConic::BuildUnitArc(start, stop, dir, &matrix, conics);

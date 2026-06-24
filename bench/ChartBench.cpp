@@ -23,8 +23,8 @@ static void gen_data(SkScalar yAvg, SkScalar ySpread, int count,
                      SkRandom* random, SkTDArray<SkScalar>* dataPts) {
     dataPts->resize(count);
     for (int i = 0; i < count; ++i) {
-        (*dataPts)[i] = random->nextRangeScalar(yAvg - SkScalarHalf(ySpread),
-                                                yAvg + SkScalarHalf(ySpread));
+        (*dataPts)[i] = random->nextRangeScalar(yAvg - (ySpread / 2.f),
+                                                yAvg + (ySpread / 2.f));
     }
 }
 

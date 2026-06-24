@@ -38,20 +38,20 @@ protected:
     SkISize getISize() override { return SkISize::Make(kWidth, kHeight); }
 
     void onDraw(SkCanvas* canvas) override {
-        SkScalar angle = kAngle*SK_ScalarPI + SkScalarHalf(SK_ScalarPI);
+        SkScalar angle = kAngle*SK_ScalarPI + (SK_ScalarPI / 2.f);
         SkScalar size = SkIntToScalar(std::min(kWidth, kHeight));
-        SkPoint center = SkPoint::Make(SkScalarHalf(kWidth), SkScalarHalf(kHeight));
+        SkPoint center = SkPoint::Make(kWidth / 2.f, kHeight / 2.f);
         SkScalar length = 5;
         SkScalar step = angle;
 
         SkPathBuilder builder;
         builder.moveTo(center);
 
-        for (int i = 0; i < fNumSteps && length < (SkScalarHalf(size) - 10.f); ++i) {
+        for (int i = 0; i < fNumSteps && length < ((size / 2.f) - 10.f); ++i) {
             SkPoint rp = SkPoint::Make(length*SkScalarCos(step) + center.fX,
                                        length*SkScalarSin(step) + center.fY);
             builder.lineTo(rp);
-            length += angle / SkScalarHalf(SK_ScalarPI);
+            length += angle / (SK_ScalarPI / 2.f);
             step += angle;
         }
 

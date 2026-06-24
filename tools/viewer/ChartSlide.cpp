@@ -17,8 +17,8 @@ static void gen_data(SkScalar yAvg, SkScalar ySpread, int count, SkTDArray<SkSca
     dataPts->resize(count);
     static SkRandom gRandom;
     for (int i = 0; i < count; ++i) {
-        (*dataPts)[i] = gRandom.nextRangeScalar(yAvg - SkScalarHalf(ySpread),
-                                                yAvg + SkScalarHalf(ySpread));
+        (*dataPts)[i] = gRandom.nextRangeScalar(yAvg - (ySpread / 2.f),
+                                                yAvg + (ySpread / 2.f));
     }
 }
 

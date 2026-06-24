@@ -285,11 +285,11 @@ using float2 = skvx::float2;
 static uint32_t compute_int_quad_dist(const SkPoint pts[3]) {
     // compute the vector between the control point ([1]) and the middle of the
     // line connecting the start and end ([0] and [2])
-    SkScalar dx = SkScalarHalf(pts[0].fX + pts[2].fX) - pts[1].fX;
-    SkScalar dy = SkScalarHalf(pts[0].fY + pts[2].fY) - pts[1].fY;
+    float dx = ((pts[0].fX + pts[2].fX) / 2.f) - pts[1].fX;
+    float dy = ((pts[0].fY + pts[2].fY) / 2.f) - pts[1].fY;
     // we want everyone to be positive
-    dx = SkScalarAbs(dx);
-    dy = SkScalarAbs(dy);
+    dx = std::abs(dx);
+    dy = std::abs(dy);
     // convert to whole pixel values (use ceiling to be conservative).
     // assign to unsigned so we can safely add 1/2 of the smaller and still fit in
     // uint32_t, since SkScalarCeilToInt() returns 31 bits at most.
@@ -793,10 +793,10 @@ void SkScan::FrameRect(const SkRect& r, const SkPoint& strokeSize,
         return;
     }
 
-    const SkScalar dx = strokeSize.fX;
-    const SkScalar dy = strokeSize.fY;
-    SkScalar rx = SkScalarHalf(dx);
-    SkScalar ry = SkScalarHalf(dy);
+    const float dx = strokeSize.fX;
+    const float dy = strokeSize.fY;
+    float rx = dx / 2.f;
+    float ry = dy / 2.f;
     SkRect   outer, tmp;
 
     outer.setLTRB(r.fLeft - rx, r.fTop - ry, r.fRight + rx, r.fBottom + ry);

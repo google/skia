@@ -152,7 +152,7 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
 
     for (size_t i = 0; i < count; ++i) {
         // we want to position each character on the center of its advance
-        const SkScalar offset = SkScalarHalf(widths[i]);
+        const SkScalar offset = widths[i] / 2.f;
         SkPoint pos;
         SkVector tan;
         if (!meas.getPosTan(xy[i].x() + offset, &pos, &tan)) {

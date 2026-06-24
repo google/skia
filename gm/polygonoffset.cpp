@@ -527,7 +527,7 @@ protected:
                 position->fX = 0;
                 position->fY += kMaxPathHeight;
             }
-            center = { position->fX + SkScalarHalf(bounds.width()), position->fY };
+            center = { position->fX + (bounds.width() / 2.f), position->fY };
             position->fX += bounds.width();
         }
 
@@ -587,7 +587,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         // the right edge of the last drawn path
-        SkPoint offset = { 0, SkScalarHalf(kMaxPathHeight) };
+        SkPoint offset = { 0, kMaxPathHeight / 2.f };
         if (!fConvexOnly) {
             offset.fY += kMaxOutset;
         }

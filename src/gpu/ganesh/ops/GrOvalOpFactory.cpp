@@ -1098,14 +1098,14 @@ public:
                 SkStrokeRec::kStroke_Style == recStyle || SkStrokeRec::kHairline_Style == recStyle;
         bool hasStroke = isStrokeOnly || SkStrokeRec::kStrokeAndFill_Style == recStyle;
 
-        SkScalar innerRadius = -SK_ScalarHalf;
-        SkScalar outerRadius = radius;
-        SkScalar halfWidth = 0;
+        float innerRadius = -SK_ScalarHalf;
+        float outerRadius = radius;
+        float halfWidth = 0;
         if (hasStroke) {
             if (SkScalarNearlyZero(strokeWidth)) {
                 halfWidth = SK_ScalarHalf;
             } else {
-                halfWidth = SkScalarHalf(strokeWidth);
+                halfWidth = strokeWidth / 2.f;
             }
 
             outerRadius += halfWidth;
@@ -1593,15 +1593,15 @@ public:
         auto totalAngle = onAngle + offAngle;
         phaseAngle = SkScalarMod(phaseAngle + totalAngle / 2, totalAngle) - totalAngle / 2;
 
-        SkScalar halfWidth = 0;
+        float halfWidth = 0;
         if (SkScalarNearlyZero(strokeWidth)) {
             halfWidth = SK_ScalarHalf;
         } else {
-            halfWidth = SkScalarHalf(strokeWidth);
+            halfWidth = strokeWidth / 2.f;
         }
 
-        SkScalar outerRadius = radius + halfWidth;
-        SkScalar innerRadius = radius - halfWidth;
+        float outerRadius = radius + halfWidth;
+        float innerRadius = radius - halfWidth;
 
         // The radii are outset for two reasons. First, it allows the shader to simply perform
         // simpler computation because the computed alpha is zero, rather than 50%, at the radius.
@@ -1884,8 +1884,8 @@ public:
         DeviceSpaceParams params;
         // do any matrix crunching before we reset the draw state for device coords
         params.fCenter = viewMatrix.mapPoint(ellipse.center());
-        SkScalar ellipseXRadius = SkScalarHalf(ellipse.width());
-        SkScalar ellipseYRadius = SkScalarHalf(ellipse.height());
+        float ellipseXRadius = ellipse.width() / 2.f;
+        float ellipseYRadius = ellipse.height() / 2.f;
         params.fXRadius = SkScalarAbs(viewMatrix[SkMatrix::kMScaleX] * ellipseXRadius +
                                       viewMatrix[SkMatrix::kMSkewX] * ellipseYRadius);
         params.fYRadius = SkScalarAbs(viewMatrix[SkMatrix::kMSkewY] * ellipseXRadius +
@@ -2175,8 +2175,8 @@ public:
                             const SkStrokeRec& stroke) {
         DeviceSpaceParams params;
         params.fCenter = SkPoint::Make(ellipse.centerX(), ellipse.centerY());
-        params.fXRadius = SkScalarHalf(ellipse.width());
-        params.fYRadius = SkScalarHalf(ellipse.height());
+        params.fXRadius = ellipse.width() / 2.f;
+        params.fYRadius = ellipse.height() / 2.f;
 
         SkStrokeRec::Style style = stroke.getStyle();
         params.fStyle = (SkStrokeRec::kStroke_Style == style)
@@ -2579,15 +2579,15 @@ public:
             , fHelper(processorSet, GrAAType::kCoverage) {
         SkRect bounds = devRect;
         SkASSERT(!(devStrokeWidth <= 0 && strokeOnly));
-        SkScalar innerRadius = 0.0f;
-        SkScalar outerRadius = devRadius;
-        SkScalar halfWidth = 0;
+        float innerRadius = 0.0f;
+        float outerRadius = devRadius;
+        float halfWidth = 0;
         RRectType type = kFill_RRectType;
         if (devStrokeWidth > 0) {
             if (SkScalarNearlyZero(devStrokeWidth)) {
                 halfWidth = SK_ScalarHalf;
             } else {
-                halfWidth = SkScalarHalf(devStrokeWidth);
+                halfWidth = devStrokeWidth / 2.f;
             }
 
             if (strokeOnly) {

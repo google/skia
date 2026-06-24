@@ -216,7 +216,7 @@ static void test_round_rect_basic(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, rr1_3 == rr1 && rr1_3.getType() == rr1.getType());
 
     //----
-    SkPoint halfPoint = { SkScalarHalf(kWidth), SkScalarHalf(kHeight) };
+    SkPoint halfPoint = { kWidth / 2.f, kHeight / 2.f };
     SkRRect rr2;
     rr2.setOval(rect);
 
@@ -333,7 +333,7 @@ static void test_round_rect_ovals(skiatest::Reporter* reporter) {
     SkRect oval;
     SkRect rect = SkRect::MakeLTRB(0, 0, kWidth, kHeight);
     SkRRect rr1;
-    rr1.setRectXY(rect, SkScalarHalf(kWidth), SkScalarHalf(kHeight));
+    rr1.setRectXY(rect, kWidth / 2.f, kHeight / 2.f);
 
     REPORTER_ASSERT(reporter, SkRRect::kOval_Type == rr1.type());
     oval = rr1.rect();
@@ -1188,8 +1188,8 @@ static void test_issue_2696(skiatest::Reporter* reporter) {
     auto dst = rrect.transform(xform);
     REPORTER_ASSERT(reporter, dst.has_value());
 
-    SkScalar halfWidth = SkScalarHalf(dst->width());
-    SkScalar halfHeight = SkScalarHalf(dst->height());
+    SkScalar halfWidth = dst->width() / 2.f;
+    SkScalar halfHeight = dst->height() / 2.f;
 
     for (int i = 0; i < 4; ++i) {
         REPORTER_ASSERT(reporter,

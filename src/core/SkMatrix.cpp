@@ -561,8 +561,8 @@ std::optional<SkMatrix> SkMatrix::Rect2Rect(const SkRect& src, const SkRect& dst
         return {};
     }
 
-    SkScalar tx, sx = sk_ieee_float_divide(dst.width(), src.width());
-    SkScalar ty, sy = sk_ieee_float_divide(dst.height(), src.height());
+    float tx, sx = sk_ieee_float_divide(dst.width(), src.width());
+    float ty, sy = sk_ieee_float_divide(dst.height(), src.height());
     bool     xLarger = false;
 
     if (stf != kFill_ScaleToFit) {
@@ -577,7 +577,7 @@ std::optional<SkMatrix> SkMatrix::Rect2Rect(const SkRect& src, const SkRect& dst
     tx = dst.fLeft - src.fLeft * sx;
     ty = dst.fTop - src.fTop * sy;
     if (stf == kCenter_ScaleToFit || stf == kEnd_ScaleToFit) {
-        SkScalar diff;
+        float diff;
 
         if (xLarger) {
             diff = dst.width() - src.width() * sy;
@@ -586,7 +586,7 @@ std::optional<SkMatrix> SkMatrix::Rect2Rect(const SkRect& src, const SkRect& dst
         }
 
         if (stf == kCenter_ScaleToFit) {
-            diff = SkScalarHalf(diff);
+            diff = diff / 2.f;
         }
 
         if (xLarger) {
@@ -1378,18 +1378,18 @@ template <MinMaxOrBoth MIN_MAX_OR_BOTH> bool get_scale_factor(SkMatrix::TypeMask
     // ignore the translation part of the matrix, just look at 2x2 portion.
     // compute singular values, take largest or smallest abs value.
     // [a b; b c] = A^T*A
-    SkScalar a = sdot(m[SkMatrix::kMScaleX], m[SkMatrix::kMScaleX],
-                      m[SkMatrix::kMSkewY],  m[SkMatrix::kMSkewY]);
-    SkScalar b = sdot(m[SkMatrix::kMScaleX], m[SkMatrix::kMSkewX],
-                      m[SkMatrix::kMScaleY], m[SkMatrix::kMSkewY]);
-    SkScalar c = sdot(m[SkMatrix::kMSkewX],  m[SkMatrix::kMSkewX],
-                      m[SkMatrix::kMScaleY], m[SkMatrix::kMScaleY]);
+    float a = sdot(m[SkMatrix::kMScaleX], m[SkMatrix::kMScaleX],
+                   m[SkMatrix::kMSkewY],  m[SkMatrix::kMSkewY]);
+    float b = sdot(m[SkMatrix::kMScaleX], m[SkMatrix::kMSkewX],
+                   m[SkMatrix::kMScaleY], m[SkMatrix::kMSkewY]);
+    float c = sdot(m[SkMatrix::kMSkewX],  m[SkMatrix::kMSkewX],
+                   m[SkMatrix::kMScaleY], m[SkMatrix::kMScaleY]);
     // eigenvalues of A^T*A are the squared singular values of A.
     // characteristic equation is det((A^T*A) - l*I) = 0
     // l^2 - (a + c)l + (ac-b^2)
     // solve using quadratic equation (divisor is non-zero since l^2 has 1 coeff
     // and roots are guaranteed to be pos and real).
-    SkScalar bSqd = b * b;
+    float bSqd = b * b;
     // if upper left 2x2 is orthogonal save some math
     if (bSqd <= SK_ScalarNearlyZero*SK_ScalarNearlyZero) {
         if (kMin_MinMaxOrBoth == MIN_MAX_OR_BOTH) {
@@ -1405,9 +1405,9 @@ template <MinMaxOrBoth MIN_MAX_OR_BOTH> bool get_scale_factor(SkMatrix::TypeMask
             }
         }
     } else {
-        SkScalar aminusc = a - c;
-        SkScalar apluscdiv2 = SkScalarHalf(a + c);
-        SkScalar x = SkScalarHalf(SkScalarSqrt(aminusc * aminusc + 4 * bSqd));
+        float aminusc = a - c;
+        float apluscdiv2 = (a + c) / 2.f;
+        float x = std::sqrt(aminusc * aminusc + 4 * bSqd) / 2.f;
         if (kMin_MinMaxOrBoth == MIN_MAX_OR_BOTH) {
             results[0] = apluscdiv2 - x;
         } else if (kMax_MinMaxOrBoth == MIN_MAX_OR_BOTH) {

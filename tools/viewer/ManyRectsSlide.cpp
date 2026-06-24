@@ -38,8 +38,8 @@ public:
             if ((false)) {
                 SkMatrix rotate;
                 rotate.setRotate(fRandom.nextUScalar1() * 360,
-                                 SkIntToScalar(x) + SkScalarHalf(rect.fRight),
-                                 SkIntToScalar(y) + SkScalarHalf(rect.fBottom));
+                                 SkIntToScalar(x) + (rect.fRight / 2.f),
+                                 SkIntToScalar(y) + (rect.fBottom / 2.f));
                 canvas->concat(rotate);
             }
             SkRect clipRect = rect;

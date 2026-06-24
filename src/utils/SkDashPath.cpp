@@ -90,7 +90,7 @@ void SkDashPath::CalcDashParameters(SkScalar phase, SkSpan<const SkScalar> inter
 }
 
 static void outset_for_stroke(SkRect* rect, const SkStrokeRec& rec) {
-    SkScalar radius = SkScalarHalf(rec.getWidth());
+    float radius = rec.getWidth() / 2.f;
     if (0 == radius) {
         radius = SK_Scalar1;    // hairlines
     }
@@ -258,7 +258,7 @@ public:
             return false;
         }
         SkPointPriv::RotateCCW(fTangent, &fNormal);
-        fNormal.scale(SkScalarHalf(rec->getWidth()));
+        fNormal.scale(rec->getWidth() / 2.f);
 
         // now estimate how many quads will be added to the path
         //     resulting segments = pathLen * intervalCount / intervalLen

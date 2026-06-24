@@ -56,8 +56,8 @@ class FilterIndiaBoxGM : public skiagm::GM {
         }
         fBM.setImmutable();
 
-        SkScalar cx = SkScalarHalf(fBM.width());
-        SkScalar cy = SkScalarHalf(fBM.height());
+        SkScalar cx = fBM.width() / 2.f;
+        SkScalar cy = fBM.height() / 2.f;
 
         float vertScale = 30.0f/55.0f;
         float horizScale = 150.0f/200.0f;

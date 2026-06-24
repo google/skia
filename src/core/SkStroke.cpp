@@ -1430,7 +1430,7 @@ void SkStroke::setJoin(SkPaint::Join join) {
 void SkStroke::strokePath(const SkPath& src, SkPathBuilder* dst) const {
     SkASSERT(dst);
 
-    SkScalar radius = SkScalarHalf(fWidth);
+    float radius = fWidth / 2.f;
 
     if (radius <= 0) {
         return;
@@ -1585,7 +1585,7 @@ void SkStroke::strokeRect(const SkRect& origRect, SkPathBuilder* dst,
     SkASSERT(dst != nullptr);
     dst->reset();
 
-    SkScalar radius = SkScalarHalf(fWidth);
+    float radius = fWidth / 2.f;
     if (radius <= 0) {
         return;
     }

@@ -80,8 +80,8 @@ static void test_intersectline(skiatest::Reporter* reporter) {
     static const SkScalar T = 0;
     static const SkScalar R = SkIntToScalar(100);
     static const SkScalar B = SkIntToScalar(100);
-    static const SkScalar CX = SkScalarHalf(L + R);
-    static const SkScalar CY = SkScalarHalf(T + B);
+    static const SkScalar CX = (L + R) / 2.f;
+    static const SkScalar CY = (T + B) / 2.f;
     static const SkRect gR = { L, T, R, B };
 
     size_t i;

@@ -131,7 +131,7 @@ class DrawAtlasDrawable : public SkDrawable {
 
         SkRSXform asRSXform() const {
             return SkRSXform::MakeFromRadians(fScale, fRadian, fCenter.x(), fCenter.y(),
-                                              SkScalarHalf(kCellSize), SkScalarHalf(kCellSize));
+                                              kCellSize / 2.f, kCellSize / 2.f);
         }
     };
 

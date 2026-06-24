@@ -520,7 +520,7 @@ void SkPDFDevice::drawPoints(SkCanvas::PointMode mode,
             // orientation is ambiguous.  Draw a rectangle instead.
             set_style(&paint, SkPaint::kFill_Style);
             SkScalar strokeWidth = paint->getStrokeWidth();
-            SkScalar halfStroke = SkScalarHalf(strokeWidth);
+            float halfStroke = strokeWidth / 2.f;
             for (auto&& pt : points) {
                 SkRect r = SkRect::MakeXYWH(pt.fX, pt.fY, 0, 0);
                 r.inset(-halfStroke, -halfStroke);

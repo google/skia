@@ -927,8 +927,8 @@ void SkScan::AntiFrameRect(const SkRect& r, const SkPoint& strokeSize,
                            const SkRegion* clip, SkBlitter* blitter) {
     SkASSERT(strokeSize.fX >= 0 && strokeSize.fY >= 0);
 
-    SkScalar rx = SkScalarHalf(strokeSize.fX);
-    SkScalar ry = SkScalarHalf(strokeSize.fY);
+    float rx = strokeSize.fX / 2.f;
+    float ry = strokeSize.fY / 2.f;
 
     // If we're empty on either axis, we remove the outset amount, to be sure
     // we stroke the same way a polygon would (i.e. it would just see a "line"

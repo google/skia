@@ -282,7 +282,7 @@ protected:
                     offset->fY += kStrokeWidth / 2.0f;
                 }
             }
-            center = { offset->fX + SkScalarHalf(path.getBounds().width()), offset->fY};
+            center = { offset->fX + (path.getBounds().width() / 2.f), offset->fY};
             offset->fX += path.getBounds().width();
             if (fDoStrokeAndFill) {
                 offset->fX += kStrokeWidth;
@@ -318,7 +318,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         // the right edge of the last drawn path
-        SkPoint offset = { 0, SkScalarHalf(kMaxPathHeight) };
+        SkPoint offset = { 0, kMaxPathHeight / 2.f };
         if (fDoStrokeAndFill) {
             offset.fX += kStrokeWidth / 2.0f;
             offset.fY += kStrokeWidth / 2.0f;

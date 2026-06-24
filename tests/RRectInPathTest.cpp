@@ -206,7 +206,7 @@ static void test_round_rect_basic(skiatest::Reporter* reporter) {
             path_contains_rrect_check(reporter, rr1_2, dir, start);
 
             //----
-            SkPoint halfPoint = { SkScalarHalf(kWidth), SkScalarHalf(kHeight) };
+            SkPoint halfPoint = { kWidth / 2.f, kHeight / 2.f };
             SkRRect rr2;
             rr2.setOval(rect);
             path_contains_rrect_check(reporter, rr2, dir, start);
@@ -296,7 +296,7 @@ static void test_round_rect_ovals(skiatest::Reporter* reporter) {
             //----
             SkRect rect = SkRect::MakeLTRB(0, 0, kWidth, kHeight);
             SkRRect rr1;
-            rr1.setRectXY(rect, SkScalarHalf(kWidth), SkScalarHalf(kHeight));
+            rr1.setRectXY(rect, kWidth / 2.f, kHeight / 2.f);
 
             path_contains_rrect_check(reporter, rr1, dir, start);
         }

@@ -116,7 +116,7 @@ protected:
             // Arc example to test imperfect truncation bug (crbug.com/295626)
             constexpr SkScalar kRad = SkIntToScalar(2000);
             constexpr SkScalar kStartAngle = 262.59717f;
-            constexpr SkScalar kSweepAngle = SkScalarHalf(17.188717f);
+            constexpr SkScalar kSweepAngle = 17.188717f / 2.f;
 
             SkPathBuilder bug;
 

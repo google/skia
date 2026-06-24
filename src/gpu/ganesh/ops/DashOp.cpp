@@ -184,8 +184,8 @@ void setup_dashed_rect(const SkRect& rect,
                         offset + len + bloatX,  halfDevRectHeight };
 
     if (kRound_DashCap == cap) {
-        SkScalar radius = SkScalarHalf(strokeWidth) - 0.5f;
-        SkScalar centerX = SkScalarHalf(endInterval);
+        float radius = (strokeWidth / 2.f) - 0.5f;
+        float centerX = endInterval / 2.f;
 
         vertices.writeQuad(GrQuad::MakeFromRect(rect, matrix),
                            VertexWriter::TriStripFromRect(dashRect),
@@ -194,8 +194,8 @@ void setup_dashed_rect(const SkRect& rect,
                            centerX);
     } else {
         SkASSERT(kNonRound_DashCap == cap);
-        SkScalar halfOffLen = SkScalarHalf(endInterval);
-        SkScalar halfStroke = SkScalarHalf(strokeWidth);
+        float halfOffLen = endInterval / 2.f;
+        float halfStroke = strokeWidth / 2.f;
         SkRect rectParam;
         rectParam.setLTRB(halfOffLen                 + 0.5f, -halfStroke + 0.5f,
                           halfOffLen + startInterval - 0.5f,  halfStroke - 0.5f);

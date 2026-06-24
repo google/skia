@@ -57,7 +57,7 @@ bool SkDashImpl::onFilterPath(SkPathBuilder* builder, const SkPath& src, SkStrok
 }
 
 static void outset_for_stroke(SkRect* rect, const SkStrokeRec& rec) {
-    SkScalar radius = SkScalarHalf(rec.getWidth());
+    float radius = rec.getWidth() / 2.f;
     if (0 == radius) {
         radius = SK_Scalar1;    // hairlines
     }
@@ -227,10 +227,10 @@ bool SkDashImpl::onAsPoints(PointData* results, const SkPath& src, const SkStrok
     bool isXAxis = true;
     if (SkScalarNearlyEqual(SK_Scalar1, tangent.fX) ||
         SkScalarNearlyEqual(-SK_Scalar1, tangent.fX)) {
-        results->fSize.set(SkScalarHalf(fIntervals[0]), SkScalarHalf(rec.getWidth()));
+        results->fSize.set(fIntervals[0] / 2.f, rec.getWidth() / 2.f);
     } else if (SkScalarNearlyEqual(SK_Scalar1, tangent.fY) ||
                SkScalarNearlyEqual(-SK_Scalar1, tangent.fY)) {
-        results->fSize.set(SkScalarHalf(rec.getWidth()), SkScalarHalf(fIntervals[0]));
+        results->fSize.set(rec.getWidth() / 2.f, fIntervals[0] / 2.f);
         isXAxis = false;
     } else if (SkPaint::kRound_Cap != rec.getCap()) {
         // Angled lines don't have axis-aligned boxes.
@@ -296,15 +296,15 @@ bool SkDashImpl::onAsPoints(PointData* results, const SkPath& src, const SkStrok
                 if (clampedInitialDashLength > 0) {
                     // partial first block
                     SkASSERT(SkPaint::kRound_Cap != rec.getCap()); // can't handle partial circles
-                    SkScalar x = pts[0].fX + tangent.fX * SkScalarHalf(clampedInitialDashLength);
-                    SkScalar y = pts[0].fY + tangent.fY * SkScalarHalf(clampedInitialDashLength);
-                    SkScalar halfWidth, halfHeight;
+                    float x = pts[0].fX + tangent.fX * (clampedInitialDashLength / 2.f);
+                    float y = pts[0].fY + tangent.fY * (clampedInitialDashLength / 2.f);
+                    float halfWidth, halfHeight;
                     if (isXAxis) {
-                        halfWidth = SkScalarHalf(clampedInitialDashLength);
-                        halfHeight = SkScalarHalf(rec.getWidth());
+                        halfWidth = clampedInitialDashLength / 2.f;
+                        halfHeight = rec.getWidth() / 2.f;
                     } else {
-                        halfWidth = SkScalarHalf(rec.getWidth());
-                        halfHeight = SkScalarHalf(clampedInitialDashLength);
+                        halfWidth = rec.getWidth() / 2.f;
+                        halfHeight = clampedInitialDashLength / 2.f;
                     }
                     if (clampedInitialDashLength < fIntervals[0]) {
                         // This one will not be like the others
@@ -326,11 +326,11 @@ bool SkDashImpl::onAsPoints(PointData* results, const SkPath& src, const SkStrok
         }
 
         if (0 != numMidPoints) {
-            distance += SkScalarHalf(fIntervals[0]);
+            distance += fIntervals[0] / 2.f;
 
             for (int i = 0; i < numMidPoints; ++i) {
-                SkScalar x = pts[0].fX + tangent.fX * distance;
-                SkScalar y = pts[0].fY + tangent.fY * distance;
+                float x = pts[0].fX + tangent.fX * distance;
+                float y = pts[0].fY + tangent.fY * distance;
 
                 SkASSERT(curPt < results->fNumPoints);
                 results->fPoints[curPt].set(x, y);
@@ -339,23 +339,23 @@ bool SkDashImpl::onAsPoints(PointData* results, const SkPath& src, const SkStrok
                 distance += fIntervalLength;
             }
 
-            distance -= SkScalarHalf(fIntervals[0]);
+            distance -= fIntervals[0] / 2.f;
         }
 
         if (partialLast) {
             // partial final block
             SkASSERT(SkPaint::kRound_Cap != rec.getCap()); // can't handle partial circles
-            SkScalar temp = length - distance;
+            float temp = length - distance;
             SkASSERT(temp < fIntervals[0]);
-            SkScalar x = pts[0].fX + tangent.fX * (distance + SkScalarHalf(temp));
-            SkScalar y = pts[0].fY + tangent.fY * (distance + SkScalarHalf(temp));
-            SkScalar halfWidth, halfHeight;
+            float x = pts[0].fX + tangent.fX * (distance + (temp / 2.f));
+            float y = pts[0].fY + tangent.fY * (distance + (temp / 2.f));
+            float halfWidth, halfHeight;
             if (isXAxis) {
-                halfWidth = SkScalarHalf(temp);
-                halfHeight = SkScalarHalf(rec.getWidth());
+                halfWidth = temp / 2.f;
+                halfHeight = rec.getWidth() / 2.f;
             } else {
-                halfWidth = SkScalarHalf(rec.getWidth());
-                halfHeight = SkScalarHalf(temp);
+                halfWidth = rec.getWidth() / 2.f;
+                halfHeight = temp / 2.f;
             }
             results->fLast = SkPath::Rect({x - halfWidth, y - halfHeight,
                                            x + halfWidth, y + halfHeight});

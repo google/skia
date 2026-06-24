@@ -149,12 +149,12 @@ static inline int tspan_big_enough(int tspan) {
 static bool quad_too_curvy(const SkPoint pts[3], SkScalar tolerance) {
     // diff = (a/4 + b/2 + c/4) - (a/2 + c/2)
     // diff = -a/4 + b/2 - c/4
-    SkScalar dx = SkScalarHalf(pts[1].fX) -
-                        SkScalarHalf(SkScalarHalf(pts[0].fX + pts[2].fX));
-    SkScalar dy = SkScalarHalf(pts[1].fY) -
-                        SkScalarHalf(SkScalarHalf(pts[0].fY + pts[2].fY));
+    float dx = (pts[1].fX / 2.f) -
+               (((pts[0].fX + pts[2].fX) / 2.f) / 2.f);
+    float dy = (pts[1].fY / 2.f) -
+               (((pts[0].fY + pts[2].fY) / 2.f) / 2.f);
 
-    SkScalar dist = std::max(SkScalarAbs(dx), SkScalarAbs(dy));
+    float dist = std::max(std::abs(dx), std::abs(dy));
     return dist > tolerance;
 }
 

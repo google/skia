@@ -107,7 +107,7 @@ inline bool allowed_stroke(const GrCaps* caps, const SkStrokeRec& stroke, GrAA a
     would be faster.
     */
 void init_nonaa_stroke_rect_strip(SkPoint verts[10], const SkRect& rect, SkScalar width) {
-    const SkScalar rad = SkScalarHalf(width);
+    const float rad = width / 2.f;
 
     verts[0].set(rect.fLeft + rad, rect.fTop + rad);
     verts[1].set(rect.fLeft - rad, rect.fTop - rad);
@@ -181,7 +181,7 @@ public:
         fRect.sort();
         fStrokeWidth = stroke.getWidth();
 
-        SkScalar rad = SkScalarHalf(fStrokeWidth);
+        float rad = fStrokeWidth / 2.f;
         SkRect bounds = rect;
         bounds.outset(rad, rad);
 
@@ -358,8 +358,8 @@ bool compute_aa_rects(const GrCaps& caps,
 
     const SkScalar dx = devStrokeSize.fX;
     const SkScalar dy = devStrokeSize.fY;
-    const SkScalar rx = SkScalarHalf(dx);
-    const SkScalar ry = SkScalarHalf(dy);
+    const float rx = dx / 2.f;
+    const float ry = dy / 2.f;
 
     devHalfStrokeSize->fX = rx;
     devHalfStrokeSize->fY = ry;

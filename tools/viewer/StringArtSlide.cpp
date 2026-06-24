@@ -25,7 +25,7 @@ public:
     void resize(SkScalar w, SkScalar h) override { fSize = {w, h}; }
 
     void draw(SkCanvas* canvas) override {
-        SkScalar angle = fAngle*SK_ScalarPI + SkScalarHalf(SK_ScalarPI);
+        SkScalar angle = fAngle*SK_ScalarPI + (SK_ScalarPI / 2.f);
 
         SkPoint center = SkPoint::Make(fSize.width()/2, fSize.height()/2);
         SkScalar length = 5;
@@ -39,7 +39,7 @@ public:
             SkPoint rp = SkPoint::Make(length*SkScalarCos(step) + center.fX,
                                        length*SkScalarSin(step) + center.fY);
             path.lineTo(rp);
-            length += angle / SkScalarHalf(SK_ScalarPI);
+            length += angle / (SK_ScalarPI / 2.f);
             step += angle;
         }
         path.close();
