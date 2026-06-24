@@ -43,8 +43,7 @@ skia_cc_library(
     hdrs = [
         "skcms.h",
     ],
-    includes = ["."],
-    visibility = ["//visibility:public"],
+    visibility = ["//:__subpackages__"],
     deps = [
         ":skcms_TransformBaseline",
         ":skcms_TransformHsw",
