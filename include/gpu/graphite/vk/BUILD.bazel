@@ -9,7 +9,6 @@ licenses(["notice"])
 PUBLIC_HEADERS = [
     "VulkanGraphiteContext.h",
     "VulkanGraphiteTypes.h",
-    "VulkanGraphiteUtils.h",
 ]
 
 skia_filegroup(
