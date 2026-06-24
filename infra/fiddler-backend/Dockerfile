@@ -78,6 +78,7 @@ skia_enable_fontmgr_fontconfig = true \n\
 skia_use_perfetto = false \n\
 skia_use_libgrapheme = false \n\
 skia_use_icu4x = false \n\
+skia_use_partition_alloc = false \n\
 skia_use_system_freetype2 = false  \n\
 link_pool_depth=2  \n\
 extra_cflags = [  \n\
