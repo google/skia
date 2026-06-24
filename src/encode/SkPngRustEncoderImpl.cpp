@@ -7,6 +7,7 @@
 
 #include "src/encode/SkPngRustEncoderImpl.h"
 
+#include <array>
 #include <limits>
 #include <memory>
 #include <optional>
@@ -17,8 +18,10 @@
 #include "include/encode/SkPngRustEncoder.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkEncodedInfo.h"
-#include "rust/png/FFI.rs.h"
+#include "include/private/SkGainmapInfo.h"
 #include "rust/common/SpanUtils.h"
+#include "rust/png/FFI.rs.h"
+#include "src/codec/SkPngPriv.h"
 #include "src/core/SkSafeMath.h"
 #include "src/encode/SkImageEncoderFns.h"
 #include "src/encode/SkImageEncoderPriv.h"
@@ -114,6 +117,138 @@ private:
     SkWStream* fStream = nullptr;  // Non-owning pointer.
 };
 
+std::vector<uint8_t> GetSbitData(SkColorType colorType) {
+    switch (colorType) {
+        case kRGBA_F16Norm_SkColorType:
+        case kRGBA_F16_SkColorType:
+        case kRGBA_F32_SkColorType:
+            return {16, 16, 16, 16};
+        case kRGB_F16F16F16x_SkColorType:
+            return {16, 16, 16};
+        case kGray_8_SkColorType:
+            return {8};
+        case kRGB_888x_SkColorType:
+            return {8, 8, 8};
+        case kARGB_4444_SkColorType:
+            return {4, 4, 4, 4};
+        case kRGB_565_SkColorType:
+            return {5, 6, 5};
+        case kAlpha_8_SkColorType:
+            return {kGraySigBit_GrayAlphaIsJustAlpha, 8};
+        case kRGBA_1010102_SkColorType:
+        case kBGRA_1010102_SkColorType:
+            return {10, 10, 10, 2};
+        case kBGR_101010x_XR_SkColorType:
+        case kRGB_101010x_SkColorType:
+        case kBGR_101010x_SkColorType:
+            return {10, 10, 10};
+        case kBGRA_10101010_XR_SkColorType:
+            return {10, 10, 10, 10};
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            return {8, 8, 8, 8};
+        default:
+            return {};
+    }
+}
+
+size_t ExpectedSbitSize(rust_png::ColorType colorType) {
+    switch (colorType) {
+        case rust_png::ColorType::Grayscale:
+            return 1;
+        case rust_png::ColorType::Rgb:
+            return 3;
+        case rust_png::ColorType::Indexed:
+            return 3;
+        case rust_png::ColorType::GrayscaleAlpha:
+            return 2;
+        case rust_png::ColorType::Rgba:
+            return 4;
+    }
+    return 0;
+}
+
+bool WriteChunk(rust_png::Writer& writer, std::array<uint8_t, 4> name, SkSpan<const uint8_t> data) {
+    auto slice = rust::Slice<const uint8_t>(data.data(), data.size());
+    return writer.write_chunk(name, slice) == rust_png::EncodingResult::Success;
+}
+
+bool WriteSbitChunk(rust_png::Writer& writer,
+                    SkColorType colorType,
+                    rust_png::ColorType rustEncoderColorType) {
+    std::vector<uint8_t> sbitData = GetSbitData(colorType);
+    if (sbitData.empty()) {
+        return true;
+    }
+
+    size_t expectedSize = ExpectedSbitSize(rustEncoderColorType);
+    if (expectedSize == 0) {
+        return WriteChunk(writer, {'s', 'B', 'I', 'T'}, sbitData);
+    }
+
+    if (sbitData.size() < expectedSize) {
+        return true;
+    }
+
+    if (sbitData.size() > expectedSize) {
+        sbitData.resize(expectedSize);
+    }
+
+    return WriteChunk(writer, {'s', 'B', 'I', 'T'}, sbitData);
+}
+
+bool WriteGainmapChunks(rust_png::Writer& writer, const SkPngRustEncoder::Options& options) {
+    if (!options.fGainmapInfo) {
+        return true;
+    }
+
+    if (!options.fGainmap) {
+        // Encode gainmap info only (options.fGainmapInfo is true, options.fGainmap is null)
+        sk_sp<SkData> data = options.fGainmapInfo->serialize();
+        return WriteChunk(writer, {'g', 'm', 'A', 'P'}, data->byteSpan());
+    }
+
+    // Encode gainmap pixels (options.fGainmapInfo is true, options.fGainmap is non-null)
+
+    // When we encode the gainmap, we need to remove the gainmap from its
+    // own encoding options, so that we don't recurse.
+    auto modifiedOptions = options;
+    modifiedOptions.fGainmap = nullptr;
+
+    auto gainmapInfo = *(options.fGainmapInfo);
+    auto gainmapPixels = *(options.fGainmap);
+    auto targetInfo = SkPngEncoderBase::getTargetInfo(gainmapPixels.info());
+
+    if (targetInfo && targetInfo->fDstInfo.color() != SkEncodedInfo::kGray_Color &&
+        targetInfo->fDstInfo.color() != SkEncodedInfo::kGrayAlpha_Color) {
+        // Encode the alternate image colorspace directly in the gainmap profile,
+        // since the ISO gainmap payload does not contain the actual alternative
+        // image primaries.
+        const auto& gainmapColorSpace = options.fGainmapInfo->fGainmapMathColorSpace;
+        gainmapPixels.setColorSpace(gainmapColorSpace);
+    } else {
+        // Scrub the gainmap colorspace, since grayscale PNGs don't support
+        // RGB ICC profiles
+        gainmapInfo.fGainmapMathColorSpace = nullptr;
+        modifiedOptions.fGainmapInfo = &gainmapInfo;
+    }
+
+    sk_sp<SkData> gainmapData = SkPngRustEncoder::Encode(gainmapPixels, modifiedOptions);
+    if (!gainmapData) {
+        return false;
+    }
+
+    sk_sp<SkData> gainmapVersion = SkGainmapInfo::SerializeVersion();
+    if (!WriteChunk(writer, {'g', 'm', 'A', 'P'}, gainmapVersion->byteSpan())) {
+        return false;
+    }
+
+    if (!WriteChunk(writer, {'g', 'd', 'A', 'T'}, gainmapData->byteSpan())) {
+        return false;
+    }
+    return true;
+}
+
 }  // namespace
 
 // static
@@ -195,6 +330,14 @@ std::unique_ptr<SkEncoder> SkPngRustEncoderImpl::Make(SkWStream* dst,
     rust::Box<rust_png::Writer> writer = resultOfWriter->unwrap();
 
     if (EncodeComments(*writer, options.fComments) != rust_png::EncodingResult::Success) {
+        return nullptr;
+    }
+
+    if (!WriteSbitChunk(*writer, src.colorType(), rustEncoderColorType)) {
+        return nullptr;
+    }
+
+    if (!WriteGainmapChunks(*writer, options)) {
         return nullptr;
     }
 
