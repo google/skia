@@ -249,6 +249,7 @@ private:
         kAtomicStore_SpecialIntrinsic,
         kStorageBarrier_SpecialIntrinsic,
         kWorkgroupBarrier_SpecialIntrinsic,
+        kWorkgroupUniformLoad_SpecialIntrinsic,
     };
 
     enum class Precision {
@@ -994,6 +995,7 @@ SPIRVCodeGenerator::Intrinsic SPIRVCodeGenerator::getIntrinsic(IntrinsicKind ik)
 
         case k_storageBarrier_IntrinsicKind:   return SPECIAL(StorageBarrier);
         case k_workgroupBarrier_IntrinsicKind: return SPECIAL(WorkgroupBarrier);
+        case k_workgroupUniformLoad_IntrinsicKind: return SPECIAL(WorkgroupUniformLoad);
 
         default:
             return Intrinsic{kInvalid_IntrinsicOpcodeKind, 0, 0, 0, 0};
@@ -2560,6 +2562,18 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
                                    scopeId,  // memory scope
                                    memorySemanticsId,
                                    out);
+            break;
+        }
+        case kWorkgroupUniformLoad_SpecialIntrinsic: {
+            SkASSERT(arguments.size() == 1);
+            SpvId scopeId =
+                    this->writeOpConstant(*fContext.fTypes.fUInt, (int32_t)SpvScopeWorkgroup);
+            int32_t memSemMask = SpvMemorySemanticsAcquireReleaseMask |
+                                  SpvMemorySemanticsWorkgroupMemoryMask;
+            SpvId memorySemanticsId = this->writeOpConstant(*fContext.fTypes.fUInt, memSemMask);
+            this->writeInstruction(SpvOpControlBarrier, scopeId, scopeId, memorySemanticsId, out);
+            result = this->getLValue(*arguments[0], out)->load(out);
+            this->writeInstruction(SpvOpControlBarrier, scopeId, scopeId, memorySemanticsId, out);
             break;
         }
         default:

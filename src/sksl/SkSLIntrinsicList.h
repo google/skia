@@ -119,7 +119,8 @@
     SKSL_INTRINSIC(unpackSnorm4x8)   \
     SKSL_INTRINSIC(unpackUnorm2x16)  \
     SKSL_INTRINSIC(unpackUnorm4x8)   \
-    SKSL_INTRINSIC(workgroupBarrier)
+    SKSL_INTRINSIC(workgroupBarrier) \
+    SKSL_INTRINSIC(workgroupUniformLoad)
 
 namespace SkSL {
 

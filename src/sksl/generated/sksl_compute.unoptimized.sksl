@@ -5,4 +5,8 @@ static constexpr char SKSL_MINIFIED_sksl_compute[] =
 " IndirectDispatchArgs{int x;int y;int z;};void textureWrite($writableTexture2D"
 " t,uint2 pos,half4 color);$pure uint textureWidth($genTexture2D t);$pure uint"
 " textureHeight($genTexture2D t);void workgroupBarrier();void storageBarrier"
-"();";
+"();$pure $genType workgroupUniformLoad($genType x);$pure $genHType workgroupUniformLoad"
+"($genHType x);$pure $genIType workgroupUniformLoad($genIType x);$pure $genUType"
+" workgroupUniformLoad($genUType x);$pure $genBType workgroupUniformLoad($genBType"
+" x);$pure $mat workgroupUniformLoad($mat x);$pure $hmat workgroupUniformLoad"
+"($hmat x);";

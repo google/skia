@@ -22,3 +22,12 @@ void workgroupBarrier();
 // Control-barrier with memory-ordering constraints applied to
 // uniform and storage-buffer memory.
 void storageBarrier();
+
+$pure $genType  workgroupUniformLoad($genType  x);
+$pure $genHType workgroupUniformLoad($genHType x);
+$pure $genIType workgroupUniformLoad($genIType x);
+$pure $genUType workgroupUniformLoad($genUType x);
+$pure $genBType workgroupUniformLoad($genBType x);
+$pure $mat      workgroupUniformLoad($mat      x);
+$pure $hmat     workgroupUniformLoad($hmat     x);
+

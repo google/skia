@@ -10,6 +10,7 @@ layout(set=0, binding=1) writeonly buffer outputs {
     float[] out_data;
 };
 
+workgroup uint shared_uniform;
 workgroup float[SIZE * 2] shared_data;
 
 // Test that workgroup-shared variables are passed to user-defined functions
@@ -24,26 +25,35 @@ void main() {
     uint wr_id;
     uint mask;
 
-    // Each thread is responsible for two elements of the output array
-    shared_data[id * 2] = in_data[id * 2];
-    shared_data[id * 2 + 1] = in_data[id * 2 + 1];
+    // First thread in the workgroup initializes the shared memory
+    if (id == 0) {
+        shared_uniform = 0;
+    }
+    uint uni = workgroupUniformLoad(shared_uniform);
 
-    workgroupBarrier();
-
-    const uint steps = uint(log2(float(SIZE))) + 1;
-    for (uint step = 0; step < steps; step++) {
-        // Calculate the read and write index in the shared array
-        mask = (1 << step) - 1;
-        rd_id = ((id >> step) << (step + 1)) + mask;
-        wr_id = rd_id + 1 + (id & mask);
-
-        // Accumulate the read data into our element
-        store(wr_id, shared_data[wr_id] + shared_data[rd_id]);
+    // Tint should recognize this as workgroup uniform control flow, and make no complaints
+    if (uni == 0) {
+        // Each thread is responsible for two elements of the output array
+        shared_data[id * 2] = in_data[id * 2];
+        shared_data[id * 2 + 1] = in_data[id * 2 + 1];
 
         workgroupBarrier();
-    }
 
-    // Write the final result out
-    out_data[id * 2] = shared_data[id * 2];
-    out_data[id * 2 + 1] = shared_data[id * 2 + 1];
+        const uint steps = uint(log2(float(SIZE))) + 1;
+        for (uint step = 0; step < steps; step++) {
+            // Calculate the read and write index in the shared array
+            mask = (1 << step) - 1;
+            rd_id = ((id >> step) << (step + 1)) + mask;
+            wr_id = rd_id + 1 + (id & mask);
+
+            // Accumulate the read data into our element
+            store(wr_id, shared_data[wr_id] + shared_data[rd_id]);
+
+            workgroupBarrier();
+        }
+
+        // Write the final result out
+        out_data[id * 2] = shared_data[id * 2];
+        out_data[id * 2 + 1] = shared_data[id * 2 + 1];
+    }
 }

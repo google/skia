@@ -2653,3 +2653,124 @@ DEF_GRAPHITE_TEST_FOR_DAWN_CONTEXT(Compute_NativeShaderSourceWGSL, reporter, con
                     kExpectedCount,
                     result);
 }
+
+DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_WorkgroupUniformLoadTest,
+                                              reporter,
+                                              context,
+                                              testContext) {
+    if (testContext->contextType() == skgpu::ContextType::kDawn_D3D11) {
+        return;
+    }
+
+    constexpr uint32_t kProblemSize = 256;
+    constexpr uint32_t kWorkgroupSize = 256;
+
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
+    class TestComputeStep : public ComputeStep {
+    public:
+        TestComputeStep() : ComputeStep(
+                /*name=*/"TestWorkgroupUniformLoad",
+                /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
+                /*resources=*/{{
+                    {
+                        /*type=*/ResourceType::kStorageBuffer,
+                        /*flow=*/DataFlow::kPrivate,
+                        /*policy=*/ResourcePolicy::kMapped,
+                        /*sksl=*/"inputs { float in_data[]; }",
+                    },
+                    {
+                        /*type=*/ResourceType::kStorageBuffer,
+                        /*flow=*/DataFlow::kShared,
+                        /*policy=*/ResourcePolicy::kMapped,
+                        /*slot=*/0,
+                        /*sksl=*/"outputs { float out_data[]; }",
+                    }
+                }}) {}
+        ~TestComputeStep() override = default;
+
+        std::string computeSkSL() const override {
+            return R"(
+                workgroup uint shared_uniform;
+
+                void main() {
+                    uint id = sk_GlobalInvocationID.x;
+                    if (id == 0) {
+                        shared_uniform = 0;
+                    }
+                    uint uni = workgroupUniformLoad(shared_uniform);
+
+                    if (uni == 0) {
+                        out_data[id] = in_data[id] * 2.0;
+                    }
+                }
+            )";
+        }
+
+        size_t calculateBufferSize(int index, const ResourceDesc& r) const override {
+            if (index == 0) {
+                SkASSERT(r.fFlow == DataFlow::kPrivate);
+                return sizeof(float) * kProblemSize;
+            }
+            SkASSERT(index == 1);
+            SkASSERT(r.fSlot == 0);
+            SkASSERT(r.fFlow == DataFlow::kShared);
+            return sizeof(float) * kProblemSize;
+        }
+
+        void prepareStorageBuffer(int resourceIndex,
+                                  const ResourceDesc& r,
+                                  skgpu::BufferWriter&& writer) const override {
+            if (resourceIndex != 0) {
+                return;
+            }
+            SkASSERT(r.fFlow == DataFlow::kPrivate);
+            for (unsigned int i = 0; i < kProblemSize; ++i) {
+                writer.write((float)(i + 1));
+            }
+        }
+
+        WorkgroupSize calculateGlobalDispatchSize() const override {
+            return WorkgroupSize(1, 1, 1);
+        }
+    } step;
+
+    DispatchGroup::Builder builder(recorder.get());
+    if (!builder.appendStep(&step)) {
+        ERRORF(reporter, "Failed to add ComputeStep to DispatchGroup");
+        return;
+    }
+
+    BindBufferInfo outputInfo = builder.getSharedBufferResource(0);
+    if (!outputInfo) {
+        ERRORF(reporter, "Failed to allocate an output buffer at slot 0");
+        return;
+    }
+
+    ComputeTask::DispatchGroupList groups;
+    groups.push_back(builder.finalize());
+    recorder->priv().add(ComputeTask::Make(std::move(groups)));
+
+    auto outputBuffer = sync_buffer_to_cpu(recorder.get(), outputInfo.fBuffer);
+
+    std::unique_ptr<Recording> recording = recorder->snap();
+    if (!recording) {
+        ERRORF(reporter, "Failed to make recording");
+        return;
+    }
+
+    InsertRecordingInfo insertInfo;
+    insertInfo.fRecording = recording.get();
+    context->insertRecording(insertInfo);
+    testContext->syncedSubmit(context);
+
+    float* outData = static_cast<float*>(
+            map_buffer(context, testContext, outputBuffer.get(), outputInfo.fOffset));
+    SkASSERT(outputBuffer->isMapped() && outData != nullptr);
+    for (unsigned int i = 0; i < kProblemSize; ++i) {
+        const float expected = (i + 1) * 2.0f;
+        const float found = outData[i];
+        REPORTER_ASSERT(reporter, expected == found, "expected '%f', found '%f'", expected, found);
+    }
+}
+

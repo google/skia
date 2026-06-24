@@ -27,8 +27,10 @@
 #include "src/sksl/ir/SkSLChildCall.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
+#include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionReference.h"
+#include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLMethodReference.h"
@@ -1228,6 +1230,37 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
     if (function.isMain()) {
         context.fErrors->error(pos, "call to 'main' is not allowed");
         return nullptr;
+    }
+
+    if (function.intrinsicKind() == k_workgroupUniformLoad_IntrinsicKind) {
+        SkASSERT(arguments.size() == 1);
+        const Expression* expr = arguments[0].get();
+        const Variable* rootVar = nullptr;
+        while (expr) {
+            if (expr->is<VariableReference>()) {
+                rootVar = expr->as<VariableReference>().variable();
+                break;
+            }
+            if (expr->is<FieldAccess>()) {
+                expr = expr->as<FieldAccess>().base().get();
+                continue;
+            }
+            if (expr->is<IndexExpression>()) {
+                const IndexExpression& indexExpr = expr->as<IndexExpression>();
+                if (indexExpr.base()->type().isVector()) {
+                    break;
+                }
+                expr = indexExpr.base().get();
+                continue;
+            }
+            break;
+        }
+        if (!rootVar || !rootVar->modifierFlags().isWorkgroup()) {
+            context.fErrors->error(pos,
+                                   "workgroupUniformLoad must be called with a variable expression "
+                                   "in workgroup address space");
+            return nullptr;
+        }
     }
 
     if (function.intrinsicKind() == k_eval_IntrinsicKind) {

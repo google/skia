@@ -3241,6 +3241,16 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
 
     const ExpressionArray& arguments = call.arguments();
     switch (kind) {
+        case k_workgroupUniformLoad_IntrinsicKind: {
+            // WGSL 17.11.4: workgroupUniformLoad(p : ptr<workgroup, T>) -> T
+            // The argument must be a pointer-addressable reference expression (variable reference,
+            // struct field, or array element) rooted in a variable declared in the 'workgroup'
+            // address space. Vector components (swizzles or indexed vector elements) and rvalues
+            // are not addressable.
+            std::string argument = this->assembleExpression(*arguments[0], Precedence::kSequence);
+            return "workgroupUniformLoad(&" + argument + ")";
+        }
+
         case k_atan_IntrinsicKind: {
             const char* name = (arguments.size() == 1) ? "atan" : "atan2";
             return this->assembleSimpleIntrinsic(name, call);
