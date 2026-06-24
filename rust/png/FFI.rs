@@ -924,8 +924,7 @@ impl Reader {
         row: &[u8],
         bits_per_pixel: u8,
     ) {
-        let Some(png::InterlaceInfo::Adam7(ref adam7info)) = self.last_interlace_info.as_ref()
-        else {
+        let Some(png::InterlaceInfo::Adam7(adam7info)) = self.last_interlace_info.as_ref() else {
             panic!("This function should only be called after decoding an interlaced row");
         };
         png::expand_interlaced_row(img, img_row_stride, row, adam7info, bits_per_pixel);
