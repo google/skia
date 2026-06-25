@@ -35,6 +35,5 @@ skia_cc_library(
         "//:core",
         "//src/gpu",
         "//src/gpu/graphite",
-        "//src/gpu/graphite:graphite_TEST_UTIL",
     ],
 )
