@@ -165,10 +165,7 @@ skia_filegroup(
 
 skia_cc_library(
     name = "rust_png_encoder",
-    srcs = [
-        ":rust_png_srcs",
-        "//src/codec:common_png_srcs",
-    ],
+    srcs = [":rust_png_srcs"],
     hdrs = [
         "//include/encode:encode_hdrs",
         "//include/encode:rust_png_public_hdrs",

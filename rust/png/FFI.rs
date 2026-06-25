@@ -220,7 +220,6 @@ mod ffi {
 
         type Writer;
         fn write_text_chunk(self: &mut Writer, keyword: &[u8], text: &[u8]) -> EncodingResult;
-        fn write_chunk(self: &mut Writer, name: &[u8; 4], data: &[u8]) -> EncodingResult;
         fn convert_writer_into_stream_writer(writer: Box<Writer>) -> Box<ResultOfStreamWriter>;
 
         type ResultOfStreamWriter;
@@ -1068,12 +1067,6 @@ impl Writer {
 
         let chunk = png::text_metadata::TEXtChunk { keyword, text };
         let result = self.0.write_text_chunk(&chunk);
-        result.as_ref().err().into()
-    }
-
-    fn write_chunk(&mut self, name: &[u8; 4], data: &[u8]) -> ffi::EncodingResult {
-        let chunk_type = png::chunk::ChunkType(*name);
-        let result = self.0.write_chunk(chunk_type, data);
         result.as_ref().err().into()
     }
 }
