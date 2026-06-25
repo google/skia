@@ -580,12 +580,23 @@ void VulkanCommandBuffer::waitUntilFinished() {
     if (fSubmitFence == VK_NULL_HANDLE) {
         return;
     }
-    VULKAN_CALL_ERRCHECK(fSharedContext,
-                         WaitForFences(fSharedContext->device(),
-                                       1,
-                                       &fSubmitFence,
-                                       /*waitAll=*/true,
-                                       /*timeout=*/UINT64_MAX));
+    // On some drivers vkWaitForFences() can spuriously return VK_TIMEOUT when a signal handler
+    // runs. Work around this by retrying on VK_TIMEOUT.
+    VkResult result = VK_TIMEOUT;
+    while (result == VK_TIMEOUT) {
+        VULKAN_CALL_RESULT_NOCHECK(fSharedContext->interface(),
+                                   result,
+                                   WaitForFences(fSharedContext->device(),
+                                                 1,
+                                                 &fSubmitFence,
+                                                 /*waitAll=*/true,
+                                                 /*timeout=*/UINT64_MAX));
+    }
+    if (result != VK_SUCCESS && !fSharedContext->isDeviceLost()) {
+        SkDebugf("vkWaitForFences() failed. Error: %d\n", result);
+    }
+    SkASSERT(VK_SUCCESS == result || VK_ERROR_DEVICE_LOST == result);
+    fSharedContext->checkVkResult(result);
 }
 
 void VulkanCommandBuffer::pushConstants(const PushConstantInfo& pushConstantInfo,
