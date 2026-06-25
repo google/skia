@@ -136,6 +136,11 @@ private:
     // chunks.
     Result parseAdditionalFrameInfos();
 
+    // Determines whether or not we can read from the rust decoder directly into dst.
+    bool canReadRow();
+    void processUnknownChunks();
+    bool isLastFrame();
+
     // SkCodec overrides:
     Result onGetPixels(const SkImageInfo& dstInfo,
                        void* pixels,
@@ -154,10 +159,7 @@ private:
     IsAnimated onIsAnimated() override;
     const SkFrameHolder* getFrameHolder() const override;
     sk_sp<const SkData> getEncodedData() const override;
-    // Determines whether or not we can read from the rust decoder directly into dst.
-    bool canReadRow();
-    void processUnknownChunks();
-    bool isLastFrame();
+    SkSampler* getSampler(bool createIfNecessary) final;
 
     // SkPngCodecBase overrides:
     std::unique_ptr<SkCodec> onDecodeGainmap(std::unique_ptr<SkStream> stream,

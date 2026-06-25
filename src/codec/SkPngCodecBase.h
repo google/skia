@@ -86,13 +86,15 @@ protected:
 
     sk_sp<SkPngCompositeChunkReader> fPngChunkReader;
 
+    // SkCodec overrides:
+    SkSampler* getSampler(bool createIfNecessary) override;
+
 private:
     bool onGetGainmapCodec(SkGainmapInfo* info, std::unique_ptr<SkCodec>* gainmapCodec) final;
     bool onGetGainmapInfo(SkGainmapInfo* info) final;
 
     // SkCodec overrides:
     SkEncodedImageFormat onGetEncodedFormat() const final;
-    SkSampler* getSampler(bool createIfNecessary) final;
 
     void allocateStorage(const SkImageInfo& dstInfo);
     Result initializeSwizzler(const SkImageInfo& dstInfo,
