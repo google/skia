@@ -513,6 +513,7 @@ ganesh_tests_sources = [
   "$_tests/SlugTest.cpp",
   "$_tests/SmallPathRendererTest.cpp",
   "$_tests/SrcSrcOverBatchTest.cpp",
+  "$_tests/StencilClearTest.cpp",
   "$_tests/SurfaceDrawContextTest.cpp",
   "$_tests/SurfaceSemaphoreTest.cpp",
   "$_tests/TextBlobCacheTest.cpp",

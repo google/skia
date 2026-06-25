@@ -589,7 +589,17 @@ bool OpsTask::onExecute(GrOpFlushState* flushState) {
     GrLoadOp stencilLoadOp;
     switch (fInitialStencilContent) {
         case StencilContent::kDontCare:
-            stencilLoadOp = GrLoadOp::kDiscard;
+            if (stencil && !caps.performStencilClearsAsDraws()) {
+                // This OpTask has a stencil, doesn't care about its contents,
+                // isn't clearing it with draws, and is going to store the result.
+                // In that case, we proactively clear it so that uninitialized data won't
+                // creep into the stencil buffer.
+                stencilLoadOp = GrLoadOp::kClear;
+            } else {
+                // This should only intentionally happen for the AtlasRenderTask which
+                // immediately inserts a clear.
+                stencilLoadOp = GrLoadOp::kDiscard;
+            }
             break;
         case StencilContent::kUserBitsCleared:
             SkASSERT(!caps.performStencilClearsAsDraws());
@@ -624,6 +634,7 @@ bool OpsTask::onExecute(GrOpFlushState* flushState) {
     // their store op might be "discard", and we currently make the assumption that a discard will
     // not invalidate what's already in main memory. This is probably ok for now, but certainly
     // something we want to address soon.
+    // b/160958008 forces discardStencilValuesAfterRenderPass to always return false.
     GrStoreOp stencilStoreOp = (caps.discardStencilValuesAfterRenderPass() && !fMustPreserveStencil)
             ? GrStoreOp::kDiscard
             : GrStoreOp::kStore;
@@ -647,6 +658,16 @@ bool OpsTask::onExecute(GrOpFlushState* flushState) {
     if (markStencilCleared) {
         stencil->markHasPerformedInitialClear();
     }
+
+#if defined(SK_DEBUG)
+    if (stencilLoadOp == GrLoadOp::kDiscard) {
+        // The only time we should have a stencil discard load-op is when either:
+        //    there is no stencil buffer
+        //    or stencil clears are being performed by draws
+        SkASSERT(!stencil || caps.performStencilClearsAsDraws());
+    }
+#endif
+
     flushState->setOpsRenderPass(renderPass);
     renderPass->begin();
 
@@ -736,10 +757,10 @@ int OpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         fTotalBounds.join(toMerge->fTotalBounds);
         fRenderPassXferBarriers |= toMerge->fRenderPassXferBarriers;
         if (fInitialStencilContent == StencilContent::kDontCare) {
-            // Propogate the first stencil content that isn't kDontCare.
+            // Propagate the first stencil content that isn't kDontCare.
             //
             // Once the stencil has any kind of initial content that isn't kDontCare, then the
-            // inital contents of subsequent opsTasks that get merged in don't matter.
+            // initial contents of subsequent opsTasks that get merged in don't matter.
             //
             // (This works because the opsTask all target the same render target and are in
             // painter's order. kPreserved obviously happens automatically with a merge, and kClear
