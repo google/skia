@@ -165,6 +165,96 @@ void AssertSingleGreenFrame(skiatest::Reporter* r,
     AssertGreenPixel(r, pixmap, expectedWidth / 2, expectedHeight / 2);
 }
 
+static std::unique_ptr<SkCodec> StartIncrementalDecodeSubset(skiatest::Reporter* r,
+                                                             std::unique_ptr<SkStream> stream,
+                                                             const SkIRect& subset,
+                                                             SkBitmap* dstBitmap) {
+    SkCodec::Result result;
+    std::unique_ptr<SkCodec> codec = SkPngRustDecoder::Decode(std::move(stream), &result);
+    if (!codec) {
+        ERRORF(r, "Failed to create Rust codec");
+        return nullptr;
+    }
+
+    SkImageInfo subsetInfo =
+            codec->getInfo().makeDimensions(subset.size()).makeColorType(kN32_SkColorType);
+    dstBitmap->allocPixels(subsetInfo);
+
+    SkImageInfo fullInfo = codec->getInfo().makeColorType(kN32_SkColorType);
+    SkCodec::Options options;
+    options.fSubset = &subset;
+
+    result = codec->startIncrementalDecode(
+            fullInfo, dstBitmap->getPixels(), dstBitmap->rowBytes(), &options);
+    if (result != SkCodec::kSuccess) {
+        ERRORF(r, "startIncrementalDecode failed with %i", (int)result);
+        return nullptr;
+    }
+
+    return codec;
+}
+
+static bool DecodeSubsetOneShot(skiatest::Reporter* r,
+                                sk_sp<SkData> data,
+                                const SkIRect& subset,
+                                SkBitmap* dstBitmap) {
+    auto codec = StartIncrementalDecodeSubset(r, SkMemoryStream::Make(data), subset, dstBitmap);
+    if (!codec) {
+        return false;
+    }
+    int rowsDecoded = 0;
+    SkCodec::Result result = codec->incrementalDecode(&rowsDecoded);
+    if (result != SkCodec::kSuccess) {
+        ERRORF(r, "incrementalDecode failed: %d", (int)result);
+        return false;
+    }
+    return true;
+}
+
+static bool DecodeSubsetHalting(skiatest::Reporter* r,
+                                sk_sp<SkData> data,
+                                const SkIRect& subset,
+                                SkBitmap* dstBitmap) {
+    size_t initialLimit = data->size() / 2;
+    auto haltingStream = std::make_unique<HaltingStream>(data, initialLimit);
+    HaltingStream* retainedStream = haltingStream.get();
+
+    auto codec = StartIncrementalDecodeSubset(r, std::move(haltingStream), subset, dstBitmap);
+    if (!codec) {
+        return false;
+    }
+
+    int rowsDecoded = 0;
+    SkCodec::Result result = codec->incrementalDecode(&rowsDecoded);
+    if (result != SkCodec::kIncompleteInput) {
+        ERRORF(r, "Expected kIncompleteInput, got %d", (int)result);
+        return false;
+    }
+
+    retainedStream->addNewData(data->size() - initialLimit);
+    result = codec->incrementalDecode(&rowsDecoded);
+    if (result != SkCodec::kSuccess) {
+        ERRORF(r, "incrementalDecode resume failed: %d", (int)result);
+        return false;
+    }
+    return true;
+}
+
+static void CompareBitmaps(skiatest::Reporter* r, const SkBitmap& bm1, const SkBitmap& bm2) {
+    const SkImageInfo& info = bm1.info();
+    if (info != bm2.info()) {
+        ERRORF(r, "Bitmaps have different image infos!");
+        return;
+    }
+    const size_t rowBytes = info.minRowBytes();
+    for (int i = 0; i < info.height(); i++) {
+        if (0 != memcmp(bm1.getAddr(0, i), bm2.getAddr(0, i), rowBytes)) {
+            ERRORF(r, "Bitmaps have different pixels, starting on line %i!", i);
+            return;
+        }
+    }
+}
+
 sk_sp<SkImage> DecodeLastFrame(skiatest::Reporter* r, SkCodec* codec) {
     int frameCount = codec->getFrameCount();
     sk_sp<SkImage> image;
@@ -1096,3 +1186,26 @@ DEF_TEST(RustPngCodec_exactRead_overshoot, r) {
     }
 }
 #endif
+
+DEF_TEST(RustPngCodec_subset_halting, r) {
+    sk_sp<SkData> data = GetResourceAsData("images/mandrill_128.png");
+    if (!data) {
+        ERRORF(r, "Missing resource: images/mandrill_128.png");
+        return;
+    }
+
+    // Mandrill is 128x128. We target a center 64x64 subset.
+    SkIRect subset = SkIRect::MakeXYWH(32, 32, 64, 64);
+
+    SkBitmap bmOneShot;
+    if (!DecodeSubsetOneShot(r, data, subset, &bmOneShot)) {
+        return;
+    }
+
+    SkBitmap bmHalting;
+    if (!DecodeSubsetHalting(r, data, subset, &bmHalting)) {
+        return;
+    }
+
+    CompareBitmaps(r, bmOneShot, bmHalting);
+}

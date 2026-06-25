@@ -81,6 +81,15 @@ private:
 
         int fFirstRow = 0;
         int fLastRow = 0;
+
+        // Tracks the current row index of the source image being processed.
+        // Needs to be persisted in DecodingState to support incremental decoding
+        // across multiple calls without resetting progress.
+        int fCurrentSourceRow = 0;
+        // Tracks the number of rows actually written to the destination buffer.
+        // Used to correctly report progress via rowsDecoded in incrementalDecode.
+        int fRowsWrittenToOutput = 0;
+
         // The y offset for a subset in the encoded color type, not the dst color type.
         // Only used for interlaced images.
         size_t fYByteOffset = 0;

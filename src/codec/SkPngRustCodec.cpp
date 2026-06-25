@@ -686,7 +686,7 @@ SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
         } else {
             decodingState->fYByteOffset = 0;
             decodingState->fFirstRow = 0;
-            decodingState->fLastRow = frame->yOffset() + frame->height() - 1;
+            decodingState->fLastRow = frame->height() - 1;
         }
 
         size_t frameWidth = safe.castTo<size_t>(frame->width());
@@ -819,26 +819,24 @@ SkCodec::Result SkPngRustCodec::incrementalDecodeXForm(DecodingState& decodingSt
     SkASSERT_RELEASE(!this->canReadRow());
     this->initializeXformParams();
 
-    int rowsDecoded = 0;
     const bool interlaced = fReader->interlaced();
     const bool subset = this->options().fSubset;
     DecodingDstInfo& decodingDst = decodingState.fDecodingDstInfo;
 
-    int rowNum = 0;
     while (true) {
         rust::Slice<const uint8_t> decodedRow;
         fStreamIsPositionedAtStartOfFrameData = false;
         Result result = ToSkCodecResult(fReader->next_interlaced_row(decodedRow));
         if (result != kSuccess) {
             if (result == kIncompleteInput && rowsDecodedPtr) {
-                *rowsDecodedPtr = rowsDecoded;
+                *rowsDecodedPtr = decodingState.fRowsWrittenToOutput;
             }
             return result;
         }
 
         // This is how FFI layer says "no more rows". We also want to stop reading rows
         // if we are at the end of our subset.
-        if (decodedRow.empty() || rowNum > decodingState.fLastRow) {
+        if (decodedRow.empty() || decodingState.fCurrentSourceRow > decodingState.fLastRow) {
             if (interlaced && !decodingState.fPreblendBuffer.empty()) {
                 if (subset) {
                     this->getSubsetFromFullImage(SkSpan<uint8_t>(decodingState.fPreblendBuffer),
@@ -894,11 +892,13 @@ SkCodec::Result SkPngRustCodec::incrementalDecodeXForm(DecodingState& decodingSt
                                                    /*xFormNeeded=*/true);
                 }
             }
-            // `rowsDecoded` is not incremented, because full, contiguous rows
+            // `fRowsWrittenToOutput` is not incremented, because full, contiguous rows
             // are not decoded until pass 6 (or 7 depending on how you look) of
             // Adam7 interlacing scheme.
         } else {
-            if (rowNum++ < decodingState.fFirstRow) {
+            int y = decodingState.fCurrentSourceRow - decodingState.fFirstRow;
+            decodingState.fCurrentSourceRow++;
+            if (y < 0) {
                 continue;
             }
             if (decodingState.fPreblendBuffer.empty()) {
@@ -913,7 +913,7 @@ SkCodec::Result SkPngRustCodec::incrementalDecodeXForm(DecodingState& decodingSt
 
             decodingDst.fDst = decodingDst.fDst.subspan(
                     std::min(decodingDst.fDstRowStride, decodingDst.fDst.size()));
-            rowsDecoded++;
+            decodingState.fRowsWrittenToOutput++;
         }
     }
 }
@@ -921,7 +921,6 @@ SkCodec::Result SkPngRustCodec::incrementalDecodeXForm(DecodingState& decodingSt
 SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
                                                   int* rowsDecodedPtr) {
     SkASSERT_RELEASE(this->canReadRow());
-    int rowsDecoded = 0;
     const bool interlaced = fReader->interlaced();
     rust::Slice<uint8_t> dstSlice;
     // If we have interlaced rows we have to copy into a temp buffer.
@@ -945,7 +944,7 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
 
         if (result != kSuccess) {
             if (result == kIncompleteInput && rowsDecodedPtr) {
-                *rowsDecodedPtr = rowsDecoded;
+                *rowsDecodedPtr = decodingState.fRowsWrittenToOutput;
             }
             return result;
         }
@@ -986,7 +985,7 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
                                                  decodingDst,
                                                  /*xFormNeeded=*/false);
             }
-            // `rowsDecoded` is not incremented, because full, contiguous rows
+            // `fRowsWrittenToOutput` is not incremented, because full, contiguous rows
             // are not decoded until pass 6 (or 7 depending on how you look) of
             // Adam7 interlacing scheme.
         } else {
@@ -999,7 +998,7 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
             // Increment our pointer to dst memory.
             decodingDst.fDst = decodingDst.fDst.subspan(
                 std::min(decodingDst.fDstRowStride, decodingDst.fDst.size()));
-            rowsDecoded++;
+            decodingState.fRowsWrittenToOutput++;
         }
     }
 }
