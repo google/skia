@@ -168,7 +168,7 @@ public:
     /**
      *  Returns if the pixmap is empty (from its ImageInfo).
      */
-    int isEmpty() const { return fInfo.isEmpty(); }
+    bool isEmpty() const { return fInfo.isEmpty(); }
 
     /**
      *  Return the dimensions of the pixmap (from its ImageInfo)
