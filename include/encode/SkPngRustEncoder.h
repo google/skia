@@ -21,6 +21,8 @@ class SkImage;
 class SkPixmap;
 class SkWStream;
 
+struct SkGainmapInfo;
+
 namespace SkPngRustEncoder {
 
 /*
@@ -63,6 +65,19 @@ struct Options {
      *  79 characters and it can't contain a non-breaking space character.
      */
     sk_sp<SkDataTable> fComments;
+
+    /**
+     * If non-null, then a gainmap and its metadata will be encoded as png chunks.
+     * The gainmap metadata (info) will be encoded in a gmAP chunk. The
+     * gainmap pixels (encoded as a PNG) will be encoded in a gdAT chunk.
+     * This effectively is Option B proposed in this discussion for adding gainmaps
+     * into PNG: https://github.com/w3c/png/issues/380#issuecomment-2325163149.
+     *
+     * Note that if fGainmapInfo is null, then fGainmap will be ignored (not encoded),
+     * as the gainmap metadata is required to correctly interpret the encoded gainmap.
+     */
+    const SkPixmap* fGainmap = nullptr;
+    const SkGainmapInfo* fGainmapInfo = nullptr;
 };
 
 /**
