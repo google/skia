@@ -45,7 +45,7 @@ namespace {
 static const PipelineLabel kOldLabels[] = {
 /*   0 */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] SrcOver" },
 /*   1 */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
@@ -72,7 +72,7 @@ static const PipelineLabel kOldLabels[] = {
                 "RE_MouriMap_CrossTalkAndChunk16x16Effect[LocalMatrix[CoordNormalize[HardwareImage(x247 2020+narrow cos cos nearest F rgba cf1lf0)]+Unpremul+PQ+Gamut+sRGB+Premul]] Src" },
 /*   9 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  10 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
                 "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
@@ -81,19 +81,19 @@ static const PipelineLabel kOldLabels[] = {
                 "BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  12 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
 /*  13 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
                 "BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
 /*  14 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
+                "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /*  15 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
                 "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /*  16 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
+                "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /*  17 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
                 "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
@@ -102,7 +102,7 @@ static const PipelineLabel kOldLabels[] = {
                 "Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]+MatrixColorFilter, Dither] SrcOver" },
 /*  19 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]+MatrixColorFilter SrcOver" },
 /*  20 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
                 "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]+MatrixColorFilter SrcOver" },
@@ -111,38 +111,38 @@ static const PipelineLabel kOldLabels[] = {
                 "RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(x247 2020+narrow cos cos nearest F rgba cf1lf0)]+PreAlpha+TF+Gamut+TF+PostAlpha]]+Dither SrcOver" },
 /*  22 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] SrcOver" },
 /*  23 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] SrcOver AnalyticClip" },
 /*  24 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
                 "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*  25 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha] SrcOver" },
 /*  26 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
                 "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]] SrcOver" },
 /*  27 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + SolidColor SrcOver" },
 /*  28 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  29 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  30 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
+                "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /*  31 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "Compose[BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /*  32 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
+                "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /*  33 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
+                "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
 /*  34 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
@@ -157,7 +157,7 @@ static const PipelineLabel kOldLabels[] = {
                 "LocalMatrix[BlendCompose[CoordNormalize[HardwareImage(0)]+AlphaOnly, RGBPaintColor, DstIn]]+MatrixColorFilter SrcOver" },
 /*  38 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]+MatrixColorFilter SrcOver" },
 /*  39 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(x247 2020+narrow cos cos nearest F rgba cf1lf0)]+PreAlpha+TF+Gamut+TF+PostAlpha]]+Dither SrcOver" },
@@ -166,11 +166,11 @@ static const PipelineLabel kOldLabels[] = {
                 "RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(x247 2020+narrow cos cos nearest F rgba cf1lf0)]+PreAlpha+TF+Gamut+TF+PostAlpha]]+Dither SrcOver AnalyticClip" },
 /*  41 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] Src" },
-/*  42 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] Src" },
+/*  42 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] SrcOver" },
 /*  43 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] SrcOver AnalyticClip" },
 /*  44 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
@@ -179,17 +179,17 @@ static const PipelineLabel kOldLabels[] = {
                 "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver AnalyticClip" },
 /*  46 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha] SrcOver" },
 /*  47 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha] SrcOver" },
 /*  48 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
-/*  49 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]] Src" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha] SrcOver AnalyticClip" },
+/*  49 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]] Src" },
 /*   X */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_GainmapEffect[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+TF+Gamut+TF+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough], PreAlpha+PostAlpha, PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+TF+Gamut+TF+PostAlpha], PreAlpha+PostAlpha, PreAlpha+PostAlpha] Src" },
+                "RE_GainmapEffect[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+TF+Gamut+TF+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough], PreAlpha, PreAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+TF+Gamut+TF+PostAlpha], PreAlpha, PreAlpha] Src" },
 // Obsolete - Android will no longer generate
 /*   X */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
@@ -213,17 +213,17 @@ static const PipelineLabel kOldLabels[] = {
 /*  58 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + SolidColor SrcOver AnalyticClip" },
 /*  59 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "PerEdgeAAQuadRenderStep + "
-                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] Src" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] Src" },
 /*  60 */ { -1, "RP((RGBA8+D16 x1).rgba) + VerticesRenderStep[TrisColor] + PrimitiveColor+GaussianColorFilter+BlendCompose[SolidColor, Passthrough, Modulate] SrcOver" },
 /*  61 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "AnalyticRRectRenderStep + "
-                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  62 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "AnalyticRRectRenderStep + "
                 "BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  63 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "AnalyticRRectRenderStep + "
-                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] SrcOver" },
 /*  64 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "AnalyticRRectRenderStep + "
                 "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]] SrcOver" },
@@ -232,28 +232,28 @@ static const PipelineLabel kOldLabels[] = {
                 "(empty)" },
 /*  66 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  67 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  68 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
+                "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /*  69 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
+                "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /*  70 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "LocalMatrix[BlendCompose[CoordNormalize[HardwareImage(0)]+AlphaOnly, RGBPaintColor, DstIn]]+MatrixColorFilter SrcOver" },
 /*  71 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] Src" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] Src" },
 /*  72 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] SrcOver" },
 /*  73 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha] SrcOver" },
 /*  74 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "SolidColor SrcOver" },
@@ -295,27 +295,27 @@ static const PipelineLabel kOldLabels[] = {
 /*  86 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + SolidColor SrcOver" },
 /*  87 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha] SrcOver" },
 /*  88 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha] SrcOver" },
 /*  89 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + SolidColor SrcOver AnalyticClip" },
 /*  90 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha] SrcOver AnalyticClip" },
 /*  91 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] SrcOver AnalyticClip" },
 /*  92 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + SolidColor Src AnalyticClip" },
 /*  93 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 
 /*  94 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + SolidColor Src AnalyticClip" },
 
 /*  95 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 
 //---------------------------------
           // New Cases 6/17/25
@@ -326,10 +326,10 @@ static const PipelineLabel kOldLabels[] = {
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  98 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
-/*  99 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]] Src" },
+/*  99 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]] Src" },
 /* 100 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] Src" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] Src" },
 
 /* 101 */ { -1, "RP((R8+D16 x1).a000) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
@@ -345,13 +345,13 @@ static const PipelineLabel kOldLabels[] = {
                 "RE_MouriMap_CrossTalkAndChunk16x16Effect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]] Src" },
 /*     */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RuntimeEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] Src" },
+                "RuntimeEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] Src" },
 /* 106 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /* 107 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus] SrcOver" },
+                "BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], Plus] SrcOver" },
 /* 108 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
                 "Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]+MatrixColorFilter, Dither] SrcOver" },
@@ -363,7 +363,7 @@ static const PipelineLabel kOldLabels[] = {
                 "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver AnalyticClip" },
 /*     */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "LocalMatrix[CoordNormalize[HardwareImage(3: gHoAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(3: gHoAAO4AAAAAAAAA)]+PreAlpha] SrcOver" },
 /* 112 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
                 "RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]] SrcOver" },
@@ -378,16 +378,16 @@ static const PipelineLabel kOldLabels[] = {
                 "RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[RE_MouriMap_Tonemap[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /*     */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "RuntimeEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]] Src" },
+                "RuntimeEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]] Src" },
 /* 117 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose[BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+                "BlendCompose[BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], Plus], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 118 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 119 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 120 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
@@ -396,13 +396,13 @@ static const PipelineLabel kOldLabels[] = {
                 "BlendCompose[RuntimeEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 122  */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus] SrcOver AnalyticClip" },
+                "BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], Plus] SrcOver AnalyticClip" },
 /* 123 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
 /* 124  */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver AnalyticClip" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver AnalyticClip" },
 /*     */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "BlendCompose[RuntimeEffect[LocalMatrix[CoordNormalize[HardwareImage(x247 2020+narrow cos cos nearest F rgba cf1lf0)]+PreAlpha+TF+Gamut+TF+PostAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn]+Dither SrcOver" },
@@ -414,32 +414,32 @@ static const PipelineLabel kOldLabels[] = {
                 "Compose[LocalMatrix[BlendCompose[CoordNormalize[HardwareImage(0)]+AlphaOnly, RGBPaintColor, DstIn]]+MatrixColorFilter, Dither] SrcOver" },
 /* 128 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver AnalyticClip" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]+MatrixColorFilter SrcOver AnalyticClip" },
 /* 129 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter SrcOver" },
 
 /*     */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(3: gHMAAPAAAAAAAAAA)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(3: gHMAAPAAAAAAAAAA)]+PreAlpha]+MatrixColorFilter SrcOver" },
 /* 131 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]]+MatrixColorFilter SrcOver AnalyticClip" },
 /*     */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(3: gHIAAPAAAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(3: gHIAAPAAAAAAAAAA)]+PreAlpha] SrcOver" },
 /*     */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(3: gHoAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(3: gHoAAO4AAAAAAAAA)]+PreAlpha] SrcOver" },
 /* 134 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha] SrcOver" },
 /* 135 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha] SrcOver AnalyticClip" },
 /* 136 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha] SrcOver AnalyticClip" },
 /* 137 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]] SrcOver" },
@@ -470,23 +470,23 @@ static const PipelineLabel kOldLabels[] = {
                 "PrimitiveColor+Compose[GaussianColorFilter, BlendCompose[SolidColor, Passthrough, Modulate]] SrcOver" },
 /* 146 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus] SrcOver" },
+                "BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], Plus] SrcOver" },
 /*     */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
+                "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /* 148 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 149 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 
 /* 150 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha] SrcOver" },
 /* 151 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha] SrcOver" },
 /*     */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[RegularCover] + "
                 "SolidColor SrcOver AnalyticClip" },
@@ -501,7 +501,7 @@ static const PipelineLabel kOldLabels[] = {
 
 /* 155 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(x769 709+full mid mid nearest F rgba cf0lf1)]+PreAlpha+PostAlpha] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(x769 709+full mid mid nearest F rgba cf0lf1)]+PreAlpha] SrcOver" },
 
 /* 156 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
@@ -538,28 +538,28 @@ static const PipelineLabel kOldLabels[] = {
 // utilization check.
 /* 61* */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 63* */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "AnalyticRRectRenderStep + "
-                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] SrcOver" },
 /* 66* */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 67* */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+                "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 68* */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
+                "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /* 69* */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
+                "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /* 71* */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] Src" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] Src" },
 /* 72* */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
+                "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] SrcOver" },
 /* 74* */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "SolidColor SrcOver" },
@@ -637,13 +637,13 @@ static const PipelineLabel kOldLabels[] = {
 /* 198 */ { -1,
         "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_GainmapEffect[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Passthrough, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]] Src" },
 
-/* 199 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]] SrcOver" },
+/* 199 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]] SrcOver" },
 // A RRect w/ a RRect clip!!?
-/*     */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]] SrcOver AnalyticClip" },
+/*     */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]] SrcOver AnalyticClip" },
 /* 201 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_BT2020_HLG__UNKNOWN__false__UNKNOWN__Shader[SolidColor]+Unpremul+sRGB+Premul Src" },
 /* 202 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]] SrcOver" },
 /* 203 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver" },
-/* 204 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
+/* 204 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
 /* 205 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /* 206 */ { -1, "RP((RGBA16F+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul]+Unpremul+sRGB+Premul SrcOver" },
 /* 207 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose[BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
@@ -651,7 +651,7 @@ static const PipelineLabel kOldLabels[] = {
 /* 209 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough SrcOver AnalyticClip" },
 /* 210 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, MatrixColorFilter] SrcOver" },
 /* 211 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
-/* 212 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] Src AnalyticClip" },
+/* 212 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] Src AnalyticClip" },
 /* 213 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Passthrough SrcOver" },
 
 /* 214 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul SrcOver" },
@@ -733,7 +733,7 @@ static const PipelineLabel kOldLabels[] = {
 
 /* 266 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[SolidColor]+Unpremul+sRGB+Premul Src" },
 // Odd color space
-/*     */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[SolidColor]+PreAlpha+PostAlpha Src" },
+/*     */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[SolidColor]+PreAlpha Src" },
 /* 268 */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_BT2020_ITU_PQ__DISPLAY_P3__false__0x90a0000__Shader[SolidColor]+Unpremul+sRGB+Premul Src" },
 // Odd man out w/ the clip
 /*     */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[SolidColor]+Unpremul+sRGB+Premul SrcOver AnalyticClip" },
@@ -776,7 +776,7 @@ static const PipelineLabel kOldLabels[] = {
 /*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul+Dither SrcOver" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul]+MatrixColorFilter, Dither] SrcOver" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]]+Premul] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], Plus]]+PreAlpha+PostAlpha, MatrixColorFilter] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], Plus]]+PreAlpha, MatrixColorFilter] SrcOver" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Unpremul+sRGB+Premul]+Unpremul+sRGB+Premul SrcOver" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Gamut+sRGB+Premul]]+Unpremul+sRGB+Premul, AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver AnalyticClip" },
 /*  */ { -1, "RP((RGBA16F+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Passthrough]+Unpremul+sRGB+Premul SrcOver" },
@@ -785,27 +785,27 @@ static const PipelineLabel kOldLabels[] = {
 
 
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]] SrcOver AnalyticClip" },
-/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
+/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]+MatrixColorFilter, Dither] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_KawaseBlurDualFilterV2_UpSampleBlurEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]] SrcOver" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_KawaseBlurDualFilterV2_QuarterResDownSampleBlurEffect[LocalMatrix[CoordClamp[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]]] Src" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + VerticesRenderStep[TrisColor] + PrimitiveColor+GaussianColorFilter+BlendCompose[SolidColor, Passthrough, Modulate] SrcOver AnalyticClip" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x842094169 709+narrow mid mid nearest F rgba cf0lf1)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x842094169 709+narrow mid mid nearest F rgba cf0lf1)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_KawaseBlurDualFilterV2_QuarterResDownSampleBlurEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]] Src" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]] SrcOver" },
 // RRect with clip??!!
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + AnalyticRRectRenderStep + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+MatrixColorFilter, Dither] SrcOver" },
 /*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]] SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]] SrcOver" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_GainmapEffect[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+Passthrough, LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]] Src" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + LocalMatrix[CoordNormalize[HardwareImage(x842094169 709+narrow mid mid nearest F rgba cf0lf1)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + LocalMatrix[CoordNormalize[HardwareImage(x842094169 709+narrow mid mid nearest F rgba cf0lf1)]+PreAlpha]+MatrixColorFilter SrcOver" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter SrcOver AnalyticClip" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]]+MatrixColorFilter, Dither] SrcOver" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
@@ -822,15 +822,15 @@ static const PipelineLabel kNewLabels[] = {
 /*   0 P (63*) */ { 72,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] SrcOver" },
 /*   1 P (61*) */ { 65,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*   2 P (46) */ { 39,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha] SrcOver" },
 /*   3 */ { 38,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -838,7 +838,7 @@ static const PipelineLabel kNewLabels[] = {
 /*   4 P (71*) */ { 37,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] Src" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] Src" },
 /*   5 P (86) */ { 34,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -850,7 +850,7 @@ static const PipelineLabel kNewLabels[] = {
 /*   7 P (67*) */ { 29,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 
 /*   8 */ { 29,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
@@ -871,7 +871,7 @@ static const PipelineLabel kNewLabels[] = {
 /*  12 */ { 21,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  13 */ { 20,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -883,7 +883,7 @@ static const PipelineLabel kNewLabels[] = {
 /*  15 P (91) */ { 17,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] SrcOver AnalyticClip" },
 /*  16 */ { 16,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -895,7 +895,7 @@ static const PipelineLabel kNewLabels[] = {
 /*  18 */ { 16,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]] SrcOver" },
+        "RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]] SrcOver" },
 /*  19 */ { 16,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -907,11 +907,11 @@ static const PipelineLabel kNewLabels[] = {
 /*  21 */ { 14,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(3: gHMAAPAAAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: gHMAAPAAAAAAAAAA)]+PreAlpha] SrcOver" },
 /*  22 */ { 14,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha] SrcOver" },
 /*  23 */ { 13,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -919,35 +919,35 @@ static const PipelineLabel kNewLabels[] = {
 /*  24 */ { 12,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  25 */ { 12,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /*  26 */ { 11,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /*  27 */ { 10,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha] SrcOver" },
 /*  28 P (146) */ { 10,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus] SrcOver" },
+        "BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], Plus] SrcOver" },
 /*  29 */ { 9 ,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAPAAAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAPAAAAAAAAAA)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  30 */ { 9 ,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  31 */ { 8 ,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAPAAAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAPAAAAAAAAAA)]+PreAlpha] SrcOver" },
 /*  32 */ { 8 ,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -955,11 +955,11 @@ static const PipelineLabel kNewLabels[] = {
 /*  33 */ { 7,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(3: gHoAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: gHoAAO4AAAAAAAAA)]+PreAlpha] SrcOver" },
 /*  34 */ { 7,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha] SrcOver" },
 /*  35 P (89) */ { 7,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -979,23 +979,23 @@ static const PipelineLabel kNewLabels[] = {
 /*  39 */ { 6,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha] SrcOver AnalyticClip" },
 /*  40 */ { 6,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha] SrcOver" },
 /*  41 */ { 6,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  42 */ { 5,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "LocalMatrix[CoordNormalize[HardwareImage(3: gHoAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: gHoAAO4AAAAAAAAA)]+PreAlpha] SrcOver" },
 /*  43 */ { 5,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha] SrcOver" },
 /*  44 */ { 5,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1007,7 +1007,7 @@ static const PipelineLabel kNewLabels[] = {
 /*  46 P (166 - 69*) */ { 5,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
+        "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /*  47 */ { 5,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1019,19 +1019,19 @@ static const PipelineLabel kNewLabels[] = {
 /*  49 P (71) */ { 5,
         "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] Src" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] Src" },
 /*  50 */ { 5,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  51 */ { 5,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: gHAAAC8AAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: gHAAAC8AAAAAAAAA)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  52 */ { 5,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
+        "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
 /*  53 */ { 4,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -1051,7 +1051,7 @@ static const PipelineLabel kNewLabels[] = {
 /*  57 */ { 4,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(3: gHAAAC8AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: gHAAAC8AAAAAAAAA)]+PreAlpha] SrcOver" },
 /*  58 */ { 4,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1075,7 +1075,7 @@ static const PipelineLabel kNewLabels[] = {
 /*  63 */ { 4,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  64 */ { 4,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -1087,7 +1087,7 @@ static const PipelineLabel kNewLabels[] = {
 /*  66 */ { 3,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: gHIAAPAAAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: gHIAAPAAAAAAAAAA)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  67 */ { 3,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1095,7 +1095,7 @@ static const PipelineLabel kNewLabels[] = {
 /*  68 */ { 3,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
+        "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /*  69 */ { 3,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -1103,7 +1103,7 @@ static const PipelineLabel kNewLabels[] = {
 /*  70 */ { 3,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: gHAAAC8AAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: gHAAAC8AAAAAAAAA)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  71 */ { 3,
         "RP((RGBA16F+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1119,7 +1119,7 @@ static const PipelineLabel kNewLabels[] = {
 /*  74 P (28) */ { 3,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  75 */ { 3,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1131,15 +1131,15 @@ static const PipelineLabel kNewLabels[] = {
 /*  77 */ { 3,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus] SrcOver AnalyticClip" },
+        "BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], Plus] SrcOver AnalyticClip" },
 /*  78 */ { 3,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]] SrcOver" },
+        "RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]] SrcOver" },
 /*  79 */ { 3,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha] SrcOver" },
 /*  80 */ { 3,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -1163,7 +1163,7 @@ static const PipelineLabel kNewLabels[] = {
 /*  85 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]] Src" },
+        "RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]] Src" },
 /*  86 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1179,11 +1179,11 @@ static const PipelineLabel kNewLabels[] = {
 /*  89 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
+        "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /*  90 */ { 2,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose[BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], Plus], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  91 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1211,7 +1211,7 @@ static const PipelineLabel kNewLabels[] = {
 /*  97 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] SrcOver AnalyticClip" },
 /*  98 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -1243,7 +1243,7 @@ static const PipelineLabel kNewLabels[] = {
 /* 105 P (63) */ { 2,
         "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
         "AnalyticRRectRenderStep + "
-        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] SrcOver" },
 /* 106 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1255,7 +1255,7 @@ static const PipelineLabel kNewLabels[] = {
 /* 108 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 109 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -1279,7 +1279,7 @@ static const PipelineLabel kNewLabels[] = {
 /* 114 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] SrcOver" },
 /* 115 */ { 2,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1287,7 +1287,7 @@ static const PipelineLabel kNewLabels[] = {
 /* 116 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAO4AAAAAAAAA)]+PreAlpha] SrcOver" },
 /* 117 */ { 2,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1303,11 +1303,11 @@ static const PipelineLabel kNewLabels[] = {
 /* 120 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: gHAAAC8AAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: gHAAAC8AAAAAAAAA)]+PreAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
 /* 121 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAO4AAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAO4AAAAAAAAA)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 122 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -1319,7 +1319,7 @@ static const PipelineLabel kNewLabels[] = {
 /* 124 */ { 2,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
+        "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /* 125 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1343,11 +1343,11 @@ static const PipelineLabel kNewLabels[] = {
 /* 130 */ { 2,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
+        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha] SrcOver AnalyticClip" },
 /* 131 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
 /* 132 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -1355,7 +1355,7 @@ static const PipelineLabel kNewLabels[] = {
 /* 133 */ { 2,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(3: gHIAAPAAAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: gHIAAPAAAAAAAAAA)]+PreAlpha] SrcOver" },
 /* 134 */ { 2,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1363,11 +1363,11 @@ static const PipelineLabel kNewLabels[] = {
 /* 135 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHIAAO0AAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHIAAO0AAAAAAAAA)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 136 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(3: kHIAAO0AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHIAAO0AAAAAAAAA)]+PreAlpha] SrcOver" },
 /* 137 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -1379,7 +1379,7 @@ static const PipelineLabel kNewLabels[] = {
 /* 139 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(3: kHAAAC8AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHAAAC8AAAAAAAAA)]+PreAlpha] SrcOver" },
 /* 140 */ { 1,
         "RP((RGBA16F+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -1391,15 +1391,15 @@ static const PipelineLabel kNewLabels[] = {
 /* 142 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAPAAAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAPAAAAAAAAAA)]+PreAlpha] SrcOver" },
 /* 143 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kEsAAPcAAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kEsAAPcAAAAAAAAA)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 144 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 145 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1411,7 +1411,7 @@ static const PipelineLabel kNewLabels[] = {
 /* 147 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]+MatrixColorFilter SrcOver" },
 /* 148 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1419,7 +1419,7 @@ static const PipelineLabel kNewLabels[] = {
 /* 149 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "VerticesRenderStep[TrisTexCoords] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver" },
 /* 150 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1427,11 +1427,11 @@ static const PipelineLabel kNewLabels[] = {
 /* 151 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus] SrcOver" },
+        "BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], Plus] SrcOver" },
 /* 152 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
+        "Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
 /* 153 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -1439,7 +1439,7 @@ static const PipelineLabel kNewLabels[] = {
 /* 154 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAPAAAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAPAAAAAAAAAA)]+PreAlpha] SrcOver" },
 /* 155 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1447,7 +1447,7 @@ static const PipelineLabel kNewLabels[] = {
 /* 156 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAO4AAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAO4AAAAAAAAA)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 157 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1459,11 +1459,11 @@ static const PipelineLabel kNewLabels[] = {
 /* 159 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
+        "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /* 160 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAPAAAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAPAAAAAAAAAA)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 161 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -1479,7 +1479,7 @@ static const PipelineLabel kNewLabels[] = {
 /* 164 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver AnalyticClip" },
+        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha]+MatrixColorFilter SrcOver AnalyticClip" },
 /* 165 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1487,7 +1487,7 @@ static const PipelineLabel kNewLabels[] = {
 /* 166 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "LocalMatrix[CoordNormalize[HardwareImage(3: kHIAAO0AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHIAAO0AAAAAAAAA)]+PreAlpha] SrcOver" },
 /* 167 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1507,7 +1507,7 @@ static const PipelineLabel kNewLabels[] = {
 /* 171 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* 172 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1515,7 +1515,7 @@ static const PipelineLabel kNewLabels[] = {
 /* 173 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(3: kHoAAO0AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHoAAO0AAAAAAAAA)]+PreAlpha] SrcOver" },
 /* 174 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1539,7 +1539,7 @@ static const PipelineLabel kNewLabels[] = {
 /* 179 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha] SrcOver" },
 
 /* 180 */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
@@ -1547,7 +1547,7 @@ static const PipelineLabel kNewLabels[] = {
         "RE_BoxShadowEffect SrcOver AnalyticClip" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
+"BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
 "BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver" },
@@ -1559,7 +1559,7 @@ static const PipelineLabel kNewLabels[] = {
 "Compose[Compose[RE_LinearEffect_BT2020_ITU_HLG__DISPLAY_BT2020__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(3: kEwAAPcAAAAAAAAA)]+PreAlpha+TF+Gamut+TF+PostAlpha]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha], Dither] SrcOver" },
 /* */ { 1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
+"LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha] SrcOver AnalyticClip" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
 "Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
@@ -1568,19 +1568,19 @@ static const PipelineLabel kNewLabels[] = {
 "Compose[Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /* */ { 1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus]+MatrixColorFilter SrcOver" },
+"BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], Plus]+MatrixColorFilter SrcOver" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
 "Compose[BlendCompose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver AnalyticClip" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
+"RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /**/ { 1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
 "AnalyticRRectRenderStep + "
 "RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Premul]] SrcOver" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]] Src" },
+"RE_BlurFilter_MixEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]] Src" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
 "BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
@@ -1592,19 +1592,19 @@ static const PipelineLabel kNewLabels[] = {
 "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[Compose[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /* */ { 1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+"LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAO4AAAAAAAAA)]+PreAlpha] SrcOver" },
 /* */ { 1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
 "AnalyticRRectRenderStep + "
-"BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAPAAAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+"BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAPAAAAAAAAAA)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "AnalyticRRectRenderStep + "
-"BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAPAAAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+"BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kHMAAPAAAAAAAAAA)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* */ { 1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
 "AnalyticRRectRenderStep + "
 "Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
+"BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x240 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
 "RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
@@ -1621,7 +1621,7 @@ static const PipelineLabel kNewLabels[] = {
 "CoverBoundsRenderStep[NonAAFill] + "
 "Compose[Compose[RE_LinearEffect_BT2020_ITU_HLG__DISPLAY_BT2020__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(3: kEwAAPcAAAAAAAAA)]+PreAlpha+TF+Gamut+TF+PostAlpha]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha], Dither] SrcOver AnalyticClip" },
 /* */ { 1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + CoverBoundsRenderStep[NonAAFill] + "
-"LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
+"LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] SrcOver AnalyticClip" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "AnalyticRRectRenderStep + "
 "RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]] SrcOver" },
@@ -1630,25 +1630,25 @@ static const PipelineLabel kNewLabels[] = {
 "Compose[RE_LinearEffect_0x188a0000__V0_SRGB__true__0x9010000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter, Dither] SrcOver" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
-"RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
+"RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "AnalyticRRectRenderStep + "
-"BlendCompose[BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+"BlendCompose[BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], Plus], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* */ { 1, "RP((RGBA8+D16 x1).rgba) + "
 "CoverBoundsRenderStep[NonAAFill] + "
 "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver AnalyticClip" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose[RE_LinearEffect_SRGB__SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha], Dither] SrcOver AnalyticClip" },
+        "Compose[RE_LinearEffect_SRGB__SRGB__true__UNKNOWN__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], PreAlpha+sRGB+Gamut+sRGB+PostAlpha, PreAlpha+sRGB+Gamut+sRGB+PostAlpha], Dither] SrcOver AnalyticClip" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(3: kEoAAPcAAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kEoAAPcAAAAAAAAA)]+PreAlpha] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], Plus], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
+        "BlendCompose[BlendCompose[SolidColor, LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], Plus], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1656,15 +1656,15 @@ static const PipelineLabel kNewLabels[] = {
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha] SrcOver AnalyticClip" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] SrcOver AnalyticClip" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kEoAAPcAAAAAAAAA)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(3: kEoAAPcAAAAAAAAA)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1672,11 +1672,11 @@ static const PipelineLabel kNewLabels[] = {
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver AnalyticClip" },
+        "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha]+MatrixColorFilter SrcOver AnalyticClip" },
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1688,7 +1688,7 @@ static const PipelineLabel kNewLabels[] = {
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[Compose[RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[Compose[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]], PreAlpha+PostAlpha]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[Compose[RE_LinearEffect_V0_SRGB__V0_SRGB__true__UNKNOWN__Shader[Compose[RE_MouriMap_TonemapEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul], LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]], PreAlpha]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1716,7 +1716,7 @@ static const PipelineLabel kNewLabels[] = {
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
+        "Compose[BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1724,7 +1724,7 @@ static const PipelineLabel kNewLabels[] = {
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x238 709+full mid mid nearest F rgba cf1lf0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -1732,7 +1732,7 @@ static const PipelineLabel kNewLabels[] = {
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(3: gHAAAC8AAAAAAAAA)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: gHAAAC8AAAAAAAAA)]+PreAlpha]+MatrixColorFilter SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "AnalyticRRectRenderStep + "
@@ -1756,15 +1756,15 @@ static const PipelineLabel kNewLabels[] = {
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "AnalyticRRectRenderStep + "
-        "LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: kHsAAO4AAAAAAAAA)]+PreAlpha] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha]+MatrixColorFilter SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]+MatrixColorFilter SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "LocalMatrix[CoordNormalize[HardwareImage(3: gHAAAC8AAAAAAAAA)]+PreAlpha+PostAlpha] SrcOver" },
+        "LocalMatrix[CoordNormalize[HardwareImage(3: gHAAAC8AAAAAAAAA)]+PreAlpha] SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
@@ -1776,7 +1776,7 @@ static const PipelineLabel kNewLabels[] = {
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "
-        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+PostAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
+        "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
         "CoverBoundsRenderStep[NonAAFill] + "

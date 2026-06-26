@@ -1289,8 +1289,10 @@ void ColorSpaceTransformBlock::AddBlock(const KeyContext& keyContext,
     } else {
         stageIDs.push_back(BuiltInCodeSnippetID::kCSXform_PreAlpha);
         BEGIN_WRITE_UNIFORMS(keyContext, BuiltInCodeSnippetID::kCSXform_PreAlpha)
-        float mode = data.fReadSwizzle[3] == '1' ?  1.f : // force-opaque
-                     steps.fFlags.unpremul       ? -1.f   // unpremul
+        const bool inlinePremul = identityConversion && steps.fFlags.premul;
+        float mode = data.fReadSwizzle[3] == '1' ?  2.f : // force-opaque
+                     steps.fFlags.unpremul       ? -1.f : // unpremul
+                     inlinePremul                ?  1.f   // premul w/o a PostAlpha stage
                                                  :  0.f;  // no-op
         keyContext.pipelineDataGatherer()->writeHalf(mode);
     }
@@ -1334,12 +1336,12 @@ void ColorSpaceTransformBlock::AddBlock(const KeyContext& keyContext,
         if (steps.fFlags.premul) {
             stageIDs.push_back(BuiltInCodeSnippetID::kCSXform_Premul);
         } // else elide the no-op
-    } else {
+    } else if (!identityConversion) {
         stageIDs.push_back(BuiltInCodeSnippetID::kCSXform_PostAlpha);
         BEGIN_WRITE_UNIFORMS(keyContext, BuiltInCodeSnippetID::kCSXform_PostAlpha)
         float premul = steps.fFlags.premul ? 0.f : 1.f;
         keyContext.pipelineDataGatherer()->writeHalf(premul);
-    }
+    } // else any premul is handled by the PreAlpha stage
 
     if (stageIDs.empty()) {
         // We've specialized down to the identity function, but we need to add a block

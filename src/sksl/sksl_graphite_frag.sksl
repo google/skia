@@ -87,14 +87,19 @@ $pure float3 $apply_ootf(float3 x, float4 ootf) {
 
 // Alpha stages
 
-// General form handling unpremul, forcing to opaque, or no-op
+// General form handling unpremul, forcing to opaque, premul, or no-op
+// NOTE: premul is only ever used when the pseudo-specialized csxform would be PreAlpha+PostAlpha,
+// in which case the post-alpha premul is mutually exclusive with the rest of the pre-alpha options.
 $pure half4 sk_csxform_prealpha(half4 color, half mode) {
     if (mode < 0) {
         return unpremul(color);
     } else {
-        // mode = 1 forces to opaque, mode = 0 is a no-op
-        half alpha = max(color.a, mode);
-        return half4(color.rgb, alpha);
+        // mode = 0 => alpha = max(a, -1) = a; premul = max(a,  1) = 1 => no-op
+        // mode = 1 => alpha = max(a,  0) = a; premul = max(a,  0) = a => premul
+        // mode = 2 => alpha = max(a,  1) = 1; premul = max(1, -1) = 1 => force-opaque
+        half alpha  = max(color.a, mode - 1);
+        half premul = max(alpha,   1 - mode);
+        return half4(color.rgb*premul, alpha);
     }
 }
 
