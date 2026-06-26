@@ -1059,7 +1059,13 @@ BuiltInCodeSnippetID add_xfer_fn(const KeyContext& keyContext,
             SkASSERT(!ootf);
             // Actual sRGB gamma curve to apply
             BEGIN_WRITE_UNIFORMS(keyContext, BuiltInCodeSnippetID::kCSXform_sRGB)
-            keyContext.pipelineDataGatherer()->write(SkV4{xferFn.g, xferFn.a, xferFn.b, xferFn.c});
+            // sk_csxform_srgb skips all work when g == 0, so prefer that for an identity step
+            // (vs. calling $apply_srgb_xfer_fn with values resulting in the identity).
+            float g = xferFn.g;
+            if (memcmp(&xferFn, &kLinearTF, sizeof(skcms_TransferFunction)) == 0) {
+                g = 0.f;
+            }
+            keyContext.pipelineDataGatherer()->write(SkV4{g, xferFn.a, xferFn.b, xferFn.c});
             keyContext.pipelineDataGatherer()->write(SkV3{xferFn.d, xferFn.e, xferFn.f});
             return BuiltInCodeSnippetID::kCSXform_sRGB;
         }
