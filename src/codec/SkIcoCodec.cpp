@@ -178,7 +178,13 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
         std::unique_ptr<SkCodec> codec;
         Result ignoredResult;
         if (SkPngDecoder::IsPng(embeddedData->bytes(), embeddedData->size())) {
-            codec = SkPngDecoder::Decode(std::move(embeddedStream), &ignoredResult);
+            codec = SkCodec::MakeFromStream(std::move(embeddedStream), &ignoredResult);
+            if (!codec) {
+                // Fallback to the hardcoded C++ PNG decoder in case the caller
+                // did not register any PNG decoder in the global registry.
+                auto fallbackStream = SkMemoryStream::Make(embeddedData);
+                codec = SkPngDecoder::Decode(std::move(fallbackStream), &ignoredResult);
+            }
         } else {
             codec = SkBmpCodec::MakeFromIco(std::move(embeddedStream), &ignoredResult);
         }
