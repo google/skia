@@ -1591,3 +1591,20 @@ DEF_TEST(RRect_b511391129, r) {
         REPORTER_ASSERT(r, rrect.isValid());
     }
 }
+
+DEF_TEST(RRect_b527765132, r) {
+    // These values were found via fuzzing to trigger a validation due to ULPs only not being a
+    // good way to compare floats
+    const float width = 37.408840f;
+    const float height = 73.093933f;
+    const float dx = -5430.867188f;
+    const float dy = -26967.046875f;
+
+    SkRect rect = SkRect::MakeWH(width, height);
+    SkRRect rrect = SkRRect::MakeOval(rect);
+
+    SkRRect offsetRRect = rrect.makeOffset(dx, dy);
+
+    REPORTER_ASSERT(r, offsetRRect.isValid());
+    REPORTER_ASSERT(r, offsetRRect.isOval());
+}

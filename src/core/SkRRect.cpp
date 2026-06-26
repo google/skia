@@ -789,11 +789,18 @@ bool SkRRect::isValid() const {
                     return false;
                 }
 
-                const SkFloatingPoint<float, 1> desiredWidth(SkRectPriv::HalfWidth(fRect));
-                const SkFloatingPoint<float, 1> desiredHeight(SkRectPriv::HalfHeight(fRect));
+                float desiredWidthVal = SkRectPriv::HalfWidth(fRect);
+                float desiredHeightVal = SkRectPriv::HalfHeight(fRect);
+                const SkFloatingPoint<float, 4> desiredWidth(desiredWidthVal);
+                const SkFloatingPoint<float, 4> desiredHeight(desiredHeightVal);
+
                 for (int i = 0; i < 4; ++i) {
-                    const SkFloatingPoint<float, 1> x(fRadii[i].fX), y(fRadii[i].fY);
-                    if (!x.AlmostEquals(desiredWidth) || !y.AlmostEquals(desiredHeight)) {
+                    const SkFloatingPoint<float, 4> x(fRadii[i].fX), y(fRadii[i].fY);
+                    bool xMatches = SkScalarNearlyEqual(fRadii[i].fX, desiredWidthVal) ||
+                                    x.AlmostEquals(desiredWidth);
+                    bool yMatches = SkScalarNearlyEqual(fRadii[i].fY, desiredHeightVal) ||
+                                    y.AlmostEquals(desiredHeight);
+                    if (!xMatches || !yMatches) {
                         return false;
                     }
                 }
