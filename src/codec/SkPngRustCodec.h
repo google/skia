@@ -140,6 +140,8 @@ private:
     bool canReadRow();
     void processUnknownChunks();
     bool isLastFrame();
+    bool isSampling() const;
+    Result initializeSamplerParams(DecodingState& decodingState);
 
     // SkCodec overrides:
     Result onGetPixels(const SkImageInfo& dstInfo,

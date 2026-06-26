@@ -5,17 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "include/codec/SkPngChunkReader.h"
 #include "include/codec/SkPngRustDecoder.h"
-#include "src/codec/SkCodecPriv.h"
 
 #include <functional>
 #include <memory>
+#include <optional>
 #include <utility>
 
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkCodecAnimation.h"
+#include "include/codec/SkPngChunkReader.h"
+#if defined(SK_CODEC_DECODES_PNG_WITH_LIBPNG)
+#include "include/codec/SkPngDecoder.h"
+#endif
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorType.h"
@@ -26,6 +29,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkGainmapInfo.h"
+#include "src/codec/SkCodecPriv.h"
 #include "tests/FakeStreams.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
@@ -257,6 +261,85 @@ static void CompareBitmaps(skiatest::Reporter* r, const SkBitmap& bm1, const SkB
     }
 }
 
+static std::optional<SkBitmap> DecodeAndroidPixels(
+        skiatest::Reporter* r,
+        std::unique_ptr<SkCodec> codec,
+        int sampleSize,
+        std::function<SkIRect(const SkImageInfo&)> getSubset = nullptr,
+        SkCodec::Result expectedResult = SkCodec::kSuccess) {
+    REPORTER_ASSERT(r, codec);
+    if (!codec) {
+        return std::nullopt;
+    }
+
+    auto androidCodec = SkAndroidCodec::MakeFromCodec(std::move(codec));
+    REPORTER_ASSERT(r, androidCodec);
+    if (!androidCodec) {
+        return std::nullopt;
+    }
+
+    SkAndroidCodec::AndroidOptions opts;
+    opts.fSampleSize = sampleSize;
+
+    SkIRect subset;
+    if (getSubset) {
+        subset = getSubset(androidCodec->getInfo());
+        opts.fSubset = &subset;
+    }
+
+    SkISize sampledDims = androidCodec->getSampledDimensions(sampleSize);
+    SkImageInfo info =
+            androidCodec->getInfo().makeDimensions(sampledDims).makeColorType(kN32_SkColorType);
+    if (opts.fSubset) {
+        int subsetWidth = SkCodecPriv::GetSampledDimension(opts.fSubset->width(), sampleSize);
+        int subsetHeight = SkCodecPriv::GetSampledDimension(opts.fSubset->height(), sampleSize);
+        info = info.makeWH(subsetWidth, subsetHeight);
+    }
+
+    SkBitmap bm;
+    bm.allocPixels(info);
+    auto result = androidCodec->getAndroidPixels(info, bm.getPixels(), bm.rowBytes(), &opts);
+    REPORTER_ASSERT(r, result == expectedResult);
+    if (result != expectedResult) {
+        return std::nullopt;
+    }
+    return bm;
+}
+
+static void AssertAndroidDecodeSampling(
+        skiatest::Reporter* r,
+        const char* path,
+        int sampleSize,
+        std::function<SkIRect(const SkImageInfo&)> getSubset = nullptr) {
+    sk_sp<SkData> data = GetResourceAsData(path);
+    if (!data) {
+        ERRORF(r, "Missing resource: %s", path);
+        return;
+    }
+
+    std::optional<SkBitmap> rustBm = DecodeAndroidPixels(
+            r,
+            SkPngRustDecoder::Decode(std::make_unique<SkMemoryStream>(data), nullptr),
+            sampleSize,
+            getSubset);
+
+#if defined(SK_CODEC_DECODES_PNG_WITH_LIBPNG)
+    std::optional<SkBitmap> libpngBm = DecodeAndroidPixels(
+            r,
+            SkPngDecoder::Decode(std::make_unique<SkMemoryStream>(data), nullptr),
+            sampleSize,
+            getSubset);
+
+    if (!rustBm || !libpngBm) {
+        return;
+    }
+
+    CompareBitmaps(r, *rustBm, *libpngBm);
+#else
+    REPORTER_ASSERT(r, rustBm.has_value());
+#endif
+}
+
 static void AssertAndroidDecodeSamplingUnimplemented(
         skiatest::Reporter* r,
         const char* path,
@@ -268,49 +351,11 @@ static void AssertAndroidDecodeSamplingUnimplemented(
         return;
     }
 
-    SkCodec::Result result;
-    std::unique_ptr<SkCodec> rustCodec =
-            SkPngRustDecoder::Decode(std::make_unique<SkMemoryStream>(data), &result);
-    REPORTER_ASSERT(r, rustCodec);
-    if (!rustCodec) {
-        return;
-    }
-
-    auto rustAndroidCodec = SkAndroidCodec::MakeFromCodec(std::move(rustCodec));
-    REPORTER_ASSERT(r, rustAndroidCodec);
-    if (!rustAndroidCodec) {
-        return;
-    }
-
-    SkAndroidCodec::AndroidOptions opts;
-    opts.fSampleSize = sampleSize;
-
-    SkIRect subset;
-    if (getSubset) {
-        subset = getSubset(rustAndroidCodec->getInfo());
-        opts.fSubset = &subset;
-    }
-
-    SkISize sampledDims = rustAndroidCodec->getSampledDimensions(sampleSize);
-    SkImageInfo info =
-            rustAndroidCodec->getInfo().makeDimensions(sampledDims).makeColorType(kN32_SkColorType);
-    if (opts.fSubset) {
-        int subsetWidth = SkCodecPriv::GetSampledDimension(opts.fSubset->width(), sampleSize);
-        int subsetHeight = SkCodecPriv::GetSampledDimension(opts.fSubset->height(), sampleSize);
-        info = info.makeWH(subsetWidth, subsetHeight);
-    }
-
-    SkBitmap rustBm;
-    rustBm.allocPixels(info);
-    if (!rustBm.getPixels()) {
-        ERRORF(r, "Failed to allocate pixels for info: %s", path);
-        return;
-    }
-
-    auto rustResult =
-            rustAndroidCodec->getAndroidPixels(info, rustBm.getPixels(), rustBm.rowBytes(), &opts);
-
-    REPORTER_ASSERT(r, rustResult == SkCodec::kUnimplemented);
+    DecodeAndroidPixels(r,
+                        SkPngRustDecoder::Decode(std::make_unique<SkMemoryStream>(data), nullptr),
+                        sampleSize,
+                        getSubset,
+                        SkCodec::kUnimplemented);
 }
 
 sk_sp<SkImage> DecodeLastFrame(skiatest::Reporter* r, SkCodec* codec) {
@@ -1270,7 +1315,7 @@ DEF_TEST(RustPngCodec_subset_halting, r) {
 
 DEF_TEST(RustPngCodec_subsampling, r) {
     for (int sampleSize : {2, 3, 5, 8, 100, 1000}) {
-        AssertAndroidDecodeSamplingUnimplemented(r, "images/plane.png", sampleSize);
+        AssertAndroidDecodeSampling(r, "images/plane.png", sampleSize);
     }
 }
 
@@ -1281,14 +1326,18 @@ DEF_TEST(RustPngCodec_subsampling_interlaced, r) {
 }
 
 DEF_TEST(RustPngCodec_subsampling_subset, r) {
-    AssertAndroidDecodeSamplingUnimplemented(r, "images/plane.png", 2, [](const SkImageInfo& info) {
-        return SkIRect::MakeXYWH(info.width() / 2, 0, info.width() / 2, info.height());
-    });
+    for (int sampleSize : {2, 3, 5, 8, 100, 1000}) {
+        AssertAndroidDecodeSampling(r, "images/plane.png", sampleSize, [](const SkImageInfo& info) {
+            return SkIRect::MakeXYWH(info.width() / 2, 0, info.width() / 2, info.height());
+        });
+    }
 }
 
 DEF_TEST(RustPngCodec_subsampling_subset_interlaced, r) {
-    AssertAndroidDecodeSamplingUnimplemented(
-            r, "images/plane_interlaced.png", 2, [](const SkImageInfo& info) {
-                return SkIRect::MakeXYWH(0, 1, info.width(), info.height() - 1);
-            });
+    for (int sampleSize : {2, 3, 5, 8, 100, 1000}) {
+        AssertAndroidDecodeSamplingUnimplemented(
+                r, "images/plane_interlaced.png", sampleSize, [](const SkImageInfo& info) {
+                    return SkIRect::MakeXYWH(0, 1, info.width(), info.height() - 1);
+                });
+    }
 }

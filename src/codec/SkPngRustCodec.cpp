@@ -21,6 +21,7 @@
 #include "modules/skcms/skcms.h"
 #include "rust/common/SpanUtils.h"
 #include "rust/png/FFI.rs.h"
+#include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkFrameHolder.h"
 #include "src/codec/SkParseEncodedOrigin.h"
 #include "src/codec/SkPngCompositeChunkReader.h"
@@ -766,6 +767,10 @@ bool SkPngRustCodec::isLastFrame() {
            (this->options().fFrameIndex + 1 == this->getRawFrameCount());
 }
 
+bool SkPngRustCodec::isSampling() const {
+    return this->swizzler() && (this->swizzler()->sampleX() > 1 || this->swizzler()->sampleY() > 1);
+}
+
 // Given the dstInfo and the rust colortype/bits per component, determines if we
 // can use rust_png::Reader::read_row to decode directly into dst.
 bool SkPngRustCodec::canReadRow() {
@@ -773,8 +778,8 @@ bool SkPngRustCodec::canReadRow() {
     if (this->dstInfo().alphaType() != kUnpremul_SkAlphaType) {
         return false;
     }
-    // We use temporary buffer to read the full image for subsets.
-    if (this->options().fSubset) {
+    // We cannot decode directly when subsetting or sub-sampling.
+    if (this->options().fSubset || this->isSampling()) {
         return false;
     }
 
@@ -814,14 +819,29 @@ bool SkPngRustCodec::canReadRow() {
     return true;
 }
 
+SkCodec::Result SkPngRustCodec::initializeSamplerParams(DecodingState& decodingState) {
+    decodingState.fDecodingDstInfo.fDstRowSize = this->getDstRowBytes();
+    return kSuccess;
+}
+
 SkCodec::Result SkPngRustCodec::incrementalDecodeXForm(DecodingState& decodingState,
                                                        int* rowsDecodedPtr) {
     SkASSERT_RELEASE(!this->canReadRow());
     this->initializeXformParams();
 
+    Result initResult = this->initializeSamplerParams(decodingState);
+    if (initResult != kSuccess) {
+        return initResult;
+    }
+
+    const bool isSampling = this->isSampling();
     const bool interlaced = fReader->interlaced();
     const bool subset = this->options().fSubset;
     DecodingDstInfo& decodingDst = decodingState.fDecodingDstInfo;
+
+    const int sampleY = this->swizzler() ? this->swizzler()->sampleY() : 1;
+    const int maxRows = SkCodecPriv::GetSampledDimension(
+            decodingState.fLastRow - decodingState.fFirstRow + 1, sampleY);
 
     while (true) {
         rust::Slice<const uint8_t> decodedRow;
@@ -834,9 +854,9 @@ SkCodec::Result SkPngRustCodec::incrementalDecodeXForm(DecodingState& decodingSt
             return result;
         }
 
-        // This is how FFI layer says "no more rows". We also want to stop reading rows
-        // if we are at the end of our subset.
-        if (decodedRow.empty() || decodingState.fCurrentSourceRow > decodingState.fLastRow) {
+        // This is how FFI layer says "no more rows", or if we have decoded all the rows
+        // we need for our subset or sampling.
+        if (decodedRow.empty() || decodingState.fRowsWrittenToOutput >= maxRows) {
             if (interlaced && !decodingState.fPreblendBuffer.empty()) {
                 if (subset) {
                     this->getSubsetFromFullImage(SkSpan<uint8_t>(decodingState.fPreblendBuffer),
@@ -852,7 +872,7 @@ SkCodec::Result SkPngRustCodec::incrementalDecodeXForm(DecodingState& decodingSt
                                  this->dstInfo().alphaType());
                 }
             }
-            if (!interlaced && !subset) {
+            if (!interlaced && !subset && !isSampling) {
                 // All of the original `fDst` should be filled out at this point.
                 SkASSERT_RELEASE(decodingDst.fDst.empty());
             }
@@ -901,9 +921,21 @@ SkCodec::Result SkPngRustCodec::incrementalDecodeXForm(DecodingState& decodingSt
             if (y < 0) {
                 continue;
             }
+            if (this->swizzler() && !this->swizzler()->rowNeeded(y)) {
+                continue;
+            }
+
             if (decodingState.fPreblendBuffer.empty()) {
                 this->applyXformRow(decodingDst.fDst, decodedRow);
             } else {
+                // Non-empty `fPreblendBuffer` implies 2nd or later frame of
+                // a APNG.  But `SkPngRustCodec::getSampler` returns nullptr
+                // for APNGs.  So we don't need to worry about sub-sampling
+                // here (maybe it works, but when enabling it we should be
+                // careful, add tests, etc.).  Note that `this->swizzler()`
+                // may be non-null when no sub-sampling happens, because we
+                // may still need to "swizzle" between color formats.
+                SkASSERT_RELEASE(!isSampling);
                 this->applyXformRow(decodingState.fPreblendBuffer, decodedRow);
                 blendRow(decodingDst.fDst,
                          decodingState.fPreblendBuffer,
@@ -1327,4 +1359,9 @@ SkCodec::Result SkPngRustCodec::FrameHolder::setFrameInfoFromCurrentFctlChunk(
 
 void SkPngRustCodec::processUnknownChunks() { ReadUnknownChunks(*fReader, fPngChunkReader.get()); }
 
-SkSampler* SkPngRustCodec::getSampler(bool createIfNecessary) { return nullptr; }
+SkSampler* SkPngRustCodec::getSampler(bool createIfNecessary) {
+    if (this->isAnimated() != IsAnimated::kNo || fReader->interlaced()) {
+        return nullptr;
+    }
+    return SkPngCodecBase::getSampler(createIfNecessary);
+}
