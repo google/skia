@@ -218,6 +218,13 @@ std::unique_ptr<SkCodec> SkCrabbyAvifCodec::MakeFromData(std::unique_ptr<SkStrea
         return nullptr;
     }
 
+    if (gainmapOnly && !avifDecoder->image->gainMap) {
+        *result = SkCodec::kInvalidInput;
+        return nullptr;
+    }
+    crabbyavif::avifImage* image =
+            gainmapOnly ? avifDecoder->image->gainMap->image : avifDecoder->image;
+
     // CrabbyAvif uses MediaCodec, which always sets bitsPerComponent to 8.
     const int bitsPerComponent = 8;
     SkEncodedInfo::Color color;
@@ -225,16 +232,13 @@ std::unique_ptr<SkCodec> SkCrabbyAvifCodec::MakeFromData(std::unique_ptr<SkStrea
     if (avifDecoder->alphaPresent && !gainmapOnly) {
         color = SkEncodedInfo::kRGBA_Color;
         alpha = SkEncodedInfo::kUnpremul_Alpha;
+    } else if (image->yuvFormat == crabbyavif::AVIF_PIXEL_FORMAT_YUV400) {
+        color = SkEncodedInfo::kGray_Color;
+        alpha = SkEncodedInfo::kOpaque_Alpha;
     } else {
         color = SkEncodedInfo::kRGB_Color;
         alpha = SkEncodedInfo::kOpaque_Alpha;
     }
-    if (gainmapOnly && !avifDecoder->image->gainMap) {
-        *result = SkCodec::kInvalidInput;
-        return nullptr;
-    }
-    crabbyavif::avifImage* image =
-            gainmapOnly ? avifDecoder->image->gainMap->image : avifDecoder->image;
     auto width = image->width;
     auto height = image->height;
     if (image->transformFlags & crabbyavif::AVIF_TRANSFORM_CLAP) {
@@ -372,6 +376,10 @@ SkCodec::IsAnimated SkCrabbyAvifCodec::onIsAnimated() {
 bool SkCrabbyAvifCodec::conversionSupported(const SkImageInfo& dstInfo,
                                             bool srcIsOpaque,
                                             bool needsColorXform) {
+    if (dstInfo.colorType() == kGray_8_SkColorType) {
+        return this->getEncodedInfo().color() == SkEncodedInfo::kGray_Color;
+    }
+
     return dstInfo.colorType() == kRGBA_8888_SkColorType ||
            dstInfo.colorType() == kBGRA_8888_SkColorType ||
            dstInfo.colorType() == kRGBA_1010102_SkColorType ||
@@ -394,6 +402,7 @@ SkCodec::Result SkCrabbyAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
         case kRGB_565_SkColorType:
+        case kGray_8_SkColorType:
             fAvifDecoder->androidMediaCodecOutputColorFormat =
                     crabbyavif::ANDROID_MEDIA_CODEC_OUTPUT_COLOR_FORMAT_YUV420_FLEXIBLE;
             break;
@@ -503,6 +512,10 @@ SkCodec::Result SkCrabbyAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
         case kRGB_565_SkColorType:
             rgbImage.depth = 8;
             rgbImage.format = crabbyavif::AVIF_RGB_FORMAT_RGB565;
+            break;
+        case kGray_8_SkColorType:
+            rgbImage.depth = 8;
+            rgbImage.format = crabbyavif::AVIF_RGB_FORMAT_GRAY;
             break;
         default:
             // Not reached because of the checks in conversionSupported().

@@ -17,6 +17,7 @@
 #include "include/core/SkTypes.h"
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecPriv.h"
+#include "src/core/SkRectMemcpy.h"
 #include "src/core/SkStreamPriv.h"
 
 #include <cstdint>
@@ -96,6 +97,9 @@ std::unique_ptr<SkCodec> SkAvifCodec::MakeFromStream(std::unique_ptr<SkStream> s
     if (avifDecoder->alphaPresent) {
         color = SkEncodedInfo::kRGBA_Color;
         alpha = SkEncodedInfo::kUnpremul_Alpha;
+    } else if (avifDecoder->image->yuvFormat == AVIF_PIXEL_FORMAT_YUV400) {
+        color = SkEncodedInfo::kGray_Color;
+        alpha = SkEncodedInfo::kOpaque_Alpha;
     } else {
         color = SkEncodedInfo::kRGB_Color;
         alpha = SkEncodedInfo::kOpaque_Alpha;
@@ -206,9 +210,15 @@ SkCodec::Result SkAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
     }
 
     const SkColorType dstColorType = dstInfo.colorType();
+    if (dstColorType == kGray_8_SkColorType &&
+        this->getEncodedInfo().color() != SkEncodedInfo::kGray_Color) {
+        return kInvalidConversion;
+    }
+
     if (dstColorType != kRGBA_8888_SkColorType
         && dstColorType != kBGRA_8888_SkColorType
-        && dstColorType != kRGBA_F16_SkColorType) {
+        && dstColorType != kRGBA_F16_SkColorType
+        && dstColorType != kGray_8_SkColorType) {
         // TODO(vigneshv): Check if more color types need to be supported.
         // Currently android supports at least RGB565 which is not
         // supported here.
@@ -226,6 +236,20 @@ SkCodec::Result SkAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
         if (result != AVIF_RESULT_OK) {
             return kInvalidInput;
         }
+    }
+
+    if (dstColorType == kGray_8_SkColorType) {
+        if (fAvifDecoder->image->depth != 8) {
+            return kInvalidConversion;
+        }
+        const uint8_t* srcRow = fAvifDecoder->image->yuvPlanes[AVIF_CHAN_Y];
+        size_t srcRowBytes = fAvifDecoder->image->yuvRowBytes[AVIF_CHAN_Y];
+
+        SkRectMemcpy(dst, dstRowBytes, srcRow, srcRowBytes, dstInfo.width(), dstInfo.height());
+        if (rowsDecoded) {
+            *rowsDecoded = dstInfo.height();
+        }
+        return kSuccess;
     }
 
     avifRGBImage rgbImage;

@@ -230,4 +230,17 @@ DEF_TEST(AvifDecodeAnimationWithAlpha, r) {
     run_avif_test(r, t);
 }
 
+DEF_TEST(AvifDecodeMonochrome, r) {
+    AvifTestCase t = {.path = "images/monochrome.avif",
+                      .imageWidth = 2,
+                      .imageHeight = 2,
+                      .bitmapWidth = 2,
+                      .bitmapHeight = 2,
+                      .expectedFrameCount = 1,
+                      .expectedFrameDuration = 0,
+                      .color_type = kGray_8_SkColorType,
+                      .alpha_type = kOpaque_SkAlphaType};
+    run_avif_test(r, t);
+}
+
 #endif  // SK_CODEC_DECODES_AVIF
