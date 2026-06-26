@@ -424,6 +424,9 @@ def generate_args(target_os, enable_gpu, libskia_variant = LibSkiaVariant.HWUI):
     d['skia_enable_pdf'] = 'false'
     d['skia_use_freetype'] = 'false'
     d['skia_use_fontations'] = 'false'
+    d['skia_use_rust_png_decode'] = 'false'
+    d['skia_use_rust_png_encode'] = 'false'
+    d['skia_use_rust_png_for_android'] = 'false'
     d['skia_use_fixed_gamma_text'] = 'false'
     d['skia_use_expat'] = 'false'
     d['skia_enable_fontmgr_custom_empty'] = 'false'
@@ -431,6 +434,9 @@ def generate_args(target_os, enable_gpu, libskia_variant = LibSkiaVariant.HWUI):
     d['skia_enable_android_utils'] = 'true'
     d['skia_use_freetype'] = 'true'
     d['skia_use_fontations'] = 'true'
+    d['skia_use_rust_png_decode'] = 'true'
+    d['skia_use_rust_png_encode'] = 'true'
+    d['skia_use_rust_png_for_android'] = 'true'
     d['skia_use_fixed_gamma_text'] = 'true'
     d['skia_enable_fontmgr_custom_empty'] = 'true'
     d['skia_use_wuffs'] = 'true'
@@ -439,6 +445,9 @@ def generate_args(target_os, enable_gpu, libskia_variant = LibSkiaVariant.HWUI):
   # Tweaks for OOPR-specific variant of RenderEngine
   if libskia_variant is LibSkiaVariant.RENDERENGINE_OOPR:
     d['skia_use_libpng_decode'] = 'true'
+    d['skia_use_rust_png_decode'] = 'true'
+    d['skia_use_rust_png_encode'] = 'true'
+    d['skia_use_rust_png_for_android'] = 'true'
     d['skia_use_freetype'] = 'true'
     d['skia_use_fontations'] = 'true'
 
