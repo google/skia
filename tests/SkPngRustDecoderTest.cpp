@@ -265,8 +265,7 @@ static std::optional<SkBitmap> DecodeAndroidPixels(
         skiatest::Reporter* r,
         std::unique_ptr<SkCodec> codec,
         int sampleSize,
-        std::function<SkIRect(const SkImageInfo&)> getSubset = nullptr,
-        SkCodec::Result expectedResult = SkCodec::kSuccess) {
+        std::function<SkIRect(const SkImageInfo&)> getSubset = nullptr) {
     REPORTER_ASSERT(r, codec);
     if (!codec) {
         return std::nullopt;
@@ -299,8 +298,8 @@ static std::optional<SkBitmap> DecodeAndroidPixels(
     SkBitmap bm;
     bm.allocPixels(info);
     auto result = androidCodec->getAndroidPixels(info, bm.getPixels(), bm.rowBytes(), &opts);
-    REPORTER_ASSERT(r, result == expectedResult);
-    if (result != expectedResult) {
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+    if (result != SkCodec::kSuccess) {
         return std::nullopt;
     }
     return bm;
@@ -338,24 +337,6 @@ static void AssertAndroidDecodeSampling(
 #else
     REPORTER_ASSERT(r, rustBm.has_value());
 #endif
-}
-
-static void AssertAndroidDecodeSamplingUnimplemented(
-        skiatest::Reporter* r,
-        const char* path,
-        int sampleSize,
-        std::function<SkIRect(const SkImageInfo&)> getSubset = nullptr) {
-    sk_sp<SkData> data = GetResourceAsData(path);
-    if (!data) {
-        ERRORF(r, "Missing resource: %s", path);
-        return;
-    }
-
-    DecodeAndroidPixels(r,
-                        SkPngRustDecoder::Decode(std::make_unique<SkMemoryStream>(data), nullptr),
-                        sampleSize,
-                        getSubset,
-                        SkCodec::kUnimplemented);
 }
 
 sk_sp<SkImage> DecodeLastFrame(skiatest::Reporter* r, SkCodec* codec) {
@@ -1321,7 +1302,7 @@ DEF_TEST(RustPngCodec_subsampling, r) {
 
 DEF_TEST(RustPngCodec_subsampling_interlaced, r) {
     for (int sampleSize : {2, 3, 5, 8, 100, 1000}) {
-        AssertAndroidDecodeSamplingUnimplemented(r, "images/plane_interlaced.png", sampleSize);
+        AssertAndroidDecodeSampling(r, "images/plane_interlaced.png", sampleSize);
     }
 }
 
@@ -1335,7 +1316,7 @@ DEF_TEST(RustPngCodec_subsampling_subset, r) {
 
 DEF_TEST(RustPngCodec_subsampling_subset_interlaced, r) {
     for (int sampleSize : {2, 3, 5, 8, 100, 1000}) {
-        AssertAndroidDecodeSamplingUnimplemented(
+        AssertAndroidDecodeSampling(
                 r, "images/plane_interlaced.png", sampleSize, [](const SkImageInfo& info) {
                     return SkIRect::MakeXYWH(0, 1, info.width(), info.height() - 1);
                 });

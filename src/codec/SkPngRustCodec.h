@@ -218,13 +218,16 @@ private:
     // chunk.
     bool fCanParseAdditionalFrameInfos = true;
 
-    // When decoding interlaced subsets, decode the full image into a buffer in
-    // the encoded colortype and extract a rect subset for the final dst using
-    // this function. This function will use applyXFormRow() for each row.
-    void getSubsetFromFullImage(SkSpan<const uint8_t> fullImageBuffer,
-                                SkSpan<uint8_t> dst,
-                                size_t dstRowStride,
-                                size_t offset);
+    // When decoding interlaced subsets or sampling, decode the full image into a
+    // buffer in the encoded colortype and extract/sample for the final dst using
+    // this function. This function will use applyXFormRow() for needed rows.
+    void getSubsetOrSampleFromFullImage(SkSpan<const uint8_t> fullImageBuffer,
+                                        SkSpan<uint8_t> dst,
+                                        size_t dstRowStride,
+                                        size_t offset,
+                                        int srcHeight,
+                                        int dstHeight,
+                                        size_t dstRowSize);
 };
 
 #endif  // SkPngRustCodec_DEFINED

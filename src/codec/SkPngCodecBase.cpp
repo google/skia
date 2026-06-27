@@ -187,8 +187,8 @@ void SkPngCodecBase::initializeXformParams() {
         SkASSERT_RELEASE(0 < fXformWidth);
         SkASSERT_RELEASE(fXformWidth < 0xFFFFFF);
 
-        fDstRowBytes = SkCodecPriv::ComputeRowBytesBytesPerPixel(fXformWidth,
-                                                                 this->dstInfo().bytesPerPixel());
+        fDstRowSize = SkCodecPriv::ComputeRowBytesBytesPerPixel(fXformWidth,
+                                                                this->dstInfo().bytesPerPixel());
     }
 }
 
@@ -290,7 +290,7 @@ SkSampler* SkPngCodecBase::getSampler(bool createIfNecessary) {
 }
 
 void SkPngCodecBase::applyXformRow(SkSpan<uint8_t> dstRow, SkSpan<const uint8_t> srcRow) {
-    SkASSERT_RELEASE(dstRow.size() >= fDstRowBytes);
+    SkASSERT_RELEASE(dstRow.size() >= fDstRowSize);
     SkASSERT_RELEASE(srcRow.size() >= fEncodedRowBytes);
     applyXformRow(dstRow.data(), srcRow.data());
 }
