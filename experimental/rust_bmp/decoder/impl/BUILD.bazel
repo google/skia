@@ -26,6 +26,7 @@ skia_cc_library(
     hdrs = [":skbmprustcodec_hdrs"],
     visibility = [
         "//experimental/rust_bmp:__subpackages__",
+        "//experimental/rust_ico:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [

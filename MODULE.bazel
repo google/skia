@@ -145,7 +145,10 @@ crate.annotation(
 )
 crate.spec(
     default_features = False,
-    features = ["bmp"],
+    features = [
+        "bmp",
+        "ico",
+    ],
     # Using image crate with streaming/resumable BMP decoder API.
     # rows_decoded() returns RowsDecoded enum for orientation detection.
     git = "https://github.com/image-rs/image.git",
