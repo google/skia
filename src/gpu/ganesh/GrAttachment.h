@@ -53,8 +53,11 @@ public:
 
     skgpu::Mipmapped mipmapped() const { return fMipmapped; }
 
-    bool hasPerformedInitialClear() const { return fHasPerformedInitialClear; }
-    void markHasPerformedInitialClear() { fHasPerformedInitialClear = true; }
+    SkIRect clearedArea() const { return fClearedArea; }
+    bool hasAreaBeenCleared(SkIRect attachmentArea) const {
+        return fClearedArea.contains(attachmentArea);
+    }
+    void markAreaCleared(SkIRect area) { fClearedArea = area; }
 
     // This unique key is used for attachments of the same dimensions, usage, and sample cnt which
     // are shared between multiple render targets at the same time. Only one usage flag may be
@@ -117,7 +120,9 @@ private:
     UsageFlags fSupportedUsages;
     int fSampleCnt;
     skgpu::Mipmapped fMipmapped;
-    bool fHasPerformedInitialClear = false;
+    // Track which area of the attachment has already been cleared to cut down on unnecessary clear
+    // operations, which can be more expensive on desktop GPUs than loads.
+    SkIRect fClearedArea = SkIRect::MakeEmpty();
     GrMemoryless fMemoryless;
 
     using INHERITED = GrSurface;
