@@ -13,6 +13,8 @@
 #include "src/gpu/graphite/sparse_strips/Strip.h"
 #include "src/gpu/graphite/sparse_strips/Tiler.h"
 
+#include <cstdint>
+
 namespace skgpu::graphite {
 
 template <uint16_t kTileWidth, uint16_t kTileHeight, bool kIsWinding>
@@ -28,7 +30,8 @@ public:
                          , MsaaExactMaskObserver observer
 #endif
                          )
-            : fStripBuf(stripBuf)
+            : fCoarseWinding(0)
+            , fStripBuf(stripBuf)
             , fAlphaBuf(alphaBuf)
             , fIsInverse(isInverse)
             , fPolyline(polyline)
@@ -71,7 +74,7 @@ public:
 
     // Once all tiles at the same geometric location have been combined, the subsample winding must
     // be converted to alpha values consumable by the fragment shader.
-    SK_ALWAYS_INLINE void resolveTileToAlpha() {
+    SK_ALWAYS_INLINE void resolveWindingToAlpha() {
         uint8_t* tileAlphaBase = this->reserveAlphaBuffer();
         int localWriteIdx = 0;
 
@@ -423,12 +426,12 @@ public:
     //            grazing tiles. Both must have L-bits. Like case (C), one of the `*leftEdge` flags
     //            must evaluate to `false`, triggering truncation for the shadows of both lines.
     //
-    //  4. Winding and Sidedness
+    //  4. Winding and Coverage Inversion
     //     The mask returned by the LUT is entirely pixel-local; it only represents which subsamples
     //     fall on the "positive" side of the line equation within the pixel. This is always the
     //     result of the equivalent left-right scanline crossing (e.g., the positive side is always
     //     to the right of the crossing). Instead, the winding in the mask is corrected using
-    //     "sidedness."
+    //     "coverage inversion."
     //
     //     We must also account for Clockwise (CW) vs. Counterclockwise (CCW) winding directions
     //     when using the NonZero fill rule. (The EvenOdd rule simply computes parity via XOR). For
@@ -444,24 +447,24 @@ public:
     //             accumulate (e.g., 1 + 1 = 2), keeping the area filled.
     //
     //     Thus, for any pixel intersected by the line, its winding contribution *to that local
-    //     tile* is given by `canonicalYDir * (LUT - sidedness)` where:
+    //     tile* is given by `canonicalYDir * (LUT - invert)` where:
     //          A) `LUT` is the value of a single subsample location (e.g., 0 or 1).
     //
     //          B) `canonicalYDir` determines the *direction* of the winding contribution (e.g., 1
     //             or -1). Again, note that for the EvenOdd fill rule, this is unnecessary, as the
     //             result of an XOR is equivalent regardless of direction.
     //
-    //          C) `sidedness` is a boolean that essentially acts as a toggle: if false, the LUT's
+    //          C) `invert` is a boolean that essentially acts as a toggle: if false, the LUT's
     //             mask is used as-is. If true, the mask is inverted. Note that for the NonZero fill
     //             rule, subtraction is not the equivalent of XOR (i.e., (0 ^ 1) != 0 - 1).
     //
-    //     There are two rules for sidedness:
-    //          A) `startSidedness = pTopY != floor && topIsOnLeftEdge`: applies only to the entrant
+    //     There are two rules for coverage inversion:
+    //          A) `startInvert = pTopY != floor && topIsOnLeftEdge`: applies only to the entrant
     //             or starting pixel in the tile.
     //
-    //          B) `defaultSidedness = pTopY != floor && sortedXDir`: applies to all other pixels.
+    //          B) `defaultInvert = pTopY != floor && sortedXDir`: applies to all other pixels.
     //
-    //     Both sidedness rules share the `pTopY != floor` parameter, which has two effects:
+    //     Both inversion rules share the `pTopY != floor` parameter, which has two effects:
     //          A) fillLeft applies to pixel rows above `ceil(pLeftIntersectionY)`. If pTopY is
     //             pixel-aligned (i.e., `pTopY == floor`), then fillLeft already applies to the
     //             top row, requiring no correction.
@@ -475,7 +478,7 @@ public:
     //             edge
     //          B) `sortedXDir` is *only true when the implicitly descending (e.g. pTopY->pBotY)*
     //             line is right travelling.
-    //     Thus, it is useful to first think about sidedness in terms of a simple downward-right
+    //     Thus, it is useful to first think about coverage inversion in terms of a simple downward-right
     //     sloping line contained in a single row. It can start interior to the row:
     //
     //          +----------------+----------------+----------------+----------------+
@@ -503,7 +506,7 @@ public:
     //          +----------------+----------------+----------------+----------------+
     //
     //     This line can either be on the top edge of the geometry, implying a CW path direction, or
-    //     on the bottom edge, implying CCW. Regardless of the path direction, the mask sidedness
+    //     on the bottom edge, implying CCW. Regardless of the path direction, the mask inversion
     //     should always follow the Right-Hand Rule on the equivalent CW path, with CW/CCW only
     //     affecting the winding direction. Thus, if a line is:
     //
@@ -512,7 +515,7 @@ public:
     //        requiring correction. The ascending case requires no correction, as the LUT correctly
     //        places the filled mask below the line.
     //
-    //        For the descending case, the mask subtracts `sidedness`, resulting in 0/1 -> -1/0.
+    //        For the descending case, the mask subtracts `invert`, resulting in 0/1 -> -1/0.
     //        Since the line is descending, canonicalYDir = 1, resulting in -1/0 * 1 = -1/0. Since
     //        the path must be CW, the interior must be negative, matching the LUT.
     //
@@ -556,39 +559,39 @@ public:
     //     to* (`p1.fY >= p0.fY`). As a result, these horizontal lines are treated as the
     //     right-descending lines described above.
     //
-    //  5. Sidedness and Truncation
-    //     Up until this point, we have not discussed how sidedness interacts with truncation. To
-    //     reiterate: truncation masks away vertical spans, while sidedness correction shifts
+    //  5. Coverage Inversion and Truncation
+    //     Up until this point, we have not discussed how inversion interacts with truncation. To
+    //     reiterate: truncation masks away vertical spans, while inversion correction shifts
     //     winding. Because this interaction can be mutually exclusive based on which pixel in the
-    //     top row is being processed, we use two variables `startSidedness` and `defaultSidedness`
-    //     to differentiate the cases:
+    //     top row is being processed, we use two variables `startInvert` and `defaultInvert` to
+    //     differentiate the cases:
     //
-    //     A) `startSidedness` (The topmost pixel in the top row of the tile.)
-    //        For the first pixel a line segment touches in the tile, truncation and sidedness are
+    //     A) `startInvert` (The topmost pixel in the top row of the tile.)
+    //        For the first pixel a line segment touches in the tile, truncation and inversion are
     //        mutually exclusive. Truncation at the start of a line masks out the area *above* the
-    //        line's starting Y-plane. Because sidedness correction already forces winding below the
+    //        line's starting Y-plane. Because inversion correction already forces winding below the
     //        line, truncating that top area is redundant. Thus, the starting pixel either corrects
     //        or truncates, but never both:
     //
     //        -- Left-Edge Touching: A line starting on the left edge (`topIsOnLeftEdge`) applies
-    //           sidedness but skips truncation, casting its winding into the pixel. A descending
+    //           inversion but skips truncation, casting its winding into the pixel. A descending
     //           line terminating on the left edge (`!topIsOnLeftEdge`) must truncate to handle its
-    //           sibling's contribution; it skips sidedness, relying on the sibling to place the
+    //           sibling's contribution; it skips inversion, relying on the sibling to place the
     //           winding on the correct side.
     //
     //        -- Interior Terminating: If the start is in the interior (`!topIsOnLeftEdge`), it must
     //           always truncate. Just like the left-edge terminating case, it relies on the sibling
-    //           pixel's contribution for correct mask toggling, so sidedness is skipped.
+    //           pixel's contribution for correct mask toggling, so inversion is skipped.
     //
-    //     B) `defaultSidedness` (All other pixels in the top row.)
-    //        For the remaining pixels in the top row, sidedness and truncation are *not* mutually
-    //        exclusive. Because sidedness pushes winding below the line, it can interact with
+    //     B) `defaultInvert` (All other pixels in the top row.)
+    //        For the remaining pixels in the top row, inversion and truncation are *not* mutually
+    //        exclusive. Because inversion pushes winding below the line, it can interact with
     //        *bottom* truncation:
     //
-    //        -- Continuing Pixels: These simply apply sidedness and are not truncated.
+    //        -- Continuing Pixels: These simply apply inversion and are not truncated.
     //
     //        -- Ending Pixels: If a segment is completely contained within the topmost row, its
-    //           final pixel receives *both* `defaultSidedness` correction and truncation. The fill
+    //           final pixel receives *both* `defaultInvert` correction and truncation. The fill
     //           is corrected to 0/-1 beneath the line, and because it is an end pixel, truncation
     //           masks away the area *below* the pixel's ending Y-plane. This forms a triangle
     //           region bounded by the truncation plane, the line, and the left pixel edge.
@@ -598,10 +601,10 @@ public:
     //     an adjacent tile, producing two single-point "grazing touches" on the left edge of the
     //     current tile. Because they meet at a single point, the clipping/tiler logic guarantees
     //     one segment evaluates `topIsOnLeftEdge` to true, and the other to false. Thanks to the
-    //     mutual exclusivity of `startSidedness`:
-    //          -- The segment evaluating to `true` applies sidedness but no truncation, casting the
+    //     mutual exclusivity of `startInvert`:
+    //          -- The segment evaluating to `true` applies inversion but no truncation, casting the
     //             winding shadow.
-    //          -- The segment evaluating to `false` applies truncation but no sidedness, masking
+    //          -- The segment evaluating to `false` applies truncation but no inversion, masking
     //             the shadow.
     //
     SK_ALWAYS_INLINE void rasterizeLineToTile(const Tile& tile, std::array<SkPoint, 2> tileBounds) {
@@ -609,8 +612,8 @@ public:
         bool canonicalXDir = line.p1.fX >= line.p0.fX;
         bool canonicalYDir = line.p1.fY >= line.p0.fY;
 
-        // Accumulate the coarse winding for the next spatial tile, fSubsampleWinding has already been
-        // seeded during tile state transition.
+        // Accumulate the coarse winding for the next spatial tile, fSubsampleWinding has already
+        // been seeded during tile state transition.
         uint32_t windingBit = tile.coarseWinding() ? 1 : 0;
         if constexpr (kIsWinding) {
             fCoarseWinding += (canonicalYDir ? 1 : -1) * static_cast<int32_t>(windingBit);
@@ -630,7 +633,6 @@ public:
         float invDx = (std::abs(dx) <= Strip::kStripEpsilon) ? 0.0f : 1.0f / dx;
         float invDy = (std::abs(dy) <= Strip::kStripEpsilon) ? 0.0f : 1.0f / dy;
         float dxdy = dx * invDy;
-
         std::array<float, 4> derivs = {dx, dy, invDx, invDy};
 
         auto [clippedLine, topIsOnLeftEdge, botIsOnLeftEdge] =
@@ -664,17 +666,17 @@ public:
         int32_t endY = static_cast<int32_t>(std::ceil(pBot.fY));
 
         // Find x-intersection for each pixel row; rows which have no intersection will return NaN
-        auto rows = FindRowIntersections(pTop, pBot, dxdy, startY, endY);
-        LineStepParams params = this->computeLineStepParams(pTop, pBot, dx, dy);
+        auto rowInt = FindRowIntersections(pTop, pBot, dxdy, startY, endY);
+        LineStepParams stepParams = this->computeLineStepParams(pTop, pBot, dx, dy);
 
         // For each intersected pixel row, determine the "fine" coverage.
         for (int32_t row = startY; row < endY; ++row) {
-            float pTopX = rows[row].fX;
-            float pTopY = rows[row].fY;
-            float pBotX = rows[row + 1].fX;
-            float pBotY = rows[row + 1].fY;
+            float pTopX = rowInt[row].fX;
+            float pTopY = rowInt[row].fY;
+            float pBotX = rowInt[row + 1].fX;
+            float pBotY = rowInt[row + 1].fY;
 
-            // This should never happen, and the SIMD implementation simply asserts this.
+            // This should never happen, the SIMD implementation handles through loop peeling
             if (std::isnan(pTopX) || std::isnan(pBotX)) {
                 continue;
             }
@@ -689,59 +691,56 @@ public:
             // Compute the initial normalized translation parameter `tVal` at the starting pixel
             // (xStart, row) of the span using the linear projection formula:
             // t(x, y) = tBase + stepY * y + stepX * x
-            float tVal = params.fTBase + params.fStepY * static_cast<float>(row) +
-                         params.fStepX * static_cast<float>(xStart);
+            float tVal = stepParams.fTBase + stepParams.fStepY * static_cast<float>(row) +
+                         stepParams.fStepX * static_cast<float>(xStart);
 
             bool isStartY = (row == startY);
             bool isEndYMinus1 = (row == endY - 1);
 
-            // Check if the geometry touches the top edge of the current pixel.
-            // TODO (thomsmit): rename this.
-            bool pixelTopTouch = (pTopY != std::floor(pTopY) && isStartY);
-            bool defaultSidedness = pixelTopTouch && params.fSortedXDir;
+            bool crossedTop = pTopY == std::floor(pTopY);
+            bool defaultInvert = !crossedTop && stepParams.fSortedXDir;
 
-            int canonicalStartX = params.fSortedXDir ? xStart : xEnd;
-            int canonicalEndX = params.fSortedXDir ? xEnd : xStart;
+            int canonicalStartX = stepParams.fSortedXDir ? xStart : xEnd;
+            int canonicalEndX = stepParams.fSortedXDir ? xEnd : xStart;
 
             // The Look-Up Table (LUT) assumes that lines always fully traverse a pixel. However, if
             // the line terminates inside a pixel, start and end masks must be used to truncate the
-            // line's winding contribution.
-            uint8_t startMaskVal = 0xff;
-            bool startInvertsSidedness = defaultSidedness;
+            // line's winding contribution. For a detailed explanation on *why* truncation is
+            // necessary, and *when* we truncate, see section 2 above. For details on the mechanics
+            // of truncation itself, see GetTruncationMask() below.
+            uint8_t startMask = 0xff;
+            bool startInvert = defaultInvert;
             if (isStartY) {
-                startInvertsSidedness = (topIsOnLeftEdge && pixelTopTouch);
+                startInvert = (topIsOnLeftEdge && !crossedTop);
                 if (!topIsOnLeftEdge) {
                     // Truncate subsamples above the segment's starting y.
-                    uint32_t shift = static_cast<uint32_t>(
-                            std::round(8.0f * (pTopY - static_cast<float>(row))));
-                    startMaskVal = static_cast<uint8_t>(0xff << shift);
+                    startMask =
+                            GetTruncationMask</*kIsStart=*/true>(pTopY, static_cast<float>(row));
                 }
             }
 
-            uint8_t endMaskVal = 0xff;
+            uint8_t endMask = 0xff;
             if (isEndYMinus1 && !botIsOnLeftEdge) {
                 // Truncate subsamples below the segment's ending y.
-                uint32_t shift = static_cast<uint32_t>(
-                        std::round(8.0f * (pBotY - static_cast<float>(row))));
-                endMaskVal = static_cast<uint8_t>(~(0xff << shift));
+                endMask =
+                        GetTruncationMask</*kIsStart=*/false>(pBotY, static_cast<float>(row));
             }
 
             // Iterate left-to-right through the pixels in the current row.
             for (int32_t column = xStart; column <= xEnd; ++column) {
-                uint8_t maskVal = this->lutLookup(tVal, params.fLutRow);
+                uint8_t maskVal = this->lutLookup(tVal, stepParams.fLutRow);
 
                 // Apply the truncation masks if we are at the geometric ends of the segment.
                 uint8_t edgeMask = 0xff;
-                if (column == canonicalStartX) edgeMask &= startMaskVal;
-                if (column == canonicalEndX) edgeMask &= endMaskVal;
+                if (column == canonicalStartX) edgeMask &= startMask;
+                if (column == canonicalEndX) edgeMask &= endMask;
                 maskVal &= edgeMask;
 
                 // Correct when LUT places the fill on the incorrect side of the line. Note: The
                 // lutMask may already be in the correct configuration, requiring no adjustment. The
                 // logic for the top pixel is is different. See section 4 above.
-                bool invertSidedness =
-                        (isStartY && column == canonicalStartX) ? startInvertsSidedness :
-                                                                  defaultSidedness;
+                bool shouldInvert = (isStartY && column == canonicalStartX) ? startInvert
+                                                                            : defaultInvert;
 
                 for (int32_t k = 0; k < Strip::kNumSubSamples; ++k) {
                     // Extract the 1 or 0 from the LUT for this specific sub-sample.
@@ -750,7 +749,7 @@ public:
                     // Accumulate the corrected mask bit into the tile's subsample winding.
                     if constexpr (kIsWinding) {
                         // For NonZero rule, the mask *subtracts* the correction.
-                        maskBit -= invertSidedness;
+                        maskBit -= shouldInvert;
                         if (maskBit != 0) {
                             if (canonicalYDir) {
                                 fSubsampleWinding[row][column][k] += maskBit;
@@ -760,17 +759,16 @@ public:
                         }
                     } else {
                         // EvenOdd rule just uses XOR.
-                        fSubsampleWinding[row][column][k] ^= (maskBit ^ invertSidedness);
+                        fSubsampleWinding[row][column][k] ^= (maskBit ^ shouldInvert);
                     }
                 }
 
                 // Step to the next column: since the X coordinate increases by 1.0, incrementally
                 // add stepX to the translation parameter `tVal` (DDA).
-                tVal += params.fStepX;
+                tVal += stepParams.fStepX;
             }
 
-            // CrossingTop
-            bool crossedTop = (row > startY) || (pTopY == std::floor(pTopY));
+            // Crossing top
             if (crossedTop) {
                 int32_t val;
                 if constexpr (kIsWinding) {
@@ -813,7 +811,7 @@ private:
     // For testing, we need to know the fill rule result for each subsample location, not just the
     // summed alpha that we store in the alpha buffer. So on testing builds, we store the exact
     // results in a mask for each pixel in the tile.
-    [[maybe_unused]]
+#if defined(GPU_TEST_UTILS)
     SK_ALWAYS_INLINE void observePixel(int32_t row, int32_t column) {
         uint8_t exactMask = 0;
         for (int32_t k = 0; k < Strip::kNumSubSamples; ++k) {
@@ -826,6 +824,7 @@ private:
         }
         fObserver(exactMask);
     }
+#endif
 
     // To convert fSubsampleWinding to alpha, we naively iterate through each subsample location and
     // check the winding against the fill rule. In the SIMD version, this is done more effeciently.
@@ -883,17 +882,70 @@ private:
 
     SK_ALWAYS_INLINE static std::array<SkPoint, kTileHeight + 1> FindRowIntersections(
             SkPoint pTop, SkPoint pBot, float dxdy, int32_t startY, int32_t endY) {
-        std::array<SkPoint, kTileHeight + 1> rows;
-        rows.fill(SkPoint::Make(std::numeric_limits<float>::quiet_NaN(),
-                                std::numeric_limits<float>::quiet_NaN()));
-        rows[startY] = pTop;
+        std::array<SkPoint, kTileHeight + 1> rowInt;
+        rowInt.fill(SkPoint::Make(std::numeric_limits<float>::quiet_NaN(),
+                                  std::numeric_limits<float>::quiet_NaN()));
+        rowInt[startY] = pTop;
         for (int32_t row = startY + 1; row < endY; ++row) {
             float gy = static_cast<float>(row);
             float gx = pTop.fX + (gy - pTop.fY) * dxdy;
-            rows[row] = {gx, gy};
+            rowInt[row] = {gx, gy};
         }
-        rows[endY] = pBot;
-        return rows;
+        rowInt[endY] = pBot;
+        return rowInt;
+    }
+
+    // When truncating, we mask away subsamples *above* the topmost point or subsamples *below*
+    // bottommost point. (These can be the raw line endpoint or a tile edge intersection). To do
+    // this, we rely on the properties of our LUT mask construction:
+    //
+    //  1. N-Rooks Subsample Pattern: The D3D11 subsample pattern is intentionally skewed so that no
+    //     two points share the same X or Y coordinate. For MSAAx8, each of the 8 subsamples
+    //     occupies its own distinct 1/8th vertical slice of the pixel (MSAA_LUT.h:L130), so the
+    //     fractional vertical distance inside the pixel maps linearly to the number of subsamples.
+    //     Thus, multiplying the fractional Y coordinate by 8.0f (e.g., 8.0f * (pTopY - float(row)))
+    //     directly yields the correct bit shift amount. If samples shared the same Y plane, mapping
+    //     distance to a shift amount would require manual correction to the shift amount.
+    //
+    //  2. Vertically Sorted Subsamples: The subsample mask bits are ordered bottom-to-top, with the
+    //     LSB corresponding to the topmost subsample point in the pixel. Because they are sorted
+    //     sequentially by their Y-coordinates, bitshifting left/right correctly corresponds to
+    //     truncating top/bottom.
+    //
+    // Mechanically, truncation works by bitwise ANDing a start or end mask against the LUT's
+    // output. To generate these masks, we start with a fully covered mask (e.g., `0xff` for MSAAx8)
+    // and shift it based on the point's vertical position inside the pixel:
+    // `shift = round(8.0f * (p - float(row)))`.
+    //
+    // Because our tile traversal is top-to-bottom, `row` is always the Y-coordinate of the top edge
+    // of the current row. Therefore, `p - row` gives the fractional distance from the top edge down
+    // to point `p`.
+    //
+    // Rounding is a convenient trick that converts that fractional distance into an integer shift
+    // amount. Because the subsample locations are placed at pixel centers (MSAA_LUT.h:L130), a
+    // fractional distance > .5 must be crossing (and thus truncated) and vice versa. This maps
+    // almost exactly to semantics of rounding, enabling this conversion to be completed in a single
+    // hardware instruction. A side effect of this is that lines which end precisely at vertical
+    // pixel midpoints (e.g. n.5), will roundup and truncate, but this is visually inconsequential
+    // and well worth the performance gain.
+    //
+    // Thus, combining properties 1 and 2, left-shifting a full mask (e.g., `0xff` for MSAAx8) by
+    // the shift amount masks out the samples *above* point `p` to create the start mask.
+    //
+    // For the end mask, we perform the same fractional distance calculation against the bottom
+    // point (e.g. finding the distance above the point), but after left-shifting `0xff`, we simply
+    // bitwise NOT (`~`) the result, returning the mask of the points below the line endpoint.
+    //
+    // TODO(thomsmit): microoptimization, possibly rewrite this to put the branch on the
+    // assignment not the actual mask calculation?
+    template<bool kIsStart>
+    SK_ALWAYS_INLINE static uint8_t GetTruncationMask(float p, float row) {
+        uint32_t shift = static_cast<uint32_t>(std::round(8.0f * (p - static_cast<float>(row))));
+        if constexpr (kIsStart) {
+            return static_cast<uint8_t>(0xff << shift);
+        } else {
+            return static_cast<uint8_t>(~(0xff << shift));
+        }
     }
 
     /*
@@ -942,17 +994,14 @@ private:
     *      LUT's horizontal 'u' axis.
     *
     * Note:
-    *   1) While these parameters could be cached per line, empirical profiling shows it is faster
-    *      to calculate them on-demand in modern rendering pipelines to avoid memory bandwidth
-    *      bottlenecks.
-    *   2) In practice, we offset by stepY per row, and then stepX across the row. Although it would
+    *   1. While these parameters could be cached per line, empirical results show that it is faster
+    *      to simply rematerialize them.
+    *   2. In practice, we offset by stepY per row, and then stepX across the row. Although it would
     *      also be correct to simply stepY to the next row, recalculating limits the amount of fp
     *      error that can accumulate.
     */
-    SK_ALWAYS_INLINE LineStepParams computeLineStepParams(SkPoint pTop,
-                                                          SkPoint pBot,
-                                                          float dx,
-                                                          float dy) const {
+    SK_ALWAYS_INLINE LineStepParams computeLineStepParams(SkPoint pTop, SkPoint pBot,
+                                                          float dx, float dy) const {
         float normalX = dy;
         float normalY = -dx;
 
@@ -1016,7 +1065,7 @@ private:
     // being processed.
     int16_t fSubsampleWinding[kTileHeight][kTileWidth][Strip::kNumSubSamples];
     // Integer winding at the top left corner of the tile.
-    int32_t fCoarseWinding = 0;
+    int32_t fCoarseWinding;
     // Buffer to accumulate the generated strips.
     SkTDArray<Strip>* fStripBuf;
     // Buffer to accumulate the generated alpha values.

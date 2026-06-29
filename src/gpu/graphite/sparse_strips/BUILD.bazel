@@ -17,6 +17,7 @@ SPARSE_STRIPS_FILES = [
     "StripGenerator.cpp",
     "StripGenerator.h",
     "StripProcessorScalar.h",
+    "StripProcessorSimd.h",
     "Tiler.h",
 ]
 

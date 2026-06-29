@@ -182,7 +182,10 @@ public:
                                const Polyline& polyline,
                                const SkTDArray<uint8_t>& maskLut,
                                MsaaExactMaskObserver observer) {
-        // Stub
+        SkPathFillType fillType =
+                isInverse ? SkPathFillType::kInverseWinding : SkPathFillType::kWinding;
+        MakeStrips::MsaaSimd<kTileWidth, kTileHeight>(
+                tileContainer, stripBuf, alphaBuf, fillType, polyline, maskLut, observer);
     }
 
     CoverageTestRunner(StripFunc func, const char* implName) : fFunc(func), fImplName(implName) {}

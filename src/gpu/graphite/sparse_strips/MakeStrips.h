@@ -13,6 +13,7 @@
 #include "src/gpu/graphite/sparse_strips/SparseStripsTypes.h"
 #include "src/gpu/graphite/sparse_strips/Strip.h"
 #include "src/gpu/graphite/sparse_strips/StripProcessorScalar.h"
+#include "src/gpu/graphite/sparse_strips/StripProcessorSimd.h"
 #include "src/gpu/graphite/sparse_strips/Tiler.h"
 
 #include <utility>
@@ -117,8 +118,8 @@ public:
         if (tiles.empty()) {
             return;
         }
-        Dispatch(fillType, [&](auto isWinding, bool isInverse) {
-            constexpr bool kIsWinding = decltype(isWinding)::value;
+        Dispatch(fillType, [&](auto isWindingTag, bool isInverse) {
+            constexpr bool kIsWinding = decltype(isWindingTag)::value;
             int32_t localAlphaIdx = alphaBuf->size();
             StripProcessorScalar<kTileWidth, kTileHeight, kIsWinding> processor(
                     stripBuf, alphaBuf, isInverse, polyline, maskLut, localAlphaIdx
@@ -142,7 +143,22 @@ public:
                          , MsaaExactMaskObserver observer = nullptr
 #endif
     ) {
-        // Stub
+        const auto& tiles = tileContainer.getTiles();
+        if (tiles.empty()) {
+            return;
+        }
+        Dispatch(fillType, [&](auto isWindingTag, bool isInverse) {
+            constexpr bool kIsWinding = decltype(isWindingTag)::value;
+            int32_t localAlphaIdx = alphaBuf->size();
+            StripProcessorSimd<kTileWidth, kTileHeight, kIsWinding> processor(
+                    stripBuf, alphaBuf, isInverse, polyline, maskLut, localAlphaIdx
+#if defined(GPU_TEST_UTILS)
+                    , observer
+#endif
+            );
+
+            TraverseCPU<kTileWidth, kTileHeight>(tileContainer, stripBuf, alphaBuf, &processor);
+        });
     }
 
 private:
@@ -223,7 +239,7 @@ private:
             if (tileStart) {
                 // Moving to a new tile implies that all previous tile's coverage has been combined,
                 // resolve the coverage mask winding to alpha, then clear it.
-                processor->resolveTileToAlpha();
+                processor->resolveWindingToAlpha();
                 if (!rowStart) {
                     // If we're not a row start, carry the scanline winding by seeding the coverage
                     // mask with the coarse winding.
@@ -274,7 +290,7 @@ private:
         }
 
         // Process the last tile and emit the final strip
-        processor->resolveTileToAlpha();
+        processor->resolveWindingToAlpha();
         stripBuf->push_back(currentStrip);
         stripBuf->push_back(Strip::MakeCap(prevTile.y * kTileHeight,
                                            processor->localAlphaIdx(),

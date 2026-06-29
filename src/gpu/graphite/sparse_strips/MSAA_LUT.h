@@ -98,6 +98,9 @@ namespace skgpu::graphite {
  *
  * * The actual positions of the subsample points use the D3D11 standard multisample pattern:
  *   https://learn.microsoft.com/en-us/windows/win32/api/d3d11/ne-d3d11-d3d11_standard_multisample_quality_levels
+ *
+ * * For more on sampling patterns:
+ *   https://web.cs.wpi.edu/~emmanuel/courses/cs563/S10/talks/wk3_p1_wadii_sampling_techniques.pdf
  */
 
 template <typename T> class MSAA_LUT {
