@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Canvas Path Editor - TextClusters & TextMetrics API Demo</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Interactive text editor demo laying out text along curved paths using experimental HTML5 Canvas TextClusters and advanced TextMetrics APIs." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-top">
+      <h1 class="app-title">Canvas Path Editor</h1>
+    </div>
+    <p class="app-subtitle">
+      A typographical demonstration of the experimental Canvas 2D <code>TextClusters</code> and advanced <code>TextMetrics</code> APIs. Type, click, drag, and navigate text laid out dynamically along curved geometries.
+    </p>
+  </header>
+
+  <div id="api-warning-banner" role="alert">
+    ⚠️ <strong>Experimental APIs Not Detected:</strong> Your browser does not currently expose <code>TextMetrics.prototype.getTextClusters</code> or <code>CanvasRenderingContext2D.prototype.fillTextCluster</code>. The demo is running in linear fallback mode. To experience true grapheme cluster orientation, please launch Chrome with <code>--enable-experimental-web-platform-features</code>.
+  </div>
+
+  <main class="app-main">
+    <aside class="control-panel">
+      <div class="panel-title">Path & Typography</div>
+
+      <div class="control-group">
+        <label class="control-label">Path Geometry</label>
+        <div class="path-shape-selector" role="group" aria-label="Path Geometry">
+          <button type="button" class="shape-btn active" data-shape="circle">Circle</button>
+          <button type="button" class="shape-btn" data-shape="wave">Wave</button>
+          <button type="button" class="shape-btn" data-shape="spiral">Spiral</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="font-family-select">Font Family</label>
+        <select id="font-family-select" class="control-select">
+          <option value="Inter, system-ui, sans-serif" selected>Inter (Sans-serif)</option>
+          <option value="Outfit, system-ui, sans-serif">Outfit (Modern)</option>
+          <option value="Georgia, serif">Georgia (Serif)</option>
+          <option value="'Courier New', Courier, monospace">Courier New (Mono)</option>
+          <option value="Impact, Charcoal, sans-serif">Impact (Display)</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="font-size-slider">
+          Font Size <span class="val" id="font-size-val">60px</span>
+        </label>
+        <input type="range" id="font-size-slider" class="control-slider" min="18" max="108" value="60" />
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" id="radius-label" for="radius-slider">
+          <span id="radius-label-text">Radius</span> <span class="val" id="radius-val">255px</span>
+        </label>
+        <input type="range" id="radius-slider" class="control-slider" min="105" max="405" value="255" />
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="text-align-select">Text Alignment</label>
+        <select id="text-align-select" class="control-select">
+          <option value="left">Left</option>
+          <option value="center" selected>Center</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label" for="text-baseline-select">Text Baseline</label>
+        <select id="text-baseline-select" class="control-select">
+          <option value="alphabetic" selected>Alphabetic</option>
+          <option value="middle">Middle</option>
+          <option value="top">Top</option>
+          <option value="bottom">Bottom</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">Rendering Mode</label>
+        <div class="path-shape-selector mode-selector" role="group" aria-label="Rendering Mode" style="grid-template-columns: repeat(2, 1fr);">
+          <button type="button" class="shape-btn mode-btn active" data-mode="auto">Experimental</button>
+          <button type="button" class="shape-btn mode-btn" data-mode="fallback">Fallback</button>
+        </div>
+      </div>
+
+      <div class="tips-box">
+        <strong>💡 Editing Tips</strong>
+        Click anywhere on the curved text to place the caret. Drag to select a character range. Use keyboard arrows (<code>←</code>/<code>→</code>) to step between minimal grapheme clusters.
+      </div>
+    </aside>
+
+    <div class="canvas-container">
+      <canvas id="editor-canvas" width="1350" height="975"></canvas>
+      <textarea id="hidden-input" aria-label="Hidden text input for editing" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+    </div>
+  </main>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
