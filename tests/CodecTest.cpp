@@ -2635,3 +2635,47 @@ DEF_TEST(jpeg_invalid_stream_state, r) {
     // But the stream should be rewinded if we attempt other operations.
     REPORTER_ASSERT(r, SkCodecPriv::needsRewind(codec->codec()));
 }
+
+DEF_TEST(Codec_Bmp_b511820841, r) {
+    auto data = GetResourceAsData("images/rle.bmp");
+    REPORTER_ASSERT(r, data);
+    if (!data) {
+        return;
+    }
+
+    std::vector<uint8_t> buffer(data->bytes(), data->bytes() + data->size());
+    if (buffer.size() < 26) {
+        return;
+    }
+
+    // Set width and height to 46341 (0x0000B505 in little endian).
+    // 46341 < 65536 (kMaxDim), but 46341 * 46341 = 2,147,488,281 > INT32_MAX.
+    uint32_t dim = 46341;
+    buffer[18] = dim & 0xFF;
+    buffer[19] = (dim >> 8) & 0xFF;
+    buffer[20] = (dim >> 16) & 0xFF;
+    buffer[21] = (dim >> 24) & 0xFF;
+
+    buffer[22] = dim & 0xFF;
+    buffer[23] = (dim >> 8) & 0xFF;
+    buffer[24] = (dim >> 16) & 0xFF;
+    buffer[25] = (dim >> 24) & 0xFF;
+
+    auto codec = SkCodec::MakeFromStream(SkMemoryStream::MakeDirect(buffer.data(), buffer.size()));
+    REPORTER_ASSERT(r, codec);
+    if (!codec) {
+        return;
+    }
+
+    // Request kRGBA_F16_SkColorType to trigger colorXform() == true on RGBA_F16 decode path.
+    SkImageInfo info = codec->getInfo().makeColorType(kRGBA_F16_SkColorType);
+
+    // kYes_ZeroInitialized so SkSampler::Fill doesn't attempt to memset unallocated memory.
+    SkCodec::Options opts;
+    opts.fZeroInitialized = SkCodec::kYes_ZeroInitialized;
+    int unusedPixels = 0;
+
+    REPORTER_ASSERT(r,
+        codec->getPixels(info, &unusedPixels, info.minRowBytes(), &opts) != SkCodec::kSuccess);
+}
+
