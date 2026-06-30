@@ -13,6 +13,8 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
@@ -228,6 +230,62 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(Protected_asyncRescaleAndReadPixelsFromSurfaces
         dContext->checkAsyncWorkCompletion();
     }
     REPORTER_ASSERT(reporter, !cbContext.fResult);
+}
+
+DEF_GANESH_TEST_FOR_ALL_CONTEXTS(Protected_pictureShader, reporter,
+                                 ctxInfo, CtsEnforcement::kNever) {
+    auto dContext = ctxInfo.directContext();
+
+    if (!dContext->supportsProtectedContent()) {
+        // Protected content not supported
+        return;
+    }
+
+    sk_sp<SkImage> protectedImage = ProtectedUtils::CreateProtectedSkImage(dContext,
+                                                                           { kSize, kSize },
+                                                                           SkColors::kBlue,
+                                                                           /* isProtected= */ true);
+    dContext->flushAndSubmit(GrSyncCpu::kYes);
+
+    REPORTER_ASSERT(reporter, protectedImage);
+    REPORTER_ASSERT(reporter, protectedImage->isProtected());
+
+    sk_sp<SkPicture> protectedPicture;
+    {
+        SkPictureRecorder recorder;
+        recorder.beginRecording(100, 100)->drawImage(protectedImage.get(), 0, 0);
+        protectedPicture = recorder.finishRecordingAsPicture();
+        REPORTER_ASSERT(reporter, protectedPicture);
+    }
+
+    SkPaint protectedPaint;
+    protectedPaint.setShader(protectedPicture->makeShader(SkTileMode::kRepeat,
+                                                          SkTileMode::kRepeat,
+                                                          SkFilterMode::kNearest));
+
+    SkImageInfo ii = SkImageInfo::Make({ kSize, kSize },
+                                       kRGBA_8888_SkColorType,
+                                       kPremul_SkAlphaType);
+
+    for (bool isProtected : { true, false }) {
+        sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(dContext,
+                                                            skgpu::Budgeted::kNo,
+                                                            ii,
+                                                            /* sampleCount= */ 1,
+                                                            kBottomLeft_GrSurfaceOrigin,
+                                                            /* surfaceProps= */ nullptr,
+                                                            /* shouldCreateWithMips= */ false,
+                                                            isProtected);
+
+        REPORTER_ASSERT(reporter, surface);
+
+        // For the un-protected surface, drawing the SkPicture containing the protected
+        // image should cause the final draw of the generated image to the surface to fail
+        // while the generation of the internal (protected) image should succeed.
+        surface->getCanvas()->drawPaint(protectedPaint);
+    }
+
+    dContext->flushAndSubmit(GrSyncCpu::kYes);
 }
 
 #endif  // defined(SK_GANESH)
