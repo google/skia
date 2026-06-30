@@ -2,6 +2,17 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 151
+-------------
+  * Added a 'containsExternalFormat' method to 'PrecompileContext'. This allows clients to determine if a serialized key contains an external format.
+  * Added 'fGainmap' and 'fGainmapInfo' to 'SkPngRustEncoder::Options', allowing clients to encode HDR gainmaps in PNG images using the Rust PNG encoder.
+  * Add a getWidthsStrided() API to SkStrikeRef which allows scattered memory access
+    into input glyph list and provides scattered writes with a stride length into a
+    client provided output buffer.  Useful for fast access and transfer of advance
+    widths in shaping. Shown to improve Blink performance.
+
+* * *
+
 Milestone 150
 -------------
   * `SkRegion::setRects(const SkIRect[], int)` has been deprecated in favor of `SkRegion::setRects(SkSpan<const SkIRect>)`.
