@@ -9,10 +9,6 @@
       "owner": "borenet@google.com"
     },
     {
-      "ref": "refs/heads/chrome/m147",
-      "owner": "anuszel@google.com"
-    },
-    {
       "ref": "refs/heads/chrome/m148",
       "owner": "anuszel@google.com"
     },
@@ -22,6 +18,10 @@
     },
     {
       "ref": "refs/heads/chrome/m150",
+      "owner": "chrome-branch-day@chops-service-accounts.iam.gserviceaccount.com"
+    },
+    {
+      "ref": "refs/heads/chrome/m151",
       "owner": "chrome-branch-day@chops-service-accounts.iam.gserviceaccount.com"
     }
   ]
