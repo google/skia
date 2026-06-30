@@ -28,6 +28,9 @@ export class CanvasPathEditor {
     this.isFocused = true;
     this.experimentalApiDetected = false;
     this.forceFallback = false;
+    this.segmenter = typeof Intl !== 'undefined' && Intl.Segmenter
+      ? new Intl.Segmenter('en', { granularity: 'grapheme' })
+      : null;
   }
 
   /**
@@ -56,6 +59,61 @@ export class CanvasPathEditor {
       typeof metrics.getTextClusters === 'function' &&
       typeof ctx.fillTextCluster === 'function';
     return this.experimentalApiDetected;
+  }
+
+  hasClusters(metrics) {
+    return this.text.length > 0 && !this.forceFallback && metrics &&
+           typeof metrics.getTextClusters === 'function';
+  }
+
+  hasIndexOffset(metrics) {
+    return this.text.length > 0 && !this.forceFallback && metrics &&
+           typeof metrics.getIndexFromOffset === 'function';
+  }
+
+  hasSelectionRects(metrics) {
+    return this.text.length > 0 && !this.forceFallback && metrics &&
+           typeof metrics.getSelectionRects === 'function';
+  }
+
+  hasFillTextCluster(ctx) {
+    return !this.forceFallback && typeof ctx.fillTextCluster === 'function';
+  }
+
+  getFallbackClusters(ctx, metrics) {
+    const clusters = [];
+    let curS = this.getRunStart(metrics);
+
+    if (this.segmenter) {
+      const segments = this.segmenter.segment(this.text);
+      for (const seg of segments) {
+        const w = ctx.measureText(seg.segment).width;
+        clusters.push({
+          x: curS,
+          y: 0,
+          start: seg.index,
+          end: seg.index + seg.segment.length,
+          width: w,
+          text: seg.segment
+        });
+        curS += w;
+      }
+    } else {
+      for (let i = 0; i < this.text.length; i++) {
+        const char = this.text[i];
+        const w = ctx.measureText(char).width;
+        clusters.push({
+          x: curS,
+          y: 0,
+          start: i,
+          end: i + 1,
+          width: w,
+          text: char
+        });
+        curS += w;
+      }
+    }
+    return clusters;
   }
 
   /**
@@ -206,16 +264,16 @@ export class CanvasPathEditor {
     const s = this.path.getLengthAtPoint(px, py, this.textAlign, metrics.width || 0);
 
     let targetIndex = 0;
-    if (this.text.length > 0 && !this.forceFallback && metrics &&
-        typeof metrics.getIndexFromOffset === 'function') {
+    if (this.hasIndexOffset(metrics)) {
       targetIndex = metrics.getIndexFromOffset(s);
-    } else if (this.text.length > 0 && !this.forceFallback && metrics &&
-               typeof metrics.getTextClusters === 'function') {
-      const clusters = metrics.getTextClusters();
+    } else {
+      const clusters = this.hasClusters(metrics) ? metrics.getTextClusters()
+                                                 : this.getFallbackClusters(ctx, metrics);
       let bestDist = Infinity;
       for (let i = 0; i < clusters.length; i++) {
         const cl = clusters[i];
-        const nextX = i + 1 < clusters.length ? clusters[i + 1].x : (metrics.width || 0);
+        const nextX = i + 1 < clusters.length ? clusters[i + 1].x
+                                              : (cl.width ? cl.x + cl.width : (metrics.width || 0));
         const isRtl = this.isClusterRtl(clusters, i);
 
         const leftIdx = isRtl ? cl.end : cl.start;
@@ -232,20 +290,6 @@ export class CanvasPathEditor {
           targetIndex = rightIdx;
         }
       }
-    } else {
-      // Linear advance fallback estimation
-      let bestDist = Infinity;
-      let curS = this.getRunStart(metrics);
-      for (let i = 0; i <= this.text.length; i++) {
-        const dist = Math.abs(curS - s);
-        if (dist < bestDist) {
-          bestDist = dist;
-          targetIndex = i;
-        }
-        if (i < this.text.length) {
-          curS += ctx.measureText(this.text[i]).width;
-        }
-      }
     }
 
     this.setCursor(targetIndex, extendSelection);
@@ -260,34 +304,26 @@ export class CanvasPathEditor {
     if (this.text.length === 0 || index <= 0) return this.getRunStart(metrics);
     if (index >= this.text.length) return this.getRunEnd(metrics);
 
-    if (this.text.length > 0 && !this.forceFallback && metrics &&
-        typeof metrics.getTextClusters === 'function') {
-      const clusters = metrics.getTextClusters();
-      for (let i = 0; i < clusters.length; i++) {
-        const cl = clusters[i];
-        const nextX = i + 1 < clusters.length ? clusters[i + 1].x : (metrics.width || 0);
-        const isRtl = this.isClusterRtl(clusters, i);
+    const clusters = this.hasClusters(metrics) ? metrics.getTextClusters()
+                                               : this.getFallbackClusters(ctx, metrics);
+    for (let i = 0; i < clusters.length; i++) {
+      const cl = clusters[i];
+      const nextX = i + 1 < clusters.length ? clusters[i + 1].x
+                                            : (cl.width ? cl.x + cl.width : (metrics.width || 0));
+      const isRtl = this.isClusterRtl(clusters, i);
 
-        if (index === cl.start) {
-          return isRtl ? nextX : cl.x;
-        }
-        if (index === cl.end) {
-          return isRtl ? cl.x : nextX;
-        }
-        if (cl.start < index && index < cl.end) {
-          const t = (index - cl.start) / (cl.end - cl.start);
-          return isRtl ? nextX - t * (nextX - cl.x) : cl.x + t * (nextX - cl.x);
-        }
+      if (index === cl.start) {
+        return isRtl ? nextX : cl.x;
       }
-      return this.getRunEnd(metrics);
+      if (index === cl.end) {
+        return isRtl ? cl.x : nextX;
+      }
+      if (cl.start < index && index < cl.end) {
+        const t = (index - cl.start) / (cl.end - cl.start);
+        return isRtl ? nextX - t * (nextX - cl.x) : cl.x + t * (nextX - cl.x);
+      }
     }
-
-    // Fallback estimation
-    let s = this.getRunStart(metrics);
-    for (let i = 0; i < index && i < this.text.length; i++) {
-      s += ctx.measureText(this.text[i]).width;
-    }
-    return s;
+    return this.getRunEnd(metrics);
   }
 
   /**
@@ -303,9 +339,10 @@ export class CanvasPathEditor {
     this.path.drawGuide(ctx);
 
     let clusters = [];
-    if (this.text.length > 0 && !this.forceFallback && metrics &&
-        typeof metrics.getTextClusters === 'function') {
+    if (this.hasClusters(metrics)) {
       clusters = metrics.getTextClusters();
+    } else if (this.text.length > 0) {
+      clusters = this.getFallbackClusters(ctx, metrics);
     }
 
     // 2. Draw Selection Highlights
@@ -313,8 +350,7 @@ export class CanvasPathEditor {
       const [selStart, selEnd] = this.getSelectionRange();
       const vm = this.getBaselineVerticalMetrics();
 
-      if (this.text.length > 0 && !this.forceFallback && metrics &&
-          typeof metrics.getSelectionRects === 'function') {
+      if (this.hasSelectionRects(metrics)) {
         const rects = metrics.getSelectionRects(selStart, selEnd);
         for (const r of rects) {
           this.drawCurvedHighlight(ctx, r.x, r.x + r.width, r.y || vm.top, r.height || vm.height);
@@ -324,7 +360,8 @@ export class CanvasPathEditor {
         for (let i = 0; i < clusters.length; i++) {
           const cl = clusters[i];
           if (cl.start < selEnd && cl.end > selStart) {
-            const nextX = i + 1 < clusters.length ? clusters[i + 1].x : metrics.width;
+            const nextX = i + 1 < clusters.length ? clusters[i + 1].x
+                                                  : (cl.width ? cl.x + cl.width : metrics.width);
             this.drawCurvedHighlight(ctx, cl.x, nextX, vm.top, vm.height);
           }
         }
@@ -345,26 +382,13 @@ export class CanvasPathEditor {
         ctx.translate(pt.x, pt.y);
         ctx.rotate(pt.angle);
 
-        if (!this.forceFallback && typeof ctx.fillTextCluster === 'function') {
+        if (this.hasFillTextCluster(ctx)) {
           ctx.fillTextCluster(cluster, -cluster.x, -cluster.y);
         } else {
           // Fallback rendering
-          ctx.fillText(this.text.slice(cluster.start, cluster.end), 0, 0);
+          ctx.fillText(cluster.text || this.text.slice(cluster.start, cluster.end), 0, 0);
         }
         ctx.restore();
-      }
-    } else if (this.text.length > 0) {
-      // Fallback if getTextClusters is unsupported: render char by char
-      let s = 0;
-      for (let i = 0; i < this.text.length; i++) {
-        const char = this.text[i];
-        const pt = this.path.getPointAtLength(s, this.textAlign, metrics.width || 0);
-        ctx.save();
-        ctx.translate(pt.x, pt.y);
-        ctx.rotate(pt.angle);
-        ctx.fillText(char, 0, 0);
-        ctx.restore();
-        s += ctx.measureText(char).width;
       }
     }
 

@@ -41,6 +41,18 @@ editor.fontSize = parseInt(fontSizeSlider.value, 10);
 // Feature detection check
 if (!editor.checkExperimentalApis(ctx)) {
   if (warningBanner) warningBanner.style.display = 'block';
+  modeBtns.forEach((btn) => {
+    if (btn.dataset.mode === 'auto') {
+      btn.classList.remove('active');
+      btn.disabled = true;
+      btn.style.opacity = '0.4';
+      btn.style.cursor = 'not-allowed';
+      btn.title = 'Experimental Canvas 2D TextMetrics APIs are not detected in this browser.';
+    } else if (btn.dataset.mode === 'fallback') {
+      btn.classList.add('active');
+    }
+  });
+  editor.forceFallback = true;
 }
 
 // Synchronize hidden textarea with editor state
@@ -182,6 +194,7 @@ shapeBtns.forEach((btn) => {
 
 modeBtns.forEach((btn) => {
   btn.addEventListener('click', () => {
+    if (btn.disabled) return;
     modeBtns.forEach((b) => b.classList.remove('active'));
     btn.classList.add('active');
     editor.forceFallback = btn.dataset.mode === 'fallback';
