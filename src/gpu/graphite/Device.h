@@ -236,7 +236,7 @@ public:
                               SkCanvas::SrcRectConstraint) override;
     // TODO: Implement these using per-edge AA quads and an inlined image shader program.
     void drawImageLattice(const SkImage*, const SkCanvas::Lattice&,
-                          const SkRect& dst, SkFilterMode, const SkPaint&) override {}
+                          const SkRect& dst, SkFilterMode, const SkPaint&) override;
     void drawAtlas(SkSpan<const SkRSXform>, SkSpan<const SkRect>, SkSpan<const SkColor>,
                    sk_sp<SkBlender>, const SkPaint&) override {}
 

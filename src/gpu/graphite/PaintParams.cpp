@@ -181,6 +181,16 @@ PaintParams::PaintParams(const SkPaint& paint, const SimpleImage& imageOverride,
     fColor.fA *= xtraAlpha;
 }
 
+PaintParams::PaintParams(const SkPaint& paint, const SkColor4f& colorOverride)
+        : PaintParams(paint,
+                      /*imageOverride=*/nullptr,
+                      /*primitiveBlender=*/nullptr,
+                      /*skipColorXform=*/false,
+                      /*ignoreShader*/true) {
+    float newAlpha = fColor.fA * colorOverride.fA;
+    fColor = colorOverride.withAlpha(newAlpha);
+}
+
 PaintParams::PaintParams(const SkColor4f& color, SkBlendMode finalBlendMode)
         : fColor(finalBlendMode == SkBlendMode::kClear ? SkColors::kTransparent : color)
         , fFinalBlend({nullptr, finalBlendMode == SkBlendMode::kClear ? SkBlendMode::kSrc

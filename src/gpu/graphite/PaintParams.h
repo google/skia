@@ -70,6 +70,11 @@ public:
     // NOTE: Does not copy `imageOverride`, this must live for the lifetime of PaintParams
     PaintParams(const SkPaint&, const SimpleImage& imageOverride, float xtraAlpha=1.f);
 
+    // Converts an SkPaint to PaintParams, overrides the paint's base color with `colorOverride`
+    // and multiplies the base and override color alphas together. Since this is a color override,
+    // any shader in the SkPaint is ignored.
+    PaintParams(const SkPaint&, const SkColor4f& colorOverride);
+
     // Creates a constant color PaintParams with the specific blend mode.
     PaintParams(const SkColor4f& color, SkBlendMode finalBlendMode);
 

@@ -46,6 +46,7 @@
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkImageFilterTypes.h"  // IWYU pragma: keep
+#include "src/core/SkLatticeIter.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRRectPriv.h"
@@ -973,6 +974,34 @@ bool Device::drawAsTiledImageRect(SkCanvas* canvas,
     gNumTilesDrawnGraphite.store(numTiles, std::memory_order_relaxed);
 #endif
     return wasTiled;
+}
+
+void Device::drawImageLattice(const SkImage* image, const SkCanvas::Lattice& lattice,
+                          const SkRect& dst, SkFilterMode filter, const SkPaint& paint) {
+    SkLatticeIter iter = SkLatticeIter(lattice, dst);
+
+    SkRect nextSrc, nextDst;
+    bool nextIsFixedColor = false;
+    SkColor nextFixedColor;
+    while (iter.next(&nextSrc, &nextDst, &nextIsFixedColor, &nextFixedColor)) {
+        // Use non-AA quads to match Ganesh and Raster backends behavior of drawImageLattice.
+        if (nextIsFixedColor) {
+            PaintParams paintParams(paint, SkColor4f::FromColor(nextFixedColor));
+            this->drawGeometry(this->localToDeviceTransform(),
+                               Geometry(EdgeAAQuad(nextDst, EdgeAAQuad::Flags::kNone)),
+                               paintParams,
+                               DefaultFillStyle());
+        } else {
+            SkCanvas::ImageSetEntry entry(sk_ref_sp(image), nextSrc, nextDst,
+                                          /*alpha=*/1.f, SkCanvas::kNone_QuadAAFlags);
+            this->drawEdgeAAImageSet(&entry, 1,
+                                     /*dstClips=*/nullptr,
+                                     /*preViewMatrices=*/nullptr,
+                                     SkSamplingOptions(filter),
+                                     paint,
+                                     SkCanvas::kStrict_SrcRectConstraint);
+        }
+    }
 }
 
 void Device::drawOval(const SkRect& oval, const SkPaint& paint) {
