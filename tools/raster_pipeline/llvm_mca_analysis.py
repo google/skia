@@ -41,7 +41,7 @@ def get_stage_names(skia_root: str) -> List[str]:
 
 # Known Raster Pipeline namespaces to avoid capturing unrelated symbols with similar names (e.g. 'clear')
 RP_NAMESPACES = {
-    'ml3', 'ml4', 'avx', 'avx2', 'sse2', 'sse41', 'ssse3', 'neon', 'scalar', 'lsx', 'lasx',
+    'ml3', 'ml4', 'avx', 'avx2', 'sse2', 'sse41', 'sse3', 'ssse3', 'neon', 'scalar', 'lsx', 'lasx',
 }
 
 def find_symbols_in_binary(bin_path: str, ops: List[str]) -> Dict[str, Dict[str, Any]]:
