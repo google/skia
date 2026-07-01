@@ -76,14 +76,14 @@ void DrawListLayer::recordBackwards(int stepIndex,
         auto processLayer = [&](BindingList* boundary) -> bool {
             auto [overlapType, match] =
                     isStencil
-                            ? current->test</*kIsStencil=*/true, /*kForwards=*/false>(
+                            ? current->test</*kIsStencil=*/true>(
                                       isDepthOnly,
                                       drawParams->drawBounds(),
                                       key,
                                       requiresBarrier,
                                       boundary,
                                       !fStorageBufferSupport)
-                            : current->test</*kIsStencil=*/false, /*kForwards=*/false>(
+                            : current->test</*kIsStencil=*/false>(
                                       isDepthOnly,
                                       drawParams->drawBounds(),
                                       key,

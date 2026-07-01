@@ -132,7 +132,7 @@ struct Layer {
     //
     // This was implemented in https://review.skia.org/1171836 and slightly regresses performance
     // due to the overhead it introduces.
-    template <bool kIsStencil, bool kForwards>
+    template <bool kIsStencil>
     SK_ALWAYS_INLINE std::pair<BoundsTest, BindingList*> test(bool isDepthOnly,
                                                               const Rect& drawBounds,
                                                               const LayerKey& key,
@@ -140,17 +140,15 @@ struct Layer {
                                                               BindingList* startList,
                                                               bool matchUniform) {
         BindingList* foundMatch = nullptr;
-        BindingList* list;
-        BindingList* end;
-        if constexpr (kForwards) {
-            list = startList ? startList->fNext : fBindings.head();
-            end = nullptr;
-        } else {
-            list = fBindings.tail();
-            end = startList ? startList->fPrev : nullptr;
-        }
-        // Advancement is also constexpr
-        for (; list != end; list = kForwards ? list->fNext : list->fPrev) {
+        BindingList* list = fBindings.tail();
+        BindingList* end = startList ? startList->fPrev : nullptr;
+
+        // Always iterate backwards from the tail, we do this because most draws (including depth-
+        // only clip draws) must maintain painter's order so we can early out if they overlap with
+        // a more recent draw. In the event that there isn't any color dependency, we're just
+        // searching for a disjoint binding match and then whether or not to start from the front or
+        // the back is arbitrary
+        for (; list != end; list = list->fPrev) {
             if (list->fKey.isEqual(key, matchUniform)) {
                 // A side effect of the layer key system is that a non-shading stencil step and a
                 // depth-only draw can generate a valid match. While this allows the two render
