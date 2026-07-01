@@ -75,14 +75,14 @@ private:
                                                     const UniformDataCache::Index& uniformIndex,
                                                     const LayerKey& key,
                                                     const DrawParams* drawParams,
-                                                    const Insertion& stop,
-                                                    Insertion* capture,
+                                                    const Layer* stop,
                                                     bool canForwardMerge);
 
-    BindingList* findOrCreateBindingInLayer(bool isDepthOnly,
+    BindingList* findOrCreateBindingInLayer(Layer* layer,
+                                            BindingList* parent,
+                                            bool isDepthOnly,
                                             const RenderStep* step,
-                                            const LayerKey& key,
-                                            const Insertion& start);
+                                            const LayerKey& key);
 
     friend class DrawPass;
 

@@ -143,11 +143,10 @@ struct Layer {
     SK_ALWAYS_INLINE std::pair<BoundsTest, BindingList*> test(bool isDepthOnly,
                                                               const Rect& drawBounds,
                                                               const LayerKey& key,
-                                                              bool requiresBarrier,
-                                                              BindingList* startList) {
+                                                              bool requiresBarrier) {
         BindingList* foundMatch = nullptr;
         BindingList* list = fBindings.tail();
-        BindingList* end = startList ? startList->fPrev : nullptr;
+        BindingList* end = nullptr;
 
         // Always iterate backwards from the tail, we do this because most draws (including depth-
         // only clip draws) must maintain painter's order so we can early out if they overlap with
