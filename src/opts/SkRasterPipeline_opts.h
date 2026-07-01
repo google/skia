@@ -5684,8 +5684,6 @@ static void start_pipeline(size_t x0,     size_t y0,
                          U16& dr, U16& dg, U16& db, U16& da)
 #endif
 
-// ~~~~~~ Commonly used helper functions ~~~~~~ //
-
 /**
  * Helpers to to properly rounded division (by 255). The ideal answer we want to compute is slow,
  * thanks to a division by a non-power of two:
@@ -5731,21 +5729,6 @@ SI U16 div255_accurate(U16 v) {
 
 SI U16 inv(U16 v) { return 255-v; }
 
-SI U16 if_then_else(I16 c, U16 t, U16 e) {
-    return (t & sk_bit_cast<U16>(c)) | (e & sk_bit_cast<U16>(~c));
-}
-SI U32 if_then_else(I32 c, U32 t, U32 e) {
-    return (t & sk_bit_cast<U32>(c)) | (e & sk_bit_cast<U32>(~c));
-}
-
-SI U16 max(U16 x, U16 y) { return if_then_else(x < y, y, x); }
-SI U16 min(U16 x, U16 y) { return if_then_else(x < y, x, y); }
-
-SI U16 max(U16      a, uint16_t b) { return max(     a , U16_(b)); }
-SI U16 max(uint16_t a, U16      b) { return max(U16_(a),      b ); }
-SI U16 min(U16      a, uint16_t b) { return min(     a , U16_(b)); }
-SI U16 min(uint16_t a, U16      b) { return min(U16_(a),      b ); }
-
 SI U16 from_float(float f) { return U16_(f * 255.0f + 0.5f); }
 
 SI U16 lerp(U16 from, U16 to, U16 t) { return div255( from*inv(t) + to*t ); }
@@ -5775,45 +5758,164 @@ SI F if_then_else(I32 c, F t, F e) {
 }
 SI F if_then_else(I32 c, F     t, float e) { return if_then_else(c,    t , F_(e)); }
 SI F if_then_else(I32 c, float t, F     e) { return if_then_else(c, F_(t),    e ); }
+SI I32 if_then_else(I32 c, I32 t, I32 e) {
+    return (t & c) | (e & ~c);
+}
+SI U16 if_then_else(I16 c, U16 t, U16 e) {
+    return (t & sk_bit_cast<U16>(c)) | (e & sk_bit_cast<U16>(~c));
+}
+SI U32 if_then_else(I32 c, U32 t, U32 e) {
+    return (t & sk_bit_cast<U32>(c)) | (e & sk_bit_cast<U32>(~c));
+}
 
 SI F max(F x, F y) { return if_then_else(x < y, y, x); }
 SI F min(F x, F y) { return if_then_else(x < y, x, y); }
 
-SI F max(F     a, float b) { return max(   a , F_(b)); }
-SI F max(float a, F     b) { return max(F_(a),    b ); }
-SI F min(F     a, float b) { return min(   a , F_(b)); }
-SI F min(float a, F     b) { return min(F_(a),    b ); }
+SI I32 max(I32 x, I32 y) { return if_then_else(x < y, y, x); }
+SI I32 min(I32 x, I32 y) { return if_then_else(x < y, x, y); }
 
-SI I32 if_then_else(I32 c, I32 t, I32 e) {
-    return (t & c) | (e & ~c);
+SI U16 max(U16 x, U16 y) { return if_then_else(x < y, y, x); }
+SI U16 min(U16 x, U16 y) { return if_then_else(x < y, x, y); }
+
+#if defined(SKRP_CPU_ML4)
+// This helps split the broadcast (copying the float to all lanes of the register)
+// from the min/max operation which helps free up ports.
+SI F max(F     a, float b) { return max(a, (F)_mm512_set1_ps(b)); }
+SI F max(float a, F b) { return max((F)_mm512_set1_ps(a), b); }
+SI F min(F     a, float b) { return min(a, (F)_mm512_set1_ps(b)); }
+SI F min(float a, F b) { return min((F)_mm512_set1_ps(a), b); }
+
+SI I32 max(I32     a, int32_t b) { return max(a, (I32)_mm512_set1_epi32(b)); }
+SI I32 max(int32_t a, I32     b) { return max((I32)_mm512_set1_epi32(a), b); }
+SI I32 min(I32     a, int32_t b) { return min(a, (I32)_mm512_set1_epi32(b)); }
+SI I32 min(int32_t a, I32     b) { return min((I32)_mm512_set1_epi32(a), b); }
+#else
+SI F max(F a, float b) { return max(a, F_(b)); }
+SI F max(float a, F b) { return max(F_(a), b); }
+SI F min(F a, float b) { return min(a, F_(b)); }
+SI F min(float a, F b) { return min(F_(a), b); }
+
+SI I32 max(I32 a, int32_t b) { return max(a, I32_(b)); }
+SI I32 max(int32_t a, I32 b) { return max(I32_(a), b); }
+SI I32 min(I32 a, int32_t b) { return min(a, I32_(b)); }
+SI I32 min(int32_t a, I32 b) { return min(I32_(a), b); }
+#endif
+SI U16 max(U16      a, uint16_t b) { return max(     a , U16_(b)); }
+SI U16 max(uint16_t a, U16      b) { return max(U16_(a),      b ); }
+SI U16 min(U16      a, uint16_t b) { return min(     a , U16_(b)); }
+SI U16 min(uint16_t a, U16      b) { return min(U16_(a),      b ); }
+
+// Using explicit hardware min/max instructions can provide a speedup when the compiler doesn't
+// know to turn the bitmasking fromif_then_else into intrinsics.
+// DO NOT globally replace the conditional (bitwise) min/max with these.
+// In highly complex stages (like mirror_x_1 or gradient), intrinsics can cause regressions from
+// port contention (e.g. creating a traffic jam on AVX-512 math execution ports).
+#if defined(SKRP_CPU_ML4)
+SI F max_intr(F x, F y) { return _mm512_max_ps(x, y); }
+SI F min_intr(F x, F y) { return _mm512_min_ps(x, y); }
+SI I32 max_intr(I32 x, I32 y) { return (I32)_mm512_max_epi32((__m512i)x, (__m512i)y); }
+SI I32 min_intr(I32 x, I32 y) { return (I32)_mm512_min_epi32((__m512i)x, (__m512i)y); }
+SI U16 max_intr(U16 x, U16 y) { return (U16)_mm256_max_epu16((__m256i)x, (__m256i)y); }
+SI U16 min_intr(U16 x, U16 y) { return (U16)_mm256_min_epu16((__m256i)x, (__m256i)y); }
+#elif defined(SKRP_CPU_AVX2)
+SI F max_intr(F x, F y) {
+    __m256 x_lo, x_hi, y_lo, y_hi;
+    split(x, &x_lo, &x_hi);
+    split(y, &y_lo, &y_hi);
+    return join<F>(_mm256_max_ps(x_lo, y_lo), _mm256_max_ps(x_hi, y_hi));
 }
-#if defined(SKRP_CPU_AVX2)
-// Some compilers did not vectorize this, so explicitly call the intrinsics
-SI I32 max(I32 x, I32 y) {
+SI F min_intr(F x, F y) {
+    __m256 x_lo, x_hi, y_lo, y_hi;
+    split(x, &x_lo, &x_hi);
+    split(y, &y_lo, &y_hi);
+    return join<F>(_mm256_min_ps(x_lo, y_lo), _mm256_min_ps(x_hi, y_hi));
+}
+SI I32 max_intr(I32 x, I32 y) {
     __m256i x_lo, x_hi, y_lo, y_hi;
     split(x, &x_lo, &x_hi);
     split(y, &y_lo, &y_hi);
     return join<I32>(_mm256_max_epi32(x_lo, y_lo), _mm256_max_epi32(x_hi, y_hi));
 }
-SI I32 min(I32 x, I32 y) {
+SI I32 min_intr(I32 x, I32 y) {
     __m256i x_lo, x_hi, y_lo, y_hi;
     split(x, &x_lo, &x_hi);
     split(y, &y_lo, &y_hi);
     return join<I32>(_mm256_min_epi32(x_lo, y_lo), _mm256_min_epi32(x_hi, y_hi));
 }
-#elif defined(SKRP_CPU_NEON)
-// TODO(kjlubick) make sure NEON code is handled well.
-SI I32 max(I32 x, I32 y) { return if_then_else(x < y, y, x); }
-SI I32 min(I32 x, I32 y) { return if_then_else(x < y, x, y); }
+SI U16 max_intr(U16 x, U16 y) { return (U16)_mm256_max_epu16((__m256i)x, (__m256i)y); }
+SI U16 min_intr(U16 x, U16 y) { return (U16)_mm256_min_epu16((__m256i)x, (__m256i)y); }
+#elif defined(SKRP_CPU_SSE2) || defined(SKRP_CPU_SSE41) || defined(SKRP_CPU_AVX)
+SI F max_intr(F x, F y) {
+    __m128 x_lo, x_hi, y_lo, y_hi;
+    split(x, &x_lo, &x_hi);
+    split(y, &y_lo, &y_hi);
+    return join<F>(_mm_max_ps(x_lo, y_lo), _mm_max_ps(x_hi, y_hi));
+}
+SI F min_intr(F x, F y) {
+    __m128 x_lo, x_hi, y_lo, y_hi;
+    split(x, &x_lo, &x_hi);
+    split(y, &y_lo, &y_hi);
+    return join<F>(_mm_min_ps(x_lo, y_lo), _mm_min_ps(x_hi, y_hi));
+}
+#if defined(SKRP_CPU_SSE41) || defined(SKRP_CPU_AVX)
+SI I32 max_intr(I32 x, I32 y) {
+    __m128i x_lo, x_hi, y_lo, y_hi;
+    split(x, &x_lo, &x_hi);
+    split(y, &y_lo, &y_hi);
+    return join<I32>(_mm_max_epi32(x_lo, y_lo), _mm_max_epi32(x_hi, y_hi));
+}
+SI I32 min_intr(I32 x, I32 y) {
+    __m128i x_lo, x_hi, y_lo, y_hi;
+    split(x, &x_lo, &x_hi);
+    split(y, &y_lo, &y_hi);
+    return join<I32>(_mm_min_epi32(x_lo, y_lo), _mm_min_epi32(x_hi, y_hi));
+}
+SI U16 max_intr(U16 x, U16 y) { return (U16)_mm_max_epu16((__m128i)x, (__m128i)y); }
+SI U16 min_intr(U16 x, U16 y) { return (U16)_mm_min_epu16((__m128i)x, (__m128i)y); }
 #else
-SI I32 max(I32 x, I32 y) { return if_then_else(x < y, y, x); }
-SI I32 min(I32 x, I32 y) { return if_then_else(x < y, x, y); }
+SI I32 max_intr(I32 x, I32 y) { return max(x, y); }
+SI I32 min_intr(I32 x, I32 y) { return min(x, y); }
+SI U16 max_intr(U16 x, U16 y) { return max(x, y); }
+SI U16 min_intr(U16 x, U16 y) { return min(x, y); }
+#endif // defined(SKRP_CPU_SSE41) || defined(SKRP_CPU_AVX)
+#else
+// TODO(kjlubick) make sure NEON and other architectures are handling this well
+SI F   max_intr(F x, F y) { return max(x, y); }
+SI F   min_intr(F x, F y) { return min(x, y); }
+SI I32 max_intr(I32 x, I32 y) { return max(x, y); }
+SI I32 min_intr(I32 x, I32 y) { return min(x, y); }
+SI U16 max_intr(U16 x, U16 y) { return max(x, y); }
+SI U16 min_intr(U16 x, U16 y) { return min(x, y); }
 #endif
 
-SI I32 max(I32     a, int32_t b) { return max(     a , I32_(b)); }
-SI I32 max(int32_t a, I32     b) { return max(I32_(a),      b ); }
-SI I32 min(I32     a, int32_t b) { return min(     a , I32_(b)); }
-SI I32 min(int32_t a, I32     b) { return min(I32_(a),      b ); }
+#if defined(SKRP_CPU_ML4)
+// This helps split the broadcast (copying the float to all lanes of the register)
+// from the min/max operation which helps free up ports.
+SI F max_intr(F     a, float b) { return max_intr(a, (F)_mm512_set1_ps(b)); }
+SI F max_intr(float a, F b) { return max_intr((F)_mm512_set1_ps(a), b); }
+SI F min_intr(F     a, float b) { return min_intr(a, (F)_mm512_set1_ps(b)); }
+SI F min_intr(float a, F b) { return min_intr((F)_mm512_set1_ps(a), b); }
+
+SI I32 max_intr(I32     a, int32_t b) { return max_intr(a, (I32)_mm512_set1_epi32(b)); }
+SI I32 max_intr(int32_t a, I32     b) { return max_intr((I32)_mm512_set1_epi32(a), b); }
+SI I32 min_intr(I32     a, int32_t b) { return min_intr(a, (I32)_mm512_set1_epi32(b)); }
+SI I32 min_intr(int32_t a, I32     b) { return min_intr((I32)_mm512_set1_epi32(a), b); }
+#else
+SI F max_intr(F a, float b) { return max_intr(a, F_(b)); }
+SI F max_intr(float a, F b) { return max_intr(F_(a), b); }
+SI F min_intr(F a, float b) { return min_intr(a, F_(b)); }
+SI F min_intr(float a, F b) { return min_intr(F_(a), b); }
+
+SI I32 max_intr(I32 a, int32_t b) { return max_intr(a, I32_(b)); }
+SI I32 max_intr(int32_t a, I32 b) { return max_intr(I32_(a), b); }
+SI I32 min_intr(I32 a, int32_t b) { return min_intr(a, I32_(b)); }
+SI I32 min_intr(int32_t a, I32 b) { return min_intr(I32_(a), b); }
+#endif
+
+SI U16 max_intr(U16      a, uint16_t b) { return max_intr(     a , U16_(b)); }
+SI U16 max_intr(uint16_t a, U16      b) { return max_intr(U16_(a),      b ); }
+SI U16 min_intr(U16      a, uint16_t b) { return min_intr(     a , U16_(b)); }
+SI U16 min_intr(uint16_t a, U16      b) { return min_intr(U16_(a),      b ); }
 
 SI F mad(F     f, F     m, F     a) { return a+f*m; }
 SI F mad(F     f, F     m, float a) { return mad(   f ,    m , F_(a)); }
@@ -6178,9 +6280,9 @@ LOWP_STAGE_PP(swap_src_dst, NoCtx) {
     }                                                    \
     SI U16 name##_channel(U16 s, U16 d, U16 sa, U16 da)
 
-    BLEND_MODE(darken)     { return s + d -   div255( max(s*da, d*sa) ); }
-    BLEND_MODE(lighten)    { return s + d -   div255( min(s*da, d*sa) ); }
-    BLEND_MODE(difference) { return s + d - 2*div255( min(s*da, d*sa) ); }
+    BLEND_MODE(darken)     { return s + d -   div255( max_intr(s*da, d*sa) ); }
+    BLEND_MODE(lighten)    { return s + d -   div255( min_intr(s*da, d*sa) ); }
+    BLEND_MODE(difference) { return s + d - 2*div255( min_intr(s*da, d*sa) ); }
     BLEND_MODE(exclusion)  { return s + d - 2*div255( s*d ); }
 
     BLEND_MODE(hardlight) {
@@ -6208,8 +6310,8 @@ SI U32 ix_and_ptr(T** ptr, const SkRasterPipelineContexts::GatherCtx* ctx, F x, 
 
     const F z = F_(std::numeric_limits<float>::min());
 
-    x = min(max(z, x), w);
-    y = min(max(z, y), h);
+    x = min_intr(max_intr(z, x), w);
+    y = min_intr(max_intr(z, y), h);
 
     x = sk_bit_cast<F>(sk_bit_cast<U32>(x) - (uint32_t)ctx->roundDownAtInteger);
     y = sk_bit_cast<F>(sk_bit_cast<U32>(y) - (uint32_t)ctx->roundDownAtInteger);
@@ -6226,8 +6328,8 @@ SI U32 ix_and_ptr(T** ptr, const SkRasterPipelineContexts::GatherCtx* ctx, I32 x
     const I32 w = I32_( ctx->width - 1),
               h = I32_(ctx->height - 1);
 
-    U32 ax = cast<U32>(min(max(0, x), w)),
-        ay = cast<U32>(min(max(0, y), h));
+    U32 ax = cast<U32>(min_intr(max_intr(0, x), w)),
+        ay = cast<U32>(min_intr(max_intr(0, y), h));
 
     *ptr = (const T*)ctx->pixels;
     return ay * ctx->stride + ax;
@@ -6768,8 +6870,8 @@ LOWP_STAGE_PP(lerp_u8, const SkRasterPipelineContexts::MemoryCtx* ctx) {
 
 // Derive alpha's coverage from rgb coverage and the values of src and dst alpha.
 SI U16 alpha_coverage_from_rgb_coverage(U16 a, U16 da, U16 cr, U16 cg, U16 cb) {
-    return if_then_else(a < da, min(cr, min(cg,cb))
-                              , max(cr, max(cg,cb)));
+    return if_then_else(a < da, min_intr(cr, min_intr(cg,cb))
+                              , max_intr(cr, max_intr(cg,cb)));
 }
 LOWP_STAGE_PP(scale_565, const SkRasterPipelineContexts::MemoryCtx* ctx) {
     U16 cr,cg,cb;
@@ -6806,9 +6908,10 @@ LOWP_STAGE_PP(emboss, const SkRasterPipelineContexts::EmbossCtx* ctx) {
 // Clamp x to [0,1], both sides inclusive (think, gradients).
 // Even repeat and mirror funnel through a clamp to handle bad inputs like +Inf, NaN.
 SI F clamp_01_(F v) { return min(max(0, v), 1); }
+SI F fast_clamp_01_(F v) { return min_intr(max_intr(0, v), 1); }
 
-LOWP_STAGE_GG(clamp_x_1 , NoCtx) { x = clamp_01_(x); }
-LOWP_STAGE_GG(repeat_x_1, NoCtx) { x = clamp_01_(x - floor_(x)); }
+LOWP_STAGE_GG(clamp_x_1 , NoCtx) { x = fast_clamp_01_(x); }
+LOWP_STAGE_GG(repeat_x_1, NoCtx) { x = fast_clamp_01_(x - floor_(x)); }
 LOWP_STAGE_GG(mirror_x_1, NoCtx) {
     auto two = [](F x){ return x+x; };
     x = clamp_01_(abs_( (x-1.0f) - two(floor_((x-1.0f)*0.5f)) - 1.0f ));
@@ -6830,8 +6933,8 @@ LOWP_STAGE_GG(decal_x_and_y, SkRasterPipelineContexts::DecalTileCtx* ctx) {
     sk_unaligned_store(ctx->mask, cond_to_mask_16((0 <= x) & (x < w) & (0 <= y) & (y < h)));
 }
 LOWP_STAGE_GG(clamp_x_and_y, SkRasterPipelineContexts::CoordClampCtx* ctx) {
-    x = min(ctx->max_x, max(ctx->min_x, x));
-    y = min(ctx->max_y, max(ctx->min_y, y));
+    x = min_intr(ctx->max_x, max_intr(ctx->min_x, x));
+    y = min_intr(ctx->max_y, max_intr(ctx->min_y, y));
 }
 LOWP_STAGE_PP(check_decal_mask, SkRasterPipelineContexts::DecalTileCtx* ctx) {
     auto mask = sk_unaligned_load<U16>(ctx->mask);

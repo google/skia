@@ -76,7 +76,69 @@ private:
     int32_t* fData = nullptr;
 };
 
+class SkRPGatherBench : public Benchmark {
+public:
+    enum class Format { k8888, k565, kRG88 };
+
+    SkRPGatherBench(Format format) : fFormat(format) {
+        switch (fFormat) {
+            case Format::k8888: fName.printf("skrp_gather_8888"); break;
+            case Format::k565:  fName.printf("skrp_gather_565"); break;
+            case Format::kRG88: fName.printf("skrp_gather_rg88"); break;
+        }
+
+        // Allocate and initialize pixels
+        fPixels.reset(new uint32_t[128 * 128]);
+        for (int i = 0; i < 128 * 128; i++) {
+            fPixels[i] = 0xFFFFFFFF;
+        }
+
+        fCtx = allocate_and_align<SkRasterPipelineContexts::GatherCtx>(
+                fStorage, sizeof(SkRasterPipelineContexts::GatherCtx));
+        fCtx->pixels = fPixels.get();
+        fCtx->stride = 128;
+        fCtx->width = 128.0f;
+        fCtx->height = 128.0f;
+        fCtx->roundDownAtInteger = false;
+    }
+
+protected:
+    const char* onGetName() override { return fName.c_str(); }
+    bool isSuitableFor(Backend backend) override { return backend == Backend::kNonRendering; }
+
+    void onDraw(int loops, SkCanvas*) override {
+        SkArenaAlloc alloc(1024);
+        SkRasterPipeline p(&alloc);
+
+        p.append(SkRasterPipelineOp::seed_shader);
+
+        SkRasterPipelineOp op;
+        switch (fFormat) {
+            case Format::k8888: op = SkRasterPipelineOp::gather_8888; break;
+            case Format::k565:  op = SkRasterPipelineOp::gather_565; break;
+            case Format::kRG88: op = SkRasterPipelineOp::gather_rg88; break;
+        }
+        p.append(op, fCtx);
+
+        for (int i = 0; i < loops; i++) {
+            p.run(0, 0, 128, 1);
+        }
+    }
+
+private:
+    Format fFormat;
+    SkString fName;
+    std::unique_ptr<uint32_t[]> fPixels;
+    std::unique_ptr<char[]> fStorage;
+    SkRasterPipelineContexts::GatherCtx* fCtx = nullptr;
+};
+
 DEF_BENCH(return new SkRPDivBench(SkRPDivBench::Type::kInt, 1);)
 DEF_BENCH(return new SkRPDivBench(SkRPDivBench::Type::kInt, 4);)
 DEF_BENCH(return new SkRPDivBench(SkRPDivBench::Type::kUint, 1);)
 DEF_BENCH(return new SkRPDivBench(SkRPDivBench::Type::kUint, 4);)
+
+DEF_BENCH(return new SkRPGatherBench(SkRPGatherBench::Format::k8888);)
+DEF_BENCH(return new SkRPGatherBench(SkRPGatherBench::Format::k565);)
+DEF_BENCH(return new SkRPGatherBench(SkRPGatherBench::Format::kRG88);)
+
