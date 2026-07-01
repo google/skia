@@ -154,4 +154,21 @@ template <typename T> using SkSpan = std::span<T>;
 
 #endif  // legacy
 
+// These helper functions are temporary and only meant to be used during the Spanify process
+// to ease the transition from pointers to spans (e.g. replacing `ptr++`).
+// Once the Spanify process is complete, these callsites should be refactored to use
+// more idiomatic span patterns, and these functions should be removed.
+template <typename T>
+constexpr SkSpan<T> SkPreIncrementSpan(SkSpan<T>& s) {
+    s = s.subspan(1);
+    return s;
+}
+
+template <typename T>
+constexpr SkSpan<T> SkPostIncrementSpan(SkSpan<T>& s) {
+    SkSpan<T> old = s;
+    s = s.subspan(1);
+    return old;
+}
+
 #endif  // SkSpan_DEFINED
