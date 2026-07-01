@@ -111,21 +111,18 @@ struct Layer {
     SkTInternalLList<BindingList> fBindings;
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(Layer);
 
-    template <bool kForwards>
-    BindingList* searchBinding(const LayerKey& key, BindingList* startList, bool matchUniform) {
-        BindingList* list;
-        BindingList* end;
-
-        if constexpr (kForwards) {
-            list = startList ? startList->fNext : fBindings.head();
-            end = nullptr;
-        } else {
-            list = fBindings.tail();
-            end = startList ? startList->fPrev : nullptr;
+    // Performs no bounds checks, so can only be used when checks have already confirmed the Layer
+    // is valid for adding a new draw into. This searches backwards from `startList` (inclusive) or
+    // the tail BindingList if null.
+    SK_ALWAYS_INLINE BindingList* searchBinding(const LayerKey& key,
+                                                BindingList* startList,
+                                                bool matchUniform) {
+        if (!startList) {
+            startList = fBindings.tail();
         }
 
         // Advancement is evaluated at compile time
-        for (; list != end; list = kForwards ? list->fNext : list->fPrev) {
+        for (BindingList* list = startList; list != nullptr; list = list->fPrev) {
             if (list->fKey.isEqual(key, matchUniform)) {
                 return list;
             }
@@ -217,23 +214,41 @@ struct Layer {
 
     SK_ALWAYS_INLINE BindingList* addNewBinding(bool isDepthOnly,
                                                 SkArenaAllocWithReset* alloc,
-                                                BindingList* parentList,
+                                                BindingList* insertBefore,
                                                 const LayerKey& key,
                                                 const RenderStep* step) {
+        SkASSERT(!insertBefore || fBindings.isInList(insertBefore));
+
         fListOrder = fListOrder.next();
         BindingList* list = alloc->make<BindingList>(fListOrder, isDepthOnly);
         list->fKey = key;
         list->fStep = const_cast<RenderStep*>(step);
         list->fBounds = Rect::InfiniteInverted();
 
-        if (isDepthOnly) {
-            if (parentList) {
-                fBindings.addAfter(list, parentList);
-            } else {
-                fBindings.addToHead(list);
-            }
-        } else {
+        // We need to insert the new list in the right place to keep fBindings organized with all
+        // non-shading layers before shading layers, while also ensuring that the new `list` comes
+        // before `insertBefore` (when non-null).
+        if (insertBefore && isDepthOnly == insertBefore->fIsDepthOnly) {
+            // Since both keys' shading state matches, putting the new list right in front of
+            // `insertBefore` will not split the two sections (regardless of whether it was in the
+            // shading or non-shading section).
+            fBindings.addBefore(list, insertBefore);
+        } else if (!isDepthOnly) {
+            // Since a new shading binding can only be inserted before other shading bindings,
+            // the only way to get to this branch is to not have an insertBefore target. As such,
+            // the simplest way to maintain keeping shading bindings in the latter half is to add
+            // to the tail.
+            SkASSERT(!insertBefore);
             fBindings.addToTail(list);
+        } else {
+            // A non-shading draw can have an `insertBefore` target that is a shading binding (e.g.
+            // where the final shading step was inserted in the layer). In that case, addBefore()
+            // would possibly split the shading bindings section of `fBindings`. Adding it to the
+            // head of the bindings' list preserves the guarantee that all non-shading bindings are
+            // at the start and satisfies adding it before the `insertBefore` (if it were non-null).
+            SkASSERT(isDepthOnly);
+            SkASSERT(!insertBefore || !insertBefore->fIsDepthOnly);
+            fBindings.addToHead(list);
         }
 
         return list;

@@ -68,8 +68,8 @@ std::pair<Layer*, BindingList*> DrawListLayer::searchBackwards(
         // it drew into.
         targetLayer = stop.fLayer ? stop.fLayer : fLayers.head();
         if (targetLayer) {
-            targetMatch = targetLayer->searchBinding</*kForwards=*/false>(
-                    key, stop.fList, !fStorageBufferSupport);
+            targetMatch = targetLayer->searchBinding(
+                    key, /*startList=*/nullptr, !fStorageBufferSupport);
         }
     } else {
         current = fLayers.tail();
@@ -236,10 +236,11 @@ BindingList* DrawListLayer::findOrCreateBindingInLayer(bool isDepthOnly,
     SkASSERT(start.fLayer);
     SkASSERT(start.fList);
     BindingList* targetMatch = nullptr;
-    if (start.fList->fNext) {
-        targetMatch = start.fLayer->searchBinding</*kForwards=*/true>(
-            key, start.fList, !fStorageBufferSupport);
-    }
+    // Search through preceding bindings (exclusive) for a match for the new step.
+    if (start.fList->fPrev) {
+        targetMatch = start.fLayer->searchBinding(
+            key, start.fList->fPrev, !fStorageBufferSupport);
+    } // else there are no preceding bindings so we know we have to add a new one
 
     if (!targetMatch) {
         targetMatch = start.fLayer->addNewBinding(
@@ -301,7 +302,7 @@ std::pair<DrawParams*, Insertion> DrawListLayer::recordDraw(const Renderer* rend
     Insertion stepInsertion = {nullptr, nullptr};
     fRenderStepCount += renderer->numRenderSteps();
     bool canForwardMerge = renderer->numRenderSteps() == 1;
-    for (int stepIndex = 0; stepIndex < renderer->numRenderSteps(); ++stepIndex) {
+    for (int stepIndex = renderer->numRenderSteps() - 1; stepIndex >= 0; --stepIndex) {
         const RenderStep* const step = renderer->steps()[stepIndex];
 
         gatherer->markOffsetAndAlign(step->performsShading(), step->uniformAlignment());
@@ -324,7 +325,6 @@ std::pair<DrawParams*, Insertion> DrawListLayer::recordDraw(const Renderer* rend
 
         // Invalid ID implies depth only draw
         bool isDepthOnly = paintID == UniquePaintParamsID::Invalid();
-        bool stepDependsOnDst = isDepthOnly || (stepIndex == 0 && dependsOnDst);
         LayerKey layerKey{pipelineIndex, textureBindingIndex, uniformIndex};
 
         if (!stepInsertion) {
@@ -332,7 +332,7 @@ std::pair<DrawParams*, Insertion> DrawListLayer::recordDraw(const Renderer* rend
                     stepIndex,
                     rendererIsStencil,
                     isDepthOnly,
-                    stepDependsOnDst,
+                    dependsOnDst || isDepthOnly,
                     requiresBarrier,
                     step,
                     uniformIndex,
@@ -353,8 +353,7 @@ std::pair<DrawParams*, Insertion> DrawListLayer::recordDraw(const Renderer* rend
 
         SkASSERT(stepInsertion);
         stepInsertion.fList->addDraw(fStorage.make<Draw>(drawParams, uniformIndex),
-                                     /*backToFront=*/dependsOnDst ||
-                                                     stepInsertion.fList == latestInsertion.fList);
+                                     /*backToFront=*/dependsOnDst);
 
         gatherer->rewindForRenderStep();
     }
