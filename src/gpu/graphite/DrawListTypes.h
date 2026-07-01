@@ -27,6 +27,46 @@
 
 namespace skgpu::graphite {
 
+
+/**
+ * Defines a bitmask that defines what types of buffer modifications are blocked by draws within a
+ * Layer (when set on LayerKey) or the buffer modifications a draw can't overlap with (testMask).
+ *
+ * This table shows the BoundsFlags layer and test masks for the different types of renderer draws:
+ *
+ *     Draw                                | Layer Mask      | Test Mask
+ *     ------------------------------------|-----------------|---------------------
+ *     Opaque shading                      | Color           | None
+ *     Non-opaque shading                  | Color           | Color
+ *     Opaque shading + stencil cover      | Color + Stencil | Stencil
+ *     Non-opaque shading + stencil cover  | Color + Stencil | Color + Stencil
+ *     Stencil step for opaque shading     | Stencil         | Stencil
+ *     Stencil step for non-opaque shading | Stencil         | Color + Stencil
+ *     Depth-only                          | None            | Color
+ *     Depth-only + stencil cover          | Stencil         | Color + Stencil
+ *     Stencil step for depth-only         | Stencil         | Color + Stencil
+ *
+ *     NOTE: This table does not include MustBeDisjoint for brevity. MustBeDisjoint behaves similar
+ *           to a Stencil dependency, except that it only affects intersections within a matching
+ *           BindingList and Stencil affects any binding that also depends on Stencil.
+ *
+ * Shading draws always have Color in their layer key to enforce painter's order against new draws
+ * that must blend. Opaque shading draws do not include Color in their test key because they can
+ * draw early and resolve to the correct painter's order with a depth test.
+ *
+ * Stencil steps for shading draws (e.g. the step itself isn't shading) do not have Color in their
+ * key so they can batch with depth-only draws, but their test mask matches that of their shading
+ * step. This is so that the layer search can be done for a single step and be valid for the
+ * remaining steps.
+ *
+ * Depth-only draws do not have Color in their layer key because they rely on the ClipStack's more
+ * refined bounds checking to determine what is impacted. They include Color in their test mask,
+ * however, to ensure they do not draw before shading draws whose z value shouldn't be impacted by
+ * the depth clip's z value.
+ *
+ * If a render step uses the stencil buffer, Stencil must be in both the layer mask and the test
+ * mask. Stencil-using draws must always be fully disjoint across the entire layer.
+ */
 enum class BoundsFlags {
     kNone    = 0x0, // No need to test against draws; only respect the stop layer when searching
     kStencil = 0x1, // Cannot intersect with anything that uses stencil; but could draw out of order
@@ -84,6 +124,11 @@ struct LayerKey {
     }
 };
 
+/**
+ * A Draw represents the combination of a DrawParams and a specific RenderStep from the
+ * chosen Renderer. DrawListLayer ensures Draws for a multi-step Renderer are drawn in the
+ * right order. A Draw holds the specific uniform data and pointers to live in a BindingList.
+ */
 struct Draw {
     Draw(const DrawParams* params, const UniformDataCache::Index uniformIndex)
             : fDrawParams(params), fUniformIndex(uniformIndex) {}
@@ -94,6 +139,16 @@ struct Draw {
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(Draw);
 };
 
+/**
+ * BindingList represents a collection of Draws that share the same RenderStep and other binding
+ * state (i.e. pipeline, textures, and optionally uniforms). When SSBOs are used for "uniform"
+ * data, the draws in a BindingList can have different fUniformIndex values; otherwise their
+ * fUniformIndex will match that of the BindingList's fKey.
+ *
+ * If the LayerKey's flags does not include kMustBeDisjoint, the Draws in a BindingList may not be
+ * disjoint from each other. However, DrawListLayer ensures that this still results in the correct
+ * painter's order rendering.
+ */
 struct BindingList {
     static constexpr uint32_t kCoarseBoundsThreshold = 32;
 
@@ -135,6 +190,22 @@ struct BindingList {
     }
 };
 
+/**
+ * Layer represents a collection of independent Draws that are organized by BindingLists. Within
+ * a Layer, this allows draws to be ordered to minimize pipeline and state changes without impacting
+ * painter's order visual correctness. Every draw stored in a Layer shares the same
+ * CompressedPaintersOrder, which is a monotonically increasing sequence for each DrawList.
+ *
+ * A Layer keeps its single list of BindingLists organized to maintain the following properties:
+ *   1. Non-shading BindingLists are ordered before every shading BindingList. This helps reduce the
+ *      binding lists tested for a shading draw (can stop once a non-shading list is found). It also
+ *      ensures depth-only clip draws are rendered before the shading draws that should be clipped.
+ *   2. Shading BindingLists are ordered back-to-front if allowing overlaps within a BindingList or
+ *      when it's not the tail Layer anymore.
+ *   2. BindingLists that share the same pipeline are clustered together as best as possible so that
+ *      moving between adjacent BindingLists is more likely to just be a buffer or texture bind
+ *      than a more expensive pipeline bind.
+ */
 struct Layer {
     Layer(const CompressedPaintersOrder& order) : fOrder(order) {}
 
