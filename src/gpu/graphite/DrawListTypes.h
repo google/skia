@@ -226,6 +226,13 @@ struct Layer {
         for (BindingList* list = startList; list != nullptr; list = list->fPrev) {
             if (list->fKey.isEqual(key)) {
                 return list;
+            } else if (key.performsShading() && !list->fKey.performsShading()) {
+                // The BindingLists are split in two sections: a latter half with color (that is
+                // check first because we start at the tail) and then anything else that is
+                // non-shading (possibly with stencil). The depth-only and the stencil-only get
+                // intermingled so we can't early out for those, but if `key` has color and `list`
+                // does not, then a match is no longer possible.
+                break;
             }
         }
         return nullptr;
