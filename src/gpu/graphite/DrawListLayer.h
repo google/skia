@@ -70,7 +70,7 @@ private:
                                                     const LayerKey& key,
                                                     SkEnumBitMask<BoundsFlags> testMask,
                                                     const DrawParams* drawParams,
-                                                    const Layer* stop);
+                                                    CompressedPaintersOrder stop);
 
     BindingList* findOrCreateBindingInLayer(Layer* layer,
                                             BindingList* parent,

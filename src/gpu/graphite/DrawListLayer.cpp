@@ -50,7 +50,7 @@ std::pair<Layer*, BindingList*> DrawListLayer::searchBackwards(
         const LayerKey& key,
         SkEnumBitMask<BoundsFlags> testMask,
         const DrawParams* drawParams,
-        const Layer* stop) {
+        CompressedPaintersOrder stop) {
     Layer* targetLayer = nullptr;
     BindingList* targetMatch = nullptr;
     BindingList* forwardMerge = nullptr;
@@ -100,7 +100,7 @@ std::pair<Layer*, BindingList*> DrawListLayer::searchBackwards(
             forwardMerge = match;
         }
 
-        if (!SkToBool(result & BoundsTestResult::kAllowedBeforeLayer) || current == stop) {
+        if (!SkToBool(result & BoundsTestResult::kAllowedBeforeLayer) || current->fOrder == stop) {
             break;
         } else {
             current = current->fPrev;
@@ -117,7 +117,7 @@ std::pair<Layer*, BindingList*> DrawListLayer::searchBackwards(
         }
     }
 
-    SkASSERT(!targetLayer || !stop || targetLayer->fOrder >= stop->fOrder);
+    SkASSERT(!targetLayer || targetLayer->fOrder >= stop);
 
     if (!targetLayer) {
         fOrderCounter = fOrderCounter.next();
@@ -275,7 +275,8 @@ std::pair<DrawParams*, Insertion> DrawListLayer::recordDraw(const Renderer* rend
 
         if (!insertionLayer) {
             // Since we don't have a layer yet, search from the most recent layer back.
-            const Layer* stop = latestInsertion.fLayer;
+            CompressedPaintersOrder stop = latestInsertion ? latestInsertion.fLayer->fOrder
+                                                           : DrawOrder::kNoIntersection;
             std::tie(insertionLayer, lastStepBinding) = this->searchBackwards(step,
                                                                               key,
                                                                               testMask,
