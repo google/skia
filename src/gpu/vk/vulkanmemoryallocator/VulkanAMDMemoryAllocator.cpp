@@ -62,6 +62,7 @@ sk_sp<VulkanMemoryAllocator> VulkanAMDMemoryAllocator::Make(VkInstance instance,
     SKGPU_COPY_FUNCTION_KHR(BindBufferMemory2);
     SKGPU_COPY_FUNCTION_KHR(BindImageMemory2);
     SKGPU_COPY_FUNCTION_KHR(GetPhysicalDeviceMemoryProperties2);
+    SKGPU_COPY_FUNCTION_KHR(GetPhysicalDeviceProperties2);
 
     VmaAllocatorCreateInfo info;
     info.flags = 0;
@@ -116,6 +117,8 @@ VkResult VulkanAMDMemoryAllocator::allocateImageMemory(VkImage image,
     info.memoryTypeBits = 0;
     info.pool = VK_NULL_HANDLE;
     info.pUserData = nullptr;
+    info.priority = 1.0f; // This shouldn't be used by vma
+    info.minAlignment = 0; // 0 means used queried vulkan alignment
 
     if (kDedicatedAllocation_AllocationPropertyFlag & allocationPropertyFlags) {
         info.flags |= VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
@@ -146,6 +149,8 @@ VkResult VulkanAMDMemoryAllocator::allocateBufferMemory(VkBuffer buffer,
     info.memoryTypeBits = 0;
     info.pool = VK_NULL_HANDLE;
     info.pUserData = nullptr;
+    info.priority = 1.0f; // This shouldn't be used by vma
+    info.minAlignment = 0; // 0 means used queried vulkan alignment
 
     switch (usage) {
         case BufferUsage::kGpuOnly:
