@@ -79,12 +79,7 @@ private:
 
     friend class DrawPass;
 
-    static constexpr int32_t  kMaxSearchLimit = 32;
-    static constexpr uint32_t kDefaultAllocation = 4096;
-
-    // TODO (thomsmit): Try using SkSTArenaAllocWithReset that has the first storage block stored
-    // inline so it's embedded in the DrawListLayer object.
-    SkArenaAllocWithReset fStorage{kDefaultAllocation};
+    SkSTArenaAllocWithReset<256> fStorage;
     SkTInternalLList<Layer> fLayers;
 
     int fDrawCount = 0;

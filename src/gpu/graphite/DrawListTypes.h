@@ -150,8 +150,6 @@ struct Draw {
  * painter's order rendering.
  */
 struct BindingList {
-    static constexpr uint32_t kCoarseBoundsThreshold = 32;
-
     BindingList(const RenderStep* step, LayerKey key) : fStep(step), fKey(key) {}
 
     Rect fBounds = Rect::InfiniteInverted();
@@ -164,7 +162,7 @@ struct BindingList {
     // the earlier BindingLists so they are not eligible for being moved forward to a new layer.
     bool fBlockForwardMerges = false;
 
-    uint32_t fDrawCount = 0; // SkTInternalLList doesn't maintain a count for us :/
+    int fDrawCount = 0; // SkTInternalLList doesn't maintain a count for us :/
 
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(BindingList);
 
@@ -172,7 +170,14 @@ struct BindingList {
         if (!fBounds.intersects(drawBounds)) {
             return false;
         }
-        if (fDrawCount > kCoarseBoundsThreshold) {
+
+        // When stencil is involved (or depth-only draws), a larger limit is useful because it
+        // creates a shallower layer list. This in turn makes it more likely to find BindingList
+        // matches. In particular, since stencils have to be disjoint from everything and depth-only
+        // clip draws prevent further layer searches, checking more bounding boxes leads to a net
+        // improvement in complex scenes.
+        const int limit = fKey.isSimpleShading() ? 16 : 64;
+        if (fDrawCount > limit) {
             return true;
         }
         for (const Draw* d = fDraws.head(); d; d = d->fNext) {

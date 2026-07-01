@@ -51,6 +51,10 @@ std::pair<Layer*, BindingList*> DrawListLayer::searchBackwards(
         SkEnumBitMask<BoundsFlags> testMask,
         const DrawParams* drawParams,
         CompressedPaintersOrder stop) {
+    // CPU performance is sensitive to increasing this value. Searching for longer *can* reduce the
+    // draw count and pipeline change count
+    static constexpr int kMaxSearchLimit = 8;
+
     Layer* targetLayer = nullptr;
     BindingList* targetMatch = nullptr;
     BindingList* forwardMerge = nullptr;
@@ -86,12 +90,12 @@ std::pair<Layer*, BindingList*> DrawListLayer::searchBackwards(
             current = current->fPrev;
 
             // To support deeper searches while mitigating search time, if we found a matching
-            // BindingList then we penalize the remaining search limit by subtracting half of
-            // kMaxSearchLimit. Ultimately this is an imprecise heuristic. In an ideal world, we
-            // would maximize batching by exhaustively searching to the end of the list, but that
-            // would degrade insertion performance to O(n^2).
+            // BindingList then we penalize the remaining search limit halving it. Ultimately this
+            // is an imprecise heuristic. In an ideal world, we would maximize batching by
+            // exhaustively searching to the end of the list, but that would degrade insertion
+            // performance to O(n^2).
             if (match) {
-                limit -= kMaxSearchLimit >> 1;
+                limit /= 2;
             }
         }
     }
