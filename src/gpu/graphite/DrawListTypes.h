@@ -35,6 +35,9 @@ enum class BoundsTest {
 struct LayerKey {
     GraphicsPipelineCache::Index fPipelineIndex;
     TextureDataCache::Index fTextureIndex;
+
+    // Set to Invalid for BindingLists when SSBOs are used; for SSBOs, each draw's uniform index
+    // is stored on the Draw itself.
     UniformDataCache::Index fUniformIndex;
 
     static constexpr LayerKey None() {
@@ -43,12 +46,10 @@ struct LayerKey {
                 UniformDataCache::kInvalidIndex};
     }
 
-    SK_ALWAYS_INLINE bool isEqual(const LayerKey& other, bool matchUniforms) const {
-        if (fPipelineIndex != other.fPipelineIndex ||
-            fTextureIndex != other.fTextureIndex) {
-            return false;
-        }
-        return !matchUniforms || fUniformIndex == other.fUniformIndex;
+    SK_ALWAYS_INLINE bool isEqual(const LayerKey& other) const {
+        return fPipelineIndex == other.fPipelineIndex &&
+               fTextureIndex == other.fTextureIndex &&
+               fUniformIndex == other.fUniformIndex;
     }
 };
 
@@ -115,15 +116,14 @@ struct Layer {
     // is valid for adding a new draw into. This searches backwards from `startList` (inclusive) or
     // the tail BindingList if null.
     SK_ALWAYS_INLINE BindingList* searchBinding(const LayerKey& key,
-                                                BindingList* startList,
-                                                bool matchUniform) {
+                                                BindingList* startList=nullptr) {
         if (!startList) {
             startList = fBindings.tail();
         }
 
         // Advancement is evaluated at compile time
         for (BindingList* list = startList; list != nullptr; list = list->fPrev) {
-            if (list->fKey.isEqual(key, matchUniform)) {
+            if (list->fKey.isEqual(key)) {
                 return list;
             }
         }
@@ -144,8 +144,7 @@ struct Layer {
                                                               const Rect& drawBounds,
                                                               const LayerKey& key,
                                                               bool requiresBarrier,
-                                                              BindingList* startList,
-                                                              bool matchUniform) {
+                                                              BindingList* startList) {
         BindingList* foundMatch = nullptr;
         BindingList* list = fBindings.tail();
         BindingList* end = startList ? startList->fPrev : nullptr;
@@ -156,7 +155,7 @@ struct Layer {
         // searching for a disjoint binding match and then whether or not to start from the front or
         // the back is arbitrary
         for (; list != end; list = list->fPrev) {
-            if (list->fKey.isEqual(key, matchUniform)) {
+            if (list->fKey.isEqual(key)) {
                 // A side effect of the layer key system is that a non-shading stencil step and a
                 // depth-only draw can generate a valid match. While this allows the two render
                 // steps to share the same binding list, it technically still produces a visually

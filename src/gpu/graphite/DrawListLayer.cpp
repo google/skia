@@ -68,8 +68,7 @@ std::pair<Layer*, BindingList*> DrawListLayer::searchBackwards(
         // it drew into.
         targetLayer = stop.fLayer ? stop.fLayer : fLayers.head();
         if (targetLayer) {
-            targetMatch = targetLayer->searchBinding(
-                    key, /*startList=*/nullptr, !fStorageBufferSupport);
+            targetMatch = targetLayer->searchBinding(key);
         }
     } else {
         current = fLayers.tail();
@@ -82,15 +81,13 @@ std::pair<Layer*, BindingList*> DrawListLayer::searchBackwards(
                                       drawParams->drawBounds(),
                                       key,
                                       requiresBarrier,
-                                      boundary,
-                                      !fStorageBufferSupport)
+                                      boundary)
                             : current->test</*kIsStencil=*/false>(
                                       isDepthOnly,
                                       drawParams->drawBounds(),
                                       key,
                                       requiresBarrier,
-                                      boundary,
-                                      !fStorageBufferSupport);
+                                      boundary);
 
             if (overlapType == BoundsTest::kIncompatibleOverlap) {
                 // If we need to read the dst, we cannot go earlier than this layer.
@@ -238,8 +235,7 @@ BindingList* DrawListLayer::findOrCreateBindingInLayer(bool isDepthOnly,
     BindingList* targetMatch = nullptr;
     // Search through preceding bindings (exclusive) for a match for the new step.
     if (start.fList->fPrev) {
-        targetMatch = start.fLayer->searchBinding(
-            key, start.fList->fPrev, !fStorageBufferSupport);
+        targetMatch = start.fLayer->searchBinding(key, start.fList->fPrev);
     } // else there are no preceding bindings so we know we have to add a new one
 
     if (!targetMatch) {
@@ -325,7 +321,9 @@ std::pair<DrawParams*, Insertion> DrawListLayer::recordDraw(const Renderer* rend
 
         // Invalid ID implies depth only draw
         bool isDepthOnly = paintID == UniquePaintParamsID::Invalid();
-        LayerKey layerKey{pipelineIndex, textureBindingIndex, uniformIndex};
+
+        LayerKey key{pipelineIndex, textureBindingIndex,
+                     fStorageBufferSupport ? UniformDataCache::kInvalidIndex : uniformIndex};
 
         if (!stepInsertion) {
             auto [layer, binding] = this->searchBackwards(
@@ -336,7 +334,7 @@ std::pair<DrawParams*, Insertion> DrawListLayer::recordDraw(const Renderer* rend
                     requiresBarrier,
                     step,
                     uniformIndex,
-                    layerKey,
+                    key,
                     drawParams,
                     /*stop=*/isDepthOnly ? Insertion{} : latestInsertion,
                     &stepInsertion,
@@ -347,7 +345,7 @@ std::pair<DrawParams*, Insertion> DrawListLayer::recordDraw(const Renderer* rend
             stepInsertion.fList = this->findOrCreateBindingInLayer(
                     isDepthOnly,
                     step,
-                    layerKey,
+                    key,
                     stepInsertion);
         }
 
