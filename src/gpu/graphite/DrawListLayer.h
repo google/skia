@@ -66,21 +66,14 @@ public:
     void reset(LoadOp op, SkColor4f clearColor = {0.f, 0.f, 0.f, 0.f}) override;
 
 private:
-    std::pair<Layer*, BindingList*> searchBackwards(int stepIndex,
-                                                    bool isStencil,
-                                                    bool isDepthOnly,
-                                                    bool dependsOnDst,
-                                                    bool requiresBarrier,
-                                                    const RenderStep* step,
-                                                    const UniformDataCache::Index& uniformIndex,
+    std::pair<Layer*, BindingList*> searchBackwards(const RenderStep* step,
                                                     const LayerKey& key,
+                                                    SkEnumBitMask<BoundsFlags> testMask,
                                                     const DrawParams* drawParams,
-                                                    const Layer* stop,
-                                                    bool canForwardMerge);
+                                                    const Layer* stop);
 
     BindingList* findOrCreateBindingInLayer(Layer* layer,
                                             BindingList* parent,
-                                            bool isDepthOnly,
                                             const RenderStep* step,
                                             const LayerKey& key);
 
