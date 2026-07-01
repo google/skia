@@ -66,29 +66,23 @@ public:
     void reset(LoadOp op, SkColor4f clearColor = {0.f, 0.f, 0.f, 0.f}) override;
 
 private:
-    void recordBackwards(int stepIndex,
-                         bool isStencil,
-                         bool isDepthOnly,
-                         bool dependsOnDst,
-                         bool requiresBarrier,
-                         const RenderStep* step,
-                         const UniformDataCache::Index& uniformIndex,
-                         const LayerKey& key,
-                         const DrawParams* drawParams,
-                         const Insertion& stop,
-                         Insertion* capture,
-                         bool canForwardMerge);
+    std::pair<Layer*, BindingList*> searchBackwards(int stepIndex,
+                                                    bool isStencil,
+                                                    bool isDepthOnly,
+                                                    bool dependsOnDst,
+                                                    bool requiresBarrier,
+                                                    const RenderStep* step,
+                                                    const UniformDataCache::Index& uniformIndex,
+                                                    const LayerKey& key,
+                                                    const DrawParams* drawParams,
+                                                    const Insertion& stop,
+                                                    Insertion* capture,
+                                                    bool canForwardMerge);
 
-    void recordForwards(int stepIndex,
-                        bool isStencil,
-                        bool isDepthOnly,
-                        bool dependsOnDst,
-                        bool requiresBarrier,
-                        const RenderStep* step,
-                        const UniformDataCache::Index& uniformIndex,
-                        const LayerKey& key,
-                        const DrawParams* drawParams,
-                        Insertion& start);
+    BindingList* findOrCreateBindingInLayer(bool isDepthOnly,
+                                            const RenderStep* step,
+                                            const LayerKey& key,
+                                            const Insertion& start);
 
     friend class DrawPass;
 

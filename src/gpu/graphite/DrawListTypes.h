@@ -91,6 +91,16 @@ struct BindingList {
         }
         return false;
     }
+
+    SK_ALWAYS_INLINE void addDraw(Draw* draw, bool backToFront) {
+        fBounds.join(draw->fDrawParams->drawBounds());
+        fDrawCount++;
+        if (backToFront) {
+            fDraws.addToTail(draw);
+        } else {
+            fDraws.addToHead(draw);
+        }
+    }
 };
 
 struct Layer {
@@ -205,42 +215,26 @@ struct Layer {
         return {foundMatch ? BoundsTest::kCompatibleOverlap : BoundsTest::kDisjoint, foundMatch};
     }
 
-    SK_ALWAYS_INLINE BindingList* add(bool isChild,
-                                      bool isDepthOnly,
-                                      SkArenaAllocWithReset* alloc,
-                                      BindingList* list,
-                                      BindingList* parentList,
-                                      const LayerKey& key,
-                                      Draw* draw,
-                                      const RenderStep* step,
-                                      bool insertBefore) {
-        if (list) {
-            list->fBounds.join(draw->fDrawParams->drawBounds());
-        } else {
-            fListOrder = fListOrder.next();
-            list = alloc->make<BindingList>(fListOrder, isDepthOnly);
-            list->fKey = key;
-            list->fStep = const_cast<RenderStep*>(step);
-            list->fBounds = draw->fDrawParams->drawBounds();
-            if (isDepthOnly) {
-                if (isChild) {
-                    SkASSERT(parentList);
-                    fBindings.addAfter(list, parentList);
-                } else {
-                    fBindings.addToHead(list);
-                }
+    SK_ALWAYS_INLINE BindingList* addNewBinding(bool isDepthOnly,
+                                                SkArenaAllocWithReset* alloc,
+                                                BindingList* parentList,
+                                                const LayerKey& key,
+                                                const RenderStep* step) {
+        fListOrder = fListOrder.next();
+        BindingList* list = alloc->make<BindingList>(fListOrder, isDepthOnly);
+        list->fKey = key;
+        list->fStep = const_cast<RenderStep*>(step);
+        list->fBounds = Rect::InfiniteInverted();
+
+        if (isDepthOnly) {
+            if (parentList) {
+                fBindings.addAfter(list, parentList);
             } else {
-                fBindings.addToTail(list);
+                fBindings.addToHead(list);
             }
-        }
-
-        if (insertBefore) {
-            list->fDraws.addToHead(draw);
         } else {
-            list->fDraws.addToTail(draw);
+            fBindings.addToTail(list);
         }
-
-        list->fDrawCount++;
 
         return list;
     }

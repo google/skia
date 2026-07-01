@@ -45,18 +45,19 @@ void DrawListLayer::reset(LoadOp loadOp, SkColor4f color) {
 //         the stopLayer is treated exclusively, a sucessor renderstep stops its traversal before
 //         the stopLayer, thus preserving the relative ordering between the draws. (Note: will be
 //         changed in future CL, so kind of stub comment)
-void DrawListLayer::recordBackwards(int stepIndex,
-                                    bool isStencil,
-                                    bool isDepthOnly,
-                                    bool dependsOnDst,
-                                    bool requiresBarrier,
-                                    const RenderStep* step,
-                                    const UniformDataCache::Index& uniformIndex,
-                                    const LayerKey& key,
-                                    const DrawParams* drawParams,
-                                    const Insertion& stop,
-                                    Insertion* capture,
-                                    bool canForwardMerge) {
+std::pair<Layer*, BindingList*> DrawListLayer::searchBackwards(
+        int stepIndex,
+        bool isStencil,
+        bool isDepthOnly,
+        bool dependsOnDst,
+        bool requiresBarrier,
+        const RenderStep* step,
+        const UniformDataCache::Index& uniformIndex,
+        const LayerKey& key,
+        const DrawParams* drawParams,
+        const Insertion& stop,
+        Insertion* capture,
+        bool canForwardMerge) {
     Layer* current = nullptr;
     Layer* targetLayer = nullptr;
     BindingList* targetMatch = nullptr;
@@ -217,45 +218,21 @@ void DrawListLayer::recordBackwards(int stepIndex,
         fLayers.addToTail(targetLayer);
     }
 
-    SkASSERT(targetLayer);
-    Draw* draw = fStorage.make<Draw>(drawParams, uniformIndex);
-    bool notParentList = targetMatch != stop.fList;
-    // We pass `isDepthOnly` so that depth lists are prepended and shading lists are appended,
-    // guaranteeing that depth draws always come before shading draws within a layer.
-    BindingList* insertedList = targetLayer->add(false,
-                                                 isDepthOnly,
-                                                 &fStorage,
-                                                 targetMatch,
-                                                 nullptr,
-                                                 key,
-                                                 draw,
-                                                 step,
-                                                 !dependsOnDst && notParentList);
-
-    if (capture) {
-        SkASSERT(insertedList);
-        Insertion inserted = {targetLayer, insertedList};
-        if (stepIndex > 0) {
-            if (inserted > *capture) {
-                *capture = inserted;
-            }
-        } else {
-            *capture = inserted;
-        }
+    if (!targetMatch) {
+        // We pass `isDepthOnly` so that depth lists are prepended and shading lists are appended,
+        // guaranteeing that depth draws always come before shading draws within a layer.
+        targetMatch = targetLayer->addNewBinding(isDepthOnly, &fStorage, nullptr, key, step);
     }
+
+    return {targetLayer, targetMatch};
 }
 
-void DrawListLayer::recordForwards(int stepIndex,
-                                   bool isStencil,
-                                   bool isDepthOnly,
-                                   bool dependsOnDst,
-                                   bool requiresBarrier,
-                                   const RenderStep* step,
-                                   const UniformDataCache::Index& uniformIndex,
-                                   const LayerKey& key,
-                                   const DrawParams* drawParams,
-                                   Insertion& start) {
-    // If we're recording forwards, there better have been a draw that recorded backwards first!
+BindingList* DrawListLayer::findOrCreateBindingInLayer(bool isDepthOnly,
+                                                       const RenderStep* step,
+                                                       const LayerKey& key,
+                                                       const Insertion& start) {
+    // If we're recording a new step in the layer, there better have been a draw that searched
+    // backwards for the layer first!
     SkASSERT(start.fLayer);
     SkASSERT(start.fList);
     BindingList* targetMatch = nullptr;
@@ -263,13 +240,12 @@ void DrawListLayer::recordForwards(int stepIndex,
         targetMatch = start.fLayer->searchBinding</*kForwards=*/true>(
             key, start.fList, !fStorageBufferSupport);
     }
-    Draw* draw = fStorage.make<Draw>(drawParams, uniformIndex);
-    // Because depth-only draws exclusively `recordBackwards`, it is safe to pass false for
-    // `isDepthOnly`. This guarantees that new BindingLists append to the end of the layer and
-    // draws after their parent.
-    BindingList* insertedList = start.fLayer->add(
-            true, isDepthOnly, &fStorage, targetMatch, start.fList, key, draw, step, true);
-    start.fList = insertedList;
+
+    if (!targetMatch) {
+        targetMatch = start.fLayer->addNewBinding(
+                isDepthOnly, &fStorage, start.fList, key, step);
+    }
+    return targetMatch;
 }
 
 // Layer has dual purpose here:
@@ -350,31 +326,36 @@ std::pair<DrawParams*, Insertion> DrawListLayer::recordDraw(const Renderer* rend
         bool isDepthOnly = paintID == UniquePaintParamsID::Invalid();
         bool stepDependsOnDst = isDepthOnly || (stepIndex == 0 && dependsOnDst);
         LayerKey layerKey{pipelineIndex, textureBindingIndex, uniformIndex};
-        if (stepIndex == 0) {
-            this->recordBackwards(stepIndex,
-                                  rendererIsStencil,
-                                  isDepthOnly,
-                                  stepDependsOnDst,
-                                  requiresBarrier,
-                                  step,
-                                  uniformIndex,
-                                  layerKey,
-                                  drawParams,
-                                  /*stop=*/isDepthOnly ? Insertion{} : latestInsertion,
-                                  &stepInsertion,
-                                  /*canForwardMerge=*/isDepthOnly ? false : canForwardMerge);
+
+        if (!stepInsertion) {
+            auto [layer, binding] = this->searchBackwards(
+                    stepIndex,
+                    rendererIsStencil,
+                    isDepthOnly,
+                    stepDependsOnDst,
+                    requiresBarrier,
+                    step,
+                    uniformIndex,
+                    layerKey,
+                    drawParams,
+                    /*stop=*/isDepthOnly ? Insertion{} : latestInsertion,
+                    &stepInsertion,
+                    /*canForwardMerge=*/isDepthOnly ? false : canForwardMerge);
+            stepInsertion.fLayer = layer;
+            stepInsertion.fList = binding;
         } else {
-            this->recordForwards(stepIndex,
-                                 rendererIsStencil,
-                                 isDepthOnly,
-                                 stepDependsOnDst,
-                                 requiresBarrier,
-                                 step,
-                                 uniformIndex,
-                                 layerKey,
-                                 drawParams,
-                                 stepInsertion);
+            stepInsertion.fList = this->findOrCreateBindingInLayer(
+                    isDepthOnly,
+                    step,
+                    layerKey,
+                    stepInsertion);
         }
+
+        SkASSERT(stepInsertion);
+        stepInsertion.fList->addDraw(fStorage.make<Draw>(drawParams, uniformIndex),
+                                     /*backToFront=*/dependsOnDst ||
+                                                     stepInsertion.fList == latestInsertion.fList);
+
         gatherer->rewindForRenderStep();
     }
 
