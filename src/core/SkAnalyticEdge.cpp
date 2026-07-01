@@ -638,8 +638,9 @@ bool SkAnalyticCubicEdge::setCubicWithoutUpdate(const SkPoint pts[4], int shift)
 
     fCx     = SkFDot6ToFixed(x0);
     fCDx    = B + (C >> shift) + (D >> 2*shift);    // biased by shift
-    fCDDx   = 2*C + (3*D >> (shift - 1));           // biased by 2*shift
-    fCDDDx  = 3*D >> (shift - 1);                   // biased by 2*shift
+    // Use 64bit math for multiplying by D to avoid overflow
+    fCDDx   = static_cast<int32_t>(2LL * C + ((3LL * D) >> (shift - 1))); // biased by 2*shift
+    fCDDDx  = static_cast<int32_t>((3LL * D) >> (shift - 1));             // biased by 2*shift
 
     B = SkFDot6UpShift(3 * (y1 - y0), upShift);
     C = SkFDot6UpShift(3 * (y0 - y1 - y1 + y2), upShift);
@@ -647,8 +648,8 @@ bool SkAnalyticCubicEdge::setCubicWithoutUpdate(const SkPoint pts[4], int shift)
 
     fCy     = SkFDot6ToFixed(y0);
     fCDy    = B + (C >> shift) + (D >> 2*shift);    // biased by shift
-    fCDDy   = 2*C + (3*D >> (shift - 1));           // biased by 2*shift
-    fCDDDy  = 3*D >> (shift - 1);                   // biased by 2*shift
+    fCDDy   = static_cast<int32_t>(2LL * C + ((3LL * D) >> (shift - 1))); // biased by 2*shift
+    fCDDDy  = static_cast<int32_t>((3LL * D) >> (shift - 1));             // biased by 2*shift
 
     fCLastX = SkFDot6ToFixed(x3);
     fCLastY = SkFDot6ToFixed(y3);

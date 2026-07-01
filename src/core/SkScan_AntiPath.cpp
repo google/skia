@@ -33,21 +33,21 @@ static SkIRect safeRoundOut(const SkRect& src) {
     return dst;
 }
 
-static int overflows_short_shift(int value, int shift) {
+static constexpr int overflows_short_shift(int value, int shift) {
     const int s = 16 + shift;
     return (SkLeftShift(value, s) >> s) - value;
 }
+
+static_assert(!overflows_short_shift(8191, SK_SUPERSAMPLE_SHIFT));
+static_assert(overflows_short_shift(8192, SK_SUPERSAMPLE_SHIFT));
+static_assert(!overflows_short_shift(32767, 0));
+static_assert(overflows_short_shift(32768, 0));
 
 /**
   Would any of the coordinates of this rectangle not fit in a short,
   when left-shifted by shift?
 */
 static int rect_overflows_short_shift(SkIRect rect, int shift) {
-    SkASSERT(!overflows_short_shift(8191, shift));
-    SkASSERT(overflows_short_shift(8192, shift));
-    SkASSERT(!overflows_short_shift(32767, 0));
-    SkASSERT(overflows_short_shift(32768, 0));
-
     // Since we expect these to succeed, we bit-or together
     // for a tiny extra bit of speed.
     return overflows_short_shift(rect.fLeft, shift) |
