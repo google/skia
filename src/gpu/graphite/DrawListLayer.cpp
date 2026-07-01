@@ -55,9 +55,11 @@ std::pair<Layer*, BindingList*> DrawListLayer::searchBackwards(
     BindingList* targetMatch = nullptr;
     BindingList* forwardMerge = nullptr;
 
+    Rect::ComplementRect drawBounds{drawParams->drawBounds()};
+
     Layer* current = fLayers.tail();
     for (int limit = kMaxSearchLimit; limit > 0 && current; --limit) {
-        auto [result, match] = current->test(drawParams->drawBounds(), key, testMask);
+        auto [result, match] = current->test(drawBounds, key, testMask);
 
         if (result & BoundsTestResult::kAllowedInLayer) {
             // Allowed in the layer, so remember it. In complex scenes, we want to search deeper

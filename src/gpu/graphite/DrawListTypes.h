@@ -168,7 +168,7 @@ struct BindingList {
 
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(BindingList);
 
-    SK_ALWAYS_INLINE bool intersects(const Rect& drawBounds) const {
+    SK_ALWAYS_INLINE bool intersects(const Rect::ComplementRect drawBounds) const {
         if (!fBounds.intersects(drawBounds)) {
             return false;
         }
@@ -279,7 +279,7 @@ struct Layer {
     // Any BindingList that the draw can be appended to directly, or pulled forward with the draw
     // is also returned.
     SK_ALWAYS_INLINE std::pair<SkEnumBitMask<BoundsTestResult>, BindingList*> test(
-            const Rect& drawBounds,
+            const Rect::ComplementRect drawBounds,
             const LayerKey& key,
             SkEnumBitMask<BoundsFlags> testMask) {
         // If the test mask is kNone, the caller should just use searchBinding() directly since it
