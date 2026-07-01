@@ -259,6 +259,7 @@ def main() -> None:
     parser.add_argument("--mcpu", default="x86-64-v4", help="CPU model for llvm-mca.")
     parser.add_argument("--mca_path", default="/usr/bin/llvm-mca-19", help="Path to llvm-mca.")
     parser.add_argument("--list-stages", action="store_true", help="Just list found stages and exit.")
+    parser.add_argument("--reset-experiments", action="store_true", help="Remove all columns except the first (typically the control) before adding the new results.")
 
     args = parser.parse_args()
 
@@ -332,6 +333,9 @@ def main() -> None:
             for row in reader:
                 symbol = row['Symbol']
                 all_data[symbol] = row
+
+    if args.reset_experiments and versions:
+        versions = [versions[0]]
 
     if args.name not in versions:
         versions.append(args.name)
