@@ -27,6 +27,13 @@
 
 namespace skgpu::graphite {
 
+// NOTE: Every class and struct defined in this class must assert that it is trivially destructible.
+// These largely are organized and collected in linked lists created by an arena, which helps avoid
+// memory coherency issues normally associated with linked lists. Enforcing trivial destribility
+// means that the arena can be reset without worrying about destructors.
+
+// TODO(michaelludwig): These types can be moved into DrawListLayer.cpp and just forward declare
+// Layer for ClipStack and Device.
 
 /**
  * Defines a bitmask that defines what types of buffer modifications are blocked by draws within a
@@ -96,6 +103,12 @@ enum class BoundsTestResult {
 };
 SK_MAKE_BITMASK_OPS(BoundsTestResult)
 
+/**
+ * LayerKey encodes the binding information needed for a draw within a layer (e.g. its pipeline
+ * and texture and uniform buffer bindings), as well as the BoundsFlags that control how new draws
+ * must be tested against the recorded draws. Every draw within a BindingList will have the same
+ * LayerKey.
+ */
 struct LayerKey {
     GraphicsPipelineCache::Index fPipelineIndex;
     TextureDataCache::Index fTextureIndex;
@@ -123,6 +136,7 @@ struct LayerKey {
                fUniformIndex == other.fUniformIndex;
     }
 };
+static_assert(std::is_trivially_destructible<LayerKey>::value);
 
 /**
  * A Draw represents the combination of a DrawParams and a specific RenderStep from the
@@ -138,6 +152,7 @@ struct Draw {
 
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(Draw);
 };
+static_assert(std::is_trivially_destructible<Draw>::value);
 
 /**
  * BindingList represents a collection of Draws that share the same RenderStep and other binding
@@ -230,6 +245,7 @@ struct BindingList {
         }
     }
 };
+static_assert(std::is_trivially_destructible<BindingList>::value);
 
 /**
  * Layer represents a collection of independent Draws that are organized by BindingLists. Within
@@ -494,6 +510,7 @@ struct Layer {
         return list;
     }
 };
+static_assert(std::is_trivially_destructible<Layer>::value);
 
 }  // namespace skgpu::graphite
 

@@ -27,24 +27,6 @@ void DrawListLayer::reset(LoadOp loadOp, SkColor4f color) {
     fOrderCounter = CompressedPaintersOrder::First();
 }
 
-// Draws affected by depth only draws we call "clipped draws."
-//
-// Clipped draws must come *after* all depth only draws that affect them, and they must come *after*
-// any preceding draws from the same renderstep. To accomodate this:
-//      1) When recording the depth only draws, a pointer marking the latest layer inserted into is
-//         passed between each draw. If a later draws inserts after an earlier draw, the pointer is
-//         overwritten. This ensures that the pointer is always the *latest* layer.
-//      2) How the pointer is used depends on the property of clipped draw:
-//         - Clipped draws which do not dependOnDst use this as the start of the traversal, then
-//           proceed FORWARDS until finding a suitable layer.
-//         - Clipped draws which do dependOnDst must stop when encountering any shading intersecting
-//           draw. Thus, forwards traversal becomes impractical because the draw must exhaustively
-//           search layers to the tail to ensure that there are no intersections. Instead,
-//           these draws must take the normal BACKWARDS traversal.
-//      3) Each clipped draw updates the starting layer to the layer that it inserted into. Because
-//         the stopLayer is treated exclusively, a sucessor renderstep stops its traversal before
-//         the stopLayer, thus preserving the relative ordering between the draws. (Note: will be
-//         changed in future CL, so kind of stub comment)
 std::pair<Layer*, BindingList*> DrawListLayer::searchBackwards(
         const RenderStep* step,
         const LayerKey& key,
@@ -161,11 +143,12 @@ BindingList* DrawListLayer::findOrCreateBindingInLayer(Layer* layer,
 }
 
 // Layer has dual purpose here:
-//  1) (Producer) If recording a depth only draw, the pointer is set to the *latest* layer inserted.
+//  1) (Producer) If recording a depth-only draw, the returned Layer* pointer is remembered as
+//     the earliest possible layer that a later clipped draw can be added to. This is stored on the
+//     ClipStack::Element that produced the depth-only draw.
 //  2) (Consumer) If recording a clipped draw, the pointer is the latest layer inserted into across
-//     *all depth only draws* which affect this draw. Thus, it is the earliest possible layer that
-//     the clipped draw could be inserted into, so it is used as the starting point for a *forward*
-//     search.
+//     *all depth only draws* which affect this draw. If the draw has no other bounds dependencies,
+//     this represents the Layer that it can be directly added to.
 std::pair<DrawParams*, Layer*> DrawListLayer::recordDraw(const Renderer* renderer,
                                                          const Transform& localToDevice,
                                                          const Geometry& geometry,
@@ -289,7 +272,7 @@ std::pair<DrawParams*, Layer*> DrawListLayer::recordDraw(const Renderer* rendere
 
         SkASSERT(lastStepBinding);
         lastStepBinding->addDraw(fStorage.make<Draw>(drawParams, uniformIndex),
-                                     /*backToFront=*/dependsOnDst);
+                                 /*backToFront=*/dependsOnDst);
 
         gatherer->rewindForRenderStep();
     }
@@ -326,6 +309,16 @@ std::unique_ptr<DrawPass> DrawListLayer::snapDrawPass(Recorder* recorder,
     DrawBufferManager* bufferMgr = recorder->priv().drawBufferManager();
     DrawWriter drawWriter(&drawPass->fCommandList, bufferMgr);
 
+    UniformTracker uniformTracker(fStorageBufferSupport);
+    TextureTracker textureBindingTracker(&fTextureDataCache);
+
+    const bool rebindTexturesOnPipelineChange = dstReadStrategy == DstReadStrategy::kTextureCopy;
+
+    if (fStorageBufferSupport) {
+        SkASSERT(storageContext);
+        storageContext->finalizePrecachedStorageData();
+    }
+
     GraphicsPipelineCache::Index lastPipeline = GraphicsPipelineCache::kInvalidIndex;
     const SkIRect targetBounds = SkIRect::MakeSize(targetInfo.dimensions());
     SkIRect lastScissor = targetBounds;
@@ -334,26 +327,16 @@ std::unique_ptr<DrawPass> DrawListLayer::snapDrawPass(Recorder* recorder,
              SkIRect::MakeSize(drawPass->fTarget->dimensions()).contains(lastScissor));
     drawPass->fCommandList.setScissor(lastScissor);
 
-    UniformTracker uniformTracker(fStorageBufferSupport);
-    if (fStorageBufferSupport) {
-        SkASSERT(storageContext);
-        storageContext->finalizePrecachedStorageData();
-    }
-
-    const bool rebindTexturesOnPipelineChange = dstReadStrategy == DstReadStrategy::kTextureCopy;
-    CompressedPaintersOrder priorDrawPaintOrder{};
-
     // Accumulate rough pixel area touched by each pipeline
     drawPass->fPipelineDrawAreas.push_back_n(fPipelineCache.count(), 0.f);
 
-    TextureTracker textureBindingTracker(&fTextureDataCache);
-
     auto recordDraw = [&](const LayerKey& key,
-                          const UniformDataCache::Index uniformIndex,
                           const RenderStep* renderStep,
-                          const DrawParams& drawParams,
-                          bool bindingsAreInvariant) -> bool {
-        SkASSERT(renderStep);
+                          const Draw* draw,
+                          bool bindingsAreInvariant,
+                          bool startOfLayer) -> const Draw* {
+        SkASSERT(renderStep && draw);
+        const DrawParams& drawParams = *draw->fDrawParams;
 
         bool pipelineChange = false;
         bool textureBindingsChange = false;
@@ -367,8 +350,11 @@ std::unique_ptr<DrawPass> DrawListLayer::snapDrawPass(Recorder* recorder,
                      key.fTextureIndex != TextureDataCache::kInvalidIndex);
         }
 
+        // Uniforms are binding invariant when SSBOs are disabled, but it's simpler to just let
+        // `uniformBindingChange` eval to false more often. The uniform index must come from the
+        // Draw to get the right value when SSBOs are enabled.
         bool uniformBindingChange =
-                uniformTracker.writeUniforms(fUniformDataCache, bufferMgr, uniformIndex);
+                uniformTracker.writeUniforms(fUniformDataCache, bufferMgr, draw->fUniformIndex);
 
         drawPass->fPipelineDrawAreas[key.fPipelineIndex] += drawParams.drawBounds().area();
 
@@ -383,7 +369,10 @@ std::unique_ptr<DrawPass> DrawListLayer::snapDrawPass(Recorder* recorder,
                                         drawParams.barrierBeforeDraws());
         } else if (uniformBindingChange || textureBindingsChange || newScissor.has_value()) {
             drawWriter.newDynamicState();
-        } else if (drawParams.barrierBeforeDraws() != BarrierType::kNone) {
+        } else if (drawParams.barrierBeforeDraws() != BarrierType::kNone && startOfLayer) {
+            // Taking this branch means there were no state or pipeline changes between old layer
+            // and this layer's first draw. This only happens if the draws overlap, so flush the
+            // drawWriter since the draw requires a barrier.
             drawWriter.flush();
         }
 
@@ -405,39 +394,23 @@ std::unique_ptr<DrawPass> DrawListLayer::snapDrawPass(Recorder* recorder,
         uint32_t uniformSsboIndex = fStorageBufferSupport ? uniformTracker.ssboIndex() : 0;
         renderStep->writeVertices(&drawWriter, drawParams, uniformSsboIndex);
 
-        if (bufferMgr->hasMappingFailed()) {
-            SKIA_LOG_W("Failed to write necessary vertex/instance data for DrawPass, dropping!");
-            this->reset(LoadOp::kLoad);
-            return false;
-        }
-
-        priorDrawPaintOrder = drawParams.order().paintOrder();
-        return true;
+        // Either stop early on failure, or advance to the next Draw
+        return bufferMgr->hasMappingFailed() ? nullptr : draw->fNext;
     };
 
     for (Layer* layer : fLayers) {
         for (const BindingList* list : layer->fBindings) {
             SkASSERT(!list->fDraws.isEmpty());
-            const Draw* current = list->fDraws.head();
 
-            if (!recordDraw(list->fKey,
-                            current->fUniformIndex,
-                            list->fStep,
-                            *current->fDrawParams,
-                            false)) {
-                return nullptr;
-            }
-            current = current->fNext;
-
+            // The first draw of the BindingList will be changing bindings
+            const Draw* current = recordDraw(list->fKey, list->fStep, list->fDraws.head(),
+                                             /*bindingsAreInvariant=*/false,
+                                             /*startOfLayer=*/!list->fPrev);
             while (current) {
-                if (!recordDraw(list->fKey,
-                                current->fUniformIndex,
-                                list->fStep,
-                                *current->fDrawParams,
-                                true)) {
-                    return nullptr;
-                }
-                current = current->fNext;
+                // Any remaining draws can skip checking for pipeline/texture binding changes.
+                current = recordDraw(list->fKey, list->fStep, current,
+                                     /*bindingsAreInvariant=*/true,
+                                     /*startOfLayer=*/false);
             }
         }
     }
@@ -466,7 +439,12 @@ std::unique_ptr<DrawPass> DrawListLayer::snapDrawPass(Recorder* recorder,
 
     this->reset(LoadOp::kLoad);
 
-    return drawPass;
+    if (bufferMgr->hasMappingFailed()) {
+        SKIA_LOG_W("Failed to write necessary vertex/instance data for DrawPass, dropping!");
+        return nullptr;
+    } else {
+        return drawPass;
+    }
 }
 
 }  // namespace skgpu::graphite
