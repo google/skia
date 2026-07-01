@@ -14,6 +14,16 @@
 
 #include <memory>
 
+template <typename T>
+static T* allocate_and_align(std::unique_ptr<char[]>& storage, size_t sizeInBytes) {
+    // Align to 64 bytes (critical for AVX-512 in SkRasterPipeline).
+    // The initial allocation might not be 64-byte aligned, so we allocate extra padding
+    // and find the next address in our buffer that is a multiple of 64.
+    storage.reset(new char[sizeInBytes + 64]);
+    return reinterpret_cast<T*>(
+            SkAlignTo(reinterpret_cast<uintptr_t>(storage.get()), (uintptr_t)64));
+}
+
 class SkRPDivBench : public Benchmark {
 public:
     enum class Type { kInt, kUint };
@@ -21,12 +31,7 @@ public:
     SkRPDivBench(Type type, int slots) : fType(type), fSlots(slots) {
         fName.printf("skrp_div_%s_%d", fType == Type::kInt ? "int" : "uint", fSlots);
 
-        // Align fData to 64 bytes (critical for AVX-512 in SkRasterPipeline).
-        // The initial allocation might not be 64 byte aligned so we find the next address in our
-        // allocated buffer that is a multiple of 64.
-        fStorage.reset(new char[1024 * sizeof(int32_t) + 64]);
-        fData = reinterpret_cast<int32_t*>(
-                SkAlignTo(reinterpret_cast<uintptr_t>(fStorage.get()), (uintptr_t)64));
+        fData = allocate_and_align<int32_t>(fStorage, 1024 * sizeof(int32_t));
 
         // Initialize the data we are dividing by so it's non-zero (avoiding any special casing).
         for (int i = 0; i < 1024; i++) {
