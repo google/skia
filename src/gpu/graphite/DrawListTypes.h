@@ -357,19 +357,6 @@ struct Layer {
     }
 };
 
-struct Insertion {
-    Layer* fLayer = nullptr;
-    BindingList* fList = nullptr;
-
-    explicit operator bool() const { return (fLayer != nullptr) && (fList != nullptr); }
-    bool operator>(const Insertion& other) const {
-        if (!other.fLayer) {
-            return true;
-        }
-        return fLayer->fOrder > other.fLayer->fOrder;
-    }
-};
-
 }  // namespace skgpu::graphite
 
 #endif  // skgpu_graphite_DrawListTypes_DEFINED

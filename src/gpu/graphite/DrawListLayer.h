@@ -43,7 +43,7 @@ public:
     // DrawList requires that all Transforms be valid and asserts as much; invalid transforms should
     // be detected at the Device level or similar. The provided Renderer must be compatible with the
     // 'shape' and 'stroke' parameters.
-    std::pair<DrawParams*, Insertion> recordDraw(
+    std::pair<DrawParams*, Layer*> recordDraw(
             const Renderer* renderer,
             const Transform& localToDevice,
             const Geometry& geometry,
@@ -54,7 +54,7 @@ public:
             BarrierType barrierBeforeDraws,
             PipelineDataGatherer* gatherer,
             const StrokeStyle* stroke,
-            const Insertion& latestInsertion) override;
+            Layer* lastInsertion) override;
 
     std::unique_ptr<DrawPass> snapDrawPass(Recorder* recorder,
                                            sk_sp<TextureProxy> target,

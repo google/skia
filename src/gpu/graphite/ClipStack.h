@@ -113,7 +113,7 @@ public:
     //
     // If the provided `clipState` indicates that the draw will be clipped out, then this method has
     // no effect and returns DrawOrder::kNoIntersection.
-    std::pair<CompressedPaintersOrder, Insertion> updateClipStateForDraw(
+    std::pair<CompressedPaintersOrder, Layer*> updateClipStateForDraw(
             const Clip& clip,
             const ElementList& effectiveElements,
             const BoundsManager*,
@@ -229,7 +229,7 @@ private:
         //
         // Assuming that this element does not clip out the draw, returns the painters order the
         // draw must sort after.
-        std::pair<CompressedPaintersOrder, Insertion> updateForDraw(
+        std::pair<CompressedPaintersOrder, Layer*> updateForDraw(
                 Device* device,
                 const BoundsManager* boundsManager,
                 const Rect& deviceBounds,
@@ -279,12 +279,12 @@ private:
         // fCaptureParams: Points to the drawParams of the depth-only draw. Allows: 1) The initial
         //                 coarse bounds (recorded in drawClipImmediate) to be updated to tighter
         //                 bounds later. 2) Deferred assignment of the Z value the draw will use.
-        // fInsertion: The combined layer and binding list inserted into by the depth-only draw.
+        // fInsertion: The layer holding fCaptureParams for this element's depth-only draw.
         //             This acts as a dependency barrier; clipped draws affected by this rawElement
         //             must be inserted into or after the latest layer+list across all their
         //             dependcy depth draws.
         DrawParams* fCaptureParams;
-        Insertion fInsertion;
+        Layer* fInsertion;
     };
 
     // Represents a saved point in the clip stack, and manages the life time of elements added to

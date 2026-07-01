@@ -1794,7 +1794,7 @@ void Device::drawGeometry(const Transform& localToDevice,
     // Update the clip stack after issuing a flush (if it was needed). A draw will be recorded after
     // this point.
     DrawOrder order(fCurrentDepth.next());
-    auto [clipOrder, latestInsertion] = fClip.updateClipStateForDraw(
+    auto [clipOrder, clipLayer] = fClip.updateClipStateForDraw(
             clip, clipElements, fColorDepthBoundsManager.get(), order.depth());
 
     // A draw's order always depends on the clips that must be drawn before it
@@ -1838,7 +1838,7 @@ void Device::drawGeometry(const Transform& localToDevice,
                                 ? fRecorder->priv().rendererProvider()->tessellatedStrokes()
                                 : renderer,
                         localToDevice, geometry, clip, order, paintID, dstUsage,
-                        scopedDrawBuilder.gatherer(), &stroke, latestInsertion);
+                        scopedDrawBuilder.gatherer(), &stroke, clipLayer);
     } else if ((dstUsage & DstUsage::kDstOnlyUsedByRenderer) && renderer->useNonAAInnerFill() &&
                !avoidDepthMode) {
         // Possibly record an additional draw using the non-AA bounds renderer to fill the
@@ -1855,7 +1855,7 @@ void Device::drawGeometry(const Transform& localToDevice,
             fDC->recordDraw(fRecorder->priv().rendererProvider()->nonAABounds(), localToDevice,
                             Geometry(Shape(innerFillBounds)), clip, orderWithoutCoverage,
                             opaqueID, DstUsage::kNone, scopedDrawBuilder.gatherer(),
-                            /*stroke=*/nullptr, latestInsertion);
+                            /*stroke=*/nullptr, clipLayer);
             // Force the coverage draw to come after the non-AA draw in order to benefit from
             // early depth testing.
             order.dependsOnPaintersOrder(orderWithoutCoverage.paintOrder());
@@ -1865,7 +1865,7 @@ void Device::drawGeometry(const Transform& localToDevice,
     if (styleType == SkStrokeRec::kFill_Style ||
         styleType == SkStrokeRec::kStrokeAndFill_Style) {
         fDC->recordDraw(renderer, localToDevice, geometry, clip, order, paintID, dstUsage,
-                        scopedDrawBuilder.gatherer(), /*stroke=*/nullptr, latestInsertion);
+                        scopedDrawBuilder.gatherer(), /*stroke=*/nullptr, clipLayer);
     }
 
     if (!useDrawListLayer) {
@@ -1918,11 +1918,11 @@ void Device::drawClipShape(const Transform& localToDevice,
         SkPath devicePath = shape.asPath().makeTransform(localToDevice.matrix().asM33());
         fDC->recordDraw(renderer, Transform::Identity(), Geometry(Shape(devicePath)), clip, order,
                         UniquePaintParamsID::Invalid(), DstUsage::kNone,
-                        scopedDrawBuilder.gatherer(), /*stroke=*/nullptr, /*latestInsertion=*/{});
+                        scopedDrawBuilder.gatherer(), /*stroke=*/nullptr);
     } else {
         fDC->recordDraw(renderer, localToDevice, Geometry(shape), clip, order,
                         UniquePaintParamsID::Invalid(), DstUsage::kNone,
-                        scopedDrawBuilder.gatherer(), /*stroke=*/nullptr, /*latestInsertion=*/{});
+                        scopedDrawBuilder.gatherer(), /*stroke=*/nullptr);
     }
     // This ensures that draws recorded after this clip shape has been popped off the stack will
     // be unaffected by the Z value the clip shape wrote to the depth attachment.
@@ -1932,10 +1932,10 @@ void Device::drawClipShape(const Transform& localToDevice,
 }
 
 // records a draw and returns a backpointer to the drawParams of the draw
-std::pair<DrawParams*, Insertion> Device::drawClipShapeImmediate(const Transform& localToDevice,
-                                                                 const Shape& shape,
-                                                                 const Clip& clip,
-                                                                 DrawOrder order) {
+std::pair<DrawParams*, Layer*> Device::drawClipShapeImmediate(const Transform& localToDevice,
+                                                              const Shape& shape,
+                                                              const Clip& clip,
+                                                              DrawOrder order) {
     ScopedDrawBuilder scopedDrawBuilder(fRecorder);
     auto renderer = this->chooseMSAARenderer(shape,
                                              DefaultFillStyle(),
@@ -1949,11 +1949,11 @@ std::pair<DrawParams*, Insertion> Device::drawClipShapeImmediate(const Transform
         SkPath devicePath = shape.asPath().makeTransform(localToDevice.matrix().asM33());
         return fDC->recordDraw(renderer, Transform::Identity(), Geometry(Shape(devicePath)), clip,
                                order, UniquePaintParamsID::Invalid(), DstUsage::kNone,
-                               scopedDrawBuilder.gatherer(), /*stroke=*/{}, /*latestInsertion=*/{});
+                               scopedDrawBuilder.gatherer(), /*stroke=*/{});
     } else {
         return fDC->recordDraw(renderer, localToDevice, Geometry(shape), clip, order,
                                UniquePaintParamsID::Invalid(), DstUsage::kNone,
-                               scopedDrawBuilder.gatherer(), /*stroke=*/{}, /*latestInsertion=*/{});
+                               scopedDrawBuilder.gatherer(), /*stroke=*/{});
     }
 }
 

@@ -18,7 +18,7 @@
 
 namespace skgpu::graphite {
 
-std::pair<DrawParams*, Insertion> DrawList::recordDraw(
+std::pair<DrawParams*, Layer*> DrawList::recordDraw(
         const Renderer* renderer,
         const Transform& localToDevice,
         const Geometry& geometry,
@@ -29,7 +29,7 @@ std::pair<DrawParams*, Insertion> DrawList::recordDraw(
         BarrierType barrierBeforeDraws,
         PipelineDataGatherer* gatherer,
         const StrokeStyle* stroke,
-        const Insertion& latestInsertion) {
+        Layer*) {
 
     SkASSERT(localToDevice.valid());
     SkASSERT(!geometry.isEmpty() && !clip.drawBounds().isEmptyNegativeOrNaN());
@@ -84,7 +84,7 @@ std::pair<DrawParams*, Insertion> DrawList::recordDraw(
     }
 #endif
 
-    return {nullptr, {}};
+    return {nullptr, nullptr};
 }
 
 std::unique_ptr<DrawPass> DrawList::snapDrawPass(Recorder* recorder,

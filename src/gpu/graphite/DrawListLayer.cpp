@@ -171,17 +171,17 @@ BindingList* DrawListLayer::findOrCreateBindingInLayer(Layer* layer,
 //     *all depth only draws* which affect this draw. Thus, it is the earliest possible layer that
 //     the clipped draw could be inserted into, so it is used as the starting point for a *forward*
 //     search.
-std::pair<DrawParams*, Insertion> DrawListLayer::recordDraw(const Renderer* renderer,
-                                                            const Transform& localToDevice,
-                                                            const Geometry& geometry,
-                                                            const Clip& clip,
-                                                            DrawOrder ordering,
-                                                            UniquePaintParamsID paintID,
-                                                            SkEnumBitMask<DstUsage> dstUsage,
-                                                            BarrierType barrierBeforeDraws,
-                                                            PipelineDataGatherer* gatherer,
-                                                            const StrokeStyle* stroke,
-                                                            const Insertion& latestInsertion) {
+std::pair<DrawParams*, Layer*> DrawListLayer::recordDraw(const Renderer* renderer,
+                                                         const Transform& localToDevice,
+                                                         const Geometry& geometry,
+                                                         const Clip& clip,
+                                                         DrawOrder ordering,
+                                                         UniquePaintParamsID paintID,
+                                                         SkEnumBitMask<DstUsage> dstUsage,
+                                                         BarrierType barrierBeforeDraws,
+                                                         PipelineDataGatherer* gatherer,
+                                                         const StrokeStyle* stroke,
+                                                         Layer* lastInsertion) {
     SkASSERT(localToDevice.valid());
     SkASSERT(!geometry.isEmpty() && !clip.drawBounds().isEmptyNegativeOrNaN());
 
@@ -230,7 +230,7 @@ std::pair<DrawParams*, Insertion> DrawListLayer::recordDraw(const Renderer* rend
     BindingList* lastStepBinding = nullptr;
     // If we're an easy draw, jump to the latestInsertion layer since we don't have to test
     if (testMask == BoundsFlags::kNone && baseLayerMask == BoundsFlags::kNone) {
-        insertionLayer = latestInsertion ? latestInsertion.fLayer : fLayers.head();
+        insertionLayer = lastInsertion ? lastInsertion : fLayers.head();
     }
 
     fRenderStepCount += renderer->numRenderSteps();
@@ -275,8 +275,8 @@ std::pair<DrawParams*, Insertion> DrawListLayer::recordDraw(const Renderer* rend
 
         if (!insertionLayer) {
             // Since we don't have a layer yet, search from the most recent layer back.
-            CompressedPaintersOrder stop = latestInsertion ? latestInsertion.fLayer->fOrder
-                                                           : DrawOrder::kNoIntersection;
+            CompressedPaintersOrder stop = lastInsertion ? lastInsertion->fOrder
+                                                         : DrawOrder::kNoIntersection;
             std::tie(insertionLayer, lastStepBinding) = this->searchBackwards(step,
                                                                               key,
                                                                               testMask,
@@ -314,7 +314,7 @@ std::pair<DrawParams*, Insertion> DrawListLayer::recordDraw(const Renderer* rend
     }
 #endif
 
-    return {drawParams, {insertionLayer, lastStepBinding}};
+    return {drawParams, insertionLayer};
 }
 
 std::unique_ptr<DrawPass> DrawListLayer::snapDrawPass(Recorder* recorder,

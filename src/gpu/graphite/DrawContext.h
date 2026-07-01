@@ -74,7 +74,7 @@ public:
     void clear(const SkColor4f& clearColor);
     void discard();
 
-    std::pair<DrawParams*, Insertion> recordDraw(
+    std::pair<DrawParams*, Layer*> recordDraw(
             const Renderer* renderer,
             const Transform& localToDevice,
             const Geometry& geometry,
@@ -84,7 +84,7 @@ public:
             SkEnumBitMask<DstUsage> dstUsage,
             PipelineDataGatherer* gatherer,
             const StrokeStyle* stroke,
-            const Insertion& latestInsertion);
+            Layer* lastInsertion=nullptr);
 
     bool recordUpload(Recorder* recorder,
                       const UploadSource& source,
