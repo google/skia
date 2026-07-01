@@ -20,6 +20,7 @@
 #include "include/gpu/graphite/precompile/PrecompileShader.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
+#include "src/gpu/graphite/PrecompileContextPriv.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "tools/fonts/FontToolUtils.h"
@@ -154,10 +155,12 @@ void precompile_gradients(std::unique_ptr<PrecompileContext> precompileContext,
         std::shuffle(combos.begin(), combos.end(), g);
     }
 
-    const RenderPassProperties kProps = { DepthStencilFlags::kDepth,
-                                          kBGRA_8888_SkColorType,
-                                          /* dstColorSpace= */ nullptr,
-                                          /* requiresMSAA= */ false };
+    bool avoidDepthMode = precompileContext->priv().caps()->avoidDepthMode();
+    const RenderPassProperties kProps = {
+            avoidDepthMode ? DepthStencilFlags::kNone : DepthStencilFlags::kDepth,
+            kBGRA_8888_SkColorType,
+            /* dstColorSpace= */ nullptr,
+            /* requiresMSAA= */ false};
 
     for (auto c : combos) {
         auto [_, paintOptions] = c.fCreateOptionsMtd(c.fNumStops);

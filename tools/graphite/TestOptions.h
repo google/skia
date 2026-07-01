@@ -11,11 +11,14 @@
 #include "include/gpu/graphite/ContextOptions.h"
 #include "src/gpu/graphite/ContextOptionsPriv.h"
 
+extern bool gGraphiteAvoidDepth;
+
 namespace skiatest::graphite {
 
 struct TestOptions {
     TestOptions() {
         fContextOptions.fOptionsPriv = &fOptionsPriv;
+        fContextOptions.fAvoidDepthMode = gGraphiteAvoidDepth;
     }
     TestOptions(const TestOptions& other) {
         *this = other;

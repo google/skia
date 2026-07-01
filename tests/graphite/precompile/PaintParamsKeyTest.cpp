@@ -391,14 +391,17 @@ void precompile_vs_real_draws_subtest(skiatest::Reporter* reporter,
 
     const SkColorType kColorType = kBGRA_8888_SkColorType;
 
-    static const RenderPassProperties kDepth_Stencil_4 { DepthStencilFlags::kDepthStencil,
-                                                         kColorType,
-                                                         /* dstColorSpace= */ nullptr,
-                                                         /* requiresMSAA= */ true };
-    static const RenderPassProperties kDepth_1 { DepthStencilFlags::kDepth,
-                                                 kColorType,
-                                                 /* dstColorSpace= */ nullptr,
-                                                 /* requiresMSAA= */ false };
+    bool avoidDepthMode = context->priv().caps()->avoidDepthMode();
+    static const RenderPassProperties kDepth_Stencil_4{
+            avoidDepthMode ? DepthStencilFlags::kNone : DepthStencilFlags::kDepthStencil,
+            kColorType,
+            /* dstColorSpace= */ nullptr,
+            /* requiresMSAA= */ true};
+    static const RenderPassProperties kDepth_1{
+            avoidDepthMode ? DepthStencilFlags::kNone : DepthStencilFlags::kDepth,
+            kColorType,
+            /* dstColorSpace= */ nullptr,
+            /* requiresMSAA= */ false};
 
     TextureInfo textureInfo = caps->getDefaultSampledTextureInfo(kColorType,
                                                                  skgpu::Mipmapped::kNo,

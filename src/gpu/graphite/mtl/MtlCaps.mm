@@ -371,6 +371,11 @@ bool MtlCaps::extractGraphicsDescs(const UniqueKey& key,
 
     keyData.fWriteSwizzle = SwizzleCtorAccessor::Make(rawKeyData[3]);
 
+    if ((keyData.fColorSampleCount > SampleCount::k1 && this->avoidMSAA()) ||
+        (keyData.fDSFormat != TextureFormat::kUnsupported && this->avoidDepthMode())) {
+        return false;
+    }
+
     // Recreate the RenderPassDesc, picking arbitrary load/store ops. Since Metal doesn't need
     // to include resolve attachment details, assume that if color attachment's sample count is > 1
     // that there is a matching resolve attachment (no MSAA-render-to-single-sample support in MTL).
@@ -381,10 +386,12 @@ bool MtlCaps::extractGraphicsDescs(const UniqueKey& key,
                                         LoadOp::kClear,
                                         StoreOp::kStore,
                                         keyData.fColorSampleCount};
-    renderPassDesc->fDepthStencilAttachment = {keyData.fDSFormat,
-                                               LoadOp::kClear,
-                                               StoreOp::kDiscard,
-                                               keyData.fDSSampleCount};
+    if (!this->avoidDepthMode()) {
+        renderPassDesc->fDepthStencilAttachment = {keyData.fDSFormat,
+                                                   LoadOp::kClear,
+                                                   StoreOp::kDiscard,
+                                                   keyData.fDSSampleCount};
+    }
     if (keyData.fColorSampleCount > SampleCount::k1) {
         renderPassDesc->fColorResolveAttachment = {keyData.fColorFormat,
                                                    LoadOp::kClear,

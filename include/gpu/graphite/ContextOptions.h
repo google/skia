@@ -222,6 +222,12 @@ struct SK_API ContextOptions {
      */
      bool fEnableCapture = false;
 
+     /**
+      * Avoid using depth/stencil buffers. This will disable depth-occlusion-culling (more GPU work)
+      * and fall back to analytic path algorithm instead of MSAA (more CPU work).
+      */
+     bool fAvoidDepthMode = false;
+
     /**
      * Private options that are only meant for testing within Skia's tools.
      */

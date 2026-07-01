@@ -86,6 +86,9 @@ extern bool gForceHighPrecisionRasterPipeline;
 #if defined(SK_GANESH)
 extern bool gCreateProtectedContext;
 #endif
+#if defined(SK_GRAPHITE)
+extern bool gGraphiteAvoidDepth;
+#endif
 static DEFINE_string(src, "tests gm skp mskp lottie rive svg image colorImage",
                      "Source types to test.");
 static DEFINE_bool(nameByHash, false,
@@ -120,6 +123,7 @@ static DEFINE_string(mskps, "", "Directory to read mskps from, or a single mskp 
 static DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
 static DEFINE_bool(forceRasterPipelineHP, false, "sets gSkForceRasterPipelineBlitter and gForceHighPrecisionRasterPipeline");
 static DEFINE_bool(createProtected, false, "attempts to create a protected backend context");
+static DEFINE_bool(avoidDepth, false, "Disable depth/stencil buffer usage");
 
 static DEFINE_string(bisect, "",
         "Pair of: SKP file to bisect, followed by an l/r bisect trail string (e.g., 'lrll'). The "
@@ -1654,6 +1658,9 @@ int main(int argc, char** argv) {
     gForceHighPrecisionRasterPipeline = FLAGS_forceRasterPipelineHP;
 #if defined(SK_GANESH)
     gCreateProtectedContext           = FLAGS_createProtected;
+#endif
+#if defined(SK_GRAPHITE)
+    gGraphiteAvoidDepth               = FLAGS_avoidDepth;
 #endif
 
     // The bots like having a verbose.log to upload, so always touch the file even if --verbose.

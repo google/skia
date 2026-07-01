@@ -27,6 +27,10 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(InnerFillTest,
                                    reporter,
                                    context,
                                    CtsEnforcement::kApiLevel_202604) {
+    if (context->priv().caps()->avoidDepthMode()) {
+        SkDebugf("Skipping InnerFillTest under avoidDepthMode\n");
+        return;
+    }
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     sk_sp<Device> device = Device::Make(recorder.get(),
                                         SkImageInfo::Make(512, 512,

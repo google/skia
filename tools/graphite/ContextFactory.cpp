@@ -21,6 +21,8 @@
 #include "tools/graphite/vk/GraphiteVulkanTestContext.h"
 #endif
 
+bool gGraphiteAvoidDepth = false;
+
 namespace skiatest::graphite {
 
 ContextFactory::OwnedContextInfo::OwnedContextInfo() = default;

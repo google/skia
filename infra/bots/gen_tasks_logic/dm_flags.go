@@ -434,6 +434,10 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(ALL, "test", ALL, "UserDefinedStableKeyTest")
 		}
 
+		if b.ExtraConfig("AvoidDepth") {
+			args = append(args, "--avoidDepth")
+		}
+
 		// The Tegra3 doesn't support MSAA
 		if b.GPU("Tegra3") ||
 			// We aren't interested in fixing msaa bugs on current iOS devices.

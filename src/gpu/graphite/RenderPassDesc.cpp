@@ -100,7 +100,7 @@ RenderPassDesc RenderPassDesc::Make(const Caps* caps,
                                  targetInfo.sampleCount()};
     }
 
-    if (depthStencilFlags != DepthStencilFlags::kNone) {
+    if (depthStencilFlags != DepthStencilFlags::kNone && !caps->avoidDepthMode()) {
         // To reduce pipeline compiles and attachment creations, if we need multisampling and need
         // a depth or stencil attachment, we always choose a depth-AND-stencil format.
         if (desc.fColorAttachment.fSampleCount > SampleCount::k1) {

@@ -119,7 +119,11 @@ public:
 
     bool avoidMSAA() const {
         // Publicly, treat avoiding MSAA due to device issues or due to client option equivalently.
-        return fAvoidMSAA || fMaxInternalSampleCount == SampleCount::k1;
+        return fAvoidMSAA || fMaxInternalSampleCount == SampleCount::k1 || fAvoidDepthMode;
+    }
+
+    bool avoidDepthMode() const {
+        return fAvoidDepthMode;
     }
 
     /* Returns whether multisampled render to single sampled is supported. */
@@ -451,6 +455,7 @@ protected:
     bool fDifferentResolveAttachmentSizeSupport = false;
     bool fAvoidMSAA = false;
     bool fDrawListLayer = false;
+    bool fAvoidDepthMode = false;
 
     bool fComputeSupport = false;
     bool fSupportsAHardwareBufferImages = false;

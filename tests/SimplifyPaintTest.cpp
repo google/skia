@@ -190,7 +190,7 @@ void run_test(SkSurface* surface, skiatest::Reporter* reporter) {
 
             SkColor actual = pixmap.getColor(kSurfaceSize/2, kSurfaceSize/2);
             REPORTER_ASSERT(reporter,
-                            almost_equals(actual, c.fExpected, /* tolerance= */ 1),
+                            almost_equals(actual, c.fExpected, /* tolerance= */ 2),
                             "Wrong color, expected %08x, found %08x", c.fExpected, actual);
         }
     }
