@@ -90,7 +90,6 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
     // likely calculated the label as part of triggering a cache miss).
     {
         TRACE_EVENT0_ALWAYS("skia.shaders", "GraphitePipelineUse");
-        TRACE_EVENT0_ALWAYS("skia.shaders", TRACE_STR_COPY(renderPassDesc.toString().c_str()));
         for (int i = 0 ; i < fFullPipelines.size(); ++i) {
             TRACE_EVENT_INSTANT1_ALWAYS(
                     "skia.shaders",
