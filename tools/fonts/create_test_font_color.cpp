@@ -58,6 +58,13 @@ static void export_ttx(sk_sp<TestSVGTypeface> typeface,
         ebdt.fsync();
     }
 
+    SkFILEWStream ebdtGlyf((SkString(prefix) += "ebdt_glyf.ttx").c_str());
+    typeface->exportTtxEbdt(&ebdtGlyf, cbdtStrikeSizes,
+                            TestSVGTypeface::BitmapDataFormat::kSmallByteAligned,
+                            /*withGlyf=*/true);
+    ebdtGlyf.flush();
+    ebdtGlyf.fsync();
+
     SkFILEWStream sbix((SkString(prefix) += "sbix.ttx").c_str());
     typeface->exportTtxSbix(&sbix, sbixStrikeSizes);
     sbix.flush();

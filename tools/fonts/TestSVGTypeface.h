@@ -76,7 +76,8 @@ public:
     void                          exportTtxEbdt(
             SkWStream*,
             SkSpan<unsigned> strikeSizes,
-            BitmapDataFormat imageFormat = BitmapDataFormat::kSmallByteAligned) const;
+            BitmapDataFormat imageFormat = BitmapDataFormat::kSmallByteAligned,
+            bool             withGlyf    = false) const;
     void                          exportTtxSbix(SkWStream*, SkSpan<unsigned> strikeSizes) const;
     void                          exportTtxColr(SkWStream*) const;
     virtual bool                  getPathOp(SkColor, SkPathOp*) const = 0;
@@ -96,6 +97,8 @@ public:
 protected:
     void exportTtxCommon(
             SkWStream*, const char* type, const skia_private::TArray<GlyfInfo>* = nullptr) const;
+
+    void buildGlyfOutlines(SkWStream* glyfOut, skia_private::TArray<GlyfInfo>* glyfInfos) const;
 
     std::unique_ptr<SkScalerContext> onCreateScalerContext(const SkScalerContextEffects&,
                                                            const SkDescriptor* desc) const override;

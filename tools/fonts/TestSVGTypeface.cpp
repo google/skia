@@ -1216,7 +1216,7 @@ void TestSVGTypeface::exportTtxCbdtAlpha(SkWStream* out, SkSpan<unsigned> strike
 }
 
 void TestSVGTypeface::exportTtxEbdt(SkWStream* out, SkSpan<unsigned> strikeSizes,
-                                    BitmapDataFormat imageFormat) const {
+                                    BitmapDataFormat imageFormat, bool withGlyf) const {
     // EBDT (the monochrome counterpart of CBDT) uses bit_depth=1 and the same
     // layout/formats as CBDT, minus PNG and BGRA. We rasterize each glyph into
     // an 8-bit alpha bitmap, threshold to 1bpp and pack accordingly.
@@ -1271,9 +1271,20 @@ void TestSVGTypeface::exportTtxEbdt(SkWStream* out, SkSpan<unsigned> strikeSizes
         return;
     }
 
+    SkDynamicMemoryWStream glyfOut;
+    TArray<GlyfInfo>       glyfInfos(fGlyphCount);
+    if (withGlyf) {
+        this->buildGlyfOutlines(&glyfOut, &glyfInfos);
+    }
+
     out->writeText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     out->writeText("<ttFont sfntVersion=\"\\x00\\x01\\x00\\x00\" ttLibVersion=\"3.19\">\n");
-    this->exportTtxCommon(out, "EBDT");
+    this->exportTtxCommon(out, "EBDT", withGlyf ? &glyfInfos : nullptr);
+    if (withGlyf) {
+        out->writeText("  <loca/>\n");
+        std::unique_ptr<SkStreamAsset> glyfStream = glyfOut.detachAsStream();
+        out->writeStream(glyfStream.get(), glyfStream->getLength());
+    }
 
     out->writeText("  <EBDT>\n");
     out->writeText("    <header version=\"2.0\"/>\n");
@@ -1732,7 +1743,8 @@ public:
                  SkGlyphID                  glyphId,
                  TestSVGTypeface::GlyfInfo* glyf,
                  THashMap<SkColor, int>*    colors,
-                 SkWStream*                 out)
+                 SkWStream*                 out,
+                 bool                       emitLayers = true)
             : SkNoDrawCanvas(glyphBounds.roundOut().width(), glyphBounds.roundOut().height())
             , fBaselineOffset(glyphBounds.top())
             , fTypeface(typeface)
@@ -1740,6 +1752,7 @@ public:
             , fGlyf(glyf)
             , fColors(colors)
             , fOut(out)
+            , fEmitLayers(emitLayers)
             , fLayerId(0) {}
 
     void writePoint(SkScalar x, SkScalar y, bool on) {
@@ -1874,6 +1887,11 @@ public:
         if (fTypeface.getPathOp(color, &op)) {
             fBasePath.add(path, op);
         }
+
+        if (!fEmitLayers) {
+            return;
+        }
+
         SkIRect bounds = this->writePath(path, true);
 
         // The CPAL table has the concept of a 'current color' which is index 0xFFFF.
@@ -1911,11 +1929,30 @@ private:
     TestSVGTypeface::GlyfInfo* fGlyf;
     THashMap<SkColor, int>*    fColors;
     SkWStream* const           fOut;
+    bool                       fEmitLayers;
     SkOpBuilder                fBasePath;
     int                        fLayerId;
 };
 
 }  // namespace
+
+void TestSVGTypeface::buildGlyfOutlines(SkWStream* glyfOut, TArray<GlyfInfo>* glyfInfos) const {
+    THashMap<SkColor, int> colors;
+    glyfOut->writeText("  <glyf>\n");
+    for (int i = 0; i < fGlyphCount; ++i) {
+        const TestSVGTypeface::Glyph& glyphData = this->fGlyphs[i];
+        SkSize containerSize = glyphData.size();
+        SkRect bounds = SkRect::MakeXYWH(glyphData.fOrigin.fX,
+                                         -glyphData.fOrigin.fY,
+                                         containerSize.fWidth,
+                                         containerSize.fHeight);
+        SkCOLRCanvas canvas(
+                bounds, *this, i, &glyfInfos->emplace_back(), &colors, glyfOut, /*emitLayers=*/false);
+        glyphData.render(&canvas);
+        canvas.finishGlyph();
+    }
+    glyfOut->writeText("  </glyf>\n");
+}
 
 void TestSVGTypeface::exportTtxColr(SkWStream* out) const {
     out->writeText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
