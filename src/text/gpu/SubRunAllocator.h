@@ -188,23 +188,30 @@ private:
 template <typename T>
 class SubRunInitializer {
 public:
-    SubRunInitializer(void* memory) : fMemory{memory} { SkASSERT(memory != nullptr); }
-    ~SubRunInitializer() {
-        ::operator delete(fMemory);
-    }
+    explicit SubRunInitializer(void* memory) : fMemory{memory} { SkASSERT(memory != nullptr); }
+
     template <typename... Args>
     T* initialize(Args&&... args) {
         // Warn on more than one initialization.
         SkASSERT(fMemory != nullptr);
-        return new (std::exchange(fMemory, nullptr)) T(std::forward<Args>(args)...);
+        return new (fMemory.release()) T(std::forward<Args>(args)...);
     }
 
 private:
-    void* fMemory;
+    struct Deleter {
+        // Frees the heap memory without calling a destructor.
+        // We must use `::operator delete(p)` instead of `delete p` because `p` is `void*`.
+        // Deleting a `void*` is undefined behavior in C++.
+        // This is paired with the placement `::operator new` in AllocateClassMemoryAndArena.
+        void operator()(void* p) const { ::operator delete(p); }
+    };
+    std::unique_ptr<void, Deleter> fMemory;
 };
 
-// GrSubRunAllocator provides fast allocation where the user takes care of calling the destructors
-// of the returned pointers, and GrSubRunAllocator takes care of deleting the storage. The
+template <typename T> struct AllocateAndArenaResult;
+
+// SubRunAllocator provides fast allocation where the user takes care of calling the destructors
+// of the returned pointers, and SubRunAllocator takes care of deleting the storage. The
 // unique_ptrs returned, are to assist in assuring the object's destructor is called.
 // A note on zero length arrays: according to the standard a pointer must be returned, and it
 // can't be a nullptr. In such a case, SkArena allocates one byte, but does not initialize it.
@@ -234,20 +241,8 @@ public:
     SubRunAllocator& operator=(SubRunAllocator&&) = default;
 
     template <typename T>
-    static std::tuple<SubRunInitializer<T>, int, SubRunAllocator>
-    AllocateClassMemoryAndArena(int allocSizeHint) {
-        SkASSERT_RELEASE(allocSizeHint >= 0);
-        // Round the size after the object the optimal amount.
-        int extraSize = BagOfBytes::PlatformMinimumSizeWithOverhead(allocSizeHint, alignof(T));
-
-        // Don't overflow or die.
-        SkASSERT_RELEASE(INT_MAX - SkTo<int>(sizeof(T)) > extraSize);
-        int totalMemorySize = sizeof(T) + extraSize;
-
-        void* memory = ::operator new (totalMemorySize);
-        SubRunAllocator alloc{SkTAddOffset<char>(memory, sizeof(T)), extraSize, extraSize/2};
-        return {memory, totalMemorySize, std::move(alloc)};
-    }
+    static AllocateAndArenaResult<T>
+    AllocateClassMemoryAndArena(int allocSizeHint);
 
     template <typename T, typename... Args> T* makePOD(Args&&... args) {
         static_assert(HasNoDestructor<T>, "This is not POD. Use makeUnique.");
@@ -327,6 +322,34 @@ public:
 private:
     BagOfBytes fAlloc;
 };
+
+// Members are destroyed in the reverse order of their declaration:
+// https://isocpp.org/wiki/faq/dtors#order-dtors-for-members
+// `alloc` must be destroyed first because it may contain pointers to memory owned by `initializer`.
+// `initializer` must be destroyed last because it owns the backing memory.
+// See also: https://issues.skia.org/issues/530646115
+template <typename T>
+struct AllocateAndArenaResult {
+    SubRunInitializer<T> initializer;
+    int totalMemorySize;
+    SubRunAllocator alloc;
+};
+
+template <typename T>
+inline AllocateAndArenaResult<T>
+SubRunAllocator::AllocateClassMemoryAndArena(int allocSizeHint) {
+    SkASSERT_RELEASE(allocSizeHint >= 0);
+    // Round the size after the object the optimal amount.
+    int extraSize = BagOfBytes::PlatformMinimumSizeWithOverhead(allocSizeHint, alignof(T));
+
+    // Don't overflow or die.
+    SkASSERT_RELEASE(INT_MAX - SkTo<int>(sizeof(T)) > extraSize);
+    int totalMemorySize = sizeof(T) + extraSize;
+
+    void* memory = ::operator new (totalMemorySize);
+    SubRunAllocator alloc{SkTAddOffset<char>(memory, sizeof(T)), extraSize, extraSize/2};
+    return {SubRunInitializer<T>{memory}, totalMemorySize, std::move(alloc)};
+}
 
 // Helper for defining allocators with inline/reserved storage.
 // For argument declarations, stick to the base type (SubRunAllocator).
