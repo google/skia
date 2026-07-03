@@ -23,6 +23,9 @@
 #include "src/ports/SkTypeface_fontations_priv.h"
 #include "src/ports/fontations/src/skpath_bridge.h"
 
+#include <optional>
+#include <utility>
+
 namespace {
 
 template <typename T> rust::Slice<T> toSlice(SkSpan<T> span) {
@@ -32,6 +35,15 @@ template <typename T> rust::Slice<T> toSlice(SkSpan<T> span) {
 static void check_png() {
     SkASSERTF(SkCodecs::HasDecoder("png"),
         "No PNG decoder registered. A call to SkCodecs::Register is necessary.");
+}
+
+// Use a monochrome bitmap strike only at its native (rounded) ppem, otherwise
+// prefer the outline. Mirrors FreeType's FT_Match_Size for scalable faces.
+bool embeddedBitmapStrikeCloseEnough(float strikePpem, float requestedPpem) {
+    if (strikePpem <= 0.f || requestedPpem <= 0.f) {
+        return true;
+    }
+    return roundf(strikePpem) == roundf(requestedPpem);
 }
 
 [[maybe_unused]] static inline const constexpr bool kSkShowTextBlitCoverage = false;
@@ -524,6 +536,30 @@ protected:
             has_bitmap_glyph = fontations_ffi::has_bitmap_glyph(fBridgeFontRef, glyph.getGlyphID());
         }
 
+        // When a glyph has both an outline and an embedded bitmap, choose between
+        // them (mirrors the FreeType backend); a bitmap-only glyph keeps its bitmap.
+        std::optional<rust::cxxbridge1::Box<fontations_ffi::BridgeBitmapGlyph>> bitmapGlyph;
+        if (has_bitmap_glyph) {
+            const bool hasOutlineGlyph = fontations_ffi::outline_format(fOutlines) !=
+                                         fontations_ffi::OutlineFormat::NoOutlines;
+            bitmapGlyph = fontations_ffi::bitmap_glyph(
+                    fBridgeFontRef, glyph.getGlyphID(), fScale.y());
+            const bool hasAlphaMask = fontations_ffi::has_alpha_mask(**bitmapGlyph);
+            const bool hasPng = !fontations_ffi::png_data(**bitmapGlyph).empty();
+            // Embedded bitmaps disabled by the client (FreeType's FT_LOAD_NO_BITMAP).
+            if (hasOutlineGlyph && hasAlphaMask &&
+                !SkToBool(fRec.fFlags & SkScalerContext::kEmbeddedBitmapText_Flag)) {
+                has_bitmap_glyph = false;
+            } else if (hasOutlineGlyph && !hasAlphaMask && !hasPng) {
+                has_bitmap_glyph = false;
+            } else if (hasOutlineGlyph && hasAlphaMask &&
+                       !embeddedBitmapStrikeCloseEnough(
+                               fontations_ffi::bitmap_metrics(**bitmapGlyph).ppem_y,
+                               fScale.y())) {
+                has_bitmap_glyph = false;
+            }
+        }
+
         // Local overrides for color fonts etc. may alter the request for linear metrics.
         bool doLinearMetrics = fDoLinearMetrics;
 
@@ -609,8 +645,10 @@ protected:
             mx.neverRequestPath = true;
             mx.extraBits = ScalerContextBits::BITMAP;
 
+            // has_bitmap_glyph is true here only if the bitmap was loaded above.
+            SkASSERT(bitmapGlyph.has_value());
             rust::cxxbridge1::Box<fontations_ffi::BridgeBitmapGlyph> bitmap_glyph =
-                    fontations_ffi::bitmap_glyph(fBridgeFontRef, glyph.getGlyphID(), fScale.y());
+                    std::move(*bitmapGlyph);
 
             const fontations_ffi::BitmapMetrics bitmapMetrics =
                     fontations_ffi::bitmap_metrics(*bitmap_glyph);

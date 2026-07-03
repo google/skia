@@ -82,4 +82,67 @@ private:
 
 DEF_GM(return new FontationsEbdtGM();)
 
+// ebdt_glyf.ttf has, for U+2662, both a monochrome EBDT embedded bitmap (a
+// filled diamond, at strikes 16/64/128 ppem) and a glyf outline (a hollow
+// diamond). The Fontations backend must use the embedded bitmap only at a
+// strike ppem and the outline at every other size, rather than scaling a
+// distant strike. This GM renders the glyph across strike (16/64/128) and
+// non-strike (32/96/160) sizes: the bitmap (filled) should appear at the
+// strike sizes and the outline (hollow) at the others.
+class FontationsEbdtGlyfGM : public GM {
+public:
+    FontationsEbdtGlyfGM() { this->setBGColor(SK_ColorWHITE); }
+
+protected:
+    SkString getName() const override { return SkString("fontations_ebdt_glyf"); }
+
+    SkISize getISize() override { return SkISize::Make(640, 280); }
+
+    void onOnceBeforeDraw() override {
+        fTypeface = SkTypeface_Make_Fontations(GetResourceAsStream("fonts/ebdt_glyf.ttf"),
+                                               SkFontArguments());
+    }
+
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+        if (!fTypeface) {
+            *errorMsg = "Failed to load fonts/ebdt_glyf.ttf";
+            return DrawResult::kSkip;
+        }
+
+        // U+2662 WHITE DIAMOND SUIT, present as both bitmap and outline.
+        const char* diamond = "\xE2\x99\xA2";
+        // 16/64/128 match an embedded strike (-> bitmap); the others do not
+        // (-> outline).
+        const SkScalar sizes[] = {16, 32, 64, 96, 128, 160};
+
+        SkPaint paint;
+        paint.setColor(SK_ColorBLACK);
+        paint.setAntiAlias(true);
+
+        SkFont labelFont;
+        labelFont.setSize(11);
+
+        const SkScalar baseline = 190;
+        SkScalar x = 10;
+        for (SkScalar size : sizes) {
+            SkFont font(fTypeface, size);
+            font.setEmbeddedBitmaps(true);
+            canvas->drawSimpleText(diamond, 3, SkTextEncoding::kUTF8, x, baseline, font, paint);
+
+            SkString label;
+            label.printf("%.0f", size);
+            canvas->drawSimpleText(label.c_str(), label.size(), SkTextEncoding::kUTF8,
+                                   x, baseline + 24, labelFont, paint);
+            x += size + 16;
+        }
+        return DrawResult::kOk;
+    }
+
+private:
+    sk_sp<SkTypeface> fTypeface;
+    using INHERITED = GM;
+};
+
+DEF_GM(return new FontationsEbdtGlyfGM();)
+
 }  // namespace skiagm
