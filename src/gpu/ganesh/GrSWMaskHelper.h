@@ -76,8 +76,10 @@ public:
 
 private:
     SkVector             fTranslate;
-    SkAutoPixmapStorage* fPixels;
+    // fPixelsStorage must be declared before fPixels so that fPixelsStorage outlives
+    // fPixels on destruction (since fPixels can be a raw pointer pointing to fPixelsStorage).
     SkAutoPixmapStorage  fPixelsStorage;
+    SkAutoPixmapStorage* fPixels;
     skcpu::Draw          fDraw;
     SkRasterClip         fRasterClip;
 
