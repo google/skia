@@ -44,7 +44,11 @@ struct SkAnalyticEdge {
     Type fEdgeType;          // Remembers the *initial* edge type
 
     int8_t  fCurveCount;    // only used by kQuad(+) and kCubic(-)
-    uint8_t fCurveShift;    // appled to all Dx/DDx/DDDx except for fCubicDShift exception
+    // The parametric subdivision shift (stepExponent) used to scale derivatives during
+    // forward-differencing. In quadratics, it scales the first derivative during position
+    // updates. In cubics, it scales the second derivative, while the first derivative
+    // uses fToFixedShift instead.
+    uint8_t fCurveShift;
     Winding fWinding;
 
     static constexpr int kDefaultAccuracy = 2;  // default accuracy for snapping
@@ -134,7 +138,7 @@ struct SkAnalyticCubicEdge : public SkAnalyticEdge {
 
     SkFixed fSnappedY; // to make sure that y is increasing with smooth jump and snapping
 
-    uint8_t fCubicDShift;   // applied to fCDx and fCDy
+    uint8_t fToFixedShift;        // applied to fCDx and fCDy
 
     bool setCubicWithoutUpdate(const SkPoint pts[4], int shiftUp);
     bool setCubic(const SkPoint pts[4]);

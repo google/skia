@@ -18,16 +18,37 @@
 #include <utility>
 
 /*
-    In setLine, setQuadratic, setCubic, the first thing we do is to convert
-    the points into FDot6. This is modulated by the shift parameter, which
-    will either be 0, or something like 2 for antialiasing.
+    Note on Coordinate Formats and Antialiasing:
+    In setLine, setQuadratic, setCubic, the first thing we do is to convert the points
+    into FDot6. In some variants (such as SkAnalyticEdge), this conversion is modulated
+    by an external antialiasing/supersampling shift parameter (usually 0, or 2 for
+    antialiasing) which scales up the input coordinates.
 
-    In the float case, we want to turn the float into .6 by saying pt * 64,
-    or pt * 256 for antialiasing. This is implemented as 1 << (shift + 6).
+    In the float case, we turn the float into FDot6 by multiplying by 64 (or 256 for
+    antialiasing). This is implemented as 1 << (shift + 6).
 
-    In the fixed case, we want to turn the fixed into .6 by saying pt >> 10,
-    or pt >> 8 for antialiasing. This is implemented as pt >> (10 - shift).
+    In the fixed case, we turn the fixed (FDot16) into FDot6 by shifting right by 10
+    (or 8 for antialiasing). This is implemented as pt >> (10 - shift).
+
+    Do not confuse this external coordinate-scaling shift with the internal
+    variables used during curve subdivision and forward-differencing in quadratics
+    and cubics:
+      - 'stepExponent' (defines subdivision resolution N = 2^stepExponent)
+      - 'precisionUpScale' (scales coordinates up for precision during setup)
+      - 'toFixedShift' (realigns internal derivatives back to standard SkFixed)
 */
+
+// Local type aliases to clarify different fixed-point formats.
+//
+// 1. SkFDot6Scaled: FDot6 coordinates that are shifted left (scaled up) by the
+//    precision upscale factor 'precisionUpScale' before evaluating the polynomial.
+//    This format has (6 + precisionUpScale) fractional bits.
+//
+// 2. SkFixedScaled: Derivatives stored at a scaled precision so they can be efficiently
+//    updated and then scaled down back to standard SkFixed (FDot16) inside the loop
+//    using 'toFixedShift'.
+using SkFDot6Scaled = int32_t;
+using SkFixedScaled = int32_t;
 
 static inline SkFixed SkFDot6ToFixedDiv2(SkFDot6 value) {
     // we want to return SkFDot6ToFixed(value >> 1), but we don't want to throw
@@ -74,7 +95,7 @@ void SkQuadraticEdge::dump() const {
 void SkCubicEdge::dump() const {
     SkDebugf("cube edge; %u segment(s) left: firstY:%d lastY:%d x:%g dx/dy:%g\n"
              "qx:%g qy:%g dcx:%g dcy:%g ddcx:%g ddcy:%g dddcx:%g dddcy:%g cLastX:%g cLastY:%g\n"
-             "\twinding:%d curveShift:%u dShift:%u\n",
+             "\twinding:%d curveShift:%u toFixedShift:%u\n",
              fSegmentCount,
              fFirstY,
              fLastY,
@@ -92,7 +113,7 @@ void SkCubicEdge::dump() const {
              SkFixedToFloat(fCLastY),
              static_cast<int8_t>(fWinding),
              fCurveShift,
-             fCubicDShift);
+             fToFixedShift);
 }
 #endif
 
@@ -231,7 +252,7 @@ static inline SkFDot6 cheap_distance(SkFDot6 dx, SkFDot6 dy) {
     return dy + (dx / 2);
 }
 
-static inline int diff_to_shift(SkFDot6 dx, SkFDot6 dy, int accuracy) {
+static inline int diff_to_steps(SkFDot6 dx, SkFDot6 dy, int accuracy) {
     // cheap calc of distance from center of p0-p2 to the center of the curve
     SkFDot6 dist = cheap_distance(dx, dy);
 
@@ -299,7 +320,7 @@ bool SkQuadraticEdge::setQuadratic(const SkPoint pts[3]) {
     SkFDot6 deltaY = (2*y1 - y0 - y2) >> 2;
     // We pass those points into this function which will find the total distance
     // and use a heuristic to reduce the error to some threshold.
-    int shift = diff_to_shift(deltaX, deltaY, 0);
+    int shift = diff_to_steps(deltaX, deltaY, 0);
     SkASSERT(shift >= 0);
 
     // We need at least 2 line segments for us to be able to save the derivatives as
@@ -404,7 +425,7 @@ bool SkQuadraticEdge::nextSegment() {
 
 /////////////////////////////////////////////////////////////////////////
 
-static inline int SkFDot6UpShift(SkFDot6 x, int upShift) {
+static inline SkFDot6Scaled SkFDot6UpShift(SkFDot6 x, int upShift) {
     SkASSERT((SkLeftShift(x, upShift) >> upShift) == x);
     return SkLeftShift(x, upShift);
 }
@@ -466,75 +487,110 @@ bool SkCubicEdge::setCubic(const SkPoint pts[4]) {
         return false;
     }
 
-    // compute number of steps needed (1 << shift)
+    // compute number of steps needed (1 << stepExponent)
     // Can't use (center of curve - center of baseline), since center-of-curve
     // need not be the max delta from the baseline (it could even be coincident)
     // so we try just looking at the two off-curve points
     SkFDot6 dx = cubic_delta_from_line(x0, x1, x2, x3);
     SkFDot6 dy = cubic_delta_from_line(y0, y1, y2, y3);
     // add 1 (by observation)
-    int shift = diff_to_shift(dx, dy, 2) + 1;
+    int stepExponent = diff_to_steps(dx, dy, 2) + 1;
     // need at least 1 subdivision for our bias trick
-    SkASSERT(shift > 0);
-    if (shift > MAX_COEFF_SHIFT) {
-        shift = MAX_COEFF_SHIFT;
+    SkASSERT(stepExponent > 0);
+    if (stepExponent > MAX_COEFF_SHIFT) {
+        stepExponent = MAX_COEFF_SHIFT;
     }
 
-    /*  Since our in coming data is initially shifted down by 10 (or 8 in
-        antialias). That means the most we can shift up is 8. However, we
-        compute coefficients with a 3*, so the safest upshift is really 6
-    */
-    int upShift = 6;    // largest safe value
-    int downShift = shift + upShift - 10;
-    if (downShift < 0) {
-        downShift = 0;
-        upShift = 10 - shift;
+    // To maintain maximum precision and avoid intermediate divisions, we manage
+    // three different "shifts" for the cubic forward-differencing math:
+    //
+    // 1. "stepExponent" (Subdivision Exponent):
+    //    - The exponent for the number of segments: N = 2^stepExponent.
+    //    - Parametric step size: h = 1/N = 2^-stepExponent.
+    //    - Stored in fCurveShift. Used to update the first derivative step-to-step.
+    //
+    // 2. "precisionUpScale" (Precision Upscale Shift):
+    //    - We scale up the incoming FDot6 coordinates by 2^precisionUpScale (via SkFDot6UpShift)
+    //      before constructing our polynomial coefficients (A, B, C).
+    //    - This prevents fractional bits from being shifted off and lost when dividing
+    //      coefficients by powers of 2^stepExponent (i.e. >> stepExponent or >> 2*stepExponent)
+    //      during setup.
+    //    - Capped at 6 to prevent signed 32-bit integer overflow during intermediate
+    //      computations (which involve multiplications by 3 and 6).
+    //
+    // 3. "toFixedShift" (Coordinate Realignment Downshift):
+    //    - Stored in fToFixedShift. Used in nextSegment() to scale the step delta
+    //      back down to standard SkFixed (FDot16) format.
+    //    - Since the coefficients are scaled up by 2^precisionUpScale, the step size h is
+    //      2^-stepExponent, and standard SkFixed has 10 more fractional bits than
+    //      FDot6 (16 - 6 = 10), the alignment factor for the position update (x + fCDxDt * h) is:
+    //          2^10 / (2^precisionUpScale * 2^stepExponent) =
+    //             1 / 2^(stepExponent + precisionUpScale - 10)
+    //      which is implemented as a right-shift by:
+    //          toFixedShift = stepExponent + precisionUpScale - 10.
+    //    - If toFixedShift is negative (which would require an unsupported left-shift),
+    //      we clamp toFixedShift to 0 and reduce precisionUpScale accordingly to
+    //      10 - stepExponent.
+    int precisionUpScale = 6;    // largest safe value
+    int toFixedShift = stepExponent + precisionUpScale - 10;
+    if (toFixedShift < 0) {
+        toFixedShift = 0;
+        precisionUpScale = 10 - stepExponent;
     }
 
     fWinding = winding;
     fEdgeType = Type::kCubic;
-    fSegmentCount = SkToU8(SkLeftShift(1, shift));
-    fCurveShift = SkToU8(shift);
-    fCubicDShift = SkToU8(downShift);
+    fSegmentCount = SkToU8(SkLeftShift(1, stepExponent));
+    fCurveShift = SkToU8(stepExponent);
+    fToFixedShift = SkToU8(toFixedShift);
 
-    /*
-     *  By re-arranging the Bezier curve in polynomial form, it is easier to
-     *  find the derivatives and forward-differentiate from one segment to the next.
-     *
-     *  p0 (1-t)^3 + 3 p1 t(1-t)^2 + 3 p2 t^2 (1-t) + p3 t^3 ==> At^3 + Bt^2 + Ct + D
-     *  Where A = -p0 + 3p1 + -3p2 + p3
-     *        B = 3p0 - 6p1 + 3p2
-     *        C = -3p0 + 3p1
-     *        D = p0
-     */
+    // By re-arranging the Bezier curve in polynomial form, it is easier to
+    // find the derivatives and forward-differentiate from one segment to the next.
+
+    // p0 (1-t)^3 + 3 p1 t(1-t)^2 + 3 p2 t^2 (1-t) + p3 t^3 ==> At^3 + Bt^2 + Ct + D
+    // Where A = -p0 + 3p1 + -3p2 + p3
+    //       B = 3p0 - 6p1 + 3p2
+    //       C = -3p0 + 3p1
+    //       D = p0
     // TODO(kjlubick): Can we use SkVx and calculate both X and Y at once?
+    SkFDot6Scaled A_scaled = SkFDot6UpShift(x3 + 3 * (x1 - x2) - x0, precisionUpScale);
+    SkFDot6Scaled B_scaled = SkFDot6UpShift(3 * (x0 - 2*x1 + x2), precisionUpScale);
+    SkFDot6Scaled C_scaled = SkFDot6UpShift(3 * (x1 - x0), precisionUpScale);
 
-    SkFixed A = SkFDot6UpShift(x3 + 3 * (x1 - x2) - x0, upShift);
-    SkFixed B = SkFDot6UpShift(3 * (x0 - 2*x1 + x2), upShift);
-    SkFixed C = SkFDot6UpShift(3 * (x1 - x0), upShift);
 
-    // We want to calculate the slope at the midpoint of our first segment. This means evaluating
-    //   dx/dt = 3A*t^2 + 2B*t + C
-    //   dx^2/dt^2 = 6A * t + 2B
-    //   dx^3/dt^3 = 6A
-    // at t = 1/N * 1/2
-    // TODO(kjlubick): I'm not sure these cubic approximations are being done correctly. Some
-    //                 coefficients seem to be missing. Maybe it's being done not at the midpoint
-    //                 of the first line but just...somewhere in there?
-    fCDxDt = (A >> 2*shift) + (B >> shift) + C;
-    fCD2xDt2 = (3*A >> (shift - 1)) + 2*B;
+    // The cubic curve in polynomial form is: x(t) = A*t^3 + B*t^2 + C*t + D
+    // With a step size of h = 1/N = 1/(2^stepExponent), the forward differences at t=0 are:
+    //   1) First Difference:  Δx(0) = x(h) - x(0)      = A*h^3 + B*h^2 + C*h
+    //   2) Second Difference: Δ²x(0) = Δx(h) - Δx(0)    = 6A*h^3 + 2B*h^2
+    //   3) Third Difference:  Δ³x(0) = Δ²x(h) - Δ²x(0)  = 6A*h^3
 
-    // This may be attempting to precompute the third derivative times 1/N
-    // 6A / N => 6A / 2^shift => 3A / 2^(shift-1)
-    fCD3xDt3 = 3*A >> (shift - 1);
+    // To keep the math as precise as possible, we scale up each difference term.
+    // Because the step size h is a power of 2 (1 / 2^stepExponent), scaling them up
+    // allows us to perform all loop updates using bit-shifts instead of slow division:
 
-    A = SkFDot6UpShift(y3 + 3 * (y1 - y2) - y0, upShift);
-    B = SkFDot6UpShift(3 * (y0 - 2*y1 + y2), upShift);
-    C = SkFDot6UpShift(3 * (y1 - y0), upShift);
+    // - fCDxDt   = Δx(0)  / h  = A*h^2 + B*h + C
+    //                          = A*(1/2^stepExponent)*(1/2^stepExponent) + B*(1/2^stepExponent) + C
+    //                          = A/(1^(2*stepExponent) + B/(2^stepExponent) + C
+    // - fCD2xDt2 = Δ²x(0) / h² = 6A*h + 2B
+    //                          = 6A*(1/2^stepExponent) + 2B # cancel 2 on top and bottom of A
+    //                          = 3A/2^(stepExponent-1) + 2B
+    // - fCD3xDt3 = Δ³x(0) / h² = 6A*h
+    //                      = 6A*(1/2^stepExponent)
+    //                      = 3A/2^(stepExponent-1)
+    // These are stored in the edge struct as SkFixedScaled because they must be scaled down
+    // by toFixedShift or stepExponent (ddshift) before they can be added to standard SkFixed
+    // coordinates or used to update other derivative terms.
+    fCDxDt   = (A_scaled >> 2*stepExponent) + (B_scaled >> stepExponent) + C_scaled;
+    fCD2xDt2 = (3*A_scaled >> (stepExponent - 1)) + 2*B_scaled;
+    fCD3xDt3 = 3*A_scaled >> (stepExponent - 1);
 
-    fCDyDt = (A >> 2*shift) + (B >> shift) + C;
-    fCD2yDt2 = (3*A >> (shift - 1)) + 2*B;
-    fCD3yDt3 = 3*A >> (shift - 1);
+    A_scaled = SkFDot6UpShift(y3 + 3 * (y1 - y2) - y0, precisionUpScale);
+    B_scaled = SkFDot6UpShift(3 * (y0 - 2*y1 + y2), precisionUpScale);
+    C_scaled = SkFDot6UpShift(3 * (y1 - y0), precisionUpScale);
+
+    fCDyDt   = (A_scaled >> 2*stepExponent) + (B_scaled >> stepExponent) + C_scaled;
+    fCD2yDt2 = (3*A_scaled >> (stepExponent - 1)) + 2*B_scaled;
+    fCD3yDt3 = 3*A_scaled >> (stepExponent - 1);
 
     fCx = SkFDot6ToFixed(x0);
     fCy = SkFDot6ToFixed(y0);
@@ -550,23 +606,40 @@ bool SkCubicEdge::nextSegment() {
     SkFixed oldx = fCx;
     SkFixed oldy = fCy;
     SkFixed newx, newy;
-    const int ddshift = fCurveShift;
-    const int dshift = fCubicDShift;
+    const int stepExponent = fCurveShift; // Subdivision exponent (stepExponent)
+    const int toFixedShift = fToFixedShift;
 
     SkASSERT(count > 0);
 
     do {
         if (--count > 0)
         {
-            newx = oldx + (fCDxDt >> dshift);
-            fCDxDt += fCD2xDt2 >> ddshift;
+            // 1. Position Update: x_next = x + (fCDxDt * h)
+            //    Since fCDxDt has units of FDot6 scaled up by precisionUpScale, and is stored
+            //    as (Δx / h) (which scales it up by 1/h = 2^stepExponent), we must:
+            //      a) Divide by 2^stepExponent to multiply by step-size h
+            //      b) Divide by 2^precisionUpScale to remove the precision upscaling
+            //      c) Multiply by 2^10 to convert from FDot6 to SkFixed (since 16 - 6 = 10)
+            //    Combining these: Δx = fCDxDt * (2^10) / (2^stepExponent * 2^precisionUpScale)
+            //                        = fCDxDt >> (stepExponent + precisionUpScale - 10)
+            //    This is implemented as shifting right by toFixedShift.
+            newx = oldx + (fCDxDt >> toFixedShift);
+
+            // 2. First Difference Update: fCDxDt_next = fCDxDt + h * fCD2xDt2
+            //    Since fCD2xDt2 has units of Δ²x / h², multiplying by h yields Δ²x / h.
+            //    This is accomplished by right-shifting fCD2xDt2 by stepExponent
+            //    (h = 1/2^stepExponent).
+            fCDxDt += fCD2xDt2 >> stepExponent;
+
+            // 3. Second Difference Update: fCD2xDt2_next = fCD2xDt2 + fCD3xDt3
+            //    Since both fCD2xDt2 and fCD3xDt3 are scaled by 1/h², we add them directly.
             fCD2xDt2 += fCD3xDt3;
 
-            newy = oldy + (fCDyDt >> dshift);
-            fCDyDt += fCD2yDt2 >> ddshift;
+            newy = oldy + (fCDyDt >> toFixedShift);
+            fCDyDt += fCD2yDt2 >> stepExponent;
             fCD2yDt2 += fCD3yDt3;
         }
-        else    // last segment
+        else // last segment
         {
             newx = fCLastX;
             newy = fCLastY;

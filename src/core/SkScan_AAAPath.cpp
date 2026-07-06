@@ -995,7 +995,7 @@ static bool is_smooth_enough(SkAnalyticEdge* thisEdge, SkAnalyticEdge* nextEdge,
         return SkAbs32(cEdge->fCDx) >> 1 >= SkAbs32(cEdge->fCDDx) >> ddshift &&
                SkAbs32(cEdge->fCDy) >> 1 >= SkAbs32(cEdge->fCDDy) >> ddshift &&
                // current Dy is (fCDy - (fCDDy >> ddshift)) >> dshift
-               (cEdge->fCDy - (cEdge->fCDDy >> ddshift)) >> cEdge->fCubicDShift >= SK_Fixed1;
+               (cEdge->fCDy - (cEdge->fCDDy >> ddshift)) >> cEdge->fToFixedShift >= SK_Fixed1;
     } else if (thisEdge->fCurveCount > 0) {
         const auto qEdge = static_cast<SkAnalyticQuadraticEdge*>(thisEdge);
         return SkAbs32(qEdge->fQDx) >> 1 >= SkAbs32(qEdge->fQDDx) &&

@@ -378,7 +378,7 @@ bool SkAnalyticQuadraticEdge::setQuadraticWithoutUpdate(const SkPoint pts[3], in
     }
 
     fWinding = winding;
-    //fCubicDShift only set for cubics
+    //fToFixedShift only set for cubics
     fEdgeType = Type::kQuad;
     fCurveCount = SkToS8(1 << shift);
 
@@ -630,7 +630,7 @@ bool SkAnalyticCubicEdge::setCubicWithoutUpdate(const SkPoint pts[4], int shift)
     fEdgeType = Type::kCubic;
     fCurveCount = SkToS8(SkLeftShift(-1, shift));
     fCurveShift = SkToU8(shift);
-    fCubicDShift = SkToU8(downShift);
+    fToFixedShift = SkToU8(downShift);
 
     SkFixed B = SkFDot6UpShift(3 * (x1 - x0), upShift);
     SkFixed C = SkFDot6UpShift(3 * (x0 - x1 - x1 + x2), upShift);
@@ -664,7 +664,7 @@ bool SkAnalyticCubicEdge::updateCubic() {
     SkFixed oldy = fCy;
     SkFixed newx, newy;
     const int ddshift = fCurveShift;
-    const int dshift = fCubicDShift;
+    const int dshift = fToFixedShift;
 
     SkASSERT(count < 0);
 

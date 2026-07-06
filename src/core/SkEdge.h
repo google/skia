@@ -157,7 +157,7 @@ private:
     // to make sure cumulative error doesn't result in a dramatically different line.
     SkFixed fCLastX, fCLastY;
 
-    uint8_t fCubicDShift;   // applied to fCDxDt and fCDyDt only in cubic
+    uint8_t fToFixedShift; // applied to fCDxDt and fCDyDt in nextSegment() to align to SkFixed
 
 #if defined(SK_DEBUG)
 public:
