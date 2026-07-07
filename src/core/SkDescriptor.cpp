@@ -178,8 +178,11 @@ std::optional<SkAutoDescriptor> SkAutoDescriptor::MakeFromBuffer(SkReadBuffer& b
     if (!buffer.readPad32(&descriptorHeader, sizeof(SkDescriptor))) { return {}; }
 
     // Basic bounds check on header length to make sure that bodyLength calculation does not
-    // underflow.
-    if (descriptorHeader.getLength() < sizeof(SkDescriptor)) { return {}; }
+    // underflow. Also ensure alignment.
+    if (descriptorHeader.getLength() < sizeof(SkDescriptor) ||
+        !SkIsAlign4(descriptorHeader.getLength())) {
+        return {};
+    }
     uint32_t bodyLength = descriptorHeader.getLength() - sizeof(SkDescriptor);
 
     // Make sure the fLength makes sense with respect to the incoming data.
