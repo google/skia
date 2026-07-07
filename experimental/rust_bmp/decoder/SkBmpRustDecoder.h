@@ -34,7 +34,7 @@ SK_API std::unique_ptr<SkCodec> Decode(sk_sp<const SkData>,
                                        SkCodecs::DecodeContext = nullptr);
 
 inline constexpr SkCodecs::Decoder Decoder() {
-    return { "bmp", IsBmp, Decode };
+    return { "rust_bmp", IsBmp, Decode };
 }
 
 }  // namespace SkBmpRustDecoder

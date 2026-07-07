@@ -238,7 +238,6 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
     args['skia_use_rust_bmp_decode'] = 'true'
     args['skia_use_rust_exif'] = 'true'
     args['skia_use_rust_icc'] = 'true'
-    args['skia_use_rust_ico_decode'] = 'true'
     args['skia_use_rust_png_decode'] = 'true'
     args['skia_use_rust_png_encode'] = 'true'
     args['skia_use_libpng_decode'] = 'false'

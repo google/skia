@@ -1129,7 +1129,6 @@ private:
     friend class PNGCodecGM;    // for fillIncompleteImage
     friend class SkSampledCodec;
     friend class SkIcoCodec;
-    friend class SkIcoRustCodec;  // for getEncodedInfo and getSampler
     friend class SkPngCodecBase;  // for onGetGainmapCodec
     friend class SkAndroidCodec;  // for handleFrameIndex
     friend class SkCodecPriv;     // for fEncodedInfo

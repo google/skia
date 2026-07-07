@@ -51,8 +51,6 @@ skia_cc_library(
     visibility = [
         "//experimental/rust_bmp/decoder/impl:__pkg__",
         "//experimental/rust_bmp/ffi:__pkg__",
-        "//experimental/rust_ico/decoder/impl:__pkg__",
-        "//experimental/rust_ico/ffi:__pkg__",
         "//rust/icc:__pkg__",
         "//rust/png:__pkg__",
         "//src/codec:__pkg__",
@@ -70,7 +68,6 @@ rust_cxx_bridge(
     src = ":rs_srcs",
     visibility = [
         "//experimental/rust_bmp/ffi:__pkg__",
-        "//experimental/rust_ico/ffi:__pkg__",
         "//rust/icc:__pkg__",
         "//rust/png:__pkg__",
     ],
@@ -87,7 +84,6 @@ rust_library(
     ],
     visibility = [
         "//experimental/rust_bmp/ffi:__pkg__",
-        "//experimental/rust_ico/ffi:__pkg__",
         "//rust/icc:__pkg__",
         "//rust/png:__pkg__",
     ],

@@ -74,11 +74,6 @@ mod ffi {
         /// Returns Success if metadata was loaded, IncompleteInput if more data is needed.
         fn read_metadata(self: &mut Reader) -> DecodingResult;
 
-        /// Read metadata for a BMP embedded in an ICO file.
-        /// Handles ICO-specific differences: no file header, doubled height, alpha channel.
-        /// Uses image crate's `read_metadata_in_ico_format()` internally.
-        fn read_metadata_for_ico(self: &mut Reader) -> DecodingResult;
-
         /// Attempt to read all image pixel data from the stream into internal buffer.
         /// Returns Success if all data was read, IncompleteInput if more data is needed.
         /// After success, use get_image_data() to access the decoded pixels.
@@ -250,23 +245,6 @@ impl Reader {
     }
 
     pub fn read_metadata(&mut self) -> DecodingResult {
-        self.read_metadata_impl(|d| d.read_metadata())
-    }
-
-    /// Read metadata for a BMP embedded in an ICO file.
-    /// Handles: no file header, doubled height halving, alpha channel addition.
-    pub fn read_metadata_for_ico(&mut self) -> DecodingResult {
-        self.read_metadata_impl(|d| d.read_metadata_in_ico_format())
-    }
-
-    fn read_metadata_impl(
-        &mut self,
-        read_fn: impl FnOnce(
-            &mut image::codecs::bmp::BmpDecoder<
-                std::io::BufReader<cxx::UniquePtr<ffi::SkStreamAdapter>>,
-            >,
-        ) -> Result<(), image::ImageError>,
-    ) -> DecodingResult {
         if self.metadata_loaded {
             return DecodingResult::Success;
         }
@@ -276,7 +254,7 @@ impl Reader {
             None => return DecodingResult::FormatError,
         };
 
-        match read_fn(decoder) {
+        match decoder.read_metadata() {
             Ok(()) => {}
             Err(e) => {
                 return match BmpError::from(e) {
@@ -287,28 +265,16 @@ impl Reader {
             }
         }
 
-        self.extract_metadata_from_decoder();
-        DecodingResult::Success
-    }
-
-    fn extract_metadata_from_decoder(&mut self) {
         use image::ImageDecoder;
-        let decoder = self.decoder.as_ref().unwrap();
         let (width, height) = decoder.dimensions();
         let image_color_type = decoder.color_type();
 
         let (color, alpha, bytes_per_pixel) = match image_color_type {
             image::ColorType::Rgb8 => (BmpColor::RGB, BmpAlpha::Opaque, 3),
             image::ColorType::Rgba8 => (BmpColor::RGBA, BmpAlpha::Unpremul, 4),
-            image::ColorType::L8 => {
-                panic!(
-                    "BmpDecoder returned L8; indexed_color should never be enabled in this wrapper"
-                )
+            _ => {
+                return DecodingResult::UnsupportedFeature;
             }
-            _ => panic!(
-                "BmpDecoder returned unexpected color type after successful read_metadata: {:?}",
-                image_color_type
-            ),
         };
 
         self.width = width;
@@ -317,6 +283,8 @@ impl Reader {
         self.alpha = alpha;
         self.bytes_per_pixel = bytes_per_pixel;
         self.metadata_loaded = true;
+
+        DecodingResult::Success
     }
 
     pub fn read_image_data(&mut self) -> DecodingResult {

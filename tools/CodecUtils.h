@@ -22,9 +22,7 @@
 #include "include/codec/SkGifDecoder.h"
 #endif
 
-#if defined(SK_CODEC_DECODES_ICO_WITH_RUST)
-#include "experimental/rust_ico/decoder/SkIcoRustDecoder.h"
-#elif defined(SK_CODEC_DECODES_ICO)
+#if defined(SK_CODEC_DECODES_ICO)
 #include "include/codec/SkIcoDecoder.h"
 #endif
 
@@ -73,9 +71,7 @@ inline void RegisterAllAvailable() {
 #if defined(SK_CODEC_DECODES_GIF)
     SkCodecs::Register(SkGifDecoder::Decoder());
 #endif
-#if defined(SK_CODEC_DECODES_ICO_WITH_RUST)
-    SkCodecs::Register(SkIcoRustDecoder::Decoder());
-#elif defined(SK_CODEC_DECODES_ICO)
+#if defined(SK_CODEC_DECODES_ICO)
     SkCodecs::Register(SkIcoDecoder::Decoder());
 #endif
 #if defined(SK_CODEC_DECODES_JPEG)

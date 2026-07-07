@@ -93,10 +93,6 @@ sk_sp<SkData> SkData::shareSubset(size_t offset, size_t length) {
     }, this);
 }
 
-sk_sp<const SkData> SkData::shareSubset(size_t offset, size_t length) const {
-    return const_cast<SkData*>(this)->shareSubset(offset, length);
-}
-
 sk_sp<SkData> SkData::copySubset(size_t offset, size_t length) const {
     VALIDATE_SUBSET(this->size(), offset, length);
 

@@ -78,8 +78,6 @@ skia_cc_library(
     features = ["layering_check"],
     local_defines = ["SK_DISABLE_LEGACY_INIT_DECODERS"],
     visibility = [
-        "//experimental/rust_bmp/decoder/impl:__pkg__",
-        "//experimental/rust_ico/decoder/impl:__pkg__",
         "//src/encode:__pkg__",
         "//src/pdf:__pkg__",
         "//src/ports:__pkg__",
@@ -131,8 +129,6 @@ skia_cc_library(
     visibility = [
         "//experimental/rust_bmp/decoder:__pkg__",
         "//experimental/rust_bmp/decoder/impl:__pkg__",
-        "//experimental/rust_ico/decoder:__pkg__",
-        "//experimental/rust_ico/decoder/impl:__pkg__",
         "//modules/skottie:__pkg__",
         "//modules/skottie/src:__pkg__",
         "//modules/skresources:__pkg__",
@@ -434,10 +430,7 @@ skia_cc_library(
         "//conditions:default": [],
     }),
     features = ["layering_check"],
-    visibility = [
-        "//:__pkg__",
-        "//experimental/rust_ico:__subpackages__",
-    ],
+    visibility = ["//:__pkg__"],
     deps = [
         ":any_decoder",
         ":png_codec_base",
