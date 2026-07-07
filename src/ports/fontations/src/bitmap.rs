@@ -183,8 +183,8 @@ pub fn has_bitmap_glyph(font_ref: &BridgeFontRef, glyph_id: u16) -> bool {
         .with_font(|font| {
             let glyph_id = GlyphId::from(glyph_id);
             let has_sbix = sbix_glyph(font, glyph_id, None).is_some();
-            let has_cblc_or_eblc = bitmap_table_glyph(font, glyph_id, None).is_some();
-            Some(has_sbix || has_cblc_or_eblc)
+            let has_blc = bitmap_table_glyph(font, glyph_id, None).is_some();
+            Some(has_sbix || has_blc)
         })
         .unwrap_or_default()
 }
@@ -236,8 +236,8 @@ pub unsafe fn bitmap_glyph<'a>(
                         advance: f32::NAN,
                     },
                 }));
-            } else if let Some(cblc_glyph) = bitmap_table_glyph(font, glyph_id, Some(font_size)) {
-                let (bearing_x, bearing_y, advance) = match cblc_glyph.bitmap_data.metrics {
+            } else if let Some(blc_glyph) = bitmap_table_glyph(font, glyph_id, Some(font_size)) {
+                let (bearing_x, bearing_y, advance) = match blc_glyph.bitmap_data.metrics {
                     BitmapMetrics::Small(small_metrics) => (
                         small_metrics.bearing_x() as f32,
                         small_metrics.bearing_y() as f32,
@@ -255,12 +255,12 @@ pub unsafe fn bitmap_glyph<'a>(
                     bearing_y: 0.0,
                     inner_bearing_x: bearing_x,
                     inner_bearing_y: bearing_y,
-                    ppem_x: cblc_glyph.ppem_x as f32,
-                    ppem_y: cblc_glyph.ppem_y as f32,
+                    ppem_x: blc_glyph.ppem_x as f32,
+                    ppem_y: blc_glyph.ppem_y as f32,
                     placement_origin_bottom_left: false,
                     advance: advance,
                 };
-                match cblc_glyph.bitmap_data.content {
+                match blc_glyph.bitmap_data.content {
                     BitmapContent::Data(BitmapDataFormat::Png, png_buffer) => {
                         return Some(Box::new(BridgeBitmapGlyph {
                             data: Some(BitmapPixelData::PngData(png_buffer)),
@@ -268,14 +268,14 @@ pub unsafe fn bitmap_glyph<'a>(
                         }));
                     }
                     BitmapContent::Data(format, raw_data) => {
-                        let dims = bitmap_dimensions(&cblc_glyph.bitmap_data.metrics)?;
+                        let dims = bitmap_dimensions(&blc_glyph.bitmap_data.metrics)?;
                         let is_packed = match format {
                             BitmapDataFormat::BitAligned => true,
                             BitmapDataFormat::ByteAligned => false,
                             _ => return None,
                         };
                         let mask = MaskData {
-                            bpp: cblc_glyph.bit_depth,
+                            bpp: blc_glyph.bit_depth,
                             is_packed,
                             data: raw_data,
                         };
