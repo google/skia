@@ -86,3 +86,26 @@ TimeUtils::MSec skiatest::Timer::elapsedMsInt() const {
     SkASSERT(TimeUtils::MSecMax >= elapsedMs);
     return static_cast<TimeUtils::MSec>(elapsedMs);
 }
+
+namespace skiatest {
+
+void Test::cpu(skiatest::Reporter* r) const {
+    SkASSERT(this->fTestType == TestType::kCPU ||
+             this->fTestType == TestType::kCPUSerial);
+    TRACE_EVENT1("test_cpu", TRACE_FUNC, "name", this->fName/*these are static*/);
+    this->fCPUProc(r);
+}
+
+void Test::ganesh(skiatest::Reporter* r, const GrContextOptions& options) const {
+    SkASSERT(this->fTestType == TestType::kGanesh);
+    TRACE_EVENT1("test_ganesh", TRACE_FUNC, "name", this->fName/*these are static*/);
+    this->fGaneshProc(r, options);
+}
+
+void Test::graphite(skiatest::Reporter* r, const graphite::TestOptions& options) const {
+    SkASSERT(this->fTestType == TestType::kGraphite);
+    TRACE_EVENT1("test_graphite", TRACE_FUNC, "name", this->fName/*these are static*/);
+    this->fGraphiteProc(r, options);
+}
+
+}  // namespace skiatest

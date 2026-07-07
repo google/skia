@@ -66,6 +66,7 @@ skia_cc_library(
 skia_objc_library(
     name = "autorelease_pool_objc",
     hdrs = ["AutoreleasePool.h"],
+    mac_frameworks = ["Foundation"],
     non_arc_srcs = ["AutoreleasePool.mm"],
     visibility = ["//tools/ganesh:__pkg__"],
     deps = ["//:core"],
