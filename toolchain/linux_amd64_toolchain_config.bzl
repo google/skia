@@ -27,13 +27,14 @@ load(
 load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load(":clang_layering_check.bzl", "make_layering_check_features")
 
-# The location of the created clang toolchain.
-EXTERNAL_TOOLCHAIN = "external/+_repo_rules+clang_linux_amd64"
-
 def _linux_amd64_toolchain_info(ctx):
+    # https://bazel.build/rules/lib/builtins/Label#repo_name
+    clang_repo_name = ctx.attr.clang_linux_amd64.label.repo_name
+    external_toolchain = "external/" + clang_repo_name
+
     action_configs = _make_action_configs()
     features = []
-    features += _make_default_flags()
+    features += _make_default_flags(external_toolchain)
     features += make_layering_check_features()
     features += _make_diagnostic_flags()
 
@@ -46,12 +47,12 @@ def _linux_amd64_toolchain_info(ctx):
         action_configs = action_configs,
         # This is important because the linker will complain if the libc shared libraries are not
         # under this directory. Because we extract the libc libraries to
-        # EXTERNAL_TOOLCHAIN/lib, and the various headers and shared libraries to
-        # EXTERNAL_TOOLCHAIN/usr, we make the top level folder the sysroot so the linker can
-        # find the referenced libraries (e.g. EXTERNAL_TOOLCHAIN/usr/lib/x86_64-linux-gnu/libc.so
+        # external_toolchain/lib, and the various headers and shared libraries to
+        # external_toolchain/usr, we make the top level folder the sysroot so the linker can
+        # find the referenced libraries (e.g. external_toolchain/usr/lib/x86_64-linux-gnu/libc.so
         # is just a text file that refers to "/lib/x86_64-linux-gnu/libc.so.6" and
         # "/lib64/ld-linux-x86-64.so.2" which will use the sysroot as the root).
-        builtin_sysroot = EXTERNAL_TOOLCHAIN,
+        builtin_sysroot = external_toolchain,
         # These are required, but do nothing
         compiler = "",
         target_cpu = "",
@@ -61,7 +62,9 @@ def _linux_amd64_toolchain_info(ctx):
     )
 
 provide_linux_amd64_toolchain_config = rule(
-    attrs = {},
+    attrs = {
+        "clang_linux_amd64": attr.label(default = "@clang_linux_amd64//:compile_files"),
+    },
     provides = [CcToolchainConfigInfo],
     implementation = _linux_amd64_toolchain_info,
 )
@@ -194,7 +197,7 @@ def _make_action_configs():
     ]
     return action_configs
 
-def _make_default_flags():
+def _make_default_flags(external_toolchain):
     """Here we define the flags for certain actions that are always applied.
 
     For any flag that might be conditionally applied, it should be defined in //bazel/copts.bzl.
@@ -217,16 +220,16 @@ def _make_default_flags():
                     # error (or, without -no-canonical-prefixes, a mysterious case where files
                     # are included with an absolute path and fail the build).
                     "-isystem",
-                    EXTERNAL_TOOLCHAIN + "/include/c++/v1",
+                    external_toolchain + "/include/c++/v1",
                     # https://github.com/llvm/llvm-project/issues/57104
                     "-isystem",
-                    EXTERNAL_TOOLCHAIN + "/include/x86_64-unknown-linux-gnu/c++/v1/",
+                    external_toolchain + "/include/x86_64-unknown-linux-gnu/c++/v1/",
                     "-isystem",
-                    EXTERNAL_TOOLCHAIN + "/usr/include",
+                    external_toolchain + "/usr/include",
                     "-isystem",
-                    EXTERNAL_TOOLCHAIN + "/lib/clang/18/include",
+                    external_toolchain + "/lib/clang/18/include",
                     "-isystem",
-                    EXTERNAL_TOOLCHAIN + "/usr/include/x86_64-linux-gnu",
+                    external_toolchain + "/usr/include/x86_64-linux-gnu",
                     # We do not want clang to search in absolute paths for files. This makes
                     # Bazel think we are using an outside resource and fail the compile.
                     "-no-canonical-prefixes",
@@ -264,9 +267,9 @@ def _make_default_flags():
                     "-stdlib=libc++",
                     # We statically include these libc++ libraries so they do not need to be
                     # on a developer's machine (they can be tricky to get).
-                    EXTERNAL_TOOLCHAIN + "/lib/x86_64-unknown-linux-gnu/libc++.a",
-                    EXTERNAL_TOOLCHAIN + "/lib/x86_64-unknown-linux-gnu/libc++abi.a",
-                    EXTERNAL_TOOLCHAIN + "/lib/x86_64-unknown-linux-gnu/libunwind.a",
+                    external_toolchain + "/lib/x86_64-unknown-linux-gnu/libc++.a",
+                    external_toolchain + "/lib/x86_64-unknown-linux-gnu/libc++abi.a",
+                    external_toolchain + "/lib/x86_64-unknown-linux-gnu/libunwind.a",
                     # Dynamically Link in the other parts of glibc (not needed in glibc 2.34+)
                     "-lpthread",
                     "-lm",

@@ -27,12 +27,6 @@ load(
 load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load(":clang_layering_check.bzl", "make_layering_check_features")
 
-# The location of the created clang toolchain.
-EXTERNAL_TOOLCHAIN = "external/+_repo_rules2+clang_mac"
-
-# Root of our symlinks. These symlinks are created in download_mac_toolchain.bzl
-XCODE_MACSDK_SYMLINK = EXTERNAL_TOOLCHAIN + "/symlinks/xcode/MacSDK"
-
 # Must stay in sync with download_mac_toolchain.bzl.
 CLANG_VER = "22"
 
@@ -42,9 +36,14 @@ _platform_constraints_to_import = {
 }
 
 def _mac_toolchain_info(ctx):
+    # https://bazel.build/rules/lib/builtins/Label#repo_name
+    clang_repo_name = ctx.attr.clang_mac.label.repo_name
+    external_toolchain = "external/" + clang_repo_name
+    xcode_macsdk_symlink = external_toolchain + "/symlinks/xcode/MacSDK"
+
     action_configs = _make_action_configs()
     features = []
-    features += _make_default_flags(ctx)
+    features += _make_default_flags(ctx, external_toolchain, xcode_macsdk_symlink)
     features += make_layering_check_features()
     features += _make_diagnostic_flags()
     features += _make_target_specific_flags(ctx)
@@ -56,7 +55,7 @@ def _mac_toolchain_info(ctx):
         ctx = ctx,
         features = features,
         action_configs = action_configs,
-        builtin_sysroot = EXTERNAL_TOOLCHAIN,
+        builtin_sysroot = external_toolchain,
         cxx_builtin_include_directories = [
             # https://stackoverflow.com/a/61419490
             # "If the compiler has --sysroot support, then these paths should use %sysroot%
@@ -93,6 +92,9 @@ def _import_platform_constraints():
     rule_attributes["cpu"] = attr.string(
         mandatory = False,
         values = ["arm64", "x64"],
+    )
+    rule_attributes["clang_mac"] = attr.label(
+        default = "@clang_mac//:compile_files",
     )
     return rule_attributes
 
@@ -257,7 +259,7 @@ def _make_action_configs():
 # https://docs.bazel.build/versions/3.3.0/be/objective-c.html#objc_library
 #
 # Note: These values must be kept in sync with those defined in cmake_exporter.go.
-def _make_default_flags(ctx):
+def _make_default_flags(ctx, external_toolchain, xcode_macsdk_symlink):
     """Here we define the flags for certain actions that are always applied.
 
     For any flag that might be conditionally applied, it should be defined in //bazel/copts.bzl.
@@ -281,17 +283,17 @@ def _make_default_flags(ctx):
                     # headers and then the internal clang version to "fulfill" any missing types
                     # before we get to the other includes from the SDK and frameworks
                     "-isystem",
-                    XCODE_MACSDK_SYMLINK + "/usr/include/c++/v1",
+                    xcode_macsdk_symlink + "/usr/include/c++/v1",
                     "-isystem",
-                    EXTERNAL_TOOLCHAIN + "/lib/clang/" + CLANG_VER + "/include",
+                    external_toolchain + "/lib/clang/" + CLANG_VER + "/include",
                     "-isystem",
-                    XCODE_MACSDK_SYMLINK + "/usr/include",
+                    xcode_macsdk_symlink + "/usr/include",
                     # Set the framework path to the Mac SDK framework directory. This has
                     # subfolders like OpenGL.framework
                     # We want -iframework so Clang hides diagnostic warnings from those header
                     # files we include. -F does not hide those.
                     "-iframework",
-                    XCODE_MACSDK_SYMLINK + "/System/Library/Frameworks",
+                    xcode_macsdk_symlink + "/System/Library/Frameworks",
                     # We do not want clang to search in absolute paths for files. This makes
                     # Bazel think we are using an outside resource and fail the compile.
                     "-no-canonical-prefixes",
@@ -351,7 +353,7 @@ def _make_default_flags(ctx):
                     # -syslibroot appends to the beginning of the dylib dependency path.
                     # https://github.com/llvm/llvm-project/blob/d61341768cf0cff7ceeaddecc2f769b5c1b901c4/lld/MachO/InputFiles.cpp#L1418-L1420
                     "-Wl,-syslibroot",
-                    XCODE_MACSDK_SYMLINK,
+                    xcode_macsdk_symlink,
                     # This path is relative to the syslibroot above, and we want lld to look in the
                     # Frameworks symlink that was created in download_mac_toolchain.bzl.
                     "-F/System/Library/Frameworks",
