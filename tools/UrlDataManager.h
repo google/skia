@@ -26,12 +26,12 @@ public:
      * Adds a data blob to the cache with a particular content type.  UrlDataManager will hash
      * the blob data to ensure uniqueness
      */
-    SkString addData(SkData*, const char* contentType);
+    SkString addData(sk_sp<const SkData>, const char* contentType);
 
     struct UrlData : public SkRefCnt {
         SkString fUrl;
         SkString fContentType;
-        sk_sp<SkData> fData;
+        sk_sp<const SkData> fData;
     };
 
     /*

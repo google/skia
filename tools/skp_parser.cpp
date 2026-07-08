@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
     if (argc > 2) {
         if (UrlDataManager::UrlData* data =
             dataManager.getDataFromUrl(SkString(argv[2]))) {
-            SkData* skdata = data->fData.get();
+            const SkData* skdata = data->fData.get();
             SkASSERT(skdata);
             #ifdef SK_BUILD_FOR_WIN
             fflush(stdout);

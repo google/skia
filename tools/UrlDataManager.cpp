@@ -12,15 +12,15 @@
 
 UrlDataManager::UrlDataManager(SkString rootUrl) : fRootUrl(rootUrl), fDataId(0) {}
 
-SkString UrlDataManager::addData(SkData* data, const char* contentType) {
+SkString UrlDataManager::addData(sk_sp<const SkData> data, const char* contentType) {
     UrlData* urlData = fCache.find(*data);
-    if (fCache.find(*data)) {
+    if (urlData) {
         SkASSERT(data->equals(urlData->fData.get()));
         return urlData->fUrl;
     }
 
     urlData = new UrlData;
-    urlData->fData.reset(SkRef(data));
+    urlData->fData = data;
     urlData->fContentType.set(contentType);
     urlData->fUrl.appendf("%s/%u", fRootUrl.c_str(), fDataId++);
 
