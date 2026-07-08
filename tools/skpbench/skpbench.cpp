@@ -27,8 +27,8 @@
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "src/utils/SkOSPath.h"
-#include "tools/DeserialProcsUtils.h"
 #include "tools/EncodeUtils.h"
+#include "tools/ProcsUtils.h"
 #include "tools/SkSharingProc.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/flags/CommonFlags.h"
@@ -557,7 +557,7 @@ int main(int argc, char** argv) {
             // populate skp with it's first frame, for width height determination.
             skp = mskp->frame(0);
         } else {
-            SkDeserialProcs procs = ToolUtils::get_default_skp_deserial_procs();
+            SkDeserialProcs procs = ToolUtils::default_deserial_procs();
             skp = SkPicture::MakeFromStream(srcstream.get(), &procs);
         }
         if (!skp) {

@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include <ctype.h>
-
 #include "bench/nanobench.h"
 
 #include "bench/AndroidCodecBench.h"
@@ -48,9 +46,9 @@
 #include "src/utils/SkShaderUtils.h"
 #include "tools/AutoreleasePool.h"
 #include "tools/CrashHandler.h"
-#include "tools/DeserialProcsUtils.h"
 #include "tools/MSKPPlayer.h"
 #include "tools/ProcStats.h"
+#include "tools/ProcsUtils.h"
 #include "tools/Stats.h"
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommonFlags.h"
@@ -60,6 +58,8 @@
 #include "tools/ios_utils.h"
 #include "tools/trace/EventTracingPriv.h"
 #include "tools/trace/SkDebugfTracer.h"
+
+#include <ctype.h>
 
 #if defined(SK_ENABLE_SVG)
 #include "modules/skshaper/utils/FactoryHelpers.h"
@@ -875,7 +875,7 @@ public:
             SkDebugf("Could not read %s.\n", path);
             return nullptr;
         }
-        SkDeserialProcs procs = ToolUtils::get_default_skp_deserial_procs();
+        SkDeserialProcs procs = ToolUtils::default_deserial_procs();
         return SkPicture::MakeFromStream(stream.get(), &procs);
     }
 
@@ -1433,7 +1433,8 @@ int main(int argc, char** argv) {
         return 1;
 #endif
     }
-    NanoJSONResultsWriter log(logStream.get(), SkJSONWriter::Mode::kPretty);
+    NanoJSONResultsWriter log(
+            logStream.get(), ToolUtils::default_serial_procs(), SkJSONWriter::Mode::kPretty);
     log.beginObject(); // root
 
     if (1 == FLAGS_properties.size() % 2) {

@@ -26,7 +26,7 @@ static constexpr char kTraceVersion[] = "20220209";
 namespace SkSLTraceUtils {
 
 void WriteTrace(const SkSL::DebugTracePriv& src, SkWStream* w) {
-    SkJSONWriter json(w);
+    SkJSONWriter json(w, SkSerialProcs{});
 
     json.beginObject();  // root
     json.appendNString("version", kTraceVersion);

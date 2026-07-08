@@ -31,7 +31,6 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
-#include "include/encode/SkPngEncoder.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTo.h"
@@ -48,6 +47,7 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/image/SkImage_Base.h"
 #include "src/utils/SkJSONWriter.h"
+#include "tools/ProcsUtils.h"
 #include "tools/UrlDataManager.h"
 #include "tools/debugger/DebugLayerManager.h"
 #include "tools/debugger/JsonWriteBuffer.h"
@@ -608,7 +608,7 @@ static SkString encode_data(sk_sp<const SkData> data,
 void DrawCommand::flatten(const SkFlattenable* flattenable,
                           SkJSONWriter&        writer,
                           UrlDataManager&      urlDataManager) {
-    SkBinaryWriteBuffer buffer({});  // TODO(kjlubick, bungeman) feed SkSerialProcs through API
+    SkBinaryWriteBuffer buffer(writer.getSerialProcs());
     flattenable->flatten(buffer);
     sk_sp<SkData> data = buffer.snapshotAsData();
     SkString url = encode_data(data, "application/octet-stream", urlDataManager);
@@ -619,16 +619,6 @@ void DrawCommand::flatten(const SkFlattenable* flattenable,
     JsonWriteBuffer jsonBuffer(&writer, &urlDataManager);
     flattenable->flatten(jsonBuffer);
     writer.endObject();  // values
-}
-
-void DrawCommand::WritePNG(const SkBitmap& bitmap, SkWStream& out) {
-    SkPixmap pm;
-    SkAssertResult(bitmap.peekPixels(&pm));
-
-    SkPngEncoder::Options options;
-    options.fZLibLevel   = 1;
-    options.fFilterFlags = SkPngEncoder::FilterFlag::kNone;
-    SkPngEncoder::Encode(&out, pm, options);
 }
 
 // flattens an image to a Json stream, also called from shader flatten
@@ -662,11 +652,14 @@ bool DrawCommand::flatten(const SkImage&  image,
     SkBitmap bm;
     bm.installPixels(dstInfo, buffer.get(), rowBytes);
 
-    SkDynamicMemoryWStream out;
-    DrawCommand::WritePNG(bm, out);
-    sk_sp<SkData> encoded = out.detachAsData();
-    if (encoded == nullptr) {
-        SkDebugf("DrawCommand::flatten SkImage: could not encode image as PNG\n");
+    SkSerialProcs procs = writer.getSerialProcs();
+    sk_sp<const SkData> encoded;
+    if (procs.fImageProc) {
+        sk_sp<SkImage> rasterImage = bm.asImage();
+        encoded = procs.fImageProc(rasterImage.get(), procs.fImageCtx);
+    }
+    if (encoded == nullptr || encoded->isEmpty()) {
+        SkDebugf("DrawCommand::flatten SkImage: could not encode image\n");
         writer.endObject();
         return false;
     }

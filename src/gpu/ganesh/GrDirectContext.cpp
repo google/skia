@@ -1156,7 +1156,7 @@ bool GrDirectContext::precompileShader(const SkData& key, const SkData& data) {
 
 SkString GrDirectContext::dump() const {
     SkDynamicMemoryWStream stream;
-    SkJSONWriter writer(&stream, SkJSONWriter::Mode::kPretty);
+    SkJSONWriter           writer(&stream, SkSerialProcs{}, SkJSONWriter::Mode::kPretty);
     writer.beginObject();
 
     writer.appendCString("backend", GrBackendApiToStr(this->backend()));

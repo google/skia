@@ -188,7 +188,7 @@ int main(int argc, char** argv) {
     unsigned int totalFailures = 0,
               totalUnsupported = 0;
     SkDynamicMemoryWStream memStream;
-    SkJSONWriter writer(&memStream, SkJSONWriter::Mode::kPretty);
+    SkJSONWriter writer(&memStream, SkSerialProcs{}, SkJSONWriter::Mode::kPretty);
     writer.beginObject();
     {
         writer.beginObject("failures");

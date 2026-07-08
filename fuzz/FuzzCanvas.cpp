@@ -225,7 +225,7 @@ DEF_FUZZ(_DumpCanvas, fuzz) {
     std::unique_ptr<SkCanvas> nullCanvas = SkMakeNullCanvas();
     UrlDataManager dataManager(SkString("data"));
     SkDynamicMemoryWStream stream;
-    SkJSONWriter writer(&stream, SkJSONWriter::Mode::kPretty);
+    SkJSONWriter writer(&stream, SkSerialProcs{}, SkJSONWriter::Mode::kPretty);
     writer.beginObject(); // root
     debugCanvas.toJSON(writer, dataManager, nullCanvas.get());
     writer.endObject(); // root

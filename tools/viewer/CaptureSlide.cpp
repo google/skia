@@ -7,8 +7,6 @@
 
 #include "tools/viewer/CaptureSlide.h"
 
-#include <string>
-
 #include "imgui.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkClipOp.h"
@@ -22,9 +20,12 @@
 #include "src/core/SkBigPicture.h"
 #include "src/core/SkRecord.h"
 #include "src/utils/SkJSONWriter.h"
+#include "tools/ProcsUtils.h"
 #include "tools/UrlDataManager.h"
 #include "tools/debugger/DebugCanvas.h"
 #include "tools/debugger/DrawCommand.h"
+
+#include <string>
 
 const char* RecordTypeNames[] = {
 #define CASE(T) #T,
@@ -87,7 +88,7 @@ void drawCommandHistory(const DebugCanvas* debugCanvas) {
         DrawCommand* cmd = debugCanvas->getDrawCommandAt(currentCommandIdx);
 
         SkDynamicMemoryWStream stream;
-        SkJSONWriter writer(&stream, SkJSONWriter::Mode::kPretty);
+        SkJSONWriter   writer(&stream, ToolUtils::default_serial_procs(), SkJSONWriter::Mode::kPretty);
         UrlDataManager urlDataManager(SkString("data"));
         writer.beginObject();
         cmd->toJSON(writer, urlDataManager);

@@ -14,7 +14,7 @@
 #include "include/core/SkString.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkTo.h"
-#include "tools/DeserialProcsUtils.h"
+#include "tools/ProcsUtils.h"
 
 #include <utility>
 
@@ -52,7 +52,7 @@ void SKPSlide::load(SkScalar, SkScalar) {
     }
     fStream->rewind();
 
-    SkDeserialProcs procs = ToolUtils::get_default_skp_deserial_procs();
+    SkDeserialProcs procs = ToolUtils::default_deserial_procs();
 
     fPic = SkPicture::MakeFromStream(fStream.get(), &procs);
     if (!fPic) {

@@ -13,6 +13,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "src/utils/SkJSONWriter.h"
+
 #include <cmath>
 
 /**
@@ -38,7 +39,8 @@
 */
 class NanoJSONResultsWriter : public SkJSONWriter {
 public:
-    NanoJSONResultsWriter(SkWStream* stream, Mode mode) : SkJSONWriter(stream, mode) {}
+    NanoJSONResultsWriter(SkWStream* stream, SkSerialProcs serialProcs, Mode mode)
+            : SkJSONWriter(stream, serialProcs, mode) {}
 
     void beginBench(const char* name, int32_t x, int32_t y) {
         SkString id = SkStringPrintf("%s_%d_%d", name, x, y);

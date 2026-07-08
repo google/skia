@@ -10,7 +10,7 @@
 #include "include/core/SkStream.h"
 #include "include/utils/SkNullCanvas.h"
 #include "src/utils/SkJSONWriter.h"
-#include "tools/DeserialProcsUtils.h"
+#include "tools/ProcsUtils.h"
 #include "tools/UrlDataManager.h"
 #include "tools/debugger/DebugCanvas.h"
 
@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
         SkDebugf("Bad file: '%s'\n", argv[1]);
         return 2;
     }
-    SkDeserialProcs procs = ToolUtils::get_default_skp_deserial_procs();
+    SkDeserialProcs procs = ToolUtils::default_deserial_procs();
     sk_sp<SkPicture> pic = SkPicture::MakeFromStream(&input, &procs);
     if (!pic) {
         SkDebugf("Bad skp: '%s'\n", argv[1]);
@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
     std::unique_ptr<SkCanvas> nullCanvas = SkMakeNullCanvas();
     UrlDataManager dataManager(SkString("data"));
     SkDynamicMemoryWStream stream;
-    SkJSONWriter writer(&stream, SkJSONWriter::Mode::kPretty);
+    SkJSONWriter writer(&stream, ToolUtils::default_serial_procs(), SkJSONWriter::Mode::kPretty);
     writer.beginObject(); // root
     debugCanvas.toJSON(writer, dataManager, nullCanvas.get());
     writer.endObject(); // root

@@ -2102,12 +2102,14 @@ if (is_canvaskit) {
     public_configs = [ ":skia_public" ]
 
     sources = [
+      "tools/ProcsUtils.cpp",
       "tools/SkSharingProc.cpp",
       "tools/UrlDataManager.cpp",
       "tools/debugger/DebugCanvas.cpp",
       "tools/debugger/DebugLayerManager.cpp",
       "tools/debugger/DrawCommand.cpp",
       "tools/debugger/JsonWriteBuffer.cpp",
+      "tools/fonts/FontToolUtils.cpp",
     ]
   }
 }
@@ -2601,14 +2603,14 @@ if (skia_enable_tools) {
       "tools/AutoreleasePool.h",
       "tools/DecodeUtils.cpp",
       "tools/DecodeUtils.h",
-      "tools/DeserialProcsUtils.cpp",
-      "tools/DeserialProcsUtils.h",
       "tools/EncodeUtils.cpp",
       "tools/EncodeUtils.h",
       "tools/GpuToolUtils.h",
       "tools/LsanSuppressions.cpp",
       "tools/ProcStats.cpp",
       "tools/ProcStats.h",
+      "tools/ProcsUtils.cpp",
+      "tools/ProcsUtils.h",
       "tools/Resources.cpp",
       "tools/Resources.h",
       "tools/RuntimeBlendUtils.cpp",
@@ -3170,6 +3172,7 @@ if (skia_enable_tools) {
         "fuzz/oss_fuzz/FuzzSkRuntimeColorFilter.cpp",
         "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
         "fuzz/oss_fuzz/FuzzTextBlobDeserialize.cpp",
+        "tools/ProcsUtils.cpp",
         "tools/UrlDataManager.cpp",
         "tools/debugger/DebugCanvas.cpp",
         "tools/debugger/DebugLayerManager.cpp",

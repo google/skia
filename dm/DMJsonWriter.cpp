@@ -16,6 +16,7 @@
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/ProcStats.h"
+#include "tools/ProcsUtils.h"
 
 using namespace skia_private;
 
@@ -43,7 +44,7 @@ void JsonWriter::DumpJson(const char* dir,
     SkString path = SkOSPath::Join(dir, "dm.json");
     sk_mkdir(dir);
     SkFILEWStream stream(path.c_str());
-    SkJSONWriter writer(&stream, SkJSONWriter::Mode::kPretty);
+    SkJSONWriter  writer(&stream, ToolUtils::default_serial_procs(), SkJSONWriter::Mode::kPretty);
 
     writer.beginObject(); // root
 

@@ -5,16 +5,20 @@
  * found in the LICENSE file.
  */
 
-#ifndef DeserialProcsUtils_DEFINED
-#define DeserialProcsUtils_DEFINED
+#ifndef ProcsUtils_DEFINED
+#define ProcsUtils_DEFINED
 
 #include "include/core/SkSerialProcs.h"
 
 namespace ToolUtils {
 
 // Returns the default SkDeserialProcs used by Skia's tools when Deserializing Skps. This adds
-// default values for the SkDeserialImageProc and SkDeserialTypefaceProc..
-SkDeserialProcs get_default_skp_deserial_procs();
+// default values for the SkDeserialImageProc and SkDeserialTypefaceProc.
+SkDeserialProcs default_deserial_procs();
+
+// Returns the default SkSerialProcs used by Skia's tools when serializing Skps. This adds
+// default values for the SkSerialImageProc.
+SkSerialProcs default_serial_procs();
 
 }  // namespace ToolUtils
 
