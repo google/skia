@@ -27,6 +27,7 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
+        "//tools:procs_utils",
         "//tools/flags:cmd_flags",
     ],
 )

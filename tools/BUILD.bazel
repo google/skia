@@ -197,7 +197,7 @@ skia_cc_library(
 )
 
 skia_cc_library(
-    name = "deserial_procs_utils",
+    name = "procs_utils",
     testonly = True,
     srcs = [
         "ProcsUtils.cpp",
@@ -209,11 +209,15 @@ skia_cc_library(
         "//bench:__subpackages__",
         "//dm:__pkg__",
         "//gm:__subpackages__",
+        "//tools/debugger:__pkg__",
+        "//tools/trace:__pkg__",
         "//tools/viewer:__pkg__",
     ],
     deps = [
         "//:core",
         "//:png_decode_libpng",
+        "//:png_encode_libpng",
+        "//src/core:core_priv",
         "//tools/fonts:font_tool_utils",
     ],
 )
