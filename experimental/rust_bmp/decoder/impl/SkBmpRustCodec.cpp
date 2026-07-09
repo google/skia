@@ -49,6 +49,8 @@ static_assert(static_cast<int>(rust_bmp::BmpAlpha::Unpremul) ==
               static_cast<int>(SkEncodedInfo::kUnpremul_Alpha),
               "BmpAlpha::Unpremul must match SkEncodedInfo::kUnpremul_Alpha");
 
+static constexpr size_t kInMemoryReaderThreshold = 4 * 1024;
+
 namespace {
 
 // Helper function to map Rust DecodingResult to SkCodec::Result
@@ -72,6 +74,17 @@ SkCodec::Result MapDecodingResult(rust_bmp::DecodingResult rustResult) {
     SK_ABORT("Unexpected `rust_bmp::DecodingResult`: %d", static_cast<int>(rustResult));
 }
 
+rust::Box<rust_bmp::ResultOfReader> NewReaderFromStream(SkStream* stream) {
+    auto inputAdapter = std::make_unique<rust::stream::SkStreamAdapter>(stream);
+    return rust_bmp::new_reader(std::move(inputAdapter));
+}
+
+rust::Box<rust_bmp::ResultOfReader> NewReaderFromData(const SkData* data) {
+    rust::Slice<const uint8_t> dataSlice(static_cast<const uint8_t*>(data->data()),
+                                         data->size());
+    return rust_bmp::new_reader_from_data(dataSlice);
+}
+
 }  // namespace
 
 std::unique_ptr<SkBmpRustCodec> SkBmpRustCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
@@ -86,9 +99,40 @@ std::unique_ptr<SkBmpRustCodec> SkBmpRustCodec::MakeFromStream(std::unique_ptr<S
         return nullptr;
     }
 
-    auto inputAdapter = std::make_unique<rust::stream::SkStreamAdapter>(stream.get());
-    rust::Box<rust_bmp::ResultOfReader> resultOfReader =
-            rust_bmp::new_reader(std::move(inputAdapter));
+    rust::Box<rust_bmp::ResultOfReader> resultOfReader = NewReaderFromStream(stream.get());
+
+    return MakeFromStreamAndReader(std::move(stream), std::move(resultOfReader), result, nullptr);
+}
+
+std::unique_ptr<SkBmpRustCodec> SkBmpRustCodec::MakeFromData(sk_sp<const SkData> data,
+                                                             Result* result) {
+    Result resultStorage;
+    if (!result) {
+        result = &resultStorage;
+    }
+
+    if (!data) {
+        *result = kInvalidInput;
+        return nullptr;
+    }
+
+    if (!data->empty() && data->size() <= kInMemoryReaderThreshold) {
+        rust::Box<rust_bmp::ResultOfReader> resultOfReader = NewReaderFromData(data.get());
+        std::unique_ptr<SkStream> stream = SkMemoryStream::Make(data);
+        return MakeFromStreamAndReader(std::move(stream), std::move(resultOfReader), result,
+                                       std::move(data));
+    }
+
+    return MakeFromStream(SkMemoryStream::Make(std::move(data)), result);
+}
+
+std::unique_ptr<SkBmpRustCodec> SkBmpRustCodec::MakeFromStreamAndReader(
+        std::unique_ptr<SkStream> stream,
+        rust::Box<rust_bmp::ResultOfReader> resultOfReader,
+        Result* result,
+        sk_sp<const SkData> inMemoryData) {
+    SkASSERT_RELEASE(stream);
+    SkASSERT_RELEASE(result);
 
     rust_bmp::DecodingResult rustResult = resultOfReader->err();
     if (rustResult != rust_bmp::DecodingResult::Success) {
@@ -173,19 +217,22 @@ std::unique_ptr<SkBmpRustCodec> SkBmpRustCodec::MakeFromStream(std::unique_ptr<S
     return std::unique_ptr<SkBmpRustCodec>(new SkBmpRustCodec(
         std::move(encodedInfo),
         std::move(stream),
-        std::move(reader)
+        std::move(reader),
+        std::move(inMemoryData)
     ));
 }
 
 SkBmpRustCodec::SkBmpRustCodec(SkEncodedInfo&& encodedInfo,
                                std::unique_ptr<SkStream> stream,
-                               rust::Box<rust_bmp::Reader> reader)
+                               rust::Box<rust_bmp::Reader> reader,
+                               sk_sp<const SkData> inMemoryData)
     : SkCodec(std::move(encodedInfo), skcms_PixelFormat_RGB_888,
               // TODO(crbug.com/370522089): Pass stream to SkCodec once SkCodec
               // avoids unnecessary rewinding (which forces re-reading entire stream).
               /* stream = */ nullptr)
     , fReader(std::move(reader))
-    , fPrivStream(std::move(stream)) {
+    , fPrivStream(std::move(stream))
+    , fInMemoryData(std::move(inMemoryData)) {
     SkASSERT_RELEASE(fPrivStream);
 }
 
@@ -193,6 +240,9 @@ SkBmpRustCodec::~SkBmpRustCodec() = default;
 
 sk_sp<const SkData> SkBmpRustCodec::getEncodedData() const {
     SkASSERT_RELEASE(fPrivStream);
+    if (fInMemoryData) {
+        return fInMemoryData;
+    }
     sk_sp<const SkData> data = fPrivStream->getData();
     if (data) {
         return data;
@@ -230,9 +280,12 @@ bool SkBmpRustCodec::onRewind() {
         return false;
     }
 
-    auto inputAdapter = std::make_unique<rust::stream::SkStreamAdapter>(fPrivStream.get());
-    rust::Box<rust_bmp::ResultOfReader> resultOfReader =
-            rust_bmp::new_reader(std::move(inputAdapter));
+    rust::Box<rust_bmp::ResultOfReader> resultOfReader = [&]() {
+        if (fInMemoryData) {
+            return NewReaderFromData(fInMemoryData.get());
+        }
+        return NewReaderFromStream(fPrivStream.get());
+    }();
 
     if (resultOfReader->err() != rust_bmp::DecodingResult::Success) {
         return false;

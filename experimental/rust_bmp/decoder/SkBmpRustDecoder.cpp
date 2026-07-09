@@ -13,7 +13,6 @@
 #include "experimental/rust_bmp/decoder/impl/SkBmpRustCodec.h"
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
-#include "src/core/SkStreamPriv.h"
 
 namespace SkBmpRustDecoder {
 
@@ -35,7 +34,7 @@ std::unique_ptr<SkCodec> Decode(std::unique_ptr<SkStream> stream,
 std::unique_ptr<SkCodec> Decode(sk_sp<const SkData> data,
                                 SkCodec::Result* result,
                                 SkCodecs::DecodeContext) {
-    return Decode(SkMemoryStream::Make(std::move(data)), result);
+    return SkBmpRustCodec::MakeFromData(std::move(data), result);
 }
 
 }  // namespace SkBmpRustDecoder

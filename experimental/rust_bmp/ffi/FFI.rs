@@ -59,6 +59,10 @@ mod ffi {
 
         fn new_reader(input: UniquePtr<SkStreamAdapter>) -> Box<ResultOfReader>;
 
+        /// Create a Reader from in-memory data, bypassing SkStreamAdapter and
+        /// BufReader. Use when stream data is fully available in memory.
+        fn new_reader_from_data(data: &[u8]) -> Box<ResultOfReader>;
+
         type ResultOfReader;
         fn err(self: &ResultOfReader) -> DecodingResult;
         fn unwrap(self: &mut ResultOfReader) -> Box<Reader>;
@@ -182,9 +186,7 @@ impl ResultOfReader {
 /// BMP decoder with resumable/streaming support.
 /// Both read_metadata() and read_image_data() can be retried on IncompleteInput.
 pub struct Reader {
-    decoder: Option<
-        image::codecs::bmp::BmpDecoder<std::io::BufReader<cxx::UniquePtr<ffi::SkStreamAdapter>>>,
-    >,
+    decoder: Option<image::codecs::bmp::BmpDecoder<DecoderInput>>,
     metadata_loaded: bool,
     width: u32,
     height: u32,
@@ -196,19 +198,87 @@ pub struct Reader {
     image_data_loaded: bool,
     last_consumed_row_count: u32,
 }
+
+enum DecoderInput {
+    Stream(std::io::BufReader<cxx::UniquePtr<ffi::SkStreamAdapter>>),
+    Memory(std::io::Cursor<Vec<u8>>),
+}
+
+impl std::io::Read for DecoderInput {
+    fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
+        match self {
+            DecoderInput::Stream(s) => s.read(buf),
+            DecoderInput::Memory(c) => c.read(buf),
+        }
+    }
+}
+
+impl std::io::BufRead for DecoderInput {
+    fn fill_buf(&mut self) -> std::io::Result<&[u8]> {
+        match self {
+            DecoderInput::Stream(s) => s.fill_buf(),
+            DecoderInput::Memory(c) => c.fill_buf(),
+        }
+    }
+    fn consume(&mut self, amt: usize) {
+        match self {
+            DecoderInput::Stream(s) => s.consume(amt),
+            DecoderInput::Memory(c) => c.consume(amt),
+        }
+    }
+}
+
+impl std::io::Seek for DecoderInput {
+    fn seek(&mut self, pos: std::io::SeekFrom) -> std::io::Result<u64> {
+        match self {
+            DecoderInput::Stream(s) => s.seek(pos),
+            DecoderInput::Memory(c) => c.seek(pos),
+        }
+    }
+
+    fn stream_position(&mut self) -> std::io::Result<u64> {
+        match self {
+            DecoderInput::Stream(s) => s.stream_position(),
+            DecoderInput::Memory(c) => c.stream_position(),
+        }
+    }
+}
+
 impl Reader {
     fn new(input: cxx::UniquePtr<ffi::SkStreamAdapter>) -> Result<Self, BmpError> {
         use std::io::BufReader;
 
-        // Use a larger buffer (64KB) to reduce syscall overhead for large images.
-        // Default BufReader uses 8KB which causes many small reads.
+        // Keep the stream fallback at the previous size to avoid regressing
+        // large or incremental decodes. Complete small images bypass this path
+        // via new_reader_from_data().
         const BUFFER_SIZE: usize = 64 * 1024;
         let buffered = BufReader::with_capacity(BUFFER_SIZE, input);
+        let input = DecoderInput::Stream(buffered);
 
         // new_resumable() creates the decoder without reading any data from the stream.
         // The caller must call read_metadata() to read the BMP headers.
         // This constructor is infallible - it just wraps the reader.
-        let decoder = image::codecs::bmp::BmpDecoder::new_resumable(buffered);
+        let decoder = image::codecs::bmp::BmpDecoder::new_resumable(input);
+
+        Ok(Reader {
+            decoder: Some(decoder),
+            metadata_loaded: false,
+            width: 0,
+            height: 0,
+            color: BmpColor::RGB,
+            alpha: BmpAlpha::Opaque,
+            bytes_per_pixel: 0,
+            image_data: Vec::new(),
+            image_data_loaded: false,
+            last_consumed_row_count: 0,
+        })
+    }
+
+    /// Create a Reader from in-memory data. The bytes are copied into
+    /// Rust-owned storage because Reader outlives this FFI call.
+    fn from_data(data: &[u8]) -> Result<Self, BmpError> {
+        let input = DecoderInput::Memory(std::io::Cursor::new(data.to_vec()));
+        let decoder = image::codecs::bmp::BmpDecoder::new_resumable(input);
 
         Ok(Reader {
             decoder: Some(decoder),
@@ -304,11 +374,12 @@ impl Reader {
             None => return DecodingResult::FormatError,
         };
 
-        // Allocate zero-initialized buffer for the image data.
-        // Zero-initialization ensures that any unwritten bytes (e.g., on partial
-        // decode) are valid zeros rather than garbage.
+        // Reuse existing allocation if capacity is sufficient (e.g., after
+        // reset_decode_state which clears length but preserves capacity).
+        // This avoids a fresh heap allocation on rewind/re-decode.
         if self.image_data.len() < total_bytes {
-            self.image_data = vec![0u8; total_bytes];
+            self.image_data.clear();
+            self.image_data.resize(total_bytes, 0);
         }
 
         match decoder.read_image_data(&mut self.image_data) {
@@ -412,6 +483,11 @@ impl Reader {
 
 pub fn new_reader(input: cxx::UniquePtr<ffi::SkStreamAdapter>) -> Box<ResultOfReader> {
     let result = Reader::new(input);
+    Box::new(ResultOfReader { result })
+}
+
+pub fn new_reader_from_data(data: &[u8]) -> Box<ResultOfReader> {
+    let result = Reader::from_data(data);
     Box::new(ResultOfReader { result })
 }
 

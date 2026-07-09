@@ -13,10 +13,12 @@
 #include "experimental/rust_bmp/ffi/FFI.rs.h"
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkEncodedImageFormat.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
 #include "third_party/rust/cxx/v1/cxx.h"
 
 struct SkEncodedInfo;
+class SkData;
 class SkStream;
 class SkSwizzler;
 
@@ -28,13 +30,15 @@ class SkSwizzler;
 class SkBmpRustCodec final : public SkCodec {
 public:
     static std::unique_ptr<SkBmpRustCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
+    static std::unique_ptr<SkBmpRustCodec> MakeFromData(sk_sp<const SkData>, Result*);
 
     ~SkBmpRustCodec() override;
 
 protected:
     SkBmpRustCodec(SkEncodedInfo&&,
                    std::unique_ptr<SkStream>,
-                   rust::Box<rust_bmp::Reader>);
+                   rust::Box<rust_bmp::Reader>,
+                   sk_sp<const SkData> inMemoryData);
 
     SkEncodedImageFormat onGetEncodedFormat() const override { return SkEncodedImageFormat::kBMP; }
 
@@ -43,6 +47,12 @@ protected:
     bool onGetFrameInfo(int, FrameInfo*) const override;
 
 private:
+    static std::unique_ptr<SkBmpRustCodec> MakeFromStreamAndReader(
+            std::unique_ptr<SkStream>,
+            rust::Box<rust_bmp::ResultOfReader>,
+            Result*,
+            sk_sp<const SkData>);
+
     // We cannot use the SkCodec implementation since we pass nullptr to the superclass out of
     // an abundance of caution w/r to rewinding the stream.
     //
@@ -84,6 +94,7 @@ private:
 
     rust::Box<rust_bmp::Reader> fReader;
     std::unique_ptr<SkStream> fPrivStream;
+    sk_sp<const SkData> fInMemoryData;
     std::unique_ptr<SkSwizzler> fSwizzler;
 
     // Using 4-bytes-wide `uint32_t` for each pixel, because
