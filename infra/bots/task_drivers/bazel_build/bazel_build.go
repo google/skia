@@ -14,9 +14,12 @@ import (
 	"flag"
 	"fmt"
 	"io/fs"
+	"os"
 	"path/filepath"
+	"runtime"
 
 	infra_common "go.skia.org/infra/go/common"
+	sk_exec "go.skia.org/infra/go/exec"
 	"go.skia.org/infra/go/skerr"
 	"go.skia.org/infra/task_driver/go/lib/bazel"
 	"go.skia.org/infra/task_driver/go/lib/os_steps"
@@ -59,6 +62,44 @@ func main() {
 	if err != nil {
 		td.Fatal(ctx, err)
 	}
+
+	// For Mac builds, ensure Xcode is downloaded/installed via mac_toolchain before we build.
+	if runtime.GOOS == "darwin" {
+		parentDir := filepath.Dir(checkoutPath)
+		macToolchainBin := filepath.Join(parentDir, "mac_toolchain", "mac_toolchain")
+		xcodeAppPath := filepath.Join(parentDir, "cache", "Xcode.app")
+
+		if _, err := os.Stat(macToolchainBin); err == nil {
+			err = td.Do(ctx, td.Props("Ensure Xcode via mac_toolchain"), func(ctx context.Context) error {
+				runCmd := &sk_exec.Command{
+					Name: macToolchainBin,
+					Args: []string{
+						"install",
+						"-kind", "ios",
+						"-xcode-version", "16a242d", // Xcode 16.0
+						"-output-dir", xcodeAppPath,
+					},
+					InheritEnv: true,
+					LogStdout:  true,
+					LogStderr:  true,
+				}
+				_, runErr := sk_exec.RunCommand(ctx, runCmd)
+				return runErr
+			})
+			if err != nil {
+				td.Fatal(ctx, err)
+			}
+		}
+
+		cachedXcodeDevDir := filepath.Join(xcodeAppPath, "Contents", "Developer")
+		if _, err := os.Stat(cachedXcodeDevDir); err == nil {
+			// We set DEVELOPER_DIR to the absolute path of the cached Xcode to bypass
+			// the global system-wide 'xcode-select' pointer. This is similar to
+			// 'sudo xcode-select -switch' but doesn't affect the global state.
+			os.Setenv("DEVELOPER_DIR", cachedXcodeDevDir)
+		}
+	}
+
 	var outputPath string
 	if *outPath != "" {
 		outputPath, err = os_steps.Abs(ctx, *outPath)
@@ -93,6 +134,9 @@ func main() {
 
 	// Perform the build.
 	args := append([]string{*bazelFlags.Label, fmt.Sprintf("--config=%s", *bazelFlags.Config)}, *bazelFlags.AdditionalArgs...)
+	if os.Getenv("DEVELOPER_DIR") != "" {
+		args = append(args, "--repo_env=DEVELOPER_DIR")
+	}
 	if _, err := bzl.Do(ctx, "build", args...); err != nil {
 		td.Fatal(ctx, err)
 	}

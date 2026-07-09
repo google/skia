@@ -470,7 +470,7 @@ func (b *TaskBuilder) goPlatform() (string, string) {
 	arch := "amd64"
 	if b.Role("Upload") {
 		arch = "amd64"
-	} else if b.MatchArch("Arm64") || b.MatchBazelHost("on_rpi") || b.MatchOs("Android", "ChromeOS", "iOS") {
+	} else if b.MatchArch("Arm64") || b.MatchBazelHost("on_rpi", "arm64") || b.MatchOs("Android", "ChromeOS", "iOS") {
 		// Tests on Android/ChromeOS/iOS are hosted on RPI.
 		// WARNING: This assumption is not necessarily true with Android devices
 		// hosted in other environments.

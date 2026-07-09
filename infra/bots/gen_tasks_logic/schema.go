@@ -269,7 +269,7 @@ func (p Parts) IsWindows() bool {
 
 // IsMac returns true if the task runs on Mac.
 func (p Parts) IsMac() bool {
-	return !p.Role("Upload") && (p.MatchOs("Mac") || p.MatchExtraConfig("Mac") || p.MatchBazelHost("darwin"))
+	return !p.Role("Upload") && (p.MatchOs("Mac") || p.MatchExtraConfig("Mac") || p.MatchBazelHost("darwin", "mac"))
 }
 
 // BazelBuildParts returns all parts from the BazelBuild schema. All parts are required.

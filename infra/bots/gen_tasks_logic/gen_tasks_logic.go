@@ -2195,6 +2195,7 @@ func (b *jobBuilder) bazelBuild() {
 			// We only run builds in GCE.
 			"linux_x64":   bazelCacheDirOnGCELinux,
 			"mac_arm64":   bazelCacheDirOnMac,
+			"mac_x64":     bazelCacheDirOnMac,
 			"windows_x64": bazelCacheDirOnWindows,
 		}[host]
 		if !ok {
@@ -2209,7 +2210,7 @@ func (b *jobBuilder) bazelBuild() {
 
 		cmd := []string{
 			"luci-auth", "context",
-			b.taskDriver("bazel_build", host != "windows_x64"),
+			b.taskDriver("bazel_build", false),
 			"--project_id=skia-swarming-bots",
 			"--task_id=" + specs.PLACEHOLDER_TASK_ID,
 			"--task_name=" + b.Name,
@@ -2239,6 +2240,14 @@ func (b *jobBuilder) bazelBuild() {
 		} else if host == "mac_arm64" {
 			b.usesBazel("mac_arm64")
 			b.dimension("cpu:arm64-64-Apple_M4", "pool:Skia")
+			b.usesXCode()
+		} else if host == "mac_x64" {
+			b.usesBazel("mac_x64")
+			b.dimension(
+				"cpu:x86-64-i9-8950HK",
+				"cipd_platform:mac-amd64",
+				"pool:Skia",
+			)
 			b.usesXCode()
 		} else {
 			panic("unsupported Bazel host " + host)
