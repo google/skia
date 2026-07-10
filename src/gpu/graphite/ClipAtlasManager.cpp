@@ -134,8 +134,7 @@ sk_sp<TextureProxy> ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
             fRecorder, maskKey, &context,
             [](const void* ctx) {
                 const ClipDrawContext* cdc = static_cast<const ClipDrawContext*>(ctx);
-                auto translate =
-                        -cdc->fMaskDeviceBounds.topLeft() + SkIVector{kEntryPadding, kEntryPadding};
+                auto translate = -cdc->fMaskDeviceBounds.topLeft();
                 auto [bm, helper] =
                         RasterMaskHelper::Allocate(cdc->fMaskDeviceBounds.size(),
                                                    translate,
