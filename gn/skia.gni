@@ -237,6 +237,24 @@ template("skia_target") {
     if (defined(invoker.configs)) {
       configs += invoker.configs
     }
+
+    # Inject partition_alloc's raw_ptr dependency to all Skia targets.
+    # This is necessary because raw_ptr/raw_ref/RAW_PTR_EXCLUSION are used in
+    # core headers, meaning many targets transitively include them.
+    # Since Skia GN does not strictly track dependencies (check_includes is
+    # disabled), we cannot rely on transitive public_deps to propagate the
+    # include paths.
+    # Additionally, we need to ensure correct build ordering because
+    # partition_alloc generates a buildflags.h header.
+    # Injecting this globally avoids having to manually add the dependency
+    # to dozens of targets that don't declare their dependencies properly.
+    # This global injection is an acceptable trade-off because Skia is
+    # planning to migrate to Bazel in the coming quarters, making GN maintenance
+    # temporary.
+    if (!defined(deps)) {
+      deps = []
+    }
+    deps += [ "//src/partition_alloc:raw_ptr" ]
   }
 }
 
