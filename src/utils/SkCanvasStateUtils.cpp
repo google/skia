@@ -6,7 +6,6 @@
  */
 
 #include "include/utils/SkCanvasStateUtils.h"
-#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
@@ -21,6 +20,7 @@
 #include "include/private/SkMalloc.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkWriter32.h"
+#include "src/partition_alloc/raw_ptr_exclusion.h"
 #include "src/utils/SkCanvasStack.h"
 
 #include <cstddef>
@@ -145,9 +145,12 @@ public:
     SkMCState mcState;
 
     int32_t layerCount;
-    SkCanvasLayerState* layers;
+    // RAW_PTR_EXCLUSION: Stable C ABI.
+    RAW_PTR_EXCLUSION SkCanvasLayerState* layers;
+
 private:
-    SkCanvas* originalCanvas;
+    // RAW_PTR_EXCLUSION: Stable C ABI.
+    RAW_PTR_EXCLUSION SkCanvas* originalCanvas;
     using INHERITED = SkCanvasState;
 };
 
