@@ -10,7 +10,6 @@
 #include "modules/skottie/include/Skottie.h"
 #include "tests/Test.h"
 
-#include <cmath>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -268,4 +267,56 @@ DEF_TEST(Skottie_Layer_NoType, r) {
 
     // passes if we don't crash
     REPORTER_ASSERT(r, anim);
+}
+
+DEF_TEST(Skottie_Gradient_InvalidCount, r) {
+    static constexpr char json[] = R"({
+      "v": "5.12.0",
+      "fr": 60,
+      "ip": 0,
+      "op": 1,
+      "w": 64,
+      "h": 64,
+      "layers": [
+        {
+          "ind": 1,
+          "ty": 4,
+          "sr": 1,
+          "ks": {},
+          "shapes": [
+            {
+              "ty": "rc",
+              "d": 1,
+              "p": { "a": 0, "k": [0, 0] },
+              "s": { "a": 0, "k": [32, 32] },
+              "r": { "a": 0, "k": 0 }
+            },
+            {
+              "ty": "gf",
+              "t": 1,
+              "r": 1,
+              "s": { "a": 0, "k": [-16, 0] },
+              "e": { "a": 0, "k": [16, 0] },
+              "o": { "a": 0, "k": 100 },
+              "g": {
+                "p": 1073741824,
+                "k": {
+                  "a": 0,
+                  "k": [0.0, 0.5]
+                }
+              }
+            }
+          ],
+          "ip": 0,
+          "op": 1,
+          "st": 0,
+          "bm": 0
+        }
+      ]
+    })";
+
+    SkMemoryStream stream(json, strlen(json));
+
+    // The test passes if we don't crash.
+    REPORTER_ASSERT(r, Animation::Make(&stream));
 }

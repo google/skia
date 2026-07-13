@@ -36,6 +36,11 @@ public:
         return result;
     }
 
+    size_t sub(size_t x, size_t y) {
+        fOK &= x >= y;
+        return x - y;
+    }
+
     int addInt(int a, int b) {
         int64_t result = static_cast<int64_t>(a) + static_cast<int64_t>(b);
         if (!SkTFitsIn<int>(result)) {

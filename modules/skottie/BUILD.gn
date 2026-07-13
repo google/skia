@@ -60,13 +60,13 @@ if (skia_enable_skottie) {
 
         configs = [ "../..:skia_private" ]
         sources = [
-          "src/SkottieTest.cpp",
           "tests/AudioLayer.cpp",
           "tests/Expression.cpp",
           "tests/Image.cpp",
           "tests/Keyframe.cpp",
           "tests/PropertyObserver.cpp",
           "tests/Shaper.cpp",
+          "tests/SkottieTest.cpp",
           "tests/Text.cpp",
         ]
 
