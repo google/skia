@@ -43,6 +43,12 @@ skia_filegroup(
     visibility = ["//src/codec:__pkg__"],
 )
 
+skia_filegroup(
+    name = "rust_bmp_public_hdrs",
+    srcs = ["SkBmpRustDecoder.h"],
+    visibility = ["//src/codec:__pkg__"],
+)
+
 GIF_PUBLIC_HDRS = ["SkGifDecoder.h"]
 
 skia_filegroup(

@@ -49,8 +49,7 @@ skia_cc_library(
     compatible_with = RUST_COMPATIBILITY,
     features = ["layering_check"],
     visibility = [
-        "//experimental/rust_bmp/decoder/impl:__pkg__",
-        "//experimental/rust_bmp/ffi:__pkg__",
+        "//rust/bmp:__pkg__",
         "//rust/icc:__pkg__",
         "//rust/png:__pkg__",
         "//src/codec:__pkg__",
@@ -67,7 +66,7 @@ rust_cxx_bridge(
     name = "cxx_bridge",
     src = ":rs_srcs",
     visibility = [
-        "//experimental/rust_bmp/ffi:__pkg__",
+        "//rust/bmp:__pkg__",
         "//rust/icc:__pkg__",
         "//rust/png:__pkg__",
     ],
@@ -83,7 +82,7 @@ rust_library(
         "--cfg=cxxbridge1",
     ],
     visibility = [
-        "//experimental/rust_bmp/ffi:__pkg__",
+        "//rust/bmp:__pkg__",
         "//rust/icc:__pkg__",
         "//rust/png:__pkg__",
     ],

@@ -127,8 +127,6 @@ skia_cc_library(
         "//include/private:decode_srcs",
     ] + ANY_DECODER_HDRS + PRIVATE_CODEC_HEADERS,
     visibility = [
-        "//experimental/rust_bmp/decoder:__pkg__",
-        "//experimental/rust_bmp/decoder/impl:__pkg__",
         "//modules/skottie:__pkg__",
         "//modules/skottie/src:__pkg__",
         "//modules/skresources:__pkg__",
@@ -199,6 +197,34 @@ skia_cc_library(
         "//modules/skcms",
         "//src/core",
         "//src/core:core_priv",
+    ],
+)
+
+skia_filegroup(
+    name = "rust_bmp_srcs",
+    srcs = [
+        "SkBmpRustCodec.cpp",
+        "SkBmpRustCodec.h",
+        "SkBmpRustDecoder.cpp",
+    ],
+)
+
+skia_cc_library(
+    name = "rust_bmp_decoder",
+    srcs = [":rust_bmp_srcs"],
+    hdrs = ["//include/codec:rust_bmp_public_hdrs"],
+    defines = ["SK_CODEC_DECODES_BMP_WITH_RUST"],
+    features = ["layering_check"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        ":codec_support_priv",
+        "//:core",
+        "//modules/skcms",
+        "//rust/bmp:cxx_bridge",
+        "//rust/bmp:ffi_rs",
+        "//rust/common:ffi_utils",
+        "//src/core:core_priv",
+        "@crates//:cxx_cc",
     ],
 )
 

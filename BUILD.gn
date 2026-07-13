@@ -1470,23 +1470,23 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
   }
 
   if (skia_use_rust_bmp_decode) {
-    _rust_targets += [ "//experimental/rust_bmp/ffi:ffi_rs" ]
+    _rust_targets += [ "//rust/bmp:ffi_rs" ]
     _rust_sources += [
-      "experimental/rust_bmp/ffi/BUILD.bazel",
-      "experimental/rust_bmp/ffi/FFI.rs",
+      "rust/bmp/BUILD.bazel",
+      "rust/bmp/FFI.rs",
     ]
     _rust_outputs += [
       "$root_out_dir/librust_bmp_ffi_rs.a",
-      "$root_out_dir/experimental/rust_bmp/ffi/FFI.rs.h",
-      "$root_out_dir/experimental/rust_bmp/ffi/FFI.rs.cc",
+      "$root_out_dir/rust/bmp/FFI.rs.h",
+      "$root_out_dir/rust/bmp/FFI.rs.cc",
     ]
     _rust_output_mappings += [
-      rebase_path("//bazel-bin/experimental/rust_bmp/ffi/libffi_rs.a",
-                  root_build_dir) + "=librust_bmp_ffi_rs.a",
-      rebase_path("//bazel-bin/experimental/rust_bmp/ffi/FFI.rs.h",
-                  root_build_dir) + "=experimental/rust_bmp/ffi/FFI.rs.h",
-      rebase_path("//bazel-bin/experimental/rust_bmp/ffi/FFI.rs.cc",
-                  root_build_dir) + "=experimental/rust_bmp/ffi/FFI.rs.cc",
+      rebase_path("//bazel-bin/rust/bmp/libffi_rs.a", root_build_dir) +
+          "=librust_bmp_ffi_rs.a",
+      rebase_path("//bazel-bin/rust/bmp/FFI.rs.h", root_build_dir) +
+          "=rust/bmp/FFI.rs.h",
+      rebase_path("//bazel-bin/rust/bmp/FFI.rs.cc", root_build_dir) +
+          "=rust/bmp/FFI.rs.cc",
     ]
   }
 
@@ -1692,7 +1692,8 @@ config("rust_common_cxx_bridge_public_config") {
 }
 
 optional("rust_common") {
-  enabled = skia_use_rust_png_decode || skia_use_rust_png_encode
+  enabled = skia_use_rust_png_decode || skia_use_rust_png_encode ||
+            skia_use_rust_bmp_decode
   public_defines = []
   if (skia_use_rust_png_for_android) {
     public_defines += [ "SK_CODEC_USES_PNG_WITH_RUST_FOR_ANDROID" ]
@@ -1780,17 +1781,14 @@ optional("png_encode_rust") {
 }
 
 if (skia_use_rust_bmp_decode) {
-  config("rust_bmp_cxx_bridge_public_config") {
-    include_dirs = [ "$root_out_dir" ]
-  }
   config("rust_bmp_cxx_bridge_private_config") {
     include_dirs = [ "." ]
   }
   skia_source_set("rust_bmp_cxx_bridge") {
     deps = [ ":rust_all_ffi_bazel_build" ]
-    public = [ "${root_out_dir}/experimental/rust_bmp/ffi/FFI.rs.h" ]
-    sources = [ "${root_out_dir}/experimental/rust_bmp/ffi/FFI.rs.cc" ]
-    public_configs = [ ":rust_bmp_cxx_bridge_public_config" ]
+    public = [ "${root_out_dir}/rust/bmp/FFI.rs.h" ]
+    sources = [ "${root_out_dir}/rust/bmp/FFI.rs.cc" ]
+    public_configs = [ ":rust_common_cxx_bridge_public_config" ]
     configs = [ ":rust_bmp_cxx_bridge_private_config" ]
   }
 }
@@ -1798,16 +1796,12 @@ if (skia_use_rust_bmp_decode) {
 optional("bmp_decode_rust") {
   public_defines = [ "SK_CODEC_DECODES_BMP_WITH_RUST" ]
   enabled = skia_use_rust_bmp_decode
-  public = [ "experimental/rust_bmp/decoder/SkBmpRustDecoder.h" ]
-  sources = [
-    "experimental/rust_bmp/decoder/SkBmpRustDecoder.cpp",
-    "experimental/rust_bmp/decoder/SkBmpRustDecoder.h",
-    "experimental/rust_bmp/decoder/impl/SkBmpRustCodec.cpp",
-    "experimental/rust_bmp/decoder/impl/SkBmpRustCodec.h",
-  ]
+  public = skia_codec_rust_bmp_public
+  sources = skia_codec_rust_bmp
   sources_for_tests = [ "tests/SkBmpRustDecoderTest.cpp" ]
   deps = [
     ":rust_bmp_cxx_bridge",
+    ":rust_common",
     ":rust_ffi_libs",
   ]
   libs = [ "c++" ]

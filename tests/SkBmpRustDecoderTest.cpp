@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "experimental/rust_bmp/decoder/SkBmpRustDecoder.h"
+#include "include/codec/SkBmpRustDecoder.h"
 
 #include <memory>
 #include <utility>

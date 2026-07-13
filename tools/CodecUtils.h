@@ -13,7 +13,7 @@
 #endif
 
 #if defined(SK_CODEC_DECODES_BMP_WITH_RUST)
-#include "experimental/rust_bmp/decoder/SkBmpRustDecoder.h"
+#include "include/codec/SkBmpRustDecoder.h"
 #elif defined(SK_CODEC_DECODES_BMP)
 #include "include/codec/SkBmpDecoder.h"
 #endif

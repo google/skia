@@ -9,7 +9,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
 
-#include "experimental/rust_bmp/decoder/SkBmpRustDecoder.h"
+#include "include/codec/SkBmpRustDecoder.h"
 
 bool FuzzBMPRustDecoder(const uint8_t* data, size_t size) {
     if (size == 0) {

@@ -124,6 +124,12 @@ alias(
 )
 
 alias(
+    name = "bmp_decode_rust",
+    actual = "//src/codec:rust_bmp_decoder",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "gif_decode_codec",
     actual = "//src/codec:gif_decode",
     visibility = ["//visibility:public"],
