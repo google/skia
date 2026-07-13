@@ -114,10 +114,11 @@ public:
 
     bool preferClientSideDynamicBuffers() const { return fPreferClientSideDynamicBuffers; }
 
-    // On tilers, an initial fullscreen clear is an OPTIMIZATION. It allows the hardware to
-    // initialize each tile with a constant value rather than loading each pixel from memory.
+    // The following 3 methods provide information that enables performance optimizations for tiler
+    // GPUs. Full clear operations (followed by discarding the content when finished) are more
+    // performant than load operations on these GPUs as they enable the hardware to initialize each
+    // tile with a constant value as opposed to loading each pixel from memory.
     bool preferFullscreenClears() const { return fPreferFullscreenClears; }
-
     // Should we discard stencil values after a render pass? (Tilers get better performance if we
     // always load stencil buffers with a "clear" op, and then discard the content when finished.)
     bool discardStencilValuesAfterRenderPass() const {
@@ -126,9 +127,14 @@ public:
 #if 0
         // This method is actually just a duplicate of preferFullscreenClears(), with a descriptive
         // name for the sake of readability.
-        return this->preferFullscreenClears();
+        return fDiscardStencilValuesAfterRenderPass;
 #endif
     }
+
+    // Returns whether clearing an attachment is faster than loading the attachment. This is useful
+    // when you know the values are already cleared so it doesn't matter if we load or clear at the
+    // start of a render pass.
+    bool clearsAreFasterThanLoads() const { return fClearsAreFasterThanLoads; }
 
     // D3D does not allow the refs or masks to differ on a two-sided stencil draw.
     bool twoSidedStencilRefsAndMasksMustMatch() const {
@@ -605,6 +611,8 @@ protected:
     bool fUsePrimitiveRestart                        : 1;
     bool fPreferClientSideDynamicBuffers             : 1;
     bool fPreferFullscreenClears                     : 1;
+    bool fDiscardStencilValuesAfterRenderPass        : 1;
+    bool fClearsAreFasterThanLoads                   : 1;
     bool fTwoSidedStencilRefsAndMasksMustMatch       : 1;
     bool fMustClearUploadedBufferData                : 1;
     bool fBuffersAreInitiallyZero                    : 1;
