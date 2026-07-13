@@ -122,6 +122,9 @@ private:
     skgpu::Mipmapped fMipmapped;
     // Track which area of the attachment has already been cleared to cut down on unnecessary clear
     // operations, which can be more expensive on desktop GPUs than loads.
+    // NOTE: stored in native (backend) coordinate space, NOT surface-origin space -- this
+    // attachment can be shared by render targets with different GrSurfaceOrigin (origin is not
+    // part of the shared-attachment UniqueKey).
     SkIRect fClearedArea = SkIRect::MakeEmpty();
     GrMemoryless fMemoryless;
 
