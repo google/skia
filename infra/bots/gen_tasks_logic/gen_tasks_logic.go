@@ -9,6 +9,7 @@ package gen_tasks_logic
 */
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -21,10 +22,15 @@ import (
 	"strings"
 	"time"
 
+	"go.skia.org/infra/go/auth"
 	"go.skia.org/infra/go/cas/rbe"
 	"go.skia.org/infra/go/cipd"
+	"go.skia.org/infra/go/httputils"
+	swarmingv2 "go.skia.org/infra/go/swarming/v2"
+	"go.skia.org/infra/task_scheduler/go/orphaned_tasks_machines"
 	"go.skia.org/infra/task_scheduler/go/specs"
 	"go.skia.org/skia/bazel/device_specific_configs"
+	"golang.org/x/oauth2/google"
 )
 
 const (
@@ -356,10 +362,7 @@ func In(s string, a []string) bool {
 	return false
 }
 
-// GenTasks regenerates the tasks.json file. Loads the job list from a jobs.json
-// file which is the sibling of the calling gen_tasks.go file. If cfg is nil, it
-// is similarly loaded from a cfg.json file which is the sibling of the calling
-// gen_tasks.go file.
+// FormatJobsJSON formats the jobs.json file for readability and consistency.
 func FormatJobsJSON(jobsFilePath string) []*JobInfo {
 	var jobsWithInfo []*JobInfo
 	LoadJSON(jobsFilePath, &jobsWithInfo)
@@ -391,6 +394,10 @@ func FormatJobsJSON(jobsFilePath string) []*JobInfo {
 	return jobsWithInfo
 }
 
+// GenTasks regenerates the tasks.json file. Loads the job list from a jobs.json
+// file which is the sibling of the calling gen_tasks.go file. If cfg is nil, it
+// is similarly loaded from a cfg.json file which is the sibling of the calling
+// gen_tasks.go file.
 func GenTasks(cfg *Config) {
 	b := specs.MustNewTasksCfgBuilder()
 
@@ -626,6 +633,9 @@ func GenTasks(cfg *Config) {
 	generateCompileCAS(b, cfg)
 
 	builder.MustFinish()
+
+	// Check that all tasks actually have machine(s) which can run them.
+	warnForOrphanedTasks(builder)
 }
 
 // getThisDirName returns the infra/bots directory which is an ancestor of this
@@ -2396,4 +2406,37 @@ func setPkgPaths(path string, pkgs ...*cipd.Package) []*cipd.Package {
 		pkg.Path = path
 	}
 	return pkgs
+}
+
+func warnForOrphanedTasks(b *builder) {
+	const swarmingServer = "chromium-swarm.appspot.com" // TODO(borent): Don't hard-code.
+
+	ctx := context.Background()
+	ts, err := google.DefaultTokenSource(ctx, auth.ScopeUserinfoEmail)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "WARNING: Failed to check that all tasks have associated machines: %s\n", err)
+		return
+	}
+	c := httputils.DefaultClientConfig().WithTokenSource(ts).Client()
+	swarm := swarmingv2.NewDefaultClient(c, swarmingServer)
+	report, err := orphaned_tasks_machines.GenerateReport(context.Background(), b.Config(), swarm)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "WARNING: Failed to check that all tasks have associated machines: %s\n", err)
+		return
+	}
+	if len(report.NoMatchingMachines) > 0 {
+		fmt.Fprintf(os.Stderr, "WARNING: The following tasks have no machines which can run them:\n")
+		for idx, group := range report.NoMatchingMachines {
+			fmt.Fprintf(os.Stderr, "%d:\n", idx)
+			fmt.Fprintf(os.Stderr, "  Dimensions:\n")
+			for _, dim := range group.Dimensions {
+				fmt.Fprintf(os.Stderr, "    - %s\n", dim)
+			}
+			fmt.Fprintf(os.Stderr, "  Tasks:\n")
+			for _, task := range group.Tasks {
+				fmt.Fprintf(os.Stderr, "    - %s\n", task)
+			}
+			fmt.Fprintf(os.Stderr, "\n")
+		}
+	}
 }
