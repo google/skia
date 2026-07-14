@@ -4152,7 +4152,6 @@ std::string WGSLCodeGenerator::variableReferenceNameForLValue(const VariableRefe
         for (const Field& f : globalStruct.fields()) {
             if (f.fName == v.name()) {
                 polyfillInfo = fFieldPolyfillMap.find(&f);
-                SkASSERT(polyfillInfo);
                 break;
             }
         }
