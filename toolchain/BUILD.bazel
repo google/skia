@@ -173,7 +173,6 @@ filegroup(name = "not_implemented")
 filegroup(
     name = "archive_linux_amd64_files",
     srcs = [
-        "linux_trampolines/ar_trampoline_linux.sh",
         "@clang_linux_amd64//:archive_files",
     ],
 )
@@ -181,7 +180,6 @@ filegroup(
 filegroup(
     name = "compile_linux_amd64_files",
     srcs = [
-        "linux_trampolines/clang_trampoline_linux.sh",
         "@clang_linux_amd64//:compile_files",
     ],
 )
@@ -189,8 +187,6 @@ filegroup(
 filegroup(
     name = "link_linux_amd64_files",
     srcs = [
-        # Bazel usually assumes it is talking to Clang when linking.
-        "linux_trampolines/clang_trampoline_linux.sh",
         "@clang_linux_amd64//:link_files",
     ],
 )
@@ -207,7 +203,6 @@ filegroup(
 filegroup(
     name = "archive_mac_files",
     srcs = [
-        "mac_trampolines/ar_trampoline_mac.sh",
         "@clang_mac//:archive_files",
     ],
 )
@@ -215,7 +210,6 @@ filegroup(
 filegroup(
     name = "compile_mac_files",
     srcs = [
-        "mac_trampolines/clang_trampoline_mac.sh",
         "@clang_mac//:compile_files",
     ],
 )
@@ -223,7 +217,6 @@ filegroup(
 filegroup(
     name = "link_mac_files",
     srcs = [
-        "mac_trampolines/clang_trampoline_mac.sh",
         "@clang_mac//:link_files",
     ],
 )

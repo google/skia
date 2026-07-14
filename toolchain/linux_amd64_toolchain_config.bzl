@@ -32,7 +32,7 @@ def _linux_amd64_toolchain_info(ctx):
     clang_repo_name = ctx.attr.clang_linux_amd64.label.repo_name
     external_toolchain = "external/" + clang_repo_name
 
-    action_configs = _make_action_configs()
+    action_configs = _make_action_configs(external_toolchain)
     features = []
     features += _make_default_flags(external_toolchain)
     features += make_layering_check_features()
@@ -69,59 +69,53 @@ provide_linux_amd64_toolchain_config = rule(
     implementation = _linux_amd64_toolchain_info,
 )
 
-def _make_action_configs():
+def _make_action_configs(external_toolchain):
     """
     This function sets up the tools needed to perform the various compile/link actions.
 
-    Bazel normally restricts us to referring to (and therefore running) executables/scripts
-    that are in this directory (That is EXEC_ROOT/toolchain). However, the executables we want
-    to run are brought in via WORKSPACE.bazel and are located in EXEC_ROOT/external/clang....
-    Therefore, we make use of "trampoline scripts" that will call the binaries from the
-    toolchain directory.
-
-    These action_configs also let us dynamically specify arguments from the Bazel
-    environment if necessary (see cpp_link_static_library_action).
+    Tools:
+    https://cs.opensource.google/bazel/bazel/+/master:tools/cpp/cc_toolchain_config_lib.bzl;l=435;drc=3b9e6f201a9a3465720aad8712ab7bcdeaf2e5da
+    Action Configs:
+    https://cs.opensource.google/bazel/bazel/+/master:tools/cpp/cc_toolchain_config_lib.bzl;l=488;drc=3b9e6f201a9a3465720aad8712ab7bcdeaf2e5da
     """
 
-    # https://cs.opensource.google/bazel/bazel/+/master:tools/cpp/cc_toolchain_config_lib.bzl;l=435;drc=3b9e6f201a9a3465720aad8712ab7bcdeaf2e5da
-    clang_tool = tool(path = "linux_trampolines/clang_trampoline_linux.sh")
-    ar_tool = tool(path = "linux_trampolines/ar_trampoline_linux.sh")
+    compile_tool = tool(path = "../" + external_toolchain + "/bin/clang")
+    archive_tool = tool(path = "../" + external_toolchain + "/bin/llvm-ar")
 
-    # https://cs.opensource.google/bazel/bazel/+/master:tools/cpp/cc_toolchain_config_lib.bzl;l=488;drc=3b9e6f201a9a3465720aad8712ab7bcdeaf2e5da
     assemble_action = action_config(
         action_name = ACTION_NAMES.assemble,
-        tools = [clang_tool],
+        tools = [compile_tool],
     )
     c_compile_action = action_config(
         action_name = ACTION_NAMES.c_compile,
-        tools = [clang_tool],
+        tools = [compile_tool],
     )
     cpp_compile_action = action_config(
         action_name = ACTION_NAMES.cpp_compile,
-        tools = [clang_tool],
+        tools = [compile_tool],
     )
     linkstamp_compile_action = action_config(
         action_name = ACTION_NAMES.linkstamp_compile,
-        tools = [clang_tool],
+        tools = [compile_tool],
     )
     preprocess_assemble_action = action_config(
         action_name = ACTION_NAMES.preprocess_assemble,
-        tools = [clang_tool],
+        tools = [compile_tool],
     )
 
     cpp_link_dynamic_library_action = action_config(
         action_name = ACTION_NAMES.cpp_link_dynamic_library,
-        tools = [clang_tool],
+        tools = [compile_tool],
     )
     cpp_link_executable_action = action_config(
         action_name = ACTION_NAMES.cpp_link_executable,
-        # Bazel assumes it is talking to clang when building an executable. There are
-        # "-Wl" flags on the command: https://releases.llvm.org/6.0.1/tools/clang/docs/ClangCommandLineReference.html#cmdoption-clang-Wl
-        tools = [clang_tool],
+        # Bazel assumes it is talking to a "compile driver" when building an executable.
+        # That compile driver will forward commands to the linker.
+        tools = [compile_tool],
     )
     cpp_link_nodeps_dynamic_library_action = action_config(
         action_name = ACTION_NAMES.cpp_link_nodeps_dynamic_library,
-        tools = [clang_tool],
+        tools = [compile_tool],
     )
 
     # This is the same rule as
@@ -181,7 +175,7 @@ def _make_action_configs():
                 ],
             ),
         ],
-        tools = [ar_tool],
+        tools = [archive_tool],
     )
 
     action_configs = [
@@ -282,9 +276,6 @@ def _make_default_flags(external_toolchain):
     cpp20_flags = flag_set(
         actions = [
             ACTION_NAMES.cpp_compile,
-            ACTION_NAMES.cpp_link_executable,
-            ACTION_NAMES.cpp_link_dynamic_library,
-            ACTION_NAMES.cpp_link_nodeps_dynamic_library,
         ],
         flag_groups = [
             flag_group(
