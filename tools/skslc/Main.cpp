@@ -692,6 +692,7 @@ static ResultCode process_command(SkSpan<std::string> args) {
             return SkSL::ToHLSL(program, shaderCaps, out, SkSL::ValidateSPIRVAndDissassemble);
         });
     } else if (skstd::ends_with(outputPath, ".wgsl")) {
+        settings.fForceNoRTFlip = true;
         return compileProgram([](SkSL::Compiler& compiler,
                                  const SkSL::ShaderCaps* shaderCaps,
                                  SkSL::Program& program,
