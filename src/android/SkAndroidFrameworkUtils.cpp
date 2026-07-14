@@ -31,11 +31,6 @@ void SkAndroidFrameworkUtils::SafetyNetLog(const char* bugNumber) {
 #endif
 }
 
-sk_sp<SkSurface> SkAndroidFrameworkUtils::getSurfaceFromCanvas(SkCanvas* canvas) {
-    sk_sp<SkSurface> surface(SkSafeRef(canvas->getSurfaceBase()));
-    return surface;
-}
-
 int SkAndroidFrameworkUtils::SaveBehind(SkCanvas* canvas, const SkRect* subset) {
     return canvas->only_axis_aligned_saveBehind(subset);
 }

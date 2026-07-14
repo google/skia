@@ -39,8 +39,6 @@ public:
 
     static void SafetyNetLog(const char*);
 
-    static sk_sp<SkSurface> getSurfaceFromCanvas(SkCanvas* canvas);
-
     static int SaveBehind(SkCanvas* canvas, const SkRect* subset);
 
     // Operating within the canvas' clip stack, this resets the geometry of the clip to be wide
