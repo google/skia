@@ -78,6 +78,13 @@ protected:
     bool onGetFixedPitch() const override {
         return SkTypeface::onGetFixedPitch();
     }
+
+    int onGetResourceName(SkString* resourceName) const override {
+        if (resourceName) {
+            *resourceName = fIdentity.fString;
+        }
+        return fIdentity.fString.size();
+    }
 private:
     sk_sp<SkFontConfigInterface> fFCI;
     SkFontConfigInterface::FontIdentity fIdentity;
