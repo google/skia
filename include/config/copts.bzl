@@ -156,6 +156,10 @@ WARNINGS = [
     "-Wno-unknown-warning-option",
     # Skia must be compiled with C++20 now.
     "-Wno-c++20-compat",
+    # Don't want lifetime analysis
+    "-Wno-lifetime-safety",
+    "-Wno-lifetime-safety-suggestions",
+    "-Wno-lifetime-safety-validations",
 ] + select({
     "@platforms//os:windows": [
         # skbug.com/40045281

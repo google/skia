@@ -313,6 +313,10 @@ download_clang_mac_toolchain(name = "clang_mac")
 download_ndk_linux_amd64_toolchain = use_extension("//toolchain:download_ndk_linux_amd64_toolchain.bzl", "download_ndk_linux_amd64_toolchain")
 use_repo(download_ndk_linux_amd64_toolchain, "ndk_linux_amd64")
 
+download_windows_amd64_toolchain = use_repo_rule("//toolchain:download_windows_amd64_toolchain.bzl", "download_windows_amd64_toolchain")
+
+download_windows_amd64_toolchain(name = "clang_windows_amd64")
+
 #toolchain_names = ["clang_windows_amd64", "clang_ios"],
 
 cipd_deps = use_extension("//bazel:cipd_deps.bzl", "cipd_deps")

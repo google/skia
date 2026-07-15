@@ -233,7 +233,6 @@ filegroup(
 filegroup(
     name = "archive_windows_files",
     srcs = [
-        "windows_trampolines/ar_trampoline_windows.bat",
         "@clang_windows_amd64//:archive_files",
     ],
 )
@@ -241,7 +240,6 @@ filegroup(
 filegroup(
     name = "compile_windows_files",
     srcs = [
-        "windows_trampolines/clang_trampoline_windows.bat",
         "@clang_windows_amd64//:compile_files",
     ],
 )
@@ -249,8 +247,6 @@ filegroup(
 filegroup(
     name = "link_windows_files",
     srcs = [
-        # Bazel usually assumes it is talking to Clang when linking.
-        "windows_trampolines/clang_trampoline_windows.bat",
         "@clang_windows_amd64//:link_files",
     ],
 )
