@@ -658,4 +658,20 @@ DEF_TEST(SkPDF_RasterizeAlphaGradientForPrinting_OpaqueUnchanged, reporter) {
     REPORTER_ASSERT(reporter, off->equals(on.get()));
 }
 
+DEF_TEST(SkPDF_GradientDegenerateStopsDoesNotCrash, reporter) {
+    REQUIRE_PDF_DOCUMENT(SkPDF_GradientDegenerateStopsDoesNotCrash, reporter);
+    const SkColor4f colors[] = {{0, 0, 0, 1}, {0, 0, 0, 1}};
+    const float pos[] = {1, 1};
+    sk_sp<SkShader> shader = SkShaders::SweepGradient({32, 32}, {{colors, pos, SkTileMode::kClamp}, {}});
+
+    SkDynamicMemoryWStream stream;
+    auto doc = SkPDF::MakeDocument(&stream, SkPDF::JPEG::MetadataWithCallbacks());
+    SkCanvas* canvas = doc->beginPage(64, 64);
+    SkPaint paint;
+    paint.setShader(shader);
+    canvas->drawRect(SkRect::MakeWH(64, 64), paint);
+    doc->endPage();
+    doc->close();
+}
+
 #endif

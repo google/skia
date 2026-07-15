@@ -313,8 +313,12 @@ static void gradient_function_code(const SkShaderBase::GradientInfo& info,
     }
 
     // If a cap on depth is needed, loop here.
-    write_gradient_ranges(info, SkSpan(rangeEnds.get(), rangeEndsCount),
-                          numComponents, true, true, result);
+    // All ranges might be optimized out (e.g. all degenerate or constant color), in which case
+    // the color writes below handle everything.
+    if (rangeEndsCount) {
+        write_gradient_ranges(info, SkSpan(rangeEnds.get(), rangeEndsCount),
+                              numComponents, true, true, result);
+    }
 
     // Clamp the final color.
     result->writeText("0 gt {");
