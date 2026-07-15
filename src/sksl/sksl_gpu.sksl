@@ -171,6 +171,11 @@ $pure half4 blend_darken(half4 src, half4 dst) {
 // most correct denominator check is to treat anything with `denom < x/F16_MAX` as division by 0.
 const half $kMinNormalHalf = 1.0 / (1 << 14);
 
+// Constant used when comparing floats for inequality for mobile GPUs. The difference of two floats
+// which should be zero can sometimes lead to values slightly above that leading to conditions
+// triggering when they shouldn't.
+const half $kHalfEpsilon = 1.0 / (1 << 12);
+
 const half $kGuardedDivideEpsilon = sk_Caps.mustGuardDivisionEvenAfterExplicitZeroCheck
                                         ? 0.00000001
                                         : 0.0;
@@ -314,9 +319,11 @@ $pure half $blend_color_saturation(half3 color) {
 $pure half3 $blend_set_color_saturation(half3 color, half3 satColor) {
     half mn = min(min(color.r, color.g), color.b);
     half mx = max(max(color.r, color.g), color.b);
-
-    return (mx > mn) ? ((color - mn) * $blend_color_saturation(satColor)) / (mx - mn)
-                     : half3(0);
+    half diff = mx - mn;
+    return (diff >= $kHalfEpsilon)
+                    ? $guarded_divide(((color - mn) * $blend_color_saturation(satColor)),
+                                      diff)
+                    : half3(0);
 }
 
 $pure half4 blend_hslc(half2 flipSat, half4 src, half4 dst) {
