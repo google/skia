@@ -78,11 +78,18 @@ public:
     // Creates a constant color PaintParams with the specific blend mode.
     PaintParams(const SkColor4f& color, SkBlendMode finalBlendMode);
 
+    // Creates a copy of this PaintParams with the specified primitive color and blender.
+    PaintParams makeWithPrimitiveColor(const SkBlender* primitiveBlender,
+                                       const SkColor4f& primitiveColorOverride) const;
+
     const SkColor4f& color() const { return fColor; }
     const SkShader* shader() const { return fShader; }
     const SimpleImage* imageShader() const { return fImageShader; }
     const SkColorFilter* colorFilter() const { return fColorFilter; }
     const SkBlender* primitiveBlender() const { return fPrimitiveBlender; }
+    const std::optional<SkColor4f>& primitiveColorOverride() const {
+        return fPrimitiveColorOverride;
+    }
     bool skipPrimitiveColorXform() const { return fSkipColorXform; }
 
     const SkBlender* finalBlender() const { return fFinalBlend.first; }
@@ -121,8 +128,13 @@ private:
     // In the case where there is primitive blending, the primitive color is the source color and
     // the dest is the paint's color (or the paint's shader's computed color).
     const SkBlender* fPrimitiveBlender;
-    bool             fSkipColorXform;
-    bool             fDither;
+    // When a fPrimitiveColorOverride is present, it is used instead of any defined primitive colors
+    // in the vertices for primitive color blending. This is done to enable primitive color blending
+    // for render steps which don't emit primitive colors.
+    std::optional<SkColor4f> fPrimitiveColorOverride;
+
+    bool fSkipColorXform;
+    bool fDither;
 };
 
 // ShadingParams wraps a PaintParams with the additional per-pixel state to handle clipping and

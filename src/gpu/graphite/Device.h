@@ -238,7 +238,7 @@ public:
     void drawImageLattice(const SkImage*, const SkCanvas::Lattice&,
                           const SkRect& dst, SkFilterMode, const SkPaint&) override;
     void drawAtlas(SkSpan<const SkRSXform>, SkSpan<const SkRect>, SkSpan<const SkColor>,
-                   sk_sp<SkBlender>, const SkPaint&) override {}
+                   sk_sp<SkBlender>, const SkPaint&) override;
 
     void drawDrawable(SkCanvas*, SkDrawable*, const SkMatrix*) override {}
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override {}

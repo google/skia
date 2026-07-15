@@ -169,6 +169,7 @@ PaintParams::PaintParams(const SkPaint& paint,
                       skipColorXform,
                       ignoreShader) {}
 
+
 PaintParams::PaintParams(const SkPaint& paint, const SimpleImage& imageOverride, float xtraAlpha)
         : PaintParams(paint,
                       &imageOverride,
@@ -201,6 +202,14 @@ PaintParams::PaintParams(const SkColor4f& color, SkBlendMode finalBlendMode)
         , fPrimitiveBlender(nullptr)
         , fSkipColorXform(false)
         , fDither(false) {}
+
+PaintParams PaintParams::makeWithPrimitiveColor(const SkBlender* primitiveBlender,
+                                                const SkColor4f& primitiveColorOverride) const {
+    PaintParams copy = *this;
+    copy.fPrimitiveBlender = primitiveBlender;
+    copy.fPrimitiveColorOverride = primitiveColorOverride;
+    return copy;
+}
 
 SkColor4f PaintParams::Color4fPrepForDst(SkColor4f srcColor, const SkColorInfo& dstColorInfo) {
     // xform from sRGB to the destination colorspace
@@ -293,8 +302,18 @@ bool ShadingParams::handlePrimitiveColor(const KeyContext& keyContext) const {
     const bool canSkipBlendStep = fPaint.skipPrimitiveColorXform() &&
                                   primBlend == SkBlendMode::kDst;
 
+    std::optional<SkPMColor4f> primColorOverride;
+    if (fPaint.primitiveColorOverride()) {
+        primColorOverride = PaintParams::Color4fPrepForDst(*fPaint.primitiveColorOverride(),
+                                                           keyContext.dstColorInfo()).premul();
+    }
+
     if (canSkipBlendStep) {
-        AddPrimitiveColor(keyContext, fPaint.skipPrimitiveColorXform());
+        if (primColorOverride) {
+            SolidColorShaderBlock::AddBlock(keyContext, *primColorOverride);
+        } else {
+            AddPrimitiveColor(keyContext, fPaint.skipPrimitiveColorXform());
+        }
         return false;
     }
 
@@ -307,7 +326,11 @@ bool ShadingParams::handlePrimitiveColor(const KeyContext& keyContext) const {
             srcIsOpaque = this->addPaintColorToKey(keyContext);
         },
         /* addDstToKey= */ [&] () -> void {
-            AddPrimitiveColor(keyContext, fPaint.skipPrimitiveColorXform());
+            if (primColorOverride) {
+                SolidColorShaderBlock::AddBlock(keyContext, *primColorOverride);
+            } else {
+                AddPrimitiveColor(keyContext, fPaint.skipPrimitiveColorXform());
+            }
         });
     if (primBlend.has_value() && srcIsOpaque) {
         // If the input paint/shader is opaque, the result is only opaque if the primitive blend
