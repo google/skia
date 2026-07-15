@@ -2,6 +2,12 @@
   "!note": "DO NOT MODIFY BY HAND. Instead, bazelisk run //bazel/deps_parser",
   "direct": [
     {
+      "build_file": "//bazel/external/d3d12allocator:BUILD.bazel",
+      "commit": "169895d529dfce00390a20e69c2f516066fe7a3b",
+      "name": "d3d12allocator",
+      "remote": "https://skia.googlesource.com/external/github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git"
+    },
+    {
       "build_file": "//bazel/external/dawn:BUILD.bazel",
       "commit": "a2d2de42f35032ebf522cb1418083e2581f506c6",
       "name": "dawn",

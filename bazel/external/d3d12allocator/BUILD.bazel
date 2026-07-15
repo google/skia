@@ -1,0 +1,20 @@
+# This file will be copied into //third_party/externals/d3d12allocator via Bzlmod,
+# so all files should be relative to that path.
+
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
+cc_library(
+    name = "d3d12allocator",
+    srcs = [
+        "src/D3D12MemAlloc.cpp",
+    ],
+    hdrs = [
+        "src/D3D12MemAlloc.h",
+    ],
+    copts = [
+        "-Wno-tautological-undefined-compare",
+        "-Wno-switch",
+    ],
+    includes = ["src"],
+    visibility = ["//visibility:public"],
+)

@@ -100,6 +100,7 @@ var depsOverrides = map[string]depConfig{
 	"vulkan-tools":             {bazelNameOverride: "vulkan_tools", needsBazelFile: true},
 	"vulkan-utility-libraries": {bazelNameOverride: "vulkan_utility_libraries", needsBazelFile: true},
 	"vulkanmemoryallocator":    {needsBazelFile: true},
+	"d3d12allocator":           {needsBazelFile: true},
 	"wuffs":                    {needsBazelFile: true},
 	"zlib":                     {needsBazelFile: true},
 }
