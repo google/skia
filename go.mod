@@ -12,7 +12,8 @@ require (
 	github.com/trietmn/go-wiki v1.0.1
 	github.com/vektra/mockery/v2 v2.52.2
 	go.chromium.org/luci v0.0.0-20251208084510-e9565e513ef0
-	go.skia.org/infra v0.0.0-20260713163832-c82d19b6bc66
+	go.skia.org/infra v0.0.0-20260714232619-9f5d866edce1
+	golang.org/x/oauth2 v0.30.0
 	google.golang.org/api v0.248.0
 	google.golang.org/protobuf v1.36.10
 )
@@ -140,7 +141,6 @@ require (
 	golang.org/x/exp/typeparams v0.0.0-20231108232855-2478ac86f678 // indirect
 	golang.org/x/mod v0.27.0 // indirect
 	golang.org/x/net v0.43.0 // indirect
-	golang.org/x/oauth2 v0.30.0 // indirect
 	golang.org/x/sync v0.16.0 // indirect
 	golang.org/x/sys v0.35.0 // indirect
 	golang.org/x/term v0.34.0 // indirect
