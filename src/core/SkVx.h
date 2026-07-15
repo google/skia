@@ -981,6 +981,70 @@ SINT T dot(const Vec<N, T>& a, const Vec<N, T>& b) {
     }
 }
 
+// Returns the sum of the values across the simd lanes, e.g. for 4xu32 lane0 + lane1 + lane2 + lane3
+//
+// reduce_add either calls a dedicated horizontal add instruction or falls back to a recursive
+// shuffle-reduce. Either case is expected to be faster than a scalar reduction. The latter builds a
+// "reduction-tree," a bottom-up binary tree where the child at each level sums with its sibling to
+// produce its parent; the root contains the total sum. The sum of the siblings at each level can be
+// computed in parallel (assuming there is sufficient SIMD width to provision it), so the height of
+// the tree (log2(n)) is also the critical path required to produce the sum. As opposed to a naive
+// scalar reduction (e.g., lane0 + lane1 + lane2 + lane3), which executes sequentially and has a
+// linear critical path of n - 1 additions, the reduction tree computes the final sum in logarithmic
+// time, with cycles saved proportional to the SIMD width, e.g. saved = n - (log2(n) + 1).
+//
+// For N = 8 (note, the x86/x64 uses a hybridized strategy, this shows the general case fallback):
+//
+// [ 0, 1, 2, 3 | 4, 5, 6, 7 ]   <- Step 1: x.lo + x.hi
+//   \  \  \  \ + /  /  /  /
+//    [ 0+4, 1+5, 2+6, 3+7 ]     <- Step 2: x.lo + x.hi
+//       \   \  +  /   /
+//         [ A , B ]             <- Step 3: x.lo + x.hi
+//           \ + /
+//          [ SUM ]              <- Result produced in log2(8) = 3 steps
+//
+// NOTE: reduce_add is currently only optimized for vec4 float. Add implementations/explicit
+// instructions for other types as needed.
+SIT  T reduce_add(const Vec<1,T>& x) { return x.val; }
+SINT T reduce_add(const Vec<N,T>& x) {
+#if SKVX_USE_SIMD && defined(__aarch64__)
+    if constexpr (N == 4 && std::is_same_v<T, float>) {
+        return vaddvq_f32(sk_bit_cast<float32x4_t>(x));
+    }
+#endif
+
+#if SKVX_USE_SIMD && SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_AVX
+    // Manually fold the upper 128 bits into the lower 128 bits, then pass it down to the N=4 SSE
+    // implementation.
+    if constexpr (N == 8 && std::is_same_v<T, float>) {
+        __m256 v = sk_bit_cast<__m256>(x);
+        __m128 lo = _mm256_castps256_ps128(v);
+        __m128 hi = _mm256_extractf128_ps(v, 1);
+        __m128 sums = _mm_add_ps(lo, hi);
+        return reduce_add(sk_bit_cast<Vec<4,float>>(sums));
+    }
+#endif
+
+#if SKVX_USE_SIMD && SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE1
+    // On SSE, _mm_hadd_ps emits microcode equivalent to a manual shuffle-reduce. However, relying
+    // on the microcode sequencer can bottleneck the CPU, especially if the architecture lacks a
+    // micro-op cache. Handwriting the shuffles avoids microcode ROM stalls and gives the compiler
+    // more freedom to optimize instruction scheduling.
+    // See: https://stackoverflow.com/questions/6996764/fastest-way-to-do-horizontal-sse-vector-sum-or-other-reduction
+    if constexpr (N == 4 && std::is_same_v<T, float>) {
+        __m128 v = sk_bit_cast<__m128>(x);
+        __m128 shuf = _mm_shuffle_ps(v, v, _MM_SHUFFLE(2, 3, 0, 1));
+        __m128 sums = _mm_add_ps(v, shuf);
+        shuf = _mm_movehl_ps(sums, sums);
+        sums = _mm_add_ps(sums, shuf);
+        return _mm_cvtss_f32(sums);
+    }
+#endif
+
+    // Else, recursively shuffle-reduce
+    return reduce_add(x.lo + x.hi);
+}
+
 SIT T cross(const Vec<2, T>& a, const Vec<2, T>& b) {
     auto x = a * shuffle<1,0>(b);
     return x[0] - x[1];
