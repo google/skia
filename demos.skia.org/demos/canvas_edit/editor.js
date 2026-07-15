@@ -376,17 +376,23 @@ export class CanvasPathEditor {
     if (clusters.length > 0) {
       for (let i = 0; i < clusters.length; i++) {
         const cluster = clusters[i];
-        const pt = this.path.getPointAtLength(cluster.x, this.textAlign, metrics.width || 0);
+        const nextX = i + 1 < clusters.length ? clusters[i + 1].x
+                    : (cluster.width ? cluster.x + cluster.width
+                    : (metrics.width || 0));
+        const clusterWidth = nextX - cluster.x;
+        const centerS = cluster.x + clusterWidth * 0.5;
+        const pt = this.path.getPointAtLength(centerS, this.textAlign, metrics.width || 0);
 
         ctx.save();
         ctx.translate(pt.x, pt.y);
         ctx.rotate(pt.angle);
 
         if (this.hasFillTextCluster(ctx)) {
-          ctx.fillTextCluster(cluster, -cluster.x, -cluster.y);
+          ctx.fillTextCluster(cluster, -centerS, -cluster.y);
         } else {
           // Fallback rendering
-          ctx.fillText(cluster.text || this.text.slice(cluster.start, cluster.end), 0, 0);
+          ctx.fillText(cluster.text || this.text.slice(cluster.start, cluster.end),
+                       -clusterWidth * 0.5, 0);
         }
         ctx.restore();
       }
