@@ -60,6 +60,7 @@ tests_sources = [
   "$_tests/DequeTest.cpp",
   "$_tests/DescriptorTest.cpp",
   "$_tests/DeviceTest.cpp",
+  "$_tests/DirectMaskLimitTest.cpp",
   "$_tests/DiscardableMemoryPoolTest.cpp",
   "$_tests/DiscardableMemoryTest.cpp",
   "$_tests/DrawBitmapRectTest.cpp",

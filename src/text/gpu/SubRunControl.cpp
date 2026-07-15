@@ -44,27 +44,32 @@ SkScalar SubRunControl::MinSDFTRange(bool useSDFTForSmallText, SkScalar min) {
 SubRunControl::SubRunControl(
         bool ableToUseSDFT, bool useSDFTForSmallText, bool useSDFTForPerspectiveText,
         SkScalar min, SkScalar max,
-        bool forcePathAA)
+        bool forcePathAA,
+        bool useBilerp)
         : fMinDistanceFieldFontSize{MinSDFTRange(useSDFTForSmallText, min)}
         , fMaxDistanceFieldFontSize{max}
         , fAbleToUseSDFT{ableToUseSDFT}
         , fAbleToUsePerspectiveSDFT{useSDFTForPerspectiveText}
-        , fForcePathAA{forcePathAA} {
+        , fForcePathAA{forcePathAA}
+        , fUseBilerp{useBilerp} {
     SkASSERT_RELEASE(0 < min && min <= max);
 }
 #endif // !defined(SK_DISABLE_SDF_TEXT)
 
 bool SubRunControl::isDirect(SkScalar approximateDeviceTextSize, const SkPaint& paint,
-                           const SkMatrix& matrix) const {
+                             const SkMatrix& matrix) const {
 #if !defined(SK_DISABLE_SDF_TEXT)
     const bool isSDFT = this->isSDFT(approximateDeviceTextSize, paint, matrix);
 #else
     const bool isSDFT = false;
 #endif
+    const SkScalar maxAtlasDimension = fUseBilerp
+            ? SkGlyphDigest::kSkSideTooBigForAtlas - 2
+            : SkGlyphDigest::kSkSideTooBigForAtlas;
     return !isSDFT &&
            !matrix.hasPerspective() &&
             0 < approximateDeviceTextSize &&
-            approximateDeviceTextSize < SkGlyphDigest::kSkSideTooBigForAtlas;
+            approximateDeviceTextSize < maxAtlasDimension;
 }
 
 #if !defined(SK_DISABLE_SDF_TEXT)

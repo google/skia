@@ -1192,7 +1192,8 @@ prepare_for_direct_mask_drawing(StrikeForGPU* strike,
                                 const SkMatrix& positionMatrix,
                                 SkZip<const SkGlyphID, const SkPoint> source,
                                 SkZip<SkPackedGlyphID, SkPoint, SkMask::Format> acceptedBuffer,
-                                SkZip<SkGlyphID, SkPoint> rejectedBuffer) {
+                                SkZip<SkGlyphID, SkPoint> rejectedBuffer,
+                                skglyph::ActionType actionType) {
     const SkIPoint mask = strike->roundingSpec().ignorePositionFieldMask;
     const SkPoint halfSampleFreq = strike->roundingSpec().halfAxisSampleFreq;
 
@@ -1212,8 +1213,8 @@ prepare_for_direct_mask_drawing(StrikeForGPU* strike,
 
         const SkPoint mappedPos = positionMatrixWithRounding.mapPoint(pos);
         const SkPackedGlyphID packedID{glyphID, mappedPos, mask};
-        switch (const SkGlyphDigest digest = strike->digestFor(skglyph::kDirectMask, packedID);
-                digest.actionFor(skglyph::kDirectMask)) {
+        switch (const SkGlyphDigest digest = strike->digestFor(actionType, packedID);
+                digest.actionFor(actionType)) {
             case GlyphAction::kAccept: {
                 const SkPoint roundedPos{SkScalarFloorToScalar(mappedPos.x()),
                                          SkScalarFloorToScalar(mappedPos.y())};
@@ -1503,8 +1504,20 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                 auto acceptedBuffer = SkMakeZip(acceptedPackedGlyphIDs,
                                                 acceptedPositions,
                                                 acceptedFormats);
+                // Bilerp sampling requires 1px atlas padding so interpolation doesn't bleed into
+                // adjacent glyphs. kMask calls fitsInAtlasInterpolated() (SkGlyph.cpp:662), which
+                // enforces max size 254px to provide this padding.
+                //
+                // Passing kMask is safe here because prepare_for_direct_mask_drawing uses
+                // subpixel-positioned SkPackedGlyphIDs (SubRunContainer.cpp:1215), whereas
+                // prepare_for_mask_drawing uses unpositioned SkPackedGlyphIDs
+                // (SubRunContainer.cpp:1259), ensuring independent strike cache digest entries.
+                const skglyph::ActionType actionType = subRunControl->useBilerp()
+                        ? skglyph::kMask
+                        : skglyph::kDirectMask;
                 auto [accepted, rejected, creationBounds] = prepare_for_direct_mask_drawing(
-                        strike.get(), positionMatrix, source, acceptedBuffer, rejectedBuffer);
+                        strike.get(), positionMatrix, source, acceptedBuffer, rejectedBuffer,
+                        actionType);
                 source = rejected;
 
                 if (creationBehavior == kAddSubRuns && !accepted.empty()) {
@@ -1633,10 +1646,10 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                  kMaxBilerpAtlasDimension < maxDimension;
                  maxDimension = maxGlyphDimension(creationMatrix))
             {
-                // The SkScalerContext has a limit of 65536 maximum dimension.
-                // reductionFactor will always be < 1 because
-                // maxDimension > kMaxBilerpAtlasDimension, and because maxDimension will always
-                // be an integer the reduction factor will always be at most 254 / 255.
+                // The SkScalerContext has a limit of 65536 maximum dimension. reductionFactor will
+                // always be < 1 because maxDimension > kMaxBilerpAtlasDimension, and because
+                // maxDimension will always be an integer the reduction factor will always be at
+                // most 254 / 255.
                 SkScalar reductionFactor = kMaxBilerpAtlasDimension / maxDimension;
                 creationMatrix.postScale(reductionFactor, reductionFactor);
             }

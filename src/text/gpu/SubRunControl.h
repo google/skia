@@ -43,7 +43,8 @@ public:
 #if !defined(SK_DISABLE_SDF_TEXT)
     SubRunControl(bool ableToUseSDFT, bool useSDFTForSmallText, bool useSDFTForPerspectiveText,
                   SkScalar min, SkScalar max,
-                  bool forcePathAA=false);
+                  bool forcePathAA = false,
+                  bool useBilerp = false);
 
     // Produce a font, a scale factor from the nominal size to the source space size, and matrix
     // range where this font can be reused.
@@ -54,12 +55,15 @@ public:
                 const SkMatrix& matrix) const;
     SkScalar maxSize() const { return fMaxDistanceFieldFontSize; }
 #else
-    explicit SubRunControl(bool forcePathAA = false) : fForcePathAA(forcePathAA) {}
+    explicit SubRunControl(bool forcePathAA = false, bool useBilerp = false)
+            : fForcePathAA(forcePathAA)
+            , fUseBilerp(useBilerp) {}
 #endif
     bool isDirect(SkScalar approximateDeviceTextSize, const SkPaint& paint,
                   const SkMatrix& matrix) const;
 
     bool forcePathAA() const { return fForcePathAA; }
+    bool useBilerp() const { return fUseBilerp; }
 
 private:
 #if !defined(SK_DISABLE_SDF_TEXT)
@@ -78,6 +82,7 @@ private:
 
     // If true, glyphs drawn as paths are always anti-aliased regardless of any edge hinting.
     const bool fForcePathAA;
+    const bool fUseBilerp;
 };
 
 }  // namespace sktext::gpu

@@ -85,9 +85,12 @@ sktext::gpu::SubRunControl GrRecordingContextPriv::getSubRunControl(
             useSDFTForSmallText,
             !this->caps()->disablePerspectiveSDFText(),
             this->options().fMinDistanceFieldFontSize,
-            this->options().fGlyphsAsPathsFontSize};
+            this->options().fGlyphsAsPathsFontSize,
+            /*forcePathAA=*/false,
+            this->options().fSupportBilerpFromGlyphAtlas};
 #else
-    return sktext::gpu::SubRunControl{};
+    return sktext::gpu::SubRunControl{/*forcePathAA=*/false,
+                                      this->options().fSupportBilerpFromGlyphAtlas};
 #endif
 }
 
