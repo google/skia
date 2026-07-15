@@ -26,6 +26,8 @@ load(
     "COMMON_APPLE_SRCS",
     "COMMON_PRIV_HDRS",
     "COMMON_SRCS",
+    "COMMON_WIN32_PRIV_HDRS",
+    "COMMON_WIN32_SRCS",
     "DAWNCPP_HEADERS_GEN_PRIV_HDRS",
     "DAWNCPP_HEADERS_WEBGPU_HDRS",
     "DAWNPROC_GEN_SRCS",
@@ -33,7 +35,10 @@ load(
     "GPU_INFO_AUTOGEN_SRCS",
     "HEADERS_GEN_PRIV_HDRS",
     "HEADERS_WEBGPU_HDRS",
+    "NATIVE_D3D_SRCS",
+    "NATIVE_OBJECTS_D3D_HDRS",
     "NATIVE_OBJECTS_D3D_PRIV_HDRS",
+    "NATIVE_OBJECTS_D3D_SRCS",
     "NATIVE_OBJECTS_HDRS",
     "NATIVE_OBJECTS_METAL_PRIV_HDRS",
     "NATIVE_OBJECTS_METAL_SRCS",
@@ -41,6 +46,8 @@ load(
     "NATIVE_OBJECTS_OPENGL_SRCS",
     "NATIVE_OBJECTS_PRIV_HDRS",
     "NATIVE_OBJECTS_SRCS",
+    "NATIVE_OBJECTS_UNIX_PRIV_HDRS",
+    "NATIVE_OBJECTS_UNIX_SRCS",
     "NATIVE_OBJECTS_USE_X11_PRIV_HDRS",
     "NATIVE_OBJECTS_USE_X11_SRCS",
     "NATIVE_OBJECTS_VULKAN_PRIV_HDRS",
@@ -58,6 +65,7 @@ load(
     "SYSTEM_UTILS_PRIV_HDRS",
     "SYSTEM_UTILS_SRCS",
     "SYSTEM_UTILS_UNIX_SRCS",
+    "SYSTEM_UTILS_WIN32_SRCS",
     "WIRE_GEN_PRIV_HDRS",
     "WIRE_GEN_SRCS",
     "WIRE_HDRS",
@@ -292,6 +300,15 @@ DAWN_METAL_DEFINES = [
     "DAWN_ENABLE_BACKEND_METAL",
 ]
 
+DAWN_WINDOWS_DEFINES = [
+    "DAWN_ENABLE_BACKEND_D3D12",
+    "DAWN_ENABLE_BACKEND_D3D11",
+    "DAWN_ENABLE_BACKEND_VULKAN",
+    "TINT_BUILD_HLSL_WRITER=1",
+    "TINT_BUILD_SPV_READER=1",
+    "TINT_BUILD_SPV_WRITER=1",
+]
+
 DAWN_COPTS = [
     "-Wno-assume",  # Silence some warnings when building w/o asserts
 ]
@@ -340,6 +357,17 @@ cc_library(
 )
 
 cc_library(
+    name = "dawn_common_win",
+    srcs = COMMON_WIN32_SRCS,
+    hdrs = COMMON_WIN32_PRIV_HDRS,
+    copts = DAWN_COPTS,
+    defines = DAWN_DEBUG_DEFINES,
+    deps = [
+        ":dawn_common_headers",
+    ],
+)
+
+cc_library(
     name = "dawn_common",
     srcs = COMMON_SRCS + GPU_INFO_AUTOGEN_SRCS,
     copts = DAWN_COPTS,
@@ -347,6 +375,7 @@ cc_library(
     deps = [
         ":dawn_common_headers",
     ] + select({
+        "@platforms//os:windows": [":dawn_common_win"],
         "@platforms//os:macos": [":dawn_common_objc"],
         "@platforms//os:ios": [":dawn_common_objc"],
         "//conditions:default": [],
@@ -400,7 +429,7 @@ cc_library(
                "@platforms//os:linux": SYSTEM_UTILS_UNIX_SRCS,
                "@platforms//os:ios": SYSTEM_UTILS_UNIX_SRCS,
                "@platforms//os:macos": SYSTEM_UTILS_UNIX_SRCS,
-               "@platforms//os:windows": [],
+               "@platforms//os:windows": SYSTEM_UTILS_WIN32_SRCS,
                "//conditions:default": [],
            }),
     hdrs = [],
@@ -446,9 +475,12 @@ cc_library(
            TINT_PUBLIC_HDRS + select({
         "@platforms//os:linux": NATIVE_OBJECTS_OPENGL_PRIV_HDRS +
                                 NATIVE_OBJECTS_VULKAN_PRIV_HDRS +
-                                NATIVE_OBJECTS_USE_X11_PRIV_HDRS,
+                                NATIVE_OBJECTS_USE_X11_PRIV_HDRS +
+                                NATIVE_OBJECTS_UNIX_PRIV_HDRS,
         "@platforms//os:android": [],  # TODO(kjlubick)
-        "@platforms//os:windows": NATIVE_OBJECTS_D3D_PRIV_HDRS,
+        "@platforms//os:windows": NATIVE_OBJECTS_D3D_HDRS +
+                                  NATIVE_OBJECTS_D3D_PRIV_HDRS +
+                                  NATIVE_OBJECTS_VULKAN_PRIV_HDRS,
         "//conditions:default": [],
     }),
     includes = [
@@ -467,11 +499,14 @@ cc_library(
         "@platforms//os:linux": NATIVE_OBJECTS_USE_X11_SRCS +
                                 NATIVE_OBJECTS_OPENGL_SRCS +
                                 NATIVE_OBJECTS_VULKAN_SRCS +
+                                NATIVE_OBJECTS_UNIX_SRCS +
                                 NATIVE_OPENGL_AUTOGEN_SRCS,
         "@platforms//os:android": [],  # TODO(kjlubick)
         "@platforms//os:macos": [],  # See dawn_native_objc
         "@platforms//os:ios": [],  # See dawn_native_objc
-        "@platforms//os:windows": [],  # TODO(kjlubick)
+        "@platforms//os:windows": NATIVE_D3D_SRCS +
+                                  NATIVE_OBJECTS_D3D_SRCS +
+                                  NATIVE_OBJECTS_VULKAN_SRCS,
     }),
     hdrs = [],
     copts = DAWN_COPTS,
@@ -480,7 +515,14 @@ cc_library(
         "@platforms//os:android": [],  # TODO(kjlubick)
         "@platforms//os:macos": DAWN_METAL_DEFINES,
         "@platforms//os:ios": DAWN_METAL_DEFINES,
-        "@platforms//os:windows": [],  # TODO(kjlubick)
+        "@platforms//os:windows": DAWN_WINDOWS_DEFINES,
+    }),
+    linkopts = select({
+        "@platforms//os:windows": [
+            "dxguid.lib",
+            "onecore.lib",
+        ],
+        "//conditions:default": [],
     }),
     deps = [
         ":dawn_common",

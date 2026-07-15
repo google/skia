@@ -73,7 +73,7 @@ class CMakeParser:
             "include/dawn/webgpu.h"                           -> "include/dawn/webgpu.h"
             "generator/dawn_json_generator.py"                -> "generator/dawn_json_generator.py"
         """
-        path = self.expand_string(path)
+        path = self.expand_string(path).replace("\\", "/")
         # Handle generator and other paths starting with variables or specific directories
         if path.startswith("${Dawn_SOURCE_DIR}/"):
             path = path[len("${Dawn_SOURCE_DIR}/"):]
@@ -93,7 +93,7 @@ class CMakeParser:
 
         if not path.startswith("include/") and not path.startswith("src/") and not path.startswith("generator/"):
             path = os.path.join(self.rel_path, path)
-        return os.path.normpath(path)
+        return os.path.normpath(path).replace("\\", "/")
 
     def _find_closing_paren(self, content, start_pos):
         """Finds the index of the matching closing parenthesis, handling nested ones."""
@@ -381,7 +381,10 @@ class CMakeParser:
         # 1. Android Specifics (including Android Vulkan/OpenGL files)
         if any(kw in lower_path for kw in ["android", "ahb", "ahardwarebuffer"]):
             backend_suffix = "_ANDROID"
-        # 2. Core Backends (Vulkan / OpenGL / Metal / D3D / Null / WebGPU)
+        # 2. Unix / POSIX specific Vulkan/System files (FD, DmaBuf, OpaqueFD, Zircon)
+        elif any(kw in lower_path for kw in ["dmabuf", "opaque_fd", "zircon"]) or lower_path.endswith("fd.cpp") or lower_path.endswith("fd.h"):
+            backend_suffix = "_UNIX"
+        # 3. Core Backends (Vulkan / OpenGL / Metal / D3D / Null / WebGPU)
         elif "/vulkan/" in cleaned:
             backend_suffix = "_VULKAN"
         elif "/metal/" in cleaned or "_metal" in lower_path:

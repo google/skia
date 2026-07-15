@@ -32,6 +32,9 @@ cc_library(
     hdrs = [
         "spirv_hlsl.hpp",
     ],
+    copts = [
+        "-Wno-deprecated-this-capture",
+    ],
     defines = ["SPIRV_CROSS_EXCEPTIONS_TO_ASSERTIONS"],
     includes = [
         # This allows #include <spirv_hlsl.hpp> to work
