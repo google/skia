@@ -19,6 +19,10 @@ wgpu::BackendType ToDawnBackendType(sk_app::Window::BackendType backendType) {
             return wgpu::BackendType::D3D11;
         case sk_app::Window::BackendType::kGraphiteDawnD3D12:
             return wgpu::BackendType::D3D12;
+        case sk_app::Window::BackendType::kGraphiteDawnVulkan:
+            return wgpu::BackendType::Vulkan;
+        case sk_app::Window::BackendType::kGraphiteDawnOpenGLES:
+            return wgpu::BackendType::OpenGLES;
         default:
             SkASSERT(false);
             return wgpu::BackendType::D3D12;

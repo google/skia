@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "skia_cc_library_with_testutil", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -20,6 +20,7 @@ D3D_FILES = [
     "GrD3DCaps.h",
     "GrD3DCommandList.cpp",
     "GrD3DBackendSurface.cpp",
+    "GrD3DBackendSurfacePriv.h",
     "GrD3DCommandList.h",
     "GrD3DCommandSignature.cpp",
     "GrD3DCommandSignature.h",
@@ -66,4 +67,35 @@ D3D_FILES = [
 split_srcs_and_hdrs(
     name = "d3d",
     files = D3D_FILES,
+)
+
+skia_cc_library_with_testutil(
+    name = "ganesh_d3d",
+    srcs = [
+        ":d3d_hdrs",
+        ":d3d_srcs",
+        "//include/private/gpu/ganesh:d3d_private_hdrs",
+    ],
+    hdrs = [
+        "//include/gpu:shared_gpu_hdrs",
+        "//include/gpu/ganesh:ganesh_hdrs",
+        "//include/gpu/ganesh/d3d:public_hdrs",
+    ],
+    defines = ["SK_DIRECT3D"],
+    features = ["layering_check"],
+    linkopts = [
+        "d3d12.lib",
+        "dxgi.lib",
+        "d3dcompiler.lib",
+    ],
+    priv_visibility = ["//tools:__subpackages__"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "//src/core:core_priv",
+        "//src/gpu",
+        "//src/gpu/ganesh",
+        "//src/sksl/codegen:hlsl",
+        "@d3d12allocator",
+    ],
 )

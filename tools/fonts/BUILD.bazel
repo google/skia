@@ -94,6 +94,9 @@ skia_cc_library(
             "//:fontmgr_coretext",
             "//:typeface_coretext",
         ],
+        "@platforms//os:windows": [
+            "//:fontmgr_win_dw",
+        ],
         "//conditions:default": ["//src/ports:fontmgr_fontations_empty"],
     }),
 )

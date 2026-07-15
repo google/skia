@@ -39,7 +39,6 @@ private:
 
     GrColorFormatDesc desc() const override { return GrDxgiFormatDesc(fFormat); }
 
-#if defined(GPU_TEST_UTILS)
     bool equal(const GrBackendFormatData* that) const override {
         SkASSERT(!that || that->type() == GrBackendApi::kDirect3D);
         if (auto otherD3D = static_cast<const GrD3DBackendFormatData*>(that)) {
@@ -47,7 +46,6 @@ private:
         }
         return false;
     }
-#endif
 
     std::string toString() const override {
 #if defined(SK_DEBUG) || defined(GPU_TEST_UTILS)
@@ -114,15 +112,15 @@ private:
 
     bool isProtected() const override { return false; }
 
+#if defined(GPU_TEST_UTILS)
     bool equal(const GrBackendTextureData* that) const override {
         SkASSERT(!that || that->type() == GrBackendApi::kDirect3D);
-#if defined(GPU_TEST_UTILS)
         if (auto otherD3D = static_cast<const GrD3DBackendTextureData*>(that)) {
             return fInfo == otherD3D->fInfo;
         }
-#endif
         return false;
     }
+#endif
 
     bool isSameTexture(const GrBackendTextureData* that) const override {
         SkASSERT(!that || that->type() == GrBackendApi::kDirect3D);

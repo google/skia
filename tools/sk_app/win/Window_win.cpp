@@ -365,6 +365,8 @@ bool Window_win::attach(BackendType attachType) {
 #if defined(SK_GRAPHITE)
         case BackendType::kGraphiteDawnD3D11:
         case BackendType::kGraphiteDawnD3D12:
+        case BackendType::kGraphiteDawnVulkan:
+        case BackendType::kGraphiteDawnOpenGLES:
             fWindowContext = skwindow::MakeGraphiteDawnForWin(
                     fHWnd, fRequestedDisplayParams->clone(), attachType);
             break;
@@ -390,7 +392,7 @@ bool Window_win::attach(BackendType attachType) {
             break;
 #endif
         default:
-            SK_ABORT("Unknown backend");
+            SkASSERTF_RELEASE(false, "Unknown backend %d", static_cast<int>(attachType));
     }
     this->onBackendCreated();
 

@@ -97,6 +97,7 @@ skia_cc_library_with_testutil(
         "//modules/skottie:__pkg__",
         "//src/gpu/ganesh/gl/glx:__pkg__",
         "//src/gpu/ganesh/gl/mac:__pkg__",
+        "//src/gpu/ganesh/gl/win:__pkg__",
         "//tools:__subpackages__",
     ],
     visibility = ["//:__pkg__"],

@@ -233,6 +233,55 @@ skia_filegroup(
     ],
 )
 
+skia_filegroup(
+    name = "public_win_hdrs",
+    srcs = [
+        "win/WindowContextFactory_win.h",
+    ],
+)
+
+skia_filegroup(
+    name = "common_win_srcs",
+    srcs = [
+        "win/RasterWindowContext_win.cpp",
+    ],
+)
+
+skia_filegroup(
+    name = "win_ganesh_gl_srcs",
+    srcs = [
+        "win/GLWindowContext_win.cpp",
+    ],
+)
+
+skia_filegroup(
+    name = "win_ganesh_vulkan_srcs",
+    srcs = [
+        "win/VulkanWindowContext_win.cpp",
+    ],
+)
+
+skia_filegroup(
+    name = "win_graphite_vulkan_srcs",
+    srcs = [
+        "win/GraphiteVulkanWindowContext_win.cpp",
+    ],
+)
+
+skia_filegroup(
+    name = "win_graphite_dawn_srcs",
+    srcs = [
+        "win/GraphiteDawnWindowContext_win.cpp",
+    ],
+)
+
+skia_filegroup(
+    name = "win_ganesh_d3d_srcs",
+    srcs = [
+        "win/D3D12WindowContext_win.cpp",
+    ],
+)
+
 skia_cc_library(
     name = "window",
     testonly = True,
@@ -240,7 +289,66 @@ skia_cc_library(
     deps = select({
         "@platforms//os:linux": [":window_linux"],
         "@platforms//os:macos": [":window_mac"],
+        "@platforms//os:windows": [":window_win"],
     }),
+)
+
+skia_cc_library(
+    name = "window_win",
+    testonly = True,
+    srcs = [
+        ":common_ganesh_gl_srcs",
+        ":common_graphite_dawn_srcs",
+        ":common_graphite_vulkan_srcs",
+        ":common_srcs",
+        ":common_vulkan_srcs",
+        ":common_win_srcs",
+        ":win_ganesh_d3d_srcs",
+        ":win_ganesh_gl_srcs",
+        ":win_ganesh_vulkan_srcs",
+        ":win_graphite_dawn_srcs",
+        ":win_graphite_vulkan_srcs",
+    ],
+    hdrs = [
+        ":common_graphite_dawn_hdrs",
+        ":public_graphite_hdrs",
+        ":public_hdrs",
+        ":public_win_hdrs",
+        "//tools/sk_app:hdrs",
+    ],
+    linkopts = [
+        "gdi32.lib",
+        "OpenGL32.lib",
+        "user32.lib",
+        "d3d12.lib",
+        "dxgi.lib",
+        "d3dcompiler.lib",
+    ],
+    visibility = ["//tools:__subpackages__"],
+    deps = [
+        "//:core",
+        "//tools:tool_utils",
+        "//tools/gpu/vk:testutils",
+        "//tools/skui",
+        "//tools/timer",
+        "//src/gpu/vk/vulkanmemoryallocator",
+        # Ganesh Support
+        "//src/gpu/ganesh:ganesh_TEST_UTIL",
+        "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
+        "//src/gpu/ganesh/gl/win:win_factory_TEST_UTIL",
+        "//src/gpu/ganesh/vk:ganesh_vulkan_TEST_UTIL",
+        "//src/gpu/ganesh/d3d:ganesh_d3d_TEST_UTIL",
+        "//tools/ganesh:ganesh_gl_utils",
+        "//tools/ganesh:ganesh_d3d_utils",
+        # Graphite Support
+        "//tools/graphite:graphite_utils",
+        "//tools/graphite/dawn:graphite_dawn_testutils",
+        "//src/gpu/graphite:graphite_TEST_UTIL",
+        "//src/gpu/graphite/dawn:graphite_native_dawn_TEST_UTIL",
+        "//src/gpu/graphite/vk:graphite_native_vulkan_TEST_UTIL",
+        "@dawn",
+        "@d3d12allocator",
+    ],
 )
 
 skia_cc_library(

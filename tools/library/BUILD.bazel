@@ -18,7 +18,10 @@ skia_cc_library(
     }),
     hdrs = ["LoadDynamicLibrary.h"],
     features = ["layering_check"],
-    visibility = ["//tools/gpu/vk:__pkg__"],
+    visibility = [
+        "//tools/ganesh:__pkg__",
+        "//tools/gpu/vk:__pkg__",
+    ],
     deps = [
         "//:core",
     ],

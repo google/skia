@@ -507,3 +507,21 @@ skia_filegroup(
     name = "fonthost_win_srcs",
     srcs = ["SkFontHost_win.cpp"],
 )
+
+skia_cc_library(
+    name = "fontmgr_win_dw",
+    srcs = [":windows_fonts_srcs"],
+    hdrs = ["//include/ports:typeface_windows_hdrs"],
+    defines = [
+        "SK_FONTMGR_DIRECTWRITE_AVAILABLE",
+        "SK_TYPEFACE_FACTORY_DIRECTWRITE",
+    ],
+    linkopts = ["dwrite.lib"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "//src/codec:any_decoder",
+        "//src/core:core_priv",
+        "//src/utils/win:win_utils",
+    ],
+)

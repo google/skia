@@ -7,6 +7,7 @@
 #include "tools/window/win/WindowContextFactory_win.h"
 
 #include "include/gpu/ganesh/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/win/GrGLMakeWinInterface.h"
 #include "include/private/SkLog.h"
 #include "tools/ganesh/gl/win/SkWGL.h"
 #include "tools/window/GLWindowContext.h"
@@ -78,7 +79,7 @@ sk_sp<const GrGLInterface> GLWindowContext_win::onInitializeContext() {
 
     // Look to see if RenderDoc is attached. If so, re-create the context with a core profile
     if (wglMakeCurrent(dc, fHGLRC)) {
-        auto interface = GrGLMakeNativeInterface();
+        auto interface = GrGLInterfaces::MakeWin();
         bool renderDocAttached = interface->hasExtension("GL_EXT_debug_tool");
         interface.reset(nullptr);
         if (renderDocAttached) {
@@ -126,7 +127,7 @@ sk_sp<const GrGLInterface> GLWindowContext_win::onInitializeContext() {
         fHeight = rect.bottom - rect.top;
         glViewport(0, 0, fWidth, fHeight);
     }
-    return GrGLMakeNativeInterface();
+    return GrGLInterfaces::MakeWin();
 }
 
 

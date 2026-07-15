@@ -18,11 +18,12 @@ GLTestContext* CreatePlatformGLTestContext(GrGLStandard, GLTestContext*) { retur
 
 #else
 
-#include <windows.h>
-#include <GL/GL.h>
+#include "include/gpu/ganesh/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/win/GrGLMakeWinInterface.h"
 #include "tools/ganesh/gl/win/SkWGL.h"
 
 #include <windows.h>
+#include <GL/GL.h>
 
 namespace {
 
@@ -139,7 +140,7 @@ WinGLTestContext::WinGLTestContext(GrGLStandard forcedGpuAPI, WinGLTestContext* 
     }
 
 #ifdef SK_GL
-    auto gl = GrGLMakeNativeInterface();
+    auto gl = GrGLInterfaces::MakeWin();
     if (!gl) {
         SkDebugf("Could not create GL interface.\n");
         this->destroyGLContext();

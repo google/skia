@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -6,7 +6,6 @@ package(
 
 licenses(["notice"])
 
-# Not yet included in a Bazel build.
 # File group is here for exporting to utils.gni:skia_utils_sources.
 WIN_FILES = [
     "SkAutoCoInitialize.cpp",
@@ -29,4 +28,17 @@ WIN_FILES = [
 split_srcs_and_hdrs(
     name = "core",
     files = WIN_FILES,
+)
+
+skia_cc_library(
+    name = "win_utils",
+    srcs = [":core_srcs"],
+    hdrs = [":core_hdrs"],
+    visibility = [
+        "//src/ports:__pkg__",
+    ],
+    deps = [
+        "//:core",
+        "//src/core:core_priv",
+    ],
 )

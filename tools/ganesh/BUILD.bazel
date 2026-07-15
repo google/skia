@@ -46,11 +46,11 @@ skia_cc_library(
     testonly = True,
     srcs = [
         "GrContextFactory.cpp",
-        "//tools/ganesh/gl:private_hdrs",
         "//tools/ganesh/gl:srcs",
     ],
     hdrs = [
         "GrContextFactory.h",
+        "//tools/ganesh/gl:private_hdrs",
     ],
     visibility = [
         "//bench:__subpackages__",
@@ -70,34 +70,11 @@ skia_cc_library(
         "//bazel/common_config_settings:linux_x64": [
             "//src/gpu/ganesh/gl/glx:glx_factory_TEST_UTIL",
         ],
+        "@platforms//os:windows": [
+            "//src/gpu/ganesh/gl/win:win_factory_TEST_UTIL",
+        ],
         "//conditions:default": ["//tools:autorelease_pool"],
     }),
-)
-
-skia_cc_library(
-    name = "ganesh_vulkan_utils",
-    testonly = True,
-    srcs = [
-        "GrContextFactory.cpp",
-        "//src/ports:load_dynamic_library",
-        "//tools/ganesh/vk:private_hdrs",
-        "//tools/ganesh/vk:srcs",
-    ],
-    target_compatible_with = select({
-        # We should not be compiling Vulkan tests for macOS.
-        "@platforms//os:macos": ["@platforms//:incompatible"],
-        "//conditions:default": [],
-    }),
-    visibility = [
-        "//bench:__subpackages__",
-        "//tools:__subpackages__",
-    ],
-    deps = [
-        ":common_ganesh_utils",
-        "//src/gpu/ganesh/vk:ganesh_vulkan_TEST_UTIL",
-        "//third_party/vulkanmemoryallocator",
-        "//tools:autorelease_pool",
-    ],
 )
 
 skia_cc_library(
@@ -116,5 +93,31 @@ skia_cc_library(
         "//:core",
         "//src/codec:codec_support_priv",
         "//src/gpu/ganesh:ganesh_TEST_UTIL",
+    ],
+)
+
+skia_cc_library(
+    name = "ganesh_d3d_utils",
+    testonly = True,
+    srcs = [
+        "GrContextFactory.cpp",
+        "//tools/ganesh/d3d:srcs",
+    ],
+    hdrs = [
+        "GrContextFactory.h",
+        "//tools/ganesh/d3d:private_hdrs",
+    ],
+    target_compatible_with = select({
+        "@platforms//os:windows": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    visibility = [
+        "//tools:__subpackages__",
+    ],
+    deps = [
+        ":common_ganesh_utils",
+        "//src/gpu/ganesh/d3d:ganesh_d3d_TEST_UTIL",
+        "//tools:autorelease_pool",
+        "@d3d12allocator",
     ],
 )

@@ -95,6 +95,12 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+alias(
+    name = "ganesh_d3d",
+    actual = "//src/gpu/ganesh/d3d:ganesh_d3d",
+    visibility = ["//visibility:public"],
+)
+
 ###
 
 alias(
@@ -250,6 +256,12 @@ alias(
 alias(
     name = "fontmgr_empty_fontations",
     actual = "//src/ports:fontmgr_fontations_empty",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "fontmgr_win_dw",
+    actual = "//src/ports:fontmgr_win_dw",
     visibility = ["//visibility:public"],
 )
 

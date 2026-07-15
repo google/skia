@@ -109,8 +109,6 @@ skia_cc_binary(
     ],
     deps = [
         "//:core",
-        "//:fontmgr_directory_freetype",
-        "//:fontmgr_empty_fontations",
         "//:skshaper_core",
         "//:svg_renderer",
         "//gm",
@@ -142,6 +140,17 @@ skia_cc_binary(
         "@delaunator",
         "@imgui",
     ] + select({
+        "@platforms//os:windows": [
+            "//:fontmgr_empty_fontations",
+            # TODO(b/256860862) Need to fix freetype configuration on Windows
+            # "//:fontmgr_empty_freetype",
+            "//:fontmgr_win_dw",
+        ],
+        "//conditions:default": [
+            "//:fontmgr_directory_freetype",
+            "//:fontmgr_empty_fontations",
+        ],
+    }) + select({
         "@platforms//os:linux": ["@spirv_tools"],
         "//conditions:default": [],
     }),

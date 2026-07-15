@@ -14,7 +14,30 @@ skia_cc_library(
         "@platforms//os:linux": [":sk_app_linux"],
         "@platforms//os:macos": [":sk_app_mac"],
         "@platforms//os:ios": [":sk_app_ios"],
+        "@platforms//os:windows": [":sk_app_win"],
     }),
+)
+
+skia_cc_library(
+    name = "sk_app_win",
+    testonly = True,
+    srcs = [
+        "CommandSet.cpp",
+        "Window.cpp",
+        "//tools/sk_app/win:srcs",
+    ],
+    hdrs = [
+        "Application.h",
+        "CommandSet.h",
+        "Window.h",
+        "//tools/sk_app/win:hdrs",
+    ],
+    deps = [
+        "//tools/fonts:font_tool_utils",
+        "//tools/skui",
+        "//tools/timer",
+        "//tools/window",
+    ],
 )
 
 skia_cc_library(
@@ -61,8 +84,12 @@ skia_objc_library(
 
 skia_filegroup(
     name = "hdrs",
+    testonly = True,
     srcs = [
         "Window.h",
-    ],
+    ] + select({
+        "@platforms//os:windows": ["//tools/sk_app/win:hdrs"],
+        "//conditions:default": [],
+    }),
     visibility = ["//tools/window:__pkg__"],
 )

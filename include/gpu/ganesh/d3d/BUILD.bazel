@@ -6,7 +6,6 @@ package(
 
 licenses(["notice"])
 
-# In own file group for gni export
 skia_filegroup(
     name = "public_hdrs",
     srcs = [
@@ -15,5 +14,9 @@ skia_filegroup(
         "GrD3DBackendSurface.h",
         "GrD3DDirectContext.h",
         "GrD3DTypes.h",
+    ],
+    visibility = [
+        "//include/gpu/ganesh:__pkg__",
+        "//src/gpu/ganesh/d3d:__pkg__",
     ],
 )

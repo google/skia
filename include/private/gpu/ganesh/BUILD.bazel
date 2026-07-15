@@ -10,6 +10,10 @@ licenses(["notice"])
 skia_filegroup(
     name = "d3d_private_hdrs",
     srcs = ["GrD3DTypesMinimal.h"],
+    visibility = [
+        "//src/gpu/ganesh:__subpackages__",
+        "//src/gpu/ganesh/d3d:__pkg__",
+    ],
 )
 
 skia_filegroup(

@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_cc_library")
+load("//bazel:skia_rules.bzl", "skia_cc_library_with_testutil")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -6,7 +6,7 @@ package(
 
 licenses(["notice"])
 
-skia_cc_library(
+skia_cc_library_with_testutil(
     name = "win_factory",
     srcs = [
         "GrGLMakeNativeInterface_win.cpp",
@@ -16,6 +16,10 @@ skia_cc_library(
         "//include/gpu/ganesh/gl/win:public_hdrs",
     ],
     defines = ["SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE"],
+    priv_visibility = [
+        "//tools/window:__pkg__",
+        "//tools/ganesh:__pkg__",
+    ],
     visibility = ["//:__pkg__"],
     deps = [
         "//:core",
