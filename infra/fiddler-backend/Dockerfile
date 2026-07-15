@@ -104,5 +104,5 @@ RUN find . -name .git -print0 | xargs -0 rm -rf
 # Copy the resulting Skia repo and build outputs into the fiddler-base image.
 # We wait as late as possible to avoid expensive rebuilds while experimenting
 # with changes to fiddler-base.
-FROM gcr.io/skia-public/fiddler-base@sha256:0231316fe50449fbf9971a9e891e4c4d37db0adbba596f9591a20eaa215a298e
+FROM gcr.io/skia-public/fiddler-base@sha256:5787c0b0b82865021dacb14c45efed98c1ee203681c94dd668757e2ad29e1136
 COPY --from=skia-build --chown=skia:skia /tmp/skia /tmp/skia
