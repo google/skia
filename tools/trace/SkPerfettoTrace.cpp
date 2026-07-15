@@ -134,6 +134,11 @@ SkEventTracer::Handle SkPerfettoTrace::addTraceEvent(char phase,
                 break;
             }
         }
+    } else if (TRACE_EVENT_PHASE_COUNTER == phase) {
+        SkASSERT(numArgs == 1);
+        // Ignore argNames[0] as it's always set to "value"
+        this->triggerTraceCount(categoryEnabledFlag, name, argTypes[0], argValues[0]);
+
     } else if (TRACE_EVENT_PHASE_END == phase) {
         TRACE_EVENT_END(category);
     }
@@ -211,6 +216,30 @@ void SkPerfettoTrace::triggerTraceEvent(const uint8_t* categoryEnabledFlag, cons
                               arg1Name, skia_private::TraceValueAsString(arg1Val),
                               [&](perfetto::EventContext ctx) {
                               ctx.event()->set_name(eventName); });
+            break;
+        }
+        default: {
+            SkUNREACHABLE;
+        }
+    }
+}
+
+void SkPerfettoTrace::triggerTraceCount(const uint8_t* categoryEnabledFlag, const char* eventName,
+                                        const uint8_t& arg1Type, const uint64_t& arg1Val) {
+    perfetto::DynamicCategory category{ this->getCategoryGroupName(categoryEnabledFlag) };
+    perfetto::CounterTrack counter{eventName};
+
+    switch (arg1Type) {
+        case TRACE_VALUE_TYPE_UINT: {
+            TRACE_COUNTER(category, counter, arg1Val);
+            break;
+        }
+        case TRACE_VALUE_TYPE_INT: {
+            TRACE_COUNTER(category, counter, static_cast<int64_t>(arg1Val));
+            break;
+        }
+        case TRACE_VALUE_TYPE_DOUBLE: {
+            TRACE_COUNTER(category, counter, sk_bit_cast<double>(arg1Val));
             break;
         }
         default: {

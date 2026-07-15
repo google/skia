@@ -38,6 +38,10 @@ DECLARE_SKMESSAGEBUS_MESSAGE(GrResourceCache::UnrefResourceMessage,
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
 
+#define TRACE_BUDGET \
+    TRACE_COUNTER1("skia.gpu.cache", "skia budget (used)", fBudgetedBytes); \
+    TRACE_COUNTER1("skia.gpu.cache", "skia budget (free)", fMaxBytes - fBudgetedBytes);
+
 //////////////////////////////////////////////////////////////////////////////
 
 class GrResourceCache::AutoValidate : ::SkNoncopyable {
@@ -94,8 +98,7 @@ void GrResourceCache::insertResource(GrGpuResource* resource) {
     if (GrBudgetedType::kBudgeted == resource->resourcePriv().budgetedType()) {
         ++fBudgetedCount;
         fBudgetedBytes += size;
-        TRACE_COUNTER2("skia.gpu.cache", "skia budget", "used",
-                       fBudgetedBytes, "free", fMaxBytes - fBudgetedBytes);
+        TRACE_BUDGET
 #if GR_CACHE_STATS
         fBudgetedHighWaterCount = std::max(fBudgetedCount, fBudgetedHighWaterCount);
         fBudgetedHighWaterBytes = std::max(fBudgetedBytes, fBudgetedHighWaterBytes);
@@ -123,8 +126,7 @@ void GrResourceCache::removeResource(GrGpuResource* resource) {
     if (GrBudgetedType::kBudgeted == resource->resourcePriv().budgetedType()) {
         --fBudgetedCount;
         fBudgetedBytes -= size;
-        TRACE_COUNTER2("skia.gpu.cache", "skia budget", "used",
-                       fBudgetedBytes, "free", fMaxBytes - fBudgetedBytes);
+        TRACE_BUDGET
     }
 
     if (resource->cacheAccess().isUsableAsScratch()) {
@@ -414,8 +416,7 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
         }
     }
     SkASSERT(wasPurgeable == resource->resourcePriv().isPurgeable());
-    TRACE_COUNTER2("skia.gpu.cache", "skia budget", "used",
-                   fBudgetedBytes, "free", fMaxBytes - fBudgetedBytes);
+    TRACE_BUDGET
 
     this->validate();
 }

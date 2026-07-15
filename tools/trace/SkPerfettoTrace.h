@@ -72,6 +72,9 @@ private:
     void triggerTraceEvent(const uint8_t* categoryEnabledFlag, const char* eventName,
                            const char* arg1Name, const uint8_t& arg1Type, const uint64_t& arg1Val,
                            const char* arg2Name, const uint8_t& arg2Type, const uint64_t& arg2Val);
+
+    void triggerTraceCount(const uint8_t* categoryEnabledFlag, const char* eventName,
+                           const uint8_t& arg1Type, const uint64_t& arg1Val);
 };
 
 #endif
