@@ -175,6 +175,7 @@ bool GrDrawingManager::flush(SkSpan<GrSurfaceProxy*> proxies,
     }
 
     bool cachePurgeNeeded = false;
+    bool flushSuccessful = false;
 
     if (preFlushSuccessful) {
         bool usingReorderedDAG = false;
@@ -205,8 +206,10 @@ bool GrDrawingManager::flush(SkSpan<GrSurfaceProxy*> proxies,
             resourceAllocator.assign();
         }
 
-        cachePurgeNeeded = !resourceAllocator.failedInstantiation() &&
-                           this->executeRenderTasks(&flushState);
+        if (!resourceAllocator.failedInstantiation()) {
+            cachePurgeNeeded = this->executeRenderTasks(&flushState);
+            flushSuccessful = true;
+        }
     }
     this->removeRenderTasks();
 
@@ -226,7 +229,7 @@ bool GrDrawingManager::flush(SkSpan<GrSurfaceProxy*> proxies,
     }
     fFlushing = false;
 
-    return true;
+    return flushSuccessful;
 }
 
 bool GrDrawingManager::submitToGpu() {

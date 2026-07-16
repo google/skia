@@ -43,7 +43,9 @@
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrDrawingManager.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
+#include "src/gpu/ganesh/GrOnFlushResourceProvider.h"
 #include "src/gpu/ganesh/GrPixmap.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
@@ -242,6 +244,19 @@ using GpuWriteDstFn = Result(const T&, const SkIPoint& offset, const SkPixmap&);
 // converting read (i.e. the image info of the returned pixmap matches that of the T).
 template <typename T>
 using GpuReadDstFn = SkAutoPixmapStorage(const T&);
+
+class FailingFlushCallback : public GrOnFlushCallbackObject {
+public:
+    bool preFlush(GrOnFlushResourceProvider*) override {
+        ++fCount;
+        return false;
+    }
+
+    int count() const { return fCount; }
+
+private:
+    int fCount = 0;
+};
 
 }  // anonymous namespace
 
@@ -1504,3 +1519,61 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(GLReadPixelsUnbindPBO,
 
     ComparePixels(syncResult.pixmap(), asyncResult, tol, error);
 }
+
+// readPixels() that uses an intermediate scratch surface should not return stale recycled scratch
+// contents if the implicit flush of the queued draw into that surface drops its render tasks.
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReadPixelsIntermediateFailedFlush,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNextRelease) {
+    auto dContext = ctxInfo.directContext();
+    if (dContext->supportsProtectedContent()) {
+        return;
+    }
+
+    static constexpr int kSize = 100;
+    static constexpr SkColor kStaleColor = 0xFF112233;
+    static constexpr SkColor kSrcColor = 0xFF008800;
+
+    auto srcII = SkImageInfo::Make({kSize, kSize}, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    auto dstII = srcII.makeAlphaType(kUnpremul_SkAlphaType);
+    auto surf = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes, srcII);
+    if (!surf) {
+        return;
+    }
+
+    SkAutoPixmapStorage pixels;
+    pixels.alloc(dstII);
+
+    // Reading the unpremul destination from the premul source draws through an intermediate
+    // approx-fit surface. Do this once so a matching scratch surface lands in the resource cache
+    // with known stale contents.
+    surf->getCanvas()->clear(kStaleColor);
+    if (!surf->readPixels(pixels, 0, 0)) {
+        return;
+    }
+
+    surf->getCanvas()->clear(kSrcColor);
+    dContext->flushAndSubmit(GrSyncCpu::kYes);
+
+    // From here on the flush-time callback fails so any queued render tasks are discarded.
+    FailingFlushCallback failingCallback;
+    dContext->priv().addOnFlushCallbackObject(&failingCallback);
+
+    pixels.erase(SkColors::kTransparent);
+    bool ok = surf->readPixels(pixels, 0, 0);
+
+    dContext->priv().drawingManager()->testingOnly_removeOnFlushCallbackObject(&failingCallback);
+
+    if (ok) {
+        SkColor result = pixels.getColor(0, 0);
+        REPORTER_ASSERT(reporter,
+                        result == kSrcColor,
+                        "readPixels reported success but returned 0x%08x, expected 0x%08x",
+                        result,
+                        kSrcColor);
+    } else {
+        REPORTER_ASSERT(reporter, failingCallback.count() > 0);
+    }
+}
+
