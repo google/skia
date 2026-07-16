@@ -105,6 +105,17 @@ if (!is_clang && !is_win) {
                          "value")
 }
 
+# True if the compiler is Apple's Xcode Clang.
+is_xcode = false
+if ((is_mac || is_ios) && is_clang) {
+  is_xcode = exec_script("//gn/is_xcode.py",
+                         [
+                           cc,
+                           cxx,
+                         ],
+                         "value")
+}
+
 if (is_android) {
   ndk_host = ""
   ndk_target = ""

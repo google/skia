@@ -47,23 +47,18 @@ if (is_debug) {
 # PartitionAlloc does not support MSVC's cl.exe compiler.
 _is_compiler_msvc = !is_clang && is_win
 
-# Skia CI bots use macOS system Clang (`cc == "clang"`), which is Apple's Xcode
-# fork. Xcode Clang lags behind upstream Clang and differs fundamentally by
-# lacking critical systems primitives required by PartitionAlloc:
+# Emscripten WebAssembly (CanvasKit) lacks POSIX virtual memory primitives.
+_is_wasm = current_os == "wasm"
+
+# Xcode Clang (Apple's fork of Clang) is not supported by PartitionAlloc because
+# it lacks critical systems primitives:
 # 1. Global symbol hiding (`-fvisibility-global-new-delete=force-hidden`) to
 #    prevent dyld two-level namespace override errors during interception.
 # 2. Upstream SIMD alignment intrinsics (e.g. `__builtin_assume_aligned`) needed
 #    by PartitionAlloc's high-performance thread cache.
 # 3. Permissive pointer casting builtins required for `malloc_zone_t` swapping.
-# Custom vanilla LLVM toolchains (`cc != "clang"`) remain fully supported.
-_is_compiler_xcode =
-    (is_mac || is_ios) && !build_with_chromium && (cc == "clang" || cc == "cc")
 
-# Emscripten WebAssembly (CanvasKit) lacks POSIX virtual memory primitives.
-_is_wasm = current_os == "wasm"
-
-_supported_compiler =
-    is_clang && !_is_compiler_msvc && !_is_compiler_xcode && !_is_wasm
+_supported_compiler = is_clang && !_is_compiler_msvc && !is_xcode && !_is_wasm
 
 # Windows: debug CRT is not yet compatible with the allocator shim.
 # https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/free-dbg
