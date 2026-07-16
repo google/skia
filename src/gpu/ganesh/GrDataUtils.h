@@ -21,11 +21,12 @@ struct SkISize;
 class SkPixmap;
 
 // Compute the size of the buffer required to hold all the mipLevels of the specified type
-// of data when all rowBytes are tight.
+// of data when rowBytes are aligned to the GPU alignment requirement.
 // Note there may still be padding between the mipLevels to meet alignment requirements.
-size_t GrComputeTightCombinedBufferSize(
+size_t GrComputeCombinedBufferSize(
         size_t bytesPerPixel, SkISize baseDimensions,
-        skia_private::TArray<size_t>* individualMipOffsets, int mipLevelCount);
+        skia_private::TArray<size_t>* individualMipOffsets, int mipLevelCount,
+        size_t rowAlignment);
 
 bool GrConvertPixels(const GrPixmap& dst, const GrCPixmap& src, bool flipY = false);
 

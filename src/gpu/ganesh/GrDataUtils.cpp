@@ -12,6 +12,7 @@
 #include "include/core/SkColorType.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkSize.h"
+#include "include/private/SkAlign.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkMath.h"
 #include "include/private/SkTemplates.h"
@@ -36,35 +37,24 @@
 
 using namespace skia_private;
 
-size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, SkISize baseDimensions,
-                                        TArray<size_t>* individualMipOffsets, int mipLevelCount) {
+size_t GrComputeCombinedBufferSize(size_t bytesPerPixel, SkISize baseDimensions,
+                                   TArray<size_t>* individualMipOffsets, int mipLevelCount,
+                                   size_t rowAlignment) {
     SkASSERT(individualMipOffsets && individualMipOffsets->empty());
     SkASSERT(mipLevelCount >= 1);
+    SkASSERT(rowAlignment > 0 && rowAlignment % bytesPerPixel == 0);
 
-    individualMipOffsets->push_back(0);
-
-    size_t combinedBufferSize = baseDimensions.width() * bytesPerPixel * baseDimensions.height();
+    size_t combinedBufferSize = 0;
     SkISize levelDimensions = baseDimensions;
 
-    // The Vulkan spec for copying a buffer to an image requires that the alignment must be at
-    // least 4 bytes and a multiple of the bytes per pixel of the image config.
-    SkASSERT(bytesPerPixel == 1 || bytesPerPixel == 2 || bytesPerPixel == 3 ||
-             bytesPerPixel == 4 || bytesPerPixel == 8 || bytesPerPixel == 16);
-    int desiredAlignment = (bytesPerPixel == 3) ? 12 : (bytesPerPixel > 4 ? bytesPerPixel : 4);
-
-    for (int currentMipLevel = 1; currentMipLevel < mipLevelCount; ++currentMipLevel) {
-        levelDimensions = {std::max(1, levelDimensions.width() /2),
-                           std::max(1, levelDimensions.height()/2)};
-
-        size_t trimmedSize = levelDimensions.area() * bytesPerPixel;
-        const size_t alignmentDiff = combinedBufferSize % desiredAlignment;
-        if (alignmentDiff != 0) {
-            combinedBufferSize += desiredAlignment - alignmentDiff;
-        }
-        SkASSERT((0 == combinedBufferSize % 4) && (0 == combinedBufferSize % bytesPerPixel));
-
+    for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; ++currentMipLevel) {
         individualMipOffsets->push_back(combinedBufferSize);
-        combinedBufferSize += trimmedSize;
+        size_t trimRowBytes = levelDimensions.width() * bytesPerPixel;
+        size_t alignedRowBytes = SkAlignNonPow2(trimRowBytes, rowAlignment);
+        combinedBufferSize += alignedRowBytes * levelDimensions.height();
+
+        levelDimensions = {std::max(1, levelDimensions.width() / 2),
+                           std::max(1, levelDimensions.height() / 2)};
     }
 
     SkASSERT(individualMipOffsets->size() == mipLevelCount);

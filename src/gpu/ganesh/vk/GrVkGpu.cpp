@@ -27,6 +27,7 @@
 #include "include/gpu/vk/VulkanMemoryAllocator.h"
 #include "include/gpu/vk/VulkanMutableTextureState.h"
 #include "include/gpu/vk/VulkanTypes.h"
+#include "include/private/SkAlign.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
@@ -949,21 +950,6 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkImage* texImage,
     AutoTArray<GrMipLevel> texelsShallowCopy(mipLevelCount);
     std::copy_n(texels, mipLevelCount, texelsShallowCopy.get());
 
-    TArray<size_t> individualMipOffsets;
-    size_t combinedBufferSize;
-    if (mipLevelCount > 1) {
-        combinedBufferSize = GrComputeTightCombinedBufferSize(bpp,
-                                                              rect.size(),
-                                                              &individualMipOffsets,
-                                                              mipLevelCount);
-    } else {
-        SkASSERT(texelsShallowCopy[0].fPixels && texelsShallowCopy[0].fRowBytes);
-        combinedBufferSize = rect.width()*rect.height()*bpp;
-        individualMipOffsets.push_back(0);
-    }
-    SkASSERT(combinedBufferSize);
-
-    // Get a staging buffer slice to hold our mip data.
     // Vulkan requires offsets in the buffer to be aligned to multiple of the texel size and 4
     size_t alignment = bpp;
     switch (alignment & 0b11) {
@@ -971,6 +957,20 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkImage* texImage,
         case 2:     alignment *= 2; break;   // alignment is a multiple of 2 but not 4.
         default:    alignment *= 4; break;   // alignment is not a multiple of 2.
     }
+
+    if (mipLevelCount == 1) {
+        SkASSERT(texelsShallowCopy[0].fPixels && texelsShallowCopy[0].fRowBytes);
+    }
+
+    TArray<size_t> individualMipOffsets;
+    size_t combinedBufferSize = GrComputeCombinedBufferSize(bpp,
+                                                            rect.size(),
+                                                            &individualMipOffsets,
+                                                            mipLevelCount,
+                                                            alignment);
+    SkASSERT(combinedBufferSize);
+
+    // Get a staging buffer slice to hold our mip data.
     GrStagingBufferManager::Slice slice =
             fStagingBufferManager.allocateStagingBufferSlice(combinedBufferSize, alignment);
     if (!slice.fBuffer) {
@@ -989,16 +989,17 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkImage* texImage,
         if (texelsShallowCopy[currentMipLevel].fPixels) {
             const size_t trimRowBytes = currentWidth * bpp;
             const size_t rowBytes = texelsShallowCopy[currentMipLevel].fRowBytes;
+            const size_t alignedRowBytes = SkAlignNonPow2(trimRowBytes, alignment);
 
             // copy data into the buffer, skipping the trailing bytes
             char* dst = buffer + individualMipOffsets[currentMipLevel];
             const char* src = (const char*)texelsShallowCopy[currentMipLevel].fPixels;
-            SkRectMemcpy(dst, trimRowBytes, src, rowBytes, trimRowBytes, currentHeight);
+            SkRectMemcpy(dst, alignedRowBytes, src, rowBytes, trimRowBytes, currentHeight);
 
             VkBufferImageCopy& region = regions.push_back();
             memset(&region, 0, sizeof(VkBufferImageCopy));
             region.bufferOffset = slice.fOffset + individualMipOffsets[currentMipLevel];
-            region.bufferRowLength = currentWidth;
+            region.bufferRowLength = alignedRowBytes / bpp;
             region.bufferImageHeight = currentHeight;
             region.imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, SkToU32(currentMipLevel), 0, 1};
             region.imageOffset = {uploadLeft, uploadTop, 0};
