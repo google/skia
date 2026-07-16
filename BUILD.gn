@@ -896,7 +896,7 @@ optional("gpu_shared") {
   enabled = skia_enable_ganesh || skia_enable_graphite
 
   configs = []
-  deps = []
+  deps = [ ":core" ]
   libs = []
   public_defines = []
   public_deps = []
@@ -1131,7 +1131,10 @@ optional("jpeg_encode") {
   enabled = skia_use_libjpeg_turbo_encode && !skia_use_ndk_images
   public_defines = [ "SK_CODEC_ENCODES_JPEG" ]
 
-  deps = [ "//third_party/libjpeg-turbo:libjpeg" ]
+  deps = [
+    ":core",
+    "//third_party/libjpeg-turbo:libjpeg",
+  ]
   public = skia_encode_jpeg_public
   sources = skia_encode_jpeg_srcs
 
@@ -1169,6 +1172,7 @@ optional("graphite") {
 
   enabled = skia_enable_graphite
   deps = [
+    ":core",
     ":gpu_shared",
     ":vello",
   ]
@@ -1819,7 +1823,10 @@ optional("webp_encode") {
   public_defines = [ "SK_CODEC_ENCODES_WEBP" ]
   public = skia_encode_webp_public
 
-  deps = [ "//third_party/libwebp" ]
+  deps = [
+    ":core",
+    "//third_party/libwebp",
+  ]
   sources = skia_encode_webp_srcs
 }
 
@@ -1830,7 +1837,10 @@ optional("wuffs") {
     "SK_CODEC_DECODES_GIF",
   ]
 
-  deps = [ "//third_party/wuffs" ]
+  deps = [
+    ":core",
+    "//third_party/wuffs",
+  ]
   sources = [ "src/codec/SkWuffsCodec.cpp" ]
 }
 
@@ -1838,7 +1848,10 @@ optional("xml") {
   enabled = skia_use_expat || skia_use_jpeg_gainmaps
   public_defines = [ "SK_XML" ]
 
-  deps = [ "//third_party/expat" ]
+  deps = [
+    ":core",
+    "//third_party/expat",
+  ]
   sources = skia_xml_sources
   sources += skia_codec_xmp
   sources += skia_svg_writer_sources
