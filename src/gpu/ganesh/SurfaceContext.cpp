@@ -292,7 +292,12 @@ bool SurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPoin
         pt.fY = flip ? srcSurface->height() - pt.fY - dst.height() : pt.fY;
     }
 
-    dContext->priv().flushSurface(srcProxy.get());
+    bool hasPendingTasks =
+            dContext->priv().drawingManager()->getLastRenderTask(srcProxy.get()) != nullptr;
+    GrSemaphoresSubmitted flushResult = dContext->priv().flushSurface(srcProxy.get());
+    if (flushResult == GrSemaphoresSubmitted::kNo && hasPendingTasks) {
+        return false;
+    }
     dContext->submit();
     if (!dContext->priv().getGpu()->readPixels(srcSurface,
                                                SkIRect::MakePtSize(pt, dst.dimensions()),
