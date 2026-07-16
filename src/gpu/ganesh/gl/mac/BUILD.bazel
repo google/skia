@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_cc_library")
+load("//bazel:skia_rules.bzl", "skia_cc_library_with_testutil")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -6,7 +6,7 @@ package(
 
 licenses(["notice"])
 
-skia_cc_library(
+skia_cc_library_with_testutil(
     name = "mac_factory",
     srcs = [
         "GrGLMakeNativeInterface_mac.cpp",
@@ -15,29 +15,13 @@ skia_cc_library(
         "//include/gpu/ganesh/gl/mac:public_hdrs",
     ],
     defines = ["SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE"],
+    priv_visibility = [
+        "//tools/ganesh:__pkg__",
+        "//tools/window:__pkg__",
+    ],
     visibility = ["//:__pkg__"],
     deps = [
         "//:core",
         "//:ganesh_gl",
-    ],
-)
-
-skia_cc_library(
-    name = "mac_factory_TEST_UTIL",
-    testonly = True,
-    srcs = [
-        "GrGLMakeNativeInterface_mac.cpp",
-    ],
-    hdrs = [
-        "//include/gpu/ganesh/gl/mac:public_hdrs",
-    ],
-    defines = ["SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE"],
-    visibility = [
-        "//tools/ganesh:__pkg__",
-        "//tools/window:__pkg__",
-    ],
-    deps = [
-        "//:core",
-        "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
     ],
 )
