@@ -507,8 +507,9 @@ static void resolve_and_mipmap(GrGpu* gpu, GrSurfaceProxy* proxy) {
     if (auto* textureProxy = proxy->asTextureProxy()) {
         if (textureProxy->mipmapsAreDirty()) {
             SkASSERT(textureProxy->peekTexture());
-            gpu->regenerateMipMapLevels(textureProxy->peekTexture());
-            textureProxy->markMipmapsClean();
+            if (gpu->regenerateMipMapLevels(textureProxy->peekTexture())) {
+                textureProxy->markMipmapsClean();
+            }
         }
     }
 }
