@@ -129,3 +129,66 @@ DEF_GANESH_TEST_FOR_CONTEXTS(StencilClearTest,
     dContext->flush();
     dContext->submit(GrSyncCpu::kYes);
 }
+
+// The goal here is to:
+//    create an OpsTask (O1) whose stencil-using ops cover only a small region
+//    split the SDC's ops task while fNeedsStencil is already latched, so the
+//        successor OpsTask (O2) gets initial stencil content "preserved"
+//    add a stencil-using op to O2 whose bounds extend beyond O1's bounds
+// O1 only clears its own (small) region of the shared stencil attachment, so
+// O2 must not simply load the stencil over its own (larger) bounds. When
+// executed this test will trigger an assert if O2 loads stencil values from a
+// region that was never cleared.
+DEF_GANESH_TEST_FOR_CONTEXTS(StencilClearTest_PreservedAcrossSplit,
+                             skgpu::IsRenderingContext,
+                             reporter,
+                             ctxInfo,
+                             disable_split_reduction,
+                             CtsEnforcement::kNextRelease) {
+    GrDirectContext* dContext = ctxInfo.directContext();
+
+    SkPath star = make_star();
+
+    sk_sp<SkSurface> s = gpu_surface(dContext);
+    if (!s) {
+        return;  // Dynamic MSAA isn't supported everywhere
+    }
+
+    SkCanvas* canvas = s->getCanvas();
+
+    // First stencil-using draw with small bounds. This creates O1 which will clear only its
+    // own content bounds on the shared stencil attachment.
+    {
+        SkPaint paint;
+        paint.setColor(SK_ColorBLUE);
+        paint.setAntiAlias(true);
+
+        canvas->save();
+        canvas->translate(32, 40);
+        canvas->drawPath(star, paint);
+        canvas->restore();
+    }
+
+    // saveLayer creates a temporary SDC whose first ops task closes O1. On restore, the SDC
+    // creates O2; because fNeedsStencil is already set, O2's initial stencil content is
+    // "preserved" and later setNeedsStencil() calls are no-ops.
+    canvas->saveLayerAlphaf(nullptr, 0.5f);
+    canvas->clear(SK_ColorGREEN);
+    canvas->restore();
+
+    // Second stencil-using draw with large bounds, recorded into O2.
+    {
+        SkPaint paint;
+        paint.setColor(SK_ColorYELLOW);
+        paint.setAntiAlias(true);
+
+        canvas->save();
+        canvas->concat(SkMatrix::ScaleTranslate(4, 4, 128, 128));
+        canvas->drawPath(star, paint);
+        canvas->restore();
+    }
+
+    dContext->flush();
+    dContext->submit(GrSyncCpu::kYes);
+}
+
