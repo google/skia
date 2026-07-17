@@ -271,6 +271,7 @@ DEF_SIMPLE_GM(pictureshader_persp, canvas, 215, 110) {
         paint.setColor(SK_ColorGREEN);
         SkPictureRecorder recorder;
         SkCanvas* record_canvas = recorder.beginRecording({0, 0, 100, 100});
+        record_canvas->clear(SK_ColorTRANSPARENT);
         record_canvas->drawTextBlob(SkTextBlob::MakeFromString("Hamburgefons", font),
                                     0, 16.f, paint);
         return recorder.finishRecordingAsPicture();
