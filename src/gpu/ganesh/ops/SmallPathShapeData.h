@@ -12,6 +12,7 @@
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 #include "include/core/SkRect.h"
+#include "include/private/SkIDChangeListener.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkTInternalLList.h"
@@ -24,6 +25,18 @@ class GrStyledShape;
 class SkMatrix;
 
 namespace skgpu::ganesh {
+
+class SmallPathIDChangeListener : public SkIDChangeListener {
+public:
+    SmallPathIDChangeListener() : fHasChanged(false) {}
+
+    bool hasChanged() const { return fHasChanged.load(std::memory_order_relaxed); }
+
+    void changed() override { fHasChanged.store(true, std::memory_order_relaxed); }
+
+private:
+    std::atomic<bool> fHasChanged;
+};
 
 class SmallPathShapeDataKey {
 public:
@@ -58,7 +71,9 @@ private:
 
 class SmallPathShapeData {
 public:
-    SmallPathShapeData(const SmallPathShapeDataKey& key) : fKey(key) {}
+    SmallPathShapeData(const SmallPathShapeDataKey& key)
+            : fKey(key), fIDChangeListener(sk_make_sp<SmallPathIDChangeListener>()) {}
+    ~SmallPathShapeData() { fIDChangeListener->markShouldDeregister(); }
 
     const SmallPathShapeDataKey fKey;
     SkRect                      fBounds;
@@ -73,6 +88,8 @@ public:
     static inline uint32_t Hash(const SmallPathShapeDataKey& key) {
         return SkChecksum::Hash32(key.data(), sizeof(uint32_t) * key.count32());
     }
+
+    sk_sp<SmallPathIDChangeListener> fIDChangeListener;
 };
 
 }  // namespace skgpu::ganesh

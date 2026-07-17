@@ -93,7 +93,7 @@ public:
     void deleteCacheEntry(SmallPathShapeData*);
 
 private:
-    SmallPathShapeData* findOrCreate(const SmallPathShapeDataKey&);
+    SmallPathShapeData* findOrCreate(const SmallPathShapeDataKey&, const GrStyledShape&);
 
     void evict(GrPlotLocator) override;
 
