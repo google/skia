@@ -14,6 +14,7 @@
 #include "include/private/SkAlign.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkEnumBitMask.h"
+#include "src/core/SkSafeMath.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/ResourceTypes.h"
@@ -241,8 +242,13 @@ public:
     size_t requiredTransferBufferAlignment() const { return fRequiredTransferBufferAlignment; }
 
     /* Returns the aligned rowBytes when transferring to or from a Texture */
-    size_t getAlignedTextureDataRowBytes(size_t rowBytes) const {
-        return SkAlignTo(rowBytes, fTextureDataRowBytesAlignment);
+    size_t getAlignedTextureDataRowBytes(size_t rowBytes, size_t bytesPerBlock) const {
+        SkASSERT(bytesPerBlock > 0);
+        SkASSERT(fTextureDataRowBytesAlignment > 0);
+        SkSafeMath safe;
+        size_t alignment = safe.lcm(bytesPerBlock, fTextureDataRowBytesAlignment);
+        size_t alignedRowBytes = safe.alignUpNonPow2(rowBytes, alignment);
+        return safe.ok() ? alignedRowBytes : 0;
     }
 
     /**

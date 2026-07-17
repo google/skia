@@ -25,6 +25,7 @@
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkRectMemcpy.h"
+#include "src/core/SkSafeMath.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
@@ -44,21 +45,23 @@ size_t GrComputeCombinedBufferSize(size_t bytesPerPixel, SkISize baseDimensions,
     SkASSERT(mipLevelCount >= 1);
     SkASSERT(rowAlignment > 0 && rowAlignment % bytesPerPixel == 0);
 
+    SkSafeMath safe;
     size_t combinedBufferSize = 0;
     SkISize levelDimensions = baseDimensions;
 
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; ++currentMipLevel) {
         individualMipOffsets->push_back(combinedBufferSize);
-        size_t trimRowBytes = levelDimensions.width() * bytesPerPixel;
-        size_t alignedRowBytes = SkAlignNonPow2(trimRowBytes, rowAlignment);
-        combinedBufferSize += alignedRowBytes * levelDimensions.height();
+        size_t trimRowBytes = safe.mul(levelDimensions.width(), bytesPerPixel);
+        size_t alignedRowBytes = safe.alignUpNonPow2(trimRowBytes, rowAlignment);
+        combinedBufferSize = safe.add(combinedBufferSize,
+                                      safe.mul(alignedRowBytes, levelDimensions.height()));
 
         levelDimensions = {std::max(1, levelDimensions.width() / 2),
                            std::max(1, levelDimensions.height() / 2)};
     }
 
     SkASSERT(individualMipOffsets->size() == mipLevelCount);
-    return combinedBufferSize;
+    return safe.ok() ? combinedBufferSize : 0;
 }
 
 static skgpu::Swizzle get_load_and_src_swizzle(GrColorType ct, SkRasterPipelineOp* load,

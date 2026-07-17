@@ -49,6 +49,7 @@
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkRectMemcpy.h"
+#include "src/core/SkSafeMath.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkYUVMath.h"
 #include "src/gpu/AsyncReadTypes.h"
@@ -750,9 +751,14 @@ Context::PixelTransferResult Context::transferPixels(Recorder* recorder,
         return {};
     }
 
+    SkSafeMath safe;
     int bpp = TextureFormatBytesPerBlock(format);
-    size_t rowBytes = caps->getAlignedTextureDataRowBytes(bpp * srcRect.width());
-    size_t size = SkAlignTo(rowBytes * srcRect.height(), caps->requiredTransferBufferAlignment());
+    size_t rowBytes = caps->getAlignedTextureDataRowBytes(safe.mul(bpp, srcRect.width()), bpp);
+    size_t size = safe.alignUp(safe.mul(rowBytes, srcRect.height()),
+                               caps->requiredTransferBufferAlignment());
+    if (!safe.ok() || rowBytes == 0 || size == 0) {
+        return {};
+    }
     sk_sp<Buffer> buffer = fResourceProvider->findOrCreateNonShareableBuffer(
             size, BufferType::kXferGpuToCpu, AccessPattern::kHostVisible, "TransferToCpu");
     if (!buffer) {

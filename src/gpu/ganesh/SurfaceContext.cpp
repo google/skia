@@ -1438,9 +1438,11 @@ SurfaceContext::PixelTransferResult SurfaceContext::transferPixels(GrColorType d
 
     SkSafeMath safe;
     size_t bytesPerPixel = GrColorTypeBytesPerPixel(supportedRead.fColorType);
+    SkASSERT(bytesPerPixel > 0);
     size_t rowBytes = safe.mul(bytesPerPixel, rect.width());
     size_t maxTransAlignment = this->caps()->transferBufferRowBytesAlignment();
-    rowBytes = safe.alignUp(rowBytes, maxTransAlignment);
+    size_t alignment = safe.lcm(bytesPerPixel, maxTransAlignment);
+    rowBytes = safe.alignUpNonPow2(rowBytes, alignment);
     size_t size = safe.mul(rowBytes, rect.height());
     if (!safe.ok()) {
         return {};

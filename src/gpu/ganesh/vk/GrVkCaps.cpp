@@ -672,6 +672,9 @@ void GrVkCaps::initGrCaps(const skgpu::VulkanInterface* vkInterface,
 
     fMaxPushConstantsSize = std::min(properties.limits.maxPushConstantsSize, (uint32_t)INT_MAX);
 
+    fTransferBufferRowBytesAlignment =
+            std::max<size_t>(4, properties.limits.optimalBufferCopyRowPitchAlignment);
+
     // Assuming since we will always map in the end to upload the data we might as well just map
     // from the get go. There is no hard data to suggest this is faster or slower.
     fBufferMapThreshold = 0;

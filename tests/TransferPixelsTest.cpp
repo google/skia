@@ -17,6 +17,7 @@
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrTypes.h"
+#include <numeric>
 #include "include/private/SkAlign.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -182,8 +183,9 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
     if (!allowedSrc.fOffsetAlignmentForTransferBuffer) {
         return;
     }
-    size_t srcRowBytes = SkAlignTo(GrColorTypeBytesPerPixel(allowedSrc.fColorType) * srcBufferWidth,
-                                   caps->transferBufferRowBytesAlignment());
+    size_t bpp = GrColorTypeBytesPerPixel(allowedSrc.fColorType);
+    size_t rowAlignment = std::lcm(bpp, caps->transferBufferRowBytesAlignment());
+    size_t srcRowBytes = SkAlignNonPow2(bpp * srcBufferWidth, rowAlignment);
 
     std::unique_ptr<char[]> srcData(new char[kTexDims.fHeight * srcRowBytes]);
 
@@ -377,10 +379,9 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     GrImageInfo readInfo(allowedRead.fColorType, kUnpremul_SkAlphaType, nullptr, kTexDims);
 
     size_t bpp = GrColorTypeBytesPerPixel(allowedRead.fColorType);
-    size_t fullBufferRowBytes = SkAlignTo(kTexDims.fWidth * bpp,
-                                          caps->transferBufferRowBytesAlignment());
-    size_t partialBufferRowBytes = SkAlignTo(kPartialWidth * bpp,
-                                             caps->transferBufferRowBytesAlignment());
+    size_t rowAlignment = std::lcm(bpp, caps->transferBufferRowBytesAlignment());
+    size_t fullBufferRowBytes = SkAlignNonPow2(kTexDims.fWidth * bpp, rowAlignment);
+    size_t partialBufferRowBytes = SkAlignNonPow2(kPartialWidth * bpp, rowAlignment);
     size_t offsetAlignment = allowedRead.fOffsetAlignmentForTransferBuffer;
     SkASSERT(offsetAlignment);
 

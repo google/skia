@@ -139,6 +139,11 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     fRequiredStorageBufferAlignment = deviceLimits.minStorageBufferOffsetAlignment;
     fRequiredTransferBufferAlignment = 4;
 
+    // We require a minimum alignment of 4 bytes for CPU memcpy safety when doing memcpys into
+    // buffers for upload.
+    fTextureDataRowBytesAlignment =
+            std::max<size_t>(4, deviceLimits.optimalBufferCopyRowPitchAlignment);
+
     fMaxVaryings = std::min(deviceLimits.maxVertexOutputComponents,
                             deviceLimits.maxFragmentInputComponents) / 4;
 

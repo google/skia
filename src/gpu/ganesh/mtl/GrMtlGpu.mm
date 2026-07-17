@@ -359,7 +359,9 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex,
                                                             &individualMipOffsets,
                                                             mipLevelCount,
                                                             desiredAlignment);
-    SkASSERT(combinedBufferSize);
+    if (combinedBufferSize == 0) {
+        return false;
+    }
 
 
     // offset value must be a multiple of the destination texture's pixel size in bytes

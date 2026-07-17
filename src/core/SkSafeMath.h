@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <numeric>
 
 // SkSafeMath always check that a series of operations do not overflow.
 // This must be correct for all platforms, because this is a check for safety at runtime.
@@ -84,6 +85,24 @@ public:
     size_t alignUp(size_t x, size_t alignment) {
         SkASSERT(alignment && !(alignment & (alignment - 1)));
         return add(x, alignment - 1) & ~(alignment - 1);
+    }
+
+    size_t alignUpNonPow2(size_t x, size_t alignment) {
+        if (alignment == 0) {
+            fOK = false;
+            return 0;
+        }
+        size_t aligned = add(x, alignment - 1);
+        return (aligned / alignment) * alignment;
+    }
+
+    size_t lcm(size_t a, size_t b) {
+        if (a == 0 || b == 0) {
+            fOK = false;
+            return 0;
+        }
+        size_t gcd = std::gcd(a, b);
+        return mul(a / gcd, b);
     }
 
     template <typename TDst, typename TSrc> TDst castTo(TSrc value) {
