@@ -778,6 +778,12 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
                 !reader.readByteArray(buf->utf8text, textSize)) {
                 return nullptr;
             }
+
+            for (int i = 0; i < glyphCount; ++i) {
+                if (buf->clusters[i] >= static_cast<uint32_t>(textSize)) {
+                    return nullptr;
+                }
+            }
         }
     }
 
