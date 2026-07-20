@@ -21,6 +21,8 @@
          disallow_large_instanced_draw)                 \
   GPU_OP(EMULATE_ABS_INT_FUNCTION,                      \
          emulate_abs_int_function)                      \
+  GPU_OP(ENSURE_PREVIOUS_FRAMEBUFFER_NOT_DELETED,       \
+         ensure_previous_framebuffer_not_deleted)       \
   GPU_OP(FLUSH_ON_FRAMEBUFFER_CHANGE,                   \
          flush_on_framebuffer_change)                   \
   GPU_OP(FORCE_UPDATE_SCISSOR_STATE_WHEN_BINDING_FBO0,  \

@@ -3228,18 +3228,25 @@ void GrGLGpu::deleteFramebuffer(GrGLuint fboid) {
     // We're relying on the GL state shadowing being correct in the workaround code below so we
     // need to handle a dirty context.
     this->handleDirtyContext();
-    if (fboid == fBoundDrawFramebuffer &&
-        this->caps()->workarounds().unbind_attachments_on_bound_render_fbo_delete) {
-        // This workaround only applies to deleting currently bound framebuffers
-        // on Adreno 420.  Because this is a somewhat rare case, instead of
-        // tracking all the attachments of every framebuffer instead just always
-        // unbind all attachments.
-        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0,
-                                        GR_GL_RENDERBUFFER, 0));
-        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_STENCIL_ATTACHMENT,
-                                        GR_GL_RENDERBUFFER, 0));
-        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_DEPTH_ATTACHMENT,
-                                        GR_GL_RENDERBUFFER, 0));
+    if (fboid == fBoundDrawFramebuffer) {
+        if (this->caps()->workarounds().unbind_attachments_on_bound_render_fbo_delete) {
+            // This workaround only applies to deleting currently bound framebuffers
+            // on Adreno 420.  Because this is a somewhat rare case, instead of
+            // tracking all the attachments of every framebuffer instead just always
+            // unbind all attachments.
+            GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0,
+                                            GR_GL_RENDERBUFFER, 0));
+            GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_STENCIL_ATTACHMENT,
+                                            GR_GL_RENDERBUFFER, 0));
+            GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_DEPTH_ATTACHMENT,
+                                            GR_GL_RENDERBUFFER, 0));
+        }
+
+        if (this->caps()->workarounds().ensure_previous_framebuffer_not_deleted) {
+            // Some drivers keep an internal reference to the previously bound
+            // framebuffer, so make sure it isn't the one being deleted.
+            this->bindFramebuffer(GR_GL_FRAMEBUFFER, 0);
+        }
     }
 
     GL_CALL(DeleteFramebuffers(1, &fboid));
