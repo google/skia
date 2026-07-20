@@ -4786,6 +4786,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fShaderCaps->fShaderDerivativeSupport = false;
     }
 
+    // b/532941869
+    if (ctxInfo.vendor() == GrGLVendor::kImagination ||
+        ctxInfo.driver() == GrGLDriver::kImagination) {
+        fDriverBugWorkarounds.ensure_previous_framebuffer_not_deleted = true;
+    }
+
     if (ctxInfo.driver() == GrGLDriver::kFreedreno) {
         formatWorkarounds->fDisallowUnorm16Transfers = true;
     }
