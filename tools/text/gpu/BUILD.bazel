@@ -7,12 +7,17 @@ package(
 licenses(["notice"])
 
 skia_cc_library(
-    name = "lazy",
-    srcs = ["SkDiscardableMemoryPool.cpp"],
-    hdrs = ["SkDiscardableMemoryPool.h"],
+    name = "gpu_text_utils",
+    testonly = True,
+    srcs = [
+        "TextBlobTools.cpp",
+    ],
+    hdrs = [
+        "TextBlobTools.h",
+    ],
     visibility = ["//visibility:public"],
     deps = [
         "//:core",
-        "//src/core:core_priv",
+        "//src/gpu/ganesh:ganesh_TEST_UTIL",
     ],
 )

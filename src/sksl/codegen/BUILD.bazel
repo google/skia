@@ -122,6 +122,7 @@ skia_cc_library(
     ],
     features = ["layering_check"],
     visibility = [
+        "//dm:__pkg__",
         "//src/gpu/ganesh/mtl:__pkg__",
         "//src/gpu/mtl:__pkg__",
         "//tools/skslc:__pkg__",
@@ -145,6 +146,7 @@ skia_cc_library(
     ],
     features = ["layering_check"],
     visibility = [
+        "//dm:__pkg__",
         "//src/gpu/vk:__pkg__",
         "//tools/skslc:__pkg__",
     ],
@@ -187,6 +189,7 @@ skia_cc_library(
     ],
     features = ["layering_check"],
     visibility = [
+        "//dm:__pkg__",
         "//src/gpu/graphite/dawn:__pkg__",
         "//tools/skslc:__pkg__",
     ],

@@ -44,18 +44,12 @@ skia_filegroup(
     ],
 )
 
-skia_filegroup(
-    name = "test_empty_typeface",
-    testonly = True,
-    srcs = ["TestEmptyTypeface.h"],
-    visibility = ["//tests:__pkg__"],
-)
-
 skia_cc_library(
     name = "font_tool_utils",
     testonly = True,
     srcs = [
         "FontToolUtils.cpp",
+        "RandomScalerContext.cpp",
         "TestFontMgr.cpp",
         "TestFontMgr.h",
         "TestTypeface.cpp",
@@ -63,6 +57,8 @@ skia_cc_library(
     ],
     hdrs = [
         "FontToolUtils.h",
+        "RandomScalerContext.h",
+        "TestEmptyTypeface.h",
     ],
     features = ["layering_check"],
     textual_hdrs = [
@@ -70,6 +66,7 @@ skia_cc_library(
     ],
     visibility = [
         "//bench:__subpackages__",
+        "//dm:__pkg__",
         "//gm:__subpackages__",
         "//tests:__subpackages__",
         "//tools:__subpackages__",

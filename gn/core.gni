@@ -134,8 +134,7 @@ skia_core_public = [
 #  //src/core:textual_hdrs
 #  //src/image:image_hdrs
 #  //src/image:image_srcs
-#  //src/lazy:lazy_hdrs
-#  //src/lazy:lazy_srcs
+#  //src/lazy:lazy
 #  //src/opts:textual_hdrs
 #  //src/shaders:shader_hdrs
 #  //src/shaders:shader_srcs

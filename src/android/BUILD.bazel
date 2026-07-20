@@ -11,7 +11,10 @@ skia_cc_library(
     srcs = ["SkAnimatedImage.cpp"],
     hdrs = ["//include/android:animated_image_hdrs"],
     features = ["layering_check"],
-    visibility = ["//modules/canvaskit:__pkg__"],
+    visibility = [
+        "//dm:__pkg__",
+        "//modules/canvaskit:__pkg__",
+    ],
     deps = [
         "//:core",
         "//src/codec:android_codec",

@@ -83,7 +83,10 @@ skia_cc_library(
     hdrs = [
         "SkSLDebugTracePlayer.h",
     ],
-    visibility = ["//tools/viewer:__pkg__"],
+    visibility = [
+        "//dm:__pkg__",
+        "//tools/viewer:__pkg__",
+    ],
     deps = [
         "//:core",
         "//src/core:core_priv",

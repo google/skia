@@ -15,6 +15,7 @@ skia_cc_library(
         "SkSLTraceUtils.h",
     ],
     visibility = [
+        "//dm:__pkg__",
         "//modules/canvaskit:__pkg__",
         "//tools:__pkg__",
         "//tools/viewer:__pkg__",

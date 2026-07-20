@@ -70,6 +70,7 @@ skia_filegroup(
     srcs = [
         "SkCanvasStateUtils.cpp",
     ],
+    visibility = ["//dm:__pkg__"],
 )
 
 skia_cc_library(

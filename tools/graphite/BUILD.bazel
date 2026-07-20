@@ -42,3 +42,22 @@ skia_cc_library(
         "//tools/gpu:shared_utils",
     ],
 )
+
+skia_cc_library(
+    name = "precompile_utils",
+    testonly = True,
+    srcs = [
+        "precompile/PrecompileEffectFactories.cpp",
+    ],
+    hdrs = [
+        "precompile/PrecompileEffectFactories.h",
+    ],
+    visibility = [
+        "//dm:__pkg__",
+        "//tools:__subpackages__",
+    ],
+    deps = [
+        "//:core",
+        "//src/gpu/graphite/precompile:precompile_TEST_UTIL",
+    ],
+)

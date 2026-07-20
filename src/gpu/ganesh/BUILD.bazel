@@ -323,6 +323,7 @@ skia_cc_library_with_testutil(
         "//tools/flags:__pkg__",
         "//tools/ganesh:__pkg__",
         "//tools/gpu:__pkg__",
+        "//tools/text/gpu:__pkg__",
         "//tools/window:__pkg__",
         "//tools:__pkg__",
         "//src/gpu/ganesh:__subpackages__",

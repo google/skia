@@ -10,6 +10,10 @@ skia_cc_library(
     name = "common_ganesh_utils",
     testonly = True,
     srcs = [
+        "AtlasTextOpTools.cpp",
+        "AtlasTextOpTools.h",
+        "GrAtlasTools.cpp",
+        "GrAtlasTools.h",
         "GrTest.cpp",
         "MemoryCache.cpp",
         "MemoryCache.h",
@@ -29,8 +33,10 @@ skia_cc_library(
         "//tools/ganesh/mock:hdrs",
     ],
     deps = [
+        "//:png_encode_codec",
         "//src/gpu/ganesh:ganesh_TEST_UTIL",
         "//tools/gpu:shared_utils",
+        "//tools/text/gpu:gpu_text_utils",
     ],
 )
 

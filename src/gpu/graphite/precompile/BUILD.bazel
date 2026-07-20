@@ -41,7 +41,10 @@ skia_cc_library_with_testutil(
         "//src/gpu/graphite:precompile_srcs",
     ],
     hdrs = ["//include/gpu/graphite/precompile:public_hdrs"],
-    priv_visibility = ["//tools:__subpackages__"],
+    priv_visibility = [
+        "//dm:__pkg__",
+        "//tools:__subpackages__",
+    ],
     visibility = [],
     deps = [
         "//:core",
