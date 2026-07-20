@@ -115,6 +115,7 @@
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/GlobalCache.h"
@@ -2058,6 +2059,17 @@ void Viewer::drawSlide(SkSurface* surface) {
         fLastImage = offscreenSurface->makeImageSnapshot();
 
         SkCanvas* canvas = surface->getCanvas();
+
+#if defined(SK_GRAPHITE)
+        // Convert directly to a texture so that we aren't caching every frame in the default
+        // TestingImageProvider (which holds on to a lot of images).
+        // For Ganesh, the gen-id listening will automatically recycle the backing texture so no
+        // intervention is required.
+        if (!fLastImage->isTextureBacked() && canvas->recorder()) {
+            fLastImage = SkImages::TextureFromImage(canvas->recorder(), std::move(fLastImage));
+        }
+#endif
+
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kSrc);
         SkSamplingOptions sampling;
