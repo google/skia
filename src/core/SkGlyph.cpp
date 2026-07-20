@@ -255,8 +255,6 @@ void SkGlyph::installPath(SkArenaAlloc* alloc, const SkPath* path, bool hairline
     fPathData = alloc->make<SkGlyph::PathData>();
     if (path != nullptr) {
         fPathData->fPath = *path;
-        fPathData->fPath.updateBoundsCache();
-        fPathData->fPath.getGenerationID();
         fPathData->fHasPath = true;
         fPathData->fHairline = hairline;
         fPathData->fModified = modified;

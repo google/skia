@@ -510,6 +510,7 @@ public:
     */
     const SkRect& getBounds() const;
 
+#if !defined(SK_DISABLE_LEGACY_UPDATEBOUNDSCACHE)
     /** Updates internal bounds so that subsequent calls to getBounds() are instantaneous.
         Unaltered copies of SkPath may also access cached bounds through getBounds().
 
@@ -517,11 +518,14 @@ public:
 
         Call to prepare SkPath subsequently drawn from multiple threads,
         to avoid a race condition where each draw separately computes the bounds.
+
+        DEPRECATED: after the path immutability changes, this is a no-op
     */
     void updateBoundsCache() const {
         // for now, just calling getBounds() is sufficient
         this->getBounds();
     }
+#endif
 
     /** Returns minimum and maximum axes values of the lines and curves in SkPath.
         Returns (0, 0, 0, 0) if SkPath contains no points.
@@ -1093,14 +1097,10 @@ public:
     static std::optional<SkPath> ReadFromMemory(const void* buffer, size_t length,
                                                 size_t* bytesRead = nullptr);
 
-    /** (See skbug.com/40032862)
-        Returns a non-zero, globally unique value. A different value is returned
+    /** Returns a non-zero, globally unique value. A different value is returned
         if verb array, SkPoint array, or conic weight changes.
 
         Setting SkPath::FillType does not change generation identifier.
-
-        Each time the path is modified, a different generation identifier will be returned.
-        SkPath::FillType does affect generation identifier on Android framework.
 
         @return  non-zero, globally unique value
 

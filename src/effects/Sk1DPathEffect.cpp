@@ -77,10 +77,6 @@ public:
                            SkPath1DPathEffect::Style style) : fPath(path) {
         SkASSERT(advance > 0 && !path.isEmpty());
 
-        // Make the path thread-safe.
-        fPath.updateBoundsCache();
-        (void)fPath.getGenerationID();
-
         // cleanup their phase parameter, inverting it so that it becomes an
         // offset along the path (to match the interpretation in PostScript)
         if (phase < 0) {

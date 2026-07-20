@@ -142,14 +142,6 @@ private:
 
 #undef ACT_AS_PTR
 
-// SkPath::getBounds() isn't thread safe unless we precache the bounds in a singlethreaded context.
-// SkPath::cheapComputeDirection() is similar.
-// Recording is a convenient time to cache these, or we can delay it to between record and playback.
-struct PreCachedPath : public SkPath {
-    PreCachedPath() {}
-    PreCachedPath(const SkPath& path);
-};
-
 // Like SkPath::getBounds(), SkMatrix::getType() isn't thread safe unless we precache it.
 // This may not cover all SkMatrices used by the picture (e.g. some could be hiding in a shader).
 struct TypedMatrix : public SkMatrix {
@@ -230,7 +222,7 @@ private:
 static_assert(sizeof(ClipOpAndAA) == 4, "ClipOpAndAASize");
 
 RECORD(ClipPath, 0,
-        PreCachedPath path;
+        SkPath path;
         ClipOpAndAA opAA)
 RECORD(ClipRRect, 0,
         SkRRect rrect;
@@ -296,7 +288,7 @@ RECORD(DrawBehind, kDraw_Tag|kHasPaint_Tag,
        SkPaint paint)
 RECORD(DrawPath, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
-        PreCachedPath path)
+        SkPath path)
 RECORD(DrawPicture, kDraw_Tag|kHasPaint_Tag,
         Optional<SkPaint> paint;
         sk_sp<const SkPicture> picture;
@@ -348,7 +340,7 @@ RECORD(DrawMesh, kDraw_Tag|kHasPaint_Tag|kMultiDraw_Tag,
        SkMesh mesh;
        sk_sp<SkBlender> blender)
 RECORD(DrawShadowRec, kDraw_Tag,
-       PreCachedPath path;
+       SkPath path;
        SkDrawShadowRec rec)
 RECORD(DrawAnnotation, 0,  // TODO: kDraw_Tag, skbug.com/40036727
        SkRect rect;

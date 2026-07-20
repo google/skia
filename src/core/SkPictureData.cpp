@@ -41,13 +41,6 @@ template <typename T> int SafeCount(const T* obj) {
 SkPictureData::SkPictureData(const SkPictInfo& info)
     : fInfo(info) {}
 
-void SkPictureData::initForPlayback() const {
-    // ensure that the paths bounds are pre-computed
-    for (int i = 0; i < fPaths.size(); i++) {
-        fPaths[i].updateBoundsCache();
-    }
-}
-
 SkPictureData::SkPictureData(const SkPictureRecord& record,
                              const SkPictInfo& info)
     : fPictures(record.getPictures())
@@ -68,8 +61,6 @@ SkPictureData::SkPictureData(const SkPictureRecord& record,
         // 0-based to keep the deserializing SkPictureData::getPath() working.
         fPaths[n-1] = path;
     });
-
-    this->initForPlayback();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
