@@ -31,10 +31,11 @@ public:
     };
 
     static sk_sp<SkCapture> MakeFromData(sk_sp<const SkData>);
-    // TODO: instead of a make from pictures factory, the CaptureManager might just need hooks into
-    // the to build it over time. Move the SkPictures (fPictures) here and just maintain that in one
-    // place.
-    static sk_sp<SkCapture> MakeFromPictures(skia_private::TArray<sk_sp<SkPicture>>);
+    static sk_sp<SkCapture> MakeEmpty();
+
+    // TODO: Pictures should be added to the SkCapture along with tracked metadata.
+    void addPicture(sk_sp<SkPicture>);
+
     sk_sp<SkData> serializeCapture();
 
     // TODO: Pictures being grabbed by index is not intuitive and leave the capture disorganized.

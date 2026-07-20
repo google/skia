@@ -91,12 +91,17 @@ sk_sp<SkCapture> SkCapture::MakeFromData(sk_sp<const SkData> data) {
     return capture;
 }
 
-sk_sp<SkCapture> SkCapture::MakeFromPictures(skia_private::TArray<sk_sp<SkPicture>> pictures) {
+sk_sp<SkCapture> SkCapture::MakeEmpty() {
     auto capture = sk_make_sp<SkCapture>();
-
-    capture->fMetadata = {SkCapture::kVersion, static_cast<uint32_t>(pictures.size())};
-    capture->fPictures = pictures;
+    capture->fMetadata = {SkCapture::kVersion, 0};
     return capture;
+}
+
+void SkCapture::addPicture(sk_sp<SkPicture> picture) {
+    if (picture) {
+        fPictures.push_back(std::move(picture));
+        fMetadata.numPictures = fPictures.size();
+    }
 }
 
 sk_sp<SkPicture> SkCapture::getPicture(int i) const {

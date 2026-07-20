@@ -46,7 +46,7 @@ private:
 
     std::atomic<bool> fIsCurrentlyCapturing = false;
     skia_private::TArray<std::unique_ptr<SkCaptureCanvas>> fTrackedCanvases;
-    skia_private::TArray<sk_sp<SkPicture>>  fPictures;
+    sk_sp<SkCapture> fActiveCapture;
 
     sk_sp<SkCapture> fLastCapture;
 };

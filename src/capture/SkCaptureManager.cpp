@@ -32,7 +32,9 @@ void SkCaptureManager::processCanvasContent(SkCaptureCanvas* canvas) {
         if (auto surfacePixelStorage = asSB(canvas->getBaseCanvasSurface())->getPixelStorage()) {
             surfacePixelStorage->incrementContentId();
         }
-        fPictures.emplace_back(picture);
+        if (fActiveCapture) {
+            fActiveCapture->addPicture(std::move(picture));
+        }
     }
 }
 
@@ -46,11 +48,14 @@ void SkCaptureManager::snapPictures() {
 
 // TODO: make thread safe by using exchange() and a mutex.
 void SkCaptureManager::toggleCapture(bool capturing) {
-    if (capturing != fIsCurrentlyCapturing && !capturing) {
-        // on capture stop, save the capture and reset
-        this->snapPictures();
-        fLastCapture = SkCapture::MakeFromPictures(fPictures);
-        fPictures.clear();
+    if (capturing != fIsCurrentlyCapturing) {
+        if (capturing) {
+            fActiveCapture = SkCapture::MakeEmpty();
+        } else {
+            // on capture stop, save the capture and reset
+            this->snapPictures();
+            fLastCapture = std::move(fActiveCapture);
+        }
     }
     fIsCurrentlyCapturing = capturing;
 }
