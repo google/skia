@@ -427,6 +427,14 @@ public:
         return SkRRect(fRect.makeOffset(dx, dy), fRadii, fType);
     }
 
+    /** Returns true if point is inside the bounds and corner radii, and if
+        SkRRect is not empty.
+
+        @param point  position tested for containment
+        @return       true if SkRRect contains point
+    */
+    bool contains(const SkPoint& point) const;
+
     /** Returns true if rect is inside the bounds and corner radii, and if
         SkRRect and rect are not empty.
 

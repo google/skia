@@ -10,7 +10,6 @@
 #include "include/core/SkArc.h"
 #include "include/core/SkScalar.h"
 #include "src/core/SkPathPriv.h"
-#include "src/core/SkRRectPriv.h"
 
 #include <algorithm>
 
@@ -323,7 +322,7 @@ bool GrShape::conservativeContains(const SkPoint& point) const {
         case Type::kRect:
             return fRect.contains(point.fX, point.fY);
         case Type::kRRect:
-            return SkRRectPriv::ContainsPoint(fRRect, point);
+            return fRRect.contains(point);
         case Type::kPath:
             return fPath.contains(point.fX, point.fY);
     }

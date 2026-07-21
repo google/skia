@@ -14,7 +14,6 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkMalloc.h"
 #include "src/core/SkPathPriv.h"
-#include "src/core/SkRRectPriv.h"
 
 #include <cstring>
 
@@ -73,7 +72,7 @@ bool Shape::conservativeContains(skvx::float2 point) const {
         case Type::kEmpty: return false;
         case Type::kLine:  return false;
         case Type::kRect:  return fRect.contains(Rect::Point(point));
-        case Type::kRRect: return SkRRectPriv::ContainsPoint(fRRect, {point.x(), point.y()});
+        case Type::kRRect: return fRRect.contains(SkPoint::Make(point.x(), point.y()));
         case Type::kPath:  // We need to ensure the path is non-inverted.
                            if (this->inverted()) {
                                SkPath nonInverted(fPath);

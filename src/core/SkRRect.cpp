@@ -386,6 +386,23 @@ bool SkRRectPriv::AllCornersRelativelyCircular(const SkRRect& rr, float toleranc
            IsRelativelyCircular(rr.fRadii[3].fX, rr.fRadii[3].fY, tolerance);
 }
 
+bool SkRRect::contains(const SkPoint& point) const {
+    if (!this->getBounds().contains(point.fX, point.fY)) {
+        // If 'point' isn't contained by the RR's bounds then the RR definitely
+        // doesn't contain it.
+        return false;
+    }
+
+    if (this->isRect()) {
+        // The prior test was sufficient.
+        return true;
+    }
+
+    // At this point we know `point` is inside the bounds of this RR. Check to
+    // see it is inside all the curves.
+    return this->checkCornerContainment(point.fX, point.fY);
+}
+
 bool SkRRect::contains(const SkRect& rect) const {
     if (!this->getBounds().contains(rect)) {
         // If 'rect' isn't contained by the RR's bounds then the

@@ -52,19 +52,7 @@ void RRect::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
 }
 
 bool RRect::onContains(const SkPoint& p) const {
-    if (!fRRect.rect().contains(p.x(), p.y())) {
-        return false;
-    }
-
-    if (fRRect.isRect()) {
-        return true;
-    }
-
-    // TODO: no SkRRect::contains(x, y)
-    return fRRect.contains(SkRect::MakeLTRB(p.x() - SK_ScalarNearlyZero,
-                                            p.y() - SK_ScalarNearlyZero,
-                                            p.x() + SK_ScalarNearlyZero,
-                                            p.y() + SK_ScalarNearlyZero));
+    return fRRect.contains(p);
 }
 
 SkRect RRect::onRevalidate(InvalidationController*, const SkMatrix&) {
