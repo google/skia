@@ -109,7 +109,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Utility-Libraries": {
 		Id:      "chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Utility-Libraries",
-		Version: "c279fa4350059faac3d2365df0538977e7e5b097",
+		Version: "e9585c3e3d41ab608ee3b098ce4721d357308fc8",
 		Path:    "third_party/externals/vulkan-utility-libraries",
 	},
 	"chromium.googlesource.com/external/github.com/KhronosGroup/glslang": {
@@ -164,7 +164,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"chromium.googlesource.com/vulkan-deps": {
 		Id:      "chromium.googlesource.com/vulkan-deps",
-		Version: "c74167a8e3d33adf8de58c4e6a304b4a599d48d9",
+		Version: "f7e4835de10552c6242a6ed1256b9b45af6119f9",
 		Path:    "third_party/externals/vulkan-deps",
 	},
 	"chromium.googlesource.com/webm/libwebp": {
