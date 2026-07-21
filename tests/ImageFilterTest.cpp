@@ -2448,3 +2448,52 @@ DEF_TEST(ImageFilter_DrawExtremeMatrixTransform_DoesNotAssert, reporter) {
     surface->getCanvas()->clear(SK_ColorWHITE);
     surface->getCanvas()->drawRRect(rr, p);
 }
+
+DEF_TEST(ImageFilter_UnboundedInputMagnifier_EdgeLeak, reporter) {
+    // Create an image filter graph that starts with unbounded/infinite input
+    // (in this case a solid-color magenta shader) and ends with a magnifier
+    // with a lens bounds that will be larger than the layer we draw to.
+
+    sk_sp<SkImageFilter> infiniteInput = SkImageFilters::Shader(SkShaders::Color(SK_ColorMAGENTA));
+    sk_sp<SkImageFilter> magnifier = SkImageFilters::Magnifier(
+            SkRect::MakeWH(100, 100), /*zoomAmount=*/2.5f, /*inset=*/2.f,
+            SkFilterMode::kLinear, std::move(infiniteInput));
+
+    auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(120, 120));
+    SkCanvas* canvas = surface->getCanvas();
+
+    canvas->clear(SK_ColorBLACK);
+
+    canvas->clipRect(SkRect::MakeWH(40, 100)); // small enough that zoom center is not visible
+
+    SkPaint paint;
+    paint.setImageFilter(std::move(magnifier));
+    canvas->saveLayer(nullptr, &paint);
+
+    // Contents are irrelevant given they will be overwritten by infiniteInput
+    canvas->clear(SK_ColorGREEN);
+    canvas->restore();
+    canvas->restore();
+
+    SkBitmap bm;
+    bm.allocPixels(surface->imageInfo());
+    REPORTER_ASSERT(reporter, surface->readPixels(bm.pixmap(), 0, 0), "Unable to read pixels");
+
+    // When the edge leaking bug manifested, the transparent black padding pixels around the
+    // reduced visible input would get sampled and fill in the right edge of the clipped zoom.
+    // This would appear as black in the final rendering instead of solid magenta.
+    bool leaked = false;
+    for (int y = 10; y < 90; ++y) {
+        for (int x = 35; x < 40; ++x) {
+            SkColor c = bm.getColor(x, y);
+            // Any pixel with significantly more red than green/blue, or significantly
+            // less green than red/blue, came from the magenta scratch texture.
+            if (c != SK_ColorMAGENTA) {
+                leaked = true;
+                break;
+            }
+        }
+    }
+
+    REPORTER_ASSERT(reporter, !leaked, "Edge padding leaked by magnifier");
+}

@@ -254,10 +254,21 @@ skif::FilterResult SkMagnifierImageFilter::onFilterImage(const skif::Context& co
                           .applyCrop(context, lensBounds.roundOut());
     }
 
+    // While the zoomed in portion reflects `srcRect`, we need to request as much of `lensBounds`
+    // as the child can produce (which is what `expectedChildOutput` is set to). We don't just
+    // request `visibleLensBounds` because the distortion can otherwise bleed beyond the edge.
+    // We could request the visibleLensBounds joined with zoomXform.map(visibleLensBounds) with an
+    // additional 1px outset for sampling, but that is only beneficial if we also update
+    // onGetInputLayerBounds() to derive the same adjsuted zoom transform.
     using ShaderFlags = skif::FilterResult::ShaderFlags;
     skif::FilterResult::Builder builder{context};
-    builder.add(this->getChildOutput(0, context.withNewDesiredOutput(visibleLensBounds.roundOut())),
-                {}, ShaderFlags::kNonTrivialSampling, fSampling);
+    auto actualOutput =
+            this->getChildOutput(0, context.withNewDesiredOutput(expectedChildOutput.roundOut()));
+
+    // Since the actual output is restricted to lensBounds and the builder is outputting up to
+    // `lensBounds`, there's no need to provide explicit sample bounds. If the child doesn't
+    // actually produce the full `lensBounds`, this will correctly zoom into the transparency.
+    builder.add(actualOutput, {}, ShaderFlags::kNonTrivialSampling, fSampling);
     return builder.eval([&](SkSpan<sk_sp<SkShader>> inputs) {
             // If the input resolved to a null shader, the magnified output will be transparent too
             return inputs[0] ? make_magnifier_shader(inputs[0], lensBounds, zoomXform, inset)
