@@ -18,7 +18,7 @@ skia_filegroup(
 
 skia_cc_library(
     name = "vulkanmemoryallocator",
-    # TODO(kjlubick): make this testonly after updating G3
+    # TODO(b/321962001): move this to tools/ after making a version for Android.
     srcs = [
         "VulkanAMDMemoryAllocator.cpp",
         "VulkanAMDMemoryAllocator.h",
@@ -54,17 +54,4 @@ skia_cc_library(
         "//src/gpu/vk",
         "@vulkanmemoryallocator//:hdrs",
     ],
-)
-
-# TODO(kjlubick) remove this when SK_USE_VMA is deleted
-skia_cc_library(
-    name = "vulkanmemoryallocator_priv",
-    hdrs = [
-        "VulkanAMDMemoryAllocator.h",
-        "VulkanMemoryAllocatorPriv.h",
-    ],
-    visibility = [
-        "//src/gpu/ganesh/vk:__pkg__",  # TODO(kjlubick) remove when this is not built in
-    ],
-    deps = [":vulkanmemoryallocator"],
 )

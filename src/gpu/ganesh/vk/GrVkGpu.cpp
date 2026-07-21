@@ -84,10 +84,6 @@ class GrProgramDesc;
 class GrSemaphore;
 struct GrContextOptions;
 
-#if defined(SK_USE_VMA)
-#include "src/gpu/vk/vulkanmemoryallocator/VulkanMemoryAllocatorPriv.h"
-#endif
-
 using namespace skia_private;
 
 #define VK_CALL(X) GR_VK_CALL(this->vkInterface(), X)
@@ -160,14 +156,6 @@ std::unique_ptr<GrGpu> GrVkGpu::Make(const skgpu::VulkanBackendContext& backendC
     }
 
     sk_sp<skgpu::VulkanMemoryAllocator> memoryAllocator = backendContext.fMemoryAllocator;
-#if defined(SK_USE_VMA)
-    if (!memoryAllocator) {
-        // We were not given a memory allocator at creation
-        memoryAllocator =
-                skgpu::VulkanMemoryAllocators::Make(backendContext,
-                                                    skgpu::ThreadSafe::kNo);
-    }
-#endif
     if (!memoryAllocator) {
         SkDEBUGFAIL("No supplied vulkan memory allocator and unable to create one internally.");
         return nullptr;
