@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
             const int count = SkToInt(chunkSize);
             for (int i = 0; i < count; i++) {
                 SkFontDescriptor desc;
-                if (!SkFontDescriptor::Deserialize(&stream, &desc)) {
+                if (!SkFontDescriptor::Deserialize(&stream, &desc, /*sanitizer=*/nullptr)) {
                     if (!FLAGS_quiet) {
                         SkDebugf("File corruption in SkFontDescriptor\n");
                     }

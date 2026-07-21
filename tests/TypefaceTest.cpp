@@ -318,7 +318,7 @@ DEF_TEST(FontDescriptorNegativeVariationSerialize, reporter) {
     SkDynamicMemoryWStream stream;
     desc.serialize(&stream);
     SkFontDescriptor descD;
-    SkFontDescriptor::Deserialize(stream.detachAsStream().get(), &descD);
+    SkFontDescriptor::Deserialize(stream.detachAsStream().get(), &descD, /*sanitizer=*/nullptr);
 
     REPORTER_ASSERT(reporter, descD.getStyle() == style);
     REPORTER_ASSERT(reporter, 0 == strcmp(desc.getPostscriptName(), postscriptName));

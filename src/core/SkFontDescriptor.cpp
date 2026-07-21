@@ -93,7 +93,9 @@ static constexpr SkScalar width_for_usWidth[0x10] = {
     200, 200, 200, 200, 200, 200
 };
 
-bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
+bool SkFontDescriptor::Deserialize(SkStream* stream,
+                                   SkFontDescriptor* result,
+                                   SkTypeface::SkTypefaceStreamSanitizerProc sanitizer) {
     size_t factoryId;
     using FactoryIdType = decltype(result->fFactoryId);
 
@@ -228,6 +230,12 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
         if (stream->read(data->writable_data(), length) != length) {
             SkDEBUGFAIL("Could not read font data");
             return false;
+        }
+        if (sanitizer) {
+            data = sanitizer(std::move(data));
+            if (!data) {
+                return false;
+            }
         }
         result->fStream = SkMemoryStream::Make(std::move(data));
     }

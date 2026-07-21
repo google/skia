@@ -46,9 +46,11 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/private/SkAlign.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/SkOnce.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkAnnotationKeys.h"
 #include "src/core/SkAutoMalloc.h"
+#include "src/core/SkFontDescriptor.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
@@ -75,6 +77,7 @@
 #include <array>
 #include <cstdint>
 #include <cstring>
+#include <functional>
 #include <memory>
 #include <utility>
 
@@ -677,6 +680,106 @@ static void TestTypefaceSerialization(skiatest::Reporter* reporter,
 DEF_TEST(Serialization_Typeface, reporter) {
     TestTypefaceSerialization(reporter, ToolUtils::DefaultTypeface());
     TestTypefaceSerialization(reporter, ToolUtils::SampleUserTypeface());
+}
+
+DEF_TEST(Serialization_Typeface_Sanitizer, reporter) {
+    sk_sp<SkTypeface> typeface = ToolUtils::DefaultTypeface();
+    if (!typeface) {
+        return;
+    }
+    sk_sp<SkData> serializedData =
+            typeface->serialize(SkTypeface::SerializeBehavior::kDoIncludeData);
+    if (!serializedData) {
+        REPORT_FAILURE(reporter, "serialize typeface", SkString());
+        return;
+    }
+
+    {  // Default (no sanitizer) behavior
+        SkMemoryStream stream(serializedData);
+        sk_sp<SkTypeface> clone = SkTypeface::MakeDeserialize(&stream, ToolUtils::TestFontMgr());
+        REPORTER_ASSERT(reporter, clone != nullptr);
+    }
+
+    {  // Sanitizer succeeds (no data change necessary)
+        SkMemoryStream stream(serializedData);
+        auto pass_through = [](sk_sp<const SkData> data) -> sk_sp<SkData> {
+            return SkData::MakeWithCopy(data->data(), data->size());
+        };
+        sk_sp<SkTypeface> clone =
+                SkTypeface::MakeDeserialize(&stream, ToolUtils::TestFontMgr(), pass_through);
+        REPORTER_ASSERT(reporter, clone != nullptr);
+    }
+
+    {  // Pretend sanitizer rejects data
+        SkMemoryStream stream(serializedData);
+        auto reject = [](sk_sp<const SkData> data) -> sk_sp<SkData> { return nullptr; };
+        sk_sp<SkTypeface> clone =
+                SkTypeface::MakeDeserialize(&stream, ToolUtils::TestFontMgr(), reject);
+        REPORTER_ASSERT(reporter, clone == nullptr);
+    }
+}
+
+class SpyDecoder {
+public:
+    SpyDecoder() {
+        sInstance = this;
+        static SkOnce once;
+        once([] {
+            SkTypeface::Register(kSpyFactoryId,
+                                 [](std::unique_ptr<SkStreamAsset> stream,
+                                    const SkFontArguments& args) -> sk_sp<SkTypeface> {
+                                     if (sInstance) {
+                                         size_t len = stream->getLength();
+                                         auto data = SkData::MakeUninitialized(len);
+                                         stream->read(data->writable_data(), len);
+                                         sInstance->fData = std::move(data);
+                                     }
+                                     // Return a valid typeface to avoid decoding failure
+                                     return ToolUtils::DefaultTypeface();
+                                 });
+        });
+    }
+
+    sk_sp<const SkData> fData = nullptr;
+    static constexpr SkTypeface::FactoryId kSpyFactoryId = SkSetFourByteTag('s', 'p', 'y', 'f');
+
+private:
+    inline static SpyDecoder* sInstance = nullptr;
+};
+
+DEF_TEST(Serialization_Typeface_Sanitizer_Spy, reporter) {
+    SpyDecoder spy;
+
+    static constexpr const char kSanitizedBytes[] = "sanitized_bytes";
+
+    // Construct the serialized stream manually with our spy factory id and custom font bytes
+    SkFontDescriptor desc;
+    desc.setFactoryId(SpyDecoder::kSpyFactoryId);
+    desc.setFamilyName("SpyFont");
+
+    auto originalData = SkData::MakeWithCString("original_bytes");
+    desc.setStream(SkMemoryStream::Make(originalData));
+
+    SkDynamicMemoryWStream wstream;
+    REPORTER_ASSERT(reporter, desc.serialize(&wstream));
+
+    sk_sp<SkData> serializedData = wstream.detachAsData();
+
+    // Deserialize using a mutating sanitizer callback
+    SkMemoryStream stream(serializedData);
+    auto mutating_sanitizer = [](sk_sp<const SkData> data) -> sk_sp<SkData> {
+        return SkData::MakeWithCString(kSanitizedBytes);
+    };
+
+    sk_sp<SkTypeface> clone =
+            SkTypeface::MakeDeserialize(&stream, ToolUtils::TestFontMgr(), mutating_sanitizer);
+    REPORTER_ASSERT(reporter, clone != nullptr);
+
+    // Verify end-to-end that the decoder factory received the sanitized bytes, not the
+    // original bytes
+    REPORTER_ASSERT(reporter, spy.fData != nullptr);
+    REPORTER_ASSERT(reporter, spy.fData->size() == sizeof(kSanitizedBytes));
+    REPORTER_ASSERT(reporter, strcmp((const char*)spy.fData->data(), kSanitizedBytes) == 0);
 }
 
 static void setup_bitmap_for_canvas(SkBitmap* bitmap) {

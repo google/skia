@@ -86,7 +86,9 @@ class SkFontDescriptor : SkNoncopyable {
 public:
     SkFontDescriptor();
     // Does not affect ownership of SkStream.
-    static bool Deserialize(SkStream*, SkFontDescriptor* result);
+    static bool Deserialize(SkStream*,
+                            SkFontDescriptor* result,
+                            SkTypeface::SkTypefaceStreamSanitizerProc sanitizer);
 
     bool serialize(SkWStream*) const;
 

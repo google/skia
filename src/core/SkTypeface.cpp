@@ -237,9 +237,11 @@ sk_sp<SkData> SkTypeface::serialize(SerializeBehavior behavior) const {
     return this->serialize(&stream, behavior) ? stream.detachAsData() : nullptr;
 }
 
-sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream, sk_sp<SkFontMgr> lastResortMgr) {
+sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream,
+                                              sk_sp<SkFontMgr> lastResortMgr,
+                                              SkTypefaceStreamSanitizerProc sanitizer) {
     SkFontDescriptor desc;
-    if (!SkFontDescriptor::Deserialize(stream, &desc)) {
+    if (!SkFontDescriptor::Deserialize(stream, &desc, sanitizer)) {
         return nullptr;
     }
 
