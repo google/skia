@@ -245,6 +245,7 @@ static inline void sk_noop(Args...) {}
     #define TRACE_EVENT_OBJECT_SNAPSHOT_WITH_ID(cg, n, id, ss) TRACE_EMPTY(cg, n, id, ss)
     #define TRACE_EVENT_OBJECT_DELETED_WITH_ID(cg, n, id) TRACE_EMPTY(cg, n, id)
     #define TRACE_COUNTER1(cg, n, value) TRACE_EMPTY(cg, n, value)
+    #define TRACE_COUNTER1_ALWAYS(cg, n, value) TRACE_EMPTY(cg, n, value)
 
 #elif defined(SK_ANDROID_FRAMEWORK_USE_PERFETTO)
 
@@ -561,6 +562,12 @@ namespace skia_private {
             ATRACE_INT(name, value);                                    \
         }                                                               \
     }
+#define TRACE_COUNTER1_ALWAYS(category_group, name, value)          \
+    if (SkAndroidFrameworkTraceUtil::getUsePerfettoTrackEvents()) { \
+        TRACE_COUNTER(category_group, name, value);                 \
+    } else {                                                        \
+        ATRACE_INT(name, value);                                    \
+    }
 
 // ATrace has no object tracking, and would require a legacy shim for Perfetto (which likely no-ops
 // here). Further, these don't appear to currently be used outside of tests.
@@ -639,6 +646,10 @@ namespace skia_private {
 // Records the value of a counter called "name" immediately. Value
 // must be representable as a 32 bit integer.
 #define TRACE_COUNTER1(category_group, name, value)                         \
+  INTERNAL_TRACE_EVENT_ADD(TRACE_EVENT_PHASE_COUNTER, category_group, name, \
+                           TRACE_EVENT_FLAG_NONE, "value",                  \
+                           static_cast<int>(value))
+#define TRACE_COUNTER1_ALWAYS(category_group, name, value)                  \
   INTERNAL_TRACE_EVENT_ADD(TRACE_EVENT_PHASE_COUNTER, category_group, name, \
                            TRACE_EVENT_FLAG_NONE, "value",                  \
                            static_cast<int>(value))
