@@ -30,12 +30,14 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkHalf.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkVx.h"
+#include "src/gpu/GradientBitmap.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
@@ -495,6 +497,128 @@ static std::unique_ptr<GrFragmentProcessor> make_looping_binary_colorizer(const 
     return make_looping_colorizer(intervalCount, scales, biases, thresholds);
 }
 
+// Many-stop analytic colorizer. The gradient's premul colors and stop offsets
+// are uploaded as a single F16 RGBA texture and the colors are interpolated in
+// the shader. This shares the texture-building helper
+// (skgpu::CreateGradientColorAndOffsetBitmap) and mirrors Graphite's
+// $colorize_grad_tex SkSL, so the two backends stay in sync.
+//
+// Offsets use the precision-preserving (mantissa, exponent) encoding
+// (skgpu::EncodeGradientStopToHalf), recovered in the shader as
+// mantissa * exp2(exponent) so the binary-search compare doesn't lose stops to
+// half rounding. There is no fixed uniform-array limit; the gradient is bounded
+// only by the maximum texture width.
+//
+// Texture layout (width = count):
+//   Row 0: premul color[i]
+//   Row 1: offset[i] encoded as (mantissa, exponent, 0, 1)
+static constexpr int kMaxBufferedLoopCount = 24;
+static std::unique_ptr<GrFragmentProcessor> make_buffered_colorizer(const SkPMColor4f* colors,
+                                                                    const SkScalar* positions,
+                                                                    int count,
+                                                                    const GrFPArgs& args) {
+    if (count < 2) {
+        return nullptr;
+    }
+    const int maxTextureSize = args.fSurfaceDrawContext->caps()->maxTextureSize();
+    if (count > maxTextureSize) {
+        return nullptr;
+    }
+
+    // The binary search halves the [0, count) index range each iteration, so it
+    // converges in ceil(log2(count)) steps.
+    int loopCount = SkNextLog2(count);
+    if (loopCount > kMaxBufferedLoopCount) {
+        return nullptr;
+    }
+
+    // SkScalar is float, so the positions can be handed to the shared helper as
+    // the stop offsets directly.
+    SkBitmap bitmap = skgpu::CreateGradientColorAndOffsetBitmap(count, colors, positions);
+    if (bitmap.empty()) {
+        return nullptr;
+    }
+    bitmap.setImmutable();
+
+    auto view =
+            std::get<0>(GrMakeCachedBitmapProxyView(args.fSurfaceDrawContext->recordingContext(),
+                                                    GrMippedBitmap(bitmap),
+                                                    /*label=*/"BufferedGradientColorizer",
+                                                    skgpu::Mipmapped::kNo));
+    if (!view) {
+        return nullptr;
+    }
+    auto coefData = GrTextureEffect::Make(
+            std::move(view), kPremul_SkAlphaType, SkMatrix::I(), GrSamplerState::Filter::kNearest);
+
+    struct EffectCacheEntry {
+        SkOnce once;
+        const SkRuntimeEffect* effect;
+    };
+    static EffectCacheEntry effectCache[kMaxBufferedLoopCount + 1];
+    EffectCacheEntry* cacheEntry = &effectCache[loopCount];
+
+    // The cache is keyed by loopCount alone, so the SkSL must not bake in any
+    // count-specific constants; gradients with different stop counts share the
+    // effect when they need the same number of search iterations. The stop
+    // count is passed as a uniform instead.
+    cacheEntry->once([loopCount, cacheEntry] {
+        // clang-format off
+        SkString sksl = SkStringPrintf(
+        "uniform shader coefData;"
+        "uniform float numStops;"
+
+        // Row 0 holds the premul colors and row 1 holds the stop offsets encoded
+        // as (mantissa, exponent), recovered with mantissa * exp2(exponent). The
+        // clamped-gradient parent guarantees t in [0, 1]; t == 1 is handled
+        // directly because it would leave low at the last interval and make the
+        // offset division degenerate. This mirrors Graphite's $colorize_grad_tex.
+        "half4 main(float2 coord) {"
+            "float t = coord.x;"
+            "if (t >= 1) {"
+                "return half4(coefData.eval(float2(numStops - 0.5, 0.5)));"
+            "}"
+
+            // Binary search for the interval [low, low + 1] that brackets t.
+            "float low = 0;"
+            "float high = numStops;"
+            "for (int loop = 0; loop < %d; ++loop) {"
+                "float mid = floor((low + high) * 0.5);"
+                "float2 enc = float2(coefData.eval(float2(mid + 0.5, 1.5)).xy);"
+                "float offset = enc.x * exp2(enc.y);"
+                "if (t < offset) {"
+                    "high = mid;"
+                "} else {"
+                    "low = mid;"
+                "}"
+            "}"
+
+            "float4 color0 = float4(coefData.eval(float2(low + 0.5, 0.5)));"
+            "float4 color1 = float4(coefData.eval(float2(low + 1.5, 0.5)));"
+            "float2 enc0 = float2(coefData.eval(float2(low + 0.5, 1.5)).xy);"
+            "float2 enc1 = float2(coefData.eval(float2(low + 1.5, 1.5)).xy);"
+            "float offset0 = enc0.x * exp2(enc0.y);"
+            "float offset1 = enc1.x * exp2(enc1.y);"
+            "return half4(mix(color0, color1, (t - offset0) / (offset1 - offset0)));"
+        "}"
+        , /* loopCount: */ loopCount);
+        // clang-format on
+
+        auto result = SkRuntimeEffect::MakeForShader(std::move(sksl));
+        SkASSERTF(result.effect, "%s", result.errorText.c_str());
+        cacheEntry->effect = result.effect.release();
+    });
+
+    return GrSkSLFP::Make(cacheEntry->effect,
+                          "BufferedGradientColorizer",
+                          /*inputFP=*/nullptr,
+                          GrSkSLFP::OptFlags::kNone,
+                          "coefData",
+                          std::move(coefData),
+                          "numStops",
+                          static_cast<float>(count));
+}
+
 // Analyze the shader's color stops and positions and chooses an appropriate colorizer to represent
 // the gradient.
 static std::unique_ptr<GrFragmentProcessor> make_uniform_colorizer(const SkPMColor4f* colors,
@@ -581,6 +705,16 @@ static std::unique_ptr<GrFragmentProcessor> make_uniform_colorizer(const SkPMCol
         colorizer = caps->fNonconstantArrayIndexSupport
                             ? make_looping_binary_colorizer(colors, positions, count)
                             : make_unrolled_binary_colorizer(colors, positions, count);
+        if (colorizer) {
+            return colorizer;
+        }
+    }
+
+    // Too many stops for the uniform-array colorizers; try the texture-backed
+    // analytic path before falling through to the bitmap colorizer.
+    if (count > kMaxLoopingColorCount && caps->fNonconstantArrayIndexSupport &&
+        !intervalsExceedPrecisionLimit()) {
+        auto colorizer = make_buffered_colorizer(colors, positions, count, args);
         if (colorizer) {
             return colorizer;
         }

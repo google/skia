@@ -577,12 +577,13 @@ void test_sweep_gradient_zero_x(skiatest::Reporter* reporter, SkSurface* surface
     // stops and running clockwise from (1, 0), so we should draw a rectangle with a blue top-half
     // and yellow bottom-half.
     constexpr float pts[4] = {0.0f, 0.5f, 0.5f, 1.0f};
-    constexpr SkColor4f colors[4] = {SkColors::kYellow, SkColors::kYellow, SkColors::kBlue, SkColors::kBlue};
+    constexpr SkColor4f colors[4] = {
+            SkColors::kYellow, SkColors::kYellow, SkColors::kBlue, SkColors::kBlue};
     SkCanvas* canvas = surface->getCanvas();
     canvas->save();
     canvas->translate(2.5f, 2.5f);
     SkPaint paint;
-    paint.setShader(SkShaders::SweepGradient({0,0}, {{colors, pts, SkTileMode::kClamp}, {}}));
+    paint.setShader(SkShaders::SweepGradient({0, 0}, {{colors, pts, SkTileMode::kClamp}, {}}));
     canvas->drawRect(SkRect::MakeXYWH(-2.5f, -2.5f, 5.0f, 5.0f), paint);
     canvas->restore();
 
@@ -604,6 +605,54 @@ void test_sweep_gradient_zero_x(skiatest::Reporter* reporter, SkSurface* surface
 }
 
 #if defined(SK_GANESH)
+// Draws a many-stop linear gradient with 1-pixel hard-stop segments. Adjacent
+// palette colors would be bilinearly blended by the 256-texel textured-bitmap
+// fallback at this density, so the test fails on Ganesh builds that route this
+// many-stop input to that fallback. See crbug.com/443106929.
+static void test_many_stop_linear_hardstops(skiatest::Reporter* reporter, SkSurface* surface) {
+    // 130 1-pixel-wide hard-stop segments => 260 stops, past the existing
+    // uniform looping colorizer cap of kMaxLoopingColorCount=128.
+    constexpr int kNumSegments = 130;
+    constexpr int kWidth = kNumSegments;
+    constexpr int kHeight = 1;
+    constexpr SkColor4f kPalette[4] = {
+            SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kYellow};
+
+    SkColor4f colors[2 * kNumSegments];
+    SkScalar positions[2 * kNumSegments];
+    for (int i = 0; i < kNumSegments; ++i) {
+        colors[2 * i + 0] = kPalette[i % 4];
+        colors[2 * i + 1] = kPalette[i % 4];
+        positions[2 * i + 0] = static_cast<SkScalar>(i) / kNumSegments;
+        positions[2 * i + 1] = static_cast<SkScalar>(i + 1) / kNumSegments;
+    }
+
+    const SkPoint pts[] = {{0, 0}, {SkIntToScalar(kWidth), 0}};
+    SkPaint paint;
+    paint.setShader(SkShaders::LinearGradient(pts, {{colors, positions, SkTileMode::kClamp}, {}}));
+    SkCanvas* canvas = surface->getCanvas();
+    canvas->drawRect(SkRect::MakeIWH(kWidth, kHeight), paint);
+
+    SkBitmap bitmap;
+    SkPixmap pixmap;
+    bitmap.allocPixels(surface->imageInfo());
+    SkAssertResult(bitmap.peekPixels(&pixmap));
+    if (!surface->readPixels(pixmap, 0, 0)) {
+        ERRORF(reporter, "readPixels failed");
+        return;
+    }
+
+    // Compare 8-bit-quantized colors so the test tolerates sub-LSB float
+    // drift between GPU backends but still catches the bilinear-blend
+    // artefact (which is many LSBs across channels).
+    for (int i = 0; i < kNumSegments; ++i) {
+        SkColor got = pixmap.getColor(i, 0);
+        SkColor want = kPalette[i % 4].toSkColor();
+        REPORTER_ASSERT(
+                reporter, got == want, "segment %d: got %#08x, expected %#08x", i, got, want);
+    }
+}
+
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TestSweepGradientZeroXGanesh,
                                        reporter,
                                        contextInfo,
@@ -614,6 +663,18 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TestSweepGradientZeroXGanesh,
     GrDirectContext* context = contextInfo.directContext();
     sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(context, skgpu::Budgeted::kYes, ii);
     test_sweep_gradient_zero_x(reporter, surface.get());
+}
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TestManyStopLinearHardstopsGanesh,
+                                       reporter,
+                                       contextInfo,
+                                       CtsEnforcement::kApiLevel_202404) {
+    constexpr int kNumSegments = 256;
+    SkImageInfo ii = SkImageInfo::Make(
+            kNumSegments, 1, SkColorType::kRGBA_8888_SkColorType, SkAlphaType::kPremul_SkAlphaType);
+    GrDirectContext* context = contextInfo.directContext();
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(context, skgpu::Budgeted::kYes, ii);
+    test_many_stop_linear_hardstops(reporter, surface.get());
 }
 #endif
 

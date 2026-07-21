@@ -22,6 +22,8 @@ SHARED_FILES = [
     "DitherUtils.h",
     "GpuRefCnt.h",
     "GpuTypesPriv.h",
+    "GradientBitmap.cpp",
+    "GradientBitmap.h",
     "KeyBuilder.h",
     "MutableTextureState.cpp",
     "MutableTextureStatePriv.h",

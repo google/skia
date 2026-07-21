@@ -981,6 +981,8 @@ skia_shared_gpu_sources = [
   "$_src/gpu/DitherUtils.h",
   "$_src/gpu/GpuRefCnt.h",
   "$_src/gpu/GpuTypesPriv.h",
+  "$_src/gpu/GradientBitmap.cpp",
+  "$_src/gpu/GradientBitmap.h",
   "$_src/gpu/KeyBuilder.h",
   "$_src/gpu/MaskFormat.h",
   "$_src/gpu/MutableTextureState.cpp",
