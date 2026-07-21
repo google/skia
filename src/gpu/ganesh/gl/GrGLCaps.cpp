@@ -676,6 +676,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     if (ctxInfo.vendor() == GrGLVendor::kARM) {
         // On Mali G71, RT's above 4k have been observed to incur a performance cost.
         fMaxPreferredRenderTargetSize = std::min(4096, fMaxPreferredRenderTargetSize);
+        fDriverBugWorkarounds.flush_queries_before_deleting_or_unbinding_fbo = true;
     }
 
     fGpuTracingSupport = ctxInfo.hasExtension("GL_EXT_debug_marker");
