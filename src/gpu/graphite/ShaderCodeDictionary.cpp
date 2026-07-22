@@ -541,7 +541,6 @@ void validate_linearsrgb_node(const ShaderNode* node) {
 
             // The to/fromLinearSRGB builtins trigger CSXform specialization, so we shouldn't be
             // seeding these generic stage blocks.
-            case BuiltInCodeSnippetID::kCSXform_TransferFn:
             case BuiltInCodeSnippetID::kCSXform_PreAlpha:
             case BuiltInCodeSnippetID::kCSXform_PostAlpha:
                 SkASSERT(false);
@@ -1448,14 +1447,6 @@ ShaderCodeDictionary::ShaderCodeDictionary(
     };
 
     // Transfer functions
-    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCSXform_TransferFn] = {
-            /*name=*/"TF",
-            /*staticFn=*/"sk_csxform_transfer",
-            SnippetRequirementFlags::kPriorStageOutput,
-            /*uniforms=*/{{{ "ootf", SkSLType::kFloat4 },
-                           { "gabc", SkSLType::kFloat4 },
-                           { "def",  SkSLType::kFloat3 }}}
-    };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCSXform_sRGB] = {
             /*name=*/"sRGB",
             /*staticFn=*/"sk_csxform_srgb",

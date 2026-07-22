@@ -21,7 +21,7 @@
 namespace skgpu::graphite {
 
 // This is the main control to version the serialized Pipelines (c.f. stream_is_blob)
-static const int kCurrent_Version = 2;
+static const int kCurrent_Version = 3;
 
 namespace {
 

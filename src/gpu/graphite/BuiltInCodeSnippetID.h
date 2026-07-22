@@ -70,12 +70,35 @@ enum class BuiltInCodeSnippetID : uint32_t {
     // 3. Gamut transform
     // 4. Encoding transfer function
     // 5. Post alpha handling (premul, identity)
+    //
+    // The way an SkColorSpaceXformSteps is converted to a series of kCSXform snippets depends on
+    // the presence of KeyGenFlags::kSpecializeColorSpaceXform. If that flag is present, then only
+    // the non-generic snippets will be used in each stage and no-op steps are skipped entirely.
+    // This leads to the following combinations (setting aside AlphaOnly):
+    //  [no-op, Unpremul, ForceOpaque] X [no-op, sRGB, PQ, HLG]^2 X [no-op, Gamut] X [no-op, Premul]
+    //     => 3 x 4^2 x 2 x 2 => 192 options (minus a few combos that don't show up in practice).
+    //
+    // In the scope of kSpecializeColorSpaceXform, it is assumed that the actual encountered
+    // color spaces are locked down enough that the actual set of encountered combinations will be
+    // much lower than 192. To avoid this same explosion for simpler pipelines, the 192 options are
+    // mapped to 10 more generic options (specializing just the transfer functions):
+    //  [*] X no-op X no-op X no-op X [*] => PreAlpha
+    //  [*] X TF1 X [no-op, Gamut] X TF2 X [*] => PreAlpha+TF1+Gamut+TF2+PostAlpha
+    //
+    // In the latter case, identity transfer functions will map to sRGB since it has a fast-path
+    // for the identity already. Identity gamut matrices are not elided either. This means that
+    // there are only 9 combinations plus the specialized PreAlpha for near-identity cases:
+    //  PreAlpha+[sRGB, PQ, HLG]+Gamut+[sRGB, PQ, HLGInv]+PostAlpha
+    //
+    // The measured overhead of PreAlpha, PostAlpha, and always including Gamut is much smaller than
+    // the overhead of branching around the various transfer functions. Always specializing the
+    // transfer functions gives the maximum performance tradeoff with a minimal number of pipelines.
 
     // Initial alpha stages:
     //  - Alpha-only images are always specialized to _AlphaOnly because the rest of the pipeline
     //    is already specialized on blending in color. It is never combined with other stages.
     //  - The generic _PreAlpha can be specialized into _Unpremul, _ForceOpaque, or eliding the
-    //    stage (for no-op) when desired.
+    //    stage (for no-op) when desired. It can also handle _Premul if there are no other stages.
     //  - These stages apply the alpha swizzle of the texture's read swizzle.
     kCSXform_AlphaOnly,   // handles alpha-swizzle (no other CSXform steps combine with it)
     kCSXform_PreAlpha,    // handles unpremul, force-opaque, no-op
@@ -86,7 +109,6 @@ enum class BuiltInCodeSnippetID : uint32_t {
     //  - sRGB and PQ can be used for both linear and encode stages; HLG is used to convert to
     //    linear, and HLGInv is used to encode.
     //  - Identity transfer functions can either be elided or encoded into sRGB coefficients.
-    kCSXform_TransferFn, // handles all stages by branching
     kCSXform_sRGB,       // sRGB linear and encoding
     kCSXform_PQ,         // PQ linear and encoding
     kCSXform_HLG,        // linear stage only, supports optional post-ootf parameters
