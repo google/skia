@@ -179,6 +179,8 @@ public:
     bool outsetBoundsForAA()   const { return SkToBool(fFlags & Flags::kOutsetBoundsForAA);   }
     bool useNonAAInnerFill()   const { return SkToBool(fFlags & Flags::kUseNonAAInnerFill);   }
     bool appendsVertices()     const { return SkToBool(fFlags & Flags::kAppendVertices);      }
+    bool vsUsesStorage()       const { return SkToBool(fFlags & Flags::kVsUsesStorage);       }
+    bool fsUsesStorage()       const { return SkToBool(fFlags & Flags::kFsUsesStorage);       }
     SkEnumBitMask<RenderStateFlags> getRenderStateFlags() const {
         SkEnumBitMask<RenderStateFlags> rs = RenderStateFlags::kNone;
         if (fFlags & Flags::kFixed)             { rs |= RenderStateFlags::kFixed;           }
@@ -265,6 +267,8 @@ enum class Flags : unsigned {
     kUseNonAAInnerFill      = 0x0800, // Opt into Device recording extra inner fill draws
     kIgnoreInverseFill      = 0x1000, // Rasterization treats all shapes as non-inverted for scissor
     kInverseFillsScissor    = 0x2000, // Rasterization of inverse fills scissor geometrically
+    kVsUsesStorage          = 0x4000, // Does the vertex shader require storage buffer access?
+    kFsUsesStorage          = 0x8000, // Does the fragment shader require storage buffer access?
 };
 SK_DECL_BITMASK_OPS_FRIENDS(Flags)
 
