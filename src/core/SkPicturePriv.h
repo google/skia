@@ -127,6 +127,7 @@ public:
     // v107: Combine SkColorShader and SkColorShader4
     // v108: Serialize stable keys of runtime effects
     // v109: Extend SkWorkingColorSpaceShader to have alpha type + output control
+    // v110: Add restrictOutputToInputBounds to SkImageFilters::RuntimeShader
 
     enum Version {
         kPictureShaderFilterParam_Version   = 82,
@@ -157,6 +158,7 @@ public:
         kCombineColorShaders                = 107,
         kSerializeStableKeys                = 108,
         kWorkingColorSpaceOutput            = 109,
+        kRuntimeImageFilterRestrictedOutput = 110,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         //
@@ -181,7 +183,7 @@ public:
         //
         // Contact the Infra Gardener if the above steps do not work for you.
         kMin_Version     = kPictureShaderFilterParam_Version,
-        kCurrent_Version = kWorkingColorSpaceOutput
+        kCurrent_Version = kRuntimeImageFilterRestrictedOutput
     };
 };
 

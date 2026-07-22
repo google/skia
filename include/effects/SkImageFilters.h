@@ -414,12 +414,21 @@ public:
      * This allows Skia to provide sampleable values for the image filter without worrying about
      * boundary conditions.
      *
+     * By default the output of a runtime shader is unbounded, since Skia cannot know what colors
+     * the SkSL will produce for pixels outside of its inputs' bounds. If
+     * 'restrictOutputToInputBounds' is true, the caller promises that the SkSL evaluates to
+     * transparent black wherever its child shaders are transparent black, so the filter's output
+     * bounds can be restricted to the union of its inputs' output bounds (the source image's
+     * bounds when 'input' is null). This lets downstream filters (e.g. a blur with a non-decal
+     * tile mode) see the original content bounds instead of an unbounded result.
+     *
      * This requires a GPU backend or SkSL to be compiled in.
     */
     static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeEffectBuilder& builder,
                                               SkScalar sampleRadius,
                                               std::string_view childShaderName,
-                                              sk_sp<SkImageFilter> input);
+                                              sk_sp<SkImageFilter> input,
+                                              bool restrictOutputToInputBounds = false);
 
     /**
      *  Create a filter that fills the output with the per-pixel evaluation of the SkShader produced
@@ -453,13 +462,17 @@ public:
      * childShaderNames) will be evaluated with coordinates at most 'maxSampleRadius' away from the
      * coordinate provided to the runtime shader itself.
      *
+     * If 'restrictOutputToInputBounds' is true, the filter's output bounds are restricted to the
+     * union of its inputs' output bounds; see the single-child variant for details.
+     *
      *  This requires a GPU backend or SkSL to be compiled in.
      */
     static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeEffectBuilder& builder,
                                               SkScalar maxSampleRadius,
                                               std::string_view childShaderNames[],
                                               const sk_sp<SkImageFilter> inputs[],
-                                              int inputCount);
+                                              int inputCount,
+                                              bool restrictOutputToInputBounds = false);
 
     enum class Dither : bool {
         kNo = false,
