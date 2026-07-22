@@ -56,7 +56,8 @@ _is_compiler_msvc = !is_clang && is_win
 #    by PartitionAlloc's high-performance thread cache.
 # 3. Permissive pointer casting builtins required for `malloc_zone_t` swapping.
 # Custom vanilla LLVM toolchains (`cc != "clang"`) remain fully supported.
-_is_compiler_xcode = (is_mac || is_ios) && !build_with_chromium && cc == "clang"
+_is_compiler_xcode =
+    (is_mac || is_ios) && !build_with_chromium && (cc == "clang" || cc == "cc")
 
 # Emscripten WebAssembly (CanvasKit) lacks POSIX virtual memory primitives.
 _is_wasm = current_os == "wasm"
