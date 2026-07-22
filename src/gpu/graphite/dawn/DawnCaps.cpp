@@ -280,9 +280,8 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
 
 #if defined(__EMSCRIPTEN__)
     wgpu::SupportedLimits supportedLimits;
-    // TODO(crbug.com/42241199): Update to use wgpu::Status when webgpu.h in Emscripten is updated.
-    [[maybe_unused]] bool limitsSucceeded = backendContext.fDevice.GetLimits(&supportedLimits);
-    SkASSERT(limitsSucceeded);
+    [[maybe_unused]] wgpu::Status status = backendContext.fDevice.GetLimits(&supportedLimits);
+    SkASSERT(status == wgpu::Status::Success);
     wgpu::Limits& limits = supportedLimits.limits;
 #else
     wgpu::CompatibilityModeLimits compatLimits;
