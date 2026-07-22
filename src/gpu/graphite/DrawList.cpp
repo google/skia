@@ -116,7 +116,7 @@ std::unique_ptr<DrawPass> DrawList::snapDrawPass(Recorder* recorder,
     // bugs in the DrawOrder determination code?
     std::sort(fSortKeys.begin(), fSortKeys.end());
 
-    TRACE_EVENT1_ALWAYS("skia.gpu", TRACE_FUNC, "draw count", fDraws.count());
+    TRACE_EVENT1("skia.gpu", TRACE_FUNC, "draw count", fDraws.count());
 
     // The DrawList is converted directly into the DrawPass' data structures, but once the DrawPass
     // is returned from Make(), it is considered immutable.
@@ -236,11 +236,9 @@ std::unique_ptr<DrawPass> DrawList::snapDrawPass(Recorder* recorder,
     drawPass->fPipelineDescs   = fPipelineCache.detach();
     drawPass->fSampledTextures = fTextureDataCache.detachTextures();
 
-    TRACE_EVENT_INSTANT2_ALWAYS("skia.gpu",
-                                "DrawPass Stats",
-                                TRACE_EVENT_SCOPE_THREAD,
-                                "# commands", drawPass->fCommandList.count(),
-                                "# textures", drawPass->fSampledTextures.size());
+    TRACE_COUNTER1("skia.gpu", "# pipelines", drawPass->fPipelineDescs.size());
+    TRACE_COUNTER1("skia.gpu", "# textures", drawPass->fSampledTextures.size());
+    TRACE_COUNTER1("skia.gpu", "# commands", drawPass->fCommandList.count());
 
     this->reset(LoadOp::kLoad);
 
