@@ -544,7 +544,7 @@ namespace skia_private {
 #define TRACE_EVENT_INSTANT2_ALWAYS(category_group, name, scope, arg1_name, arg1_val, \
                                     arg2_name, arg2_val)                              \
     do { TRACE_EVENT_ATRACE_OR_PERFETTO_FORCEABLE(/* force_always_trace = */ true,    \
-                                                  category_group,                     \
+                                                  category_group ".always",           \
                                                   name,                               \
                                                   arg1_name,                          \
                                                   arg1_val,                           \
