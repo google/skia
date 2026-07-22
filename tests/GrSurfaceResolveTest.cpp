@@ -512,3 +512,125 @@ DEF_GANESH_TEST(SurfaceResolveProxyStateAfterFailedFlush,
         }
     }
 }
+
+// Directly read back 'tex' and return the first pixel color.
+static bool read_backing_pixel(GrDirectContext* dContext,
+                               const GrBackendTexture& tex,
+                               const SkImageInfo& info,
+                               SkColor* outPixel) {
+    sk_sp<SkSurface> reader = SkSurfaces::WrapBackendTexture(dContext,
+                                                             tex,
+                                                             kTopLeft_GrSurfaceOrigin,
+                                                             /*sampleCnt=*/1,
+                                                             kRGBA_8888_SkColorType,
+                                                             nullptr,
+                                                             nullptr);
+    if (!reader) {
+        return false;
+    }
+    SkBitmap bm;
+    bm.allocPixels(info);
+    if (!reader->readPixels(bm, 0, 0)) {
+        return false;
+    }
+    *outPixel = bm.getColor(0, 0);
+    return true;
+}
+
+// This test wraps a backend texture as an MSAA render target twice. The first wrap establishes a
+// known baseline color in the single-sample texture via a *successful* flush. The second wrap
+// creates a *fresh, never-written* MSAA color attachment (on GL a new renderbuffer, on Vulkan a
+// scratch/new GrVkImage), records a draw, forces the flush to fail via a failing preFlush
+// callback, and then reads back the single-sample texture. The read-back must not show the
+// uninitialized MSAA attachment contents; if it does, resolve_and_mipmap() ran despite the failed
+// flush and copied uninitialized GPU memory into the client-visible texture.
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceResolveAfterFailedFlush,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
+    auto dContext = ctxInfo.directContext();
+    const GrCaps* caps = dContext->priv().caps();
+
+    // Only meaningful on backends that require an explicit resolve of a persistent MSAA attachment.
+    if (caps->msaaResolvesAutomatically() || caps->preferDiscardableMSAAAttachment()) {
+        return;
+    }
+
+    SkImageInfo info = SkImageInfo::Make(8, 8, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+
+    auto managedTex = ManagedBackendTexture::MakeFromInfo(
+            dContext, info, skgpu::Mipmapped::kNo, GrRenderable::kYes);
+    if (!managedTex) {
+        return;
+    }
+    const GrBackendTexture& tex = managedTex->texture();
+
+    constexpr SkColor kBaseline = SK_ColorBLUE;   // known content of the single-sample texture
+    constexpr SkColor kIntended = SK_ColorGREEN;  // what the failed flush *would* have drawn
+
+    // 1. Wrap once and successfully draw kBaseline so the single-sample texture holds known bytes.
+    {
+        sk_sp<SkSurface> surface = SkSurfaces::WrapBackendTexture(dContext,
+                                                                  tex,
+                                                                  kTopLeft_GrSurfaceOrigin,
+                                                                  /*sampleCnt=*/4,
+                                                                  kRGBA_8888_SkColorType,
+                                                                  nullptr,
+                                                                  nullptr);
+        if (!surface) {
+            return;  // MSAA=4 unsupported on this config.
+        }
+        surface->getCanvas()->clear(kBaseline);
+        dContext->flush(surface.get());
+        dContext->submit(GrSyncCpu::kYes);
+    }
+    // Ensure the second wrap below allocates a *fresh* MSAA attachment rather than recycling the
+    // one from the wrap above (whose contents would coincidentally match kBaseline).
+    dContext->purgeUnlockedResources(GrPurgeResourceOptions::kAllResources);
+
+    SkColor pixel = 0;
+    REPORTER_ASSERT(reporter, read_backing_pixel(dContext, tex, info, &pixel));
+    REPORTER_ASSERT(reporter, pixel == kBaseline,
+                    "baseline flush failed to resolve, got 0x%x", pixel);
+
+    // 2. Re-wrap: this creates a *new* persistent MSAA color attachment that has never been
+    //    written by any render pass in this test.
+    sk_sp<SkSurface> surface = SkSurfaces::WrapBackendTexture(dContext,
+                                                              tex,
+                                                              kTopLeft_GrSurfaceOrigin,
+                                                              /*sampleCnt=*/4,
+                                                              kRGBA_8888_SkColorType,
+                                                              nullptr,
+                                                              nullptr);
+    if (!surface) {
+        return;
+    }
+
+    // 3. Record a full-surface draw so OpsTask::onMakeClosed() returns kTargetDirty and
+    //    markMSAADirty() is called during closeAllTasks(). Force the flush to fail.
+    FailingPreFlushCallback failCB(1);
+    dContext->priv().addOnFlushCallbackObject(&failCB);
+
+    surface->getCanvas()->clear(kIntended);
+    GrSemaphoresSubmitted result = dContext->flush(surface.get(), GrFlushInfo{});
+    dContext->submit(GrSyncCpu::kYes);
+
+    GrDrawingManager* drawingManager = dContext->priv().drawingManager();
+    drawingManager->testingOnly_removeOnFlushCallbackObject(&failCB);
+
+    REPORTER_ASSERT(reporter, result == GrSemaphoresSubmitted::kNo,
+                    "expected flush to report semaphores not submitted");
+
+    // 4. Read back the single-sample backing texture.
+    REPORTER_ASSERT(reporter, read_backing_pixel(dContext, tex, info, &pixel));
+
+    // The recorded draw never executed, so kIntended should not appear.
+    REPORTER_ASSERT(reporter, pixel != kIntended,
+                    "flush failed but draw, somehow, occurred (got 0x%x)", pixel);
+
+    // Since the flush failed the MSAA resolve step should not have occurred and the contents
+    // of the backend texture should have remained at 'kBaseline'.
+    REPORTER_ASSERT(reporter, pixel == kBaseline,
+                    "Invalid resolve after a failed flush: expected 0x%x, actual 0x%x",
+                    kBaseline, pixel);
+}
