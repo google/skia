@@ -669,10 +669,23 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TestManyStopLinearHardstopsGanesh,
                                        reporter,
                                        contextInfo,
                                        CtsEnforcement::kApiLevel_202404) {
+    GrDirectContext* context = contextInfo.directContext();
+
+    if (context->supportsProtectedContent()) {
+        // This test relies on readback - which isn't supported for Protected mode
+        return;
+    }
+    if (contextInfo.type() == skgpu::ContextType::kANGLE_Metal_ES2 ||
+        contextInfo.type() == skgpu::ContextType::kANGLE_GL_ES2 ||
+        contextInfo.type() == skgpu::ContextType::kANGLE_D3D9_ES2 ||
+        contextInfo.type() == skgpu::ContextType::kANGLE_D3D11_ES2) {
+        // Suppress on all ANGLE ES2 configs
+        return;
+    }
+
     constexpr int kNumSegments = 256;
     SkImageInfo ii = SkImageInfo::Make(
             kNumSegments, 1, SkColorType::kRGBA_8888_SkColorType, SkAlphaType::kPremul_SkAlphaType);
-    GrDirectContext* context = contextInfo.directContext();
     sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(context, skgpu::Budgeted::kYes, ii);
     test_many_stop_linear_hardstops(reporter, surface.get());
 }
