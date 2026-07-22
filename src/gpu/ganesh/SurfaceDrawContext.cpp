@@ -830,7 +830,25 @@ void SurfaceDrawContext::setNeedsStencil() {
         if (this->caps()->performStencilClearsAsDraws()) {
             // There is a driver bug with clearing stencil. We must use an op to manually clear the
             // stencil buffer before the op that required 'setNeedsStencil'.
-            this->internalStencilClear(nullptr, /* inside mask */ false);
+            // NOTE: internalStencilClear() only zeroes the *clip* bit (gZeroStencilClipBit lowers
+            // to fWriteMask == clipBit). The initial clear must also zero the user bits, otherwise
+            // stencil-then-cover path renderers read undefined stencil contents
+            constexpr static GrUserStencilSettings kZeroAllStencilBits(
+                    GrUserStencilSettings::StaticInit<
+                            0x0000,
+                            GrUserStencilTest::kAlways,
+                            0xffff,
+                            GrUserStencilOp::kZeroClipAndUserBits,
+                            GrUserStencilOp::kZeroClipAndUserBits,
+                            0xffff>());
+            GrPaint paint;
+            paint.setXPFactory(GrDisableColorXPFactory::Get());
+            SkRect rtRect =
+                    SkRect::Make(this->asSurfaceProxy()->backingStoreDimensions());
+            this->addDrawOp(nullptr,
+                            FillRectOp::MakeNonAARect(fContext, std::move(paint),
+                                                      SkMatrix::I(), rtRect,
+                                                      &kZeroAllStencilBits));
         } else {
             this->getOpsTask()->setInitialStencilContent(
                     OpsTask::StencilContent::kUserBitsCleared);
