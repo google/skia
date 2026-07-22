@@ -626,7 +626,7 @@ public:
      * Frees a texture created by createBackendTexture(). If ownership of the backend
      * texture has been transferred to a context using adopt semantics this should not be called.
      */
-    virtual void deleteBackendTexture(const GrBackendTexture&) = 0;
+    void deleteBackendTexture(const GrBackendTexture&);
 
     /**
      * In this case we have a program descriptor and a program info but no render target.
@@ -736,6 +736,9 @@ private:
                                                               const GrBackendFormat&,
                                                               skgpu::Mipmapped,
                                                               GrProtected) = 0;
+
+    virtual void onDeleteBackendTexture(const GrBackendTexture&) = 0;
+
 
     virtual bool onClearBackendTexture(const GrBackendTexture&,
                                        sk_sp<skgpu::RefCntedCallback> finishedCallback,

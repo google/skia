@@ -564,7 +564,7 @@ namespace skia_private {
     }
 #define TRACE_COUNTER1_ALWAYS(category_group, name, value)          \
     if (SkAndroidFrameworkTraceUtil::getUsePerfettoTrackEvents()) { \
-        TRACE_COUNTER(category_group, name, value);                 \
+        TRACE_COUNTER(category_group ".always", name, value);       \
     } else {                                                        \
         ATRACE_INT(name, value);                                    \
     }

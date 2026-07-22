@@ -17,6 +17,7 @@
 #include "include/gpu/vk/VulkanTypes.h"
 #include "include/private/SkLog.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
+#include "src/gpu/GlobalResourceStats.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/vk/GrVkCaps.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
@@ -124,22 +125,35 @@ GrBackendFormat GetVulkanBackendFormat(GrDirectContext* dContext, AHardwareBuffe
 
 class VulkanCleanupHelper {
 public:
-    VulkanCleanupHelper(GrVkGpu* gpu, VkImage image, VkDeviceMemory memory)
-        : fDevice(gpu->device())
-        , fImage(image)
-        , fMemory(memory)
-        , fDestroyImage(gpu->vkInterface()->fFunctions.fDestroyImage)
-        , fFreeMemory(gpu->vkInterface()->fFunctions.fFreeMemory) {}
+    VulkanCleanupHelper(GrVkGpu* gpu, VkImage image, VkDeviceMemory memory,
+                        size_t size, skgpu::Protected isProtected)
+            : fDevice(gpu->device())
+            , fImage(image)
+            , fMemory(memory)
+            , fDestroyImage(gpu->vkInterface()->fFunctions.fDestroyImage)
+            , fFreeMemory(gpu->vkInterface()->fFunctions.fFreeMemory)
+            , fSize(size)
+            , fProtected(isProtected) {
+        skgpu::GlobalResourceStats::RecordCreateBackendTexture(isProtected, size);
+    }
+
     ~VulkanCleanupHelper() {
         fDestroyImage(fDevice, fImage, nullptr);
         fFreeMemory(fDevice, fMemory, nullptr);
+
+        skgpu::GlobalResourceStats::RecordDeleteBackendTexture(fProtected, fSize);
     }
+
 private:
     VkDevice           fDevice;
     VkImage            fImage;
     VkDeviceMemory     fMemory;
     PFN_vkDestroyImage fDestroyImage;
     PFN_vkFreeMemory   fFreeMemory;
+
+    // For stats tracking
+    size_t fSize;
+    skgpu::Protected fProtected;
 };
 
 void delete_vk_image(void* context) {
@@ -322,9 +336,12 @@ static GrBackendTexture make_vk_backend_texture(
     imageInfo.fPartOfSwapchainOrAndroidWindow = fromAndroidWindow;
 #endif
 
+    const size_t size = GrSurface::ComputeSize(grBackendFormat, {width, height},
+                                               /*colorSamplesPerPixel=*/1, skgpu::Mipmapped::kNo);
+
     *deleteProc = delete_vk_image;
     *updateProc = update_vk_image;
-    *imageCtx = new VulkanCleanupHelper(gpu, image, alloc.fMemory);
+    *imageCtx = new VulkanCleanupHelper(gpu, image, alloc.fMemory, size, imageInfo.fProtected);
 
     return GrBackendTextures::MakeVk(width, height, imageInfo);
 }

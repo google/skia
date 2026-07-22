@@ -53,6 +53,7 @@
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkYUVMath.h"
 #include "src/gpu/AsyncReadTypes.h"
+#include "src/gpu/GlobalResourceStats.h"
 #include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/graphite/AtlasProvider.h"
@@ -819,6 +820,8 @@ void Context::checkForFinishedWork(SyncToCpu syncToCpu) {
     // Process the return queue periodically to make sure it doesn't get too big
     fResourceProvider->forceProcessReturnedResources();
     fSharedContext->forceProcessReturnedResources();
+
+    GlobalResourceStats::TraceStatsSummary();
 }
 
 void Context::checkAsyncWorkCompletion() {

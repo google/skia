@@ -59,8 +59,6 @@ public:
         kSkip_SyncQueue
     };
 
-    void deleteBackendTexture(const GrBackendTexture&) override;
-
     bool compile(const GrProgramDesc&, const GrProgramInfo&) override;
 
     bool precompileShader(const SkData& key, const SkData& data) override;
@@ -141,6 +139,8 @@ private:
                                                       const GrBackendFormat&,
                                                       skgpu::Mipmapped,
                                                       GrProtected) override;
+
+    void onDeleteBackendTexture(const GrBackendTexture&) override;
 
     bool onUpdateCompressedBackendTexture(const GrBackendTexture&,
                                           sk_sp<skgpu::RefCntedCallback> finishedCallback,

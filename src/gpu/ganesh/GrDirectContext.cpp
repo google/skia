@@ -26,6 +26,7 @@
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/DataUtils.h"
+#include "src/gpu/GlobalResourceStats.h"
 #include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/Swizzle.h"
@@ -457,7 +458,9 @@ bool GrDirectContext::submit(const GrSubmitInfo& info) {
         return false;
     }
 
-    return fGpu->submitToGpu(info);
+    bool result = fGpu->submitToGpu(info);
+    skgpu::GlobalResourceStats::TraceStatsSummary();
+    return result;
 }
 
 GrSemaphoresSubmitted GrDirectContext::flush(const sk_sp<const SkImage>& image,

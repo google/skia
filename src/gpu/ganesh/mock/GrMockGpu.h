@@ -237,7 +237,7 @@ private:
         return true;
     }
 
-    void deleteBackendTexture(const GrBackendTexture&) override;
+    void onDeleteBackendTexture(const GrBackendTexture&) override;
 
     bool compile(const GrProgramDesc&, const GrProgramInfo&) override { return false; }
 

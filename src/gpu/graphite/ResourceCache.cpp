@@ -12,9 +12,11 @@
 #include "src/core/SkRandom.h"
 #include "src/core/SkTMultiMap.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/GlobalResourceStats.h"
 #include "src/gpu/graphite/GraphiteResourceKey.h"
 #include "src/gpu/graphite/ProxyCache.h"
 #include "src/gpu/graphite/Resource.h"
+#include "src/gpu/graphite/SharedContext.h"
 
 #if defined(GPU_TEST_UTILS)
 #include "src/gpu/graphite/Texture.h"
@@ -94,6 +96,15 @@ void ResourceCache::shutdown() {
         Resource* back = *(fNonpurgeableResources.end() - 1);
         SkASSERT(!back->wasDestroyed());
         this->removeFromNonpurgeableArray(back);
+
+        if (back->budgeted() == Budgeted::kNo) {
+            // Pretend it's being transitioned through becoming budgeted before we unref it
+            GlobalResourceStats::RecordResourceBudgetChange(
+                    back->isProtected(), back->gpuMemorySize(), Budgeted::kYes);
+        }
+
+        // Resources will delete themselves as needed, but record "purging" here
+        GlobalResourceStats::RecordPurgeResource(back->isProtected(), back->gpuMemorySize());
         back->unrefCache();
     }
 
@@ -101,8 +112,13 @@ void ResourceCache::shutdown() {
         Resource* top = fPurgeableQueue.peek();
         SkASSERT(!top->wasDestroyed());
         this->removeFromPurgeableQueue(top);
+
+        // Resources will delete themselves as needed, but record "purging" here
+        GlobalResourceStats::RecordPurgeResource(top->isProtected(), top->gpuMemorySize());
         top->unrefCache();
     }
+
+    GlobalResourceStats::TraceStatsSummary(); // Record the completion of all the cleanup
 
     TRACE_EVENT_INSTANT0("skia.gpu.cache", TRACE_FUNC, TRACE_EVENT_SCOPE_THREAD);
 }
@@ -157,6 +173,9 @@ void ResourceCache::insertResource(Resource* resource,
         fBudgetedBytes += resource->gpuMemorySize();
     }
 
+    GlobalResourceStats::RecordNewResource(
+            resource->isProtected(), resource->gpuMemorySize(), resource->budgeted());
+
     this->purgeAsNeeded();
 }
 
@@ -202,6 +221,8 @@ Resource* ResourceCache::findAndRefResource(const GraphiteResourceKey& key,
             if (budgeted == Budgeted::kNo) {
                 resource->setBudgeted(Budgeted::kNo);
                 fBudgetedBytes -= resource->gpuMemorySize();
+                GlobalResourceStats::RecordResourceBudgetChange(
+                        resource->isProtected(), resource->gpuMemorySize(), Budgeted::kNo);
             }
             // It is safe to update non-shareable resources when returning them from the cache.
             resource->setLabel(label);
@@ -414,6 +435,8 @@ Resource* ResourceCache::processReturnedResource(Resource* resource) {
             if (resource->budgeted() == Budgeted::kNo) {
                 resource->setBudgeted(Budgeted::kYes);
                 fBudgetedBytes += resource->gpuMemorySize();
+                GlobalResourceStats::RecordResourceBudgetChange(
+                        resource->isProtected(), resource->gpuMemorySize(), Budgeted::kYes);
             }
         }
 
@@ -439,13 +462,15 @@ Resource* ResourceCache::processReturnedResource(Resource* resource) {
 
     // Update GPU budget now that the budget policy is up to date. Some GPU resources may have their
     // actual memory amount change over time so update periodically.
-    if (resource->budgeted() == Budgeted::kYes) {
-        size_t oldSize = resource->gpuMemorySize();
-        resource->updateGpuMemorySize();
-        if (oldSize != resource->gpuMemorySize()) {
+    size_t oldSize = resource->gpuMemorySize();
+    resource->updateGpuMemorySize();
+    if (oldSize != resource->gpuMemorySize()) {
+        if (resource->budgeted() == Budgeted::kYes) {
             fBudgetedBytes -= oldSize;
             fBudgetedBytes += resource->gpuMemorySize();
         }
+        GlobalResourceStats::RecordResourceUpdatedSize(
+                resource->isProtected(), resource->gpuMemorySize(), oldSize, resource->budgeted());
     }
 
     this->setResourceUseToken(resource, this->getNextUseToken());
@@ -477,6 +502,8 @@ Resource* ResourceCache::processReturnedResource(Resource* resource) {
         resource->updateAccessTime();
         fPurgeableQueue.insert(resource);
         fPurgeableBytes += resource->gpuMemorySize();
+        GlobalResourceStats::RecordResourcePurgeable(
+                resource->isProtected(), resource->gpuMemorySize());
     }
     this->validate();
 
@@ -526,6 +553,8 @@ void ResourceCache::removeFromPurgeableQueue(Resource* resource) {
 
     fPurgeableQueue.remove(resource);
     fPurgeableBytes -= resource->gpuMemorySize();
+    GlobalResourceStats::RecordResourceNonpurgeable(
+            resource->isProtected(), resource->gpuMemorySize());
     // SkTDPQueue will set the index back to -1 in debug builds, but we are using the index as a
     // flag for whether the Resource has been purged from the cache or not. So we need to make sure
     // it always gets set.
@@ -575,8 +604,11 @@ void ResourceCache::purgeResource(Resource* resource) {
     }
 
     SkASSERT(!this->isInCache(resource));
-
+    // Unbudgeted resources always transition through becoming reusable and budgeted before they
+    // are purged.
+    SkASSERT(resource->budgeted() == Budgeted::kYes);
     fBudgetedBytes -= resource->gpuMemorySize();
+    GlobalResourceStats::RecordPurgeResource(resource->isProtected(), resource->gpuMemorySize());
     resource->unrefCache();
 }
 

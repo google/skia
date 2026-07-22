@@ -2009,7 +2009,7 @@ void GrVkGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType barrierType) {
                                 dstStage, true, &barrier);
 }
 
-void GrVkGpu::deleteBackendTexture(const GrBackendTexture& tex) {
+void GrVkGpu::onDeleteBackendTexture(const GrBackendTexture& tex) {
     SkASSERT(GrBackendApi::kVulkan == tex.fBackend);
 
     GrVkImageInfo info;

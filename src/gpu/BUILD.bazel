@@ -20,6 +20,8 @@ SHARED_FILES = [
     "DataUtils.h",
     "DitherUtils.cpp",
     "DitherUtils.h",
+    "GlobalResourceStats.cpp",
+    "GlobalResourceStats.h",
     "GpuRefCnt.h",
     "GpuTypesPriv.h",
     "GradientBitmap.cpp",

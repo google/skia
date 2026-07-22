@@ -1619,7 +1619,7 @@ bool GrD3DGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendT
     return true;
 }
 
-void GrD3DGpu::deleteBackendTexture(const GrBackendTexture& tex) {
+void GrD3DGpu::onDeleteBackendTexture(const GrBackendTexture& tex) {
     SkASSERT(GrBackendApi::kDirect3D == tex.backend());
     // Nothing to do here, will get cleaned up when the GrBackendTexture object goes away
 }

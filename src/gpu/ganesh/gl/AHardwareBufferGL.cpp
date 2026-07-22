@@ -16,7 +16,9 @@
 #include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "include/gpu/ganesh/gl/GrGLTypes.h"
 #include "include/private/SkLog.h"
+#include "src/gpu/GlobalResourceStats.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrSurface.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 
@@ -76,15 +78,23 @@ GrBackendFormat GetGLBackendFormat(GrDirectContext* dContext,
 
 class GLTextureHelper {
 public:
-    GLTextureHelper(GrGLuint texID, EGLImageKHR image, EGLDisplay display, GrGLuint texTarget)
-        : fTexID(texID)
-        , fImage(image)
-        , fDisplay(display)
-        , fTexTarget(texTarget) { }
+    GLTextureHelper(GrGLuint texID, EGLImageKHR image, EGLDisplay display, GrGLuint texTarget,
+                    size_t size, skgpu::Protected isProtected)
+            : fTexID(texID)
+            , fImage(image)
+            , fDisplay(display)
+            , fTexTarget(texTarget)
+            , fSize(size)
+            , fProtected(isProtected) {
+        skgpu::GlobalResourceStats::RecordCreateBackendTexture(isProtected, size);
+    }
+
     ~GLTextureHelper() {
         glDeleteTextures(1, &fTexID);
         // eglDestroyImageKHR will remove a ref from the AHardwareBuffer
         eglDestroyImageKHR(fDisplay, fImage);
+
+        skgpu::GlobalResourceStats::RecordDeleteBackendTexture(fProtected, fSize);
     }
     void rebind(GrDirectContext*);
 
@@ -93,6 +103,10 @@ private:
     EGLImageKHR fImage;
     EGLDisplay  fDisplay;
     GrGLuint    fTexTarget;
+
+    // For stats tracking
+    size_t fSize;
+    skgpu::Protected fProtected;
 };
 
 void GLTextureHelper::rebind(GrDirectContext* dContext) {
@@ -197,9 +211,12 @@ static GrBackendTexture make_gl_backend_texture(
     textureInfo.fFormat = GrBackendFormats::AsGLFormatEnum(backendFormat);
     textureInfo.fProtected = skgpu::Protected(isProtectedContent);
 
+    const size_t size = GrSurface::ComputeSize(backendFormat, {width, height},
+                                               /*colorSamplesPerPixel=*/1, skgpu::Mipmapped::kNo);
+
     *deleteProc = delete_gl_texture;
     *updateProc = update_gl_texture;
-    *imageCtx = new GLTextureHelper(texID, image, display, target);
+    *imageCtx = new GLTextureHelper(texID, image, display, target, size, textureInfo.fProtected);
 
     return GrBackendTextures::MakeGL(width, height, skgpu::Mipmapped::kNo, textureInfo);
 }

@@ -111,9 +111,7 @@ public:
         sk_sp<GrDirectContext> fDirectContext;
     };
 
-#if defined(GPU_TEST_UTILS)
     const GrSurface* asSurface() const override { return this; }
-#endif
 
 protected:
     void setGLRTFBOIDIs0() {

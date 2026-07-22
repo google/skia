@@ -235,9 +235,7 @@ public:
 
     static uint32_t CreateUniqueID();
 
-#if defined(GPU_TEST_UTILS)
     virtual const GrSurface* asSurface() const { return nullptr; }
-#endif
 
 protected:
     // This must be called by every non-wrapped GrGpuObject. It should be called once the object is

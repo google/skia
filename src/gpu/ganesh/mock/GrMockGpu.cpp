@@ -297,7 +297,7 @@ GrBackendTexture GrMockGpu::onCreateCompressedBackendTexture(SkISize dimensions,
     return GrBackendTextures::MakeMock(dimensions.width(), dimensions.height(), mipmapped, info);
 }
 
-void GrMockGpu::deleteBackendTexture(const GrBackendTexture& tex) {
+void GrMockGpu::onDeleteBackendTexture(const GrBackendTexture& tex) {
     SkASSERT(tex.backend() == GrBackendApi::kMock);
 
     GrMockTextureInfo info = GrBackendTextures::GetMockTextureInfo(tex);

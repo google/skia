@@ -62,8 +62,6 @@ public:
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
-    void deleteBackendTexture(const GrBackendTexture&) override;
-
     bool compile(const GrProgramDesc&, const GrProgramInfo&) override;
 
 #if defined(GPU_TEST_UTILS)
@@ -151,6 +149,8 @@ private:
                                                GrProtected,
                                                const void* data,
                                                size_t dataSize) override;
+
+    void onDeleteBackendTexture(const GrBackendTexture&) override;
 
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,
                                           GrWrapOwnership,

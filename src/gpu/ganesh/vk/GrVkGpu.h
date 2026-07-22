@@ -139,8 +139,6 @@ public:
                                      skgpu::MutableTextureState* previousState,
                                      sk_sp<skgpu::RefCntedCallback> finishedCallback) override;
 
-    void deleteBackendTexture(const GrBackendTexture&) override;
-
     bool compile(const GrProgramDesc&, const GrProgramInfo&) override;
 
 #if defined(GPU_TEST_UTILS)
@@ -268,6 +266,8 @@ private:
                                                       const GrBackendFormat&,
                                                       skgpu::Mipmapped,
                                                       GrProtected) override;
+
+    void onDeleteBackendTexture(const GrBackendTexture&) override;
 
     bool onClearBackendTexture(const GrBackendTexture&,
                                sk_sp<skgpu::RefCntedCallback> finishedCallback,

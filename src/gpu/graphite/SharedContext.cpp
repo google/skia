@@ -16,6 +16,7 @@
 #include "src/gpu/graphite/GpuWorkSubmission.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
+#include "src/gpu/graphite/ResourceCache.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/SerializationUtils.h"
 #include "src/gpu/graphite/ThreadSafeResourceProvider.h"

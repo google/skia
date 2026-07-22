@@ -41,6 +41,8 @@ public:
 
     const Texture* asTexture() const override { return this; }
 
+    Protected isProtected() const override { return fInfo.isProtected(); }
+
     virtual bool canUploadOnHost() const { return false; }
 
     // With the assumption that the source data can upload on the host, attempts to write to the

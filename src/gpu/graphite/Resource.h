@@ -239,6 +239,8 @@ public:
     Shareable shareable() const { return fShareable; }
     const GraphiteResourceKey& key() const { return fKey; }
 
+    virtual Protected isProtected() const { return Protected::kNo; }
+
     // Retrieves the amount of GPU memory used by this resource in bytes. It is approximate since we
     // aren't aware of additional padding or copies made by the driver.
     size_t gpuMemorySize() const { return fGpuMemorySize; }

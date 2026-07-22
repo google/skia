@@ -17,6 +17,7 @@
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/GlobalResourceStats.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -902,8 +903,14 @@ GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
         return {};
     }
 
-    return this->onCreateBackendTexture(
+    auto beTex = this->onCreateBackendTexture(
             dimensions, format, renderable, mipmapped, isProtected, label);
+    if (beTex.isValid()) {
+        skgpu::GlobalResourceStats::RecordCreateBackendTexture(
+                isProtected == GrProtected::kYes ? skgpu::Protected::kYes : skgpu::Protected::kNo,
+                GrSurface::ComputeSize(format, dimensions, 1, mipmapped));
+    }
+    return beTex;
 }
 
 bool GrGpu::clearBackendTexture(const GrBackendTexture& backendTexture,
@@ -946,7 +953,25 @@ GrBackendTexture GrGpu::createCompressedBackendTexture(SkISize dimensions,
         return {};
     }
 
-    return this->onCreateCompressedBackendTexture(dimensions, format, mipmapped, isProtected);
+    auto tex =  this->onCreateCompressedBackendTexture(dimensions, format, mipmapped, isProtected);
+    if (tex.isValid()) {
+        skgpu::GlobalResourceStats::RecordCreateBackendTexture(
+                isProtected == GrProtected::kYes ? skgpu::Protected::kYes : skgpu::Protected::kNo,
+                GrSurface::ComputeSize(format, dimensions, /*colorSamplesPerPixel=*/1, mipmapped));
+    }
+    return tex;
+}
+
+void GrGpu::deleteBackendTexture(const GrBackendTexture& beTex) {
+    if (beTex.isValid()) {
+        skgpu::GlobalResourceStats::RecordDeleteBackendTexture(
+                beTex.isProtected() ? skgpu::Protected::kYes : skgpu::Protected::kNo,
+                GrSurface::ComputeSize(beTex.getBackendFormat(),
+                                       beTex.dimensions(),
+                                       /*colorSamplesPerPixel=*/1,
+                                       beTex.mipmapped()));
+        this->onDeleteBackendTexture(beTex);
+    }
 }
 
 bool GrGpu::updateCompressedBackendTexture(const GrBackendTexture& backendTexture,

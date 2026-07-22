@@ -24,7 +24,6 @@ class SharedContext;
 class Buffer : public Resource {
 public:
     size_t size() const { return fSize; }
-    Protected isProtected() const { return fIsProtected; }
 
     // TODO(b/262249983): Separate into mapRead(), mapWrite() methods.
     // If the buffer is already mapped then pointer is returned. If an asyncMap() was started then
@@ -41,6 +40,8 @@ public:
     virtual bool isUnmappable() const;
 
     const char* getResourceType() const override { return "Buffer"; }
+
+    Protected isProtected() const override { return fIsProtected; }
 
 protected:
     Buffer(const SharedContext* sharedContext,
