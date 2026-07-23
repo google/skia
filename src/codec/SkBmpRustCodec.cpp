@@ -88,20 +88,22 @@ rust::Box<rust_bmp::ResultOfReader> NewReaderFromData(const SkData* data) {
 }  // namespace
 
 std::unique_ptr<SkBmpRustCodec> SkBmpRustCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
-                                                               Result* result) {
+                                                               Result* result,
+                                                               StreamType type) {
     Result resultStorage;
     if (!result) {
         result = &resultStorage;
     }
 
     if (!stream) {
-        *result = kInvalidInput;
+        *result = (type == StreamType::kICO) ? kInvalidParameters : kInvalidInput;
         return nullptr;
     }
 
     rust::Box<rust_bmp::ResultOfReader> resultOfReader = NewReaderFromStream(stream.get());
 
-    return MakeFromStreamAndReader(std::move(stream), std::move(resultOfReader), result, nullptr);
+    return MakeFromStreamAndReader(std::move(stream), std::move(resultOfReader), type,
+                                   /*inMemoryData=*/nullptr, result);
 }
 
 std::unique_ptr<SkBmpRustCodec> SkBmpRustCodec::MakeFromData(sk_sp<const SkData> data,
@@ -119,8 +121,8 @@ std::unique_ptr<SkBmpRustCodec> SkBmpRustCodec::MakeFromData(sk_sp<const SkData>
     if (!data->empty() && data->size() <= kInMemoryReaderThreshold) {
         rust::Box<rust_bmp::ResultOfReader> resultOfReader = NewReaderFromData(data.get());
         std::unique_ptr<SkStream> stream = SkMemoryStream::Make(data);
-        return MakeFromStreamAndReader(std::move(stream), std::move(resultOfReader), result,
-                                       std::move(data));
+        return MakeFromStreamAndReader(std::move(stream), std::move(resultOfReader),
+                                       StreamType::kBMP, data, result);
     }
 
     return MakeFromStream(SkMemoryStream::Make(std::move(data)), result);
@@ -129,8 +131,9 @@ std::unique_ptr<SkBmpRustCodec> SkBmpRustCodec::MakeFromData(sk_sp<const SkData>
 std::unique_ptr<SkBmpRustCodec> SkBmpRustCodec::MakeFromStreamAndReader(
         std::unique_ptr<SkStream> stream,
         rust::Box<rust_bmp::ResultOfReader> resultOfReader,
-        Result* result,
-        sk_sp<const SkData> inMemoryData) {
+        StreamType streamType,
+        sk_sp<const SkData> inMemoryData,
+        Result* result) {
     SkASSERT_RELEASE(stream);
     SkASSERT_RELEASE(result);
 
@@ -143,9 +146,12 @@ std::unique_ptr<SkBmpRustCodec> SkBmpRustCodec::MakeFromStreamAndReader(
     rust::Box<rust_bmp::Reader> reader = resultOfReader->unwrap();
 
     // In streaming mode, metadata might not be available yet if the stream
-    // doesn't have enough data. Try to read metadata explicitly.
+    // doesn't have enough data. Try to read metadata explicitly. ICO streams use
+    // ICO-aware parsing: no file header, halved height, alpha via an AND mask.
     if (!reader->metadata_loaded()) {
-        rust_bmp::DecodingResult metadataResult = reader->read_metadata();
+        rust_bmp::DecodingResult metadataResult = (streamType == StreamType::kICO)
+                ? reader->read_metadata_for_ico()
+                : reader->read_metadata();
 
         if (metadataResult == rust_bmp::DecodingResult::IncompleteInput) {
             // Need more data for metadata
@@ -161,6 +167,16 @@ std::unique_ptr<SkBmpRustCodec> SkBmpRustCodec::MakeFromStreamAndReader(
         SkASSERT_RELEASE(reader->metadata_loaded());
     }
 
+    return MakeFromReader(std::move(stream), std::move(reader), streamType,
+                          std::move(inMemoryData), result);
+}
+
+std::unique_ptr<SkBmpRustCodec> SkBmpRustCodec::MakeFromReader(
+        std::unique_ptr<SkStream> stream,
+        rust::Box<rust_bmp::Reader> reader,
+        StreamType streamType,
+        sk_sp<const SkData> inMemoryData,
+        Result* result) {
     uint32_t width = reader->width();
     uint32_t height = reader->height();
     rust_bmp::BmpColor rustColor = reader->color();
@@ -218,6 +234,7 @@ std::unique_ptr<SkBmpRustCodec> SkBmpRustCodec::MakeFromStreamAndReader(
         std::move(encodedInfo),
         std::move(stream),
         std::move(reader),
+        streamType,
         std::move(inMemoryData)
     ));
 }
@@ -225,6 +242,7 @@ std::unique_ptr<SkBmpRustCodec> SkBmpRustCodec::MakeFromStreamAndReader(
 SkBmpRustCodec::SkBmpRustCodec(SkEncodedInfo&& encodedInfo,
                                std::unique_ptr<SkStream> stream,
                                rust::Box<rust_bmp::Reader> reader,
+                               StreamType streamType,
                                sk_sp<const SkData> inMemoryData)
     : SkCodec(std::move(encodedInfo), skcms_PixelFormat_RGB_888,
               // TODO(crbug.com/370522089): Pass stream to SkCodec once SkCodec
@@ -232,7 +250,8 @@ SkBmpRustCodec::SkBmpRustCodec(SkEncodedInfo&& encodedInfo,
               /* stream = */ nullptr)
     , fReader(std::move(reader))
     , fPrivStream(std::move(stream))
-    , fInMemoryData(std::move(inMemoryData)) {
+    , fInMemoryData(std::move(inMemoryData))
+    , fStreamType(streamType) {
     SkASSERT_RELEASE(fPrivStream);
 }
 
@@ -293,9 +312,12 @@ bool SkBmpRustCodec::onRewind() {
 
     fReader = resultOfReader->unwrap();
 
-    // Read metadata for the new reader (required before read_image_data can work)
+    // Read metadata for the new reader (required before read_image_data can work).
+    // Use ICO-aware metadata parsing if this codec was created from an ICO stream.
     if (!fReader->metadata_loaded()) {
-        rust_bmp::DecodingResult metadataResult = fReader->read_metadata();
+        rust_bmp::DecodingResult metadataResult = (fStreamType == StreamType::kICO)
+                ? fReader->read_metadata_for_ico()
+                : fReader->read_metadata();
         if (metadataResult != rust_bmp::DecodingResult::Success) {
             return false;
         }

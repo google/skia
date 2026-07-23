@@ -130,6 +130,28 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/codec:rust_icc_codec_hdrs",
 			},
 		},
+		{Var: "skia_codec_rust_ico_public",
+			Rules: []string{
+				"//experimental/rust_ico/decoder:hdrs",
+			},
+		},
+		{Var: "skia_codec_rust_ico",
+			Rules: []string{
+				"//experimental/rust_ico/decoder:srcs",
+				"//experimental/rust_ico/decoder/impl:skicorustcodec_hdrs",
+				"//experimental/rust_ico/decoder/impl:skicorustcodec_srcs",
+			},
+		},
+		{Var: "skia_codec_rust_ico_ffi_rs_srcs",
+			Rules: []string{
+				"//experimental/rust_ico/ffi:rs_srcs",
+			},
+		},
+		{Var: "skia_codec_rust_ico_ffi_cxx_bridge_srcs",
+			Rules: []string{
+				"//experimental/rust_ico/ffi:cxx_bridge_srcs",
+			},
+		},
 	}},
 	{GNI: "gn/core.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_core_public",

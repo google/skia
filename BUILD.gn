@@ -1386,8 +1386,8 @@ if (is_debug) {
 # from having multiple copies of the Rust standard library.
 
 if (skia_use_fontations || skia_use_rust_png_decode ||
-    skia_use_rust_png_encode || skia_use_rust_bmp_decode || skia_use_rust_icc ||
-    skia_use_rust_exif) {
+    skia_use_rust_png_encode || skia_use_rust_bmp_decode ||
+    skia_use_rust_ico_decode || skia_use_rust_icc || skia_use_rust_exif) {
   # Collect all Rust targets, sources, outputs based on what's enabled
   _rust_targets = []
   _rust_sources = []
@@ -1395,9 +1395,10 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
   _rust_output_mappings = []
 
   # Add cxx dependency if any feature that needs it is enabled
-  _needs_cxx = skia_use_fontations || skia_use_rust_png_decode ||
-               skia_use_rust_png_encode || skia_use_rust_bmp_decode ||
-               skia_use_rust_icc || skia_use_rust_exif
+  _needs_cxx =
+      skia_use_fontations || skia_use_rust_png_decode ||
+      skia_use_rust_png_encode || skia_use_rust_bmp_decode ||
+      skia_use_rust_ico_decode || skia_use_rust_icc || skia_use_rust_exif
   if (_needs_cxx) {
     _rust_targets += [ "@crates//:cxx_cc" ]
     _rust_sources += [
@@ -1490,6 +1491,27 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
     ]
   }
 
+  if (skia_use_rust_ico_decode) {
+    _rust_targets += [ "//experimental/rust_ico/ffi:ffi_rs" ]
+    _rust_sources += [
+      "experimental/rust_ico/ffi/BUILD.bazel",
+      "experimental/rust_ico/ffi/FFI.rs",
+    ]
+    _rust_outputs += [
+      "$root_out_dir/librust_ico_ffi_rs.a",
+      "$root_out_dir/experimental/rust_ico/ffi/FFI.rs.h",
+      "$root_out_dir/experimental/rust_ico/ffi/FFI.rs.cc",
+    ]
+    _rust_output_mappings += [
+      rebase_path("//bazel-bin/experimental/rust_ico/ffi/libffi_rs.a",
+                  root_build_dir) + "=librust_ico_ffi_rs.a",
+      rebase_path("//bazel-bin/experimental/rust_ico/ffi/FFI.rs.h",
+                  root_build_dir) + "=experimental/rust_ico/ffi/FFI.rs.h",
+      rebase_path("//bazel-bin/experimental/rust_ico/ffi/FFI.rs.cc",
+                  root_build_dir) + "=experimental/rust_ico/ffi/FFI.rs.cc",
+    ]
+  }
+
   if (skia_use_rust_icc) {
     _rust_targets += [ "//rust/icc:ffi_rs" ]
     _rust_sources += [
@@ -1560,6 +1582,9 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
     if (skia_use_rust_bmp_decode) {
       _all_rust_libs += [ "$root_out_dir/librust_bmp_ffi_rs.a" ]
     }
+    if (skia_use_rust_ico_decode) {
+      _all_rust_libs += [ "$root_out_dir/librust_ico_ffi_rs.a" ]
+    }
     if (skia_use_rust_icc) {
       _all_rust_libs += [ "$root_out_dir/librust_icc_ffi_rs.a" ]
     }
@@ -1584,6 +1609,9 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
     }
     if (skia_use_rust_bmp_decode) {
       _all_rust_libs += [ "$root_out_dir/librust_bmp_ffi_rs.a" ]
+    }
+    if (skia_use_rust_ico_decode) {
+      _all_rust_libs += [ "$root_out_dir/librust_ico_ffi_rs.a" ]
     }
     if (skia_use_rust_icc) {
       _all_rust_libs += [ "$root_out_dir/librust_icc_ffi_rs.a" ]
@@ -1756,6 +1784,9 @@ optional("png_decode_rust") {
   sources = skia_codec_rust_png
   sources_for_tests = [ "tests/SkPngRustDecoderTest.cpp" ]
 
+  # The public header pulls in `rust/png/FFI.rs.h`, so dependents need the cxx
+  # bridge's include path (`$root_out_dir`) on their compile line.
+  public_configs = [ ":rust_common_cxx_bridge_public_config" ]
   deps = [
     ":png_decode_common",
     ":rust_common",
@@ -1803,6 +1834,42 @@ optional("bmp_decode_rust") {
     ":rust_bmp_cxx_bridge",
     ":rust_common",
     ":rust_ffi_libs",
+  ]
+  libs = [ "c++" ]
+}
+
+if (skia_use_rust_ico_decode) {
+  config("rust_ico_cxx_bridge_public_config") {
+    include_dirs = [ "$root_out_dir" ]
+  }
+  config("rust_ico_cxx_bridge_private_config") {
+    include_dirs = [ "." ]
+  }
+  skia_source_set("rust_ico_cxx_bridge") {
+    deps = [ ":rust_all_ffi_bazel_build" ]
+    public = [ "${root_out_dir}/experimental/rust_ico/ffi/FFI.rs.h" ]
+    sources = [ "${root_out_dir}/experimental/rust_ico/ffi/FFI.rs.cc" ]
+    public_configs = [ ":rust_ico_cxx_bridge_public_config" ]
+    configs = [ ":rust_ico_cxx_bridge_private_config" ]
+  }
+}
+
+optional("ico_decode_rust") {
+  public_defines = [ "SK_CODEC_DECODES_ICO_WITH_RUST" ]
+  enabled = skia_use_rust_ico_decode
+  public = [ "experimental/rust_ico/decoder/SkIcoRustDecoder.h" ]
+  sources = [
+    "experimental/rust_ico/decoder/SkIcoRustDecoder.cpp",
+    "experimental/rust_ico/decoder/SkIcoRustDecoder.h",
+    "experimental/rust_ico/decoder/impl/SkIcoRustCodec.cpp",
+    "experimental/rust_ico/decoder/impl/SkIcoRustCodec.h",
+  ]
+  sources_for_tests = [ "tests/SkIcoRustDecoderTest.cpp" ]
+  deps = [
+    ":bmp_decode_rust",
+    ":png_decode_rust",
+    ":rust_ffi_libs",
+    ":rust_ico_cxx_bridge",
   ]
   libs = [ "c++" ]
 }
@@ -2835,6 +2902,7 @@ if (skia_enable_tools) {
         ":fontmgr_fontconfig_tests",
         ":fontmgr_mac_ct_tests",
         ":fontscanner_tests",
+        ":ico_decode_rust_tests",
         ":png_decode_libpng_tests",
         ":png_decode_rust_tests",
         ":png_encode_rust_tests",

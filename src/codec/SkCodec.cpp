@@ -48,7 +48,9 @@
 #include "include/codec/SkGifDecoder.h"
 #endif
 
-#if defined(SK_CODEC_DECODES_ICO)
+#if defined(SK_CODEC_DECODES_ICO_WITH_RUST)
+#include "experimental/rust_ico/decoder/SkIcoRustDecoder.h"
+#elif defined(SK_CODEC_DECODES_ICO)
 #include "include/codec/SkIcoDecoder.h"
 #endif
 
@@ -102,7 +104,9 @@ static std::vector<Decoder>* get_decoders_for_editing() {
 #if defined(SK_CODEC_DECODES_GIF) || defined(SK_HAS_WUFFS_LIBRARY)
             decoders->push_back(SkGifDecoder::Decoder());
 #endif
-#if defined(SK_CODEC_DECODES_ICO)
+#if defined(SK_CODEC_DECODES_ICO_WITH_RUST)
+            decoders->push_back(SkIcoRustDecoder::Decoder());
+#elif defined(SK_CODEC_DECODES_ICO)
             decoders->push_back(SkIcoDecoder::Decoder());
 #endif
 

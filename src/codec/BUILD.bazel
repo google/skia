@@ -78,6 +78,7 @@ skia_cc_library(
     features = ["layering_check"],
     local_defines = ["SK_DISABLE_LEGACY_INIT_DECODERS"],
     visibility = [
+        "//experimental/rust_ico/decoder/impl:__pkg__",
         "//src/encode:__pkg__",
         "//src/pdf:__pkg__",
         "//src/ports:__pkg__",
@@ -127,6 +128,8 @@ skia_cc_library(
         "//include/private:decode_srcs",
     ] + ANY_DECODER_HDRS + PRIVATE_CODEC_HEADERS,
     visibility = [
+        "//experimental/rust_ico/decoder:__pkg__",
+        "//experimental/rust_ico/decoder/impl:__pkg__",
         "//modules/skottie:__pkg__",
         "//modules/skottie/src:__pkg__",
         "//modules/skresources:__pkg__",
@@ -209,13 +212,17 @@ skia_filegroup(
     ],
 )
 
+# The SkBmpRustCodec class, split out from the BMP decoder so that other codecs
+# (e.g. the experimental Rust ICO decoder) can delegate BMP entries to it
+# without linking the SkBmpRustCodec sources twice.
 skia_cc_library(
-    name = "rust_bmp_decoder",
-    srcs = [":rust_bmp_srcs"],
-    hdrs = ["//include/codec:rust_bmp_public_hdrs"],
-    defines = ["SK_CODEC_DECODES_BMP_WITH_RUST"],
+    name = "rust_bmp_codec",
+    srcs = ["SkBmpRustCodec.cpp"],
+    hdrs = ["SkBmpRustCodec.h"],
     features = ["layering_check"],
-    visibility = ["//:__pkg__"],
+    visibility = [
+        "//experimental/rust_ico/decoder/impl:__pkg__",
+    ],
     deps = [
         ":codec_support_priv",
         "//:core",
@@ -223,6 +230,24 @@ skia_cc_library(
         "//rust/bmp:cxx_bridge",
         "//rust/bmp:ffi_rs",
         "//rust/common:ffi_utils",
+        "//src/core:core_priv",
+        "@crates//:cxx_cc",
+    ],
+)
+
+skia_cc_library(
+    name = "rust_bmp_decoder",
+    srcs = ["SkBmpRustDecoder.cpp"],
+    hdrs = ["//include/codec:rust_bmp_public_hdrs"],
+    defines = ["SK_CODEC_DECODES_BMP_WITH_RUST"],
+    features = ["layering_check"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        ":codec_support_priv",
+        ":rust_bmp_codec",
+        "//:core",
+        "//rust/bmp:cxx_bridge",
+        "//rust/bmp:ffi_rs",
         "//src/core:core_priv",
         "@crates//:cxx_cc",
     ],
@@ -456,7 +481,10 @@ skia_cc_library(
         "//conditions:default": [],
     }),
     features = ["layering_check"],
-    visibility = ["//:__pkg__"],
+    visibility = [
+        "//:__pkg__",
+        "//experimental/rust_ico:__subpackages__",
+    ],
     deps = [
         ":any_decoder",
         ":png_codec_base",

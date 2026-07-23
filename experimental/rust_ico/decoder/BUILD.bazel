@@ -1,0 +1,35 @@
+load(
+    "//bazel:skia_rules.bzl",
+    "skia_cc_library",
+    "skia_filegroup",
+)
+
+skia_filegroup(
+    name = "hdrs",
+    srcs = [
+        "SkIcoRustDecoder.h",
+    ],
+)
+
+skia_filegroup(
+    name = "srcs",
+    srcs = [
+        "SkIcoRustDecoder.cpp",
+    ],
+)
+
+# C++ wrapper library for Rust ICO decoder
+# Integrates Rust-based PNG and BMP decoders with Skia's codec system
+skia_cc_library(
+    name = "decoder",
+    srcs = [":srcs"],
+    hdrs = [":hdrs"],
+    defines = ["SK_CODEC_DECODES_ICO_WITH_RUST"],  # Feature flag for Rust decoder
+    features = ["layering_check"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "//experimental/rust_ico/decoder/impl:skicorustcodec",
+        "//src/codec:codec_support_priv",
+    ],
+)
