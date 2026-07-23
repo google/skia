@@ -137,6 +137,8 @@ GRAPHITE_FILES = [
     "SharedContext.h",
     "SpecialImage_Graphite.cpp",
     "SpecialImage_Graphite.h",
+    "StorageBufferManager.cpp",
+    "StorageBufferManager.h",
     "Surface_Graphite.cpp",
     "Surface_Graphite.h",
     "Texture.cpp",

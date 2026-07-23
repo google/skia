@@ -21,6 +21,7 @@
 #include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
+#include "src/gpu/graphite/StorageBufferManager.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"
@@ -477,129 +478,6 @@ private:
     UniformExpectationsValidator& operator=(const UniformExpectationsValidator&) = delete;
 };
 #endif // SK_DEBUG
-
-/**
- * Aggregates gradient color and stop information into a single buffer to be bound once for a
- * DrawPass. It de-duplicates gradient data by caching based on the SkGradientBaseShader pointer.
- */
-class FloatStorageManager : public SkRefCnt {
-    // Size limit for individual gradients (anything larger will be dropped)
-    static constexpr int kMaxGradientStops = 1024 * 1024; // ~5MB of data in the shader
-
-    // Size limit for the max buffer size. If a new draw would exceed this limit, we drop the draw.
-    // The float storage manager is used by all Devices in a Recorder and is reset at snap(),
-    // requiring a global flush to otherwise get a new buffer (which is undesirable). Instead, we
-    // assume that exceeding this limit happens in two situations:
-    //   1. Adversarial content, at which point correctness is not critical.
-    //   2. A truly bespoke application requiring 4GB of gradient color data should be having its
-    //      workload managed at the application level where it can snap Recordings.
-    //
-    // It is also likely that even if we accumulate this much CPU data, a GPU driver will fail to
-    // create a buffer for us to copy to, causing the snap() to fail.
-    static constexpr int kMaxStorageFloats =
-            static_cast<int>(std::numeric_limits<uint32_t>::max() / sizeof(float));
-    static_assert(std::numeric_limits<uint32_t>::max() / sizeof(float)
-                        <= (uint32_t) std::numeric_limits<int>::max());
-public:
-    FloatStorageManager() { this->reset(); }
-
-    int size() const { return fGradientStorage.size(); }
-
-    void reset() {
-        // Remove the manually added refs on the keys in fGradientOffsetCache
-        for (auto [k, _] : fGradientOffsetCache) {
-            k->unref(); // k might be deleted at this point but we won't use it anymore
-        }
-        fGradientStorage.clear();
-        fGradientOffsetCache.reset();
-    }
-
-    // Checks if data already exists for the requested gradient shader. If so, it returns
-    // a nullptr and the existing offset. If not, it allocates space, caches the offset,
-    // and returns a pointer to the start of the new data and the calculated offset.
-    //
-    // If it was not possible to store the gradient data, a nullptr and negative offset
-    // are returned to signal the error state.
-    std::pair<float*, int> allocateGradientData(int numStops, const SkGradientBaseShader* shader) {
-        SkASSERT(!this->isFinalized());
-        if (numStops > kMaxGradientStops) {
-            return {nullptr, -1};
-        }
-
-        int* existingOffset = fGradientOffsetCache.find(shader);
-        if (existingOffset) {
-            return {nullptr, *existingOffset};
-        }
-        auto [ptr, offset] = this->allocateFloatData(numStops * 5); // 4 for color, 1 for offset
-
-        // Only cache the storage if it was allocated successfully.
-        if (ptr) {
-            SkASSERT(offset >= 0);
-            // Since FloatStorageManager is single threaded, adding a ref and then storing in the
-            // map should be fine.
-            shader->ref();
-            fGradientOffsetCache.set(shader, offset);
-        }
-
-        return {ptr, offset};
-    }
-
-    bool finalize(DrawBufferManager* bufferMgr) {
-        SkASSERT(!this->isFinalized());
-        if (!fGradientStorage.empty()) {
-            SkASSERT(fGradientStorage.size() <= kMaxStorageFloats);
-            auto [writer, bufferInfo, _] =
-                    bufferMgr->getMappedStorageBuffer(fGradientStorage.size(), sizeof(float));
-            if (writer) {
-                writer.write(fGradientStorage.data(), fGradientStorage.size_bytes());
-                fBufferInfo = bufferInfo;
-                this->reset();
-            } else {
-                return false;
-            }
-        } else {
-            fBufferInfo = BindBufferInfo();
-        }
-        return true;
-    }
-
-    BindBufferInfo getBufferInfo() { return fBufferInfo.value(); }
-    bool hasData() const { return fBufferInfo.has_value() &&
-                                  fBufferInfo.value().fBuffer != nullptr; }
-    SkDEBUGCODE(bool isFinalized() const { return fBufferInfo.has_value(); })
-private:
-    // Allocates space for a given number of floats and returns a pointer to the start
-    // of the new allocation and its offset from the beginning of the buffer.
-    std::pair<float*, int> allocateFloatData(int floatCount) {
-        int currentSize = fGradientStorage.size();
-        if (kMaxStorageFloats - floatCount < currentSize) {
-            return {nullptr, -1}; // We've accumulated too much
-        }
-        fGradientStorage.resize(currentSize + floatCount);
-        float* startPtr = fGradientStorage.begin() + currentSize;
-
-        return {startPtr, currentSize};
-    }
-
-    // NOTE: This storage aggregates all data required by all draws within a DrawPass so that its
-    // storage buffer can be bound once and accessed at random.
-    SkTDArray<float> fGradientStorage;
-
-    // We use the shader's address as a key to de-duplicate gradient data. Each key has a ref added
-    // when it's first put in the map. The map does not key off of sk_sp<SkGradientBaseShader> to as
-    // that is not compatible with SkGoodHash. These refs are dropped in reset(). While this extends
-    // the lifetime of the SkShaders, it only applies to large gradients. Hopefully clients are
-    // trying to reuse such shaders across frames already.
-    //
-    // If we didn't keep the shaders alive, we'd have to worry about cache collisions from
-    // re-allocations using the same address. Using a unique ID can wrap, leading to potential
-    // mismatches. Adding sufficient data to eliminate this risk (e.g. keying off the unique ID, the
-    // address, the number of color stops, AND a hash of the color data) is likely more expensive
-    // than taking a ref.
-    skia_private::THashMap<const SkGradientBaseShader*, int> fGradientOffsetCache;
-
-    std::optional<BindBufferInfo> fBufferInfo = std::nullopt;
-};
 
 } // namespace skgpu::graphite
 

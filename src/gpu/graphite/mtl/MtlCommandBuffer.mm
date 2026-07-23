@@ -353,8 +353,8 @@ bool MtlCommandBuffer::addDrawPass(DrawPass* drawPass) {
     }
 
     // If there is gradient data to bind, it must be done prior to draws.
-    if (drawPass->floatStorageManager()->hasData()) {
-        this->bindUniformBuffer(drawPass->floatStorageManager()->getBufferInfo(),
+    if (drawPass->storageBufferManager()->hasData()) {
+        this->bindUniformBuffer(drawPass->storageBufferManager()->getBufferInfo(),
                                 UniformSlot::kGradient);
     }
 

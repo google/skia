@@ -1685,7 +1685,7 @@ void Device::drawGeometry(const Transform& localToDevice,
     }
     KeyContext keyContext{fRecorder,
                           fDC.get(),
-                          fRecorder->priv().floatStorageManager(),
+                          fRecorder->priv().storageBufferManager(),
                           scopedDrawBuilder.builder(),
                           scopedDrawBuilder.gatherer(),
                           localToDevice.matrix(),

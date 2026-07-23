@@ -297,8 +297,8 @@ static int write_color_and_offset_bufdata(int numStops,
                                            const SkPMColor4f* colors,
                                            const float* offsets,
                                            const SkGradientBaseShader* shader,
-                                           FloatStorageManager* floatStorageManager) {
-    auto [dstData, bufferOffset] = floatStorageManager->allocateGradientData(numStops, shader);
+                                           StorageBufferManager* storageBufferManager) {
+    auto [dstData, bufferOffset] = storageBufferManager->allocateGradientData(numStops, shader);
     if (dstData) {
         SkASSERT(bufferOffset >= 0);
         // Data doesn't already exist so we need to write it.
@@ -399,7 +399,7 @@ void GradientShaderBlocks::AddBlock(const KeyContext& keyContext, const Gradient
                                                           gradData.fSrcColors,
                                                           gradData.fSrcOffsets,
                                                           gradData.fSrcShader,
-                                                          keyContext.floatStorageManager());
+                                                          keyContext.storageBufferManager());
             hasStorage = bufferOffset >= 0;
         } else {
             keyContext.pipelineDataGatherer()->add(gradData.fColorsAndOffsetsProxy,

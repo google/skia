@@ -637,18 +637,18 @@ UniquePaintParamsID ShadingParams::validateOpacityOptimization(const KeyContext&
                                 Coverage::kNone,
                                 keyContext.targetFormat()};
 
-    // Create a new KeyContext that writes to a different key builder and pipeline data gatherer.
-    // We have to use the original FloatStorageManager since its global state impacts the other
-    // extracted uniforms, but everything will be a cache hit in the second call to toKey(), so it
-    // shouldn't change size.
-    const int fsmSize = keyContext.floatStorageManager()->size();
+    // Create a new KeyContext that writes to a different key builder and pipeline data gatherer. We
+    // have to use the original gradient cache in the StorageBufferManager since its global state
+    // impacts the other extracted uniforms, but everything will be a cache hit in the second call
+    // to toKey(), so it shouldn't change size.
+    SkDEBUGCODE(const int gradSize = keyContext.storageBufferManager()->gradientSize();)
 
     const Layout layout = keyContext.pipelineDataGatherer()->uniformManager()->layout();
     PaintParamsKeyBuilder opaqueBuilder{keyContext.dict()};
     PipelineDataGatherer opaqueGatherer{layout};
     KeyContext opaqueContext{keyContext.recorder(),
                              keyContext.drawContext(),
-                             keyContext.floatStorageManager(),
+                             keyContext.storageBufferManager(),
                              &opaqueBuilder,
                              &opaqueGatherer,
                              keyContext.local2Dev(),
@@ -663,7 +663,7 @@ UniquePaintParamsID ShadingParams::validateOpacityOptimization(const KeyContext&
     auto [actualOpaqueID, actualDstUsage] = *result;
     SkASSERT(actualDstUsage == DstUsage::kNone);
     opaqueGatherer.checkEquivalent(keyContext.pipelineDataGatherer());
-    SkASSERT(keyContext.floatStorageManager()->size() == fsmSize);
+    SkASSERT(keyContext.storageBufferManager()->gradientSize() == gradSize);
 
     return actualOpaqueID;
 }

@@ -1125,8 +1125,8 @@ void VulkanCommandBuffer::endRenderPass() {
 
 void VulkanCommandBuffer::addDrawPass(DrawPass* drawPass) {
     // If there is gradient data to bind, it must be done prior to draws.
-    if (drawPass->floatStorageManager()->hasData()) {
-        this->recordBufferBindingInfo(drawPass->floatStorageManager()->getBufferInfo(),
+    if (drawPass->storageBufferManager()->hasData()) {
+        this->recordBufferBindingInfo(drawPass->storageBufferManager()->getBufferInfo(),
                                       UniformSlot::kGradient);
     }
 

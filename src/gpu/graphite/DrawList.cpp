@@ -121,7 +121,7 @@ std::unique_ptr<DrawPass> DrawList::snapDrawPass(Recorder* recorder,
     // The DrawList is converted directly into the DrawPass' data structures, but once the DrawPass
     // is returned from Make(), it is considered immutable.
     std::unique_ptr<DrawPass> drawPass(new DrawPass(target, {fLoadOp, StoreOp::kStore}, fClearColor,
-                                                    recorder->priv().refFloatStorageManager()));
+                                                    recorder->priv().refStorageBufferManager()));
 
     DrawBufferManager* bufferMgr = recorder->priv().drawBufferManager();
     DrawWriter drawWriter(&drawPass->fCommandList, bufferMgr);

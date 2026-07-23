@@ -21,7 +21,7 @@ namespace skgpu::graphite {
 
 class CommandBuffer;
 class DrawList;
-class FloatStorageManager;
+class StorageBufferManager;
 class GraphicsPipeline;
 struct RenderPassDesc;
 class ResourceProvider;
@@ -52,7 +52,7 @@ public:
     // contained within its dimensions.
     const SkIRect&      bounds() const { return fBounds;       }
     TextureProxy* target() const { return fTarget.get(); }
-    FloatStorageManager* floatStorageManager() const { return fFloatStorageManager.get(); }
+    StorageBufferManager* storageBufferManager() const { return fStorageBufferManager.get(); }
     std::pair<LoadOp, StoreOp> ops() const { return fOps; }
     std::array<float, 4> clearColor() const { return fClearColor; }
 
@@ -90,7 +90,7 @@ private:
     DrawPass(sk_sp<TextureProxy> target,
              std::pair<LoadOp, StoreOp> ops,
              std::array<float, 4> clearColor,
-             sk_sp<FloatStorageManager> floatStorageManager);
+             sk_sp<StorageBufferManager> storageBufferManager);
 
     DrawPassCommands::List fCommandList;
 
@@ -112,7 +112,7 @@ private:
     // These get resolved (from the GraphicsPipelineHandles) in prepareResources
     skia_private::TArray<sk_sp<GraphicsPipeline>> fFullPipelines;
 
-    sk_sp<FloatStorageManager> fFloatStorageManager;
+    sk_sp<StorageBufferManager> fStorageBufferManager;
 };
 
 } // namespace skgpu::graphite

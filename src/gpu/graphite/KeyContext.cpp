@@ -17,7 +17,7 @@
 namespace skgpu::graphite {
 
 KeyContext::KeyContext(const Caps* caps,
-                       FloatStorageManager* floatStorageManager,
+                       StorageBufferManager* storageBufferManager,
                        PaintParamsKeyBuilder* paintParamsKeyBuilder,
                        PipelineDataGatherer* pipelineDataGatherer,
                        ShaderCodeDictionary* dict,
@@ -25,7 +25,7 @@ KeyContext::KeyContext(const Caps* caps,
                        const SkColorInfo& dstColorInfo)
         : fCaps(caps)
         , fRecorder(nullptr)
-        , fFloatStorageManager(floatStorageManager)
+        , fStorageBufferManager(storageBufferManager)
         , fPaintParamsKeyBuilder(paintParamsKeyBuilder)
         , fPipelineDataGatherer(pipelineDataGatherer)
         , fDictionary(dict)
@@ -34,7 +34,7 @@ KeyContext::KeyContext(const Caps* caps,
 
 KeyContext::KeyContext(skgpu::graphite::Recorder* recorder,
                        DrawContext* drawContext,
-                       FloatStorageManager* floatStorageManager,
+                       StorageBufferManager* storageBufferManager,
                        PaintParamsKeyBuilder* paintParamsKeyBuilder,
                        PipelineDataGatherer* pipelineDataGatherer,
                        const SkM44& local2Dev,
@@ -45,7 +45,7 @@ KeyContext::KeyContext(skgpu::graphite::Recorder* recorder,
         : fCaps(recorder->priv().caps())
         , fRecorder(recorder)
         , fDC(drawContext)
-        , fFloatStorageManager(floatStorageManager)
+        , fStorageBufferManager(storageBufferManager)
         , fPaintParamsKeyBuilder(paintParamsKeyBuilder)
         , fPipelineDataGatherer(pipelineDataGatherer)
         , fDictionary(recorder->priv().shaderCodeDictionary())
@@ -64,7 +64,7 @@ KeyContext::KeyContext(const KeyContext& other,
         : fCaps(other.fCaps)
         , fRecorder(other.fRecorder)
         , fDC(other.fDC)
-        , fFloatStorageManager(other.fFloatStorageManager)
+        , fStorageBufferManager(other.fStorageBufferManager)
         , fPaintParamsKeyBuilder(other.fPaintParamsKeyBuilder)
         , fPipelineDataGatherer(other.fPipelineDataGatherer)
         , fDictionary(other.fDictionary)

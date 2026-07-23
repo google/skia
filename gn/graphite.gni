@@ -192,6 +192,8 @@ skia_graphite_sources = [
   "$_src/gpu/graphite/SharedContext.h",
   "$_src/gpu/graphite/SpecialImage_Graphite.cpp",
   "$_src/gpu/graphite/SpecialImage_Graphite.h",
+  "$_src/gpu/graphite/StorageBufferManager.cpp",
+  "$_src/gpu/graphite/StorageBufferManager.h",
   "$_src/gpu/graphite/Surface_Graphite.cpp",
   "$_src/gpu/graphite/Surface_Graphite.h",
   "$_src/gpu/graphite/Texture.cpp",
