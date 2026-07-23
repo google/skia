@@ -18,6 +18,20 @@ def _dawn_repo_impl(repo_ctx):
 
     repo_ctx.execute(["git", "reset", "--hard", "FETCH_HEAD"])
 
+    # On Windows, the checked-in headers conflict with the generated headers (Windows doesn't
+    # sandbox like Linux/Mac). Dawn is planning on deleting these anyway, so we do it until then.
+    for h in [
+        "src/tint/lang/core/enums.h",
+        "src/tint/lang/core/intrinsic/ctor_conv.h",
+        "src/tint/lang/glsl/builtin_fn.h",
+        "src/tint/lang/hlsl/builtin_fn.h",
+        "src/tint/lang/msl/builtin_fn.h",
+        "src/tint/lang/spirv/builtin_fn.h",
+        "src/tint/lang/wgsl/enums.h",
+        "src/tint/lang/wgsl/intrinsic/ctor_conv.h",
+    ]:
+        repo_ctx.delete(h)
+
     python_bin = repo_ctx.which("python3")
     if not python_bin:
         python_bin = repo_ctx.which("python")
@@ -25,7 +39,8 @@ def _dawn_repo_impl(repo_ctx):
         fail("Could not find python binary on the host")
 
     # Copy the BUILD.bazel from Skia
-    repo_ctx.execute(["rm", "-f", "BUILD.bazel", "dawn_files.bzl"])
+    repo_ctx.delete("BUILD.bazel")
+    repo_ctx.delete("dawn_files.bzl")
     repo_ctx.symlink(repo_ctx.path(repo_ctx.attr.build_file), "BUILD.bazel")
 
     # Run the generator to create dawn_files.bzl
