@@ -585,6 +585,22 @@ bool SurfaceContext::internalWritePixels(GrDirectContext* dContext,
     }
     pt.fY = flip ? dstSurface->height() - pt.fY - src[0].height() : pt.fY;
 
+    auto flushSurfaceAndCheckSuccess = [dContext](GrSurfaceProxy* dstProxy, bool expectsTasks) {
+        const bool hasPendingTasks =
+                dContext->priv().drawingManager()->getLastRenderTask(dstProxy) != nullptr;
+        SkASSERT(!expectsTasks || hasPendingTasks);
+        GrSemaphoresSubmitted flushResult = dContext->priv().flushSurface(dstProxy);
+        return flushResult == GrSemaphoresSubmitted::kYes || !hasPendingTasks;
+    };
+
+    // On platforms that prefer flushes over VRAM use (i.e., ANGLE) we're better off forcing a
+    // complete flush here.
+    if (!caps->preferVRAMUseOverFlushes()) {
+        if (!flushSurfaceAndCheckSuccess(dstProxy, /*expectsTasks=*/false)) {
+            return false;
+        }
+    }
+
     if (!dContext->priv().drawingManager()->newWritePixelsTask(
                 sk_ref_sp(dstProxy),
                 SkIRect::MakePtSize(pt, src[0].dimensions()),
@@ -600,7 +616,9 @@ bool SurfaceContext::internalWritePixels(GrDirectContext* dContext,
     if (!ownAllStorage) {
         // If any pixmap doesn't own its pixels then we must flush so that the pixels are pushed to
         // the GPU before we return.
-        dContext->priv().flushSurface(dstProxy);
+        if (!flushSurfaceAndCheckSuccess(dstProxy, /*expectsTasks=*/true)) {
+            return false;
+        }
     }
     return true;
 }

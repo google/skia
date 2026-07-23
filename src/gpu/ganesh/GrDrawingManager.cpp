@@ -995,16 +995,6 @@ bool GrDrawingManager::newWritePixelsTask(sk_sp<GrSurfaceProxy> dst,
     SkASSERT(fContext);
 
     this->closeActiveOpsTask();
-    const GrCaps& caps = *fContext->priv().caps();
-
-    // On platforms that prefer flushes over VRAM use (i.e., ANGLE) we're better off forcing a
-    // complete flush here.
-    if (!caps.preferVRAMUseOverFlushes()) {
-        this->flushSurfaces(SkSpan<GrSurfaceProxy*>{},
-                            SkSurfaces::BackendSurfaceAccess::kNoAccess,
-                            GrFlushInfo{},
-                            nullptr);
-    }
 
     GrRenderTask* task = this->appendTask(GrWritePixelsTask::Make(this,
                                                                   std::move(dst),
