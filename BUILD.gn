@@ -1971,7 +1971,6 @@ skia_source_set("core") {
     ":typeface_fontations",
     ":typeface_freetype",
   ]
-  public_deps = [ "//src/partition_alloc:raw_ptr" ]
 }
 
 skia_component("skia") {

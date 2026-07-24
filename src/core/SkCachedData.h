@@ -11,7 +11,6 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkNoncopyable.h"
-#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <cstddef>
 
@@ -52,10 +51,8 @@ private:
     };
 
     union {
-        // RAW_PTR_EXCLUSION: union.
-        RAW_PTR_EXCLUSION SkDiscardableMemory* fDM;
-        // RAW_PTR_EXCLUSION: union.
-        RAW_PTR_EXCLUSION void* fMalloc;
+        SkDiscardableMemory*    fDM;
+        void*                   fMalloc;
     } fStorage;
     void*       fData;
     size_t      fSize;

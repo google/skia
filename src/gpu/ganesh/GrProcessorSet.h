@@ -18,7 +18,6 @@
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrProcessorAnalysis.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"
-#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <cstdint>
 #include <memory>
@@ -183,10 +182,8 @@ private:
             SkASSERT(fProcessor == that.fProcessor);
             that.fProcessor = nullptr;
         }
-        // RAW_PTR_EXCLUSION: union.
-        RAW_PTR_EXCLUSION const GrXPFactory* fFactory;
-        // RAW_PTR_EXCLUSION: union.
-        RAW_PTR_EXCLUSION const GrXferProcessor* fProcessor;
+        const GrXPFactory* fFactory;
+        const GrXferProcessor* fProcessor;
     };
 
     const GrXPFactory* xpFactory() const {

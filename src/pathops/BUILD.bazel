@@ -85,6 +85,5 @@ skia_cc_library(
     deps = [
         "//src/core",
         "//src/core:core_priv",
-        "//src/partition_alloc:raw_ptr",
     ],
 )

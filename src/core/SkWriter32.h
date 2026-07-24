@@ -24,7 +24,6 @@
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
-#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <cstdint>
 #include <cstring>
@@ -275,8 +274,7 @@ public:
 
 private:
     union {
-        // RAW_PTR_EXCLUSION: union.
-        RAW_PTR_EXCLUSION void* fPtrAlignment;
+        void*   fPtrAlignment;
         double  fDoubleAlignment;
         char    fStorage[SIZE];
     } fData;
