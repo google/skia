@@ -13,6 +13,8 @@
 
 namespace skgpu {
 
+#if !defined(SK_DISABLE_TRACING)
+
 // Both Ganesh and Graphite track resources in similar categories (e.g. budgeted and unbudgeted,
 // wrapped vs. not-wrapped, protected vs. unprotected) as well as letting clients create
 // BackendTextures.
@@ -129,6 +131,31 @@ private:
     // wrapping the AHB are created and destroyed with Skia's codepaths.
     std::atomic<size_t> fBackendTexBytes = 0;
 };
+
+#else
+
+// Stub that does nothing when tracing is disabled.
+class GlobalResourceStats {
+public:
+    static void TraceStatsSummary() {}
+
+    static void RecordNewResource(Protected, size_t, Budgeted) {}
+    static void RecordPurgeResource(Protected, size_t) {}
+
+    static void RecordResourceBudgetChange(Protected, size_t, Budgeted) {}
+    static void RecordResourceUpdatedSize(Protected, size_t, size_t, Budgeted) {}
+
+    static void RecordResourcePurgeable(Protected, size_t) {}
+    static void RecordResourceNonpurgeable(Protected, size_t) {}
+
+    static void RecordCreateBackendTexture(Protected, size_t) {}
+    static void RecordDeleteBackendTexture(Protected, size_t) {}
+
+private:
+    GlobalResourceStats() = delete;
+};
+
+#endif // !defined(SK_DISABLE_TRACING)
 
 } // namespace skgpu
 

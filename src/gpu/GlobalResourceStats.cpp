@@ -10,6 +10,8 @@
 #include "include/gpu/GpuTypes.h"
 #include "src/core/SkTraceEvent.h"
 
+#if !defined(SK_DISABLE_TRACING)
+
 namespace skgpu {
 
 GlobalResourceStats& GlobalResourceStats::Singleton(Protected isProtected) {
@@ -126,3 +128,5 @@ void GlobalResourceStats::traceStatsSummary() const {
 }
 
 } // namespace skgpu
+
+#endif // !defined(SK_DISABLE_TRACING)
