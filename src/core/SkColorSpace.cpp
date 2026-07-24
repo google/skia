@@ -11,7 +11,6 @@
 #include "modules/skcms/skcms.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkColorSpacePriv.h"
-#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <cmath>
 #include <cstring>
@@ -34,8 +33,7 @@ namespace SkNamedPrimaries {
 struct TableEntry {
     CicpId cicp_id;
     SkColorSpacePrimaries sk_primaries;
-    // RAW_PTR_EXCLUSION: global.
-    RAW_PTR_EXCLUSION const skcms_Matrix3x3* to_xyzd50 = nullptr;
+    const skcms_Matrix3x3* to_xyzd50 = nullptr;
 };
 const static TableEntry cicp_table[] = {
     { CicpId::kRec709, kRec709, &SkNamedGamut::kSRGB },
