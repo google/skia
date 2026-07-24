@@ -151,11 +151,14 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachStyles(const skjson::ArrayValue& js
         sk_sp<sksg::RenderNode> (EffectBuilder::*)(const skjson::ObjectValue&,
                                                    sk_sp<sksg::RenderNode>) const;
     static constexpr StyleBuilder gStyleBuilders[] = {
-        nullptr,                                 // 'ty': 0 -> stroke
-        &EffectBuilder::attachDropShadowStyle,   // 'ty': 1 -> drop shadow
-        &EffectBuilder::attachInnerShadowStyle,  // 'ty': 2 -> inner shadow
-        &EffectBuilder::attachOuterGlowStyle,    // 'ty': 3 -> outer glow
-        &EffectBuilder::attachInnerGlowStyle,    // 'ty': 4 -> inner glow
+        nullptr,                                  // 'ty': 0 -> stroke
+        &EffectBuilder::attachDropShadowStyle,    // 'ty': 1 -> drop shadow
+        &EffectBuilder::attachInnerShadowStyle,   // 'ty': 2 -> inner shadow
+        &EffectBuilder::attachOuterGlowStyle,     // 'ty': 3 -> outer glow
+        &EffectBuilder::attachInnerGlowStyle,     // 'ty': 4 -> inner glow
+        nullptr,                                  // 'ty': 5 -> bevel/emboss
+        nullptr,                                  // 'ty': 6 -> satin
+        &EffectBuilder::attachColorOverlayStyle,  // 'ty': 7 -> color overlay
     };
 
     for (const skjson::ObjectValue* jstyle : jstyles) {

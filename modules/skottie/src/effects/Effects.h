@@ -106,6 +106,8 @@ private:
     sk_sp<sksg::RenderNode> attachVenetianBlindsEffect    (const skjson::ArrayValue&,
                                                            sk_sp<sksg::RenderNode>) const;
 
+    sk_sp<sksg::RenderNode> attachColorOverlayStyle(const skjson::ObjectValue&,
+                                                    sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachDropShadowStyle(const skjson::ObjectValue&,
                                                   sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachInnerShadowStyle(const skjson::ObjectValue&,

@@ -13,6 +13,7 @@ skia_filegroup(
         "BrightnessContrastEffect.cpp",
         "BulgeEffect.cpp",
         "CCTonerEffect.cpp",
+        "ColorOverlayStyles.cpp",
         "CornerPinEffect.cpp",
         "DirectionalBlur.cpp",
         "DisplacementMapEffect.cpp",

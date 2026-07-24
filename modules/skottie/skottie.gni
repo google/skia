@@ -66,6 +66,7 @@ skia_skottie_sources = [
   "$_modules/skottie/src/effects/BrightnessContrastEffect.cpp",
   "$_modules/skottie/src/effects/BulgeEffect.cpp",
   "$_modules/skottie/src/effects/CCTonerEffect.cpp",
+  "$_modules/skottie/src/effects/ColorOverlayStyles.cpp",
   "$_modules/skottie/src/effects/CornerPinEffect.cpp",
   "$_modules/skottie/src/effects/DirectionalBlur.cpp",
   "$_modules/skottie/src/effects/DisplacementMapEffect.cpp",
