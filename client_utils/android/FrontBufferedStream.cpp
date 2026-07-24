@@ -10,6 +10,7 @@
 #include "FrontBufferedStream.h"
 
 #include <algorithm>
+#include <cstdlib>
 #include <memory>
 
 namespace {
