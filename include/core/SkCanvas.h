@@ -2529,12 +2529,13 @@ private:
     std::unique_ptr<SkRasterHandleAllocator> fAllocator;
 
     SkSurface_Base*  fSurfaceBase;
-    SkSurface_Base* getSurfaceBase() const { return fSurfaceBase; }
+    virtual SkSurface_Base* getSurfaceBase() const { return fSurfaceBase; }
     void setSurfaceBase(SkSurface_Base* sb) {
         fSurfaceBase = sb;
     }
     friend class SkSurface_Base;
     friend class SkSurface_Ganesh;
+    friend class SkCaptureCanvas;
 
     SkIRect fClipRestrictionRect = SkIRect::MakeEmpty();
     int fClipRestrictionSaveCount = -1;

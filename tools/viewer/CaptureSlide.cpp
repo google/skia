@@ -33,6 +33,10 @@ const char* RecordTypeNames[] = {
 #undef CASE
 };
 
+const int JSON_TEXT_BOX_HEIGHT = 200;
+// A width of -1 means use all available width
+const int JSON_TEXT_BOX_WIDTH = -1;
+
 CaptureSlide::CaptureSlide(const SkString& name, const SkString& path) {
     auto data = SkData::MakeFromFileName(path.c_str());
     fCapture = SkCapture::MakeFromData(data);
@@ -46,8 +50,6 @@ CaptureSlide::CaptureSlide(const SkString& name, const SkString& path) {
 CaptureSlide::~CaptureSlide() {}
 
 void drawCommandHistory(const DebugCanvas* debugCanvas) {
-    static int currentCommandIdx = 0;
-
     ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_Appearing);
     if (!ImGui::Begin("Command History")) {
         ImGui::End();
@@ -57,55 +59,36 @@ void drawCommandHistory(const DebugCanvas* debugCanvas) {
     ImGui::Text("Total Commands: %d", debugCanvas->getSize());
     ImGui::Separator();
 
-    const char* previewValue = "Select a command...";
-    if (currentCommandIdx >= 0 && currentCommandIdx < debugCanvas->getSize()) {
-        DrawCommand* cmd = debugCanvas->getDrawCommandAt(currentCommandIdx);
-        previewValue = DrawCommand::GetCommandString(cmd->getOpType());
-    }
+    ImGui::BeginChild("CommandList", ImVec2(0, 0), true);
+    for (int i = 0; i < debugCanvas->getSize(); ++i) {
+        DrawCommand* cmd = debugCanvas->getDrawCommandAt(i);
+        const char* commandName = DrawCommand::GetCommandString(cmd->getOpType());
 
-    if (ImGui::BeginCombo("Select Command", previewValue)) {
-        for (int i = 0; i < debugCanvas->getSize(); ++i) {
-            const bool isSelected = (currentCommandIdx == i);
+        ImGui::PushID(i);
+        if (ImGui::TreeNode(commandName, "%d: %s", i, commandName)) {
+            SkDynamicMemoryWStream stream;
+            SkJSONWriter writer(
+                    &stream, ToolUtils::default_serial_procs(), SkJSONWriter::Mode::kPretty);
+            UrlDataManager urlDataManager(SkString("data"));
+            writer.beginObject();
+            cmd->toJSON(writer, urlDataManager);
+            writer.endObject();
+            writer.flush();
 
-            DrawCommand* cmd = debugCanvas->getDrawCommandAt(i);
-            const char* commandName = DrawCommand::GetCommandString(cmd->getOpType());
+            stream.write8(0);
+            sk_sp<SkData> data = stream.detachAsData();
+            char* dataString = const_cast<char*>(static_cast<const char*>(data->data()));
 
-            if (ImGui::Selectable(commandName, isSelected)) {
-                currentCommandIdx = i;
-            }
-
-            if (isSelected) {
-                ImGui::SetItemDefaultFocus();
-            }
+            ImGui::InputTextMultiline("###json_output",
+                                      dataString,
+                                      data->size(),
+                                      ImVec2(JSON_TEXT_BOX_WIDTH, JSON_TEXT_BOX_HEIGHT),
+                                      ImGuiInputTextFlags_ReadOnly);
+            ImGui::TreePop();
         }
-        ImGui::EndCombo();
+        ImGui::PopID();
     }
-
-    if (currentCommandIdx >= 0 && currentCommandIdx < debugCanvas->getSize()) {
-        ImGui::Separator();
-        ImGui::Text("JSON for Command #%d:", currentCommandIdx);
-
-        DrawCommand* cmd = debugCanvas->getDrawCommandAt(currentCommandIdx);
-
-        SkDynamicMemoryWStream stream;
-        SkJSONWriter   writer(&stream, ToolUtils::default_serial_procs(), SkJSONWriter::Mode::kPretty);
-        UrlDataManager urlDataManager(SkString("data"));
-        writer.beginObject();
-        cmd->toJSON(writer, urlDataManager);
-        writer.endObject();
-
-        writer.flush();
-
-        stream.write8(0);
-        sk_sp<SkData> data = stream.detachAsData();
-        char* dataString = const_cast<char*>(static_cast<const char*>(data->data()));
-
-        ImGui::InputTextMultiline("###json_output",
-                                  dataString,
-                                  data->size(),
-                                  ImVec2(-1, -1),
-                                  ImGuiInputTextFlags_ReadOnly);
-    }
+    ImGui::EndChild();
     ImGui::End();
 }
 
@@ -121,17 +104,19 @@ void CaptureSlide::draw(SkCanvas* canvas) {
     }
 
     auto focusPicture = fCapture->getPicture(fCurrentPictureIndex);
-
     auto bounds = focusPicture->cullRect().roundOut();
-    DebugCanvas debugCanvas(bounds.width(), bounds.height());
-    focusPicture->playback(&debugCanvas);
+
+    if (!fDebugCanvas) {
+        fDebugCanvas = std::make_unique<DebugCanvas>(bounds.width(), bounds.height());
+        focusPicture->playback(fDebugCanvas.get());
+    }
 
     canvas->clipIRect(bounds, SkClipOp::kIntersect);
-    canvas->drawPicture(fCapture->getPicture(fCurrentPictureIndex));
+    canvas->drawPicture(focusPicture);
 
     drawMetadata(fCurrentPictureIndex);
 
-    drawCommandHistory(&debugCanvas);
+    drawCommandHistory(fDebugCanvas.get());
 }
 
 bool CaptureSlide::animate(double) {
@@ -153,11 +138,13 @@ bool CaptureSlide::onChar(SkUnichar c) {
         case 'N':
             fCurrentPictureIndex = (fCurrentPictureIndex + 1) % fMetadata.numPictures;
             fInvalidate = true;
+            fDebugCanvas.reset();
             return true;
         case 'P':
             fCurrentPictureIndex =
                     (fCurrentPictureIndex + fMetadata.numPictures - 1) % fMetadata.numPictures;
             fInvalidate = true;
+            fDebugCanvas.reset();
             return true;
         case 'F':
             ImGui::GetIO().FontGlobalScale = ImGui::GetIO().FontGlobalScale + 0.1f;

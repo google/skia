@@ -64,6 +64,10 @@ void SkCaptureCanvas::onSurfaceDelete() {
     // TODO (b/412351769): signal to the capture manager that this canvas's surface has been deleted
 }
 
+SkSurface_Base* SkCaptureCanvas::getSurfaceBase() const {
+    return this->fBaseCanvas->getSurfaceBase();
+}
+
 //////////////////// Function forwarding ///////////////////////
 
 void SkCaptureCanvas::willSave() {

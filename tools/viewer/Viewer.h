@@ -167,6 +167,7 @@ private:
     SkISize currentSlideSize() const;
     void listNames() const;
     void dumpShadersToResources();
+    void checkCaptureAndSerialize();
 
     void updateUIState();
 
@@ -194,6 +195,10 @@ private:
     bool                   fRefresh; // whether to continuously refresh for measuring render time
 
     bool                   fSaveToSKP;
+#if defined(SK_GRAPHITE)
+    bool                   fCurrentlyCapturing;
+#endif
+    bool                   fToggleCapture;
     bool                   fShowSlideDimensions;
 
     ImGuiLayer             fImGuiLayer;

@@ -124,6 +124,8 @@ private:
     void addCanvas(SkCanvas* canvas) override {SkNWayCanvas::addCanvas(canvas);}
     void removeCanvas(SkCanvas* canvas) override {SkNWayCanvas::removeCanvas(canvas);}
     void removeAll() override {SkNWayCanvas::removeAll();}
+
+    SkSurface_Base* getSurfaceBase() const override;
 };
 
 #endif  // SkCaptureCanvas_DEFINED
