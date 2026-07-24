@@ -15,7 +15,6 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
-#include "src/partition_alloc/raw_ptr_exclusion.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -65,8 +64,7 @@ struct SkRasterPipelineStage {
     // Most context structures are declared in SkRasterPipelineOpContexts.h, and have names ending
     // in Ctx (e.g. "SkRasterPipelineContexts::SamplerCtx"). Some Raster Pipeline stages pack
     // non-pointer data into this field using `SkRPCtxUtils::Pack`.
-    // RAW_PTR_EXCLUSION: pointer used to pack integers.
-    RAW_PTR_EXCLUSION void* ctx;
+    void* ctx;
 };
 SK_END_REQUIRE_DENSE
 
@@ -99,8 +97,7 @@ public:
     struct StageList {
         StageList*          prev;
         SkRasterPipelineOp  stage;
-        // RAW_PTR_EXCLUSION: pointer used to pack integers.
-        RAW_PTR_EXCLUSION void* ctx;
+        void*               ctx;
     };
 
     static const char* GetOpName(SkRasterPipelineOp op);
