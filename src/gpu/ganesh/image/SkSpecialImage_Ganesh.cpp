@@ -22,8 +22,11 @@
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "src/gpu/ganesh/image/SkImage_Ganesh.h"
+#include "src/gpu/ganesh/image/SkImage_GaneshYUVA.h"
+#include "src/image/SkImage_Base.h"
 
 #include <cstddef>
+#include <tuple>
 #include <utility>
 
 enum SkColorType : int;
@@ -80,8 +83,18 @@ sk_sp<SkSpecialImage> MakeFromTextureImage(GrRecordingContext* rContext,
 
     SkASSERT(image->bounds().contains(subset));
 
-    // This will work even if the image is a raster-backed image.
-    auto [view, ct] = skgpu::ganesh::AsView(rContext, image, skgpu::Mipmapped::kNo, nullptr);
+    GrSurfaceProxyView view;
+    GrColorType ct;
+    SkImage_Base* ib = as_IB(image.get());
+    if (ib->type() == SkImage_Base::Type::kGaneshYUVA && !subset.contains(image->bounds())) {
+        SkRect subsetRect = SkRect::Make(subset);
+        std::tie(view, ct) = static_cast<SkImage_GaneshYUVA*>(ib)->flattenToView(
+                rContext, skgpu::Mipmapped::kNo, &subsetRect);
+    } else {
+        // This will work even if the image is a raster-backed image.
+        std::tie(view, ct) =
+                skgpu::ganesh::AsView(rContext, image, skgpu::Mipmapped::kNo, nullptr);
+    }
     return MakeDeferredFromGpu(rContext,
                                subset,
                                image->uniqueID(),

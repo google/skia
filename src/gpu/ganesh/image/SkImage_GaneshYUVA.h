@@ -77,6 +77,13 @@ public:
                                                       GrImageTexGenPolicy,
                                                       GrRenderTargetProxy*) const override;
 
+    // Flattens the multiplanar YUVA data into a single RGBA texture view.
+    // If |subset| is provided, the subsampled chroma planes are clamped to
+    // it. |subset| must be contained in the image bounds.
+    std::tuple<GrSurfaceProxyView, GrColorType> flattenToView(GrRecordingContext*,
+                                                              skgpu::Mipmapped,
+                                                              const SkRect* subset) const;
+
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(skgpu::ganesh::SurfaceDrawContext*,
                                                              SkSamplingOptions,
                                                              const SkTileMode[2],
