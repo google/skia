@@ -331,10 +331,14 @@ func (b *TaskBuilder) usesDocker() {
 	b.usesPython()
 }
 
-// usesGSUtil adds the gsutil dependency from CIPD and puts it on PATH.
-func (b *TaskBuilder) usesGSUtil() {
-	b.asset("gsutil")
-	b.addToPATH("gsutil/gsutil")
+// usesGCloud adds the gcloud dependency from CIPD and puts it on PATH.
+func (b *TaskBuilder) usesGCloud() {
+	b.cipd(&specs.CipdPackage{
+		Name:    "infra/3pp/tools/gcloud/${platform}",
+		Version: "version:3@577.0.0.chromium.4",
+		Path:    "cipd_bin_packages/gcloud",
+	})
+	b.addToPATH("cipd_bin_packages/gcloud/bin")
 }
 
 // needsFontsForParagraphTests downloads the skparagraph CIPD package to

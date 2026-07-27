@@ -10,9 +10,9 @@
   * [doxygen](#recipe_modules-doxygen)
   * [env](#recipe_modules-env)
   * [flavor](#recipe_modules-flavor)
+  * [gcloud](#recipe_modules-gcloud)
   * [git](#recipe_modules-git)
   * [gold_upload](#recipe_modules-gold_upload)
-  * [gsutil](#recipe_modules-gsutil)
   * [infra](#recipe_modules-infra)
   * [run](#recipe_modules-run)
   * [vars](#recipe_modules-vars)
@@ -28,9 +28,9 @@
   * [doxygen:examples/full](#recipes-doxygen_examples_full)
   * [env:examples/full](#recipes-env_examples_full)
   * [flavor:examples/full](#recipes-flavor_examples_full)
+  * [gcloud:examples/full](#recipes-gcloud_examples_full)
   * [git:examples/full](#recipes-git_examples_full)
   * [gold_upload:examples/full](#recipes-gold_upload_examples_full)
-  * [gsutil:examples/full](#recipes-gsutil_examples_full)
   * [housekeeper](#recipes-housekeeper)
   * [infra](#recipes-infra)
   * [infra:examples/full](#recipes-infra_examples_full)
@@ -160,6 +160,31 @@ Return a flavor utils object specific to the given builder.
 &mdash; **def [setup](/infra/bots/recipe_modules/flavor/api.py#53)(self, app_name):**
 
 &mdash; **def [step](/infra/bots/recipe_modules/flavor/api.py#59)(self, name, cmd, \*\*kwargs):**
+### *recipe_modules* / [gcloud](/infra/bots/recipe_modules/gcloud)
+
+[DEPS](/infra/bots/recipe_modules/gcloud/__init__.py#8): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/service\_account][recipe_engine/recipe_modules/service_account], [recipe\_engine/step][recipe_engine/recipe_modules/step], [run](#recipe_modules-run), [vars](#recipe_modules-vars)
+
+
+#### **class [GCloudAPI](/infra/bots/recipe_modules/gcloud/api.py#10)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+
+&mdash; **def [\_\_call\_\_](/infra/bots/recipe_modules/gcloud/api.py#11)(self, step_name, \*args):**
+
+Run "gcloud" with the given args.
+
+This assumes there exists an executable called gcloud on the PATH.
+
+&mdash; **def [cp](/infra/bots/recipe_modules/gcloud/api.py#21)(self, name, src, dst, extra_args=None):**
+
+Attempt to upload or download files to/from Google Cloud Storage (GCS).
+
+Args:
+  name: string. Will be used to fill out the step name.
+  src: string. Absolute path for a local file or gcs file (e.g. gs://...)
+  dst: string. Same as src.
+  extra_args: optional list of args to be passed to gcloud cp. e.g. [-Z]
+    asks all files be compressed with gzip after upload and before download.
+
+If the operation fails, it will be retried multiple times.
 ### *recipe_modules* / [git](/infra/bots/recipe_modules/git)
 
 [DEPS](/infra/bots/recipe_modules/git/__init__.py#8): [recipe\_engine/path][recipe_engine/recipe_modules/path], [env](#recipe_modules-env)
@@ -175,7 +200,7 @@ Requires the infra/git and infra/tools/git CIPD packages to be installed
 in the 'git' relative path.
 ### *recipe_modules* / [gold\_upload](/infra/bots/recipe_modules/gold_upload)
 
-[DEPS](/infra/bots/recipe_modules/gold_upload/__init__.py#8): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [flavor](#recipe_modules-flavor), [gsutil](#recipe_modules-gsutil), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
+[DEPS](/infra/bots/recipe_modules/gold_upload/__init__.py#8): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [flavor](#recipe_modules-flavor), [gcloud](#recipe_modules-gcloud), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
 
 #### **class [GoldUploadApi](/infra/bots/recipe_modules/gold_upload/api.py#11)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
@@ -184,37 +209,6 @@ in the 'git' relative path.
 
 Attempt to upload files to Gold.
 This module assumes setup has occurred for the vars and flavor modules.
-### *recipe_modules* / [gsutil](/infra/bots/recipe_modules/gsutil)
-
-[DEPS](/infra/bots/recipe_modules/gsutil/__init__.py#8): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/step][recipe_engine/recipe_modules/step], [run](#recipe_modules-run), [vars](#recipe_modules-vars)
-
-
-#### **class [GSUtilApi](/infra/bots/recipe_modules/gsutil/api.py#10)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
-
-&mdash; **def [\_\_call\_\_](/infra/bots/recipe_modules/gsutil/api.py#11)(self, step_name, \*args):**
-
-Run gsutil with the given args.
-
-This assumes there exists an executable called gsutil on the PATH.
-This probably only works for Linux/Mac, but those are the only
-hosts that we try to upload to GCS from anyway.
-
-&mdash; **def [cp](/infra/bots/recipe_modules/gsutil/api.py#20)(self, name, src, dst, extra_gsutil_args=None, extra_args=None, multithread=False):**
-
-Attempt to upload or download files to/from Google Cloud Storage (GCS).
-
-Args:
-  name: string. Will be used to fill out the step name.
-  src: string. Absolute path for a local file or gcs file (e.g. gs://...)
-  dst: string. Same as src.
-  extra_gsutil_args: optional list of args to be passed to gsutil before the
-    cp command.
-  extra_args: optional list of args to be passed to gsutil cp. e.g. [-Z]
-    asks all files be compressed with gzip after upload and before download.
-  multi_thread: if the -m argument should be used to copy multiple items
-    at once (e.g. gsutil -m cp foo* gs://bar/dir)
-
-If the operation fails, it will be retried multiple times.
 ### *recipe_modules* / [infra](/infra/bots/recipe_modules/infra)
 
 [DEPS](/infra/bots/recipe_modules/infra/__init__.py#8): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [run](#recipe_modules-run), [vars](#recipe_modules-vars)
@@ -369,6 +363,12 @@ Prepare the variables.
 &mdash; **def [RunSteps](/infra/bots/recipe_modules/flavor/examples/full.py#31)(api):**
 
 &mdash; **def [test\_exceptions](/infra/bots/recipe_modules/flavor/examples/full.py#16)(api):**
+### *recipes* / [gcloud:examples/full](/infra/bots/recipe_modules/gcloud/examples/full.py)
+
+[DEPS](/infra/bots/recipe_modules/gcloud/examples/full.py#9): [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [gcloud](#recipe_modules-gcloud), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
+
+
+&mdash; **def [RunSteps](/infra/bots/recipe_modules/gcloud/examples/full.py#19)(api):**
 ### *recipes* / [git:examples/full](/infra/bots/recipe_modules/git/examples/full.py)
 
 [DEPS](/infra/bots/recipe_modules/git/examples/full.py#6): [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/step][recipe_engine/recipe_modules/step], [git](#recipe_modules-git)
@@ -381,12 +381,6 @@ Prepare the variables.
 
 
 &mdash; **def [RunSteps](/infra/bots/recipe_modules/gold_upload/examples/full.py#21)(api):**
-### *recipes* / [gsutil:examples/full](/infra/bots/recipe_modules/gsutil/examples/full.py)
-
-[DEPS](/infra/bots/recipe_modules/gsutil/examples/full.py#9): [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [gsutil](#recipe_modules-gsutil), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
-
-
-&mdash; **def [RunSteps](/infra/bots/recipe_modules/gsutil/examples/full.py#19)(api):**
 ### *recipes* / [housekeeper](/infra/bots/recipes/housekeeper.py)
 
 [DEPS](/infra/bots/recipes/housekeeper.py#12): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [checkout](#recipe_modules-checkout), [doxygen](#recipe_modules-doxygen), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
@@ -508,7 +502,7 @@ Run the DM test.
 &mdash; **def [RunSteps](/infra/bots/recipes/upload_buildstats_results.py#20)(api):**
 ### *recipes* / [upload\_dm\_results](/infra/bots/recipes/upload_dm_results.py)
 
-[DEPS](/infra/bots/recipes/upload_dm_results.py#12): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [gsutil](#recipe_modules-gsutil), [vars](#recipe_modules-vars)
+[DEPS](/infra/bots/recipes/upload_dm_results.py#12): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [gcloud](#recipe_modules-gcloud), [vars](#recipe_modules-vars)
 
 
 &mdash; **def [RunSteps](/infra/bots/recipes/upload_dm_results.py#28)(api):**

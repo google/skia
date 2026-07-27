@@ -14,7 +14,7 @@ DEPS = [
   'recipe_engine/step',
   'recipe_engine/time',
   'flavor',
-  'gsutil',
+  'gcloud',
   'run',
   'vars',
 ]

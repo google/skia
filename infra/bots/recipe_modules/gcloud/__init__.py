@@ -7,9 +7,10 @@ from . import api as _api
 
 DEPS = [
   'recipe_engine/context',
+  'recipe_engine/service_account',
   'recipe_engine/step',
   'run',
   'vars',
 ]
 
-API = _api.GSUtilApi
+API = _api.GCloudAPI

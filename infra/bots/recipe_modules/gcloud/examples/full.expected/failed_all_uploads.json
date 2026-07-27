@@ -1,24 +1,6 @@
 [
   {
     "cmd": [
-      "vpython3",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "glob",
-      "[START_DIR]/test",
-      "*.png"
-    ],
-    "infra_step": true,
-    "name": "find .png images",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/test/someimage.png@@@",
-      "@@@STEP_LOG_END@glob@@@"
-    ]
-  },
-  {
-    "cmd": [
       "luci-auth",
       "token",
       "-scopes",
@@ -34,13 +16,14 @@
       "gcloud",
       "storage",
       "cp",
-      "[START_DIR]/test/*.png",
-      "gs://skia-infra-gm/dm-images-v1"
+      "-Z",
+      "/foo/file",
+      "gs://bar-bucket/file"
     ],
     "env": {
       "CLOUDSDK_AUTH_ACCESS_TOKEN": "extra.secret.token.should.not.be.logged"
     },
-    "name": "upload .png images",
+    "name": "upload test file",
     "~followup_annotations": [
       "@@@STEP_FAILURE@@@"
     ]
@@ -62,13 +45,14 @@
       "gcloud",
       "storage",
       "cp",
-      "[START_DIR]/test/*.png",
-      "gs://skia-infra-gm/dm-images-v1"
+      "-Z",
+      "/foo/file",
+      "gs://bar-bucket/file"
     ],
     "env": {
       "CLOUDSDK_AUTH_ACCESS_TOKEN": "extra.secret.token.should.not.be.logged"
     },
-    "name": "upload .png images (attempt 2)",
+    "name": "upload test file (attempt 2)",
     "~followup_annotations": [
       "@@@STEP_FAILURE@@@"
     ]
@@ -90,13 +74,14 @@
       "gcloud",
       "storage",
       "cp",
-      "[START_DIR]/test/*.png",
-      "gs://skia-infra-gm/dm-images-v1"
+      "-Z",
+      "/foo/file",
+      "gs://bar-bucket/file"
     ],
     "env": {
       "CLOUDSDK_AUTH_ACCESS_TOKEN": "extra.secret.token.should.not.be.logged"
     },
-    "name": "upload .png images (attempt 3)",
+    "name": "upload test file (attempt 3)",
     "~followup_annotations": [
       "@@@STEP_FAILURE@@@"
     ]
@@ -118,13 +103,14 @@
       "gcloud",
       "storage",
       "cp",
-      "[START_DIR]/test/*.png",
-      "gs://skia-infra-gm/dm-images-v1"
+      "-Z",
+      "/foo/file",
+      "gs://bar-bucket/file"
     ],
     "env": {
       "CLOUDSDK_AUTH_ACCESS_TOKEN": "extra.secret.token.should.not.be.logged"
     },
-    "name": "upload .png images (attempt 4)",
+    "name": "upload test file (attempt 4)",
     "~followup_annotations": [
       "@@@STEP_FAILURE@@@"
     ]
@@ -146,13 +132,14 @@
       "gcloud",
       "storage",
       "cp",
-      "[START_DIR]/test/*.png",
-      "gs://skia-infra-gm/dm-images-v1"
+      "-Z",
+      "/foo/file",
+      "gs://bar-bucket/file"
     ],
     "env": {
       "CLOUDSDK_AUTH_ACCESS_TOKEN": "extra.secret.token.should.not.be.logged"
     },
-    "name": "upload .png images (attempt 5)",
+    "name": "upload test file (attempt 5)",
     "~followup_annotations": [
       "@@@STEP_FAILURE@@@"
     ]
@@ -160,7 +147,7 @@
   {
     "failure": {
       "failure": {},
-      "humanReason": "Step('upload .png images (attempt 5)') (retcode: 1)"
+      "humanReason": "Step('upload test file (attempt 5)') (retcode: 1)"
     },
     "name": "$result"
   }

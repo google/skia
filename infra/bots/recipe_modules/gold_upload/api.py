@@ -28,12 +28,8 @@ class GoldUploadApi(recipe_api.RecipeApi):
       # For some reason, glob returns results_dir when it should return nothing.
       files_to_upload = [f for f in files_to_upload if str(f).endswith(ext)]
       if len(files_to_upload) > 0:
-        extra_gsutil_args = None
-        if self.m.platform.is_mac:
-          extra_gsutil_args = ['-o', 'GSUtil:parallel_process_count=1']
-        self.m.gsutil.cp('%s images' % ext, results_dir.joinpath('*%s' % ext),
-                        image_dest_path, extra_gsutil_args=extra_gsutil_args,
-                        multithread=True)
+        self.m.gcloud.cp(
+          '%s images' % ext, results_dir.joinpath('*%s' % ext), image_dest_path)
 
     summary_dest_path = 'gs://%s' % self.m.properties['gs_bucket']
     ref = revision
@@ -58,5 +54,5 @@ class GoldUploadApi(recipe_api.RecipeApi):
     # Directly upload dm.json if it exists.
     json_file = results_dir.joinpath(DM_JSON)
     # -Z compresses the json file at rest with gzip.
-    self.m.gsutil.cp('dm.json', json_file,
+    self.m.gcloud.cp('dm.json', json_file,
                   summary_dest_path + '/' + DM_JSON, extra_args=['-Z'])

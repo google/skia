@@ -19,12 +19,27 @@
   },
   {
     "cmd": [
-      "gsutil",
-      "-m",
+      "luci-auth",
+      "token",
+      "-scopes",
+      "https://www.googleapis.com/auth/devstorage.read_write",
+      "-lifetime",
+      "3m"
+    ],
+    "infra_step": true,
+    "name": "get access token for default account"
+  },
+  {
+    "cmd": [
+      "gcloud",
+      "storage",
       "cp",
       "[START_DIR]/test/*.png",
       "gs://skia-infra-gm/dm-images-v1"
     ],
+    "env": {
+      "CLOUDSDK_AUTH_ACCESS_TOKEN": "extra.secret.token.should.not.be.logged"
+    },
     "name": "upload .png images"
   },
   {
@@ -47,12 +62,28 @@
   },
   {
     "cmd": [
-      "gsutil",
+      "luci-auth",
+      "token",
+      "-scopes",
+      "https://www.googleapis.com/auth/devstorage.read_write",
+      "-lifetime",
+      "3m"
+    ],
+    "infra_step": true,
+    "name": "get access token for default account (2)"
+  },
+  {
+    "cmd": [
+      "gcloud",
+      "storage",
       "cp",
       "-Z",
       "[START_DIR]/test/dm.json",
       "gs://skia-infra-gm/trybot/dm-json-v1/2012/05/14/12/abc123/Upload-Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All/1337000001/456789/12/dm.json"
     ],
+    "env": {
+      "CLOUDSDK_AUTH_ACCESS_TOKEN": "extra.secret.token.should.not.be.logged"
+    },
     "name": "upload dm.json"
   },
   {
@@ -75,12 +106,28 @@
   },
   {
     "cmd": [
-      "gsutil",
+      "luci-auth",
+      "token",
+      "-scopes",
+      "https://www.googleapis.com/auth/devstorage.read_write",
+      "-lifetime",
+      "3m"
+    ],
+    "infra_step": true,
+    "name": "get access token for default account (3)"
+  },
+  {
+    "cmd": [
+      "gcloud",
+      "storage",
       "cp",
       "-Z",
       "[START_DIR]/test/verbose.log",
       "gs://skia-infra-gm/trybot/dm-json-v1/2012/05/14/12/abc123/Upload-Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All/1337000001/456789/12/verbose.log"
     ],
+    "env": {
+      "CLOUDSDK_AUTH_ACCESS_TOKEN": "extra.secret.token.should.not.be.logged"
+    },
     "name": "upload verbose.log"
   },
   {

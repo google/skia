@@ -35,22 +35,53 @@
   },
   {
     "cmd": [
-      "gsutil",
-      "-m",
+      "luci-auth",
+      "token",
+      "-scopes",
+      "https://www.googleapis.com/auth/devstorage.read_write",
+      "-lifetime",
+      "3m"
+    ],
+    "infra_step": true,
+    "name": "get access token for default account"
+  },
+  {
+    "cmd": [
+      "gcloud",
+      "storage",
       "cp",
       "[START_DIR]/[SWARM_OUT_DIR]/*.png",
       "gs://skia-infra-gm/dm-images-v1"
     ],
+    "env": {
+      "CLOUDSDK_AUTH_ACCESS_TOKEN": "extra.secret.token.should.not.be.logged"
+    },
     "name": "upload .png images"
   },
   {
     "cmd": [
-      "gsutil",
+      "luci-auth",
+      "token",
+      "-scopes",
+      "https://www.googleapis.com/auth/devstorage.read_write",
+      "-lifetime",
+      "3m"
+    ],
+    "infra_step": true,
+    "name": "get access token for default account (2)"
+  },
+  {
+    "cmd": [
+      "gcloud",
+      "storage",
       "cp",
       "-Z",
       "[START_DIR]/[SWARM_OUT_DIR]/dm.json",
       "gs://skia-infra-gm/trybot/dm-json-v1/2012/05/14/12/1234_7/Test-Android12-Clang-Pixel5-GPU-Adreno620-arm64-Release-All-Android_Vulkan/1337000001/dm.json"
     ],
+    "env": {
+      "CLOUDSDK_AUTH_ACCESS_TOKEN": "extra.secret.token.should.not.be.logged"
+    },
     "name": "upload dm.json"
   },
   {
