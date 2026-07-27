@@ -603,25 +603,37 @@ public:
                                    .cubicTo(120, 150, 180, 150, 200, 100)
                                    .detach(),
                            "MultiContour");
+
         CheckFlattenedPath(reporter,
                            SkPathBuilder().moveTo(10, 10).conicTo(50, 100, 90, 10, 0.5f).detach(),
-                           "SimpleConic_WeightHalf");
+                           "SimpleConicWeightHalf");
         CheckFlattenedPath(reporter,
                            SkPathBuilder().moveTo(10, 10).conicTo(50, 100, 90, 10, 2.0f).detach(),
-                           "SimpleConic_WeightTwo");
+                           "SimpleConicWeightTwo");
         CheckFlattenedPath(reporter,
                            SkPathBuilder().moveTo(10, 10).conicTo(50, 100, 90, 10, 1.0f).detach(),
-                           "SimpleConic_WeightOne");
+                           "SimpleConicWeightOne");
         CheckFlattenedPath(reporter,
                            SkPathBuilder()
                                    .moveTo(100, 0)
                                    .conicTo(100, 100, 0, 100, std::sqrt(2.0f) / 2.0f)
                                    .detach(),
                            "QuarterCircleConic");
-
+        CheckFlattenedPath(reporter,
+                           SkPathBuilder().moveTo(10, 10).conicTo(50, 100, 90, 10, 0.0f).detach(),
+                           "WorstCaseWeightZero");
+        CheckFlattenedPath(reporter,
+                           SkPathBuilder().moveTo(10, 10).conicTo(50, 100, 90, 10, 1e-5f).detach(),
+                           "WorstCaseWeightMicroscopic");
+        CheckFlattenedPath(reporter,
+                           SkPathBuilder().moveTo(10, 10).conicTo(50, 100, 90, 10, 1e5f).detach(),
+                           "WorstCaseWeightMassive");
+        CheckFlattenedPath(reporter,
+                           SkPathBuilder().moveTo(50, 50).conicTo(50, 50, 50, 50, 1.0f).detach(),
+                           "WorstCaseDegenerate");
         CheckFlattenedPath(reporter,
                            SkPathBuilder().moveTo(0, 0).cubicTo(50, 0, 100, 0, 100, 50).detach(),
-                           "Cubic_Partial_Linear");
+                           "CubicPartialLinear");
 
         TestCulling(reporter);
         TestTrickyStrokes(reporter);

@@ -576,6 +576,14 @@ DEF_TEST(wangs_formula_nextlog2, r) {
         REPORTER_ASSERT(r, wangs_formula::nextlog2(pow2 + epsilon) == i + 1);
         REPORTER_ASSERT(r, wangs_formula::nextlog2(pow2 - epsilon) == i);
     }
+
+    REPORTER_ASSERT(r, wangs_formula::nextlog64(0.0f) == 0);
+    REPORTER_ASSERT(r, wangs_formula::nextlog64(1.0f) == 0);
+    REPORTER_ASSERT(r, wangs_formula::nextlog64(1.1f) == 1);
+    REPORTER_ASSERT(r, wangs_formula::nextlog64(64.0f) == 1);
+    REPORTER_ASSERT(r, wangs_formula::nextlog64(64.1f) == 2);
+    REPORTER_ASSERT(r, wangs_formula::nextlog64(4096.0f) == 2);
+    REPORTER_ASSERT(r, wangs_formula::nextlog64(4096.1f) == 3);
 }
 
 }  // namespace skgpu::tess

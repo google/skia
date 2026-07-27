@@ -9,6 +9,7 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkSpan.h"
 #include "include/private/SkTDArray.h"
 #include "src/core/SkGeometry.h"
 #include "src/gpu/graphite/sparse_strips/SparseStripsTypes.h"
@@ -78,20 +79,41 @@ public:
     static constexpr double   kQuadErrTolerance       = 0.25;
     static constexpr double   kSqrtQuadTolerance      = 0.5;
     static constexpr double   kQuadTolerance2         = kQuadErrTolerance * kQuadErrTolerance;
+
     // When subdividing a cubic, we have to budget our error between the lowering from Cubics->Quad,
     // and flattenning from Quads->Lines. kCubicAccuracy is the amount we allocate to Cubics->Quad.
     static constexpr float    kCubicAccuracy          = 0.1f;
     static constexpr double   kCubicErrTolerance      = kCubicAccuracy * kQuadErrTolerance;
-    static constexpr double   kQuadToLineTolFromCubic = (1.0f - kCubicAccuracy) * kQuadErrTolerance;
     static constexpr float    kQuadSubdivThreshold    = 4.0f * kQuadTolerance2;
     static constexpr float    kCubicSubdivThreshold   = 16.0f / 9.0f * kQuadTolerance2;
     static constexpr uint32_t kMaxQuadsFromCubic      = 16;
 
+    // The Quad->Line conversion gets the remaining error:
+    // kQuadToLineTolFromCubic = (1.0f - kCubicAccuracy) * kQuadErrTolerance
+    //
     // Since std::sqrt is not constexpr, calculate the value of sqrt(kQuadToLineTolFromCubic)
     // offline. If kCubicAccuracy changes, this needs to be recalculated. static_assert as a
     // reminder.
     static constexpr double   kSqrtQuadFromCubicTol = 0x1.e5b9d136c6d96p-2;
-    static_assert(kCubicAccuracy == .1f);
+    static_assert(kCubicAccuracy == .1f && kQuadErrTolerance == 0.25);
+
+    // When subdividing a conic we have to budget our error tolerance across the entire
+    // Conics->Cubics->Quad->Line conversion. In this scheme we give Conics 10% of the error, Cubics
+    // 10%, and Quads 80%.
+    static constexpr float    kConicAccuracy = 0.1f;
+    static constexpr double   kConicToCubicErrTolerance = kConicAccuracy * kQuadErrTolerance;
+    static constexpr uint32_t kMaxBisections = 4;
+    static constexpr uint32_t kMaxCubicsFromConic = 1 << kMaxBisections;
+
+    // The Quad->Line conversion gets the remaining error:
+    // kQuadToLineFromConic = (1.0f - kConicAccuracy - kCubicAccuracy) * kQuadErrTolerance
+    // As above, we calculate kSqrtQuadFromCubicTolForConic offline.
+    static constexpr double   kSqrtQuadFromCubicTolForConic = 0x1.c9f25c264ef86p-2;
+    static_assert(kConicAccuracy == .1f && kCubicAccuracy == .1f && kQuadErrTolerance == .25);
+
+    // The total amount of quads we can accumulate from flattening a single "higher level" curve.
+    // In practice, conics very rarely exceed 64.
+    static constexpr uint32_t kMaxQuadsInCtx = kMaxQuadsFromCubic * kMaxCubicsFromConic;
 
     Flatten() = default;
 
@@ -122,32 +144,32 @@ private:
         // The on-curve endpoints (p0 and p2) of the approximated quadratic segments, where p2 of
         // the prior quad is p0 of the next quad. Sized +4 to safely handle the final point
         // insertion and potential SIMD padding.
-        std::array<SkPoint, kMaxQuadsFromCubic + 4> fEvenPts;
+        std::array<SkPoint, kMaxQuadsInCtx + 4> fEvenPts;
 
         // The off-curve control points (p1) of the approximated quadratic segments.
-        std::array<SkPoint, kMaxQuadsFromCubic> fOddPts;
+        std::array<SkPoint, kMaxQuadsInCtx> fOddPts;
 
         // The starting value of the parabolic integral for each quadratic segment. Maps the start
         // of the curve into uniform arc-length space.
-        std::array<float, kMaxQuadsFromCubic> fA0;
+        std::array<float, kMaxQuadsInCtx> fA0;
 
         // The delta of the parabolic integral (a2 - a0) for each quadratic. Used to linearly
         // interpolate the integral 'a' across the segment.
-        std::array<float, kMaxQuadsFromCubic> fDa;
+        std::array<float, kMaxQuadsInCtx> fDa;
 
         // The starting value of the inverse parabolic integral for each quadratic.
-        std::array<float, kMaxQuadsFromCubic> fU0;
+        std::array<float, kMaxQuadsInCtx> fU0;
 
         // The scale factor for the inverse integral (1.0 / (u2 - u0)). Used to map the evenly
         // spaced parabolic steps back into parametric 't' space.
-        std::array<float, kMaxQuadsFromCubic> fUScale;
+        std::array<float, kMaxQuadsInCtx> fUScale;
 
         // Total integrated curvature/error metric for each quadratic. This dictates how many flat
         // line segments each quad needs to be broken into.
-        std::array<float, kMaxQuadsFromCubic> fCurvatureIntegral;
+        std::array<float, kMaxQuadsInCtx> fCurvatureIntegral;
 
         // The actual number of quadratics the current cubic was split into. Guaranteed to be <=
-        // kMaxQuadsFromCubic.
+        // kMaxQuadsInCtx.
         uint32_t fNumQuads = 0;
 
         // The final dynamic array where the flattened points of the cubic are gathered before being
@@ -162,13 +184,14 @@ private:
 
     void flattenQuadSimd(const SkPoint pts[3], Polyline* polyline);
     void flattenQuadScalar(const SkPoint pts[3], Polyline* polyline);
-    uint32_t flattenCubicScalar(const SkPoint pts[4]);
+    template <double kSqrtQuadTol> uint32_t flattenCubicScalar(const SkPoint pts[4]);
 
-    void evalCubicsSimd(const SkPoint pts[4], uint32_t numQuads);
-    void estimateLinesFromQuadSimd();
+    void evalCubicsSimd(const SkPoint pts[4], uint32_t numQuads, uint32_t startIdx = 0);
+    template <double kSqrtQuadTol> void estimateLinesFromQuadSimd();
     void outputLinesFromQuadSimd(uint32_t quadIdx, float x0, float dx, uint32_t numSegments,
                                  uint32_t startIdx);
-    uint32_t flattenCubicSimd(const SkPoint pts[4]);
+    template <double kSqrtQuadTol> uint32_t flattenCubicSimd(const SkPoint pts[4]);
+    template <double kSqrtQuadTol> uint32_t flattenCubicsSimd(SkSpan<const SkPoint[4]> cubics);
 
     CubicFlattenCtx fContext;
     SkAutoConicToQuads fConicToQuad;

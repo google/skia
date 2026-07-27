@@ -6,7 +6,7 @@
  */
 
 #include "bench/Benchmark.h"
-#include "bench/Tiger.h"
+#include "bench/BenchmarkDataset.h"
 #include "include/core/SkPath.h"
 #include "include/private/SkTArray.h"
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"
@@ -15,13 +15,19 @@
 
 #include <vector>
 
+namespace skgpu::graphite {
 namespace {
-using namespace skgpu::graphite;
 
-template <FlattenMode kMode> class FlattenBench : public Benchmark {
+template <FlattenMode kMode, BenchmarkDataset kDataset> class FlattenBench : public Benchmark {
 public:
-    FlattenBench() : fPaths(Tiger::GetTigerPaths()) {
-        fName.printf("SparseStrips_Flatten_%s", kMode == FlattenMode::kScalar ? "Scalar" : "SIMD");
+    FlattenBench() {
+        using DatasetInfo = BenchmarkDatasetInfo<kDataset>;
+        fPaths = DatasetInfo::GetPaths();
+        fWidth = DatasetInfo::kWidthF;
+        fHeight = DatasetInfo::kHeightF;
+        fName.printf("SparseStrips_Flatten_%s_%s",
+                     kMode == FlattenMode::kScalar ? "Scalar" : "SIMD",
+                     DatasetInfo::kName);
     }
 
 protected:
@@ -32,8 +38,7 @@ protected:
         Polyline polyline;
         for (int i = 0; i < loops; ++i) {
             for (auto& path : fPaths) {
-                flattener.processPaths<kMode>(
-                        path, SkMatrix(), Tiger::kTigerWidthF, Tiger::kTigerHeightF, &polyline);
+                flattener.processPaths<kMode>(path, SkMatrix(), fWidth, fHeight, &polyline);
             }
             polyline.reset();
         }
@@ -42,15 +47,21 @@ protected:
 private:
     SkString fName;
     std::vector<SkPath> fPaths;
+    float fWidth;
+    float fHeight;
 };
 
-class GrLegacyBench : public Benchmark {
+template <BenchmarkDataset kDataset> class GrLegacyBench : public Benchmark {
 public:
     // Match the tolerances of Flatten.
     static constexpr SkScalar kTolerance = Flatten::kQuadErrTolerance;
     static constexpr SkScalar kToleranceSqd = Flatten::kQuadTolerance2;
 
-    GrLegacyBench() : fName("SparseStrips_FlattenLegacy_Ganesh"), fPaths(Tiger::GetTigerPaths()) {}
+    GrLegacyBench() {
+        using DatasetInfo = BenchmarkDatasetInfo<kDataset>;
+        fPaths = DatasetInfo::GetPaths();
+        fName.printf("SparseStrips_FlattenLegacy_Ganesh_%s", DatasetInfo::kName);
+    }
 
 protected:
     const char* onGetName() override { return fName.c_str(); }
@@ -124,7 +135,15 @@ private:
 };
 
 }  // namespace
+}  // namespace skgpu::graphite
 
-DEF_BENCH(return (new FlattenBench<skgpu::graphite::FlattenMode::kScalar>());)
-DEF_BENCH(return (new FlattenBench<skgpu::graphite::FlattenMode::kSimd>());)
-DEF_BENCH(return (new GrLegacyBench());)
+DEF_BENCH(return (new skgpu::graphite::FlattenBench<skgpu::graphite::FlattenMode::kScalar,
+                                                   skgpu::graphite::BenchmarkDataset::kTiger>());)
+DEF_BENCH(return (new skgpu::graphite::FlattenBench<skgpu::graphite::FlattenMode::kSimd,
+                                                   skgpu::graphite::BenchmarkDataset::kTiger>());)
+DEF_BENCH(return (new skgpu::graphite::GrLegacyBench<skgpu::graphite::BenchmarkDataset::kTiger>());)
+DEF_BENCH(return (new skgpu::graphite::FlattenBench<skgpu::graphite::FlattenMode::kScalar,
+                                                   skgpu::graphite::BenchmarkDataset::kMixed>());)
+DEF_BENCH(return (new skgpu::graphite::FlattenBench<skgpu::graphite::FlattenMode::kSimd,
+                                                   skgpu::graphite::BenchmarkDataset::kMixed>());)
+DEF_BENCH(return (new skgpu::graphite::GrLegacyBench<skgpu::graphite::BenchmarkDataset::kMixed>());)

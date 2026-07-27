@@ -6,7 +6,7 @@
  */
 
 #include "bench/Benchmark.h"
-#include "bench/Tiger.h"
+#include "bench/BenchmarkDataset.h"
 #include "include/core/SkPath.h"
 #include "include/private/SkTDArray.h"
 #include "src/gpu/graphite/sparse_strips/Flatten.h"
@@ -17,7 +17,7 @@
 
 namespace skgpu::graphite {
 
-template <uint16_t kTileWidth, uint16_t kTileHeight>
+template <uint16_t kTileWidth, uint16_t kTileHeight, BenchmarkDataset kDataset>
 class CoverageBench : public Benchmark {
 public:
     using MakeStripsFn = void (*)(const Tiles<kTileWidth, kTileHeight>&,
@@ -29,7 +29,8 @@ public:
                                   MsaaExactMaskObserver);
 
     CoverageBench(const char* name, MakeStripsFn func) : fFunc(func) {
-        fName.printf("SparseStrips_%s_%ux%u", name, kTileWidth, kTileHeight);
+        using DatasetInfo = BenchmarkDatasetInfo<kDataset>;
+        fName.printf("SparseStrips_%s_%s_%ux%u", name, DatasetInfo::kName, kTileWidth, kTileHeight);
         fLUT = GenerateMSAALUT<uint8_t>();
     }
 
@@ -37,14 +38,15 @@ protected:
     const char* onGetName() override { return fName.c_str(); }
 
     void onDelayedSetup() override {
+        using DatasetInfo = BenchmarkDatasetInfo<kDataset>;
         Flatten flattener;
-        std::vector<SkPath> tigerPaths = Tiger::GetTigerPaths();
-        for (auto& subPath : tigerPaths) {
+        std::vector<SkPath> paths = DatasetInfo::GetPaths();
+        for (auto& subPath : paths) {
             flattener.processPaths<FlattenMode::kSimd>(subPath, SkMatrix(),
-                                                       Tiger::kTigerWidthF, Tiger::kTigerHeightF,
+                                                       DatasetInfo::kWidthF, DatasetInfo::kHeightF,
                                                        &fPolyline);
         }
-        fTiles.makeTilesMSAA(fPolyline, Tiger::kTigerWidth, Tiger::kTigerHeight);
+        fTiles.makeTilesMSAA(fPolyline, DatasetInfo::kWidth, DatasetInfo::kHeight);
         fTiles.sortTiles();
     }
 
@@ -69,9 +71,28 @@ private:
 
 }  // namespace skgpu::graphite
 
-DEF_BENCH(return (new skgpu::graphite::CoverageBench<4, 4>(
-        "CoverageBenchScalar", &skgpu::graphite::MakeStrips::MsaaScalar));)
-DEF_BENCH(return (new skgpu::graphite::CoverageBench<4, 4>(
-        "CoverageBenchSimd", &skgpu::graphite::MakeStrips::MsaaSimd));)
-DEF_BENCH(return (new skgpu::graphite::CoverageBench<8, 8>(
-        "CoverageBenchSimd", &skgpu::graphite::MakeStrips::MsaaSimd));)
+DEF_BENCH(return (new skgpu::graphite::CoverageBench<4, 4,
+                                                     skgpu::graphite::BenchmarkDataset::kTiger>(
+                                                     "CoverageBenchScalar",
+                                                     &skgpu::graphite::MakeStrips::MsaaScalar));)
+DEF_BENCH(return (new skgpu::graphite::CoverageBench<4, 4,
+                                                     skgpu::graphite::BenchmarkDataset::kTiger>(
+                                                     "CoverageBenchSimd",
+                                                     &skgpu::graphite::MakeStrips::MsaaSimd));)
+DEF_BENCH(return (new skgpu::graphite::CoverageBench<8, 8,
+                                                     skgpu::graphite::BenchmarkDataset::kTiger>(
+                                                     "CoverageBenchSimd",
+                                                     &skgpu::graphite::MakeStrips::MsaaSimd));)
+
+DEF_BENCH(return (new skgpu::graphite::CoverageBench<4, 4,
+                                                     skgpu::graphite::BenchmarkDataset::kMixed>(
+                                                     "CoverageBenchScalar",
+                                                     &skgpu::graphite::MakeStrips::MsaaScalar));)
+DEF_BENCH(return (new skgpu::graphite::CoverageBench<4, 4,
+                                                     skgpu::graphite::BenchmarkDataset::kMixed>(
+                                                     "CoverageBenchSimd",
+                                                     &skgpu::graphite::MakeStrips::MsaaSimd));)
+DEF_BENCH(return (new skgpu::graphite::CoverageBench<8, 8,
+                                                     skgpu::graphite::BenchmarkDataset::kMixed>(
+                                                     "CoverageBenchSimd",
+                                                     &skgpu::graphite::MakeStrips::MsaaSimd));)

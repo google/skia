@@ -98,6 +98,15 @@ AI int nextlog16(float x) {
     return (nextlog2(x) + 3) >> 2;
 }
 
+// Returns nextlog2(pow(x, 1/6)):
+//
+//   log2(pow(x, 1/6)) == log2(x)/6 == log2(x)/log2(64) == log64(x)
+//
+AI int nextlog64(float x) {
+    return (nextlog2(x) + 5) / 6;
+}
+
+
 // Represents the upper-left 2x2 matrix of an affine transform for applying to vectors:
 //
 //     VectorXform(p1 - p0) == M * float3(p1, 1) - M * float3(p0, 1)

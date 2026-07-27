@@ -4,10 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "bench/Tiger.h"
+#include "bench/BenchmarkDataset.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
+#include "src/core/SkRandom.h"
 
 namespace {
 struct {
@@ -587,7 +588,9 @@ struct {
 };
 }  // namespace
 
-std::vector<SkPath> Tiger::GetTigerPaths() {
+namespace skgpu::graphite {
+
+std::vector<SkPath> BenchmarkDatasetInfo<BenchmarkDataset::kTiger>::GetPaths() {
     int pathCount = static_cast<int>(std::size(kTigerPaths));
     std::vector<SkPath> paths;
     paths.reserve(pathCount);
@@ -628,3 +631,50 @@ std::vector<SkPath> Tiger::GetTigerPaths() {
 
     return paths;
 }
+
+std::vector<SkPath> BenchmarkDatasetInfo<BenchmarkDataset::kMixed>::GetPaths() {
+    std::vector<SkPath> paths;
+    SkRandom rand(42);
+    constexpr int kNumPaths = 10;
+    constexpr int kVerbsPerPath = 500;
+
+    for (int i = 0; i < kNumPaths; ++i) {
+        SkPathBuilder builder;
+        builder.moveTo(rand.nextRangeF(0.f, kWidthF), rand.nextRangeF(0.f, kHeightF));
+        for (int j = 0; j < kVerbsPerPath; ++j) {
+            int type = rand.nextULessThan(4);
+            switch (type) {
+                case 0:
+                    builder.lineTo(rand.nextRangeF(0.f, kWidthF),
+                                   rand.nextRangeF(0.f, kHeightF));
+                    break;
+                case 1:
+                    builder.quadTo(rand.nextRangeF(0.f, kWidthF),
+                                   rand.nextRangeF(0.f, kHeightF),
+                                   rand.nextRangeF(0.f, kWidthF),
+                                   rand.nextRangeF(0.f, kHeightF));
+                    break;
+                case 2:
+                    builder.conicTo(rand.nextRangeF(0.f, kWidthF),
+                                    rand.nextRangeF(0.f, kHeightF),
+                                    rand.nextRangeF(0.f, kWidthF),
+                                    rand.nextRangeF(0.f, kHeightF),
+                                    rand.nextRangeF(0.1f, 5.f));
+                    break;
+                case 3:
+                    builder.cubicTo(rand.nextRangeF(0.f, kWidthF),
+                                    rand.nextRangeF(0.f, kHeightF),
+                                    rand.nextRangeF(0.f, kWidthF),
+                                    rand.nextRangeF(0.f, kHeightF),
+                                    rand.nextRangeF(0.f, kWidthF),
+                                    rand.nextRangeF(0.f, kHeightF));
+                    break;
+            }
+        }
+        paths.push_back(builder.detach());
+    }
+    return paths;
+}
+
+}  // namespace skgpu::graphite
+
