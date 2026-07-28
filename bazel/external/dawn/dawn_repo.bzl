@@ -32,6 +32,8 @@ def _dawn_repo_impl(repo_ctx):
     ]:
         repo_ctx.delete(h)
 
+    # We have to use a host Python binary because toolchains are not yet loaded when repo_rules
+    # are running (repo_rules can *make* toolchains). So, we need a host Python executable.
     python_bin = repo_ctx.which("python3")
     if not python_bin:
         python_bin = repo_ctx.which("python")
@@ -51,8 +53,8 @@ def _dawn_repo_impl(repo_ctx):
     repo_ctx.watch(repo_ctx.attr.generator_py)
     repo_ctx.watch(repo_ctx.attr.build_file)
 
-    # Resolve the python paths for jinja2 and markupsafe so the generator can run
-    # with the Bazel-cached dependencies without requiring any system/host pip installs.
+    # We do *not* have to rely on jinja2 and markupsafe (deps for Dawn's generator scripts)
+    # being available. We can use the versions Bazel checks out by adding them to PYTHONPATH.
     jinja2_dir = str(repo_ctx.path(repo_ctx.attr.jinja2).dirname)
     markupsafe_dir = str(repo_ctx.path(repo_ctx.attr.markupsafe).dirname)
     path_sep = ";" if "windows" in repo_ctx.os.name.lower() else ":"

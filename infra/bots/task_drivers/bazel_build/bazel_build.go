@@ -137,6 +137,33 @@ func main() {
 	if os.Getenv("DEVELOPER_DIR") != "" {
 		args = append(args, "--repo_env=DEVELOPER_DIR")
 	}
+	if runtime.GOOS == "windows" {
+		// Dynamically locate and add the MSVC compiler and runtime folders to the system PATH.
+		var newPATH, bazelVC string
+		ctx, newPATH, bazelVC = locateAndAddMSVCToPATH(ctx, checkoutPath)
+
+		// Bazel's strict action environment strips the PATH variable from actions (e.g. the
+		// win_toolchain we add to PATH in locateAndAddMSVCToPATH). While we compile our own
+		//generated tools and targets statically (/NODEFAULTLIB in the toolchain_config.bzl) to
+		// make them self-contained, prebuilt binaries (like rustc.exe and compiler drivers like
+		// clang-cl.exe) are dynamically linked and must resolve their MSVC runtime DLLs (and
+		// link.exe) from the PATH during action execution.
+		//
+		// We would like to say "Bazel, just pass in our PATH when running commands" (which is
+		// --action_env=PATH and --host_action_env=PATH). However, this does not work because
+		// Windows has PATH spelled "Path" (mixed case). If you don't believe me, run the following
+		// in a PowerShell environment:
+		// [System.Environment]::GetEnvironmentVariables().Keys | Where-Object { $_ -like "*path*" })
+		// So, since Bazel rules use "PATH", it doesn't get copied correctly. Thus we make things
+		// explicit by listing the full PATH. For good measure, we do this with BAZEL_VC
+		// https://bazel.build/configure/windows
+		args = append(args, fmt.Sprintf("--action_env=PATH=%s", newPATH))
+		args = append(args, fmt.Sprintf("--host_action_env=PATH=%s", newPATH))
+
+		args = append(args, fmt.Sprintf("--action_env=BAZEL_VC=%s", bazelVC))
+		args = append(args, fmt.Sprintf("--host_action_env=BAZEL_VC=%s", bazelVC))
+	}
+
 	if _, err := bzl.Do(ctx, "build", args...); err != nil {
 		td.Fatal(ctx, err)
 	}
@@ -179,4 +206,63 @@ func copyBazelBinSubdirs(ctx context.Context, checkoutDir string, bazelBinSubdir
 		}
 	}
 	return nil
+}
+
+// locateAndAddMSVCToPATH resolves the MSVC C++ runtime directory (sys64), the MSVC compiler tools
+// directory, and the VC directory, and appends them to PATH so that bazel.exe/bazelisk.exe and
+// compiler drivers (clang-cl) can run on Windows. It sets BAZEL_VC as well to make sure
+// our CIPD win_toolchain is used by Bazel. This also returns the updated PATH and BAZEL_VC as
+// strings so they can be added as arguments to the command (e.g. with --action_env)
+func locateAndAddMSVCToPATH(ctx context.Context, checkoutPath string) (context.Context, string, string) {
+	var newPATH, bazelVC string
+	err := td.Do(ctx, td.Props("MSVC Runtime Path Resolver"), func(ctx context.Context) error {
+		winToolchainDir := "win_toolchain"
+		if _, err := os.Stat(winToolchainDir); err != nil {
+			winToolchainDir = filepath.Join(filepath.Dir(checkoutPath), "win_toolchain")
+		}
+
+		sys64Dir, _ := filepath.Abs(filepath.Join(winToolchainDir, "sys64"))
+		vcDir, _ := filepath.Abs(filepath.Join(winToolchainDir, "VC"))
+
+		// Dynamically resolve the MSVC version directory under VC/Tools/MSVC/ (e.g. 14.51.36231)
+		// without hardcoding to avoid maintenance overhead when updating the Windows toolchain.
+		msvcRoot := filepath.Join(winToolchainDir, "VC", "Tools", "MSVC")
+		var msvcVersion string
+		if entries, err := os.ReadDir(msvcRoot); err == nil {
+			for _, entry := range entries {
+				if entry.IsDir() {
+					msvcVersion = entry.Name()
+					break
+				}
+			}
+		}
+
+		var compilerBinDir string
+		if msvcVersion != "" {
+			compilerBinDir, _ = filepath.Abs(filepath.Join(msvcRoot, msvcVersion, "bin", "Hostx64", "x64"))
+		} else {
+			return fmt.Errorf("MSVC compiler root directory empty or not found: %s\n", msvcRoot)
+		}
+
+		if _, err := os.Stat(sys64Dir); err != nil {
+			return fmt.Errorf("MSVC sys64 folder not found at %s: %s\n", sys64Dir, err)
+		}
+		currentPATH := os.Getenv("PATH")
+		// Add sys64 for runtime DLLs, and compilerBinDir so clang-cl can find link.exe
+		newPATH = fmt.Sprintf("%s;%s;%s", sys64Dir, compilerBinDir, currentPATH)
+		os.Setenv("PATH", newPATH)
+		os.Setenv("BAZEL_VC", vcDir)
+		// Makes debugging easier to list these out
+		td.StepText(ctx, "PATH env var", newPATH)
+		td.StepText(ctx, "BAZEL_VC env var", vcDir)
+		bazelVC = vcDir
+		return nil
+	})
+	if err != nil {
+		td.Fatal(ctx, err)
+	}
+	return td.WithEnv(ctx, []string{
+		"PATH=" + newPATH,
+		"BAZEL_VC=" + bazelVC,
+	}), newPATH, bazelVC
 }

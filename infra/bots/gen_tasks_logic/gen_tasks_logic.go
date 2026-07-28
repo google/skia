@@ -2218,6 +2218,7 @@ func (b *jobBuilder) bazelBuild() {
 		b.usesGit()
 		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin")
 		b.usesLUCIAuth()
+		b.usesPython() // dawn_repo.bzl needs an external Python binary
 
 		cmd := []string{
 			"luci-auth", "context",
@@ -2246,6 +2247,10 @@ func (b *jobBuilder) bazelBuild() {
 				fmt.Sprintf("os:%s", DEFAULT_OS_WIN_GCE),
 				"pool:Skia",
 			)
+			// bazel.exe is dynamically linked against the MSVC C++ runtime (e.g. VCRUNTIME140.dll)
+			// So we need the win_toolchain available to even invoke it. Bazel itself will download
+			// this in the Windows hermetic toolchain (see download_windows_amd64_toolchain.bzl).
+			b.asset("win_toolchain")
 			b.usesBazel("windows_x64")
 			cmd = append(cmd, "--bazel_arg=--experimental_scale_timeouts=2.0")
 		} else if host == "mac_arm64" {
