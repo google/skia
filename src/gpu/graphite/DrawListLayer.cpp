@@ -55,32 +55,6 @@ std::pair<Layer*, BindingList*> DrawListLayer::searchBackwards(
     BindingList* targetMatch = nullptr;
     BindingList* forwardMerge = nullptr;
 
-    // Forward merging attempts to pull an earlier, compatible draw out of the current layer and
-    // push it into a newly created layer to improve pipeline/texture batching.
-    //
-    // 1. Draw Type Restrictions (Single Renderstep & No Depth-Only):
-    //    Forward merging is strictly limited to single-renderstep shading draws. We explicitly
-    //    forbid depth-only draws (which pass `false` for `canForwardMerge`), and the single-step
-    //    requirement inherently excludes stencil draws. If we allowed multi-step renderers to
-    //    forward merge, we would risk pulling a parent renderstep forward and over its
-    //    already-inserted child.
-    //
-    // 2. Directional & Spatial Validity:
-    //    Because we evaluate bindings backwards (tail to head), any binding matches found prior to
-    //    intersecting a draw are executed *after* that intersecting draw. Furthermore, because
-    //    standard shading draws within the same layer are guaranteed by the `test()` logic to be
-    //    mutually disjoint, the matched draw does not overlap with any of the later bindings we
-    //    evaluated and skipped. Therefore, it is visually safe to extract this disjoint match and
-    //    defer its execution to a new, subsequent layer without violating the Painter's Algorithm.
-    //
-    // 3. The Tail-Only Restriction:
-    //    We strictly limit forward merging to the *tail* of the layer list. If we allowed forward
-    //    merging from a middle layer, we would be forced to insert the newly generated target layer
-    //    into the middle of the list. This would break the structural invariant that
-    //    `Layer::fOrder` strictly increases with the physical list order; this invariant necessary
-    //    to ensure that a draw is inserted after *ALL* depth-only clip draws that affect it.
-    bool canForwardMerge = key.isSimpleShading();
-
     Layer* current = fLayers.tail();
     for (int limit = kMaxSearchLimit; limit > 0 && current; --limit) {
         auto [result, match] = current->test(drawParams->drawBounds(), key, testMask);
@@ -93,10 +67,14 @@ std::pair<Layer*, BindingList*> DrawListLayer::searchBackwards(
             // as that propagates into the stop layer for subsequent draws).
             targetLayer = current;
             targetMatch = match;
-        } else if (match && canForwardMerge) {
+        } else if (match) {
+            // Save this for after we create a new targetLayer, at which point this will move from
+            // current to the new layer and become targetMatch. Given the asserted conditions
+            // below, this case will always exit the loop.
             SkASSERT(result == BoundsTestResult::kBlocked &&
                      !SkToBool(key.fFlags & BoundsFlags::kMustBeDisjoint) &&
-                     current == fLayers.tail());
+                     current == fLayers.tail() &&
+                     !targetLayer);
             forwardMerge = match;
         }
 
@@ -104,7 +82,6 @@ std::pair<Layer*, BindingList*> DrawListLayer::searchBackwards(
             break;
         } else {
             current = current->fPrev;
-            canForwardMerge = false;
 
             // To support deeper searches while mitigating search time, if we found a matching
             // BindingList then we penalize the remaining search limit by subtracting half of
@@ -123,9 +100,9 @@ std::pair<Layer*, BindingList*> DrawListLayer::searchBackwards(
         fOrderCounter = fOrderCounter.next();
         targetLayer = fStorage.make<Layer>(fOrderCounter);
         if (forwardMerge) {
-            SkASSERT(current);
-            SkASSERT(current == fLayers.tail());
-            current->fBindings.remove(forwardMerge);
+            SkASSERT(fLayers.tail()->fBindings.isInList(forwardMerge));
+            SkASSERT(key.fFlags & BoundsFlags::kColor); // Moving depth draws would break clipping
+            fLayers.tail()->fBindings.remove(forwardMerge);
             targetLayer->fBindings.addToHead(forwardMerge);
             targetMatch = forwardMerge;
         }
