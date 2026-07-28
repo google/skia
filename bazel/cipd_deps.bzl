@@ -77,6 +77,58 @@ filegroup(
         tag = "version:2.29.2.chromium.6",
     )
 
+    cipd_install(
+        name = "cpython_linux_amd64",
+        build_file_content = """
+exports_files(
+    glob(["**/*"]),
+    visibility = ["//visibility:public"]
+)
+""",
+        cipd_package = "infra/3pp/tools/cpython3/linux-amd64",
+        sha256 = "a06bad297267859aad818d2d6c9cc2865f4b0087c71dbf020f6b8e0cb92746c2",
+        tag = "version:3@3.11.9.chromium.36",
+    )
+
+    cipd_install(
+        name = "cpython_mac_amd64",
+        build_file_content = """
+exports_files(
+    glob(["**/*"]),
+    visibility = ["//visibility:public"]
+)
+""",
+        cipd_package = "infra/3pp/tools/cpython3/mac-amd64",
+        sha256 = "787e1e98b6220b4bf887ae04a8a80fb4939ad3c24ca6e2e7753541048c97224a",
+        tag = "version:3@3.11.9.chromium.36",
+    )
+
+    cipd_install(
+        name = "cpython_mac_arm64",
+        build_file_content = """
+exports_files(
+    glob(["**/*"]),
+    visibility = ["//visibility:public"]
+)
+""",
+        cipd_package = "infra/3pp/tools/cpython3/mac-arm64",
+        sha256 = "6c7fb45e6ac6363c00b9820b259132554190a197d65437a0912025fa9c27e161",
+        tag = "version:3@3.11.9.chromium.36",
+    )
+
+    cipd_install(
+        name = "cpython_windows_amd64",
+        build_file_content = """
+exports_files(
+    glob(["**/*"]),
+    visibility = ["//visibility:public"]
+)
+""",
+        cipd_package = "infra/3pp/tools/cpython3/windows-amd64",
+        sha256 = "cdc51dd7d25bc6a249b076e117cdfe29456a93cddd48d4193ca3742a20ea7699",
+        tag = "version:3@3.11.9.chromium.36",
+    )
+
 cipd_deps = module_extension(
     implementation = _cipd_deps_impl,
 )

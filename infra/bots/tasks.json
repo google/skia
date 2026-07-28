@@ -3884,19 +3884,10 @@
         {
           "name": "git_cache",
           "path": "cache/git_cache"
-        },
-        {
-          "name": "vpython3",
-          "path": "cache/vpython3"
         }
       ],
       "casSpec": "bazel",
       "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/cpython3/${platform}",
-          "path": "cipd_bin_packages/cpython3",
-          "version": "version:3@3.11.9.chromium.36"
-        },
         {
           "name": "infra/3pp/tools/git/${platform}",
           "path": "cipd_bin_packages",
@@ -3916,11 +3907,6 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:9429fac3f8d3e6389ffdafd9d9fa1eb791dd0fe9"
-        },
-        {
-          "name": "infra/tools/luci/vpython3/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:b2fad5ab18774b86d84aa867287bfb4f2394893b"
         },
         {
           "name": "skia/bots/bazelisk_linux_amd64",
@@ -3954,19 +3940,13 @@
         "pool:Skia"
       ],
       "environment": {
-        "USE_BAZEL_FALLBACK_VERSION": "error",
-        "VPYTHON_LOG_TRACE": "1"
+        "USE_BAZEL_FALLBACK_VERSION": "error"
       },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
-          "cipd_bin_packages/cpython3",
-          "cipd_bin_packages/cpython3/bin",
           "bazelisk_linux_amd64"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython3"
         ]
       },
       "idempotent": true,
@@ -3982,19 +3962,10 @@
         {
           "name": "git_cache",
           "path": "cache/git_cache"
-        },
-        {
-          "name": "vpython3",
-          "path": "cache/vpython3"
         }
       ],
       "casSpec": "bazel",
       "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/cpython3/${platform}",
-          "path": "cipd_bin_packages/cpython3",
-          "version": "version:3@3.11.9.chromium.36"
-        },
         {
           "name": "infra/3pp/tools/git/${platform}",
           "path": "cipd_bin_packages",
@@ -4014,11 +3985,6 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:9429fac3f8d3e6389ffdafd9d9fa1eb791dd0fe9"
-        },
-        {
-          "name": "infra/tools/luci/vpython3/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:b2fad5ab18774b86d84aa867287bfb4f2394893b"
         },
         {
           "name": "skia/bots/bazelisk_linux_amd64",
@@ -4052,19 +4018,13 @@
         "pool:Skia"
       ],
       "environment": {
-        "USE_BAZEL_FALLBACK_VERSION": "error",
-        "VPYTHON_LOG_TRACE": "1"
+        "USE_BAZEL_FALLBACK_VERSION": "error"
       },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
-          "cipd_bin_packages/cpython3",
-          "cipd_bin_packages/cpython3/bin",
           "bazelisk_linux_amd64"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython3"
         ]
       },
       "idempotent": true,
@@ -4080,19 +4040,10 @@
         {
           "name": "git_cache",
           "path": "cache/git_cache"
-        },
-        {
-          "name": "vpython3",
-          "path": "cache/vpython3"
         }
       ],
       "casSpec": "bazel",
       "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/cpython3/${platform}",
-          "path": "cipd_bin_packages/cpython3",
-          "version": "version:3@3.11.9.chromium.36"
-        },
         {
           "name": "infra/3pp/tools/git/${platform}",
           "path": "cipd_bin_packages",
@@ -4112,11 +4063,6 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:9429fac3f8d3e6389ffdafd9d9fa1eb791dd0fe9"
-        },
-        {
-          "name": "infra/tools/luci/vpython3/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:b2fad5ab18774b86d84aa867287bfb4f2394893b"
         },
         {
           "name": "skia/bots/bazelisk_win_amd64",
@@ -4149,19 +4095,13 @@
         "pool:Skia"
       ],
       "environment": {
-        "USE_BAZEL_FALLBACK_VERSION": "error",
-        "VPYTHON_LOG_TRACE": "1"
+        "USE_BAZEL_FALLBACK_VERSION": "error"
       },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
-          "cipd_bin_packages/cpython3",
-          "cipd_bin_packages/cpython3/bin",
           "bazelisk_win_amd64"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython3"
         ]
       },
       "idempotent": true,
@@ -4177,19 +4117,10 @@
         {
           "name": "git_cache",
           "path": "cache/git_cache"
-        },
-        {
-          "name": "vpython3",
-          "path": "cache/vpython3"
         }
       ],
       "casSpec": "bazel",
       "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/cpython3/${platform}",
-          "path": "cipd_bin_packages/cpython3",
-          "version": "version:3@3.11.9.chromium.36"
-        },
         {
           "name": "infra/3pp/tools/git/${platform}",
           "path": "cipd_bin_packages",
@@ -4209,11 +4140,6 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:9429fac3f8d3e6389ffdafd9d9fa1eb791dd0fe9"
-        },
-        {
-          "name": "infra/tools/luci/vpython3/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:b2fad5ab18774b86d84aa867287bfb4f2394893b"
         },
         {
           "name": "skia/bots/bazelisk_linux_amd64",
@@ -4247,19 +4173,13 @@
         "pool:Skia"
       ],
       "environment": {
-        "USE_BAZEL_FALLBACK_VERSION": "error",
-        "VPYTHON_LOG_TRACE": "1"
+        "USE_BAZEL_FALLBACK_VERSION": "error"
       },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
-          "cipd_bin_packages/cpython3",
-          "cipd_bin_packages/cpython3/bin",
           "bazelisk_linux_amd64"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython3"
         ]
       },
       "idempotent": true,
@@ -4275,19 +4195,10 @@
         {
           "name": "git_cache",
           "path": "cache/git_cache"
-        },
-        {
-          "name": "vpython3",
-          "path": "cache/vpython3"
         }
       ],
       "casSpec": "bazel",
       "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/cpython3/${platform}",
-          "path": "cipd_bin_packages/cpython3",
-          "version": "version:3@3.11.9.chromium.36"
-        },
         {
           "name": "infra/3pp/tools/git/${platform}",
           "path": "cipd_bin_packages",
@@ -4307,11 +4218,6 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:9429fac3f8d3e6389ffdafd9d9fa1eb791dd0fe9"
-        },
-        {
-          "name": "infra/tools/luci/vpython3/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:b2fad5ab18774b86d84aa867287bfb4f2394893b"
         },
         {
           "name": "skia/bots/bazelisk_linux_amd64",
@@ -4345,19 +4251,13 @@
         "pool:Skia"
       ],
       "environment": {
-        "USE_BAZEL_FALLBACK_VERSION": "error",
-        "VPYTHON_LOG_TRACE": "1"
+        "USE_BAZEL_FALLBACK_VERSION": "error"
       },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
-          "cipd_bin_packages/cpython3",
-          "cipd_bin_packages/cpython3/bin",
           "bazelisk_linux_amd64"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython3"
         ]
       },
       "idempotent": true,
@@ -4373,19 +4273,10 @@
         {
           "name": "git_cache",
           "path": "cache/git_cache"
-        },
-        {
-          "name": "vpython3",
-          "path": "cache/vpython3"
         }
       ],
       "casSpec": "bazel",
       "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/cpython3/${platform}",
-          "path": "cipd_bin_packages/cpython3",
-          "version": "version:3@3.11.9.chromium.36"
-        },
         {
           "name": "infra/3pp/tools/git/${platform}",
           "path": "cipd_bin_packages",
@@ -4405,11 +4296,6 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:9429fac3f8d3e6389ffdafd9d9fa1eb791dd0fe9"
-        },
-        {
-          "name": "infra/tools/luci/vpython3/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:b2fad5ab18774b86d84aa867287bfb4f2394893b"
         },
         {
           "name": "skia/bots/bazelisk_linux_amd64",
@@ -4443,19 +4329,13 @@
         "pool:Skia"
       ],
       "environment": {
-        "USE_BAZEL_FALLBACK_VERSION": "error",
-        "VPYTHON_LOG_TRACE": "1"
+        "USE_BAZEL_FALLBACK_VERSION": "error"
       },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
-          "cipd_bin_packages/cpython3",
-          "cipd_bin_packages/cpython3/bin",
           "bazelisk_linux_amd64"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython3"
         ]
       },
       "idempotent": true,
@@ -4471,19 +4351,10 @@
         {
           "name": "git_cache",
           "path": "cache/git_cache"
-        },
-        {
-          "name": "vpython3",
-          "path": "cache/vpython3"
         }
       ],
       "casSpec": "bazel",
       "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/cpython3/${platform}",
-          "path": "cipd_bin_packages/cpython3",
-          "version": "version:3@3.11.9.chromium.36"
-        },
         {
           "name": "infra/3pp/tools/git/${platform}",
           "path": "cipd_bin_packages",
@@ -4503,11 +4374,6 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:9429fac3f8d3e6389ffdafd9d9fa1eb791dd0fe9"
-        },
-        {
-          "name": "infra/tools/luci/vpython3/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:b2fad5ab18774b86d84aa867287bfb4f2394893b"
         },
         {
           "name": "skia/bots/bazelisk_win_amd64",
@@ -4540,19 +4406,13 @@
         "pool:Skia"
       ],
       "environment": {
-        "USE_BAZEL_FALLBACK_VERSION": "error",
-        "VPYTHON_LOG_TRACE": "1"
+        "USE_BAZEL_FALLBACK_VERSION": "error"
       },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
-          "cipd_bin_packages/cpython3",
-          "cipd_bin_packages/cpython3/bin",
           "bazelisk_win_amd64"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython3"
         ]
       },
       "idempotent": true,
@@ -4568,19 +4428,10 @@
         {
           "name": "git_cache",
           "path": "cache/git_cache"
-        },
-        {
-          "name": "vpython3",
-          "path": "cache/vpython3"
         }
       ],
       "casSpec": "bazel",
       "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/cpython3/${platform}",
-          "path": "cipd_bin_packages/cpython3",
-          "version": "version:3@3.11.9.chromium.36"
-        },
         {
           "name": "infra/3pp/tools/git/${platform}",
           "path": "cipd_bin_packages",
@@ -4600,11 +4451,6 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:9429fac3f8d3e6389ffdafd9d9fa1eb791dd0fe9"
-        },
-        {
-          "name": "infra/tools/luci/vpython3/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:b2fad5ab18774b86d84aa867287bfb4f2394893b"
         },
         {
           "name": "skia/bots/bazelisk_linux_amd64",
@@ -4638,19 +4484,13 @@
         "pool:Skia"
       ],
       "environment": {
-        "USE_BAZEL_FALLBACK_VERSION": "error",
-        "VPYTHON_LOG_TRACE": "1"
+        "USE_BAZEL_FALLBACK_VERSION": "error"
       },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
-          "cipd_bin_packages/cpython3",
-          "cipd_bin_packages/cpython3/bin",
           "bazelisk_linux_amd64"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython3"
         ]
       },
       "idempotent": true,
@@ -4666,19 +4506,10 @@
         {
           "name": "git_cache",
           "path": "cache/git_cache"
-        },
-        {
-          "name": "vpython3",
-          "path": "cache/vpython3"
         }
       ],
       "casSpec": "bazel",
       "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/cpython3/${platform}",
-          "path": "cipd_bin_packages/cpython3",
-          "version": "version:3@3.11.9.chromium.36"
-        },
         {
           "name": "infra/3pp/tools/git/${platform}",
           "path": "cipd_bin_packages",
@@ -4698,11 +4529,6 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:9429fac3f8d3e6389ffdafd9d9fa1eb791dd0fe9"
-        },
-        {
-          "name": "infra/tools/luci/vpython3/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:b2fad5ab18774b86d84aa867287bfb4f2394893b"
         },
         {
           "name": "skia/bots/bazelisk_win_amd64",
@@ -4735,19 +4561,13 @@
         "pool:Skia"
       ],
       "environment": {
-        "USE_BAZEL_FALLBACK_VERSION": "error",
-        "VPYTHON_LOG_TRACE": "1"
+        "USE_BAZEL_FALLBACK_VERSION": "error"
       },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
-          "cipd_bin_packages/cpython3",
-          "cipd_bin_packages/cpython3/bin",
           "bazelisk_win_amd64"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython3"
         ]
       },
       "idempotent": true,
@@ -4763,19 +4583,10 @@
         {
           "name": "git_cache",
           "path": "cache/git_cache"
-        },
-        {
-          "name": "vpython3",
-          "path": "cache/vpython3"
         }
       ],
       "casSpec": "bazel",
       "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/cpython3/${platform}",
-          "path": "cipd_bin_packages/cpython3",
-          "version": "version:3@3.11.9.chromium.36"
-        },
         {
           "name": "infra/3pp/tools/git/${platform}",
           "path": "cipd_bin_packages",
@@ -4793,11 +4604,6 @@
         },
         {
           "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:b2fad5ab18774b86d84aa867287bfb4f2394893b"
-        },
-        {
-          "name": "infra/tools/luci/vpython3/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:b2fad5ab18774b86d84aa867287bfb4f2394893b"
         },
@@ -4833,19 +4639,13 @@
         "pool:Skia"
       ],
       "environment": {
-        "USE_BAZEL_FALLBACK_VERSION": "error",
-        "VPYTHON_LOG_TRACE": "1"
+        "USE_BAZEL_FALLBACK_VERSION": "error"
       },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
-          "cipd_bin_packages/cpython3",
-          "cipd_bin_packages/cpython3/bin",
           "bazelisk_linux_amd64"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython3"
         ]
       },
       "idempotent": true,
@@ -4863,21 +4663,12 @@
           "path": "cache/git_cache"
         },
         {
-          "name": "vpython3",
-          "path": "cache/vpython3"
-        },
-        {
           "name": "xcode",
           "path": "cache/Xcode.app"
         }
       ],
       "casSpec": "bazel",
       "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/cpython3/${platform}",
-          "path": "cipd_bin_packages/cpython3",
-          "version": "version:3@3.11.9.chromium.36"
-        },
         {
           "name": "infra/3pp/tools/git/${platform}",
           "path": "cipd_bin_packages",
@@ -4897,11 +4688,6 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:9429fac3f8d3e6389ffdafd9d9fa1eb791dd0fe9"
-        },
-        {
-          "name": "infra/tools/luci/vpython3/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:b2fad5ab18774b86d84aa867287bfb4f2394893b"
         },
         {
           "name": "infra/tools/mac_toolchain/${platform}",
@@ -4934,19 +4720,13 @@
         "pool:Skia"
       ],
       "environment": {
-        "USE_BAZEL_FALLBACK_VERSION": "error",
-        "VPYTHON_LOG_TRACE": "1"
+        "USE_BAZEL_FALLBACK_VERSION": "error"
       },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
-          "cipd_bin_packages/cpython3",
-          "cipd_bin_packages/cpython3/bin",
           "bazelisk_mac_arm64"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython3"
         ]
       },
       "idempotent": true,
@@ -4964,21 +4744,12 @@
           "path": "cache/git_cache"
         },
         {
-          "name": "vpython3",
-          "path": "cache/vpython3"
-        },
-        {
           "name": "xcode",
           "path": "cache/Xcode.app"
         }
       ],
       "casSpec": "bazel",
       "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/cpython3/${platform}",
-          "path": "cipd_bin_packages/cpython3",
-          "version": "version:3@3.11.9.chromium.36"
-        },
         {
           "name": "infra/3pp/tools/git/${platform}",
           "path": "cipd_bin_packages",
@@ -4998,11 +4769,6 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:9429fac3f8d3e6389ffdafd9d9fa1eb791dd0fe9"
-        },
-        {
-          "name": "infra/tools/luci/vpython3/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:b2fad5ab18774b86d84aa867287bfb4f2394893b"
         },
         {
           "name": "infra/tools/mac_toolchain/${platform}",
@@ -5036,19 +4802,13 @@
         "pool:Skia"
       ],
       "environment": {
-        "USE_BAZEL_FALLBACK_VERSION": "error",
-        "VPYTHON_LOG_TRACE": "1"
+        "USE_BAZEL_FALLBACK_VERSION": "error"
       },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
-          "cipd_bin_packages/cpython3",
-          "cipd_bin_packages/cpython3/bin",
           "bazelisk_mac_amd64"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython3"
         ]
       },
       "idempotent": true,

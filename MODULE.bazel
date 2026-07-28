@@ -326,6 +326,10 @@ download_windows_amd64_toolchain(name = "clang_windows_amd64")
 cipd_deps = use_extension("//bazel:cipd_deps.bzl", "cipd_deps")
 use_repo(
     cipd_deps,
+    "cpython_linux_amd64",
+    "cpython_mac_amd64",
+    "cpython_mac_arm64",
+    "cpython_windows_amd64",
     "git_linux_amd64",
     "gn_linux_amd64",
     "gn_mac_amd64",

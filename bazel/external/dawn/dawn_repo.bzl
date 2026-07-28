@@ -32,13 +32,22 @@ def _dawn_repo_impl(repo_ctx):
     ]:
         repo_ctx.delete(h)
 
-    # We have to use a host Python binary because toolchains are not yet loaded when repo_rules
-    # are running (repo_rules can *make* toolchains). So, we need a host Python executable.
-    python_bin = repo_ctx.which("python3")
-    if not python_bin:
-        python_bin = repo_ctx.which("python")
-    if not python_bin:
-        fail("Could not find python binary on the host")
+    # Detect the host system and resolve our hermetic CPython binary
+    os_name = repo_ctx.os.name.lower()
+    os_arch = repo_ctx.os.arch.lower()
+
+    if "windows" in os_name:
+        python_dir = repo_ctx.path(Label("@cpython_windows_amd64//:BUILD.bazel")).dirname
+        python_bin = python_dir.get_child("bin").get_child("python3.exe")
+    elif "mac" in os_name:
+        if "arm" in os_arch or "aarch64" in os_arch:
+            python_dir = repo_ctx.path(Label("@cpython_mac_arm64//:BUILD.bazel")).dirname
+        else:
+            python_dir = repo_ctx.path(Label("@cpython_mac_amd64//:BUILD.bazel")).dirname
+        python_bin = python_dir.get_child("bin").get_child("python3")
+    else:
+        python_dir = repo_ctx.path(Label("@cpython_linux_amd64//:BUILD.bazel")).dirname
+        python_bin = python_dir.get_child("bin").get_child("python3")
 
     # Copy the BUILD.bazel from Skia
     repo_ctx.delete("BUILD.bazel")

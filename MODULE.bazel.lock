@@ -192,7 +192,7 @@
   "moduleExtensions": {
     "//bazel:cipd_deps.bzl%cipd_deps": {
       "general": {
-        "bzlTransitiveDigest": "XGtP1wMeC7RpTvndnDFoZ9Hw/1hrwqc0KVMevHJf6y0=",
+        "bzlTransitiveDigest": "S/CsaQtMXt+uI9+wRxagRFjIjHnEdR+2WA9BxVDLXis=",
         "usagesDigest": "ZOuoSLNI2UZ4T/vf61+A32qhmZQ4bNxE2xDjQQsrZzE=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -255,6 +255,62 @@
                 "bin/git config --system user.name \"Bazel Test User\"",
                 "bin/git config --system user.email \"bazel-test-user@example.com\""
               ],
+              "patch_cmds_win": []
+            }
+          },
+          "cpython_linux_amd64": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "sha256": "a06bad297267859aad818d2d6c9cc2865f4b0087c71dbf020f6b8e0cb92746c2",
+              "urls": [
+                "https://chrome-infra-packages.appspot.com/dl/infra/3pp/tools/cpython3/linux-amd64/+/version%3A3@3.11.9.chromium.36",
+                "https://cdn.skia.org/bazel/a06bad297267859aad818d2d6c9cc2865f4b0087c71dbf020f6b8e0cb92746c2.zip"
+              ],
+              "type": "zip",
+              "build_file_content": "\nexports_files(\n    glob([\"**/*\"]),\n    visibility = [\"//visibility:public\"]\n)\n",
+              "patch_cmds": [],
+              "patch_cmds_win": []
+            }
+          },
+          "cpython_mac_amd64": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "sha256": "787e1e98b6220b4bf887ae04a8a80fb4939ad3c24ca6e2e7753541048c97224a",
+              "urls": [
+                "https://chrome-infra-packages.appspot.com/dl/infra/3pp/tools/cpython3/mac-amd64/+/version%3A3@3.11.9.chromium.36",
+                "https://cdn.skia.org/bazel/787e1e98b6220b4bf887ae04a8a80fb4939ad3c24ca6e2e7753541048c97224a.zip"
+              ],
+              "type": "zip",
+              "build_file_content": "\nexports_files(\n    glob([\"**/*\"]),\n    visibility = [\"//visibility:public\"]\n)\n",
+              "patch_cmds": [],
+              "patch_cmds_win": []
+            }
+          },
+          "cpython_mac_arm64": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "sha256": "6c7fb45e6ac6363c00b9820b259132554190a197d65437a0912025fa9c27e161",
+              "urls": [
+                "https://chrome-infra-packages.appspot.com/dl/infra/3pp/tools/cpython3/mac-arm64/+/version%3A3@3.11.9.chromium.36",
+                "https://cdn.skia.org/bazel/6c7fb45e6ac6363c00b9820b259132554190a197d65437a0912025fa9c27e161.zip"
+              ],
+              "type": "zip",
+              "build_file_content": "\nexports_files(\n    glob([\"**/*\"]),\n    visibility = [\"//visibility:public\"]\n)\n",
+              "patch_cmds": [],
+              "patch_cmds_win": []
+            }
+          },
+          "cpython_windows_amd64": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "sha256": "cdc51dd7d25bc6a249b076e117cdfe29456a93cddd48d4193ca3742a20ea7699",
+              "urls": [
+                "https://chrome-infra-packages.appspot.com/dl/infra/3pp/tools/cpython3/windows-amd64/+/version%3A3@3.11.9.chromium.36",
+                "https://cdn.skia.org/bazel/cdc51dd7d25bc6a249b076e117cdfe29456a93cddd48d4193ca3742a20ea7699.zip"
+              ],
+              "type": "zip",
+              "build_file_content": "\nexports_files(\n    glob([\"**/*\"]),\n    visibility = [\"//visibility:public\"]\n)\n",
+              "patch_cmds": [],
               "patch_cmds_win": []
             }
           }
