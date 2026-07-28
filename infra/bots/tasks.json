@@ -95969,7 +95969,6 @@
         "src/codec/SkWuffs.*"
       ]
     },
-    "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit": {},
     "Build-Win-Clang-x86-Debug": {},
     "Build-Win-Clang-x86_64-Release-Direct3D": {},
     "Build-Win-Clang-x86_64-Release-Vulkan": {},
@@ -96058,16 +96057,6 @@
       "location_regexes": [
         "tools/gpu/vk/.*",
         "tests/ganesh/.*"
-      ]
-    },
-    "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit": {
-      "location_regexes": [
-        "modules/canvaskit/.*"
-      ]
-    },
-    "Test-Ubuntu24.04-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit": {
-      "location_regexes": [
-        "modules/canvaskit/.*"
       ]
     },
     "Test-Win11-Clang-GCE-CPU-AVX2-x86_64-Release-All": {},
