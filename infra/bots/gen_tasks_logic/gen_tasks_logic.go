@@ -1726,7 +1726,9 @@ func (b *jobBuilder) dm() {
 			}
 		} else {
 			// Default recipe supports direct upload.
-			if b.doUpload() {
+			// TODO(skbug.com/40042855): Windows jobs are unable to extract gsutil.
+			// https://bugs.chromium.org/p/chromium/issues/detail?id=1192611
+			if b.doUpload() && !b.MatchOs("Win") {
 				b.directUpload(b.cfg.GsBucketGm, b.cfg.ServiceAccountUploadGM)
 				directUpload = true
 			}
