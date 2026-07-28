@@ -71,6 +71,13 @@ protected:
     bool usesColorXform() const override { return false; }
 
 private:
+    // Incremental decoding is delegated to the embedded PNG/BMP codecs (both of
+    // which support it) in `onStartIncrementalDecode`/`onIncrementalDecode`.
+    // Without this override the base class defaults to `false` and
+    // `SkCodec::startIncrementalDecode` returns `kUnimplemented`, which breaks
+    // clients such as Blink's `SkiaImageDecoderBase`.
+    bool onSupportsIncrementalDecode(const SkImageInfo&) override { return true; }
+
     Result onStartIncrementalDecode(const SkImageInfo& dstInfo, void* pixels, size_t rowBytes,
             const SkCodec::Options&) override;
 
