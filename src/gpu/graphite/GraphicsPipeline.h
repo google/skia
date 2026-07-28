@@ -9,6 +9,7 @@
 #define skgpu_graphite_GraphicsPipeline_DEFINED
 
 #include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/DescriptorData.h"
 #include "src/gpu/graphite/Resource.h"
 #include "src/gpu/graphite/UniquePaintParamsID.h"
 
@@ -47,7 +48,12 @@ public:
 
     int  numFragTexturesAndSamplers() const { return fPipelineInfo.fNumFragTexturesAndSamplers; }
     bool hasCombinedUniforms()        const { return fPipelineInfo.fHasCombinedUniforms;        }
-    bool hasGradientBuffer()          const { return fPipelineInfo.fHasGradientBuffer;          }
+    bool usesStorageBuffer()          const { return fPipelineInfo.usesStorageBuffer();         }
+    bool vsUsesStorage()              const { return fPipelineInfo.vsUsesStorage();             }
+    bool fsUsesStorage()              const { return fPipelineInfo.fsUsesStorage();             }
+    SkEnumBitMask<PipelineStageFlags> storageBufferStages() const {
+        return fPipelineInfo.fStorageBufferStages;
+    }
 
     struct PipelineInfo {
         PipelineInfo() = default;
@@ -55,11 +61,21 @@ public:
         // NOTE: Subclasses must manually fill in native shader code in GPU_TEST_UTILS builds.
         PipelineInfo(const ShaderInfo&, SkEnumBitMask<PipelineCreationFlags>,
                      uint32_t uniqueKeyHash, uint32_t compilationID);
+        bool usesStorageBuffer() const { return SkToBool(fStorageBufferStages); }
+        bool vsUsesStorage() const {
+            return SkToBool(fStorageBufferStages & PipelineStageFlags::kVertexShader);
+        }
+        bool fsUsesStorage() const {
+            return SkToBool(fStorageBufferStages & PipelineStageFlags::kFragmentShader);
+        }
+        SkEnumBitMask<PipelineStageFlags> storageBufferStages() const {
+            return fStorageBufferStages;
+        }
 
         DstReadStrategy fDstReadStrategy = DstReadStrategy::kNoneRequired;
         int  fNumFragTexturesAndSamplers = 0;
         bool fHasCombinedUniforms = false;
-        bool fHasGradientBuffer = false;
+        SkEnumBitMask<PipelineStageFlags> fStorageBufferStages = {};
 
         // In test-enabled builds, we preserve the generated shader code to display in the viewer
         // slide UI. This is not quite enough information to fully recreate the pipeline, as the

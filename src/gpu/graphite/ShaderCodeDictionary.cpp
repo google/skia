@@ -146,9 +146,9 @@ void append_uniforms(TArray<std::string>* list,
         list->push_back(get_mangled_sampler_name(entry->fTexturesAndSamplers[i], node->keyIndex()));
     }
 
-    // Append gradient buffer.
-    if (node->requiredFlags() & SnippetRequirementFlags::kGradientBuffer) {
-        list->push_back(ShaderInfo::kGradientBufferName);
+    // Append storage buffer.
+    if (node->requiredFlags() & SnippetRequirementFlags::kStorageBuffer) {
+        list->push_back(ShaderInfo::kStorageBufferName);
     }
 
     // Append child output names.
@@ -1051,7 +1051,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kLinearGradientShaderBuffer] = {
             /*name=*/"LinearGradientBuffer",
             /*staticFn=*/"sk_linear_grad_buf_shader",
-            SnippetRequirementFlags::kLocalCoords | SnippetRequirementFlags::kGradientBuffer,
+            SnippetRequirementFlags::kLocalCoords | SnippetRequirementFlags::kStorageBuffer,
             /*uniforms=*/{{{ "numStops",     SkSLType::kInt },
                            { "bufferOffset", SkSLType::kInt },
                            { "tilemode",     SkSLType::kInt },
@@ -1091,7 +1091,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kRadialGradientShaderBuffer] = {
             /*name=*/"RadialGradientBuffer",
             /*staticFn=*/"sk_radial_grad_buf_shader",
-            SnippetRequirementFlags::kLocalCoords | SnippetRequirementFlags::kGradientBuffer,
+            SnippetRequirementFlags::kLocalCoords | SnippetRequirementFlags::kStorageBuffer,
             /*uniforms=*/{{{ "numStops",     SkSLType::kInt },
                            { "bufferOffset", SkSLType::kInt },
                            { "tilemode",     SkSLType::kInt },
@@ -1137,7 +1137,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kSweepGradientShaderBuffer] = {
             /*name=*/"SweepGradientBuffer",
             /*staticFn=*/"sk_sweep_grad_buf_shader",
-            SnippetRequirementFlags::kLocalCoords | SnippetRequirementFlags::kGradientBuffer,
+            SnippetRequirementFlags::kLocalCoords | SnippetRequirementFlags::kStorageBuffer,
             /*uniforms=*/{{{ "bias",         SkSLType::kFloat },
                            { "scale",        SkSLType::kFloat },
                            { "numStops",     SkSLType::kInt },
@@ -1191,7 +1191,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kConicalGradientShaderBuffer] = {
             /*name=*/"ConicalGradientBuffer",
             /*staticFn=*/"sk_conical_grad_buf_shader",
-            SnippetRequirementFlags::kLocalCoords | SnippetRequirementFlags::kGradientBuffer,
+            SnippetRequirementFlags::kLocalCoords | SnippetRequirementFlags::kStorageBuffer,
             /*uniforms=*/{{{ "radius0",      SkSLType::kFloat },
                            { "dRadius",      SkSLType::kFloat },
                            { "a",            SkSLType::kFloat },

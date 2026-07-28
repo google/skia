@@ -661,18 +661,19 @@ wgpu::BindGroup DawnResourceProvider::findOrCreateSingleUniformBindGroup(
     combinedUniformEntry.buffer  = buffer->dawnBuffer();
     combinedUniformEntry.size    = SkAlignTo(bufferInfo.fSize, kBufferBindingSizeAlignment);
 
-    wgpu::BindGroupEntry gradientBufferNullEntry;
-    gradientBufferNullEntry.binding = DawnGraphicsPipeline::kGradientBufferIndex;
-    gradientBufferNullEntry.buffer  = this->getOrCreateNullBuffer();
+    wgpu::BindGroupEntry storageBufferNullEntry;
+    storageBufferNullEntry.binding = DawnGraphicsPipeline::kStorageBufferIndex;
+    storageBufferNullEntry.buffer  = this->getOrCreateNullBuffer();
 
     std::array<wgpu::BindGroupEntry, kNumUniformEntries> entries = {
         intrinsicConstantNullEntry,
         combinedUniformEntry,
-        gradientBufferNullEntry
+        storageBufferNullEntry
     };
 
     wgpu::BindGroup bindGroup = this->createBindGroup(
-            entries, this->dawnSharedContext()->getUniformBuffersBindGroupLayout());
+            entries,
+            this->dawnSharedContext()->getUniformBuffersBindGroupLayout(wgpu::ShaderStage::None));
 
     buffer->addCachedSingleBufferBindGroup(bindGroup, bufferInfo.fSize);
 

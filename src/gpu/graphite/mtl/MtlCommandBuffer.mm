@@ -106,6 +106,9 @@ void MtlCommandBuffer::onResetCommandBuffer() {
     fActiveRenderCommandEncoder.reset();
     fActiveComputeCommandEncoder.reset();
     fActiveBlitCommandEncoder.reset();
+    fActiveGraphicsPipeline = nullptr;
+    fBoundUniformBuffers = {};
+    fBoundUniformBuffersDirty = false;
     fCurrentIndexBuffer = nil;
     fCurrentIndexBufferOffset = 0;
 }
@@ -339,6 +342,9 @@ void MtlCommandBuffer::endRenderPass() {
     SkASSERT(fActiveRenderCommandEncoder);
     fActiveRenderCommandEncoder->endEncoding();
     fActiveRenderCommandEncoder.reset();
+    fActiveGraphicsPipeline = nullptr;
+    fBoundUniformBuffers = {};
+    fBoundUniformBuffersDirty = false;
     fDrawIsOffscreen = false;
 }
 
@@ -355,7 +361,7 @@ bool MtlCommandBuffer::addDrawPass(DrawPass* drawPass) {
     // If there is gradient data to bind, it must be done prior to draws.
     if (drawPass->storageBufferManager()->hasData()) {
         this->bindUniformBuffer(drawPass->storageBufferManager()->getBufferInfo(),
-                                UniformSlot::kGradient);
+                                UniformSlot::kStorage);
     }
 
     if (!drawPass->addResourceRefs(fResourceProvider, this)) SK_UNLIKELY {
@@ -513,6 +519,8 @@ void MtlCommandBuffer::bindGraphicsPipeline(const GraphicsPipeline* graphicsPipe
     SkASSERT(fActiveRenderCommandEncoder);
 
     auto mtlPipeline = static_cast<const MtlGraphicsPipeline*>(graphicsPipeline);
+    fActiveGraphicsPipeline = mtlPipeline;
+    fBoundUniformBuffersDirty = true;
     auto pipelineState = mtlPipeline->mtlPipelineState();
     fActiveRenderCommandEncoder->setRenderPipelineState(pipelineState);
     auto depthStencilState = mtlPipeline->mtlDepthStencilState();
@@ -531,23 +539,56 @@ void MtlCommandBuffer::bindGraphicsPipeline(const GraphicsPipeline* graphicsPipe
 }
 
 void MtlCommandBuffer::bindUniformBuffer(const BindBufferInfo& info, UniformSlot slot) {
-    SkASSERT(fActiveRenderCommandEncoder);
-
-    id<MTLBuffer> mtlBuffer = info.fBuffer ?
-            static_cast<const MtlBuffer*>(info.fBuffer)->mtlBuffer() : nullptr;
-
     unsigned int bufferIndex;
-    switch(slot) {
+    switch (slot) {
         case UniformSlot::kCombinedUniforms:
             bufferIndex = MtlGraphicsPipeline::kCombinedUniformIndex;
             break;
-        case UniformSlot::kGradient:
-            bufferIndex = MtlGraphicsPipeline::kGradientBufferIndex;
+        case UniformSlot::kStorage:
+            bufferIndex = MtlGraphicsPipeline::kStorageBufferIndex;
             break;
     }
 
-    fActiveRenderCommandEncoder->setVertexBuffer(mtlBuffer, info.fOffset, bufferIndex);
-    fActiveRenderCommandEncoder->setFragmentBuffer(mtlBuffer, info.fOffset, bufferIndex);
+    fBoundUniformBuffers[bufferIndex] = info;
+    fBoundUniformBuffersDirty = true;
+}
+
+void MtlCommandBuffer::bindUniformBuffers() {
+    if (!fBoundUniformBuffersDirty) {
+        return;
+    }
+    fBoundUniformBuffersDirty = false;
+
+    SkASSERT(fActiveRenderCommandEncoder);
+    SkASSERT(fActiveGraphicsPipeline);
+
+    const BindBufferInfo& combinedInfo =
+            fBoundUniformBuffers[MtlGraphicsPipeline::kCombinedUniformIndex];
+    if (combinedInfo.fBuffer) {
+        id<MTLBuffer> mtlBuffer =
+                static_cast<const MtlBuffer*>(combinedInfo.fBuffer)->mtlBuffer();
+        fActiveRenderCommandEncoder->setVertexBuffer(
+                mtlBuffer, combinedInfo.fOffset, MtlGraphicsPipeline::kCombinedUniformIndex);
+        fActiveRenderCommandEncoder->setFragmentBuffer(
+                mtlBuffer, combinedInfo.fOffset, MtlGraphicsPipeline::kCombinedUniformIndex);
+    }
+
+    if (fActiveGraphicsPipeline->usesStorageBuffer()) {
+        const BindBufferInfo& storageInfo =
+                fBoundUniformBuffers[MtlGraphicsPipeline::kStorageBufferIndex];
+        if (storageInfo.fBuffer) {
+            id<MTLBuffer> mtlBuffer =
+                    static_cast<const MtlBuffer*>(storageInfo.fBuffer)->mtlBuffer();
+            if (fActiveGraphicsPipeline->vsUsesStorage()) {
+                fActiveRenderCommandEncoder->setVertexBuffer(
+                        mtlBuffer, storageInfo.fOffset, MtlGraphicsPipeline::kStorageBufferIndex);
+            }
+            if (fActiveGraphicsPipeline->fsUsesStorage()) {
+                fActiveRenderCommandEncoder->setFragmentBuffer(
+                        mtlBuffer, storageInfo.fOffset, MtlGraphicsPipeline::kStorageBufferIndex);
+            }
+        }
+    }
 }
 
 void MtlCommandBuffer::bindInputBuffer(const Buffer* buffer, size_t offset, uint32_t bindingIndex) {
@@ -651,6 +692,7 @@ void MtlCommandBuffer::draw(PrimitiveType type,
                             unsigned int baseVertex,
                             unsigned int vertexCount) {
     SkASSERT(fActiveRenderCommandEncoder);
+    this->bindUniformBuffers();
 
     auto mtlPrimitiveType = graphite_to_mtl_primitive(type);
 
@@ -660,6 +702,7 @@ void MtlCommandBuffer::draw(PrimitiveType type,
 void MtlCommandBuffer::drawIndexed(PrimitiveType type, unsigned int baseIndex,
                                    unsigned int indexCount, unsigned int baseVertex) {
     SkASSERT(fActiveRenderCommandEncoder);
+    this->bindUniformBuffers();
 
     auto mtlPrimitiveType = graphite_to_mtl_primitive(type);
     size_t indexOffset =  fCurrentIndexBufferOffset + sizeof(uint16_t )* baseIndex;
@@ -675,6 +718,7 @@ void MtlCommandBuffer::drawInstanced(PrimitiveType type, unsigned int baseVertex
                                      unsigned int vertexCount, unsigned int baseInstance,
                                      unsigned int instanceCount) {
     SkASSERT(fActiveRenderCommandEncoder);
+    this->bindUniformBuffers();
 
     auto mtlPrimitiveType = graphite_to_mtl_primitive(type);
 
@@ -690,6 +734,7 @@ void MtlCommandBuffer::drawIndexedInstanced(PrimitiveType type,
                                             unsigned int baseInstance,
                                             unsigned int instanceCount) {
     SkASSERT(fActiveRenderCommandEncoder);
+    this->bindUniformBuffers();
 
     auto mtlPrimitiveType = graphite_to_mtl_primitive(type);
     size_t indexOffset =  fCurrentIndexBufferOffset + sizeof(uint16_t) * baseIndex;
@@ -702,6 +747,7 @@ void MtlCommandBuffer::drawIndexedInstanced(PrimitiveType type,
 void MtlCommandBuffer::drawIndirect(PrimitiveType type) {
     SkASSERT(fActiveRenderCommandEncoder);
     SkASSERT(fCurrentIndirectBuffer);
+    this->bindUniformBuffers();
 
     auto mtlPrimitiveType = graphite_to_mtl_primitive(type);
     fActiveRenderCommandEncoder->drawPrimitives(
@@ -711,6 +757,7 @@ void MtlCommandBuffer::drawIndirect(PrimitiveType type) {
 void MtlCommandBuffer::drawIndexedIndirect(PrimitiveType type) {
     SkASSERT(fActiveRenderCommandEncoder);
     SkASSERT(fCurrentIndirectBuffer);
+    this->bindUniformBuffers();
 
     auto mtlPrimitiveType = graphite_to_mtl_primitive(type);
     fActiveRenderCommandEncoder->drawIndexedPrimitives(mtlPrimitiveType,

@@ -23,6 +23,11 @@ RenderStep::RenderStep(Layout layout,
                        SkSpan<const Varying> varyings)
         : fRenderStepID(renderStepID)
         , fFlags(flags)
+        , fStorageBufferStages(
+                  (SkToBool(flags & Flags::kVsUsesStorage) ? PipelineStageFlags::kVertexShader
+                                                           : PipelineStageFlags{}) |
+                  (SkToBool(flags & Flags::kFsUsesStorage) ? PipelineStageFlags::kFragmentShader
+                                                           : PipelineStageFlags{}))
         , fPrimitiveType(primitiveType)
         , fDepthStencilSettings(depthStencilSettings)
         , fUniforms(uniforms)

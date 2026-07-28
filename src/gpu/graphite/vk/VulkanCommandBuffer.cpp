@@ -1127,7 +1127,7 @@ void VulkanCommandBuffer::addDrawPass(DrawPass* drawPass) {
     // If there is gradient data to bind, it must be done prior to draws.
     if (drawPass->storageBufferManager()->hasData()) {
         this->recordBufferBindingInfo(drawPass->storageBufferManager()->getBufferInfo(),
-                                      UniformSlot::kGradient);
+                                      UniformSlot::kStorage);
     }
 
     for (auto [type, cmdPtr] : drawPass->commands()) {
@@ -1301,8 +1301,8 @@ void VulkanCommandBuffer::recordBufferBindingInfo(const BindBufferInfo& info, Un
         case UniformSlot::kCombinedUniforms:
             bufferIndex = VulkanGraphicsPipeline::kCombinedUniformIndex;
             break;
-        case UniformSlot::kGradient:
-            bufferIndex = VulkanGraphicsPipeline::kGradientBufferIndex;
+        case UniformSlot::kStorage:
+            bufferIndex = VulkanGraphicsPipeline::kStorageBufferIndex;
             break;
         default:
             SkASSERT(false);
@@ -1381,12 +1381,12 @@ void VulkanCommandBuffer::bindUniformBuffers() {
     const bool hasCombinedUbo =
             fActiveGraphicsPipeline->hasCombinedUniforms() &&
             fUniformBuffersToBind[Pipeline::kCombinedUniformIndex].fBuffer;
-    const bool hasGradientBuffer =
-            fActiveGraphicsPipeline->hasGradientBuffer() &&
-            fUniformBuffersToBind[Pipeline::kGradientBufferIndex].fBuffer;
+    const bool hasStorageBuffer =
+            fActiveGraphicsPipeline->usesStorageBuffer() &&
+            fUniformBuffersToBind[Pipeline::kStorageBufferIndex].fBuffer;
 
-    // We should never have a gradient buffer without having a combined uniform buffer as well.
-    SkASSERT(!hasGradientBuffer || hasCombinedUbo);
+    // We should never have a storage buffer without having a combined uniform buffer as well.
+    SkASSERT(!hasStorageBuffer || hasCombinedUbo);
 
     // If no uniforms are used, we can go ahead and return since no descriptors need to be bound.
     if (!hasCombinedUbo) {
@@ -1418,22 +1418,20 @@ void VulkanCommandBuffer::bindUniformBuffers() {
             PipelineStageFlags::kVertexShader | PipelineStageFlags::kFragmentShader });
     dynamicOffsets.push_back(combinedUboInfo.fOffset);
 
-    if (hasGradientBuffer) {
-        SkASSERT(fSharedContext->caps()->gradientBufferSupport() &&
-                 fSharedContext->caps()->storageBufferSupport());
-
+    if (fActiveGraphicsPipeline->usesStorageBuffer()) {
+        SkASSERT(fSharedContext->caps()->storageBufferSupport());
         uniformDescriptorData.push_back({DescriptorType::kStorageBuffer,
                                          /*count=*/1,
-                                         Pipeline::kGradientBufferIndex,
-                                         PipelineStageFlags::kFragmentShader});
-        dynamicOffsets.push_back(fUniformBuffersToBind[Pipeline::kGradientBufferIndex].fOffset);
+                                         Pipeline::kStorageBufferIndex,
+                                         fActiveGraphicsPipeline->storageBufferStages()});
+        dynamicOffsets.push_back(fUniformBuffersToBind[Pipeline::kStorageBufferIndex].fOffset);
     }
 
     // Now obtain an actual descriptor set. In the case of using only one buffer, we can query
     // the VulkanBuffer for an existing cached set with the appropriate sizing and can avoid
     // performing an update call on the set. Otherwise, obtain a new set and update before binding.
     sk_sp<VulkanDescriptorSet> descSet;
-    if (hasGradientBuffer ||
+    if (hasStorageBuffer ||
         !(descSet = vulkanBuffer->getCachedSingleBufferDescriptorSet(combinedUboInfo.fSize))) {
 
         descSet = fResourceProvider->findOrCreateDescriptorSet(uniformDescriptorData);
@@ -1449,7 +1447,7 @@ void VulkanCommandBuffer::bindUniformBuffers() {
                                       fSharedContext);
 
         // If we ended up creating a new single-buffer descriptor set, cache it on the VulkanBuffer.
-        if (!hasGradientBuffer) {
+        if (!hasStorageBuffer) {
             const_cast<VulkanBuffer*>(vulkanBuffer)->
                     addCachedSingleBufferDescriptorSet(combinedUboInfo.fSize, descSet);
         }

@@ -2524,9 +2524,9 @@ static void add_gradient_to_key(const KeyContext& keyContext,
 
     sk_sp<TextureProxy> proxy;
 
-    bool useStorageBuffer = keyContext.caps()->gradientBufferSupport();
+    bool gradUsesStorage = keyContext.caps()->storageBufferSupport();
     if (colorCount > GradientShaderBlocks::GradientData::kNumInternalStorageStops
-            && !useStorageBuffer) {
+            && !gradUsesStorage) {
         if (shader->cachedBitmap().empty()) {
             SkBitmap colorsAndOffsetsBitmap =
                     skgpu::CreateGradientColorAndOffsetBitmap(colorCount, colors, positions);
@@ -2560,7 +2560,7 @@ static void add_gradient_to_key(const KeyContext& keyContext,
                                             positions,
                                             shader,
                                             std::move(proxy),
-                                            useStorageBuffer,
+                                            gradUsesStorage,
                                             shader->getInterpolation());
 
     make_interpolated_to_dst(keyContext,

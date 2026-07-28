@@ -134,8 +134,8 @@ static constexpr inline size_t VertexAttribTypeSize(VertexAttribType type) {
 enum class UniformSlot {
     // Slot for paints and render step uniforms
     kCombinedUniforms,
-    // Meant for gradient storage buffer.
-    kGradient
+    // Storage buffer slot.
+    kStorage
 };
 
 /*

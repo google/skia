@@ -36,7 +36,8 @@ public:
     inline static constexpr unsigned int kCombinedUniformIndex = 1; // Paint AND rendersteps!
     inline static constexpr unsigned int kStaticDataBufferIndex = 2;
     inline static constexpr unsigned int kAppendDataBufferIndex = 3;
-    inline static constexpr unsigned int kGradientBufferIndex = 4;
+    inline static constexpr unsigned int kStorageBufferIndex = 4;
+    inline static constexpr unsigned int kMaxNumUniformBuffers = 5;
 
     static sk_sp<MtlGraphicsPipeline> Make(const MtlSharedContext*,
                                            const RuntimeEffectDictionary*,

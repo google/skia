@@ -126,11 +126,10 @@ void DawnSharedContext::createUniformBuffersBindGroupLayout() {
     entries[1].buffer.hasDynamicOffset = true;
     entries[1].buffer.minBindingSize = 0;
 
-    // Gradient buffer will only be used when storage buffers are preferred, else large
-    // gradients use a texture fallback, set binding type as a uniform when not in use to
-    // satisfy any binding type restrictions for non-supported ssbo devices.
-    entries[2].binding = DawnGraphicsPipeline::kGradientBufferIndex;
-    entries[2].visibility = wgpu::ShaderStage::Fragment;
+    // StorageBuffer will only be used if supported and preferred, else set binding type as a
+    // uniform when not in use to satisfy any binding type restrictions for non-supported ssbo
+    // devices.
+    entries[2].binding = DawnGraphicsPipeline::kStorageBufferIndex;
     entries[2].buffer.type = caps->storageBufferSupport()
                                      ? wgpu::BufferBindingType::ReadOnlyStorage
                                      : wgpu::BufferBindingType::Uniform;
@@ -144,7 +143,18 @@ void DawnSharedContext::createUniformBuffersBindGroupLayout() {
 
     groupLayoutDesc.entryCount = entries.size();
     groupLayoutDesc.entries = entries.data();
-    fUniformBuffersBindGroupLayout = this->device().CreateBindGroupLayout(&groupLayoutDesc);
+
+    constexpr wgpu::ShaderStage kVisibilities[4] = {
+        wgpu::ShaderStage::None,                                 // index 0 (ShaderStage::None)
+        wgpu::ShaderStage::Vertex,                               // index 1 (ShaderStage::Vertex)
+        wgpu::ShaderStage::Fragment,                             // index 2 (ShaderStage::Fragment)
+        wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment, // index 3 (Vertex | Fragment)
+    };
+
+    for (size_t i = 0; i < std::size(kVisibilities); ++i) {
+        entries[2].visibility = kVisibilities[i];
+        fUniformBuffersBindGroupLayouts[i] = this->device().CreateBindGroupLayout(&groupLayoutDesc);
+    }
 }
 
 void DawnSharedContext::createSingleTextureSamplerBindGroupLayout() {

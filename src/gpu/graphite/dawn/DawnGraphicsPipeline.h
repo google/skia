@@ -50,7 +50,7 @@ public:
     // only have one uniform buffer per BindGroup.
     inline static constexpr unsigned int kIntrinsicUniformBufferIndex = 0;
     inline static constexpr unsigned int kCombinedUniformIndex = 1;
-    inline static constexpr unsigned int kGradientBufferIndex = 2;
+    inline static constexpr unsigned int kStorageBufferIndex = 2;
     inline static constexpr unsigned int kMaxNumUniformBuffers = 3;
 
     inline static constexpr unsigned int kIntrinsicUniformSize = 32;

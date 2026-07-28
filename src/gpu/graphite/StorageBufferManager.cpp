@@ -62,9 +62,7 @@ bool StorageBufferManager::finalize(DrawBufferManager* bufferMgr) {
         auto [writer, bufferInfo, _] =
                 bufferMgr->getMappedStorageBuffer(totalBytes, sizeof(float));
         if (writer) {
-            if (!fGradientCache.fStorage.empty()) {
-                writer.write(fGradientCache.fStorage.data(), fGradientCache.fStorage.size_bytes());
-            }
+            writer.write(fGradientCache.fStorage.data(), fGradientCache.fStorage.size_bytes());
             this->reset();
             fBufferInfo = bufferInfo;
             return true;

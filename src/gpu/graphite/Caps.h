@@ -87,7 +87,7 @@ struct ResourceBindingRequirements {
     /* Define uniform buffer bindings */
     int fIntrinsicBufferBinding       = kUnassigned;
     int fCombinedUniformBufferBinding = kUnassigned;
-    int fGradientBufferBinding        = kUnassigned;
+    int fStorageBufferBinding         = kUnassigned;
 };
 
 class Caps {
@@ -285,17 +285,12 @@ public:
     bool allowCpuSync() const { return fAllowCpuSync; }
 
     /* Returns whether storage buffers are supported and to be preferred over uniform buffers. */
-    bool storageBufferSupport() const { return fStorageBufferSupport; }
-
-    /**
-     * The gradient buffer is an unsized float array so it is only optimal memory-wise to use it if
-     * the storage buffer memory layout is std430 or in metal, which is also the only supported
-     * way the data is packed.
-     */
-    bool gradientBufferSupport() const {
-        return fStorageBufferSupport &&
-               (fResourceBindingReqs.fStorageBufferLayout == Layout::kStd430 ||
-                fResourceBindingReqs.fStorageBufferLayout == Layout::kMetal);
+    bool storageBufferSupport() const {
+        SkASSERT(!fStorageBufferSupport ||
+                 fResourceBindingReqs.fStorageBufferLayout == Layout::kStd430 ||
+                 fResourceBindingReqs.fStorageBufferLayout == Layout::kStd430_F16 ||
+                 fResourceBindingReqs.fStorageBufferLayout == Layout::kMetal);
+        return fStorageBufferSupport;
     }
 
     /* Returns whether a draw buffer can be mapped. */

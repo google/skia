@@ -24,6 +24,7 @@ namespace skgpu::graphite {
 class ComputePipeline;
 class MtlBlitCommandEncoder;
 class MtlComputeCommandEncoder;
+class MtlGraphicsPipeline;
 class MtlRenderCommandEncoder;
 class MtlSharedContext;
 struct WorkgroupSize;
@@ -156,10 +157,16 @@ private:
     MtlBlitCommandEncoder* getBlitCommandEncoder();
     void endBlitCommandEncoder();
 
+    void bindUniformBuffers();
+
     sk_cfp<id<MTLCommandBuffer>> fCommandBuffer;
     sk_sp<MtlRenderCommandEncoder> fActiveRenderCommandEncoder;
     sk_sp<MtlComputeCommandEncoder> fActiveComputeCommandEncoder;
     sk_sp<MtlBlitCommandEncoder> fActiveBlitCommandEncoder;
+    const MtlGraphicsPipeline* fActiveGraphicsPipeline = nullptr;
+
+    std::array<BindBufferInfo, 5> fBoundUniformBuffers;
+    bool fBoundUniformBuffersDirty = false;
 
     id<MTLBuffer> fCurrentIndexBuffer;
     id<MTLBuffer> fCurrentIndirectBuffer;

@@ -56,7 +56,7 @@ enum class SnippetRequirementFlags : uint32_t {
 
     // Special values and/or behaviors required for the snippet
     kPrimitiveColor         = 0x8,
-    kGradientBuffer         = 0x10,
+    kStorageBuffer          = 0x10,
     kStoresSamplerDescData  = 0x20,  // Indicates that the node stores numerical sampler data
     kPassthroughLocalCoords = 0x40,  // Indicates that the node will pass through local coords
                                      // unmodified to its children.

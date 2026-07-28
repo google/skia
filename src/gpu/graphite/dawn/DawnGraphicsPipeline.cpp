@@ -489,7 +489,14 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
     // layout and passed in to the pipline constructor for lifetime management.
     skia_private::TArray<sk_sp<DawnSampler>> immutableSamplers;
     {
-        groupLayouts[0] = sharedContext->getUniformBuffersBindGroupLayout();
+        wgpu::ShaderStage storageVisibility = wgpu::ShaderStage::None;
+        if (shaderInfo->vsUsesStorage()) {
+            storageVisibility |= wgpu::ShaderStage::Vertex;
+        }
+        if (shaderInfo->fsUsesStorage()) {
+            storageVisibility |= wgpu::ShaderStage::Fragment;
+        }
+        groupLayouts[0] = sharedContext->getUniformBuffersBindGroupLayout(storageVisibility);
         if (!groupLayouts[0]) {
             return {};
         }
