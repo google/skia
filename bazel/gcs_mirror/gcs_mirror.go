@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 // This executable downloads, verifies, and uploads a given file to the Skia infra Bazel mirror.
-// Users should have gsutil installed, on the PATH and authenticated.
 // There are two modes of use:
 //   - Specify a single file via --url and --sha256.
 //   - Copy a JSON array of objects (or Starlark list of dictionaries) via standard in.
