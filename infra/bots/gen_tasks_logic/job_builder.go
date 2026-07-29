@@ -143,12 +143,6 @@ func (b *jobBuilder) genTasksForJob() {
 		return
 	}
 
-	// BuildStats bots. This computes things like binary size.
-	if b.Role("BuildStats") {
-		b.buildstats()
-		return
-	}
-
 	if b.Role("CodeSize") {
 		b.codesize()
 		return

@@ -23,7 +23,6 @@
   * [builder_name_schema:examples/full](#recipes-builder_name_schema_examples_full)
   * [checkout:examples/full](#recipes-checkout_examples_full)
   * [compile](#recipes-compile)
-  * [compute_buildstats](#recipes-compute_buildstats)
   * [docker:examples/full](#recipes-docker_examples_full)
   * [doxygen:examples/full](#recipes-doxygen_examples_full)
   * [env:examples/full](#recipes-env_examples_full)
@@ -42,7 +41,6 @@
   * [test](#recipes-test)
   * [test_canvaskit](#recipes-test_canvaskit)
   * [test_lottie_web](#recipes-test_lottie_web)
-  * [upload_buildstats_results](#recipes-upload_buildstats_results)
   * [upload_dm_results](#recipes-upload_dm_results)
   * [upload_nano_results](#recipes-upload_nano_results)
   * [vars:examples/full](#recipes-vars_examples_full)
@@ -323,20 +321,6 @@ Prepare the variables.
 
 
 &mdash; **def [RunSteps](/infra/bots/recipes/compile.py#26)(api):**
-### *recipes* / [compute\_buildstats](/infra/bots/recipes/compute_buildstats.py)
-
-[DEPS](/infra/bots/recipes/compute_buildstats.py#11): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [checkout](#recipe_modules-checkout), [env](#recipe_modules-env), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
-
-
-&mdash; **def [RunSteps](/infra/bots/recipes/compute_buildstats.py#33)(api):**
-
-&mdash; **def [add\_binary\_size\_output\_property](/infra/bots/recipes/compute_buildstats.py#29)(result, source, binary_size):**
-
-&mdash; **def [analyze\_cpp\_lib](/infra/bots/recipes/compute_buildstats.py#103)(api, checkout_root, out_dir, files):**
-
-&mdash; **def [keys\_and\_props](/infra/bots/recipes/compute_buildstats.py#79)(api):**
-
-&mdash; **def [make\_treemap](/infra/bots/recipes/compute_buildstats.py#131)(api, checkout_root, out_dir, files):**
 ### *recipes* / [docker:examples/full](/infra/bots/recipe_modules/docker/examples/full.py)
 
 [DEPS](/infra/bots/recipe_modules/docker/examples/full.py#6): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [docker](#recipe_modules-docker), [vars](#recipe_modules-vars)
@@ -494,12 +478,6 @@ Run the DM test.
 
 
 &mdash; **def [RunSteps](/infra/bots/recipes/test_lottie_web.py#28)(api):**
-### *recipes* / [upload\_buildstats\_results](/infra/bots/recipes/upload_buildstats_results.py)
-
-[DEPS](/infra/bots/recipes/upload_buildstats_results.py#9): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [vars](#recipe_modules-vars)
-
-
-&mdash; **def [RunSteps](/infra/bots/recipes/upload_buildstats_results.py#20)(api):**
 ### *recipes* / [upload\_dm\_results](/infra/bots/recipes/upload_dm_results.py)
 
 [DEPS](/infra/bots/recipes/upload_dm_results.py#12): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [gcloud](#recipe_modules-gcloud), [vars](#recipe_modules-vars)

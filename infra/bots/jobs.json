@@ -779,12 +779,6 @@
     "cq_config": {}
   },
   {
-    "name": "BuildStats-Ubuntu24.04-Clang-x86_64-Release"
-  },
-  {
-    "name": "BuildStats-Ubuntu24.04-Clang-x86_64-Release-Vulkan"
-  },
-  {
     "name": "Canary-Android"
   },
   {

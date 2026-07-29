@@ -822,8 +822,6 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			log.Fatal(err)
 		}
 		return name
-	} else if b.Role("BuildStats") {
-		return strings.Replace(b.Name, "BuildStats", "Build", 1)
 	} else if b.Role("CodeSize") {
 		return codesizeTaskNameRegexp.ReplaceAllString(b.Name, "Build-")
 	} else {
@@ -1137,7 +1135,7 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 	} else {
 		d["gpu"] = "none"
 		if d["os"] == DEFAULT_OS_LINUX_GCE {
-			if b.ExtraConfig("CanvasKit", "CMake", "Docker") || b.Role("BuildStats", "CodeSize") {
+			if b.ExtraConfig("CanvasKit", "CMake", "Docker") || b.Role("CodeSize") {
 				b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 			} else {
 				// Use many-core machines for Build tasks.
@@ -1521,30 +1519,6 @@ func (b *jobBuilder) infra() {
 		b.usesGCloud()
 		b.idempotent()
 		b.usesGo()
-	})
-}
-
-// buildstats generates a builtstats task, which compiles code and generates
-// statistics about the build.
-func (b *jobBuilder) buildstats() {
-	compileTaskName := b.compile()
-
-	// Upload release results (for tracking in perf)
-	// We have some jobs that are FYI (e.g. Debug-CanvasKit, tree-map generator)
-	doUpload := b.Release() && !b.Arch("x86_64")
-
-	b.addTask(b.Name, func(b *TaskBuilder) {
-		b.recipeProps(EXTRA_PROPS)
-		b.kitchenTask("compute_buildstats", OUTPUT_PERF)
-		b.dep(compileTaskName)
-		b.asset("bloaty")
-		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
-		b.usesDocker()
-		b.usesGit()
-		b.cache(CACHES_WORKDIR...)
-		if doUpload {
-			b.directUpload(b.cfg.GsBucketNano, b.cfg.ServiceAccountUploadNano)
-		}
 	})
 }
 
