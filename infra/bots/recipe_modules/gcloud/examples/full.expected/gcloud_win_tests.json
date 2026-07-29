@@ -13,7 +13,7 @@
   },
   {
     "cmd": [
-      "gcloud",
+      "gcloud.cmd",
       "storage",
       "cp",
       "-Z",

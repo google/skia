@@ -127,9 +127,7 @@ def test_steps(api):
     # Copy images and JSON to host machine if needed.
     api.flavor.copy_directory_contents_to_host(
         api.flavor.device_dirs.dm_dir, api.flavor.host_dirs.dm_dir)
-    # https://bugs.chromium.org/p/chromium/issues/detail?id=1192611
-    if 'Win' not in api.vars.builder_cfg.get('os', ''):
-      api.gold_upload.upload()
+    api.gold_upload.upload()
 
 
 def RunSteps(api):

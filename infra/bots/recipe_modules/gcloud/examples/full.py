@@ -9,6 +9,7 @@
 DEPS = [
   'gcloud',
   'recipe_engine/path',
+  'recipe_engine/platform',
   'recipe_engine/properties',
   'recipe_engine/step',
   'run',
@@ -37,7 +38,8 @@ def GenTests(api):
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]')
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.platform('win', 64)
   )
 
   yield (

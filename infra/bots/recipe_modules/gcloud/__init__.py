@@ -7,6 +7,7 @@ from . import api as _api
 
 DEPS = [
   'recipe_engine/context',
+  'recipe_engine/platform',
   'recipe_engine/service_account',
   'recipe_engine/step',
   'run',

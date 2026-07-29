@@ -26,7 +26,7 @@ of Clang and the instrumented libc++, located in /msan.
 
 Downloading Clang binaries (Googlers Only)
 ------------------------------------------
-This requires gsutil, part of the [gcloud sdk](https://cloud.google.com/sdk/downloads).
+This requires the [gcloud sdk](https://cloud.google.com/sdk/downloads).
 
 <!--?prettify lang=sh?-->
 

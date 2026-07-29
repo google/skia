@@ -13,10 +13,13 @@ class GCloudAPI(recipe_api.RecipeApi):
 
     This assumes there exists an executable called gcloud on the PATH.
     """
+    gcloud = 'gcloud'
+    if self.m.platform.is_win:
+      gcloud = 'gcloud.cmd'
     token = self.m.service_account.default().get_access_token(
       scopes=['https://www.googleapis.com/auth/devstorage.read_write'])
     with self.m.context(env={'CLOUDSDK_AUTH_ACCESS_TOKEN': token}):
-      return self.m.step(step_name, cmd=['gcloud'] + list(args))
+      return self.m.step(step_name, cmd=[gcloud] + list(args))
 
   def cp(self, name, src, dst, extra_args=None):
     """Attempt to upload or download files to/from Google Cloud Storage (GCS).

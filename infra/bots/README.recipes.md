@@ -162,7 +162,7 @@ Return a flavor utils object specific to the given builder.
 &mdash; **def [step](/infra/bots/recipe_modules/flavor/api.py#59)(self, name, cmd, \*\*kwargs):**
 ### *recipe_modules* / [gcloud](/infra/bots/recipe_modules/gcloud)
 
-[DEPS](/infra/bots/recipe_modules/gcloud/__init__.py#8): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/service\_account][recipe_engine/recipe_modules/service_account], [recipe\_engine/step][recipe_engine/recipe_modules/step], [run](#recipe_modules-run), [vars](#recipe_modules-vars)
+[DEPS](/infra/bots/recipe_modules/gcloud/__init__.py#8): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/service\_account][recipe_engine/recipe_modules/service_account], [recipe\_engine/step][recipe_engine/recipe_modules/step], [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
 
 #### **class [GCloudAPI](/infra/bots/recipe_modules/gcloud/api.py#10)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
@@ -173,7 +173,7 @@ Run "gcloud" with the given args.
 
 This assumes there exists an executable called gcloud on the PATH.
 
-&mdash; **def [cp](/infra/bots/recipe_modules/gcloud/api.py#21)(self, name, src, dst, extra_args=None):**
+&mdash; **def [cp](/infra/bots/recipe_modules/gcloud/api.py#24)(self, name, src, dst, extra_args=None):**
 
 Attempt to upload or download files to/from Google Cloud Storage (GCS).
 
@@ -365,10 +365,10 @@ Prepare the variables.
 &mdash; **def [test\_exceptions](/infra/bots/recipe_modules/flavor/examples/full.py#16)(api):**
 ### *recipes* / [gcloud:examples/full](/infra/bots/recipe_modules/gcloud/examples/full.py)
 
-[DEPS](/infra/bots/recipe_modules/gcloud/examples/full.py#9): [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [gcloud](#recipe_modules-gcloud), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
+[DEPS](/infra/bots/recipe_modules/gcloud/examples/full.py#9): [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [gcloud](#recipe_modules-gcloud), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
 
-&mdash; **def [RunSteps](/infra/bots/recipe_modules/gcloud/examples/full.py#19)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipe_modules/gcloud/examples/full.py#20)(api):**
 ### *recipes* / [git:examples/full](/infra/bots/recipe_modules/git/examples/full.py)
 
 [DEPS](/infra/bots/recipe_modules/git/examples/full.py#6): [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/step][recipe_engine/recipe_modules/step], [git](#recipe_modules-git)
@@ -477,7 +477,7 @@ A dictionary is returned that has the following structure:
 [DEPS](/infra/bots/recipes/test.py#12): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [env](#recipe_modules-env), [flavor](#recipe_modules-flavor), [gold\_upload](#recipe_modules-gold_upload), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
 
-&mdash; **def [RunSteps](/infra/bots/recipes/test.py#135)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipes/test.py#133)(api):**
 
 &mdash; **def [test\_steps](/infra/bots/recipes/test.py#29)(api):**
 
