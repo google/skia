@@ -30,7 +30,6 @@ import (
 	"go.skia.org/infra/golden/go/types"
 )
 
-// This allows us to use upload_dm_results.py out of the box
 const JSON_FILENAME = "dm.json"
 
 var (
