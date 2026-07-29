@@ -1422,10 +1422,13 @@ std::optional<SlotRange> Generator::writeFunction(
             // If we are passing a child effect to a function, we need to add its mapping to our
             // child map.
             if (arg.type().isEffectChild()) {
-                if (int* childIndex = fChildEffectMap.find(arg.as<VariableReference>()
-                                                              .variable())) {
+                if (int* childIndexPtr =
+                            fChildEffectMap.find(arg.as<VariableReference>().variable())) {
+                    // In earlier C++ versions, the map assignment could cause the map to be
+                    // resized, invalidating the pointer.
+                    int childIndex = *childIndexPtr;
                     SkASSERT(!fChildEffectMap.find(&param));
-                    fChildEffectMap[&param] = *childIndex;
+                    fChildEffectMap[&param] = childIndex;
                 }
                 continue;
             }
@@ -2809,8 +2812,9 @@ bool Generator::pushConstructorCompound(const AnyConstructor& c) {
 }
 
 bool Generator::pushChildCall(const ChildCall& c) {
-    int* childIdx = fChildEffectMap.find(&c.child());
-    SkASSERT(childIdx != nullptr);
+    int* childIdxPtr = fChildEffectMap.find(&c.child());
+    SkASSERT(childIdxPtr != nullptr);
+    int childIdx = *childIdxPtr;  // Save this in case pushExpression changes fChildEffectMap
     SkASSERT(!c.arguments().empty());
 
     // All child calls have at least one argument.
@@ -2832,7 +2836,7 @@ bool Generator::pushChildCall(const ChildCall& c) {
 
             // Move the argument into src.rgba while also preserving the execution mask.
             fBuilder.exchange_src();
-            fBuilder.invoke_shader(*childIdx);
+            fBuilder.invoke_shader(childIdx);
             break;
         }
         case Type::TypeKind::kColorFilter: {
@@ -2843,7 +2847,7 @@ bool Generator::pushChildCall(const ChildCall& c) {
 
             // Move the argument into src.rgba while also preserving the execution mask.
             fBuilder.exchange_src();
-            fBuilder.invoke_color_filter(*childIdx);
+            fBuilder.invoke_color_filter(childIdx);
             break;
         }
         case Type::TypeKind::kBlender: {
@@ -2861,7 +2865,7 @@ bool Generator::pushChildCall(const ChildCall& c) {
             }
             fBuilder.pop_dst_rgba();
             fBuilder.exchange_src();
-            fBuilder.invoke_blender(*childIdx);
+            fBuilder.invoke_blender(childIdx);
             break;
         }
         default: {

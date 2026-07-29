@@ -328,3 +328,31 @@ DEF_TEST(SkSLRasterPipelineSlotOverflow_355465305, r) {
     bool success = rasterProg->appendStages(&pipeline, &alloc, /*callbacks=*/nullptr, {});
     REPORTER_ASSERT(r, !success, "appendStages should fail for very large program");
 }
+
+DEF_TEST(SkSLRasterPipeline_ConvertProgram_b540157141, r) {
+    const char* src = R"__SkSL__(
+        uniform shader c0;
+        uniform shader c1;
+        uniform shader c2;
+        // The noinline is important for reproduction. It is also important that
+        // one of the args be an "EffectChild" to cause fChildEffectMap to grow.
+        noinline half4 f(shader s, float2 p) {
+            return s.eval(p);
+        }
+        half4 main(float2 p) {
+            return c0.eval(float2(f(c1, p).xy) + p);
+        }
+    )__SkSL__";
+
+    SkSL::Compiler compiler;
+    SkSL::ProgramSettings settings;
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
+            SkSL::ProgramKind::kPrivateRuntimeShader, std::string(src), settings);
+    SkASSERTF_RELEASE(program, "Unexpected error compiling %s", compiler.errorText().c_str());
+    const SkSL::FunctionDeclaration* main = program->getFunction("main");
+    SkASSERTF_RELEASE(main, "main is missing!?");
+    // With the buggy code, this triggered a UAF
+    std::unique_ptr<SkSL::RP::Program> rasterProg =
+            SkSL::MakeRasterPipelineProgram(*program, *main->definition());
+    REPORTER_ASSERT(r, rasterProg);
+}
