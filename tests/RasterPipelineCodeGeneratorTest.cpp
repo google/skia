@@ -252,6 +252,30 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorComparisonIntrinsicTest, r) {
          /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
 }
 
+DEF_TEST(SkSLRasterPipelineCodeGeneratorReturnComplexityKeyMismatchTest, r) {
+    test(r,
+         R"__SkSL__(
+             noinline half callee() {
+                 return 1.0;
+             }
+
+             noinline half4 caller(half value) {
+                 half c = callee();
+                 if (value > 2.0) {
+                     return half4(0.0, 1.0, 0.0, 1.0); // green
+                 }
+                 return half4(1.0, 0.0, 0.0, 1.0); // red
+             }
+
+             half4 main(half4 coords) {
+                 return caller(3.0);
+             }
+         )__SkSL__",
+         /*uniforms=*/{},
+         /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
+         /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
+}
+
 DEF_TEST(SkSLRasterPipelineSlotOverflow_355465305, r) {
     constexpr int kStructMembers1 = 6200;
     constexpr int kStructMembers2 = 433;

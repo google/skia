@@ -443,7 +443,7 @@ public:
     Analysis::ReturnComplexity returnComplexity(const FunctionDefinition* func) {
         Analysis::ReturnComplexity* complexity = fReturnComplexityMap.find(func);
         if (!complexity) {
-            complexity = fReturnComplexityMap.set(fCurrentFunction,
+            complexity = fReturnComplexityMap.set(func,
                                                   Analysis::GetReturnComplexity(*func));
         }
         return *complexity;
