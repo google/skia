@@ -24,6 +24,7 @@ namespace skgpu::graphite {
 class PipelineCreationTask : public SkRefCnt {
 private:
     friend class PipelineManager; // for entire API and fPipeline
+    friend class GraphicsPipelineHandle; // for fPipeline in pipelineOrNull()
 
     PipelineCreationTask(const UniqueKey& pipelineKey,
                          const GraphicsPipelineDesc& graphicsPipelineDesc,

@@ -51,21 +51,9 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
         resourceProvider->startPipelineCreationTask(runtimeDict, fPipelineHandles.back());
     }
 
-    // The DrawPass may be long lived on a Recording and we no longer need the GraphicPipelineDescs
+    // The DrawPass may be long-lived on a Recording and we no longer need the GraphicPipelineDescs
     // once we've created pipeline handles, so we drop the storage for them here.
     fPipelineDescs.clear();
-
-    // TODO(robertphillips): move this resolvePipeline loop to addResourceRefs
-    fFullPipelines.reserve(fPipelineHandles.size());
-    for (const GraphicsPipelineHandle& handle : fPipelineHandles) {
-        sk_sp<GraphicsPipeline> pipeline = resourceProvider->resolveHandle(handle);
-        if (!pipeline) {
-            SKIA_LOG_W("Failed to create GraphicsPipeline for draw in RenderPass. Dropping pass!");
-            return false;
-        }
-        fFullPipelines.push_back(std::move(pipeline));
-    }
-    fPipelineHandles.clear();
 
     for (int i = 0; i < fSampledTextures.size(); ++i) {
         // It should not have been possible to draw an Image that has an invalid texture info
@@ -84,32 +72,35 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
         }
     }
 
-    // TODO(robertphillips): when fFullHandles resolution is moved to addResourceRefs, this will
-    // either need to move there as well, or the label will have to be available on the
-    // GraphicsPipelineHandle (plausible since we either have the pipeline with its label, or we
-    // likely calculated the label as part of triggering a cache miss).
-    {
-        TRACE_EVENT1_ALWAYS("skia.shaders",
-                            "GraphitePipelineUse",
-                            "# pipelines",
-                            fFullPipelines.size());
-        for (int i = 0 ; i < fFullPipelines.size(); ++i) {
-            TRACE_EVENT_INSTANT1_ALWAYS(
-                    "skia.shaders",
-                    TRACE_STR_COPY(fFullPipelines[i]->getLabel()),
-                    TRACE_EVENT_SCOPE_THREAD,
-                    "area", sk_float_saturate2int(fPipelineDrawAreas[i]));
-        }
-    }
-
     return true;
 }
 
 bool DrawPass::addResourceRefs(ResourceProvider* resourceProvider,
                                CommandBuffer* commandBuffer) {
-    for (int i = 0; i < fFullPipelines.size(); ++i) {
-        commandBuffer->trackResource(fFullPipelines[i]);
+    TRACE_EVENT1_ALWAYS("skia.shaders",
+                        "GraphitePipelineUse",
+                        "# pipelines",
+                        fPipelineHandles.size());
+
+    SkASSERT(fPipelineHandles.size() == fPipelineDrawAreas.size());
+    for (int i = 0; i < fPipelineHandles.size(); ++i) {
+        sk_sp<GraphicsPipeline> pipeline = resourceProvider->resolveHandle(fPipelineHandles[i]);
+        if (!pipeline) {
+            SKIA_LOG_W("Failed to create Pipeline for draw in RenderPass. Dropping draw!");
+            return false;
+        }
+
+        TRACE_EVENT_INSTANT1_ALWAYS(
+                "skia.shaders",
+                TRACE_STR_COPY(pipeline->getLabel()),
+                TRACE_EVENT_SCOPE_THREAD,
+                "area", sk_float_saturate2int(fPipelineDrawAreas[i]));
+
+        commandBuffer->trackResource(std::move(pipeline));
     }
+
+    SkDEBUGCODE(fPipelinesHaveBeenResolved = true;)
+
     for (int i = 0; i < fSampledTextures.size(); ++i) {
         commandBuffer->trackResource(fSampledTextures[i]->refTexture());
     }

@@ -18,6 +18,22 @@
 
 namespace skgpu::graphite {
 
+// Directly accessing the two variants is thread safe because a given GraphicsPipelineHandle
+// does not switch between a task or pipeline when the task completes. The 'fCompleted' check
+// is atomic and, if the task is completed, the 'fPipeline' access is thread safe. There is,
+// obviously, an inherent race wrt the 'fCompleted' access. Callers must either ensure that
+// the Handle has already been resolved or accept some raciness in the response.
+sk_sp<GraphicsPipeline> GraphicsPipelineHandle::pipelineOrNull() const {
+    if (std::holds_alternative<sk_sp<GraphicsPipeline>>(fTaskOrPipeline)) {
+        return std::get<sk_sp<GraphicsPipeline>>(fTaskOrPipeline);
+    }
+    sk_sp<PipelineCreationTask> task = std::get<sk_sp<PipelineCreationTask>>(fTaskOrPipeline);
+    if (!task->fCompleted) {
+        return nullptr;
+    }
+    return task->fPipeline;
+}
+
 GraphicsPipelineHandle::GraphicsPipelineHandle(sk_sp<PipelineCreationTask> task)
     : fTaskOrPipeline(std::move(task)) {}
 

@@ -22,15 +22,23 @@ class PipelineCreationTask;
  * In the latter case, ResourceProvider::resolveHandle can be used to wait for the Task to
  * complete. How this works is:
  *   At Recorder::snap time, the DrawPass will create GraphicsPipelineHandles and will
- *       kick off all the tasks (using ResourceProvider::kickOffTask)
- *   Upon Context::insertRecording, all the Handles will be exchanged for GraphicsPipelines in
- *       the DrawPass::addResourceRefs. This will also release any Tasks being held by the Handles.
+ *       kick off all the tasks (using ResourceProvider::startPipelineCreationTask)
+ *   Upon Context::insertRecording, all the Handles will be resolved to GraphicsPipelines in
+ *       DrawPass::addResourceRefs. After that the GraphicsPipeline can be accessed via
+ *       the pipelineOrNull method.
  *
  * Note that the Tasks lock the generated Pipelines in the cache until they are deleted. This avoids
  * any race conditions where a Pipeline could be purged between when it was created on a thread
  * and when it was actually requested by a DrawPass.
+ * The GraphicsPipeline-backed variant also, obviously, locks the GraphicsPipeline in the cache
+ * but there is no race condition there.
  */
 class GraphicsPipelineHandle {
+public:
+    // This should only be called after Context::insertRecording/DrawPass::addResourceRefs.
+    // Otherwise, retrieval of the GraphicsPipeline could be racy.
+    sk_sp<GraphicsPipeline> pipelineOrNull() const;
+
 private:
     friend class PipelineManager;  // for ctors
 
