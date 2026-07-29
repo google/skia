@@ -4590,12 +4590,12 @@
         {
           "name": "infra/3pp/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "version:3@2.51.2.chromium.11"
+          "version": "version:3@2.55.0.chromium.11"
         },
         {
           "name": "infra/tools/git/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2fad5ab18774b86d84aa867287bfb4f2394893b"
+          "version": "git_revision:0163b19b4ab1d7a304639a403b8ff9d35ab9dca0"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -4605,7 +4605,7 @@
         {
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b2fad5ab18774b86d84aa867287bfb4f2394893b"
+          "version": "git_revision:9429fac3f8d3e6389ffdafd9d9fa1eb791dd0fe9"
         },
         {
           "name": "skia/bots/bazelisk_linux_amd64",
