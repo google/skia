@@ -36,6 +36,11 @@ public:
     bool supportsPartialLoadResolve() const { return fSupportsPartialLoadResolve; }
     bool supportsRenderPassRenderArea() const { return fSupportsRenderPassRenderArea; }
 
+    // The equivalent Dawn LoadOp to Discard.
+    wgpu::LoadOp discardLoadOp() const { return fDiscardLoadOp; }
+    // The equivalent Dawn StoreOp to Discard.
+    wgpu::StoreOp discardStoreOp() const { return fDiscardStoreOp; }
+
     SkISize getDepthAttachmentDimensions(const TextureInfo&,
                                          const SkISize colorAttachmentDimensions) const override;
 
@@ -93,6 +98,9 @@ private:
     // region.
     bool fSupportsPartialLoadResolve = false;
     bool fSupportsRenderPassRenderArea = false;
+
+    wgpu::LoadOp fDiscardLoadOp = wgpu::LoadOp::Clear;
+    wgpu::StoreOp fDiscardStoreOp = wgpu::StoreOp::Discard;
 
     bool fEmulateLoadStoreResolve = false;
 
