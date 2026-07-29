@@ -46,6 +46,7 @@ skia_filegroup(
         "SkEventTracer.cpp",
         "SkFloatUtils.h",
         "SkJSONWriter.cpp",
+        "SkLogHandler.cpp",
         "SkMatrix22.cpp",
         "SkNWayCanvas.cpp",
         "SkNullCanvas.cpp",

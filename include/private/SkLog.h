@@ -16,27 +16,9 @@
 #include "include/private/SkLogPriority.h"
 
 #if !defined(SkLog)
-// To be implemented per platform.
+// Implemented per platform.
 void SkLogVAList(SkLogPriority priority, const char format[], va_list args) SK_PRINTF_LIKE(2, 0);
 void SK_SPI SkLog(SkLogPriority priority, const char format[], ...) SK_PRINTF_LIKE(2, 3);
-#endif
-
-/**
- * TODO (b/469441457): SKGPU_GRAPHITE_LOWEST_ACTIVE_LOG_PRIORITY Was the config used to set the log
- * priority, so we check for that define as well. Eventually, we should move clients using this
- * define to the new one.
- */
-#if defined(SKGPU_GRAPHITE_LOWEST_ACTIVE_LOG_PRIORITY)
-    static constexpr SkLogPriority MapGraphitePriority(skgpu::graphite::LogPriority priority) {
-        switch (priority) {
-            case skgpu::graphite::LogPriority::kError:   return SkLogPriority::kError;
-            case skgpu::graphite::LogPriority::kWarning: return SkLogPriority::kWarning;
-            case skgpu::graphite::LogPriority::kInfo:    return SkLogPriority::kInfo;
-            case skgpu::graphite::LogPriority::kDebug:   return SkLogPriority::kDebug;
-            default: return SkLogPriority::kDebug;
-        }
-    }
-    #define SKIA_LOWEST_ACTIVE_LOG_PRIORITY MapGraphitePriority(SKGPU_GRAPHITE_LOWEST_ACTIVE_LOG_PRIORITY)
 #endif
 
 #if !defined(SKIA_LOWEST_ACTIVE_LOG_PRIORITY)

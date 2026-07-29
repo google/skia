@@ -1,0 +1,1 @@
+`SkLogHandler` has been added as a global callback interface to intercept Skia's internal logs. Clients can implement this interface and install it via `SkLogHandler::SetInstance` to receive all messages generated through the `SKIA_LOG` macros. `SkLogHandler` uses `sk_sp` for shared ownership, allowing clients to maintain a reference to the handler.
