@@ -151,3 +151,39 @@ DEF_TEST(FontConfigInterface_MatchStyleNamedInstance, reporter) {
         }
   }
 }
+
+DEF_TEST(FontConfigInterface_MissingFontRejection, reporter) {
+    FcConfig* config = build_fontconfig_with_fontfile("/fonts/NotoSansCJK-VF-subset.otf.ttc");
+    sk_sp<SkFontConfigInterfaceDirect> fciDirect(new SkFontConfigInterfaceDirect(config));
+
+    SkFontStyle fontStyle(400, SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
+    SkFontConfigInterface::FontIdentity resultIdentity;
+    SkString resultFamily;
+    SkFontStyle resultStyle;
+
+    // Requesting a non-existent family name when fallback is NOT allowed (i.e. not "sans", "serif",
+    // "monospace") should cleanly return false without crashing, leaking memory, or returning an
+    // unwanted default substitute
+    const bool r = fciDirect->matchFamilyName("NonExistentFontFamilyThatDoesNotExist",
+                                              fontStyle,
+                                              &resultIdentity,
+                                              &resultFamily,
+                                              &resultStyle);
+    REPORTER_ASSERT(reporter, !r, "Expecting missing font request to be rejected.");
+}
+
+DEF_TEST(FontConfigInterface_GenericFallbackAllowed, reporter) {
+    FcConfig* config = build_fontconfig_with_fontfile("/fonts/NotoSansCJK-VF-subset.otf.ttc");
+    sk_sp<SkFontConfigInterfaceDirect> fciDirect(new SkFontConfigInterfaceDirect(config));
+
+    SkFontStyle fontStyle(400, SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
+    SkFontConfigInterface::FontIdentity resultIdentity;
+    SkString resultFamily;
+    SkFontStyle resultStyle;
+
+    // When requesting a generic fallback family like "sans" or "monospace",
+    // IsFallbackFontAllowed is true, so matchFamilyName should succeed
+    const bool r = fciDirect->matchFamilyName(
+            "sans", fontStyle, &resultIdentity, &resultFamily, &resultStyle);
+    REPORTER_ASSERT(reporter, r, "Expecting generic fallback 'sans' request to find a font.");
+}
