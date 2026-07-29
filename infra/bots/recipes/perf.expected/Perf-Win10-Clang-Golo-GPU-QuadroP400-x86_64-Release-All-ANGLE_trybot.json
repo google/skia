@@ -141,7 +141,7 @@
       "storage",
       "cp",
       "[START_DIR]\\[SWARM_OUT_DIR]\\nanobench_abc123.json",
-      "gs://skia-perf/nano-json-v1/2012/05/14/12/Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE/nanobench_abc123.json"
+      "gs://skia-perf/trybot/nano-json-v1/2012/05/14/12/Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE/456789/12/nanobench_abc123.json"
     ],
     "env": {
       "CLOUDSDK_AUTH_ACCESS_TOKEN": "extra.secret.token.should.not.be.logged"

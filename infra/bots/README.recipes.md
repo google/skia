@@ -403,12 +403,12 @@ Prepare the variables.
 &mdash; **def [RunSteps](/infra/bots/recipe_modules/infra/examples/full.py#21)(api):**
 ### *recipes* / [perf](/infra/bots/recipes/perf.py)
 
-[DEPS](/infra/bots/recipes/perf.py#14): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [env](#recipe_modules-env), [flavor](#recipe_modules-flavor), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
+[DEPS](/infra/bots/recipes/perf.py#14): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/service\_account][recipe_engine/recipe_modules/service_account], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [env](#recipe_modules-env), [flavor](#recipe_modules-flavor), [gcloud](#recipe_modules-gcloud), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
 
-&mdash; **def [RunSteps](/infra/bots/recipes/perf.py#103)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipes/perf.py#129)(api):**
 
-&mdash; **def [perf\_steps](/infra/bots/recipes/perf.py#30)(api):**
+&mdash; **def [perf\_steps](/infra/bots/recipes/perf.py#33)(api):**
 
 Run Skia benchmarks.
 ### *recipes* / [perf\_skottietrace](/infra/bots/recipes/perf_skottietrace.py)

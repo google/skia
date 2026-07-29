@@ -1528,6 +1528,11 @@ func (b *jobBuilder) infra() {
 // statistics about the build.
 func (b *jobBuilder) buildstats() {
 	compileTaskName := b.compile()
+
+	// Upload release results (for tracking in perf)
+	// We have some jobs that are FYI (e.g. Debug-CanvasKit, tree-map generator)
+	doUpload := b.Release() && !b.Arch("x86_64")
+
 	b.addTask(b.Name, func(b *TaskBuilder) {
 		b.recipeProps(EXTRA_PROPS)
 		b.kitchenTask("compute_buildstats", OUTPUT_PERF)
@@ -1537,27 +1542,10 @@ func (b *jobBuilder) buildstats() {
 		b.usesDocker()
 		b.usesGit()
 		b.cache(CACHES_WORKDIR...)
+		if doUpload {
+			b.directUpload(b.cfg.GsBucketNano, b.cfg.ServiceAccountUploadNano)
+		}
 	})
-	// Upload release results (for tracking in perf)
-	// We have some jobs that are FYI (e.g. Debug-CanvasKit, tree-map generator)
-	if b.Release() && !b.Arch("x86_64") {
-		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, b.jobNameSchema.Sep, b.Name)
-		depName := b.Name
-		b.addTask(uploadName, func(b *TaskBuilder) {
-			b.recipeProp("gs_bucket", b.cfg.GsBucketNano)
-			b.recipeProps(EXTRA_PROPS)
-			// TODO(borenet): I'm not sure why the upload task is
-			// using the BuildStats task name, but I've done this
-			// to maintain existing behavior.
-			b.Name = depName
-			b.kitchenTask("upload_buildstats_results", OUTPUT_NONE)
-			b.Name = uploadName
-			b.serviceAccount(b.cfg.ServiceAccountUploadNano)
-			b.linuxGceDimensions(MACHINE_TYPE_SMALL)
-			b.usesGCloud()
-			b.dep(depName)
-		})
-	}
 }
 
 // codesize generates a codesize task, which takes binary produced by a
@@ -1700,7 +1688,6 @@ func (b *jobBuilder) dm() {
 	if !b.ExtraConfig("LottieWeb") {
 		compileTaskName = b.compile()
 	}
-	directUpload := false
 	b.addTask(b.Name, func(b *TaskBuilder) {
 		cas := CAS_TEST
 		recipe := "test"
@@ -1709,7 +1696,6 @@ func (b *jobBuilder) dm() {
 			recipe = "test_canvaskit"
 			if b.doUpload() {
 				b.directUpload(b.cfg.GsBucketGm, b.cfg.ServiceAccountUploadGM)
-				directUpload = true
 			}
 		} else if b.ExtraConfig("LottieWeb") {
 			// CAS_LOTTIE_CI differs from CAS_LOTTIE_WEB in that it includes
@@ -1722,13 +1708,11 @@ func (b *jobBuilder) dm() {
 			recipe = "test_lottie_web"
 			if b.doUpload() {
 				b.directUpload(b.cfg.GsBucketGm, b.cfg.ServiceAccountUploadGM)
-				directUpload = true
 			}
 		} else {
 			// Default recipe supports direct upload.
 			if b.doUpload() {
 				b.directUpload(b.cfg.GsBucketGm, b.cfg.ServiceAccountUploadGM)
-				directUpload = true
 			}
 			if b.MatchOs("iOS") {
 				b.Spec.Caches = append(b.Spec.Caches, &specs.Cache{
@@ -1787,22 +1771,6 @@ func (b *jobBuilder) dm() {
 		}
 		b.maybeAddIosDevImage()
 	})
-
-	// Upload results if necessary. TODO(kjlubick): If we do coverage analysis at the same
-	// time as normal tests (which would be nice), cfg.json needs to have Coverage removed.
-	if b.doUpload() && !directUpload {
-		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, b.jobNameSchema.Sep, b.Name)
-		depName := b.Name
-		b.addTask(uploadName, func(b *TaskBuilder) {
-			b.recipeProp("gs_bucket", b.cfg.GsBucketGm)
-			b.recipeProps(EXTRA_PROPS)
-			b.kitchenTask("upload_dm_results", OUTPUT_NONE)
-			b.serviceAccount(b.cfg.ServiceAccountUploadGM)
-			b.linuxGceDimensions(MACHINE_TYPE_SMALL)
-			b.usesGCloud()
-			b.dep(depName)
-		})
-	}
 }
 
 // canary generates a task that uses TaskDrivers to trigger canary manual rolls on autorollers.
@@ -1846,6 +1814,7 @@ func (b *jobBuilder) puppeteer() {
 		b.timeout(60 * time.Minute)
 		b.cas(CAS_PUPPETEER)
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
+		b.directUpload(b.cfg.GsBucketNano, b.cfg.ServiceAccountUploadNano)
 
 		webglversion := "2"
 		if b.ExtraConfig("WebGL1") {
@@ -1911,25 +1880,6 @@ func (b *jobBuilder) puppeteer() {
 		}
 
 	})
-
-	// Upload results to Perf after.
-	// TODO(kjlubick,borenet) deduplicate this with the logic in perf().
-	uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, b.jobNameSchema.Sep, b.Name)
-	depName := b.Name
-	b.addTask(uploadName, func(b *TaskBuilder) {
-		b.recipeProp("gs_bucket", b.cfg.GsBucketNano)
-		b.recipeProps(EXTRA_PROPS)
-		// TODO(borenet): I'm not sure why the upload task is
-		// using the Perf task name, but I've done this to
-		// maintain existing behavior.
-		b.Name = depName
-		b.kitchenTask("upload_nano_results", OUTPUT_NONE)
-		b.Name = uploadName
-		b.serviceAccount(b.cfg.ServiceAccountUploadNano)
-		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
-		b.usesGCloud()
-		b.dep(depName)
-	})
 }
 
 // perf generates a Perf task.
@@ -1941,6 +1891,9 @@ func (b *jobBuilder) perf() {
 	}
 	doUpload := !b.Debug() && b.doUpload()
 	b.addTask(b.Name, func(b *TaskBuilder) {
+		if doUpload {
+			b.directUpload(b.cfg.GsBucketNano, b.cfg.ServiceAccountUploadNano)
+		}
 		recipe := "perf"
 		cas := CAS_PERF
 		if b.ExtraConfig("CanvasKit") {
@@ -2006,26 +1959,6 @@ func (b *jobBuilder) perf() {
 		}
 		b.maybeAddIosDevImage()
 	})
-
-	// Upload results if necessary.
-	if doUpload {
-		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, b.jobNameSchema.Sep, b.Name)
-		depName := b.Name
-		b.addTask(uploadName, func(b *TaskBuilder) {
-			b.recipeProp("gs_bucket", b.cfg.GsBucketNano)
-			b.recipeProps(EXTRA_PROPS)
-			// TODO(borenet): I'm not sure why the upload task is
-			// using the Perf task name, but I've done this to
-			// maintain existing behavior.
-			b.Name = depName
-			b.kitchenTask("upload_nano_results", OUTPUT_NONE)
-			b.Name = uploadName
-			b.serviceAccount(b.cfg.ServiceAccountUploadNano)
-			b.linuxGceDimensions(MACHINE_TYPE_SMALL)
-			b.usesGCloud()
-			b.dep(depName)
-		})
-	}
 }
 
 // presubmit generates a task which runs the presubmit for this repo.
