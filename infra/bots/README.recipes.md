@@ -41,6 +41,8 @@
   * [test](#recipes-test)
   * [test_canvaskit](#recipes-test_canvaskit)
   * [test_lottie_web](#recipes-test_lottie_web)
+  * [upload_dm_results](#recipes-upload_dm_results)
+  * [upload_nano_results](#recipes-upload_nano_results)
   * [vars:examples/full](#recipes-vars_examples_full)
   * [xcode:examples/full](#recipes-xcode_examples_full)
 ## Recipe Modules
@@ -476,6 +478,18 @@ Run the DM test.
 
 
 &mdash; **def [RunSteps](/infra/bots/recipes/test_lottie_web.py#28)(api):**
+### *recipes* / [upload\_dm\_results](/infra/bots/recipes/upload_dm_results.py)
+
+[DEPS](/infra/bots/recipes/upload_dm_results.py#12): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [gcloud](#recipe_modules-gcloud), [vars](#recipe_modules-vars)
+
+
+&mdash; **def [RunSteps](/infra/bots/recipes/upload_dm_results.py#28)(api):**
+### *recipes* / [upload\_nano\_results](/infra/bots/recipes/upload_nano_results.py)
+
+[DEPS](/infra/bots/recipes/upload_nano_results.py#9): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/service\_account][recipe_engine/recipe_modules/service_account], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [vars](#recipe_modules-vars)
+
+
+&mdash; **def [RunSteps](/infra/bots/recipes/upload_nano_results.py#21)(api):**
 ### *recipes* / [vars:examples/full](/infra/bots/recipe_modules/vars/examples/full.py)
 
 [DEPS](/infra/bots/recipe_modules/vars/examples/full.py#6): [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [vars](#recipe_modules-vars)
