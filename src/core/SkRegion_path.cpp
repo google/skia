@@ -143,7 +143,7 @@ bool SkRgnBuilder::init(int maxHeight, int maxTransitions, bool pathIsInverse) {
         return false;
     }
 
-    SkSafeMath  safe;
+    SkSafeMath safe;
 
     if (pathIsInverse) {
         // allow for additional X transitions to "invert" each scanline
@@ -364,12 +364,27 @@ bool SkRegion::setPath(const SkPath& path, const SkRegion& clip) {
     // big, tile the clip bounds and union the pieces back together.
     if (SkScan::PathRequiresTiling(clipBounds)) {
         static constexpr int kTileSize = 32767 >> 1; // Limit so coords can fit into SkFixed (16.16)
+        static constexpr int kTileLimit = 1000;      // Max size is about 500k x 500k
         const SkIRect pathBounds = path.getBounds().roundOut();
 
         this->setEmpty();
 
         SkIRect intersection;
         if (!intersection.intersect(pathBounds, clipBounds)) {
+            return false;
+        }
+
+        SkSafeMath safe;
+        int width = safe.subInt(intersection.fRight, intersection.fLeft);
+        int height = safe.subInt(intersection.fBottom, intersection.fTop);
+
+        int tilesX = safe.divInt(safe.addInt(width, kTileSize - 1), kTileSize);
+        int tilesY = safe.divInt(safe.addInt(height, kTileSize - 1), kTileSize);
+
+        int totalTiles = safe.mulInt(tilesX, tilesY);
+
+        // Limit the total number of tiles to prevent large coordinate spans from timing out.
+        if (!safe || totalTiles > kTileLimit) {
             return false;
         }
 

@@ -534,6 +534,27 @@ DEF_TEST(region_very_large, reporter) {
     REPORTER_ASSERT(reporter, smallRegion.contains(499, 499));
 }
 
+DEF_TEST(region_b510359475, reporter) {
+    SkPath path = SkPathBuilder(SkPathFillType::kInverseEvenOdd)
+                          .moveTo(-1.75556736e+09f, 1.75556736e+09f)
+                          .lineTo(-0.00604508677f, 0.00604508677f)
+                          .quadTo(-0.00604508677f, 0.00604508677f, -0.00604508677f, 0.00604508677f)
+                          .lineTo(214328.828f, -214328.828f)
+                          .quadTo(214328.828f, -214328.828f, 214328.828f, -214328.828f)
+                          .lineTo(214328.828f, -214328.828f)
+                          .quadTo(214328.828f, -214328.828f, 214328.828f, -214328.828f)
+                          .lineTo(214328.812f, -214328.812f)
+                          .detach();
+
+    SkIRect clipBounds = {-1755567360, -214329, 214329, 1755567360};
+    SkRegion region;
+
+    // This should fail gracefully and quickly (returning false) instead of timing out.
+    bool ok = region.setPath(path, SkRegion(clipBounds));
+    REPORTER_ASSERT(reporter, !ok);
+    REPORTER_ASSERT(reporter, region.isEmpty());
+}
+
 DEF_TEST(SkRegion_Iterator_StepsThroughAllScanlines, reporter) {
     SkRegion rgn1;
     rgn1.op({12, 10, 17, 20}, SkRegion::kUnion_Op);
