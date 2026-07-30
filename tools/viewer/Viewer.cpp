@@ -191,6 +191,8 @@ Application* Application::Create(int argc, char** argv, void* platformData) {
     return new Viewer(argc, argv, platformData);
 }
 
+static DEFINE_bool(enable_capture, false, "Enable capture");
+
 static DEFINE_string(slide, "", "Start on this sample.");
 static DEFINE_bool(list, false, "List samples?");
 
@@ -706,7 +708,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 #if defined(SK_GRAPHITE)
     skiatest::graphite::TestOptions gto;
     CommonFlags::SetTestOptions(&gto);
-    gto.fContextOptions.fEnableCapture = true;
+    gto.fContextOptions.fEnableCapture = FLAGS_enable_capture;
     gto.fOptionsPriv.fPathRendererStrategy = get_path_renderer_strategy_type(FLAGS_pathstrategy[0]);
     if (FLAGS_msaa <= 0) {
         gto.fContextOptions.fInternalMultisampleCount = skgpu::graphite::SampleCount::k1;
