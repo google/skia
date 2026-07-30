@@ -138,7 +138,10 @@ func main() {
 	}
 
 	// Make a Gitiles client.
-	gitilesRepo := gitiles.NewRepo(repoState.Repo, httpClient)
+	gitilesRepo, err := gitiles.NewRepo(ctx, repoState.Repo)
+	if err != nil {
+		td.Fatal(ctx, skerr.Wrap(err))
+	}
 
 	args := runStepsArgs{
 		repoState:              repoState,

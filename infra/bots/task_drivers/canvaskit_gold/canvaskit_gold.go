@@ -79,9 +79,11 @@ func main() {
 		// directory (and default Bazel cache) lives, is only 15 GB on our GCE VMs.
 		CachePath: *bazelFlags.CacheDir,
 	}
-	if err := bazel.EnsureBazelRCFile(ctx, opts); err != nil {
+	cleanup, err := bazel.OverrideBazelRC(ctx, opts)
+	if err != nil {
 		td.Fatal(ctx, err)
 	}
+	defer cleanup()
 
 	if err := bazelTest(ctx, skiaDir, *bazelFlags.Label, *bazelFlags.Config,
 		"--config=linux_rbe", "--test_output=streamed", "--jobs="+strconv.Itoa(rbeJobs)); err != nil {
