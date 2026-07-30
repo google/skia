@@ -68,6 +68,11 @@ SkSurface_Base* SkCaptureCanvas::getSurfaceBase() const {
     return this->fBaseCanvas->getSurfaceBase();
 }
 
+sk_sp<SkSurface> SkCaptureCanvas::onNewSurface(const SkImageInfo& info,
+                                               const SkSurfaceProps& props) {
+    return fBaseCanvas->onNewSurface(info, props);
+}
+
 //////////////////// Function forwarding ///////////////////////
 
 void SkCaptureCanvas::willSave() {

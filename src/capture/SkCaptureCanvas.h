@@ -113,6 +113,7 @@ private:
     void attachRecordingCanvas();
     void detachRecordingCanvas();
 
+    sk_sp<SkSurface> onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props) override;
     void onSurfaceDelete() override;
 
     bool fCapturing = false;
