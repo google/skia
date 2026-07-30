@@ -71,6 +71,9 @@ If a build requires Rust dependencies (in `third_party`), use `bazelisk` to mana
 - **iOS**: `./bin/gn gen -q out/ios --args='target_os="ios" target_cpu="arm64"'`
 - **Windows**: Use `clang_win="<path_to_llvm>"` to build with clang-cl (highly recommended).
 
+### 4. Other Build Notes
+- Unless otherwise instructed, build with: `ninja --quiet -C {OUT_DIR} {TARGET}`. If given an `ninja` command that is missing `--quiet`, you *must* add `--quiet`.
+
 ## Tool Reference
 
 ### `dm` (Correctness Testing)
