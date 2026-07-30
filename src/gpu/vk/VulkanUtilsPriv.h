@@ -374,8 +374,8 @@ void InvokeDeviceLostCallback(const skgpu::VulkanInterface* vulkanInterface,
 
 sk_sp<skgpu::VulkanInterface> MakeInterface(const skgpu::VulkanBackendContext&,
                                             const skgpu::VulkanExtensions* extOverride,
-                                            uint32_t* physDevVersionOut,
-                                            uint32_t* instanceVersionOut);
+                                            uint32_t* instanceVersionOut,
+                                            uint32_t* physDevVersionOut);
 
 }  // namespace skgpu
 

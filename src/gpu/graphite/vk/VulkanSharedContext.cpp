@@ -49,7 +49,7 @@ sk_sp<SharedContext> VulkanSharedContext::Make(const VulkanBackendContext& conte
 
     uint32_t physDevVersion = 0;
     sk_sp<const skgpu::VulkanInterface> interface =
-            skgpu::MakeInterface(context, extensions, &physDevVersion, nullptr);
+            skgpu::MakeInterface(context, extensions, nullptr, &physDevVersion);
     if (!interface) {
         SKIA_LOG_E("Failed to create VulkanInterface.");
         return nullptr;

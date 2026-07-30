@@ -24,7 +24,6 @@ namespace skgpu {
 sk_sp<VulkanMemoryAllocator> VulkanAMDMemoryAllocator::Make(VkInstance instance,
                                                             VkPhysicalDevice physicalDevice,
                                                             VkDevice device,
-                                                            uint32_t physicalDeviceVersion,
                                                             const VulkanExtensions* extensions,
                                                             const VulkanInterface* interface,
                                                             ThreadSafe threadSafe) {
@@ -87,7 +86,7 @@ sk_sp<VulkanMemoryAllocator> VulkanAMDMemoryAllocator::Make(VkInstance instance,
     info.instance = instance;
     // TODO: Update our interface and headers to support vulkan 1.3 and add in the new required
     // functions for 1.3 that the allocator needs. Until then we just clamp the version to 1.1,
-    // which is also Skia's minimum requirement.
+    // which is also Skia's minimum requirement. Updating this will require plumbing physDevVersion.
     info.vulkanApiVersion = VK_API_VERSION_1_1;
     info.pTypeExternalMemoryHandleTypes = nullptr;
 
@@ -299,9 +298,8 @@ sk_sp<VulkanMemoryAllocator> Make(const skgpu::VulkanBackendContext& backendCont
     // VulkanMemoryAllocator to hold onto its interface as opposed to "borrowing" it.
     // Such a refactor could get messy without much actual benefit since interface creation is
     // not too expensive and this cost is only paid once during initialization.
-    uint32_t physDevVersion = 0;
     sk_sp<const skgpu::VulkanInterface> interface =
-            skgpu::MakeInterface(backendContext, extensions, &physDevVersion, nullptr);
+            skgpu::MakeInterface(backendContext, extensions, nullptr, nullptr);
     if (!interface) {
         return nullptr;
     }
@@ -309,7 +307,6 @@ sk_sp<VulkanMemoryAllocator> Make(const skgpu::VulkanBackendContext& backendCont
     return VulkanAMDMemoryAllocator::Make(backendContext.fInstance,
                                           backendContext.fPhysicalDevice,
                                           backendContext.fDevice,
-                                          physDevVersion,
                                           extensions,
                                           interface.get(),
                                           threadSafe);

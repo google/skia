@@ -29,7 +29,6 @@ public:
     static sk_sp<VulkanMemoryAllocator> Make(VkInstance instance,
                                              VkPhysicalDevice physicalDevice,
                                              VkDevice device,
-                                             uint32_t physicalDeviceVersion,
                                              const VulkanExtensions* extensions,
                                              const VulkanInterface* interface,
                                              ThreadSafe);
