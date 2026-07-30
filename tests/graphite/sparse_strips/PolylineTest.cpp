@@ -185,7 +185,7 @@ DEF_TEST(SparseStrips_Polyline_Integrated, reporter) {
         builder.moveTo(0, 0);
         builder.lineTo(10, 0);
 
-        builder.moveTo(20, 20); // Triggers sentinel for previous open path
+        builder.moveTo(20, 20);  // Triggers sentinel for previous open path
         builder.lineTo(30, 20);
         SkPath path = builder.detach();
 
@@ -271,34 +271,34 @@ DEF_TEST(SparseStrips_Polyline_Integrated, reporter) {
 
         // Left of Viewport Simplification
         REPORTER_ASSERT(reporter, pts[0] == SkPoint::Make(-10, 10));
-        REPORTER_ASSERT(reporter, pts[1] == SkPoint::Make(-30, 10)); // Quad simplified
-        REPORTER_ASSERT(reporter, pts[2] == SkPoint::Make(-10, 10)); // Close
+        REPORTER_ASSERT(reporter, pts[1] == SkPoint::Make(-30, 10));  // Quad simplified
+        REPORTER_ASSERT(reporter, pts[2] == SkPoint::Make(-10, 10));  // Close
         REPORTER_ASSERT(reporter, std::isnan(pts[3].fX));
 
         REPORTER_ASSERT(reporter, pts[4] == SkPoint::Make(-10, 30));
-        REPORTER_ASSERT(reporter, pts[5] == SkPoint::Make(-30, 30)); // Conic simplified
-        REPORTER_ASSERT(reporter, pts[6] == SkPoint::Make(-10, 30)); // Close
+        REPORTER_ASSERT(reporter, pts[5] == SkPoint::Make(-30, 30));  // Conic simplified
+        REPORTER_ASSERT(reporter, pts[6] == SkPoint::Make(-10, 30));  // Close
         REPORTER_ASSERT(reporter, std::isnan(pts[7].fX));
 
         REPORTER_ASSERT(reporter, pts[8] == SkPoint::Make(-10, 50));
-        REPORTER_ASSERT(reporter, pts[9] == SkPoint::Make(-40, 50)); // Cubic simplified
-        REPORTER_ASSERT(reporter, pts[10] == SkPoint::Make(-10, 50)); // Close
+        REPORTER_ASSERT(reporter, pts[9] == SkPoint::Make(-40, 50));   // Cubic simplified
+        REPORTER_ASSERT(reporter, pts[10] == SkPoint::Make(-10, 50));  // Close
         REPORTER_ASSERT(reporter, std::isnan(pts[11].fX));
 
         // Visually Flat Simplification
         REPORTER_ASSERT(reporter, pts[12] == SkPoint::Make(10, 10));
-        REPORTER_ASSERT(reporter, pts[13] == SkPoint::Make(30, 10)); // Quad flat
-        REPORTER_ASSERT(reporter, pts[14] == SkPoint::Make(10, 10)); // Close
+        REPORTER_ASSERT(reporter, pts[13] == SkPoint::Make(30, 10));  // Quad flat
+        REPORTER_ASSERT(reporter, pts[14] == SkPoint::Make(10, 10));  // Close
         REPORTER_ASSERT(reporter, std::isnan(pts[15].fX));
 
         REPORTER_ASSERT(reporter, pts[16] == SkPoint::Make(10, 30));
-        REPORTER_ASSERT(reporter, pts[17] == SkPoint::Make(30, 30)); // Conic flat
-        REPORTER_ASSERT(reporter, pts[18] == SkPoint::Make(10, 30)); // Close
+        REPORTER_ASSERT(reporter, pts[17] == SkPoint::Make(30, 30));  // Conic flat
+        REPORTER_ASSERT(reporter, pts[18] == SkPoint::Make(10, 30));  // Close
         REPORTER_ASSERT(reporter, std::isnan(pts[19].fX));
 
         REPORTER_ASSERT(reporter, pts[20] == SkPoint::Make(10, 50));
-        REPORTER_ASSERT(reporter, pts[21] == SkPoint::Make(40, 50)); // Cubic flat
-        REPORTER_ASSERT(reporter, pts[22] == SkPoint::Make(10, 50)); // Close
+        REPORTER_ASSERT(reporter, pts[21] == SkPoint::Make(40, 50));  // Cubic flat
+        REPORTER_ASSERT(reporter, pts[22] == SkPoint::Make(10, 50));  // Close
         REPORTER_ASSERT(reporter, std::isnan(pts[23].fX));
     }
 
@@ -342,9 +342,9 @@ DEF_TEST(SparseStrips_Polyline_Integrated, reporter) {
         // Contour 1: Weaves outside to the left and back
         builder.moveTo(10, 10);
         builder.lineTo(20, 10);
-        builder.lineTo(-10, 10); // Exits left
-        builder.quadTo(-20, 20, -30, 10); // Simplifies to line (-30, 10)
-        builder.lineTo(10, 20); // Re-enters viewport
+        builder.lineTo(-10, 10);           // Exits left
+        builder.quadTo(-20, 20, -30, 10);  // Simplifies to line (-30, 10)
+        builder.lineTo(10, 20);            // Re-enters viewport
 
         // Contour 2: Completely culled contour
         builder.moveTo(150, 150);
@@ -370,9 +370,9 @@ DEF_TEST(SparseStrips_Polyline_Integrated, reporter) {
 
         // Verify Contour 1 simplified correctly without dropping points
         REPORTER_ASSERT(reporter, pts[0] == SkPoint::Make(10, 10));
-        REPORTER_ASSERT(reporter, pts[3] == SkPoint::Make(-30, 10)); // Simplified Quad
-        REPORTER_ASSERT(reporter, pts[4] == SkPoint::Make(10, 20));  // Return line
-        REPORTER_ASSERT(reporter, pts[5] == SkPoint::Make(10, 10));  // Implicit close
+        REPORTER_ASSERT(reporter, pts[3] == SkPoint::Make(-30, 10));  // Simplified Quad
+        REPORTER_ASSERT(reporter, pts[4] == SkPoint::Make(10, 20));   // Return line
+        REPORTER_ASSERT(reporter, pts[5] == SkPoint::Make(10, 10));   // Implicit close
         REPORTER_ASSERT(reporter, std::isnan(pts[6].fX));
 
         // Verify Contour 2 was fully culled
@@ -384,6 +384,53 @@ DEF_TEST(SparseStrips_Polyline_Integrated, reporter) {
         REPORTER_ASSERT(reporter, pts[10] == SkPoint::Make(40, 30));
         REPORTER_ASSERT(reporter, pts[11] == SkPoint::Make(30, 30));
         REPORTER_ASSERT(reporter, std::isnan(pts[12].fX));
+    }
+
+    // Interleaved culled curve within a single contour
+    {
+        SkPathBuilder builder;
+        builder.moveTo(10, 10);
+        builder.lineTo(20, -10);           // Exits top
+        builder.quadTo(20, -20, 30, -10);  // Culled curve (top of viewport)
+        builder.lineTo(40, 10);            // Re-enters viewport
+        builder.close();
+        SkPath path = builder.detach();
+
+        auto testMode = [&](auto processFn, const char* name) {
+            Flatten flatten;
+            Polyline polyline;
+            processFn(flatten, path, &polyline);
+
+            int lineCount = 0;
+            for (auto [line, index] : polyline) {
+                lineCount++;
+                // Assert that no line segment directly bridges from (20, -10) to (40, 10)
+                REPORTER_ASSERT(
+                        reporter,
+                        !(line.p0 == SkPoint::Make(20, -10) && line.p1 == SkPoint::Make(40, 10)),
+                        "[%s] Found invalid bridge line across culled curve!",
+                        name);
+            }
+
+            // Expected lines: (10, 10)->(20, -10), (30, -10)->(40, 10), and (40, 10)->(10, 10)
+            REPORTER_ASSERT(reporter,
+                            lineCount == 3,
+                            "[%s] Expected 3 valid line segments, got %d",
+                            name,
+                            lineCount);
+        };
+
+        testMode(
+                [](Flatten& f, const SkPath& p, Polyline* pl) {
+                    f.processPaths<FlattenMode::kScalar>(p, SkMatrix::I(), 100.0f, 100.0f, pl);
+                },
+                "Scalar");
+
+        testMode(
+                [](Flatten& f, const SkPath& p, Polyline* pl) {
+                    f.processPaths<FlattenMode::kSimd>(p, SkMatrix::I(), 100.0f, 100.0f, pl);
+                },
+                "SIMD");
     }
 }
 
