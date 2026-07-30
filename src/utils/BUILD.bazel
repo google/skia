@@ -8,6 +8,7 @@ licenses(["notice"])
 
 # In own group for exporting to sksl.gni:skslc_deps.
 CORE_SKSLC_FILES = [
+    "SkLogHandler.cpp",
     "SkParse.cpp",
     "SkOSPath.h",
     "SkOSPath.cpp",
