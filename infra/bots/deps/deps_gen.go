@@ -259,7 +259,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"skia/tools/bazel_build": {
 		Id:      "skia/tools/bazel_build",
-		Version: "git_revision:70733f74d415bf389f6bda812e95e8aee6182664",
+		Version: "git_revision:d3af3547496f60d9c08edec1dad130b1abef957b",
 		Path:    "task_drivers",
 	},
 	"skia/tools/sk": {
