@@ -5667,3 +5667,71 @@ DEF_TEST(path_b511244869, reporter) {
     SkPath transformed = path.makeTransform(m);
     REPORTER_ASSERT(reporter, transformed.isEmpty());
 }
+
+DEF_TEST(Path_snapshot_rrect_rotation, reporter) {
+    SkPathBuilder builder;
+    builder.addRRect(SkRRect::MakeRectXY({0, 0, 100, 100}, 10, 10));
+
+    // A rotation matrix that is not axis-aligned
+    SkMatrix matrix = SkMatrix::RotateDeg(45);
+    SkPath path = builder.snapshot(&matrix);
+
+    // Should NOT be recognized as an RRect because it's no longer axis-aligned.
+    REPORTER_ASSERT(reporter, !path.isRRect(nullptr));
+}
+
+DEF_TEST(Path_snapshot_rrect_perspective, reporter) {
+    SkPathBuilder builder;
+    builder.addRRect(SkRRect::MakeRectXY({0, 0, 100, 100}, 10, 10));
+
+    // A perspective matrix
+    SkMatrix matrix;
+    matrix.setPerspX(0.01f);
+    SkPath path = builder.snapshot(&matrix);
+
+    // Should NOT be recognized as an RRect because it's twisted
+    REPORTER_ASSERT(reporter, !path.isRRect(nullptr));
+}
+
+DEF_TEST(Path_addRRect_with_move, reporter) {
+    SkPathBuilder builder;
+    builder.moveTo(0, 0);
+    builder.close();  // make sure it's not a trailing move
+    builder.addRRect(SkRRect::MakeRectXY({0, 0, 100, 100}, 10, 10));
+
+    SkPath path = builder.detach();
+    // Not an RRect because something comes between the initial move and the rrect.
+    REPORTER_ASSERT(reporter, !path.isRRect(nullptr));
+}
+
+DEF_TEST(Path_snapshot_rrect_success, reporter) {
+    // 1. Translation & Scale (preserves winding direction)
+    {
+        SkPathBuilder builder;
+        builder.addRRect(SkRRect::MakeRectXY({10, 20, 110, 120}, 10, 10), SkPathDirection::kCW, 0);
+
+        SkMatrix matrix = SkMatrix::Translate(50, 100);
+        matrix.postScale(2, 3);
+        SkPath path = builder.snapshot(&matrix);
+
+        REPORTER_ASSERT(reporter, path.isRRect(nullptr));
+        auto info = SkPathPriv::IsRRect(path);
+        REPORTER_ASSERT(reporter, info.has_value());
+        REPORTER_ASSERT(reporter, info->fDirection == SkPathDirection::kCW);
+        REPORTER_ASSERT(reporter, info->fStartIndex == 0);
+    }
+
+    // 2. Mirror/Flip (reverses winding direction)
+    {
+        SkPathBuilder builder;
+        builder.addRRect(SkRRect::MakeRectXY({10, 20, 110, 120}, 10, 10), SkPathDirection::kCW, 0);
+
+        SkMatrix matrix = SkMatrix::Scale(-1, 1);
+        SkPath path = builder.snapshot(&matrix);
+
+        REPORTER_ASSERT(reporter, path.isRRect(nullptr));
+        auto info = SkPathPriv::IsRRect(path);
+        REPORTER_ASSERT(reporter, info.has_value());
+        REPORTER_ASSERT(reporter, info->fDirection == SkPathDirection::kCCW);
+    }
+}

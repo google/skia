@@ -1548,6 +1548,9 @@ int SkPathPriv::FindLastMoveToIndex(SkSpan<const SkPathVerb> verbs, const size_t
 std::pair<SkPathDirection, unsigned>
 SkPathPriv::TransformDirAndStart(const SkMatrix& matrix, bool isRRect, SkPathDirection dir,
                                  unsigned start) {
+    if (matrix.isIdentity()) {
+        return {dir, start};
+    }
     unsigned inStart = start;
     bool isCCW = (dir == SkPathDirection::kCCW);
 

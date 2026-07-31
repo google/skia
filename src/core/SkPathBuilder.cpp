@@ -296,7 +296,12 @@ SkPath SkPathBuilder::snapshot(const SkMatrix* mx) const {
         pdata = SkPathData::MakeTransform(*raw, *mx);
     }
     if (pdata && fType != SkPathIsAType::kGeneral) {
-        pdata->setupIsA(fType, fIsA.fDirection, fIsA.fStartIndex);
+        SkASSERT(SkPathPriv::IsAxisAligned(fPts));
+        if (mx->rectStaysRect()) {
+            auto [dir, start] = SkPathPriv::TransformDirAndStart(
+                    *mx, fType == SkPathIsAType::kRRect, fIsA.fDirection, fIsA.fStartIndex);
+            pdata->setupIsA(fType, dir, start);
+        }
     }
     return SkPath::MakeNullCheck(std::move(pdata), fFillType, fIsVolatile);
 }
@@ -727,8 +732,14 @@ SkPathBuilder& SkPathBuilder::addRaw(const SkPathRaw& raw, Reserve reserve) {
     return *this;
 }
 
+// It's tempting to just look at fSegmentMask, but we could have a degenerate path (move,close)
+// before this, which is two verbs but still fSegmentMask == 0.
+static bool is_empty_or_moves(const SkSpan<const SkPathVerb>& verbs) {
+    return verbs.empty() || (verbs.size() == 1 && verbs.back() == SkPathVerb::kMove);
+}
+
 SkPathBuilder& SkPathBuilder::addRect(const SkRect& rect, SkPathDirection dir, unsigned index) {
-    const bool wasEmpty = (fSegmentMask == 0);
+    const bool wasEmpty = is_empty_or_moves(fVerbs);
 
     this->addRaw(SkPathRawShapes::Rect(rect, dir, index), Reserve::kGrow);
 
@@ -740,7 +751,7 @@ SkPathBuilder& SkPathBuilder::addRect(const SkRect& rect, SkPathDirection dir, u
 }
 
 SkPathBuilder& SkPathBuilder::addOval(const SkRect& oval, SkPathDirection dir, unsigned index) {
-    const bool wasEmpty = (fSegmentMask == 0);
+    const bool wasEmpty = is_empty_or_moves(fVerbs);
 
     this->addRaw(SkPathRawShapes::Oval(oval, dir, index), Reserve::kGrow);
 
@@ -768,7 +779,7 @@ SkPathBuilder& SkPathBuilder::addRRect(const SkRRect& rrect, SkPathDirection dir
             break;
     }
 
-    const bool wasEmpty = (fSegmentMask == 0);
+    const bool wasEmpty = is_empty_or_moves(fVerbs);
 
     this->addRaw(SkPathRawShapes::RRect(rrect, dir, index), Reserve::kGrow);
 
