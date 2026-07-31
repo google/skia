@@ -28,21 +28,20 @@ sk_sp<TextStrike> TextStrike::GetOrCreate(sktext::gpu::StrikeCache* strikeCache,
     return newStrike;
 }
 
-GlyphEntry* TextStrike::getGlyph(SkPackedGlyphID packedGlyphID, MaskFormat format) {
-    GlyphEntryKey localKey(packedGlyphID, format);
-    GlyphEntry* glyph = fCache.findOrNull(localKey);
+GlyphEntry* TextStrike::getGlyph(PackedGPUGlyphID packedGlyphID) {
+    GlyphEntry* glyph = fCache.findOrNull(packedGlyphID);
     if (glyph == nullptr) {
-        glyph = fAlloc.make<GlyphEntry>(packedGlyphID, format);
+        glyph = fAlloc.make<GlyphEntry>(packedGlyphID);
         fCache.set(glyph);
         this->addMemoryUsed(sizeof(GlyphEntry));
     }
     return glyph;
 }
 
-const GlyphEntryKey& TextStrike::HashTraits::GetKey(const GlyphEntry* glyph) {
-    return glyph->fGlyphEntryKey;
+const sktext::gpu::PackedGPUGlyphID& TextStrike::HashTraits::GetKey(const GlyphEntry* glyph) {
+    return glyph->fKey;
 }
 
-uint32_t TextStrike::HashTraits::Hash(GlyphEntryKey key) { return key.hash(); }
+uint32_t TextStrike::HashTraits::Hash(PackedGPUGlyphID key) { return key.hash(); }
 
 }  // namespace skgpu::graphite

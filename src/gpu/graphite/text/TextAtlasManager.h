@@ -12,6 +12,7 @@
 #include "include/private/SkAssert.h"
 #include "src/gpu/MaskFormat.h"
 #include "src/gpu/graphite/DrawAtlas.h"
+#include "src/text/gpu/GlyphVector.h"
 
 #include <cstdint>
 #include <memory>
@@ -62,34 +63,41 @@ public:
     // If getProxies returns nullptr, the client must not try to use other functions on the
     // StrikeCache which use the atlas.  This function *must* be called first, before other
     // functions which use the atlas.
-    const sk_sp<TextureProxy>* getProxies(MaskFormat format,
+    const sk_sp<TextureProxy>* getProxies(MaskFormat resolvedMaskformat,
                                           unsigned int* numActiveProxies) {
-        format = this->resolveMaskFormat(format);
-        if (this->initAtlas(format)) {
-            *numActiveProxies = this->getAtlas(format)->numActivePages();
-            return this->getAtlas(format)->getProxies();
+        if (this->initAtlas(resolvedMaskformat)) {
+            *numActiveProxies = this->getAtlas(resolvedMaskformat)->numActivePages();
+            return this->getAtlas(resolvedMaskformat)->getProxies();
         }
         *numActiveProxies = 0;
         return nullptr;
     }
 
+    sktext::gpu::RendererData resolveRendererData(sktext::gpu::RendererData data) {
+        // Bump direct mask glyphs (zero padding) up to 1px when the atlas can be bilerp'ed
+        data.srcPadding = data.srcPadding == 0 && fSupportBilerpAtlas ? 1 : data.srcPadding;
+        data.maskFormat = this->resolveMaskFormat(data.maskFormat);
+        // Leave SDF and LCD properties alone
+        return data;
+    }
+
     void freeGpuResources();
 
-    bool hasGlyph(MaskFormat, const GlyphEntry&);
+    bool hasGlyph(const GlyphEntry&);
 
-    DrawAtlas::ErrorCode addGlyphToAtlas(const SkGlyph&, GlyphEntry*, int srcPadding);
+    DrawAtlas::ErrorCode addGlyphToAtlas(const SkGlyph&, GlyphEntry*);
 
     // To ensure the DrawAtlas does not evict the Glyph Mask from its texture backing store,
     // the client must pass in the current draw token along with the Glyph.
     // A BulkUsePlotUpdater is used to manage bulk last use token updating in the Atlas.
     // For convenience, this function will also set the use token for the current glyph if required
     // NOTE: the bulk uploader is only valid if the subrun has a valid atlasGeneration
-    void addGlyphToBulkAndSetUseToken(DrawAtlas::BulkUsePlotUpdater*, MaskFormat, const GlyphEntry&, Token);
+    void addGlyphToBulkAndSetUseToken(DrawAtlas::BulkUsePlotUpdater*, const GlyphEntry&, Token);
 
     void setUseTokenBulk(const DrawAtlas::BulkUsePlotUpdater& updater,
                          Token token,
-                         MaskFormat format) {
-        this->getAtlas(format)->setLastUseTokenBulk(updater, token);
+                         MaskFormat resolvedMaskFormat) {
+        this->getAtlas(resolvedMaskFormat)->setLastUseTokenBulk(updater, token);
     }
 
     bool recordUploads(DrawContext* dc);
@@ -107,8 +115,8 @@ public:
     // Some clients may wish to verify the integrity of the texture backing store of the
     // DrawAtlas. The atlasGeneration returned below is a monotonically increasing number which
     // changes every time something is removed from the texture backing store.
-    uint64_t atlasGeneration(skgpu::MaskFormat format) const {
-        return this->getAtlas(format)->atlasGeneration();
+    uint64_t atlasGeneration(skgpu::MaskFormat resolvedMaskFormat) const {
+        return this->getAtlas(resolvedMaskFormat)->atlasGeneration();
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -118,7 +126,7 @@ public:
     void setMaxPages_TestingOnly(uint32_t maxPages);
 
 private:
-    bool initAtlas(MaskFormat);
+    bool initAtlas(MaskFormat resolvedMaskFormat);
     // Change an expected 565 mask format to 8888 if 565 is not supported (will happen when using
     // Metal on Intel MacOS). The actual conversion of the data is handled in
     // get_packed_glyph_image() in StrikeCache.cpp
@@ -132,9 +140,9 @@ private:
         return static_cast<MaskFormat>(idx);
     }
 
-    DrawAtlas* getAtlas(MaskFormat format) const {
-        format = this->resolveMaskFormat(format);
-        int atlasIndex = MaskFormatToAtlasIndex(format);
+    DrawAtlas* getAtlas(MaskFormat resolvedMaskFormat) const {
+        SkASSERT(resolvedMaskFormat == this->resolveMaskFormat(resolvedMaskFormat));
+        int atlasIndex = MaskFormatToAtlasIndex(resolvedMaskFormat);
         SkASSERT(fAtlases[atlasIndex]);
         return fAtlases[atlasIndex].get();
     }

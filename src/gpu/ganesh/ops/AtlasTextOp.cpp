@@ -560,7 +560,11 @@ void AtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
         const sktext::gpu::AtlasSubRun& subRun = geo->fSubRun;
 
         if (!subRun.glyphVector().hasBackendData()) {
-            subRun.glyphVector().initBackendData<GlyphData>(target->strikeCache(), maskFormat);
+            subRun.glyphVector().initBackendData<GlyphData>(target->strikeCache(),
+                                                            atlasManager,
+                                                            maskFormat,
+                                                            subRun.glyphSrcPadding(),
+                                                            this->usesDistanceFields());
         }
 
         auto& glyphData = subRun.glyphVector().accessBackendData<GlyphData>();
@@ -579,8 +583,6 @@ void AtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
             auto [ok, glyphsRegenerated] = glyphData.regenerateAtlas(subRunCursor,
                                                                      regenEnd,
                                                                      subRun.glyphVector(),
-                                                                     maskFormat,
-                                                                     subRun.glyphSrcPadding(),
                                                                      target);
 
             // There was a problem allocating the glyph in the atlas. Bail.
