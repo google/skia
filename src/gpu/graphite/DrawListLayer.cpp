@@ -109,8 +109,10 @@ std::pair<Layer*, BindingList*> DrawListLayer::searchBackwards(
         fLayers.addToTail(targetLayer);
     }
 
-    if (!targetMatch) {
-        targetMatch = targetLayer->addNewBinding(&fStorage, nullptr, key, step);
+    if (!targetMatch || !targetMatch->fKey.isEqual(key)) {
+        // If targetMatch is just a pipeline match, we can insert right before it because such a
+        // match is only returned when the new draw can be ordered in front of it.
+        targetMatch = targetLayer->addNewBinding(&fStorage, targetMatch, key, step);
     } else {
         SkASSERT(targetLayer->fBindings.isInList(targetMatch));
     }
@@ -132,9 +134,19 @@ BindingList* DrawListLayer::findOrCreateBindingInLayer(Layer* layer,
 
     // If we don't have a parent, search through all bindings of the layer as this is the first time
     // through the layer. If we do have a parent, search through the preceding bindings (exclusive).
-    if (!parent || parent->fPrev) {
-        targetMatch = layer->searchBinding(key, parent ? parent->fPrev : nullptr);
-    } // else there are no preceding bindings so we know we have to add a new one
+    // This is handled automatically by searchBinding's `parent` handling; when there are no
+    // preceding bindings (e.g. parent && !parent->fPrev), `match` will just be null.
+    BindingList* match = layer->searchBinding(key, parent);
+    if (match) {
+        if (match->fKey.isEqual(key)) {
+            targetMatch = match;
+        } else {
+            // NOTE: Treat any pipeline match as the new parent that a new binding list will be
+            // inserted before. Since the search started from the original parent (exclusive),
+            // any found pipeline match will still be before that parent.
+            parent = match;
+        }
+    }
 
     if (!targetMatch) {
         targetMatch = layer->addNewBinding(&fStorage, parent, key, step);
