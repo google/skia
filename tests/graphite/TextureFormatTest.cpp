@@ -836,13 +836,9 @@ static const FormatExpectation kExpectations[] {
      .fCompatibleColorTypes={{kARGB_4444_SkColorType, Swizzle::RGBA(), Swizzle::RGBA()}}},
 
     {.fFormat=TextureFormat::kARGB4,
-     // TODO(michaelludwig): kARGB_4444 color type is actually BGRA order. Historically, we
-     // configured kARGB4 format to swizzle the channels on read and write in the shader so that the
-     // CPU data could be uploaded directly. When we can perform a RB channel swap as part of
-     // upload/readback, then this can change to RGBA swizzles.
      .fChannels={{'a', 4, UNorm}, {'r', 4, UNorm}, {'g', 4, UNorm}, {'b', 4, UNorm}},
      .fXferSwizzle=Swizzle("rgba"),
-     .fCompatibleColorTypes={{kARGB_4444_SkColorType, Swizzle::BGRA(), Swizzle::BGRA()}}},
+     .fCompatibleColorTypes={{kARGB_4444_SkColorType, Swizzle::RGBA(), Swizzle::RGBA()}}},
 
     {.fFormat=TextureFormat::kBGRA10x6_XR,
      .fChannels={{'x', 6, Pad}, {'b', 10, XR}, {'x', 6, Pad}, {'g', 10, XR},

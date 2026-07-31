@@ -32,10 +32,11 @@ using TF = TextureFormat;
 // 2. It's convenient to split the FormatXferOps into specific ops based on their conversion
 //    direction that doesn't need to be exposed in the public API.
 enum ExtendedFormatXferOp : uint8_t {
-    kDropAlpha = 0x1,
-    kPadAlpha  = 0x2,
+    kDropAlpha = 0x1, // FormatXferOp::kDropAlpha for CPU->GPU conversion
+    kPadAlpha  = 0x2, // FormatXferOp::kDropAlpha for GPU->CPU conversion
+    kSwapRB    = 0x4, // FormatXferOp::kSwapRB behaves the same for either conversion direction
 };
-
+// TODO(michaelludwig): Add a kForceOpaque op that replaces the alpha bits with OpaqueAlpha value.
 
 using XferRowFn = std::function<void(const char* src, char* dst, int width)>;
 
@@ -70,6 +71,54 @@ XferRowFn create_xfer_row_fn(int n, int srcBpp, int dstBpp, PixelFn applyPixel) 
     };
 }
 
+// N represents the number of pixels being processed; each pixel is packed into a single element of
+// the Vec. To implement kSwapRB, this requires that the R and B channels have the same number of
+// bits. It arbitrarily requires that R is originally in the lower-significance bits relative to B.
+template <typename Px, int N, uint8_t Ops, Px RShift, Px BShift, Px RBBits>
+skvx::Vec<N, Px> apply_ops_packed(skvx::Vec<N, Px> pixel) {
+    static_assert(!(Ops & (kPadAlpha | kDropAlpha)), "Packed formats do not drop/pad alpha");
+    static_assert(RShift < BShift, "Shifts are not in the correct significance order");
+    static_assert(RShift + RBBits <= BShift, "Low swap channel overflows");
+    static_assert(BShift + RBBits <= sizeof(Px)*8, "Hi swap channel overflows");
+
+    if constexpr (Ops & kSwapRB) {
+        static constexpr Px kChannelMask = (1 << RBBits) - 1;
+        static constexpr Px kRMask = kChannelMask << RShift;
+        static constexpr Px kBMask = kChannelMask << BShift;
+
+        pixel = (pixel & ~(kRMask | kBMask)) |            // Preserve non-RB bits
+                ((pixel & kRMask) << (BShift - RShift)) | // Move red (lo) to blue (hi) position
+                ((pixel & kBMask) >> (BShift - RShift));  // Move blue (hi) to red (lo) position
+    }
+
+    // TODO: Implement kForceOpaque here as well
+
+    return pixel;
+}
+
+// NOTE: This takes no parameters for alpha because none of the formats that use this support
+// kDrop/PadAlpha. Since the channels are packed into Px, both source and dst must have the same bpp
+template <typename Px, Px RShift, Px BShift, Px RBBits>
+XferRowFn xfer_rows_packed(uint8_t ops) {
+    static constexpr int kBpp = sizeof(Px);
+    static constexpr int N = 16 / sizeof(Px); // Fit to 128-bit/16-byte SIMD
+
+    static_assert(N == 1 || N == 2 || N == 4 || N == 8);
+    using PxVec = skvx::Vec<N, Px>;
+
+#define RETURN_XFER_ROW_FN(ops) \
+        case ops: return create_xfer_row_fn<PxVec>( \
+                N, kBpp, kBpp, apply_ops_packed<Px, N, ops, RShift, BShift, RBBits>);
+
+    switch (ops) {
+        // The expected combination of ExtendedFormatXferOps
+        RETURN_XFER_ROW_FN(kSwapRB)
+        default:
+            SK_ABORT("Unsupported ExtendedFormatXferOps combination: %u", ops);
+    }
+#undef RETURN_XFER_ROW_FN
+}
+
 // N represents the number of pixels being processed; the currently supported Ops are only valid for
 // a channel count of 3 (upgraded to 4 effectively) or exactly 4.
 template <typename Cx, int N, uint8_t Ops, Cx OpaqueAlpha>
@@ -90,7 +139,20 @@ skvx::Vec<4*N, Cx> apply_ops_by_channel(skvx::Vec<4*N, Cx> pixel) {
         } // else no shuffling needed for N=1, since pixel == shuffle<0,1,2,A>(pixel)
     }
 
-    // TODO(michaelludwig): Add other extend ops here
+    // Ops that assume 4 channels can be applied between kPadAlpha and kDropAlpha w/o worrying about
+    // how to handle the 3-channel formats.
+    if constexpr (Ops & kSwapRB) {
+        // For all 3 and 4 channel formats, it is assumed that R and B are in channels 0 and 2.
+        if constexpr (N == 4) {
+            pixel = skvx::shuffle<2,1,0,3, 6,5,4,7, 10,9,8,11, 14,13,12,15>(pixel);
+        } else if constexpr (N == 2) {
+            pixel = skvx::shuffle<2,1,0,3, 6,5,4,7>(pixel);
+        } else {
+            pixel = skvx::shuffle<2,1,0,3>(pixel);
+        }
+    }
+
+    // TODO: Implement kForceOpaque here as well
 
     if constexpr (Ops & kDropAlpha) {
         // If we are dropping alpha, we need to shuffle the R,G, and B values of the 4-channel
@@ -110,9 +172,9 @@ skvx::Vec<4*N, Cx> apply_ops_by_channel(skvx::Vec<4*N, Cx> pixel) {
 // SwapRB involves swapping channel 0 and channel 2, and dropping alpha removes channel 3. This
 // can be parameterized via template parameters to be able to push into the skvx::shuffle calls
 // if needed in the future.
-template <typename Cx, Cx OpaqueAlpha>
+template <typename Cx, int C, Cx OpaqueAlpha>
 XferRowFn xfer_rows_by_channel(uint8_t ops) {
-    static constexpr int C = 3;
+    static_assert(C == 3 || C == 4);
     static constexpr int CPow2 = SkNextPow2(C);
     static constexpr int N = 16 / (CPow2 * sizeof(Cx)); // Fit to 128-bit/16-byte SIMD
 
@@ -121,22 +183,30 @@ XferRowFn xfer_rows_by_channel(uint8_t ops) {
 
     int srcBpp = C * sizeof(Cx);
     int dstBpp = C * sizeof(Cx);
-
     if (ops & kDropAlpha) {
         // Going from 4-channel src to the 3-channel format
+        SkASSERT(C == 3);
         srcBpp = CPow2 * sizeof(Cx);
-        return create_xfer_row_fn<PxVec>(N, srcBpp, dstBpp,
-                                         apply_ops_by_channel<Cx, N, kDropAlpha, OpaqueAlpha>);
     } else if (ops & kPadAlpha) {
         // Going from the 3-channel format to 4-channel dst
+        SkASSERT(C == 3);
         dstBpp = CPow2 * sizeof(Cx);
-        return create_xfer_row_fn<PxVec>(N, srcBpp, dstBpp,
-                                         apply_ops_by_channel<Cx, N, kPadAlpha, OpaqueAlpha>);
-    } else {
-        SK_ABORT("Identity transfer should have been caught earlier");
     }
 
-    return nullptr;
+#define RETURN_XFER_ROW_FN(ops) \
+        case ops: return create_xfer_row_fn<PxVec>(N, srcBpp, dstBpp, \
+                                                   apply_ops_by_channel<Cx, N, ops, OpaqueAlpha>);
+    switch (ops) {
+        // The expected combination of ExtendedFormatXferOps
+        RETURN_XFER_ROW_FN(kDropAlpha)
+        RETURN_XFER_ROW_FN(kDropAlpha | kSwapRB)
+        RETURN_XFER_ROW_FN(kPadAlpha)
+        RETURN_XFER_ROW_FN(kPadAlpha | kSwapRB)
+        RETURN_XFER_ROW_FN(kSwapRB)
+        default:
+            SK_ABORT("Unsupported ExtendedFormatXferOps combination: %u", ops);
+    }
+#undef RETURN_XFERFN_CASE
 }
 
 XferRowFn get_xfer_row_fn(TextureFormat format, uint8_t ops) {
@@ -162,44 +232,51 @@ XferRowFn get_xfer_row_fn(TextureFormat format, uint8_t ops) {
         // Packed formats operate on a primitive that holds the entire pixel value
         case TF::kB5_G6_R5:
         case TF::kR5_G6_B5:
+            return xfer_rows_packed<uint16_t, /*RShift=*/0, /*BShift=*/11, /*RBBits=*/5>(ops);
+
         case TF::kABGR4:
         case TF::kARGB4:
+            return xfer_rows_packed<uint16_t, /*RShift=*/4, /*BShift=*/12, /*RBBits=*/4>(ops);
+
         case TF::kRGB10_A2:
         case TF::kBGR10_A2:
         case TF::kBGR10_XR:
-            // TODO(michaelludwig): These formats could do r/b swaps and forcing-opaque, but
-            // that isn't implemented yet.
-            SK_ABORT("Unsupported texture format %s", TextureFormatName(format));
-            break;
+            return xfer_rows_packed<uint32_t, /*RShift=*/0, /*BShift=*/20, /*RBBits=*/10>(ops);
 
         // The remaining formats can be operated on with each channel as a primitive
         case TF::kRGB8_sRGB:
         case TF::kRGB8:
         case TF::kBGR8:
-            return xfer_rows_by_channel<uint8_t, 0xFF>(ops);
+            return xfer_rows_by_channel<uint8_t, /*C=*/3, 0xFF>(ops);
 
         case TF::kRGB16:
-            return xfer_rows_by_channel<uint16_t, 0xFFFF>(ops);
+            return xfer_rows_by_channel<uint16_t, /*C=*/3, 0xFFFF>(ops);
 
         case TF::kRGB16F:
-            return xfer_rows_by_channel<uint16_t, SK_Half1>(ops);
+            return xfer_rows_by_channel<uint16_t, /*C=*/3, SK_Half1>(ops);
 
         case TF::kRGB32F:
-            return xfer_rows_by_channel<uint32_t, kFloatBits1>(ops);
+            return xfer_rows_by_channel<uint32_t, /*C=*/3, kFloatBits1>(ops);
 
         case TF::kRGBA8:
         case TF::kRGBA8_sRGB:
         case TF::kBGRA8:
         case TF::kBGRA8_sRGB:
-        case TF::kRGBA16:
-        case TF::kRGBA16F:
+            return xfer_rows_by_channel<uint8_t, /*C=*/4, 0xFF>(ops);
+
         case TF::kRGBA10x6:
         case TF::kBGRA10x6_XR:
+            // Each channel is the 10 real bits, with the least significant 6 padding bits.
+            return xfer_rows_by_channel<uint16_t, /*C=*/4, 0xFFC0>(ops);
+
+        case TF::kRGBA16:
+            return xfer_rows_by_channel<uint16_t, /*C=*/4, 0xFFFF>(ops);
+
+        case TF::kRGBA16F:
+            return xfer_rows_by_channel<uint16_t, /*C=*/4, SK_Half1>(ops);
+
         case TF::kRGBA32F:
-            // TODO(michaelludwig): These formats could do r/b swaps and forcing-opaque, but
-            // that isn't implemented yet.
-            SK_ABORT("Unsupported texture format %s", TextureFormatName(format));
-            break;
+            return xfer_rows_by_channel<uint32_t, /*C=*/4, kFloatBits1>(ops);
 
         default:
             // Remaining cases are compressed, multiplanar, or non-color so shouldn't be reached.
@@ -259,7 +336,7 @@ std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeCpuToGpu(
     Swizzle srcToDst = dstReadSwizzle.invert();
 
     if (xferOps & FormatXferOp::kSwapRB) {
-        srcToDst = Swizzle::Concat(srcToDst, Swizzle::BGRA());
+        postOps |= kSwapRB;
     }
     if (xferOps & FormatXferOp::kDropAlpha) {
         // On CPU->GPU conversion, FormatXferOp::kDropAlpha actually drops the alpha bits
@@ -284,7 +361,7 @@ std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeGpuToCpu(
     uint8_t preOps = 0;
     Swizzle srcToDst = srcReadSwizzle;
     if (xferOps & FormatXferOp::kSwapRB) {
-        srcToDst = Swizzle::Concat(srcToDst, Swizzle::BGRA());
+        preOps |= kSwapRB;
     }
     if (xferOps & FormatXferOp::kDropAlpha) {
         // On GPU->CPU conversion, FormatXferOp::kDropAlpha must pad alpha bits back

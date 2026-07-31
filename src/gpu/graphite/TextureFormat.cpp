@@ -355,13 +355,6 @@ bool TextureFormatIsMultiplanar(TextureFormat format) {
 // ------------------------------------------------------------------------------------------------
 
 Swizzle ReadSwizzleForColorType(SkColorType ct, TextureFormat format) {
-    // TODO(b/390473370): When data transfers can apply an RG swizzle outside of the
-    // SkColorType representation, we should instead apply the swizzle on upload and
-    // preserve the expected order for any GPU use.
-    if (ct == kARGB_4444_SkColorType && format == TextureFormat::kARGB4) {
-        return Swizzle::BGRA();
-    }
-
     uint32_t colorChannels = SkColorTypeChannelFlags(ct);
     uint32_t formatChannels = TextureFormatChannelMask(format);
 
@@ -413,13 +406,6 @@ std::optional<skgpu::Swizzle> WriteSwizzleForColorType(SkColorType ct, TextureFo
         TextureFormatIsMultiplanar(format) ||
         TextureFormatCompressionType(format) != SkTextureCompressionType::kNone) {
         return std::nullopt;
-    }
-
-    // TODO(b/390473370): When data transfers can apply an RG swizzle outside of the
-    // SkColorType representation, we should instead apply the swizzle on upload and
-    // preserve the expected order for any GPU use.
-    if (ct == kARGB_4444_SkColorType && format == TextureFormat::kARGB4) {
-        return Swizzle::BGRA();
     }
 
     uint32_t colorChannels = SkColorTypeChannelFlags(ct);
