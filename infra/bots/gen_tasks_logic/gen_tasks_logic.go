@@ -188,10 +188,9 @@ var (
 		Excludes: []string{rbe.ExcludeGitDir},
 	}
 
-	// TODO(borenet): This hacky and bad.
-	CIPD_PKG_LUCI_AUTH = cipd.MustGetPackage("infra/tools/luci-auth/${platform}")
+	CIPD_PKG_LUCI_AUTH = getCIPDPackage("infra/tools/luci-auth/${platform}", "cipd_bin_packages")
 
-	CIPD_PKGS_GOLDCTL = cipd.MustGetPackage("skia/tools/goldctl/${platform}")
+	CIPD_PKGS_GOLDCTL = getCIPDPackage("skia/tools/goldctl/${platform}", "cipd_bin_packages")
 
 	CIPD_PKGS_XCODE = []*specs.CipdPackage{
 		// https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#317
@@ -685,7 +684,7 @@ func marshalJson(data interface{}) string {
 // recipe bundle.
 func (b *TaskBuilder) kitchenTaskNoBundle(recipe string, outputDir string) {
 	b.usesLUCIAuth()
-	b.cipd(cipd.MustGetPackage("infra/tools/luci/kitchen/${platform}"))
+	b.cipd(getCIPDPackage("infra/tools/luci/kitchen/${platform}", "."))
 	b.env("RECIPES_USE_PY3", "true")
 	b.envPrefixes("VPYTHON_DEFAULT_SPEC", "skia/.vpython3")
 	b.usesPython()
@@ -2533,4 +2532,17 @@ func (b *jobBuilder) bazelTest() {
 		b.attempts(1)
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 	})
+}
+
+func getCIPDPackage(name string, path string) *cipd.Package {
+	pkg := cipd.MustGetPackage(name)
+	pkg.Path = path
+	return pkg
+}
+
+func setPkgPaths(path string, pkgs ...*cipd.Package) []*cipd.Package {
+	for _, pkg := range pkgs {
+		pkg.Path = path
+	}
+	return pkgs
 }

@@ -68,9 +68,11 @@ func main() {
 	opts := bazel.BazelOptions{
 		CachePath: *bazelFlags.CacheDir,
 	}
-	if err := bazel.EnsureBazelRCFile(ctx, opts); err != nil {
+	cleanup, err := bazel.OverrideBazelRC(ctx, opts)
+	if err != nil {
 		td.Fatal(ctx, err)
 	}
+	defer cleanup()
 
 	if err := run(ctx, *bazelFlags.CacheDir, taskDriverArgs{
 		UploadToGoldArgs: common.UploadToGoldArgs{

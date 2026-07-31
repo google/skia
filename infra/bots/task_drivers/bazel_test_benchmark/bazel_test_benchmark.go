@@ -71,9 +71,11 @@ func main() {
 	opts := bazel.BazelOptions{
 		CachePath: *bazelFlags.CacheDir,
 	}
-	if err := bazel.EnsureBazelRCFile(ctx, opts); err != nil {
+	cleanup, err := bazel.OverrideBazelRC(ctx, opts)
+	if err != nil {
 		td.Fatal(ctx, err)
 	}
+	defer cleanup()
 
 	// Make an HTTP client with the required permissions to upload to the perf.skia.org GCS bucket.
 	httpClient, _, err := auth_steps.InitHttpClient(ctx, *local, auth.ScopeReadWrite, auth.ScopeUserinfoEmail)
