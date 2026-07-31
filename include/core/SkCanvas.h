@@ -2529,7 +2529,6 @@ private:
     std::unique_ptr<SkRasterHandleAllocator> fAllocator;
 
     SkSurface_Base*  fSurfaceBase;
-    virtual SkSurface_Base* getSurfaceBase() const { return fSurfaceBase; }
     void setSurfaceBase(SkSurface_Base* sb) {
         fSurfaceBase = sb;
     }

@@ -28,7 +28,7 @@ public:
     ~SkCaptureCanvas() override;
 
     sk_sp<SkPicture> snapPicture();
-    SkSurface* getBaseCanvasSurface() const;
+    SkSurface* getBaseCanvasSurface() const { return fBaseCanvas->getSurface(); }
 
 protected:
     void willSave() override;
@@ -108,13 +108,26 @@ protected:
                                const SkPaint*,
                                SrcRectConstraint) override;
 
+    // Unlike a standard NWayCanvas, SkCaptureCanvas has a single main SkCanvas that we can forward
+    // these surface-oriented functions to. This is part of making SkCaptureCanvas act like the
+    // surface-backed canvas its wrapping even though as an n-way canvas it does not have any pixels
+    sk_sp<SkSurface> onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props) override;
+    void onSurfaceDelete() override;
+    bool onPeekPixels(SkPixmap* pixmap) override;
+    bool onAccessTopLayerPixels(SkPixmap* pixmap) override;
+    SkImageInfo onImageInfo() const override;
+    bool onGetProps(SkSurfaceProps* props, bool top) const override;
+    sk_sp<sktext::gpu::Slug> onConvertGlyphRunListToSlug(
+            const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) override;
+
+    // NOTE: We intentionally do not override onDiscard() to notify the base canvas's surface that
+    // it can be discarded. This would produce redundant discards, since presumably whatever draw
+    // operation triggered the discard detection for the SkNWayCanvas will trigger again when it
+    // delegates to the base canvas (which has a surface and then the surface will be discarded).
 private:
     void pollCapturingStatus();
     void attachRecordingCanvas();
     void detachRecordingCanvas();
-
-    sk_sp<SkSurface> onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props) override;
-    void onSurfaceDelete() override;
 
     bool fCapturing = false;
     SkPictureRecorder fRecorder;
@@ -125,8 +138,6 @@ private:
     void addCanvas(SkCanvas* canvas) override {SkNWayCanvas::addCanvas(canvas);}
     void removeCanvas(SkCanvas* canvas) override {SkNWayCanvas::removeCanvas(canvas);}
     void removeAll() override {SkNWayCanvas::removeAll();}
-
-    SkSurface_Base* getSurfaceBase() const override;
 };
 
 #endif  // SkCaptureCanvas_DEFINED

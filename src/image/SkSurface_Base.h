@@ -233,7 +233,7 @@ sk_sp<SkImage> SkSurface_Base::refCachedImage() {
 
     fCachedImage = this->onNewImageSnapshot();
 
-    SkASSERT(!fCachedCanvas || fCachedCanvas->getSurfaceBase() == this);
+    SkASSERT(!fOwnedBaseCanvas || fOwnedBaseCanvas->getSurface() == this);
     return fCachedImage;
 }
 
