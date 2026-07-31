@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkContext.h"
 #include "include/gpu/ganesh/gl/GrGLDirectContext.h"
 
 #include "include/gpu/ganesh/GrContextOptions.h"
@@ -110,3 +111,11 @@ sk_sp<GrDirectContext> MakeGL(sk_sp<const GrGLInterface> glInterface,
 }
 
 }  // namespace GrDirectContexts
+
+namespace SkContexts {
+
+std::unique_ptr<SkContext> MakeGanesh(sk_sp<const GrGLInterface>, const SkContextOptions& options) {
+    return nullptr;
+}
+
+}  // namespace SkContexts

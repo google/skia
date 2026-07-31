@@ -13,6 +13,9 @@
 
 #include <memory>
 
+class SkContext;
+struct SkContextOptions;
+
 namespace skgpu::graphite {
 
 class Context;
@@ -73,5 +76,10 @@ SK_API std::unique_ptr<Context> MakeDawn(const DawnBackendContext&, const Contex
 } // namespace ContextFactory
 
 } // namespace skgpu::graphite
+
+namespace SkContexts {
+std::unique_ptr<SkContext> MakeGraphite(const skgpu::graphite::DawnBackendContext& dawnContext,
+                                        const SkContextOptions& options);
+}  // namespace SkContexts
 
 #endif // skgpu_graphite_DawnBackendContext_DEFINED

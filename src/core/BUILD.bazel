@@ -181,6 +181,7 @@ SEMI_PUBLIC_HEADERS = [
     "SkScalerContext.h",
     "SkScan.h",
     "SkScopeExit.h",
+    "SkSharedContext.h",
     "SkSharedMutex.h",
     "SkSpanPriv.h",
     "SkSpecialImage.h",
@@ -294,6 +295,7 @@ skia_filegroup(
     name = "core_srcs",
     srcs = [
         # Implementation of public and private headers
+        "RasterContext.cpp",
         "SkAAClip.cpp",
         "SkATrace.cpp",
         "SkAlphaRuns.cpp",
@@ -347,6 +349,7 @@ skia_filegroup(
         "SkColorTable.cpp",
         "SkCompressedDataUtils.cpp",
         "SkContainers.cpp",
+        "SkContext.cpp",
         "SkContourMeasure.cpp",
         "SkConvertPixels.cpp",
         "SkCpu.cpp",
@@ -483,6 +486,7 @@ skia_filegroup(
         "SkScan_Hairline.cpp",
         "SkScan_Path.cpp",
         "SkSemaphore.cpp",
+        "SkSharedContext.cpp",
         "SkSharedMutex.cpp",
         "SkSpecialImage.cpp",
         "SkSpinlock.cpp",

@@ -11,9 +11,13 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkAPI.h"
 
+#include <memory>
+
 class GrDirectContext;
+class SkContext;
 struct GrContextOptions;
 struct GrGLInterface;
+struct SkContextOptions;
 
 namespace GrDirectContexts {
 /**
@@ -26,5 +30,12 @@ SK_API sk_sp<GrDirectContext> MakeGL(const GrContextOptions&);
 SK_API sk_sp<GrDirectContext> MakeGL();
 #endif
 }
+
+namespace SkContexts {
+
+// Creates a context wrapping a Ganesh GPU backend with OpenGL
+std::unique_ptr<SkContext> MakeGanesh(sk_sp<const GrGLInterface>, const SkContextOptions& options);
+
+}  // namespace SkContexts
 
 #endif

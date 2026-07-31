@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkContext.h"
 #include "tools/ganesh/mock/MockTestContext.h"
 
 #include "include/gpu/ganesh/GrDirectContext.h"
@@ -42,3 +43,12 @@ namespace sk_gpu_test {
 TestContext* CreateMockTestContext(TestContext*) { return new MockTestContext(); }
 
 }  // namespace sk_gpu_test
+
+namespace SkContexts {
+
+std::unique_ptr<SkContext> MakeGanesh(const SkContextOptions& options,
+                                      sk_gpu_test::TestContext* shareContext) {
+    return nullptr;
+}
+
+}  // namespace SkContexts

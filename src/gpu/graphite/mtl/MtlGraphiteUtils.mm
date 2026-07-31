@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkContext.h"
 #include "include/core/SkStream.h"
 #include "include/gpu/ShaderErrorHandler.h"
 #include "include/gpu/graphite/Context.h"
@@ -18,6 +19,15 @@
 #include "src/gpu/mtl/MtlUtilsPriv.h"
 
 #import <Metal/Metal.h>
+
+namespace SkContexts {
+// Creates a context wrapping a Graphite GPU backend using Metal
+std::unique_ptr<SkContext> MakeGraphite(const skgpu::graphite::MtlBackendContext& mtlContext,
+                              const SkContextOptions& options) {
+    return nullptr;
+}
+
+}  // namespace SkContexts
 
 namespace skgpu::graphite {
 

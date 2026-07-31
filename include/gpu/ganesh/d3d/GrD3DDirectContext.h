@@ -11,9 +11,13 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkAPI.h"
 
+#include <memory>
+
 class GrDirectContext;
+class SkContext;
 struct GrContextOptions;
 struct GrD3DBackendContext;
+struct SkContextOptions;
 
 namespace GrDirectContexts {
 /**
@@ -24,5 +28,13 @@ SK_API sk_sp<GrDirectContext> MakeD3D(const GrD3DBackendContext& backendContext,
                                       const GrContextOptions& options);
 SK_API sk_sp<GrDirectContext> MakeD3D(const GrD3DBackendContext& backendContext);
 }  // namespace GrDirectContexts
+
+namespace SkContexts {
+
+// Creates a context wrapping a Ganesh GPU backend with D3D
+std::unique_ptr<SkContext> MakeGanesh(const GrD3DBackendContext& backendContext,
+                            const SkContextOptions& options);
+
+}  // namespace SkContexts
 
 #endif

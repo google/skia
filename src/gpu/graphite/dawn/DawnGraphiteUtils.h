@@ -16,7 +16,6 @@
 #include "src/sksl/codegen/SkSLNativeShader.h"
 #include "src/sksl/codegen/SkSLWGSLCodeGenerator.h"
 #include "src/sksl/ir/SkSLProgram.h"
-
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 
 namespace SkSL {

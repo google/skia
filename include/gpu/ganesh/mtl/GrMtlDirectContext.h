@@ -11,9 +11,13 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkAPI.h"
 
+#include <memory>
+
 class GrDirectContext;
+class SkContext;
 struct GrContextOptions;
 struct GrMtlBackendContext;
+struct SkContextOptions;
 
 namespace GrDirectContexts {
 /**
@@ -26,5 +30,12 @@ namespace GrDirectContexts {
 SK_API sk_sp<GrDirectContext> MakeMetal(const GrMtlBackendContext&, const GrContextOptions&);
 SK_API sk_sp<GrDirectContext> MakeMetal(const GrMtlBackendContext&);
 }  // namespace GrDirectContexts
+
+namespace SkContexts {
+
+// Creates a context wrapping a Ganesh GPU backend with Metal
+std::unique_ptr<SkContext> MakeGanesh(const GrMtlBackendContext& mtlContext, const SkContextOptions& options);
+
+}  // namespace SkContexts
 
 #endif

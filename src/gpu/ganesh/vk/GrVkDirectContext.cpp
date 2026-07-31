@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkContext.h"
 #include "include/gpu/ganesh/vk/GrVkDirectContext.h"
 
 #include "include/gpu/ganesh/GrContextOptions.h"
@@ -35,3 +36,12 @@ sk_sp<GrDirectContext> MakeVulkan(const skgpu::VulkanBackendContext& backendCont
     return direct;
 }
 }  // namespace GrDirectContexts
+
+namespace SkContexts {
+
+std::unique_ptr<SkContext> MakeGanesh(const skgpu::VulkanBackendContext& vkContext,
+                            const SkContextOptions& options) {
+    return nullptr;
+}
+
+}  // namespace SkContexts

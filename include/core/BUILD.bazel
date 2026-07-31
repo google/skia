@@ -7,6 +7,7 @@ package(
 licenses(["notice"])
 
 PUBLIC_HEADERS = [
+    "RasterContext.h",
     "SkAlphaType.h",
     "SkAnnotation.h",
     "SkArc.h",
@@ -26,6 +27,8 @@ PUBLIC_HEADERS = [
     "SkColorSpace.h",
     "SkColorTable.h",
     "SkColorType.h",
+    "SkContext.h",
+    "SkContextOptions.h",
     "SkContourMeasure.h",
     "SkCoverageMode.h",
     "SkCubicMap.h",

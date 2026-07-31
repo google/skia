@@ -12,6 +12,9 @@
 
 #include "include/private/SkAPI.h"
 
+struct SkContextOptions;
+class SkContext;
+
 // NOTE: Because there is already a VulkanBackendContext header shared between Ganesh and Graphite,
 // this is named VulkanGraphiteContext.h to supply just the factory function (differing from the
 // public headers exposed by other backends).
@@ -27,5 +30,13 @@ SK_API std::unique_ptr<Context> MakeVulkan(const VulkanBackendContext&, const Co
 } // namespace ContextFactory
 
 } // namespace skgpu::graphite
+
+namespace SkContexts {
+
+// Creates a context wrapping a Graphite GPU backend with Vulkan
+std::unique_ptr<SkContext> MakeGraphite(const skgpu::VulkanBackendContext& vkContext,
+                            const SkContextOptions& options);
+
+}  // namespace SkContexts
 
 #endif // skgpu_graphite_VulkanGraphiteUtils_DEFINED
