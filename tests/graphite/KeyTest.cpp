@@ -82,7 +82,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyWithInvalidCodeSnippetIDTest, reporter, co
                                  (int32_t) BuiltInCodeSnippetID::kFixedBlend_Src};
     SkSpan<const int32_t> invalidKeySpan{invalidKeyData, std::size(invalidKeyData)*sizeof(int32_t)};
     const PaintParamsKey* fakeKey = reinterpret_cast<const PaintParamsKey*>(&invalidKeySpan);
-    REPORTER_ASSERT(reporter, fakeKey->getRootNodes(caps, dict, &arena, 0).empty());
+    REPORTER_ASSERT(reporter, fakeKey->getRootNodes(caps, dict, &arena, 0).fRoots.empty());
 }
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyEqualityChecksSnippetID, reporter, context,
@@ -115,7 +115,9 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ShaderInfoDetectsFixedFunctionBlend, reporter
 
         PaintParamsKeyBuilder builder(dict);
         // Use a solid color as the 1st root node; the 2nd root node represents the final blend.
+        builder.addRootBlockHeader(RootBlockType::kSrcColor);
         add_block(&builder, (int) BuiltInCodeSnippetID::kSolidColorShader);
+        builder.addRootBlockHeader(RootBlockType::kFinalBlend);
         add_block(&builder, (int) mode + kFixedBlendIDOffset);
         UniquePaintParamsID paintID = dict->findOrCreate(&builder);
 

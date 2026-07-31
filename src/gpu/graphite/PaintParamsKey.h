@@ -30,6 +30,20 @@ class ShaderNode;
 class TextureProxy;
 class UniquePaintParamsID;
 
+enum class RootBlockType : int32_t {
+    kSrcColor = -1,
+    kFinalBlend = -2,
+    kClip = -3,
+};
+
+struct RootNodesInfo {
+    const ShaderNode* fSrcColor = nullptr;
+    const ShaderNode* fFinalBlend = nullptr;
+    const ShaderNode* fClip = nullptr;
+
+    SkSpan<const ShaderNode*> fRoots;
+};
+
 /**
  * This class is a compact representation of the shader needed to implement a given
  * PaintParams. Its structure is a series of nodes where each node consists of:
@@ -56,6 +70,11 @@ class UniquePaintParamsID;
  *  2. Final blend node: defines the blend function combining src and dst colors. If this is a
  *     FixedBlend snippet the final pipeline may be able to lift it to HW blending.
  *  3. Clipping: optional, produces analytic coverage from a clip shader or shape.
+ *
+ * Each root node within the key is also preceded by a 4 byte header with a value < 0 defining
+ * the type of the node as one of the 3 types listed above. Writers of the PaintParamsKey should
+ * still add the root blocks in a consistent order since that impacts the key hash/comparison
+ * even though technically the generated shaders wouldn't be impacted since they would be the same.
  *
  * Logically the root effects produce a src color and the src coverage (augmenting any other
  * coverage coming from the RenderStep). A single src shading node could be used instead of the
@@ -97,10 +116,10 @@ public:
     //
     // Before returning the ShaderNode trees, this method decides which ShaderNode expressions to
     // lift to the vertex shader, depending on how many varyings are available.
-    SkSpan<const ShaderNode*> getRootNodes(const Caps*,
-                                           const ShaderCodeDictionary*,
-                                           SkArenaAlloc*,
-                                           int availableVaryings) const;
+    RootNodesInfo getRootNodes(const Caps*,
+                               const ShaderCodeDictionary*,
+                               SkArenaAlloc*,
+                               int availableVaryings) const;
 
     // Converts the key to a structured list of snippet information for debugging or labeling
     // purposes.
@@ -180,6 +199,11 @@ public:
         return PaintParamsKey(fData) == that;
     }
     bool operator!=(const PaintParamsKey& that) const { return !(*this == that); }
+
+    void addRootBlockHeader(RootBlockType type) {
+        SkASSERT(!fLocked);
+        fData.push_back(static_cast<int32_t>(type));
+    }
 
     void beginBlock(BuiltInCodeSnippetID id) { this->beginBlock(static_cast<uint32_t>(id)); }
     void beginBlock(uint32_t codeSnippetID) {

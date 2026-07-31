@@ -75,9 +75,11 @@ void PaintOption::toKey(const KeyContext& keyContext) const {
 
     // Root Node 0 is the source color, which is the output of all effects post dithering
     // TODO(michaelludwig): This will be used to change from src-over to src in certain scenarios.
+    keyContext.paintParamsKeyBuilder()->addRootBlockHeader(RootBlockType::kSrcColor);
     [[maybe_unused]] bool isOpaque = this->handleDithering(keyContext);
 
     // Root Node 1 is the final blender
+    keyContext.paintParamsKeyBuilder()->addRootBlockHeader(RootBlockType::kFinalBlend);
     std::optional<SkBlendMode> finalBlendMode =
             this->finalBlender() ? this->finalBlender()->priv().asBlendMode()
                                  : SkBlendMode::kSrcOver;
@@ -126,7 +128,10 @@ void PaintOption::toKey(const KeyContext& keyContext) const {
     }
 
     // Optional Root Node 2 is the clip
-    this->handleClipping(keyContext);
+    if (fClipShader.first || fAnalyticClip) {
+        keyContext.paintParamsKeyBuilder()->addRootBlockHeader(RootBlockType::kClip);
+        this->handleClipping(keyContext);
+    }
 }
 
 bool PaintOption::addPaintColorToKey(const KeyContext& keyContext) const {
@@ -258,6 +263,7 @@ bool PaintOption::handleDithering(const KeyContext& keyContext) const {
 }
 
 void PaintOption::handleClipping(const KeyContext& keyContext) const {
+    SkASSERT(fAnalyticClip || fClipShader.first);
     if (fAnalyticClip) {
 #if defined(SK_GRAPHITE_USE_LEGACY_RRECT_CLIP_SHADER)
         NonMSAAClipBlock::NonMSAAClipData data(
@@ -317,8 +323,9 @@ void PaintOption::handleClipping(const KeyContext& keyContext) const {
             AddAnalyticClip(keyContext, clip);
         }
 #endif // SK_GRAPHITE_USE_LEGACY_RRECT_CLIP_SHADER
-    } else if (fClipShader.first) {
+    } else {
         // Since there's no analytic clip, the clipping root node can be fClipShader directly.
+        SkASSERT(fClipShader.first);
         fClipShader.first->priv().addToKey(keyContext, fClipShader.second);
     }
 }
