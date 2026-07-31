@@ -56,8 +56,6 @@ private:
 
     void dumpMemoryStatistics(SkTraceMemoryDump* dump);
 
-    friend class ContextCtorAccessor;
-
     sk_sp<SkSharedContext> fSharedContext;
 };
 
