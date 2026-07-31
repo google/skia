@@ -29,7 +29,6 @@ import (
 	"go.skia.org/infra/perf/go/ingest/format"
 )
 
-// upload_nano_results looks for anything*.json
 // We add the random UUID to avoid name clashes when uploading to
 // the perf bucket (which uploads to folders based on Month/Day/Hour, which can
 // easily have duplication if multiple perf tasks run in an hour.)

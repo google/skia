@@ -22,10 +22,10 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[START_DIR]/test"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
-    "name": "rmtree test"
+    "name": "rmtree [SWARM_OUT_DIR]"
   },
   {
     "cmd": [
@@ -37,10 +37,10 @@
       "ensure-directory",
       "--mode",
       "0o777",
-      "[START_DIR]/test"
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
-    "name": "makedirs test"
+    "name": "makedirs [SWARM_OUT_DIR]"
   },
   {
     "cmd": [
