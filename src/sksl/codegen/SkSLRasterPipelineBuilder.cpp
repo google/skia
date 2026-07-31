@@ -168,6 +168,9 @@ static BuilderOp convert_n_way_op_to_immediate(BuilderOp op, int slots, int32_t*
         // We also allow for immediate-mode subtraction, by adding a negative value.
         switch (op) {
             case BuilderOp::sub_n_ints:
+                if (*constantValue == std::numeric_limits<int32_t>::lowest()) SK_UNLIKELY {
+                    return op;
+                }
                 *constantValue *= -1;
                 return BuilderOp::add_imm_int;
 

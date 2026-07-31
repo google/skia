@@ -1870,3 +1870,31 @@ DEF_TEST(SkRuntimeShader_b507643404, r) {
         s->getCanvas()->drawPaint(paint);
     }
 }
+
+DEF_TEST(SkRuntimeShader_b416061512, r) {
+    constexpr const char* kSkSL =
+        "half4 main(half4 s,half4){"
+          "int x = int(s.x);"
+          "return half4(half(x - -2147483648));"
+        "}";
+
+    auto [effect, err] = SkRuntimeEffect::MakeForBlender(SkString(kSkSL));
+    if (!effect) {
+        SkDebugf("Error: %s\n", err.c_str());
+        REPORT_FAILURE(r, "SkSL compile failed", SkString("SkSL compile failed"));
+    } else {
+        sk_sp<SkBlender> blender = effect->makeBlender(nullptr);
+        REPORTER_ASSERT(r, blender);
+        if (!blender) {
+            return;
+        }
+        SkPaint paint;
+        paint.setColor(SK_ColorRED);
+        paint.setBlender(std::move(blender));
+
+        sk_sp<SkSurface> s = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(4, 4));
+        REPORTER_ASSERT(r, s);
+        // We should make sure this doesn't crash
+        s->getCanvas()->drawPaint(paint);
+    }
+}
