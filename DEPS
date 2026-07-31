@@ -20,7 +20,7 @@ vars = {
   'googlefonts_testdata_version': 'version:20230913',
 
   # Pre-built task drivers from this repo, used for CI.
-  'task_drivers_revision': 'git_revision:d3af3547496f60d9c08edec1dad130b1abef957b',
+  'task_drivers_revision': 'git_revision:782dfac458428f99c91f1b09ccb4f88dadc06c1c',
 
   'checkout_agents_internal': False,
 }
