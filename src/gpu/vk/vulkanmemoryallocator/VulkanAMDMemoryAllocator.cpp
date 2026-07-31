@@ -17,6 +17,7 @@
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 #include "src/gpu/vk/vulkanmemoryallocator/VulkanMemoryAllocatorPriv.h"
 
+#include <array>
 #include <cstring>
 
 namespace skgpu {
@@ -272,9 +273,31 @@ VkResult VulkanAMDMemoryAllocator::invalidateMemory(const VulkanBackendMemory& m
 }
 
 std::pair<uint64_t, uint64_t> VulkanAMDMemoryAllocator::totalAllocatedAndUsedMemory() const {
-    VmaTotalStatistics stats;
-    vmaCalculateStatistics(fAllocator, &stats);
-    return {stats.total.statistics.blockBytes, stats.total.statistics.allocationBytes};
+    const VkPhysicalDeviceMemoryProperties* physDevMemProps = nullptr;
+    vmaGetMemoryProperties(fAllocator, &physDevMemProps); // Cached by VMA.
+
+    std::array<VmaBudget, VK_MAX_MEMORY_HEAPS> budgets;
+    vmaGetHeapBudgets(fAllocator, budgets.data());
+
+    uint64_t totalAllocMem = 0;
+    uint64_t totalUsedMem = 0;
+    for (uint32_t heapIndex = 0; heapIndex < physDevMemProps->memoryHeapCount; heapIndex++) {
+        // TODO: consider looking at budgets[heapIndex].usage to get insight into "implicit objects
+        // also occupying the memory, like swapchain, pipelines, descriptor heaps, command buffers,
+        // or VkDeviceMemory blocks allocated outside of [VMA], if any" when VK_EXT_memory_budget is
+        // enabled.
+        totalAllocMem += budgets[heapIndex].statistics.blockBytes;
+        totalUsedMem += budgets[heapIndex].statistics.allocationBytes;
+    }
+
+    // Concurrent access could cause our view of totalUsedMem to temporarily exceed totalAllocMem.
+    // Clamping here ensures callers see a logically coherent view of memory usage. Some lossiness
+    // is expected to be preferable for clients when compared to the performance pitfall of the
+    // alternative, vmaCalculateStatistics().
+    if (totalUsedMem > totalAllocMem) {
+        totalUsedMem = totalAllocMem;
+    }
+    return {totalAllocMem, totalUsedMem};
 }
 
 namespace VulkanMemoryAllocators {
