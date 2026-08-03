@@ -235,7 +235,7 @@ PerEdgeAAQuadRenderStep::PerEdgeAAQuadRenderStep(Layout layout, StaticBufferMana
 
 PerEdgeAAQuadRenderStep::~PerEdgeAAQuadRenderStep() {}
 
-std::string PerEdgeAAQuadRenderStep::vertexSkSL() const {
+std::string PerEdgeAAQuadRenderStep::vertexSkSL(const RootNodesInfo&) const {
     // Returns the body of a vertex function, which must define a float4 devPosition variable and
     // must write to an already-defined float2 stepLocalCoords variable.
     return "float4 devPosition = per_edge_aa_quad_vertex_fn("

@@ -122,7 +122,7 @@ VerticesRenderStep::VerticesRenderStep(Layout layout, PrimitiveType type, bool h
 
 VerticesRenderStep::~VerticesRenderStep() {}
 
-std::string VerticesRenderStep::vertexSkSL() const {
+std::string VerticesRenderStep::vertexSkSL(const RootNodesInfo&) const {
     if (fHasColor && fHasTexCoords) {
         return
             "color = half4(vertColor.bgr * vertColor.a, vertColor.a);\n"
@@ -148,7 +148,7 @@ std::string VerticesRenderStep::vertexSkSL() const {
     }
 }
 
-const char* VerticesRenderStep::fragmentColorSkSL() const {
+std::string VerticesRenderStep::fragmentColorSkSL(const RootNodesInfo&) const {
     if (fHasColor) {
         return "primitiveColor = color;\n";
     } else {

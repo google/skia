@@ -457,7 +457,7 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep(Layout layout, StaticBufferMana
 
 AnalyticRRectRenderStep::~AnalyticRRectRenderStep() {}
 
-std::string AnalyticRRectRenderStep::vertexSkSL() const {
+std::string AnalyticRRectRenderStep::vertexSkSL(const RootNodesInfo&) const {
     // Returns the body of a vertex function, which must define a float4 devPosition variable and
     // must write to an already-defined float2 stepLocalCoords variable.
     return "float4 devPosition = analytic_rrect_vertex_fn("

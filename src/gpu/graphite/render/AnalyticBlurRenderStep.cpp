@@ -52,7 +52,7 @@ AnalyticBlurRenderStep::AnalyticBlurRenderStep(Layout layout)
                      // the shape has been scaled to device space but not translated or rotated.
                      {{{"scaledShapeCoords", SkSLType::kFloat2}}}) {}
 
-std::string AnalyticBlurRenderStep::vertexSkSL() const {
+std::string AnalyticBlurRenderStep::vertexSkSL(const RootNodesInfo&) const {
     return
         "float4 devPosition = localToDevice * float4(position, depth, 1.0);\n"
         "stepLocalCoords = position;\n"

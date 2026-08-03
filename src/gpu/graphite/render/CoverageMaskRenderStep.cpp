@@ -98,7 +98,7 @@ CoverageMaskRenderStep::CoverageMaskRenderStep(Layout layout)
                       // 'invert' is set to 0 use unmodified coverage, and set to 1 for "1-c".
                       {"invert", SkSLType::kHalf}}}) {}
 
-std::string CoverageMaskRenderStep::vertexSkSL() const {
+std::string CoverageMaskRenderStep::vertexSkSL(const RootNodesInfo&) const {
     // Returns the body of a vertex function, which must define a float4 devPosition variable and
     // must write to an already-defined float2 stepLocalCoords variable.
     return "float4 devPosition = coverage_mask_vertex_fn("

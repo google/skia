@@ -178,7 +178,7 @@ CircularArcRenderStep::CircularArcRenderStep(Layout layout, StaticBufferManager*
 
 CircularArcRenderStep::~CircularArcRenderStep() {}
 
-std::string CircularArcRenderStep::vertexSkSL() const {
+std::string CircularArcRenderStep::vertexSkSL(const RootNodesInfo&) const {
     // Returns the body of a vertex function, which must define a float4 devPosition variable and
     // must write to an already-defined float2 stepLocalCoords variable.
     return "float4 devPosition = circular_arc_vertex_fn("

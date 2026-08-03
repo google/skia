@@ -26,7 +26,7 @@ public:
 
     ~CoverBoundsRenderStep() override;
 
-    std::string vertexSkSL() const override;
+    std::string vertexSkSL(const RootNodesInfo&) const override;
     void writeVertices(DrawWriter*, const DrawParams&, uint32_t ssboIndex) const override;
     void writeUniformsAndTextures(const DrawParams&, PipelineDataGatherer*) const override;
 

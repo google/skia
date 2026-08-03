@@ -43,7 +43,7 @@ MiddleOutFanRenderStep::MiddleOutFanRenderStep(Layout layout, bool evenOdd)
 
 MiddleOutFanRenderStep::~MiddleOutFanRenderStep() {}
 
-std::string MiddleOutFanRenderStep::vertexSkSL() const {
+std::string MiddleOutFanRenderStep::vertexSkSL(const RootNodesInfo&) const {
     return
         "float4 devPosition = localToDevice * float4(position, 0.0, 1.0);\n"
         "devPosition.z = depth;\n"

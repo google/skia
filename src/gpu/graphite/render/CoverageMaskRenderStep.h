@@ -25,7 +25,7 @@ public:
     CoverageMaskRenderStep(Layout);
     ~CoverageMaskRenderStep() override = default;
 
-    std::string vertexSkSL() const override;
+    std::string vertexSkSL(const RootNodesInfo&) const override;
     std::string texturesAndSamplersSkSL(const ResourceBindingRequirements&,
                                         int* nextBindingIndex) const override;
     const char* fragmentCoverageSkSL() const override;

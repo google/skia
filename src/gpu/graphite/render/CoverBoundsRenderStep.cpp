@@ -47,7 +47,7 @@ CoverBoundsRenderStep::CoverBoundsRenderStep(Layout layout,
 
 CoverBoundsRenderStep::~CoverBoundsRenderStep() {}
 
-std::string CoverBoundsRenderStep::vertexSkSL() const {
+std::string CoverBoundsRenderStep::vertexSkSL(const RootNodesInfo&) const {
     // Returns the body of a vertex function, which must define a float4 devPosition variable and
     // must write to an already-defined float2 stepLocalCoords variable.
     return "float4 devPosition = cover_bounds_vertex_fn("

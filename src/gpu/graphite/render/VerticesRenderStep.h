@@ -27,12 +27,12 @@ public:
 
     ~VerticesRenderStep() override;
 
-    std::string vertexSkSL() const override;
+    std::string vertexSkSL(const RootNodesInfo&) const override;
     void writeVertices(DrawWriter* writer,
                        const DrawParams& params,
                        uint32_t ssboIndex) const override;
     void writeUniformsAndTextures(const DrawParams&, PipelineDataGatherer*) const override;
-    const char* fragmentColorSkSL() const override;
+    std::string fragmentColorSkSL(const RootNodesInfo&) const override;
 
 private:
     const bool fHasColor;
