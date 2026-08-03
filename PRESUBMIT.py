@@ -505,7 +505,7 @@ def _CheckBannedAPIs(input_api, output_api):
     (r'std::future', ''),
     (r'std::jthread', ''),
     (r'std::latch', ''),
-    (r'std::mutex', 'SkMutex', 'PipelineManager'),
+    (r'std::mutex', 'SkMutex', ['^example/', 'PipelineManager']),
     (r'std::shared_mutex', 'SkSharedMutex'),
     (r'std::stop_token', ''),
     (r'std::thread', '', ['^tests/', 'SkExecutor']),
