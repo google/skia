@@ -345,7 +345,7 @@ func (b *TaskBuilder) nanobenchFlags(doUpload bool) {
 
 	// Add the EXACT name of the test/benchmark you would like to run alone
 	// example:
-	// 		match_override := "desk_chalkboard"
+	//   match_override := "desk_chalkboard"
 	match_override := ""
 	if len(match) > 0 && len(match_override) == 0 {
 		args = append(args, "--match")
