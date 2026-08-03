@@ -95,6 +95,8 @@ def main():
     configure_cmd += win_cfgs
     cxx_flags += win_cxx
     ld_flags += win_ld
+  else:
+    cxx_flags.append("-w") # Silence warnings
 
   if cxx_flags:
     c_cxx_flags_str = " ".join(cxx_flags)

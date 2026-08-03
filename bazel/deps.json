@@ -9,7 +9,7 @@
     },
     {
       "build_file": "//bazel/external/dawn:BUILD.bazel",
-      "commit": "e832cc40921516a63c286dfe5966c2ceb82bb7d3",
+      "commit": "36cf1fae0cd8a81a4fb4580751648b80b2e6255c",
       "name": "dawn",
       "remote": "https://dawn.googlesource.com/dawn.git"
     },
@@ -245,8 +245,15 @@
       "remote": "https://skia.googlesource.com/external/github.com/google/brotli.git"
     },
     {
-      "commit": "7a87739142b5581cca89e049ec139a135b338231",
+      "commit": "63f52bfdb2ebc0ef3add13b98af45778d0040278",
       "name": "abseil_cpp",
+      "patch_cmds": [
+        "find . -name BUILD.bazel -type f -exec sed -i.bak -e '/do_not_use_for_gloop_visibility_only/d' {} +",
+        "find . -name '*.bak' -type f -delete"
+      ],
+      "patch_cmds_win": [
+        "Get-ChildItem -Recurse -Filter BUILD.bazel | ForEach-Object { $p = $_.FullName; (Get-Content $p) -notmatch 'do_not_use_for_gloop_visibility_only' | Set-Content -Force -Encoding Ascii $p }"
+      ],
       "remote": "https://chromium.googlesource.com/chromium/src/third_party/abseil-cpp"
     },
     {
