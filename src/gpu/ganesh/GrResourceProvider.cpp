@@ -922,11 +922,13 @@ sk_sp<GrTexture> GrResourceProvider::writePixels(sk_sp<GrTexture> texture,
     if (tempColorType == GrColorType::kUnknown) {
         return nullptr;
     }
-    SkAssertResult(fGpu->writePixels(texture.get(),
-                                     SkIRect::MakeSize(baseSize),
-                                     colorType,
-                                     tempColorType,
-                                     tmpTexels.get(),
-                                     mipLevelCount));
+    if (!fGpu->writePixels(texture.get(),
+                           SkIRect::MakeSize(baseSize),
+                           colorType,
+                           tempColorType,
+                           tmpTexels.get(),
+                           mipLevelCount)) {
+        return nullptr;
+    }
     return texture;
 }
