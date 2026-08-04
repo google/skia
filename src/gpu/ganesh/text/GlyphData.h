@@ -14,12 +14,10 @@
 #include "src/core/SkGlyph.h"
 #include "src/gpu/ganesh/GrAtlasTypes.h"
 #include "src/gpu/ganesh/text/TextStrike.h"
-#include "src/text/gpu/PackedGPUGlyphID.h"
 
 #include <cstdint>
 #include <tuple>
 
-class GrAtlasManager;
 class GrMeshDrawTarget;
 class SkMatrix;
 
@@ -34,16 +32,33 @@ enum class MaskFormat : int;
 }
 
 namespace skgpu::ganesh {
-
 class TextStrike;
+
+struct GlyphEntryKey {
+    explicit GlyphEntryKey(SkPackedGlyphID id, MaskFormat format) : fPackedID(id), fFormat(format) {}
+
+    const SkPackedGlyphID fPackedID;
+    MaskFormat fFormat;
+
+    bool operator==(const GlyphEntryKey& that) const {
+        return fPackedID == that.fPackedID && fFormat == that.fFormat;
+    }
+    bool operator!=(const GlyphEntryKey& that) const {
+        return !(*this == that);
+    }
+
+    uint32_t hash() const {
+        return fPackedID.hash();
+    }
+};
 
 /**
  * Ganesh-specific glyph type with atlas location information.
  */
 struct GlyphEntry {
-    explicit GlyphEntry(sktext::gpu::PackedGPUGlyphID key) : fKey(key) {}
+    explicit GlyphEntry(SkPackedGlyphID id, MaskFormat format) : fGlyphEntryKey(id, format) {}
 
-    const sktext::gpu::PackedGPUGlyphID fKey;
+    const GlyphEntryKey fGlyphEntryKey;
     GrAtlasLocator fAtlasLocator;
 };
 
@@ -59,7 +74,7 @@ class Glyph {
 
 public:
     explicit Glyph(GlyphEntry* entry) : fEntry{entry} { SkASSERT(entry); }
-    SkPackedGlyphID packedID() const { return fEntry->fKey.packedGlyphID(); }
+    SkPackedGlyphID packedID() const { return fEntry->fGlyphEntryKey.fPackedID; }
     GlyphEntry& entry() const { return *fEntry; }
 };
 
@@ -73,23 +88,19 @@ public:
         return TextStrike::GetOrCreate(cache, spec);
     }
 
-    // These are also the parameters that must be passed to GlyphVector::initBackendData<GlyphData>
-    // after the StrikeCache (sans TextStrike, which is derived from the StrikeCache).
-    GlyphData(sk_sp<TextStrike>,
-              GrAtlasManager* atlasMgr,
-              MaskFormat maskFormat,
-              int srcPadding,
-              bool isSDF);
+    GlyphData(sk_sp<TextStrike>);
 
     ~GlyphData();
 
-    Glyph makeGlyphFromID(SkPackedGlyphID);
+    Glyph makeGlyphFromID(SkPackedGlyphID, MaskFormat);
 
     // Regenerate atlas entries for glyphs in range [begin, end).
     // Returns {success, glyphs_placed_in_atlas}.
     std::tuple<bool, int> regenerateAtlas(int begin,
                                           int end,
                                           sktext::gpu::GlyphVector& glyphVector,
+                                          MaskFormat maskFormat,
+                                          int srcPadding,
                                           GrMeshDrawTarget* target);
 
     size_t vertexStride(MaskFormat, const SkMatrix& positionMatrix) const;
@@ -109,13 +120,11 @@ private:
     GlyphData& operator=(const GlyphData&) = delete;
     GlyphData& operator=(GlyphData&&) = delete;
 
+    GlyphData(int glyphCount);
+
     sk_sp<TextStrike> fTextStrike{nullptr};
     uint64_t fAtlasGeneration{GrAtlasGenerationCounter::kInvalidGeneration};
     GrBulkUsePlotUpdater fBulkUseUpdater;
-
-    MaskFormat fResolvedMaskFormat;
-    int fSrcPadding;
-    bool fIsSDF;
 };
 
 }  // namespace skgpu::ganesh

@@ -103,19 +103,19 @@ struct SkPackedGlyphID {
         return this->fID < that.fID;
     }
 
-    constexpr SkGlyphID glyphID() const {
+    SkGlyphID glyphID() const {
         return (fID >> kGlyphID) & kGlyphIDMask;
     }
 
-    constexpr uint32_t value() const {
+    uint32_t value() const {
         return fID;
     }
 
-    constexpr SkFixed getSubXFixed() const {
+    SkFixed getSubXFixed() const {
         return this->subToFixed(kSubPixelX);
     }
 
-    constexpr SkFixed getSubYFixed() const {
+    SkFixed getSubYFixed() const {
         return this->subToFixed(kSubPixelY);
     }
 

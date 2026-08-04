@@ -251,7 +251,6 @@ private:
                MaskType::kLCDDistanceField == this->maskType();
     }
 #else
-    bool usesDistanceFields() const { return false; }
     bool isLCD() const {
         return MaskType::kLCDCoverage == this->maskType();
     }

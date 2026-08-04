@@ -13,7 +13,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceProps.h"
 #include "src/gpu/graphite/geom/Rect.h"
-#include "src/gpu/graphite/text/GlyphData.h"
 #include "src/text/gpu/SubRunContainer.h"
 
 #include <utility>
@@ -44,7 +43,8 @@ public:
                SkColor luminanceColor,
                bool useGammaCorrectDistanceTable,
                SkPixelGeometry pixelGeometry,
-               Recorder* recorder)
+               Recorder* recorder,
+               sktext::gpu::RendererData rendererData)
         : fSubRun(subRun)
         , fSupportDataKeepAlive(std::move(supportDataKeepAlive))
         , fBounds(maskBounds)
@@ -54,7 +54,8 @@ public:
         , fLuminanceColor(luminanceColor)
         , fUseGammaCorrectDistanceTable(useGammaCorrectDistanceTable)
         , fPixelGeometry(pixelGeometry)
-        , fRecorder(recorder) {}
+        , fRecorder(recorder)
+        , fRendererData(rendererData) {}
 
     ~SubRunData() = default;
 
@@ -77,14 +78,7 @@ public:
     bool useGammaCorrectDistanceTable() const { return fUseGammaCorrectDistanceTable; }
     SkPixelGeometry pixelGeometry() const { return fPixelGeometry; }
     Recorder* recorder() const { return fRecorder; }
-
-    // After creating backend data, this should be used over subRun()->maskFormat() since that
-    // has not been resolved to what's supported on the device.
-    skgpu::MaskFormat resolvedMaskFormat() const { return this->rendererData().maskFormat; }
-    const sktext::gpu::RendererData& rendererData() const {
-        SkASSERT(fSubRun->glyphVector().hasBackendData());
-        return fSubRun->glyphVector().accessBackendData<GlyphData>().rendererData();
-    }
+    const sktext::gpu::RendererData& rendererData() const { return fRendererData; }
 
 private:
     const sktext::gpu::AtlasSubRun* fSubRun;
@@ -99,6 +93,7 @@ private:
     bool fUseGammaCorrectDistanceTable; // only used by SDFTextRenderStep
     SkPixelGeometry fPixelGeometry;     // only used by SDFTextLCDRenderStep
     Recorder* fRecorder; // this SubRun can only be associated with this Recorder's atlas
+    sktext::gpu::RendererData fRendererData;
 };
 
 } // namespace skgpu::graphite

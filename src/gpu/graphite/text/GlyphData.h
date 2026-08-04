@@ -12,8 +12,6 @@
 #include "src/core/SkGlyph.h"
 #include "src/gpu/graphite/DrawAtlas.h"
 #include "src/gpu/graphite/text/TextStrike.h"
-#include "src/text/gpu/GlyphVector.h"
-#include "src/text/gpu/PackedGPUGlyphID.h"
 
 #include <cstdint>
 #include <tuple>
@@ -33,13 +31,31 @@ class DrawWriter;
 class Recorder;
 class TextStrike;
 
+struct GlyphEntryKey {
+    explicit GlyphEntryKey(SkPackedGlyphID id, MaskFormat format) : fPackedID(id), fFormat(format) {}
+
+    const SkPackedGlyphID fPackedID;
+    MaskFormat fFormat;
+
+    bool operator==(const GlyphEntryKey& that) const {
+        return fPackedID == that.fPackedID && fFormat == that.fFormat;
+    }
+    bool operator!=(const GlyphEntryKey& that) const {
+        return !(*this == that);
+    }
+
+    uint32_t hash() const {
+        return fPackedID.hash();
+    }
+};
+
 /**
  * Graphite-specific glyph type with atlas location information.
  */
 struct GlyphEntry {
-    explicit GlyphEntry(sktext::gpu::PackedGPUGlyphID key) : fKey(key) {}
+    explicit GlyphEntry(SkPackedGlyphID id, MaskFormat format) : fGlyphEntryKey(id, format) {}
 
-    const sktext::gpu::PackedGPUGlyphID fKey;
+    const GlyphEntryKey fGlyphEntryKey;
     DrawAtlas::AtlasLocator fAtlasLocator;
 };
 
@@ -55,7 +71,7 @@ class Glyph final {
 
 public:
     explicit Glyph(GlyphEntry* entry) : fEntry{entry} { SkASSERT(entry); }
-    SkPackedGlyphID packedID() const { return fEntry->fKey.packedGlyphID(); }
+    SkPackedGlyphID packedID() const { return fEntry->fGlyphEntryKey.fPackedID; }
     GlyphEntry& entry() const { return *fEntry; }
 };
 
@@ -69,19 +85,19 @@ public:
         return TextStrike::GetOrCreate(cache, spec);
     }
 
-    GlyphData(sk_sp<TextStrike>, Recorder*, sktext::gpu::RendererData);
+    GlyphData(sk_sp<TextStrike>);
 
     ~GlyphData();
 
-    const sktext::gpu::RendererData& rendererData() const { return fRenderData; }
-
-    Glyph makeGlyphFromID(SkPackedGlyphID);
+    Glyph makeGlyphFromID(SkPackedGlyphID, MaskFormat);
 
     // Regenerate atlas entries for glyphs in range [begin, end).
     // Returns {success, glyphs_placed_in_atlas}.
     std::tuple<bool, int> regenerateAtlas(int begin,
                                           int end,
                                           sktext::gpu::GlyphVector& glyphVector,
+                                          MaskFormat maskFormat,
+                                          int srcPadding,
                                           Recorder* recorder);
 
     void fillInstanceData(const sktext::gpu::VertexFiller&,
@@ -102,8 +118,6 @@ private:
     sk_sp<TextStrike> fTextStrike;
     uint64_t fAtlasGeneration{DrawAtlas::GenerationCounter::kInvalidGeneration};
     DrawAtlas::BulkUsePlotUpdater fBulkUseUpdater;
-
-    sktext::gpu::RendererData fRenderData;
 };
 
 }  // namespace skgpu::graphite

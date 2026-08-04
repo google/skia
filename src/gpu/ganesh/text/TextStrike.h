@@ -16,13 +16,10 @@
 struct SkPackedGlyphID;
 class SkStrikeSpec;
 
-namespace sktext::gpu {
-struct PackedGPUGlyphID;
-}
-
 namespace skgpu::ganesh {
 
 struct GlyphEntry;
+struct GlyphEntryKey;
 
 /**
  * Ganesh-specific text strike cache entry.
@@ -33,22 +30,21 @@ struct GlyphEntry;
  * to a location in the text atlas system.
  */
 class TextStrike final : public sktext::gpu::TextStrikeBase {
-    using PackedGPUGlyphID = sktext::gpu::PackedGPUGlyphID;
 public:
     TextStrike(sktext::gpu::StrikeCache* strikeCache, const SkStrikeSpec& strikeSpec);
 
     static sk_sp<TextStrike> GetOrCreate(sktext::gpu::StrikeCache* strikeCache,
                                          const SkStrikeSpec& strikeSpec);
 
-    GlyphEntry* getGlyph(PackedGPUGlyphID packedGlyphID);
+    GlyphEntry* getGlyph(SkPackedGlyphID packedGlyphID, MaskFormat format);
 
 private:
     struct HashTraits {
-        static const PackedGPUGlyphID& GetKey(const GlyphEntry* glyph);
-        static uint32_t Hash(PackedGPUGlyphID key);
+        static const GlyphEntryKey& GetKey(const GlyphEntry* glyph);
+        static uint32_t Hash(GlyphEntryKey key);
     };
 
-    skia_private::THashTable<GlyphEntry*, PackedGPUGlyphID, HashTraits> fCache;
+    skia_private::THashTable<GlyphEntry*, GlyphEntryKey, HashTraits> fCache;
 
     friend class sktext::gpu::StrikeCache;
 };

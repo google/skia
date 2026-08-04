@@ -167,33 +167,25 @@ void fill3D(SkZip<Quad, const Glyph, const VertexData> quadData,
 
 namespace skgpu::ganesh {
 
-GlyphData::GlyphData(sk_sp<TextStrike> strike,
-                     GrAtlasManager* atlasMgr,
-                     MaskFormat maskFormat,
-                     int srcPadding,
-                     bool isSDF)
-        : fTextStrike{std::move(strike)}
-        , fIsSDF(isSDF) {
-    std::tie(fResolvedMaskFormat, fSrcPadding) =
-            atlasMgr->resolveFormatAndPadding(maskFormat, srcPadding);
-}
+GlyphData::GlyphData(sk_sp<TextStrike> strike) : fTextStrike{std::move(strike)} {}
 
 GlyphData::~GlyphData() = default;
 
-Glyph GlyphData::makeGlyphFromID(SkPackedGlyphID id) {
-    sktext::gpu::PackedGPUGlyphID gpuID{id, fResolvedMaskFormat, fSrcPadding, fIsSDF};
-    return Glyph{fTextStrike->getGlyph(gpuID)};
+Glyph GlyphData::makeGlyphFromID(SkPackedGlyphID id, MaskFormat format) {
+    return Glyph{fTextStrike->getGlyph(id, format)};
 }
 
 std::tuple<bool, int> GlyphData::regenerateAtlas(int begin,
                                                  int end,
                                                  sktext::gpu::GlyphVector& glyphVector,
+                                                 MaskFormat maskFormat,
+                                                 int srcPadding,
                                                  GrMeshDrawTarget* target) {
     SkASSERT(glyphVector.hasBackendData());
     GrAtlasManager* atlasManager = target->atlasManager();
     GrDeferredUploadTarget* uploadTarget = target->deferredUploadTarget();
 
-    uint64_t currentAtlasGen = atlasManager->atlasGeneration(fResolvedMaskFormat);
+    uint64_t currentAtlasGen = atlasManager->atlasGeneration(maskFormat);
 
     if (fAtlasGeneration != currentAtlasGen) {
         SkSpan<const Glyph> glyphSpan = glyphVector.accessBackendGlyphs<Glyph>();
@@ -209,13 +201,12 @@ std::tuple<bool, int> GlyphData::regenerateAtlas(int begin,
         bool success = true;
         for (int i = begin; i < end; i++) {
             const Glyph& glyph = glyphSpan[i];
-            SkASSERT(glyph.entry().fKey.maskFormat() == fResolvedMaskFormat);
-            SkASSERT(glyph.entry().fKey.padding() == fSrcPadding);
-            SkASSERT(glyph.entry().fKey.isSDF() == fIsSDF);
-            if (!atlasManager->hasGlyph(glyph.entry())) {
+            SkASSERT(glyph.entry().fGlyphEntryKey.fFormat == maskFormat);
+            if (!atlasManager->hasGlyph(maskFormat, glyph.entry())) {
                 const SkGlyph& skGlyph = *metricsAndImages.glyph(glyph.packedID());
                 auto code = atlasManager->addGlyphToAtlas(skGlyph,
                                                           &glyph.entry(),
+                                                          srcPadding,
                                                           target->resourceProvider(),
                                                           uploadTarget);
                 if (code != GrDrawOpAtlas::ErrorCode::kSucceeded) {
@@ -224,7 +215,7 @@ std::tuple<bool, int> GlyphData::regenerateAtlas(int begin,
                 }
             }
             atlasManager->addGlyphToBulkAndSetUseToken(
-                    &fBulkUseUpdater, glyph.entry(), tokenTracker->nextDrawToken());
+                    &fBulkUseUpdater, maskFormat, glyph.entry(), tokenTracker->nextDrawToken());
             glyphsPlacedInAtlas++;
         }
 
@@ -232,7 +223,7 @@ std::tuple<bool, int> GlyphData::regenerateAtlas(int begin,
         if (success && begin + glyphsPlacedInAtlas == glyphVector.glyphCount()) {
             // Need to get the freshest value of the atlas' generation because
             // updateTextureCoordinates may have changed it.
-            fAtlasGeneration = atlasManager->atlasGeneration(fResolvedMaskFormat);
+            fAtlasGeneration = atlasManager->atlasGeneration(maskFormat);
         }
 
         return {success, glyphsPlacedInAtlas};
@@ -241,9 +232,8 @@ std::tuple<bool, int> GlyphData::regenerateAtlas(int begin,
         if (end == glyphVector.glyphCount()) {
             // The atlas hasn't changed and the texture coordinates are all still valid. Update
             // all the plots used to the new use token.
-            atlasManager->setUseTokenBulk(fBulkUseUpdater,
-                                          uploadTarget->tokenTracker()->nextDrawToken(),
-                                          fResolvedMaskFormat);
+            atlasManager->setUseTokenBulk(
+                    fBulkUseUpdater, uploadTarget->tokenTracker()->nextDrawToken(), maskFormat);
         }
         return {true, end - begin};
     }

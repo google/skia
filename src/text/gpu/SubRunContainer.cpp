@@ -725,10 +725,7 @@ public:
                   drawOrigin,
                   paint,
                   std::move(subRunStorage),
-                  {this->glyphSrcPadding(),
-                   /* isSDF = */ false,
-                   fVertexFiller.isLCD(),
-                   fVertexFiller.maskFormat()});
+                  {/* isSDF = */ false, fVertexFiller.isLCD(), fVertexFiller.maskFormat()});
     }
 
     int unflattenSize() const override {
@@ -844,10 +841,7 @@ public:
                   drawOrigin,
                   paint,
                   std::move(subRunStorage),
-                  {this->glyphSrcPadding(),
-                   /* isSDF = */ false,
-                   fVertexFiller.isLCD(),
-                   fVertexFiller.maskFormat()});
+                  {/* isSDF = */ false, fVertexFiller.isLCD(), fVertexFiller.maskFormat()});
     }
 
     std::tuple<bool, SkRect> deviceRectAndNeedsTransform(
@@ -978,10 +972,7 @@ public:
               sk_sp<SkRefCnt> subRunStorage,
               const AtlasDrawDelegate& drawAtlas) const override {
         drawAtlas(this, drawOrigin, paint, std::move(subRunStorage),
-                  {this->glyphSrcPadding(),
-                   /* isSDF = */true,
-                   /* isLCD = */fUseLCDText,
-                   skgpu::MaskFormat::kA8});
+                  {/* isSDF = */true, /* isLCD = */fUseLCDText, skgpu::MaskFormat::kA8});
     }
 
     std::tuple<bool, SkRect> deviceRectAndNeedsTransform(

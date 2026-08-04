@@ -1466,8 +1466,7 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
 
     if (!subRun->glyphVector().hasBackendData()) {
         subRun->glyphVector().initBackendData<GlyphData>(this->recorder()->priv().strikeCache(),
-                                                         this->recorder(),
-                                                         rendererData);
+                                                         subRun->maskFormat());
     }
 
     auto& glyphData = subRun->glyphVector().accessBackendData<GlyphData>();
@@ -1480,6 +1479,8 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
         auto [ok, glyphsRegenerated] = glyphData.regenerateAtlas(subRunCursor,
                                                                  subRunEnd,
                                                                  subRun->glyphVector(),
+                                                                 subRun->maskFormat(),
+                                                                 subRun->glyphSrcPadding(),
                                                                  this->recorder());
 
         // There was a problem allocating the glyph in the atlas. Bail.
@@ -1497,7 +1498,8 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
                                                    SkPaintPriv::ComputeLuminanceColor(paint),
                                                    useGammaCorrectDistanceTable,
                                                    this->surfaceProps().pixelGeometry(),
-                                                   fRecorder)),
+                                                   fRecorder,
+                                                   rendererData)),
                                paintParams,
                                DefaultFillStyle());
         }

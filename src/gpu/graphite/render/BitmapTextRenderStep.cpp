@@ -180,7 +180,7 @@ void BitmapTextRenderStep::writeUniformsAndTextures(const DrawParams& params,
     Recorder* recorder = subRunData.recorder();
     const sk_sp<TextureProxy>* proxies =
             recorder->priv().atlasProvider()->textAtlasManager()->getProxies(
-                    subRunData.resolvedMaskFormat(), &numProxies);
+                    subRunData.subRun()->maskFormat(), &numProxies);
     SkASSERT(proxies && numProxies > 0);
 
     // write uniforms
