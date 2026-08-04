@@ -38,19 +38,8 @@ class GlyphRunList;
 class StrikeForGPUCacheInterface;
 }
 
-namespace skgpu {
-enum class MaskFormat : int;
-}
-
 namespace sktext::gpu {
-class GlyphVector;
 class StrikeCache;
-
-struct RendererData {
-    bool isSDF = false;
-    bool isLCD = false;
-    skgpu::MaskFormat maskFormat;
-};
 
 class AtlasSubRun;
 using AtlasDrawDelegate = std::function<void(const sktext::gpu::AtlasSubRun* subRun,

@@ -1026,6 +1026,7 @@ skia_shared_gpu_sources = [
   "$_src/text/gpu/GlyphUtils.h",
   "$_src/text/gpu/GlyphVector.cpp",
   "$_src/text/gpu/GlyphVector.h",
+  "$_src/text/gpu/PackedGPUGlyphID.h",
   "$_src/text/gpu/SDFMaskFilter.cpp",
   "$_src/text/gpu/SDFMaskFilter.h",
   "$_src/text/gpu/SkChromeRemoteGlyphCache.cpp",

@@ -15,7 +15,7 @@
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkUTF.h"
 #include "src/core/SkUtils.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/text/GlyphData.h"
 #include "src/text/GlyphRun.h"
@@ -73,7 +73,15 @@ class DirectMaskGlyphVertexFillBenchmark : public Benchmark {
                 sktext::gpu::TextBlobTools::FirstSubRun(fBlob.get());
         SkASSERT_RELEASE(subRun);
         if (!subRun->glyphVector().hasBackendData()) {
-            subRun->glyphVector().initBackendData<GlyphData>(&fCache, subRun->maskFormat());
+            // Since isSuitableFor() requires Ganesh and this is nanobench, we know the canvas
+            // will be backed by a direct context.
+            GrDirectContext* ctx = canvas->recordingContext()->asDirectContext();
+            GrAtlasManager* atlasMgr = ctx->priv().getAtlasManager();
+            subRun->glyphVector().initBackendData<GlyphData>(&fCache,
+                                                             atlasMgr,
+                                                             subRun->maskFormat(),
+                                                             subRun->glyphSrcPadding(),
+                                                             /*isSDF=*/false);
         }
         const auto& glyphData = subRun->glyphVector().accessBackendData<GlyphData>();
         fVertices.reset(new char[glyphData.vertexStride(subRun->maskFormat(), drawMatrix) *

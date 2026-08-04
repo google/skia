@@ -123,8 +123,8 @@ void TextAtlasManager::freeGpuResources() {
     }
 }
 
-bool TextAtlasManager::hasGlyph(MaskFormat format, const GlyphEntry& glyph) {
-    return this->getAtlas(format)->hasID(glyph.fAtlasLocator.plotLocator());
+bool TextAtlasManager::hasGlyph(const GlyphEntry& glyph) {
+    return this->getAtlas(glyph.fKey.maskFormat())->hasID(glyph.fAtlasLocator.plotLocator());
 }
 
 template <typename INT_TYPE>
@@ -247,33 +247,35 @@ MaskFormat TextAtlasManager::resolveMaskFormat(MaskFormat format) const {
 
 // Returns kSucceeded if glyph successfully added to texture atlas, kTryAgain if a RenderPassTask
 // needs to be snapped before adding the glyph, and kError if it can't be added at all.
-DrawAtlas::ErrorCode TextAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
-                                                       GlyphEntry* glyph,
-                                                       int srcPadding) {
-#if !defined(SK_DISABLE_SDF_TEXT)
-    SkASSERT(0 <= srcPadding && srcPadding <= SK_DistanceFieldInset);
-#else
-    SkASSERT(0 <= srcPadding);
-#endif
-
+DrawAtlas::ErrorCode TextAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph, GlyphEntry* glyph) {
     if (skGlyph.image() == nullptr) {
         return DrawAtlas::ErrorCode::kError;
     }
     SkASSERT(glyph != nullptr);
 
-    MaskFormat expectedMaskFormat = this->resolveMaskFormat(glyph->fGlyphEntryKey.fFormat);
+    const int srcPadding = glyph->fKey.padding();
+
+#if !defined(SK_DISABLE_SDF_TEXT)
+    SkDEBUGCODE(const bool skGlyphIsSDF = skGlyph.maskFormat() == SkMask::Format::kSDF_Format;)
+    SkASSERT(0 <= srcPadding && srcPadding <= SK_DistanceFieldInset);
+    SkASSERT(skGlyphIsSDF == glyph->fKey.isSDF());
+#else
+    SkASSERT(0 <= srcPadding);
+    SkASSERT(!glyph->fKey.isSDF());
+#endif
+
+    const MaskFormat expectedMaskFormat = glyph->fKey.maskFormat();
+    SkASSERT(expectedMaskFormat == this->resolveMaskFormat(glyph->fKey.maskFormat()));
+
     int bytesPerPixel = MaskFormatBytesPerPixel(expectedMaskFormat);
 
     int padding;
     switch (srcPadding) {
         case 0:
-            // The direct mask/image case.
+            // The direct mask/image case; lifting to 1px padding should have happened earlier when
+            // the glyph key was created.
+            SkASSERT(!fSupportBilerpAtlas);
             padding = 0;
-            if (fSupportBilerpAtlas) {
-                // Force direct masks (glyph with no padding) to have padding.
-                padding = 1;
-                srcPadding = 1;
-            }
             break;
         case 1:
             // The transformed mask/image case.
@@ -282,6 +284,7 @@ DrawAtlas::ErrorCode TextAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
 #if !defined(SK_DISABLE_SDF_TEXT)
         case SK_DistanceFieldInset:
             // The SDFT case.
+            SkASSERT(glyph->fKey.isSDF());
             // If the srcPadding == SK_DistanceFieldInset (SDFT case) then the padding is built
             // into the image on the glyph; no extra padding needed.
             // TODO: can the SDFT glyph image in the cache be reduced by the padding?
@@ -342,11 +345,10 @@ bool TextAtlasManager::recordUploads(DrawContext* dc) {
 }
 
 void TextAtlasManager::addGlyphToBulkAndSetUseToken(DrawAtlas::BulkUsePlotUpdater* updater,
-                                                    MaskFormat format,
                                                     const GlyphEntry& glyph,
                                                     Token token) {
     if (updater->add(glyph.fAtlasLocator)) {
-        this->getAtlas(format)->setLastUseToken(glyph.fAtlasLocator, token);
+        this->getAtlas(glyph.fKey.maskFormat())->setLastUseToken(glyph.fAtlasLocator, token);
     }
 }
 
@@ -361,12 +363,14 @@ void TextAtlasManager::setAtlasDimensionsToMinimum_ForTesting() {
     new (&fAtlasConfig) AtlasConfig{2048, 0};
 }
 
-bool TextAtlasManager::initAtlas(MaskFormat format) {
-    int index = MaskFormatToAtlasIndex(format);
+bool TextAtlasManager::initAtlas(MaskFormat resolvedMaskFormat) {
+    SkASSERT(resolvedMaskFormat == this->resolveMaskFormat(resolvedMaskFormat));
+
+    int index = MaskFormatToAtlasIndex(resolvedMaskFormat);
     if (fAtlases[index] == nullptr) {
-        SkISize atlasDimensions = fAtlasConfig.atlasDimensions(format);
-        SkISize plotDimensions = fAtlasConfig.plotDimensions(format);
-        fAtlases[index] = DrawAtlas::Make(format,
+        SkISize atlasDimensions = fAtlasConfig.atlasDimensions(resolvedMaskFormat);
+        SkISize plotDimensions = fAtlasConfig.plotDimensions(resolvedMaskFormat);
+        fAtlases[index] = DrawAtlas::Make(resolvedMaskFormat,
                                           atlasDimensions.width(), atlasDimensions.height(),
                                           plotDimensions.width(), plotDimensions.height(),
                                           /*generationCounter=*/this,

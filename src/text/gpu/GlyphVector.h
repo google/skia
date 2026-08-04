@@ -11,7 +11,6 @@
 #include "include/core/SkSpan.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkStrike.h"  // IWYU pragma: keep
-#include "src/gpu/MaskFormat.h"
 #include "src/text/gpu/StrikeCache.h"
 
 #include <cstddef>
@@ -22,6 +21,10 @@
 class SkReadBuffer;
 class SkStrikeClient;
 class SkWriteBuffer;
+
+namespace skgpu {
+enum class MaskFormat : int;
+}
 
 namespace sktext::gpu {
 class SubRunAllocator;
@@ -54,10 +57,10 @@ class StrikeCache;
  */
 namespace GlyphVector_Concepts {
 
-// Both backends currently store pointer-sized types for glyphs and 88 is currently sufficient for
+// Both backends currently store pointer-sized types for glyphs and 104 is currently sufficient for
 // Ganesh and Graphite's BackendData.
 static constexpr size_t kMaxGlyphTypeSize = sizeof(void*);
-static constexpr size_t kMaxBackendDataSize = 88;
+static constexpr size_t kMaxBackendDataSize = 104;
 
 template <typename T>
 concept GlyphType = requires(const T& t) {
@@ -81,8 +84,7 @@ template <typename T>
 concept BackendData = requires(T& t,
                                StrikeCache* cache,
                                const SkStrikeSpec& spec,
-                               SkPackedGlyphID id,
-                               skgpu::MaskFormat maskFormat) {
+                               SkPackedGlyphID id) {
     requires alignof(T) <= alignof(max_align_t);
     requires sizeof(T)  <= kMaxBackendDataSize;
 
@@ -91,9 +93,18 @@ concept BackendData = requires(T& t,
     requires std::derived_from<typename decltype(T::FindStrike(cache, spec))::element_type, TextStrikeBase>;
 
     // Must have a makeGlyphFromID that returns a GlyphType
-    { t.makeGlyphFromID(id, maskFormat) } -> GlyphType;
+    { t.makeGlyphFromID(id) } -> GlyphType;
 };
 }  // namespace GlyphVector_Concepts
+
+// Parameters that apply to all glyphs in a GlyphVector so that the GPU backend knows how they are
+// meant to be rendered.
+struct RendererData {
+    int srcPadding = 0;
+    bool isSDF = false;
+    bool isLCD = false;
+    skgpu::MaskFormat maskFormat;
+};
 
 // -- GlyphVector ----------------------------------------------------------------------------------
 // GlyphVector provides a way to delay the lookup of Glyphs until the code is running on the GPU
@@ -106,14 +117,13 @@ class GlyphVector {
     using GlyphBytes = std::array<std::byte, GlyphVector_Concepts::kMaxGlyphTypeSize>;
     using BackendDataBytes = std::array<std::byte, GlyphVector_Concepts::kMaxBackendDataSize>;
 
-    // Get the specific TextStrikeBase-derived strike class and GlyphType-conforming types yieled
+    // Get the specific TextStrikeBase-derived strike class and GlyphType-conforming types yielded
     // by a BackendData-conforming type.
     template <GlyphVector_Concepts::BackendData B>
     using Strike = std::invoke_result_t<decltype(B::FindStrike), StrikeCache*, const SkStrikeSpec&>;
 
     template <GlyphVector_Concepts::BackendData B>
-    using Glyph = decltype(std::declval<B>().makeGlyphFromID(SkPackedGlyphID{},
-                                                             skgpu::MaskFormat::kARGB));
+    using Glyph = decltype(std::declval<B>().makeGlyphFromID(SkPackedGlyphID{}));
 
 public:
     static size_t Size(int numGlyphs) {
@@ -181,7 +191,7 @@ public:
     }
 
     template <GlyphVector_Concepts::BackendData B>
-    void initBackendData(StrikeCache* cache, skgpu::MaskFormat maskFormat, auto&&... args)
+    void initBackendData(StrikeCache* cache, auto&&... args)
         requires std::is_constructible_v<B, Strike<B>, decltype(args)...> {
         SkASSERT(!this->hasBackendData());
         SkASSERT(cache);
@@ -199,7 +209,7 @@ public:
 
         for (auto& g : fGlyphs) {
             auto id = *reinterpret_cast<SkPackedGlyphID*>(g.data());
-            new (g.data()) G{backendData->makeGlyphFromID(id, maskFormat)};
+            new (g.data()) G{backendData->makeGlyphFromID(id)};
         }
 
         fBackendDataReleaser = [](std::byte* p) { reinterpret_cast<B*>(p)->~B(); };

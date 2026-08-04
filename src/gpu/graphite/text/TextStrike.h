@@ -16,6 +16,10 @@
 struct SkPackedGlyphID;
 class SkStrikeSpec;
 
+namespace sktext::gpu {
+struct PackedGPUGlyphID;
+}
+
 namespace skgpu::graphite {
 
 struct GlyphEntry;
@@ -27,6 +31,7 @@ struct GlyphEntryKey;
  * TextStrike manages a cache of Glyph objects for a specific font strike.
  */
 class TextStrike final : public sktext::gpu::TextStrikeBase {
+    using PackedGPUGlyphID = sktext::gpu::PackedGPUGlyphID;
 public:
     TextStrike(sktext::gpu::StrikeCache* strikeCache, const SkStrikeSpec& strikeSpec);
 
@@ -34,15 +39,15 @@ public:
     static sk_sp<TextStrike> GetOrCreate(sktext::gpu::StrikeCache* strikeCache,
                                          const SkStrikeSpec& strikeSpec);
 
-    GlyphEntry* getGlyph(SkPackedGlyphID packedGlyphID, MaskFormat format);
+    GlyphEntry* getGlyph(PackedGPUGlyphID packedGlyphID);
 
 private:
     struct HashTraits {
-        static const GlyphEntryKey& GetKey(const GlyphEntry* glyph);
-        static uint32_t Hash(GlyphEntryKey key);
+        static const PackedGPUGlyphID& GetKey(const GlyphEntry* glyph);
+        static uint32_t Hash(PackedGPUGlyphID key);
     };
 
-    skia_private::THashTable<GlyphEntry*, GlyphEntryKey, HashTraits> fCache;
+    skia_private::THashTable<GlyphEntry*, PackedGPUGlyphID, HashTraits> fCache;
 
     friend class sktext::gpu::StrikeCache;
 };
