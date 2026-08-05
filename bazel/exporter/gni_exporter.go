@@ -70,6 +70,7 @@ const codecGNIFooter = `
 skia_codec_rust_bmp_ffi_crate_root = "$_rust/bmp/FFI.rs"
 skia_codec_rust_ico_ffi_crate_root = "$_experimental/rust_ico/ffi/FFI.rs"
 skia_codec_rust_png_ffi_crate_root = "$_rust/png/FFI.rs"
+skia_codec_rust_jpeg_ffi_crate_root = "$_experimental/rust_jpeg/ffi/FFI.rs"
 `
 
 // The footer written to gn/rust.gni.

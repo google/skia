@@ -120,6 +120,38 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//rust/bmp:cxx_bridge_srcs",
 			},
 		},
+		{Var: "skia_codec_rust_jpeg_public",
+			Rules: []string{
+				"//experimental/rust_jpeg/decoder:hdrs",
+			},
+		},
+		{Var: "skia_codec_rust_jpeg",
+			Rules: []string{
+				"//experimental/rust_jpeg/decoder:srcs",
+				"//experimental/rust_jpeg/decoder/impl:skjpegrustcodec_hdrs",
+				"//experimental/rust_jpeg/decoder/impl:skjpegrustcodec_srcs",
+			},
+		},
+		{Var: "skia_codec_rust_jpeg_ffi_rs_srcs",
+			Rules: []string{
+				"//experimental/rust_jpeg/ffi:rs_srcs",
+			},
+		},
+		{Var: "skia_codec_rust_jpeg_ffi_cxx_bridge_srcs",
+			Rules: []string{
+				"//experimental/rust_jpeg/ffi:cxx_bridge_srcs",
+			},
+		},
+		{Var: "skia_encode_rust_jpeg_public",
+			Rules: []string{
+				"//experimental/rust_jpeg/encoder:hdrs",
+			},
+		},
+		{Var: "skia_encode_rust_jpeg_srcs",
+			Rules: []string{
+				"//experimental/rust_jpeg/encoder:srcs",
+			},
+		},
 		{Var: "skia_codec_rust_icc_codec_srcs",
 			Rules: []string{
 				"//src/codec:rust_icc_codec_srcs",

@@ -1,0 +1,40 @@
+load(
+    "//bazel:skia_rules.bzl",
+    "skia_cc_library",
+    "skia_filegroup",
+)
+
+skia_filegroup(
+    name = "hdrs",
+    srcs = [
+        "SkJpegRustEncoder.h",
+    ],
+)
+
+skia_filegroup(
+    name = "srcs",
+    srcs = [
+        "SkJpegRustEncoder.cpp",
+    ],
+)
+
+# Rust-based JPEG encoder using the jpeg-encoder crate
+skia_cc_library(
+    name = "encoder",
+    srcs = [":srcs"],
+    hdrs = [
+        ":hdrs",
+        "//include/encode:jpeg_hdrs",
+        "//include/private:private_hdrs",
+    ],
+    features = ["layering_check"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "//experimental/rust_jpeg/ffi:cxx_bridge",
+        "//experimental/rust_jpeg/ffi:ffi_rs",
+        "//src/core:core_priv",
+        "@crates//:cxx_cc",
+        "@skia_user_config//:user_config",
+    ],
+)

@@ -1,0 +1,56 @@
+load("@rules_rust//rust:defs.bzl", "rust_static_library", "rust_test")
+load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
+load(
+    "//bazel:skia_rules.bzl",
+    "skia_filegroup",
+)
+
+skia_filegroup(
+    name = "rs_srcs",
+    srcs = [
+        "FFI.rs",
+        "jpeg_metadata.rs",
+        "jpeg_multipicture.rs",
+        "jpeg_segment_scan.rs",
+        "tiff_ifd.rs",
+    ],
+)
+
+skia_filegroup(
+    name = "cxx_bridge_srcs",
+    srcs = ["FFI.rs"],
+)
+
+rust_cxx_bridge(
+    name = "cxx_bridge",
+    src = "FFI.rs",
+    visibility = [
+        "//experimental/rust_jpeg:__subpackages__",
+    ],
+    deps = ["//rust/common:ffi_utils"],
+)
+
+rust_static_library(
+    name = "ffi_rs",
+    srcs = [":rs_srcs"],
+    crate_root = "FFI.rs",
+    rustc_flags = ["-Dwarnings"],
+    visibility = [
+        "//experimental/rust_jpeg:__subpackages__",
+    ],
+    deps = [
+        ":cxx_bridge",
+        "//rust/common:cxx_bridge",
+        "//rust/common:skia_rust_common",
+        "@crates//:cxx",
+        "@crates//:jpeg-encoder",
+        "@crates//:zune-core",
+        "@crates//:zune-jpeg",
+    ],
+)
+
+rust_test(
+    name = "test_jpeg_ffi",
+    timeout = "short",
+    crate = ":ffi_rs",
+)

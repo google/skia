@@ -1,0 +1,43 @@
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_filegroup")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_filegroup(
+    name = "skjpegrustcodec_hdrs",
+    srcs = ["SkJpegRustCodec.h"],
+    visibility = ["//experimental/rust_jpeg/decoder:__pkg__"],
+)
+
+skia_filegroup(
+    name = "skjpegrustcodec_srcs",
+    srcs = ["SkJpegRustCodec.cpp"],
+    visibility = ["//experimental/rust_jpeg/decoder:__pkg__"],
+)
+
+# SkCodec implementation for Rust JPEG decoder
+# Bridges Skia's codec interface to Rust FFI
+skia_cc_library(
+    name = "skjpegrustcodec",
+    srcs = [":skjpegrustcodec_srcs"],
+    hdrs = [
+        ":skjpegrustcodec_hdrs",
+        "//include/private:jpeg_decode_srcs",
+    ],
+    visibility = [
+        "//experimental/rust_jpeg:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+    deps = [
+        "//:core",
+        "//experimental/rust_jpeg/ffi:cxx_bridge",
+        "//experimental/rust_jpeg/ffi:ffi_rs",
+        "//rust/common:ffi_utils",
+        "//src/codec:codec_support_priv",
+        "@crates//:cxx_cc",
+        "@skia_user_config//:user_config",
+    ],
+)

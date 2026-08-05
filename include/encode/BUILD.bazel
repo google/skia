@@ -27,7 +27,10 @@ JPEG_HDRS = ["SkJpegEncoder.h"]
 skia_filegroup(
     name = "jpeg_hdrs",
     srcs = JPEG_HDRS,
-    visibility = ["//src/encode:__pkg__"],
+    visibility = [
+        "//experimental/rust_jpeg/encoder:__pkg__",
+        "//src/encode:__pkg__",
+    ],
 )
 
 PNG_HDRS = ["SkPngEncoder.h"]

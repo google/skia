@@ -1,0 +1,43 @@
+load(
+    "//bazel:skia_rules.bzl",
+    "skia_cc_library",
+    "skia_filegroup",
+)
+
+skia_filegroup(
+    name = "hdrs",
+    srcs = [
+        "SkJpegRustDecoder.h",
+    ],
+)
+
+skia_filegroup(
+    name = "srcs",
+    srcs = [
+        "SkJpegRustDecoder.cpp",
+    ],
+)
+
+# C++ wrapper library for Rust JPEG decoder
+# Integrates zune-jpeg based decoder with Skia's codec system
+skia_cc_library(
+    name = "decoder",
+    srcs = [":srcs"],
+    hdrs = [
+        ":hdrs",
+        "//include/private:private_hdrs",
+    ],
+    features = ["layering_check"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "//experimental/rust_jpeg/decoder/impl:skjpegrustcodec",
+        "//experimental/rust_jpeg/ffi:cxx_bridge",
+        "//experimental/rust_jpeg/ffi:ffi_rs",
+        "//modules/skcms",
+        "//src/codec:codec_support_priv",
+        "//src/core:core_priv",
+        "@crates//:cxx_cc",
+        "@skia_user_config//:user_config",
+    ],
+)

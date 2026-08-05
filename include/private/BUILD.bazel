@@ -85,6 +85,7 @@ skia_filegroup(
     name = "private_hdrs",
     srcs = BASE_PRIVATE_HDRS,
     visibility = [
+        "//experimental/rust_jpeg:__subpackages__",
         "//src/core:__pkg__",
         "//src/opts:__pkg__",
     ],
@@ -111,7 +112,10 @@ skia_filegroup(
 skia_filegroup(
     name = "jpeg_decode_srcs",
     srcs = JPEG_DECODE_SRCS_HDRS,
-    visibility = ["//src/codec:__pkg__"],
+    visibility = [
+        "//experimental/rust_jpeg/decoder/impl:__pkg__",
+        "//src/codec:__pkg__",
+    ],
 )
 
 skia_filegroup(

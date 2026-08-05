@@ -157,6 +157,20 @@ crate.spec(
     rev = "5d0418d0eff747c829d52738c092581312f775c9",
 )
 crate.spec(
+    package = "jpeg-encoder",
+    version = "=0.6.0",
+)
+crate.spec(
+    git = "https://github.com/etemesi254/zune-image.git",
+    package = "zune-jpeg",
+    rev = "8f1d383262d1df7b20d648dcf0e3a5d406ed7685",
+)
+crate.spec(
+    git = "https://github.com/etemesi254/zune-image.git",
+    package = "zune-core",
+    rev = "8f1d383262d1df7b20d648dcf0e3a5d406ed7685",
+)
+crate.spec(
     package = "moxcms",
     version = "=0.8.0",
 )
