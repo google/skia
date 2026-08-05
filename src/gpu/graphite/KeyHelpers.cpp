@@ -1424,7 +1424,8 @@ void AddAnalyticClip(const KeyContext& keyContext, const NonMSAAClip& clip) {
 
 //--------------------------------------------------------------------------------------------------
 
-void AddPrimitiveColor(const KeyContext& keyContext, bool skipColorXform) {
+void AddPrimitiveColor(const KeyContext& keyContext, bool skipColorXform,
+                       SkColorSpace* primitiveColorSpace, SkAlphaType primitiveAlphaType) {
     /**
      * When skipColorXform is true, we assume the primitive color is already in the dst color space.
     */
@@ -1434,10 +1435,12 @@ void AddPrimitiveColor(const KeyContext& keyContext, bool skipColorXform) {
     }
 
     /**
-     * If skipColorXform is false (most cases), the primitive color is assumed to be in sRGB.
+     * If skipColorXform is false (most cases), the primitive color is assumed to be in sRGB unless
+     * an explicit primitive color space is provided.
     */
-    ColorSpaceTransformBlock::ColorSpaceTransformData toDst(sk_srgb_singleton(),
-                                                            kPremul_SkAlphaType,
+    SkColorSpace* srcCS = primitiveColorSpace ? primitiveColorSpace : sk_srgb_singleton();
+    ColorSpaceTransformBlock::ColorSpaceTransformData toDst(srcCS,
+                                                            primitiveAlphaType,
                                                             keyContext.dstColorInfo().colorSpace(),
                                                             keyContext.dstColorInfo().alphaType());
 
