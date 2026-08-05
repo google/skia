@@ -444,7 +444,7 @@ protected:
                 SkPaint paint;
                 paint.setShader(useShader ? fShader : nullptr);
                 SkBlendMode mode = useShader ? SkBlendMode::kModulate : SkBlendMode::kDst;
-                canvas->drawMesh(result.mesh, SkBlender::Mode(mode), paint);
+                c->drawMesh(result.mesh, SkBlender::Mode(mode), paint);
 
                 c->translate(0, kRect.height() + 10);
             }
