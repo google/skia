@@ -7,6 +7,7 @@
 
 #include "src/capture/SkCaptureCanvas.h"
 
+#include "include/core/SkBlender.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkRasterHandleAllocator.h"
 #include "include/core/SkRefCnt.h"
@@ -289,6 +290,11 @@ void SkCaptureCanvas::onDrawAtlas2(const SkImage* image,
                      storage->getPixelStorageId(), storage->getContentId());
         }
     }
+}
+
+void SkCaptureCanvas::onDrawMesh(const SkMesh& mesh, sk_sp<SkBlender> blender, const SkPaint& paint) {
+    this->pollCapturingStatus();
+    this->SkNWayCanvas::onDrawMesh(mesh, blender, paint);
 }
 
 void SkCaptureCanvas::onDrawGlyphRunList(const sktext::GlyphRunList& list, const SkPaint& paint) {

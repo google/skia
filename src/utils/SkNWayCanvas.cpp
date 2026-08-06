@@ -7,6 +7,7 @@
 
 #include "include/utils/SkNWayCanvas.h"
 
+#include "include/core/SkBlender.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkMatrix.h"
@@ -318,6 +319,13 @@ void SkNWayCanvas::onDrawAtlas2(const SkImage* image, const SkRSXform xform[], c
                         {tex, (size_t)count},
                         {colors, colors ? (size_t)count : 0},
                         bmode, sampling, cull, paint);
+    }
+}
+
+void SkNWayCanvas::onDrawMesh(const SkMesh& mesh, sk_sp<SkBlender> blender, const SkPaint& paint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawMesh(mesh, blender, paint);
     }
 }
 
