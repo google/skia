@@ -166,6 +166,38 @@ struct BindingList {
 
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(BindingList);
 
+    SK_ALWAYS_INLINE bool isBetterMatch(const LayerKey& key,
+                                        const BindingList* existingMatch) const {
+        if (key.fPipelineIndex != fKey.fPipelineIndex) {
+            // Any partial match must still share the same pipeline
+            return false;
+        } else if (!existingMatch) {
+            return true; // Any pipeline match is better than no match
+        }
+
+        // Otherwise we need to rank based on similarities, preferring texture matches to
+        // uniform matches.
+        SkASSERT(existingMatch->fKey.fPipelineIndex == key.fPipelineIndex);
+        const bool existingTextureMatch = existingMatch->fKey.fTextureIndex == key.fTextureIndex;
+        const bool newTextureMatch = fKey.fTextureIndex == key.fTextureIndex;
+        if (existingTextureMatch != newTextureMatch) {
+            // If `newTextureMatch` is true, then the new BindingList is definitely the better
+            // match (prioritizing textures over UBO changes). If it's false, then the old
+            // match was better since it had a texture match.
+            return newTextureMatch;
+        } // else either both match on the texture, or neither match so equal preference.
+
+        const bool existingUniformMatch = existingMatch->fKey.fUniformIndex == key.fUniformIndex;
+        const bool newUniformMatch= fKey.fUniformIndex == key.fUniformIndex;
+        if (existingUniformMatch != newUniformMatch) {
+            // Like above, if `newUniformMatch` is true, it's the better match.
+            return newUniformMatch;
+        } // else either both match on the uniform, or neither match so equal preference.
+
+        // // At this point, they are equivalent, so prefer the new list as it's deeper
+        return true;
+    }
+
     SK_ALWAYS_INLINE bool intersects(const Rect::ComplementRect drawBounds) const {
         if (!fBounds.intersects(drawBounds)) {
             return false;
@@ -259,7 +291,7 @@ struct Layer {
 
             if (list->fKey.isEqual(key)) {
                 return list;
-            } else if (list->fKey.fPipelineIndex == key.fPipelineIndex) {
+            } else if (list->isBetterMatch(key, pipelineMatch)) {
                 // Save pipeline while continuing to search for an exact match
                 SkASSERT(list->fKey.fFlags == key.fFlags);
                 pipelineMatch = list;
@@ -410,8 +442,7 @@ struct Layer {
             // NOTE: It's possible for the same key to be in a layer multiple times due to
             // some of the early-out rules. If we get here, the draw hasn't overlapped any later
             // drawn BindingList, so update the match to be the best, earliest match found so far.
-            if (exactMatch || (list->fKey.fPipelineIndex == key.fPipelineIndex &&
-                               (!match || !match->fKey.isEqual(key)))) {
+            if (exactMatch || list->isBetterMatch(key, match)) {
                 match = list;
             }
 
