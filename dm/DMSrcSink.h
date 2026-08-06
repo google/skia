@@ -675,7 +675,8 @@ private:
                    skiatest::graphite::GraphiteTestContext*,
                    skgpu::graphite::Recorder*) const;
 
-    Result resetAndRecreatePipelines(skgpu::graphite::PrecompileContext*) const;
+    Result resetAndRecreatePipelines(skgpu::graphite::Context*,
+                                     skgpu::graphite::PrecompileContext*) const;
 
 #ifdef SK_DEBUG
     static void LogMissingKey(skgpu::graphite::PrecompileContext*,

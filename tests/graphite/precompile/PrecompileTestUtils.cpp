@@ -235,7 +235,8 @@ void PipelineLabelInfoCollector::finalReport() {
 // Precompile with the provided PrecompileSettings then verify that:
 //   1) some case in 'kCases' is covered
 //   2) more than 30% of the generated Pipelines are in kCases
-void RunTest(skgpu::graphite::PrecompileContext* precompileContext,
+void RunTest(skgpu::graphite::Context* context,
+             skgpu::graphite::PrecompileContext* precompileContext,
              skiatest::Reporter* reporter,
              const PrecompileSettings& settings,
              int precompileSettingsIndex,
@@ -257,6 +258,9 @@ void RunTest(skgpu::graphite::PrecompileContext* precompileContext,
                    settings.fDrawTypeFlags | DrawTypeFlags::kAnalyticClip,
                    settings.fRenderPassProps);
     }
+
+    // We need to explicitly wait for the precompilation to finish here
+    context->priv().sharedContext()->pipelineManager()->wait_TestOnly();
 
     std::set<std::string> generatedLabels;
 
@@ -418,7 +422,7 @@ void PrecompileTest(skiatest::Reporter* reporter,
                 return;
             }
 
-            RunTest(precompileContext, reporter, precompileCase, index, labels, &collector,
+            RunTest(context, precompileContext, reporter, precompileCase, index, labels, &collector,
                     checkPaintOptionCoverage);
         });
 

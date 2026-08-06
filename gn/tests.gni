@@ -354,6 +354,8 @@ precompile_tests_sources = [
   "$_tests/graphite/precompile/PaintParamsKeyTest.cpp",
   "$_tests/graphite/precompile/PaintParamsTestUtils.cpp",
   "$_tests/graphite/precompile/PaintParamsTestUtils.h",
+  "$_tests/graphite/precompile/PipelineManagerEarlyExit.cpp",
+  "$_tests/graphite/precompile/PipelineManagerThreaded.cpp",
   "$_tests/graphite/precompile/PrecompileStatsTest.cpp",
   "$_tests/graphite/precompile/PrecompileTestUtils.cpp",
   "$_tests/graphite/precompile/PrecompileTestUtils.h",

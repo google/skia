@@ -13,6 +13,7 @@
 #include "include/gpu/graphite/PrecompileContext.h"
 #include "include/gpu/graphite/precompile/PaintOptions.h"
 #include "include/gpu/graphite/precompile/Precompile.h"
+#include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/PrecompileContextPriv.h"
 
 namespace {
@@ -49,6 +50,9 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PrecompileStatsTest, is_dawn_metal_context_type,
                { &kBGRA_1_D, 1 });
 
 
+    // We need to explicitly wait for the precompilation to finish here
+    context->priv().sharedContext()->pipelineManager()->wait_TestOnly();
+
     GlobalCache::PipelineStats stats = cache->getStats();
 
     uint16_t saved = stats.fPipelineUsesInEpoch;
@@ -67,6 +71,9 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PrecompileStatsTest, is_dawn_metal_context_type,
                DrawTypeFlags::kBitmapText_Mask,
                { &kBGRA_1_D, 1 });
 
+    // We need to explicitly wait for the precompilation to finish here
+    context->priv().sharedContext()->pipelineManager()->wait_TestOnly();
+
     stats = cache->getStats();
     // It's a new epoch so the cache lookups count as new uses
     REPORTER_ASSERT(reporter, stats.fPipelineUsesInEpoch == saved);
@@ -75,6 +82,9 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PrecompileStatsTest, is_dawn_metal_context_type,
                paintOptions,
                DrawTypeFlags::kBitmapText_Mask,
                { &kBGRA_1_D, 1 });
+
+    // We need to explicitly wait for the precompilation to finish here
+    context->priv().sharedContext()->pipelineManager()->wait_TestOnly();
 
     stats = cache->getStats();
     // The epoch hasn't changed so the additional uses don't contribute
@@ -94,6 +104,9 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PrecompileStatsTest, is_dawn_metal_context_type,
                paintOptions,
                DrawTypeFlags::kBitmapText_Mask,
                { &kBGRA_1_D, 1 });
+
+    // We need to explicitly wait for the precompilation to finish here
+    context->priv().sharedContext()->pipelineManager()->wait_TestOnly();
 
     stats = cache->getStats();
     // Usage counting should still work across epoch reset

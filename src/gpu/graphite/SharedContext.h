@@ -129,10 +129,11 @@ private:
 
     BackendApi fBackend;
     GlobalCache fGlobalCache;
-    PipelineManager fPipelineManager;
     std::unique_ptr<RendererProvider> fRendererProvider;
     ShaderCodeDictionary fShaderDictionary;
     sk_sp<SkCaptureManager> fCaptureManager;
+    // Last because we want the threads shutdown before the rest of the SharedContext gets shutdown
+    PipelineManager fPipelineManager;
 };
 
 } // namespace skgpu::graphite

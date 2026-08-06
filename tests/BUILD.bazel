@@ -622,6 +622,8 @@ filegroup(
         "graphite/precompile/PaintParamsKeyTest.cpp",
         "graphite/precompile/PaintParamsTestUtils.cpp",
         "graphite/precompile/PaintParamsTestUtils.h",
+        "graphite/precompile/PipelineManagerEarlyExit.cpp",
+        "graphite/precompile/PipelineManagerThreaded.cpp",
         "graphite/precompile/PrecompileStatsTest.cpp",
         "graphite/precompile/PrecompileTestUtils.cpp",
         "graphite/precompile/PrecompileTestUtils.h",

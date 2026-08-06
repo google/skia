@@ -145,6 +145,9 @@ void reset_and_recreate_pipelines_with_serialized_keys(
         SkAssertResult(result);
     }
 
+    // We need to explicitly wait for the precompilation to finish here
+    context->priv().sharedContext()->pipelineManager()->wait_TestOnly();
+
     // None of the user-defined stable runtime effects should've been transmuted to not-stable
     REPORTER_ASSERT(reporter, !shaderCodeDictionary->numUserDefinedRuntimeEffects());
 
@@ -205,6 +208,9 @@ void reset_and_recreate_pipelines_with_normal_precompile_api(
                paintOptions,
                DrawTypeFlags::kSimpleShape,
                {{ renderPassProps }});
+
+    // We need to explicitly wait for the precompilation to finish here
+    context->priv().sharedContext()->pipelineManager()->wait_TestOnly();
 
     std::vector<skgpu::UniqueKey> recreatedKeys;
     std::vector<sk_sp<SkData>> recreatedAndroidStyleKeys;

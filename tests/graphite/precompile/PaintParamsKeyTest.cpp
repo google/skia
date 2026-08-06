@@ -439,6 +439,10 @@ void precompile_vs_real_draws_subtest(skiatest::Reporter* reporter,
                    {{ { kDepth_1.fDSFlags, kRGBA_8888_SkColorType, kDepth_1.fDstCS,
                        kDepth_1.fRequiresMSAA } }});
     }
+
+    // We need to explicitly wait for the precompilation to finish here
+    context->priv().sharedContext()->pipelineManager()->wait_TestOnly();
+
     int after = globalCache->numGraphicsPipelines();
 
     REPORTER_ASSERT(reporter, before == 0);

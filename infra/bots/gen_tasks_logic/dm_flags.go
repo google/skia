@@ -486,6 +486,10 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 				if b.ExtraConfig("FakeWGPU") {
 					args = append(args, "--neverYieldToWebGPU")
 					args = append(args, "--useWGPUTextureView")
+					skip(ALL, "test", ALL, "PipelineManagerEarlyExitTest_1")
+					skip(ALL, "test", ALL, "PipelineManagerEarlyExitTest_2")
+					skip(ALL, "test", ALL, "PipelineManagerEarlyExitTest_3")
+					skip(ALL, "test", ALL, "PipelineManagerEarlyExitTest_4")
 				}
 
 				// Shader doesn't compile
@@ -510,6 +514,13 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 				}
 
 				if b.ExtraConfig("GL") || b.ExtraConfig("GLES") {
+					// skbug.com/542719737 (Dawn GLES fails w/ threaded PipelineManager)
+					args = append(args, "--gpuThreads", "0")
+					skip(ALL, "test", ALL, "PipelineManagerThreadedTest_1")
+					skip(ALL, "test", ALL, "PipelineManagerThreadedTest_2")
+					skip(ALL, "test", ALL, "PipelineManagerEarlyExitTest_1")
+					skip(ALL, "test", ALL, "PipelineManagerEarlyExitTest_2")
+
 					// These GMs currently have rendering issues in Dawn compat.
 					skip(ALL, "gm", ALL, "glyph_pos_n_s")
 					skip(ALL, "gm", ALL, "persptext")

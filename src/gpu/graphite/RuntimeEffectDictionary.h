@@ -10,6 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "src/core/SkSpinlock.h"
 #include "src/core/SkTHash.h"
 
 class SkRuntimeEffect;
@@ -26,17 +27,24 @@ namespace skgpu::graphite {
 // in the Recorder.
 class RuntimeEffectDictionary : public SkRefCnt {
 public:
-    const SkRuntimeEffect* find(int codeSnippetID) const {
+    const SkRuntimeEffect* find(int codeSnippetID) const SK_EXCLUDES(fSpinLock) {
+        SkAutoSpinlock lock{fSpinLock};
+
         sk_sp<const SkRuntimeEffect>* effect = fDict.find(codeSnippetID);
         return effect ? effect->get() : nullptr;
     }
 
-    void set(int codeSnippetID, sk_sp<const SkRuntimeEffect> effect);
+    void set(int codeSnippetID, sk_sp<const SkRuntimeEffect> effect) SK_EXCLUDES(fSpinLock);
 
-    bool empty() const { return fDict.empty(); }
+    bool empty() const SK_EXCLUDES(fSpinLock) {
+        SkAutoSpinlock lock{fSpinLock};
+        return fDict.empty();
+    }
 
 private:
-    skia_private::THashMap<int, sk_sp<const SkRuntimeEffect>> fDict;
+    mutable SkSpinlock fSpinLock;
+
+    skia_private::THashMap<int, sk_sp<const SkRuntimeEffect>> fDict SK_GUARDED_BY(fSpinLock);
 };
 
 } // namespace skgpu::graphite

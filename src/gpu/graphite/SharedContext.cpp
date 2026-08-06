@@ -28,7 +28,6 @@ static Layout get_binding_layout(const Caps* caps) {
     return caps->storageBufferSupport() ? reqs.fStorageBufferLayout : reqs.fUniformBufferLayout;
 }
 
-// TODO (robertphillips): make use of executor here
 SharedContext::SharedContext(std::unique_ptr<const Caps> caps,
                              BackendApi backend,
                              SkExecutor* executor,
@@ -36,8 +35,8 @@ SharedContext::SharedContext(std::unique_ptr<const Caps> caps,
     : fCaps(std::move(caps))
     , fBackend(backend)
     , fGlobalCache()
-    , fPipelineManager() // TODO(robertphillips): pass in executor here
-    , fShaderDictionary(get_binding_layout(fCaps.get()), userDefinedKnownRuntimeEffects) {}
+    , fShaderDictionary(get_binding_layout(fCaps.get()), userDefinedKnownRuntimeEffects)
+    , fPipelineManager(executor) {}
 
 SharedContext::~SharedContext() {
     // TODO: add disconnect?

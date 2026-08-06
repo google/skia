@@ -113,7 +113,8 @@ private:
     std::map<std::string, OverGenInfo> fOverGenerated;
 };
 
-void RunTest(skgpu::graphite::PrecompileContext* precompileContext,
+void RunTest(skgpu::graphite::Context* context,
+             skgpu::graphite::PrecompileContext* precompileContext,
              skiatest::Reporter* reporter,
              const PrecompileSettings& precompileSettings,
              int precompileSettingsIndex,

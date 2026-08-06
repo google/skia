@@ -12,6 +12,8 @@
 namespace skgpu::graphite {
 
 void RuntimeEffectDictionary::set(int codeSnippetID, sk_sp<const SkRuntimeEffect> effect) {
+    SkAutoSpinlock lock{fSpinLock};
+
     // The same code-snippet ID should never refer to two different effects.
     SkASSERT(!fDict.find(codeSnippetID) || (SkRuntimeEffectPriv::Hash(*fDict[codeSnippetID]) ==
                                             SkRuntimeEffectPriv::Hash(*effect)));

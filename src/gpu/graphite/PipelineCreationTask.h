@@ -22,6 +22,11 @@ namespace skgpu::graphite {
 // known and handled by the PipelineManager vs being added to TaskLists (as Task-derived classes
 // are).
 class PipelineCreationTask : public SkRefCnt {
+#if defined(GPU_TEST_UTILS)
+public:
+    int32_t id() const { return fID; }
+#endif
+
 private:
     friend class PipelineManager; // for entire API and fPipeline
     friend class GraphicsPipelineHandle; // for fPipeline in pipelineOrNull()
@@ -33,7 +38,16 @@ private:
             : fPipelineKey(pipelineKey)
             , fGraphicsPipelineDesc(graphicsPipelineDesc)
             , fRenderPassDesc(renderPassDesc)
-            , fPipelineCreationFlags(pipelineCreationFlags) {}
+            , fPipelineCreationFlags(pipelineCreationFlags) {
+#if defined(GPU_TEST_UTILS)
+        static std::atomic<int32_t> sID{0};
+        fID = sID++;
+#endif
+    }
+
+    bool forPrecompile() const {
+        return SkToBool(fPipelineCreationFlags & PipelineCreationFlags::kForPrecompilation);
+    }
 
     const UniqueKey fPipelineKey;  // used to track this task in the PipelineManager
     const GraphicsPipelineDesc fGraphicsPipelineDesc;
@@ -44,7 +58,16 @@ private:
     // This also serves to lock the pipeline in the cache.
     sk_sp<GraphicsPipeline> fPipeline;
 
-    std::atomic<bool> fCompleted = false;
+    // This flag boils down to this task having been placed into a work list.
+    std::atomic<bool> fInProgress{false};
+    // Ideally, in C++-20, we would just wait on 'fCompleted' rather than using the
+    // mutex/condition_variable pattern (in PipelineManager). This is atomic bc it is still used
+    // outside the mutex in GraphicsPipelineHandle::pipelineOrNull.
+    std::atomic<bool> fCompleted{false};
+
+#if defined(GPU_TEST_UTILS)
+    int32_t fID;
+#endif
 };
 
 } // namespace skgpu::graphite

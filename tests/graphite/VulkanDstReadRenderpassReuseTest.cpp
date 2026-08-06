@@ -109,6 +109,9 @@ DEF_GRAPHITE_TEST_FOR_VULKAN_CONTEXT(VulkanDstReadsShareRenderpass, reporter, co
     canvas->drawColor(SK_ColorCYAN, simpleBlendMode);
     std::unique_ptr<Recording> simpleBlendRecording = recorder->snap();
 
+    // We need to explicitly wait for the precompilation to finish here
+    sharedContext->pipelineManager()->wait_TestOnly();
+
     // Determine the number of renderpasses used for later comparison, asserting we have at least 1.
     ResourceTypeQuantifier renderpassQuantifier { SkString("RenderPass") };
     sharedContext->dumpMemoryStatistics(&renderpassQuantifier);
