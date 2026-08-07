@@ -221,6 +221,16 @@ impl ZByteReaderTrait for GrowingJpegCursor {
         Ok(())
     }
 
+    #[cfg(chromium_zune_core_fixed_reads)]
+    fn read_const_bytes<const N: usize>(&mut self, buf: &mut [u8; N]) -> Result<(), ZByteIoError> {
+        self.read_exact_bytes(buf)
+    }
+
+    #[cfg(chromium_zune_core_fixed_reads)]
+    fn read_const_bytes_no_error<const N: usize>(&mut self, buf: &mut [u8; N]) {
+        let _ = self.read_const_bytes(buf);
+    }
+
     fn read_bytes(&mut self, buf: &mut [u8]) -> Result<usize, ZByteIoError> {
         let bytes_to_read = self.available_from_position().min(buf.len());
         let data = self.data.borrow();

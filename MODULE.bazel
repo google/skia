@@ -163,12 +163,12 @@ crate.spec(
 crate.spec(
     git = "https://github.com/etemesi254/zune-image.git",
     package = "zune-jpeg",
-    rev = "8f1d383262d1df7b20d648dcf0e3a5d406ed7685",
+    rev = "9260d033bc683f961aedbc3e8e700e78fdef24aa",
 )
 crate.spec(
     git = "https://github.com/etemesi254/zune-image.git",
     package = "zune-core",
-    rev = "8f1d383262d1df7b20d648dcf0e3a5d406ed7685",
+    rev = "9260d033bc683f961aedbc3e8e700e78fdef24aa",
 )
 crate.spec(
     package = "moxcms",
