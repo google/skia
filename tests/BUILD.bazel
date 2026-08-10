@@ -107,6 +107,7 @@ filegroup(
         "ColorSpaceTest.cpp",
         "ColorTest.cpp",
         "ComparePixels.cpp",
+        "ConvertPixelsTest.cpp",
         "CoreBlittersTest.cpp",
         "CPUBackendTest.cpp",
         "CPUContextRecorderTest.cpp",

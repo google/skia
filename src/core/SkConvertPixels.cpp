@@ -37,8 +37,10 @@ static bool rect_memcpy(const SkImageInfo& dstInfo,       void* dstPixels, size_
         return false;
     }
 
-    SkRectMemcpy(dstPixels, dstRB,
-                 srcPixels, srcRB, dstInfo.minRowBytes(), dstInfo.height());
+    if (srcPixels != dstPixels) {
+        SkRectMemcpy(dstPixels, dstRB,
+                     srcPixels, srcRB, dstInfo.minRowBytes(), dstInfo.height());
+    }
     return true;
 }
 
@@ -268,6 +270,12 @@ bool SkConvertPixels(const SkImageInfo& dstInfo,       void* dstPixels, size_t d
     int dstStride = (int)(dstRB / dstInfo.bytesPerPixel());
     if ((size_t)srcStride * srcInfo.bytesPerPixel() != srcRB ||
         (size_t)dstStride * dstInfo.bytesPerPixel() != dstRB) {
+        return false;
+    }
+
+    if (srcPixels == dstPixels &&
+        srcInfo.bytesPerPixel() != dstInfo.bytesPerPixel()) {
+        // In-place conversions are not supported for different pixel widths.
         return false;
     }
 
