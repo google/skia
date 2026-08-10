@@ -22,10 +22,7 @@ namespace skgpu::graphite {
 // known and handled by the PipelineManager vs being added to TaskLists (as Task-derived classes
 // are).
 class PipelineCreationTask : public SkRefCnt {
-#if defined(GPU_TEST_UTILS)
 public:
-    int32_t id() const { return fID; }
-#endif
 
 private:
     friend class PipelineManager; // for entire API and fPipeline
@@ -39,10 +36,6 @@ private:
             , fGraphicsPipelineDesc(graphicsPipelineDesc)
             , fRenderPassDesc(renderPassDesc)
             , fPipelineCreationFlags(pipelineCreationFlags) {
-#if defined(GPU_TEST_UTILS)
-        static std::atomic<int32_t> sID{0};
-        fID = sID++;
-#endif
     }
 
     bool forPrecompile() const {
@@ -64,10 +57,6 @@ private:
     // mutex/condition_variable pattern (in PipelineManager). This is atomic bc it is still used
     // outside the mutex in GraphicsPipelineHandle::pipelineOrNull.
     std::atomic<bool> fCompleted{false};
-
-#if defined(GPU_TEST_UTILS)
-    int32_t fID;
-#endif
 };
 
 } // namespace skgpu::graphite
