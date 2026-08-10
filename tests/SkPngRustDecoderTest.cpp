@@ -1011,6 +1011,79 @@ DEF_TEST(RustPngCodec_subset, r) {
     test_subset_decode(r, "images/basi3p01.png");
 }
 
+// An interlaced image that has only been partially received should still cover
+// every pixel of the image - pixels that have not been decoded yet are
+// approximated by the closest already-decoded Adam7 sample.  Otherwise a
+// partially received image is mostly untouched (i.e. fully transparent for
+// clients that hand a zero-initialized buffer to the codec) and therefore
+// invisible.
+DEF_TEST(RustPngCodec_interlaced_partial_decode_covers_all_pixels, r) {
+    const char* path = "images/plane_interlaced.png";
+    sk_sp<SkData> data = GetResourceAsData(path);
+    if (!data) {
+        ERRORF(r, "Missing resource: %s", path);
+        return;
+    }
+    const size_t fullLength = data->size();
+
+    // Enough bytes to cover the initial Adam7 passes, but not the whole image.
+    const size_t initialBytes = fullLength / 4;
+    auto streamForCodec = std::make_unique<HaltingStream>(std::move(data), initialBytes);
+    HaltingStream* retainedStream = streamForCodec.get();
+
+    SkCodec::Result result;
+    std::unique_ptr<SkCodec> codec = SkPngRustDecoder::Decode(std::move(streamForCodec), &result);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+    if (!codec) {
+        return;
+    }
+
+    SkBitmap bitmap;
+    if (!bitmap.tryAllocN32Pixels(codec->dimensions().width(), codec->dimensions().height())) {
+        ERRORF(r, "Failed to allocate SkBitmap");
+        return;
+    }
+
+    // Fill `bitmap` with a sentinel color, so that pixels that the codec never
+    // wrote to can be detected below.
+    constexpr SkColor kSentinel = SkColorSetARGB(0xFF, 0x12, 0x34, 0x56);
+    bitmap.eraseColor(kSentinel);
+
+    SkCodec::Options options;
+    options.fZeroInitialized = SkCodec::kNo_ZeroInitialized;
+    result = codec->startIncrementalDecode(
+            bitmap.info(), bitmap.getPixels(), bitmap.rowBytes(), &options);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+    result = codec->incrementalDecode();
+    REPORTER_ASSERT(r, result == SkCodec::kIncompleteInput, "result = %d", (int)result);
+
+    int untouchedPixels = 0;
+    for (int y = 0; y < bitmap.height(); ++y) {
+        for (int x = 0; x < bitmap.width(); ++x) {
+            if (bitmap.getColor(x, y) == kSentinel) {
+                ++untouchedPixels;
+            }
+        }
+    }
+    REPORTER_ASSERT(r, untouchedPixels == 0, "untouchedPixels = %d", untouchedPixels);
+
+    // Finishing the decode has to produce exactly the same pixels as a decode
+    // that had all the input available from the start.
+    retainedStream->addNewData(fullLength);
+    result = codec->incrementalDecode();
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+
+    std::unique_ptr<SkCodec> referenceCodec = SkPngRustDecoderDecode(r, path);
+    if (!referenceCodec) {
+        return;
+    }
+    SkBitmap referenceBitmap;
+    referenceBitmap.allocPixels(bitmap.info());
+    result = referenceCodec->getPixels(referenceBitmap.pixmap());
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+    REPORTER_ASSERT(r, bitmaps_equal(bitmap, referenceBitmap));
+}
+
 DEF_TEST(RustPngCodec_interlaced_animated_blending, r) {
     std::unique_ptr<SkCodec> codec =
         SkPngRustDecoderDecode(r, "images/interlaced-multiframe-with-blending.png");

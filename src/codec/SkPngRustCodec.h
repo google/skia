@@ -59,6 +59,9 @@ private:
         // Size of a row (in bytes) in the current frame.
         size_t fDstRowSize = 0;
 
+        // Number of rows of the current frame that `fDst` holds.
+        size_t fDstRowCount = 0;
+
         // Bytes per pixel of fDst.
         uint8_t fDstBytesPerPixel = 0;
     };

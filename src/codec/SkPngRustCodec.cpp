@@ -708,6 +708,7 @@ SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
         size_t frameHeight = safe.castTo<size_t>(frame->height());
         size_t frameHeightTimesRowStride = safe.mul(frameHeight, rowBytes);
         decodingDst.fDstRowSize = rowSize;
+        decodingDst.fDstRowCount = frameHeight;
 
         size_t encodedImageSize = safe.mul(this->getEncodedRowBytes(),
             safe.castTo<size_t>(this->getEncodedInfo().height()));
@@ -762,16 +763,32 @@ void SkPngRustCodec::expandDecodedInterlacedRow(SkSpan<uint8_t> dstFrame,
 
     const uint8_t dstBytesPerPixel = decodingDst.fDstBytesPerPixel;
     SkASSERT_RELEASE(dstBytesPerPixel < 32u);  // Checked in `startDecoding`.
-    if (xFormNeeded) {
-        fReader->expand_last_interlaced_row(rust::Slice<uint8_t>(dstFrame),
-                                            dstRowStride,
-                                            rust::Slice<const uint8_t>(xformedInterlacedRow),
-                                            dstBytesPerPixel * 8u);
+
+    rust::Slice<const uint8_t> expandedRow =
+            xFormNeeded ? rust::Slice<const uint8_t>(xformedInterlacedRow)
+                        : rust::Slice<const uint8_t>(srcRow);
+    const uint8_t bitsPerPixel =
+            xFormNeeded ? dstBytesPerPixel * 8u : this->getEncodedInfo().bitsPerPixel();
+
+    // `splat_last_interlaced_row` infers the number of rows of the frame from
+    // `dstFrame.size() / dstRowStride`, so it can only be used when `dstFrame`
+    // spans whole rows for the full height of the frame.  This is not the case
+    // when an APNG frame is offset horizontally - the tail of `dstFrame` then
+    // stops short of a whole row.
+    SkSafeMath safe;
+    size_t wholeFrameSize = safe.mul(dstRowStride, decodingDst.fDstRowCount);
+    if (safe.ok() && dstFrame.size() >= wholeFrameSize) {
+        SkSpan<uint8_t> wholeFrame = dstFrame.first(wholeFrameSize);
+        // Replicating each decoded sample over the pixels that later Adam7
+        // passes will overwrite means that `dstFrame` holds a complete (if
+        // blocky) image after each pass, rather than a mostly-transparent one.
+        // This matters because partially decoded images are presented to the
+        // user.  The final image is not affected.
+        fReader->splat_last_interlaced_row(
+                rust::Slice<uint8_t>(wholeFrame), dstRowStride, expandedRow, bitsPerPixel);
     } else {
-        fReader->expand_last_interlaced_row(rust::Slice<uint8_t>(dstFrame),
-                                            dstRowStride,
-                                            rust::Slice<const uint8_t>(srcRow),
-                                            this->getEncodedInfo().bitsPerPixel());
+        fReader->expand_last_interlaced_row(
+                rust::Slice<uint8_t>(dstFrame), dstRowStride, expandedRow, bitsPerPixel);
     }
 }
 
@@ -938,6 +955,8 @@ SkCodec::Result SkPngRustCodec::incrementalDecodeXForm(DecodingState& decodingSt
                         {.fDst = decodingState.fPreblendBuffer,
                          .fDstRowStride = this->getEncodedRowBytes(),
                          .fDstRowSize = this->getEncodedRowBytes(),
+                         .fDstRowCount = static_cast<size_t>(
+                                 this->getEncodedInfo().height()),
                          .fDstBytesPerPixel = encodedBytesPerPixel};
                     this->expandDecodedInterlacedRow(decodingState.fPreblendBuffer,
                                                      decodedRow,
