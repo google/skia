@@ -132,10 +132,6 @@ public:
     }
 
 private:
-#if defined(GPU_TEST_UTILS)
-    template <FlattenMode> friend class FlattenTestRunner;
-#endif
-
     // Buffer for scratch values used during cubic flattening. With the exception of
     // 'fFlattenedCubics', all members are overwritten during flattenCubic*() calls. Consequently,
     // only 'fFlattenedCubics' requires manual state management (clearing) at the start of the
@@ -181,6 +177,12 @@ private:
                           Polyline* polyline);
     void processPathsScalar(const SkPath& path, const SkMatrix& ctm, float width, float height,
                             Polyline* polyline);
+    template <bool kShouldCull, bool kShouldSimplify>
+    void processPathsSimdImpl(const SkPath& path, const SkMatrix& ctm, float width, float height,
+                              Polyline* polyline);
+    template <bool kShouldCull, bool kShouldSimplify>
+    void processPathsScalarImpl(const SkPath& path, const SkMatrix& ctm, float width, float height,
+                                Polyline* polyline);
 
     void flattenQuadSimd(const SkPoint pts[3], Polyline* polyline);
     void flattenQuadScalar(const SkPoint pts[3], Polyline* polyline);
@@ -195,6 +197,14 @@ private:
 
     CubicFlattenCtx fContext;
     SkAutoConicToQuads fConicToQuad;
+
+    // Stubs for non-simplifying, non-culling flattening to be used as a source of truth.
+#if defined(GPU_TEST_UTILS)
+    void processPathsSimdTest(const SkPath& path, const SkMatrix& ctm, float width, float height,
+                              Polyline* polyline);
+    void processPathsScalarTest(const SkPath& path, const SkMatrix& ctm, float width,
+                                float height, Polyline* polyline);
+#endif
 };
 
 }  // namespace skgpu::graphite
