@@ -25,15 +25,14 @@ struct SkFontMetrics;
 
 using namespace sktext;
 
-bool gSkUseThreadLocalStrikeCaches_IAcknowledgeThisIsIncrediblyExperimental = false;
-
 SkStrikeCache* SkStrikeCache::GlobalStrikeCache() {
-    if (gSkUseThreadLocalStrikeCaches_IAcknowledgeThisIsIncrediblyExperimental) {
-        static thread_local auto* cache = new SkStrikeCache;
-        return cache;
-    }
+#ifdef SK_ENABLE_THREADLOCAL_STRIKECACHE
+    static thread_local SkStrikeCache cache;
+    return &cache;
+#else
     static auto* cache = new SkStrikeCache;
     return cache;
+#endif
 }
 
 auto SkStrikeCache::findOrCreateStrike(const SkStrikeSpec& strikeSpec) -> sk_sp<SkStrike> {
