@@ -102,7 +102,9 @@ public:
         return &fStencilTessellatedWedges[(int) type];
     }
     const Renderer* convexTessellatedWedges() const { return &fConvexTessellatedWedges; }
-    const Renderer* tessellatedStrokes() const { return &fTessellatedStrokes; }
+    const Renderer* tessellatedStrokes(bool inverseFill) const {
+        return &fTessellatedStrokes[static_cast<size_t>(inverseFill)];
+    }
 
     // Coverage mask rendering. Used by the atlas path rendering strategies and rendering mask
     // filter results.
@@ -195,7 +197,7 @@ private:
     Renderer fStencilTessellatedCurves[kPathTypeCount];
     Renderer fStencilTessellatedWedges[kPathTypeCount];
     Renderer fConvexTessellatedWedges;
-    Renderer fTessellatedStrokes;
+    Renderer fTessellatedStrokes[2]; // bool inverseFill;
 
     Renderer fCoverageMask;
 

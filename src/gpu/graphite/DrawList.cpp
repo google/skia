@@ -49,16 +49,17 @@ std::pair<DrawParams*, Layer*> DrawList::recordDraw(
     // Create a sort key for every render step in this draw
     for (int stepIndex = 0; stepIndex < draw.renderer()->numRenderSteps(); ++stepIndex) {
         const RenderStep* const step = draw.renderer()->steps()[stepIndex];
-        gatherer->markOffsetAndAlign(step->performsShading(), step->uniformAlignment());
+        const bool performsShading = step->performsShading() && paintID.isValid();
+        gatherer->markOffsetAndAlign(performsShading, step->uniformAlignment());
 
         GraphicsPipelineCache::Index pipelineIndex = fPipelineCache.insert(
-                { step->renderStepID(), step->performsShading() ?
+                { step->renderStepID(), performsShading ?
                                         paintID : UniquePaintParamsID::Invalid()});
 
         step->writeUniformsAndTextures(draw.drawParams(), gatherer);
 
         auto [combinedUniforms, combinedTextures] =
-                gatherer->endCombinedData(step->performsShading());
+                gatherer->endCombinedData(performsShading);
 
         UniformDataCache::Index uniformIndex = combinedUniforms ?
                 fUniformDataCache.insert(combinedUniforms) : UniformDataCache::kInvalidIndex;

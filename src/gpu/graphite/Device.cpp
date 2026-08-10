@@ -1582,12 +1582,9 @@ void Device::drawGeometry(const Transform& localToDevice,
         return;
     }
 
-    // Currently Graphite ignores the inverted-ness of a shape when it's stroked (since inversion
-    // is part of the "fill" style). This differs from Ganesh and CPU rasterization, which only
-    // ignore inverted-ness for hairlines. Setting the inverted bit here enforces consistent
-    // behavior between Graphite's different path rendering strategies.
-    if (geometry.isShape() && geometry.shape().inverted() &&
-        (style.isHairlineStyle() || style.getStyle() == SkStrokeRec::kStroke_Style)) {
+    // Ignores the inverted-ness of a shape with a hairline style, which follows the same behavior
+    // as Ganesh and CPU rasterization.
+    if (geometry.isShape() && geometry.shape().inverted() && style.isHairlineStyle()) {
         geometry.shape().setInverted(false);
     }
 
@@ -1644,8 +1641,10 @@ void Device::drawGeometry(const Transform& localToDevice,
     if (renderer) {
         numNewRenderSteps = renderer->numRenderSteps();
         if (styleType == SkStrokeRec::kStrokeAndFill_Style) {
+            SkASSERT(geometry.isShape());
             numNewRenderSteps +=
-                fRecorder->priv().rendererProvider()->tessellatedStrokes()->numRenderSteps();
+                fRecorder->priv().rendererProvider()->tessellatedStrokes(
+                        /*inverseFill=*/false)->numRenderSteps();
         } else if (styleType == SkStrokeRec::kFill_Style && renderer->useNonAAInnerFill()) {
             numNewRenderSteps +=
                 fRecorder->priv().rendererProvider()->nonAABounds()->numRenderSteps();
@@ -1829,14 +1828,26 @@ void Device::drawGeometry(const Transform& localToDevice,
     }
 
     if (styleType != SkStrokeRec::kFill_Style) {
-        // For stroke-and-fill, 'renderer' is used for the fill and we always use the
-        // TessellatedStrokes renderer; for stroke and hairline, 'renderer' is used.
+        SkASSERT(geometry.isShape());
+        // For inverse stroke-and-fill style, we perform a depth only draw of the stroke so when
+        // we perform our draw for the fill, we don't write over the stroked part. This ensures
+        // we keep the inverse fill outside of the entire shape including the stroke.
+        const bool isStrokeAndFill = styleType == SkStrokeRec::kStrokeAndFill_Style;
+        const bool depthOnlyStroke = isStrokeAndFill && geometry.isShape()
+                                                     && geometry.shape().inverted();
+        const Renderer* strokeRenderer = isStrokeAndFill
+                ? fRecorder->priv().rendererProvider()->tessellatedStrokes(/*inverseFill=*/false)
+                : renderer;
+        UniquePaintParamsID strokePaintID = depthOnlyStroke ? UniquePaintParamsID::Invalid()
+                                                            : paintID;
+        DrawOrder strokeOrder = order;
+        if (depthOnlyStroke) {
+            order.dependsOnPaintersOrder(strokeOrder.paintOrder());
+        }
+
         StrokeStyle stroke(style.getWidth(), style.getMiter(), style.getJoin(), style.getCap());
-        fDC->recordDraw(styleType == SkStrokeRec::kStrokeAndFill_Style
-                                ? fRecorder->priv().rendererProvider()->tessellatedStrokes()
-                                : renderer,
-                        localToDevice, geometry, clip, order, paintID, dstUsage,
-                        scopedDrawBuilder.gatherer(), &stroke, clipLayer);
+        fDC->recordDraw(strokeRenderer, localToDevice, geometry, clip, strokeOrder, strokePaintID,
+                        dstUsage, scopedDrawBuilder.gatherer(), &stroke, clipLayer);
     } else if ((dstUsage & DstUsage::kDstOnlyUsedByRenderer) && renderer->useNonAAInnerFill() &&
                !avoidDepthMode) {
         // Possibly record an additional draw using the non-AA bounds renderer to fill the
@@ -2120,11 +2131,7 @@ const Renderer* Device::chooseMSAARenderer(const Shape& shape,
         // Unlike in Ganesh, the HW stroke tessellator can work with arbitrary paints since the
         // depth test prevents double-blending when there is transparency, thus we can HW stroke
         // any path regardless of its paint.
-        // TODO: We treat inverse-filled strokes as regular strokes. We could handle them by
-        // stenciling first with the HW stroke tessellator and then covering their bounds, but
-        // inverse-filled strokes are not well-specified in our public canvas behavior so we may be
-        // able to remove it.
-        return renderers->tessellatedStrokes();
+        return renderers->tessellatedStrokes(shape.inverted());
     }
 
     // 'type' could be kStrokeAndFill, but in that case chooseRenderer() is meant to return the

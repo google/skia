@@ -69,7 +69,8 @@ enum class Coverage { kNone, kSingleChannel, kLCD };
         M1(SDFText)                                 \
         M2(TessellateCurves, EvenOdd)               \
         M2(TessellateCurves, Winding)               \
-        M1(TessellateStrokes)                       \
+        M2(TessellateStrokes,Fill)                  \
+        M2(TessellateStrokes,InverseFill)           \
         M2(TessellateWedges, Convex)                \
         M2(TessellateWedges, EvenOdd)               \
         M2(TessellateWedges, Winding)               \

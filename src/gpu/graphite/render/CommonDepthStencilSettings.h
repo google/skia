@@ -62,6 +62,17 @@ constexpr DepthStencilSettings::Face kDecrementCCW = {
         /*writeMask=*/     0xffffffff
 };
 
+// Increments the stencil value whenever a triangle is encountered. Used for storing a stroked
+// path in the stencil buffer.
+static constexpr DepthStencilSettings::Face kIncrementAlways = {
+        /*stencilFail=*/   StencilOp::kKeep,
+        /*depthFail=*/     StencilOp::kKeep,
+        /*dsPass=*/        StencilOp::kIncClamp,
+        /*compare=*/       CompareOp::kAlways,
+        /*readMask=*/      0xffffffff,
+        /*writeMask=*/     0xffffffff
+};
+
 // Toggles the bottom stencil bit. Used for "even-odd" fill.
 constexpr DepthStencilSettings::Face kToggle = {
         /*stencilFail=*/   StencilOp::kKeep,
@@ -89,6 +100,18 @@ constexpr DepthStencilSettings kWindingStencilPass = {
 constexpr DepthStencilSettings kEvenOddStencilPass = {
         /*front=*/       kToggle,
         /*back=*/        kToggle,
+        /*stencilRef=*/  0,
+        /*stencilTest=*/ true,
+        /*depthCompare=*/CompareOp::kLess,
+        /*depthTest=*/   true,
+        /*depthWrite=*/  false // The depth write will be handled by the covering pass
+};
+
+// Stencil settings to use for always stenciling out any triangle encountered, useful for stroked
+// paths.
+static constexpr DepthStencilSettings kIncrementStencilPass = {
+        /*front=*/       kIncrementAlways,
+        /*back=*/        kIncrementAlways,
         /*stencilRef=*/  0,
         /*stencilTest=*/ true,
         /*depthCompare=*/CompareOp::kLess,

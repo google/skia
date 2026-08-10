@@ -231,17 +231,18 @@ std::pair<DrawParams*, Layer*> DrawListLayer::recordDraw(const Renderer* rendere
     fRenderStepCount += renderer->numRenderSteps();
     for (int stepIndex = renderer->numRenderSteps() - 1; stepIndex >= 0; --stepIndex) {
         const RenderStep* const step = renderer->steps()[stepIndex];
+        const bool performsShading = step->performsShading() && paintID.isValid();
 
-        gatherer->markOffsetAndAlign(step->performsShading(), step->uniformAlignment());
+        gatherer->markOffsetAndAlign(performsShading, step->uniformAlignment());
 
         GraphicsPipelineCache::Index pipelineIndex = fPipelineCache.insert(
                 {step->renderStepID(),
-                 step->performsShading() ? paintID : UniquePaintParamsID::Invalid()});
+                 performsShading ? paintID : UniquePaintParamsID::Invalid()});
 
         step->writeUniformsAndTextures(*drawParams, gatherer);
 
         auto [combinedUniforms, combinedTextures] =
-                gatherer->endCombinedData(step->performsShading());
+                gatherer->endCombinedData(performsShading);
 
         UniformDataCache::Index uniformIndex = combinedUniforms
                                                        ? fUniformDataCache.insert(combinedUniforms)

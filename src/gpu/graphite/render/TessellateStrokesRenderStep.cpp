@@ -88,16 +88,18 @@ static constexpr SkSpan<const Attribute> kAttributes[2] = {kAttributesWithCurveT
 
 }  // namespace
 
-TessellateStrokesRenderStep::TessellateStrokesRenderStep(Layout layout, bool infinitySupport)
+TessellateStrokesRenderStep::TessellateStrokesRenderStep(Layout layout, bool infinitySupport,
+                                                         bool inverseFill)
         : RenderStep(layout,
-                     RenderStepID::kTessellateStrokes,
-                     Flags::kRequiresMSAA | Flags::kPerformsShading |
-                     Flags::kAppendDynamicInstances,
+                     inverseFill ? RenderStepID::kTessellateStrokes_InverseFill
+                                 : RenderStepID::kTessellateStrokes_Fill,
+                     (inverseFill ? Flags::kNone : Flags::kPerformsShading)
+                            | Flags::kRequiresMSAA | Flags::kAppendDynamicInstances,
                      /*uniforms=*/{{"affineMatrix", SkSLType::kFloat4},
                                    {"translate", SkSLType::kFloat2},
                                    {"maxScale", SkSLType::kFloat}},
                      PrimitiveType::kTriangleStrip,
-                     kDirectDepthLessPass,
+                     inverseFill ? kIncrementStencilPass : kDirectDepthLessPass,
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/kAttributes[infinitySupport])
         , fInfinitySupport(infinitySupport) {}
