@@ -12,11 +12,13 @@
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/PipelineCreationTask.h"
 #include "src/gpu/graphite/PipelineData.h"
+#include "src/gpu/graphite/PipelineManager.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Resource.h"  // IWYU pragma: keep
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
+#include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/Texture.h"  // IWYU pragma: keep
 #include "src/gpu/graphite/TextureProxy.h"
 
@@ -42,13 +44,19 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
                                 const RenderPassDesc& renderPassDesc) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
+    SharedContext* sharedContext = resourceProvider->sharedContext();
+    PipelineManager* pipelineManager = sharedContext->pipelineManager();
+
     fPipelineHandles.reserve(fPipelineDescs.size());
     for (const GraphicsPipelineDesc& pipelineDesc : fPipelineDescs) {
         fPipelineHandles.push_back(
-                resourceProvider->createGraphicsPipelineHandle(pipelineDesc,
-                                                               renderPassDesc,
-                                                               PipelineCreationFlags::kNone));
-        resourceProvider->startPipelineCreationTask(runtimeDict, fPipelineHandles.back());
+                pipelineManager->createHandle(sharedContext,
+                                              pipelineDesc,
+                                              renderPassDesc,
+                                              PipelineCreationFlags::kNone));
+        pipelineManager->startPipelineCreationTask(sharedContext,
+                                                   runtimeDict,
+                                                   fPipelineHandles.back());
     }
 
     // The DrawPass may be long-lived on a Recording and we no longer need the GraphicPipelineDescs
@@ -82,9 +90,12 @@ bool DrawPass::addResourceRefs(ResourceProvider* resourceProvider,
                         "# pipelines",
                         fPipelineHandles.size());
 
+    SharedContext* sharedContext = resourceProvider->sharedContext();
+    PipelineManager* pipelineManager = sharedContext->pipelineManager();
+
     SkASSERT(fPipelineHandles.size() == fPipelineDrawAreas.size());
     for (int i = 0; i < fPipelineHandles.size(); ++i) {
-        sk_sp<GraphicsPipeline> pipeline = resourceProvider->resolveHandle(fPipelineHandles[i]);
+        sk_sp<GraphicsPipeline> pipeline = pipelineManager->resolveHandle(fPipelineHandles[i]);
         if (!pipeline) {
             SKIA_LOG_W("Failed to create Pipeline for draw in RenderPass. Dropping draw!");
             return false;

@@ -19,14 +19,9 @@
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GlobalCache.h"
-#include "src/gpu/graphite/GraphicsPipeline.h"
-#include "src/gpu/graphite/GraphicsPipelineHandle.h"
-#include "src/gpu/graphite/PipelineCreationTask.h"
-#include "src/gpu/graphite/PipelineManager.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/ResourceCache.h"
-#include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/Texture.h"
@@ -44,34 +39,6 @@ ResourceProvider::ResourceProvider(SharedContext* sharedContext,
 
 ResourceProvider::~ResourceProvider() {
     fResourceCache->shutdown();
-}
-
-GraphicsPipelineHandle ResourceProvider::createGraphicsPipelineHandle(
-        const GraphicsPipelineDesc& pipelineDesc,
-        const RenderPassDesc& renderPassDesc,
-        SkEnumBitMask<PipelineCreationFlags> pipelineCreationFlags) {
-
-    PipelineManager* pipelineManager = fSharedContext->pipelineManager();
-
-    return pipelineManager->createHandle(fSharedContext,
-                                         pipelineDesc,
-                                         renderPassDesc,
-                                         pipelineCreationFlags);
-}
-
-void ResourceProvider::startPipelineCreationTask(sk_sp<const RuntimeEffectDictionary> runtimeDict,
-                                                 const GraphicsPipelineHandle& handle) {
-    PipelineManager* pipelineManager = fSharedContext->pipelineManager();
-
-    pipelineManager->startPipelineCreationTask(fSharedContext,
-                                               std::move(runtimeDict),
-                                               handle);
-}
-
-sk_sp<GraphicsPipeline> ResourceProvider::resolveHandle(const GraphicsPipelineHandle& handle) {
-    PipelineManager* pipelineManager = fSharedContext->pipelineManager();
-
-    return pipelineManager->resolveHandle(handle);
 }
 
 sk_sp<ComputePipeline> ResourceProvider::findOrCreateComputePipeline(

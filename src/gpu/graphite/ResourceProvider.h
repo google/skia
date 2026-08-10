@@ -52,14 +52,6 @@ class ResourceProvider {
 public:
     virtual ~ResourceProvider();
 
-    GraphicsPipelineHandle createGraphicsPipelineHandle(
-            const GraphicsPipelineDesc&,
-            const RenderPassDesc&,
-            SkEnumBitMask<PipelineCreationFlags>);
-    void startPipelineCreationTask(sk_sp<const RuntimeEffectDictionary>,
-                                   const GraphicsPipelineHandle&);
-    sk_sp<GraphicsPipeline> resolveHandle(const GraphicsPipelineHandle&);
-
     sk_sp<ComputePipeline> findOrCreateComputePipeline(const ComputePipelineDesc&);
 
     sk_sp<Texture> findOrCreateShareableTexture(SkISize,
@@ -116,8 +108,10 @@ public:
 
 #if defined(GPU_TEST_UTILS) || defined(SK_DEBUG)
     ResourceCache* resourceCache() { return fResourceCache.get(); }
-    const SharedContext* sharedContext() { return fSharedContext; }
 #endif
+
+    const SharedContext* sharedContext() const { return fSharedContext; }
+    SharedContext* sharedContext() { return fSharedContext; }
 
     const Caps* caps() const;
 

@@ -35,9 +35,6 @@ public:
     SharedContext* sharedContext() {
         return fPrecompileContext->fSharedContext.get();
     }
-    ResourceProvider* resourceProvider() {
-        return fPrecompileContext->fResourceProvider.get();
-    }
 #if defined(GPU_TEST_UTILS)
     GlobalCache* globalCache() {
         return fPrecompileContext->fSharedContext->globalCache();

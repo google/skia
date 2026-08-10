@@ -15,11 +15,14 @@
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GpuWorkSubmission.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
+#include "src/gpu/graphite/PipelineCreationTask.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/ResourceCache.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/SerializationUtils.h"
 #include "src/gpu/graphite/ThreadSafeResourceProvider.h"
+
 
 namespace skgpu::graphite {
 

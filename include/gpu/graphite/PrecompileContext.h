@@ -24,6 +24,14 @@ class SharedContext;
 class PrecompileContextPriv;
 class ResourceProvider;
 
+// The PrecompileContext is spawned from a generating Context via Context::makePrecompileContext.
+// It should only be used on a single thread but that can be different from the main thread (i.e.,
+// the one the Context is operating on). Many PrecompileContext's can be operating in parallel
+// but the majority of the benefit will be from the threaded compilation within the
+// PrecompileContext. As for that, the PipelineContext(s) borrow(s) the Executor from the
+// generating Context. To make lifetime management of the Executor reasonable, if the
+// Context is deleted before its PrecompileContexts, the PrecompileContexts will lose access
+// to the Executor and revert to single threaded compilation.
 class SK_API PrecompileContext {
 public:
     ~PrecompileContext();
@@ -99,9 +107,9 @@ private:
 
     explicit PrecompileContext(sk_sp<SharedContext>);
 
+    // The PrecompileContext should not be used on multiple threads
     mutable SingleOwner fSingleOwner;
     sk_sp<SharedContext> fSharedContext;
-    std::unique_ptr<ResourceProvider> fResourceProvider;
 };
 
 }  // namespace skgpu::graphite
