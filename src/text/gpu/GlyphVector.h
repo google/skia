@@ -69,7 +69,7 @@ concept GlyphType = requires(const T& t) {
     // sufficient.
     requires alignof(T) <= kMaxGlyphTypeSize;
 
-    std::is_trivially_destructible_v<T>;
+    requires std::is_trivially_destructible_v<T>;
 
     { t.packedID() } -> std::convertible_to<SkPackedGlyphID>;
 };
