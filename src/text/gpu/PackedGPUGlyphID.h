@@ -78,8 +78,8 @@ private:
     static_assert(kEndGPUData <= 32); // Must still fit within a uint32_t
 
     static constexpr uint32_t PackGPUData(skgpu::MaskFormat format, int padding, bool isSDF) {
-        SkASSERT((uint32_t) format <= (1u << kMaskFormatBits));
-        SkASSERT(0 <= padding && padding <= (1 << kPaddingBits));
+        SkASSERT((uint32_t) format < (1u << kMaskFormatBits));
+        SkASSERT(0 <= padding && padding < (1 << kPaddingBits));
         return ((uint32_t) format << kMaskFormatOffset) |
                ((uint32_t) padding << kPaddingOffset) |
                ((uint32_t) isSDF << kSDFOffset);
