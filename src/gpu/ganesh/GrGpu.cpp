@@ -908,7 +908,7 @@ GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
     if (beTex.isValid()) {
         skgpu::GlobalResourceStats::RecordCreateBackendTexture(
                 isProtected == GrProtected::kYes ? skgpu::Protected::kYes : skgpu::Protected::kNo,
-                GrSurface::ComputeSize(format, dimensions, 1, mipmapped));
+                GrSurface::ComputeSize(beTex.getBackendFormat(), dimensions, 1, mipmapped));
     }
     return beTex;
 }
