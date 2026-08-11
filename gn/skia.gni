@@ -33,7 +33,6 @@ declare_args() {
   skia_enable_sparse_strips = false
   skia_disable_tracing = is_official_build
   skia_enable_vello_shaders = false
-  skia_enable_threadlocal_strikecache = false
   skia_disable_vma_stl_shared_mutex = false
   skia_enable_winuwp = false
   skia_generate_workarounds = false

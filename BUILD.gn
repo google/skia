@@ -69,9 +69,6 @@ config("skia_public") {
   if (skia_build_fuzzers) {
     defines += [ "SK_BUILD_FOR_FUZZER" ]
   }
-  if (skia_enable_threadlocal_strikecache) {
-    defines += [ "SK_ENABLE_THREADLOCAL_STRIKECACHE" ]
-  }
 
   # Some older versions of the Clang toolchain change the visibility of
   # symbols decorated with API_AVAILABLE macro to be visible. Users of such

@@ -471,7 +471,10 @@ private:
 
 } // namespace
 
+extern bool gSkUseThreadLocalStrikeCaches_IAcknowledgeThisIsIncrediblyExperimental;
+
 int main(int argc, char** argv) {
+    gSkUseThreadLocalStrikeCaches_IAcknowledgeThisIsIncrediblyExperimental = true;
     CommandLineFlags::Parse(argc, argv);
     SkGraphics::Init();
 
