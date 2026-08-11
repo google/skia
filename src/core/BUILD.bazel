@@ -564,6 +564,11 @@ bool_flag(
     default = False,
 )
 
+bool_flag(
+    name = "skia_enable_threadlocal_strikecache",
+    default = False,
+)
+
 skia_cc_library(
     name = "core",
     srcs = [
@@ -592,6 +597,10 @@ skia_cc_library(
         "//include/sksl:core_hdrs",
         "//include/utils:core_hdrs",
     ],
+    defines = select({
+        ":skia_enable_threadlocal_strikecache_true": ["SK_ENABLE_THREADLOCAL_STRIKECACHE"],
+        ":skia_enable_threadlocal_strikecache_false": [],
+    }),
     features = ["layering_check"],
     textual_hdrs = [
         "//src/opts:textual_hdrs",
