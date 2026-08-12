@@ -25,6 +25,7 @@ skia_cc_library(
         "raw_ptr.h",
         "raw_ptr_exclusion.h",
         "raw_ref.h",
+        "safety_checks.h",
     ],
     visibility = ["//:__subpackages__"],
 )

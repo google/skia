@@ -8,6 +8,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "src/core/SkSafetyChecks.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/DrawPass.h"
 #include "src/gpu/graphite/DrawWriter.h"
@@ -266,6 +267,7 @@ std::unique_ptr<DrawPass> DrawList::snapDrawPass(Recorder* recorder,
 }
 
 void DrawList::reset(LoadOp op, SkColor4f clearColor) {
+    SK_SCOPED_DISABLE_PARTITION_ALLOC_SAFETY_CHECKS;
     fDraws.reset();
     fSortKeys.clear();
     DrawListBase::reset(op, clearColor);
