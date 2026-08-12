@@ -76,10 +76,10 @@ bool PrecompileContext::precompile(sk_sp<SkData> serializedPipelineKey) {
 
     GraphicsPipelineHandle handle = pipelineManager->createHandle(
             fSharedContext.get(),
-            rtEffectDict,
             pipelineDesc,
             renderPassDesc,
             PipelineCreationFlags::kForPrecompilation);
+    pipelineManager->startPipelineCreationTask(fSharedContext.get(), rtEffectDict, handle);
 
     return true;
 #else

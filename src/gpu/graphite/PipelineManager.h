@@ -39,15 +39,15 @@ public:
     PipelineManager(SkExecutor* executor);
     ~PipelineManager();
 
-    // If an existing Pipeline is found, it is just wrapped in a Handle and returned.
-    // Otherwise, a compilation task is created and queued up for execution.
-    // If no Executor is provided the compilations will occur synchronously, in-line.
     GraphicsPipelineHandle createHandle(
             SharedContext*,
-            sk_sp<const RuntimeEffectDictionary> runtimeDict,
             const GraphicsPipelineDesc&,
             const RenderPassDesc&,
             SkEnumBitMask<PipelineCreationFlags>);
+
+    void startPipelineCreationTask(SharedContext*,
+                                   sk_sp<const RuntimeEffectDictionary>,
+                                   const GraphicsPipelineHandle&);
 
     sk_sp<GraphicsPipeline> resolveHandle(const GraphicsPipelineHandle&);
 
@@ -70,18 +70,11 @@ public:
 private:
     mutable SkSpinlock fSpinLock;
 
-    enum class Priority { kHigh = 0, kLow = 1 };
-
     sk_sp<PipelineCreationTask> findOrCreateTask(
             const UniqueKey& pipelineKey,
             const GraphicsPipelineDesc&,
             const RenderPassDesc&,
-            Priority) SK_EXCLUDES(fSpinLock);
-
-    void addTaskToWorkList(SharedContext*,
-                           sk_sp<const RuntimeEffectDictionary>,
-                           sk_sp<PipelineCreationTask>,
-                           Priority);
+            SkEnumBitMask<PipelineCreationFlags>) SK_EXCLUDES(fSpinLock);
 
     void removeTask(PipelineCreationTask*) SK_EXCLUDES(fSpinLock);
 
