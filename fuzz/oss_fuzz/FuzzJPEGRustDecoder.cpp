@@ -11,7 +11,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
 
-bool FuzzJpegRustDecoder(const uint8_t* data, size_t size) {
+bool FuzzJPEGRustDecoder(const uint8_t* data, size_t size) {
     if (size == 0) {
         return false;
     }
@@ -34,6 +34,17 @@ bool FuzzJpegRustDecoder(const uint8_t* data, size_t size) {
     // it doesn't crash or trigger undefined behavior.
     (void)codec->getPixels(info, bitmap.getPixels(), bitmap.rowBytes());
 
+    // Exercise the incremental state machine on malformed and truncated inputs
+    // accepted by the metadata parser. A second call without new input checks
+    // that retrying a recoverable EOF remains safe and idempotent.
+    if (codec->startIncrementalDecode(
+                info, bitmap.getPixels(), bitmap.rowBytes()) == SkCodec::kSuccess) {
+        int rowsDecoded = 0;
+        if (codec->incrementalDecode(&rowsDecoded) == SkCodec::kIncompleteInput) {
+            (void)codec->incrementalDecode(&rowsDecoded);
+        }
+    }
+
     return true;
 }
 
@@ -44,7 +55,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
         return 0;
     }
 
-    FuzzJpegRustDecoder(data, size);
+    FuzzJPEGRustDecoder(data, size);
 
     return 0;
 }

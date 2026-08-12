@@ -41,6 +41,9 @@ mod ffi {
         /// The destination row index where the buffer should start being copied.
         dst_row_start: u32,
         row_count: u32,
+        /// Whether these rows replace a previous progressive preview rather than
+        /// extending the stable final-output prefix.
+        is_preview: bool,
     }
 
     /// A scanned JPEG segment's header information.
@@ -219,16 +222,6 @@ impl ZByteReaderTrait for GrowingJpegCursor {
         buf.copy_from_slice(&data[self.position..end]);
         self.position = end;
         Ok(())
-    }
-
-    #[cfg(chromium_zune_core_fixed_reads)]
-    fn read_const_bytes<const N: usize>(&mut self, buf: &mut [u8; N]) -> Result<(), ZByteIoError> {
-        self.read_exact_bytes(buf)
-    }
-
-    #[cfg(chromium_zune_core_fixed_reads)]
-    fn read_const_bytes_no_error<const N: usize>(&mut self, buf: &mut [u8; N]) {
-        let _ = self.read_const_bytes(buf);
     }
 
     fn read_bytes(&mut self, buf: &mut [u8]) -> Result<usize, ZByteIoError> {
@@ -422,9 +415,17 @@ pub struct Reader {
     bytes_per_pixel: u32,
     image_data: Vec<u8>,
     image_data_loaded: bool,
-    /// May be less than height for truncated images.
+    /// Append-only stable output prefix. May be less than height for truncated images.
     valid_rows: u32,
+    /// Stable rows already returned by `get_next_rows`.
     last_consumed_row_count: u32,
+    /// Progressive previews are replaceable full-frame renders. Track the
+    /// completed scan represented by the current preview separately from the
+    /// append-only stable row prefix.
+    preview_rows: u32,
+    preview_scan_count: usize,
+    /// Last preview generation returned by `get_next_rows`.
+    last_consumed_preview_scan_count: usize,
     incremental_decoder: Option<IncrementalJpegDecoder>,
 
     scanner: SegmentScanner,
@@ -433,6 +434,18 @@ pub struct Reader {
     cached_exif: Option<Vec<u8>>,
     /// `None` = not yet scanned; `Some(None)` = scanned, no MPF found.
     cached_mpf: Option<Option<MpfResult>>,
+}
+
+fn decoded_row_slice(
+    image_data: &[u8],
+    row_start: u32,
+    row_count: u32,
+    row_bytes: usize,
+) -> Option<&[u8]> {
+    let start = (row_start as usize).checked_mul(row_bytes)?;
+    let size = (row_count as usize).checked_mul(row_bytes)?;
+    let end = start.checked_add(size)?;
+    image_data.get(start..end)
 }
 
 impl Reader {
@@ -454,6 +467,9 @@ impl Reader {
             image_data_loaded: false,
             valid_rows: 0,
             last_consumed_row_count: 0,
+            preview_rows: 0,
+            preview_scan_count: 0,
+            last_consumed_preview_scan_count: 0,
             incremental_decoder: None,
             // Stop at SOS — we only need header segments for metadata.
             scanner: SegmentScanner::new(jpeg_marker::SOS),
@@ -644,7 +660,11 @@ impl Reader {
                     self.image_data.clear();
                     return DecodingResult::IncompleteInput;
                 }
-                let rows = self.estimate_decoded_rows();
+                let rows = decoder
+                    .decoded_scanlines()
+                    .and_then(|rows| u32::try_from(rows).ok())
+                    .unwrap_or(0)
+                    .min(self.height);
                 if rows > 0 {
                     self.valid_rows = rows;
                     self.image_data_loaded = true;
@@ -720,6 +740,12 @@ impl Reader {
                     .and_then(|rows| u32::try_from(rows).ok())
                     .unwrap_or(0)
                     .min(self.height);
+                self.preview_rows = decoder
+                    .decoded_preview_scanlines()
+                    .and_then(|rows| u32::try_from(rows).ok())
+                    .unwrap_or(0)
+                    .min(self.height);
+                self.preview_scan_count = decoder.decoded_scans().unwrap_or(0);
                 DecodingResult::IncompleteInput
             }
             Err(ref e) => {
@@ -734,33 +760,71 @@ impl Reader {
     }
 
     pub fn get_next_rows<'a>(&'a mut self, buffer: &mut &'a [u8]) -> DecodedRowsInfo {
+        // Successful output is final even when the last incremental attempt
+        // previously exposed a progressive preview.
+        if !self.image_data_loaded
+            && self.preview_rows > 0
+            && self.preview_scan_count > self.last_consumed_preview_scan_count
+        {
+            let Some(preview) = decoded_row_slice(
+                &self.image_data,
+                0,
+                self.preview_rows,
+                self.row_bytes() as usize,
+            ) else {
+                *buffer = &[];
+                return DecodedRowsInfo {
+                    dst_row_start: 0,
+                    row_count: 0,
+                    is_preview: false,
+                };
+            };
+            self.last_consumed_preview_scan_count = self.preview_scan_count;
+            *buffer = preview;
+            return DecodedRowsInfo {
+                dst_row_start: 0,
+                row_count: self.preview_rows,
+                is_preview: true,
+            };
+        }
+
         let already_consumed = self.last_consumed_row_count;
         let row_bytes = self.row_bytes() as usize;
 
-        let current_rows = if self.image_data_loaded {
-            self.valid_rows
-        } else {
-            0
-        };
+        // `decoded_scanlines()` is an append-only stable prefix and is useful
+        // before the complete image has loaded (notably for baseline JPEGs).
+        let current_rows = self.valid_rows;
 
         if current_rows <= already_consumed {
             *buffer = &[];
             return DecodedRowsInfo {
                 dst_row_start: 0,
                 row_count: 0,
+                is_preview: false,
             };
         }
 
         let new_row_count = current_rows - already_consumed;
+        let Some(rows) = decoded_row_slice(
+            &self.image_data,
+            already_consumed,
+            new_row_count,
+            row_bytes,
+        ) else {
+            *buffer = &[];
+            return DecodedRowsInfo {
+                dst_row_start: 0,
+                row_count: 0,
+                is_preview: false,
+            };
+        };
         self.last_consumed_row_count = current_rows;
-
-        let buf_start = (already_consumed as usize) * row_bytes;
-        let new_bytes = (new_row_count as usize) * row_bytes;
-        *buffer = &self.image_data[buf_start..buf_start + new_bytes];
+        *buffer = rows;
 
         DecodedRowsInfo {
             dst_row_start: already_consumed,
             row_count: new_row_count,
+            is_preview: false,
         }
     }
 
@@ -768,29 +832,14 @@ impl Reader {
         self.width.checked_mul(self.bytes_per_pixel).unwrap_or(0)
     }
 
-    /// Estimate how many rows were decoded by scanning backwards for non-zero
-    /// bytes.  This is a heuristic: it will undercount for images with
-    /// legitimately all-zero (black) trailing rows.
-    fn estimate_decoded_rows(&self) -> u32 {
-        if self.image_data.is_empty() || self.width == 0 || self.bytes_per_pixel == 0 {
-            return 0;
-        }
-        let row_bytes = self.row_bytes() as usize;
-        for row in (0..self.height as usize).rev() {
-            let start = row * row_bytes;
-            let end = start + row_bytes;
-            if end <= self.image_data.len() && self.image_data[start..end].iter().any(|&b| b != 0) {
-                return (row + 1) as u32;
-            }
-        }
-        0
-    }
-
     pub fn reset_decode_state(&mut self) {
         self.image_data.clear();
         self.image_data_loaded = false;
         self.valid_rows = 0;
         self.last_consumed_row_count = 0;
+        self.preview_rows = 0;
+        self.preview_scan_count = 0;
+        self.last_consumed_preview_scan_count = 0;
         self.incremental_decoder = None;
         self.stream_exhausted = false;
     }
@@ -974,6 +1023,14 @@ pub fn encode_jpeg(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_decoded_row_slice_checks_bounds() {
+        let pixels: Vec<u8> = (0..24).collect();
+        assert_eq!(decoded_row_slice(&pixels, 1, 2, 6), Some(&pixels[6..18]));
+        assert_eq!(decoded_row_slice(&pixels, 3, 2, 6), None);
+        assert_eq!(decoded_row_slice(&pixels, u32::MAX, u32::MAX, usize::MAX), None);
+    }
 
     #[test]
     fn test_is_jpeg_data() {

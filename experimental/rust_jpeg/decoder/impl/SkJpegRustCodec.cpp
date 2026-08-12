@@ -7,6 +7,8 @@
 
 #include "experimental/rust_jpeg/decoder/impl/SkJpegRustCodec.h"
 
+#include <algorithm>
+
 #include "include/codec/SkCodecAnimation.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
@@ -540,6 +542,14 @@ SkCodec::Result SkJpegRustCodec::onStartIncrementalDecode(const SkImageInfo& dst
                                                           void* dst,
                                                           size_t dstRowBytes,
                                                           const Options& options) {
+    if (dstRowBytes < dstInfo.minRowBytes()) {
+        return kInvalidParameters;
+    }
+
+    if (options.fSubset) {
+        return kInvalidParameters;
+    }
+
     Result result = this->initializeSwizzler(dstInfo, options);
     if (result != kSuccess) {
         return result;
@@ -592,30 +602,52 @@ SkCodec::Result SkJpegRustCodec::incrementalDecode(DecodingState& state, int* ro
     rust_jpeg::DecodedRowsInfo rowsInfo = fReader->get_next_rows(imageData);
     const uint32_t dstRowStart = rowsInfo.dst_row_start;
     const uint32_t rowCount = rowsInfo.row_count;
+    if (rowsInfo.is_preview) {
+        // Progressive previews replace the initialized frame from row zero.
+        // SkCodec permits rowsDecoded to include initialized but unfinished rows.
+        if (dstRowStart != 0) {
+            return kErrorInInput;
+        }
+    }
 
     uint32_t copiedRows = 0;
-    if (rowCount > 0 && !imageData.empty()) {
+    if (rowCount > 0) {
+        const uint32_t height = static_cast<uint32_t>(this->dimensions().height());
+        if (srcRowBytes == 0 || imageData.empty() || dstRowStart >= height ||
+            rowCount > height - dstRowStart) {
+            return kErrorInInput;
+        }
+
+        SkSafeMath safe;
+        const size_t requiredSrcBytes = safe.mul(safe.castTo<size_t>(rowCount), srcRowBytes);
+        if (!safe.ok() || imageData.size() < requiredSrcBytes) {
+            return kErrorInInput;
+        }
+
         SkSpan<const uint8_t> srcImage(imageData.data(), imageData.size());
 
         for (uint32_t i = 0; i < rowCount; ++i) {
-            SkSpan<const uint8_t> srcRow = srcImage.subspan(i * srcRowBytes, srcRowBytes);
-            uint32_t dstY = dstRowStart + i;
-            if (dstY >= static_cast<uint32_t>(this->dimensions().height())) {
-                break;
+            const uint32_t dstY = dstRowStart + i;
+            const size_t srcOffset = safe.mul(safe.castTo<size_t>(i), srcRowBytes);
+            const size_t dstOffset = safe.mul(safe.castTo<size_t>(dstY), state.fDstRowStride);
+            if (!safe.ok()) {
+                return kInternalError;
             }
-            void* dstRow = state.fDst.data() + (dstY * state.fDstRowStride);
-            this->swizzleRow(srcRow.data(), dstRow);
+            SkSpan<const uint8_t> srcRow = srcImage.subspan(srcOffset, srcRowBytes);
+            SkSpan<uint8_t> dstRow = state.fDst.subspan(dstOffset, state.fDstRowStride);
+            this->swizzleRow(srcRow.data(), dstRow.data());
             copiedRows++;
         }
-        state.fTotalRowsDecoded += copiedRows;
+        state.fTotalRowsInitialized = std::max(
+            state.fTotalRowsInitialized, static_cast<int>(dstRowStart + copiedRows));
     }
 
     if (rowsDecodedPtr) {
-        *rowsDecodedPtr = state.fTotalRowsDecoded;
+        *rowsDecodedPtr = state.fTotalRowsInitialized;
     }
 
     return readResult == rust_jpeg::DecodingResult::Success &&
-                   state.fTotalRowsDecoded >= this->dimensions().height()
+               state.fTotalRowsInitialized >= this->dimensions().height()
            ? kSuccess
            : kIncompleteInput;
 }

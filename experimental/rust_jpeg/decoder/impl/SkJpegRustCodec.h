@@ -63,7 +63,8 @@ private:
                        const Options& options,
                        int* rowsDecoded) override;
 
-    // Incremental decoding: JPEG decodes all at once but we satisfy the interface.
+    // Incremental decoding exposes stable baseline scanlines as they become
+    // available and replaceable full-frame previews after progressive scans.
     Result onStartIncrementalDecode(const SkImageInfo& dstInfo,
                                    void* dst,
                                    size_t dstRowBytes,
@@ -80,7 +81,7 @@ private:
     struct DecodingState {
         SkSpan<uint8_t> fDst;
         size_t fDstRowStride;
-        int fTotalRowsDecoded = 0;
+        int fTotalRowsInitialized = 0;
     };
 
     Result incrementalDecode(DecodingState& state, int* rowsDecoded);

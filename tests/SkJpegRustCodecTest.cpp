@@ -7,10 +7,13 @@
 
 #include "experimental/rust_jpeg/decoder/SkJpegRustDecoder.h"
 
+#include <algorithm>
 #include <cmath>
+#include <cstring>
 #include <functional>
 #include <memory>
 #include <utility>
+#include <vector>
 
 #include "include/codec/SkCodec.h"
 #include "include/core/SkBitmap.h"
@@ -140,12 +143,14 @@ DEF_TEST(RustJpeg_IncrementalDecode_PartialStreaming, r) {
     struct TestCase {
         const char* path;
         const char* description;
+        bool expectProgressivePreview;
     };
 
     static const TestCase kTestCases[] = {
-        {"images/color_wheel.jpg",       "baseline RGB 128x128"},
-        {"images/dog.jpg",               "RGB 180x180"},
-        {"images/mandrill_512_q075.jpg", "RGB 512x512"},
+        {"images/color_wheel.jpg",       "baseline RGB 128x128", false},
+        {"images/dog.jpg",               "RGB 180x180",          false},
+        {"images/mandrill_512_q075.jpg", "RGB 512x512",          false},
+        {"images/b78329453.jpeg",        "progressive RGB 635x760", true},
     };
 
     // JPEG headers (SOS, DQT, DHT tables...) can exceed 1 KB. This leaves
@@ -207,6 +212,7 @@ DEF_TEST(RustJpeg_IncrementalDecode_PartialStreaming, r) {
             ERRORF(r, "%s: failed to allocate bitmap", testCase.description);
             continue;
         }
+        memset(bitmap.getPixels(), 0xAB, bitmap.computeByteSize());
 
         result = codec->startIncrementalDecode(info, bitmap.getPixels(), bitmap.rowBytes());
         REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
@@ -218,6 +224,10 @@ DEF_TEST(RustJpeg_IncrementalDecode_PartialStreaming, r) {
         int previousRowsDecoded = 0;
         int iterations = 0;
         bool sawIncompleteInput = false;
+        bool sawPartialOutput = false;
+        bool checkedNoNewDataRetry = false;
+        int progressivePreviewCount = 0;
+        std::vector<uint8_t> previousPixels(bitmap.computeByteSize(), 0xAB);
 
         while (iterations++ < kMaxIterations) {
             result = codec->incrementalDecode(&rowsDecoded);
@@ -225,7 +235,15 @@ DEF_TEST(RustJpeg_IncrementalDecode_PartialStreaming, r) {
             REPORTER_ASSERT(r, rowsDecoded >= previousRowsDecoded,
                             "%s: decoded row count regressed from %d to %d",
                             testCase.description, previousRowsDecoded, rowsDecoded);
-            previousRowsDecoded = rowsDecoded;
+
+            const uint8_t* pixels = static_cast<const uint8_t*>(bitmap.getPixels());
+            if (!testCase.expectProgressivePreview && previousRowsDecoded > 0) {
+                const size_t stableBytes = static_cast<size_t>(previousRowsDecoded) *
+                                           bitmap.rowBytes();
+                REPORTER_ASSERT(r, memcmp(pixels, previousPixels.data(), stableBytes) == 0,
+                                "%s: previously reported stable rows changed",
+                                testCase.description);
+            }
 
             if (result == SkCodec::kSuccess) {
                 break;
@@ -238,6 +256,52 @@ DEF_TEST(RustJpeg_IncrementalDecode_PartialStreaming, r) {
                 break;
             }
             sawIncompleteInput = true;
+
+            const bool pixelsChanged =
+                    std::any_of(pixels,
+                                pixels + bitmap.computeByteSize(),
+                                [](uint8_t value) { return value != 0xAB; });
+            if (testCase.expectProgressivePreview) {
+                if (memcmp(pixels, previousPixels.data(), bitmap.computeByteSize()) != 0) {
+                    progressivePreviewCount++;
+                    sawPartialOutput = true;
+                    REPORTER_ASSERT(r, rowsDecoded > 0,
+                                    "%s: preview pixels were not reported as initialized",
+                                    testCase.description);
+                }
+            } else if (rowsDecoded > 0) {
+                sawPartialOutput = true;
+                REPORTER_ASSERT(r, pixelsChanged,
+                                "%s: reported stable rows were not written",
+                                testCase.description);
+            }
+
+            for (int y = 0; y < rowsDecoded; ++y) {
+                for (int x = 0; x < info.width(); ++x) {
+                    REPORTER_ASSERT(r, SkColorGetA(bitmap.getColor(x, y)) == SK_AlphaOPAQUE,
+                                    "%s: initialized pixel (%d,%d) is not opaque",
+                                    testCase.description, x, y);
+                }
+            }
+
+            previousRowsDecoded = rowsDecoded;
+            memcpy(previousPixels.data(), pixels, bitmap.computeByteSize());
+
+            if (!checkedNoNewDataRetry && sawPartialOutput) {
+                int retryRowsDecoded = -1;
+                const SkCodec::Result retryResult = codec->incrementalDecode(&retryRowsDecoded);
+                REPORTER_ASSERT(r, retryResult == SkCodec::kIncompleteInput,
+                                "%s: retry without new data returned %s",
+                                testCase.description, SkCodec::ResultToString(retryResult));
+                REPORTER_ASSERT(r, retryRowsDecoded == rowsDecoded,
+                                "%s: retry changed initialized rows from %d to %d",
+                                testCase.description, rowsDecoded, retryRowsDecoded);
+                REPORTER_ASSERT(r,
+                                memcmp(pixels, previousPixels.data(), bitmap.computeByteSize()) == 0,
+                                "%s: retry without new data changed output",
+                                testCase.description);
+                checkedNoNewDataRetry = true;
+            }
 
             if (streamPtr->isAllDataReceived()) {
                 ERRORF(r, "%s: still incomplete after all data was available",
@@ -255,6 +319,17 @@ DEF_TEST(RustJpeg_IncrementalDecode_PartialStreaming, r) {
                         "%s: decode loop exceeded max iterations", testCase.description);
         REPORTER_ASSERT(r, sawIncompleteInput,
                         "%s: decode never observed incomplete input", testCase.description);
+        REPORTER_ASSERT(r, sawPartialOutput,
+                "%s: no partial output was exposed before all input arrived",
+                testCase.description);
+        REPORTER_ASSERT(r, checkedNoNewDataRetry,
+                "%s: retry without new input was not exercised",
+                testCase.description);
+        if (testCase.expectProgressivePreview) {
+            REPORTER_ASSERT(r, progressivePreviewCount >= 2,
+                    "%s: expected multiple progressive preview replacements, got %d",
+                    testCase.description, progressivePreviewCount);
+        }
         REPORTER_ASSERT(r, result == SkCodec::kSuccess,
                         "%s: resumed decode expected kSuccess, got %s",
                         testCase.description, SkCodec::ResultToString(result));
@@ -284,6 +359,170 @@ DEF_TEST(RustJpeg_IncrementalDecode_PartialStreaming, r) {
                     });
             ComparePixels(bitmap.pixmap(), reference.pixmap(), tols, error);
         }
+    }
+}
+
+DEF_TEST(RustJpeg_IncrementalDecode_RejectsSubset, r) {
+    std::unique_ptr<SkCodec> codec = decode_rust_jpeg(r, "images/color_wheel.jpg");
+    if (!codec) {
+        return;
+    }
+
+    const SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
+    const SkIRect subset = SkIRect::MakeXYWH(0, 1, info.width(), info.height() - 1);
+    SkBitmap bitmap;
+    bitmap.allocPixels(info.makeWH(subset.width(), subset.height()));
+
+    SkCodec::Options options;
+    options.fSubset = &subset;
+    const SkCodec::Result result = codec->startIncrementalDecode(
+            info, bitmap.getPixels(), bitmap.rowBytes(), &options);
+    REPORTER_ASSERT(r, result == SkCodec::kInvalidParameters,
+                    "incremental subset decode returned %s",
+                    SkCodec::ResultToString(result));
+}
+
+DEF_TEST(RustJpeg_IncrementalDecode_RejectsShortRowBytes, r) {
+    std::unique_ptr<SkCodec> codec = decode_rust_jpeg(r, "images/color_wheel.jpg");
+    if (!codec) {
+        return;
+    }
+
+    const SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
+    SkBitmap bitmap;
+    bitmap.allocPixels(info);
+    const SkCodec::Result result = codec->startIncrementalDecode(
+            info, bitmap.getPixels(), info.minRowBytes() - 1);
+    REPORTER_ASSERT(r, result == SkCodec::kInvalidParameters,
+                    "short incremental row bytes returned %s",
+                    SkCodec::ResultToString(result));
+}
+
+DEF_TEST(RustJpeg_IncrementalDecode_AfterRewind, r) {
+    std::unique_ptr<SkCodec> codec = decode_rust_jpeg(r, "images/color_wheel.jpg");
+    if (!codec) {
+        return;
+    }
+
+    const SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
+    SkBitmap firstIncremental;
+    firstIncremental.allocPixels(info);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+            r,
+            codec->startIncrementalDecode(
+                    info, firstIncremental.getPixels(), firstIncremental.rowBytes()));
+    int rowsDecoded = 0;
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->incrementalDecode(&rowsDecoded));
+    REPORTER_ASSERT(r, rowsDecoded == info.height());
+
+    auto [fullImage, fullResult] = codec->getImage();
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, fullResult);
+    REPORTER_ASSERT(r, fullImage);
+
+    SkBitmap secondIncremental;
+    secondIncremental.allocPixels(info);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+            r,
+            codec->startIncrementalDecode(
+                    info, secondIncremental.getPixels(), secondIncremental.rowBytes()));
+    rowsDecoded = 0;
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->incrementalDecode(&rowsDecoded));
+    REPORTER_ASSERT(r, rowsDecoded == info.height());
+
+    REPORTER_ASSERT(r, firstIncremental.computeByteSize() == secondIncremental.computeByteSize());
+    REPORTER_ASSERT(r,
+                    memcmp(firstIncremental.getPixels(),
+                           secondIncremental.getPixels(),
+                           firstIncremental.computeByteSize()) == 0);
+}
+
+DEF_TEST(RustJpeg_IncrementalDecode_ColorTransformPaddedStride, r) {
+    // This file has more than 32 KiB of metadata before its decodable scan data.
+    constexpr size_t kInitialBytes = 34 * 1024;
+    constexpr size_t kChunkSize = 4 * 1024;
+    constexpr int kMaxIterations = 1000;
+
+    sk_sp<SkData> data = GetResourceAsData("images/icc-v2-gbr.jpg");
+    if (!data) {
+        ERRORF(r, "Missing resource: images/icc-v2-gbr.jpg");
+        return;
+    }
+
+    std::unique_ptr<SkCodec> referenceCodec =
+            SkJpegRustDecoder::Decode(SkMemoryStream::Make(data), nullptr);
+    REPORTER_ASSERT(r, referenceCodec);
+    if (!referenceCodec) {
+        return;
+    }
+
+    const SkImageInfo dstInfo = referenceCodec->getInfo()
+                                        .makeColorType(kRGBA_8888_SkColorType)
+                                        .makeColorSpace(SkColorSpace::MakeSRGB());
+    SkBitmap reference;
+    reference.allocPixels(dstInfo);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+            r,
+            referenceCodec->getPixels(dstInfo, reference.getPixels(), reference.rowBytes()));
+
+    auto haltingStream = std::make_unique<HaltingStream>(data, kInitialBytes);
+    HaltingStream* streamPtr = haltingStream.get();
+    SkCodec::Result result;
+    std::unique_ptr<SkCodec> codec =
+            SkJpegRustDecoder::Decode(std::move(haltingStream), &result);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+    REPORTER_ASSERT(r, codec);
+    if (!codec) {
+        return;
+    }
+
+    const size_t paddedRowBytes = dstInfo.minRowBytes() + 32;
+    SkBitmap incremental;
+    incremental.allocPixels(dstInfo, paddedRowBytes);
+    memset(incremental.getPixels(), 0xAB, incremental.computeByteSize());
+
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(
+            r,
+            codec->startIncrementalDecode(
+                    dstInfo, incremental.getPixels(), incremental.rowBytes()));
+
+    int rowsDecoded = 0;
+    int iterations = 0;
+    bool sawIncompleteInput = false;
+    do {
+        result = codec->incrementalDecode(&rowsDecoded);
+        if (result == SkCodec::kIncompleteInput) {
+            sawIncompleteInput = true;
+            REPORTER_ASSERT(r, !streamPtr->isAllDataReceived());
+            streamPtr->addNewData(kChunkSize);
+        }
+    } while (result == SkCodec::kIncompleteInput && iterations++ < kMaxIterations);
+
+    REPORTER_ASSERT(r, sawIncompleteInput);
+    REPORTER_ASSERT(r, iterations < kMaxIterations);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+    REPORTER_ASSERT(r, rowsDecoded == dstInfo.height());
+
+    const float tolerances[4] = {0, 0, 0, 0};
+    auto reportError = std::function<ComparePixmapsErrorReporter>(
+            [&](int x, int y, const float diffs[4]) {
+                ERRORF(r,
+                       "incremental transformed pixel differs at (%d,%d): "
+                       "diffs=(%f,%f,%f,%f)",
+                       x, y, diffs[0], diffs[1], diffs[2], diffs[3]);
+            });
+    ComparePixels(reference.pixmap(),
+                  incremental.pixmap(),
+                  tolerances,
+                  reportError);
+
+    const size_t pixelBytes = dstInfo.minRowBytes();
+    for (int y = 0; y + 1 < dstInfo.height(); ++y) {
+        const uint8_t* row = static_cast<const uint8_t*>(incremental.getAddr(0, y));
+        REPORTER_ASSERT(r,
+                        std::all_of(row + pixelBytes,
+                                    row + paddedRowBytes,
+                                    [](uint8_t value) { return value == 0xAB; }),
+                        "incremental decode modified row %d padding", y);
     }
 }
 
