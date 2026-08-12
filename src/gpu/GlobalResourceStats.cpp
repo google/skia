@@ -21,6 +21,7 @@ GlobalResourceStats& GlobalResourceStats::Singleton(Protected isProtected) {
 }
 
 void GlobalResourceStats::recordNewResource(size_t size, Budgeted budgeted) {
+    fHasBeenUsed = true;
     if (budgeted == Budgeted::kYes) {
         fBudgetedBytes += size;
     } else {
@@ -29,11 +30,13 @@ void GlobalResourceStats::recordNewResource(size_t size, Budgeted budgeted) {
 }
 
 void GlobalResourceStats::recordPurgeResource(size_t size) {
+    fHasBeenUsed = true;
     // This assumes all unbudgeted resources transition to budgeted resources before they are purged
     fBudgetedBytes -= size;
 }
 
 void GlobalResourceStats::recordResourceBudgetChange(size_t size, Budgeted newBudget) {
+    fHasBeenUsed = true;
     // We're not worrying about synchronizing the update between unbudgeted and budgeted, tracing
     // will eventually show the right state.
     if (newBudget == Budgeted::kYes) {
@@ -50,6 +53,7 @@ void GlobalResourceStats::recordResourceBudgetChange(size_t size, Budgeted newBu
 void GlobalResourceStats::recordResourceUpdatedSize(size_t newSize,
                                                     size_t oldSize,
                                                     Budgeted budgeted) {
+    fHasBeenUsed = true;
     // We could structure this as subtracting oldSize and then adding newSize, but we can keep it
     // atomic by choosing += or -=.
     if (budgeted == Budgeted::kYes) {
@@ -71,14 +75,17 @@ void GlobalResourceStats::recordResourceUpdatedSize(size_t newSize,
 }
 
 void GlobalResourceStats::recordResourcePurgeable(size_t size) {
+    fHasBeenUsed = true;
     fPurgeableBytes += size;
 }
 
 void GlobalResourceStats::recordResourceNonpurgeable(size_t size) {
+    fHasBeenUsed = true;
     fPurgeableBytes -= size;
 }
 
 void GlobalResourceStats::recordCreateBackendTexture(size_t size) {
+    fHasBeenUsed = true;
     fBackendTexBytes += size;
     // Trigger a trace for backend texture records since they happen outside the regular
     // flush/submit flow.
@@ -86,11 +93,16 @@ void GlobalResourceStats::recordCreateBackendTexture(size_t size) {
 }
 
 void GlobalResourceStats::recordDeleteBackendTexture(size_t size) {
+    fHasBeenUsed = true;
     fBackendTexBytes -= size;
     this->traceStatsSummary();
 }
 
 void GlobalResourceStats::traceStatsSummary() const {
+    if (!fHasBeenUsed) {
+        return;
+    }
+
     // Grab a snapshot (these won't change, but they aren't loaded atomically)
           size_t budgeted   = fBudgetedBytes;
     const size_t unbudgeted = fUnbudgetedBytes;

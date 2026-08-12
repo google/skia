@@ -108,6 +108,7 @@ private:
     void traceStatsSummary() const;
 
     const Protected fProtected;
+    std::atomic<bool> fHasBeenUsed = false;
 
     std::atomic<size_t> fBudgetedBytes = 0; // Includes purgeable bytes
     std::atomic<size_t> fPurgeableBytes = 0; // Resources that can be safely deleted at any time
