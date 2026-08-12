@@ -1544,4 +1544,18 @@ DEF_TEST(GrPathUtils_bug451448218, r) {
     }
 }
 
+DEF_TEST(GrTriangulator_EdgeDistNullPointer, r) {
+    GrTriangulator::Vertex top(SkPoint::Make(0.0f, 0.0f), 0);
+    GrTriangulator::Vertex bottom(SkPoint::Make(0.0f, 10.0f), 0);
+    GrTriangulator::Edge edge(&top, &bottom, 1, GrTriangulator::EdgeType::kInner);
+    edge.fTop = nullptr;
+    edge.fBottom = nullptr;
+    GrTriangulator::Vertex v(SkPoint::Make(1.0f, 2.0f), 0);
+    // Calling isLeftOf/isRightOf on an edge with null fTop/fBottom should not crash.
+    bool left = edge.isLeftOf(v);
+    bool right = edge.isRightOf(v);
+    REPORTER_ASSERT(r, left);
+    REPORTER_ASSERT(r, !right);
+}
+
 #endif // SK_ENABLE_OPTIMIZE_SIZE
