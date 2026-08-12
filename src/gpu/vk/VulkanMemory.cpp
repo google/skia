@@ -37,7 +37,7 @@ bool VulkanMemory::AllocBufferMemory(VulkanMemoryAllocator* allocator,
     }
 
     if (isProtected == Protected::kYes) {
-        propFlags = propFlags | VulkanMemoryAllocator::kProtected_AllocationPropertyFlag;
+        propFlags |= VulkanMemoryAllocator::kProtected_AllocationPropertyFlag;
     }
 
     VkResult result = allocator->allocateBufferMemory(buffer, usage, propFlags, &memory);
@@ -74,11 +74,16 @@ bool VulkanMemory::AllocImageMemory(VulkanMemoryAllocator* allocator,
     }
 
     if (isProtected == Protected::kYes) {
-        propFlags = propFlags | VulkanMemoryAllocator::kProtected_AllocationPropertyFlag;
+        propFlags |= VulkanMemoryAllocator::kProtected_AllocationPropertyFlag;
     }
 
     if (useLazyAllocation) {
-        propFlags = propFlags | VulkanMemoryAllocator::kLazyAllocation_AllocationPropertyFlag;
+        propFlags |= VulkanMemoryAllocator::kLazyAllocation_AllocationPropertyFlag;
+        // If we are doing a lazy allocation, we also want it to be a dedicated allocation so that
+        // individual lazy allocations don't end up getting committed to real memory because they
+        // are part of a larger memory block that is in real memory. So this flag will always
+        // be set when the lazy allocation flag is set.
+        propFlags |= VulkanMemoryAllocator::kDedicatedAllocation_AllocationPropertyFlag;
     }
 
     VkResult result = allocator->allocateImageMemory(image, propFlags, &memory);
