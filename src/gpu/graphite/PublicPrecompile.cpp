@@ -72,12 +72,10 @@ void compile(SharedContext* sharedContext,
 
             GraphicsPipelineHandle handle = pipelineManager->createHandle(
                     sharedContext,
+                    keyContext.rtEffectDict(),
                     { s->renderStepID(), paintID },
                     renderPassDesc,
                     PipelineCreationFlags::kForPrecompilation);
-            pipelineManager->startPipelineCreationTask(sharedContext,
-                                                       keyContext.rtEffectDict(),
-                                                       handle);
         }
     }
 }
@@ -173,12 +171,10 @@ void Precompile(PrecompileContext* precompileContext,
 
                 GraphicsPipelineHandle handle = pipelineManager->createHandle(
                         sharedContext,
+                        keyContext.rtEffectDict(),
                         { renderStep->renderStepID(), UniquePaintParamsID::Invalid() },
                         renderPassDesc,
                         PipelineCreationFlags::kForPrecompilation);
-                pipelineManager->startPipelineCreationTask(sharedContext,
-                                                           keyContext.rtEffectDict(),
-                                                           handle);
             }
 
             if (drawTypes & DrawTypeFlags::kBitmapText_Color) {
