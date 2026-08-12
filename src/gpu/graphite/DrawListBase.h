@@ -19,6 +19,7 @@
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PipelineData.h"
+#include "src/gpu/graphite/StorageContext.h"
 #include "src/gpu/graphite/geom/Rect.h"
 #include "src/gpu/graphite/geom/Transform.h"
 
@@ -64,7 +65,9 @@ public:
             const StrokeStyle* stroke,
             Layer* latestInsertion) = 0;
 
+
     virtual std::unique_ptr<DrawPass> snapDrawPass(Recorder* recorder,
+                                                   StorageContext* storageContext,
                                                    sk_sp<TextureProxy> target,
                                                    const SkImageInfo& targetInfo,
                                                    const DstReadStrategy dstReadStrategy) = 0;
@@ -116,8 +119,8 @@ protected:
     // the DrawListLayer's arena allocator.
     SkTBlockList<Transform, 4> fTransforms{SkBlockAllocator::GrowthPolicy::kFibonacci};
 
-    UniformDataCache fUniformDataCache;
-    TextureDataCache fTextureDataCache;
+    UniformDataCache      fUniformDataCache;
+    TextureDataCache      fTextureDataCache;
     GraphicsPipelineCache fPipelineCache;
 
     int fRenderStepCount = 0;

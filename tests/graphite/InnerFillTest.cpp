@@ -159,7 +159,6 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(OptimizeForOpacity,
         // pixel-aligned case appropriately).
         KeyContext keyContext{recorder.get(),
                               drawContext.get(),
-                              recorder->priv().storageBufferManager(),
                               &keyAndDataBuilder->second,
                               &keyAndDataBuilder->first,
                               SkM44(),

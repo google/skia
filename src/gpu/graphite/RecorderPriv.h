@@ -86,8 +86,6 @@ public:
     UploadList* rootUploadList() { return fRecorder->fRootUploads.get(); }
     DrawBufferManager* drawBufferManager() { return fRecorder->fDrawBufferManager.get(); }
     UploadBufferManager* uploadBufferManager() { return fRecorder->fUploadBufferManager.get(); }
-    StorageBufferManager* storageBufferManager() { return fRecorder->fStorageBufferManager.get(); }
-    sk_sp<StorageBufferManager> refStorageBufferManager() { return fRecorder->fStorageBufferManager; }
 
     AtlasProvider* atlasProvider() { return fRecorder->fAtlasProvider.get(); }
     TokenTracker* tokenTracker() { return fRecorder->fTokenTracker.get(); }

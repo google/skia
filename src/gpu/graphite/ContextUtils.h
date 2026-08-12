@@ -27,7 +27,6 @@ namespace graphite {
 class Caps;
 class ComputeStep;
 enum class Coverage;
-class StorageBufferManager;
 class Geometry;
 class PaintParams;
 class PaintParamsKeyBuilder;

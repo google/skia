@@ -559,6 +559,9 @@ void Device::setImmutable() {
         // Abandoning the recorder ensures that there are no further operations that can be recorded
         // and is relied on by Image::notifyInUse() to detect when it can unlink from a Device.
         this->abandonRecorder();
+        // TODO (b/540923063): Remove once resetting storage cache can be placed directly into
+        // flushPendingWork()
+        this->resetStorageCache();
     }
 }
 
@@ -1682,7 +1685,6 @@ void Device::drawGeometry(const Transform& localToDevice,
     }
     KeyContext keyContext{fRecorder,
                           fDC.get(),
-                          fRecorder->priv().storageBufferManager(),
                           scopedDrawBuilder.builder(),
                           scopedDrawBuilder.gatherer(),
                           localToDevice.matrix(),
@@ -1725,6 +1727,8 @@ void Device::drawGeometry(const Transform& localToDevice,
 
     // If an atlas path renderer was chosen we need to insert the shape into the atlas and schedule
     // it to be drawn.
+    // TODO (b/540923063): Moving the pathAtlas flush prior to key extraction could allow the
+    // storage context to deduplicate uploads per draw pass.
     if (pathAtlas != nullptr) {
         Rect clippedShapeBounds = clip.transformedShapeBounds().makeIntersect(clip.scissor());
         if (clippedShapeBounds.area() >= 0.8f * clip.transformedShapeBounds().area()) {
@@ -2215,6 +2219,10 @@ void Device::flushPendingWork(DrawContext* drawContext) {
     }
 
     SkDEBUGCODE(fIsFlushing = false;)
+}
+
+void Device::resetStorageCache() {
+    fDC->storageContext()->resetCache();
 }
 
 void Device::internalFlush() {

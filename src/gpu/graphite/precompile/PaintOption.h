@@ -23,7 +23,6 @@ class PrecompileShader;
 class KeyContext;
 class PaintParamsKeyBuilder;
 class PipelineDataGatherer;
-class StorageBufferManager;
 
 class PaintOption {
 public:

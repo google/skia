@@ -14,7 +14,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "src/gpu/graphite/DrawListBase.h"
 #include "src/gpu/graphite/PaintParams.h"
-#include "src/gpu/graphite/ResourceTypes.h"
+#include "src/gpu/graphite/StorageContext.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/TextureProxyView.h"
 #include "src/gpu/graphite/task/UploadTask.h"
@@ -111,6 +111,10 @@ public:
     // Returns the dst read strategy to use when/if a paint requires a dst read
     DstReadStrategy dstReadStrategy() const { return fDstReadStrategy; }
 
+    StorageContext* storageContext() {
+        return &fStorageContext;
+    }
+
 private:
     DrawContext(const Caps*, sk_sp<TextureProxy>, const SkImageInfo&, const SkSurfaceProps&);
 
@@ -155,6 +159,7 @@ private:
     // either support one atlas texture per DrawPass or record the dispatches once per
     // RenderPassTask rather than DrawPass.
     std::unique_ptr<ComputePathAtlas> fComputePathAtlas;
+    StorageContext fStorageContext;
 };
 
 } // namespace skgpu::graphite

@@ -21,7 +21,6 @@
 #include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/RecorderPriv.h"
-#include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureFormat.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
@@ -182,6 +181,7 @@ void Flush(SkSurface* surface) {
     }
     auto gs = static_cast<Surface*>(surface);
     gs->fDevice->flushPendingWork(/*drawContext=*/nullptr);
+    gs->fDevice->resetStorageCache();
 }
 
 } // namespace skgpu::graphite
