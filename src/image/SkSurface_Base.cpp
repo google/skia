@@ -40,7 +40,8 @@ SkSurface_Base::SkSurface_Base(const SkImageInfo& info, const SkSurfaceProps* pr
         : SkSurface(info, props), fPixelStorage(std::move(storage)) {}
 
 SkSurface_Base::~SkSurface_Base() {
-    // in case the canvas outsurvives us, we null the callback
+    // TODO: in case the canvas outsurvives us, we null the callback. Notify the capture manager
+    // that this canvas is being deleted.
     if (fCachedCanvas) {
         fCachedCanvas->setSurfaceBase(nullptr);
         fCachedCanvas->onSurfaceDelete();

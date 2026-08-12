@@ -30,8 +30,9 @@ public:
     SkCaptureManager();
 
     SkCanvas* makeCaptureCanvas(SkCanvas* canvas);
-    void snapPictures();
-    void snapPicture(SkSurface*);
+
+    // TODO: Take in a SkPixelStorage ID instead
+    sk_sp<SkPicture> snapPicture(SkSurface*);
 
     void toggleCapture(bool capturing);
 
@@ -39,10 +40,18 @@ public:
         return fIsCurrentlyCapturing;
     }
 
+    skia_private::TArray<sk_sp<SkPicture>> captureDrawTasksForRecording();
+    void onInsertRecording(const skia_private::TArray<sk_sp<SkPicture>>& capturedPictures);
+
     sk_sp<SkCapture> getLastCapture() const;
 
 private:
-    void processCanvasContent(SkCaptureCanvas*);
+    // Captures draws left in the SkCaptureCanvas' recording canvas. If capture ends before the
+    // client snaps a given Recorder, we want to grab the remaining draw commands so we don't lose
+    // anything.
+    // TODO:  Capture draws that were snapped in unsubmitted Recordings.
+    void captureUninsertedDrawTasks();
+    sk_sp<SkPicture> snapAndIncrement(SkCaptureCanvas*);
 
     std::atomic<bool> fIsCurrentlyCapturing = false;
     skia_private::TArray<std::unique_ptr<SkCaptureCanvas>> fTrackedCanvases;

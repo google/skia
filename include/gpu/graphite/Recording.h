@@ -18,6 +18,7 @@
 #include <vector>
 
 struct SkISize;
+class SkPicture;
 
 namespace skgpu {
 class RefCntedCallback;
@@ -93,6 +94,8 @@ private:
     std::unique_ptr<LazyProxyData> fTargetProxyData;
 
     skia_private::TArray<sk_sp<RefCntedCallback>> fFinishedProcs;
+
+    skia_private::TArray<sk_sp<SkPicture>> fCapturedPictures;
 };
 
 } // namespace skgpu::graphite

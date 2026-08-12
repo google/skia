@@ -66,6 +66,7 @@
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/QueueManager.h"
 #include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/ResourceTypes.h"
@@ -257,6 +258,14 @@ std::unique_ptr<Recorder> Context::makeInternalRecorder() const {
 
 InsertStatus Context::insertRecording(const InsertRecordingInfo& info) {
     ASSERT_SINGLE_OWNER
+
+    if (fSharedContext->captureManager() &&
+        fSharedContext->captureManager()->isCurrentlyCapturing() &&
+        info.fRecording) {
+        fSharedContext->captureManager()->onInsertRecording(
+            info.fRecording->priv().capturedPictures()
+        );
+    }
 
     return fQueueManager->addRecording(info, this);
 }

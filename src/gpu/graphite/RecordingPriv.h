@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_RecordingPriv_DEFINED
 #define skgpu_graphite_RecordingPriv_DEFINED
 
+#include "include/core/SkPicture.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"  // IWYU pragma: keep
 #include "include/gpu/graphite/Recording.h"
@@ -66,6 +67,13 @@ public:
 
     uint32_t recorderID() const { return fRecording->fRecorderID; }
     uint32_t uniqueID() const { return fRecording->fUniqueID; }
+
+    const skia_private::TArray<sk_sp<SkPicture>>& capturedPictures() const {
+        return fRecording->fCapturedPictures;
+    }
+    void setCapturedPictures(skia_private::TArray<sk_sp<SkPicture>>&& pictures) {
+        fRecording->fCapturedPictures = std::move(pictures);
+    }
 
 #if defined(GPU_TEST_UTILS)
     bool isTargetProxyInstantiated() const;

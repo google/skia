@@ -217,6 +217,15 @@ std::unique_ptr<Recording> Recorder::snap() {
                                                                                  : SK_InvalidGenID,
                                                        std::move(fTargetProxyData),
                                                        std::move(fFinishedProcs)));
+    if (fSharedContext->captureManager() &&
+        fSharedContext->captureManager()->isCurrentlyCapturing()) {
+        skia_private::TArray<sk_sp<SkPicture>> allCaptured = std::move(fCapturedPictures);
+        auto remaining = fSharedContext->captureManager()->captureDrawTasksForRecording();
+        for (auto& pic : remaining) {
+            allCaptured.push_back(std::move(pic));
+        }
+        recording->priv().setCapturedPictures(std::move(allCaptured));
+    }
     // Allow the buffer managers to add any collected tasks for data transfer or initialization
     // before moving the root task list to the Recording.
     bool valid = fDrawBufferManager->transferToRecording(recording.get());
@@ -308,8 +317,11 @@ SkCanvas* Recorder::makeCaptureCanvas(SkCanvas* canvas) {
 }
 
 void Recorder::createCaptureBreakpoint(SkSurface* surface) {
-   if (fSharedContext->captureManager()) {
-        fSharedContext->captureManager()->snapPicture(surface);
+    if (fSharedContext->captureManager()) {
+        auto picture = fSharedContext->captureManager()->snapPicture(surface);
+        if (picture) {
+            fCapturedPictures.push_back(std::move(picture));
+        }
     }
 }
 
