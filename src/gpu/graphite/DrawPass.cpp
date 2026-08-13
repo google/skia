@@ -91,7 +91,8 @@ bool DrawPass::addResourceRefs(ResourceProvider* resourceProvider,
 
     SkASSERT(fPipelineHandles.size() == fPipelineDrawAreas.size());
     for (int i = 0; i < fPipelineHandles.size(); ++i) {
-        sk_sp<GraphicsPipeline> pipeline = pipelineManager->resolveHandle(fPipelineHandles[i]);
+        sk_sp<GraphicsPipeline> pipeline = pipelineManager->resolveHandle(sharedContext,
+                                                                          fPipelineHandles[i]);
         if (!pipeline) {
             SKIA_LOG_W("Failed to create Pipeline for draw in RenderPass. Dropping draw!");
             return false;

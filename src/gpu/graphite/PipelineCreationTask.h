@@ -17,6 +17,8 @@
 
 namespace skgpu::graphite {
 
+class RuntimeEffectDictionary;
+
 // A PipelineCreationTask serves two purposes:
 //   Initially it captures the need to compile a Pipeline. In this mode it will appear in
 //      the PipelineManager's active tasks list and be wrapped in PipelineHandles.
@@ -44,16 +46,19 @@ private:
     friend class PipelineManager; // for entire API and fPipeline
     friend class GraphicsPipelineHandle; // for fPipeline in pipelineOrNull()
 
-    PipelineCreationTask(const UniqueKey& pipelineKey,
+    PipelineCreationTask(sk_sp<const RuntimeEffectDictionary> runtimeDict,
+                         const UniqueKey& pipelineKey,
                          const GraphicsPipelineDesc& graphicsPipelineDesc,
                          const RenderPassDesc& renderPassDesc,
                          bool isHighPriority)
-            : fPipelineKey(pipelineKey)
+            : fRuntimeDict(std::move(runtimeDict))
+            , fPipelineKey(pipelineKey)
             , fGraphicsPipelineDesc(graphicsPipelineDesc)
             , fRenderPassDesc(renderPassDesc)
             , fIsHighPriority(isHighPriority) {
     }
 
+    const sk_sp<const RuntimeEffectDictionary> fRuntimeDict;
     const UniqueKey fPipelineKey;  // used to track this task in the PipelineManager
     const GraphicsPipelineDesc fGraphicsPipelineDesc;
     const RenderPassDesc fRenderPassDesc;
