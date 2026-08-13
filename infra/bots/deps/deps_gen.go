@@ -164,7 +164,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"chromium.googlesource.com/vulkan-deps": {
 		Id:      "chromium.googlesource.com/vulkan-deps",
-		Version: "fd3bd96a36ef6887d843eed170c220812fd3d1ee",
+		Version: "89ee2d7a9d43c88a5c44bec5096a96c6b1d043a9",
 		Path:    "third_party/externals/vulkan-deps",
 	},
 	"chromium.googlesource.com/webm/libwebp": {
@@ -219,7 +219,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools": {
 		Id:      "skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools",
-		Version: "29174bd16335bb1404466ee59dad4fc7bf51efb3",
+		Version: "bb9d0b1b97bd3548128f87d180194e912df4d5df",
 		Path:    "third_party/externals/spirv-tools",
 	},
 	"skia.googlesource.com/external/github.com/emscripten-core/emsdk": {
