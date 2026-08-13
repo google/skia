@@ -131,7 +131,8 @@ public:
         // Compute bounds
         this->setTransformedBounds(shape.bounds(), viewMatrix, HasAABloat::kYes, IsHairline::kNo);
 
-#if defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+#if (defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)) || \
+        defined(SK_GANESH_SMALL_PATH_DISTANCE_FIELD_ALWAYS)
         fUsesDistanceField = true;
 #else
         // only use distance fields on desktop and Android framework to save space in the atlas
