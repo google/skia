@@ -51,12 +51,10 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
     for (const GraphicsPipelineDesc& pipelineDesc : fPipelineDescs) {
         fPipelineHandles.push_back(
                 pipelineManager->createHandle(sharedContext,
+                                              runtimeDict,
                                               pipelineDesc,
                                               renderPassDesc,
                                               PipelineCreationFlags::kNone));
-        pipelineManager->startPipelineCreationTask(sharedContext,
-                                                   runtimeDict,
-                                                   fPipelineHandles.back());
     }
 
     // The DrawPass may be long-lived on a Recording and we no longer need the GraphicPipelineDescs

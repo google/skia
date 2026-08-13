@@ -73,17 +73,18 @@ uint32_t PipelineManager::Traits::Hash(const UniqueKey& pipelineKey) {
     return pipelineKey.hash();
 }
 
-// TODO(robertphillips): If either 'findTask' or 'findOrCreateTask' returns a hit and it
-// is 'fInProgress', if the search was for a non-Precompile task but we found a Precompile task
-// then the task was initially added to the wrong worklist (i.e., the low-priority one). We need
-// a way to move such tasks to the high priority work list.
 GraphicsPipelineHandle PipelineManager::createHandle(
         SharedContext* sharedContext,
+        sk_sp<const RuntimeEffectDictionary> runtimeDict,
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc,
         SkEnumBitMask<PipelineCreationFlags> pipelineCreationFlags) {
     GlobalCache* globalCache = sharedContext->globalCache();
     const Caps* caps = sharedContext->caps();
+
+    bool forPrecompile =
+        SkToBool(pipelineCreationFlags & PipelineCreationFlags::kForPrecompilation);
+    Priority curPriority = forPrecompile ? Priority::kLow : Priority::kHigh;
 
     UniqueKey pipelineKey = caps->makeGraphicsPipelineKey(pipelineDesc, renderPassDesc);
 
@@ -102,28 +103,52 @@ GraphicsPipelineHandle PipelineManager::createHandle(
     sk_sp<PipelineCreationTask> task = this->findOrCreateTask(pipelineKey,
                                                               pipelineDesc,
                                                               renderPassDesc,
-                                                              pipelineCreationFlags);
+                                                              curPriority);
+
+    bool shouldAddToWorkList = false;
+
+    if (curPriority == Priority::kHigh && task->isLowPriority()) {
+        // If we found an active task for the current Pipeline we know, modulo thread races,
+        // that it hasn't completed yet (since it, then, wouldn't be in the active task list).
+        // If it was initially added as low priority, but turned out to be high priority,
+        // re-add it as a high priority task.
+        shouldAddToWorkList = !task->fIsHighPriority.exchange(true);
+    } else {
+        // Tasks are only removed from the TaskList when they are complete. This means that
+        // an in-flight task can be found and resubmitted for compilation. The 'fInWorkList'
+        // guard ensures we don't resubmit the same task over and over (modulo the one-off
+        // switch from low to high priority above).
+        shouldAddToWorkList = !task->fInWorkList.exchange(true);
+    }
+
+    if (shouldAddToWorkList) {
+        this->addTaskToWorkList(sharedContext, std::move(runtimeDict), task, curPriority);
+    }
+
     return GraphicsPipelineHandle(std::move(task));
 }
 
-void PipelineManager::startPipelineCreationTask(SharedContext* sharedContext,
-                                                sk_sp<const RuntimeEffectDictionary> runtimeDict,
-                                                const GraphicsPipelineHandle& handle) {
-    if (std::holds_alternative<sk_sp<GraphicsPipeline>>(handle.fTaskOrPipeline)) {
-        return;
-    }
-
-    sk_sp<PipelineCreationTask> task =
-            std::get<sk_sp<PipelineCreationTask>>(handle.fTaskOrPipeline);
-
-    if (task->fInProgress.exchange(true)) {
-        // Tasks are only removed from the TaskList when they are complete. This means that
-        // an in-flight task can be found and resubmitted for compilation. The 'fInProgress'
-        // guard ensures each task is only kicked off once.
-        return;
-    }
-
+void PipelineManager::addTaskToWorkList(SharedContext* sharedContext,
+                                        sk_sp<const RuntimeEffectDictionary> runtimeDict,
+                                        sk_sp<PipelineCreationTask> task,
+                                        Priority priority) {
     auto compileTask = [sharedContext, runtimeDict, this, task] {
+        // Since there might be multiple compilation lamdba functions in flight for the same
+        // task (i.e., if a low priority compile got duplicated as a high priority compile),
+        // we check the 'fStarted' atomic so only one does the work.
+        if (task->fStarted.exchange(true)) {
+            return;
+        }
+
+        // This is a bit racy but the exact correctness of the actual cause for the compilation
+        // isn't crucial. In essence, this tries to give the SharedContext a best guess about
+        // the driver behind the compilation. The exact race is if a precompile compilation
+        // was usurped by a normal compilation but we still report a precompile compilation
+        // to the SharedContext.
+        PipelineCreationFlags flags = task->isLowPriority()
+                                          ? PipelineCreationFlags::kForPrecompilation
+                                          : PipelineCreationFlags::kNone;
+
         // Note: this lambda function relies on the continued existence of the shared
         // context and the PipelineManager. The RuntimeEffectDictionary and task are reffed.
         task->fPipeline = sharedContext->findOrCreateGraphicsPipeline(
@@ -131,7 +156,7 @@ void PipelineManager::startPipelineCreationTask(SharedContext* sharedContext,
                 task->fPipelineKey,
                 task->fGraphicsPipelineDesc,
                 task->fRenderPassDesc,
-                task->fPipelineCreationFlags);
+                flags);
 
         if (!task->fPipeline) {
             SKIA_LOG_W("Failed to create GraphicsPipeline!");
@@ -145,14 +170,20 @@ void PipelineManager::startPipelineCreationTask(SharedContext* sharedContext,
         SkAutoSpinlock lock{fSpinLock};
 
         if (fTaskGroup) {
-            int workList = task->forPrecompile() ? kLowPriorityWorkList : kHighPriorityWorkList;
+            int workList = priority == Priority::kLow ? kLowPriorityWorkList
+                                                      : kHighPriorityWorkList;
 
             fTaskGroup->add(std::move(compileTask), workList);
             return;
         }
     }
 
-    // Non-threaded fallback
+    // Non-SkExecutor fallback. Note that, if multiple Recorders are recording in parallel on
+    // multiple threads (w/ no SkExecutor supplied) there could still be a compilation race
+    // here. In that case all the thread-safety mechanisms (e.g., 'fStarted', 'fCompleted')
+    // will kick in to eliminate duplicate work. This does mean, as in the SkExecutor case,
+    // that the task's Pipeline need not be resolved at the end of 'compileTask'. That is,
+    // after all, the purview of 'resolveHandle'.
     compileTask();
 }
 
@@ -219,7 +250,7 @@ sk_sp<PipelineCreationTask> PipelineManager::findOrCreateTask(
         const UniqueKey& pipelineKey,
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc,
-        SkEnumBitMask<PipelineCreationFlags> pipelineCreationFlags) {
+        Priority priority) {
     SkAutoSpinlock lock{fSpinLock};
 
     sk_sp<PipelineCreationTask>* task = fActiveTasks.find(pipelineKey);
@@ -238,7 +269,7 @@ sk_sp<PipelineCreationTask> PipelineManager::findOrCreateTask(
             new PipelineCreationTask(pipelineKey,
                                      pipelineDesc,
                                      renderPassDesc,
-                                     pipelineCreationFlags));
+                                     priority == Priority::kHigh));
     fActiveTasks.set(newTask);
     return newTask;
 }

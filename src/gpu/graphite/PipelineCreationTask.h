@@ -13,7 +13,20 @@
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 
+#include <atomic>
+
 namespace skgpu::graphite {
+
+// A PipelineCreationTask serves two purposes:
+//   Initially it captures the need to compile a Pipeline. In this mode it will appear in
+//      the PipelineManager's active tasks list and be wrapped in PipelineHandles.
+//   Once executed, the Task will get a pointer to the Pipeline it helped compile and
+//      hang around in the PipelineHandles (via a ref) to resolve the Handles to Pipelines)
+// Note that, when the PipelineManager is threaded, the same task can appear in two work lists.
+//   Once in the low priority list if it was initially kicked off via precompile
+//   Once in the high priority list if the low priority task was found by a normal compilation
+// Only one of the two 'compileTask' lambdas will be allowed to actually compile the pipeline -
+// guarded by the 'fStarted' atomic.
 
 // Once completed, the PipelineTask will lock the created Pipeline in the cache (via 'fPipeline')
 // until the PipelineTask is deleted.
@@ -23,6 +36,9 @@ namespace skgpu::graphite {
 // are).
 class PipelineCreationTask : public SkRefCnt {
 public:
+    bool isLowPriority() const {
+        return !fIsHighPriority.load(std::memory_order_relaxed);
+    }
 
 private:
     friend class PipelineManager; // for entire API and fPipeline
@@ -31,28 +47,28 @@ private:
     PipelineCreationTask(const UniqueKey& pipelineKey,
                          const GraphicsPipelineDesc& graphicsPipelineDesc,
                          const RenderPassDesc& renderPassDesc,
-                         SkEnumBitMask<PipelineCreationFlags> pipelineCreationFlags)
+                         bool isHighPriority)
             : fPipelineKey(pipelineKey)
             , fGraphicsPipelineDesc(graphicsPipelineDesc)
             , fRenderPassDesc(renderPassDesc)
-            , fPipelineCreationFlags(pipelineCreationFlags) {
-    }
-
-    bool forPrecompile() const {
-        return SkToBool(fPipelineCreationFlags & PipelineCreationFlags::kForPrecompilation);
+            , fIsHighPriority(isHighPriority) {
     }
 
     const UniqueKey fPipelineKey;  // used to track this task in the PipelineManager
     const GraphicsPipelineDesc fGraphicsPipelineDesc;
     const RenderPassDesc fRenderPassDesc;
-    const SkEnumBitMask<PipelineCreationFlags> fPipelineCreationFlags;
 
     // Once completed, this task will have filled in 'fPipeline' (if compilation succeeded).
     // This also serves to lock the pipeline in the cache.
     sk_sp<GraphicsPipeline> fPipeline;
 
-    // This flag boils down to this task having been placed into a work list.
-    std::atomic<bool> fInProgress{false};
+    // This flag boils down to this task having been placed into a work list. It could be
+    // in two at once.
+    std::atomic<bool> fInWorkList{false};
+
+    std::atomic<bool> fIsHighPriority{false};
+
+    std::atomic<bool> fStarted{false};
     // Ideally, in C++-20, we would just wait on 'fCompleted' rather than using the
     // mutex/condition_variable pattern (in PipelineManager). This is atomic bc it is still used
     // outside the mutex in GraphicsPipelineHandle::pipelineOrNull.
