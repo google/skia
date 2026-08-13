@@ -84,7 +84,7 @@ struct ResourceBindingRequirements {
     int fUniformsSetIdx               = kUnassigned;
     int fTextureSamplerSetIdx         = kUnassigned;
     int fInputAttachmentSetIdx        = kUnassigned;
-    /* Define uniform buffer bindings */
+    /* Define uniform and storage buffer bindings */
     int fIntrinsicBufferBinding       = kUnassigned;
     int fCombinedUniformBufferBinding = kUnassigned;
     int fStorageBufferBinding         = kUnassigned;

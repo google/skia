@@ -341,11 +341,10 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
     // Currently, we just use this as a valid parameter for keyContext (will hit asserts otherwise)
     sk_sp<DrawContext> drawContext = get_precompile_draw_context(caps, context);
 
-    StorageBufferManager storageBufferManager;
     PaintParamsKeyBuilder builder(dict);
     PipelineDataGatherer gatherer(layout);
     sk_sp<RuntimeEffectDictionary> rtDict = sk_make_sp<RuntimeEffectDictionary>();
-    KeyContext precompileKeyContext(caps, &storageBufferManager, &builder, &gatherer, dict, rtDict,
+    KeyContext precompileKeyContext(caps, &builder, &gatherer, dict, rtDict,
                                     ci);
 
     DrawTypeFlags kDrawType = DrawTypeFlags::kSimpleShape;
@@ -368,7 +367,6 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
                                 TextureFormat::kRGBA8);
     KeyContext keyContext(recorder.get(),
                           drawContext.get(),
-                          &storageBufferManager,
                           &builder,
                           &gatherer,
                           {},

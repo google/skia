@@ -35,7 +35,6 @@ class SkRuntimeEffect;
 namespace skgpu::graphite {
 
 class DrawContext;
-class StorageBufferManager;
 class PipelineDataGatherer;
 class UniquePaintParamsID;
 

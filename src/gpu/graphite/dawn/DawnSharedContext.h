@@ -58,9 +58,10 @@ public:
         uint32_t index = static_cast<uint32_t>(storageVisibility);
         // Cast each stage to uint32_t individually before ORing. Otherwise,
         // static_cast<uint32_t>(Vertex | Fragment) converts Dawn's BoolConvertible wrapper via
-        // operator bool(), erroneously evaluating to 1 instead of 3.
-        constexpr uint32_t kMaxValid = static_cast<uint32_t>(wgpu::ShaderStage::Vertex) |
-                                       static_cast<uint32_t>(wgpu::ShaderStage::Fragment);
+        // operator bool(), erroneously evaluating to 1 if true.
+        constexpr uint32_t kMaxValid = static_cast<uint32_t>(wgpu::ShaderStage::Vertex)   |
+                                       static_cast<uint32_t>(wgpu::ShaderStage::Fragment) |
+                                       static_cast<uint32_t>(wgpu::ShaderStage::Compute);
         if (index > kMaxValid) SK_UNLIKELY {
             index = static_cast<uint32_t>(wgpu::ShaderStage::None);
         }

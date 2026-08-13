@@ -21,7 +21,7 @@
 #include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
-#include "src/gpu/graphite/StorageBufferManager.h"
+#include "src/gpu/graphite/StorageContext.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"
