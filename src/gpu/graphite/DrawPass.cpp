@@ -29,11 +29,13 @@ namespace skgpu::graphite {
 
 DrawPass::DrawPass(sk_sp<TextureProxy> target,
                    std::pair<LoadOp, StoreOp> ops,
-                   std::array<float, 4> clearColor)
+                   std::array<float, 4> clearColor,
+                   sk_sp<StorageBufferManager> storageBufferManager)
         : fTarget(std::move(target))
         , fBounds(SkIRect::MakeEmpty())
         , fOps(ops)
-        , fClearColor(clearColor) {}
+        , fClearColor(clearColor)
+        , fStorageBufferManager(std::move(storageBufferManager)) {}
 
 DrawPass::~DrawPass() = default;
 

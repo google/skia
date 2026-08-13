@@ -125,6 +125,7 @@ Recorder::Recorder(sk_sp<SharedContext> sharedContext,
         , fRuntimeEffectDict(sk_make_sp<RuntimeEffectDictionary>())
         , fRootTaskList(new TaskList)
         , fRootUploads(new UploadList)
+        , fStorageBufferManager(sk_make_sp<StorageBufferManager>())
         , fProxyReadCounts(new ProxyReadCountMap)
         , fUniqueID(next_id())
         , fRequireOrderedRecordings(options.fRequireOrderedRecordings.has_value()
@@ -219,7 +220,8 @@ std::unique_ptr<Recording> Recorder::snap() {
                                                        std::move(fFinishedProcs)));
     // Allow the buffer managers to add any collected tasks for data transfer or initialization
     // before moving the root task list to the Recording.
-    bool valid = fDrawBufferManager->transferToRecording(recording.get());
+    bool valid = fStorageBufferManager->finalize(fDrawBufferManager.get());
+    valid &= fDrawBufferManager->transferToRecording(recording.get());
 
     // We create the Recording's full task list even if the DrawBufferManager failed because it is
     // a convenient way to ensure everything else is unmapped and reset for the next Recording.
@@ -259,11 +261,7 @@ std::unique_ptr<Recording> Recorder::snap() {
     // Remaining cleanup that must always happen regardless of success or failure
     fRuntimeEffectDict = sk_make_sp<RuntimeEffectDictionary>();
     fProxyReadCounts = std::make_unique<ProxyReadCountMap>();
-    for (const auto& device : fTrackedDevices) {
-        if (device) {
-            device->resetStorageCache();
-        }
-    }
+    fStorageBufferManager = sk_make_sp<StorageBufferManager>();
     if (!fRequireOrderedRecordings) {
         fAtlasProvider->invalidateAtlases();
     }

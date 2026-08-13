@@ -24,6 +24,7 @@ namespace skgpu::graphite {
 
 class DrawContext;
 class KeyContext;
+class StorageBufferManager;
 class PaintParamsKeyBuilder;
 class PipelineDataGatherer;
 class Recorder;

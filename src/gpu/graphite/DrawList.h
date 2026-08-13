@@ -86,7 +86,6 @@ public:
             Layer*) override;
 
     std::unique_ptr<DrawPass> snapDrawPass(Recorder* recorder,
-                                           StorageContext* storageContext,
                                            sk_sp<TextureProxy> target,
                                            const SkImageInfo& targetInfo,
                                            DstReadStrategy dstReadStrategy) override;

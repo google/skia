@@ -141,12 +141,14 @@ void Precompile(PrecompileContext* precompileContext,
 
             SkColorInfo ci(rpp.fDstCT, kPremul_SkAlphaType, rpp.fDstCS);
 
-            // The PipelineDataGatherer handles uniform data; in the pre-compile case we don't need
-            // to record the uniform data but the process of generating it is required to create the
-            // correct key.
+            // The PipelineDataGatherer handles uniform data; the StorageBufferManager may handle
+            // mixed data. In the pre-compile case we don't need to record the uniform data but the
+            // process of generating it is required to create the correct key.
+            StorageBufferManager storageBufferManager;
             PipelineDataGatherer gatherer(Layout::kMetal);
             PaintParamsKeyBuilder builder(dict);
-            KeyContext keyContext(caps, &builder, &gatherer, dict, rtEffectDict, ci);
+            KeyContext keyContext(caps, &storageBufferManager, &builder, &gatherer, dict,
+                                  rtEffectDict, ci);
 
             for (Coverage coverage : { Coverage::kNone, Coverage::kSingleChannel }) {
                 PrecompileCombinations(

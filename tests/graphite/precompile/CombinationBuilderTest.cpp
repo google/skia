@@ -599,9 +599,11 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CombinationBuilderTest, reporter, context,
     sk_sp<RuntimeEffectDictionary> rtEffectDict = sk_make_sp<RuntimeEffectDictionary>();
 
     SkColorInfo ci(kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
+    StorageBufferManager storageBufferManager;
     PaintParamsKeyBuilder builder(dict);
     PipelineDataGatherer gatherer(Layout::kMetal);
-    KeyContext keyContext(context->priv().caps(), &builder, &gatherer, dict, rtEffectDict, ci);
+    KeyContext keyContext(context->priv().caps(), &storageBufferManager, &builder, &gatherer, dict,
+                          rtEffectDict, ci);
 
     RenderPassDesc unusedRenderPassDesc;
 

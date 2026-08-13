@@ -259,7 +259,6 @@ void DrawContext::flush(Recorder* recorder) {
     // subpasses are implemented, they will either be collected alongside fPendingDraws or added
     // to the RenderPassTask separately.
     std::unique_ptr<DrawPass> pass = fPendingDraws->snapDrawPass(recorder,
-                                                                 &fStorageContext,
                                                                  fTarget.refProxy(),
                                                                  this->imageInfo(),
                                                                  drawPassDstReadStrategy);
