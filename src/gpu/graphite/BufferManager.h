@@ -8,16 +8,24 @@
 #define skgpu_graphite_BufferManager_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/private/SkAlign.h"
+#include "include/private/SkAssert.h"
+#include "include/private/SkMath.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkTo.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/UploadBufferManager.h"
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
+#include <numeric>
+#include <optional>
 #include <string_view>
 #include <utility>
 
@@ -444,6 +452,102 @@ private:
     // transfer buffers from the UploadManager, remember so that the next Recording will fail.
     bool fMappingFailed = false;
 };
+
+/**
+ * BufferAligner contains helper functions for buffer sub-allocation and alignment math.
+ */
+namespace BufferAligner {
+
+SK_ALWAYS_INLINE uint32_t validateCountAndStride(size_t count, size_t stride, size_t headroom,
+                                                 uint32_t alignment) {
+    // size_t may just be uint32_t, so this ensures we have enough bits to
+    // compute the required byte product.
+    const uint64_t count64 = SkTo<uint64_t>(count);
+    const uint64_t stride64 = SkTo<uint64_t>(stride);
+    const uint64_t bytes64 = count64 * stride64;
+    const uint64_t headroom64 = SkTo<uint64_t>(headroom);
+    const uint64_t bytesWithHeadroom64 = std::max(headroom64, bytes64);
+    if (count64 > std::numeric_limits<uint32_t>::max() ||
+        stride64 > std::numeric_limits<uint32_t>::max() ||
+        bytes64 > std::numeric_limits<uint32_t>::max() ||
+        headroom64 > std::numeric_limits<uint32_t>::max() ||
+        bytesWithHeadroom64 > std::numeric_limits<uint32_t>::max() - (alignment + 1)) {
+        // Return 0 to skip further allocation attempts.
+        return 0;
+    }
+    // Since count64 and stride64 fit into 32-bits, their product won't overflow a 64-bit
+    // multiply, and we've confirmed product fits into 32-bits with head room to be aligned w/o
+    // overflow.
+    return SkTo<uint32_t>(bytesWithHeadroom64);
+}
+
+SK_ALWAYS_INLINE uint32_t lcmAlignment(uint32_t alignMaybePow2, uint32_t alignProbNonPow2) {
+    SkASSERT(alignMaybePow2 != 0 && alignProbNonPow2 != 0);
+    if (alignMaybePow2 == 1 ||
+        alignMaybePow2 == alignProbNonPow2 ||
+        (SkIsPow2(alignMaybePow2) &&
+         alignProbNonPow2 > alignMaybePow2 &&
+         (alignProbNonPow2 & (alignMaybePow2 - 1)) == 0)) {
+        // Trivial LCM since alignProbNonPow2 is the same or a larger multiple of alignMaybePow2
+        return alignProbNonPow2;
+    } else {
+        return std::lcm(alignMaybePow2, alignProbNonPow2);
+    }
+}
+
+// Returns {offset, remaining}. On failure (not enough room for alignment or minCount), returns
+// {currentOffset, 0}.
+SK_ALWAYS_INLINE std::pair<uint32_t, uint32_t> prepForStride(size_t bufferSize,
+                                                             uint32_t currentOffset,
+                                                             uint32_t currentStride,
+                                                             uint32_t currentRemaining,
+                                                             size_t minBindingAlignment,
+                                                             size_t stride,
+                                                             size_t align,
+                                                             size_t minCount,
+                                                             size_t headroom) {
+    SkASSERT(stride > 0 && align > 0); // Expect valid inputs
+    if (currentStride == stride && (align == 1 || align == stride)) {
+        // Shortcut if we're already aligned with the last call to prepForStride().
+        // Leave fRemaining alone, it's either enough for minCount or not, but reserve() will
+        // do the right thing regardless.
+        SkASSERT(currentOffset % align == 0);
+        SkASSERT(currentOffset % stride == 0);
+        return {currentOffset, currentRemaining};
+    }
+
+    // On re-aligning to a new stride, the offset needs to be aligned to the LCM of `align` and
+    // `stride` so that repeated suballocations of `stride` can be performed by simply adding to
+    // fOffset without additional instructions. If `currentStride == 0`, it's a signal that the
+    // first offset also needs to be aligned to the minimum binding requirement.
+    uint32_t align32 = lcmAlignment(SkTo<uint32_t>(align), SkTo<uint32_t>(stride));
+    if (currentStride == 0) {
+        align32 = lcmAlignment(SkTo<uint32_t>(minBindingAlignment), align32);
+    }
+
+    const uint32_t stride32 = SkTo<uint32_t>(stride);
+    const uint32_t headroom32 = SkTo<uint32_t>(headroom);
+    const uint32_t reserveForHeadroom = headroom32 > stride32 ? headroom32 - stride32 : 0;
+    const uint32_t remainingBytes =
+            bufferSize > currentOffset ? SkTo<uint32_t>(bufferSize) - currentOffset : 0;
+    // Ensures we won't overflow fOffset past buffer size once we align it
+    if (remainingBytes >= align32 - 1 + reserveForHeadroom) {
+        const uint32_t offset = SkAlignNonPow2(currentOffset, align32);
+        SkASSERT(offset + reserveForHeadroom <= bufferSize);
+        uint32_t remaining =
+                (SkTo<uint32_t>(bufferSize) - offset - reserveForHeadroom) / stride32;
+        if (remaining > 0 && remaining >= minCount) {
+            // Successful prep, so preserve the aligned offset
+            return {offset, remaining};
+        }
+    }
+
+    // If we've reached here, there wasn't a buffer or enough room to align, or enough room to
+    // satisfy minCount, so fail.
+    return {currentOffset, 0};
+}
+
+}  // namespace BufferAligner
 
 /**
  * The StaticBufferManager is the one-time-only analog to DrawBufferManager and provides "static"
