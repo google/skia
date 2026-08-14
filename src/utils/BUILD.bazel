@@ -176,7 +176,9 @@ skia_cc_library(
     hdrs = ["SkCharToGlyphCache.h"],
     features = ["layering_check"],
     visibility = [
+        "//dm:__pkg__",
         "//src/ports:__pkg__",
+        "//tests:__pkg__",
     ],
     deps = [
         "//:core",

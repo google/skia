@@ -10,11 +10,13 @@ skia_cc_library(
     name = "tests",
     testonly = True,
     srcs = [
+        "ComparePixels.cpp",
         "CtsEnforcement.cpp",
         "Test.cpp",
         "TestHarness.cpp",
     ],
     hdrs = [
+        "ComparePixels.h",
         "CtsEnforcement.h",
         "Test.h",
         "TestHarness.h",
@@ -37,7 +39,6 @@ filegroup(
     srcs = [
         "CanvasStateHelpers.h",
         "CodecPriv.h",
-        "ComparePixels.h",
         "CtsEnforcement.h",
         "FakeStreams.h",
         "FontScanner.h",
@@ -106,7 +107,6 @@ filegroup(
         "ColorPrivTest.cpp",
         "ColorSpaceTest.cpp",
         "ColorTest.cpp",
-        "ComparePixels.cpp",
         "ConvertPixelsTest.cpp",
         "CoreBlittersTest.cpp",
         "CPUBackendTest.cpp",
@@ -121,6 +121,7 @@ filegroup(
         "DequeTest.cpp",
         "DescriptorTest.cpp",
         "DeviceTest.cpp",
+        "DirectMaskLimitTest.cpp",
         "DiscardableMemoryPoolTest.cpp",
         "DiscardableMemoryTest.cpp",
         "DrawBitmapRectTest.cpp",

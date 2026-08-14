@@ -25,7 +25,6 @@ skia_cc_binary(
         # TODO(b/480952153): Fix the sparse_strips target so it can be built and used here.
         # "//tests:graphite_sparse_strips_test_sources",
         "//tests:graphite_tests_sources",
-        # "//tests:graphite_vulkan_tests_sources",
         # TODO(b/480952153): SkJpegGainmapEncoder.h is not being built
         # "//tests:jpeg_gainmap_tests_sources",
         "//tests:pathops_tests_sources",
@@ -33,15 +32,21 @@ skia_cc_binary(
         "//tests:tests_sources",
         "//tools/flags:common_flags_config",
         "//src/utils:canvas_state_utils",
-    ],
+    ] + select({
+        "@platforms//os:linux": [
+            # "//tests:graphite_vulkan_tests_sources",
+        ],
+        "@platforms//os:windows": [
+            # "//tests:graphite_vulkan_tests_sources",
+        ],
+        "//conditions:default": [],
+    }),
     data = [
         "//resources",
     ],
     deps = [
         "//:bmp_decode_codec",
         "//:core",
-        "//:fontmgr_directory_freetype",
-        "//:fontmgr_empty_fontations",
         "//:gif_decode_codec",
         "//:ico_decode_codec",
         "//:jpeg_decode_codec",
@@ -70,6 +75,7 @@ skia_cc_binary(
         "//src/sksl/codegen:spirv",
         "//src/sksl/codegen:wgsl",
         "//src/sksl/tracing:player",
+        "//src/utils:char_to_glyphcache",
         "//src/utils:multi_picture_document",
         "//tests",
         "//tools:autorelease_pool",
@@ -93,5 +99,17 @@ skia_cc_binary(
         "//tools/graphite:precompile_utils",
         "//tools/sksltrace:sksltraceutils",
         "//tools/trace",
-    ],
+    ] + select({
+        "@platforms//os:macos": [
+            "//:fontmgr_coretext",
+            "//:typeface_coretext",
+        ],
+        "@platforms//os:windows": [
+            "//:fontmgr_win_dw",
+        ],
+        "//conditions:default": [
+            "//:fontmgr_directory_freetype",
+            "//:fontmgr_empty_fontations",
+        ],
+    }),
 )
