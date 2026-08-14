@@ -91,7 +91,10 @@ skia_objc_library_with_testutil(
     ],
     copts = DEFAULT_OBJC_COPTS + ["-fobjc-arc"],
     defines = ["SK_METAL"],
-    priv_visibility = ["//tools/window:__pkg__"],
+    priv_visibility = [
+        "//tools/ganesh/mtl:__pkg__",
+        "//tools/window:__pkg__",
+    ],
     sdk_frameworks = [
         "Metal",
         "MetalKit",

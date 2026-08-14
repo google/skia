@@ -7,6 +7,23 @@ package(
 licenses(["notice"])
 
 skia_cc_library(
+    name = "graphite_test_context",
+    testonly = True,
+    srcs = [
+        "GraphiteTestContext.cpp",
+    ],
+    hdrs = [
+        "GraphiteTestContext.h",
+        "TestOptions.h",
+    ],
+    visibility = ["//tools/graphite:__subpackages__"],
+    deps = [
+        "//:core",
+        "//tools/gpu:shared_utils",
+    ],
+)
+
+skia_cc_library(
     name = "graphite_utils",
     testonly = True,
     srcs = [
@@ -14,12 +31,9 @@ skia_cc_library(
         "ContextFactory.h",
         "GraphiteMemoryPipelineStorage.cpp",
         "GraphiteMemoryPipelineStorage.h",
-        "GraphiteTestContext.cpp",
-        "GraphiteTestContext.h",
         "GraphiteToolUtils.cpp",
         "PipelineCallbackHandler.cpp",
         "ProtectedUtils_Graphite.cpp",
-        "TestOptions.h",
         "UniqueKeyUtils.cpp",
         "UniqueKeyUtils.h",
     ],
@@ -27,7 +41,6 @@ skia_cc_library(
         "ContextFactory.h",
         "GraphiteToolUtils.h",
         "PipelineCallbackHandler.h",
-        "TestOptions.h",
     ],
     visibility = [
         "//bench:__subpackages__",
@@ -36,11 +49,17 @@ skia_cc_library(
         "//tools:__subpackages__",
     ],
     deps = [
+        ":graphite_test_context",
         "//:core",
         "//src/core:core_priv",
         "//src/gpu/graphite:graphite_TEST_UTIL",
         "//tools/gpu:shared_utils",
-    ],
+    ] + select({
+        "@platforms//os:macos": [
+            "//tools/graphite/mtl:graphite_metal_test_context",
+        ],
+        "//conditions:default": [],
+    }),
 )
 
 skia_cc_library(

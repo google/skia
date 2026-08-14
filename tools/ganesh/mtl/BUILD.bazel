@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "skia_objc_library")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -6,18 +6,17 @@ package(
 
 licenses(["notice"])
 
-skia_filegroup(
-    name = "private_hdrs",
+skia_objc_library(
+    name = "ganesh_metal_test_context",
+    testonly = True,
     srcs = [
         "MtlTestContext.h",
-    ],
-    visibility = ["//tools/ganesh:__pkg__"],
-)
-
-skia_filegroup(
-    name = "srcs",
-    srcs = [
         "MtlTestContext.mm",
     ],
     visibility = ["//tools/ganesh:__pkg__"],
+    deps = [
+        "//:core",
+        "//src/gpu/ganesh/mtl:ganesh_metal_TEST_UTIL",
+        "//tools/ganesh:common_ganesh_utils",
+    ],
 )

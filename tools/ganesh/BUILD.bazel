@@ -32,6 +32,7 @@ skia_cc_library(
         "//tools/ganesh:TestCanvas.h",
         "//tools/ganesh/mock:hdrs",
     ],
+    visibility = ["//tools/ganesh:__subpackages__"],
     deps = [
         "//:png_encode_codec",
         "//src/gpu/ganesh:ganesh_TEST_UTIL",
@@ -72,6 +73,7 @@ skia_cc_library(
             ":ganesh_gl_utils_frameworks",
             "//src/gpu/ganesh/gl/mac:mac_factory_TEST_UTIL",
             "//tools:autorelease_pool_objc",
+            "//tools/ganesh/mtl:ganesh_metal_test_context",
         ],
         "//bazel/common_config_settings:linux_x64": [
             "//src/gpu/ganesh/gl/glx:glx_factory_TEST_UTIL",
