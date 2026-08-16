@@ -168,11 +168,12 @@ static_assert(std::is_trivially_destructible<Draw>::value);
  */
 struct BindingList {
     BindingList(const RenderStep* step, LayerKey key) : fStep(step), fKey(key) {}
+    BindingList() = default;
 
     Rect fBounds = Rect::InfiniteInverted();
 
     const RenderStep* fStep;
-    const LayerKey fKey;
+    LayerKey fKey;
 
     // Maintain a singly-linked list of draws, either prepending to head for front-to-back
     // rendering or appending to tail for back-to-front rendering.
@@ -306,6 +307,8 @@ struct Layer {
 
     const CompressedPaintersOrder fOrder;
     SkTInternalLList<BindingList> fBindings;
+    BindingList fFirstBinding;
+
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(Layer);
 
     // Performs no bounds checks, so can only be used when checks have already confirmed the Layer
@@ -500,8 +503,14 @@ struct Layer {
                                                 const RenderStep* step) {
         SkASSERT(!insertBefore || fBindings.isInList(insertBefore));
 
-        BindingList* list = alloc->make<BindingList>(step, key);
+        if (fBindings.isEmpty()) {
+            SkASSERT(!insertBefore);
+            fFirstBinding = BindingList(step, key);
+            fBindings.addToHead(&fFirstBinding);
+            return &fFirstBinding;
+        }
 
+        BindingList* list = alloc->make<BindingList>(step, key);
         // We need to insert the new list in the right place to keep fBindings organized with all
         // non-shading layers before shading layers, while also ensuring that the new `list` comes
         // before `insertBefore` (when non-null).
