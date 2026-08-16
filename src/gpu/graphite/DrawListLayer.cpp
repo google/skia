@@ -276,8 +276,7 @@ std::pair<DrawParams*, Layer*> DrawListLayer::recordDraw(const Renderer* rendere
         }
 
         SkASSERT(lastStepBinding);
-        lastStepBinding->addDraw(fStorage.make<Draw>(drawParams, uniformIndex),
-                                 /*backToFront=*/dependsOnDst);
+        lastStepBinding->addDraw(&fStorage, drawParams, uniformIndex, /*backToFront=*/dependsOnDst);
 
         gatherer->rewindForRenderStep();
     }
@@ -405,10 +404,10 @@ std::unique_ptr<DrawPass> DrawListLayer::snapDrawPass(Recorder* recorder,
 
     for (Layer* layer : fLayers) {
         for (const BindingList* list : layer->fBindings) {
-            SkASSERT(!list->fDraws.isEmpty());
+            SkASSERT(list->fHead); // not empty
 
             // The first draw of the BindingList will be changing bindings
-            const Draw* current = recordDraw(list->fKey, list->fStep, list->fDraws.head(),
+            const Draw* current = recordDraw(list->fKey, list->fStep, list->fHead,
                                              /*bindingsAreInvariant=*/false,
                                              /*startOfLayer=*/!list->fPrev);
             while (current) {

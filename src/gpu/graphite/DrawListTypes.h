@@ -145,12 +145,14 @@ static_assert(std::is_trivially_destructible<LayerKey>::value);
  */
 struct Draw {
     Draw(const DrawParams* params, const UniformDataCache::Index uniformIndex)
-            : fDrawParams(params), fUniformIndex(uniformIndex) {}
+            : fDrawParams(params), fUniformIndex(uniformIndex), fNext(nullptr) {}
+
+    Draw() = default; // Let it be uninitialized
 
     const DrawParams* fDrawParams;
-    const UniformDataCache::Index fUniformIndex;
+    UniformDataCache::Index fUniformIndex;
 
-    SK_DECLARE_INTERNAL_LLIST_INTERFACE(Draw);
+    Draw* fNext;
 };
 static_assert(std::is_trivially_destructible<Draw>::value);
 
@@ -169,15 +171,23 @@ struct BindingList {
 
     Rect fBounds = Rect::InfiniteInverted();
 
-    SkTInternalLList<Draw> fDraws;
     const RenderStep* fStep;
     const LayerKey fKey;
+
+    // Maintain a singly-linked list of draws, either prepending to head for front-to-back
+    // rendering or appending to tail for back-to-front rendering.
+    Draw* fHead = nullptr;
+    Draw* fTail = nullptr;
+
+    // Every BindingList always has at least one draw in it, and many might only have the one so
+    // store it inline for better memory access.
+    Draw fFirstDraw; // Invalid until fHead != nullptr
 
     // If this is true, it means that a draw was added to it without having been tested against
     // the earlier BindingLists so they are not eligible for being moved forward to a new layer.
     bool fBlockForwardMerges = false;
 
-    int fDrawCount = 0; // SkTInternalLList doesn't maintain a count for us :/
+    int fDrawCount = 0;
 
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(BindingList);
 
@@ -227,7 +237,7 @@ struct BindingList {
         if (fDrawCount > limit) {
             return true;
         }
-        for (const Draw* d = fDraws.head(); d; d = d->fNext) {
+        for (const Draw* d = fHead; d; d = d->fNext) {
             if (d->fDrawParams->drawBounds().intersects(drawBounds)) {
                 return true;
             }
@@ -235,13 +245,24 @@ struct BindingList {
         return false;
     }
 
-    SK_ALWAYS_INLINE void addDraw(Draw* draw, bool backToFront) {
-        fBounds.join(draw->fDrawParams->drawBounds());
+    SK_ALWAYS_INLINE void addDraw(SkArenaAlloc* alloc,
+                                  const DrawParams* draw,
+                                  UniformDataCache::Index uniformIndex,
+                                  bool backToFront) {
+        fBounds.join(draw->drawBounds());
         fDrawCount++;
-        if (backToFront) {
-            fDraws.addToTail(draw);
+        if (fHead) {
+            Draw* next = alloc->make<Draw>(draw, uniformIndex);
+            if (backToFront) {
+                fTail->fNext = next;
+                fTail = next;
+            } else {
+                next->fNext = fHead;
+                fHead = next;
+            }
         } else {
-            fDraws.addToHead(draw);
+            fFirstDraw = Draw(draw, uniformIndex);
+            fHead = fTail = &fFirstDraw;
         }
     }
 };
