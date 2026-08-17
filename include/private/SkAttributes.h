@@ -93,4 +93,99 @@
 #  define SK_TRIVIAL_ABI
 #endif
 
+// Annotates a function indicating it can lead to out-of-bounds accesses (OOB)
+// if given incorrect inputs.
+//
+// This commonly includes functions that take raw pointers, sizes, iterators,
+// sentinels, etc., and cannot fully check their preconditions (e.g., that the
+// provided pointer actually points to an allocation of at least the provided
+// size). Useful to diagnose potential misuse via `-Wunsafe-buffer-usage`, as
+// well as to mark functions in need of safer alternatives.
+//
+// All functions annotated with this macro should come with a `// PRECONDITIONS:`
+// comment explaining what the caller must guarantee to ensure safe operation.
+// Callers can then write `// SAFETY:` comments explaining why the specific
+// preconditions have been met (e.g., verified by caller bounds, types, or
+// nearby `SkASSERT`s).
+//
+// Ideally, unsafe functions should also be paired with a safer overload, e.g.,
+// one that replaces pointer and size parameters with `SkSpan` (or `std::span`);
+// otherwise, document safer replacement patterns callers can migrate to.
+//
+// Annotating a function `SK_UNSAFE_BUFFER_USAGE` means all call sites (that do
+// not disable the warning) must wrap calls in `SK_UNSAFE_BUFFERS()`; see
+// documentation there.
+//
+// See also:
+//    https://chromium.googlesource.com/chromium/src/+/main/docs/unsafe_buffers.md
+//    https://clang.llvm.org/docs/SafeBuffers.html
+//    https://clang.llvm.org/docs/DiagnosticsReference.html#wunsafe-buffer-usage
+//
+// Usage:
+//    Calls to this function must be wrapped in `SK_UNSAFE_BUFFERS()`.
+//    SK_UNSAFE_BUFFER_USAGE void Func(T* input, T* end);
+#if __has_cpp_attribute(clang::unsafe_buffer_usage)
+#define SK_UNSAFE_BUFFER_USAGE [[clang::unsafe_buffer_usage]]
+#else
+#define SK_UNSAFE_BUFFER_USAGE
 #endif
+
+// Annotates code indicating that it should be permanently exempted from
+// `-Wunsafe-buffer-usage`. For temporary cases such as migrating callers to
+// safer patterns, use `SK_UNSAFE_TODO()` instead; see documentation there.
+//
+// All calls to functions annotated with `SK_UNSAFE_BUFFER_USAGE` must be
+// marked with one of these two macros; they can also be used around pointer
+// arithmetic, pointer subscripting, and the like.
+//
+// ** USE OF THIS MACRO SHOULD BE VERY RARE.** Using this macro indicates that
+// the compiler cannot verify that the code avoids out-of-bounds (OOB) access,
+// and manual review is required. Even with manual review, it's easy for
+// assumptions to change and security bugs to creep in over time. Prefer safer
+// patterns (such as `SkSpan` or `std::span`) instead.
+//
+// Usage should wrap the minimum necessary code, and *must* include a
+// `// SAFETY: ...` comment that explains how the code guarantees safety or
+// meets the requirements of called `SK_UNSAFE_BUFFER_USAGE` functions.
+// Guarantees must be manually verifiable during code review using only local
+// invariants. Valid invariants include:
+// - Runtime conditions or `SkASSERT`s nearby
+// - Invariants guaranteed by types in the surrounding code
+// - Invariants guaranteed by function calls in the surrounding code
+// - Caller requirements, if the containing function is itself annotated with
+//   `SK_UNSAFE_BUFFER_USAGE`; this is less safe and should be a last resort
+//
+// See also:
+//    https://chromium.googlesource.com/chromium/src/+/main/docs/unsafe_buffers.md
+//    https://clang.llvm.org/docs/SafeBuffers.html
+//    https://clang.llvm.org/docs/DiagnosticsReference.html#wunsafe-buffer-usage
+//
+// Usage:
+//
+//    // The following call will not trigger a compiler warning even if `Func()`
+//    // is annotated `SK_UNSAFE_BUFFER_USAGE`.
+//    return SK_UNSAFE_BUFFERS(Func(input, end));
+//
+// Test for `__clang__` directly, as there's no `__has_pragma` or similar (see
+// https://github.com/llvm/llvm-project/issues/51887).
+#if defined(__clang__) && defined(__has_warning)
+#  if __has_warning("-Wunsafe-buffer-usage")
+#    define SK_UNSAFE_BUFFERS(...) \
+       _Pragma("clang unsafe_buffer_usage begin") \
+       __VA_ARGS__ \
+       _Pragma("clang unsafe_buffer_usage end")
+#  endif
+#endif
+
+#ifndef SK_UNSAFE_BUFFERS
+#  define SK_UNSAFE_BUFFERS(...) __VA_ARGS__
+#endif
+
+// Temporarily exempts code from `-Wunsafe-buffer-usage`.
+// Functionally identical to `SK_UNSAFE_BUFFERS()`, but semantically flags the
+// code for future migration to safer patterns.
+//
+// Usage: return SK_UNSAFE_TODO(Func(input, end));
+#define SK_UNSAFE_TODO(...) SK_UNSAFE_BUFFERS(__VA_ARGS__)
+
+#endif // SkAttributes_DEFINED
