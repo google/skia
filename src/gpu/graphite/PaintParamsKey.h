@@ -19,12 +19,14 @@
 #include <cstring> // for memcmp
 
 class SkArenaAlloc;
+class SkMeshSpecification;
 struct SkSamplingOptions;
 enum class SkTileMode;
 
 namespace skgpu::graphite {
 
 class Caps;
+class RuntimeEffectDictionary;
 class ShaderCodeDictionary;
 class ShaderNode;
 class TextureProxy;
@@ -34,12 +36,16 @@ enum class RootBlockType : int32_t {
     kSrcColor = -1,
     kFinalBlend = -2,
     kClip = -3,
+    kMeshShader = -4,
 };
 
 struct RootNodesInfo {
     const ShaderNode* fSrcColor = nullptr;
     const ShaderNode* fFinalBlend = nullptr;
     const ShaderNode* fClip = nullptr;
+    const ShaderNode* fMeshShader = nullptr;
+
+    const SkMeshSpecification* fMeshSpec = nullptr;
 
     SkSpan<const ShaderNode*> fRoots;
 };
@@ -65,11 +71,13 @@ struct RootNodesInfo {
  * embedded data. Skipping (-v + 1) entries returns iteration to indices containing snippet IDs.
  *
  * The PaintParamsKey stores multiple root nodes, with each root representing an effect tree that
- * affects different parts of the shading pipeline. The key is can only hold 2 or 3 roots:
+ * affects different parts of the shading pipeline. The key is can only hold 2-4 roots:
  *  1. Color root node: produces the "src" color used in final blending with the "dst" color.
  *  2. Final blend node: defines the blend function combining src and dst colors. If this is a
  *     FixedBlend snippet the final pipeline may be able to lift it to HW blending.
  *  3. Clipping: optional, produces analytic coverage from a clip shader or shape.
+ *  4. Mesh shader: optional, defines the SkMeshSpecification used for the current paint, only
+ *     expected to be defined for drawMesh calls.
  *
  * Each root node within the key is also preceded by a 4 byte header with a value < 0 defining
  * the type of the node as one of the 3 types listed above. Writers of the PaintParamsKey should
@@ -118,6 +126,7 @@ public:
     // lift to the vertex shader, depending on how many varyings are available.
     RootNodesInfo getRootNodes(const Caps*,
                                const ShaderCodeDictionary*,
+                               const RuntimeEffectDictionary*,
                                SkArenaAlloc*,
                                int availableVaryings) const;
 

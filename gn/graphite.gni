@@ -251,6 +251,8 @@ skia_graphite_sources = [
   "$_src/gpu/graphite/render/CoverageMaskRenderStep.cpp",
   "$_src/gpu/graphite/render/CoverageMaskRenderStep.h",
   "$_src/gpu/graphite/render/DynamicInstancesPatchAllocator.h",
+  "$_src/gpu/graphite/render/MeshRenderStep.cpp",
+  "$_src/gpu/graphite/render/MeshRenderStep.h",
   "$_src/gpu/graphite/render/MiddleOutFanRenderStep.cpp",
   "$_src/gpu/graphite/render/MiddleOutFanRenderStep.h",
   "$_src/gpu/graphite/render/PerEdgeAAQuadRenderStep.cpp",

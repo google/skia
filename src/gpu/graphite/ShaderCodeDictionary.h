@@ -293,11 +293,14 @@ public:
     int numUserDefinedKnownRuntimeEffects() const;
 #endif
 
+    int findOrCreateMeshSnippet(const SkMeshSpecification* spec) SK_EXCLUDES(fSpinLock);
+
 private:
     const char* addTextToArena(std::string_view text);
 
     SkSpan<const Uniform> convertUniforms(const SkRuntimeEffect* effect);
     ShaderSnippet convertRuntimeEffect(const SkRuntimeEffect* effect, const char* name);
+    ShaderSnippet convertMeshShader(const SkMeshSpecification* spec);
 
     void registerUserDefinedKnownRuntimeEffects(SkSpan<sk_sp<SkRuntimeEffect>>);
 
@@ -338,6 +341,16 @@ private:
             return fHash == rhs.fHash && fUniformSize == rhs.fUniformSize;
         }
     };
+    struct MeshSpecKey {
+        uint32_t fHash;
+        uint32_t fAttributeStride;
+        uint32_t fUniformSize;
+
+        bool operator==(MeshSpecKey rhs) const {
+            return fHash == rhs.fHash && fAttributeStride == rhs.fAttributeStride &&
+                   fUniformSize == rhs.fUniformSize;
+        }
+    };
     SK_END_REQUIRE_DENSE
 
     // A map from RuntimeEffectKeys (hash plus uniforms) to code-snippet IDs. RuntimeEffectKeys
@@ -348,6 +361,9 @@ private:
     // are extremely small (< 20 bytes) so the memory footprint should be unnoticeable.
     using RuntimeEffectMap = skia_private::THashMap<RuntimeEffectKey, int32_t>;
     RuntimeEffectMap fRuntimeEffectMap SK_GUARDED_BY(fSpinLock);
+
+    using MeshSpecMap = skia_private::THashMap<MeshSpecKey, int32_t>;
+    MeshSpecMap fMeshMap SK_GUARDED_BY(fSpinLock);
 
     // This arena holds:
     //   - the backing data for PaintParamsKeys in `fPaintKeyToID` and `fIDToPaintKey`

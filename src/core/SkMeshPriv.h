@@ -51,6 +51,18 @@ struct SkMeshSpecificationPriv {
         SkUNREACHABLE;
     }
 
+    static size_t AttrTypeByteSize(Attribute::Type type) {
+        switch (type) {
+            case Attribute::Type::kUByte4_unorm:
+            case Attribute::Type::kFloat:        return 4;
+
+            case Attribute::Type::kFloat2:       return 4 * 2;
+            case Attribute::Type::kFloat3:       return 4 * 3;
+            case Attribute::Type::kFloat4:       return 4 * 4;
+        }
+        SkUNREACHABLE;
+    }
+
     static SkSLType AttrTypeAsSLType(Attribute::Type type) {
         switch (type) {
             case Attribute::Type::kFloat:        return SkSLType::kFloat;

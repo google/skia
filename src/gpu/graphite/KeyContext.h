@@ -99,6 +99,7 @@ public:
     // The key generation flags vary in the scope of a SkRuntimeEffect per child based on how the
     // RuntimeEffect's SkSL invokes each child.
     KeyContext forRuntimeEffect(const SkRuntimeEffect* effect, int child) const;
+    KeyContext forMeshSpecChild() const;
 
     KeyContext withExtraFlags(SkEnumBitMask<KeyGenFlags> flags) const {
         return KeyContext(*this, flags);

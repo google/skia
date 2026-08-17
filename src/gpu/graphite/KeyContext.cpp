@@ -77,9 +77,12 @@ KeyContext& KeyContext::operator=(const KeyContext&) = default;
 
 sk_sp<RuntimeEffectDictionary> KeyContext::rtEffectDict() const { return fRTEffectDict; }
 
+// Runtime effects always disable paint-color colorization of alpha-only image shaders
+static constexpr SkEnumBitMask<KeyGenFlags> kRuntimeEffectChildDefaultFlags
+        = KeyGenFlags::kDisableAlphaOnlyImageColorization;
+
 KeyContext KeyContext::forRuntimeEffect(const SkRuntimeEffect* effect, int child) const {
-    // Runtime effects always disable paint-color colorization of alpha-only image shaders
-    SkEnumBitMask<KeyGenFlags> xtraFlags = KeyGenFlags::kDisableAlphaOnlyImageColorization;
+    SkEnumBitMask<KeyGenFlags> xtraFlags = kRuntimeEffectChildDefaultFlags;
 
     if (SkRuntimeEffectPriv::ChildSampleUsage(effect, child).isExplicit()) {
         // Assume explicit sampling as a proxy for either a likely data lookup (e.g. raw shader)
@@ -90,6 +93,10 @@ KeyContext KeyContext::forRuntimeEffect(const SkRuntimeEffect* effect, int child
     }
 
     return this->withExtraFlags(xtraFlags);
+}
+
+KeyContext KeyContext::forMeshSpecChild() const {
+    return this->withExtraFlags(kRuntimeEffectChildDefaultFlags);
 }
 
 } // namespace skgpu::graphite

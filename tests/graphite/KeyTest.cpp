@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
+#include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 #include "src/gpu/graphite/ShaderInfo.h"
 #include "src/gpu/graphite/TextureFormat.h"
@@ -82,7 +83,9 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyWithInvalidCodeSnippetIDTest, reporter, co
                                  (int32_t) BuiltInCodeSnippetID::kFixedBlend_Src};
     SkSpan<const int32_t> invalidKeySpan{invalidKeyData, std::size(invalidKeyData)*sizeof(int32_t)};
     const PaintParamsKey* fakeKey = reinterpret_cast<const PaintParamsKey*>(&invalidKeySpan);
-    REPORTER_ASSERT(reporter, fakeKey->getRootNodes(caps, dict, &arena, 0).fRoots.empty());
+    const RuntimeEffectDictionary rteDict;
+    REPORTER_ASSERT(reporter, fakeKey->getRootNodes(caps, dict, &rteDict,
+                                                    &arena, 0).fRoots.empty());
 }
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyEqualityChecksSnippetID, reporter, context,

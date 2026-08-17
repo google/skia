@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_RendererProvider_DEFINED
 #define skgpu_graphite_RendererProvider_DEFINED
 
+#include "include/core/SkMesh.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkVertices.h"
 #include "include/private/SkTArray.h"
@@ -130,6 +131,10 @@ public:
         return &fVertices[4*triStrip + 2*hasColors + hasTexCoords];
     }
 
+    const Renderer* mesh() const {
+        return &fMesh;
+    }
+
     // Filled and stroked [r]rects
     const Renderer* analyticRRect() const { return &fAnalyticRRect; }
 
@@ -212,6 +217,7 @@ private:
     Renderer fAnalyticBlur;
 
     Renderer fVertices[kVerticesCount];
+    Renderer fMesh;
 
     // Aggregate of all enabled Renderers for convenient iteration when pre-compiling
     skia_private::TArray<const Renderer*> fRenderers;

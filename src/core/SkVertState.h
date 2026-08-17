@@ -44,6 +44,8 @@ struct VertState {
      */
     Proc chooseProc(SkVertices::VertexMode mode);
 
+    int currIndex() const { return fCurrIndex; }
+
 private:
     int             fCount;
     int             fCurrIndex;

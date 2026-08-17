@@ -19,6 +19,7 @@
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 #include "src/gpu/graphite/render/CoverBoundsRenderStep.h"
 #include "src/gpu/graphite/render/CoverageMaskRenderStep.h"
+#include "src/gpu/graphite/render/MeshRenderStep.h"
 #include "src/gpu/graphite/render/MiddleOutFanRenderStep.h"
 #include "src/gpu/graphite/render/PerEdgeAAQuadRenderStep.h"
 #include "src/gpu/graphite/render/SDFTextLCDRenderStep.h"
@@ -191,6 +192,8 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
             }
         }
     }
+
+    initFromStep(&fMesh, std::make_unique<MeshRenderStep>(layout), DrawTypeFlags::kDrawMesh);
 
     // The tessellating path renderers that use stencil can share the cover steps.
     auto coverFill = std::make_unique<CoverBoundsRenderStep>(

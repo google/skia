@@ -394,6 +394,12 @@ struct RuntimeEffectBlock {
     static void HandleIntrinsics(const KeyContext&, const SkRuntimeEffect*);
 };
 
+struct MeshShaderBlock {
+    static void AddBlock(const KeyContext&,
+                         const SkMeshSpecification*,
+                         SkSpan<const SkRuntimeEffect::ChildPtr> children);
+};
+
 void AddToKey(const KeyContext&, const SkBlender*);
 
 /**

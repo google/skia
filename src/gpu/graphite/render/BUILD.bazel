@@ -21,6 +21,8 @@ CORE_FILES = [
     "CoverageMaskRenderStep.cpp",
     "CoverageMaskRenderStep.h",
     "DynamicInstancesPatchAllocator.h",
+    "MeshRenderStep.cpp",
+    "MeshRenderStep.h",
     "MiddleOutFanRenderStep.cpp",
     "MiddleOutFanRenderStep.h",
     "PerEdgeAAQuadRenderStep.cpp",

@@ -246,7 +246,7 @@ public:
                    sk_sp<SkBlender>, const SkPaint&) override;
 
     void drawDrawable(SkCanvas*, SkDrawable*, const SkMatrix*) override {}
-    void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override {}
+    void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override;
 
     // Special images and layers
     sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&) override;

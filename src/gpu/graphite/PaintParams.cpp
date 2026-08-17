@@ -13,6 +13,7 @@
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkImageInfoPriv.h"
+#include "src/core/SkMeshPriv.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/DitherUtils.h"
@@ -219,6 +220,15 @@ SkColor4f PaintParams::Color4fPrepForDst(SkColor4f srcColor, const SkColorInfo& 
     SkColor4f result = srcColor;
     steps.apply(result.vec());
     return result;
+}
+
+PaintParams PaintParams::makeWithMesh(const SkMesh& mesh) const {
+    PaintParams copy = *this;
+    copy.fMeshSpec = mesh.spec();
+    copy.fMeshChildren = mesh.children();
+    copy.fPrimitiveColorSpace = SkMeshSpecificationPriv::ColorSpace(*mesh.spec());
+    copy.fPrimitiveAlphaType = SkMeshSpecificationPriv::AlphaType(*mesh.spec());
+    return copy;
 }
 
 #if defined(SK_DEBUG)
@@ -565,6 +575,12 @@ std::optional<ShadingParams::Result> ShadingParams::toKey(const KeyContext& keyC
     if (fClipShader || !fNonMSAAClip.isEmpty()) {
         keyContext.paintParamsKeyBuilder()->addRootBlockHeader(RootBlockType::kClip);
         this->handleClipping(keyContext);
+    }
+
+    // Optional Root Node 3 is a mesh shader
+    if (fPaint.meshSpec()) {
+        keyContext.paintParamsKeyBuilder()->addRootBlockHeader(RootBlockType::kMeshShader);
+        MeshShaderBlock::AddBlock(keyContext, fPaint.meshSpec(), fPaint.meshChildren());
     }
 
     // If dstUsage is not kNone, then kDependsOnDst must be set (all other bits only apply *because*

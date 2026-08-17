@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_RuntimeEffectDictionary_DEFINED
 #define skgpu_graphite_RuntimeEffectDictionary_DEFINED
 
+#include "include/core/SkMesh.h"
 #include "include/core/SkRefCnt.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkSpinlock.h"
@@ -17,9 +18,10 @@ class SkRuntimeEffect;
 
 namespace skgpu::graphite {
 
-// We keep track of all SkRuntimeEffects that are used by a recording, along with their code
-// snippet ID. This ensures that we have a live reference to every effect that we're going to
-// paint, and gives us a way to retrieve their shader text when we see their code-snippet ID.
+// We keep track of all SkRuntimeEffects and SkMeshSpecifications that are used by a recording,
+// along with their code snippet ID. This ensures that we have a live reference to every effect
+// that we're going to paint, and gives us a way to retrieve their shader text when we see their
+// code-snippet ID.
 //
 // Each runtime effect dictionary lives for just one Recording. While recording,
 // it is filled with runtime effects. In snap(), ownership of it is assumed by the
@@ -33,18 +35,22 @@ public:
         sk_sp<const SkRuntimeEffect>* effect = fDict.find(codeSnippetID);
         return effect ? effect->get() : nullptr;
     }
+    const SkMeshSpecification* findMeshSpec(int codeSnippetID) const SK_EXCLUDES(fSpinLock) {
+        SkAutoSpinlock lock{fSpinLock};
+
+        sk_sp<const SkMeshSpecification>* spec = fMeshSpecDict.find(codeSnippetID);
+        return spec ? spec->get() : nullptr;
+    }
 
     void set(int codeSnippetID, sk_sp<const SkRuntimeEffect> effect) SK_EXCLUDES(fSpinLock);
-
-    bool empty() const SK_EXCLUDES(fSpinLock) {
-        SkAutoSpinlock lock{fSpinLock};
-        return fDict.empty();
-    }
+    void set(int codeSnippetID, sk_sp<const SkMeshSpecification> spec) SK_EXCLUDES(fSpinLock);
 
 private:
     mutable SkSpinlock fSpinLock;
 
     skia_private::THashMap<int, sk_sp<const SkRuntimeEffect>> fDict SK_GUARDED_BY(fSpinLock);
+    skia_private::THashMap<int,
+                           sk_sp<const SkMeshSpecification>> fMeshSpecDict SK_GUARDED_BY(fSpinLock);
 };
 
 } // namespace skgpu::graphite

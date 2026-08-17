@@ -307,7 +307,9 @@ enum DrawTypeFlags : uint16_t {
     //    AnalyticAndAtlasClip
     kAnalyticClip     = 1 << 12,
 
-    kLast = kAnalyticClip,
+    kDrawMesh         = 1 << 13,
+
+    kLast = kDrawMesh,
 };
 
 } // namespace skgpu::graphite
