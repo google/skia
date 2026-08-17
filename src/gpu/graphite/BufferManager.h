@@ -458,7 +458,7 @@ private:
  */
 namespace BufferAligner {
 
-SK_ALWAYS_INLINE uint32_t validateCountAndStride(size_t count, size_t stride, size_t headroom,
+SK_ALWAYS_INLINE uint32_t ValidateCountAndStride(size_t count, size_t stride, size_t headroom,
                                                  uint32_t alignment) {
     // size_t may just be uint32_t, so this ensures we have enough bits to
     // compute the required byte product.
@@ -481,7 +481,7 @@ SK_ALWAYS_INLINE uint32_t validateCountAndStride(size_t count, size_t stride, si
     return SkTo<uint32_t>(bytesWithHeadroom64);
 }
 
-SK_ALWAYS_INLINE uint32_t lcmAlignment(uint32_t alignMaybePow2, uint32_t alignProbNonPow2) {
+SK_ALWAYS_INLINE uint32_t LcmAlignment(uint32_t alignMaybePow2, uint32_t alignProbNonPow2) {
     SkASSERT(alignMaybePow2 != 0 && alignProbNonPow2 != 0);
     if (alignMaybePow2 == 1 ||
         alignMaybePow2 == alignProbNonPow2 ||
@@ -520,9 +520,9 @@ SK_ALWAYS_INLINE std::pair<uint32_t, uint32_t> prepForStride(size_t bufferSize,
     // `stride` so that repeated suballocations of `stride` can be performed by simply adding to
     // fOffset without additional instructions. If `currentStride == 0`, it's a signal that the
     // first offset also needs to be aligned to the minimum binding requirement.
-    uint32_t align32 = lcmAlignment(SkTo<uint32_t>(align), SkTo<uint32_t>(stride));
+    uint32_t align32 = LcmAlignment(SkTo<uint32_t>(align), SkTo<uint32_t>(stride));
     if (currentStride == 0) {
-        align32 = lcmAlignment(SkTo<uint32_t>(minBindingAlignment), align32);
+        align32 = LcmAlignment(SkTo<uint32_t>(minBindingAlignment), align32);
     }
 
     const uint32_t stride32 = SkTo<uint32_t>(stride);

@@ -398,7 +398,7 @@ BufferSubAllocator DrawBufferManager::getBuffer(
     BufferState& state = fCurrentBuffers[stateIndex];
     // The size for a buffer is aligned to the minimum block size for better resource reuse, which
     // is more conservative than fMinAlignment.
-    uint32_t requiredBytes32 = BufferAligner::validateCountAndStride(count, stride, headroom,
+    uint32_t requiredBytes32 = BufferAligner::ValidateCountAndStride(count, stride, headroom,
                                                                      state.fMinBlockSize);
     if (fMappingFailed || !requiredBytes32) {
         return {};
@@ -527,12 +527,12 @@ void* StaticBufferManager::prepareStaticData(BufferState* state,
     // Unlike in BufferSubAllocator::reserve(), we do use SkTo<uint32_t> to check
     // `requiredAlignment`. This is not dynamic data and is fully controlled by Graphite, so if it
     // asserts, then there is a bug in the static data for a Renderer that must be fixed.
-    const uint32_t align32 = BufferAligner::lcmAlignment(state->fMinimumAlignment,
+    const uint32_t align32 = BufferAligner::LcmAlignment(state->fMinimumAlignment,
                                                          SkTo<uint32_t>(requiredAlignment));
 
     SkASSERT(target);
     *target = {nullptr, 0};
-    uint32_t size32 = BufferAligner::validateCountAndStride(requiredBytes, /*stride=*/1,
+    uint32_t size32 = BufferAligner::ValidateCountAndStride(requiredBytes, /*stride=*/1,
                                                             /*headroom=*/0, align32);
     if (!size32 || fMappingFailed) {
         return nullptr;
@@ -599,7 +599,7 @@ bool StaticBufferManager::BufferState::createAndUpdateBindings(
     for (const CopyRange& data : fData) {
         // Each copy range's size should be aligned to the lcm of the required alignment and minimum
         // alignment so we can increment the offset in the static buffer.
-        const uint32_t alignment = BufferAligner::lcmAlignment(fMinimumAlignment,
+        const uint32_t alignment = BufferAligner::LcmAlignment(fMinimumAlignment,
                                                                data.fRequiredAlignment);
         offset = SkAlignNonPow2(offset, alignment);
         SkASSERT(!(offset % fMinimumAlignment) && !(offset % data.fRequiredAlignment));
