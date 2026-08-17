@@ -637,6 +637,27 @@ config("warnings") {
       "-Wdeprecated-writable-str",
       "-Wextra-semi",
     ]
+
+    _unsafe_buffers_mappings =
+        rebase_path("//tools/unsafe_buffers/unsafe_buffers_mappings.txt",
+                    root_build_dir)
+    _supports_unsafe_buffers_mappings =
+        exec_script("//gn/check_compiler_flag.py",
+                    [
+                      cc,
+                      "--warning-suppression-mappings=" +
+                          _unsafe_buffers_mappings,
+                    ],
+                    "value")
+
+    if (_supports_unsafe_buffers_mappings) {
+      cflags += [
+        "-Wunsafe-buffer-usage",
+        "--warning-suppression-mappings=" + _unsafe_buffers_mappings,
+      ]
+    } else {
+      cflags += [ "-Wno-unsafe-buffer-usage" ]
+    }
   }
 
   # !is_clang is a proxy for gcc.

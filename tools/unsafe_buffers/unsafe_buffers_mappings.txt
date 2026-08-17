@@ -1,0 +1,17 @@
+#
+# Copyright 2026 Google LLC
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+#
+
+# This file is used by Clang's --warning-suppression-mappings flag to control
+# the -Wunsafe-buffer-usage warning.
+#
+# By default, we suppress the warning across the entire repository (using `src:*`).
+# To enforce the warning on a specific directory, add an `=emit` rule for it.
+# For example, `src:*src/gpu/graphite/*=emit` re-enables the warning for all
+# files within the gpu/graphite directory.
+
+[unsafe-buffer-usage]
+src:*
