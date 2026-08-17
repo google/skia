@@ -37,15 +37,16 @@ std::pair<Layer*, BindingList*> DrawListLayer::searchBackwards(
     // draw count and pipeline change count
     static constexpr int kMaxSearchLimit = 8;
 
-    Layer* targetLayer = nullptr;
-    BindingList* targetMatch = nullptr;
-    BindingList* forwardMerge = nullptr;
-
     Rect::ComplementRect drawBounds{drawParams->drawBounds()};
 
+    Layer* targetLayer = nullptr;
     Layer* current = fLayers.tail();
     for (int limit = kMaxSearchLimit; limit > 0 && current; --limit) {
-        auto [result, match] = current->test(drawBounds, key, testMask);
+        // NOTE: This test does not search within the layer's binding lists for a match. Searching
+        // each layer that can allow the draw adds overhead for minimal batching improvements.
+        // Instead the heuristic to just add to the deepest layer possible and search only that
+        // layer for a good binding match batches about as well in the limit.
+        auto result = current->test(drawBounds, testMask);
 
         if (result & BoundsTestResult::kAllowedInLayer) {
             // Allowed in the layer, so remember it. In complex scenes, we want to search deeper
@@ -54,44 +55,55 @@ std::pair<Layer*, BindingList*> DrawListLayer::searchBackwards(
             // from reaching those denser, later candidates (particularly when this is a clip draw
             // as that propagates into the stop layer for subsequent draws).
             targetLayer = current;
-            targetMatch = match;
-        } else if (match) {
-            // Save this for after we create a new targetLayer, at which point this will move from
-            // current to the new layer and become targetMatch. Given the asserted conditions
-            // below, this case will always exit the loop.
-            SkASSERT(result == BoundsTestResult::kBlocked &&
-                     !SkToBool(key.fFlags & BoundsFlags::kMustBeDisjoint) &&
-                     current == fLayers.tail() &&
-                     !targetLayer);
-            forwardMerge = match;
         }
 
         if (!SkToBool(result & BoundsTestResult::kAllowedBeforeLayer) || current->fOrder == stop) {
             break;
         } else {
             current = current->fPrev;
-
-            // To support deeper searches while mitigating search time, if we found a matching
-            // BindingList then we penalize the remaining search limit halving it. Ultimately this
-            // is an imprecise heuristic. In an ideal world, we would maximize batching by
-            // exhaustively searching to the end of the list, but that would degrade insertion
-            // performance to O(n^2).
-            if (match) {
-                limit /= 2;
-            }
         }
     }
 
     SkASSERT(!targetLayer || targetLayer->fOrder >= stop);
 
+    BindingList* targetMatch = nullptr;
+    BindingList* forwardMerge = nullptr;
+    if (targetLayer) {
+        // `targetLayer` is non-null only if the test returned kAllowedInLayer, which means it is
+        // disjoint from everything else in the layer. We can safely combine it with an exact match
+        // or place it near a partial match.
+        targetMatch = targetLayer->searchBinding(key);
+        // if `targetMatch` is null, we could try and search `current` for a match but it would only
+        // be valid if the key is simple-shading and the match was the last, at which point we can
+        // allow for overlap. We could also try to do a more detailed per-binding list bounds check
+        // to see if the draw could skip past some of the bindings to find a match. However, since
+        // we have a targetLayer already, `current` would only be one deeper, so it's often not
+        // worth the trade off of additional search time.
+        // FIXME this didn't come up with just checking the tail binding, but maybe if we did
+        // per binding list bounds checks, we would find more matches?
+    } else if (key.isSimpleShading() && fLayers.tail()) {
+        // As a simple-shading draw, there is the potential to pull a previous binding list
+        // forward to a new layer. This must be an exact match so that we can rely on rasterization
+        // order resolving any overlap (since !targetLayer implies the test originally failed for
+        // fLayers.tail()).
+        if ((forwardMerge = fLayers.tail()->searchBinding(key))) {
+            if (!forwardMerge->fKey.isEqual(key)) {
+                forwardMerge = nullptr;
+            } else if (!forwardMerge->fPrev && !forwardMerge->fNext) {
+                // The tail had a single exact matching binding list, so just append to it. There
+                // are no other incompatible bindings whose overlap we need to worry about.
+                targetLayer = fLayers.tail();
+                targetMatch = forwardMerge;
+                forwardMerge = nullptr;
+            } // else we'll transfer the forward merge list into a new layer below
+        } // else didn't find a match in the last layer
+    } // else not forward-merge eligible and no target, so we'll put it in a new layer
+
     if (!targetLayer) {
         fOrderCounter = fOrderCounter.next();
         targetLayer = fStorage.make<Layer>(fOrderCounter);
         if (forwardMerge) {
-            SkASSERT(fLayers.tail()->fBindings.isInList(forwardMerge));
-            SkASSERT(key.fFlags & BoundsFlags::kColor); // Moving depth draws would break clipping
-            fLayers.tail()->fBindings.remove(forwardMerge);
-            targetLayer->fBindings.addToHead(forwardMerge);
+            fLayers.tail()->transfer(forwardMerge, targetLayer);
             targetMatch = forwardMerge;
         }
         fLayers.addToTail(targetLayer);
@@ -212,7 +224,7 @@ std::pair<DrawParams*, Layer*> DrawListLayer::recordDraw(const Renderer* rendere
         insertionLayer = lastInsertion ? lastInsertion : fLayers.head();
     }
 
-    fRenderStepCount += renderer->numRenderSteps();
+    SkEnumBitMask<BoundsFlags> allLayerMasks;
     for (int stepIndex = renderer->numRenderSteps() - 1; stepIndex >= 0; --stepIndex) {
         const RenderStep* const step = renderer->steps()[stepIndex];
         const bool performsShading = step->performsShading() && paintID.isValid();
@@ -240,7 +252,6 @@ std::pair<DrawParams*, Layer*> DrawListLayer::recordDraw(const Renderer* rendere
                 combinedTextures ? fTextureDataCache.insert(combinedTextures)
                                  : TextureDataCache::kInvalidIndex;
 
-
         // `layerMask` defines what this draw will block in new draws from going backwards. This is
         // per-step so that stencil-only draws can be grouped between shading and clip draws.
         SkEnumBitMask<BoundsFlags> layerMask = baseLayerMask;
@@ -257,6 +268,7 @@ std::pair<DrawParams*, Layer*> DrawListLayer::recordDraw(const Renderer* rendere
                      textureBindingIndex,
                      fStorageBufferSupport ? UniformDataCache::kInvalidIndex : uniformIndex,
                      layerMask};
+        allLayerMasks |= layerMask;
 
         if (!insertionLayer) {
             // Since we don't have a layer yet, search from the most recent layer back.
@@ -282,6 +294,13 @@ std::pair<DrawParams*, Layer*> DrawListLayer::recordDraw(const Renderer* rendere
         gatherer->rewindForRenderStep();
     }
 
+    // This must be called once for the layer the draw's rendersteps were added into, so do it at
+    // the end since we'll always have the layer at this point. This uses bounds flags applying
+    // to whole Renderer.
+    SkASSERT(insertionLayer);
+    insertionLayer->updateForDraw(drawParams->drawBounds(), allLayerMasks);
+
+    fRenderStepCount += renderer->numRenderSteps();
     fDrawCount++;
     fPassBounds.join(clip.drawBounds());
     fRequiresMSAA |= renderer->requiresMSAA();
