@@ -172,6 +172,7 @@ public:
         uint32_t                  fFlags          = 0;
         const char*               fLocale         = nullptr;
         const char*               fFontFamily     = nullptr;
+        float                     fTextTracking   = 0;
     };
 
     // Performs text layout along an infinite horizontal line, starting at |point|.
