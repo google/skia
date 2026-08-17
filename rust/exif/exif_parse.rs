@@ -143,6 +143,7 @@ fn parse_ifd(
     };
     const ENTRY_SIZE: usize = 12;
     let entries_start = ifd_off + 2;
+    let mut followed_exif_ifd = false;
 
     for i in 0..count {
         let e = entries_start + i * ENTRY_SIZE;
@@ -247,8 +248,10 @@ fn parse_ifd(
                 }
             }
             // ExifIFD pointer: LONG, count=1 → val_field is the sub-IFD offset.
-            // Only follow from the root IFD to match SkExif.cpp behavior.
-            TAG_EXIF_IFD if is_root && type_ == TYPE_LONG && cnt == 1 => {
+            // The Exif specification permits only one in the root IFD. Following
+            // duplicates can otherwise cause quadratic work on malformed input.
+            TAG_EXIF_IFD if is_root && !followed_exif_ifd && type_ == TYPE_LONG && cnt == 1 => {
+                followed_exif_ifd = true;
                 parse_ifd(data, val_field as usize, endianness, false, out);
             }
             _ => {}
@@ -382,5 +385,71 @@ mod tests {
             (h - 4.82_f32).abs() < 0.05,
             "expected headroom ≈ 4.82, got {h}"
         );
+    }
+
+    fn exif_with_two_ifd_pointers() -> Vec<u8> {
+        const ROOT_IFD_OFFSET: usize = 8;
+        const FIRST_IFD_OFFSET: usize = 34;
+        const SECOND_IFD_OFFSET: usize = 48;
+
+        let mut data = vec![0u8; 62];
+        data[0..2].copy_from_slice(b"MM");
+        data[2..4].copy_from_slice(&42u16.to_be_bytes());
+        data[4..8].copy_from_slice(&(ROOT_IFD_OFFSET as u32).to_be_bytes());
+
+        data[ROOT_IFD_OFFSET..ROOT_IFD_OFFSET + 2].copy_from_slice(&2u16.to_be_bytes());
+        for (entry_offset, ifd_offset) in [
+            (10, FIRST_IFD_OFFSET as u32),
+            (22, SECOND_IFD_OFFSET as u32),
+        ] {
+            data[entry_offset..entry_offset + 2].copy_from_slice(&TAG_EXIF_IFD.to_be_bytes());
+            data[entry_offset + 2..entry_offset + 4].copy_from_slice(&TYPE_LONG.to_be_bytes());
+            data[entry_offset + 4..entry_offset + 8].copy_from_slice(&1u32.to_be_bytes());
+            data[entry_offset + 8..entry_offset + 12].copy_from_slice(&ifd_offset.to_be_bytes());
+        }
+
+        data[FIRST_IFD_OFFSET..FIRST_IFD_OFFSET + 2].copy_from_slice(&1u16.to_be_bytes());
+        data[36..38].copy_from_slice(&TAG_PIXEL_Y_DIMENSION.to_be_bytes());
+        data[38..40].copy_from_slice(&TYPE_LONG.to_be_bytes());
+        data[40..44].copy_from_slice(&1u32.to_be_bytes());
+        data[44..48].copy_from_slice(&480u32.to_be_bytes());
+
+        data[SECOND_IFD_OFFSET..SECOND_IFD_OFFSET + 2].copy_from_slice(&1u16.to_be_bytes());
+        data[50..52].copy_from_slice(&TAG_PIXEL_X_DIMENSION.to_be_bytes());
+        data[52..54].copy_from_slice(&TYPE_LONG.to_be_bytes());
+        data[54..58].copy_from_slice(&1u32.to_be_bytes());
+        data[58..62].copy_from_slice(&640u32.to_be_bytes());
+
+        data
+    }
+
+    fn empty_metadata() -> ExifMetadata {
+        ExifMetadata {
+            has_origin: false,
+            origin: 0,
+            has_hdr_headroom: false,
+            hdr_headroom: 0.0,
+            has_resolution_unit: false,
+            resolution_unit: 0,
+            has_x_resolution: false,
+            x_resolution: 0.0,
+            has_y_resolution: false,
+            y_resolution: 0.0,
+            has_pixel_x_dimension: false,
+            pixel_x_dimension: 0,
+            has_pixel_y_dimension: false,
+            pixel_y_dimension: 0,
+        }
+    }
+
+    #[test]
+    fn test_only_first_exif_ifd_is_followed() {
+        let data = exif_with_two_ifd_pointers();
+        let mut out = empty_metadata();
+
+        assert!(parse(&data, &mut out));
+        assert!(out.has_pixel_y_dimension);
+        assert_eq!(out.pixel_y_dimension, 480);
+        assert!(!out.has_pixel_x_dimension);
     }
 }
