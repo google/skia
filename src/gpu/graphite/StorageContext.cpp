@@ -30,6 +30,8 @@ void StorageContext::GradientCache::reset() {
 
 void StorageContext::resetCache() {
     fGradientCache.reset();
+    fVertexData.clear();
+    fRunningLCM = 1;
     SkDEBUGCODE(fGradientsFinalized = false;)
 }
 
@@ -61,24 +63,65 @@ std::pair<float*, int> StorageContext::allocateGradientData(int numStops,
     return {dstData, floatOffset};
 }
 
+void StorageContext::recordAlignment(size_t stride, size_t align) {
+    SkASSERT(stride > 0 && align > 0);
+    SkASSERT(!fGradientsFinalized);
+    uint32_t align32 = BufferAligner::LcmAlignment(SkTo<uint32_t>(align), SkTo<uint32_t>(stride));
+    fRunningLCM = BufferAligner::LcmAlignment(fRunningLCM, align32);
+}
+
+uint32_t StorageContext::appendVertices(const void* data,
+                                        size_t count,
+                                        size_t stride,
+                                        size_t align) {
+    SkASSERT(data && count > 0 && stride > 0 && align > 0);
+
+    uint32_t align32 = BufferAligner::LcmAlignment(SkTo<uint32_t>(align), SkTo<uint32_t>(stride));
+    SkASSERT(fRunningLCM % align32 == 0);
+
+    uint32_t requiredBytes =
+            BufferAligner::ValidateCountAndStride(count, stride, /*headroom=*/0, align32);
+    if (requiredBytes == 0) {
+        return 0;
+    }
+
+    uint32_t alignedVertOffset = SkAlignNonPow2(static_cast<uint32_t>(fVertexData.size()), align32);
+    if (alignedVertOffset > static_cast<uint32_t>(fVertexData.size())) {
+        int padBytes = alignedVertOffset - fVertexData.size();
+        memset(fVertexData.append(padBytes), 0, padBytes);
+    }
+
+    char* dst = fVertexData.append(requiredBytes);
+    memcpy(dst, data, requiredBytes);
+
+    uint32_t totalOffset = SkTo<uint32_t>(fGradientCache.fGradientDataSize) + alignedVertOffset;
+    return totalOffset;
+}
+
 void StorageContext::finalizePrecachedStorageData() {
     fGradientCache.fGradientDataSize =
-            SkAlignTo<size_t>(fGradientCache.fGradientDataSize, kStructAlignment);
+            SkAlignNonPow2<size_t>(fGradientCache.fGradientDataSize, fRunningLCM);
     SkDEBUGCODE(fGradientsFinalized = true;)
 }
 
 BindBufferInfo StorageContext::finalize(DrawBufferManager* bufferMgr) {
     SkASSERT(fGradientsFinalized);
-    size_t totalBytes = fGradientCache.fGradientDataSize;
+    size_t totalBytes = fGradientCache.fGradientDataSize + fVertexData.size_bytes();
 
     BindBufferInfo result;
     if (totalBytes > 0) {
         auto [writer, bufferInfo, _] = bufferMgr->getMappedStorageBuffer(totalBytes, /*stride=*/1);
         if (writer) {
-            writer.write(fGradientCache.fGradientData.data(),
-                         fGradientCache.fGradientData.size_bytes());
-            if (totalBytes > fGradientCache.fGradientData.size_bytes()) {
-                writer.zeroBytes(totalBytes - fGradientCache.fGradientData.size_bytes());
+            if (!fGradientCache.isEmpty()) {
+                writer.write(fGradientCache.fGradientData.data(),
+                             fGradientCache.fGradientData.size_bytes());
+                if (fGradientCache.fGradientDataSize > fGradientCache.fGradientData.size_bytes()) {
+                    writer.zeroBytes(fGradientCache.fGradientDataSize -
+                                     fGradientCache.fGradientData.size_bytes());
+                }
+            }
+            if (!fVertexData.empty()) {
+                writer.write(fVertexData.data(), fVertexData.size_bytes());
             }
 
             result = bufferInfo;
@@ -89,4 +132,4 @@ BindBufferInfo StorageContext::finalize(DrawBufferManager* bufferMgr) {
     return result;
 }
 
-} // namespace skgpu::graphite
+}  // namespace skgpu::graphite

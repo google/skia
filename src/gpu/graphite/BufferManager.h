@@ -494,59 +494,6 @@ SK_ALWAYS_INLINE uint32_t LcmAlignment(uint32_t alignMaybePow2, uint32_t alignPr
         return std::lcm(alignMaybePow2, alignProbNonPow2);
     }
 }
-
-// Returns {offset, remaining}. On failure (not enough room for alignment or minCount), returns
-// {currentOffset, 0}.
-SK_ALWAYS_INLINE std::pair<uint32_t, uint32_t> prepForStride(size_t bufferSize,
-                                                             uint32_t currentOffset,
-                                                             uint32_t currentStride,
-                                                             uint32_t currentRemaining,
-                                                             size_t minBindingAlignment,
-                                                             size_t stride,
-                                                             size_t align,
-                                                             size_t minCount,
-                                                             size_t headroom) {
-    SkASSERT(stride > 0 && align > 0); // Expect valid inputs
-    if (currentStride == stride && (align == 1 || align == stride)) {
-        // Shortcut if we're already aligned with the last call to prepForStride().
-        // Leave fRemaining alone, it's either enough for minCount or not, but reserve() will
-        // do the right thing regardless.
-        SkASSERT(currentOffset % align == 0);
-        SkASSERT(currentOffset % stride == 0);
-        return {currentOffset, currentRemaining};
-    }
-
-    // On re-aligning to a new stride, the offset needs to be aligned to the LCM of `align` and
-    // `stride` so that repeated suballocations of `stride` can be performed by simply adding to
-    // fOffset without additional instructions. If `currentStride == 0`, it's a signal that the
-    // first offset also needs to be aligned to the minimum binding requirement.
-    uint32_t align32 = LcmAlignment(SkTo<uint32_t>(align), SkTo<uint32_t>(stride));
-    if (currentStride == 0) {
-        align32 = LcmAlignment(SkTo<uint32_t>(minBindingAlignment), align32);
-    }
-
-    const uint32_t stride32 = SkTo<uint32_t>(stride);
-    const uint32_t headroom32 = SkTo<uint32_t>(headroom);
-    const uint32_t reserveForHeadroom = headroom32 > stride32 ? headroom32 - stride32 : 0;
-    const uint32_t remainingBytes =
-            bufferSize > currentOffset ? SkTo<uint32_t>(bufferSize) - currentOffset : 0;
-    // Ensures we won't overflow fOffset past buffer size once we align it
-    if (remainingBytes >= align32 - 1 + reserveForHeadroom) {
-        const uint32_t offset = SkAlignNonPow2(currentOffset, align32);
-        SkASSERT(offset + reserveForHeadroom <= bufferSize);
-        uint32_t remaining =
-                (SkTo<uint32_t>(bufferSize) - offset - reserveForHeadroom) / stride32;
-        if (remaining > 0 && remaining >= minCount) {
-            // Successful prep, so preserve the aligned offset
-            return {offset, remaining};
-        }
-    }
-
-    // If we've reached here, there wasn't a buffer or enough room to align, or enough room to
-    // satisfy minCount, so fail.
-    return {currentOffset, 0};
-}
-
 }  // namespace BufferAligner
 
 /**

@@ -62,6 +62,7 @@ public:
             SkEnumBitMask<DstUsage> dstUsage,
             BarrierType barrierBeforeDraws,
             PipelineDataGatherer* gatherer,
+            StorageContext* storageContext,
             const StrokeStyle* stroke,
             Layer* latestInsertion) = 0;
 

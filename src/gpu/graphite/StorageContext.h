@@ -10,6 +10,7 @@
 
 #include "include/private/SkTDArray.h"
 #include "src/core/SkTHash.h"
+#include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 
 #include <cstdint>
@@ -24,14 +25,13 @@ class DrawBufferManager;
 
 class StorageContext {
 public:
-    // Placeholder alignment, to be replaced by LCM across rendersteps in future.
     static constexpr size_t kStructAlignment = 16;
 
     StorageContext();
     ~StorageContext();
 
-    // Resets cached gradient data. Should only occur at "organic" flush time (e.g. canvas/recorder
-    // flush).
+    // Resets cached gradient and vertex data. Should only occur at "organic" flush time
+    // (e.g. canvas/recorder flush).
     void resetCache();
 
     // Stub, will call more than resetCache() in the future
@@ -41,19 +41,32 @@ public:
 
     std::pair<float*, int> allocateGradientData(int numStops, const SkGradientBaseShader* shader);
 
-    // Called at the beginning of snapping a draw pass. It aligns the cached data so that appended
-    // data may have a valid offset. Note, this extends and clears the CPU side copy of the cached
-    // data but does not make uploads.
+    // Used to determine the LCM across the stride/alignment requirements of all draws in a
+    // drawPass, but does not write any data to the storageContext. Instead, at snapDrawPass() time,
+    // the final LCM is used to align both the cached data in finalizePrecachedStorageData() and
+    // the incoming appendVertices() stream. Should only be called prior to snapDrawPass().
+    //
+    // Currently, we pass default arguments as placeholders until storage attributes are
+    // implemented.
+    void recordAlignment(size_t stride = kStructAlignment, size_t align = kStructAlignment);
+
+    // Appends `count * stride` bytes of vertex data into the CPU-side copy, aligned according to
+    // `stride` and `align`. Returns the byte offset within the eventual storage buffer.
+    uint32_t appendVertices(const void* data, size_t count, size_t stride, size_t align = 1);
+
+    // Called at the beginning of snapping a draw pass. It pads the precached data size to the
+    // running LCM so that subsequent appended data begins at a valid aligned offset. Does not
+    // perform GPU uploads.
     void finalizePrecachedStorageData();
 
     // Called after snapping the draw pass. It creates a single mapped buffer containing the
-    // concatenated cached and append data. Currently, appending is not implemented, so it only
-    // uploads cached data.
+    // concatenated cached and append data.
     BindBufferInfo finalize(DrawBufferManager* bufferMgr);
 
-    bool isEmpty() const { return fGradientCache.isEmpty(); }
+    bool isEmpty() const { return fGradientCache.isEmpty() && fVertexData.empty(); }
 
     SkDEBUGCODE(int size() const { return fGradientCache.fGradientData.size(); })
+    SkDEBUGCODE(int vertexSize() const { return fVertexData.size(); })
 
 private:
     struct GradientCache {
@@ -73,6 +86,9 @@ private:
     SkDEBUGCODE(bool fGradientsFinalized = false;)
 
     GradientCache fGradientCache;
+
+    SkTDArray<char> fVertexData;
+    uint32_t fRunningLCM = 1;
 };
 
 } // namespace skgpu::graphite
