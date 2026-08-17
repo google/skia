@@ -538,7 +538,6 @@ skia_core_sources = [
   "$_src/core/SkSafeMath.cpp",
   "$_src/core/SkSafeMath.h",
   "$_src/core/SkSafeRange.h",
-  "$_src/core/SkSafetyChecks.h",
   "$_src/core/SkSamplingPriv.h",
   "$_src/core/SkScalar.cpp",
   "$_src/core/SkScaleToSides.h",

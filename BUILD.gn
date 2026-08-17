@@ -2041,8 +2041,6 @@ skia_source_set("core") {
   public = skia_core_public
   sources = skia_core_sources
 
-  public_deps = [ "//src/partition_alloc:raw_ptr" ]
-
   # These deps don't belong to :core, but they are currently needed to support (de)serialization.
   deps = [
     ":fontmgr_mac_ct",

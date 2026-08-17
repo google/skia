@@ -177,7 +177,6 @@ SEMI_PUBLIC_HEADERS = [
     "SkRuntimeEffectPriv.h",
     "SkSLTypeShared.h",
     "SkSafeMath.h",
-    "SkSafetyChecks.h",
     "SkSamplingPriv.h",
     "SkScalerContext.h",
     "SkScan.h",
