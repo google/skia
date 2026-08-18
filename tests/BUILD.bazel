@@ -184,6 +184,7 @@ filegroup(
         "InvalidIndexedPngTest.cpp",
         "IsClosedSingleContourTest.cpp",
         "JSONTest.cpp",
+        "JpegxlTest.cpp",
         "LListTest.cpp",
         "LRUCacheTest.cpp",
         "M44Test.cpp",

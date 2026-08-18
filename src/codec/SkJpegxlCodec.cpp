@@ -242,6 +242,7 @@ SkCodec::Result SkJpegxlCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst
 
     codec.fDst = dst;
     codec.fRowBytes = rowBytes;
+    codec.fPixelShift = dstInfo.shiftPerPixel();
 
     // TODO(eustas): consider grayscale.
     uint32_t numColorChannels = 3;

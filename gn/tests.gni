@@ -122,6 +122,7 @@ tests_sources = [
   "$_tests/InvalidIndexedPngTest.cpp",
   "$_tests/IsClosedSingleContourTest.cpp",
   "$_tests/JSONTest.cpp",
+  "$_tests/JpegxlTest.cpp",
   "$_tests/LListTest.cpp",
   "$_tests/LRUCacheTest.cpp",
   "$_tests/M44Test.cpp",
