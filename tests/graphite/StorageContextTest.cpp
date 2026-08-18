@@ -99,14 +99,13 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextAppendVertexTest,
 
     SkPoint pts[2] = {{0, 0}, {100, 100}};
     SkColor4f colors[2] = {SkColors::kRed, SkColors::kBlue};
-    sk_sp<SkShader> shader = SkShaders::LinearGradient(pts, {{colors, {}, SkTileMode::kClamp}, {}});
-    const auto* grad = static_cast<const SkGradientBaseShader*>(shader.get());
+    auto grad = sk_make_sp<SkLinearGradient>(pts, SkGradient{{colors, {}, SkTileMode::kClamp}, {}});
 
     StorageContext ctxStorage;
     StorageContext* ctxHandle = &ctxStorage;
 
     // 1. Allocate gradient data (40 bytes)
-    auto [gradPtr, gradOffset] = ctxHandle->allocateGradientData(2, grad);
+    auto [gradPtr, gradOffset] = ctxHandle->allocateGradientData(2, grad.get());
     REPORTER_ASSERT(reporter, gradPtr != nullptr);
     REPORTER_ASSERT(reporter, gradOffset == 0);
 
