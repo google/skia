@@ -177,6 +177,7 @@ SEMI_PUBLIC_HEADERS = [
     "SkRuntimeEffectPriv.h",
     "SkSLTypeShared.h",
     "SkSafeMath.h",
+    "SkSafetyChecks.h",
     "SkSamplingPriv.h",
     "SkScalerContext.h",
     "SkScan.h",
@@ -640,6 +641,7 @@ skia_cc_library(
     deps = [
         ":core",
         "//modules/skcms",
+        "//src/partition_alloc:raw_ptr",
     ],
 )
 
