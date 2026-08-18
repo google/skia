@@ -33,7 +33,7 @@
 #include "src/encode/SkJPEGWriteUtility.h"
 #include "src/image/SkImage_Base.h"
 
-#include <csetjmp>
+#include <setjmp.h>
 #include <cstdint>
 #include <cstring>
 #include <memory>

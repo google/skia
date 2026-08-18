@@ -34,7 +34,7 @@
 #endif  // SK_CODEC_DECODES_JPEG_GAINMAPS
 
 #include <array>
-#include <csetjmp>
+#include <setjmp.h>
 #include <cstring>
 #include <utility>
 

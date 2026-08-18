@@ -11,7 +11,7 @@
 #include "include/core/SkStream.h"
 #include "src/codec/SkJpegPriv.h"
 
-#include <csetjmp>
+#include <setjmp.h>
 #include <cstddef>
 
 extern "C" {
