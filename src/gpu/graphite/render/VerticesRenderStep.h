@@ -23,7 +23,7 @@ enum class PrimitiveType : uint8_t;
 
 class VerticesRenderStep final : public RenderStep {
 public:
-    explicit VerticesRenderStep(Layout, PrimitiveType, bool hasColor, bool hasTexCoords);
+    explicit VerticesRenderStep(Layout, bool hasColor, bool hasTexCoords);
 
     ~VerticesRenderStep() override;
 

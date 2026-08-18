@@ -266,8 +266,7 @@ enum DrawTypeFlags : uint16_t {
 
     // kDrawVertices should be used to generate Pipelines that use the following RenderSteps:
     //    VerticesRenderStep[*] for:
-    //        [Tris], [TrisTexCoords], [TrisColor], [TrisColorTexCoords],
-    //        [Tristrips], [TristripsTexCoords], [TristripsColor], [TristripsColorTexCoords]
+    //        [Pos], [PosTexCoords], [PosColor], [PosColorTexCoords],
     kDrawVertices     = 1 << 5,
 
     // kCircularArc renders filled circular arcs, with or without the center included, and
@@ -297,7 +296,7 @@ enum DrawTypeFlags : uint16_t {
     // This draw type covers all the methods Skia uses to draw drop shadows. It can be used to
     // generate Pipelines which, as part of their labels, have:
     //     the AnalyticBlurRenderStep
-    //     VerticesRenderStep[TrisColor] with a GaussianColorFilter
+    //     VerticesRenderStep[PosColor] with a GaussianColorFilter
     // For this draw type the PaintOptions parameter to Precompile() will be ignored.
     kDropShadows      = 1 << 11,
 

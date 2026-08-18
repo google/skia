@@ -2068,7 +2068,7 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
         return {renderers->sdfText(useLCD), nullptr};
     } else if (geometry.isVertices()) {
         SkVerticesPriv info(geometry.vertices()->priv());
-        return {renderers->vertices(info.mode(), info.hasColors(), info.hasTexCoords()), nullptr};
+        return {renderers->vertices(info.hasColors(), info.hasTexCoords()), nullptr};
     } else if (geometry.isMesh()) {
         return {renderers->mesh(), nullptr};
     } else if (geometry.isCoverageMaskShape()) {

@@ -175,21 +175,18 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
                  DrawTypeFlags::kDropShadows);
 
     // vertices
-    for (PrimitiveType primType : {PrimitiveType::kTriangles, PrimitiveType::kTriangleStrip}) {
-        for (bool color : {false, true}) {
-            for (bool texCoords : {false, true}) {
-                DrawTypeFlags dtFlags = DrawTypeFlags::kDrawVertices;
-                if (primType == PrimitiveType::kTriangles && color && !texCoords) {
-                    // Android uses this drawVertices combination for drop shadows
-                    dtFlags = static_cast<DrawTypeFlags>(dtFlags | DrawTypeFlags::kDropShadows);
-                }
-
-                int index = 4*(primType == PrimitiveType::kTriangleStrip) + 2*color + texCoords;
-                initFromStep(&fVertices[index],
-                             std::make_unique<VerticesRenderStep>(layout, primType, color,
-                                                                  texCoords),
-                             dtFlags);
+    for (bool color : {false, true}) {
+        for (bool texCoords : {false, true}) {
+            DrawTypeFlags dtFlags = DrawTypeFlags::kDrawVertices;
+            if (color && !texCoords) {
+                // Android uses this drawVertices combination for drop shadows
+                dtFlags = static_cast<DrawTypeFlags>(dtFlags | DrawTypeFlags::kDropShadows);
             }
+
+            int index = 2*color + texCoords;
+            initFromStep(&fVertices[index],
+                         std::make_unique<VerticesRenderStep>(layout, color, texCoords),
+                         dtFlags);
         }
     }
 

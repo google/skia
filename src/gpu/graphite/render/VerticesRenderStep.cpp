@@ -68,51 +68,32 @@ static constexpr SkSpan<const Varying> kVaryings[2] = {
         /*color*/ kVaryingColor
     };
 
-RenderStep::RenderStepID variant_id(PrimitiveType type, bool hasColor, bool hasTexCoords) {
-    if (type == PrimitiveType::kTriangles) {
-        if (hasColor) {
-            if (hasTexCoords) {
-                return RenderStep::RenderStepID::kVertices_TrisColorTexCoords;
-            } else {
-                return RenderStep::RenderStepID::kVertices_TrisColor;
-            }
+RenderStep::RenderStepID variant_id(bool hasColor, bool hasTexCoords) {
+    if (hasColor) {
+        if (hasTexCoords) {
+            return RenderStep::RenderStepID::kVertices_PosColorTexCoords;
         } else {
-            if (hasTexCoords) {
-                return RenderStep::RenderStepID::kVertices_TrisTexCoords;
-            } else {
-                return RenderStep::RenderStepID::kVertices_Tris;
-            }
+            return RenderStep::RenderStepID::kVertices_PosColor;
         }
     } else {
-        SkASSERT(type == PrimitiveType::kTriangleStrip);
-
-        if (hasColor) {
-            if (hasTexCoords) {
-                return RenderStep::RenderStepID::kVertices_TristripsColorTexCoords;
-            } else {
-                return RenderStep::RenderStepID::kVertices_TristripsColor;
-            }
+        if (hasTexCoords) {
+            return RenderStep::RenderStepID::kVertices_PosTexCoords;
         } else {
-            if (hasTexCoords) {
-                return RenderStep::RenderStepID::kVertices_TristripsTexCoords;
-            } else {
-                return RenderStep::RenderStepID::kVertices_Tristrips;
-            }
+            return RenderStep::RenderStepID::kVertices_Pos;
         }
     }
 }
 
 }  // namespace
 
-VerticesRenderStep::VerticesRenderStep(Layout layout, PrimitiveType type, bool hasColor,
-                                       bool hasTexCoords)
+VerticesRenderStep::VerticesRenderStep(Layout layout, bool hasColor, bool hasTexCoords)
         : RenderStep(layout,
-                     variant_id(type, hasColor, hasTexCoords),
+                     variant_id(hasColor, hasTexCoords),
                      (hasColor ? Flags::kEmitsPrimitiveColor : Flags::kNone) |
                      Flags::kPerformsShading | Flags::kAppendVertices,
                      /*uniforms=*/{{"localToDevice", SkSLType::kFloat4x4},
                                    {"depth", SkSLType::kFloat}},
-                     type,
+                     PrimitiveType::kTriangles,
                      kDirectDepthLEqualPass,
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/kAttributes[2*hasTexCoords + hasColor],

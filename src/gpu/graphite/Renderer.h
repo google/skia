@@ -51,38 +51,34 @@ enum class Coverage { kNone, kSingleChannel, kLCD };
 // RenderStep::kRenderStepIDVersion value. The enum values generated from this
 // list are serialized and the kRenderStepIDVersion value is the signal to
 // abandon older serialized data.
-#define SKGPU_RENDERSTEP_TYPES(M1, M2)               \
-        M1(Invalid)                                  \
-        M1(CircularArc)                              \
-        M1(AnalyticRRect)                            \
-        M1(AnalyticBlur)                             \
-        M1(PerEdgeAAQuad)                            \
-        M2(CoverBounds,      NonAAFill)              \
-        M2(CoverBounds,      RegularCover)           \
-        M2(CoverBounds,      InverseCover)           \
-        M1(CoverageMask)                             \
-        M2(BitmapText,       Mask)                   \
-        M2(BitmapText,       LCD)                    \
-        M2(BitmapText,       Color)                  \
-        M2(MiddleOutFan,     EvenOdd)                \
-        M2(MiddleOutFan,     Winding)                \
-        M1(SDFTextLCD)                               \
-        M1(SDFText)                                  \
-        M2(TessellateCurves, EvenOdd)                \
-        M2(TessellateCurves, Winding)                \
-        M2(TessellateStrokes,Fill)                   \
-        M2(TessellateStrokes,InverseFill)            \
-        M2(TessellateWedges, Convex)                 \
-        M2(TessellateWedges, EvenOdd)                \
-        M2(TessellateWedges, Winding)                \
-        M2(Vertices,         Tris)                   \
-        M2(Vertices,         TrisColor)              \
-        M2(Vertices,         TrisTexCoords)          \
-        M2(Vertices,         TrisColorTexCoords)     \
-        M2(Vertices,         Tristrips)              \
-        M2(Vertices,         TristripsColor)         \
-        M2(Vertices,         TristripsTexCoords)     \
-        M2(Vertices,         TristripsColorTexCoords)\
+#define SKGPU_RENDERSTEP_TYPES(M1, M2)          \
+        M1(Invalid)                             \
+        M1(CircularArc)                         \
+        M1(AnalyticRRect)                       \
+        M1(AnalyticBlur)                        \
+        M1(PerEdgeAAQuad)                       \
+        M2(CoverBounds,      NonAAFill)         \
+        M2(CoverBounds,      RegularCover)      \
+        M2(CoverBounds,      InverseCover)      \
+        M1(CoverageMask)                        \
+        M2(BitmapText,       Mask)              \
+        M2(BitmapText,       LCD)               \
+        M2(BitmapText,       Color)             \
+        M2(MiddleOutFan,     EvenOdd)           \
+        M2(MiddleOutFan,     Winding)           \
+        M1(SDFTextLCD)                          \
+        M1(SDFText)                             \
+        M2(TessellateCurves, EvenOdd)           \
+        M2(TessellateCurves, Winding)           \
+        M2(TessellateStrokes,Fill)              \
+        M2(TessellateStrokes,InverseFill)       \
+        M2(TessellateWedges, Convex)            \
+        M2(TessellateWedges, EvenOdd)           \
+        M2(TessellateWedges, Winding)           \
+        M2(Vertices,         Pos)               \
+        M2(Vertices,         PosColor)          \
+        M2(Vertices,         PosTexCoords)      \
+        M2(Vertices,         PosColorTexCoords) \
         M1(Mesh)
 
 /**

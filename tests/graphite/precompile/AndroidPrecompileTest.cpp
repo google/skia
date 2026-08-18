@@ -214,7 +214,7 @@ static const PipelineLabel kOldLabels[] = {
 /*  59 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "PerEdgeAAQuadRenderStep + "
                 "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha] Src" },
-/*  60 */ { -1, "RP((RGBA8+D16 x1).rgba) + VerticesRenderStep[TrisColor] + PrimitiveColor+GaussianColorFilter+BlendCompose[SolidColor, Passthrough, Modulate] SrcOver" },
+/*  60 */ { -1, "RP((RGBA8+D16 x1).rgba) + VerticesRenderStep[PosColor] + PrimitiveColor+GaussianColorFilter+BlendCompose[SolidColor, Passthrough, Modulate] SrcOver" },
 /*  61 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "AnalyticRRectRenderStep + "
                 "BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
@@ -279,7 +279,7 @@ static const PipelineLabel kOldLabels[] = {
                 "TessellateCurvesRenderStep[EvenOdd] + "
                 "(empty)" },
 /*  82 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
-                "VerticesRenderStep[TrisColor] + "
+                "VerticesRenderStep[PosColor] + "
                 "PrimitiveColor+GaussianColorFilter+BlendCompose[SolidColor, Passthrough, Modulate] SrcOver" },
 
                 // New Cases 6/10/25
@@ -466,7 +466,7 @@ static const PipelineLabel kOldLabels[] = {
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "SolidColor Src AnalyticClip" },
 /* 145 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
-                "VerticesRenderStep[TrisColor] + "
+                "VerticesRenderStep[PosColor] + "
                 "PrimitiveColor+Compose[GaussianColorFilter, BlendCompose[SolidColor, Passthrough, Modulate]] SrcOver" },
 /* 146 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "AnalyticRRectRenderStep + "
@@ -790,7 +790,7 @@ static const PipelineLabel kOldLabels[] = {
 /*  */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver AnalyticClip" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_KawaseBlurDualFilterV2_UpSampleBlurEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]] SrcOver" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_KawaseBlurDualFilterV2_QuarterResDownSampleBlurEffect[LocalMatrix[CoordClamp[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]]] Src" },
-/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + VerticesRenderStep[TrisColor] + PrimitiveColor+GaussianColorFilter+BlendCompose[SolidColor, Passthrough, Modulate] SrcOver AnalyticClip" },
+/*  */ { -1, "RP((RGBA8+D16 x1).rgba) + VerticesRenderStep[PosColor] + PrimitiveColor+GaussianColorFilter+BlendCompose[SolidColor, Passthrough, Modulate] SrcOver AnalyticClip" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(x842094169 709+narrow mid mid nearest F rgba cf0lf1)]+PreAlpha], AlphaOnlyPaintColor, SrcIn] SrcOver" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_KawaseBlurDualFilterV2_QuarterResDownSampleBlurEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]] Src" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]], AlphaOnlyPaintColor, SrcIn] SrcOver" },
@@ -862,7 +862,7 @@ static const PipelineLabel kNewLabels[] = {
         "Compose[LocalMatrix[BlendCompose[CoordNormalize[HardwareImage(0)]+AlphaOnly, RGBPaintColor, DstIn]]+MatrixColorFilter, Dither] SrcOver" },
 /*  10 P (82) */ { 26,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
-        "VerticesRenderStep[TrisColor] + "
+        "VerticesRenderStep[PosColor] + "
         "PrimitiveColor+GaussianColorFilter+BlendCompose[SolidColor, Passthrough, Modulate] SrcOver" },
 /*  11 */ { 24,
         "RP((RGBA8+D16 x1).rgba) + "
@@ -1418,7 +1418,7 @@ static const PipelineLabel kNewLabels[] = {
         "LocalMatrix[CoordNormalize[HardwareImage(x238 709+narrow mid mid nearest F rgba cf1lf0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha] SrcOver" },
 /* 149 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
-        "VerticesRenderStep[TrisTexCoords] + "
+        "VerticesRenderStep[PosTexCoords] + "
         "LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha]+BlendCompose[SolidColor, Passthrough, PorterDuffBlender] SrcOver" },
 /* 150 */ { 1,
         "RP((RGBA8+D24_S8 x4->1).rgba) + "
@@ -1703,7 +1703,7 @@ static const PipelineLabel kNewLabels[] = {
         "Compose[RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]], PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter SrcOver" },
 /* */ { 1,
         "RP((RGBA8+D16 x1).rgba) + "
-        "VerticesRenderStep[TrisColor] + "
+        "VerticesRenderStep[PosColor] + "
         "PrimitiveColor+GaussianColorFilter+BlendCompose[SolidColor, Passthrough, Modulate] SrcOver" },
 /* */ { 1,
       "RP((RGBA8+D16 x1).rgba) + "
@@ -1789,7 +1789,7 @@ static const PipelineLabel kNewLabels[] = {
     // Synthetic copy of label 10 "w/ msaa load"
 /* */ { -1,
         "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
-        "VerticesRenderStep[TrisColor] + "
+        "VerticesRenderStep[PosColor] + "
         "PrimitiveColor+GaussianColorFilter+BlendCompose[SolidColor, Passthrough, Modulate] SrcOver" },
     // Synthetic copy of label 165 where an opaque color converts to Src
 /* */ { -1,

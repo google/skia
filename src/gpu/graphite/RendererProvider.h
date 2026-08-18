@@ -125,10 +125,8 @@ public:
     const Renderer* sdfText(bool useLCDText) const { return &fSDFText[useLCDText]; }
 
     // Mesh rendering
-    const Renderer* vertices(SkVertices::VertexMode mode, bool hasColors, bool hasTexCoords) const {
-        SkASSERT(mode != SkVertices::kTriangleFan_VertexMode); // Should be converted to kTriangles
-        bool triStrip = mode == SkVertices::kTriangleStrip_VertexMode;
-        return &fVertices[4*triStrip + 2*hasColors + hasTexCoords];
+    const Renderer* vertices(bool hasColors, bool hasTexCoords) const {
+        return &fVertices[2*hasColors + hasTexCoords];
     }
 
     const Renderer* mesh() const {
@@ -170,7 +168,7 @@ public:
 
 private:
     static constexpr int kPathTypeCount = 4;
-    static constexpr int kVerticesCount = 8; // 2 modes * 2 color configs * 2 tex coord configs
+    static constexpr int kVerticesCount = 4; // 2 color configs * 2 tex coord configs
 
     friend class Context; // for ctor
 
