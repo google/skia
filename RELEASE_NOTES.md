@@ -2,6 +2,23 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 153
+-------------
+  * `SkLogHandler` has been added as a global callback interface to intercept Skia's internal logs. Clients can implement this interface and install it via `SkLogHandler::SetInstance` to receive all messages generated through the `SKIA_LOG` macros. `SkLogHandler` uses `sk_sp` for shared ownership, allowing clients to maintain a reference to the handler.
+  * `SkImageFilters::RuntimeShader` factories now take an optional
+    `restrictOutputToInputBounds` parameter (default `false`). When `true`, the
+    caller promises that the SkSL evaluates to transparent black wherever its child
+    shaders are transparent black, allowing the filter's output to be restricted to
+    the union of its inputs' bounds instead of being unbounded. This lets effects
+    composed after the runtime shader (e.g. a blur using a non-decal tile mode)
+    observe the intended content bounds.
+  * Added the `skia_enable_threadlocal_strikecache` GN build argument
+    (which defines `SK_ENABLE_THREADLOCAL_STRIKECACHE`) to enable
+    thread-local `SkStrikeCache` instances
+  * Graphite's `PipelineManager` can now make use of the `SkExecutor` passed in via `ContextOptions`. If provided, the `SkExecutor` will be used to compile Pipelines.
+
+* * *
+
 Milestone 152
 -------------
   * Add skgpu::graphite::ContextOptions::fAvoidDepth. Enabling this will lead
