@@ -514,11 +514,17 @@ bool ClipStack::RawElement::contains(const Draw& d) const {
     if (fInnerBounds.contains(d.outerBounds())) {
         return true;
     } else {
+#if defined(SK_GANESH_LEGACY_MIXED_AA_CLIP_HANDLING)
+        const bool mixedAA = false;
+#else
         // If the draw is non-AA, use the already computed outer bounds so we don't need to use
-        // device-space outsetting inside shape_contains_rect.
+        // device-space outsetting inside shape_contains_rect. However, we still need to treat it
+        // as mixed-aa if the draw is anti-aliased and the clip is not.
+        const bool mixedAA = d.aa() == GrAA::kYes && fAA == GrAA::kNo;
+#endif
         SkRect queryBounds = d.aa() == GrAA::kYes ? d.bounds() : SkRect::Make(d.outerBounds());
         return shape_contains_rect(fShape, fLocalToDevice, fDeviceToLocal,
-                                   queryBounds, SkMatrix::I(), /* mixed-aa */ false);
+                                   queryBounds, SkMatrix::I(), mixedAA);
     }
 }
 

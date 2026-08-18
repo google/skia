@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkClipOp.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkMatrix.h"
@@ -24,6 +25,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/ganesh/GrContextOptions.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/ganesh/mock/GrMockTypes.h"
 #include "include/private/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -2187,4 +2189,59 @@ DEF_GANESH_TEST_FOR_CONTEXTS(ClipStack_SWMask,
     // Release on destruction
     cs = nullptr;
     verifyKeys({}, {keyADepth1, keyBDepth1});
+}
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ClipStack_MixedAA, r, ctxInfo,
+                                       CtsEnforcement::kNextRelease) {
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(ctxInfo.directContext(),
+                                                        skgpu::Budgeted::kYes,
+                                                        SkImageInfo::Make({128, 128},
+                                                                          kRGBA_8888_SkColorType,
+                                                                          kPremul_SkAlphaType));
+
+    SkCanvas* canvas = surface->getCanvas();
+    canvas->clear(SK_ColorWHITE);
+    canvas->clipIRect({16, 0, 128, 128}); // Will clip the rrect's left edge at x=16
+
+    // Render a clipped round rect with a slightly non-identity scale factor
+    {
+        SkRRect rrect = SkRRect::MakeRectXY({0.f, 0.f, 96.f, 96.f}, 20.f, 20.f);
+
+        SkMatrix scale = SkMatrix::Scale(1.006f, 1.006f);
+        scale.preTranslate(-rrect.width() / 2.f, -rrect.height() / 2.f);
+        scale.postTranslate(rrect.width() / 2.f, rrect.height() / 2.f);
+
+        // This full CTM pushes the left edge of the drawn round rect to ~15.72
+        canvas->translate(16.f, 16.f);
+        canvas->concat(scale);
+
+        // Add a non-AA clip to the bounds of the rrect, which will replace the previous clipIRect,
+        // as its non-AA'ness snaps the left edge to 16 still. However, now the effective clip's
+        // original geometry is tight to the floating point bounds of the rrect.
+        canvas->clipRect(rrect.getBounds(), /*doAntiAlias=*/false);
+
+        // Draw with anti-aliasing, which draws the left edge at x=15.72 plus 1/2px outsetting
+        // assuming there was no hard clip for x=16 (which both the clipRect(no-aa) and clipIRect
+        // should be doing).
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        canvas->drawRRect(rrect, paint);
+    }
+
+    // Read back and confirm that there is leakage outside of the clip.
+    SkBitmap dstColumn;
+    dstColumn.allocPixels(surface->imageInfo().makeWH(1, surface->height()));
+    REPORTER_ASSERT(r, surface->readPixels(dstColumn, 15, 0), "Failed to read pixels");
+    bool leak = false;
+    for (int y = 0; y < dstColumn.height(); ++y) {
+        if (dstColumn.getColor(0, y) != SK_ColorWHITE) {
+            leak = true;
+            break;
+        }
+    }
+#if defined(SK_GANESH_LEGACY_MIXED_AA_CLIP_HANDLING)
+    REPORTER_ASSERT(r, leak, "Expected buggy behavior, but no leak detected");
+#else
+    REPORTER_ASSERT(r, !leak, "AA draw leaked beyond non-AA clip");
+#endif
 }
