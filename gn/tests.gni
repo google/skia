@@ -378,7 +378,7 @@ sparse_strips_test_sources = [
 ]
 
 graphite_dawn_tests_sources = [ "$_tests/graphite/DawnBackendTextureTest.cpp" ]
-graphite_metal_tests_sources = [ "$_tests/graphite/MtlBackendTextureTest.mm" ]
+graphite_metal_tests_sources = [ "$_tests/graphite/MtlBackendTextureTest.cc" ]
 graphite_vulkan_tests_sources = [
   "$_tests/graphite/VulkanBackendTextureTest.cpp",
   "$_tests/graphite/VulkanDstReadRenderpassReuseTest.cpp",
@@ -542,8 +542,8 @@ ganesh_gl_tests_sources = [
 ]
 
 ganesh_metal_tests_sources = [
-  "$_tests/MtlBackendAllocationTest.mm",
-  "$_tests/MtlCopySurfaceTest.mm",
+  "$_tests/MtlBackendAllocationTest.cc",
+  "$_tests/MtlCopySurfaceTest.cc",
 ]
 
 jpeg_gainmap_tests_sources = [

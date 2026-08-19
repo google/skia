@@ -39,6 +39,22 @@ skia_cc_binary(
         "@platforms//os:windows": [
             # "//tests:graphite_vulkan_tests_sources",
         ],
+        "@platforms//os:macos": [
+            "//tests:ganesh_metal_tests_sources",
+            "//tests:graphite_metal_tests_sources",
+        ],
+        "//conditions:default": [],
+    }),
+    copts = select({
+        # Objective-C++ flags are required here to compile the Metal tests (.cc files), since we
+        # build them as part of the dm cc_binary and not as a separate obj-c library to appease the
+        # linker.
+        # See ganesh_metal_tests_sources and graphite_metal_tests_sources for more information.
+        "@platforms//os:macos": [
+            "-x",
+            "objective-c++",
+            "-fobjc-arc",
+        ],
         "//conditions:default": [],
     }),
     data = [

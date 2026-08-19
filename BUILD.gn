@@ -2934,6 +2934,11 @@ if (skia_enable_tools) {
       sources = tests_sources + pathops_tests_sources
       frameworks = []
       if (skia_use_metal) {
+        cflags_cc = [
+          "-x",
+          "objective-c++",
+          "-fobjc-arc",
+        ]
         cflags_objcc = [ "-fobjc-arc" ]
         frameworks += [ "MetalKit.framework" ]
       }

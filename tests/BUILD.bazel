@@ -545,14 +545,16 @@ filegroup(
     visibility = ["//dm:__pkg__"],
 )
 
-# TODO(b/480952153): These tests require Metal and Objective-C++ which are not yet supported in dm.
+# Metal test .cc files are actually .mm files. Targets building these files in a
+# skia_cc_binary or skia_cc_library need to pass the "-x objective-c++" and "-fobjc-arc" flags.
 filegroup(
     name = "ganesh_metal_tests_sources",
     testonly = True,
     srcs = [
-        "MtlBackendAllocationTest.mm",
-        "MtlCopySurfaceTest.mm",
+        "MtlBackendAllocationTest.cc",
+        "MtlCopySurfaceTest.cc",
     ],
+    visibility = ["//dm:__pkg__"],
 )
 
 filegroup(
@@ -659,11 +661,13 @@ filegroup(
     visibility = ["//dm:__pkg__"],
 )
 
-# TODO(b/480952153): These tests require Metal and Objective-C++ which are not yet supported in dm.
+# Metal test .cc files are actually .mm files. Targets building these files in a
+# skia_cc_binary or skia_cc_library need to pass the "-x objective-c++" and "-fobjc-arc" flags.
 filegroup(
     name = "graphite_metal_tests_sources",
     testonly = True,
-    srcs = ["graphite/MtlBackendTextureTest.mm"],
+    srcs = ["graphite/MtlBackendTextureTest.cc"],
+    visibility = ["//dm:__pkg__"],
 )
 
 filegroup(
