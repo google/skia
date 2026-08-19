@@ -61,6 +61,16 @@ private:
                SkScalar width,
                RunHandler*) const override;
 
+    void shape(const char* utf8, size_t utf8Bytes,
+               FontRunIterator&,
+               BiDiRunIterator&,
+               ScriptRunIterator&,
+               LanguageRunIterator&,
+               const Feature*, size_t featureSize,
+               SkScalar width,
+               float textTracking,
+               RunHandler*) const override;
+
     const SkShapers::CT::LineBreakMode fLineBreakMode;
 };
 
@@ -263,12 +273,26 @@ void SkShaper_CoreText::shape(const char* utf8,
 void SkShaper_CoreText::shape(const char* utf8,
                               size_t utf8Bytes,
                               FontRunIterator& fontRuns,
+                              BiDiRunIterator& bidi,
+                              ScriptRunIterator& script,
+                              LanguageRunIterator& lang,
+                              const Feature* features, size_t featuresSize,
+                              SkScalar width,
+                              RunHandler* handler) const {
+    return this->shape(utf8, utf8Bytes, fontRuns, bidi, script, lang, features, featuresSize,
+                       width, /*textTracking=*/0, handler);
+}
+
+void SkShaper_CoreText::shape(const char* utf8,
+                              size_t utf8Bytes,
+                              FontRunIterator& fontRuns,
                               BiDiRunIterator&,
                               ScriptRunIterator&,
                               LanguageRunIterator&,
                               const Feature*,
                               size_t,
                               SkScalar width,
+                              float textTracking,
                               RunHandler* handler) const {
     SkFont font;
     if (!fontRuns.atEnd()) {
@@ -295,6 +319,10 @@ void SkShaper_CoreText::shape(const char* utf8,
                                       &kCFTypeDictionaryKeyCallBacks,
                                       &kCFTypeDictionaryValueCallBacks));
     CFDictionaryAddValue(attr.get(), kCTFontAttributeName, ctfont.get());
+    if (textTracking != 0) {
+        // Tracking is specified in em units, while CoreText expects absolute values.
+        dict_add_double(attr.get(), kCTTracking_AttributeName, textTracking * font.getSize());
+    }
     if ((false)) {
         // trying to see what these affect
         dict_add_double(attr.get(), kCTTracking_AttributeName, 1);
