@@ -220,6 +220,7 @@ PerEdgeAAQuadRenderStep::PerEdgeAAQuadRenderStep(Layout layout, StaticBufferMana
                              {"mat0", VertexAttribType::kFloat3, SkSLType::kFloat3},
                              {"mat1", VertexAttribType::kFloat3, SkSLType::kFloat3},
                              {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3}}},
+                     /*storageUniforms=*/{},
                      /*varyings=*/{{
                              // Device-space distance to LTRB edges of quad.
                              {"edgeDistances", SkSLType::kFloat4}, // distance to LTRB edges
@@ -257,6 +258,7 @@ const char* PerEdgeAAQuadRenderStep::fragmentCoverageSkSL() const {
 }
 
 void PerEdgeAAQuadRenderStep::writeVertices(DrawWriter* writer,
+                                           StorageContext* /*storageContext*/,
                                            const DrawParams& params,
                                            uint32_t ssboIndex) const {
     SkASSERT(params.geometry().isEdgeAAQuad());

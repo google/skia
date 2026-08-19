@@ -300,6 +300,34 @@ std::string emit_uniforms_from_storage_buffer(const char* indexVariableName,
     return result;
 }
 
+std::string emit_step_storage_buffer(const ResourceBindingRequirements& bindingReqs,
+                                     const RenderStep* step) {
+    // NOTE: currently no renderstep declares fsUsesStorage() = true. Only gradients use fragment
+    // shader storage, but they emit their storage buffer declaration directly inside
+    // generateFragmentSkSL(). This is redundant and will be fixed in a follow-on patch.
+    SkASSERT(!step->fsUsesStorage());
+
+    SkASSERT(step->numStorageUniforms() > 0);
+    std::string fields;
+    for (auto a : step->storageUniforms()) {
+        SkSL::String::appendf(&fields, "%s %s", SkSLTypeString(a.type()), a.name());
+        if (a.count()) {
+            fields.append("[");
+            fields.append(std::to_string(a.count()));
+            fields.append("]");
+        }
+        fields.append(";\n");
+    }
+    return SkSL::String::printf(
+            "struct StepStorageData {\n%s};\n"
+            "layout (set=%d, binding=%d) readonly buffer StepStorageBuffer {\n"
+            "    StepStorageData stepStorageData[];\n"
+            "};\n",
+            fields.c_str(),
+            bindingReqs.fUniformsSetIdx,
+            bindingReqs.fStorageBufferBinding);
+}
+
 void append_sampler_descs(const SkSpan<const uint32_t> samplerData,
                           skia_private::TArray<SamplerDesc>& outDescs) {
     // Sampler data consists of variable-length SamplerDesc representations which can differ based
@@ -1069,6 +1097,11 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
         fStorageBufferStages |= PipelineStageFlags::kFragmentShader;
     }
 
+    if (caps->storageBufferSupport() && step->fsUsesStorage() && step->numStorageUniforms() > 0) {
+        fsPreamble += emit_step_storage_buffer(bindingReqs, step);
+        fStorageBufferStages |= PipelineStageFlags::kFragmentShader;
+    }
+
     const bool useDstSampler = fDstReadStrategy == DstReadStrategy::kTextureCopy ||
                                fDstReadStrategy == DstReadStrategy::kTextureSample;
     {
@@ -1300,6 +1333,12 @@ void ShaderInfo::generateVertexSkSL(const Caps* caps,
                                 sharedData.fLiftedExpr,
                                 sharedData.fHasSsboIndexVarying,
                                 sharedData.fNeedsLocalCoords);
+
+    // Declare vertex storage buffer if the RenderStep has storage uniforms and uses storage in VS
+    if (caps->storageBufferSupport() && step->vsUsesStorage() && step->numStorageUniforms() > 0) {
+        vsPreamble += emit_step_storage_buffer(bindingReqs, step);
+        fStorageBufferStages |= PipelineStageFlags::kVertexShader;
+    }
 
     // Add vertex attributes
     if (step->numStaticAttributes() > 0 || step->numAppendAttributes() > 0) {

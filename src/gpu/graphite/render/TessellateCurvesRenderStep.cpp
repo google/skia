@@ -92,7 +92,8 @@ TessellateCurvesRenderStep::TessellateCurvesRenderStep(Layout layout,
                      evenOdd ? kEvenOddStencilPass : kWindingStencilPass,
                      /*staticAttrs=*/{{{"resolveLevel_and_idx",
                                        VertexAttribType::kFloat2, SkSLType::kFloat2}}},
-                     /*appendAttrs=*/kAttributes[infinitySupport])
+                     /*appendAttrs=*/kAttributes[infinitySupport],
+                     /*storageUniforms=*/{})
         , fInfinitySupport(infinitySupport) {
     SkASSERT(this->appendDataStride() ==
              PatchStride(infinitySupport ? kAttribs : kAttribsWithCurveType));
@@ -132,6 +133,7 @@ std::string TessellateCurvesRenderStep::vertexSkSL(const RootNodesInfo&) const {
 }
 
 void TessellateCurvesRenderStep::writeVertices(DrawWriter* dw,
+                                               StorageContext* /*storageContext*/,
                                                const DrawParams& params,
                                                uint32_t ssboIndex) const {
     SkPath path = params.geometry().shape().asPath(); // TODO: Iterate the Shape directly

@@ -232,7 +232,7 @@ std::unique_ptr<DrawPass> DrawList::snapDrawPass(Recorder* recorder,
         }
 
         uint32_t uniformSsboIndex = useStorageBuffers ? uniformTracker.ssboIndex() : 0;
-        renderStep.writeVertices(&drawWriter, draw.drawParams(), uniformSsboIndex);
+        renderStep.writeVertices(&drawWriter, storageContext, draw.drawParams(), uniformSsboIndex);
 
         if (bufferMgr->hasMappingFailed()) {
             SKIA_LOG_W("Failed to write necessary vertex/instance data for DrawPass, dropping!");

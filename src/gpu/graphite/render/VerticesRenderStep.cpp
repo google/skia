@@ -116,6 +116,7 @@ VerticesRenderStep::VerticesRenderStep(Layout layout, PrimitiveType type, bool h
                      kDirectDepthLEqualPass,
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/kAttributes[2*hasTexCoords + hasColor],
+                     /*storageUniforms=*/{},
                      /*varyings=*/   kVaryings[hasColor])
         , fHasColor(hasColor)
         , fHasTexCoords(hasTexCoords) {}
@@ -157,6 +158,7 @@ std::string VerticesRenderStep::fragmentColorSkSL(const RootNodesInfo&) const {
 }
 
 void VerticesRenderStep::writeVertices(DrawWriter* writer,
+                                       StorageContext* /*storageContext*/,
                                        const DrawParams& params,
                                        uint32_t ssboIndex) const {
     SkVerticesPriv info(params.geometry().vertices()->priv());

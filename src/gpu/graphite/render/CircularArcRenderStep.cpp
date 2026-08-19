@@ -158,6 +158,7 @@ CircularArcRenderStep::CircularArcRenderStep(Layout layout, StaticBufferManager*
                              {"mat1", VertexAttribType::kFloat3, SkSLType::kFloat3},
                              {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3},
                      }},
+                     /*storageUniforms=*/{},
                      /*varyings=*/{{
                              // Normalized offset vector plus radii
                              {"circleEdge", SkSLType::kFloat4},
@@ -206,6 +207,7 @@ const char* CircularArcRenderStep::fragmentCoverageSkSL() const {
 }
 
 void CircularArcRenderStep::writeVertices(DrawWriter* writer,
+                                          StorageContext* /*storageContext*/,
                                           const DrawParams& params,
                                           uint32_t ssboIndex) const {
     SkASSERT(params.geometry().isShape() && params.geometry().shape().isArc());

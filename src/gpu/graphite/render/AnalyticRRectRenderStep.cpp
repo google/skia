@@ -402,6 +402,7 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep(Layout layout, StaticBufferMana
                              {"mat1", VertexAttribType::kFloat3, SkSLType::kFloat3},
                              {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3}
                      }},
+                     /*storageUniforms=*/{},
                      /*varyings=*/{{
                              // TODO: If the inverse transform is part of the draw's SSBO, we can
                              // reconstruct the Jacobian in the fragment shader using the existing
@@ -485,6 +486,7 @@ const char* AnalyticRRectRenderStep::fragmentCoverageSkSL() const {
 }
 
 void AnalyticRRectRenderStep::writeVertices(DrawWriter* writer,
+                                            StorageContext* /*storageContext*/,
                                             const DrawParams& params,
                                             uint32_t ssboIndex) const {
     SkASSERT(params.geometry().isShape() || params.geometry().isEdgeAAQuad());

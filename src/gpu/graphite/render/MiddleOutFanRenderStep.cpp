@@ -39,7 +39,8 @@ MiddleOutFanRenderStep::MiddleOutFanRenderStep(Layout layout, bool evenOdd)
                      /*appendAttrs=*/
                      {{{"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
                      {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-                     {"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt}}}) {}
+                     {"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt}}},
+                     /*storageUniforms=*/{}) {}
 
 MiddleOutFanRenderStep::~MiddleOutFanRenderStep() {}
 
@@ -51,6 +52,7 @@ std::string MiddleOutFanRenderStep::vertexSkSL(const RootNodesInfo&) const {
 }
 
 void MiddleOutFanRenderStep::writeVertices(DrawWriter* writer,
+                                           StorageContext* /*storageContext*/,
                                            const DrawParams& params,
                                            uint32_t ssboIndex) const {
     // TODO: Have Shape provide a path-like iterator so we don't actually have to convert non

@@ -45,7 +45,8 @@ MeshRenderStep::MeshRenderStep(Layout layout)
                      PrimitiveType::kTriangles,
                      kDirectDepthLEqualPass,
                      /*staticAttrs=*/{},
-                     /*appendAttrs=*/{{"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt}}) {}
+                     /*appendAttrs=*/{{"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt}},
+                     /*storageUniforms=*/{}) {}
 
 MeshRenderStep::~MeshRenderStep() {}
 
@@ -58,6 +59,7 @@ std::string MeshRenderStep::fragmentColorSkSL(const RootNodesInfo& roots) const 
 }
 
 void MeshRenderStep::writeVertices(DrawWriter* writer,
+                                   StorageContext* /*storageContext*/,
                                    const DrawParams& params,
                                    uint32_t ssboIndex) const {
     const SkMesh& mesh = params.geometry().mesh();

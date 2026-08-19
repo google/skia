@@ -396,7 +396,7 @@ std::unique_ptr<DrawPass> DrawListLayer::snapDrawPass(Recorder* recorder,
         }
 
         uint32_t uniformSsboIndex = fStorageBufferSupport ? uniformTracker.ssboIndex() : 0;
-        renderStep->writeVertices(&drawWriter, drawParams, uniformSsboIndex);
+        renderStep->writeVertices(&drawWriter, storageContext, drawParams, uniformSsboIndex);
 
         // Either stop early on failure, or advance to the next Draw
         return bufferMgr->hasMappingFailed() ? nullptr : draw->fNext;

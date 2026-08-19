@@ -37,6 +37,7 @@ class DrawParams;
 class PipelineDataGatherer;
 class Rect;
 class ResourceProvider;
+class StorageContext;
 class TextureDataBlock;
 class Transform;
 class UniformOffsetCalculator;
@@ -127,7 +128,10 @@ public:
     // The DrawWriter is configured with the vertex and instance strides of the RenderStep, and its
     // primitive type. The recorded draws will be executed with a graphics pipeline compatible with
     // this RenderStep.
-    virtual void writeVertices(DrawWriter*, const DrawParams&, uint32_t ssboIndex) const = 0;
+    virtual void writeVertices(DrawWriter*,
+                               StorageContext*,
+                               const DrawParams&,
+                               uint32_t ssboIndex) const = 0;
 
     // Write out the uniform values (aligned for the layout), textures, and samplers. The uniform
     // values will be de-duplicated across all draws using the RenderStep before uploading to the
@@ -199,14 +203,17 @@ public:
 
     Coverage coverage() const { return RenderStep::GetCoverage(fFlags); }
 
-    PrimitiveType primitiveType()    const { return fPrimitiveType;    }
-    size_t        staticDataStride() const { return fStaticDataStride; }
-    size_t        appendDataStride() const { return fAppendDataStride; }
+    PrimitiveType    primitiveType() const { return fPrimitiveType;          }
+    size_t        staticDataStride() const { return fStaticDataStride;       }
+    size_t        appendDataStride() const { return fAppendDataStride;       }
+    size_t    storageUniformStride() const { return fStorageUniformStride;    }
+    size_t storageUniformAlignment() const { return fStorageUniformAlignment; }
 
-    size_t numUniforms()         const { return fUniforms.size();    }
-    int    uniformAlignment()    const { return fUniformAlignment;   }
-    size_t numStaticAttributes() const { return fStaticAttrs.size(); }
-    size_t numAppendAttributes() const { return fAppendAttrs.size(); }
+    size_t numUniforms()          const { return fUniforms.size();        }
+    int    uniformAlignment()     const { return fUniformAlignment;       }
+    size_t numStaticAttributes()  const { return fStaticAttrs.size();     }
+    size_t numAppendAttributes()  const { return fAppendAttrs.size();     }
+    size_t numStorageUniforms()   const { return fStorageUniforms.size(); }
 
     // Name of an attribute containing both the render step and shading SSBO index, if used.
     static const char* ssboIndexAttribute() { return "ssboIndex"; }
@@ -216,10 +223,11 @@ public:
 
     // The uniforms of a RenderStep are bound to the kRenderStep slot, the rest of the pipeline
     // may still use uniforms bound to other slots.
-    SkSpan<const Uniform>   uniforms()         const { return SkSpan(fUniforms);      }
-    SkSpan<const Attribute> staticAttributes() const { return SkSpan(fStaticAttrs);   }
-    SkSpan<const Attribute> appendAttributes() const { return SkSpan(fAppendAttrs);   }
-    SkSpan<const Varying>   varyings()         const { return SkSpan(fVaryings);      }
+    SkSpan<const Uniform>   uniforms()          const { return SkSpan(fUniforms);        }
+    SkSpan<const Attribute> staticAttributes()  const { return SkSpan(fStaticAttrs);     }
+    SkSpan<const Attribute> appendAttributes()  const { return SkSpan(fAppendAttrs);     }
+    SkSpan<const Uniform>   storageUniforms()   const { return SkSpan(fStorageUniforms); }
+    SkSpan<const Varying>   varyings()          const { return SkSpan(fVaryings);        }
 
     const DepthStencilSettings& depthStencilSettings() const { return fDepthStencilSettings; }
 
@@ -288,6 +296,7 @@ SK_DECL_BITMASK_OPS_FRIENDS(Flags)
                DepthStencilSettings depthStencilSettings,
                SkSpan<const Attribute> staticAttrs,
                SkSpan<const Attribute> appendAttrs,
+               SkSpan<const Uniform> storageUniforms = {},
                SkSpan<const Varying> varyings = {});
 
 private:
@@ -314,11 +323,14 @@ private:
     std::vector<Uniform>   fUniforms;
     std::vector<Attribute> fStaticAttrs;
     std::vector<Attribute> fAppendAttrs;
+    std::vector<Uniform>   fStorageUniforms;
     std::vector<Varying>   fVaryings;
 
-    int    fUniformAlignment; // derived from the renderstep uniforms
-    size_t fStaticDataStride; // derived from vertex attribute set
-    size_t fAppendDataStride; // derived from instance attribute set
+    int    fUniformAlignment;        // derived from the renderstep uniforms
+    size_t fStaticDataStride;        // derived from vertex attribute set
+    size_t fAppendDataStride;        // derived from instance attribute set
+    size_t fStorageUniformStride;    // derived from storage uniform set
+    size_t fStorageUniformAlignment; // derived from storage uniform set
 };
 SK_MAKE_BITMASK_OPS(RenderStep::Flags)
 

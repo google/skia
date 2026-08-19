@@ -43,7 +43,8 @@ CoverBoundsRenderStep::CoverBoundsRenderStep(Layout layout,
                                       {"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt},
                                       {"mat0", VertexAttribType::kFloat3, SkSLType::kFloat3},
                                       {"mat1", VertexAttribType::kFloat3, SkSLType::kFloat3},
-                                      {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3}}}) {}
+                                      {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3}}},
+                     /*storageUniforms=*/{}) {}
 
 CoverBoundsRenderStep::~CoverBoundsRenderStep() {}
 
@@ -57,6 +58,7 @@ std::string CoverBoundsRenderStep::vertexSkSL(const RootNodesInfo&) const {
 }
 
 void CoverBoundsRenderStep::writeVertices(DrawWriter* writer,
+                                          StorageContext* /*storageContext*/,
                                           const DrawParams& params,
                                           uint32_t ssboIndex) const {
     // Each instance is 4 vertices, forming 2 triangles from a single triangle strip, so no indices

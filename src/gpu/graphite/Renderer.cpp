@@ -20,6 +20,7 @@ RenderStep::RenderStep(Layout layout,
                        DepthStencilSettings depthStencilSettings,
                        SkSpan<const Attribute> staticAttrs,
                        SkSpan<const Attribute> appendAttrs,
+                       SkSpan<const Uniform> storageUniforms,
                        SkSpan<const Varying> varyings)
         : fRenderStepID(renderStepID)
         , fFlags(flags)
@@ -33,15 +34,30 @@ RenderStep::RenderStep(Layout layout,
         , fUniforms(uniforms)
         , fStaticAttrs(staticAttrs.begin(), staticAttrs.end())
         , fAppendAttrs(appendAttrs.begin(), appendAttrs.end())
+        , fStorageUniforms(storageUniforms.begin(), storageUniforms.end())
         , fVaryings(varyings.begin(), varyings.end())
         , fUniformAlignment(0)
         , fStaticDataStride(0)
-        , fAppendDataStride(0) {
+        , fAppendDataStride(0)
+        , fStorageUniformStride(0)
+        , fStorageUniformAlignment(1) {
+    SkASSERT(fStorageUniforms.empty() ||
+             SkToBool(fStorageBufferStages & (PipelineStageFlags::kVertexShader |
+                                              PipelineStageFlags::kFragmentShader)));
     for (auto v : this->staticAttributes()) {
         fStaticDataStride += v.sizeAlign4();
     }
     for (auto i : this->appendAttributes()) {
         fAppendDataStride += i.sizeAlign4();
+    }
+
+    if (!fStorageUniforms.empty()) {
+        UniformOffsetCalculator calculator = UniformOffsetCalculator::ForStruct(layout);
+        for (const auto& u : fStorageUniforms) {
+            calculator.advanceOffset(u.type(), u.count());
+        }
+        fStorageUniformAlignment = calculator.requiredAlignment();
+        fStorageUniformStride = SkAlignTo<size_t>(calculator.size(), fStorageUniformAlignment);
     }
 
     UniformOffsetCalculator calculator = UniformOffsetCalculator::ForTopLevel(layout);

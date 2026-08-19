@@ -101,7 +101,8 @@ TessellateStrokesRenderStep::TessellateStrokesRenderStep(Layout layout, bool inf
                      PrimitiveType::kTriangleStrip,
                      inverseFill ? kIncrementStencilPass : kDirectDepthLessPass,
                      /*staticAttrs=*/ {},
-                     /*appendAttrs=*/kAttributes[infinitySupport])
+                     /*appendAttrs=*/kAttributes[infinitySupport],
+                     /*storageUniforms=*/{})
         , fInfinitySupport(infinitySupport) {}
 
 TessellateStrokesRenderStep::~TessellateStrokesRenderStep() {}
@@ -124,6 +125,7 @@ std::string TessellateStrokesRenderStep::vertexSkSL(const RootNodesInfo&) const 
 }
 
 void TessellateStrokesRenderStep::writeVertices(DrawWriter* dw,
+                                                StorageContext* /*storageContext*/,
                                                 const DrawParams& params,
                                                 uint32_t ssboIndex) const {
     SkPath path = params.geometry().shape().asPath(); // TODO: Iterate the Shape directly

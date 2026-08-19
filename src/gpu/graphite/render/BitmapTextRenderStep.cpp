@@ -74,6 +74,7 @@ BitmapTextRenderStep::BitmapTextRenderStep(Layout layout, skgpu::MaskFormat vari
                       {"strikeToSourceScale", VertexAttribType::kFloat, SkSLType::kFloat},
                       {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
                       {"ssboIndex", VertexAttribType::kUInt, SkSLType::kUInt}}},
+                     /*storageUniforms=*/{},
                      /*varyings=*/
                      {{{"textureCoords", SkSLType::kFloat2},
                       {"texIndex", SkSLType::kHalf},
@@ -156,6 +157,7 @@ const char* BitmapTextRenderStep::fragmentCoverageSkSL() const {
 bool BitmapTextRenderStep::usesUniformsInFragmentSkSL() const { return false; }
 
 void BitmapTextRenderStep::writeVertices(DrawWriter* dw,
+                                         StorageContext* /*storageContext*/,
                                          const DrawParams& params,
                                          uint32_t ssboIndex) const {
     const SubRunData& subRunData = params.geometry().subRunData();
