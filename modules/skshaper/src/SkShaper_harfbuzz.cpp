@@ -712,8 +712,7 @@ protected:
                     const LanguageRunIterator&,
                     const ScriptRunIterator&,
                     const FontRunIterator&,
-                    const Feature*, size_t featuresSize,
-                    float textTracking) const;
+                    const Feature*, size_t featuresSize) const;
 private:
     const sk_sp<SkFontMgr> fFontMgr; // for fallback
     HBBuffer               fBuffer;
@@ -744,16 +743,6 @@ private:
                SkScalar width,
                RunHandler*) const override;
 
-    void shape(const char* utf8Text, size_t textBytes,
-               FontRunIterator&,
-               BiDiRunIterator&,
-               ScriptRunIterator&,
-               LanguageRunIterator&,
-               const Feature*, size_t featuresSize,
-               SkScalar width,
-               float textTracking,
-               RunHandler*) const override;
-
     virtual void wrap(char const * utf8, size_t utf8Bytes,
                       const BiDiRunIterator&,
                       const LanguageRunIterator&,
@@ -762,7 +751,6 @@ private:
                       RunIteratorQueue& runSegmenter,
                       const Feature*, size_t featuresSize,
                       SkScalar width,
-                      float textTracking,
                       RunHandler*) const = 0;
 };
 
@@ -778,7 +766,6 @@ private:
               RunIteratorQueue& runSegmenter,
               const Feature*, size_t featuresSize,
               SkScalar width,
-              float textTracking,
               RunHandler*) const override;
 };
 
@@ -794,7 +781,6 @@ private:
               RunIteratorQueue& runSegmenter,
               const Feature*, size_t featuresSize,
               SkScalar width,
-              float textTracking,
               RunHandler*) const override;
 };
 
@@ -810,7 +796,6 @@ private:
               RunIteratorQueue& runSegmenter,
               const Feature*, size_t featuresSize,
               SkScalar width,
-              float textTracking,
               RunHandler*) const override;
 };
 
@@ -882,21 +867,6 @@ void ShaperHarfBuzz::shape(const char* utf8,
                            size_t featuresSize,
                            SkScalar width,
                            RunHandler* handler) const {
-    this->shape(utf8, utf8Bytes, font, bidi, script, language,
-                features, featuresSize, width, /*textTracking=*/0, handler);
-}
-
-void ShaperHarfBuzz::shape(const char* utf8,
-                           size_t utf8Bytes,
-                           FontRunIterator& font,
-                           BiDiRunIterator& bidi,
-                           ScriptRunIterator& script,
-                           LanguageRunIterator& language,
-                           const Feature* features,
-                           size_t featuresSize,
-                           SkScalar width,
-                           float textTracking,
-                           RunHandler* handler) const {
     SkASSERT(handler);
     RunIteratorQueue runSegmenter;
     runSegmenter.insert(&font,     3); // The font iterator is always run last in case of tie.
@@ -905,7 +875,7 @@ void ShaperHarfBuzz::shape(const char* utf8,
     runSegmenter.insert(&language, 0);
 
     this->wrap(utf8, utf8Bytes, bidi, language, script, font, runSegmenter,
-               features, featuresSize, width, textTracking, handler);
+               features, featuresSize, width, handler);
 }
 
 void ShaperDrivenWrapper::wrap(char const * const utf8, size_t utf8Bytes,
@@ -916,7 +886,6 @@ void ShaperDrivenWrapper::wrap(char const * const utf8, size_t utf8Bytes,
                                RunIteratorQueue& runSegmenter,
                                const Feature* features, size_t featuresSize,
                                SkScalar width,
-                               float textTracking,
                                RunHandler* handler) const
 {
     ShapedLine line;
@@ -959,7 +928,7 @@ void ShaperDrivenWrapper::wrap(char const * const utf8, size_t utf8Bytes,
                 model = shape(utf8, utf8Bytes,
                               utf8Start, utf8End,
                               bidi, language, script, font,
-                              features, featuresSize, textTracking);
+                              features, featuresSize);
                 modelGlyphOffset = 0;
 
                 SkVector advance = {0, 0};
@@ -1007,7 +976,7 @@ void ShaperDrivenWrapper::wrap(char const * const utf8, size_t utf8Bytes,
                         return shape(utf8, utf8Bytes,
                                      utf8Start, utf8Start + breakIteratorCurrent,
                                      bidi, language, script, font,
-                                     features, featuresSize, textTracking);
+                                     features, featuresSize);
                     }
                 }(modelText[breakIteratorCurrent + modelTextOffset]);
                 auto score = [widthLeft](const ShapedRun& run) -> SkScalar {
@@ -1111,7 +1080,6 @@ void ShapeThenWrap::wrap(char const * const utf8, size_t utf8Bytes,
                          RunIteratorQueue& runSegmenter,
                          const Feature* features, size_t featuresSize,
                          SkScalar width,
-                         float textTracking,
                          RunHandler* handler) const
 {
     TArray<ShapedRun> runs;
@@ -1129,7 +1097,7 @@ void ShapeThenWrap::wrap(char const * const utf8, size_t utf8Bytes,
         runs.emplace_back(shape(utf8, utf8Bytes,
                                 utf8Start, utf8End,
                                 bidi, language, script, font,
-                                features, featuresSize, textTracking));
+                                features, featuresSize));
         ShapedRun& run = runs.back();
 
         if (needIteratorInit || !currentLanguage.equals(language.currentLanguage())) {
@@ -1343,7 +1311,6 @@ void ShapeDontWrapOrReorder::wrap(char const * const utf8, size_t utf8Bytes,
                                   RunIteratorQueue& runSegmenter,
                                   const Feature* features, size_t featuresSize,
                                   SkScalar width,
-                                  float textTracking,
                                   RunHandler* handler) const
 {
     sk_ignore_unused_variable(width);
@@ -1358,7 +1325,7 @@ void ShapeDontWrapOrReorder::wrap(char const * const utf8, size_t utf8Bytes,
         runs.emplace_back(shape(utf8, utf8Bytes,
                                 utf8Start, utf8End,
                                 bidi, language, script, font,
-                                features, featuresSize, textTracking));
+                                features, featuresSize));
     }
 
     handler->beginLine();
@@ -1432,8 +1399,7 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
                                   const LanguageRunIterator& language,
                                   const ScriptRunIterator& script,
                                   const FontRunIterator& font,
-                                  Feature const * const features, size_t const featuresSize,
-                                  float const textTracking) const
+                                  Feature const * const features, size_t const featuresSize) const
 {
     size_t utf8runLength = utf8End - utf8Start;
     ShapedRun run(RunHandler::Range(utf8Start - utf8, utf8runLength),
@@ -1546,10 +1512,6 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
 
     double SkScalarFromHBPosX = +(1.52587890625e-5) * run.fFont.getScaleX();
     double SkScalarFromHBPosY = -(1.52587890625e-5);  // HarfBuzz y-up, Skia y-down
-
-    // Tracking is specified in em units; turn it into an absolute advance increment.
-    const auto trackingAdvance = textTracking * run.fFont.getSize() * run.fFont.getScaleX();
-
     SkVector runAdvance = { 0, 0 };
     for (unsigned i = 0; i < len; i++) {
         ShapedGlyph& glyph = run.fGlyphs[i];
@@ -1557,7 +1519,7 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
         glyph.fCluster = info[i].cluster;
         glyph.fOffset.fX = pos[i].x_offset * SkScalarFromHBPosX;
         glyph.fOffset.fY = pos[i].y_offset * SkScalarFromHBPosY;
-        glyph.fAdvance.fX = pos[i].x_advance * SkScalarFromHBPosX + trackingAdvance;
+        glyph.fAdvance.fX = pos[i].x_advance * SkScalarFromHBPosX;
         glyph.fAdvance.fY = pos[i].y_advance * SkScalarFromHBPosY;
 
         glyph.fHasVisual = !glyphBounds[i].isEmpty(); //!font->currentTypeface()->glyphBoundsAreZero(glyph.fID);

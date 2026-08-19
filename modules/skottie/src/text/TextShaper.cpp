@@ -107,13 +107,7 @@ public:
         fLineClusters.realloc(fLineGlyphCount);
         fLineRuns.push_back({info.fFont, info.glyphCount});
 
-        // Tracking is inter-glyph: the shaper appends it after every glyph, including the last
-        // one on the line, but that trailing slack should not count toward the line width (else
-        // it would e.g. push right-aligned text off the right edge).  runBuffer() is only called
-        // for non-empty runs, so the line has at least one glyph -> discount one trailing unit.
-        const auto line_advance = fPendingLineAdvance.x() - this->trackingAdvance();
-
-        SkVector alignmentOffset { fHAlignFactor * (line_advance - fBox.width()), 0 };
+        SkVector alignmentOffset { fHAlignFactor * (fPendingLineAdvance.x() - fBox.width()), 0 };
 
         return {
             fLineGlyphs.get()   + run_start_index,
@@ -159,8 +153,7 @@ public:
                 return;
             }
 
-            // Compute the cumulative whitespace advance.  The shaper also appends tracking after
-            // each of these glyphs, so include it to fully compensate for trailing whitespace.
+            // Compute the cumulative whitespace advance.
             fAdvanceBuffer.resize(ws_count);
             fLineRuns.back().fFont.getWidths(
                      {fLineGlyphs.data() + fLineGlyphCount - ws_count, ws_count},
@@ -168,8 +161,7 @@ public:
 
             const auto ws_advance = std::accumulate(fAdvanceBuffer.begin(),
                                                     fAdvanceBuffer.end(),
-                                                    0.0f)
-                                  + ws_count*this->trackingAdvance();
+                                                    0.0f);
 
             // Offset needed to compensate for whitespace.
             const auto offset = ws_advance*-fHAlignFactor;
@@ -335,7 +327,6 @@ public:
                                     ? SK_ScalarMax
                                     : fBox.width();
         const auto shape_ltr    = fDesc.fDirection == Shaper::Direction::kLTR;
-        const auto shape_track  = this->trackingEm();
         const size_t utf8_bytes = SkToSizeT(end - start);
 
         static constexpr uint8_t kBidiLevelLTR = 0,
@@ -387,7 +378,6 @@ public:
                        nullptr,
                        0,
                        shape_width,
-                       shape_track,
                        this);
         fUTF8 = nullptr;
     }
@@ -483,18 +473,6 @@ private:
         // Use the explicit ascent, when specified.
         // Note: ascent values are negative (relative to the baseline).
         return fDesc.fAscent ? fDesc.fAscent : fFirstLineAscent;
-    }
-
-    // Tracking expressed as a fraction of the font size (the unit SkShaper expects).
-    float trackingEm() const {
-        static constexpr float kTrackingUnitsPerEm = 1000;
-        return fDesc.fTextTracking / kTrackingUnitsPerEm;
-    }
-
-    // Tracking in absolute (text-space) units, applied by the shaper after each glyph.
-    // Mirrors the backends' formula (trackingEm * size * scaleX) so the discount matches.
-    SkScalar trackingAdvance() const {
-        return this->trackingEm() * fFont.getSize() * fFont.getScaleX();
     }
 
     inline static constexpr SkGlyphID kMissingGlyphID = 0;

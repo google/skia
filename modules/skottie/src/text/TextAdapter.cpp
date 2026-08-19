@@ -691,7 +691,6 @@ void TextAdapter::reshape() {
         this->shaperFlags(),
         fText->fLocale.isEmpty()     ? nullptr : fText->fLocale.c_str(),
         fText->fFontFamily.isEmpty() ? nullptr : fText->fFontFamily.c_str(),
-        fText->fTextTracking,
     };
     auto shape_result = Shaper::Shape(fText->fText, text_desc, fText->fBox, fFontMgr,
         fShapingFactory);

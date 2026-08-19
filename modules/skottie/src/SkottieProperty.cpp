@@ -39,8 +39,7 @@ bool TextPropertyValue::operator==(const TextPropertyValue& other) const {
         && fHasStroke == other.fHasStroke
         && fDecorator == other.fDecorator
         && fLocale == other.fLocale
-        && fFontFamily == other.fFontFamily
-        && fTextTracking == other.fTextTracking;
+        && fFontFamily == other.fFontFamily;
 }
 
 bool TextPropertyValue::operator!=(const TextPropertyValue& other) const {

@@ -270,30 +270,6 @@ public:
                        SkScalar width,
                        RunHandler*) const = 0;
 
-    /**
-     *  Same as the overload above, plus |textTracking|: extra advance added after every glyph,
-     *  expressed as a fraction of the font size (i.e. em units) so that it scales with the text.
-     *  It is applied on top of font kerning and participates in line breaking.
-     *
-     *  The default implementation ignores tracking and forwards to the overload above.  Shapers
-     *  that support tracking (the HarfBuzz, CoreText and primitive backends) override this; a
-     *  caller cannot rely on tracking being honored in general.
-     */
-    virtual void shape(const char* utf8,
-                       size_t utf8Bytes,
-                       FontRunIterator& font,
-                       BiDiRunIterator& bidi,
-                       ScriptRunIterator& script,
-                       LanguageRunIterator& language,
-                       const Feature* features,
-                       size_t featuresSize,
-                       SkScalar width,
-                       float /*textTracking*/,
-                       RunHandler* handler) const {
-        this->shape(utf8, utf8Bytes, font, bidi, script, language,
-                    features, featuresSize, width, handler);
-    }
-
 private:
     SkShaper(const SkShaper&) = delete;
     SkShaper& operator=(const SkShaper&) = delete;

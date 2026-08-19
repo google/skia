@@ -364,7 +364,6 @@ private:
                     skottie::Shaper::Flags::kClusters,
                 txt_val.fLocale.isEmpty()     ? nullptr : txt_val.fLocale.c_str(),
                 txt_val.fFontFamily.isEmpty() ? nullptr : txt_val.fFontFamily.c_str(),
-                txt_val.fTextTracking,
             };
 
             auto shape_result = skottie::Shaper::Shape(txt_val.fText, text_desc, txt_val.fBox,

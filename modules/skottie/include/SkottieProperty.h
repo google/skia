@@ -100,8 +100,6 @@ struct TextPropertyValue {
                             // Optional font family name, to be passed to the font manager for
                             // fallback.
     SkString                fFontFamily;
-                            // Extra spacing between glyphs (letter tracking), in 1/1000 em units.
-    float                   fTextTracking   = 0;
 
     bool operator==(const TextPropertyValue& other) const;
     bool operator!=(const TextPropertyValue& other) const;
