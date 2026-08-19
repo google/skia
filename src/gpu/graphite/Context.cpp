@@ -130,8 +130,7 @@ Context::Context(sk_sp<SharedContext> sharedContext,
     // We need to move the Graphite SkSL code into the central SkSL data loader at least once
     // (but preferrably only once) before we try to use it. We assume that there's no way to
     // use the SkSL code without making a context, so we initialize it here.
-    static SkOnce once;
-    once([] { SkSL::Loader::SetGraphiteModuleData(SkSL::Loader::GetGraphiteModules()); });
+    SkSL::Loader::LoadGraphiteModules();
 
     // We have to create this outside the initializer list because we need to pass in the Context's
     // SingleOwner object and it is declared last

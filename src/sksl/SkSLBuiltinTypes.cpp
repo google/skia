@@ -7,10 +7,16 @@
 
 #include "src/sksl/SkSLBuiltinTypes.h"
 
+#include "src/core/SkNoDestructor.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/spirv.h"
 
 namespace SkSL {
+
+const BuiltinTypes& BuiltinTypes::Get() {
+    static SkNoDestructor<BuiltinTypes> sBuiltinTypes;
+    return *sBuiltinTypes;
+}
 
 /**
  * Initializes the core SkSL types.

@@ -21,6 +21,8 @@ class BuiltinTypes {
 public:
     BuiltinTypes();
 
+    static const BuiltinTypes& Get();
+
     const std::unique_ptr<Type> fFloat;
     const std::unique_ptr<Type> fFloat2;
     const std::unique_ptr<Type> fFloat3;

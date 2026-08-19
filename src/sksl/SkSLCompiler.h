@@ -45,6 +45,7 @@ namespace SkSL {
 
 class Inliner;
 struct Module;
+class ModuleLoader;
 enum class ModuleType : int8_t;
 class Pool;
 struct ProgramConfig;
@@ -158,6 +159,7 @@ public:
     bool optimizeModuleBeforeMinifying(ProgramKind kind, Module& module, bool shrinkSymbols);
 
     const Module* moduleForProgramKind(ProgramKind kind);
+    const Module* moduleForProgramKind(ProgramKind kind, ModuleLoader& moduleLoader);
 
     /** Run the inliner on a program which was compiled earlier (with inlining turned off). */
     void runInliner(Program& program);

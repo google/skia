@@ -96,7 +96,6 @@ struct ModuleLoader::Impl {
     // This mutex is taken when ModuleLoader::Get is called, and released when the returned
     // ModuleLoader object falls out of scope.
     SkMutex fMutex;
-    const BuiltinTypes fBuiltinTypes;
 
     std::unique_ptr<const Module> fRootModule;
 
@@ -119,24 +118,20 @@ ModuleLoader ModuleLoader::Get() {
     return ModuleLoader(*sModuleLoaderImpl);
 }
 
-ModuleLoader::ModuleLoader(ModuleLoader::Impl& m) : fModuleLoader(m) {
+ModuleLoader::ModuleLoader()
+        : fLocalImpl(std::make_unique<Impl>())
+        , fModuleLoader(*fLocalImpl) {
+    fModuleLoader.fMutex.acquire();
+}
+
+ModuleLoader::ModuleLoader(ModuleLoader::Impl& m)
+        : fLocalImpl(nullptr)
+        , fModuleLoader(m) {
     fModuleLoader.fMutex.acquire();
 }
 
 ModuleLoader::~ModuleLoader() {
     fModuleLoader.fMutex.release();
-}
-
-void ModuleLoader::unloadModules() {
-    fModuleLoader.fSharedModule           = nullptr;
-    fModuleLoader.fGPUModule              = nullptr;
-    fModuleLoader.fVertexModule           = nullptr;
-    fModuleLoader.fFragmentModule         = nullptr;
-    fModuleLoader.fComputeModule          = nullptr;
-    fModuleLoader.fGraphiteVertexModule   = nullptr;
-    fModuleLoader.fGraphiteFragmentModule = nullptr;
-    fModuleLoader.fPublicModule           = nullptr;
-    fModuleLoader.fRuntimeShaderModule    = nullptr;
 }
 
 ModuleLoader::Impl::Impl() {
@@ -187,16 +182,12 @@ static std::unique_ptr<Module> compile_and_shrink(SkSL::Compiler* compiler,
     return m;
 }
 
-const BuiltinTypes& ModuleLoader::builtinTypes() {
-    return fModuleLoader.fBuiltinTypes;
-}
-
 const Module* ModuleLoader::rootModule() {
     return fModuleLoader.fRootModule.get();
 }
 
 void ModuleLoader::addPublicTypeAliases(const SkSL::Module* module) {
-    const SkSL::BuiltinTypes& types = this->builtinTypes();
+    const SkSL::BuiltinTypes& types = BuiltinTypes::Get();
     SymbolTable* symbols = module->fSymbols.get();
 
     // Add some aliases to the runtime effect modules so that it's friendlier, and more like GLSL.
@@ -341,12 +332,13 @@ void ModuleLoader::Impl::makeRootSymbolTable() {
     auto rootModule = std::make_unique<Module>();
     rootModule->fSymbols = std::make_unique<SymbolTable>(/*builtin=*/true);
 
+    const BuiltinTypes& types = BuiltinTypes::Get();
     for (BuiltinTypePtr rootType : kRootTypes) {
-        rootModule->fSymbols->addWithoutOwnershipOrDie((fBuiltinTypes.*rootType).get());
+        rootModule->fSymbols->addWithoutOwnershipOrDie((types.*rootType).get());
     }
 
     for (BuiltinTypePtr privateType : kPrivateTypes) {
-        rootModule->fSymbols->addWithoutOwnershipOrDie((fBuiltinTypes.*privateType).get());
+        rootModule->fSymbols->addWithoutOwnershipOrDie((types.*privateType).get());
     }
 
     // sk_Caps is "builtin", but all references to it are resolved to Settings, so we don't need to
@@ -355,7 +347,7 @@ void ModuleLoader::Impl::makeRootSymbolTable() {
                                                   /*modifiersPosition=*/Position(),
                                                   Layout{},
                                                   ModifierFlag::kNone,
-                                                  fBuiltinTypes.fSkCaps.get(),
+                                                  types.fSkCaps.get(),
                                                   "sk_Caps",
                                                   /*mangledName=*/"",
                                                   /*builtin=*/false,

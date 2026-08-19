@@ -8,6 +8,7 @@
 #include "src/sksl/SkSLGraphiteModules.h"
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkOnce.h"
 
 // We include minified SkSL module code and pass it directly to the compiler.
 #if defined(SK_ENABLE_OPTIMIZE_SIZE) || !defined(SK_DEBUG)
@@ -20,12 +21,16 @@
 
 namespace SkSL::Loader {
 
-GraphiteModules GetGraphiteModules() {
+void LoadGraphiteModules() {
+    static SkOnce once;
+    once([] {
 #define M(name) SKSL_MINIFIED_##name
-    return GraphiteModules{
-            M(sksl_graphite_frag),
-            M(sksl_graphite_vert),
-    };
+        SetGraphiteModuleData(GraphiteModules{
+                M(sksl_graphite_frag),
+                M(sksl_graphite_vert),
+        });
+#undef M
+    });
 }
 
 }  // namespace SkSL::Loader

@@ -40,6 +40,10 @@
 #include "src/sksl/generated/sksl_graphite_frag.minified.sksl"
 #include "src/sksl/generated/sksl_graphite_vert.minified.sksl"
 
+#if defined(SK_GRAPHITE)
+#include "src/sksl/SkSLGraphiteModules.h"
+#endif
+
 class SkSLCompilerStartupBench : public Benchmark {
 protected:
     const char* onGetName() override {
@@ -111,6 +115,14 @@ protected:
 #endif
         return backend == Backend::kNonRendering;
     }
+
+#if defined(SK_GRAPHITE)
+    void onDelayedSetup() override {
+        if (this->usesGraphite()) {
+            SkSL::Loader::LoadGraphiteModules();
+        }
+    }
+#endif
 
     bool usesRuntimeShader() const {
         return fOutput == Output::kSkRP;
@@ -536,19 +548,17 @@ struct FSUniformData
 	// 2 - ConicalGradient8 uniforms
 	float4 colors_2[8];
 	float4 offsets_2[2];
-	float2 point0_2;
-	float2 point1_2;
 	float radius0_2;
-	float radius1_2;
+	float dRadius_2;
+	float a_2;
+	float invA_2;
 	int tilemode_2;
 	int colorSpace_2;
 	int doUnPremul_2;
 	// 3 - ColorSpaceTransform uniforms
-	int flags_3;
 	int srcKind_3;
 	half3x3 gamutTransform_3;
 	int dstKind_3;
-	half4x4 csXformCoeffs_3;
 	// 4 - DitherShader uniforms
 	half range_4;
 }
@@ -563,22 +573,23 @@ layout(binding=0) sampler2D sampler_4;
 // [1]   1: ColorFilterShader
 half4 ColorFilterShader_1(half4 inColor, half4 destColor, float2 coords)
 {
-	return sk_color_space_transform(sk_conical_grad_8_shader(coords, fsUniformData[shadingSsboIndexVar].colors_2, fsUniformData[shadingSsboIndexVar].offsets_2, fsUniformData[shadingSsboIndexVar].point0_2, fsUniformData[shadingSsboIndexVar].point1_2, fsUniformData[shadingSsboIndexVar].radius0_2, fsUniformData[shadingSsboIndexVar].radius1_2, fsUniformData[shadingSsboIndexVar].tilemode_2, fsUniformData[shadingSsboIndexVar].colorSpace_2, fsUniformData[shadingSsboIndexVar].doUnPremul_2), fsUniformData[shadingSsboIndexVar].flags_3, fsUniformData[shadingSsboIndexVar].srcKind_3, fsUniformData[shadingSsboIndexVar].gamutTransform_3, fsUniformData[shadingSsboIndexVar].dstKind_3, fsUniformData[shadingSsboIndexVar].csXformCoeffs_3, half4(0), half4(0));
+	half4 grad = sk_conical_grad_8_shader(coords, fsUniformData[shadingSsboIndexVar].colors_2, fsUniformData[shadingSsboIndexVar].offsets_2, fsUniformData[shadingSsboIndexVar].radius0_2, fsUniformData[shadingSsboIndexVar].dRadius_2, fsUniformData[shadingSsboIndexVar].a_2, fsUniformData[shadingSsboIndexVar].invA_2, fsUniformData[shadingSsboIndexVar].tilemode_2, fsUniformData[shadingSsboIndexVar].colorSpace_2, fsUniformData[shadingSsboIndexVar].doUnPremul_2);
+	half4 xformed = sk_csxform_prealpha(grad, half(fsUniformData[shadingSsboIndexVar].srcKind_3));
+	xformed = sk_csxform_gamut(xformed, fsUniformData[shadingSsboIndexVar].gamutTransform_3);
+	return sk_csxform_postalpha(xformed, half(fsUniformData[shadingSsboIndexVar].dstKind_3));
 }
 void main()
 {
 	half4 initialColor = half4(0);
-	// [0] SolidColor
-	half4 outColor_0 = sk_solid_shader(fsUniformData[shadingSsboIndexVar].color_0);
-	// [1] ColorFilterShader
-	half4 outColor_1 = ColorFilterShader_1(outColor_0, half4(1), localCoordsVar);
-	// [4] DitherShader
-	half4 outColor_4 = sk_dither_shader(outColor_1, localCoordsVar, fsUniformData[shadingSsboIndexVar].range_4, sampler_4);
-	// [5] SrcOver
-	half4 outColor_5 = outColor_4;
+	// [0] ColorFilterShader
+	half4 outColor_0 = ColorFilterShader_1(initialColor, half4(1), localCoordsVar);
+	// [1] DitherShader
+	half4 outColor_1 = sk_dither(outColor_0, fsUniformData[shadingSsboIndexVar].range_4, sampler_4);
+	// [2] SrcOver
+	half4 outColor_2 = outColor_1;
 	half4 outputCoverage;
 	outputCoverage = analytic_rrect_coverage_fn(sk_FragCoord, jacobian, edgeDistances, xRadii, yRadii, strokeParams, perPixelControl);
-	sk_FragColor = outColor_5 * outputCoverage;
+	sk_FragColor = outColor_2 * outputCoverage;
 }
 )")
 
@@ -613,13 +624,11 @@ layout(binding=3) sampler2D text_atlas_3;
 void main()
 {
 	half4 initialColor = half4(0);
-	// [0] SolidColor
-	half4 outColor_0 = sk_solid_shader(fsUniformData[shadingSsboIndexVar].color_0);
-	// [1] SrcOver
-	half4 outColor_1 = outColor_0;
+	// [0] SrcOver
+	half4 outColor_0 = initialColor;
 	half4 outputCoverage;
 	outputCoverage = bitmap_text_coverage_fn(sample_indexed_atlas(textureCoords, int(texIndex), text_atlas_0, text_atlas_1, text_atlas_2, text_atlas_3), int(maskFormat));
-	sk_FragColor = outColor_1 * outputCoverage;
+	sk_FragColor = outColor_0 * outputCoverage;
 }
 )")
 
@@ -660,6 +669,9 @@ static void bench(NanoJSONResultsWriter* log, const char* name, int bytes) {
 // These benchmarks aren't timed, they produce memory usage statistics. They run standalone, and
 // directly add their results to the nanobench log.
 void RunSkSLModuleBenchmarks(NanoJSONResultsWriter* log) {
+#if defined(SK_GRAPHITE)
+    SkSL::Loader::LoadGraphiteModules();
+#endif
     // Heap used by a default compiler (with no modules loaded)
     int64_t before = heap_bytes_used();
     SkSL::Compiler compiler;
@@ -741,15 +753,12 @@ public:
         return false;
     }
 
-    void onPreDraw(SkCanvas*) override {
-        SkSL::ModuleLoader::Get().unloadModules();
-    }
-
     void onDraw(int loops, SkCanvas*) override {
         SkASSERT(loops == 1);
+        SkSL::ModuleLoader localLoader;
         SkSL::Compiler compiler;
         for (SkSL::ProgramKind kind : fModuleList) {
-            compiler.moduleForProgramKind(kind);
+            compiler.moduleForProgramKind(kind, localLoader);
         }
     }
 
