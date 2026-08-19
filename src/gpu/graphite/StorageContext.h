@@ -25,8 +25,6 @@ class DrawBufferManager;
 
 class StorageContext {
 public:
-    static constexpr size_t kStructAlignment = 16;
-
     StorageContext();
     ~StorageContext();
 
@@ -45,10 +43,7 @@ public:
     // drawPass, but does not write any data to the storageContext. Instead, at snapDrawPass() time,
     // the final LCM is used to align both the cached data in finalizePrecachedStorageData() and
     // the incoming appendVertices() stream. Should only be called prior to snapDrawPass().
-    //
-    // Currently, we pass default arguments as placeholders until storage attributes are
-    // implemented.
-    void recordAlignment(size_t stride = kStructAlignment, size_t align = kStructAlignment);
+    void recordAlignment(size_t stride, size_t align);
 
     // Appends `count * stride` bytes of vertex data into the CPU-side copy, aligned according to
     // `stride` and `align`. Returns the byte offset within the eventual storage buffer.

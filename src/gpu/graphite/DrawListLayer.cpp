@@ -217,8 +217,9 @@ std::pair<DrawParams*, Layer*> DrawListLayer::recordDraw(const Renderer* rendere
         const RenderStep* const step = renderer->steps()[stepIndex];
         const bool performsShading = step->performsShading() && paintID.isValid();
 
-        if (storageContext) {
-            storageContext->recordAlignment();
+        if (storageContext && step->storageUniformStride() > 0) {
+            storageContext->recordAlignment(step->storageUniformStride(),
+                                            step->storageUniformAlignment());
         }
 
         gatherer->markOffsetAndAlign(performsShading, step->uniformAlignment());
