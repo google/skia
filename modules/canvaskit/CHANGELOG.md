@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.42.0] - 2026-08-18
+
 ### Fixed
 - `PathBuilder.setFillType` returns a reference to the JavaScript `PathBuilder` and does not make
   a copy of the underlying SkPathBuilder.
