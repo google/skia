@@ -82,8 +82,10 @@ void GrAATriangulator::makeEvent(SSEdge* e, EventList* events) const {
     if (bisector1.intersect(bisector2, &p, &alpha)) {
         TESS_LOG("found edge event for %g, %g (original %g -> %g), "
                  "will collapse to %g,%g alpha %d\n",
-                  prev->fID, next->fID, e->fEdge->fTop->fID, e->fEdge->fBottom->fID, p.fX, p.fY,
-                  alpha);
+                  prev->fID, next->fID,
+                  e->fEdge && e->fEdge->fTop ? e->fEdge->fTop->fID : -1.0,
+                  e->fEdge && e->fEdge->fBottom ? e->fEdge->fBottom->fID : -1.0,
+                  p.fX, p.fY, alpha);
         e->fEvent = fAlloc->make<Event>(e, p, alpha);
         events->push(e->fEvent);
     }
@@ -236,7 +238,7 @@ void GrAATriangulator::simplifyBoundary(EdgeList* boundary, const Comparator& c)
 }
 
 void GrAATriangulator::connectSSEdge(Vertex* v, Vertex* dest, const Comparator& c) {
-    if (v == dest) {
+    if (!v || !dest || v == dest) {
         return;
     }
     TESS_LOG("ss_connecting vertex %g to vertex %g\n", v->fID, dest->fID);
@@ -266,8 +268,10 @@ void GrAATriangulator::Event::apply(VertexList* mesh, const Comparator& c, Event
     dest->fSynthetic = true;
     SSVertex* ssv = triangulator->fAlloc->make<SSVertex>(dest);
     TESS_LOG("collapsing %g, %g (original edge %g -> %g) to %g (%g, %g) alpha %d\n",
-             prev->fID, next->fID, fEdge->fEdge->fTop->fID, fEdge->fEdge->fBottom->fID, dest->fID,
-             fPoint.fX, fPoint.fY, fAlpha);
+             prev->fID, next->fID,
+             fEdge->fEdge && fEdge->fEdge->fTop ? fEdge->fEdge->fTop->fID : -1.0,
+             fEdge->fEdge && fEdge->fEdge->fBottom ? fEdge->fEdge->fBottom->fID : -1.0,
+             dest->fID, fPoint.fX, fPoint.fY, fAlpha);
     fEdge->fEdge = nullptr;
 
     triangulator->connectSSEdge(prev, dest, c);
@@ -339,11 +343,13 @@ bool GrAATriangulator::collapseOverlapRegions(VertexList* mesh, const Comparator
             }
             if (leftOverlap && rightOverlap) {
                 TESS_LOG("found interior overlap edge %g -> %g, disconnecting\n",
-                         e->fTop->fID, e->fBottom->fID);
+                         e->fTop ? e->fTop->fID : -1.0,
+                         e->fBottom ? e->fBottom->fID : -1.0);
                 e->disconnect();
             } else if (leftOverlap || rightOverlap) {
                 TESS_LOG("found overlap edge %g -> %g%s\n",
-                         e->fTop->fID, e->fBottom->fID,
+                         e->fTop ? e->fTop->fID : -1.0,
+                         e->fBottom ? e->fBottom->fID : -1.0,
                          isOuterBoundary ? ", is outer boundary" : "");
                 Vertex* prevVertex = e->fWinding < 0 ? e->fBottom : e->fTop;
                 Vertex* nextVertex = e->fWinding < 0 ? e->fTop : e->fBottom;
@@ -577,6 +583,9 @@ void GrAATriangulator::strokeBoundary(EdgeList* boundary, VertexList* innerMesh,
 
 void GrAATriangulator::extractBoundary(EdgeList* boundary, Edge* e) const {
     TESS_LOG("\nextracting boundary\n");
+    if (!e || !e->hasTopAndBottom()) {
+        return;
+    }
     bool down = this->applyFillType(e->fWinding);
     Vertex* start = down ? e->fTop : e->fBottom;
     do {
@@ -606,7 +615,7 @@ void GrAATriangulator::extractBoundary(EdgeList* boundary, Edge* e) const {
         }
         e->disconnect();
         e = next;
-    } while (e && (down ? e->fTop : e->fBottom) != start);
+    } while (e && e->hasTopAndBottom() && (down ? e->fTop : e->fBottom) != start);
 }
 
 // Stage 5b: Extract boundaries from mesh, simplify and stroke them into a new mesh.
