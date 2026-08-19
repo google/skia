@@ -2193,6 +2193,10 @@ DEF_GANESH_TEST_FOR_CONTEXTS(ClipStack_SWMask,
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ClipStack_MixedAA, r, ctxInfo,
                                        CtsEnforcement::kNextRelease) {
+    if (ctxInfo.directContext()->priv().caps()->supportsProtectedContent()) {
+        return; // test requires readback
+    }
+
     sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(ctxInfo.directContext(),
                                                         skgpu::Budgeted::kYes,
                                                         SkImageInfo::Make({128, 128},
