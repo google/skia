@@ -13,12 +13,14 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypes.h"
 
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <memory>
 #include <type_traits>
 
@@ -258,7 +260,7 @@ public:
                        LanguageRunIterator&,
                        SkScalar width,
                        RunHandler*) const = 0;
-#endif
+
     virtual void shape(const char* utf8,
                        size_t utf8Bytes,
                        FontRunIterator&,
@@ -269,30 +271,26 @@ public:
                        size_t featuresSize,
                        SkScalar width,
                        RunHandler*) const = 0;
+#endif  // !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
 
-    /**
-     *  Same as the overload above, plus |textTracking|: extra advance added after every glyph,
-     *  expressed as a fraction of the font size (i.e. em units) so that it scales with the text.
-     *  It is applied on top of font kerning and participates in line breaking.
-     *
-     *  The default implementation ignores tracking and forwards to the overload above.  Shapers
-     *  that support tracking (the HarfBuzz, CoreText and primitive backends) override this; a
-     *  caller cannot rely on tracking being honored in general.
-     */
-    virtual void shape(const char* utf8,
-                       size_t utf8Bytes,
+    struct Options {
+        // Width available for horizontal layout, before wrapping kicks in.
+        float width = std::numeric_limits<float>::max();
+
+        // Extra advance added after each glyph, expressed as a fraction of the font size
+        // (i.e. em units, thus it scales with the text). It applies on top of font kerning
+        // and participates in line breaking.
+        float tracking = 0;
+    };
+
+    virtual void shape(SkSpan<const char> utf8,
                        FontRunIterator& font,
                        BiDiRunIterator& bidi,
                        ScriptRunIterator& script,
                        LanguageRunIterator& language,
-                       const Feature* features,
-                       size_t featuresSize,
-                       SkScalar width,
-                       float /*textTracking*/,
-                       RunHandler* handler) const {
-        this->shape(utf8, utf8Bytes, font, bidi, script, language,
-                    features, featuresSize, width, handler);
-    }
+                       SkSpan<const Feature> features,
+                       const Options& opts,
+                       RunHandler* handler) const = 0;
 
 private:
     SkShaper(const SkShaper&) = delete;

@@ -746,15 +746,13 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis,
                 utf8, utf8Bytes, font, fallback ? fallback : SkFontMgr::RefEmpty());
         SkASSERT(fontRuns);
 
-        shaper->shape(utf8,
-                      utf8Bytes,
+        shaper->shape({ utf8, utf8Bytes },
                       *fontRuns,
                       *bidi,
                       *script,
                       *language,
-                      nullptr,
-                      0,
-                      std::numeric_limits<SkScalar>::max(),
+                      {},
+                      {},
                       &handler);
         auto ellipsisRun = handler.run();
         ellipsisRun->fTextRange = TextRange(0, ellipsis.size());

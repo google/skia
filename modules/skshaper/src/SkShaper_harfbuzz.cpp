@@ -724,7 +724,7 @@ private:
                const SkFont&,
                bool leftToRight,
                SkScalar width,
-               RunHandler*) const override;
+               RunHandler*) const final;
 
     void shape(const char* utf8Text, size_t textBytes,
                FontRunIterator&,
@@ -732,17 +732,7 @@ private:
                ScriptRunIterator&,
                LanguageRunIterator&,
                SkScalar width,
-               RunHandler*) const override;
-#endif
-
-    void shape(const char* utf8Text, size_t textBytes,
-               FontRunIterator&,
-               BiDiRunIterator&,
-               ScriptRunIterator&,
-               LanguageRunIterator&,
-               const Feature*, size_t featuresSize,
-               SkScalar width,
-               RunHandler*) const override;
+               RunHandler*) const final;
 
     void shape(const char* utf8Text, size_t textBytes,
                FontRunIterator&,
@@ -751,8 +741,17 @@ private:
                LanguageRunIterator&,
                const Feature*, size_t featuresSize,
                SkScalar width,
-               float textTracking,
-               RunHandler*) const override;
+               RunHandler*) const final;
+#endif  // !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
+
+    void shape(SkSpan<const char> utf8,
+               FontRunIterator&,
+               BiDiRunIterator&,
+               ScriptRunIterator&,
+               LanguageRunIterator&,
+               SkSpan<const Feature>,
+               const Options&,
+               RunHandler*) const final;
 
     virtual void wrap(char const * utf8, size_t utf8Bytes,
                       const BiDiRunIterator&,
@@ -766,7 +765,7 @@ private:
                       RunHandler*) const = 0;
 };
 
-class ShaperDrivenWrapper : public ShaperHarfBuzz {
+class ShaperDrivenWrapper final : public ShaperHarfBuzz {
 public:
     using ShaperHarfBuzz::ShaperHarfBuzz;
 private:
@@ -782,7 +781,7 @@ private:
               RunHandler*) const override;
 };
 
-class ShapeThenWrap : public ShaperHarfBuzz {
+class ShapeThenWrap final : public ShaperHarfBuzz {
 public:
     using ShaperHarfBuzz::ShaperHarfBuzz;
 private:
@@ -798,7 +797,7 @@ private:
               RunHandler*) const override;
 };
 
-class ShapeDontWrapOrReorder : public ShaperHarfBuzz {
+class ShapeDontWrapOrReorder final : public ShaperHarfBuzz {
 public:
     using ShaperHarfBuzz::ShaperHarfBuzz;
 private:
@@ -870,7 +869,6 @@ void ShaperHarfBuzz::shape(const char* utf8,
                            RunHandler* handler) const {
     this->shape(utf8, utf8Bytes, font, bidi, script, language, nullptr, 0, width, handler);
 }
-#endif  // !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
 
 void ShaperHarfBuzz::shape(const char* utf8,
                            size_t utf8Bytes,
@@ -882,20 +880,18 @@ void ShaperHarfBuzz::shape(const char* utf8,
                            size_t featuresSize,
                            SkScalar width,
                            RunHandler* handler) const {
-    this->shape(utf8, utf8Bytes, font, bidi, script, language,
-                features, featuresSize, width, /*textTracking=*/0, handler);
+    this->shape({utf8, utf8Bytes}, font, bidi, script, language, {features, featuresSize},
+                { .width = width }, handler);
 }
+#endif  // !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
 
-void ShaperHarfBuzz::shape(const char* utf8,
-                           size_t utf8Bytes,
+void ShaperHarfBuzz::shape(SkSpan<const char> utf8,
                            FontRunIterator& font,
                            BiDiRunIterator& bidi,
                            ScriptRunIterator& script,
                            LanguageRunIterator& language,
-                           const Feature* features,
-                           size_t featuresSize,
-                           SkScalar width,
-                           float textTracking,
+                           SkSpan<const Feature> features,
+                           const Options& opts,
                            RunHandler* handler) const {
     SkASSERT(handler);
     RunIteratorQueue runSegmenter;
@@ -904,8 +900,8 @@ void ShaperHarfBuzz::shape(const char* utf8,
     runSegmenter.insert(&script,   1);
     runSegmenter.insert(&language, 0);
 
-    this->wrap(utf8, utf8Bytes, bidi, language, script, font, runSegmenter,
-               features, featuresSize, width, textTracking, handler);
+    this->wrap(utf8.data(), utf8.size(), bidi, language, script, font, runSegmenter,
+               features.data(), features.size(), opts.width, opts.tracking, handler);
 }
 
 void ShaperDrivenWrapper::wrap(char const * const utf8, size_t utf8Bytes,

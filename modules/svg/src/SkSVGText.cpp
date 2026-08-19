@@ -258,15 +258,13 @@ void SkSVGTextContext::shapePendingBuffer(const SkSVGRenderContext& ctx, const S
         std::unique_ptr<SkShaper::ScriptRunIterator> script = ctx.makeScriptRunIterator(utf8, utf8Bytes);
 
         if (bidi && script && language) {
-            fShaper->shape(utf8,
-                           utf8Bytes,
+            fShaper->shape({ utf8, utf8Bytes },
                            *font_runs,
                            *bidi,
                            *script,
                            *language,
-                           nullptr,
-                           0,
-                           SK_ScalarMax,
+                           {},
+                           {},
                            this);
             fShapeBuffer.reset();
             return;
@@ -277,15 +275,13 @@ void SkSVGTextContext::shapePendingBuffer(const SkSVGRenderContext& ctx, const S
     SkShaper::TrivialBiDiRunIterator trivial_bidi{0, 0};
     SkShaper::TrivialScriptRunIterator trivial_script{0, 0};
     SkShaper::TrivialLanguageRunIterator trivial_lang{nullptr, 0};
-    fShaper->shape(utf8,
-                   utf8Bytes,
+    fShaper->shape({ utf8, utf8Bytes},
                    *font_runs,
                    trivial_bidi,
                    trivial_script,
                    trivial_lang,
-                   nullptr,
-                   0,
-                   SK_ScalarMax,
+                   {},
+                   {},
                    this);
     fShapeBuffer.reset();
 }

@@ -21,7 +21,7 @@
 #include <cstring>
 #include <memory>
 
-class SkShaperPrimitive : public SkShaper {
+class SkShaperPrimitive final : public SkShaper {
 public:
     SkShaperPrimitive() {}
 private:
@@ -39,7 +39,6 @@ private:
                LanguageRunIterator&,
                SkScalar width,
                RunHandler*) const override;
-#endif
 
     void shape(const char* utf8, size_t utf8Bytes,
                FontRunIterator&,
@@ -49,15 +48,15 @@ private:
                const Feature*, size_t featureSize,
                SkScalar width,
                RunHandler*) const override;
+#endif  // !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
 
-    void shape(const char* utf8, size_t utf8Bytes,
+    void shape(SkSpan<const char> utf8,
                FontRunIterator&,
                BiDiRunIterator&,
                ScriptRunIterator&,
                LanguageRunIterator&,
-               const Feature*, size_t featureSize,
-               SkScalar width,
-               float textTracking,
+               SkSpan<const Feature>,
+               const Options&,
                RunHandler*) const override;
 };
 
@@ -177,7 +176,6 @@ void SkShaperPrimitive::shape(const char* utf8,
     TrivialLanguageRunIterator lang{nullptr, 0};
     return this->shape(utf8, utf8Bytes, *fontRuns, bidi, script, lang, nullptr, 0, width, handler);
 }
-#endif
 
 void SkShaperPrimitive::shape(const char* utf8,
                               size_t utf8Bytes,
@@ -188,20 +186,18 @@ void SkShaperPrimitive::shape(const char* utf8,
                               const Feature* features, size_t featuresSize,
                               SkScalar width,
                               RunHandler* handler) const {
-    return this->shape(utf8, utf8Bytes, fontRuns, bidi, script, lang, features, featuresSize,
-                       width, /*textTracking=*/0, handler);
+    return this->shape({utf8, utf8Bytes}, fontRuns, bidi, script, lang, {features, featuresSize},
+                       { .width = width }, handler);
 }
+#endif  // !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
 
-void SkShaperPrimitive::shape(const char* utf8,
-                              size_t utf8Bytes,
+void SkShaperPrimitive::shape(SkSpan<const char> utf8,
                               FontRunIterator& fontRuns,
                               BiDiRunIterator&,
                               ScriptRunIterator&,
                               LanguageRunIterator&,
-                              const Feature*,
-                              size_t,
-                              SkScalar width,
-                              float textTracking,
+                              SkSpan<const Feature> features,
+                              const Options& opts,
                               RunHandler* handler) const {
     SkFont font;
     if (!fontRuns.atEnd()) {
@@ -210,19 +206,20 @@ void SkShaperPrimitive::shape(const char* utf8,
     }
     SkASSERT(font.getTypeface());
 
-    int glyphCount = font.countText(utf8, utf8Bytes, SkTextEncoding::kUTF8);
+    int glyphCount = font.countText(utf8.data(), utf8.size(), SkTextEncoding::kUTF8);
     if (glyphCount < 0) {
         return;
     }
 
     std::unique_ptr<SkGlyphID[]> glyphs(new SkGlyphID[glyphCount]);
-    font.textToGlyphs(utf8, utf8Bytes, SkTextEncoding::kUTF8, {glyphs.get(), (size_t)glyphCount});
+    font.textToGlyphs(utf8.data(), utf8.size(), SkTextEncoding::kUTF8,
+                      {glyphs.get(), (size_t)glyphCount});
 
     std::unique_ptr<SkScalar[]> advances(new SkScalar[glyphCount]);
     font.getWidths({glyphs.get(), (size_t)glyphCount}, {advances.get(), (size_t)glyphCount});
 
     // Tracking is specified in em units; turn it into an absolute advance increment.
-    const auto trackingAdvance = textTracking * font.getSize() * font.getScaleX();
+    const auto trackingAdvance = opts.tracking * font.getSize() * font.getScaleX();
     if (trackingAdvance != 0) {
         for (int i = 0; i < glyphCount; ++i) {
             advances[i] += trackingAdvance;
@@ -233,14 +230,14 @@ void SkShaperPrimitive::shape(const char* utf8,
     size_t utf8Offset = 0;
     do {
         size_t bytesCollapsed;
-        size_t bytesConsumed = linebreak(utf8, utf8 + utf8Bytes, font, width,
+        size_t bytesConsumed = linebreak(utf8.begin(), utf8.end(), font, opts.width,
                                          advances.get() + glyphOffset, &bytesCollapsed);
         size_t bytesVisible = bytesConsumed - bytesCollapsed;
 
-        size_t numGlyphs = SkUTF::CountUTF8(utf8, bytesVisible);
+        size_t numGlyphs = SkUTF::CountUTF8(utf8.data(), bytesVisible);
         const RunHandler::RunInfo info = {
             font, 0, 0, "",
-            { font.measureText(utf8, bytesVisible, SkTextEncoding::kUTF8) +
+            { font.measureText(utf8.data(), bytesVisible, SkTextEncoding::kUTF8) +
                   numGlyphs*trackingAdvance, 0 },
             numGlyphs,
             RunHandler::Range(utf8Offset, bytesVisible)
@@ -260,22 +257,21 @@ void SkShaperPrimitive::shape(const char* utf8,
                 position.fX += advances[i + glyphOffset];
             }
             if (buffer.clusters) {
-                const char* txtPtr = utf8;
+                const char* txtPtr = utf8.data();
                 for (size_t i = 0; i < info.glyphCount; ++i) {
                     // Each character maps to exactly one glyph.
-                    buffer.clusters[i] = SkToU32(txtPtr - utf8 + utf8Offset);
-                    SkUTF::NextUTF8(&txtPtr, utf8 + utf8Bytes);
+                    buffer.clusters[i] = SkToU32(txtPtr - utf8.data() + utf8Offset);
+                    SkUTF::NextUTF8(&txtPtr, utf8.end());
                 }
             }
             handler->commitRunBuffer(info);
         }
         handler->commitLine();
 
-        glyphOffset += SkUTF::CountUTF8(utf8, bytesConsumed);
+        glyphOffset += SkUTF::CountUTF8(utf8.data(), bytesConsumed);
         utf8Offset += bytesConsumed;
-        utf8 += bytesConsumed;
-        utf8Bytes -= bytesConsumed;
-    } while (0 < utf8Bytes);
+        utf8 = utf8.subspan(bytesConsumed);
+    } while (!utf8.empty());
 }
 
 #if !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
