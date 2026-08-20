@@ -1994,7 +1994,6 @@ var shorthandToLabel = map[string]bazelTarget{
 	"svg_with_primitive":         {"//example/external_client:svg_with_primitive"},
 	"use_ganesh_gl":              {"//example/external_client:use_ganesh_gl"},
 	"use_ganesh_vulkan":          {"//example/external_client:use_ganesh_vulkan"},
-	"use_graphite_native_vulkan": {"//example/external_client:use_graphite_native_vulkan"},
 	"use_skresources":            {"//example/external_client:use_skresources"},
 	"write_text_to_png":          {"//example/external_client:write_text_to_png"},
 	"write_to_pdf":               {"//example/external_client:write_to_pdf"},

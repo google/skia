@@ -68,10 +68,6 @@
     "name": "BazelTest-external_client-use_ganesh_vulkan-default-linux_x64"
   },
   {
-    "name": "BazelTest-external_client-use_graphite_native_vulkan-default-linux_x64",
-    "cq_config": {}
-  },
-  {
     "name": "BazelTest-external_client-use_skresources-default-linux_x64"
   },
   {
