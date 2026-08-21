@@ -8,6 +8,7 @@
 #define skgpu_graphite_sparse_strips_MSAA_LUT_DEFINED
 
 #include "include/private/SkTDArray.h"
+#include "src/gpu/graphite/sparse_strips/SparseStripsTypes.h"
 
 #include <array>
 #include <cmath>
@@ -105,20 +106,12 @@ namespace skgpu::graphite {
 
 template <typename T> class MSAA_LUT {
 public:
-    static constexpr int32_t kWidth       = 64;
-    static constexpr int32_t kHeight      = 64;
-    static constexpr int32_t kHalfHeight  = kHeight / 2;
-    static constexpr size_t  kSampleCount = sizeof(T) * 8;
-
-    static constexpr std::array<uint8_t, kSampleCount> kPattern = []() {
-        if constexpr (std::is_same_v<T, uint8_t>) {
-            return std::array<uint8_t, 8>{0, 5, 3, 7, 1, 4, 6, 2};
-        } else if constexpr (std::is_same_v<T, uint16_t>) {
-            return std::array<uint8_t, 16>{1, 8, 4, 11, 15, 7, 3, 12, 0, 9, 5, 13, 2, 10, 6, 14};
-        } else {
-            SkUNREACHABLE;
-        }
-    }();
+    static constexpr int32_t kWidth          = 64;
+    static constexpr int32_t kHeight         = 64;
+    static constexpr int32_t kHalfHeight     = kHeight / 2;
+    static constexpr size_t  kSampleCount    = sizeof(T) * 8;
+    using Pattern                            = std::array<uint8_t, kSampleCount>;
+    static constexpr const Pattern& kPattern = kMsaaPattern<T>;
 
     static SkTDArray<T> Make() {
         constexpr float scale = 1.0f / static_cast<float>(kSampleCount);

@@ -644,8 +644,11 @@ filegroup(
     srcs = [
         "graphite/sparse_strips/ClipTest.cpp",
         "graphite/sparse_strips/CoverageTest.cpp",
+        "graphite/sparse_strips/CoverageTestUtils.cpp",
+        "graphite/sparse_strips/CoverageTestUtils.h",
         "graphite/sparse_strips/FlattenTest.cpp",
         "graphite/sparse_strips/LUTTest.cpp",
+        "graphite/sparse_strips/OracleTest.cpp",
         "graphite/sparse_strips/PolylineTest.cpp",
         "graphite/sparse_strips/TileTestCases.cpp",
         "graphite/sparse_strips/TileTestCases.h",
