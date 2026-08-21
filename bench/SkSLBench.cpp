@@ -112,6 +112,10 @@ protected:
         if (this->usesGraphite()) {
             return false;
         }
+#else
+        if (this->usesGraphite()) {
+            return backend == Backend::kNonRendering || backend == Backend::kGraphite;
+        }
 #endif
         return backend == Backend::kNonRendering;
     }
@@ -746,6 +750,11 @@ public:
     }
 
     bool isSuitableFor(Backend backend) override {
+#if defined(SK_GRAPHITE)
+        if (!strcmp(fName, "sksl_module_loader_graphite")) {
+            return backend == Backend::kNonRendering || backend == Backend::kGraphite;
+        }
+#endif
         return backend == Backend::kNonRendering;
     }
 
