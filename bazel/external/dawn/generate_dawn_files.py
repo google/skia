@@ -408,6 +408,9 @@ class CMakeParser:
         # 5. Generic Unix / X11 / Posix
         elif any(kw in lower_path for kw in ["posix", "linux", "unix", "x11"]):
             backend_suffix = "_USE_X11" if "x11" in lower_path else "_UNIX"
+        # 6. DRM / GBM Specifics (Direct Rendering Manager / Generic Buffer Management)
+        elif any(kw in lower_path for kw in ["drm", "gbm"]):
+            backend_suffix = "_DRM"
 
         prefix = f"{self.prefix}{backend_suffix}"
         if prefix not in self.output_vars:

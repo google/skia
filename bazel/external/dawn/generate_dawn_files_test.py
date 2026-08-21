@@ -69,6 +69,12 @@ class TestCMakeParser(unittest.TestCase):
         self.parser._append_file_to_group("src/dawn/native/webgpu/WebGPUBackend.cpp", is_public_headers=False)
         self.assertIn("src/dawn/native/webgpu/WebGPUBackend.cpp", self.parser.output_vars["TEST_PREFIX_WEBGPU"]["SRCS"])
 
+        # 8. DRM / GBM Specifics
+        self.parser._append_file_to_group("src/dawn/common/DRMUtils.cpp", is_public_headers=False)
+        self.assertIn("src/dawn/common/DRMUtils.cpp", self.parser.output_vars["TEST_PREFIX_DRM"]["SRCS"])
+        self.parser._append_file_to_group("src/dawn/common/DRMUtils.h", is_public_headers=False)
+        self.assertIn("src/dawn/common/DRMUtils.h", self.parser.output_vars["TEST_PREFIX_DRM"]["PRIV_HDRS"])
+
     def test_resolve_var(self):
         # Bind standard variable
         self.parser.variables["test_var"] = [CMakeValue("File1.cpp"), CMakeValue("File2.cpp")]
