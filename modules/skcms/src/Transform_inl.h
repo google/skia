@@ -1113,11 +1113,9 @@ STAGE(unpremul, NoCtx) {
 }
 
 STAGE(matrix_3x3, const skcms_Matrix3x3* matrix) {
-    const float* m = &matrix->vals[0][0];
-
-    F R = m[0]*r + m[1]*g + m[2]*b,
-      G = m[3]*r + m[4]*g + m[5]*b,
-      B = m[6]*r + m[7]*g + m[8]*b;
+    F R = matrix->vals[0][0]*r + matrix->vals[0][1]*g + matrix->vals[0][2]*b,
+      G = matrix->vals[1][0]*r + matrix->vals[1][1]*g + matrix->vals[1][2]*b,
+      B = matrix->vals[2][0]*r + matrix->vals[2][1]*g + matrix->vals[2][2]*b;
 
     r = R;
     g = G;
@@ -1125,11 +1123,12 @@ STAGE(matrix_3x3, const skcms_Matrix3x3* matrix) {
 }
 
 STAGE(matrix_3x4, const skcms_Matrix3x4* matrix) {
-    const float* m = &matrix->vals[0][0];
-
-    F R = m[0]*r + m[1]*g + m[ 2]*b + m[ 3],
-      G = m[4]*r + m[5]*g + m[ 6]*b + m[ 7],
-      B = m[8]*r + m[9]*g + m[10]*b + m[11];
+    F R = matrix->vals[0][0]*r + matrix->vals[0][1]*g + matrix->vals[0][2]*b
+        + matrix->vals[0][3],
+      G = matrix->vals[1][0]*r + matrix->vals[1][1]*g + matrix->vals[1][2]*b
+        + matrix->vals[1][3],
+      B = matrix->vals[2][0]*r + matrix->vals[2][1]*g + matrix->vals[2][2]*b
+        + matrix->vals[2][3];
 
     r = R;
     g = G;
