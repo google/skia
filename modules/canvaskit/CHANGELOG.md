@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - `CanvasKit.MakeCanvasFromSurface` wraps an existing `Surface` in the Canvas2D
+   emulation layer, allowing Canvas2D to render on a GPU-backed surface.
+
 ## [0.42.0] - 2026-08-18
 
 ### Fixed

@@ -850,4 +850,28 @@ describe('Canvas 2D emulation', () => {
             ctx.stroke(clock);
         });
     }); // end describe('Path2D API')
+
+    describe('surface backing', () => {
+        it('can wrap an existing surface so Canvas2D can use a GPU backend', () => {
+            const surface = CanvasKit.MakeSurface(CANVAS_WIDTH, CANVAS_HEIGHT);
+            expect(surface).toBeTruthy();
+
+            const skcanvas = CanvasKit.MakeCanvasFromSurface(surface);
+            expect(skcanvas).toBeTruthy();
+
+            const ctx = skcanvas.getContext('2d');
+            expect(ctx).toBeTruthy();
+            ctx.fillStyle = '#0000FF';
+            ctx.fillRect(0, 0, 10, 10);
+
+            // The caller owns the surface, so it must outlive the canvas.
+            skcanvas.dispose();
+            expect(surface.isDeleted()).toBeFalsy();
+            surface.delete();
+        });
+
+        it('returns null when given no surface', () => {
+            expect(CanvasKit.MakeCanvasFromSurface(null)).toBeNull();
+        });
+    }); // end describe('surface backing')
 });

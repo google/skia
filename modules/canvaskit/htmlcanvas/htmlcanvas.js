@@ -1,13 +1,26 @@
 CanvasKit.MakeCanvas = function(width, height) {
   var surf = CanvasKit.MakeSurface(width, height);
   if (surf) {
-    return new HTMLCanvas(surf);
+    return new HTMLCanvas(surf, true);
   }
   return null;
 };
 
-function HTMLCanvas(skSurface) {
+// Wrap an existing Surface in the Canvas2D shim, so a GPU-backed surface (e.g. from
+// CanvasKit.MakeRenderTarget) can be used with the Canvas2D API instead of being
+// limited to the CPU raster surface MakeCanvas allocates. The caller keeps ownership
+// of the surface; disposing the returned canvas will not free it.
+CanvasKit.MakeCanvasFromSurface = function(surface) {
+  if (!surface) {
+    return null;
+  }
+  return new HTMLCanvas(surface, false);
+};
+
+function HTMLCanvas(skSurface, ownsSurface) {
   this._surface = skSurface;
+  // Default to true so callers constructing HTMLCanvas directly keep the old behavior.
+  this._ownsSurface = ownsSurface !== false;
   this._context = new CanvasRenderingContext2D(skSurface.getCanvas());
   this._toCleanup = [];
 
@@ -75,6 +88,8 @@ function HTMLCanvas(skSurface) {
     this._toCleanup.forEach(function(i) {
       i.delete();
     });
-    this._surface.dispose();
+    if (this._ownsSurface) {
+      this._surface.dispose();
+    }
   }
 }

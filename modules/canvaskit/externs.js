@@ -37,6 +37,7 @@ var CanvasKit = {
 
   GetWebGLContext: function() {},
   MakeCanvas: function() {},
+  MakeCanvasFromSurface: function() {},
   MakeCanvasSurface: function() {},
   MakeGrContext: function() {}, // deprecated
   MakeWebGLContext: function() {},
