@@ -1,10 +1,15 @@
+Name: etc1
 URL: https://android.googlesource.com/platform/frameworks/native/+/master/opengl/
+Version: N/A
 Revision: a17429660467548a1bc5f8d435a327500fbe972b
 License: Apache-2.0
 License File: LICENSE
+Shipped: no
+Security Critical: no
 Description: PKM file format (ETC1 data) support
 Local Modifications: Created LICENSE file for compliance purposes. Not included in original
                      distribution.
                      Explicit masking in writeBigEndian to satisfy MSVC run time checks.
                      Include path rewriting to build properly in the Skia tree.
 Update Mechanism: Manual
+
