@@ -263,6 +263,7 @@ static sk_sp<SkSpecialImage> eval_blur_passes(PassMaker* makerX, PassMaker* make
     }
 #endif //SK_AVOID_SLOW_RASTER_PIPELINE_BLURS
 
+    dst.setImmutable();
     dstBounds = originalDstBounds.makeOffset(-dstOrigin); // Make relative to dst's pixels
     return SkSpecialImages::MakeFromRaster(dstBounds, dst, SkSurfaceProps{});
 }
@@ -1623,6 +1624,7 @@ sk_sp<SkSpecialImage> SkShaderBlurAlgorithm::renderBlur(SkRuntimeShaderBuilder* 
                     fastDstRect.right(), dstRect.bottom()});   // Bottom, spanning inner width
     }
 
+    device->setImmutable();
     return device->snapSpecial(subset);
 }
 
