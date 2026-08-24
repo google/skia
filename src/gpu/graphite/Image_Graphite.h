@@ -54,6 +54,13 @@ public:
 
     SkImage_Base::Type type() const override { return SkImage_Base::Type::kGraphite; }
 
+    SkSpan<TextureProxyView> textureProxyViews() override {
+        return SkSpan(&fTextureProxyView, 1);
+    }
+    SkSpan<const TextureProxyView> textureProxyViews() const override {
+        return SkSpan(&fTextureProxyView, 1);
+    }
+
     bool onHasMipmaps() const override {
         return fTextureProxyView.proxy()->mipmapped() == Mipmapped::kYes;
     }

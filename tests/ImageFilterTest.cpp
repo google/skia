@@ -76,6 +76,9 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Surface.h"
+#include "src/gpu/graphite/Image_Graphite.h"
+#include "src/gpu/graphite/Texture.h"
+#include "src/gpu/graphite/TextureProxy.h"
 #include "tools/graphite/GraphiteToolUtils.h"
 #endif
 
@@ -1993,6 +1996,153 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageFilterMakeWithFilter_Graphite,
     };
 
     test_make_with_filter(reporter, createGraphiteSurface, graphite);
+}
+
+// See b/549741762 - Normal image filtering in Graphite creates TextureProxies that are instantiated
+// with scratch resources. The SkImage returned from MakeWithFilter() cannot be scratch, since it
+// is going to the client for likely reuse. If it is assigned a scratch texture, then later
+// recordings may incorrectly overwrite the contents of the scratch texture.
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageFilterMakeWithFilter_ScratchReuse_Graphite,
+                                         reporter, context, CtsEnforcement::kNextRelease) {
+    std::unique_ptr<skgpu::graphite::Recorder> recorder =
+            context->makeRecorder(ToolUtils::CreateTestingRecorderOptions());
+
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(
+            recorder.get(),
+            SkImageInfo::Make({16, 8}, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
+
+    sk_sp<SkImageFilter> filterCyan = SkImageFilters::Shader(SkShaders::Color(SK_ColorCYAN));
+    sk_sp<SkImageFilter> filterMagenta = SkImageFilters::Shader(SkShaders::Color(SK_ColorMAGENTA));
+
+    // First, make the cyan image filter result, where we also draw the resulting SkImage in the
+    // same Recorder that produced it. Before fixing b/549741762, this tricked the
+    // ScratchResourceManager into instantiating it as a scratch texture.
+    sk_sp<SkImage> cyanFilterImage;
+    SkIRect cyanSubset;
+    SkIPoint cyanOffset;
+    {
+        // NOTE The source image is ignored for these solid-color image filters.
+        cyanFilterImage = SkImages::MakeWithFilter(recorder.get(),
+                                                   surface->makeTemporaryImage(),
+                                                   filterCyan.get(),
+                                                   surface->imageInfo().bounds(),
+                                                   SkIRect::MakeWH(8, 8),
+                                                   &cyanSubset,
+                                                   &cyanOffset);
+        REPORTER_ASSERT(reporter, SkToBool(cyanFilterImage));
+
+        if (cyanFilterImage) {
+            // Like other image factories returning Graphite-backed SkImages to a client, the
+            // underlying TextureProxy should be instantiated upon return, be non-shareable, and
+            // be non-budgeted.
+            REPORTER_ASSERT(reporter,
+                            as_IB(cyanFilterImage)->type() == SkImage_Base::Type::kGraphite);
+            auto graphiteImage = static_cast<skgpu::graphite::Image*>(cyanFilterImage.get());
+            auto proxy = graphiteImage->textureProxyView().proxy();
+            REPORTER_ASSERT(reporter, proxy->isInstantiated());
+            if (proxy->isInstantiated()) {
+                REPORTER_ASSERT(reporter, proxy->texture()->budgeted() == skgpu::Budgeted::kNo);
+                REPORTER_ASSERT(reporter,
+                                proxy->texture()->shareable() == skgpu::graphite::Shareable::kNo);
+            }
+        }
+
+        // Now draw back to surface at (0,0), which should fill left half with cyan.
+        surface->getCanvas()->drawImageRect(cyanFilterImage.get(),
+                                            SkRect::Make(cyanSubset),
+                                            SkRect::Make(SkIRect::MakePtSize(cyanOffset,
+                                                                             cyanSubset.size())),
+                                            SkFilterMode::kNearest,
+                                            nullptr,
+                                            SkCanvas::kStrict_SrcRectConstraint);
+        // Snap the Recording and insert it to prepare the resources used by MakeWithFilter()
+        std::unique_ptr<skgpu::graphite::Recording> recording = recorder->snap();
+        REPORTER_ASSERT(reporter, SkToBool(recording));
+        skgpu::graphite::InsertRecordingInfo insertInfo;
+        insertInfo.fRecording = recording.get();
+        context->insertRecording(insertInfo);
+    }
+
+    // Second, use the magenta image filter as part of a save layer to render into the right half
+    // of the surface with a texture that definitely should be classified as scratch.
+    {
+        SkCanvas* canvas = surface->getCanvas();
+        canvas->save();
+        canvas->clipIRect({8, 0, 16, 8});
+        SkPaint layerPaint;
+        layerPaint.setImageFilter(filterMagenta);
+        canvas->saveLayer(nullptr, &layerPaint);
+        canvas->restore();
+        canvas->restore();
+
+        // Snap the Recording and insert it to instantiate the layer's scratch texture. The layer's
+        // scratch texture and the cyanFilterImage result were crafted to be the same size. If the
+        // latter was incorrectly instantiated as a scratch texture, its contents will be replaced
+        // with magenta. Future use of cyanFilterImage will then draw incorrectly.
+        std::unique_ptr<skgpu::graphite::Recording> recording = recorder->snap();
+        REPORTER_ASSERT(reporter, SkToBool(recording));
+        skgpu::graphite::InsertRecordingInfo insertInfo;
+        insertInfo.fRecording = recording.get();
+        context->insertRecording(insertInfo);
+    }
+
+    // Redraw the cyan image on both the left and right-hand side. If everything works correctly,
+    // this should be a no-op for the left side and replace the RHS with cyan to leave `surface`
+    // completely cyan. If the image was corrupted, the LHS will turn magenta instead.
+    // (and if it's neither solid cyan (correct) or solid magenta (expected corruption), then
+    //  something extra bad is happening!)
+    {
+        SkCanvas* canvas = surface->getCanvas();
+        canvas->save();
+        surface->getCanvas()->drawImageRect(cyanFilterImage.get(),
+                                            SkRect::Make(cyanSubset),
+                                            SkRect::Make(SkIRect::MakePtSize(cyanOffset,
+                                                                             cyanSubset.size())),
+                                            SkFilterMode::kNearest,
+                                            nullptr,
+                                            SkCanvas::kStrict_SrcRectConstraint);
+        canvas->translate(8, 0);
+        surface->getCanvas()->drawImageRect(cyanFilterImage.get(),
+                                            SkRect::Make(cyanSubset),
+                                            SkRect::Make(SkIRect::MakePtSize(cyanOffset,
+                                                                             cyanSubset.size())),
+                                            SkFilterMode::kNearest,
+                                            nullptr,
+                                            SkCanvas::kStrict_SrcRectConstraint);
+        canvas->restore();
+
+        // Insert the recording before doing the test readback
+        std::unique_ptr<skgpu::graphite::Recording> recording = recorder->snap();
+        REPORTER_ASSERT(reporter, SkToBool(recording));
+        skgpu::graphite::InsertRecordingInfo insertInfo;
+        insertInfo.fRecording = recording.get();
+        context->insertRecording(insertInfo);
+    }
+
+    // Readback and confirm the image is cyan
+    SkBitmap dst;
+    dst.allocPixels(surface->imageInfo());
+    if (!surface->readPixels(dst, 0, 0)) {
+        SKIA_LOG_D("Read pixels failed"); // Probably a protected context
+        return;
+    }
+
+    bool allCyan = true;
+    bool allMagenta = true;
+    for (int y = 0; y < dst.height(); ++y) {
+        for (int x = 0; x < dst.width(); ++x) {
+            SkColor c = dst.getColor(x, y);
+            if (c != SK_ColorCYAN) {
+                allCyan = false;
+            }
+            if (c != SK_ColorMAGENTA) {
+                allMagenta = false;
+            }
+        }
+    }
+    SkASSERT(!(allCyan && allMagenta)); // That would be a superposition of colors...
+    REPORTER_ASSERT(reporter, allCyan,
+                    "MakeWithFilter image was corrupted, all magenta = %d", allMagenta);
 }
 
 #endif

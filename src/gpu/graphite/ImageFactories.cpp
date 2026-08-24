@@ -399,12 +399,20 @@ sk_sp<SkImage> MakeWithFilter(Recorder* recorder,
     }
 
     sk_sp<skif::Backend> backend = skif::MakeGraphiteBackend(recorder, {}, src->colorType());
-    return as_IFB(filter)->makeImageWithFilter(std::move(backend),
-                                               std::move(src),
-                                               subset,
-                                               clipBounds,
-                                               outSubset,
-                                               offset);
+    sk_sp<SkImage> image = as_IFB(filter)->makeImageWithFilter(std::move(backend),
+                                                               std::move(src),
+                                                               subset,
+                                                               clipBounds,
+                                                               outSubset,
+                                                               offset);
+    // The skif backend creates budgeted, scratch textures. This is what we want most of the time,
+    // but for the final result image returned from MakeWithFilter(), it needs to be a non-budgeted
+    // non-shareable texture (i.e. matching what we return from the other factory methods).
+    if (image) {
+        SkASSERT(as_IB(image)->isGraphiteBacked());
+        image = static_cast<Image_Base*>(image.get())->makeNonBudgeted(recorder);
+    }
+    return image;
 }
 
 static sk_sp<SkImage> generate_picture_texture(Recorder* recorder,

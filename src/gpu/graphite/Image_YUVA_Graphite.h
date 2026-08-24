@@ -40,6 +40,9 @@ public:
 
     size_t textureSize() const override;
 
+    SkSpan<TextureProxyView> textureProxyViews() override { return SkSpan(fProxies); }
+    SkSpan<const TextureProxyView> textureProxyViews() const override { return SkSpan(fProxies); }
+
     bool onHasMipmaps() const override { return fMipmapped == Mipmapped::kYes; }
 
     bool onIsProtected() const override { return fProtected == Protected::kYes; }
