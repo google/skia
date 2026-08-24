@@ -1,4 +1,4 @@
-FROM gcr.io/skia-public/debugger-app-base@sha256:816871cb56dfc040d7282caa69a61194cb564be939d94a700f2bf0a39f6cf05c
+FROM gcr.io/skia-public/debugger-app-base@sha256:4ab9cd4f66b2d6dfc80fcb9f8780eb40c9343ec89b3222ebd756d3e527c9a3c0
 
 COPY canvaskit.js /usr/local/share/debugger-app/canvaskit.js
 COPY canvaskit.wasm /usr/local/share/debugger-app/canvaskit.wasm
