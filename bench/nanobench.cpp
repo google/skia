@@ -359,6 +359,7 @@ struct GraphiteTarget : public Target {
             }
         }
     }
+
     void submitWorkAndSyncCPU() override {
         if (context && recorder) {
             // TODO: have a way to sync work with out submitting a Recording which is currently
@@ -544,6 +545,10 @@ static int setup_cpu_bench(const double overhead, Target* target, Benchmark* ben
 }
 
 static int setup_gpu_bench(Target* target, Benchmark* bench, int maxGpuFrameLag) {
+    // Fire off an initial draw to compile all the Pipelines
+    time(1, bench, target);
+    target->submitWorkAndSyncCPU();
+
     // First, figure out how many loops it'll take to get a frame up to FLAGS_gpuMs.
     int loops = bench->shouldLoop() ? FLAGS_loops : 1;
     if (kAutoTuneLoops == loops) {
