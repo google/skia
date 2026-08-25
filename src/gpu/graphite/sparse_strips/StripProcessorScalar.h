@@ -814,7 +814,9 @@ private:
 #if defined(GPU_TEST_UTILS)
     SK_ALWAYS_INLINE void observePixel(int32_t row, int32_t column) {
         uint8_t exactMask = 0;
+        skvx::int8 winding(0);
         for (int32_t k = 0; k < Strip::kNumSubSamples; ++k) {
+            winding[k] = static_cast<int8_t>(fSubsampleWinding[row][column][k]);
             if (ShouldFill(fSubsampleWinding[row][column][k])) {
                 exactMask |= (1 << k);
             }
@@ -822,7 +824,7 @@ private:
         if (fIsInverse) {
             exactMask = ~exactMask & ((1 << Strip::kNumSubSamples) - 1);
         }
-        fObserver(exactMask);
+        fObserver(exactMask, winding);
     }
 #endif
 

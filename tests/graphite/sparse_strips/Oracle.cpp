@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "tests/graphite/sparse_strips/CoverageTestUtils.h"
+#include "tests/graphite/sparse_strips/Oracle.h"
 
 #include "include/core/SkPath.h"
 #include "include/core/SkPathTypes.h"
@@ -13,6 +13,7 @@
 #include "include/core/SkRect.h"
 #include "src/core/SkCubics.h"
 #include "src/core/SkQuads.h"
+#include "src/core/SkVx.h"
 #include "src/gpu/graphite/sparse_strips/MSAA_LUT.h"
 
 #include <algorithm>

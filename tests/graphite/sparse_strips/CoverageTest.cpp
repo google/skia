@@ -5,11 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkCanvas.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
+#include "include/core/SkPathUtils.h"
+#include "include/core/SkPicture.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/private/SkTDArray.h"
 #include "src/gpu/graphite/sparse_strips/Flatten.h"
@@ -19,140 +23,27 @@
 #include "src/gpu/graphite/sparse_strips/Strip.h"
 #include "src/gpu/graphite/sparse_strips/Tiler.h"
 #include "tests/Test.h"
+#include "tests/graphite/sparse_strips/CoverageTestUtils.h"
+#include "tests/graphite/sparse_strips/SkpValidator.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstdint>
+#include <vector>
 
 namespace skgpu::graphite {
 
-namespace {
-
-// Simplified point-in-polygon verification using Even-Odd rule.
-bool is_inside(SkPoint pt, const Polyline& polyline) {
-    bool inside = false;
-    for (auto it = polyline.begin(); it != polyline.end(); ++it) {
-        auto [line, idx] = *it;
-        if ((line.p0.fY > pt.fY) != (line.p1.fY > pt.fY)) {
-            float t = (pt.fY - line.p0.fY) / (line.p1.fY - line.p0.fY);
-            float xInt = line.p0.fX + t * (line.p1.fX - line.p0.fX);
-            if (pt.fX < xInt) {
-                inside = !inside;
-            }
-        }
-    }
-    return inside;
-}
-
-bool is_near_line(SkPoint pt, const Polyline& polyline, float threshold) {
-    for (auto it = polyline.begin(); it != polyline.end(); ++it) {
-        auto [line, idx] = *it;
-        float l2 = (line.p0.fX - line.p1.fX) * (line.p0.fX - line.p1.fX) +
-                   (line.p0.fY - line.p1.fY) * (line.p0.fY - line.p1.fY);
-        float dist = 0.0f;
-        if (l2 == 0.0f) {
-            float dx = pt.fX - line.p0.fX;
-            float dy = pt.fY - line.p0.fY;
-            dist = std::sqrt(dx * dx + dy * dy);
-        } else {
-            float t = std::max(0.0f,
-                               std::min(1.0f,
-                                        ((pt.fX - line.p0.fX) * (line.p1.fX - line.p0.fX) +
-                                         (pt.fY - line.p0.fY) * (line.p1.fY - line.p0.fY)) /
-                                                l2));
-            float projX = line.p0.fX + t * (line.p1.fX - line.p0.fX);
-            float projY = line.p0.fY + t * (line.p1.fY - line.p0.fY);
-            dist = std::sqrt((pt.fX - projX) * (pt.fX - projX) +
-                             (pt.fY - projY) * (pt.fY - projY));
-        }
-        if (dist <= threshold) return true;
-    }
-    return false;
-}
-
-template <uint16_t kTileWidth, uint16_t kTileHeight>
-void print_diagnostics(skiatest::Reporter* reporter,
-                      const Polyline& polyline,
-                      const Tiles<kTileWidth, kTileHeight>& tiler,
-                      int failX,
-                      int failY,
-                      const SkTDArray<uint8_t>& actualMasks,
-                      size_t tileStartIdx) {
-    SkString out("\n--- FAILURE DIAGNOSTICS ---\n");
-
-    out.append("Geometry Lines: {\n");
-    for (auto it = polyline.begin(); it != polyline.end(); ++it) {
-        auto [l, idx] = *it;
-        out.appendf("  {{%f, %f}, {%f, %f}},\n", l.p0.fX, l.p0.fY, l.p1.fX, l.p1.fY);
-    }
-    out.append("}\n\n");
-
-    out.append("Tile Intersections:\n");
-    for (const auto& tile : tiler.getTiles()) {
-        uint32_t mask = tile.intersectionMask();
-        uint32_t lineIdx = tile.lineIdx();
-        out.appendf("  Tile(%u,%u) Line %u Mask: %s\n",
-                    tile.x,
-                    tile.y,
-                    lineIdx,
-                    IntersectionBits::MaskToString(mask).c_str());
-    }
-
-    out.appendf("\nASCII Map Tile(%d,%d) [Left: Expected | Right: Actual]\n",
-                failX / kTileWidth,
-                failY / kTileHeight);
-    SkString border("+");
-    for (int x = 0; x < kTileWidth; ++x) border.append("----------------+");
-
-    for (int y = 0; y < kTileHeight; ++y) {
-        out.appendf("%s   %s\n", border.c_str(), border.c_str());
-        for (int sy = 0; sy < 8; ++sy) {
-            for (int side = 0; side < 2; ++side) {  // 0: Expected, 1: Actual
-                out.append("|");
-                for (int x = 0; x < kTileWidth; ++x) {
-                    for (int sx = 0; sx < 8; ++sx) {
-                        SkPoint cp = {failX + x + (sx + 0.5f) / 8.0f,
-                                      failY + y + (sy + 0.5f) / 8.0f};
-                        bool onLine = is_near_line(cp, polyline, 0.6f / 8.0f);
-                        bool active = false;
-
-                        if (side == 0) {
-                            active = is_inside(cp, polyline);
-                        } else {
-                            int32_t bufIdx = tileStartIdx + (y * kTileWidth + x);
-                            uint8_t mask =
-                                    (bufIdx < actualMasks.size()) ? actualMasks[bufIdx] : 0;
-                            active = (mask & (1 << sy));
-                        }
-
-                        if (MSAA_LUT<uint8_t>::kPattern[sy] == sx) {
-                            out.append(active ? (onLine ? "*#" : " #")
-                                              : (onLine ? "*o" : " o"));
-                        } else {
-                            out.append(onLine ? "**" : "  ");
-                        }
-                    }
-                    out.append("|");
-                }
-                if (side == 0) out.append("   ");
-            }
-            out.append("\n");
-        }
-    }
-    out.appendf("%s   %s\n", border.c_str(), border.c_str());
-    INFOF(reporter, "%s", out.c_str());
-}
-
-}  // namespace
-
 template <uint16_t kTileWidth, uint16_t kTileHeight> class CoverageTestRunner {
 public:
-    static constexpr float kTileWidthF        = static_cast<float>(kTileWidth);
-    static constexpr float kTileHeightF       = static_cast<float>(kTileHeight);
-    static constexpr uint32_t kViewportWidth  = 400;
+    static constexpr float kTileWidthF = static_cast<float>(kTileWidth);
+    static constexpr float kTileHeightF = static_cast<float>(kTileHeight);
+    static constexpr uint32_t kViewportWidth = 400;
     static constexpr uint32_t kViewportHeight = 400;
-    static constexpr float kViewportWidthF    = static_cast<float>(kViewportWidth);
-    static constexpr float kViewportHeightF   = static_cast<float>(kViewportHeight);
+    static constexpr float kViewportWidthF = static_cast<float>(kViewportWidth);
+    static constexpr float kViewportHeightF = static_cast<float>(kViewportHeight);
 
     using StripFunc = void (*)(const Tiles<kTileWidth, kTileHeight>&,
                                SkTDArray<Strip>* stripBuf,
@@ -208,10 +99,10 @@ public:
         };
 
         addRect(kTileWidthF * 0.5f, kTileHeightF * 0.5f, "Rect(Small)");
-        addRect(kTileWidthF,        kTileHeightF,        "Rect(ExactTile)");
+        addRect(kTileWidthF, kTileHeightF, "Rect(ExactTile)");
         addRect(kTileWidthF * 2.5f, kTileHeightF * 1.5f, "Rect(MultiTile)");
-        addRect(kTileWidthF * 4.0f, 0.2f,                "Rect(HorizSliver)");
-        addRect(0.2f,               kTileHeightF * 4.0f, "Rect(VertSliver)");
+        addRect(kTileWidthF * 4.0f, 0.2f, "Rect(HorizSliver)");
+        addRect(0.2f, kTileHeightF * 4.0f, "Rect(VertSliver)");
 
         baseGeometries.push_back(
                 {SkPathBuilder()
@@ -219,23 +110,22 @@ public:
                          .detach(),
                  "Circle"});
 
-        baseGeometries.push_back({
-            SkPathBuilder().addOval(SkRect::MakeWH(kTileWidth * 4.0f, 0.5f)).detach(),
-            "ThinOval"
-        });
+        baseGeometries.push_back(
+                {SkPathBuilder().addOval(SkRect::MakeWH(kTileWidth * 4.0f, 0.5f)).detach(),
+                 "ThinOval"});
 
         SkPathBuilder inset;
         inset.addRect(SkRect::MakeWH(kTileWidthF * 3.0f, kTileHeightF * 3.0f),
-                                     SkPathDirection::kCW);
+                      SkPathDirection::kCW);
         inset.addRect(SkRect::MakeXYWH(kTileWidthF, kTileHeightF, kTileWidthF, kTileHeightF),
-                                       SkPathDirection::kCCW);
+                      SkPathDirection::kCCW);
         baseGeometries.push_back({inset.detach(), "InsetRect"});
 
         // Tile-relative alignments (dx, dy)
         const SkPoint alignments[] = {
-                {0.0f,                0.0f},                  // Top & Left aligned
-                {0.0f,                kTileHeightF * 0.5f},   // Left aligned, offset top
-                {kTileWidthF * 0.5f,  0.0f},                  // Top aligned, offset left
+                {0.0f, 0.0f},                                 // Top & Left aligned
+                {0.0f, kTileHeightF * 0.5f},                  // Left aligned, offset top
+                {kTileWidthF * 0.5f, 0.0f},                   // Top aligned, offset left
                 {kTileWidthF * 0.33f, kTileHeightF * 0.33f},  // Strictly inside
                 {kTileWidthF - 0.01f, kTileHeightF - 0.01f}   // Right on a tile boundary edge
         };
@@ -309,7 +199,7 @@ private:
         SkTDArray<uint8_t> alphaBuf;
         SkTDArray<uint8_t> exactMasks;
 
-        auto observer = [&](uint8_t exactMask) { exactMasks.push_back(exactMask); };
+        auto observer = [&](uint8_t exactMask, skvx::int8) { exactMasks.push_back(exactMask); };
         fFunc(tiler, &stripBuf, &alphaBuf, /*isInverse=*/false, polyline, lut, observer);
 
         if (stripBuf.empty()) {
@@ -339,7 +229,7 @@ private:
                         uint8_t expectedMask = 0;
                         int expectedSamples = 0;
                         for (int k = 0; k < 8; ++k) {
-                            if (is_inside(
+                            if (CoverageTestUtils::PointInPolygon(
                                         {currX + x + (MSAA_LUT<uint8_t>::kPattern[k] + 0.5f) / 8.0f,
                                          currY + y + (k + 0.5f) / 8.0f},
                                         polyline)) {
@@ -380,13 +270,13 @@ private:
                         }
 
                         if (sampleDiff > 3) {
-                            print_diagnostics(reporter,
-                                             polyline,
-                                             tiler,
-                                             currX,
-                                             currY,
-                                             exactMasks,
-                                             tileStartIdx);
+                            CoverageTestUtils::PrintCoverageDiagnostics(reporter,
+                                                                        polyline,
+                                                                        tiler,
+                                                                        currX,
+                                                                        currY,
+                                                                        exactMasks,
+                                                                        tileStartIdx);
                             REPORTER_ASSERT(reporter,
                                             false,
                                             "[%s] Fail at tile(%d,%d). Exp %d, Got %d (alpha %d)",
@@ -435,6 +325,16 @@ DEF_TEST(SparseStrips_CoverageSIMD_8x8, reporter) {
     skgpu::graphite::CoverageTestRunner<8, 8> simdRunner(
             &skgpu::graphite::CoverageTestRunner<8, 8>::RunSimdWinding, "SIMD");
     simdRunner.runAll(reporter);
+}
+
+DEF_TEST(SparseStrips_Coverage_SKP_SIMD_4x4, reporter) {
+    const SkTDArray<uint8_t> lut = GenerateMSAALUT<uint8_t>();
+    SkpValidator::ValidateSkp<4, 4>(reporter, "skps/desk_tiger8svg.skp", lut);
+}
+
+DEF_TEST(SparseStrips_Coverage_SKP_SIMD_8x8, reporter) {
+    const SkTDArray<uint8_t> lut = GenerateMSAALUT<uint8_t>();
+    SkpValidator::ValidateSkp<8, 8>(reporter, "skps/desk_tiger8svg.skp", lut);
 }
 
 }  // namespace skgpu::graphite

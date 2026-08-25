@@ -9,6 +9,7 @@
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
+#include "src/core/SkVx.h"
 
 #include <array>
 #include <cstdint>
@@ -71,7 +72,7 @@ struct IntersectionBits {
 };
 
 #if defined(GPU_TEST_UTILS)
-using MsaaExactMaskObserver = std::function<void(uint8_t exactMask)>;
+using MsaaExactMaskObserver = std::function<void(uint8_t exactMask, skvx::int8 winding)>;
 #endif
 
 } // namespace skgpu::graphite

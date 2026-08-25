@@ -290,6 +290,7 @@ private:
         for (int32_t x = column; x < column + chunkSize; ++x) {
             SwarPixel v = fSubsampleWinding[row][x];
             uint8_t exactMask = 0;
+            skvx::int8 winding(0);
             uint32_t lo = v[0];
             uint32_t hi = v[1];
             for (int s = 0; s < 4; ++s) {
@@ -299,6 +300,8 @@ private:
                     sLo = static_cast<int8_t>(static_cast<uint8_t>(sLo) - 0x80);
                     sHi = static_cast<int8_t>(static_cast<uint8_t>(sHi) - 0x80);
                 }
+                winding[s] = sLo;
+                winding[s + 4] = sHi;
                 if (ShouldFill(sLo)) exactMask |= (1 << s);
                 if (ShouldFill(sHi)) exactMask |= (1 << (s + 4));
                 lo >>= 8;
@@ -307,7 +310,7 @@ private:
             if (fIsInverse) {
                 exactMask = ~exactMask & ((1 << Strip::kNumSubSamples) - 1);
             }
-            fObserver(exactMask);
+            fObserver(exactMask, winding);
         }
     }
 #endif

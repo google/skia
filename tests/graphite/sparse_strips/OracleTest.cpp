@@ -15,7 +15,7 @@
 #include "src/core/SkRandom.h"
 #include "src/core/SkVx.h"
 #include "src/gpu/graphite/sparse_strips/MSAA_LUT.h"
-#include "tests/graphite/sparse_strips/CoverageTestUtils.h"
+#include "tests/graphite/sparse_strips/Oracle.h"
 
 #include <algorithm>
 #include <vector>
