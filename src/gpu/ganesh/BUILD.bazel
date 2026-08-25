@@ -336,6 +336,7 @@ skia_cc_library_with_testutil(
         "//modules/skcms",
         "//src/core:core_priv",
         "//src/gpu",
+        "//src/partition_alloc:raw_ptr",
         "//src/sksl/codegen:gpu",
     ],
 )
