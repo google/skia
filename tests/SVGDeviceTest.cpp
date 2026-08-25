@@ -401,6 +401,7 @@ DEF_TEST(SVGDevice_ColorFilters, reporter) {
     REPORTER_ASSERT(reporter, atoi(dom.findAttr(floodElement, "flood-opacity")) == 1);
 
     REPORTER_ASSERT(reporter, strcmp(dom.findAttr(compositeElement, "in"), "flood") == 0);
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(compositeElement, "in2"), "SourceGraphic") == 0);
     REPORTER_ASSERT(reporter, strcmp(dom.findAttr(compositeElement, "operator"), "in") == 0);
 }
 

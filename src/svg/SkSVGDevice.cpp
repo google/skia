@@ -495,9 +495,10 @@ void SkSVGDevice::AutoElement::addColorFilterResources(const SkColorFilter& cf,
         }
 
         {
-            // apply the transform to filter color
+            // composite with the source
             AutoElement compositeElement("feComposite", *this);
             compositeElement.addAttribute("in", "flood");
+            compositeElement.addAttribute("in2", "SourceGraphic");
             compositeElement.addAttribute("operator", "in");
         }
     }
