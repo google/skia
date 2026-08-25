@@ -8,10 +8,10 @@
 #ifndef SkSVGDevice_DEFINED
 #define SkSVGDevice_DEFINED
 
+#include "include/core/SkCPURecorder.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
-#include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTypeTraits.h"
 #include "include/svg/SkSVGCanvas.h"
@@ -62,6 +62,10 @@ public:
 
     void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override;
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override;
+
+    SkRecorder* baseRecorder() const override {
+        return skcpu::Recorder::TODO();
+    }
 
 private:
     SkSVGDevice(const SkISize& size, std::unique_ptr<SkXMLWriter>, SkSVGCanvas::Options);
