@@ -136,6 +136,12 @@ struct SK_API ContextOptions {
 #endif
 
     /**
+     * Enabling switches Graphite from the existing sort-based draw ordering to the new layer-based
+     * system.
+     */
+    bool fUseDrawListLayer = false;
+
+    /**
      * Client-provided context that is passed to the client-provided PipelineCachingCallback
      * and the (deprecated) PipelineCallback.
      */

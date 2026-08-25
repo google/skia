@@ -70,6 +70,9 @@ void Caps::finishInitialization(const ContextOptions& options) {
     fRequireOrderedRecordings = options.fRequireOrderedRecordings;
     fSetBackendLabels = options.fSetBackendLabels;
     fAvoidDepthMode = options.fAvoidDepthMode;
+
+    // Enable setting this flag from either the private or public context options.
+    fDrawListLayer |= options.fUseDrawListLayer;
 }
 
 sk_sp<SkCapabilities> Caps::capabilities() const { return fCapabilities; }
