@@ -45,6 +45,7 @@ skia_cc_library(
     ],
     deps = [
         "//modules/skcms",  # Needed to implement SkRasterPipeline_opts.h
+        "//src/partition_alloc:raw_ptr",
         "@skia_user_config//:user_config",
     ],
 )
@@ -68,6 +69,7 @@ skia_cc_library(
     ],
     deps = [
         "//modules/skcms",  # Needed to implement SkRasterPipeline_opts.h
+        "//src/partition_alloc:raw_ptr",
         "@skia_user_config//:user_config",
     ],
 )
