@@ -34,23 +34,6 @@ static inline void transform_scanline_A8_to_GrayAlpha(char* dst, const char* src
     }
 }
 
-static inline sk_sp<SkData> icc_from_color_space(const SkColorSpace* cs) {
-    if (!cs) {
-        return nullptr;
-    }
-    skcms_Matrix3x3 toXYZD50;
-    if (cs->toXYZD50(&toXYZD50)) {
-        skcms_TransferFunction fn;
-        cs->transferFn(&fn);
-        return SkWriteICCProfile(fn, toXYZD50);
-    }
-    return nullptr;
-}
-
-static inline sk_sp<SkData> icc_from_color_space(const SkImageInfo& info) {
-    return icc_from_color_space(info.colorSpace());
-}
-
 static inline sk_sp<SkData> exif_from_origin(const SkEncodedOrigin origin) {
     SkExif::Metadata metadata;
     metadata.fOrigin = origin;

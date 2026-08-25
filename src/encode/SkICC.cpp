@@ -15,6 +15,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkFixed.h"
 #include "include/private/SkFloatingPoint.h"
+#include "include/private/SkHdrMetadata.h"
 #include "modules/skcms/skcms.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkEndian.h"
@@ -682,7 +683,17 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_ICCProfile* profile, const char* des
     return SkData::MakeFromMalloc(profile_data.release(), profile_size);
 }
 
-sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction& fn, const skcms_Matrix3x3& toXYZD50) {
+sk_sp<SkData> SkWriteICCProfile(const SkColorSpace* colorSpace,
+                                const skhdr::Metadata* /*hdrMetadata*/) {
+    if (!colorSpace) {
+        return nullptr;
+    }
+
+    skcms_TransferFunction fn;
+    skcms_Matrix3x3 toXYZD50;
+    colorSpace->transferFn(&fn);
+    colorSpace->toXYZD50(&toXYZD50);
+
     skcms_ICCProfile profile;
     memset(&profile, 0, sizeof(profile));
     std::vector<uint16_t> trc_table;
@@ -822,4 +833,8 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction& fn, const skcms_Ma
 
     std::string description = get_desc_string(fn, toXYZD50);
     return SkWriteICCProfile(&profile, description.c_str());
+}
+
+sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction& fn, const skcms_Matrix3x3& toXYZD50) {
+    return SkWriteICCProfile(SkColorSpace::MakeRGB(fn, toXYZD50).get(), nullptr);
 }

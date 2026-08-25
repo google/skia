@@ -281,7 +281,7 @@ std::unique_ptr<SkEncoder> SkPngRustEncoderImpl::Make(SkWStream* dst,
     sk_sp<SkData> encodedProfile;
     rust::Slice<const uint8_t> encodedProfileSlice;
     if (const SkColorSpace* colorSpace = src.colorSpace(); colorSpace && !colorSpace->isSRGB()) {
-        encodedProfile = icc_from_color_space(colorSpace);
+        encodedProfile = SkWriteICCProfile(colorSpace);
         if (encodedProfile) {
             encodedProfileSlice =
                     rust::Slice<const uint8_t>(encodedProfile->bytes(), encodedProfile->size());

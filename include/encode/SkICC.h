@@ -13,11 +13,20 @@
 
 #include <cstdint>
 
+class SkColorSpace;
 class SkData;
 struct skcms_ICCProfile;
 struct skcms_Matrix3x3;
 struct skcms_TransferFunction;
 
+namespace skhdr {
+class Metadata;
+}
+
+SK_API sk_sp<SkData> SkWriteICCProfile(const SkColorSpace*,
+                                       const skhdr::Metadata* = nullptr);
+
+// TODO: Remove this function and change callers to the SkColorSpace version.
 SK_API sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction&,
                                        const skcms_Matrix3x3& toXYZD50);
 
