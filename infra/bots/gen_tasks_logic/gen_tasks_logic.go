@@ -1751,6 +1751,8 @@ func (b *jobBuilder) dm() {
 			b.timeout(6 * time.Hour)
 		} else if b.MatchOs("Mac14") {
 			b.timeout(30 * time.Minute)
+		} else if b.MatchOs("Win") && b.MatchModel("NUC") && b.MatchGpu("Intel") {
+			b.timeout(5 * time.Hour)
 		}
 		b.maybeAddIosDevImage()
 	})
