@@ -614,6 +614,13 @@ void ImageShaderBlock::AddBlock(const KeyContext& keyContext, const ImageData& i
             : imgData.fImmutableSamplerInfo;
     auto tileModeWithSubstitution = doTilingInHw ? imgData.fTileModes :
                                     std::make_pair(SkTileMode::kClamp, SkTileMode::kClamp);
+
+    // If we're a read only texture, we should have no mipmapping and kNearest sampling.
+    SkASSERT(!imgData.fTextureProxy ||
+             !caps->isReadable(imgData.fTextureProxy->textureInfo()) ||
+             caps->isTexturable(imgData.fTextureProxy->textureInfo()) ||
+             imgData.fSampling == SkSamplingOptions(SkFilterMode::kNearest, SkMipmapMode::kNone));
+
     SamplerDesc samplerDesc{imgData.fSampling, tileModeWithSubstitution, info};
     keyContext.pipelineDataGatherer()->add(imgData.fTextureProxy, samplerDesc);
     add_sampler_data_to_key(keyContext, samplerDesc);
@@ -2002,7 +2009,8 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
         // however we want to filter at a fixed point for each logical image pixel to simulate
         // nearest neighbor. In the shader we detect that the UV filtermode doesn't match the Y
         // filtermode, and snap to Y pixel centers.
-        if (imgData.fSampling.filter == SkFilterMode::kNearest) {
+        if (imgData.fSampling.filter == SkFilterMode::kNearest &&
+            keyContext.caps()->isTexturable(view.proxy()->textureInfo())) {
             imgData.fSamplingUV = SkSamplingOptions(SkFilterMode::kLinear,
                                                     imgData.fSampling.mipmap);
             // Consider a logical image pixel at the edge of the subset. When computing the logical

@@ -1171,6 +1171,27 @@ void run_texture_format_test(skiatest::Reporter* r, const Caps* caps, TextureFor
                         REPORTER_ASSERT(r, format != TextureInfoPriv::ViewFormat(renderableInfo));
                     }
 
+                    // Test sampled and readable copy info
+                    TextureInfo sampledInfo = caps->getDefaultSampledTextureInfo(
+                            ct, Mipmapped::kNo, Protected::kNo, Renderable::kNo);
+                    if (sampledInfo.isValid() &&
+                        TextureInfoPriv::ViewFormat(sampledInfo) == format) {
+                        REPORTER_ASSERT(r, caps->isTexturable(sampledInfo));
+                        REPORTER_ASSERT(r, caps->isReadable(sampledInfo));
+                        TextureInfo copyInfo = caps->getTextureInfoForSampledCopy(
+                                sampledInfo, Mipmapped::kNo);
+                        REPORTER_ASSERT(r, copyInfo.isValid());
+                    }
+
+                    TextureInfo readableInfo = caps->getDefaultReadableTextureInfo(
+                            ct, Protected::kNo);
+                    if (readableInfo.isValid() &&
+                        TextureInfoPriv::ViewFormat(readableInfo) == format) {
+                        REPORTER_ASSERT(r, caps->isReadable(readableInfo));
+                        TextureInfo copyInfo = caps->getTextureInfoForReadableCopy(readableInfo);
+                        REPORTER_ASSERT(r, copyInfo.isValid());
+                    }
+
                     // Test all combinations of alpha type x 2 (texture vs cpu) and whether or not
                     // colorspace conversions are handled in the transfer.
                     static constexpr int kAlphaTypeCount = (int) kLastEnum_SkAlphaType + 1;

@@ -650,18 +650,28 @@ std::pair<sk_sp<SkImage>, SkSamplingOptions> GetGraphiteBacked(Recorder* recorde
 
     if (imageIn->dimensions().area() <= 1 && mipmapped == Mipmapped::kYes) {
         mipmapped = Mipmapped::kNo;
-        sampling = SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone);
+        sampling = SkSamplingOptions(SkFilterMode::kLinear);
     }
 
     sk_sp<SkImage> result;
     if (as_IB(imageIn)->isGraphiteBacked()) {
         result = sk_ref_sp(imageIn);
 
-        // If the preexisting Graphite-backed image doesn't have the required mipmaps we will drop
-        // down the sampling
-        if (mipmapped == Mipmapped::kYes && !result->hasMipmaps()) {
-            mipmapped = Mipmapped::kNo;
-            sampling = SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone);
+        // If the preexisting Graphite-backed image isn't texturable or doesn't have the required
+        // mipmaps, we drop down the sampling
+        const auto graphiteImage = static_cast<const Image_Base*>(result.get());
+        bool isTexturable = true;
+        for (const TextureProxyView& view : graphiteImage->textureProxyViews()) {
+            if (view && !recorder->priv().caps()->isTexturable(view.proxy()->textureInfo())) {
+                isTexturable = false;
+                break;
+            }
+        }
+
+        if (!isTexturable) {
+            sampling = SkSamplingOptions(SkFilterMode::kNearest);
+        } else if (mipmapped == Mipmapped::kYes && !result->hasMipmaps()) {
+            sampling = SkSamplingOptions(SkFilterMode::kLinear);
         }
     } else {
         auto clientImageProvider = recorder->clientImageProvider();

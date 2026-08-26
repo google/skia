@@ -165,6 +165,14 @@ bool Caps::isTexturable(const TextureInfo& info, bool allowMSAA) const {
                              /*allowProtected=*/true);
 }
 
+bool Caps::isReadable(const TextureInfo& info, bool allowMSAA) const {
+    return this->isSupported(info, TextureUsage::kRead,
+                             allowMSAA,
+                             /*allowExternal=*/true,
+                             /*allowCompressed=*/true,
+                             /*allowProtected=*/true);
+}
+
 bool Caps::isRenderable(const TextureInfo& info) const {
     return this->isSupported(info, TextureUsage::kRender,
                              /*allowMSAA=*/true,
@@ -296,12 +304,36 @@ TextureInfo Caps::getDefaultSampledTextureInfo(SkColorType colorType,
                                        Discardable::kNo);
 }
 
+TextureInfo Caps::getDefaultReadableTextureInfo(SkColorType colorType,
+                                                Protected isProtected) const {
+    return this->getDefaultTextureInfo(TextureUsage::kRead |
+                                       TextureUsage::kCopySrc |
+                                       TextureUsage::kCopyDst,
+                                       PreferredTextureFormats(colorType),
+                                       SampleCount::k1,
+                                       Mipmapped::kNo,
+                                       isProtected,
+                                       Discardable::kNo);
+}
+
 TextureInfo Caps::getTextureInfoForSampledCopy(const TextureInfo& info, Mipmapped mipmapped) const {
     const TextureFormat format = TextureInfoPriv::ViewFormat(info);
     return this->getDefaultTextureInfo(kDefaultSampledUsage,
                                        SkSpan(&format, 1),
                                        SampleCount::k1,
                                        mipmapped,
+                                       info.isProtected(),
+                                       Discardable::kNo);
+}
+
+TextureInfo Caps::getTextureInfoForReadableCopy(const TextureInfo& info) const {
+    const TextureFormat format = TextureInfoPriv::ViewFormat(info);
+    return this->getDefaultTextureInfo(TextureUsage::kRead |
+                                       TextureUsage::kCopySrc |
+                                       TextureUsage::kCopyDst,
+                                       SkSpan(&format, 1),
+                                       SampleCount::k1,
+                                       Mipmapped::kNo,
                                        info.isProtected(),
                                        Discardable::kNo);
 }

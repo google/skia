@@ -115,8 +115,12 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
             continue;
         }
 
-        // At this point, we can claim at least 1 sample is supported
+        // At this point, we can claim at least single sample and read is supported; all valid
+        // formats in WebGPU support TextureBinding (nearest sampling / texel reads).
+        // See https://gpuweb.github.io/gpuweb/#texture-format-caps
+        supportedUsage |= TextureUsage::kRead;
         supportedSampleCounts = SampleCount::k1;
+
         if (formatCaps & DawnFormatFlag::Filter) {
             supportedUsage |= TextureUsage::kSample;
         }
@@ -172,7 +176,7 @@ std::pair<SkEnumBitMask<TextureUsage>, Tiling> DawnCaps::getTextureUsage(
             }
         }
         if (dawnInfo.fUsage & wgpu::TextureUsage::TextureBinding) {
-            usage |= TextureUsage::kSample;
+            usage |= TextureUsage::kRead | TextureUsage::kSample;
         }
         if (dawnInfo.fUsage & wgpu::TextureUsage::CopySrc) {
             usage |= TextureUsage::kCopySrc;
@@ -200,7 +204,7 @@ TextureInfo DawnCaps::onGetDefaultTextureInfo(SkEnumBitMask<TextureUsage> usage,
 
     wgpu::TextureUsage dawnUsage = wgpu::TextureUsage::None;
 
-    if (usage & TextureUsage::kSample) {
+    if (usage & (TextureUsage::kSample | TextureUsage::kRead)) {
         dawnUsage |= wgpu::TextureUsage::TextureBinding;
     }
     if (usage & TextureUsage::kStorage) {

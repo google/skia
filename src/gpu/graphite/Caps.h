@@ -159,7 +159,11 @@ public:
                                              Protected,
                                              Renderable) const;
 
+    TextureInfo getDefaultReadableTextureInfo(SkColorType,
+                                              Protected = Protected::kNo) const;
+
     TextureInfo getTextureInfoForSampledCopy(const TextureInfo&,  Mipmapped) const;
+    TextureInfo getTextureInfoForReadableCopy(const TextureInfo&) const;
 
     TextureInfo getDefaultCompressedTextureInfo(SkTextureCompressionType,
                                                 Mipmapped,
@@ -176,10 +180,11 @@ public:
     // sampled targets to show MSAA isn't supported.
     SampleCount getCompatibleMSAASampleCount(const TextureInfo&) const;
 
-    // If true, the texture can be sampled within a shader (possibly with MSAA, although by default
-    // we consider multisampled textures not to be sampleable because that requires backend-specific
-    // shader code not exposed in SkSL).
+    // If true, the texture can be sampled within a shader with linear filtering.
     bool isTexturable(const TextureInfo&, bool allowMSAA=false) const;
+    // If true, the texture can be read within a shader (via nearest sampling, texel fetch,
+    // or as a readonly proxy for storage buffers).
+    bool isReadable(const TextureInfo&, bool allowMSAA=false) const;
     // If true, the texture can be rasterized and/or resolved to (possibly with MSAA)
     bool isRenderable(const TextureInfo&) const;
     // If true, the texture can be rasterized using multisample-render-to-single-sample features.
