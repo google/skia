@@ -10,6 +10,7 @@
 
 #include "include/core/SkPicture.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
 #include "include/private/SkTArray.h"
 
 #include <atomic>
@@ -40,7 +41,15 @@ public:
         return fIsCurrentlyCapturing;
     }
 
-    skia_private::TArray<sk_sp<SkPicture>> captureDrawTasksForRecording();
+    /**
+     * Snaps and returns draws from tracked canvases whose backing PixelStorage matches any
+     * of the given IDs. This allows callers (such as Recorder::snap()) to isolate and capture draws
+     * for only the subset of active surfaces.
+     *
+     * @param storageIds The PixelStorage IDs of the surfaces whose pending draws should be snapped.
+     */
+    skia_private::TArray<sk_sp<SkPicture>> snapDrawTasksForStorageIDs(
+            SkSpan<const uint32_t> storageIds);
     void onInsertRecording(const skia_private::TArray<sk_sp<SkPicture>>& capturedPictures);
 
     sk_sp<SkCapture> getLastCapture() const;

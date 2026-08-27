@@ -219,8 +219,15 @@ std::unique_ptr<Recording> Recorder::snap() {
                                                        std::move(fFinishedProcs)));
     if (fSharedContext->captureManager() &&
         fSharedContext->captureManager()->isCurrentlyCapturing()) {
+        skia_private::TArray<uint32_t> activeStorageIDs;
+        for (const auto& device : fTrackedDevices) {
+            if (device && device->target().proxy()) {
+                activeStorageIDs.push_back(device->target().proxy()->getPixelStorageId());
+            }
+        }
         skia_private::TArray<sk_sp<SkPicture>> allCaptured = std::move(fCapturedPictures);
-        auto remaining = fSharedContext->captureManager()->captureDrawTasksForRecording();
+        auto remaining = fSharedContext->captureManager()->snapDrawTasksForStorageIDs(
+                activeStorageIDs);
         for (auto& pic : remaining) {
             allCaptured.push_back(std::move(pic));
         }

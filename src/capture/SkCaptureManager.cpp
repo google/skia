@@ -15,6 +15,7 @@
 #include "src/capture/SkCaptureCanvas.h"
 #include "src/image/SkSurface_Base.h"
 
+#include <algorithm>
 #include <memory>
 
 SkCaptureManager::SkCaptureManager() {}
@@ -77,16 +78,28 @@ sk_sp<SkCapture> SkCaptureManager::getLastCapture() const {
    return fLastCapture;
 }
 
-skia_private::TArray<sk_sp<SkPicture>> SkCaptureManager::captureDrawTasksForRecording() {
+skia_private::TArray<sk_sp<SkPicture>> SkCaptureManager::snapDrawTasksForStorageIDs(
+        SkSpan<const uint32_t> storageIds) {
     skia_private::TArray<sk_sp<SkPicture>> snapped;
-    if (!fIsCurrentlyCapturing) {
+    if (!fIsCurrentlyCapturing || storageIds.empty()) {
         return snapped;
     }
 
     for (auto& canvas : fTrackedCanvases) {
-        if (canvas) {
-            auto picture = this->snapAndIncrement(canvas.get());
-            if (picture) {
+        if (!canvas) {
+            continue;
+        }
+        SkSurface* surface = canvas->getBaseCanvasSurface();
+        if (!surface) {
+            continue;
+        }
+        auto storage = asSB(surface)->getPixelStorage();
+        if (!storage) {
+            continue;
+        }
+        uint32_t id = storage->getPixelStorageId();
+        if (std::find(storageIds.begin(), storageIds.end(), id) != storageIds.end()) {
+            if (auto picture = this->snapAndIncrement(canvas.get())) {
                 snapped.push_back(std::move(picture));
             }
         }

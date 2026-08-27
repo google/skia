@@ -234,11 +234,17 @@ void CaptureSlide::draw(SkCanvas* canvas) {
         return;
     }
 
+    // drawCaptureExplorer may update fCurrentAssetIndex if the user clicks on a different asset.
+    // If so, fDebugCanvas must be reset with the newly focused draw commands.
+    int prevAssetIndex = fCurrentAssetIndex;
     drawCaptureExplorer(fCapture.get(),
                         fCurrentAssetIndex,
                         fCurrentRecordingCaptureIndex,
                         fCurrentDrawTaskIndex,
                         fInvalidate);
+    if (prevAssetIndex != fCurrentAssetIndex) {
+        fDebugCanvas.reset();
+    }
 
     auto focusPicture = fCapture->getAsset(fCurrentAssetIndex);
     if (!focusPicture) {
