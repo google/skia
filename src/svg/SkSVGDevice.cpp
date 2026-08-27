@@ -56,8 +56,10 @@
 #include "src/text/GlyphRun.h"
 #include "src/xml/SkXMLWriter.h"
 
+#include <algorithm>
 #include <cstring>
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 
@@ -429,11 +431,7 @@ Resources SkSVGDevice::AutoElement::addResources(const MxCp& mc, const SkPaint& 
     }
 
     if (const SkColorFilter* cf = paint.getColorFilter()) {
-        // TODO: Implement skia color filters for blend modes other than SrcIn
-        SkBlendMode mode;
-        if (cf->asAColorMode(nullptr, &mode) && mode == SkBlendMode::kSrcIn) {
-            this->addColorFilterResources(*cf, &resources);
-        }
+        this->addColorFilterResources(*cf, &resources);
     }
 
     return resources;
@@ -471,6 +469,71 @@ void SkSVGDevice::AutoElement::addGradientShaderResources(const SkShader* shader
 
 void SkSVGDevice::AutoElement::addColorFilterResources(const SkColorFilter& cf,
                                                        Resources* resources) {
+    SkColor filterColor;
+    SkBlendMode bm;
+    if (!cf.asAColorMode(&filterColor, &bm)) {
+        // Only SkColorFilters::Blend is supported currently.
+        return;
+    }
+
+    // Optional final filter effect stage in the chain, used to combine the result of feFlood
+    // with the source.  Different methods are used for different blend modes.
+    enum CompositeMode { kNone, kComposite, kBlend };
+    struct BlendModeInfo {
+        SkBlendMode bm;
+        CompositeMode mode;
+        const char* op = nullptr; // operator (feComposite) or mode (feBlend) attribute.
+        bool swap_inputs = false; // whether the flood/sourcegraphic inputs are swapped
+        std::optional<std::array<float, 4>> coeffs = std::nullopt; // arithmetic coefficients
+    };
+    static constexpr BlendModeInfo gBlendModeInfoMap[] = {
+        // kSrc does not have a feComposite/feBlend operator mapping, but we can achieve the same
+        // result by skipping the final stage.
+        { SkBlendMode::kSrc, kNone },
+
+        // Standard feComposite modes
+        { SkBlendMode::kSrcOver, kComposite, "over" },
+        { SkBlendMode::kSrcIn  , kComposite, "in"   },
+        { SkBlendMode::kSrcOut , kComposite, "out"  },
+        { SkBlendMode::kSrcATop, kComposite, "atop" },
+
+        { SkBlendMode::kDstOver, kComposite, "over", true },
+        { SkBlendMode::kDstIn  , kComposite, "in"  , true },
+        { SkBlendMode::kDstOut , kComposite, "out" , true },
+        { SkBlendMode::kDstATop, kComposite, "atop", true },
+
+        { SkBlendMode::kXor    , kComposite, "xor" },
+
+        // Arithmetic feComposite modes
+        // kPlus = s + d  => K2 = 1 (in/flood), K3 = 1 (in2/SourceGraphic)
+        { SkBlendMode::kPlus,     kComposite, "arithmetic", false, {{0, 1, 1, 0}} },
+        // kModulate = s * d => K1 = 1 (in * in2)
+        { SkBlendMode::kModulate, kComposite, "arithmetic", false, {{1, 0, 0, 0}} },
+
+        // Advanced feBlend modes (Correctly mapping kLighten and others!)
+        { SkBlendMode::kMultiply,   kBlend, "multiply"    },
+        { SkBlendMode::kScreen,     kBlend, "screen"      },
+        { SkBlendMode::kDarken,     kBlend, "darken"      },
+        { SkBlendMode::kLighten,    kBlend, "lighten"     },
+        { SkBlendMode::kOverlay,    kBlend, "overlay"     },
+        { SkBlendMode::kColorDodge, kBlend, "color-dodge" },
+        { SkBlendMode::kColorBurn,  kBlend, "color-burn"  },
+        { SkBlendMode::kHardLight,  kBlend, "hard-light"  },
+        { SkBlendMode::kSoftLight,  kBlend, "soft-light"  },
+        { SkBlendMode::kDifference, kBlend, "difference"  },
+        { SkBlendMode::kExclusion,  kBlend, "exclusion"   },
+        { SkBlendMode::kHue,        kBlend, "hue"         },
+        { SkBlendMode::kSaturation, kBlend, "saturation"  },
+        { SkBlendMode::kColor,      kBlend, "color"       },
+        { SkBlendMode::kLuminosity, kBlend, "luminosity"  },
+    };
+
+    const auto bm_info = std::ranges::find(gBlendModeInfoMap, bm, &BlendModeInfo::bm);
+    if (bm_info == std::end(gBlendModeInfoMap)) {
+        // Unsupported blend mode.
+        return;
+    }
+
     SkString colorfilterID = fResourceBucket->addColorFilter();
     {
         AutoElement filterElement("filter", *this);
@@ -480,26 +543,59 @@ void SkSVGDevice::AutoElement::addColorFilterResources(const SkColorFilter& cf,
         filterElement.addAttribute("width", "100%");
         filterElement.addAttribute("height", "100%");
 
-        SkColor filterColor;
-        SkBlendMode mode;
-        bool asAColorMode = cf.asAColorMode(&filterColor, &mode);
-        SkAssertResult(asAColorMode);
-        SkASSERT(mode == SkBlendMode::kSrcIn);
-
+        // 1. flood to generate the filter color.
         {
-            // first flood with filter color
             AutoElement floodElement("feFlood", *this);
             floodElement.addAttribute("flood-color", svg_color(filterColor));
             floodElement.addAttribute("flood-opacity", svg_opacity(filterColor));
             floodElement.addAttribute("result", "flood");
         }
 
+        // 2. optional compositing stage (feComposite or feBlend depending on blend mode).
         {
-            // composite with the source
-            AutoElement compositeElement("feComposite", *this);
-            compositeElement.addAttribute("in", "flood");
-            compositeElement.addAttribute("in2", "SourceGraphic");
-            compositeElement.addAttribute("operator", "in");
+            std::optional<AutoElement> compositeElement;
+            switch (bm_info->mode) {
+                case kComposite:
+                    compositeElement.emplace("feComposite", *this);
+                    compositeElement->addAttribute("operator", bm_info->op);
+                    if (bm_info->coeffs) {
+                        compositeElement->addAttribute("k1", (*bm_info->coeffs)[0]);
+                        compositeElement->addAttribute("k2", (*bm_info->coeffs)[1]);
+                        compositeElement->addAttribute("k3", (*bm_info->coeffs)[2]);
+                        compositeElement->addAttribute("k4", (*bm_info->coeffs)[3]);
+                    }
+                    break;
+                case kBlend:
+                    compositeElement.emplace("feBlend", *this);
+                    compositeElement->addAttribute("mode", bm_info->op);
+                    break;
+                case kNone:
+                    break;
+            }
+
+            if (compositeElement) {
+                // Normally we composite the flood result against source, but we swap the order
+                // for inverted (kDst*) modes.
+                compositeElement->addAttribute("in",  bm_info->swap_inputs ? "SourceGraphic"
+                                                                           : "flood");
+                compositeElement->addAttribute("in2", bm_info->swap_inputs ? "flood"
+                                                                           : "SourceGraphic");
+            }
+        }
+
+        // 3. optional alpha mask stage to avoid flooding the whole filter area.
+        SkBlendModeCoeff srcCoeff;
+        const bool needs_alpha_mask =
+            // All advanced/non-Porter-Duff modes can leak when dst is transparent.
+            !SkBlendMode_AsCoeff(bm, &srcCoeff, nullptr) ||
+            // For Porter-Duff, dst stays transparent if the source term is
+            // multiplied by destination alpha (kDA) or zero (kZero).
+            (srcCoeff != SkBlendModeCoeff::kDA && srcCoeff != SkBlendModeCoeff::kZero);
+        if (needs_alpha_mask) {
+            AutoElement maskElement("feComposite", *this);
+            // "in" defaults to the preceding stage, either feFlood or feComposite/feBlend.
+            maskElement.addAttribute("in2", "SourceAlpha");
+            maskElement.addAttribute("operator", "in");
         }
     }
     resources->fColorFilter.printf("url(#%s)", colorfilterID.c_str());
