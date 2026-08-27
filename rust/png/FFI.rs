@@ -4,6 +4,13 @@
 
 // avoid issue in G3
 #![allow(unused_attributes)]
+#![allow(clippy::boxed_local)]
+#![allow(clippy::collapsible_if)]
+#![allow(clippy::from_over_into)]
+#![allow(clippy::match_ref_pats)]
+#![allow(clippy::needless_lifetimes)]
+#![allow(clippy::redundant_closure)]
+#![allow(clippy::too_many_arguments)]
 
 //! This crate provides C++ bindings for the `png` Rust crate.
 //!

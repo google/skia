@@ -2,6 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
 
+#![allow(clippy::collapsible_if)]
+#![allow(clippy::extra_unused_lifetimes)]
+#![allow(clippy::get_first)]
+#![allow(clippy::len_zero)]
+#![allow(clippy::needless_lifetimes)]
+#![allow(clippy::redundant_field_names)]
+#![allow(clippy::redundant_guards)]
+#![allow(clippy::too_many_arguments)]
+
 mod base;
 mod bitmap;
 mod colr;

@@ -51,14 +51,14 @@ mod ffi {
 // Re-export the SkStreamAdapter type for use in other modules
 pub use ffi::SkStreamAdapter;
 
-impl<'a> Read for Pin<&'a mut SkStreamAdapter> {
+impl Read for Pin<&mut SkStreamAdapter> {
     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
         let bytes_read = self.as_mut().read(buf);
         Ok(bytes_read)
     }
 }
 
-impl<'a> Seek for Pin<&'a mut SkStreamAdapter> {
+impl Seek for Pin<&mut SkStreamAdapter> {
     fn seek(&mut self, pos: SeekFrom) -> std::io::Result<u64> {
         let mut final_pos: u64 = 0;
         let success = match pos {
