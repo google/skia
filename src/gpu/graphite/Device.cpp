@@ -2479,8 +2479,19 @@ bool Device::drawBlurredRRect(const SkRRect& rrect, const SkPaint& paint, float 
         return true;
     }
 
+    SkRRect rrectToBlur;
+    if (paint.isAntiAlias()) {
+        rrectToBlur = rrect;
+    } else {
+        // Snap the the rounded rectangle to pixel edges to match the behavior of
+        // Device::drawRRect() for non-AA blurs when the AnalyticBlurMask approach isn't supported.
+        rrectToBlur = SkRRect::MakeRectRadii(snap_rect_to_pixels(this->localToDeviceTransform(),
+                                                                 rrect.rect()).asSkRect(),
+                                             rrect.radii().data());
+    }
+
     std::optional<AnalyticBlurMask> analyticBlur = AnalyticBlurMask::Make(
-            this->recorder(), this->localToDeviceTransform(), deviceSigma, rrect);
+            this->recorder(), this->localToDeviceTransform(), deviceSigma, rrectToBlur);
     if (!analyticBlur) {
         return false;
     }
