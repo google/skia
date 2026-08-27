@@ -9,11 +9,14 @@
 #define SkCachedData_DEFINED
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkMalloc.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkNoncopyable.h"
-#include "src/partition_alloc/raw_ptr_exclusion.h"
+#include "include/private/SkTemplates.h"
 
 #include <cstddef>
+#include <memory>
+#include <variant>
 
 class SkDiscardableMemory;
 
@@ -35,32 +38,25 @@ public:
     bool testing_only_isLocked() const { return fIsLocked; }
     bool testing_only_isInCache() const { return fInCache; }
 
-    SkDiscardableMemory* diagnostic_only_getDiscardable() const {
-        return kDiscardableMemory_StorageType == fStorageType ? fStorage.fDM : nullptr;
-    }
+    SkDiscardableMemory* diagnostic_only_getDiscardable() const;
 
 protected:
     // called when fData changes. could be nullptr.
     virtual void onDataChange(void* oldData, void* newData) {}
 
 private:
+    using MallocStorage = std::unique_ptr<void, SkFunctionObject<sk_free>>;
+    using DiscardableStorage = std::unique_ptr<SkDiscardableMemory>;
+    using Storage = std::variant<DiscardableStorage, MallocStorage>;
+
     SkMutex fMutex;     // could use a pool of these...
 
-    enum StorageType {
-        kDiscardableMemory_StorageType,
-        kMalloc_StorageType
-    };
-
-    union {
-        RAW_PTR_EXCLUSION SkDiscardableMemory* fDM;  // RAW_PTR_EXCLUSION: union.
-        RAW_PTR_EXCLUSION void* fMalloc;             // RAW_PTR_EXCLUSION: union.
-    } fStorage;
-    void*       fData;
-    size_t      fSize;
-    int         fRefCnt;    // low-bit means we're owned by the cache
-    StorageType fStorageType;
-    bool        fInCache;
-    bool        fIsLocked;
+    Storage fStorage;
+    void* fData = nullptr;
+    size_t fSize = 0;
+    int fRefCnt = 1;  // low-bit means we're owned by the cache
+    bool fInCache = false;
+    bool fIsLocked = true;
 
     void internalRef(bool fromCache) const;
     void internalUnref(bool fromCache) const;

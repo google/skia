@@ -10,36 +10,20 @@
 #include "include/private/chromium/SkDiscardableMemory.h"
 
 SkCachedData::SkCachedData(void* data, size_t size)
-    : fData(data)
-    , fSize(size)
-    , fRefCnt(1)
-    , fStorageType(kMalloc_StorageType)
-    , fInCache(false)
-    , fIsLocked(true)
-{
-    fStorage.fMalloc = data;
-}
+        : fStorage(std::in_place_type<MallocStorage>, data), fData(data), fSize(size) {}
 
 SkCachedData::SkCachedData(size_t size, SkDiscardableMemory* dm)
-    : fData(dm->data())
-    , fSize(size)
-    , fRefCnt(1)
-    , fStorageType(kDiscardableMemory_StorageType)
-    , fInCache(false)
-    , fIsLocked(true)
-{
-    fStorage.fDM = dm;
-}
+        : fStorage(std::in_place_type<DiscardableStorage>, dm)
+        , fData(dm ? dm->data() : nullptr)
+        , fSize(size) {}
 
-SkCachedData::~SkCachedData() {
-    switch (fStorageType) {
-        case kMalloc_StorageType:
-            sk_free(fStorage.fMalloc);
-            break;
-        case kDiscardableMemory_StorageType:
-            delete fStorage.fDM;
-            break;
+SkCachedData::~SkCachedData() = default;
+
+SkDiscardableMemory* SkCachedData::diagnostic_only_getDiscardable() const {
+    if (auto* dm = std::get_if<DiscardableStorage>(&fStorage)) {
+        return dm->get();
     }
+    return nullptr;
 }
 
 class SkCachedData::AutoMutexWritable {
@@ -125,19 +109,16 @@ void SkCachedData::inMutexLock() {
     SkASSERT(!fIsLocked);
     fIsLocked = true;
 
-    switch (fStorageType) {
-        case kMalloc_StorageType:
-            this->setData(fStorage.fMalloc);
-            break;
-        case kDiscardableMemory_StorageType:
-            if (fStorage.fDM->lock()) {
-                void* ptr = fStorage.fDM->data();
-                SkASSERT(ptr);
-                this->setData(ptr);
-            } else {
-                this->setData(nullptr);   // signal failure to lock, contents are gone
-            }
-            break;
+    if (auto* dm = std::get_if<DiscardableStorage>(&fStorage)) {
+        if ((*dm)->lock()) {
+            void* ptr = (*dm)->data();
+            SkASSERT(ptr);
+            this->setData(ptr);
+        } else {
+            this->setData(nullptr);  // signal failure to lock, contents are gone
+        }
+    } else if (auto* m = std::get_if<MallocStorage>(&fStorage)) {
+        this->setData(m->get());
     }
 }
 
@@ -147,17 +128,13 @@ void SkCachedData::inMutexUnlock() {
     SkASSERT(fIsLocked);
     fIsLocked = false;
 
-    switch (fStorageType) {
-        case kMalloc_StorageType:
-            // nothing to do/check
-            break;
-        case kDiscardableMemory_StorageType:
-            if (fData) {    // did the previous lock succeed?
-                fStorage.fDM->unlock();
-            }
-            break;
+    if (auto* dm = std::get_if<DiscardableStorage>(&fStorage)) {
+        if (fData) {  // did the previous lock succeed?
+            (*dm)->unlock();
+        }
     }
-    this->setData(nullptr);   // signal that we're in an unlocked state
+    // else MallocStorage: nothing to do/check
+    this->setData(nullptr);  // signal that we're in an unlocked state
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -166,14 +143,11 @@ void SkCachedData::inMutexUnlock() {
 void SkCachedData::validate() const {
     if (fIsLocked) {
         SkASSERT((fInCache && fRefCnt > 1) || !fInCache);
-        switch (fStorageType) {
-            case kMalloc_StorageType:
-                SkASSERT(fData == fStorage.fMalloc);
-                break;
-            case kDiscardableMemory_StorageType:
-                // fData can be null or the actual value, depending if DM's lock succeeded
-                break;
+        if (auto* m = std::get_if<MallocStorage>(&fStorage)) {
+            SkASSERT(fData == m->get());
         }
+        // else DiscardableStorage: fData can be null or the actual value, depending if DM's lock
+        // succeeded
     } else {
         SkASSERT((fInCache && 1 == fRefCnt) || (0 == fRefCnt));
         SkASSERT(nullptr == fData);
