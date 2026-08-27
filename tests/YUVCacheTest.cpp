@@ -52,7 +52,7 @@ DEF_TEST(YUVPlanesCache, reporter) {
     REPORTER_ASSERT(reporter, !data);
 
     size_t size = yuvaPixmapInfo.computeTotalBytes();
-    data = cache.newCachedData(size);
+    data = cache.newCachedData(size).release();
     memset(data->writable_data(), 0xff, size);
 
     SkPixmap pmaps[SkYUVAInfo::kMaxPlanes];

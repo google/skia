@@ -85,8 +85,10 @@ struct RRectBlurRec : public SkResourceCache::Rec {
 };
 } // namespace
 
-SkCachedData* SkMaskCache::FindAndRef(SkScalar sigma, SkBlurStyle style,
-                                      const SkRRect& rrect, SkTLazy<SkMask>* mask,
+sk_sp<SkCachedData> SkMaskCache::Find(SkScalar sigma,
+                                      SkBlurStyle style,
+                                      const SkRRect& rrect,
+                                      SkTLazy<SkMask>* mask,
                                       SkResourceCache* localCache) {
     SkTLazy<MaskValue> result;
     RRectBlurKey key(sigma, rrect, style);
@@ -96,14 +98,17 @@ SkCachedData* SkMaskCache::FindAndRef(SkScalar sigma, SkBlurStyle style,
 
     mask->init(static_cast<const uint8_t*>(result->fData->data()),
                result->fMask.fBounds, result->fMask.fRowBytes, result->fMask.fFormat);
-    return result->fData;
+    return sk_sp<SkCachedData>(result->fData);
 }
 
-void SkMaskCache::Add(SkScalar sigma, SkBlurStyle style,
-                      const SkRRect& rrect, const SkMask& mask, SkCachedData* data,
+void SkMaskCache::Add(SkScalar sigma,
+                      SkBlurStyle style,
+                      const SkRRect& rrect,
+                      const SkMask& mask,
+                      sk_sp<SkCachedData> data,
                       SkResourceCache* localCache) {
     RRectBlurKey key(sigma, rrect, style);
-    return CHECK_LOCAL(localCache, add, Add, new RRectBlurRec(key, mask, data));
+    return CHECK_LOCAL(localCache, add, Add, new RRectBlurRec(key, mask, data.get()));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -173,7 +178,7 @@ struct RectsBlurRec : public SkResourceCache::Rec {
 };
 } // namespace
 
-SkCachedData* SkMaskCache::FindAndRef(SkScalar sigma,
+sk_sp<SkCachedData> SkMaskCache::Find(SkScalar sigma,
                                       SkBlurStyle style,
                                       SkSpan<const SkRect> rects,
                                       SkTLazy<SkMask>* mask,
@@ -186,15 +191,15 @@ SkCachedData* SkMaskCache::FindAndRef(SkScalar sigma,
 
     mask->init(static_cast<const uint8_t*>(result->fData->data()),
                result->fMask.fBounds, result->fMask.fRowBytes, result->fMask.fFormat);
-    return result->fData;
+    return sk_sp<SkCachedData>(result->fData);
 }
 
 void SkMaskCache::Add(SkScalar sigma,
                       SkBlurStyle style,
                       SkSpan<const SkRect> rects,
                       const SkMask& mask,
-                      SkCachedData* data,
+                      sk_sp<SkCachedData> data,
                       SkResourceCache* localCache) {
     RectsBlurKey key(sigma, style, rects);
-    return CHECK_LOCAL(localCache, add, Add, new RectsBlurRec(key, mask, data));
+    return CHECK_LOCAL(localCache, add, Add, new RectsBlurRec(key, mask, data.get()));
 }

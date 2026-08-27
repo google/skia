@@ -8,6 +8,7 @@
 #ifndef SkMaskCache_DEFINED
 #define SkMaskCache_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSpan.h"
 
@@ -27,10 +28,12 @@ public:
      *
      * On failure, return nullptr.
      */
-    static SkCachedData* FindAndRef(SkScalar sigma, SkBlurStyle style,
-                                    const SkRRect& rrect, SkTLazy<SkMask>* mask,
+    static sk_sp<SkCachedData> Find(SkScalar sigma,
+                                    SkBlurStyle style,
+                                    const SkRRect& rrect,
+                                    SkTLazy<SkMask>* mask,
                                     SkResourceCache* localCache = nullptr);
-    static SkCachedData* FindAndRef(SkScalar sigma,
+    static sk_sp<SkCachedData> Find(SkScalar sigma,
                                     SkBlurStyle style,
                                     SkSpan<const SkRect> rects,
                                     SkTLazy<SkMask>* mask,
@@ -39,14 +42,17 @@ public:
     /**
      * Add a mask and its pixel-data to the cache.
      */
-    static void Add(SkScalar sigma, SkBlurStyle style,
-                    const SkRRect& rrect, const SkMask& mask, SkCachedData* data,
+    static void Add(SkScalar sigma,
+                    SkBlurStyle style,
+                    const SkRRect& rrect,
+                    const SkMask& mask,
+                    sk_sp<SkCachedData> data,
                     SkResourceCache* localCache = nullptr);
     static void Add(SkScalar sigma,
                     SkBlurStyle style,
                     SkSpan<const SkRect> rects,
                     const SkMask& mask,
-                    SkCachedData* data,
+                    sk_sp<SkCachedData> data,
                     SkResourceCache* localCache = nullptr);
 };
 

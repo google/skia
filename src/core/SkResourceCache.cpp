@@ -302,14 +302,14 @@ size_t SkResourceCache::setTotalByteLimit(size_t newLimit) {
     return prevLimit;
 }
 
-SkCachedData* SkResourceCache::newCachedData(size_t bytes) {
+sk_sp<SkCachedData> SkResourceCache::newCachedData(size_t bytes) {
     this->checkMessages();
 
     if (fDiscardableFactory) {
         SkDiscardableMemory* dm = fDiscardableFactory(bytes);
-        return dm ? new SkCachedData(bytes, dm) : nullptr;
+        return dm ? sk_sp<SkCachedData>(new SkCachedData(bytes, dm)) : nullptr;
     } else {
-        return new SkCachedData(sk_malloc_throw(bytes), bytes);
+        return sk_sp<SkCachedData>(new SkCachedData(sk_malloc_throw(bytes), bytes));
     }
 }
 
@@ -489,7 +489,7 @@ SkResourceCache::DiscardableFactory SkResourceCache::GetDiscardableFactory() {
     return get_cache()->discardableFactory();
 }
 
-SkCachedData* SkResourceCache::NewCachedData(size_t bytes) {
+sk_sp<SkCachedData> SkResourceCache::NewCachedData(size_t bytes) {
     return get_cache()->newCachedData(bytes);
 }
 

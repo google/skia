@@ -8,6 +8,7 @@
 #ifndef SkResourceCache_DEFINED
 #define SkResourceCache_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/private/SkDebug.h"
 #include "src/core/SkMessageBus.h"
 #include "src/partition_alloc/raw_ptr_exclusion.h"
@@ -183,7 +184,7 @@ public:
      */
     static DiscardableFactory GetDiscardableFactory();
 
-    static SkCachedData* NewCachedData(size_t bytes);
+    static sk_sp<SkCachedData> NewCachedData(size_t bytes);
 
     static void PostPurgeSharedID(uint64_t sharedID);
 
@@ -254,7 +255,7 @@ public:
 
     virtual DiscardableFactory discardableFactory() const { return fDiscardableFactory; }
 
-    virtual SkCachedData* newCachedData(size_t bytes);
+    virtual sk_sp<SkCachedData> newCachedData(size_t bytes);
 
     /**
      *  Call SkDebugf() with diagnostic information about the state of the cache

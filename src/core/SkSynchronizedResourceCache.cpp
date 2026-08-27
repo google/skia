@@ -7,6 +7,8 @@
 
 #include "src/core/SkSynchronizedResourceCache.h"
 
+#include "src/core/SkCachedData.h"
+
 SkSynchronizedResourceCache::SkSynchronizedResourceCache(DiscardableFactory fact)
  : SkResourceCache(fact) {}
 
@@ -35,7 +37,7 @@ SkResourceCache::DiscardableFactory SkSynchronizedResourceCache::discardableFact
     return SkResourceCache::discardableFactory();
 }
 
-SkCachedData* SkSynchronizedResourceCache::newCachedData(size_t bytes) {
+sk_sp<SkCachedData> SkSynchronizedResourceCache::newCachedData(size_t bytes) {
     SkAutoMutexExclusive am(fMutex);
     return SkResourceCache::newCachedData(bytes);
 }

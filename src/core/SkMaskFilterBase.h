@@ -22,15 +22,15 @@
 #include <optional>
 #include <utility>
 
-class SkPaint;
 class SkBlitter;
-class SkImageFilter;
 class SkCachedData;
+class SkImageFilter;
 class SkMatrix;
-class SkResourceCache;
-struct SkPathRaw;
+class SkPaint;
 class SkRRect;
 class SkRasterClip;
+class SkResourceCache;
+struct SkPathRaw;
 enum SkBlurStyle : int;
 
 namespace skcpu {
@@ -129,15 +129,17 @@ protected:
 
     class NinePatch final : ::SkNoncopyable {
     public:
-        NinePatch(const SkMask& mask, SkIRect outerRect, SkIPoint center, SkCachedData* cache)
-            : fMask(mask), fOuterRect(outerRect), fCenter(center), fCache(cache) {}
-        NinePatch(NinePatch&&) = delete;  // the transfer of fCache makes this not work
+        NinePatch(const SkMask& mask,
+                  SkIRect outerRect,
+                  SkIPoint center,
+                  sk_sp<SkCachedData> cache);
+        NinePatch(NinePatch&&);
         ~NinePatch();
 
         SkMask      fMask;      // fBounds must have [0,0] in its top-left
         SkIRect     fOuterRect; // width/height must be >= fMask.fBounds'
         SkIPoint    fCenter;    // identifies center row/col for stretching
-        SkCachedData* fCache = nullptr;
+        sk_sp<SkCachedData> fCache;
     };
 
     /**

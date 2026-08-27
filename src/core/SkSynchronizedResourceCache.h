@@ -35,7 +35,7 @@ public:
 
     DiscardableFactory discardableFactory() const override;
 
-    SkCachedData* newCachedData(size_t bytes) override;
+    sk_sp<SkCachedData> newCachedData(size_t bytes) override;
 
     void dump() const override;
 

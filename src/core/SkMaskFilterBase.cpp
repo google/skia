@@ -32,10 +32,17 @@
 class SkPaint;
 class SkRRect;
 
+SkMaskFilterBase::NinePatch::NinePatch(const SkMask& mask,
+                                       SkIRect outerRect,
+                                       SkIPoint center,
+                                       sk_sp<SkCachedData> cache)
+        : fMask(mask), fOuterRect(outerRect), fCenter(center), fCache(std::move(cache)) {}
+
+SkMaskFilterBase::NinePatch::NinePatch(NinePatch&&) = default;
+
 SkMaskFilterBase::NinePatch::~NinePatch() {
     if (fCache) {
         SkASSERT((const void*)fMask.fImage == fCache->data());
-        fCache->unref();
     } else {
         // fMask is about to be destroyed and "owns" its fImage.
         SkMaskBuilder::FreeImage(const_cast<uint8_t*>(fMask.fImage));

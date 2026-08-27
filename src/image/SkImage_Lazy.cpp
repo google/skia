@@ -267,7 +267,7 @@ sk_sp<SkCachedData> SkImage_Lazy::getPlanes(
         yuvaPixmapInfo.yuvaInfo().dimensions() != this->dimensions()) {
         return nullptr;
     }
-    data.reset(SkResourceCache::NewCachedData(yuvaPixmapInfo.computeTotalBytes()));
+    data = SkResourceCache::NewCachedData(yuvaPixmapInfo.computeTotalBytes());
     SkYUVAPixmaps tempPixmaps = SkYUVAPixmaps::FromExternalMemory(yuvaPixmapInfo,
                                                                   data->writable_data());
     SkASSERT(tempPixmaps.isValid());
