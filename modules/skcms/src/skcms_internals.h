@@ -57,9 +57,14 @@ extern "C" {
             #define SKCMS_HAS_MUSTTAIL 1
         #endif
     #elif defined(__GNUC__) && !defined(SKCMS_HAS_MUSTTAIL)
-        // GCC on riscv64 does not support our tail call functions
-        // cf. https://gcc.gnu.org/bugzilla/show_bug.cgi?id=121784
-        #if __has_cpp_attribute(clang::musttail) && !defined(__riscv)
+        // GCC on RISCV, MIPS, PowerPC, LoongArch, and Windows (MinGW)
+        // does not support our tail call functions
+        // (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=121784).
+        #if __has_cpp_attribute(clang::musttail) && !defined(__riscv) \
+                                                 && !defined(__mips__) \
+                                                 && !defined(__powerpc__) \
+                                                 && !defined(__loongarch__) \
+                                                 && !defined(_WIN32)
             #define SKCMS_HAS_MUSTTAIL 1
         #else
             #define SKCMS_HAS_MUSTTAIL 0
