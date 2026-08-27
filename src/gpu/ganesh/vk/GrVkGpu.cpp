@@ -217,6 +217,7 @@ GrVkGpu::GrVkGpu(GrDirectContext* direct,
 }
 
 void GrVkGpu::destroyResources() {
+    fCachedOpsRenderPass.reset();
     if (fMainCmdPool) {
         fMainCmdPool->getPrimaryCommandBuffer()->end(this, /*abandoningBuffer=*/true);
         fMainCmdPool->close();
@@ -226,6 +227,7 @@ void GrVkGpu::destroyResources() {
     this->finishOutstandingGpuWork();
 
     if (fMainCmdPool) {
+        fMainCmdBuffer = nullptr;
         fMainCmdPool->unref();
         fMainCmdPool = nullptr;
     }
