@@ -15,7 +15,10 @@ licenses(["notice"])
 
 skia_filegroup(
     name = "rs_srcs",
-    srcs = ["FFI.rs"],
+    srcs = [
+        "FFI.rs",
+        "icc_parse.rs",
+    ],
 )
 
 skia_filegroup(
@@ -77,7 +80,6 @@ rust_static_library(
         ":cxx_bridge",
         ":ffi_cpp_lib",
         "@crates//:cxx",
-        "@crates//:moxcms",
     ],
 )
 

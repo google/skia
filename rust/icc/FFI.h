@@ -37,7 +37,7 @@ void ToSkcmsTransferFunction(const TransferFunction& rust_tf, skcms_TransferFunc
 
 /// Convert rust_icc::IccProfile to skcms_ICCProfile.
 ///
-/// Populates all skcms fields from moxcms-parsed ICC data:
+/// Populates all skcms fields from parsed ICC data:
 ///   - Color space metadata
 ///   - toXYZD50 matrix and transfer curves (for simple RGB/Gray profiles)
 ///   - CICP metadata (for HDR)

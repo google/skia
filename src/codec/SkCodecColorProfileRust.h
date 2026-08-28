@@ -13,7 +13,7 @@
 
 namespace SkCodecs {
 
-// Parses an ICC profile using the Rust implementation (moxcms).
+// Parses an ICC profile using the Rust implementation.
 // This function is only available when SK_CODEC_COLOR_PROFILE_PARSE_WITH_RUST is defined.
 // For testing purposes only - production code should use MakeICCProfile() which
 // delegates to the appropriate implementation.

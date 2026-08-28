@@ -18,14 +18,14 @@
 namespace SkCodecs {
 
 // Allows Chromium code that does not use SkCodec to parse ICC profiles
-// using the same parser that SkCodec uses (skcms or moxcms).
+// using the same parser that SkCodec uses (skcms or Rust).
 class SK_API ICCProfileChromium {
 public:
     virtual ~ICCProfileChromium() = default;
 
     // Force all ICC profile parsing to use skcms instead of the build-default
     // parser. This is intended for Chromium to have a kill-switch to fall back
-    // to skcms if moxcms causes issues in the field.
+    // to skcms if the Rust parser causes issues in the field.
     //
     // This is a global setting and is NOT thread-safe with respect to concurrent
     // codec operations. It should be called once early during process startup.

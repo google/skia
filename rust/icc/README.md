@@ -1,7 +1,7 @@
 # Rust ICC profile parser
 
-This directory contains helpers and wrappers for exposing ICC (International
-Color Consortium) profile parsing from the `moxcms` Rust crate to Skia codecs:
+This directory contains the pure Rust ICC (International Color Consortium)
+profile parser for Skia codecs:
 
 * Used by `SkPngRustCodec` and `SkBmpRustCodec`
 
@@ -9,7 +9,7 @@ Color Consortium) profile parsing from the `moxcms` Rust crate to Skia codecs:
 
 ```
 Image Codec → ICC bytes → rust_icc::parse_icc_profile()
-                               ↓ (moxcms parsing)
+                               ↓ (pure Rust parsing)
                           IccProfile struct
                                ↓
                      rust_icc::ToSkcmsIccProfile()
@@ -21,8 +21,8 @@ Image Codec → ICC bytes → rust_icc::parse_icc_profile()
 
 ### Memory Safety
 
-All ICC profile parsing happens in Rust using the `moxcms` crate. This prevents
-memory safety vulnerabilities from malformed ICC data. The validated, parsed
+All ICC profile parsing happens in Rust, mirroring the structure and logic of `skcms.cc`.
+This prevents memory safety vulnerabilities from malformed ICC data. The validated, parsed
 data is then converted to `skcms_ICCProfile` structures for use by Skia's
 color management system (skcms).
 
@@ -79,11 +79,9 @@ The C++ tests are located in `tests/RustIccTest.cpp`.
 ## Dependencies
 
 - **cxx**: FFI bridge between Rust and C++
-- **moxcms** 0.7.9: ICC profile parser
 - **rust/common**: Shared FFI utilities
 
 ## References
 
 - ICC Specification: https://www.color.org/specification/ICC.1-2022-05.pdf
-- moxcms: https://crates.io/crates/moxcms
 - skcms: https://skia.googlesource.com/skcms/

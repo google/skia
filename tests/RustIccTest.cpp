@@ -143,15 +143,15 @@ DEF_TEST(RustIcc_profile_conversion, r) {
 
     // Set up simple gamma curves
     rust_profile.has_trc = true;
-    for (auto* ch : {&rust_profile.trc_r, &rust_profile.trc_g, &rust_profile.trc_b}) {
-        ch->table_entries = 0;  // parametric curve (no table)
-        ch->parametric.g = 2.2f;
-        ch->parametric.a = 1.0f;
-        ch->parametric.b = 0.0f;
-        ch->parametric.c = 0.0f;
-        ch->parametric.d = 0.0f;
-        ch->parametric.e = 0.0f;
-        ch->parametric.f = 0.0f;
+    for (auto& ch : rust_profile.trc) {
+        ch.table_entries = 0;  // parametric curve (no table)
+        ch.parametric.g = 2.2f;
+        ch.parametric.a = 1.0f;
+        ch.parametric.b = 0.0f;
+        ch.parametric.c = 0.0f;
+        ch.parametric.d = 0.0f;
+        ch.parametric.e = 0.0f;
+        ch.parametric.f = 0.0f;
     }
 
     // Convert to skcms
@@ -161,17 +161,28 @@ DEF_TEST(RustIcc_profile_conversion, r) {
     REPORTER_ASSERT(r, success);
     REPORTER_ASSERT(r, skcms_profile.has_toXYZD50);
     REPORTER_ASSERT(r, skcms_profile.has_trc);
+    REPORTER_ASSERT(r, !skcms_profile.has_CICP);
+    REPORTER_ASSERT(r, !skcms_profile.has_A2B);
 
-    // Verify matrix was copied correctly
-    REPORTER_ASSERT(r, fabsf(skcms_profile.toXYZD50.vals[0][0] - 1.0f) < 0.0001f);
-    REPORTER_ASSERT(r, fabsf(skcms_profile.toXYZD50.vals[1][1] - 1.0f) < 0.0001f);
-    REPORTER_ASSERT(r, fabsf(skcms_profile.toXYZD50.vals[2][2] - 1.0f) < 0.0001f);
+    // Verify matrix
+    REPORTER_ASSERT(r, skcms_profile.toXYZD50.vals[0][0] == 1.0f);
+    REPORTER_ASSERT(r, skcms_profile.toXYZD50.vals[1][1] == 1.0f);
+    REPORTER_ASSERT(r, skcms_profile.toXYZD50.vals[2][2] == 1.0f);
 
-    // Verify transfer functions were copied (all channels should be gamma 2.2)
+    // Verify TRC curves
     REPORTER_ASSERT(r, skcms_profile.trc[0].table_entries == 0);
     REPORTER_ASSERT(r, fabsf(skcms_profile.trc[0].parametric.g - 2.2f) < 0.0001f);
     REPORTER_ASSERT(r, fabsf(skcms_profile.trc[1].parametric.g - 2.2f) < 0.0001f);
     REPORTER_ASSERT(r, fabsf(skcms_profile.trc[2].parametric.g - 2.2f) < 0.0001f);
+
+    // Verify null pointer handling
+    REPORTER_ASSERT(r, !rust_icc::ToSkcmsIccProfile(rust_profile, nullptr));
+
+    // Verify false return when disabled
+    rust_profile.has_to_xyzd50 = false;
+    rust_profile.has_trc = false;
+    success = rust_icc::ToSkcmsIccProfile(rust_profile, &skcms_profile);
+    REPORTER_ASSERT(r, !success);
 }
 
 DEF_TEST(RustIcc_profile_conversion_fails_without_data, r) {
@@ -197,10 +208,10 @@ DEF_TEST(RustIcc_profile_conversion_fails_trc_without_matrix, r) {
     rust_profile.connection_space = skcms_Signature_XYZ;
     rust_profile.has_to_xyzd50 = false;
     rust_profile.has_trc = true;
-    for (auto* ch : {&rust_profile.trc_r, &rust_profile.trc_g, &rust_profile.trc_b}) {
-        ch->table_entries = 0;
-        ch->parametric.g = 2.2f;
-        ch->parametric.a = 1.0f;
+    for (auto& ch : rust_profile.trc) {
+        ch.table_entries = 0;
+        ch.parametric.g = 2.2f;
+        ch.parametric.a = 1.0f;
     }
 
     skcms_ICCProfile skcms_profile;
@@ -241,10 +252,10 @@ DEF_TEST(RustIcc_cicp_conversion, r) {
 
     // Set up TRC curves (required alongside toXYZD50 for usable_as_src)
     rust_profile.has_trc = true;
-    for (auto* ch : {&rust_profile.trc_r, &rust_profile.trc_g, &rust_profile.trc_b}) {
-        ch->table_entries = 0;
-        ch->parametric.g = 2.2f;
-        ch->parametric.a = 1.0f;
+    for (auto& ch : rust_profile.trc) {
+        ch.table_entries = 0;
+        ch.parametric.g = 2.2f;
+        ch.parametric.a = 1.0f;
     }
 
     // Set CICP data (e.g., BT.709 primaries, BT.709 transfer, BT.709 matrix, full range)
@@ -313,15 +324,15 @@ DEF_TEST(RustIcc_profile_with_a2b_curves, r) {
     rust_profile.to_xyzd50.vals[2][2] = 1.0f;
 
     rust_profile.has_trc = true;
-    for (auto* ch : {&rust_profile.trc_r, &rust_profile.trc_g, &rust_profile.trc_b}) {
-        ch->table_entries = 0;  // parametric curve (no table)
-        ch->parametric.g = 2.2f;
-        ch->parametric.a = 1.0f;
-        ch->parametric.b = 0.0f;
-        ch->parametric.c = 0.0f;
-        ch->parametric.d = 0.0f;
-        ch->parametric.e = 0.0f;
-        ch->parametric.f = 0.0f;
+    for (auto& ch : rust_profile.trc) {
+        ch.table_entries = 0;  // parametric curve (no table)
+        ch.parametric.g = 2.2f;
+        ch.parametric.a = 1.0f;
+        ch.parametric.b = 0.0f;
+        ch.parametric.c = 0.0f;
+        ch.parametric.d = 0.0f;
+        ch.parametric.e = 0.0f;
+        ch.parametric.f = 0.0f;
     }
 
     // Add A2B transform with input curves
@@ -407,15 +418,15 @@ DEF_TEST(RustIcc_profile_with_a2b_matrix, r) {
     rust_profile.to_xyzd50.vals[2][2] = 1.0f;
 
     rust_profile.has_trc = true;
-    for (auto* ch : {&rust_profile.trc_r, &rust_profile.trc_g, &rust_profile.trc_b}) {
-        ch->table_entries = 0;  // parametric curve (no table)
-        ch->parametric.g = 2.2f;
-        ch->parametric.a = 1.0f;
-        ch->parametric.b = 0.0f;
-        ch->parametric.c = 0.0f;
-        ch->parametric.d = 0.0f;
-        ch->parametric.e = 0.0f;
-        ch->parametric.f = 0.0f;
+    for (auto& ch : rust_profile.trc) {
+        ch.table_entries = 0;  // parametric curve (no table)
+        ch.parametric.g = 2.2f;
+        ch.parametric.a = 1.0f;
+        ch.parametric.b = 0.0f;
+        ch.parametric.c = 0.0f;
+        ch.parametric.d = 0.0f;
+        ch.parametric.e = 0.0f;
+        ch.parametric.f = 0.0f;
     }
 
     // Add A2B transform with matrix
@@ -494,15 +505,15 @@ DEF_TEST(RustIcc_profile_with_table_curves, r) {
     rust_profile.to_xyzd50.vals[2][2] = 1.0f;
 
     rust_profile.has_trc = true;
-    for (auto* ch : {&rust_profile.trc_r, &rust_profile.trc_g, &rust_profile.trc_b}) {
-        ch->table_entries = 0;  // parametric curve (no table)
-        ch->parametric.g = 2.2f;
-        ch->parametric.a = 1.0f;
-        ch->parametric.b = 0.0f;
-        ch->parametric.c = 0.0f;
-        ch->parametric.d = 0.0f;
-        ch->parametric.e = 0.0f;
-        ch->parametric.f = 0.0f;
+    for (auto& ch : rust_profile.trc) {
+        ch.table_entries = 0;  // parametric curve (no table)
+        ch.parametric.g = 2.2f;
+        ch.parametric.a = 1.0f;
+        ch.parametric.b = 0.0f;
+        ch.parametric.c = 0.0f;
+        ch.parametric.d = 0.0f;
+        ch.parametric.e = 0.0f;
+        ch.parametric.f = 0.0f;
     }
 
     // Add A2B transform with table-based curves
@@ -530,6 +541,7 @@ DEF_TEST(RustIcc_profile_with_table_curves, r) {
 
         curve.table_entries = 3;
         curve.table_data = std::move(table_data);
+        curve.table_format = rust_icc::TableFormat::U16;
 
         // Parametric fields unused for table curves
         curve.parametric.g = 0.0f;
@@ -553,7 +565,7 @@ DEF_TEST(RustIcc_profile_with_table_curves, r) {
     rust_profile.a2b.grid_points[0] = 2;
     rust_profile.a2b.grid_points[1] = 2;
     rust_profile.a2b.grid_points[2] = 2;
-    rust_profile.a2b.is_16bit_grid = false;
+    rust_profile.a2b.grid_format = rust_icc::TableFormat::U8;
 
     // Convert to skcms (rust_profile must remain alive after this!)
     skcms_ICCProfile skcms_profile;
@@ -591,6 +603,7 @@ DEF_TEST(RustIcc_reject_malformed_a2b, r) {
     // Identity output curve reused by every case.
     rust_icc::Curve id_curve;
     id_curve.table_entries = 0;
+    id_curve.table_format = rust_icc::TableFormat::U8;
     id_curve.parametric = {1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 
     struct Case {
@@ -634,7 +647,7 @@ DEF_TEST(RustIcc_reject_malformed_a2b, r) {
             rust::Vec<uint8_t> grid;
             for (int i = 0; i < 3; i++) grid.push_back(0x80);
             prof.a2b.grid_data = std::move(grid);
-            prof.a2b.is_16bit_grid = false;
+            prof.a2b.grid_format = rust_icc::TableFormat::U8;
 
             rust::Vec<rust_icc::Curve> in_c;
             for (uint32_t i = 0; i < tc.input_channels && i < 4; i++) {
@@ -662,15 +675,15 @@ DEF_TEST(RustIcc_profile_with_b2a, r) {
     rust_profile.to_xyzd50.vals[2][2] = 1.0f;
 
     rust_profile.has_trc = true;
-    for (auto* ch : {&rust_profile.trc_r, &rust_profile.trc_g, &rust_profile.trc_b}) {
-        ch->table_entries = 0;  // parametric curve (no table)
-        ch->parametric.g = 2.2f;
-        ch->parametric.a = 1.0f;
-        ch->parametric.b = 0.0f;
-        ch->parametric.c = 0.0f;
-        ch->parametric.d = 0.0f;
-        ch->parametric.e = 0.0f;
-        ch->parametric.f = 0.0f;
+    for (auto& ch : rust_profile.trc) {
+        ch.table_entries = 0;  // parametric curve (no table)
+        ch.parametric.g = 2.2f;
+        ch.parametric.a = 1.0f;
+        ch.parametric.b = 0.0f;
+        ch.parametric.c = 0.0f;
+        ch.parametric.d = 0.0f;
+        ch.parametric.e = 0.0f;
+        ch.parametric.f = 0.0f;
     }
 
     // Add B2A transform
@@ -803,11 +816,27 @@ static float eval_skcms_curve(const skcms_Curve& c, float x) {
     int lo = (int)idx;
     int hi = lo + 1 < (int)c.table_entries ? lo + 1 : lo;
     float frac = idx - (float)lo;
-    auto read16 = [&](int i) -> float {
-        uint16_t v = (uint16_t)((c.table_16[2*i] << 8) | c.table_16[2*i+1]);
-        return (float)v / 65535.0f;
+    auto read_val = [&](int i) -> float {
+        if (c.table_16) {
+            uint16_t v = (uint16_t)((c.table_16[2*i] << 8) | c.table_16[2*i+1]);
+            return (float)v / 65535.0f;
+        } else if (c.table_8) {
+            return (float)c.table_8[i] / 255.0f;
+        }
+        return 0.0f;
     };
-    return read16(lo) * (1.0f - frac) + read16(hi) * frac;
+    return read_val(lo) * (1.0f - frac) + read_val(hi) * frac;
+}
+
+static bool is_identity_parametric(const skcms_Curve& c) {
+    return c.table_entries == 0 &&
+           c.parametric.g == 1.0f &&
+           c.parametric.a == 1.0f &&
+           c.parametric.b == 0.0f &&
+           c.parametric.c == 0.0f &&
+           c.parametric.d == 0.0f &&
+           c.parametric.e == 0.0f &&
+           c.parametric.f == 0.0f;
 }
 
 static void compare_curves_by_evaluation(
@@ -823,19 +852,21 @@ static void compare_curves_by_evaluation(
                                   rust_curve.parametric, skcms_curve.parametric);
         return;
     }
-    // If both are table-based with the same number of entries, compare bytes.
-    if (rust_curve.table_entries != 0 &&
-        rust_curve.table_entries == skcms_curve.table_entries) {
+
+    // If both are table-based with the same number of entries, compare table values directly.
+    if (rust_curve.table_entries != 0 && rust_curve.table_entries == skcms_curve.table_entries) {
         const uint32_t n = rust_curve.table_entries;
-        const uint8_t* rust_data  = rust_curve.table_16;
-        const uint8_t* skcms_data = skcms_curve.table_16;
-        if (!rust_data || !skcms_data) {
-            ERRORF(r, "[%s] %s[%d] null table_16 pointer", path, stage, channel);
-            return;
-        }
         for (uint32_t i = 0; i < n; ++i) {
-            uint16_t rv = (uint16_t)(rust_data[2*i]  << 8 | rust_data[2*i+1]);
-            uint16_t sv = (uint16_t)(skcms_data[2*i] << 8 | skcms_data[2*i+1]);
+            uint16_t rv =
+                    rust_curve.table_16
+                            ? (uint16_t)(rust_curve.table_16[2 * i] << 8 |
+                                         rust_curve.table_16[2 * i + 1])
+                            : (uint16_t)(rust_curve.table_8[i] << 8 | rust_curve.table_8[i]);
+            uint16_t sv =
+                    skcms_curve.table_16
+                            ? (uint16_t)(skcms_curve.table_16[2 * i] << 8 |
+                                         skcms_curve.table_16[2 * i + 1])
+                            : (uint16_t)(skcms_curve.table_8[i] << 8 | skcms_curve.table_8[i]);
             if (rv != sv) {
                 ERRORF(r, "[%s] %s[%d] table entry %u mismatch: rust=%u, skcms=%u",
                        path, stage, channel, i, rv, sv);
@@ -844,19 +875,28 @@ static void compare_curves_by_evaluation(
         }
         return;
     }
-    // Mixed representation (e.g. Rust approximates table as parametric):
-    // compare by sampling both curves at several points with 1% tolerance.
-    static const float kSamples[] = {0.0f, 0.05f, 0.1f, 0.25f,
-                                     0.5f, 0.75f, 0.9f, 1.0f};
-    for (float x : kSamples) {
-        float rv = eval_skcms_curve(rust_curve,  x);
-        float sv = eval_skcms_curve(skcms_curve, x);
-        if (fabsf(rv - sv) > 0.01f) {
-            ERRORF(r, "[%s] %s[%d] curve eval mismatch at x=%.2f: rust=%f, skcms=%f",
-                   path, stage, channel, x, rv, sv);
-            return;
+
+    // If skcms converted an identity table to an identity parametric curve via
+    // canonicalize_identity() while Rust retained the table, compare by evaluation.
+    // canonicalize_identity() will be removed from skcms, so this fallback is temporary.
+    if (is_identity_parametric(skcms_curve) && rust_curve.table_entries != 0) {
+        static const float kSamples[] = {0.0f, 0.05f, 0.1f, 0.25f,
+                                         0.5f, 0.75f, 0.9f, 1.0f};
+        for (float x : kSamples) {
+            float rv = eval_skcms_curve(rust_curve,  x);
+            float sv = eval_skcms_curve(skcms_curve, x);
+            if (fabsf(rv - sv) > 0.01f) {
+                ERRORF(r, "[%s] %s[%d] curve eval mismatch at x=%.2f: rust=%f, skcms=%f",
+                       path, stage, channel, x, rv, sv);
+                return;
+            }
         }
+        return;
     }
+
+    // For any other difference in curve structure/entries, report mismatch.
+    ERRORF(r, "[%s] %s[%d] table_entries mismatch: rust=%u, skcms=%u",
+           path, stage, channel, rust_curve.table_entries, skcms_curve.table_entries);
 }
 
 // Helper to compare A2B grid data (CLUT) between rust and skcms parsed profiles.
@@ -915,15 +955,106 @@ DEF_TEST(RustIcc_equivalence_with_skcms_resource_files, r) {
         "icc_profiles/AdobeRGB1998.icc",
         "icc_profiles/HP_Z32x.icc",
         "icc_profiles/HP_ZR30w.icc",
+        "icc_profiles/apng19.icc",
+        "icc_profiles/chromium/colorspin.icc",
+        "icc_profiles/chromium/generic_rgb.icc",
+        "icc_profiles/color.org/Lower_Left.icc",
+        "icc_profiles/color.org/Lower_Right.icc",
+        "icc_profiles/color.org/sRGB2014.icc",
+        "icc_profiles/color.org/sRGB_D65_MAT.icc",
+        "icc_profiles/color.org/sRGB_D65_colorimetric.icc",
+        "icc_profiles/color.org/sRGB_ICC_v4_Appearance.icc",
+        "icc_profiles/color.org/sRGB_ISO22028.icc",
+        "icc_profiles/fuzz/a2b_too_many_input_channels.icc",
+        "icc_profiles/fuzz/a2b_too_many_input_channels2.icc",
+        "icc_profiles/fuzz/b2a_no_clut.icc",
+        "icc_profiles/fuzz/b2a_too_few_output_channels.icc",
+        // "icc_profiles/fuzz/clut_overflow.icc",
+        // Note: clut_overflow.icc tests skcms's rejection of CLUTs that end without trailing
+        // slack bytes in the raw input buffer. skcms required this slack to prevent SIMD gather
+        // overread on unmanaged caller buffers. The Rust parser allocates and zero-pads CLUT
+        // data in Vec<u8>, safely supporting profiles that skcms rejected.
+        "icc_profiles/fuzz/curv_size_overflow.icc",
+        "icc_profiles/fuzz/direct_fit_negative_a.icc",
+        "icc_profiles/fuzz/direct_fit_not_invertible.icc",
+        "icc_profiles/fuzz/fit_pq.icc",
+        "icc_profiles/fuzz/inf_a.icc",
+        "icc_profiles/fuzz/infinite_roundtrip.icc",
+        "icc_profiles/fuzz/inverse_tf_adb_negative.icc",
+        "icc_profiles/fuzz/inverse_tf_huge_g.icc",
+        "icc_profiles/fuzz/inverse_tf_not_invertible.icc",
+        "icc_profiles/fuzz/large_g.icc",
+        "icc_profiles/fuzz/last_tag_too_small.icc",
+        "icc_profiles/fuzz/mangled_trc_tags.icc",
+        "icc_profiles/fuzz/named_tag_too_small.icc",
+        "icc_profiles/fuzz/nan_s.icc",
+        "icc_profiles/fuzz/negative_a_plus_b.icc",
+        "icc_profiles/fuzz/negative_a_when_inverted.icc",
+        "icc_profiles/fuzz/negative_g_para.icc",
+        "icc_profiles/fuzz/one_d_clut.icc",
+        "icc_profiles/fuzz/polytf_big_float_to_int_cast.icc",
+        "icc_profiles/fuzz/polytf_nan_after_update.icc",
+        "icc_profiles/fuzz/truncated_curv_tag.icc",
+        "icc_profiles/fuzz/zero_a.icc",
+        "icc_profiles/fuzz/zero_g.icc",
+        "icc_profiles/misc/AdobeColorSpin.icc",
+        "icc_profiles/misc/AdobeRGB.icc",
+        "icc_profiles/misc/Apple_Color_LCD.icc",
+        "icc_profiles/misc/Apple_Wide_Color.icc",
+        "icc_profiles/misc/Apple_pq_hagc_hdgm2.icc",
+        "icc_profiles/misc/BenQ_GL2450.icc",
+        "icc_profiles/misc/BenQ_RL2455.icc",
+        "icc_profiles/misc/Calibrated_A2B_XYZ_Mismatch.icc",
+        "icc_profiles/misc/Coated_FOGRA27_CMYK.icc",
+        "icc_profiles/misc/Coated_FOGRA39_CMYK.icc",
+        "icc_profiles/misc/ColorGATE_Sihl_PhotoPaper.icc",
+        "icc_profiles/misc/ColorLogic_ISO_Coated_CMYK.icc",
+        "icc_profiles/misc/Color_Spin_Gamma_18.icc",
+        "icc_profiles/misc/DisplayCal_ASUS_NonMonotonic.icc",
+        "icc_profiles/misc/Generic_RGB_Gamma_18.icc",
+        "icc_profiles/misc/Gray_Gamma_22.icc",
+        "icc_profiles/misc/HD_709.icc",
+        "icc_profiles/misc/Japan_Color_2001_Coated.icc",
+        "icc_profiles/misc/Kodak_sRGB.icc",
+        "icc_profiles/misc/Lexmark_X110.icc",
+        "icc_profiles/misc/MR2416GSDF.icc",
+        "icc_profiles/misc/MartiMaria_browsertest_A2B.icc",
+        "icc_profiles/misc/MartiMaria_browsertest_HARD.icc",
+        "icc_profiles/misc/P3_PQ_cicp.icc",
+        "icc_profiles/misc/Phase_One_P25.icc",
+        "icc_profiles/misc/PrintOpen_ISO_Coated_CMYK.icc",
+        "icc_profiles/misc/Rec2020_HLG_cicp.icc",
+        "icc_profiles/misc/Rec2020_PQ_cicp.icc",
+        "icc_profiles/misc/SM245B.icc",
+        "icc_profiles/misc/SWOP_Coated_20_GCR_CMYK.icc",
+        "icc_profiles/misc/ThinkpadX1YogaV2.icc",
+        "icc_profiles/misc/US_Web_Coated_SWOP_CMYK.icc",
+        "icc_profiles/misc/XPS13_9360.icc",
+        "icc_profiles/misc/XRite_GRACol7_340_CMYK.icc",
+        "icc_profiles/misc/bad_pcs.icc",
+        "icc_profiles/misc/calibrated_nonzero_black.icc",
+        "icc_profiles/misc/crbug_1017960_19.icc",
+        "icc_profiles/misc/crbug_976551.icc",
+        "icc_profiles/misc/sRGB_Calibrated_Heterogeneous.icc",
+        "icc_profiles/misc/sRGB_Calibrated_Homogeneous.icc",
+        "icc_profiles/misc/sRGB_Facebook.icc",
+        "icc_profiles/misc/sRGB_HP.icc",
+        "icc_profiles/misc/sRGB_HP_2.icc",
+        "icc_profiles/misc/sRGB_ICC_v4_beta.icc",
+        "icc_profiles/misc/sRGB_black_scaled.icc",
+        "icc_profiles/misc/sRGB_lcms.icc",
+        "icc_profiles/mobile/Display_P3_LUT.icc",
+        "icc_profiles/mobile/Display_P3_parametric.icc",
+        "icc_profiles/mobile/iPhone7p.icc",
+        "icc_profiles/mobile/sRGB_LUT.icc",
+        "icc_profiles/mobile/sRGB_parametric.icc",
+        "icc_profiles/mu_gray.icc",
+        "icc_profiles/pq_hdr.icc",
         "icc_profiles/srgb_lab_pcs.icc",
+        "icc_profiles/swapped.icc",
+        "icc_profiles/tiles.icc",
         "icc_profiles/upperLeft.icc",
         "icc_profiles/upperRight.icc",
-        // Files added after regressions found during development of the Rust parser, not covered
-        // by existing ICC profiles in Skia's resources:
-        "icc_profiles/apng19.icc",
-        "icc_profiles/swapped.icc",
-        "icc_profiles/mu_gray.icc",
-        "icc_profiles/tiles.icc",
     };
 
     for (const char* path : icc_files) {
@@ -936,12 +1067,15 @@ DEF_TEST(RustIcc_equivalence_with_skcms_resource_files, r) {
         auto rust_profile = SkCodecs::MakeICCProfileWithRust(data);
         auto skcms_profile = SkCodecs::ColorProfile::MakeICCProfileWithSkCMS(data);
 
-        if (!rust_profile) {
-            ERRORF(r, "Rust parser failed for: %s", path);
+        if ((rust_profile == nullptr) != (skcms_profile == nullptr)) {
+            ERRORF(r, "[%s] Parse success mismatch: rust=%s, skcms=%s",
+                   path,
+                   rust_profile ? "true" : "false",
+                   skcms_profile ? "true" : "false");
             continue;
         }
-        if (!skcms_profile) {
-            ERRORF(r, "SkCMS parser failed for: %s", path);
+        if (!rust_profile && !skcms_profile) {
+            // Both parsers agree the profile is malformed/unusable.
             continue;
         }
 
@@ -1038,17 +1172,23 @@ DEF_TEST(RustIcc_equivalence_with_skcms_resource_files, r) {
                 // Compare matrix values
                 for (int i = 0; i < 3; ++i) {
                     for (int j = 0; j < 3; ++j) {
-                        if (fabsf(rust.A2B.matrix.vals[i][j] - skcms.A2B.matrix.vals[i][j]) >= 0.0001f) {
+                        float diff = fabsf(rust.A2B.matrix.vals[i][j] -
+                                           skcms.A2B.matrix.vals[i][j]);
+                        if (diff >= 0.0001f) {
                             ERRORF(r, "[%s] A2B.matrix[%d][%d] mismatch: rust=%f, skcms=%f",
-                                   path, i, j, rust.A2B.matrix.vals[i][j], skcms.A2B.matrix.vals[i][j]);
+                                   path, i, j, rust.A2B.matrix.vals[i][j],
+                                   skcms.A2B.matrix.vals[i][j]);
                         }
                     }
                 }
                 // Compare matrix bias (4th column of 3x4 matrix)
                 for (int i = 0; i < 3; ++i) {
-                    if (fabsf(rust.A2B.matrix.vals[i][3] - skcms.A2B.matrix.vals[i][3]) >= 0.0001f) {
+                    float diff = fabsf(rust.A2B.matrix.vals[i][3] -
+                                       skcms.A2B.matrix.vals[i][3]);
+                    if (diff >= 0.0001f) {
                         ERRORF(r, "[%s] A2B.matrix_bias[%d] mismatch: rust=%f, skcms=%f",
-                               path, i, rust.A2B.matrix.vals[i][3], skcms.A2B.matrix.vals[i][3]);
+                               path, i, rust.A2B.matrix.vals[i][3],
+                               skcms.A2B.matrix.vals[i][3]);
                     }
                 }
                 // Compare matrix curves (M curves)
@@ -1060,7 +1200,9 @@ DEF_TEST(RustIcc_equivalence_with_skcms_resource_files, r) {
             }
 
             // Compare output curves (B curves)
-            for (uint32_t i = 0; i < rust.A2B.output_channels && i < skcms.A2B.output_channels; ++i) {
+            for (uint32_t i = 0;
+                 i < rust.A2B.output_channels && i < skcms.A2B.output_channels;
+                 ++i) {
                 compare_curves_by_evaluation(r, path, "A2B.output_curves",
                                              i, rust.A2B.output_curves[i],
                                              skcms.A2B.output_curves[i]);
@@ -1108,17 +1250,23 @@ DEF_TEST(RustIcc_equivalence_with_skcms_resource_files, r) {
                 // Compare matrix values
                 for (int i = 0; i < 3; ++i) {
                     for (int j = 0; j < 3; ++j) {
-                        if (fabsf(rust.B2A.matrix.vals[i][j] - skcms.B2A.matrix.vals[i][j]) >= 0.0001f) {
+                        float diff = fabsf(rust.B2A.matrix.vals[i][j] -
+                                           skcms.B2A.matrix.vals[i][j]);
+                        if (diff >= 0.0001f) {
                             ERRORF(r, "[%s] B2A.matrix[%d][%d] mismatch: rust=%f, skcms=%f",
-                                   path, i, j, rust.B2A.matrix.vals[i][j], skcms.B2A.matrix.vals[i][j]);
+                                   path, i, j, rust.B2A.matrix.vals[i][j],
+                                   skcms.B2A.matrix.vals[i][j]);
                         }
                     }
                 }
                 // Compare matrix bias (4th column of 3x4 matrix)
                 for (int i = 0; i < 3; ++i) {
-                    if (fabsf(rust.B2A.matrix.vals[i][3] - skcms.B2A.matrix.vals[i][3]) >= 0.0001f) {
+                    float diff = fabsf(rust.B2A.matrix.vals[i][3] -
+                                       skcms.B2A.matrix.vals[i][3]);
+                    if (diff >= 0.0001f) {
                         ERRORF(r, "[%s] B2A.matrix_bias[%d] mismatch: rust=%f, skcms=%f",
-                               path, i, rust.B2A.matrix.vals[i][3], skcms.B2A.matrix.vals[i][3]);
+                               path, i, rust.B2A.matrix.vals[i][3],
+                               skcms.B2A.matrix.vals[i][3]);
                     }
                 }
                 // Compare matrix curves (M curves)
@@ -1130,7 +1278,9 @@ DEF_TEST(RustIcc_equivalence_with_skcms_resource_files, r) {
             }
 
             // Compare output curves (A curves in B2A)
-            for (uint32_t i = 0; i < rust.B2A.output_channels && i < skcms.B2A.output_channels; ++i) {
+            for (uint32_t i = 0;
+                 i < rust.B2A.output_channels && i < skcms.B2A.output_channels;
+                 ++i) {
                 compare_curves_by_evaluation(r, path, "B2A.output_curves",
                                              i, rust.B2A.output_curves[i],
                                              skcms.B2A.output_curves[i]);
@@ -1163,7 +1313,7 @@ DEF_TEST(RustIcc_trc_table_passthrough, r) {
     REPORTER_ASSERT(r, skcms_prof.has_trc,
                     "skcms should report has_trc=true for swapped.icc");
 
-    // Rust/moxcms path: must expose the 1024-entry table TRC bit-exactly.
+    // Rust path: must expose the 1024-entry table TRC bit-exactly.
     auto rust_profile = SkCodecs::MakeICCProfileWithRust(data);
     if (!rust_profile) {
         ERRORF(r, "Rust ICC parser failed to parse swapped.icc");
@@ -1190,12 +1340,9 @@ DEF_TEST(RustIcc_trc_table_passthrough, r) {
 // Regression test for the non-fatal B2A rejection path.
 //
 // pq_hdr.icc is an ICCv4 PQ HDR profile with an A2B tag and a curve-only B2A
-// tag.  The Rust path reuses convert_to_a2b() for B2A, then a2b_to_b2a()
-// swaps input/output channels.  Curve-only B2A profiles yield invalid channel
-// counts so ToSkcmsB2A rejects them.  ToSkcmsIccProfile must treat this
-// rejection as non-fatal: has_B2A is left false while A2B (and the rest of
-// the profile) is still usable.
-DEF_TEST(RustIcc_pq_hdr_b2a_absent, r) {
+// Tests that curve-only B2A tags are correctly parsed and match skcms.
+// pq_hdr.icc is an ICCv4 PQ HDR profile with an A2B tag and a curve-only B2A tag.
+DEF_TEST(RustIcc_pq_hdr_b2a_present, r) {
     auto data = GetResourceAsData("icc_profiles/pq_hdr.icc");
     if (!data) {
         ERRORF(r, "Failed to load icc_profiles/pq_hdr.icc");
@@ -1221,20 +1368,11 @@ DEF_TEST(RustIcc_pq_hdr_b2a_absent, r) {
     REPORTER_ASSERT(r, rust.has_A2B,  "Rust must expose A2B for pq_hdr.icc");
     REPORTER_ASSERT(r, skcms.has_A2B, "skcms must expose A2B for pq_hdr.icc");
 
-    // skcms parses the curve-only B2A tag; the Rust path correctly rejects it
-    // because a2b_to_b2a() cannot handle curve-only B2A.  has_B2A must be
-    // false in the Rust profile and the parse must not have failed entirely.
-    REPORTER_ASSERT(r,  skcms.has_B2A, "skcms must expose B2A for pq_hdr.icc");
-    REPORTER_ASSERT(r, !rust.has_B2A,
-                    "Rust must not expose B2A for curve-only B2A (pq_hdr.icc); "
-                    "if this now passes, a2b_to_b2a() handles curve-only B2A and "
-                    "pq_hdr.icc can be added to RustIcc_equivalence_with_skcms_resource_files");
+    // Both parsers must expose the curve-only B2A tag.
+    REPORTER_ASSERT(r, rust.has_B2A,  "Rust must expose B2A for pq_hdr.icc");
+    REPORTER_ASSERT(r, skcms.has_B2A, "skcms must expose B2A for pq_hdr.icc");
 
-    // The profiles should be approximately equal on everything except B2A.
-    // Temporarily clear has_B2A on the skcms copy so the comparison is fair.
-    skcms_ICCProfile skcms_no_b2a = skcms;
-    skcms_no_b2a.has_B2A = false;
-    if (!skcms_ApproximatelyEqualProfiles(&rust, &skcms_no_b2a)) {
-        ERRORF(r, "[pq_hdr.icc] profiles not approximately equal (ignoring B2A)");
+    if (!skcms_ApproximatelyEqualProfiles(&rust, &skcms)) {
+        ERRORF(r, "[pq_hdr.icc] profiles not approximately equal");
     }
 }

@@ -1520,6 +1520,7 @@ if (skia_use_fontations || skia_use_rust_png_decode ||
       "rust/icc/BUILD.bazel",
       "rust/icc/FFI.h",
       "rust/icc/FFI.rs",
+      "rust/icc/icc_parse.rs",
     ]
     _rust_outputs += [
       "$root_out_dir/librust_icc_ffi_rs.a",
