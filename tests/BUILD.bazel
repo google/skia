@@ -642,6 +642,7 @@ filegroup(
     name = "graphite_sparse_strips_test_sources",
     testonly = True,
     srcs = [
+        "graphite/sparse_strips/AtlasTests.cpp",
         "graphite/sparse_strips/ClipTest.cpp",
         "graphite/sparse_strips/CoverageTest.cpp",
         "graphite/sparse_strips/CoverageTestUtils.h",

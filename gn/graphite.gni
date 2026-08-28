@@ -499,11 +499,14 @@ skia_graphite_precompile_sources = [
 #  //src/gpu/graphite/sparse_strips:sparse_strips_hdrs
 #  //src/gpu/graphite/sparse_strips:sparse_strips_srcs
 skia_graphite_sparse_strips_sources = [
+  "$_src/gpu/graphite/sparse_strips/AlphaAtlasManager.cpp",
+  "$_src/gpu/graphite/sparse_strips/AlphaAtlasManager.h",
   "$_src/gpu/graphite/sparse_strips/Flatten.cpp",
   "$_src/gpu/graphite/sparse_strips/Flatten.h",
   "$_src/gpu/graphite/sparse_strips/MSAA_LUT.h",
   "$_src/gpu/graphite/sparse_strips/MakeStrips.h",
   "$_src/gpu/graphite/sparse_strips/Polyline.h",
+  "$_src/gpu/graphite/sparse_strips/SparseStripsConfig.h",
   "$_src/gpu/graphite/sparse_strips/SparseStripsTypes.h",
   "$_src/gpu/graphite/sparse_strips/Strip.h",
   "$_src/gpu/graphite/sparse_strips/StripGenerator.cpp",
