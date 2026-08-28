@@ -8,7 +8,6 @@
 #ifndef SkRecordCanvas_DEFINED
 #define SkRecordCanvas_DEFINED
 
-#include "include/core/SkCPURecorder.h"
 #include "include/core/SkCanvasVirtualEnforcer.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkM44.h"
@@ -16,6 +15,7 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
+#include "include/cpu/Recorder.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkNoDrawCanvas.h"
@@ -99,10 +99,7 @@ public:
     bool onDoSaveBehind(const SkRect*) override;
     void willRestore() override {}
     void didRestore() override;
-    SkRecorder* baseRecorder() const override {
-        // TODO(kjlubick) this class should implement SkRecorder (or maybe Record should).
-        return skcpu::Recorder::TODO();
-    }
+    SkRecorder* baseRecorder() const override { return skcpu::Recorder::TODO(); }
 
     void didConcat44(const SkM44&) override;
     void didSetM44(const SkM44&) override;

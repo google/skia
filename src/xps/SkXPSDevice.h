@@ -12,10 +12,6 @@
 
 #ifdef SK_BUILD_FOR_WIN
 
-#include <ObjBase.h>
-#include <XpsObjectModel.h>
-
-#include "include/core/SkCPURecorder.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
@@ -24,6 +20,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkTypeface.h"
+#include "include/cpu/Recorder.h"
 #include "include/docs/SkXPSDocument.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkBitmapDevice.h"
@@ -31,6 +28,9 @@
 #include "src/utils/SkBitSet.h"
 #include "src/utils/win/SkAutoCoInitialize.h"
 #include "src/utils/win/SkTScopedComPtr.h"
+
+#include <ObjBase.h>
+#include <XpsObjectModel.h>
 
 namespace sktext {
 class GlyphRunList;
@@ -104,10 +104,7 @@ public:
 
     sk_sp<SkDevice> createDevice(const CreateInfo&, const SkPaint*) override;
 
-    SkRecorder* baseRecorder() const override {
-        // TODO(kjlubick) the creation of this should likely involve a CPU context.
-        return skcpu::Recorder::TODO();
-    }
+    SkRecorder* baseRecorder() const override { return skcpu::Recorder::TODO(); }
 
 private:
     class TypefaceUse {

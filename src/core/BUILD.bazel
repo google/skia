@@ -75,8 +75,6 @@ SEMI_PUBLIC_HEADERS = [
     "SkBlurMask.h",
     "SkBlurMaskFilterImpl.h",
     "SkBuffer.h",
-    "SkCPUContextImpl.h",
-    "SkCPURecorderImpl.h",
     "SkCachedData.h",
     "SkCanvasPriv.h",
     "SkChecksum.h",
@@ -296,6 +294,7 @@ skia_filegroup(
     srcs = [
         # Implementation of public and private headers
         "RasterContext.cpp",
+        "Recorder.cpp",
         "SkAAClip.cpp",
         "SkATrace.cpp",
         "SkAlphaRuns.cpp",
@@ -331,8 +330,6 @@ skia_filegroup(
         "SkBlurMask.cpp",
         "SkBlurMaskFilterImpl.cpp",
         "SkBuffer.cpp",
-        "SkCPUContext.cpp",
-        "SkCPURecorder.cpp",
         "SkCachedData.cpp",
         "SkCanvas.cpp",
         "SkCanvasPriv.cpp",
@@ -591,6 +588,7 @@ skia_cc_library(
     hdrs = [
         "//include/codec:core_hdrs",
         "//include/core:core_hdrs",
+        "//include/cpu:core_hdrs",
         "//include/effects:core_hdrs",
         "//include/private:private_hdrs",
         "//include/sksl:core_hdrs",

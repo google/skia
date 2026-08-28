@@ -4,18 +4,17 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "include/core/SkCPURecorder.h"
+#include "include/cpu/Recorder.h"
 
 #include "include/core/SkTypes.h"
 #include "src/capture/SkCaptureManager.h"
-#include "src/core/SkCPUContextImpl.h"
 
 #include <memory>
 
 namespace skcpu {
 
 Recorder* Recorder::TODO() {
-    static Recorder* gRecorder = ContextImpl::TODO()->makeRecorder().release();
+    static Recorder* gRecorder = std::make_unique<Recorder>().release();
     return gRecorder;
 }
 
