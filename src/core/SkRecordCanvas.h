@@ -19,7 +19,6 @@
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkNoDrawCanvas.h"
-#include "src/core/SkBigPicture.h"
 
 #include <cstddef>
 #include <memory>
@@ -70,7 +69,7 @@ public:
     void append(SkDrawable* drawable);
 
     // Return a new or ref'd array of pictures that were snapped from our drawables.
-    SkBigPicture::SnapshotArray* newDrawableSnapshot();
+    SkSnapshotArray* newDrawableSnapshot();
 
 private:
     SkTDArray<SkDrawable*> fArray;

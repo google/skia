@@ -19,7 +19,6 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkLog.h"
 #include "src/capture/SkCapture.h"
-#include "src/core/SkBigPicture.h"
 #include "src/core/SkRecord.h"
 #include "src/utils/SkJSONWriter.h"
 #include "tools/ProcsUtils.h"

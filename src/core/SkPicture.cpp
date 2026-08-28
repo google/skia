@@ -7,6 +7,7 @@
 
 #include "include/core/SkPicture.h"
 
+#include "include/core/SkBBHFactory.h"
 #include "include/core/SkData.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSerialProcs.h"
@@ -20,6 +21,9 @@
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkPictureRecord.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkRecord.h"
+#include "src/core/SkRecordDraw.h"
+#include "src/core/SkRecords.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkStreamPriv.h"
 #include "src/core/SkWriteBuffer.h"
@@ -40,14 +44,27 @@ enum {
     kCustom_TrailingStreamByteAfterPictInfo      = 2,   // -size32 follows
 };
 
-/* SkPicture impl.  This handles generic responsibilities like unique IDs and serialization. */
-
-SkPicture::SkPicture() {
+/* This handles generating unique IDs */
+static uint32_t next_picture_id() {
     static std::atomic<uint32_t> nextID{1};
+    uint32_t id;
     do {
-        fUniqueID = nextID.fetch_add(+1, std::memory_order_relaxed);
-    } while (fUniqueID == 0);
+        id = nextID.fetch_add(+1, std::memory_order_relaxed);
+    } while (id == 0);
+    return id;
 }
+
+SkPicture::SkPicture(const SkRect& cull,
+                     sk_sp<const SkRecord> record,
+                     std::unique_ptr<const SkSnapshotArray> drawablePicts,
+                     sk_sp<const SkBBoxHierarchy> bbh,
+                     size_t approxBytesUsedBySubPictures)
+        : fUniqueID(next_picture_id())
+        , fCullRect(cull)
+        , fApproxBytesUsedBySubPictures(approxBytesUsedBySubPictures)
+        , fRecord(std::move(record))
+        , fDrawablePicts(std::move(drawablePicts))
+        , fBBH(std::move(bbh)) {}
 
 SkPicture::~SkPicture() {
     if (fAddedToCache.load()) {
@@ -335,21 +352,75 @@ void SkPicturePriv::Flatten(const sk_sp<const SkPicture> picture, SkWriteBuffer&
     }
 }
 
+sk_sp<SkPicture> SkPicturePriv::MakeEmptyPicture() {
+    return SkPicturePriv::MakePicture(
+            SkRect::MakeEmpty(), sk_make_sp<SkRecord>(), nullptr, nullptr, 0);
+}
+
+sk_sp<SkPicture> SkPicturePriv::MakePicture(const SkRect& cull,
+                                            sk_sp<const SkRecord> record,
+                                            std::unique_ptr<const SkSnapshotArray> drawablePicts,
+                                            sk_sp<const SkBBoxHierarchy> bbh,
+                                            size_t approxBytesUsedBySubPictures) {
+    return sk_sp<SkPicture>(new SkPicture(cull,
+                                          std::move(record),
+                                          std::move(drawablePicts),
+                                          std::move(bbh),
+                                          approxBytesUsedBySubPictures));
+}
+
+void SkPicture::playback(SkCanvas* canvas, AbortCallback* callback) const {
+    SkASSERT(canvas);
+    if (this->isPlaceholder()) {
+        return;
+    }
+    const bool useBBH = !canvas->getLocalClipBounds().contains(this->cullRect());
+    SkRecordDraw(*fRecord,
+                 canvas,
+                 fDrawablePicts ? fDrawablePicts->begin() : nullptr,
+                 nullptr,
+                 fDrawablePicts ? fDrawablePicts->count() : 0,
+                 useBBH ? fBBH.get() : nullptr,
+                 callback);
+}
+
+struct NestedApproxOpCounter {
+    int fCount = 0;
+
+    template <typename T> void operator()(const T& op) { fCount += 1; }
+    void operator()(const SkRecords::DrawPicture& op) {
+        fCount += op.picture->approximateOpCount(true);
+    }
+};
+
+int SkPicture::approximateOpCount(bool nested) const {
+    if (this->isPlaceholder()) {
+        // approximateOpCount() needs to be greater than kMaxPictureOpsToUnrollInsteadOfRef
+        // (SkCanvasPriv.h) to avoid unrolling this into a parent picture.
+        return kMaxPictureOpsToUnrollInsteadOfRef + 1;
+    }
+    if (nested) {
+        NestedApproxOpCounter visitor;
+        for (int i = 0; i < fRecord->count(); i++) {
+            fRecord->visit(i, visitor);
+        }
+        return visitor.fCount;
+    } else {
+        return fRecord->count();
+    }
+}
+
+size_t SkPicture::approximateBytesUsed() const {
+    if (this->isPlaceholder()) {
+        return sizeof(*this);
+    }
+    size_t bytes = sizeof(*this) + fRecord->bytesUsed() + fApproxBytesUsedBySubPictures;
+    if (fBBH) {
+        bytes += fBBH->bytesUsed();
+    }
+    return bytes;
+}
+
 sk_sp<SkPicture> SkPicture::MakePlaceholder(SkRect cull) {
-    struct Placeholder : public SkPicture {
-          explicit Placeholder(SkRect cull) : fCull(cull) {}
-
-          void playback(SkCanvas*, AbortCallback*) const override { }
-
-          // approximateOpCount() needs to be greater than kMaxPictureOpsToUnrollInsteadOfRef
-          // (SkCanvasPriv.h) to avoid unrolling this into a parent picture.
-          int approximateOpCount(bool) const override {
-              return kMaxPictureOpsToUnrollInsteadOfRef+1;
-          }
-          size_t approximateBytesUsed() const override { return sizeof(*this); }
-          SkRect cullRect()             const override { return fCull; }
-
-          SkRect fCull;
-    };
-    return sk_make_sp<Placeholder>(cull);
+    return SkPicturePriv::MakePicture(cull, nullptr, nullptr, nullptr, 0);
 }

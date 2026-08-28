@@ -78,12 +78,11 @@ public:
     void print(const SkRecords::DrawPicture& command, double ns) {
         this->printNameAndTime(command, ns);
 
-        if (auto bp = SkPicturePriv::AsSkBigPicture(command.picture)) {
+        if (auto record = SkPicturePriv::GetRecord(command.picture.get())) {
             ++fIndent;
 
-            const SkRecord& record = *bp->record();
-            for (int i = 0; i < record.count(); i++) {
-                record.visit(i, *this);
+            for (int i = 0; i < record->count(); i++) {
+                record->visit(i, *this);
             }
 
             --fIndent;

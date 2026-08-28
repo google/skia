@@ -38,7 +38,7 @@
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkNWayCanvas.h"
 #include "include/utils/SkPaintFilterCanvas.h"
-#include "src/core/SkBigPicture.h"
+#include "src/core/SkPicturePriv.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecords.h"
 #include "src/utils/SkCanvasStack.h"
@@ -99,8 +99,7 @@ DEF_TEST(canvas_unsorted_clip, r) {
             ->clipRect(clip);
         sk_sp<SkPicture> pic = rec.finishRecordingAsPicture();
 
-        auto bp = (const SkBigPicture*)pic.get();
-        const SkRecord* record = bp->record();
+        const SkRecord* record = SkPicturePriv::GetRecord(pic.get());
 
         REPORTER_ASSERT(r, record->count() == 1);
         REPORTER_ASSERT(r, record->visit(0, ClipRectVisitor{r})

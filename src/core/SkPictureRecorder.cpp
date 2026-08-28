@@ -11,8 +11,7 @@
 #include "include/core/SkDrawable.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTemplates.h"
-#include "src/core/SkBigPicture.h"
+#include "src/core/SkPicturePriv.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecordCanvas.h"
 #include "src/core/SkRecordDraw.h"
@@ -55,30 +54,20 @@ SkCanvas* SkPictureRecorder::getRecordingCanvas() {
     return fActivelyRecording ? fRecorder.get() : nullptr;
 }
 
-class SkEmptyPicture final : public SkPicture {
-public:
-    void playback(SkCanvas*, AbortCallback*) const override { }
-
-    size_t approximateBytesUsed() const override { return sizeof(*this); }
-    int    approximateOpCount(bool nested)   const override { return 0; }
-    SkRect cullRect()             const override { return SkRect::MakeEmpty(); }
-};
-
 sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture() {
     fActivelyRecording = false;
     fRecorder->restoreToCount(1);  // If we were missing any restores, add them now.
 
     if (fRecord->count() == 0) {
-        return sk_make_sp<SkEmptyPicture>();
+        return SkPicturePriv::MakeEmptyPicture();
     }
 
     // TODO: delay as much of this work until just before first playback?
     SkRecordOptimize(fRecord.get());
 
     SkDrawableList* drawableList = fRecorder->getDrawableList();
-    std::unique_ptr<SkBigPicture::SnapshotArray> pictList{
-        drawableList ? drawableList->newDrawableSnapshot() : nullptr
-    };
+    std::unique_ptr<SkSnapshotArray> pictList{drawableList ? drawableList->newDrawableSnapshot()
+                                                         : nullptr};
 
     if (fBBH) {
         AutoTArray<SkRect> bounds(fRecord->count());
@@ -101,11 +90,9 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture() {
     for (int i = 0; pictList && i < pictList->count(); i++) {
         subPictureBytes += pictList->begin()[i]->approximateBytesUsed();
     }
-    return sk_make_sp<SkBigPicture>(fCullRect,
-                                    std::move(fRecord),
-                                    std::move(pictList),
-                                    std::move(fBBH),
-                                    subPictureBytes);
+
+    return SkPicturePriv::MakePicture(
+            fCullRect, std::move(fRecord), std::move(pictList), std::move(fBBH), subPictureBytes);
 }
 
 sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPictureWithCull(const SkRect& cullRect) {

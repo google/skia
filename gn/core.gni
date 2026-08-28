@@ -223,8 +223,6 @@ skia_core_sources = [
   "$_src/core/SkBase64.h",
   "$_src/core/SkBezierCurves.cpp",
   "$_src/core/SkBezierCurves.h",
-  "$_src/core/SkBigPicture.cpp",
-  "$_src/core/SkBigPicture.h",
   "$_src/core/SkBitmap.cpp",
   "$_src/core/SkBitmapCache.cpp",
   "$_src/core/SkBitmapCache.h",
