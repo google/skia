@@ -36,13 +36,7 @@
                OpDecorate %_UniformBuffer Block
                OpDecorate %11 Binding 0
                OpDecorate %11 DescriptorSet 0
-               OpMemberDecorate %S 0 Offset 0
-               OpMemberDecorate %S 1 Offset 4
-               OpMemberDecorate %S 2 Offset 16
-               OpMemberDecorate %S 2 ColMajor
-               OpMemberDecorate %S 2 MatrixStride 16
                OpMemberDecorate %S 2 RelaxedPrecision
-               OpMemberDecorate %S 3 Offset 48
                OpDecorate %62 RelaxedPrecision
                OpDecorate %64 RelaxedPrecision
                OpDecorate %86 RelaxedPrecision

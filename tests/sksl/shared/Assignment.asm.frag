@@ -39,11 +39,7 @@
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
                OpDecorate %globalVar RelaxedPrecision
-               OpMemberDecorate %S 0 Offset 0
-               OpMemberDecorate %S 1 Offset 16
-               OpMemberDecorate %S 2 Offset 96
                OpMemberDecorate %S 2 RelaxedPrecision
-               OpMemberDecorate %S 3 Offset 112
                OpMemberDecorate %S 3 RelaxedPrecision
                OpMemberDecorate %_UniformBuffer 0 Offset 0
                OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision

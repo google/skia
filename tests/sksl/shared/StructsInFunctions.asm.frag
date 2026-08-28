@@ -48,18 +48,12 @@
                OpDecorate %_UniformBuffer Block
                OpDecorate %15 Binding 0
                OpDecorate %15 DescriptorSet 0
-               OpMemberDecorate %S 0 Offset 0
-               OpMemberDecorate %S 1 Offset 4
                OpDecorate %41 RelaxedPrecision
-               OpMemberDecorate %Nested 0 Offset 0
                OpMemberDecorate %Nested 0 RelaxedPrecision
-               OpMemberDecorate %Nested 1 Offset 16
                OpMemberDecorate %Nested 1 RelaxedPrecision
                OpDecorate %85 RelaxedPrecision
                OpDecorate %87 RelaxedPrecision
                OpDecorate %89 RelaxedPrecision
-               OpMemberDecorate %Compound 0 Offset 0
-               OpMemberDecorate %Compound 1 Offset 16
                OpDecorate %108 RelaxedPrecision
                OpDecorate %109 RelaxedPrecision
                OpDecorate %114 RelaxedPrecision

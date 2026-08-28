@@ -2,7 +2,7 @@ struct S
 {
     int x;
     int y;
-    row_major float2x2 m;
+    float2x2 m;
     float a[5];
 };
 

@@ -19,10 +19,7 @@ error: SPIR-V validation error: Variables can not have a function[7] storage cla
                OpName %main "main"                  ; id %6
 
                ; Annotations
-               OpMemberDecorate %InterfaceBlockA 0 Offset 0
-               OpMemberDecorate %InterfaceBlockA 1 Offset 16384
                OpDecorate %InterfaceBlockA Block
-               OpMemberDecorate %InterfaceBlockB 0 Offset 0
                OpDecorate %InterfaceBlockB Block
                OpDecorate %sk_FragCoord BuiltIn FragCoord
 

@@ -1685,6 +1685,11 @@ SpvId SPIRVCodeGenerator::writeStruct(const Type& type,
     this->writeInstruction(SpvOpName, resultId, type.name(), fNameBuffer);
     fStructMap.set(&type, resultId);
 
+    const bool isHostStorageClass = storageClass.has_value() &&
+                                    (*storageClass == StorageClass::kUniform ||
+                                     *storageClass == StorageClass::kStorageBuffer ||
+                                     *storageClass == StorageClass::kPushConstant);
+
     size_t offset = 0;
     for (int32_t i = 0; i < (int32_t) type.fields().size(); i++) {
         const Field& field = type.fields()[i];
@@ -1716,14 +1721,15 @@ SpvId SPIRVCodeGenerator::writeStruct(const Type& type,
         this->writeInstruction(SpvOpMemberName, resultId, i, field.fName, fNameBuffer);
         this->writeFieldLayout(fieldLayout, resultId, i);
 
-        if (field.fLayout.fBuiltin < 0) {
+        if (isHostStorageClass && field.fLayout.fBuiltin < 0) {
             this->writeInstruction(SpvOpMemberDecorate, resultId, (SpvId) i, SpvDecorationOffset,
                                    (SpvId) offset, fDecorationBuffer);
         }
 
         // Matrices and arrays of matrices need to have a MatrixStride decoration
-        if (field.fType->isMatrix() ||
-            (field.fType->isArray() && field.fType->componentType().isMatrix())) {
+        if (isHostStorageClass &&
+            (field.fType->isMatrix() ||
+             (field.fType->isArray() && field.fType->componentType().isMatrix()))) {
             const Type& matrixType = field.fType->isArray() ? field.fType->componentType()
                                                             : *field.fType;
             this->writeInstruction(SpvOpMemberDecorate, resultId, i, SpvDecorationColMajor,

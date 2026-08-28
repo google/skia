@@ -33,7 +33,6 @@ error: SPIR-V validation error: Expected Constituent type to be equal to the cor
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
-               OpMemberDecorate %S 0 Offset 0
                OpDecorate %53 RelaxedPrecision
 
                ; Types, variables and constants

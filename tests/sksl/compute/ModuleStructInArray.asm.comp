@@ -15,11 +15,6 @@
                OpMemberName %IndirectDispatchArgs 2 "z"
                OpName %args "args"                  ; id %14
 
-               ; Annotations
-               OpMemberDecorate %IndirectDispatchArgs 0 Offset 0
-               OpMemberDecorate %IndirectDispatchArgs 1 Offset 4
-               OpMemberDecorate %IndirectDispatchArgs 2 Offset 8
-
                ; Types, variables and constants
         %int = OpTypeInt 32 1
 %_ptr_Input_int = OpTypePointer Input %int
