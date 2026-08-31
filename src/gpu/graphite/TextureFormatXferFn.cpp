@@ -33,28 +33,30 @@ using TF = TextureFormat;
 // 2. It's convenient to split the FormatXferOps into specific ops based on their conversion
 //    direction that doesn't need to be exposed in the public API.
 enum ExtendedFormatXferOp : uint8_t {
-    kDropAlpha = 0x1, // FormatXferOp::kDropAlpha for CPU->GPU conversion
-    kPadAlpha  = 0x2, // FormatXferOp::kDropAlpha for GPU->CPU conversion
-    kSwapRB    = 0x4, // FormatXferOp::kSwapRB behaves the same for either conversion direction
+    kDropAlpha   = 0x1,  // FormatXferOp::kDropAlpha for CPU->GPU conversion
+    kPadAlpha    = 0x2,  // FormatXferOp::kDropAlpha for GPU->CPU conversion
+    kSwapRB      = 0x4,  // FormatXferOp::kSwapRB behaves the same for either conversion direction
+    kForceOpaque = 0x8,  // RGBx handling to avoid raster pipeline is the same in both directions
 };
-// TODO(michaelludwig): Add a kForceOpaque op that replaces the alpha bits with OpaqueAlpha value.
 
 using XferRowFn = std::function<void(const char* src, char* dst, int width)>;
 
-template <typename PxVec, typename PixelFn /* [](PxVec) -> PxVec */>
-XferRowFn create_xfer_row_fn(int n, int srcBpp, int dstBpp, PixelFn applyPixel) {
+template <typename Px, int N, typename PixelFn /* [](Vec<N,Px>, Px opaqueAlpha) -> Vec<N,Px> */>
+XferRowFn create_xfer_row_fn(int n, int srcBpp, int dstBpp, Px opaqueAlpha, PixelFn applyPixel) {
+    using PxVec = skvx::Vec<N, Px>;
+
     // PxVec should be sufficient to hold N src and dst pixels, and should match at least one
     SkASSERT(sizeof(PxVec) >= (size_t)srcBpp*n && sizeof(PxVec) >= (size_t)dstBpp*n);
     SkASSERT(sizeof(PxVec) == (size_t)srcBpp*n || sizeof(PxVec) == (size_t)dstBpp*n);
 
-    return [n, srcBpp, dstBpp, applyPixel](const char* src, char* dst, int width) {
+    return [n, srcBpp, dstBpp, opaqueAlpha, applyPixel](const char* src, char* dst, int width) {
         const int srcBppN = n * srcBpp;
         const int dstBppN = n * dstBpp;
 
         PxVec pixel{};
         while (width >= n) {
             memcpy(&pixel, src, srcBppN);
-            pixel = applyPixel(pixel);
+            pixel = applyPixel(pixel, opaqueAlpha);
             memcpy(dst, &pixel, dstBppN);
 
             width -= n;
@@ -66,7 +68,7 @@ XferRowFn create_xfer_row_fn(int n, int srcBpp, int dstBpp, PixelFn applyPixel) 
             // Process tail that is less than a full vector
             SkASSERT(width < n);
             memcpy(&pixel, src, width * srcBpp);
-            pixel = applyPixel(pixel);
+            pixel = applyPixel(pixel, opaqueAlpha);
             memcpy(dst, &pixel, width * dstBpp);
         }
     };
@@ -76,7 +78,7 @@ XferRowFn create_xfer_row_fn(int n, int srcBpp, int dstBpp, PixelFn applyPixel) 
 // the Vec. To implement kSwapRB, this requires that the R and B channels have the same number of
 // bits. It arbitrarily requires that R is originally in the lower-significance bits relative to B.
 template <typename Px, int N, uint8_t Ops, Px RShift, Px BShift, Px RBBits>
-skvx::Vec<N, Px> apply_ops_packed(skvx::Vec<N, Px> pixel) {
+skvx::Vec<N, Px> apply_ops_packed(skvx::Vec<N, Px> pixel, Px opaqueAlpha) {
     static_assert(!(Ops & (kPadAlpha | kDropAlpha)), "Packed formats do not drop/pad alpha");
     static_assert(RShift < BShift, "Shifts are not in the correct significance order");
     static_assert(RShift + RBBits <= BShift, "Low swap channel overflows");
@@ -92,7 +94,10 @@ skvx::Vec<N, Px> apply_ops_packed(skvx::Vec<N, Px> pixel) {
                 ((pixel & kBMask) >> (BShift - RShift));  // Move blue (hi) to red (lo) position
     }
 
-    // TODO: Implement kForceOpaque here as well
+    if constexpr (Ops & kForceOpaque) {
+        // This assumes the opaqueAlpha value will have 0 bits set in the R,G,B channels.
+        pixel = pixel | opaqueAlpha;
+    }
 
     return pixel;
 }
@@ -100,62 +105,86 @@ skvx::Vec<N, Px> apply_ops_packed(skvx::Vec<N, Px> pixel) {
 // NOTE: This takes no parameters for alpha because none of the formats that use this support
 // kDrop/PadAlpha. Since the channels are packed into Px, both source and dst must have the same bpp
 template <typename Px, Px RShift, Px BShift, Px RBBits>
-XferRowFn xfer_rows_packed(uint8_t ops) {
+XferRowFn xfer_rows_packed(uint8_t ops, Px opaqueAlpha) {
     static constexpr int kBpp = sizeof(Px);
     static constexpr int N = 16 / sizeof(Px); // Fit to 128-bit/16-byte SIMD
 
     static_assert(N == 1 || N == 2 || N == 4 || N == 8);
-    using PxVec = skvx::Vec<N, Px>;
 
 #define RETURN_XFER_ROW_FN(ops) \
-        case ops: return create_xfer_row_fn<PxVec>( \
-                N, kBpp, kBpp, apply_ops_packed<Px, N, ops, RShift, BShift, RBBits>);
+        case ops: return create_xfer_row_fn<Px, N>( \
+                N, kBpp, kBpp, opaqueAlpha, apply_ops_packed<Px, N, ops, RShift, BShift, RBBits>);
 
     switch (ops) {
         // The expected combination of ExtendedFormatXferOps
         RETURN_XFER_ROW_FN(kSwapRB)
+        RETURN_XFER_ROW_FN(kForceOpaque)
+        RETURN_XFER_ROW_FN(kForceOpaque | kSwapRB)
         default:
             SK_ABORT("Unsupported ExtendedFormatXferOps combination: %u", ops);
     }
 #undef RETURN_XFER_ROW_FN
 }
 
-// N represents the number of pixels being processed; the currently supported Ops are only valid for
-// a channel count of 3 (upgraded to 4 effectively) or exactly 4.
-template <typename Cx, int N, uint8_t Ops, Cx OpaqueAlpha>
-skvx::Vec<4*N, Cx> apply_ops_by_channel(skvx::Vec<4*N, Cx> pixel) {
-    static_assert(N == 1 || N == 2 || N == 4);
-    if constexpr (Ops & kPadAlpha) {
+// N represents the number of pixels being processed; some Ops are only supported for C == 1 or
+// C == 4. For other channel counts, those Ops are ignored at compile time (to make the ops switch
+// tables easier to write). Hopefully the linker will see that they are equivalent to the template
+// w/o the incompatible Ops.
+template <typename Cx, int N, int CPow2, uint8_t Ops>
+skvx::Vec<CPow2*N, Cx> apply_ops_by_channel(skvx::Vec<CPow2*N, Cx> pixel, Cx opaqueAlpha) {
+    static_assert(CPow2 == 1 || CPow2 == 2 || CPow2 == 4);
+
+    if constexpr (Ops & kPadAlpha && CPow2 == 4) {
         // If we are padding alpha, we are moving from a 3-channel source data (loaded in the first
         // N*3 values of pixel) to a 4-channel value. 3*N+1 holds undefined data after loading the
         // pixel, which we can set to the opaque alpha value. Then we shuffle the slots to spread
         // out each pixel's R,G, and B values and insert copies of the opaque alpha value.
         static constexpr int kA = 3*N;
-        pixel[kA] = OpaqueAlpha;
+        pixel[kA] = opaqueAlpha;
 
         if constexpr (N == 4) {
             pixel = skvx::shuffle<0,1,2,kA, 3,4,5,kA, 6,7,8,kA, 9,10,11,kA>(pixel);
         } else if constexpr (N == 2) {
             pixel = skvx::shuffle<0,1,2,kA, 3,4,5,kA>(pixel);
-        } // else no shuffling needed for N=1, since pixel == shuffle<0,1,2,A>(pixel)
+        } else {
+            // No shuffling needed for N=1, since pixel == shuffle<0,1,2,A>(pixel)
+            static_assert(N == 1);
+        }
     }
 
     // Ops that assume 4 channels can be applied between kPadAlpha and kDropAlpha w/o worrying about
     // how to handle the 3-channel formats.
-    if constexpr (Ops & kSwapRB) {
+    if constexpr (Ops & kSwapRB && CPow2 == 4) {
         // For all 3 and 4 channel formats, it is assumed that R and B are in channels 0 and 2.
         if constexpr (N == 4) {
             pixel = skvx::shuffle<2,1,0,3, 6,5,4,7, 10,9,8,11, 14,13,12,15>(pixel);
         } else if constexpr (N == 2) {
             pixel = skvx::shuffle<2,1,0,3, 6,5,4,7>(pixel);
         } else {
+            static_assert(N == 1);
             pixel = skvx::shuffle<2,1,0,3>(pixel);
         }
     }
 
-    // TODO: Implement kForceOpaque here as well
+    // 2-channel formats are incompatible with forcing opaque since there's never an alpha channel
+    if constexpr (Ops & kForceOpaque && (CPow2 != 2)) {
+        if constexpr (CPow2 == 1) {
+            // For single-channel formats, the opaque alpha gets splatted over the whole vector
+            pixel = opaqueAlpha;
+        } else {
+            // Between kPadAlpha and kDropAlpha, it is assumed that alpha is always channel 3
+            if constexpr (N == 4) {
+                pixel[3] = pixel[7] = pixel[11] = pixel[15] = opaqueAlpha;
+            } else if constexpr (N == 2) {
+                pixel[3] = pixel[7] = opaqueAlpha;
+            } else {
+                static_assert(N == 1);
+                pixel[3] = opaqueAlpha;
+            }
+        }
+    }
 
-    if constexpr (Ops & kDropAlpha) {
+    if constexpr (Ops & kDropAlpha && CPow2 == 4) {
         // If we are dropping alpha, we need to shuffle the R,G, and B values of the 4-channel
         // source data into the first N*3 slots of the returned pixel. The remaining N slots will
         // be ignored by the final memcpy.
@@ -163,7 +192,10 @@ skvx::Vec<4*N, Cx> apply_ops_by_channel(skvx::Vec<4*N, Cx> pixel) {
             pixel = skvx::shuffle<0,1,2, 4,5,6, 8,9,10, 12,13,14, 14,14,14,14>(pixel);
         } else if constexpr (N == 2) {
             pixel = skvx::shuffle<0,1,2, 4,5,6, 6,6>(pixel);
-        } // else no shuffling needed for N=1, since pixel == shuffle<0,1,2,_>(pixel)
+        } else {
+            // No shuffling needed for N=1, since pixel == shuffle<0,1,2,_>(pixel)
+            static_assert(N == 1);
+        }
     }
 
     return pixel;
@@ -173,14 +205,13 @@ skvx::Vec<4*N, Cx> apply_ops_by_channel(skvx::Vec<4*N, Cx> pixel) {
 // SwapRB involves swapping channel 0 and channel 2, and dropping alpha removes channel 3. This
 // can be parameterized via template parameters to be able to push into the skvx::shuffle calls
 // if needed in the future.
-template <typename Cx, int C, Cx OpaqueAlpha>
-XferRowFn xfer_rows_by_channel(uint8_t ops) {
-    static_assert(C == 3 || C == 4);
+template <typename Cx, int C>
+XferRowFn xfer_rows_by_channel(uint8_t ops, Cx opaqueAlpha) {
+    static_assert(C == 1 || C == 2 || C == 3 || C == 4);
     static constexpr int CPow2 = SkNextPow2(C);
     static constexpr int N = 16 / (CPow2 * sizeof(Cx)); // Fit to 128-bit/16-byte SIMD
 
-    static_assert(N == 1 || N == 2 || N == 4);
-    using PxVec = skvx::Vec<N*CPow2, Cx>;
+    static_assert(N == 1 || N == 2 || N == 4 || N == 8 || N == 16);
 
     int srcBpp = C * sizeof(Cx);
     int dstBpp = C * sizeof(Cx);
@@ -195,8 +226,8 @@ XferRowFn xfer_rows_by_channel(uint8_t ops) {
     }
 
 #define RETURN_XFER_ROW_FN(ops) \
-        case ops: return create_xfer_row_fn<PxVec>(N, srcBpp, dstBpp, \
-                                                   apply_ops_by_channel<Cx, N, ops, OpaqueAlpha>);
+        case ops: return create_xfer_row_fn<Cx, N*CPow2>(N, srcBpp, dstBpp, opaqueAlpha, \
+                                                         apply_ops_by_channel<Cx, N, CPow2, ops>);
     switch (ops) {
         // The expected combination of ExtendedFormatXferOps
         RETURN_XFER_ROW_FN(kDropAlpha)
@@ -204,6 +235,8 @@ XferRowFn xfer_rows_by_channel(uint8_t ops) {
         RETURN_XFER_ROW_FN(kPadAlpha)
         RETURN_XFER_ROW_FN(kPadAlpha | kSwapRB)
         RETURN_XFER_ROW_FN(kSwapRB)
+        RETURN_XFER_ROW_FN(kForceOpaque)
+        RETURN_XFER_ROW_FN(kForceOpaque | kSwapRB)
         default:
             SK_ABORT("Unsupported ExtendedFormatXferOps combination: %u", ops);
     }
@@ -213,13 +246,13 @@ XferRowFn xfer_rows_by_channel(uint8_t ops) {
 XferRowFn get_xfer_row_fn(TextureFormat format, uint8_t ops) {
     static constexpr uint32_t kFloatBits1 = 0x3f800000; // SkFloat2Bits isn't constexpr
     SkASSERT(kFloatBits1 == SkFloat2Bits(1.f));
+
+    // 10 bits for _XR formats that encodes 1.0 given their extended normalization range.
+    static constexpr uint32_t kXROne = 0x37e;
+
     SkASSERT(ops); // For now, assume we only call into this if we have work to do.
 
     switch (format) {
-        case TF::kR8:
-        case TF::kA8:
-        case TF::kR16:
-        case TF::kR16F:
         case TF::kRG8:
         case TF::kRG16:
         case TF::kRG16F:
@@ -233,51 +266,67 @@ XferRowFn get_xfer_row_fn(TextureFormat format, uint8_t ops) {
         // Packed formats operate on a primitive that holds the entire pixel value
         case TF::kB5_G6_R5:
         case TF::kR5_G6_B5:
-            return xfer_rows_packed<uint16_t, /*RShift=*/0, /*BShift=*/11, /*RBBits=*/5>(ops);
+            return xfer_rows_packed<uint16_t, /*RShift=*/0, /*BShift=*/11, /*RBBits=*/5>(
+                    ops, /*opaqueAlpha=*/0);
 
         case TF::kABGR4:
         case TF::kARGB4:
-            return xfer_rows_packed<uint16_t, /*RShift=*/4, /*BShift=*/12, /*RBBits=*/4>(ops);
+            return xfer_rows_packed<uint16_t, /*RShift=*/4, /*BShift=*/12, /*RBBits=*/4>(
+                    ops, /*opaqueAlpha=*/0xF);
 
         case TF::kRGB10_A2:
         case TF::kBGR10_A2:
         case TF::kBGR10_XR:
-            return xfer_rows_packed<uint32_t, /*RShift=*/0, /*BShift=*/20, /*RBBits=*/10>(ops);
+            return xfer_rows_packed<uint32_t, /*RShift=*/0, /*BShift=*/20, /*RBBits=*/10>(
+                    ops, /*opaqueAlpha=*/0b11 << 30);
 
         // The remaining formats can be operated on with each channel as a primitive
+        case TF::kR8:
+        case TF::kA8:
+            return xfer_rows_by_channel<uint8_t, /*C=*/1>(ops, /*opaqueAlpha=*/0xFF);
+
+        case TF::kR16:
+            return xfer_rows_by_channel<uint16_t, /*C=*/1>(ops, /*opaqueAlpha=*/0xFFFF);
+
+        case TF::kR16F:
+            return xfer_rows_by_channel<uint16_t, /*C=*/1>(ops, /*opaqueAlpha=*/SK_Half1);
+
         case TF::kRGB8_sRGB:
         case TF::kRGB8:
         case TF::kBGR8:
-            return xfer_rows_by_channel<uint8_t, /*C=*/3, 0xFF>(ops);
+            return xfer_rows_by_channel<uint8_t, /*C=*/3>(ops, /*opaqueAlpha=*/0xFF);
 
         case TF::kRGB16:
-            return xfer_rows_by_channel<uint16_t, /*C=*/3, 0xFFFF>(ops);
+            return xfer_rows_by_channel<uint16_t, /*C=*/3>(ops, /*opaqueAlpha=*/0xFFFF);
 
         case TF::kRGB16F:
-            return xfer_rows_by_channel<uint16_t, /*C=*/3, SK_Half1>(ops);
+            return xfer_rows_by_channel<uint16_t, /*C=*/3>(ops, /*opaqueAlpha=*/SK_Half1);
 
         case TF::kRGB32F:
-            return xfer_rows_by_channel<uint32_t, /*C=*/3, kFloatBits1>(ops);
+            return xfer_rows_by_channel<uint32_t, /*C=*/3>(ops, /*opaqueAlpha=*/kFloatBits1);
 
         case TF::kRGBA8:
         case TF::kRGBA8_sRGB:
         case TF::kBGRA8:
         case TF::kBGRA8_sRGB:
-            return xfer_rows_by_channel<uint8_t, /*C=*/4, 0xFF>(ops);
+            return xfer_rows_by_channel<uint8_t, /*C=*/4>(ops, /*opaqueAlpha=*/0xFF);
 
         case TF::kRGBA10x6:
-        case TF::kBGRA10x6_XR:
             // Each channel is the 10 real bits, with the least significant 6 padding bits.
-            return xfer_rows_by_channel<uint16_t, /*C=*/4, 0xFFC0>(ops);
+            return xfer_rows_by_channel<uint16_t, /*C=*/4>(ops, /*opaqueAlpha=*/0xFFC0);
+
+        case TF::kBGRA10x6_XR:
+            // Like RGBA10x6 except the constants have to fit the extended range.
+            return xfer_rows_by_channel<uint16_t, /*C=*/4>(ops, /*opaqueAlpha=*/kXROne << 6);
 
         case TF::kRGBA16:
-            return xfer_rows_by_channel<uint16_t, /*C=*/4, 0xFFFF>(ops);
+            return xfer_rows_by_channel<uint16_t, /*C=*/4>(ops, /*opaqueAlpha=*/0xFFFF);
 
         case TF::kRGBA16F:
-            return xfer_rows_by_channel<uint16_t, /*C=*/4, SK_Half1>(ops);
+            return xfer_rows_by_channel<uint16_t, /*C=*/4>(ops, /*opaqueAlpha=*/SK_Half1);
 
         case TF::kRGBA32F:
-            return xfer_rows_by_channel<uint32_t, /*C=*/4, kFloatBits1>(ops);
+            return xfer_rows_by_channel<uint32_t, /*C=*/4>(ops, /*opaqueAlpha=*/kFloatBits1);
 
         default:
             // Remaining cases are compressed, multiplanar, or non-color so shouldn't be reached.
@@ -404,7 +453,18 @@ std::pair</*ops=*/uint8_t, /*computeLuminance=*/bool> optimize_transfer(
         }
     }
 
-    // Third, handle masking any unknown alpha bits if the dst doesn't already mask them.
+    // Third, switch swizzle components back to their default if the format doesn't have them
+    {
+        uint32_t texChannels = SkColorTypeChannelFlags(*texBaseCT);
+        const char c[4] = {(*texReadSwizzle)[0], (*texReadSwizzle)[1],
+                           (*texReadSwizzle)[2], (*texReadSwizzle)[3]};
+        *texReadSwizzle = Swizzle((texChannels & kRed_SkColorChannelFlag)   ? c[0] : 'r',
+                                  (texChannels & kGreen_SkColorChannelFlag) ? c[1] : 'g',
+                                  (texChannels & kBlue_SkColorChannelFlag)  ? c[2] : 'b',
+                                  (texChannels & kAlpha_SkColorChannelFlag) ? c[3] : 'a');
+    }
+
+    // Fourth, handle masking any unknown alpha bits if the dst doesn't already mask them.
     {
         bool cpuMasksAlpha = rgbx_to_rgba(cpuCT);
         bool gpuMasksAlpha = rgbx_to_rgba(texBaseCT) || (*texReadSwizzle)[3] == '1';
@@ -418,34 +478,28 @@ std::pair</*ops=*/uint8_t, /*computeLuminance=*/bool> optimize_transfer(
             csSteps->fFlags.unpremul = false;
         }
 
-        if (dstStoresAlpha) {
-            if (srcHasJunkAlpha) {
-                // Must override the junk alpha bits with opaque values during the transfer.
-                // TODO(michaelludwig): Implement a force-opaque extended xfer op to avoid applying
-                // swizzles for this.
-                *texReadSwizzle = Swizzle::Concat(*texReadSwizzle, Swizzle::RGB1());
-            }
-        } else {
-            // Reset any opacity forcing in the swizzle since it's either in finalOps or can be
-            // ignored
-            if ((*texReadSwizzle)[3] == '1') {
-                *texReadSwizzle = Swizzle((*texReadSwizzle)[0],
-                                          (*texReadSwizzle)[1],
-                                          (*texReadSwizzle)[2],
-                                          'a');
-            }
+        if (dstStoresAlpha && srcHasJunkAlpha) {
+            finalOps |= kForceOpaque;
+        }
+
+        // Reset any opacity forcing in the swizzle since it's handled by kForceOpaque.
+        if ((*texReadSwizzle)[3] == '1') {
+            *texReadSwizzle = Swizzle((*texReadSwizzle)[0],
+                                      (*texReadSwizzle)[1],
+                                      (*texReadSwizzle)[2],
+                                      'a');
         }
     }
 
     // TODO(michaelludwig): Optimize cases where there are no channel overlaps between the source
     // and the dst and a constant value can be set for all pixels.
 
-    // Fourth, lift gray/luminance calculation out of colortype so that its placement in the
+    // Fifth, lift gray/luminance calculation out of colortype so that its placement in the
     // raster pipeline ops list can be controlled (vs. attached to a store). If luminance has to be
     // calculated, some additional optimizations may not be possible.
     const bool computeLuminance = account_for_luminance(*srcCT, SkToBool(*csSteps), dstCT);
 
-    // Fifth, consolidate red/blue swaps present in colortype, swizzle, and xferOps into just ops
+    // Sixth, consolidate red/blue swaps present in colortype, swizzle, and xferOps into just ops
     {
         // Any swaps from the texture's base color type, swizzle, and xfer ops can always be
         // combined since those operations are grouped together, regardless of `TextureIsDst`.
@@ -491,6 +545,8 @@ std::pair</*ops=*/uint8_t, /*computeLuminance=*/bool> optimize_transfer(
         } else {
             finalOps |= kPadAlpha;
         }
+        // Remove kForceOpaque as it's redundant with kDropAlpha/kPadAlpha
+        finalOps &= ~kForceOpaque;
     }
 
     return {finalOps, computeLuminance};
