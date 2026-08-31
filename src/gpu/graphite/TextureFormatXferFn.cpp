@@ -318,6 +318,18 @@ bool account_for_luminance(SkColorType srcCT,
     return false;
 }
 
+bool rgbx_to_rgba(SkColorType* ct) {
+    switch (*ct) {
+        case kRGB_888x_SkColorType: *ct = kRGBA_8888_SkColorType; return true;
+        case kRGB_101010x_SkColorType: *ct = kRGBA_1010102_SkColorType; return true;
+        case kRGB_F16F16F16x_SkColorType: *ct = kRGBA_F16_SkColorType; return true;
+        case kBGR_101010x_SkColorType: *ct = kBGRA_1010102_SkColorType; return true;
+        default:
+            // No colortype consolidation possible by switching to a kForceOpaque op instead.
+            return false;
+    }
+}
+
 template <bool TextureIsDst>
 std::pair</*ops=*/uint8_t, /*computeLuminance=*/bool> optimize_transfer(
         SkColorType* cpuCT,
@@ -378,9 +390,41 @@ std::pair</*ops=*/uint8_t, /*computeLuminance=*/bool> optimize_transfer(
         }
     }
 
+    // Third, handle masking any unknown alpha bits if the dst doesn't already mask them.
+    {
+        bool cpuMasksAlpha = rgbx_to_rgba(cpuCT);
+        bool gpuMasksAlpha = rgbx_to_rgba(texBaseCT) || (*texReadSwizzle)[3] == '1';
+        bool srcHasJunkAlpha = TextureIsDst ? cpuMasksAlpha : gpuMasksAlpha;
+        bool dstStoresAlpha =
+                (SkColorTypeChannelFlags(*dstCT) & kAlpha_SkColorChannelFlag) &&
+                !(TextureIsDst ? gpuMasksAlpha : cpuMasksAlpha);
+
+        if (srcHasJunkAlpha) {
+            csSteps->fFlags.premul = false;
+            csSteps->fFlags.unpremul = false;
+        }
+
+        if (dstStoresAlpha) {
+            if (srcHasJunkAlpha) {
+                // Must override the junk alpha bits with opaque values during the transfer.
+                // TODO(michaelludwig): Implement a force-opaque extended xfer op to avoid applying
+                // swizzles for this.
+                *texReadSwizzle = Swizzle::Concat(*texReadSwizzle, Swizzle::RGB1());
+            }
+        } else {
+            // Reset any opacity forcing in the swizzle since it's either in finalOps or can be
+            // ignored
+            if ((*texReadSwizzle)[3] == '1') {
+                *texReadSwizzle = Swizzle((*texReadSwizzle)[0],
+                                          (*texReadSwizzle)[1],
+                                          (*texReadSwizzle)[2],
+                                          'a');
+            }
+        }
+    }
+
     // TODO(michaelludwig): Include adjustments to account for redundant RB swaps between colortype
-    // and the swizzle and the FormatXferOp, and remove unnecessary alpha opacity masking (e.g.
-    // rgbx -> rgba) if the target will be masking alpha when sampling/reading anyways.
+    // and the swizzle and the FormatXferOp.
 
     const bool computeLuminance = account_for_luminance(*srcCT, SkToBool(*csSteps), dstCT);
 

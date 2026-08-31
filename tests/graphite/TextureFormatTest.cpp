@@ -994,14 +994,16 @@ void test_format_transfers(skiatest::Reporter* r,
                            SkAlphaType dstAT,
                            bool applyCS) {
     // When transferring to CPU->GPU, we want to apply the textureCT's write swizzle, but if that
-    // is undefined because rendering is disabled, switch to RGB1. This is applicable for the
-    // RGBx cases and for gray (alongside adjusting the texture channel to produce 'G').
-    Swizzle writeSwizzle = textureCT.fWriteSwizzle.value_or(Swizzle::RGB1());
-    skia_private::TArray<Channel> expectedTextureChannels = textureFormat.fChannels;
+    // is undefined because rendering is disabled, just use RGBA.
+    Swizzle writeSwizzle = textureCT.fWriteSwizzle.value_or(Swizzle::RGBA());
+
     // Adjust the R8 channel to be 'G' for gray-storing textures so that gen_pixel_data includes
     // any conversion to or from luminance.
+    const bool isRedOnly = textureFormat.fChannels.size() == 1 &&
+                           textureFormat.fChannels[0].fName == 'r';
+    skia_private::TArray<Channel> expectedTextureChannels = textureFormat.fChannels;
     if (textureCT.fColorType == kGray_8_SkColorType) {
-        SkASSERT(expectedTextureChannels.size() == 1 && expectedTextureChannels[0].fName == 'r');
+        SkASSERT(isRedOnly);
         expectedTextureChannels[0].fName = 'G';
     }
 
@@ -1063,7 +1065,7 @@ void test_format_transfers(skiatest::Reporter* r,
             std::optional<char> ignoreChannel;
             if (readSwizzle[3] == '1') {
                 // If the format stores alpha in r, we need to ignore the r value.
-                ignoreChannel = textureCT.fReadSwizzle[3];
+                ignoreChannel = isRedOnly ? 'r' : 'a';
             }
             if (!compare_pixels(expectedTextureChannels, expectedGpuPixel, actualGpuPixel, tol,
                                 ignoreChannel)) {
