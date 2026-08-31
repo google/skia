@@ -17,6 +17,7 @@
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
+#include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkVx.h"
 
 #include <functional>
@@ -318,6 +319,34 @@ void optimize_colortypes_and_swizzle(SkColorType* texBaseCT, Swizzle* readSwizzl
     }
 }
 
+// An RPModifier for RPOps::Make() that handles calculating bt709 luminance. The API is that it
+// must have an explicit bool operator, and an apply(SkRasterPipeline*) function.
+struct BT709Luminance {
+    bool fEnabled;
+
+    explicit operator bool() const { return fEnabled; }
+    void apply(SkRasterPipeline* rp) const {
+        if (fEnabled) {
+            rp->append(SkRasterPipelineOp::bt709_luminance_or_luma_to_alpha);
+        } // else no op needed
+    }
+};
+
+bool account_for_luminance(SkColorType srcCT,
+                           const SkColorSpaceXformSteps& cs,
+                           SkColorType* dstCT) {
+    if (*dstCT == kGray_8_SkColorType) {
+        if (srcCT != kGray_8_SkColorType || SkToBool(cs)) {
+            // Luminance must be calculated by raster pipeline, but we'll have to apply it before
+            // any srcToDst swizzle, so pull it out to its own RPModifier. The op stores the value
+            // in the alpha channel, so that needs to be dstCT that SkRasterPipeline sees.
+            *dstCT = kAlpha_8_SkColorType;
+            return true;
+        } // else leave it as gray->gray
+    } // else trivially no extra luminance needs to be calculated, leave dstCT as-is
+    return false;
+}
+
 } // anonymous namespace
 
 std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeCpuToGpu(
@@ -331,6 +360,7 @@ std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeCpuToGpu(
     }
 
     optimize_colortypes_and_swizzle(&baseCT, &dstReadSwizzle);
+    const bool computeLuminance = account_for_luminance(srcCT, csSteps, &baseCT);
 
     uint8_t postOps = 0;
     Swizzle srcToDst = dstReadSwizzle.invert();
@@ -342,7 +372,15 @@ std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeCpuToGpu(
         // On CPU->GPU conversion, FormatXferOp::kDropAlpha actually drops the alpha bits
         postOps |= kDropAlpha;
     }
-    auto rp = RPOps::Make(srcCT, baseCT, csSteps, srcToDst);
+
+    // The CPU -> GPU transform is:
+    //  SkRP{load(srcCT) ->
+    //       csSteps? ->
+    //       luminance? -> NOTE: luminance must be computed *before* the texture's swizzle
+    //       srcToDst(dstReadSwizzle^-1)? ->
+    //       store(baseCT)}? ->
+    //  postOps(baseCT->TF)?
+    auto rp = RPOps::Make(srcCT, baseCT, csSteps, BT709Luminance{computeLuminance}, srcToDst);
     return TextureFormatXferFn(dstFormat, /*preOps=*/0, std::move(rp), postOps);
 }
 
@@ -357,6 +395,7 @@ std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeGpuToCpu(
     }
 
     optimize_colortypes_and_swizzle(&baseCT, &srcReadSwizzle);
+    const bool computeLuminance = account_for_luminance(baseCT, csSteps, &dstCT);
 
     uint8_t preOps = 0;
     Swizzle srcToDst = srcReadSwizzle;
@@ -367,7 +406,15 @@ std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeGpuToCpu(
         // On GPU->CPU conversion, FormatXferOp::kDropAlpha must pad alpha bits back
         preOps |= kPadAlpha;
     }
-    auto rp = RPOps::Make(baseCT, dstCT, srcToDst, csSteps);
+
+    // The GPU -> CPU transform is:
+    //  preOps(TF->baseCT)? ->
+    //  SkRP{load(baseCT) ->
+    //       srcToDst(srcReadSwizzle)? ->
+    //       csSteps? ->
+    //       luminance? ->
+    //       store(dstCT)}?
+    auto rp = RPOps::Make(baseCT, dstCT, srcToDst, csSteps, BT709Luminance{computeLuminance});
     return TextureFormatXferFn(srcFormat, preOps, std::move(rp), /*postOps=*/0);
 }
 
@@ -391,6 +438,12 @@ sk_sp<TextureFormatXferFn::RPOps> TextureFormatXferFn::RPOps::Make(
         (!SkToBool(rpModifiers) && ...)) {
         return nullptr; // Identity conversion
     }
+
+    // Luminance has to be calculated before the texture's swizzle so it's pulled out manually
+    // and put in the right place in `rpModifiers`, so we don't want to encounter them where
+    // the appendStore() also computes luminance.
+    SkASSERT(dstColorType != kGray_8_SkColorType);
+
     sk_sp<RPOps> ops{new RPOps(/*srcBpp=*/SkColorTypeBytesPerPixel(srcColorType),
                                /*dstBpp=*/SkColorTypeBytesPerPixel(dstColorType))};
 
