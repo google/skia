@@ -293,9 +293,10 @@ void optimize_colortypes_and_swizzle(SkColorType* texBaseCT, Swizzle* readSwizzl
     // make adjustments to reduce or eliminate the use of raster pipeline entirely.
 
     // The most trivial cases are swizzling between alpha-only and red-only color types which should
-    // be a no-op in either direction as long as the underlying data type is the same.
+    // be a no-op in either direction as long as the underlying data type is the same. These
+    // also test the forced-opaque swizzle equivalents.
     SkColorType adjustedBase = *texBaseCT;
-    if (*readSwizzle == Swizzle("000r")) {
+    if (*readSwizzle == Swizzle("000r") || *readSwizzle == Swizzle("0001")) {
         // Red -> Alpha so shift the texture's "base" colortype to be the corresponding alpha type
         switch(adjustedBase) {
             case kR8_unorm_SkColorType:  adjustedBase = kAlpha_8_SkColorType; break;
@@ -303,7 +304,8 @@ void optimize_colortypes_and_swizzle(SkColorType* texBaseCT, Swizzle* readSwizzl
             case kR16_float_SkColorType: adjustedBase = kA16_float_SkColorType; break;
             default: break; // Go through regular RP + swizzle flow
         }
-    } else if (*readSwizzle == Swizzle("rrra") && adjustedBase == kR8_unorm_SkColorType) {
+    } else if ((*readSwizzle == Swizzle("rrra") || *readSwizzle == Swizzle("rrr1")) &&
+               adjustedBase == kR8_unorm_SkColorType) {
         // Red -> Gray so shift to kGray, which either ensures RP will generate the gray values from
         // a non-gray input, or will be detected as a no-op when transferring to/from existing gray.
         adjustedBase = kGray_8_SkColorType;
@@ -315,7 +317,13 @@ void optimize_colortypes_and_swizzle(SkColorType* texBaseCT, Swizzle* readSwizzl
 
     if (adjustedBase != *texBaseCT) {
         *texBaseCT = adjustedBase;
-        *readSwizzle = Swizzle::RGBA();
+        // Must preserve any forced opacity in the swizzle
+        if ((SkColorTypeChannelFlags(adjustedBase) & kAlpha_SkColorChannelFlag) &&
+            (*readSwizzle)[3] == '1') {
+            *readSwizzle = Swizzle::RGB1();
+        } else {
+            *readSwizzle = Swizzle::RGBA();
+        }
     }
 }
 
