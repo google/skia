@@ -29,7 +29,8 @@ public:
     // Equivalent to "rgba", but Clang doesn't always manage to inline this
     // if we're too deep in the inlining already.
     constexpr Swizzle() : Swizzle(0x3210) {}
-    explicit constexpr Swizzle(const char c[4]);
+    constexpr Swizzle(char r, char g, char b, char a);
+    explicit constexpr Swizzle(const char c[4]) : Swizzle(c[0], c[1], c[2], c[3]) {}
 
     constexpr Swizzle(const Swizzle&) = default;
     constexpr Swizzle& operator=(const Swizzle& that) = default;
@@ -97,9 +98,9 @@ private:
     static_assert(::sk_is_trivially_relocatable<decltype(fKey)>::value);
 };
 
-constexpr Swizzle::Swizzle(const char c[4])
-        : fKey(static_cast<uint16_t>((CToI(c[0]) << 0) | (CToI(c[1]) << 4) | (CToI(c[2]) << 8) |
-                                     (CToI(c[3]) << 12))) {}
+constexpr Swizzle::Swizzle(char r, char g, char b, char a)
+        : fKey(static_cast<uint16_t>((CToI(r) << 0) | (CToI(g) << 4) | (CToI(b) << 8) |
+                                     (CToI(a) << 12))) {}
 
 constexpr Swizzle Swizzle::selectChannelInR(int i) const {
     return Swizzle(static_cast<uint16_t>((this->channelIndex(i) << 0) | (CToI('0') << 4) |

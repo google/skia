@@ -28,6 +28,10 @@ void Swizzle::apply(SkRasterPipeline* pipeline) const {
         case Swizzle("rgb1").asKey():
             pipeline->append(SkRasterPipelineOp::force_opaque);
             return;
+        case Swizzle("bgr1").asKey():
+            pipeline->append(SkRasterPipelineOp::swap_rb);
+            pipeline->append(SkRasterPipelineOp::force_opaque);
+            return;
         case Swizzle("a001").asKey():
             pipeline->append(SkRasterPipelineOp::alpha_to_red);
             return;
