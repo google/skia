@@ -30,6 +30,14 @@ split_srcs_and_hdrs(
 )
 
 skia_filegroup(
+    name = "sparse_strips_hdrs",
+    srcs = [
+        "EndCaps.h",
+        "WideTiles.h",
+    ],
+)
+
+skia_filegroup(
     name = "geom_hdrs",
     srcs = [":core_hdrs"],
     visibility = ["//src/gpu/graphite:__pkg__"],
