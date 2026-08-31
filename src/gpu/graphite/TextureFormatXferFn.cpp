@@ -37,41 +37,72 @@ enum ExtendedFormatXferOp : uint8_t {
     kPadAlpha    = 0x2,  // FormatXferOp::kDropAlpha for GPU->CPU conversion
     kSwapRB      = 0x4,  // FormatXferOp::kSwapRB behaves the same for either conversion direction
     kForceOpaque = 0x8,  // RGBx handling to avoid raster pipeline is the same in both directions
+    kIgnoreSrc   = 0x10, // The output value does not depend on the src, will be either 0 or 1.
 };
 
 using XferRowFn = std::function<void(const char* src, char* dst, int width)>;
 
 template <typename Px, int N, typename PixelFn /* [](Vec<N,Px>, Px opaqueAlpha) -> Vec<N,Px> */>
-XferRowFn create_xfer_row_fn(int n, int srcBpp, int dstBpp, Px opaqueAlpha, PixelFn applyPixel) {
+XferRowFn create_xfer_row_fn(int n, int srcBpp, int dstBpp,
+                             Px opaqueAlpha, Px zeroValue, PixelFn applyPixel) {
     using PxVec = skvx::Vec<N, Px>;
 
-    // PxVec should be sufficient to hold N src and dst pixels, and should match at least one
-    SkASSERT(sizeof(PxVec) >= (size_t)srcBpp*n && sizeof(PxVec) >= (size_t)dstBpp*n);
-    SkASSERT(sizeof(PxVec) == (size_t)srcBpp*n || sizeof(PxVec) == (size_t)dstBpp*n);
+    if (srcBpp != 0) {
+        // PxVec should be sufficient to hold N src and dst pixels, and should match at least one
+        SkASSERT(sizeof(PxVec) >= (size_t)srcBpp*n && sizeof(PxVec) >= (size_t)dstBpp*n);
+        SkASSERT(sizeof(PxVec) == (size_t)srcBpp*n || sizeof(PxVec) == (size_t)dstBpp*n);
 
-    return [n, srcBpp, dstBpp, opaqueAlpha, applyPixel](const char* src, char* dst, int width) {
-        const int srcBppN = n * srcBpp;
-        const int dstBppN = n * dstBpp;
+        // NOTE: These must all be named explicitly, since using the & to auto-capture does not copy
+        // them, so then their references become corrupted when executing the lambda later.
+        return [n, srcBpp, dstBpp, opaqueAlpha, applyPixel](const char* src, char* dst, int width) {
+            const int srcBppN = n * srcBpp;
+            const int dstBppN = n * dstBpp;
 
-        PxVec pixel{};
-        while (width >= n) {
-            memcpy(&pixel, src, srcBppN);
-            pixel = applyPixel(pixel, opaqueAlpha);
-            memcpy(dst, &pixel, dstBppN);
+            PxVec pixel{};
+            while (width >= n) {
+                memcpy(&pixel, src, srcBppN);
+                pixel = applyPixel(pixel, opaqueAlpha);
+                memcpy(dst, &pixel, dstBppN);
 
-            width -= n;
-            src += srcBppN;
-            dst += dstBppN;
-        }
+                width -= n;
+                src += srcBppN;
+                dst += dstBppN;
+            }
 
-        if (width > 0) {
-            // Process tail that is less than a full vector
-            SkASSERT(width < n);
-            memcpy(&pixel, src, width * srcBpp);
-            pixel = applyPixel(pixel, opaqueAlpha);
-            memcpy(dst, &pixel, width * dstBpp);
-        }
-    };
+            if (width > 0) {
+                // Process tail that is less than a full vector
+                SkASSERT(width < n);
+                memcpy(&pixel, src, width * srcBpp);
+                pixel = applyPixel(pixel, opaqueAlpha);
+                memcpy(dst, &pixel, width * dstBpp);
+            }
+        };
+    } else {
+        // Ignore the source in favor of loading zeroValue into pixel each time
+        SkASSERT(sizeof(PxVec) >= (size_t)dstBpp*n);
+
+        return [n, opaqueAlpha, zeroValue, dstBpp, applyPixel](const char*, char* dst, int width) {
+            const int dstBppN = n * dstBpp;
+
+            PxVec pixel{};
+            while (width >= n) {
+                pixel = zeroValue;
+                pixel = applyPixel(pixel, opaqueAlpha);
+                memcpy(dst, &pixel, dstBppN);
+
+                width -= n;
+                dst += dstBppN;
+            }
+
+            if (width > 0) {
+                // Process tail that is less than a full vector
+                SkASSERT(width < n);
+                pixel = zeroValue;
+                pixel = applyPixel(pixel, opaqueAlpha);
+                memcpy(dst, &pixel, width * dstBpp);
+            }
+        };
+    }
 }
 
 // N represents the number of pixels being processed; each pixel is packed into a single element of
@@ -104,22 +135,28 @@ skvx::Vec<N, Px> apply_ops_packed(skvx::Vec<N, Px> pixel, Px opaqueAlpha) {
 
 // NOTE: This takes no parameters for alpha because none of the formats that use this support
 // kDrop/PadAlpha. Since the channels are packed into Px, both source and dst must have the same bpp
+// `opaqueAlpha` specifies the bit pattern for the entire pixel representing {0, 0, 0, 1.0}.
+// `zeroValue` specifies the bit pattern for the entire pixel representing {0, 0, 0, 0}.
 template <typename Px, Px RShift, Px BShift, Px RBBits>
-XferRowFn xfer_rows_packed(uint8_t ops, Px opaqueAlpha) {
+XferRowFn xfer_rows_packed(uint8_t ops, Px opaqueAlpha, Px zeroValue = 0) {
     static constexpr int kBpp = sizeof(Px);
     static constexpr int N = 16 / sizeof(Px); // Fit to 128-bit/16-byte SIMD
 
     static_assert(N == 1 || N == 2 || N == 4 || N == 8);
 
 #define RETURN_XFER_ROW_FN(ops) \
-        case ops: return create_xfer_row_fn<Px, N>( \
-                N, kBpp, kBpp, opaqueAlpha, apply_ops_packed<Px, N, ops, RShift, BShift, RBBits>);
+        case ops: \
+            return create_xfer_row_fn<Px, N>( \
+                    N, (ops) & kIgnoreSrc ? 0 : kBpp, kBpp, opaqueAlpha, zeroValue, \
+                    apply_ops_packed<Px, N, (ops) & ~kIgnoreSrc, RShift, BShift, RBBits>); \
 
     switch (ops) {
         // The expected combination of ExtendedFormatXferOps
         RETURN_XFER_ROW_FN(kSwapRB)
+        RETURN_XFER_ROW_FN(kIgnoreSrc)
         RETURN_XFER_ROW_FN(kForceOpaque)
         RETURN_XFER_ROW_FN(kForceOpaque | kSwapRB)
+        RETURN_XFER_ROW_FN(kForceOpaque | kIgnoreSrc)
         default:
             SK_ABORT("Unsupported ExtendedFormatXferOps combination: %u", ops);
     }
@@ -205,8 +242,10 @@ skvx::Vec<CPow2*N, Cx> apply_ops_by_channel(skvx::Vec<CPow2*N, Cx> pixel, Cx opa
 // SwapRB involves swapping channel 0 and channel 2, and dropping alpha removes channel 3. This
 // can be parameterized via template parameters to be able to push into the skvx::shuffle calls
 // if needed in the future.
+// `opaqueAlpha` specifies the bit pattern for a channel representing 1.0.
+// `zeroValue` specifies the bit pattern for a channel representing 0.0.
 template <typename Cx, int C>
-XferRowFn xfer_rows_by_channel(uint8_t ops, Cx opaqueAlpha) {
+XferRowFn xfer_rows_by_channel(uint8_t ops, Cx opaqueAlpha, Cx zeroValue=0) {
     static_assert(C == 1 || C == 2 || C == 3 || C == 4);
     static constexpr int CPow2 = SkNextPow2(C);
     static constexpr int N = 16 / (CPow2 * sizeof(Cx)); // Fit to 128-bit/16-byte SIMD
@@ -226,17 +265,24 @@ XferRowFn xfer_rows_by_channel(uint8_t ops, Cx opaqueAlpha) {
     }
 
 #define RETURN_XFER_ROW_FN(ops) \
-        case ops: return create_xfer_row_fn<Cx, N*CPow2>(N, srcBpp, dstBpp, opaqueAlpha, \
-                                                         apply_ops_by_channel<Cx, N, CPow2, ops>);
+        case ops: \
+            return create_xfer_row_fn<Cx, N*CPow2>( \
+                    N, (ops) & kIgnoreSrc ? 0 : srcBpp, dstBpp, opaqueAlpha, zeroValue, \
+                    apply_ops_by_channel<Cx, N, CPow2, (ops) & ~kIgnoreSrc>);
+
     switch (ops) {
         // The expected combination of ExtendedFormatXferOps
         RETURN_XFER_ROW_FN(kDropAlpha)
         RETURN_XFER_ROW_FN(kDropAlpha | kSwapRB)
+        RETURN_XFER_ROW_FN(kDropAlpha | kIgnoreSrc)
         RETURN_XFER_ROW_FN(kPadAlpha)
         RETURN_XFER_ROW_FN(kPadAlpha | kSwapRB)
+        RETURN_XFER_ROW_FN(kPadAlpha | kIgnoreSrc)
         RETURN_XFER_ROW_FN(kSwapRB)
+        RETURN_XFER_ROW_FN(kIgnoreSrc)
         RETURN_XFER_ROW_FN(kForceOpaque)
         RETURN_XFER_ROW_FN(kForceOpaque | kSwapRB)
+        RETURN_XFER_ROW_FN(kForceOpaque | kIgnoreSrc)
         default:
             SK_ABORT("Unsupported ExtendedFormatXferOps combination: %u", ops);
     }
@@ -247,22 +293,13 @@ XferRowFn get_xfer_row_fn(TextureFormat format, uint8_t ops) {
     static constexpr uint32_t kFloatBits1 = 0x3f800000; // SkFloat2Bits isn't constexpr
     SkASSERT(kFloatBits1 == SkFloat2Bits(1.f));
 
-    // 10 bits for _XR formats that encodes 1.0 given their extended normalization range.
+    // 10 bits for _XR formats that encodes 1.0 and 0.0 given their extended normalization range.
     static constexpr uint32_t kXROne = 0x37e;
+    static constexpr uint32_t kXRZero = 0x180;
 
     SkASSERT(ops); // For now, assume we only call into this if we have work to do.
 
     switch (format) {
-        case TF::kRG8:
-        case TF::kRG16:
-        case TF::kRG16F:
-        case TF::kRG32F:
-            // 1 and 2 channel formats cannot be combined with colortypes in such a way to create
-            // format conversions, so we should never reach here
-            SK_ABORT("Unexpected ops (%u) requested for format %s",
-                        ops, TextureFormatName(format));
-            break;
-
         // Packed formats operate on a primitive that holds the entire pixel value
         case TF::kB5_G6_R5:
         case TF::kR5_G6_B5:
@@ -276,9 +313,15 @@ XferRowFn get_xfer_row_fn(TextureFormat format, uint8_t ops) {
 
         case TF::kRGB10_A2:
         case TF::kBGR10_A2:
-        case TF::kBGR10_XR:
             return xfer_rows_packed<uint32_t, /*RShift=*/0, /*BShift=*/20, /*RBBits=*/10>(
                     ops, /*opaqueAlpha=*/0b11 << 30);
+
+        case TF::kBGR10_XR:
+            // NOTE: opaqueAlpha doesn't matter here since it's just BGRx data, but to match
+            // SkRP's handling of BGR10A2_XR, treat the last 2 bits as regular unorm.
+            return xfer_rows_packed<uint32_t, /*RShift=*/0, /*BShift=*/20, /*RBBits=*/10>(
+                    ops, /*opaqueAlpha=*/0b11 << 30,
+                    /*zeroValue=*/(kXRZero << 20) | (kXRZero << 10) | kXRZero);
 
         // The remaining formats can be operated on with each channel as a primitive
         case TF::kR8:
@@ -290,6 +333,18 @@ XferRowFn get_xfer_row_fn(TextureFormat format, uint8_t ops) {
 
         case TF::kR16F:
             return xfer_rows_by_channel<uint16_t, /*C=*/1>(ops, /*opaqueAlpha=*/SK_Half1);
+
+        case TF::kRG8:
+            return xfer_rows_by_channel<uint8_t, /*C=*/2>(ops, /*opaqueAlpha=*/0xFF);
+
+        case TF::kRG16:
+            return xfer_rows_by_channel<uint16_t, /*C=*/2>(ops, /*opaqueAlpha=*/0xFF);
+
+        case TF::kRG16F:
+            return xfer_rows_by_channel<uint16_t, /*C=*/2>(ops, /*opaqueAlpha=*/SK_Half1);
+
+        case TF::kRG32F:
+            return xfer_rows_by_channel<uint32_t, /*C=*/2>(ops, /*opaqueAlpha=*/kFloatBits1);
 
         case TF::kRGB8_sRGB:
         case TF::kRGB8:
@@ -317,7 +372,8 @@ XferRowFn get_xfer_row_fn(TextureFormat format, uint8_t ops) {
 
         case TF::kBGRA10x6_XR:
             // Like RGBA10x6 except the constants have to fit the extended range.
-            return xfer_rows_by_channel<uint16_t, /*C=*/4>(ops, /*opaqueAlpha=*/kXROne << 6);
+            return xfer_rows_by_channel<uint16_t, /*C=*/4>(
+                    ops, /*opaqueAlpha=*/kXROne << 6, /*zeroValue=*/kXRZero << 6);
 
         case TF::kRGBA16:
             return xfer_rows_by_channel<uint16_t, /*C=*/4>(ops, /*opaqueAlpha=*/0xFFFF);
@@ -393,6 +449,23 @@ bool bgra_to_rgba(SkColorType* ct) {
     }
 }
 
+uint32_t gray_adjusted_channels(SkColorType ct) {
+    return ct == kGray_8_SkColorType ? kRGB_SkColorChannelFlags : SkColorTypeChannelFlags(ct);
+}
+
+uint32_t swizzle_adjusted_channels(uint32_t channels, Swizzle swizzle) {
+    auto removeChannelIfConstant = [&](SkColorChannelFlag flag, int index) {
+        if (swizzle[index] == '0' || swizzle[index] == '1') {
+            channels &= ~flag;
+        }
+    };
+    removeChannelIfConstant(kRed_SkColorChannelFlag, 0);
+    removeChannelIfConstant(kGreen_SkColorChannelFlag, 1);
+    removeChannelIfConstant(kBlue_SkColorChannelFlag, 2);
+    removeChannelIfConstant(kAlpha_SkColorChannelFlag, 3);
+    return channels;
+}
+
 template <bool TextureIsDst>
 std::pair</*ops=*/uint8_t, /*computeLuminance=*/bool> optimize_transfer(
         SkColorType* cpuCT,
@@ -464,7 +537,42 @@ std::pair</*ops=*/uint8_t, /*computeLuminance=*/bool> optimize_transfer(
                                   (texChannels & kAlpha_SkColorChannelFlag) ? c[3] : 'a');
     }
 
-    // Fourth, handle masking any unknown alpha bits if the dst doesn't already mask them.
+    // Fourth, if the channels are disjoint between the src and the dst, then the dst values can
+    // ignore the source, at which point we reset everything else to the identity and flag what
+    // value is required by the dst (1 if the dst is alpha, 0 if it's RGB/gray).
+    {
+        uint32_t cpuChannels = gray_adjusted_channels(*cpuCT);
+        uint32_t gpuChannels = swizzle_adjusted_channels(gray_adjusted_channels(*texBaseCT),
+                                                         *texReadSwizzle);
+
+        if (!(gpuChannels & cpuChannels)) {
+            finalOps |= kIgnoreSrc;
+            if (SkToBool(xferOps & FormatXferOp::kDropAlpha)) {
+                // We're skipping the final xfer op handling, but we still have to make sure to drop
+                // the alpha channel for 3-channel formats
+                if constexpr (TextureIsDst) {
+                    finalOps |= kDropAlpha;
+                } else {
+                    // Normally this would be kPadAlpha, but we're ignoring the src texture data,
+                    // so instead it can just use kForceOpaque
+                    finalOps |= kForceOpaque;
+                }
+            } else if (!SkColorTypeIsAlwaysOpaque(*dstCT)) {
+                finalOps |= kForceOpaque;
+            }
+
+            // Disable everything else for the transfer
+            *texReadSwizzle = Swizzle::RGBA();
+            *srcCT = *dstCT;
+            *csSteps = SkColorSpaceXformSteps{};
+
+            return {finalOps, /*computeLuminance=*/false};
+        }
+    }
+
+    // Fifth, handle masking any unknown alpha bits if the dst doesn't already mask them. This must
+    // happen *after* checking for channel overlap to optimize to the kIgnoreSrc case. If not, the
+    // RGBx color types getting lifted to RGBA adds a channel overlap when there wasn't one.
     {
         bool cpuMasksAlpha = rgbx_to_rgba(cpuCT);
         bool gpuMasksAlpha = rgbx_to_rgba(texBaseCT) || (*texReadSwizzle)[3] == '1';
@@ -491,15 +599,12 @@ std::pair</*ops=*/uint8_t, /*computeLuminance=*/bool> optimize_transfer(
         }
     }
 
-    // TODO(michaelludwig): Optimize cases where there are no channel overlaps between the source
-    // and the dst and a constant value can be set for all pixels.
-
-    // Fifth, lift gray/luminance calculation out of colortype so that its placement in the
+    // Sixth, lift gray/luminance calculation out of colortype so that its placement in the
     // raster pipeline ops list can be controlled (vs. attached to a store). If luminance has to be
     // calculated, some additional optimizations may not be possible.
     const bool computeLuminance = account_for_luminance(*srcCT, SkToBool(*csSteps), dstCT);
 
-    // Sixth, consolidate red/blue swaps present in colortype, swizzle, and xferOps into just ops
+    // Seventh, consolidate red/blue swaps present in colortype, swizzle, and xferOps into just ops
     {
         // Any swaps from the texture's base color type, swizzle, and xfer ops can always be
         // combined since those operations are grouped together, regardless of `TextureIsDst`.
@@ -593,6 +698,12 @@ std::optional<TextureFormatXferFn> TextureFormatXferFn::MakeGpuToCpu(
     SkColorSpaceXformSteps csStepsOptimized = csSteps;
     auto [preOps, luminance] = optimize_transfer</*TextureIsDst=*/false>(
             &dstCT, &baseCT, &srcReadSwizzle, &csStepsOptimized, xferOps);
+    if (preOps & kIgnoreSrc) {
+        // The source is the texture format, which is what defines how ops are implemented, is
+        // currently set to be ignored, so pick a new format that matches the `dstCT`. Actual GPU
+        // support doesn't matter, this will just ensure the CPU data is initialized correctly.
+        srcFormat = PreferredTextureFormats(dstCT)[0];
+    }
 
     // The GPU -> CPU transform is:
     //  preOps(TF->baseCT)? ->
