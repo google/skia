@@ -367,6 +367,17 @@ std::pair</*ops=*/uint8_t, /*computeLuminance=*/bool> optimize_transfer(
         }
     }
 
+    // Second, remove normalized floating point semantics, since historically we don't enforce them
+    // during transfers (for better or worse).
+    {
+        if (*srcCT == kRGBA_F16Norm_SkColorType) {
+            *srcCT = kRGBA_F16_SkColorType;
+        }
+        if (*dstCT == kRGBA_F16Norm_SkColorType) {
+            *dstCT = kRGBA_F16_SkColorType;
+        }
+    }
+
     // TODO(michaelludwig): Include adjustments to account for redundant RB swaps between colortype
     // and the swizzle and the FormatXferOp, and remove unnecessary alpha opacity masking (e.g.
     // rgbx -> rgba) if the target will be masking alpha when sampling/reading anyways.
