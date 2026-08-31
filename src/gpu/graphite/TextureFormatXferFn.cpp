@@ -330,6 +330,20 @@ bool rgbx_to_rgba(SkColorType* ct) {
     }
 }
 
+bool bgra_to_rgba(SkColorType* ct) {
+    switch (*ct) {
+        case kBGRA_8888_SkColorType:    *ct = kRGBA_8888_SkColorType;    return true;
+        case kBGRA_1010102_SkColorType: *ct = kRGBA_1010102_SkColorType; return true;
+        case kBGR_101010x_SkColorType:  *ct = kRGB_101010x_SkColorType;  return true;
+        // NOTE: For now there's no RGBA version of the _XR color types, so they can't be swapped
+        case kBGRA_10101010_XR_SkColorType:
+        case kBGR_101010x_XR_SkColorType: [[fallthrough]];
+        default:
+            // No colortype consolidation possible by switching to a kSwapRB op instead.
+            return false;
+    }
+}
+
 template <bool TextureIsDst>
 std::pair</*ops=*/uint8_t, /*computeLuminance=*/bool> optimize_transfer(
         SkColorType* cpuCT,
@@ -423,14 +437,53 @@ std::pair</*ops=*/uint8_t, /*computeLuminance=*/bool> optimize_transfer(
         }
     }
 
-    // TODO(michaelludwig): Include adjustments to account for redundant RB swaps between colortype
-    // and the swizzle and the FormatXferOp.
+    // TODO(michaelludwig): Optimize cases where there are no channel overlaps between the source
+    // and the dst and a constant value can be set for all pixels.
 
+    // Fourth, lift gray/luminance calculation out of colortype so that its placement in the
+    // raster pipeline ops list can be controlled (vs. attached to a store). If luminance has to be
+    // calculated, some additional optimizations may not be possible.
     const bool computeLuminance = account_for_luminance(*srcCT, SkToBool(*csSteps), dstCT);
 
-    if (xferOps & FormatXferOp::kSwapRB) {
-        finalOps |= kSwapRB;
+    // Fifth, consolidate red/blue swaps present in colortype, swizzle, and xferOps into just ops
+    {
+        // Any swaps from the texture's base color type, swizzle, and xfer ops can always be
+        // combined since those operations are grouped together, regardless of `TextureIsDst`.
+        int numRBSwaps = 0;
+        if ((*texReadSwizzle)[0] == 'b' && (*texReadSwizzle)[2] == 'r') {
+            // Remove the swap in the swizzle (moving towards a no-op swizzle).
+            *texReadSwizzle = Swizzle::Concat(*texReadSwizzle, Swizzle::BGRA());
+            numRBSwaps++;
+        }
+        if (bgra_to_rgba(texBaseCT)) {
+            numRBSwaps++;
+        }
+        if (xferOps & FormatXferOp::kSwapRB) {
+            numRBSwaps++;
+        }
+
+        // If there is not any RGB-dependent calculation between CPU and GPU data, we can also
+        // consolidate the swap from cpu color type.
+        if (!computeLuminance && !SkToBool(*csSteps)) {
+            // TODO(michaelludwig): Once we push finalOps back into raster pipeline if we need SkRP,
+            // we can always apply this to cpuCT to remove an implicit swap_rb op.
+            SkColorType swappedCT = *cpuCT;
+            if (bgra_to_rgba(&swappedCT) && swappedCT == *texBaseCT) {
+                numRBSwaps++;
+                *cpuCT = swappedCT;
+            }
+        }
+
+        // An even number of swaps is a no-op; an odd number of swaps is the same as one swap. The
+        // swap can be skipped if the source data is known to have the same values in R and B, or
+        // if R and B will be discarded.
+        bool srcHasRBData = *srcCT != kGray_8_SkColorType && !SkColorTypeIsAlphaOnly(*srcCT);
+        bool dstKeepsRBData = !SkColorTypeIsAlphaOnly(*dstCT) || computeLuminance;
+        if ((numRBSwaps & 1) && srcHasRBData && dstKeepsRBData) {
+            finalOps |= kSwapRB;
+        }
     }
+
     if (xferOps & FormatXferOp::kDropAlpha) {
         if constexpr (TextureIsDst) {
             // On CPU->GPU conversion, FormatXferOp::kDropAlpha actually drops the alpha bits
