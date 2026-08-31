@@ -260,7 +260,18 @@ SkISize DawnCaps::getDepthAttachmentDimensions(const TextureInfo& textureInfo,
             }
 
             // Otherwise this is the Y or A plane, so no adjustment needed
-            [[fallthrough]];
+            break;
+        case wgpu::TextureFormat::R8BG8Biplanar422Unorm:
+        case wgpu::TextureFormat::R10X6BG10X6Biplanar422Unorm:
+            if (dawnInfo.fAspect == wgpu::TextureAspect::Plane1Only) {
+                return SkISize::Make(colorAttachmentDimensions.width() * 2,
+                                     colorAttachmentDimensions.height());
+            }
+            break;
+        case wgpu::TextureFormat::R8BG8Biplanar444Unorm:
+        case wgpu::TextureFormat::R10X6BG10X6Biplanar444Unorm:
+            // Both planes have the same dimensions as the full texture.
+            break;
         default:
             // Not multiplanar, so no adjustment needed
             break;
