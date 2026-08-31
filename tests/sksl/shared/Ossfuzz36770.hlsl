@@ -15,7 +15,6 @@ error: SPIR-V validation error: [VUID-StandaloneSpirv-Location-04919] Member ind
                OpName %main "main"                  ; id %6
 
                ; Annotations
-               OpMemberDecorate %T 0 Offset 0
                OpDecorate %T Block
 
                ; Types, variables and constants
