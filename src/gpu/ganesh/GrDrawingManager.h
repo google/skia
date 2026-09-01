@@ -202,6 +202,7 @@ public:
 
     // This is public so it can be called by an SkImage factory (in SkImages namespace).
     // It is not meant to be directly called in other situations.
+    // It returns true on success; false on failure
     bool flush(SkSpan<GrSurfaceProxy*> proxies,
                SkSurfaces::BackendSurfaceAccess access,
                const GrFlushInfo&,
@@ -216,8 +217,7 @@ private:
 
     void closeActiveOpsTask();
 
-    // return true if any GrRenderTasks were actually executed; false otherwise
-    bool executeRenderTasks(GrOpFlushState*);
+    GrRenderTask::ExecutionResult executeRenderTasks(GrOpFlushState*);
 
     void removeRenderTasks();
 

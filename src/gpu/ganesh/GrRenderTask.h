@@ -50,7 +50,27 @@ public:
 
     // These two methods are only invoked at flush time
     void prepare(GrOpFlushState* flushState);
-    bool execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }
+
+    // ExecutionResult is used to return and aggregate the results of GrRenderTask
+    // execution. In general, if execution gets into a leaf onExecute call, 'fAnyTaskExecuted'
+    // will be true while 'fAllTasksSuccessful' will depend on the success of the call.
+    // The aggregating call sites (i.e., GrDDLTask::onExecute, GrDrawingManager::executeRenderTasks)
+    // will then combine the results with 'accum'.
+    struct ExecutionResult {
+        static ExecutionResult RanButFailed() { return { true, false }; }
+        static ExecutionResult RanAndSucceeded() { return { true, true }; }
+        static ExecutionResult Ran(bool success) { return { true, success }; }
+
+        bool fAnyTaskExecuted = false;
+        bool fAllTasksSuccessful = true;
+
+        void accum(ExecutionResult newResult) {
+            fAnyTaskExecuted |= newResult.fAnyTaskExecuted;
+            fAllTasksSuccessful &= newResult.fAllTasksSuccessful;
+        }
+    };
+
+    ExecutionResult execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }
 
     virtual bool requiresExplicitCleanup() const { return false; }
 
@@ -278,7 +298,8 @@ private:
     virtual void onMakeSkippable() {}
     virtual void onPrePrepare(GrRecordingContext*) {} // Only OpsTask currently overrides this
     virtual void onPrepare(GrOpFlushState*) {} // OpsTask and GrDDLTask override this
-    virtual bool onExecute(GrOpFlushState* flushState) = 0;
+
+    virtual ExecutionResult onExecute(GrOpFlushState* flushState) = 0;
 
     const uint32_t         fUniqueID;
     uint32_t               fFlags;

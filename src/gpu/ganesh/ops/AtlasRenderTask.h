@@ -78,7 +78,7 @@ private:
     void addAtlasDrawOp(GrOp::Owner, const GrCaps&);
 
     // Executes the OpsTask and resolves msaa if needed.
-    bool onExecute(GrOpFlushState* flushState) override;
+    ExecutionResult onExecute(GrOpFlushState* flushState) override;
 
     const std::unique_ptr<GrDynamicAtlas> fDynamicAtlas;
 
