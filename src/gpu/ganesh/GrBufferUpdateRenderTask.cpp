@@ -31,6 +31,7 @@ GrBufferUpdateRenderTask::GrBufferUpdateRenderTask(sk_sp<SkData> src,
 
 GrBufferUpdateRenderTask::~GrBufferUpdateRenderTask() = default;
 
-bool GrBufferUpdateRenderTask::onExecute(GrOpFlushState* flushState) {
-    return fDst->updateData(fSrc->data(), fDstOffset, fSrc->size(), /*preserve=*/true);
+GrRenderTask::ExecutionResult GrBufferUpdateRenderTask::onExecute(GrOpFlushState* flushState) {
+    bool success = fDst->updateData(fSrc->data(), fDstOffset, fSrc->size(), /*preserve=*/true);
+    return ExecutionResult::Ran(success);
 }

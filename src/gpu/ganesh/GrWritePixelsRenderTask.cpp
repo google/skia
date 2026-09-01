@@ -63,16 +63,17 @@ GrRenderTask::ExpectedOutcome GrWritePixelsTask::onMakeClosed(GrRecordingContext
     return ExpectedOutcome::kTargetDirty;
 }
 
-bool GrWritePixelsTask::onExecute(GrOpFlushState* flushState) {
+GrRenderTask::ExecutionResult GrWritePixelsTask::onExecute(GrOpFlushState* flushState) {
     GrSurfaceProxy* dstProxy = this->target(0);
     if (!dstProxy->isInstantiated()) {
-        return false;
+        return ExecutionResult::RanButFailed();
     }
     GrSurface* dstSurface = dstProxy->peekSurface();
-    return flushState->gpu()->writePixels(dstSurface,
-                                          fRect,
-                                          fDstColorType,
-                                          fSrcColorType,
-                                          fLevels.get(),
-                                          fLevels.count());
+    bool success = flushState->gpu()->writePixels(dstSurface,
+                                                  fRect,
+                                                  fDstColorType,
+                                                  fSrcColorType,
+                                                  fLevels.get(),
+                                                  fLevels.count());
+    return ExecutionResult::Ran(success);
 }

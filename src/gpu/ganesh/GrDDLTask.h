@@ -61,7 +61,7 @@ private:
 
     void onPrepare(GrOpFlushState*) override;
 
-    bool onExecute(GrOpFlushState*) override;
+    ExecutionResult onExecute(GrOpFlushState*) override;
 
 #if defined(GPU_TEST_UTILS)
     void dump(const SkString& label,
