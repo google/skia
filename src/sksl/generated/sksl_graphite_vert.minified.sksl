@@ -128,4 +128,6 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_vert[] =
 "(float2 a,float4 b,float c,float3x3 d,out float2 e){if(all(lessThanEqual(b."
 "xy,b.zw))){a=mix(b.xy,b.zw,a);float3 f=d*float3(a,1.);e=a;return float4(f.xy"
 ",c*f.z,f.z);}else{a=mix(b.zw,b.xy,a);float3 f=inverse(d)*float3(a,1.);float"
-" g=1./f.z;e=f.xy*g;return float4(a*g,c*g,g);}}";
+" g=1./f.z;e=f.xy*g;return float4(a*g,c*g,g);}}float4 endcap_vertex_fn(float2"
+" a,float2 b,float c,uint d,uint e,out uint f,out int g,out float2 h){h=b;f="
+"d;g=int(e);return float4(a,c,1.);}";

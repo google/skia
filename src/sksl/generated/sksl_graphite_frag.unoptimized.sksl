@@ -483,4 +483,13 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_frag[] =
 "(shapeType){case 0:{return $rect_blur_coverage_fn(coords,shapeData,blurData"
 ".x,blurData.y,s);}case 2:{return $circle_blur_coverage_fn(coords,shapeData,"
 "s);}case 1:{return $rrect_blur_coverage_fn(coords,shapeData,blurData.x,s);}"
-"}return half4(0.);}";
+"}return half4(0.);}$pure half4 endcap_coverage_fn(float2 rectCoord,sampler2D"
+" alpha_text_0,sampler2D alpha_text_1,uint maskIndex,int texPageVarying){const"
+" uint tileWidth=8;const uint atlasShift=13;const uint atlasMask=8191;uint dx"
+"=uint(floor(rectCoord.x));uint dy=uint(floor(rectCoord.y));uint tileX=dx/tileWidth"
+";uint inTileX=dx%tileWidth;uint inTileY=dy;uint tileArea=64;uint linearOffset"
+"=(tileX*tileArea+inTileY*tileWidth)+inTileX;uint linearIdx=maskIndex+linearOffset"
+";uint channelIdx=linearIdx&3;uint trueLinearIdx=linearIdx>>2;uint2 uv=uint2"
+"(trueLinearIdx&atlasMask,trueLinearIdx>>atlasShift);half4 texColor;if(texPageVarying"
+"==0)texColor=textureRead(alpha_text_0,uv);else texColor=textureRead(alpha_text_1"
+",uv);return texColor[channelIdx].xxxx;}";

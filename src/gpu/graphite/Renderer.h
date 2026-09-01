@@ -79,7 +79,9 @@ enum class Coverage { kNone, kSingleChannel, kLCD };
         M2(Vertices,         PosColor)          \
         M2(Vertices,         PosTexCoords)      \
         M2(Vertices,         PosColorTexCoords) \
-        M1(Mesh)
+        M1(Mesh)                                \
+        M1(EndCap)                              \
+        M1(WideTile)
 
 /**
  * The actual technique for rasterizing a high-level draw recorded in a DrawList is handled by a
@@ -234,14 +236,14 @@ public:
                         ? DepthStencilFlags::kDepth : DepthStencilFlags::kNone);
     }
 
-    static const int kRenderStepIDVersion = 1;
+    static const int kRenderStepIDVersion = 2;
 
 #define ENUM1(BaseName) k##BaseName,
 #define ENUM2(BaseName, VariantName) k##BaseName##_##VariantName,
     enum class RenderStepID : uint32_t {
         SKGPU_RENDERSTEP_TYPES(ENUM1, ENUM2)
 
-        kLast = kMesh,
+        kLast = kWideTile,
     };
 #undef ENUM1
 #undef ENUM2

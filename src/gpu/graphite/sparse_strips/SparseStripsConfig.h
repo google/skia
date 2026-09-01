@@ -19,6 +19,10 @@ struct SparseStripConfig {
     static constexpr uint16_t kTileHeight = 8;
     static_assert(kTileWidth == kTileHeight);
 
+    // The tile dimensions MUST match the hard coded constant in the fragment shader. If that value
+    // changes, this must be updated.
+    static_assert(kTileWidth == 8);
+
     // These control the AlphaAtlasManager
     static constexpr SkColorType kColorType       = SkColorType::kRGBA_8888_SkColorType;
     static constexpr int32_t kAtlasBytesPerTexel  = 4;
@@ -31,9 +35,13 @@ struct SparseStripConfig {
     static constexpr int32_t kMaxCapBytes         = kAtlasWidth * kMaxAtlasRows *
                                                     kAtlasBytesPerTexel;
     static constexpr int32_t kMaxTexturePages     = 2;
+
     // The AlphaAtlasManager uses a flipflopping allocation system that will break if the page count
     // is increased beyond 2.
     static_assert(kMaxTexturePages == 2);
+    // To avoid uploading the texture width, and to avoid a costly divide and mod in the shader, we
+    // assume that the atlas width is always fixed.
+    static_assert(kAtlasWidth == 8192);
 };
 
 }  // namespace skgpu::graphite

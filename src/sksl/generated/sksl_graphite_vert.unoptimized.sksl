@@ -247,4 +247,7 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_vert[] =
 " float4(devCorner.xy,depth*devCorner.z,devCorner.z);}else{corner=mix(bounds"
 ".zw,bounds.xy,corner);float3 localCoords=inverse(matrix)*float3(corner,1.);"
 "float invW=1./localCoords.z;stepLocalCoords=localCoords.xy*invW;return float4"
-"(corner*invW,depth*invW,invW);}}";
+"(corner*invW,depth*invW,invW);}}float4 endcap_vertex_fn(float2 position,float2"
+" rectCoordAttr,float depth,uint mask,uint texPageAttr,out uint maskIndex,out"
+" int texPageVarying,out float2 rectCoord){rectCoord=rectCoordAttr;maskIndex"
+"=mask;texPageVarying=int(texPageAttr);return float4(position,depth,1.);}";

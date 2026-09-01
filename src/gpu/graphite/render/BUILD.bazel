@@ -46,6 +46,18 @@ split_srcs_and_hdrs(
     files = CORE_FILES,
 )
 
+SPARSE_STRIPS_FILES = [
+    "EndCapRenderStep.cpp",
+    "EndCapRenderStep.h",
+    "WideTileRenderStep.cpp",
+    "WideTileRenderStep.h",
+]
+
+split_srcs_and_hdrs(
+    name = "sparse_strips",
+    files = SPARSE_STRIPS_FILES,
+)
+
 skia_filegroup(
     name = "render_hdrs",
     srcs = [":core_hdrs"],

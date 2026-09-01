@@ -1203,3 +1203,17 @@ float4 cover_bounds_vertex_fn(float2 corner,
         return float4(corner*invW, depth*invW, invW);
     }
 }
+
+float4 endcap_vertex_fn(float2 position,
+                        float2 rectCoordAttr,
+                        float depth,
+                        uint mask,
+                        uint texPageAttr,
+                        out uint maskIndex,
+                        out int texPageVarying,
+                        out float2 rectCoord) {
+    rectCoord = rectCoordAttr;
+    maskIndex = mask;
+    texPageVarying = int(texPageAttr);
+    return float4(position, depth, 1.0);
+}

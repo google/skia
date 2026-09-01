@@ -375,6 +375,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_graphite_sparse_strips_sources",
 			Rules: []string{
 				"//src/gpu/graphite/geom:sparse_strips_hdrs",
+				"//src/gpu/graphite/render:sparse_strips_hdrs",
+				"//src/gpu/graphite/render:sparse_strips_srcs",
 				"//src/gpu/graphite/sparse_strips:sparse_strips_hdrs",
 				"//src/gpu/graphite/sparse_strips:sparse_strips_srcs",
 			}},
