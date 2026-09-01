@@ -95,15 +95,13 @@ void GrDDLTask::onPrepare(GrOpFlushState* flushState) {
     }
 }
 
-bool GrDDLTask::onExecute(GrOpFlushState* flushState) {
-    bool anyCommandsIssued = false;
+GrRenderTask::ExecutionResult GrDDLTask::onExecute(GrOpFlushState* flushState) {
+    ExecutionResult result;
     for (auto& task : fDDL->priv().renderTasks()) {
-        if (task->execute(flushState)) {
-            anyCommandsIssued = true;
-        }
+        result.accum(task->execute(flushState));
     }
 
-    return anyCommandsIssued;
+    return result;
 }
 
 #if defined(GPU_TEST_UTILS)

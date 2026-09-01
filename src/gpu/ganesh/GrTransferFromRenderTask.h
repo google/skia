@@ -41,7 +41,7 @@ public:
             , fDstBuffer(std::move(dstBuffer))
             , fDstOffset(dstOffset) {}
 
-    bool wasExecuted() const { return fExecuted; }
+    bool executionSuccessful() const { return fExecutionSuccess; }
 
 private:
     bool onIsUsed(GrSurfaceProxy* proxy) const override {
@@ -54,7 +54,7 @@ private:
         return ExpectedOutcome::kTargetUnchanged;
     }
 
-    bool onExecute(GrOpFlushState*) override;
+    ExecutionResult onExecute(GrOpFlushState*) override;
 
 #if defined(GPU_TEST_UTILS)
     const char* name() const final { return "TransferFrom"; }
@@ -72,7 +72,8 @@ private:
     sk_sp<GrGpuBuffer> fDstBuffer;
     size_t fDstOffset;
 
-    bool fExecuted = false;
+    bool fExecutionSuccess = false;
+    SkDEBUGCODE(bool fWasExecuted = false;)
 };
 
 #endif

@@ -555,14 +555,14 @@ void OpsTask::onPrepare(GrOpFlushState* flushState) {
 // TODO: this is where GrOp::renderTarget is used (which is fine since it
 // is at flush time). However, we need to store the RenderTargetProxy in the
 // Ops and instantiate them here.
-bool OpsTask::onExecute(GrOpFlushState* flushState) {
+GrRenderTask::ExecutionResult OpsTask::onExecute(GrOpFlushState* flushState) {
     SkASSERT(this->numTargets() == 1);
     GrRenderTargetProxy* proxy = this->target(0)->asRenderTargetProxy();
     SkASSERT(proxy);
     SK_AT_SCOPE_EXIT(proxy->clearArenas());
 
     if (this->isColorNoOp() || fClippedContentBounds.isEmpty()) {
-        return false;
+        return ExecutionResult::RanAndSucceeded();
     }
     TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_FUNC);
 
@@ -580,7 +580,7 @@ bool OpsTask::onExecute(GrOpFlushState* flushState) {
         if (!flushState->resourceProvider()->attachStencilAttachment(renderTarget,
                                                                      fUsesMSAASurface)) {
             SkDebugf("WARNING: failed to attach a stencil buffer. Rendering will be skipped.\n");
-            return false;
+            return ExecutionResult::RanButFailed();
         }
         stencil = renderTarget->getStencilAttachment(fUsesMSAASurface);
     }
@@ -704,7 +704,7 @@ bool OpsTask::onExecute(GrOpFlushState* flushState) {
                                                      fRenderPassXferBarriers);
 
     if (!renderPass) {
-        return false;
+        return ExecutionResult::RanButFailed();
     }
     if (updateClearedStencilArea) {
         stencil->markAreaCleared(nativeBoundsRequiredByStencil);
@@ -755,7 +755,7 @@ bool OpsTask::onExecute(GrOpFlushState* flushState) {
     flushState->gpu()->submit(renderPass);
     flushState->setOpsRenderPass(nullptr);
 
-    return true;
+    return ExecutionResult::RanAndSucceeded();
 }
 
 void OpsTask::setColorLoadOp(GrLoadOp op, std::array<float, 4> color) {
