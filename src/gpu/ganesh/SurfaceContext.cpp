@@ -752,7 +752,7 @@ struct SurfaceContext::AsyncReadPixelContext {
                 if (!transfer->fTransferBuffer) {
                     break; // Reached end of the planes being copied
                 }
-                if (!transfer->fTransferTask || !transfer->fTransferTask->wasExecuted()) {
+                if (!transfer->fTransferTask || !transfer->fTransferTask->executionSuccessful()) {
                     success = false;
                     break;
                 }
