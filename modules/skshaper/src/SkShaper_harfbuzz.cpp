@@ -733,6 +733,7 @@ private:
                LanguageRunIterator&,
                SkScalar width,
                RunHandler*) const final;
+#endif  // !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
 
     void shape(const char* utf8Text, size_t textBytes,
                FontRunIterator&,
@@ -742,7 +743,6 @@ private:
                const Feature*, size_t featuresSize,
                SkScalar width,
                RunHandler*) const final;
-#endif  // !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
 
     void shape(SkSpan<const char> utf8,
                FontRunIterator&,
@@ -869,6 +869,7 @@ void ShaperHarfBuzz::shape(const char* utf8,
                            RunHandler* handler) const {
     this->shape(utf8, utf8Bytes, font, bidi, script, language, nullptr, 0, width, handler);
 }
+#endif  // !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
 
 void ShaperHarfBuzz::shape(const char* utf8,
                            size_t utf8Bytes,
@@ -883,7 +884,6 @@ void ShaperHarfBuzz::shape(const char* utf8,
     this->shape({utf8, utf8Bytes}, font, bidi, script, language, {features, featuresSize},
                 { .width = width }, handler);
 }
-#endif  // !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
 
 void ShaperHarfBuzz::shape(SkSpan<const char> utf8,
                            FontRunIterator& font,

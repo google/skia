@@ -50,6 +50,7 @@ private:
                LanguageRunIterator&,
                SkScalar width,
                RunHandler*) const override;
+#endif  // !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
 
     void shape(const char* utf8, size_t utf8Bytes,
                FontRunIterator&,
@@ -59,7 +60,6 @@ private:
                const Feature*, size_t featureSize,
                SkScalar width,
                RunHandler*) const override;
-#endif  // !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
 
     void shape(SkSpan<const char> utf8,
                FontRunIterator&,
@@ -267,6 +267,7 @@ void SkShaper_CoreText::shape(const char* utf8,
     TrivialLanguageRunIterator lang{nullptr, 0};
     return this->shape(utf8, utf8Bytes, *fontRuns, bidi, script, lang, nullptr, 0, width, handler);
 }
+#endif  // !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
 
 void SkShaper_CoreText::shape(const char* utf8,
                               size_t utf8Bytes,
@@ -280,7 +281,6 @@ void SkShaper_CoreText::shape(const char* utf8,
     return this->shape({utf8, utf8Bytes}, fontRuns, bidi, script, lang, {features, featuresSize},
                        { .width = width}, handler);
 }
-#endif  // !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
 
 void SkShaper_CoreText::shape(SkSpan<const char> utf8,
                               FontRunIterator& fontRuns,
