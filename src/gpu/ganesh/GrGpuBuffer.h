@@ -94,7 +94,7 @@ public:
      *
      * @return returns true if the update succeeds, false otherwise.
      */
-    bool updateData(const void* src, size_t offset, size_t size, bool preserve);
+    [[nodiscard]] bool updateData(const void* src, size_t offset, size_t size, bool preserve);
 
     GrGpuBufferType intendedType() const { return fIntendedType; }
 

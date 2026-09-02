@@ -478,8 +478,6 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::findOrMakeStaticBuffer(
     SkASSERT(buffer->size() == size);
     SkASSERT(!buffer->resourcePriv().getScratchKey().isValid());
 
-    buffer->resourcePriv().setUniqueKey(uniqueKey);
-
     // Map the buffer. Use a staging buffer on the heap if mapping isn't supported.
     skgpu::VertexWriter vertexWriter = {buffer->map(), size};
     AutoTMalloc<char> stagingBuffer;
@@ -493,8 +491,12 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::findOrMakeStaticBuffer(
     if (buffer->isMapped()) {
         buffer->unmap();
     } else {
-        buffer->updateData(stagingBuffer, /*offset=*/0, size, /*preserve=*/false);
+        if (!buffer->updateData(stagingBuffer, /*offset=*/0, size, /*preserve=*/false)) {
+            return nullptr;
+        }
     }
+
+    buffer->resourcePriv().setUniqueKey(uniqueKey);
 
     return buffer;
 }
