@@ -67,7 +67,7 @@ public:
 
     /** This is called after each op has a chance to prepare its draws and before the draws are
         executed. */
-    void preExecuteDraws();
+    [[nodiscard]] bool preExecuteDraws();
 
     /** Called to upload data to a texture using the GrDeferredTextureUploadFn. If the uploaded
         surface needs to be prepared for being sampled in a draw after the upload, the caller
