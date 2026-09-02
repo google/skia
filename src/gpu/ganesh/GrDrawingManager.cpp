@@ -269,7 +269,10 @@ GrRenderTask::ExecutionResult GrDrawingManager::executeRenderTasks(GrOpFlushStat
     }
 
     // Upload all data to the GPU
-    flushState->preExecuteDraws();
+    if (!flushState->preExecuteDraws()) {
+        flushState->reset();
+        return { /* fAnyTaskExecuted= */false, /* fAllTasksSuccessful= */false };
+    }
 
     // For Vulkan, if we have too many oplists to be flushed we end up allocating a lot of resources
     // for each command buffer associated with the oplists. If this gets too large we can cause the
