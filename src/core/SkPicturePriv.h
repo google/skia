@@ -56,6 +56,8 @@ public:
         return pic ? pic->fRecord.get() : nullptr;
     }
 
+    static int ApproximateOpCount(const SkPicture* pic, int depth = 0, bool nested = false);
+
     static uint64_t MakeSharedID(uint32_t pictureID) {
         uint64_t sharedID = SkSetFourByteTag('p', 'i', 'c', 't');
         return (sharedID << 32) | pictureID;
@@ -215,6 +217,10 @@ public:
     }
 
     const SkPicture* const* begin() const { return fPics; }
+    const SkPicture* at(int i) const {
+        SkASSERT(0 <= i && i < fCount);
+        return fPics[i];
+    }
     int count() const { return fCount; }
 
 private:

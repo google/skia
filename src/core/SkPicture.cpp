@@ -386,28 +386,55 @@ void SkPicture::playback(SkCanvas* canvas, AbortCallback* callback) const {
 
 struct NestedApproxOpCounter {
     int fCount = 0;
+    int fDepth = 0;
+    const SkSnapshotArray* fDrawablePicts;
 
-    template <typename T> void operator()(const T& op) { fCount += 1; }
+    NestedApproxOpCounter(const SkSnapshotArray* drawablePicts, int depth)
+            : fDepth(depth), fDrawablePicts(drawablePicts) {}
+
+    template <typename T> void operator()(const T& op) { fCount++; }
+
     void operator()(const SkRecords::DrawPicture& op) {
-        fCount += op.picture->approximateOpCount(true);
+        fCount += 1 + SkPicturePriv::ApproximateOpCount(op.picture.get(), fDepth + 1, true);
+    }
+
+    void operator()(const SkRecords::DrawDrawable& op) {
+        // Adding one for the DrawDrawable itself at the beginning
+        fCount++;
+
+        if (!fDrawablePicts) return;
+
+        if (0 <= op.index && op.index < fDrawablePicts->count()) {
+            fCount += SkPicturePriv::ApproximateOpCount(
+                    fDrawablePicts->at(op.index), fDepth + 1, true);
+        }
     }
 };
 
-int SkPicture::approximateOpCount(bool nested) const {
-    if (this->isPlaceholder()) {
+int SkPicturePriv::ApproximateOpCount(const SkPicture* pic, int depth, bool nested) {
+    if (!pic || depth > SkPicturePriv::kDefaultRecursionLimit) {
+        return 0;
+    }
+
+    if (pic->isPlaceholder()) {
         // approximateOpCount() needs to be greater than kMaxPictureOpsToUnrollInsteadOfRef
         // (SkCanvasPriv.h) to avoid unrolling this into a parent picture.
         return kMaxPictureOpsToUnrollInsteadOfRef + 1;
     }
-    if (nested) {
-        NestedApproxOpCounter visitor;
-        for (int i = 0; i < fRecord->count(); i++) {
-            fRecord->visit(i, visitor);
-        }
-        return visitor.fCount;
-    } else {
-        return fRecord->count();
+
+    if (!nested) {
+        return pic->fRecord->count();
     }
+
+    NestedApproxOpCounter visitor(pic->fDrawablePicts.get(), depth);
+    for (int i = 0; i < pic->fRecord->count(); i++) {
+        pic->fRecord->visit(i, visitor);
+    }
+    return visitor.fCount;
+}
+
+int SkPicture::approximateOpCount(bool nested) const {
+    return SkPicturePriv::ApproximateOpCount(this, 0, nested);
 }
 
 size_t SkPicture::approximateBytesUsed() const {
