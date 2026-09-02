@@ -93,6 +93,11 @@ static bool check_parameters(const Context& context,
                                                          "a pixel format layout-qualifier");
                 return false;
             }
+        } else if (type.isReadOnlyTexture()) {
+            // Readonly textures can be either storage textures (which specify a pixel format) or
+            // sampled textures (which do not).
+            permittedFlags |= ModifierFlag::kReadOnly;
+            permittedLayoutFlags |= LayoutFlag::kAllPixelFormats;
         }
         param->modifierFlags().checkPermittedFlags(context, param->modifiersPosition(),
                                                    permittedFlags);

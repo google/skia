@@ -447,6 +447,29 @@ bool Analysis::ContainsVariable(const Expression& expr, const Variable& var) {
     return visitor.visitExpression(expr);
 }
 
+const Variable* Analysis::GetRootVariable(const Expression& expr) {
+    const Expression* e = &expr;
+    while (e) {
+        if (e->is<VariableReference>()) {
+            return e->as<VariableReference>().variable();
+        }
+        if (e->is<IndexExpression>()) {
+            e = e->as<IndexExpression>().base().get();
+            continue;
+        }
+        if (e->is<FieldAccess>()) {
+            e = e->as<FieldAccess>().base().get();
+            continue;
+        }
+        if (e->is<Swizzle>()) {
+            e = e->as<Swizzle>().base().get();
+            continue;
+        }
+        break;
+    }
+    return nullptr;
+}
+
 bool Analysis::IsCompileTimeConstant(const Expression& expr) {
     class IsCompileTimeConstantVisitor : public ProgramVisitor {
     public:

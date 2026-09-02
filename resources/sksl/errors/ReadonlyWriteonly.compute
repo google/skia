@@ -1,11 +1,16 @@
-layout(binding=0, rgba32f) readonly texture2D src;
+layout(binding=0) readonly texture2D src;
 layout(binding=1, rgba32f) writeonly texture2D dest;
-//layout(binding=2, rgba32f) texture2D multipurpose;
+layout(binding=2, rgba32f) readonly texture2D storageSrc;
+layout(binding=3, rgba8) readonly texture2D storageSrcRgba8;
+//layout(binding=4) texture2D multipurpose;
 
 // If we add support for read-write textures in SkSL, uncomment `needs_all_access`.
 //void needs_all_access(texture2D t) {}
 
-void overload(layout(rgba32f) readonly texture2D t)       {}
+void takes_sampled_readonly(readonly texture2D t)                       {}
+void takes_storage_readonly(layout(rgba32f) readonly texture2D t)       {}
+
+void overload(readonly texture2D t)                       {}
 void overload(layout(rgba32f) writeonly texture2D t, int) {}
 
 void main() {
@@ -20,6 +25,13 @@ void main() {
     overload(src, 1);  // BAD: overload(readonly texture2D t, int) missing
     overload(dest);    // BAD: overload(writeonly texture2D t)      missing
     overload(dest, 1); //  OK: overload(writeonly texture2D t, int) exists
+
+    takes_sampled_readonly(src);                   //  OK: sampled -> sampled
+    takes_sampled_readonly(storageSrc);            // BAD: storage -> sampled
+
+    takes_storage_readonly(storageSrc);            //  OK: storage -> storage (matching format)
+    takes_storage_readonly(src);                   // BAD: sampled -> storage
+    takes_storage_readonly(storageSrcRgba8);       // BAD: storage format mismatch
 }
 
 // If we add support for read-write textures in SkSL, uncomment `function_param_honors_all_access`.
@@ -30,7 +42,7 @@ void main() {
 //    textureWrite(t, sk_GlobalInvocationID.xy, half4(1)); // OK
 //}
 
-void function_param_honors_readonly(layout(rgba32f) readonly texture2D t) {
+void function_param_honors_readonly(readonly texture2D t) {
     //needs_all_access(t);                               // BAD
     textureWidth(t);                                     // OK
     textureRead(t, sk_GlobalInvocationID.xy);            // OK
@@ -49,6 +61,9 @@ no match for textureRead(writeonlyTexture2D, uint2)
 no match for textureWrite(readonlyTexture2D, uint2, half4)
 no match for overload(readonlyTexture2D, int)
 no match for overload(writeonlyTexture2D)
+expected argument of type 'readonlyTexture2D'
+expected argument of type 'layout (rgba32f) readonlyTexture2D'
+expected argument of type 'layout (rgba32f) readonlyTexture2D'
 no match for textureWrite(readonlyTexture2D, uint2, half4)
 no match for textureRead(writeonlyTexture2D, uint2)
 *%%*/

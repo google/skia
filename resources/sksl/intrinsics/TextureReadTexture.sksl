@@ -1,0 +1,6 @@
+// Pixel format omitted implies non-storage texture
+layout(binding=0) readonly texture2D t;
+void main()
+{
+    sk_FragColor = half4(textureRead(t, uint2(0)));
+}

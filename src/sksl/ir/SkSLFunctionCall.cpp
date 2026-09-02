@@ -1022,23 +1022,21 @@ std::string FunctionCall::description(OperatorPrecedence) const {
 
 static bool argument_and_parameter_flags_match(const Expression& argument,
                                                const Variable& parameter) {
-    // If the function parameter has a pixel format, the argument being passed in must have a
-    // matching pixel format.
-    LayoutFlags paramPixelFormat = parameter.layout().fFlags & LayoutFlag::kAllPixelFormats;
-    if (paramPixelFormat != LayoutFlag::kNone) {
-        // The only SkSL type that supports pixel-format qualifiers is a storage texture.
-        if (parameter.type().isStorageTexture()) {
-            // Storage textures are opaquely typed, so there's no way to specify one other than by
-            // directly accessing a variable.
-            if (!argument.is<VariableReference>()) {
-                return false;
-            }
+    // If the function parameter is a storage texture or readonly texture, the pixel format of the
+    // argument must match the parameter's pixel format (including when neither has a format).
+    if (parameter.type().isStorageTexture() || parameter.type().isReadOnlyTexture()) {
+        // Currently, we do not support texture arrays, so GetRootVariable isn't completely
+        // necessary (we only need to trace back the variable reference), but this may be added in
+        // the future.
+        const Variable* var = Analysis::GetRootVariable(argument);
+        if (!var) {
+            return false;
+        }
 
-            // The variable's pixel-format flags must match. (Only one pixel-format bit can be set.)
-            const Variable& var = *argument.as<VariableReference>().variable();
-            if ((var.layout().fFlags & LayoutFlag::kAllPixelFormats) != paramPixelFormat) {
-                return false;
-            }
+        LayoutFlags argPixelFormat = var->layout().fFlags & LayoutFlag::kAllPixelFormats;
+        LayoutFlags paramPixelFormat = parameter.layout().fFlags & LayoutFlag::kAllPixelFormats;
+        if (argPixelFormat != paramPixelFormat) {
+            return false;
         }
     }
 

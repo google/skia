@@ -194,7 +194,7 @@ std::string BuildComputeSkSL(const Caps* caps, const ComputeStep* step, BackendA
                 sksl += r.fSkSL;
                 break;
             case Type::kReadOnlyTexture:
-                SkSL::String::appendf(&sksl, "layout(binding=%d, rgba8) readonly texture2D ",
+                SkSL::String::appendf(&sksl, "layout(binding=%d) readonly texture2D ",
                                       texturesUseDistinctIdxRanges ? texIdx++ : index++);
                 sksl += r.fSkSL;
                 break;

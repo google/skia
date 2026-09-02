@@ -1774,6 +1774,28 @@ static SpvImageFormat layout_flags_to_image_format(LayoutFlags flags) {
     SkUNREACHABLE;
 }
 
+// Returns true if `type` (and optional layout qualifiers) represents a sampled texture
+// (VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, OpTypeImage with Sampled=1, SpvImageFormatUnknown), which is
+// accessed via OpImageFetch. Storage images (VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, OpTypeImage with
+// Sampled=2) declare an explicit pixel format and are accessed via OpImageRead/OpImageWrite.
+static bool is_sampled_texture(const Type& type, LayoutFlags layoutFlags) {
+    if (type.isSampler()) {
+        return true;
+    }
+    if (type.typeKind() == Type::TypeKind::kTexture) {
+        if (type.dimensions() == SpvDimSubpassData) {
+            return false;
+        }
+        if (type.textureAccess() == Type::TextureAccess::kSample) {
+            return true;
+        }
+        if (type.isReadOnlyTexture()) {
+            return (layoutFlags & LayoutFlag::kAllPixelFormats) == LayoutFlag::kNone;
+        }
+    }
+    return false;
+}
+
 SpvId SPIRVCodeGenerator::getType(const Type& rawType,
                                   const Layout& typeLayout,
                                   const MemoryLayout& memoryLayout,
@@ -1895,17 +1917,19 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType,
                                               memoryLayout,
                                               storageClass);
 
-            bool sampled = (type->textureAccess() == Type::TextureAccess::kSample);
-            SpvImageFormat format = (!sampled && type->dimensions() != SpvDimSubpassData)
-                                            ? layout_flags_to_image_format(typeLayout.fFlags)
-                                            : SpvImageFormatUnknown;
-
-            // Input attachments have a reserved ID.
+            SpvImageFormat format = SpvImageFormatUnknown;
+            bool sampled = false;
             Word result = Word::Result();
+
             if (type->dimensions() == SpvDimSubpassData) {
-                // Only a single input attachment is currently supported.
+                // Subpass inputs (input attachments) are treated as storage image data with a
+                // reserved ID. Only a single input attachment is currently supported.
                 SkASSERT(typeLayout.fInputAttachmentIndex == 0);
                 result = Word::ReservedResult(spirv::kIdTypeImageSubpassData);
+                sampled = false;
+            } else {
+                format = layout_flags_to_image_format(typeLayout.fFlags);
+                sampled = is_sampled_texture(*type, typeLayout.fFlags);
             }
 
             return this->writeInstruction(SpvOpTypeImage,
@@ -2190,6 +2214,13 @@ void SPIRVCodeGenerator::writeGLSLExtendedInstruction(const Type& type, SpvId id
     }
 }
 
+static bool is_sampled_texture(const Expression& expr) {
+    const Variable* var = Analysis::GetRootVariable(expr);
+    LayoutFlags flags = var ? (var->layout().fFlags & LayoutFlag::kAllPixelFormats)
+                            : LayoutFlag::kNone;
+    return is_sampled_texture(expr.type(), flags);
+}
+
 SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind,
                                                 SPIRVBlob& out) {
     const ExpressionArray& arguments = c.arguments();
@@ -2357,6 +2388,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         case kTextureRead_SpecialIntrinsic: {
             result = this->nextId(&callType);
             SkASSERT(arguments[0]->type().dimensions() == SpvDim2D);
+            SkASSERT(arguments[0]->type().textureAccess() != Type::TextureAccess::kWrite);
             SkASSERT(arguments[1]->type().matches(*fContext.fTypes.fUInt2));
 
             SpvId type = this->getType(callType);
@@ -2364,23 +2396,14 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             SpvId coord = this->writeExpression(*arguments[1], out);
 
             const Type& arg0Type = arguments[0]->type();
-            image = this->writeExtractImage(image, arg0Type, out);
-
-            switch (arg0Type.textureAccess()) {
-                case Type::TextureAccess::kSample:
-                    this->writeInstruction(SpvOpImageFetch, type, result, image, coord,
-                                           SpvImageOperandsLodMask,
-                                           this->writeOpConstant(*fContext.fTypes.fInt, 0),
-                                           out);
-                    break;
-                case Type::TextureAccess::kRead:
-                case Type::TextureAccess::kReadWrite:
-                    this->writeInstruction(SpvOpImageRead, type, result, image, coord, out);
-                    break;
-                case Type::TextureAccess::kWrite:
-                default:
-                    SkDEBUGFAIL("'textureRead' called on writeonly texture type");
-                    break;
+            if (is_sampled_texture(*arguments[0])) {
+                image = this->writeExtractImage(image, arg0Type, out);
+                this->writeInstruction(SpvOpImageFetch, type, result, image, coord,
+                                       SpvImageOperandsLodMask,
+                                       this->writeOpConstant(*fContext.fTypes.fInt, 0),
+                                       out);
+            } else {
+                this->writeInstruction(SpvOpImageRead, type, result, image, coord, out);
             }
 
             break;
@@ -2410,7 +2433,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             const Type& arg0Type = arguments[0]->type();
             image = this->writeExtractImage(image, arg0Type, out);
 
-            if (arg0Type.typeKind() == Type::TypeKind::kSampler) {
+            if (is_sampled_texture(*arguments[0])) {
                 SpvId lodZero = this->writeOpConstant(*fContext.fTypes.fInt, 0);
                 this->writeInstruction(SpvOpImageQuerySizeLod, dimsType, result, image, lodZero,
                                        out);
@@ -2428,7 +2451,17 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             SpvId dimsType = this->getType(*fContext.fTypes.fUInt2);
             SpvId dims = this->nextId(&callType);
             SpvId image = this->writeExpression(*arguments[0], out);
-            this->writeInstruction(SpvOpImageQuerySize, dimsType, dims, image, out);
+
+            const Type& arg0Type = arguments[0]->type();
+            image = this->writeExtractImage(image, arg0Type, out);
+
+            if (is_sampled_texture(*arguments[0])) {
+                SpvId lodZero = this->writeOpConstant(*fContext.fTypes.fInt, 0);
+                this->writeInstruction(SpvOpImageQuerySizeLod, dimsType, dims, image, lodZero,
+                                       out);
+            } else {
+                this->writeInstruction(SpvOpImageQuerySize, dimsType, dims, image, out);
+            }
 
             SpvId type = this->getType(callType);
             int32_t index = (kind == kTextureWidth_SpecialIntrinsic) ? 0 : 1;

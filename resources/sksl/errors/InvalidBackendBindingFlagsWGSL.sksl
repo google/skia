@@ -1,20 +1,22 @@
 // Valid declarations:
 layout(webgpu, set=0, binding=0) uniform ubo1 { float a; };               // valid
 layout(webgpu, set=0, binding=0) buffer ssbo { float b; };                // valid
-layout(webgpu, rgba32f, set=0, texture=0) readonly texture2D rtexture1;   // valid
 layout(webgpu, rgba32f, set=0, texture=0) writeonly texture2D wtexture1;  // valid
 layout(webgpu, set=0, texture=0, sampler=0) sampler2D sampler1;           // valid
 
+// Both declarations are valid, pixformat implies storage and vice versa
+layout(webgpu, set=0, texture=0) readonly texture2D rtexture1;            // valid, non-storage
+layout(webgpu, rgba32f, set=0, texture=0) readonly texture2D rtexture2;   // valid, storage
+
 // TODO(skbug.com/40045103): This should require 'texture' once the WGSL backend supports it
-layout(webgpu, rgba32f, set=0, binding=0) readonly texture2D rtexture2;   // valid
+layout(webgpu, set=0, binding=0) readonly texture2D rtexture3;            // valid
 layout(webgpu, rgba32f, set=0, binding=0) writeonly texture2D wtexture2;  // valid
 // TODO(skbug.com/40045103): This should require 'texture' and 'sampler' once the WGSL backend supports it
 layout(webgpu, set=0, binding=0) sampler2D sampler2;                      // valid
 
 // Invalid declarations:
-layout(webgpu, rgba32f, set=0, sampler=0) readonly texture2D rtexture3;    // invalid (has sampler)
+layout(webgpu, set=0, sampler=0) readonly texture2D rtexture4;             // invalid (has sampler)
 layout(webgpu, rgba32f, set=0, sampler=0) writeonly texture2D wtexture3;   // invalid (has sampler)
-layout(webgpu, set=0, texture=0) readonly texture2D rtexture4;             // invalid (no pixformat)
 layout(webgpu, set=0, texture=0) writeonly texture2D wtexture4;            // invalid (no pixformat)
 layout(webgpu, set=0, binding=0, texture=0, sampler=0) sampler2D sampler3; // invalid
 layout(webgpu, set=0, texture=0, sampler=0) uniform ubo2 { float c; };     // invalid
@@ -22,7 +24,6 @@ layout(webgpu, set=0, texture=0, sampler=0) uniform ubo2 { float c; };     // in
 /*%%*
 layout qualifier 'sampler' is not permitted here
 layout qualifier 'sampler' is not permitted here
-storage textures must declare a pixel format
 storage textures must declare a pixel format
 'binding' modifier cannot coexist with 'texture'/'sampler'
 layout qualifier 'texture' is not permitted here

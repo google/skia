@@ -1,11 +1,11 @@
 ### Compilation failed:
 
 error: 2: type 'texture2D' does not support qualifier 'readonly'
-layout(binding=0, rgba32f) readonly texture2D t;
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+layout(binding=0) readonly texture2D t;
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 error: 2: invalid type
-layout(binding=0, rgba32f) readonly texture2D t;
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+layout(binding=0) readonly texture2D t;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 error: 3: 'main' must return: 'vec4', 'float4', or 'half4'
 void main()
 ^^^^^^^^^^^

@@ -8,7 +8,7 @@ layout(set=0, binding=2) buffer myOtherBuffer {
    workgroup float bar;
 };
 
-layout (r32f) workgroup readonly texture2D rtex;
+workgroup readonly texture2D rtex;
 
 layout (r32f) workgroup writeonly texture2D wtex;
 
