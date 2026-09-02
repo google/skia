@@ -23,7 +23,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkAssert.h"
-#include "include/private/SkDebug.h"
+#include "include/private/SkLog.h"
 #include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/src/Adapter.h"
@@ -161,6 +161,13 @@ protected:
             const skjson::StringValue* uniformName = (*jprop)["nm"];
             if (!uniformName) { continue; }
             int type = ParseDefault<int>((*jprop)["ty"], kSkSLProp_uniform);
+            if ((type == kSkSLProp_image || type == kSkSLProp_layer) &&
+                (!fEffect || !fEffect->findChild(std::string_view(uniformName->begin(),
+                                                                  uniformName->size())))) {
+                SKIA_LOG_W("ignoring undeclared SkSL child: %.*s",
+                           SkToInt(uniformName->size()), uniformName->begin());
+                continue;
+            }
             if (type == kSkSLProp_uniform) {
                 auto uniformTuple = std::make_tuple(SkString(uniformName->begin(),
                                                             uniformName->size()),
@@ -183,7 +190,7 @@ protected:
                     fChildren.push_back({type, SkString(uniformName->begin(), uniformName->size()),
                                             frameData.image->makeShader(sampling)});
                 } else {
-                    SkDebugf("cannot find asset for custom shader effect");
+                    SKIA_LOG_W("cannot find asset for custom shader effect");
                 }
             } else if (type == kSkSLProp_layer) { /* layer content */
                 fChildren.push_back({type, SkString(uniformName->begin(), uniformName->size()),
@@ -204,7 +211,7 @@ protected:
                     + metadata->offset;
                 memcpy(reinterpret_cast<void*>(dst), data->data(), data->size() * sizeof(float));
             } else {
-                SkDebugf("cannot set malformed uniform: %s\n", name.c_str());
+                SKIA_LOG_W("cannot set malformed uniform: %s", name.c_str());
             }
         }
         return uniformData;
@@ -214,6 +221,10 @@ protected:
         std::vector<SkRuntimeEffect::ChildPtr> childrenData(fEffect->children().size());
         for (const auto& childData : fChildren) {
             auto metadata = fEffect->findChild(childData.name.c_str());
+            if (!metadata) {
+                SKIA_LOG_W("cannot bind undeclared SkSL child: %s", childData.name.c_str());
+                continue;
+            }
             if (childData.type == kSkSLProp_layer) {
                 childrenData[metadata->index] = (node->contentShader());
             } else if (childData.type == kSkSLProp_image) {
