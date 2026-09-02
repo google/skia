@@ -96,6 +96,9 @@ config("skia_private") {
       "SK_GAMMA_CONTRAST=0.0",
     ]
   }
+  if (skia_use_lcd_text_3x_filter) {
+    defines += [ "SK_USE_LCD_TEXT_3X_FILTER" ]
+  }
   if (is_skia_dev_build && !is_canvaskit) {
     defines += [
       "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
