@@ -22,6 +22,7 @@
 #include "include/core/SkTypes.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/ports/SkFontMgr_fontconfig.h"
+#include "src/ports/SkFontMgr_fontconfig_priv.h"
 
 #ifdef SK_TYPEFACE_FACTORY_FONTATIONS
 #include "include/ports/SkFontScanner_Fontations.h"
@@ -32,10 +33,11 @@
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
-#include <fontconfig/fontconfig.h>
-
 #include <array>
+#include <fontconfig/fontconfig.h>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace {
 
@@ -102,6 +104,32 @@ static void write_bitmap(const SkBitmap* bm, const char fileName[]) {
     SkFILEWStream file(fileName);
     SkAssertResult(file.isValid());
     SkAssertResult(SkPngEncoder::Encode(&file, bm->pixmap(), {}));
+}
+
+void add_pattern_string(FcPattern* pattern, const char* object, const char* value, bool strong) {
+    FcValue val;
+    val.type = FcTypeString;
+    val.u.s = reinterpret_cast<const FcChar8*>(value);
+
+    if (strong) {
+        FcPatternAdd(pattern, object, val, FcTrue);
+        return;
+    }
+
+    FcPatternAddWeak(pattern, object, val, FcTrue);
+}
+
+std::vector<std::string> get_pattern_strings(FcPattern* pattern, const char* object) {
+    std::vector<std::string> results;
+    for (int id = 0;; ++id) {
+        FcChar8* val = nullptr;
+        FcResult res = FcPatternGetString(pattern, object, id, &val);
+        if (res != FcResultMatch || !val) {
+            break;
+        }
+        results.push_back(reinterpret_cast<const char*>(val));
+    }
+    return results;
 }
 
 }  // namespace
@@ -298,3 +326,185 @@ DEF_TEST_DISABLED(FontMgrFontConfig_MatchFonts, reporter) {
     REPORTER_ASSERT(reporter, success);
 }
 #endif
+
+DEF_TEST(FontMgrFontConfig_remove_weak, reporter) {
+    using UniqueFcPattern = std::unique_ptr<FcPattern, SkFunctionObject<FcPatternDestroy>>;
+
+    // 1. Empty pattern (no elements of FC_FAMILY)
+    {
+        UniqueFcPattern pattern(FcPatternCreate());
+        SkFontMgr_fontconfig_priv::remove_weak(pattern.get(), FC_FAMILY);
+        std::vector<std::string> families = get_pattern_strings(pattern.get(), FC_FAMILY);
+        REPORTER_ASSERT(reporter, families.empty());
+    }
+
+    // 2. Single strong element: [Strong1] -> [Strong1]
+    {
+        UniqueFcPattern pattern(FcPatternCreate());
+        add_pattern_string(pattern.get(), FC_FAMILY, "Strong1", true);
+        SkFontMgr_fontconfig_priv::remove_weak(pattern.get(), FC_FAMILY);
+        std::vector<std::string> families = get_pattern_strings(pattern.get(), FC_FAMILY);
+        REPORTER_ASSERT(reporter, (families == std::vector<std::string>{"Strong1"}));
+    }
+
+    // 3. Single weak element: [Weak1] -> [Weak1] (all weak, pattern left alone)
+    {
+        UniqueFcPattern pattern(FcPatternCreate());
+        add_pattern_string(pattern.get(), FC_FAMILY, "Weak1", false);
+        SkFontMgr_fontconfig_priv::remove_weak(pattern.get(), FC_FAMILY);
+        std::vector<std::string> families = get_pattern_strings(pattern.get(), FC_FAMILY);
+        REPORTER_ASSERT(reporter, (families == std::vector<std::string>{"Weak1"}));
+    }
+
+    // 4. All strong elements: [Strong1, Strong2, Strong3] -> [Strong1, Strong2, Strong3]
+    {
+        UniqueFcPattern pattern(FcPatternCreate());
+        add_pattern_string(pattern.get(), FC_FAMILY, "Strong1", true);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Strong2", true);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Strong3", true);
+        SkFontMgr_fontconfig_priv::remove_weak(pattern.get(), FC_FAMILY);
+        std::vector<std::string> families = get_pattern_strings(pattern.get(), FC_FAMILY);
+        REPORTER_ASSERT(reporter,
+                        (families == std::vector<std::string>{"Strong1", "Strong2", "Strong3"}));
+    }
+
+    // 5. All weak elements: [Weak1, Weak2, Weak3] -> [Weak1, Weak2, Weak3] (all weak, pattern left
+    // alone)
+    {
+        UniqueFcPattern pattern(FcPatternCreate());
+        add_pattern_string(pattern.get(), FC_FAMILY, "Weak1", false);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Weak2", false);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Weak3", false);
+        SkFontMgr_fontconfig_priv::remove_weak(pattern.get(), FC_FAMILY);
+        std::vector<std::string> families = get_pattern_strings(pattern.get(), FC_FAMILY);
+        REPORTER_ASSERT(reporter,
+                        (families == std::vector<std::string>{"Weak1", "Weak2", "Weak3"}));
+    }
+
+    // 6. Strong followed by weak: [Strong1, Weak1] -> [Strong1]
+    {
+        UniqueFcPattern pattern(FcPatternCreate());
+        add_pattern_string(pattern.get(), FC_FAMILY, "Strong1", true);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Weak1", false);
+        SkFontMgr_fontconfig_priv::remove_weak(pattern.get(), FC_FAMILY);
+        std::vector<std::string> families = get_pattern_strings(pattern.get(), FC_FAMILY);
+        REPORTER_ASSERT(reporter, (families == std::vector<std::string>{"Strong1"}));
+    }
+
+    // 7. Strong followed by multiple weaks: [Strong1, Weak1, Weak2, Weak3] -> [Strong1]
+    {
+        UniqueFcPattern pattern(FcPatternCreate());
+        add_pattern_string(pattern.get(), FC_FAMILY, "Strong1", true);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Weak1", false);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Weak2", false);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Weak3", false);
+        SkFontMgr_fontconfig_priv::remove_weak(pattern.get(), FC_FAMILY);
+        std::vector<std::string> families = get_pattern_strings(pattern.get(), FC_FAMILY);
+        REPORTER_ASSERT(reporter, (families == std::vector<std::string>{"Strong1"}));
+    }
+
+    // 8. Weak followed by strong: [Weak1, Strong1] -> [Weak1, Strong1] (weak before strong is kept)
+    {
+        UniqueFcPattern pattern(FcPatternCreate());
+        add_pattern_string(pattern.get(), FC_FAMILY, "Weak1", false);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Strong1", true);
+        SkFontMgr_fontconfig_priv::remove_weak(pattern.get(), FC_FAMILY);
+        std::vector<std::string> families = get_pattern_strings(pattern.get(), FC_FAMILY);
+        REPORTER_ASSERT(reporter, (families == std::vector<std::string>{"Weak1", "Strong1"}));
+    }
+
+    // 9. Multiple weaks followed by strong: [Weak1, Weak2, Strong1] -> [Weak1, Weak2, Strong1]
+    {
+        UniqueFcPattern pattern(FcPatternCreate());
+        add_pattern_string(pattern.get(), FC_FAMILY, "Weak1", false);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Weak2", false);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Strong1", true);
+        SkFontMgr_fontconfig_priv::remove_weak(pattern.get(), FC_FAMILY);
+        std::vector<std::string> families = get_pattern_strings(pattern.get(), FC_FAMILY);
+        REPORTER_ASSERT(reporter,
+                        (families == std::vector<std::string>{"Weak1", "Weak2", "Strong1"}));
+    }
+
+    // 10. Weak, strong, weak: [Weak1, Strong1, Weak2] -> [Weak1, Strong1] (only weaks after last
+    // strong removed)
+    {
+        UniqueFcPattern pattern(FcPatternCreate());
+        add_pattern_string(pattern.get(), FC_FAMILY, "Weak1", false);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Strong1", true);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Weak2", false);
+        SkFontMgr_fontconfig_priv::remove_weak(pattern.get(), FC_FAMILY);
+        std::vector<std::string> families = get_pattern_strings(pattern.get(), FC_FAMILY);
+        REPORTER_ASSERT(reporter, (families == std::vector<std::string>{"Weak1", "Strong1"}));
+    }
+
+    // 11. Complex interspersed: [Weak1, Strong1, Weak2, Strong2, Weak3, Weak4] -> [Weak1, Strong1,
+    // Weak2, Strong2]
+    {
+        UniqueFcPattern pattern(FcPatternCreate());
+        add_pattern_string(pattern.get(), FC_FAMILY, "Weak1", false);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Strong1", true);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Weak2", false);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Strong2", true);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Weak3", false);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Weak4", false);
+        SkFontMgr_fontconfig_priv::remove_weak(pattern.get(), FC_FAMILY);
+        std::vector<std::string> families = get_pattern_strings(pattern.get(), FC_FAMILY);
+        REPORTER_ASSERT(
+                reporter,
+                (families == std::vector<std::string>{"Weak1", "Strong1", "Weak2", "Strong2"}));
+    }
+
+    // 12. Multiple strongs followed by multiple weaks: [Strong1, Strong2, Weak1, Weak2] ->
+    // [Strong1, Strong2]
+    {
+        UniqueFcPattern pattern(FcPatternCreate());
+        add_pattern_string(pattern.get(), FC_FAMILY, "Strong1", true);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Strong2", true);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Weak1", false);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Weak2", false);
+        SkFontMgr_fontconfig_priv::remove_weak(pattern.get(), FC_FAMILY);
+        std::vector<std::string> families = get_pattern_strings(pattern.get(), FC_FAMILY);
+        REPORTER_ASSERT(reporter, (families == std::vector<std::string>{"Strong1", "Strong2"}));
+    }
+
+    // 13. Targeting FC_POSTSCRIPT_NAME while preserving other objects like FC_FAMILY
+    {
+        UniqueFcPattern pattern(FcPatternCreate());
+        add_pattern_string(pattern.get(), FC_POSTSCRIPT_NAME, "PSStrong", true);
+        add_pattern_string(pattern.get(), FC_POSTSCRIPT_NAME, "PSWeak", false);
+        add_pattern_string(pattern.get(), FC_FAMILY, "FamStrong", true);
+        add_pattern_string(pattern.get(), FC_FAMILY, "FamWeak", false);
+
+        SkFontMgr_fontconfig_priv::remove_weak(pattern.get(), FC_POSTSCRIPT_NAME);
+
+        std::vector<std::string> psNames = get_pattern_strings(pattern.get(), FC_POSTSCRIPT_NAME);
+        REPORTER_ASSERT(reporter, (psNames == std::vector<std::string>{"PSStrong"}));
+
+        std::vector<std::string> families = get_pattern_strings(pattern.get(), FC_FAMILY);
+        REPORTER_ASSERT(reporter, (families == std::vector<std::string>{"FamStrong", "FamWeak"}));
+    }
+
+    // 14. Non-string attributes (e.g. FC_SLANT, FC_WEIGHT) are preserved
+    {
+        UniqueFcPattern pattern(FcPatternCreate());
+        add_pattern_string(pattern.get(), FC_FAMILY, "Strong1", true);
+        add_pattern_string(pattern.get(), FC_FAMILY, "Weak1", false);
+        FcPatternAddInteger(pattern.get(), FC_SLANT, FC_SLANT_ITALIC);
+        FcPatternAddInteger(pattern.get(), FC_WEIGHT, FC_WEIGHT_BOLD);
+
+        SkFontMgr_fontconfig_priv::remove_weak(pattern.get(), FC_FAMILY);
+
+        std::vector<std::string> families = get_pattern_strings(pattern.get(), FC_FAMILY);
+        REPORTER_ASSERT(reporter, (families == std::vector<std::string>{"Strong1"}));
+
+        int slant = -1;
+        REPORTER_ASSERT(reporter,
+                        FcPatternGetInteger(pattern.get(), FC_SLANT, 0, &slant) == FcResultMatch);
+        REPORTER_ASSERT(reporter, slant == FC_SLANT_ITALIC);
+
+        int weight = -1;
+        REPORTER_ASSERT(reporter,
+                        FcPatternGetInteger(pattern.get(), FC_WEIGHT, 0, &weight) == FcResultMatch);
+        REPORTER_ASSERT(reporter, weight == FC_WEIGHT_BOLD);
+    }
+}

@@ -353,6 +353,7 @@ skia_cc_library(
     name = "fontmgr_fontconfig",
     srcs = [
         "SkFontMgr_fontconfig.cpp",
+        "SkFontMgr_fontconfig_priv.h",
     ],
     hdrs = [
         "//include/ports:fontconfig_fontmgr_hdrs",
