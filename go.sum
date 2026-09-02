@@ -329,8 +329,8 @@ go.opentelemetry.io/otel/sdk/metric v1.43.0 h1:S88dyqXjJkuBNLeMcVPRFXpRw2fuwdvfC
 go.opentelemetry.io/otel/sdk/metric v1.43.0/go.mod h1:C/RJtwSEJ5hzTiUz5pXF1kILHStzb9zFlIEe85bhj6A=
 go.opentelemetry.io/otel/trace v1.43.0 h1:BkNrHpup+4k4w+ZZ86CZoHHEkohws8AY+WTX09nk+3A=
 go.opentelemetry.io/otel/trace v1.43.0/go.mod h1:/QJhyVBUUswCphDVxq+8mld+AvhXZLhe+8WVFxiFff0=
-go.skia.org/infra v0.0.0-20260828173857-0f35f455060f h1:DyWEfjdXpZS8kzS/u5DmCmWrNjhcIjc1konGe365Qoo=
-go.skia.org/infra v0.0.0-20260828173857-0f35f455060f/go.mod h1:h8cpQ+QHXf5wZXfOwIgZoteF531kl/7A3XuxRQtYrpk=
+go.skia.org/infra v0.0.0-20260901201342-d9dda56584c0 h1:zlVNF2qrFgpmmKPxaO95fcW/HrkvIzFD0KzKtzY6dI0=
+go.skia.org/infra v0.0.0-20260901201342-d9dda56584c0/go.mod h1:h8cpQ+QHXf5wZXfOwIgZoteF531kl/7A3XuxRQtYrpk=
 go.uber.org/goleak v1.3.0 h1:2K3zAYmnTNqV73imy9J1T3WC+gmCePx2hEGkimedGto=
 go.uber.org/goleak v1.3.0/go.mod h1:CoHD4mav9JJNrW/WLlf7HGZPjdw8EucARQHekz1X6bE=
 go.yaml.in/yaml/v3 v3.0.4/go.mod h1:DhzuOOF2ATzADvBadXxruRBLzYTpT36CKvDb3+aBEFg=
