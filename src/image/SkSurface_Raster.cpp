@@ -7,6 +7,7 @@
 #include "src/image/SkSurface_Raster.h"
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkCPURecorder.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkCapabilities.h"
 #include "include/core/SkImageInfo.h"
@@ -16,11 +17,11 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
-#include "include/cpu/Recorder.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkMath.h"
 #include "include/private/SkPixelStorage.h"
 #include "src/core/SkBitmapDevice.h"
+#include "src/core/SkCPURecorderImpl.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkSurfacePriv.h"
@@ -64,14 +65,14 @@ SkSurface_Raster::SkSurface_Raster(const SkImageInfo& info,
                                    void* context,
                                    const SkSurfaceProps* props)
         : SkSurface_Raster(
-                  skcpu::Recorder::TODO(), info, pixels, rb, releaseProc, context, props) {}
+                  asRRI(skcpu::Recorder::TODO()), info, pixels, rb, releaseProc, context, props) {}
 
 SkSurface_Raster::SkSurface_Raster(const SkImageInfo& info,
                                    sk_sp<SkPixelRef> pr,
                                    const SkSurfaceProps* props)
-        : SkSurface_Raster(skcpu::Recorder::TODO(), info, pr, props) {}
+        : SkSurface_Raster(asRRI(skcpu::Recorder::TODO()), info, pr, props) {}
 
-SkSurface_Raster::SkSurface_Raster(skcpu::Recorder* recorder,
+SkSurface_Raster::SkSurface_Raster(skcpu::RecorderImpl* recorder,
                                    const SkImageInfo& info,
                                    void* pixels,
                                    size_t rowBytes,
@@ -84,7 +85,7 @@ SkSurface_Raster::SkSurface_Raster(skcpu::Recorder* recorder,
     fWeOwnThePixels = false;    // We are "Direct"
 }
 
-SkSurface_Raster::SkSurface_Raster(skcpu::Recorder* recorder,
+SkSurface_Raster::SkSurface_Raster(skcpu::RecorderImpl* recorder,
                                    const SkImageInfo& info,
                                    sk_sp<SkPixelRef> pr,
                                    const SkSurfaceProps* props)
@@ -181,7 +182,9 @@ sk_sp<const SkCapabilities> SkSurface_Raster::onCapabilities() {
     return SkCapabilities::RasterBackend();
 }
 
-SkRecorder* SkSurface_Raster::onGetBaseRecorder() const { return fRecorder; }
+SkRecorder* SkSurface_Raster::onGetBaseRecorder() const {
+    return fRecorder;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 namespace SkSurfaces {
@@ -250,7 +253,7 @@ sk_sp<SkSurface> Recorder::makeBitmapSurface(const SkImageInfo& imageInfo,
         SkASSERT(pr->rowBytes() == rowBytes);
     }
 
-    return sk_make_sp<SkSurface_Raster>(this, imageInfo, std::move(pr), surfaceProps);
+    return sk_make_sp<SkSurface_Raster>(asRRI(this), imageInfo, std::move(pr), surfaceProps);
 }
 
 }  // namespace skcpu

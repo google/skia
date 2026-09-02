@@ -39,6 +39,7 @@ struct SkIRect;
 struct SkImageInfo;
 
 namespace skcpu {
+class ContextImpl;
 class Recorder;
 }  // namespace skcpu
 
@@ -411,6 +412,7 @@ private:
     std::unique_ptr<ResourceProvider> fResourceProvider;
     std::unique_ptr<ClientMappedBufferManager> fMappedBufferManager;
     std::unique_ptr<QueueManager> fQueueManager;
+    std::unique_ptr<const skcpu::ContextImpl> fCPUContext;
 
     PersistentPipelineStorage* fPersistentPipelineStorage;
 

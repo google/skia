@@ -8,6 +8,7 @@
 #ifndef SkPDFDevice_DEFINED
 #define SkPDFDevice_DEFINED
 
+#include "include/core/SkCPURecorder.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRefCnt.h"
@@ -15,7 +16,6 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
-#include "include/cpu/Recorder.h"
 #include "src/core/SkClipStack.h"
 #include "src/core/SkClipStackDevice.h"
 #include "src/core/SkTHash.h"
@@ -122,7 +122,10 @@ public:
 
     SkPDFParentTreeKey structParentsKey() const { return fMarkManager.structParentsKey(); }
 
-    SkRecorder* baseRecorder() const override { return skcpu::Recorder::TODO(); }
+    SkRecorder* baseRecorder() const override {
+        // TODO(kjlubick) the creation of this should likely involve a CPU context.
+        return skcpu::Recorder::TODO();
+    }
 
 private:
     // TODO(vandebo): push most of SkPDFDevice's state into a core object in

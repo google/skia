@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 #include "gm/gm.h"
+
+#include "include/core/SkCPURecorder.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkPaint.h"
@@ -12,7 +14,6 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSurface.h"
-#include "include/cpu/Recorder.h"
 #include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkImageFilters.h"
 #include "tools/DecodeUtils.h"

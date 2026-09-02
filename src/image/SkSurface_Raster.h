@@ -28,9 +28,7 @@ class SkRecorder;
 class SkSurfaceProps;
 struct SkIRect;
 
-namespace skcpu {
-class Recorder;
-}
+namespace skcpu { class RecorderImpl; }
 
 class SkSurface_Raster : public SkSurface_Base {
 public:
@@ -39,14 +37,14 @@ public:
                      const SkSurfaceProps*);
     SkSurface_Raster(const SkImageInfo& info, sk_sp<SkPixelRef>, const SkSurfaceProps*);
 
-    SkSurface_Raster(skcpu::Recorder* recorder,
+    SkSurface_Raster(skcpu::RecorderImpl* recorder,
                      const SkImageInfo&,
                      void* pixels,
                      size_t rowBytes,
                      SkSurfaces::PixelsReleaseProc releaseProc,
                      void* context,
                      const SkSurfaceProps*);
-    SkSurface_Raster(skcpu::Recorder* recorder,
+    SkSurface_Raster(skcpu::RecorderImpl* recorder,
                      const SkImageInfo&,
                      sk_sp<SkPixelRef>,
                      const SkSurfaceProps*);
@@ -68,8 +66,8 @@ public:
     SkRecorder* onGetBaseRecorder() const override;
 
 private:
+    skcpu::RecorderImpl* fRecorder;
     SkBitmap fBitmap;
-    skcpu::Recorder* fRecorder;
     bool fWeOwnThePixels;
 };
 

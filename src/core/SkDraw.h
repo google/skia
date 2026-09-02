@@ -49,6 +49,7 @@ class GlyphRunList;
 namespace skcpu {
 
 class GlyphRunListPainter;
+class ContextImpl;
 
 
 /** Helper function that creates a mask from a path and a required maskfilter.
@@ -249,6 +250,8 @@ public:
     const SkMatrix* fCTM{nullptr};             // required
     const SkRasterClip* fRC{nullptr};          // required
     const SkSurfaceProps* fProps{nullptr};     // optional
+
+    const ContextImpl* fCtx{nullptr};  // optional for now
 
 #ifdef SK_DEBUG
     void validate() const;

@@ -24,8 +24,6 @@ namespace skcpu {
 
 class SK_API Recorder : public SkRecorder {
 public:
-    Recorder() = default;
-
     /** Returns a non-null global context. Can be used as a means of transitioning onto
      * new APIs when a skcpu::Context/Recorder has not been piped down into the code paths
      */

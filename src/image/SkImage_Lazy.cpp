@@ -8,6 +8,7 @@
 #include "src/image/SkImage_Lazy.h"
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkCPURecorder.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImageGenerator.h"
@@ -16,7 +17,6 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"  // IWYU pragma: keep
 #include "include/core/SkYUVAInfo.h"
-#include "include/cpu/Recorder.h"
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkNextID.h"
@@ -206,6 +206,7 @@ sk_sp<SkImage> SkImage_Lazy::onMakeSubset(SkRecorder*,
 
 sk_sp<SkSurface> SkImage_Lazy::onMakeSurface(SkRecorder* recorder, const SkImageInfo& info) const {
     if (!recorder) {
+        // TODO(kjlubick) remove this after old SkImage::makeScaled(image info, sampling) API gone
         recorder = skcpu::Recorder::TODO();
     }
     const SkSurfaceProps* props = nullptr;
