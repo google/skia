@@ -154,8 +154,10 @@ uint32_t channel_to_bits(const Channel& channel, float value) {
             }
             [[fallthrough]];
 
-        case UNorm:
-            return (uint32_t) std::round(value * ((1 << channel.fBits) - 1));
+        case UNorm: {
+            uint32_t denominator = channel.fBits == 32 ? ~0 : ((1 << channel.fBits) - 1);
+            return (uint32_t) std::round(value * denominator);
+        }
 
         case XR:
             // See SkRP_opts::store_1010102_xr
@@ -180,7 +182,8 @@ float channel_to_float(const Channel& channel, uint32_t bits) {
     switch (channel.fType) {
         case sRGB: [[fallthrough]]; // first treat as unorm then apply gamma TF
         case UNorm: {
-            float vf = bits * (1 / (float) ((1 << channel.fBits) - 1));
+            uint32_t denominator = channel.fBits == 32 ? ~0 : ((1 << channel.fBits) - 1);
+            float vf = bits * (1 / (float) denominator);
             if (channel.fType == sRGB) {
                 vf = skcms_TransferFunction_eval(skcms_sRGB_TransferFunction(), vf);
             }
