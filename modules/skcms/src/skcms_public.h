@@ -227,6 +227,11 @@ typedef struct skcms_CICP {
     uint8_t video_full_range_flag;
 } skcms_CICP;
 
+typedef struct skcms_HAGC {
+    uint32_t       size;
+    const uint8_t* buffer;
+} skcms_HAGC;
+
 typedef struct skcms_ICCProfile {
     const uint8_t* buffer;
 
@@ -259,11 +264,16 @@ typedef struct skcms_ICCProfile {
     // and has_CICP to true.
     skcms_CICP             CICP;
 
+    // If the profile has a valid HAGC tag, skcms_Parse() sets HAGC to that data,
+    // and has_HAGC to true.
+    skcms_HAGC             HAGC;
+
     bool                   has_trc;
     bool                   has_toXYZD50;
     bool                   has_A2B;
     bool                   has_B2A;
     bool                   has_CICP;
+    bool                   has_HAGC;
 } skcms_ICCProfile;
 
 // The sRGB color profile is so commonly used that we offer a canonical skcms_ICCProfile for it.

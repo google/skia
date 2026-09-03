@@ -369,9 +369,11 @@ enum {
     skcms_Signature_WTPT = 0x77747074,
 
     skcms_Signature_CICP = 0x63696370,
+    skcms_Signature_HAGC = 0x48414743,
 
     // Type signatures
     skcms_Signature_curv = 0x63757276,
+    skcms_Signature_hagc = 0x68616763,
     skcms_Signature_mft1 = 0x6D667431,
     skcms_Signature_mft2 = 0x6D667432,
     skcms_Signature_mAB  = 0x6D414220,
@@ -1288,71 +1290,18 @@ static int fit_linear(const skcms_Curve* curve, int N, float tol,
     return lin_points;
 }
 
-// If this skcms_Curve holds an identity table, rewrite it as an identity skcms_TransferFunction.
-static void canonicalize_identity(skcms_Curve* curve) {
-    if (curve->table_entries && curve->table_entries <= (uint32_t)INT_MAX) {
-        int N = (int)curve->table_entries;
-
-        float c = 0.0f, d = 0.0f, f = 0.0f;
-        if (N == fit_linear(curve, N, 1.0f/static_cast<float>(2*N), &c,&d,&f)
-            && c == 1.0f
-            && f == 0.0f) {
-            curve->table_entries = 0;
-            curve->table_8       = nullptr;
-            curve->table_16      = nullptr;
-            curve->parametric    = skcms_TransferFunction{1,1,0,0,0,0,0};
-        }
-    }
-}
-
 static bool read_a2b(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xyz, const uint8_t* eob) {
-    bool ok = false;
-    if (tag->type == skcms_Signature_mft1) { ok = read_tag_mft1(tag, a2b); }
-    if (tag->type == skcms_Signature_mft2) { ok = read_tag_mft2(tag, a2b); }
-    if (tag->type == skcms_Signature_mAB ) { ok = read_tag_mab(tag, a2b, pcs_is_xyz, eob); }
-    if (!ok) {
-        return false;
-    }
-
-    if (a2b->input_channels > 0) { canonicalize_identity(a2b->input_curves + 0); }
-    if (a2b->input_channels > 1) { canonicalize_identity(a2b->input_curves + 1); }
-    if (a2b->input_channels > 2) { canonicalize_identity(a2b->input_curves + 2); }
-    if (a2b->input_channels > 3) { canonicalize_identity(a2b->input_curves + 3); }
-
-    if (a2b->matrix_channels > 0) { canonicalize_identity(a2b->matrix_curves + 0); }
-    if (a2b->matrix_channels > 1) { canonicalize_identity(a2b->matrix_curves + 1); }
-    if (a2b->matrix_channels > 2) { canonicalize_identity(a2b->matrix_curves + 2); }
-
-    if (a2b->output_channels > 0) { canonicalize_identity(a2b->output_curves + 0); }
-    if (a2b->output_channels > 1) { canonicalize_identity(a2b->output_curves + 1); }
-    if (a2b->output_channels > 2) { canonicalize_identity(a2b->output_curves + 2); }
-
-    return true;
+    if (tag->type == skcms_Signature_mft1) { return read_tag_mft1(tag, a2b); }
+    if (tag->type == skcms_Signature_mft2) { return read_tag_mft2(tag, a2b); }
+    if (tag->type == skcms_Signature_mAB ) { return read_tag_mab(tag, a2b, pcs_is_xyz, eob); }
+    return false;
 }
 
 static bool read_b2a(const skcms_ICCTag* tag, skcms_B2A* b2a, bool pcs_is_xyz, const uint8_t* eob) {
-    bool ok = false;
-    if (tag->type == skcms_Signature_mft1) { ok = read_tag_mft1(tag, b2a); }
-    if (tag->type == skcms_Signature_mft2) { ok = read_tag_mft2(tag, b2a); }
-    if (tag->type == skcms_Signature_mBA ) { ok = read_tag_mba(tag, b2a, pcs_is_xyz, eob); }
-    if (!ok) {
-        return false;
-    }
-
-    if (b2a->input_channels > 0) { canonicalize_identity(b2a->input_curves + 0); }
-    if (b2a->input_channels > 1) { canonicalize_identity(b2a->input_curves + 1); }
-    if (b2a->input_channels > 2) { canonicalize_identity(b2a->input_curves + 2); }
-
-    if (b2a->matrix_channels > 0) { canonicalize_identity(b2a->matrix_curves + 0); }
-    if (b2a->matrix_channels > 1) { canonicalize_identity(b2a->matrix_curves + 1); }
-    if (b2a->matrix_channels > 2) { canonicalize_identity(b2a->matrix_curves + 2); }
-
-    if (b2a->output_channels > 0) { canonicalize_identity(b2a->output_curves + 0); }
-    if (b2a->output_channels > 1) { canonicalize_identity(b2a->output_curves + 1); }
-    if (b2a->output_channels > 2) { canonicalize_identity(b2a->output_curves + 2); }
-    if (b2a->output_channels > 3) { canonicalize_identity(b2a->output_curves + 3); }
-
-    return true;
+    if (tag->type == skcms_Signature_mft1) { return read_tag_mft1(tag, b2a); }
+    if (tag->type == skcms_Signature_mft2) { return read_tag_mft2(tag, b2a); }
+    if (tag->type == skcms_Signature_mBA ) { return read_tag_mba(tag, b2a, pcs_is_xyz, eob); }
+    return false;
 }
 
 typedef struct {
@@ -1375,6 +1324,28 @@ static bool read_cicp(const skcms_ICCTag* tag, skcms_CICP* cicp) {
     cicp->transfer_characteristics = cicpTag->transfer_characteristics[0];
     cicp->matrix_coefficients      = cicpTag->matrix_coefficients[0];
     cicp->video_full_range_flag    = cicpTag->video_full_range_flag[0];
+    return true;
+}
+
+typedef struct {
+    uint8_t type                     [4];
+    uint8_t reserved                 [4];
+    uint8_t size                     [4];
+} HAGC_Layout;
+
+static bool read_hagc(const skcms_ICCTag* tag, skcms_HAGC* hagc) {
+    if (tag->type != skcms_Signature_hagc || tag->size < SAFE_SIZEOF(HAGC_Layout)) {
+        return false;
+    }
+
+    const HAGC_Layout* hagcTag = (const HAGC_Layout*)tag->buf;
+    uint32_t size = read_big_u32(hagcTag->size);
+    if (size > tag->size - SAFE_SIZEOF(HAGC_Layout)) {
+        return false;
+    }
+
+    hagc->size   = size;
+    hagc->buffer = tag->buf + sizeof(HAGC_Layout);
     return true;
 }
 
@@ -1557,6 +1528,15 @@ bool skcms_ParseWithA2BPriority(const void* buf, size_t len,
         profile->has_CICP = true;
     }
 
+    skcms_ICCTag hagc_tag;
+    if (skcms_GetTagBySignature(profile, skcms_Signature_HAGC, &hagc_tag)) {
+        if (!read_hagc(&hagc_tag, &profile->HAGC)) {
+            // Malformed HAGC tag
+            return false;
+        }
+        profile->has_HAGC = true;
+    }
+
     return usable_as_src(profile);
 }
 
@@ -1649,12 +1629,14 @@ const skcms_ICCProfile* skcms_sRGB_profile() {
         },
 
         { 0, 0, 0, 0 },  // an empty CICP
+        { 0, nullptr },  // an empty HAGC
 
         true,  // has_trc
         true,  // has_toXYZD50
         false, // has_A2B
         false, // has B2A
         false, // has_CICP
+        false, // has_HAGC
     };
     return &sRGB_profile;
 }
@@ -1746,12 +1728,14 @@ const skcms_ICCProfile* skcms_XYZD50_profile() {
         },
 
         { 0, 0, 0, 0 },  // an empty CICP
+        { 0, nullptr },  // an empty HAGC
 
         true,  // has_trc
         true,  // has_toXYZD50
         false, // has_A2B
         false, // has B2A
         false, // has_CICP
+        false, // has_HAGC
     };
 
     return &XYZD50_profile;
