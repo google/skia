@@ -135,7 +135,8 @@ class DefaultFlavor(object):
 
     if self.m.vars.is_linux:
       if (self.m.vars.builder_cfg.get('cpu_or_gpu', '') == 'GPU'
-          and 'Intel' in self.m.vars.builder_cfg.get('cpu_or_gpu_value', '')):
+          and 'Intel' in self.m.vars.builder_cfg.get('cpu_or_gpu_value', '')
+          and self.m.vars.builder_cfg.get('os', '') != 'Ubuntu26.04'):
         dri_path = workdir.joinpath('mesa_intel_driver_linux')
         if ('IntelIrisXe' in self.m.vars.builder_cfg.get('cpu_or_gpu_value', '')):
           dri_path = workdir.joinpath('mesa_intel_driver_linux_22')

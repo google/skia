@@ -925,6 +925,21 @@
         "Build-Ubuntu24.04-EMCC-wasm-Release-StandaloneWasm"
       ]
     },
+    "Build-Ubuntu26.04-Clang-x86_64-Debug-Graphite_Dawn_Vulkan": {
+      "tasks": [
+        "Build-Ubuntu26.04-Clang-x86_64-Debug-Graphite_Dawn_Vulkan"
+      ]
+    },
+    "Build-Ubuntu26.04-Clang-x86_64-Debug-Graphite_Native_Vulkan": {
+      "tasks": [
+        "Build-Ubuntu26.04-Clang-x86_64-Debug-Graphite_Native_Vulkan"
+      ]
+    },
+    "Build-Ubuntu26.04-Clang-x86_64-Debug-Vulkan": {
+      "tasks": [
+        "Build-Ubuntu26.04-Clang-x86_64-Debug-Vulkan"
+      ]
+    },
     "Build-Win-Clang-arm64-Debug": {
       "tasks": [
         "Build-Win-Clang-arm64-Debug"
@@ -1806,6 +1821,21 @@
     "Perf-Ubuntu24.04-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan": {
       "tasks": [
         "Perf-Ubuntu24.04-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan"
+      ]
+    },
+    "Perf-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Graphite_Dawn_Vulkan": {
+      "tasks": [
+        "Perf-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Graphite_Dawn_Vulkan"
+      ]
+    },
+    "Perf-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Graphite_Native_Vulkan": {
+      "tasks": [
+        "Perf-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Graphite_Native_Vulkan"
+      ]
+    },
+    "Perf-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Vulkan": {
+      "tasks": [
+        "Perf-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Vulkan"
       ]
     },
     "Perf-Win11-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE": {
@@ -3191,6 +3221,21 @@
     "Test-Ubuntu24.04-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit": {
       "tasks": [
         "Test-Ubuntu24.04-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit"
+      ]
+    },
+    "Test-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Graphite_Dawn_Vulkan": {
+      "tasks": [
+        "Test-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Graphite_Dawn_Vulkan"
+      ]
+    },
+    "Test-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Graphite_Native_Vulkan": {
+      "tasks": [
+        "Test-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Graphite_Native_Vulkan"
+      ]
+    },
+    "Test-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Vulkan": {
+      "tasks": [
+        "Test-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Vulkan"
       ]
     },
     "Test-Win11-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All-ANGLE": {
@@ -20903,6 +20948,308 @@
       ],
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
+    "Build-Ubuntu26.04-Clang-x86_64-Debug-Graphite_Dawn_Vulkan": {
+      "caches": [
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
+        },
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
+          "name": "vpython3",
+          "path": "cache/vpython3"
+        }
+      ],
+      "casSpec": "compile",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/${platform}",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:3@3.13.15.chromium.2"
+        },
+        {
+          "name": "infra/3pp/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:3@2.55.0.chromium.11"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:3d1174859c0a5bb00d87c78506f8c031afad16aa"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:3d1174859c0a5bb00d87c78506f8c031afad16aa"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:3d1174859c0a5bb00d87c78506f8c031afad16aa"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:16db4a13d684dcd99d6767f4a71c0a6a626f8e3d"
+        },
+        {
+          "name": "infra/tools/luci/vpython3/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2e92f2eff2dd9ceb946313cbd39abef074881762"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:36"
+        },
+        {
+          "name": "skia/bots/cmake_linux",
+          "path": "cmake_linux",
+          "version": "version:5"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Ubuntu26.04-Clang-x86_64-Debug-Graphite_Dawn_Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu-26.04",
+        "pool:Skia"
+      ],
+      "environment": {
+        "RECIPES_USE_PY3": "true",
+        "VPYTHON_LOG_TRACE": "1"
+      },
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin",
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin",
+          "cmake_linux/bin"
+        ],
+        "VPYTHON_DEFAULT_SPEC": [
+          "skia/.vpython3"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython3"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 3600000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Ubuntu26.04-Clang-x86_64-Debug-Graphite_Native_Vulkan": {
+      "caches": [
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
+        },
+        {
+          "name": "vpython3",
+          "path": "cache/vpython3"
+        }
+      ],
+      "casSpec": "compile",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/${platform}",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:3@3.13.15.chromium.2"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:3d1174859c0a5bb00d87c78506f8c031afad16aa"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:16db4a13d684dcd99d6767f4a71c0a6a626f8e3d"
+        },
+        {
+          "name": "infra/tools/luci/vpython3/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2e92f2eff2dd9ceb946313cbd39abef074881762"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:36"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Ubuntu26.04-Clang-x86_64-Debug-Graphite_Native_Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu-26.04",
+        "pool:Skia"
+      ],
+      "environment": {
+        "RECIPES_USE_PY3": "true",
+        "VPYTHON_LOG_TRACE": "1"
+      },
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin",
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin"
+        ],
+        "VPYTHON_DEFAULT_SPEC": [
+          "skia/.vpython3"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython3"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 3600000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Ubuntu26.04-Clang-x86_64-Debug-Vulkan": {
+      "caches": [
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
+        },
+        {
+          "name": "vpython3",
+          "path": "cache/vpython3"
+        }
+      ],
+      "casSpec": "compile",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/${platform}",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:3@3.13.15.chromium.2"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:3d1174859c0a5bb00d87c78506f8c031afad16aa"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:16db4a13d684dcd99d6767f4a71c0a6a626f8e3d"
+        },
+        {
+          "name": "infra/tools/luci/vpython3/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2e92f2eff2dd9ceb946313cbd39abef074881762"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:36"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Ubuntu26.04-Clang-x86_64-Debug-Vulkan\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu-26.04",
+        "pool:Skia"
+      ],
+      "environment": {
+        "RECIPES_USE_PY3": "true",
+        "VPYTHON_LOG_TRACE": "1"
+      },
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin",
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin"
+        ],
+        "VPYTHON_DEFAULT_SPEC": [
+          "skia/.vpython3"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython3"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 3600000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
     "Build-Win-Clang-arm64-Debug": {
       "caches": [
         {
@@ -36147,6 +36494,288 @@
       "io_timeout_ns": 14400000000000,
       "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Perf-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Graphite_Dawn_Vulkan": {
+      "caches": [
+        {
+          "name": "vpython3",
+          "path": "cache/vpython3"
+        }
+      ],
+      "casSpec": "perf",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/${platform}",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:3@3.13.15.chromium.2"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:3d1174859c0a5bb00d87c78506f8c031afad16aa"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:16db4a13d684dcd99d6767f4a71c0a6a626f8e3d"
+        },
+        {
+          "name": "infra/tools/luci/vpython3/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2e92f2eff2dd9ceb946313cbd39abef074881762"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_sdk",
+          "path": "linux_vulkan_sdk",
+          "version": "version:7"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:47"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:575"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "perf",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Graphite_Dawn_Vulkan\",\"do_upload\":\"false\",\"nanobench_flags\":\"[\\\"nanobench\\\",\\\"--pre_log\\\",\\\"--gpuStatsDump\\\",\\\"true\\\",\\\"--nocpu\\\",\\\"--config\\\",\\\"grdawn_vk\\\",\\\"--internalSamples\\\",\\\"4\\\",\\\"--loops\\\",\\\"1\\\",\\\"--samples\\\",\\\"1\\\",\\\"--keepAlive\\\",\\\"true\\\",\\\"--match\\\",\\\"~inc0.gif\\\",\\\"~inc1.gif\\\",\\\"~incInterlaced.gif\\\",\\\"~inc0.jpg\\\",\\\"~incGray.jpg\\\",\\\"~inc0.wbmp\\\",\\\"~inc1.wbmp\\\",\\\"~inc0.webp\\\",\\\"~inc1.webp\\\",\\\"~inc0.ico\\\",\\\"~inc1.ico\\\",\\\"~inc0.png\\\",\\\"~inc1.png\\\",\\\"~inc2.png\\\",\\\"~inc12.png\\\",\\\"~inc13.png\\\",\\\"~inc14.png\\\",\\\"~inc0.webp\\\",\\\"~inc1.webp\\\"]\",\"nanobench_properties\":\"{\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\"}\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Ubuntu26.04-Clang-x86_64-Debug-Graphite_Dawn_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:8086:e20c-26.0.3",
+        "os:Ubuntu-26.04",
+        "pool:Skia"
+      ],
+      "environment": {
+        "RECIPES_USE_PY3": "true",
+        "VPYTHON_LOG_TRACE": "1"
+      },
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin",
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin"
+        ],
+        "VPYTHON_DEFAULT_SPEC": [
+          "skia/.vpython3"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython3"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2
+    },
+    "Perf-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Graphite_Native_Vulkan": {
+      "caches": [
+        {
+          "name": "vpython3",
+          "path": "cache/vpython3"
+        }
+      ],
+      "casSpec": "perf",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/${platform}",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:3@3.13.15.chromium.2"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:3d1174859c0a5bb00d87c78506f8c031afad16aa"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:16db4a13d684dcd99d6767f4a71c0a6a626f8e3d"
+        },
+        {
+          "name": "infra/tools/luci/vpython3/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2e92f2eff2dd9ceb946313cbd39abef074881762"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_sdk",
+          "path": "linux_vulkan_sdk",
+          "version": "version:7"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:47"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:575"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "perf",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Graphite_Native_Vulkan\",\"do_upload\":\"false\",\"nanobench_flags\":\"[\\\"nanobench\\\",\\\"--pre_log\\\",\\\"--gpuStatsDump\\\",\\\"true\\\",\\\"--nocpu\\\",\\\"--config\\\",\\\"grvk\\\",\\\"--internalSamples\\\",\\\"4\\\",\\\"--loops\\\",\\\"1\\\",\\\"--samples\\\",\\\"1\\\",\\\"--keepAlive\\\",\\\"true\\\",\\\"--match\\\",\\\"~inc0.gif\\\",\\\"~inc1.gif\\\",\\\"~incInterlaced.gif\\\",\\\"~inc0.jpg\\\",\\\"~incGray.jpg\\\",\\\"~inc0.wbmp\\\",\\\"~inc1.wbmp\\\",\\\"~inc0.webp\\\",\\\"~inc1.webp\\\",\\\"~inc0.ico\\\",\\\"~inc1.ico\\\",\\\"~inc0.png\\\",\\\"~inc1.png\\\",\\\"~inc2.png\\\",\\\"~inc12.png\\\",\\\"~inc13.png\\\",\\\"~inc14.png\\\",\\\"~inc0.webp\\\",\\\"~inc1.webp\\\"]\",\"nanobench_properties\":\"{\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\"}\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Ubuntu26.04-Clang-x86_64-Debug-Graphite_Native_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:8086:e20c-26.0.3",
+        "os:Ubuntu-26.04",
+        "pool:Skia"
+      ],
+      "environment": {
+        "RECIPES_USE_PY3": "true",
+        "VPYTHON_LOG_TRACE": "1"
+      },
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin",
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin"
+        ],
+        "VPYTHON_DEFAULT_SPEC": [
+          "skia/.vpython3"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython3"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2
+    },
+    "Perf-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Vulkan": {
+      "caches": [
+        {
+          "name": "vpython3",
+          "path": "cache/vpython3"
+        }
+      ],
+      "casSpec": "perf",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/${platform}",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:3@3.13.15.chromium.2"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:3d1174859c0a5bb00d87c78506f8c031afad16aa"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:16db4a13d684dcd99d6767f4a71c0a6a626f8e3d"
+        },
+        {
+          "name": "infra/tools/luci/vpython3/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2e92f2eff2dd9ceb946313cbd39abef074881762"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_sdk",
+          "path": "linux_vulkan_sdk",
+          "version": "version:7"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:47"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:575"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "perf",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Vulkan\",\"do_upload\":\"false\",\"nanobench_flags\":\"[\\\"nanobench\\\",\\\"--pre_log\\\",\\\"--gpuStatsDump\\\",\\\"true\\\",\\\"--nocpu\\\",\\\"--config\\\",\\\"vk\\\",\\\"--internalSamples\\\",\\\"8\\\",\\\"--loops\\\",\\\"1\\\",\\\"--samples\\\",\\\"1\\\",\\\"--keepAlive\\\",\\\"true\\\",\\\"--match\\\",\\\"~inc0.gif\\\",\\\"~inc1.gif\\\",\\\"~incInterlaced.gif\\\",\\\"~inc0.jpg\\\",\\\"~incGray.jpg\\\",\\\"~inc0.wbmp\\\",\\\"~inc1.wbmp\\\",\\\"~inc0.webp\\\",\\\"~inc1.webp\\\",\\\"~inc0.ico\\\",\\\"~inc1.ico\\\",\\\"~inc0.png\\\",\\\"~inc1.png\\\",\\\"~inc2.png\\\",\\\"~inc12.png\\\",\\\"~inc13.png\\\",\\\"~inc14.png\\\",\\\"~inc0.webp\\\",\\\"~inc1.webp\\\"]\",\"nanobench_properties\":\"{\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\"}\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Ubuntu26.04-Clang-x86_64-Debug-Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:8086:e20c-26.0.3",
+        "os:Ubuntu-26.04",
+        "pool:Skia"
+      ],
+      "environment": {
+        "RECIPES_USE_PY3": "true",
+        "VPYTHON_LOG_TRACE": "1"
+      },
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin",
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin"
+        ],
+        "VPYTHON_DEFAULT_SPEC": [
+          "skia/.vpython3"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython3"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2
     },
     "Perf-Win11-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-ANGLE": {
       "caches": [
@@ -61787,6 +62416,309 @@
         "CLOUDSDK_PYTHON": [
           "cipd_bin_packages/cpython3/bin/python3"
         ],
+        "PATH": [
+          "cipd_bin_packages/gcloud/bin",
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin",
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin"
+        ],
+        "VPYTHON_DEFAULT_SPEC": [
+          "skia/.vpython3"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython3"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2,
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Test-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Graphite_Dawn_Vulkan": {
+      "caches": [
+        {
+          "name": "vpython3",
+          "path": "cache/vpython3"
+        }
+      ],
+      "casSpec": "test",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/${platform}",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:3@3.13.15.chromium.2"
+        },
+        {
+          "name": "infra/3pp/tools/gcloud/${platform}",
+          "path": "cipd_bin_packages/gcloud",
+          "version": "version:3@577.0.0.chromium.4"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:3d1174859c0a5bb00d87c78506f8c031afad16aa"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:16db4a13d684dcd99d6767f4a71c0a6a626f8e3d"
+        },
+        {
+          "name": "infra/tools/luci/vpython3/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2e92f2eff2dd9ceb946313cbd39abef074881762"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_sdk",
+          "path": "linux_vulkan_sdk",
+          "version": "version:7"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:47"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:575"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "test",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Graphite_Dawn_Vulkan\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"GPU\\\",\\\"cpu_or_gpu_value\\\",\\\"IntelArcB570\\\",\\\"extra_config\\\",\\\"Graphite_Dawn_Vulkan\\\",\\\"model\\\",\\\"FalconRAK\\\",\\\"os\\\",\\\"Ubuntu26.04\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nocpu\\\",\\\"--nogpu\\\",\\\"--gpuThreads\\\",\\\"0\\\",\\\"--config\\\",\\\"grdawn_vk\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"--skip\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"PaintParamsKeyTestReduced\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"runtime_intrinsics_matrix\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"BackendTextureTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"PaintParamsKeyTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"PersistentPipelineStorageTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"UserDefinedStableKeyTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"PipelineManagerThreadedTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"PipelineManagerEarlyExitTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"ThreadedPipeline\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"RecordingSurfacesTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"RecordingOrderTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"ImageOriginTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"ImageProviderTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"ImageShaderTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"MutableImagesTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"NotifyInUseTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"UpdateBackendTexture\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"UploadBufferManagerTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"Multisample\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"RuntimeEffect\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"CacheKeyTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"ImageWrapTextureMipmapsTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"PromiseImage\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"Precompile\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"DeviceTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"InnerFill\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"Key\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"Texture\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"ShaderInfo\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"SkSL\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"SkRuntime\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"ShaderTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"SimplifyPaintTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"ImageFilter\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"Blur\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"BigImage\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"TiledDrawCache\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"crbug_513836996\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"PipelineCallbackTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"DirectMaskLimitTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"CacheBudgetTest\\\",\\\"_\\\",\\\"svg\\\",\\\"_\\\",\\\"svgparse_\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"Skottie_Shaper_CTStrict\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"BigImageTest_Ganesh\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced1.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced2.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced3.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".arw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".cr2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".dng\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nrw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".orf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".raf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".rw2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".pef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".srw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ARW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".CR2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".DNG\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NRW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ORF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RAF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RW2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".PEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".SRW\\\",\\\"--match\\\",\\\"~^verylarge_picture_image$\\\",\\\"~^verylargebitmap$\\\",\\\"~^path_huge_aa$\\\",\\\"~^fast_constraint_red_is_allowed$\\\",\\\"~^strict_constraint_batch_no_red_allowed$\\\",\\\"~^strict_constraint_no_red_allowed$\\\",\\\"~async_rescale_and_read\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Graphite_Dawn_Vulkan\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://gold.skia.org/json/v1/hashes\",\"gs_bucket\":\"skia-infra-gm\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Ubuntu26.04-Clang-x86_64-Debug-Graphite_Dawn_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:8086:e20c-26.0.3",
+        "os:Ubuntu-26.04",
+        "pool:Skia"
+      ],
+      "environment": {
+        "RECIPES_USE_PY3": "true",
+        "VPYTHON_LOG_TRACE": "1"
+      },
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages/gcloud/bin",
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin",
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin"
+        ],
+        "VPYTHON_DEFAULT_SPEC": [
+          "skia/.vpython3"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython3"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2,
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Test-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Graphite_Native_Vulkan": {
+      "caches": [
+        {
+          "name": "vpython3",
+          "path": "cache/vpython3"
+        }
+      ],
+      "casSpec": "test",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/${platform}",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:3@3.13.15.chromium.2"
+        },
+        {
+          "name": "infra/3pp/tools/gcloud/${platform}",
+          "path": "cipd_bin_packages/gcloud",
+          "version": "version:3@577.0.0.chromium.4"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:3d1174859c0a5bb00d87c78506f8c031afad16aa"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:16db4a13d684dcd99d6767f4a71c0a6a626f8e3d"
+        },
+        {
+          "name": "infra/tools/luci/vpython3/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2e92f2eff2dd9ceb946313cbd39abef074881762"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_sdk",
+          "path": "linux_vulkan_sdk",
+          "version": "version:7"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:47"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:575"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "test",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Graphite_Native_Vulkan\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"GPU\\\",\\\"cpu_or_gpu_value\\\",\\\"IntelArcB570\\\",\\\"extra_config\\\",\\\"Graphite_Native_Vulkan\\\",\\\"model\\\",\\\"FalconRAK\\\",\\\"os\\\",\\\"Ubuntu26.04\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nocpu\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"grvk\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"--skip\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"PaintParamsKeyTestReduced\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"aaxfermodes\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"BigImageTest_Graphite\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"PaintParamsKeyTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"ThreadedPipelinePrecompileCompileTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"ThreadedPipelinePrecompileCompilePurgingTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"ThreadedPipelinePrecompilePurgingTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"PersistentPipelineStorageTest\\\",\\\"_\\\",\\\"svg\\\",\\\"_\\\",\\\"svgparse_\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"Skottie_Shaper_CTStrict\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"BigImageTest_Ganesh\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced1.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced2.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced3.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".arw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".cr2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".dng\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nrw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".orf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".raf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".rw2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".pef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".srw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ARW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".CR2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".DNG\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NRW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ORF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RAF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RW2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".PEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".SRW\\\",\\\"--match\\\",\\\"~^verylarge_picture_image$\\\",\\\"~^verylargebitmap$\\\",\\\"~^path_huge_aa$\\\",\\\"~^fast_constraint_red_is_allowed$\\\",\\\"~^strict_constraint_batch_no_red_allowed$\\\",\\\"~^strict_constraint_no_red_allowed$\\\",\\\"~async_rescale_and_read\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Graphite_Native_Vulkan\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://gold.skia.org/json/v1/hashes\",\"gs_bucket\":\"skia-infra-gm\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Ubuntu26.04-Clang-x86_64-Debug-Graphite_Native_Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:8086:e20c-26.0.3",
+        "os:Ubuntu-26.04",
+        "pool:Skia"
+      ],
+      "environment": {
+        "RECIPES_USE_PY3": "true",
+        "VPYTHON_LOG_TRACE": "1"
+      },
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages/gcloud/bin",
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin",
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin"
+        ],
+        "VPYTHON_DEFAULT_SPEC": [
+          "skia/.vpython3"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython3"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2,
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Test-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Vulkan": {
+      "caches": [
+        {
+          "name": "vpython3",
+          "path": "cache/vpython3"
+        }
+      ],
+      "casSpec": "test",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/${platform}",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:3@3.13.15.chromium.2"
+        },
+        {
+          "name": "infra/3pp/tools/gcloud/${platform}",
+          "path": "cipd_bin_packages/gcloud",
+          "version": "version:3@577.0.0.chromium.4"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:3d1174859c0a5bb00d87c78506f8c031afad16aa"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:16db4a13d684dcd99d6767f4a71c0a6a626f8e3d"
+        },
+        {
+          "name": "infra/tools/luci/vpython3/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:2e92f2eff2dd9ceb946313cbd39abef074881762"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_sdk",
+          "path": "linux_vulkan_sdk",
+          "version": "version:7"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:47"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:575"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "test",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Vulkan\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"GPU\\\",\\\"cpu_or_gpu_value\\\",\\\"IntelArcB570\\\",\\\"extra_config\\\",\\\"Vulkan\\\",\\\"model\\\",\\\"FalconRAK\\\",\\\"os\\\",\\\"Ubuntu26.04\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nocpu\\\",\\\"--config\\\",\\\"vk\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"svg\\\",\\\"--skip\\\",\\\"_\\\",\\\"svg\\\",\\\"_\\\",\\\"svgparse_\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"Skottie_Shaper_CTStrict\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"BigImageTest_Ganesh\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced1.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced2.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced3.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".arw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".cr2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".dng\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nrw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".orf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".raf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".rw2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".pef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".srw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ARW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".CR2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".DNG\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NRW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ORF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RAF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RW2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".PEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".SRW\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Ubuntu26.04-Clang-FalconRAK-GPU-IntelArcB570-x86_64-Debug-All-Vulkan\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://gold.skia.org/json/v1/hashes\",\"gs_bucket\":\"skia-infra-gm\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Ubuntu26.04-Clang-x86_64-Debug-Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:8086:e20c-26.0.3",
+        "os:Ubuntu-26.04",
+        "pool:Skia"
+      ],
+      "environment": {
+        "RECIPES_USE_PY3": "true",
+        "VPYTHON_LOG_TRACE": "1"
+      },
+      "env_prefixes": {
         "PATH": [
           "cipd_bin_packages/gcloud/bin",
           "cipd_bin_packages",

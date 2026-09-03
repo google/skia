@@ -70,6 +70,7 @@ const (
 	UBUNTU_20_04_OS      = "Ubuntu-20.04"
 	UBUNTU_22_04_OS      = "Ubuntu-22.04"
 	UBUNTU_24_04_OS      = "Ubuntu-24.04"
+	UBUNTU_26_04_OS      = "Ubuntu-26.04"
 
 	// Small is a 2-core machine.
 	// TODO(dogben): Would n1-standard-1 or n1-standard-2 be sufficient?
@@ -887,6 +888,7 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 			"Ubuntu20.04": UBUNTU_20_04_OS,
 			"Ubuntu22.04": UBUNTU_22_04_OS,
 			"Ubuntu24.04": UBUNTU_24_04_OS,
+			"Ubuntu26.04": UBUNTU_26_04_OS,
 			"Win":         DEFAULT_OS_WIN_GCE,
 			"Win10":       "Windows-10-19045",
 			"Win11":       "Windows-11-26100",
@@ -1063,9 +1065,10 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 					// Intel drivers come from CIPD, so no need to specify the version here.
 					"IntelHD405": "8086:22b1",
 					// The version is not set on these as of Nov 5 2025
-					"QuadroP400":  "10de:1cb3",
-					"IntelIrisXe": "8086:9a49",
-					"RadeonVega8": "1002:1638-23.2.1",
+					"QuadroP400":   "10de:1cb3",
+					"IntelIrisXe":  "8086:9a49",
+					"IntelArcB570": "8086:e20c-26.0.3",
+					"RadeonVega8":  "1002:1638-23.2.1",
 				}[b.Parts["cpu_or_gpu_value"]]
 				if !ok {
 					log.Fatalf("Entry %q not found in Linux GPU mapping.", b.Parts["cpu_or_gpu_value"])
@@ -1651,12 +1654,14 @@ func (b *TaskBuilder) commonTestPerfAssets() {
 			b.asset("linux_vulkan_sdk")
 		}
 		if b.MatchGpu("Intel") {
-			if b.MatchGpu("IrisXe") {
-				b.asset("mesa_intel_driver_linux_22")
-			} else {
-				// Use this for legacy drivers that were culled in v22 of Mesa.
-				// https://www.phoronix.com/scan.php?page=news_item&px=Mesa-22.0-Drops-OpenSWR
-				b.asset("mesa_intel_driver_linux")
+			if !b.MatchOs("Ubuntu26.04") {
+				if b.MatchGpu("IrisXe") {
+					b.asset("mesa_intel_driver_linux_22")
+				} else {
+					// Use this for legacy drivers that were culled in v22 of Mesa.
+					// https://www.phoronix.com/scan.php?page=news_item&px=Mesa-22.0-Drops-OpenSWR
+					b.asset("mesa_intel_driver_linux")
+				}
 			}
 		}
 	}

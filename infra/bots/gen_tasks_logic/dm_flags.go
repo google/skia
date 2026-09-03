@@ -483,6 +483,10 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 
 				configs = []string{baseConfig}
 
+				if b.MatchOs("Ubuntu26.04") {
+					args = append(args, "--gpuThreads", "0")
+				}
+
 				if b.ExtraConfig("FakeWGPU") {
 					args = append(args, "--neverYieldToWebGPU")
 					args = append(args, "--useWGPUTextureView")
@@ -549,6 +553,49 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 				if b.ExtraConfig("Vulkan") {
 					// b/425434638 - PaintParamsKeyTest failing on Release Dawn_Vulkan
 					skip(ALL, "test", ALL, "PaintParamsKeyTest")
+
+					if b.MatchOs("Ubuntu26.04") && b.GPU("IntelArcB570") {
+						skip(ALL, "test", ALL, "PersistentPipelineStorageTest")
+
+						if b.ExtraConfig("Dawn") {
+							skip(ALL, "test", ALL, "UserDefinedStableKeyTest")
+							skip(ALL, "test", ALL, "PipelineManagerThreadedTest")
+							skip(ALL, "test", ALL, "PipelineManagerEarlyExitTest")
+							skip(ALL, "test", ALL, "ThreadedPipeline")
+							skip(ALL, "test", ALL, "RecordingSurfacesTest")
+							skip(ALL, "test", ALL, "RecordingOrderTest")
+							skip(ALL, "test", ALL, "ImageOriginTest")
+							skip(ALL, "test", ALL, "ImageProviderTest")
+							skip(ALL, "test", ALL, "ImageShaderTest")
+							skip(ALL, "test", ALL, "MutableImagesTest")
+							skip(ALL, "test", ALL, "NotifyInUseTest")
+							skip(ALL, "test", ALL, "UpdateBackendTexture")
+							skip(ALL, "test", ALL, "UploadBufferManagerTest")
+							skip(ALL, "test", ALL, "Multisample")
+							skip(ALL, "test", ALL, "RuntimeEffect")
+							skip(ALL, "test", ALL, "CacheKeyTest")
+							skip(ALL, "test", ALL, "ImageWrapTextureMipmapsTest")
+							skip(ALL, "test", ALL, "PromiseImage")
+							skip(ALL, "test", ALL, "Precompile")
+							skip(ALL, "test", ALL, "DeviceTest")
+							skip(ALL, "test", ALL, "InnerFill")
+							skip(ALL, "test", ALL, "Key")
+							skip(ALL, "test", ALL, "Texture")
+							skip(ALL, "test", ALL, "ShaderInfo")
+							skip(ALL, "test", ALL, "SkSL")
+							skip(ALL, "test", ALL, "SkRuntime")
+							skip(ALL, "test", ALL, "ShaderTest")
+							skip(ALL, "test", ALL, "SimplifyPaintTest")
+							skip(ALL, "test", ALL, "ImageFilter")
+							skip(ALL, "test", ALL, "Blur")
+							skip(ALL, "test", ALL, "BigImage")
+							skip(ALL, "test", ALL, "TiledDrawCache")
+							skip(ALL, "test", ALL, "crbug_513836996")
+							skip(ALL, "test", ALL, "PipelineCallbackTest")
+							skip(ALL, "test", ALL, "DirectMaskLimitTest")
+							skip(ALL, "test", ALL, "CacheBudgetTest")
+						}
+					}
 
 					if b.GPU("IntelIris540") {
 						// b/485161482 - Compute_SampledTexture fails with an access violation
@@ -619,8 +666,8 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 					skip(ALL, "test", ALL, "ThreadedPipelinePrecompileCompilePurgingTest")
 					skip(ALL, "test", ALL, "ThreadedPipelinePrecompilePurgingTest")
 
-					if b.GPU("QuadroP400") || b.MatchOs("Ubuntu24.04") {
-						// Neither the nVidia driver on the P400s nor the Ubuntu24.04 driver
+					if b.GPU("QuadroP400") || b.MatchOs("Ubuntu24.04") || b.MatchOs("Ubuntu26.04") {
+						// Neither the nVidia driver on the P400s nor the Ubuntu24.04/Ubuntu26.04 drivers
 						// correctly support pipeline caching control (i.e., they *never* return
 						// VK_PIPELINE_COMPILE_REQUIRED from CreateGraphicsPipelines)
 						skip(ALL, "test", ALL, "PersistentPipelineStorageTest")

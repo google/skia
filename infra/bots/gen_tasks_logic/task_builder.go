@@ -260,6 +260,7 @@ func (b *TaskBuilder) shellsOutToBazel() bool {
 func (b *TaskBuilder) usesCMake() {
 	archToPkg := map[string]string{
 		"Ubuntu24.04": "cmake_linux",
+		"Ubuntu26.04": "cmake_linux",
 		"Mac":         "cmake_mac",
 		"Win":         "cmake_win",
 	}
