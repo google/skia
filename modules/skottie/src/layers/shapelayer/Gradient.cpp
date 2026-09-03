@@ -215,10 +215,10 @@ private:
             stops.push_back(current_stop);
 
             // Consume one of, or both (for coincident positions) color/opacity stops.
-            if (c_pos <= o_pos) {
+            if (SkIsNaN(c_pos) || c_pos <= o_pos) {
                 c_rec = next_rec<ColorRec>(c_rec, c_end);
             }
-            if (o_pos <= c_pos) {
+            if (SkIsNaN(o_pos) || o_pos <= c_pos) {
                 o_rec = next_rec<OpacityRec>(o_rec, o_end);
             }
         }
