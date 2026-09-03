@@ -9,8 +9,8 @@
 
 #include "include/private/SkTDArray.h"
 #include "src/gpu/graphite/sparse_strips/Polyline.h"
+#include "src/gpu/graphite/sparse_strips/SparseStripsConfig.h"
 #include "src/gpu/graphite/sparse_strips/SparseStripsTypes.h"
-#include "src/gpu/graphite/sparse_strips/Strip.h"
 #include "src/gpu/graphite/sparse_strips/Tiler.h"
 
 #include <cstdint>
@@ -20,23 +20,17 @@ namespace skgpu::graphite {
 template <uint16_t kTileWidth, uint16_t kTileHeight, bool kIsWinding>
 class StripProcessorScalar {
 public:
-    StripProcessorScalar(SkTDArray<Strip>* stripBuf,
-                         SkTDArray<uint8_t>* alphaBuf,
-                         bool isInverse,
+    StripProcessorScalar(bool isInverse,
                          const Polyline& polyline,
-                         const SkTDArray<uint8_t>& maskLut,
-                         int32_t initialAlphaIdx
+                         const SkTDArray<uint8_t>& maskLut
 #if defined(GPU_TEST_UTILS)
-                         , MsaaExactMaskObserver observer
+                         , MsaaExactMaskObserver observer = nullptr
 #endif
                          )
             : fCoarseWinding(0)
-            , fStripBuf(stripBuf)
-            , fAlphaBuf(alphaBuf)
             , fIsInverse(isInverse)
             , fPolyline(polyline)
             , fMaskLut(maskLut)
-            , fLocalAlphaIdx(initialAlphaIdx)
 #if defined(GPU_TEST_UTILS)
             , fObserver(observer)
 #endif
@@ -47,7 +41,7 @@ public:
     SK_ALWAYS_INLINE void clearWinding(int16_t value) {
         for (int32_t row = 0; row < kTileHeight; ++row) {
             for (int32_t column = 0; column < kTileWidth; ++column) {
-                for (int32_t k = 0; k < Strip::kNumSubSamples; ++k) {
+                for (int32_t k = 0; k < SparseStripConfig::kNumSubSamples; ++k) {
                     fSubsampleWinding[row][column][k] = value;
                 }
             }
@@ -70,12 +64,10 @@ public:
 
     SK_ALWAYS_INLINE int32_t coarseWinding() const { return fCoarseWinding; }
     SK_ALWAYS_INLINE void setCoarseWinding(int32_t val) { fCoarseWinding = val; }
-    SK_ALWAYS_INLINE int32_t localAlphaIdx() const { return fLocalAlphaIdx; }
 
     // Once all tiles at the same geometric location have been combined, the subsample winding must
     // be converted to alpha values consumable by the fragment shader.
-    SK_ALWAYS_INLINE void resolveWindingToAlpha() {
-        uint8_t* tileAlphaBase = this->reserveAlphaBuffer();
+    SK_ALWAYS_INLINE void resolveWindingToAlpha(uint8_t* tileAlphaBase) {
         int localWriteIdx = 0;
 
         for (int32_t row = 0; row < kTileHeight; ++row) {
@@ -83,7 +75,6 @@ public:
                 this->processPixel(row, column, tileAlphaBase, localWriteIdx++);
             }
         }
-        fLocalAlphaIdx += kTilePixelCount;
     }
 
     // The core function of strip generation. It takes the line, coarse winding, and intersection
@@ -630,8 +621,8 @@ public:
 
         float dx = line.p1.fX - line.p0.fX;
         float dy = line.p1.fY - line.p0.fY;
-        float invDx = (std::abs(dx) <= Strip::kStripEpsilon) ? 0.0f : 1.0f / dx;
-        float invDy = (std::abs(dy) <= Strip::kStripEpsilon) ? 0.0f : 1.0f / dy;
+        float invDx = (std::abs(dx) <= SparseStripConfig::kStripEpsilon) ? 0.0f : 1.0f / dx;
+        float invDy = (std::abs(dy) <= SparseStripConfig::kStripEpsilon) ? 0.0f : 1.0f / dy;
         float dxdy = dx * invDy;
         std::array<float, 4> derivs = {dx, dy, invDx, invDy};
 
@@ -657,7 +648,7 @@ public:
 
         // Ignore perfectly horizontal lines that lie exactly on pixel boundaries, as their winding
         // contribution is accounted for by fillLeft()
-        if (std::abs(dy) < Strip::kStripEpsilon && pTop.fY == std::floor(pTop.fY)) {
+        if (std::abs(dy) < SparseStripConfig::kStripEpsilon && pTop.fY == std::floor(pTop.fY)) {
             return;
         }
 
@@ -742,7 +733,7 @@ public:
                 bool shouldInvert = (isStartY && column == canonicalStartX) ? startInvert
                                                                             : defaultInvert;
 
-                for (int32_t k = 0; k < Strip::kNumSubSamples; ++k) {
+                for (int32_t k = 0; k < SparseStripConfig::kNumSubSamples; ++k) {
                     // Extract the 1 or 0 from the LUT for this specific sub-sample.
                     int32_t maskBit = (maskVal & (1 << k)) ? 1 : 0;
 
@@ -777,7 +768,7 @@ public:
                     val = 1;
                 }
                 for (int32_t column = xEnd + 1; column < kTileWidth; ++column) {
-                    for (int32_t k = 0; k < Strip::kNumSubSamples; ++k) {
+                    for (int32_t k = 0; k < SparseStripConfig::kNumSubSamples; ++k) {
                         if constexpr (kIsWinding) {
                             fSubsampleWinding[row][column][k] += val;
                         } else {
@@ -800,14 +791,6 @@ private:
         bool fSortedXDir;
     };
 
-    SK_ALWAYS_INLINE uint8_t* reserveAlphaBuffer() {
-        if (fAlphaBuf->size() + kTilePixelCount > fAlphaBuf->capacity()) {
-            constexpr size_t kChunkSize = 4 * kTilePixelCount;
-            fAlphaBuf->reserve(fAlphaBuf->capacity() + kChunkSize);
-        }
-        return fAlphaBuf->append(kTilePixelCount);
-    }
-
     // For testing, we need to know the fill rule result for each subsample location, not just the
     // summed alpha that we store in the alpha buffer. So on testing builds, we store the exact
     // results in a mask for each pixel in the tile.
@@ -815,14 +798,14 @@ private:
     SK_ALWAYS_INLINE void observePixel(int32_t row, int32_t column) {
         uint8_t exactMask = 0;
         skvx::int8 winding(0);
-        for (int32_t k = 0; k < Strip::kNumSubSamples; ++k) {
+        for (int32_t k = 0; k < SparseStripConfig::kNumSubSamples; ++k) {
             winding[k] = static_cast<int8_t>(fSubsampleWinding[row][column][k]);
             if (ShouldFill(fSubsampleWinding[row][column][k])) {
                 exactMask |= (1 << k);
             }
         }
         if (fIsInverse) {
-            exactMask = ~exactMask & ((1 << Strip::kNumSubSamples) - 1);
+            exactMask = ~exactMask & ((1 << SparseStripConfig::kNumSubSamples) - 1);
         }
         fObserver(exactMask, winding);
     }
@@ -837,13 +820,13 @@ private:
                                        int32_t localWriteIdx) {
         int32_t activeSamples = 0;
 
-        for (int32_t k = 0; k < Strip::kNumSubSamples; ++k) {
+        for (int32_t k = 0; k < SparseStripConfig::kNumSubSamples; ++k) {
             if (ShouldFill(fSubsampleWinding[row][column][k])) {
                 activeSamples++;
             }
         }
         if (fIsInverse) {
-            activeSamples = Strip::kNumSubSamples - activeSamples;
+            activeSamples = SparseStripConfig::kNumSubSamples - activeSamples;
         }
 
 #if defined(GPU_TEST_UTILS)
@@ -852,8 +835,9 @@ private:
         }
 #endif
 
-        uint8_t alpha = static_cast<uint8_t>((activeSamples * 255 + (Strip::kNumSubSamples / 2)) /
-                        Strip::kNumSubSamples);
+        uint8_t alpha = static_cast<uint8_t>(
+                (activeSamples * 255 + (SparseStripConfig::kNumSubSamples / 2)) /
+                SparseStripConfig::kNumSubSamples);
         tileAlphaBase[localWriteIdx] = alpha;
     }
 
@@ -871,7 +855,7 @@ private:
 
         for (int32_t row = startY; row < kTileHeight; ++row) {
             for (int32_t column = 0; column < kTileWidth; ++column) {
-                for (int32_t k = 0; k < Strip::kNumSubSamples; ++k) {
+                for (int32_t k = 0; k < SparseStripConfig::kNumSubSamples; ++k) {
                     if constexpr (kIsWinding) {
                         fSubsampleWinding[row][column][k] += val;
                     } else {
@@ -1016,7 +1000,7 @@ private:
 
         // Compute the Manhattan distance of the normal vector.
         float D = normalX + std::abs(normalY);
-        float invD = (D < Strip::kStripEpsilon) ? 0.0f : 1.0f / D;
+        float invD = (D < SparseStripConfig::kStripEpsilon) ? 0.0f : 1.0f / D;
 
         // In screen-space (Y goes down), a line that goes right-and-down (\) yields a negative
         // normalY, which maps to a positive slope.
@@ -1028,12 +1012,13 @@ private:
         // Find `s`, and get the row associated with it in the LUT
         float s = std::abs(normalY) * invD;
         int lutRowOffset = std::clamp(
-                static_cast<int>(std::floor(s * (Strip::kLutMaskHeight / 2))),
+                static_cast<int>(std::floor(s * (SparseStripConfig::kLutMaskHeight / 2))),
                 0,
-                (Strip::kLutMaskHeight / 2) - 1);
+                (SparseStripConfig::kLutMaskHeight / 2) - 1);
 
         // If the slope is positive, shift the index into the bottom half of the LUT.
-        int lutRow = hasPositiveSlope ? (lutRowOffset + Strip::kLutMaskHeight / 2) : lutRowOffset;
+        int lutRow = hasPositiveSlope ? (lutRowOffset + SparseStripConfig::kLutMaskHeight / 2) :
+                                        lutRowOffset;
 
         // DDA Steps
         float stepX = normalX * invD;
@@ -1055,31 +1040,25 @@ private:
     // translation parameter `t` (which ranges from 0.0 to 1.0) to the LUT's width (64) and flooring
     // the result.
     SK_ALWAYS_INLINE uint8_t lutLookup(float t, int lutRow) {
-        int u = std::clamp(static_cast<int>(std::floor(t * Strip::kLutMaskWidthF)),
+        int u = std::clamp(static_cast<int>(std::floor(t * SparseStripConfig::kLutMaskWidthF)),
                            0,
-                           Strip::kLutMaskWidthExcl);
-        int index = lutRow * Strip::kLutMaskWidth + u;
+                           SparseStripConfig::kLutMaskWidthExcl);
+        int index = lutRow * SparseStripConfig::kLutMaskWidth + u;
         SkASSERT(index < fMaskLut.size());
         return fMaskLut[index];
     }
 
     // Holds the raw accumulated winding, per subsample per pixel, for the spatial tile currently
     // being processed.
-    int16_t fSubsampleWinding[kTileHeight][kTileWidth][Strip::kNumSubSamples];
+    int16_t fSubsampleWinding[kTileHeight][kTileWidth][SparseStripConfig::kNumSubSamples];
     // Integer winding at the top left corner of the tile.
     int32_t fCoarseWinding;
-    // Buffer to accumulate the generated strips.
-    SkTDArray<Strip>* fStripBuf;
-    // Buffer to accumulate the generated alpha values.
-    SkTDArray<uint8_t>* fAlphaBuf;
     // Toggles inverse winding behavior.
     bool fIsInverse;
     // Reference to the polyline container which holds the flattened paths
     const Polyline& fPolyline;
     // Reference to the slope intercept lookup table used to evaluate subsample winding.
     const SkTDArray<uint8_t>& fMaskLut;
-    // Alpha index, independent of the contents of the alpha buffer. Separated for atlasing.
-    int32_t fLocalAlphaIdx;
 #if defined(GPU_TEST_UTILS)
     // Hook, used to test the correctness of the coverage generation.
     MsaaExactMaskObserver fObserver;

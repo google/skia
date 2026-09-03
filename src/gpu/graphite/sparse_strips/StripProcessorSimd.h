@@ -10,8 +10,8 @@
 #include "include/private/SkTDArray.h"
 #include "src/core/SkVx.h"
 #include "src/gpu/graphite/sparse_strips/Polyline.h"
+#include "src/gpu/graphite/sparse_strips/SparseStripsConfig.h"
 #include "src/gpu/graphite/sparse_strips/SparseStripsTypes.h"
-#include "src/gpu/graphite/sparse_strips/Strip.h"
 #include "src/gpu/graphite/sparse_strips/Tiler.h"
 
 #include <algorithm>
@@ -34,27 +34,21 @@ public:
     // count, we do not anticipate running above MSAAx8 on the CPU, due to a lack of throughput.
     // (Many devices do not 256-wide SIMD, doubling the subsample count doubles memory requirements,
     // etc.)
-    static_assert(Strip::kNumSubSamples == 8);
+    static_assert(SparseStripConfig::kNumSubSamples == 8);
     using SwarPixel = skvx::Vec<2, uint32_t>;
     using PixelBytes = skvx::Vec<8, uint8_t>;
 
-    StripProcessorSimd(SkTDArray<Strip>* stripBuf,
-                       SkTDArray<uint8_t>* alphaBuf,
-                       bool isInverse,
+    StripProcessorSimd(bool isInverse,
                        const Polyline& polyline,
-                       const SkTDArray<uint8_t>& maskLut,
-                       int32_t initialAlphaIdx
+                       const SkTDArray<uint8_t>& maskLut
 #if defined(GPU_TEST_UTILS)
-                       , MsaaExactMaskObserver observer
+                       , MsaaExactMaskObserver observer = nullptr
 #endif
                        )
             : fCoarseWinding(0)
-            , fStripBuf(stripBuf)
-            , fAlphaBuf(alphaBuf)
             , fIsInverse(isInverse)
             , fPolyline(polyline)
             , fMaskLut(maskLut)
-            , fLocalAlphaIdx(initialAlphaIdx)
 #if defined(GPU_TEST_UTILS)
             , fObserver(observer)
 #endif
@@ -90,13 +84,11 @@ public:
 
     SK_ALWAYS_INLINE int32_t coarseWinding() const { return fCoarseWinding; }
     SK_ALWAYS_INLINE void setCoarseWinding(int32_t val) { fCoarseWinding = val; }
-    SK_ALWAYS_INLINE int32_t localAlphaIdx() const { return fLocalAlphaIdx; }
 
     // Convert the winding to alpha in row sized chunks. Technically, processChunk could be renamed
     // to processRow, but it is intended to be flexible, so that if the tile width were to exceed
     // the simd width, the row could be proccessed in serial chunks.
-    SK_ALWAYS_INLINE void resolveWindingToAlpha() {
-        uint8_t* tileAlphaBase = reserveAlphaBuffer();
+    SK_ALWAYS_INLINE void resolveWindingToAlpha(uint8_t* tileAlphaBase) {
         for (int32_t row = 0; row < kTileHeight; ++row) {
             if constexpr (kTileWidth % 8 == 0) {
                 for (int32_t column = 0; column < kTileWidth; column += 8) {
@@ -110,7 +102,6 @@ public:
                 }
             }
         }
-        fLocalAlphaIdx += kTilePixelCount;
     }
 
     SK_ALWAYS_INLINE void rasterizeLineToTile(const Tile& tile, std::array<SkPoint, 2> tileBounds) {
@@ -145,8 +136,8 @@ public:
 
         float dx = line.p1.fX - line.p0.fX;
         float dy = line.p1.fY - line.p0.fY;
-        float invDx = (std::abs(dx) <= Strip::kStripEpsilon) ? 0.0f : 1.0f / dx;
-        float invDy = (std::abs(dy) <= Strip::kStripEpsilon) ? 0.0f : 1.0f / dy;
+        float invDx = (std::abs(dx) <= SparseStripConfig::kStripEpsilon) ? 0.0f : 1.0f / dx;
+        float invDy = (std::abs(dy) <= SparseStripConfig::kStripEpsilon) ? 0.0f : 1.0f / dy;
         float dxdy = dx * invDy;
         std::array<float, 4> derivs = {dx, dy, invDx, invDy};
 
@@ -165,7 +156,7 @@ public:
             this->fillLeft(yEdge, canonicalXDir);
         }
 
-        if (std::abs(dy) < Strip::kStripEpsilon && pTop.fY == std::floor(pTop.fY)) {
+        if (std::abs(dy) < SparseStripConfig::kStripEpsilon && pTop.fY == std::floor(pTop.fY)) {
             return;
         }
 
@@ -277,14 +268,6 @@ private:
         }
     }
 
-    SK_ALWAYS_INLINE uint8_t* reserveAlphaBuffer() {
-        if (fAlphaBuf->size() + kTilePixelCount > fAlphaBuf->capacity()) {
-            constexpr size_t kChunkSize = 4 * kTilePixelCount;
-            fAlphaBuf->reserve(fAlphaBuf->capacity() + kChunkSize);
-        }
-        return fAlphaBuf->append(kTilePixelCount);
-    }
-
 #if defined(GPU_TEST_UTILS)
     SK_ALWAYS_INLINE void observeChunk(int32_t row, int32_t column, int32_t chunkSize) {
         for (int32_t x = column; x < column + chunkSize; ++x) {
@@ -308,7 +291,7 @@ private:
                 hi >>= 8;
             }
             if (fIsInverse) {
-                exactMask = ~exactMask & ((1 << Strip::kNumSubSamples) - 1);
+                exactMask = ~exactMask & ((1 << SparseStripConfig::kNumSubSamples) - 1);
             }
             fObserver(exactMask, winding);
         }
@@ -406,19 +389,20 @@ private:
             normalY = -normalY;
         }
         float D = normalX + std::abs(normalY);
-        float invD = (D < Strip::kStripEpsilon) ? 0.0f : 1.0f / D;
+        float invD = (D < SparseStripConfig::kStripEpsilon) ? 0.0f : 1.0f / D;
 
         bool hasPositiveSlope = normalY <= 0.0f;
         float C = normalX * pTop.fX + normalY * pTop.fY;
         float s = std::abs(normalY) * invD;
         int lutRowOffset = std::clamp(
-                static_cast<int>(std::floor(s * (Strip::kLutMaskHeight / 2))),
+                static_cast<int>(std::floor(s * (SparseStripConfig::kLutMaskHeight / 2))),
                 0,
-                (Strip::kLutMaskHeight / 2) - 1);
-        int lutRow = hasPositiveSlope ? (lutRowOffset + Strip::kLutMaskHeight / 2) : lutRowOffset;
+                (SparseStripConfig::kLutMaskHeight / 2) - 1);
+        int lutRow = hasPositiveSlope ? (lutRowOffset + SparseStripConfig::kLutMaskHeight / 2) :
+                     lutRowOffset;
 
         // Unlike the scalar version, we simply return the raw pointer to the row in the LUT
-        const uint8_t* maskRowLut = fMaskLut.data() + (lutRow * Strip::kLutMaskWidth);
+        const uint8_t* maskRowLut = fMaskLut.data() + (lutRow * SparseStripConfig::kLutMaskWidth);
 
         float stepX = normalX * invD;
         float stepY = normalY * invD;
@@ -485,7 +469,7 @@ private:
                                        int32_t tFixed,
                                        const uint8_t* maskRowLut) {
         // Shift right by 16 to extract the integer LUT column index `u = floor(t * 64)`.
-        int column = std::clamp(tFixed >> 16, 0, Strip::kLutMaskWidthExcl);
+        int column = std::clamp(tFixed >> 16, 0, SparseStripConfig::kLutMaskWidthExcl);
         uint8_t maskVal = maskRowLut[column];
 
         // Apply the truncation mask if we're one of the candidate pixels.
@@ -621,12 +605,9 @@ private:
 
     SwarPixel fSubsampleWinding[kTileHeight][kTileWidth];
     int32_t fCoarseWinding;
-    SkTDArray<Strip>* fStripBuf;
-    SkTDArray<uint8_t>* fAlphaBuf;
     bool fIsInverse;
     const Polyline& fPolyline;
     const SkTDArray<uint8_t>& fMaskLut;
-    int32_t fLocalAlphaIdx;
 #if defined(GPU_TEST_UTILS)
     MsaaExactMaskObserver fObserver;
 #endif

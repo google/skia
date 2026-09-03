@@ -16,7 +16,6 @@
 #include "src/gpu/graphite/sparse_strips/Flatten.h"
 #include "src/gpu/graphite/sparse_strips/MSAA_LUT.h"
 #include "src/gpu/graphite/sparse_strips/Polyline.h"
-#include "src/gpu/graphite/sparse_strips/Strip.h"
 #include "src/gpu/graphite/sparse_strips/Tiler.h"
 #include "tests/Test.h"
 #include "tests/graphite/sparse_strips/CoverageTestUtils.h"
@@ -31,12 +30,12 @@ namespace skgpu::graphite {
 
 template <uint16_t kTileWidth, uint16_t kTileHeight>
 OracleValidator<kTileWidth, kTileHeight>::OracleValidator(
-        const SkPath& path, const SkTDArray<Strip>& stripBuf, const SkTDArray<uint8_t>& alphaBuf,
+        const SkPath& path, const WideTiles& wides, const EndCaps& ends,
         const SkTDArray<skvx::int8>& exactWindings, const Polyline* polyline,
         const Tiles<kTileWidth, kTileHeight>* tiler, const char* testName, Strictness strictness)
         : fPath(path)
-        , fStrips(stripBuf)
-        , fAlphaBuf(alphaBuf)
+        , fWides(wides)
+        , fEnds(ends)
         , fExactWindings(exactWindings)
         , fPolyline(polyline)
         , fTiler(tiler)
@@ -62,100 +61,118 @@ bool OracleValidator<kTileWidth, kTileHeight>::validate(skiatest::Reporter* repo
         return false;
     }
 
-    constexpr size_t kBytesPerTile = kTileWidth * kTileHeight;
     bool allPass = true;
-    int stripIdx = 0;
-    const int numStrips = fStrips.size();
+    const auto& caps = fEnds.caps();
+    const auto& wides = fWides.tiles();
 
-    // Zero-copy streaming walk row-by-row directly from fStrips array
-    while (stripIdx < numStrips) {
-        if (fStrips[stripIdx].fX == Strip::kCapCoord) {
-            stripIdx++;
-            continue;
+    int capIdx = 0;
+    int wideIdx = 0;
+
+    // Walk row by row through all tile rows present in caps or wides
+    while (capIdx < caps.size() || wideIdx < wides.size()) {
+        uint16_t rowY = UINT16_MAX;
+        if (capIdx < caps.size()) {
+            rowY = std::min(rowY, caps[capIdx].fY);
+        }
+        if (wideIdx < wides.size()) {
+            rowY = std::min(rowY, wides[wideIdx].fY);
         }
 
-        uint16_t rowY = fStrips[stripIdx].fY;
-        int rowStartIdx = stripIdx;
+        int rowCapStart = capIdx;
+        while (capIdx < caps.size() && caps[capIdx].fY == rowY) {
+            capIdx++;
+        }
+        int rowCapEnd = capIdx;
 
-        // Find range [rowStartIdx, rowEndIdx) for the current tile row
-        int rowEndIdx = rowStartIdx;
-        while (rowEndIdx < numStrips && fStrips[rowEndIdx].fY == rowY) {
-            if (fStrips[rowEndIdx].fX == Strip::kCapCoord) {
-                rowEndIdx++;
-                break;
+        int rowWideStart = wideIdx;
+        while (wideIdx < wides.size() && wides[wideIdx].fY == rowY) {
+            wideIdx++;
+        }
+        int rowWideEnd = wideIdx;
+
+        auto isGapFilled = [&](uint16_t startX, uint16_t endX) -> bool {
+            for (int w = rowWideStart; w < rowWideEnd; ++w) {
+                if (wides[w].fX == startX && wides[w].fX + wides[w].fWidth == endX) {
+                    return true;
+                }
             }
-            rowEndIdx++;
-        }
-
-        // Advance main stream index to next row
-        stripIdx = rowEndIdx;
+            return false;
+        };
 
         // Process each pixel row within this tile row [rowY, rowY + kTileHeight)
         for (uint16_t py = rowY; py < rowY + kTileHeight && py < viewportHeight; ++py) {
-            // 1. Invoke reference oracle to compute ground-truth winding intervals
             std::vector<ScanlineOracle8x::RowWindingInterval> oracleIntervals =
                     fOracle.buildRowIntervals(py);
 
             int prevEndTileX = 0;
-            uint16_t alphaEndTileX = 0;
 
-            // 2. Stream-walk strips in current tile row
-            for (int i = rowStartIdx; i < rowEndIdx; ++i) {
-                const Strip& curr = fStrips[i];
-                if (curr.fX == Strip::kCapCoord) {
-                    // Cap strip ends the row: validate trailing gap to viewport edge
-                    if (alphaEndTileX < viewportWidth) {
-                        allPass &= this->validateGapSpan(reporter,
-                                                         alphaEndTileX,
-                                                         viewportWidth,
-                                                         py,
-                                                         oracleIntervals,
-                                                         curr.shouldFill());
-                    }
-                    break;
-                }
+            for (int c = rowCapStart; c < rowCapEnd; ++c) {
+                const auto& cap = caps[c];
+                uint16_t alphaStartTileX = cap.fX;
+                uint16_t alphaEndTileX = cap.fX + cap.fWidth;
+                uint16_t spannedTiles = cap.fWidth / kTileWidth;
 
-                uint32_t startIdx = curr.alphaIndex();
-                uint32_t endIdx = (i + 1 < numStrips) ? fStrips[i + 1].alphaIndex() : startIdx;
-                uint16_t spannedTiles = (endIdx - startIdx) / kBytesPerTile;
-                uint16_t alphaStartTileX = curr.fX;
-                alphaEndTileX = curr.fX + spannedTiles * kTileWidth;
-
-                // A. Validate gap preceding this strip [prevEndTileX, alphaStartTileX)
+                // A. Validate gap preceding this cap [prevEndTileX, alphaStartTileX)
                 if (alphaStartTileX > prevEndTileX) {
+                    bool filled = isGapFilled(prevEndTileX, alphaStartTileX);
                     allPass &= this->validateGapSpan(reporter,
                                                      prevEndTileX,
                                                      alphaStartTileX,
                                                      py,
                                                      oracleIntervals,
-                                                     curr.shouldFill());
+                                                     filled);
                 }
 
-                // B. Validate boundary column left of the first tile in a run
+                // B. Validate boundary column left of the first tile in this cap run
                 if (alphaStartTileX > 0) {
                     uint16_t leftColX = alphaStartTileX - 1;
+                    bool leftFill = false;
+                    for (int w = rowWideStart; w < rowWideEnd; ++w) {
+                        if (wides[w].fX + wides[w].fWidth == alphaStartTileX) {
+                            leftFill = true;
+                            break;
+                        }
+                    }
                     allPass &= this->validateBoundaryColumn(
-                            reporter, leftColX, py, oracleIntervals, curr.shouldFill());
+                            reporter, leftColX, py, oracleIntervals, leftFill);
                 }
 
                 // C. Validate inside the alpha tiles span
                 allPass &= this->validateAlphaTileSpan(reporter,
-                                                       curr,
-                                                       startIdx,
+                                                       cap.fX,
+                                                       cap.fY,
+                                                       cap.fAlphaIndex,
                                                        spannedTiles,
                                                        py,
                                                        oracleIntervals,
                                                        maxSampleDiffOut);
 
-                // D. Validate boundary column right of the last tile in a run
-                uint16_t rightColX = alphaEndTileX;
-                if (rightColX < viewportWidth && i + 1 < numStrips) {
-                    bool nextFill = fStrips[i + 1].shouldFill();
+                // D. Validate boundary column right of the last tile in this cap run
+                if (alphaEndTileX < viewportWidth) {
+                    uint16_t rightColX = alphaEndTileX;
+                    bool rightFill = false;
+                    for (int w = rowWideStart; w < rowWideEnd; ++w) {
+                        if (wides[w].fX == alphaEndTileX) {
+                            rightFill = true;
+                            break;
+                        }
+                    }
                     allPass &= this->validateBoundaryColumn(
-                            reporter, rightColX, py, oracleIntervals, nextFill);
+                            reporter, rightColX, py, oracleIntervals, rightFill);
                 }
 
                 prevEndTileX = alphaEndTileX;
+            }
+
+            // E. Validate trailing gap to viewport edge [prevEndTileX, viewportWidth)
+            if (prevEndTileX < viewportWidth) {
+                bool filled = isGapFilled(prevEndTileX, viewportWidth);
+                allPass &= this->validateGapSpan(reporter,
+                                                 prevEndTileX,
+                                                 viewportWidth,
+                                                 py,
+                                                 oracleIntervals,
+                                                 filled);
             }
         }
     }
@@ -166,64 +183,94 @@ bool OracleValidator<kTileWidth, kTileHeight>::validate(skiatest::Reporter* repo
 template <uint16_t kTileWidth, uint16_t kTileHeight>
 bool OracleValidator<kTileWidth, kTileHeight>::validateStreamInvariants(
         skiatest::Reporter* reporter, uint16_t viewportWidth, uint16_t viewportHeight) const {
-    if (fStrips.empty()) {
-        if (!fAlphaBuf.empty()) {
-            ERRORF(reporter,
-                   "[%s] Empty strip buffer but non-empty alpha buffer (%d bytes)",
-                   fTestName,
-                   fAlphaBuf.size());
-            return false;
-        }
+    const auto& caps = fEnds.caps();
+    const auto& wides = fWides.tiles();
+
+    if (caps.empty() && wides.empty()) {
         return true;
     }
 
-    uint16_t lastY = 0;
-    bool hasLastY = false;
-
-    for (int i = 0; i < fStrips.size(); ++i) {
-        const Strip& s = fStrips[i];
-        if (s.fX != Strip::kCapCoord) {
-            if (s.fX % kTileWidth != 0) {
-                ERRORF(reporter,
-                       "[%s] Strip[%d] fX (%u) is not aligned to kTileWidth (%u)",
-                       fTestName,
-                       i,
-                       s.fX,
-                       kTileWidth);
-                return false;
-            }
-            if (s.fY % kTileHeight != 0) {
-                ERRORF(reporter,
-                       "[%s] Strip[%d] fY (%u) is not aligned to kTileHeight (%u)",
-                       fTestName,
-                       i,
-                       s.fY,
-                       kTileHeight);
-                return false;
-            }
-            if (hasLastY && s.fY < lastY) {
-                ERRORF(reporter,
-                       "[%s] Strip[%d] fY (%u) < previous row fY (%u)",
-                       fTestName,
-                       i,
-                       s.fY,
-                       lastY);
-                return false;
-            }
-            lastY = s.fY;
-            hasLastY = true;
-        }
-
-        if (s.alphaIndex() % (kTileWidth * kTileHeight) != 0) {
-            ERRORF(reporter,
-                   "[%s] Strip[%d] alphaIndex (%u) is not a multiple of tile size (%d)",
-                   fTestName,
-                   i,
-                   s.alphaIndex(),
-                   static_cast<int>(kTileWidth * kTileHeight));
+    // Validate EndCaps invariants
+    uint16_t lastCapY = 0;
+    uint16_t lastCapEndX = 0;
+    bool hasLastCap = false;
+    for (int i = 0; i < caps.size(); ++i) {
+        const auto& cap = caps[i];
+        if (cap.fX % kTileWidth != 0) {
+            ERRORF(reporter, "[%s] Cap[%d] fX (%u) not aligned to kTileWidth (%u)",
+                   fTestName, i, cap.fX, kTileWidth);
             return false;
         }
+        if (cap.fY % kTileHeight != 0) {
+            ERRORF(reporter, "[%s] Cap[%d] fY (%u) not aligned to kTileHeight (%u)",
+                   fTestName, i, cap.fY, kTileHeight);
+            return false;
+        }
+        if (cap.fWidth % kTileWidth != 0 || cap.fWidth == 0) {
+            ERRORF(reporter, "[%s] Cap[%d] fWidth (%u) not valid multiple of kTileWidth (%u)",
+                   fTestName, i, cap.fWidth, kTileWidth);
+            return false;
+        }
+        if (cap.fAlphaIndex % (kTileWidth * kTileHeight) != 0) {
+            ERRORF(reporter, "[%s] Cap[%d] fAlphaIndex (%d) not multiple of tile size (%d)",
+                   fTestName, i, cap.fAlphaIndex, static_cast<int>(kTileWidth * kTileHeight));
+            return false;
+        }
+        if (hasLastCap) {
+            if (cap.fY < lastCapY) {
+                ERRORF(reporter, "[%s] Cap[%d] fY (%u) < previous row fY (%u)",
+                       fTestName, i, cap.fY, lastCapY);
+                return false;
+            }
+            if (cap.fY == lastCapY && cap.fX < lastCapEndX) {
+                ERRORF(reporter, "[%s] Cap[%d] fX (%u) overlaps with previous cap endX (%u)",
+                       fTestName, i, cap.fX, lastCapEndX);
+                return false;
+            }
+        }
+        lastCapY = cap.fY;
+        lastCapEndX = cap.fX + cap.fWidth;
+        hasLastCap = true;
     }
+
+    // Validate WideTiles invariants
+    uint16_t lastWideY = 0;
+    uint16_t lastWideEndX = 0;
+    bool hasLastWide = false;
+    for (int i = 0; i < wides.size(); ++i) {
+        const auto& wide = wides[i];
+        if (wide.fX % kTileWidth != 0) {
+            ERRORF(reporter, "[%s] Wide[%d] fX (%u) not aligned to kTileWidth (%u)",
+                   fTestName, i, wide.fX, kTileWidth);
+            return false;
+        }
+        if (wide.fY % kTileHeight != 0) {
+            ERRORF(reporter, "[%s] Wide[%d] fY (%u) not aligned to kTileHeight (%u)",
+                   fTestName, i, wide.fY, kTileHeight);
+            return false;
+        }
+        if (wide.fWidth % kTileWidth != 0 || wide.fWidth == 0) {
+            ERRORF(reporter, "[%s] Wide[%d] fWidth (%u) not valid multiple of kTileWidth (%u)",
+                   fTestName, i, wide.fWidth, kTileWidth);
+            return false;
+        }
+        if (hasLastWide) {
+            if (wide.fY < lastWideY) {
+                ERRORF(reporter, "[%s] Wide[%d] fY (%u) < previous row fY (%u)",
+                       fTestName, i, wide.fY, lastWideY);
+                return false;
+            }
+            if (wide.fY == lastWideY && wide.fX < lastWideEndX) {
+                ERRORF(reporter, "[%s] Wide[%d] fX (%u) overlaps with previous wide endX (%u)",
+                       fTestName, i, wide.fX, lastWideEndX);
+                return false;
+            }
+        }
+        lastWideY = wide.fY;
+        lastWideEndX = wide.fX + wide.fWidth;
+        hasLastWide = true;
+    }
+
     return true;
 }
 
@@ -318,19 +365,19 @@ bool OracleValidator<kTileWidth, kTileHeight>::validateGapSpan(
 template <uint16_t kTileWidth, uint16_t kTileHeight>
 bool OracleValidator<kTileWidth, kTileHeight>::validateAlphaTileSpan(
         skiatest::Reporter* reporter,
-        const Strip& strip,
+        uint16_t startTileX,
+        uint16_t rowY,
         uint32_t startAlphaIdx,
         uint16_t spannedTiles,
         uint16_t py,
         const std::vector<ScanlineOracle8x::RowWindingInterval>& oracleIntervals,
         uint32_t* maxSampleDiffOut) const {
-    uint16_t rowY = strip.fY;
     uint16_t localY = py - rowY;
     uint16_t tileY = rowY / kTileHeight;
     bool allPass = true;
 
     for (uint16_t t = 0; t < spannedTiles; ++t) {
-        uint16_t tileStartX = strip.fX + t * kTileWidth;
+        uint16_t tileStartX = startTileX + t * kTileWidth;
         uint16_t tileX = tileStartX / kTileWidth;
         uint32_t tileStartAlphaIdx = startAlphaIdx + t * (kTileWidth * kTileHeight);
 

@@ -11,10 +11,11 @@
 #include "include/core/SkPoint.h"
 #include "include/private/SkTDArray.h"
 #include "src/core/SkVx.h"
+#include "src/gpu/graphite/geom/EndCaps.h"
+#include "src/gpu/graphite/geom/WideTiles.h"
 #include "src/gpu/graphite/sparse_strips/Flatten.h"
 #include "src/gpu/graphite/sparse_strips/MSAA_LUT.h"
 #include "src/gpu/graphite/sparse_strips/Polyline.h"
-#include "src/gpu/graphite/sparse_strips/Strip.h"
 #include "src/gpu/graphite/sparse_strips/Tiler.h"
 #include "tests/Test.h"
 #include "tests/graphite/sparse_strips/Oracle.h"
@@ -37,8 +38,8 @@ public:
     };
 
     OracleValidator(const SkPath& path,
-                    const SkTDArray<Strip>& stripBuf,
-                    const SkTDArray<uint8_t>& alphaBuf,
+                    const WideTiles& wides,
+                    const EndCaps& ends,
                     const SkTDArray<skvx::int8>& exactWindings,
                     const Polyline* polyline = nullptr,
                     const Tiles<kTileWidth, kTileHeight>* tiler = nullptr,
@@ -74,7 +75,8 @@ private:
 
     bool validateAlphaTileSpan(
             skiatest::Reporter* reporter,
-            const Strip& strip,
+            uint16_t startTileX,
+            uint16_t rowY,
             uint32_t startAlphaIdx,
             uint16_t spannedTiles,
             uint16_t py,
@@ -86,8 +88,8 @@ private:
     bool isWithinTolerance(SkPoint subPt, uint16_t tileX, uint16_t tileY) const;
 
     const SkPath fPath;
-    const SkTDArray<Strip>& fStrips;
-    const SkTDArray<uint8_t>& fAlphaBuf;
+    const WideTiles& fWides;
+    const EndCaps& fEnds;
     const SkTDArray<skvx::int8>& fExactWindings;
     const Polyline* fPolyline;
     const Tiles<kTileWidth, kTileHeight>* fTiler;

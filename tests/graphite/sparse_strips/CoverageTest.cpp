@@ -16,11 +16,12 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/private/SkTDArray.h"
+#include "src/gpu/graphite/geom/EndCaps.h"
+#include "src/gpu/graphite/geom/WideTiles.h"
 #include "src/gpu/graphite/sparse_strips/Flatten.h"
 #include "src/gpu/graphite/sparse_strips/MSAA_LUT.h"
 #include "src/gpu/graphite/sparse_strips/MakeStrips.h"
 #include "src/gpu/graphite/sparse_strips/Polyline.h"
-#include "src/gpu/graphite/sparse_strips/Strip.h"
 #include "src/gpu/graphite/sparse_strips/Tiler.h"
 #include "tests/Test.h"
 #include "tests/graphite/sparse_strips/CoverageTestUtils.h"
@@ -46,16 +47,16 @@ public:
     static constexpr float kViewportHeightF = static_cast<float>(kViewportHeight);
 
     using StripFunc = void (*)(const Tiles<kTileWidth, kTileHeight>&,
-                               SkTDArray<Strip>* stripBuf,
-                               SkTDArray<uint8_t>* alphaBuf,
+                               WideTiles* wides,
+                               EndCaps* ends,
                                bool isInverse,
                                const Polyline& polyline,
                                const SkTDArray<uint8_t>& msaaLut,
                                MsaaExactMaskObserver observer);
 
     static void RunScalarWinding(const Tiles<kTileWidth, kTileHeight>& tileContainer,
-                                 SkTDArray<Strip>* stripBuf,
-                                 SkTDArray<uint8_t>* alphaBuf,
+                                 WideTiles* wides,
+                                 EndCaps* ends,
                                  bool isInverse,
                                  const Polyline& polyline,
                                  const SkTDArray<uint8_t>& maskLut,
@@ -63,12 +64,13 @@ public:
         SkPathFillType fillType =
                 isInverse ? SkPathFillType::kInverseWinding : SkPathFillType::kWinding;
         MakeStrips::MsaaScalar<kTileWidth, kTileHeight>(
-                tileContainer, stripBuf, alphaBuf, fillType, polyline, maskLut, observer);
+                tileContainer, wides, ends, /*atlasManager=*/nullptr,
+                fillType, polyline, maskLut, kViewportWidth, kViewportHeight, observer);
     }
 
     static void RunSimdWinding(const Tiles<kTileWidth, kTileHeight>& tileContainer,
-                               SkTDArray<Strip>* stripBuf,
-                               SkTDArray<uint8_t>* alphaBuf,
+                               WideTiles* wides,
+                               EndCaps* ends,
                                bool isInverse,
                                const Polyline& polyline,
                                const SkTDArray<uint8_t>& maskLut,
@@ -76,7 +78,8 @@ public:
         SkPathFillType fillType =
                 isInverse ? SkPathFillType::kInverseWinding : SkPathFillType::kWinding;
         MakeStrips::MsaaSimd<kTileWidth, kTileHeight>(
-                tileContainer, stripBuf, alphaBuf, fillType, polyline, maskLut, observer);
+                tileContainer, wides, ends, /*atlasManager=*/nullptr,
+                fillType, polyline, maskLut, kViewportWidth, kViewportHeight, observer);
     }
 
     CoverageTestRunner(StripFunc func, const char* implName) : fFunc(func), fImplName(implName) {}
@@ -195,35 +198,29 @@ private:
         tiler.makeTilesMSAA(polyline, kViewportWidth, kViewportHeight);
         tiler.sortTiles();
 
-        SkTDArray<Strip> stripBuf;
-        SkTDArray<uint8_t> alphaBuf;
+        WideTiles wides;
+        EndCaps ends;
         SkTDArray<uint8_t> exactMasks;
 
         auto observer = [&](uint8_t exactMask, skvx::int8) { exactMasks.push_back(exactMask); };
-        fFunc(tiler, &stripBuf, &alphaBuf, /*isInverse=*/false, polyline, lut, observer);
+        fFunc(tiler, &wides, &ends, /*isInverse=*/false, polyline, lut, observer);
 
-        if (stripBuf.empty()) {
-            bool bufferSizeMatch = alphaBuf.empty();
+        if (ends.empty()) {
+            bool bufferSizeMatch = exactMasks.empty();
             REPORTER_ASSERT(
-                    reporter, bufferSizeMatch, "[%s] No strips but alpha buffer has data.", name);
+                    reporter, bufferSizeMatch, "[%s] No endcaps but observer has data.", name);
             return bufferSizeMatch;
         }
 
-        int32_t alphaIdx = 0;
+        int32_t maskIdx = 0;
 
-        for (int32_t i = 0; i < stripBuf.size() - 1; ++i) {
-            const Strip& curr = stripBuf[i];
-            const Strip& next = stripBuf[i + 1];
-
-            uint32_t startIdx = curr.alphaIndex();
-            uint32_t endIdx = next.alphaIndex();
-            uint16_t spannedTiles = (endIdx - startIdx) / (kTileWidth * kTileHeight);
-
-            uint16_t currX = curr.fX;
-            uint16_t currY = curr.fY;
+        for (const auto& cap : ends.caps()) {
+            uint16_t spannedTiles = cap.fWidth / kTileWidth;
+            uint16_t currX = cap.fX;
+            uint16_t currY = cap.fY;
 
             for (int32_t s = 0; s < spannedTiles; ++s) {
-                int32_t tileStartIdx = alphaIdx;
+                int32_t tileStartIdx = maskIdx;
                 for (int32_t y = 0; y < kTileHeight; ++y) {
                     for (int32_t x = 0; x < kTileWidth; ++x) {
                         uint8_t expectedMask = 0;
@@ -239,34 +236,13 @@ private:
                         }
 
                         uint8_t actualMask =
-                                (alphaIdx < exactMasks.size()) ? exactMasks[alphaIdx] : 0;
-                        uint8_t actualAlpha = (alphaIdx < alphaBuf.size()) ? alphaBuf[alphaIdx] : 0;
+                                (maskIdx < exactMasks.size()) ? exactMasks[maskIdx] : 0;
 
                         int sampleDiff = 0;
                         int actualSamples = 0;
                         for (int k = 0; k < 8; ++k) {
                             if (actualMask & (1 << k)) actualSamples++;
                             if ((expectedMask & (1 << k)) != (actualMask & (1 << k))) sampleDiff++;
-                        }
-
-                        uint8_t expectedAlphaFromMask =
-                                static_cast<uint8_t>((actualSamples * 255 + 4) / 8);
-                        if (actualAlpha != expectedAlphaFromMask) {
-                            REPORTER_ASSERT(
-                                    reporter,
-                                    false,
-                                    "[%s] Alpha Reduction Mismatch at tile(%d,%d) pixel(%d,%d). "
-                                    "Observer tracked %d active bits (expected alpha %d), "
-                                    "but AlphaBuf output was %d.",
-                                    name,
-                                    currX / kTileWidth,
-                                    currY / kTileHeight,
-                                    x,
-                                    y,
-                                    actualSamples,
-                                    expectedAlphaFromMask,
-                                    actualAlpha);
-                            return false;
                         }
 
                         if (sampleDiff > 3) {
@@ -279,32 +255,31 @@ private:
                                                                         tileStartIdx);
                             REPORTER_ASSERT(reporter,
                                             false,
-                                            "[%s] Fail at tile(%d,%d). Exp %d, Got %d (alpha %d)",
+                                            "[%s] Fail at tile(%d,%d). Exp %d, Got %d samples",
                                             name,
                                             currX / kTileWidth,
                                             currY / kTileHeight,
                                             expectedSamples,
-                                            actualSamples,
-                                            actualAlpha);
+                                            actualSamples);
                             return false;
                         } else if (sampleDiff > 0) {
                             (*minorErrorCount)[sampleDiff - 1]++;
                         }
 
-                        alphaIdx++;
+                        maskIdx++;
                     }
                 }
                 currX += kTileWidth;
             }
         }
 
-        bool bufferSizeMatch = (alphaIdx == alphaBuf.size());
+        bool bufferSizeMatch = (maskIdx == exactMasks.size());
         REPORTER_ASSERT(reporter,
                         bufferSizeMatch,
-                        "[%s] Checked %d alpha bytes but buffer size is %d",
+                        "[%s] Checked %d mask bytes but observer size is %d",
                         name,
-                        alphaIdx,
-                        alphaBuf.size());
+                        maskIdx,
+                        exactMasks.size());
         return bufferSizeMatch;
     }
 };

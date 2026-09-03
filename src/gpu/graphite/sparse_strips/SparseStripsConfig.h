@@ -10,6 +10,8 @@
 
 #include "include/core/SkColorType.h"
 
+#include <cstdint>
+
 namespace skgpu::graphite {
 
 // Tunable compile-time paramters that control various aspects of SparseStrips behavior
@@ -42,6 +44,19 @@ struct SparseStripConfig {
     // To avoid uploading the texture width, and to avoid a costly divide and mod in the shader, we
     // assume that the atlas width is always fixed.
     static_assert(kAtlasWidth == 8192);
+
+    // The number of MSAA SubSamples in SparseStrips rendering. We currently only support 8.
+    static constexpr int32_t   kNumSubSamples     = 8;
+    static_assert(!((kNumSubSamples & (kNumSubSamples - 1))));
+
+    static constexpr int32_t kLutMaskWidth        = 64;
+    static constexpr int32_t kLutMaskHeight       = 64;
+    static constexpr int32_t kLutMaskWidthExcl    = kLutMaskWidth - 1;
+    static constexpr int32_t kLutMaskHeightExcl   = kLutMaskHeight - 1;
+    static constexpr float   kLutMaskWidthF       = static_cast<float>(kLutMaskWidth);
+    static constexpr float   kLutMaskHeightF      = static_cast<float>(kLutMaskHeight);
+
+    static constexpr float kStripEpsilon          = 1e-5f;
 };
 
 }  // namespace skgpu::graphite

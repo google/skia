@@ -18,10 +18,11 @@
 #include "include/core/SkString.h"
 #include "include/private/SkTDArray.h"
 #include "src/core/SkVx.h"
+#include "src/gpu/graphite/geom/EndCaps.h"
+#include "src/gpu/graphite/geom/WideTiles.h"
 #include "src/gpu/graphite/sparse_strips/Flatten.h"
 #include "src/gpu/graphite/sparse_strips/MakeStrips.h"
 #include "src/gpu/graphite/sparse_strips/Polyline.h"
-#include "src/gpu/graphite/sparse_strips/Strip.h"
 #include "src/gpu/graphite/sparse_strips/Tiler.h"
 #include "tests/Test.h"
 #include "tests/graphite/sparse_strips/OracleValidator.h"
@@ -131,21 +132,30 @@ bool SkpValidator::ValidatePath(skiatest::Reporter* reporter,
         return true;
     }
 
-    SkTDArray<Strip> stripBuf;
-    SkTDArray<uint8_t> alphaBuf;
     SkTDArray<skvx::int8> exactWindings;
 
     auto observer = [&](uint8_t exactMask, skvx::int8 winding) {
         exactWindings.push_back(winding);
     };
 
-    MakeStrips::MsaaSimd(
-            tiler, &stripBuf, &alphaBuf, localPath.getFillType(), polyline, maskLut, observer);
+    WideTiles wides;
+    EndCaps ends;
+    MakeStrips::MsaaSimd<kTileWidth, kTileHeight>(
+            tiler,
+            &wides,
+            &ends,
+            /*atlasManager=*/nullptr,
+            localPath.getFillType(),
+            polyline,
+            maskLut,
+            vpWidth,
+            vpHeight,
+            observer);
 
     OracleValidator<kTileWidth, kTileHeight> validator(
             localPath,
-            stripBuf,
-            alphaBuf,
+            wides,
+            ends,
             exactWindings,
             &polyline,
             &tiler,
