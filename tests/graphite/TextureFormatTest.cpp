@@ -1235,12 +1235,20 @@ void run_texture_format_test(skiatest::Reporter* r, const Caps* caps, TextureFor
                     }
 
                     TextureInfo readableInfo = caps->getDefaultReadableTextureInfo(
-                            ct, Protected::kNo);
+                            format, Protected::kNo);
                     if (readableInfo.isValid() &&
                         TextureInfoPriv::ViewFormat(readableInfo) == format) {
                         REPORTER_ASSERT(r, caps->isReadable(readableInfo));
                         TextureInfo copyInfo = caps->getTextureInfoForReadableCopy(readableInfo);
                         REPORTER_ASSERT(r, copyInfo.isValid());
+                    }
+
+                    TextureInfo storageInfo = caps->getDefaultReadableStorageTextureInfo(
+                            format, Protected::kNo);
+                    if (storageInfo.isValid() &&
+                        TextureInfoPriv::ViewFormat(storageInfo) == format) {
+                        REPORTER_ASSERT(r, caps->isStorage(storageInfo));
+                        REPORTER_ASSERT(r, caps->isReadable(storageInfo));
                     }
 
                     // Test all combinations of alpha type x 2 (texture vs cpu) and whether or not
