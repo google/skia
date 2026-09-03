@@ -323,6 +323,7 @@ skia_cc_library(
     srcs = [
         "//include/codec:headers_to_compile",
         "//include/core:headers_to_compile",
+        "//include/cpu:headers_to_compile",
         "//include/docs:headers_to_compile",
         "//include/effects:headers_to_compile",
         "//include/encode:headers_to_compile",

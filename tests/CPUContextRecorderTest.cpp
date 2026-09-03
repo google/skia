@@ -1,14 +1,12 @@
-
 /*
  * Copyright 2025 Google LLC
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlurTypes.h"
-#include "include/core/SkCPUContext.h"
-#include "include/core/SkCPURecorder.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
@@ -17,13 +15,13 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkSurface.h"
-#include "src/core/SkCPUContextImpl.h"
 #include "src/core/SkResourceCache.h"
-
 #include "tests/Test.h"
 
 #include <memory>
 
+// TODO(alexisdavidc) Re-enable once the new SkContext / CPU Context & Recorder API is implemented.
+#if 0
 DEF_TEST(CPUSurface_UsesCPUContextAndRecorderToDraw_DrawsPixels, reporter) {
     skcpu::Context::Options opts;
     auto ctx = skcpu::Context::Make(opts);
@@ -93,3 +91,5 @@ DEF_TEST(ImageMakeScaled_UsesCPURecorderToMakeImage_Success, reporter) {
     REPORTER_ASSERT(reporter, legacyAPI->width() == 70);
     REPORTER_ASSERT(reporter, !legacyAPI->isTextureBacked());
 }
+
+#endif  // 0

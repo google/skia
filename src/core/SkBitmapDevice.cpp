@@ -9,7 +9,6 @@
 
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBlender.h"
-#include "include/core/SkCPURecorder.h"
 #include "include/core/SkClipOp.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
@@ -27,9 +26,9 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTileMode.h"
+#include "include/cpu/Recorder.h"
 #include "include/private/SkAssert.h"
 #include "include/private/SkTo.h"
-#include "src/core/SkCPURecorderImpl.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixPriv.h"
@@ -135,9 +134,6 @@ public:
         }
 
         fDraw.fProps = &fDevice->surfaceProps();
-        if (fDevice->fRecorder) {
-            fDraw.fCtx = fDevice->fRecorder->ctx();
-        }
     }
 
     bool needsTiling() const { return fNeedsTiling; }
@@ -231,14 +227,14 @@ static bool valid_for_bitmap_device(const SkImageInfo& info,
 }
 
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
-        : SkBitmapDevice(asRRI(skcpu::Recorder::TODO()), bitmap) {}
+        : SkBitmapDevice(skcpu::Recorder::TODO(), bitmap) {}
 
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap,
                                const SkSurfaceProps& surfaceProps,
                                SkRasterHandleAllocator::Handle hndl)
-        : SkBitmapDevice(asRRI(skcpu::Recorder::TODO()), bitmap, surfaceProps, hndl) {}
+        : SkBitmapDevice(skcpu::Recorder::TODO(), bitmap, surfaceProps, hndl) {}
 
-SkBitmapDevice::SkBitmapDevice(skcpu::RecorderImpl* recorder, const SkBitmap& bitmap)
+SkBitmapDevice::SkBitmapDevice(skcpu::Recorder* recorder, const SkBitmap& bitmap)
         : SkDevice(bitmap.info(), SkSurfaceProps())
         , fRecorder(recorder)
         , fBitmap(bitmap)
@@ -247,7 +243,7 @@ SkBitmapDevice::SkBitmapDevice(skcpu::RecorderImpl* recorder, const SkBitmap& bi
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
 }
 
-SkBitmapDevice::SkBitmapDevice(skcpu::RecorderImpl* recorder,
+SkBitmapDevice::SkBitmapDevice(skcpu::Recorder* recorder,
                                const SkBitmap& bitmap,
                                const SkSurfaceProps& surfaceProps,
                                SkRasterHandleAllocator::Handle hndl)
@@ -259,6 +255,8 @@ SkBitmapDevice::SkBitmapDevice(skcpu::RecorderImpl* recorder,
         , fGlyphPainter(this->surfaceProps(), bitmap.colorType(), bitmap.colorSpace()) {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
 }
+
+SkRecorder* SkBitmapDevice::baseRecorder() const { return fRecorder; }
 
 sk_sp<SkBitmapDevice> SkBitmapDevice::Create(const SkImageInfo& origInfo,
                                              const SkSurfaceProps& surfaceProps,
