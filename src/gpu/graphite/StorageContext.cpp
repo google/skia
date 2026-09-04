@@ -13,7 +13,8 @@
 
 namespace skgpu::graphite {
 
-StorageContext::StorageContext() = default;
+StorageContext::StorageContext(bool storageBufferSupport)
+        : fRunningLCM(1), fStorageBufferSupport(storageBufferSupport) {}
 
 StorageContext::~StorageContext() {
     this->resetCache();
@@ -66,6 +67,10 @@ std::pair<float*, int> StorageContext::allocateGradientData(int numStops,
 void StorageContext::recordAlignment(size_t stride, size_t align) {
     SkASSERT(stride > 0 && align > 0);
     SkASSERT(!fGradientsFinalized);
+    if (!fStorageBufferSupport) {
+        align = std::max<size_t>(align, 16);
+        stride = SkAlignTo<size_t>(stride, 16);
+    }
     uint32_t align32 = BufferAligner::LcmAlignment(SkTo<uint32_t>(align), SkTo<uint32_t>(stride));
     fRunningLCM = BufferAligner::LcmAlignment(fRunningLCM, align32);
 }
@@ -76,26 +81,59 @@ uint32_t StorageContext::appendVertices(const void* data,
                                         size_t align) {
     SkASSERT(data && count > 0 && stride > 0 && align > 0);
 
-    uint32_t align32 = BufferAligner::LcmAlignment(SkTo<uint32_t>(align), SkTo<uint32_t>(stride));
-    SkASSERT(fRunningLCM % align32 == 0);
+    uint32_t alignedVertOffset = 0;
+    auto alignAndAppend = [&](size_t vertStride, uint32_t alignment) -> std::pair<char*, uint32_t> {
+        uint32_t requiredBytes =
+                BufferAligner::ValidateCountAndStride(count, vertStride, /*headroom=*/0, alignment);
+        if (requiredBytes == 0) {
+            return {nullptr, 0};
+        }
 
-    uint32_t requiredBytes =
-            BufferAligner::ValidateCountAndStride(count, stride, /*headroom=*/0, align32);
-    if (requiredBytes == 0) {
-        return 0;
+        alignedVertOffset = SkAlignNonPow2(static_cast<uint32_t>(fVertexData.size()), alignment);
+        if (alignedVertOffset > static_cast<uint32_t>(fVertexData.size())) {
+            int padBytes = alignedVertOffset - fVertexData.size();
+            memset(fVertexData.append(padBytes), 0, padBytes);
+        }
+
+        return {fVertexData.append(requiredBytes), requiredBytes};
+    };
+
+    if (fStorageBufferSupport) {
+        uint32_t align32 =
+                BufferAligner::LcmAlignment(SkTo<uint32_t>(align), SkTo<uint32_t>(stride));
+        SkASSERT(fRunningLCM % align32 == 0);
+
+        auto [dst, requiredBytes] = alignAndAppend(stride, align32);
+        if (!dst) {
+            return 0;
+        }
+
+        memcpy(dst, data, requiredBytes);
+    } else {
+        size_t paddedStride = SkAlignTo<size_t>(stride, kTexelBytes);
+
+        auto [dst, requiredBytes] = alignAndAppend(paddedStride, kTexelBytes);
+        if (!dst) {
+            return 0;
+        }
+
+        // Because the fallback texture format is kRGBA32F (16 bytes per texel), the unpack shader
+        // addresses instances by whole texels (index * nTexels). Pad each instance's stride to a
+        // 16-byte texel boundary so subsequent instances align with the shader's texel indexing.
+        if (stride == paddedStride) {
+            memcpy(dst, data, requiredBytes);
+        } else {
+            const char* src = static_cast<const char*>(data);
+            size_t diff = paddedStride - stride;
+            for (size_t i = 0; i < count; ++i) {
+                memcpy(dst, src, stride);
+                memset(dst + stride, 0, diff);
+                dst += paddedStride;
+                src += stride;
+            }
+        }
     }
-
-    uint32_t alignedVertOffset = SkAlignNonPow2(static_cast<uint32_t>(fVertexData.size()), align32);
-    if (alignedVertOffset > static_cast<uint32_t>(fVertexData.size())) {
-        int padBytes = alignedVertOffset - fVertexData.size();
-        memset(fVertexData.append(padBytes), 0, padBytes);
-    }
-
-    char* dst = fVertexData.append(requiredBytes);
-    memcpy(dst, data, requiredBytes);
-
-    uint32_t totalOffset = SkTo<uint32_t>(fGradientCache.fGradientDataSize) + alignedVertOffset;
-    return totalOffset;
+    return SkTo<uint32_t>(fGradientCache.fGradientDataSize) + alignedVertOffset;
 }
 
 void StorageContext::finalizePrecachedStorageData() {

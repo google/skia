@@ -100,7 +100,8 @@ DrawContext::DrawContext(const Caps* caps,
                           ? std::unique_ptr<DrawListBase>(std::make_unique<DrawListLayer>(
                                    caps->storageBufferSupport()))
                           : std::unique_ptr<DrawListBase>(std::make_unique<DrawList>()))
-        , fPendingUploads(std::make_unique<UploadList>()) {
+        , fPendingUploads(std::make_unique<UploadList>())
+        , fStorageContext(caps->storageBufferSupport()) {
     // Must determine a valid strategy to use should a dst texture read be required.
     SkASSERT(fDstReadStrategy != DstReadStrategy::kNoneRequired);
 

@@ -12,6 +12,7 @@
 #include "src/core/SkTHash.h"
 #include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/ResourceTypes.h"
+#include "src/gpu/graphite/TextureFormat.h"
 
 #include <cstdint>
 #include <limits>
@@ -25,7 +26,13 @@ class DrawBufferManager;
 
 class StorageContext {
 public:
-    StorageContext();
+    // TODO (thomsmit): These are currently here for convenience, but in the future these should be
+    // caps derived. (e.g. if we include a fallback to RGBA8unorm)
+    static constexpr int           kTexelBytes                   = 16;
+    static constexpr SkColorType   kColorType                    = kRGBA_F32_SkColorType;
+    static constexpr TextureFormat kTextureFormat                = TextureFormat::kRGBA32F;
+
+    StorageContext(bool storageBufferSupport);
     ~StorageContext();
 
     // Resets cached gradient and vertex data. Should only occur at "organic" flush time
@@ -63,6 +70,10 @@ public:
     SkDEBUGCODE(int size() const { return fGradientCache.fGradientData.size(); })
     SkDEBUGCODE(int vertexSize() const { return fVertexData.size(); })
 
+#if defined(GPU_TEST_UTILS)
+    uint32_t runningLCM() const { return fRunningLCM; }
+#endif
+
 private:
     struct GradientCache {
         static constexpr int kMaxGradientStops = 1024 * 1024;
@@ -83,7 +94,8 @@ private:
     GradientCache fGradientCache;
 
     SkTDArray<char> fVertexData;
-    uint32_t fRunningLCM = 1;
+    uint32_t fRunningLCM;
+    bool fStorageBufferSupport;
 };
 
 } // namespace skgpu::graphite

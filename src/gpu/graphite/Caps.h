@@ -88,6 +88,9 @@ struct ResourceBindingRequirements {
     int fIntrinsicBufferBinding       = kUnassigned;
     int fCombinedUniformBufferBinding = kUnassigned;
     int fStorageBufferBinding         = kUnassigned;
+    /* Maximum texture atlas dimension for StorageBuffer fallback texture, defaults to 8192 */
+    int fMaxFallbackTextureSize       = kUnassigned;
+    int fMaxFallbackTextureBytes      = kUnassigned;
 };
 
 class Caps {

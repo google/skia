@@ -322,10 +322,139 @@ std::string emit_step_storage_buffer(const ResourceBindingRequirements& bindingR
             "struct StepStorageData {\n%s};\n"
             "layout (set=%d, binding=%d) readonly buffer StepStorageBuffer {\n"
             "    StepStorageData stepStorageData[];\n"
-            "};\n",
+            "};\n"
+            "inline StepStorageData readStepStorageData(int idx) {\n"
+            "    return stepStorageData[idx];\n"
+            "}\n"
+            "inline StepStorageData readStepStorageData(uint idx) {\n"
+            "    return stepStorageData[idx];\n"
+            "}\n",
             fields.c_str(),
             bindingReqs.fUniformsSetIdx,
             bindingReqs.fStorageBufferBinding);
+}
+
+std::string emit_storage_fallback_texture(const ResourceBindingRequirements& bindingReqs,
+                                          const RenderStep* step) {
+    if (!step || step->storageUniforms().empty()) {
+        return "";
+    }
+
+    std::string fields;
+    for (auto a : step->storageUniforms()) {
+        // Array storage uniforms are not supported by the texture fallback.
+        SkASSERT(a.count() == 0);
+        SkSL::String::appendf(&fields, "    %s %s;\n", SkSLTypeString(a.type()), a.name());
+    }
+
+    static const char* kSwizzles[] = {"x", "y", "z", "w"};
+    std::string fieldAssignments;
+
+    // Force Std430 rules to match the struct layout defined by RenderStep.
+    UniformOffsetCalculator calculator = UniformOffsetCalculator::ForStruct(Layout::kStd430);
+
+    for (auto a : step->storageUniforms()) {
+        const int byteOffset = calculator.advanceOffset(a.type(), a.count());
+        const int floatOffset = byteOffset / 4;
+        const int startTexel = floatOffset / 4;
+        const int startComp = floatOffset % 4;
+
+        const int mat = SkSLTypeMatrixSize(a.type());
+        const int vec = SkSLTypeVecLength(a.type());
+
+        std::string expr;
+        if (mat == 2) {
+            if (startComp == 0) {
+                expr = SkSL::String::printf("float2x2(t%d.xy, t%d.zw)", startTexel, startTexel);
+            } else {
+                expr = SkSL::String::printf(
+                        "float2x2(t%d.zw, t%d.xy)", startTexel, startTexel + 1);
+            }
+        } else if (mat == 3) {
+            // std140/std430 dictates 16-byte alignment for 3-component column vectors.
+            SkASSERT(startComp == 0);
+            expr = SkSL::String::printf("float3x3(t%d.xyz, t%d.xyz, t%d.xyz)",
+                                        startTexel,
+                                        startTexel + 1,
+                                        startTexel + 2);
+        } else if (mat == 4) {
+            // std140/std430 dictates 16-byte alignment for 4-component column vectors.
+            SkASSERT(startComp == 0);
+            expr = SkSL::String::printf("float4x4(t%d, t%d, t%d, t%d)",
+                                        startTexel,
+                                        startTexel + 1,
+                                        startTexel + 2,
+                                        startTexel + 3);
+        } else if (vec == 4) {
+            // std140/std430 dictates 16-byte alignment for 4-component vectors.
+            SkASSERT(startComp == 0);
+            expr = SkSL::String::printf("t%d", startTexel);
+        } else if (vec == 3) {
+            // std140/std430 dictates 16-byte alignment for vec3; startComp must be 0 to avoid OOB
+            // swizzles.
+            SkASSERT(startComp == 0);
+            expr = SkSL::String::printf(
+                    "t%d.%s%s%s",
+                    startTexel,
+                    kSwizzles[startComp],
+                    kSwizzles[startComp + 1],
+                    kSwizzles[startComp + 2]);
+        } else if (vec == 2) {
+            expr = SkSL::String::printf(
+                    "t%d.%s%s", startTexel, kSwizzles[startComp], kSwizzles[startComp + 1]);
+        } else {
+            expr = SkSL::String::printf("t%d.%s", startTexel, kSwizzles[startComp]);
+        }
+
+        switch (a.type()) {
+            case SkSLType::kInt:
+            case SkSLType::kInt2:
+            case SkSLType::kInt3:
+            case SkSLType::kInt4:
+                expr = "floatBitsToInt(" + expr + ")";
+                break;
+            case SkSLType::kUInt:
+            case SkSLType::kUInt2:
+            case SkSLType::kUInt3:
+            case SkSLType::kUInt4:
+                expr = "floatBitsToUint(" + expr + ")";
+                break;
+            default:
+                break;
+        }
+
+        SkSL::String::appendf(&fieldAssignments, "    data.%s = %s;\n", a.name(), expr.c_str());
+    }
+
+    int nTexels = (calculator.size() + 15) / 16;
+    std::string texelLoads = SkSL::String::printf("    const int texWidth = %d;\n",
+                                                  bindingReqs.fMaxFallbackTextureSize);
+    for (int i = 0; i < nTexels; ++i) {
+        SkSL::String::appendf(
+                &texelLoads,
+                "    int linearIdx%d = index * %d + %d;\n"
+                "    int2 coords%d = int2(linearIdx%d %% texWidth, linearIdx%d / texWidth);\n"
+                "    float4 t%d = float4(textureRead(storageFallbackTexture, uint2(coords%d)));\n",
+                i, nTexels, i, i, i, i, i, i);
+    }
+
+    return SkSL::String::printf(
+            "layout(set=%d, binding=%d) readonly texture2D storageFallbackTexture;\n"
+            "struct StepStorageData {\n%s};\n"
+            "StepStorageData readStepStorageData(int index) {\n"
+            "%s"
+            "    StepStorageData data;\n"
+            "%s"
+            "    return data;\n"
+            "}\n"
+            "inline StepStorageData readStepStorageData(uint index) {\n"
+            "    return readStepStorageData(int(index));\n"
+            "}\n",
+            bindingReqs.fUniformsSetIdx,
+            bindingReqs.fStorageBufferBinding,
+            fields.c_str(),
+            texelLoads.c_str(),
+            fieldAssignments.c_str());
 }
 
 void append_sampler_descs(const SkSpan<const uint32_t> samplerData,
@@ -1097,8 +1226,12 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
         fStorageBufferStages |= PipelineStageFlags::kFragmentShader;
     }
 
-    if (caps->storageBufferSupport() && step->fsUsesStorage() && step->numStorageUniforms() > 0) {
-        fsPreamble += emit_step_storage_buffer(bindingReqs, step);
+    if (step->fsUsesStorage() && step->numStorageUniforms() > 0) {
+        if (caps->storageBufferSupport()) {
+            fsPreamble += emit_step_storage_buffer(bindingReqs, step);
+        } else {
+            fsPreamble += emit_storage_fallback_texture(bindingReqs, step);
+        }
         fStorageBufferStages |= PipelineStageFlags::kFragmentShader;
     }
 
@@ -1334,9 +1467,13 @@ void ShaderInfo::generateVertexSkSL(const Caps* caps,
                                 sharedData.fHasSsboIndexVarying,
                                 sharedData.fNeedsLocalCoords);
 
-    // Declare vertex storage buffer if the RenderStep has storage uniforms and uses storage in VS
-    if (caps->storageBufferSupport() && step->vsUsesStorage() && step->numStorageUniforms() > 0) {
-        vsPreamble += emit_step_storage_buffer(bindingReqs, step);
+    // Declare vertex storage buffer (or fallback texture) if the RenderStep has storage uniforms
+    if (step->vsUsesStorage() && step->numStorageUniforms() > 0) {
+        if (caps->storageBufferSupport()) {
+            vsPreamble += emit_step_storage_buffer(bindingReqs, step);
+        } else {
+            vsPreamble += emit_storage_fallback_texture(bindingReqs, step);
+        }
         fStorageBufferStages |= PipelineStageFlags::kVertexShader;
     }
 
@@ -1442,5 +1579,13 @@ void ShaderInfo::generateVertexSkSL(const Caps* caps,
     fVertexSkSL += "\n";
     fVertexSkSL += mainBody;
 }
+
+
+#if defined(GPU_TEST_UTILS)
+std::string ShaderInfo::EmitStorageFallbackTexture(const ResourceBindingRequirements& bindingReqs,
+                                                   const RenderStep* step) {
+    return emit_storage_fallback_texture(bindingReqs, step);
+}
+#endif
 
 }  // namespace skgpu::graphite

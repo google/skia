@@ -130,6 +130,12 @@ private:
     int fNumFragmentTexturesAndSamplers = 0;
     bool fHasCombinedUniforms = false;
     SkEnumBitMask<PipelineStageFlags> fStorageBufferStages = {};
+
+#if defined(GPU_TEST_UTILS)
+    friend class TextureFallbackTest;
+    static std::string EmitStorageFallbackTexture(const ResourceBindingRequirements&,
+                                                  const RenderStep*);
+#endif
 };
 
 }  // namespace skgpu::graphite

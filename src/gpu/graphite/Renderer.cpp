@@ -52,7 +52,9 @@ RenderStep::RenderStep(Layout layout,
     }
 
     if (!fStorageUniforms.empty()) {
-        UniformOffsetCalculator calculator = UniformOffsetCalculator::ForStruct(layout);
+        // Storage uniforms are backed by a storage buffer or emulated via a fallback texture.
+        // In both cases the struct layout follows Std430.
+        UniformOffsetCalculator calculator = UniformOffsetCalculator::ForStruct(Layout::kStd430);
         for (const auto& u : fStorageUniforms) {
             calculator.advanceOffset(u.type(), u.count());
         }
