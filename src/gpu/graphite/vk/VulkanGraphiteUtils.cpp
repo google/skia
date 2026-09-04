@@ -245,6 +245,21 @@ VkShaderStageFlags PipelineStageFlagsToVkShaderStageFlags(
     return vkStageFlags;
 }
 
+VkPipelineStageFlags PipelineStageFlagsToVkPipelineStageFlags(
+        SkEnumBitMask<PipelineStageFlags> stageFlags) {
+    VkPipelineStageFlags vkStageFlags = 0;
+    if (stageFlags & PipelineStageFlags::kVertexShader) {
+        vkStageFlags |= VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+    }
+    if (stageFlags & PipelineStageFlags::kFragmentShader) {
+        vkStageFlags |= VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    }
+    if (stageFlags & PipelineStageFlags::kCompute) {
+        vkStageFlags |= VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+    }
+    return vkStageFlags;
+}
+
 bool RenderPassDescWillLoadMSAAFromResolve(const RenderPassDesc& renderPassDesc) {
     return renderPassDesc.fColorResolveAttachment.fFormat != TextureFormat::kUnsupported &&
            renderPassDesc.fColorResolveAttachment.fLoadOp == LoadOp::kLoad;

@@ -100,6 +100,7 @@ constexpr VkSampleCountFlagBits SampleCountToVkSampleCount(SampleCount sampleCou
 }
 
 VkShaderStageFlags PipelineStageFlagsToVkShaderStageFlags(SkEnumBitMask<PipelineStageFlags>);
+VkPipelineStageFlags PipelineStageFlagsToVkPipelineStageFlags(SkEnumBitMask<PipelineStageFlags>);
 
 // When multisampling is used, Graphite never retains the multisampled data at the end of the render
 // pass. It is always resolved to the single sampled color attachment. If the next multisampled
