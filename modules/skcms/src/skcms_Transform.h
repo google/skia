@@ -118,6 +118,12 @@ enum class Op : int {
 
 /** Constants */
 
+// The maximum number of ops in a transform program.
+// A complex transform (e.g. A2B to B2A with 4 channels, multi-stage curves, matrices,
+// format conversion and colorspace conversion) can require up to ~40 ops.
+// 64 gives plenty of padding while keeping stack frames small.
+static constexpr int SKCMS_MAX_PROGRAM_OPS = 64;
+
 #if defined(__clang__) || defined(__GNUC__)
     static constexpr float INFINITY_ = __builtin_inff();
 #else
