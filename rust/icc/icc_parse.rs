@@ -32,9 +32,11 @@ const SKCMS_SIGNATURE_A2B0: u32 = u32::from_be_bytes(*b"A2B0");
 const SKCMS_SIGNATURE_B2A0: u32 = u32::from_be_bytes(*b"B2A0");
 
 const SKCMS_SIGNATURE_CICP: u32 = u32::from_be_bytes(*b"cicp");
+const SKCMS_SIGNATURE_HAGC: u32 = u32::from_be_bytes(*b"HAGC");
 
 // Type signatures
 const SKCMS_SIGNATURE_CURV: u32 = u32::from_be_bytes(*b"curv");
+const SKCMS_SIGNATURE_HAGC_TYPE: u32 = u32::from_be_bytes(*b"hagc");
 const SKCMS_SIGNATURE_MFT1: u32 = u32::from_be_bytes(*b"mft1");
 const SKCMS_SIGNATURE_MFT2: u32 = u32::from_be_bytes(*b"mft2");
 const SKCMS_SIGNATURE_M_AB: u32 = u32::from_be_bytes(*b"mAB ");
@@ -754,6 +756,18 @@ fn read_cicp(tag: &IccTag) -> Option<Cicp> {
     })
 }
 
+/// Parses HAGC metadata (matches `read_hagc` and `HAGC_Layout`).
+fn read_hagc(tag: &IccTag) -> Option<Vec<u8>> {
+    if tag.tag_type != SKCMS_SIGNATURE_HAGC_TYPE {
+        return None;
+    }
+    let mut r = tag.reader;
+    r.skip(4)?; // reserved
+    let size = r.read_u32()? as usize;
+    let bytes = r.read_bytes(size)?;
+    Some(bytes.to_vec())
+}
+
 /// Validates whether a profile is usable as a source profile (matches `usable_as_src`).
 fn usable_as_src(profile: &IccProfile) -> bool {
     profile.has_a2b || (profile.has_trc && profile.has_to_xyzd50)
@@ -913,6 +927,13 @@ fn parse_icc_profile_impl(
     if let Some(tag) = get_tag_by_signature(data, size, tag_count, SKCMS_SIGNATURE_CICP) {
         out.cicp = read_cicp(&tag)?;
         out.has_cicp = true;
+    }
+
+    out.has_hagc = false;
+    out.hagc.clear();
+    if let Some(tag) = get_tag_by_signature(data, size, tag_count, SKCMS_SIGNATURE_HAGC) {
+        out.hagc = read_hagc(&tag)?;
+        out.has_hagc = true;
     }
 
     if !usable_as_src(out) {

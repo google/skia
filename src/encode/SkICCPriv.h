@@ -43,12 +43,14 @@ static constexpr uint32_t kTAG_A2B0 = SkSetFourByteTag('A', '2', 'B', '0');
 static constexpr uint32_t kTAG_B2A0 = SkSetFourByteTag('B', '2', 'A', '0');
 static constexpr uint32_t kTAG_desc = SkSetFourByteTag('d', 'e', 's', 'c');
 static constexpr uint32_t kTAG_cicp = SkSetFourByteTag('c', 'i', 'c', 'p');
+static constexpr uint32_t kTAG_HAGC = SkSetFourByteTag('H', 'A', 'G', 'C');
 static constexpr uint32_t kTAG_wtpt = SkSetFourByteTag('w', 't', 'p', 't');
 static constexpr uint32_t kTAG_cprt = SkSetFourByteTag('c', 'p', 'r', 't');
 
 static constexpr uint32_t kTAG_CurveType     = SkSetFourByteTag('c', 'u', 'r', 'v');
 static constexpr uint32_t kTAG_ParaCurveType = SkSetFourByteTag('p', 'a', 'r', 'a');
 static constexpr uint32_t kTAG_TextType      = SkSetFourByteTag('m', 'l', 'u', 'c');
+static constexpr uint32_t kTAG_HAGCType      = SkSetFourByteTag('h', 'a', 'g', 'c');
 static constexpr uint32_t kTAG_mABType = SkSetFourByteTag('m', 'A', 'B', ' ');
 static constexpr uint32_t kTAG_mBAType = SkSetFourByteTag('m', 'B', 'A', ' ');
 

@@ -299,6 +299,13 @@ bool ToSkcmsIccProfile(const IccProfile& rust_profile, skcms_ICCProfile* out_skc
         out_skcms->CICP.video_full_range_flag = rust_profile.cicp.video_full_range_flag;
     }
 
+    // Copy HAGC data if present
+    out_skcms->has_HAGC = rust_profile.has_hagc;
+    if (rust_profile.has_hagc) {
+        out_skcms->HAGC.size = static_cast<uint32_t>(rust_profile.hagc.size());
+        out_skcms->HAGC.buffer = rust_profile.hagc.data();
+    }
+
     // Populate A2B and B2A transforms if present
     out_skcms->has_A2B = rust_profile.has_a2b;
     if (rust_profile.has_a2b) {

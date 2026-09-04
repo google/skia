@@ -41,6 +41,7 @@ void ToSkcmsTransferFunction(const TransferFunction& rust_tf, skcms_TransferFunc
 ///   - Color space metadata
 ///   - toXYZD50 matrix and transfer curves (for simple RGB/Gray profiles)
 ///   - CICP metadata (for HDR)
+///   - HAGC metadata (for HDR tone mapping)
 ///   - A2B/B2A transforms (for complex LUT-based profiles)
 ///
 /// Note: The following skcms_ICCProfile members will NOT be populated:

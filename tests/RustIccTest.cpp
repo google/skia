@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "include/encode/SkICC.h"
+#include "include/private/SkHdrMetadata.h"
+#include "modules/skcms/skcms.h"
 #include "rust/icc/FFI.h"
 #include "rust/icc/FFI.rs.h"
-#include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecColorProfileRust.h"
 #include "src/codec/SkCodecPriv.h"
 #include "tests/Test.h"
@@ -162,6 +164,7 @@ DEF_TEST(RustIcc_profile_conversion, r) {
     REPORTER_ASSERT(r, skcms_profile.has_toXYZD50);
     REPORTER_ASSERT(r, skcms_profile.has_trc);
     REPORTER_ASSERT(r, !skcms_profile.has_CICP);
+    REPORTER_ASSERT(r, !skcms_profile.has_HAGC);
     REPORTER_ASSERT(r, !skcms_profile.has_A2B);
 
     // Verify matrix
@@ -999,6 +1002,7 @@ DEF_TEST(RustIcc_equivalence_with_skcms_resource_files, r) {
         "icc_profiles/fuzz/zero_g.icc",
         "icc_profiles/misc/AdobeColorSpin.icc",
         "icc_profiles/misc/AdobeRGB.icc",
+        "icc_profiles/misc/AppleHagc.icc",
         "icc_profiles/misc/Apple_Color_LCD.icc",
         "icc_profiles/misc/Apple_Wide_Color.icc",
         "icc_profiles/misc/Apple_pq_hagc_hdgm2.icc",
@@ -1125,6 +1129,20 @@ DEF_TEST(RustIcc_equivalence_with_skcms_resource_files, r) {
                 rust.CICP.matrix_coefficients != skcms.CICP.matrix_coefficients ||
                 rust.CICP.video_full_range_flag != skcms.CICP.video_full_range_flag) {
                 ERRORF(r, "[%s] CICP mismatch", path);
+            }
+        }
+
+        // Compare HAGC if present
+        if (rust.has_HAGC != skcms.has_HAGC) {
+            ERRORF(r, "[%s] has_HAGC mismatch: rust=%d, skcms=%d",
+                   path, rust.has_HAGC, skcms.has_HAGC);
+        }
+        if (rust.has_HAGC && skcms.has_HAGC) {
+            if (rust.HAGC.size != skcms.HAGC.size) {
+                ERRORF(r, "[%s] HAGC size mismatch: rust=%u, skcms=%u",
+                       path, rust.HAGC.size, skcms.HAGC.size);
+            } else if (memcmp(rust.HAGC.buffer, skcms.HAGC.buffer, rust.HAGC.size) != 0) {
+                ERRORF(r, "[%s] HAGC buffer mismatch", path);
             }
         }
 
@@ -1374,5 +1392,62 @@ DEF_TEST(RustIcc_pq_hdr_b2a_present, r) {
 
     if (!skcms_ApproximatelyEqualProfiles(&rust, &skcms)) {
         ERRORF(r, "[pq_hdr.icc] profiles not approximately equal");
+    }
+}
+
+DEF_TEST(RustIcc_writer_hagc_matches_parsed, r) {
+    auto data = GetResourceAsData("icc_profiles/misc/AppleHagc.icc");
+    if (!data) {
+        ERRORF(r, "Failed to load icc_profiles/misc/AppleHagc.icc");
+        return;
+    }
+
+    auto parsed_rust = SkCodecs::MakeICCProfileWithRust(data);
+    REPORTER_ASSERT(r, parsed_rust != nullptr);
+    if (!parsed_rust) {
+        return;
+    }
+
+    const skcms_ICCProfile* rust_prof = parsed_rust->profile();
+    REPORTER_ASSERT(r, rust_prof->has_HAGC);
+    REPORTER_ASSERT(r, rust_prof->HAGC.size > 0);
+    REPORTER_ASSERT(r, rust_prof->HAGC.buffer != nullptr);
+
+    // Populate HDR metadata with the parsed HAGC payload.
+    skhdr::Metadata hdr_metadata;
+    auto hagc_data = SkData::MakeWithCopy(rust_prof->HAGC.buffer, rust_prof->HAGC.size);
+    hdr_metadata.setSerializedAgtm(hagc_data);
+    REPORTER_ASSERT(r, hdr_metadata.getSerializedAgtm() != nullptr);
+
+    // Create a color space and write an ICC profile with the HDR metadata.
+    auto color_space = SkColorSpace::MakeRGB(SkNamedTransferFn::kPQ, SkNamedGamut::kDisplayP3);
+    auto written_data = SkWriteICCProfile(color_space.get(), &hdr_metadata);
+    REPORTER_ASSERT(r, written_data != nullptr);
+    if (!written_data) {
+        return;
+    }
+
+    // Parse the written ICC profile with the Rust parser and verify HAGC matches.
+    auto written_rust = SkCodecs::MakeICCProfileWithRust(written_data);
+    REPORTER_ASSERT(r, written_rust != nullptr);
+    if (written_rust) {
+        const skcms_ICCProfile* written_rust_prof = written_rust->profile();
+        REPORTER_ASSERT(r, written_rust_prof->has_HAGC);
+        REPORTER_ASSERT(r, written_rust_prof->HAGC.size == rust_prof->HAGC.size);
+        REPORTER_ASSERT(r, memcmp(written_rust_prof->HAGC.buffer,
+                                  rust_prof->HAGC.buffer,
+                                  rust_prof->HAGC.size) == 0);
+    }
+
+    // Also verify that SkCMS parses the written ICC profile and matches.
+    auto written_skcms = SkCodecs::ColorProfile::MakeICCProfileWithSkCMS(written_data);
+    REPORTER_ASSERT(r, written_skcms != nullptr);
+    if (written_skcms) {
+        const skcms_ICCProfile* written_skcms_prof = written_skcms->profile();
+        REPORTER_ASSERT(r, written_skcms_prof->has_HAGC);
+        REPORTER_ASSERT(r, written_skcms_prof->HAGC.size == rust_prof->HAGC.size);
+        REPORTER_ASSERT(r, memcmp(written_skcms_prof->HAGC.buffer,
+                                  rust_prof->HAGC.buffer,
+                                  rust_prof->HAGC.size) == 0);
     }
 }
