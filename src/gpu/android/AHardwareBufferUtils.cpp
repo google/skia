@@ -11,6 +11,13 @@
 
 #include <android/hardware_buffer.h>
 
+#if __has_include(<vndk/hardware_buffer.h>)
+  // When building for the Android framework, there are formats defined outside of those publicly
+  // available in android/hardware_buffer.h.
+  #include <vndk/hardware_buffer.h>
+  #define HAS_AHB_BGRA8_UNORM
+#endif
+
 namespace AHardwareBufferUtils {
 
 SkColorType GetSkColorTypeFromBufferFormat(uint32_t bufferFormat) {
@@ -34,6 +41,10 @@ SkColorType GetSkColorTypeFromBufferFormat(uint32_t bufferFormat) {
 #if __ANDROID_API__ >= 33
         case AHARDWAREBUFFER_FORMAT_R8_UNORM:
             return kAlpha_8_SkColorType;
+#endif
+#ifdef HAS_AHB_BGRA8_UNORM
+        case AHARDWAREBUFFER_FORMAT_B8G8R8A8_UNORM:
+            return kBGRA_8888_SkColorType;
 #endif
         default:
             // Given that we only use this texture as a source, colorType will not impact how Skia

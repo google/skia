@@ -31,6 +31,13 @@
 #define PROT_CONTENT_EXT_STR "EGL_EXT_protected_content"
 #define EGL_PROTECTED_CONTENT_EXT 0x32C0
 
+#if __has_include(<vndk/hardware_buffer.h>)
+    // When building for the Android framework, there are formats defined outside of those publicly
+    // available in android/hardware_buffer.h.
+    #include <vndk/hardware_buffer.h>
+    #define HAS_AHB_BGRA8_UNORM
+#endif
+
 namespace GrAHardwareBufferUtils {
 
 GrBackendFormat GetGLBackendFormat(GrDirectContext* dContext,
@@ -65,6 +72,15 @@ GrBackendFormat GetGLBackendFormat(GrDirectContext* dContext,
             // There is no GLFormat enum that corresponds to this texture format, but it is known
             // (GrColorType and SkColorType can describe it).
             return GrBackendFormats::MakeGLExternal();
+#endif
+#ifdef HAS_AHB_BGRA8_UNORM
+        case AHARDWAREBUFFER_FORMAT_B8G8R8A8_UNORM:
+            // On some platforms, HWComposer requests BGRA_8888 (DRM_FORMAT_AR24)
+            // as the GPU client-composition / framebuffer render target. Map it to a
+            // renderable GL_BGRA8 2D format (needs GL_EXT_texture_format_BGRA8888, which the
+            // driver exposes) so output/renderable buffers pass isFormatRenderable() instead
+            // of falling through to a non-renderable external format and aborting.
+            return GrBackendFormats::MakeGL(GR_GL_BGRA8);
 #endif
         default:
             if (requireKnownFormat) {
