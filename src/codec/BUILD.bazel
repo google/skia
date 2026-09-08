@@ -16,7 +16,6 @@ PRIVATE_CODEC_HEADERS = [
     "SkCodecPriv.h",
     "SkColorPalette.h",
     "SkFrameHolder.h",
-    "SkHdrAgtmPriv.h",
     "SkMaskSwizzler.h",
     "SkParseEncodedOrigin.h",
     "SkSampler.h",
@@ -35,9 +34,6 @@ ANY_DECODER_SRCS = [
     "SkEncodedInfo.cpp",
     "SkExif.cpp",
     "SkGainmapInfo.cpp",
-    "SkHdrAgtm.cpp",
-    "SkHdrAgtmParse.cpp",
-    "SkHdrMetadata.cpp",
     "SkImageGenerator_FromEncoded.cpp",
     "SkMaskSwizzler.cpp",
     "SkParseEncodedOrigin.cpp",
@@ -47,6 +43,27 @@ ANY_DECODER_SRCS = [
     "SkTiffUtility.cpp",
     "SkTiffUtility.h",
 ]
+
+skia_cc_library(
+    name = "hdr_metadata",
+    srcs = [
+        "SkHdrAgtm.cpp",
+        "SkHdrAgtmParse.cpp",
+        "SkHdrMetadata.cpp",
+    ],
+    hdrs = [
+        "SkHdrAgtmPriv.h",
+    ],
+    features = ["layering_check"],
+    visibility = [
+        "//src/codec:__pkg__",
+        "//src/encode:__pkg__",
+    ],
+    deps = [
+        "//:core",
+        "//src/core:core_priv",
+    ],
+)
 
 skia_filegroup(
     name = "rust_icc_codec_srcs",
@@ -84,6 +101,7 @@ skia_cc_library(
         "//src/ports:__pkg__",
     ],
     deps = [
+        ":hdr_metadata",
         "//modules/skcms",
         "//src/core",
         "//src/core:core_priv",

@@ -28,6 +28,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_codec_shared",
 			Rules: []string{
 				"//src/codec:any_decoder",
+				"//src/codec:hdr_metadata",
 				"//include/codec:any_codec_hdrs",
 			},
 		},

@@ -9,8 +9,16 @@
 #include "include/core/SkColorFilter.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkHdrMetadata.h"
-#include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkHdrAgtmPriv.h"
+
+// Defined locally to avoid pulling in SkCodecPriv.h and general decoder headers.
+#ifndef SkCodecPrintf
+#ifdef SK_PRINT_CODEC_MESSAGES
+    #define SkCodecPrintf SkDebugf
+#else
+    #define SkCodecPrintf(...)
+#endif
+#endif
 
 namespace {
 
