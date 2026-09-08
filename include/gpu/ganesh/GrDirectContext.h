@@ -320,14 +320,34 @@ public:
     bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
               bool deleteSemaphoresAfterWait = true);
 
+    /*
+     * Result of a flush call. A flush can be successful w/ or w/o any semaphores being flushed.
+     * In some circumstances an unsuccessful flush can still have flushed the semaphores but
+     * the rendering results should be discarded.
+     */
+    struct FlushResult {
+        // This implicit cast is temporary and recreates the success/semaphore-submission
+        // conflation of the old API. This can be removed when all clients have been
+        // updated to the new return value.
+        operator GrSemaphoresSubmitted() const {
+            return fSuccess ? GrSemaphoresSubmitted::kYes : GrSemaphoresSubmitted::kNo;
+        }
+
+        bool fSuccess = false;                    // Did the flush succeed
+        // Were any semaphores submitted during the flush process. Will be kNo if no
+        // semaphores were specified.
+        GrSemaphoresSubmitted fSubmitted = GrSemaphoresSubmitted::kNo;
+    };
+
     /**
      * Call to ensure all drawing to the context has been flushed and submitted to the underlying 3D
      * API. This is equivalent to calling GrContext::flush with a default GrFlushInfo followed by
      * GrContext::submit(sync).
      */
-    void flushAndSubmit(GrSyncCpu sync = GrSyncCpu::kNo) {
-        this->flush(GrFlushInfo());
-        this->submit(sync);
+    FlushResult flushAndSubmit(GrSyncCpu sync = GrSyncCpu::kNo) {
+        FlushResult result = this->flush(GrFlushInfo());
+        result.fSuccess &= this->submit(sync);
+        return result;
     }
 
     /**
@@ -341,22 +361,22 @@ public:
      *         buffer or encoder objects. However, these objects are not sent to the gpu until a
      *         submission occurs.
      *
-     * If the return is GrSemaphoresSubmitted::kYes, only initialized GrBackendSemaphores will be
-     * submitted to the gpu during the next submit call (it is possible Skia failed to create a
-     * subset of the semaphores). The client should not wait on these semaphores until after submit
-     * has been called, and must keep them alive until then. If this call returns
-     * GrSemaphoresSubmitted::kNo, the GPU backend will not submit any semaphores to be signaled on
-     * the GPU. Thus the client should not have the GPU wait on any of the semaphores passed in with
-     * the GrFlushInfo. Regardless of whether semaphores were submitted to the GPU or not, the
-     * client is still responsible for deleting any initialized semaphores.
+     * If FlushResult.fSubmitted is GrSemaphoresSubmitted::kYes, only initialized
+     * GrBackendSemaphores will be submitted to the gpu during the next submit call (it is possible
+     * Skia failed to create a subset of the semaphores). The client should not wait on these
+     * semaphores until after submit has been called, and must keep them alive until then. If
+     * fSubmitted is GrSemaphoresSubmitted::kNo, the GPU backend will not submit any semaphores
+     * to be signaled on the GPU. Thus the client should not have the GPU wait on any of the
+     * semaphores passed in with the GrFlushInfo. Regardless of whether semaphores were submitted
+     * to the GPU or not, the client is still responsible for deleting any initialized semaphores.
      * Regardless of semaphore submission the context will still be flushed. It should be
-     * emphasized that a return value of GrSemaphoresSubmitted::kNo does not mean the flush did not
-     * happen. It simply means there were no semaphores submitted to the GPU. A caller should only
-     * take this as a failure if they passed in semaphores to be submitted.
+     * emphasized that a fSubmitted value of GrSemaphoresSubmitted::kNo does not mean the flush
+     * did not happen. It simply means there were no semaphores submitted to the GPU. A caller
+     * should only take this as a failure if they passed in semaphores to be submitted.
      */
-    GrSemaphoresSubmitted flush(const GrFlushInfo& info);
+    FlushResult flush(const GrFlushInfo& info);
 
-    void flush() { this->flush(GrFlushInfo()); }
+    void flush() { (void) this->flush(GrFlushInfo()); }
 
     /** Flushes any pending uses of texture-backed images in the GPU backend. If the image is not
      *  texture-backed (including promise texture images) or if the GrDirectContext does not
@@ -367,13 +387,18 @@ public:
      *  @param image    the non-null image to flush.
      *  @param info     flush options
      */
-    GrSemaphoresSubmitted flush(const sk_sp<const SkImage>& image, const GrFlushInfo& info);
-    void flush(const sk_sp<const SkImage>& image);
+    FlushResult flush(const sk_sp<const SkImage>& image, const GrFlushInfo& info);
+
+    void flush(const sk_sp<const SkImage>& image) { (void) this->flush(image, {}); }
 
     /** Version of flush() that uses a default GrFlushInfo. Also submits the flushed work to the
-     *   GPU.
+     *  GPU.
      */
-    void flushAndSubmit(const sk_sp<const SkImage>& image);
+    FlushResult flushAndSubmit(const sk_sp<const SkImage>& image) {
+        FlushResult result = this->flush(image, {});
+        result.fSuccess &= this->submit();
+        return result;
+    }
 
     /** Issues pending SkSurface commands to the GPU-backed API objects and resolves any SkSurface
      *  MSAA. A call to GrDirectContext::submit is always required to ensure work is actually sent
@@ -400,19 +425,20 @@ public:
      *  The GrFlushInfo describes additional options to flush. Please see documentation at
      *  GrFlushInfo for more info.
      *
-     *  If the return is GrSemaphoresSubmitted::kYes, only initialized GrBackendSemaphores will be
-     *  submitted to the gpu during the next submit call (it is possible Skia failed to create a
-     *  subset of the semaphores). The client should not wait on these semaphores until after submit
-     *  has been called, but must keep them alive until then. If a submit flag was passed in with
-     *  the flush these valid semaphores can we waited on immediately. If this call returns
-     *  GrSemaphoresSubmitted::kNo, the GPU backend will not submit any semaphores to be signaled on
-     *  the GPU. Thus the client should not have the GPU wait on any of the semaphores passed in
-     *  with the GrFlushInfo. Regardless of whether semaphores were submitted to the GPU or not, the
-     *  client is still responsible for deleting any initialized semaphores.
-     *  Regardless of semaphore submission the context will still be flushed. It should be
-     *  emphasized that a return value of GrSemaphoresSubmitted::kNo does not mean the flush did not
-     *  happen. It simply means there were no semaphores submitted to the GPU. A caller should only
-     *  take this as a failure if they passed in semaphores to be submitted.
+     *  If FlushResult.fSubmitted is GrSemaphoresSubmitted::kYes, only initialized
+     *  GrBackendSemaphores will be submitted to the gpu during the next submit call (it is
+     *  possible Skia failed to create a subset of the semaphores). The client should not wait on
+     *  these semaphores until after submit has been called, but must keep them alive until then.
+     *  If a submit flag was passed in with the flush these valid semaphores can we waited on
+     *  immediately. If this fSubmitted is GrSemaphoresSubmitted::kNo, the GPU backend will not
+     *  submit any semaphores to be signaled on the GPU. Thus the client should not have the GPU
+     *  wait on any of the semaphores passed in with the GrFlushInfo. Regardless of whether
+     *  semaphores were submitted to the GPU or not, the client is still responsible for deleting
+     *  any initialized semaphores. Regardless of semaphore submission the context will still be
+     *  flushed. It should be emphasized that a fSubmitted value of GrSemaphoresSubmitted::kNo
+     *  does not mean the flush did not happen. It simply means there were no semaphores submitted
+     *  to the GPU. A caller should only take this as a failure if they passed in semaphores to
+     *  be submitted.
      *
      *  Pending surface commands are flushed regardless of the return result.
      *
@@ -420,9 +446,9 @@ public:
      *  @param access  type of access the call will do on the backend object after flush
      *  @param info    flush options
      */
-    GrSemaphoresSubmitted flush(SkSurface* surface,
-                                SkSurfaces::BackendSurfaceAccess access,
-                                const GrFlushInfo& info);
+    FlushResult flush(SkSurface* surface,
+                      SkSurfaces::BackendSurfaceAccess access,
+                      const GrFlushInfo& info);
 
     /**
      *  Same as above except:
@@ -443,9 +469,16 @@ public:
      *  @param info     flush options
      *  @param newState optional state change request after flush
      */
-    GrSemaphoresSubmitted flush(SkSurface* surface,
-                                const GrFlushInfo& info,
-                                const skgpu::MutableTextureState* newState = nullptr);
+    FlushResult flush(SkSurface* surface,
+                      const GrFlushInfo& info,
+                      const skgpu::MutableTextureState* newState = nullptr);
+
+    /**
+     * Flushes the given surface with the default GrFlushInfo.
+     *
+     *  Has no effect on a CPU-backed surface.
+     */
+    void flush(SkSurface* surface) { (void) this->flush(surface, GrFlushInfo(), nullptr); }
 
     /** Call to ensure all reads/writes of the surface have been issued to the underlying 3D API.
      *  Skia will correctly order its own draws and pixel operations. This must to be used to ensure
@@ -455,14 +488,7 @@ public:
      *
      *  Has no effect on a CPU-backed surface.
      */
-    void flushAndSubmit(SkSurface* surface, GrSyncCpu sync = GrSyncCpu::kNo);
-
-    /**
-     * Flushes the given surface with the default GrFlushInfo.
-     *
-     *  Has no effect on a CPU-backed surface.
-     */
-    void flush(SkSurface* surface);
+    FlushResult flushAndSubmit(SkSurface* surface, GrSyncCpu sync = GrSyncCpu::kNo);
 
     /**
      * Submit outstanding work to the gpu from all previously un-submitted flushes. The return

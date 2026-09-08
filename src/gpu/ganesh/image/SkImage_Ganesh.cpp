@@ -253,8 +253,8 @@ bool SkImage_Ganesh::onIsProtected() const {
     return fChooser.isProtected() == skgpu::Protected::kYes;
 }
 
-GrSemaphoresSubmitted SkImage_Ganesh::flush(GrDirectContext* dContext,
-                                            const GrFlushInfo& info) const {
+GrDirectContext::FlushResult SkImage_Ganesh::flush(GrDirectContext* dContext,
+                                                   const GrFlushInfo& info) const {
     if (!fContext->priv().matches(dContext) || dContext->abandoned()) {
         if (info.fSubmittedProc) {
             info.fSubmittedProc(info.fSubmittedContext, false);
@@ -262,7 +262,7 @@ GrSemaphoresSubmitted SkImage_Ganesh::flush(GrDirectContext* dContext,
         if (info.fFinishedProc) {
             info.fFinishedProc(info.fFinishedContext);
         }
-        return GrSemaphoresSubmitted::kNo;
+        return {false, GrSemaphoresSubmitted::kNo};
     }
 
     sk_sp<GrSurfaceProxy> proxy = fChooser.chooseProxy(dContext, nullptr);
@@ -299,7 +299,10 @@ bool SkImage_Ganesh::getExistingBackendTexture(GrBackendTexture* outTexture,
         return false;
     }
     if (flushPendingGrContextIO) {
-        direct->priv().flushSurface(proxy.get());
+        GrDirectContext::FlushResult result = direct->priv().flushSurface(proxy.get());
+        if (!result.fSuccess) {
+            return false;
+        }
     }
     if (origin) {
         *origin = fOrigin;

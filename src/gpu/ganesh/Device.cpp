@@ -1274,15 +1274,16 @@ void Device::asyncRescaleAndReadPixels(const SkImageInfo& info,
                                        RescaleGamma rescaleGamma,
                                        RescaleMode rescaleMode,
                                        ReadPixelsCallback callback,
-                                       ReadPixelsContext context) {
+                                       ReadPixelsContext callbackContext) {
     auto* sdc = fSurfaceDrawContext.get();
     // Context TODO: Elevate direct context requirement to public API.
     auto dContext = sdc->recordingContext()->asDirectContext();
     if (!dContext) {
+        callback(callbackContext, nullptr);
         return;
     }
     sdc->asyncRescaleAndReadPixels(dContext, info, srcRect, rescaleGamma, rescaleMode, callback,
-                                   context);
+                                   callbackContext);
 }
 
 void Device::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
@@ -1293,11 +1294,12 @@ void Device::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
                                              RescaleGamma rescaleGamma,
                                              RescaleMode rescaleMode,
                                              ReadPixelsCallback callback,
-                                             ReadPixelsContext context) {
+                                             ReadPixelsContext callbackContext) {
     auto* sdc = fSurfaceDrawContext.get();
     // Context TODO: Elevate direct context requirement to public API.
     auto dContext = sdc->recordingContext()->asDirectContext();
     if (!dContext) {
+        callback(callbackContext, nullptr);
         return;
     }
     sdc->asyncRescaleAndReadPixelsYUV420(dContext,
@@ -1309,7 +1311,7 @@ void Device::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
                                          rescaleGamma,
                                          rescaleMode,
                                          callback,
-                                         context);
+                                         callbackContext);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
