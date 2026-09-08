@@ -1351,7 +1351,7 @@ static bool read_hagc(const skcms_ICCTag* tag, skcms_HAGC* hagc) {
 
 void skcms_GetTagByIndex(const skcms_ICCProfile* profile, uint32_t idx, skcms_ICCTag* tag) {
     if (!profile || !profile->buffer || !tag) { return; }
-    if (idx > profile->tag_count) { return; }
+    if (idx >= profile->tag_count) { return; }
     const tag_Layout* tags = get_tag_table(profile);
     tag->signature = read_big_u32(tags[idx].signature);
     tag->size      = read_big_u32(tags[idx].size);
