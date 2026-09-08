@@ -70,6 +70,13 @@ public:
              const void* src, size_t srcRowBytes,
              void* dst, size_t dstRowBytes) const;
 
+#if defined(GPU_TEST_UTILS)
+    bool usesRasterPipeline() const { return SkToBool(fRP); }
+    bool usesXferOps() const { return fPreOps | fPostOps; }
+    bool isIgnoreSrcForceOpaque() const;
+    bool isDropOrPadAlpha() const;
+#endif
+
 private:
     struct RPOps : public SkNVRefCnt<RPOps> {
         SkRasterPipelineContexts::MemoryCtx fSrcCtx{nullptr, 0};
@@ -82,7 +89,8 @@ private:
         const int fDstBpp;
 
         template<typename... RPModifiers>
-        static sk_sp<RPOps> Make(SkColorType srcCT, SkColorType dstCT, RPModifiers...);
+        static sk_sp<RPOps> Make(SkColorType srcCT, SkColorType dstCT,
+                                 uint8_t* xferOps, RPModifiers...);
 
         // Returns true if RasterPipeline can process the whole 2D block via its strides
         bool setStrides(size_t srcRowBytes, size_t dstRowBytes, uint8_t otherOps);
