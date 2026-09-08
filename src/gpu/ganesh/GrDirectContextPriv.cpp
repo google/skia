@@ -64,7 +64,7 @@ using MaskFormat = skgpu::MaskFormat;
     SkASSERT(!(P) || !((P)->peekTexture()) || (P)->peekTexture()->getContext() == this->context())
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(this->context()->singleOwner())
 
-GrSemaphoresSubmitted GrDirectContextPriv::flushSurfaces(
+GrDirectContext::FlushResult GrDirectContextPriv::flushSurfaces(
         SkSpan<GrSurfaceProxy*> proxies,
         SkSurfaces::BackendSurfaceAccess access,
         const GrFlushInfo& info,
@@ -79,7 +79,7 @@ GrSemaphoresSubmitted GrDirectContextPriv::flushSurfaces(
         if (info.fFinishedProc) {
             info.fFinishedProc(info.fFinishedContext);
         }
-        return GrSemaphoresSubmitted::kNo;
+        return {false, GrSemaphoresSubmitted::kNo};
     }
 
 #ifdef SK_DEBUG

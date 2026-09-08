@@ -97,7 +97,11 @@ static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Ganesh* surface,
             break;
     }
 
-    dContext->priv().flushSurface(surface->getDevice()->targetProxy());
+    GrDirectContext::FlushResult result = dContext->priv().flushSurface(
+            surface->getDevice()->targetProxy());
+    if (!result.fSuccess) {
+        return nullptr;
+    }
 
     // Grab the render target *after* firing notifications, as it may get switched if CoW kicks in.
     return surface->getDevice()->targetProxy()->peekRenderTarget();
@@ -751,42 +755,31 @@ void ResolveMSAA(SkSurface* surface) {
 }  // namespace SkSurfaces
 
 namespace skgpu::ganesh {
-GrSemaphoresSubmitted Flush(SkSurface* surface) {
+
+GrDirectContext::FlushResult Flush(SkSurface* surface) {
     if (!surface) {
-        return GrSemaphoresSubmitted::kNo;
+        return {false, GrSemaphoresSubmitted::kNo};
     }
     if (auto rContext = surface->recordingContext(); rContext != nullptr) {
         return rContext->asDirectContext()->flush(surface, {});
     }
-    return GrSemaphoresSubmitted::kNo;
+    return {false, GrSemaphoresSubmitted::kNo};
+}
+GrDirectContext::FlushResult Flush(sk_sp<SkSurface> surface) {
+    return Flush(surface.get());
 }
 
-GrSemaphoresSubmitted Flush(sk_sp<SkSurface> surface) {
+GrDirectContext::FlushResult FlushAndSubmit(SkSurface* surface) {
     if (!surface) {
-        return GrSemaphoresSubmitted::kNo;
+        return {false, GrSemaphoresSubmitted::kNo};
     }
     if (auto rContext = surface->recordingContext(); rContext != nullptr) {
-        return rContext->asDirectContext()->flush(surface.get(), {});
+        return rContext->asDirectContext()->flushAndSubmit(surface, GrSyncCpu::kNo);
     }
-    return GrSemaphoresSubmitted::kNo;
+    return {false, GrSemaphoresSubmitted::kNo};
 }
-
-void FlushAndSubmit(SkSurface* surface) {
-    if (!surface) {
-        return;
-    }
-    if (auto rContext = surface->recordingContext(); rContext != nullptr) {
-        rContext->asDirectContext()->flushAndSubmit(surface, GrSyncCpu::kNo);
-    }
-}
-
-void FlushAndSubmit(sk_sp<SkSurface> surface) {
-    if (!surface) {
-        return;
-    }
-    if (auto rContext = surface->recordingContext(); rContext != nullptr) {
-        rContext->asDirectContext()->flushAndSubmit(surface.get(), GrSyncCpu::kNo);
-    }
+GrDirectContext::FlushResult FlushAndSubmit(sk_sp<SkSurface> surface) {
+    return FlushAndSubmit(surface.get());
 }
 
 }  // namespace skgpu::ganesh
