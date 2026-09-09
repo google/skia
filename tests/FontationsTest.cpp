@@ -23,6 +23,7 @@ const char kTtcResource[] = "fonts/test.ttc";
 const char kNoCapHeightResource[] = "fonts/DejaVuSans.subset.ttf";
 const char kNoCapHeightNoHxResource[] = "fonts/DejaVuSans.subset_noHx.ttf";
 const char kVariableResource[] = "fonts/test_glyphs-glyf_colr_1_variable.ttf";
+const char kVariableCollectionResource[] = "fonts/NotoSansCJK-VF-subset.otf.ttc";
 constexpr size_t kNumVariableAxes = 44;
 
 struct AxisExpectation {
@@ -112,6 +113,29 @@ DEF_TEST(Fontations_MakeFromCollectionNonNullIndex, reporter) {
     sk_sp<SkTypeface> probeTypeface(
             SkTypeface_Make_Fontations(GetResourceAsStream(kTtcResource), args));
     REPORTER_ASSERT(reporter, probeTypeface);
+}
+
+DEF_TEST(Fontations_CloneVariableCollectionNonNullIndex, reporter) {
+    SkFontArguments args;
+    args.setCollectionIndex(1);
+    sk_sp<SkTypeface> typeface =
+            SkTypeface_Make_Fontations(GetResourceAsStream(kVariableCollectionResource), args);
+    REPORTER_ASSERT(reporter, typeface);
+
+    SkFontArguments::VariationPosition::Coordinate wghtCoord = {
+            SkSetFourByteTag('w', 'g', 'h', 't'), 700.0f};
+    SkFontArguments::VariationPosition position = {&wghtCoord, 1};
+
+    SkFontArguments cloneArgs;
+    cloneArgs.setCollectionIndex(1);
+    cloneArgs.setVariationDesignPosition(position);
+
+    sk_sp<SkTypeface> clone = typeface->makeClone(cloneArgs);
+    REPORTER_ASSERT(reporter, clone);
+
+    int ttcIndex = -1;
+    std::unique_ptr<SkStreamAsset> stream = clone->openStream(&ttcIndex);
+    REPORTER_ASSERT(reporter, ttcIndex == 1);
 }
 
 DEF_TEST(Fontations_DoNotMakeFromCollection_Invalid_Index, reporter) {
