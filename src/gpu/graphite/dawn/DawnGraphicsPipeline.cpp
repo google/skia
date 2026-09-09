@@ -638,7 +638,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
     TArray<wgpu::VertexAttribute> appendDataAttributes;
     {
         // Note: the shaderLocationOffset in this function call needs to be the staticAttributeSize
-        auto arrayStride = create_vertex_attributes(step->appendAttributes(),
+        auto arrayStride = create_vertex_attributes(shaderInfo->appendAttributes(),
                                                     step->staticAttributes().size(),
                                                     &appendDataAttributes);
         auto& layout = vertexBufferLayouts[kAppendDataBufferIndex];

@@ -168,7 +168,8 @@ private:
                            PrimitiveType primitiveType,
                            const DepthStencilSettings& depthStencilSettings,
                            VertexInputBindingDescriptions&& vertexBindingDescriptions,
-                           VertexInputAttributeDescriptions&& vertexAttributeDescriptions);
+                           VertexInputAttributeDescriptions&& vertexAttributeDescriptions,
+                           bool hasPaintParamAttributes);
 
     void freeGpuData() override;
 
@@ -209,6 +210,7 @@ private:
     PrimitiveType fPrimitiveType;
     DepthStencilSettings fDepthStencilSettings;
     RenderStep::RenderStepID fRenderStepID;
+    bool fHasPaintParamAttributes = false;
     // The Vulkan vertex attribute descriptions are cached to avoid recomputing them every time.
     VertexInputBindingDescriptions fVertexBindingDescriptions;
     VertexInputAttributeDescriptions fVertexAttributeDescriptions;

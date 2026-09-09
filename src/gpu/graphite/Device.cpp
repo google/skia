@@ -1037,14 +1037,12 @@ void Device::drawMesh(const SkMesh& mesh, sk_sp<SkBlender> blender, const SkPain
         drawMesh = std::move(result.mesh);
     }
 
-
-    // TODO (nathanasanchez): Enable once MeshRenderStep is fully implemented.
-    [[maybe_unused]] SkBlender* primitiveBlender =
+    SkBlender* primitiveBlender =
         (blender && SkMeshSpecificationPriv::HasColors(*drawMesh.spec())) ? blender.get() : nullptr;
-    //this->drawGeometry(this->localToDeviceTransform(),
-    //                   Geometry(drawMesh),
-    //                   PaintParams(paint, primitiveBlender).makeWithMesh(mesh),
-    //                   DefaultFillStyle());
+    this->drawGeometry(this->localToDeviceTransform(),
+                       Geometry(drawMesh),
+                       PaintParams(paint, primitiveBlender).makeWithMesh(mesh),
+                       DefaultFillStyle());
 }
 
 void Device::drawImageLattice(const SkImage* image, const SkCanvas::Lattice& lattice,
@@ -1750,6 +1748,11 @@ void Device::drawGeometry(const Transform& localToDevice,
     SkEnumBitMask<KeyGenFlags> keyGenFlags = KeyGenFlags::kDefault;
     if (renderer && (renderer->useNonAAInnerFill() || renderer->coverage() == Coverage::kNone)) {
         keyGenFlags |= KeyGenFlags::kPreferFixedSrcBlend;
+    }
+    // Disable sampling optimizations if we are drawing an SkMesh since the user can vary the
+    // sampled shader local coordinates so we can't expect this optimization to always work.
+    if (geometry.isMesh()) {
+        keyGenFlags |= KeyGenFlags::kDisableSamplingOptimization;
     }
     KeyContext keyContext{fRecorder,
                           fDC.get(),

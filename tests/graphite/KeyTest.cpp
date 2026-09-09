@@ -84,8 +84,8 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyWithInvalidCodeSnippetIDTest, reporter, co
     SkSpan<const int32_t> invalidKeySpan{invalidKeyData, std::size(invalidKeyData)*sizeof(int32_t)};
     const PaintParamsKey* fakeKey = reinterpret_cast<const PaintParamsKey*>(&invalidKeySpan);
     const RuntimeEffectDictionary rteDict;
-    REPORTER_ASSERT(reporter, fakeKey->getRootNodes(caps, dict, &rteDict,
-                                                    &arena, 0).fRoots.empty());
+    REPORTER_ASSERT(reporter, fakeKey->getRootNodes(caps, dict, &rteDict, &arena, 0,
+                                                    /*canLiftCoords=*/true).fRoots.empty());
 }
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyEqualityChecksSnippetID, reporter, context,

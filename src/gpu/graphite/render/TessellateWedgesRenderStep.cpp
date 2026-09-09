@@ -99,9 +99,6 @@ TessellateWedgesRenderStep::TessellateWedgesRenderStep(Layout layout,
                      /*appendAttrs=*/kAttributes[infinitySupport],
                      /*storageUniforms=*/{})
         , fInfinitySupport(infinitySupport) {
-    SkASSERT(this->appendDataStride() ==
-             PatchStride(infinitySupport ? kAttribs : kAttribsWithCurveType));
-
     // Initialize the static buffers we'll use when recording draw calls.
     // NOTE: Each instance of this RenderStep gets its own copy of the data. If this ends up causing
     // problems, we can modify StaticBufferManager to de-duplicate requests.
@@ -143,9 +140,12 @@ std::string TessellateWedgesRenderStep::vertexSkSL(const RootNodesInfo&) const {
 }
 
 void TessellateWedgesRenderStep::writeVertices(DrawWriter* dw,
-                                                StorageContext* /*storageContext*/,
-                                                const DrawParams& params,
-                                                uint32_t ssboIndex) const {
+                                               StorageContext* /*storageContext*/,
+                                               const DrawParams& params,
+                                               uint32_t ssboIndex) const {
+    SkASSERT(this->appendDataStride(params) ==
+             PatchStride(fInfinitySupport ? kAttribs : kAttribsWithCurveType));
+
     SkPath path = params.geometry().shape().asPath(); // TODO: Iterate the Shape directly
 
     int patchReserveCount = FixedCountWedges::PreallocCount(path.countVerbs());

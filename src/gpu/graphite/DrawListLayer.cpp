@@ -388,7 +388,7 @@ std::unique_ptr<DrawPass> DrawListLayer::snapDrawPass(Recorder* recorder,
         if (pipelineChange) {
             drawWriter.newPipelineState(renderStep->primitiveType(),
                                         renderStep->staticDataStride(),
-                                        renderStep->appendDataStride(),
+                                        renderStep->appendDataStride(drawParams),
                                         renderStep->getRenderStateFlags(),
                                         drawParams.barrierBeforeDraws());
         } else if (uniformBindingChange || textureBindingsChange || newScissor.has_value()) {

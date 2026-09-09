@@ -248,7 +248,8 @@ RootNodesInfo PaintParamsKey::getRootNodes(const Caps* caps,
                                            const ShaderCodeDictionary* dict,
                                            const RuntimeEffectDictionary* rteDict,
                                            SkArenaAlloc* arena,
-                                           int availableVaryings) const {
+                                           int availableVaryings,
+                                           bool canLiftCoords) const {
     // TODO: Once the PaintParamsKey creation is organized to represent a single tree starting at
     // the final blend, there will only be a single root node and this can be simplified.
     // For now, we don't know how many roots there are, so collect them into a local array before
@@ -258,6 +259,7 @@ RootNodesInfo PaintParamsKey::getRootNodes(const Caps* caps,
     RootNodesInfo rootsInfo;
     // Normal PaintParams creation will have up to 4 roots for the different stages.
     STArray<4, ShaderNode*> roots;
+    STArray<2, ShaderNode*> liftableRoots;
     int currentIndex = 0;
     while (currentIndex < keySize) {
         int32_t blockMarker = fData[currentIndex++];
@@ -274,10 +276,12 @@ RootNodesInfo PaintParamsKey::getRootNodes(const Caps* caps,
             case RootBlockType::kSrcColor:
                 SkASSERT(!rootsInfo.fSrcColor);
                 rootsInfo.fSrcColor = root;
+                liftableRoots.push_back(root);
                 break;
             case RootBlockType::kFinalBlend:
                 SkASSERT(!rootsInfo.fFinalBlend);
                 rootsInfo.fFinalBlend = root;
+                liftableRoots.push_back(root);
                 break;
             case RootBlockType::kClip:
                 SkASSERT(!rootsInfo.fClip);
@@ -301,13 +305,13 @@ RootNodesInfo PaintParamsKey::getRootNodes(const Caps* caps,
     }
 
     // See what expressions we can lift to the vertex shader.
-    const bool hasClipNode = roots.size() > 2;
-    SkSpan<ShaderNode*> liftableNodes(roots.data(), hasClipNode ? 2 : roots.size());
-    lift_coord_expressions(liftableNodes, &availableVaryings);
+    if (canLiftCoords) {
+        lift_coord_expressions(liftableRoots, &availableVaryings);
+    }
     // Don't lift constant expressions if we're using regular UBOs, since lifting is likely only
     // beneficial if we're avoiding a storage buffer access.
     if (caps->storageBufferSupport()) {
-        lift_color_expressions(liftableNodes, &availableVaryings);
+        lift_color_expressions(liftableRoots, &availableVaryings);
     }
 
     // Copy the accumulated roots into a span stored in the arena

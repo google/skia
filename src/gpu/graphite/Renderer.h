@@ -166,6 +166,10 @@ public:
     // 'half4 primitiveColor' variable (defined in the calling code).
     virtual std::string fragmentColorSkSL(const RootNodesInfo&) const { return ""; }
 
+    // Returns a pointer to the name of the local coordinates variable to use for
+    // shader sampling if non-null.
+    virtual const char* fragmentColorSkSLLocalCoordsVariable() const { return nullptr; }
+
     // Indicates whether this RenderStep's uniforms are referenced in its fragment shader code.
     // If not, its uniforms can be omitted from the fragment shader entirely.
     // By default, we assume that RenderSteps use their uniforms for emitting coverage or primitive
@@ -201,10 +205,11 @@ public:
 
     Coverage coverage() const { return RenderStep::GetCoverage(fFlags); }
 
-    PrimitiveType    primitiveType() const { return fPrimitiveType;          }
-    size_t        staticDataStride() const { return fStaticDataStride;       }
-    size_t        appendDataStride() const { return fAppendDataStride;       }
-    size_t    storageUniformStride() const { return fStorageUniformStride;    }
+    PrimitiveType  primitiveType()    const { return fPrimitiveType;    }
+    size_t         staticDataStride() const { return fStaticDataStride; }
+    virtual size_t appendDataStride(const DrawParams& params) const { return fAppendDataStride; }
+
+    size_t storageUniformStride() const { return fStorageUniformStride;    }
     size_t storageUniformAlignment() const { return fStorageUniformAlignment; }
 
     size_t numUniforms()          const { return fUniforms.size();        }

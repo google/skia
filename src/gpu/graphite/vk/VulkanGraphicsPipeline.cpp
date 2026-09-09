@@ -853,12 +853,6 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
 
     const RenderStep* step = sharedContext->rendererProvider()->lookup(pipelineDesc.renderStepID());
 
-    if (step->staticAttributes().size() + step->appendAttributes().size() >
-        sharedContext->vulkanCaps().maxVertexAttributes()) {
-        SKIA_LOG_W("Requested more than the supported number of vertex attributes");
-        return nullptr;
-    }
-
     skia_private::TArray<SamplerDesc> descContainer {};
     std::unique_ptr<ShaderInfo> shaderInfo =
             ShaderInfo::Make(sharedContext->caps(),
@@ -868,6 +862,12 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
                              step,
                              pipelineDesc.paintParamsID(),
                              &descContainer);
+
+    if (step->staticAttributes().size() + shaderInfo->appendAttributes().size() >
+        sharedContext->vulkanCaps().maxVertexAttributes()) {
+        SKIA_LOG_W("Requested more than the supported number of vertex attributes");
+        return nullptr;
+    }
 
     // Populate an array of sampler ptrs where a sampler's index within the array indicates their
     // binding index within the descriptor set. Initialize all values to nullptr, which represents a
@@ -975,7 +975,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
             step->primitiveType(),
             step->appendsVertices() ? VK_VERTEX_INPUT_RATE_VERTEX : VK_VERTEX_INPUT_RATE_INSTANCE,
             step->staticAttributes(),
-            step->appendAttributes(),
+            shaderInfo->appendAttributes(),
             vertexBindingDescriptions,
             vertexAttributeDescriptions,
             step->depthStencilSettings(),
@@ -992,6 +992,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
         pipelineInfo.fNativeFragmentShader = SkShaderUtils::SpirvAsHexStream(fsSPIRV.fBinary);
 #endif
 
+        bool hasPaintParamAttributes = !shaderInfo->appendAttributes().empty();
         pipeline = sk_sp<VulkanGraphicsPipeline>(
                 new VulkanGraphicsPipeline(sharedContext,
                                            pipelineInfo,
@@ -1005,7 +1006,8 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
                                            step->primitiveType(),
                                            step->depthStencilSettings(),
                                            std::move(vertexBindingDescriptions),
-                                           std::move(vertexAttributeDescriptions)));
+                                           std::move(vertexAttributeDescriptions),
+                                           hasPaintParamAttributes));
     }
 
     return pipeline;
@@ -1280,7 +1282,8 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::MakeLoadMSAAPipeline(
                                        PrimitiveType::kTriangleStrip,
                                        /*depthStencilSettings=*/{},
                                        /*vertexBindingDescriptions=*/{},
-                                       /*vertexAttributeDescriptions=*/{}));
+                                       /*vertexAttributeDescriptions=*/{},
+                                       /*hasPaintParamAttributes=*/false));
 }
 
 VulkanGraphicsPipeline::VulkanGraphicsPipeline(
@@ -1296,7 +1299,8 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
         PrimitiveType primitiveType,
         const DepthStencilSettings& depthStencilSettings,
         VertexInputBindingDescriptions&& vertexBindingDescriptions,
-        VertexInputAttributeDescriptions&& vertexAttributeDescriptions)
+        VertexInputAttributeDescriptions&& vertexAttributeDescriptions,
+        bool hasPaintParamAttributes)
     : GraphicsPipeline(sharedContext, pipelineInfo, pipelineLabel)
     , fPipelineLayout(pipelineLayout)
     , fPipeline(pipeline)
@@ -1306,6 +1310,7 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
     , fPrimitiveType(primitiveType)
     , fDepthStencilSettings(depthStencilSettings)
     , fRenderStepID(renderStepID)
+    , fHasPaintParamAttributes(hasPaintParamAttributes)
     , fVertexBindingDescriptions(std::move(vertexBindingDescriptions))
     , fVertexAttributeDescriptions(std::move(vertexAttributeDescriptions)) {
     // Update the newly-created underlying GPU object's label to match the Resource's
@@ -1463,7 +1468,9 @@ void VulkanGraphicsPipeline::updateDynamicState(const VulkanSharedContext* share
     }
     if (sharedContext->caps()->useVertexInputDynamicState()) {
         const bool vertexInputDirty =
-                previous == nullptr || previous->fRenderStepID != fRenderStepID;
+                previous == nullptr ||
+                previous->fRenderStepID != fRenderStepID ||
+                fHasPaintParamAttributes || previous->fHasPaintParamAttributes;
 
         if (vertexInputDirty) {
             VULKAN_CALL(sharedContext->interface(),

@@ -12,6 +12,7 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/Swizzle.h"
+#include "src/gpu/graphite/Attribute.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/DescriptorData.h"
 #include "src/gpu/graphite/ResourceTypes.h"
@@ -84,6 +85,8 @@ public:
         return SkToBool(fStorageBufferStages & PipelineStageFlags::kFragmentShader);
     }
 
+    SkSpan<const Attribute> appendAttributes() const { return fAppendAttrs; }
+
     // Name used in-shader for storage buffer uniform.
     static constexpr char kStorageBufferName[] = "fsStorageBuffer";
 
@@ -136,6 +139,10 @@ private:
     static std::string EmitStorageFallbackTexture(const ResourceBindingRequirements&,
                                                   const RenderStep*);
 #endif
+
+    // Append attributes defined by the render step and any attributes within the paint key via
+    // a mesh shader snippet.
+    skia_private::TArray<Attribute> fAppendAttrs;
 };
 
 }  // namespace skgpu::graphite
