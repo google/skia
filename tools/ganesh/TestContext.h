@@ -15,6 +15,8 @@
 #include "include/private/SkTemplates.h"
 #include "src/core/SkScopeExit.h"
 
+#include <array>
+
 class GrDirectContext;
 struct GrContextOptions;
 
@@ -108,7 +110,7 @@ private:
         kMaxFrameLag = 3
     };
 
-    sk_sp<FlushFinishTracker> fFinishTrackers[kMaxFrameLag - 1];
+    std::array<sk_sp<FlushFinishTracker>, kMaxFrameLag - 1> fFinishTrackers;
     int fCurrentFlushIdx = 0;
 
     using INHERITED = SkNoncopyable;

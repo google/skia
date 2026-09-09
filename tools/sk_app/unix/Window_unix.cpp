@@ -19,6 +19,7 @@ extern "C" {
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
 #include <X11/XKBlib.h>
+#include <array>
 
 #if defined(SK_GANESH) && defined(SK_GL)
 #include "tools/window/unix/GaneshGLWindowContext_unix.h"
@@ -208,37 +209,38 @@ void Window_unix::closeWindow() {
 }
 
 static skui::Key get_key(KeySym keysym) {
-    static const struct {
+    struct GPair {
         KeySym      fXK;
         skui::Key fKey;
-    } gPair[] = {
-        { XK_BackSpace, skui::Key::kBack     },
-        { XK_Clear,     skui::Key::kBack     },
-        { XK_Return,    skui::Key::kOK       },
-        { XK_Up,        skui::Key::kUp       },
-        { XK_Down,      skui::Key::kDown     },
-        { XK_Left,      skui::Key::kLeft     },
-        { XK_Right,     skui::Key::kRight    },
-        { XK_Tab,       skui::Key::kTab      },
-        { XK_Page_Up,   skui::Key::kPageUp   },
-        { XK_Page_Down, skui::Key::kPageDown },
-        { XK_Home,      skui::Key::kHome     },
-        { XK_End,       skui::Key::kEnd      },
-        { XK_Delete,    skui::Key::kDelete   },
-        { XK_Escape,    skui::Key::kEscape   },
-        { XK_Shift_L,   skui::Key::kShift    },
-        { XK_Shift_R,   skui::Key::kShift    },
-        { XK_Control_L, skui::Key::kCtrl     },
-        { XK_Control_R, skui::Key::kCtrl     },
-        { XK_Alt_L,     skui::Key::kOption   },
-        { XK_Alt_R,     skui::Key::kOption   },
-        { 'a',          skui::Key::kA        },
-        { 'c',          skui::Key::kC        },
-        { 'v',          skui::Key::kV        },
-        { 'x',          skui::Key::kX        },
-        { 'y',          skui::Key::kY        },
-        { 'z',          skui::Key::kZ        },
     };
+    static const auto gPair = std::to_array<GPair>({
+        GPair{ XK_BackSpace, skui::Key::kBack     },
+        GPair{ XK_Clear,     skui::Key::kBack     },
+        GPair{ XK_Return,    skui::Key::kOK       },
+        GPair{ XK_Up,        skui::Key::kUp       },
+        GPair{ XK_Down,      skui::Key::kDown     },
+        GPair{ XK_Left,      skui::Key::kLeft     },
+        GPair{ XK_Right,     skui::Key::kRight    },
+        GPair{ XK_Tab,       skui::Key::kTab      },
+        GPair{ XK_Page_Up,   skui::Key::kPageUp   },
+        GPair{ XK_Page_Down, skui::Key::kPageDown },
+        GPair{ XK_Home,      skui::Key::kHome     },
+        GPair{ XK_End,       skui::Key::kEnd      },
+        GPair{ XK_Delete,    skui::Key::kDelete   },
+        GPair{ XK_Escape,    skui::Key::kEscape   },
+        GPair{ XK_Shift_L,   skui::Key::kShift    },
+        GPair{ XK_Shift_R,   skui::Key::kShift    },
+        GPair{ XK_Control_L, skui::Key::kCtrl     },
+        GPair{ XK_Control_R, skui::Key::kCtrl     },
+        GPair{ XK_Alt_L,     skui::Key::kOption   },
+        GPair{ XK_Alt_R,     skui::Key::kOption   },
+        GPair{ 'a',          skui::Key::kA        },
+        GPair{ 'c',          skui::Key::kC        },
+        GPair{ 'v',          skui::Key::kV        },
+        GPair{ 'x',          skui::Key::kX        },
+        GPair{ 'y',          skui::Key::kY        },
+        GPair{ 'z',          skui::Key::kZ        },
+    });
     for (size_t i = 0; i < std::size(gPair); i++) {
         if (gPair[i].fXK == keysym) {
             return gPair[i].fKey;
@@ -248,14 +250,15 @@ static skui::Key get_key(KeySym keysym) {
 }
 
 static skui::ModifierKey get_modifiers(const XEvent& event) {
-    static const struct {
+    struct GModifiers {
         unsigned    fXMask;
         skui::ModifierKey  fSkMask;
-    } gModifiers[] = {
-        { ShiftMask,   skui::ModifierKey::kShift },
-        { ControlMask, skui::ModifierKey::kControl },
-        { Mod1Mask,    skui::ModifierKey::kOption },
     };
+    static const auto gModifiers = std::to_array<GModifiers>({
+        GModifiers{ ShiftMask,   skui::ModifierKey::kShift },
+        GModifiers{ ControlMask, skui::ModifierKey::kControl },
+        GModifiers{ Mod1Mask,    skui::ModifierKey::kOption },
+    });
 
     skui::ModifierKey modifiers = skui::ModifierKey::kNone;
     for (size_t i = 0; i < std::size(gModifiers); ++i) {

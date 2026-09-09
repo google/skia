@@ -20,6 +20,8 @@
 #include "include/ports/SkFontMgr_directory.h"
 #endif
 
+#include <array>
+
 template sk_tools::Registry<fiddle::Example>* sk_tools::Registry<fiddle::Example>::gHead;
 
 // These globals are needed by fiddles:
@@ -34,8 +36,8 @@ sk_sp<SkFontMgr> fontMgr;
 
 int main() {
     constexpr int kImgCount = 7;
-    sk_sp<SkImage> images[kImgCount];
-    SkBitmap bitmaps[kImgCount];
+    std::array<sk_sp<SkImage>, kImgCount> images;
+    std::array<SkBitmap, kImgCount> bitmaps;
     for (int i = 1; i < kImgCount; ++i) {
         SkString path = SkStringPrintf("resources/images/example_%d.png", i);
         images[i] = SkImages::DeferredFromEncodedData(SkData::MakeFromFileName(path.c_str()));

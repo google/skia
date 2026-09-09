@@ -19,6 +19,8 @@
 #include "src/gpu/graphite/Caps.h"
 #endif
 
+#include <array>
+
 using Mipmapped = skgpu::Mipmapped;
 using Protected = skgpu::Protected;
 using Renderable = skgpu::Renderable;
@@ -29,7 +31,7 @@ namespace {
 struct Context {
     GrGpuFinishedProc fWrappedProc = nullptr;
     GrGpuFinishedContext fWrappedContext = nullptr;
-    sk_sp<sk_gpu_test::ManagedBackendTexture> fMBETs[SkYUVAInfo::kMaxPlanes];
+    std::array<sk_sp<sk_gpu_test::ManagedBackendTexture>, SkYUVAInfo::kMaxPlanes> fMBETs;
 };
 
 }  // anonymous namespace

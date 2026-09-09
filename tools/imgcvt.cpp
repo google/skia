@@ -14,6 +14,8 @@
 #include "modules/skcms/skcms.h"
 #include "src/core/SkColorSpacePriv.h"
 
+#include <array>
+
 static void write_png(const char* path, sk_sp<SkImage> img) {
     sk_sp<SkData> png = SkPngEncoder::Encode(nullptr, img.get(), {});
     SkASSERT(png);
@@ -44,7 +46,7 @@ int main(int argc, char** argv) {
     skcms_ICCProfile src_profile;
     if (skcms_Parse(blob->data(), blob->size(), &src_profile)) {
         // Transform white, black, primaries, and primary complements.
-        float src[] = {
+        auto src = std::to_array<float>({
            0,0,0,
            1,1,1,
 
@@ -55,12 +57,12 @@ int main(int argc, char** argv) {
            0,1,1,
            1,0,1,
            1,1,0,
-        };
-        float dst[24] = {0};
+        });
+        std::array<float, 24> dst = {0};
 
         if (!skcms_Transform(
-                    src, skcms_PixelFormat_RGB_fff, skcms_AlphaFormat_Unpremul, &src_profile,
-                    dst, skcms_PixelFormat_RGB_fff, skcms_AlphaFormat_Unpremul, &dst_profile,
+                    src.data(), skcms_PixelFormat_RGB_fff, skcms_AlphaFormat_Unpremul, &src_profile,
+                    dst.data(), skcms_PixelFormat_RGB_fff, skcms_AlphaFormat_Unpremul, &dst_profile,
                     8)) {
             SkDebugf("Cannot transform.\n");
             return 1;

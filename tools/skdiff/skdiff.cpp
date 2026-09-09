@@ -11,6 +11,8 @@
 #include "src/core/SkColorPriv.h"
 #include "tools/skdiff/skdiff.h"
 
+#include <array>
+
 /*static*/ char const * const DiffRecord::ResultNames[DiffRecord::kResultCount] = {
     "EqualBits",
     "EqualPixels",
@@ -29,7 +31,7 @@ DiffRecord::Result DiffRecord::getResultByName(const char *name) {
     return DiffRecord::kResultCount;
 }
 
-static char const * const ResultDescriptions[DiffRecord::kResultCount] = {
+static const std::array<const char *, DiffRecord::kResultCount> ResultDescriptions = {
     "contain exactly the same bits",
     "contain the same pixel values, but not the same bits",
     "have identical dimensions but some differing pixels",
@@ -67,7 +69,7 @@ DiffResource::Status DiffResource::getStatusByName(const char *name) {
     return DiffResource::kStatusCount;
 }
 
-static char const * const StatusDescriptions[DiffResource::kStatusCount] = {
+static const std::array<const char *, DiffResource::kStatusCount> StatusDescriptions = {
     "decoded",
     "could not be decoded",
 

@@ -41,6 +41,7 @@
 #include "src/core/SkFontPriv.h"
 #include "tools/SkMetaData.h"
 
+#include <array>
 #include <cmath>
 #include <cstring>
 
@@ -190,8 +191,8 @@ int make_pixmaps(SkColorType ct,
     int levelSize = 32;
     int numMipLevels = withMips ? 6 : 1;
     size_t size = 0;
-    SkImageInfo ii[6];
-    size_t rowBytes[6];
+    std::array<SkImageInfo, 6> ii;
+    std::array<size_t, 6> rowBytes;
     for (int level = 0; level < numMipLevels; ++level) {
         ii[level] = SkImageInfo::Make(levelSize, levelSize, ct, at);
         rowBytes[level] = ii[level].minRowBytes();
@@ -701,7 +702,7 @@ void HilbertGenerator::recursiveDraw(SkCanvas* canvas, int curDepth, bool turnLe
 }
 
 SkColor4f HilbertGenerator::getColor(float curLen) {
-    static const SkColor4f kColors[] = {
+    static const auto kColors = std::to_array<SkColor4f>({
             SkColors::kBlack,
             SkColors::kBlue,
             SkColors::kCyan,
@@ -709,9 +710,9 @@ SkColor4f HilbertGenerator::getColor(float curLen) {
             SkColors::kYellow,
             SkColors::kRed,
             SkColors::kWhite,
-    };
+    });
 
-    static const float kStops[] = {
+    static const auto kStops = std::to_array<float>({
             0.0f,
             1.0f/6.0f,
             2.0f/6.0f,
@@ -719,7 +720,7 @@ SkColor4f HilbertGenerator::getColor(float curLen) {
             4.0f/6.0f,
             5.0f/6.0f,
             1.0f,
-    };
+    });
     static_assert(std::size(kColors) == std::size(kStops));
 
     float t = curLen / fExpectedLen;

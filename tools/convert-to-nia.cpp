@@ -37,6 +37,8 @@
 #include "include/core/SkData.h"
 #include "src/core/SkAutoMalloc.h"
 
+#include <array>
+
 static inline void set_u32le(uint8_t* ptr, uint32_t val) {
     ptr[0] = val >> 0;
     ptr[1] = val >> 8;
@@ -56,12 +58,12 @@ static inline void set_u64le(uint8_t* ptr, uint64_t val) {
 }
 
 static void write_nix_header(uint32_t magicU32le, uint32_t width, uint32_t height) {
-    uint8_t data[16];
-    set_u32le(data + 0, magicU32le);
-    set_u32le(data + 4, 0x346E62FF);  // 4 bytes per pixel non-premul BGRA.
-    set_u32le(data + 8, width);
-    set_u32le(data + 12, height);
-    fwrite(data, 1, 16, stdout);
+    std::array<uint8_t, 16> data;
+    set_u32le(data.data() + 0, magicU32le);
+    set_u32le(data.data() + 4, 0x346E62FF);  // 4 bytes per pixel non-premul BGRA.
+    set_u32le(data.data() + 8, width);
+    set_u32le(data.data() + 12, height);
+    fwrite(data.data(), 1, 16, stdout);
 }
 
 static bool write_nia_duration(uint64_t totalDurationMillis) {
@@ -73,15 +75,15 @@ static bool write_nia_duration(uint64_t totalDurationMillis) {
         return false;
     }
 
-    uint8_t data[8];
-    set_u64le(data + 0, totalDurationMillis * flicksPerMilli);
-    fwrite(data, 1, 8, stdout);
+    std::array<uint8_t, 8> data;
+    set_u64le(data.data() + 0, totalDurationMillis * flicksPerMilli);
+    fwrite(data.data(), 1, 8, stdout);
     return true;
 }
 
 static void write_nie_pixels(uint32_t width, uint32_t height, const SkBitmap& bm) {
     static constexpr size_t kBufferSize = 4096;
-    uint8_t                 buf[kBufferSize];
+    std::array<uint8_t, kBufferSize> buf;
     size_t                  n = 0;
     for (uint32_t y = 0; y < height; y++) {
         for (uint32_t x = 0; x < width; x++) {
@@ -91,36 +93,36 @@ static void write_nie_pixels(uint32_t width, uint32_t height, const SkBitmap& bm
             buf[n++] = SkColorGetR(c);
             buf[n++] = SkColorGetA(c);
             if (n == kBufferSize) {
-                fwrite(buf, 1, n, stdout);
+                fwrite(buf.data(), 1, n, stdout);
                 n = 0;
             }
         }
     }
     if (n > 0) {
-        fwrite(buf, 1, n, stdout);
+        fwrite(buf.data(), 1, n, stdout);
     }
 }
 
 static void write_nia_padding(uint32_t width, uint32_t height) {
     // 4 bytes of padding when the width and height are both odd.
     if (width & height & 1) {
-        uint8_t data[4];
-        set_u32le(data + 0, 0);
-        fwrite(data, 1, 4, stdout);
+        std::array<uint8_t, 4> data;
+        set_u32le(data.data() + 0, 0);
+        fwrite(data.data(), 1, 4, stdout);
     }
 }
 
 static void write_nia_footer(int repetitionCount, bool stillImage) {
-    uint8_t data[8];
+    std::array<uint8_t, 8> data;
     if (stillImage || (repetitionCount == SkCodec::kRepetitionCountInfinite)) {
-        set_u32le(data + 0, 0);
+        set_u32le(data.data() + 0, 0);
     } else {
         // NIA's loop count and Skia's repetition count differ by one. See
         // https://github.com/google/wuffs/blob/master/doc/spec/nie-spec.md#nii-footer
-        set_u32le(data + 0, 1 + repetitionCount);
+        set_u32le(data.data() + 0, 1 + repetitionCount);
     }
-    set_u32le(data + 4, 0x80000000);
-    fwrite(data, 1, 8, stdout);
+    set_u32le(data.data() + 4, 0x80000000);
+    fwrite(data.data(), 1, 8, stdout);
 }
 
 int main(int argc, char** argv) {
