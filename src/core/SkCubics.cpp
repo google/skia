@@ -13,6 +13,7 @@
 #include "src/core/SkQuads.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 static bool nearly_equal(double x, double y) {
@@ -208,7 +209,7 @@ int SkCubics::BinarySearchRootsValidT(double A, double B, double C, double D,
     if (!SkIsFinite(A, B, C, D)) {
         return 0;
     }
-    double regions[4] = {0, 0, 0, 1};
+    std::array<double, 4> regions = {0, 0, 0, 1};
     // Find local minima and maxima
     double minMax[2] = {0, 0};
     int extremaCount = find_extrema_valid_t(A, B, C, minMax);

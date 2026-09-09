@@ -14,6 +14,7 @@
 #include "include/core/SkTypes.h"
 #include "src/core/SkFontDescriptor.h"
 
+#include <array>
 #include <utility>
 
 struct SkFontArguments;
@@ -283,13 +284,13 @@ sk_sp<SkTypeface> SkFontStyleSet::matchStyleCSS3(const SkFontStyle& pattern) {
                       "SkFontStyle::Slant values not as required.");
         SkASSERT(0 <= pattern.slant() && pattern.slant() <= 2 &&
                  0 <= current.slant() && current.slant() <= 2);
-        static const int score[3][3] = {
+        static constexpr std::array<std::array<const int, 3>, 3> score = {{
             /*               Upright Italic Oblique  [current]*/
             /*   Upright */ {   3   ,  1   ,   2   },
             /*   Italic  */ {   1   ,  3   ,   2   },
             /*   Oblique */ {   1   ,  2   ,   3   },
             /* [pattern] */
-        };
+        }};
         currentScore += score[pattern.slant()][current.slant()];
         currentScore <<= 8;
 

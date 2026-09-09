@@ -9,6 +9,7 @@
 
 #include "include/private/SkAssert.h"
 
+#include <array>
 #include <cmath>
 
 // The value when we can stop expanding the filter. The spec implies that 3% is acceptable, but
@@ -80,7 +81,7 @@ static int calculate_bessel_factors(double sigma, double *gauss) {
     // "Scale-Space for Discrete Signals" by Tony Lindeberg.
     // gauss(n; var) = besselI_n(var) / (e^var)
     auto d = std::exp(var);
-    double b[SkGaussFilter::kGaussArrayMax] = {besselI_0(var), besselI_1(var)};
+    std::array<double, SkGaussFilter::kGaussArrayMax> b = {besselI_0(var), besselI_1(var)};
     gauss[0] = b[0]/d;
     gauss[1] = b[1]/d;
 
@@ -105,5 +106,5 @@ static int calculate_bessel_factors(double sigma, double *gauss) {
 SkGaussFilter::SkGaussFilter(double sigma) {
     SkASSERT(0 <= sigma && sigma < 2);
 
-    fN = calculate_bessel_factors(sigma, fBasis);
+    fN = calculate_bessel_factors(sigma, fBasis.data());
 }

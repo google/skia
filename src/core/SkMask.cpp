@@ -94,14 +94,14 @@ SkMaskBuilder SkMaskBuilder::PrepareDestination(int radiusX, int radiusY, const 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static const int gMaskFormatToShift[] = {
+static constexpr auto gMaskFormatToShift = std::to_array<int>({
     ~0, // BW -- not supported
     0,  // A8
     0,  // 3D
     2,  // ARGB32
     1,  // LCD16
     0,  // SDF
-};
+});
 
 static int maskFormatToShift(SkMask::Format format) {
     SkASSERT((unsigned)format < std::size(gMaskFormatToShift));

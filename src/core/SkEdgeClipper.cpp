@@ -16,6 +16,7 @@
 #include "src/core/SkPathPriv.h"
 
 #include <algorithm>
+#include <array>
 #include <cstring>
 
 static bool quick_reject(const SkRect& bounds, const SkRect& clip) {
@@ -231,11 +232,11 @@ bool SkEdgeClipper::clipQuad(const SkPoint srcPts[3], const SkRect& clip) {
     const SkRect bounds = SkRect::BoundsOrEmpty({srcPts, 3});
 
     if (!quick_reject(bounds, clip)) {
-        SkPoint monoY[5];
-        int countY = SkChopQuadAtYExtrema(srcPts, monoY);
+        std::array<SkPoint, 5> monoY;
+        int countY = SkChopQuadAtYExtrema(srcPts, monoY.data());
         for (int y = 0; y <= countY; y++) {
-            SkPoint monoX[5];
-            int countX = SkChopQuadAtXExtrema(&monoY[y * 2], monoX);
+            std::array<SkPoint, 5> monoX;
+            int countX = SkChopQuadAtXExtrema(&monoY[y * 2], monoX.data());
             for (int x = 0; x <= countX; x++) {
                 this->clipMonoQuad(&monoX[x * 2], clip);
                 SkASSERT_RELEASE(fCurrVerb - fVerbs < kMaxVerbs);
@@ -433,11 +434,11 @@ bool SkEdgeClipper::clipCubic(const SkPoint srcPts[4], const SkRect& clip) {
             //
             return this->clipLine(srcPts[0], srcPts[3], clip);
         } else {
-            SkPoint monoY[10];
-            int countY = SkChopCubicAtYExtrema(srcPts, monoY);
+            std::array<SkPoint, 10> monoY;
+            int countY = SkChopCubicAtYExtrema(srcPts, monoY.data());
             for (int y = 0; y <= countY; y++) {
-                SkPoint monoX[10];
-                int countX = SkChopCubicAtXExtrema(&monoY[y * 3], monoX);
+                std::array<SkPoint, 10> monoX;
+                int countX = SkChopCubicAtXExtrema(&monoY[y * 3], monoX.data());
                 for (int x = 0; x <= countX; x++) {
                     this->clipMonoCubic(&monoX[x * 3], clip);
                     SkASSERT(fCurrVerb - fVerbs < kMaxVerbs);

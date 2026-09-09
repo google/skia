@@ -58,6 +58,7 @@
 #include "src/shaders/SkImageShader.h"
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <optional>
@@ -271,9 +272,9 @@ PtProcRec::Proc PtProcRec::chooseProc(SkBlitter** blitterPtr) {
 
     if (fPaint->isAntiAlias()) {
         if (0 == fPaint->getStrokeWidth()) {
-            static const Proc gAAProcs[] = {
+            static constexpr auto gAAProcs = std::to_array<Proc>({
                 aa_square_proc, aa_line_hair_proc, aa_poly_hair_proc
-            };
+            });
             proc = gAAProcs[fMode];
         } else if (fPaint->getStrokeCap() != SkPaint::kRound_Cap) {
             SkASSERT(SkCanvas::kPoints_PointMode == fMode);
@@ -281,9 +282,9 @@ PtProcRec::Proc PtProcRec::chooseProc(SkBlitter** blitterPtr) {
         }
     } else {    // BW
         if (fRadius <= 0.5f) {    // small radii and hairline
-            static const Proc gBWProcs[] = {
+            static constexpr auto gBWProcs = std::to_array<Proc>({
                 bw_pt_hair_proc, bw_line_hair_proc, bw_poly_hair_proc
-            };
+            });
             proc = gBWProcs[fMode];
         } else {
             proc = bw_square_proc;

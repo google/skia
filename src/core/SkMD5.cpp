@@ -48,7 +48,7 @@ bool SkMD5::write(const void* buf, size_t inputLength) {
     if (inputLength >= bufferAvailable) {
         if (bufferIndex) {
             sk_careful_memcpy(&this->buffer[bufferIndex], input, bufferAvailable);
-            transform(this->state, this->buffer);
+            transform(this->state, this->buffer.data());
             inputIndex = bufferAvailable;
         } else {
             inputIndex = 0;

@@ -16,6 +16,7 @@
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkVx.h"
 
+#include <array>
 #include <optional>
 
 bool SkBlendMode_ShouldPreScaleCoverage(SkBlendMode mode, bool rgb_coverage) {
@@ -60,27 +61,27 @@ bool SkBlendMode_AsCoeff(SkBlendMode mode, SkBlendModeCoeff* src, SkBlendModeCoe
         SkBlendModeCoeff    fDst;
     };
 
-    static constexpr CoeffRec kCoeffs[] = {
+    static constexpr auto kCoeffs = std::to_array<CoeffRec>({
         // For Porter-Duff blend functions, color = src * src coeff + dst * dst coeff
         // src coeff                  dst coeff                     blend func
         // ----------------------     -----------------------       ----------
-        { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kZero }, // clear
-        { SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kZero }, // src
-        { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kOne  }, // dst
-        { SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kISA  }, // src-over
-        { SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kOne  }, // dst-over
-        { SkBlendModeCoeff::kDA,      SkBlendModeCoeff::kZero }, // src-in
-        { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kSA   }, // dst-in
-        { SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kZero }, // src-out
-        { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kISA  }, // dst-out
-        { SkBlendModeCoeff::kDA,      SkBlendModeCoeff::kISA  }, // src-atop
-        { SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kSA   }, // dst-atop
-        { SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kISA  }, // xor
+        CoeffRec{ SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kZero }, // clear
+        CoeffRec{ SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kZero }, // src
+        CoeffRec{ SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kOne  }, // dst
+        CoeffRec{ SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kISA  }, // src-over
+        CoeffRec{ SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kOne  }, // dst-over
+        CoeffRec{ SkBlendModeCoeff::kDA,      SkBlendModeCoeff::kZero }, // src-in
+        CoeffRec{ SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kSA   }, // dst-in
+        CoeffRec{ SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kZero }, // src-out
+        CoeffRec{ SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kISA  }, // dst-out
+        CoeffRec{ SkBlendModeCoeff::kDA,      SkBlendModeCoeff::kISA  }, // src-atop
+        CoeffRec{ SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kSA   }, // dst-atop
+        CoeffRec{ SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kISA  }, // xor
 
-        { SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kOne  }, // plus
-        { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kSC   }, // modulate
-        { SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kISC  }, // screen
-    };
+        CoeffRec{ SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kOne  }, // plus
+        CoeffRec{ SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kSC   }, // modulate
+        CoeffRec{ SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kISC  }, // screen
+    });
 
     if (mode > SkBlendMode::kScreen) {
         return false;

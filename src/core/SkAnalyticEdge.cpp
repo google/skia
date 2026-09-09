@@ -14,13 +14,14 @@
 #include "src/core/SkMathPriv.h"
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <iterator>
 
 static constexpr int kInverseTableSize = 1024; // SK_FDot6One * 16
 
 static inline SkFixed quick_inverse(SkFDot6 x) {
-    static const int32_t table[] = {
+    static constexpr auto table = std::to_array<int32_t>({
         -4096, -4100, -4104, -4108, -4112, -4116, -4120, -4124, -4128, -4132, -4136,
         -4140, -4144, -4148, -4152, -4156, -4161, -4165, -4169, -4173, -4177, -4181,
         -4185, -4190, -4194, -4198, -4202, -4206, -4211, -4215, -4219, -4223, -4228,
@@ -119,7 +120,7 @@ static inline SkFixed quick_inverse(SkFDot6 x) {
         -190650, -199728, -209715, -220752, -233016, -246723, -262144, -279620, -299593,
         -322638, -349525, -381300, -419430, -466033, -524288, -599186, -699050, -838860,
         -1048576, -1398101, -2097152, -4194304, 0
-    };
+    });
 
     static constexpr size_t kLastEntry = std::size(table) - 1;
     SkASSERT(SkAbs32(x) <= static_cast<int32_t>(kLastEntry));

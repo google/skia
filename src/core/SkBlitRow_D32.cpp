@@ -13,6 +13,7 @@
 #include "src/core/SkColorPriv.h"
 #include "src/core/SkMemset.h"
 
+#include <array>
 #include <cstring>
 #include <iterator>
 
@@ -538,12 +539,12 @@ static void blit_row_s32_opaque(SkPMColor* dst,
 #endif
 
 SkBlitRow::Proc32 SkBlitRow::Factory32(unsigned flags) {
-    static const SkBlitRow::Proc32 kProcs[] = {
+    static constexpr auto kProcs = std::to_array<SkBlitRow::Proc32>({
         blit_row_s32_opaque,
         blit_row_s32_blend,
         nullptr,  // blit_row_s32a_opaque is in SkOpts
         blit_row_s32a_blend
-    };
+    });
 
     SkASSERT(flags < std::size(kProcs));
     flags &= std::size(kProcs) - 1;  // just to be safe

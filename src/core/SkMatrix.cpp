@@ -25,6 +25,7 @@
 #include "src/core/SkVx.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 template <typename S, typename T> int min_count(SkSpan<S> a, SkSpan<T> b) {
@@ -1308,9 +1309,9 @@ std::optional<SkMatrix> SkMatrix::PolyToPoly(SkSpan<const SkPoint> src, SkSpan<c
         return {};
     }
 
-    const PolyMapProc gPolyMapProcs[] = {
+    static constexpr auto gPolyMapProcs = std::to_array<PolyMapProc>({
         SkMatrix::Poly2Proc, SkMatrix::Poly3Proc, SkMatrix::Poly4Proc
-    };
+    });
 
     switch (src.size()) {
         case 0: return SkMatrix::I();
@@ -1748,7 +1749,7 @@ bool SkMatrixPriv::NearlyAffine(const SkMatrix& m,
     // that the transformation is nearly affine.
 
     // We can map the four points simultaneously.
-    SkPoint3 xyw[4];
+    std::array<SkPoint3, 4> xyw;
     m.mapPointsToHomogeneous(xyw, bounds.toQuad());
 
     // Since the Jacobian is a 3x3 matrix, the determinant is a scalar triple product,

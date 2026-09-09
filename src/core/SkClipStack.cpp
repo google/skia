@@ -921,13 +921,13 @@ uint32_t SkClipStack::getTopmostGenID() const {
 
 #ifdef SK_DEBUG
 void SkClipStack::Element::dump() const {
-    static const char* kTypeStrings[] = {
+    static constexpr auto kTypeStrings = std::to_array<const char *>({
         "empty",
         "rect",
         "rrect",
         "path",
         "shader"
-    };
+    });
     static_assert(0 == static_cast<int>(DeviceSpaceType::kEmpty), "enum mismatch");
     static_assert(1 == static_cast<int>(DeviceSpaceType::kRect), "enum mismatch");
     static_assert(2 == static_cast<int>(DeviceSpaceType::kRRect), "enum mismatch");
