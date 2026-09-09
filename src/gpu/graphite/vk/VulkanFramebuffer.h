@@ -28,8 +28,9 @@ public:
                                          sk_sp<VulkanTexture> msaaTexture,
                                          sk_sp<VulkanTexture> depthStencilTexture);
 
-    VkFramebuffer framebuffer() const { return fFramebuffer; }
-    SkISize dimensions() const { return fDimensions; }
+    VkFramebuffer framebuffer() {
+        return fFramebuffer;
+    }
 
     // We only check compatibility with the msaa and depthStencil textures. We assume the caller
     // has already made sure that the single sample color or resolve attachments match the
@@ -44,15 +45,13 @@ public:
 private:
     VulkanFramebuffer(const VulkanSharedContext*,
                       VkFramebuffer,
-                      SkISize dimensions,
                       sk_sp<VulkanTexture> msaaTexture,
                       sk_sp<VulkanTexture> depthStencilTexture,
                       bool loadMSAAFromResolve);
     void freeGpuData() override;
 
+    const VulkanSharedContext* fSharedContext;
     VkFramebuffer fFramebuffer;
-
-    SkISize fDimensions;
 
     sk_sp<VulkanTexture> fMsaaTexture;
     sk_sp<VulkanTexture> fDepthStencilTexture;

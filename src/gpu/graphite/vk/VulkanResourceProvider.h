@@ -70,7 +70,9 @@ public:
                                                      VulkanTexture* resolveTexture,
                                                      VulkanTexture* depthStencilTexture,
                                                      const RenderPassDesc&,
-                                                     const VulkanRenderPass&);
+                                                     const VulkanRenderPass&,
+                                                     const int width,
+                                                     const int height);
 
 private:
     const VulkanSharedContext* vulkanSharedContext() const;

@@ -378,15 +378,21 @@ sk_sp<VulkanFramebuffer> VulkanResourceProvider::findOrCreateFramebuffer(
         VulkanTexture* resolveTexture,
         VulkanTexture* depthStencilTexture,
         const RenderPassDesc& renderPassDesc,
-        const VulkanRenderPass& renderPass) {
+        const VulkanRenderPass& renderPass,
+        const int width,
+        const int height) {
 
-    VulkanTexture* mainTexture = resolveTexture ? resolveTexture :
-                                 colorTexture   ? colorTexture
-                                                : depthStencilTexture;
+    VulkanTexture* mainTexture = nullptr;
+    if (colorTexture) {
+        mainTexture = resolveTexture ? resolveTexture : colorTexture;
+    } else {
+        SkASSERT(depthStencilTexture);
+        mainTexture = depthStencilTexture;
+    }
     SkASSERT(mainTexture);
     VulkanTexture* msaaTexture = resolveTexture ? colorTexture : nullptr;
 
-    // First check for a cached frame buffer, which are kept alive by the main texture
+    // First check for a cached frame buffer.
     sk_sp<VulkanFramebuffer> fb = mainTexture->getCachedFramebuffer(renderPassDesc,
                                                                     msaaTexture,
                                                                     depthStencilTexture);
@@ -403,8 +409,8 @@ sk_sp<VulkanFramebuffer> VulkanResourceProvider::findOrCreateFramebuffer(
     framebufferInfo.renderPass = renderPass.renderPass();
     framebufferInfo.attachmentCount = attachmentViews.size();
     framebufferInfo.pAttachments = attachmentViews.begin();
-    framebufferInfo.width = mainTexture->dimensions().width();
-    framebufferInfo.height = mainTexture->dimensions().height();
+    framebufferInfo.width = width;
+    framebufferInfo.height = height;
     framebufferInfo.layers = 1;
     fb = VulkanFramebuffer::Make(context,
                                  framebufferInfo,

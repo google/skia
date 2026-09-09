@@ -399,10 +399,7 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
         fSupportedResolveTextureLoadOp = wgpu::LoadOp::ExpandResolveTexture;
         fSupportsPartialLoadResolve =
                 backendContext.fDevice.HasFeature(wgpu::FeatureName::DawnPartialLoadResolveTexture);
-        if (fSupportsPartialLoadResolve) {
-            // This extension allows the MSAA attachments to be smaller than the main target.
-            fAttachmentSizePolicy = AttachmentSizePolicy::kMSAARenderArea;
-        }
+        fDifferentResolveAttachmentSizeSupport = fSupportsPartialLoadResolve;
     }
 
     fSupportsRenderPassRenderArea =
@@ -418,10 +415,9 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
         fSupportedTransientAttachmentUsage == wgpu::TextureUsage::None) {
         // If the device doesn't support partial resolve nor transient attachments, we will emulate
         // load/resolve using separate render passes. This helps reuse MSAA textures better to
-        // reduce memory usage. Since they are separate render passes, there is no more requirement
-        // for the auxiliary attachments to match the main target's dimensions.
+        // reduce memory usage.
         fEmulateLoadStoreResolve = true;
-        fAttachmentSizePolicy = AttachmentSizePolicy::kMSAARenderArea;
+        fDifferentResolveAttachmentSizeSupport = true;
 
         // On hardware that doesn't support transient attachments or partial resolve, we
         // force-disable the ExpandResolveTexture loadOp. This is done because, under emulation,

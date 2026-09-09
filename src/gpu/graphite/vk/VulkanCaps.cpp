@@ -283,10 +283,8 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
             enabledFeatures.fGraphicsPipelineLibrary &&
             (deviceProperties.fGpl.graphicsPipelineLibraryFastLinking || vendorID == kARM_VkVendor);
 
-    // Vulkan allows attachments to be bigger than the VkFramebuffer, which Graphite sizes to the
-    // main texture, so using approx-sized dimensions for MSAA and D/S attachments reduces the
-    // number of Resources in play (although hopefully they are all transient anyways).
-    fAttachmentSizePolicy = AttachmentSizePolicy::kApprox;
+
+    fSupportsFrameBoundary = enabledFeatures.fFrameBoundary;
 
     // Multisampled render to single-sampled usage depends on the mandatory feature of
     // VK_EXT_multisampled_render_to_single_sampled.  Per format queries are needed to determine if
@@ -616,12 +614,6 @@ void VulkanCaps::applyDriverCorrectnessWorkarounds(const PhysicalDevicePropertie
     // until we run into it.
     if (isQualcommProprietary) {
         fMustLoadFullImageForMSAA = true;
-    }
-
-    // Swiftshader segfaults when using attachments larger than the framebuffer, so it does not
-    // appear compliant with the spec.
-    if (driverID == VK_DRIVER_ID_GOOGLE_SWIFTSHADER) {
-        fAttachmentSizePolicy = AttachmentSizePolicy::kExact;
     }
 
     // MSAA doesn't work well on Intel GPUs crbug.com/40434119, crbug.com/41470715
