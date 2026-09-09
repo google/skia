@@ -703,7 +703,7 @@ bool VulkanCommandBuffer::updateAndBindInputAttachment(const VulkanTexture& text
                                                        VkPipelineLayout piplineLayout) {
     // Fetch a descriptor set that contains one input attachment (we do not support using more than
     // one per set at this time).
-    STArray<1, DescriptorData> inputDesc = {VulkanGraphicsPipeline::kInputAttachmentDescriptor};
+    STArray<1, DescriptorData> inputDesc = {VulkanGraphicsPipeline::GetInputAttachmentDescriptor()};
     sk_sp<VulkanDescriptorSet> set = fResourceProvider->findOrCreateDescriptorSet(
             {&inputDesc.front(), (size_t)inputDesc.size()});
     if (!set) {

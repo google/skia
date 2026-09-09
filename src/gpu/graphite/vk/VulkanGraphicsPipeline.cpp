@@ -501,7 +501,7 @@ static bool input_attachment_desc_set_layout(VkDescriptorSetLayout& outLayout,
     skia_private::STArray<1, DescriptorData> inputAttachmentDesc;
 
     if (!mockOnly) {
-        inputAttachmentDesc.push_back(VulkanGraphicsPipeline::kInputAttachmentDescriptor);
+        inputAttachmentDesc.push_back(VulkanGraphicsPipeline::GetInputAttachmentDescriptor());
     }
 
     // If mockOnly is true (meaning no input attachment descriptor is actually needed), then still
@@ -827,11 +827,18 @@ VulkanProgramInfo::~VulkanProgramInfo() {
     }
     if (fLayout != VK_NULL_HANDLE) {
         VULKAN_CALL(fSharedContext->interface(),
-                    DestroyPipelineLayout(fSharedContext->device(),
-                                          fLayout,
-                                          nullptr));
+                    DestroyPipelineLayout(fSharedContext->device(), fLayout, nullptr));
         fLayout = VK_NULL_HANDLE;
     }
+}
+
+const DescriptorData& VulkanGraphicsPipeline::GetInputAttachmentDescriptor() {
+    static const DescriptorData descriptor = {
+            DescriptorType::kInputAttachment,
+            /*count=*/1,
+            /*bindingIdx=*/0,  // We only expect to encounter one input attachment
+            PipelineStageFlags::kFragmentShader};
+    return descriptor;
 }
 
 sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
@@ -1217,7 +1224,7 @@ std::unique_ptr<VulkanProgramInfo> VulkanGraphicsPipeline::CreateLoadMSAAProgram
     // references one input attachment texture (which does not require a sampler) and one vertex
     // attribute (NDC position)
     skia_private::TArray<DescriptorData> inputAttachmentDescriptors(1);
-    inputAttachmentDescriptors.push_back(VulkanGraphicsPipeline::kInputAttachmentDescriptor);
+    inputAttachmentDescriptors.push_back(VulkanGraphicsPipeline::GetInputAttachmentDescriptor());
     // This pipeline is used to read from the resolve attachment to a color attachment. We should
     // never require an immutable sampler for this, since that would imply that we are rendering to
     // a surface with an external format.

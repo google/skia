@@ -52,7 +52,7 @@ VkPipelineLayout create_mock_layout(const VulkanSharedContext* sharedContext) {
     pushConstantRange.stageFlags = VulkanResourceProvider::kIntrinsicConstantStageFlags;
 
     skia_private::STArray<1, DescriptorData> inputDesc {
-            VulkanGraphicsPipeline::kInputAttachmentDescriptor};
+            VulkanGraphicsPipeline::GetInputAttachmentDescriptor()};
     VkDescriptorSetLayout setLayout;
     DescriptorDataToVkDescSetLayout(sharedContext, inputDesc, &setLayout);
 
