@@ -10,6 +10,7 @@
 #include "src/pathops/SkPathOpsPoint.h"
 #include "src/pathops/SkPathOpsTypes.h"
 
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <utility>
@@ -136,10 +137,10 @@ int SkIntersections::intersect(const SkDLine& a, const SkDLine& b) {
    to the next set of lines.
  */
     if (fAllowNear || !unparallel) {
-        double aNearB[2];
-        double bNearA[2];
-        bool aNotB[2] = {false, false};
-        bool bNotA[2] = {false, false};
+        std::array<double, 2> aNearB;
+        std::array<double, 2> bNearA;
+        std::array<bool, 2> aNotB = {false, false};
+        std::array<bool, 2> bNotA = {false, false};
         int nearCount = 0;
         for (int index = 0; index < 2; ++index) {
             aNearB[index] = t = b.nearPoint(a[index], &aNotB[index]);

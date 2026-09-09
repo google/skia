@@ -28,6 +28,7 @@
 #include "src/pathops/SkPathOpsRect.h"
 #include "src/pathops/SkPathOpsTypes.h"
 
+#include <array>
 #include <cstdint>
 #include <cstring>
 
@@ -521,13 +522,13 @@ static void show_function_header(const char* functionName) {
     }
 }
 
-static const char* gOpStrs[] = {
+static auto gOpStrs = std::to_array<const char *>({
     "kDifference_SkPathOp",
     "kIntersect_SkPathOp",
     "kUnion_SkPathOp",
     "kXOR_PathOp",
     "kReverseDifference_SkPathOp",
-};
+});
 
 const char* SkPathOpsDebug::OpStr(SkPathOp op) {
     return gOpStrs[op];
@@ -2843,12 +2844,12 @@ static void showPathContours(const SkPath& path, const char* pathName) {
     }
 }
 
-static const char* gFillTypeStr[] = {
+static auto gFillTypeStr = std::to_array<const char *>({
     "kWinding",
     "kEvenOdd",
     "kInverseWinding",
     "kInverseEvenOdd"
-};
+});
 
 void SkPathOpsDebug::ShowOnePath(const SkPath& path, const char* name, bool includeDeclaration) {
 #define SUPPORT_RECT_CONTOUR_DETECTION 0

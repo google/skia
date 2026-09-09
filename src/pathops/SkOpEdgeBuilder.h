@@ -14,6 +14,7 @@
 #include "src/pathops/SkPathOpsTypes.h"
 #include "src/pathops/SkPathWriter.h"
 
+#include <array>
 #include <cstdint>
 
 class SkPath;
@@ -63,7 +64,7 @@ private:
     SkTDArray<uint8_t> fPathVerbs;
     SkOpContourBuilder fContourBuilder;
     SkOpContourHead* fContoursHead;
-    SkPathOpsMask fXorMask[2];
+    std::array<SkPathOpsMask, 2> fXorMask;
     int fSecondHalf;
     bool fOperand;
     bool fAllowOpenContours;

@@ -19,6 +19,8 @@
 #include "src/pathops/SkPathOpsPoint.h"
 #include "src/pathops/SkPathOpsTCurve.h"
 
+#include <array>
+
 class SkIntersections;
 class SkOpGlobalState;
 struct SkDConic;
@@ -191,7 +193,7 @@ struct SkDCubicPair {
         return (const SkDCubic&) pts[3];
 #endif
     }
-    SkDPoint pts[7];
+    std::array<SkDPoint, 7> pts;
 };
 
 class SkTCubic : public SkTCurve {

@@ -20,6 +20,7 @@
 #include "src/pathops/SkPathOpsPoint.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 /* Angles are sorted counterclockwise. The smallest angle has a positive x and the smallest
@@ -229,7 +230,7 @@ bool SkOpAngle::after(SkOpAngle* test) {
 
 int SkOpAngle::lineOnOneSide(const SkDPoint& origin, const SkDVector& line, const SkOpAngle* test,
         bool useOriginal) const {
-    double crosses[3];
+    std::array<double, 3> crosses;
     SkPath::Verb testVerb = test->segment()->verb();
     int iMax = SkPathOpsVerbToPoints(testVerb);
 //    SkASSERT(origin == test.fCurveHalf[0]);
@@ -280,8 +281,8 @@ int SkOpAngle::linesOnOriginalSide(const SkOpAngle* test) {
     SkASSERT(!test->fPart.isCurve());
     SkDPoint origin = fOriginalCurvePart[0];
     SkDVector line = fOriginalCurvePart[1] - origin;
-    double dots[2];
-    double crosses[2];
+    std::array<double, 2> dots;
+    std::array<double, 2> crosses;
     const SkDCurve& testCurve = test->fOriginalCurvePart;
     for (int index = 0; index < 2; ++index) {
         SkDVector testLine = testCurve[index] - origin;
@@ -520,13 +521,13 @@ bool SkOpAngle::endsIntersect(SkOpAngle* rh) {
     SkPath::Verb rVerb = rh->segment()->verb();
     int lPts = SkPathOpsVerbToPoints(lVerb);
     int rPts = SkPathOpsVerbToPoints(rVerb);
-    SkDLine rays[] = {{{this->fPart.fCurve[0], rh->fPart.fCurve[rPts]}},
-            {{this->fPart.fCurve[0], this->fPart.fCurve[lPts]}}};
+    auto rays = std::to_array<SkDLine>({SkDLine{{this->fPart.fCurve[0], rh->fPart.fCurve[rPts]}},
+            SkDLine{{this->fPart.fCurve[0], this->fPart.fCurve[lPts]}}});
     if (this->fEnd->contains(rh->fEnd)) {
         return checkParallel(rh);
     }
-    double smallTs[2] = {-1, -1};
-    bool limited[2] = {false, false};
+    std::array<double, 2> smallTs = {-1, -1};
+    std::array<bool, 2> limited = {false, false};
     for (int index = 0; index < 2; ++index) {
         SkPath::Verb cVerb = index ? rVerb : lVerb;
         // if the curve is a line, then the line and the ray intersect only at their crossing

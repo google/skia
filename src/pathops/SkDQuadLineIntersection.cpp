@@ -15,6 +15,7 @@
 #include "src/pathops/SkPathOpsQuad.h"
 #include "src/pathops/SkPathOpsTypes.h"
 
+#include <array>
 #include <cmath>
 
 /*
@@ -162,7 +163,7 @@ public:
     */
         double adj = (*fLine)[1].fX - (*fLine)[0].fX;
         double opp = (*fLine)[1].fY - (*fLine)[0].fY;
-        double r[3];
+        std::array<double, 3> r;
         for (int n = 0; n < 3; ++n) {
             r[n] = (fQuad[n].fY - (*fLine)[0].fY) * adj - (fQuad[n].fX - (*fLine)[0].fX) * opp;
         }
