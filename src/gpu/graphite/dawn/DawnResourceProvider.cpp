@@ -622,6 +622,29 @@ const wgpu::Buffer& DawnResourceProvider::getOrCreateNullBuffer() {
     return fNullBuffer;
 }
 
+const wgpu::TextureView& DawnResourceProvider::getOrCreateNullTextureView() {
+    if (!fNullTextureView) {
+        wgpu::TextureDescriptor desc;
+        if (fSharedContext->caps()->setBackendLabels()) {
+            desc.label = "UnusedTextureSlot";
+        }
+        desc.usage = wgpu::TextureUsage::TextureBinding;
+        desc.dimension = wgpu::TextureDimension::e2D;
+        desc.size = {1, 1, 1};
+        desc.format = wgpu::TextureFormat::RGBA32Float;
+        desc.mipLevelCount = 1;
+        desc.sampleCount = 1;
+
+        wgpu::Texture nullTexture = this->dawnSharedContext()->device().CreateTexture(&desc);
+        if (nullTexture) {
+            fNullTextureView = nullTexture.CreateView();
+        }
+        SkASSERT(fNullTextureView);
+    }
+
+    return fNullTextureView;
+}
+
 wgpu::BindGroup DawnResourceProvider::createBindGroup(SkSpan<wgpu::BindGroupEntry> entries,
                                                       const wgpu::BindGroupLayout layout) {
     const auto& device = this->dawnSharedContext()->device();
