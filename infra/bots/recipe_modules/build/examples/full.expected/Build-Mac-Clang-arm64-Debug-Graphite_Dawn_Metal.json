@@ -177,7 +177,7 @@
     "env": {
       "CHROME_HEADLESS": "1",
       "MACOSX_DEPLOYMENT_TARGET": "11.0",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja",
+      "PATH": "[START_DIR]/cache/work/skia/third_party/ninja:<PATH>:RECIPE_REPO[depot_tools]",
       "PYTHONPATH": "[START_DIR]/cache/work/skia/third_party/externals:%(PYTHONPATH)s"
     },
     "name": "gn gen"
@@ -192,7 +192,7 @@
     "env": {
       "CHROME_HEADLESS": "1",
       "MACOSX_DEPLOYMENT_TARGET": "11.0",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja",
+      "PATH": "[START_DIR]/cache/work/skia/third_party/ninja:<PATH>:RECIPE_REPO[depot_tools]",
       "PYTHONPATH": "[START_DIR]/cache/work/skia/third_party/externals:%(PYTHONPATH)s"
     },
     "name": "ninja"

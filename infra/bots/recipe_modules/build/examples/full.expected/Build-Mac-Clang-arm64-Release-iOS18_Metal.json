@@ -199,7 +199,7 @@
     "env": {
       "CHROME_HEADLESS": "1",
       "IPHONEOS_DEPLOYMENT_TARGET": "18.2",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja"
+      "PATH": "[START_DIR]/cache/work/skia/third_party/ninja:<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "gn gen"
   },
@@ -213,7 +213,7 @@
     "env": {
       "CHROME_HEADLESS": "1",
       "IPHONEOS_DEPLOYMENT_TARGET": "18.2",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja"
+      "PATH": "[START_DIR]/cache/work/skia/third_party/ninja:<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "ninja"
   },
