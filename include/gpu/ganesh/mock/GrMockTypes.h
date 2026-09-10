@@ -13,6 +13,7 @@
 #include "include/private/SkAssert.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 
+#include <array>
 #include <cstdint>
 
 class GrBackendFormat;
@@ -148,8 +149,8 @@ struct GrMockOptions {
     int fMaxRenderTargetSize = 2048;
     int fMaxWindowRectangles = 0;
     int fMaxVertexAttributes = 16;
-    ConfigOptions fConfigOptions[kGrColorTypeCnt];
-    ConfigOptions fCompressedOptions[kSkTextureCompressionTypeCount];
+    std::array<ConfigOptions, kGrColorTypeCnt> fConfigOptions;
+    std::array<ConfigOptions, kSkTextureCompressionTypeCount> fCompressedOptions;
 
     // GrShaderCaps options.
     bool fIntegerSupport = false;
