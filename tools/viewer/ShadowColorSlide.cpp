@@ -15,6 +15,8 @@
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/Slide.h"
 
+#include <array>
+
 ////////////////////////////////////////////////////////////////////////////
 // Sample to demonstrate tonal color shadows
 
@@ -94,9 +96,9 @@ public:
         const SkScalar kAmbientAlpha = 0.03f;
         const SkScalar kSpotAlpha = 0.25f;
 
-        const SkScalar kZValues[10] = { 1, 2, 3, 4, 6, 8, 9, 12, 16, 24 };
+        static constexpr std::array<SkScalar, 10> kZValues = { 1, 2, 3, 4, 6, 8, 9, 12, 16, 24 };
 
-        const SkColor kColors[30] = {
+        static constexpr std::array<SkColor, 30> kColors = {
             // purples
             0xFF3A0072, 0xFF5D0099, 0xFF7F12B2, 0xFFA02AD1, 0xFFC245E5,
             0xFFE95AF9, 0xFFFC79F0, 0xFFFDA6F0, 0xFFFFCCF8, 0xFFFFE1F9,

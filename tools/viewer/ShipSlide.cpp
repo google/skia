@@ -15,6 +15,7 @@
 #include "tools/timer/Timer.h"
 #include "tools/viewer/Slide.h"
 
+#include <array>
 #include <stdio.h>
 
 static const int kGrid = 100;
@@ -145,8 +146,8 @@ private:
     DrawAtlasProc  fProc;
 
     sk_sp<SkImage> fAtlas;
-    SkRSXform      fXform[kGrid*kGrid+1];
-    SkRect         fTex[kGrid*kGrid+1];
+    std::array<SkRSXform, kGrid*kGrid+1> fXform;
+    std::array<SkRect, kGrid*kGrid+1> fTex;
 };
 
 //////////////////////////////////////////////////////////////////////////////

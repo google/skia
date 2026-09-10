@@ -12,9 +12,12 @@
 #include "src/core/SkRandom.h"
 #include "src/core/SkUTF.h"
 #include "tools/viewer/Slide.h"
+
 #if defined(SK_GANESH) || defined(SK_GRAPHITE)
 #include "src/gpu/RectanizerPow2.h"
 #include "src/gpu/RectanizerSkyline.h"
+
+#include <array>
 
 using namespace skia_private;
 using namespace skgpu;
@@ -138,7 +141,7 @@ private:
     static const int kMaxRectSize = 256;
 
     int                                   fCurRandRect;
-    SkTDArray<SkISize>                    fRects[3];
+    std::array<SkTDArray<SkISize>, 3> fRects;
     SkTDArray<SkISize>*                   fCurRects;
     SkTDArray<SkIPoint16>                 fRectLocations;
     TArray<std::unique_ptr<Rectanizer>> fRectanizers;

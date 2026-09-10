@@ -21,11 +21,13 @@
 #include "tools/timer/TimeUtils.h"
 #include "tools/viewer/Slide.h"
 
+#include <array>
+
 #define CORNER_RADIUS   12
 
-static const int gXY[] = {
+static constexpr auto gXY = std::to_array<int>({
     4, 0, 0, -4, 8, -4, 12, 0, 8, 4, 0, 4
-};
+});
 
 static sk_sp<SkPathEffect> make_pe(int flags, SkScalar phase) {
     if (flags == 1) {

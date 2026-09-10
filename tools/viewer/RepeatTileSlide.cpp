@@ -10,6 +10,8 @@
 #include "include/core/SkTileMode.h"
 #include "tools/viewer/Slide.h"
 
+#include <array>
+
 static void make_bitmap(SkBitmap* bm) {
     const int W = 100;
     const int H = 100;
@@ -19,9 +21,9 @@ static void make_bitmap(SkBitmap* bm) {
     SkCanvas canvas(*bm);
     canvas.drawColor(SK_ColorWHITE);
 
-    const SkColor colors[] = {
+    static constexpr auto colors = std::to_array<SkColor>({
         SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE
-    };
+    });
 
     for (int ix = 0; ix < W; ix += 1) {
         SkScalar x = SkIntToScalar(ix) + SK_ScalarHalf;

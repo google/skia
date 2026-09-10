@@ -14,6 +14,8 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 
+#include <array>
+
 // An example implementation of a zoomed-in slide.
 // Reproduces issues.skia.org/issues/451536363
 class ZoomInSlideDemo : public ZoomInSlide {
@@ -88,7 +90,7 @@ private:
     static constexpr float kHandleRadius = 4.f;
     static constexpr int kNumPoints = 4;
 
-    SkPoint fPts[kNumPoints];
+    std::array<SkPoint, kNumPoints> fPts;
 };
 
 DEF_SLIDE(return new ZoomInSlideDemo();)

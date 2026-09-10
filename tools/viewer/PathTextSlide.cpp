@@ -20,6 +20,8 @@
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/Slide.h"
 
+#include <array>
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Static text from paths.
 class PathTextSlide : public Slide {
@@ -42,7 +44,7 @@ public:
         SkFont defaultFont = ToolUtils::DefaultFont();
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeWithNoDevice(defaultFont);
         SkBulkGlyphMetricsAndPaths pathMaker{strikeSpec};
-        SkPath glyphPaths[52];
+        std::array<SkPath, 52> glyphPaths;
         for (int i = 0; i < 52; ++i) {
             // I and l are rects on OS X ...
             char c = "aQCDEFGH7JKLMNOPBRZTUVWXYSAbcdefghijk1mnopqrstuvwxyz"[i];
@@ -122,11 +124,11 @@ protected:
     class MovingGlyphAnimator;
     class WavyGlyphAnimator;
 
-    Glyph fGlyphs[kNumPaths];
+    std::array<Glyph, kNumPaths> fGlyphs;
     SkRandom fRand{25};
     SkPath fClipPath = ToolUtils::make_star(SkRect{0, 0, 1, 1}, 11, 3);
     bool fDoClip = false;
-    std::unique_ptr<GlyphAnimator> fGlyphAnimator = std::make_unique<GlyphAnimator>(fGlyphs);
+    std::unique_ptr<GlyphAnimator> fGlyphAnimator = std::make_unique<GlyphAnimator>(fGlyphs.data());
 };
 
 void PathTextSlide::Glyph::init(SkRandom& rand, const SkPath& path) {
@@ -248,7 +250,7 @@ protected:
         SkScalar fDSpin;
     };
 
-    Velocity fVelocities[kNumPaths];
+    std::array<Velocity, kNumPaths> fVelocities;
     std::unique_ptr<SkMatrix[]> fFrontMatrices;
     std::unique_ptr<SkMatrix[]> fBackMatrices;
     SkTaskGroup fBackgroundAnimationTask;
@@ -351,12 +353,12 @@ private:
         constexpr static double kAverageAngle = SK_ScalarPI / 8.0;
         constexpr static double kMaxOffsetAngle = SK_ScalarPI / 3.0;
 
-        float fAmplitudes[4];
-        float fFrequencies[4];
-        float fDirsX[4];
-        float fDirsY[4];
-        float fSpeeds[4];
-        float fOffsets[4];
+        std::array<float, 4> fAmplitudes;
+        std::array<float, 4> fFrequencies;
+        std::array<float, 4> fDirsX;
+        std::array<float, 4> fDirsY;
+        std::array<float, 4> fSpeeds;
+        std::array<float, 4> fOffsets;
     };
 
     std::unique_ptr<SkPath[]> fFrontPaths;
@@ -387,7 +389,7 @@ void PathTextSlide::WavyGlyphAnimator::Waves::reset(SkRandom& rand, int w, int h
 SkPoint PathTextSlide::WavyGlyphAnimator::Waves::apply(float tsec, const skvx::float2 matrix[3],
                                                   const SkPoint& pt) const {
     constexpr static int kTablePeriod = 1 << 12;
-    static float sin2table[kTablePeriod + 1];
+    static std::array<float, kTablePeriod + 1> sin2table;
     static SkOnce initTable;
     initTable([]() {
         for (int i = 0; i <= kTablePeriod; ++i) {
@@ -396,12 +398,12 @@ SkPoint PathTextSlide::WavyGlyphAnimator::Waves::apply(float tsec, const skvx::f
         }
     });
 
-     const auto amplitudes = skvx::float4::Load(fAmplitudes);
-     const auto frequencies = skvx::float4::Load(fFrequencies);
-     const auto dirsX = skvx::float4::Load(fDirsX);
-     const auto dirsY = skvx::float4::Load(fDirsY);
-     const auto speeds = skvx::float4::Load(fSpeeds);
-     const auto offsets = skvx::float4::Load(fOffsets);
+     const auto amplitudes = skvx::float4::Load(fAmplitudes.data());
+     const auto frequencies = skvx::float4::Load(fFrequencies.data());
+     const auto dirsX = skvx::float4::Load(fDirsX.data());
+     const auto dirsY = skvx::float4::Load(fDirsY.data());
+     const auto speeds = skvx::float4::Load(fSpeeds.data());
+     const auto offsets = skvx::float4::Load(fOffsets.data());
 
     float devicePt[2];
     (matrix[0] * pt.x() + matrix[1] * pt.y() + matrix[2]).store(devicePt);
@@ -437,15 +439,15 @@ bool PathTextSlide::onChar(SkUnichar unichar) {
             fDoClip = !fDoClip;
             return true;
         case 'S':
-            fGlyphAnimator = std::make_unique<GlyphAnimator>(fGlyphs);
+            fGlyphAnimator = std::make_unique<GlyphAnimator>(fGlyphs.data());
             fGlyphAnimator->reset(&fRand, fSize.width(), fSize.height());
             return true;
         case 'M':
-            fGlyphAnimator = std::make_unique<MovingGlyphAnimator>(fGlyphs);
+            fGlyphAnimator = std::make_unique<MovingGlyphAnimator>(fGlyphs.data());
             fGlyphAnimator->reset(&fRand, fSize.width(), fSize.height());
             return true;
         case 'W':
-            fGlyphAnimator = std::make_unique<WavyGlyphAnimator>(fGlyphs);
+            fGlyphAnimator = std::make_unique<WavyGlyphAnimator>(fGlyphs.data());
             fGlyphAnimator->reset(&fRand, fSize.width(), fSize.height());
             return true;
     }

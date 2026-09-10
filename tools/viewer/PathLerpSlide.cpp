@@ -5,11 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include <cmath>
-#include <utility>
-#include <deque>
-#include <vector>
-
 #include "include/core/SkCanvas.h"
 #include "include/core/SkCubicMap.h"
 #include "include/core/SkMatrix.h"
@@ -27,6 +22,12 @@
 #include "tools/viewer/Slide.h"
 
 #include "imgui.h"
+
+#include <array>
+#include <cmath>
+#include <deque>
+#include <utility>
+#include <vector>
 
 namespace {
 
@@ -680,7 +681,7 @@ private:
     float                     fCurrentProgress  = 0; // Interpolation progress [0..1]
 
     // UI stuff
-    const PathDesc*           fSelectedPaths[2] = {&gSamplePaths[0], &gSamplePaths[1]};
+    std::array<const PathDesc*, 2> fSelectedPaths = {&gSamplePaths[0], &gSamplePaths[1]};
     bool                      fDraggingProgress = false;
     bool                      fShowVertices     = false;
     bool                      fShowSlider       = false;

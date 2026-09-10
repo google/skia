@@ -19,6 +19,7 @@
 #include "src/core/SkUTF.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 
+#include <array>
 #include <utility>
 
 class PathClipSlide : public ClickHandlerSlide {
@@ -145,9 +146,9 @@ class EdgeClipSlide : public ClickHandlerSlide {
     enum {
         N = 3
     };
-    SkPoint fPoly[N];
+    std::array<SkPoint, N> fPoly;
     SkRect  fClip;
-    SkColor fEdgeColor[N];
+    std::array<SkColor, N> fEdgeColor;
 
 public:
     EdgeClipSlide() : fClip(SkRect::MakeLTRB(150, 150, 550, 450)) {
@@ -239,14 +240,14 @@ public:
     };
 
     class DragPolyClick : public MyClick {
-        SkPoint fSrc[100];
+        std::array<SkPoint, 100> fSrc;
         SkPoint* fPoly;
         int fCount;
     public:
         DragPolyClick(SkPoint poly[], int count) : fPoly(poly), fCount(count)
         {
             SkASSERT((size_t)count <= std::size(fSrc));
-            memcpy(fSrc, poly, count * sizeof(SkPoint));
+            memcpy(fSrc.data(), poly, count * sizeof(SkPoint));
         }
         void handleMove() override {
             const SkScalar dx = fCurr.x() - fOrig.x();
@@ -280,7 +281,7 @@ protected:
 
         SkPath path = SkPath::Polygon(fPoly, true);
         if (path.contains(x, y)) {
-            return new DragPolyClick(fPoly, N);
+            return new DragPolyClick(fPoly.data(), N);
         }
 
         if (fClip.intersects(SkRect::MakeLTRB(x - 1, y - 1, x + 1, y + 1))) {
