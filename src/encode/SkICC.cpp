@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <array>
 #include "include/encode/SkICC.h"
 
 #include "include/core/SkColorSpace.h"
@@ -464,7 +465,7 @@ sk_sp<SkData> write_mAB_or_mBA_tag(uint32_t type,
 
     // The "B" curve is required.
     size_t b_curves_offset = offset;
-    sk_sp<SkData> b_curves_data[kNumChannels];
+    std::array<sk_sp<SkData>, kNumChannels> b_curves_data;
     SkASSERT(b_curves);
     for (size_t i = 0; i < kNumChannels; ++i) {
         b_curves_data[i] = write_trc_tag(b_curves[i]);
@@ -485,7 +486,7 @@ sk_sp<SkData> write_mAB_or_mBA_tag(uint32_t type,
 
     // The "A" curves.
     size_t a_curves_offset = 0;
-    sk_sp<SkData> a_curves_data[kNumChannels];
+    std::array<sk_sp<SkData>, kNumChannels> a_curves_data;
     if (a_curves) {
         SkASSERT(grid_points);
         SkASSERT(grid_16);
@@ -509,7 +510,7 @@ sk_sp<SkData> write_mAB_or_mBA_tag(uint32_t type,
 
     // The "M" curves.
     size_t m_curves_offset = 0;
-    sk_sp<SkData> m_curves_data[kNumChannels];
+    std::array<sk_sp<SkData>, kNumChannels> m_curves_data;
     if (m_curves) {
         SkASSERT(matrix);
         m_curves_offset = offset;

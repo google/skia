@@ -7,6 +7,7 @@
 #ifndef SkTriColorShader_DEFINED
 #define SkTriColorShader_DEFINED
 
+#include <array>
 #include "include/core/SkMatrix.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkColorData.h"
@@ -39,7 +40,7 @@ private:
     const char* getTypeName() const override { return nullptr; }
 
     struct Matrix43 {
-        float fMat[12];  // column major
+        std::array<float, 12> fMat;  // column major
 
         // Pass a by value, so we don't have to worry about aliasing with this
         void setConcat(const Matrix43 a, const SkMatrix& b) {

@@ -7,6 +7,7 @@
 #ifndef SkPerlinNoiseShaderImpl_DEFINED
 #define SkPerlinNoiseShaderImpl_DEFINED
 
+#include <array>
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorType.h"
@@ -150,7 +151,7 @@ public:
             // Perform the permutations now
             {
                 // Copy noise data
-                uint16_t noise[4][kBlockSize][2];
+                std::array<std::array<std::array<uint16_t, 2>, kBlockSize>, 4> noise;
                 for (int i = 0; i < kBlockSize; ++i) {
                     for (int channel = 0; channel < 4; ++channel) {
                         for (int j = 0; j < 2; ++j) {

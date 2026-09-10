@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <array>
 #include "src/utils/SkPolyUtils.h"
 
 #include "include/core/SkRect.h"
@@ -688,7 +689,7 @@ struct ActiveEdge {
     OffsetSegment fSegment;
     uint16_t fIndex0;   // indices for previous and next vertex in polygon
     uint16_t fIndex1;
-    ActiveEdge* fChild[2];
+    std::array<ActiveEdge *, 2> fChild;
     ActiveEdge* fAbove;
     ActiveEdge* fBelow;
     int32_t  fRed;

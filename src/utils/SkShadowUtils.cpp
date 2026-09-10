@@ -5,6 +5,7 @@
 * found in the LICENSE file.
 */
 
+#include <array>
 #include "include/utils/SkShadowUtils.h"
 
 #include "include/core/SkBlendMode.h"
@@ -257,7 +258,7 @@ private:
             sk_sp<SkVertices> fVertices;
             SkMatrix fMatrix;
         };
-        Entry fEntries[MAX_ENTRIES];
+        std::array<Entry, MAX_ENTRIES> fEntries;
         int fCount = 0;
         size_t fSize = 0;
         SkRandom fRandom;

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <array>
 #include "src/shaders/gradients/SkGradientBaseShader.h"
 
 #include "include/core/SkAlphaType.h"
@@ -737,7 +738,8 @@ static SkPMColor4f srgb_to_hwb(SkPMColor4f rgb, bool* hueIsPowerless) {
 }
 
 static SkPMColor4f xyzd50_to_lab(SkPMColor4f xyz, bool* /*hueIsPowerless*/) {
-    constexpr float D50[3] = {0.3457f / 0.3585f, 1.0f, (1.0f - 0.3457f - 0.3585f) / 0.3585f};
+    constexpr std::array<float, 3> D50 = {0.3457f / 0.3585f, 1.0f,
+                                          (1.0f - 0.3457f - 0.3585f) / 0.3585f};
 
     constexpr float e = 216.0f / 24389;
     constexpr float k = 24389.0f / 27;

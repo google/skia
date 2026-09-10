@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <array>
 #include "src/text/gpu/SubRunContainer.h"
 
 #include "include/core/SkCanvas.h"
@@ -1056,7 +1057,7 @@ SubRunOwner SubRun::MakeFromBuffer(SkReadBuffer& buffer,
                                   SubRunAllocator*,
                                   const SkStrikeClient*);
 
-    static Maker makers[kSubRunStreamTagCount] = {
+    static std::array<Maker, kSubRunStreamTagCount> makers = {
             nullptr,                                             // 0 index is bad.
             DirectMaskSubRun::MakeFromBuffer,
 #if !defined(SK_DISABLE_SDF_TEXT)

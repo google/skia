@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <array>
 #include "src/pdf/SkPDFGradientShader.h"
 
 #include "include/core/SkAlphaType.h"
@@ -94,7 +95,7 @@ static void interpolate_color_code(SkScalar range, NumComponents numComponents,
      */
 
     // Figure out how to scale each color component.
-    SkScalar multiplier[NumComponents::Max];
+    std::array<SkScalar, NumComponents::Max> multiplier;
     for (int i = 0; i < numComponents; i++) {
         multiplier[i] = (curColor[i] - prevColor[i]) / range;
     }
@@ -102,7 +103,7 @@ static void interpolate_color_code(SkScalar range, NumComponents numComponents,
     // Calculate when we no longer need to keep a copy of the input parameter t.
     // If the last component to use t is i, then dupInput[0..i - 1] = true
     // and dupInput[i .. components] = false.
-    bool dupInput[NumComponents::Max];
+    std::array<bool, NumComponents::Max> dupInput;
     dupInput[numComponents - 1] = false;
     for (int i = numComponents - 2; i >= 0; i--) {
         dupInput[i] = dupInput[i + 1] || multiplier[i + 1] != 0;

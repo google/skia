@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <array>
 #include "include/core/SkStream.h"
 #include "include/private/SkFloatingPoint.h"
 #include "src/codec/SkHdrAgtmPriv.h"
@@ -130,20 +131,25 @@ struct AgtmSyntax {
     uint8_t gain_application_space_chromaticities_flag:2;
     uint8_t has_common_component_mix_params_flag:1;
     uint8_t has_common_curve_params_flag:1;
-    uint16_t gain_application_space_chromaticities[kNumChromaticityValues];
-    uint16_t alternate_hdr_headrooms[kMaxNumAlternateImages];
+    std::array<uint16_t, kNumChromaticityValues> gain_application_space_chromaticities;
+    std::array<uint16_t, kMaxNumAlternateImages> alternate_hdr_headrooms;
 
     // syntax elements of smpte_st_2094_50_component_mixing()
-    uint8_t component_mixing_type[kMaxNumAlternateImages];
-    uint8_t has_component_mixing_coefficient_flag[kMaxNumAlternateImages][kNumMixCoefficients];
-    uint16_t component_mixing_coefficient[kMaxNumAlternateImages][kNumMixCoefficients];
+    std::array<uint8_t, kMaxNumAlternateImages> component_mixing_type;
+    std::array<std::array<uint8_t, kNumMixCoefficients>, kMaxNumAlternateImages>
+        has_component_mixing_coefficient_flag;
+    std::array<std::array<uint16_t, kNumMixCoefficients>, kMaxNumAlternateImages>
+        component_mixing_coefficient;
 
     // syntax elements of smpte_st_2094_50_gain_curve()
-    uint8_t gain_curve_num_control_points_minus_1[kMaxNumAlternateImages];
-    uint8_t gain_curve_use_pchip_slope_flag[kMaxNumAlternateImages];
-    uint16_t gain_curve_control_points_x[kMaxNumAlternateImages][kMaxNumControlPoints];
-    uint16_t gain_curve_control_points_y[kMaxNumAlternateImages][kMaxNumControlPoints];
-    uint16_t gain_curve_control_points_theta[kMaxNumAlternateImages][kMaxNumControlPoints];
+    std::array<uint8_t, kMaxNumAlternateImages> gain_curve_num_control_points_minus_1;
+    std::array<uint8_t, kMaxNumAlternateImages> gain_curve_use_pchip_slope_flag;
+    std::array<std::array<uint16_t, kMaxNumControlPoints>, kMaxNumAlternateImages>
+        gain_curve_control_points_x;
+    std::array<std::array<uint16_t, kMaxNumControlPoints>, kMaxNumAlternateImages>
+        gain_curve_control_points_y;
+    std::array<std::array<uint16_t, kMaxNumControlPoints>, kMaxNumAlternateImages>
+        gain_curve_control_points_theta;
 };
 
 static_assert(
@@ -463,7 +469,7 @@ bool AdaptiveGlobalToneMap::parse(const SkData* data) {
                 };
                 break;
             case 3: {
-                float p[AgtmSyntax::kNumMixCoefficients];
+                std::array<float, AgtmSyntax::kNumMixCoefficients> p;
                 float p_sum = 0.f;
                 for (uint8_t k = 0; k < AgtmSyntax::kNumMixCoefficients; ++k) {
                     p[k] = uint16_to_float(

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <array>
 #include "include/utils/SkCanvasStateUtils.h"
 
 #include "include/core/SkAlphaType.h"
@@ -60,7 +61,7 @@ struct ClipRect {
 };
 
 struct SkMCState {
-    float matrix[9];
+    std::array<float, 9> matrix;
     // NOTE: this only works for non-antialiased clips
     int32_t clipRectCount;
     // RAW_PTR_EXCLUSION: Part of a stable C ABI struct copied via raw memcpy.

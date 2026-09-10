@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <array>
 #include "src/codec/SkBmpRLECodec.h"
 
 #include "include/core/SkAlphaType.h"
@@ -524,7 +525,7 @@ int SkBmpRLECodec::decodeRLE(const SkImageInfo& dstInfo, void* dst, size_t dstRo
                 // RLE8 has one color index that gets repeated
                 // RLE4 has two color indexes in the upper and lower 4 bits of
                 // the bytes, which are alternated
-                uint8_t indices[2] = { task, task };
+                std::array<uint8_t, 2> indices = { task, task };
                 if (4 == this->bitsPerPixel()) {
                     indices[0] >>= 4;
                     indices[1] &= 0xf;

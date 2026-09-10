@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <array>
 #include "src/pdf/SkPDFFont.h"
 
 #include "include/codec/SkCodec.h"
@@ -654,7 +655,7 @@ static SkPDFIndirectReference type3_descriptor(SkPDFDocument* doc,
     }
 
     /** PDF32000_2008: FontStretch should be used for Type3 fonts in Tagged PDF documents. */
-    static constexpr const char* stretchNames[9] = {
+    static constexpr std::array<const char *, 9> stretchNames = {
         "UltraCondensed",
         "ExtraCondensed",
         "Condensed",

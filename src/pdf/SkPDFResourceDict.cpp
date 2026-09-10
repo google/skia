@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <array>
 #include "src/pdf/SkPDFResourceDict.h"
 
 #include "include/core/SkStream.h"
@@ -29,12 +30,12 @@ constexpr size_t kMaxResourceNameLength = 1 + kSkStrAppendS32_MaxSize;
 
 // returns pointer just past end of what's written into `dst`.
 static char* get_resource_name(char dst[kMaxResourceNameLength], SkPDFResourceType type, int key) {
-    static const char kResourceTypePrefixes[] = {
+    static const auto kResourceTypePrefixes = std::to_array<char>({
         'G',  // kExtGState
         'P',  // kPattern
         'X',  // kXObject
         'F'   // kFont
-    };
+    ,});
     SkASSERT((unsigned)type < std::size(kResourceTypePrefixes));
     dst[0] = kResourceTypePrefixes[(unsigned)type];
     return SkStrAppendS32(dst + 1, key);
@@ -49,12 +50,12 @@ void SkPDFWriteResourceName(SkWStream* dst, SkPDFResourceType type, int key) {
 }
 
 static const char* resource_name(SkPDFResourceType type) {
-    static const char* kResourceTypeNames[] = {
+    static auto kResourceTypeNames = std::to_array<const char *>({
         "ExtGState",
         "Pattern",
         "XObject",
         "Font"
-    };
+    ,});
     SkASSERT((unsigned)type < std::size(kResourceTypeNames));
     return kResourceTypeNames[(unsigned)type];
 }

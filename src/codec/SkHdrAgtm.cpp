@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <array>
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorFilter.h"
 #include "include/effects/SkRuntimeEffect.h"
@@ -417,11 +418,12 @@ Weighting ComputeWeighting(const AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap&
     size_t N = 0;
 
     // Let H be the sorted list of HDR headrooms.
-    float H[AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap::kMaxNumAlternateImages + 1];
+    std::array<float, AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap::kMaxNumAlternateImages + 1> H;
 
     // Let indices list the index of each entry of H in fAlternateHdrHeadroom. The index for
     // fBaselineHdrHeadroom is Weighting::kInvalidIndex.
-    size_t indices[AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap::kMaxNumAlternateImages + 1];
+    std::array<size_t, AdaptiveGlobalToneMap::HeadroomAdaptiveToneMap::kMaxNumAlternateImages + 1>
+        indices;
     for (size_t i = 0; i < hatm.fAlternateImages.size(); ++i) {
         if (N == i && hatm.fBaselineHdrHeadroom < hatm.fAlternateImages[i].fHdrHeadroom) {
             // Insert the baseline HDR headroom before the indices as they are visited.
@@ -547,7 +549,7 @@ sk_sp<SkColorFilter> MakeColorFilter(
     SkRuntimeShaderBuilder builder(effect);
     builder.uniform("scale_factor") = scaleFactor;
     for (size_t a = 0; a < 2; ++a) {
-        const char* weight_str[2] = {"weight_i", "weight_j"};
+        std::array<const char *, 2> weight_str = {"weight_i", "weight_j"};
         builder.uniform(weight_str[a]) = weighting.fWeight[a];
 
         if (weighting.fWeight[a] == 0.f) {
@@ -556,7 +558,7 @@ sk_sp<SkColorFilter> MakeColorFilter(
         const auto& gain = hatm.fAlternateImages[
             weighting.fAlternateImageIndex[a]].fColorGainFunction;
 
-        const char* mix_rgbx_str[2] = {"mix_rgbx_i", "mix_rgbx_j"};
+        std::array<const char *, 2> mix_rgbx_str = {"mix_rgbx_i", "mix_rgbx_j"};
         builder.uniform(mix_rgbx_str[a]) = SkColor4f({
             gain.fComponentMixing.fRed,
             gain.fComponentMixing.fGreen,
@@ -564,7 +566,7 @@ sk_sp<SkColorFilter> MakeColorFilter(
             0.f,
         });
 
-        const char* mix_Mmcx_str[2] = {"mix_Mmcx_i", "mix_Mmcx_j"};
+        std::array<const char *, 2> mix_Mmcx_str = {"mix_Mmcx_i", "mix_Mmcx_j"};
         builder.uniform(mix_Mmcx_str[a]) = SkColor4f({
             gain.fComponentMixing.fMax,
             gain.fComponentMixing.fMin,
@@ -572,10 +574,11 @@ sk_sp<SkColorFilter> MakeColorFilter(
             0.f,
         });
 
-        const char* curve_texcoord_y_str[2] = {"curve_texcoord_y_i", "curve_texcoord_y_j"};
+        std::array<const char*, 2> curve_texcoord_y_str = {"curve_texcoord_y_i",
+                                                           "curve_texcoord_y_j"};
         builder.uniform(curve_texcoord_y_str[a]) = (weighting.fAlternateImageIndex[a] + 0.5f);
 
-        const char* curve_N_cp_str[2] = {"curve_N_cp_i", "curve_N_cp_j"};
+        std::array<const char *, 2> curve_N_cp_str = {"curve_N_cp_i", "curve_N_cp_j"};
         builder.uniform(curve_N_cp_str[a]) = static_cast<float>(
             gain.fGainCurve.fControlPoints.size());
     }
