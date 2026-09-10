@@ -18,6 +18,8 @@
 #include "src/core/SkPaintPriv.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 static const int kBmpSize = 24;
 static const int kMaxX = 250;
 static const int kMaxY = 250;
@@ -122,7 +124,7 @@ static void fuzz_drawText(Fuzz* fuzz, sk_sp<SkTypeface> typeface) {
     SkScalar x, y;
     fuzz->next(&x, &y);
     // populate pts array
-    SkPoint pts[kPtsLen];
+    std::array<SkPoint, kPtsLen> pts;
     for (uint8_t i = 0; i < kPtsLen; ++i) {
         pts[i].set(x, y);
         x += font.getSize();

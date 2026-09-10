@@ -10,30 +10,35 @@
 #include "include/utils/SkParsePath.h"
 
 #include <stdlib.h>
+#include <array>
 
 // Most of this is taken from random_parse_path.cpp and adapted to use the Fuzz
 // instead of SKRandom
 
-static const struct Legal {
+struct Legal {
     char fSymbol;
     int fScalars;
-} gLegal[] = {
-    { 'M', 2 },
-    { 'H', 1 },
-    { 'V', 1 },
-    { 'L', 2 },
-    { 'Q', 4 },
-    { 'T', 2 },
-    { 'C', 6 },
-    { 'S', 4 },
-    { 'A', 4 },
-    { 'Z', 0 },
 };
+
+static constexpr auto gLegal = std::to_array<Legal>({
+    Legal{ 'M', 2 },
+    Legal{ 'H', 1 },
+    Legal{ 'V', 1 },
+    Legal{ 'L', 2 },
+    Legal{ 'Q', 4 },
+    Legal{ 'T', 2 },
+    Legal{ 'C', 6 },
+    Legal{ 'S', 4 },
+    Legal{ 'A', 4 },
+    Legal{ 'Z', 0 },
+});
 
 static bool gEasy = false;  // set to true while debugging to suppress unusual whitespace
 
 // mostly do nothing, then bias towards spaces
-static const char gWhiteSpace[] = { 0, 0, 0, 0, 0, 0, 0, 0, ' ', ' ', ' ', ' ', 0x09, 0x0D, 0x0A };
+static constexpr auto gWhiteSpace = std::to_array<char>({
+    0, 0, 0, 0, 0, 0, 0, 0, ' ', ' ', ' ', ' ', 0x09, 0x0D, 0x0A
+});
 
 static void add_white(Fuzz* fuzz, SkString* atom) {
     if (gEasy) {
