@@ -811,6 +811,9 @@ static const PipelineLabel kOldLabels[] = {
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Unpremul+sRGB+Premul]], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter, Dither] SrcOver" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + BlendCompose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha], AlphaOnlyPaintColor, SrcIn]+MatrixColorFilter SrcOver AnalyticClip" },
 /*  */ { -1, "RP((RGBA8+D16 x1).rgba) + CoverBoundsRenderStep[NonAAFill] + RE_EdgeExtensionEffect[LocalMatrix[CoordNormalize[HardwareImage(0)]+Passthrough]]+MatrixColorFilter, Dither] SrcOver" },
+
+/* 325 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + Compose[LocalMatrix[CoordNormalize[HardwareImage(0)]+PreAlpha+sRGB+Gamut+sRGB+PostAlpha]+MatrixColorFilter, Dither] SrcOver AnalyticClip" },
+/* 326 */ { -1, "RP((RGBA8+D16 x1).rgba) + AnalyticRRectRenderStep + SolidColor SrcOver AnalyticClip" },
 };
 
 /*
