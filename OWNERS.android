@@ -16,6 +16,5 @@ egdaniel@google.com
 # Fallback API OWNERS, manually duplicated from include/OWNERS to support LAST_RESORT_SUGGESTION:
 fmalita@google.com #{LAST_RESORT_SUGGESTION}
 hcm@google.com #{LAST_RESORT_SUGGESTION}
-girlboss@google.com #{LAST_RESORT_SUGGESTION}
 michaelludwig@google.com #{LAST_RESORT_SUGGESTION}
 robertphillips@google.com #{LAST_RESORT_SUGGESTION}
