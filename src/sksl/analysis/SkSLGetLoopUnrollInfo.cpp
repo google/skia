@@ -34,7 +34,11 @@ namespace SkSL {
 class Context;
 
 // Loops that run for 100000+ iterations will exceed our program size limit.
+#if defined(SK_BUILD_FOR_FUZZER)
+static constexpr int kLoopTerminationLimit = 256;
+#else
 static constexpr int kLoopTerminationLimit = 100000;
+#endif
 
 enum class Direction {
     kBackwards,
