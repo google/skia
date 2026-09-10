@@ -12,6 +12,7 @@
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkPointPriv.h"
+
 #include <algorithm>
 #include <array>
 #include <cstdint>
@@ -169,7 +170,8 @@ std::optional<SkPathPriv::RectContour> SkPathPriv::IsRectContour(SkSpan<const Sk
     const SkPoint* pts = ptSpan.data();
     const SkPoint* savePts = nullptr; // used to allow caller to iterate through a pair of rects
     lineStart.set(0, 0);
-    signed char directions[] = {-1, -1, -1, -1, -1};  // -1 to 3; -1 is uninitialized
+    // -1 to 3; -1 is uninitialized
+    auto directions = std::to_array<signed char>({-1, -1, -1, -1, -1});
     bool closedOrMoved = false;
     bool autoClose = false;
     bool insertClose = false;
@@ -986,8 +988,8 @@ static int winding_mono_cubic(const SkPoint pts[], SkScalar x, SkScalar y, int* 
 }
 
 static int winding_cubic(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y, int* onCurveCount) {
-    SkPoint dst[10];
-    int n = SkChopCubicAtYExtrema(pts.data(), dst);
+    std::array<SkPoint, 10> dst;
+    int n = SkChopCubicAtYExtrema(pts.data(), dst.data());
     int w = 0;
     for (int i = 0; i <= n; ++i) {
         w += winding_mono_cubic(&dst[i * 3], x, y, onCurveCount);
@@ -1210,8 +1212,8 @@ static void tangent_cubic(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y,
              && !between(pts[2].fX, x, pts[3].fX)) {
         return;
     }
-    SkPoint dst[10];
-    int n = SkChopCubicAtYExtrema(pts.data(), dst);
+    std::array<SkPoint, 10> dst;
+    int n = SkChopCubicAtYExtrema(pts.data(), dst.data());
     for (int i = 0; i <= n; ++i) {
         SkPoint* c = &dst[i * 3];
         SkScalar t;
@@ -1236,14 +1238,14 @@ static void tangent_conic(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y, SkS
     if (!between(pts[0].fX, x, pts[1].fX) && !between(pts[1].fX, x, pts[2].fX)) {
         return;
     }
-    SkScalar roots[2];
+    std::array<SkScalar, 2> roots;
     SkScalar A = pts[2].fY;
     SkScalar B = pts[1].fY * w - y * w + y;
     SkScalar C = pts[0].fY;
     A += C - 2 * B;  // A = a + c - 2*(b*w - yCept*w + yCept)
     B -= C;  // B = b*w - w * yCept + yCept - a
     C -= y;
-    int n = SkFindUnitQuadRoots(A, 2 * B, C, roots);
+    int n = SkFindUnitQuadRoots(A, 2 * B, C, roots.data());
     for (int index = 0; index < n; ++index) {
         SkScalar t = roots[index];
         SkScalar xt = conic_eval_numerator(&pts[0].fX, w, t) / conic_eval_denominator(w, t);
@@ -1263,11 +1265,11 @@ static void tangent_quad(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y,
     if (!between(pts[0].fX, x, pts[1].fX) && !between(pts[1].fX, x, pts[2].fX)) {
         return;
     }
-    SkScalar roots[2];
+    std::array<SkScalar, 2> roots;
     int n = SkFindUnitQuadRoots(pts[0].fY - 2 * pts[1].fY + pts[2].fY,
                                 2 * (pts[1].fY - pts[0].fY),
                                 pts[0].fY - y,
-                                roots);
+                                roots.data());
     for (int index = 0; index < n; ++index) {
         SkScalar t = roots[index];
         SkScalar C = pts[0].fX;
@@ -1441,8 +1443,8 @@ SkPathConvexity SkPathPriv::TransformConvexity(const SkMatrix& matrix, SkSpan<co
 //////////////////////////////////////////////////////////////////////////////
 
 static int compute_quad_extremas(const SkPoint src[3], SkPoint extremas[3]) {
-    SkScalar ts[2];
-    int n  = SkFindQuadExtrema(src[0].fX, src[1].fX, src[2].fX, ts);
+    std::array<SkScalar, 2> ts;
+    int n  = SkFindQuadExtrema(src[0].fX, src[1].fX, src[2].fX, ts.data());
         n += SkFindQuadExtrema(src[0].fY, src[1].fY, src[2].fY, &ts[n]);
     SkASSERT(n >= 0 && n <= 2);
     for (int i = 0; i < n; ++i) {
@@ -1454,8 +1456,8 @@ static int compute_quad_extremas(const SkPoint src[3], SkPoint extremas[3]) {
 
 static int compute_conic_extremas(const SkPoint src[3], SkScalar w, SkPoint extremas[3]) {
     SkConic conic(src[0], src[1], src[2], w);
-    SkScalar ts[2];
-    int n  = conic.findXExtrema(ts);
+    std::array<SkScalar, 2> ts;
+    int n  = conic.findXExtrema(ts.data());
         n += conic.findYExtrema(&ts[n]);
     SkASSERT(n >= 0 && n <= 2);
     for (int i = 0; i < n; ++i) {
@@ -1466,8 +1468,8 @@ static int compute_conic_extremas(const SkPoint src[3], SkScalar w, SkPoint extr
 }
 
 static int compute_cubic_extremas(const SkPoint src[4], SkPoint extremas[5]) {
-    SkScalar ts[4];
-    int n  = SkFindCubicExtrema(src[0].fX, src[1].fX, src[2].fX, src[3].fX, ts);
+    std::array<SkScalar, 4> ts;
+    int n  = SkFindCubicExtrema(src[0].fX, src[1].fX, src[2].fX, src[3].fX, ts.data());
         n += SkFindCubicExtrema(src[0].fY, src[1].fY, src[2].fY, src[3].fY, &ts[n]);
     SkASSERT(n >= 0 && n <= 4);
     for (int i = 0; i < n; ++i) {

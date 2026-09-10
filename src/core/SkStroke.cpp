@@ -41,7 +41,7 @@ enum {
 // For cubics, we never get close to 75 when running through dm. The limit of 24
 // was chosen because it's close to the peak in a count of cubic recursion depths visited
 // (define DEBUG_CUBIC_RECURSION_DEPTHS) and no diffs were produced on gold when using it.
-static const int kRecursiveLimits[] = { 5*3, 24, 11*3, 11*3 };
+static constexpr auto kRecursiveLimits = std::to_array<int>({ 5*3, 24, 11*3, 11*3 });
 
 static_assert(0 == kTangent_RecursiveLimit, "cubic_stroke_relies_on_tangent_equalling_zero");
 static_assert(1 == kCubic_RecursiveLimit, "cubic_stroke_relies_on_cubic_equalling_one");
@@ -682,8 +682,8 @@ SkPathStroker::ReductionType SkPathStroker::CheckCubicLinear(const SkPoint cubic
         *tangentPtPtr = degenerateAB ? &cubic[2] : &cubic[1];
         return kQuad_ReductionType;
     }
-    SkScalar tValues[3];
-    int count = SkFindCubicMaxCurvature(cubic, tValues);
+    std::array<SkScalar, 3> tValues;
+    int count = SkFindCubicMaxCurvature(cubic, tValues.data());
     int rCount = 0;
     // Now loop over the t-values, and reject any that evaluate to either end-point
     for (int index = 0; index < count; ++index) {
@@ -999,7 +999,7 @@ SkPathStroker::ResultType SkPathStroker::tangentsMeet(const SkPoint cubic[4],
 // Intersect the line with the quad and return the t values on the quad where the line crosses.
 static int intersect_quad_ray(const SkPoint line[2], const SkPoint quad[3], SkScalar roots[2]) {
     SkVector vec = line[1] - line[0];
-    SkScalar r[3];
+    std::array<SkScalar, 3> r;
     for (int n = 0; n < 3; ++n) {
         r[n] = vec.cross(quad[n] - line[0]);
     }
@@ -1550,7 +1550,8 @@ void SkStroke::strokePath(const SkPath& src, SkPathBuilder* dst) const {
 }
 
 static SkPathDirection reverse_direction(SkPathDirection dir) {
-    static const SkPathDirection gOpposite[] = { SkPathDirection::kCCW, SkPathDirection::kCW };
+    static constexpr auto gOpposite =
+        std::to_array<SkPathDirection>({SkPathDirection::kCCW, SkPathDirection::kCW});
     return gOpposite[(int)dir];
 }
 

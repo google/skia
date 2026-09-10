@@ -12,6 +12,7 @@
 #include "include/core/SkYUVAInfo.h"
 
 #include <algorithm>
+#include <array>
 
 /**
  * The location of Y, U, V, or A values within the planes described by SkYUVAInfo. Computed from a
@@ -31,7 +32,7 @@ struct SkYUVAInfo::YUVALocation {
     static bool AreValidLocations(const SkYUVAInfo::YUVALocations& locations,
                                   int* numPlanes = nullptr) {
         int maxSlotUsed = -1;
-        bool used[SkYUVAInfo::kMaxPlanes] = {};
+        std::array<bool, SkYUVAInfo::kMaxPlanes> used = {};
         bool valid = true;
         for (int i = 0; i < SkYUVAInfo::kYUVAChannelCount; ++i) {
             if (locations[i].fPlane < 0) {

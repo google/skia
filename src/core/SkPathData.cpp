@@ -20,6 +20,7 @@
 #include "src/core/SkSafeMath.h"
 #include "src/core/SkSpanPriv.h"
 
+#include <array>
 #include <new>
 #include <optional>
 #include <type_traits>
@@ -72,9 +73,9 @@ private:
     size_t     fTotal;
 };
 
-const uint8_t gPtsPerVerb[] = {
+static constexpr auto gPtsPerVerb = std::to_array<uint8_t>({
     1, 1, 2, 2, 3, 0,  // move, line, quad, conic, cubic, close
-};
+});
 
 static inline bool valid_conic_weight(float w) {
     return w >= 0 && SkIsFinite(w);

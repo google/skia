@@ -24,6 +24,7 @@
 #include "src/core/SkVx.h"
 #include "src/opts/SkMemset_opts.h"
 
+#include <array>
 #include <cstdint>
 #include <cstring>
 #include <iterator>
@@ -780,23 +781,23 @@ bool SkPixmap::erase(const SkColor4f& color, const SkIRect* subset) const {
         }
     } else {
         using MemSet = void(*)(void*, uint64_t c, int count);
-        const MemSet procs[] = {
-            [](void* addr, uint64_t c, int count) {
+        static constexpr auto procs = std::to_array<MemSet>({
+            MemSet([](void* addr, uint64_t c, int count) {
                 SkASSERT(c == (uint8_t)c);
                 SK_OPTS_NS::memsetT((uint8_t*)addr, (uint8_t)c, count);
-            },
-            [](void* addr, uint64_t c, int count) {
+            }),
+            MemSet([](void* addr, uint64_t c, int count) {
                 SkASSERT(c == (uint16_t)c);
                 SK_OPTS_NS::memsetT((uint16_t*)addr, (uint16_t)c, count);
-            },
-            [](void* addr, uint64_t c, int count) {
+            }),
+            MemSet([](void* addr, uint64_t c, int count) {
                 SkASSERT(c == (uint32_t)c);
                 SK_OPTS_NS::memsetT((uint32_t*)addr, (uint32_t)c, count);
-            },
-            [](void* addr, uint64_t c, int count) {
+            }),
+            MemSet([](void* addr, uint64_t c, int count) {
                 SK_OPTS_NS::memsetT((uint64_t*)addr, c, count);
-            },
-        };
+            }),
+        });
 
         unsigned shift = SkColorTypeShiftPerPixel(this->colorType());
         SkASSERT(shift < std::size(procs));

@@ -12,6 +12,8 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
 
+#include <array>
+
 template <unsigned N> class SkPath_PointIterator {
 public:
     SkPath_PointIterator(SkPathDirection dir, unsigned startIndex)
@@ -29,7 +31,7 @@ public:
     }
 
     protected:
-    SkPoint fPts[N];
+    std::array<SkPoint, N> fPts;
 
     private:
     unsigned fCurrent;

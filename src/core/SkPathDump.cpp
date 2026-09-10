@@ -12,14 +12,15 @@
 #include "src/core/SkFloatBits.h"
 #include "src/core/SkStringUtils.h"
 
+#include <array>
 #include <functional>
 
-char const * const gFillTypeStrs[] = {
+static constexpr auto gFillTypeStrs = std::to_array<const char *>({
     "Winding",
     "EvenOdd",
     "InverseWinding",
     "InverseEvenOdd",
-};
+});
 
 constexpr float kSentinelConicWeight = -12345;  // not a valid weight
 

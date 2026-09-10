@@ -502,10 +502,10 @@ static inline void haircubic(const SkPoint pts[4], DrawingParameters d, int leve
     if (quick_cubic_niceness_check(pts)) {
         hair_cubic(pts, d.clip, d.blitter, d.lineproc);
     } else {
-        SkPoint tmp[13];
-        SkScalar tValues[3];
+        std::array<SkPoint, 13> tmp;
+        std::array<SkScalar, 3> tValues;
 
-        int count = SkChopCubicAtMaxCurvature(pts, tmp, tValues);
+        int count = SkChopCubicAtMaxCurvature(pts, tmp.data(), tValues.data());
         for (int i = 0; i < count; i++) {
             hair_cubic(
                     &tmp[i * 3], d.clip, d.blitter, d.lineproc);
