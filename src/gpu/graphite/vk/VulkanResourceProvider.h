@@ -41,10 +41,6 @@ public:
     static constexpr VkShaderStageFlagBits kIntrinsicConstantStageFlags =
             VkShaderStageFlagBits(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT);
 
-    static constexpr size_t kLoadMSAAPushConstantSize = sizeof(float) * 4;
-    static constexpr VkShaderStageFlagBits kLoadMSAAPushConstantStageFlags =
-            VK_SHADER_STAGE_VERTEX_BIT;
-
     VulkanResourceProvider(SharedContext* sharedContext,
                            SingleOwner*,
                            uint32_t recorderID,

@@ -651,10 +651,9 @@ bool VulkanCommandBuffer::onAddRenderPass(const RenderPassDesc& rpDesc,
                                       VK_ACCESS_SHADER_READ_BIT,
                                       VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
     }
-    this->setViewport(viewport);
 
     if (!this->beginRenderPass(
-                rpDesc, colorTexture, resolveTexture, depthStencilTexture)) {
+                rpDesc, viewport, colorTexture, resolveTexture, depthStencilTexture)) {
         return false;
     }
 
@@ -752,8 +751,7 @@ bool VulkanCommandBuffer::updateAndBindInputAttachment(const VulkanTexture& text
 
 bool VulkanCommandBuffer::loadMSAAFromResolve(const RenderPassDesc& rpDesc,
                                               VulkanTexture& resolveTexture,
-                                              SkISize dstDimensions,
-                                              const SkIRect nativeDrawBounds) {
+                                              SkIRect renderArea) {
     sk_sp<VulkanGraphicsPipeline> loadPipeline =
             fResourceProvider->findOrCreateLoadMSAAPipeline(rpDesc);
     if (!loadPipeline) {
@@ -761,36 +759,19 @@ bool VulkanCommandBuffer::loadMSAAFromResolve(const RenderPassDesc& rpDesc,
         return false;
     }
 
-    // Update and bind uniform descriptor set
-    int w = nativeDrawBounds.width();
-    int h = nativeDrawBounds.height();
+    // We need to load the entire render area since that is what will be resolved at the end.
+    // This may be a slightly different "viewport" than what will be used for actual rendering since
+    // it will have been rounded to the device's preferred granularity.
+    this->setViewport(renderArea);
+    this->setScissor(renderArea);
 
-    // dst rect edges in NDC (-1 to 1)
-    int dw = dstDimensions.width();
-    int dh = dstDimensions.height();
-    float dx0 = 2.f * nativeDrawBounds.fLeft / dw - 1.f;
-    float dx1 = 2.f * (nativeDrawBounds.fLeft + w) / dw - 1.f;
-    float dy0 = 2.f * nativeDrawBounds.fTop / dh - 1.f;
-    float dy1 = 2.f * (nativeDrawBounds.fTop + h) / dh - 1.f;
-    float uniData[] = {dx1 - dx0, dy1 - dy0, dx0, dy0};  // posXform
-    SkASSERT(sizeof(uniData) == VulkanResourceProvider::kLoadMSAAPushConstantSize);
-
+    // Bind the special load pipeline, which does not require any uniform or push constant state.
     this->bindGraphicsPipeline(loadPipeline.get());
-
-    PushConstantInfo loadMsaaPushConstantInfo;
-    loadMsaaPushConstantInfo.fOffset = 0;
-    loadMsaaPushConstantInfo.fSize = VulkanResourceProvider::kLoadMSAAPushConstantSize;
-    loadMsaaPushConstantInfo.fShaderStageFlagBits =
-            VulkanResourceProvider::kLoadMSAAPushConstantStageFlags;
-    loadMsaaPushConstantInfo.fValues = uniData;
-    this->pushConstants(loadMsaaPushConstantInfo, loadPipeline->layout());
 
     // Make sure we do not attempt to bind uniform or texture/sampler descriptors because we do
     // not use them for loading MSAA from resolve.
     fBindUniformBuffers = false;
     fBindTextureSamplers = false;
-
-    this->setScissor(SkIRect::MakeXYWH(0, 0, dstDimensions.width(), dstDimensions.height()));
 
     if (!this->updateAndBindInputAttachment(
             resolveTexture,
@@ -916,10 +897,10 @@ void gather_clear_values(const RenderPassDesc& rpDesc,
 // The RenderArea bounds we pass into BeginRenderPass must have a start x value that is a multiple
 // of the granularity. The width must also be a multiple of the granularity or equal to the width
 // of the entire attachment. Similar requirements apply to the y and height components.
-VkRect2D get_render_area(const SkIRect& srcBounds,
-                         const VkExtent2D& granularity,
-                         int maxWidth,
-                         int maxHeight) {
+SkIRect get_render_area(const SkIRect& srcBounds,
+                        const VkExtent2D& granularity,
+                        int maxWidth,
+                        int maxHeight) {
     SkIRect dstBounds;
     // Adjust Width
     if (granularity.width == 0 || granularity.width == 1) {
@@ -958,10 +939,7 @@ VkRect2D get_render_area(const SkIRect& srcBounds,
         }
     }
 
-    VkRect2D renderArea;
-    renderArea.offset = { dstBounds.fLeft , dstBounds.fTop };
-    renderArea.extent = { (uint32_t)dstBounds.width(), (uint32_t)dstBounds.height() };
-    return renderArea;
+    return dstBounds;
 }
 
 void populate_write_info(VulkanDescriptorSet* set,
@@ -991,6 +969,7 @@ void populate_write_info(VulkanDescriptorSet* set,
 } // anonymous namespace
 
 bool VulkanCommandBuffer::beginRenderPass(const RenderPassDesc& rpDesc,
+                                          SkIRect viewport,
                                           const Texture* colorTexture,
                                           const Texture* resolveTexture,
                                           const Texture* depthStencilTexture) {
@@ -1072,8 +1051,8 @@ bool VulkanCommandBuffer::beginRenderPass(const RenderPassDesc& rpDesc,
     bool useFullBounds = loadMSAAFromResolve &&
                          fSharedContext->vulkanCaps().mustLoadFullImageForMSAA();
 
-    VkRect2D renderArea = get_render_area(useFullBounds ? SkIRect::MakeWH(frameBufferWidth,
-                                                                          frameBufferHeight)
+    SkIRect renderArea = get_render_area(useFullBounds ? SkIRect::MakeWH(frameBufferWidth,
+                                                                         frameBufferHeight)
                                                         : fRenderAreaBounds,
                                           vulkanRenderPass->granularity(),
                                           frameBufferWidth,
@@ -1083,7 +1062,8 @@ bool VulkanCommandBuffer::beginRenderPass(const RenderPassDesc& rpDesc,
     beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     beginInfo.renderPass = vulkanRenderPass->renderPass();
     beginInfo.framebuffer = framebuffer->framebuffer();
-    beginInfo.renderArea = renderArea;
+    beginInfo.renderArea.offset = {renderArea.fLeft, renderArea.fTop};
+    beginInfo.renderArea.extent = { (uint32_t) renderArea.width(), (uint32_t) renderArea.height()};
     beginInfo.clearValueCount = clearValues.size();
     beginInfo.pClearValues = clearValues.begin();
 
@@ -1097,19 +1077,17 @@ bool VulkanCommandBuffer::beginRenderPass(const RenderPassDesc& rpDesc,
                                    VK_SUBPASS_CONTENTS_INLINE));
     fActiveRenderPass = true;
 
-    SkIRect nativeBounds = SkIRect::MakeXYWH(renderArea.offset.x,
-                                             renderArea.offset.y,
-                                             renderArea.extent.width,
-                                             renderArea.extent.height);
-
     if (loadMSAAFromResolve && !this->loadMSAAFromResolve(rpDesc,
                                                           *vulkanResolveTexture,
-                                                          fTargetTexture->dimensions(),
-                                                          nativeBounds)) {
+                                                          renderArea)) {
         SKIA_LOG_E("Failed to load MSAA from resolve");
         this->endRenderPass();
         return false;
     }
+
+    // loadMSAAFromResolve() will have manipulated the viewport, so now that that is done, set it
+    // to what the draw passes expect.
+    this->setViewport(viewport);
 
     // Once we have an active render pass, the command buffer should hold on to a frame buffer ref.
     this->trackResource(std::move(framebuffer));

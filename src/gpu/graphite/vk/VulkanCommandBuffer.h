@@ -88,6 +88,7 @@ private:
                          const DrawPassList&) override;
 
     bool beginRenderPass(const RenderPassDesc&,
+                         SkIRect viewport,
                          const Texture* colorTexture,
                          const Texture* resolveTexture,
                          const Texture* depthStencilTexture);
@@ -185,8 +186,7 @@ private:
 
     bool loadMSAAFromResolve(const RenderPassDesc&,
                              VulkanTexture& resolveTexture,
-                             SkISize dstDimensions,
-                             SkIRect nativeBounds);
+                             SkIRect renderArea);
     void nextSubpass();
     void setViewport(SkIRect viewport);
 

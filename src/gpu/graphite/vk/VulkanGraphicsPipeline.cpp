@@ -1167,15 +1167,11 @@ std::unique_ptr<VulkanProgramInfo> VulkanGraphicsPipeline::CreateLoadMSAAProgram
 
     std::string vertShaderText;
     vertShaderText.append(
-            "layout(vulkan,  push_constant) uniform vertexUniformBuffer {"
-                "half4 uPosXform;"
-            "};"
-
             // MSAA Load Program VS
             "void main() {"
+                // Derive [0,1]x[0,1] coordinates from vertex ID and then scale to [-1,1] for NDC.
                 "float2 position = float2(sk_VertexID >> 1, sk_VertexID & 1);"
-                "sk_Position.xy = position * uPosXform.xy + uPosXform.zw;"
-                "sk_Position.zw = half2(0, 1);"
+                "sk_Position = float4(2 * position - 1, 0, 1);"
             "}");
 
     std::string fragShaderText;
@@ -1230,7 +1226,7 @@ std::unique_ptr<VulkanProgramInfo> VulkanGraphicsPipeline::CreateLoadMSAAProgram
     // a surface with an external format.
     if (!program->setLayout(setup_pipeline_layout(
                 sharedContext,
-                /*pushConstantSize=*/32,
+                /*pushConstantSize=*/0,
                 (VkShaderStageFlagBits)VK_SHADER_STAGE_VERTEX_BIT,
                 /*hasCombinedUniforms=*/false,
                 /*storageStageFlags=*/{},

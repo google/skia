@@ -132,8 +132,7 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
 
     // Assert that our push constant sizes are below the maximum allowed (which is guaranteed to be
     // at least 128 bytes per spec).
-    static_assert(VulkanResourceProvider::kIntrinsicConstantSize < 128 &&
-                  VulkanResourceProvider::kLoadMSAAPushConstantSize < 128);
+    static_assert(VulkanResourceProvider::kIntrinsicConstantSize < 128);
 
     fRequiredUniformBufferAlignment = deviceLimits.minUniformBufferOffsetAlignment;
     fRequiredStorageBufferAlignment = deviceLimits.minStorageBufferOffsetAlignment;
