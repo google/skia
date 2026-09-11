@@ -18,6 +18,14 @@ sk_sp<VulkanFramebuffer> VulkanFramebuffer::Make(const VulkanSharedContext* cont
                                                  const RenderPassDesc& renderPassDesc,
                                                  sk_sp<VulkanTexture> msaaTexture,
                                                  sk_sp<VulkanTexture> depthStencilTexture) {
+    // All attachments used in a VkFramebuffer must be at least the size of the VkFramebuffer.
+    SkASSERT(!msaaTexture ||
+             (msaaTexture->dimensions().width() >= SkTo<int>(framebufferInfo.width) &&
+              msaaTexture->dimensions().height() >= SkTo<int>(framebufferInfo.height)));
+    SkASSERT(!depthStencilTexture ||
+             (depthStencilTexture->dimensions().width() >= SkTo<int>(framebufferInfo.width) &&
+              depthStencilTexture->dimensions().height() >= SkTo<int>(framebufferInfo.height)));
+
     VkFramebuffer framebuffer;
     VkResult result;
     VULKAN_CALL_RESULT(
@@ -32,6 +40,8 @@ sk_sp<VulkanFramebuffer> VulkanFramebuffer::Make(const VulkanSharedContext* cont
 
     return sk_sp<VulkanFramebuffer>(new VulkanFramebuffer(context,
                                                           framebuffer,
+                                                          {SkTo<int>(framebufferInfo.width),
+                                                           SkTo<int>(framebufferInfo.height)},
                                                           std::move(msaaTexture),
                                                           std::move(depthStencilTexture),
                                                           loadMSAAFromResolve));
@@ -39,14 +49,15 @@ sk_sp<VulkanFramebuffer> VulkanFramebuffer::Make(const VulkanSharedContext* cont
 
 VulkanFramebuffer::VulkanFramebuffer(const VulkanSharedContext* context,
                                      VkFramebuffer framebuffer,
+                                     SkISize dimensions,
                                      sk_sp<VulkanTexture> msaaTexture,
                                      sk_sp<VulkanTexture> depthStencilTexture,
                                      bool loadMSAAFromResolve)
         : Resource(context,
                    Ownership::kOwned,
                    /*gpuMemorySize=*/0)
-        , fSharedContext(context)
         , fFramebuffer(framebuffer)
+        , fDimensions(dimensions)
         , fMsaaTexture(std::move(msaaTexture))
         , fDepthStencilTexture(std::move(depthStencilTexture))
         , fLoadMSAAFromResolve(loadMSAAFromResolve) {}
@@ -71,8 +82,8 @@ bool VulkanFramebuffer::compatible(const RenderPassDesc& renderPassDesc,
 }
 
 void VulkanFramebuffer::freeGpuData() {
-    VULKAN_CALL(fSharedContext->interface(),
-                DestroyFramebuffer(fSharedContext->device(), fFramebuffer, nullptr));
+    auto context = static_cast<const VulkanSharedContext*>(this->sharedContext());
+    VULKAN_CALL(context->interface(), DestroyFramebuffer(context->device(), fFramebuffer, nullptr));
 }
 
 } // namespace skgpu::graphite

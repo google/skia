@@ -1025,24 +1025,13 @@ bool VulkanCommandBuffer::beginRenderPass(const RenderPassDesc& rpDesc,
     this->submitPipelineBarriers();
     this->trackResource(vulkanRenderPass);
 
-    int frameBufferWidth = 0;
-    int frameBufferHeight = 0;
-    if (colorTexture) {
-        frameBufferWidth = colorTexture->dimensions().width();
-        frameBufferHeight = colorTexture->dimensions().height();
-    } else if (depthStencilTexture) {
-        frameBufferWidth = depthStencilTexture->dimensions().width();
-        frameBufferHeight = depthStencilTexture->dimensions().height();
-    }
     sk_sp<VulkanFramebuffer> framebuffer =
             fResourceProvider->findOrCreateFramebuffer(fSharedContext,
                                                        fTargetTexture,
                                                        vulkanResolveTexture,
                                                        vulkanDepthStencilTexture,
                                                        rpDesc,
-                                                       *vulkanRenderPass,
-                                                       frameBufferWidth,
-                                                       frameBufferHeight);
+                                                       *vulkanRenderPass);
     if (!framebuffer) {
         SKIA_LOG_W("Could not find or create Vulkan Framebuffer");
         return false;
@@ -1051,12 +1040,12 @@ bool VulkanCommandBuffer::beginRenderPass(const RenderPassDesc& rpDesc,
     bool useFullBounds = loadMSAAFromResolve &&
                          fSharedContext->vulkanCaps().mustLoadFullImageForMSAA();
 
-    SkIRect renderArea = get_render_area(useFullBounds ? SkIRect::MakeWH(frameBufferWidth,
-                                                                         frameBufferHeight)
-                                                        : fRenderAreaBounds,
-                                          vulkanRenderPass->granularity(),
-                                          frameBufferWidth,
-                                          frameBufferHeight);
+    SkISize framebufferDims = framebuffer->dimensions();
+    SkIRect renderArea = get_render_area(useFullBounds ? SkIRect::MakeSize(framebufferDims)
+                                                       : fRenderAreaBounds,
+                                         vulkanRenderPass->granularity(),
+                                         framebufferDims.width(),
+                                         framebufferDims.height());
 
     VkRenderPassBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
