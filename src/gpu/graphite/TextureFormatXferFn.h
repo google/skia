@@ -78,12 +78,14 @@ public:
 #endif
 
 private:
+    using SwizzlerFn = void (*)(uint32_t*, const uint32_t*, int); // SkOpts::Swizzle_8888_u32
     struct RPOps : public SkNVRefCnt<RPOps> {
         SkRasterPipelineContexts::MemoryCtx fSrcCtx{nullptr, 0};
         SkRasterPipelineContexts::MemoryCtx fDstCtx{nullptr, 0};
 
         SkSTArenaAlloc<256> fArena; // holds raster pipeline and other op contexts
         SkRasterPipeline fRP; // backed by fArena
+        SwizzlerFn fSwizzler = nullptr; // exclusive to fRP if this matches a case in SkSwizzler
 
         const int fSrcBpp;
         const int fDstBpp;

@@ -18,6 +18,7 @@
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
+#include "src/core/SkSwizzlePriv.h"
 #include "src/core/SkVx.h"
 
 #include <functional>
@@ -637,8 +638,11 @@ std::pair</*ops=*/uint8_t, /*computeLuminance=*/bool> optimize_transfer(
         }
 
         // If there is not any RGB-dependent calculation between CPU and GPU data, we can also
-        // consolidate the swap from cpu color type.
-        if (!computeLuminance && !SkToBool(*csSteps)) {
+        // consolidate the swap from cpu color type (CS transfer functions and unpremul/premul
+        // steps are per-channel so swapping is still okay).
+        if (!computeLuminance && !(csSteps->fFlags.gamut_transform ||
+                                   csSteps->fFlags.src_ootf ||
+                                   csSteps->fFlags.dst_ootf)) {
             // TODO(michaelludwig): Once we push finalOps back into raster pipeline if we need SkRP,
             // we can always apply this to cpuCT to remove an implicit swap_rb op.
             SkColorType swappedCT = *cpuCT;
@@ -762,6 +766,52 @@ sk_sp<TextureFormatXferFn::RPOps> TextureFormatXferFn::RPOps::Make(
     sk_sp<RPOps> ops{new RPOps(/*srcBpp=*/SkColorTypeBytesPerPixel(srcColorType),
                                /*dstBpp=*/SkColorTypeBytesPerPixel(dstColorType))};
 
+    // Match SkConvertPixels swizzle_or_premul and delegate to SkOpts for certain combinations. Not
+    // all of the Swizzler functions are relevant because the same cases are already covered by sole
+    // use of ExtendedXferOps (e.g. RGBA_to_BGRA is just kSwapRB) or never occur in format transfers
+    // (e.g. the CMYK conversions).
+    auto isOnlyPremul = [] <typename RPModifier> (RPModifier modifier) {
+        if constexpr (std::is_same_v<RPModifier, SkColorSpaceXformSteps>) {
+            auto flags = modifier.fFlags;
+            return flags.premul &&
+                  !(flags.unpremul || flags.linearize || flags.gamut_transform || flags.encode);
+        } else {
+            return !SkToBool(modifier);
+        }
+    };
+    auto isOnlyUnpremul = [] <typename RPModifier> (RPModifier modifier) {
+        if constexpr (std::is_same_v<RPModifier, SkColorSpaceXformSteps>) {
+            auto flags = modifier.fFlags;
+            return flags.unpremul &&
+                  !(flags.premul || flags.linearize || flags.gamut_transform || flags.encode);
+        } else {
+            return !SkToBool(modifier);
+        }
+    };
+    if ((srcColorType == kRGBA_8888_SkColorType || srcColorType == kBGRA_8888_SkColorType) &&
+        (dstColorType == kRGBA_8888_SkColorType || dstColorType == kBGRA_8888_SkColorType)) {
+        // 32-bit unorm8 colors that can be swizzled with a premul or an unpremul go to SkOpts.
+        if ((isOnlyPremul(rpModifiers) && ...)) {
+            SkASSERT(srcColorType == dstColorType && !(*xferOps & kForceOpaque));
+            if (*xferOps & kSwapRB) {
+                ops->fSwizzler = SkOpts::RGBA_to_bgrA; // swap RB and premultiply
+                *xferOps &= ~kSwapRB;
+            } else {
+                ops->fSwizzler = SkOpts::RGBA_to_rgbA; // just premultiply
+            }
+            return ops;
+        } else if ((isOnlyUnpremul(rpModifiers) && ...)) {
+            SkASSERT(srcColorType == dstColorType && !(*xferOps & kForceOpaque));
+            if (*xferOps & kSwapRB) {
+                ops->fSwizzler = SkOpts::rgbA_to_BGRA; // swap RB and unpremultiply
+                *xferOps &= ~kSwapRB;
+            } else {
+                ops->fSwizzler = SkOpts::rgbA_to_RGBA; // just unpremultiply
+            }
+            return ops;
+        } // else fall through to use raster pipeline
+    }
+
     // NOTE: The src and dst memory contexts are not modified here, they just provide stable
     // pointers for the appended ops to reference, and will be patched during run().
     ops->fRP.appendLoad(srcColorType, &ops->fSrcCtx);
@@ -799,6 +849,11 @@ sk_sp<TextureFormatXferFn::RPOps> TextureFormatXferFn::RPOps::Make(
 bool TextureFormatXferFn::RPOps::setStrides(size_t srcRowBytes,
                                             size_t dstRowBytes,
                                             uint8_t otherOps) {
+    // SkOpts must proceed row by row
+    if (fSwizzler) {
+        return false;
+    }
+
     // SkRasterPipeline operates in pixel units for its strides, so we should only be relying on
     // RP's built-in row stride handling if the data is aligned to the pixel size.
     if (srcRowBytes % fSrcBpp == 0 && dstRowBytes % fDstBpp == 0 && otherOps == 0) {
@@ -846,14 +901,24 @@ void TextureFormatXferFn::run(int width, int height,
     }
 
     if (fRP) {
-        rowFns.push_back([&](const char* src, char* dst, int width) {
-            // NOTE: When height != 1, this invocation actually processes the entire image.
-            // Otherwise we assume src and dst have been offset by y so we update the MemoryCtx's
-            // pixel addresses.
-            fRP->fSrcCtx.pixels = const_cast<char*>(src); // This won't be written to
-            fRP->fDstCtx.pixels = dst;
-            fRP->fRP.run(0, 0, width, height);
-        });
+        if (fRP->fSwizzler) {
+            SkASSERT(fRP->fRP.empty());
+            rowFns.push_back([&](const char* src, char* dst, int width) {
+                const uint32_t* srcU32 = reinterpret_cast<const uint32_t*>(src);
+                uint32_t* dstU32 = reinterpret_cast<uint32_t*>(dst);
+                fRP->fSwizzler(dstU32, srcU32, width);
+            });
+        } else {
+            SkASSERT(!fRP->fRP.empty());
+            rowFns.push_back([&](const char* src, char* dst, int width) {
+                // NOTE: When height != 1, this invocation actually processes the entire image.
+                // Otherwise we assume src and dst have been offset by y so we update the
+                // MemoryCtx's pixel addresses.
+                fRP->fSrcCtx.pixels = const_cast<char*>(src); // This won't be written to
+                fRP->fDstCtx.pixels = dst;
+                fRP->fRP.run(0, 0, width, height);
+            });
+        }
     }
 
     if (fPostOps) {
