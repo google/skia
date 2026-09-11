@@ -18,6 +18,7 @@
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 
+#include <array>
 #include <memory>
 #include <utility>
 
@@ -83,7 +84,7 @@ private:
     SkMatrix                 fLocalMatrix;
     bool                     fUsesW;
     SkISize                  fAtlasDimensions;  // dims for all textures used with fTextureSamplers
-    TextureSampler           fTextureSamplers[kMaxTextures];
+    std::array<TextureSampler, kMaxTextures> fTextureSamplers;
     Attribute                fInPosition;
     Attribute                fInColor;
     Attribute                fInTextureCoords;

@@ -23,6 +23,8 @@
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrWindowRectangles.h"
 
+#include <array>
+
 GrCaps::GrCaps(const GrContextOptions& options) {
     fNPOTTextureTileSupport = false;
     fMipmapSupport = false;
@@ -282,11 +284,11 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendS32("Max Window Rectangles", fMaxWindowRectangles);
     writer->appendS32("Sample Count for Internal MSAA", fInternalMultisampleCount);
 
-    static const char* kBlendEquationSupportNames[] = {
+    static constexpr auto kBlendEquationSupportNames = std::to_array<const char*>({
         "Basic",
         "Advanced",
         "Advanced Coherent",
-    };
+    });
     static_assert(0 == kBasic_BlendEquationSupport);
     static_assert(1 == kAdvanced_BlendEquationSupport);
     static_assert(2 == kAdvancedCoherent_BlendEquationSupport);

@@ -37,7 +37,7 @@
 static const SkMatrix& test_matrix(SkRandom* random,
                                    bool includeNonPerspective,
                                    bool includePerspective) {
-    static SkMatrix gMatrices[5];
+    static std::array<SkMatrix, 5> gMatrices;
     static const int kPerspectiveCount = 1;
     static bool gOnce;
     if (!gOnce) {
@@ -70,7 +70,7 @@ namespace GrTest {
 const SkMatrix& TestMatrix(SkRandom* random) { return test_matrix(random, true, true); }
 
 const SkMatrix& TestMatrixPreservesRightAngles(SkRandom* random) {
-    static SkMatrix gMatrices[5];
+    static std::array<SkMatrix, 5> gMatrices;
     static bool gOnce;
     if (!gOnce) {
         gOnce = true;
@@ -96,7 +96,7 @@ const SkMatrix& TestMatrixPreservesRightAngles(SkRandom* random) {
 }
 
 const SkMatrix& TestMatrixRectStaysRect(SkRandom* random) {
-    static SkMatrix gMatrices[6];
+    static std::array<SkMatrix, 6> gMatrices;
     static bool gOnce;
     if (!gOnce) {
         gOnce = true;
@@ -125,16 +125,16 @@ const SkMatrix& TestMatrixInvertible(SkRandom* random) { return test_matrix(rand
 const SkMatrix& TestMatrixPerspective(SkRandom* random) { return test_matrix(random, false, true); }
 
 void TestWrapModes(SkRandom* random, GrSamplerState::WrapMode wrapModes[2]) {
-    static const GrSamplerState::WrapMode kWrapModes[] = {
+    static constexpr auto kWrapModes = std::to_array<GrSamplerState::WrapMode>({
             GrSamplerState::WrapMode::kClamp,
             GrSamplerState::WrapMode::kRepeat,
             GrSamplerState::WrapMode::kMirrorRepeat,
-    };
+    });
     wrapModes[0] = kWrapModes[random->nextULessThan(std::size(kWrapModes))];
     wrapModes[1] = kWrapModes[random->nextULessThan(std::size(kWrapModes))];
 }
 const SkRect& TestRect(SkRandom* random) {
-    static SkRect gRects[7];
+    static std::array<SkRect, 7> gRects;
     static bool gOnce;
     if (!gOnce) {
         gOnce = true;
@@ -150,7 +150,7 @@ const SkRect& TestRect(SkRandom* random) {
 
 // Just some simple rects for code which expects its input very sanitized
 const SkRect& TestSquare(SkRandom* random) {
-    static SkRect gRects[2];
+    static std::array<SkRect, 2> gRects;
     static bool gOnce;
     if (!gOnce) {
         gOnce = true;
@@ -161,7 +161,7 @@ const SkRect& TestSquare(SkRandom* random) {
 }
 
 const SkRRect& TestRRectSimple(SkRandom* random) {
-    static SkRRect gRRect[2];
+    static std::array<SkRRect, 2> gRRect;
     static bool gOnce;
     if (!gOnce) {
         gOnce = true;
@@ -179,7 +179,7 @@ const SkRRect& TestRRectSimple(SkRandom* random) {
 }
 
 const SkPath& TestPath(SkRandom* random) {
-    static SkPath gPath[7];
+    static std::array<SkPath, 7> gPath;
     static bool gOnce;
     if (!gOnce) {
         gOnce = true;
@@ -227,7 +227,7 @@ const SkPath& TestPath(SkRandom* random) {
 }
 
 const SkPath& TestPathConvex(SkRandom* random) {
-    static SkPath gPath[3];
+    static std::array<SkPath, 3> gPath;
     static bool gOnce;
     if (!gOnce) {
         gOnce = true;
@@ -319,7 +319,7 @@ std::optional<SkPathEffectBase::DashInfo> TestDashPathEffect::asADash() const {
 }
 
 sk_sp<SkColorSpace> TestColorSpace(SkRandom* random) {
-    static SkColorSpace* gColorSpaces[3];
+    static std::array<SkColorSpace *, 3> gColorSpaces;
     static SkOnce once;
     once([] {
         // No color space (legacy mode)
@@ -334,7 +334,7 @@ sk_sp<SkColorSpace> TestColorSpace(SkRandom* random) {
 
 sk_sp<GrColorSpaceXform> TestColorXform(SkRandom* random) {
     // TODO: Add many more kinds of xforms here
-    static GrColorSpaceXform* gXforms[3];
+    static std::array<GrColorSpaceXform *, 3> gXforms;
     static SkOnce once;
     once([] {
         sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();

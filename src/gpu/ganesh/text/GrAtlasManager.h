@@ -20,6 +20,7 @@
 #include "src/gpu/ganesh/GrOnFlushResourceProvider.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -174,7 +175,7 @@ private:
     }
 
     GrDrawOpAtlas::AllowMultitexturing fAllowMultitexturing;
-    std::unique_ptr<GrDrawOpAtlas> fAtlases[skgpu::kMaskFormatCount];
+    std::array<std::unique_ptr<GrDrawOpAtlas>, skgpu::kMaskFormatCount> fAtlases;
     static_assert(skgpu::kMaskFormatCount == 3);
     bool fSupportBilerpAtlas;
     GrProxyProvider* fProxyProvider;

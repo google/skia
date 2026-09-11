@@ -27,6 +27,7 @@
 #include "src/gpu/ganesh/GrTextureProxy.h"
 
 #include <algorithm>
+#include <array>
 #include <functional>
 #include <memory>
 #include <tuple>
@@ -576,14 +577,14 @@ inline void GrDrawOpAtlas::deactivateLastPage() {
 }
 
 GrDrawOpAtlasConfig::GrDrawOpAtlasConfig(int maxTextureSize, size_t maxBytes) {
-    static const SkISize kARGBDimensions[] = {
-        {256, 256},   // maxBytes < 2^19
-        {512, 256},   // 2^19 <= maxBytes < 2^20
-        {512, 512},   // 2^20 <= maxBytes < 2^21
-        {1024, 512},  // 2^21 <= maxBytes < 2^22
-        {1024, 1024}, // 2^22 <= maxBytes < 2^23
-        {2048, 1024}, // 2^23 <= maxBytes
-    };
+    static constexpr auto kARGBDimensions = std::to_array<SkISize>({
+        SkISize{256, 256},   // maxBytes < 2^19
+        SkISize{512, 256},   // 2^19 <= maxBytes < 2^20
+        SkISize{512, 512},   // 2^20 <= maxBytes < 2^21
+        SkISize{1024, 512},  // 2^21 <= maxBytes < 2^22
+        SkISize{1024, 1024}, // 2^22 <= maxBytes < 2^23
+        SkISize{2048, 1024}, // 2^23 <= maxBytes
+    });
 
     // Index 0 corresponds to maxBytes of 2^18, so start by dividing it by that
     maxBytes >>= 18;
