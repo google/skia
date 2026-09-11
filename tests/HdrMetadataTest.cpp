@@ -165,6 +165,15 @@ DEF_TEST(HdrMetadata_Agtm_PCHIP_EdgeCases, r) {
             .expected = { {1, 2.f} }
         },
         {
+            .name = "Interior point, flat on both sides",
+            .curve = { .fControlPoints = {
+                {.fX = 0.f, .fY = 2.f},
+                {.fX = 1.f, .fY = 2.f},
+                {.fX = 2.f, .fY = 2.f}}
+            },
+            .expected = { {1, 0.f} }
+        },
+        {
             .name = "N=2, two-point difference",
             .curve = { .fControlPoints = {
                 {.fX = 0.f, .fY = 0.f},
