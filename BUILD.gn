@@ -3383,6 +3383,14 @@ if (skia_enable_tools) {
       ]
     }
 
+    test_app("dump_capture") {
+      sources = [ "tools/dump_capture.cpp" ]
+      deps = [
+        ":flags",
+        ":skia",
+      ]
+    }
+
     if (skia_use_libpng_decode) {
       test_app("skdiff") {
         sources = [

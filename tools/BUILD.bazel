@@ -10,7 +10,10 @@ licenses(["notice"])
 skia_cc_binary(
     name = "dump_capture",
     testonly = True,
-    srcs = ["dump_capture.cpp"],
+    srcs = [
+        "dump_base.h",
+        "dump_capture.cpp",
+    ],
     deps = [
         "//:core",
         "//src/core:core_priv",

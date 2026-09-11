@@ -18,6 +18,7 @@
 #include "src/core/SkRecordOpts.h"
 #include "src/core/SkTime.h"
 #include "src/image/SkImage_Base.h"
+#include "tools/dump_base.h"
 #include "tools/flags/CommandLineFlags.h"
 
 #include <cstdio>
@@ -29,118 +30,6 @@ static DEFINE_int(tile, 1000000000, "Simulated tile size.");
 static DEFINE_bool(timeWithCommand, false,
                    "If true, print time next to command, else in first column.");
 static DEFINE_string2(write, w, "", "Write the (optimized) picture to the named file.");
-
-class Dumper {
-public:
-    explicit Dumper(SkCanvas* canvas, int count)
-        : fDigits(0)
-        , fIndent(0)
-        , fIndex(0)
-        , fDraw(canvas, nullptr, nullptr, 0, nullptr)
-    {
-        while (count > 0) {
-            count /= 10;
-            fDigits++;
-        }
-    }
-
-    template <typename T>
-    void operator()(const T& command) {
-        auto start = SkTime::GetNSecs();
-        fDraw(command);
-        this->print(command, SkTime::GetNSecs() - start);
-    }
-
-    void operator()(const SkRecords::NoOp&) {
-        // Move on without printing anything.
-    }
-
-    template <typename T>
-    void print(const T& command, double ns) {
-        this->printNameAndTime(command, ns);
-    }
-
-    void print(const SkRecords::Restore& command, double ns) {
-        --fIndent;
-        this->printNameAndTime(command, ns);
-    }
-
-    void print(const SkRecords::Save& command, double ns) {
-        this->printNameAndTime(command, ns);
-        ++fIndent;
-    }
-
-    void print(const SkRecords::SaveLayer& command, double ns) {
-        this->printNameAndTime(command, ns);
-        ++fIndent;
-    }
-
-    void print(const SkRecords::DrawPicture& command, double ns) {
-        this->printNameAndTime(command, ns);
-
-        if (auto record = SkPicturePriv::GetRecord(command.picture.get())) {
-            ++fIndent;
-
-            for (int i = 0; i < record->count(); i++) {
-                record->visit(i, *this);
-            }
-
-            --fIndent;
-        }
-    }
-
-    void print(const SkRecords::DrawAnnotation& command, double ns) {
-        int us = (int)(ns * 1e-3);
-        if (!FLAGS_timeWithCommand) {
-            printf("%6dus  ", us);
-        }
-        printf("%*d ", fDigits, fIndex++);
-        for (int i = 0; i < fIndent; i++) {
-            printf("    ");
-        }
-        if (FLAGS_timeWithCommand) {
-            printf("%6dus  ", us);
-        }
-        printf("DrawAnnotation [%g %g %g %g] %s\n",
-               command.rect.left(), command.rect.top(), command.rect.right(), command.rect.bottom(),
-               command.key.c_str());
-    }
-
-private:
-    template <typename T>
-    void printNameAndTime(const T& command, double ns) {
-        int us = (int)(ns * 1e-3);
-        if (!FLAGS_timeWithCommand) {
-            printf("%6dus  ", us);
-        }
-        printf("%*d ", fDigits, fIndex++);
-        for (int i = 0; i < fIndent; i++) {
-            printf("    ");
-        }
-        if (FLAGS_timeWithCommand) {
-            printf("%6dus  ", us);
-        }
-        puts(NameOf(command));
-    }
-
-    template <typename T>
-    static const char* NameOf(const T&) {
-    #define CASE(U) case SkRecords::U##_Type: return #U;
-        switch (T::kType) { SK_RECORD_TYPES(CASE) }
-    #undef CASE
-        SkDEBUGFAIL("Unknown T");
-        return "Unknown T";
-    }
-
-    static const char* NameOf(const SkRecords::SaveLayer&) {
-        return "\x1b[31;1mSaveLayer\x1b[0m";  // Bold red.
-    }
-
-    int fDigits;
-    int fIndent;
-    int fIndex;
-    SkRecords::Draw fDraw;
-};
 
 int main(int argc, char** argv) {
     CommandLineFlags::Parse(argc, argv);
@@ -179,7 +68,7 @@ int main(int argc, char** argv) {
 
         printf("%s %s\n", FLAGS_optimize ? "optimized" : "not-optimized", FLAGS_skps[i]);
 
-        Dumper dumper(&canvas, record.count());
+        SkRecordDumper dumper(&canvas, record.count());
         for (int j = 0; j < record.count(); j++) {
             record.visit(j, dumper);
         }
