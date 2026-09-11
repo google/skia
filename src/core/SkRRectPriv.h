@@ -52,6 +52,8 @@ public:
 
     static void WriteToBuffer(const SkRRect& rr, SkWBuffer* buffer);
 
+    static bool AreRectAndRadiiValid(const SkRect& rect, const SkVector radii[4]);
+
     // Compute an approximate largest inscribed bounding box of the rounded rect. For empty,
     // rect, oval, and simple types this will be the largest inscribed rectangle. Otherwise it may
     // not be the global maximum, but will be non-empty, touch at least one edge and be contained

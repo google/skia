@@ -1727,3 +1727,58 @@ DEF_TEST(RRect_b527765132, r) {
     REPORTER_ASSERT(r, offsetRRect.isValid());
     REPORTER_ASSERT(r, offsetRRect.isOval());
 }
+
+DEF_TEST(RRect_b547198215, r) {
+    // Overlapping corner radii on any side must be rejected by AreRectAndRadiiValid.
+    const SkRect rect = SkRect::MakeWH(100.0f, 100.0f);
+
+    // Overlapping right side (UR.y + LR.y > height)
+    {
+        const SkVector radii[4] = {{0.0f, 0.0f}, {0.0f, 60.0f}, {0.0f, 60.0f}, {0.0f, 0.0f}};
+        REPORTER_ASSERT(r, !SkRRectPriv::AreRectAndRadiiValid(rect, radii));
+
+        // Constructing via setRectRadii scales radii to fit, making it valid.
+        SkRRect rrect;
+        rrect.setRectRadii(rect, radii);
+        REPORTER_ASSERT(r, rrect.isValid());
+    }
+
+    // Overlapping top side (UL.x + UR.x > width)
+    {
+        const SkVector radii[4] = {{70.0f, 0.0f}, {70.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}};
+        REPORTER_ASSERT(r, !SkRRectPriv::AreRectAndRadiiValid(rect, radii));
+    }
+
+    // Overlapping bottom side (LL.x + LR.x > width)
+    {
+        const SkVector radii[4] = {{0.0f, 0.0f}, {0.0f, 0.0f}, {60.0f, 0.0f}, {60.0f, 0.0f}};
+        REPORTER_ASSERT(r, !SkRRectPriv::AreRectAndRadiiValid(rect, radii));
+    }
+
+    // Overlapping left side (UL.y + LL.y > height)
+    {
+        const SkVector radii[4] = {{0.0f, 55.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 55.0f}};
+        REPORTER_ASSERT(r, !SkRRectPriv::AreRectAndRadiiValid(rect, radii));
+    }
+
+    // Negative radii must be rejected by AreRectAndRadiiValid.
+    {
+        const SkVector radii[4] = {{-5.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}};
+        REPORTER_ASSERT(r, !SkRRectPriv::AreRectAndRadiiValid(rect, radii));
+    }
+    {
+        const SkVector radii[4] = {{0.0f, -5.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}};
+        REPORTER_ASSERT(r, !SkRRectPriv::AreRectAndRadiiValid(rect, radii));
+    }
+
+    // Test the specific testcase geometry from b/547198215
+    {
+        const SkRect fuzzedRect =
+                SkRect::MakeLTRB(1.35631564e-19f, 1.35631564e-19f, 163968.5f, 800.501953f);
+        const SkVector fuzzedRadii[4] = {{1.35631564e-19f, 1.35631564e-19f},
+                                         {1.35631564e-19f, 640.501953f},
+                                         {1.35631564e-19f, 640.501953f},
+                                         {1.35631564e-19f, 1.35631564e-19f}};
+        REPORTER_ASSERT(r, !SkRRectPriv::AreRectAndRadiiValid(fuzzedRect, fuzzedRadii));
+    }
+}

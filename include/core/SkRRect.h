@@ -515,8 +515,6 @@ public:
     void dumpHex() const { this->dump(true); }
 
 private:
-    static bool AreRectAndRadiiValid(const SkRect&, const SkVector[4]);
-
     SkRRect(const SkRect& rect, const SkVector radii[4], int32_t type)
         : fRect(rect)
         , fRadii{radii[0], radii[1], radii[2], radii[3]}
