@@ -312,13 +312,12 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(const Context& conte
     // Finally, compute the iteration count, based on the bounds, and the termination operator.
     loopInfo->fCount = 0;
 
-    // Strict ES2 requires loop induction variables to be either 'int' or 'float'. For 'int'
-    // variables, we simulate the loop using 32-bit signed math to correctly detect the integer
-    // wraparound behavior that would occur at runtime on the GPU. (For 'float' variables,
-    // the existing double-precision calculation is sufficient.)
+    // For integer variables, we simulate the loop using 32-bit signed math to correctly detect
+    // the integer wraparound behavior that would occur at runtime on the GPU. (For 'float'
+    // variables, the existing double-precision calculation is sufficient.)
     LoopType loop;
     if (initDecl.baseType().isInteger()) {
-        SkASSERT(initDecl.baseType().bitWidth() == 32);
+        SkASSERT(initDecl.baseType().bitWidth() <= 32);
         loop = LoopType::kInt;
     } else {
         SkASSERT(initDecl.baseType().isFloat());
