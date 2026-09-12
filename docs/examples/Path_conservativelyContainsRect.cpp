@@ -1,15 +1,18 @@
 // Copyright 2019 Google LLC
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
+
+#include <array>
+
 REG_FIDDLE(Path_conservativelyContainsRect, 256, 140, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPath path = SkPath::RRect({10, 20, 54, 120}, 10, 20);
-    SkRect tests[] = {
-      { 10, 40, 54, 80 },
-      { 25, 20, 39, 120 },
-      { 15, 25, 49, 115 },
-      { 13, 27, 51, 113 },
-    };
+    static constexpr auto tests = std::to_array<SkRect>({
+            SkRect{10, 40, 54, 80},
+            SkRect{25, 20, 39, 120},
+            SkRect{15, 25, 49, 115},
+            SkRect{13, 27, 51, 113},
+    });
     for (unsigned i = 0; i < std::size(tests); ++i) {
       SkPaint paint;
       paint.setColor(SK_ColorRED);

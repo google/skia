@@ -1,13 +1,17 @@
 // Copyright 2019 Google LLC
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
+
+#include <array>
+
 REG_FIDDLE(Matrix_asAffine, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkMatrix matrix;
     matrix.setAll(2, 3, 4, 5, 6, 7, 0, 0, 1);
     SkScalar affine[6];
     if (matrix.asAffine(affine)) {
-        const char* names[] = { "ScaleX", "SkewY", "SkewX", "ScaleY", "TransX", "TransY" };
+        static constexpr auto names = std::to_array<const char*>(
+                {"ScaleX", "SkewY", "SkewX", "ScaleY", "TransX", "TransY"});
         for (int i = 0; i < 6; ++i) {
             SkDebugf("%s: %g ", names[i], affine[i]);
         }

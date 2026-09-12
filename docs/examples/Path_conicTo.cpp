@@ -1,6 +1,9 @@
 // Copyright 2019 Google LLC
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
+
+#include <array>
+
 REG_FIDDLE(Path_conicTo, 256, 160, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
@@ -9,7 +12,8 @@ void draw(SkCanvas* canvas) {
     SkPoint conicPts[] = {{20, 150}, {120, 10}, {220, 150}};
     canvas->drawLine(conicPts[0], conicPts[1], paint);
     canvas->drawLine(conicPts[1], conicPts[2], paint);
-    SkColor colors[] = { 0xff88ff00, 0xff0088bb, 0xff6600cc, 0xffbb3377 };
+    static constexpr auto colors =
+            std::to_array<SkColor>({0xff88ff00, 0xff0088bb, 0xff6600cc, 0xffbb3377});
     paint.setStrokeWidth(3);
     SkScalar weight = 0.5f;
     for (unsigned i = 0; i < std::size(colors); ++i) {

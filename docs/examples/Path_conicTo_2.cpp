@@ -1,6 +1,9 @@
 // Copyright 2019 Google LLC
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
+
+#include <array>
+
 REG_FIDDLE(Path_conicTo_2, 256, 128, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
@@ -14,7 +17,8 @@ void draw(SkCanvas* canvas) {
         oval.inset(15, 15);
     }
     path.offset(100, 0);
-    SkScalar conicWeights[] = { 0.707107f, 0.819152f, 0.906308f, 0.965926f };
+    static constexpr auto conicWeights =
+            std::to_array<SkScalar>({0.707107f, 0.819152f, 0.906308f, 0.965926f});
     SkPoint conicPts[][3] = { { {40, 20}, {100, 20}, {100, 80} },
                               { {40, 35}, {71.509f, 35}, {82.286f, 64.6091f} },
                               { {40, 50}, {53.9892f, 50}, {62.981f, 60.7164f} },
