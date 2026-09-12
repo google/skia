@@ -3193,7 +3193,8 @@ void Viewer::drawImGui() {
                             CachedShader& entry(fCachedShaders.push_back());
                             entry.fKey = nullptr;
                             entry.fKeyString = SkStringPrintf("#%-3d %s",
-                                                              index++, pipeline->getLabel());
+                                                              index++,
+                                                              pipeline->getLabel().c_str());
 
                             if (sksl) {
                                 entry.fShader[CachedShader::kVertexIndex].fText =

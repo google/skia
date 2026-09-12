@@ -85,7 +85,7 @@ bool QueueManager::setupCommandBuffer(ResourceProvider* resourceProvider, Protec
 }
 
 InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context* context) {
-    TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0_ALWAYS("skia.gpu", "AddRecording");
 
     // Configure the callback before validation so that failures are propagated to the finish
     // procs that were registered on `info` as well.
@@ -291,7 +291,7 @@ bool QueueManager::addFinishInfo(const InsertFinishInfo& info,
 }
 
 bool QueueManager::submitToGpu(const SubmitInfo& submitInfo) {
-    TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0_ALWAYS("skia.gpu", "SubmitToGPU");
 
     sk_sp<RefCntedCallback> callback;
     if (submitInfo.fFinishedProc) {

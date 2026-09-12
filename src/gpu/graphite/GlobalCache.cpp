@@ -87,7 +87,7 @@ void GlobalCache::invokePipelineCallback(ContextOptions::PipelineCacheOp op,
     if (fPipelineCallback) {
         (*fPipelineCallback)(fPipelineCallbackContext,
                              op,
-                             pipeline->getLabel(),
+                             pipeline->getLabel().c_str(),
                              pipeline->getPipelineInfo().fUniqueKeyHash,
                              pipeline->fromPrecompile(),
                              std::move(serializedKey));

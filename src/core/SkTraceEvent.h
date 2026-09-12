@@ -13,10 +13,11 @@
 #include "include/utils/SkEventTracer.h"
 #include "src/core/SkTraceEventCommon.h" // IWYU pragma: export
 #include "src/core/SkUtils.h"
+
 #include <atomic>
+#include <string>
 
 #if defined(SK_ANDROID_FRAMEWORK_USE_PERFETTO)
-    #include <string>
     #include <utility>
 #endif
 
@@ -252,6 +253,7 @@ private:
 class TraceStringWithCopy {
  public:
   explicit TraceStringWithCopy(const char* str) : str_(str) {}
+  explicit TraceStringWithCopy(const std::string& str) : str_(str.c_str()) {}
   operator const char* () const { return str_; }
  private:
   const char* str_;

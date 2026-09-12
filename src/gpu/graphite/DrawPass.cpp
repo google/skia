@@ -81,10 +81,7 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
 
 bool DrawPass::addResourceRefs(ResourceProvider* resourceProvider,
                                CommandBuffer* commandBuffer) {
-    TRACE_EVENT1_ALWAYS("skia.shaders",
-                        "GraphitePipelineUse",
-                        "# pipelines",
-                        fPipelineHandles.size());
+    TRACE_EVENT0_ALWAYS("skia.shaders", "GraphitePipelineUse");
 
     SharedContext* sharedContext = resourceProvider->sharedContext();
     PipelineManager* pipelineManager = sharedContext->pipelineManager();

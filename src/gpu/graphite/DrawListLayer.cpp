@@ -325,7 +325,7 @@ std::unique_ptr<DrawPass> DrawListLayer::snapDrawPass(Recorder* recorder,
                                                       sk_sp<TextureProxy> target,
                                                       const SkImageInfo& targetInfo,
                                                       const DstReadStrategy dstReadStrategy) {
-    TRACE_EVENT1_ALWAYS("skia.gpu", TRACE_FUNC, "draw count", fDrawCount);
+    TRACE_EVENT1_ALWAYS("skia.gpu", "Snap DrawPass", "draw count", fDrawCount);
 
     std::unique_ptr<DrawPass> drawPass(new DrawPass(target,
                                                     {fLoadOp, StoreOp::kStore},
@@ -455,11 +455,11 @@ std::unique_ptr<DrawPass> DrawListLayer::snapDrawPass(Recorder* recorder,
     drawPass->fPipelineDescs = fPipelineCache.detach();
     drawPass->fSampledTextures = fTextureDataCache.detachTextures();
 
-    TRACE_EVENT_INSTANT2_ALWAYS("skia.gpu",
-                                "DrawPass Stats",
-                                TRACE_EVENT_SCOPE_THREAD,
-                                "# commands", drawPass->fCommandList.count(),
-                                "# textures", drawPass->fSampledTextures.size());
+    TRACE_EVENT_INSTANT2("skia.gpu",
+                         "DrawPass Stats",
+                         TRACE_EVENT_SCOPE_THREAD,
+                         "# commands", drawPass->fCommandList.count(),
+                         "# textures", drawPass->fSampledTextures.size());
 
     this->reset(LoadOp::kLoad);
 
