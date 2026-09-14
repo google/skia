@@ -846,49 +846,80 @@ sk_sp<TextureFormatXferFn::RPOps> TextureFormatXferFn::RPOps::Make(
     return ops;
 }
 
-bool TextureFormatXferFn::RPOps::setStrides(size_t srcRowBytes,
-                                            size_t dstRowBytes,
-                                            uint8_t otherOps) {
-    // SkOpts must proceed row by row
-    if (fSwizzler) {
-        return false;
+int TextureFormatXferFn::getRowInvokeCount(int* width,
+                                           int* height,
+                                           size_t srcRowBytes,
+                                           size_t dstRowBytes) const {
+    bool denseTransfer;
+    const size_t widthSz = (size_t) (*width);
+    if (fRP) {
+            // Mixed transfer methods are always row-by-row to minimize intermediate storage
+        if (((fPreOps | fPostOps) != 0) ||
+            // Swizzler has to go row by row if the src and dst strides aren't dense
+            (fRP->fSwizzler && (widthSz * fRP->fSrcBpp != srcRowBytes ||
+                                widthSz * fRP->fDstBpp != dstRowBytes)) ||
+            // RasterPipeline operates in pixel units so its built-in row handling can be used if
+            // the src and dst strides are multiples of the pixel sizes
+            (!fRP->fSwizzler && srcRowBytes % fRP->fSrcBpp == 0 &&
+                                dstRowBytes % fRP->fDstBpp == 0)) {
+            // Set the strides to 0 when the control loop will be handling the src/dst pointers
+            fRP->fSrcCtx.stride = 0;
+            fRP->fDstCtx.stride = 0;
+            denseTransfer = false;
+        } else {
+            // RasterPipeline or the Swizzler function can be invoked just once
+            fRP->fSrcCtx.stride = SkTo<int>(srcRowBytes / fRP->fSrcBpp);
+            fRP->fDstCtx.stride = SkTo<int>(dstRowBytes / fRP->fDstBpp);
+            denseTransfer = true;
+        }
+    } else {
+        // There's only extended xfer ops, so the src and dst bpp's can be derived from the format.
+        const int bpp = TextureFormatBytesPerBlock(fFormat);
+        if (fPreOps & kPadAlpha) {
+            const size_t srcStride = widthSz * bpp;
+            const size_t dstStride = widthSz * (bpp + bpp/3);
+            denseTransfer = srcStride == srcRowBytes && dstStride == dstRowBytes;
+        } else if (fPostOps & kDropAlpha) {
+            const size_t srcStride = widthSz * (bpp + bpp/3);
+            const size_t dstStride = widthSz * bpp;
+            denseTransfer = srcStride == srcRowBytes && dstStride == dstRowBytes;
+        } else {
+            const size_t stride = widthSz * bpp;
+            denseTransfer = stride == srcRowBytes && stride == dstRowBytes;
+        }
     }
 
-    // SkRasterPipeline operates in pixel units for its strides, so we should only be relying on
-    // RP's built-in row stride handling if the data is aligned to the pixel size.
-    if (srcRowBytes % fSrcBpp == 0 && dstRowBytes % fDstBpp == 0 && otherOps == 0) {
-        fSrcCtx.stride = SkTo<int>(srcRowBytes / fSrcBpp);
-        fDstCtx.stride = SkTo<int>(dstRowBytes / fDstBpp);
-        return true;
-    } else {
-        // Control loop must proceed row by row, so stride can be 0
-        fSrcCtx.stride = 0;
-        fDstCtx.stride = 0;
-        return false;
+    if (denseTransfer) {
+        if (fRP && !fRP->fRP.empty()) {
+            // RasterPipeline manages its own dense transfer and needs to see the original width and
+            // height values, since it will use the set strides on the MemoryCtxs to adjust pointers
+            return 1; // one RP invocation over width x height pixels
+        } else {
+            // When not using the raster pipeline, the dense transfer happens by treating the data
+            // as a single row that is width*height long. This can only be done if that still fits
+            // into an int.
+            SkASSERT(!fRP || fRP->fSwizzler);
+            if (std::numeric_limits<int>::max() / *height > *width) {
+                *width *= *height;
+                *height = 1;
+                return 1; // one "width*height" invocation of swizzler or xfer_row_fn
+            } // otherwise fall through to do a row-by-row transfer
+        }
     }
+
+    // If we're here, it can't be dense, so the transfer will be row-by-row
+    const int rowInvokeCount = *height;
+    *height = 1;
+    return rowInvokeCount;
 }
 
-// TODO(michaelludwig): This is a WIP implementation, it is not focusing on performance yet.
 void TextureFormatXferFn::run(int width, int height,
                               const void* src, size_t srcRowBytes,
                               void* dst, size_t dstRowBytes) const {
     SkASSERT(width >= 1 && height >= 1);
+    const int rowInvokeCount = this->getRowInvokeCount(&width, &height, srcRowBytes, dstRowBytes);
 
-    int rpInvokeCount;
-    SkAutoMalloc tempRowStorage; // empty if no FormatXferOps have to be applied
-
-    if (fRP && fRP->setStrides(srcRowBytes, dstRowBytes, fPreOps | fPostOps)) {
-        // Conversions occur entirely within SkRasterPipeline, so we can configure the
-        // MemoryCtx's to process the whole 2D image.
-        rpInvokeCount = 1;
-    } else {
-        // Conversions will have to occur row-by-row. The SkRP row function will patch the
-        // memory contexts to each row's offset address so we can leave stride as 0.
-        SkASSERT(!fRP || (fRP->fSrcCtx.stride == 0 && fRP->fDstCtx.stride == 0));
-        rpInvokeCount = height;
-        height = 1;
-    }
-
+    SkAutoMalloc tempRowStorage; // empty if not mixing transfer methods
     skia_private::STArray<2, XferRowFn> rowFns; // At most 2 actions per row
     if (fPreOps) {
         // `src` is definitively the texture
@@ -939,7 +970,7 @@ void TextureFormatXferFn::run(int width, int height,
         });
     }
 
-    for (int y = 0; y < rpInvokeCount; ++y) {
+    for (int y = 0; y < rowInvokeCount; ++y) {
         // Always start by processing `src`
         const char* input = static_cast<const char*>(src) + y * srcRowBytes;
         for (int i = 0; i < rowFns.size(); ++i) {

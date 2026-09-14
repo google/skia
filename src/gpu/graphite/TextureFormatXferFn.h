@@ -94,9 +94,6 @@ private:
         static sk_sp<RPOps> Make(SkColorType srcCT, SkColorType dstCT,
                                  uint8_t* xferOps, RPModifiers...);
 
-        // Returns true if RasterPipeline can process the whole 2D block via its strides
-        bool setStrides(size_t srcRowBytes, size_t dstRowBytes, uint8_t otherOps);
-
     private:
         RPOps(int srcBpp, int dstBpp) : fRP(&fArena), fSrcBpp(srcBpp), fDstBpp(dstBpp) {}
     };
@@ -109,6 +106,10 @@ private:
         // At least one direction should not add extra conversion operations
         SkASSERT(preOps == 0 || postOps == 0);
     }
+
+    // Returns the number of times to invoke the row transfer functions, possibly modifying the
+    // width and height parameters of the transfer.
+    int getRowInvokeCount(int* width, int* height, size_t srcRowBytes, size_t dstRowBytes) const;
 
     // At most one of fPreOps or fPostOps will be non-identity; whichever that is determines the
     // side of the conversion for which this TextureFormat defines the raw data format. When both
