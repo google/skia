@@ -5735,3 +5735,43 @@ DEF_TEST(Path_snapshot_rrect_success, reporter) {
         REPORTER_ASSERT(reporter, info->fDirection == SkPathDirection::kCCW);
     }
 }
+
+DEF_TEST(Fuzz_b464232697_ExtremeStrokeBounds, reporter) {
+    // b/464232697: cubic path with coordinates reaching >7 billion in svg_dom
+    SkPath path = SkPathBuilder()
+                          .moveTo(5.0f, -0.93f)
+                          .cubicTo(7.0f, 8088.0f, 4473540.0f, 6.0f, 311.0f, 7245220098.0f)
+                          .lineTo(0.0f, 574404044.0f)
+                          .detach();
+
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(37.002f);
+
+    SkPathBuilder dstBuilder;
+    bool success = skpathutils::FillPathWithPaint(path, paint, &dstBuilder);
+#if defined(SK_BUILD_FOR_FUZZER)
+    REPORTER_ASSERT(reporter, !success);
+#else
+    REPORTER_ASSERT(reporter, success);
+#endif
+}
+
+DEF_TEST(Fuzz_b42534575_ExtremeStrokeBounds, reporter) {
+    // b/42534575: cubic path with astronomical coordinates reaching ~1e19 in api_draw_functions
+    SkPath path = SkPathBuilder()
+                           .moveTo(1.36268369E+19f, -1.53751352E+19f)
+                           .cubicTo(1.40129846E-45f, 0, 0, 0, 0, 0)
+                           .detach();
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(3.22638031E+19f);
+
+    SkPathBuilder dstBuilder;
+    bool success = skpathutils::FillPathWithPaint(path, paint, &dstBuilder);
+#if defined(SK_BUILD_FOR_FUZZER)
+    REPORTER_ASSERT(reporter, !success);
+#else
+    REPORTER_ASSERT(reporter, success);
+#endif
+}

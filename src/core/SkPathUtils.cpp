@@ -33,6 +33,13 @@ bool FillPathWithPaint(const SkPath& origSrc, const SkPaint& paint, SkPathBuilde
     if (rec.getStyle() == SkStrokeRec::Style::kStroke_Style && rec.getWidth() < 0.001) {
         return false;
     }
+    // Prevent paths with extreme bounds from timing out during stroking.
+    if (rec.needToApply()) {
+        const SkRect& bounds = origSrc.getBounds();
+        if (bounds.width() > 1e9f || bounds.height() > 1e9f) {
+            return false;
+        }
+    }
 #endif
 
     const SkPath* srcPtr = &origSrc;
