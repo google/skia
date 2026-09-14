@@ -17,6 +17,7 @@
 #include "include/private/SingleOwner.h"
 #include "include/private/SkAPI.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
 
 #include <chrono>
 #include <cstddef>
