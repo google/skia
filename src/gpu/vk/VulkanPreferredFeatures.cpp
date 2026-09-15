@@ -597,6 +597,9 @@ void VulkanPreferredFeatures::addFeaturesToQuery(const VkExtensionProperties* de
         fExternalMemoryAHardwareBufferExtension =
                 VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME;
     }
+    if (exts.fQueueFamilyForeignEXT) {
+        fQueueFamilyForeignExtension = VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME;
+    }
 #endif
     if (exts.fFrameBoundaryEXT) {
         fFrameBoundary.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT;
