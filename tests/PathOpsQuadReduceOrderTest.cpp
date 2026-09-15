@@ -16,10 +16,10 @@
 #include <array>
 #include <cstddef>
 
-static const QuadPts testSet[] = {
-    {{{1, 1}, {2, 2}, {1, 1.000003}}},
-    {{{1, 0}, {2, 6}, {3, 0}}}
-};
+static const auto testSet = std::to_array<QuadPts>({
+    QuadPts{{{1, 1}, {2, 2}, {1, 1.000003}}},
+    QuadPts{{{1, 0}, {2, 6}, {3, 0}}}
+});
 
 static const size_t testSetCount = std::size(testSet);
 

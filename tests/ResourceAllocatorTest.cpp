@@ -274,17 +274,17 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest,
     // Non-RT GrSurfaces are never recycled on some platforms.
     bool kConditionallyShare = caps->reuseScratchTextures();
 
-    static const TestCase overlappingTests[] = {
-        // Two proxies with overlapping intervals and compatible descriptors should never share
-        // RT version
-        {{64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
-         {64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
-         kDontShare},
-        // non-RT version
-        {{64, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
-         {64, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
-         kDontShare},
-    };
+    static const auto overlappingTests = std::to_array<TestCase>({
+            // Two proxies with overlapping intervals and compatible descriptors should never share
+            // RT version
+            TestCase{{64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+                     {64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+                     kDontShare},
+            // non-RT version
+            TestCase{{64, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
+                     {64, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
+                     kDontShare},
+    });
 
     for (size_t i = 0; i < std::size(overlappingTests); i++) {
         const TestCase& test = overlappingTests[i];
@@ -301,61 +301,60 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest,
 
     // This cannot be made static as some of the members depend on non static variables like
     // kConditionallyShare, k2, and k4.
-    const TestCase nonOverlappingTests[] = {
-        // Two non-overlapping intervals w/ compatible proxies should share
-        // both same size & approx
-        {{64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
-         {64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
-         kShare},
-        {{64, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
-         {64, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
-         kConditionallyShare},
-        // diffs sizes but still approx
-        {{64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
-         {50, kRT, kRGBA, kA, 1, kNotB, kDeferred},
-         kShare},
-        {{64, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
-         {50, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
-         kConditionallyShare},
-        // sames sizes but exact
-        {{64, kRT, kRGBA, kE, 1, kNotB, kDeferred},
-         {64, kRT, kRGBA, kE, 1, kNotB, kDeferred},
-         kShare},
-        {{64, kNotRT, kRGBA, kE, 1, kNotB, kDeferred},
-         {64, kNotRT, kRGBA, kE, 1, kNotB, kDeferred},
-         kConditionallyShare},
-        // Two non-overlapping intervals w/ different exact sizes should not share
-        {{56, kRT, kRGBA, kE, 1, kNotB, kDeferred},
-         {54, kRT, kRGBA, kE, 1, kNotB, kDeferred},
-         kDontShare},
-        // Two non-overlapping intervals w/ _very different_ approx sizes should not share
-        {{255, kRT, kRGBA, kA, 1, kNotB, kDeferred},
-         {127, kRT, kRGBA, kA, 1, kNotB, kDeferred},
-         kDontShare},
-        // Two non-overlapping intervals w/ different MSAA sample counts should not share
-        {{64, kRT, kRGBA, kA, k2, kNotB, kDeferred},
-         {64, kRT, kRGBA, kA, k4, kNotB, kDeferred},
-         k2 == k4},
-        // Two non-overlapping intervals w/ different configs should not share
-        {{64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
-         {64, kRT, kAlpha, kA, 1, kNotB, kDeferred},
-         kDontShare},
-        // Two non-overlapping intervals w/ different RT classifications should never share
-        {{64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
-         {64, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
-         kDontShare},
-        {{64, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
-         {64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
-         kDontShare},
-        // Two non-overlapping intervals w/ different origins should share
-        {{64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
-         {64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
-         kShare},
-        // Wrapped backend textures should never be reused
-        {{64, kNotRT, kRGBA, kE, 1, kNotB, kBackend},
-         {64, kNotRT, kRGBA, kE, 1, kNotB, kDeferred},
-         kDontShare}
-    };
+    const auto nonOverlappingTests = std::to_array<TestCase>({
+            // Two non-overlapping intervals w/ compatible proxies should share
+            // both same size & approx
+            TestCase{{64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+                    {64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+                    kShare},
+            TestCase{{64, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
+                    {64, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
+                    kConditionallyShare},
+            // diffs sizes but still approx
+            TestCase{{64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+                    {50, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+                    kShare},
+            TestCase{{64, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
+                    {50, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
+                    kConditionallyShare},
+            // sames sizes but exact
+            TestCase{{64, kRT, kRGBA, kE, 1, kNotB, kDeferred},
+                    {64, kRT, kRGBA, kE, 1, kNotB, kDeferred},
+                    kShare},
+            TestCase{{64, kNotRT, kRGBA, kE, 1, kNotB, kDeferred},
+                    {64, kNotRT, kRGBA, kE, 1, kNotB, kDeferred},
+                    kConditionallyShare},
+            // Two non-overlapping intervals w/ different exact sizes should not share
+            TestCase{{56, kRT, kRGBA, kE, 1, kNotB, kDeferred},
+                    {54, kRT, kRGBA, kE, 1, kNotB, kDeferred},
+                    kDontShare},
+            // Two non-overlapping intervals w/ _very different_ approx sizes should not share
+            TestCase{{255, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+                    {127, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+                    kDontShare},
+            // Two non-overlapping intervals w/ different MSAA sample counts should not share
+            TestCase{{64, kRT, kRGBA, kA, k2, kNotB, kDeferred},
+                    {64, kRT, kRGBA, kA, k4, kNotB, kDeferred},
+                    k2 == k4},
+            // Two non-overlapping intervals w/ different configs should not share
+            TestCase{{64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+                    {64, kRT, kAlpha, kA, 1, kNotB, kDeferred},
+                    kDontShare},
+            // Two non-overlapping intervals w/ different RT classifications should never share
+            TestCase{{64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+                    {64, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
+                    kDontShare},
+            TestCase{{64, kNotRT, kRGBA, kA, 1, kNotB, kDeferred},
+                    {64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+                    kDontShare},
+            // Two non-overlapping intervals w/ different origins should share
+            TestCase{{64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+                    {64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
+                    kShare},
+            // Wrapped backend textures should never be reused
+            TestCase{{64, kNotRT, kRGBA, kE, 1, kNotB, kBackend},
+                    {64, kNotRT, kRGBA, kE, 1, kNotB, kDeferred},
+                    kDontShare}});
 
     for (size_t i = 0; i < std::size(nonOverlappingTests); i++) {
         const TestCase& test = nonOverlappingTests[i];
@@ -486,71 +485,73 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorMemoryBudgetTest,
     const ProxyParams kProxy32Instantiated = {32, kRT, kRGBA, kE, 1, kB,    kInstantiated};
     const ProxyParams kProxy64Instantiated = {64, kRT, kRGBA, kE, 1, kB,    kInstantiated};
 
-    TestCase tests[] = {
-        {"empty DAG", kUnder, 0, {}, {}, {}},
-        {"unbudgeted", kUnder, 0, {}, {}, {{kProxy64NotBudgeted, 0, 2}}},
-        {"basic", kUnder, kRGBA64Bytes, {}, {}, {{kProxy64, 0, 2}}},
-        {"basic, over", kOver, kRGBA64Bytes - 1, {}, {}, {{kProxy64, 0, 2}}},
-        {"shared", kUnder, kRGBA64Bytes, {}, {},
-            {
-                {kProxy64, 0, 2},
-                {kProxy64, 3, 5},
-            }},
-        {"retrieved from cache", kUnder, kRGBA64Bytes,
-            /* purgeable */{kProxy64Instantiated},
-            /* unpurgeable */{},
-            {
-                {kProxy64, 0, 2}
-            }},
-        {"purge 4", kUnder, kRGBA64Bytes,
-            /* purgeable */{
-                kProxy32Instantiated,
-                kProxy32Instantiated,
-                kProxy32Instantiated,
-                kProxy32Instantiated
-            },
-            /* unpurgeable */{},
-            {
-                {kProxy64, 0, 2}
-            }},
-        {"dont purge what we've reserved", kOver, kRGBA64Bytes,
-            /* purgeable */{kProxy64Instantiated},
-            /* unpurgeable */{},
-            {
-                {kProxy64, 0, 2},
-                {kProxy64, 1, 3}
-            }},
-        {"unpurgeable", kOver, kRGBA64Bytes,
-            /* purgeable */{},
-            /* unpurgeable */{kProxy64Instantiated},
-            {
-                {kProxy64, 0, 2}
-            }},
-        {"lazy", kUnder, kRGBA64Bytes,
-            /* purgeable */{},
-            /* unpurgeable */{},
-            {
-                {kProxy64Lazy, 0, 2}
-            }},
-        {"lazy, over", kOver, kRGBA64Bytes - 1,
-            /* purgeable */{},
-            /* unpurgeable */{},
-            {
-                {kProxy64Lazy, 0, 2}
-            }},
-        {"fully-lazy", kUnder, kRGBA64Bytes,
-            /* purgeable */{},
-            /* unpurgeable */{},
-            {
-                {kProxy64FullyLazy, 0, 2}
-            }},
-        {"fully-lazy, over", kOver, kRGBA64Bytes - 1,
-            /* purgeable */{},
-            /* unpurgeable */{},
-            {
-                {kProxy64FullyLazy, 0, 2}
-            }},
-    };
+    auto tests = std::to_array<TestCase>({
+            TestCase{"empty DAG", kUnder, 0, {}, {}, {}},
+            TestCase{"unbudgeted", kUnder, 0, {}, {}, {{kProxy64NotBudgeted, 0, 2}}},
+            TestCase{"basic", kUnder, kRGBA64Bytes, {}, {}, {{kProxy64, 0, 2}}},
+            TestCase{"basic, over", kOver, kRGBA64Bytes - 1, {}, {}, {{kProxy64, 0, 2}}},
+            TestCase{"shared",
+                     kUnder,
+                     kRGBA64Bytes,
+                     {},
+                     {},
+                     {
+                             {kProxy64, 0, 2},
+                             {kProxy64, 3, 5},
+                     }},
+            TestCase{"retrieved from cache",
+                     kUnder,
+                     kRGBA64Bytes,
+                     /* purgeable */ {kProxy64Instantiated},
+                     /* unpurgeable */ {},
+                     {{kProxy64, 0, 2}}},
+            TestCase{"purge 4",
+                     kUnder,
+                     kRGBA64Bytes,
+                     /* purgeable */
+                     {kProxy32Instantiated,
+                      kProxy32Instantiated,
+                      kProxy32Instantiated,
+                      kProxy32Instantiated},
+                     /* unpurgeable */ {},
+                     {{kProxy64, 0, 2}}},
+            TestCase{"dont purge what we've reserved",
+                     kOver,
+                     kRGBA64Bytes,
+                     /* purgeable */ {kProxy64Instantiated},
+                     /* unpurgeable */ {},
+                     {{kProxy64, 0, 2}, {kProxy64, 1, 3}}},
+            TestCase{"unpurgeable",
+                     kOver,
+                     kRGBA64Bytes,
+                     /* purgeable */ {},
+                     /* unpurgeable */ {kProxy64Instantiated},
+                     {{kProxy64, 0, 2}}},
+            TestCase{"lazy",
+                     kUnder,
+                     kRGBA64Bytes,
+                     /* purgeable */ {},
+                     /* unpurgeable */ {},
+                     {{kProxy64Lazy, 0, 2}}},
+            TestCase{"lazy, over",
+                     kOver,
+                     kRGBA64Bytes - 1,
+                     /* purgeable */ {},
+                     /* unpurgeable */ {},
+                     {{kProxy64Lazy, 0, 2}}},
+            TestCase{"fully-lazy",
+                     kUnder,
+                     kRGBA64Bytes,
+                     /* purgeable */ {},
+                     /* unpurgeable */ {},
+                     {{kProxy64FullyLazy, 0, 2}}},
+            TestCase{"fully-lazy, over",
+                     kOver,
+                     kRGBA64Bytes - 1,
+                     /* purgeable */ {},
+                     /* unpurgeable */ {},
+                     {{kProxy64FullyLazy, 0, 2}}},
+    });
     SkString match("");
     for (size_t i = 0; i < std::size(tests); i++) {
         TestCase& test = tests[i];

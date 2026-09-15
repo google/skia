@@ -10,9 +10,9 @@
 #include <array>
 #include <cstddef>
 
-static const double roughlyTests[][2] = {
+static constexpr auto roughlyTests = std::to_array<std::array<const double, 2>>({
     {5.0402503619650929e-005, 4.3178054475078825e-005}
-};
+});
 
 static const size_t roughlyTestsCount = std::size(roughlyTests);
 

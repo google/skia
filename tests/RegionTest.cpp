@@ -720,7 +720,7 @@ DEF_TEST(Region_setRects, reporter) {
     const SkIRect rEmpty[] = {{0, 0, 0, 0}, {10, 10, 10, 10}};
     test("empty_rects", rEmpty);
 
-    SkIRect grid[100];
+    std::array<SkIRect, 100> grid;
     for (int y = 0; y < 10; ++y) {
         for (int x = 0; x < 10; ++x) {
             grid[y * 10 + x] = SkIRect::MakeXYWH(x * 20, y * 20, 10, 10);

@@ -128,17 +128,18 @@ DEF_TEST(Point3, reporter) {
     test_ops(reporter);
     test_dot(reporter);
 
-    static const struct {
+    struct GRec {
         SkScalar fX;
         SkScalar fY;
         SkScalar fZ;
         SkScalar fLength;
-    } gRec[] = {
-        { 0.0f, 0.0f, 0.0f, 0.0f },
-        { 0.3f, 0.4f, 0.5f, SK_ScalarRoot2Over2 },
-        { 1.0e-37f, 1.0e-37f, 1.0e-37f, 0.0f },  // underflows
-        { 3.4e38f, 0.0f, 0.0f, 3.4e38f }         // overflows
     };
+    static const auto gRec = std::to_array<GRec>({
+            GRec{0.0f, 0.0f, 0.0f, 0.0f},
+            GRec{0.3f, 0.4f, 0.5f, SK_ScalarRoot2Over2},
+            GRec{1.0e-37f, 1.0e-37f, 1.0e-37f, 0.0f},  // underflows
+            GRec{3.4e38f, 0.0f, 0.0f, 3.4e38f}         // overflows
+    });
 
     for (size_t i = 0; i < std::size(gRec); ++i) {
         test_length(reporter, gRec[i].fX, gRec[i].fY, gRec[i].fZ, gRec[i].fLength);

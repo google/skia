@@ -68,19 +68,20 @@ static void test_isRectFinite(skiatest::Reporter* reporter) {
         { 0, 0 }, { 1, 1 }, { 99.234f, -42342 }, { 3, SK_ScalarInfinity }, { 2, 3 },
     };
 
-    static const struct {
+    struct GSets {
         const SkPoint* fPts;
         size_t         fCount;
         bool           fIsFinite;
-    } gSets[] = {
-        { gF0, std::size(gF0), true },
-        { gF1, std::size(gF1), true },
-
-        { gI0, std::size(gI0), false },
-        { gI1, std::size(gI1), false },
-        { gI2, std::size(gI2), false },
-        { gI3, std::size(gI3), false },
     };
+    static const auto gSets = std::to_array<GSets>({
+            GSets{gF0, std::size(gF0), true},
+            GSets{gF1, std::size(gF1), true},
+
+            GSets{gI0, std::size(gI0), false},
+            GSets{gI1, std::size(gI1), false},
+            GSets{gI2, std::size(gI2), false},
+            GSets{gI3, std::size(gI3), false},
+    });
 
     for (size_t i = 0; i < std::size(gSets); ++i) {
         SkRect r = SkRect::BoundsOrEmpty({gSets[i].fPts, gSets[i].fCount});
@@ -157,28 +158,23 @@ static void test_isfinite(skiatest::Reporter* reporter) {
     test_floatclass(reporter,  nan, kNaN);
     test_floatclass(reporter, -nan, kNaN);
 
-    const Rec data[] = {
-        {   0,           true    },
-        {   1,           true    },
-        {  -1,           true    },
-        {  max * 0.75f,  true    },
-        {  max,          true    },
-        {  -max * 0.75f, true    },
-        {  -max,         true    },
-        {  inf,          false   },
-        { -inf,          false   },
-        {  nan,          false   },
-    };
+    const auto data = std::to_array<Rec>({
+            Rec{0, true},
+            Rec{1, true},
+            Rec{-1, true},
+            Rec{max * 0.75f, true},
+            Rec{max, true},
+            Rec{-max * 0.75f, true},
+            Rec{-max, true},
+            Rec{inf, false},
+            Rec{-inf, false},
+            Rec{nan, false},
+    });
 
-    const IsFiniteProc1 gProc1[] = {
-        isFinite_int,
-        isFinite_float,
-        isFinite_mulzero
-    };
-    const IsFiniteProc2 gProc2[] = {
-        isFinite2_and,
-        isFinite2_mulzeroadd
-    };
+    static constexpr auto gProc1 =
+            std::to_array<IsFiniteProc1>({isFinite_int, isFinite_float, isFinite_mulzero});
+    static constexpr auto gProc2 =
+            std::to_array<IsFiniteProc2>({isFinite2_and, isFinite2_mulzeroadd});
 
     size_t i, n = std::size(data);
 

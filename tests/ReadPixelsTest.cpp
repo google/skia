@@ -34,6 +34,7 @@
 #include "src/core/SkMathPriv.h"
 #include "tests/Test.h"
 
+#include <array>
 #include <cstdint>
 #include <cstring>
 #include <initializer_list>
@@ -283,63 +284,64 @@ static void init_bitmap(SkBitmap* bitmap, const SkIRect& rect, TightRowBytes tig
     bitmap->allocPixels(info, rowBytes);
 }
 
-static const struct {
+struct GReadPixelsConfigs {
     SkColorType fColorType;
     SkAlphaType fAlphaType;
-} gReadPixelsConfigs[] = {
-        {kRGBA_8888_SkColorType, kPremul_SkAlphaType},
-        {kRGBA_8888_SkColorType, kUnpremul_SkAlphaType},
-        {kRGB_888x_SkColorType, kOpaque_SkAlphaType},
-        {kBGRA_8888_SkColorType, kPremul_SkAlphaType},
-        {kBGRA_8888_SkColorType, kUnpremul_SkAlphaType},
-        {kAlpha_8_SkColorType, kPremul_SkAlphaType},
 };
-const SkIRect gReadPixelsTestRects[] = {
-    // entire thing
-    DEV_RECT,
-    // larger on all sides
-    SkIRect::MakeLTRB(-10, -10, DEV_W + 10, DEV_H + 10),
-    // fully contained
-    SkIRect::MakeLTRB(DEV_W / 4, DEV_H / 4, 3 * DEV_W / 4, 3 * DEV_H / 4),
-    // outside top left
-    SkIRect::MakeLTRB(-10, -10, -1, -1),
-    // touching top left corner
-    SkIRect::MakeLTRB(-10, -10, 0, 0),
-    // overlapping top left corner
-    SkIRect::MakeLTRB(-10, -10, DEV_W / 4, DEV_H / 4),
-    // overlapping top left and top right corners
-    SkIRect::MakeLTRB(-10, -10, DEV_W  + 10, DEV_H / 4),
-    // touching entire top edge
-    SkIRect::MakeLTRB(-10, -10, DEV_W  + 10, 0),
-    // overlapping top right corner
-    SkIRect::MakeLTRB(3 * DEV_W / 4, -10, DEV_W  + 10, DEV_H / 4),
-    // contained in x, overlapping top edge
-    SkIRect::MakeLTRB(DEV_W / 4, -10, 3 * DEV_W  / 4, DEV_H / 4),
-    // outside top right corner
-    SkIRect::MakeLTRB(DEV_W + 1, -10, DEV_W + 10, -1),
-    // touching top right corner
-    SkIRect::MakeLTRB(DEV_W, -10, DEV_W + 10, 0),
-    // overlapping top left and bottom left corners
-    SkIRect::MakeLTRB(-10, -10, DEV_W / 4, DEV_H + 10),
-    // touching entire left edge
-    SkIRect::MakeLTRB(-10, -10, 0, DEV_H + 10),
-    // overlapping bottom left corner
-    SkIRect::MakeLTRB(-10, 3 * DEV_H / 4, DEV_W / 4, DEV_H + 10),
-    // contained in y, overlapping left edge
-    SkIRect::MakeLTRB(-10, DEV_H / 4, DEV_W / 4, 3 * DEV_H / 4),
-    // outside bottom left corner
-    SkIRect::MakeLTRB(-10, DEV_H + 1, -1, DEV_H + 10),
-    // touching bottom left corner
-    SkIRect::MakeLTRB(-10, DEV_H, 0, DEV_H + 10),
-    // overlapping bottom left and bottom right corners
-    SkIRect::MakeLTRB(-10, 3 * DEV_H / 4, DEV_W + 10, DEV_H + 10),
-    // touching entire left edge
-    SkIRect::MakeLTRB(0, DEV_H, DEV_W, DEV_H + 10),
-    // overlapping bottom right corner
-    SkIRect::MakeLTRB(3 * DEV_W / 4, 3 * DEV_H / 4, DEV_W + 10, DEV_H + 10),
-    // overlapping top right and bottom right corners
-    SkIRect::MakeLTRB(3 * DEV_W / 4, -10, DEV_W + 10, DEV_H + 10),
-};
+static const auto gReadPixelsConfigs = std::to_array<GReadPixelsConfigs>({
+        GReadPixelsConfigs{kRGBA_8888_SkColorType, kPremul_SkAlphaType},
+        GReadPixelsConfigs{kRGBA_8888_SkColorType, kUnpremul_SkAlphaType},
+        GReadPixelsConfigs{kRGB_888x_SkColorType, kOpaque_SkAlphaType},
+        GReadPixelsConfigs{kBGRA_8888_SkColorType, kPremul_SkAlphaType},
+        GReadPixelsConfigs{kBGRA_8888_SkColorType, kUnpremul_SkAlphaType},
+        GReadPixelsConfigs{kAlpha_8_SkColorType, kPremul_SkAlphaType},
+});
+const auto gReadPixelsTestRects = std::to_array<SkIRect>({
+        // entire thing
+        DEV_RECT,
+        // larger on all sides
+        SkIRect::MakeLTRB(-10, -10, DEV_W + 10, DEV_H + 10),
+        // fully contained
+        SkIRect::MakeLTRB(DEV_W / 4, DEV_H / 4, 3 * DEV_W / 4, 3 * DEV_H / 4),
+        // outside top left
+        SkIRect::MakeLTRB(-10, -10, -1, -1),
+        // touching top left corner
+        SkIRect::MakeLTRB(-10, -10, 0, 0),
+        // overlapping top left corner
+        SkIRect::MakeLTRB(-10, -10, DEV_W / 4, DEV_H / 4),
+        // overlapping top left and top right corners
+        SkIRect::MakeLTRB(-10, -10, DEV_W + 10, DEV_H / 4),
+        // touching entire top edge
+        SkIRect::MakeLTRB(-10, -10, DEV_W + 10, 0),
+        // overlapping top right corner
+        SkIRect::MakeLTRB(3 * DEV_W / 4, -10, DEV_W + 10, DEV_H / 4),
+        // contained in x, overlapping top edge
+        SkIRect::MakeLTRB(DEV_W / 4, -10, 3 * DEV_W / 4, DEV_H / 4),
+        // outside top right corner
+        SkIRect::MakeLTRB(DEV_W + 1, -10, DEV_W + 10, -1),
+        // touching top right corner
+        SkIRect::MakeLTRB(DEV_W, -10, DEV_W + 10, 0),
+        // overlapping top left and bottom left corners
+        SkIRect::MakeLTRB(-10, -10, DEV_W / 4, DEV_H + 10),
+        // touching entire left edge
+        SkIRect::MakeLTRB(-10, -10, 0, DEV_H + 10),
+        // overlapping bottom left corner
+        SkIRect::MakeLTRB(-10, 3 * DEV_H / 4, DEV_W / 4, DEV_H + 10),
+        // contained in y, overlapping left edge
+        SkIRect::MakeLTRB(-10, DEV_H / 4, DEV_W / 4, 3 * DEV_H / 4),
+        // outside bottom left corner
+        SkIRect::MakeLTRB(-10, DEV_H + 1, -1, DEV_H + 10),
+        // touching bottom left corner
+        SkIRect::MakeLTRB(-10, DEV_H, 0, DEV_H + 10),
+        // overlapping bottom left and bottom right corners
+        SkIRect::MakeLTRB(-10, 3 * DEV_H / 4, DEV_W + 10, DEV_H + 10),
+        // touching entire left edge
+        SkIRect::MakeLTRB(0, DEV_H, DEV_W, DEV_H + 10),
+        // overlapping bottom right corner
+        SkIRect::MakeLTRB(3 * DEV_W / 4, 3 * DEV_H / 4, DEV_W + 10, DEV_H + 10),
+        // overlapping top right and bottom right corners
+        SkIRect::MakeLTRB(3 * DEV_W / 4, -10, DEV_W + 10, DEV_H + 10),
+});
 
 bool read_should_succeed(const SkIRect& srcRect, const SkImageInfo& dstInfo,
                          const SkImageInfo& srcInfo) {

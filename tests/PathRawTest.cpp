@@ -15,6 +15,7 @@
 
 #include "tests/Test.h"
 
+#include <array>
 #include <functional>
 
 namespace {
@@ -173,7 +174,7 @@ DEF_TEST(pathraw_iter, reporter) {
     float cns[1];
 
     constexpr size_t N = 11;
-    SkPoint p[N];
+    std::array<SkPoint, N> p;
     for (size_t i = 0; i < N; ++i) {
         p[i] = {SkScalar(i), SkScalar(i)};
     }

@@ -10,6 +10,7 @@
 #include "src/core/SkBlockAllocator.h"
 #include "tests/Test.h"
 
+#include <array>
 #include <cstdint>
 #include <cstring>
 #include <new>
@@ -297,16 +298,18 @@ DEF_TEST(SkBlockAllocatorRewind, r) {
 DEF_TEST(SkBlockAllocatorGrowthPolicy, r) {
     static constexpr int kInitSize = 128;
     static constexpr int kBlockCount = 5;
-    static constexpr size_t kExpectedSizes[SkBlockAllocator::kGrowthPolicyCount][kBlockCount] = {
-        // kFixed -> kInitSize per block
-        { kInitSize, kInitSize, kInitSize, kInitSize, kInitSize },
-        // kLinear -> (block ct + 1) * kInitSize for next block
-        { kInitSize, 2 * kInitSize, 3 * kInitSize, 4 * kInitSize, 5 * kInitSize },
-        // kFibonacci -> 1, 1, 2, 3, 5 * kInitSize for the blocks
-        { kInitSize, kInitSize, 2 * kInitSize, 3 * kInitSize, 5 * kInitSize },
-        // kExponential -> 1, 2, 4, 8, 16 * kInitSize for the blocks
-        { kInitSize, 2 * kInitSize, 4 * kInitSize, 8 * kInitSize, 16 * kInitSize },
-    };
+    static constexpr std::array<std::array<size_t, kBlockCount>,
+                                SkBlockAllocator::kGrowthPolicyCount>
+            kExpectedSizes = {{
+                    // kFixed -> kInitSize per block
+                    {kInitSize, kInitSize, kInitSize, kInitSize, kInitSize},
+                    // kLinear -> (block ct + 1) * kInitSize for next block
+                    {kInitSize, 2 * kInitSize, 3 * kInitSize, 4 * kInitSize, 5 * kInitSize},
+                    // kFibonacci -> 1, 1, 2, 3, 5 * kInitSize for the blocks
+                    {kInitSize, kInitSize, 2 * kInitSize, 3 * kInitSize, 5 * kInitSize},
+                    // kExponential -> 1, 2, 4, 8, 16 * kInitSize for the blocks
+                    {kInitSize, 2 * kInitSize, 4 * kInitSize, 8 * kInitSize, 16 * kInitSize},
+            }};
 
     for (int gp = 0; gp < SkBlockAllocator::kGrowthPolicyCount; ++gp) {
         SkSBlockAllocator<kInitSize> pool{(GrowthPolicy) gp};

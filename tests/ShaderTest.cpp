@@ -33,6 +33,7 @@
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 
+#include <array>
 #include <cmath>
 #include <vector>
 
@@ -161,7 +162,7 @@ static void test_nested_blends(skiatest::Reporter* reporter, SkSurface* surface)
     // (0.25, 0.75, 0, 1). Then, in the paint's blender this is averaged with a transparent
     // background to get (0.125, 0.375, 0, 0.5) and then unpremuled to get (0.25, 0.75, 0, 0.5).
     constexpr SkColor4f kExpected = {0.25f, 0.75f, 0.0f, 0.5f};
-    constexpr float kTolerance[4] = {0.01f, 0.01f, 0.0f, 0.01f};
+    constexpr std::array<float, 4> kTolerance = {0.01f, 0.01f, 0.0f, 0.01f};
     SkColor4f color = pixmap.getColor4f(0, 0);
     for (int i = 0; i < 4; ++i) {
         if (std::abs(color[i] - kExpected[i]) > kTolerance[i]) {

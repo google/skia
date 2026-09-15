@@ -37,6 +37,7 @@
 #include "tests/Test.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
 #include <cstddef>
 #include <memory>
 #include <vector>
@@ -867,10 +868,10 @@ DEF_TEST(Picture_emptyNestedPictureBug, r) {
 
 DEF_TEST(Picture_fillsBBH, r) {
     // Test empty (0 draws), mini (1 draw), and big (2+) pictures, making sure they fill the BBH.
-    const SkRect rects[] = {
-        { 0, 0, 20,20},
-        {20,20, 40,40},
-    };
+    const auto rects = std::to_array<SkRect>({
+        SkRect{ 0, 0, 20,20},
+        SkRect{20,20, 40,40},
+    });
 
     for (int n = 0; n <= 2; n++) {
         SkRTreeFactory factory;
