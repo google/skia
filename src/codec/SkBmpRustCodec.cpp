@@ -244,7 +244,7 @@ SkBmpRustCodec::SkBmpRustCodec(SkEncodedInfo&& encodedInfo,
                                rust::Box<rust_bmp::Reader> reader,
                                StreamType streamType,
                                sk_sp<const SkData> inMemoryData)
-    : SkCodec(std::move(encodedInfo), skcms_PixelFormat_RGB_888,
+    : SkCodec(std::move(encodedInfo), skcms_PixelFormat_RGBA_8888,
               // TODO(crbug.com/370522089): Pass stream to SkCodec once SkCodec
               // avoids unnecessary rewinding (which forces re-reading entire stream).
               /* stream = */ nullptr)

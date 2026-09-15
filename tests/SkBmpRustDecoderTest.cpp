@@ -7,8 +7,10 @@
 
 #include "include/codec/SkBmpRustDecoder.h"
 
+#include <cstring>
 #include <memory>
 #include <utility>
+#include <vector>
 
 #include "include/codec/SkBmpDecoder.h"
 #include "include/codec/SkCodec.h"
@@ -54,7 +56,6 @@ static void assert_pixel_color(skiatest::Reporter* r,
                     "actualColor=0x%08X != expectedColor==0x%08X at (%d,%d)",
                     actualColor, expectedColor, x, y);
 }
-
 #define REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, actualResult) \
     REPORTER_ASSERT(r, actualResult == SkCodec::kSuccess, \
                     "actualResult=\"%s\" != kSuccess", \
@@ -75,6 +76,47 @@ static std::unique_ptr<SkCodec> decode_bmp(skiatest::Reporter* r, const char* pa
     REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
 
     return codec;
+}
+
+static void write_u16_le(std::vector<uint8_t>& bytes, size_t offset, uint16_t value) {
+    bytes[offset] = value & 0xFF;
+    bytes[offset + 1] = value >> 8;
+}
+
+static void write_u32_le(std::vector<uint8_t>& bytes, size_t offset, uint32_t value) {
+    bytes[offset] = value & 0xFF;
+    bytes[offset + 1] = (value >> 8) & 0xFF;
+    bytes[offset + 2] = (value >> 16) & 0xFF;
+    bytes[offset + 3] = value >> 24;
+}
+
+static sk_sp<SkData> make_bmp_with_icc_profile(const SkData& profile) {
+    constexpr size_t kFileHeaderSize = 14;
+    constexpr size_t kDibHeaderSize = 124;
+    constexpr size_t kPixelDataOffset = kFileHeaderSize + kDibHeaderSize;
+    constexpr size_t kPixelDataSize = 8;
+    constexpr size_t kProfileOffset = kPixelDataOffset + kPixelDataSize;
+
+    std::vector<uint8_t> bmp(kProfileOffset + profile.size(), 0);
+    bmp[0] = 'B';
+    bmp[1] = 'M';
+    write_u32_le(bmp, 2, bmp.size());
+    write_u32_le(bmp, 10, kPixelDataOffset);
+    write_u32_le(bmp, 14, kDibHeaderSize);
+    write_u32_le(bmp, 18, 2);  // Width.
+    write_u32_le(bmp, 22, 1);  // Height.
+    write_u16_le(bmp, 26, 1);  // Planes.
+    write_u16_le(bmp, 28, 24);
+    write_u32_le(bmp, 34, kPixelDataSize);
+    write_u32_le(bmp, 70, 0x4D424544);  // PROFILE_EMBEDDED ("MBED").
+    write_u32_le(bmp, 126, kProfileOffset - kFileHeaderSize);
+    write_u32_le(bmp, 130, profile.size());
+
+    // Two BGR pixels followed by row padding: red, then green.
+    const uint8_t pixels[kPixelDataSize] = {0, 0, 255, 0, 255, 0, 0, 0};
+    std::memcpy(bmp.data() + kPixelDataOffset, pixels, sizeof(pixels));
+    std::memcpy(bmp.data() + kProfileOffset, profile.data(), profile.size());
+    return SkData::MakeWithCopy(bmp.data(), bmp.size());
 }
 
 // Table-based test for decoding valid BMP files.
@@ -704,3 +746,43 @@ DEF_TEST(RustBmpCodec_ICCProfile, r) {
     REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
     REPORTER_ASSERT(r, image, "Should be able to decode BMP with ICC profile");
 }
+
+DEF_TEST(RustBmpCodec_ICCProfileTransform, r) {
+    sk_sp<SkData> profile = GetResourceAsData("icc_profiles/AdobeRGB1998.icc");
+    REPORTER_ASSERT(r, profile, "Missing Adobe RGB ICC profile");
+    if (!profile) {
+        return;
+    }
+
+    sk_sp<SkData> data = make_bmp_with_icc_profile(*profile);
+    std::unique_ptr<SkCodec> codec =
+            SkBmpRustDecoder::Decode(SkMemoryStream::Make(data), nullptr);
+    std::unique_ptr<SkCodec> referenceCodec =
+            SkBmpDecoder::Decode(SkMemoryStream::Make(data), nullptr);
+    REPORTER_ASSERT(r, codec && referenceCodec, "Failed to create BMP codecs");
+    if (!codec || !referenceCodec) {
+        return;
+    }
+
+    SkImageInfo dstInfo = codec->getInfo()
+                                  .makeColorType(kN32_SkColorType)
+                                  .makeAlphaType(kPremul_SkAlphaType)
+                                  .makeColorSpace(SkColorSpace::MakeSRGB());
+    SkBitmap actual;
+    SkBitmap expected;
+    REPORTER_ASSERT(r, actual.tryAllocPixels(dstInfo));
+    REPORTER_ASSERT(r, expected.tryAllocPixels(dstInfo));
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->getPixels(actual.pixmap()));
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, referenceCodec->getPixels(expected.pixmap()));
+
+    const float tolerances[4] = {0, 0, 0, 0};
+    auto reportError = std::function<ComparePixmapsErrorReporter>(
+            [&](int x, int y, const float differences[4]) {
+                ERRORF(r,
+                       "ICC-transformed pixels differ at (%d, %d): (%f, %f, %f, %f)",
+                       x, y, differences[0], differences[1], differences[2], differences[3]);
+            });
+    ComparePixels(expected.pixmap(), actual.pixmap(), tolerances, reportError);
+}
+
+#undef REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT
