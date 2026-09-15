@@ -1,12 +1,30 @@
 // Copyright 2019 Google LLC
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
+
+#include <array>
+
 REG_FIDDLE(Bitmap_shiftPerPixel, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
-    const char* colors[] = {"Unknown", "Alpha_8", "RGB_565", "ARGB_4444", "RGBA_8888", "RGB_888x",
-                            "BGRA_8888", "RGBA_1010102", "BGRA_1010102", "RGB_101010x",
-                            "BGR_101010x", "BGR_101010x_XR", "BGRA_10101010_XR", "RGBA_10x6",
-                            "Gray_8", "RGBA_F16Norm", "RGBA_F16"};
+    static constexpr auto colors = std::to_array<const char*>({
+            "Unknown",
+            "Alpha_8",
+            "RGB_565",
+            "ARGB_4444",
+            "RGBA_8888",
+            "RGB_888x",
+            "BGRA_8888",
+            "RGBA_1010102",
+            "BGRA_1010102",
+            "RGB_101010x",
+            "BGR_101010x",
+            "BGR_101010x_XR",
+            "BGRA_10101010_XR",
+            "RGBA_10x6",
+            "Gray_8",
+            "RGBA_F16Norm",
+            "RGBA_F16",
+    });
     SkImageInfo info = SkImageInfo::MakeA8(1, 1);
     SkBitmap bitmap;
     for (SkColorType colorType : {

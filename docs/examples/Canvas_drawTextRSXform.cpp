@@ -1,10 +1,13 @@
 // Copyright 2019 Google LLC
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
+
+#include <array>
+
 REG_FIDDLE(Canvas_drawTextRSXform, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     const int iterations = 26;
-    SkRSXform transforms[iterations];
+    std::array<SkRSXform, iterations> transforms;
     char alphabet[iterations];
     SkScalar angle = 0;
     SkScalar scale = 1;

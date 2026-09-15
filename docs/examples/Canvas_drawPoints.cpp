@@ -1,6 +1,9 @@
 // Copyright 2019 Google LLC
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
+
+#include <array>
+
 REG_FIDDLE(Canvas_drawPoints, 256, 200, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
@@ -9,9 +12,11 @@ void draw(SkCanvas* canvas) {
     paint.setStrokeWidth(10);
     paint.setColor(0x80349a45);
     const SkPoint points[] = {{32, 16}, {48, 48}, {16, 32}};
-    const SkPaint::Join join[] = { SkPaint::kRound_Join,
-                                   SkPaint::kMiter_Join,
-                                   SkPaint::kBevel_Join };
+    const auto join = std::to_array<SkPaint::Join>({
+            SkPaint::kRound_Join,
+            SkPaint::kMiter_Join,
+            SkPaint::kBevel_Join,
+    });
     int joinIndex = 0;
     SkPath path = SkPath::Polygon(points, false);
     for (const auto cap : { SkPaint::kRound_Cap, SkPaint::kSquare_Cap, SkPaint::kButt_Cap } ) {
