@@ -27,6 +27,26 @@ SkCanvas* SkCaptureManager::makeCaptureCanvas(SkCanvas* canvas) {
     return rawCanvasPtr;
 }
 
+void SkCaptureManager::deregisterCaptureCanvas(SkCanvas* canvas) {
+    if (!canvas) {
+        return;
+    }
+    for (int i = 0; i < fTrackedCanvases.size(); ++i) {
+        if (fTrackedCanvases[i].get() != canvas) { continue; }
+
+        // Make sure we gather any draws that haven't been inserted into a recording
+        // before removing the canvas.
+        if (fIsCurrentlyCapturing) {
+            auto picture = this->snapAndIncrement(fTrackedCanvases[i].get());
+            if (picture && fActiveCapture) {
+                fActiveCapture->addAsset(std::move(picture));
+            }
+        }
+        fTrackedCanvases.removeShuffle(i);
+        return;
+    }
+}
+
 sk_sp<SkPicture> SkCaptureManager::snapAndIncrement(SkCaptureCanvas* canvas) {
     auto picture = canvas->snapPicture();
     if (picture) {

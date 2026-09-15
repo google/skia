@@ -113,7 +113,6 @@ protected:
     // these surface-oriented functions to. This is part of making SkCaptureCanvas act like the
     // surface-backed canvas its wrapping even though as an n-way canvas it does not have any pixels
     sk_sp<SkSurface> onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props) override;
-    void onSurfaceDelete() override;
     bool onPeekPixels(SkPixmap* pixmap) override;
     bool onAccessTopLayerPixels(SkPixmap* pixmap) override;
     SkImageInfo onImageInfo() const override;

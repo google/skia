@@ -32,6 +32,10 @@ public:
 
     SkCanvas* makeCaptureCanvas(SkCanvas* canvas);
 
+    // Called when the surface associated with a capture canvas is deleted so we clear it from
+    // tracked canvases.
+    void deregisterCaptureCanvas(SkCanvas* canvas);
+
     // TODO: Take in a SkPixelStorage ID instead
     sk_sp<SkPicture> snapPicture(SkSurface*);
 

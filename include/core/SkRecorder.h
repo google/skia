@@ -50,6 +50,7 @@ private:
     */
     virtual SkCanvas* makeCaptureCanvas(SkCanvas*) = 0;
     virtual void createCaptureBreakpoint(SkSurface*) = 0;
+    virtual void deregisterCaptureCanvas(SkCanvas*) = 0;
 
     friend class SkSurface_Base; // for capture functionality
 };
