@@ -55,7 +55,7 @@ void populate_ycbcr_image_info(VkImageCreateInfo* outImageInfo, uint32_t width, 
     outImageInfo->sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     outImageInfo->queueFamilyIndexCount = 0;
     outImageInfo->pQueueFamilyIndices = nullptr;
-    outImageInfo->initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    outImageInfo->initialLayout = VK_IMAGE_LAYOUT_PREINITIALIZED;
 }
 
 bool find_memory_type_index(const VkPhysicalDeviceMemoryProperties& phyDevMemProps,
@@ -119,6 +119,15 @@ bool VkYcbcrSamplerHelper::createBackendTexture(uint32_t width, uint32_t height)
         return false;
     }
 
+    // Bind image memory.
+    VULKAN_CALL_RESULT(fSharedCtxt, result, BindImageMemory(fSharedCtxt->device(),
+                                                            fImage,
+                                                            fImageMemory,
+                                                            /*memoryOffset=*/0u));
+    if (result != VK_SUCCESS) {
+        return false;
+    }
+
     void* mappedBuffer;
     VULKAN_CALL_RESULT(fSharedCtxt, result, MapMemory(fSharedCtxt->device(),
                                                       fImageMemory,
@@ -176,15 +185,6 @@ bool VkYcbcrSamplerHelper::createBackendTexture(uint32_t width, uint32_t height)
     }
     VULKAN_CALL(fSharedCtxt->interface(), UnmapMemory(fSharedCtxt->device(), fImageMemory));
 
-    // Bind image memory.
-    VULKAN_CALL_RESULT(fSharedCtxt, result, BindImageMemory(fSharedCtxt->device(),
-                                                            fImage,
-                                                            fImageMemory,
-                                                            /*memoryOffset=*/0u));
-    if (result != VK_SUCCESS) {
-        return false;
-    }
-
     // Wrap the image into SkImage.
     VkFormatProperties formatProperties;
     SkASSERT(fSharedCtxt->physDevice() != VK_NULL_HANDLE);
@@ -225,7 +225,7 @@ skgpu::VulkanAlloc alloc;
 
     fTexture = skgpu::graphite::BackendTextures::MakeVulkan({(int32_t)width, (int32_t)height},
                                                             imageInfo,
-                                                            VK_IMAGE_LAYOUT_UNDEFINED,
+                                                            VK_IMAGE_LAYOUT_PREINITIALIZED,
                                                             /*queueFamilyIndex=*/0,
                                                             fImage,
                                                             alloc);
@@ -269,6 +269,15 @@ bool VkYcbcrSamplerHelper::createGrBackendTexture(uint32_t width, uint32_t heigh
     SkASSERT(fImageMemory == VK_NULL_HANDLE);
     GR_VK_CALL_RESULT(vkGpu, result, AllocateMemory(vkGpu->device(), &allocInfo,
                                                     nullptr, &fImageMemory));
+    if (result != VK_SUCCESS) {
+        return false;
+    }
+
+    // Bind image memory.
+    GR_VK_CALL_RESULT(vkGpu, result, BindImageMemory(vkGpu->device(),
+                                                     fImage,
+                                                     fImageMemory,
+                                                     /*memoryOffset=*/0u));
     if (result != VK_SUCCESS) {
         return false;
     }
@@ -322,12 +331,6 @@ bool VkYcbcrSamplerHelper::createGrBackendTexture(uint32_t width, uint32_t heigh
     }
     GR_VK_CALL(vkGpu->vkInterface(), UnmapMemory(vkGpu->device(), fImageMemory));
 
-    // Bind image memory.
-    GR_VK_CALL_RESULT(vkGpu, result, BindImageMemory(vkGpu->device(), fImage, fImageMemory, 0u));
-    if (result != VK_SUCCESS) {
-        return false;
-    }
-
     // Wrap the image into SkImage.
     VkFormatProperties formatProperties;
     GR_VK_CALL(vkGpu->vkInterface(),
@@ -357,7 +360,7 @@ bool VkYcbcrSamplerHelper::createGrBackendTexture(uint32_t width, uint32_t heigh
     GrVkImageInfo imageInfo = {fImage,
                                alloc,
                                VK_IMAGE_TILING_LINEAR,
-                               VK_IMAGE_LAYOUT_UNDEFINED,
+                               VK_IMAGE_LAYOUT_PREINITIALIZED,
                                vkImageInfo.format,
                                vkImageInfo.usage,
                                1 /* sample count */,
