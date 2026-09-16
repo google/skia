@@ -15,14 +15,18 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
+#include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Recorder.h"
 #include "include/private/SkTDArray.h"
 #include "src/gpu/graphite/geom/EndCaps.h"
 #include "src/gpu/graphite/geom/WideTiles.h"
+#include "src/gpu/graphite/sparse_strips/AlphaAtlasManager.h"
 #include "src/gpu/graphite/sparse_strips/Flatten.h"
 #include "src/gpu/graphite/sparse_strips/MSAA_LUT.h"
 #include "src/gpu/graphite/sparse_strips/MakeStrips.h"
 #include "src/gpu/graphite/sparse_strips/Polyline.h"
 #include "src/gpu/graphite/sparse_strips/Tiler.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tests/graphite/sparse_strips/CoverageTestUtils.h"
 #include "tests/graphite/sparse_strips/SkpValidator.h"
@@ -49,6 +53,7 @@ public:
     using StripFunc = void (*)(const Tiles<kTileWidth, kTileHeight>&,
                                WideTiles* wides,
                                EndCaps* ends,
+                               AlphaAtlasManager* atlasManager,
                                bool isInverse,
                                const Polyline& polyline,
                                const SkTDArray<uint8_t>& msaaLut,
@@ -57,6 +62,7 @@ public:
     static void RunScalarWinding(const Tiles<kTileWidth, kTileHeight>& tileContainer,
                                  WideTiles* wides,
                                  EndCaps* ends,
+                                 AlphaAtlasManager* atlasManager,
                                  bool isInverse,
                                  const Polyline& polyline,
                                  const SkTDArray<uint8_t>& maskLut,
@@ -64,13 +70,14 @@ public:
         SkPathFillType fillType =
                 isInverse ? SkPathFillType::kInverseWinding : SkPathFillType::kWinding;
         MakeStrips::MsaaScalar<kTileWidth, kTileHeight>(
-                tileContainer, wides, ends, /*atlasManager=*/nullptr,
+                tileContainer, wides, ends, atlasManager,
                 fillType, polyline, maskLut, kViewportWidth, kViewportHeight, observer);
     }
 
     static void RunSimdWinding(const Tiles<kTileWidth, kTileHeight>& tileContainer,
                                WideTiles* wides,
                                EndCaps* ends,
+                               AlphaAtlasManager* atlasManager,
                                bool isInverse,
                                const Polyline& polyline,
                                const SkTDArray<uint8_t>& maskLut,
@@ -78,13 +85,13 @@ public:
         SkPathFillType fillType =
                 isInverse ? SkPathFillType::kInverseWinding : SkPathFillType::kWinding;
         MakeStrips::MsaaSimd<kTileWidth, kTileHeight>(
-                tileContainer, wides, ends, /*atlasManager=*/nullptr,
+                tileContainer, wides, ends, atlasManager,
                 fillType, polyline, maskLut, kViewportWidth, kViewportHeight, observer);
     }
 
     CoverageTestRunner(StripFunc func, const char* implName) : fFunc(func), fImplName(implName) {}
 
-    void runAll(skiatest::Reporter* reporter) {
+    void runAll(skiatest::Reporter* reporter, Recorder* recorder) {
         const SkTDArray<uint8_t> lut = GenerateMSAALUT<uint8_t>();
         constexpr int kErrorLimit = 3;
         std::array<uint32_t, kErrorLimit> minorErrorCount = {0, 0, 0};
@@ -157,6 +164,7 @@ public:
                                     alignment.fY);
 
                     if (!this->runSingleTest(reporter,
+                                             recorder,
                                              deviceSpacePath,
                                              testName.c_str(),
                                              lut,
@@ -185,6 +193,7 @@ private:
     const char* fImplName;
 
     bool runSingleTest(skiatest::Reporter* reporter,
+                       Recorder* recorder,
                        const SkPath& path,
                        const char* name,
                        const SkTDArray<uint8_t>& lut,
@@ -201,9 +210,10 @@ private:
         WideTiles wides;
         EndCaps ends;
         SkTDArray<uint8_t> exactMasks;
+        AlphaAtlasManager atlasManager(recorder);
 
         auto observer = [&](uint8_t exactMask, skvx::int8) { exactMasks.push_back(exactMask); };
-        fFunc(tiler, &wides, &ends, /*isInverse=*/false, polyline, lut, observer);
+        fFunc(tiler, &wides, &ends, &atlasManager, /*isInverse=*/false, polyline, lut, observer);
 
         if (ends.empty()) {
             bool bufferSizeMatch = exactMasks.empty();
@@ -284,32 +294,52 @@ private:
     }
 };
 
-DEF_TEST(SparseStrips_CoverageScalar_4x4, reporter) {
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_CoverageScalar_4x4,
+                                         reporter,
+                                         context,
+                                         CtsEnforcement::kToBeDetermined) {
+    auto recorder = context->makeRecorder();
     skgpu::graphite::CoverageTestRunner<4, 4> scalarRunner(
             &skgpu::graphite::CoverageTestRunner<4, 4>::RunScalarWinding, "Scalar");
-    scalarRunner.runAll(reporter);
+    scalarRunner.runAll(reporter, recorder.get());
 }
 
-DEF_TEST(SparseStrips_CoverageSIMD_4x4, reporter) {
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_CoverageSIMD_4x4,
+                                         reporter,
+                                         context,
+                                         CtsEnforcement::kToBeDetermined) {
+    auto recorder = context->makeRecorder();
     skgpu::graphite::CoverageTestRunner<4, 4> simdRunner(
             &skgpu::graphite::CoverageTestRunner<4, 4>::RunSimdWinding, "SIMD");
-    simdRunner.runAll(reporter);
+    simdRunner.runAll(reporter, recorder.get());
 }
 
-DEF_TEST(SparseStrips_CoverageSIMD_8x8, reporter) {
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_CoverageSIMD_8x8,
+                                         reporter,
+                                         context,
+                                         CtsEnforcement::kToBeDetermined) {
+    auto recorder = context->makeRecorder();
     skgpu::graphite::CoverageTestRunner<8, 8> simdRunner(
             &skgpu::graphite::CoverageTestRunner<8, 8>::RunSimdWinding, "SIMD");
-    simdRunner.runAll(reporter);
+    simdRunner.runAll(reporter, recorder.get());
 }
 
-DEF_TEST(SparseStrips_Coverage_SKP_SIMD_4x4, reporter) {
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_Coverage_SKP_SIMD_4x4,
+                                         reporter,
+                                         context,
+                                         CtsEnforcement::kToBeDetermined) {
+    auto recorder = context->makeRecorder();
     const SkTDArray<uint8_t> lut = GenerateMSAALUT<uint8_t>();
-    SkpValidator::ValidateSkp<4, 4>(reporter, "skps/desk_tiger8svg.skp", lut);
+    SkpValidator::ValidateSkp<4, 4>(reporter, recorder.get(), "skps/desk_tiger8svg.skp", lut);
 }
 
-DEF_TEST(SparseStrips_Coverage_SKP_SIMD_8x8, reporter) {
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_Coverage_SKP_SIMD_8x8,
+                                         reporter,
+                                         context,
+                                         CtsEnforcement::kToBeDetermined) {
+    auto recorder = context->makeRecorder();
     const SkTDArray<uint8_t> lut = GenerateMSAALUT<uint8_t>();
-    SkpValidator::ValidateSkp<8, 8>(reporter, "skps/desk_tiger8svg.skp", lut);
+    SkpValidator::ValidateSkp<8, 8>(reporter, recorder.get(), "skps/desk_tiger8svg.skp", lut);
 }
 
 }  // namespace skgpu::graphite

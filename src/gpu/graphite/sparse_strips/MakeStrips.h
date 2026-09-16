@@ -221,41 +221,24 @@ private:
         }
     }
 
-    // TODO (thomsmit): Maybe remove cpuAlphaIdx, we could get the value simply by checking the size
-    // of the atlasManager's buffer, but we currently, we don't have a manager during tests.
     template <uint16_t kTileWidth, uint16_t kTileHeight>
     SK_ALWAYS_INLINE static bool FinalizeRun(uint16_t runStartX,
                                              Tile prevTile,
-                                             SkTDArray<uint8_t>* runAlphaBuf,
                                              AlphaAtlasManager* atlasManager,
-                                             EndCaps* ends,
-                                             int32_t* cpuAlphaIdx) {
+                                             EndCaps* ends) {
         uint16_t endCapX = runStartX * kTileWidth;
         uint16_t endCapWidth = (prevTile.x - runStartX + 1) * kTileWidth;
-        int32_t numBytes = runAlphaBuf->size();
 
-        if (numBytes > 0) {
-            if (atlasManager) {
-                auto alloc = atlasManager->requestAlphaSpace(numBytes);
-                if (!alloc) {
-                    return false;
-                }
-                std::memcpy(alloc->fWritePtr, runAlphaBuf->data(), numBytes);
-                ends->addCap(endCapX,
-                             prevTile.y * kTileHeight,
-                             endCapWidth,
-                             alloc->fAlphaIndex,
-                             alloc->fTexPage);
-            } else {
-                ends->addCap(endCapX,
-                             prevTile.y * kTileHeight,
-                             endCapWidth,
-                             *cpuAlphaIdx,
-                             /*texPage=*/0);
-                *cpuAlphaIdx += numBytes;
-            }
+        auto alloc = atlasManager->finalizeRun();
+        if (!alloc) {
+            return false;
         }
-        runAlphaBuf->clear();
+        auto [alphaIndex, texPage] = *alloc;
+        ends->addCap(endCapX,
+                     prevTile.y * kTileHeight,
+                     endCapWidth,
+                     alphaIndex,
+                     texPage);
         return true;
     }
 
@@ -270,7 +253,7 @@ private:
     // 1) Tile Start (`tileStart`):
     //    Triggered when the current tile's x or y differs from the previous tile.
     //    Action: All overlapping segments at the previous spatial coordinate have been processed.
-    //    The accumulated coverage is resolved into pixel alpha and pushed to the run alpha buffer.
+    //    The accumulated coverage is resolved into pixel alpha and pushed to the atlas buffer.
     //    If the new tile is on the same row, it is seeded with the carried coarse winding.
     //
     // 2) Segment Start (`segStart`):
@@ -278,7 +261,7 @@ private:
     //    than 1 (a non-contiguous gap in the same row).
     //    Action:
     //    a) Finalizes the preceding contiguous boundary run (`finalizeRun`), committing its alpha
-    //       buffer to the atlas manager and emitting an `EndCap`.
+    //       buffer in the atlas manager and emitting an `EndCap`.
     //    b) If the coarse winding indicates an interior fill, emits a solid `WideTile` covering
     //       the gap up to the current tile.
     //    c) If `rowStart`, closes out the previous row (emitting trailing inverse fills if needed),
@@ -294,11 +277,6 @@ private:
                                              bool isInverse,
                                              Processor* processor) {
         constexpr size_t kTilePixelCount = kTileWidth * kTileHeight;
-        // TODO (thomsmit): We could get rid of this and write to the manager's memory directly
-        // if we made the manager use a single backing alpha buff and instead tracked regions
-        // corresponded to backing textures.
-        SkTDArray<uint8_t> runAlphaBuf;
-        int32_t cpuAlphaIdx = 0;
 
         const auto& tiles = tileContainer.getTiles();
         if (tiles.empty()) {
@@ -338,7 +316,10 @@ private:
             if (tileStart) {
                 // Moving to a new tile implies that all previous tile's coverage has been combined,
                 // resolve the coverage mask winding to alpha, then clear it.
-                uint8_t* dst = runAlphaBuf.append(kTilePixelCount);
+                uint8_t* dst = atlasManager->requestAlphaSpace(kTilePixelCount);
+                if (!dst) {
+                    return false;
+                }
                 processor->resolveWindingToAlpha(dst);
                 if (!rowStart) {
                     // If we're not a row start, carry the scanline winding by seeding the coverage
@@ -351,10 +332,8 @@ private:
                 // 1. Finalize the contiguous EndCap run
                 if (!FinalizeRun<kTileWidth, kTileHeight>(runStartX,
                                                           prevTile,
-                                                          &runAlphaBuf,
                                                           atlasManager,
-                                                          ends,
-                                                          &cpuAlphaIdx)) {
+                                                          ends)) {
                     return false;
                 }
 
@@ -413,14 +392,15 @@ private:
         }
 
         // Process the last tile and finalize
-        uint8_t* dst = runAlphaBuf.append(kTilePixelCount);
+        uint8_t* dst = atlasManager->requestAlphaSpace(kTilePixelCount);
+        if (!dst) {
+            return false;
+        }
         processor->resolveWindingToAlpha(dst);
         if (!FinalizeRun<kTileWidth, kTileHeight>(runStartX,
                                                   prevTile,
-                                                  &runAlphaBuf,
                                                   atlasManager,
-                                                  ends,
-                                                  &cpuAlphaIdx)) {
+                                                  ends)) {
             return false;
         }
 

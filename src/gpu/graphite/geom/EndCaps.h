@@ -9,6 +9,7 @@
 #define skgpu_graphite_geom_EndCaps_DEFINED
 
 #include <cstdint>
+#include <type_traits>
 #include <utility>
 #include "include/private/SkLog.h"
 #include "include/private/SkTArray.h"
@@ -22,17 +23,21 @@ namespace skgpu::graphite {
 class EndCaps {
 public:
     struct EndCap {
+        static constexpr uint16_t kNullTexPage = 0xffff;
+
         EndCap(uint16_t x, uint16_t y, uint16_t width, int32_t alphaIndex, uint16_t texPage)
-                : fX(x), fY(y), fWidth(width), fAlphaIndex(alphaIndex), fTexPage(texPage),
-                  fPadding(0xffffffff) {}
+                : fX(x), fY(y), fWidth(width), fTexPage(texPage), fAlphaIndex(alphaIndex)
+                , fPadding(0xffffffff) {}
 
         uint16_t fX;            // Top left coordinates of the EndCap.
         uint16_t fY;            // ``
         uint16_t fWidth;        // The width of the EndCap in pixels
-        int32_t  fAlphaIndex;   // The EndCap's offset into the alpha buffer.
         uint16_t fTexPage;      // The associated page in the EndCap's backing texture
+        int32_t  fAlphaIndex;   // The EndCap's offset into the alpha buffer.
         uint32_t fPadding;      // Pad to vec4 alignment
     };
+    static_assert(sizeof(EndCap) == 16);
+    static_assert(std::is_trivially_copyable_v<EndCap>);
 
     EndCaps() = default;
 

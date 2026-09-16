@@ -7,10 +7,13 @@
 
 #include "bench/Benchmark.h"
 #include "bench/BenchmarkDataset.h"
+#include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
+#include "include/gpu/graphite/Recorder.h"
 #include "include/private/SkTDArray.h"
 #include "src/gpu/graphite/geom/EndCaps.h"
 #include "src/gpu/graphite/geom/WideTiles.h"
+#include "src/gpu/graphite/sparse_strips/AlphaAtlasManager.h"
 #include "src/gpu/graphite/sparse_strips/Flatten.h"
 #include "src/gpu/graphite/sparse_strips/MSAA_LUT.h"
 #include "src/gpu/graphite/sparse_strips/MakeStrips.h"
@@ -41,6 +44,10 @@ public:
 protected:
     const char* onGetName() override { return fName.c_str(); }
 
+    bool isSuitableFor(Backend backend) override {
+        return backend == Backend::kGraphite;
+    }
+
     void onDelayedSetup() override {
         using DatasetInfo = BenchmarkDatasetInfo<kDataset>;
         Flatten flattener;
@@ -54,16 +61,19 @@ protected:
         fTiles.sortTiles();
     }
 
-    void onDraw(int loops, SkCanvas* /*canvas*/) override {
+    void onDraw(int loops, SkCanvas* canvas) override {
         using DatasetInfo = BenchmarkDatasetInfo<kDataset>;
         WideTiles wides;
         EndCaps ends;
+        std::unique_ptr<AlphaAtlasManager> atlasMgr =
+                std::make_unique<AlphaAtlasManager>(canvas->recorder());
         for (int i = 0; i < loops; ++i) {
-            fFunc(fTiles, &wides, &ends, /*atlasManager=*/nullptr, SkPathFillType::kDefault,
+            fFunc(fTiles, &wides, &ends, atlasMgr.get(), SkPathFillType::kDefault,
                   fPolyline, fLUT, DatasetInfo::kWidth, DatasetInfo::kHeight,
                   /*MsaaExactMaskObserver=*/nullptr);
             wides.clear();
             ends.clear();
+            atlasMgr->freeGpuResources();
         }
     }
 

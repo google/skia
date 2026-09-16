@@ -13,10 +13,9 @@
 #include "src/gpu/graphite/geom/EndCaps.h"
 #include "src/gpu/graphite/sparse_strips/SparseStripsConfig.h"
 
-#include <algorithm>
 #include <cstdint>
 #include <optional>
-#include <vector>
+#include <utility>
 
 namespace skgpu::graphite {
 
@@ -35,12 +34,15 @@ public:
     AlphaAtlasManager(Recorder* recorder);
 
     // TODO(thomsmit): bitpack the texture page into the alpha index?
-    struct AlphaAllocation {
-        uint8_t* fWritePtr   = nullptr; // The ptr into the AlphaAtlasManager's cpu storage
-        int32_t  fAlphaIndex = 0;       // Page-local byte offset
-        uint16_t fTexPage    = 0;       // Atlas page index (0 or 1)
-    };
-    std::optional<AlphaAllocation> requestAlphaSpace(int32_t numBytes);
+    // Returns a pointer to memory on the active texture page for writing `numBytes` alphas.
+    // Overallocates the active page's buffer if the write exceeds fCapacityBytes.
+    uint8_t* requestAlphaSpace(int32_t numBytes);
+
+    // Finalizes the current boundary run.
+    // If the run straddled pages, allocates the next page and copies the overrun data. Returns a
+    // pair of {alphaIndex, texPage} on success, which indicate the page-local byte offset and atlas
+    // page index (0 or 1), respectively.
+    std::optional<std::pair<int32_t, uint16_t>> finalizeRun();
 
     void recordUploads(DrawContext* dc);
     void freeGpuResources();
@@ -60,6 +62,10 @@ public:
     sk_sp<TextureProxy> getPageProxy(size_t index) const {
         return (index < SparseStripConfig::kMaxTexturePages && fPages[index].isValid()) ?
                 fPages[index].fTexture : nullptr;
+    }
+    const uint8_t* getPageData(size_t index) const {
+        return (index < SparseStripConfig::kMaxTexturePages && fPages[index].isValid()) ?
+                fPages[index].fAlphaBuffer.data() : nullptr;
     }
     int activeSlot() const { return fActiveSlot; }
 
