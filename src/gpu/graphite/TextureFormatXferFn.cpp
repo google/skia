@@ -779,18 +779,9 @@ sk_sp<TextureFormatXferFn::RPOps> TextureFormatXferFn::RPOps::Make(
             return !SkToBool(modifier);
         }
     };
-    auto isOnlyUnpremul = [] <typename RPModifier> (RPModifier modifier) {
-        if constexpr (std::is_same_v<RPModifier, SkColorSpaceXformSteps>) {
-            auto flags = modifier.fFlags;
-            return flags.unpremul &&
-                  !(flags.premul || flags.linearize || flags.gamut_transform || flags.encode);
-        } else {
-            return !SkToBool(modifier);
-        }
-    };
     if ((srcColorType == kRGBA_8888_SkColorType || srcColorType == kBGRA_8888_SkColorType) &&
         (dstColorType == kRGBA_8888_SkColorType || dstColorType == kBGRA_8888_SkColorType)) {
-        // 32-bit unorm8 colors that can be swizzled with a premul or an unpremul go to SkOpts.
+        // 32-bit unorm8 colors that can be swizzled with a premul go to SkOpts.
         if ((isOnlyPremul(rpModifiers) && ...)) {
             SkASSERT(srcColorType == dstColorType && !(*xferOps & kForceOpaque));
             if (*xferOps & kSwapRB) {
@@ -798,15 +789,6 @@ sk_sp<TextureFormatXferFn::RPOps> TextureFormatXferFn::RPOps::Make(
                 *xferOps &= ~kSwapRB;
             } else {
                 ops->fSwizzler = SkOpts::RGBA_to_rgbA; // just premultiply
-            }
-            return ops;
-        } else if ((isOnlyUnpremul(rpModifiers) && ...)) {
-            SkASSERT(srcColorType == dstColorType && !(*xferOps & kForceOpaque));
-            if (*xferOps & kSwapRB) {
-                ops->fSwizzler = SkOpts::rgbA_to_BGRA; // swap RB and unpremultiply
-                *xferOps &= ~kSwapRB;
-            } else {
-                ops->fSwizzler = SkOpts::rgbA_to_RGBA; // just unpremultiply
             }
             return ops;
         } // else fall through to use raster pipeline
