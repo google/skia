@@ -3,7 +3,7 @@
     "cmd": [],
     "name": "ensure xcode",
     "~followup_annotations": [
-      "@@@STEP_SUMMARY_TEXT@Ensuring Xcode version 16a242d in [START_DIR]/cache/Xcode.app@@@"
+      "@@@STEP_SUMMARY_TEXT@Ensuring Xcode version 16f6 in [START_DIR]/cache/Xcode.app@@@"
     ]
   },
   {
@@ -119,7 +119,7 @@
       "-kind",
       "ios",
       "-xcode-version",
-      "16a242d",
+      "16f6",
       "-output-dir",
       "[START_DIR]/cache/Xcode.app"
     ],

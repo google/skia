@@ -16,6 +16,8 @@ extern "C" {
     // (This is the only directory we can easily read and write.)
     void cd_Documents(void);
 
+    int skia_ios_main(int argc, char** argv);
+
 #if defined(__cplusplus)
 }
 #endif

@@ -45,14 +45,14 @@ func (b *TaskBuilder) nanobenchFlags(doUpload bool) {
 
 		glPrefix := "gl"
 		sampleCount := 8
-		if b.MatchOs("Android") || b.Os("iOS") {
+		if b.MatchOs("Android", "iOS") {
 			sampleCount = 4
 			glPrefix = "gles"
 			// iOS crashes with MSAA (skbug.com/40037602)
 			// Nexus7 (Tegra3) does not support MSAA.
 			// MSAA is disabled on Pixel3a (https://b.corp.google.com/issues/143074513).
 			// MSAA is disabled on Pixel5 (https://skbug.com/40042528).
-			if b.Os("iOS") || b.Model("Nexus7", "Pixel3a", "Pixel5") {
+			if b.MatchOs("iOS") || b.Model("Nexus7", "Pixel3a", "Pixel5") {
 				sampleCount = 0
 			}
 		} else if b.MatchGpu("AppleM") {
@@ -119,7 +119,7 @@ func (b *TaskBuilder) nanobenchFlags(doUpload bool) {
 		}
 		if b.ExtraConfig("Metal") && !b.ExtraConfig("Graphite") {
 			configs = []string{"mtl"}
-			if b.Os("iOS") || b.GPU("AppleM3") {
+			if b.MatchOs("iOS") || b.GPU("AppleM3") {
 				configs = append(configs, "mtlmsaa4")
 			} else {
 				configs = append(configs, "mtlmsaa8")
@@ -196,7 +196,7 @@ func (b *TaskBuilder) nanobenchFlags(doUpload bool) {
 
 	// Use 4 internal msaa samples on mobile, AppleM*, and with Graphite, otherwise 8.
 	args = append(args, "--internalSamples")
-	if b.MatchOs("Android") || b.Os("iOS") || b.MatchGpu("AppleM") || b.ExtraConfig("Graphite") {
+	if b.MatchOs("Android", "iOS") || b.MatchGpu("AppleM") || b.ExtraConfig("Graphite") {
 		args = append(args, "4")
 	} else {
 		args = append(args, "8")
@@ -225,7 +225,7 @@ func (b *TaskBuilder) nanobenchFlags(doUpload bool) {
 		match = append(match, "~patch_grid") // skbug.com/40033959
 		match = append(match, "~desk_carsvg")
 	}
-	if b.Os("iOS") {
+	if b.MatchOs("iOS") {
 		match = append(match, "~blurroundrect")
 		match = append(match, "~patch_grid") // skbug.com/40033959
 		match = append(match, "~desk_carsvg")
@@ -233,7 +233,7 @@ func (b *TaskBuilder) nanobenchFlags(doUpload bool) {
 		match = append(match, "~path_hairline")
 		match = append(match, "~GLInstancedArraysBench") // skbug.com/40035868
 	}
-	if b.Os("iOS") && b.ExtraConfig("Metal") && !b.ExtraConfig("Graphite") {
+	if b.MatchOs("iOS") && b.ExtraConfig("Metal") && !b.ExtraConfig("Graphite") {
 		// skbug.com/40041128
 		match = append(match, "~compositing_images_tile_size")
 	}
@@ -366,7 +366,7 @@ func (b *TaskBuilder) nanobenchFlags(doUpload bool) {
 		b.recipeProp("images", "true")
 	}
 	b.recipeProp("resources", "true")
-	if !b.Os("iOS") {
+	if !b.MatchOs("iOS") {
 		b.asset("skp")
 		b.recipeProp("skps", "true")
 	}

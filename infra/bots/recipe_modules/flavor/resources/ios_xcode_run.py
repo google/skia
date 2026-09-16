@@ -20,10 +20,40 @@ app_path = sys.argv[2]
 bundle_id = sys.argv[3]
 args = sys.argv[4:]
 
+# Ensure xcrun uses the requested Xcode version.
+os.environ['DEVELOPER_DIR'] = xcode_path
+
 xcodebuild = os.path.join(
     xcode_path, 'Contents', 'Developer', 'usr', 'bin', 'xcodebuild')
 
 subprocess.check_call([xcodebuild, '-version'])
+
+# Find the ID of the attached device.
+udid = subprocess.check_output(['idevice_id', '--list']).decode().strip().splitlines()[0]
+
+# Try installing and launching via devicectl.
+install_cmd = [
+    'xcrun', 'devicectl', 'device', 'install', 'app',
+    '--device', udid,
+    app_path,
+]
+print('Installing app: %s' % ' '.join(install_cmd))
+if subprocess.call(install_cmd) == 0:
+  launch_cmd = [
+      'xcrun', 'devicectl', 'device', 'process', 'launch',
+      '--device', udid,
+      '--terminate-existing',
+      '--console',
+      bundle_id,
+  ] + args
+  print('Launching app: %s' % ' '.join(launch_cmd))
+  result = subprocess.call(launch_cmd)
+  print('devicectl launch exited with code %d' % result)
+  sys.exit(result)
+
+# Fall back to xcodebuild for iOS < 17.
+# TODO(borenet): Remove once all of our devices are updated.
+print('devicectl failed; falling back to xcodebuild...')
 
 # Write the .xctestrun file.
 workdir = os.getcwd()
@@ -42,10 +72,7 @@ contents = {
 with open(xctestrun_path, 'wb') as f:
   plistlib.dump(contents, f)
 
-# Find the ID of the attached device. We just assume a single device is attached.
-udid = subprocess.check_output(['idevice_id', '--list']).decode().strip()
 destination = 'id=' + udid
-
 output_json_path = os.path.join(workdir, 'enumerate-tests.json')
 
 # Run the app via XCode.
@@ -58,11 +85,9 @@ result = subprocess.call([
   '-test-enumeration-output-path', output_json_path,
 ])
 
-# Dump the JSON result.
 if os.path.exists(output_json_path):
   with open(output_json_path) as f:
     tests = json.load(f)
   print(tests)
 
-# Exit with the code of the app.
-exit(result)
+sys.exit(result)

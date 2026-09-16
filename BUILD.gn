@@ -2451,6 +2451,13 @@ if (skia_enable_tools) {
         testonly = true
         extra_configs = [ ":skia_private" ]
         launchscreen = "platform_tools/ios/app/LaunchScreen.storyboard"
+        if (target_name == "dm" || target_name == "nanobench") {
+          sources += [ "tools/ios_test_app_main.mm" ]
+          if (!defined(frameworks)) {
+            frameworks = []
+          }
+          frameworks += [ "UIKit.framework" ]
+        }
         data_sources = [ "resources" ]
         if ("True" == exec_script("//gn/checkdir.py",
                                   [ rebase_path("skps", root_build_dir) ],

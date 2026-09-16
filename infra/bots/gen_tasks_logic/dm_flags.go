@@ -225,7 +225,7 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 		// Use 4x MSAA for all our testing. It's more consistent and 8x MSAA is nondeterministic (by
 		// design) on NVIDIA hardware. The problem is especially bad on ANGLE.  skbug.com/40038032 skbug.com/40037753
 		sampleCount = 4
-		if b.MatchOs("Android") || b.Os("iOS") {
+		if b.MatchOs("Android", "iOS") {
 			glPrefix = "gles"
 			// MSAA is disabled on Pixel3a (https://b.corp.google.com/issues/143074513).
 			// MSAA is disabled on Pixel5 (https://skbug.com/40042528).
@@ -1156,7 +1156,7 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "gm", ALL, "wacky_yuv_formats_limited_fromimages")
 	}
 
-	if b.Os("iOS") {
+	if b.MatchOs("iOS") {
 		skip(glPrefix, "skp", ALL, ALL)
 	}
 
@@ -1248,7 +1248,7 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 	// avoid lots of images on Gold.
 	skip(ALL, "image", "gen_platf", "error")
 
-	if b.MatchOs("Android") || b.Os("iOS") {
+	if b.MatchOs("Android", "iOS") {
 		// This test crashes the N9 (perhaps because of large malloc/frees). It also
 		// is fairly slow and not platform-specific. So we just disable it on all of
 		// Android and iOS. skbug.com/40036610

@@ -1377,7 +1377,11 @@ class NanobenchShaderErrorHandler : public GrContextOptions::ShaderErrorHandler 
     }
 };
 
+#if defined(SK_BUILD_FOR_IOS)
+extern "C" int skia_ios_main(int argc, char** argv) {
+#else
 int main(int argc, char** argv) {
+#endif
 #if defined(SK_USE_PARTITION_ALLOC)
     // To achieve benchmark results closers to what Chromium based applications would obtain, the
     // benchmark are run with PartitionAlloc enabled. This is the memory allocator used by Chromium

@@ -1634,7 +1634,11 @@ static void print_sinks() {
     }
 }
 
+#if defined(SK_BUILD_FOR_IOS)
+extern "C" int skia_ios_main(int argc, char** argv) {
+#else
 int main(int argc, char** argv) {
+#endif
 #if defined(SK_USE_PARTITION_ALLOC)
     // If available, use PartitionAlloc as the memory allocator for DM. This allows catching
     // additional memory errors in tests that would otherwise go unnoticed.
