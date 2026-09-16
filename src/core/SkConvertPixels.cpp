@@ -54,9 +54,7 @@ static bool swizzle_or_premul(const SkImageInfo& dstInfo,       void* dstPixels,
         !is_8888(srcInfo.colorType()) ||
         steps.fFlags.linearize         ||
         steps.fFlags.gamut_transform   ||
-#if !defined(SK_ARM_HAS_NEON)
         steps.fFlags.unpremul          ||
-#endif
         steps.fFlags.encode) {
         return false;
     }
@@ -68,9 +66,6 @@ static bool swizzle_or_premul(const SkImageInfo& dstInfo,       void* dstPixels,
     if (steps.fFlags.premul) {
         fn = swapRB ? SkOpts::RGBA_to_bgrA
                     : SkOpts::RGBA_to_rgbA;
-    } else if (steps.fFlags.unpremul) {
-        fn = swapRB ? SkOpts::rgbA_to_BGRA
-                    : SkOpts::rgbA_to_RGBA;
     } else {
         // If we're not swizzling, we ought to have used rect_memcpy().
         SkASSERT(swapRB);
