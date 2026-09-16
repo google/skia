@@ -48,7 +48,6 @@ var (
 		".bazelversion",
 		".clang-format",
 		".clang-tidy",
-		".vpython3",
 		"BUILD.bazel",
 		"DEPS", // Needed by bin/fetch-ninja
 		"MODULE.bazel",
@@ -77,6 +76,7 @@ var (
 		"rust",
 		"third_party/externals",
 		"toolchain",
+		"vpython.toml",
 	}
 )
 

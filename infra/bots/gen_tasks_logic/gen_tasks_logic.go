@@ -171,11 +171,11 @@ var (
 	CAS_SPEC_LOTTIE_CI = &specs.CasSpec{
 		Root: "..",
 		Paths: []string{
-			"skia/.vpython3",
 			"skia/infra/bots/run_recipe.py",
 			"skia/infra/lottiecap",
 			"skia/tools/lottie-web-perf",
 			"skia/tools/lottiecap",
+			"skia/vpython.toml",
 		},
 		Excludes: []string{rbe.ExcludeGitDir},
 	}
@@ -498,10 +498,10 @@ func GenTasks(cfg *Config) {
 	b.MustAddCasSpec(CAS_CANVASKIT, &specs.CasSpec{
 		Root: "..",
 		Paths: []string{
-			"skia/.vpython3",
 			"skia/infra/bots/run_recipe.py",
 			"skia/infra/canvaskit",
 			"skia/modules/canvaskit",
+			"skia/vpython.toml",
 		},
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
@@ -510,58 +510,58 @@ func GenTasks(cfg *Config) {
 	b.MustAddCasSpec(CAS_LOTTIE_WEB, &specs.CasSpec{
 		Root: "..",
 		Paths: []string{
-			"skia/.vpython3",
 			"skia/infra/bots/run_recipe.py",
 			"skia/tools/lottie-web-perf",
+			"skia/vpython.toml",
 		},
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
 	b.MustAddCasSpec(CAS_PERF, &specs.CasSpec{
 		Root: "..",
 		Paths: []string{
-			"skia/.vpython3",
 			"skia/infra/bots/assets",
 			"skia/infra/bots/run_recipe.py",
 			"skia/platform_tools/ios/bin",
 			"skia/resources",
+			"skia/vpython.toml",
 		},
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
 	b.MustAddCasSpec(CAS_PUPPETEER, &specs.CasSpec{
 		Root: "../skia", // Needed for other repos.
 		Paths: []string{
-			".vpython3",
 			"tools/perf-canvaskit-puppeteer",
+			"vpython.toml",
 		},
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
 	b.MustAddCasSpec(CAS_RECIPES, &specs.CasSpec{
 		Root: "..",
 		Paths: []string{
-			"skia/.vpython3",
 			"skia/infra/config/recipes.cfg",
 			"skia/infra/bots/bundle_recipes.sh",
 			"skia/infra/bots/README.recipes.md",
 			"skia/infra/bots/recipe_modules",
 			"skia/infra/bots/recipes",
 			"skia/infra/bots/recipes.py",
+			"skia/vpython.toml",
 		},
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
 	b.MustAddCasSpec(CAS_RUN_RECIPE, &specs.CasSpec{
 		Root: "..",
 		Paths: []string{
-			"skia/.vpython3",
 			"skia/infra/bots/run_recipe.py",
+			"skia/vpython.toml",
 		},
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
 	b.MustAddCasSpec(CAS_SKOTTIE_WASM, &specs.CasSpec{
 		Root: "..",
 		Paths: []string{
-			"skia/.vpython3",
 			"skia/infra/bots/run_recipe.py",
 			"skia/tools/skottie-wasm-perf",
+			"skia/vpython.toml",
 		},
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
@@ -595,20 +595,20 @@ func GenTasks(cfg *Config) {
 	b.MustAddCasSpec(CAS_TEST, &specs.CasSpec{
 		Root: "..",
 		Paths: []string{
-			"skia/.vpython3",
 			"skia/infra/bots/assets",
 			"skia/infra/bots/run_recipe.py",
 			"skia/platform_tools/ios/bin",
 			"skia/resources",
+			"skia/vpython.toml",
 		},
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
 	b.MustAddCasSpec(CAS_WASM_GM, &specs.CasSpec{
 		Root: "../skia", // Needed for other repos.
 		Paths: []string{
-			".vpython3",
 			"resources",
 			"tools/run-wasm-gm-tests",
+			"vpython.toml",
 		},
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
@@ -616,12 +616,12 @@ func GenTasks(cfg *Config) {
 	b.MustAddCasSpec(CAS_RECREATE_SKPS, &specs.CasSpec{
 		Root: "..",
 		Paths: []string{
-			"skia/.vpython3",
 			"skia/DEPS",
 			"skia/bin/fetch-sk",
 			"skia/infra/bots/assets/skp",
 			"skia/infra/bots/utils.py",
 			"skia/tools/skp",
+			"skia/vpython.toml",
 		},
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
@@ -679,7 +679,6 @@ func (b *TaskBuilder) kitchenTaskNoBundle(recipe string, outputDir string) {
 	b.usesLUCIAuth()
 	b.cipd(getCIPDPackage("infra/tools/luci/kitchen/${platform}", "."))
 	b.env("RECIPES_USE_PY3", "true")
-	b.envPrefixes("VPYTHON_DEFAULT_SPEC", "skia/.vpython3")
 	b.usesPython()
 	b.recipeProp("swarm_out_dir", outputDir)
 	if outputDir != OUTPUT_NONE {
