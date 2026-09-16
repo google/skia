@@ -45,12 +45,15 @@ private:
     struct DecodingDstInfo {
         // `fDst` is based on `pixels` passed to `onGetPixels` or
         // `onStartIncrementalDecode`.  For interlaced and non-interlaced
-        // images, `startDecoding` initializes `fDst` to start at the (0,0)
+        // images, `initializeDecodingDst` initializes `fDst` to start at the (0,0)
         // (top-left) pixel of the current frame (which may be offset from
         // `pixels` if the current frame is a sub-rect of the full image).
         // After decoding a non-interlaced row this moves (by `fDstRowStride`)
         // to the next row.
         SkSpan<uint8_t> fDst;
+
+        // Pointer to the start of the caller's destination pixel buffer.
+        uint8_t* fDstPtr = nullptr;
 
         // Size of a row (in bytes) in the full image.  Based on `rowBytes`
         // passed to `onGetPixels` or `onStartIncrementalDecode`.
@@ -69,6 +72,10 @@ private:
     struct DecodingState {
         // The info and pixels we will be decoding into.
         DecodingDstInfo fDecodingDstInfo;
+
+        // Whether `initializeDecodingDst` has populated `fDecodingDstInfo.fDst`
+        // and `fPreblendBuffer`.
+        bool fDstInitialized = false;
 
         // Intermediate buffer that holds color-transformed pixels that are
         // ready to be blended with the destination.  Used only when this frame
@@ -107,6 +114,10 @@ private:
                          const Options& options,
                          DecodingState* decodingState);
 
+    // Helper for initializing the destination span (`fDst`), row size, and
+    // preblend buffer once sampling/subsetting parameters are finalized.
+    Result initializeDecodingDst(DecodingState& decodingState);
+
     // Helper for taking a decoded interlaced `srcRow`, applying color
     // transformations, and then expanding it into the `frame`.
     void expandDecodedInterlacedRow(SkSpan<uint8_t> dstFrame,
@@ -144,7 +155,10 @@ private:
     void processUnknownChunks();
     bool isLastFrame();
     bool isSampling() const;
-    Result initializeSamplerParams(DecodingState& decodingState);
+    // Helper to query whether the image supports sampling or subsetting
+    // (only static full-canvas images are supported; APNG animations and
+    // offset frames are unsupported).
+    bool supportsSamplingOrSubsetting();
 
     // SkCodec overrides:
     Result onGetPixels(const SkImageInfo& dstInfo,

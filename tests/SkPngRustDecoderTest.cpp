@@ -7,10 +7,13 @@
 
 #include "include/codec/SkPngRustDecoder.h"
 
+#include <algorithm>
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <optional>
 #include <utility>
+#include <vector>
 
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
@@ -26,7 +29,9 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkGainmapInfo.h"
 #include "src/codec/SkCodecPriv.h"
@@ -337,6 +342,86 @@ static void AssertAndroidDecodeSampling(
 #else
     REPORTER_ASSERT(r, rustBm.has_value());
 #endif
+}
+
+// Decodes into a buffer surrounded by guard bytes to detect out-of-bounds writes
+// even in builds without ASAN, and asserts that the decode is refused with
+// `SkCodec::kUnimplemented`.
+static void AssertAndroidDecodeRefused(skiatest::Reporter* r,
+                                       const sk_sp<SkData>& data,
+                                       int sampleSize,
+                                       bool useSubset,
+                                       size_t customRowBytes = 0) {
+    constexpr size_t kGuardBytes = 64 * 1024;
+    constexpr uint8_t kGuardValue = 0x5A;
+
+    auto codec = SkPngRustDecoder::Decode(std::make_unique<SkMemoryStream>(data), nullptr);
+    REPORTER_ASSERT(r, codec);
+    if (!codec) {
+        return;
+    }
+
+    // `android.graphics.ImageDecoder` queries the frame count before creating
+    // `SkAndroidCodec` (see `ImageDecoder_nCreate` in
+    // frameworks/base/libs/hwui/jni/ImageDecoder.cpp), which parses the frame
+    // metadata.
+    REPORTER_ASSERT(r, codec->getFrameCount() == 1);
+
+    auto androidCodec = SkAndroidCodec::MakeFromCodec(std::move(codec));
+    REPORTER_ASSERT(r, androidCodec);
+    if (!androidCodec) {
+        return;
+    }
+
+    const SkISize fullDims = androidCodec->getInfo().dimensions();
+    SkIRect subset = SkIRect::MakeWH(fullDims.width(), std::max(1, fullDims.height() / 2));
+    if (useSubset) {
+        REPORTER_ASSERT(r, androidCodec->getSupportedSubset(&subset));
+    }
+
+    const SkISize dims =
+            useSubset ? SkISize::Make(SkCodecPriv::GetSampledDimension(subset.width(), sampleSize),
+                                      SkCodecPriv::GetSampledDimension(subset.height(), sampleSize))
+                      : androidCodec->getSampledDimensions(sampleSize);
+
+    const SkImageInfo info = androidCodec->getInfo()
+                                     .makeDimensions(dims)
+                                     .makeColorType(kN32_SkColorType)
+                                     .makeAlphaType(kPremul_SkAlphaType);
+    const size_t rowBytes = customRowBytes ? customRowBytes : info.minRowBytes();
+    const size_t pixelBytes = info.computeByteSize(rowBytes);
+    std::vector<uint8_t> buffer(kGuardBytes + pixelBytes + kGuardBytes, kGuardValue);
+
+    SkAndroidCodec::AndroidOptions options;
+    options.fSampleSize = sampleSize;
+    if (useSubset) {
+        options.fSubset = &subset;
+    }
+
+    SkCodec::Result result =
+            androidCodec->getAndroidPixels(info, buffer.data() + kGuardBytes, rowBytes, &options);
+    REPORTER_ASSERT(r,
+                    result == SkCodec::kUnimplemented,
+                    "Expected the decode to be refused with kUnimplemented, got %s "
+                    "(sampleSize=%d, useSubset=%d, rowBytes=%zu)",
+                    SkCodec::ResultToString(result),
+                    sampleSize,
+                    (int)useSubset,
+                    rowBytes);
+
+    const bool guardBytesIntact = std::all_of(buffer.begin(),
+                                              buffer.begin() + kGuardBytes,
+                                              [](uint8_t b) { return b == kGuardValue; }) &&
+                                  std::all_of(buffer.begin() + kGuardBytes + pixelBytes,
+                                              buffer.end(),
+                                              [](uint8_t b) { return b == kGuardValue; });
+    REPORTER_ASSERT(r,
+                    guardBytesIntact,
+                    "The decode wrote outside of the destination buffer "
+                    "(sampleSize=%d, useSubset=%d, rowBytes=%zu)",
+                    sampleSize,
+                    (int)useSubset,
+                    rowBytes);
 }
 
 sk_sp<SkImage> DecodeLastFrame(skiatest::Reporter* r, SkCodec* codec) {
@@ -1393,5 +1478,117 @@ DEF_TEST(RustPngCodec_subsampling_subset_interlaced, r) {
                 r, "images/plane_interlaced.png", sampleSize, [](const SkImageInfo& info) {
                     return SkIRect::MakeXYWH(0, 1, info.width(), info.height() - 1);
                 });
+    }
+}
+
+// Regression test for a heap buffer overflow.
+//
+// `onIsAnimated` reports `kNo` for an APNG that declares one frame, so
+// `SkAndroidCodec` is allowed to ask for a sampled or subset decode.  The frame
+// metadata still gives frame 0 the origin from the `fcTL` chunk, in source
+// pixel coordinates.  That origin is only valid in a full-canvas destination,
+// so the codec must refuse a sampled or subset decode of such a frame instead
+// of writing outside the caller's buffer.
+DEF_TEST(RustPngCodec_apng_offset_frame_does_not_overflow_dst, r) {
+    // 64x64 canvas.  The single frame covers the bottom half: y-origin of 32.
+    const char* path = "images/apng-single-frame-with-offset.png";
+    sk_sp<SkData> data = GetResourceAsData(path);
+    if (!data) {
+        ERRORF(r, "Missing resource: %s", path);
+        return;
+    }
+
+    struct Case {
+        int fSampleSize;
+        bool fUseSubset;
+        // `0` means `info.minRowBytes()`.  A larger value gives the destination
+        // buffer row padding, which makes `rowBytes >= dstInfo.minRowBytes()`
+        // even though the buffer holds fewer rows than the full canvas.
+        size_t fRowBytes;
+    };
+    static constexpr Case kCases[] = {
+            // Sampling only.  `sampleSize` of 2 halves both dimensions, while a
+            // `sampleSize` of 64 makes the destination a single pixel.
+            {2, false, 0},
+            {64, false, 0},
+            {2, false, 256},
+
+            // Subset only.
+            {1, true, 0},
+
+            // Subset and sampling.
+            {2, true, 0},
+    };
+
+    for (const Case& testCase : kCases) {
+        AssertAndroidDecodeRefused(
+                r, data, testCase.fSampleSize, testCase.fUseSubset, testCase.fRowBytes);
+    }
+}
+
+// A caller that drives `SkCodec` directly (rather than through
+// `SkAndroidCodec`) can pass a `rowBytes` that is too small for a full-canvas
+// destination.  `SkSampledCodec` does this and then narrows the destination
+// with a sampler, but a caller that never asks for a sampler must get a clean
+// error instead of a decode into an undersized buffer.
+DEF_TEST(RustPngCodec_apng_offset_frame_small_row_bytes, r) {
+    const char* path = "images/apng-single-frame-with-offset.png";
+    sk_sp<SkData> data = GetResourceAsData(path);
+    if (!data) {
+        ERRORF(r, "Missing resource: %s", path);
+        return;
+    }
+
+    auto codec = SkPngRustDecoder::Decode(std::make_unique<SkMemoryStream>(data), nullptr);
+    REPORTER_ASSERT(r, codec);
+    if (!codec) {
+        return;
+    }
+    REPORTER_ASSERT(r, codec->getFrameCount() == 1);
+
+    const SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
+    std::vector<uint8_t> buffer(info.computeMinByteSize(), 0x00);
+    SkCodec::Result result =
+            codec->startIncrementalDecode(info, buffer.data(), info.minRowBytes() / 2);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+
+    result = codec->incrementalDecode();
+    REPORTER_ASSERT(r,
+                    result == SkCodec::kInvalidParameters,
+                    "expected kInvalidParameters, got %s",
+                    SkCodec::ResultToString(result));
+}
+
+// The refusal above must not change a full-canvas decode: the frame still goes
+// to its origin.  This is the only path that non-Android clients use.
+DEF_TEST(RustPngCodec_apng_offset_frame_full_canvas_placement, r) {
+    const char* path = "images/apng-single-frame-with-offset.png";
+    sk_sp<SkData> data = GetResourceAsData(path);
+    if (!data) {
+        ERRORF(r, "Missing resource: %s", path);
+        return;
+    }
+
+    auto codec = SkPngRustDecoder::Decode(std::make_unique<SkMemoryStream>(data), nullptr);
+    if (!codec) {
+        ERRORF(r, "Failed to create a codec for %s", path);
+        return;
+    }
+    REPORTER_ASSERT(r, codec->getFrameCount() == 1);
+
+    for (SkAlphaType alphaType : {kUnpremul_SkAlphaType, kPremul_SkAlphaType}) {
+        SkBitmap bm;
+        bm.allocPixels(codec->getInfo().makeColorType(kN32_SkColorType).makeAlphaType(alphaType));
+        // The APNG spec says the output buffer starts as transparent black.
+        bm.eraseColor(SK_ColorTRANSPARENT);
+
+        SkCodec::Result result = codec->getPixels(bm.pixmap());
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+
+        // Rows above the frame stay transparent.  The frame fills rows 32..63.
+        REPORTER_ASSERT(r, bm.getColor(0, 0) == SK_ColorTRANSPARENT);
+        REPORTER_ASSERT(r, bm.getColor(63, 31) == SK_ColorTRANSPARENT);
+        REPORTER_ASSERT(r, bm.getColor(0, 32) == SK_ColorMAGENTA);
+        REPORTER_ASSERT(r, bm.getColor(63, 63) == SK_ColorMAGENTA);
     }
 }

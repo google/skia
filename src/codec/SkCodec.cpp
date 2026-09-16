@@ -665,7 +665,6 @@ SkCodec::Result SkCodec::startIncrementalDecode(const SkImageInfo& info, void* p
     if (kSuccess == result) {
         fStartedIncrementalDecode = true;
     }
-    SkASSERT(result != kUnimplemented);
     return result;
 }
 
