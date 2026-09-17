@@ -26,6 +26,8 @@
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/Slide.h"
 
+#include <array>
+
 class ArcsSlide : public Slide {
     class MyDrawable : public SkDrawable {
         SkRect   fR;
@@ -106,17 +108,17 @@ class ArcsSlide : public Slide {
 
         paint.setStrokeWidth(SkIntToScalar(1));
 
-        static const SkScalar gAngles[] = {
-            0, 360,
-            0, 45,
-            0, -45,
-            720, 135,
-            -90, 269,
-            -90, 270,
-            -90, 271,
-            -180, -270,
-            225, 90
-        };
+        static const auto gAngles = std::to_array<SkScalar>({
+                0, 360,
+                0, 45,
+                0, -45,
+                720, 135,
+                -90, 269,
+                -90, 270,
+                -90, 271,
+                -180, -270,
+                225, 90,
+        });
 
         for (size_t i = 0; i < std::size(gAngles); i += 2) {
             paint.setColor(SK_ColorBLACK);

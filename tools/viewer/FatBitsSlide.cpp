@@ -29,6 +29,8 @@
 #include "tools/viewer/ClickHandlerSlide.h"
 #include "tools/viewer/Slide.h"
 
+#include <array>
+
 #define FAT_PIXEL_COLOR     SK_ColorBLACK
 #define PIXEL_CENTER_SIZE   3
 #define WIRE_FRAME_COLOR    0xFFFF0000  /*0xFF00FFFF*/
@@ -399,9 +401,11 @@ public:
                 }
                 return true;
             case 'k': {
-                const SkPaint::Cap caps[] = {
-                    SkPaint::kButt_Cap, SkPaint::kRound_Cap, SkPaint::kSquare_Cap,
-                };
+                const auto caps = std::to_array<SkPaint::Cap>({
+                        SkPaint::kButt_Cap,
+                        SkPaint::kRound_Cap,
+                        SkPaint::kSquare_Cap,
+                });
                 fFB.fStrokeCap = caps[(fFB.fStrokeCap + 1) % 3];
                 return true;
             }

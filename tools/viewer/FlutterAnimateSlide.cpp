@@ -18,6 +18,8 @@
 #include "tools/timer/Timer.h"
 #include "tools/viewer/Slide.h"
 
+#include <array>
+
 // Create an animation of a bunch of letters that rotate in place. This is intended to stress
 // the glyph atlas and test that we don't see corruption or bad slowdowns.
 class FlutterAnimateView : public Slide {
@@ -87,7 +89,7 @@ private:
     };
     sk_sp<SkTypeface> fTypeface;
     inline static constexpr int kNumChars = 40;
-    AnimatedChar fChars[kNumChars];
+    std::array<AnimatedChar, kNumChars> fChars;
 };
 
 //////////////////////////////////////////////////////////////////////////////

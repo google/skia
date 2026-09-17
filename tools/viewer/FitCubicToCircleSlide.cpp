@@ -14,6 +14,7 @@
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 
+#include <array>
 #include <tuple>
 
 using namespace skia_private;
@@ -51,8 +52,8 @@ protected:
 private:
     void fitCubic();
     // Coordinates of two points on the unit circle. These are the two endpoints of the arc we fit.
-    double fEndptsX[2] = {0, 1};
-    double fEndptsY[2] = {-1, 0};
+    std::array<double, 2> fEndptsX = {0, 1};
+    std::array<double, 2> fEndptsY = {-1, 0};
 
     // Fitted cubic and info, set by fitCubic().
     double fControlLength;  // Length of (p1 - p0) and/or (p3 - p2) in unit circle space.

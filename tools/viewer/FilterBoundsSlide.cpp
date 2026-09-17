@@ -26,6 +26,8 @@
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/Slide.h"
 
+#include <array>
+
 static constexpr float kLineHeight = 16.f;
 static constexpr float kLineInset = 8.f;
 
@@ -109,14 +111,16 @@ static SkPath create_axis_path(const SkRect& rect, float axisSpace) {
     return localSpace.detach();
 }
 
-static const SkColor4f kScaleGradientColors[] =
-                { { 0.05f, 0.0f, 6.f,  1.f },   // Severe downscaling, s < 1/8, log(s) < -3
-                  { 0.6f,  0.6f, 0.8f, 0.6f },  // Okay downscaling,   s < 1/2, log(s) < -1
-                  { 1.f,   1.f,  1.f,  0.2f },  // No scaling,         s = 1,   log(s) = 0
-                  { 0.95f, 0.6f, 0.5f, 0.6f },  // Okay upscaling,     s > 2,   log(s) > 1
-                  { 0.8f,  0.1f, 0.f,  1.f } }; // Severe upscaling,   s > 8,   log(s) > 3
-static const SkScalar kLogScaleFactors[] = { -3.f, -1.f, 0.f, 1.f, 3.f };
-static const SkScalar kGradientStops[] = { 0.f, 0.33333f, 0.5f, 0.66667f, 1.f };
+static const auto kScaleGradientColors = std::to_array<SkColor4f>({
+        SkColor4f{ 0.05f, 0.0f, 6.f,  1.f  },   // Severe downscaling, s < 1/8, log(s) < -3
+        SkColor4f{ 0.6f,  0.6f, 0.8f, 0.6f },   // Okay downscaling,   s < 1/2, log(s) < -1
+        SkColor4f{ 1.f,   1.f,  1.f,  0.2f },   // No scaling,         s = 1,   log(s) = 0
+        SkColor4f{ 0.95f, 0.6f, 0.5f, 0.6f },   // Okay upscaling,     s > 2,   log(s) > 1
+        SkColor4f{ 0.8f,  0.1f, 0.f,  1.f  },   // Severe upscaling,   s > 8,   log(s) > 3
+});
+static constexpr auto kLogScaleFactors = std::to_array<SkScalar>({-3.f, -1.f, 0.f, 1.f, 3.f});
+static constexpr auto kGradientStops =
+        std::to_array<SkScalar>({0.f, 0.33333f, 0.5f, 0.66667f, 1.f});
 static const int kStopCount = (int) std::size(kScaleGradientColors);
 
 static void draw_scale_key(SkCanvas* canvas, float y) {
@@ -135,7 +139,7 @@ static void draw_scale_key(SkCanvas* canvas, float y) {
 }
 
 static void draw_scale_factors(SkCanvas* canvas, const skif::Mapping& mapping, const SkRect& rect) {
-    SkPoint testPoints[5];
+    std::array<SkPoint, 5> testPoints;
     testPoints[0] = {rect.centerX(), rect.centerY()};
     rect.copyToQuad({&testPoints[1], 4});
     for (int i = 0; i < 5; ++i) {

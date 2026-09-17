@@ -23,13 +23,14 @@
 #include "tools/timer/TimeUtils.h"
 #include "tools/viewer/Slide.h"
 
+#include "imgui.h"
+
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <iterator>
 #include <vector>
-
-#include "imgui.h"
 
 namespace {
 
@@ -332,17 +333,18 @@ private:
             ImGui::EndCombo();
         }
 
-        static constexpr struct {
+        struct GSizeInfo {
             const char* fLabel;
             size_t      fCount;
-        } gSizeInfo[] = {
-            {     "4x4",    16 },
-            {     "8x8",    64 },
-            {   "16x16",   256 },
-            {   "32x32",  1024 },
-            {   "64x64",  4096 },
-            { "128x128", 16384 },
         };
+        static constexpr auto gSizeInfo = std::to_array<GSizeInfo>({
+                GSizeInfo{     "4x4",    16 },
+                GSizeInfo{     "8x8",    64 },
+                GSizeInfo{   "16x16",   256 },
+                GSizeInfo{   "32x32",  1024 },
+                GSizeInfo{   "64x64",  4096 },
+                GSizeInfo{ "128x128", 16384 },
+        });
         ImGui::SliderInt("Mesh Size",
                          &fMeshSizeSelector,
                          0, std::size(gSizeInfo) - 1,

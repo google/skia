@@ -13,6 +13,7 @@
 #include "include/private/SkTPin.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 
+#include <array>
 #include <unordered_set>
 
 static SkPaint paint(SkColor color,
@@ -213,7 +214,7 @@ struct LocalCornerVert {
 
 static constexpr float kHR2 = SK_ScalarRoot2Over2; // "half root 2"
 
-static constexpr LocalCornerVert kCornerTemplate[19] = {
+static constexpr std::array<LocalCornerVert, 19> kCornerTemplate = {{
     // Stroke-scale should be -1, 0, or 1.
     // Mirror-scale should be 0 or 1.
     // Center-weight should be -2 to never snap to center, -1 to snap when stroke coords would
@@ -249,7 +250,7 @@ static constexpr LocalCornerVert kCornerTemplate[19] = {
     // Center filling vertices (equal to inner AA insets unless center-weight = 1)
     { {0.5f, 0.5f}, {-kHR2, -kHR2}, -1.0f,          1.0f,            0.f  },
     { {1.0f, 0.0f}, {-1.0f,  0.0f}, -1.0f,          0.0f,            0.f  },
-};
+}};
 
 static void compute_corner(SkV3 devPts[19], const SkM44& m, const SkV4& cornerMapping,
                            const SkV2& cornerPt, const SkV2& cornerRadii, const SkV4& center,
@@ -563,9 +564,9 @@ private:
         SkRRect rrect = this->primitiveShape();
         float strokeRadius = 0.5f * this->strokeWidth();
 
-        SkV3 points[kVertexCount];
+        std::array<SkV3, kVertexCount> points;
         SkPoint vertices[kVertexCount];
-        compute_vertices(points, ctm, rrect, strokeRadius, fJoinMode);
+        compute_vertices(points.data(), ctm, rrect, strokeRadius, fJoinMode);
         // SkCanvas::drawVertices() wants SkPoint, but normally we'd let the GPU handle the
         // perspective division and clipping.
         for (size_t i = 0; i < kVertexCount; ++i) {
