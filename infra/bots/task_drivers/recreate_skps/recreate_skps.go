@@ -195,7 +195,10 @@ func main() {
 			return skerr.Wrap(err)
 		}
 		depotToolsDir = co.Dir()
-		return err
+		if _, err := exec.RunCwd(ctx, depotToolsDir, filepath.Join(depotToolsDir, "ensure_bootstrap")); err != nil {
+			return skerr.Wrap(err)
+		}
+		return nil
 	}); err != nil {
 		td.Fatal(ctx, err)
 	}
