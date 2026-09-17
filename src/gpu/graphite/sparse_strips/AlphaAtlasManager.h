@@ -44,8 +44,11 @@ public:
     // page index (0 or 1), respectively.
     std::optional<std::pair<int32_t, uint16_t>> finalizeRun();
 
+    static constexpr uint16_t kNullSlot = SparseStripConfig::kMaxTexturePages;
+
     void recordUploads(DrawContext* dc);
     void freeGpuResources();
+    bool resolveNullCaps(EndCaps* ends);
 
     size_t numPages() const {
         size_t numPages = 0;
@@ -57,27 +60,28 @@ public:
         return numPages;
     }
     int32_t activePageRowCount() const {
-        return fPages[fActiveSlot].isValid() ? fPages[fActiveSlot].fRowCount : 0;
+        return (fActiveSlot < SparseStripConfig::kMaxTexturePages && fPages[fActiveSlot].isValid())
+                       ? fPages[fActiveSlot].fRowCount
+                       : 0;
     }
     sk_sp<TextureProxy> getPageProxy(size_t index) const {
         return (index < SparseStripConfig::kMaxTexturePages && fPages[index].isValid()) ?
                 fPages[index].fTexture : nullptr;
     }
     const uint8_t* getPageData(size_t index) const {
+        if (index == kNullSlot) {
+            return fNullBuffer.data();
+        }
         return (index < SparseStripConfig::kMaxTexturePages && fPages[index].isValid()) ?
                 fPages[index].fAlphaBuffer.data() : nullptr;
     }
     int activeSlot() const { return fActiveSlot; }
+    bool hasNullBuffer() const { return !fNullBuffer.empty(); }
 
-    void populateProxies(EndCaps* ends) const {
-        for (int32_t i = 0; i < SparseStripConfig::kMaxTexturePages; ++i) {
-            if (fPages[i].isValid()) {
-                ends->addProxy(fPages[i].fTexture);
-            }
-        }
-    }
+    void populateProxies(EndCaps* ends) const;
 
 private:
+    static constexpr int32_t kInvalidSlot = -1;
     // The struct backing the manager's pages. Note, the struct contains fAlphaBuffer, which holds
     // the cpu-side data for the page (e.g. a single upload).
     struct TexturePage {
@@ -103,7 +107,20 @@ private:
 
     Recorder* fRecorder;
     TexturePage fPages[SparseStripConfig::kMaxTexturePages];
-    int fActiveSlot;
+
+    // Spillover memory and tracking for when all texture pages are exhausted. Only used when on the
+    // kNullSlot.
+    SkTDArray<uint8_t> fNullBuffer;
+    int32_t fNullBufferUsedBytes;
+
+    // The slot of the texture page whose alpha buffer is currently being appended to. Should always
+    // be n < kMaxTexturePages
+    int32_t fActiveSlot;
+    // The slot of the last non-null texture page which was appended to
+    int32_t fLastGpuSlot;
+    // The slot of the last non-null texture page which was retired. Is only populated in null caps
+    // scenario, invalid otherwise.
+    int32_t fLastRetiredSlot;
     int32_t fNextPageRowCount;
 };
 

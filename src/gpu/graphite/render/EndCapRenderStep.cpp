@@ -95,8 +95,11 @@ void EndCapRenderStep::writeVertices(DrawWriter* writer,
                                      const DrawParams& params,
                                      uint32_t ssboIndex) const {
     SkASSERT(params.geometry().isEndCaps());
-    const auto& caps = params.geometry().endCaps().caps();
-    if (caps.empty()) {
+    const auto& endCaps = params.geometry().endCaps();
+
+    int32_t start = endCaps.drawStartIndex();
+    int32_t end = endCaps.drawEndIndex();
+    if (start >= end) {
         return;
     }
 
@@ -106,12 +109,14 @@ void EndCapRenderStep::writeVertices(DrawWriter* writer,
     }
 
     DrawWriter::Instances instances{*writer, {}, {}, 4};
-    instances.reserve(caps.size());
+    instances.reserve(end - start);
 
     float depth = params.order().depthAsFloat();
     float height = static_cast<float>(SparseStripConfig::kTileHeight);
 
-    for (const auto& cap : caps) {
+    const auto& caps = endCaps.caps();
+    for (int32_t i = start; i < end; ++i) {
+        const auto& cap = caps[i];
         float l = static_cast<float>(cap.fX);
         float t = static_cast<float>(cap.fY);
         float width = static_cast<float>(cap.fWidth);
@@ -134,11 +139,10 @@ void EndCapRenderStep::writeUniformsAndTextures(const DrawParams& params,
 
     SkASSERT(params.geometry().isEndCaps());
     const auto& proxies = params.geometry().endCaps().proxies();
-    SkASSERT(!proxies.empty());
 
     for (int i = 0; i < SparseStripConfig::kMaxTexturePages; ++i) {
-        int proxyIdx = std::min(i, static_cast<int>(proxies.size()) - 1);
-        gatherer->add(proxies[proxyIdx], {SkFilterMode::kNearest, SkTileMode::kClamp});
+        SkASSERT(proxies[i] != nullptr);
+        gatherer->add(proxies[i], {SkFilterMode::kNearest, SkTileMode::kClamp});
     }
 }
 

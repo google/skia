@@ -34,7 +34,7 @@ struct SparseStripConfig {
     static constexpr int32_t kAtlasWidthBytes     = kAtlasWidth * kAtlasBytesPerTexel;
     static constexpr int32_t kInitialAtlasRows    = 1;
     static constexpr int32_t kMaxAtlasRows        = 8192;
-    static constexpr int32_t kMaxCapBytes         = kAtlasWidth * kMaxAtlasRows *
+    static constexpr int32_t kMaxAtlasBytes       = kAtlasWidth * kMaxAtlasRows *
                                                     kAtlasBytesPerTexel;
     static constexpr int32_t kMaxTexturePages     = 2;
 

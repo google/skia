@@ -84,7 +84,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_AtlasDynamicGrowthAndDoubl
     REPORTER_ASSERT(reporter, atlasManager.getPageProxy(1)->dimensions().height() == 2);
 }
 
-DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_AtlasStrictTwoPageLimit,
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_AtlasNullBufferAndNullCaps,
                                          reporter,
                                          context,
                                          CtsEnforcement::kToBeDetermined) {
@@ -114,12 +114,123 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_AtlasStrictTwoPageLimit,
     }
     REPORTER_ASSERT(reporter, atlasManager.numPages() == 2);
 
-    // Attempting to exceed Page 1: we only ever allow 2 pages globally across all endcaps.
-    // Should fail gracefully!
-    REPORTER_ASSERT(reporter, atlasManager.requestAlphaSpace(64) == nullptr);
-    auto alloc = atlasManager.finalizeRun();
-    REPORTER_ASSERT(reporter, !alloc.has_value());
+    // Verify EndCaps recording of NullCaps
+    EndCaps ends;
+    ends.addCap(0, 0, 16, 0, 0);
+    REPORTER_ASSERT(reporter, !ends.hasNullCaps());
+    REPORTER_ASSERT(reporter, ends.firstNullCapIndex() == -1);
+
+    ends.addCap(16, 0, 16, 0, 1);
+    REPORTER_ASSERT(reporter, !ends.hasNullCaps());
+    REPORTER_ASSERT(reporter, ends.firstNullCapIndex() == -1);
+
+    // Exceeding Page 1: NullCaps handling allows MakeStrips to run to completion!
+    // Transitions to the 3rd nullbuffer (kNullSlot).
+    uint8_t* nullPtr = atlasManager.requestAlphaSpace(64);
+    REPORTER_ASSERT(reporter, nullPtr != nullptr);
+    nullPtr[0] = 0xAB;
+    auto alloc3 = atlasManager.finalizeRun();
+    REPORTER_ASSERT(reporter, alloc3.has_value());
+    REPORTER_ASSERT(reporter, alloc3->second == AlphaAtlasManager::kNullSlot);
+    REPORTER_ASSERT(reporter, alloc3->first == 0);
+    REPORTER_ASSERT(reporter, atlasManager.hasNullBuffer());
+    REPORTER_ASSERT(reporter, atlasManager.getPageProxy(alloc3->second) == nullptr);
+    REPORTER_ASSERT(reporter, atlasManager.getPageData(alloc3->second)[0] == 0xAB);
     REPORTER_ASSERT(reporter, atlasManager.numPages() == 2);
+
+    if (alloc3->second == AlphaAtlasManager::kNullSlot) {
+        ends.markFirstNullCap();
+    }
+    ends.addCap(32, 0, 16, alloc3->first, alloc3->second);
+    REPORTER_ASSERT(reporter, ends.hasNullCaps());
+    REPORTER_ASSERT(reporter, ends.firstNullCapIndex() == 2);
+
+    // Subsequent nullcap does not overwrite firstNullCapIndex
+    uint8_t* nullPtr2 = atlasManager.requestAlphaSpace(32);
+    REPORTER_ASSERT(reporter, nullPtr2 != nullptr);
+    auto alloc4 = atlasManager.finalizeRun();
+    REPORTER_ASSERT(reporter, alloc4.has_value());
+    if (alloc4->second == AlphaAtlasManager::kNullSlot) {
+        ends.markFirstNullCap();
+    }
+    ends.addCap(48, 0, 16, alloc4->first, alloc4->second);
+    REPORTER_ASSERT(reporter, ends.hasNullCaps());
+    REPORTER_ASSERT(reporter, ends.firstNullCapIndex() == 2);
+
+    // Flush: recordUploads retires older slot 0
+    atlasManager.recordUploads(nullptr);
+    REPORTER_ASSERT(reporter, atlasManager.numPages() == 1);
+    REPORTER_ASSERT(reporter, atlasManager.getPageProxy(0) == nullptr);
+    REPORTER_ASSERT(reporter, atlasManager.getPageProxy(1) != nullptr);
+    REPORTER_ASSERT(reporter, atlasManager.hasNullBuffer());
+
+    // Resolve nullcaps: migrates nullbuffer data to freed slot 0 and updates endcaps
+    bool resolved = atlasManager.resolveNullCaps(&ends);
+    REPORTER_ASSERT(reporter, resolved);
+    REPORTER_ASSERT(reporter, !ends.hasNullCaps());
+    REPORTER_ASSERT(reporter, ends.firstNullCapIndex() == -1);
+    REPORTER_ASSERT(reporter, !atlasManager.hasNullBuffer());
+    REPORTER_ASSERT(reporter, atlasManager.numPages() == 2);
+    REPORTER_ASSERT(reporter, atlasManager.getPageProxy(0) != nullptr);
+
+    // Endcaps 2 and 3 now point to slot 0 and have valid proxies
+    REPORTER_ASSERT(reporter, ends.caps()[2].fTexPage == 0);
+    REPORTER_ASSERT(reporter, ends.caps()[3].fTexPage == 0);
+    REPORTER_ASSERT(reporter, ends.proxies()[0] == atlasManager.getPageProxy(0));
+    REPORTER_ASSERT(reporter, ends.proxies()[1] == atlasManager.getPageProxy(1));
+    REPORTER_ASSERT(reporter, ends.drawStartIndex() == 2);
+    REPORTER_ASSERT(reporter, ends.drawEndIndex() == 4);
+    REPORTER_ASSERT(reporter, atlasManager.getPageData(0)[0] == 0xAB);
+}
+
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_AtlasStraddleToNullBuffer,
+                                         reporter,
+                                         context,
+                                         CtsEnforcement::kNever) {
+    auto recorder = context->makeRecorder();
+    AlphaAtlasManager atlasManager(recorder.get());
+
+    // Fill Page 0
+    REPORTER_ASSERT(reporter,
+                    atlasManager.requestAlphaSpace(SparseStripConfig::kAtlasWidthBytes) != nullptr);
+    auto alloc0 = atlasManager.finalizeRun();
+    REPORTER_ASSERT(reporter, alloc0.has_value());
+
+    // Fill Page 1 almost full, leaving 64 bytes
+    int32_t page1Capacity = SparseStripConfig::kAtlasWidthBytes * 2;
+    REPORTER_ASSERT(reporter, atlasManager.requestAlphaSpace(page1Capacity - 64) != nullptr);
+    auto alloc1 = atlasManager.finalizeRun();
+    REPORTER_ASSERT(reporter, alloc1.has_value());
+    REPORTER_ASSERT(reporter, alloc1->second == 1);
+
+    // Now start a run that straddles past Page 1's capacity:
+    // Chunk 1: 64 bytes (fills Page 1)
+    uint8_t* p1 = atlasManager.requestAlphaSpace(64);
+    REPORTER_ASSERT(reporter, p1 != nullptr);
+    for (int i = 0; i < 64; ++i) {
+        p1[i] = static_cast<uint8_t>(i + 1);
+    }
+
+    // Chunk 2: 64 bytes (overruns Page 1)
+    uint8_t* p2 = atlasManager.requestAlphaSpace(64);
+    REPORTER_ASSERT(reporter, p2 != nullptr);
+    for (int i = 0; i < 64; ++i) {
+        p2[i] = static_cast<uint8_t>(i + 65);
+    }
+
+    // Finalize run: should memmove the entire 128 bytes to kNullSlot!
+    auto straddleAlloc = atlasManager.finalizeRun();
+    REPORTER_ASSERT(reporter, straddleAlloc.has_value());
+    REPORTER_ASSERT(reporter, straddleAlloc->second == AlphaAtlasManager::kNullSlot);
+    REPORTER_ASSERT(reporter, straddleAlloc->first == 0);
+    REPORTER_ASSERT(reporter, atlasManager.activeSlot() == AlphaAtlasManager::kNullSlot);
+    REPORTER_ASSERT(reporter, atlasManager.hasNullBuffer());
+
+    const uint8_t* nullData = atlasManager.getPageData(AlphaAtlasManager::kNullSlot);
+    REPORTER_ASSERT(reporter, nullData != nullptr);
+    for (int i = 0; i < 128; ++i) {
+        REPORTER_ASSERT(reporter, nullData[i] == static_cast<uint8_t>(i + 1));
+    }
 }
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SparseStrips_AtlasEndCapAtomicity,
