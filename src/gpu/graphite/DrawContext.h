@@ -49,11 +49,15 @@ class Transform;
  */
 class DrawContext final : public SkRefCnt {
 public:
+    // allowUnpremul=true should only be used if the target is only going to be rendered
+    // into with src-blending with calls to drawPaint or pixel-aligned drawRect calls to
+    // avoid anti-aliasing.
     static sk_sp<DrawContext> Make(const Caps* caps,
                                    sk_sp<TextureProxy> target,
                                    SkISize deviceSize,
                                    const SkColorInfo&,
-                                   const SkSurfaceProps&);
+                                   const SkSurfaceProps&,
+                                   bool allowUnpremul);
 
     ~DrawContext() override;
 

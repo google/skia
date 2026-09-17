@@ -414,7 +414,8 @@ sk_sp<Device> Device::Make(Recorder* recorder,
                            const SkSurfaceProps& props,
                            LoadOp initialLoadOp,
                            std::string_view label,
-                           bool registerWithRecorder) {
+                           bool registerWithRecorder,
+                           bool allowUnpremul) {
     SkASSERT(!(mipmapped == Mipmapped::kYes && backingFit == SkBackingFit::kApprox));
     if (!recorder) {
         return nullptr;
@@ -435,7 +436,8 @@ sk_sp<Device> Device::Make(Recorder* recorder,
                 ii.colorInfo(),
                 props,
                 initialLoadOp,
-                registerWithRecorder);
+                registerWithRecorder,
+                allowUnpremul);
 }
 
 sk_sp<Device> Device::Make(Recorder* recorder,
@@ -444,7 +446,8 @@ sk_sp<Device> Device::Make(Recorder* recorder,
                            const SkColorInfo& colorInfo,
                            const SkSurfaceProps& props,
                            LoadOp initialLoadOp,
-                           bool registerWithRecorder) {
+                           bool registerWithRecorder,
+                           bool allowUnpremul) {
     if (!recorder || !target) {
         return nullptr;
     }
@@ -476,7 +479,8 @@ sk_sp<Device> Device::Make(Recorder* recorder,
                                               std::move(target),
                                               deviceSize,
                                               colorInfo,
-                                              props);
+                                              props,
+                                              allowUnpremul);
     if (!dc) {
         return nullptr;
     } else if (initialLoadOp == LoadOp::kClear) {

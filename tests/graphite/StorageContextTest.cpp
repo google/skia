@@ -41,7 +41,8 @@ sk_sp<DrawContext> make_draw_context(Recorder* recorder) {
                                                     texInfo,
                                                     Budgeted::kYes,
                                                     "StorageContextTestTarget");
-    return DrawContext::Make(caps, std::move(target), {16, 16}, colorInfo, {});
+    return DrawContext::Make(caps, std::move(target), {16, 16}, colorInfo, {},
+                             /*allowUnpremul=*/false);
 }
 
 }  // namespace

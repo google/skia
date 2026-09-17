@@ -144,7 +144,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(OptimizeForOpacity,
             Budgeted::kYes,
             "OptimizeForOpacityTarget");
     sk_sp<DrawContext> drawContext = DrawContext::Make(
-            caps, std::move(target), {16, 16}, targetInfo, {});
+            caps, std::move(target), {16, 16}, targetInfo, {}, /*allowUnpremul=*/false);
 
     auto genPaintID = [&](const PaintParams& paint,
                           Coverage rendererCoverage,

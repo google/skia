@@ -323,7 +323,8 @@ sk_sp<DrawContext> get_precompile_draw_context(
                                                                  std::move(target),
                                                                  drawSize,
                                                                  colorInfo,
-                                                                 {});
+                                                                 {},
+                                                                 /*allowUnpremul=*/false);
     return precompileDrawContext;
 }
 

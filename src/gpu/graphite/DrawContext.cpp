@@ -57,13 +57,14 @@ sk_sp<DrawContext> DrawContext::Make(const Caps* caps,
                                      sk_sp<TextureProxy> target,
                                      SkISize deviceSize,
                                      const SkColorInfo& colorInfo,
-                                     const SkSurfaceProps& props) {
+                                     const SkSurfaceProps& props,
+                                     bool allowUnpremul) {
     if (!target) {
         return nullptr;
     }
-    // We don't render to unknown or unpremul alphatypes
+    // We don't render to unknown or unpremul alphatypes unless allowUnpremul is explicitly enabled.
     if (colorInfo.alphaType() == kUnknown_SkAlphaType ||
-        colorInfo.alphaType() == kUnpremul_SkAlphaType) {
+        (colorInfo.alphaType() == kUnpremul_SkAlphaType && !allowUnpremul)) {
         return nullptr;
     }
     if (!caps->isRenderable(target->textureInfo())) {

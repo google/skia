@@ -36,20 +36,26 @@ public:
                                SkBackingFit backingFit = SkBackingFit::kExact,
                                const SkSurfaceProps* props = nullptr) {
         return Make(recorder, info, label, budgeted, mipmapped, backingFit, props,
-                    LoadOp::kClear, /*registerWithRecorder=*/true);
+                    LoadOp::kClear, /*registerWithRecorder=*/true, /*allowUnpremul=*/false);
     }
     // Make a surface that is not registered with the provided recorder. This surface should be
     // short-lived and it must be flushed manually for its draw commands to be recorded. Most
     // scratch surfaces will be budgeted, but if the underlying texture is being returned as a
     // client-owned image, that may not be the case.
+    //
+    // allowUnpremul=true should only be used if the surface is only going to be rendered
+    // into with src-blending with calls to drawPaint or pixel-aligned drawRect calls to
+    // avoid anti-aliasing.
     static sk_sp<Surface> MakeScratch(Recorder* recorder,
                                       const SkImageInfo& info,
                                       std::string_view label,
                                       Budgeted budgeted = Budgeted::kYes,
                                       Mipmapped mipmapped = Mipmapped::kNo,
-                                      SkBackingFit backingFit = SkBackingFit::kApprox) {
+                                      SkBackingFit backingFit = SkBackingFit::kApprox,
+                                      bool allowUnpremul = false) {
         return Make(recorder, info, label, budgeted, mipmapped, backingFit,
-                    /*props=*/nullptr, LoadOp::kDiscard, /*registerWithRecorder=*/false);
+                    /*props=*/nullptr, LoadOp::kDiscard, /*registerWithRecorder=*/false,
+                    allowUnpremul);
     }
 
     Surface(sk_sp<Device>);
@@ -104,6 +110,10 @@ public:
 private:
     // Regular and scratch surfaces differ by initial clear and if they are registered or not,
     // otherwise are constructed the same.
+    //
+    // allowUnpremul=true should only be used if the surface is only going to be rendered
+    // into with src-blending with calls to drawPaint or pixel-aligned drawRect calls to
+    // avoid anti-aliasing.
     static sk_sp<Surface> Make(Recorder* recorder,
                                const SkImageInfo&,
                                std::string_view label,
@@ -112,7 +122,8 @@ private:
                                SkBackingFit,
                                const SkSurfaceProps* props,
                                LoadOp initialLoadOp,
-                               bool registerWithRecorder);
+                               bool registerWithRecorder,
+                               bool allowUnpremul);
 
     sk_sp<Device> fDevice;
     sk_sp<Image>  fImageView; // the image object returned by asImage()

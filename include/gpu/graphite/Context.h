@@ -59,6 +59,7 @@ class PrecompileContext;
 class QueueManager;
 class ResourceProvider;
 class SharedContext;
+class TextureFormatXferFn;
 class TextureProxy;
 class TextureProxyView;
 
@@ -389,16 +390,16 @@ private:
     // readable. However, the texture does not need to be sampleable.
     void asyncReadTexture(std::unique_ptr<Recorder>,
                           const AsyncParams<TextureProxyView>&,
-                          const SkColorInfo& srcColorInfo);
+                          TextureFormatXferFn xferFn);
 
     // Inserts a texture to buffer transfer task, used by asyncReadPixels methods. If the
     // Recorder is non-null, tasks will be added to the Recorder's list; otherwise the transfer
     // tasks will be added to the queue manager directly.
     PixelTransferResult transferPixels(Recorder*,
                                        const TextureProxyView& srcView,
-                                       const SkColorInfo& srcColorInfo,
                                        const SkColorInfo& dstColorInfo,
-                                       const SkIRect& srcRect);
+                                       const SkIRect& srcRect,
+                                       const TextureFormatXferFn& cpuXferFn);
 
     // If the recorder is non-null, it will be snapped and inserted with the assumption that the
     // copy tasks (and possibly preparatory draw tasks) have already been added to the Recording.

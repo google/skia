@@ -148,7 +148,8 @@ sk_sp<Surface> Surface::Make(Recorder* recorder,
                              SkBackingFit backingFit,
                              const SkSurfaceProps* props,
                              LoadOp initialLoadOp,
-                             bool registerWithRecorder) {
+                             bool registerWithRecorder,
+                             bool allowUnpremul) {
     sk_sp<Device> device = Device::Make(recorder,
                                         info,
                                         budgeted,
@@ -157,7 +158,8 @@ sk_sp<Surface> Surface::Make(Recorder* recorder,
                                         SkSurfacePropsCopyOrDefault(props),
                                         initialLoadOp,
                                         label,
-                                        registerWithRecorder);
+                                        registerWithRecorder,
+                                        allowUnpremul);
     if (!device) {
         return nullptr;
     }

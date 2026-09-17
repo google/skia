@@ -173,6 +173,7 @@ struct GraphiteReadPixelTestRules {
     bool fAllowUnpremulSrc = true;
     // Are reads that are overlapping but not contained by the src bounds expected to succeed?
     bool fUncontainedRectSucceeds = true;
+    skgpu::Origin fOrigin = skgpu::Origin::kTopLeft;
 };
 
 // Makes a src populated with the pixmap. The src should get its image info (or equivalent) from
@@ -306,27 +307,25 @@ static void graphite_read_pixels_test_driver(skiatest::Reporter* reporter,
             const bool lumConversion =
                     !(SkColorTypeChannelFlags(srcCT) & kGray_SkColorChannelFlag) &&
                     (SkColorTypeChannelFlags(readCT) & kGray_SkColorChannelFlag);
+            const bool srgbCTConversion = (srcCT == kSRGBA_8888_SkColorType ||
+                                           readCT == kSRGBA_8888_SkColorType);
             // A CS or luminance conversion allows a 3 value difference and otherwise a 2 value
             // difference. Note that sometimes read back on GPU can be lossy even when there no
             // conversion at all because GPU->CPU read may go to a lower bit depth format and then
             // be promoted back to the original type. For example, GL ES cannot read to 1010102, so
             // we go through 8888.
-            float numer = (lumConversion || csConversion) ? 3.f : 2.f;
+            float numer = (lumConversion || csConversion || srgbCTConversion) ? 3.f : 2.f;
             // Allow some extra tolerance if unpremuling.
             if (srcAT == kPremul_SkAlphaType && readAT == kUnpremul_SkAlphaType) {
                 numer += 1;
             }
             int rgbBits = std::min({min_rgb_channel_bits(readCT), min_rgb_channel_bits(srcCT), 8});
             float tol = numer / (1 << rgbBits);
-            float alphaTol = 0;
-            if (readAT != kOpaque_SkAlphaType && srcAT != kOpaque_SkAlphaType) {
-                // Alpha can also get squashed down to 8 bits going through an intermediate
-                // color format.
-                const int alphaBits = std::min({alpha_channel_bits(readCT),
-                                                alpha_channel_bits(srcCT),
-                                                8});
-                alphaTol = 2.f / (1 << alphaBits);
-            }
+            // ReadPixels operations may perform format, alpha, or color space conversions on the
+            // GPU, which can introduce small floating-point differences. Expect a small diff in
+            // both RGB and alpha.
+            int alphaBits = std::min({alpha_channel_bits(readCT), alpha_channel_bits(srcCT), 8});
+            float alphaTol = (alphaBits == 0) ? tol : (numer / (1 << alphaBits));
 
             const float tols[4] = {tol, tol, tol, alphaTol};
             auto error = std::function<ComparePixmapsErrorReporter>([&](int x, int y,
@@ -345,6 +344,12 @@ static void graphite_read_pixels_test_driver(skiatest::Reporter* reporter,
             SkAutoPixmapStorage ref;
             SkImageInfo refInfo = readInfo.makeDimensions(dstWriteRect.size());
             ref.alloc(refInfo);
+            // Since the texture is uploaded as if it's top left, we flip the
+            // ref pixels if the origin is bottom left so the following comparison
+            // works identically regardless of the origin.
+            const bool flipY = (rules.fOrigin == skgpu::Origin::kBottomLeft);
+            const int srcReadY = flipY ? (srcPixels.height() - srcReadRect.bottom())
+                                       : srcReadRect.y();
             if (readAT == kUnknown_SkAlphaType) {
                 // Do a spoofed read where src and dst alpha type are both kUnpremul. This will
                 // allow SkPixmap readPixels to succeed and won't do any alpha type conversion.
@@ -355,9 +360,16 @@ static void graphite_read_pixels_test_driver(skiatest::Reporter* reporter,
                                      srcPixels.addr(),
                                      srcPixels.rowBytes());
 
-                unpremulSrc.readPixels(unpremulRef, srcReadRect.x(), srcReadRect.y());
+                unpremulSrc.readPixels(unpremulRef, srcReadRect.x(), srcReadY);
             } else {
-                srcPixels.readPixels(ref, srcReadRect.x(), srcReadRect.y());
+                srcPixels.readPixels(ref, srcReadRect.x(), srcReadY);
+            }
+            if (flipY) {
+                for (int y = 0; y < ref.height() / 2; ++y) {
+                    char* r1 = static_cast<char*>(ref.writable_addr(0, y));
+                    char* r2 = static_cast<char*>(ref.writable_addr(0, ref.height() - 1 - y));
+                    std::swap_ranges(r1, r1 + ref.rowBytes(), r2);
+                }
             }
             // This is the part of dstPixels that should have been updated.
             SkPixmap actual;
@@ -598,26 +610,34 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixelsGraphit
     rules.fAllowUnpremulSrc = true;
     rules.fUncontainedRectSucceeds = false;
 
-    for (auto renderable : {Renderable::kNo, Renderable::kYes}) {
-        auto factory = std::function<GraphiteSrcFactory<Image>>([&](
-                skgpu::graphite::Recorder* recorder,
-                const SkPixmap& src) {
-            Image image = sk_gpu_test::MakeBackendTextureImage(recorder,
-                                                               src,
-                                                               Mipmapped::kNo,
-                                                               renderable,
-                                                               skgpu::Origin::kTopLeft,
-                                                               skgpu::Protected::kNo);
+    for (auto origin : {
+            skgpu::Origin::kTopLeft,
+#if !defined(SK_LEGACY_GRAPHITE_READ_PIXELS_BOTTOM_LEFT_BEHAVIOR)
+            skgpu::Origin::kBottomLeft,
+#endif
+    }) {
+        rules.fOrigin = origin;
+        for (auto renderable : {Renderable::kNo, Renderable::kYes}) {
+            auto factory = std::function<GraphiteSrcFactory<Image>>([&](
+                    skgpu::graphite::Recorder* recorder,
+                    const SkPixmap& src) {
+                Image image = sk_gpu_test::MakeBackendTextureImage(recorder,
+                                                                   src,
+                                                                   Mipmapped::kNo,
+                                                                   renderable,
+                                                                   origin,
+                                                                   skgpu::Protected::kNo);
 
-            std::unique_ptr<skgpu::graphite::Recording> recording = recorder->snap();
-            skgpu::graphite::InsertRecordingInfo recordingInfo;
-            recordingInfo.fRecording = recording.get();
-            context->insertRecording(recordingInfo);
+                std::unique_ptr<skgpu::graphite::Recording> recording = recorder->snap();
+                skgpu::graphite::InsertRecordingInfo recordingInfo;
+                recordingInfo.fRecording = recording.get();
+                context->insertRecording(recordingInfo);
 
-            return image;
-        });
-        auto label = SkStringPrintf("Renderable: %d", (int)renderable);
-        graphite_read_pixels_test_driver(reporter, context, rules, factory, reader, label);
+                return image;
+            });
+            auto label = SkStringPrintf("Renderable: %d, Origin: %d", (int)renderable, (int)origin);
+            graphite_read_pixels_test_driver(reporter, context, rules, factory, reader, label);
+        }
     }
 
     // It's possible that we've created an Image using the factory, but then don't try to do
