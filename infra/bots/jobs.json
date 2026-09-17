@@ -1481,15 +1481,6 @@
     "name": "Test-Android-Clang-Pixel4XL-GPU-Adreno640-arm64-Release-All-Android_Vulkan"
   },
   {
-    "name": "Test-Android-Clang-Pixel4a-CPU-Snapdragon730G-arm64-Debug-All-Android_HWASAN"
-  },
-  {
-    "name": "Test-Android-Clang-Pixel4a-GPU-Adreno618-arm64-Debug-All-Android_Graphite_Native_Vulkan_HWASAN"
-  },
-  {
-    "name": "Test-Android-Clang-Pixel4a-GPU-Adreno618-arm64-Debug-All-Android_HWASAN"
-  },
-  {
     "name": "Test-Android-Clang-Pixel5-GPU-Adreno620-arm64-Debug-All-Android"
   },
   {
