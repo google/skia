@@ -637,7 +637,7 @@ SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
                                               void* pixels,
                                               size_t rowBytes,
                                               const Options& options,
-                                              DecodingState* decodingState) {
+                                              std::optional<DecodingState>& decodingState) {
     if (options.fFrameIndex < 0 || options.fFrameIndex >= fFrameHolder.size()) {
         return kInvalidParameters;
     }
@@ -655,7 +655,7 @@ SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
     }
 
     // https://www.w3.org/TR/png-3/#11PLTE says that for color type 3
-    // (indexed-color), the PLTE chunk is required.  OTOH, `Codec_InvalidImages`
+    // (indexed-color), the PLTE chunk is required. OTOH, `Codec_InvalidImages`
     // expects that we will succeed in this case and produce *some* output.
     //
     // This check needs to happen after `seekToStartOfFrame`, because the act
@@ -671,98 +671,98 @@ SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
         return result;
     }
 
-    {
-        DecodingDstInfo& decodingDst = decodingState->fDecodingDstInfo;
-
-        SkSafeMath safe;
-        decodingDst.fDstPtr = static_cast<uint8_t*>(pixels);
-        decodingDst.fDstRowStride = rowBytes;
-
-        uint8_t dstBytesPerPixel = safe.castTo<uint8_t>(dstInfo.bytesPerPixel());
-        if (dstBytesPerPixel >= 32u) {
-            return kInvalidParameters;
-        }
-        decodingDst.fDstBytesPerPixel = dstBytesPerPixel;
-        decodingDst.fDstRowCount = safe.castTo<size_t>(frame->height());
-
-        if (options.fSubset) {
-            decodingState->fYByteOffset = safe.mul(safe.castTo<size_t>(this->getEncodedRowBytes()),
-                                                   safe.castTo<size_t>(options.fSubset->top()));
-            decodingState->fFirstRow = options.fSubset->top();
-            decodingState->fLastRow = options.fSubset->bottom() - 1;
-        } else {
-            decodingState->fYByteOffset = 0;
-            decodingState->fFirstRow = 0;
-            decodingState->fLastRow = frame->height() - 1;
-        }
-
-        if (!safe.ok()) {
-            return kErrorInInput;
-        }
+    SkSafeMath safe;
+    DecodingState state;
+    state.fDst = UninitializedDstInfo{
+            .fDstPtr = static_cast<uint8_t*>(pixels),
+            .fDstRowStride = rowBytes,
+    };
+    if (options.fSubset) {
+        state.fYByteOffset = safe.mul(safe.castTo<size_t>(this->getEncodedRowBytes()),
+                                      safe.castTo<size_t>(options.fSubset->top()));
+        state.fFirstRow = options.fSubset->top();
+        state.fLastRow = options.fSubset->bottom() - 1;
+    } else {
+        state.fYByteOffset = 0;
+        state.fFirstRow = 0;
+        state.fLastRow = frame->height() - 1;
     }
 
+    if (!safe.ok()) {
+        return kErrorInInput;
+    }
+
+    decodingState = std::move(state);
     return kSuccess;
 }
 
 SkCodec::Result SkPngRustCodec::initializeDecodingDst(DecodingState& decodingState) {
-    if (decodingState.fDstInitialized) {
+    if (std::holds_alternative<DecodingDstInfo>(decodingState.fDst)) {
         return kSuccess;
     }
 
     const SkFrame* frame = fFrameHolder.getFrame(this->options().fFrameIndex);
     SkASSERT_RELEASE(frame);
 
-    DecodingDstInfo& decodingDst = decodingState.fDecodingDstInfo;
+    const UninitializedDstInfo uninit = std::get<UninitializedDstInfo>(decodingState.fDst);
 
     SkSafeMath safe;
+    uint8_t dstBytesPerPixel = safe.castTo<uint8_t>(this->dstInfo().bytesPerPixel());
+    if (dstBytesPerPixel >= 32u) {
+        return kInvalidParameters;
+    }
+    size_t dstRowCount = safe.castTo<size_t>(frame->height());
+
+    size_t dstRowSize = 0;
     if (!this->canReadRow()) {
         this->initializeXformParams();
-        decodingDst.fDstRowSize = this->getDstRowSize();
+        dstRowSize = this->getDstRowSize();
     } else {
         size_t frameWidth = safe.castTo<size_t>(frame->width());
-        decodingDst.fDstRowSize = safe.mul(decodingDst.fDstBytesPerPixel, frameWidth);
+        dstRowSize = safe.mul(dstBytesPerPixel, frameWidth);
         if (!safe.ok()) {
             return kErrorInInput;
         }
     }
 
+    SkSpan<uint8_t> dstSpan;
     if (this->isSampling() || this->options().fSubset) {
         if (!this->supportsSamplingOrSubsetting()) {
             return kInvalidParameters;
         }
-        if (decodingDst.fDstRowStride < decodingDst.fDstRowSize) {
+        if (uninit.fDstRowStride < dstRowSize) {
             return kInvalidParameters;
         }
         const int srcHeight = decodingState.fLastRow - decodingState.fFirstRow + 1;
         const int sampleY = this->swizzler() ? this->swizzler()->sampleY() : 1;
         const size_t dstHeight =
                 safe.castTo<size_t>(SkCodecPriv::GetSampledDimension(srcHeight, sampleY));
-        const size_t dstBufferSize = safe.mul(dstHeight, decodingDst.fDstRowStride);
+        const size_t dstBufferSize = safe.mul(dstHeight, uninit.fDstRowStride);
         if (!safe.ok()) {
             return kErrorInInput;
         }
-        decodingDst.fDst = SkSpan(decodingDst.fDstPtr, dstBufferSize);
+        dstSpan = SkSpan(uninit.fDstPtr, dstBufferSize);
     } else {
-        if (decodingDst.fDstRowStride < this->dstInfo().minRowBytes()) {
+        if (uninit.fDstRowStride < this->dstInfo().minRowBytes()) {
             return kInvalidParameters;
         }
         size_t imageHeight = safe.castTo<size_t>(this->dstInfo().height());
-        size_t imageSize = safe.mul(decodingDst.fDstRowStride, imageHeight);
+        size_t imageSize = safe.mul(uninit.fDstRowStride, imageHeight);
         size_t xPixelOffset = safe.castTo<size_t>(frame->xOffset());
-        size_t xByteOffsetFrame = safe.mul(decodingDst.fDstBytesPerPixel, xPixelOffset);
+        size_t xByteOffsetFrame = safe.mul(dstBytesPerPixel, xPixelOffset);
         size_t yPixelOffset = safe.castTo<size_t>(frame->yOffset());
-        size_t yByteOffsetFrame = safe.mul(decodingDst.fDstRowStride, yPixelOffset);
+        size_t yByteOffsetFrame = safe.mul(uninit.fDstRowStride, yPixelOffset);
         size_t frameHeightTimesRowStride =
-                safe.mul(decodingDst.fDstRowCount, decodingDst.fDstRowStride);
+                safe.mul(dstRowCount, uninit.fDstRowStride);
         if (!safe.ok()) {
             return kErrorInInput;
         }
 
-        decodingDst.fDst = SkSpan(decodingDst.fDstPtr, imageSize)
-                                   .subspan(xByteOffsetFrame)
-                                   .subspan(yByteOffsetFrame);
-        if (frameHeightTimesRowStride < decodingDst.fDst.size()) {
-            decodingDst.fDst = decodingDst.fDst.first(frameHeightTimesRowStride);
+        dstSpan = SkSpan(uninit.fDstPtr, imageSize)
+                          .subspan(xByteOffsetFrame)
+                          .subspan(yByteOffsetFrame);
+        if (frameHeightTimesRowStride < dstSpan.size()) {
+            dstSpan = dstSpan.first(frameHeightTimesRowStride);
         }
     }
 
@@ -777,13 +777,19 @@ SkCodec::Result SkPngRustCodec::initializeDecodingDst(DecodingState& decodingSta
             }
             decodingState.fPreblendBuffer.resize(encodedImageSize, 0x00);
         } else if (frame->getBlend() == SkCodecAnimation::Blend::kSrcOver) {
-            decodingState.fPreblendBuffer.resize(decodingDst.fDst.size(), 0x00);
+            decodingState.fPreblendBuffer.resize(dstSpan.size(), 0x00);
         }
     } else if (frame->getBlend() == SkCodecAnimation::Blend::kSrcOver) {
-        decodingState.fPreblendBuffer.resize(decodingDst.fDstRowSize, 0x00);
+        decodingState.fPreblendBuffer.resize(dstRowSize, 0x00);
     }
 
-    decodingState.fDstInitialized = true;
+    decodingState.fDst = DecodingDstInfo{
+            .fDstRowStride = uninit.fDstRowStride,
+            .fDst = dstSpan,
+            .fDstRowSize = dstRowSize,
+            .fDstRowCount = dstRowCount,
+            .fDstBytesPerPixel = dstBytesPerPixel,
+    };
     return kSuccess;
 }
 
@@ -797,7 +803,7 @@ void SkPngRustCodec::expandDecodedInterlacedRow(SkSpan<uint8_t> dstFrame,
     const size_t dstRowStride = decodingDst.fDstRowStride;
     if (xFormNeeded) {
         // Copy (potentially shorter for initial Adam7 passes) `srcRow` into a
-        // full-frame-width `decodedInterlacedFullWidthRow`.  This is needed because
+        // full-frame-width `decodedInterlacedFullWidthRow`. This is needed because
         // `applyXformRow` requires full-width rows as input (can't change
         // `SkSwizzler::fSrcWidth` after `initializeXforms`).
         decodedInterlacedFullWidthRow.resize(this->getEncodedRowBytes(), 0x00);
@@ -806,11 +812,10 @@ void SkPngRustCodec::expandDecodedInterlacedRow(SkSpan<uint8_t> dstFrame,
 
         xformedInterlacedRow.resize(decodingDst.fDstRowSize, 0x00);
         this->applyXformRow(xformedInterlacedRow, decodedInterlacedFullWidthRow);
-
     }
 
     const uint8_t dstBytesPerPixel = decodingDst.fDstBytesPerPixel;
-    SkASSERT_RELEASE(dstBytesPerPixel < 32u);  // Checked in `startDecoding`.
+    SkASSERT_RELEASE(dstBytesPerPixel < 32u);  // Checked in `initializeDecodingDst`.
 
     rust::Slice<const uint8_t> expandedRow =
             xFormNeeded ? rust::Slice<const uint8_t>(xformedInterlacedRow)
@@ -908,12 +913,11 @@ bool SkPngRustCodec::canReadRow() {
 SkCodec::Result SkPngRustCodec::incrementalDecodeXForm(DecodingState& decodingState,
                                                        int* rowsDecodedPtr) {
     SkASSERT_RELEASE(!this->canReadRow());
-    SkASSERT_RELEASE(decodingState.fDstInitialized);
 
     const bool isSampling = this->isSampling();
     const bool interlaced = fReader->interlaced();
     const bool subset = this->options().fSubset;
-    DecodingDstInfo& decodingDst = decodingState.fDecodingDstInfo;
+    DecodingDstInfo& decodingDst = decodingState.dst();
 
     const int srcHeight = decodingState.fLastRow - decodingState.fFirstRow + 1;
     const int sampleY = this->swizzler() ? this->swizzler()->sampleY() : 1;
@@ -976,13 +980,13 @@ SkCodec::Result SkPngRustCodec::incrementalDecodeXForm(DecodingState& decodingSt
                                                       .makeImageInfo()
                                                       .bytesPerPixel());
                     SkASSERT_RELEASE(safe.ok());               // Checked in `startDecoding`.
-                    DecodingDstInfo fullImageDecodingDst =
-                        {.fDst = decodingState.fPreblendBuffer,
-                         .fDstRowStride = this->getEncodedRowBytes(),
-                         .fDstRowSize = this->getEncodedRowBytes(),
-                         .fDstRowCount = static_cast<size_t>(
-                                 this->getEncodedInfo().height()),
-                         .fDstBytesPerPixel = encodedBytesPerPixel};
+                    DecodingDstInfo fullImageDecodingDst = {
+                            .fDstRowStride = this->getEncodedRowBytes(),
+                            .fDst = decodingState.fPreblendBuffer,
+                            .fDstRowSize = this->getEncodedRowBytes(),
+                            .fDstRowCount = static_cast<size_t>(
+                                    this->getEncodedInfo().height()),
+                            .fDstBytesPerPixel = encodedBytesPerPixel};
                     this->expandDecodedInterlacedRow(decodingState.fPreblendBuffer,
                                                      decodedRow,
                                                      fullImageDecodingDst,
@@ -1035,7 +1039,6 @@ SkCodec::Result SkPngRustCodec::incrementalDecodeXForm(DecodingState& decodingSt
 SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
                                                   int* rowsDecodedPtr) {
     SkASSERT_RELEASE(this->canReadRow());
-    SkASSERT_RELEASE(decodingState.fDstInitialized);
     const bool interlaced = fReader->interlaced();
     rust::Slice<uint8_t> dstSlice;
     // If we have interlaced rows we have to copy into a temp buffer.
@@ -1044,7 +1047,7 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
         fullWidthRow.resize(this->getEncodedRowBytes());
         dstSlice = rust::Slice<uint8_t>(fullWidthRow);
     }
-    DecodingDstInfo& decodingDst = decodingState.fDecodingDstInfo;
+    DecodingDstInfo& decodingDst = decodingState.dst();
 
     while (true) {
         if (!interlaced) {
@@ -1123,21 +1126,21 @@ SkCodec::Result SkPngRustCodec::onGetPixels(const SkImageInfo& dstInfo,
                                             size_t rowBytes,
                                             const Options& options,
                                             int* rowsDecoded) {
-    DecodingState decodingState;
-    Result result = this->startDecoding(dstInfo, pixels, rowBytes, options, &decodingState);
+    std::optional<DecodingState> decodingState;
+    Result result = this->startDecoding(dstInfo, pixels, rowBytes, options, decodingState);
     if (result != kSuccess) {
         return result;
     }
 
-    result = this->initializeDecodingDst(decodingState);
+    result = this->initializeDecodingDst(*decodingState);
     if (result != kSuccess) {
         return result;
     }
 
     if (this->canReadRow()) {
-        result = this->incrementalDecode(decodingState, rowsDecoded);
+        result = this->incrementalDecode(*decodingState, rowsDecoded);
     } else {
-        result = this->incrementalDecodeXForm(decodingState, rowsDecoded);
+        result = this->incrementalDecodeXForm(*decodingState, rowsDecoded);
     }
     return result;
 }
@@ -1146,16 +1149,10 @@ SkCodec::Result SkPngRustCodec::onStartIncrementalDecode(const SkImageInfo& dstI
                                                          void* pixels,
                                                          size_t rowBytes,
                                                          const Options& options) {
-    DecodingState decodingState;
-    Result result = this->startDecoding(dstInfo, pixels, rowBytes, options, &decodingState);
-    if (result != kSuccess) {
-        return result;
-    }
-
     // It is okay if `fIncrementalDecodingState` contains state of another,
-    // partially decoded frame - in this case we want to clobber
-    fIncrementalDecodingState = decodingState;
-    return kSuccess;
+    // partially decoded frame - in this case we want to clobber it.
+    fIncrementalDecodingState.reset();
+    return this->startDecoding(dstInfo, pixels, rowBytes, options, fIncrementalDecodingState);
 }
 
 SkCodec::Result SkPngRustCodec::onIncrementalDecode(int* rowsDecoded) {

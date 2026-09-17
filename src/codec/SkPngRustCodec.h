@@ -8,6 +8,7 @@
 #define SkPngRustCodec_DEFINED
 
 #include <memory>
+#include <variant>
 #include <vector>
 
 #include "rust/png/FFI.rs.h"
@@ -42,46 +43,54 @@ public:
     ~SkPngRustCodec() override;
 
 private:
+    // Holds raw destination parameters captured in `startDecoding` before
+    // sampler/swizzler options are finalized.
+    struct UninitializedDstInfo {
+        // Pointer to the start of the caller's destination pixel buffer.
+        uint8_t* fDstPtr;
+
+        // Size of a row (in bytes) in the full image. Based on `rowBytes`
+        // passed to `onGetPixels` or `onStartIncrementalDecode`.
+        size_t fDstRowStride;
+    };
+
+    // Holds validated and calculated destination spans after `initializeDecodingDst`
+    // has run.
     struct DecodingDstInfo {
-        // `fDst` is based on `pixels` passed to `onGetPixels` or
-        // `onStartIncrementalDecode`.  For interlaced and non-interlaced
-        // images, `initializeDecodingDst` initializes `fDst` to start at the (0,0)
-        // (top-left) pixel of the current frame (which may be offset from
-        // `pixels` if the current frame is a sub-rect of the full image).
-        // After decoding a non-interlaced row this moves (by `fDstRowStride`)
-        // to the next row.
+        // Size of a row (in bytes) in the full image.
+        size_t fDstRowStride;
+
+        // `fDst` is based on `fDstPtr` from `UninitializedDstInfo`. For interlaced
+        // and non-interlaced images, `initializeDecodingDst` initializes `fDst`
+        // to start at the (0,0) (top-left) pixel of the current frame (which may
+        // be offset from `fDstPtr` if the current frame is a sub-rect of the full
+        // image). After decoding a non-interlaced row this moves (by
+        // `fDstRowStride`) to the next row.
         SkSpan<uint8_t> fDst;
 
-        // Pointer to the start of the caller's destination pixel buffer.
-        uint8_t* fDstPtr = nullptr;
-
-        // Size of a row (in bytes) in the full image.  Based on `rowBytes`
-        // passed to `onGetPixels` or `onStartIncrementalDecode`.
-        size_t fDstRowStride = 0;
-
         // Size of a row (in bytes) in the current frame.
-        size_t fDstRowSize = 0;
+        size_t fDstRowSize;
 
-        // Number of rows of the current frame that `fDst` holds.
-        size_t fDstRowCount = 0;
+        // Height (in rows) of the current frame.
+        size_t fDstRowCount;
 
         // Bytes per pixel of fDst.
-        uint8_t fDstBytesPerPixel = 0;
+        uint8_t fDstBytesPerPixel;
     };
 
     struct DecodingState {
-        // The info and pixels we will be decoding into.
-        DecodingDstInfo fDecodingDstInfo;
+        // Transitions from `UninitializedDstInfo` (set in `startDecoding`) ->
+        // `DecodingDstInfo` (populated by `initializeDecodingDst` once sampling
+        // and swizzler parameters are finalized).
+        std::variant<UninitializedDstInfo, DecodingDstInfo> fDst;
 
-        // Whether `initializeDecodingDst` has populated `fDecodingDstInfo.fDst`
-        // and `fPreblendBuffer`.
-        bool fDstInitialized = false;
+        DecodingDstInfo& dst() { return std::get<DecodingDstInfo>(fDst); }
 
         // Intermediate buffer that holds color-transformed pixels that are
-        // ready to be blended with the destination.  Used only when this frame
-        // uses `SkCodecAnimation::Blend::kSrcOver`.  For interlaced images this
+        // ready to be blended with the destination. Used only when this frame
+        // uses `SkCodecAnimation::Blend::kSrcOver`. For interlaced images this
         // buffer holds the whole frame; otherwise it holds only a single row.
-
+        //
         // This is also used in the case of subsets for interlaced images. We use
         // this buffer as a full sized encoded image, which we then take the subset
         // from.
@@ -106,13 +115,13 @@ private:
     };
 
     // Helper for validating parameters of `onGetPixels` and/or
-    // `onStartIncrementalDecode`.  If `kSuccess` is returned then
+    // `onStartIncrementalDecode`. If `kSuccess` is returned then
     // `decodingState` output parameter got populated.
     Result startDecoding(const SkImageInfo& dstInfo,
                          void* pixels,
                          size_t rowBytes,
                          const Options& options,
-                         DecodingState* decodingState);
+                         std::optional<DecodingState>& decodingState);
 
     // Helper for initializing the destination span (`fDst`), row size, and
     // preblend buffer once sampling/subsetting parameters are finalized.
@@ -122,7 +131,7 @@ private:
     // transformations, and then expanding it into the `frame`.
     void expandDecodedInterlacedRow(SkSpan<uint8_t> dstFrame,
                                     SkSpan<const uint8_t> srcRow,
-                                    const DecodingDstInfo& decodingState,
+                                    const DecodingDstInfo& decodingDst,
                                     bool xFormNeeded);
 
     // Helper for row-by-row decoding which is used from `onGetPixels` and/or
