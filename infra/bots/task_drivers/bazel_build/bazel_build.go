@@ -76,7 +76,7 @@ func main() {
 					Args: []string{
 						"install",
 						"-kind", "ios",
-						"-xcode-version", "16a242d", // Xcode 16.0
+						"-xcode-version", "16f6", // Xcode 16.4
 						"-output-dir", xcodeAppPath,
 					},
 					InheritEnv: true,
