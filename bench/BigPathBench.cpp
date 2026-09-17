@@ -11,13 +11,15 @@
 #include "include/core/SkPath.h"
 #include "tools/ToolUtils.h"
 
+#include <array>
+
 enum Align {
     kLeft_Align,
     kMiddle_Align,
     kRight_Align
 };
 
-const char* gAlignName[] = { "left", "middle", "right" };
+static constexpr auto gAlignName = std::to_array<const char*>({"left", "middle", "right"});
 
 // Inspired by crbug.com/455429
 class BigPathBench : public Benchmark {

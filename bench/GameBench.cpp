@@ -16,6 +16,8 @@
 #include "include/core/SkVertices.h"
 #include "src/core/SkRandom.h"
 
+#include <array>
+
 // This bench simulates the calls Skia sees from various HTML5 canvas
 // game bench marks
 class GameBench : public Benchmark {
@@ -239,10 +241,10 @@ private:
     bool     fInitialized;
 
     // 0 & 1 are always x & y translate. 2 is either scale or rotate.
-    SkScalar fSaved[kNumBeforeClear][3];
+    std::array<std::array<SkScalar, 3>, kNumBeforeClear> fSaved;
 
     sk_sp<SkImage> fCheckerboard, fAtlas;
-    SkIRect  fAtlasRects[kNumAtlasedX][kNumAtlasedY];
+    std::array<std::array<SkIRect, kNumAtlasedY>, kNumAtlasedX> fAtlasRects;
 
     // Note: the resulting checker board has transparency
     void makeCheckerboard() {
@@ -270,7 +272,7 @@ private:
     void makeAtlas() {
         SkRandom rand;
 
-        SkColor colors[kNumAtlasedX][kNumAtlasedY];
+        std::array<std::array<SkColor, kNumAtlasedY>, kNumAtlasedX> colors;
 
         for (int y = 0; y < kNumAtlasedY; ++y) {
             for (int x = 0; x < kNumAtlasedX; ++x) {

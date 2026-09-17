@@ -14,6 +14,8 @@
 #include "src/core/SkAAClip.h"
 #include "src/core/SkRandom.h"
 
+#include <array>
+
 ////////////////////////////////////////////////////////////////////////////////
 // This bench tests out AA/BW clipping via canvas' clipPath and clipRect calls
 class AAClipBench : public Benchmark {
@@ -91,7 +93,7 @@ class NestedAAClipBench : public Benchmark {
     static const int kNestingDepth = 3;
     static const int kImageSize = 400;
 
-    SkPoint fSizes[kNestingDepth+1];
+    std::array<SkPoint, kNestingDepth + 1> fSizes;
 
 public:
     NestedAAClipBench(bool doAA) : fDoAA(doAA) {

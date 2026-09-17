@@ -14,6 +14,8 @@
 #include "include/core/SkString.h"
 #include "include/effects/SkGradient.h"
 
+#include <array>
+
 enum ColorPattern {
     kWhite_ColorPattern,
     kBlue_ColorPattern,
@@ -21,17 +23,18 @@ enum ColorPattern {
     kAlphaBitmap_ColorPattern,
 };
 
-static const struct ColorPatternData{
+struct ColorPatternData {
     SkColor         fColor;
     bool            fIsBitmap;
     const char*     fName;
-} gColorPatterns[] = {
-    // Keep this in same order as ColorPattern enum
-    { SK_ColorWHITE, false,  "white"        }, // kWhite_ColorPattern
-    { SK_ColorBLUE,  false,  "blue"         }, // kBlue_ColorPattern
-    { SK_ColorWHITE, true,   "obaqueBitMap" }, // kOpaqueBitmap_ColorPattern
-    { 0x10000000,    true,   "alphaBitmap"  }, // kAlphaBitmap_ColorPattern
 };
+static constexpr auto gColorPatterns = std::to_array<ColorPatternData>({
+        // Keep this in same order as ColorPattern enum
+        ColorPatternData{ SK_ColorWHITE, false,  "white"        },  // kWhite_ColorPattern
+        ColorPatternData{ SK_ColorBLUE,  false,  "blue"         },  // kBlue_ColorPattern
+        ColorPatternData{ SK_ColorWHITE, true,   "obaqueBitMap" },  // kOpaqueBitmap_ColorPattern
+        ColorPatternData{ 0x10000000,    true,   "alphaBitmap"  },  // kAlphaBitmap_ColorPattern
+});
 
 enum DrawType {
     kRect_DrawType,
@@ -86,10 +89,10 @@ public:
     };
     sk_sp<SkShader> fBmShader;
 
-    SkPath  fPaths[NUM_DRAWS];
-    SkRect  fRects[NUM_DRAWS];
-    SkColor fColors[NUM_DRAWS];
-    sk_sp<SkShader> fShaders[NUM_DRAWS];
+    std::array<SkPath, NUM_DRAWS> fPaths;
+    std::array<SkRect, NUM_DRAWS> fRects;
+    std::array<SkColor, NUM_DRAWS> fColors;
+    std::array<sk_sp<SkShader>, NUM_DRAWS> fShaders;
 
     SkString        fName;
     ColorPatternData    fPattern1;

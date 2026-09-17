@@ -12,6 +12,8 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkString.h"
 
+#include <array>
+
 struct BezierRec {
     SkCanvas*   fCanvas;
     SkPaint     fPaint;
@@ -54,12 +56,16 @@ class BezierBench : public Benchmark {
     SkScalar fWidth;
 public:
     BezierBench(SkPaint::Cap c, SkPaint::Join j, SkScalar w, DrawProc proc) {
-        static const char* gCapName[] = {
-            "butt", "round", "square"
-        };
-        static const char* gJoinName[] = {
-            "miter", "round", "bevel"
-        };
+        static constexpr auto gCapName = std::to_array<const char*>({
+                "butt",
+                "round",
+                "square",
+        });
+        static constexpr auto gJoinName = std::to_array<const char*>({
+                "miter",
+                "round",
+                "bevel",
+        });
 
         fCap = c;
         fJoin = j;

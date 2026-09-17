@@ -10,6 +10,8 @@
 #include "include/core/SkPaint.h"
 #include "src/core/SkRandom.h"
 
+#include <array>
+
 /**
  * Draws full screen opaque rectangles. It is designed to test any optimizations in the GPU backend
  * to turn such draws into clears.
@@ -51,8 +53,8 @@ private:
     static constexpr int H = 480;
     static constexpr int N = 300;
 
-    SkRect  fRects[N];
-    SkColor fColors[N];
+    std::array<SkRect, N> fRects;
+    std::array<SkColor, N> fColors;
     bool fInit;
 
     using INHERITED = Benchmark;

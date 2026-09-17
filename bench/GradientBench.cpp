@@ -14,6 +14,8 @@
 #include "include/private/SkFloatingPoint.h"
 #include "tools/ToolUtils.h"
 
+#include <array>
+
 struct GradData {
     size_t           fCount;
     const SkColor4f* fColors;
@@ -130,18 +132,19 @@ static sk_sp<SkShader> MakeConicalOutsideZeroRad(const SkPoint pts[2], const Gra
 typedef sk_sp<SkShader> (*GradMaker)(const SkPoint pts[2], const GradData& data,
                                      SkTileMode tm, float scale);
 
-static const struct {
+struct GradTestCase {
     GradMaker   fMaker;
     const char* fName;
-} gGrads[] = {
-    { MakeLinear,                 "linear"  },
-    { MakeRadial,                 "radial1" },
-    { MakeSweep,                  "sweep"   },
-    { MakeConical,                "conical" },
-    { MakeConicalZeroRad,         "conicalZero" },
-    { MakeConicalOutside,         "conicalOut" },
-    { MakeConicalOutsideZeroRad,  "conicalOutZero" },
 };
+static constexpr auto gGrads = std::to_array<GradTestCase>({
+        GradTestCase{ MakeLinear,                   "linear" },
+        GradTestCase{ MakeRadial,                   "radial1" },
+        GradTestCase{ MakeSweep,                    "sweep" },
+        GradTestCase{ MakeConical,                  "conical" },
+        GradTestCase{ MakeConicalZeroRad,           "conicalZero" },
+        GradTestCase{ MakeConicalOutside,           "conicalOut" },
+        GradTestCase{ MakeConicalOutsideZeroRad,    "conicalOutZero" },
+});
 
 enum GradType { // these must match the order in gGrads
     kLinear_GradType,

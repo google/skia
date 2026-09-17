@@ -17,6 +17,8 @@
 #include "tools/Resources.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 namespace {
 enum Type {
     kText,
@@ -25,9 +27,11 @@ enum Type {
 };
 }
 
-const char* gTypeNames[] = {
-    "mask", "rect", "sprite",
-};
+static constexpr auto gTypeNames = std::to_array<const char*>({
+        "mask",
+        "rect",
+        "sprite",
+});
 
 // Benchmark that draws non-AA rects or AA text with an SkBlendMode.
 class XfermodeBench : public Benchmark {

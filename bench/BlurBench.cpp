@@ -14,18 +14,20 @@
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkRandom.h"
 
+#include <array>
+
 #define MINI    0.01f
 #define SMALL   SkIntToScalar(2)
 #define REAL    0.5f
 #define BIG     SkIntToScalar(10)
 #define REALBIG 100.5f
 
-static const char* gStyleName[] = {
-    "normal",
-    "solid",
-    "outer",
-    "inner"
-};
+static constexpr auto gStyleName = std::to_array<const char*>({
+        "normal",
+        "solid",
+        "outer",
+        "inner",
+});
 
 class BlurBench : public Benchmark {
     SkScalar    fRadius;

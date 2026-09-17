@@ -9,12 +9,14 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkString.h"
 
+#include <array>
+
 /**
    Benchmarks that try to emulate a particular Skia call pattern observed in Chrome.
 */
 
 /// blitRect() calls emitted by Chrome while scrolling through gmail: count, width, height.
-int gmailScrollingRectSpec [431*3] = {
+std::array<int, 431*3> gmailScrollingRectSpec = {
       1, 1254, 1160,
       1, 64, 112,
       1, 1034, 261,
