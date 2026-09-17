@@ -18,6 +18,8 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradient.h"
 
+#include <array>
+
 class AlphaGradientsGM : public skiagm::GM {
 public:
     AlphaGradientsGM() {}
@@ -43,25 +45,26 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        constexpr struct {
+        struct ColorPair {
             SkColor4f fColor0;
             SkColor4f fColor1;
-        } gRec[] = {
-            { SkColors::kWhite, {0, 0, 0, 0} },
-            { SkColors::kWhite, {1, 0, 0, 0} },
-            { SkColors::kWhite, {1, 1, 0, 0} },
-            { SkColors::kWhite, {1, 1, 1, 0} },
-
-            { SkColors::kRed, {0, 0, 0, 0} },
-            { SkColors::kRed, {1, 0, 0, 0} },
-            { SkColors::kRed, {1, 1, 0, 0} },
-            { SkColors::kRed, {1, 1, 1, 0} },
-
-            { SkColors::kBlue, {0, 0, 0, 0} },
-            { SkColors::kBlue, {1, 0, 0, 0} },
-            { SkColors::kBlue, {1, 1, 0, 0} },
-            { SkColors::kBlue, {1, 1, 1, 0} },
         };
+        constexpr auto gRec = std::to_array<ColorPair>({
+                ColorPair{SkColors::kWhite, {0, 0, 0, 0}},
+                ColorPair{SkColors::kWhite, {1, 0, 0, 0}},
+                ColorPair{SkColors::kWhite, {1, 1, 0, 0}},
+                ColorPair{SkColors::kWhite, {1, 1, 1, 0}},
+
+                ColorPair{SkColors::kRed, {0, 0, 0, 0}},
+                ColorPair{SkColors::kRed, {1, 0, 0, 0}},
+                ColorPair{SkColors::kRed, {1, 1, 0, 0}},
+                ColorPair{SkColors::kRed, {1, 1, 1, 0}},
+
+                ColorPair{SkColors::kBlue, {0, 0, 0, 0}},
+                ColorPair{SkColors::kBlue, {1, 0, 0, 0}},
+                ColorPair{SkColors::kBlue, {1, 1, 0, 0}},
+                ColorPair{SkColors::kBlue, {1, 1, 1, 0}},
+        });
 
         SkRect r = SkRect::MakeWH(300, 30);
 

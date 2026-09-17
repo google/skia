@@ -25,6 +25,7 @@
 #include "tools/GpuToolUtils.h"
 #include "tools/ToolUtils.h"
 
+#include <array>
 #include <cstddef>
 #include <iterator>
 
@@ -61,12 +62,12 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         canvas->drawColor(0xFFCCCCCC);
 
-        const SkIRect src[] = {
-            { 0, 0, 32, 32 },
-            { 0, 0, 80, 80 },
-            { 32, 32, 96, 96 },
-            { -32, -32, 32, 32, }
-        };
+        const auto src = std::to_array<SkIRect>({
+                SkIRect{ 0  ,   0, 32, 32 },
+                SkIRect{ 0  ,   0, 80, 80 },
+                SkIRect{ 32 ,  32, 96, 96 },
+                SkIRect{ -32, -32, 32, 32 }
+        });
 
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
@@ -107,11 +108,11 @@ static void make_3x3_bitmap(SkBitmap* bitmap) {
     const int xSize = 3;
     const int ySize = 3;
 
-    const SkColor textureData[xSize][ySize] = {
-        { SK_ColorRED,    SK_ColorWHITE, SK_ColorBLUE },
-        { SK_ColorGREEN,  SK_ColorBLACK, SK_ColorCYAN },
-        { SK_ColorYELLOW, SK_ColorGRAY,  SK_ColorMAGENTA }
-    };
+    const std::array<std::array<const SkColor, ySize>, xSize> textureData = {{
+            {SK_ColorRED, SK_ColorWHITE, SK_ColorBLUE},
+            {SK_ColorGREEN, SK_ColorBLACK, SK_ColorCYAN},
+            {SK_ColorYELLOW, SK_ColorGRAY, SK_ColorMAGENTA},
+    }};
 
     bitmap->allocN32Pixels(xSize, ySize, true);
     SkCanvas canvas(*bitmap);

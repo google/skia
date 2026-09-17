@@ -20,6 +20,8 @@
 #include "include/core/SkTypes.h"
 #include "src/core/SkBlurMask.h"
 
+#include <array>
+
 namespace skiagm {
 
 // This GM exercises the blurred rect nine-patching special cases when the
@@ -55,13 +57,13 @@ protected:
         const SkScalar kRightBotPad = kCloseUpSize-3*kSigma; // use on right and bot sides
 
         // UL hand corners of the rendered closeups
-        const SkPoint origins[] = {
-            { -kLeftTopPad,          -kLeftTopPad           }, // UL
-            {  kBig-kRightBotPad,    -kLeftTopPad           }, // UR
-            {  kBig-kRightBotPad,     kBig-kRightBotPad     }, // LR
-            { -kLeftTopPad,           kBig-kRightBotPad     }, // LL
-            {  kBig/2-kCloseUpSize/2, kBig/2-kCloseUpSize/2 }, // center
-        };
+        const auto origins = std::to_array<SkPoint>({
+                SkPoint{ -kLeftTopPad,          -kLeftTopPad           },   // UL
+                SkPoint{  kBig-kRightBotPad,    -kLeftTopPad           },   // UR
+                SkPoint{  kBig-kRightBotPad,     kBig-kRightBotPad     },   // LR
+                SkPoint{ -kLeftTopPad,           kBig-kRightBotPad     },   // LL
+                SkPoint{  kBig/2-kCloseUpSize/2, kBig/2-kCloseUpSize/2 },   // center
+        });
 
         SkPaint outlinePaint;
         outlinePaint.setColor(SK_ColorRED);

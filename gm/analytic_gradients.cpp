@@ -50,6 +50,8 @@
 #include "include/effects/SkGradient.h"
 #include "include/private/SkTemplates.h"
 
+#include <array>
+
 using namespace skia_private;
 
 // All positions must be divided by the target interval count, which will produce the expected
@@ -71,36 +73,36 @@ const int INT7_COLOR_COUNTS[] = { 8, 14, 11, 11 };
 const int INT8_COLOR_COUNTS[] = { 9, 16, 12, 13 };
 
 // Cycle through defined colors for positions 0 through 8.
-const SkColor COLORS[] = {
-    SK_ColorDKGRAY,
-    SK_ColorRED,
-    SK_ColorYELLOW,
-    SK_ColorGREEN,
-    SK_ColorCYAN,
-    SK_ColorBLUE,
-    SK_ColorMAGENTA,
-    SK_ColorBLACK,
-    SK_ColorLTGRAY
-};
+static constexpr auto COLORS = std::to_array<SkColor>({
+        SK_ColorDKGRAY,
+        SK_ColorRED,
+        SK_ColorYELLOW,
+        SK_ColorGREEN,
+        SK_ColorCYAN,
+        SK_ColorBLUE,
+        SK_ColorMAGENTA,
+        SK_ColorBLACK,
+        SK_ColorLTGRAY,
+});
 
-const int* INTERVAL_COLOR_COUNTS[] = {
-    INT1_COLOR_COUNTS,
-    INT2_COLOR_COUNTS,
-    INT3_COLOR_COUNTS,
-    INT4_COLOR_COUNTS,
-    INT5_COLOR_COUNTS,
-    INT6_COLOR_COUNTS,
-    INT7_COLOR_COUNTS,
-    INT8_COLOR_COUNTS
-};
+static constexpr auto INTERVAL_COLOR_COUNTS = std::to_array<const int*>({
+        INT1_COLOR_COUNTS,
+        INT2_COLOR_COUNTS,
+        INT3_COLOR_COUNTS,
+        INT4_COLOR_COUNTS,
+        INT5_COLOR_COUNTS,
+        INT6_COLOR_COUNTS,
+        INT7_COLOR_COUNTS,
+        INT8_COLOR_COUNTS,
+});
 const int COLOR_COUNT = std::size(COLORS);
 
-const int* M_POSITIONS[] = {
-    M1_POSITIONS,
-    M2_POSITIONS,
-    M3_POSITIONS,
-    M4_POSITIONS
-};
+static constexpr auto M_POSITIONS = std::to_array<const int*>({
+        M1_POSITIONS,
+        M2_POSITIONS,
+        M3_POSITIONS,
+        M4_POSITIONS,
+});
 
 const int WIDTH  = 500;
 const int HEIGHT = 500;

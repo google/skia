@@ -23,6 +23,8 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 constexpr int kShapeSize = 22;
 constexpr int kShapeSpacing = 36;
 constexpr int kShapeTypeSpacing = 4 * kShapeSpacing / 3;
@@ -35,9 +37,9 @@ constexpr int kSubtitleSpacing = 5 * kShapeSpacing / 8;
 
 constexpr SkColor kBGColor = 0xc8d2b887;
 
-constexpr SkColor kShapeColors[2] = {
-    0x82ff0080,   // input color unknown
-    0xff00ffff,   // input color opaque
+constexpr std::array<SkColor, 2> kShapeColors = {
+        0x82ff0080,  // input color unknown
+        0xff00ffff,  // input color opaque
 };
 
 enum Shape {

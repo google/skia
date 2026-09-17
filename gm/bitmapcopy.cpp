@@ -24,6 +24,7 @@
 #include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
+#include <array>
 
 namespace {
 
@@ -62,11 +63,11 @@ static const char* color_type_name(SkColorType colorType) {
     return "";
 }
 
-constexpr SkColorType gColorTypes[] = {
-    kRGB_565_SkColorType,
-    kARGB_4444_SkColorType,
-    kN32_SkColorType,
-};
+constexpr auto gColorTypes = std::to_array<SkColorType>({
+        kRGB_565_SkColorType,
+        kARGB_4444_SkColorType,
+        kN32_SkColorType,
+});
 
 #define NUM_CONFIGS std::size(gColorTypes)
 
@@ -86,7 +87,7 @@ static void draw_checks(SkCanvas* canvas, int width, int height) {
 }
 
 class BitmapCopyGM : public skiagm::GM {
-    SkBitmap    fDst[NUM_CONFIGS];
+    std::array<SkBitmap, NUM_CONFIGS> fDst;
 
     void onOnceBeforeDraw() override { this->setBGColor(0xFFDDDDDD); }
 

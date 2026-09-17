@@ -5,7 +5,6 @@
 * found in the LICENSE file.
 */
 
-#include <cmath>
 #include "gm/gm.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlurTypes.h"
@@ -39,6 +38,8 @@
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #endif
 
+#include <array>
+#include <cmath>
 #include <vector>
 
 #define STROKE_WIDTH    SkIntToScalar(10)
@@ -114,7 +115,7 @@ public:
     BlurRectGM(const char name[], U8CPU alpha) : fName(name), fAlpha(SkToU8(alpha)) {}
 
 private:
-    sk_sp<SkMaskFilter> fMaskFilters[kLastEnum_SkBlurStyle + 1];
+    std::array<sk_sp<SkMaskFilter>, kLastEnum_SkBlurStyle + 1> fMaskFilters;
     const char* fName;
     SkAlpha fAlpha;
 
@@ -133,7 +134,7 @@ private:
         canvas->translate(STROKE_WIDTH*3/2, STROKE_WIDTH*3/2);
 
         SkRect  r = { 0, 0, 100, 50 };
-        SkScalar scales[] = { SK_Scalar1, 0.6f };
+        auto scales = std::to_array<SkScalar>({SK_Scalar1, 0.6f});
 
         for (size_t s = 0; s < std::size(scales); ++s) {
             canvas->save();
@@ -191,10 +192,14 @@ DEF_SIMPLE_GM(blurrect_gallery, canvas, 1200, 1024) {
         const int fPadding = 10;
         const int fMargin = 100;
 
-        const int widths[] = {25, 5, 5, 100, 150, 25};
-        const int heights[] = {100, 100, 5, 25, 150, 25};
-        const SkBlurStyle styles[] = {kNormal_SkBlurStyle, kInner_SkBlurStyle, kOuter_SkBlurStyle};
-        const float radii[] = {20, 5, 10};
+        static constexpr auto widths = std::to_array<int>({25, 5, 5, 100, 150, 25});
+        static constexpr auto heights = std::to_array<int>({100, 100, 5, 25, 150, 25});
+        const auto styles = std::to_array<SkBlurStyle>({
+                kNormal_SkBlurStyle,
+                kInner_SkBlurStyle,
+                kOuter_SkBlurStyle,
+        });
+        static constexpr auto radii = std::to_array<float>({20, 5, 10});
 
         canvas->translate(50,20);
 
@@ -498,14 +503,18 @@ private:
     // related to big blurs are fully visible.
     static int PadForSigma(float sigma) { return sk_float_ceil2int(4 * sigma); }
 
-    inline static constexpr int kSizes[] = {1, 2, 4, 8, 16, 32};
-    inline static constexpr float kSigmas[] = {0.5f, 1.2f, 2.3f, 3.9f, 7.4f};
+    inline static constexpr auto kSizes = std::to_array<int>({1, 2, 4, 8, 16, 32});
+    inline static constexpr auto kSigmas = std::to_array<float>({0.5f, 1.2f, 2.3f, 3.9f, 7.4f});
     inline static constexpr size_t kNumSizes = std::size(kSizes);
     inline static constexpr size_t kNumSigmas = std::size(kSigmas);
 
-    sk_sp<SkImage> fReferenceMasks[kNumSigmas][kNumSizes][kNumSizes];
-    sk_sp<SkImage> fActualMasks[kNumSigmas][kNumSizes][kNumSizes];
-    sk_sp<SkImage> fMaskDifferences[kNumSigmas][kNumSizes][kNumSizes];
+    using MaskRow   = std::array<sk_sp<SkImage>, kNumSizes>;    // varying width
+    using MaskGrid  = std::array<MaskRow,        kNumSizes>;    // height x width
+    using MaskTable = std::array<MaskGrid,       kNumSigmas>;   // one grid per sigma
+
+    MaskTable fReferenceMasks;
+    MaskTable fActualMasks;
+    MaskTable fMaskDifferences;
     int32_t fLastContextUniqueID;
     // These are used only when animating.
     float fSigmaAnimationBoost = 0;

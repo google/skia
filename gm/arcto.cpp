@@ -22,6 +22,7 @@
 #include "src/core/SkRandom.h"
 
 #include <stdio.h>
+#include <array>
 
 /* The test below generates a reference image using SVG. To compare the result for correctness,
    enable the define below and then view the generated SVG in a browser.
@@ -93,7 +94,12 @@ DEF_SIMPLE_GM(arcto, canvas, 500, 600) {
     paint.setStrokeWidth(5);
     const SkColor purple = 0xFF800080;
     const SkColor darkgreen = 0xFF008000;
-    const SkColor colors[] = { SK_ColorRED, darkgreen, purple, SK_ColorBLUE };
+    const auto colors = std::to_array<SkColor>({
+            SK_ColorRED,
+            darkgreen,
+            purple,
+            SK_ColorBLUE,
+    });
     const char* arcstrs[] = {
         "M250,400  A120,80 0 0,0 250,500",
         "M250,400  A120,80 0 1,1 250,500",
@@ -124,26 +130,43 @@ enum {
     kParsePathTestDimension = 500
 };
 
-const struct Legal {
+struct Legal {
     char fSymbol;
     int fScalars;
-} gLegal[] = {
-    { 'M', 2 },
-    { 'H', 1 },
-    { 'V', 1 },
-    { 'L', 2 },
-    { 'Q', 4 },
-    { 'T', 2 },
-    { 'C', 6 },
-    { 'S', 4 },
-    { 'A', 4 },
-    { 'Z', 0 },
 };
+const auto gLegal = std::to_array<Legal>({
+        Legal{'M', 2},
+        Legal{'H', 1},
+        Legal{'V', 1},
+        Legal{'L', 2},
+        Legal{'Q', 4},
+        Legal{'T', 2},
+        Legal{'C', 6},
+        Legal{'S', 4},
+        Legal{'A', 4},
+        Legal{'Z', 0},
+});
 
 bool gEasy = false;  // set to true while debugging to suppress unusual whitespace
 
 // mostly do nothing, then bias towards spaces
-const char gWhiteSpace[] = { 0, 0, 0, 0, 0, 0, 0, 0, ' ', ' ', ' ', ' ', 0x09, 0x0D, 0x0A };
+static constexpr auto gWhiteSpace = std::to_array<char>({
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        ' ',
+        ' ',
+        ' ',
+        ' ',
+        0x09,
+        0x0D,
+        0x0A,
+});
 
 static void add_white(SkRandom* rand, SkString* atom) {
     if (gEasy) {

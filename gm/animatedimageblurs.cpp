@@ -26,6 +26,8 @@
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/timer/TimeUtils.h"
 
+#include <array>
+
 static const SkScalar kBlurMax = 7.0f;
 static const int kNumNodes = 30;
 static const int kWidth = 512;
@@ -140,7 +142,7 @@ private:
         SkScalar fSpeed;
     };
 
-    Node     fNodes[kNumNodes];
+    std::array<Node, kNumNodes> fNodes;
     SkRandom fRand;
     SkScalar fLastTime;
 

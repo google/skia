@@ -31,6 +31,7 @@
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
 #include "tools/ToolUtils.h"
 
+#include <array>
 #include <memory>
 #include <utility>
 
@@ -76,10 +77,10 @@ protected:
 
         int y = kPad;
         int x = kPad;
-        constexpr GrClipEdgeType kEdgeTypes[] = {
-            GrClipEdgeType::kFillAA,
-            GrClipEdgeType::kInverseFillAA,
-        };
+        constexpr auto kEdgeTypes = std::to_array<GrClipEdgeType>({
+                GrClipEdgeType::kFillAA,
+                GrClipEdgeType::kInverseFillAA,
+        });
         SkRect testBounds = SkRect::MakeIWH(fTestWidth, fTestHeight);
         for (size_t et = 0; et < std::size(kEdgeTypes); ++et) {
             GrClipEdgeType edgeType = kEdgeTypes[et];

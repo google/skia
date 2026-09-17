@@ -18,6 +18,8 @@
 #include "include/core/SkTypes.h"
 #include "src/core/SkBlurMask.h"
 
+#include <array>
+
 // This GM tests out the quick reject bounds of the blur mask filter. It draws
 // four blurred rects around a central clip. The blurred rect geometry outset
 // by the blur radius does not overlap the clip rect so, if the blur clipping
@@ -39,18 +41,18 @@ protected:
         constexpr SkScalar kBoxSize = SkIntToScalar(100);
 
         SkRect clipRect = SkRect::MakeXYWH(0, 0, kBoxSize, kBoxSize);
-        SkRect blurRects[] = {
-            { -kBoxSize - (kBlurRadius+1), 0, -(kBlurRadius+1), kBoxSize },
-            { 0, -kBoxSize - (kBlurRadius+1), kBoxSize, -(kBlurRadius+1) },
-            { kBoxSize+kBlurRadius+1, 0, 2*kBoxSize+kBlurRadius+1, kBoxSize },
-            { 0, kBoxSize+kBlurRadius+1, kBoxSize, 2*kBoxSize+kBlurRadius+1 }
-        };
-        SkColor colors[] = {
-            SK_ColorRED,
-            SK_ColorGREEN,
-            SK_ColorBLUE,
-            SK_ColorYELLOW,
-        };
+        auto blurRects = std::to_array<SkRect>({
+                SkRect{-kBoxSize - (kBlurRadius + 1), 0, -(kBlurRadius + 1), kBoxSize},
+                SkRect{0, -kBoxSize - (kBlurRadius + 1), kBoxSize, -(kBlurRadius + 1)},
+                SkRect{kBoxSize + kBlurRadius + 1, 0, 2 * kBoxSize + kBlurRadius + 1, kBoxSize},
+                SkRect{0, kBoxSize + kBlurRadius + 1, kBoxSize, 2 * kBoxSize + kBlurRadius + 1}
+        });
+        auto colors = std::to_array<SkColor>({
+                SK_ColorRED,
+                SK_ColorGREEN,
+                SK_ColorBLUE,
+                SK_ColorYELLOW,
+        });
         SkASSERT(std::size(colors) == std::size(blurRects));
 
         SkPaint hairlinePaint;
