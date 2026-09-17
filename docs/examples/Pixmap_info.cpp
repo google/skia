@@ -1,6 +1,9 @@
 // Copyright 2019 Google LLC
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
+
+#include <array>
+
 REG_FIDDLE(Pixmap_info, 256, 256, true, 3) {
 void draw(SkCanvas* canvas) {
     std::vector<int32_t> pixels;
@@ -11,10 +14,26 @@ void draw(SkCanvas* canvas) {
     SkPixmap inset;
     if (pixmap.extractSubset(&inset, {128, 128, 512, 512})) {
         const SkImageInfo& info = inset.info();
-        const char* alphas[] = {"Unknown", "Opaque", "Premul", "Unpremul"};
-        const char* colors[] = {"Unknown", "Alpha_8", "RGB_565", "ARGB_4444", "RGBA_8888",
-                "RGB_888x", "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16Norm",
-                            "RGBA_F16"};
+        static constexpr auto alphas = std::to_array<const char*>({
+                "Unknown",
+                "Opaque",
+                "Premul",
+                "Unpremul",
+        });
+        static constexpr auto colors = std::to_array<const char*>({
+                "Unknown",
+                "Alpha_8",
+                "RGB_565",
+                "ARGB_4444",
+                "RGBA_8888",
+                "RGB_888x",
+                "BGRA_8888",
+                "RGBA_1010102",
+                "RGB_101010x",
+                "Gray_8",
+                "RGBA_F16Norm",
+                "RGBA_F16",
+        });
         SkDebugf("width: %d height: %d color: %s alpha: %s\n", info.width(), info.height(),
                  colors[info.colorType()], alphas[info.alphaType()]);
     }

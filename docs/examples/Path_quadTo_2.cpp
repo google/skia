@@ -1,13 +1,16 @@
 // Copyright 2019 Google LLC
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
+
+#include <array>
+
 REG_FIDDLE(Path_quadTo_2, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setAntiAlias(true);
     SkPathBuilder path;
-    SkPoint pts[] = {{128, 10}, {10, 214}, {236, 214}};
+    auto pts = std::to_array<SkPoint>({SkPoint{128, 10}, SkPoint{10, 214}, SkPoint{236, 214}});
     path.moveTo(pts[1]);
     for (int i = 0; i < 3; ++i) {
         path.quadTo(pts[i % 3],  pts[(i + 2) % 3]);

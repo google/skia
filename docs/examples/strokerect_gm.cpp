@@ -1,29 +1,34 @@
 // Copyright 2020 Google LLC
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
+
+#include <array>
 #include <cfloat>
 
 REG_FIDDLE(strokerect_gm, 1400, 740, false, 0) {
 void draw(SkCanvas* canvas) {
     constexpr SkScalar kStrokeWidth = 20;
-    constexpr SkPaint::Join gJoins[] = {SkPaint::kMiter_Join, SkPaint::kRound_Join,
-                                        SkPaint::kBevel_Join};
+    constexpr auto gJoins = std::to_array<SkPaint::Join>({
+            SkPaint::kMiter_Join,
+            SkPaint::kRound_Join,
+            SkPaint::kBevel_Join,
+    });
     constexpr SkScalar W = 80;
     constexpr SkScalar H = 80;
-    constexpr SkRect gRects[] = {
-            {0, 0, W, H},
-            {W, 0, 0, H},
-            {0, H, W, 0},
-            {0, 0, kStrokeWidth, H},
-            {0, 0, W, kStrokeWidth},
-            {0, 0, kStrokeWidth / 2, kStrokeWidth / 2},
-            {0, 0, W, 0},
-            {0, 0, 0, H},
-            {0, 0, 0, 0},
-            {0, 0, W, FLT_EPSILON},
-            {0, 0, FLT_EPSILON, H},
-            {0, 0, FLT_EPSILON, FLT_EPSILON},
-    };
+    constexpr auto gRects = std::to_array<SkRect>({
+            SkRect{0, 0, W, H},
+            SkRect{W, 0, 0, H},
+            SkRect{0, H, W, 0},
+            SkRect{0, 0, kStrokeWidth, H},
+            SkRect{0, 0, W, kStrokeWidth},
+            SkRect{0, 0, kStrokeWidth / 2, kStrokeWidth / 2},
+            SkRect{0, 0, W, 0},
+            SkRect{0, 0, 0, H},
+            SkRect{0, 0, 0, 0},
+            SkRect{0, 0, W, FLT_EPSILON},
+            SkRect{0, 0, FLT_EPSILON, H},
+            SkRect{0, 0, FLT_EPSILON, FLT_EPSILON},
+    });
     canvas->translate(kStrokeWidth * 3 / 2, kStrokeWidth * 3 / 2);
     for (int doFill = 0; doFill <= 1; ++doFill) {
         SkPaint::Style style = doFill ? SkPaint::kStrokeAndFill_Style : SkPaint::kStroke_Style;

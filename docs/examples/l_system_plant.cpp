@@ -1,6 +1,9 @@
 // Copyright 2020 Google LLC
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
+
+#include <array>
+
 REG_FIDDLE_ANIMATED(l_system_plant, 256, 256, false, 0, 3) {
 // L-System
 // https://en.wikipedia.org/wiki/L-system#Example_7:_Fractal_plant
@@ -10,14 +13,14 @@ struct rules_t {
     std::string s;
 };
 
-rules_t rules[6] = {
-    {'X', "F-[[X]+X]+F[+FX]-X"},
-    {'F', "FF"},
-    {'+', "+"},
-    {'-', "-"},
-    {'[', "["},
-    {']', "]"},
-};
+std::array<rules_t, 6> rules = {{
+        {'X', "F-[[X]+X]+F[+FX]-X"},
+        {'F', "FF"},
+        {'+', "+"},
+        {'-', "-"},
+        {'[', "["},
+        {']', "]"},
+}};
 
 std::string E(std::string s) {
     if (s.size() == 0) {

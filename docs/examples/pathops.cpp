@@ -1,6 +1,9 @@
 // Copyright 2020 Google LLC
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
+
+#include <array>
+
 REG_FIDDLE(pathops, 1000, 600, false, 0) {
 void makePaint(SkPaint * paint, SkColor color) {
     paint->setAntiAlias(true);
@@ -22,7 +25,7 @@ void draw(SkCanvas* canvas) {
     SkPaint fOnePaint;
     SkPaint fTwoPaint;
     SkPaint fOutlinePaint;
-    SkPaint fOpPaint[kReverseDifference_SkPathOp - kDifference_SkPathOp + 1];
+    std::array<SkPaint, kReverseDifference_SkPathOp - kDifference_SkPathOp + 1> fOpPaint;
 
     const unsigned oneColor = 0xFF8080FF;
     const unsigned twoColor = 0x807F1f1f;

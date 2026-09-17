@@ -4,6 +4,8 @@
 REG_FIDDLE(count_verbs, 256, 256, false, 0) {
 #include "include/utils/SkTextUtils.h"
 
+#include <array>
+
 static SkPath make_path(const SkFont& font) {
     SkPath path;
     const char text[] = "SKIA";
@@ -24,11 +26,11 @@ static void count_verbs(const SkPath& path, int counts[6]) {
 void draw(SkCanvas* canvas) {
     SkFont font(fontMgr->matchFamilyStyle("DejaVu Sans Mono", SkFontStyle()), 30);
     SkPath path = make_path(font);
-    int counts[6];
-    count_verbs(path, counts);
+    std::array<int, 6> counts;
+    count_verbs(path, counts.data());
 
     // output results:
-    const char* verbs[6] = {"Move", "Line", "Quad", "Conic", "Cubic", "Close"};
+    std::array<const char*, 6> verbs = {"Move", "Line", "Quad", "Conic", "Cubic", "Close"};
     SkPoint pt = SkPoint::Make(10.0f, 5.0f + font.getSpacing());
     SkPaint p;
     canvas->clear(SK_ColorWHITE);

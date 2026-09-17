@@ -1,6 +1,9 @@
 // Copyright 2020 Google LLC
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
+
+#include <array>
+
 REG_FIDDLE(SKIA_LOGO_pride, 816, 464, false, 0) {
 void draw(SkCanvas* canvas) {
     canvas->scale(4.0f, 4.0f);
@@ -10,8 +13,22 @@ void draw(SkCanvas* canvas) {
             SkColor4f::FromColor(0x30565656), SkColor4f::FromColor(0xFF565656)};
 
     // Colors from https://www.flagcolorcodes.com/progress-pride and https://www.flagcolorcodes.com/intersex
-    constexpr SkColor rainbow[] =  {0xFFE40303, 0xFFFF8C00, 0xFFFFED00, 0xFF008026, 0xFF004CFF, 0xFF732982};
-    constexpr SkColor progress[] = {0xFFFFD800, 0xFFFFFFFF, 0xFFFFAFC8, 0xFF74D7EE, 0xFF613915, 0xFF000000};
+    constexpr auto rainbow = std::to_array<SkColor>({
+            0xFFE40303,
+            0xFFFF8C00,
+            0xFFFFED00,
+            0xFF008026,
+            0xFF004CFF,
+            0xFF732982,
+    });
+    constexpr auto progress = std::to_array<SkColor>({
+            0xFFFFD800,
+            0xFFFFFFFF,
+            0xFFFFAFC8,
+            0xFF74D7EE,
+            0xFF613915,
+            0xFF000000,
+    });
     constexpr SkColor iViolet = 0xFF7902AA;
 
     SkPathBuilder s, k, a, triangle;

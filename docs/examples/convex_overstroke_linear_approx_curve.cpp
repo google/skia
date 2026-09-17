@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
 REG_FIDDLE(convex_overstroke_linear_approx_curve, 256, 256, false, 0) {
+
+#include <array>
 #include <math.h>
 
 void draw(SkCanvas* canvas) {
@@ -16,7 +18,7 @@ void draw(SkCanvas* canvas) {
     SkPoint p1 = SkPoint::Make(50, 50);
     SkPoint p2 = SkPoint::Make(80, 50);
 
-    SkPoint points[10];
+    std::array<SkPoint, 10> points;
 
     for (int i = 0; i < 10; i++) {
         points[i] = SkPoint::Make(65 + 15 * cos(i * PI / 10), 50 - 15 * sin(i * PI / 10));
