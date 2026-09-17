@@ -1436,13 +1436,13 @@ static void SkARGB32_Blit32(const SkPixmap& device, const SkMask& mask,
     int height = clip.height();
 
     SkPMColor* dstRow = device.writable_addr32(x, y);
-    const SkPMColor* srcRow = reinterpret_cast<const SkPMColor*>(mask.getAddr8(x, y));
+    const SkPMColor* srcRow = mask.getAddr32(x,y);
 
     do {
         proc(dstRow, srcRow, width, alpha);
         dstRow = (SkPMColor*)((char*)dstRow + device.rowBytes());
         srcRow = (const SkPMColor*)((const char*)srcRow + mask.fRowBytes);
-    } while (--height != 0);
+    } while (--height > 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
