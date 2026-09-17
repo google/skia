@@ -252,7 +252,7 @@ func gazelle(ctx context.Context, skiaPath string) error {
 func checkGitDiff(ctx context.Context, gitPath, skiaPath string) error {
 	step := fmt.Sprintf("git diff %s", skiaPath)
 	return td.Do(ctx, td.Props(step), func(ctx context.Context) error {
-		runCmd := &sk_exec.Command{
+		diffCmd := &sk_exec.Command{
 			Name:       gitPath,
 			Args:       []string{"diff", "--no-ext-diff"},
 			InheritEnv: false,
@@ -260,12 +260,27 @@ func checkGitDiff(ctx context.Context, gitPath, skiaPath string) error {
 			LogStdout:  true,
 			LogStderr:  true,
 		}
-		rv, err := sk_exec.RunCommand(ctx, runCmd)
+		rv, err := sk_exec.RunCommand(ctx, diffCmd)
 		if err != nil {
 			return err
 		}
 		if strings.TrimSpace(rv) != "" {
 			return fmt.Errorf("Non-empty diff:\n" + rv)
+		}
+		lsCmd := &sk_exec.Command{
+			Name:       gitPath,
+			Args:       []string{"ls-files", "--others", "--exclude-standard"},
+			InheritEnv: false,
+			Dir:        skiaPath,
+			LogStdout:  true,
+			LogStderr:  true,
+		}
+		rv, err = sk_exec.RunCommand(ctx, lsCmd)
+		if err != nil {
+			return err
+		}
+		if strings.TrimSpace(rv) != "" {
+			return fmt.Errorf("Untracked files:\n" + rv)
 		}
 		return nil
 	})

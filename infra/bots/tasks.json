@@ -72958,6 +72958,7 @@
         "skia/.bazelrc",
         "skia/.bazeliskrc",
         "skia/.bazelversion",
+        "skia/.gitignore",
         "skia/BUILD.bazel",
         "skia/LICENSE",
         "skia/MODULE.bazel",
