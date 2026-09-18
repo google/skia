@@ -211,15 +211,30 @@ GraphiteResourceKey build_desc_set_key(const SkSpan<DescriptorData>& requestedDe
     static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
 
     // The number of int32s needed for a key can depend on whether we use immutable samplers or not.
-    // So, accumulte key data while passing through to check for that quantity and simply copy
-    // into builder afterwards.
-    skia_private::TArray<uint32_t> keyData (requestedDescriptors.size() + 1);
+    // So, accumulate key data while passing through to check for that quantity and simply copy into
+    // builder afterwards.
+    skia_private::TArray<uint32_t> keyData(requestedDescriptors.size() + 1);
 
     keyData.push_back(requestedDescriptors.size());
     for (const DescriptorData& desc : requestedDescriptors) {
-        keyData.push_back(static_cast<uint8_t>(desc.fType) << 24 |
-                          desc.fBindingIndex << 16 |
-                          static_cast<uint16_t>(desc.fCount));
+        // Pack into 32 bits:
+        // - fType: 4 bits (bits 28..31, max 15)
+        // - fPipelineStageFlags: 4 bits (bits 24..27, max 15)
+        // - fBindingIndex: 8 bits (bits 16..23, max 255)
+        // - fCount: 16 bits (bits 0..15, max 65535)
+        // Including stage flags prevents sets from colliding across incompatible shader stages
+        // (e.g. compute vs fragment textures).
+        // https://docs.vulkan.org/spec/latest/chapters/descriptorsets.html#VUID-vkCmdBindDescriptorSets-pDescriptorSets-00358
+        SkASSERT(static_cast<uint32_t>(desc.fType) < 16);
+        SkASSERT(desc.fPipelineStageFlags.value() > 0 && desc.fPipelineStageFlags.value() < 16);
+        SkASSERT(desc.fBindingIndex >= 0 && desc.fBindingIndex <= 255);
+        SkASSERT(desc.fCount > 0 && desc.fCount <= 0xFFFF);
+
+        uint32_t packedDesc = (static_cast<uint32_t>(desc.fType) << 28) |
+                              (static_cast<uint32_t>(desc.fPipelineStageFlags.value()) << 24) |
+                              (static_cast<uint32_t>(desc.fBindingIndex) << 16) |
+                              static_cast<uint16_t>(desc.fCount);
+        keyData.push_back(packedDesc);
         if (desc.fImmutableSampler) {
             const VulkanSampler* sampler =
                     static_cast<const VulkanSampler*>(desc.fImmutableSampler);

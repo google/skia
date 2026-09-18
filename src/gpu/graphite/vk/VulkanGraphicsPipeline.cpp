@@ -520,8 +520,8 @@ static bool uniform_desc_set_layout(VkDescriptorSetLayout& outLayout,
             VulkanGraphicsPipeline::kMaxNumUniformBuffers, DescriptorData> uniformDescriptors;
 
     DescriptorType uniformBufferType =
-            sharedContext->caps()->storageBufferSupport() ? DescriptorType::kStorageBuffer
-                                                          : DescriptorType::kUniformBuffer;
+            sharedContext->caps()->storageBufferSupport() ? DescriptorType::kStorageBufferDynamic
+                                                          : DescriptorType::kUniformBufferDynamic;
     if (hasCombinedUniforms) {
         uniformDescriptors.push_back({
                 uniformBufferType, /*count=*/1,
@@ -531,7 +531,7 @@ static bool uniform_desc_set_layout(VkDescriptorSetLayout& outLayout,
 
     if (SkToBool(storageStageFlags)) {
         uniformDescriptors.push_back({
-                DescriptorType::kStorageBuffer,
+                DescriptorType::kStorageBufferDynamic,
                 /*count=*/1,
                 VulkanGraphicsPipeline::kStorageBufferIndex,
                 storageStageFlags});

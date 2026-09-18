@@ -31,7 +31,7 @@ public:
                         VkDescriptorSet,
                         sk_sp<VulkanDescriptorPool>);
 
-    const VkDescriptorSet* descriptorSet() { return &fDescSet; }
+    const VkDescriptorSet* descriptorSet() const { return &fDescSet; }
 
     const char* getResourceType() const override { return "Vulkan Descriptor Set"; }
 

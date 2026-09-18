@@ -21,13 +21,16 @@ class Sampler;
 */
 enum class DescriptorType : uint8_t {
     kUniformBuffer = 0,
+    kUniformBufferDynamic,
     kTextureSampler,
     kTexture,
     kCombinedTextureSampler,
     kStorageBuffer,
+    kStorageBufferDynamic,
     kInputAttachment,
+    kStorageTexture,
 
-    kLast = kInputAttachment,
+    kLast = kStorageTexture,
 };
 static constexpr int kDescriptorTypeCount = (int)(DescriptorType::kLast) + 1;
 

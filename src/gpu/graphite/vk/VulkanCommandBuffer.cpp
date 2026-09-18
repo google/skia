@@ -1364,12 +1364,12 @@ void VulkanCommandBuffer::bindUniformBuffers() {
     auto vulkanBuffer = static_cast<const VulkanBuffer*>(combinedUboInfo.fBuffer);
 
     DescriptorType uniformBufferType =
-            fSharedContext->caps()->storageBufferSupport() ? DescriptorType::kStorageBuffer
-                                                           : DescriptorType::kUniformBuffer;
+            fSharedContext->caps()->storageBufferSupport() ? DescriptorType::kStorageBufferDynamic
+                                                           : DescriptorType::kUniformBufferDynamic;
 
     // If we determine that we should use storage buffers, we expect that the actual VkBuffer
     // supports that usage.
-    SkASSERT(uniformBufferType != DescriptorType::kStorageBuffer ||
+    SkASSERT(uniformBufferType != DescriptorType::kStorageBufferDynamic ||
              vulkanBuffer->bufferUsageFlags() | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
 
     // We expect to have up to 2 descriptors within this set. Fill out DescriptorData (for
@@ -1387,7 +1387,7 @@ void VulkanCommandBuffer::bindUniformBuffers() {
 
     if (fActiveGraphicsPipeline->usesStorageBuffer()) {
         SkASSERT(fSharedContext->caps()->storageBufferSupport());
-        uniformDescriptorData.push_back({DescriptorType::kStorageBuffer,
+        uniformDescriptorData.push_back({DescriptorType::kStorageBufferDynamic,
                                          /*count=*/1,
                                          Pipeline::kStorageBufferIndex,
                                          fActiveGraphicsPipeline->storageBufferStages()});
