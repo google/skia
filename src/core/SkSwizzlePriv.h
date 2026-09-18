@@ -14,11 +14,13 @@
 #include <cstdint>
 
 namespace SkOpts {
-    // Swizzle input into some sort of 8888 pixel, {premul?} x {rgba,bgra}.
+    // Swizzle input into some sort of 8888 pixel, {premul,unpremul} x {rgba,bgra}.
     using Swizzle_8888_u32 = void (*)(uint32_t*, const uint32_t*, int);
     extern Swizzle_8888_u32 RGBA_to_BGRA,          // i.e. just swap RB
                             RGBA_to_rgbA,          // i.e. just premultiply
                             RGBA_to_bgrA,          // i.e. swap RB and premultiply
+                            rgbA_to_RGBA,          // i.e. just unpremultiply
+                            rgbA_to_BGRA,          // i.e. swap RB and unpremultiply
                             inverted_CMYK_to_RGB1, // i.e. convert color space
                             inverted_CMYK_to_BGR1; // i.e. convert color space
 
