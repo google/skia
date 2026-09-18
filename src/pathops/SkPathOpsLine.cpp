@@ -33,9 +33,31 @@ double SkDLine::exactPoint(const SkDPoint& xy) const {
     return -1;
 }
 
+// Scale tolerance by interpolating the endpoint coordinate magnitudes at t (matching propagated
+// endpoint rounding error), rather than the global maximum across the entire segment, so a huge
+// coordinate at one endpoint does not inflate tolerance near the other endpoint. Clamp to a floor
+// based on segment extent so tolerance does not drop precipitously when an endpoint is near the
+// origin.
+static double interpolated_largest(const SkDPoint& p0, const SkDPoint& p1, double t) {
+    constexpr double kSegmentExtentFloorScale = 0.001;
+    double largest0 = std::max(std::abs(p0.fX), std::abs(p0.fY));
+    double largest1 = std::max(std::abs(p1.fX), std::abs(p1.fY));
+    double segExtent = std::max(std::abs(p1.fX - p0.fX), std::abs(p1.fY - p0.fY));
+    double minFloor = segExtent * kSegmentExtentFloorScale;
+    return std::max((1 - t) * largest0 + t * largest1, minFloor);
+}
+
 double SkDLine::nearPoint(const SkDPoint& xy, bool* unequal) const {
-    if (!AlmostBetweenUlps(fPts[0].fX, xy.fX, fPts[1].fX)
-            || !AlmostBetweenUlps(fPts[0].fY, xy.fY, fPts[1].fY)) {
+    // For axis-aligned lines, the perpendicular distance is purely along the constant
+    // coordinate (which has no slope interpolation error). Check that the point is within
+    // 2 ULPs (AlmostBequalUlps) of that constant coordinate, matching NearPointV/NearPointH.
+    // Otherwise, the distance check below scales tolerance by `largest` (the maximum magnitude
+    // across both X and Y), which would allow too much perpendicular drift when the constant
+    // coordinate is smaller in magnitude than the varying coordinate.
+    if (fPts[0].fX == fPts[1].fX && !AlmostBequalUlps(xy.fX, fPts[0].fX)) {
+        return -1;
+    }
+    if (fPts[0].fY == fPts[1].fY && !AlmostBequalUlps(xy.fY, fPts[0].fY)) {
         return -1;
     }
     // project a perpendicular ray from the point to the line; find the T on the line
@@ -46,16 +68,10 @@ double SkDLine::nearPoint(const SkDPoint& xy, bool* unequal) const {
     if (!between(0, numer, denom)) {
         return -1;
     }
-    if (!denom) {
-        return 0;
-    }
-    double t = numer / denom;
+    double t = denom ? numer / denom : 0;
     SkDPoint realPt = ptAtT(t);
     double dist = realPt.distance(xy);   // OPTIMIZATION: can we compare against distSq instead ?
-    // find the ordinal in the original line with the largest unsigned exponent
-    double tiniest = std::min(std::min(std::min(fPts[0].fX, fPts[0].fY), fPts[1].fX), fPts[1].fY);
-    double largest = std::max(std::max(std::max(fPts[0].fX, fPts[0].fY), fPts[1].fX), fPts[1].fY);
-    largest = std::max(largest, -tiniest);
+    double largest = interpolated_largest(fPts[0], fPts[1], t);
     if (!AlmostEqualUlps_Pin(largest, largest + dist)) { // is the dist within ULPS tolerance?
         return -1;
     }
@@ -109,10 +125,8 @@ double SkDLine::NearPointH(const SkDPoint& xy, double left, double right, double
     SkDVector distU = {xy.fY - y, xy.fX - realPtX};
     double distSq = distU.fX * distU.fX + distU.fY * distU.fY;
     double dist = sqrt(distSq); // OPTIMIZATION: can we compare against distSq instead ?
-    double tiniest = std::min(std::min(y, left), right);
-    double largest = std::max(std::max(y, left), right);
-    largest = std::max(largest, -tiniest);
-    if (!AlmostEqualUlps(largest, largest + dist)) { // is the dist within ULPS tolerance?
+    double largest = interpolated_largest({left, y}, {right, y}, t);
+    if (!AlmostEqualUlps_Pin(largest, largest + dist)) { // is the dist within ULPS tolerance?
         return -1;
     }
     return t;
@@ -144,10 +158,8 @@ double SkDLine::NearPointV(const SkDPoint& xy, double top, double bottom, double
     SkDVector distU = {xy.fX - x, xy.fY - realPtY};
     double distSq = distU.fX * distU.fX + distU.fY * distU.fY;
     double dist = sqrt(distSq); // OPTIMIZATION: can we compare against distSq instead ?
-    double tiniest = std::min(std::min(x, top), bottom);
-    double largest = std::max(std::max(x, top), bottom);
-    largest = std::max(largest, -tiniest);
-    if (!AlmostEqualUlps(largest, largest + dist)) { // is the dist within ULPS tolerance?
+    double largest = interpolated_largest({x, top}, {x, bottom}, t);
+    if (!AlmostEqualUlps_Pin(largest, largest + dist)) { // is the dist within ULPS tolerance?
         return -1;
     }
     return t;

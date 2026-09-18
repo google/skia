@@ -370,3 +370,28 @@ DEF_TEST(SkOpBuilderKFuzz1, reporter) {
     builder.add(path1, SkPathOp::kUnion_SkPathOp);
     (void)builder.resolve();
 }
+
+DEF_TEST(PathOpsBuilder_UnionAbuttingRotatedRects, reporter) {
+    SkPath path1 = SkPathBuilder()
+                   .moveTo(40005.0f, -40005.0f)
+                   .lineTo(68580.0f, -68580.0f)
+                   .lineTo(354330.0f, 217170.0f)
+                   .lineTo(325755.0f, 245745.0f)
+                   .close()
+                   .detach();
+    SkPath path2 = SkPathBuilder()
+                   .moveTo(11430.03125f, -11430.03125f)
+                   .lineTo(40004.96875f, -40004.96875f)
+                   .lineTo(325754.96875f, 245745.03125f)
+                   .lineTo(297180.03125f, 274319.96875f)
+                   .close()
+                   .detach();
+
+    SkOpBuilder builder;
+    builder.add(path1, kUnion_SkPathOp);
+    builder.add(path2, kUnion_SkPathOp);
+    std::optional<SkPath> result = builder.resolve();
+    REPORTER_ASSERT(reporter, result.has_value());
+    REPORTER_ASSERT(reporter, result->getBounds() ==
+                              SkRect::MakeLTRB(11430.03125f, -68580.0f, 354330.0f, 274319.96875f));
+}
