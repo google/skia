@@ -387,7 +387,7 @@ static bool can_filter_mask(const SkMaskFilterBase* maskFilter,
         return false;
     }
     auto bmf = static_cast<const SkBlurMaskFilterImpl*>(maskFilter);
-    SkScalar xformedSigma = bmf->computeXformedSigma(ctm);
+    SkScalar xformedSigma = bmf->computeXformedDeviceSigma(ctm);
     if (skgpu::BlurIsEffectivelyIdentity(xformedSigma)) {
         *maskRect = devSpaceShapeBounds;
         return maskRect->intersect(clipBounds);
@@ -1042,7 +1042,7 @@ static bool direct_filter_mask(GrRecordingContext* context,
         return false;
     }
 
-    SkScalar xformedSigma = bmf->computeXformedSigma(viewMatrix);
+    SkScalar xformedSigma = bmf->computeXformedDeviceSigma(viewMatrix);
     if (skgpu::BlurIsEffectivelyIdentity(xformedSigma)) {
         sdc->drawShape(clip, std::move(paint), GrAA::kYes, viewMatrix, GrStyledShape(shape));
         return true;
@@ -1253,7 +1253,7 @@ static GrSurfaceProxyView filter_mask(GrRecordingContext* context,
     // 'maskRect' isn't snapped to the UL corner but the mask in 'src' is.
     const SkIRect clipRect = SkIRect::MakeWH(maskRect.width(), maskRect.height());
 
-    SkScalar xformedSigma = bmf->computeXformedSigma(ctm);
+    SkScalar xformedSigma = bmf->computeXformedDeviceSigma(ctm);
 
     // If we're doing a normal blur, we can clobber the pathTexture in the
     // gaussianBlur.  Otherwise, we need to save it for later compositing.

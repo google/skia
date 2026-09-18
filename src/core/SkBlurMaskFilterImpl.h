@@ -9,6 +9,7 @@
 #define SkBlurMaskFilterImpl_DEFINED
 
 #include "include/core/SkFlattenable.h"
+#include "include/core/SkM44.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSpan.h"
 #include "src/core/SkMask.h"
@@ -45,7 +46,8 @@ public:
     std::pair<sk_sp<SkImageFilter>, bool> asImageFilter(const SkMatrix& ctm,
                                                         const SkPaint&) const override;
 
-    SkScalar computeXformedSigma(const SkMatrix& ctm) const;
+    SkScalar computeXformedDeviceSigma(const SkMatrix& ctm) const;
+    SkV2 computeXformedLocalSigma(const SkMatrix& ctm) const;
     SkBlurStyle blurStyle() const {return fBlurStyle;}
     SkScalar sigma() const {return fSigma;}
     bool ignoreXform() const { return !fRespectCTM; }

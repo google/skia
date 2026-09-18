@@ -287,6 +287,12 @@ public:
     void writeHalf(const SkRect& r)      { this->write<SkSLType::kHalf4>(r.asScalars()); }
     void writeHalf(const SkV4& v)        { this->write<SkSLType::kHalf4>(v.ptr()); }
 
+    void writeArray(SkSpan<const float> f) {
+        this->writeArray<SkSLType::kFloat>(f.data(), f.size());
+    }
+    void writeArray(SkSpan<const SkV2> v) {
+        this->writeArray<SkSLType::kFloat2>(v.data(), v.size());
+    }
     void writeArray(SkSpan<const SkV4> v) {
         this->writeArray<SkSLType::kFloat4>(v.data(), v.size());
     }

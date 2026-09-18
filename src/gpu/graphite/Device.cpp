@@ -87,6 +87,7 @@
 #include "src/gpu/graphite/TextureProxyView.h"
 #include "src/gpu/graphite/TextureUtils.h"
 #include "src/gpu/graphite/geom/AnalyticBlurMask.h"
+#include "src/gpu/graphite/geom/AnalyticRRectBlurMask.h"
 #include "src/gpu/graphite/geom/BoundsManager.h"
 #include "src/gpu/graphite/geom/CoverageMaskShape.h"
 #include "src/gpu/graphite/geom/EdgeAAQuad.h"
@@ -2098,6 +2099,8 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
         }
     } else if (geometry.isAnalyticBlur()) {
         return {renderers->analyticBlur(), nullptr};
+    } else if (geometry.isAnalyticRRectBlur()) {
+        return {renderers->analyticRRectBlur(), nullptr};
     } else if (!geometry.isShape()) {
         // We must account for new Geometry types with specific Renderers
         return {nullptr, nullptr};
@@ -2476,7 +2479,8 @@ void Device::drawSlug(SkCanvas* canvas, const sktext::gpu::Slug* slug, const SkP
     slugImpl->subRuns()->draw(canvas, slugImpl->origin(), paint, slugImpl, this->atlasDelegate());
 }
 
-bool Device::drawBlurredRRect(const SkRRect& rrect, const SkPaint& paint, float deviceSigma) {
+bool Device::drawBlurredRRect(const SkRRect& rrect, const SkPaint& paint,
+                              SkV2 localSigma, float deviceSigma) {
     if (skgpu::BlurIsEffectivelyIdentity(deviceSigma)) {
         this->drawRRect(rrect, paint);
         return true;
@@ -2496,6 +2500,19 @@ bool Device::drawBlurredRRect(const SkRRect& rrect, const SkPaint& paint, float 
     std::optional<AnalyticBlurMask> analyticBlur = AnalyticBlurMask::Make(
             this->recorder(), this->localToDeviceTransform(), deviceSigma, rrectToBlur);
     if (!analyticBlur) {
+#if !defined(SK_SUPPORT_LEGACY_GRAPHITE_RRECT_BLUR)
+        // Try using the analytic rrect blur specific mask.
+        std::optional<AnalyticRRectBlurMask> analyticRRectBlur = AnalyticRRectBlurMask::Make(
+                this->recorder(), this->localToDeviceTransform(), localSigma, rrectToBlur);
+        if (analyticRRectBlur) {
+            this->drawGeometry(this->localToDeviceTransform(),
+                               Geometry(*analyticRRectBlur),
+                               PaintParams(paint),
+                               SkStrokeRec(paint));
+            return true;
+        }
+#endif
+
         return false;
     }
 

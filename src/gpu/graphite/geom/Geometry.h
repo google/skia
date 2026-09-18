@@ -13,6 +13,7 @@
 #include "include/core/SkVertices.h"
 #include "include/private/SkAssert.h"
 #include "src/gpu/graphite/geom/AnalyticBlurMask.h"
+#include "src/gpu/graphite/geom/AnalyticRRectBlurMask.h"
 #include "src/gpu/graphite/geom/CoverageMaskShape.h"
 #include "src/gpu/graphite/geom/EdgeAAQuad.h"
 #include "src/gpu/graphite/geom/Rect.h"
@@ -46,6 +47,7 @@ public:
         kEdgeAAQuad,
         kCoverageMaskShape,
         kAnalyticBlur,
+        kAnalyticRRectBlur
 #if defined(SK_ENABLE_SPARSE_STRIPS)
         kWideTiles,
         kEndCaps,
@@ -63,6 +65,7 @@ public:
     explicit Geometry(const SkMesh& mesh) { this->setMesh(mesh); }
     explicit Geometry(const CoverageMaskShape& mask) { this->setCoverageMaskShape(mask); }
     explicit Geometry(const AnalyticBlurMask& blur) { this->setAnalyticBlur(blur); }
+    explicit Geometry(const AnalyticRRectBlurMask& blur) { this->setAnalyticRRectBlur(blur); }
 #if defined(SK_ENABLE_SPARSE_STRIPS)
     explicit Geometry(WideTiles&& wideTiles) {
         this->setWideTiles(std::move(wideTiles));
@@ -114,6 +117,10 @@ public:
                     this->setAnalyticBlur(geom.analyticBlurMask());
                     geom.setType(Type::kEmpty);
                     break;
+                case Type::kAnalyticRRectBlur:
+                    this->setAnalyticRRectBlur(geom.analyticRRectBlurMask());
+                    geom.setType(Type::kEmpty);
+                    break;
 #if defined(SK_ENABLE_SPARSE_STRIPS)
                 case Type::kWideTiles:
                     this->setWideTiles(std::move(geom.fWideTiles));
@@ -139,6 +146,8 @@ public:
             case Type::kCoverageMaskShape:
                     this->setCoverageMaskShape(geom.coverageMaskShape()); break;
             case Type::kAnalyticBlur: this->setAnalyticBlur(geom.analyticBlurMask()); break;
+            case Type::kAnalyticRRectBlur:
+                    this->setAnalyticRRectBlur(geom.analyticRRectBlurMask()); break;
 #if defined(SK_ENABLE_SPARSE_STRIPS)
             case Type::kWideTiles: this->setWideTiles(geom.wideTiles()); break;
             case Type::kEndCaps: this->setEndCaps(geom.endCaps()); break;
@@ -157,6 +166,7 @@ public:
     bool isEdgeAAQuad() const { return fType == Type::kEdgeAAQuad; }
     bool isCoverageMaskShape() const { return fType == Type::kCoverageMaskShape; }
     bool isAnalyticBlur() const { return fType == Type::kAnalyticBlur; }
+    bool isAnalyticRRectBlur() const { return fType == Type::kAnalyticRRectBlur; }
 #if defined(SK_ENABLE_SPARSE_STRIPS)
     bool isWideTiles() const { return fType == Type::kWideTiles; }
     bool isEndCaps() const { return fType == Type::kEndCaps; }
@@ -177,6 +187,9 @@ public:
     }
     const AnalyticBlurMask& analyticBlurMask() const {
         SkASSERT(this->isAnalyticBlur()); return fAnalyticBlurMask;
+    }
+    const AnalyticRRectBlurMask& analyticRRectBlurMask() const {
+        SkASSERT(this->isAnalyticRRectBlur()); return fAnalyticRRectBlurMask;
     }
     const SkVertices* vertices() const { SkASSERT(this->isVertices()); return fVertices.get(); }
     sk_sp<SkVertices> refVertices() const {
@@ -253,6 +266,14 @@ public:
             new (&fAnalyticBlurMask) AnalyticBlurMask(blur);
         }
     }
+    void setAnalyticRRectBlur(const AnalyticRRectBlurMask& blur) {
+        if (fType == Type::kAnalyticRRectBlur) {
+            fAnalyticRRectBlurMask = blur;
+        } else {
+            this->setType(Type::kAnalyticRRectBlur);
+            new (&fAnalyticRRectBlurMask) AnalyticRRectBlurMask(blur);
+        }
+    }
 
 #if defined(SK_ENABLE_SPARSE_STRIPS)
     void setWideTiles(WideTiles&& wideTiles) {
@@ -304,6 +325,7 @@ public:
             case Type::kEdgeAAQuad: return fEdgeAAQuad.bounds();
             case Type::kCoverageMaskShape: return fCoverageMaskShape.bounds();
             case Type::kAnalyticBlur: return fAnalyticBlurMask.drawBounds();
+            case Type::kAnalyticRRectBlur: return fAnalyticRRectBlurMask.bounds();
 #if defined(SK_ENABLE_SPARSE_STRIPS)
             case Type::kWideTiles: return Rect(0, 0, 0, 0); // These are unused, as the geometry
             case Type::kEndCaps: return Rect(0, 0, 0, 0);   // is generated after clipping
@@ -350,6 +372,8 @@ private:
             fCoverageMaskShape.~CoverageMaskShape();
         } else if (this->isAnalyticBlur() && type != Type::kAnalyticBlur) {
             fAnalyticBlurMask.~AnalyticBlurMask();
+        } else if (this->isAnalyticRRectBlur() && type != Type::kAnalyticRRectBlur) {
+            fAnalyticRRectBlurMask.~AnalyticRRectBlurMask();
 #if defined(SK_ENABLE_SPARSE_STRIPS)
         } else if (this->isWideTiles() && type != Type::kWideTiles) {
             fWideTiles.~WideTiles();
@@ -369,6 +393,7 @@ private:
         EdgeAAQuad fEdgeAAQuad;
         CoverageMaskShape fCoverageMaskShape;
         AnalyticBlurMask fAnalyticBlurMask;
+        AnalyticRRectBlurMask fAnalyticRRectBlurMask;
 #if defined(SK_ENABLE_SPARSE_STRIPS)
         WideTiles fWideTiles;
         EndCaps fEndCaps;

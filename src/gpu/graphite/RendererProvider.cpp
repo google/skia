@@ -13,6 +13,7 @@
 #include "src/gpu/graphite/InternalDrawTypeFlags.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/render/AnalyticBlurRenderStep.h"
+#include "src/gpu/graphite/render/AnalyticRRectBlurRenderStep.h"
 #include "src/gpu/graphite/render/AnalyticRRectRenderStep.h"
 #include "src/gpu/graphite/render/BitmapTextRenderStep.h"
 #include "src/gpu/graphite/render/CircularArcRenderStep.h"
@@ -177,6 +178,9 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
                  DrawTypeFlags::kCircularArc);
     initFromStep(&fAnalyticBlur,
                  std::make_unique<AnalyticBlurRenderStep>(layout),
+                 DrawTypeFlags::kDropShadows);
+    initFromStep(&fAnalyticRRectBlur,
+                 std::make_unique<AnalyticRRectBlurRenderStep>(layout, bufferManager),
                  DrawTypeFlags::kDropShadows);
 
     // vertices

@@ -9,6 +9,8 @@ licenses(["notice"])
 CORE_FILES = [
     "AnalyticBlurRenderStep.cpp",
     "AnalyticBlurRenderStep.h",
+    "AnalyticRRectBlurRenderStep.cpp",
+    "AnalyticRRectBlurRenderStep.h",
     "AnalyticRRectRenderStep.cpp",
     "AnalyticRRectRenderStep.h",
     "BitmapTextRenderStep.cpp",

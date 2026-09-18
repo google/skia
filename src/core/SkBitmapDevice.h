@@ -116,7 +116,8 @@ public:
     void drawCoverageMask(const SkSpecialImage*, const SkMatrix&, const SkSamplingOptions&,
                           const SkPaint&) override;
 
-    bool drawBlurredRRect(const SkRRect&, const SkPaint&, float) override;
+    bool drawBlurredRRect(const SkRRect&, const SkPaint&,
+                          SkV2 localSigma, float deviceSigma) override;
 
     sk_sp<SkSpecialImage> snapSpecial(const SkIRect&, bool forceCopy = false) override;
 

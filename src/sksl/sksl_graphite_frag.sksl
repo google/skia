@@ -1906,3 +1906,228 @@ $pure half4 endcap_coverage_fn(float2 rectCoord,
 
     return texColor[channelIdx].rrrr;
 }
+
+half $cdf(half u, sampler2D cdfLut) {
+    const float kCdfLutRange = 4.0; // KEEP IN SYNC with constant in AnalyticRRectBlurMask.cpp.
+    float coord = float((u + kCdfLutRange) / (2.0 * kCdfLutRange));
+    return sample(cdfLut, float2(coord, 0.5)).r;
+}
+
+// CDF of the Gaussian at a spatial offset from the coordinate center.
+half $spatial_cdf(float offset, half one_over_sqrt2_sigma, sampler2D cdfLut) {
+    return $cdf(half(offset * one_over_sqrt2_sigma), cdfLut);
+}
+
+// Unnormalized Gaussian weight exp(-u^2) at spatial offset from coordinate center.
+half $gauss_weight(half offset, half one_over_sqrt2_sigma) {
+    half u = offset * one_over_sqrt2_sigma;
+    return exp(-u * u);
+}
+
+// Compute the corner correction via Gauss-Legendre 4 point quadrature.
+// Returns the amount to add to the rect base blur.
+//
+// Always evaluates in "TL-equivalent" space: the arc indents in +x from
+// left_x, and sweeps in +y (down) from top_y. Callers reflect pos and cdf_left
+// so that every corner looks like a TL corner to this function.
+//
+// The correction is the integral of g(y) * (cdf_left - CDF(edge_x(y))) dy
+// where g(y) is the normalized gaussian kernel weight at y.
+//
+// We define edge_x(y) as the x-offset to the rounded corners edge at our current y coordinate.
+//
+// We call the horizontal offset between the bounding rect's left edge and
+// the corner arc at a particular y offset from top_y the "indent".
+// indent(dy) = rx at dy=0 and decreases to 0 at dy=ry. This gives
+// up to three ranges in y:
+//   1. Near y_start (max indent):
+//      If pos.x is far enough away from corner in x then
+//      CDF(edge) ~= 1 -> correction ~= cdf_left - 1
+//   2. Transition: y range where the corner arc passes through pos.x +/- radius.x
+//   3. Near y_end (small indent):
+//      If pos.x is far enough inside the corner then
+//      edge ~= left_x -> CDF ~= cdf_left -> correction ~= 0
+// We focus GL4 on the transition region (2) and add region (1) analytically.
+half $eval_corner(float2 pos, float top_y, float left_x,
+                  half rx, half ry, half cdf_left,
+                  half2 one_over_sqrt2_sigma, float2 blurRadius,
+                  sampler2D cdfLut) {
+    half y_start = half(top_y - pos.y);
+    half y_end = y_start + ry;
+
+    half cdf_y_lo;
+    half cdf_y_hi;
+    half y_lo;
+    half y_hi;
+    if (y_start < -half(blurRadius.y)) {
+        y_lo = -half(blurRadius.y);
+        cdf_y_lo = 0;
+    } else {
+        y_lo = y_start;
+        cdf_y_lo = $spatial_cdf(y_lo, one_over_sqrt2_sigma.y, cdfLut);
+    }
+
+    if (y_end > half(blurRadius.y)) {
+        y_hi = half(blurRadius.y);
+        cdf_y_hi = 1;
+    } else {
+        y_hi = y_end;
+        cdf_y_hi = $spatial_cdf(y_hi, one_over_sqrt2_sigma.y, cdfLut);
+    }
+
+    if (cdf_y_hi - cdf_y_lo < 0.001) return half(0.0);
+
+    half rx_over_ry = rx / ry;
+
+    // Find the y range where the corner edge is within pos.x +/- blurRadius.
+    // horizontal indent decreases with dy: rx at dy=0, 0 at dy=ry.
+    float dist = pos.x - left_x;
+    half indent_lo = half(max(0.0, dist - blurRadius.x));
+    half indent_hi = half(min(float(rx), dist + blurRadius.x));
+
+    if (indent_lo >= indent_hi) {
+        return half(0.0);
+    }
+
+    // Convert indent bounds to dy (arc distance from y_start).
+    // indent = rx - (rx/ry)*sqrt(dy*(2ry-dy))
+    // Solving: t = (rx - indent)/rx, dy = ry*(1 - sqrt(1 - t*t))
+    // Larger indent -> smaller dy (closer to y_start).
+    half dy_at_indent_hi = half(0.0);  // closer to y_start
+    if (indent_hi < rx) {
+        half t = (rx - indent_hi) / rx;
+        dy_at_indent_hi = ry * (half(1.0) - sqrt(max(half(0.0), half(1.0) - t * t)));
+    }
+
+    half dy_at_indent_lo = ry;  // closer to y_end
+    if (indent_lo > half(0.0)) {
+        half t = (rx - indent_lo) / rx;
+        dy_at_indent_lo = ry * (half(1.0) - sqrt(max(half(0.0), half(1.0) - t * t)));
+    }
+
+    // Convert dy to pixel-relative y, clamp to visible range, and compute cdfs.
+    half gl4_lo = y_start + dy_at_indent_hi;
+    half cdf_gl4_lo;
+    if (gl4_lo < y_lo) {
+        gl4_lo = y_lo;
+        cdf_gl4_lo = cdf_y_lo;
+    } else {
+        cdf_gl4_lo = $spatial_cdf(float(gl4_lo), one_over_sqrt2_sigma.y, cdfLut);
+    }
+
+    half gl4_hi = y_start + dy_at_indent_lo;
+    half cdf_gl4_hi;
+    if (gl4_hi > y_hi) {
+        gl4_hi = y_hi;
+        cdf_gl4_hi = cdf_y_hi;
+    } else {
+        cdf_gl4_hi = $spatial_cdf(float(gl4_hi), one_over_sqrt2_sigma.y, cdfLut);
+    }
+
+    half gl4_range = cdf_gl4_hi - cdf_gl4_lo;
+    half result = half(0.0);
+    // Saturated correction for the region near y_start (large indent).
+    // The edge is far to the right of pos.x, so CDF(edge) ~= 1.
+    // This region is [y_lo, gl4_lo].
+    half beyond_range = cdf_gl4_lo - cdf_y_lo;
+    if (beyond_range > 0) {
+        result += (cdf_left - half(1.0)) * beyond_range;
+    }
+
+    // GL4 quadrature over the transition region.
+    if (gl4_range < 0.001) {
+        return result;
+    }
+
+    // Gaussian-Legendre 4 point constants:
+    const half4 qn = half4(-0.8611363, -0.3399810, 0.3399810, 0.8611363);
+    const half4 qw = half4( 0.3478548,  0.6521452, 0.6521452, 0.3478548);
+
+    half center   = half(0.5) * (gl4_lo + gl4_hi);
+    half half_len = half(0.5) * (gl4_hi - gl4_lo);
+
+    half weighted_edge = half(0.0);
+    half total_weight  = half(0.0);
+    for (int i = 0; i < 4; i++) {
+        half y  = center + half_len * qn[i];
+        half dy = y - y_start;
+        // Compute in float to avoid half-precision overflow when ry is large
+        half indent = rx - half(float(rx_over_ry) *
+            sqrt(max(0.0, float(dy) * (2.0 * float(ry) - float(dy)))));
+        half edge_cdf = $spatial_cdf(left_x + float(indent) - pos.x,
+                                     one_over_sqrt2_sigma.x, cdfLut);
+        half w = $gauss_weight(y, one_over_sqrt2_sigma.y) * qw[i];
+        weighted_edge += w * edge_cdf;
+        total_weight  += w;
+    }
+    if (total_weight >= 0.001) {
+        half avg_edge = weighted_edge / total_weight;
+        result += gl4_range * (cdf_left - avg_edge);
+    }
+    return result;
+}
+
+$pure half4 $analytic_rrect_blur_coverage_fn(float2 pos,
+                                             float4 rect,
+                                             half4 flags,
+                                             float4[2] rrectRadii,
+                                             half2 one_over_sqrt2_sigma,
+                                             float2 blurRadius,
+                                             sampler2D cdfLut) {
+    half4 f = flags;  // x=doTL, y=doTR, z=doBR, w=doBL
+                      // Inside encoded as all channels ~0.5.
+
+    // Fully inside: all CDFs saturated, no corners needed.
+    if (f.x > 0.25 && f.x < 0.75) {
+        return half4(1);
+    }
+
+    // Rect base: 4 CDF lookups
+    half cdf_l = $spatial_cdf(rect.x - pos.x, one_over_sqrt2_sigma.x, cdfLut);
+    half cdf_r = $spatial_cdf(rect.z - pos.x, one_over_sqrt2_sigma.x, cdfLut);
+    half cdf_t = $spatial_cdf(rect.y - pos.y, one_over_sqrt2_sigma.y, cdfLut);
+    half cdf_b = $spatial_cdf(rect.w - pos.y, one_over_sqrt2_sigma.y, cdfLut);
+    half v = (cdf_r - cdf_l) * (cdf_b - cdf_t);
+
+    // Per-corner corrections, gated by individual corner flags.
+    // Each call reflects pos into TL-equivalent space so eval_corner
+    // always sees the arc indenting in +x and sweeping in +y.
+    // X-reflection: pos.x -> 2*left_x - pos.x, cdf_l -> 1 - cdf_r.
+    // Y-reflection: pos.y -> 2*top_y - pos.y (cdf_left unchanged).
+    if (f.x > 0.5) {  // TL: no reflection
+        v += $eval_corner(pos, rect.y, rect.x,
+                          half(rrectRadii[0].x), half(rrectRadii[0].y), cdf_l,
+                          one_over_sqrt2_sigma, blurRadius, cdfLut);
+    }
+    if (f.y > 0.5) {  // TR: reflect X
+        float2 p = float2(2.0 * rect.z - pos.x, pos.y);
+        v += $eval_corner(p, rect.y, rect.z,
+                          half(rrectRadii[0].z), half(rrectRadii[0].w), half(1.0) - cdf_r,
+                          one_over_sqrt2_sigma, blurRadius, cdfLut);
+    }
+    if (f.z > 0.5) {  // BR: reflect X and Y
+        float2 p = float2(2.0 * rect.z - pos.x, 2.0 * rect.w - pos.y);
+        v += $eval_corner(p, rect.w, rect.z,
+                          half(rrectRadii[1].x), half(rrectRadii[1].y), half(1.0) - cdf_r,
+                          one_over_sqrt2_sigma, blurRadius, cdfLut);
+    }
+    if (f.w > 0.5) {  // BL: reflect Y
+        float2 p = float2(pos.x, 2.0 * rect.w - pos.y);
+        v += $eval_corner(p, rect.w, rect.x,
+                          half(rrectRadii[1].z), half(rrectRadii[1].w), cdf_l,
+                          one_over_sqrt2_sigma, blurRadius, cdfLut);
+    }
+
+    return half4(v);
+}
+
+$pure half4 analytic_rrect_blur_coverage_fn(float2 coords,
+                                            half4 flags,
+                                            float4 rect,
+                                            half2 sqrtHalfOverSigma,
+                                            float4[2] radii,
+                                            float2 blurRadius,
+                                            sampler2D cdfLut) {
+    return $analytic_rrect_blur_coverage_fn(coords, rect, flags, radii,
+                                            sqrtHalfOverSigma, blurRadius, cdfLut);
+}

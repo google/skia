@@ -2002,13 +2002,6 @@ const SkBlurMaskFilterImpl* SkCanvas::canAttemptBlurredRRectDraw(const SkPaint& 
         return nullptr;
     }
 
-    if (!this->getTotalMatrix().isSimilarity()) {
-        // TODO: If the CTM does more than just translation, rotation, and uniform scale, then the
-        // results of analytic blurring will be different than mask filter blurring. Skip the
-        // specialized path in this case.
-        return nullptr;
-    }
-
     return blurMaskFilter;
 }
 
@@ -2027,8 +2020,9 @@ std::optional<AutoLayerForImageFilter> SkCanvas::attemptBlurredRRectDraw(
         return std::nullopt;
     }
 
-    const float deviceSigma = blurMaskFilter->computeXformedSigma(this->getTotalMatrix());
-    if (this->topDevice()->drawBlurredRRect(rrect, layer->paint(), deviceSigma)) {
+    const float deviceSigma = blurMaskFilter->computeXformedDeviceSigma(this->getTotalMatrix());
+    const SkV2 localSigma = blurMaskFilter->computeXformedLocalSigma(this->getTotalMatrix());
+    if (this->topDevice()->drawBlurredRRect(rrect, layer->paint(), localSigma, deviceSigma)) {
         // Analytic draw was successful.
         return std::nullopt;
     }

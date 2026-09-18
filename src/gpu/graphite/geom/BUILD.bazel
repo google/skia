@@ -9,6 +9,8 @@ licenses(["notice"])
 CORE_FILES = [
     "AnalyticBlurMask.cpp",
     "AnalyticBlurMask.h",
+    "AnalyticRRectBlurMask.cpp",
+    "AnalyticRRectBlurMask.h",
     "BoundsManager.h",
     "CoverageMaskShape.h",
     "EdgeAAQuad.h",
