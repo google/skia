@@ -361,12 +361,6 @@ static void AssertAndroidDecodeRefused(skiatest::Reporter* r,
         return;
     }
 
-    // `android.graphics.ImageDecoder` queries the frame count before creating
-    // `SkAndroidCodec` (see `ImageDecoder_nCreate` in
-    // frameworks/base/libs/hwui/jni/ImageDecoder.cpp), which parses the frame
-    // metadata.
-    REPORTER_ASSERT(r, codec->getFrameCount() == 1);
-
     auto androidCodec = SkAndroidCodec::MakeFromCodec(std::move(codec));
     REPORTER_ASSERT(r, androidCodec);
     if (!androidCodec) {
@@ -510,6 +504,66 @@ DEF_TEST(RustPngCodec_apng_basic_using_default_image, r) {
 // chunk represents a red image (the `fdAT` chunk represents a green image).
 DEF_TEST(RustPngCodec_apng_basic_ignoring_default_image, r) {
     AssertSingleGreenFrame(r, 128, 64, "images/apng-test-suite--basic--ignoring-default-image.png");
+}
+
+// Regression test for b/562862995: When an APNG has no `fcTL` chunk before
+// `IDAT` (`IDAT` is the fallback default image and Frame 0 starts at `fdAT`),
+// callers that decode Frame 0 directly via `getImage()`, `getPixels()`,
+// `startIncrementalDecode()`, or `SkAndroidCodec::getAndroidPixels()` without
+// calling `getFrameCount()` first must still succeed and decode the `fdAT`
+// frame rather than failing with `kInvalidParameters`.
+DEF_TEST(RustPngCodec_apng_ignoring_default_image_without_getFrameCount, r) {
+    const char* kResource = "images/apng-test-suite--basic--ignoring-default-image.png";
+
+    // 1. Direct `getImage()` / `getPixels()` without `getFrameCount()`.
+    {
+        std::unique_ptr<SkCodec> codec = SkPngRustDecoderDecode(r, kResource);
+        REPORTER_ASSERT(r, codec);
+        auto [image, result] = codec->getImage();
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+        if (image) {
+            SkPixmap pixmap;
+            REPORTER_ASSERT(r, image->peekPixels(&pixmap));
+            AssertGreenPixel(r, pixmap, 0, 0);
+        }
+    }
+
+    // 2. Direct `startIncrementalDecode()` + `incrementalDecode()` without `getFrameCount()`.
+    {
+        std::unique_ptr<SkCodec> codec = SkPngRustDecoderDecode(r, kResource);
+        REPORTER_ASSERT(r, codec);
+        SkBitmap bitmap;
+        REPORTER_ASSERT(r, bitmap.tryAllocPixels(codec->getInfo()));
+        SkCodec::Result result =
+                codec->startIncrementalDecode(bitmap.info(), bitmap.getPixels(), bitmap.rowBytes());
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+        if (result == SkCodec::kSuccess) {
+            result = codec->incrementalDecode();
+            REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+            AssertGreenPixel(r, bitmap.pixmap(), 0, 0);
+        }
+    }
+
+    // 3. Direct `SkAndroidCodec::getAndroidPixels()` (with downsampling) without `getFrameCount()`.
+    {
+        std::unique_ptr<SkCodec> codec = SkPngRustDecoderDecode(r, kResource);
+        REPORTER_ASSERT(r, codec);
+        std::unique_ptr<SkAndroidCodec> androidCodec =
+                SkAndroidCodec::MakeFromCodec(std::move(codec));
+        REPORTER_ASSERT(r, androidCodec);
+        SkISize sampledDims = androidCodec->getSampledDimensions(2);
+        SkImageInfo sampledInfo = androidCodec->getInfo().makeDimensions(sampledDims);
+        SkBitmap bitmap;
+        REPORTER_ASSERT(r, bitmap.tryAllocPixels(sampledInfo));
+        SkAndroidCodec::AndroidOptions options;
+        options.fSampleSize = 2;
+        SkCodec::Result result = androidCodec->getAndroidPixels(
+                sampledInfo, bitmap.getPixels(), bitmap.rowBytes(), &options);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+        if (result == SkCodec::kSuccess) {
+            AssertGreenPixel(r, bitmap.pixmap(), 0, 0);
+        }
+    }
 }
 
 // Test based on
@@ -1544,7 +1598,6 @@ DEF_TEST(RustPngCodec_apng_offset_frame_small_row_bytes, r) {
     if (!codec) {
         return;
     }
-    REPORTER_ASSERT(r, codec->getFrameCount() == 1);
 
     const SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
     std::vector<uint8_t> buffer(info.computeMinByteSize(), 0x00);
@@ -1574,7 +1627,6 @@ DEF_TEST(RustPngCodec_apng_offset_frame_full_canvas_placement, r) {
         ERRORF(r, "Failed to create a codec for %s", path);
         return;
     }
-    REPORTER_ASSERT(r, codec->getFrameCount() == 1);
 
     for (SkAlphaType alphaType : {kUnpremul_SkAlphaType, kPremul_SkAlphaType}) {
         SkBitmap bm;

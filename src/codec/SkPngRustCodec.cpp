@@ -638,6 +638,12 @@ SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
                                               size_t rowBytes,
                                               const Options& options,
                                               std::optional<DecodingState>& decodingState) {
+    if (options.fFrameIndex == 0 && fFrameHolder.size() == 0) {
+        Result result = this->seekToStartOfFrame(0);
+        if (result != kSuccess) {
+            return result;
+        }
+    }
     if (options.fFrameIndex < 0 || options.fFrameIndex >= fFrameHolder.size()) {
         return kInvalidParameters;
     }
