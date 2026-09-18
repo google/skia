@@ -17,41 +17,55 @@ sk_sp<VulkanDescriptorPool> VulkanDescriptorPool::Make(const VulkanSharedContext
                                                        SkSpan<DescriptorData> requestedDescCounts,
                                                        VkDescriptorSetLayout layout,
                                                        uint32_t numSets) {
-
-    if (requestedDescCounts.empty()) {
+    if (requestedDescCounts.empty() || numSets == 0) {
+        // Note: On failure, we do not destroy `layout` here or below because the caller
+        // (VulkanResourceProvider) retains ownership and destroys `layout` if pool creation fails.
+        // VulkanDescriptorPool only takes ownership of `layout` on success.
         return nullptr;
     }
 
-    // For each requested descriptor type and count, create a VkDescriptorPoolSize struct which
-    // specifies the descriptor type and quantity for pool creation. Multiple pool size structures
-    // may contain the same descriptor type - the pool will be created with enough storage for the
-    // total number of descriptors of each type. Source:
-    // https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#VkDescriptorPoolSize
-    // Note: The kMaxNumDescriptors limit could be evaded since we do not currently track and check
-    // the cumulative quantities of each type of descriptor, but this is an internal call and it is
-    // highly unexpected for us to exceed this limit in practice.
+    // Multiple bindings within a descriptor set may request the same descriptor type (e.g. multiple
+    // storage buffers in compute steps). Consolidate identical descriptor types so each
+    // VkDescriptorType appears at most once in poolSizes. This guarantees that poolSizes contains
+    // at most kDescriptorTypeCount entries. We also validate cumulative per-set descriptor counts
+    // against kMaxNumDescriptors to prevent limits from being evaded across bindings.
     skia_private::STArray<kDescriptorTypeCount, VkDescriptorPoolSize> poolSizes;
-    for (size_t i = 0; i < requestedDescCounts.size(); i++) {
-        SkASSERT(requestedDescCounts[i].fCount > 0);
-        if (requestedDescCounts[i].fCount > kMaxNumDescriptors) {
-            SkDebugf("The number of descriptors requested, %u, exceeds the maximum allowed (%d).\n",
-                     requestedDescCounts[i].fCount,
+
+    for (const DescriptorData& desc : requestedDescCounts) {
+        SkASSERT(desc.fCount > 0 && desc.fCount <= kMaxNumDescriptors);
+        VkDescriptorType descType = DsTypeEnumToVkDs(desc.fType);
+        VkDescriptorPoolSize* entry = nullptr;
+        for (auto& existing : poolSizes) {
+            if (existing.type == descType) {
+                entry = &existing;
+                break;
+            }
+        }
+        if (!entry) {
+            entry = &poolSizes.push_back();
+            entry->type = descType;
+            entry->descriptorCount = 0;
+        }
+        entry->descriptorCount += desc.fCount;
+    }
+
+    for (auto& poolSize : poolSizes) {
+        if (poolSize.descriptorCount > kMaxNumDescriptors) {
+            SkDebugf("The cumulative number of descriptors requested (%u) for type %d "
+                     "exceeds the maximum allowed per set (%d).\n",
+                     poolSize.descriptorCount,
+                     poolSize.type,
                      kMaxNumDescriptors);
             return nullptr;
         }
-        VkDescriptorPoolSize& poolSize = poolSizes.push_back();
-        poolSize = {};
-        // Map each DescriptorSetType to the appropriate backend VkDescriptorType
-        poolSize.type = DsTypeEnumToVkDs(requestedDescCounts[i].fType);
-        // Create a pool large enough to accommodate the maximum possible number of descriptor sets
-        poolSize.descriptorCount = requestedDescCounts[i].fCount * numSets;
+        poolSize.descriptorCount *= numSets;
     }
 
     VkDescriptorPoolCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     createInfo.maxSets = numSets;
-    createInfo.poolSizeCount = requestedDescCounts.size();
-    createInfo.pPoolSizes = &poolSizes.front();
+    createInfo.poolSizeCount = SkTo<uint32_t>(poolSizes.size());
+    createInfo.pPoolSizes = poolSizes.data();
 
     VkDescriptorPool pool;
     VkResult result;
@@ -62,10 +76,9 @@ sk_sp<VulkanDescriptorPool> VulkanDescriptorPool::Make(const VulkanSharedContext
                                             /*const VkAllocationCallbacks*=*/nullptr,
                                             &pool));
     if (result != VK_SUCCESS) {
-        VULKAN_CALL(context->interface(),
-                    DestroyDescriptorSetLayout(context->device(), layout, nullptr));
         return nullptr;
     }
+
     return sk_sp<VulkanDescriptorPool>(new VulkanDescriptorPool(context, pool, layout));
 }
 
