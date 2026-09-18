@@ -50,6 +50,8 @@
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkGradient.h"
 
+#include <array>
+
 const int WIDTH  = 500;
 const int HEIGHT = 500;
 
@@ -117,32 +119,32 @@ protected:
         SkScalar row7[] = {0.00f, 1.00f, 1.00f};
         SkScalar row8[] = {0.00f, 0.30f, 0.30f, 1.00f};
 
-        SkScalar* positions[NUM_ROWS] = {
-            nullptr,
-            nullptr,
-            row3,
-            row4,
-            row5,
-            row6,
-            row7,
-            row8,
+        std::array<SkScalar*, NUM_ROWS> positions = {
+                nullptr,
+                nullptr,
+                row3,
+                row4,
+                row5,
+                row6,
+                row7,
+                row8,
         };
 
-        int numGradientColors[NUM_ROWS] = {
-            2,
-            3,
-            3,
-            5,
-            4,
-            3,
-            3,
-            4,
+        std::array<int, NUM_ROWS> numGradientColors = {
+                2,
+                3,
+                3,
+                5,
+                4,
+                3,
+                3,
+                4,
         };
 
-        SkTileMode tilemodes[NUM_COLS] = {
-            SkTileMode::kClamp,
-            SkTileMode::kRepeat,
-            SkTileMode::kMirror,
+        std::array<SkTileMode, NUM_COLS> tilemodes = {
+                SkTileMode::kClamp,
+                SkTileMode::kRepeat,
+                SkTileMode::kMirror,
         };
 
         for (int cellRow = 0; cellRow < NUM_ROWS; cellRow++) {

@@ -20,6 +20,8 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 #define WIDTH 640
 #define HEIGHT 480
 
@@ -46,12 +48,12 @@ protected:
                 canvas->save();
                 canvas->clipRect(SkRect::MakeXYWH(x, y, tileSize, tileSize));
                 canvas->saveLayer(nullptr, &paint);
-                const char* str[] = {
-                    "The quick",
-                    "brown fox",
-                    "jumped over",
-                    "the lazy dog.",
-                };
+                static constexpr auto str = std::to_array<const char*>({
+                        "The quick",
+                        "brown fox",
+                        "jumped over",
+                        "the lazy dog.",
+                });
                 SkFont font(ToolUtils::DefaultPortableTypeface(), 100);
                 int posY = 0;
                 for (unsigned i = 0; i < std::size(str); i++) {

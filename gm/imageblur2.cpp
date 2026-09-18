@@ -17,21 +17,24 @@
 #include "src/core/SkRandom.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
+
+#include <array>
+
 // TODO deprecate imageblur
 
 constexpr int kWidth  = 500;
 constexpr int kHeight = 500;
 
 DEF_SIMPLE_GM(imageblur2, canvas, kWidth, kHeight) {
-    constexpr float kBlurSigmas[] = { 0.0, 0.3f, 0.5f, 2.0f, 32.0f, 80.0f };
-    const char* kTestStrings[] = {
-        "The quick`~",
-        "brown fox[]",
-        "jumped over",
-        "the lazy@#$",
-        "dog.{}!%^&",
-        "*()+=-\\'\"/",
-    };
+    constexpr auto kBlurSigmas = std::to_array<float>({0.0, 0.3f, 0.5f, 2.0f, 32.0f, 80.0f});
+    static constexpr auto kTestStrings = std::to_array<const char*>({
+            "The quick`~",
+            "brown fox[]",
+            "jumped over",
+            "the lazy@#$",
+            "dog.{}!%^&",
+            "*()+=-\\'\"/",
+    });
     constexpr int sigmaCount = std::size(kBlurSigmas);
     constexpr int testStringCount = std::size(kTestStrings);
     constexpr SkScalar dx = kWidth / sigmaCount;

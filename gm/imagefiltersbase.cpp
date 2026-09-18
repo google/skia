@@ -32,6 +32,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
 #include <utility>
 
 class SkReadBuffer;
@@ -158,24 +159,30 @@ protected:
             fAtlas = create_atlas_image(canvas);
         }
 
-        void (*drawProc[])(SkCanvas*, SkImage*, const SkRect&, sk_sp<SkImageFilter>) = {
-            draw_paint,
-            draw_line, draw_rect, draw_path, draw_text,
-            draw_bitmap, draw_patch, draw_atlas
-        };
+        auto drawProc =
+                std::to_array<void (*)(SkCanvas*, SkImage*, const SkRect&, sk_sp<SkImageFilter>)>({
+                        draw_paint,
+                        draw_line,
+                        draw_rect,
+                        draw_path,
+                        draw_text,
+                        draw_bitmap,
+                        draw_patch,
+                        draw_atlas,
+                });
 
         auto cf = SkColorFilters::Blend(SK_ColorRED, SkBlendMode::kSrcIn);
-        sk_sp<SkImageFilter> filters[] = {
-            nullptr,
-            SkImageFilters::Offset(0.f, 0.f, nullptr), // "identity"
-            SkImageFilters::Empty(),
-            SkImageFilters::ColorFilter(std::move(cf), nullptr),
-            // The strange 0.29 value tickles an edge case where crop rect calculates
-            // a small border, but the blur really needs no border. This tickles
-            // an msan uninitialized value bug.
-            SkImageFilters::Blur(12.0f, 0.29f, nullptr),
-            SkImageFilters::DropShadow(10.0f, 5.0f, 3.0f, 3.0f, SK_ColorBLUE, nullptr),
-        };
+        auto filters = std::to_array<sk_sp<SkImageFilter>>({
+                nullptr,
+                SkImageFilters::Offset(0.f, 0.f, nullptr),  // "identity"
+                SkImageFilters::Empty(),
+                SkImageFilters::ColorFilter(std::move(cf), nullptr),
+                // The strange 0.29 value tickles an edge case where crop rect calculates
+                // a small border, but the blur really needs no border. This tickles
+                // an msan uninitialized value bug.
+                SkImageFilters::Blur(12.0f, 0.29f, nullptr),
+                SkImageFilters::DropShadow(10.0f, 5.0f, 3.0f, 3.0f, SK_ColorBLUE, nullptr),
+        });
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
         SkScalar MARGIN = SkIntToScalar(16);

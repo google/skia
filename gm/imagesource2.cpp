@@ -20,6 +20,8 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
 
+#include <array>
+
 namespace skiagm {
 
 // This GM reproduces the issue in crbug.com/472795. The SkImageSource image
@@ -42,15 +44,22 @@ protected:
 
     // Create an image with high frequency vertical stripes
     void onOnceBeforeDraw() override {
-        constexpr SkPMColor gColors[] = {
-            SK_ColorRED,     SK_ColorGRAY,
-            SK_ColorGREEN,   SK_ColorGRAY,
-            SK_ColorBLUE,    SK_ColorGRAY,
-            SK_ColorCYAN,    SK_ColorGRAY,
-            SK_ColorMAGENTA, SK_ColorGRAY,
-            SK_ColorYELLOW,  SK_ColorGRAY,
-            SK_ColorWHITE,   SK_ColorGRAY,
-        };
+        constexpr auto gColors = std::to_array<SkPMColor>({
+                SK_ColorRED,
+                SK_ColorGRAY,
+                SK_ColorGREEN,
+                SK_ColorGRAY,
+                SK_ColorBLUE,
+                SK_ColorGRAY,
+                SK_ColorCYAN,
+                SK_ColorGRAY,
+                SK_ColorMAGENTA,
+                SK_ColorGRAY,
+                SK_ColorYELLOW,
+                SK_ColorGRAY,
+                SK_ColorWHITE,
+                SK_ColorGRAY,
+        });
 
         auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(kImageSize, kImageSize)));
         SkCanvas* canvas = surface->getCanvas();

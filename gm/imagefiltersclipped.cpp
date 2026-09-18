@@ -30,6 +30,7 @@
 #include "tools/DecodeUtils.h"
 #include "tools/ToolUtils.h"
 
+#include <array>
 #include <utility>
 
 #define RESIZE_FACTOR_X SkIntToScalar(2)
@@ -99,20 +100,31 @@ protected:
         SkPoint3 pointLocation = SkPoint3::Make(32, 32, SkIntToScalar(10));
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
-        sk_sp<SkImageFilter> filters[] = {
-            SkImageFilters::Blur(SkIntToScalar(12), SkIntToScalar(12), nullptr),
-            SkImageFilters::DropShadow(SkIntToScalar(10), SkIntToScalar(10),
-                                       SkIntToScalar(3), SkIntToScalar(3), SK_ColorGREEN, nullptr),
-            SkImageFilters::DisplacementMap(SkColorChannel::kR, SkColorChannel::kR,
-                                            SkIntToScalar(12), std::move(gradient), checkerboard),
-            SkImageFilters::Dilate(2, 2, checkerboard),
-            SkImageFilters::Erode(2, 2, checkerboard),
-            SkImageFilters::Offset(SkIntToScalar(-16), SkIntToScalar(32), nullptr),
-            SkImageFilters::MatrixTransform(resizeMatrix, SkSamplingOptions(), nullptr),
-            // Crop output of lighting to the checkerboard
-            SkImageFilters::PointLitDiffuse(pointLocation, SK_ColorWHITE, SK_Scalar1,
-                                            SkIntToScalar(2), checkerboard, r),
-        };
+        auto filters = std::to_array<sk_sp<SkImageFilter>>({
+                SkImageFilters::Blur(SkIntToScalar(12), SkIntToScalar(12), nullptr),
+                SkImageFilters::DropShadow(SkIntToScalar(10),
+                                           SkIntToScalar(10),
+                                           SkIntToScalar(3),
+                                           SkIntToScalar(3),
+                                           SK_ColorGREEN,
+                                           nullptr),
+                SkImageFilters::DisplacementMap(SkColorChannel::kR,
+                                                SkColorChannel::kR,
+                                                SkIntToScalar(12),
+                                                std::move(gradient),
+                                                checkerboard),
+                SkImageFilters::Dilate(2, 2, checkerboard),
+                SkImageFilters::Erode(2, 2, checkerboard),
+                SkImageFilters::Offset(SkIntToScalar(-16), SkIntToScalar(32), nullptr),
+                SkImageFilters::MatrixTransform(resizeMatrix, SkSamplingOptions(), nullptr),
+                // Crop output of lighting to the checkerboard
+                SkImageFilters::PointLitDiffuse(pointLocation,
+                                                SK_ColorWHITE,
+                                                SK_Scalar1,
+                                                SkIntToScalar(2),
+                                                checkerboard,
+                                                r),
+        });
 
         SkScalar margin = SkIntToScalar(16);
         SkRect bounds = r;

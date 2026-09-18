@@ -26,6 +26,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
 #include <utility>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -114,9 +115,12 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        void (*drawProc[])(SkCanvas*, const SkRect&, sk_sp<SkImageFilter>) = {
-            draw_bitmap, draw_path, draw_paint, draw_text
-        };
+        auto drawProc = std::to_array<void (*)(SkCanvas*, const SkRect&, sk_sp<SkImageFilter>)>({
+                draw_bitmap,
+                draw_path,
+                draw_paint,
+                draw_text,
+        });
 
         sk_sp<SkColorFilter> cf(SkColorFilters::Blend(SK_ColorBLUE,
                                                               SkBlendMode::kSrcIn));
@@ -132,22 +136,22 @@ protected:
         sk_sp<SkImageFilter> erodeX(SkImageFilters::Erode(8, 0, nullptr));
         sk_sp<SkImageFilter> erodeY(SkImageFilters::Erode(0, 8, nullptr));
 
-        sk_sp<SkImageFilter> filters[] = {
-            nullptr,
-            SkImageFilters::ColorFilter(cf, nullptr, &cropRect),
-            SkImageFilters::Blur(0.0f, 0.0f, nullptr, &cropRect),
-            SkImageFilters::Blur(1.0f, 1.0f, nullptr, &cropRect),
-            SkImageFilters::Blur(8.0f, 0.0f, nullptr, &cropRect),
-            SkImageFilters::Blur(0.0f, 8.0f, nullptr, &cropRect),
-            SkImageFilters::Blur(8.0f, 8.0f, nullptr, &cropRect),
-            SkImageFilters::Erode(1, 1, nullptr, &cropRect),
-            SkImageFilters::Erode(8, 0, std::move(erodeY), &cropRect),
-            SkImageFilters::Erode(0, 8, std::move(erodeX), &cropRect),
-            SkImageFilters::Erode(8, 8, nullptr, &cropRect),
-            SkImageFilters::Merge(nullptr, std::move(cfOffset), &cropRect),
-            SkImageFilters::Blur(8.0f, 8.0f, nullptr, &bogusRect),
-            SkImageFilters::ColorFilter(cf, nullptr, &bogusRect),
-        };
+        auto filters = std::to_array<sk_sp<SkImageFilter>>({
+                nullptr,
+                SkImageFilters::ColorFilter(cf, nullptr, &cropRect),
+                SkImageFilters::Blur(0.0f, 0.0f, nullptr, &cropRect),
+                SkImageFilters::Blur(1.0f, 1.0f, nullptr, &cropRect),
+                SkImageFilters::Blur(8.0f, 0.0f, nullptr, &cropRect),
+                SkImageFilters::Blur(0.0f, 8.0f, nullptr, &cropRect),
+                SkImageFilters::Blur(8.0f, 8.0f, nullptr, &cropRect),
+                SkImageFilters::Erode(1, 1, nullptr, &cropRect),
+                SkImageFilters::Erode(8, 0, std::move(erodeY), &cropRect),
+                SkImageFilters::Erode(0, 8, std::move(erodeX), &cropRect),
+                SkImageFilters::Erode(8, 8, nullptr, &cropRect),
+                SkImageFilters::Merge(nullptr, std::move(cfOffset), &cropRect),
+                SkImageFilters::Blur(8.0f, 8.0f, nullptr, &bogusRect),
+                SkImageFilters::ColorFilter(cf, nullptr, &bogusRect),
+        });
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
         SkScalar MARGIN = SkIntToScalar(16);

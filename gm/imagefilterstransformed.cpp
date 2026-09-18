@@ -32,6 +32,7 @@
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/timer/TimeUtils.h"
 
+#include <array>
 #include <utility>
 
 namespace skiagm {
@@ -80,14 +81,17 @@ protected:
                                                             SkFilterMode::kLinear));
         sk_sp<SkImageFilter> checkerboard(SkImageFilters::Image(fCheckerboard,
                                                                 SkFilterMode::kLinear));
-        sk_sp<SkImageFilter> filters[] = {
-            SkImageFilters::Blur(12, 0, nullptr),
-            SkImageFilters::DropShadow(0, 15, 8, 0, SK_ColorGREEN, nullptr),
-            SkImageFilters::DisplacementMap(SkColorChannel::kR, SkColorChannel::kR, 12,
-                                            std::move(gradient), checkerboard),
-            SkImageFilters::Dilate(2, 2, checkerboard),
-            SkImageFilters::Erode(2, 2, checkerboard),
-        };
+        auto filters = std::to_array<sk_sp<SkImageFilter>>({
+                SkImageFilters::Blur(12, 0, nullptr),
+                SkImageFilters::DropShadow(0, 15, 8, 0, SK_ColorGREEN, nullptr),
+                SkImageFilters::DisplacementMap(SkColorChannel::kR,
+                                                SkColorChannel::kR,
+                                                12,
+                                                std::move(gradient),
+                                                checkerboard),
+                SkImageFilters::Dilate(2, 2, checkerboard),
+                SkImageFilters::Erode(2, 2, checkerboard),
+        });
 
         const SkScalar margin = SkIntToScalar(20);
         const SkScalar size = SkIntToScalar(60);

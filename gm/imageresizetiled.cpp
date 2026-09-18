@@ -19,6 +19,8 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 #define WIDTH 640
 #define HEIGHT 480
 
@@ -41,12 +43,12 @@ DEF_SIMPLE_GM(imageresizetiled, canvas, WIDTH, HEIGHT) {
                 canvas->scale(SkScalarInvert(RESIZE_FACTOR),
                               SkScalarInvert(RESIZE_FACTOR));
                 canvas->saveLayer(nullptr, &paint);
-                const char* str[] = {
-                    "The quick",
-                    "brown fox",
-                    "jumped over",
-                    "the lazy dog.",
-                };
+                static constexpr auto str = std::to_array<const char*>({
+                        "The quick",
+                        "brown fox",
+                        "jumped over",
+                        "the lazy dog.",
+                });
                 float posY = 0;
                 for (unsigned i = 0; i < std::size(str); i++) {
                     posY += 100.0f;

@@ -37,6 +37,7 @@
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #endif
 
+#include <array>
 #include <utility>
 
 /**
@@ -79,9 +80,7 @@ DEF_SIMPLE_GM(imagefilters_xfermodes, canvas, 480, 480) {
                                                                  SkSamplingOptions(),
                                                                  nullptr));
 
-        const SkBlendMode modes[] = {
-            SkBlendMode::kSrcATop, SkBlendMode::kDstIn
-        };
+        const auto modes = std::to_array<SkBlendMode>({SkBlendMode::kSrcATop, SkBlendMode::kDstIn});
 
         for (size_t i = 0; i < std::size(modes); ++i) {
             canvas->save();
