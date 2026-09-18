@@ -17,6 +17,8 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 static constexpr int kScreenWidth = 1500;
 static constexpr int kScreenHeight = 1500;
 
@@ -104,9 +106,9 @@ private:
     const bool fClipped;
     const bool fUncached;
     SkString fName;
-    SkPath fGlyphs[kNumGlyphs];
-    SkPaint fPaints[kNumDraws];
-    SkMatrix fXforms[kNumDraws];
+    std::array<SkPath, kNumGlyphs> fGlyphs;
+    std::array<SkPaint, kNumDraws> fPaints;
+    std::array<SkMatrix, kNumDraws> fXforms;
     SkPath fClipPath;
 
     using INHERITED = Benchmark;

@@ -21,6 +21,7 @@
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/text/SkTextBlobTrace.h"
 
+#include <array>
 #include <optional>
 
 using namespace skia_private;
@@ -32,7 +33,7 @@ static void do_font_stuff(SkFont* font) {
         auto strikeSpec = SkStrikeSpec::MakeMask(
                 *font,  defaultPaint, SkSurfaceProps(0, kUnknown_SkPixelGeometry),
                 SkScalerContextFlags::kNone, SkMatrix::I());
-        SkPackedGlyphID glyphs['z'];
+        std::array<SkPackedGlyphID, 'z'> glyphs;
         for (int c = ' '; c < 'z'; c++) {
             glyphs[c] = SkPackedGlyphID{font->unicharToGlyph(c)};
         }
@@ -96,9 +97,10 @@ protected:
     void onDraw(int loops, SkCanvas*) override {
         size_t oldCacheLimitSize = SkGraphics::GetFontCacheLimit();
         SkGraphics::SetFontCacheLimit(fCacheSize);
-        sk_sp<SkTypeface> typefaces[] = {
+        auto typefaces = std::to_array<sk_sp<SkTypeface>>({
                 ToolUtils::CreatePortableTypeface("serif", SkFontStyle::Italic()),
-                ToolUtils::CreatePortableTypeface("sans-serif", SkFontStyle::Italic())};
+                ToolUtils::CreatePortableTypeface("sans-serif", SkFontStyle::Italic()),
+        });
 
         for (int work = 0; work < loops; work++) {
             SkTaskGroup().batch(16, [&](int threadIndex) {

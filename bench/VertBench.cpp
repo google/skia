@@ -15,6 +15,8 @@
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
+#include <array>
+
 // Just want to trigger perspective handling, not dramatically change size
 static void tiny_persp_effect(SkCanvas* canvas) {
     SkMatrix m;
@@ -169,8 +171,8 @@ class AtlasBench : public Benchmark {
     static constexpr int N = 10*1000;
 
     sk_sp<SkImage>  fAtlas;
-    SkRSXform       fXforms[N];
-    SkRect          fRects[N];
+    std::array<SkRSXform, N> fXforms;
+    std::array<SkRect, N> fRects;
     SkColor         fColors[N];
 
 public:

@@ -12,6 +12,7 @@
 #include "src/core/SkTSort.h"
 
 #include <algorithm>
+#include <array>
 #include <stdlib.h>
 
 using namespace skia_private;
@@ -57,16 +58,17 @@ enum Type {
     kRand, kRandN, kFore, kBack, kSame
 };
 
-static const struct {
+struct SortBenchProc {
     const char* fName;
     SortProc    fProc;
-} gRec[] = {
-    { "rand", rand_proc },
-    { "rand10", randN_proc },
-    { "forward", forward_proc },
-    { "backward", backward_proc },
-    { "repeated", same_proc },
 };
+static constexpr auto gRec = std::to_array<SortBenchProc>({
+        SortBenchProc{"rand", rand_proc},
+        SortBenchProc{"rand10", randN_proc},
+        SortBenchProc{"forward", forward_proc},
+        SortBenchProc{"backward", backward_proc},
+        SortBenchProc{"repeated", same_proc},
+});
 
 static void skqsort_sort(int array[N]) {
     SkTQSort<int>(array, array + N);
@@ -96,15 +98,16 @@ enum SortType {
     kSKQSort, kSKHeap, kQSort, kStdSort,
 };
 
-static const struct {
+struct SortAlgorithm {
     const char* fName;
     SortProc    fProc;
-} gSorts[] = {
-    { "skqsort", skqsort_sort },
-    { "skheap",   skheap_sort },
-    { "qsort",     qsort_sort },
-    { "stdsort", stdsort_sort },
 };
+static constexpr auto gSorts = std::to_array<SortAlgorithm>({
+        SortAlgorithm{ "skqsort", skqsort_sort },
+        SortAlgorithm{ "skheap",   skheap_sort },
+        SortAlgorithm{ "qsort",     qsort_sort },
+        SortAlgorithm{ "stdsort", stdsort_sort },
+});
 
 class SortBench : public Benchmark {
     SkString           fName;

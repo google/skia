@@ -15,6 +15,8 @@
 #include "include/effects/SkGradient.h"
 #include "include/private/SkTemplates.h"
 
+#include <array>
+
 using namespace skia_private;
 
 class HardStopGradientBench_ScaleNumHardStops : public Benchmark {
@@ -45,11 +47,11 @@ public:
         };
 
         constexpr int kNumColorChoices = 4;
-        SkColor4f color_choices[kNumColorChoices] = {
-            SkColors::kRed,
-            SkColors::kGreen,
-            SkColors::kBlue,
-            SkColors::kYellow,
+        static constexpr std::array<SkColor4f, kNumColorChoices> color_choices = {
+                SkColors::kRed,
+                SkColors::kGreen,
+                SkColors::kBlue,
+                SkColors::kYellow,
         };
 
         const size_t N = fColorCount;

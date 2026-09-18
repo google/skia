@@ -14,6 +14,8 @@
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkRandom.h"
 
+#include <array>
+
 class MathBench : public Benchmark {
     enum {
         kBuffer = 100,
@@ -166,15 +168,16 @@ typedef bool (*IsFiniteProc)(const float[]);
 
 #define MAKEREC(name)   { name, #name }
 
-static const struct {
+struct BenchProc {
     IsFiniteProc    fProc;
     const char*     fName;
-} gRec[] = {
-    MAKEREC(isfinite_and_int),
-    MAKEREC(isfinite_and_mulzero),
-    MAKEREC(isfinite_plus_int),
-    MAKEREC(isfinite_plus_mulzero),
 };
+static constexpr auto gRec = std::to_array<BenchProc>({
+        MAKEREC(isfinite_and_int),
+        MAKEREC(isfinite_and_mulzero),
+        MAKEREC(isfinite_plus_int),
+        MAKEREC(isfinite_plus_mulzero),
+});
 
 #undef MAKEREC
 
@@ -263,7 +266,7 @@ class NormalizeBench : public Benchmark {
     enum {
         ARRAY =1000,
     };
-    SkVector fVec[ARRAY];
+    std::array<SkVector, ARRAY> fVec;
 
 public:
     NormalizeBench() {
@@ -310,8 +313,9 @@ class FixedMathBench : public Benchmark {
     enum {
         N = 1000,
     };
-    float fData[N];
-    SkFixed fResult[N];
+    std::array<float, N> fData;
+    std::array<SkFixed, N> fResult;
+
 public:
 
     FixedMathBench()  {
@@ -368,11 +372,12 @@ DEF_BENCH( return new FixedMathBench(); )
 //////////////////////////////////////////////////////////////
 
 #include "src/core/SkFloatBits.h"
+
 class Floor2IntBench : public Benchmark {
     enum {
         ARRAY = 1000,
     };
-    float fData[ARRAY];
+    std::array<float, ARRAY> fData;
     const bool fSat;
 public:
 

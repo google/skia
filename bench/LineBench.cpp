@@ -15,6 +15,7 @@
 #include "src/core/SkColorPriv.h"
 #include "src/core/SkRandom.h"
 
+#include <array>
 
 class LineBench : public Benchmark {
     SkScalar    fStrokeWidth;
@@ -23,7 +24,7 @@ class LineBench : public Benchmark {
     enum {
         PTS = 500,
     };
-    SkPoint fPts[PTS];
+    std::array<SkPoint, PTS> fPts;
 
 public:
     LineBench(SkScalar width, bool doAA)  {

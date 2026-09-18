@@ -13,9 +13,10 @@
 #include "src/core/SkRandom.h"
 #include "tools/flags/CommandLineFlags.h"
 
+#include <array>
+#include <functional>
 #include <stdio.h>
 #include <stdlib.h>
-#include <functional>
 
 using namespace skia_private;
 
@@ -114,9 +115,13 @@ private:
     }
 
     const char* onGetName() override {
-        const char* shapeTypeNames[] = {
-            "none", "rect", "oval", "rrect", "mixed"
-        };
+        static constexpr auto shapeTypeNames = std::to_array<const char*>({
+                "none",
+                "rect",
+                "oval",
+                "rrect",
+                "mixed",
+        });
 
         fName.printf("shapes_%s", shapeTypeNames[fShapesType]);
 

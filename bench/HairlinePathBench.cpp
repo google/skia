@@ -14,6 +14,8 @@
 #include "include/core/SkString.h"
 #include "src/core/SkRandom.h"
 
+#include <array>
+
 enum Flags {
     kBig_Flag = 1 << 0,
     kAA_Flag = 1 << 1
@@ -24,12 +26,12 @@ enum Flags {
 #define FLAGS10 Flags(kAA_Flag)
 #define FLAGS11 Flags(kBig_Flag | kAA_Flag)
 
-static const int points[] = {
-    10, 10, 15, 5, 20, 20,
-    30, 5, 25, 20, 15, 12,
-    21, 21, 30, 30, 12, 4,
-    32, 28, 20, 18, 12, 10
-};
+static constexpr auto points = std::to_array<int>({
+        10, 10, 15, 5, 20, 20,
+        30, 5, 25, 20, 15, 12,
+        21, 21, 30, 30, 12, 4,
+        32, 28, 20, 18, 12, 10
+});
 
 static const int kMaxPathSize = 10;
 

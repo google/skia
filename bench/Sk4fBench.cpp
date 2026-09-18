@@ -9,6 +9,8 @@
 #include "include/core/SkColor.h"
 #include "src/core/SkVx.h"
 
+#include <array>
+
 // Writing into this array prevents the loops from being compiled away.
 static volatile float blackhole[4];
 
@@ -60,7 +62,7 @@ struct Sk4fGradientBench : public Benchmark {
     const char* onGetName() override { return "Sk4f_gradient"; }
     bool isSuitableFor(Backend backend) override { return backend == Backend::kNonRendering; }
 
-    SkPMColor fDevice[100];
+    std::array<SkPMColor, 100> fDevice;
     void onDraw(int loops, SkCanvas*) override {
         skvx::float4 c0(0,0,255,255),
                      c1(255,0,0,255),
@@ -76,10 +78,10 @@ struct Sk4fGradientBench : public Benchmark {
                  c = b + dcdx,
                  d = c + dcdx;
             for (size_t i = 0; i < std::size(fDevice); i += 4) {
-                skvx::cast<uint8_t>(a).store(fDevice + i + 0);
-                skvx::cast<uint8_t>(b).store(fDevice + i + 1);
-                skvx::cast<uint8_t>(c).store(fDevice + i + 2);
-                skvx::cast<uint8_t>(d).store(fDevice + i + 3);
+                skvx::cast<uint8_t>(a).store(&fDevice[i + 0]);
+                skvx::cast<uint8_t>(b).store(&fDevice[i + 1]);
+                skvx::cast<uint8_t>(c).store(&fDevice[i + 2]);
+                skvx::cast<uint8_t>(d).store(&fDevice[i + 3]);
                 a = a + dcdx4;
                 b = b + dcdx4;
                 c = c + dcdx4;

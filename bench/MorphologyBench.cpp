@@ -13,6 +13,8 @@
 #include "include/effects/SkImageFilters.h"
 #include "src/core/SkRandom.h"
 
+#include <array>
+
 #define SMALL   SkIntToScalar(2)
 #define REAL    1.5f
 #define BIG     SkIntToScalar(10)
@@ -22,10 +24,7 @@ enum MorphologyType {
     kDilate_MT
 };
 
-static const char* gStyleName[] = {
-    "erode",
-    "dilate"
-};
+static constexpr auto gStyleName = std::to_array<const char*>({"erode", "dilate"});
 
 class MorphologyBench : public Benchmark {
     SkScalar       fRadius;
