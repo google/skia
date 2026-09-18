@@ -935,12 +935,6 @@
     "name": "Perf-Android-Clang-Pixel4-GPU-Adreno640-arm64-Release-All-Android_Vulkan"
   },
   {
-    "name": "Perf-Android-Clang-Pixel4XL-GPU-Adreno640-arm64-Release-All-Android"
-  },
-  {
-    "name": "Perf-Android-Clang-Pixel4XL-GPU-Adreno640-arm64-Release-All-Android_Vulkan"
-  },
-  {
     "name": "Perf-Android-Clang-Pixel5-GPU-Adreno620-arm64-Release-All-Android"
   },
   {
@@ -1467,18 +1461,6 @@
   },
   {
     "name": "Test-Android-Clang-Pixel4-GPU-Adreno640-arm64-Release-All-Android_Vulkan"
-  },
-  {
-    "name": "Test-Android-Clang-Pixel4XL-GPU-Adreno640-arm64-Debug-All-Android"
-  },
-  {
-    "name": "Test-Android-Clang-Pixel4XL-GPU-Adreno640-arm64-Debug-All-Android_Vulkan"
-  },
-  {
-    "name": "Test-Android-Clang-Pixel4XL-GPU-Adreno640-arm64-Release-All-Android"
-  },
-  {
-    "name": "Test-Android-Clang-Pixel4XL-GPU-Adreno640-arm64-Release-All-Android_Vulkan"
   },
   {
     "name": "Test-Android-Clang-Pixel5-GPU-Adreno620-arm64-Debug-All-Android"
