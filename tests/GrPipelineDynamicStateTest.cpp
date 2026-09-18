@@ -73,18 +73,18 @@ static constexpr int kNumMeshes = 4;
 static constexpr int kScreenSplitX = kScreenSize/2;
 static constexpr int kScreenSplitY = kScreenSize/2;
 
-static const SkIRect kDynamicScissors[kNumMeshes] = {
-    SkIRect::MakeLTRB(0,              0,              kScreenSplitX,  kScreenSplitY),
-    SkIRect::MakeLTRB(0,              kScreenSplitY,  kScreenSplitX,  kScreenSize),
-    SkIRect::MakeLTRB(kScreenSplitX,  0,              kScreenSize,    kScreenSplitY),
-    SkIRect::MakeLTRB(kScreenSplitX,  kScreenSplitY,  kScreenSize,    kScreenSize),
+static const std::array<SkIRect, kNumMeshes> kDynamicScissors = {
+        SkIRect::MakeLTRB(0,             0,             kScreenSplitX, kScreenSplitY),
+        SkIRect::MakeLTRB(0,             kScreenSplitY, kScreenSplitX, kScreenSize),
+        SkIRect::MakeLTRB(kScreenSplitX, 0,             kScreenSize,   kScreenSplitY),
+        SkIRect::MakeLTRB(kScreenSplitX, kScreenSplitY, kScreenSize,   kScreenSize),
 };
 
-static const GrColor kMeshColors[kNumMeshes] {
-    GrColorPackRGBA(255, 0, 0, 255),
-    GrColorPackRGBA(0, 255, 0, 255),
-    GrColorPackRGBA(0, 0, 255, 255),
-    GrColorPackRGBA(0, 0, 0, 255)
+static const std::array<GrColor, kNumMeshes> kMeshColors = {
+        GrColorPackRGBA(255, 0, 0, 255),
+        GrColorPackRGBA(0, 255, 0, 255),
+        GrColorPackRGBA(0, 0, 255, 255),
+        GrColorPackRGBA(0, 0, 0, 255),
 };
 
 struct Vertex {

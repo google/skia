@@ -158,15 +158,18 @@ bool SkIsJFIF(const SkData* data, SkJFIFInfo* info) {
 }
 
 DEF_TEST(SkPDF_JpegIdentification, r) {
-    static struct {
+    struct Tests {
         const char* path;
         bool isJfif;
         SkJFIFInfo::Type type;
-    } kTests[] = {{"images/CMYK.jpg", false, SkJFIFInfo::kGrayscale},
-                  {"images/color_wheel.jpg", true, SkJFIFInfo::kYCbCr},
-                  {"images/grayscale.jpg", true, SkJFIFInfo::kGrayscale},
-                  {"images/mandrill_512_q075.jpg", true, SkJFIFInfo::kYCbCr},
-                  {"images/randPixels.jpg", true, SkJFIFInfo::kYCbCr}};
+    };
+    static auto kTests = std::to_array<Tests>({
+            Tests{"images/CMYK.jpg", false, SkJFIFInfo::kGrayscale},
+            Tests{"images/color_wheel.jpg", true, SkJFIFInfo::kYCbCr},
+            Tests{"images/grayscale.jpg", true, SkJFIFInfo::kGrayscale},
+            Tests{"images/mandrill_512_q075.jpg", true, SkJFIFInfo::kYCbCr},
+            Tests{"images/randPixels.jpg", true, SkJFIFInfo::kYCbCr},
+    });
     for (size_t i = 0; i < std::size(kTests); ++i) {
         sk_sp<SkData> data(load_resource(r, "JpegIdentification", kTests[i].path));
         if (!data) {

@@ -198,11 +198,11 @@ static void test_conic(skiatest::Reporter* reporter) {
 }
 
 static void test_quad_tangents(skiatest::Reporter* reporter) {
-    SkPoint pts[] = {
-        {10, 20}, {10, 20}, {20, 30},
-        {10, 20}, {15, 25}, {20, 30},
-        {10, 20}, {20, 30}, {20, 30},
-    };
+    auto pts = std::to_array<SkPoint>({
+            SkPoint{10, 20}, SkPoint{10, 20}, SkPoint{20, 30},
+            SkPoint{10, 20}, SkPoint{15, 25}, SkPoint{20, 30},
+            SkPoint{10, 20}, SkPoint{20, 30}, SkPoint{20, 30},
+    });
     int count = (int) std::size(pts) / 3;
     for (int index = 0; index < count; ++index) {
         SkConic conic(&pts[index * 3], 0.707f);
@@ -218,11 +218,11 @@ static void test_quad_tangents(skiatest::Reporter* reporter) {
 }
 
 static void test_conic_tangents(skiatest::Reporter* reporter) {
-    SkPoint pts[] = {
-        { 10, 20}, {10, 20}, {20, 30},
-        { 10, 20}, {15, 25}, {20, 30},
-        { 10, 20}, {20, 30}, {20, 30}
-    };
+    auto pts = std::to_array<SkPoint>({
+            SkPoint{10, 20}, SkPoint{10, 20}, SkPoint{20, 30},
+            SkPoint{10, 20}, SkPoint{15, 25}, SkPoint{20, 30},
+            SkPoint{10, 20}, SkPoint{20, 30}, SkPoint{20, 30}
+    });
     int count = (int) std::size(pts) / 3;
     for (int index = 0; index < count; ++index) {
         SkConic conic(&pts[index * 3], 0.707f);
@@ -274,11 +274,11 @@ static void test_conic_to_quads(skiatest::Reporter* reporter) {
 }
 
 static void test_cubic_tangents(skiatest::Reporter* reporter) {
-    SkPoint pts[] = {
-        { 10, 20}, {10, 20}, {20, 30}, {30, 40},
-        { 10, 20}, {15, 25}, {20, 30}, {30, 40},
-        { 10, 20}, {20, 30}, {30, 40}, {30, 40},
-    };
+    auto pts = std::to_array<SkPoint>({
+            SkPoint{10, 20}, SkPoint{10, 20}, SkPoint{20, 30}, SkPoint{30, 40},
+            SkPoint{10, 20}, SkPoint{15, 25}, SkPoint{20, 30}, SkPoint{30, 40},
+            SkPoint{10, 20}, SkPoint{20, 30}, SkPoint{30, 40}, SkPoint{30, 40},
+    });
     int count = (int) std::size(pts) / 4;
     for (int index = 0; index < count; ++index) {
         SkConic conic(&pts[index * 3], 0.707f);
@@ -309,33 +309,34 @@ static void check_cubic_around_rect(std::string name, skiatest::Reporter* report
                                     float x1, float y1, float x2, float y2,
                                     bool undefined = false) {
     skiatest::ReporterContext subtest(reporter, name);
-    static constexpr SkCubicType expectations[24] = {
-        SkCubicType::kLoop,
-        SkCubicType::kCuspAtInfinity,
-        SkCubicType::kLocalCusp,
-        SkCubicType::kLocalCusp,
-        SkCubicType::kCuspAtInfinity,
-        SkCubicType::kLoop,
-        SkCubicType::kCuspAtInfinity,
-        SkCubicType::kLoop,
-        SkCubicType::kCuspAtInfinity,
-        SkCubicType::kLoop,
-        SkCubicType::kLocalCusp,
-        SkCubicType::kLocalCusp,
-        SkCubicType::kLocalCusp,
-        SkCubicType::kLocalCusp,
-        SkCubicType::kLoop,
-        SkCubicType::kCuspAtInfinity,
-        SkCubicType::kLoop,
-        SkCubicType::kCuspAtInfinity,
-        SkCubicType::kLoop,
-        SkCubicType::kCuspAtInfinity,
-        SkCubicType::kLocalCusp,
-        SkCubicType::kLocalCusp,
-        SkCubicType::kCuspAtInfinity,
-        SkCubicType::kLoop,
+    static constexpr std::array<SkCubicType, 24> expectations = {
+            SkCubicType::kLoop,
+            SkCubicType::kCuspAtInfinity,
+            SkCubicType::kLocalCusp,
+            SkCubicType::kLocalCusp,
+            SkCubicType::kCuspAtInfinity,
+            SkCubicType::kLoop,
+            SkCubicType::kCuspAtInfinity,
+            SkCubicType::kLoop,
+            SkCubicType::kCuspAtInfinity,
+            SkCubicType::kLoop,
+            SkCubicType::kLocalCusp,
+            SkCubicType::kLocalCusp,
+            SkCubicType::kLocalCusp,
+            SkCubicType::kLocalCusp,
+            SkCubicType::kLoop,
+            SkCubicType::kCuspAtInfinity,
+            SkCubicType::kLoop,
+            SkCubicType::kCuspAtInfinity,
+            SkCubicType::kLoop,
+            SkCubicType::kCuspAtInfinity,
+            SkCubicType::kLocalCusp,
+            SkCubicType::kLocalCusp,
+            SkCubicType::kCuspAtInfinity,
+            SkCubicType::kLoop,
     };
-    SkPoint points[] = {{x1, y1}, {x2, y1}, {x2, y2}, {x1, y2}};
+    auto points = std::to_array<SkPoint>(
+            {SkPoint{x1, y1}, SkPoint{x2, y1}, SkPoint{x2, y2}, SkPoint{x1, y2}});
     std::array<SkPoint, 4> bezier;
     for (int i=0; i < 4; ++i) {
         bezier[0] = points[i];
@@ -463,11 +464,11 @@ static void test_cubic_cusps(skiatest::Reporter* reporter) {
     }
 }
 
-static SkMatrix kSkewMatrices[] = {
-    SkMatrix::MakeAll(1,0,0, 0,1,0, 0,0,1),
-    SkMatrix::MakeAll(1,-1,0, 1,1,0, 0,0,1),
-    SkMatrix::MakeAll(.889f,.553f,0, -.443f,.123f,0, 0,0,1),
-};
+static auto kSkewMatrices = std::to_array<SkMatrix>({
+        SkMatrix::MakeAll(1, 0, 0, 0, 1, 0, 0, 0, 1),
+        SkMatrix::MakeAll(1, -1, 0, 1, 1, 0, 0, 0, 1),
+        SkMatrix::MakeAll(.889f, .553f, 0, -.443f, .123f, 0, 0, 0, 1),
+});
 
 static void test_chop_quad_at_midtangent(skiatest::Reporter* reporter, const SkPoint pts[3]) {
     constexpr float kTolerance = 1e-3f;
@@ -649,9 +650,9 @@ DEF_TEST(Geometry, reporter) {
     pts[1].set(3, 0);
     pts[2].set(3, 3);
     SkConvertQuadToCubic(pts, pts);
-    const SkPoint cubic[] = {
-        { 0, 0, }, { 2, 0, }, { 3, 1, }, { 3, 3 },
-    };
+    const auto cubic = std::to_array<SkPoint>({
+            SkPoint{ 0, 0, }, SkPoint{ 2, 0, }, SkPoint{ 3, 1, }, SkPoint{ 3, 3 },
+    });
     for (int i = 0; i < 4; ++i) {
         REPORTER_ASSERT(reporter, nearly_equal(cubic[i], pts[i]));
     }

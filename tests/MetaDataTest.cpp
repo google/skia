@@ -41,17 +41,18 @@ DEF_TEST(MetaData, reporter) {
     SkMetaData::Iter iter(m1);
     const char* name;
 
-    static const struct {
+    struct Elems {
         const char*         fName;
         SkMetaData::Type    fType;
         int                 fCount;
-    } gElems[] = {
-        { "int",    SkMetaData::kS32_Type,      1 },
-        { "scalar", SkMetaData::kScalar_Type,   1 },
-        { "ptr",    SkMetaData::kPtr_Type,      1 },
-        { "true",   SkMetaData::kBool_Type,     1 },
-        { "false",  SkMetaData::kBool_Type,     1 }
     };
+    static const auto gElems = std::to_array<Elems>({
+            Elems{ "int",    SkMetaData::kS32_Type,     1 },
+            Elems{ "scalar", SkMetaData::kScalar_Type,  1 },
+            Elems{ "ptr",    SkMetaData::kPtr_Type,     1 },
+            Elems{ "true",   SkMetaData::kBool_Type,    1 },
+            Elems{ "false",  SkMetaData::kBool_Type,    1 }
+    });
 
     size_t loop = 0;
     int count;

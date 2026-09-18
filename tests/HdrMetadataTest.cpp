@@ -15,6 +15,8 @@
 #include "src/codec/SkHdrAgtmPriv.h"
 #include "tests/Test.h"
 
+#include <array>
+
 DEF_TEST(HdrMetadata_ParseSerialize_ContentLightLevelInformation, r) {
     uint8_t data[] = {
         0x03, 0xE8,
@@ -87,16 +89,19 @@ DEF_TEST(HdrMetadata_Agtm_Cubic, r) {
     };
     skhdr::AgtmHelpers::PopulateSlopeFromPCHIP(cubic);
 
-    const float mExpected[10] = { 2.03242568f, 0.f,         0.f,         0.14042951f, 0.14250506f,
-                                  1.82245618f, 1.35855757f, 1.43703564f, 3.18918733f, 3.74186390f};
+    static constexpr std::array<float, 10> mExpected = {
+            2.03242568f, 0.f,         0.f,         0.14042951f, 0.14250506f,
+            1.82245618f, 1.35855757f, 1.43703564f, 3.18918733f, 3.74186390f,
+    };
     for (size_t i = 0; i < 10; ++i) {
         REPORTER_ASSERT(r, SkScalarNearlyEqual(cubic.fControlPoints[i].fM, mExpected[i], 0.0001f));
     }
 
-    const float yExpected[11] = {
-        0.37384606f, 0.86280187f, 0.63630745f, 0.05871820f, 1.05625216f,
-        1.26009455f, 1.95243885f, 2.85680727f, 3.19521825f, 4.14318213f,
-        5.13419092f};
+    static constexpr std::array<float, 11> yExpected = {
+            0.37384606f, 0.86280187f, 0.63630745f, 0.05871820f, 1.05625216f,
+            1.26009455f, 1.95243885f, 2.85680727f, 3.19521825f, 4.14318213f,
+            5.13419092f
+    };
     for (size_t i = 0; i < 11; ++i) {
         const float x = i / 2.f;
         const float y = skhdr::AgtmHelpers::EvaluateGainCurve(cubic, x);
@@ -291,18 +296,18 @@ DEF_TEST(HdrMetadata_Agtm_RWTMO, r) {
     REPORTER_ASSERT(r, SkScalarNearlyEqual(hatm.fAlternateImages[1].fHdrHeadroom,
                                            0.6151137835929048f));
 
-    const float xExpected[2][8] = {
-        {1.00000f, 1.06461f, 1.15531f, 1.27209f, 1.41494f, 1.58388f, 1.77890f, 2.00000f},
-        {1.00000f, 1.10504f, 1.22269f, 1.35294f, 1.49580f, 1.65126f, 1.81933f, 2.00000f},
-    };
-    const float yExpected[2][8] = {
-        {-0.35356f, -0.37367f, -0.42913f, -0.51246f, -0.61663f, -0.73563f, -0.86465f, -1.00000f},
-        { 0.00000f, -0.01253f, -0.04583f, -0.09477f, -0.15559f, -0.22550f, -0.30244f, -0.38489f},
-    };
-    const float mExpected[2][8] = {
-        {0.00000f, -0.50266f, -0.68079f, -0.73059f, -0.72159f, -0.68535f, -0.63784f, -0.58742f},
-        {0.00000f, -0.21470f, -0.33759f, -0.40581f, -0.44088f, -0.45573f, -0.45828f, -0.45351f},
-    };
+    static constexpr std::array<std::array<const float, 8>, 2> xExpected = {{
+            {1.00000f, 1.06461f, 1.15531f, 1.27209f, 1.41494f, 1.58388f, 1.77890f, 2.00000f},
+            {1.00000f, 1.10504f, 1.22269f, 1.35294f, 1.49580f, 1.65126f, 1.81933f, 2.00000f},
+    }};
+    static constexpr std::array<std::array<const float, 8>, 2> yExpected = {{
+            {-0.35356f, -0.37367f, -0.42913f, -0.51246f, -0.61663f, -0.73563f, -0.86465f, -1.00000f},
+            { 0.00000f, -0.01253f, -0.04583f, -0.09477f, -0.15559f, -0.22550f, -0.30244f, -0.38489f},
+    }};
+    static constexpr std::array<std::array<const float, 8>, 2> mExpected = {{
+            {0.00000f, -0.50266f, -0.68079f, -0.73059f, -0.72159f, -0.68535f, -0.63784f, -0.58742f},
+            {0.00000f, -0.21470f, -0.33759f, -0.40581f, -0.44088f, -0.45573f, -0.45828f, -0.45351f},
+    }};
 
     for (size_t a = 0; a < 2; ++a) {
         const auto& cubic = hatm.fAlternateImages[a].fColorGainFunction.fGainCurve;
@@ -953,12 +958,12 @@ DEF_TEST(HdrMetadata_Agtm_Apply_and_Shader, r) {
 
     // We will test applying the gain for the following targetd HDR headroom values.
     constexpr size_t kNumTests = 5;
-    const float testTargetedHdrHeadrooms[kNumTests] = {
-        0.f,
-        1.f,
-        hatm.fAlternateImages[1].fHdrHeadroom,
-        std::log2(3.f),
-        2.f,
+    const std::array<float, kNumTests> testTargetedHdrHeadrooms = {
+            0.f,
+            1.f,
+            hatm.fAlternateImages[1].fHdrHeadroom,
+            std::log2(3.f),
+            2.f,
     };
 
     // These are the expected output pixel values for each of the targted HDR headrooms.
@@ -1059,10 +1064,12 @@ DEF_TEST(HdrMetadata_Agtm_Apply_and_Shader, r) {
             info.minRowBytes());
 
         constexpr size_t kNumInputImages = 3;
-        const char* inputImageNames[kNumInputImages] = {
-            "linear", "pq", "pq-100",
+        std::array<const char*, kNumInputImages> inputImageNames = {
+                "linear",
+                "pq",
+                "pq-100",
         };
-        sk_sp<SkImage> inputImages[kNumInputImages];
+        std::array<sk_sp<SkImage>, kNumInputImages> inputImages;
         inputImages[0] = inputImage;
         inputImages[1] = inputImage->makeColorSpace(
             nullptr, SkColorSpace::MakeRGB(SkNamedTransferFn::kPQ, SkNamedGamut::kRec2020), {});

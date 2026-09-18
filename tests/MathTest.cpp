@@ -51,9 +51,17 @@ static void test_floor_value(skiatest::Reporter* reporter, float value) {
 }
 
 static void test_floor(skiatest::Reporter* reporter) {
-    static const float gVals[] = {
-        0, 1, 1.1f, 1.01f, 1.001f, 1.0001f, 1.00001f, 1.000001f, 1.0000001f
-    };
+    static constexpr auto gVals = std::to_array<float>({
+            0,
+            1,
+            1.1f,
+            1.01f,
+            1.001f,
+            1.0001f,
+            1.00001f,
+            1.000001f,
+            1.0000001f,
+    });
 
     for (size_t i = 0; i < std::size(gVals); ++i) {
         test_floor_value(reporter, gVals[i]);
@@ -182,10 +190,10 @@ static void unittest_isfinite(skiatest::Reporter* reporter) {
 }
 
 static void unittest_half(skiatest::Reporter* reporter) {
-    static const float gFloats[] = {
-        0.f, 1.f, 0.5f, 0.499999f, 0.5000001f, 1.f/3,
-        -0.f, -1.f, -0.5f, -0.499999f, -0.5000001f, -1.f/3
-    };
+    static const auto gFloats = std::to_array<float>({
+             0.f,  1.f,  0.5f,  0.499999f,  0.5000001f,  1.f / 3,
+            -0.f, -1.f, -0.5f, -0.499999f, -0.5000001f, -1.f / 3,
+    });
 
     for (size_t i = 0; i < std::size(gFloats); ++i) {
         SkHalf h = SkFloatToHalf(gFloats[i]);
@@ -306,18 +314,18 @@ static void test_muldiv255ceiling(skiatest::Reporter* reporter) {
 }
 
 static void test_copysign(skiatest::Reporter* reporter) {
-    static const int32_t gTriples[] = {
-        // x, y, expected result
-        0, 0, 0,
-        0, 1, 0,
-        0, -1, 0,
-        1, 0, 1,
-        1, 1, 1,
-        1, -1, -1,
-        -1, 0, 1,
-        -1, 1, 1,
-        -1, -1, -1,
-    };
+    static constexpr auto gTriples = std::to_array<int32_t>({
+            // x, y, expected result
+            0, 0, 0,
+            0, 1, 0,
+            0, -1, 0,
+            1, 0, 1,
+            1, 1, 1,
+            1, -1, -1,
+            -1, 0, 1,
+            -1, 1, 1,
+            -1, -1, -1,
+    });
     for (size_t i = 0; i < std::size(gTriples); i += 3) {
         REPORTER_ASSERT(reporter,
                         SkCopySign32(gTriples[i], gTriples[i+1]) == gTriples[i+2]);
@@ -515,21 +523,21 @@ template <typename T> struct PairRec {
 };
 
 DEF_TEST(TestEndian, reporter) {
-    static const PairRec<uint16_t> g16[] = {
-        { 0x0,      0x0     },
-        { 0xFFFF,   0xFFFF  },
-        { 0x1122,   0x2211  },
-    };
-    static const PairRec<uint32_t> g32[] = {
-        { 0x0,          0x0         },
-        { 0xFFFFFFFF,   0xFFFFFFFF  },
-        { 0x11223344,   0x44332211  },
-    };
-    static const PairRec<uint64_t> g64[] = {
-        { 0x0,      0x0                             },
-        { 0xFFFFFFFFFFFFFFFFULL,  0xFFFFFFFFFFFFFFFFULL  },
-        { 0x1122334455667788ULL,  0x8877665544332211ULL  },
-    };
+    static constexpr auto g16 = std::to_array<PairRec<uint16_t>>({
+            { 0x0,      0x0     },
+            { 0xFFFF,   0xFFFF  },
+            { 0x1122,   0x2211  },
+    });
+    static constexpr auto g32 = std::to_array<PairRec<uint32_t>>({
+            {0x0,          0x0         },
+            {0xFFFFFFFF,   0xFFFFFFFF  },
+            {0x11223344,   0x44332211  },
+    });
+    static constexpr auto g64 = std::to_array<PairRec<uint64_t>>({
+            {0x0,                    0x0                    },
+            {0xFFFFFFFFFFFFFFFFULL,  0xFFFFFFFFFFFFFFFFULL  },
+            {0x1122334455667788ULL,  0x8877665544332211ULL  },
+    });
 
     REPORTER_ASSERT(reporter, 0x1122 == SkTEndianSwap16<0x2211>::value);
     REPORTER_ASSERT(reporter, 0x11223344 == SkTEndianSwap32<0x44332211>::value);
@@ -548,19 +556,21 @@ DEF_TEST(TestEndian, reporter) {
 
 template <typename T>
 static void test_divmod(skiatest::Reporter* r) {
-    const struct {
+    struct EdgeCases {
         T numer;
         T denom;
-    } kEdgeCases[] = {
-        {(T)17, (T)17},
-        {(T)17, (T)4},
-        {(T)0,  (T)17},
-        // For unsigned T these negatives are just some large numbers.  Doesn't hurt to test them.
-        {(T)-17, (T)-17},
-        {(T)-17, (T)4},
-        {(T)17,  (T)-4},
-        {(T)-17, (T)-4},
     };
+    static constexpr auto kEdgeCases = std::to_array<EdgeCases>({
+            EdgeCases{(T)17, (T)17},
+            EdgeCases{(T)17, (T)4},
+            EdgeCases{(T)0, (T)17},
+            // For unsigned T these negatives are just some large numbers.
+            // Doesn't hurt to test them.
+            EdgeCases{(T)-17, (T)-17},
+            EdgeCases{(T)-17, (T)4},
+            EdgeCases{(T)17, (T)-4},
+            EdgeCases{(T)-17, (T)-4},
+    });
 
     for (size_t i = 0; i < std::size(kEdgeCases); i++) {
         const T numer = kEdgeCases[i].numer;

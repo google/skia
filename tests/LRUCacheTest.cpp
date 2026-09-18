@@ -8,6 +8,7 @@
 #include "src/core/SkLRUCache.h"
 #include "tests/Test.h"
 
+#include <array>
 #include <memory>
 
 struct Value {
@@ -63,7 +64,7 @@ DEF_TEST(LRUCacheRandom, r) {
     int instances = 0;
     {
         int seq[] = { 0, 1, 2, 3, 4, 1, 6, 2, 7, 5, 3, 2, 2, 3, 1, 7 };
-        int expected[] = { 7, 1, 3, 2, 5 };
+        auto expected = std::to_array<int>({7, 1, 3, 2, 5});
         static const int kSize = 5;
         SkLRUCache<MoveOnlyKey, std::unique_ptr<Value>> test(kSize);
         for (int i = 0; i < (int) (sizeof(seq) / sizeof(int)); i++) {

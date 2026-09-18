@@ -134,12 +134,12 @@ static void create_graph3(TArray<sk_sp<GrMockRenderTask>>* graph,
 }
 
 DEF_TEST(GrRenderTaskCluster, reporter) {
-    CreateGraphPF tests[] = {
-        create_graph0,
-        create_graph1,
-        create_graph2,
-        create_graph3
-    };
+    auto tests = std::to_array<CreateGraphPF>({
+            create_graph0,
+            create_graph1,
+            create_graph2,
+            create_graph3,
+    });
 
     for (size_t i = 0; i < std::size(tests); ++i) {
         TArray<sk_sp<GrMockRenderTask>> graph;

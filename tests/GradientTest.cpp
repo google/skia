@@ -46,6 +46,7 @@
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #endif
 
+#include <array>
 #include <cstdint>
 #include <cstring>
 #include <string>
@@ -233,15 +234,15 @@ static void TestGradientShaders(skiatest::Reporter* reporter) {
     rec.fRadius = gRad;
     rec.fTileMode = SkTileMode::kClamp;
 
-    static const GradProc gProcs[] = {
-        none_gradproc,
-        color_gradproc,
-        linear_gradproc,
-        linear_gradproc_matrix,
-        radial_gradproc,
-        sweep_gradproc,
-        conical_gradproc,
-    };
+    static constexpr auto gProcs = std::to_array<GradProc>({
+            none_gradproc,
+            color_gradproc,
+            linear_gradproc,
+            linear_gradproc_matrix,
+            radial_gradproc,
+            sweep_gradproc,
+            conical_gradproc,
+    });
 
     for (size_t i = 0; i < std::size(gProcs); ++i) {
         gProcs[i](reporter, rec, rec);
@@ -615,11 +616,11 @@ static void test_many_stop_linear_hardstops(skiatest::Reporter* reporter, SkSurf
     constexpr int kNumSegments = 130;
     constexpr int kWidth = kNumSegments;
     constexpr int kHeight = 1;
-    constexpr SkColor4f kPalette[4] = {
+    constexpr std::array<SkColor4f, 4> kPalette = {
             SkColors::kRed, SkColors::kGreen, SkColors::kBlue, SkColors::kYellow};
 
-    SkColor4f colors[2 * kNumSegments];
-    SkScalar positions[2 * kNumSegments];
+    std::array<SkColor4f, 2 * kNumSegments> colors;
+    std::array<SkScalar, 2 * kNumSegments> positions;
     for (int i = 0; i < kNumSegments; ++i) {
         colors[2 * i + 0] = kPalette[i % 4];
         colors[2 * i + 1] = kPalette[i % 4];
