@@ -101,7 +101,8 @@ DrawContext::DrawContext(const Caps* caps,
                                    caps->storageBufferSupport()))
                           : std::unique_ptr<DrawListBase>(std::make_unique<DrawList>()))
         , fPendingUploads(std::make_unique<UploadList>())
-        , fStorageContext(caps->storageBufferSupport()) {
+        , fStorageContext(caps->resourceBindingRequirements().fMaxFallbackTextureSize,
+                          caps->storageBufferSupport()) {
     // Must determine a valid strategy to use should a dst texture read be required.
     SkASSERT(fDstReadStrategy != DstReadStrategy::kNoneRequired);
 

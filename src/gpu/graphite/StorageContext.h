@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_StorageContext_DEFINED
 #define skgpu_graphite_StorageContext_DEFINED
 
+#include "include/core/SkColorType.h"
 #include "include/private/SkTDArray.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/graphite/BufferManager.h"
@@ -17,12 +18,17 @@
 #include <cstdint>
 #include <limits>
 #include <utility>
+#include <variant>
 
 class SkGradientBaseShader;
 
 namespace skgpu::graphite {
 
-class DrawBufferManager;
+class DrawTask;
+class Recorder;
+class TextureProxy;
+
+using StorageContextResult = std::variant<BindBufferInfo, sk_sp<TextureProxy>>;
 
 class StorageContext {
 public:
@@ -32,7 +38,7 @@ public:
     static constexpr SkColorType   kColorType                    = kRGBA_F32_SkColorType;
     static constexpr TextureFormat kTextureFormat                = TextureFormat::kRGBA32F;
 
-    StorageContext(bool storageBufferSupport);
+    StorageContext(int maxFallbackTextureSize, bool storageBufferSupport);
     ~StorageContext();
 
     // Resets cached gradient and vertex data. Should only occur at "organic" flush time
@@ -61,9 +67,10 @@ public:
     // perform GPU uploads.
     void finalizePrecachedStorageData();
 
-    // Called after snapping the draw pass. It creates a single mapped buffer containing the
-    // concatenated cached and append data.
-    BindBufferInfo finalize(DrawBufferManager* bufferMgr);
+    // Called after snapping the draw pass. It creates either a single mapped buffer or a fallback
+    // texture containing the concatenated cached and append data.
+    StorageContextResult finalize(Recorder*, DrawTask*);
+    BindBufferInfo finalize(Recorder*);
 
     bool isEmpty() const { return fGradientCache.isEmpty() && fVertexData.empty(); }
 
@@ -75,6 +82,9 @@ public:
 #endif
 
 private:
+    BindBufferInfo finalizeStorageBuffer(Recorder* recorder);
+    sk_sp<TextureProxy> finalizeTexture(Recorder* recorder, DrawTask* drawTask);
+
     struct GradientCache {
         static constexpr int kMaxGradientStops = 1024 * 1024;
         static constexpr int kMaxStorageFloats =
@@ -89,12 +99,13 @@ private:
         bool isEmpty() const { return fGradientData.empty(); }
     };
 
-    SkDEBUGCODE(bool fGradientsFinalized = false;)
+    SkDEBUGCODE(bool fFinalized = false;)
 
     GradientCache fGradientCache;
 
     SkTDArray<char> fVertexData;
     uint32_t fRunningLCM;
+    int fMaxFallbackTextureSize;
     bool fStorageBufferSupport;
 };
 

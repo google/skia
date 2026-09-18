@@ -371,7 +371,8 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(TextureFallbackMultiInstanceMathTest,
 
     // Verify StorageContext with storageBufferSupport=false bumps alignment and stride to 16
     {
-        StorageContext fallbackStorageContext(/*storageBufferSupport=*/false);
+        StorageContext fallbackStorageContext(reqs.fMaxFallbackTextureSize,
+                                              /*storageBufferSupport=*/false);
         fallbackStorageContext.recordAlignment(singleFloatStep.storageUniformStride(),
                                                singleFloatStep.storageUniformAlignment());
         REPORTER_ASSERT(reporter, fallbackStorageContext.runningLCM() == 16);
@@ -383,7 +384,8 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(TextureFallbackMultiInstanceMathTest,
 
     // Verify StorageContext with storageBufferSupport=true preserves natural std430 alignment/stride
     {
-        StorageContext ssboStorageContext(/*storageBufferSupport=*/true);
+        StorageContext ssboStorageContext(reqs.fMaxFallbackTextureSize,
+                                          /*storageBufferSupport=*/true);
         ssboStorageContext.recordAlignment(singleFloatStep.storageUniformStride(),
                                            singleFloatStep.storageUniformAlignment());
         REPORTER_ASSERT(reporter, ssboStorageContext.runningLCM() == 4);

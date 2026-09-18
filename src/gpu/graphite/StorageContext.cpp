@@ -9,12 +9,41 @@
 
 #include "include/private/SkAlign.h"
 #include "src/gpu/graphite/BufferManager.h"
+#include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/TextureProxyView.h"
+#include "src/gpu/graphite/task/DrawTask.h"
+#include "src/gpu/graphite/task/UploadTask.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"
 
 namespace skgpu::graphite {
 
-StorageContext::StorageContext(bool storageBufferSupport)
-        : fRunningLCM(1), fStorageBufferSupport(storageBufferSupport) {}
+namespace {
+
+sk_sp<TextureProxy> create_texture_proxy(Recorder* recorder, int width, int height) {
+    const Caps* caps = recorder->priv().caps();
+    TextureInfo info = caps->getDefaultReadableTextureInfo(
+            StorageContext::kTextureFormat,
+            recorder->priv().isProtected());
+
+    sk_sp<TextureProxy> proxy = TextureProxy::Make(caps,
+                                                   recorder->priv().resourceProvider(),
+                                                   SkISize::Make(width, height),
+                                                   info,
+                                                   "StorageFallbackTexture",
+                                                   Budgeted::kYes);
+    return proxy;
+}
+
+}  // anonymous namespace
+
+StorageContext::StorageContext(int maxFallbackTextureSize, bool storageBufferSupport)
+        : fRunningLCM(1)
+        , fMaxFallbackTextureSize(maxFallbackTextureSize)
+        , fStorageBufferSupport(storageBufferSupport) {
+    SkASSERT(fMaxFallbackTextureSize > 0);
+}
 
 StorageContext::~StorageContext() {
     this->resetCache();
@@ -33,12 +62,12 @@ void StorageContext::resetCache() {
     fGradientCache.reset();
     fVertexData.clear();
     fRunningLCM = 1;
-    SkDEBUGCODE(fGradientsFinalized = false;)
+    SkDEBUGCODE(fFinalized = false;)
 }
 
 std::pair<float*, int> StorageContext::allocateGradientData(int numStops,
                                                             const SkGradientBaseShader* shader) {
-    SkASSERT(!fGradientsFinalized);
+    SkASSERT(!fFinalized);
     if (numStops > GradientCache::kMaxGradientStops) {
         return {nullptr, -1};
     }
@@ -49,13 +78,17 @@ std::pair<float*, int> StorageContext::allocateGradientData(int numStops,
     }
 
     int floatOffset = fGradientCache.fGradientData.size();
-    int floatCount = numStops * 5;
+    const int floatCount = fStorageBufferSupport
+            ? (numStops * 5)
+            : (SkAlign4(numStops) + numStops * 4);
+    SkASSERT(fStorageBufferSupport || SkIsAlign4(floatCount));
     if (GradientCache::kMaxStorageFloats - floatCount < floatOffset) {
         return {nullptr, -1};
     }
 
     fGradientCache.fGradientData.resize(floatOffset + floatCount);
     float* dstData = fGradientCache.fGradientData.data() + floatOffset;
+    memset(dstData, 0, floatCount * sizeof(float));
 
     shader->ref();
     fGradientCache.fLocalGradientOffsetCache.set(shader, floatOffset);
@@ -66,10 +99,10 @@ std::pair<float*, int> StorageContext::allocateGradientData(int numStops,
 
 void StorageContext::recordAlignment(size_t stride, size_t align) {
     SkASSERT(stride > 0 && align > 0);
-    SkASSERT(!fGradientsFinalized);
+    SkASSERT(!fFinalized);
     if (!fStorageBufferSupport) {
-        align = std::max<size_t>(align, 16);
-        stride = SkAlignTo<size_t>(stride, 16);
+        align = std::max<size_t>(align, kTexelBytes);
+        stride = SkAlignTo<size_t>(stride, kTexelBytes);
     }
     uint32_t align32 = BufferAligner::LcmAlignment(SkTo<uint32_t>(align), SkTo<uint32_t>(stride));
     fRunningLCM = BufferAligner::LcmAlignment(fRunningLCM, align32);
@@ -81,69 +114,87 @@ uint32_t StorageContext::appendVertices(const void* data,
                                         size_t align) {
     SkASSERT(data && count > 0 && stride > 0 && align > 0);
 
-    uint32_t alignedVertOffset = 0;
-    auto alignAndAppend = [&](size_t vertStride, uint32_t alignment) -> std::pair<char*, uint32_t> {
-        uint32_t requiredBytes =
-                BufferAligner::ValidateCountAndStride(count, vertStride, /*headroom=*/0, alignment);
-        if (requiredBytes == 0) {
-            return {nullptr, 0};
-        }
+    size_t paddedStride = stride;
+    size_t paddedAlign  = align;
+    if (!fStorageBufferSupport) {
+        paddedStride = SkAlignTo<size_t>(stride, kTexelBytes);
+        paddedAlign  = std::max<size_t>(align, static_cast<size_t>(kTexelBytes));
+    }
 
-        alignedVertOffset = SkAlignNonPow2(static_cast<uint32_t>(fVertexData.size()), alignment);
-        if (alignedVertOffset > static_cast<uint32_t>(fVertexData.size())) {
-            int padBytes = alignedVertOffset - fVertexData.size();
-            memset(fVertexData.append(padBytes), 0, padBytes);
-        }
+    uint32_t align32 = BufferAligner::LcmAlignment(SkTo<uint32_t>(paddedAlign),
+                                                   SkTo<uint32_t>(paddedStride));
+    SkASSERT(fRunningLCM % align32 == 0);
 
-        return {fVertexData.append(requiredBytes), requiredBytes};
-    };
+    uint32_t requiredBytes =
+            BufferAligner::ValidateCountAndStride(count, paddedStride, /*headroom=*/0, align32);
+    if (requiredBytes == 0) {
+        return 0;
+    }
 
-    if (fStorageBufferSupport) {
-        uint32_t align32 =
-                BufferAligner::LcmAlignment(SkTo<uint32_t>(align), SkTo<uint32_t>(stride));
-        SkASSERT(fRunningLCM % align32 == 0);
+    uint32_t alignedVertOffset = SkAlignNonPow2(static_cast<uint32_t>(fVertexData.size()), align32);
+    if (alignedVertOffset > static_cast<uint32_t>(fVertexData.size())) {
+        int padBytes = alignedVertOffset - fVertexData.size();
+        memset(fVertexData.append(padBytes), 0, padBytes);
+    }
 
-        auto [dst, requiredBytes] = alignAndAppend(stride, align32);
-        if (!dst) {
-            return 0;
-        }
+    char* dst = fVertexData.append(requiredBytes);
 
+    // Because the fallback texture format is kRGBA32F (16 bytes per texel), the unpack shader
+    // addresses instances by whole texels (index * nTexels). Pad each instance's stride to a
+    // 16-byte texel boundary so subsequent instances align with the shader's texel indexing.
+    if (stride == paddedStride) {
         memcpy(dst, data, requiredBytes);
     } else {
-        size_t paddedStride = SkAlignTo<size_t>(stride, kTexelBytes);
-
-        auto [dst, requiredBytes] = alignAndAppend(paddedStride, kTexelBytes);
-        if (!dst) {
-            return 0;
-        }
-
-        // Because the fallback texture format is kRGBA32F (16 bytes per texel), the unpack shader
-        // addresses instances by whole texels (index * nTexels). Pad each instance's stride to a
-        // 16-byte texel boundary so subsequent instances align with the shader's texel indexing.
-        if (stride == paddedStride) {
-            memcpy(dst, data, requiredBytes);
-        } else {
-            const char* src = static_cast<const char*>(data);
-            size_t diff = paddedStride - stride;
-            for (size_t i = 0; i < count; ++i) {
-                memcpy(dst, src, stride);
-                memset(dst + stride, 0, diff);
-                dst += paddedStride;
-                src += stride;
-            }
+        const char* src = static_cast<const char*>(data);
+        size_t diff = paddedStride - stride;
+        for (size_t i = 0; i < count; ++i) {
+            memcpy(dst, src, stride);
+            memset(dst + stride, 0, diff);
+            dst += paddedStride;
+            src += stride;
         }
     }
+
     return SkTo<uint32_t>(fGradientCache.fGradientDataSize) + alignedVertOffset;
 }
 
 void StorageContext::finalizePrecachedStorageData() {
     fGradientCache.fGradientDataSize =
             SkAlignNonPow2<size_t>(fGradientCache.fGradientDataSize, fRunningLCM);
-    SkDEBUGCODE(fGradientsFinalized = true;)
+    SkDEBUGCODE(fFinalized = true;)
 }
 
-BindBufferInfo StorageContext::finalize(DrawBufferManager* bufferMgr) {
-    SkASSERT(fGradientsFinalized);
+StorageContextResult StorageContext::finalize(Recorder* recorder,
+                                              DrawTask* drawTask) {
+    SkASSERT(recorder);
+    SkASSERT(drawTask);
+    SkASSERT(fFinalized);
+    SkDEBUGCODE(fFinalized = false;)
+
+    if (fStorageBufferSupport) {
+        return this->finalizeStorageBuffer(recorder);
+    } else {
+        return this->finalizeTexture(recorder, drawTask);
+    }
+}
+
+// Temporary, remove in next CL in chain
+BindBufferInfo StorageContext::finalize(Recorder* recorder) {
+    SkASSERT(recorder);
+    SkASSERT(fFinalized);
+    SkDEBUGCODE(fFinalized = false;)
+    return this->finalizeStorageBuffer(recorder);
+}
+
+BindBufferInfo StorageContext::finalizeStorageBuffer(Recorder* recorder) {
+    SkASSERT(recorder);
+    DrawBufferManager* bufferMgr = recorder->priv().drawBufferManager();
+    SkASSERT(bufferMgr);
+
+    if (this->isEmpty()) {
+        return BindBufferInfo{};
+    }
+
     size_t totalBytes = fGradientCache.fGradientDataSize + fVertexData.size_bytes();
 
     BindBufferInfo result;
@@ -166,8 +217,78 @@ BindBufferInfo StorageContext::finalize(DrawBufferManager* bufferMgr) {
         }
     }
 
-    SkDEBUGCODE(fGradientsFinalized = false;)
     return result;
+}
+
+// TODO (thomsmit): Currently UploadSource holds its own copy of the data. Create an alternative
+// path for uploading which allows writing to the mapped gpu buffer directly.
+sk_sp<TextureProxy> StorageContext::finalizeTexture(Recorder* recorder, DrawTask* drawTask) {
+    if (this->isEmpty()) {
+        return nullptr;
+    }
+
+    size_t gradSize = fGradientCache.fGradientDataSize;
+    size_t vertSize = fVertexData.size_bytes();
+    size_t totalBytes = gradSize + vertSize;
+    if (totalBytes == 0) {
+        return nullptr;
+    }
+
+    int totalTexels = (totalBytes + kTexelBytes - 1) / kTexelBytes;
+    int width = std::min(totalTexels, fMaxFallbackTextureSize);
+    int height = (totalTexels + fMaxFallbackTextureSize - 1) / fMaxFallbackTextureSize;
+    if (height > fMaxFallbackTextureSize) {
+        return nullptr;
+    }
+
+    int atlasRowBytes = width * kTexelBytes;
+    size_t paddedBytes = static_cast<size_t>(height) * atlasRowBytes;
+    SkTDArray<char> uploadBuffer;
+    uploadBuffer.resize(paddedBytes);
+    memset(uploadBuffer.data(), 0, paddedBytes);
+
+    if (gradSize > 0) {
+        memcpy(uploadBuffer.data(), fGradientCache.fGradientData.data(),
+               fGradientCache.fGradientData.size_bytes());
+    }
+
+    if (!fVertexData.empty()) {
+        memcpy(uploadBuffer.data() + gradSize, fVertexData.data(), fVertexData.size_bytes());
+    }
+
+    sk_sp<TextureProxy> proxy = create_texture_proxy(recorder, width, height);
+    if (!proxy) {
+        return nullptr;
+    }
+
+    MipLevel level;
+    level.fPixels = uploadBuffer.data();
+    level.fRowBytes = atlasRowBytes;
+    SkIRect dstRect = SkIRect::MakeWH(width, height);
+
+    Swizzle readSwizzle = ReadSwizzleForColorType(StorageContext::kColorType, proxy->format());
+    TextureProxyView proxyView(std::move(proxy), readSwizzle);
+
+    SkColorInfo colorInfo(StorageContext::kColorType, kPremul_SkAlphaType, nullptr);
+    UploadSource source = UploadSource::Make(recorder->priv().caps(),
+                                             proxyView,
+                                             colorInfo,
+                                             colorInfo,
+                                             SkSpan<const MipLevel>(&level, 1),
+                                             dstRect);
+
+    UploadInstance uploadInstance = UploadInstance::Make(recorder, source, nullptr);
+    if (!uploadInstance.isValid()) {
+        return nullptr;
+    }
+
+    sk_sp<Task> uploadTask = UploadTask::Make(std::move(uploadInstance));
+    if (!uploadTask) {
+        return nullptr;
+    }
+    drawTask->addTask(std::move(uploadTask));
+
+    return proxyView.refProxy();
 }
 
 }  // namespace skgpu::graphite

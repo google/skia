@@ -76,7 +76,7 @@ void Caps::finishInitialization(const ContextOptions& options) {
 
     constexpr int kMaxFallbackTextureSize = 8192;
     fResourceBindingReqs.fMaxFallbackTextureSize =
-            std::min(kMaxFallbackTextureSize, fMaxTextureSize);
+            std::max(std::min(kMaxFallbackTextureSize, fMaxTextureSize), 1);
 
     constexpr int kBytesPerTexel = 16;  // 4 floats (RGBA32F) per fallback texel
     fResourceBindingReqs.fMaxFallbackTextureBytes =
