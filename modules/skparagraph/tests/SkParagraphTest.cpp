@@ -370,6 +370,221 @@ UNIX_ONLY_TEST(SkParagraph_Rounding_Off_LineBreaks, reporter) {
     }
 }
 
+DEF_TEST(SkParagraph_PlaceholderLogicalOrder, reporter) {
+    // No external fonts are required: the paragraph contains only placeholders.
+    // Regression test for https://github.com/flutter/flutter/issues/54400.
+    for (auto direction : {TextDirection::kLtr, TextDirection::kRtl}) {
+        ParagraphStyle style;
+        style.setTextDirection(direction);
+        ParagraphBuilderImpl builder(style, sk_make_sp<FontCollection>(), get_unicode());
+        for (SkScalar width : {30, 50, 70}) {
+            builder.addPlaceholder(PlaceholderStyle(
+                    width, 20, PlaceholderAlignment::kBottom, TextBaseline::kAlphabetic, 0));
+        }
+        auto paragraph = builder.Build();
+        // Re-layout the same paragraph to exercise both wrapping and cached shaping.
+        for (SkScalar width : {500, 80, 500}) {
+            paragraph->layout(width);
+            auto boxes = paragraph->getRectsForPlaceholders();
+            REPORTER_ASSERT(reporter, boxes.size() == 3);
+            if (boxes.size() != 3) {
+                continue;
+            }
+            for (size_t i = 0; i < boxes.size(); ++i) {
+                REPORTER_ASSERT(reporter, boxes[i].rect.width() == 30 + 20 * i);
+                REPORTER_ASSERT(reporter, boxes[i].rect.height() == 20);
+                REPORTER_ASSERT(reporter, boxes[i].direction == direction);
+                auto range = paragraph->getRectsForRange(
+                        i, i + 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
+                REPORTER_ASSERT(reporter, range.size() == 1);
+                if (range.size() == 1) {
+                    REPORTER_ASSERT(reporter, range[0].rect == boxes[i].rect);
+                }
+            }
+            if (direction == TextDirection::kRtl) {
+                REPORTER_ASSERT(reporter, boxes[0].rect.left() == width - 30);
+                REPORTER_ASSERT(reporter, boxes[1].rect.left() == width - 80);
+                REPORTER_ASSERT(reporter, boxes[2].rect.left() == width - (width == 80 ? 70 : 150));
+            } else {
+                REPORTER_ASSERT(reporter, boxes[0].rect.left() == 0);
+                REPORTER_ASSERT(reporter, boxes[1].rect.left() == 30);
+                REPORTER_ASSERT(reporter, boxes[2].rect.left() == (width == 80 ? 0 : 80));
+            }
+            REPORTER_ASSERT(reporter, boxes[0].rect.top() == boxes[1].rect.top());
+            if (width == 80) {
+                REPORTER_ASSERT(reporter, boxes[2].rect.top() > boxes[1].rect.top());
+            } else {
+                REPORTER_ASSERT(reporter, boxes[2].rect.top() == boxes[1].rect.top());
+            }
+        }
+    }
+}
+
+DEF_TEST(SkParagraph_PlaceholderLogicalOrderMixedDirections, reporter) {
+    for (auto direction : {TextDirection::kLtr, TextDirection::kRtl}) {
+        auto fonts = sk_make_sp<FontCollection>();
+        fonts->setDefaultFontManager(ToolUtils::TestFontMgr());
+        ParagraphStyle style;
+        style.setTextDirection(direction);
+        ParagraphBuilderImpl builder(style, fonts, get_unicode());
+        auto add = [&builder](SkScalar width) {
+            builder.addPlaceholder(PlaceholderStyle(
+                    width, 20, PlaceholderAlignment::kBottom, TextBaseline::kAlphabetic, 0));
+        };
+        add(30);
+        // Put two placeholders in an embedding opposite to the paragraph direction.
+        builder.addText(direction == TextDirection::kRtl ? u"\u202a" : u"\u202b");
+        add(50);
+        add(70);
+        builder.addText(u"\u202c");
+        add(90);
+        auto paragraph = builder.Build();
+        paragraph->layout(500);
+        auto boxes = paragraph->getRectsForPlaceholders();
+        REPORTER_ASSERT(reporter, boxes.size() == 4);
+        if (boxes.size() != 4) {
+            continue;
+        }
+        const SkScalar ltrLeft[] = {0, 100, 30, 150};
+        const SkScalar rtlLeft[] = {470, 350, 400, 260};
+        const unsigned offsets[] = {0, 2, 3, 5};
+        for (size_t i = 0; i < boxes.size(); ++i) {
+            REPORTER_ASSERT(reporter,
+                            boxes[i].rect.left() ==
+                                    (direction == TextDirection::kRtl ? rtlLeft[i] : ltrLeft[i]));
+            REPORTER_ASSERT(reporter, boxes[i].rect.width() == 30 + 20 * i);
+            auto range = paragraph->getRectsForRange(
+                    offsets[i], offsets[i] + 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
+            REPORTER_ASSERT(reporter, range.size() == 1);
+            if (range.size() == 1) {
+                REPORTER_ASSERT(reporter, range[0].rect == boxes[i].rect);
+                REPORTER_ASSERT(reporter, range[0].direction == boxes[i].direction);
+            }
+            const auto& box = boxes[i];
+            SkScalar startX = box.direction == TextDirection::kRtl
+                                      ? box.rect.right() - box.rect.width() / 4
+                                      : box.rect.left() + box.rect.width() / 4;
+            auto position = paragraph->getGlyphPositionAtCoordinate(startX, box.rect.centerY());
+            REPORTER_ASSERT(reporter,
+                            position.position == SkToS32(offsets[i]),
+                            "base=%d placeholder=%zu expected=%u actual=%d x=%g direction=%d",
+                            static_cast<int>(direction),
+                            i,
+                            offsets[i],
+                            position.position,
+                            startX,
+                            static_cast<int>(box.direction));
+            SkScalar endX = box.rect.left() + box.rect.right() - startX;
+            auto endPosition = paragraph->getGlyphPositionAtCoordinate(endX, box.rect.centerY());
+            REPORTER_ASSERT(reporter, endPosition.position == SkToS32(offsets[i] + 1));
+        }
+    }
+}
+
+DEF_TEST(SkParagraph_PlaceholderLogicalOrderMaxLines, reporter) {
+    ParagraphStyle style;
+    style.setTextDirection(TextDirection::kRtl);
+    style.setMaxLines(1);
+    ParagraphBuilderImpl builder(style, sk_make_sp<FontCollection>(), get_unicode());
+    for (SkScalar width : {30, 50, 70}) {
+        builder.addPlaceholder(PlaceholderStyle(
+                width, 20, PlaceholderAlignment::kBottom, TextBaseline::kAlphabetic, 0));
+    }
+    auto paragraph = builder.Build();
+    paragraph->layout(80);
+    auto boxes = paragraph->getRectsForPlaceholders();
+    REPORTER_ASSERT(reporter, boxes.size() == 2);
+    if (boxes.size() == 2) {
+        REPORTER_ASSERT(reporter, boxes[0].rect.left() == 50);
+        REPORTER_ASSERT(reporter, boxes[0].rect.width() == 30);
+        REPORTER_ASSERT(reporter, boxes[1].rect.left() == 0);
+        REPORTER_ASSERT(reporter, boxes[1].rect.width() == 50);
+    }
+}
+
+DEF_TEST(SkParagraph_PlaceholderLogicalOrderLanguages, reporter) {
+    auto fonts = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fonts)
+    struct Sample {
+        std::u16string word;
+        TextDirection direction;
+    };
+    const Sample russian{u"мир", TextDirection::kLtr};
+    const Sample arabic{u"نص", TextDirection::kRtl};
+    const std::vector<std::vector<Sample>> samples = {{russian}, {arabic}, {russian, arabic}};
+    for (const auto& sample : samples) {
+        for (auto direction : {TextDirection::kLtr, TextDirection::kRtl}) {
+            ParagraphStyle style;
+            style.setTextDirection(direction);
+            TextStyle textStyle;
+            textStyle.setFontSize(10);
+            textStyle.setFontStyle(
+                    SkFontStyle(500, SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant));
+            // Reuse fonts already present in the skparagraph asset.
+            textStyle.setFontFamilies({SkString("Roboto"), SkString("Noto Naskh Arabic")});
+            style.setTextStyle(textStyle);
+            ParagraphBuilderImpl builder(style, fonts, get_unicode());
+            std::vector<unsigned> offsets;
+            unsigned offset = 0;
+            for (const auto& script : sample) {
+                for (int i = 0; i < 3; ++i) {
+                    auto text = script.word + u" ";
+                    builder.addText(text);
+                    offset += text.size();
+                    if (i < 2) {
+                        offsets.push_back(offset++);
+                        builder.addPlaceholder(PlaceholderStyle(10 + 10 * offsets.size(),
+                                                                20,
+                                                                PlaceholderAlignment::kBottom,
+                                                                TextBaseline::kAlphabetic,
+                                                                0));
+                    }
+                }
+            }
+            auto paragraph = builder.Build();
+            for (SkScalar width : {800, 80, 800}) {
+                paragraph->layout(width);
+                // The pinned font asset must cover all scripts, with no system fallback.
+                REPORTER_ASSERT(reporter, paragraph->unresolvedGlyphs() == 0);
+                auto boxes = paragraph->getRectsForPlaceholders();
+                REPORTER_ASSERT(reporter, boxes.size() == offsets.size());
+                if (boxes.size() != offsets.size()) {
+                    continue;
+                }
+                for (size_t i = 0; i < boxes.size(); ++i) {
+                    REPORTER_ASSERT(
+                            reporter,
+                            SkScalarNearlyEqual(boxes[i].rect.width(), 20 + 10 * i, EPSILON1000));
+                    REPORTER_ASSERT(reporter, boxes[i].direction == sample[i / 2].direction);
+                    auto range = paragraph->getRectsForRange(offsets[i],
+                                                             offsets[i] + 1,
+                                                             RectHeightStyle::kTight,
+                                                             RectWidthStyle::kTight);
+                    REPORTER_ASSERT(reporter, range.size() == 1);
+                    if (range.size() == 1) {
+                        REPORTER_ASSERT(reporter, range[0].rect == boxes[i].rect);
+                    }
+                    const auto& box = boxes[i];
+                    SkScalar startX = box.direction == TextDirection::kRtl
+                                              ? box.rect.right() - box.rect.width() / 4
+                                              : box.rect.left() + box.rect.width() / 4;
+                    auto start =
+                            paragraph->getGlyphPositionAtCoordinate(startX, box.rect.centerY());
+                    auto end = paragraph->getGlyphPositionAtCoordinate(
+                            box.rect.left() + box.rect.right() - startX, box.rect.centerY());
+                    REPORTER_ASSERT(reporter, start.position == SkToS32(offsets[i]));
+                    REPORTER_ASSERT(reporter, end.position == SkToS32(offsets[i] + 1));
+                    if (width == 800 && i % 2 == 0) {
+                        REPORTER_ASSERT(reporter,
+                                        (boxes[i].rect.left() < boxes[i + 1].rect.left()) ==
+                                                (sample[i / 2].direction == TextDirection::kLtr));
+                    }
+                }
+            }
+        }
+    }
+}
+
 UNIX_ONLY_TEST(SkParagraph_InlinePlaceholderParagraph, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_InlinePlaceholderParagraph.png");

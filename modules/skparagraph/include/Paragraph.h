@@ -52,6 +52,8 @@ public:
                                                   RectHeightStyle rectHeightStyle,
                                                   RectWidthStyle rectWidthStyle) = 0;
 
+    // Returns boxes for visible placeholders in the order they were added to the builder,
+    // regardless of their visual order after bidirectional text layout.
     virtual std::vector<TextBox> getRectsForPlaceholders() = 0;
 
     // Returns the index of the glyph that corresponds to the provided coordinate,
