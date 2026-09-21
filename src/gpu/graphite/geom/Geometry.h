@@ -47,7 +47,7 @@ public:
         kEdgeAAQuad,
         kCoverageMaskShape,
         kAnalyticBlur,
-        kAnalyticRRectBlur
+        kAnalyticRRectBlur,
 #if defined(SK_ENABLE_SPARSE_STRIPS)
         kWideTiles,
         kEndCaps,
