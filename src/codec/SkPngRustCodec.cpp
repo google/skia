@@ -9,6 +9,7 @@
 
 #include <limits>
 #include <memory>
+#include <tuple>
 #include <utility>
 
 #include "include/core/SkColorSpace.h"
@@ -868,6 +869,8 @@ bool SkPngRustCodec::supportsSamplingOrSubsetting() {
     return frame && frame->frameRect() == this->bounds();
 }
 
+void SkPngRustCodec::finishStreamAfterLastFrame() { std::ignore = fReader->finish_decoding(); }
+
 // Given the dstInfo and the rust colortype/bits per component, determines if we
 // can use rust_png::Reader::read_row to decode directly into dst.
 bool SkPngRustCodec::canReadRow() {
@@ -929,22 +932,30 @@ SkCodec::Result SkPngRustCodec::incrementalDecodeXForm(DecodingState& decodingSt
     const int sampleY = this->swizzler() ? this->swizzler()->sampleY() : 1;
     const int dstHeight = SkCodecPriv::GetSampledDimension(srcHeight, sampleY);
 
+    // A non-interlaced partial decode stops once it has written the rows it needs, leaving the
+    // rest of the frame (and everything after it) unread. Interlaced decodes always walk the whole
+    // frame, because every Adam7 pass has to be read before any row is final.
+    const bool partialDecode = subset || isSampling;
+    const bool stopsBeforeEndOfFrame = partialDecode && !interlaced;
+
     while (true) {
         rust::Slice<const uint8_t> decodedRow;
         fStreamIsPositionedAtStartOfFrameData = false;
-        Result result = ToSkCodecResult(fReader->next_interlaced_row(decodedRow));
-        if (result != kSuccess) {
-            if (result == kIncompleteInput && rowsDecodedPtr) {
-                *rowsDecodedPtr = decodingState.fRowsWrittenToOutput;
+        if (!stopsBeforeEndOfFrame || decodingState.fRowsWrittenToOutput < dstHeight) {
+            Result result = ToSkCodecResult(fReader->next_interlaced_row(decodedRow));
+            if (result != kSuccess) {
+                if (result == kIncompleteInput && rowsDecodedPtr) {
+                    *rowsDecodedPtr = decodingState.fRowsWrittenToOutput;
+                }
+                return result;
             }
-            return result;
         }
 
         // This is how FFI layer says "no more rows", or if we have decoded all the rows
         // we need for our subset or sampling.
-        if (decodedRow.empty() || decodingState.fRowsWrittenToOutput >= dstHeight) {
+        if (decodedRow.empty()) {
             if (interlaced && !decodingState.fPreblendBuffer.empty()) {
-                if (subset || isSampling) {
+                if (partialDecode) {
                     this->getSubsetOrSampleFromFullImage(
                             SkSpan<uint8_t>(decodingState.fPreblendBuffer),
                             decodingDst.fDst,
@@ -962,15 +973,18 @@ SkCodec::Result SkPngRustCodec::incrementalDecodeXForm(DecodingState& decodingSt
                                  this->dstInfo().alphaType());
                 }
             }
-            if (!interlaced && !subset && !isSampling) {
+            if (!interlaced && !partialDecode) {
                 // All of the original `fDst` should be filled out at this point.
                 SkASSERT_RELEASE(decodingDst.fDst.empty());
             }
 
-            // `static_cast` is ok, because `startDecoding` already validated `fFrameIndex`.
-            fFrameHolder.markFrameAsFullyReceived(static_cast<size_t>(this->options().fFrameIndex));
-            if (this->isLastFrame()) {
-                return ToSkCodecResult(fReader->finish_decoding());
+            if (!stopsBeforeEndOfFrame) {
+                // `static_cast` is ok, because `startDecoding` already validated `fFrameIndex`.
+                fFrameHolder.markFrameAsFullyReceived(
+                        static_cast<size_t>(this->options().fFrameIndex));
+            }
+            if (!partialDecode && this->isLastFrame()) {
+                this->finishStreamAfterLastFrame();
             }
             return kSuccess;
         }
@@ -980,7 +994,7 @@ SkCodec::Result SkPngRustCodec::incrementalDecodeXForm(DecodingState& decodingSt
                 this->expandDecodedInterlacedRow(
                     decodingDst.fDst, decodedRow, decodingDst, /*xFormNeeded=*/true);
             } else {
-                if (subset || isSampling) {
+                if (partialDecode) {
                     SkSafeMath safe;
                     uint8_t encodedBytesPerPixel = safe.castTo<uint8_t>(this->getEncodedInfo()
                                                       .makeImageInfo()
@@ -1091,7 +1105,8 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
             // `static_cast` is ok, because `startDecoding` already validated `fFrameIndex`.
             fFrameHolder.markFrameAsFullyReceived(static_cast<size_t>(this->options().fFrameIndex));
             if (this->isLastFrame()) {
-                return ToSkCodecResult(fReader->finish_decoding());
+                // No partial-decode check here: `canReadRow` rules out subsets and sampling.
+                this->finishStreamAfterLastFrame();
             }
             return kSuccess;
         }

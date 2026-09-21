@@ -168,6 +168,11 @@ private:
     // (only static full-canvas images are supported; APNG animations and
     // offset frames are unsupported).
     bool supportsSamplingOrSubsetting();
+    // Leaves the stream just past `IEND` so that callers can keep reading it (see `Codec_end`).
+    // Like libpng, partial decodes skip this and stop early. Errors are ignored: the scanlines and
+    // the `IDAT` CRC are verified already, and libpng also tolerates a damaged tail (it checks the
+    // `IEND` CRC as if it were ancillary). No-op unless the codec is built `for_android`.
+    void finishStreamAfterLastFrame();
 
     // SkCodec overrides:
     Result onGetPixels(const SkImageInfo& dstInfo,
