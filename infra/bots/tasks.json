@@ -28937,7 +28937,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:RD1A.200810.022.A4",
+        "device_os:SP2A.220305.012",
         "device_type:redfin",
         "os:Android",
         "pool:Skia"
@@ -29019,7 +29019,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:RD1A.200810.022.A4",
+        "device_os:SP2A.220305.012",
         "device_type:redfin",
         "os:Android",
         "pool:Skia"
@@ -29101,7 +29101,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:RD1A.200810.022.A4",
+        "device_os:SP2A.220305.012",
         "device_type:redfin",
         "os:Android",
         "pool:Skia"
@@ -29183,7 +29183,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:RD1A.200810.022.A4",
+        "device_os:SP2A.220305.012",
         "device_type:redfin",
         "os:Android",
         "pool:Skia"
@@ -44250,7 +44250,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:RD1A.200810.022.A4",
+        "device_os:SP2A.220305.012",
         "device_type:redfin",
         "os:Android",
         "pool:Skia"
@@ -44332,7 +44332,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:RD1A.200810.022.A4",
+        "device_os:SP2A.220305.012",
         "device_type:redfin",
         "os:Android",
         "pool:Skia"
@@ -44414,7 +44414,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:RD1A.200810.022.A4",
+        "device_os:SP2A.220305.012",
         "device_type:redfin",
         "os:Android",
         "pool:Skia"

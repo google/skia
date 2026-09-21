@@ -854,7 +854,7 @@ var androidDeviceInfos = map[string][]string{
 	"Pixel4":          {"flame", "RPB2.200611.009"}, // R Preview
 	"Pixel4a":         {"sunfish", "AOSP.MASTER"},   // Pixel4a flashed with an Android HWASan build.
 	"Pixel4XL":        {"coral", "QD1A.190821.011.C4"},
-	"Pixel5":          {"redfin", "RD1A.200810.022.A4"},
+	"Pixel5":          {"redfin", "SP2A.220305.012"},
 	"Pixel6":          {"oriole", "SD1A.210817.037"},
 	"Pixel7":          {"panther", "AP4A.241205.013"},
 	"Pixel7Pro":       {"cheetah", "TD1A.221105.002"},
