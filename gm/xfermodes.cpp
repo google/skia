@@ -26,6 +26,8 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 enum SrcType {
     //! A WxH image with a rectangle in the lower right.
     kRectangleImage_SrcType               = 0x01,
@@ -48,7 +50,7 @@ enum SrcType {
     kBasic_SrcType                        = 0x03, //!< Just basic source types.
 };
 
-const struct {
+struct Modes {
     SkBlendMode fMode;
     int         fSourceTypeMask;  // The source types to use this
                                   // mode with. See draw_mode for
@@ -56,38 +58,39 @@ const struct {
                                   // PDF has to play some tricks
                                   // to support the base modes,
                                   // test those more extensively.
-} gModes[] = {
-    { SkBlendMode::kClear,        kAll_SrcType   },
-    { SkBlendMode::kSrc,          kAll_SrcType   },
-    { SkBlendMode::kDst,          kAll_SrcType   },
-    { SkBlendMode::kSrcOver,      kAll_SrcType   },
-    { SkBlendMode::kDstOver,      kAll_SrcType   },
-    { SkBlendMode::kSrcIn,        kAll_SrcType   },
-    { SkBlendMode::kDstIn,        kAll_SrcType   },
-    { SkBlendMode::kSrcOut,       kAll_SrcType   },
-    { SkBlendMode::kDstOut,       kAll_SrcType   },
-    { SkBlendMode::kSrcATop,      kAll_SrcType   },
-    { SkBlendMode::kDstATop,      kAll_SrcType   },
-
-    { SkBlendMode::kXor,          kBasic_SrcType },
-    { SkBlendMode::kPlus,         kBasic_SrcType },
-    { SkBlendMode::kModulate,     kAll_SrcType   },
-    { SkBlendMode::kScreen,       kBasic_SrcType },
-    { SkBlendMode::kOverlay,      kBasic_SrcType },
-    { SkBlendMode::kDarken,       kBasic_SrcType },
-    { SkBlendMode::kLighten,      kBasic_SrcType },
-    { SkBlendMode::kColorDodge,   kBasic_SrcType },
-    { SkBlendMode::kColorBurn,    kBasic_SrcType },
-    { SkBlendMode::kHardLight,    kBasic_SrcType },
-    { SkBlendMode::kSoftLight,    kBasic_SrcType },
-    { SkBlendMode::kDifference,   kBasic_SrcType },
-    { SkBlendMode::kExclusion,    kBasic_SrcType },
-    { SkBlendMode::kMultiply,     kAll_SrcType   },
-    { SkBlendMode::kHue,          kBasic_SrcType },
-    { SkBlendMode::kSaturation,   kBasic_SrcType },
-    { SkBlendMode::kColor,        kBasic_SrcType },
-    { SkBlendMode::kLuminosity,   kBasic_SrcType },
 };
+const auto gModes = std::to_array<Modes>({
+        Modes{     SkBlendMode::kClear,   kAll_SrcType},
+        Modes{       SkBlendMode::kSrc,   kAll_SrcType},
+        Modes{       SkBlendMode::kDst,   kAll_SrcType},
+        Modes{   SkBlendMode::kSrcOver,   kAll_SrcType},
+        Modes{   SkBlendMode::kDstOver,   kAll_SrcType},
+        Modes{     SkBlendMode::kSrcIn,   kAll_SrcType},
+        Modes{     SkBlendMode::kDstIn,   kAll_SrcType},
+        Modes{    SkBlendMode::kSrcOut,   kAll_SrcType},
+        Modes{    SkBlendMode::kDstOut,   kAll_SrcType},
+        Modes{   SkBlendMode::kSrcATop,   kAll_SrcType},
+        Modes{   SkBlendMode::kDstATop,   kAll_SrcType},
+
+        Modes{       SkBlendMode::kXor, kBasic_SrcType},
+        Modes{      SkBlendMode::kPlus, kBasic_SrcType},
+        Modes{  SkBlendMode::kModulate,   kAll_SrcType},
+        Modes{    SkBlendMode::kScreen, kBasic_SrcType},
+        Modes{   SkBlendMode::kOverlay, kBasic_SrcType},
+        Modes{    SkBlendMode::kDarken, kBasic_SrcType},
+        Modes{   SkBlendMode::kLighten, kBasic_SrcType},
+        Modes{SkBlendMode::kColorDodge, kBasic_SrcType},
+        Modes{ SkBlendMode::kColorBurn, kBasic_SrcType},
+        Modes{ SkBlendMode::kHardLight, kBasic_SrcType},
+        Modes{ SkBlendMode::kSoftLight, kBasic_SrcType},
+        Modes{SkBlendMode::kDifference, kBasic_SrcType},
+        Modes{ SkBlendMode::kExclusion, kBasic_SrcType},
+        Modes{  SkBlendMode::kMultiply,   kAll_SrcType},
+        Modes{       SkBlendMode::kHue, kBasic_SrcType},
+        Modes{SkBlendMode::kSaturation, kBasic_SrcType},
+        Modes{     SkBlendMode::kColor, kBasic_SrcType},
+        Modes{SkBlendMode::kLuminosity, kBasic_SrcType},
+});
 
 static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst,
                          SkBitmap* transparent) {

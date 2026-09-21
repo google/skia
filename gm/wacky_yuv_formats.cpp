@@ -64,10 +64,11 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #endif
 
-#include <math.h>
-#include <string.h>
+#include <array>
 #include <initializer_list>
+#include <math.h>
 #include <memory>
+#include <string.h>
 #include <utility>
 #include <vector>
 
@@ -699,12 +700,13 @@ static int create_YUV(const PlaneData& planes,
 }
 
 static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaque) {
-    static const char* kYUVColorSpaceNames[] = {
+    static constexpr auto kYUVColorSpaceNames = std::to_array<const char*>({
             "JPEG",      "601",       "709F",      "709L",      "2020_8F",   "2020_8L",
             "2020_10F",  "2020_10L",  "2020_12F",  "2020_12L",  "2020_16F",  "2020_16L",
             "FCCF",      "FCCL",      "SMPTE240F", "SMPTE240L", "YDZDXF",    "YDZDXL",
             "GBRF",      "GBRL",      "YCGCO_8F",  "YCGCO_8L",  "YCGCO_10F", "YCGCO_10L",
-            "YCGCO_12F", "YCGCO_12L", "YCGCO_16F", "YCGCO_16L", "Identity"};
+            "YCGCO_12F", "YCGCO_12L", "YCGCO_16F", "YCGCO_16L", "Identity",
+    });
     static_assert(std::size(kYUVColorSpaceNames) == kLastEnum_SkYUVColorSpace + 1);
 
     SkPaint paint;
@@ -729,9 +731,18 @@ static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaq
 }
 
 static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
-    static const char* kYUVFormatNames[] = {
-        "P016", "P010", "P016F", "Y416", "AYUV", "Y410", "NV12", "NV21", "I420", "YV12"
-    };
+    static constexpr auto kYUVFormatNames = std::to_array<const char*>({
+            "P016",
+            "P010",
+            "P016F",
+            "Y416",
+            "AYUV",
+            "Y410",
+            "NV12",
+            "NV21",
+            "I420",
+            "YV12",
+    });
     static_assert(std::size(kYUVFormatNames) == kLast_YUVFormat + 1);
 
     SkPaint paint;
@@ -758,7 +769,6 @@ static sk_sp<SkColorFilter> yuv_to_rgb_colorfilter() {
 
     return SkColorFilters::Matrix(kJPEGConversionMatrix);
 }
-
 
 namespace skiagm {
 
@@ -1017,8 +1027,15 @@ protected:
     }
 
 private:
-    SkBitmap                   fOriginalBMs[2];
-    sk_sp<SkImage>             fImages[2][kLastEnum_SkYUVColorSpace + 1][kLast_YUVFormat + 1];
+    // Number of opacity variants (transparent, opaque) stored for each image.
+    static constexpr int kNumOpacities = 2;
+
+    using ImagesByFormat     = std::array<sk_sp<SkImage>, kLast_YUVFormat + 1>;
+    using ImagesByColorSpace = std::array<ImagesByFormat, kLastEnum_SkYUVColorSpace + 1>;
+
+    std::array<SkBitmap, kNumOpacities> fOriginalBMs;
+    // Indexed as fImages[opaque][colorSpace][format].
+    std::array<ImagesByColorSpace, kNumOpacities> fImages;
     bool                       fUseLimitedRange;
     bool                       fUseTargetColorSpace;
     bool                       fUseSubset;
@@ -1277,8 +1294,8 @@ protected:
     }
 
 private:
-    SkBitmap fOriginalBMs[2];
-    sk_sp<SkImage> fImages[2][2];
+    std::array<SkBitmap, 2> fOriginalBMs;
+    std::array<std::array<sk_sp<SkImage>, 2>, 2> fImages;
     sk_sp<SkColorSpace> fTargetColorSpace;
 
     using INHERITED = GM;

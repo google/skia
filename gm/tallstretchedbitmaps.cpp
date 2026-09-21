@@ -19,6 +19,8 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkRandom.h"
 
+#include <array>
+
 int make_bm(SkBitmap* bm, int height) {
     constexpr int kRadius = 22;
     constexpr int kMargin = 8;
@@ -99,10 +101,11 @@ protected:
     }
 
 private:
-    struct {
+    struct FTallBmps {
         SkBitmap fBmp;
         int      fItemCnt;
-    } fTallBmps[8];
+    };
+    std::array<FTallBmps, 8> fTallBmps;
     using INHERITED = skiagm::GM;
 };
 

@@ -26,6 +26,7 @@
 #include "tools/Resources.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
 #include <string.h>
 #include <utility>
 
@@ -87,18 +88,18 @@ static void drawKernText(SkCanvas* canvas, const void* text, size_t len,
     canvas->drawTextBlob(builder.make(), 0, 0, paint);
 }
 
-static constexpr SkFontStyle gStyles[] = {
-    SkFontStyle::Normal(),
-    SkFontStyle::Bold(),
-    SkFontStyle::Italic(),
-    SkFontStyle::BoldItalic(),
-};
+static constexpr auto gStyles = std::to_array<SkFontStyle>({
+        SkFontStyle::Normal(),
+        SkFontStyle::Bold(),
+        SkFontStyle::Italic(),
+        SkFontStyle::BoldItalic(),
+});
 
 constexpr int gStylesCount = std::size(gStyles);
 
 // TODO(bungeman) delete this GM, as it is no longer useful.
 class TypefaceStylesGM : public skiagm::GM {
-    sk_sp<SkTypeface> fFaces[gStylesCount];
+    std::array<sk_sp<SkTypeface>, gStylesCount> fFaces;
     bool fApplyKerning;
 
 public:

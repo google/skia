@@ -20,6 +20,9 @@
 #include "src/core/SkGeometry.h"
 #include "src/core/SkRandom.h"
 
+#include <array>
+#include <limits>
+
 static constexpr float kStrokeWidth = 30;
 static constexpr int kCellSize = 200;
 static constexpr int kNumCols = 5;
@@ -34,41 +37,62 @@ enum class CellFillMode {
 
 struct TrickyCubic {
     SkPoint fPoints[4];
-    int fNumPts;
     CellFillMode fFillMode;
+    // Entries with 3 points are quads/conics: fPoints[3].fX holds the conic weight (1 == quad)
+    // and fPoints[3].fY is unused.
+    int fNumPts = 4;
     float fScale = 1;
 };
 
+static constexpr CellFillMode kStretch = CellFillMode::kStretch;
+static constexpr CellFillMode kCenter = CellFillMode::kCenter;
+static constexpr float kNaN = std::numeric_limits<float>::quiet_NaN();
+
 // This is a compilation of cubics that have given strokers grief. Feel free to add more.
-static const TrickyCubic kTrickyCubics[] = {
-    {{{122, 737}, {348, 553}, {403, 761}, {400, 760}}, 4, CellFillMode::kStretch},
-    {{{244, 520}, {244, 518}, {1141, 634}, {394, 688}}, 4, CellFillMode::kStretch},
-    {{{550, 194}, {138, 130}, {1035, 246}, {288, 300}}, 4, CellFillMode::kStretch},
-    {{{226, 733}, {556, 779}, {-43, 471}, {348, 683}}, 4, CellFillMode::kStretch},
-    {{{268, 204}, {492, 304}, {352, 23}, {433, 412}}, 4, CellFillMode::kStretch},
-    {{{172, 480}, {396, 580}, {256, 299}, {338, 677}}, 4, CellFillMode::kStretch},
-    {{{731, 340}, {318, 252}, {1026, -64}, {367, 265}}, 4, CellFillMode::kStretch},
-    {{{475, 708}, {62, 620}, {770, 304}, {220, 659}}, 4, CellFillMode::kStretch},
-    {{{0, 0}, {128, 128}, {128, 0}, {0, 128}}, 4, CellFillMode::kCenter},  // Perfect cusp
-    {{{0,.01f}, {128,127.999f}, {128,.01f}, {0,127.99f}}, 4, CellFillMode::kCenter},  // Near-cusp
-    {{{0,-.01f}, {128,128.001f}, {128,-.01f}, {0,128.001f}}, 4, CellFillMode::kCenter}, // Near-cusp
-    {{{0,0}, {0,-10}, {0,-10}, {0,10}}, 4, CellFillMode::kCenter, 1.098283f},  // Flat line with 180
-    {{{10,0}, {0,0}, {20,0}, {10,0}}, 4, CellFillMode::kStretch},  // Flat line with 2 180s
-    {{{39,-39}, {40,-40}, {40,-40}, {0,0}}, 4, CellFillMode::kStretch},  // Flat diagonal with 180
-    {{{39,-39}, {40,-40}, {37,-39}, {0,0}}, 4, CellFillMode::kStretch},  // Near-flat diagonal
-    {{{40, 40}, {0, 0}, {200, 200}, {0, 0}}, 4, CellFillMode::kStretch},  // Diag w/ an internal 180
-    {{{0,0}, {1e-2f,0}, {-1e-2f,0}, {0,0}}, 4, CellFillMode::kCenter},  // Circle
-    {{{400.75f,100.05f}, {400.75f,100.05f}, {100.05f,300.95f}, {100.05f,300.95f}}, 4,
-     CellFillMode::kStretch},  // Flat line with no turns
-    {{{0.5f,0}, {0,0}, {20,0}, {10,0}}, 4, CellFillMode::kStretch},  // Flat line with 2 180s
-    {{{10,0}, {0,0}, {10,0}, {10,0}}, 4, CellFillMode::kStretch},  // Flat line with a 180
-    {{{1,1}, {2,1}, {1,1}, {1, std::numeric_limits<float>::quiet_NaN()}}, 3,
-     CellFillMode::kStretch},  // Flat QUAD with a cusp
-    {{{1,1}, {100,1}, {25,1}, {.3f, std::numeric_limits<float>::quiet_NaN()}}, 3,
-     CellFillMode::kStretch},  // Flat CONIC with a cusp
-    {{{1,1}, {100,1}, {25,1}, {1.5f, std::numeric_limits<float>::quiet_NaN()}}, 3,
-     CellFillMode::kStretch},  // Flat CONIC with a cusp
-};
+// clang-format off
+static const auto kTrickyCubics = std::to_array<TrickyCubic>({
+        TrickyCubic{{{122, 737}, {348, 553}, {403, 761}, {400, 760}},           kStretch},
+        TrickyCubic{{{244, 520}, {244, 518}, {1141, 634}, {394, 688}},          kStretch},
+        TrickyCubic{{{550, 194}, {138, 130}, {1035, 246}, {288, 300}},          kStretch},
+        TrickyCubic{{{226, 733}, {556, 779}, {-43, 471}, {348, 683}},           kStretch},
+        TrickyCubic{{{268, 204}, {492, 304}, {352, 23}, {433, 412}},            kStretch},
+        TrickyCubic{{{172, 480}, {396, 580}, {256, 299}, {338, 677}},           kStretch},
+        TrickyCubic{{{731, 340}, {318, 252}, {1026, -64}, {367, 265}},          kStretch},
+        TrickyCubic{{{475, 708}, {62, 620}, {770, 304}, {220, 659}},            kStretch},
+        // Perfect cusp
+        TrickyCubic{{{0, 0}, {128, 128}, {128, 0}, {0, 128}},                   kCenter},
+        // Near-cusp
+        TrickyCubic{{{0, .01f}, {128, 127.999f}, {128, .01f}, {0, 127.99f}},    kCenter},
+        // Near-cusp
+        TrickyCubic{{{0, -.01f}, {128, 128.001f}, {128, -.01f}, {0, 128.001f}}, kCenter},
+        // Flat line with 180
+        TrickyCubic{{{0, 0}, {0, -10}, {0, -10}, {0, 10}},                      kCenter, 4,
+                    1.098283f},
+        // Flat line with 2 180s
+        TrickyCubic{{{10, 0}, {0, 0}, {20, 0}, {10, 0}},                        kStretch},
+        // Flat diagonal with 180
+        TrickyCubic{{{39, -39}, {40, -40}, {40, -40}, {0, 0}},                  kStretch},
+        // Near-flat diagonal
+        TrickyCubic{{{39, -39}, {40, -40}, {37, -39}, {0, 0}},                  kStretch},
+        // Diag w/ an internal 180
+        TrickyCubic{{{40, 40}, {0, 0}, {200, 200}, {0, 0}},                     kStretch},
+        // Circle
+        TrickyCubic{{{0, 0}, {1e-2f, 0}, {-1e-2f, 0}, {0, 0}},                  kCenter},
+        // Flat line with no turns
+        TrickyCubic{{{400.75f, 100.05f}, {400.75f, 100.05f}, {100.05f, 300.95f},
+                     {100.05f, 300.95f}},                                       kStretch},
+        // Flat line with 2 180s
+        TrickyCubic{{{0.5f, 0}, {0, 0}, {20, 0}, {10, 0}},                      kStretch},
+        // Flat line with a 180
+        TrickyCubic{{{10, 0}, {0, 0}, {10, 0}, {10, 0}},                        kStretch},
+        // Flat QUAD with a cusp
+        TrickyCubic{{{1, 1}, {2, 1}, {1, 1}, {1, kNaN}},                        kStretch, 3},
+        // Flat CONIC with a cusp
+        TrickyCubic{{{1, 1}, {100, 1}, {25, 1}, {.3f, kNaN}},                   kStretch, 3},
+        // Flat CONIC with a cusp
+        TrickyCubic{{{1, 1}, {100, 1}, {25, 1}, {1.5f, kNaN}},                  kStretch, 3},
+});
+// clang-format on
 
 static SkRect calc_tight_cubic_bounds(const SkPoint P[4], int depth=5) {
     if (0 == depth) {
@@ -110,7 +134,7 @@ static void draw_test(SkCanvas* canvas, SkPaint::Cap cap, SkPaint::Join join) {
     strokePaint.setStrokeJoin(join);
 
     for (size_t i = 0; i < std::size(kTrickyCubics); ++i) {
-        auto [originalPts, numPts, fillMode, scale] = kTrickyCubics[i];
+        auto [originalPts, fillMode, numPts, scale] = kTrickyCubics[i];
 
         SkASSERT(numPts <= 4);
         SkPoint p[4];

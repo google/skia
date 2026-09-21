@@ -27,6 +27,7 @@
 #include "src/gpu/ganesh/SkGr.h"
 #endif
 
+#include <array>
 #include <memory>
 #include <utility>
 
@@ -67,8 +68,8 @@ protected:
                                     105, 149, 160, 130};
         unsigned char innerU[4] = {43, 75, 145, 200};
         unsigned char innerV[4] = {88, 180, 200, 43};
-        int outerYUV[] = {128, 128, 128};
-        SkBitmap bitmaps[3];
+        auto outerYUV = std::to_array<int>({128, 128, 128});
+        std::array<SkBitmap, 3> bitmaps;
         for (int i = 0; i < 3; ++i) {
             bitmaps[i].installPixels(fPixmaps.plane(i));
             bitmaps[i].eraseColor(SkColorSetARGB(outerYUV[i], 0, 0, 0));
@@ -129,8 +130,8 @@ protected:
             return DrawResult::kSkip;
         }
 
-        static const SkFilterMode kFilters[] = {SkFilterMode::kNearest,
-                                                SkFilterMode::kLinear};
+        static constexpr auto kFilters =
+                std::to_array<SkFilterMode>({SkFilterMode::kNearest, SkFilterMode::kLinear});
         static const SkIRect kColorRect = SkIRect::MakeLTRB(2, 2, 6, 6);
 
         // Outset to visualize wrap modes.

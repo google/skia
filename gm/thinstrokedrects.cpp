@@ -15,6 +15,8 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 
+#include <array>
+
 namespace skiagm {
 
 // Draw rects with various stroke widths at 1/8 pixel increments
@@ -39,9 +41,7 @@ protected:
         constexpr SkRect rect = { 0, 0, 10, 10 };
         constexpr SkRect rect2 = { 0, 0, 20, 20 };
 
-        constexpr SkScalar gStrokeWidths[] = {
-            4, 2, 1, 0.5f, 0.25f, 0.125f, 0
-        };
+        constexpr auto gStrokeWidths = std::to_array<SkScalar>({4, 2, 1, 0.5f, 0.25f, 0.125f, 0});
 
         canvas->translate(5, 5);
         for (int i = 0; i < 8; ++i) {

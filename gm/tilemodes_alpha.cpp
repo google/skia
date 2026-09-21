@@ -13,17 +13,19 @@
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
+#include <array>
+
 // http://crbug.com/957275
 DEF_SIMPLE_GM(tilemodes_alpha, canvas, 512, 512) {
     sk_sp<SkImage> image = ToolUtils::GetResourceAsImage("images/mandrill_64.png");
     if (!image) {
         return;
     }
-    constexpr SkTileMode kModes[4] = {
-        SkTileMode::kClamp,
-        SkTileMode::kRepeat,
-        SkTileMode::kMirror,
-        SkTileMode::kDecal,
+    constexpr std::array<SkTileMode, 4> kModes = {
+            SkTileMode::kClamp,
+            SkTileMode::kRepeat,
+            SkTileMode::kMirror,
+            SkTileMode::kDecal,
     };
     for (int y = 0; y < 4; ++y) {
         for (int x = 0; x < 4; ++x) {

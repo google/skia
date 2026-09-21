@@ -22,6 +22,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
 #include <string.h>
 
 namespace skiagm {
@@ -74,7 +75,12 @@ protected:
         // Colors were chosen to map to pairs of canonical colors.  The GPU Backend will cache A8
         // Texture Blobs based on the canonical color they map to.  Canonical colors are used to
         // create masks.  For A8 there are 8 of them.
-        SkColor colors[] = {SK_ColorCYAN, SK_ColorLTGRAY, SK_ColorYELLOW, SK_ColorWHITE};
+        auto colors = std::to_array<SkColor>({
+                SK_ColorCYAN,
+                SK_ColorLTGRAY,
+                SK_ColorYELLOW,
+                SK_ColorWHITE,
+        });
 
         size_t count = std::size(colors);
         size_t colorIndex = 0;

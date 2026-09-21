@@ -24,6 +24,8 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 /**
  * Draws text with random parameters. The text draws each get their own clip rect. It is also
  * used as a bench to measure how well the GPU backend combines draw ops for text draws.
@@ -148,17 +150,17 @@ private:
 
     bool        fEffectiveClip;
     bool        fLCD;
-    sk_sp<SkTypeface> fTypefaces[4];
+    std::array<sk_sp<SkTypeface>, 4> fTypefaces;
     SkPaint     fPaint;
     SkFont      fFont;
 
     // precomputed for each text draw
-    SkString        fStrings[kCnt];
-    SkColor         fColors[kCnt];
-    SkScalar        fPtSizes[kCnt];
-    int             fTypefaceIndices[kCnt];
-    SkPoint         fOffsets[kCnt];
-    SkRect          fClipRects[kCnt];
+    std::array<SkString, kCnt> fStrings;
+    std::array<SkColor, kCnt> fColors;
+    std::array<SkScalar, kCnt> fPtSizes;
+    std::array<int, kCnt> fTypefaceIndices;
+    std::array<SkPoint, kCnt> fOffsets;
+    std::array<SkRect, kCnt> fClipRects;
 
     using INHERITED = skiagm::GM;
 };

@@ -17,6 +17,8 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 
+#include <array>
+
 namespace skiagm {
 
 // Draw various width thin rects at 1/8 horizontal pixel increments
@@ -71,15 +73,15 @@ protected:
 
 private:
     void drawVertRects(SkCanvas* canvas, const SkPaint& p) {
-        constexpr SkRect vertRects[] = {
-            { 1,  1,    5.0f, 21 }, // 4 pix wide
-            { 8,  1,   10.0f, 21 }, // 2 pix wide
-            { 13, 1,   14.0f, 21 }, // 1 pix wide
-            { 17, 1,   17.5f, 21 }, // 1/2 pix wide
-            { 21, 1,  21.25f, 21 }, // 1/4 pix wide
-            { 25, 1, 25.125f, 21 }, // 1/8 pix wide
-            { 29, 1,   29.0f, 21 }  // 0 pix wide
-        };
+        constexpr auto vertRects = std::to_array<SkRect>({
+                SkRect{ 1, 1,    5.0f, 21}, // 4 pix wide
+                SkRect{ 8, 1,   10.0f, 21}, // 2 pix wide
+                SkRect{13, 1,   14.0f, 21}, // 1 pix wide
+                SkRect{17, 1,   17.5f, 21}, // 1/2 pix wide
+                SkRect{21, 1,  21.25f, 21}, // 1/4 pix wide
+                SkRect{25, 1, 25.125f, 21}, // 1/8 pix wide
+                SkRect{29, 1,   29.0f, 21}  // 0 pix wide
+        });
 
         static constexpr SkVector radii[4] = {{1/32.f, 2/32.f}, {3/32.f, 1/32.f}, {2/32.f, 3/32.f},
                                               {1/32.f, 3/32.f}};
@@ -95,15 +97,15 @@ private:
     }
 
     void drawHorizRects(SkCanvas* canvas, const SkPaint& p) {
-        constexpr SkRect horizRects[] = {
-            { 1, 1,  21,    5.0f }, // 4 pix high
-            { 1, 8,  21,   10.0f }, // 2 pix high
-            { 1, 13, 21,   14.0f }, // 1 pix high
-            { 1, 17, 21,   17.5f }, // 1/2 pix high
-            { 1, 21, 21,  21.25f }, // 1/4 pix high
-            { 1, 25, 21, 25.125f }, // 1/8 pix high
-            { 1, 29, 21,   29.0f }  // 0 pix high
-        };
+        constexpr auto horizRects = std::to_array<SkRect>({
+                SkRect{1,  1, 21,    5.0f}, // 4 pix high
+                SkRect{1,  8, 21,   10.0f}, // 2 pix high
+                SkRect{1, 13, 21,   14.0f}, // 1 pix high
+                SkRect{1, 17, 21,   17.5f}, // 1/2 pix high
+                SkRect{1, 21, 21,  21.25f}, // 1/4 pix high
+                SkRect{1, 25, 21, 25.125f}, // 1/8 pix high
+                SkRect{1, 29, 21,   29.0f}  // 0 pix high
+        });
 
         SkRRect rrect;
         for (size_t j = 0; j < std::size(horizRects); ++j) {
@@ -117,15 +119,15 @@ private:
     }
 
     void drawSquares(SkCanvas* canvas, const SkPaint& p) {
-        constexpr SkRect squares[] = {
-            { 1,  1,     5.0f,    5.0f }, // 4 pix
-            { 8,  8,    10.0f,   10.0f }, // 2 pix
-            { 13, 13,   14.0f,   14.0f }, // 1 pix
-            { 17, 17,   17.5f,   17.5f }, // 1/2 pix
-            { 21, 21,  21.25f,  21.25f }, // 1/4 pix
-            { 25, 25, 25.125f, 25.125f }, // 1/8 pix
-            { 29, 29,   29.0f,   29.0f }  // 0 pix
-        };
+        constexpr auto squares = std::to_array<SkRect>({
+                SkRect{ 1,  1,    5.0f,    5.0f}, // 4 pix
+                SkRect{ 8,  8,   10.0f,   10.0f}, // 2 pix
+                SkRect{13, 13,   14.0f,   14.0f}, // 1 pix
+                SkRect{17, 17,   17.5f,   17.5f}, // 1/2 pix
+                SkRect{21, 21,  21.25f,  21.25f}, // 1/4 pix
+                SkRect{25, 25, 25.125f, 25.125f}, // 1/8 pix
+                SkRect{29, 29,   29.0f,   29.0f}  // 0 pix
+        });
 
         SkRRect rrect;
         for (size_t j = 0; j < std::size(squares); ++j) {
