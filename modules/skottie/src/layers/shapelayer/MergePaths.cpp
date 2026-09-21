@@ -13,6 +13,7 @@
 #include "modules/sksg/include/SkSGMerge.h"
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <utility>
 #include <vector>
@@ -37,13 +38,13 @@ sk_sp<sksg::Merge> ShapeBuilder::MergeGeometry(std::vector<sk_sp<sksg::GeometryN
 std::vector<sk_sp<sksg::GeometryNode>> ShapeBuilder::AttachMergeGeometryEffect(
         const skjson::ObjectValue& jmerge, const AnimationBuilder*,
         std::vector<sk_sp<sksg::GeometryNode>>&& geos) {
-    static constexpr sksg::Merge::Mode gModes[] = {
-        sksg::Merge::Mode::kMerge,      // "mm": 1
-        sksg::Merge::Mode::kUnion,      // "mm": 2
-        sksg::Merge::Mode::kDifference, // "mm": 3
-        sksg::Merge::Mode::kIntersect,  // "mm": 4
-        sksg::Merge::Mode::kXOR      ,  // "mm": 5
-    };
+    static constexpr auto gModes = std::to_array<sksg::Merge::Mode>({
+            sksg::Merge::Mode::kMerge,       // "mm": 1
+            sksg::Merge::Mode::kUnion,       // "mm": 2
+            sksg::Merge::Mode::kDifference,  // "mm": 3
+            sksg::Merge::Mode::kIntersect,   // "mm": 4
+            sksg::Merge::Mode::kXOR,         // "mm": 5
+    });
 
     const auto mode = gModes[std::min<size_t>(ParseDefault<size_t>(jmerge["mm"], 1) - 1,
                                             std::size(gModes) - 1)];

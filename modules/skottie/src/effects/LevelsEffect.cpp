@@ -54,7 +54,7 @@ struct ChannelMapper {
             out_1 = fOutWhite,
                 g = sk_ieee_float_divide(1, std::max(fGamma, 0.0f));
 
-        float clip[] = {0, 1};
+        auto clip = std::to_array<float>({0, 1});
         const auto kLottieDoClip = 1;
         if (SkScalarTruncToInt(clip_info.fClipBlack) == kLottieDoClip) {
             const auto idx = fOutBlack <= fOutWhite ? 0 : 1;

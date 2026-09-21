@@ -100,10 +100,10 @@ private:
 
 sk_sp<sksg::GeometryNode> ShapeBuilder::AttachPolystarGeometry(const skjson::ObjectValue& jstar,
                                                                const AnimationBuilder* abuilder) {
-    static constexpr PolystarGeometryAdapter::Type gTypes[] = {
-        PolystarGeometryAdapter::Type::kStar, // "sy": 1
-        PolystarGeometryAdapter::Type::kPoly, // "sy": 2
-    };
+    static constexpr auto gTypes = std::to_array<PolystarGeometryAdapter::Type>({
+            PolystarGeometryAdapter::Type::kStar,  // "sy": 1
+            PolystarGeometryAdapter::Type::kPoly,  // "sy": 2
+    });
 
     const auto type = ParseDefault<size_t>(jstar["sy"], 0) - 1;
     if (type >= std::size(gTypes)) {

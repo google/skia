@@ -39,6 +39,7 @@
 #include "modules/sksg/include/SkSGRenderNode.h"
 #include "modules/sksg/include/SkSGTransform.h"
 
+#include <array>
 #include <string>
 #include <utility>
 #include <vector>
@@ -331,23 +332,25 @@ LayerBuilder::LayerBuilder(const skjson::ObjectValue& jlayer, const SkSize& comp
             ParseDefault<float>(jlayer["ip"], 0.0f),
             ParseDefault<float>(jlayer["op"], 0.0f)}
 {
-    static constexpr struct BuilderInfo gLayerBuildInfo[] = {
-        { &AnimationBuilder::attachPrecompLayer, kTransformEffects },  // 'ty':  0 -> precomp
-        { &AnimationBuilder::attachSolidLayer  , kTransformEffects },  // 'ty':  1 -> solid
-        { &AnimationBuilder::attachFootageLayer, kTransformEffects },  // 'ty':  2 -> image
-        { &AnimationBuilder::attachNullLayer   ,                 0 },  // 'ty':  3 -> null
-        { &AnimationBuilder::attachShapeLayer  ,                 0 },  // 'ty':  4 -> shape
-        { &AnimationBuilder::attachTextLayer   ,                 0 },  // 'ty':  5 -> text
-        { &AnimationBuilder::attachAudioLayer  ,        kForceSeek },  // 'ty':  6 -> audio
-        { nullptr                              ,                 0 },  // 'ty':  7 -> pholderVideo
-        { nullptr                              ,                 0 },  // 'ty':  8 -> imageSeq
-        { &AnimationBuilder::attachFootageLayer, kTransformEffects },  // 'ty':  9 -> video
-        { nullptr                              ,                 0 },  // 'ty': 10 -> pholderStill
-        { nullptr                              ,                 0 },  // 'ty': 11 -> guide
-        { nullptr                              ,                 0 },  // 'ty': 12 -> adjustment
-        { &AnimationBuilder::attachNullLayer   ,                 0 },  // 'ty': 13 -> camera
-        { nullptr                              ,                 0 },  // 'ty': 14 -> light
-    };
+    using BuilderInfo = skottie::internal::LayerBuilder::BuilderInfo;
+    // This array maps the 'ty' field to the appropriate layer building member function
+    static constexpr auto gLayerBuildInfo = std::to_array<BuilderInfo>({
+        BuilderInfo{ &AnimationBuilder::attachPrecompLayer, kTransformEffects },  //  0 -> precomp
+        BuilderInfo{ &AnimationBuilder::attachSolidLayer  , kTransformEffects },  //  1 -> solid
+        BuilderInfo{ &AnimationBuilder::attachFootageLayer, kTransformEffects },  //  2 -> image
+        BuilderInfo{ &AnimationBuilder::attachNullLayer   ,                 0 },  //  3 -> null
+        BuilderInfo{ &AnimationBuilder::attachShapeLayer  ,                 0 },  //  4 -> shape
+        BuilderInfo{ &AnimationBuilder::attachTextLayer   ,                 0 },  //  5 -> text
+        BuilderInfo{ &AnimationBuilder::attachAudioLayer  ,        kForceSeek },  //  6 -> audio
+        BuilderInfo{ nullptr                              ,                 0 },  //  7 -> pholderVideo
+        BuilderInfo{ nullptr                              ,                 0 },  //  8 -> imageSeq
+        BuilderInfo{ &AnimationBuilder::attachFootageLayer, kTransformEffects },  //  9 -> video
+        BuilderInfo{ nullptr                              ,                 0 },  // 10 -> pholderStill
+        BuilderInfo{ nullptr                              ,                 0 },  // 11 -> guide
+        BuilderInfo{ nullptr                              ,                 0 },  // 12 -> adjustment
+        BuilderInfo{ &AnimationBuilder::attachNullLayer   ,                 0 },  // 13 -> camera
+        BuilderInfo{ nullptr                              ,                 0 },  // 14 -> light
+    });
 
     if (fType >= 0 && SkToSizeT(fType) < std::size(gLayerBuildInfo)) {
         fBuilderInfo = gLayerBuildInfo[fType];
@@ -551,12 +554,12 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
 
     // Optional matte.
     if (const auto matte_mode = ParseDefault<size_t>(fJlayer["tt"], 0)) {
-        static constexpr sksg::MaskEffect::Mode gMatteModes[] = {
+        static constexpr auto gMatteModes = std::to_array<sksg::MaskEffect::Mode>({
             sksg::MaskEffect::Mode::kAlphaNormal, // tt: 1
             sksg::MaskEffect::Mode::kAlphaInvert, // tt: 2
             sksg::MaskEffect::Mode::kLumaNormal,  // tt: 3
             sksg::MaskEffect::Mode::kLumaInvert,  // tt: 4
-        };
+        });
 
         if (matte_mode <= std::size(gMatteModes)) {
             int matte_index = ParseDefault<int>(fJlayer["tp"], -1);

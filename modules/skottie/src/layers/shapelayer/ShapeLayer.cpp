@@ -28,6 +28,7 @@
 
 #include <string.h>
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <cstdlib>
 #include <iterator>
@@ -40,41 +41,41 @@ namespace {
 
 using GeometryAttacherT = sk_sp<sksg::GeometryNode> (*)(const skjson::ObjectValue&,
                                                         const AnimationBuilder*);
-static constexpr GeometryAttacherT gGeometryAttachers[] = {
-    ShapeBuilder::AttachPathGeometry,
-    ShapeBuilder::AttachRRectGeometry,
-    ShapeBuilder::AttachEllipseGeometry,
-    ShapeBuilder::AttachPolystarGeometry,
-};
+static constexpr auto gGeometryAttachers = std::to_array<GeometryAttacherT>({
+        ShapeBuilder::AttachPathGeometry,
+        ShapeBuilder::AttachRRectGeometry,
+        ShapeBuilder::AttachEllipseGeometry,
+        ShapeBuilder::AttachPolystarGeometry,
+});
 
 using GeometryEffectAttacherT =
     std::vector<sk_sp<sksg::GeometryNode>> (*)(const skjson::ObjectValue&,
                                                const AnimationBuilder*,
                                                std::vector<sk_sp<sksg::GeometryNode>>&&);
-static constexpr GeometryEffectAttacherT gGeometryEffectAttachers[] = {
-    ShapeBuilder::AttachMergeGeometryEffect,
-    ShapeBuilder::AttachTrimGeometryEffect,
-    ShapeBuilder::AttachRoundGeometryEffect,
-    ShapeBuilder::AttachOffsetGeometryEffect,
-    ShapeBuilder::AttachPuckerBloatGeometryEffect,
-};
+static constexpr auto gGeometryEffectAttachers = std::to_array<GeometryEffectAttacherT>({
+        ShapeBuilder::AttachMergeGeometryEffect,
+        ShapeBuilder::AttachTrimGeometryEffect,
+        ShapeBuilder::AttachRoundGeometryEffect,
+        ShapeBuilder::AttachOffsetGeometryEffect,
+        ShapeBuilder::AttachPuckerBloatGeometryEffect,
+});
 
 using PaintAttacherT = sk_sp<sksg::PaintNode> (*)(const skjson::ObjectValue&,
                                                   const AnimationBuilder*);
-static constexpr PaintAttacherT gPaintAttachers[] = {
-    ShapeBuilder::AttachColorFill,
-    ShapeBuilder::AttachColorStroke,
-    ShapeBuilder::AttachGradientFill,
-    ShapeBuilder::AttachGradientStroke,
-};
+static constexpr auto gPaintAttachers = std::to_array<PaintAttacherT>({
+        ShapeBuilder::AttachColorFill,
+        ShapeBuilder::AttachColorStroke,
+        ShapeBuilder::AttachGradientFill,
+        ShapeBuilder::AttachGradientStroke,
+});
 
 // Some paint types (looking at you dashed-stroke) mess with the local geometry.
-static constexpr GeometryEffectAttacherT gPaintGeometryAdjusters[] = {
-    nullptr,                             // color fill
-    ShapeBuilder::AdjustStrokeGeometry,  // color stroke
-    nullptr,                             // gradient fill
-    ShapeBuilder::AdjustStrokeGeometry,  // gradient stroke
-};
+static constexpr auto gPaintGeometryAdjusters = std::to_array<GeometryEffectAttacherT>({
+        nullptr,                             // color fill
+        ShapeBuilder::AdjustStrokeGeometry,  // color stroke
+        nullptr,                             // gradient fill
+        ShapeBuilder::AdjustStrokeGeometry,  // gradient stroke
+});
 static_assert(std::size(gPaintGeometryAdjusters) == std::size(gPaintAttachers), "");
 
 using DrawEffectAttacherT =
@@ -82,9 +83,9 @@ using DrawEffectAttacherT =
                                              const AnimationBuilder*,
                                              std::vector<sk_sp<sksg::RenderNode>>&&);
 
-static constexpr DrawEffectAttacherT gDrawEffectAttachers[] = {
-    ShapeBuilder::AttachRepeaterDrawEffect,
-};
+static constexpr auto gDrawEffectAttachers = std::to_array<DrawEffectAttacherT>({
+        ShapeBuilder::AttachRepeaterDrawEffect,
+});
 
 enum class ShapeType {
     kGeometry,
@@ -153,10 +154,10 @@ struct GeometryEffectRec {
 // point, where we relocate the property to the geometry node as a local wrapper.
 sk_sp<sksg::GeometryNode> AdjustGeometryFillRule(sk_sp<sksg::GeometryNode> geo,
                                                  const skjson::ObjectValue& jpaint) {
-    static constexpr SkPathFillType gFillTypes[] = {
-        SkPathFillType::kWinding,  // "r": 1
-        SkPathFillType::kEvenOdd,  // "r": 2
-    };
+    static constexpr auto gFillTypes = std::to_array<SkPathFillType>({
+            SkPathFillType::kWinding,  // "r": 1
+            SkPathFillType::kEvenOdd,  // "r": 2
+    });
     const SkPathFillType ft = gFillTypes[std::min(ParseDefault<size_t>(jpaint["r"], 1) - 1,
                                                   std::size(gFillTypes) - 1)];
     return ft == SkPathFillType::kDefault

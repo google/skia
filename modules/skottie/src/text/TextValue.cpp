@@ -60,11 +60,11 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
     v->fTextTracking = ParseDefault((*jtxt)["tr"], 0.0f);
 #endif
 
-    static constexpr SkTextUtils::Align gAlignMap[] = {
-        SkTextUtils::kLeft_Align,  // 'j': 0
-        SkTextUtils::kRight_Align, // 'j': 1
-        SkTextUtils::kCenter_Align // 'j': 2
-    };
+    static constexpr auto gAlignMap = std::to_array<SkTextUtils::Align>({
+            SkTextUtils::kLeft_Align,   // 'j': 0
+            SkTextUtils::kRight_Align,  // 'j': 1
+            SkTextUtils::kCenter_Align  // 'j': 2
+    });
     v->fHAlign = gAlignMap[std::min<size_t>(ParseDefault<size_t>((*jtxt)["j"], 0),
                                             std::size(gAlignMap) - 1)];
 
@@ -84,18 +84,18 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
         }
     }
 
-    static constexpr Shaper::Direction gDirectionMap[] = {
-        Shaper::Direction::kLTR,  // 'd': 0
-        Shaper::Direction::kRTL,  // 'd': 1
-    };
+    static constexpr auto gDirectionMap = std::to_array<Shaper::Direction>({
+            Shaper::Direction::kLTR,  // 'd': 0
+            Shaper::Direction::kRTL,  // 'd': 1
+    });
     v->fDirection = gDirectionMap[std::min(ParseDefault<size_t>((*jtxt)["d"], 0),
                                            std::size(gDirectionMap) - 1)];
 
-    static constexpr Shaper::ResizePolicy gResizeMap[] = {
-        Shaper::ResizePolicy::kNone,           // 'rs': 0
-        Shaper::ResizePolicy::kScaleToFit,     // 'rs': 1
-        Shaper::ResizePolicy::kDownscaleToFit, // 'rs': 2
-    };
+    static constexpr auto gResizeMap = std::to_array<Shaper::ResizePolicy>({
+            Shaper::ResizePolicy::kNone,            // 'rs': 0
+            Shaper::ResizePolicy::kScaleToFit,      // 'rs': 1
+            Shaper::ResizePolicy::kDownscaleToFit,  // 'rs': 2
+    });
     // TODO: remove "sk_rs" support after migrating clients.
     v->fResize = gResizeMap[std::min(std::max(ParseDefault<size_t>((*jtxt)[   "rs"], 0),
                                               ParseDefault<size_t>((*jtxt)["sk_rs"], 0)),
@@ -122,10 +122,10 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
     }
 
     // Optional capitalization.
-    static constexpr Shaper::Capitalization gCapMap[] = {
-        Shaper::Capitalization::kNone,      // 'ca': 0
-        Shaper::Capitalization::kUpperCase, // 'ca': 1
-    };
+    static constexpr auto gCapMap = std::to_array<Shaper::Capitalization>({
+            Shaper::Capitalization::kNone,       // 'ca': 0
+            Shaper::Capitalization::kUpperCase,  // 'ca': 1
+    });
     v->fCapitalization = gCapMap[std::min<size_t>(ParseDefault<size_t>((*jtxt)["ca"], 0),
                                                   std::size(gCapMap) - 1)];
 
@@ -133,14 +133,14 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
     v->fVAlign = v->fBox.isEmpty() ? Shaper::VAlign::kTopBaseline
                                    : Shaper::VAlign::kTop;
 
-    static constexpr Shaper::VAlign gVAlignMap[] = {
-        Shaper::VAlign::kHybridTop,    // 'vj': 0
-        Shaper::VAlign::kHybridCenter, // 'vj': 1
-        Shaper::VAlign::kHybridBottom, // 'vj': 2
-        Shaper::VAlign::kVisualTop,    // 'vj': 3
-        Shaper::VAlign::kVisualCenter, // 'vj': 4
-        Shaper::VAlign::kVisualBottom, // 'vj': 5
-    };
+    static constexpr auto gVAlignMap = std::to_array<Shaper::VAlign>({
+            Shaper::VAlign::kHybridTop,     // 'vj': 0
+            Shaper::VAlign::kHybridCenter,  // 'vj': 1
+            Shaper::VAlign::kHybridBottom,  // 'vj': 2
+            Shaper::VAlign::kVisualTop,     // 'vj': 3
+            Shaper::VAlign::kVisualCenter,  // 'vj': 4
+            Shaper::VAlign::kVisualBottom,  // 'vj': 5
+    });
     size_t vj;
     if (skottie::Parse((*jtxt)["vj"], &vj)) {
         if (vj < std::size(gVAlignMap)) {
@@ -199,11 +199,11 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
                 ? TextPaintOrder::kFillStroke
                 : TextPaintOrder::kStrokeFill;
 
-        static constexpr SkPaint::Join gJoins[] = {
-            SkPaint::kMiter_Join,  // lj: 1
-            SkPaint::kRound_Join,  // lj: 2
-            SkPaint::kBevel_Join,  // lj: 3
-        };
+        static constexpr auto gJoins = std::to_array<SkPaint::Join>({
+                SkPaint::kMiter_Join,  // lj: 1
+                SkPaint::kRound_Join,  // lj: 2
+                SkPaint::kBevel_Join,  // lj: 3
+        });
         v->fStrokeJoin = gJoins[std::min<size_t>(ParseDefault<size_t>((*jtxt)["lj"], 1) - 1,
                                                  std::size(gJoins) - 1)];
     }

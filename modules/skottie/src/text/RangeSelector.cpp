@@ -20,6 +20,7 @@
 #include "modules/skottie/src/text/TextAnimator.h"
 
 #include <algorithm>
+#include <array>
 #include <limits>
 #include <random>
 #include <vector>
@@ -213,14 +214,14 @@ struct ShapeGenerator {
     }
 };
 
-static constexpr ShapeInfo gShapeInfo[] = {
-    { {0  ,0  }, {1  ,1}, 0                       , 1               , 0.0f }, // Shape::kSquare
-    { {0  ,0  }, {1  ,1}, 0                       , SK_FloatInfinity, 1.0f }, // Shape::kRampUp
-    { {0  ,0  }, {1  ,1}, SK_FloatNegativeInfinity, 1               , 1.0f }, // Shape::kRampDown
-    { {0  ,0  }, {1  ,1}, 0                       , 1               , 0.5f }, // Shape::kTriangle
-    { {0  ,.5f}, {.5f,1}, 0                       , 1               , 0.5f }, // Shape::kRound
-    { {.5f,0  }, {.5f,1}, 0                       , 1               , 0.5f }, // Shape::kSmooth
-};
+static constexpr auto gShapeInfo = std::to_array<ShapeInfo>({
+        ShapeInfo{{0  ,0  }, {1  ,1}, 0                       , 1               , 0.0f}, //kSquare
+        ShapeInfo{{0  ,0  }, {1  ,1}, 0                       , SK_FloatInfinity, 1.0f}, //kRampUp
+        ShapeInfo{{0  ,0  }, {1  ,1}, SK_FloatNegativeInfinity, 1               , 1.0f}, //kRampDown
+        ShapeInfo{{0  ,0  }, {1  ,1}, 0                       , 1               , 0.5f}, //kTriangle
+        ShapeInfo{{0  ,.5f}, {.5f,1}, 0                       , 1               , 0.5f}, //kRound
+        ShapeInfo{{.5f,0  }, {.5f,1}, 0                       , 1               , 0.5f}, //kSmooth
+});
 
 } // namespace
 
