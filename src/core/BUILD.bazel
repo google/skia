@@ -86,6 +86,7 @@ SEMI_PUBLIC_HEADERS = [
     "SkColorSpacePriv.h",
     "SkColorSpaceXformSteps.h",
     "SkCompressedDataUtils.h",
+    "SkContextPriv.h",
     "SkConvertPixels.h",
     "SkCpu.h",
     "SkCubics.h",

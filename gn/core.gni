@@ -296,6 +296,7 @@ skia_core_sources = [
   "$_src/core/SkCompressedDataUtils.h",
   "$_src/core/SkContainers.cpp",
   "$_src/core/SkContext.cpp",
+  "$_src/core/SkContextPriv.h",
   "$_src/core/SkContourMeasure.cpp",
   "$_src/core/SkConvertPixels.cpp",
   "$_src/core/SkConvertPixels.h",
