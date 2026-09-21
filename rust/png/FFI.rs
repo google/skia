@@ -789,7 +789,14 @@ impl Reader {
 
     /// Returns whether the `acTL` chunk exists.
     fn has_actl_chunk(&self) -> bool {
-        self.reader.info().animation_control.is_some()
+        #[cfg(feature = "for_android")]
+        {
+            false
+        }
+        #[cfg(not(feature = "for_android"))]
+        {
+            self.reader.info().animation_control.is_some()
+        }
     }
 
     /// Returns `num_frames` from the `acTL` chunk.  Panics if there is no
@@ -828,7 +835,14 @@ impl Reader {
     /// Returns whether a `fcTL` chunk has been parsed (and can be read using
     /// `get_fctl_info`).
     fn has_fctl_chunk(&self) -> bool {
-        self.reader.info().frame_control.is_some()
+        #[cfg(feature = "for_android")]
+        {
+            false
+        }
+        #[cfg(not(feature = "for_android"))]
+        {
+            self.reader.info().frame_control.is_some()
+        }
     }
 
     /// Returns `png::FrameControl` information.
