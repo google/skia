@@ -267,7 +267,14 @@ DEF_TEST(Codec_frames, r) {
 
         {
             SkCodec::FrameInfo frameInfo;
-            REPORTER_ASSERT(r, !codec->getFrameInfo(0, &frameInfo));
+            // Codecs that parse frames lazily (e.g. GIF, WebP) will not have frame 0 available
+            // before getFrameCount() is called. Codecs that initialize frame 0 metadata during
+            // construction (e.g. SkPngRustCodec) may already report frame 0. If available,
+            // verify that frame 0 is an independent frame.
+            if (codec->getFrameInfo(0, &frameInfo)) {
+                REPORTER_ASSERT(r, frameInfo.fRequiredFrame == SkCodec::kNoFrame);
+                REPORTER_ASSERT(r, frameInfo.fAlphaType == codec->getInfo().alphaType());
+            }
         }
 
         const int expected = rec.fFrameCount;
