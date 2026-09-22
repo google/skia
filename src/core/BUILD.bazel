@@ -595,7 +595,9 @@ skia_cc_library(
         "//include/sksl:core_hdrs",
         "//include/utils:core_hdrs",
     ],
-    defines = select({
+    defines = [
+        "SK_ENABLE_YUVA_PACKED_422",
+    ] + select({
         ":skia_enable_threadlocal_strikecache_true": ["SK_ENABLE_THREADLOCAL_STRIKECACHE"],
         ":skia_enable_threadlocal_strikecache_false": [],
     }),

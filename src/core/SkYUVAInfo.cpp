@@ -7,6 +7,7 @@
 
 #include "include/core/SkYUVAInfo.h"
 
+#include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkColor.h"
 #include "src/core/SkSafeMath.h"
 #include "src/core/SkYUVAInfoLocation.h"
@@ -19,6 +20,11 @@ static bool is_plane_config_compatible_with_subsampling(SkYUVAInfo::PlaneConfig 
         subsampling == SkYUVAInfo::Subsampling::kUnknown) {
         return false;
     }
+#if defined(SK_ENABLE_YUVA_PACKED_422)
+    if (config == SkYUVAInfo::PlaneConfig::kYUYV) {
+        return subsampling == SkYUVAInfo::Subsampling::k422;
+    }
+#endif
     return subsampling == SkYUVAInfo::Subsampling::k444 ||
            (config != SkYUVAInfo::PlaneConfig::kYUV  &&
             config != SkYUVAInfo::PlaneConfig::kYUVA &&
@@ -69,6 +75,9 @@ std::tuple<int, int> SkYUVAInfo::PlaneSubsamplingFactors(PlaneConfig planeConfig
         case PlaneConfig::kUYV:
         case PlaneConfig::kYUVA:
         case PlaneConfig::kUYVA:
+#if defined(SK_ENABLE_YUVA_PACKED_422)
+        case PlaneConfig::kYUYV:
+#endif
             break;
     }
     return isSubsampledPlane ? SubsamplingFactors(subsampling) : std::make_tuple(1, 1);
@@ -137,6 +146,13 @@ int SkYUVAInfo::PlaneDimensions(SkISize imageDimensions,
             planeDimensions[0] = {w, h};
             SkASSERT(planeDimensions[0] == uvSize);
             return 1;
+
+#if defined(SK_ENABLE_YUVA_PACKED_422)
+        case PlaneConfig::kYUYV:
+            planeDimensions[0] = {w, h};
+            SkASSERT(w % 2 == 0);
+            return 1;
+#endif
     }
     SkUNREACHABLE;
 }
@@ -259,6 +275,13 @@ SkYUVAInfo::YUVALocations SkYUVAInfo::GetYUVALocations(PlaneConfig config,
             planesAndIndices = kPlanesAndIndices;
             break;
         }
+#if defined(SK_ENABLE_YUVA_PACKED_422)
+        case PlaneConfig::kYUYV: {
+            static constexpr PlaneAndIndex kPlanesAndIndices[] = {{0, 0}, {0, 1}, {0, 1}, {-1, -1}};
+            planesAndIndices = kPlanesAndIndices;
+            break;
+        }
+#endif
     }
     SkASSERT(planesAndIndices);
     YUVALocations yuvaLocations;
@@ -295,6 +318,9 @@ bool SkYUVAInfo::HasAlpha(PlaneConfig planeConfig) {
         case PlaneConfig::kY_VU_A:  return true;
         case PlaneConfig::kYUVA:    return true;
         case PlaneConfig::kUYVA:    return true;
+#if defined(SK_ENABLE_YUVA_PACKED_422)
+        case PlaneConfig::kYUYV:    return false;
+#endif
     }
     SkUNREACHABLE;
 }
@@ -319,6 +345,17 @@ SkYUVAInfo::SkYUVAInfo(SkISize dimensions,
         SkASSERT(!this->isValid());
         return;
     }
+#if defined(SK_ENABLE_YUVA_PACKED_422)
+    if (planeConfig == PlaneConfig::kYUYV) {
+        int memoryWidth = SkEncodedOriginSwapsWidthHeight(origin) ? fDimensions.height()
+                                                                  : fDimensions.width();
+        if (memoryWidth % 2 != 0) {
+            *this = {};
+            SkASSERT(!this->isValid());
+            return;
+        }
+    }
+#endif
     SkASSERT(this->isValid());
 }
 

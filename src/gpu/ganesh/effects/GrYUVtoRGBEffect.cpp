@@ -62,6 +62,12 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const GrYUVATextureP
     if (!yuvaProxies.isValid()) {
         return nullptr;
     }
+#if defined(SK_ENABLE_YUVA_PACKED_422)
+    // Packed 4:2:2 (kYUYV) sampling is implemented in the follow up CLs.
+    if (yuvaProxies.yuvaInfo().planeConfig() == SkYUVAInfo::PlaneConfig::kYUYV) {
+        return nullptr;
+    }
+#endif
 
     bool usesBorder = samplerState.wrapModeX() == GrSamplerState::WrapMode::kClampToBorder ||
                       samplerState.wrapModeY() == GrSamplerState::WrapMode::kClampToBorder;
