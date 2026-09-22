@@ -42,6 +42,10 @@ private:
                      int numPlanes,
                      const SkYUVAInfo::YUVALocations&,
                      const bool snap[2],
+                     bool packedYUYV,
+                     const SkMatrix& packedPlaneMatrix,
+                     float packedFirstTexelCenter,
+                     float packedLastTexelCenter,
                      SkYUVColorSpace yuvColorSpace);
 
     GrYUVtoRGBEffect(const GrYUVtoRGBEffect& src);
@@ -61,5 +65,9 @@ private:
     SkYUVAInfo::YUVALocations   fLocations;
     SkYUVColorSpace             fYUVColorSpace;
     bool                        fSnap[2];
+    bool                        fPackedYUYV = false;
+    SkMatrix                    fPackedPlaneMatrix = SkMatrix::I();
+    float                       fPackedFirstTexelCenter = 0.f;
+    float                       fPackedLastTexelCenter = 0.f;
 };
 #endif

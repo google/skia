@@ -107,7 +107,17 @@ enum YUVFormat {
     kI420_YUVFormat, // 8-bit Y plane + separate 2x2 down sampled U and V planes (3 textures)
     kYV12_YUVFormat, // 8-bit Y plane + separate 2x2 down sampled V and U planes (3 textures)
 
+#if defined(SK_ENABLE_YUVA_PACKED_422)
+    // 4:2:2 formats, 32 bpp
+    kY210_YUVFormat, // packed 10-bit YUYV: two adjacent 16-bit 2-channel texels hold
+                     // (Y0, U) and (Y1, V) (1 texture)
+#endif
+
+#if defined(SK_ENABLE_YUVA_PACKED_422)
+    kLast_YUVFormat = kY210_YUVFormat
+#else
     kLast_YUVFormat = kYV12_YUVFormat
+#endif
 };
 
 // Does the YUVFormat contain a slot for alpha? If not an external alpha plane is required for
@@ -124,6 +134,9 @@ static bool has_alpha_channel(YUVFormat format) {
         case kNV21_YUVFormat:  return false;
         case kI420_YUVFormat:  return false;
         case kYV12_YUVFormat:  return false;
+#if defined(SK_ENABLE_YUVA_PACKED_422)
+        case kY210_YUVFormat:  return false;
+#endif
     }
     SkUNREACHABLE;
 }
@@ -190,6 +203,12 @@ public:
                     fSubsampling = SkYUVAInfo::Subsampling::k420;
                 }
                 break;
+#if defined(SK_ENABLE_YUVA_PACKED_422)
+            case kY210_YUVFormat:
+                fPlaneConfig = SkYUVAInfo::PlaneConfig::kYUYV;
+                fSubsampling = SkYUVAInfo::Subsampling::k422;
+                break;
+#endif
         }
     }
 
@@ -691,6 +710,28 @@ static int create_YUV(const PlaneData& planes,
             resultBMs[nextLayer++] = planes.fVQuarter;
             resultBMs[nextLayer++] = planes.fUQuarter;
             break;
+#if defined(SK_ENABLE_YUVA_PACKED_422)
+        case kY210_YUVFormat: {
+            SkBitmap yuvaFull;
+            yuvaFull.allocPixels(SkImageInfo::Make(planes.fYFull.width(), planes.fYFull.height(),
+                                                   kR16G16_unorm_SkColorType,
+                                                   kUnpremul_SkAlphaType));
+            for (int y = 0; y < planes.fYFull.height(); ++y) {
+                for (int x = 0; x < planes.fYFull.width(); ++x) {
+                    uint16_t Y10 = flt_2_uint16(*planes.fYFull.getAddr8(x, y) / 255.0f) &
+                                   0xFFC0;
+                    const SkBitmap& chroma = (x % 2 == 0) ? planes.fUFull : planes.fVFull;
+                    int x0 = x & ~1;
+                    uint16_t C10 = flt_2_uint16(
+                            (*chroma.getAddr8(x0, y) + *chroma.getAddr8(x0 + 1, y)) /
+                            (2.0f * 255.0f)) & 0xFFC0;
+                    *yuvaFull.getAddr32(x, y) = (C10 << 16) | Y10;
+                }
+            }
+            resultBMs[nextLayer++] = yuvaFull;
+            break;
+        }
+#endif
     }
 
     if (!opaque && !has_alpha_channel(yuvFormat)) {
@@ -742,6 +783,9 @@ static void draw_row_label(SkCanvas* canvas, int y, int yuvFormat) {
             "NV21",
             "I420",
             "YV12",
+#if defined(SK_ENABLE_YUVA_PACKED_422)
+            "Y210",
+#endif
     });
     static_assert(std::size(kYUVFormatNames) == kLast_YUVFormat + 1);
 
@@ -788,6 +832,9 @@ namespace skiagm {
 // NV21
 // I420
 // YV12
+#if defined(SK_ENABLE_YUVA_PACKED_422)
+// Y210
+#endif
 class WackyYUVFormatsGM : public GM {
 public:
     using Type = sk_gpu_test::LazyYUVImage::Type;
@@ -883,6 +930,16 @@ protected:
 
                 for (int f = kP016_YUVFormat; f <= kLast_YUVFormat; ++f) {
                     auto format = static_cast<YUVFormat>(f);
+#if defined(SK_ENABLE_YUVA_PACKED_422)
+                    // The CPU generator path cannot represent the packed 4:2:2
+                    // config, and the packed plane cannot carry alpha, so the
+                    // transparent column and generator images are skipped.
+                    if (format == kY210_YUVFormat &&
+                        (!opaque || fImageType == Type::kFromGenerator)) {
+                        fImages[opaque][cs][format] = nullptr;
+                        continue;
+                    }
+#endif
                     SkBitmap resultBMs[4];
 
                     int numPlanes = create_YUV(planes, format, resultBMs, opaque);
@@ -1006,17 +1063,19 @@ protected:
 
                 for (int format = kP016_YUVFormat; format <= kLast_YUVFormat; ++format) {
                     draw_row_label(canvas, dstRect.fTop, format);
-                    if (fUseTargetColorSpace && fImages[opaque][cs][format]) {
-                        // Making a CS-specific version of a kIdentity_SkYUVColorSpace YUV image
-                        // doesn't make a whole lot of sense. The colorSpace conversion will
-                        // operate on the YUV components rather than the RGB components.
-                        sk_sp<SkImage> csImage = fImages[opaque][cs][format]->makeColorSpace(
-                                recorder, fTargetColorSpace, {});
-                        canvas->drawImageRect(csImage, srcRect, dstRect, sampling,
-                                              &paint, constraint);
-                    } else {
-                        canvas->drawImageRect(fImages[opaque][cs][format], srcRect, dstRect,
-                                              sampling, &paint, constraint);
+                    if (fImages[opaque][cs][format]) {
+                        if (fUseTargetColorSpace) {
+                            // Making a CS-specific version of a kIdentity_SkYUVColorSpace YUV
+                            // image doesn't make a whole lot of sense. The colorSpace conversion
+                            // will operate on the YUV components rather than the RGB components.
+                            sk_sp<SkImage> csImage = fImages[opaque][cs][format]->makeColorSpace(
+                                    recorder, fTargetColorSpace, {});
+                            canvas->drawImageRect(csImage, srcRect, dstRect, sampling,
+                                                  &paint, constraint);
+                        } else {
+                            canvas->drawImageRect(fImages[opaque][cs][format], srcRect, dstRect,
+                                                  sampling, &paint, constraint);
+                        }
                     }
                     dstRect.offset(0.f, cellHeight + kPad);
                 }
