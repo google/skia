@@ -46,6 +46,7 @@
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/GrTextureResolveManager.h"
 #include "src/gpu/ganesh/GrTextureResolveRenderTask.h"
+#include "src/gpu/ganesh/GrThreadSafeCache.h"
 #include "src/gpu/ganesh/GrTracing.h"
 #include "src/gpu/ganesh/GrTransferFromRenderTask.h"
 #include "src/gpu/ganesh/GrWaitRenderTask.h"
@@ -213,6 +214,18 @@ GrDirectContext::FlushResult GrDrawingManager::flush(SkSpan<GrSurfaceProxy*> pro
         }
     }
     this->removeRenderTasks();
+
+    // If any render task failed to execute (or instantiation/preFlush failed), GrThreadSafeCache
+    // entries that were published ahead of rendering during this flush (e.g. a blur mask) may now
+    // point at textures that will never be initialized. Without clearing the cache here, subsequent
+    // draws using the same key will see the unitialized texture and assume it's valid. This only
+    // runs on failing flushes, which are already catastrophic for rendering, so re-creating a few
+    // cached resources afterwards is an acceptable cost.
+    if (!executionResult.fAllTasksSuccessful) {
+        // NOTE: passing a null resource cache means to drop all unique refs, not just enough to
+        // get under a cache's budget.
+        fContext->priv().threadSafeCache()->dropUniqueRefs(/*resourceCache=*/nullptr);
+    }
 
     GrDirectContext::FlushResult flushResult = gpu->executeFlushInfo(proxies, access, info,
                                                                      std::move(timerQuery),
