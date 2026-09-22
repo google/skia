@@ -85,6 +85,7 @@
 #include "src/utils/SkBitSet.h"
 
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <cstring>
 #include <ctype.h>
@@ -3096,7 +3097,7 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const ConstructorCompound& c, S
         // Special-case handling of float4 -> mat2x2.
         SkASSERT(type.rows() == 2 && type.columns() == 2);
         SkASSERT(arg0Type.columns() == 4);
-        SpvId v[4];
+        std::array<SpvId, 4> v;
         for (int i = 0; i < 4; ++i) {
             v[i] = this->writeOpCompositeExtract(type.componentType(), arguments[0], i, out);
         }

@@ -75,6 +75,7 @@
 #include "src/sksl/ir/SkSLVariableReference.h"
 #include "src/sksl/spirv.h"
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
@@ -237,7 +238,7 @@ protected:
     bool fWrittenAbsEmulation = false;
     bool fWrittenDeterminant2 = false, fWrittenDeterminant3 = false, fWrittenDeterminant4 = false;
     bool fWrittenInverse2 = false, fWrittenInverse3 = false, fWrittenInverse4 = false;
-    bool fWrittenTranspose[3][3] = {};
+    std::array<std::array<bool, 3>, 3> fWrittenTranspose = {};
 };
 
 void GLSLCodeGenerator::write(std::string_view s) {

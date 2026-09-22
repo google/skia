@@ -82,6 +82,7 @@
 #include "src/sksl/transform/SkSLTransform.h"
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
@@ -1259,7 +1260,7 @@ public:
 
         // First, see which components are used.
         // The assignment swizzle must not reuse components.
-        bool used[4] = {};
+        std::array<bool, 4> used = {};
         for (int8_t component : fComponents) {
             SkASSERT(!used[component]);
             used[component] = true;
@@ -1482,8 +1483,10 @@ void WGSLCodeGenerator::writeUniformPolyfills() {
               });
 
     THashSet<const Type*> writtenArrayElementPolyfill;
-    bool writtenUniformMatrixPolyfill[2][5][5] = {};  // {h,f} x m[column][row] for each matrix type
-    bool writtenUniformRowPolyfill[2][5] = {};        // {h,f} x for each matrix row-size
+    // {h,f} x m[column][row] for each matrix type
+    std::array<std::array<std::array<bool, 5>, 5>, 2> writtenUniformMatrixPolyfill = {};
+    // {h,f} x for each matrix row-size
+    std::array<std::array<bool, 5>, 2> writtenUniformRowPolyfill = {};
     bool anyFieldAccessed = false;
     for (const FieldPolyfillMap::Pair* pair : orderedFields) {
         const auto& [field, info] = *pair;

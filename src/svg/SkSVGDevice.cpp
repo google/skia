@@ -57,6 +57,7 @@
 #include "src/xml/SkXMLWriter.h"
 
 #include <algorithm>
+#include <array>
 #include <cstring>
 #include <memory>
 #include <optional>
@@ -126,11 +127,11 @@ static SkScalar svg_opacity(SkColor color) {
 }
 
 // Keep in sync with SkPaint::Cap
-static const char* cap_map[]  = {
-    nullptr,    // kButt_Cap (default)
-    "round", // kRound_Cap
-    "square" // kSquare_Cap
-};
+static constexpr auto cap_map = std::to_array<const char*>({
+        nullptr,   // kButt_Cap (default)
+        "round",   // kRound_Cap
+        "square",  // kSquare_Cap
+});
 static_assert(std::size(cap_map) == SkPaint::kCapCount, "missing_cap_map_entry");
 
 static const char* svg_cap(SkPaint::Cap cap) {
@@ -139,11 +140,11 @@ static const char* svg_cap(SkPaint::Cap cap) {
 }
 
 // Keep in sync with SkPaint::Join
-static const char* join_map[] = {
-    nullptr,    // kMiter_Join (default)
-    "round", // kRound_Join
-    "bevel"  // kBevel_Join
-};
+static constexpr auto join_map = std::to_array<const char*>({
+        nullptr,  // kMiter_Join (default)
+        "round",  // kRound_Join
+        "bevel",  // kBevel_Join
+});
 static_assert(std::size(join_map) == SkPaint::kJoinCount, "missing_join_map_entry");
 
 static const char* svg_join(SkPaint::Join join) {
@@ -685,7 +686,7 @@ void SkSVGDevice::AutoElement::addImageShaderResources(const SkShader* shader, c
     SkImage* image = shader->isAImage(&outMatrix, xy);
     SkASSERT(image);
 
-    SkString patternDims[2];  // width, height
+    std::array<SkString, 2> patternDims;  // width, height
 
     sk_sp<SkData> dataUri = AsDataUri(image, fPngEncoder);
     if (!dataUri) {
@@ -846,18 +847,33 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkFont& font) {
     }
     int weightIndex = (SkTPin(style.weight(), 100, 900) - 50) / 100;
     if (weightIndex != 3) {
-        static constexpr const char* weights[] = {
-            "100", "200", "300", "normal", "400", "500", "600", "bold", "800", "900"
-        };
+        static constexpr auto weights = std::to_array<const char*>({
+                "100",
+                "200",
+                "300",
+                "normal",
+                "400",
+                "500",
+                "600",
+                "bold",
+                "800",
+                "900",
+        });
         this->addAttribute("font-weight", weights[weightIndex]);
     }
     int stretchIndex = style.width() - 1;
     if (stretchIndex != 4) {
-        static constexpr const char* stretches[] = {
-            "ultra-condensed", "extra-condensed", "condensed", "semi-condensed",
-            "normal",
-            "semi-expanded", "expanded", "extra-expanded", "ultra-expanded"
-        };
+        static constexpr auto stretches = std::to_array<const char*>({
+                "ultra-condensed",
+                "extra-condensed",
+                "condensed",
+                "semi-condensed",
+                "normal",
+                "semi-expanded",
+                "expanded",
+                "extra-expanded",
+                "ultra-expanded",
+        });
         this->addAttribute("font-stretch", stretches[stretchIndex]);
     }
 
