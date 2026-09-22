@@ -554,49 +554,48 @@ bool SkFontConfigInterfaceDirect::isValidPattern(FcPattern* pattern) {
 bool SkFontConfigInterfaceDirect::isAcceptableMatch(FcPattern* match,
                                                     const char* post_config_family,
                                                     const SkString& family) {
-    if (!this->isValidPattern(match)) {
-        return false;
+    if (IsFallbackFontAllowed(family)) {
+        return true;
     }
 
-    if (!IsFallbackFontAllowed(family)) {
-        bool acceptable_substitute = false;
-        for (int id = 0; id < 255; ++id) {
-            const char* post_match_family = get_string(match, FC_FAMILY, id);
-            if (!post_match_family) {
-                break;
-            }
-
-            // The requested family should be able to accept matches for post_config_family
-            // or post_match_family. The below case should work fine
-            //   requested family: "Bitstream Vera Sans"
-            //   post_config_family: "Arial"
-            //   post_match_family: "Bitstream Vera Sans"
-            acceptable_substitute =
-                    (strcasecmp(post_config_family, post_match_family) == 0 ||
-                     strcasecmp(family.c_str(), post_match_family) == 0 ||
-                     IsMetricCompatibleReplacement(family.c_str(), post_match_family));
-
-            if (acceptable_substitute) {
-                break;
-            }
+    bool acceptable_substitute = false;
+    for (int id = 0; id < 255 && !acceptable_substitute; ++id) {
+        const char* post_match_family = get_string(match, FC_FAMILY, id);
+        if (!post_match_family) {
+            break;
         }
-        if (!acceptable_substitute) {
-            return false;
-        }
+
+        // The requested family should be able to accept matches for post_config_family
+        // or post_match_family. The below case should work fine
+        //   requested family: "Bitstream Vera Sans"
+        //   post_config_family: "Arial"
+        //   post_match_family: "Bitstream Vera Sans"
+        acceptable_substitute = (strcasecmp(post_config_family, post_match_family) == 0 ||
+                                 strcasecmp(family.c_str(), post_match_family) == 0 ||
+                                 IsMetricCompatibleReplacement(family.c_str(), post_match_family));
     }
-    return true;
+
+    return acceptable_substitute;
 }
 
 // Find matching font from |font_set| for the given font family.
 FcPattern* SkFontConfigInterfaceDirect::MatchFont(FcFontSet* font_set,
                                                   const char* post_config_family,
                                                   const SkString& family) {
+    // Stage 1: Find ONLY the first technically valid (scalable/accessible) font in font_set
+    FcPattern* match = nullptr;
+
     for (int i = 0; i < font_set->nfont; ++i) {
         FcPattern* current = font_set->fonts[i];
+        if (!this->isValidPattern(current)) continue;
 
-        if (this->isAcceptableMatch(current, post_config_family, family)) {
-            return current;
-        }
+        match = current;
+        break;  // <-- Stops immediately at the first valid font
+    }
+
+    // Stage 2: Check ONLY that single candidate (`match`) for family-name acceptability
+    if (match && this->isAcceptableMatch(match, post_config_family, family)) {
+        return match;
     }
 
     return nullptr;
