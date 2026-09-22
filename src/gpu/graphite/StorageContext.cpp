@@ -10,10 +10,10 @@
 #include "include/private/SkAlign.h"
 #include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/DrawContext.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/TextureProxyView.h"
-#include "src/gpu/graphite/task/DrawTask.h"
 #include "src/gpu/graphite/task/UploadTask.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"
 
@@ -164,36 +164,32 @@ void StorageContext::finalizePrecachedStorageData() {
     SkDEBUGCODE(fFinalized = true;)
 }
 
-StorageContextResult StorageContext::finalize(Recorder* recorder,
-                                              DrawTask* drawTask) {
+std::optional<StorageContextResult> StorageContext::finalize(Recorder* recorder,
+                                                             DrawContext* drawContext) {
     SkASSERT(recorder);
-    SkASSERT(drawTask);
     SkASSERT(fFinalized);
     SkDEBUGCODE(fFinalized = false;)
+
+    if (this->isEmpty()) {
+        return std::nullopt;
+    }
 
     if (fStorageBufferSupport) {
-        return this->finalizeStorageBuffer(recorder);
+        if (BindBufferInfo info = this->finalizeStorageBuffer(recorder)) {
+            return info;
+        }
     } else {
-        return this->finalizeTexture(recorder, drawTask);
+        if (sk_sp<TextureProxy> proxy = this->finalizeTexture(recorder, drawContext)) {
+            return proxy;
+        }
     }
-}
 
-// Temporary, remove in next CL in chain
-BindBufferInfo StorageContext::finalize(Recorder* recorder) {
-    SkASSERT(recorder);
-    SkASSERT(fFinalized);
-    SkDEBUGCODE(fFinalized = false;)
-    return this->finalizeStorageBuffer(recorder);
+    return std::nullopt;
 }
 
 BindBufferInfo StorageContext::finalizeStorageBuffer(Recorder* recorder) {
-    SkASSERT(recorder);
     DrawBufferManager* bufferMgr = recorder->priv().drawBufferManager();
     SkASSERT(bufferMgr);
-
-    if (this->isEmpty()) {
-        return BindBufferInfo{};
-    }
 
     size_t totalBytes = fGradientCache.fGradientDataSize + fVertexData.size_bytes();
 
@@ -222,11 +218,8 @@ BindBufferInfo StorageContext::finalizeStorageBuffer(Recorder* recorder) {
 
 // TODO (thomsmit): Currently UploadSource holds its own copy of the data. Create an alternative
 // path for uploading which allows writing to the mapped gpu buffer directly.
-sk_sp<TextureProxy> StorageContext::finalizeTexture(Recorder* recorder, DrawTask* drawTask) {
-    if (this->isEmpty()) {
-        return nullptr;
-    }
-
+sk_sp<TextureProxy> StorageContext::finalizeTexture(Recorder* recorder, DrawContext* drawContext) {
+    SkASSERT(drawContext);
     size_t gradSize = fGradientCache.fGradientDataSize;
     size_t vertSize = fVertexData.size_bytes();
     size_t totalBytes = gradSize + vertSize;
@@ -286,7 +279,7 @@ sk_sp<TextureProxy> StorageContext::finalizeTexture(Recorder* recorder, DrawTask
     if (!uploadTask) {
         return nullptr;
     }
-    drawTask->addTask(std::move(uploadTask));
+    drawContext->recordDependency(std::move(uploadTask));
 
     return proxyView.refProxy();
 }

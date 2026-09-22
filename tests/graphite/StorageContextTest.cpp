@@ -16,15 +16,35 @@
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/DrawContext.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/StorageContext.h"
-#include "src/gpu/graphite/task/DrawTask.h"
+#include "src/gpu/graphite/TextureProxy.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"
 #include "src/shaders/gradients/SkLinearGradient.h"
 
 #include <vector>
 
 namespace skgpu::graphite {
+namespace {
+
+sk_sp<DrawContext> make_draw_context(Recorder* recorder) {
+    const Caps* caps = recorder->priv().caps();
+    SkColorInfo colorInfo{kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr};
+    auto texInfo = caps->getDefaultSampledTextureInfo(colorInfo.colorType(),
+                                                     Mipmapped::kNo,
+                                                     Protected::kNo,
+                                                     Renderable::kYes);
+    sk_sp<TextureProxy> target = TextureProxy::Make(caps,
+                                                    recorder->priv().resourceProvider(),
+                                                    {16, 16},
+                                                    texInfo,
+                                                    "StorageContextTestTarget",
+                                                    Budgeted::kYes);
+    return DrawContext::Make(caps, std::move(target), {16, 16}, colorInfo, {});
+}
+
+}  // namespace
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextAlignmentTest,
                                    reporter,
@@ -74,11 +94,11 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextAlignmentTest,
     ctxHandle->finalizePrecachedStorageData();
 
     // Finalize storage buffer allocation and check 16-byte alignment
-    DrawTask drawTask(/*target=*/nullptr);
-    auto storageResult =
-            ctxHandle->finalize(recorder.get(), &drawTask);
-    if (std::holds_alternative<BindBufferInfo>(storageResult)) {
-        auto bindInfo = std::get<BindBufferInfo>(storageResult);
+    sk_sp<DrawContext> drawContext = make_draw_context(recorder.get());
+    auto storageResult = ctxHandle->finalize(recorder.get(), drawContext.get());
+    REPORTER_ASSERT(reporter, storageResult.has_value());
+    if (std::holds_alternative<BindBufferInfo>(*storageResult)) {
+        auto bindInfo = std::get<BindBufferInfo>(*storageResult);
         REPORTER_ASSERT(reporter, bindInfo.fBuffer != nullptr);
         REPORTER_ASSERT(reporter, bindInfo.fSize == 2 * kFloatCount * sizeof(float));
         REPORTER_ASSERT(reporter, bindInfo.fSize % 16 == 0);
@@ -96,7 +116,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextAlignmentTest,
             REPORTER_ASSERT(reporter, floatData[kFloatCount + i] == 30.f + i);
         }
     } else {
-        auto proxy = std::get<sk_sp<TextureProxy>>(storageResult);
+        auto proxy = std::get<sk_sp<TextureProxy>>(*storageResult);
         REPORTER_ASSERT(reporter, proxy != nullptr);
     }
 }
@@ -134,11 +154,11 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextPaddingAlignmentTest,
     ctxHandle->finalizePrecachedStorageData();
 
     // Finalize: gradient bytes should be padded to 64 bytes (aligned to 32 bytes)
-    DrawTask drawTask(/*target=*/nullptr);
-    auto storageResult =
-            ctxHandle->finalize(recorder.get(), &drawTask);
-    if (std::holds_alternative<BindBufferInfo>(storageResult)) {
-        auto bindInfo = std::get<BindBufferInfo>(storageResult);
+    sk_sp<DrawContext> drawContext = make_draw_context(recorder.get());
+    auto storageResult = ctxHandle->finalize(recorder.get(), drawContext.get());
+    REPORTER_ASSERT(reporter, storageResult.has_value());
+    if (std::holds_alternative<BindBufferInfo>(*storageResult)) {
+        auto bindInfo = std::get<BindBufferInfo>(*storageResult);
         REPORTER_ASSERT(reporter, bindInfo.fBuffer != nullptr);
         REPORTER_ASSERT(reporter, bindInfo.fSize == 64);
         REPORTER_ASSERT(reporter, bindInfo.fSize % 32 == 0);
@@ -158,7 +178,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextPaddingAlignmentTest,
             REPORTER_ASSERT(reporter, bufferData[i] == 0);
         }
     } else {
-        auto proxy = std::get<sk_sp<TextureProxy>>(storageResult);
+        auto proxy = std::get<sk_sp<TextureProxy>>(*storageResult);
         REPORTER_ASSERT(reporter, proxy != nullptr);
     }
 }
@@ -205,11 +225,11 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextAppendVertexTest,
     REPORTER_ASSERT(reporter, vOffset == expectedVOffset);
 
     // 5. Finalize storage buffer
-    DrawTask drawTask(/*target=*/nullptr);
-    auto storageResult =
-            ctxHandle->finalize(recorder.get(), &drawTask);
-    if (std::holds_alternative<BindBufferInfo>(storageResult)) {
-        auto bindInfo = std::get<BindBufferInfo>(storageResult);
+    sk_sp<DrawContext> drawContext = make_draw_context(recorder.get());
+    auto storageResult = ctxHandle->finalize(recorder.get(), drawContext.get());
+    REPORTER_ASSERT(reporter, storageResult.has_value());
+    if (std::holds_alternative<BindBufferInfo>(*storageResult)) {
+        auto bindInfo = std::get<BindBufferInfo>(*storageResult);
         REPORTER_ASSERT(reporter, bindInfo.fBuffer != nullptr);
         // Total size = 48 (aligned gradient) + 48 (vertices) = 96 bytes
         REPORTER_ASSERT(reporter, bindInfo.fSize == 96);
@@ -231,7 +251,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextAppendVertexTest,
         }
         REPORTER_ASSERT(reporter, memcmp(bufferData + 48, verts, sizeof(verts)) == 0);
     } else {
-        auto proxy = std::get<sk_sp<TextureProxy>>(storageResult);
+        auto proxy = std::get<sk_sp<TextureProxy>>(*storageResult);
         REPORTER_ASSERT(reporter, proxy != nullptr);
     }
 }
@@ -289,11 +309,11 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextMultipleRenderStepsTest,
     REPORTER_ASSERT(reporter, offsetB == expectedOffsetB);
 
     // 6. Finalize storage buffer: Total size = 96 (gradient) + 32 (local offset) + 32 (dataB) = 160
-    DrawTask drawTask(/*target=*/nullptr);
-    auto storageResult =
-            ctxHandle->finalize(recorder.get(), &drawTask);
-    if (std::holds_alternative<BindBufferInfo>(storageResult)) {
-        auto bindInfo = std::get<BindBufferInfo>(storageResult);
+    sk_sp<DrawContext> drawContext = make_draw_context(recorder.get());
+    auto storageResult = ctxHandle->finalize(recorder.get(), drawContext.get());
+    REPORTER_ASSERT(reporter, storageResult.has_value());
+    if (std::holds_alternative<BindBufferInfo>(*storageResult)) {
+        auto bindInfo = std::get<BindBufferInfo>(*storageResult);
         REPORTER_ASSERT(reporter, bindInfo.fBuffer != nullptr);
         REPORTER_ASSERT(reporter, bindInfo.fSize == 160);
         REPORTER_ASSERT(reporter, bindInfo.fSize % 32 == 0);
@@ -318,7 +338,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextMultipleRenderStepsTest,
         }
         REPORTER_ASSERT(reporter, memcmp(bufferData + 128, dataB, sizeof(dataB)) == 0);
     } else {
-        auto proxy = std::get<sk_sp<TextureProxy>>(storageResult);
+        auto proxy = std::get<sk_sp<TextureProxy>>(*storageResult);
         REPORTER_ASSERT(reporter, proxy != nullptr);
     }
 }
@@ -391,11 +411,11 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextLCMVariantsTest,
         REPORTER_ASSERT(reporter, vOffset % paddedAlign == 0);
         REPORTER_ASSERT(reporter, vOffset % expectedLCM == 0);
 
-        DrawTask drawTask(/*target=*/nullptr);
-        auto storageResult =
-                ctx.finalize(recorder.get(), &drawTask);
-        if (std::holds_alternative<BindBufferInfo>(storageResult)) {
-            auto bindInfo = std::get<BindBufferInfo>(storageResult);
+        sk_sp<DrawContext> drawContext = make_draw_context(recorder.get());
+        auto storageResult = ctx.finalize(recorder.get(), drawContext.get());
+        REPORTER_ASSERT(reporter, storageResult.has_value());
+        if (std::holds_alternative<BindBufferInfo>(*storageResult)) {
+            auto bindInfo = std::get<BindBufferInfo>(*storageResult);
             REPORTER_ASSERT(reporter, bindInfo.fBuffer != nullptr);
             REPORTER_ASSERT(reporter, bindInfo.fSize == expectedPaddedGradSize + tc.stride * 2);
 
@@ -417,7 +437,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextLCMVariantsTest,
                     reporter,
                     memcmp(bufferData + expectedPaddedGradSize, vert.data(), vert.size()) == 0);
         } else {
-            auto proxy = std::get<sk_sp<TextureProxy>>(storageResult);
+            auto proxy = std::get<sk_sp<TextureProxy>>(*storageResult);
             REPORTER_ASSERT(reporter, proxy != nullptr);
         }
     }
@@ -435,19 +455,12 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextVertexOnlyAndResetTest,
 
     REPORTER_ASSERT(reporter, ctx.isEmpty());
 
-    // 1. Finalize on empty context returns null buffer / null proxy
-    DrawTask drawTask(/*target=*/nullptr);
+    sk_sp<DrawContext> drawContext = make_draw_context(recorder.get());
+
+    // 1. Finalize on empty context returns nullopt
     ctx.finalizePrecachedStorageData();
-    auto emptyResult =
-            ctx.finalize(recorder.get(), &drawTask);
-    if (std::holds_alternative<BindBufferInfo>(emptyResult)) {
-        auto emptyInfo = std::get<BindBufferInfo>(emptyResult);
-        REPORTER_ASSERT(reporter, emptyInfo.fBuffer == nullptr);
-        REPORTER_ASSERT(reporter, emptyInfo.fSize == 0);
-    } else {
-        auto proxy = std::get<sk_sp<TextureProxy>>(emptyResult);
-        REPORTER_ASSERT(reporter, proxy == nullptr);
-    }
+    auto emptyResult = ctx.finalize(recorder.get(), drawContext.get());
+    REPORTER_ASSERT(reporter, !emptyResult.has_value());
 
     // 2. Vertex-only allocation without gradients
     ctx.recordAlignment(/*stride=*/24, /*align=*/16);
@@ -458,10 +471,10 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextVertexOnlyAndResetTest,
     REPORTER_ASSERT(reporter, offset == 0);
     REPORTER_ASSERT(reporter, !ctx.isEmpty());
 
-    auto vertexResult =
-            ctx.finalize(recorder.get(), &drawTask);
-    if (std::holds_alternative<BindBufferInfo>(vertexResult)) {
-        auto bindInfo = std::get<BindBufferInfo>(vertexResult);
+    auto vertexResult = ctx.finalize(recorder.get(), drawContext.get());
+    REPORTER_ASSERT(reporter, vertexResult.has_value());
+    if (std::holds_alternative<BindBufferInfo>(*vertexResult)) {
+        auto bindInfo = std::get<BindBufferInfo>(*vertexResult);
         REPORTER_ASSERT(reporter, bindInfo.fBuffer != nullptr);
         REPORTER_ASSERT(reporter, bindInfo.fSize == 24);
 
@@ -472,7 +485,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextVertexOnlyAndResetTest,
             REPORTER_ASSERT(reporter, memcmp(bufferData, vert, sizeof(vert)) == 0);
         }
     } else {
-        auto proxy = std::get<sk_sp<TextureProxy>>(vertexResult);
+        auto proxy = std::get<sk_sp<TextureProxy>>(*vertexResult);
         REPORTER_ASSERT(reporter, proxy != nullptr);
     }
 
@@ -492,12 +505,11 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextVertexOnlyAndResetTest,
         gradPtr[i] = 70.f + i;
     }
 
-    DrawTask drawTaskAfterReset(/*target=*/nullptr);
     ctx.finalizePrecachedStorageData();
-    auto postResetResult =
-            ctx.finalize(recorder.get(), &drawTaskAfterReset);
-    if (std::holds_alternative<BindBufferInfo>(postResetResult)) {
-        auto resetInfo = std::get<BindBufferInfo>(postResetResult);
+    auto postResetResult = ctx.finalize(recorder.get(), drawContext.get());
+    REPORTER_ASSERT(reporter, postResetResult.has_value());
+    if (std::holds_alternative<BindBufferInfo>(*postResetResult)) {
+        auto resetInfo = std::get<BindBufferInfo>(*postResetResult);
         REPORTER_ASSERT(reporter, resetInfo.fBuffer != nullptr);
 
         if (!recorder->priv().caps()->drawBufferCanBeMapped()) {
@@ -512,7 +524,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextVertexOnlyAndResetTest,
             REPORTER_ASSERT(reporter, resetFloats[i] == 70.f + i);
         }
     } else {
-        auto proxy = std::get<sk_sp<TextureProxy>>(postResetResult);
+        auto proxy = std::get<sk_sp<TextureProxy>>(*postResetResult);
         REPORTER_ASSERT(reporter, proxy != nullptr);
     }
 }
@@ -585,11 +597,11 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextMultiStopGradientTest,
 
     ctx.finalizePrecachedStorageData();
 
-    DrawTask drawTask(/*target=*/nullptr);
-    auto storageResult =
-            ctx.finalize(recorder.get(), &drawTask);
-    if (std::holds_alternative<BindBufferInfo>(storageResult)) {
-        auto bindInfo = std::get<BindBufferInfo>(storageResult);
+    sk_sp<DrawContext> drawContext = make_draw_context(recorder.get());
+    auto storageResult = ctx.finalize(recorder.get(), drawContext.get());
+    REPORTER_ASSERT(reporter, storageResult.has_value());
+    if (std::holds_alternative<BindBufferInfo>(*storageResult)) {
+        auto bindInfo = std::get<BindBufferInfo>(*storageResult);
         REPORTER_ASSERT(reporter, bindInfo.fBuffer != nullptr);
         REPORTER_ASSERT(reporter, bindInfo.fSize == (count9 + count17) * sizeof(float));
         REPORTER_ASSERT(reporter, bindInfo.fSize % 16 == 0 || useStorage);
@@ -626,7 +638,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextMultiStopGradientTest,
                             float17[alignedOffsets17 + i * 4 + 1] == static_cast<float>(i) * 0.05f);
         }
     } else {
-        auto proxy = std::get<sk_sp<TextureProxy>>(storageResult);
+        auto proxy = std::get<sk_sp<TextureProxy>>(*storageResult);
         REPORTER_ASSERT(reporter, proxy != nullptr);
     }
 }
@@ -663,14 +675,17 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(StorageContextFallbackStridedCopyTest,
     uint32_t offset = ctx.appendVertices(verts, /*count=*/2, /*stride=*/24, /*align=*/16);
     REPORTER_ASSERT(reporter, offset == 0);
 
+    sk_sp<DrawContext> drawContext = make_draw_context(recorder.get());
+    REPORTER_ASSERT(reporter, drawContext != nullptr);
+
     // Finalize: padded to 32 bytes per vertex -> 2 * 32 = 64 bytes total
-    DrawTask drawTask(/*target=*/nullptr);
-    auto storageResult =
-            ctx.finalize(recorder.get(), &drawTask);
-    REPORTER_ASSERT(reporter, std::holds_alternative<sk_sp<TextureProxy>>(storageResult));
-    auto proxy = std::get<sk_sp<TextureProxy>>(storageResult);
+    auto storageResult = ctx.finalize(recorder.get(), drawContext.get());
+    REPORTER_ASSERT(reporter, storageResult.has_value());
+    REPORTER_ASSERT(reporter, std::holds_alternative<sk_sp<TextureProxy>>(*storageResult));
+    auto proxy = std::get<sk_sp<TextureProxy>>(*storageResult);
     REPORTER_ASSERT(reporter, proxy != nullptr);
     REPORTER_ASSERT(reporter, proxy->dimensions() == SkISize::Make(4, 1));
+    REPORTER_ASSERT(reporter, drawContext->snapDrawTask() != nullptr);
 }
 
 }  // namespace skgpu::graphite

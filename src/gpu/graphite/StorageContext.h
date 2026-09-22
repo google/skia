@@ -17,6 +17,7 @@
 
 #include <cstdint>
 #include <limits>
+#include <optional>
 #include <utility>
 #include <variant>
 
@@ -24,7 +25,7 @@ class SkGradientBaseShader;
 
 namespace skgpu::graphite {
 
-class DrawTask;
+class DrawContext;
 class Recorder;
 class TextureProxy;
 
@@ -69,8 +70,7 @@ public:
 
     // Called after snapping the draw pass. It creates either a single mapped buffer or a fallback
     // texture containing the concatenated cached and append data.
-    StorageContextResult finalize(Recorder*, DrawTask*);
-    BindBufferInfo finalize(Recorder*);
+    std::optional<StorageContextResult> finalize(Recorder*, DrawContext*);
 
     bool isEmpty() const { return fGradientCache.isEmpty() && fVertexData.empty(); }
 
@@ -83,7 +83,7 @@ public:
 
 private:
     BindBufferInfo finalizeStorageBuffer(Recorder* recorder);
-    sk_sp<TextureProxy> finalizeTexture(Recorder* recorder, DrawTask* drawTask);
+    sk_sp<TextureProxy> finalizeTexture(Recorder* recorder, DrawContext* drawContext);
 
     struct GradientCache {
         static constexpr int kMaxGradientStops = 1024 * 1024;
