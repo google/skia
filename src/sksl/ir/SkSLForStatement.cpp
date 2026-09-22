@@ -99,6 +99,56 @@ static void hoist_vardecl_symbols_into_outer_scope(const Context& context,
     SymbolHoister{context, innerSymbols, hoistedSymbols}.visitStatement(initBlock);
 }
 
+#if defined(SK_BUILD_FOR_FUZZER)
+static constexpr int64_t kFuzzerLoopIterationLimit = 256;
+
+static bool loop_exceeds_nested_iteration_limit(const Statement& loopBody, int64_t loopCount) {
+    if (loopCount <= 0) {
+        return false;
+    }
+    if (loopCount > kFuzzerLoopIterationLimit) {
+        return true;
+    }
+
+    class NestedLoopVisitor : public ProgramVisitor {
+    public:
+        int64_t fCurrentIterations = 1;
+
+        bool visitExpression(const Expression&) override { return false; }
+
+        bool visitStatement(const Statement& s) override {
+            if (!s.is<ForStatement>()) {
+                return ProgramVisitor::visitStatement(s);
+            }
+
+            const ForStatement& forStmt = s.as<ForStatement>();
+            if (!forStmt.unrollInfo()) {
+                return ProgramVisitor::visitStatement(s);
+            }
+
+            int64_t count = forStmt.unrollInfo()->fCount;
+            if (count <= 0) {
+                return false;
+            }
+
+            int64_t prevIterations = fCurrentIterations;
+            fCurrentIterations *= count;
+            if (fCurrentIterations > kFuzzerLoopIterationLimit) {
+                return true;
+            }
+
+            bool exceeded = this->visitStatement(*forStmt.statement());
+            fCurrentIterations = prevIterations;
+            return exceeded;
+        }
+    };
+
+    NestedLoopVisitor visitor;
+    visitor.fCurrentIterations = loopCount;
+    return visitor.visitStatement(loopBody);
+}
+#endif
+
 std::unique_ptr<Statement> ForStatement::Convert(const Context& context,
                                                  Position pos,
                                                  ForLoopPositions positions,
@@ -143,6 +193,14 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context,
         unrollInfo = Analysis::GetLoopUnrollInfo(context, pos, positions, initializer.get(), &test,
                                                  next.get(), statement.get(), /*errors=*/nullptr);
     }
+
+#if defined(SK_BUILD_FOR_FUZZER)
+    if (unrollInfo && loop_exceeds_nested_iteration_limit(*statement, unrollInfo->fCount)) {
+        context.fErrors->error(pos, "loop iteration count exceeds fuzzer limit of " +
+                                    std::to_string(kFuzzerLoopIterationLimit));
+        return nullptr;
+    }
+#endif
 
     if (Analysis::DetectVarDeclarationWithoutScope(*statement, context.fErrors)) {
         return nullptr;
