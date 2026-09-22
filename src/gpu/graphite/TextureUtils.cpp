@@ -297,8 +297,8 @@ TextureProxyView MakeBitmapProxyView(Recorder* recorder,
                                                    recorder->priv().resourceProvider(),
                                                    bitmap.dimensions(),
                                                    textureInfo,
-                                                   label,
-                                                   budgeted);
+                                                   budgeted,
+                                                   label);
     if (!proxy) {
         return {};
     }

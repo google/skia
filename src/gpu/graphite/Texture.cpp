@@ -28,7 +28,9 @@ Texture::Texture(const SharedContext* sharedContext,
         : Resource(sharedContext, ownership, isTransient ? 0 : ComputeSize(dimensions, info), label)
         , fDimensions(dimensions)
         , fInfo(info)
-        , fMutableState(std::move(mutableState)) {}
+        , fMutableState(std::move(mutableState)) {
+    this->synchronizeBackendLabel();
+}
 
 Texture::~Texture() = default;
 

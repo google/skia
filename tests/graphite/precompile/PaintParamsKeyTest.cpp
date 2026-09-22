@@ -69,8 +69,8 @@ sk_sp<DrawContext> get_precompile_draw_context(const skgpu::graphite::Caps* caps
                                                     resourceProvider,
                                                     drawSize,
                                                     texInfo,
-                                                    "PrecompileTarget",
-                                                    skgpu::Budgeted::kYes);
+                                                    skgpu::Budgeted::kYes,
+                                                    "PrecompileTarget");
     return DrawContext::Make(caps,
                              std::move(target),
                              drawSize,

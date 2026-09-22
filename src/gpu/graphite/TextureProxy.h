@@ -100,8 +100,8 @@ public:
                                     ResourceProvider*,
                                     SkISize dimensions,
                                     const TextureInfo&,
-                                    std::string_view label,
-                                    skgpu::Budgeted);
+                                    skgpu::Budgeted,
+                                    std::string_view label);
 
     using LazyInstantiateCallback = std::function<sk_sp<Texture> (ResourceProvider*)>;
 
@@ -121,8 +121,8 @@ public:
 private:
     TextureProxy(SkISize dimensions,
                  const TextureInfo& info,
-                 std::string_view label,
-                 Budgeted budgeted);
+                 Budgeted budgeted,
+                 std::string_view label);
     TextureProxy(SkISize dimensions,
                  const TextureInfo&,
                  Budgeted,
@@ -139,12 +139,12 @@ private:
     SkISize fDimensions;
     const TextureInfo fInfo;
 
+    Budgeted fBudgeted;
+    const Volatile fVolatile;
+
     // String used to describe the current use of this TextureProxy. It will be set on its
     // Texture object when the proxy gets instantiated.
     std::string fLabel;
-
-    Budgeted fBudgeted;
-    const Volatile fVolatile;
 
     sk_sp<Texture> fTexture;
 

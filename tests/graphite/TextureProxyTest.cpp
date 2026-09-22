@@ -47,7 +47,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureProxyTest, reporter, context,
         auto textureInfo = caps->getDefaultSampledTextureInfo(colorType, mipmapped,
                                                               isProtected, renderable);
         return TextureProxy::Make(caps, recorder->priv().resourceProvider(),
-                                  dimensions, textureInfo, "TextureProxyTestTexture", budgeted);
+                                  dimensions, textureInfo, budgeted, "TextureProxyTestTexture");
     };
 
     auto nullCallback = [](ResourceProvider*) -> sk_sp<Texture> { return nullptr; };
