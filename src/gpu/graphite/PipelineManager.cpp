@@ -100,7 +100,8 @@ GraphicsPipelineHandle PipelineManager::createHandle(
     // create the Pipeline and, failing that, create one. If the race had occurred and
     // there is actually a matching GraphicsPipeline in the GlobalCache then it will be found
     // in 'compileTask'.
-    sk_sp<PipelineCreationTask> task = this->findOrCreateTask(std::move(runtimeDict),
+    sk_sp<PipelineCreationTask> task = this->findOrCreateTask(sharedContext,
+                                                              std::move(runtimeDict),
                                                               pipelineKey,
                                                               pipelineDesc,
                                                               renderPassDesc,
@@ -129,9 +130,24 @@ GraphicsPipelineHandle PipelineManager::createHandle(
     return GraphicsPipelineHandle(std::move(task));
 }
 
-void PipelineManager::InlineCompile(SharedContext* sharedContext,
-                                    PipelineManager* pipelineManager,
-                                    PipelineCreationTask* task) {
+bool PipelineManager::InlineCompile(PipelineCreationTask* task) {
+    SkASSERT(task);
+
+    // Since there might be threaded contention to execute the compilation for the same
+    // task (e.g., if a low priority compile got duplicated as a high priority compile
+    // or an immediate compile was required), we check the 'fStarted' atomic so only
+    // one does the work.
+    if (task->fStarted.exchange(true)) {
+        // If we got here it means some other thread beat us to it so don't compile
+        // the pipeline.
+        return false;
+    }
+
+    SkASSERT(task->fSharedContext);
+
+    SharedContext* sharedContext = task->fSharedContext;
+    PipelineManager* pipelineManager = sharedContext->pipelineManager();
+
     // This is a bit racy but the exact correctness of the actual cause for the compilation
     // isn't crucial. In essence, this tries to give the SharedContext a best guess about
     // the driver behind the compilation. The exact race is if a precompile compilation
@@ -154,25 +170,14 @@ void PipelineManager::InlineCompile(SharedContext* sharedContext,
 
     pipelineManager->signalCompleted(task);
     pipelineManager->removeTask(task);
+
+    task->fSharedContext = nullptr;
+    return true;
 }
 
 void PipelineManager::addTaskToWorkList(SharedContext* sharedContext,
                                         sk_sp<PipelineCreationTask> task,
                                         Priority priority) {
-    // Note: this lambda function relies on the continued existence of the shared
-    // context and the PipelineManager. The task is reffed.
-    auto compileTask = [sharedContext, this, task] {
-        // Since there might be threaded contention to execute the compilation for the same
-        // task (e.g., if a low priority compile got duplicated as a high priority compile
-        // or an immediate compile was required), we check the 'fStarted' atomic so only
-        // one does the work.
-        if (task->fStarted.exchange(true)) {
-            return;
-        }
-
-        InlineCompile(sharedContext, this, task.get());
-    };
-
     {
         SkAutoSpinlock lock{fSpinLock};
 
@@ -180,7 +185,7 @@ void PipelineManager::addTaskToWorkList(SharedContext* sharedContext,
             int workList = priority == Priority::kLow ? kLowPriorityWorkList
                                                       : kHighPriorityWorkList;
 
-            fTaskGroup->add(std::move(compileTask), workList);
+            fTaskGroup->add([task]{ InlineCompile(task.get()); } , workList);
             return;
         }
     }
@@ -191,11 +196,10 @@ void PipelineManager::addTaskToWorkList(SharedContext* sharedContext,
     // will kick in to eliminate duplicate work. This does mean, as in the SkExecutor case,
     // that the task's Pipeline need not be resolved at the end of 'compileTask'. That is,
     // after all, the purview of 'resolveHandle'.
-    compileTask();
+    InlineCompile(task.get());
 }
 
-sk_sp<GraphicsPipeline> PipelineManager::resolveHandle(SharedContext* sharedContext,
-                                                       const GraphicsPipelineHandle& handle) {
+sk_sp<GraphicsPipeline> PipelineManager::resolveHandle(const GraphicsPipelineHandle& handle) {
     if (std::holds_alternative<sk_sp<GraphicsPipeline>>(handle.fTaskOrPipeline)) {
         return std::get<sk_sp<GraphicsPipeline>>(handle.fTaskOrPipeline);
     }
@@ -207,7 +211,7 @@ sk_sp<GraphicsPipeline> PipelineManager::resolveHandle(SharedContext* sharedCont
 
     // For the non-threaded PipelineManager, the GraphicsPipeline will have been compiled in-line
     // so will already have been completed.
-    this->potentiallyWaitOn(sharedContext, task.get());
+    this->potentiallyWaitOn(task.get());
     return task->fPipeline;
 }
 
@@ -255,6 +259,7 @@ PipelineManager::Stats PipelineManager::getStats() const {
 #endif
 
 sk_sp<PipelineCreationTask> PipelineManager::findOrCreateTask(
+        SharedContext* sharedContext,
         sk_sp<const RuntimeEffectDictionary> runtimeDict,
         const UniqueKey& pipelineKey,
         const GraphicsPipelineDesc& pipelineDesc,
@@ -275,7 +280,8 @@ sk_sp<PipelineCreationTask> PipelineManager::findOrCreateTask(
 #endif
 
     sk_sp<PipelineCreationTask> newTask = sk_sp<PipelineCreationTask>(
-            new PipelineCreationTask(std::move(runtimeDict),
+            new PipelineCreationTask(sharedContext,
+                                     std::move(runtimeDict),
                                      pipelineKey,
                                      pipelineDesc,
                                      renderPassDesc,
@@ -305,11 +311,10 @@ void PipelineManager::signalCompleted(PipelineCreationTask* task) {
 }
 
 
-void PipelineManager::potentiallyWaitOn(SharedContext* sharedContext, PipelineCreationTask* task) {
+void PipelineManager::potentiallyWaitOn(PipelineCreationTask* task) {
     // If we can preempt some thread that is scheduled to compile this Pipeline, do so rather
     // than waiting.
-    if (!task->fStarted.exchange(true)) {
-        InlineCompile(sharedContext, this, task);
+    if (InlineCompile(task)) {
         SkASSERT(task->fCompleted);
         return;
     }

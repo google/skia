@@ -46,18 +46,25 @@ private:
     friend class PipelineManager; // for entire API and fPipeline
     friend class GraphicsPipelineHandle; // for fPipeline in pipelineOrNull()
 
-    PipelineCreationTask(sk_sp<const RuntimeEffectDictionary> runtimeDict,
+    PipelineCreationTask(SharedContext* sharedContext,
+                         sk_sp<const RuntimeEffectDictionary> runtimeDict,
                          const UniqueKey& pipelineKey,
                          const GraphicsPipelineDesc& graphicsPipelineDesc,
                          const RenderPassDesc& renderPassDesc,
                          bool isHighPriority)
-            : fRuntimeDict(std::move(runtimeDict))
+            : fSharedContext(sharedContext)
+            , fRuntimeDict(std::move(runtimeDict))
             , fPipelineKey(pipelineKey)
             , fGraphicsPipelineDesc(graphicsPipelineDesc)
             , fRenderPassDesc(renderPassDesc)
             , fIsHighPriority(isHighPriority) {
     }
 
+    // The SharedContext owns the PipelineManager which, in turn, waits for all CreationTasks
+    // to finish in its destructor. Thus, we can hold a raw SharedContext pointer here.
+    // Note that, once the Pipeline has been created, this field will be set to null so
+    // it should not be relied upon for SharedContext access.
+    SharedContext* fSharedContext;
     const sk_sp<const RuntimeEffectDictionary> fRuntimeDict;
     const UniqueKey fPipelineKey;  // used to track this task in the PipelineManager
     const GraphicsPipelineDesc fGraphicsPipelineDesc;
