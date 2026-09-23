@@ -2,6 +2,18 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 155
+-------------
+  * The error handling associated with Ganesh's GrDirectContext flushing has been updated. Instead of returning a GrSemaphoresSubmitted value which conflates semaphore submission and flush success, a new FlushResult struct is returned - which explicitly separates the two concerns. FlushResult has an implicit cast which allows clients to still use the old GrSemaphoresSubmitted-based API.
+  * `skcpu::Context`, `skcpu::Recorder`, `GrRecordingContext::makeCPURecorder()`, and `skgpu::graphite::Context::makeCPURecorder()` have been removed.
+
+* * *
+
+Milestone 154
+-------------
+
+* * *
+
 Milestone 153
 -------------
   * `SkLogHandler` has been added as a global callback interface to intercept Skia's internal logs. Clients can implement this interface and install it via `SkLogHandler::SetInstance` to receive all messages generated through the `SKIA_LOG` macros. `SkLogHandler` uses `sk_sp` for shared ownership, allowing clients to maintain a reference to the handler.
