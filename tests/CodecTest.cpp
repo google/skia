@@ -48,11 +48,16 @@
 #include "src/core/SkRandom.h"
 #include "src/core/SkStreamPriv.h"
 #include "src/shaders/gradients/SkLinearGradient.h"
+#include "tests/CodecPriv.h"
 #include "tests/FakeStreams.h"
 #include "tests/Test.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+
+#if defined(SK_CODEC_DECODES_ICO)
+#include "include/codec/SkIcoDecoder.h"
+#endif
 
 #if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
 #include "include/codec/SkPngRustDecoder.h"
@@ -2679,3 +2684,41 @@ DEF_TEST(Codec_Bmp_b511820841, r) {
         codec->getPixels(info, &unusedPixels, info.minRowBytes(), &opts) != SkCodec::kSuccess);
 }
 
+#if defined(SK_CODEC_DECODES_ICO) && defined(SK_CODEC_DECODES_PNG_WITH_LIBPNG)
+DEF_SERIAL_TEST(Ico_usesRegisteredPngDecoder, r) {
+    sk_sp<SkData> icoData = make_ico_from_png_resource(r, "images/mandrill_128.png");
+
+    ScopedCodecDecoders scopedDecoders;
+    // Register a custom PNG decoder that returns a different image ("images/plane.png", 250x126)
+    // than the embedded PNG ("images/mandrill_128.png", 128x128) to verify without static state
+    // that SkIcoCodec delegates to the registered PNG decoder rather than calling libpng directly.
+    SkCodecs::Register({
+            "png",
+            SkPngDecoder::IsPng,
+            [](std::unique_ptr<SkStream>, SkCodec::Result* result, SkCodecs::DecodeContext ctx)
+                    -> std::unique_ptr<SkCodec> {
+                return SkPngDecoder::Decode(GetResourceAsStream("images/plane.png"), result, ctx);
+            },
+    });
+
+    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromStream(SkMemoryStream::Make(icoData));
+    REPORTER_ASSERT(r, codec != nullptr);
+    if (codec) {
+        REPORTER_ASSERT(r,
+                        codec->dimensions() == SkISize::Make(250, 126),
+                        "Expected SkIcoCodec to use the registered PNG decoder");
+    }
+}
+
+DEF_SERIAL_TEST(Ico_fallbackToLibpngWhenPngNotRegistered, r) {
+    ScopedCodecDecoders scopedDecoders;
+    scopedDecoders.clear();
+    SkCodecs::Register(SkIcoDecoder::Decoder());
+
+    sk_sp<SkData> icoData = make_ico_from_png_resource(r, "images/mandrill_128.png");
+
+    // Even though no "png" decoder is registered, SkIcoCodec should fall back to libpng.
+    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromStream(SkMemoryStream::Make(icoData));
+    REPORTER_ASSERT(r, codec != nullptr, "Expected fallback to libpng when PNG is not registered");
+}
+#endif  // SK_CODEC_DECODES_ICO && SK_CODEC_DECODES_PNG_WITH_LIBPNG
