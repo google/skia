@@ -25,7 +25,6 @@
 #include "src/core/SkPicturePriv.h"
 #include "src/ports/SkTypeface_FreeType.h"
 #include "src/utils/SkJSONWriter.h"
-#include "tools/ProcsUtils.h"
 #include "tools/SkSharingProc.h"
 #include "tools/UrlDataManager.h"
 #include "tools/debugger/DebugCanvas.h"
@@ -249,7 +248,11 @@ class SkpDebugPlayer {
     // Return the command list in JSON representation as a string
     std::string jsonCommandList(sk_sp<SkSurface> surface) {
       SkDynamicMemoryWStream stream;
-      SkJSONWriter           writer(&stream, ToolUtils::default_serial_procs(), SkJSONWriter::Mode::kFast);
+      SkSerialProcs          procs;
+      procs.fImageProc = [](SkImage* img, void*) -> sk_sp<const SkData> {
+        return SkPngEncoder::Encode(nullptr, img, {});
+      };
+      SkJSONWriter           writer(&stream, procs, SkJSONWriter::Mode::kFast);
       writer.beginObject(); // root
       visibleCanvas()->toJSON(writer, udm, surface->getCanvas());
       writer.endObject(); // root
