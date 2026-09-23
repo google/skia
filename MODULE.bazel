@@ -93,8 +93,6 @@ rust.toolchain(
         "x86_64-apple-darwin",
         "aarch64-apple-darwin",
         "aarch64-apple-ios",
-        "wasm32-unknown-unknown",
-        "wasm32-wasip1",
     ],
     versions = [
         # supported versions from https://github.com/bazelbuild/rules_rust/blob/6bdae371374a3740e97370bd9379da5b3ecab389/util/fetch_shas/fetch_shas_VERSIONS.txt
