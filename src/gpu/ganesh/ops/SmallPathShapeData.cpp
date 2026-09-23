@@ -24,9 +24,10 @@ SmallPathShapeDataKey::SmallPathShapeDataKey(const GrStyledShape& shape, uint32_
     SkASSERT(shape.style().isSimpleFill());
     SkASSERT(shape.hasUnstyledKey());
     int shapeKeySize = shape.unstyledKeySize();
-    fKey.reset(1 + shapeKeySize);
-    fKey[0] = dim;
-    shape.writeUnstyledKey(&fKey[1]);
+    fKey.reset(2 + shapeKeySize);
+    fKey[0] = static_cast<uint32_t>(Type::kSDF);
+    fKey[1] = dim;
+    shape.writeUnstyledKey(&fKey[2]);
 }
 
 SmallPathShapeDataKey::SmallPathShapeDataKey(const GrStyledShape& shape, const SkMatrix& ctm) {
@@ -47,13 +48,14 @@ SmallPathShapeDataKey::SmallPathShapeDataKey(const GrStyledShape& shape, const S
     SkFixed fracX = SkScalarToFixed(tx) & 0x0000FF00;
     SkFixed fracY = SkScalarToFixed(ty) & 0x0000FF00;
     int shapeKeySize = shape.unstyledKeySize();
-    fKey.reset(5 + shapeKeySize);
-    fKey[0] = SkFloat2Bits(sx);
-    fKey[1] = SkFloat2Bits(sy);
-    fKey[2] = SkFloat2Bits(kx);
-    fKey[3] = SkFloat2Bits(ky);
-    fKey[4] = fracX | (fracY >> 8);
-    shape.writeUnstyledKey(&fKey[5]);
+    fKey.reset(6 + shapeKeySize);
+    fKey[0] = static_cast<uint32_t>(Type::kBitmap);
+    fKey[1] = SkFloat2Bits(sx);
+    fKey[2] = SkFloat2Bits(sy);
+    fKey[3] = SkFloat2Bits(kx);
+    fKey[4] = SkFloat2Bits(ky);
+    fKey[5] = fracX | (fracY >> 8);
+    shape.writeUnstyledKey(&fKey[6]);
 }
 
 }  // namespace skgpu::ganesh

@@ -48,3 +48,94 @@ DEF_GANESH_TEST_FOR_CONTEXTS(SmallPathRenderer_crbug505876830,
     sdc->drawPath(nullptr, GrPaint(), GrAA::kYes, m, smolpath, style);
     ctx->flushAndSubmit();
 }
+
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
+#include "src/core/SkFloatBits.h"
+#include "src/gpu/ganesh/geometry/GrStyledShape.h"
+#include "src/gpu/ganesh/ops/SmallPathShapeData.h"
+
+DEF_TEST(SmallPathShapeDataKey_DomainSeparation, reporter) {
+    SkPath path = SkPath::Polygon({{-1, -1}, {1, -1}, {1, 1}, {-1, 1}}, true);
+    GrStyledShape shape(path);
+    skgpu::ganesh::SmallPathShapeDataKey sdfKey(shape, 32);
+    skgpu::ganesh::SmallPathShapeDataKey bmKey(shape, SkMatrix::I());
+
+    REPORTER_ASSERT(reporter, !(sdfKey == bmKey));
+    REPORTER_ASSERT(reporter, sdfKey.data()[0] ==
+            static_cast<uint32_t>(skgpu::ganesh::SmallPathShapeDataKey::Type::kSDF));
+    REPORTER_ASSERT(reporter, bmKey.data()[0] ==
+            static_cast<uint32_t>(skgpu::ganesh::SmallPathShapeDataKey::Type::kBitmap));
+}
+
+DEF_TEST(SmallPathShapeDataKey_CollisionReproduction, reporter) {
+    // 1. Construct Shape B (Bitmap side)
+    const float p0_x = SkBits2Float(0x28);
+    const float p0_y = 0.45f;
+    const float p1_x = 0.2f; // "free"
+    const float p1_y = 0.45f;
+    const float p2_x = 0.49f;
+    const float p2_y = SkBits2Float(0x700000);
+    const float p3_x = 65.0f;
+    const float p3_y = SkBits2Float(0x6);
+    const float p4_x = -1.0f;
+    const float p4_y = 1.5f;
+
+    SkPath pathB = SkPathBuilder()
+        .moveTo(p0_x, p0_y)
+        .lineTo(p1_x, p1_y)
+        .lineTo(p2_x, p2_y)
+        .quadTo(p3_x, p3_y, p4_x, p4_y)
+        .detach();
+    pathB.setFillType(SkPathFillType::kWinding);
+
+    SkMatrix ctmB = SkMatrix::MakeAll(
+        SkBits2Float(162), -1.0f, 0.0f,
+        -1.0f, SkBits2Float(0x10C), 0.0f,
+        0.0f, 0.0f, 1.0f
+    );
+
+    GrStyledShape shapeB(pathB);
+    skgpu::ganesh::SmallPathShapeDataKey keyB(shapeB, ctmB);
+
+    // 2. Construct Shape A (DF side)
+    SkRect rectA = SkRect::MakeLTRB(-1.0f, -1.0f, 0.0f, SkBits2Float(0x110));
+    SkVector radiiA[4] = {
+        { SkBits2Float(4),    SkBits2Float(0x02010100) }, // UL
+        { SkBits2Float(0x28), 0.45f },                    // UR
+        { 0.2f,               0.45f },                    // LR
+        { 0.49f,              SkBits2Float(0x700000)   }  // LL
+    };
+    SkRRect rrectA;
+    rrectA.setRectRadii(rectA, radiiA);
+
+    SkPaint strokePaint;
+    strokePaint.setStyle(SkPaint::kStroke_Style);
+    strokePaint.setStrokeWidth(1.5f);
+    strokePaint.setStrokeJoin(SkPaint::kRound_Join);
+    strokePaint.setStrokeCap(SkPaint::kButt_Cap);
+    GrStyle styleA(strokePaint);
+
+    GrStyledShape parentShapeA(rrectA, styleA);
+    GrStyledShape shapeA = parentShapeA.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, 65.0f);
+    skgpu::ganesh::SmallPathShapeDataKey keyA(shapeA, 162);
+
+    // Both keys have identical lengths (19 words: 1 word tag + 18 payload words)
+    REPORTER_ASSERT(reporter, keyA.count32() == 19);
+    REPORTER_ASSERT(reporter, keyB.count32() == 19);
+
+    // Verify the 18 payload words match byte-for-byte!
+    // Without the domain tag, this would have been an exact collision.
+    int payloadDiff = memcmp(&keyA.data()[1], &keyB.data()[1], 18 * sizeof(uint32_t));
+    REPORTER_ASSERT(reporter, payloadDiff == 0);
+
+    // With the domain tag, keyA != keyB:
+    REPORTER_ASSERT(reporter, !(keyA == keyB));
+    REPORTER_ASSERT(reporter, keyA.data()[0] ==
+            static_cast<uint32_t>(skgpu::ganesh::SmallPathShapeDataKey::Type::kSDF));
+    REPORTER_ASSERT(reporter, keyB.data()[0] ==
+            static_cast<uint32_t>(skgpu::ganesh::SmallPathShapeDataKey::Type::kBitmap));
+}
+
+#endif // !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
