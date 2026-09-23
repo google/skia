@@ -413,12 +413,12 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep(Layout layout, StaticBufferMana
                              {"edgeDistances", SkSLType::kFloat4}, // distance to LTRB edges
                              // TODO: These are constant for all fragments for a given instance,
                              // could we store them in the draw's SSBO?
-                             {"xRadii", SkSLType::kFloat4},
-                             {"yRadii", SkSLType::kFloat4},
+                             {"xRadii", SkSLType::kFloat4, Interpolation::kFlat},
+                             {"yRadii", SkSLType::kFloat4, Interpolation::kFlat},
                              // Matches the StrokeStyle struct (X is radius, Y < 0 is round join,
                              // Y = 0 is bevel, Y > 0 is miter join).
                              // TODO: These could easily be considered part of the draw's uniforms.
-                             {"strokeParams", SkSLType::kFloat2},
+                             {"strokeParams", SkSLType::kFloat2, Interpolation::kFlat},
                              // 'perPixelControl' is a tightly packed description of how to
                              // evaluate the possible edges that influence coverage in a pixel.
                              // The decision points and encoded values are spread across X and Y
