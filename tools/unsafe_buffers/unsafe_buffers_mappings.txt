@@ -90,6 +90,7 @@ src:*src/gpu/graphite/render/TessellateCurvesRenderStep.cpp
 src:*src/gpu/graphite/render/TessellateStrokesRenderStep.cpp
 src:*src/gpu/graphite/render/TessellateWedgesRenderStep.cpp
 src:*src/gpu/graphite/render/VerticesRenderStep.cpp
+src:*src/gpu/graphite/sparse_strips/*
 src:*src/gpu/graphite/task/CopyTask.cpp
 src:*src/gpu/graphite/task/UploadTask.cpp
 src:*src/gpu/graphite/text/TextAtlasManager.cpp
