@@ -20,6 +20,15 @@
     "cq_config": {}
   },
   {
+    "name": "BazelBuild-modules_canvaskit-ck_full_webgl2_release_debugger-linux_x64",
+    "cq_config": {
+      "location_regexes": [
+        "modules/canvaskit/.*",
+        "tools/debugger/.*"
+      ]
+    }
+  },
+  {
     "name": "BazelBuild-use_ganesh_gl-for_windows_x64_release-windows_x64"
   },
   {

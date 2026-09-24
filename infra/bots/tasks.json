@@ -30,6 +30,11 @@
         "BazelBuild-modules_canvaskit-ck_full_webgl2_debug-linux_x64"
       ]
     },
+    "BazelBuild-modules_canvaskit-ck_full_webgl2_release_debugger-linux_x64": {
+      "tasks": [
+        "BazelBuild-modules_canvaskit-ck_full_webgl2_release_debugger-linux_x64"
+      ]
+    },
     "BazelBuild-use_ganesh_gl-for_windows_x64_release-windows_x64": {
       "tasks": [
         "BazelBuild-use_ganesh_gl-for_windows_x64_release-windows_x64"
@@ -4297,6 +4302,84 @@
         "--task_name=BazelBuild-modules_canvaskit-ck_full_webgl2_debug-linux_x64",
         "--bazel_label=//modules/canvaskit:canvaskit",
         "--bazel_config=ck_full_webgl2_debug",
+        "--bazel_cache_dir=/home/chrome-bot/bazel_cache",
+        "--workdir=./skia",
+        "--bazel_arg=--config=for_linux_x64_with_rbe",
+        "--bazel_arg=--jobs=100",
+        "--bazel_arg=--remote_download_minimal"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-standard-16",
+        "os:Ubuntu-24.04",
+        "pool:Skia"
+      ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin",
+          "bazelisk_linux_amd64"
+        ]
+      },
+      "idempotent": true,
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "BazelBuild-modules_canvaskit-ck_full_webgl2_release_debugger-linux_x64": {
+      "caches": [
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        }
+      ],
+      "casSpec": "bazel",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:3@2.55.0.chromium.11"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:3d1174859c0a5bb00d87c78506f8c031afad16aa"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:3d1174859c0a5bb00d87c78506f8c031afad16aa"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:3d1174859c0a5bb00d87c78506f8c031afad16aa"
+        },
+        {
+          "name": "skia/bots/bazelisk_linux_amd64",
+          "path": "bazelisk_linux_amd64",
+          "version": "version:1"
+        }
+      ],
+      "command": [
+        "luci-auth",
+        "context",
+        "./bazel_build",
+        "--project_id=skia-swarming-bots",
+        "--task_id=<(TASK_ID)",
+        "--task_name=BazelBuild-modules_canvaskit-ck_full_webgl2_release_debugger-linux_x64",
+        "--bazel_label=//modules/canvaskit:canvaskit",
+        "--bazel_config=ck_full_webgl2_release_debugger",
         "--bazel_cache_dir=/home/chrome-bot/bazel_cache",
         "--workdir=./skia",
         "--bazel_arg=--config=for_linux_x64_with_rbe",
@@ -72706,6 +72789,12 @@
   "commit_queue": {
     "BazelBuild-full_library-release-linux_x64": {},
     "BazelBuild-modules_canvaskit-ck_full_webgl2_debug-linux_x64": {},
+    "BazelBuild-modules_canvaskit-ck_full_webgl2_release_debugger-linux_x64": {
+      "location_regexes": [
+        "modules/canvaskit/.*",
+        "tools/debugger/.*"
+      ]
+    },
     "Build-Debian11-GCC-x86_64-Debug-Docker": {},
     "Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_NoGPU": {
       "location_regexes": [
