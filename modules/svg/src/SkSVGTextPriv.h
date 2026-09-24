@@ -19,6 +19,7 @@
 #include "include/private/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
@@ -84,7 +85,7 @@ public:
     private:
         inline static constexpr auto kNone = std::numeric_limits<float>::infinity();
 
-        float fStorage[5]     = { kNone, kNone, kNone, kNone, kNone };
+        std::array<float, 5> fStorage = {kNone, kNone, kNone, kNone, kNone};
         bool  fImplicitRotate = false;
     };
 

@@ -106,14 +106,15 @@ bool SkSVGGradient::onAsPaint(const SkSVGRenderContext& ctx, SkPaint* paint) con
 // https://www.w3.org/TR/SVG11/pservers.html#LinearGradientElementSpreadMethodAttribute
 template <>
 bool SkSVGAttributeParser::parse(SkSVGSpreadMethod* spread) {
-    static const struct {
+    struct SpreadInfo {
         SkSVGSpreadMethod::Type fType;
         const char*             fName;
-    } gSpreadInfo[] = {
-        { SkSVGSpreadMethod::Type::kPad    , "pad"     },
-        { SkSVGSpreadMethod::Type::kReflect, "reflect" },
-        { SkSVGSpreadMethod::Type::kRepeat , "repeat"  },
     };
+    static constexpr auto gSpreadInfo = std::to_array<SpreadInfo>({
+        SpreadInfo{ SkSVGSpreadMethod::Type::kPad    , "pad"     },
+        SpreadInfo{ SkSVGSpreadMethod::Type::kReflect, "reflect" },
+        SpreadInfo{ SkSVGSpreadMethod::Type::kRepeat , "repeat"  },
+    });
 
     bool parsedValue = false;
     for (size_t i = 0; i < std::size(gSpreadInfo); ++i) {
