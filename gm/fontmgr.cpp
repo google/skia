@@ -31,6 +31,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
 #include <utility>
 
 // limit this just so we don't take too long to draw
@@ -204,9 +205,12 @@ class FontMgrMatchGM : public skiagm::GM {
         font.setSubpixel(true);
         font.setSize(17);
 
-        const char* gNames[] = {
-            "Helvetica Neue", "Arial", "sans", "Roboto"
-        };
+        static constexpr auto gNames = std::to_array<const char*>({
+                "Helvetica Neue",
+                "Arial",
+                "sans",
+                "Roboto",
+        });
 
         sk_sp<SkFontStyleSet> fset;
         for (size_t i = 0; i < std::size(gNames); ++i) {
@@ -359,7 +363,7 @@ private:
         font.setScaleX(fScaleX);
         font.setSkewX(fSkewX);
 
-        const SkColor boundsColors[2] = { SK_ColorRED, SK_ColorBLUE };
+        const std::array<SkColor, 2> boundsColors = {SK_ColorRED, SK_ColorBLUE};
 
         SkFontMgr* fm = fFM.get();
         int count = fm->countFamilies();

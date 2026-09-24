@@ -22,20 +22,22 @@
 #include "include/core/SkTypes.h"
 #include "src/core/SkColorPriv.h"
 
-constexpr SkBlendMode gModes[] = {
-    SkBlendMode::kClear,
-    SkBlendMode::kSrc,
-    SkBlendMode::kDst,
-    SkBlendMode::kSrcOver,
-    SkBlendMode::kDstOver,
-    SkBlendMode::kSrcIn,
-    SkBlendMode::kDstIn,
-    SkBlendMode::kSrcOut,
-    SkBlendMode::kDstOut,
-    SkBlendMode::kSrcATop,
-    SkBlendMode::kDstATop,
-    SkBlendMode::kXor,
-};
+#include <array>
+
+static constexpr auto gModes = std::to_array<SkBlendMode>({
+        SkBlendMode::kClear,
+        SkBlendMode::kSrc,
+        SkBlendMode::kDst,
+        SkBlendMode::kSrcOver,
+        SkBlendMode::kDstOver,
+        SkBlendMode::kSrcIn,
+        SkBlendMode::kDstIn,
+        SkBlendMode::kSrcOut,
+        SkBlendMode::kDstOut,
+        SkBlendMode::kSrcATop,
+        SkBlendMode::kDstATop,
+        SkBlendMode::kXor,
+});
 
 const int gWidth = 64;
 const int gHeight = 64;
@@ -94,7 +96,7 @@ namespace skiagm {
 
         void onDraw(SkCanvas* canvas) override {
             const SkRect bounds = SkRect::MakeWH(W, H);
-            constexpr SkAlpha gAlphaValue[] = { 0xFF, 0x88, 0x88 };
+            static constexpr auto gAlphaValue = std::to_array<SkAlpha>({0xFF, 0x88, 0x88});
 
             canvas->translate(SkIntToScalar(4), SkIntToScalar(4));
 

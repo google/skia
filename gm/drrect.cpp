@@ -16,6 +16,8 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 
+#include <array>
+
 class DRRectGM : public skiagm::GM {
 public:
     DRRectGM() {}
@@ -29,7 +31,7 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
 
-        SkRRect outers[4];
+        std::array<SkRRect, 4> outers;
         // like squares/circles, to exercise fast-cases in GPU
         SkRect r = { 0, 0, 100, 100 };
         SkVector radii[4] = {
@@ -44,7 +46,7 @@ protected:
         outers[2].setRectXY(r, 20, 20);
         outers[3].setRectRadii(r, radii);
 
-        SkRRect inners[5];
+        std::array<SkRRect, 5> inners;
         r.inset(25, 25);
 
         inners[0].setEmpty();

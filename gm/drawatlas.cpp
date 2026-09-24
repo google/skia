@@ -42,6 +42,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
 #include <initializer_list>
 
 using namespace skia_private;
@@ -80,7 +81,7 @@ protected:
         const SkRect target = { 50, 50, 80, 90 };
         auto atlas = MakeAtlas(canvas, target);
 
-        const struct {
+        struct Rec {
             SkScalar fScale;
             SkScalar fDegrees;
             SkScalar fTx;
@@ -93,17 +94,18 @@ protected:
                 xform->fTx   = fTx;
                 xform->fTy   = fTy;
             }
-        } rec[] = {
-            { 1, 0, 10, 10 },       // just translate
-            { 2, 0, 110, 10 },      // scale + translate
-            { 1, 30, 210, 10 },     // rotate + translate
-            { 2, -30, 310, 30 },    // scale + rotate + translate
         };
+        static constexpr const auto rec = std::to_array<Rec>({
+                Rec{1,   0,  10, 10}, // just translate
+                Rec{2,   0, 110, 10}, // scale + translate
+                Rec{1,  30, 210, 10}, // rotate + translate
+                Rec{2, -30, 310, 30}, // scale + rotate + translate
+        });
 
         const int N = std::size(rec);
-        SkRSXform xform[N];
-        SkRect tex[N];
-        SkColor colors[N];
+        std::array<SkRSXform, N> xform;
+        std::array<SkRect, N> tex;
+        std::array<SkColor, N> colors;
 
         for (int i = 0; i < N; ++i) {
             rec[i].apply(&xform[i]);
@@ -186,7 +188,7 @@ static sk_sp<SkShader> make_shader() {
 static void drawTextPath(SkCanvas* canvas, bool doStroke) {
     const char text0[] = "ABCDFGHJKLMNOPQRSTUVWXYZ";
     const int N = sizeof(text0) - 1;
-    SkPoint pos[N];
+    std::array<SkPoint, N> pos;
 
     SkFont font = ToolUtils::DefaultPortableFont();
     font.setSize(100);
@@ -214,7 +216,7 @@ static void drawTextPath(SkCanvas* canvas, bool doStroke) {
     };
     for (auto d : dirs) {
         path = SkPath::Oval(SkRect::MakeXYWH(160, 160, 540, 540), d);
-        draw_text_on_path(canvas, text0, N, pos, path, font, paint, baseline_offset);
+        draw_text_on_path(canvas, text0, N, pos.data(), path, font, paint, baseline_offset);
     }
 
     paint.reset();
@@ -239,7 +241,7 @@ DEF_SIMPLE_GM(blob_rsxform, canvas, 500, 100) {
     const char text[] = "CrazyXform";
     constexpr size_t len = sizeof(text) - 1;
 
-    SkRSXform xforms[len];
+    std::array<SkRSXform, len> xforms;
     SkScalar scale = 1;
     SkScalar x = 0, y = 0;
     for (size_t i = 0; i < len; ++i) {
@@ -280,7 +282,7 @@ DEF_SIMPLE_GM(blob_rsxform_distortable, canvas, 500, 100) {
     const char text[] = "abcabcabc";
     constexpr size_t len = sizeof(text) - 1;
 
-    SkRSXform xforms[len];
+    std::array<SkRSXform, len> xforms;
     SkScalar scale = 1;
     SkScalar x = 0, y = 0;
     for (size_t i = 0; i < len; ++i) {

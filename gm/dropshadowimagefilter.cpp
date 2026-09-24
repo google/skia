@@ -25,6 +25,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
 #include <utility>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -82,9 +83,13 @@ static void draw_bitmap(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> 
 ///////////////////////////////////////////////////////////////////////////////
 
 DEF_SIMPLE_GM(dropshadowimagefilter, canvas, 400, 656) {
-    void (*drawProc[])(SkCanvas*, const SkRect&, sk_sp<SkImageFilter>) = {
-        draw_bitmap, draw_path, draw_paint, draw_text
-    };
+    static constexpr auto drawProc =
+            std::to_array<void (*)(SkCanvas*, const SkRect&, sk_sp<SkImageFilter>)>({
+                    draw_bitmap,
+                    draw_path,
+                    draw_paint,
+                    draw_text,
+            });
 
     sk_sp<SkColorFilter> cf(SkColorFilters::Blend(SK_ColorMAGENTA, SkBlendMode::kSrcIn));
     sk_sp<SkImageFilter> cfif(SkImageFilters::ColorFilter(std::move(cf), nullptr));
@@ -92,7 +97,7 @@ DEF_SIMPLE_GM(dropshadowimagefilter, canvas, 400, 656) {
     SkIRect bogusRect = SkIRect::MakeXYWH(-100, -100, 10, 10);
 
     sk_sp<SkColorSpace> spinCS = SkColorSpace::MakeSRGB()->makeColorSpin();
-    sk_sp<SkImageFilter> filters[] = {
+    auto filters = std::to_array<sk_sp<SkImageFilter>>({
             nullptr,
             SkImageFilters::DropShadow(7.0f, 0.0f, 0.0f, 3.0f, SK_ColorBLUE, nullptr),
             SkImageFilters::DropShadow(0.0f, 7.0f, 3.0f, 0.0f, SK_ColorBLUE, nullptr),
@@ -102,7 +107,7 @@ DEF_SIMPLE_GM(dropshadowimagefilter, canvas, 400, 656) {
                     7.0f, 7.0f, 3.0f, 3.0f, SkColors::kGreen, spinCS, nullptr, &cropRect),
             SkImageFilters::DropShadow(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, nullptr, &bogusRect),
             SkImageFilters::DropShadowOnly(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, nullptr),
-    };
+    });
 
     SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
     SkScalar MARGIN = SkIntToScalar(16);

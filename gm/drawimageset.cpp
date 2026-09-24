@@ -30,6 +30,7 @@
 #include "tools/ToolUtils.h"
 
 #include <algorithm>
+#include <array>
 #include <initializer_list>
 #include <utility>
 
@@ -118,7 +119,7 @@ private:
 
     void onDraw(SkCanvas* canvas) override {
         SkScalar d = SkVector{kM * kTileW, kN * kTileH}.length();
-        SkMatrix matrices[4];
+        std::array<SkMatrix, 4> matrices;
         // rotation
         matrices[0].setRotate(30);
         matrices[0].postTranslate(d / 3, 0);
@@ -223,7 +224,7 @@ private:
         ToolUtils::draw_checkerboard(canvas, SK_ColorBLACK, SK_ColorWHITE, 50);
         static constexpr SkScalar kW = kM * kTileW;
         static constexpr SkScalar kH = kN * kTileH;
-        SkMatrix matrices[5];
+        std::array<SkMatrix, 5> matrices;
         // Identity
         matrices[0].reset();
         // 90 degree rotation

@@ -23,6 +23,8 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 // NOTE: The positions define hardstops for the red and green borders. For the repeating degenerate
 // gradients, that means the red and green are never visible, so the average color used should only
 // be based off of the white, blue, black blend.
@@ -30,11 +32,13 @@ static const SkColor4f COLORS[] = { SkColors::kRed, SkColors::kWhite, SkColors::
                                     SkColors::kBlack, SkColors::kGreen };
 static const SkScalar POS[] = { 0.0, 0.0, 0.5, 1.0, 1.0 };
 
-static const SkTileMode TILE_MODES[] = { SkTileMode::kDecal,
-                                         SkTileMode::kRepeat,
-                                         SkTileMode::kMirror,
-                                         SkTileMode::kClamp };
-static const char* TILE_NAMES[] = { "decal", "repeat", "mirror", "clamp" };
+static constexpr auto TILE_MODES = std::to_array<SkTileMode>({
+        SkTileMode::kDecal,
+        SkTileMode::kRepeat,
+        SkTileMode::kMirror,
+        SkTileMode::kClamp,
+});
+static constexpr auto TILE_NAMES = std::to_array<const char*>({"decal", "repeat", "mirror", "clamp"});
 static const int TILE_MODE_CT = std::size(TILE_MODES);
 
 static constexpr int TILE_SIZE = 100;

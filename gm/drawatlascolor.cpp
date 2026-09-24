@@ -25,6 +25,8 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 // Create a square atlas of:
 //   opaque white  |     opaque red
 //  ------------------------------------
@@ -84,52 +86,33 @@ protected:
 
         auto atlas = make_atlas(canvas, kAtlasSize);
 
-        const SkBlendMode gModes[] = {
-            SkBlendMode::kClear,
-            SkBlendMode::kSrc,
-            SkBlendMode::kDst,
-            SkBlendMode::kSrcOver,
-            SkBlendMode::kDstOver,
-            SkBlendMode::kSrcIn,
-            SkBlendMode::kDstIn,
-            SkBlendMode::kSrcOut,
-            SkBlendMode::kDstOut,
-            SkBlendMode::kSrcATop,
-            SkBlendMode::kDstATop,
-            SkBlendMode::kXor,
-            SkBlendMode::kPlus,
-            SkBlendMode::kModulate,
-            SkBlendMode::kScreen,
-            SkBlendMode::kOverlay,
-            SkBlendMode::kDarken,
-            SkBlendMode::kLighten,
-            SkBlendMode::kColorDodge,
-            SkBlendMode::kColorBurn,
-            SkBlendMode::kHardLight,
-            SkBlendMode::kSoftLight,
-            SkBlendMode::kDifference,
-            SkBlendMode::kExclusion,
-            SkBlendMode::kMultiply,
-            SkBlendMode::kHue,
-            SkBlendMode::kSaturation,
-            SkBlendMode::kColor,
-            SkBlendMode::kLuminosity,
-        };
+        static constexpr auto gModes = std::to_array<SkBlendMode>({
+                SkBlendMode::kClear,      SkBlendMode::kSrc,        SkBlendMode::kDst,
+                SkBlendMode::kSrcOver,    SkBlendMode::kDstOver,    SkBlendMode::kSrcIn,
+                SkBlendMode::kDstIn,      SkBlendMode::kSrcOut,     SkBlendMode::kDstOut,
+                SkBlendMode::kSrcATop,    SkBlendMode::kDstATop,    SkBlendMode::kXor,
+                SkBlendMode::kPlus,       SkBlendMode::kModulate,   SkBlendMode::kScreen,
+                SkBlendMode::kOverlay,    SkBlendMode::kDarken,     SkBlendMode::kLighten,
+                SkBlendMode::kColorDodge, SkBlendMode::kColorBurn,  SkBlendMode::kHardLight,
+                SkBlendMode::kSoftLight,  SkBlendMode::kDifference, SkBlendMode::kExclusion,
+                SkBlendMode::kMultiply,   SkBlendMode::kHue,        SkBlendMode::kSaturation,
+                SkBlendMode::kColor,      SkBlendMode::kLuminosity,
+        });
 
-        SkColor gColors[] = {
-            SK_ColorWHITE,
-            SK_ColorRED,
-            0x88888888,         // transparent grey
-            0x88000088          // transparent blue
-        };
+        static constexpr auto gColors = std::to_array<SkColor>({
+                SK_ColorWHITE,
+                SK_ColorRED,
+                0x88888888,  // transparent grey
+                0x88000088,  // transparent blue
+        });
 
         const int numModes = std::size(gModes);
         SkASSERT(numModes == kNumXferModes);
         const int numColors = std::size(gColors);
         SkASSERT(numColors == kNumColors);
-        SkRSXform xforms[numColors];
-        SkRect rects[numColors];
-        SkColor quadColors[numColors];
+        std::array<SkRSXform, numColors> xforms;
+        std::array<SkRect, numColors> rects;
+        std::array<SkColor, numColors> quadColors;
 
         SkPaint paint;
         paint.setAntiAlias(true);

@@ -17,6 +17,8 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
 
+#include <array>
+
 /*
  *  Want to ensure that our bitmap sampler (in bitmap shader) keeps plenty of
  *  precision when scaling very large images (where the dx might get very small.
@@ -37,9 +39,12 @@ class GiantBitmapGM : public skiagm::GM {
             fBM->allocN32Pixels(W, H);
             fBM->eraseColor(SK_ColorWHITE);
 
-            const SkColor colors[] = {
-                SK_ColorBLUE, SK_ColorRED, SK_ColorBLACK, SK_ColorGREEN
-            };
+            static constexpr auto colors = std::to_array<SkColor>({
+                    SK_ColorBLUE,
+                    SK_ColorRED,
+                    SK_ColorBLACK,
+                    SK_ColorGREEN,
+            });
 
             SkCanvas canvas(*fBM);
             SkPaint paint;

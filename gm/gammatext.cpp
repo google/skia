@@ -24,6 +24,8 @@
 #include "include/effects/SkGradient.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 static sk_sp<SkShader> make_heatGradient(const SkPoint pts[2]) {
     const SkColor4f bw[] = { SkColors::kBlack, SkColors::kWhite };
 
@@ -58,12 +60,12 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         drawGrad(canvas);
 
-        const SkColor fg[] = {
-            0xFFFFFFFF,
-            0xFFFFFF00, 0xFFFF00FF, 0xFF00FFFF,
-            0xFFFF0000, 0xFF00FF00, 0xFF0000FF,
-            0xFF000000,
-        };
+        static constexpr auto fg = std::to_array<SkColor>({
+                0xFFFFFFFF,
+                0xFFFFFF00, 0xFFFF00FF, 0xFF00FFFF,
+                0xFFFF0000, 0xFF00FF00, 0xFF0000FF,
+                0xFF000000,
+        });
 
         const char* text = "Hamburgefons";
 
@@ -115,12 +117,16 @@ static void draw_pair(SkCanvas* canvas, const SkFont& font, SkColor color,
 }
 
 class GammaShaderTextGM : public skiagm::GM {
-    sk_sp<SkShader> fShaders[3];
-    SkColor fColors[3];
+    std::array<sk_sp<SkShader>, 3> fShaders;
+    std::array<SkColor, 3> fColors;
 
 public:
     GammaShaderTextGM() {
-        const SkColor colors[] = { SK_ColorBLACK, SK_ColorRED, SK_ColorBLUE };
+        static constexpr auto colors = std::to_array<SkColor>({
+                SK_ColorBLACK,
+                SK_ColorRED,
+                SK_ColorBLUE,
+        });
         for (size_t i = 0; i < std::size(fShaders); ++i) {
             fColors[i] = colors[i];
         }

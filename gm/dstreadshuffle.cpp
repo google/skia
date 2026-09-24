@@ -28,6 +28,8 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 namespace skiagm {
 
 /**
@@ -78,7 +80,7 @@ protected:
             case kConcavePath_ShapeType:
                 if (fConcavePath.isEmpty()) {
                     SkPathBuilder b;
-                    SkPoint points[5] = {{50.f, 0.f}};
+                    std::array<SkPoint, 5> points = {{{50.f, 0.f}}};
                     SkMatrix rot;
                     rot.setRotate(360.f / 5, 50.f, 70.f);
                     for (int i = 1; i < 5; ++i) {

@@ -38,6 +38,7 @@
 #include "tools/ganesh/ProxyUtils.h"
 #endif
 
+#include <array>
 #include <string.h>
 #include <utility>
 
@@ -53,37 +54,36 @@ static const int kCellSize = kImageSize+2*kLabelSize;
 static const int kGMWidth  = kNumMatrices*kCellSize;
 static const int kGMHeight = 4*kCellSize;
 
-static const SkPoint kPoints[kNumLabels] = {
-    {          0, kImageSize },     // LL
-    { kImageSize, kImageSize },     // LR
-    {          0,          0 },     // UL
-    { kImageSize,          0 },     // UR
-};
+static constexpr std::array<SkPoint, kNumLabels> kPoints = {{
+        {          0, kImageSize },     // LL
+        { kImageSize, kImageSize },     // LR
+        {          0,          0 },     // UL
+        { kImageSize,          0 },     // UR
+}};
 
-static const SkMatrix kUVMatrices[kNumMatrices] = {
-    SkMatrix::MakeAll( 0, -1, 1,
-                      -1,  0, 1,
-                       0,  0, 1),
-    SkMatrix::MakeAll( 1,  0, 0,
-                       0, -1, 1,
-                       0,  0, 1),
-    // flip x
-    SkMatrix::MakeAll(-1,  0, 1,
-                       0,  1, 0,
-                       0,  0, 1),
-    SkMatrix::MakeAll( 0,  1, 0,
-                      -1,  0, 1,
-                       0,  0, 1),
-    // flip both x & y == rotate 180
-    SkMatrix::MakeAll(-1,  0, 1,
-                       0, -1, 1,
-                       0,  0, 1),
-    // identity
-    SkMatrix::MakeAll(1,  0, 0,
-                      0,  1, 0,
-                      0,  0, 1)
+static const std::array<SkMatrix, kNumMatrices> kUVMatrices = {
+        SkMatrix::MakeAll( 0, -1, 1,
+                          -1,  0, 1,
+                           0,  0, 1),
+        SkMatrix::MakeAll( 1,  0, 0,
+                           0, -1, 1,
+                           0,  0, 1),
+        // flip x
+        SkMatrix::MakeAll(-1,  0, 1,
+                           0,  1, 0,
+                           0,  0, 1),
+        SkMatrix::MakeAll( 0,  1, 0,
+                          -1,  0, 1,
+                           0,  0, 1),
+        // flip both x & y == rotate 180
+        SkMatrix::MakeAll(-1,  0, 1,
+                           0, -1, 1,
+                           0,  0, 1),
+        // identity
+        SkMatrix::MakeAll( 1,  0, 0,
+                           0,  1, 0,
+                           0,  0, 1),
 };
-
 
 // Create a fixed size text label like "LL" or "LR".
 static sk_sp<SkImage> make_text_image(const char* text, SkColor color) {
@@ -190,13 +190,13 @@ private:
     // Draw the reference image and the four corner labels in the matrix's coordinate space
     void drawImageWithMatrixAndLabels(SkCanvas* canvas, SkImage* image, int matIndex,
                                       bool drawSubset, bool drawScaled) {
-        static const SkRect kSubsets[kNumMatrices] = {
-            SkRect::MakeXYWH(kInset, 0, kImageSize-kInset, kImageSize),
-            SkRect::MakeXYWH(0, kInset, kImageSize, kImageSize-kInset),
-            SkRect::MakeXYWH(0, 0, kImageSize-kInset, kImageSize),
-            SkRect::MakeXYWH(0, 0, kImageSize, kImageSize-kInset),
-            SkRect::MakeXYWH(kInset/2, kInset/2, kImageSize-kInset, kImageSize-kInset),
-            SkRect::MakeXYWH(kInset, kInset, kImageSize-2*kInset, kImageSize-2*kInset),
+        static constexpr std::array<SkRect, kNumMatrices> kSubsets = {
+                SkRect::MakeXYWH(kInset, 0, kImageSize - kInset, kImageSize),
+                SkRect::MakeXYWH(0, kInset, kImageSize, kImageSize - kInset),
+                SkRect::MakeXYWH(0, 0, kImageSize - kInset, kImageSize),
+                SkRect::MakeXYWH(0, 0, kImageSize, kImageSize - kInset),
+                SkRect::MakeXYWH(kInset / 2, kInset / 2, kImageSize - kInset, kImageSize - kInset),
+                SkRect::MakeXYWH(kInset, kInset, kImageSize - 2 * kInset, kImageSize - 2 * kInset),
         };
 
         SkMatrix imageGeomMat;
@@ -243,13 +243,10 @@ private:
             return;
         }
 
-        static const char* kLabelText[kNumLabels] = { "LL", "LR", "UL", "UR" };
+        static constexpr std::array<const char*, kNumLabels> kLabelText = {"LL", "LR", "UL", "UR"};
 
-        static const SkColor kLabelColors[kNumLabels] = {
-            SK_ColorRED,
-            SK_ColorGREEN,
-            SK_ColorBLUE,
-            SK_ColorCYAN
+        static constexpr std::array<SkColor, kNumLabels> kLabelColors = {
+                SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorCYAN
         };
 
         for (int i = 0; i < kNumLabels; ++i) {
@@ -311,7 +308,7 @@ private:
 
 private:
     TArray<sk_sp<SkImage>> fLabels;
-    sk_sp<SkImage> fReferenceImages[2];
+    std::array<sk_sp<SkImage>, 2> fReferenceImages;
 
     using INHERITED = GM;
 };

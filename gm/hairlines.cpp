@@ -19,6 +19,8 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
 
+#include <array>
+
 using namespace skia_private;
 
 namespace skiagm {
@@ -138,8 +140,8 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        constexpr SkAlpha kAlphaValue[] = { 0xFF, 0x40 };
-        constexpr SkScalar kWidths[] = { 0, 0.5f, 1.5f };
+        static constexpr auto kAlphaValue = std::to_array<SkAlpha>({0xFF, 0x40});
+        static constexpr auto kWidths = std::to_array<SkScalar>({0, 0.5f, 1.5f});
 
         enum {
             kMargin = 5,
@@ -243,8 +245,14 @@ DEF_SIMPLE_GM_CAN_FAIL(squarehair_diffs, canvas, errorMsg, 600, 720) {
     const SkScalar widths[] = { 0, 1, 1.001f };
     // Draws each of the three caps in a different color so we can overlay the three channels
     // and zoom in to see the differences in the cap algorithms.
-    const SkPaint::Cap caps[] = { SkPaint::kButt_Cap, SkPaint::kSquare_Cap, SkPaint::kRound_Cap };
-    const SkColor colors[] = {SkColorSetRGB(255, 0, 0), SkColorSetRGB(0, 255, 0), SkColorSetRGB(0, 0, 255)};
+    static constexpr auto caps = std::to_array<SkPaint::Cap>({
+            SkPaint::kButt_Cap,
+            SkPaint::kSquare_Cap,
+            SkPaint::kRound_Cap,
+    });
+    static constexpr auto colors = std::to_array<SkColor>({
+            SkColorSetRGB(255, 0, 0), SkColorSetRGB(0, 255, 0), SkColorSetRGB(0, 0, 255)
+    });
     for (auto alias : aliases) {
         for (auto width : widths) {
             SkPaint backdrop;

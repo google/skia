@@ -25,8 +25,9 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
-#include <string.h>
+#include <array>
 #include <memory>
+#include <string.h>
 #include <utility>
 
 namespace skiagm {
@@ -89,7 +90,7 @@ private:
 
     inline static constexpr int rows = 2;
     inline static constexpr int cols = 5;
-    sk_sp<SkTypeface> typeface[rows][cols];
+    std::array<std::array<sk_sp<SkTypeface>, cols>, rows> typeface;
 
     void updateTypefaces() {
         sk_sp<SkFontMgr> fontMgr = ToolUtils::TestFontMgr();

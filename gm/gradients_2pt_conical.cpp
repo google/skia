@@ -22,6 +22,8 @@
 #include "include/effects/SkGradient.h"
 #include "include/private/SkFloatingPoint.h"
 
+#include <array>
+
 namespace skiagm {
 
 struct GradData {
@@ -48,12 +50,12 @@ constexpr SkColor4f  gColorClamp[] = {
     SkColors::kRed, SkColors::kGreen, SkColors::kGreen, SkColors::kBlue
 };
 
-constexpr GradData gGradData[] = {
-    { 2, gColors, gPos0 },
-    { 2, gColors, gPos1 },
-    { 5, gColors, gPos2 },
-    { 4, gColorClamp, gPosClamp }
-};
+static constexpr auto gGradData = std::to_array<GradData>({
+        GradData{2,     gColors,     gPos0},
+        GradData{2,     gColors,     gPos1},
+        GradData{5,     gColors,     gPos2},
+        GradData{4, gColorClamp, gPosClamp}
+});
 
 static sk_sp<SkShader> Make2ConicalOutside(const SkPoint pts[2], const GradData& data,
                                            SkTileMode tm, const SkMatrix& localMatrix) {
@@ -294,16 +296,16 @@ constexpr GradMaker gGradMakersEdgeCases[] = {
     Make2ConicalInsideSmallRad
 };
 
-
-constexpr struct {
-    const GradMaker*   fMaker;
+struct GradCase {
+    const GradMaker* fMaker;
     const int fCount;
     const char* fName;
-} gGradCases[] = {
-    { gGradMakersOutside,   std::size(gGradMakersOutside),     "outside"  },
-    { gGradMakersInside,    std::size(gGradMakersInside),      "inside"  },
-    { gGradMakersEdgeCases, std::size(gGradMakersEdgeCases),   "edge"  },
 };
+static constexpr auto gGradCases = std::to_array<GradCase>({
+        GradCase{  gGradMakersOutside,   std::size(gGradMakersOutside), "outside"},
+        GradCase{   gGradMakersInside,    std::size(gGradMakersInside),  "inside"},
+        GradCase{gGradMakersEdgeCases, std::size(gGradMakersEdgeCases),    "edge"},
+});
 
 enum GradCaseType { // these must match the order in gGradCases
     kOutside_GradCaseType,
