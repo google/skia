@@ -33,7 +33,11 @@ struct Vertex {
     // (see analytic_rrect_blur_vertex_fn), this bevel is only set and applied for the two
     // outermost corner vertices in the corner cells.
     int32_t fGridAndBevel[4];
-    int32_t fCellIndex;
+
+    // The cell index of the current cell. Bits 28-31 are set if the current cell is a corner safe
+    // edge. The encoding from least significant to most significant is kept the same as
+    // `canSaturateEdge`: left, right, top, and bottom.
+    uint32_t fCellID;
 };
 
 static constexpr int kVertexCount = 104;
@@ -66,6 +70,11 @@ static constexpr int kIndexCount = 162;
 // The labels on the y-axis also apply to the x-axis as well, this is the ideal case where we can
 // classify 5 cells as fully saturated (not affected by the blur), so we can skip evaluating the
 // fragment shader for those pixels since we guarantee they won't be affected by the blur.
+// For the outermost edge cells between x2 and x3, or y2 and y3, we can further simplify the blur
+// evaluation given the blur radius 3 sigma away doesn't go past the opposite edge of the rect. This
+// allows us to simplify the CDF evaluation for that edge since we know the opposite edge CDF
+// evalation is fully saturated (either 0 or 1), and for the other axis, we are fully
+// within the rounded rect.
 //
 // In the case that the sigma is very large or the radii leaves no room for a straight edge on an
 // axis, the inset and/or safe bounds are snapped to the middle of that axis and will result in
@@ -152,11 +161,26 @@ static void write_vertex_buffer(VertexWriter writer) {
                 continue;
             }
 
-            int cId = row * 5 + col;
+            uint32_t cId = row * 5 + col;
             int x0 = col;
             int x1 = col + 1;
             int y0 = row;
             int y1 = row + 1;
+
+            // Encode the corner safe edge bit.
+            if (row == 2) {
+                if (col == 0) {
+                    cId |= 1 << 28;  // Left
+                } else if (col == 4) {
+                    cId |= 1 << 29;  // Right
+                }
+            } else if (col == 2) {
+                if (row == 0) {
+                    cId |= 1 << 30;  // Top
+                } else if (row == 4) {
+                    cId |= 1 << 31;  // Bottom
+                }
+            }
 
             writer << Vertex{{x0, y0, 0, 0}, cId}
                    << Vertex{{x1, y0, 0, 0}, cId}
@@ -214,12 +238,13 @@ AnalyticRRectBlurRenderStep::AnalyticRRectBlurRenderStep(Layout layout,
                      kDirectDepthLessPass,
                      /*staticAttrs=*/
                      {{"gridAndBevel", VertexAttribType::kInt4, SkSLType::kInt4},
-                      {"cellIndex", VertexAttribType::kInt, SkSLType::kInt}},
+                      {"cellID", VertexAttribType::kUInt, SkSLType::kUInt}},
                      /*appendAttrs=*/
                      {{"bounds0", VertexAttribType::kFloat4, SkSLType::kFloat4},
                       {"bounds1", VertexAttribType::kFloat4, SkSLType::kFloat4},
                       {"bounds2", VertexAttribType::kFloat4, SkSLType::kFloat4},
-                      {"safeLimits", VertexAttribType::kFloat4, SkSLType::kFloat4},
+                      {"cornerSafeBounds", VertexAttribType::kFloat4, SkSLType::kFloat4},
+                      {"canSaturateEdge", VertexAttribType::kUInt, SkSLType::kUInt},
                       {"localToDevice0", VertexAttribType::kFloat3, SkSLType::kFloat3},
                       {"localToDevice1", VertexAttribType::kFloat3, SkSLType::kFloat3},
                       {"localToDevice2", VertexAttribType::kFloat3, SkSLType::kFloat3},
@@ -237,9 +262,9 @@ AnalyticRRectBlurRenderStep::AnalyticRRectBlurRenderStep(Layout layout,
 
 std::string AnalyticRRectBlurRenderStep::vertexSkSL(const RootNodesInfo&) const {
     return "float4 devPosition = analytic_rrect_blur_vertex_fn("
-                   "gridAndBevel, cellIndex, rect, "
+                   "gridAndBevel, cellID, rect, "
                    "bounds0, bounds1, bounds2, "
-                   "safeLimits, drawPad, rrectRadii, depth, "
+                   "cornerSafeBounds, canSaturateEdge, drawPad, rrectRadii, depth, "
                    "localToDevice0, localToDevice1, localToDevice2, "
                    "scaledShapeCoords, vFlags, stepLocalCoords);\n";
 }
@@ -273,21 +298,21 @@ void AnalyticRRectBlurRenderStep::writeVertices(DrawWriter* writer,
     float satPadY = std::ceil(3.5f * blur.localSigma().y);
 
     // Calculate distance from edge where the corner curvature has ended and is saturated.
-    float safeOffsetXMin = std::max(radii[0].fX, radii[3].fX) + drawPadX;
-    float safeOffsetXMax = std::max(radii[1].fX, radii[2].fX) + drawPadX;
-    float safeOffsetYMin = std::max(radii[0].fY, radii[1].fY) + drawPadY;
-    float safeOffsetYMax = std::max(radii[2].fY, radii[3].fY) + drawPadY;
+    float safeOffsetLeft = std::max(radii[0].fX, radii[3].fX) + drawPadX;
+    float safeOffsetRight = std::max(radii[1].fX, radii[2].fX) + drawPadX;
+    float safeOffsetTop = std::max(radii[0].fY, radii[1].fY) + drawPadY;
+    float safeOffsetBottom = std::max(radii[2].fY, radii[3].fY) + drawPadY;
 
-    float xlo = rect.fLeft + safeOffsetXMin;
-    float xhi = rect.fRight - safeOffsetXMax;
-    float ylo = rect.fTop + safeOffsetYMin;
-    float yhi = rect.fBottom - safeOffsetYMax;
+    float cornerSafeXMin = rect.fLeft + safeOffsetLeft;
+    float cornerSafeXMax = rect.fRight - safeOffsetRight;
+    float cornerSafeYMin = rect.fTop + safeOffsetTop;
+    float cornerSafeYMax = rect.fBottom - safeOffsetBottom;
 
     // Innermost safe bounds that we define as our fully saturated bounds.
-    float insXMin = rect.fLeft + std::max(satPadX, safeOffsetXMin);
-    float insXMax = rect.fRight - std::max(satPadX, safeOffsetXMax);
-    float insYMin = rect.fTop + std::max(satPadY, safeOffsetYMin);
-    float insYMax = rect.fBottom - std::max(satPadY, safeOffsetYMax);
+    float insXMin = rect.fLeft + std::max(satPadX, safeOffsetLeft);
+    float insXMax = rect.fRight - std::max(satPadX, safeOffsetRight);
+    float insYMin = rect.fTop + std::max(satPadY, safeOffsetTop);
+    float insYMax = rect.fBottom - std::max(satPadY, safeOffsetBottom);
 
     // Snap innermost inset bounds to the center if they are overlapping.
     if (insXMin >= insXMax) {
@@ -300,10 +325,10 @@ void AnalyticRRectBlurRenderStep::writeVertices(DrawWriter* writer,
     // Our outermost edge safe inset bounds. This allows us to assume full coverage when we are
     // far enough from an edge on one axis and within the corner radius safe limits on the other
     // axis.
-    float edgeInsXMin = std::min(insXMin, rect.fLeft + std::min(satPadX, safeOffsetXMin));
-    float edgeInsXMax = std::max(insXMax, rect.fRight - std::min(satPadX, safeOffsetXMax));
-    float edgeInsYMin = std::min(insYMin, rect.fTop + std::min(satPadY, safeOffsetYMin));
-    float edgeInsYMax = std::max(insYMax, rect.fBottom - std::min(satPadY, safeOffsetYMax));
+    float edgeInsXMin = std::min(insXMin, rect.fLeft + std::min(satPadX, safeOffsetLeft));
+    float edgeInsXMax = std::max(insXMax, rect.fRight - std::min(satPadX, safeOffsetRight));
+    float edgeInsYMin = std::min(insYMin, rect.fTop + std::min(satPadY, safeOffsetTop));
+    float edgeInsYMax = std::max(insYMax, rect.fBottom - std::min(satPadY, safeOffsetBottom));
 
     // Bounds mapping to each row and columns of our 5x5 vertex grid.
     const float xBounds[6] = {rect.fLeft - drawPadX, edgeInsXMin, insXMin,
@@ -313,10 +338,29 @@ void AnalyticRRectBlurRenderStep::writeVertices(DrawWriter* writer,
 
     const SkM44& mat = params.transform().matrix();
 
+    // Bitmask determining which edges we can assume are fully saturated by the opposite edge.
+    // Dependent on the current edge cell's blur not going past the opposite edge of the rect.
+    // In order from least significant to most significant: left, right, top, and bottom.
+    uint32_t canSaturateEdge = 0;
+    if (edgeInsXMin + drawPadX < rect.fRight) {
+        canSaturateEdge |= 1;
+    }
+    if (edgeInsXMax - drawPadX > rect.fLeft) {
+        canSaturateEdge |= 2;
+    }
+    if (edgeInsYMin + drawPadY < rect.fBottom) {
+        canSaturateEdge |= 4;
+    }
+    if (edgeInsYMax - drawPadY > rect.fTop) {
+        canSaturateEdge |= 8;
+    }
+
     DrawWriter::Instances instances{*writer, fVertexBuffer, fIndexBuffer, kIndexCount};
     instances.append(1) << VertexWriter::Array(xBounds, 6)               // bounds0, bounds1
                         << VertexWriter::Array(yBounds, 6)               // bounds2
-                        << xlo << ylo << xhi << yhi                      // safeLimits
+                        << cornerSafeXMin << cornerSafeYMin
+                        << cornerSafeXMax << cornerSafeYMax              // cornerSafeBounds
+                        << canSaturateEdge
                         << mat.rc(0, 0) << mat.rc(1, 0) << mat.rc(3, 0)  // localToDevice0
                         << mat.rc(0, 1) << mat.rc(1, 1) << mat.rc(3, 1)  // localToDevice1
                         << mat.rc(0, 3) << mat.rc(1, 3) << mat.rc(3, 3)  // localToDevice2

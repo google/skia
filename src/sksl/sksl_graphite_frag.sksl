@@ -2074,12 +2074,31 @@ $pure half4 $analytic_rrect_blur_coverage_fn(float2 pos,
                                              half2 one_over_sqrt2_sigma,
                                              float2 blurRadius,
                                              sampler2D cdfLut) {
-    half4 f = flags;  // x=doTL, y=doTR, z=doBR, w=doBL
-                      // Inside encoded as all channels ~0.5.
+    // Corners encoded as 0.0 (inactive), 0.5 (inside), 1.0 (active).
+    // When encoded as inside, all corner flags are inside.
+    // x=doTL, y=doTR, z=doBR, w=doBL
+    //
+    // Edge fast-path encoded as -1.0, disjoint from corner flags.
+    // x=left, y=right, z=top, w=bottom
+    half4 f = flags;
 
     // Fully inside: all CDFs saturated, no corners needed.
     if (f.x > 0.25 && f.x < 0.75) {
         return half4(1);
+    }
+
+    // Edges not affected by corners or the area past the  opposite edge: only 1 CDF lookup needed.
+    if (f.x < -0.5) {  // Left
+        return half4(half(1.0) - $spatial_cdf(rect.x - pos.x, one_over_sqrt2_sigma.x, cdfLut));
+    }
+    if (f.y < -0.5) {  // Right
+        return half4($spatial_cdf(rect.z - pos.x, one_over_sqrt2_sigma.x, cdfLut));
+    }
+    if (f.z < -0.5) {  // Top
+        return half4(half(1.0) - $spatial_cdf(rect.y - pos.y, one_over_sqrt2_sigma.y, cdfLut));
+    }
+    if (f.w < -0.5) {  // Bottom
+        return half4($spatial_cdf(rect.w - pos.y, one_over_sqrt2_sigma.y, cdfLut));
     }
 
     // Rect base: 4 CDF lookups

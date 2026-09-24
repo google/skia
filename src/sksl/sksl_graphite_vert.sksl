@@ -1219,14 +1219,15 @@ float4 endcap_vertex_fn(float2 position,
 }
 
 float4 analytic_rrect_blur_vertex_fn(int4 gridAndBevel,
-                                     int cellIndex,
+                                     uint cellID,
                                      float4 rect,
                                      // bounds0[0-3] and bounds1[0-1] refer to the x bounds.
                                      // bounds1[2-3] and bounds2[0-3] refer to the y bounds.
                                      float4 bounds0,
                                      float4 bounds1,
                                      float4 bounds2,
-                                     float4 safeLimits,
+                                     float4 cornerSafeBounds,
+                                     uint canSaturateEdge,
                                      float2 drawPad,
                                      float4[2] rrectRadii,
                                      float depth,
@@ -1241,18 +1242,20 @@ float4 analytic_rrect_blur_vertex_fn(int4 gridAndBevel,
     // rounded corner.
     const float kBevelFrac = 0.58578644; // 2 - sqrt(2)
 
-    int cId = cellIndex;
-    float2 rad = (cId == 0) ? rrectRadii[0].xy :
-                     (cId == 4) ? rrectRadii[0].zw :
-                         (cId == 24) ? rrectRadii[1].xy : rrectRadii[1].zw;
+    uint cellIndex = cellID & 31;
+    uint cornerSafeEdgeMask = (cellID >> 28) & 15;
+
+    float2 rad = (cellIndex == 0) ? rrectRadii[0].xy :
+                     (cellIndex == 4) ? rrectRadii[0].zw :
+                         (cellIndex == 24) ? rrectRadii[1].xy : rrectRadii[1].zw;
     float2 b = (rad + drawPad) * kBevelFrac;
 
     // The amount which we should bevel along the axis, in the case of a very small sigma but large
     // corner radius, our edge inset bounds will be very small. Bevel could then exceed the current
     // cells bounds due to the small edge inset so in that case we just clamp to the cell's bounds.
-    float cx = min(b.x, (cId == 0 || cId == 20) ? (bounds0[1] - bounds0[0])
+    float cx = min(b.x, (cellIndex == 0 || cellIndex == 20) ? (bounds0[1] - bounds0[0])
                                                 : (bounds1[1] - bounds1[0]));
-    float cy = min(b.y, (cId <= 4) ? (bounds1[3] - bounds1[2])
+    float cy = min(b.y, (cellIndex <= 4) ? (bounds1[3] - bounds1[2])
                                    : (bounds2[3] - bounds2[2]));
 
     float posX = gridAndBevel.x < 4 ? bounds0[gridAndBevel.x] : bounds1[gridAndBevel.x - 4];
@@ -1267,8 +1270,8 @@ float4 analytic_rrect_blur_vertex_fn(int4 gridAndBevel,
     stepLocalCoords = position;
     scaledShapeCoords = position;
 
-    int col = cId % 5;
-    int row = cId / 5;
+    uint col = cellIndex % 5;
+    uint row = cellIndex / 5;
     float cellX0 = col < 4 ? bounds0[col] : bounds1[col - 4];
     float cellX1 = col < 3 ? bounds0[col + 1] : bounds1[col - 3];
     float cellY0 = row < 2 ? bounds1[row + 2] : bounds2[row - 2];
@@ -1277,16 +1280,24 @@ float4 analytic_rrect_blur_vertex_fn(int4 gridAndBevel,
     // Saturate our bounds when we are far enough from the edge and within the corner safe bounds
     // of the other axis. This should usually result in the center cell and the 4 adjacent cells
     // being fully saturated.
-    bool isHorizontalEdgeSaturated = (cellX0 >= bounds0[1] && cellX1 <= bounds0[0] &&
-                                     cellY0 >= safeLimits.y && cellY1 <= safeLimits.w);
-    bool isVerticalEdgeSaturated = (cellX0 >= safeLimits.x && cellX1 <= safeLimits.z &&
-                                    cellY0 >= bounds1[3] && cellY1 <= bounds1[2]);
+    bool isHorizontalEdgeInsideSaturated = cellX0 >= bounds0[1] && cellX1 <= bounds0[0] &&
+                                    cellY0 >= cornerSafeBounds.y && cellY1 <= cornerSafeBounds.w;
+    bool isVerticalEdgeInsideSaturated = cellY0 >= bounds1[3] && cellY1 <= bounds1[2] &&
+                                    cellX0 >= cornerSafeBounds.x && cellX1 <= cornerSafeBounds.z;
 
     const half kCornerActive = 1.0;
     const half kCornerInactive = 0.0;
     const half kInside = 0.5;
+    // Determines if we can skip CDF checks for an edge, resulting in only 1 sample instead of 4.
+    const half kEdgeSaturated = -1.0;
 
-    if (isHorizontalEdgeSaturated || isVerticalEdgeSaturated) {
+    if ((cornerSafeEdgeMask & canSaturateEdge) > 0) {
+        vFlags = half4(bool(cornerSafeEdgeMask & 1) ? kEdgeSaturated : 0.0,  // Left
+                       bool(cornerSafeEdgeMask & 2) ? kEdgeSaturated : 0.0,  // Right
+                       bool(cornerSafeEdgeMask & 4) ? kEdgeSaturated : 0.0,  // Top
+                       bool(cornerSafeEdgeMask & 8) ? kEdgeSaturated : 0.0); // Bottom
+        return devPosition;
+    } else if (isHorizontalEdgeInsideSaturated || isVerticalEdgeInsideSaturated) {
         vFlags = half4(kInside);
     } else {
         // Determine which corner which may affect the blur for the current cell.
