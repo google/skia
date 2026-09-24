@@ -271,11 +271,15 @@ DDLTileHelper::DDLTileHelper(GrDirectContext* direct,
 
 void DDLTileHelper::createDDLsInParallel(SkPicture* picture) {
 #if 1
-    SkTaskGroup().batch(this->numTiles(), [&](int i) {
-        fTiles[i].createDDL(picture);
-    });
-    SkTaskGroup().add([this]{ this->createComposeDDL(); });
-    SkTaskGroup().wait();
+    SkTaskGroup taskGroup;
+    for (int i = 0; i < this->numTiles(); ++i) {
+        taskGroup.add([picture, tile = &fTiles[i]]() {
+            tile->createDDL(picture);
+        });
+    }
+    taskGroup.wait();
+    taskGroup.add([this]{ this->createComposeDDL(); });
+    taskGroup.wait();
 #else
     // Use this code path to debug w/o threads
     for (int i = 0; i < this->numTiles(); ++i) {

@@ -11,13 +11,15 @@
 #include <functional>
 
 PathOpsThreadedTestRunner::~PathOpsThreadedTestRunner() {
-    for (int index = 0; index < fRunnables.size(); index++) {
-        delete fRunnables[index];
+    for (PathOpsThreadedRunnable* runnable : fRunnables) {
+        delete runnable;
     }
 }
 
 void PathOpsThreadedTestRunner::render() {
-    SkTaskGroup().batch(fRunnables.size(), [&](int i) {
-        (*fRunnables[i])();
-    });
+    SkTaskGroup taskGroup;
+    for (PathOpsThreadedRunnable* runnable : fRunnables) {
+        taskGroup.add([runnable]() { (*runnable)(); });
+    }
+    taskGroup.wait();
 }

@@ -103,13 +103,17 @@ protected:
         });
 
         for (int work = 0; work < loops; work++) {
-            SkTaskGroup().batch(16, [&](int threadIndex) {
-                SkFont font = ToolUtils::DefaultFont();
-                font.setEdging(SkFont::Edging::kAntiAlias);
-                font.setSubpixel(true);
-                font.setTypeface(typefaces[threadIndex % 2]);
-                do_font_stuff(&font);
-            });
+            SkTaskGroup taskGroup;
+            for (int threadIndex = 0; threadIndex < 16; threadIndex++) {
+                taskGroup.add([&, threadIndex]() {
+                    SkFont font = ToolUtils::DefaultFont();
+                    font.setEdging(SkFont::Edging::kAntiAlias);
+                    font.setSubpixel(true);
+                    font.setTypeface(typefaces[threadIndex % 2]);
+                    do_font_stuff(&font);
+                });
+            }
+            taskGroup.wait();
         }
         SkGraphics::SetFontCacheLimit(oldCacheLimitSize);
     }

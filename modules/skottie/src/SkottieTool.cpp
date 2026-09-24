@@ -605,27 +605,29 @@ int main(int argc, char** argv) {
             singleton_generator = FrameGenerator::Make(sink.get(), fmt, scale_matrix);
         }
 
-        tg.batch(frame_count, [&](int i) {
-            // SkTaskGroup::Enabler creates a LIFO work pool,
-            // but we want our early frames to start first.
-            i = frame_count - 1 - i;
+        for (int frame = 0; frame < frame_count; ++frame) {
+            tg.add([&, frame]() {
+                // SkTaskGroup::Enabler creates a LIFO work pool,
+                // but we want our early frames to start first.
+                int i = frame_count - 1 - frame;
 
-            const auto start = std::chrono::steady_clock::now();
-            thread_local static auto* anim =
-                    build_animation(nullptr, precomp_interceptor).release();
-            thread_local static auto* gen = singleton_generator
-                    ? singleton_generator.get()
-                    : FrameGenerator::Make(sink.get(), fmt, scale_matrix).release();
+                const auto start = std::chrono::steady_clock::now();
+                thread_local static auto* anim =
+                        build_animation(nullptr, precomp_interceptor).release();
+                thread_local static auto* gen = singleton_generator
+                        ? singleton_generator.get()
+                        : FrameGenerator::Make(sink.get(), fmt, scale_matrix).release();
 
-            if (gen && anim) {
-                anim->seekFrame(frame0 + i * fps_scale);
-                gen->generateFrame(anim, SkToSizeT(i));
-            } else {
-                sink->writeFrame(nullptr, SkToSizeT(i));
-            }
+                if (gen && anim) {
+                    anim->seekFrame(frame0 + i * fps_scale);
+                    gen->generateFrame(anim, SkToSizeT(i));
+                } else {
+                    sink->writeFrame(nullptr, SkToSizeT(i));
+                }
 
-            frames_ms[i] = ms_since(start);
-        });
+                frames_ms[i] = ms_since(start);
+            });
+        }
     }
 
     sink->finalize(fps);

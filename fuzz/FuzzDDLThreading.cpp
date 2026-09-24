@@ -278,7 +278,9 @@ void DDLFuzzer::run() {
     if (!fSurface) {
         return;
     }
-    fRecordingTaskGroup.batch(kIterationCount, [this](int i) { this->recordAndPlayDDL(); });
+    for (int i = 0; i < kIterationCount; i++) {
+        fRecordingTaskGroup.add([this]() { this->recordAndPlayDDL(); });
+    }
     fRecordingTaskGroup.wait();
 
     fGpuTaskGroup.add([this] { fContext->flushAndSubmit(fSurface.get(), GrSyncCpu::kYes); });
