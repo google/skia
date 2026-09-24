@@ -11,6 +11,9 @@
 #include <variant>
 #include <vector>
 
+#include "include/core/SkSpan.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTemplates.h"
 #include "rust/png/FFI.rs.h"
 #include "src/codec/SkFrameHolder.h"
 #include "src/codec/SkPngCodecBase.h"
@@ -19,7 +22,6 @@
 struct SkEncodedInfo;
 class SkFrame;
 class SkStream;
-template <typename T> class SkSpan;
 
 // This class provides the Skia image decoding API (`SkCodec`) on top of:
 // * The third-party `png` crate (PNG decompression and decoding implemented in
@@ -91,12 +93,13 @@ private:
         // uses `SkCodecAnimation::Blend::kSrcOver`. For interlaced images this
         // buffer holds the whole frame; otherwise it holds only a single row.
         //
-        // This is also used in the case of subsets for interlaced images. We use
-        // this buffer as a full sized encoded image, which we then take the subset
-        // from.
+        // This is also used in the case of subsets or sampling for interlaced
+        // images. We use this buffer as a full sized encoded image, which we then
+        // take the subset / sampled rows from.
         // TODO: Subsets of APNG not supported, but if we need to, we would need
         // a separate fInterlacedBuffer along with fPreblendBuffer.
-        std::vector<uint8_t> fPreblendBuffer;
+        std::unique_ptr<uint8_t, SkFunctionObject<sk_free>> fPreblendBufferStorage;
+        SkSpan<uint8_t> fPreblendBuffer;
 
         int fFirstRow = 0;
         int fLastRow = 0;

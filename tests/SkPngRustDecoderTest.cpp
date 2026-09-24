@@ -298,7 +298,9 @@ static std::optional<SkBitmap> DecodeAndroidPixels(
         skiatest::Reporter* r,
         std::unique_ptr<SkCodec> codec,
         int sampleSize,
-        std::function<SkIRect(const SkImageInfo&)> getSubset = nullptr) {
+        std::function<SkIRect(const SkImageInfo&)> getSubset = nullptr,
+        size_t maxDecodeMemory = 0,
+        SkCodec::Result expectedResult = SkCodec::kSuccess) {
     REPORTER_ASSERT(r, codec);
     if (!codec) {
         return std::nullopt;
@@ -328,10 +330,16 @@ static std::optional<SkBitmap> DecodeAndroidPixels(
         info = info.makeWH(subsetWidth, subsetHeight);
     }
 
+    opts.fMaxDecodeMemory = maxDecodeMemory;
+
     SkBitmap bm;
     bm.allocPixels(info);
     auto result = androidCodec->getAndroidPixels(info, bm.getPixels(), bm.rowBytes(), &opts);
-    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+    REPORTER_ASSERT(r,
+                    result == expectedResult,
+                    "Expected %s, got %s",
+                    SkCodec::ResultToString(expectedResult),
+                    SkCodec::ResultToString(result));
     if (result != SkCodec::kSuccess) {
         return std::nullopt;
     }
@@ -2035,4 +2043,51 @@ DEF_TEST(RustPngCodec_missingOrCorruptIendSucceeds_readRow, r) {
 
 DEF_TEST(RustPngCodec_missingOrCorruptIendSucceeds_sampled, r) {
     AssertSampledDecodeWithBrokenIendTail(r, "images/mandrill_128.png", /*sampleSize=*/2);
+}
+
+// Regression test helper for b/565484678:
+// Verifies that `fPreblendBuffer` in `SkPngRustCodec` is charged against `fMaxDecodeMemory`
+// (`allocateFromBudget`) for interlaced subset/sampled decodes.
+static void AssertInterlacedPreblendBufferBudget(
+        skiatest::Reporter* r,
+        int sampleSize,
+        std::function<SkIRect(const SkImageInfo&)> getSubset = nullptr) {
+    static constexpr char kPath[] = "images/plane_interlaced.png";
+    sk_sp<SkData> data = GetResourceAsData(kPath);
+    if (!data) {
+        ERRORF(r, "Missing resource: %s", kPath);
+        return;
+    }
+
+    // `plane_interlaced.png` is 250x126, 8-bit RGB with `tRNS` (expanded to RGBA8 -> 4 bytes per
+    // encoded pixel = 1000 bytes/row). Subsampling or subsetting an interlaced image requires all
+    // 126 rows in `fPreblendBuffer`.
+    constexpr size_t kEncodedRowBytes = 250 * 4;
+    constexpr size_t kFullBufferBytes = 126 * kEncodedRowBytes;
+
+    std::ignore = DecodeAndroidPixels(
+            r,
+            SkPngRustDecoder::Decode(std::make_unique<SkMemoryStream>(data), nullptr),
+            sampleSize,
+            getSubset,
+            kFullBufferBytes - 1,
+            SkCodec::kOutOfMemory);
+
+    std::optional<SkBitmap> bm = DecodeAndroidPixels(
+            r,
+            SkPngRustDecoder::Decode(std::make_unique<SkMemoryStream>(data), nullptr),
+            sampleSize,
+            std::move(getSubset),
+            kFullBufferBytes);
+    REPORTER_ASSERT(r, bm.has_value());
+}
+
+DEF_TEST(RustPngCodec_interlacedPreblendBufferBudget_sampled, r) {
+    AssertInterlacedPreblendBufferBudget(r, /*sampleSize=*/2);
+}
+
+DEF_TEST(RustPngCodec_interlacedPreblendBufferBudget_subset, r) {
+    AssertInterlacedPreblendBufferBudget(r, /*sampleSize=*/1, [](const SkImageInfo& info) {
+        return SkIRect::MakeXYWH(0, 1, info.width(), info.height() - 1);
+    });
 }

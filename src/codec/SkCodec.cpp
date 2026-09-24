@@ -647,6 +647,7 @@ SkCodec::Result SkCodec::startIncrementalDecode(const SkImageInfo& info, void* p
             }
         }
     }
+    fDecodeBudget = options->fMaxDecodeMemory ? options->fMaxDecodeMemory : SIZE_MAX;
 
     const Result frameIndexResult = this->handleFrameIndex(info, pixels, rowBytes,
                                                            *options);

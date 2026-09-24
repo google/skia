@@ -773,21 +773,34 @@ SkCodec::Result SkPngRustCodec::initializeDecodingDst(DecodingState& decodingSta
         }
     }
 
+    size_t preblendBufferSize = 0;
     if (fReader->interlaced()) {
         // Use fPreblendBuffer to decode whole image untransformed, then truncate/xform later.
         if (this->options().fSubset || this->isSampling()) {
-            size_t encodedImageSize =
+            preblendBufferSize =
                     safe.mul(this->getEncodedRowBytes(),
                              safe.castTo<size_t>(this->getEncodedInfo().height()));
             if (!safe.ok()) {
                 return kErrorInInput;
             }
-            decodingState.fPreblendBuffer.resize(encodedImageSize, 0x00);
         } else if (frame->getBlend() == SkCodecAnimation::Blend::kSrcOver) {
-            decodingState.fPreblendBuffer.resize(dstSpan.size(), 0x00);
+            preblendBufferSize = dstSpan.size();
         }
     } else if (frame->getBlend() == SkCodecAnimation::Blend::kSrcOver) {
-        decodingState.fPreblendBuffer.resize(dstRowSize, 0x00);
+        preblendBufferSize = dstRowSize;
+    }
+
+    if (preblendBufferSize > 0) {
+        if (!this->allocateFromBudget(preblendBufferSize)) {
+            return kOutOfMemory;
+        }
+        void* buffer = sk_calloc_canfail(preblendBufferSize);
+        if (!buffer) {
+            return kInternalError;
+        }
+        decodingState.fPreblendBufferStorage.reset(static_cast<uint8_t*>(buffer));
+        decodingState.fPreblendBuffer =
+                SkSpan(decodingState.fPreblendBufferStorage.get(), preblendBufferSize);
     }
 
     decodingState.fDst = DecodingDstInfo{
