@@ -43,7 +43,6 @@ public:
     void add(std::function<void(void)> work) override {
         this->add(std::move(work), /* workList= */ 0);
     }
-    int discardAllPendingWork() override { return 0;}
 };
 
 static SkExecutor& trivial_executor() {
@@ -118,18 +117,6 @@ public:
 
     void add(std::function<void(void)> work) override {
         this->add(std::move(work), /* workList= */ 0);
-    }
-
-    int discardAllPendingWork() override {
-        SkAutoMutexExclusive lock(fWorkLock);
-
-        int numDiscarded = 0;
-        for (int i = 0; i < fNumWorkLists; ++i) {
-            numDiscarded += fWorkLists[i].size();
-            fWorkLists[i].clear();
-        }
-
-        return numDiscarded;
     }
 
     void borrow() override {

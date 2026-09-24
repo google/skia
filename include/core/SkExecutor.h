@@ -44,9 +44,6 @@ public:
     // deprecated
     virtual void add(std::function<void(void)>) = 0;
 
-    // Returns the number of discarded work units
-    virtual int discardAllPendingWork() { return 0; }
-
     // If it makes sense for this executor, use this thread to execute work for a little while.
     virtual void borrow() {}
 

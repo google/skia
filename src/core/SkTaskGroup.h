@@ -27,8 +27,6 @@ public:
     void add(std::function<void(void)> fn);
     void add(std::function<void(void)> fn, int workList);
 
-    void discardAllPendingWork();
-
     // Add a batch of N tasks, all calling fn with different arguments.
     void batch(int N, std::function<void(int)> fn);
 

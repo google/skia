@@ -26,11 +26,6 @@ void SkTaskGroup::add(std::function<void(void)> fn, int workList) {
                   workList);
 }
 
-void SkTaskGroup::discardAllPendingWork() {
-    int numDiscarded = fExecutor.discardAllPendingWork();
-    fPending.fetch_add(-numDiscarded, std::memory_order_release);
-}
-
 void SkTaskGroup::batch(int N, std::function<void(int)> fn) {
     // TODO: I really thought we had some sort of more clever chunking logic.
     fPending.fetch_add(+N, std::memory_order_relaxed);
