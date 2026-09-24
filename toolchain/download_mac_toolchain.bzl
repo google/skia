@@ -25,10 +25,8 @@ clang_arm_sha256 = "946f9bd47ccad906dddde6c426fb5a685ea2c1b660a5ccaef314deadfa1a
 # This should be the same across both arm and intel.
 clang_ver = "22"
 
-mac_sdk_root = "/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/"
-
 def _get_system_sdk_path(ctx):
-    res = ctx.execute(["xcode-select", "--print-path"])
+    res = ctx.execute(["xcrun", "--sdk", "macosx", "--show-sdk-path"])
     if res.return_code != 0:
         fail("Error Getting SDK path: " + res.stderr)
     return res.stdout.rstrip()
@@ -40,10 +38,14 @@ def _delete_macos_sdk_symlinks(ctx):
 def _create_macos_sdk_symlinks(ctx):
     system_sdk_path = _get_system_sdk_path(ctx)
 
+    # Watch SDKSettings.plist so that Bazel invalidates and re-runs this
+    # repository rule whenever the active Xcode / macOS SDK is updated.
+    ctx.watch(system_sdk_path + "/SDKSettings.plist")
+
     # https://bazel.build/rules/lib/actions#symlink
     ctx.symlink(
         # from =
-        system_sdk_path + mac_sdk_root + "usr",
+        system_sdk_path + "/usr",
         # to =
         "./symlinks/xcode/MacSDK/usr",
     )
@@ -55,7 +57,7 @@ def _create_macos_sdk_symlinks(ctx):
     # from breaking.
     ctx.symlink(
         # from =
-        system_sdk_path + mac_sdk_root + "System/Library/Frameworks",
+        system_sdk_path + "/System/Library/Frameworks",
         # to =
         "./symlinks/xcode/MacSDK/System/Library/Frameworks",
     )
