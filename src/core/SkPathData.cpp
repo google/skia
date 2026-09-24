@@ -299,19 +299,27 @@ sk_sp<SkPathData> SkPathData::makeTransform(const SkMatrix& mx) const {
     // not important for transform, just need a value
     const SkPathFillType ft = SkPathFillType::kDefault;
 
-    if (auto result = MakeTransform(this->raw(ft, SkResolveConvexity::kNo), mx)) {
-        // See if we can maintian our IsA status ...
-        if ((fType == SkPathIsAType::kOval || fType == SkPathIsAType::kRRect) &&
-            mx.rectStaysRect() && SkPathPriv::IsAxisAligned(fPoints))
-        {
-            auto [dir, start] =
-            SkPathPriv::TransformDirAndStart(mx, fType == SkPathIsAType::kRRect,
-                                             fIsA.fDirection, fIsA.fStartIndex);
-            result->setupIsA(fType, dir, start);
-        }
+    auto result = MakeTransform(this->raw(ft, SkResolveConvexity::kNo), mx);
+
+    if (!result) {
+        return nullptr;
+    }
+
+    if (fType == SkPathIsAType::kGeneral) {
         return result;
     }
-    return nullptr;
+
+    // See if we can maintain our IsA status ...
+    bool canMaintainIsA =
+            mx.rectStaysRect() && SkPathPriv::IsAxisAligned(fPoints) && !result->bounds().isEmpty();
+    if (!canMaintainIsA) {
+        return result;
+    }
+
+    auto [dir, start] = SkPathPriv::TransformDirAndStart(
+            mx, fType == SkPathIsAType::kRRect, fIsA.fDirection, fIsA.fStartIndex);
+    result->setupIsA(fType, dir, start);
+    return result;
 }
 
 sk_sp<SkPathData> SkPathData::makeOffset(SkVector v) const {

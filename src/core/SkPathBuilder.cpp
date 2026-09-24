@@ -298,7 +298,7 @@ SkPath SkPathBuilder::snapshot(const SkMatrix* mx) const {
     }
     if (pdata && fType != SkPathIsAType::kGeneral) {
         SkASSERT(SkPathPriv::IsAxisAligned(fPts));
-        if (mx->rectStaysRect()) {
+        if (mx->rectStaysRect() && !pdata->bounds().isEmpty()) {
             auto [dir, start] = SkPathPriv::TransformDirAndStart(
                     *mx, fType == SkPathIsAType::kRRect, fIsA.fDirection, fIsA.fStartIndex);
             pdata->setupIsA(fType, dir, start);

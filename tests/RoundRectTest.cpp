@@ -1782,3 +1782,37 @@ DEF_TEST(RRect_b547198215, r) {
         REPORTER_ASSERT(r, !SkRRectPriv::AreRectAndRadiiValid(fuzzedRect, fuzzedRadii));
     }
 }
+
+DEF_TEST(RRect_b561770646_part1, r) {
+    // Fuzzed testcase from b/561770646 where fBottom - fTop == fBottom in float due to tiny
+    // fTop, causing a scaled radius of height (fBottom) to produce fBottom - rad = 0 < fTop.
+    SkRect rect = SkRect::MakeLTRB(0.0f, 1e-30f, 100.0f, 100.0f);
+    SkVector radii[4] = {
+            {0.0f, 0.0f},     // Upper-Left
+            {0.0f, 0.0f},     // Upper-Right
+            {0.0f, 0.0f},     // Lower-Right
+            {10.0f, 100.0f},  // Lower-Left (fY == height == fBottom)
+    };
+
+    SkRRect rrect;
+    rrect.setRectRadii(rect, radii);
+    REPORTER_ASSERT(r, rrect.isValid());
+    SkPath path = SkPath::RRect(rrect, SkPathDirection::kCW, 0);
+    SkRRect out;
+    (void)path.isRRect(&out);
+}
+
+DEF_TEST(RRect_b561770646_part2, r) {
+    // Axis-aligned transform that collapses an SkRRect / SkPath::RRect to empty bounds due to
+    // floating-point precision loss must fail transform and not crash DeduceRRectFromContour.
+    SkRRect rr = SkRRect::MakeRectXY(SkRect::MakeWH(100.0f, 100.0f), 10.0f, 10.0f);
+    SkMatrix collapseMatrix = SkMatrix::Translate(1e20f, 0.0f);
+
+    auto transformedRR = rr.transform(collapseMatrix);
+    REPORTER_ASSERT(r, !transformedRR.has_value());
+
+    SkPath path = SkPath::RRect(rr);
+    SkPath transformedPath = path.makeTransform(collapseMatrix);
+    SkRRect out;
+    REPORTER_ASSERT(r, !transformedPath.isRRect(&out));
+}
