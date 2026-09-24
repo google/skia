@@ -477,13 +477,14 @@ void GrVkCaps::init(const GrContextOptions& contextOptions,
     }
 
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
-        this->applyDriverCorrectnessWorkarounds(properties);
+        this->applyDriverCorrectnessWorkarounds(contextOptions, properties);
     }
 
     this->finishInitialization(contextOptions);
 }
 
-void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties& properties) {
+void GrVkCaps::applyDriverCorrectnessWorkarounds(const GrContextOptions& contextOptions,
+                                                 const VkPhysicalDeviceProperties& properties) {
 #if defined(SK_BUILD_FOR_WIN)
     if (skgpu::kNvidia_VkVendor == properties.vendorID ||
         skgpu::kIntel_VkVendor == properties.vendorID) {
@@ -531,8 +532,11 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
 
     // We've seen numerous driver bugs on qualcomm devices running on android P (api 28) or earlier
     // when trying to using discardable msaa attachments and loading from resolve. So we disable the
-    // feature for those devices.
-    if (properties.vendorID == skgpu::kQualcomm_VkVendor && androidAPIVersion <= 28) {
+    // feature for those devices. On Imagination (PowerVR) GPUs, using discardable MSAA attachments
+    // and loading from resolve in DMSAA subpasses causes 3D MMU page faults and GPU lockups.
+    if ((properties.vendorID == skgpu::kQualcomm_VkVendor && androidAPIVersion <= 28) ||
+        (properties.vendorID == skgpu::kImagination_VkVendor &&
+         contextOptions.fAllowMSAAOnImagination)) {
         fPreferDiscardableMSAAAttachment = false;
         fSupportsDiscardableMSAAForDMSAA = false;
     }
@@ -543,20 +547,25 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
         fShaderCaps->fPerlinNoiseRoundingFix = true;
     }
 
-    // On various devices, when calling vkCmdClearAttachments on a primary command buffer, it
-    // corrupts the bound buffers on the command buffer. As a workaround we invalidate our knowledge
-    // of bound buffers so that we will rebind them on the next draw.
+    // On various devices (including Imagination when clearing MSAA attachments), calling
+    // vkCmdClearAttachments on a primary command buffer corrupts the bound buffers on the command
+    // buffer, leading to vertex/index fetch faults on subsequent draws. As a workaround we
+    // invalidate our knowledge of bound buffers so that we will rebind them on the next draw.
     if (skgpu::kQualcomm_VkVendor == properties.vendorID ||
-        skgpu::kAMD_VkVendor == properties.vendorID) {
+        skgpu::kAMD_VkVendor == properties.vendorID ||
+        (skgpu::kImagination_VkVendor == properties.vendorID &&
+         contextOptions.fAllowMSAAOnImagination)) {
         fMustInvalidatePrimaryCmdBufferStateAfterClearAttachments = true;
     }
 
-    // On Qualcomm and Arm the gpu resolves an area larger than the render pass bounds when using
-    // discardable msaa attachments. This causes the resolve to resolve uninitialized data from the
-    // msaa image into the resolve image.
+    // On Qualcomm, Arm, and Imagination tilers, the GPU resolves an area larger than the render
+    // pass bounds when using discardable MSAA attachments, resolving uninitialized tile data or
+    // faulting on partial render areas.
     // This also occurs on swiftshader: b/303705884
     if (properties.vendorID == skgpu::kQualcomm_VkVendor ||
         properties.vendorID == skgpu::kARM_VkVendor ||
+        (properties.vendorID == skgpu::kImagination_VkVendor &&
+         contextOptions.fAllowMSAAOnImagination) ||
         (properties.vendorID == skgpu::kGoogle_VkVendor &&
          properties.deviceID == kSwiftshader_DeviceID)) {
         fMustLoadFullImageWithDiscardableMSAA = true;
@@ -1517,7 +1526,8 @@ void GrVkCaps::FormatInfo::initSampleCounts(const GrContextOptions& contextOptio
     if (flags & VK_SAMPLE_COUNT_1_BIT) {
         fColorSampleCounts.push_back(1);
     }
-    if (skgpu::kImagination_VkVendor == physProps.vendorID) {
+    if (skgpu::kImagination_VkVendor == physProps.vendorID &&
+        !contextOptions.fAllowMSAAOnImagination) {
         // MSAA does not work on imagination
         return;
     }
