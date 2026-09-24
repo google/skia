@@ -19,7 +19,6 @@
 #include "src/core/SkAutoLocaleSetter.h"
 #include "src/core/SkUTF.h"
 
-#include <array>
 #include <charconv>
 #include <cmath>
 #include <cstdint>
@@ -274,7 +273,7 @@ namespace {
 // bit 3 (0x08) - 0-9
 // bit 4 (0x10) - 0-9 e E .
 // bit 5 (0x20) - scope terminator (} ])
-static constexpr std::array<uint8_t, 256> g_token_flags = {
+static constexpr uint8_t g_token_flags[256] = {
  // 0    1    2    3    4    5    6    7      8    9    A    B    C    D    E    F
     4,   4,   4,   4,   4,   4,   4,   4,     4,   6,   6,   4,   4,   6,   4,   4, // 0
     4,   4,   4,   4,   4,   4,   4,   4,     4,   4,   4,   4,   4,   4,   4,   4, // 1
@@ -304,7 +303,8 @@ static inline const char* skip_ws(const char* p) {
 }
 
 static inline float pow10(int32_t exp) {
-    static constexpr std::array<float, 63> g_pow10_table = {
+    static constexpr float g_pow10_table[63] =
+    {
        1.e-031f, 1.e-030f, 1.e-029f, 1.e-028f, 1.e-027f, 1.e-026f, 1.e-025f, 1.e-024f,
        1.e-023f, 1.e-022f, 1.e-021f, 1.e-020f, 1.e-019f, 1.e-018f, 1.e-017f, 1.e-016f,
        1.e-015f, 1.e-014f, 1.e-013f, 1.e-012f, 1.e-011f, 1.e-010f, 1.e-009f, 1.e-008f,

@@ -8,8 +8,6 @@
 #include "src/skcms_public.h"  // NO_G3_REWRITE
 #include "src/skcms_internals.h"  // NO_G3_REWRITE
 #include "src/skcms_Transform.h"  // NO_G3_REWRITE
-
-#include <array>
 #include <assert.h>
 #include <float.h>
 #include <limits.h>
@@ -417,33 +415,33 @@ static float read_big_fixed(const uint8_t* ptr) {
 // Maps to an in-memory profile so that fields line up to the locations specified
 // in ICC.1:2010, section 7.2
 typedef struct {
-    std::array<uint8_t, 4> size;
-    std::array<uint8_t, 4> cmm_type;
-    std::array<uint8_t, 4> version;
-    std::array<uint8_t, 4> profile_class;
-    std::array<uint8_t, 4> data_color_space;
-    std::array<uint8_t, 4> pcs;
-    std::array<uint8_t, 12> creation_date_time;
-    std::array<uint8_t, 4> signature;
-    std::array<uint8_t, 4> platform;
-    std::array<uint8_t, 4> flags;
-    std::array<uint8_t, 4> device_manufacturer;
-    std::array<uint8_t, 4> device_model;
-    std::array<uint8_t, 8> device_attributes;
-    std::array<uint8_t, 4> rendering_intent;
-    std::array<uint8_t, 4> illuminant_X;
-    std::array<uint8_t, 4> illuminant_Y;
-    std::array<uint8_t, 4> illuminant_Z;
-    std::array<uint8_t, 4> creator;
-    std::array<uint8_t, 16> profile_id;
-    std::array<uint8_t, 28> reserved;
-    std::array<uint8_t, 4> tag_count; // Technically not part of header, but required
+    uint8_t size                [ 4];
+    uint8_t cmm_type            [ 4];
+    uint8_t version             [ 4];
+    uint8_t profile_class       [ 4];
+    uint8_t data_color_space    [ 4];
+    uint8_t pcs                 [ 4];
+    uint8_t creation_date_time  [12];
+    uint8_t signature           [ 4];
+    uint8_t platform            [ 4];
+    uint8_t flags               [ 4];
+    uint8_t device_manufacturer [ 4];
+    uint8_t device_model        [ 4];
+    uint8_t device_attributes   [ 8];
+    uint8_t rendering_intent    [ 4];
+    uint8_t illuminant_X        [ 4];
+    uint8_t illuminant_Y        [ 4];
+    uint8_t illuminant_Z        [ 4];
+    uint8_t creator             [ 4];
+    uint8_t profile_id          [16];
+    uint8_t reserved            [28];
+    uint8_t tag_count           [ 4]; // Technically not part of header, but required
 } header_Layout;
 
 typedef struct {
-    std::array<uint8_t, 4> signature;
-    std::array<uint8_t, 4> offset;
-    std::array<uint8_t, 4> size;
+    uint8_t signature [4];
+    uint8_t offset    [4];
+    uint8_t size      [4];
 } tag_Layout;
 
 static const tag_Layout* get_tag_table(const skcms_ICCProfile* profile) {
@@ -453,9 +451,9 @@ static const tag_Layout* get_tag_table(const skcms_ICCProfile* profile) {
 // s15Fixed16ArrayType is technically variable sized, holding N values. However, the only valid
 // use of the type is for the CHAD tag that stores exactly nine values.
 typedef struct {
-    std::array<uint8_t, 4> type;
-    std::array<uint8_t, 4> reserved;
-    std::array<uint8_t, 36> values;
+    uint8_t type     [ 4];
+    uint8_t reserved [ 4];
+    uint8_t values   [36];
 } sf32_Layout;
 
 bool skcms_GetCHAD(const skcms_ICCProfile* profile, skcms_Matrix3x3* m) {
@@ -469,7 +467,7 @@ bool skcms_GetCHAD(const skcms_ICCProfile* profile, skcms_Matrix3x3* m) {
     }
 
     const sf32_Layout* sf32Tag = (const sf32_Layout*)tag.buf;
-    const uint8_t* values = sf32Tag->values.data();
+    const uint8_t* values = sf32Tag->values;
     for (int r = 0; r < 3; ++r)
     for (int c = 0; c < 3; ++c, values += 4) {
         m->vals[r][c] = read_big_fixed(values);
@@ -480,11 +478,11 @@ bool skcms_GetCHAD(const skcms_ICCProfile* profile, skcms_Matrix3x3* m) {
 // XYZType is technically variable sized, holding N XYZ triples. However, the only valid uses of
 // the type are for tags/data that store exactly one triple.
 typedef struct {
-    std::array<uint8_t, 4> type;
-    std::array<uint8_t, 4> reserved;
-    std::array<uint8_t, 4> X;
-    std::array<uint8_t, 4> Y;
-    std::array<uint8_t, 4> Z;
+    uint8_t type     [4];
+    uint8_t reserved [4];
+    uint8_t X        [4];
+    uint8_t Y        [4];
+    uint8_t Z        [4];
 } XYZ_Layout;
 
 static bool read_tag_xyz(const skcms_ICCTag* tag, float* x, float* y, float* z) {
@@ -494,9 +492,9 @@ static bool read_tag_xyz(const skcms_ICCTag* tag, float* x, float* y, float* z) 
 
     const XYZ_Layout* xyzTag = (const XYZ_Layout*)tag->buf;
 
-    *x = read_big_fixed(xyzTag->X.data());
-    *y = read_big_fixed(xyzTag->Y.data());
-    *z = read_big_fixed(xyzTag->Z.data());
+    *x = read_big_fixed(xyzTag->X);
+    *y = read_big_fixed(xyzTag->Y);
+    *z = read_big_fixed(xyzTag->Z);
     return true;
 }
 
@@ -577,10 +575,10 @@ static bool read_to_XYZD50(const skcms_ICCTag* rXYZ, const skcms_ICCTag* gXYZ,
 }
 
 typedef struct {
-    std::array<uint8_t, 4> type;
-    std::array<uint8_t, 4> reserved_a;
-    std::array<uint8_t, 2> function_type;
-    std::array<uint8_t, 2> reserved_b;
+    uint8_t type          [4];
+    uint8_t reserved_a    [4];
+    uint8_t function_type [2];
+    uint8_t reserved_b    [2];
     uint8_t variable      [1/*variable*/];  // 1, 3, 4, 5, or 7 s15.16, depending on function_type
 } para_Layout;
 
@@ -593,12 +591,12 @@ static bool read_curve_para(const uint8_t* buf, uint32_t size,
     const para_Layout* paraTag = (const para_Layout*)buf;
 
     enum { kG = 0, kGAB = 1, kGABC = 2, kGABCD = 3, kGABCDEF = 4 };
-    uint16_t function_type = read_big_u16(paraTag->function_type.data());
+    uint16_t function_type = read_big_u16(paraTag->function_type);
     if (function_type > kGABCDEF) {
         return false;
     }
 
-    static constexpr auto curve_bytes = std::to_array<uint32_t>({4, 12, 16, 20, 28});
+    static const uint32_t curve_bytes[] = { 4, 12, 16, 20, 28 };
     if (size < SAFE_FIXED_SIZE(para_Layout) + curve_bytes[function_type]) {
         return false;
     }
@@ -654,9 +652,9 @@ static bool read_curve_para(const uint8_t* buf, uint32_t size,
 }
 
 typedef struct {
-    std::array<uint8_t, 4> type;
-    std::array<uint8_t, 4> reserved;
-    std::array<uint8_t, 4> value_count;
+    uint8_t type          [4];
+    uint8_t reserved      [4];
+    uint8_t value_count   [4];
     uint8_t variable      [1/*variable*/];  // value_count, 8.8 if 1, uint16 (n*65535) if > 1
 } curv_Layout;
 
@@ -671,7 +669,7 @@ static bool read_curve_curv(const uint8_t* buf, uint32_t size,
 
     const curv_Layout* curvTag = (const curv_Layout*)buf;
 
-    uint32_t value_count = read_big_u32(curvTag->value_count.data());
+    uint32_t value_count = read_big_u32(curvTag->value_count);
     if (size < SAFE_FIXED_SIZE(curv_Layout) + value_count * SAFE_SIZEOF(uint16_t)) {
         return false;
     }
@@ -726,13 +724,13 @@ static bool read_curve(const uint8_t* buf, uint32_t size,
 
 // mft1 and mft2 share a large chunk of data
 typedef struct {
-    std::array<uint8_t, 4> type;
-    std::array<uint8_t, 4> reserved_a;
-    std::array<uint8_t, 1> input_channels;
-    std::array<uint8_t, 1> output_channels;
-    std::array<uint8_t, 1> grid_points;
-    std::array<uint8_t, 1> reserved_b;
-    std::array<uint8_t, 36> matrix;
+    uint8_t type                 [ 4];
+    uint8_t reserved_a           [ 4];
+    uint8_t input_channels       [ 1];
+    uint8_t output_channels      [ 1];
+    uint8_t grid_points          [ 1];
+    uint8_t reserved_b           [ 1];
+    uint8_t matrix               [36];
 } mft_CommonLayout;
 
 typedef struct {
@@ -744,8 +742,8 @@ typedef struct {
 typedef struct {
     mft_CommonLayout common      [1];
 
-    std::array<uint8_t, 2> input_table_entries;
-    std::array<uint8_t, 2> output_table_entries;
+    uint8_t input_table_entries  [2];
+    uint8_t output_table_entries [2];
     uint8_t variable             [1/*variable*/];
 } mft2_Layout;
 
@@ -891,8 +889,8 @@ static bool read_tag_mft2(const skcms_ICCTag* tag, A2B_or_B2A* out) {
         return false;
     }
 
-    uint32_t input_table_entries = read_big_u16(mftTag->input_table_entries.data());
-    uint32_t output_table_entries = read_big_u16(mftTag->output_table_entries.data());
+    uint32_t input_table_entries = read_big_u16(mftTag->input_table_entries);
+    uint32_t output_table_entries = read_big_u16(mftTag->output_table_entries);
 
     // ICC spec mandates that 2 <= table_entries <= 4096
     if (input_table_entries < 2 || input_table_entries > 4096 ||
@@ -933,22 +931,22 @@ static bool read_curves(const uint8_t* buf, uint32_t size, uint32_t curve_offset
 
 // mAB and mBA tags use the same encoding, including color lookup tables.
 typedef struct {
-    std::array<uint8_t, 4> type;
-    std::array<uint8_t, 4> reserved_a;
-    std::array<uint8_t, 1> input_channels;
-    std::array<uint8_t, 1> output_channels;
-    std::array<uint8_t, 2> reserved_b;
-    std::array<uint8_t, 4> b_curve_offset;
-    std::array<uint8_t, 4> matrix_offset;
-    std::array<uint8_t, 4> m_curve_offset;
-    std::array<uint8_t, 4> clut_offset;
-    std::array<uint8_t, 4> a_curve_offset;
+    uint8_t type                 [ 4];
+    uint8_t reserved_a           [ 4];
+    uint8_t input_channels       [ 1];
+    uint8_t output_channels      [ 1];
+    uint8_t reserved_b           [ 2];
+    uint8_t b_curve_offset       [ 4];
+    uint8_t matrix_offset        [ 4];
+    uint8_t m_curve_offset       [ 4];
+    uint8_t clut_offset          [ 4];
+    uint8_t a_curve_offset       [ 4];
 } mAB_or_mBA_Layout;
 
 typedef struct {
-    std::array<uint8_t, 16> grid_points;
-    std::array<uint8_t, 1> grid_byte_width;
-    std::array<uint8_t, 3> reserved;
+    uint8_t grid_points          [16];
+    uint8_t grid_byte_width      [ 1];
+    uint8_t reserved             [ 3];
     uint8_t variable             [1/*variable*/];
 } CLUT_Layout;
 
@@ -972,11 +970,11 @@ static bool read_tag_mab(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xy
         return false;
     }
 
-    uint32_t b_curve_offset = read_big_u32(mABTag->b_curve_offset.data());
-    uint32_t matrix_offset  = read_big_u32(mABTag->matrix_offset.data());
-    uint32_t m_curve_offset = read_big_u32(mABTag->m_curve_offset.data());
-    uint32_t clut_offset    = read_big_u32(mABTag->clut_offset.data());
-    uint32_t a_curve_offset = read_big_u32(mABTag->a_curve_offset.data());
+    uint32_t b_curve_offset = read_big_u32(mABTag->b_curve_offset);
+    uint32_t matrix_offset  = read_big_u32(mABTag->matrix_offset);
+    uint32_t m_curve_offset = read_big_u32(mABTag->m_curve_offset);
+    uint32_t clut_offset    = read_big_u32(mABTag->clut_offset);
+    uint32_t a_curve_offset = read_big_u32(mABTag->a_curve_offset);
 
     // "B" curves must be present
     if (0 == b_curve_offset) {
@@ -1117,11 +1115,11 @@ static bool read_tag_mba(const skcms_ICCTag* tag, skcms_B2A* b2a, bool pcs_is_xy
         return false;
     }
 
-    uint32_t b_curve_offset = read_big_u32(mBATag->b_curve_offset.data());
-    uint32_t matrix_offset  = read_big_u32(mBATag->matrix_offset.data());
-    uint32_t m_curve_offset = read_big_u32(mBATag->m_curve_offset.data());
-    uint32_t clut_offset    = read_big_u32(mBATag->clut_offset.data());
-    uint32_t a_curve_offset = read_big_u32(mBATag->a_curve_offset.data());
+    uint32_t b_curve_offset = read_big_u32(mBATag->b_curve_offset);
+    uint32_t matrix_offset  = read_big_u32(mBATag->matrix_offset);
+    uint32_t m_curve_offset = read_big_u32(mBATag->m_curve_offset);
+    uint32_t clut_offset    = read_big_u32(mBATag->clut_offset);
+    uint32_t a_curve_offset = read_big_u32(mBATag->a_curve_offset);
 
     if (0 == b_curve_offset) {
         return false;
@@ -1307,12 +1305,12 @@ static bool read_b2a(const skcms_ICCTag* tag, skcms_B2A* b2a, bool pcs_is_xyz, c
 }
 
 typedef struct {
-    std::array<uint8_t, 4> type;
-    std::array<uint8_t, 4> reserved;
-    std::array<uint8_t, 1> color_primaries;
-    std::array<uint8_t, 1> transfer_characteristics;
-    std::array<uint8_t, 1> matrix_coefficients;
-    std::array<uint8_t, 1> video_full_range_flag;
+    uint8_t type                     [4];
+    uint8_t reserved                 [4];
+    uint8_t color_primaries          [1];
+    uint8_t transfer_characteristics [1];
+    uint8_t matrix_coefficients      [1];
+    uint8_t video_full_range_flag    [1];
 } CICP_Layout;
 
 static bool read_cicp(const skcms_ICCTag* tag, skcms_CICP* cicp) {
@@ -1330,9 +1328,9 @@ static bool read_cicp(const skcms_ICCTag* tag, skcms_CICP* cicp) {
 }
 
 typedef struct {
-    std::array<uint8_t, 4> type;
-    std::array<uint8_t, 4> reserved;
-    std::array<uint8_t, 4> size;
+    uint8_t type                     [4];
+    uint8_t reserved                 [4];
+    uint8_t size                     [4];
 } HAGC_Layout;
 
 static bool read_hagc(const skcms_ICCTag* tag, skcms_HAGC* hagc) {
@@ -1341,7 +1339,7 @@ static bool read_hagc(const skcms_ICCTag* tag, skcms_HAGC* hagc) {
     }
 
     const HAGC_Layout* hagcTag = (const HAGC_Layout*)tag->buf;
-    uint32_t size = read_big_u32(hagcTag->size.data());
+    uint32_t size = read_big_u32(hagcTag->size);
     if (size > tag->size - SAFE_SIZEOF(HAGC_Layout)) {
         return false;
     }
@@ -1355,9 +1353,9 @@ void skcms_GetTagByIndex(const skcms_ICCProfile* profile, uint32_t idx, skcms_IC
     if (!profile || !profile->buffer || !tag) { return; }
     if (idx >= profile->tag_count) { return; }
     const tag_Layout* tags = get_tag_table(profile);
-    tag->signature = read_big_u32(tags[idx].signature.data());
-    tag->size      = read_big_u32(tags[idx].size.data());
-    tag->buf       = read_big_u32(tags[idx].offset.data()) + profile->buffer;
+    tag->signature = read_big_u32(tags[idx].signature);
+    tag->size      = read_big_u32(tags[idx].size);
+    tag->buf       = read_big_u32(tags[idx].offset) + profile->buffer;
     tag->type      = read_big_u32(tag->buf);
 }
 
@@ -1365,10 +1363,10 @@ bool skcms_GetTagBySignature(const skcms_ICCProfile* profile, uint32_t sig, skcm
     if (!profile || !profile->buffer || !tag) { return false; }
     const tag_Layout* tags = get_tag_table(profile);
     for (uint32_t i = 0; i < profile->tag_count; ++i) {
-        if (read_big_u32(tags[i].signature.data()) == sig) {
+        if (read_big_u32(tags[i].signature) == sig) {
             tag->signature = sig;
-            tag->size      = read_big_u32(tags[i].size.data());
-            tag->buf       = read_big_u32(tags[i].offset.data()) + profile->buffer;
+            tag->size      = read_big_u32(tags[i].size);
+            tag->buf       = read_big_u32(tags[i].offset) + profile->buffer;
             tag->type      = read_big_u32(tag->buf);
             return true;
         }
@@ -1398,15 +1396,15 @@ bool skcms_ParseWithA2BPriority(const void* buf, size_t len,
     // Byte-swap all header fields
     const header_Layout* header  = (const header_Layout*)buf;
     profile->buffer              = (const uint8_t*)buf;
-    profile->size                = read_big_u32(header->size.data());
-    uint32_t version             = read_big_u32(header->version.data());
-    profile->data_color_space    = read_big_u32(header->data_color_space.data());
-    profile->pcs                 = read_big_u32(header->pcs.data());
-    uint32_t signature           = read_big_u32(header->signature.data());
-    float illuminant_X           = read_big_fixed(header->illuminant_X.data());
-    float illuminant_Y           = read_big_fixed(header->illuminant_Y.data());
-    float illuminant_Z           = read_big_fixed(header->illuminant_Z.data());
-    profile->tag_count           = read_big_u32(header->tag_count.data());
+    profile->size                = read_big_u32(header->size);
+    uint32_t version             = read_big_u32(header->version);
+    profile->data_color_space    = read_big_u32(header->data_color_space);
+    profile->pcs                 = read_big_u32(header->pcs);
+    uint32_t signature           = read_big_u32(header->signature);
+    float illuminant_X           = read_big_fixed(header->illuminant_X);
+    float illuminant_Y           = read_big_fixed(header->illuminant_Y);
+    float illuminant_Z           = read_big_fixed(header->illuminant_Z);
+    profile->tag_count           = read_big_u32(header->tag_count);
 
     // Validate signature, size (smaller than buffer, large enough to hold tag table),
     // and major version
@@ -1428,8 +1426,8 @@ bool skcms_ParseWithA2BPriority(const void* buf, size_t len,
     // Validate that all tag entries have sane offset + size
     const tag_Layout* tags = get_tag_table(profile);
     for (uint32_t i = 0; i < profile->tag_count; ++i) {
-        uint32_t tag_offset = read_big_u32(tags[i].offset.data());
-        uint32_t tag_size   = read_big_u32(tags[i].size.data());
+        uint32_t tag_offset = read_big_u32(tags[i].offset);
+        uint32_t tag_size   = read_big_u32(tags[i].size);
         uint64_t tag_end    = (uint64_t)tag_offset + (uint64_t)tag_size;
         if (tag_size < 4 || tag_end > profile->size) {
             return false;
@@ -1850,9 +1848,7 @@ static bool is_zero_to_one(float x) {
     return 0 <= x && x <= 1;
 }
 
-typedef struct {
-    std::array<float, 3> vals;
-} skcms_Vector3;
+typedef struct { float vals[3]; } skcms_Vector3;
 
 static skcms_Vector3 mv_mul(const skcms_Matrix3x3* m, const skcms_Vector3* v) {
     skcms_Vector3 dst = {{0,0,0}};
@@ -2536,12 +2532,12 @@ static OpAndArg select_curve_op(const skcms_Curve* curve, int channel) {
     struct OpType {
         Op sGamma, sRGBish, PQish, HLGish, HLGinvish, table;
     };
-    static constexpr auto kOps = std::to_array<OpType>({
-            OpType{Op::gamma_r, Op::tf_r, Op::pq_r, Op::hlg_r, Op::hlginv_r, Op::table_r},
-            OpType{Op::gamma_g, Op::tf_g, Op::pq_g, Op::hlg_g, Op::hlginv_g, Op::table_g},
-            OpType{Op::gamma_b, Op::tf_b, Op::pq_b, Op::hlg_b, Op::hlginv_b, Op::table_b},
-            OpType{Op::gamma_a, Op::tf_a, Op::pq_a, Op::hlg_a, Op::hlginv_a, Op::table_a},
-    });
+    static constexpr OpType kOps[] = {
+        { Op::gamma_r, Op::tf_r, Op::pq_r, Op::hlg_r, Op::hlginv_r, Op::table_r },
+        { Op::gamma_g, Op::tf_g, Op::pq_g, Op::hlg_g, Op::hlginv_g, Op::table_g },
+        { Op::gamma_b, Op::tf_b, Op::pq_b, Op::hlg_b, Op::hlginv_b, Op::table_b },
+        { Op::gamma_a, Op::tf_a, Op::pq_a, Op::hlg_a, Op::hlginv_a, Op::table_a },
+    };
     const auto& op = kOps[channel];
 
     if (curve->table_entries == 0) {
@@ -3157,7 +3153,7 @@ bool skcms_MakeUsableAsDestination(skcms_ICCProfile* profile) {
             return false;
         }
 
-        std::array<skcms_TransferFunction, 3> tf;
+        skcms_TransferFunction tf[3];
         for (int i = 0; i < 3; i++) {
             skcms_TransferFunction inv;
             if (profile->trc[i].table_entries == 0

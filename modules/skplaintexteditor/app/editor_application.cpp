@@ -29,7 +29,6 @@
 #include "include/ports/SkTypeface_win.h"
 #endif
 
-#include <array>
 #include <cfloat>
 #include <fstream>
 #include <memory>
@@ -94,7 +93,7 @@ struct Timer {
 };
 
 static constexpr float kFontSize = 18;
-static constexpr std::array<const char*, 3> kTypefaces = {"sans-serif", "serif", "monospace"};
+static const char* kTypefaces[3] = {"sans-serif", "serif", "monospace"};
 static constexpr size_t kTypefaceCount = std::size(kTypefaces);
 
 static constexpr SkFontStyle::Weight kFontWeight = SkFontStyle::kNormal_Weight;

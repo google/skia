@@ -20,7 +20,6 @@
 #include "tools/Resources.h"
 #include "tools/fonts/FontToolUtils.h"
 
-#include <array>
 #include <cmath>
 #include <vector>
 
@@ -141,13 +140,13 @@ protected:
     }
 
     bool onChar(SkUnichar uni) override {
-        static constexpr auto kColors = std::to_array<SkColor>({
-                SK_ColorBLACK,
-                SK_ColorRED,
-                SK_ColorGREEN,
-                SK_ColorYELLOW,
-                SK_ColorCYAN,
-        });
+        static constexpr SkColor kColors[] = {
+            SK_ColorBLACK,
+            SK_ColorRED,
+            SK_ColorGREEN,
+            SK_ColorYELLOW,
+            SK_ColorCYAN,
+        };
 
         if (uni == 'c') {
             fColorIndex = (fColorIndex + 1) % std::size(kColors);

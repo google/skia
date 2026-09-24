@@ -161,11 +161,11 @@ SkMatrix SkSVGNode::ComputeViewboxMatrix(const SkRect& viewBox,
     };
 
     auto compute_trans = [&](const SkV2& scale) -> SkV2 {
-        static constexpr auto gAlignCoeffs = std::to_array<float>({
-                0.0f,  // Min
-                0.5f,  // Mid
-                1.0f   // Max
-        });
+        static constexpr float gAlignCoeffs[] = {
+                0.0f, // Min
+                0.5f, // Mid
+                1.0f  // Max
+        };
 
         const size_t x_coeff = par.fAlign >> 0 & 0x03,
                      y_coeff = par.fAlign >> 2 & 0x03;

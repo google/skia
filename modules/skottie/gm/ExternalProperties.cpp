@@ -18,7 +18,6 @@
 #include "tools/Resources.h"
 #include "tools/fonts/FontToolUtils.h"
 
-#include <array>
 #include <cmath>
 #include <vector>
 
@@ -96,17 +95,16 @@ private:
             return;
         }
 
-        struct Tests {
+        static constexpr struct {
             const char* txt_string;
             SkColor     txt_color,
                         solid_color;
             float       transform_scale;
+        } gTests[] = {
+            { "update #1", SK_ColorRED    , SK_ColorYELLOW, 100.f },
+            { "update #2", SK_ColorGREEN  , SK_ColorBLUE  ,  50.f },
+            { "update #3", SK_ColorMAGENTA, SK_ColorCYAN  , 150.f },
         };
-        static constexpr auto gTests = std::to_array<Tests>({
-                Tests{"update #1", SK_ColorRED, SK_ColorYELLOW, 100.f},
-                Tests{"update #2", SK_ColorGREEN, SK_ColorBLUE, 50.f},
-                Tests{"update #3", SK_ColorMAGENTA, SK_ColorCYAN, 150.f},
-        });
 
         SkASSERT(i - 1 < std::size(gTests));
         const auto& tst = gTests[i - 1];

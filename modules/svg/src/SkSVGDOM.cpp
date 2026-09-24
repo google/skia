@@ -56,9 +56,9 @@
 #include "src/core/SkTraceEvent.h"
 #include "src/xml/SkDOM.h"
 
+#include <stdint.h>
 #include <array>
 #include <cstring>
-#include <stdint.h>
 #include <tuple>
 #include <utility>
 
@@ -218,7 +218,7 @@ struct AttrParseInfo {
     bool (*fSetter)(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr, const char* stringValue);
 };
 
-static constexpr auto gAttributeParseInfo = std::to_array<SortedDictionaryEntry<AttrParseInfo>>({
+SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "cx"                 , { SkSVGAttribute::kCx               , SetLengthAttribute       }},
     { "cy"                 , { SkSVGAttribute::kCy               , SetLengthAttribute       }},
     { "filterUnits"        , { SkSVGAttribute::kFilterUnits      ,
@@ -244,9 +244,9 @@ static constexpr auto gAttributeParseInfo = std::to_array<SortedDictionaryEntry<
     { "y"                  , { SkSVGAttribute::kY                , SetLengthAttribute       }},
     { "y1"                 , { SkSVGAttribute::kY1               , SetLengthAttribute       }},
     { "y2"                 , { SkSVGAttribute::kY2               , SetLengthAttribute       }},
-});
+};
 
-static constexpr auto gTagFactories = std::to_array<SortedDictionaryEntry<sk_sp<SkSVGNode> (*)()>>({
+SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
     { "a"                  , []() -> sk_sp<SkSVGNode> { return SkSVGG::Make();                   }},
     { "circle"             , []() -> sk_sp<SkSVGNode> { return SkSVGCircle::Make();              }},
     { "clipPath"           , []() -> sk_sp<SkSVGNode> { return SkSVGClipPath::Make();            }},
@@ -292,7 +292,7 @@ static constexpr auto gTagFactories = std::to_array<SortedDictionaryEntry<sk_sp<
     { "textPath"           , []() -> sk_sp<SkSVGNode> { return SkSVGTextPath::Make();            }},
     { "tspan"              , []() -> sk_sp<SkSVGNode> { return SkSVGTSpan::Make();               }},
     { "use"                , []() -> sk_sp<SkSVGNode> { return SkSVGUse::Make();                 }},
-});
+};
 
 struct ConstructionContext {
     ConstructionContext(SkSVGIDMapper* mapper) : fParent(nullptr), fIDMapper(mapper) {}
