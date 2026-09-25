@@ -277,7 +277,7 @@ public:
      * the generation ID of the *original* path. This is the path that will receive
      * GenIDChangeListeners added to this shape.
      */
-    uint32_t testingOnly_getOriginalGenerationID() const;
+    uint64_t testingOnly_getOriginalGenerationID() const;
     bool testingOnly_isPath() const;
     bool testingOnly_isNonVolatilePath() const;
 
@@ -310,7 +310,7 @@ private:
     GrShape fShape;
     GrStyle fStyle;
     // Gen ID of the original path (path may be modified or simplified away).
-    int32_t fGenID      = 0;
+    uint64_t fGenID     = 0;
     bool    fClosed     = false;
     bool    fSimplified = false;
 

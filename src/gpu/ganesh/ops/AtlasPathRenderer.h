@@ -117,12 +117,13 @@ private:
     struct AtlasPathKey {
         void set(const SkMatrix&, const SkPath&);
         bool operator==(const AtlasPathKey& k) const {
-            static_assert(sizeof(*this) == sizeof(uint32_t) * 8);
+            static_assert(sizeof(*this) == sizeof(uint32_t) * 10);
             return !memcmp(this, &k, sizeof(*this));
         }
-        uint32_t fPathGenID;
+        uint64_t fPathGenID;
         float fAffineMatrix[6];
         uint32_t fFillRule;
+        uint32_t fPadding = 0;
 
         using Hash = SkForceDirectHash<AtlasPathKey>;
     };

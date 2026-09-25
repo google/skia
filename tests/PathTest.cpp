@@ -2870,8 +2870,8 @@ static void test_transform(skiatest::Reporter* reporter) {
     {
         SkPath p1 = SkPath::Rect({ 10, 20, 30, 40 });
         SkPath p2 = SkPath::Rect({ 10, 20, 30, 40 });
-        uint32_t id1 = p1.getGenerationID();
-        uint32_t id2 = p2.getGenerationID();
+        uint64_t id1 = p1.getGenerationID();
+        uint64_t id2 = p2.getGenerationID();
         REPORTER_ASSERT(reporter, id1 != id2);
         SkMatrix matrix;
         matrix.setScale(2, 2);

@@ -199,6 +199,7 @@ void AtlasPathRenderer::AtlasPathKey::set(const SkMatrix& m, const SkPath& path)
     fAffineMatrix[4] = m.getScaleY();
     fAffineMatrix[5] = m.getTranslateY();
     fFillRule = (uint32_t)GrFillRuleForSkPath(path);  // Fill rule doesn't affect the path's genID.
+    fPadding = 0;
 }
 
 bool AtlasPathRenderer::addPathToAtlas(GrRecordingContext* rContext,

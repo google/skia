@@ -119,8 +119,8 @@ public:
     const SkRect& bounds() const { return fBounds; }
     uint8_t segmentMask() const { return fSegmentMask; }
 
-    // Will never be zero, has the low-2 bits always zero (to store filltype)
-    uint32_t uniqueID() const { return fUniqueID; }
+    // Will never be zero, the upper-2 bits are always zero (to store filltype)
+    uint64_t uniqueID() const { return fUniqueID; }
 
     SkPathRaw raw(SkPathFillType, SkResolveConvexity) const;
 
@@ -191,7 +191,7 @@ private:
     SkSpan<SkPathVerb> fVerbs;
     SkRect             fBounds;
 
-    uint32_t           fUniqueID;   // never 0
+    uint64_t           fUniqueID;   // never 0
 
     /*
      *  Convexity can be slow to compute, and (in theory) it can't always survive a matrix

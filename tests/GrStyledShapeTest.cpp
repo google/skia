@@ -49,7 +49,7 @@
 
 using namespace skia_private;
 
-uint32_t GrStyledShape::testingOnly_getOriginalGenerationID() const {
+uint64_t GrStyledShape::testingOnly_getOriginalGenerationID() const {
     if (const auto* lp = this->originalPathForListeners()) {
         return lp->getGenerationID();
     }
@@ -261,13 +261,13 @@ static void check_original_path_ids(skiatest::Reporter* r, const GrStyledShape& 
 
     REPORTER_ASSERT(r, peStrokeIsPath == fullIsPath);
 
-    uint32_t baseID = base.testingOnly_getOriginalGenerationID();
-    uint32_t peID = pe.testingOnly_getOriginalGenerationID();
-    uint32_t peStrokeID = peStroke.testingOnly_getOriginalGenerationID();
-    uint32_t fullID = full.testingOnly_getOriginalGenerationID();
+    uint64_t baseID = base.testingOnly_getOriginalGenerationID();
+    uint64_t peID = pe.testingOnly_getOriginalGenerationID();
+    uint64_t peStrokeID = peStroke.testingOnly_getOriginalGenerationID();
+    uint64_t fullID = full.testingOnly_getOriginalGenerationID();
 
     // All empty paths have the same gen ID
-    uint32_t emptyID = SkPath().getGenerationID();
+    uint64_t emptyID = SkPath().getGenerationID();
 
     // If we started with a real path, then our genID should match that path's gen ID (and not be
     // empty). If we started with a simple shape or a volatile path, our original path should have

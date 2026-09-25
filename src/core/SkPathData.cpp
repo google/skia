@@ -21,6 +21,7 @@
 #include "src/core/SkSpanPriv.h"
 
 #include <array>
+#include <limits>
 #include <new>
 #include <optional>
 #include <type_traits>
@@ -30,18 +31,13 @@ SkPathData* SkPathData::PeekEmptySingleton() {
     return gEmpty;
 }
 
-static uint32_t next_pathdata_unique_id() {
+static uint64_t next_pathdata_unique_id() {
     constexpr int kHighBitsToMakeRoomForFillType = 2;
-
-    static std::atomic<int32_t> nextID{1};
-
-    uint32_t id;
-    do {
-        id = nextID.fetch_add(1, std::memory_order_relaxed);
-        // clear the high bits to make room for filltype
-        id <<= kHighBitsToMakeRoomForFillType;
-        id >>= kHighBitsToMakeRoomForFillType;
-    } while (id == 0);
+    constexpr uint64_t kMaxID =
+            std::numeric_limits<uint64_t>::max() >> kHighBitsToMakeRoomForFillType;
+    static std::atomic<uint64_t> nextID{1};
+    uint64_t id = nextID.fetch_add(1, std::memory_order_relaxed);
+    SkASSERT_RELEASE(id <= kMaxID);
     return id;
 }
 
@@ -185,7 +181,7 @@ SkPathData::SkPathData(size_t npts, size_t nvbs, size_t ncns)
 SkPathData::~SkPathData() {
     // We will implicitly call our IDChangeList here, notifying them that we are
     // being dstroyed.
-    SkDEBUGCODE(fUniqueID = 0xEEEEEEEE;)
+    SkDEBUGCODE(fUniqueID = 0xEEEEEEEEEEEEEEEEULL;)
 }
 
 void SkPathData::operator delete(void* p) {
