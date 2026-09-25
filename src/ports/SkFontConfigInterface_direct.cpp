@@ -579,6 +579,19 @@ bool SkFontConfigInterfaceDirect::isAcceptableMatch(FcPattern* match,
 }
 
 // Find matching font from |font_set| for the given font family.
+//
+// |font_set| comes from FcFontSort, which returns all system fonts ordered by
+// FontConfig's match score for the requested pattern. We first find the first
+// technically valid (accessible SFNT) pattern in |font_set|, because older
+// versions of FontConfig could not filter for only scalable fonts and may rank
+// non-SFNT or unreadable fonts ahead of the best usable match.
+//
+// Once that single best valid candidate is found, we stop and check only that
+// pattern with isAcceptableMatch(). We must not continue scanning |font_set| if
+// it is rejected: because FcFontSort includes all system fonts, scanning further
+// would bypass FontConfig's top match and could falsely match a lower-ranked
+// font (e.g. via IsMetricCompatibleReplacement) instead of returning nullptr so
+// the caller can try the next family in a CSS fallback list.
 FcPattern* SkFontConfigInterfaceDirect::MatchFont(FcFontSet* font_set,
                                                   const char* post_config_family,
                                                   const SkString& family) {
