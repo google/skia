@@ -40,6 +40,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
@@ -118,8 +119,8 @@ DEF_TEST(SkStrikeMultiThread, Reporter) {
     font.setSubpixel(true);
     font.setTypeface(typeface);
 
-    SkGlyphID glyphs['z'];
-    SkPoint pos['z'];
+    std::array<SkGlyphID, 'z'> glyphs;
+    std::array<SkPoint, 'z'> pos;
     for (int c = ' '; c < 'z'; c++) {
         glyphs[c] = font.unicharToGlyph(c);
         pos[c] = {30.0f * c + 30, 30.0f};

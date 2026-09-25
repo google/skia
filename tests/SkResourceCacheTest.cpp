@@ -96,9 +96,9 @@ static void test_mipmapcache(skiatest::Reporter* reporter, SkResourceCache* cach
 static void test_mipmap_notify(skiatest::Reporter* reporter, SkResourceCache* cache) {
     const int N = 3;
 
-    SkBitmap src[N];
-    sk_sp<SkImage> img[N];
-    SkBitmapCacheDesc desc[N];
+    std::array<SkBitmap, N> src;
+    std::array<sk_sp<SkImage>, N> img;
+    std::array<SkBitmapCacheDesc, N> desc;
     for (int i = 0; i < N; ++i) {
         src[i].allocN32Pixels(5, 5);
         src[i].setImmutable();
@@ -196,10 +196,10 @@ DEF_TEST(BitmapCache_discarded_image, reporter) {
     // To exercise the first cache type, we use generated/picture-backed SkImages.
     // To exercise the latter, we draw scaled bitmap images using HQ filters.
 
-    const SkMatrix xforms[] = {
-        SkMatrix::Scale(1, 1),
-        SkMatrix::Scale(1.7f, 0.5f),
-    };
+    const auto xforms = std::to_array<SkMatrix>({
+            SkMatrix::Scale(1, 1),
+            SkMatrix::Scale(1.7f, 0.5f),
+    });
 
     for (size_t i = 0; i < std::size(xforms); ++i) {
         test_discarded_image(reporter, xforms[i], []() {

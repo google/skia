@@ -14,6 +14,7 @@
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 
+#include <array>
 #include <cstddef>
 #include <vector>
 
@@ -174,18 +175,19 @@ static void create_graph6(TArray<sk_sp<ToolUtils::TopoTestNode>>* graph) {
 DEF_TEST(TopoSort, reporter) {
     SkRandom rand;
 
-    struct {
+    struct Tests {
         CreateGraphPF fCreate;
         bool          fExpectedResult;
-    } tests[] = {
-        { create_graph0, true  },
-        { create_graph1, true  },
-        { create_graph2, false },
-        { create_graph3, true  },
-        { create_graph4, true  },
-        { create_graph5, false },
-        { create_graph6, false },
     };
+    auto tests = std::to_array<Tests>({
+            Tests{create_graph0,  true},
+            Tests{create_graph1,  true},
+            Tests{create_graph2, false},
+            Tests{create_graph3,  true},
+            Tests{create_graph4,  true},
+            Tests{create_graph5, false},
+            Tests{create_graph6, false},
+    });
 
     for (size_t i = 0; i < std::size(tests); ++i) {
         TArray<sk_sp<ToolUtils::TopoTestNode>> graph;
