@@ -473,6 +473,9 @@
     "name": "Build-Ubuntu24.04-Clang-x86_64-Debug-RustPNG"
   },
   {
+    "name": "Build-Ubuntu24.04-Clang-x86_64-Debug-RustPNGAndroid"
+  },
+  {
     "name": "Build-Ubuntu24.04-Clang-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"
   },
   {
@@ -1875,6 +1878,9 @@
   },
   {
     "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-RustPNG"
+  },
+  {
+    "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-RustPNGAndroid"
   },
   {
     "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"

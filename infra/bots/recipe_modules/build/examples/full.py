@@ -62,6 +62,7 @@ TEST_BUILDERS = [
   'Build-Debian10-Clang-x86_64-Release-RustALL',
   'Build-Debian10-Clang-x86_64-Release-RustBMP',
   'Build-Debian10-Clang-x86_64-Release-RustPNG',
+  'Build-Debian10-Clang-x86_64-Release-RustPNGAndroid',
   'Build-Debian10-Clang-x86_64-Release-SK_USE_PADDED_BLUR_UPSCALE',
   'Build-Debian10-Clang-x86_64-Release-Static',
   'Build-Debian10-Clang-x86_64-Release-SwiftShader',

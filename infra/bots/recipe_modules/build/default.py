@@ -227,11 +227,13 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
     args['skia_use_fontations'] = 'true'
     args['skia_use_freetype'] = 'true' # we compare with freetype in tests
     args['skia_use_system_freetype2'] = 'false'
-  if 'RustPNG' in extra_tokens:
+  if 'RustPNG' in extra_tokens or 'RustPNGAndroid' in extra_tokens:
     args['skia_use_rust_png_decode'] = 'true'
     args['skia_use_rust_png_encode'] = 'true'
     args['skia_use_libpng_decode'] = 'false'
     # TODO(b/356875275) set skia_use_libpng_encode to false also
+  if 'RustPNGAndroid' in extra_tokens:
+    args['skia_use_rust_png_for_android'] = 'true'
   if 'RustBMP' in extra_tokens:
     args['skia_use_rust_bmp_decode'] = 'true'
   if 'RustALL' in extra_tokens:

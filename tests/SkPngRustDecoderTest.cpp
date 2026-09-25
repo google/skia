@@ -451,6 +451,7 @@ static void AssertAndroidStaticApng(skiatest::Reporter* r,
 }
 #endif
 
+#if !defined(SK_CODEC_USES_PNG_WITH_RUST_FOR_ANDROID)
 // Decodes into a buffer surrounded by guard bytes to detect out-of-bounds writes
 // even in builds without ASAN, and asserts that the decode is refused with
 // `SkCodec::kUnimplemented`.
@@ -524,6 +525,7 @@ static void AssertAndroidDecodeRefused(skiatest::Reporter* r,
                     (int)useSubset,
                     rowBytes);
 }
+#endif
 
 // Asserts that `decode` produces the same pixels for `path` as for copies of it with a corrupt
 // and with a truncated trailing `IEND` CRC. Both variants leave all of `IDAT` intact.
