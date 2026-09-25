@@ -51,6 +51,8 @@ def main():
   parser.add_argument(
       "--dawn_enable_opengles", default="false", help="Enable GLES backend.")
   parser.add_argument(
+      "--dawn_enable_desktop_gl", default="false", help="Enable GL backend.")
+  parser.add_argument(
       "--dawn_enable_metal", default="false", help="Enable Metal backend.")
   parser.add_argument(
       "--dawn_enable_vulkan", default="false", help="Enable Vulkan backend.")
@@ -112,6 +114,7 @@ def main():
       f"-DDAWN_ENABLE_D3D11={gn_bool_to_cmake(args.dawn_enable_d3d11)}",
       f"-DDAWN_ENABLE_D3D12={gn_bool_to_cmake(args.dawn_enable_d3d12)}",
       f"-DDAWN_ENABLE_OPENGLES={gn_bool_to_cmake(args.dawn_enable_opengles)}",
+      f"-DDAWN_ENABLE_DESKTOP_GL={gn_bool_to_cmake(args.dawn_enable_desktop_gl)}",
       f"-DDAWN_ENABLE_METAL={gn_bool_to_cmake(args.dawn_enable_metal)}",
       f"-DDAWN_ENABLE_VULKAN={gn_bool_to_cmake(args.dawn_enable_vulkan)}",
       # SPIRV_VALIDATION defaults to on in Windows builds, which we don't need

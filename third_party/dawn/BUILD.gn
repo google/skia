@@ -275,10 +275,14 @@ action("dawn_cmake") {
   } else {
     args += [ "--dawn_enable_d3d12=false" ]
   }
+
+  # Enable both desktop_gl and opengles based on dawn_enable_opengles in Skia's args.gn
   if (dawn_enable_opengles) {
     args += [ "--dawn_enable_opengles=true" ]
+    args += [ "--dawn_enable_desktop_gl=true" ]
   } else {
     args += [ "--dawn_enable_opengles=false" ]
+    args += [ "--dawn_enable_desktop_gl=false" ]
   }
   if (dawn_enable_metal) {
     args += [ "--dawn_enable_metal=true" ]
