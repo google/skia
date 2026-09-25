@@ -26,6 +26,7 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
+#include <array>
 #include <math.h>
 
 /**
@@ -58,7 +59,11 @@ class ShowMipLevels : public skiagm::GM {
         fImg = ToolUtils::GetResourceAsImage("images/ship.png");
         fImg = fImg->makeRasterImage(nullptr); // makeWithMips only works on raster for now
 
-        const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
+        static constexpr auto colors = std::to_array<SkColor>({
+                SK_ColorRED,
+                SK_ColorGREEN,
+                SK_ColorBLUE,
+        });
 
         SkMipmapBuilder builder(fImg->imageInfo());
         // The number of levels is derived from the size of the image, so we intentionally

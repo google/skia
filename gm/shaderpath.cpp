@@ -26,6 +26,7 @@
 #include "src/core/SkColorPriv.h"
 #include "tools/ToolUtils.h"
 
+#include <array>
 #include <string.h>
 
 namespace skiagm {
@@ -91,10 +92,10 @@ protected:
         canvas->translate(15.f, 15.f);
         canvas->scale(2.f, 2.f);
 
-        constexpr SkTileMode kTileModes[] = {
-            SkTileMode::kRepeat,
-            SkTileMode::kMirror,
-        };
+        static constexpr auto kTileModes = std::to_array<SkTileMode>({
+                SkTileMode::kRepeat,
+                SkTileMode::kMirror,
+        });
 
         // position the baseline of the first path
         canvas->translate(0.f, 2.25);

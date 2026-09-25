@@ -20,6 +20,7 @@
 #include "src/utils/SkPolyUtils.h"
 #include "tools/ToolUtils.h"
 
+#include <array>
 #include <functional>
 #include <memory>
 
@@ -368,50 +369,70 @@ const SkPoint gPoints18[] = {
     {6, 0}
 };
 
+static constexpr auto gConvexPoints = std::to_array<const SkPoint*>({
+        gPoints0,
+        gPoints1,
+        gPoints2,
+        gPoints3,
+        gPoints4,
+        gPoints5,
+        gPoints6,
+        gPoints7,
+        gPoints8,
+        gPoints9,
+        gPoints10,
+});
 
-const SkPoint* gConvexPoints[] = {
-    gPoints0, gPoints1, gPoints2, gPoints3, gPoints4, gPoints5, gPoints6,
-    gPoints7, gPoints8, gPoints9, gPoints10,
-};
-
-const size_t gConvexSizes[] = {
-    std::size(gPoints0),
-    std::size(gPoints1),
-    std::size(gPoints2),
-    std::size(gPoints3),
-    std::size(gPoints4),
-    std::size(gPoints5),
-    std::size(gPoints6),
-    std::size(gPoints7),
-    std::size(gPoints8),
-    std::size(gPoints9),
-    std::size(gPoints10),
-};
+static constexpr auto gConvexSizes = std::to_array<size_t>({
+        std::size(gPoints0),
+        std::size(gPoints1),
+        std::size(gPoints2),
+        std::size(gPoints3),
+        std::size(gPoints4),
+        std::size(gPoints5),
+        std::size(gPoints6),
+        std::size(gPoints7),
+        std::size(gPoints8),
+        std::size(gPoints9),
+        std::size(gPoints10),
+});
 static_assert(std::size(gConvexSizes) == std::size(gConvexPoints), "array_mismatch");
 
-const SkPoint* gSimplePoints[] = {
-    gPoints0, gPoints1, gPoints2, gPoints4, gPoints5, gPoints7,
-    gPoints8, gPoints11, gPoints12, gPoints13, gPoints14, gPoints15,
-    gPoints16, gPoints17, gPoints18,
-};
+static constexpr auto gSimplePoints = std::to_array<const SkPoint*>({
+        gPoints0,
+        gPoints1,
+        gPoints2,
+        gPoints4,
+        gPoints5,
+        gPoints7,
+        gPoints8,
+        gPoints11,
+        gPoints12,
+        gPoints13,
+        gPoints14,
+        gPoints15,
+        gPoints16,
+        gPoints17,
+        gPoints18,
+});
 
-const size_t gSimpleSizes[] = {
-    std::size(gPoints0),
-    std::size(gPoints1),
-    std::size(gPoints2),
-    std::size(gPoints4),
-    std::size(gPoints5),
-    std::size(gPoints7),
-    std::size(gPoints8),
-    std::size(gPoints11),
-    std::size(gPoints12),
-    std::size(gPoints13),
-    std::size(gPoints14),
-    std::size(gPoints15),
-    std::size(gPoints16),
-    std::size(gPoints17),
-    std::size(gPoints18),
-};
+static constexpr auto gSimpleSizes = std::to_array<size_t>({
+        std::size(gPoints0),
+        std::size(gPoints1),
+        std::size(gPoints2),
+        std::size(gPoints4),
+        std::size(gPoints5),
+        std::size(gPoints7),
+        std::size(gPoints8),
+        std::size(gPoints11),
+        std::size(gPoints12),
+        std::size(gPoints13),
+        std::size(gPoints14),
+        std::size(gPoints15),
+        std::size(gPoints16),
+        std::size(gPoints17),
+        std::size(gPoints18),
+});
 static_assert(std::size(gSimpleSizes) == std::size(gSimplePoints), "array_mismatch");
 
 }  // namespace PolygonOffsetData
@@ -458,7 +479,7 @@ protected:
             // procedurally generated
             SkScalar width = kMaxPathHeight / 2;
             SkScalar height = kMaxPathHeight / 2;
-            int numPtsArray[] = { 3, 4, 5, 5, 6, 8, 8, 20, 100 };
+            static constexpr auto numPtsArray = std::to_array<int>({3, 4, 5, 5, 6, 8, 8, 20, 100});
 
             size_t arrayIndex = index - std::size(PolygonOffsetData::gConvexPoints);
             SkASSERT(arrayIndex < std::size(numPtsArray));
@@ -493,7 +514,7 @@ protected:
             // procedurally generated
             SkScalar width = kMaxPathHeight / 2;
             SkScalar height = kMaxPathHeight / 2;
-            int numPtsArray[] = { 5, 7, 8, 20, 100 };
+            static constexpr auto numPtsArray = std::to_array<int>({5, 7, 8, 20, 100});
 
             size_t arrayIndex = index - std::size(PolygonOffsetData::gSimplePoints);
             arrayIndex = std::min(arrayIndex, std::size(numPtsArray) - 1);
@@ -531,12 +552,17 @@ protected:
             position->fX += bounds.width();
         }
 
-        const SkPathDirection dirs[2] = { SkPathDirection::kCW, SkPathDirection::kCCW };
-        const float insets[] = { 5, 10, 15, 20, 25, 30, 35, 40 };
-        const float offsets[] = { 2, 5, 9, 14, 20, 27, 35, 44, -2, -5, -9 };
-        const SkColor colors[] = { 0xFF901313, 0xFF8D6214, 0xFF698B14, 0xFF1C8914,
-                                   0xFF148755, 0xFF146C84, 0xFF142482, 0xFF4A1480,
-                                   0xFF901313, 0xFF8D6214, 0xFF698B14 };
+        static constexpr std::array<SkPathDirection, 2> dirs = {
+                SkPathDirection::kCW, SkPathDirection::kCCW};
+        static constexpr auto insets = std::to_array<float>({5, 10, 15, 20, 25, 30, 35, 40});
+        static constexpr auto offsets = std::to_array<float>({
+                2, 5, 9, 14, 20, 27, 35, 44, -2, -5, -9
+        });
+        static constexpr auto colors = std::to_array<SkColor>({
+                0xFF901313, 0xFF8D6214, 0xFF698B14, 0xFF1C8914,
+                0xFF148755, 0xFF146C84, 0xFF142482, 0xFF4A1480,
+                0xFF901313, 0xFF8D6214, 0xFF698B14,
+        });
 
         SkPaint paint;
         paint.setAntiAlias(true);

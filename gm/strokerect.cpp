@@ -19,6 +19,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTemplates.h"
 
+#include <array>
 #include <float.h>
 
 using namespace skia_private;
@@ -69,26 +70,28 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(STROKE_WIDTH);
 
-        constexpr SkPaint::Join gJoins[] = {
-            SkPaint::kMiter_Join, SkPaint::kRound_Join, SkPaint::kBevel_Join
-        };
+        static constexpr auto gJoins = std::to_array<SkPaint::Join>({
+                SkPaint::kMiter_Join,
+                SkPaint::kRound_Join,
+                SkPaint::kBevel_Join,
+        });
 
         constexpr SkScalar W = 80;
         constexpr SkScalar H = 80;
-        constexpr SkRect gRects[] = {
-            { 0, 0, W, H },
-            { W, 0, 0, H },
-            { 0, H, W, 0 },
-            { 0, 0, STROKE_WIDTH, H },
-            { 0, 0, W, STROKE_WIDTH },
-            { 0, 0, STROKE_WIDTH/2, STROKE_WIDTH/2 },
-            { 0, 0, W, 0 },
-            { 0, 0, 0, H },
-            { 0, 0, 0, 0 },
-            { 0, 0, W, FLT_EPSILON },
-            { 0, 0, FLT_EPSILON, H },
-            { 0, 0, FLT_EPSILON, FLT_EPSILON },
-        };
+        static constexpr auto gRects = std::to_array<SkRect>({
+                SkRect{0, 0,                W,                H},
+                SkRect{W, 0,                0,                H},
+                SkRect{0, H,                W,                0},
+                SkRect{0, 0,     STROKE_WIDTH,                H},
+                SkRect{0, 0,                W,     STROKE_WIDTH},
+                SkRect{0, 0, STROKE_WIDTH / 2, STROKE_WIDTH / 2},
+                SkRect{0, 0,                W,                0},
+                SkRect{0, 0,                0,                H},
+                SkRect{0, 0,                0,                0},
+                SkRect{0, 0,                W,      FLT_EPSILON},
+                SkRect{0, 0,      FLT_EPSILON,                H},
+                SkRect{0, 0,      FLT_EPSILON,      FLT_EPSILON},
+        });
 
         for (int doFill = 0; doFill <= 1; ++doFill) {
             for (size_t i = 0; i < std::size(gJoins); ++i) {

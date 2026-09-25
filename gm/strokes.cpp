@@ -25,6 +25,7 @@
 #include "src/core/SkRandom.h"
 #include "tools/ToolUtils.h"
 
+#include <array>
 #include <string.h>
 
 #if defined(SK_GRAPHITE)
@@ -122,7 +123,7 @@ protected:
         fQuadPath = parse_assert_result("M 0 0 Q 0 0 0 0");
         fLinePath = parse_assert_result("M 0 0 L 0 0");
 
-        SkPathBuilder builders[4];
+        std::array<SkPathBuilder, 4> builders;
         for (int i = 0; i < 3; ++i) {
             builders[0].addCircle(i * 10.f, 0, 5);
             builders[1].addCircle(i * 10.f, 0, 10);
@@ -416,9 +417,9 @@ protected:
         SkPaint strokePaint(origPaint);
         strokePaint.setColor(ToolUtils::color_to_565(0xFF4444FF));
 
-        SkPath (*procs[])(const SkRect&, SkString*) = {
-            make0, make1, make2, make3, make4, make5
-        };
+        static constexpr auto procs = std::to_array<SkPath (*)(const SkRect&, SkString*)>({
+                make0, make1, make2, make3, make4, make5
+        });
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(80));
 

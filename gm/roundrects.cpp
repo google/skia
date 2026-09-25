@@ -24,6 +24,8 @@
 #include "src/core/SkRandom.h"
 #include "tools/ToolUtils.h"
 
+#include <array>
+
 using namespace skia_private;
 
 namespace skiagm {
@@ -290,16 +292,16 @@ protected:
 
         // strokes and radii
         {
-            SkScalar radii[][2] = {
-                {10,10},
-                {5,15},
-                {5,15},
-                {5,15}
-            };
+            static constexpr auto radii = std::to_array<std::array<SkScalar, 2>>({
+                    {10,10},
+                    {5,15},
+                    {5,15},
+                    {5,15},
+            });
 
-            SkScalar strokeWidths[] = {
-                20, 10, 20, 40
-            };
+            static constexpr auto strokeWidths = std::to_array<SkScalar>({
+                    20, 10, 20, 40
+            });
 
             for (int i = 0; i < 4; ++i) {
                 SkRRect circleRect;

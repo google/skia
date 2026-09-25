@@ -14,6 +14,8 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+
+#include <array>
 #include <tuple>
 
 namespace {
@@ -255,63 +257,63 @@ static PathDY make_ring() {
     return { b.detach(), 15 };
 }
 
-constexpr MakePathProc gProcs[] = {
-    make_triangle,
-    make_rect,
-    make_oval,
-    make_star_5,
-    make_star_13,
-    make_three_line,
-    make_arrow,
-    make_curve,
-    make_battery,
-    make_battery2,
-    make_ring
-};
+static constexpr auto gProcs = std::to_array<MakePathProc>({
+        make_triangle,
+        make_rect,
+        make_oval,
+        make_star_5,
+        make_star_13,
+        make_three_line,
+        make_arrow,
+        make_curve,
+        make_battery,
+        make_battery2,
+        make_ring,
+});
 
-constexpr SkScalar gWidths[] = {
-    2.0f,
-    3.0f,
-    4.0f,
-    5.0f,
-    6.0f,
-    7.0f,
-    7.0f,
-    14.0f,
-    0.0f,
-    0.0f,
-    0.0f
-};
+static constexpr auto gWidths = std::to_array<SkScalar>({
+        2.0f,
+        3.0f,
+        4.0f,
+        5.0f,
+        6.0f,
+        7.0f,
+        7.0f,
+        14.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+});
 static_assert(std::size(gWidths) == std::size(gProcs));
 
-constexpr SkScalar gMiters[] = {
-    2.0f,
-    3.0f,
-    3.0f,
-    3.0f,
-    4.0f,
-    4.0f,
-    4.0f,
-    4.0f,
-    4.0f,
-    4.0f,
-    4.0f,
-};
+static constexpr auto gMiters = std::to_array<SkScalar>({
+        2.0f,
+        3.0f,
+        3.0f,
+        3.0f,
+        4.0f,
+        4.0f,
+        4.0f,
+        4.0f,
+        4.0f,
+        4.0f,
+        4.0f,
+});
 static_assert(std::size(gMiters) == std::size(gProcs));
 
-constexpr SkScalar gXTranslate[] = {
-    0.0f,
-    0.0f,
-    0.0f,
-    0.0f,
-    0.0f,
-    0.0f,
-    0.0f,
-    0.0f,
-    -220.625f,
-    0.0f,
-    0.0f,
-};
+static constexpr auto gXTranslate = std::to_array<SkScalar>({
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        -220.625f,
+        0.0f,
+        0.0f,
+});
 static_assert(std::size(gXTranslate) == std::size(gProcs));
 
 #define N   std::size(gProcs)
@@ -321,8 +323,9 @@ static_assert(std::size(gXTranslate) == std::size(gProcs));
 // particular this ensures that any cache keys in use include the stroking
 // parameters.
 class SmallPathsGM : public skiagm::GM {
-    SkPath  fPath[N];
-    SkScalar fDY[N];
+    std::array<SkPath, N> fPath;
+    std::array<SkScalar, N> fDY;
+
 protected:
     void onOnceBeforeDraw() override {
         for (size_t i = 0; i < N; i++) {

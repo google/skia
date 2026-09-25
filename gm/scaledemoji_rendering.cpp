@@ -23,8 +23,9 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
-#include <string.h>
+#include <array>
 #include <initializer_list>
+#include <string.h>
 
 namespace skiagm {
 class ScaledEmojiRenderingGM : public GM {
@@ -39,7 +40,7 @@ protected:
             ToolUtils::EmojiFontFormat::Test,
             ToolUtils::EmojiFontFormat::Svg,
     };
-    ToolUtils::EmojiTestSample fontSamples[std::size(formatsToTest)];
+    std::array<ToolUtils::EmojiTestSample, std::size(formatsToTest)> fontSamples;
     void onOnceBeforeDraw() override {
         for (auto&& [i, format] : SkMakeEnumerate(formatsToTest)) {
             fontSamples[i] = ToolUtils::EmojiSample(format);

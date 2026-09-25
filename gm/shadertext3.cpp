@@ -26,6 +26,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
 #include <string.h>
 
 namespace skiagm {
@@ -94,10 +95,10 @@ protected:
         // draw glyphs scaled up
         canvas->scale(2.f, 2.f);
 
-        constexpr SkTileMode kTileModes[] = {
-            SkTileMode::kRepeat,
-            SkTileMode::kMirror,
-        };
+        static constexpr auto kTileModes = std::to_array<SkTileMode>({
+                SkTileMode::kRepeat,
+                SkTileMode::kMirror,
+        });
 
         // position the baseline of the first run
         canvas->translate(0.f, 0.75f * kPointSize);

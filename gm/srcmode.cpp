@@ -28,6 +28,8 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 #define W   SkIntToScalar(80)
 #define H   SkIntToScalar(60)
 
@@ -85,17 +87,22 @@ class SrcModeGM : public skiagm::GM {
         SkFont  font(ToolUtils::DefaultPortableTypeface(), H / 4);
         paint.setColor(0x80F60000);
 
-        const Proc procs[] = {
-            draw_hair, draw_thick, draw_rect, draw_oval, draw_text
-        };
+        static constexpr auto procs = std::to_array<Proc>({
+                draw_hair,
+                draw_thick,
+                draw_rect,
+                draw_oval,
+                draw_text,
+        });
 
-        const SkBlendMode modes[] = {
-            SkBlendMode::kSrcOver, SkBlendMode::kSrc, SkBlendMode::kClear
-        };
+        static constexpr auto modes = std::to_array<SkBlendMode>({
+                SkBlendMode::kSrcOver,
+                SkBlendMode::kSrc,
+                SkBlendMode::kClear,
+        });
 
-        const PaintProc paintProcs[] = {
-            identity_paintproc, gradient_paintproc
-        };
+        static constexpr auto paintProcs =
+                std::to_array<PaintProc>({identity_paintproc, gradient_paintproc});
 
         for (int aa = 0; aa <= 1; ++aa) {
             paint.setAntiAlias(SkToBool(aa));

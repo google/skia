@@ -26,6 +26,8 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 typedef void (*InsetProc)(const SkRRect&, SkScalar dx, SkScalar dy, SkRRect*);
 
 static void inset0(const SkRRect& src, SkScalar dx, SkScalar dy, SkRRect* dst) {
@@ -147,11 +149,11 @@ protected:
     SkISize getISize() override { return SkISize::Make(820, 710); }
 
     void onDraw(SkCanvas* canvas) override {
-        constexpr InsetProc insetProcs[] = {
-            inset0, inset1, inset2, inset3
-        };
+        static constexpr auto insetProcs = std::to_array<InsetProc>({
+                inset0, inset1, inset2, inset3
+        });
 
-        SkRRect rrect[4];
+        std::array<SkRRect, 4> rrect;
         SkRect r = { 0, 0, 120, 100 };
         SkVector radii[4] = {
             { 0, 0 }, { 30, 1 }, { 10, 40 }, { 40, 40 }

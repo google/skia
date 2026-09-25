@@ -24,6 +24,8 @@
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/timer/TimeUtils.h"
 
+#include <array>
+
 // Mimics https://output.jsbin.com/falefice/1/quiet?CC_POSTER_CIRCLE, which can't be captured as
 // an SKP due to many 3D layers being composited post-SKP capture.
 // See skbug.com/40040313
@@ -145,7 +147,7 @@ private:
     static const int kRingRadius = 200;
     static const int kPosterSize = 100;
 
-    sk_sp<SkImage> fPosterImages[kNumAngles];
+    std::array<sk_sp<SkImage>, kNumAngles> fPosterImages;
     SkScalar fTime;
 };
 

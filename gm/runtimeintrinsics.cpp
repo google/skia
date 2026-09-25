@@ -23,6 +23,8 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 #if defined(SK_GANESH)
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
@@ -147,7 +149,7 @@ static void plot(SkCanvas* canvas,
     if (!bitmap.empty()) {
         // Plot.
         SkPaint plotPaint({ 0.0f, 0.5f, 0.0f, 1.0f });
-        SkPoint pts[kBoxSize];
+        std::array<SkPoint, kBoxSize> pts;
         for (int x = 0; x < kBoxSize; ++x) {
             SkColor c = bitmap.getColor(x, 0);
             SkScalar y = (1 - (SkColorGetR(c) / 255.0f)) * kBoxSize;

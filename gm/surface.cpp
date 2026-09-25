@@ -31,6 +31,8 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 #if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
@@ -404,7 +406,7 @@ DEF_SIMPLE_GM(snap_with_mips, canvas, 80, 75) {
     canvas->save();
     for (int y = 0; y < 3; ++y) {
         canvas->save();
-        SkColor kColors[] = {0xFFF0F0F0, SK_ColorBLUE};
+        static constexpr auto kColors = std::to_array<SkColor>({0xFFF0F0F0, SK_ColorBLUE});
         for (int x = 0; x < 2; ++x) {
             auto image = nextImage(kColors[x]);
             canvas->drawImage(image, 0, 0, kSampling);

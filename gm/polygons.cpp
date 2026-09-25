@@ -18,6 +18,8 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkRandom.h"
 
+#include <array>
+
 using namespace skia_private;
 
 namespace skiagm {
@@ -40,17 +42,30 @@ protected:
 
     // Construct all polygons
     void onOnceBeforeDraw() override {
-        SkPoint p0[] = {{0, 0}, {60, 0}, {90, 40}};  // triangle
-        SkPoint p1[] = {{0, 0}, {0, 40}, {60, 40}, {40, 0}};  // trapezoid
-        SkPoint p2[] = {{0, 0}, {40, 40}, {80, 40}, {40, 0}};  // diamond
-        SkPoint p3[] = {{10, 0}, {50, 0}, {60, 10}, {60, 30}, {50, 40},
-                        {10, 40}, {0, 30}, {0, 10}};  // octagon
-        SkPoint p4[32];  // circle-like polygons with 32-edges.
-        SkPoint p5[] = {{0, 0}, {20, 20}, {0, 40}, {60, 20}};  // concave polygon with 4 edges
-        SkPoint p6[] = {{0, 40}, {0, 30}, {15, 30}, {15, 20}, {30, 20},
-                        {30, 10}, {45, 10}, {45, 0}, {60, 0}, {60, 40}};  // stairs-like polygon
-        SkPoint p7[] = {{0, 20}, {20, 20}, {30, 0}, {40, 20}, {60, 20},
-                        {45, 30}, {55, 50}, {30, 40}, {5, 50}, {15, 30}};  // five-point stars
+        static constexpr auto p0 = std::to_array<SkPoint>({ // triangle
+                {0, 0}, {60, 0}, {90, 40}
+        });
+        static constexpr auto p1 = std::to_array<SkPoint>({ // trapezoid
+                {0, 0}, {0, 40}, {60, 40}, {40, 0}
+        });
+        static constexpr auto p2 = std::to_array<SkPoint>({ // diamond
+                {0, 0}, {40, 40}, {80, 40}, {40, 0}
+        });
+        static constexpr auto p3 = std::to_array<SkPoint>({ // octagon
+                {10, 0}, {50, 0}, {60, 10}, {60, 30}, {50, 40}, {10, 40}, {0, 30}, {0, 10}
+        });
+        std::array<SkPoint, 32> p4;                         // circle-like polygons with 32-edges.
+        static constexpr auto p5 = std::to_array<SkPoint>({ // concave polygon with 4 edges
+                {0, 0}, {20, 20}, {0, 40}, {60, 20}
+        });
+        static constexpr auto p6 = std::to_array<SkPoint>({ // stairs-like polygon
+                {0, 40}, {0, 30}, {15, 30}, {15, 20}, {30, 20},
+                {30, 10}, {45, 10}, {45, 0}, {60, 0}, {60, 40}
+        });
+        static constexpr auto p7 = std::to_array<SkPoint>({ // five-point stars
+                {0, 20}, {20, 20}, {30, 0}, {40, 20}, {60, 20},
+                {45, 30}, {55, 50}, {30, 40}, {5, 50}, {15, 30}
+        });
 
         for (size_t i = 0; i < std::size(p4); ++i) {
             SkScalar angle = 2 * SK_ScalarPI * i / std::size(p4);
@@ -58,18 +73,19 @@ protected:
         }
 
         struct Polygons {
-            SkPoint* fPoints;
+            const SkPoint* fPoints;
             size_t fPointNum;
-        } pgs[] = {
-            { p0, std::size(p0) },
-            { p1, std::size(p1) },
-            { p2, std::size(p2) },
-            { p3, std::size(p3) },
-            { p4, std::size(p4) },
-            { p5, std::size(p5) },
-            { p6, std::size(p6) },
-            { p7, std::size(p7) }
         };
+        auto pgs = std::to_array<Polygons>({
+                Polygons{p0.data(), std::size(p0)},
+                Polygons{p1.data(), std::size(p1)},
+                Polygons{p2.data(), std::size(p2)},
+                Polygons{p3.data(), std::size(p3)},
+                Polygons{p4.data(), std::size(p4)},
+                Polygons{p5.data(), std::size(p5)},
+                Polygons{p6.data(), std::size(p6)},
+                Polygons{p7.data(), std::size(p7)}
+        });
 
         SkASSERT(std::size(pgs) == kNumPolygons);
         for (size_t pgIndex = 0; pgIndex < std::size(pgs); ++pgIndex) {
@@ -105,12 +121,14 @@ protected:
         // Stroke widths are:
         // 0(may use hairline rendering), 10(common case for stroke-style)
         // 40(>= geometry width/height, make the contour filled in fact)
-        constexpr int kStrokeWidths[] = {0, 10, 40};
+        static constexpr auto kStrokeWidths = std::to_array<int>({0, 10, 40});
         SkASSERT(kNumStrokeWidths == std::size(kStrokeWidths));
 
-        constexpr SkPaint::Join kJoins[] = {
-            SkPaint::kMiter_Join, SkPaint::kRound_Join, SkPaint::kBevel_Join
-        };
+        static constexpr auto kJoins = std::to_array<SkPaint::Join>({
+                SkPaint::kMiter_Join,
+                SkPaint::kRound_Join,
+                SkPaint::kBevel_Join,
+        });
         SkASSERT(kNumJoins == std::size(kJoins));
 
         int counter = 0;
@@ -138,9 +156,8 @@ protected:
         }
 
         // For stroke-and-fill style painter and fill style painter
-        constexpr SkPaint::Style kStyles[] = {
-            SkPaint::kStrokeAndFill_Style, SkPaint::kFill_Style
-        };
+        static constexpr auto kStyles = std::to_array<SkPaint::Style>(
+                {SkPaint::kStrokeAndFill_Style, SkPaint::kFill_Style});
         SkASSERT(kNumExtraStyles == std::size(kStyles));
 
         paint.setStrokeJoin(SkPaint::kMiter_Join);

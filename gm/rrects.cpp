@@ -31,6 +31,7 @@
 #include "src/gpu/ganesh/ops/FillRectOp.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
 
+#include <array>
 #include <memory>
 #include <utility>
 
@@ -219,7 +220,7 @@ private:
     static const SkVector gRadii[kNumComplexCases][4];
 
     inline static constexpr int kNumRRects = kNumSimpleCases + kNumComplexCases + 1 /* extra big */;
-    SkRRect fRRects[kNumRRects];
+    std::array<SkRRect, kNumRRects> fRRects;
 
     using INHERITED = GM;
 };

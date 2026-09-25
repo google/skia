@@ -25,6 +25,8 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 namespace skiagm {
 
 static void paint_rgn(SkCanvas* canvas, const SkAAClip& clip,
@@ -157,15 +159,15 @@ protected:
     SkISize getISize() override { return SkISize::Make(500, 240); }
 
     void onDraw(SkCanvas* canvas) override {
-
-        const struct {
+        struct Ops {
             SkColor         fColor;
             const char*     fName;
             SkClipOp        fOp;
-        } gOps[] = {
-                {SK_ColorBLACK, "Difference", SkClipOp::kDifference},
-                {SK_ColorRED, "Intersect", SkClipOp::kIntersect},
         };
+        static constexpr auto gOps = std::to_array<Ops>({
+                Ops{SK_ColorBLACK, "Difference", SkClipOp::kDifference},
+                Ops{  SK_ColorRED,  "Intersect",  SkClipOp::kIntersect},
+        });
 
         SkPaint textPaint;
         SkFont  font(ToolUtils::DefaultPortableTypeface(), 24);
