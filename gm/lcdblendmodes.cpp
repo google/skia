@@ -27,6 +27,8 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 namespace skiagm {
 
 constexpr int kColWidth = 180;
@@ -88,37 +90,37 @@ protected:
     }
 
     void drawColumn(SkCanvas* canvas, SkColor backgroundColor, SkColor textColor, bool useGrad) {
-        const SkBlendMode gModes[] = {
-            SkBlendMode::kClear,
-            SkBlendMode::kSrc,
-            SkBlendMode::kDst,
-            SkBlendMode::kSrcOver,
-            SkBlendMode::kDstOver,
-            SkBlendMode::kSrcIn,
-            SkBlendMode::kDstIn,
-            SkBlendMode::kSrcOut,
-            SkBlendMode::kDstOut,
-            SkBlendMode::kSrcATop,
-            SkBlendMode::kDstATop,
-            SkBlendMode::kXor,
-            SkBlendMode::kPlus,
-            SkBlendMode::kModulate,
-            SkBlendMode::kScreen,
-            SkBlendMode::kOverlay,
-            SkBlendMode::kDarken,
-            SkBlendMode::kLighten,
-            SkBlendMode::kColorDodge,
-            SkBlendMode::kColorBurn,
-            SkBlendMode::kHardLight,
-            SkBlendMode::kSoftLight,
-            SkBlendMode::kDifference,
-            SkBlendMode::kExclusion,
-            SkBlendMode::kMultiply,
-            SkBlendMode::kHue,
-            SkBlendMode::kSaturation,
-            SkBlendMode::kColor,
-            SkBlendMode::kLuminosity,
-        };
+        static constexpr auto gModes = std::to_array<SkBlendMode>({
+                SkBlendMode::kClear,
+                SkBlendMode::kSrc,
+                SkBlendMode::kDst,
+                SkBlendMode::kSrcOver,
+                SkBlendMode::kDstOver,
+                SkBlendMode::kSrcIn,
+                SkBlendMode::kDstIn,
+                SkBlendMode::kSrcOut,
+                SkBlendMode::kDstOut,
+                SkBlendMode::kSrcATop,
+                SkBlendMode::kDstATop,
+                SkBlendMode::kXor,
+                SkBlendMode::kPlus,
+                SkBlendMode::kModulate,
+                SkBlendMode::kScreen,
+                SkBlendMode::kOverlay,
+                SkBlendMode::kDarken,
+                SkBlendMode::kLighten,
+                SkBlendMode::kColorDodge,
+                SkBlendMode::kColorBurn,
+                SkBlendMode::kHardLight,
+                SkBlendMode::kSoftLight,
+                SkBlendMode::kDifference,
+                SkBlendMode::kExclusion,
+                SkBlendMode::kMultiply,
+                SkBlendMode::kHue,
+                SkBlendMode::kSaturation,
+                SkBlendMode::kColor,
+                SkBlendMode::kLuminosity,
+        });
         // Draw background rect
         SkPaint backgroundPaint;
         backgroundPaint.setColor(backgroundColor);

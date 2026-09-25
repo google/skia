@@ -18,8 +18,9 @@
 #include "src/utils/mac/SkUniqueCFRef.h"
 #include "tools/fonts/FontToolUtils.h"
 
-#include <string.h>
+#include <array>
 #include <initializer_list>
+#include <string.h>
 
 #ifdef SK_BUILD_FOR_MAC
 
@@ -139,13 +140,13 @@ DEF_GM(return new MacAAFontsGM;)
 #endif
 
 DEF_SIMPLE_GM(macaa_colors, canvas, 800, 500) {
-    const SkColor GRAY = 0xFF808080;
-    const SkColor colors[] = {
-        SK_ColorBLACK, SK_ColorWHITE,
-        SK_ColorBLACK, GRAY,
-        SK_ColorWHITE, SK_ColorBLACK,
-        SK_ColorWHITE, GRAY,
-    };
+    static constexpr SkColor GRAY = 0xFF808080;
+    static constexpr auto colors = std::to_array<SkColor>({
+            SK_ColorBLACK, SK_ColorWHITE,
+            SK_ColorBLACK, GRAY,
+            SK_ColorWHITE, SK_ColorBLACK,
+            SK_ColorWHITE, GRAY,
+    });
     const SkScalar sizes[] = {10, 12, 15, 18, 24};
 
     const SkScalar width = 200;

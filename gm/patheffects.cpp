@@ -27,6 +27,7 @@
 #include "include/gpu/ganesh/GrDirectContext.h"
 #endif
 
+#include <array>
 #include <initializer_list>
 
 namespace skiagm {
@@ -64,9 +65,9 @@ static void dash_pe(SkPaint* paint) {
     compose_pe(paint);
 }
 
-constexpr int gXY[] = {
-4, 0, 0, -4, 8, -4, 12, 0, 8, 4, 0, 4
-};
+static constexpr auto gXY = std::to_array<int>({
+        4, 0, 0, -4, 8, -4, 12, 0, 8, 4, 0, 4
+});
 
 static SkPath scale(const SkPath& path, SkScalar scale) {
     SkMatrix m;
@@ -89,7 +90,13 @@ static void one_d_pe(SkPaint* paint) {
 }
 
 typedef void (*PE_Proc)(SkPaint*);
-constexpr PE_Proc gPE[] = { hair_pe, hair2_pe, stroke_pe, dash_pe, one_d_pe };
+static constexpr auto gPE = std::to_array<PE_Proc>({
+        hair_pe,
+        hair2_pe,
+        stroke_pe,
+        dash_pe,
+        one_d_pe,
+});
 
 static void fill_pe(SkPaint* paint) {
     paint->setStyle(SkPaint::kFill_Style);
@@ -111,7 +118,7 @@ static void tile_pe(SkPaint* paint) {
     paint->setPathEffect(MakeTileEffect());
 }
 
-constexpr PE_Proc gPE2[] = { fill_pe, discrete_pe, tile_pe };
+static constexpr auto gPE2 = std::to_array<PE_Proc>({fill_pe, discrete_pe, tile_pe});
 
 class PathEffectGM : public GM {
 public:

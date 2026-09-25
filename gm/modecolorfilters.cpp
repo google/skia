@@ -24,6 +24,8 @@
 #include "include/effects/SkGradient.h"
 #include "tools/ToolUtils.h"
 
+#include <array>
+
 #define WIDTH 512
 #define HEIGHT 1024
 
@@ -91,12 +93,12 @@ protected:
         bgPaint.setShader(fBmpShader);
         bgPaint.setBlendMode(SkBlendMode::kSrc);
 
-        sk_sp<SkShader> shaders[] = {
-            nullptr,                                   // use a paint color instead of a shader
-            make_solid_shader(),
-            make_transparent_shader(),
-            make_trans_black_shader(),
-        };
+        auto shaders = std::to_array<sk_sp<SkShader>>({
+                nullptr,  // use a paint color instead of a shader
+                make_solid_shader(),
+                make_transparent_shader(),
+                make_trans_black_shader(),
+        });
 
         // used without shader
         SkColor colors[] = {
@@ -110,22 +112,23 @@ protected:
         // used with shaders
         SkColor alphas[] = {0xFFFFFFFF, 0x80808080};
 
-        const SkBlendMode modes[]  = { // currently just doing the Modes expressible as Coeffs
-            SkBlendMode::kClear,
-            SkBlendMode::kSrc,
-            SkBlendMode::kDst,
-            SkBlendMode::kSrcOver,
-            SkBlendMode::kDstOver,
-            SkBlendMode::kSrcIn,
-            SkBlendMode::kDstIn,
-            SkBlendMode::kSrcOut,
-            SkBlendMode::kDstOut,
-            SkBlendMode::kSrcATop,
-            SkBlendMode::kDstATop,
-            SkBlendMode::kXor,
-            SkBlendMode::kPlus,
-            SkBlendMode::kModulate,
-        };
+        static constexpr auto modes = std::to_array<SkBlendMode>({
+                // currently just doing the Modes expressible as Coeffs
+                SkBlendMode::kClear,
+                SkBlendMode::kSrc,
+                SkBlendMode::kDst,
+                SkBlendMode::kSrcOver,
+                SkBlendMode::kDstOver,
+                SkBlendMode::kSrcIn,
+                SkBlendMode::kDstIn,
+                SkBlendMode::kSrcOut,
+                SkBlendMode::kDstOut,
+                SkBlendMode::kSrcATop,
+                SkBlendMode::kDstATop,
+                SkBlendMode::kXor,
+                SkBlendMode::kPlus,
+                SkBlendMode::kModulate,
+        });
 
         SkPaint paint;
         int idx = 0;

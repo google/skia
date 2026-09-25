@@ -25,6 +25,7 @@
 #include "include/effects/SkLumaColorFilter.h"
 #include "tools/Resources.h"
 
+#include <array>
 #include <math.h>
 
 // A tint filter maps colors to a given range (gradient), based on the input luminance:
@@ -102,12 +103,12 @@ private:
                 sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1) {
         // We cycle through paint colors on each row, to test how the paint color flows through
         // the color-filter network
-        const SkColor4f paintColors[] = {
-            { 1.0f, 1.0f, 1.0f, 1.0f },  // Opaque white
-            { 1.0f, 1.0f, 1.0f, 0.5f },  // Translucent white
-            { 0.5f, 0.5f, 1.0f, 1.0f },  // Opaque pale blue
-            { 0.5f, 0.5f, 1.0f, 0.5f },  // Translucent pale blue
-        };
+        static constexpr auto paintColors = std::to_array<SkColor4f>({
+                SkColor4f{ 1.0f, 1.0f, 1.0f, 1.0f }, // Opaque white
+                SkColor4f{ 1.0f, 1.0f, 1.0f, 0.5f }, // Translucent white
+                SkColor4f{ 0.5f, 0.5f, 1.0f, 1.0f }, // Opaque pale blue
+                SkColor4f{ 0.5f, 0.5f, 1.0f, 0.5f }, // Translucent pale blue
+        });
 
         canvas->translate(0, fTileSize.height() * 0.1f);
         {

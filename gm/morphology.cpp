@@ -21,6 +21,8 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 #define WIDTH 700
 #define HEIGHT 560
 
@@ -58,16 +60,17 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        struct {
+        struct Samples {
             int fWidth, fHeight;
             int fRadiusX, fRadiusY;
-        } samples[] = {
-            { 140, 140,   0,   0 },
-            { 140, 140,   0,   2 },
-            { 140, 140,   2,   0 },
-            { 140, 140,   2,   2 },
-            {  24,  24,  25,  25 },
         };
+        static constexpr auto samples = std::to_array<Samples>({
+                Samples{ 140, 140,  0,  0 },
+                Samples{ 140, 140,  0,  2 },
+                Samples{ 140, 140,  2,  0 },
+                Samples{ 140, 140,  2,  2 },
+                Samples{  24,  24, 25, 25 },
+        });
         SkPaint paint;
         SkIRect cropRect = SkIRect::MakeXYWH(25, 20, 100, 80);
 

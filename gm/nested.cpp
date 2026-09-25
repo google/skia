@@ -18,6 +18,8 @@
 #include "include/core/SkTypes.h"
 #include "src/core/SkRandom.h"
 
+#include <array>
+
 namespace skiagm {
 
 // Test out various combinations of nested rects, ovals and rrects.
@@ -77,10 +79,10 @@ protected:
 
         SkRect outerRect = SkRect::MakeWH(40, 40);
 
-        SkRect innerRects[] = {
-            { 10, 10, 30, 30 },     // small
-            { .5f, 18, 4.5f, 22 }   // smaller and offset to left
-        };
+        static constexpr auto innerRects = std::to_array<SkRect>({
+                SkRect{  10, 10,   30, 30}, // small
+                SkRect{ .5f, 18, 4.5f, 22}  // smaller and offset to left
+        });
 
         // draw a background pattern to make transparency errors more apparent
         SkRandom rand;

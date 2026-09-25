@@ -12,6 +12,8 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
 
+#include <array>
+
 // Repro case for skbug.com/40038934.  Requires lots of RAM to run, and currently triggers UB:
 // //include/private/SkTDArray.h:382:26:
 //   runtime error: signed integer overflow: 2147483644 + 4 cannot be represented in type 'int'
@@ -23,10 +25,11 @@
     p.setStyle(SkPaint::kStroke_Style);
     p.setPathEffect(SkDashPathEffect::Make(intervals, 0));
 
-    int quadratic_at[] = {
-        13, 68, 258, 1053, 1323, 2608, 10018, 15668, 59838, 557493, 696873, 871098, 4153813,
-        15845608, 48357008, 118059138, 288230353, 360287948, 562949933, 703687423, 1099511613, 0
-    };
+    static constexpr auto quadratic_at = std::to_array<int>({
+        13,        68,        258,       1053,      1323,       2608,     10018,    15668,
+        59838,     557493,    696873,    871098,    4153813,    15845608, 48357008, 118059138,
+        288230353, 360287948, 562949933, 703687423, 1099511613, 0
+    });
     int next_quadratic_at = 0;
 
     SkPathBuilder path;

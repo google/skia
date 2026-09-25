@@ -26,6 +26,8 @@
 #include "tools/DecodeUtils.h"
 #include "tools/timer/TimeUtils.h"
 
+#include <array>
+
 using namespace skia_private;
 
 namespace skiagm {
@@ -479,7 +481,7 @@ private:
 
     sk_sp<SkMesh::VertexBuffer> fVB;
 
-    sk_sp<SkMeshSpecification> fSpecs[4];
+    std::array<sk_sp<SkMeshSpecification>, 4> fSpecs;
 
     sk_sp<SkShader> fShader;
 };
@@ -953,7 +955,11 @@ protected:
             return DrawResult::kSkip;
         }
 
-        static constexpr SkPoint kTri[]{{10, 10}, {20, 10}, {10, 20}};
+        static constexpr auto kTri = std::to_array<SkPoint>({
+                SkPoint{10, 10},
+                SkPoint{20, 10},
+                SkPoint{10, 20}
+        });
         // The zero will come from the uninit part of the buffer.
         static constexpr uint16_t kTiIndices[]{1, 2};
 
@@ -1020,7 +1026,7 @@ protected:
     }
 
 private:
-    sk_sp<SkMeshSpecification> fSpec[2];
+    std::array<sk_sp<SkMeshSpecification>, 2> fSpec;
 };
 
 DEF_GM(return new MeshZeroInitGM())
@@ -1080,7 +1086,7 @@ protected:
         fIB = SkMeshes::MakeIndexBuffer(kIndices, sizeof(kIndices));
 
         SkRandom random;
-        SkColor4f colors[6];
+        std::array<SkColor4f, 6> colors;
         for (size_t i = 0; i < std::size(colors) - 1; ++i) {
             colors[i] = {random.nextF(), random.nextF(), random.nextF(), 1.f};
         }

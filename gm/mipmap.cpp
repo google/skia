@@ -18,6 +18,8 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 
+#include <array>
+
 static sk_sp<SkImage> make_image() {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(319, 52);
     auto surface(SkSurfaces::Raster(info));
@@ -44,12 +46,12 @@ DEF_SIMPLE_GM(mipmap, canvas, 400, 200) {
     str.printf("scale %g %g", dst.width() / img->width(), dst.height() / img->height());
 //    canvas->drawString(str, 300, 100, SkFont(nullptr, 30), paint);
 
-    const SkSamplingOptions samplings[] = {
-        SkSamplingOptions(SkFilterMode::kNearest),
-        SkSamplingOptions(SkFilterMode::kLinear),
-        SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear),
-        SkSamplingOptions(SkCubicResampler::Mitchell()),
-    };
+    static constexpr auto samplings = std::to_array<SkSamplingOptions>({
+            SkSamplingOptions(SkFilterMode::kNearest),
+            SkSamplingOptions(SkFilterMode::kLinear),
+            SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear),
+            SkSamplingOptions(SkCubicResampler::Mitchell()),
+    });
 
     canvas->translate(20, 20);
     for (size_t i = 0; i < std::size(samplings); ++i) {

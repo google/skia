@@ -20,6 +20,7 @@
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
+#include <array>
 #include <initializer_list>
 #include <memory>
 
@@ -97,10 +98,10 @@ DEF_SIMPLE_GM_CAN_FAIL(makecolorspace, canvas, errorMsg, 128 * 3, 128 * 4) {
 }
 
 DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE) {
-    sk_sp<SkImage> images[] = {
+    auto images = std::to_array<sk_sp<SkImage>>({
             ToolUtils::GetResourceAsImage("images/mandrill_128.png"),
             ToolUtils::GetResourceAsImage("images/color_wheel.png"),
-    };
+    });
     auto rec2020 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kRec2020);
 
     // Use the lazy images on the first iteration, and concrete (raster/GPU) images on the second

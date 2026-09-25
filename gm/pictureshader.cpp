@@ -26,14 +26,17 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
-static struct {
+#include <array>
+
+struct TileConfigs {
     SkTileMode tmx;
     SkTileMode tmy;
-} kTileConfigs[] = {
-    { SkTileMode::kRepeat, SkTileMode::kRepeat },
-    { SkTileMode::kRepeat, SkTileMode::kClamp  },
-    { SkTileMode::kMirror, SkTileMode::kRepeat },
 };
+static constexpr auto kTileConfigs = std::to_array<TileConfigs>({
+        TileConfigs{ SkTileMode::kRepeat, SkTileMode::kRepeat },
+        TileConfigs{ SkTileMode::kRepeat, SkTileMode::kClamp  },
+        TileConfigs{ SkTileMode::kMirror, SkTileMode::kRepeat },
+});
 
 class PictureShaderGM : public skiagm::GM {
 public:

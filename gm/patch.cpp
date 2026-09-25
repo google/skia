@@ -24,6 +24,8 @@
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
+#include <array>
+
 static sk_sp<SkShader> make_shader() {
     const SkColor4f colors[] = {
         SkColors::kRed, SkColors::kCyan, SkColors::kGreen, SkColors::kWhite, SkColors::kMagenta,
@@ -99,11 +101,11 @@ static void dopatch(SkCanvas* canvas, const SkColor colors[], sk_sp<SkImage> img
     SkPaint paint;
     paint.setColor(SK_ColorGREEN);
 
-    const SkBlendMode modes[] = {
-        SkBlendMode::kSrc,
-        SkBlendMode::kDst,
-        SkBlendMode::kColorDodge,
-    };
+    static constexpr auto modes = std::to_array<SkBlendMode>({
+            SkBlendMode::kSrc,
+            SkBlendMode::kDst,
+            SkBlendMode::kColorDodge,
+    });
 
     SkPoint texStorage[4];
     const SkPoint* tex = gTexCoords;

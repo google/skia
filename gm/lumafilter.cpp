@@ -33,6 +33,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
 #include <string.h>
 
 static const float kSize   = 80;
@@ -119,14 +120,14 @@ protected:
     SkISize getISize() override { return SkISize::Make(600, 420); }
 
     void onDraw(SkCanvas* canvas) override {
-        SkBlendMode modes[] = {
-            SkBlendMode::kSrcOver,
-            SkBlendMode::kDstOver,
-            SkBlendMode::kSrcATop,
-            SkBlendMode::kDstATop,
-            SkBlendMode::kSrcIn,
-            SkBlendMode::kDstIn,
-        };
+        static constexpr auto modes = std::to_array<SkBlendMode>({
+                SkBlendMode::kSrcOver,
+                SkBlendMode::kDstOver,
+                SkBlendMode::kSrcATop,
+                SkBlendMode::kDstATop,
+                SkBlendMode::kSrcIn,
+                SkBlendMode::kDstIn,
+        });
         struct {
             const sk_sp<SkShader>& fShader1;
             const sk_sp<SkShader>& fShader2;

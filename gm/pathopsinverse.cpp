@@ -18,6 +18,8 @@
 #include "include/pathops/SkPathOps.h"
 #include "tools/ToolUtils.h"
 
+#include <array>
+
 namespace skiagm {
 
 class PathOpsInverseGM : public GM {
@@ -99,7 +101,7 @@ private:
     SkPaint fOnePaint;
     SkPaint fTwoPaint;
     SkPaint fOutlinePaint;
-    SkPaint fOpPaint[kReverseDifference_SkPathOp - kDifference_SkPathOp + 1];
+    std::array<SkPaint, kReverseDifference_SkPathOp - kDifference_SkPathOp + 1> fOpPaint;
     using INHERITED = GM;
 };
 
@@ -112,12 +114,17 @@ DEF_GM( return new PathOpsInverseGM; )
 #include "include/utils/SkParsePath.h"
 
 DEF_SIMPLE_GM(pathops_skbug_10155, canvas, 256, 256) {
-    const char* svgStr[] = {
-        "M474.889 27.0952C474.889 27.1002 474.888 27.1018 474.889 27.1004L479.872 27.5019C479.883 27.3656 479.889 27.2299 479.889 27.0952L474.889 27.0952L474.889 27.0952Z",
-        "M474.94 26.9405C474.93 26.9482 474.917 26.9576 474.901 26.9683L477.689 31.1186C477.789 31.0512 477.888 30.9804 477.985 30.9059L474.94 26.9405L474.94 26.9405Z"
-    };
+    static constexpr auto svgStr = std::to_array<const char*>({
+            "M474.889 27.0952C474.889 27.1002 474.888 27.1018 474.889 "
+            "27.1004L479.872 27.5019C479.883 27.3656 479.889 27.2299 "
+            "479.889 27.0952L474.889 27.0952L474.889 27.0952Z",
 
-    SkPath path[2];
+            "M474.94 26.9405C474.93 26.9482 474.917 26.9576 474.901 "
+            "26.9683L477.689 31.1186C477.789 31.0512 477.888 30.9804 "
+            "477.985 30.9059L474.94 26.9405L474.94 26.9405Z"
+    });
+
+    std::array<SkPath, 2> path;
     SkOpBuilder builder;
 
     for (int i = 0; i < 2; i++)

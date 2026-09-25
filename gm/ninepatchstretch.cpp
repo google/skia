@@ -19,6 +19,8 @@
 #include "include/core/SkSurface.h"
 #include "tools/ToolUtils.h"
 
+#include <array>
+
 static sk_sp<SkSurface> make_surface(SkCanvas* root, int N) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(N, N);
     return ToolUtils::makeSurface(root, info);
@@ -73,12 +75,12 @@ protected:
         // amount of bm that should not be stretched (unless we have to)
         const SkScalar fixed = SkIntToScalar(fImage->width() - fCenter.width());
 
-        const SkSize size[] = {
-            { fixed * 4 / 5, fixed * 4 / 5 },   // shrink in both axes
-            { fixed * 4 / 5, fixed * 4 },       // shrink in X
-            { fixed * 4,     fixed * 4 / 5 },   // shrink in Y
-            { fixed * 4,     fixed * 4 }
-        };
+        const auto size = std::to_array<SkSize>({
+                SkSize{ fixed * 4 / 5, fixed * 4 / 5 }, // shrink in both axes
+                SkSize{ fixed * 4 / 5,     fixed * 4 }, // shrink in X
+                SkSize{     fixed * 4, fixed * 4 / 5 }, // shrink in Y
+                SkSize{     fixed * 4,     fixed * 4 }
+        });
 
         canvas->drawImage(fImage, 10, 10);
 

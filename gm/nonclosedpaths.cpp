@@ -14,6 +14,8 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 
+#include <array>
+
 namespace skiagm {
 
 // This GM tests a grab-bag of non-closed paths. All these paths look like
@@ -73,24 +75,29 @@ protected:
         // Stroke widths are:
         // 0(may use hairline rendering), 10(common case for stroke-style)
         // 40 and 50(>= geometry width/height, make the contour filled in fact)
-        constexpr int kStrokeWidth[] = {0, 10, 40, 50};
+        static constexpr auto kStrokeWidth = std::to_array<int>({0, 10, 40, 50});
         int numWidths = std::size(kStrokeWidth);
 
-        constexpr SkPaint::Style kStyle[] = {
-            SkPaint::kStroke_Style, SkPaint::kStrokeAndFill_Style
-        };
+        static constexpr auto kStyle = std::to_array<SkPaint::Style>(
+                {SkPaint::kStroke_Style, SkPaint::kStrokeAndFill_Style});
 
-        constexpr SkPaint::Cap kCap[] = {
-            SkPaint::kButt_Cap, SkPaint::kRound_Cap, SkPaint::kSquare_Cap
-        };
+        static constexpr auto kCap = std::to_array<SkPaint::Cap>({
+                SkPaint::kButt_Cap,
+                SkPaint::kRound_Cap,
+                SkPaint::kSquare_Cap,
+        });
 
-        constexpr SkPaint::Join kJoin[] = {
-            SkPaint::kMiter_Join, SkPaint::kRound_Join, SkPaint::kBevel_Join
-        };
+        static constexpr auto kJoin = std::to_array<SkPaint::Join>({
+                SkPaint::kMiter_Join,
+                SkPaint::kRound_Join,
+                SkPaint::kBevel_Join,
+        });
 
-        constexpr ClosureType kType[] = {
-            TotallyNonClosed, FakeCloseCorner, FakeCloseMiddle
-        };
+        static constexpr auto kType = std::to_array<ClosureType>({
+                TotallyNonClosed,
+                FakeCloseCorner,
+                FakeCloseMiddle,
+        });
 
         int counter = 0;
         SkPaint paint;

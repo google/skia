@@ -22,6 +22,8 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 namespace skiagm {
 
 constexpr int kWidth = 750;
@@ -53,14 +55,14 @@ protected:
 
     void drawTestCase(SkCanvas* canvas, SkScalar x, SkScalar y, SkBlendMode mode,
                       SkBlendMode mode2) {
-        const SkColor colors[] {
+        static constexpr auto colors = std::to_array<SkColor>({
                 SK_ColorRED,
                 SK_ColorGREEN,
                 SK_ColorBLUE,
                 SK_ColorYELLOW,
                 SK_ColorCYAN,
                 SK_ColorMAGENTA,
-        };
+        });
 
         for (size_t i = 0; i < std::size(colors); i++) {
             canvas->save();

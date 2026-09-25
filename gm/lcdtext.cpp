@@ -20,6 +20,8 @@
 #include "include/core/SkTypes.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 class LcdTextGM : public skiagm::GM {
     static constexpr SkScalar kTextHeight = 36;
     SkScalar fY = kTextHeight;
@@ -75,22 +77,23 @@ class LcdTextSizeGM : public skiagm::GM {
     SkISize getISize() override { return {320, 120}; }
 
     void onDraw(SkCanvas* canvas) override {
-        const char* lcd_text = "LCD";
-        const char* gray_text = "GRAY";
+        static constexpr const char* lcd_text = "LCD";
+        static constexpr const char* gray_text = "GRAY";
 
         constexpr static float kLCDTextSizeLimit = 48;
 
-        const struct {
+        struct Rec {
             SkPoint     fLoc;
             SkScalar    fTextSize;
             SkScalar    fScale;
             const char* fText;
-        } rec[] = {
-            { {  10,  50 }, kLCDTextSizeLimit - 1,     1,  lcd_text },
-            { { 160,  50 }, kLCDTextSizeLimit + 1,     1,  gray_text },
-            { {  10, 100 }, kLCDTextSizeLimit / 2, 1.99f,  lcd_text },
-            { { 160, 100 }, kLCDTextSizeLimit / 2, 2.01f,  gray_text },
         };
+        static constexpr const auto rec = std::to_array<Rec>({
+                Rec{ {  10, 50  }, kLCDTextSizeLimit - 1,     1,  lcd_text },
+                Rec{ { 160, 50  }, kLCDTextSizeLimit + 1,     1, gray_text },
+                Rec{ {  10, 100 }, kLCDTextSizeLimit / 2, 1.99f,  lcd_text },
+                Rec{ { 160, 100 }, kLCDTextSizeLimit / 2, 2.01f, gray_text },
+        });
 
         for (size_t i = 0; i < std::size(rec); ++i) {
             const SkPoint loc = rec[i].fLoc;
