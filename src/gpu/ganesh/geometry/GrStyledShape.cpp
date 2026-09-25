@@ -179,7 +179,7 @@ uint16_t GrStyledShape::unstyledKeySize() const {
             if (dataKeySize >= 0) {
                 count += SkTo<uint16_t>(dataKeySize);
             } else {
-                count++; // Just adds the gen ID.
+                count += sizeof(uint64_t) / sizeof(uint32_t); // Just adds the gen ID.
             }
             break; }
         default:
@@ -218,7 +218,8 @@ void GrStyledShape::writeUnstyledKey(uint32_t* key) const {
                     write_path_key_from_data(fShape.path(), key);
                     return;
                 } else {
-                    *key++ = fGenID;
+                    memcpy(key, &fGenID, sizeof(uint64_t));
+                    key += sizeof(uint64_t) / sizeof(uint32_t);
                 }
                 break; }
             case GrShape::Type::kPoint:

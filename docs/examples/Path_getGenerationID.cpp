@@ -4,12 +4,12 @@
 REG_FIDDLE(Path_getGenerationID, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPath path;
-    SkDebugf("empty genID = %u\n", path.getGenerationID());
+    SkDebugf("empty genID = %" PRIu64 "\n", path.getGenerationID());
     path = SkPathBuilder().lineTo(1, 2).detach();
-    SkDebugf("1st lineTo genID = %u\n", path.getGenerationID());
+    SkDebugf("1st lineTo genID = %" PRIu64 "\n", path.getGenerationID());
     path.reset();
-    SkDebugf("empty genID = %u\n", path.getGenerationID());
+    SkDebugf("empty genID = %" PRIu64 "\n", path.getGenerationID());
     path = SkPathBuilder().lineTo(1, 2).detach();
-    SkDebugf("2nd lineTo genID = %u\n", path.getGenerationID());
+    SkDebugf("2nd lineTo genID = %" PRIu64 "\n", path.getGenerationID());
 }
 }  // END FIDDLE

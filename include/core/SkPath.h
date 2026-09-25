@@ -1088,7 +1088,7 @@ public:
 
         example: https://fiddle.skia.org/c/@Path_getGenerationID
     */
-    uint32_t getGenerationID() const;
+    uint64_t getGenerationID() const;
 
     /** Returns if SkPath data is consistent. Corrupt SkPath data is detected if
         internal values are out of range or internal storage does not match

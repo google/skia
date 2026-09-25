@@ -92,7 +92,7 @@ bool SkPath::isFinite() const {
 
 bool SkPath::isValid() const { return this->isFinite(); }
 
-uint32_t SkPath::getGenerationID() const { return fPathData->uniqueID(); }
+uint64_t SkPath::getGenerationID() const { return fPathData->uniqueID(); }
 
 #ifdef SK_DEBUG
 void SkPath::validate() const {}
