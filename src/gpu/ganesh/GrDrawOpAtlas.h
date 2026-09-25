@@ -210,9 +210,9 @@ private:
                       const void* image,
                       GrAtlasLocator*);
 
-    void uploadPlotToTexture(GrDeferredTextureUploadWritePixelsFn& writePixels,
-                             GrTextureProxy* proxy,
-                             GrPlot* plot);
+    [[nodiscard]] bool uploadPlotToTexture(GrDeferredTextureUploadWritePixelsFn& writePixels,
+                                           GrTextureProxy* proxy,
+                                           GrPlot* plot);
 
     bool createPages(GrProxyProvider*, GrAtlasGenerationCounter*);
     bool activateNewPage(GrResourceProvider*);

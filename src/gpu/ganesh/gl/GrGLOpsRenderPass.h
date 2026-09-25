@@ -43,8 +43,7 @@ public:
     GrGLOpsRenderPass(GrGLGpu* gpu) : fGpu(gpu) {}
 
     bool inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override {
-        state->doUpload(upload);
-        return true;
+        return state->doUpload(upload);
     }
 
     void set(GrRenderTarget*, bool useMSAASurface, const SkIRect& contentBounds, GrSurfaceOrigin,

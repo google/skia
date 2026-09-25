@@ -73,7 +73,8 @@ public:
         surface needs to be prepared for being sampled in a draw after the upload, the caller
         should pass in true for shouldPrepareSurfaceForSampling. This feature is needed for Vulkan
         when doing inline uploads to reset the image layout back to sampled. */
-    void doUpload(GrDeferredTextureUploadFn&, bool shouldPrepareSurfaceForSampling = false);
+    [[nodiscard]] bool doUpload(GrDeferredTextureUploadFn&,
+                                bool shouldPrepareSurfaceForSampling = false);
 
     /** Called as ops are executed. Must be called in the same order as the ops were prepared. */
     void executeDrawsAndUploadsForMeshDrawOp(const GrOp* op, const SkRect& chainBounds,
@@ -335,6 +336,12 @@ private:
     // All draws we store have an implicit draw token. This is the draw token for the first draw
     // in fDraws.
     skgpu::Token fBaseDrawToken = skgpu::Token::InvalidToken();
+
+    // Set when a deferred texture upload (ASAP or inline) fails for this flush.
+    // Draws are skipped while this is set because they may sample texture
+    // regions that were never written (e.g. uninitialized or recycled memory
+    // in a deferred-upload atlas).
+    bool fDeferredUploadFailed = false;
 
     // Info about the op that is currently preparing or executing using the flush state or null if
     // an op is not currently preparing of executing.

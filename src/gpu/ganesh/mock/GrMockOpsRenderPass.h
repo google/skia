@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrDeferredUpload.h"
+#include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrOpsRenderPass.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
 #include "src/gpu/ganesh/GrTexture.h"
@@ -23,7 +24,6 @@
 class GrBuffer;
 class GrGeometryProcessor;
 class GrGpu;
-class GrOpFlushState;
 class GrPipeline;
 class GrProgramInfo;
 class GrScissorState;
@@ -42,7 +42,9 @@ public:
     }
 
     GrGpu* gpu() override { return fGpu; }
-    bool inlineUpload(GrOpFlushState*, GrDeferredTextureUploadFn&) override { return true; }
+    bool inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override {
+        return state->doUpload(upload);
+    }
 
     int numDraws() const { return fNumDraws; }
 

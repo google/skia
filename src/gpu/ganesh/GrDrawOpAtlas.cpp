@@ -142,7 +142,7 @@ inline void GrDrawOpAtlas::processEviction(GrPlotLocator plotLocator) {
     fAtlasGeneration = fGenerationCounter->next();
 }
 
-void GrDrawOpAtlas::uploadPlotToTexture(GrDeferredTextureUploadWritePixelsFn& writePixels,
+bool GrDrawOpAtlas::uploadPlotToTexture(GrDeferredTextureUploadWritePixelsFn& writePixels,
                                         GrTextureProxy* proxy,
                                         GrPlot* plot) {
     SkASSERT(proxy && proxy->peekTexture());
@@ -151,12 +151,24 @@ void GrDrawOpAtlas::uploadPlotToTexture(GrDeferredTextureUploadWritePixelsFn& wr
     const void* dataPtr;
     SkIRect rect;
     std::tie(dataPtr, rect) = plot->prepareForUpload();
+    if (!dataPtr || rect.isEmpty()) {
+        // Nothing to upload (e.g. the plot was reset after this upload was
+        // scheduled). This is not a failure.
+        plot->clearDirty();
+        return true;
+    }
 
-    writePixels(proxy,
-                rect,
-                SkColorTypeToGrColorType(fColorType),
-                dataPtr,
-                fBytesPerPixel*fPlotWidth);
+    if (!writePixels(proxy,
+                     rect,
+                     SkColorTypeToGrColorType(fColorType),
+                     dataPtr,
+                     fBytesPerPixel*fPlotWidth)) {
+        this->processEvictionAndResetRects(plot);
+        return false;
+    } else {
+        plot->clearDirty();
+        return true;
+    }
 }
 
 inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target,
@@ -180,7 +192,7 @@ inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target,
 
         skgpu::Token lastUploadToken = target->addASAPUpload(
                 [this, plotsp, proxy](GrDeferredTextureUploadWritePixelsFn& writePixels) {
-                    this->uploadPlotToTexture(writePixels, proxy, plotsp.get());
+                    return this->uploadPlotToTexture(writePixels, proxy, plotsp.get());
                 });
         plot->setLastUploadToken(lastUploadToken);
     }
@@ -321,7 +333,7 @@ GrDrawOpAtlas::ErrorCode GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceP
 
     skgpu::Token lastUploadToken = target->addInlineUpload(
             [this, plotsp, proxy](GrDeferredTextureUploadWritePixelsFn& writePixels) {
-                this->uploadPlotToTexture(writePixels, proxy, plotsp.get());
+                return this->uploadPlotToTexture(writePixels, proxy, plotsp.get());
             });
     newPlot->setLastUploadToken(lastUploadToken);
 

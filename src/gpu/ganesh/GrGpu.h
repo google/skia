@@ -288,24 +288,24 @@ public:
      *              the color type is not allowed for the format of the surface or
      *              if the rectangle written is not contained in the surface.
      */
-    bool writePixels(GrSurface* surface,
-                     SkIRect rect,
-                     GrColorType surfaceColorType,
-                     GrColorType srcColorType,
-                     const GrMipLevel texels[],
-                     int mipLevelCount,
-                     bool prepForTexSampling = false);
+    [[nodiscard]] bool writePixels(GrSurface* surface,
+                                   SkIRect rect,
+                                   GrColorType surfaceColorType,
+                                   GrColorType srcColorType,
+                                   const GrMipLevel texels[],
+                                   int mipLevelCount,
+                                   bool prepForTexSampling = false);
 
     /**
      * Helper for the case of a single level.
      */
-    bool writePixels(GrSurface* surface,
-                     SkIRect rect,
-                     GrColorType surfaceColorType,
-                     GrColorType srcColorType,
-                     const void* buffer,
-                     size_t rowBytes,
-                     bool prepForTexSampling = false) {
+    [[nodiscard]] bool writePixels(GrSurface* surface,
+                                   SkIRect rect,
+                                   GrColorType surfaceColorType,
+                                   GrColorType srcColorType,
+                                   const void* buffer,
+                                   size_t rowBytes,
+                                   bool prepForTexSampling = false) {
         GrMipLevel mipLevel = {buffer, rowBytes, nullptr};
         return this->writePixels(surface,
                                  rect,

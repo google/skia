@@ -187,7 +187,7 @@ void GrMtlOpsRenderPass::onClearStencilClip(const GrScissorState& scissor, bool 
 }
 
 bool GrMtlOpsRenderPass::inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) {
-    state->doUpload(upload);
+    bool result = state->doUpload(upload);
 
     // If the previous renderCommandEncoder did a resolve without an MSAA store
     // (e.g., if the color attachment is memoryless) we need to copy the contents of
@@ -198,7 +198,7 @@ bool GrMtlOpsRenderPass::inlineUpload(GrOpFlushState* state, GrDeferredTextureUp
         this->setupRenderCommandEncoder(nullptr);
     }
 
-    return true;
+    return result;
 }
 
 void GrMtlOpsRenderPass::initRenderState(GrMtlRenderCommandEncoder* encoder) {

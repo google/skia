@@ -636,11 +636,9 @@ bool GrVkOpsRenderPass::inlineUpload(GrOpFlushState* state, GrDeferredTextureUpl
 
     // We pass in true here to signal that after the upload we need to set the upload textures
     // layout back to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL.
-    state->doUpload(upload, /*shouldPrepareSurfaceForSampling=*/true);
-
+    bool result = state->doUpload(upload, /*shouldPrepareSurfaceForSampling=*/true);
     this->addAdditionalRenderPass(false);
-
-    return true;
+    return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

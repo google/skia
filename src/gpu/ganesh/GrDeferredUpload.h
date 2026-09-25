@@ -50,7 +50,8 @@ using GrDeferredTextureUploadWritePixelsFn = std::function<bool(GrTextureProxy*,
  * GrDeferredTextureUploadWritePixelsFn as a parameter. It is called when it should perform its
  * upload as the draw/upload sequence is executed.
  */
-using GrDeferredTextureUploadFn = std::function<void(GrDeferredTextureUploadWritePixelsFn&)>;
+using GrDeferredTextureUploadFn =
+        std::function<bool(GrDeferredTextureUploadWritePixelsFn&)>;
 
 /**
  * An interface for scheduling deferred uploads. It accepts asap and deferred inline uploads.

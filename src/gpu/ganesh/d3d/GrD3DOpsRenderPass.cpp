@@ -347,9 +347,7 @@ bool GrD3DOpsRenderPass::inlineUpload(GrOpFlushState* state, GrDeferredTextureUp
 
     // We pass in true here to signal that after the upload we need to set the upload texture's
     // resource state back to D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE.
-    state->doUpload(upload, true);
-
-    return true;
+    return state->doUpload(upload, true);
 }
 
 void GrD3DOpsRenderPass::submit() {
