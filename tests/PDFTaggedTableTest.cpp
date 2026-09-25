@@ -23,6 +23,7 @@
 #include "src/pdf/SkPDFUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -54,13 +55,12 @@ DEF_TEST(SkPDF_tagged_table, r) {
 
     constexpr int kRowCount = 5;
     constexpr int kColCount = 4;
-    const char* cellData[kRowCount * kColCount] = {
-        "Car Make and Model",   "Engine",   "City MPG", "Highway MPG",
-        "Mitsubishi Mirage ES", "Gas",      "28",       "47",
-        "Toyota Prius Three",   "Hybrid",   "43",       "59",
-        "Nissan Leaf SL",       "Electric", "N/A",      nullptr,
-        "Tesla Model 3",        nullptr,    "N/A",      nullptr
-    };
+    constexpr std::array<const char*, kRowCount * kColCount> cellData = {
+            "Car Make and Model",   "Engine",   "City MPG", "Highway MPG",
+            "Mitsubishi Mirage ES", "Gas",      "28",       "47",
+            "Toyota Prius Three",   "Hybrid",   "43",       "59",
+            "Nissan Leaf SL",       "Electric", "N/A",      nullptr,
+            "Tesla Model 3",        nullptr,    "N/A",      nullptr};
 
     // The document tag.
     auto root = std::make_unique<PDFTag>();

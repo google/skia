@@ -22,19 +22,20 @@
 #include <cstddef>
 #include <utility>
 
-static struct lineConic {
+struct lineConic {
     ConicPts conic;
     SkDLine line;
     int result;
-    SkDPoint expected[2];
-} lineConicTests[] = {
-    {
-     {{{{30.6499996,25.6499996}, {30.6499996,20.6499996}, {25.6499996,20.6499996}}}, 0.707107008f},
-      {{{25.6499996,20.6499996}, {45.6500015,20.6499996}}},
-          1,
-       {{25.6499996,20.6499996}, {0,0}}
-    },
+    std::array<SkDPoint, 2> expected;
 };
+
+static constexpr auto lineConicTests = std::to_array<lineConic>({
+        lineConic{{{{{30.6499996, 25.6499996}, {30.6499996, 20.6499996}, {25.6499996, 20.6499996}}},
+                   0.707107008f},
+                  {{{25.6499996, 20.6499996}, {45.6500015, 20.6499996}}},
+                  1,
+                  {{{25.6499996, 20.6499996}, {0, 0}}}},
+});
 
 static size_t lineConicTests_count = std::size(lineConicTests);
 
@@ -67,13 +68,17 @@ static int doIntersect(SkIntersections& intersections, const SkDConic& conic, co
     return result;
 }
 
-static struct oneLineConic {
+struct oneLineConic {
     ConicPts conic;
     SkDLine line;
-} oneOffs[] = {
-    {{{{{30.6499996,25.6499996}, {30.6499996,20.6499996}, {25.6499996,20.6499996}}}, 0.707107008f},
-      {{{25.6499996,20.6499996}, {45.6500015,20.6499996}}}}
 };
+
+static constexpr auto oneOffs = std::to_array<oneLineConic>({
+        oneLineConic{
+                {{{{30.6499996, 25.6499996}, {30.6499996, 20.6499996}, {25.6499996, 20.6499996}}},
+                 0.707107008f},
+                {{{25.6499996, 20.6499996}, {45.6500015, 20.6499996}}}},
+});
 
 static size_t oneOffs_count = std::size(oneOffs);
 

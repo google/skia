@@ -17,15 +17,15 @@
 #include <cstddef>
 #include <limits>
 
-static const SkDPoint tests[] = {
-    {0, 0},
-    {1, 0},
-    {0, 1},
-    {2, 1},
-    {1, 2},
-    {1, 1},
-    {2, 2}
-};
+static constexpr auto tests = std::to_array<SkDPoint>({
+        SkDPoint{0, 0},
+        SkDPoint{1, 0},
+        SkDPoint{0, 1},
+        SkDPoint{2, 1},
+        SkDPoint{1, 2},
+        SkDPoint{1, 1},
+        SkDPoint{2, 2},
+});
 
 static const size_t tests_count = std::size(tests);
 

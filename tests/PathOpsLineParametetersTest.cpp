@@ -18,31 +18,31 @@
 #include <cstddef>
 
 // tests to verify that distance calculations are coded correctly
-static const CubicPts tests[] = {
-    {{{0, 0}, {1, 1}, {2, 2}, {0, 3}}},
-    {{{0, 0}, {1, 1}, {2, 2}, {3, 0}}},
-    {{{0, 0}, {5, 0}, {-2, 4}, {3, 4}}},
-    {{{0, 2}, {1, 0}, {2, 0}, {3, 0}}},
-    {{{0, .2}, {1, 0}, {2, 0}, {3, 0}}},
-    {{{0, .02}, {1, 0}, {2, 0}, {3, 0}}},
-    {{{0, .002}, {1, 0}, {2, 0}, {3, 0}}},
-    {{{0, .0002}, {1, 0}, {2, 0}, {3, 0}}},
-    {{{0, .00002}, {1, 0}, {2, 0}, {3, 0}}},
-    {{{0, FLT_EPSILON * 2}, {1, 0}, {2, 0}, {3, 0}}},
-};
+static constexpr auto tests = std::to_array<CubicPts>({
+        CubicPts{{{0, 0}, {1, 1}, {2, 2}, {0, 3}}},
+        CubicPts{{{0, 0}, {1, 1}, {2, 2}, {3, 0}}},
+        CubicPts{{{0, 0}, {5, 0}, {-2, 4}, {3, 4}}},
+        CubicPts{{{0, 2}, {1, 0}, {2, 0}, {3, 0}}},
+        CubicPts{{{0, .2}, {1, 0}, {2, 0}, {3, 0}}},
+        CubicPts{{{0, .02}, {1, 0}, {2, 0}, {3, 0}}},
+        CubicPts{{{0, .002}, {1, 0}, {2, 0}, {3, 0}}},
+        CubicPts{{{0, .0002}, {1, 0}, {2, 0}, {3, 0}}},
+        CubicPts{{{0, .00002}, {1, 0}, {2, 0}, {3, 0}}},
+        CubicPts{{{0, FLT_EPSILON * 2}, {1, 0}, {2, 0}, {3, 0}}},
+});
 
-static const double answers[][2] = {
-    {1, 2},
-    {1, 2},
-    {4, 4},
-    {1.1094003924, 0.5547001962},
-    {0.133038021, 0.06651901052},
-    {0.0133330370, 0.006666518523},
-    {0.001333333037, 0.0006666665185},
-    {0.000133333333, 6.666666652e-05},
-    {1.333333333e-05, 6.666666667e-06},
-    {1.5894571940104115e-07, 7.9472859700520577e-08},
-};
+static constexpr auto answers = std::to_array<std::array<double, 2>>({
+        {                     1,                      2},
+        {                     1,                      2},
+        {                     4,                      4},
+        {          1.1094003924,           0.5547001962},
+        {           0.133038021,          0.06651901052},
+        {          0.0133330370,         0.006666518523},
+        {        0.001333333037,        0.0006666665185},
+        {        0.000133333333,        6.666666652e-05},
+        {       1.333333333e-05,        6.666666667e-06},
+        {1.5894571940104115e-07, 7.9472859700520577e-08},
+});
 
 static const size_t tests_count = std::size(tests);
 
@@ -54,7 +54,7 @@ DEF_TEST(PathOpsLineParameters, reporter) {
         cubic.debugSet(c.fPts);
         SkASSERT(ValidCubic(cubic));
         lineParameters.cubicEndPoints(cubic, 0, 3);
-        double denormalizedDistance[2];
+        std::array<double, 2> denormalizedDistance;
         denormalizedDistance[0] = lineParameters.controlPtDistance(cubic, 1);
         denormalizedDistance[1] = lineParameters.controlPtDistance(cubic, 2);
         double normalSquared = lineParameters.normalSquared();
@@ -74,7 +74,7 @@ DEF_TEST(PathOpsLineParameters, reporter) {
                     distSq, answersSq, normalSquared);
         }
         lineParameters.normalize();
-        double normalizedDistance[2];
+        std::array<double, 2> normalizedDistance;
         normalizedDistance[0] = lineParameters.controlPtDistance(cubic, 1);
         normalizedDistance[1] = lineParameters.controlPtDistance(cubic, 2);
         for (inner = 0; inner < 2; ++inner) {

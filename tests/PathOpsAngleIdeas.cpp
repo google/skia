@@ -95,14 +95,16 @@ static void orderQuads(skiatest::Reporter* reporter, const SkDQuad& quad, double
     double s = r * SK_ScalarTanPIOver8;
     double m = r * SK_ScalarRoot2Over2;
     // construct circle from quads
-    const QuadPts circle[8] = {{{{ r,  0}, { r, -s}, { m, -m}}},
-                                {{{ m, -m}, { s, -r}, { 0, -r}}},
-                                {{{ 0, -r}, {-s, -r}, {-m, -m}}},
-                                {{{-m, -m}, {-r, -s}, {-r,  0}}},
-                                {{{-r,  0}, {-r,  s}, {-m,  m}}},
-                                {{{-m,  m}, {-s,  r}, { 0,  r}}},
-                                {{{ 0,  r}, { s,  r}, { m,  m}}},
-                                {{{ m,  m}, { r,  s}, { r,  0}}}};
+    const std::array<QuadPts, 8> circle = {{
+            {{{ r,  0}, { r, -s}, { m, -m}}},
+            {{{ m, -m}, { s, -r}, { 0, -r}}},
+            {{{ 0, -r}, {-s, -r}, {-m, -m}}},
+            {{{-m, -m}, {-r, -s}, {-r,  0}}},
+            {{{-r,  0}, {-r,  s}, {-m,  m}}},
+            {{{-m,  m}, {-s,  r}, { 0,  r}}},
+            {{{ 0,  r}, { s,  r}, { m,  m}}},
+            {{{ m,  m}, { r,  s}, { r,  0}}},
+    }};
     for (int octant = 0; octant < 8; ++octant) {
         SkDQuad cQuad;
         cQuad.debugSet(circle[octant].fPts);
@@ -278,12 +280,12 @@ static bool equalPoints(const SkDPoint& pt1, const SkDPoint& pt2, double max) {
 static double maxDist(const SkDQuad& quad) {
     SkDRect bounds;
     bounds.setBounds(quad);
-    SkDVector corner[4] = {
-        { bounds.fLeft - quad[0].fX, bounds.fTop - quad[0].fY },
-        { bounds.fRight - quad[0].fX, bounds.fTop - quad[0].fY },
-        { bounds.fLeft - quad[0].fX, bounds.fBottom - quad[0].fY },
-        { bounds.fRight - quad[0].fX, bounds.fBottom - quad[0].fY }
-    };
+    std::array<SkDVector, 4> corner = {{
+            {bounds.fLeft - quad[0].fX, bounds.fTop - quad[0].fY},
+            {bounds.fRight - quad[0].fX, bounds.fTop - quad[0].fY},
+            {bounds.fLeft - quad[0].fX, bounds.fBottom - quad[0].fY},
+            {bounds.fRight - quad[0].fX, bounds.fBottom - quad[0].fY},
+    }};
     double max = 0;
     for (unsigned index = 0; index < std::size(corner); ++index) {
         max = std::max(max, corner[index].length());
@@ -474,7 +476,7 @@ static void testQuadAngles(skiatest::Reporter* reporter, const SkDQuad& quad1, c
     SkDVector v1e = quad1[2] - quad1[0];
     SkDVector v2s = quad2[1] - quad2[0];
     SkDVector v2e = quad2[2] - quad2[0];
-    double vDir[2] = { v1s.cross(v1e), v2s.cross(v2e) };
+    std::array<double, 2> vDir = {v1s.cross(v1e), v2s.cross(v2e)};
     bool ray1In2 = v1s.cross(v2s) * vDir[1] <= 0 && v1s.cross(v2e) * vDir[1] >= 0;
     bool ray2In1 = v2s.cross(v1s) * vDir[0] <= 0 && v2s.cross(v1e) * vDir[0] >= 0;
     if (overlap >= 0) {
@@ -489,16 +491,19 @@ static void testQuadAngles(skiatest::Reporter* reporter, const SkDQuad& quad1, c
         bruteForce(reporter, quad1, quad2, overlap > 0);
     }
     // continue end point rays and see if they intersect the opposite curve
-    SkDLine rays[] = {{{origin, quad2[2]}}, {{origin, quad1[2]}}};
-    const SkDQuad* quads[] = {&quad1, &quad2};
-    SkDVector midSpokes[2];
-    SkIntersections intersect[2];
+    const auto rays = std::to_array<SkDLine>({
+            SkDLine{{origin, quad2[2]}},
+            SkDLine{{origin, quad1[2]}}
+    });
+    const auto quads = std::to_array<const SkDQuad*>({&quad1, &quad2});
+    std::array<SkDVector, 2> midSpokes;
+    std::array<SkIntersections, 2> intersect;
     double minX, minY, maxX, maxY;
     minX = minY = SK_ScalarInfinity;
     maxX = maxY = -SK_ScalarInfinity;
     double maxWidth = 0;
     bool useIntersect = false;
-    double smallestTs[] = {1, 1};
+    auto smallestTs = std::to_array<double>({1, 1});
     for (unsigned index = 0; index < std::size(quads); ++index) {
         const SkDQuad& q = *quads[index];
         midSpokes[index] = q.ptAtT(0.5) - origin;
@@ -575,10 +580,14 @@ static void testQuadAngles(skiatest::Reporter* reporter, const SkDQuad& quad1, c
 DEF_TEST(PathOpsAngleOverlapHullsOne, reporter) {
     SkSTArenaAlloc<4096> allocator;
 //    gPathOpsAngleIdeasVerbose = true;
-    const QuadPts quads[] = {
-{{{939.4808349609375, 914.355224609375}, {-357.7921142578125, 590.842529296875}, {736.8936767578125, -350.717529296875}}},
-{{{939.4808349609375, 914.355224609375}, {-182.85418701171875, 634.4552001953125}, {-509.62615966796875, 576.1182861328125}}}
-    };
+    static constexpr auto quads = std::to_array<QuadPts>({
+            QuadPts{{{939.4808349609375, 914.355224609375},
+                     {-357.7921142578125, 590.842529296875},
+                     {736.8936767578125, -350.717529296875}}},
+            QuadPts{{{939.4808349609375, 914.355224609375},
+                     {-182.85418701171875, 634.4552001953125},
+                     {-509.62615966796875, 576.1182861328125}}},
+    });
     for (int index = 0; index < (int) std::size(quads); index += 2) {
         SkDQuad quad0, quad1;
         quad0.debugSet(quads[index].fPts);
@@ -666,17 +675,29 @@ DEF_TEST(PathOpsAngleBruteT, reporter) {
 
 DEF_TEST(PathOpsAngleBruteTOne, reporter) {
 //    gPathOpsAngleIdeasVerbose = true;
-    const QuadPts qPts[] = {
-{{{-770.8492431640625, 948.2369384765625}, {-853.37066650390625, 972.0301513671875}, {-200.62042236328125, -26.7174072265625}}},
-{{{-770.8492431640625, 948.2369384765625}, {513.602783203125, 578.8681640625}, {960.641357421875, -813.69757080078125}}},
-{{{563.8267822265625, -107.4566650390625}, {-44.67724609375, -136.57452392578125}, {492.3856201171875, -268.79644775390625}}},
-{{{563.8267822265625, -107.4566650390625}, {708.049072265625, -100.77789306640625}, {-48.88226318359375, 967.9022216796875}}},
-{{{598.857421875, 846.345458984375}, {-644.095703125, -316.12921142578125}, {-97.64599609375, 20.6158447265625}}},
-{{{598.857421875, 846.345458984375}, {715.7142333984375, 955.3599853515625}, {-919.9478759765625, 691.611328125}}},
-    };
+    static constexpr auto qPts = std::to_array<QuadPts>({
+            QuadPts{{{-770.8492431640625, 948.2369384765625},
+                     {-853.37066650390625, 972.0301513671875},
+                     {-200.62042236328125, -26.7174072265625}}},
+            QuadPts{{{-770.8492431640625, 948.2369384765625},
+                     {513.602783203125, 578.8681640625},
+                     {960.641357421875, -813.69757080078125}}},
+            QuadPts{{{563.8267822265625, -107.4566650390625},
+                     {-44.67724609375, -136.57452392578125},
+                     {492.3856201171875, -268.79644775390625}}},
+            QuadPts{{{563.8267822265625, -107.4566650390625},
+                     {708.049072265625, -100.77789306640625},
+                     {-48.88226318359375, 967.9022216796875}}},
+            QuadPts{{{598.857421875, 846.345458984375},
+                     {-644.095703125, -316.12921142578125},
+                     {-97.64599609375, 20.6158447265625}}},
+            QuadPts{{{598.857421875, 846.345458984375},
+                     {715.7142333984375, 955.3599853515625},
+                     {-919.9478759765625, 691.611328125}}},
+    });
     TRange lowerRange, upperRange;
-    SkDQuad quads[std::size(qPts)];
-    for (int index = 0; index < (int) std::size(qPts); ++index) {
+    std::array<SkDQuad, std::size(qPts)> quads;
+    for (int index = 0; index < (int)std::size(qPts); ++index) {
         quads[index].debugSet(qPts[index].fPts);
     }
     bruteMinT(reporter, quads[0], quads[1], &lowerRange, &upperRange);

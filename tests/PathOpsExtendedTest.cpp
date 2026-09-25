@@ -33,6 +33,7 @@
 #include "tests/Test.h"
 
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -64,21 +65,21 @@ static const char marker[] =
     "\n"
     "var testDivs = [\n";
 
-static const char* opStrs[] = {
-    "kDifference_SkPathOp",
-    "kIntersect_SkPathOp",
-    "kUnion_SkPathOp",
-    "kXOR_PathOp",
-    "kReverseDifference_SkPathOp",
-};
+static constexpr auto opStrs = std::to_array<const char*>({
+        "kDifference_SkPathOp",
+        "kIntersect_SkPathOp",
+        "kUnion_SkPathOp",
+        "kXOR_PathOp",
+        "kReverseDifference_SkPathOp",
+});
 
-static const char* opSuffixes[] = {
-    "d",
-    "i",
-    "u",
-    "o",
-    "r",
-};
+static constexpr auto opSuffixes = std::to_array<const char*>({
+        "d",
+        "i",
+        "u",
+        "o",
+        "r",
+});
 
 enum class ExpectSuccess {
     kNo,
@@ -408,20 +409,20 @@ static void json_status(ExpectSuccess expectSuccess, ExpectMatch expectMatch, bo
 
 static void json_path_out(const SkPath& path, const char* pathName, const char* fillTypeName,
         bool lastField) {
-    char const * const gFillTypeStrs[] = {
-        "Winding",
-        "EvenOdd",
-        "InverseWinding",
-        "InverseEvenOdd",
-    };
+    static constexpr auto gFillTypeStrs = std::to_array<const char*>({
+            "Winding",
+            "EvenOdd",
+            "InverseWinding",
+            "InverseEvenOdd",
+    });
     if (PathOpsDebug::gOutputSVG) {
         SkString svg = SkParsePath::ToSVGString(path);
         fprintf(PathOpsDebug::gOut, "  \"%s\": \"%s\",\n", pathName, svg.c_str());
     } else {
-                                 // MOVE, LINE, QUAD, CONIC, CUBIC, CLOSE
-        const int verbConst[] =  {     0,    1,    2,     3,     4,     5 };
-        const int pointIndex[] = {     0,    1,    1,     1,     1,     0 };
-        const int pointCount[] = {     1,    2,    3,     3,     4,     0 };
+        //                                                MOVE, LINE, QUAD, CONIC, CUBIC, CLOSE
+        static constexpr auto verbConst  = std::to_array({   0,    1,    2,     3,     4,     5});
+        static constexpr auto pointIndex = std::to_array({   0,    1,    1,     1,     1,     0});
+        static constexpr auto pointCount = std::to_array({   1,    2,    3,     3,     4,     0});
         fprintf(PathOpsDebug::gOut, "  \"%s\": [", pathName);
         bool first = true;
         for (auto [verb, points, w] : SkPathPriv::Iterate(path)) {
@@ -430,11 +431,13 @@ static void json_path_out(const SkPath& path, const char* pathName, const char* 
             } else {
                 fprintf(PathOpsDebug::gOut, ",\n    ");
             }
-            int verbIndex = (int) verb;
+            int verbIndex = (int)verb;
             fprintf(PathOpsDebug::gOut, "[%d", verbConst[verbIndex]);
             for (int i = pointIndex[verbIndex]; i < pointCount[verbIndex]; ++i) {
-                fprintf(PathOpsDebug::gOut, ", \"0x%08x\", \"0x%08x\"",
-                        SkFloat2Bits(points[i].fX), SkFloat2Bits(points[i].fY));
+                fprintf(PathOpsDebug::gOut,
+                        ", \"0x%08x\", \"0x%08x\"",
+                        SkFloat2Bits(points[i].fX),
+                        SkFloat2Bits(points[i].fY));
             }
             if (SkPathVerb::kConic == verb) {
                 fprintf(PathOpsDebug::gOut, ", \"0x%08x\"", SkFloat2Bits(*w));

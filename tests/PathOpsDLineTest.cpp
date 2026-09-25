@@ -15,14 +15,14 @@
 #include <array>
 #include <cstddef>
 
-static const SkDLine tests[] = {
-    {{{2, 1}, {2, 1}}},
-    {{{2, 1}, {1, 1}}},
-    {{{2, 1}, {2, 2}}},
-    {{{1, 1}, {2, 2}}},
-    {{{3, 0}, {2, 1}}},
-    {{{3, 2}, {1, 1}}},
-};
+static constexpr auto tests = std::to_array<SkDLine>({
+        SkDLine{{{2, 1}, {2, 1}}},
+        SkDLine{{{2, 1}, {1, 1}}},
+        SkDLine{{{2, 1}, {2, 2}}},
+        SkDLine{{{1, 1}, {2, 2}}},
+        SkDLine{{{3, 0}, {2, 1}}},
+        SkDLine{{{3, 2}, {1, 1}}},
+});
 
 static const size_t tests_count = std::size(tests);
 

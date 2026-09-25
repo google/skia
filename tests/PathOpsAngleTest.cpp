@@ -57,8 +57,8 @@ DEF_TEST(PathOpsAngleFindCrossEpsilon, reporter) {
             float t = ran.nextRangeF(0.0001f, 1);
             SkDPoint dPt = line.ptAtT(t);
             SkPoint pt = dPt.asSkPoint();
-            float xs[3] = { prev(pt.fX), pt.fX, next(pt.fX) };
-            float ys[3] = { prev(pt.fY), pt.fY, next(pt.fY) };
+            std::array<float, 3> xs = {prev(pt.fX), pt.fX, next(pt.fX)};
+            std::array<float, 3> ys = {prev(pt.fY), pt.fY, next(pt.fY)};
             for (int xIdx = 0; xIdx < 3; ++xIdx) {
                 for (int yIdx = 0; yIdx < 3; ++yIdx) {
                     SkPoint test = { xs[xIdx], ys[yIdx] };
@@ -242,14 +242,19 @@ public:
 struct CircleData {
     const CubicPts fPts;
     const int fPtCount;
-    SkPoint fShortPts[4];
+    std::array<SkPoint, 4> fShortPts;
 };
 
-static CircleData circleDataSet[] = {
-    { {{{313.0155029296875, 207.90290832519531}, {320.05078125, 227.58743286132812}}}, 2, {} },
-    { {{{313.0155029296875, 207.90290832519531}, {313.98246891063195, 219.33615203830394},
-            {320.05078125, 227.58743286132812}}}, 3, {} },
-};
+static auto circleDataSet = std::to_array<CircleData>({
+        CircleData{{{{313.0155029296875, 207.90290832519531}, {320.05078125, 227.58743286132812}}},
+                   2,
+                   {}},
+        CircleData{{{{313.0155029296875, 207.90290832519531},
+                     {313.98246891063195, 219.33615203830394},
+                     {320.05078125, 227.58743286132812}}},
+                   3,
+                   {}},
+});
 
 static const int circleDataSetSize = (int) std::size(circleDataSet);
 
@@ -265,13 +270,13 @@ DEF_TEST(PathOpsAngleCircle, reporter) {
         }
         switch (data.fPtCount) {
             case 2:
-                contour.addLine(data.fShortPts);
+                contour.addLine(data.fShortPts.data());
                 break;
             case 3:
-                contour.addQuad(data.fShortPts);
+                contour.addQuad(data.fShortPts.data());
                 break;
             case 4:
-                contour.addCubic(data.fShortPts);
+                contour.addCubic(data.fShortPts.data());
                 break;
         }
     }
@@ -424,18 +429,18 @@ static IntersectData intersectDataSet19[] = {
 
 #define I(x) intersectDataSet##x
 
-static IntersectData* intersectDataSets[] = {
-    I(1), I(2), I(3), I(4), I(5), I(6), I(7), I(8), I(9), I(10),
-    I(11), I(12), I(13), I(14), I(15), I(16), I(17), I(18), I(19),
-};
+static constexpr auto intersectDataSets = std::to_array<IntersectData*>({
+        I(1),  I(2),  I(3),  I(4),  I(5),  I(6),  I(7),  I(8),  I(9),  I(10),
+        I(11), I(12), I(13), I(14), I(15), I(16), I(17), I(18), I(19),
+});
 
 #undef I
 #define I(x) (int) std::size(intersectDataSet##x)
 
-static const int intersectDataSetSizes[] = {
-    I(1), I(2), I(3), I(4), I(5), I(6), I(7), I(8), I(9), I(10),
-    I(11), I(12), I(13), I(14), I(15), I(16), I(17), I(18), I(19),
-};
+static constexpr auto intersectDataSetSizes = std::to_array<int>({
+        I(1),  I(2),  I(3),  I(4),  I(5),  I(6),  I(7),  I(8),  I(9),  I(10),
+        I(11), I(12), I(13), I(14), I(15), I(16), I(17), I(18), I(19),
+});
 
 #undef I
 

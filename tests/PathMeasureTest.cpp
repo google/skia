@@ -23,11 +23,15 @@
 #include <utility>
 
 static void test_small_segment3(skiatest::Reporter* reporter) {
-    const SkPoint pts[] = {
-        { 0, 0 },
-        { 100000000000.0f, 100000000000.0f }, { 0, 0 }, { 10, 10 },
-        { 10, 10 }, { 0, 0 }, { 10, 10 }
-    };
+    constexpr auto pts = std::to_array<SkPoint>({
+            SkPoint{0, 0},
+            SkPoint{100000000000.0f, 100000000000.0f},
+            SkPoint{0, 0},
+            SkPoint{10, 10},
+            SkPoint{10, 10},
+            SkPoint{0, 0},
+            SkPoint{10, 10},
+    });
 
     SkPathBuilder builder;
     builder.moveTo(pts[0]);
@@ -56,11 +60,13 @@ static void test_small_segment3(skiatest::Reporter* reporter) {
 }
 
 static void test_small_segment2() {
-    const SkPoint pts[] = {
-        { 0, 0 },
-        { 100000000000.0f, 100000000000.0f }, { 0, 0 },
-        { 10, 10 }, { 0, 0 },
-    };
+    constexpr auto pts = std::to_array<SkPoint>({
+            SkPoint{0, 0},
+            SkPoint{100000000000.0f, 100000000000.0f},
+            SkPoint{0, 0},
+            SkPoint{10, 10},
+            SkPoint{0, 0},
+    });
 
     SkPathBuilder builder;
     builder.moveTo(pts[0]);

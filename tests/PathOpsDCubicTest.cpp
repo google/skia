@@ -11,12 +11,16 @@
 #include "tests/PathOpsTestCommon.h"
 #include "tests/Test.h"
 
-#include <string>
+#include <array>
 #include <cstddef>
+#include <string>
 
-static const CubicPts hullTests[] = {
-{{{2.6250000819563866, 2.3750000223517418}, {2.833333432674408, 2.3333333432674408}, {3.1111112236976624, 2.3333333134651184}, {3.4074075222015381, 2.3333332538604736}}},
-};
+static constexpr auto hullTests = std::to_array<CubicPts>({
+        CubicPts{{{2.6250000819563866, 2.3750000223517418},
+                  {2.833333432674408, 2.3333333432674408},
+                  {3.1111112236976624, 2.3333333134651184},
+                  {3.4074075222015381, 2.3333332538604736}}},
+});
 
 static const size_t hullTests_count = std::size(hullTests);
 
