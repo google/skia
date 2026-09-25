@@ -19,6 +19,7 @@
 
 namespace skgpu::graphite {
 
+// TODO (thomsmit): Rename "NullCaps" to "Overflow" caps for clarity
 // Container holding the "EndCaps" produced by SparseStrips rendering. An EndCap stores the
 // antialiased portion of the path rendering, and spans a variable non-zero number of tiles.
 class EndCaps {

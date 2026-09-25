@@ -158,6 +158,7 @@ public:
     }
 };
 
+// TODO (thomsmit): Change the type of array to std::array
 template <typename T>
 SkTDArray<T> GenerateMSAALUT() {
     if constexpr (std::is_same_v<T, uint8_t> || std::is_same_v<T, uint16_t>) {

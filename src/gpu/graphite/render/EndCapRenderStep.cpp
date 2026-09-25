@@ -37,7 +37,7 @@ EndCapRenderStep::EndCapRenderStep(Layout layout)
         : RenderStep(layout,
                      RenderStepID::kEndCap,
                      Flags::kAppendInstances | Flags::kEmitsCoverage | Flags::kPerformsShading |
-                             Flags::kHasTextures,
+                             Flags::kHasTextures | Flags::kOutsetBoundsForAA,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
                      kDirectDepthLessPass,
