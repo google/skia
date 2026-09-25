@@ -39,6 +39,7 @@
 #include "src/sksl/codegen/SkSLNativeShader.h"
 #include "src/utils/SkShaderUtils.h"
 
+#include <array>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -257,9 +258,9 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
     bool cached = fCached.get() != nullptr;
     bool usedProgramBinaries = false;
     SkSL::NativeShader glsl[kGrShaderTypeCount];
-    const std::string* sksl[kGrShaderTypeCount] = {
-        &fVS.fCompilerString,
-        &fFS.fCompilerString,
+    std::array<const std::string*, kGrShaderTypeCount> sksl = {
+            &fVS.fCompilerString,
+            &fFS.fCompilerString,
     };
     SkSL::NativeShader cached_sksl[kGrShaderTypeCount];
     if (precompiledProgram) {
@@ -402,7 +403,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         {
             TRACE_EVENT0_ALWAYS("skia.shaders", "driver_link_program");
             GL_CALL(LinkProgram(programID));
-            if (!GrGLCheckLinkStatus(fGpu, programID, cached, errorHandler, sksl, glsl)) {
+            if (!GrGLCheckLinkStatus(fGpu, programID, cached, errorHandler, sksl.data(), glsl)) {
                 cleanup_program(fGpu, programID, shadersToDelete);
                 return nullptr;
             }

@@ -609,7 +609,11 @@ GR_DRAW_OP_TEST_DEFINE(TriangulatingPathOp) {
     SkIRect devClipBounds = SkIRect::MakeLTRB(
         random->nextU(), random->nextU(), random->nextU(), random->nextU());
     devClipBounds.sort();
-    static constexpr GrAAType kAATypes[] = {GrAAType::kNone, GrAAType::kMSAA, GrAAType::kCoverage};
+    static constexpr auto kAATypes = std::to_array<GrAAType>({
+            GrAAType::kNone,
+            GrAAType::kMSAA,
+            GrAAType::kCoverage,
+    });
     GrAAType aaType;
     do {
         aaType = kAATypes[random->nextULessThan(std::size(kAATypes))];

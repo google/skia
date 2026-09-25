@@ -16,6 +16,8 @@
 #include "include/private/SkTDArray.h"
 #include "src/core/SkPointPriv.h"
 
+#include <array>
+
 class SkMatrix;
 class SkPath;
 
@@ -271,7 +273,7 @@ private:
     // When visualizing save all the rings
     SkTDArray<Ring*>      fRings;
 #else
-    Ring                  fRings[2];
+    std::array<Ring, 2> fRings;
 #endif
     CandidateVerts        fCandidateVerts;
 

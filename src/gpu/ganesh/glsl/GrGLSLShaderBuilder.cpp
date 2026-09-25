@@ -18,6 +18,8 @@
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/sksl/SkSLGLSL.h"
 
+#include <array>
+
 using namespace skia_private;
 
 GrGLSLShaderBuilder::GrGLSLShaderBuilder(GrGLSLProgramBuilder* program)
@@ -307,10 +309,7 @@ void GrGLSLShaderBuilder::addLayoutQualifier(const char* param, InterfaceQualifi
 }
 
 void GrGLSLShaderBuilder::compileAndAppendLayoutQualifiers() {
-    static const char* interfaceQualifierNames[] = {
-        "in",
-        "out"
-    };
+    static constexpr auto interfaceQualifierNames = std::to_array<const char*>({"in", "out"});
 
     for (int interface = 0; interface <= kLastInterfaceQualifier; ++interface) {
         const TArray<SkString>& params = fLayoutParams[interface];

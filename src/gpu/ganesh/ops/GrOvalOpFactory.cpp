@@ -980,30 +980,30 @@ static const uint16_t gStrokeCircleIndices[] = {
 // Normalized geometry for octagons that circumscribe and lie on a circle:
 
 static constexpr SkScalar kOctOffset = 0.41421356237f;  // sqrt(2) - 1
-static constexpr SkPoint kOctagonOuter[] = {
-    SkPoint::Make(-kOctOffset, -1),
-    SkPoint::Make( kOctOffset, -1),
-    SkPoint::Make( 1, -kOctOffset),
-    SkPoint::Make( 1,  kOctOffset),
-    SkPoint::Make( kOctOffset, 1),
-    SkPoint::Make(-kOctOffset, 1),
-    SkPoint::Make(-1,  kOctOffset),
-    SkPoint::Make(-1, -kOctOffset),
-};
+static constexpr auto kOctagonOuter = std::to_array<SkPoint>({
+        SkPoint::Make(-kOctOffset, -1),
+        SkPoint::Make( kOctOffset, -1),
+        SkPoint::Make( 1, -kOctOffset),
+        SkPoint::Make( 1,  kOctOffset),
+        SkPoint::Make( kOctOffset, 1),
+        SkPoint::Make(-kOctOffset, 1),
+        SkPoint::Make(-1,  kOctOffset),
+        SkPoint::Make(-1, -kOctOffset),
+});
 
 // cosine and sine of pi/8
 static constexpr SkScalar kCosPi8 = 0.923579533f;
 static constexpr SkScalar kSinPi8 = 0.382683432f;
-static constexpr SkPoint kOctagonInner[] = {
-    SkPoint::Make(-kSinPi8, -kCosPi8),
-    SkPoint::Make( kSinPi8, -kCosPi8),
-    SkPoint::Make( kCosPi8, -kSinPi8),
-    SkPoint::Make( kCosPi8,  kSinPi8),
-    SkPoint::Make( kSinPi8,  kCosPi8),
-    SkPoint::Make(-kSinPi8,  kCosPi8),
-    SkPoint::Make(-kCosPi8,  kSinPi8),
-    SkPoint::Make(-kCosPi8, -kSinPi8),
-};
+static constexpr auto kOctagonInner = std::to_array<SkPoint>({
+        SkPoint::Make(-kSinPi8, -kCosPi8),
+        SkPoint::Make( kSinPi8, -kCosPi8),
+        SkPoint::Make( kCosPi8, -kSinPi8),
+        SkPoint::Make( kCosPi8,  kSinPi8),
+        SkPoint::Make( kSinPi8,  kCosPi8),
+        SkPoint::Make(-kSinPi8,  kCosPi8),
+        SkPoint::Make(-kCosPi8,  kSinPi8),
+        SkPoint::Make(-kCosPi8, -kSinPi8),
+});
 
 static const int kIndicesPerFillCircle = std::size(gFillCircleIndices);
 static const int kIndicesPerStrokeCircle = std::size(gStrokeCircleIndices);
@@ -2461,7 +2461,7 @@ private:
 // geometry but make the inner rect degenerate (either a point or a horizontal or
 // vertical line).
 
-static const uint16_t gOverstrokeRRectIndices[] = {
+static constexpr auto gOverstrokeRRectIndices = std::to_array<uint16_t>({
         // clang-format off
         // overstroke quads
         // we place this at the beginning so that we can skip these indices when rendering normally
@@ -2486,10 +2486,10 @@ static const uint16_t gOverstrokeRRectIndices[] = {
         // we place this at the end so that we can ignore these indices when not rendering as filled
         5, 6, 10, 5, 10, 9,
         // clang-format on
-};
+});
 
 // fill and standard stroke indices skip the overstroke "ring"
-static const uint16_t* gStandardRRectIndices = gOverstrokeRRectIndices + 6 * 4;
+static const uint16_t* gStandardRRectIndices = gOverstrokeRRectIndices.data() + 6 * 4;
 
 // overstroke count is arraysize minus the center indices
 static const int kIndicesPerOverstrokeRRect = std::size(gOverstrokeRRectIndices) - 6;
@@ -2535,7 +2535,7 @@ static const uint16_t* rrect_type_to_indices(RRectType type) {
         case kStroke_RRectType:
             return gStandardRRectIndices;
         case kOverstroke_RRectType:
-            return gOverstrokeRRectIndices;
+            return gOverstrokeRRectIndices.data();
     }
     SK_ABORT("Invalid type");
 }
@@ -2754,10 +2754,12 @@ private:
             SkScalar outerRadius = rrect.fOuterRadius;
             const SkRect& bounds = rrect.fDevBounds;
 
-            SkScalar yCoords[4] = {bounds.fTop, bounds.fTop + outerRadius,
-                                   bounds.fBottom - outerRadius, bounds.fBottom};
+            std::array<SkScalar, 4> yCoords = {bounds.fTop,
+                                               bounds.fTop + outerRadius,
+                                               bounds.fBottom - outerRadius,
+                                               bounds.fBottom};
 
-            SkScalar yOuterRadii[4] = {-1, 0, 0, 1};
+            static constexpr std::array<SkScalar, 4> yOuterRadii = {-1, 0, 0, 1};
             // The inner radius in the vertex data must be specified in normalized space.
             // For fills, specifying -1/outerRadius guarantees an alpha of 1.0 at the inner radius.
             SkScalar innerRadius = rrect.fType != kFill_RRectType
@@ -3108,12 +3110,16 @@ private:
 
             const SkRect& bounds = rrect.fDevBounds.makeOutset(aaBloat, aaBloat);
 
-            SkScalar yCoords[4] = {bounds.fTop, bounds.fTop + yOuterRadius,
-                                   bounds.fBottom - yOuterRadius, bounds.fBottom};
-            SkScalar yOuterOffsets[4] = {yMaxOffset,
-                                         SK_ScalarNearlyZero,  // we're using inversesqrt() in
-                                                               // shader, so can't be exactly 0
-                                         SK_ScalarNearlyZero, yMaxOffset};
+            std::array<SkScalar, 4> yCoords = {bounds.fTop,
+                                               bounds.fTop + yOuterRadius,
+                                               bounds.fBottom - yOuterRadius,
+                                               bounds.fBottom};
+            std::array<SkScalar, 4> yOuterOffsets = {
+                    yMaxOffset,
+                    SK_ScalarNearlyZero,  // we're using inversesqrt() in
+                                          // shader, so can't be exactly 0
+                    SK_ScalarNearlyZero,
+                    yMaxOffset};
 
             auto maybeScale = VertexWriter::If(fUseScale, std::max(rrect.fXRadius, rrect.fYRadius));
             for (int i = 0; i < 4; ++i) {

@@ -18,6 +18,7 @@
 #include "src/gpu/ganesh/gl/GrGLAttachment.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 
+#include <array>
 #include <cstddef>
 #include <string_view>
 
@@ -153,7 +154,7 @@ private:
     GrGLuint    fSingleSampleFBOID;
     GrGLuint    fMSColorRenderbufferID;
     GrGLFormat  fRTFormat;
-    bool        fNeedsStencilAttachmentBind[2] = {false, false};
+    std::array<bool, 2> fNeedsStencilAttachmentBind = {false, false};
     bool        fDMSAARenderToTextureFBOIsMultisample = false;
 
     GrBackendObjectOwnership fRTFBOOwnership;

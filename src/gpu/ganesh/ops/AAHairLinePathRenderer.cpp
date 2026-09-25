@@ -1005,8 +1005,8 @@ private:
     uint8_t fCoverage;
 
     Program        fCharacterization = Program::kNone;       // holds a mask of required programs
-    GrSimpleMesh*  fMeshes[3] = { nullptr };
-    GrProgramInfo* fProgramInfos[3] = { nullptr };
+    std::array<GrSimpleMesh*, 3> fMeshes = {};
+    std::array<GrProgramInfo*, 3> fProgramInfos = {};
 
     using INHERITED = GrMeshDrawOp;
 };

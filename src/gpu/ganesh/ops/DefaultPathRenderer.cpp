@@ -59,6 +59,7 @@
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 #endif
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <utility>
@@ -670,7 +671,7 @@ bool DefaultPathRenderer::internalDrawPath(skgpu::ganesh::SurfaceDrawContext* sd
     }
 
     int                          passCount = 0;
-    const GrUserStencilSettings* passes[2];
+    std::array<const GrUserStencilSettings*, 2> passes = {};
     bool                         reverse = false;
     bool                         lastPassIsBounds;
 

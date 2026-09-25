@@ -18,6 +18,7 @@
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/ir/SkSLStatement.h"  // IWYU pragma: keep
 
+#include <array>
 #include <cstdarg>
 #include <cstddef>
 #include <cstdint>
@@ -276,7 +277,7 @@ protected:
     VarArray fInputs;
     VarArray fOutputs;
     uint32_t fFeaturesAddedMask;
-    skia_private::STArray<1, SkString> fLayoutParams[kLastInterfaceQualifier + 1];
+    std::array<skia_private::STArray<1, SkString>, kLastInterfaceQualifier + 1> fLayoutParams;
     int fCodeIndex;
     bool fFinalized;
 

@@ -13,8 +13,8 @@
 #include "src/core/SkStringUtils.h"
 #include "src/gpu/ganesh/GrStencilSettings.h"
 
-#include <ctype.h>
 #include <array>
+#include <cctype>
 #include <cstdio>
 #include <cstring>
 #include <tuple>
@@ -822,15 +822,15 @@ GrGLDriverInfo GrGLGetDriverInfo(const GrGLInterface* interface) {
 }
 
 GrGLenum GrToGLStencilFunc(GrStencilTest test) {
-    static const GrGLenum gTable[kGrStencilTestCount] = {
-        GR_GL_ALWAYS,           // kAlways
-        GR_GL_NEVER,            // kNever
-        GR_GL_GREATER,          // kGreater
-        GR_GL_GEQUAL,           // kGEqual
-        GR_GL_LESS,             // kLess
-        GR_GL_LEQUAL,           // kLEqual
-        GR_GL_EQUAL,            // kEqual
-        GR_GL_NOTEQUAL,         // kNotEqual
+    static constexpr std::array<GrGLenum, kGrStencilTestCount> gTable = {
+            GR_GL_ALWAYS,    // kAlways
+            GR_GL_NEVER,     // kNever
+            GR_GL_GREATER,   // kGreater
+            GR_GL_GEQUAL,    // kGEqual
+            GR_GL_LESS,      // kLess
+            GR_GL_LEQUAL,    // kLEqual
+            GR_GL_EQUAL,     // kEqual
+            GR_GL_NOTEQUAL,  // kNotEqual
     };
     static_assert(0 == (int)GrStencilTest::kAlways);
     static_assert(1 == (int)GrStencilTest::kNever);

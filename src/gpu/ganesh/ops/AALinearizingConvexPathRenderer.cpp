@@ -53,6 +53,7 @@
 #endif
 
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <cstring>
 #include <utility>
@@ -455,9 +456,11 @@ GR_DRAW_OP_TEST_DEFINE(AAFlatteningConvexPathOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
     const SkPath& path = GrTest::TestPathConvex(random);
 
-    SkStrokeRec::Style styles[3] = { SkStrokeRec::kFill_Style,
-                                     SkStrokeRec::kStroke_Style,
-                                     SkStrokeRec::kStrokeAndFill_Style };
+    static constexpr auto styles = std::to_array<SkStrokeRec::Style>({
+            SkStrokeRec::kFill_Style,
+            SkStrokeRec::kStroke_Style,
+            SkStrokeRec::kStrokeAndFill_Style,
+    });
 
     SkStrokeRec::Style style = styles[random->nextU() % 3];
 
