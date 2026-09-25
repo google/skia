@@ -25,6 +25,8 @@
 #include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkGradient.h"
 
+#include <array>
+
 #define WIDTH 500
 #define HEIGHT 160
 
@@ -88,7 +90,7 @@ protected:
         SkColorMatrix matrix;
 
         paint.setBlendMode(SkBlendMode::kSrc);
-        const SkImage* bmps[] = { fSolidImg.get(), fTransparentImg.get() };
+        auto bmps = std::to_array<const SkImage*>({fSolidImg.get(), fTransparentImg.get()});
 
         for (size_t i = 0; i < std::size(bmps); ++i) {
             matrix.setIdentity();

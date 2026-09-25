@@ -27,6 +27,8 @@
 #include "third_party/etc1/etc1.h"
 #include "tools/gpu/CompressedTexture.h"
 
+#include <array>
+
 #if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
@@ -135,15 +137,15 @@ static CompressedImageObjects make_compressed_image(SkCanvas* canvas,
     size_t offset = 0;
 
     // Use a different color for each mipmap level so we can visually evaluate the draws
-    static const SkColor kColors[] = {
-        SK_ColorRED,
-        SK_ColorGREEN,
-        SK_ColorBLUE,
-        SK_ColorCYAN,
-        SK_ColorMAGENTA,
-        SK_ColorYELLOW,
-        SK_ColorWHITE,
-    };
+    static constexpr auto kColors = std::to_array<SkColor>({
+            SK_ColorRED,
+            SK_ColorGREEN,
+            SK_ColorBLUE,
+            SK_ColorCYAN,
+            SK_ColorMAGENTA,
+            SK_ColorYELLOW,
+            SK_ColorWHITE,
+    });
 
     SkISize levelDims = dimensions;
     for (int i = 0; i < numMipLevels; ++i) {

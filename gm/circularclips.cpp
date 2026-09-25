@@ -16,6 +16,8 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 
+#include <array>
+
 class CircularClipsGM : public skiagm::GM {
     SkScalar fX1, fX2, fY, fR;
     SkPath   fCircle1, fCircle2;
@@ -39,10 +41,10 @@ protected:
     SkISize getISize() override { return SkISize::Make(800, 200); }
 
     void onDraw(SkCanvas* canvas) override {
-        const SkClipOp ops[] = {
-            SkClipOp::kDifference,
-            SkClipOp::kIntersect
-        };
+        static constexpr auto ops = std::to_array<SkClipOp>({
+                SkClipOp::kDifference,
+                SkClipOp::kIntersect
+        });
 
         SkRect rect = SkRect::MakeLTRB(fX1 - fR, fY - fR, fX2 + fR, fY + fR);
 

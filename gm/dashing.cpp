@@ -24,8 +24,9 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
-#include <math.h>
+#include <array>
 #include <initializer_list>
+#include <math.h>
 
 static void drawline(SkCanvas* canvas, int on, int off, const SkPaint& paint,
                      SkScalar finalX = SkIntToScalar(600), SkScalar finalY = SkIntToScalar(0),
@@ -153,9 +154,12 @@ class Dashing2GM : public skiagm::GM {
             2,  2, 2
         };
 
-        SkPath (*gProc[])(const SkRect&) = {
-            make_path_line, make_path_rect, make_path_oval, make_path_star,
-        };
+        static constexpr auto gProc = std::to_array<SkPath (*)(const SkRect&)>({
+                make_path_line,
+                make_path_rect,
+                make_path_oval,
+                make_path_star,
+        });
 
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -421,15 +425,15 @@ private:
         constexpr int kOff = 4;
         constexpr int kIntervalLength = kOn + kOff;
 
-        constexpr SkColor gColors[kIntervalLength] = {
-            SK_ColorRED,
-            SK_ColorGREEN,
-            SK_ColorBLUE,
-            SK_ColorCYAN,
-            SK_ColorMAGENTA,
-            SK_ColorYELLOW,
-            SK_ColorGRAY,
-            SK_ColorDKGRAY
+        static constexpr std::array<SkColor, kIntervalLength> gColors = {
+                SK_ColorRED,
+                SK_ColorGREEN,
+                SK_ColorBLUE,
+                SK_ColorCYAN,
+                SK_ColorMAGENTA,
+                SK_ColorYELLOW,
+                SK_ColorGRAY,
+                SK_ColorDKGRAY,
         };
 
         SkPaint paint;
@@ -529,19 +533,19 @@ DEF_SIMPLE_GM(dashbigrects, canvas, 256, 256) {
     constexpr SkScalar intervals[] = { kOnOffInterval, kOnOffInterval };
     p.setPathEffect(SkDashPathEffect::Make(intervals, 0));
 
-    constexpr float gWidthHeights[] = {
-        1000000000.0f * kOnOffInterval + kOnOffInterval/2.0f,
-        1000000.0f * kOnOffInterval + kOnOffInterval/2.0f,
-        1000.0f * kOnOffInterval + kOnOffInterval/2.0f,
-        100.0f * kOnOffInterval + kOnOffInterval/2.0f,
-        10.0f * kOnOffInterval + kOnOffInterval/2.0f,
-        9.0f * kOnOffInterval + kOnOffInterval/2.0f,
-        8.0f * kOnOffInterval + kOnOffInterval/2.0f,
-        7.0f * kOnOffInterval + kOnOffInterval/2.0f,
-        6.0f * kOnOffInterval + kOnOffInterval/2.0f,
-        5.0f * kOnOffInterval + kOnOffInterval/2.0f,
-        4.0f * kOnOffInterval + kOnOffInterval/2.0f,
-    };
+    static constexpr auto gWidthHeights = std::to_array<float>({
+            1000000000.0f * kOnOffInterval + kOnOffInterval / 2.0f,
+            1000000.0f * kOnOffInterval + kOnOffInterval / 2.0f,
+            1000.0f * kOnOffInterval + kOnOffInterval / 2.0f,
+            100.0f * kOnOffInterval + kOnOffInterval / 2.0f,
+            10.0f * kOnOffInterval + kOnOffInterval / 2.0f,
+            9.0f * kOnOffInterval + kOnOffInterval / 2.0f,
+            8.0f * kOnOffInterval + kOnOffInterval / 2.0f,
+            7.0f * kOnOffInterval + kOnOffInterval / 2.0f,
+            6.0f * kOnOffInterval + kOnOffInterval / 2.0f,
+            5.0f * kOnOffInterval + kOnOffInterval / 2.0f,
+            4.0f * kOnOffInterval + kOnOffInterval / 2.0f,
+    });
 
     for (size_t i = 0; i < std::size(gWidthHeights); ++i) {
         p.setColor(ToolUtils::color_to_565(rand.nextU() | (0xFF << 24)));

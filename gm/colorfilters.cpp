@@ -23,8 +23,9 @@
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 
-#include <vector>
+#include <array>
 #include <tuple>
+#include <vector>
 
 static sk_sp<SkShader> make_shader(const SkRect& bounds) {
     const SkPoint pts[] = {
@@ -59,18 +60,19 @@ class ColorFiltersGM : public skiagm::GM {
         SkPaint paint;
         paint.setShader(make_shader(r));
 
-        const struct {
+        struct Rec {
             InstallPaint    fProc;
             uint32_t        fData0, fData1;
-        } rec[] = {
-            { install_nothing, 0, 0 },
-            { install_lighting, 0xFF0000, 0 },
-            { install_lighting, 0x00FF00, 0 },
-            { install_lighting, 0x0000FF, 0 },
-            { install_lighting, 0x000000, 0xFF0000 },
-            { install_lighting, 0x000000, 0x00FF00 },
-            { install_lighting, 0x000000, 0x0000FF },
         };
+        static constexpr auto rec = std::to_array<Rec>({
+                Rec{ install_nothing,        0,        0},
+                Rec{install_lighting, 0xFF0000,        0},
+                Rec{install_lighting, 0x00FF00,        0},
+                Rec{install_lighting, 0x0000FF,        0},
+                Rec{install_lighting, 0x000000, 0xFF0000},
+                Rec{install_lighting, 0x000000, 0x00FF00},
+                Rec{install_lighting, 0x000000, 0x0000FF},
+        });
 
         canvas->translate(10, 10);
         for (size_t i = 0; i < std::size(rec); ++i) {

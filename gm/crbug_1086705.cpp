@@ -10,6 +10,8 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathBuilder.h"
 
+#include <array>
+
 // See crbug.com/1086705. The convex linearizing path renderer would collapse too many of the
 // very-near duplicate vertices and turn the path into a triangle. Since the stroke width is larger
 // than the radius of the circle, there's the separate issue of what to do when stroke
@@ -20,7 +22,7 @@ DEF_SIMPLE_GM(crbug_1086705, canvas, 200, 200) {
     paint.setStrokeWidth(5.f);
     paint.setAntiAlias(true);
 
-    SkPoint circleVertices[700];
+    std::array<SkPoint, 700> circleVertices;
     for (int i = 0; i < 700; ++i) {
         SkScalar angleRads = 2 * SK_ScalarPI * i / 700.f;
         circleVertices[i] = {100.f + 2.f * SkScalarCos(angleRads),

@@ -279,7 +279,7 @@ protected:
         static constexpr int kS0 = 4; // First split point index in points array
         static constexpr int kS1 = 5; // Second split point index in points array
 
-        SkPoint points[6];
+        std::array<SkPoint, 6> points;
         if (quad) {
             // Copy the original 4 points into set of points to consider
             for (int i = 0; i < 4; ++i) {
@@ -292,7 +292,7 @@ protected:
 
         // Consider the first line against the 4 quad edges in tile, which should have 0,1, or 2
         // intersection points since the tile is convex.
-        int splitIndices[2]; // Edge that was intersected
+        std::array<int, 2> splitIndices;  // Edge that was intersected
         int intersectionCount = 0;
         for (int i = 0; i < 4; ++i) {
             SkPoint intersect;
@@ -386,7 +386,7 @@ protected:
         }
 
         SkPoint sub[4];
-        bool subAA[4];
+        std::array<bool, 4> subAA;
         int draws = 0;
         for (int i = 0; i < subtiles.size(); ++i) {
             // Fill in the quad points and update edge AA rules for new interior edges
@@ -410,7 +410,13 @@ protected:
             }
 
             // Split the sub quad with the next line
-            draws += this->clipTile(canvas, tileID, baseRect, sub, subAA, lines + 2, lineCount - 1,
+            draws += this->clipTile(canvas,
+                                    tileID,
+                                    baseRect,
+                                    sub,
+                                    subAA.data(),
+                                    lines + 2,
+                                    lineCount - 1,
                                     quadCount);
         }
         return draws;

@@ -19,6 +19,8 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkFloatBits.h"
 
+#include <array>
+
 using namespace skia_private;
 
 class ConicPathsGM : public skiagm::GM {
@@ -102,7 +104,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        const SkAlpha kAlphaValue[] = { 0xFF, 0x40 };
+        static constexpr auto kAlphaValue = std::to_array<SkAlpha>({0xFF, 0x40});
 
         const SkScalar margin = 15;
         canvas->translate(margin, margin);

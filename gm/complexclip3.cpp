@@ -21,6 +21,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
 #include <utility>
 
 namespace skiagm {
@@ -63,13 +64,14 @@ protected:
 
         SkFont font(ToolUtils::DefaultPortableTypeface(), 20);
 
-        constexpr struct {
+        struct Ops {
             SkClipOp    fOp;
             const char* fName;
-        } gOps[] = {
-            {SkClipOp::kIntersect,         "I"},
-            {SkClipOp::kDifference,        "D" },
         };
+        static constexpr auto gOps = std::to_array<Ops>({
+                Ops{ SkClipOp::kIntersect, "I"},
+                Ops{SkClipOp::kDifference, "D"},
+        });
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
         canvas->scale(3 * SK_Scalar1 / 4, 3 * SK_Scalar1 / 4);

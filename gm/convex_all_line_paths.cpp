@@ -19,6 +19,7 @@
 #include "include/core/SkTypes.h"
 #include "src/core/SkPathPriv.h"
 
+#include <array>
 #include <memory>
 
 static void create_ngon(int n, SkPoint* pts, SkScalar width, SkScalar height) {
@@ -142,24 +143,33 @@ const SkPoint gPoints10[] = {
     { -50.0f,  31.0f },
 };
 
-const SkPoint* gPoints[] = {
-    gPoints0, gPoints1, gPoints2, gPoints3, gPoints4, gPoints5, gPoints6,
-    gPoints7, gPoints8, gPoints9, gPoints10,
-};
+static constexpr auto gPoints = std::to_array<const SkPoint*>({
+        gPoints0,
+        gPoints1,
+        gPoints2,
+        gPoints3,
+        gPoints4,
+        gPoints5,
+        gPoints6,
+        gPoints7,
+        gPoints8,
+        gPoints9,
+        gPoints10,
+});
 
-const size_t gSizes[] = {
-    std::size(gPoints0),
-    std::size(gPoints1),
-    std::size(gPoints2),
-    std::size(gPoints3),
-    std::size(gPoints4),
-    std::size(gPoints5),
-    std::size(gPoints6),
-    std::size(gPoints7),
-    std::size(gPoints8),
-    std::size(gPoints9),
-    std::size(gPoints10),
-};
+static constexpr auto gSizes = std::to_array<size_t>({
+        std::size(gPoints0),
+        std::size(gPoints1),
+        std::size(gPoints2),
+        std::size(gPoints3),
+        std::size(gPoints4),
+        std::size(gPoints5),
+        std::size(gPoints6),
+        std::size(gPoints7),
+        std::size(gPoints8),
+        std::size(gPoints9),
+        std::size(gPoints10),
+});
 static_assert(std::size(gSizes) == std::size(gPoints), "array_mismatch");
 }  // namespace ConvexLineOnlyData
 
@@ -289,12 +299,20 @@ protected:
             }
         }
 
-        const SkColor colors[2] = { SK_ColorBLACK, SK_ColorWHITE };
-        const SkPathDirection dirs[2] = { SkPathDirection::kCW, SkPathDirection::kCCW };
-        const float scales[] = { 1.0f, 0.75f, 0.5f, 0.25f, 0.1f, 0.01f, 0.001f };
-        const SkPaint::Join joins[3] = { SkPaint::kRound_Join,
-                                         SkPaint::kBevel_Join,
-                                         SkPaint::kMiter_Join };
+        static constexpr std::array<SkColor, 2> colors = {SK_ColorBLACK, SK_ColorWHITE};
+        static constexpr std::array<SkPathDirection, 2> dirs = {SkPathDirection::kCW,
+                                                                SkPathDirection::kCCW};
+        static constexpr auto scales = std::to_array<float>({
+                1.0f,
+                0.75f,
+                0.5f,
+                0.25f,
+                0.1f,
+                0.01f,
+                0.001f,
+        });
+        static constexpr std::array<SkPaint::Join, 3> joins = {
+                SkPaint::kRound_Join, SkPaint::kBevel_Join, SkPaint::kMiter_Join};
 
         SkPaint paint;
         paint.setAntiAlias(true);

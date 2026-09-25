@@ -30,6 +30,7 @@
 #include "tools/GpuToolUtils.h"
 #include "tools/ToolUtils.h"
 
+#include <array>
 #include <utility>
 
 static sk_sp<SkShader> make_shader(SkBlendMode mode) {
@@ -87,10 +88,10 @@ protected:
     SkISize getISize() override { return SkISize::Make(750, 220); }
 
     void onDraw(SkCanvas* canvas) override {
-        sk_sp<SkShader> shaders[] = {
-            make_shader(SkBlendMode::kDstIn),
-            make_shader(SkBlendMode::kSrcOver),
-        };
+        auto shaders = std::to_array<sk_sp<SkShader>>({
+                make_shader(SkBlendMode::kDstIn),
+                make_shader(SkBlendMode::kSrcOver),
+        });
 
         SkPaint paint;
         paint.setColor(SK_ColorGREEN);
@@ -197,12 +198,12 @@ protected:
 
         SkMatrix lm = SkMatrix::Translate(0, squareLength * 0.5f);
 
-        sk_sp<SkShader> shaders[] = {
-            // gradient should appear over color bitmap
-            SkShaders::Blend(mode, fLinearGradientShader, fColorBitmapShader),
-            // gradient should appear over alpha8 bitmap colorized by the paint color
-            SkShaders::Blend(mode, fLinearGradientShader, fAlpha8BitmapShader),
-        };
+        auto shaders = std::to_array<sk_sp<SkShader>>({
+                // gradient should appear over color bitmap
+                SkShaders::Blend(mode, fLinearGradientShader, fColorBitmapShader),
+                // gradient should appear over alpha8 bitmap colorized by the paint color
+                SkShaders::Blend(mode, fLinearGradientShader, fAlpha8BitmapShader),
+        });
         if (fUseLocalMatrix) {
             for (unsigned i = 0; i < std::size(shaders); ++i) {
                 shaders[i] = shaders[i] ? shaders[i]->makeWithLocalMatrix(lm) : nullptr;

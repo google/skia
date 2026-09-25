@@ -15,6 +15,8 @@
 #include "src/core/SkColorPriv.h"
 #include "tools/timer/TimeUtils.h"
 
+#include <array>
+
 // Adapted from https://codepen.io/adamdupuis/pen/qLYzqB
 class CrBug224618GM : public skiagm::GM {
 public:
@@ -61,22 +63,22 @@ protected:
         SkM44 rotateHorizontal = SkM44::Rotate({0, 1, 0}, 2.356194490192345f);
 
         // w in degrees will need to be converted to radians
-        SkV4 axisAngles[6] = {
-            {0.f, 1.f, 0.f, -90.f}, // rotateY(-90deg)
-            {1.f, 0.f, 0.f, 0.f},   // <none>
-            {0.f, 1.f, 0.f, 90.f},  // rotateY(90deg)
-            {0.f, 1.f, 0.f, 180.f}, // rotateY(180deg)
-            {1.f, 0.f, 0.f, -90.f}, // rotateX(-90deg)
-            {1.f, 0.f, 0.f, 90.f},  // rotateX(90deg)
-        };
-        SkColor faceColors[6] = {
-            SK_ColorRED,
-            SK_ColorGREEN,
-            SK_ColorBLUE,
-            SK_ColorYELLOW,
-            SkColorSetARGB(0xFF, 0xFF, 0xA5, 0x00), // orange css
-            SkColorSetARGB(0xFF, 0x80, 0x00, 0x80)  // purple css
-        };
+        static constexpr std::array<SkV4, 6> axisAngles = {{
+                {0.f, 1.f, 0.f, -90.f},  // rotateY(-90deg)
+                {1.f, 0.f, 0.f, 0.f},    // <none>
+                {0.f, 1.f, 0.f, 90.f},   // rotateY(90deg)
+                {0.f, 1.f, 0.f, 180.f},  // rotateY(180deg)
+                {1.f, 0.f, 0.f, -90.f},  // rotateX(-90deg)
+                {1.f, 0.f, 0.f, 90.f},   // rotateX(90deg)
+        }};
+        static constexpr std::array<SkColor, 6> faceColors = {{
+                SK_ColorRED,
+                SK_ColorGREEN,
+                SK_ColorBLUE,
+                SK_ColorYELLOW,
+                SkColorSetARGB(0xFF, 0xFF, 0xA5, 0x00),  // orange css
+                SkColorSetARGB(0xFF, 0x80, 0x00, 0x80),  // purple css
+        }};
 
         for (int i = 0; i < 6; ++i) {
             SkM44 model = SkM44::Rotate({axisAngles[i].x, axisAngles[i].y, axisAngles[i].z},

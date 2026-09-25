@@ -40,6 +40,7 @@
 #include "include/gpu/graphite/Surface.h"
 #endif
 
+#include <array>
 #include <string.h>
 
 using namespace skia_private;
@@ -58,8 +59,13 @@ protected:
     SkISize getISize() override { return SkISize::Make(1024, 768); }
 
     void onDraw(SkCanvas* inputCanvas) override {
-        SkScalar textSizes[] = { 9.0f, 9.0f*2.0f, 9.0f*5.0f, 9.0f*2.0f*5.0f };
-        SkScalar scales[] = { 2.0f*5.0f, 5.0f, 2.0f, 1.0f };
+        static constexpr auto textSizes = std::to_array<SkScalar>({
+                9.0f,
+                9.0f * 2.0f,
+                9.0f * 5.0f,
+                9.0f * 2.0f * 5.0f,
+        });
+        static constexpr auto scales = std::to_array<SkScalar>({2.0f * 5.0f, 5.0f, 2.0f, 1.0f});
 
         // set up offscreen rendering with distance field text
         SkISize size = this->getISize();
@@ -159,12 +165,16 @@ protected:
 
 
         // check gamma-corrected blending
-        const SkColor fg[] = {
-            0xFFFFFFFF,
-            0xFFFFFF00, 0xFFFF00FF, 0xFF00FFFF,
-            0xFFFF0000, 0xFF00FF00, 0xFF0000FF,
-            0xFF000000,
-        };
+        static constexpr auto fg = std::to_array<SkColor>({
+                0xFFFFFFFF,
+                0xFFFFFF00,
+                0xFFFF00FF,
+                0xFF00FFFF,
+                0xFFFF0000,
+                0xFF00FF00,
+                0xFF0000FF,
+                0xFF000000,
+        });
 
         paint.setColor(0xFFF7F3F7);
         SkRect r = SkRect::MakeLTRB(670, 215, 820, 397);

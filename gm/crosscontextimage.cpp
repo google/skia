@@ -21,6 +21,8 @@
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "tools/Resources.h"
 
+#include <array>
+
 DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, rContext, canvas, errorMsg,
                            3 * 256 + 40, 256 + 128 + 30) {
     sk_sp<SkData> encodedData = GetResourceAsData("images/mandrill_256.png");
@@ -35,7 +37,7 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, rContext, canvas, errorMsg,
         return skiagm::DrawResult::kSkip;
     }
 
-    sk_sp<SkImage> images[3];
+    std::array<sk_sp<SkImage>, 3> images;
     images[0] = SkImages::DeferredFromEncodedData(encodedData);
 
     SkBitmap bmp;

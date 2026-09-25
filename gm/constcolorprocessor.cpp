@@ -41,6 +41,7 @@
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/ganesh/TestOps.h"
 
+#include <array>
 #include <utility>
 
 namespace skiagm {
@@ -82,19 +83,19 @@ protected:
             return DrawResult::kSkip;
         }
 
-        constexpr GrColor kColors[] = {
-            0xFFFFFFFF,
-            0xFFFF00FF,
-            0x80000000,
-            0x00000000,
-        };
+        static constexpr auto kColors = std::to_array<GrColor>({
+                0xFFFFFFFF,
+                0xFFFF00FF,
+                0x80000000,
+                0x00000000,
+        });
 
-        constexpr GrColor kPaintColors[] = {
-            0xFFFFFFFF,
-            0xFF0000FF,
-            0x80000080,
-            0x00000000,
-        };
+        static constexpr auto kPaintColors = std::to_array<GrColor>({
+                0xFFFFFFFF,
+                0xFF0000FF,
+                0x80000080,
+                0x00000000,
+        });
 
         SkScalar y = kPad;
         SkScalar x = kPad;

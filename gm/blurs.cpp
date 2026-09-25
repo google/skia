@@ -26,18 +26,21 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
+#include <array>
+
 DEF_SIMPLE_GM_BG(blurs, canvas, 700, 500, 0xFFDDDDDD) {
-    SkBlurStyle NONE = SkBlurStyle(-999);
-    const struct {
+    constexpr SkBlurStyle NONE = SkBlurStyle(-999);
+    struct Rec {
         SkBlurStyle fStyle;
         int         fCx, fCy;
-    } gRecs[] = {
-        { NONE,                 0,  0 },
-        { kInner_SkBlurStyle,  -1,  0 },
-        { kNormal_SkBlurStyle,  0,  1 },
-        { kSolid_SkBlurStyle,   0, -1 },
-        { kOuter_SkBlurStyle,   1,  0 },
     };
+    static constexpr auto gRecs = std::to_array<Rec>({
+            Rec{               NONE,  0,  0},
+            Rec{ kInner_SkBlurStyle, -1,  0},
+            Rec{kNormal_SkBlurStyle,  0,  1},
+            Rec{ kSolid_SkBlurStyle,  0, -1},
+            Rec{ kOuter_SkBlurStyle,  1,  0},
+    });
 
     SkPaint paint;
     paint.setAntiAlias(true);

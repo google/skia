@@ -19,6 +19,8 @@
 #include "include/core/SkTypes.h"
 #include "src/core/SkRandom.h"
 
+#include <array>
+
 namespace skiagm {
 
 class ComplexClip2GM : public GM {
@@ -89,10 +91,10 @@ protected:
         fPaths[4] = SkPath::RRect(fRects[4], 5, 5);
         fRectColors[4] = SK_ColorCYAN;
 
-        const SkClipOp ops[] = {
-            SkClipOp::kDifference,
-            SkClipOp::kIntersect,
-        };
+        static constexpr auto ops = std::to_array<SkClipOp>({
+                SkClipOp::kDifference,
+                SkClipOp::kIntersect,
+        });
 
         SkRandom r;
         for (int i = 0; i < kRows; ++i) {
@@ -198,11 +200,11 @@ protected:
 private:
     Clip fClip;
     bool fAntiAlias;
-    SkRect fRects[5];
-    SkRRect fRRects[5];
-    SkPath fPaths[5];
-    SkColor fRectColors[5];
-    SkClipOp fOps[kRows * kCols][5];
+    std::array<SkRect, 5> fRects;
+    std::array<SkRRect, 5> fRRects;
+    std::array<SkPath, 5> fPaths;
+    std::array<SkColor, 5> fRectColors;
+    std::array<std::array<SkClipOp, 5>, kRows * kCols> fOps;
     SkScalar fWidth;
     SkScalar fHeight;
     SkScalar fTotalWidth;
