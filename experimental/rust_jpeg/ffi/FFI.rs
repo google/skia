@@ -175,7 +175,7 @@ use jpeg_segment_scan::{get_segment_params, ScannedSegment, SegmentScanner};
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use zune_core::bytestream::{ZByteIoError, ZByteReaderTrait, ZCursor, ZSeekFrom};
+use zune_core::bytestream::{ZByteIoError, ZByteReaderTrait, ZSeekFrom};
 use zune_core::colorspace::ColorSpace as ZuneColorSpace;
 
 const MAX_DECODE_IMAGE_BYTES: usize = 512 * 1024 * 1024;
@@ -559,11 +559,14 @@ impl Reader {
             }
             return DecodingResult::FormatError;
         }
+        drop(raw_data);
 
         let options = zune_core::options::DecoderOptions::default().set_strict_mode(false);
 
-        let mut decoder =
-            zune_jpeg::JpegDecoder::new_with_options(ZCursor::new(raw_data.as_slice()), options);
+        let mut decoder = zune_jpeg::JpegDecoder::new_with_options(
+            GrowingJpegCursor::new(Rc::clone(&self.raw_data)),
+            options,
+        );
 
         match decoder.decode_headers() {
             Ok(()) => {}
@@ -583,7 +586,6 @@ impl Reader {
         let cs = decoder.input_colorspace().unwrap_or(ZuneColorSpace::RGB);
         let (color, bytes_per_pixel) = map_color_space(cs);
         drop(decoder);
-        drop(raw_data);
         let (width, height) = match (u32::try_from(width), u32::try_from(height)) {
             (Ok(width), Ok(height)) => (width, height),
             _ => return DecodingResult::MemoryError,
@@ -627,9 +629,10 @@ impl Reader {
             .set_strict_mode(false)
             .jpeg_set_out_colorspace(target_cs);
 
-        let raw_data = self.raw_data.borrow();
-        let mut decoder =
-            zune_jpeg::JpegDecoder::new_with_options(ZCursor::new(raw_data.as_slice()), options);
+        let mut decoder = zune_jpeg::JpegDecoder::new_with_options(
+            GrowingJpegCursor::new(Rc::clone(&self.raw_data)),
+            options,
+        );
 
         let total_bytes = match (self.width as usize)
             .checked_mul(self.height as usize)
