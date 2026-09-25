@@ -9,7 +9,6 @@
 #include "src/core/SkTaskGroup.h"
 #include "tests/Test.h"
 
-#include <array>
 #include <functional>
 
 DEF_TEST(SkSharedMutexBasic, r) {
@@ -25,7 +24,7 @@ DEF_TEST(SkSharedMutexBasic, r) {
 DEF_TEST(SkSharedMutexMultiThreaded, r) {
     SkSharedMutex sm;
     static const int kSharedSize = 10;
-    std::array<int, kSharedSize> shared;
+    int shared[kSharedSize];
     int value = 0;
     for (int i = 0; i < kSharedSize; ++i) {
         shared[i] = 0;

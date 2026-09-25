@@ -23,7 +23,6 @@
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
-#include <array>
 #include <cmath>
 #include <cstdint>
 #include <memory>
@@ -228,8 +227,8 @@ DEF_TEST(YUVMath, reporter) {
                       y2rm = SkColorMatrix::YUVtoRGB(cs);
         r2ym.postConcat(y2rm);
 
-        std::array<float, 20> tmp;
-        r2ym.getRowMajor(tmp.data());
+        float tmp[20];
+        r2ym.getRowMajor(tmp);
         for (int i = 0; i < 20; ++i) {
             float expected = 0;
             if (i % 6 == 0) {   // diagonal

@@ -31,7 +31,6 @@
 #include "tools/graphite/GraphiteTestContext.h"
 #endif  // defined(SK_GRAPHITE)
 
-#include <array>
 #include <cstdint>
 #include <functional>
 
@@ -289,68 +288,67 @@ static void run_color_space_xform_test(
          srgb_hlg_203 = SkColorSpace::MakeRGB(trfn_hlg_203(), SkNamedGamut::kSRGB),
          srgb_linear = SkColorSpace::MakeRGB(SkNamedTransferFn::kLinear, SkNamedGamut::kSRGB);
 
-    struct Rec {
+    const struct Rec {
         sk_sp<SkColorSpace> src_cs = nullptr;
-        std::array<float, 4> src_rgba = {0.f, 0.f, 0.f, 0.f};
+        float src_rgba[4] = {0.f, 0.f, 0.f, 0.f};
         sk_sp<SkColorSpace> dst_cs = nullptr;
-        std::array<float, 4> expected_rgba = {0.f, 0.f, 0.f, 0.f};
-    };
-    const auto recs = std::to_array<Rec>({
-        Rec{
+        float expected_rgba[4] = {0.f, 0.f, 0.f, 0.f};
+    } recs[] = {
+        {
             rec2020_hlg_203, {0.75f, 0.75f, 0.75f, 1.f},
             rec2020_linear,  {1.f,   1.f,   1.f,   1.f},
         },
-        Rec{
+        {
             rec2020_linear,  {1.f,   1.f,   1.f,   1.f},
             rec2020_hlg_203, {0.75f, 0.75f, 0.75f, 1.f},
         },
-        Rec{
+        {
             rec2020_hlg_12x, {0.5f, 0.5f, 0.5f, 1.f},
             rec2020_linear,  {1.f,  1.f,  1.f,  1.f},
         },
-        Rec{
+        {
             rec2020_linear,  {1.f,  1.f,  1.f,  1.f},
             rec2020_hlg_12x, {0.5f, 0.5f, 0.5f, 1.f},
         },
-        Rec{
+        {
             srgb_hlg_203, {0.1f,        0.5f,        0.75f,       1.f},
             srgb_linear,  {0.00989411f, 0.24735274f, 0.78647059f, 1.f},
         },
-        Rec{
+        {
             srgb_linear,  {0.00989411f, 0.24735274f, 0.78647059f, 1.f},
             srgb_hlg_203, {0.1f,        0.5f,        0.75f,       1.f},
         },
-        Rec{
+        {
             rec2020_pq_203, {kPq100,    kPq203,    kPq1000,    1.f},
             // Note: the blue expected component should be 1000/203, but the skcms formulation
             // of PQ evaluates to this.
             // TODO(https://issues.skia.org/issues/420956739): Investiage this.
             rec2020_linear, {100/203.f, 203/203.f, 1003/203.f, 1.f},
         },
-        Rec{
+        {
             rec2020_pq_203, {kPq203, kPq203, kPq203, 1.f},
             rec2020_pq_100, {kPq100, kPq100, kPq100, 1.f},
         },
         // Note: the next two tests use color values outside of [0,1], so this will fail if
         // there is clamping to [0,1].
-        Rec{
+        {
             rec2020_linear, {1.f,    2.03f,  10.f,    1.f},
             rec2020_pq_100, {kPq100, kPq203, kPq1000, 1.f},
         },
-        Rec{
+        {
             rec2020_pq_100, {kPq100, kPq203, kPq1000, 1.f},
             rec2020_linear, {1.f,    2.03f,  10.f,    1.f},
         },
-    });
+    };
 
     for (const auto& rec : recs) {
         if (!make_surface.has_value()) {
             SkColorSpaceXformSteps steps(rec.src_cs.get(), kUnpremul_SkAlphaType,
                                          rec.dst_cs.get(), kUnpremul_SkAlphaType);
-            std::array<float, 4> xform_rgba = {
+            float xform_rgba[4] = {
                 rec.src_rgba[0], rec.src_rgba[1], rec.src_rgba[2], rec.src_rgba[3]};
-            steps.apply(xform_rgba.data());
-            REPORTER_ASSERT(reporter, rgba_close(xform_rgba.data(),  rec.expected_rgba.data()));
+            steps.apply(xform_rgba);
+            REPORTER_ASSERT(reporter, rgba_close(xform_rgba,  rec.expected_rgba));
             continue;
         }
 
@@ -408,7 +406,7 @@ static void run_color_space_xform_test(
         REPORTER_ASSERT(reporter, rb_result);
 
         const float* rb_rgba = reinterpret_cast<const float*>(rb_bm.pixmap().addr(0, 0));
-        REPORTER_ASSERT(reporter, rgba_close(rb_rgba, rec.expected_rgba.data()));
+        REPORTER_ASSERT(reporter, rgba_close(rb_rgba, rec.expected_rgba));
     }
 }
 

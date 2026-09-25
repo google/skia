@@ -22,7 +22,6 @@
 #include "tools/Resources.h"
 
 #include <algorithm>
-#include <array>
 #include <climits>
 #include <cstdint>
 #include <cstdio>
@@ -157,12 +156,13 @@ static void TestWStream(skiatest::Reporter* reporter) {
 static void TestPackedUInt(skiatest::Reporter* reporter) {
     // we know that packeduint tries to write 1, 2 or 4 bytes for the length,
     // so we test values around each of those transitions (and a few others)
-    static constexpr auto sizes = std::to_array<size_t>({
-            0,         1,          2,          0xFC,       0xFD,       0xFE,       0xFF,
-            0x100,     0x101,      32767,      32768,      32769,      0xFFFD,     0xFFFE,
-            0xFFFF,    0x10000,    0x10001,    0xFFFFFD,   0xFFFFFE,   0xFFFFFF,   0x1000000,
-            0x1000001, 0x7FFFFFFE, 0x7FFFFFFF, 0x80000000, 0x80000001, 0xFFFFFFFE, 0xFFFFFFFF,
-    });
+    const size_t sizes[] = {
+        0, 1, 2, 0xFC, 0xFD, 0xFE, 0xFF, 0x100, 0x101, 32767, 32768, 32769,
+        0xFFFD, 0xFFFE, 0xFFFF, 0x10000, 0x10001,
+        0xFFFFFD, 0xFFFFFE, 0xFFFFFF, 0x1000000, 0x1000001,
+        0x7FFFFFFE, 0x7FFFFFFF, 0x80000000, 0x80000001, 0xFFFFFFFE, 0xFFFFFFFF
+    };
+
 
     size_t i;
     SkDynamicMemoryWStream wstream;

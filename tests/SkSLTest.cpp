@@ -56,7 +56,6 @@
 #include "tools/Resources.h"
 
 #include <algorithm>
-#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -619,7 +618,7 @@ static void test_one_permutation(skiatest::Reporter* r,
     }
 
     bool success = true;
-    std::array<std::array<SkColor, kWidth>, kHeight> color;
+    SkColor color[kHeight][kWidth];
     for (int y = 0; y < kHeight; ++y) {
         for (int x = 0; x < kWidth; ++x) {
             color[y][x] = bitmap.getColor(x, y);

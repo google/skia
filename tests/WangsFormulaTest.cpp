@@ -18,7 +18,6 @@
 #include "tests/Test.h"
 
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include <cstring>
 #include <functional>
@@ -69,7 +68,7 @@ static float wangs_formula_conic_reference_impl(float precision,
     const SkPoint C = SkPoint::Make(0.5f * (min_x + max_x), 0.5f * (min_y + max_y));
 
     // Translate control points and compute max length
-    std::array<SkPoint, 3> tP = {P[0] - C, P[1] - C, P[2] - C};
+    SkPoint tP[3] = {P[0] - C, P[1] - C, P[2] - C};
     float max_len = 0;
     for (int i = 0; i < 3; i++) {
         max_len = std::max(max_len, tP[i].length());
@@ -117,12 +116,12 @@ static void for_random_beziers(int numPoints, SkRandom* rand,
                                const std::function<void(const SkPoint[])>& f,
                                int maxExponent = 30) {
     SkASSERT(numPoints <= 4);
-    std::array<SkPoint, 4> pts;
+    SkPoint pts[4];
     for (int i = -10; i <= maxExponent; ++i) {
         for (int j = 0; j < numPoints; ++j) {
             pts[j].set(std::ldexp(1 + rand->nextF(), i), std::ldexp(1 + rand->nextF(), i));
         }
-        f(pts.data());
+        f(pts);
     }
 }
 

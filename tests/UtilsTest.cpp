@@ -254,7 +254,7 @@ DEF_TEST(SkEnumerate, reporter) {
             int i;
         };
 
-        std::array<I, 10> is;
+        I is[10];
         auto s = SkSpan(is);
         for (auto [i, v] : SkMakeEnumerate(s)) {
             new (&v) I(i);
@@ -267,8 +267,8 @@ DEF_TEST(SkEnumerate, reporter) {
     }
 
     {
-        std::array<std::unique_ptr<int>, 10> is;
-        std::array<std::unique_ptr<int>, 10> os;
+        std::unique_ptr<int> is[10];
+        std::unique_ptr<int> os[10];
         auto s = SkSpan(is);
         for (auto [i, v] : SkMakeEnumerate(s)) {
             v = std::make_unique<int>(i);
@@ -285,8 +285,8 @@ DEF_TEST(SkEnumerate, reporter) {
     }
 
     {
-        std::array<std::unique_ptr<int>, 10> is;
-        std::array<std::unique_ptr<int>, 10> os;
+        std::unique_ptr<int> is[10];
+        std::unique_ptr<int> os[10];
         auto s = SkSpan(is);
         for (auto [i, v] : SkMakeEnumerate(s)) {
             v = std::make_unique<int>(i);
@@ -304,7 +304,7 @@ DEF_TEST(SkEnumerate, reporter) {
 }
 
 DEF_TEST(SkZip, reporter) {
-    auto A = std::to_array<uint16_t>({1, 2, 3, 4});
+    uint16_t A[] = {1, 2, 3, 4};
     const float B[] = {10.f, 20.f, 30.f, 40.f};
     std::vector<int> C = {{20, 30, 40, 50}};
     std::array<int, 4> D = {{100, 200, 300, 400}};
@@ -434,7 +434,7 @@ DEF_TEST(SkZip, reporter) {
         // Check data() returns all the original pointers
         auto ptrs = z.data();
         REPORTER_ASSERT(reporter,
-                        ptrs == std::make_tuple(A.data(), &B[0], C.data(), D.data(), S.data()));
+                ptrs == std::make_tuple(&A[0], &B[0], C.data(), D.data(), S.data()));
     }
 
     {
@@ -477,8 +477,8 @@ DEF_TEST(SkZip, reporter) {
 }
 
 DEF_TEST(SkMakeZip, reporter) {
-    auto A = std::to_array<uint16_t>({1, 2, 3, 4});
-    static constexpr auto B = std::to_array<float>({10.f, 20.f, 30.f, 40.f});
+    uint16_t A[] = {1, 2, 3, 4};
+    const float B[] = {10.f, 20.f, 30.f, 40.f};
     const std::vector<int> C = {{20, 30, 40, 50}};
     std::array<int, 4> D = {{100, 200, 300, 400}};
     SkSpan<const int> S = SkSpan(C);

@@ -12,7 +12,6 @@
 #include "src/core/SkStringUtils.h"
 #include "tests/Test.h"
 
-#include <array>
 #include <cmath>
 #include <cstdarg>
 #include <cstdint>
@@ -154,27 +153,26 @@ DEF_TEST(String, reporter) {
     a.printf("hello %s", "skia");
     REPORTER_ASSERT(reporter, a.equals("hello skia"));
 
-    struct Rec {
+    static const struct {
         SkScalar    fValue;
         const char* fString;
+    } gRec[] = {
+        { 0,             "0" },
+        { SK_Scalar1,    "1" },
+        { -SK_Scalar1,   "-1" },
+        { SK_Scalar1/2,  "0.5" },
+        { INFINITY,      "inf" },
+        { -INFINITY,     "-inf" },
+        { NAN,           "nan" },
+        { -NAN,          "nan" },
+  #if defined(SK_BUILD_FOR_WIN) && (_MSC_VER < 1900)
+        { 3.4028234e38f,   "3.4028235e+038" },
+        { -3.4028234e38f, "-3.4028235e+038" },
+  #else
+        { 3.4028234e38f,   "3.4028235e+38" },
+        { -3.4028234e38f, "-3.4028235e+38" },
+  #endif
     };
-    static constexpr auto gRec = std::to_array<Rec>({
-            Rec{             0,               "0"},
-            Rec{    SK_Scalar1,               "1"},
-            Rec{   -SK_Scalar1,              "-1"},
-            Rec{SK_Scalar1 / 2,             "0.5"},
-            Rec{      INFINITY,             "inf"},
-            Rec{     -INFINITY,            "-inf"},
-            Rec{           NAN,             "nan"},
-            Rec{          -NAN,             "nan"},
-#if defined(SK_BUILD_FOR_WIN) && (_MSC_VER < 1900)
-            Rec{ 3.4028234e38f,  "3.4028235e+038"},
-            Rec{-3.4028234e38f, "-3.4028235e+038"},
-#else
-            Rec{ 3.4028234e38f,   "3.4028235e+38"},
-            Rec{-3.4028234e38f,  "-3.4028235e+38"},
-#endif
-    });
     for (size_t i = 0; i < std::size(gRec); i++) {
         a.reset();
         a.appendScalar(gRec[i].fValue);

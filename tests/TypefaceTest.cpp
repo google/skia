@@ -147,10 +147,9 @@ DEF_TEST(TypefaceGlyphToUnicode, reporter) {
                         "%d != %d", actualGlyphs, expectedGlyphs);
         return;
     }
-    std::array<SkUnichar, expectedGlyphs> codepoints;
+    SkUnichar codepoints[expectedGlyphs];
     TestSkTypefaceGlyphToUnicodeMap(*typeface, codepoints);
-    constexpr std::array<SkUnichar, expectedGlyphs> expectedCodepoints = {
-            0, 0, 0, 9747, 11035, 11036};
+    constexpr SkUnichar expectedCodepoints[expectedGlyphs] = {0, 0, 0, 9747, 11035, 11036};
     for (size_t i = 0; i < expectedGlyphs; ++i) {
         // CoreText before macOS 11 sometimes infers space (0x20) for empty glyphs.
         REPORTER_ASSERT(reporter, codepoints[i] == expectedCodepoints[i] ||
@@ -271,8 +270,7 @@ DEF_TEST(TypefaceNameIter, reporter) {
         return;
     }
 
-    constexpr auto expectedNames =
-            std::to_array<const char*>({"SpiderSymbol", "Symbole de l'Araignée"});
+    constexpr const char* expectedNames[] = { "SpiderSymbol", "Symbole de l'Araignée" };
     std::vector<bool> found(std::size(expectedNames));
     sk_sp<SkTypeface::LocalizedStrings> otherNames(typeface->createFamilyNameIterator());
     SkTypeface::LocalizedString otherName;

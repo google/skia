@@ -15,9 +15,7 @@
 #include "src/sksl/tracing/SkSLTraceHook.h"
 #include "tests/Test.h"
 
-#include <array>
 #include <cmath>
-#include <iterator>
 #include <numeric>
 
 using namespace skia_private;
@@ -352,10 +350,10 @@ DEF_TEST(SkRasterPipeline_CaseOp, reporter) {
     alignas(64) int32_t src[4 * SkRasterPipelineContexts::kMaxStride_highp] = {};
     static_assert(std::size(initial) == (4 * SkRasterPipelineContexts::kMaxStride_highp));
 
-    constexpr std::array<int32_t, 16> actualValues = {2, 1, 2, 4, 5, 2, 2, 8};
+    constexpr int32_t actualValues[16] = { 2,  1,  2,  4,  5,  2,  2,  8};
     static_assert(std::size(actualValues) == SkRasterPipelineContexts::kMaxStride_highp);
 
-    alignas(64) std::array<int32_t, 2 * SkRasterPipelineContexts::kMaxStride_highp> caseOpData;
+    alignas(64) int32_t caseOpData[2 * SkRasterPipelineContexts::kMaxStride_highp];
     for (size_t index = 0; index < SkOpts::raster_pipeline_highp_stride; ++index) {
         caseOpData[0 * SkOpts::raster_pipeline_highp_stride + index] = actualValues[index];
         caseOpData[1 * SkOpts::raster_pipeline_highp_stride + index] = ~0;
@@ -525,8 +523,8 @@ static constexpr int kLastSignalingNegNaN = 0xffbfffff;
 
 DEF_TEST(SkRasterPipeline_CopyFromIndirectUnmasked, r) {
     // Allocate space for 5 source slots, and 5 dest slots.
-    alignas(64) std::array<int, 5 * SkRasterPipelineContexts::kMaxStride_highp> src;
-    alignas(64) std::array<int, 5 * SkRasterPipelineContexts::kMaxStride_highp> dst;
+    alignas(64) int src[5 * SkRasterPipelineContexts::kMaxStride_highp];
+    alignas(64) int dst[5 * SkRasterPipelineContexts::kMaxStride_highp];
 
     // Test with various mixes of indirect offsets.
     static_assert(SkRasterPipelineContexts::kMaxStride_highp == 16);
@@ -541,8 +539,8 @@ DEF_TEST(SkRasterPipeline_CopyFromIndirectUnmasked, r) {
     for (const uint32_t* offsets : {kOffsets1, kOffsets2, kOffsets3, kOffsets4}) {
         for (int copySize = 1; copySize <= 5; ++copySize) {
             // Initialize the destination slots to 0,1,2.. and the source slots to various NaNs
-            std::iota(std::begin(dst), std::begin(dst) + 5 * N, 0);
-            std::iota(std::begin(src), std::begin(src) + 5 * N, kLastSignalingNaN);
+            std::iota(&dst[0], &dst[5 * N], 0);
+            std::iota(&src[0], &src[5 * N], kLastSignalingNaN);
 
             // Run `copy_from_indirect_unmasked` over our data.
             SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
@@ -570,7 +568,7 @@ DEF_TEST(SkRasterPipeline_CopyFromIndirectUnmasked, r) {
             // not been overwritten in the mask-off fields, for each destination slot.
             int expectedUnchanged = 0;
             int expectedFromZero = src[0 * N], expectedFromTwo = src[2 * N];
-            int* destPtr = dst.data();
+            int* destPtr = dst;
             for (int checkSlot = 0; checkSlot < 5; ++checkSlot) {
                 for (int checkLane = 0; checkLane < N; ++checkLane) {
                     if (checkSlot < copySize) {
@@ -598,8 +596,8 @@ DEF_TEST(SkRasterPipeline_CopyFromIndirectUnmasked, r) {
 DEF_TEST(SkRasterPipeline_CopyFromIndirectUniformUnmasked, r) {
     // Allocate space for 5 source uniform values, and 5 dest slots.
     // (Note that unlike slots, uniforms don't use multiple lanes per value.)
-    alignas(64) std::array<int, 5> src;
-    alignas(64) std::array<int, 5 * SkRasterPipelineContexts::kMaxStride_highp> dst;
+    alignas(64) int src[5];
+    alignas(64) int dst[5 * SkRasterPipelineContexts::kMaxStride_highp];
 
     // Test with various mixes of indirect offsets.
     static_assert(SkRasterPipelineContexts::kMaxStride_highp == 16);
@@ -614,8 +612,8 @@ DEF_TEST(SkRasterPipeline_CopyFromIndirectUniformUnmasked, r) {
     for (const uint32_t* offsets : {kOffsets1, kOffsets2, kOffsets3, kOffsets4}) {
         for (int copySize = 1; copySize <= 5; ++copySize) {
             // Initialize the destination slots to 0,1,2.. and the source uniforms to various NaNs
-            std::iota(std::begin(dst), std::begin(dst) + 5 * N, 0);
-            std::iota(std::begin(src), std::begin(src) + 5, kLastSignalingNaN);
+            std::iota(&dst[0], &dst[5 * N], 0);
+            std::iota(&src[0], &src[5], kLastSignalingNaN);
 
             // Run `copy_from_indirect_unmasked` over our data.
             SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
@@ -642,7 +640,7 @@ DEF_TEST(SkRasterPipeline_CopyFromIndirectUniformUnmasked, r) {
             // Verify that the destination has been overwritten in each slot.
             int expectedUnchanged = 0;
             int expectedFromZero = src[0], expectedFromTwo = src[2];
-            int* destPtr = dst.data();
+            int* destPtr = dst;
             for (int checkSlot = 0; checkSlot < 5; ++checkSlot) {
                 for (int checkLane = 0; checkLane < N; ++checkLane) {
                     if (checkSlot < copySize) {
@@ -669,8 +667,8 @@ DEF_TEST(SkRasterPipeline_CopyFromIndirectUniformUnmasked, r) {
 
 DEF_TEST(SkRasterPipeline_CopyToIndirectMasked, r) {
     // Allocate space for 5 source slots, and 5 dest slots.
-    alignas(64) std::array<int, 5 * SkRasterPipelineContexts::kMaxStride_highp> src;
-    alignas(64) std::array<int, 5 * SkRasterPipelineContexts::kMaxStride_highp> dst;
+    alignas(64) int src[5 * SkRasterPipelineContexts::kMaxStride_highp];
+    alignas(64) int dst[5 * SkRasterPipelineContexts::kMaxStride_highp];
 
     // Test with various mixes of indirect offsets.
     static_assert(SkRasterPipelineContexts::kMaxStride_highp == 16);
@@ -696,8 +694,8 @@ DEF_TEST(SkRasterPipeline_CopyToIndirectMasked, r) {
         for (const uint32_t* offsets : {kOffsets1, kOffsets2, kOffsets3, kOffsets4}) {
             for (int copySize = 1; copySize <= 5; ++copySize) {
                 // Initialize the destination slots to 0,1,2.. and the source slots to various NaNs
-                std::iota(std::begin(dst), std::begin(dst) + 5 * N, 0);
-                std::iota(std::begin(src), std::begin(src) + 5 * N, kLastSignalingNaN);
+                std::iota(&dst[0], &dst[5 * N], 0);
+                std::iota(&src[0], &src[5 * N], kLastSignalingNaN);
 
                 // Run `copy_to_indirect_masked` over our data.
                 SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
@@ -728,7 +726,7 @@ DEF_TEST(SkRasterPipeline_CopyToIndirectMasked, r) {
                 // not been overwritten in the mask-off fields, for each destination slot.
                 int expectedUnchanged = 0;
                 int expectedFromZero = src[0], expectedFromTwo = src[0] - (2 * N);
-                int* destPtr = dst.data();
+                int* destPtr = dst;
                 int pos = 0;
                 for (int checkSlot = 0; checkSlot < 5; ++checkSlot) {
                     for (int checkLane = 0; checkLane < N; ++checkLane) {
@@ -760,8 +758,8 @@ DEF_TEST(SkRasterPipeline_CopyToIndirectMasked, r) {
 
 DEF_TEST(SkRasterPipeline_SwizzleCopyToIndirectMasked, r) {
     // Allocate space for 5 source slots, and 5 dest slots.
-    alignas(64) std::array<int, 5 * SkRasterPipelineContexts::kMaxStride_highp> src;
-    alignas(64) std::array<int, 5 * SkRasterPipelineContexts::kMaxStride_highp> dst;
+    alignas(64) int src[5 * SkRasterPipelineContexts::kMaxStride_highp];
+    alignas(64) int dst[5 * SkRasterPipelineContexts::kMaxStride_highp];
 
     // Test with various mixes of indirect offsets.
     static_assert(SkRasterPipelineContexts::kMaxStride_highp == 16);
@@ -785,15 +783,15 @@ DEF_TEST(SkRasterPipeline_SwizzleCopyToIndirectMasked, r) {
     struct TestPattern {
         int swizzleSize;
         int swizzleUpperBound;
-        std::array<uint16_t, 4> swizzle;
+        uint16_t swizzle[4];
     };
 
-    static const auto kPatterns = std::to_array<TestPattern>({
-            TestPattern{1, 4,          {3}}, // v.w    = (1)
-            TestPattern{2, 2,       {1, 0}}, // v.yx   = (1,2)
-            TestPattern{3, 3,    {2, 1, 0}}, // v.zyx  = (1,2,3)
-            TestPattern{4, 4, {3, 0, 1, 2}}, // v.wxyz = (1,2,3,4)
-    });
+    static const TestPattern kPatterns[] = {
+        {1, 4, {3}},          // v.w    = (1)
+        {2, 2, {1, 0}},       // v.yx   = (1,2)
+        {3, 3, {2, 1, 0}},    // v.zyx  = (1,2,3)
+        {4, 4, {3, 0, 1, 2}}, // v.wxyz = (1,2,3,4)
+    };
 
     enum Result {
         kOutOfBounds = 0,
@@ -807,14 +805,14 @@ DEF_TEST(SkRasterPipeline_SwizzleCopyToIndirectMasked, r) {
 
 #define __ kUnchanged
 #define XX kOutOfBounds
-    static constexpr std::array<std::array<Result, 5>, 4> kExpectationsAtZero = {{
+    static const Result kExpectationsAtZero[4][5] = {
     //  d[0].w = 1        d[0].yx = (1,2)   d[0].zyx = (1,2,3) d[0].wxyz = (1,2,3,4)
         {__,__,__,S0,__}, {S1,S0,__,__,__}, {S2,S1,S0,__,__},  {S1,S2,S3,S0,__},
-    }};
-    static constexpr std::array<std::array<Result, 5>, 4> kExpectationsAtTwo = {{
+    };
+    static const Result kExpectationsAtTwo[4][5] = {
     //  d[2].w = 1        d[2].yx = (1,2)   d[2].zyx = (1,2,3) d[2].wxyz = (1,2,3,4)
         {XX,XX,XX,XX,XX}, {__,__,S1,S0,__}, {__,__,S2,S1,S0},  {XX,XX,XX,XX,XX},
-    }};
+    };
 #undef __
 #undef XX
 
@@ -826,8 +824,8 @@ DEF_TEST(SkRasterPipeline_SwizzleCopyToIndirectMasked, r) {
                 const TestPattern& pattern = kPatterns[patternIndex];
 
                 // Initialize the destination slots to 0,1,2.. and the source slots to various NaNs
-                std::iota(std::begin(dst), std::begin(dst) + 5 * N, 0);
-                std::iota(std::begin(src), std::begin(src) + 5 * N, kLastSignalingNaN);
+                std::iota(&dst[0], &dst[5 * N], 0);
+                std::iota(&src[0], &src[5 * N], kLastSignalingNaN);
 
                 // Run `swizzle_copy_to_indirect_masked` over our data.
                 SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
@@ -861,7 +859,7 @@ DEF_TEST(SkRasterPipeline_SwizzleCopyToIndirectMasked, r) {
                 // Verify that the destination has been overwritten in the mask-on fields, and has
                 // not been overwritten in the mask-off fields, for each destination slot.
                 int expectedUnchanged = 0;
-                int* destPtr = dst.data();
+                int* destPtr = dst;
                 for (int checkSlot = 0; checkSlot < 5; ++checkSlot) {
                     for (int checkLane = 0; checkLane < N; ++checkLane) {
                         Result expectedType = kUnchanged;
@@ -931,18 +929,18 @@ DEF_TEST(SkRasterPipeline_TraceVar, r) {
                                                              0,  0,  0,  0,  0,  0,  0,  0};
     alignas(64) static constexpr uint32_t kIndirect1[16] = { 1,  1,  1,  1,  1,  1,  1,  1,
                                                              1,  1,  1,  1,  1,  1,  1,  1};
-    alignas(64) std::array<int32_t, 16> kData333;
-    alignas(64) std::array<int32_t, 16> kData555;
-    alignas(64) std::array<int32_t, 16> kData666;
-    alignas(64) std::array<int32_t, 32> kData777;
-    alignas(64) std::array<int32_t, 32> kData999;
-    std::fill(kData333.data(),     kData333.data() + N,     333);
-    std::fill(kData555.data(),     kData555.data() + N,     555);
-    std::fill(kData666.data(),     kData666.data() + N,     666);
-    std::fill(kData777.data(),     kData777.data() + N,     777);
-    std::fill(kData777.data() + N, kData777.data() + 2 * N, 707);
-    std::fill(kData999.data(),     kData999.data() + N,     999);
-    std::fill(kData999.data() + N, kData999.data() + 2 * N, 909);
+    alignas(64) int32_t kData333[16];
+    alignas(64) int32_t kData555[16];
+    alignas(64) int32_t kData666[16];
+    alignas(64) int32_t kData777[32];
+    alignas(64) int32_t kData999[32];
+    std::fill(kData333,     kData333 + N,   333);
+    std::fill(kData555,     kData555 + N,   555);
+    std::fill(kData666,     kData666 + N,   666);
+    std::fill(kData777,     kData777 + N,   777);
+    std::fill(kData777 + N, kData777 + 2*N, 707);
+    std::fill(kData999,     kData999 + N,   999);
+    std::fill(kData999 + N, kData999 + 2*N, 909);
 
     TestTraceHook trace;
     SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
@@ -950,54 +948,33 @@ DEF_TEST(SkRasterPipeline_TraceVar, r) {
     SkRasterPipelineContexts::InitLaneMasksCtx initLaneMasksCtx;
     p.append(SkRasterPipelineOp::init_lane_masks, &initLaneMasksCtx);
     const SkRasterPipelineContexts::TraceVarCtx kTraceVar1 = {/*traceMask=*/kMaskOff,
-                                                              &trace,
-                                                              2,
-                                                              1,
-                                                              kData333.data(),
-                                                              /*indirectOffset=*/nullptr,
-                                                              /*indirectLimit=*/0};
+                                                     &trace, 2, 1, kData333,
+                                                     /*indirectOffset=*/nullptr,
+                                                     /*indirectLimit=*/0};
     const SkRasterPipelineContexts::TraceVarCtx kTraceVar2 = {/*traceMask=*/kMaskOn,
-                                                              &trace,
-                                                              4,
-                                                              1,
-                                                              kData555.data(),
-                                                              /*indirectOffset=*/nullptr,
-                                                              /*indirectLimit=*/0};
+                                                     &trace, 4, 1, kData555,
+                                                     /*indirectOffset=*/nullptr,
+                                                     /*indirectLimit=*/0};
     const SkRasterPipelineContexts::TraceVarCtx kTraceVar3 = {/*traceMask=*/kMaskOff,
-                                                              &trace,
-                                                              5,
-                                                              1,
-                                                              kData666.data(),
-                                                              /*indirectOffset=*/nullptr,
-                                                              /*indirectLimit=*/0};
+                                                     &trace, 5, 1, kData666,
+                                                     /*indirectOffset=*/nullptr,
+                                                     /*indirectLimit=*/0};
     const SkRasterPipelineContexts::TraceVarCtx kTraceVar4 = {/*traceMask=*/kMaskOn,
-                                                              &trace,
-                                                              6,
-                                                              2,
-                                                              kData777.data(),
-                                                              /*indirectOffset=*/nullptr,
-                                                              /*indirectLimit=*/0};
+                                                     &trace, 6, 2, kData777,
+                                                     /*indirectOffset=*/nullptr,
+                                                     /*indirectLimit=*/0};
     const SkRasterPipelineContexts::TraceVarCtx kTraceVar5 = {/*traceMask=*/kMaskOn,
-                                                              &trace,
-                                                              8,
-                                                              2,
-                                                              kData999.data(),
-                                                              /*indirectOffset=*/nullptr,
-                                                              /*indirectLimit=*/0};
+                                                     &trace, 8, 2, kData999,
+                                                     /*indirectOffset=*/nullptr,
+                                                     /*indirectLimit=*/0};
     const SkRasterPipelineContexts::TraceVarCtx kTraceVar6 = {/*traceMask=*/kMaskOn,
-                                                              &trace,
-                                                              9,
-                                                              1,
-                                                              kData999.data(),
-                                                              /*indirectOffset=*/kIndirect0,
-                                                              /*indirectLimit=*/1};
+                                                     &trace, 9, 1, kData999,
+                                                     /*indirectOffset=*/kIndirect0,
+                                                     /*indirectLimit=*/1};
     const SkRasterPipelineContexts::TraceVarCtx kTraceVar7 = {/*traceMask=*/kMaskOn,
-                                                              &trace,
-                                                              9,
-                                                              1,
-                                                              kData999.data(),
-                                                              /*indirectOffset=*/kIndirect1,
-                                                              /*indirectLimit=*/1};
+                                                     &trace, 9, 1, kData999,
+                                                     /*indirectOffset=*/kIndirect1,
+                                                     /*indirectLimit=*/1};
 
     p.append(SkRasterPipelineOp::load_condition_mask, kMaskOn);
     p.append(SkRasterPipelineOp::trace_var, &kTraceVar1);
@@ -1162,7 +1139,7 @@ DEF_TEST(SkRasterPipeline_TraceScope, r) {
 
 DEF_TEST(SkRasterPipeline_CopySlotsMasked, r) {
     // Allocate space for 5 source slots and 5 dest slots.
-    alignas(64) std::array<int, 10 * SkRasterPipelineContexts::kMaxStride_highp> slots;
+    alignas(64) int slots[10 * SkRasterPipelineContexts::kMaxStride_highp];
     const int srcIndex = 0, dstIndex = 5;
 
     struct CopySlotsOp {
@@ -1192,10 +1169,8 @@ DEF_TEST(SkRasterPipeline_CopySlotsMasked, r) {
     for (const CopySlotsOp& op : kCopyOps) {
         for (const int32_t* mask : {kMask1, kMask2, kMask3, kMask4}) {
             // Initialize the destination slots to 0,1,2.. and the source slots to various NaNs
-            std::iota(std::begin(slots) + N * dstIndex, std::begin(slots) + N * (dstIndex + 5), 0);
-            std::iota(std::begin(slots) + N * srcIndex,
-                      std::begin(slots) + N * (srcIndex + 5),
-                      kLastSignalingNaN);
+            std::iota(&slots[N * dstIndex],  &slots[N * (dstIndex + 5)], 0);
+            std::iota(&slots[N * srcIndex],  &slots[N * (srcIndex + 5)], kLastSignalingNaN);
 
             // Run `copy_slots_masked` over our data.
             SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
@@ -1234,7 +1209,7 @@ DEF_TEST(SkRasterPipeline_CopySlotsMasked, r) {
 
 DEF_TEST(SkRasterPipeline_CopySlotsUnmasked, r) {
     // Allocate space for 5 source slots and 5 dest slots.
-    alignas(64) std::array<int, 10 * SkRasterPipelineContexts::kMaxStride_highp> slots;
+    alignas(64) int slots[10 * SkRasterPipelineContexts::kMaxStride_highp];
     const int srcIndex = 0, dstIndex = 5;
     const int N = SkOpts::raster_pipeline_highp_stride;
 
@@ -1252,10 +1227,8 @@ DEF_TEST(SkRasterPipeline_CopySlotsUnmasked, r) {
 
     for (const CopySlotsOp& op : kCopyOps) {
         // Initialize the destination slots to 0,1,2.. and the source slots to various NaNs
-        std::iota(std::begin(slots) + N * dstIndex, std::begin(slots) + N * (dstIndex + 5), 0);
-        std::iota(std::begin(slots) + N * srcIndex,
-                  std::begin(slots) + N * (srcIndex + 5),
-                  kLastSignalingNaN);
+        std::iota(&slots[N * dstIndex],  &slots[N * (dstIndex + 5)], 0);
+        std::iota(&slots[N * srcIndex],  &slots[N * (srcIndex + 5)], kLastSignalingNaN);
 
         // Run `copy_slots_unmasked` over our data.
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
@@ -1288,8 +1261,8 @@ DEF_TEST(SkRasterPipeline_CopySlotsUnmasked, r) {
 
 DEF_TEST(SkRasterPipeline_CopyUniforms, r) {
     // Allocate space for 5 dest slots.
-    alignas(64) std::array<int, 5 * SkRasterPipelineContexts::kMaxStride_highp> slots;
-    std::array<int, 5> uniforms;
+    alignas(64) int slots[5 * SkRasterPipelineContexts::kMaxStride_highp];
+    int uniforms[5];
     const int N = SkOpts::raster_pipeline_highp_stride;
 
     struct CopyUniformsOp {
@@ -1306,16 +1279,16 @@ DEF_TEST(SkRasterPipeline_CopyUniforms, r) {
 
     for (const CopyUniformsOp& op : kCopyOps) {
         // Initialize the destination slots to 1,2,3...
-        std::iota(std::begin(slots), std::begin(slots) + 5 * N, 1);
+        std::iota(&slots[0], &slots[5 * N], 1);
         // Initialize the uniform buffer to various NaNs
-        std::iota(std::begin(uniforms), std::begin(uniforms) + 5, kLastSignalingNaN);
+        std::iota(&uniforms[0], &uniforms[5], kLastSignalingNaN);
 
         // Run `copy_n_uniforms` over our data.
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
         auto* ctx = alloc.make<SkRasterPipelineContexts::UniformCtx>();
-        ctx->dst = slots.data();
-        ctx->src = uniforms.data();
+        ctx->dst = slots;
+        ctx->src = uniforms;
         p.append(op.stage, ctx);
         p.run(0,0,1,1);
 
@@ -1341,12 +1314,12 @@ DEF_TEST(SkRasterPipeline_CopyUniforms, r) {
 
 DEF_TEST(SkRasterPipeline_CopyConstant, r) {
     // Allocate space for 5 dest slots.
-    alignas(64) std::array<int, 5 * SkRasterPipelineContexts::kMaxStride_highp> slots;
+    alignas(64) int slots[5 * SkRasterPipelineContexts::kMaxStride_highp];
     const int N = SkOpts::raster_pipeline_highp_stride;
 
     for (int index = 0; index < 5; ++index) {
         // Initialize the destination slots to 1,2,3...
-        std::iota(std::begin(slots), std::begin(slots) + 5 * N, 1);
+        std::iota(&slots[0], &slots[5 * N], 1);
 
         // Overwrite one destination slot with a constant (some NaN based on slot number).
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
@@ -1378,26 +1351,25 @@ DEF_TEST(SkRasterPipeline_CopyConstant, r) {
 
 DEF_TEST(SkRasterPipeline_Swizzle, r) {
     // Allocate space for 4 dest slots.
-    alignas(64) std::array<int, 4 * SkRasterPipelineContexts::kMaxStride_highp> slots;
+    alignas(64) int slots[4 * SkRasterPipelineContexts::kMaxStride_highp];
     const int N = SkOpts::raster_pipeline_highp_stride;
 
     struct TestPattern {
         SkRasterPipelineOp stage;
-        std::array<uint8_t, 4> swizzle;
-        std::array<uint8_t, 4> expectation;
+        uint8_t swizzle[4];
+        uint8_t expectation[4];
     };
-    using Op = SkRasterPipelineOp;
-    static constexpr auto kPatterns = std::to_array<TestPattern>({
-            TestPattern{Op::swizzle_1, {3},          {3, 1, 2, 3}}, // (1,2,3,4).w    = (4)
-            TestPattern{Op::swizzle_2, {1, 0},       {1, 0, 2, 3}}, // (1,2,3,4).yx   = (2,1)
-            TestPattern{Op::swizzle_3, {2, 2, 2},    {2, 2, 2, 3}}, // (1,2,3,4).zzz  = (3,3,3)
-            TestPattern{Op::swizzle_4, {0, 0, 1, 2}, {0, 0, 1, 2}}, // (1,2,3,4).xxyz = (1,1,2,3)
-    });
+    static const TestPattern kPatterns[] = {
+        {SkRasterPipelineOp::swizzle_1, {3},          {3, 1, 2, 3}}, // (1,2,3,4).w    = (4)
+        {SkRasterPipelineOp::swizzle_2, {1, 0},       {1, 0, 2, 3}}, // (1,2,3,4).yx   = (2,1)
+        {SkRasterPipelineOp::swizzle_3, {2, 2, 2},    {2, 2, 2, 3}}, // (1,2,3,4).zzz  = (3,3,3)
+        {SkRasterPipelineOp::swizzle_4, {0, 0, 1, 2}, {0, 0, 1, 2}}, // (1,2,3,4).xxyz = (1,1,2,3)
+    };
     static_assert(sizeof(TestPattern::swizzle) == sizeof(SkRasterPipelineContexts::SwizzleCtx::offsets));
 
     for (const TestPattern& pattern : kPatterns) {
         // Initialize the destination slots to various NaNs
-        std::iota(std::begin(slots), std::begin(slots) + 4 * N, kLastSignalingNaN);
+        std::iota(&slots[0], &slots[4 * N], kLastSignalingNaN);
 
         // Apply the test-pattern swizzle.
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
@@ -1430,17 +1402,16 @@ DEF_TEST(SkRasterPipeline_SwizzleCopy, r) {
 
     struct TestPattern {
         SkRasterPipelineOp op;
-        std::array<uint16_t, 4> swizzle;
-        std::array<uint16_t, 4> expectation;
+        uint16_t swizzle[4];
+        uint16_t expectation[4];
     };
     constexpr uint16_t _ = ~0;
-    using Op = SkRasterPipelineOp;
-    static constexpr auto kPatterns = std::to_array<TestPattern>({
-            TestPattern{Op::swizzle_copy_slot_masked,    {3,_,_,_}, {_,_,_,0}}, //v.w    = (1)
-            TestPattern{Op::swizzle_copy_2_slots_masked, {1,0,_,_}, {1,0,_,_}}, //v.yx   = (1,2)
-            TestPattern{Op::swizzle_copy_3_slots_masked, {2,3,0,_}, {2,_,0,1}}, //v.zwy  = (1,2,3)
-            TestPattern{Op::swizzle_copy_4_slots_masked, {3,0,1,2}, {1,2,3,0}}, //v.wxyz = (1,2,3,4)
-    });
+    static const TestPattern kPatterns[] = {
+        {SkRasterPipelineOp::swizzle_copy_slot_masked,    {3,_,_,_}, {_,_,_,0}},//v.w    = (1)
+        {SkRasterPipelineOp::swizzle_copy_2_slots_masked, {1,0,_,_}, {1,0,_,_}},//v.yx   = (1,2)
+        {SkRasterPipelineOp::swizzle_copy_3_slots_masked, {2,3,0,_}, {2,_,0,1}},//v.zwy  = (1,2,3)
+        {SkRasterPipelineOp::swizzle_copy_4_slots_masked, {3,0,1,2}, {1,2,3,0}},//v.wxyz = (1,2,3,4)
+    };
     static_assert(sizeof(TestPattern::swizzle) == sizeof(SkRasterPipelineContexts::SwizzleCopyCtx::offsets));
 
     for (const TestPattern& pattern : kPatterns) {
@@ -1448,15 +1419,15 @@ DEF_TEST(SkRasterPipeline_SwizzleCopy, r) {
         alignas(64) int dest[4 * SkRasterPipelineContexts::kMaxStride_highp] = {};
 
         // Allocate 4 source slots and initialize them to various NaNs
-        alignas(64) std::array<int, 4 * SkRasterPipelineContexts::kMaxStride_highp> source = {};
-        std::iota(std::begin(source), std::begin(source) + 4 * N, kLastSignalingNaN);
+        alignas(64) int source[4 * SkRasterPipelineContexts::kMaxStride_highp] = {};
+        std::iota(&source[0 * N], &source[4 * N], kLastSignalingNaN);
 
         // Apply the dest-swizzle pattern.
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
         SkRasterPipelineContexts::InitLaneMasksCtx initLaneMasksCtx;
         SkRasterPipelineContexts::SwizzleCopyCtx ctx = {};
-        ctx.src = source.data();
+        ctx.src = source;
         ctx.dst = dest;
         for (size_t index = 0; index < std::size(ctx.offsets); ++index) {
             if (pattern.swizzle[index] != _) {
@@ -1486,41 +1457,41 @@ DEF_TEST(SkRasterPipeline_SwizzleCopy, r) {
 
 DEF_TEST(SkRasterPipeline_Shuffle, r) {
     // Allocate space for 16 dest slots.
-    alignas(64) std::array<int, 16 * SkRasterPipelineContexts::kMaxStride_highp> slots;
+    alignas(64) int slots[16 * SkRasterPipelineContexts::kMaxStride_highp];
     const int N = SkOpts::raster_pipeline_highp_stride;
 
     struct TestPattern {
         int count;
-        std::array<uint16_t, 16> shuffle;
-        std::array<uint16_t, 16> expectation;
+        uint16_t shuffle[16];
+        uint16_t expectation[16];
     };
-    static constexpr auto kPatterns = std::to_array<TestPattern>({
-        TestPattern{9,  { 0,  3,  6,
-                          1,  4,  7,
-                          2,  5,  8, /* past end: */  0,  0,  0,  0,  0,  0,  0},
-                        { 0,  3,  6,
-                          1,  4,  7,
-                          2,  5,  8, /* unchanged: */ 9, 10, 11, 12, 13, 14, 15}},
-        TestPattern{16, { 0,  4,  8, 12,
-                          1,  5,  9, 13,
-                          2,  6, 10, 14,
-                          3,  7, 11, 15},
-                        { 0,  4,  8, 12,
-                          1,  5,  9, 13,
-                          2,  6, 10, 14,
-                          3,  7, 11, 15}},
-    });
+    static const TestPattern kPatterns[] = {
+        {9,  { 0,  3,  6,
+               1,  4,  7,
+               2,  5,  8, /* past end: */  0,  0,  0,  0,  0,  0,  0},
+             { 0,  3,  6,
+               1,  4,  7,
+               2,  5,  8, /* unchanged: */ 9, 10, 11, 12, 13, 14, 15}},
+        {16, { 0,  4,  8, 12,
+               1,  5,  9, 13,
+               2,  6, 10, 14,
+               3,  7, 11, 15},
+             { 0,  4,  8, 12,
+               1,  5,  9, 13,
+               2,  6, 10, 14,
+               3,  7, 11, 15}},
+    };
     static_assert(sizeof(TestPattern::shuffle) == sizeof(SkRasterPipelineContexts::ShuffleCtx::offsets));
 
     for (const TestPattern& pattern : kPatterns) {
         // Initialize the destination slots to various NaNs
-        std::iota(std::begin(slots), std::begin(slots) + 16 * N, kLastSignalingNaN);
+        std::iota(&slots[0], &slots[16 * N], kLastSignalingNaN);
 
         // Apply the shuffle.
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
         SkRasterPipelineContexts::ShuffleCtx ctx;
-        ctx.ptr = slots.data();
+        ctx.ptr = slots;
         ctx.count = pattern.count;
         for (size_t index = 0; index < std::size(ctx.offsets); ++index) {
             ctx.offsets[index] = pattern.shuffle[index] * N * sizeof(float);
@@ -1543,11 +1514,11 @@ DEF_TEST(SkRasterPipeline_Shuffle, r) {
 }
 
 DEF_TEST(SkRasterPipeline_MatrixMultiply2x2, reporter) {
-    alignas(64) std::array<float, 12 * SkRasterPipelineContexts::kMaxStride_highp> slots;
+    alignas(64) float slots[12 * SkRasterPipelineContexts::kMaxStride_highp];
     const int N = SkOpts::raster_pipeline_highp_stride;
 
     // Populate the left- and right-matrix data. Slots 0-3 hold the result and are left as-is.
-    std::iota(std::begin(slots) + 4 * N, std::begin(slots) + 12 * N, 1.0f);
+    std::iota(&slots[4 * N], &slots[12 * N], 1.0f);
 
     // Perform a 2x2 matrix multiply.
     SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
@@ -1560,18 +1531,18 @@ DEF_TEST(SkRasterPipeline_MatrixMultiply2x2, reporter) {
     p.run(0,0,1,1);
 
     // Verify that the result slots hold a 2x2 matrix multiply.
-    const std::array<std::array<const float*, 2>, 2> destPtr = {{
+    const float* const destPtr[2][2] = {
             {&slots[0 * N], &slots[1 * N]},
             {&slots[2 * N], &slots[3 * N]},
-    }};
-    const std::array<std::array<const float*, 2>, 2> leftMtx = {{
+    };
+    const float* const leftMtx[2][2] = {
             {&slots[4 * N], &slots[5 * N]},
             {&slots[6 * N], &slots[7 * N]},
-    }};
-    const std::array<std::array<const float*, 2>, 2> rightMtx = {{
-            {&slots[8 * N], &slots[9 * N]},
+    };
+    const float* const rightMtx[2][2] = {
+            {&slots[8 * N],  &slots[9 * N]},
             {&slots[10 * N], &slots[11 * N]},
-    }};
+    };
 
     for (int c = 0; c < 2; ++c) {
         for (int r = 0; r < 2; ++r) {
@@ -1588,7 +1559,7 @@ DEF_TEST(SkRasterPipeline_MatrixMultiply2x2, reporter) {
 }
 
 DEF_TEST(SkRasterPipeline_MatrixMultiply3x3, reporter) {
-    alignas(64) std::array<float, 27 * SkRasterPipelineContexts::kMaxStride_highp> slots;
+    alignas(64) float slots[27 * SkRasterPipelineContexts::kMaxStride_highp];
     const int N = SkOpts::raster_pipeline_highp_stride;
 
     // Populate the left- and right-matrix data. Slots 0-8 hold the result and are left as-is.
@@ -1610,21 +1581,21 @@ DEF_TEST(SkRasterPipeline_MatrixMultiply3x3, reporter) {
     p.run(0,0,1,1);
 
     // Verify that the result slots hold a 3x3 matrix multiply.
-    const std::array<std::array<const float*, 3>, 3> destPtr = {{
+    const float* const destPtr[3][3] = {
             {&slots[0 * N], &slots[1 * N], &slots[2 * N]},
             {&slots[3 * N], &slots[4 * N], &slots[5 * N]},
             {&slots[6 * N], &slots[7 * N], &slots[8 * N]},
-    }};
-    const std::array<std::array<const float*, 3>, 3> leftMtx = {{
-            {&slots[ 9 * N], &slots[10 * N], &slots[11 * N]},
+    };
+    const float* const leftMtx[3][3] = {
+            {&slots[9 * N],  &slots[10 * N], &slots[11 * N]},
             {&slots[12 * N], &slots[13 * N], &slots[14 * N]},
             {&slots[15 * N], &slots[16 * N], &slots[17 * N]},
-    }};
-    const std::array<std::array<const float*, 3>, 3> rightMtx = {{
+    };
+    const float* const rightMtx[3][3] = {
             {&slots[18 * N], &slots[19 * N], &slots[20 * N]},
             {&slots[21 * N], &slots[22 * N], &slots[23 * N]},
             {&slots[24 * N], &slots[25 * N], &slots[26 * N]},
-    }};
+    };
 
     for (int c = 0; c < 3; ++c) {
         for (int r = 0; r < 3; ++r) {
@@ -1641,7 +1612,7 @@ DEF_TEST(SkRasterPipeline_MatrixMultiply3x3, reporter) {
 }
 
 DEF_TEST(SkRasterPipeline_MatrixMultiply4x4, reporter) {
-    alignas(64) std::array<float, 48 * SkRasterPipelineContexts::kMaxStride_highp> slots;
+    alignas(64) float slots[48 * SkRasterPipelineContexts::kMaxStride_highp];
     const int N = SkOpts::raster_pipeline_highp_stride;
 
     // Populate the left- and right-matrix data. Slots 0-8 hold the result and are left as-is.
@@ -1663,24 +1634,24 @@ DEF_TEST(SkRasterPipeline_MatrixMultiply4x4, reporter) {
     p.run(0,0,1,1);
 
     // Verify that the result slots hold a 4x4 matrix multiply.
-    const std::array<std::array<const float*, 4>, 4> destPtr = {{
-            {&slots[ 0 * N], &slots[ 1 * N], &slots[ 2 * N], &slots[ 3 * N]},
-            {&slots[ 4 * N], &slots[ 5 * N], &slots[ 6 * N], &slots[ 7 * N]},
-            {&slots[ 8 * N], &slots[ 9 * N], &slots[10 * N], &slots[11 * N]},
+    const float* const destPtr[4][4] = {
+            {&slots[0 * N],  &slots[1 * N],  &slots[2 * N],  &slots[3 * N]},
+            {&slots[4 * N],  &slots[5 * N],  &slots[6 * N],  &slots[7 * N]},
+            {&slots[8 * N],  &slots[9 * N],  &slots[10 * N], &slots[11 * N]},
             {&slots[12 * N], &slots[13 * N], &slots[14 * N], &slots[15 * N]},
-    }};
-    const std::array<std::array<const float*, 4>, 4> leftMtx = {{
+    };
+    const float* const leftMtx[4][4] = {
             {&slots[16 * N], &slots[17 * N], &slots[18 * N], &slots[19 * N]},
             {&slots[20 * N], &slots[21 * N], &slots[22 * N], &slots[23 * N]},
             {&slots[24 * N], &slots[25 * N], &slots[26 * N], &slots[27 * N]},
             {&slots[28 * N], &slots[29 * N], &slots[30 * N], &slots[31 * N]},
-    }};
-    const std::array<std::array<const float*, 4>, 4> rightMtx = {{
+    };
+    const float* const rightMtx[4][4] = {
             {&slots[32 * N], &slots[33 * N], &slots[34 * N], &slots[35 * N]},
             {&slots[36 * N], &slots[37 * N], &slots[38 * N], &slots[39 * N]},
             {&slots[40 * N], &slots[41 * N], &slots[42 * N], &slots[43 * N]},
             {&slots[44 * N], &slots[45 * N], &slots[46 * N], &slots[47 * N]},
-    }};
+    };
 
     for (int c = 0; c < 4; ++c) {
         for (int r = 0; r < 4; ++r) {
@@ -1698,7 +1669,7 @@ DEF_TEST(SkRasterPipeline_MatrixMultiply4x4, reporter) {
 
 DEF_TEST(SkRasterPipeline_FloatArithmeticWithNSlots, r) {
     // Allocate space for 5 dest and 5 source slots.
-    alignas(64) std::array<float, 10 * SkRasterPipelineContexts::kMaxStride_highp> slots;
+    alignas(64) float slots[10 * SkRasterPipelineContexts::kMaxStride_highp];
     const int N = SkOpts::raster_pipeline_highp_stride;
 
     struct ArithmeticOp {
@@ -1716,7 +1687,7 @@ DEF_TEST(SkRasterPipeline_FloatArithmeticWithNSlots, r) {
     for (const ArithmeticOp& op : kArithmeticOps) {
         for (int numSlotsAffected = 1; numSlotsAffected <= 5; ++numSlotsAffected) {
             // Initialize the slot values to 1,2,3...
-            std::iota(std::begin(slots), std::begin(slots) + 10 * N, 1.0f);
+            std::iota(&slots[0], &slots[10 * N], 1.0f);
 
             // Run the arithmetic op over our data.
             SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
@@ -1751,7 +1722,7 @@ DEF_TEST(SkRasterPipeline_FloatArithmeticWithNSlots, r) {
 
 DEF_TEST(SkRasterPipeline_FloatArithmeticWithHardcodedSlots, r) {
     // Allocate space for 5 dest and 5 source slots.
-    alignas(64) std::array<float, 10 * SkRasterPipelineContexts::kMaxStride_highp> slots;
+    alignas(64) float slots[10 * SkRasterPipelineContexts::kMaxStride_highp];
     const int N = SkOpts::raster_pipeline_highp_stride;
 
     struct ArithmeticOp {
@@ -1784,7 +1755,7 @@ DEF_TEST(SkRasterPipeline_FloatArithmeticWithHardcodedSlots, r) {
 
     for (const ArithmeticOp& op : kArithmeticOps) {
         // Initialize the slot values to 1,2,3...
-        std::iota(std::begin(slots), std::begin(slots) + 10 * N, 1.0f);
+        std::iota(&slots[0], &slots[10 * N], 1.0f);
 
         // Run the arithmetic op over our data.
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
@@ -1818,7 +1789,7 @@ static int max_unsigned   (int a, int b) { return uint32_t(a) > uint32_t(b) ? a 
 
 DEF_TEST(SkRasterPipeline_IntArithmeticWithNSlots, r) {
     // Allocate space for 5 dest and 5 source slots.
-    alignas(64) std::array<int, 10 * SkRasterPipelineContexts::kMaxStride_highp> slots;
+    alignas(64) int slots[10 * SkRasterPipelineContexts::kMaxStride_highp];
     const int N = SkOpts::raster_pipeline_highp_stride;
 
     struct ArithmeticOp {
@@ -1844,7 +1815,7 @@ DEF_TEST(SkRasterPipeline_IntArithmeticWithNSlots, r) {
     for (const ArithmeticOp& op : kArithmeticOps) {
         for (int numSlotsAffected = 1; numSlotsAffected <= 5; ++numSlotsAffected) {
             // Initialize the slot values to 1,2,3...
-            std::iota(std::begin(slots), std::begin(slots) + 10 * N, 1);
+            std::iota(&slots[0], &slots[10 * N], 1);
             int leftValue = slots[0];
             int rightValue = slots[numSlotsAffected * N];
 
@@ -1879,7 +1850,7 @@ DEF_TEST(SkRasterPipeline_IntArithmeticWithNSlots, r) {
 
 DEF_TEST(SkRasterPipeline_IntArithmeticWithHardcodedSlots, r) {
     // Allocate space for 5 dest and 5 source slots.
-    alignas(64) std::array<int, 10 * SkRasterPipelineContexts::kMaxStride_highp> slots;
+    alignas(64) int slots[10 * SkRasterPipelineContexts::kMaxStride_highp];
     const int N = SkOpts::raster_pipeline_highp_stride;
 
     struct ArithmeticOp {
@@ -1944,7 +1915,7 @@ DEF_TEST(SkRasterPipeline_IntArithmeticWithHardcodedSlots, r) {
 
     for (const ArithmeticOp& op : kArithmeticOps) {
         // Initialize the slot values to 1,2,3...
-        std::iota(std::begin(slots), std::begin(slots) + 10 * N, 1);
+        std::iota(&slots[0], &slots[10 * N], 1);
         int leftValue = slots[0];
         int rightValue = slots[op.numSlotsAffected * N];
 
@@ -1974,7 +1945,7 @@ DEF_TEST(SkRasterPipeline_IntArithmeticWithHardcodedSlots, r) {
 
 DEF_TEST(SkRasterPipeline_CompareFloatsWithNSlots, r) {
     // Allocate space for 5 dest and 5 source slots.
-    alignas(64) std::array<float, 10 * SkRasterPipelineContexts::kMaxStride_highp> slots;
+    alignas(64) float slots[10 * SkRasterPipelineContexts::kMaxStride_highp];
     const int N = SkOpts::raster_pipeline_highp_stride;
 
     struct CompareOp {
@@ -2031,7 +2002,7 @@ DEF_TEST(SkRasterPipeline_CompareFloatsWithNSlots, r) {
 
 DEF_TEST(SkRasterPipeline_CompareFloatsWithHardcodedSlots, r) {
     // Allocate space for 5 dest and 5 source slots.
-    alignas(64) std::array<float, 10 * SkRasterPipelineContexts::kMaxStride_highp> slots;
+    alignas(64) float slots[10 * SkRasterPipelineContexts::kMaxStride_highp];
     const int N = SkOpts::raster_pipeline_highp_stride;
 
     struct CompareOp {
@@ -2101,7 +2072,7 @@ static bool compare_lteq_uint(int a, int b) { return uint32_t(a) <= uint32_t(b);
 
 DEF_TEST(SkRasterPipeline_CompareIntsWithNSlots, r) {
     // Allocate space for 5 dest and 5 source slots.
-    alignas(64) std::array<int, 10 * SkRasterPipelineContexts::kMaxStride_highp> slots;
+    alignas(64) int slots[10 * SkRasterPipelineContexts::kMaxStride_highp];
     const int N = SkOpts::raster_pipeline_highp_stride;
 
     struct CompareOp {
@@ -2164,7 +2135,7 @@ DEF_TEST(SkRasterPipeline_CompareIntsWithNSlots, r) {
 
 DEF_TEST(SkRasterPipeline_CompareIntsWithHardcodedSlots, r) {
     // Allocate space for 5 dest and 5 source slots.
-    alignas(64) std::array<int, 10 * SkRasterPipelineContexts::kMaxStride_highp> slots;
+    alignas(64) int slots[10 * SkRasterPipelineContexts::kMaxStride_highp];
     const int N = SkOpts::raster_pipeline_highp_stride;
 
     struct CompareOp {
@@ -2245,7 +2216,7 @@ static int to_float(int a) { return sk_bit_cast<int>((float)a); }
 
 DEF_TEST(SkRasterPipeline_UnaryIntOps, r) {
     // Allocate space for 5 slots.
-    alignas(64) std::array<int, 5 * SkRasterPipelineContexts::kMaxStride_highp> slots;
+    alignas(64) int slots[5 * SkRasterPipelineContexts::kMaxStride_highp];
     const int N = SkOpts::raster_pipeline_highp_stride;
 
     struct UnaryOp {
@@ -2268,7 +2239,7 @@ DEF_TEST(SkRasterPipeline_UnaryIntOps, r) {
 
     for (const UnaryOp& op : kUnaryOps) {
         // Initialize the slot values to -10,-9,-8...
-        std::iota(std::begin(slots), std::begin(slots) + 5 * N, -10);
+        std::iota(&slots[0], &slots[5 * N], -10);
         int inputValue = slots[0];
 
         // Run the unary op over our data.
@@ -2300,7 +2271,7 @@ static float to_uint(float a) { return sk_bit_cast<float>((unsigned int)a); }
 
 DEF_TEST(SkRasterPipeline_UnaryFloatOps, r) {
     // Allocate space for 5 slots.
-    alignas(64) std::array<float, 5 * SkRasterPipelineContexts::kMaxStride_highp> slots;
+    alignas(64) float slots[5 * SkRasterPipelineContexts::kMaxStride_highp];
     const int N = SkOpts::raster_pipeline_highp_stride;
 
     struct UnaryOp {
@@ -2339,7 +2310,7 @@ DEF_TEST(SkRasterPipeline_UnaryFloatOps, r) {
                              op.stage == SkRasterPipelineOp::cast_to_uint_from_4_floats);
 
         float iotaStart = positiveOnly ? 1.0f : -9.75f;
-        std::iota(std::begin(slots), std::begin(slots) + 5 * N, iotaStart);
+        std::iota(&slots[0], &slots[5 * N], iotaStart);
         float inputValue = slots[0];
 
         // Run the unary op over our data.
@@ -2412,7 +2383,7 @@ DEF_TEST(SkRasterPipeline_MixTest, r) {
 
     for (const MixOp& op : kMixOps) {
         // Initialize the values to 1,2,3...
-        std::iota(std::begin(slots), std::begin(slots) + 15 * N, 1.0f);
+        std::iota(&slots[0], &slots[15 * N], 1.0f);
 
         float weightValue = slots[0];
         float fromValue   = slots[1 * op.numSlotsAffected * N];
@@ -2484,9 +2455,7 @@ DEF_TEST(SkRasterPipeline_MixIntTest, r) {
         }
 
         // Initialize the other values to various NaNs
-        std::iota(std::begin(slots) + 1 * op.numSlotsAffected * N,
-                  std::begin(slots) + 15 * N,
-                  kLastSignalingNaN);
+        std::iota(&slots[1 * op.numSlotsAffected * N], &slots[15 * N], kLastSignalingNaN);
 
         int weightValue = slots[0];
         int fromValue   = slots[1 * op.numSlotsAffected * N];
@@ -2549,8 +2518,8 @@ DEF_TEST(SkRasterPipeline_ExchangeSrc, r) {
     alignas(64) int registerValue[4 * SkRasterPipelineContexts::kMaxStride_highp] = {};
     alignas(64) int exchangeValue[4 * SkRasterPipelineContexts::kMaxStride_highp] = {};
 
-    std::iota(std::begin(registerValue), std::begin(registerValue) + 4 * N, kLastSignalingNaN);
-    std::iota(std::begin(exchangeValue), std::begin(exchangeValue) + 4 * N, kLastSignalingNegNaN);
+    std::iota(&registerValue[0], &registerValue[4 * N], kLastSignalingNaN);
+    std::iota(&exchangeValue[0], &exchangeValue[4 * N], kLastSignalingNegNaN);
 
     // This program should swap the contents of `registerValue` and `exchangeValue`.
     SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
@@ -2826,8 +2795,7 @@ DEF_TEST(SkRasterPipeline_BranchIfActiveLanesEqual, r) {
     std::fill(std::begin(allSixes), std::end(allSixes), 6);
 
     // An array of all 6s, except for a single 5 in one lane.
-    alignas(64) std::array<int, SkRasterPipelineContexts::kMaxStride_highp>
-            mostlySixesWithOneFive = {};
+    alignas(64) int mostlySixesWithOneFive[SkRasterPipelineContexts::kMaxStride_highp] = {};
     std::fill(std::begin(mostlySixesWithOneFive), std::end(mostlySixesWithOneFive), 6);
     mostlySixesWithOneFive[N - 1] = 5;
 
@@ -2839,7 +2807,7 @@ DEF_TEST(SkRasterPipeline_BranchIfActiveLanesEqual, r) {
     SkRasterPipelineContexts::BranchIfEqualCtx nonmatching;  // comparing mostly-six vs five won't match
     nonmatching.offset = 2;
     nonmatching.value = 5;
-    nonmatching.ptr = mostlySixesWithOneFive.data();
+    nonmatching.ptr = mostlySixesWithOneFive;
 
     // The branch should be taken when lane masks are all-on and we're checking 6 ≠ 5.
     {
@@ -2976,20 +2944,20 @@ static uint16_t h(float f) {
 
 DEF_TEST(SkRasterPipeline_tail, r) {
     {
-        auto data = std::to_array<std::array<float, 4>>({
-                {00, 01, 02, 03},
-                {10, 11, 12, 13},
-                {20, 21, 22, 23},
-                {30, 31, 32, 33},
-        });
+        float data[][4] = {
+            {00, 01, 02, 03},
+            {10, 11, 12, 13},
+            {20, 21, 22, 23},
+            {30, 31, 32, 33},
+        };
 
-        std::array<std::array<float, 4>, 4> buffer;
+        float buffer[4][4];
 
-        SkRasterPipelineContexts::MemoryCtx src = { data[0].data(), 0 },
-                           dst = { buffer[0].data(), 0 };
+        SkRasterPipelineContexts::MemoryCtx src = { &data[0][0], 0 },
+                           dst = { &buffer[0][0], 0 };
 
         for (unsigned i = 1; i <= 4; i++) {
-            memset(buffer.data(), 0xff, sizeof(buffer));
+            memset(buffer, 0xff, sizeof(buffer));
             SkRasterPipeline_<256> p;
             p.append(SkRasterPipelineOp::load_f32, &src);
             p.append(SkRasterPipelineOp::store_f32, &dst);
@@ -3010,18 +2978,18 @@ DEF_TEST(SkRasterPipeline_tail, r) {
     }
 
     {
-        alignas(8) auto data = std::to_array<std::array<uint16_t, 4>>({
-                {h(00), h(01), h(02), h(03)},
-                {h(10), h(11), h(12), h(13)},
-                {h(20), h(21), h(22), h(23)},
-                {h(30), h(31), h(32), h(33)},
-        });
-        alignas(8) std::array<std::array<uint16_t, 4>, 4> buffer;
-        SkRasterPipelineContexts::MemoryCtx src = { data[0].data(), 0 },
-                           dst = { buffer[0].data(), 0 };
+        alignas(8) uint16_t data[][4] = {
+            {h(00), h(01), h(02), h(03)},
+            {h(10), h(11), h(12), h(13)},
+            {h(20), h(21), h(22), h(23)},
+            {h(30), h(31), h(32), h(33)},
+        };
+        alignas(8) uint16_t buffer[4][4];
+        SkRasterPipelineContexts::MemoryCtx src = { &data[0][0], 0 },
+                           dst = { &buffer[0][0], 0 };
 
         for (unsigned i = 1; i <= 4; i++) {
-            memset(buffer.data(), 0xff, sizeof(buffer));
+            memset(buffer, 0xff, sizeof(buffer));
             SkRasterPipeline_<256> p;
             p.append(SkRasterPipelineOp::load_f16, &src);
             p.append(SkRasterPipelineOp::store_f16, &dst);
@@ -3040,25 +3008,25 @@ DEF_TEST(SkRasterPipeline_tail, r) {
     }
 
     {
-        alignas(8) auto data = std::to_array<uint16_t>({
-                h(00),
-                h(10),
-                h(20),
-                h(30),
-        });
-        alignas(8) std::array<std::array<uint16_t, 4>, 4> buffer;
-        SkRasterPipelineContexts::MemoryCtx src = { data.data(), 0 },
-                dst = { buffer[0].data(), 0 };
+        alignas(8) uint16_t data[]= {
+            h(00),
+            h(10),
+            h(20),
+            h(30),
+        };
+        alignas(8) uint16_t buffer[4][4];
+        SkRasterPipelineContexts::MemoryCtx src = { &data[0], 0 },
+                dst = { &buffer[0][0], 0 };
 
         for (unsigned i = 1; i <= 4; i++) {
-            memset(buffer.data(), 0xff, sizeof(buffer));
+            memset(buffer, 0xff, sizeof(buffer));
             SkRasterPipeline_<256> p;
             p.append(SkRasterPipelineOp::load_af16, &src);
             p.append(SkRasterPipelineOp::store_f16, &dst);
             p.run(0,0, i,1);
             for (unsigned j = 0; j < i; j++) {
                 uint16_t expected[] = {0, 0, 0, data[j]};
-                REPORTER_ASSERT(r, !memcmp(expected, buffer[j].data(), sizeof(buffer[j])));
+                REPORTER_ASSERT(r, !memcmp(expected, &buffer[j][0], sizeof(buffer[j])));
             }
             for (int j = i; j < 4; j++) {
                 for (auto f : buffer[j]) {
@@ -3069,18 +3037,18 @@ DEF_TEST(SkRasterPipeline_tail, r) {
     }
 
     {
-        alignas(8) auto data = std::to_array<std::array<uint16_t, 4>>({
-                {h(00), h(01), h(02), h(03)},
-                {h(10), h(11), h(12), h(13)},
-                {h(20), h(21), h(22), h(23)},
-                {h(30), h(31), h(32), h(33)},
-        });
-        alignas(8) std::array<uint16_t, 4> buffer;
-        SkRasterPipelineContexts::MemoryCtx src = { data[0].data(), 0 },
-                dst = { buffer.data(), 0 };
+        alignas(8) uint16_t data[][4] = {
+            {h(00), h(01), h(02), h(03)},
+            {h(10), h(11), h(12), h(13)},
+            {h(20), h(21), h(22), h(23)},
+            {h(30), h(31), h(32), h(33)},
+        };
+        alignas(8) uint16_t buffer[4];
+        SkRasterPipelineContexts::MemoryCtx src = { &data[0][0], 0 },
+                dst = { &buffer[0], 0 };
 
         for (unsigned i = 1; i <= 4; i++) {
-            memset(buffer.data(), 0xff, sizeof(buffer));
+            memset(buffer, 0xff, sizeof(buffer));
             SkRasterPipeline_<256> p;
             p.append(SkRasterPipelineOp::load_f16, &src);
             p.append(SkRasterPipelineOp::store_af16, &dst);
@@ -3095,24 +3063,24 @@ DEF_TEST(SkRasterPipeline_tail, r) {
     }
 
     {
-        alignas(8) auto data = std::to_array<std::array<uint16_t, 4>>({
-                {h(00), h(01), h(02), h(03)},
-                {h(10), h(11), h(12), h(13)},
-                {h(20), h(21), h(22), h(23)},
-                {h(30), h(31), h(32), h(33)},
-        });
-        alignas(8) std::array<std::array<uint16_t, 2>, 4> buffer;
-        SkRasterPipelineContexts::MemoryCtx src = { data[0].data(), 0 },
-                dst = { buffer[0].data(), 0 };
+        alignas(8) uint16_t data[][4] = {
+            {h(00), h(01), h(02), h(03)},
+            {h(10), h(11), h(12), h(13)},
+            {h(20), h(21), h(22), h(23)},
+            {h(30), h(31), h(32), h(33)},
+        };
+        alignas(8) uint16_t buffer[4][2];
+        SkRasterPipelineContexts::MemoryCtx src = { &data[0][0], 0 },
+                dst = { &buffer[0][0], 0 };
 
         for (unsigned i = 1; i <= 4; i++) {
-            memset(buffer.data(), 0xff, sizeof(buffer));
+            memset(buffer, 0xff, sizeof(buffer));
             SkRasterPipeline_<256> p;
             p.append(SkRasterPipelineOp::load_f16, &src);
             p.append(SkRasterPipelineOp::store_rgf16, &dst);
             p.run(0,0, i,1);
             for (unsigned j = 0; j < i; j++) {
-                REPORTER_ASSERT(r, !memcmp(buffer[j].data(), data[j].data(), 2 * sizeof(uint16_t)));
+                REPORTER_ASSERT(r, !memcmp(&buffer[j], &data[j], 2 * sizeof(uint16_t)));
             }
             for (int j = i; j < 4; j++) {
                 for (auto h : buffer[j]) {
@@ -3123,25 +3091,25 @@ DEF_TEST(SkRasterPipeline_tail, r) {
     }
 
     {
-        alignas(8) auto data = std::to_array<std::array<uint16_t, 2>>({
-                {h(00), h(01)},
-                {h(10), h(11)},
-                {h(20), h(21)},
-                {h(30), h(31)},
-        });
-        alignas(8) std::array<std::array<uint16_t, 4>, 4> buffer;
-        SkRasterPipelineContexts::MemoryCtx src = { data[0].data(), 0 },
-                dst = { buffer[0].data(), 0 };
+        alignas(8) uint16_t data[][2] = {
+            {h(00), h(01)},
+            {h(10), h(11)},
+            {h(20), h(21)},
+            {h(30), h(31)},
+        };
+        alignas(8) uint16_t buffer[4][4];
+        SkRasterPipelineContexts::MemoryCtx src = { &data[0][0], 0 },
+                dst = { &buffer[0][0], 0 };
 
         for (unsigned i = 1; i <= 4; i++) {
-            memset(buffer.data(), 0xff, sizeof(buffer));
+            memset(buffer, 0xff, sizeof(buffer));
             SkRasterPipeline_<256> p;
             p.append(SkRasterPipelineOp::load_rgf16, &src);
             p.append(SkRasterPipelineOp::store_f16, &dst);
             p.run(0,0, i,1);
             for (unsigned j = 0; j < i; j++) {
                 uint16_t expected[] = {data[j][0], data[j][1], h(0), h(1)};
-                REPORTER_ASSERT(r, !memcmp(buffer[j].data(), expected, sizeof(expected)));
+                REPORTER_ASSERT(r, !memcmp(&buffer[j], expected, sizeof(expected)));
             }
             for (int j = i; j < 4; j++) {
                 for (auto h : buffer[j]) {
@@ -3154,18 +3122,18 @@ DEF_TEST(SkRasterPipeline_tail, r) {
 
 DEF_TEST(SkRasterPipeline_u16, r) {
     {
-        alignas(8) auto data = std::to_array<std::array<uint16_t, 2>>({
-                {0x0000, 0x0111},
-                {0x1010, 0x1111},
-                {0x2020, 0x2121},
-                {0x3030, 0x3131},
-        });
-        std::array<std::array<uint8_t, 4>, 4> buffer;
-        SkRasterPipelineContexts::MemoryCtx src = { data[0].data(), 0 },
-                dst = { buffer[0].data(), 0 };
+        alignas(8) uint16_t data[][2] = {
+            {0x0000, 0x0111},
+            {0x1010, 0x1111},
+            {0x2020, 0x2121},
+            {0x3030, 0x3131},
+        };
+        uint8_t buffer[4][4];
+        SkRasterPipelineContexts::MemoryCtx src = { &data[0][0], 0 },
+                dst = { &buffer[0][0], 0 };
 
         for (unsigned i = 1; i <= 4; i++) {
-            memset(buffer.data(), 0xab, sizeof(buffer));
+            memset(buffer, 0xab, sizeof(buffer));
             SkRasterPipeline_<256> p;
             p.append(SkRasterPipelineOp::load_rg1616, &src);
             p.append(SkRasterPipelineOp::store_8888, &dst);
@@ -3177,7 +3145,7 @@ DEF_TEST(SkRasterPipeline_u16, r) {
                     000,
                     0xff
                 };
-                REPORTER_ASSERT(r, !memcmp(buffer[j].data(), expected, sizeof(expected)));
+                REPORTER_ASSERT(r, !memcmp(&buffer[j], expected, sizeof(expected)));
             }
             for (int j = i; j < 4; j++) {
                 for (auto b : buffer[j]) {
@@ -3188,25 +3156,25 @@ DEF_TEST(SkRasterPipeline_u16, r) {
     }
 
     {
-        alignas(8) auto data = std::to_array<uint16_t>({
+        alignas(8) uint16_t data[] = {
                 0x0000,
                 0x1010,
                 0x2020,
                 0x3030,
-        });
-        std::array<std::array<uint8_t, 4>, 4> buffer;
-        SkRasterPipelineContexts::MemoryCtx src = { data.data(), 0 },
-                dst = { buffer[0].data(), 0 };
+        };
+        uint8_t buffer[4][4];
+        SkRasterPipelineContexts::MemoryCtx src = { &data[0], 0 },
+                dst = { &buffer[0][0], 0 };
 
         for (unsigned i = 1; i <= 4; i++) {
-            memset(buffer.data(), 0xff, sizeof(buffer));
+            memset(buffer, 0xff, sizeof(buffer));
             SkRasterPipeline_<256> p;
             p.append(SkRasterPipelineOp::load_a16, &src);
             p.append(SkRasterPipelineOp::store_8888, &dst);
             p.run(0,0, i,1);
             for (unsigned j = 0; j < i; j++) {
                 uint8_t expected[] = {0x00, 0x00, 0x00, SkToU8(data[j] >> 8)};
-                REPORTER_ASSERT(r, !memcmp(buffer[j].data(), expected, sizeof(expected)));
+                REPORTER_ASSERT(r, !memcmp(&buffer[j], expected, sizeof(expected)));
             }
             for (int j = i; j < 4; j++) {
                 for (auto b : buffer[j]) {
@@ -3217,18 +3185,18 @@ DEF_TEST(SkRasterPipeline_u16, r) {
     }
 
     {
-        auto data = std::to_array<std::array<uint8_t, 4>>({
-                {0x00, 0x01, 0x02, 0x03},
-                {0x10, 0x11, 0x12, 0x13},
-                {0x20, 0x21, 0x22, 0x23},
-                {0x30, 0x31, 0x32, 0x33},
-        });
-        alignas(8) std::array<uint16_t, 4> buffer;
-        SkRasterPipelineContexts::MemoryCtx src = { data[0].data(), 0 },
-                dst = { buffer.data(), 0 };
+        uint8_t data[][4] = {
+            {0x00, 0x01, 0x02, 0x03},
+            {0x10, 0x11, 0x12, 0x13},
+            {0x20, 0x21, 0x22, 0x23},
+            {0x30, 0x31, 0x32, 0x33},
+        };
+        alignas(8) uint16_t buffer[4];
+        SkRasterPipelineContexts::MemoryCtx src = { &data[0][0], 0 },
+                dst = { &buffer[0], 0 };
 
         for (unsigned i = 1; i <= 4; i++) {
-            memset(buffer.data(), 0xff, sizeof(buffer));
+            memset(buffer, 0xff, sizeof(buffer));
             SkRasterPipeline_<256> p;
             p.append(SkRasterPipelineOp::load_8888, &src);
             p.append(SkRasterPipelineOp::store_a16, &dst);
@@ -3244,18 +3212,18 @@ DEF_TEST(SkRasterPipeline_u16, r) {
     }
 
     {
-        alignas(8) auto data = std::to_array<std::array<uint16_t, 4>>({
-                {0x0000, 0x1000, 0x2000, 0x3000},
-                {0x0001, 0x1001, 0x2001, 0x3001},
-                {0x0002, 0x1002, 0x2002, 0x3002},
-                {0x0003, 0x1003, 0x2003, 0x3003},
-        });
-        alignas(8) std::array<std::array<uint16_t, 4>, 4> buffer;
-        SkRasterPipelineContexts::MemoryCtx src = { data[0].data(), 0 },
-                dst = { buffer[0].data(), 0 };
+        alignas(8) uint16_t data[][4] = {
+            {0x0000, 0x1000, 0x2000, 0x3000},
+            {0x0001, 0x1001, 0x2001, 0x3001},
+            {0x0002, 0x1002, 0x2002, 0x3002},
+            {0x0003, 0x1003, 0x2003, 0x3003},
+        };
+        alignas(8) uint16_t buffer[4][4];
+        SkRasterPipelineContexts::MemoryCtx src = { &data[0][0], 0 },
+                dst = { &buffer[0], 0 };
 
         for (unsigned i = 1; i <= 4; i++) {
-            memset(buffer.data(), 0xff, sizeof(buffer));
+            memset(buffer, 0xff, sizeof(buffer));
             SkRasterPipeline_<256> p;
             p.append(SkRasterPipelineOp::load_16161616, &src);
             p.append(SkRasterPipelineOp::swap_rb);
@@ -3263,7 +3231,7 @@ DEF_TEST(SkRasterPipeline_u16, r) {
             p.run(0,0, i,1);
             for (unsigned j = 0; j < i; j++) {
                 uint16_t expected[4] = {data[j][2], data[j][1], data[j][0], data[j][3]};
-                REPORTER_ASSERT(r, !memcmp(&expected[0], buffer[j].data(), sizeof(expected)));
+                REPORTER_ASSERT(r, !memcmp(&expected[0], &buffer[j], sizeof(expected)));
             }
             for (int j = i; j < 4; j++) {
                 for (uint16_t u16 : buffer[j])
