@@ -104,6 +104,10 @@ public:
 
     float timestampPeriod() const { return fTimestampPeriod; }
 
+    VkPipelineStageFlags shaderReadOnlySrcStageMask() const {
+        return fShaderReadOnlyLayoutSrcStageMask;
+    }
+
 private:
     void init(const ContextOptions&,
               const skgpu::VulkanInterface*,
@@ -220,6 +224,10 @@ private:
 
     // Flags to enable workarounds for driver bugs
     bool fMustLoadFullImageForMSAA = false;
+
+    // Cache the ReadonlySrcStageMask; optimistically adding the compute bit is a violation of the
+    // spec if we don't have compute support, so initialize and cache it here instead.
+    VkPipelineStageFlags fShaderReadOnlyLayoutSrcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 
     skia_private::TArray<uint32_t> fQueueFamilyTimestampValidBits;
     float fTimestampPeriod = 1.0f;

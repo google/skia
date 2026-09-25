@@ -399,8 +399,10 @@ void VulkanCommandBuffer::prepareSurfaceForStateUpdate(SkSurface* targetSurface,
     if (newLayout == VK_IMAGE_LAYOUT_UNDEFINED) {
         newLayout = texture->currentLayout();
     }
-    VkPipelineStageFlags dstStage = VulkanTexture::LayoutToPipelineSrcStageFlags(newLayout);
-    VkAccessFlags dstAccess = VulkanTexture::LayoutToSrcAccessMask(newLayout);
+    VkPipelineStageFlags dstStage =
+            VulkanTexture::LayoutToPipelineSrcStageFlags(newLayout, fSharedContext->vulkanCaps());
+    VkAccessFlags dstAccess = VulkanTexture::LayoutToSrcAccessMask(
+            newLayout, texture->vulkanTextureInfo().fImageUsageFlags);
 
     uint32_t currentQueueFamilyIndex = texture->currentQueueFamilyIndex();
     uint32_t newQueueFamilyIndex = skgpu::MutableTextureStates::GetVkQueueFamilyIndex(newState);

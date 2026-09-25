@@ -307,6 +307,11 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
                              deviceProperties.fHic.identicalMemoryTypeRequirements &&
                              deviceProperties.fHicHasShaderReadOnlyDstLayout;
 
+    fShaderReadOnlyLayoutSrcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    if (fComputeSupport) {
+        fShaderReadOnlyLayoutSrcStageMask |= VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+    }
+
     // Note: Do not add extension/feature checks after this; driver workarounds should be done last.
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
         this->applyDriverCorrectnessWorkarounds(deviceProperties);

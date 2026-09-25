@@ -80,20 +80,25 @@ sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
             bufInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
             break;
         case BufferType::kStorage:
-            bufInfo.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+            bufInfo.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
             break;
         case BufferType::kQuery:
             SK_ABORT("Query buffers not supported on Vulkan");
             break;
         case BufferType::kIndirect:
-            bufInfo.usage =
-                    VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+            bufInfo.usage = VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT |
+                            VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
+                            VK_BUFFER_USAGE_TRANSFER_DST_BIT;
             break;
         case BufferType::kVertexStorage:
-            bufInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+            bufInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
+                            VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
+                            VK_BUFFER_USAGE_TRANSFER_DST_BIT;
             break;
         case BufferType::kIndexStorage:
-            bufInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+            bufInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT |
+                            VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
+                            VK_BUFFER_USAGE_TRANSFER_DST_BIT;
             break;
         case BufferType::kUniform:
             bufInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
@@ -294,54 +299,72 @@ void VulkanBuffer::onUnmap() {
 
 namespace {
 
-VkPipelineStageFlags access_to_pipeline_srcStageFlags(const VkAccessFlags srcAccess) {
-    // For now this function assumes the access flags equal a specific bit and don't act like true
-    // flags (i.e. set of bits). If we ever start having buffer usages that have multiple accesses
-    // in one usage we'll need to update this.
-    switch (srcAccess) {
-        case 0:
-            return VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-        case (VK_ACCESS_TRANSFER_WRITE_BIT):  // fallthrough
-        case (VK_ACCESS_TRANSFER_READ_BIT):
-            return VK_PIPELINE_STAGE_TRANSFER_BIT;
-        case (VK_ACCESS_UNIFORM_READ_BIT):
-            // TODO(b/307577875): It is possible that uniforms could have simply been used in the
-            // vertex shader and not the fragment shader, so using the fragment shader pipeline
-            // stage bit indiscriminately is a bit overkill. This call should be modified to check &
-            // allow for selecting VK_PIPELINE_STAGE_VERTEX_SHADER_BIT when appropriate.
-            return (VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
-        case (VK_ACCESS_SHADER_WRITE_BIT):
-            return VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
-        case (VK_ACCESS_INDEX_READ_BIT):  // fallthrough
-        case (VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT):
-            return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
-        case (VK_ACCESS_INDIRECT_COMMAND_READ_BIT):
-            return VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
-        case (VK_ACCESS_HOST_READ_BIT):  // fallthrough
-        case (VK_ACCESS_HOST_WRITE_BIT):
-            return VK_PIPELINE_STAGE_HOST_BIT;
-        default:
-            SkUNREACHABLE;
+#if defined (SK_DEBUG)
+constexpr VkAccessFlags kValidBufferAccessFlags =
+        VK_ACCESS_HOST_READ_BIT |
+        VK_ACCESS_HOST_WRITE_BIT |
+        VK_ACCESS_TRANSFER_READ_BIT |
+        VK_ACCESS_TRANSFER_WRITE_BIT |
+        VK_ACCESS_UNIFORM_READ_BIT |
+        VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT |
+        VK_ACCESS_INDEX_READ_BIT |
+        VK_ACCESS_INDIRECT_COMMAND_READ_BIT |
+        VK_ACCESS_SHADER_READ_BIT |
+        VK_ACCESS_SHADER_WRITE_BIT;
+#endif
+
+constexpr VkAccessFlags kBufferWriteAccessFlags =
+        VK_ACCESS_TRANSFER_WRITE_BIT |
+        VK_ACCESS_SHADER_WRITE_BIT |
+        VK_ACCESS_HOST_WRITE_BIT;
+
+VkPipelineStageFlags access_to_pipeline_src_stage_flags(VkAccessFlags srcAccess) {
+    if (srcAccess == 0) {
+        return VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
     }
+
+    SkASSERT((srcAccess & ~kValidBufferAccessFlags) == 0);
+
+    VkPipelineStageFlags stageMask = 0;
+    if (srcAccess & (VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT)) {
+        stageMask |= VK_PIPELINE_STAGE_TRANSFER_BIT;
+    }
+    if (srcAccess & VK_ACCESS_UNIFORM_READ_BIT) {
+        // TODO(b/307577875): It is possible that uniforms could have simply been used in the
+        // vertex shader and not the fragment shader, so using the fragment shader pipeline
+        // stage bit indiscriminately is a bit overkill. This call should be modified to check &
+        // allow for selecting VK_PIPELINE_STAGE_VERTEX_SHADER_BIT when appropriate.
+        stageMask |= (VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
+    }
+    if (srcAccess & VK_ACCESS_SHADER_WRITE_BIT) {
+        // In Graphite, buffer shader writes are only performed by compute shaders.
+        stageMask |= VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+    }
+    if (srcAccess & VK_ACCESS_SHADER_READ_BIT) {
+        stageMask |= (VK_PIPELINE_STAGE_VERTEX_SHADER_BIT |
+                      VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT |
+                      VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
+    }
+    if (srcAccess & (VK_ACCESS_INDEX_READ_BIT | VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT)) {
+        stageMask |= VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+    }
+    // Per Vulkan spec Table "Supported access types", VK_ACCESS_INDIRECT_COMMAND_READ_BIT is
+    // strictly consumed in the VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT stage for both draw and
+    // compute indirect calls (e.g. VkDispatchIndirect*).
+    if (srcAccess & VK_ACCESS_INDIRECT_COMMAND_READ_BIT) {
+        stageMask |= VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
+    }
+    if (srcAccess & (VK_ACCESS_HOST_READ_BIT | VK_ACCESS_HOST_WRITE_BIT)) {
+        stageMask |= VK_PIPELINE_STAGE_HOST_BIT;
+    }
+
+    SkASSERT(stageMask != 0);
+    return stageMask;
 }
 
 bool access_is_read_only(VkAccessFlags access) {
-    switch (access) {
-        case 0: // initialization state
-        case (VK_ACCESS_TRANSFER_READ_BIT):
-        case (VK_ACCESS_UNIFORM_READ_BIT):
-        case (VK_ACCESS_INDEX_READ_BIT):
-        case (VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT):
-        case (VK_ACCESS_INDIRECT_COMMAND_READ_BIT):
-        case (VK_ACCESS_HOST_READ_BIT):
-            return true;
-        case (VK_ACCESS_TRANSFER_WRITE_BIT):
-        case (VK_ACCESS_SHADER_WRITE_BIT):
-        case (VK_ACCESS_HOST_WRITE_BIT):
-            return false;
-        default:
-            SkUNREACHABLE;
-    }
+    SkASSERT((access & ~kValidBufferAccessFlags) == 0);
+    return (access & kBufferWriteAccessFlags) == 0;
 }
 
 } // anonymous namespace
@@ -349,14 +372,10 @@ bool access_is_read_only(VkAccessFlags access) {
 void VulkanBuffer::setBufferAccess(VulkanCommandBuffer* cmdBuffer,
                                    VkAccessFlags dstAccess,
                                    VkPipelineStageFlags dstStageMask) const {
-    SkASSERT(dstAccess == VK_ACCESS_HOST_READ_BIT ||
-             dstAccess == VK_ACCESS_TRANSFER_WRITE_BIT ||
-             dstAccess == VK_ACCESS_TRANSFER_READ_BIT ||
-             dstAccess == VK_ACCESS_UNIFORM_READ_BIT ||
-             dstAccess == VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT ||
-             dstAccess == VK_ACCESS_INDEX_READ_BIT);
+    SkASSERT(dstAccess != 0);
+    SkASSERT((dstAccess & ~kValidBufferAccessFlags) == 0);
 
-    VkPipelineStageFlags srcStageMask = access_to_pipeline_srcStageFlags(fCurrentAccess);
+    VkPipelineStageFlags srcStageMask = access_to_pipeline_src_stage_flags(fCurrentAccess);
     SkASSERT(srcStageMask);
 
     bool needsBarrier = true;

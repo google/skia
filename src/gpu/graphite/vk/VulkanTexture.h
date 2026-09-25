@@ -23,6 +23,7 @@ namespace skgpu { class MutableTextureState; }
 namespace skgpu::graphite {
 
 class Sampler;
+class VulkanCaps;
 class VulkanSharedContext;
 class VulkanCommandBuffer;
 class VulkanDescriptorSet;
@@ -89,8 +90,10 @@ public:
     const VulkanImageView* getImageView(VulkanImageView::Usage) const;
 
     // Helpers to use for setting the layout of the VkImage
-    static VkPipelineStageFlags LayoutToPipelineSrcStageFlags(const VkImageLayout layout);
-    static VkAccessFlags LayoutToSrcAccessMask(const VkImageLayout layout);
+    static VkPipelineStageFlags LayoutToPipelineSrcStageFlags(const VkImageLayout layout,
+                                                              const VulkanCaps& caps);
+    static VkAccessFlags LayoutToSrcAccessMask(const VkImageLayout layout,
+                                               VkImageUsageFlags usageFlags);
 
     bool supportsInputAttachmentUsage() const;
 

@@ -271,8 +271,11 @@ void VulkanTexture::setImageLayoutAndQueueIndex(VulkanCommandBuffer* cmdBuffer,
         return;
     }
 
-    VkAccessFlags srcAccessMask = VulkanTexture::LayoutToSrcAccessMask(currentLayout);
-    VkPipelineStageFlags srcStageMask = VulkanTexture::LayoutToPipelineSrcStageFlags(currentLayout);
+    VkAccessFlags srcAccessMask =
+            VulkanTexture::LayoutToSrcAccessMask(currentLayout, textureInfo.fImageUsageFlags);
+    VkPipelineStageFlags srcStageMask =
+            VulkanTexture::LayoutToPipelineSrcStageFlags(currentLayout,
+                                                         sharedContext->vulkanCaps());
 
     VkImageAspectFlags aspectFlags =
             GetVkImageAspectFlags(TextureInfoPriv::ViewFormat(this->textureInfo()));
@@ -365,7 +368,8 @@ uint32_t VulkanTexture::currentQueueFamilyIndex() const {
     return skgpu::MutableTextureStates::GetVkQueueFamilyIndex(this->mutableState());
 }
 
-VkPipelineStageFlags VulkanTexture::LayoutToPipelineSrcStageFlags(const VkImageLayout layout) {
+VkPipelineStageFlags VulkanTexture::LayoutToPipelineSrcStageFlags(const VkImageLayout layout,
+                                                                  const VulkanCaps& caps) {
     if (VK_IMAGE_LAYOUT_GENERAL == layout) {
         return VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
     } else if (VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL == layout ||
@@ -377,7 +381,7 @@ VkPipelineStageFlags VulkanTexture::LayoutToPipelineSrcStageFlags(const VkImageL
                VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL == layout) {
         return VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
     } else if (VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == layout) {
-        return VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        return caps.shaderReadOnlySrcStageMask();
     } else if (VK_IMAGE_LAYOUT_PREINITIALIZED == layout) {
         return VK_PIPELINE_STAGE_HOST_BIT;
     } else if (VK_IMAGE_LAYOUT_PRESENT_SRC_KHR == layout) {
@@ -388,11 +392,8 @@ VkPipelineStageFlags VulkanTexture::LayoutToPipelineSrcStageFlags(const VkImageL
     return VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 }
 
-VkAccessFlags VulkanTexture::LayoutToSrcAccessMask(const VkImageLayout layout) {
-    // Currently we assume we will never being doing any explict shader writes (this doesn't include
-    // color attachment or depth/stencil writes). So we will ignore the
-    // VK_MEMORY_OUTPUT_SHADER_WRITE_BIT.
-
+VkAccessFlags VulkanTexture::LayoutToSrcAccessMask(const VkImageLayout layout,
+                                                   VkImageUsageFlags usageFlags) {
     // We can only directly access the host memory if we are in preinitialized or general layout,
     // and the image is linear. However, device access to images written by the host happens after
     // vkQueueSubmit, which implicitly makes host writes _visible_ to the device, i.e.
@@ -403,6 +404,9 @@ VkAccessFlags VulkanTexture::LayoutToSrcAccessMask(const VkImageLayout layout) {
         flags = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
                 VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
                 VK_ACCESS_TRANSFER_WRITE_BIT;
+        if (usageFlags & VK_IMAGE_USAGE_STORAGE_BIT) {
+            flags |= VK_ACCESS_SHADER_WRITE_BIT;
+        }
     } else if (VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL == layout) {
         flags = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     } else if (VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL == layout) {
