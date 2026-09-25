@@ -8,6 +8,7 @@
 #include "src/core/SkGaussFilter.h"
 #include "tests/Test.h"
 
+#include <array>
 #include <cmath>
 #include <cstdlib>
 #include <initializer_list>
@@ -34,13 +35,13 @@ DEF_TEST(SkGaussFilterCommon, r) {
         double sigma; std::vector<double> golden;
         std::tie(sigma, golden) = test;
         SkGaussFilter filter{sigma};
-        double result[SkGaussFilter::kGaussArrayMax];
+        std::array<double, SkGaussFilter::kGaussArrayMax> result;
         int n = 0;
         for (auto d : filter) {
             result[n++] = d;
         }
         REPORTER_ASSERT(r, static_cast<size_t>(n) == golden.size());
-        double sum = careful_add(n, result);
+        double sum = careful_add(n, result.data());
         REPORTER_ASSERT(r, sum == 1.0);
         for (size_t i = 0; i < golden.size(); i++) {
             REPORTER_ASSERT(r, std::abs(golden[i] - result[i]) < kEpsilon);
@@ -67,13 +68,13 @@ DEF_TEST(SkGaussFilterSweep, r) {
     const double maxSigma = nextafter(2.0, 0.0);
     auto check = [&](double sigma) {
         SkGaussFilter filter{sigma};
-        double result[SkGaussFilter::kGaussArrayMax];
+        std::array<double, SkGaussFilter::kGaussArrayMax> result;
         int n = 0;
         for (auto d : filter) {
             result[n++] = d;
         }
         REPORTER_ASSERT(r, n <= SkGaussFilter::kGaussArrayMax);
-        double sum = careful_add(n, result);
+        double sum = careful_add(n, result.data());
         REPORTER_ASSERT(r, sum == 1.0);
     };
 

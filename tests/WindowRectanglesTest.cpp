@@ -12,6 +12,7 @@
 #include "src/gpu/ganesh/GrWindowRectangles.h"
 #include "tests/Test.h"
 
+#include <array>
 #include <cstring>
 
 static SkIRect next_irect(SkRandom& r) {
@@ -21,7 +22,7 @@ static SkIRect next_irect(SkRandom& r) {
 DEF_TEST(WindowRectangles, reporter) {
     SkRandom r;
 
-    SkIRect windowData[GrWindowRectangles::kMaxWindows];
+    std::array<SkIRect, GrWindowRectangles::kMaxWindows> windowData;
     for (int i = 0; i < GrWindowRectangles::kMaxWindows; ++i) {
         windowData[i] = next_irect(r);
     }
@@ -29,7 +30,7 @@ DEF_TEST(WindowRectangles, reporter) {
     GrWindowRectangles wr;
     for (int i = 0; i < GrWindowRectangles::kMaxWindows - 1; ++i) {
         REPORTER_ASSERT(reporter, wr.count() == i);
-        REPORTER_ASSERT(reporter, !memcmp(wr.data(), windowData, i * sizeof(SkIRect)));
+        REPORTER_ASSERT(reporter, !memcmp(wr.data(), windowData.data(), i * sizeof(SkIRect)));
 
         GrWindowRectangles wr2(wr);
         REPORTER_ASSERT(reporter, wr2 == wr);

@@ -70,9 +70,11 @@ static void test_strokerect(skiatest::Reporter* reporter) {
     SkRect outer(r);
     outer.outset(width/2, width/2);
 
-    static const SkPaint::Join joins[] = {
-        SkPaint::kMiter_Join, SkPaint::kRound_Join, SkPaint::kBevel_Join
-    };
+    static const auto joins = std::to_array<SkPaint::Join>({
+            SkPaint::kMiter_Join,
+            SkPaint::kRound_Join,
+            SkPaint::kBevel_Join,
+    });
 
     for (size_t i = 0; i < std::size(joins); ++i) {
         paint.setStrokeJoin(joins[i]);

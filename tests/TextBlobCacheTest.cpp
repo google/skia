@@ -51,6 +51,7 @@
 #endif
 
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <cstring>
 #include <string>
@@ -256,7 +257,7 @@ static sk_sp<SkTextBlob> make_blob() {
 
     static char text[] = "HekpqB";
     static const int maxGlyphLen = sizeof(text) * 4;
-    SkGlyphID glyphs[maxGlyphLen];
+    std::array<SkGlyphID, maxGlyphLen> glyphs;
     int glyphCount =
             font.textToGlyphs(text, sizeof(text), SkTextEncoding::kUTF8, glyphs);
 
