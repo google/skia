@@ -43,6 +43,7 @@
 #include "tools/EncodeUtils.h"
 #include "tools/gpu/ContextType.h"
 
+#include <array>
 #include <cmath>
 #include <initializer_list>
 #include <optional>
@@ -50,7 +51,6 @@
 #include <utility>
 #include <variant>
 #include <vector>
-
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
@@ -185,9 +185,11 @@ namespace {
 static constexpr float kDefaultRGBTolerance = 8.f / 255.f;
 static constexpr float kAATolerance  = 2.f / 255.f;
 static constexpr float kDefaultMaxAllowedPercentImageDiff = 1.f;
-static const float kFuzzyKernel[3][3] = {{0.9f, 0.9f, 0.9f},
-                                         {0.9f, 1.0f, 0.9f},
-                                         {0.9f, 0.9f, 0.9f}};
+static constexpr std::array<std::array<const float, 3>, 3> kFuzzyKernel = {{
+        {0.9f, 0.9f, 0.9f},
+        {0.9f, 1.0f, 0.9f},
+        {0.9f, 0.9f, 0.9f},
+}};
 static_assert(std::size(kFuzzyKernel) == std::size(kFuzzyKernel[0]), "Kernel must be square");
 static constexpr int kKernelSize = std::size(kFuzzyKernel);
 
@@ -698,12 +700,14 @@ public:
     sk_sp<SkSpecialImage> createSourceImage(SkISize size, sk_sp<SkColorSpace> colorSpace) {
         sk_sp<SkDevice> sourceSurface = fBackend->makeDevice(size, std::move(colorSpace));
 
-        const SkColor colors[] = { SK_ColorMAGENTA,
-                                   SK_ColorRED,
-                                   SK_ColorYELLOW,
-                                   SK_ColorGREEN,
-                                   SK_ColorCYAN,
-                                   SK_ColorBLUE };
+        static constexpr auto colors = std::to_array<SkColor>({
+                SK_ColorMAGENTA,
+                SK_ColorRED,
+                SK_ColorYELLOW,
+                SK_ColorGREEN,
+                SK_ColorCYAN,
+                SK_ColorBLUE,
+        });
         SkMatrix rotation = SkMatrix::RotateDeg(15.f, {size.width() / 2.f,
                                                        size.height() / 2.f});
 

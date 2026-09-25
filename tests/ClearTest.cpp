@@ -352,7 +352,7 @@ void fullscreen_clear_with_layer_test(skiatest::Reporter* reporter, GrRecordingC
     sk_sp<SkSurface> surf = SkSurfaces::RenderTarget(rContext, skgpu::Budgeted::kYes, ii);
     SkCanvas* canvas = surf->getCanvas();
 
-    SkPaint paints[2];
+    std::array<SkPaint, 2> paints;
     paints[0].setColor(SK_ColorGREEN);
     paints[1].setColor(SK_ColorGRAY);
 
@@ -362,10 +362,10 @@ void fullscreen_clear_with_layer_test(skiatest::Reporter* reporter, GrRecordingC
     static const int kTopY = 26;
     static const int kBotY = 51;
 
-    const SkRect rects[2] = {
-        { kLeftX, kTopY, kMidX, kBotY },
-        { kMidX, kTopY, kRightX, kBotY },
-    };
+    static constexpr std::array<SkRect, 2> rects = {{
+            { kLeftX, kTopY, kMidX, kBotY },
+            { kMidX, kTopY, kRightX, kBotY },
+    }};
 
     for (int i = 0; i < 2; ++i) {
         // the bounds parameter is required to cause a full screen clear

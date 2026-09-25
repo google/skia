@@ -43,6 +43,7 @@
 #include "tools/gpu/BackendSurfaceFactory.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 
+#include <array>
 #include <cstddef>
 #include <initializer_list>
 #include <memory>
@@ -710,16 +711,16 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(CharacterizationFBO0nessTest,
     const SkSurfaceProps surfaceProps(0x0, kRGB_H_SkPixelGeometry);
 
     // Rows are characterizations and columns are surfaces
-    static const bool kExpectedCompatibility[4][4] = {
+    static constexpr std::array<std::array<bool, 4>, 4> kExpectedCompatibility = {{
                     //  FBO0 & MSAA, FBO0 & not-MSAA, not-FBO0 & MSAA, not-FBO0 & not-MSAA
 /* FBO0 & MSAA     */ { true,        false,           false,           false },
 /* FBO0 & not-MSAA */ { false,       true,            false,           true  },
 /* not-FBO0 & MSAA */ { false,       false,           true,            false },
-/* not-FBO0 & not- */ { false,       false,           false,           true  }
-    };
+/* not-FBO0 & not- */ { false,       false,           false,           true  },
+    }};
 
-    GrSurfaceCharacterization characterizations[4];
-    sk_sp<SkSurface> surfaces[4];
+    std::array<GrSurfaceCharacterization, 4> characterizations;
+    std::array<sk_sp<SkSurface>, 4> surfaces;
 
     int index = 0;
     for (bool isFBO0 : { true, false }) {

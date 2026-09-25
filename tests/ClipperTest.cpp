@@ -76,29 +76,29 @@ static void test_edgeclipper() {
 }
 
 static void test_intersectline(skiatest::Reporter* reporter) {
-    static const SkScalar L = 0;
-    static const SkScalar T = 0;
-    static const SkScalar R = SkIntToScalar(100);
-    static const SkScalar B = SkIntToScalar(100);
-    static const SkScalar CX = (L + R) / 2.f;
-    static const SkScalar CY = (T + B) / 2.f;
-    static const SkRect gR = { L, T, R, B };
+    static constexpr SkScalar L = 0;
+    static constexpr SkScalar T = 0;
+    static constexpr SkScalar R = SkIntToScalar(100);
+    static constexpr SkScalar B = SkIntToScalar(100);
+    static constexpr SkScalar CX = (L + R) / 2.f;
+    static constexpr SkScalar CY = (T + B) / 2.f;
+    static constexpr SkRect gR = {L, T, R, B};
 
     size_t i;
     SkPoint dst[2];
 
-    static const SkPoint gEmpty[] = {
-        // sides
-        { L, CY }, { L - 10, CY },
-        { R, CY }, { R + 10, CY },
-        { CX, T }, { CX, T - 10 },
-        { CX, B }, { CX, B + 10 },
-        // corners
-        { L, T }, { L - 10, T - 10 },
-        { L, B }, { L - 10, B + 10 },
-        { R, T }, { R + 10, T - 10 },
-        { R, B }, { R + 10, B + 10 },
-    };
+    static constexpr auto gEmpty = std::to_array<SkPoint>({
+            // sides
+            SkPoint{ L, CY }, SkPoint{ L - 10, CY },
+            SkPoint{ R, CY }, SkPoint{ R + 10, CY },
+            SkPoint{ CX, T }, SkPoint{ CX, T - 10 },
+            SkPoint{ CX, B }, SkPoint{ CX, B + 10 },
+            // corners
+            SkPoint{ L, T }, SkPoint{ L - 10, T - 10 },
+            SkPoint{ L, B }, SkPoint{ L - 10, B + 10 },
+            SkPoint{ R, T }, SkPoint{ R + 10, T - 10 },
+            SkPoint{ R, B }, SkPoint{ R + 10, B + 10 },
+    });
     for (i = 0; i < std::size(gEmpty); i += 2) {
         bool valid = SkLineClipper::IntersectLine(&gEmpty[i], gR, dst);
         if (valid) {
@@ -108,22 +108,22 @@ static void test_intersectline(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, !valid);
     }
 
-    static const SkPoint gFull[] = {
-        // diagonals, chords
-        { L, T }, { R, B },
-        { L, B }, { R, T },
-        { CX, T }, { CX, B },
-        { L, CY }, { R, CY },
-        { CX, T }, { R, CY },
-        { CX, T }, { L, CY },
-        { L, CY }, { CX, B },
-        { R, CY }, { CX, B },
-        // edges
-        { L, T }, { L, B },
-        { R, T }, { R, B },
-        { L, T }, { R, T },
-        { L, B }, { R, B },
-    };
+    static constexpr auto gFull = std::to_array<SkPoint>({
+            // diagonals, chords
+            SkPoint{ L, T }, SkPoint{ R, B },
+            SkPoint{ L, B }, SkPoint{ R, T },
+            SkPoint{ CX, T }, SkPoint{ CX, B },
+            SkPoint{ L, CY }, SkPoint{ R, CY },
+            SkPoint{ CX, T }, SkPoint{ R, CY },
+            SkPoint{ CX, T }, SkPoint{ L, CY },
+            SkPoint{ L, CY }, SkPoint{ CX, B },
+            SkPoint{ R, CY }, SkPoint{ CX, B },
+            // edges
+            SkPoint{ L, T }, SkPoint{ L, B },
+            SkPoint{ R, T }, SkPoint{ R, B },
+            SkPoint{ L, T }, SkPoint{ R, T },
+            SkPoint{ L, B }, SkPoint{ R, B },
+    });
     for (i = 0; i < std::size(gFull); i += 2) {
         bool valid = SkLineClipper::IntersectLine(&gFull[i], gR, dst);
         if (!valid || 0 != memcmp(&gFull[i], dst, sizeof(dst))) {
@@ -133,17 +133,17 @@ static void test_intersectline(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, valid && !memcmp(&gFull[i], dst, sizeof(dst)));
     }
 
-    static const SkPoint gPartial[] = {
-        { L - 10, CY }, { CX, CY }, { L, CY }, { CX, CY },
-        { CX, T - 10 }, { CX, CY }, { CX, T }, { CX, CY },
-        { R + 10, CY }, { CX, CY }, { R, CY }, { CX, CY },
-        { CX, B + 10 }, { CX, CY }, { CX, B }, { CX, CY },
-        // extended edges
-        { L, T - 10 }, { L, B + 10 }, { L, T }, { L, B },
-        { R, T - 10 }, { R, B + 10 }, { R, T }, { R, B },
-        { L - 10, T }, { R + 10, T }, { L, T }, { R, T },
-        { L - 10, B }, { R + 10, B }, { L, B }, { R, B },
-    };
+    static constexpr auto gPartial = std::to_array<SkPoint>({
+            SkPoint{ L - 10, CY }, SkPoint{ CX, CY }, SkPoint{ L, CY }, SkPoint{ CX, CY },
+            SkPoint{ CX, T - 10 }, SkPoint{ CX, CY }, SkPoint{ CX, T }, SkPoint{ CX, CY },
+            SkPoint{ R + 10, CY }, SkPoint{ CX, CY }, SkPoint{ R, CY }, SkPoint{ CX, CY },
+            SkPoint{ CX, B + 10 }, SkPoint{ CX, CY }, SkPoint{ CX, B }, SkPoint{ CX, CY },
+            // extended edges
+            SkPoint{ L, T - 10 }, SkPoint{ L, B + 10 }, SkPoint{ L, T }, SkPoint{ L, B },
+            SkPoint{ R, T - 10 }, SkPoint{ R, B + 10 }, SkPoint{ R, T }, SkPoint{ R, B },
+            SkPoint{ L - 10, T }, SkPoint{ R + 10, T }, SkPoint{ L, T }, SkPoint{ R, T },
+            SkPoint{ L - 10, B }, SkPoint{ R + 10, B }, SkPoint{ L, B }, SkPoint{ R, B },
+    });
     for (i = 0; i < std::size(gPartial); i += 4) {
         bool valid = SkLineClipper::IntersectLine(&gPartial[i], gR, dst);
         if (!valid || 0 != memcmp(&gPartial[i+2], dst, sizeof(dst))) {

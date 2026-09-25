@@ -72,21 +72,21 @@ enum DrawCaps {
 
 static void iter_paint(skiatest::Reporter* reporter, const SkPath& path, bool shouldDraw,
                        DrawCaps drawCaps) {
-    static const SkPaint::Cap gCaps[] = {
-        SkPaint::kButt_Cap,
-        SkPaint::kRound_Cap,
-        SkPaint::kSquare_Cap
-    };
-    static const SkPaint::Join gJoins[] = {
-        SkPaint::kMiter_Join,
-        SkPaint::kRound_Join,
-        SkPaint::kBevel_Join
-    };
-    static const SkPaint::Style gStyles[] = {
-        SkPaint::kFill_Style,
-        SkPaint::kStroke_Style,
-        SkPaint::kStrokeAndFill_Style
-    };
+    static constexpr auto gCaps = std::to_array<SkPaint::Cap>({
+            SkPaint::kButt_Cap,
+            SkPaint::kRound_Cap,
+            SkPaint::kSquare_Cap,
+    });
+    static constexpr auto gJoins = std::to_array<SkPaint::Join>({
+            SkPaint::kMiter_Join,
+            SkPaint::kRound_Join,
+            SkPaint::kBevel_Join,
+    });
+    static constexpr auto gStyles = std::to_array<SkPaint::Style>({
+            SkPaint::kFill_Style,
+            SkPaint::kStroke_Style,
+            SkPaint::kStrokeAndFill_Style,
+    });
     for (size_t cap = 0; cap < std::size(gCaps); ++cap) {
         for (size_t join = 0; join < std::size(gJoins); ++join) {
             for (size_t style = 0; style < std::size(gStyles); ++style) {
@@ -133,15 +133,21 @@ static void make_C(SkPathBuilder* bu) { bu->moveTo(CX, CY).cubicTo(CX, CY, CX, C
  *  - path stroke variants (e.g. caps, joins, width)
  */
 static void test_emptydrawing(skiatest::Reporter* reporter) {
-    static void (*gMakeProc[])(SkPathBuilder*) = {
-        make_empty, make_M, make_MM, make_MZM, make_L, make_Q, make_C
-    };
-    static SkPathFillType gFills[] = {
-        SkPathFillType::kWinding,
-        SkPathFillType::kEvenOdd,
-        SkPathFillType::kInverseWinding,
-        SkPathFillType::kInverseEvenOdd
-    };
+    static constexpr auto gMakeProc = std::to_array<void (*)(SkPathBuilder*)>({
+            make_empty,
+            make_M,
+            make_MM,
+            make_MZM,
+            make_L,
+            make_Q,
+            make_C,
+    });
+    static constexpr auto gFills = std::to_array<SkPathFillType>({
+            SkPathFillType::kWinding,
+            SkPathFillType::kEvenOdd,
+            SkPathFillType::kInverseWinding,
+            SkPathFillType::kInverseEvenOdd,
+    });
     for (int doClose = 0; doClose < 2; ++doClose) {
         for  (size_t i = 0; i < std::size(gMakeProc); ++i) {
             SkPathBuilder builder;

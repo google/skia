@@ -45,24 +45,27 @@ DEF_TEST(DashPathEffectTest_asPoints, r) {
 
     SkRect cull = SkRect::MakeWH(1.0f, 1.0f);
 
-    const struct {
+    struct TestCases {
         SkPoint fPts[2];
         bool    fExpectedResult;
-    } testCases[] = {
-        { { { -5.0f,  0.5f }, { -4.0f,  0.5f } }, false },   // off to the left
-        { { {  4.0f,  0.5f }, {  5.0f,  0.5f } }, false },   // off to the right
-        { { {  0.5f,  4.0f }, {  0.5f,  5.0f } }, false },   // off the bottom
-        { { {  0.5f, -5.0f }, {  0.5f, -4.0f } }, false },   // off the top
-        { { {  0.5f,  0.2f }, {  0.5f,  0.8f } }, true  },   // entirely inside vertical
-        { { {  0.2f,  0.5f }, {  0.8f,  0.5f } }, true  },   // entirely inside horizontal
-        { { {  0.5f, -5.0f }, {  0.5f,  5.0f } }, true  },   // straddles both sides vertically
-        { { { -5.0f,  0.5f }, {  5.0f,  0.5f } }, true  },   // straddles both sides horizontally
-        { { {  0.5f, -5.0f }, {  0.5f,  0.5f } }, true  },   // straddles top
-        { { {  0.5f,  5.0f }, {  0.5f,  0.5f } }, true  },   // straddles bottom
-        { { { -5.0f,  0.5f }, {  0.5f,  0.5f } }, true  },   // straddles left
-        { { {  5.0f,  0.5f }, {  0.5f,  0.5f } }, true  },   // straddles right
-        { { {  0.5f,  0.5f }, {  0.5f,  0.5f } }, false },   // zero length
     };
+
+    using TC = TestCases;
+    static constexpr auto testCases = std::to_array<TestCases>({
+        TC{ { { -5.0f,  0.5f }, { -4.0f,  0.5f } }, false }, // off to the left
+        TC{ { {  4.0f,  0.5f }, {  5.0f,  0.5f } }, false }, // off to the right
+        TC{ { {  0.5f,  4.0f }, {  0.5f,  5.0f } }, false }, // off the bottom
+        TC{ { {  0.5f, -5.0f }, {  0.5f, -4.0f } }, false }, // off the top
+        TC{ { {  0.5f,  0.2f }, {  0.5f,  0.8f } }, true  }, // entirely inside vertical
+        TC{ { {  0.2f,  0.5f }, {  0.8f,  0.5f } }, true  }, // entirely inside horizontal
+        TC{ { {  0.5f, -5.0f }, {  0.5f,  5.0f } }, true  }, // straddles both sides vertically
+        TC{ { { -5.0f,  0.5f }, {  5.0f,  0.5f } }, true  }, // straddles both sides horizontally
+        TC{ { {  0.5f, -5.0f }, {  0.5f,  0.5f } }, true  }, // straddles top
+        TC{ { {  0.5f,  5.0f }, {  0.5f,  0.5f } }, true  }, // straddles bottom
+        TC{ { { -5.0f,  0.5f }, {  0.5f,  0.5f } }, true  }, // straddles left
+        TC{ { {  5.0f,  0.5f }, {  0.5f,  0.5f } }, true  }, // straddles right
+        TC{ { {  0.5f,  0.5f }, {  0.5f,  0.5f } }, false }, // zero length
+    });
 
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
@@ -70,7 +73,7 @@ DEF_TEST(DashPathEffectTest_asPoints, r) {
     SkStrokeRec rec(paint);
 
     static const int kNumMats = 3;
-    SkMatrix mats[kNumMats];
+    std::array<SkMatrix, kNumMats> mats;
     mats[0].reset();
     mats[1].setRotate(90, 0.5f, 0.5f);
     mats[2].setTranslate(10.0f, 10.0f);

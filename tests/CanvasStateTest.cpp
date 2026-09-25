@@ -131,11 +131,10 @@ DEF_TEST(CanvasState_test_complex_layers, reporter) {
                                    SkIntToScalar(WIDTH-(2*SPACER)),
                                    SkIntToScalar((HEIGHT-(2*SPACER)) / 7));
 
-    const SkColorType colorTypes[] = {
-        kRGB_565_SkColorType, kN32_SkColorType
-    };
+    static constexpr auto colorTypes =
+            std::to_array<SkColorType>({kRGB_565_SkColorType, kN32_SkColorType});
 
-    const int layerAlpha[] = { 255, 255, 0 };
+    static constexpr auto layerAlpha = std::to_array<int>({255, 255, 0});
 
     bool (*drawFn)(SkCanvasState* state, float l, float t,
                    float r, float b, int32_t s);
@@ -153,7 +152,7 @@ DEF_TEST(CanvasState_test_complex_layers, reporter) {
     }
 
     for (size_t i = 0; i < std::size(colorTypes); ++i) {
-        sk_sp<SkImage> images[2];
+        std::array<sk_sp<SkImage>, 2> images;
         for (int j = 0; j < 2; ++j) {
             auto surf = SkSurfaces::Raster(
                     SkImageInfo::Make(WIDTH, HEIGHT, colorTypes[i], kPremul_SkAlphaType));
@@ -224,11 +223,11 @@ DEF_TEST(CanvasState_test_complex_clips, reporter) {
     clipRegion.setRect(regionBounds);
     clipRegion.op(regionInterior, SkRegion::kDifference_Op);
 
-
-    const SkRegion::Op clipOps[] = { SkRegion::kIntersect_Op,
-                                     SkRegion::kIntersect_Op,
-                                     SkRegion::kDifference_Op,
-    };
+    static constexpr auto clipOps = std::to_array<SkRegion::Op>({
+            SkRegion::kIntersect_Op,
+            SkRegion::kIntersect_Op,
+            SkRegion::kDifference_Op,
+    });
 
     bool (*drawFn)(SkCanvasState* state, int32_t l, int32_t t,
                    int32_t r, int32_t b, int32_t clipOp,
@@ -246,7 +245,7 @@ DEF_TEST(CanvasState_test_complex_clips, reporter) {
         return;
     }
 
-    sk_sp<SkImage> images[2];
+    std::array<sk_sp<SkImage>, 2> images;
     for (int i = 0; i < 2; ++i) {
         auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(WIDTH, HEIGHT));
         SkCanvas* canvas = surf->getCanvas();

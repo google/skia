@@ -62,14 +62,14 @@ struct Coordinates {
     }
 };
 
-static const Pair gPairs[] = {
-    { kUnknown_SkColorType,     "0000000"  },
-    { kAlpha_8_SkColorType,     "0100000"  },
-    { kRGB_565_SkColorType,     "0101011"  },
-    { kARGB_4444_SkColorType,   "0101111"  },
-    { kN32_SkColorType,         "0101111"  },
-    { kRGBA_F16_SkColorType,    "0101011"  },
-};
+static constexpr auto gPairs = std::to_array<Pair>({
+        Pair{ kUnknown_SkColorType,     "0000000"  },
+        Pair{ kAlpha_8_SkColorType,     "0100000"  },
+        Pair{ kRGB_565_SkColorType,     "0101011"  },
+        Pair{ kARGB_4444_SkColorType,   "0101111"  },
+        Pair{ kN32_SkColorType,         "0101111"  },
+        Pair{ kRGBA_F16_SkColorType,    "0101011"  },
+});
 
 static void setup_src_bitmaps(SkBitmap* srcOpaque, SkBitmap* srcPremul,
                               SkColorType ct) {
@@ -174,20 +174,22 @@ DEF_TEST(BitmapReadPixels, reporter) {
     SkImageInfo dstInfo = SkImageInfo::MakeN32Premul(W, H);
     SkPMColor dstPixels[16];
 
-    const struct {
+    struct Rec {
         bool     fExpectedSuccess;
         SkIPoint fRequestedSrcLoc;
         SkISize  fRequestedDstSize;
         // If fExpectedSuccess, check these, otherwise ignore
         SkIPoint fExpectedDstLoc;
         SkIRect  fExpectedSrcR;
-    } gRec[] = {
-        { true,  { 0, 0 }, { 4, 4 }, { 0, 0 }, { 0, 0, 4, 4 } },
-        { true,  { 1, 1 }, { 2, 2 }, { 0, 0 }, { 1, 1, 3, 3 } },
-        { true,  { 2, 2 }, { 4, 4 }, { 0, 0 }, { 2, 2, 4, 4 } },
-        { true,  {-1,-1 }, { 2, 2 }, { 1, 1 }, { 0, 0, 1, 1 } },
-        { false, {-1,-1 }, { 1, 1 }, { 0, 0 }, { 0, 0, 0, 0 } },
     };
+
+    static constexpr auto gRec = std::to_array<Rec>({
+            Rec{ true,  { 0, 0 }, { 4, 4 }, { 0, 0 }, { 0, 0, 4, 4 } },
+            Rec{ true,  { 1, 1 }, { 2, 2 }, { 0, 0 }, { 1, 1, 3, 3 } },
+            Rec{ true,  { 2, 2 }, { 4, 4 }, { 0, 0 }, { 2, 2, 4, 4 } },
+            Rec{ true,  {-1,-1 }, { 2, 2 }, { 1, 1 }, { 0, 0, 1, 1 } },
+            Rec{ false, {-1,-1 }, { 1, 1 }, { 0, 0 }, { 0, 0, 0, 0 } },
+    });
 
     for (size_t i = 0; i < std::size(gRec); ++i) {
         clear_4x4_pixels(dstPixels);

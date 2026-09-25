@@ -183,14 +183,19 @@ static void test_wacky_bitmapshader(skiatest::Reporter* reporter,
  *  memory allocation limit).
  */
 static void test_giantrepeat_crbug118018(skiatest::Reporter* reporter) {
-    static const struct {
+    struct Tests {
         int fWidth;
         int fHeight;
-    } gTests[] = {
-        { 0x1b294, 0x7f},   // crbug.com/40054915 (width exceeds 64K)... should draw safely now.
-        { 0xFFFF, 0x7f },   // should draw, test max width
-        { 0x7f, 0xFFFF },   // should draw, test max height
     };
+
+    static constexpr auto gTests = std::to_array<Tests>({
+            // crbug.com/40054915 (width exceeds 64K)... should draw safely now.
+            Tests{ 0x1b294, 0x7f},
+            // should draw, test max width
+            Tests{ 0xFFFF, 0x7f },
+            // should draw, test max height
+            Tests{ 0x7f, 0xFFFF },
+    });
 
     for (size_t i = 0; i < std::size(gTests); ++i) {
         test_wacky_bitmapshader(reporter,

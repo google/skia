@@ -51,12 +51,12 @@
 #include "include/gpu/graphite/Surface.h"
 #endif
 
-#include <math.h>
-#include <string.h>
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
+#include <math.h>
+#include <string.h>
 
 struct GrContextOptions;
 
@@ -90,16 +90,16 @@ static SkPath draw50x50Rect() {
 }
 
 //Tests
-static BlurTest tests[] = {
-    { draw50x50Rect, 3, {
-        //inner half of blur
-        { 0, 0, 50, 50 },
-        //blur, but no path.
-        { 50 + strokeWidth/2, 50 + strokeWidth/2, 100, 100 },
-        //just an edge
-        { 40, strokeWidth, 60, 50 - strokeWidth },
-    }},
-};
+static constexpr auto tests = std::to_array<BlurTest>({
+        BlurTest{ draw50x50Rect, 3, {
+                // inner half of blur
+                { 0, 0, 50, 50 },
+                // blur, but no path.
+                { 50 + strokeWidth/2, 50 + strokeWidth/2, 100, 100 },
+                // just an edge
+                { 40, strokeWidth, 60, 50 - strokeWidth },
+        }},
+});
 
 /** Assumes that the ref draw was completely inside ref canvas --
     implies that everything outside is "bgColor".
@@ -366,13 +366,16 @@ DEF_TEST(BlurSigmaRange, reporter) {
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 DEF_TEST(BlurAsABlur, reporter) {
-    const SkBlurStyle styles[] = {
-        kNormal_SkBlurStyle, kSolid_SkBlurStyle, kOuter_SkBlurStyle, kInner_SkBlurStyle
-    };
-    const SkScalar sigmas[] = {
-        // values <= 0 should not success for a blur
-        -1, 0, 0.5f, 2
-    };
+    static constexpr auto styles = std::to_array<SkBlurStyle>({
+            kNormal_SkBlurStyle,
+            kSolid_SkBlurStyle,
+            kOuter_SkBlurStyle,
+            kInner_SkBlurStyle,
+    });
+    static constexpr auto sigmas = std::to_array<SkScalar>({
+            // values <= 0 should not success for a blur
+            -1, 0, 0.5f, 2,
+    });
 
     // Test asABlur for SkBlurMaskFilter
     //
