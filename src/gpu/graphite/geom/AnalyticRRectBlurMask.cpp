@@ -11,6 +11,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/private/SkAttributes.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/graphite/ProxyCache.h"
 #include "src/gpu/graphite/RecorderPriv.h"
@@ -48,7 +49,7 @@ std::optional<AnalyticRRectBlurMask> AnalyticRRectBlurMask::Make(
                 for (int i = 0; i < kCdfLutSize; i++) {
                     float x = -kCdfLutRange + 2.0f * kCdfLutRange * (i + 0.5f) / kCdfLutSize;
                     float cdf = 0.5f + 0.5f * std::erf(x);
-                    pixels[i] = static_cast<uint8_t>(std::round(cdf * 255.0f));
+                    SK_UNSAFE_TODO(pixels[i]) = static_cast<uint8_t>(std::round(cdf * 255.0f));
                 }
                 bmp.setImmutable();
                 return bmp;

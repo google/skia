@@ -11,6 +11,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/private/SkAssert.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkBlockAllocator.h"
 #include "src/core/SkTBlockList.h"
@@ -170,19 +171,20 @@ public:
         SkASSERT(!bounds.isEmptyNegativeOrNaN());
 
         auto ltrb = this->getGridCoords(bounds);
-        const CompressedPaintersOrder* p = fNodes.data() + ltrb[1] * fGridWidth + ltrb[0];
+        const CompressedPaintersOrder* p =
+                SK_UNSAFE_TODO(fNodes.data() + ltrb[1] * fGridWidth + ltrb[0]);
         int h = ltrb[3] - ltrb[1];
         int w = ltrb[2] - ltrb[0];
 
         CompressedPaintersOrder max = CompressedPaintersOrder::First();
         for (int y = 0; y <= h; ++y ) {
             for (int x = 0; x <= w; ++x) {
-                CompressedPaintersOrder v = *(p + x);
+                CompressedPaintersOrder v = SK_UNSAFE_TODO(p[x]);
                 if (v > max) {
                     max = v;
                 }
             }
-            p = p + fGridWidth;
+            p = SK_UNSAFE_TODO(p + fGridWidth);
         }
 
         return max;
@@ -192,23 +194,24 @@ public:
         SkASSERT(!bounds.isEmptyNegativeOrNaN());
 
         auto ltrb = this->getGridCoords(bounds);
-        CompressedPaintersOrder* p = fNodes.data() + ltrb[1] * fGridWidth + ltrb[0];
+        CompressedPaintersOrder* p = SK_UNSAFE_TODO(fNodes.data() + ltrb[1] * fGridWidth + ltrb[0]);
         int h = ltrb[3] - ltrb[1];
         int w = ltrb[2] - ltrb[0];
 
         for (int y = 0; y <= h; ++y) {
             for (int x = 0; x <= w; ++x) {
-                CompressedPaintersOrder v = *(p + x);
+                CompressedPaintersOrder v = SK_UNSAFE_TODO(p[x]);
                 if (order > v) {
-                    *(p + x) = order;
+                    SK_UNSAFE_TODO(p[x]) = order;
                 }
             }
-            p = p + fGridWidth;
+            p = SK_UNSAFE_TODO(p + fGridWidth);
         }
     }
 
     void reset() override {
-        memset(fNodes.data(), 0, sizeof(CompressedPaintersOrder) * fGridWidth * fGridHeight);
+        SK_UNSAFE_TODO(memset(
+                fNodes.data(), 0, sizeof(CompressedPaintersOrder) * fGridWidth * fGridHeight));
     }
 
 private:

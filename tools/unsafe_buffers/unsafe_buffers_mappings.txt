@@ -26,17 +26,7 @@ src:*src/gpu/graphite/*=emit
 src:*src/gpu/graphite/DrawAtlas.cpp
 src:*src/gpu/graphite/KeyHelpers.h
 src:*src/gpu/graphite/RendererProvider.h
-src:*src/gpu/graphite/dawn/DawnErrorChecker.cpp
-src:*src/gpu/graphite/dawn/DawnGraphicsPipeline.cpp
-src:*src/gpu/graphite/dawn/DawnGraphiteUtils.cpp
-src:*src/gpu/graphite/dawn/DawnResourceProvider.cpp
-src:*src/gpu/graphite/dawn/DawnSampler.cpp
-src:*src/gpu/graphite/dawn/DawnSharedContext.cpp
-src:*src/gpu/graphite/dawn/DawnTexture.cpp
 src:*src/gpu/graphite/dawn/DawnTextureInfo.cpp
-src:*src/gpu/graphite/geom/AnalyticBlurMask.cpp
-src:*src/gpu/graphite/geom/AnalyticRRectBlurMask.cpp
-src:*src/gpu/graphite/geom/BoundsManager.h
 src:*src/gpu/graphite/geom/EdgeAAQuad.h
 src:*src/gpu/graphite/geom/IntersectionTree.cpp
 src:*src/gpu/graphite/geom/Shape.cpp

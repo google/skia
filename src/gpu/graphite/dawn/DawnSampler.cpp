@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/dawn/DawnSampler.h"
 
 #include "include/core/SkSamplingOptions.h"
+#include "include/private/SkAttributes.h"
 #include "src/gpu/graphite/dawn/DawnCaps.h"
 #include "src/gpu/graphite/dawn/DawnGraphiteUtils.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
@@ -102,10 +103,12 @@ sk_sp<DawnSampler> DawnSampler::Make(const DawnSharedContext* sharedContext,
         static const char* tileModeLabels[] = {"Clamp", "Repeat", "Mirror", "Decal"};
         static const char* minMagFilterLabels[] = {"Nearest", "Linear"};
         static const char* mipFilterLabels[] = {"MipNone", "MipNearest", "MipLinear"};
-        label.append("X").append(tileModeLabels[static_cast<int>(samplerDesc.tileModeX())]);
-        label.append("Y").append(tileModeLabels[static_cast<int>(samplerDesc.tileModeY())]);
-        label.append(minMagFilterLabels[static_cast<int>(samplingOptions.filter)]);
-        label.append(mipFilterLabels[static_cast<int>(samplingOptions.mipmap)]);
+        label.append("X").append(
+                SK_UNSAFE_TODO(tileModeLabels[static_cast<int>(samplerDesc.tileModeX())]));
+        label.append("Y").append(
+                SK_UNSAFE_TODO(tileModeLabels[static_cast<int>(samplerDesc.tileModeY())]));
+        label.append(SK_UNSAFE_TODO(minMagFilterLabels[static_cast<int>(samplingOptions.filter)]));
+        label.append(SK_UNSAFE_TODO(mipFilterLabels[static_cast<int>(samplingOptions.mipmap)]));
 #if !defined(__EMSCRIPTEN__)
         if (DawnDescriptorIsValid(ycbcrDescriptor)) {
             label.append("YCbCr");
@@ -133,7 +136,8 @@ sk_sp<DawnSampler> DawnSampler::Make(const DawnSharedContext* sharedContext,
             static const char* chromaFilterLabels[] = {
                     "WGPU_Undefined", "WGPU_Nearest", "WGPU_Linear"};
             label.append("ChromaFilter");
-            label.append(chromaFilterLabels[static_cast<int>(ycbcrDescriptor.vkChromaFilter)]);
+            label.append(SK_UNSAFE_TODO(
+                    chromaFilterLabels[static_cast<int>(ycbcrDescriptor.vkChromaFilter)]));
 
             label.append("ForceExplicitReconstruct");
             label.append(std::to_string(ycbcrDescriptor.forceExplicitReconstruction));

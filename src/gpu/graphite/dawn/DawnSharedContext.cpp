@@ -10,6 +10,7 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/dawn/DawnBackendContext.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkLog.h"
 #include "src/gpu/graphite/dawn/DawnGraphicsPipeline.h"
 #include "src/gpu/graphite/dawn/DawnResourceProvider.h"
@@ -152,7 +153,7 @@ void DawnSharedContext::createUniformBuffersBindGroupLayout() {
     };
 
     for (size_t i = 0; i < std::size(kVisibilities); ++i) {
-        entries[2].visibility = kVisibilities[i];
+        entries[2].visibility = SK_UNSAFE_TODO(kVisibilities[i]);
         fUniformBuffersBindGroupLayouts[i] = this->device().CreateBindGroupLayout(&groupLayoutDesc);
     }
 }

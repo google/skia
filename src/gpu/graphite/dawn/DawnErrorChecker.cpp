@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/dawn/DawnErrorChecker.h"
 
 #include "include/private/SkAssert.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkLog.h"
 #include "src/gpu/graphite/dawn/DawnAsyncWait.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
@@ -92,12 +93,12 @@ SkEnumBitMask<DawnErrorType> DawnErrorChecker::popErrorScopes() {
         SkASSERT(status == wgpu::PopErrorScopeStatus::Success);
         if (type != wgpu::ErrorType::NoError) {
             SkASSERT(errorState->fScopeIdx >= 0);
-            const char* errorScopeName = kErrorScopeNames[errorState->fScopeIdx];
+            const char* errorScopeName = SK_UNSAFE_TODO(kErrorScopeNames[errorState->fScopeIdx]);
             SKIA_LOG_E("Failed in error scope (%s): %.*s",
                         errorScopeName,
                         static_cast<int>(msg.length),
                         msg.data);
-            errorState->fError |= kErrorScopeTypes[errorState->fScopeIdx];
+            errorState->fError |= SK_UNSAFE_TODO(kErrorScopeTypes[errorState->fScopeIdx]);
         }
         errorState->fScopeIdx--;
     };

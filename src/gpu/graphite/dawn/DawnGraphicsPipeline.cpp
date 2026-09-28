@@ -9,6 +9,7 @@
 
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/gpu/graphite/dawn/DawnGraphiteTypes.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkLog.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkTBlockList.h"
@@ -248,7 +249,7 @@ static wgpu::BlendOperation blend_equation_to_dawn_blend_op(skgpu::BlendEquation
     static_assert(2 == (int)skgpu::BlendEquation::kReverseSubtract);
 
     SkASSERT((unsigned)equation < skgpu::kBlendEquationCnt);
-    return gTable[(int)equation];
+    return SK_UNSAFE_TODO(gTable[(int)equation]);
 }
 
 struct AsyncPipelineCreationBase {
