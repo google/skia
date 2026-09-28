@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/StorageContext.h"
 
 #include "include/private/SkAlign.h"
+#include "include/private/SkAttributes.h"
 #include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/DrawContext.h"
@@ -87,8 +88,8 @@ std::pair<float*, int> StorageContext::allocateGradientData(int numStops,
     }
 
     fGradientCache.fGradientData.resize(floatOffset + floatCount);
-    float* dstData = fGradientCache.fGradientData.data() + floatOffset;
-    memset(dstData, 0, floatCount * sizeof(float));
+    float* dstData = SK_UNSAFE_TODO(fGradientCache.fGradientData.data() + floatOffset);
+    SK_UNSAFE_TODO(memset(dstData, 0, floatCount * sizeof(float)));
 
     shader->ref();
     fGradientCache.fLocalGradientOffsetCache.set(shader, floatOffset);
@@ -134,7 +135,7 @@ uint32_t StorageContext::appendVertices(const void* data,
     uint32_t alignedVertOffset = SkAlignNonPow2(static_cast<uint32_t>(fVertexData.size()), align32);
     if (alignedVertOffset > static_cast<uint32_t>(fVertexData.size())) {
         int padBytes = alignedVertOffset - fVertexData.size();
-        memset(fVertexData.append(padBytes), 0, padBytes);
+        SK_UNSAFE_TODO(memset(fVertexData.append(padBytes), 0, padBytes));
     }
 
     char* dst = fVertexData.append(requiredBytes);
@@ -143,15 +144,15 @@ uint32_t StorageContext::appendVertices(const void* data,
     // addresses instances by whole texels (index * nTexels). Pad each instance's stride to a
     // 16-byte texel boundary so subsequent instances align with the shader's texel indexing.
     if (stride == paddedStride) {
-        memcpy(dst, data, requiredBytes);
+        SK_UNSAFE_TODO(memcpy(dst, data, requiredBytes));
     } else {
         const char* src = static_cast<const char*>(data);
         size_t diff = paddedStride - stride;
         for (size_t i = 0; i < count; ++i) {
-            memcpy(dst, src, stride);
-            memset(dst + stride, 0, diff);
-            dst += paddedStride;
-            src += stride;
+            SK_UNSAFE_TODO(memcpy(dst, src, stride));
+            SK_UNSAFE_TODO(memset(dst + stride, 0, diff));
+            SK_UNSAFE_TODO(dst += paddedStride);
+            SK_UNSAFE_TODO(src += stride);
         }
     }
 
@@ -238,15 +239,17 @@ sk_sp<TextureProxy> StorageContext::finalizeTexture(Recorder* recorder, DrawCont
     size_t paddedBytes = static_cast<size_t>(height) * atlasRowBytes;
     SkTDArray<char> uploadBuffer;
     uploadBuffer.resize(paddedBytes);
-    memset(uploadBuffer.data(), 0, paddedBytes);
+    SK_UNSAFE_TODO(memset(uploadBuffer.data(), 0, paddedBytes));
 
     if (gradSize > 0) {
-        memcpy(uploadBuffer.data(), fGradientCache.fGradientData.data(),
-               fGradientCache.fGradientData.size_bytes());
+        SK_UNSAFE_TODO(memcpy(uploadBuffer.data(),
+                              fGradientCache.fGradientData.data(),
+                              fGradientCache.fGradientData.size_bytes()));
     }
 
     if (!fVertexData.empty()) {
-        memcpy(uploadBuffer.data() + gradSize, fVertexData.data(), fVertexData.size_bytes());
+        SK_UNSAFE_TODO(memcpy(
+                uploadBuffer.data() + gradSize, fVertexData.data(), fVertexData.size_bytes()));
     }
 
     sk_sp<TextureProxy> proxy = create_texture_proxy(recorder, width, height);

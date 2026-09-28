@@ -22,6 +22,7 @@
 #include "include/gpu/graphite/ImageProvider.h"
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/TextureInfo.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkLog.h"
 #include "src/capture/SkCaptureManager.h"
 #include "src/core/SkMipmap.h"
@@ -426,8 +427,9 @@ bool Recorder::updateBackendTexture(const BackendTexture& backendTex,
 
     skia_private::STArray<16, MipLevel> mipLevels(numLevels);
     for (int i = 0; i < numLevels; ++i) {
-        SkASSERT(srcData[i].info().colorInfo() == srcData[0].info().colorInfo());
-        mipLevels.push_back({srcData[i].addr(), srcData[i].rowBytes()});
+        SkASSERT(SK_UNSAFE_TODO(srcData[i].info().colorInfo()) == srcData[0].info().colorInfo());
+        mipLevels.push_back(
+                {SK_UNSAFE_TODO(srcData[i].addr()), SK_UNSAFE_TODO(srcData[i].rowBytes())});
     }
 
     // Src and dst colorInfo are the same

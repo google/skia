@@ -9,6 +9,7 @@
 
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkVertices.h"
+#include "include/private/SkAttributes.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/InternalDrawTypeFlags.h"
 #include "src/gpu/graphite/UniformManager.h"
@@ -147,7 +148,7 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
     };
 
     for (auto textVariant : kBitmapTextVariants) {
-        initFromStep(&fBitmapText[int(textVariant.fFormat)],
+        initFromStep(SK_UNSAFE_TODO(&fBitmapText[int(textVariant.fFormat)]),
                      std::make_unique<BitmapTextRenderStep>(layout, textVariant.fFormat),
                      textVariant.fDrawType);
     }
@@ -189,7 +190,7 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
             }
 
             int index = 2*color + texCoords;
-            initFromStep(&fVertices[index],
+            initFromStep(SK_UNSAFE_TODO(&fVertices[index]),
                          std::make_unique<VerticesRenderStep>(layout, color, texCoords),
                          dtFlags);
         }
@@ -214,17 +215,17 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
                     {"[winding]", "[evenodd]", "[inverse-winding]", "[inverse-evenodd]"};
 
             int index = 2*inverse + evenOdd; // matches SkPathFillType
-            std::string variant = kTessVariants[index];
+            std::string variant = SK_UNSAFE_TODO(kTessVariants[index]);
 
             const RenderStep* coverStep = inverse ? coverInverse.get() : coverFill.get();
-            this->initRenderer(&fStencilTessellatedCurves[index],
+            this->initRenderer(SK_UNSAFE_TODO(&fStencilTessellatedCurves[index]),
                                "StencilTessellatedCurvesAndTris" + variant,
                                DrawTypeFlags::kNonSimpleShape,
                                stencilFan.get(),
                                stencilCurve.get(),
                                coverStep);
 
-            this->initRenderer(&fStencilTessellatedWedges[index],
+            this->initRenderer(SK_UNSAFE_TODO(&fStencilTessellatedWedges[index]),
                                "StencilTessellatedWedges" + variant,
                                DrawTypeFlags::kNonSimpleShape,
                                stencilWedge.get(),

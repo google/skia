@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/ShaderInfo.h"
 
 #include "include/core/SkMesh.h"
+#include "include/private/SkAttributes.h"
 #include "src/core/SkMeshPriv.h"
 #include "src/gpu/BlendFormula.h"
 #include "src/gpu/graphite/ContextUtils.h"
@@ -397,17 +398,18 @@ std::string emit_storage_fallback_texture(const ResourceBindingRequirements& bin
             // std140/std430 dictates 16-byte alignment for vec3; startComp must be 0 to avoid OOB
             // swizzles.
             SkASSERT(startComp == 0);
-            expr = SkSL::String::printf(
-                    "t%d.%s%s%s",
-                    startTexel,
-                    kSwizzles[startComp],
-                    kSwizzles[startComp + 1],
-                    kSwizzles[startComp + 2]);
+            expr = SkSL::String::printf("t%d.%s%s%s",
+                                        startTexel,
+                                        SK_UNSAFE_TODO(kSwizzles[startComp]),
+                                        SK_UNSAFE_TODO(kSwizzles[startComp + 1]),
+                                        SK_UNSAFE_TODO(kSwizzles[startComp + 2]));
         } else if (vec == 2) {
-            expr = SkSL::String::printf(
-                    "t%d.%s%s", startTexel, kSwizzles[startComp], kSwizzles[startComp + 1]);
+            expr = SkSL::String::printf("t%d.%s%s",
+                                        startTexel,
+                                        SK_UNSAFE_TODO(kSwizzles[startComp]),
+                                        SK_UNSAFE_TODO(kSwizzles[startComp + 1]));
         } else {
-            expr = SkSL::String::printf("t%d.%s", startTexel, kSwizzles[startComp]);
+            expr = SkSL::String::printf("t%d.%s", startTexel, SK_UNSAFE_TODO(kSwizzles[startComp]));
         }
 
         switch (a.type()) {
@@ -483,7 +485,8 @@ void append_sampler_descs(const SkSpan<const uint32_t> samplerData,
             samplerDescLength = usesExternalFormat ? SamplerDesc::kInt32sNeededExternalFormat
                                                    : SamplerDesc::kInt32sNeededKnownFormat;
             // Populate a SamplerDesc with samplerDescLength quantity of immutable sampler data
-            memcpy(&desc, samplerData.data() + i, samplerDescLength * sizeof(uint32_t));
+            SK_UNSAFE_TODO(
+                    memcpy(&desc, samplerData.data() + i, samplerDescLength * sizeof(uint32_t)));
         }
         outDescs.push_back(desc);
         i += samplerDescLength;
@@ -1405,7 +1408,7 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
         // Either direct HW blending or a dst-read w/o any extra coverage. In both cases we just
         // need to assign directly to sk_FragCoord and update the HW blend info to finalBlendMode.
         SkASSERT(finalBlendMode.has_value());
-        fBlendInfo = gBlendTable[static_cast<int>(*finalBlendMode)];
+        fBlendInfo = SK_UNSAFE_TODO(gBlendTable[static_cast<int>(*finalBlendMode)]);
         SkSL::String::appendf(&mainBody, "sk_FragColor = %s;", args.fPriorStageOutput.c_str());
     } else {
         // Accumulate the output coverage. This will either modify the src color and secondary
@@ -1453,7 +1456,7 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
 
             // Use kSrc HW BlendInfo and do the coverage blend with dst in the shader.
             SkASSERT(finalBlendMode.has_value() && finalBlendMode.value() == SkBlendMode::kSrc);
-            fBlendInfo = gBlendTable[static_cast<int>(*finalBlendMode)];
+            fBlendInfo = SK_UNSAFE_TODO(gBlendTable[static_cast<int>(*finalBlendMode)]);
             SkSL::String::appendf(
                     &mainBody,
                     "sk_FragColor = %s * outputCoverage + dstColor * (1.0 - outputCoverage);",
@@ -1470,7 +1473,7 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
             // the correct output.
             if (finalBlendMode > SkBlendMode::kLastCoeffMode) {
                 SkASSERT(finalCoverage == Coverage::kSingleChannel);
-                fBlendInfo = gBlendTable[static_cast<int>(*finalBlendMode)];
+                fBlendInfo = SK_UNSAFE_TODO(gBlendTable[static_cast<int>(*finalBlendMode)]);
                 mainBody += emit_advanced_blend_color_output("sk_FragColor", outColor);
             } else {
                 // Porter-Duff blend modes can utilize BlendFormula.

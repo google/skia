@@ -9,6 +9,7 @@
 
 #include "include/core/SkFourByteTag.h"
 #include "include/core/SkStream.h"
+#include "include/private/SkAttributes.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/gpu/SwizzlePriv.h"
 #include "src/gpu/graphite/Caps.h"
@@ -39,7 +40,7 @@ constexpr bool is_valid_samplecount(uint32_t sampleCount) {
         return false;
     }
 
-    if (0 != memcmp(magic, kMagic, sizeof(kMagic))) {
+    if (0 != SK_UNSAFE_TODO(memcmp(magic, kMagic, sizeof(kMagic)))) {
         return false;
     }
 

@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/ResourceCache.h"
 
 #include "include/private/SingleOwner.h"
+#include "include/private/SkAttributes.h"
 #include "src/core/SkNoDestructor.h"
 #include "src/core/SkRandom.h"
 #include "src/core/SkTMultiMap.h"
@@ -93,7 +94,7 @@ void ResourceCache::shutdown() {
     }
 
     while (!fNonpurgeableResources.empty()) {
-        Resource* back = *(fNonpurgeableResources.end() - 1);
+        Resource* back = *(SK_UNSAFE_TODO(fNonpurgeableResources.end() - 1));
         SkASSERT(!back->wasDestroyed());
         this->removeFromNonpurgeableArray(back);
 
@@ -540,7 +541,7 @@ void ResourceCache::removeFromNonpurgeableArray(Resource* resource) {
     int* index = resource->accessCacheIndex();
     // Fill the hole we will create in the array with the tail object, adjust its index, and
     // then pop the array
-    Resource* tail = *(fNonpurgeableResources.end() - 1);
+    Resource* tail = *(SK_UNSAFE_TODO(fNonpurgeableResources.end() - 1));
     SkASSERT(fNonpurgeableResources[*index] == resource);
     fNonpurgeableResources[*index] = tail;
     *tail->accessCacheIndex() = *index;
@@ -821,7 +822,7 @@ void ResourceCache::validate() const {
         const PurgeableQueue* fPurgeableQueue;
 
         Stats(const ResourceCache* cache) {
-            memset(this, 0, sizeof(*this));
+            SK_UNSAFE_TODO(memset(this, 0, sizeof(*this)));
             fResourceMap = &cache->fResourceMap;
             fPurgeableQueue = &cache->fPurgeableQueue;
         }

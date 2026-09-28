@@ -25,17 +25,7 @@ src:*src/gpu/graphite/*=emit
 # file-wide suppressions.
 src:*src/gpu/graphite/DrawAtlas.cpp
 src:*src/gpu/graphite/KeyHelpers.h
-src:*src/gpu/graphite/Recorder.cpp
-src:*src/gpu/graphite/RenderPassDesc.cpp
-src:*src/gpu/graphite/RendererProvider.cpp
 src:*src/gpu/graphite/RendererProvider.h
-src:*src/gpu/graphite/ResourceCache.cpp
-src:*src/gpu/graphite/SerializationUtils.cpp
-src:*src/gpu/graphite/ShaderCodeDictionary.cpp
-src:*src/gpu/graphite/ShaderInfo.cpp
-src:*src/gpu/graphite/SharedContext.cpp
-src:*src/gpu/graphite/StorageContext.cpp
-src:*src/gpu/graphite/Surface_Graphite.cpp
 src:*src/gpu/graphite/TextureFormatXferFn.cpp
 src:*src/gpu/graphite/TextureInfo.cpp
 src:*src/gpu/graphite/TextureProxy.cpp
