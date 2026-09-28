@@ -99,6 +99,18 @@ private:
         // a separate fInterlacedBuffer along with fPreblendBuffer.
         SkCodecPriv::BudgetedBuffer fPreblendBuffer;
 
+        // Single-row scratch buffers used when decoding interlaced images (unless
+        // decoding a subset or sampling, where the whole untransformed image is
+        // decoded into `fPreblendBuffer` first):
+        // * `fDecodedInterlacedFullWidthRow` (size `getEncodedRowBytes()`): holds
+        //   the decoded interlaced row padded to full width (used by `read_row` in
+        //   `incrementalDecode`, or to pad `srcRow` for `applyXformRow` in
+        //   `expandDecodedInterlacedRow`).
+        // * `fXformedInterlacedRow` (size `fDstRowSize`): holds the color-transformed
+        //   interlaced row in `expandDecodedInterlacedRow` when `!canReadRow()`.
+        SkCodecPriv::BudgetedBuffer fDecodedInterlacedFullWidthRow;
+        SkCodecPriv::BudgetedBuffer fXformedInterlacedRow;
+
         int fFirstRow = 0;
         int fLastRow = 0;
 
@@ -132,7 +144,8 @@ private:
 
     // Helper for taking a decoded interlaced `srcRow`, applying color
     // transformations, and then expanding it into the `frame`.
-    void expandDecodedInterlacedRow(SkSpan<uint8_t> dstFrame,
+    void expandDecodedInterlacedRow(DecodingState& decodingState,
+                                    SkSpan<uint8_t> dstFrame,
                                     SkSpan<const uint8_t> srcRow,
                                     const DecodingDstInfo& decodingDst,
                                     bool xFormNeeded);
