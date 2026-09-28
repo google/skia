@@ -13,6 +13,8 @@
 #include "src/gpu/graphite/ComputeTypes.h"
 #include "src/gpu/graphite/Resource.h"
 
+#include <array>
+
 #import <Metal/Metal.h>
 
 namespace skgpu::graphite {
@@ -126,15 +128,7 @@ private:
             : Resource(sharedContext,
                        Ownership::kOwned,
                        /*gpuMemorySize=*/0)
-            , fCommandEncoder(std::move(encoder)) {
-        for (int i = 0; i < kMaxExpectedBuffers; i++) {
-            fBuffers[i] = nil;
-        }
-        for (int i = 0; i < kMaxExpectedTextures; i++) {
-            fTextures[i] = nil;
-            fSamplers[i] = nil;
-        }
-    }
+            , fCommandEncoder(std::move(encoder)) {}
 
     void freeGpuData() override { fCommandEncoder.reset(); }
 
@@ -142,11 +136,11 @@ private:
 
     id<MTLComputePipelineState> fCurrentComputePipelineState = nil;
 
-    id<MTLBuffer> fBuffers[kMaxExpectedBuffers];
-    NSUInteger    fBufferOffsets[kMaxExpectedBuffers];
+    std::array<id<MTLBuffer>, kMaxExpectedBuffers> fBuffers = {};
+    std::array<NSUInteger, kMaxExpectedBuffers>    fBufferOffsets = {};
 
-    id<MTLTexture>      fTextures[kMaxExpectedTextures];
-    id<MTLSamplerState> fSamplers[kMaxExpectedTextures];
+    std::array<id<MTLTexture>, kMaxExpectedTextures>      fTextures = {};
+    std::array<id<MTLSamplerState>, kMaxExpectedTextures> fSamplers = {};
 };
 
 }  // namespace skgpu::graphite

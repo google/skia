@@ -81,6 +81,8 @@ src:*src/gpu/graphite/geom/EdgeAAQuad.h
 src:*src/gpu/graphite/geom/IntersectionTree.cpp
 src:*src/gpu/graphite/geom/Shape.cpp
 src:*src/gpu/graphite/geom/Transform.cpp
+src:*src/gpu/graphite/mtl/MtlCaps.mm
+src:*src/gpu/graphite/mtl/MtlCommandBuffer.mm
 src:*src/gpu/graphite/precompile/PrecompileShader.cpp
 src:*src/gpu/graphite/render/BitmapTextRenderStep.cpp
 src:*src/gpu/graphite/render/MeshRenderStep.cpp

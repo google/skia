@@ -12,6 +12,8 @@
 #include "include/ports/SkCFObject.h"
 #include "src/gpu/graphite/Resource.h"
 
+#include <array>
+
 #import <Metal/Metal.h>
 
 namespace skgpu::graphite {
@@ -218,12 +220,7 @@ private:
             : Resource(sharedContext,
                        Ownership::kOwned,
                        /*gpuMemorySize=*/0)
-            , fCommandEncoder(std::move(encoder)) {
-        for (int i = 0; i < kMaxExpectedTextures; i++) {
-            fCurrentTexture[i] = nil;
-            fCurrentSampler[i] = nil;
-        }
-    }
+            , fCommandEncoder(std::move(encoder)) {}
 
     void freeGpuData() override {
         fCommandEncoder.reset();
@@ -235,8 +232,8 @@ private:
     id<MTLDepthStencilState> fCurrentDepthStencilState = nil;
     uint32_t fCurrentStencilReferenceValue = 0; // Metal default value
 
-    id<MTLTexture> fCurrentTexture[kMaxExpectedTextures];
-    id<MTLSamplerState> fCurrentSampler[kMaxExpectedTextures];
+    std::array<id<MTLTexture>, kMaxExpectedTextures>      fCurrentTexture = {};
+    std::array<id<MTLSamplerState>, kMaxExpectedTextures> fCurrentSampler = {};
 
     MTLScissorRect fCurrentScissorRect = { 0, 0, 0, 0 };
     MTLTriangleFillMode fCurrentTriangleFillMode = (MTLTriangleFillMode)-1;
