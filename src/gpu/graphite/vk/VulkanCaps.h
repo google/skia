@@ -41,7 +41,7 @@ public:
                               GraphicsPipelineDesc*,
                               RenderPassDesc*,
                               const RendererProvider*) const override;
-    UniqueKey makeComputePipelineKey(const ComputePipelineDesc&) const override { return {}; }
+    UniqueKey makeComputePipelineKey(const ComputePipelineDesc&) const override;
 
     void buildKeyForTexture(SkISize dimensions,
                             const TextureInfo&,

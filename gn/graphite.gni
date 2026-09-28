@@ -417,6 +417,8 @@ skia_graphite_vk_sources = [
   "$_src/gpu/graphite/vk/VulkanCaps.h",
   "$_src/gpu/graphite/vk/VulkanCommandBuffer.cpp",
   "$_src/gpu/graphite/vk/VulkanCommandBuffer.h",
+  "$_src/gpu/graphite/vk/VulkanComputePipeline.cpp",
+  "$_src/gpu/graphite/vk/VulkanComputePipeline.h",
   "$_src/gpu/graphite/vk/VulkanDescriptorPool.cpp",
   "$_src/gpu/graphite/vk/VulkanDescriptorPool.h",
   "$_src/gpu/graphite/vk/VulkanDescriptorSet.cpp",

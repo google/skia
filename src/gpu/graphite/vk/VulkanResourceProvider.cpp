@@ -22,6 +22,7 @@
 #include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/gpu/graphite/vk/VulkanBuffer.h"
 #include "src/gpu/graphite/vk/VulkanCommandBuffer.h"
+#include "src/gpu/graphite/vk/VulkanComputePipeline.h"
 #include "src/gpu/graphite/vk/VulkanDescriptorPool.h"
 #include "src/gpu/graphite/vk/VulkanDescriptorSet.h"
 #include "src/gpu/graphite/vk/VulkanFramebuffer.h"
@@ -127,8 +128,9 @@ sk_sp<Texture> VulkanResourceProvider::onCreateWrappedTexture(const BackendTextu
                                       label);
 }
 
-sk_sp<ComputePipeline> VulkanResourceProvider::createComputePipeline(const ComputePipelineDesc&) {
-    return nullptr;
+sk_sp<ComputePipeline> VulkanResourceProvider::createComputePipeline(
+        const ComputePipelineDesc& desc) {
+    return VulkanComputePipeline::Make(this->nonConstVulkanSharedContext(), desc);
 }
 
 const VulkanTexture* VulkanResourceProvider::getOrCreateNullTexture() {

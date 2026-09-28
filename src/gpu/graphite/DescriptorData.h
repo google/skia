@@ -41,6 +41,11 @@ enum class PipelineStageFlags : uint8_t {
 };
 SK_MAKE_BITMASK_OPS(PipelineStageFlags)
 
+static_assert((PipelineStageFlags::kVertexShader |
+               PipelineStageFlags::kFragmentShader |
+               PipelineStageFlags::kCompute).value() < 16,
+              "PipelineStageFlags bitmask exceeds 4 bits allocated in descriptor set key");
+
 struct DescriptorData {
     DescriptorData(DescriptorType type,
                    uint32_t count,

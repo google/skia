@@ -15,6 +15,8 @@ VULKAN_FILES = [
     "VulkanCaps.h",
     "VulkanCommandBuffer.cpp",
     "VulkanCommandBuffer.h",
+    "VulkanComputePipeline.cpp",
+    "VulkanComputePipeline.h",
     "VulkanDescriptorPool.cpp",
     "VulkanDescriptorPool.h",
     "VulkanDescriptorSet.cpp",
