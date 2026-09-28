@@ -11,6 +11,7 @@
 #include "include/gpu/graphite/BackendSemaphore.h"
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "include/gpu/vk/VulkanMutableTextureState.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkLog.h"
 #include "include/private/SkTArray.h"
 #include "src/gpu/DataUtils.h"
@@ -369,7 +370,7 @@ void VulkanCommandBuffer::addWaitSemaphores(size_t numWaitSemaphores,
     }
 
     for (size_t i = 0; i < numWaitSemaphores; ++i) {
-        auto& semaphore = waitSemaphores[i];
+        auto& semaphore = SK_UNSAFE_TODO(waitSemaphores[i]);
         if (semaphore.isValid() && semaphore.backend() == BackendApi::kVulkan) {
             fWaitSemaphores.push_back(BackendSemaphores::GetVkSemaphore(semaphore));
         }
@@ -384,7 +385,7 @@ void VulkanCommandBuffer::addSignalSemaphores(size_t numSignalSemaphores,
     }
 
     for (size_t i = 0; i < numSignalSemaphores; ++i) {
-        auto& semaphore = signalSemaphores[i];
+        auto& semaphore = SK_UNSAFE_TODO(signalSemaphores[i]);
         if (semaphore.isValid() && semaphore.backend() == BackendApi::kVulkan) {
             fSignalSemaphores.push_back(BackendSemaphores::GetVkSemaphore(semaphore));
         }
@@ -502,7 +503,7 @@ void VulkanCommandBuffer::prepareBackendTextureForStateUpdate(
 // further tracking.
 const Sampler* VulkanCommandBuffer::getSampler(
         const DrawPassCommands::BindTexturesAndSamplers* command, int32_t index) {
-    auto desc = command->fSamplers[index];
+    auto desc = SK_UNSAFE_TODO(command->fSamplers[index]);
     if (desc.isImmutable()) {
         const VulkanSampler* immutableSampler = fActiveGraphicsPipeline->immutableSampler(index);
         if (immutableSampler) {
@@ -542,7 +543,7 @@ static VkResult submit_to_queue(const VulkanSharedContext* sharedContext,
     VkFrameBoundaryEXT frameBoundary;
     if (markFrameBoundary == MarkFrameBoundary::kYes &&
         sharedContext->vulkanCaps().supportsFrameBoundary()) {
-        memset(&frameBoundary, 0, sizeof(VkFrameBoundaryEXT));
+        SK_UNSAFE_TODO(memset(&frameBoundary, 0, sizeof(VkFrameBoundaryEXT)));
         frameBoundary.sType = VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT;
         frameBoundary.flags = VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT;
         frameBoundary.frameID = frameID;
@@ -1580,7 +1581,8 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
                 // Embed immutable samplers into the descriptor set directly, which are held on the
                 // active graphics pipeline and can be indexed directly with `i`.
                 const Sampler* immutableSampler = fActiveGraphicsPipeline->immutableSampler(i);
-                SkASSERT(SkToBool(immutableSampler) == command->fSamplers[i].isImmutable());
+                SkASSERT(SkToBool(immutableSampler) ==
+                         SK_UNSAFE_TODO(command->fSamplers[i].isImmutable()));
                 descriptors.push_back({DescriptorType::kCombinedTextureSampler,
                                        /*count=*/1,
                                        /*bindingIdx=*/i,
@@ -1610,7 +1612,8 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
         TArray<VkDescriptorImageInfo> descriptorImageInfos(numTexSamplers);
         if (command) {
             for (int i = 0; i < command->fNumTexSamplers; ++i) {
-                auto texture = static_cast<const VulkanTexture*>(command->fTextures[i]->texture());
+                auto texture = static_cast<const VulkanTexture*>(
+                        SK_UNSAFE_TODO(command->fTextures[i]->texture()));
                 // TODO(b/294198324): Investigate the root cause for null texture or samplers on
                 // Ubuntu QuadP400 GPU
                 if (!texture) {
@@ -1619,13 +1622,13 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
                     return;
                 }
 
-                if (command->fSamplers[i].isImmutable()) {
+                if (SK_UNSAFE_TODO(command->fSamplers[i].isImmutable())) {
                     populate_write_info(set.get(), descriptorImageInfos, writeDescriptorSets,
                                         texture, /*sampler=*/nullptr, i);
                 } else {
                     auto sampler = static_cast<const VulkanSampler*>(
                             fSharedContext->globalCache()->getDynamicSampler(
-                                    command->fSamplers[i]));
+                                    SK_UNSAFE_TODO(command->fSamplers[i])));
                     // b/294198324, see above
                     if (!sampler) {
                         SKIA_LOG_E("Invalid dynamic sampler.");
@@ -2114,19 +2117,21 @@ bool VulkanCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
     for (int i = 0; i < count; ++i) {
         VkBufferImageCopy& region = regions.push_back();
         region = {};
-        region.bufferOffset = copyData[i].fBufferOffset;
+        region.bufferOffset = SK_UNSAFE_TODO(copyData[i].fBufferOffset);
         // copyData provides row length in bytes, but Vulkan expects bufferRowLength in texels.
         // For compressed this is the number of logical pixels not the number of blocks.
         region.bufferRowLength =
-                (uint32_t)((copyData[i].fBufferRowBytes/bytesPerBlock) * oneBlockDims.fWidth);
+                (uint32_t)((SK_UNSAFE_TODO(copyData[i].fBufferRowBytes) / bytesPerBlock) *
+                           oneBlockDims.fWidth);
         region.bufferImageHeight = 0; // Tightly packed
-        region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, copyData[i].fMipLevel, 0, 1 };
-        region.imageOffset = { copyData[i].fRect.left(),
-                               copyData[i].fRect.top(),
-                               /*z=*/0 };
-        region.imageExtent = { (uint32_t)copyData[i].fRect.width(),
-                               (uint32_t)copyData[i].fRect.height(),
-                               /*depth=*/1 };
+        region.imageSubresource = {
+                VK_IMAGE_ASPECT_COLOR_BIT, SK_UNSAFE_TODO(copyData[i].fMipLevel), 0, 1};
+        region.imageOffset = {SK_UNSAFE_TODO(copyData[i].fRect.left()),
+                              SK_UNSAFE_TODO(copyData[i].fRect.top()),
+                              /*z=*/0};
+        region.imageExtent = {(uint32_t)SK_UNSAFE_TODO(copyData[i].fRect.width()),
+                              (uint32_t)SK_UNSAFE_TODO(copyData[i].fRect.height()),
+                              /*depth=*/1};
     }
 
     // Enable editing of the destination texture so we can change its layout so it can be copied to.

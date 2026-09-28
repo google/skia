@@ -9,6 +9,7 @@
 
 #include "include/gpu/ShaderErrorHandler.h"
 #include "include/gpu/graphite/TextureInfo.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkLog.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/core/SkTraceEvent.h"
@@ -217,7 +218,7 @@ static VkStencilOp stencil_op_to_vk_stencil_op(StencilOp op) {
     static_assert(6 == (int)StencilOp::kIncClamp);
     static_assert(7 == (int)StencilOp::kDecClamp);
     SkASSERT(op < (StencilOp)kStencilOpCount);
-    return gTable[(int)op];
+    return SK_UNSAFE_TODO(gTable[(int)op]);
 }
 
 static VkCompareOp compare_op_to_vk_compare_op(CompareOp op) {
@@ -242,7 +243,7 @@ static VkCompareOp compare_op_to_vk_compare_op(CompareOp op) {
     static_assert(7 == (int)CompareOp::kNotEqual);
     SkASSERT(op < (CompareOp)kCompareOpCount);
 
-    return gTable[(int)op];
+    return SK_UNSAFE_TODO(gTable[(int)op]);
 }
 
 static void setup_stencil_op_state(VkStencilOpState* opState,
@@ -407,7 +408,7 @@ static VkBlendOp blend_equation_to_vk_blend_op(skgpu::BlendEquation equation) {
     static_assert(std::size(gTable) == skgpu::kBlendEquationCnt);
 
     SkASSERT((unsigned)equation < skgpu::kBlendEquationCnt);
-    return gTable[(int)equation];
+    return SK_UNSAFE_TODO(gTable[(int)equation]);
 }
 
 static void setup_color_blend_state(const VulkanCaps& caps,
@@ -821,7 +822,7 @@ static void setup_dynamic_state(const Caps& caps,
     // VK_DYNAMIC_STATE_DEPTH_CLAMP_ENABLE_EXT or VK_DYNAMIC_STATE_POLYGON_MODE_EXT could be used in
     // the future.
 
-    memset(dynamicInfo, 0, sizeof(VkPipelineDynamicStateCreateInfo));
+    SK_UNSAFE_TODO(memset(dynamicInfo, 0, sizeof(VkPipelineDynamicStateCreateInfo)));
     dynamicInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
     dynamicInfo->dynamicStateCount = count;
     dynamicInfo->pDynamicStates = dynamicStates->data();

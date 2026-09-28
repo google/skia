@@ -39,11 +39,3 @@ src:*src/gpu/graphite/mtl/MtlSampler.mm
 src:*src/gpu/graphite/render/MeshRenderStep.cpp
 src:*src/gpu/graphite/sparse_strips/*
 src:*src/gpu/graphite/text/TextAtlasManager.cpp
-src:*src/gpu/graphite/text/TextAtlasManager.h
-src:*src/gpu/graphite/vk/VulkanCaps.cpp
-src:*src/gpu/graphite/vk/VulkanCommandBuffer.cpp
-src:*src/gpu/graphite/vk/VulkanGraphicsPipeline.cpp
-src:*src/gpu/graphite/vk/VulkanSharedContext.cpp
-src:*src/gpu/graphite/vk/VulkanSpirvTransforms.cpp
-src:*src/gpu/graphite/vk/VulkanTexture.cpp
-src:*src/gpu/graphite/vk/VulkanTextureInfo.cpp

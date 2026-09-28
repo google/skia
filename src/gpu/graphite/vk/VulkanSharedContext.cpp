@@ -12,6 +12,7 @@
 #include "include/gpu/graphite/PersistentPipelineStorage.h"
 #include "include/gpu/vk/VulkanBackendContext.h"
 #include "include/gpu/vk/VulkanExtensions.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkLog.h"
 #include "include/private/SkMutex.h"
 #include "src/gpu/GpuTypesPriv.h"
@@ -149,7 +150,7 @@ VkPipelineCache VulkanSharedContext::createPipelineCache(
         static const int kV1HeaderSize = 4*sizeof(uint32_t) + VK_UUID_SIZE;
         if (cachedData && cachedData->size() >= kV1HeaderSize) {
             const uint32_t* cacheHeader = (const uint32_t*)cachedData->data();
-            if (cacheHeader[1] == VK_PIPELINE_CACHE_HEADER_VERSION_ONE) {
+            if (SK_UNSAFE_TODO(cacheHeader[1]) == VK_PIPELINE_CACHE_HEADER_VERSION_ONE) {
                 SkASSERT(cacheHeader[0] == kV1HeaderSize);
 
                 VkPhysicalDeviceProperties2 props;
@@ -161,12 +162,13 @@ VkPipelineCache VulkanSharedContext::createPipelineCache(
                 const VkPhysicalDeviceProperties& physDevProps = props.properties;
 
                 const uint8_t* supportedPipelineCacheUUID = physDevProps.pipelineCacheUUID;
-                if (cacheHeader[2] == physDevProps.vendorID &&
-                    cacheHeader[3] == physDevProps.deviceID &&
-                    memcmp(&cacheHeader[4], supportedPipelineCacheUUID, VK_UUID_SIZE) == 0) {
-                        createInfo.initialDataSize = cachedData->size();
-                        createInfo.pInitialData = cachedData->data();
-                        fLastKnownPersistentPipelineStorageSize = createInfo.initialDataSize;
+                if (SK_UNSAFE_TODO(cacheHeader[2]) == physDevProps.vendorID &&
+                    SK_UNSAFE_TODO(cacheHeader[3]) == physDevProps.deviceID &&
+                    SK_UNSAFE_TODO(memcmp(
+                            &cacheHeader[4], supportedPipelineCacheUUID, VK_UUID_SIZE)) == 0) {
+                    createInfo.initialDataSize = cachedData->size();
+                    createInfo.pInitialData = cachedData->data();
+                    fLastKnownPersistentPipelineStorageSize = createInfo.initialDataSize;
                 }
             }
         }

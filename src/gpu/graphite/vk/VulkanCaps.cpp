@@ -13,6 +13,7 @@
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "include/gpu/vk/VulkanTypes.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkMath.h"
 #include "src/gpu/SwizzlePriv.h"
 #include "src/gpu/graphite/ComputePipelineDesc.h"
@@ -173,7 +174,8 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
         requiredLazyFlags |= VK_MEMORY_PROPERTY_PROTECTED_BIT;
     }
     for (uint32_t i = 0; i < deviceMemoryProperties.memoryTypeCount; ++i) {
-        const uint32_t& supportedFlags = deviceMemoryProperties.memoryTypes[i].propertyFlags;
+        const uint32_t& supportedFlags =
+                SK_UNSAFE_TODO(deviceMemoryProperties.memoryTypes[i].propertyFlags);
         if ((supportedFlags & requiredLazyFlags) == requiredLazyFlags) {
             fSupportsMemorylessAttachments = true;
         }
@@ -533,10 +535,10 @@ void VulkanCaps::getProperties(const skgpu::VulkanInterface* vkInterface,
         // pCopyDstLayouts respectively.  The GENERAL layout is required to be found in both.  Skia
         // has two use cases for this function; initialization (UNDEFINED->GENERAL) and after
         // texture updates (GENERAL->SHADER_READ_ONLY, per Recorder::update*BackendTexture).
-        props->fHicHasShaderReadOnlyDstLayout =
-                std::find(props->fHic.pCopyDstLayouts,
-                          props->fHic.pCopyDstLayouts + props->fHic.copyDstLayoutCount,
-                          VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        props->fHicHasShaderReadOnlyDstLayout = std::find(
+                props->fHic.pCopyDstLayouts,
+                SK_UNSAFE_TODO(props->fHic.pCopyDstLayouts + props->fHic.copyDstLayoutCount),
+                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     }
 
     // If this field is not filled, driver bug workarounds won't work correctly. It should always
@@ -1190,18 +1192,19 @@ bool VulkanCaps::extractGraphicsDescs(const UniqueKey& key,
 
     const uint32_t* rawKeyData = key.data();
 
-    SkASSERT(RenderStep::IsValidRenderStepID(rawKeyData[kPipelineKeyRenderStepIDIndex]));
-    RenderStep::RenderStepID renderStepID =
-            static_cast<RenderStep::RenderStepID>(rawKeyData[kPipelineKeyRenderStepIDIndex]);
+    SkASSERT(RenderStep::IsValidRenderStepID(
+            SK_UNSAFE_TODO(rawKeyData[kPipelineKeyRenderStepIDIndex])));
+    RenderStep::RenderStepID renderStepID = static_cast<RenderStep::RenderStepID>(
+            SK_UNSAFE_TODO(rawKeyData[kPipelineKeyRenderStepIDIndex]));
 
-    *pipelineDesc =
-            GraphicsPipelineDesc(renderStepID,
-                                 UniquePaintParamsID(rawKeyData[kPipelineKeyPaintParamsIDIndex]));
+    *pipelineDesc = GraphicsPipelineDesc(
+            renderStepID,
+            UniquePaintParamsID(SK_UNSAFE_TODO(rawKeyData[kPipelineKeyPaintParamsIDIndex])));
 
-    const uint32_t rpDescBits = rawKeyData[kPipelineKeyRenderPassDescIndex];
+    const uint32_t rpDescBits = SK_UNSAFE_TODO(rawKeyData[kPipelineKeyRenderPassDescIndex]);
     VulkanRenderPass::ExtractRenderPassDesc(
             rpDescBits,
-            SwizzleCtorAccessor::Make(rawKeyData[kPipelineKeyWriteSwizzleIndex]),
+            SwizzleCtorAccessor::Make(SK_UNSAFE_TODO(rawKeyData[kPipelineKeyWriteSwizzleIndex])),
             this->getDstReadStrategy(),
             renderPassDesc);
 

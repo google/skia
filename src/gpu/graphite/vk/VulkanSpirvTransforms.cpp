@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/vk/VulkanSpirvTransforms.h"
 
 #include "include/private/SkAssert.h"
+#include "include/private/SkAttributes.h"
 #include "src/sksl/codegen/SkSLCodeGenTypes.h"
 #include "src/sksl/spirv.h"
 
@@ -82,7 +83,7 @@ uint32_t MakeInstructionOp(SpvOp opCode, uint32_t wordCount) {
     return opCode | wordCount << SpvWordCountShift;
 }
 void CopyInstruction(const uint32_t* instruction, size_t wordCount, SpirvBlob* spirvOut) {
-    spirvOut->insert(spirvOut->end(), instruction, instruction + wordCount);
+    spirvOut->insert(spirvOut->end(), instruction, SK_UNSAFE_TODO(instruction + wordCount));
 }
 
 enum class TransformationState {
@@ -142,7 +143,7 @@ TransformationState SpirvMultisampleTransformer::transformOpEntryPoint(const uin
     // The length of the instruction is increased by one
     spirvOut->push_back(MakeInstructionOp(SpvOpEntryPoint, originalWordCount + 1));
     // The rest of the instruction is copied verbatim
-    CopyInstruction(instruction + 1, originalWordCount - 1, spirvOut);
+    CopyInstruction(SK_UNSAFE_TODO(instruction + 1), originalWordCount - 1, spirvOut);
     // The last word is the new variable
     spirvOut->push_back(fSampleIdVarId);
 
@@ -181,7 +182,7 @@ TransformationState SpirvMultisampleTransformer::transformOpTypePointer(const ui
                                                                         SpirvBlob* spirvOut) {
     // When the int pointer type declaration is encountered, declare the SampleId variable right
     // away.
-    const SpvId resultId = instruction[1];
+    const SpvId resultId = SK_UNSAFE_TODO(instruction[1]);
     if (resultId != SkSL::spirv::kIdTypePointerInputInt) {
         return TransformationState::Unchanged;
     }
@@ -424,7 +425,7 @@ void SpirvTransformer::transformInstruction() {
 }
 
 TransformationState SpirvTransformer::transformOpCapability(const uint32_t* instruction) {
-    const SpvCapability capability = static_cast<SpvCapability>(instruction[1]);
+    const SpvCapability capability = static_cast<SpvCapability>(SK_UNSAFE_TODO(instruction[1]));
     if (fOptions.fMultisampleInputLoad) {
         fMultisampleTransformer.transformOpCapability(capability, fSpirvOut);
     }
@@ -460,8 +461,8 @@ TransformationState SpirvTransformer::transformOpTypePointer(const uint32_t* ins
 }
 
 TransformationState SpirvTransformer::transformOpTypeImage(const uint32_t* instruction) {
-    const SpvId resultId = instruction[1];
-    const SpvId sampledTypeId = instruction[2];
+    const SpvId resultId = SK_UNSAFE_TODO(instruction[1]);
+    const SpvId sampledTypeId = SK_UNSAFE_TODO(instruction[2]);
     if (fOptions.fMultisampleInputLoad) {
         if (fMultisampleTransformer.transformOpTypeImage(resultId, sampledTypeId, fSpirvOut) ==
             TransformationState::Transformed) {
@@ -472,9 +473,9 @@ TransformationState SpirvTransformer::transformOpTypeImage(const uint32_t* instr
 }
 
 TransformationState SpirvTransformer::transformOpLoad(const uint32_t* instruction) {
-    const SpvId resultTypeId = instruction[1];
-    const SpvId resultId = instruction[2];
-    const SpvId pointerId = instruction[3];
+    const SpvId resultTypeId = SK_UNSAFE_TODO(instruction[1]);
+    const SpvId resultId = SK_UNSAFE_TODO(instruction[2]);
+    const SpvId pointerId = SK_UNSAFE_TODO(instruction[3]);
     if (fOptions.fMultisampleInputLoad) {
         fMultisampleTransformer.transformOpLoad(resultTypeId, resultId, pointerId, fSpirvOut);
     }
@@ -482,10 +483,10 @@ TransformationState SpirvTransformer::transformOpLoad(const uint32_t* instructio
 }
 
 TransformationState SpirvTransformer::transformOpImageRead(const uint32_t* instruction) {
-    const SpvId resultTypeId = instruction[1];
-    const SpvId resultId = instruction[2];
-    const SpvId imageId = instruction[3];
-    const SpvId coordinateId = instruction[4];
+    const SpvId resultTypeId = SK_UNSAFE_TODO(instruction[1]);
+    const SpvId resultId = SK_UNSAFE_TODO(instruction[2]);
+    const SpvId imageId = SK_UNSAFE_TODO(instruction[3]);
+    const SpvId coordinateId = SK_UNSAFE_TODO(instruction[4]);
     if (fOptions.fMultisampleInputLoad) {
         if (fMultisampleTransformer.transformOpImageRead(
                     resultTypeId, resultId, imageId, coordinateId, fSpirvOut) ==
