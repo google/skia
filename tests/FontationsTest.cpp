@@ -7,6 +7,7 @@
 
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMetrics.h"
+#include "include/core/SkFontTypes.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/ports/SkTypeface_fontations.h"
@@ -331,4 +332,40 @@ DEF_TEST(Fontations_SyntheticXHeight, reporter) {
     // xHeight falls back to ascent as well.
     const SkScalar kExpected = 11.138672;
     REPORTER_ASSERT(reporter, metrics.fXHeight == kExpected, "Metrics mismatch: %f vs. %f", kExpected, metrics.fXHeight);
+}
+
+DEF_TEST(Fontations_CffLinearAdvanceWidth, reporter) {
+    for (const char* resource : {"fonts/7630.otf", "fonts/NotoSansCJK-VF-subset.otf.ttc"}) {
+        sk_sp<SkTypeface> typeface(
+                SkTypeface_Make_Fontations(GetResourceAsStream(resource), SkFontArguments()));
+        SkASSERT_RELEASE(typeface);
+
+        SkFont unhintedFont(typeface, 12.5f);
+        unhintedFont.setEdging(SkFont::Edging::kAntiAlias);
+        unhintedFont.setSubpixel(true);
+        unhintedFont.setHinting(SkFontHinting::kNone);
+
+        SkFont hintedFont(typeface, 12.5f);
+        hintedFont.setEdging(SkFont::Edging::kAntiAlias);
+        hintedFont.setSubpixel(true);
+        hintedFont.setHinting(SkFontHinting::kNormal);
+
+        const SkGlyphID glyphId = 1;
+        SkScalar unhintedAdvance = 0.0f;
+        SkScalar hintedAdvance = 0.0f;
+        unhintedFont.getWidths({&glyphId, 1}, {&unhintedAdvance, 1});
+        hintedFont.getWidths({&glyphId, 1}, {&hintedAdvance, 1});
+
+        REPORTER_ASSERT(reporter,
+                        SkScalarFraction(unhintedAdvance) != 0.0f,
+                        "Expected fractional advance for %s, got %f",
+                        resource,
+                        unhintedAdvance);
+        REPORTER_ASSERT(reporter,
+                        hintedAdvance == unhintedAdvance,
+                        "Expected CFF/CFF2 hinted advance to match linear advance for %s: %f vs %f",
+                        resource,
+                        hintedAdvance,
+                        unhintedAdvance);
+    }
 }

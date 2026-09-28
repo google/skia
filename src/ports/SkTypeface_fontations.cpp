@@ -381,6 +381,17 @@ public:
         AutoHinting autoHintingControl = forceAutoHinting ? AutoHinting::ForceForGlyfAndCff
                                                           : AutoHinting::Fallback;
 
+        if (!fDoLinearMetrics && !forceAutoHinting) {
+            // The CFF/CFF2 hinter only adjusts stems vertically and never hints in the horizontal
+            // direction, whereas skrifa's AdjustedMetrics::advance_width rounds the advance width
+            // to an integer whenever hinting is active. Preserve linear advance widths for CFF/CFF2
+            // outlines unless autohinting is forced.
+            const fontations_ffi::OutlineFormat outlineFormat =
+                    fontations_ffi::outline_format(fOutlines);
+            fDoLinearMetrics = outlineFormat == fontations_ffi::OutlineFormat::Cff ||
+                               outlineFormat == fontations_ffi::OutlineFormat::Cff2;
+        }
+
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
         // On Android, match the FreeType backend and disable autohinting completely
         // unless the force flag is set.
