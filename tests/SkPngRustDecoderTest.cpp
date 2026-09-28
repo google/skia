@@ -2150,9 +2150,9 @@ DEF_TEST(RustPngCodec_interlacedPreblendBufferBudget_subset, r) {
 }
 
 // Next tests verify that the single-row interlaced scratch buffers
-// (`fDecodedInterlacedFullWidthRow` and `fXformedInterlacedRow`) are charged against
-// `fMaxDecodeMemory` even when `fPreblendBuffer` is empty (full-image decode of a non-blended
-// interlaced PNG).
+// (`fDecodedInterlacedFullWidthRow`, `fXformedInterlacedRow`, and `SkPngCodecBase::fStorage`) are
+// charged against `fMaxDecodeMemory` even when `fPreblendBuffer` is empty (full-image decode of a
+// non-blended interlaced PNG).
 //
 // Note: `plane_interlaced.png` has no embedded ICC profile (`getEncodedInfo().profile() ==
 // nullptr`), so `makeColorSpace(nullptr)` is required for `canReadRow()` to match when
@@ -2183,11 +2183,9 @@ DEF_TEST(RustPngCodec_interlacedRowBufferBudget_readRow, r) {
 }
 
 DEF_TEST(RustPngCodec_interlacedRowBufferBudget_xform, r) {
-    // `kPremul_SkAlphaType` takes the `!canReadRow()` (`incrementalDecodeXForm`) path, which
-    // allocates both `fDecodedInterlacedFullWidthRow` (1000 bytes) and `fXformedInterlacedRow`
-    // (1000 bytes).
-    // Note: `SkPngCodecBase::allocateStorage` is not yet budgeted, so the budget charged here is
-    // 2 * 1000 = 2000 bytes.
+    // `kPremul_SkAlphaType` + `nullptr` colorSpace takes the `!canReadRow()`
+    // (`incrementalDecodeXForm`) path with `kSwizzleOnly_XformMode`, which allocates both
+    // `fDecodedInterlacedFullWidthRow` (1000 bytes) and `fXformedInterlacedRow` (1000 bytes).
     constexpr size_t kEncodedRowBytes = 250 * 4;
     constexpr size_t kDstRowBytes = 250 * 4;
 
@@ -2234,6 +2232,33 @@ DEF_TEST(RustPngCodec_interlacedXformZeroInitialized, r) {
     if (zeroInitBm && noZeroInitBm) {
         CompareBitmaps(r, *noZeroInitBm, *zeroInitBm);
     }
+}
+
+DEF_TEST(RustPngCodec_interlacedRowBufferBudget_colorXform, r) {
+    // Decoding into a non-sRGB color space (`SkColorSpace::MakeSRGBLinear()`) activates
+    // `SkPngCodecBase::allocateStorage` (`fStorage`, 1000 bytes) in addition to
+    // `fDecodedInterlacedFullWidthRow` (1000 bytes) and `fXformedInterlacedRow` (1000 bytes).
+    constexpr size_t kEncodedRowBytes = 250 * 4;
+    constexpr size_t kDstRowBytes = 250 * 4;
+    constexpr size_t kColorXformBytes = 250 * 4;
+
+    AssertDecodeBudget(r,
+                       "images/plane_interlaced.png",
+                       kEncodedRowBytes + kDstRowBytes + kColorXformBytes,
+                       [&](std::unique_ptr<SkCodec> codec,
+                           size_t maxDecodeMemory,
+                           SkCodec::Result expectedResult) {
+                           return DecodePixels(
+                                   r,
+                                   std::move(codec),
+                                   [](const SkImageInfo& info) {
+                                       return info.makeColorType(kRGBA_8888_SkColorType)
+                                               .makeAlphaType(kPremul_SkAlphaType)
+                                               .makeColorSpace(SkColorSpace::MakeSRGBLinear());
+                                   },
+                                   MakeBudgetOptions(maxDecodeMemory),
+                                   expectedResult);
+                       });
 }
 
 // Regression test helper for b/562804783: like `SkPngCodec`, `SkPngRustCodec` must report

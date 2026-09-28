@@ -20,7 +20,7 @@
 #include "include/private/SkDebug.h"
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/SkGainmapInfo.h"
-#include "include/private/SkTemplates.h"
+#include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkPngCompositeChunkReader.h"
 
 class SkColorPalette;
@@ -99,7 +99,7 @@ private:
     // SkCodec overrides:
     SkEncodedImageFormat onGetEncodedFormat() const final;
 
-    void allocateStorage(const SkImageInfo& dstInfo);
+    Result allocateStorage(const SkImageInfo& dstInfo);
     Result initializeSwizzler(const SkImageInfo& dstInfo,
                               const Options& options,
                               bool skipFormatConversion,
@@ -119,7 +119,7 @@ private:
     XformMode fXformMode;
 
     std::unique_ptr<SkSwizzler> fSwizzler;
-    skia_private::AutoTMalloc<uint8_t> fStorage;
+    SkCodecPriv::BudgetedBuffer fStorage;
     int fXformWidth = -1;
     sk_sp<SkColorPalette> fColorTable;
 

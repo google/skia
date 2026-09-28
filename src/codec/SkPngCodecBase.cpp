@@ -160,7 +160,9 @@ SkCodec::Result SkPngCodecBase::initializeXforms(const SkImageInfo& dstInfo,
         }
     }
 
-    this->allocateStorage(dstInfo);
+    if (Result result = this->allocateStorage(dstInfo); result != kSuccess) {
+        return result;
+    }
 
     // We can't call `initializeXformParams` here, because `swizzleWidth` may
     // change *after* `onStartIncrementalDecode`
@@ -192,7 +194,8 @@ void SkPngCodecBase::initializeXformParams() {
     }
 }
 
-void SkPngCodecBase::allocateStorage(const SkImageInfo& dstInfo) {
+SkCodec::Result SkPngCodecBase::allocateStorage(const SkImageInfo& dstInfo) {
+    fStorage.reset();
     switch (fXformMode) {
         case kSwizzleOnly_XformMode:
             break;
@@ -207,10 +210,10 @@ void SkPngCodecBase::allocateStorage(const SkImageInfo& dstInfo) {
             // extra precision.  Otherwise, we will swizzle to RGBA_8888 before transforming.
             const size_t bytesPerPixel = (bitsPerPixel > 32) ? bitsPerPixel / 8 : 4;
             const size_t colorXformBytes = dstInfo.width() * bytesPerPixel;
-            fStorage.reset(colorXformBytes);
-            break;
+            return fStorage.allocateFromBudget(this, colorXformBytes, /*zeroInit=*/false);
         }
     }
+    return kSuccess;
 }
 
 SkCodec::Result SkPngCodecBase::initializeSwizzler(const SkImageInfo& dstInfo,
@@ -305,8 +308,8 @@ void SkPngCodecBase::applyXformRow(void* dstRow, const uint8_t* srcRow) {
             break;
         case kSwizzleColor_XformMode:
             SkASSERT_RELEASE(fSwizzler->swizzleWidth() == fXformWidth);
-            fSwizzler->swizzle(fStorage.get(), srcRow);
-            this->applyColorXform(dstRow, fStorage.get(), fXformWidth);
+            fSwizzler->swizzle(fStorage.data(), srcRow);
+            this->applyColorXform(dstRow, fStorage.data(), fXformWidth);
             break;
     }
 }
