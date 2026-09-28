@@ -19,6 +19,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkEnumBitMask.h"
 #include "include/private/SkFloatingPoint.h"
@@ -425,13 +426,14 @@ bool ClipStack::TransformedShape::contains(const TransformedShape& o) const {
         fLocalToDevice.inverseMapPoints(deviceQuad, localQuad, 4);
         for (int i = 0; i < 4; ++i) {
             // TODO: Would be nice to make this consistent with how the GPU clips NDC w.
-            if (deviceQuad[i].w < SkPathPriv::kW0PlaneDistance ||
-                localQuad[i].w < SkPathPriv::kW0PlaneDistance) {
+            if (SK_UNSAFE_TODO(deviceQuad[i].w < SkPathPriv::kW0PlaneDistance) ||
+                SK_UNSAFE_TODO(localQuad[i].w < SkPathPriv::kW0PlaneDistance)) {
                 // Something in O actually projects behind the W = 0 plane and would be clipped
                 // to infinity, so it's extremely unlikely that this contains O.
                 return false;
             }
-            if (!fShape.conservativeContains(skvx::float2::Load(localQuad + i) / localQuad[i].w)) {
+            if (SK_UNSAFE_TODO(!fShape.conservativeContains(skvx::float2::Load(localQuad + i) /
+                                                            localQuad[i].w))) {
                 return false;
             }
         }

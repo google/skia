@@ -653,6 +653,14 @@ config("warnings") {
     if (_supports_unsafe_buffers_mappings) {
       cflags += [
         "-Wunsafe-buffer-usage",
+
+        # TODO(skbug.com/571083401): Remove this warning once Skia's string story is improved
+        # Temporarily don't flag calls to printf-like (SK_PRINTF_LIKE) functions such as
+        # SkDebugf, SkStringPrintf, SkLog, and SkSL::String::printf/appendf.
+        # The warning fires at every call site whose %s arguments aren't provably
+        # null-terminated, and it cannot be suppressed from within the function or a
+        # wrapping macro.
+        "-Wno-unsafe-buffer-usage-in-format-attr-call",
         "--warning-suppression-mappings=" + _unsafe_buffers_mappings,
       ]
     } else {

@@ -23,17 +23,7 @@ src:*src/gpu/graphite/*=emit
 # Temporary exclusions.
 # TODO(564587252): Convert files to SK_UNSAFE_TODO instead of
 # file-wide suppressions.
-src:*src/gpu/graphite/BufferManager.cpp
-src:*src/gpu/graphite/ClipAtlasManager.cpp
-src:*src/gpu/graphite/ClipStack.cpp
-src:*src/gpu/graphite/Context.cpp
-src:*src/gpu/graphite/Device.cpp
 src:*src/gpu/graphite/DrawAtlas.cpp
-src:*src/gpu/graphite/DrawAtlas.h
-src:*src/gpu/graphite/DrawContext.cpp
-src:*src/gpu/graphite/DrawListBase.h
-src:*src/gpu/graphite/DrawPass.cpp
-src:*src/gpu/graphite/GlobalCache.cpp
 src:*src/gpu/graphite/GraphicsPipeline.cpp
 src:*src/gpu/graphite/ImageFactories.cpp
 src:*src/gpu/graphite/Image_YUVA_Graphite.cpp
