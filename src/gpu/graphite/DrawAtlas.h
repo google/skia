@@ -13,6 +13,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/private/SkAssert.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkIPoint16.h"
@@ -155,8 +156,8 @@ public:
     };
 
     // DEPRECATED
-    class PlotLocator;
     class AtlasLocator;
+    class PlotLocator;
 
     /**
      * An interface for eviction callbacks. Whenever an atlas evicts a specific PlotLocator,
@@ -295,12 +296,12 @@ private:
     void updatePlot(Plot* plot, AtlasLocator*);
 
     void makeMRU(Plot* plot, int pageIdx) {
-        if (fPages[pageIdx].fPlotList.head() == plot) {
+        if (SK_UNSAFE_TODO(fPages[pageIdx].fPlotList.head()) == plot) {
             return;
         }
 
-        fPages[pageIdx].fPlotList.remove(plot);
-        fPages[pageIdx].fPlotList.addToHead(plot);
+        SK_UNSAFE_TODO(fPages[pageIdx].fPlotList.remove(plot));
+        SK_UNSAFE_TODO(fPages[pageIdx].fPlotList.addToHead(plot));
 
         // No MRU update for pages -- since we will always try to add from
         // the front and remove from the back there is no need for MRU.
@@ -319,7 +320,8 @@ private:
         int count = 0;
         PlotList::Iter plotIter;
         for (uint32_t pageIndex = 0; pageIndex < this->maxPages(); ++pageIndex) {
-            plotIter.init(fPages[pageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
+            plotIter.init(SK_UNSAFE_TODO(fPages[pageIndex].fPlotList),
+                          PlotList::Iter::kHead_IterStart);
             while (Plot* plot = plotIter.get()) {
                 if (func(plot)) {
                     count++;
@@ -488,9 +490,12 @@ private:
  */
 class DrawAtlas::BulkUsePlotUpdater {
 public:
-    BulkUsePlotUpdater() { memset(fPlotAlreadyUpdated, 0, sizeof(fPlotAlreadyUpdated)); }
+    BulkUsePlotUpdater() {
+        SK_UNSAFE_TODO(memset(fPlotAlreadyUpdated, 0, sizeof(fPlotAlreadyUpdated)));
+    }
     BulkUsePlotUpdater(const BulkUsePlotUpdater& that) : fPlotsToUpdate(that.fPlotsToUpdate) {
-        memcpy(fPlotAlreadyUpdated, that.fPlotAlreadyUpdated, sizeof(fPlotAlreadyUpdated));
+        SK_UNSAFE_TODO(
+                memcpy(fPlotAlreadyUpdated, that.fPlotAlreadyUpdated, sizeof(fPlotAlreadyUpdated)));
     }
 
     bool add(const AtlasLocator& atlasLocator) {
@@ -505,7 +510,7 @@ public:
 
     void reset() {
         fPlotsToUpdate.clear();
-        memset(fPlotAlreadyUpdated, 0, sizeof(fPlotAlreadyUpdated));
+        SK_UNSAFE_TODO(memset(fPlotAlreadyUpdated, 0, sizeof(fPlotAlreadyUpdated)));
     }
 
     struct PlotData {
@@ -521,12 +526,12 @@ public:
 private:
     bool find(int pageIdx, int index) const {
         SkASSERT(index < kMaxPlots);
-        return (fPlotAlreadyUpdated[pageIdx] >> index) & 1;
+        return (SK_UNSAFE_TODO(fPlotAlreadyUpdated[pageIdx]) >> index) & 1;
     }
 
     void set(int pageIdx, int index) {
         SkASSERT(!this->find(pageIdx, index));
-        fPlotAlreadyUpdated[pageIdx] |= (1 << index);
+        SK_UNSAFE_TODO(fPlotAlreadyUpdated[pageIdx] |= (1 << index));
         fPlotsToUpdate.push_back(PlotData(pageIdx, index));
     }
 
@@ -720,7 +725,7 @@ inline bool DrawAtlas::hasID(const PlotLocator& plotLocator) {
 
     uint32_t plot = plotLocator.plotIndex();
     uint32_t page = plotLocator.pageIndex();
-    uint64_t plotGeneration = fPages[page].fPlotArray[plot]->genID();
+    uint64_t plotGeneration = SK_UNSAFE_TODO(fPages[page].fPlotArray[plot]->genID());
     uint64_t locatorGeneration = plotLocator.genID();
     return plot < fNumPlots && page < fNumActivePages && plotGeneration == locatorGeneration;
 }
@@ -737,7 +742,7 @@ inline void DrawAtlas::setLastUseTokenBulk(const BulkUsePlotUpdater& updater, To
         // it's possible we've added a plot to the updater and subsequently the plot's page
         // was deleted -- so we check to prevent a crash
         if (pd.fPageIndex < fNumActivePages) {
-            Plot* plot = fPages[pd.fPageIndex].fPlotArray[pd.fPlotIndex].get();
+            Plot* plot = SK_UNSAFE_TODO(fPages[pd.fPageIndex].fPlotArray[pd.fPlotIndex].get());
             this->internalSetLastUseToken(plot, pd.fPageIndex, token);
         }
     }
@@ -747,7 +752,7 @@ inline DrawAtlas::Plot* DrawAtlas::findPlot(const AtlasLocator& atlasLocator) {
     SkASSERT(this->hasID(atlasLocator.plotLocator()));
     uint32_t pageIdx = atlasLocator.pageIndex();
     uint32_t plotIdx = atlasLocator.plotIndex();
-    return fPages[pageIdx].fPlotArray[plotIdx].get();
+    return SK_UNSAFE_TODO(fPages[pageIdx].fPlotArray[plotIdx].get());
 }
 
 inline void DrawAtlas::internalSetLastUseToken(Plot* plot, uint32_t pageIdx, Token token) {

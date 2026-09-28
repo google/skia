@@ -9,6 +9,7 @@
 
 #include "include/gpu/graphite/GraphiteTypes.h"
 
+#include "include/private/SkAttributes.h"
 #include "include/private/SkDebug.h"
 #include "include/private/SkEnumBitMask.h"
 #include "src/core/SkBlockAllocator.h"
@@ -31,11 +32,11 @@
 
 namespace skgpu::graphite {
 
-class DrawPass;
 class DrawContext;
+class DrawPass;
 class Geometry;
-class Renderer;
 class Recorder;
+class Renderer;
 
 struct Layer;
 
@@ -272,8 +273,8 @@ protected:
 
             for (int i = 0; i < binding.numTextures(); ++i) {
                 auto [t, s] = binding.texture(i);
-                textures[i] = t.get();
-                samplers[i] = s;
+                SK_UNSAFE_TODO(textures[i]) = t.get();
+                SK_UNSAFE_TODO(samplers[i]) = s;
             }
         }
 

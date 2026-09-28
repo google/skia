@@ -32,7 +32,7 @@ void SK_SPI SkLog(SkLogPriority priority, const char format[], ...) SK_PRINTF_LI
 #define SKIA_LOG(priority, fmt, ...)                                           \
     do {                                                                       \
         if constexpr (priority <= SKIA_LOWEST_ACTIVE_LOG_PRIORITY) {           \
-            SkLog(priority, "[skia] " fmt "\n", ##__VA_ARGS__);                \
+            SK_UNSAFE_TODO(SkLog)(priority, "[skia] " fmt "\n", ##__VA_ARGS__);  \
         }                                                                      \
     } while (0)
 
