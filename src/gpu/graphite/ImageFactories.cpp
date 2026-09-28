@@ -18,6 +18,7 @@
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
 #include "include/gpu/graphite/YUVABackendTextures.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkLog.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
@@ -359,18 +360,18 @@ sk_sp<SkImage> PromiseTextureFromYUVA(Recorder* recorder,
 
     TextureProxyView planes[SkYUVAInfo::kMaxPlanes];
     for (int i = 0; i < backendTextureInfo.numPlanes(); ++i) {
-        sk_sp<TextureProxy> lazyProxy = MakePromiseImageLazyProxy(
-                recorder->priv().caps(),
-                planeDimensions[i],
-                backendTextureInfo.planeTextureInfo(i),
-                isVolatile,
-                releaseHelper,
-                fulfillProc,
-                planeContexts[i],
-                textureReleaseProc,
-                labelStr);
+        sk_sp<TextureProxy> lazyProxy =
+                MakePromiseImageLazyProxy(recorder->priv().caps(),
+                                          SK_UNSAFE_TODO(planeDimensions[i]),
+                                          backendTextureInfo.planeTextureInfo(i),
+                                          isVolatile,
+                                          releaseHelper,
+                                          fulfillProc,
+                                          SK_UNSAFE_TODO(planeContexts[i]),
+                                          textureReleaseProc,
+                                          labelStr);
         // Promise YUVA images assume the default rgba swizzle.
-        planes[i] = TextureProxyView(std::move(lazyProxy));
+        SK_UNSAFE_TODO(planes[i]) = TextureProxyView(std::move(lazyProxy));
     }
     return Image_YUVA::Make(recorder->priv().caps(), backendTextureInfo.yuvaInfo(),
                             SkSpan(planes), std::move(imageColorSpace));
@@ -590,7 +591,7 @@ sk_sp<SkImage> TextureFromYUVAPixmaps(Recorder* recorder,
 
         auto view = MakeBitmapProxyView(recorder, bmp, /*mipmapsIn=*/nullptr, mipmapped,
                                         skgpu::Budgeted::kNo, labelStr);
-        planes[i] = std::move(view);
+        SK_UNSAFE_TODO(planes[i]) = std::move(view);
     }
     return Image_YUVA::Make(recorder->priv().caps(), finalInfo.yuvaInfo(),
                             SkSpan(planes), std::move(imageColorSpace));
@@ -623,7 +624,7 @@ sk_sp<SkImage> TextureFromYUVATextures(Recorder* recorder,
             return nullptr;
         }
         texture->setReleaseCallback(releaseHelper);
-        planes[i] = TextureProxyView(TextureProxy::Wrap(std::move(texture)));
+        SK_UNSAFE_TODO(planes[i]) = TextureProxyView(TextureProxy::Wrap(std::move(texture)));
     }
 
     return Image_YUVA::Make(recorder->priv().caps(), yuvaTextures.yuvaInfo(),

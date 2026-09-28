@@ -18,6 +18,7 @@
 #include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkLog.h"
 #include "src/core/SkYUVAInfoLocation.h"
 #include "src/gpu/graphite/Caps.h"
@@ -110,10 +111,11 @@ sk_sp<Image_YUVA> Image_YUVA::Make(const Caps* caps,
         if (!planes[i] || !caps->isTexturable(planes[i].proxy()->textureInfo())) {
             return nullptr;
         }
-        if (planes[i].dimensions() != planeDimensions[i]) {
+        if (planes[i].dimensions() != SK_UNSAFE_TODO(planeDimensions[i])) {
             return nullptr;
         }
-        pixmapChannelmasks[i] = TextureInfoPriv::ChannelMask(planes[i].proxy()->textureInfo());
+        SK_UNSAFE_TODO(pixmapChannelmasks[i]) =
+                TextureInfoPriv::ChannelMask(planes[i].proxy()->textureInfo());
     }
 
     // Re-arrange the proxies from planes to channels
@@ -193,8 +195,8 @@ sk_sp<Image_YUVA> Image_YUVA::WrapImages(const Caps* caps,
 
     TextureProxyView planes[SkYUVAInfo::kMaxPlanes];
     for (int i = 0; i < yuvaInfo.numPlanes(); ++i) {
-        planes[i] = AsView(images[i]);
-        if (!planes[i]) {
+        SK_UNSAFE_TODO(planes[i]) = AsView(images[i]);
+        if (SK_UNSAFE_TODO(!planes[i])) {
             // A null image, or not graphite-backed, or not backed by a single texture.
             return nullptr;
         }

@@ -24,17 +24,7 @@ src:*src/gpu/graphite/*=emit
 # TODO(564587252): Convert files to SK_UNSAFE_TODO instead of
 # file-wide suppressions.
 src:*src/gpu/graphite/DrawAtlas.cpp
-src:*src/gpu/graphite/GraphicsPipeline.cpp
-src:*src/gpu/graphite/ImageFactories.cpp
-src:*src/gpu/graphite/Image_YUVA_Graphite.cpp
-src:*src/gpu/graphite/KeyHelpers.cpp
 src:*src/gpu/graphite/KeyHelpers.h
-src:*src/gpu/graphite/PaintParamsKey.cpp
-src:*src/gpu/graphite/PaintParamsKey.h
-src:*src/gpu/graphite/PathAtlas.cpp
-src:*src/gpu/graphite/PipelineData.h
-src:*src/gpu/graphite/PublicPrecompile.cpp
-src:*src/gpu/graphite/RasterPathUtils.cpp
 src:*src/gpu/graphite/Recorder.cpp
 src:*src/gpu/graphite/RenderPassDesc.cpp
 src:*src/gpu/graphite/RendererProvider.cpp

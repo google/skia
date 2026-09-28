@@ -15,6 +15,7 @@
 #include "include/core/SkScalar.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/Surface.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkLog.h"
 #include "src/core/SkBlendModeBlender.h"
 #include "src/core/SkBlenderBase.h"
@@ -306,14 +307,14 @@ static int write_color_and_offset_bufdata(StorageContext* storageContext,
         // Data doesn't already exist so we need to write it. Writes all offset data, then color
         // data. This way when binary searching through the offsets, there is better cache locality.
         for (int i = 0, colorIdx = numStops; i < numStops; i++, colorIdx+=4) {
-            float offset = offsets ? offsets[i] : SkIntToFloat(i) / (numStops - 1);
+            float offset = offsets ? SK_UNSAFE_TODO(offsets[i]) : SkIntToFloat(i) / (numStops - 1);
             SkASSERT(offset >= 0.0f && offset <= 1.0f);
 
-            dstData[i] = offset;
-            dstData[colorIdx + 0] = colors[i].fR;
-            dstData[colorIdx + 1] = colors[i].fG;
-            dstData[colorIdx + 2] = colors[i].fB;
-            dstData[colorIdx + 3] = colors[i].fA;
+            SK_UNSAFE_TODO(dstData[i] = offset);
+            SK_UNSAFE_TODO(dstData[colorIdx + 0] = colors[i].fR);
+            SK_UNSAFE_TODO(dstData[colorIdx + 1] = colors[i].fG);
+            SK_UNSAFE_TODO(dstData[colorIdx + 2] = colors[i].fB);
+            SK_UNSAFE_TODO(dstData[colorIdx + 3] = colors[i].fA);
         }
     }
 
@@ -367,21 +368,21 @@ GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type
     fRadii[1] = radius1;
 
     if (fNumStops <= kNumInternalStorageStops) {
-        memcpy(fColors, colors, fNumStops * sizeof(SkColor4f));
+        SK_UNSAFE_TODO(memcpy(fColors, colors, fNumStops * sizeof(SkColor4f)));
         float* rawOffsets = fOffsets[0].ptr();
         if (offsets) {
-            memcpy(rawOffsets, offsets, fNumStops * sizeof(float));
+            SK_UNSAFE_TODO(memcpy(rawOffsets, offsets, fNumStops * sizeof(float)));
         } else {
             for (int i = 0; i < fNumStops; ++i) {
-                rawOffsets[i] = SkIntToFloat(i) / (fNumStops-1);
+                SK_UNSAFE_TODO(rawOffsets[i]) = SkIntToFloat(i) / (fNumStops - 1);
             }
         }
 
         // Extend the colors and offset, if necessary, to fill out the arrays.
         // The unrolled binary search implementation assumes excess stops match the last real value.
         for (int i = fNumStops; i < kNumInternalStorageStops; ++i) {
-            fColors[i] = fColors[fNumStops-1];
-            rawOffsets[i] = rawOffsets[fNumStops-1];
+            SK_UNSAFE_TODO(fColors[i] = fColors[fNumStops - 1]);
+            SK_UNSAFE_TODO(rawOffsets[i] = rawOffsets[fNumStops - 1]);
         }
     } else {
         if (!fUseStorageBuffer) {
@@ -655,7 +656,7 @@ void add_yuv_image_uniform_data(const KeyContext& keyContext,
     keyContext.pipelineDataGatherer()->write(SkTo<int>(imgData.fSamplingUV.filter));
 
     for (int i = 0; i < 4; ++i) {
-        keyContext.pipelineDataGatherer()->writeHalf(imgData.fChannelSelect[i]);
+        keyContext.pipelineDataGatherer()->writeHalf(SK_UNSAFE_TODO(imgData.fChannelSelect[i]));
     }
     keyContext.pipelineDataGatherer()->writeHalf(imgData.fYUVtoRGBMatrix);
     keyContext.pipelineDataGatherer()->writeHalf(imgData.fYUVtoRGBTranslate);
@@ -671,7 +672,7 @@ void add_packed_yuv_image_uniform_data(const KeyContext& keyContext,
     keyContext.pipelineDataGatherer()->write(SkTo<int>(imgData.fTileModes.first));
     keyContext.pipelineDataGatherer()->write(SkTo<int>(imgData.fTileModes.second));
     for (int i = 0; i < 3; ++i) {
-        keyContext.pipelineDataGatherer()->writeHalf(imgData.fChannelSelect[i]);
+        keyContext.pipelineDataGatherer()->writeHalf(SK_UNSAFE_TODO(imgData.fChannelSelect[i]));
     }
     keyContext.pipelineDataGatherer()->writeHalf(imgData.fYUVtoRGBMatrix);
     keyContext.pipelineDataGatherer()->writeHalf(imgData.fYUVtoRGBTranslate);
@@ -692,7 +693,7 @@ void add_cubic_yuv_image_uniform_data(const KeyContext& keyContext,
     keyContext.pipelineDataGatherer()->writeHalf(SkImageShader::CubicResamplerMatrix(cubic.B, cubic.C));
 
     for (int i = 0; i < 4; ++i) {
-        keyContext.pipelineDataGatherer()->writeHalf(imgData.fChannelSelect[i]);
+        keyContext.pipelineDataGatherer()->writeHalf(SK_UNSAFE_TODO(imgData.fChannelSelect[i]));
     }
     keyContext.pipelineDataGatherer()->writeHalf(imgData.fYUVtoRGBMatrix);
     keyContext.pipelineDataGatherer()->writeHalf(imgData.fYUVtoRGBTranslate);
@@ -725,7 +726,7 @@ void add_hw_yuv_image_uniform_data(const KeyContext& keyContext,
     keyContext.pipelineDataGatherer()->write(linearFilterUVInset);
 
     for (int i = 0; i < 4; ++i) {
-        keyContext.pipelineDataGatherer()->writeHalf(imgData.fChannelSelect[i]);
+        keyContext.pipelineDataGatherer()->writeHalf(SK_UNSAFE_TODO(imgData.fChannelSelect[i]));
     }
     keyContext.pipelineDataGatherer()->writeHalf(imgData.fYUVtoRGBMatrix);
     keyContext.pipelineDataGatherer()->writeHalf(imgData.fYUVtoRGBTranslate);
@@ -1070,12 +1071,16 @@ SkV4 swizzle_ootf(Swizzle ootfSwizzle, const float* ootf) {
     if (ootf) {
         // If the OOTF is applied before the gamut transform, the inverse of the read swizzle needs
         // to be included so the channels are scaled correctly.
-        encodedOOTF.w = ootf[3];
+        encodedOOTF.w = SK_UNSAFE_TODO(ootf[3]);
         for (int i = 0; i < 3; ++i) {
             switch (ootfSwizzle[i]) {
                 case 'r': encodedOOTF[i] += ootf[0]; break;
-                case 'g': encodedOOTF[i] += ootf[1]; break;
-                case 'b': encodedOOTF[i] += ootf[2]; break;
+                case 'g':
+                    encodedOOTF[i] += SK_UNSAFE_TODO(ootf[1]);
+                    break;
+                case 'b':
+                    encodedOOTF[i] += SK_UNSAFE_TODO(ootf[2]);
+                    break;
                 case '0': /* leave as 0 */ break;
 
                 // Unexpected swizzles for RGB channels as these are used for alpha handling
@@ -1102,7 +1107,7 @@ BuiltInCodeSnippetID add_xfer_fn(const KeyContext& keyContext,
             // sk_csxform_srgb skips all work when g == 0, so prefer that for an identity step
             // (vs. calling $apply_srgb_xfer_fn with values resulting in the identity).
             float g = xferFn.g;
-            if (memcmp(&xferFn, &kLinearTF, sizeof(skcms_TransferFunction)) == 0) {
+            if (SK_UNSAFE_TODO(memcmp(&xferFn, &kLinearTF, sizeof(skcms_TransferFunction)) == 0)) {
                 g = 0.f;
             }
             keyContext.pipelineDataGatherer()->write(SkV4{g, xferFn.a, xferFn.b, xferFn.c});
@@ -1155,20 +1160,23 @@ SkMatrix swizzle_gamut_transform(const float* gamut, Swizzle readSwizzle) {
         const int ci = 3 * i;
         switch(readSwizzle[i]) {
             // j = 0
-            case 'r': gamutTransform[0] += gamut[ci + 0];
-                      gamutTransform[1] += gamut[ci + 1];
-                      gamutTransform[2] += gamut[ci + 2];
-                      break;
+            case 'r':
+                gamutTransform[0] += SK_UNSAFE_TODO(gamut[ci + 0]);
+                gamutTransform[1] += SK_UNSAFE_TODO(gamut[ci + 1]);
+                gamutTransform[2] += SK_UNSAFE_TODO(gamut[ci + 2]);
+                break;
             // j = 1
-            case 'g': gamutTransform[3] += gamut[ci + 0];
-                      gamutTransform[4] += gamut[ci + 1];
-                      gamutTransform[5] += gamut[ci + 2];
-                      break;
+            case 'g':
+                gamutTransform[3] += SK_UNSAFE_TODO(gamut[ci + 0]);
+                gamutTransform[4] += SK_UNSAFE_TODO(gamut[ci + 1]);
+                gamutTransform[5] += SK_UNSAFE_TODO(gamut[ci + 2]);
+                break;
             // j = 2
-            case 'b': gamutTransform[6] += gamut[ci + 0];
-                      gamutTransform[7] += gamut[ci + 1];
-                      gamutTransform[8] += gamut[ci + 2];
-                      break;
+            case 'b':
+                gamutTransform[6] += SK_UNSAFE_TODO(gamut[ci + 0]);
+                gamutTransform[7] += SK_UNSAFE_TODO(gamut[ci + 1]);
+                gamutTransform[8] += SK_UNSAFE_TODO(gamut[ci + 2]);
+                break;
             case '0':
                 // No contribution to the final gamut matrix
                 break;
@@ -1545,7 +1553,7 @@ static void gather_runtime_effect_uniforms(const KeyContext& keyContext,
         for (size_t index = 0; index < rtsUniforms.size(); ++index) {
             const Uniform& uniform = graphiteUniforms[index];
             // Get a pointer to the offset in our data for this uniform.
-            const uint8_t* uniformPtr = uniformBase + rtsUniforms[index].offset;
+            const uint8_t* uniformPtr = SK_UNSAFE_TODO(uniformBase + rtsUniforms[index].offset);
             // Pass the uniform data to the gatherer.
             gatherer->write(uniform, uniformPtr);
         }
@@ -2011,26 +2019,36 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
     for (int locIndex = 0; locIndex < SkYUVAInfo::kYUVAChannelCount; ++locIndex) {
         const TextureProxyView& view = yuvaImage->proxyView(locIndex);
         if (view) {
-            imgData.fTextureProxies[locIndex] = view.refProxy();
+            SK_UNSAFE_TODO(imgData.fTextureProxies[locIndex]) = view.refProxy();
             // The view's swizzle has the data channel for the YUVA location in all slots, so read
             // the 0th slot to determine fChannelSelect
             switch(view.swizzle()[0]) {
-                case 'r': imgData.fChannelSelect[locIndex] = {1.f, 0.f, 0.f, 0.f}; break;
-                case 'g': imgData.fChannelSelect[locIndex] = {0.f, 1.f, 0.f, 0.f}; break;
-                case 'b': imgData.fChannelSelect[locIndex] = {0.f, 0.f, 1.f, 0.f}; break;
-                case 'a': imgData.fChannelSelect[locIndex] = {0.f, 0.f, 0.f, 1.f}; break;
+                case 'r':
+                    SK_UNSAFE_TODO(imgData.fChannelSelect[locIndex]) = {1.f, 0.f, 0.f, 0.f};
+                    break;
+                case 'g':
+                    SK_UNSAFE_TODO(imgData.fChannelSelect[locIndex]) = {0.f, 1.f, 0.f, 0.f};
+                    break;
+                case 'b':
+                    SK_UNSAFE_TODO(imgData.fChannelSelect[locIndex]) = {0.f, 0.f, 1.f, 0.f};
+                    break;
+                case 'a':
+                    SK_UNSAFE_TODO(imgData.fChannelSelect[locIndex]) = {0.f, 0.f, 0.f, 1.f};
+                    break;
                 default:
-                    imgData.fChannelSelect[locIndex] = {0.f, 0.f, 0.f, 0.f};
+                    SK_UNSAFE_TODO(imgData.fChannelSelect[locIndex]) = {0.f, 0.f, 0.f, 0.f};
                     SkDEBUGFAILF("Unexpected swizzle for YUVA data: %c in %s",
-                                 view.swizzle()[0], view.swizzle().asString().c_str());
+                                 view.swizzle()[0],
+                                 view.swizzle().asString().c_str());
                     break;
             }
         } else {
             // Only the A proxy view should be null, in which case we bind the Y proxy view to
             // pass validation and send all 1s for the channel selection to signal opaque alpha.
             SkASSERT(locIndex == 3);
-            imgData.fTextureProxies[locIndex] = yuvaImage->proxyView(SkYUVAInfo::kY).refProxy();
-            imgData.fChannelSelect[locIndex] = {1.f, 1.f, 1.f, 1.f};
+            SK_UNSAFE_TODO(imgData.fTextureProxies[locIndex]) =
+                    yuvaImage->proxyView(SkYUVAInfo::kY).refProxy();
+            SK_UNSAFE_TODO(imgData.fChannelSelect[locIndex]) = {1.f, 1.f, 1.f, 1.f};
             // For the hardcoded sampling no-swizzle case, we use this to set constant alpha
             imgData.fAlphaParam = 1;
         }

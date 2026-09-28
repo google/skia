@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/PathAtlas.h"
 
 #include "include/gpu/graphite/Recorder.h"
+#include "include/private/SkAttributes.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/RasterPathUtils.h"
 #include "src/gpu/graphite/RecorderPriv.h"
@@ -121,7 +122,7 @@ sk_sp<TextureProxy> PathAtlas::DrawAtlasMgr::findOrCreateEntry(Recorder* recorde
         *outPos = skvx::half2(topLeft.x() + kEntryPadding, topLeft.y() + kEntryPadding);
         fDrawAtlas->setLastUseToken(*cachedLocator,
                                     recorder->priv().tokenTracker()->nextFlushToken());
-        return fDrawAtlas->getProxies()[cachedLocator->pageIndex()];
+        return SK_UNSAFE_TODO(fDrawAtlas->getProxies()[cachedLocator->pageIndex()]);
     }
 
     DrawAtlas::AtlasLocator locator;
@@ -172,7 +173,7 @@ sk_sp<TextureProxy> PathAtlas::DrawAtlasMgr::addToAtlas(Recorder* recorder,
     if (!all(maskSize)) {
         fDrawAtlas->setLastUseToken(*locator,
                                     recorder->priv().tokenTracker()->nextFlushToken());
-        return fDrawAtlas->getProxies()[locator->pageIndex()];
+        return SK_UNSAFE_TODO(fDrawAtlas->getProxies()[locator->pageIndex()]);
     }
 
     if (!this->onAddToAtlas(shape, localToDevice, strokeRec, iShapeBounds, transformedMaskOffset,
@@ -183,7 +184,7 @@ sk_sp<TextureProxy> PathAtlas::DrawAtlasMgr::addToAtlas(Recorder* recorder,
     fDrawAtlas->setLastUseToken(*locator,
                                 recorder->priv().tokenTracker()->nextFlushToken());
 
-    return fDrawAtlas->getProxies()[locator->pageIndex()];
+    return SK_UNSAFE_TODO(fDrawAtlas->getProxies()[locator->pageIndex()]);
 }
 
 bool PathAtlas::DrawAtlasMgr::recordUploads(DrawContext* dc, Recorder* recorder) {

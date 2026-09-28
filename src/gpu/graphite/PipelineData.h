@@ -14,6 +14,7 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTileMode.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkTDArray.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorData.h"
@@ -68,8 +69,8 @@ public:
 
     bool operator==(UniformDataBlock that) const {
         return this->size() == that.size() &&
-               (this->data() == that.data() || // Shortcuts the memcmp if the spans are the same
-                memcmp(this->data(), that.data(), this->size()) == 0);
+               (this->data() == that.data() ||  // Shortcuts the memcmp if the spans are the same
+                SK_UNSAFE_TODO(memcmp(this->data(), that.data(), this->size()) == 0));
     }
     bool operator!=(UniformDataBlock that) const { return !(*this == that); }
 

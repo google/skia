@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/RasterPathUtils.h"
 
 #include "include/core/SkStrokeRec.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkFixed.h"
 #include "src/core/SkBlitter_A8.h"
 #include "src/core/SkFloatBits.h"
@@ -26,7 +27,7 @@ std::tuple<SkBitmap, RasterMaskHelper> RasterMaskHelper::Allocate(SkISize size,
     SkISize paddedSize{size.width() + 2 * padding, size.height() + 2 * padding};
     SkBitmap bitmap;
     bitmap.allocPixels(SkImageInfo::MakeA8(paddedSize));
-    memset(bitmap.getAddr(0, 0), initialAlpha, bitmap.computeByteSize());
+    SK_UNSAFE_TODO(memset(bitmap.getAddr(0, 0), initialAlpha, bitmap.computeByteSize()));
 
     const SkPixmap outerPM = bitmap.pixmap();
     SkPixmap innerPM;

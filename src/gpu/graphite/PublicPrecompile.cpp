@@ -10,6 +10,7 @@
 #include "include/gpu/graphite/PrecompileContext.h"
 #include "include/gpu/graphite/precompile/Precompile.h"
 #include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
+#include "include/private/SkAttributes.h"
 #include "include/private/SkLog.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
@@ -146,7 +147,7 @@ void Precompile(PrecompileContext* precompileContext,
             const RenderPassDesc renderPassDesc =
                     RenderPassDesc::Make(caps,
                                          info,
-                                         kLoadOps[loadOpIndex],
+                                         SK_UNSAFE_TODO(kLoadOps[loadOpIndex]),
                                          StoreOp::kStore,
                                          rpp.fDSFlags,
                                          /* clearColor= */ { .0f, .0f, .0f, .0f },

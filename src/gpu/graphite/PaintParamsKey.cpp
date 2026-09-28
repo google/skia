@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/PaintParamsKey.h"
 
+#include "include/private/SkAttributes.h"
 #include "include/private/SkLog.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkAutoMalloc.h"
@@ -113,7 +114,7 @@ void PaintParamsKeyBuilder::validateReplacement(int32_t oldCodeSnippetID,
 
 PaintParamsKey PaintParamsKey::clone(SkArenaAlloc* arena) const {
     int32_t* newData = arena->makeArrayDefault<int32_t>(fData.size());
-    memcpy(newData, fData.data(), fData.size_bytes());
+    SK_UNSAFE_TODO(memcpy(newData, fData.data(), fData.size_bytes()));
     return PaintParamsKey({newData, fData.size()});
 }
 
@@ -158,7 +159,7 @@ ShaderNode* PaintParamsKey::createNode(const ShaderCodeDictionary* dict,
         if (!child) {
             return nullptr;
         }
-        childArray[i] = child;
+        SK_UNSAFE_TODO(childArray[i]) = child;
     }
 
     return arena->make<ShaderNode>(entry,
@@ -316,7 +317,7 @@ RootNodesInfo PaintParamsKey::getRootNodes(const Caps* caps,
 
     // Copy the accumulated roots into a span stored in the arena
     const ShaderNode** rootSpan = arena->makeArray<const ShaderNode*>(roots.size());
-    memcpy(rootSpan, roots.data(), roots.size_bytes());
+    SK_UNSAFE_TODO(memcpy(rootSpan, roots.data(), roots.size_bytes()));
     rootsInfo.fRoots = SkSpan(rootSpan, roots.size());
     return rootsInfo;
 }
@@ -498,7 +499,7 @@ void PaintParamsKey::dump(const Caps* caps,
     SkDebugf("PaintParamsKey %u (keySize: %d): ", id.asUInt(), keySize);
     const int32_t* data = fData.data();
     for (int i = 0; i < keySize; ++i) {
-        SkDebugf("%x ", (uint32_t) data[i]);
+        SkDebugf("%x ", SK_UNSAFE_TODO((uint32_t)data[i]));
     }
     SkDebugf("\n");
 
